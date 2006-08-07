@@ -8463,6 +8463,66 @@ test window-2.2 {window subtype: invalid} -constraints tk -body {
 } -result {invalid value ".nonesuch", value is not a window}
 
 #-----------------------------------------------------------------------
+# option -type specifications
+
+test optiontype-1.1 {-type is type object name} -body {
+    type dog {
+        option -akcflag -default no -type snit::boolean
+    }
+
+    dog create spot
+
+    # Set -akcflag to a boolean value
+    spot configure -akcflag yes
+    spot configure -akcflag 1
+    spot configure -akcflag on
+    spot configure -akcflag off
+    
+    # Set -akcflag to an invalid value
+    spot configure -akcflag offf
+} -returnCodes {
+    error
+} -cleanup {
+    dog destroy
+} -result {invalid -akcflag value: invalid boolean "offf", should be one of: 1, 0, true, false, yes, no, on, off}
+
+test optiontype-1.2 {-type is type specification} -body {
+    type dog {
+        option -color -default brown \
+            -type {snit::enum -values {brown black white golden}}
+    }
+
+    dog create spot
+
+    # Set -color to a valid value
+    spot configure -color brown
+    spot configure -color black
+    spot configure -color white
+    spot configure -color golden
+    
+    # Set -color to an invalid value
+    spot configure -color green
+} -returnCodes {
+    error
+} -cleanup {
+    dog destroy
+} -result {invalid -color value: invalid value "green", should be one of: brown, black, white, golden}
+
+test optiontype-1.3 {-type catches invalid defaults} -body {
+    type dog {
+        option -color -default green \
+            -type {snit::enum -values {brown black white golden}}
+    }
+    
+    dog spot
+} -returnCodes {
+    error
+} -cleanup {
+    dog destroy
+} -result {Error in constructor: invalid -color default: invalid value "green", should be one of: brown, black, white, golden}
+
+
+#-----------------------------------------------------------------------
 # Bug Fixes
 
 test bug-1.1 {Bug 1161779: destructor can't precede constructor} -body {

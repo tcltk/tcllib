@@ -23,10 +23,12 @@
 
 	* README.txt: Updated
 
+	* main1.tcl, snit.test: Implemented the "-type" option-definition
+	option for Snit 1.2 and Tcl 8.4, and added related tests.
+
 	* Still to do: 
 	   1. Implement the "-type" option-definition option in
-	      main1.tcl, main1_83.tcl, and main2.tcl, and add tests 
-	      to snit.test.
+	      main1_83.tcl and main2.tcl.
 	   2. Write documentation for "-type" and for the Snit 
 	      validation types.
 	   3. Consider refactoring main1.tcl, main1_83.tcl for
