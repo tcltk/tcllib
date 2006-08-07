@@ -81,6 +81,11 @@ Snit_optionInfo         An array of option data.  The keys are as follows:
 
     readonly-$localOpt   true or false.  (false is the default).
 
+    typespec-$localOpt   Validation type specification (object name or
+                         construction list)
+
+    typeobj-$localOpt    Validation type object
+
   Fields defined only for delegated options
 
     delegated-$comp      List of option names delegated to this component.
