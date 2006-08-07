@@ -810,14 +810,16 @@ proc ::snit::Comp.SaveOptionInfo {} {
             set %TYPE%::Snit_optionInfo(configure-%OPTION%) %CONFIGURE%
             set %TYPE%::Snit_optionInfo(cget-%OPTION%)      %CGET%
             set %TYPE%::Snit_optionInfo(readonly-%OPTION%)  %READONLY%
-        }   %OPTION%    $option \
-            %RESOURCE%  $compile(resource-$option) \
-            %CLASS%     $compile(class-$option) \
-            %DEFAULT%   [list $compile(-default-$option)] \
-            %VALIDATE%  [list $compile(-validatemethod-$option)] \
+            set %TYPE%::Snit_optionInfo(typespec-%OPTION%)  %TYPESPEC%
+        }   %OPTION%    $option                                   \
+            %RESOURCE%  $compile(resource-$option)                \
+            %CLASS%     $compile(class-$option)                   \
+            %DEFAULT%   [list $compile(-default-$option)]         \
+            %VALIDATE%  [list $compile(-validatemethod-$option)]  \
             %CONFIGURE% [list $compile(-configuremethod-$option)] \
-            %CGET%      [list $compile(-cgetmethod-$option)] \
-            %READONLY%  $compile(-readonly-$option)
+            %CGET%      [list $compile(-cgetmethod-$option)]      \
+            %READONLY%  $compile(-readonly-$option)               \
+            %TYPESPEC%  [list $compile(-type-$option)]
     }
 }
 
@@ -987,6 +989,7 @@ proc ::snit::Comp.statement.option {optionDef args} {
         set compile(-configuremethod-$option) ""
         set compile(-cgetmethod-$option)      ""
         set compile(-readonly-$option)        0
+        set compile(-type-$option)            ""
     }
 
     # NEXT, see if we have a resource name.  If so, make sure it
@@ -1024,6 +1027,20 @@ proc ::snit::Comp.statement.option {optionDef args} {
                 -configuremethod -
                 -cgetmethod      {
                     set compile($optopt-$option) $val
+                }
+                -type {
+                    set compile($optopt-$option) $val
+                    
+                    if {[llength $val] == 1} {
+                        # The type spec *is* the validation object
+                        append compile(defs) \
+                            "\nset %TYPE%::Snit_optionInfo(typeobj-$option) [list $val]\n"
+                    } else {
+                        # Compilation the creation of the validation object
+                        set cmd [linsert $val 1 %TYPE%::Snit_TypeObj_%AUTO%]
+                        append compile(defs) \
+                            "\nset %TYPE%::Snit_optionInfo(typeobj-$option) \[$cmd\]\n"
+                    }
                 }
                 -readonly        {
                     if {![string is boolean -strict $val]} {
@@ -2287,6 +2304,19 @@ proc ::snit::RT.ConstructInstance {type selfns instance arglist} {
 
     set Snit_iinfo(constructed) 1
 
+    # Validate the initial set of options (including defaults)
+    foreach option $Snit_optionInfo(local) {
+        set value [set ${selfns}::options($option)]
+
+        if {$Snit_optionInfo(typespec-$option) ne ""} {
+            if {[catch {
+                $Snit_optionInfo(typeobj-$option) validate $value
+            } result]} {
+                return -code error "invalid $option default: $result"
+            }
+        }
+    }
+
     # Unset the configure cache for all -readonly options.
     # This ensures that the next time anyone tries to
     # configure it, an error is thrown.
@@ -3219,6 +3249,18 @@ proc ::snit::RT.method.configurelist {type selfns win self optionlist} {
 
             if {[llength $command] == 0} {
                 return -code error "unknown option \"$option\""
+            }
+        }
+
+        # NEXT, if we have a type-validation object, use it.
+        # TBD: Should test (islocal-$option) here, but islocal
+        # isn't defined for implicitly delegated options.
+        if {[info exists Snit_optionInfo(typeobj-$option)]
+            && $Snit_optionInfo(typeobj-$option) ne ""} {
+            if {[catch {
+                $Snit_optionInfo(typeobj-$option) validate $value
+            } result]} {
+                return -code error "invalid $option value: $result"
             }
         }
 
