@@ -63,7 +63,8 @@ Snit_optionInfo         An array of option data.  The keys are as follows:
 
   Fields defined for all locally defined and explicitly delegated options:
 
-    islocal-$opt         1 if local, 0 otherwise.
+    islocal-$opt         1 if local, 0 otherwise.  Currently undefined
+                         for "delegate option *" options.
 
     resource-$opt        The option's resource name.
                 
