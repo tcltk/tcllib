@@ -1,3 +1,7 @@
+2006-08-07  Will Duquette <will@wjduquette.com>
+	* Implemented "-type" option-definition option in main2.tcl,
+	for Snit 2.x, and main1_83.tcl for Snit 1.2 on Tcl 8.3.
+
 2006-08-06  Will Duquette <will@wjduquette.com>
 	* Major reorganization of the code modules.  snit.tcl and
 	snit2.tcl are now just short loader scripts.  The Snit 1.x
