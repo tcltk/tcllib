@@ -1003,6 +1003,7 @@ proc ::snit::Comp.statement.option {optionDef args} {
         set compile(-configuremethod-$option) ""
         set compile(-cgetmethod-$option)      ""
         set compile(-readonly-$option)        0
+        set compile(-type-$option)            ""
     }
 
     # NEXT, see if we have a resource name.  If so, make sure it
