@@ -16,25 +16,29 @@ set menu {Hello World {How  } {Are  } {You  }}
 set max  [llength $menu]
 set at   0
 
-proc Up {} {
+proc Up {args} {
     global at
     if {$at == 0} return
     incr at -1
     Show
     return
 }
-proc Down {} {
+proc Down {args} {
     global at max
     if {$at >= ($max - 1)} return
     incr at
     Show
     return
 }
-proc Do {} {
+proc Do {args} {
     term::ansi::ctrl::unix::cooked
     vt::clear
     exit
 }
+proc Default {string} {
+    return
+}
+
 proc Show {} {
     global at menu
     set i 0
@@ -59,6 +63,7 @@ B map [ctrl::cu] Up
 B map [ctrl::cd] Down
 B map \r Do
 B map \n Do
+B default Default
 
 term::ansi::ctrl::unix::raw
 vt::init
