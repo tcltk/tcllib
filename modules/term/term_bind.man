@@ -43,11 +43,11 @@ below:
 [call [arg object] [method map] [arg str] [arg cmd]]
 
 This method adds an additional mapping from the string [arg str] to
-the action [arg cmd] to the dispatcher. The mapping will take effect
-immediately should the processor be in a prefix of [arg str], or at
-the next reset operation. The action is a command prefix and will be
-invoked with one argument appended to it, the character sequence
-causing the invokation. It is executed in the global namespace.
+the action [arg cmd]. The mapping will take effect immediately
+should the processor be in a prefix of [arg str], or at the next
+reset operation. The action is a command prefix and will be invoked
+with one argument appended to it, the character sequence causing
+the invokation. It is executed in the global namespace.
 
 
 [call [arg object] [method default] [arg cmd]]
