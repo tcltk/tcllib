@@ -1,14 +1,18 @@
+2006-08-08  Will Duquette <will@wjduquette.com>
+	* main1.tcl: Removed all "eq" and "ne" expressions, to reduce
+	the differences between main1.tcl and main1_83.tcl.  Unlike
+	main1_83.tcl, though, I used the forms {"" == $a} and 
+	{"" != $a} in preferences to [string equal], as they are
+	both shorter and more efficient.  I used [string equal]
+	only when comparing two variables.  The next step is
+	to update main1_83.tcl to use the {"" ==/!= $a} form 
+	where possible, in preference to [string equal]; then,
+	most of the code can be shared between the two modules,
+	which will simplify maintenance.
+
 2006-08-07  Will Duquette <will@wjduquette.com>
 	* Implemented "-type" option-definition option in main2.tcl,
 	for Snit 2.x, and main1_83.tcl for Snit 1.2 on Tcl 8.3.
-
-	* main1.tcl: Did a side-by-side compare of main1.tcl and
-	main1_83.tcl, and brought as many of the main1_83.tcl changes into
-	main1.tcl as possible, in preparation for factoring out common
-	routines.  There are now only a handful of differences between the
-	two.  The next step is to do the same between main1.tcl and
-	main2.tcl, to remove gratuitous differences between those two
-	files.
 
 2006-08-06  Will Duquette <will@wjduquette.com>
 	* Major reorganization of the code modules.  snit.tcl and
