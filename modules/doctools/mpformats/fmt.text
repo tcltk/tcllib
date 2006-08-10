@@ -67,7 +67,7 @@ proc NewUnorderedList {} {
 	set bullet [Bullet currentEnv(bulleting)]
     }] ; # {}
     set first [NewEnv First {
-	set currentEnv(wspfx) [::textutil::blank $lmarginIncrement]
+	set currentEnv(wspfx) [::textutil::repeat::blank $lmarginIncrement]
 	set currentEnv(listtype)  bullet
 	set currentEnv(bullet) $bullet
     }] ; SetContext $base ; # {}
@@ -97,7 +97,7 @@ proc NewOrderedList {} {
 	set bullet [EnumBullet currentEnv(enumeration)]
     }] ; # {}
     set first [NewEnv First {
-	set currentEnv(wspfx)  [::textutil::blank $lmarginIncrement]
+	set currentEnv(wspfx)  [::textutil::repeat::blank $lmarginIncrement]
 	set currentEnv(listtype)  enum
 	set currentEnv(bullet) $bullet
     }] ; SetContext $base ; # {}
