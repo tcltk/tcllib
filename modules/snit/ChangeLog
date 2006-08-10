@@ -1,3 +1,9 @@
+2006-08-09  Will Duquette <will@wjduquette.com>
+	* snit.man: Added documentation for the "-type" option-definition
+	option, and for the validation types.  I still need to fill in a
+	section on defining new validation types.
+	* validate.tcl: Cleaned up the header comment.
+
 2006-08-08  Will Duquette <will@wjduquette.com>
 	* main1.tcl: Removed all "eq" and "ne" expressions, to reduce
 	the differences between main1.tcl and main1_83.tcl.  Unlike
