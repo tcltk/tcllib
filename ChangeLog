@@ -1,3 +1,9 @@
+2006-08-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* support/devel/all.tcl: Fixed the loading of Tk into the slave
+	  interp, before Tk 8.4 we are not a real package. Using an
+	  explicit load for a Tk statically bound into the executable.
+
 2006-07-27  Andreas Kupries  <andreask@activestate.com>
 
 	* sak.tcl: Removed __test. Replaced with a single command
