@@ -28,9 +28,9 @@ concepts.
 
 [section {SNIT VERSIONS}]
 
-This man page covers both Snit 2.0 and Snit 1.1.  The primary
+This man page covers both Snit 2.0 and Snit 1.2.  The primary
 difference between the two versions is simply that Snit 2.0 contains
-speed optimizations based on new features of Tcl 8.5; Snit 1.1
+speed optimizations based on new features of Tcl 8.5; Snit 1.2
 supports all of Tcl 8.3, 8.4 and Tcl 8.5.  There are a few minor
 inconsistencies; they are flagged in the body of the man page with the
 label "Snit 1.x Incompatibility"; they are also discussed in the [cmd snitfaq].
@@ -278,6 +278,41 @@ The [arg flag] can be any Boolean value recognized by Tcl.
 If [arg flag] is true, then the option is read-only--it can only
 be set using [method configure] or [method configurelist] 
 at creation time, i.e., in the type's constructor.
+
+[lst_item "[const -type] [arg type]"]
+
+Every locally-defined option may define its validation type, which may
+be either the name of a validation type or a specification for a
+validation subtype
+
+[nl]
+
+For example, an option may declare that its value must be an integer
+by specifying [cmd snit::integer] as its validation type:
+
+[example {    option -number -type snit::integer
+}]
+
+It may also declare that its value is an integer between 1 and 10
+by specifying a validation subtype:
+
+[example {    option -number -type {snit::integer -min 1 -max 10}
+}]
+
+If a validation type or subtype is defined for an option, then
+it will be used to validate the option's value whenever it is
+changed by the object's [method configure] or 
+[method configurelist] methods.  In addition, all such options
+will have their values validated automatically immediately
+after the constructor executes.
+
+[nl]
+
+Snit defines a family of validation types and subtypes, and it's
+quite simple to define new ones.  See
+[sectref "Validation Types"] for the complete list, and
+[sectref "Defining Validation Types"] for an explanation of how
+to define your own.
 
 [lst_item "[const -cgetmethod] [arg methodName]"]
 
@@ -2228,6 +2263,290 @@ namespace:
 }]
 
 This leaves the global namespace open for application authors.
+
+[para]
+
+[subsection "Validation Types"]
+
+A validation type is an object that can be used to validate
+Tcl values of a particular kind.  For example, 
+[cmd snit::integer] is used to validate that a Tcl value is
+an integer.
+
+[para]
+
+Every validation type has a [method validate] method which is used to
+do the validation. This method must take a single argument, the value
+to be validated; further, it must do nothing if the value is valid,
+but throw an error if the value is invalid:
+
+[example {    snit::integer validate 5     ;# Does nothing
+    snit::integer validate 5.0   ;# Throws an error (not an integer!)
+}]
+
+[para]
+
+Snit defines a family of validation types, all of which are
+implemented as [cmd snit::type]'s.  They can be used as is;
+in addition, their instances serve as parameterized
+subtypes.  For example, a probability is a number between 0.0 and 1.0
+inclusive:
+
+[example {    snit::double probability -min 0.0 -max 1.0
+}]
+
+The example above creates an instance of [cmd snit::double]--a
+validation subtype--called
+[cmd probability], which can be used to validate probability values:
+
+[example {    probability validate 0.5   ;# Does nothing
+    probability validate 7.9   ;# Throws an error
+}]
+
+Validation subtypes can be defined explicitly, as in the above
+example; when a locally-defined option's [const -type] is specified,
+they may also be created on the fly:
+
+[example {    snit::enum ::dog::breed -values {mutt retriever sheepdog}
+
+    snit::type dog {
+        # Define subtypes on the fly...
+        option -breed -type {
+            snit::enum -values {mutt retriever sheepdog}
+        }
+
+        # Or use predefined subtypes...
+        option -breed -type ::dog::breed 
+    }
+}]
+
+[para]
+
+Any object that has a [method validate] method with the semantics
+described above can be used as a validation type; see 
+[sectref "Defining Validation Types"] for information on how to define
+new ones.
+
+[para]
+
+Snit defines the following validation types:
+
+[list_begin definitions]
+
+[call [cmd snit::boolean] [const validate] [opt [arg value]]]
+[call [cmd snit::boolean] [arg name]]
+
+Validates Tcl boolean values: 1, 0, [const on], [const off],
+[const yes], [const no], [const true], [const false].
+It's possible to define subtypes--that is, instances--of
+[cmd snit::boolean], but as it has no options there's no reason to do
+so.
+
+[call [cmd snit::double] [const validate] [opt [arg value]]]
+[call [cmd snit::double] [arg name] [opt "[arg option] [arg value]..."]]
+
+Validates floating-point values.  Subtypes may be created with the
+following options:
+
+[list_begin definitions]
+
+[lst_item "[const -min] [arg min]"]
+
+Specifies a floating-point minimum bound; a value is invalid if it is strictly
+less than [arg min].
+
+[lst_item "[const -max] [arg max]"]
+
+Specifies a floating-point maximum bound; a value is invalid if it is strictly
+greater than [arg max].
+
+[list_end]
+
+[call [cmd snit::enum] [const validate] [opt [arg value]]]
+[call [cmd snit::enum] [arg name] [opt "[arg option] [arg value]..."]]
+
+Validates that a value comes from an enumerated list.  The base
+type is of little use by itself, as only subtypes actually have
+an enumerated list to validate against.  Subtypes may be created
+with the following options:
+
+[list_begin definitions]
+
+[lst_item "[const -values] [arg list]"]
+
+Specifies a list of valid values.  A value is valid if and only if
+it's included in the list.
+
+[list_end]
+
+[call [cmd snit::fpixels] [const validate] [opt [arg value]]]
+[call [cmd snit::fpixels] [arg name] [opt "[arg option] [arg value]..."]]
+
+[emph "Tk programs only."] Validates screen distances, in any of the
+forms accepted by [cmd "winfo fpixels"]. Subtypes may be created with the
+following options:
+
+[list_begin definitions]
+
+[lst_item "[const -min] [arg min]"]
+
+Specifies a minimum bound; a value is invalid if it is strictly
+less than [arg min].  The bound may be expressed in any of the 
+forms accepted by [cmd "winfo fpixels"].
+
+[lst_item "[const -max] [arg max]"]
+
+Specifies a maximum bound; a value is invalid if it is strictly
+greater than [arg max].  The bound may be expressed in any of the 
+forms accepted by [cmd "winfo fpixels"].
+
+[list_end]
+
+[call [cmd snit::integer] [const validate] [opt [arg value]]]
+[call [cmd snit::integer] [arg name] [opt "[arg option] [arg value]..."]]
+
+Validates integer values.  Subtypes may be created with the
+following options:
+
+[list_begin definitions]
+
+[lst_item "[const -min] [arg min]"]
+
+Specifies an integer minimum bound; a value is invalid if it is strictly
+less than [arg min].
+
+[lst_item "[const -max] [arg max]"]
+
+Specifies an integer maximum bound; a value is invalid if it is strictly
+greater than [arg max].
+
+[list_end]
+
+[call [cmd snit::listtype] [const validate] [opt [arg value]]]
+[call [cmd snit::listtype] [arg name] [opt "[arg option] [arg value]..."]]
+
+Validates Tcl lists. Subtypes may be created with the
+following options:
+
+[list_begin definitions]
+
+[lst_item "[const -minlen] [arg min]"]
+
+Specifies a minimum list length; the value is invalid if it has
+fewer than [arg min] elements.  Defaults to 0.
+
+[lst_item "[const -maxlen] [arg max]"]
+
+Specifies a maximum list length; the value is invalid if it 
+more than [arg max] elements.
+
+[lst_item "[const -type] [arg type]"]
+
+Specifies the type of the list elements; [arg type] must be
+the name of a validation type or subtype.  In the
+following example, the value of [const -numbers] must be a list
+of integers.
+
+[example {    option -numbers -type {snit::listtype -type snit::integer}
+}]
+
+Note that this option doesn't support defining new validation subtypes
+on the fly; that is, the following code will not work (yet, anyway):
+
+[example {    option -numbers -type {
+        snit::listtype -type {snit::integer -min 5}
+    }
+}]
+
+Instead, define the subtype explicitly:
+
+[example {    snit::integer gt4 -min 5
+
+    snit::type mytype {
+        option -numbers -type {snit::listtype -type gt4}
+    }
+}]
+
+
+[list_end]
+
+[call [cmd snit::pixels] [const validate] [opt [arg value]]]
+[call [cmd snit::pixels] [arg name] [opt "[arg option] [arg value]..."]]
+
+[emph "Tk programs only."] Validates screen distances, in any of the
+forms accepted by [cmd "winfo pixels"]. Subtypes may be created with the
+following options:
+
+[list_begin definitions]
+
+[lst_item "[const -min] [arg min]"]
+
+Specifies a minimum bound; a value is invalid if it is strictly
+less than [arg min].  The bound may be expressed in any of the 
+forms accepted by [cmd "winfo pixels"].
+
+[lst_item "[const -max] [arg max]"]
+
+Specifies a maximum bound; a value is invalid if it is strictly
+greater than [arg max].  The bound may be expressed in any of the 
+forms accepted by [cmd "winfo pixels"].
+
+[list_end]
+
+
+[call [cmd snit::stringtype] [const validate] [opt [arg value]]]
+[call [cmd snit::stringtype] [arg name] [opt "[arg option] [arg value]..."]]
+
+Validates Tcl strings. The base type is of little use by itself,
+since very Tcl value is also a valid string.  Subtypes may be created with the
+following options:
+
+[list_begin definitions]
+
+[lst_item "[const -minlen] [arg min]"]
+
+Specifies a minimum string length; the value is invalid if it has
+fewer than [arg min] characters.  Defaults to 0.
+
+[lst_item "[const -maxlen] [arg max]"]
+
+Specifies a maximum string length; the value is invalid if it has
+more than [arg max] characters.
+
+[lst_item "[const -glob] [arg pattern]"]
+
+Specifies a [cmd "string match"] pattern; the value is invalid
+if it doesn't match the pattern.
+
+[lst_item "[const -regexp] [arg regexp]"]
+
+Specifies a regular expression; the value is invalid if it doesn't
+match the regular expression.
+
+[lst_item "[const -nocase] [arg flag]"]
+
+By default, both [const -glob] and [const -regexp] matches are
+case-sensitive.  If [const -nocase] is set to true, then both
+[const -glob] and [const -regexp] matches are case-insensitive.
+
+[list_end]
+
+[call [cmd snit::window] [const validate] [opt [arg value]]]
+[call [cmd snit::window] [arg name]]
+
+[emph "Tk programs only."]  Validates Tk window names.  The value must
+cause [cmd "winfo exists"] to return true; otherwise, the value is
+invalid.  It's possible to define subtypes--that is, instances--of
+[cmd snit::window], but as it has no options at present there's no 
+reason to do so.
+
+[list_end]
+
+[para]
+
+[subsection "Defining Validation Types"]
+
+TBD.
 
 [para]
 

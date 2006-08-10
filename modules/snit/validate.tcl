@@ -6,41 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Temporary file; validation function for future option
-#    validation.
-#
-# TYPE SPECIFICATIONS
-#
-#    fpixels ?-list...? ?-range {<min> ?<max>?}
-#        The value must be a Tk pixel value with an optional unit suffix.
-#        Optionally it must be greater than or equal to min, and less than 
-#        or equal to max; comparisons are doing using floating-point
-#        pixel values.
-#
-#        Example:  fpixels                   Any pixel, e.g., 5.5, or 2.5i
-#                  fpixels -range 0.5        0.5 <= value
-#                  fpixels -range {0 5.5i}   0 <= value <= 5.5i
-#
-#    pixels ?-list...? ?-range {<min> ?<max>?}
-#        The value must be a Tk pixel value with an optional unit suffix.
-#        Optionally it must be greater than or equal to min, and less than 
-#        or equal to max; comparisons are doing using integer pixel values.
-#
-#        Example:  pixels                    Any pixel, e.g., 5, or 2i
-#                  pixels -range 0           0 <= value
-#                  pixels -range {0 5i}      0 <= value <= 5i
-#
-#    string ?-list...? ?-nocase? ?-length {min ?max?}? 
-#                      ?-glob <pattern>? ?-regexp <regexp>?
-#        String must match the constraints
-#
-#        Example:  string -glob "*FOO*"          Value contains "FOO"
-#                  string -nocase -glob "*FOO*"  Value contains "FOO" or "foo"
-#
-#    window
-#        Value must be a Tk window
-#
-#        Example:  window
+#    Snit validation types.
 #
 #-----------------------------------------------------------------------
 
