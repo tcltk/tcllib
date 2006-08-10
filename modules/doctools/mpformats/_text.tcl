@@ -13,7 +13,9 @@ if {0} {
     }
 }
 
-dt_package textutil
+dt_package textutil::string ; # for adjust
+dt_package textutil::repeat
+dt_package textutil::adjust
 
 if {0} {
     puts_stderr ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -289,7 +291,7 @@ proc SECT {text} {
 
     lappend linebuffer ""
     lappend linebuffer $text
-    lappend linebuffer [textutil::strRepeat = [string length $text]]
+    lappend linebuffer [textutil::repeat::strRepeat = [string length $text]]
     return
 }
 
@@ -305,7 +307,7 @@ proc SUBSECT {text} {
 
     lappend linebuffer ""
     lappend linebuffer $text
-    lappend linebuffer [textutil::strRepeat - [string length $text]]
+    lappend linebuffer [textutil::repeat::strRepeat - [string length $text]]
     return
 }
 
@@ -324,7 +326,7 @@ proc PARA {arguments} {
     # Use the information in the referenced environment to format the paragraph.
 
     if {$para(verbatim)} {
-	set text [textutil::undent $text]
+	set text [textutil::adjust::undent $text]
     } else {
 	# The size is determined through the set left and right margins
 	# right margin is fixed at 80, left margin is variable. Size
@@ -334,13 +336,13 @@ proc PARA {arguments} {
 	set size [expr {80 - $para(lmargin)}]
 	if {$size < 20} {set size 20}
 
-	set text [textutil::adjust $text -length $size]
+	set text [textutil::adjust::adjust $text -length $size]
     }
 
     # Now apply prefixes, (ws prefixes bulleting), at last indentation.
 
     if {[string length $para(prefix)] > 0} {
-	set text [textutil::indent $text $para(prefix)]
+	set text [textutil::adjust::indent $text $para(prefix)]
     }
 
     if {$para(listtype) != {}} {
@@ -383,15 +385,16 @@ proc PARA {arguments} {
 
 	set blen [string length $thebullet]
 	if {$blen >= [string length $para(wspfx)]} {
-	    set text    "$thebullet\n[textutil::indent $text $para(wspfx)]"
+	    set text    "$thebullet\n[textutil::adjust::indent $text $para(wspfx)]"
 	} else {
 	    set fprefix $thebullet[string range $para(wspfx) $blen end]
-	    set text    "${fprefix}[textutil::indent $text $para(wspfx) 1]"
+	    set text    "${fprefix}[textutil::adjust::indent $text $para(wspfx) 1]"
 	}
     }
 
     if {$para(lmargin) > 0} {
-	set text [textutil::indent $text [textutil::strRepeat " " $para(lmargin)]]
+	set text [textutil::adjust::indent $text \
+		      [textutil::repeat::strRepeat " " $para(lmargin)]]
     }
 
     lappend linebuffer ""
