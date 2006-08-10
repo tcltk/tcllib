@@ -1,3 +1,8 @@
+2006-08-10  Andreas Kupries  <andreask@activestate.com>
+
+	* support/devel/sak/doc/doc.tcl (::sak::doc::ps): Fixed bogus
+	  redirection argument 1>@, correct is >@.
+
 2006-08-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* support/devel/all.tcl: Fixed the loading of Tk into the slave

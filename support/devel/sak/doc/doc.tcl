@@ -34,7 +34,7 @@ proc ::sak::doc::ps {modules} {
     cd         [file join doc ps]
     foreach f [glob -nocomplain ../dvi/*.dvi] {
 	puts "Gen (ps): $f"
-	exec dvips -o [file rootname [file tail $f]].ps $f 1>@ stdout 2>@ stderr
+	exec dvips -o [file rootname [file tail $f]].ps $f >@ stdout 2>@ stderr
     }
     cd ../..
     return
