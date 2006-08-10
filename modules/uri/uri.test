@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2000 by Zveno Pty Ltd.
 #
-# RCS: @(#) $Id: uri.test,v 1.21 2006/01/29 00:48:50 andreas_kupries Exp $
+# RCS: @(#) $Id: uri.test,v 1.22 2006/08/10 07:00:25 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -63,6 +63,22 @@ test uri-1.9 {uri::split - news with message-id} {
 test uri-1.10 {uri::split - news with newsgroup-name} {
     dictsort [uri::split {news:comp.lang.tcl}]
 } {newsgroup-name comp.lang.tcl scheme news}
+
+test uri-1.11 {uri::split - ldap simple} {
+    dictsort [uri::split {ldap://ldaphost}]
+} {attrs {} dn {} extensions {} filter {} host ldaphost port {} scheme ldap scope {}}
+
+test uri-1.12 {uri::split - ldaps with port} {
+    dictsort [uri::split {ldaps://h:636/}]
+} {attrs {} dn {} extensions {} filter {} host h port 636 scheme ldaps scope {}}
+
+test uri-1.13 {uri::split - ldap search} {
+    dictsort [uri::split {ldap://ldaphost/o=mycomp?uid,mail?sub?(uid=pda)}]
+} {attrs {uid mail} dn o=mycomp extensions {} filter (uid=pda) host ldaphost port {} scheme ldap scope sub}
+
+test uri-1.14 {uri::split - ldap search with implicit scope an attributes} {
+    dictsort [uri::split {ldap://ldaphost:999/o=mycomp???(uid=pda)}]
+} {attrs {} dn o=mycomp extensions {} filter (uid=pda) host ldaphost port 999 scheme ldap scope {}}
 
 # -------------------------------------------------------------------------
 
@@ -132,6 +148,28 @@ test uri-2.15 {uri::join - news message-id} {
 test uri-2.16 {uri::join - news newsgroup-name} {
     eval uri::join scheme news newsgroup-name comp.lang.tcl
 } {news:comp.lang.tcl}
+
+test uri-2.17 {uri::join - ldap simple} {
+    uri::join scheme ldap host ldaphost
+} {ldap://ldaphost}
+
+test uri-2.18 {uri::join - ldaps with default port} {
+    uri::join scheme ldaps host ldaphost port 636
+} {ldaps://ldaphost}
+
+test uri-2.19 {uri::join - ldaps with port} {
+    uri::join scheme ldaps host ldaphost port 999
+} {ldaps://ldaphost:999}
+
+test uri-2.20 {uri::join - ldap search} {
+    # I should use "attrs {uid mail}" and not "attrs uid,mail"
+    # but this is a perverse effect of the "eval" command
+    uri::join attrs uid,mail dn o=mycomp filter (uid=pda) host ldaphost scheme ldap scope sub
+} {ldap://ldaphost/o=mycomp?uid,mail?sub?(uid=pda)}
+
+test uri-2.21 {uri::join - ldap search with implicit scope an attributes} {
+    uri::join dn o=mycomp filter (uid=pda) host ldaphost port 999 scheme ldap
+} {ldap://ldaphost:999/o=mycomp???(uid=pda)}
 
 
 # -------------------------------------------------------------------------
