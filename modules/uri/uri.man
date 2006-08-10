@@ -32,9 +32,10 @@ constituents of the [arg url]. If the scheme is missing from the url
 it defaults to the value of [arg defaultscheme] if it was specified,
 or [term http] else. Currently only the schemes [term http],
 
-[term ftp], [term mailto], [term urn], [term news], and [term file]
-are supported by the package itself. See section [sectref EXTENDING]
-on how to expand that range.
+[term ftp], [term mailto], [term urn], [term news], [term ldap] and
+[term file] are supported by the package itself.
+
+See section [sectref EXTENDING] on how to expand that range.
 
 [nl]
 
@@ -72,8 +73,9 @@ Either [const message-id] or [const newsgroup-name].
 
 [cmd uri::split], for example) and returns the canonical url they
 represent. Currently only the schemes [term http], [term ftp],
-[term mailto], [term urn], [term news], and [term file] are
-supported. See section [sectref EXTENDING] on how to expand that range.
+[term mailto], [term urn], [term news], [term ldap] and [term file]
+are supported. See section [sectref EXTENDING] on how to expand that
+range.
 
 
 [call [cmd uri::resolve] [arg base] [arg url]]
@@ -154,7 +156,7 @@ regular expressions for parts of urls for that scheme.
 [para]
 
 The variable [var uri::schemes] contains a list of all supported
-schemes. Currently these are [term ftp], [term file],
+schemes. Currently these are [term ftp], [term ldap], [term file],
 
 [term http], [term gopher], [term mailto], [term news],
 [term wais] and [term prospero].
@@ -178,7 +180,10 @@ and  [cmd "Join[lb]string totitle <scheme>[rb]"] respectively.
 [para]
 
 Original code (regular expressions) by Andreas Kupries.
-Modularisation by Steve Ball, also the split/join/resolve functionality.
+Modularisation by Steve Ball, also the split/join/resolve
+functionality.
 
-[keywords uri url {fetching information} www http ftp mailto news gopher wais prospero file {rfc 2396}] 
+[keywords uri url {fetching information} www http ftp mailto]
+[keywords news gopher wais ldap prospero file]
+[keywords {rfc 2396} {rfc 2255}}] 
 [manpage_end]
