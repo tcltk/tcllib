@@ -1,3 +1,9 @@
+2006-08-10  Andreas Kupries <andreask@activestate.com>
+
+	* mpformats/_text.tcl: Replaced textutil with the exact packages
+	* mpformats/fmt.text:  needed, and adjusted all callers to use the
+	  long command names.
+
 2006-06-16  Andreas Kupries <andreask@activestate.com>
 
 	* ../../apps/dtplite: Still found a xref link bug in the -merge
