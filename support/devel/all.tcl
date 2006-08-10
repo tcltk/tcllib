@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.1 2006/07/01 03:32:56 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.2 2006/08/10 04:53:14 andreas_kupries Exp $
 
 catch {wm withdraw .}
 
@@ -161,9 +161,20 @@ foreach module $modules {
 	# The next command allows the execution of 'tk' constrained
 	# tests, if Tk is present (for example when this code is run
 	# run by 'wish').
-	catch {
-	    package require Tk
-	    wm withdraw .
+
+	# Under wish 8.2/8.3 we have to explicitly load Tk into the
+	# slave, the package management is not able to.
+
+	if {![package vsatisfies [package provide Tcl] 8.4]} {
+	    catch {
+		load {} Tk
+		wm withdraw .
+	    }
+	} else {
+	    catch {
+		package require Tk
+		wm withdraw .
+	    }
 	}
 
 	package require tcltest
