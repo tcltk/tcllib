@@ -1,4 +1,11 @@
-2006-01-28  Andreas Kupries  <akupries@shaw.ca>
+2006-08-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* uri.tcl: Added ldap to list of supported uri's, per the
+	* uri.man: patch by Pierre DAVID <Pierre.David@crc.u-strasbg.fr>,
+	* uri.test: with small modifications by myself. Extended code,
+	  documentation, and testsuite.
+
+2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* uri.test: Fixed use of duplicate test names. Also fixed creation
 	  and cleanup of temp. files by the testsuite.
