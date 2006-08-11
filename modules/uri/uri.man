@@ -185,5 +185,5 @@ functionality.
 
 [keywords uri url {fetching information} www http ftp mailto]
 [keywords news gopher wais ldap prospero file]
-[keywords {rfc 2396} {rfc 2255}}] 
+[keywords {rfc 2396} {rfc 2255}]
 [manpage_end]
