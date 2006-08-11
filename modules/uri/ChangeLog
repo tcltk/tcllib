@@ -1,3 +1,7 @@
+2006-08-11  Andreas Kupries  <andreask@activestate.com>
+
+	* uri.man: Fixed a typo I left in the manpage :(
+
 2006-08-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* uri.tcl: Added ldap to list of supported uri's, per the
