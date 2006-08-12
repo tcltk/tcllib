@@ -2467,6 +2467,8 @@ proc ::snit::RT.DestroyObject {type selfns win} {
     # Next, delete the instance's namespace.  This kills any
     # instance variables.
     namespace delete $selfns
+
+    return
 }
 
 # Remove instance trace
@@ -3539,7 +3541,7 @@ proc ::snit::RT.typemethod.info.typemethods {type {pattern *}} {
     # FIRST, get the explicit names, skipping prefixes.
     set result {}
 
-    foreach name [array names Snit_typemethodInfo -glob $pattern] {
+    foreach name [array names Snit_typemethodInfo $pattern] {
         if {[lindex $Snit_typemethodInfo($name) 0] != 1} {
             lappend result $name
         }
@@ -3553,7 +3555,7 @@ proc ::snit::RT.typemethod.info.typemethods {type {pattern *}} {
             set result [lreplace $result $ndx $ndx]
         }
 
-        foreach name [array names Snit_typemethodCache -glob $pattern] {
+        foreach name [array names Snit_typemethodCache $pattern] {
             if {[lsearch -exact $result $name] == -1} {
                 lappend result $name
             }
@@ -3664,7 +3666,7 @@ proc ::snit::RT.method.info.methods {type selfns win self {pattern *}} {
     # FIRST, get the explicit names, skipping prefixes.
     set result {}
 
-    foreach name [array names Snit_methodInfo -glob $pattern] {
+    foreach name [array names Snit_methodInfo $pattern] {
         if {[lindex $Snit_methodInfo($name) 0] != 1} {
             lappend result $name
         }
@@ -3678,7 +3680,7 @@ proc ::snit::RT.method.info.methods {type selfns win self {pattern *}} {
             set result [lreplace $result $ndx $ndx]
         }
 
-        foreach name [array names Snit_methodCache -glob $pattern] {
+        foreach name [array names Snit_methodCache $pattern] {
             if {[lsearch -exact $result $name] == -1} {
                 lappend result $name
             }

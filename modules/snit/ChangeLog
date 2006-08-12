@@ -1,3 +1,10 @@
+2006-08-12  Will Duquette <will@wjduquette.com>
+	* main1.tcl, main1_83.tcl: Replaced as many [string equal] calls
+	in main1_83.tcl with {"" ==/!= $a} expressions, so that the
+	differences between the two files are minimized.  Also removed the
+	"-glob" from calls to "array names" in main1.tcl.  There are now
+	only a few remaining differences between the two files.
+	
 2006-08-10  Will Duquette <will@wjduquette.com>
 	* snit.man: Added documentation for how to define new
 	validation types.
