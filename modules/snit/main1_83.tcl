@@ -16,17 +16,14 @@
 #-----------------------------------------------------------------------
 # Back-port to Tcl8.3 by Kenneth Green (kmg)
 # Modified by Andreas Kupries.
-# 06 Jun 2005
+# Further modified by Will Duquette 12 Aug 2006
 #
 # Local changes marked with "#kmg-tcl83"
 #
 # Global changes:
-#  " eq " => "string equal"
-#  " ne " -> "!string equal"
 #  " trace add variable " -> "trace variable "
 #  " write " -> "w" in all calls to 'trace variable'
 #  " unset -nocomplain "  -> "::snit83::unset -nocomplain"
-#  " -glob " -> "" in all calls to 'array names'
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
@@ -224,7 +221,7 @@ set ::snit::nominalTypeProc {
         # First, if there's no method, and no args, and there's a create
         # method, and this isn't a widget, then method is "create" and
         # "args" is %AUTO%.
-        if {[string equal $method ""] && [llength $args] == 0} {
+        if {"" == $method && [llength $args] == 0} {
             ::variable %TYPE%::Snit_info
 
             if {$Snit_info(hasinstances) && !$Snit_info(isWidget)} {
@@ -493,7 +490,7 @@ proc ::snit::Comp.Init {} {
     variable compiler
     variable reservedwords
 
-    if {[string equal $compiler ""]} {
+    if {"" == $compiler} {
         # Create the compiler's interpreter
         set compiler [interp create]
 
@@ -800,11 +797,11 @@ proc ::snit::Comp.SaveOptionInfo {} {
     variable compile
 
     foreach option $compile(localoptions) {
-        if {[string equal $compile(resource-$option) ""]} {
+        if {"" == $compile(resource-$option)} {
             set compile(resource-$option) [string range $option 1 end]
         }
 
-        if {[string equal $compile(class-$option) ""]} {
+        if {"" == $compile(class-$option)} {
             set compile(class-$option) [Capitalize $compile(resource-$option)]
         }
 
@@ -1008,8 +1005,8 @@ proc ::snit::Comp.statement.option {optionDef args} {
 
     # NEXT, see if we have a resource name.  If so, make sure it
     # isn't being redefined differently.
-    if {![string equal $resourceName ""]} {
-        if {[string equal $compile(resource-$option) ""]} {
+    if {"" != $resourceName} {
+        if {"" == $compile(resource-$option)} {
             # If it's undefined, just save the value.
             set compile(resource-$option) $resourceName
         } elseif {![string equal $resourceName $compile(resource-$option)]} {
@@ -1020,8 +1017,8 @@ proc ::snit::Comp.statement.option {optionDef args} {
 
     # NEXT, see if we have a class name.  If so, make sure it
     # isn't being redefined differently.
-    if {![string equal $className ""]} {
-        if {[string equal $compile(class-$option) ""]} {
+    if {"" != $className} {
+        if {"" == $compile(class-$option)} {
             # If it's undefined, just save the value.
             set compile(class-$option) $className
         } elseif {![string equal $className $compile(class-$option)]} {
@@ -1192,9 +1189,9 @@ proc ::snit::Comp.CheckMethodName {method delFlag infoVar errRoot} {
 
         # You can't delegate a method that's defined locally,
         # and you can't define a method locally if it's been delegated.
-        if {$delFlag && [string equal [lindex $data 2] ""]} {
+        if {$delFlag && "" == [lindex $data 2]} {
             error "$errRoot, \"$method\" has been defined locally."
-        } elseif {!$delFlag && ![string equal [lindex $data 2] ""]} {
+        } elseif {!$delFlag && "" != [lindex $data 2]} {
             error "$errRoot, \"$method\" has been delegated"
         }
     }
@@ -1296,7 +1293,7 @@ proc ::snit::Comp.statement.typevariable {name args} {
     set len [llength $args]
 
     if {$len > 2 ||
-        ($len == 2 && ![string equal [lindex $args 0] "-array"])} {
+        ($len == 2 && "-array" != [lindex $args 0])} {
         error "$errRoot, too many initializers"
     }
 
@@ -1332,7 +1329,7 @@ proc ::snit::Comp.statement.variable {name args} {
     set len [llength $args]
 
     if {$len > 2 ||
-        ($len == 2 && ![string equal [lindex $args 0] "-array"])} {
+        ($len == 2 && "-array" != [lindex $args 0])} {
         error "$errRoot, too many initializers"
     }
 
@@ -1389,7 +1386,7 @@ proc ::snit::Comp.statement.typecomponent {component args} {
     }
 
     # NEXT, if -public specified, define the method.
-    if {![string equal $publicMethod ""]} {
+    if {"" != $publicMethod} {
         Comp.statement.delegate typemethod [list $publicMethod *] to $component
     }
 
@@ -1472,7 +1469,7 @@ proc ::snit::Comp.statement.component {component args} {
     }
 
     # NEXT, if -public specified, define the method.
-    if {![string equal $publicMethod ""]} {
+    if {"" != $publicMethod} {
         Comp.statement.delegate method [list $publicMethod *] to $component
     }
 
@@ -1563,38 +1560,38 @@ proc ::snit::Comp.DelegatedTypemethod {method arglist} {
         }
     }
 
-    if {[string equal $component ""] && [string equal $pattern ""]} {
+    if {"" == $component && "" == $pattern} {
         error "$errRoot, missing \"to\""
     }
 
-    if {[string equal $methodTail "*"] && ![string equal $target ""]} {
+    if {"*" == $methodTail && "" != $target} {
         error "$errRoot, cannot specify \"as\" with \"*\""
     }
 
-    if {![string equal $methodTail "*"] && ![string equal $exceptions ""]} {
+    if {"*" != $methodTail && "" != $exceptions} {
         error "$errRoot, can only specify \"except\" with \"*\""
     }
 
-    if {![string equal $pattern ""] && ![string equal $target ""]} {
+    if {"" != $pattern && "" != $target} {
         error "$errRoot, cannot specify both \"as\" and \"using\""
     }
 
     foreach token [lrange $method 1 end-1] {
-        if {[string equal $token "*"]} {
+        if {"*" == $token} {
             error "$errRoot, \"*\" must be the last token."
         }
     }
 
     # NEXT, define the component
-    if {![string equal $component ""]} {
+    if {"" != $component} {
         Comp.DefineTypecomponent $component $errRoot
     }
 
     # NEXT, define the pattern.
-    if {[string equal $pattern ""]} {
-        if {[string equal $methodTail "*"]} {
+    if {"" == $pattern} {
+        if {"*" == $methodTail} {
             set pattern "%c %m"
-        } elseif {![string equal $target ""]} {
+        } elseif {"" != $target} {
             set pattern "%c $target"
         } else {
             set pattern "%c %m"
@@ -1651,24 +1648,24 @@ proc ::snit::Comp.DelegatedMethod {method arglist} {
         }
     }
 
-    if {[string equal $component ""] && [string equal $pattern ""]} {
+    if {"" == $component && "" == $pattern} {
         error "$errRoot, missing \"to\""
     }
 
-    if {[string equal $methodTail "*"] && ![string equal $target ""]} {
+    if {"*" == $methodTail && "" != $target} {
         error "$errRoot, cannot specify \"as\" with \"*\""
     }
 
-    if {![string equal $methodTail "*"] && ![string equal $exceptions ""]} {
+    if {"*" != $methodTail && "" != $exceptions} {
         error "$errRoot, can only specify \"except\" with \"*\""
     }
 
-    if {![string equal $pattern ""] &&![string equal  $target ""]} {
+    if {"" != $pattern && "" != $target} {
         error "$errRoot, cannot specify both \"as\" and \"using\""
     }
 
     foreach token [lrange $method 1 end-1] {
-        if {[string equal $token "*"]} {
+        if {"*" == $token} {
             error "$errRoot, \"*\" must be the last token."
         }
     }
@@ -1677,17 +1674,17 @@ proc ::snit::Comp.DelegatedMethod {method arglist} {
     set compile(delegatesmethods) yes
 
     # NEXT, define the component.  Allow typecomponents.
-    if {![string equal $component ""]} {
+    if {"" != $component} {
         if {[lsearch -exact $compile(typecomponents) $component] == -1} {
             Comp.DefineComponent $component $errRoot
         }
     }
 
     # NEXT, define the pattern.
-    if {[string equal $pattern ""]} {
-        if {[string equal $methodTail "*"]} {
+    if {"" == $pattern} {
+        if {"*" == $methodTail} {
             set pattern "%c %m"
-        } elseif {![string equal $target ""]} {
+        } elseif {"" != $target} {
             set pattern "%c $target"
         } else {
             set pattern "%c %m"
@@ -1746,15 +1743,15 @@ proc ::snit::Comp.DelegatedOption {optionDef arglist} {
         }
     }
 
-    if {[string equal $component ""]} {
+    if {"" == $component} {
         error "$errRoot, missing \"to\""
     }
 
-    if {[string equal $option "*"] && ![string equal $target ""]} {
+    if {"*" == $option && "" != $target} {
         error "$errRoot, cannot specify \"as\" with \"delegate option *\""
     }
 
-    if {![string equal $option "*"] && ![string equal $exceptions ""]} {
+    if {"*" != $option && "" != $exceptions} {
         error "$errRoot, can only specify \"except\" with \"delegate option *\""
     }
 
@@ -1970,7 +1967,7 @@ proc ::snit::macro {name arglist body} {
     # namespace.
     set ns [namespace qualifiers $name]
 
-    if {![string equal $ns ""]} {
+    if {"" != $ns} {
         $compiler eval "namespace eval $ns {}"
     }
 
@@ -2491,6 +2488,8 @@ proc ::snit::RT.DestroyObject {type selfns win} {
     # Next, delete the instance's namespace.  This kills any
     # instance variables.
     namespace delete $selfns
+
+    return
 }
 
 # Remove instance trace
@@ -2584,7 +2583,7 @@ proc snit::RT.CacheTypemethodCommand {type method} {
         # Without this check, the call "$type info" will redefine the
         # standard "::info" command, with disastrous results.  Since it's
         # a likely thing to do if !-typeinfo, put in an explicit check.
-        if {[string equal $method "info"] || [string equal $method "destroy"]} {
+        if {"info" == $method || "destroy" == $method} {
             return [list ]
         }
 
@@ -2610,7 +2609,7 @@ proc snit::RT.CacheTypemethodCommand {type method} {
                      %m [lindex $method end] \
                      %j [join $method _]]
 
-    if {![string equal $compName ""]} {
+    if {"" != $compName} {
         if {![info exists Snit_typecomponents($compName)]} {
             error "$type delegates typemethod \"$method\" to undefined typecomponent \"$compName\""
         }
@@ -2734,7 +2733,7 @@ proc ::snit::RT.CacheMethodCommand {type selfns win self method} {
                      %w [list $win] \
                      %s [list $self]]
 
-    if {![string equal $compName ""]} {
+    if {"" != $compName} {
         if {[info exists Snit_components($compName)]} {
             set compCmd $Snit_components($compName)
         } elseif {[info exists Snit_typecomponents($compName)]} {
@@ -3219,7 +3218,7 @@ proc ::snit::RT.CacheCgetCommand {type selfns win self option} {
             # It's a local option.  If it has a cget method defined,
             # use it; otherwise just return the value.
 
-            if {[string equal $Snit_optionInfo(cget-$option) ""]} {
+            if {"" == $Snit_optionInfo(cget-$option)} {
                 set command [list set ${selfns}::options($option)]
             } else {
                 set command [snit::RT.LookupMethodCommand \
@@ -3237,7 +3236,7 @@ proc ::snit::RT.CacheCgetCommand {type selfns win self option} {
         # Explicitly delegated option; get target
         set comp [lindex $Snit_optionInfo(target-$option) 0]
         set target [lindex $Snit_optionInfo(target-$option) 1]
-    } elseif {![string equal $Snit_optionInfo(starcomp) ""] &&
+    } elseif {"" != $Snit_optionInfo(starcomp) &&
               [lsearch -exact $Snit_optionInfo(except) $option] == -1} {
         # Unknown option, but unknowns are delegated; get target.
         set comp $Snit_optionInfo(starcomp)
@@ -3337,7 +3336,7 @@ proc ::snit::RT.CacheConfigureCommand {type selfns win self option} {
             }
 
             # If it has a validate method, cache that for later.
-            if {![string equal $Snit_optionInfo(validate-$option) ""]} {
+            if {"" != $Snit_optionInfo(validate-$option)} {
                 set command [snit::RT.LookupMethodCommand \
                                  $type $selfns $win $self \
                                  $Snit_optionInfo(validate-$option) \
@@ -3352,7 +3351,7 @@ proc ::snit::RT.CacheConfigureCommand {type selfns win self option} {
             # If it has a configure method defined,
             # cache it; otherwise, just set the value.
 
-            if {[string equal $Snit_optionInfo(configure-$option) ""]} {
+            if {"" == $Snit_optionInfo(configure-$option)} {
                 set command [list set ${selfns}::options($option)]
             } else {
                 set command [snit::RT.LookupMethodCommand \
@@ -3470,7 +3469,7 @@ proc ::snit::RT.GetOptionDbSpec {type selfns win self opt} {
         }
 
         return [list $opt $res $cls $defValue [$self cget $opt]]
-    } elseif {![string equal $Snit_optionInfo(starcomp) ""] &&
+    } elseif {"" != $Snit_optionInfo(starcomp) &&
               [lsearch -exact $Snit_optionInfo(except) $opt] == -1} {
         set logicalName $Snit_optionInfo(starcomp)
         set target $opt
@@ -3739,7 +3738,7 @@ proc ::snit::RT.method.info.options {type selfns win self {pattern *}} {
 
     # If "configure" works as for Tk widgets, add the resulting
     # options to the list.  Skip excepted options
-    if {![string equal $Snit_optionInfo(starcomp) ""]} {
+    if {"" != $Snit_optionInfo(starcomp)} {
         upvar ${selfns}::Snit_components Snit_components
         set logicalName $Snit_optionInfo(starcomp)
         set comp $Snit_components($logicalName)
