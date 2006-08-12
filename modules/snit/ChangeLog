@@ -8,6 +8,12 @@
 	Also, I added a "return" to the end of RT.DestroyObject in all
 	three "main" modules, to prevent a confusing return value from
 	"$object destroy" that Andreas noticed a while back.
+
+	* snit.test: Two tests, iinfo-6.4 and iinfo-6.5, failed on Tcl
+	8.3.  The -result in both cases was a list of Tk widget options
+	that included some new options defined in Tcl 8.4.  I added two
+	new constraints, tcl83 and tcl84, and duplicated the two tests,
+	one for each.
 	
 2006-08-10  Will Duquette <will@wjduquette.com>
 	* snit.man: Added documentation for how to define new

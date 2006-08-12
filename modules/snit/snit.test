@@ -65,6 +65,10 @@ tcltest::testConstraint snit1 [expr {$snitVersion == 1}]
 # Marks tests which are only for Snit 2
 tcltest::testConstraint snit2 [expr {$snitVersion == 2}]
 
+# Marks tests which are only for Snit 1 with Tcl 8.3
+tcltest::testConstraint tcl83 [string equal [info tclversion] "8.3"]
+tcltest::testConstraint tcl84 [package vsatisfies [package present Tcl] 8.4]
+
 #---------------------------------------------------------------------
 # Load the snit package.
 
@@ -5161,7 +5165,27 @@ test iinfo-6.3 {info options with local and delegated options} -body {
 } -result {-bar -foo -quux}
 
 test iinfo-6.4 {info options with unknown delegated options} -constraints {
-    tk
+    tk tcl83
+} -body {
+    widgetadaptor myframe {
+        option -foo a
+        delegate option * to hull
+        constructor {args} {
+            installhull [frame $self]
+        }
+    }
+    myframe .frm
+
+    set a [lsort [.frm info options]]
+    destroy .frm
+    tkbide
+    set a
+} -cleanup {
+    myframe destroy
+} -result {-background -bd -bg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -relief -takefocus -visual -width}
+
+test iinfo-6.5 {info options with unknown delegated options} -constraints {
+    tk tcl84
 } -body {
     widgetadaptor myframe {
         option -foo a
@@ -5180,8 +5204,28 @@ test iinfo-6.4 {info options with unknown delegated options} -constraints {
     myframe destroy
 } -result {-background -bd -bg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -padx -pady -relief -takefocus -visual -width}
 
-test iinfo-6.5 {info options with exceptions} -constraints {
-    tk
+test iinfo-6.6 {info options with exceptions} -constraints {
+    tk tcl83
+} -body {
+    widgetadaptor myframe {
+        option -foo a
+        delegate option * to hull except -background
+        constructor {args} {
+            installhull [frame $self]
+        }
+    }
+    myframe .frm
+
+    set a [lsort [.frm info options]]
+    destroy .frm
+    tkbide
+    set a
+} -cleanup {
+    myframe destroy
+} -result {-bd -bg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -relief -takefocus -visual -width}
+
+test iinfo-6.7 {info options with exceptions} -constraints {
+    tk tcl84
 } -body {
     widgetadaptor myframe {
         option -foo a
@@ -5200,7 +5244,7 @@ test iinfo-6.5 {info options with exceptions} -constraints {
     myframe destroy
 } -result {-bd -bg -borderwidth -class -colormap -container -cursor -foo -height -highlightbackground -highlightcolor -highlightthickness -padx -pady -relief -takefocus -visual -width}
 
-test iinfo-6.6 {info options with pattern} -constraints {
+test iinfo-6.8 {info options with pattern} -constraints {
     tk
 } -body {
     widgetadaptor myframe {
