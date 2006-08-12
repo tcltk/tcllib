@@ -2258,6 +2258,8 @@ proc ::snit::RT.DestroyObject {type selfns win} {
     # Next, delete the instance's namespace.  This kills any
     # instance variables.
     namespace delete $selfns
+
+    return
 }
 
 # Remove instance trace
