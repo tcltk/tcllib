@@ -5,14 +5,16 @@
 # Copyright (c) 2004-2006 by Michael Schlenker <mic42@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: asn.test,v 1.12 2006/01/29 08:33:59 andreas_kupries Exp $
+# RCS: @(#) $Id: asn.test,v 1.13 2006/08/13 18:11:32 mic42 Exp $
 
 # -------------------------------------------------------------------------
+
 
 source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
+	
 testsNeedTcl     8.4
 testsNeedTcltest 1.0
 
@@ -740,5 +742,10 @@ test asn-21.7 {GetObjectIdentifier 1 2 840 113533 7 66 3} {
 } {1 2 840 113533 7 66 3}
 
 # 22 --- Octet String
+
+test asn-23.0 {asnContext smoke test} {
+	set data "\x00"
+	bytes2hex [asn::asnContext 1 $data]
+} {81 01 00}
 
 ::tcltest::cleanupTests
