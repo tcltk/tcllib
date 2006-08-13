@@ -38,7 +38,7 @@
 #   written by Jochen Loewer
 #   3 June, 1999
 #
-#   $Id: asn.tcl,v 1.11 2006/03/22 18:56:08 mic42 Exp $
+#   $Id: asn.tcl,v 1.12 2006/08/13 18:11:32 mic42 Exp $
 #
 #-----------------------------------------------------------------------------
 
@@ -263,8 +263,8 @@ proc ::asn::asnContextConstr {contextNumber args} {
 proc ::asn::asnContext {contextNumber data} {
     # Packs the arguments into a constructed value with application tag.
     set code [expr {0x080 + $contextNumber}]
-    set len  [string length $out]
-    return [binary format ca*a$len $code [asnLength $len] $out]
+    set len  [string length $data]
+    return [binary format ca*a$len $code [asnLength $len] $data]
 }
 #-----------------------------------------------------------------------------
 # asnChoice
@@ -1378,5 +1378,5 @@ proc ::asn::asnString {string} {
 }
 
 #-----------------------------------------------------------------------------
-package provide asn 0.5.1
+package provide asn 0.5.2
 
