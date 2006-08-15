@@ -1,3 +1,11 @@
+2006-08-15  Michael Schlenker  <mic42@users.sourceforge.net>
+
+	* Added support for nagelfar (nagelfar.berlios.de) to
+	  the static syntax checking options of sak.tcl while
+	  doing a validate or validate_all.
+	  Fixed a slight inconsistency between validate and validate
+	  all, tclchecker was not checked for validate.
+	  
 2006-08-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Makefile.in (*-doc): Forgotten to update the Mkefile targets for

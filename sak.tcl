@@ -1090,6 +1090,26 @@ proc run-tclchecker {args} {
     return
 }
 
+proc run-nagelfar {args} {
+    global distribution
+
+    if {[llength $args] == 0} {
+	set files [tclfiles]
+    } else {
+	set files [lsort -dict [modtclfiles $args]]
+    }
+
+    foreach f $files {
+	puts "NAGELFAR ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+	puts "$f ..."
+	puts "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+
+	catch {exec nagelfar >@ stdout $f}
+    }
+    return
+}
+
+
 proc get_input {f} {return [read [set if [open $f r]]][close $if]}
 
 proc write_out {f text} {
@@ -2135,15 +2155,20 @@ proc _validate_all {} {
     set frink      [auto_execok frink]
     set procheck   [auto_execok procheck]
     set tclchecker [auto_execok tclchecker]
+    set nagelfar [auto_execok nagelfar]
 
     if {$frink == {}} {puts "  Tool 'frink'    not found, no check"}
     if {($procheck == {}) || ($tclchecker == {})} {
 	puts "  Tools 'procheck'/'tclchecker' not found, no check"
     }
-    if {($frink == {}) || ($procheck == {}) || ($tclchecker == {})} {
+    if {$nagelfar == {}} {puts "  Tool 'nagelfar' not found, no check"}
+
+    if {($frink == {}) || ($procheck == {}) || ($tclchecker == {}) 
+        || ($nagelfar == {})} {
 	puts "------------------------------------------------------"
     }
-    if {($frink == {}) && ($procheck == {}) && ($tclchecker == {})} {
+    if {($frink == {}) && ($procheck == {}) && ($tclchecker == {})
+        && ($nagelfar == {})} {
 	return
     }
     if {$frink != {}} {
@@ -2155,6 +2180,10 @@ proc _validate_all {} {
 	puts "------------------------------------------------------"
     } elseif {$procheck != {}} {
 	run-procheck
+	puts "------------------------------------------------------"
+    }
+    if {$nagelfar    !={}} {
+    	run-nagelfar 
 	puts "------------------------------------------------------"
     }
     puts ""
@@ -2208,21 +2237,36 @@ proc _validate_module {m} {
 
     set frink    [auto_execok frink]
     set procheck [auto_execok procheck]
-
+    set nagelfar [auto_execok nagelfar]
+    set tclchecker [auto_execok tclchecker]
+    
     if {$frink    == {}} {puts "  Tool 'frink'    not found, no check"}
-    if {$procheck == {}} {puts "  Tool 'procheck' not found, no check"}
-    if {($frink == {}) || ($procheck == {})} {
+    if {($procheck == {}) || ($tclchecker == {})} {
+	puts "  Tools 'procheck'/'tclchecker' not found, no check"
+    }
+    if {$nagelfar == {}} {puts "  Tool 'nagelfar' not found, no check"}
+    
+    if {($frink == {}) || ($procheck == {}) || ($tclchecker == {}) ||
+    	($nagelfar == {})} {
 	puts "------------------------------------------------------"
     }
-    if {($frink == {}) && ($procheck == {})} {
+    if {($frink == {}) && ($procheck == {}) && ($nagelfar == {})
+        && ($tclchecker == {})} {
 	return
     }
     if {$frink    != {}} {
 	run-frink $m
 	puts "------------------------------------------------------"
     }
-    if {$procheck    != {}} {
+    if {$tclchecker != {}} {
+	run-tclchecker $m
+	puts "------------------------------------------------------"
+    } elseif {$procheck != {}} {
 	run-procheck $m
+	puts "------------------------------------------------------"
+    }
+    if {$nagelfar    !={}} {
+    	run-nagelfar $m
 	puts "------------------------------------------------------"
     }
     puts ""
