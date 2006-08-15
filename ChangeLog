@@ -1,3 +1,10 @@
+2006-08-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Makefile.in (*-doc): Forgotten to update the Mkefile targets for
+	  documentation when changing the sak syntax for invoking a doc
+	  conversion. See entry 2006-07-09. Thanks to wohnivec@dix.cz for
+	  noticing and provision of a patch.
+
 2006-08-10  Andreas Kupries  <andreask@activestate.com>
 
 	* support/devel/sak/doc/doc.tcl (::sak::doc::ps): Fixed bogus
