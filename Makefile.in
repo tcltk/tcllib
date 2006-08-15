@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.97 2005/09/28 04:51:19 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.98 2006/08/15 01:20:45 andreas_kupries Exp $
 
 #========================================================================
 # Nothing of the variables below this line need to be changed.  Please
@@ -96,17 +96,17 @@ uninstall-binaries:
 
 
 html-doc:
-	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` html
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` doc html
 nroff-doc:
-	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` nroff
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` doc nroff
 tmml-doc:
-	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` tmml
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` doc tmml
 wiki-doc:
-	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` wiki
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` doc wiki
 latex-doc:
-	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` ps
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` doc ps
 list-doc:
-	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` list
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` doc list
 
 check:
 	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` validate
