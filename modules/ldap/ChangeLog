@@ -1,5 +1,14 @@
 2006-08-03  Michael Schlenker <mic42@users.sourceforge.net>
 
+        * ldap.tcl    : Applied patch from [SF Tcllib Bug 1191326].
+	* pkgIndex.tcl: Thanks to Pierre David for comments.
+                        Version raised to 1.5
+			Removed the duplicated asn code from the
+			module, it now package requires asn 0.6 and
+			namespace imports the appropriate code.
+			
+2006-08-03  Michael Schlenker <mic42@users.sourceforge.net>
+
         * ldap.tcl    : Applied patch from [SF Tcllib Bug 1533868].
 	* pkgIndex.tcl: Thanks to Pierre David for spotting this.
                         Version raised to 1.4.1

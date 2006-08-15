@@ -1,12 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin ldap n 1.4]
+[manpage_begin ldap n 1.5]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {2004 Jochen Loewer <loewerj@web.de>}]
 [copyright {2006 Michael Schlenker <mic42@users.sourceforge.net>}]
 [moddesc   {LDAP client}]
 [titledesc {LDAP client}]
 [require Tcl 8.4]
-[require ldap [opt 1.4]]
+[require ldap [opt 1.5]]
 [description]
 [para]
 
@@ -147,12 +147,23 @@ is the empty string.
 [call [cmd ::ldap::add] [arg handle] [arg dn] [arg attrValueTuples]]
 
 This command creates a new object using the specified [arg dn]. The
-attributes of the new object are set to the values in the dictionary
-[arg attrValueTuples] (which is keyed by the attribute names).
+attributes of the new object are set to the values in the list
+[arg attrValueTuples].
+Multiple valuated attributes may be specified using multiple tuples.
 
 The command blocks until the operation has completed. Its result
 is the empty string.
 
+[call [cmd ::ldap::addMulti] [arg handle] [arg dn] [arg attrValueTuples]]
+
+This command is the preferred one to create
+a new object using the specified [arg dn]. The
+attributes of the new object are set to the values in the dictionary
+[arg attrValueTuples] (which is keyed by the attribute names).
+Each tuple is a list containing multiple values.
+
+The command blocks until the operation has completed. Its result
+is the empty string.
 
 [call [cmd ::ldap::delete] [arg handle] [arg dn]]
 
