@@ -38,7 +38,7 @@
 #   written by Jochen Loewer
 #   3 June, 1999
 #
-#   $Id: asn.tcl,v 1.12 2006/08/13 18:11:32 mic42 Exp $
+#   $Id: asn.tcl,v 1.13 2006/08/15 14:11:34 mic42 Exp $
 #
 #-----------------------------------------------------------------------------
 
@@ -49,7 +49,9 @@ namespace eval asn {
     # Encoder commands
     namespace export \
         asnSequence \
+	asnSequenceFromList \
         asnSet \
+	asnSetFromList \
         asnApplicationConstr \
         asnApplication \
 	asnContext\
@@ -181,12 +183,16 @@ proc ::asn::asnLength {len} {
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnSequence {args} {
+    asnSequenceFromList $args
+}
+
+proc ::asn::asnSequenceFromList {lst} {
     # The sequence tag is 0x30. The length is arbitrary and thus full
     # length coding is required. The arguments have to be BER encoded
     # already. Constructed value, definite-length encoding.
 
     set out ""
-    foreach part $args {
+    foreach part $lst {
         append out $part
     }
     set len [string length $out]
@@ -199,12 +205,16 @@ proc ::asn::asnSequence {args} {
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnSet {args} {
+    asnSetFromList $args
+}
+
+proc ::asn::asnSetFromList {lst} {
     # The set tag is 0x31. The length is arbitrary and thus full
     # length coding is required. The arguments have to be BER encoded
     # already.
 
     set out ""
-    foreach part $args {
+    foreach part $lst {
         append out $part
     }
     set len [string length $out]
@@ -1378,5 +1388,5 @@ proc ::asn::asnString {string} {
 }
 
 #-----------------------------------------------------------------------------
-package provide asn 0.5.2
+package provide asn 0.6
 
