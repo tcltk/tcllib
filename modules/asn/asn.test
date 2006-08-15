@@ -5,7 +5,7 @@
 # Copyright (c) 2004-2006 by Michael Schlenker <mic42@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: asn.test,v 1.13 2006/08/13 18:11:32 mic42 Exp $
+# RCS: @(#) $Id: asn.test,v 1.14 2006/08/15 13:34:22 mic42 Exp $
 
 # -------------------------------------------------------------------------
 
@@ -21,6 +21,17 @@ testsNeedTcltest 1.0
 testing {
     useLocal asn.tcl asn
 }
+
+# Converts binary encoded structure into hexadecimal dump
+# which is more readable in test results
+# Allows cut'n'paste both encoded and parsed OID from dumpasn1.cfg
+#
+proc bytes2hex {string} {
+	foreach b [split $string ""] {
+		lappend l [format %02X [scan $b %c]]
+	}
+	return [join $l " "]
+}	
 
 # -------------------------------------------------------------------------
 
@@ -695,16 +706,6 @@ test asn-20.15 {String - encode Cyrillic value} {
 
 # 21 --------- Object identifier
 #
-# Converts binary encoded structure into hexadecimal dump
-# which is more readable in test results
-# Allows cut'n'paste both encoded and parsed OID from dumpasn1.cfg
-#
-proc bytes2hex {string} {
-	foreach b [split $string ""] {
-		lappend l [format %02X [scan $b %c]]
-	}
-	return [join $l " "]
-}	
 
 test asn-21.1 {ObjectIdentifier start with 0} {
 	bytes2hex [asn::asnObjectIdentifier {0 2 262 1 10}]	
@@ -743,9 +744,48 @@ test asn-21.7 {GetObjectIdentifier 1 2 840 113533 7 66 3} {
 
 # 22 --- Octet String
 
+# smoke tests to check that we can at least call the commands
 test asn-23.0 {asnContext smoke test} {
 	set data "\x00"
 	bytes2hex [asn::asnContext 1 $data]
 } {81 01 00}
 
+test asn-24.0 {asnSequence smoke test} {
+	set data [asn::asnNull]
+	bytes2hex [asn::asnSequence 1 $data]
+} {30 03 31 05 00}
+
+test asn-25.0 {asnSet smoke test} {
+	set data [asn::asnNull]
+	bytes2hex [asn::asnSet 1 $data]
+} {31 03 31 05 00}
+
+test asn-26.0 {asnApplicationConstr smoke test} {
+	set data [asn::asnNull]
+	bytes2hex [asn::asnApplicationConstr 1 $data]
+} {61 02 05 00}
+
+test asn-27.0 {asnApplication smoke test} {
+	set data [asn::asnNull]
+	bytes2hex [asn::asnApplication 1 $data]
+} {41 02 05 00}
+
+test asn-28.0 {asnContextConstr smoke test} {
+	set data [asn::asnNull]
+	bytes2hex [asn::asnContextConstr 1 $data]
+} {A1 02 05 00}
+
+test asn-29.0 {asnChoice smoke test} {
+	set data [asn::asnNull]
+	bytes2hex [asn::asnChoice 1 $data]
+} {81 02 05 00}
+
+test asn-30.0 {asnChoiceConstr smoke test} {
+	set data [asn::asnNull]
+	bytes2hex [asn::asnChoiceConstr 1 $data]
+} {A1 02 05 00}
+
+
+
 ::tcltest::cleanupTests
+
