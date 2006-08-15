@@ -1,3 +1,7 @@
+2006-08-15  Michael Schlenker <mic42@users.sourceforge.net>
+	* asn.test: Added more tests. Fixed wrong version
+	  asn.man : reference in man page.
+	  
 2006-08-13  Michael Schlenker <mic42@users.sourceforge.net>
 	
 	* asn.tcl : Fixed Tcllib Bug [1539479]. Package version 
