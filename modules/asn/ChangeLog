@@ -1,4 +1,10 @@
 2006-08-15  Michael Schlenker <mic42@users.sourceforge.net>
+	* asn.tcl : added two convenience functions,
+	  asn.man : asnSequenceFromList and asnSetFromList for
+	  pkgIndex.tcl: use by the ldap module. Raised version
+	            to 0.6
+	  
+2006-08-15  Michael Schlenker <mic42@users.sourceforge.net>
 	* asn.test: Added more tests. Fixed wrong version
 	  asn.man : reference in man page.
 	  

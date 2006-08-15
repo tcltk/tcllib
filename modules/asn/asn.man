@@ -1,12 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin asn n 0.5.2]
+[manpage_begin asn n 0.6]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {2004 Jochen Loewer <loewerj@web.de>}]
 [copyright {2004-2006 Michael Schlenker <mic42@users.sourceforge.net>}]
 [moddesc   {ASN.1 processing}]
 [titledesc {ASN.1 BER encoder/decoder}]
 [require Tcl 8.4]
-[require asn [opt 0.5.2]]
+[require asn [opt 0.6]]
 [description]
 [para]
 
@@ -43,12 +43,20 @@ and should be read by any implementor.
 Takes zero or more encoded values, packs them into an ASN sequence and
 returns its encoded binary form.
 
+[call [cmd ::asn::asnSequenceFromList] [arg elist]]
+
+Takes a list of encoded values, packs them into an ASN sequence and
+returns its encoded binary form.
 
 [call [cmd ::asn::asnSet] [arg evalue]...]
 
 Takes zero or more encoded values, packs them into an ASN set and
 returns its encoded binary form.
 
+[call [cmd ::asn::asnSet] [arg elist]]
+
+Takes a list of encoded values, packs them into an ASN set and
+returns its encoded binary form.
 
 [call [cmd ::asn::asnApplicationConstr] [arg appNumber] [arg evalue]...]
 
