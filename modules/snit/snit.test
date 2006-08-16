@@ -8622,6 +8622,20 @@ test bug-2.2 {Bug 1106375: Widget Error on failed object's construction} -constr
     ::myframe destroy
 } -result {{} {Error in constructor: simulated error}}
 
+test bug-3.1 {Bug 1532791: snit2, snit::widget problem} -constraints {
+    tk
+} -body {
+    snit::widget mywidget {
+        delegate method * to mylabel
+        delegate option * to mylabel
+
+        variable mylabel {}
+    }
+
+    mywidget .mylabel
+} -cleanup {
+    destroy .mylabel
+} -result {.mylabel}
 
 
 #---------------------------------------------------------------------
