@@ -38,7 +38,7 @@
 #   written by Jochen Loewer
 #   3 June, 1999
 #
-#   $Id: asn.tcl,v 1.13 2006/08/15 14:11:34 mic42 Exp $
+#   $Id: asn.tcl,v 1.14 2006/08/16 17:18:51 mic42 Exp $
 #
 #-----------------------------------------------------------------------------
 
@@ -1037,7 +1037,7 @@ proc ::asn::asnGetSet {data_var set_var} {
 # asnGetApplication
 #-----------------------------------------------------------------------------
 
-proc ::asn::asnGetApplication {data_var appNumber_var {contet_var {}}} {
+proc ::asn::asnGetApplication {data_var appNumber_var {content_var {}}} {
     upvar $data_var data $appNumber_var appNumber
 
     asnGetByte   data tag
@@ -1048,7 +1048,7 @@ proc ::asn::asnGetApplication {data_var appNumber_var {contet_var {}}} {
             [format "Expected Application (0x60), but got %02x" $tag]
     }    
     set appNumber [expr {$tag & 0x1F}]
-	if {[string length content_var]} {
+	if {[string length $content_var]} {
 		upvar $content_var content
 		asnGetBytes data $length content
 	}	
@@ -1388,5 +1388,5 @@ proc ::asn::asnString {string} {
 }
 
 #-----------------------------------------------------------------------------
-package provide asn 0.6
+package provide asn 0.6.1
 
