@@ -1,3 +1,7 @@
+2006-08-15  Will Duquette <will@wjduquette.com>
+	* main2.tcl, snit.test: Fixed Bug 1532791: "snit2, 
+	snit::widget problem".
+
 2006-08-12  Will Duquette <will@wjduquette.com>
 	* main1.tcl, main1_83.tcl, main2.tcl: Replaced as many [string equal] calls
 	in main1_83.tcl with {"" ==/!= $a} expressions, so that the
