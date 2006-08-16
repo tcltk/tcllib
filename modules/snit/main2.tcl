@@ -2625,6 +2625,11 @@ proc ::snit::RT.UnknownMethod {type selfns win eId eCmd method args} {
 # Clears all instance command caches
 proc ::snit::RT.ClearInstanceCaches {selfns} {
     # WHD: clear ensemble -map
+    if {![info exists ${selfns}::Snit_instance]} {
+        # Component variable set prior to constructor
+        # via the "variable" type definition statement.
+        return
+    }
     set self [set ${selfns}::Snit_instance]
     namespace ensemble configure $self -map {}
 
