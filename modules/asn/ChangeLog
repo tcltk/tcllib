@@ -1,3 +1,7 @@
+2006-08-16  Michael Schlenker <mic42@users.sourceforge.net>
+	* asn.tcl : Fixed stupid typos in asnGetApplication.
+	            Fixes bug Tcllib [1541436].
+		    
 2006-08-15  Michael Schlenker <mic42@users.sourceforge.net>
 	* asn.tcl : added two convenience functions,
 	  asn.man : asnSequenceFromList and asnSetFromList for
