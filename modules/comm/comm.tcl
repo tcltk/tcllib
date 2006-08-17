@@ -22,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.18 2005/10/03 22:59:45 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.19 2006/08/17 04:21:05 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -68,6 +68,10 @@ namespace eval ::comm {
     #   $ch,silent      boolean to indicate whether to throw error on
     #                   protocol negotiation failure
     #	$ch,local		boolean to indicate if port is local
+    #	$ch,interp		interpreter to run received scripts in.
+    #				If not empty we own it! = We destroy it
+    #				with the channel
+    #	$ch,events		List of hoks to run in the 'interp', if defined
     #	$ch,serial		next serial number for commands
     #
     #	$ch,hook,$hook		script for hook $hook
@@ -248,9 +252,14 @@ proc ::comm::comm_cmd_destroy {chan} {
     variable comm
     catch {close $comm($chan,socket)}
     comm_cmd_abort $chan
+    if {$comm($chan,interp) != {}} {
+	interp delete $comm($chan,interp)
+    }
     catch {unset comm($chan,port)}
     catch {unset comm($chan,local)}
     catch {unset comm($chan,silent)}
+    catch {unset comm($chan,interp)}
+    catch {unset comm($chan,events)}
     catch {unset comm($chan,socket)}
     unset comm($chan,serial)
     set pos [lsearch -exact $comm(chans) $chan]
@@ -258,6 +267,7 @@ proc ::comm::comm_cmd_destroy {chan} {
     if {![string equal ::comm::comm $chan]} {
 	rename $chan {}
     }
+    return
 }
 
 # shutdown --
@@ -335,8 +345,10 @@ proc ::comm::comm_cmd_new {chan ch args} {
     set comm($chan,listen) 0
     set comm($chan,socket) ""
     set comm($chan,local)  1
-    set comm($chan,silent) $comm(defaultSilent)
+    set comm($chan,silent)   $comm(defaultSilent)
     set comm($chan,encoding) $comm(defaultEncoding)
+    set comm($chan,interp)   {}
+    set comm($chan,events)   {}
 
     if {[llength $args] > 0} {
 	if {[catch [linsert $args 0 commConfigure $chan 1] err]} {
@@ -485,15 +497,18 @@ proc ::comm::commConfVars {v t} {
     foreach c [array names comm *,var] {
 	lappend comm(vars) [lindex [split $c ,] 0]
     }
+    return
 }
-::comm::commConfVars port p
-::comm::commConfVars local b
-::comm::commConfVars listen b
-::comm::commConfVars socket ro
-::comm::commConfVars chan ro
-::comm::commConfVars serial ro
+::comm::commConfVars port     p
+::comm::commConfVars local    b
+::comm::commConfVars listen   b
+::comm::commConfVars socket   ro
+::comm::commConfVars chan     ro
+::comm::commConfVars serial   ro
 ::comm::commConfVars encoding enc
-::comm::commConfVars silent b
+::comm::commConfVars silent   b
+::comm::commConfVars interp   interp
+::comm::commConfVars events   ev
 
 # ::comm::commConfigure --
 #
@@ -533,6 +548,40 @@ proc ::comm::commConfigure {chan {force 0} args} {
 	}
 	set optval [lindex $args $opt]
 	switch $comm($var,var) {
+	    ev {
+		if {![string equal  $optval ""]} {
+		    set err 0
+		    if {[catch {
+			foreach ev $optval {
+			    if {[lsearch -exact {connecting connected incoming eval callback reply lost} $ev] < 0} {
+				set err 1
+				break
+			    }
+			}
+		    }]} {
+			set err 1
+		    }
+		    if {$err} {
+			return -code error \
+				"Non-event to configuration option: -$var"
+		    }
+		}
+		# FRINK: nocheck
+		set $var $optval
+		set skip 1
+	    }
+	    interp {
+		if {
+		    ![string equal  $optval ""] &&
+		    ![interp exists $optval]
+		} {
+		    return -code error \
+			    "Non-interpreter to configuration option: -$var"
+		}
+		# FRINK: nocheck
+		set $var $optval
+		set skip 1
+	    }
 	    b {
 		# FRINK: nocheck
 		set $var [string is true -strict $optval]
@@ -591,7 +640,7 @@ proc ::comm::commConfigure {chan {force 0} args} {
 	}
     }
 
-    foreach var {silent} {
+    foreach var {silent interp events} {
 	# FRINK: nocheck
 	if {[info exists $var] && [set $var] != $comm($chan,$var)} {
 	    # FRINK: nocheck
@@ -676,9 +725,7 @@ proc ::comm::commConnect {chan id} {
     commDebug {puts stderr "commConnect $id"}
 
     # process connecting hook now
-    if {[info exists comm($chan,hook,connecting)]} {
-    	eval $comm($chan,hook,connecting)
-    }
+    CommRunHook $chan connecting
 
     if {[info exists comm($chan,peers,$id)]} {
 	return $comm($chan,peers,$id)
@@ -696,13 +743,13 @@ proc ::comm::commConnect {chan id} {
     set fid [socket $host $port]
 
     # process connected hook now
-    if {[info exists comm($chan,hook,connected)]} {
-    	if {[catch $comm($chan,hook,connected) err]} {
-	    global errorInfo
-	    set ei $errorInfo
-	    close $fid
-	    error $err $ei
-	}
+    if {[catch {
+	CommRunHook $chan connected
+    } err]} {
+	global  errorInfo
+	set ei $errorInfo
+	close $fid
+	error $err $ei
     }
 
     # commit new connection
@@ -735,13 +782,13 @@ proc ::comm::commIncoming {chan fid addr remport} {
     commDebug {puts stderr "commIncoming $chan $fid $addr $remport"}
 
     # process incoming hook now
-    if {[info exists comm($chan,hook,incoming)]} {
-    	if {[catch $comm($chan,hook,incoming) err]} {
-	    global errorInfo
-	    set ei $errorInfo
-	    close $fid
-	    error $err $ei
-	}
+    if {[catch {
+	CommRunHook $chan incoming
+    } err]} {
+	global errorInfo
+	set ei $errorInfo
+	close $fid
+	error $err $ei
     }
 
     # a list of offered proto versions is the first word of first line
@@ -887,7 +934,7 @@ proc ::comm::commLostConn {chan fid reason} {
     catch {unset comm($chan,buf,$fid)}
 
     # process lost hook now
-    catch {catch $comm($chan,hook,lost)}
+    catch {CommRunHook $chan lost}
 
     return $reason
 }
@@ -978,7 +1025,7 @@ proc ::comm::commExec {chan fid remoteid buf} {
     variable comm
 
     # buffer should contain:
-    #	send # {cmd}		execute cmd and send reply with serial #
+    #	send  # {cmd}		execute cmd and send reply with serial #
     #	async # {cmd}		execute cmd but send no reply
     #	reply # {cmd}		execute cmd as reply to serial #
 
@@ -1016,9 +1063,7 @@ proc ::comm::commExec {chan fid remoteid buf} {
 		set return($sw) $val
 	    }
 
-	    if {[info exists comm($chan,hook,callback)]} {
-		catch $comm($chan,hook,callback)
-	    }
+	    catch {CommRunHook $chan callback}
 
 	    # this wakes up the sender
 	    commDebug {puts stderr "--<<wakeup $chan $ser>>--"}
@@ -1067,9 +1112,7 @@ proc ::comm::commExec {chan fid remoteid buf} {
 		set return($sw) $val
 	    }
 
-	    if {[info exists comm($chan,hook,reply)]} {
-		catch $comm($chan,hook,reply)
-	    }
+	    catch {CommRunHook $chan reply}
 
 	    # this wakes up the sender
 	    commDebug {puts stderr "--<<wakeup $chan $ser>>--"}
@@ -1088,8 +1131,9 @@ proc ::comm::commExec {chan fid remoteid buf} {
     }
 
     # process eval hook now
+    set done 0
     if {[info exists comm($chan,hook,eval)]} {
-    	set err [catch $comm($chan,hook,eval) ret]
+	set err [catch {CommRunHook $chan eval} ret]
 	commDebug {puts stderr "eval hook res <$err,$ret>"}
 	switch $err {
 	    1 {				;# error
@@ -1103,12 +1147,20 @@ proc ::comm::commExec {chan fid remoteid buf} {
     }
 
     # exec command
-    if {![info exists done]} {
+    if {!$done} {
 	# Sadly, the uplevel needs to be in the catch to access the local
 	# variables buffer and ret.  These cannot simply be global because
 	# commExec is reentrant (i.e., they could be linked to an allocated
 	# serial number).
-	set err [catch [concat [list uplevel #0] $buffer] ret]
+
+	set thecmd [concat [list uplevel #0] $buffer]
+	if {$comm($chan,interp) == {}} {
+	    # Main interpreter
+	    set err [catch $thecmd ret]
+	} else {
+	    # Redirect execution into the configured slave interpreter
+	    set err [catch {interp eval $comm($chan,interp) $thecmd} ret]
+	}
     }
 
     commDebug {puts stderr "res <$err,$ret>"}
@@ -1130,7 +1182,7 @@ proc ::comm::commExec {chan fid remoteid buf} {
 	    } else {
 		set reply callback
 	    }
-	    puts $fid [list [list $reply $ser $return]]
+	    puts  $fid [list [list $reply $ser $return]]
 	    flush $fid
 	}
     }
@@ -1138,6 +1190,25 @@ proc ::comm::commExec {chan fid remoteid buf} {
     if {$err == 1} {
 	commBgerror $ret
     }
+    return
+}
+
+
+proc ::comm::CommRunHook {chan event} {
+    variable comm
+
+    if {![info exists comm($chan,hook,$event)]} return
+    set cmd $comm($chan,hook,$event)
+
+    if {
+	($comm($chan,interp) != {}) &&
+	([lsearch -exact $comm($chan,events) $event] >= 0)
+    } {
+	interp eval $comm($chan,interp) $cmd
+	return
+    }
+
+    eval $cmd
     return
 }
 

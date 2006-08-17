@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: comm.test,v 1.7 2006/01/29 06:15:34 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.test,v 1.8 2006/08/17 04:21:05 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -23,39 +23,12 @@ testing {
 }
 
 # ------------------------------------------------------------------------
-#
 # First order of things is to spawn a separate tclsh into the background
 # and have it execute comm too, with some general code to respond to our
 # requests
 
-set path(spawn) [makeFile {
-    ##puts [set fh [open ~/foo w]] $argv ; close $fh
+useLocalFile comm.slaveboot
 
-    source [lindex $argv 0].tcl ; # load 'comm'
-    # and wait for commands. But first send our
-    # own server socket to the initiator
-    ::comm::comm send [lindex $argv 1] [list slaveat [::comm::comm self]]
-    vwait forever
-} spawn]
-
-proc slaveat {id} {
-    #puts "Slave @ $id"
-    proc slave {} [list return $id]
-    set ::go .
-}
-
-#puts "self @ [::comm::comm self]"
-
-exec \
-	[info nameofexecutable] $path(spawn) \
-	[file rootname [info script]] [::comm::comm self] &
-
-#puts "Waiting for spawned comm system to boot"
-# Wait for the slave to initialize itself.
-vwait ::go
-
-#puts "Running tests"
-#::comm::comm debug 1
 # ------------------------------------------------------------------------
 
 test comm-1.0 {set remote variable} {
@@ -70,12 +43,132 @@ test comm-1.2 {get remote variables} {
     ::comm::comm send [slave] {list $foo $fox}
 } {b a}
 
-test comm-1.3 {close remote} {
-    ::comm::comm send -async [slave] {{exit}}
+# ------------------------------------------------------------------------
+
+set hack [interp create]
+
+test comm-2.0 {-interp configuration} {
+    ::comm::comm configure -interp $hack
 } {}
 
-::comm::comm abort
-removeFile spawn
+test comm-2.1 {-interp configuration} {
+    ::comm::comm configure -interp 
+} $hack
 
+test comm-2.2 {-interp configuration} {
+    res!
+    res+ [::comm::comm configure -interp $hack] [::comm::comm configure -interp]
+    res+ [::comm::comm configure -interp {}]    [::comm::comm configure -interp]
+    res?
+} [list [list {} $hack] {{} {}}]
+
+test comm-2.3 {-interp configuration} {
+    catch {::comm::comm configure -interp bad} msg
+    set msg
+} {Non-interpreter to configuration option: -interp}
+
+test comm-2.4 {-interp configuration, destruction} {
+    res!
+    res+ [interp exists $hack]
+    res+ [info commands FOO]
+    comm::comm new FOO -interp $hack
+    FOO destroy
+    res+ [interp exists $hack]
+    res+ [info commands FOO]
+    res?
+} {1 {{}} 0 {{}}}
+
+set hack [interp create]
+set beta [interp create]
+
+test comm-2.5 {-interp configuration, destruction} {
+    res!
+    res+ [interp exists $hack]
+    res+ [interp exists $beta]
+    res+ [info commands FOO]
+    comm::comm new FOO -interp $hack
+    FOO configure      -interp $beta
+    FOO destroy
+    res+ [interp exists $hack]
+    res+ [interp exists $beta]
+    res+ [info commands FOO]
+    res?
+} {1 1 {{}} 1 0 {{}}}
+
+test comm-2.6 {-interp use for received scripts} {
+    set FOO [::comm::comm send [slave] {
+	set hack [interp create]
+	interp eval $hack {set fox 0}
+	comm::comm new FOO -interp $hack -listen 1
+	FOO self
+    }] ; # {}
+
+    comm::comm send $FOO {set fox 1}
+    set res [comm::comm send [slave] {
+	interp eval $hack {set fox}
+    }] ; # {}
+    comm::comm send [slave] {FOO destroy}
+    set res
+} 1
+
+test comm-2.7 {-interp use for received scripts} {
+    set FOO [::comm::comm send [slave] {
+	set hack [interp create]
+	interp eval $hack {set fox 0}
+	comm::comm new FOO -interp $hack -listen 1
+	FOO self
+    }] ; # {}
+
+    comm::comm send $FOO set fox 2
+    set res [comm::comm send [slave] {
+	interp eval $hack {set fox}
+    }] ; # {}
+    comm::comm send [slave] {FOO destroy}
+    set res
+} 2
+
+# ------------------------------------------------------------------------
+
+test comm-3.0 {-events configuration} {
+    ::comm::comm configure -events eval
+} {}
+
+test comm-3.1 {-events configuration} {
+    ::comm::comm configure -events
+} eval
+
+test comm-3.2 {-events configuration} {
+    res!
+    res+ [::comm::comm configure -events eval] [::comm::comm configure -events]
+    res+ [::comm::comm configure -events {}]   [::comm::comm configure -events]
+    res?
+} {{{} eval} {{} {}}}
+
+test comm-3.3 {-events configuration} {
+    catch {::comm::comm configure -events bad} msg
+    set msg
+} {Non-event to configuration option: -events}
+
+
+test comm-3.4 {-interp use for -events scripts, eval} {
+    set FOO [::comm::comm send [slave] {
+	set hack [interp create]
+	interp eval $hack {set fox 0 ; set wolf 0}
+	comm::comm new FOO -interp $hack -listen 1 -events eval
+	FOO hook eval {set wolf 2}
+	FOO self
+    }] ; # {}
+
+    comm::comm send $FOO {set fox 1}
+    set res [comm::comm send [slave] {
+	interp eval $hack {set wolf}
+    }] ; # {}
+    comm::comm send [slave] {FOO destroy}
+    set res
+} 2
+
+# ------------------------------------------------------------------------
+
+slavestop
 ::tcltest::cleanupTests
 return
