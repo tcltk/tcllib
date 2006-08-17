@@ -1,10 +1,10 @@
-[manpage_begin comm n 4.3]
+[manpage_begin comm n 4.3.1]
 [copyright {1995-1998 The Open Group. All Rights Reserved.}]
 [copyright {2003-2004 ActiveState Corporation.}]
 [moddesc   {Remote communication}]
 [titledesc {A remote communication facility for Tcl (7.6, 8.0, and later)}]
 [require Tcl 8.2]
-[require comm [opt 4.3]]
+[require comm [opt 4.3.1]]
 [description]
 
 [para]
@@ -726,6 +726,11 @@ Note that requiring no version (or a specific version) can also be done.
 The revision history of [package comm] includes these releases:
 
 [list_begin definitions]
+
+[lst_item 4.3.1]
+
+Introduced -interp and -events to enable easy use of a slave interp
+for execution of received scripts, and of event scripts.
 
 [lst_item 4.3]
 
