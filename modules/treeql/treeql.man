@@ -136,7 +136,7 @@ The first argument is interpreted as the name of a query operator, the
 number of arguments required by that operator is then determined, and
 taken from the immediately following arguments.
 
-nl]
+[nl]
 
 Because of this operators cannot have optional arguments, all
 arguments have to be present as defined.  Failure to do this will, at
