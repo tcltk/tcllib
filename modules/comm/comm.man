@@ -185,6 +185,9 @@ elsewhere in this manual page):
 [lst_item "[option -local]  [opt [arg 0|1]]"]
 [lst_item "[option -port]   [opt [arg port]]"]
 [lst_item "[option -silent] [opt [arg 0|1]]"]
+
+[lst_item "[option -interp] [opt [arg interpreter]]"]
+[lst_item "[option -events] [opt [arg eventlist]]"]
 [list_end]
 
 [para]
@@ -198,11 +201,16 @@ These configuration variables are read only:
 
 [para]
 
-When [cmd config] changes the parameters of an existing channel, it
-closes and reopens the listening socket.  An automatically assigned
-channel [emph id] will change when this happens.  Recycling the socket
-is done by invoking [cmd {::comm::comm abort}], which causes all
-active sends to terminate.
+When [cmd config] changes the parameters of an existing channel (with
+the exception of [option -interp] and [option -events]), it closes and
+reopens the listening socket.
+
+An automatically assigned channel [emph id] will change when this
+happens.
+
+Recycling the socket is done by invoking [cmd {::comm::comm abort}],
+which causes all active sends to terminate.
+
 
 [subsection {ID/PORT ASSIGNMENTS}]
 [para]
@@ -237,6 +245,51 @@ As another special case, if the channel is configured with
 [option {-silent 0}], then the listening side will ignore connection
 attempts where the protocol negotiation phase failed, instead of
 throwing an error.
+
+[subsection {EXECUTION ENVIRONMENT}]
+
+A communication channel in its default configuration will use the
+current interpreter for the execution of all received scripts, and of
+the event scripts associated with the various hooks.
+
+[para]
+
+This insecure setup can be changed by the user via the two options
+[option -interp], and [option -events].
+
+[para]
+
+When [option -interp] is set all received scripts are executed in the
+slave interpreter specified as the value of the option. This
+interpreter is expected to exist before configuration. I.e. it is the
+responsibility of the user to create it. However afterward the
+communication channel takes ownership of this interpreter, and will
+destroy it when the communication channel is destroyed.
+
+Note that reconfiguration of the communication channel to either a
+different interpreter or the empty string will release the ownership
+[emph without] destroying the previously configured interpreter.  The
+empty string has a special meaning, it restores the default behaviour
+of executing received scripts in the current interpreter.
+
+[para]
+
+[emph {Also of note}] is that replies and callbacks (a special form of
+reply) are [emph not] considered as received scripts. They are
+trusted, part of the internal machinery of comm, and therefore always
+executed in the current interpreter.
+
+[para]
+
+Even if an interpreter has been configured as the execution
+environment for received scripts the event scripts associated with the
+various hooks will by default still be executed in the current
+interpreter. To change this use the option [option -events] to declare
+a list of the events whose scripts should be executed in the declared
+interpreter as well. The contents of this option are ignored if the
+communication channel is configured to execute received scripts in the
+current interpreter.
+
 
 [subsection {REMOTE INTERPRETERS}]
 [para]
@@ -535,7 +588,7 @@ For safety reasons, this is decomposed.  The return result is in
 [bullet]
 [emph return(-errorinfo)]
 [bullet]
-[emph return(-errordcode)]
+[emph return(-errorcode)]
 [list_end]
 [nl]
 
