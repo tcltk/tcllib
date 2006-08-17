@@ -1,5 +1,9 @@
 2006-08-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* comm.man: Bumped to version 4.3.1
+	* comm.tcl:
+	* pkgIndex.tcl:
+
 	* comm.tcl: Implemented the new options -interp and -events,
 	* comm.test: extended the testsuite to cover them. Created
 	  utility/helper command for the execution of hook scripts, and
