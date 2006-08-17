@@ -1,3 +1,20 @@
+2006-08-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* comm.tcl: Implemented the new options -interp and -events,
+	* comm.test: extended the testsuite to cover them. Created
+	  utility/helper command for the execution of hook scripts, and
+	  rewrote all hook places to use it.
+
+2006-08-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* comm.man: Documented an easier use of slave interpreters
+	  (-interp, -events).
+
+2006-08-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* comm.test:      Moved startup and cleanup of slave process
+	* comm.slaveboot: into a separate file.
+
 2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* comm.test: Fixed cleanup of temp. files.
