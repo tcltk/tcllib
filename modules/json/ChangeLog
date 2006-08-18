@@ -1,0 +1,5 @@
+2006-08-17  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* json.tcl, json.man, json.test, pkgIndex.tcl: json package v1.0
+	Parses JSON formatted text into Tcl dicts.
+	See http://www.json.org/ for format details.
