@@ -1,6 +1,6 @@
 ##Library Header
 #
-# $Id: loggerUtils.tcl,v 1.4 2006/01/22 00:27:23 andreas_kupries Exp $
+# $Id: loggerUtils.tcl,v 1.5 2006/08/18 15:03:34 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -58,7 +58,7 @@ namespace eval ::logger::utils {
 }
 
 ##Internal Procedure Header
-# $Id: loggerUtils.tcl,v 1.4 2006/01/22 00:27:23 andreas_kupries Exp $
+# $Id: loggerUtils.tcl,v 1.5 2006/08/18 15:03:34 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -135,7 +135,7 @@ proc ::logger::utils::createFormatCmd {text args} {
 	{[clock format [clock seconds] -format {%Y/%m/%d %H:%M:%S}]} \
 	text
 
-    if {[info exist opt(-category)]} {
+    if {[info exists opt(-category)]} {
 	regsub -all -- \
 	    {%c} \
 	    $text \
@@ -149,7 +149,7 @@ proc ::logger::utils::createFormatCmd {text args} {
 	    text
     }
 
-    if {[info exist opt(-priority)]} {
+    if {[info exists opt(-priority)]} {
 	regsub -all -- \
 	    {%p} \
 	    $text \
@@ -163,7 +163,7 @@ proc ::logger::utils::createFormatCmd {text args} {
 
 
 ##Procedure Header
-# $Id: loggerUtils.tcl,v 1.4 2006/01/22 00:27:23 andreas_kupries Exp $
+# $Id: loggerUtils.tcl,v 1.5 2006/08/18 15:03:34 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -227,7 +227,7 @@ proc ::logger::utils::createLogProc {args} {
 
     set formatText ""
     set methodText ""
-    if {[info exist opt(-conversionPattern)]} {
+    if {[info exists opt(-conversionPattern)]} {
 	set text $opt(-conversionPattern)
 
 	regsub -all -- \
@@ -242,7 +242,7 @@ proc ::logger::utils::createLogProc {args} {
 	    [info hostname] \
 	    text
 
-	if {[info exist opt(-category)]} {
+	if {[info exists opt(-category)]} {
 	    regsub -all -- \
 		{%c} \
 		$text \
@@ -256,7 +256,7 @@ proc ::logger::utils::createLogProc {args} {
 		text
 	}
 
-	if {[info exist opt(-priority)]} {
+	if {[info exists opt(-priority)]} {
 	    regsub -all -- \
 		{%p} \
 		$text \
@@ -296,7 +296,7 @@ proc ::logger::utils::createLogProc {args} {
 
     }
 
-    if {[info exist opt(-outputChannel)]} {
+    if {[info exists opt(-outputChannel)]} {
 	set outputChannel $opt(-outputChannel)
     } else {
 	set outputChannel stdout
@@ -318,7 +318,7 @@ proc ::logger::utils::createLogProc {args} {
 
 
 ##Procedure Header
-# $Id: loggerUtils.tcl,v 1.4 2006/01/22 00:27:23 andreas_kupries Exp $
+# $Id: loggerUtils.tcl,v 1.5 2006/08/18 15:03:34 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -426,7 +426,7 @@ proc ::logger::utils::applyAppender {args} {
 
     #if service is not specified make all future services with this appender
     # spec
-    if {![info exist serviceCmd]} {
+    if {![info exists serviceCmd]} {
 	set ::logger::utils::autoApplyAppenderArgs $bargs
 	#add trace
 	#check to see if trace is already set
@@ -456,7 +456,7 @@ proc ::logger::utils::applyAppender {args} {
 
 
 ##Internal Procedure Header
-# $Id: loggerUtils.tcl,v 1.4 2006/01/22 00:27:23 andreas_kupries Exp $
+# $Id: loggerUtils.tcl,v 1.5 2006/08/18 15:03:34 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -527,7 +527,7 @@ proc ::logger::utils::autoApplyAppender {command command-string log op args} {
             }
         }
     }
-    if {![info exist appender]} {
+    if {![info exists appender]} {
 	return -code error [msgcat::mc "need to specify -appender"]
     }
     logger::utils::applyAppender -appender $appender -serviceCmd $log \

@@ -1,3 +1,12 @@
+2006-08-18  Michael Schlenker <mic42@users.sourceforge.net>
+        
+	* logger.tcl:        Applied patch [SF Tcllib 1530725] to 
+	* logger.man:	     add a command trace logging facility to
+	* logger.test:       logger. This raises the package version
+	* pkgIndex.tcl:      to 0.7.
+	* loggerUtils.tcl:    Fixed abbreviated subcommands to use
+	* loggerAppender.tcl: the full form.
+	
 2006-04-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* logger.tcl:   Added a convenience command to fully initialize
