@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.17 2006/04/28 06:07:20 andreas_kupries Exp $}]
-[manpage_begin logger n 0.6.3]
+[comment {$Id: logger.man,v 1.18 2006/08/18 15:03:34 mic42 Exp $}]
+[manpage_begin logger n 0.7]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
 [require Tcl 8.2]
-[require logger [opt 0.6.3]]
+[require logger [opt 0.7]]
 [description]
 
 [para]
@@ -176,6 +176,37 @@ to a database, or anything else.  For example:
     ${log}::logproc notice logtoserver
 }]
 
+Trace logs are slightly different: instead of a plain text argument,
+the argument provided to the logproc is a dictionary consisting of the
+[const enter] or [const leave] keyword along with another dictionary of
+details about the trace.  These include:
+
+[list_begin bullet]
+
+[bullet] [const proc] - Name of the procedure being traced.
+
+[bullet] [const level] - The stack level for the procedure invocation
+(from [cmd info] [cmd level]).
+
+[bullet] [const script] - The name of the file in which the procedure is
+defined, or an empty string if defined in interactive mode.
+
+[bullet] [const caller] - The name of the procedure calling the procedure
+being traced, or an empty string if the procedure was called from the
+global scope (stack level 0).
+
+[bullet] [const procargs] - A dictionary consisting of the names of arguments
+to the procedure paired with values given for those arguments ([const enter]
+traces only).
+
+[bullet] [const status] - The Tcl return code (e.g. [const ok],
+[const continue], etc.) ([const leave] traces only).
+
+[bullet] [const result] - The value returned by the procedure ([const leave]
+traces only).
+
+[list_end]
+
 [call [cmd \${log}::services]]
 
 Returns a list of the registered logging services which are children of this service.
@@ -203,6 +234,97 @@ For example:
 
 This command deletes a particular logging service, and its children.
 You must call this to clean up the resources used by a service.
+
+[call [cmd \${log}::trace] [arg command]]
+
+This command controls logging of enter/leave traces for specified procedures.
+It is used to enable and disable tracing, query tracing status, and
+specify procedures are to be traced.  Trace handlers are unregistered when
+tracing is disabled.  As a result, there is not performance impact to a
+library when tracing is disabled, just as with other log level commands.
+
+[example {
+  proc tracecmd { dict } {
+      puts $dict
+  }
+
+  set log [::logger::init example]
+  ${log}::logproc trace tracecmd
+
+  proc foo { args } {
+      puts "In foo"
+      bar 1
+      return "foo_result"
+  }
+    
+  proc bar { x } {
+      puts "In bar"
+      return "bar_result"
+  }
+
+  ${log}::trace add foo bar
+  ${log}::trace on
+
+  foo
+
+# Output:
+enter {proc ::foo level 1 script {} caller {} procargs {args {}}}
+In foo
+enter {proc ::bar level 2 script {} caller ::foo procargs {x 1}}
+In bar
+leave {proc ::bar level 2 script {} caller ::foo status ok result bar_result}
+leave {proc ::foo level 1 script {} caller {} status ok result foo_result}
+}]
+
+[call [cmd \${log}::trace] [cmd on]]
+
+Turns on trace logging for procedures registered through the [cmd trace]
+[cmd add] command.  This is similar to the [cmd enable] command for other
+logging levels, but allows trace logging to take place at any level.
+
+The trace logging mechanism takes advantage of the execution trace feature
+of Tcl 8.4 and later.  The [cmd trace] [cmd on] command will return an
+error if called from earlier versions of Tcl.
+
+[call [cmd \${log}::trace] [cmd off]]
+
+Turns off trace logging for procedures registered for trace logging
+through the [cmd trace] [cmd add] command.  This is similar to the
+[cmd disable] command for other logging levels, but allows trace logging
+to take place at any level.
+
+Procedures are not unregistered, so logging for them can be turned back
+on with the [cmd trace] [cmd on] command.  There is no overhead imposed
+by trace registration when trace logging is disabled.
+
+[call [cmd \${log}::trace] [cmd status] [opt procName] [opt ...]]
+
+This command returns a list of the procedures currently registered for
+trace logging, or a flag indicating whether or not a trace is registered
+for one or more specified procedures.
+
+[call [cmd \${log}::trace] [cmd add] [arg procName] [opt ...]]
+[call [cmd \${log}::trace] [cmd add] [opt -ns] [arg nsName] [opt ...]]
+
+This command registers one or more procedures for logging of entry/exit
+traces.  Procedures can be specified via a list of procedure names or
+namespace names (in which case all procedure within the namespace
+are targeted by the operation).  By default, each name is first
+interpreted as a procedure name or glob-style search pattern, and if
+not found its interpreted as a namespace name.  The [arg -ns] option can
+be used to force interpretation of all provided arguments as namespace names.
+
+Procedures must be defined prior to registering them for tracing
+through the [cmd trace] [cmd add] command.  Any procedure or namespace
+names/patterns that don't match any existing procedures will be
+silently ignored.
+
+[call [cmd \${log}::trace] [cmd remove] [arg procName] [opt ...]]
+[call [cmd \${log}::trace] [cmd remove] [opt -ns] [arg nsName] [opt ...]]
+
+This command unregisters one or more procedures so that they will no
+longer have trace logging performed, with the same matching rules as
+that of the [cmd trace] [cmd add] command.
 
 [list_end]
 

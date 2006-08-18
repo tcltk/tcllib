@@ -1,6 +1,6 @@
 ##Library Header
 #
-# $Id: loggerAppender.tcl,v 1.2 2005/11/14 13:56:06 aakhter Exp $
+# $Id: loggerAppender.tcl,v 1.3 2006/08/18 15:03:34 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -71,7 +71,7 @@ namespace eval ::logger::appender {
 
 
 ##Procedure Header
-# $Id: loggerAppender.tcl,v 1.2 2005/11/14 13:56:06 aakhter Exp $
+# $Id: loggerAppender.tcl,v 1.3 2006/08/18 15:03:34 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -155,10 +155,10 @@ proc ::logger::appender::console {args} {
             }
         }
     }
-    if {![info exist procName]} {
+    if {![info exists procName]} {
 	set procName [genProcName $bargs]
     }
-    if {[info exist procNameVar]} {
+    if {[info exists procNameVar]} {
 	upvar $procNameVar myProcNameVar
     }
     set procText \
@@ -174,7 +174,7 @@ proc ::logger::appender::console {args} {
 
 
 ##Procedure Header
-# $Id: loggerAppender.tcl,v 1.2 2005/11/14 13:56:06 aakhter Exp $
+# $Id: loggerAppender.tcl,v 1.3 2006/08/18 15:03:34 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -260,11 +260,11 @@ proc ::logger::appender::colorConsole {args} {
             }
         }
     }
-    if {![info exist procName]} {
+    if {![info exists procName]} {
 	set procName [genProcName $bargs]
     }
     upvar $procNameVar myProcNameVar
-    if {[info exist level]} {
+    if {[info exists level]} {
 	#apply color
 	set colorCode $colorMap($level)
 	append newCPattern {\033\[} $fgcolor($colorCode) $conversionPattern {\033\[0m}
@@ -281,7 +281,7 @@ proc ::logger::appender::colorConsole {args} {
 }
 
 ##Procedure Header
-# $Id: loggerAppender.tcl,v 1.2 2005/11/14 13:56:06 aakhter Exp $
+# $Id: loggerAppender.tcl,v 1.3 2006/08/18 15:03:34 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -372,10 +372,10 @@ proc ::logger::appender::fileAppend {args} {
 	    }
 	}
     }
-    if {![info exist procName]} {
+    if {![info exists procName]} {
 	set procName [genProcName $bargs]
     }
-    if {[info exist procNameVar]} {
+    if {[info exists procNameVar]} {
 	upvar $procNameVar myProcNameVar
     }
     set procText \
@@ -393,7 +393,7 @@ proc ::logger::appender::fileAppend {args} {
 
 
 ##Internal Procedure Header
-# $Id: loggerAppender.tcl,v 1.2 2005/11/14 13:56:06 aakhter Exp $
+# $Id: loggerAppender.tcl,v 1.3 2006/08/18 15:03:34 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
