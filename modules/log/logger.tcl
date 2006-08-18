@@ -14,7 +14,7 @@
 
 
 package require Tcl 8.2
-package provide logger 0.6.3
+package provide logger 0.7
 
 namespace eval ::logger {
     namespace eval tree {}
@@ -28,6 +28,9 @@ namespace eval ::logger {
     
     # The default global log level used for new logging services
     variable enabled "debug"
+
+    # Tcl return codes (in numeric order)
+    variable RETURN_CODES   [list "ok" "error" "return" "break" "continue"]
 }
 
 # ::logger::_nsExists --
@@ -64,7 +67,7 @@ proc ::logger::_cmdPrefixExists {prefix} {
     # normalize namespaces
     set ns [namespace qualifiers $cmd]
     set cmd ${ns}::[namespace tail $cmd]
-    set matches [::info command ${ns}::*]
+    set matches [::info commands ${ns}::*]
     if {[lsearch -exact $matches $cmd] != -1} {return 1}
     return 0
 }
@@ -127,6 +130,13 @@ proc ::logger::init {service} {
     # The currently configured levelcommands
     variable lvlcmds 
     array set lvlcmds {}
+
+    # List of procedures registered via the trace command
+    variable traceList ""
+
+    # Flag indicating whether or not tracing is currently enabled
+    variable tracingEnabled 0
+
     # We use this to disable a service completely.  In Tcl 8.4
     # or greater, by using this, disabled log calls are a
     # no-op!
@@ -375,7 +385,7 @@ proc ::logger::init {service} {
         variable lvlcmds
         
         set lvnum [lsearch -exact $levels $lv]
-        if { $lvnum == -1 } {
+        if { ($lvnum == -1) && ($lv != "trace") } {
         return -code error "Invalid level '$lv' - levels are $levels"
         }
         switch -exact -- [llength $args] {
@@ -505,6 +515,60 @@ proc ::logger::init {service} {
         return
     }
     
+    proc trace { action args } {
+        variable service
+
+        # Allow other boolean values (true, false, yes, no, 0, 1) to be used
+        # as synonymns for "on" and "off".
+
+        if {[string is boolean $action]} {
+            set xaction [expr {($action && 1) ? "on" : "off"}]
+        } else {
+            set xaction $action
+        }
+
+        # Check for required arguments for actions/subcommands and dispatch
+        # to the appropriate procedure.
+
+        switch -- $xaction {
+            "status" {
+                return [uplevel 1 [list logger::_trace_status $service $args]]
+            }
+            "on" {
+                if {[llength $args]} {
+                    return -code error "wrong # args: should be \"trace on\""
+                }
+                return [logger::_trace_on $service]
+            }
+            "off" {
+                if {[llength $args]} {
+                    return -code error "wrong # args: should be \"trace off\""
+                }
+                return [logger::_trace_off $service]
+            }
+            "add" {
+                if {![llength $args]} {
+                    return -code error \
+                        "wrong # args: should be \"trace add ?-ns? <proc> ...\""
+                }
+                return [uplevel 1 [list ::logger::_trace_add $service $args]]
+            }
+            "remove" {
+                if {![llength $args]} {
+                    return -code error \
+                        "wrong # args: should be \"trace remove ?-ns? <proc> ...\""
+                }
+                return [uplevel 1 [list ::logger::_trace_remove $service $args]]
+            }
+
+            default {
+	        return -code error \
+                    "Invalid action \"$action\": must be status, add, remove,\
+                    on, or off"
+            }
+        }
+    }
+
     # Walk the parent service namespaces to see first, if they
     # exist, and if any are enabled, and then, as a
     # consequence, enable this one
@@ -545,7 +609,7 @@ proc ::logger::init {service} {
         setlevel [${parent}::currentloglevel]
 
     } else {
-        foreach lvl [::logger::levels] {
+        foreach lvl [concat [::logger::levels] "trace"] {
             proc ${lvl}cmd {args} "_setservicename \$args ; 
                                    set val \[stdoutcmd $lvl \[lindex \$args end\]\] ; 
                                    _restoreservice; set val"
@@ -728,6 +792,7 @@ proc ::logger::import {args} {
     #
     
     set cmds [logger::levels]
+    lappend cmds "trace"
     if {$import_all} {
         lappend cmds setlevel enable disable logproc delproc services 
         lappend cmds servicename currentloglevel delete
@@ -807,3 +872,335 @@ proc ::logger::initNamespace {ns {level warn}} {
     namespace eval $ns [list log::setlevel $level]
     return
 }
+
+# This procedure handles the "logger::trace status" command.  Given no
+# arguments, returns a list of all procedures that have been registered
+# via "logger::trace add".  Given one or more procedure names, it will
+# return 1 if all were registered, or 0 if any were not.
+
+proc ::logger::_trace_status { service procList } {
+    upvar #0 ::logger::tree::${service}::traceList traceList
+
+    # If no procedure names were given, just return the registered list
+
+    if {![llength $procList]} {
+        return $traceList
+    }
+
+    # Get caller's namespace for qualifying unqualified procedure names
+
+    set caller_ns [uplevel 1 namespace current]
+    set caller_ns [string trimright $caller_ns ":"]
+
+    # Search for any specified proc names that are *not* registered
+
+    foreach procName $procList {
+        # Make sure the procedure namespace is qualified
+
+        if {![string match "::*" $procName]} {
+            set procName ${caller_ns}::$procName
+        }
+
+        # Check if the procedure has been registered for tracing
+
+        if {[lsearch -exact $traceList $procName] == -1} {
+	    return 0
+        }
+    }
+
+    return 1
+}
+
+# This procedure handles the "logger::trace on" command.  If tracing
+# is turned off, it will enable Tcl trace handlers for all of the procedures
+# registered via "logger::trace add".  Does nothing if tracing is already
+# turned on.
+
+proc ::logger::_trace_on { service } {
+    set tcl_version [package provide Tcl]
+
+    if {[package vcompare $tcl_version "8.4"] < 0} {
+        return -code error \
+            "execution tracing is not available in Tcl $tcl_version"
+    }
+
+    namespace eval ::logger::tree::${service} {
+        if {!$tracingEnabled} {
+            set tracingEnabled 1
+            ::logger::_enable_traces $service $traceList
+        }
+    }
+
+    return 1
+}
+
+# This procedure handles the "logger::trace off" command.  If tracing
+# is turned on, it will disable Tcl trace handlers for all of the procedures
+# registered via "logger::trace add", leaving them in the list so they
+# tracing on all of them can be enabled again with "logger::trace on".
+# Does nothing if tracing is already turned off.
+
+proc ::logger::_trace_off { service } {
+    namespace eval ::logger::tree::${service} {
+        if {$tracingEnabled} {
+            ::logger::_disable_traces $service $traceList
+            set tracingEnabled 0
+        }
+    }
+
+    return 1
+}
+
+# This procedure is used by the logger::trace add and remove commands to
+# process the arguments in a common fashion.  If the -ns switch is given
+# first, this procedure will return a list of all existing procedures in
+# all of the namespaces given in remaining arguments.  Otherwise, each
+# argument is taken to be either a pattern for a glob-style search of
+# procedure names or, failing that, a namespace, in which case this
+# procedure returns a list of all the procedures matching the given
+# pattern (or all in the named namespace, if no procedures match).
+
+proc ::logger::_trace_get_proclist { inputList } {
+    set procList ""
+
+    if {[string equal [lindex $inputList 0] "-ns"]} {
+	# Verify that at least one target namespace was supplied
+
+	set inputList [lrange $inputList 1 end]
+	if {![llength $inputList]} {
+	    return -code error "Must specify at least one namespace target"
+	}
+
+	# Rebuild the argument list to contain namespace procedures
+
+	foreach namespace $inputList {
+            # Don't allow tracing of the logger (or child) namespaces
+
+	    if {![string match "::logger::*" $namespace]} {
+		set nsProcList  [::info procs ${namespace}::*]
+                set procList    [concat $procList $nsProcList]
+            }
+	}
+    } else {
+        # Search for procs or namespaces matching each of the specified
+        # patterns.
+
+        foreach pattern $inputList {
+	    set matches [uplevel 1 ::info proc $pattern]
+
+	    if {![llength $matches]} {
+	        if {[uplevel 1 namespace exists $pattern]} {
+		    set matches [::info procs ${pattern}::*]
+	        }
+
+                # Matched procs will be qualified due to above pattern
+
+                set procList [concat $procList $matches]
+            } elseif {[string match "::*" $pattern]} {
+                # Patterns were pre-qualified - add them directly
+
+                set procList [concat $procList $matches]
+            } else {
+                # Qualify each proc with the namespace it was in
+
+                set ns [uplevel 1 namespace current]
+                if {$ns == "::"} {
+                    set ns ""
+                }
+                foreach proc $matches {
+                    lappend procList ${ns}::$proc
+                }
+            }
+        }
+    }
+
+    return $procList
+}
+
+# This procedure handles the "logger::trace add" command.  If the tracing
+# feature is enabled, it will enable the Tcl entry and leave trace handlers
+# for each procedure specified that isn't already being traced.  Each
+# procedure is added to the list of procedures that the logger trace feature
+# should log when tracing is enabled.
+
+proc ::logger::_trace_add { service procList } {
+    upvar #0 ::logger::tree::${service}::traceList traceList
+
+    # Handle -ns switch and glob search patterns for procedure names
+
+    set procList [uplevel 1 [list logger::_trace_get_proclist $procList]]
+
+    # Enable tracing for each procedure that has not previously been
+    # specified via logger::trace add.  If tracing is off, this will just
+    # store the name of the procedure for later when tracing is turned on.
+
+    foreach procName $procList {
+        if {[lsearch -exact $traceList $procName] == -1} {
+            lappend traceList $procName
+            ::logger::_enable_traces $service [list $procName]
+        }
+    }
+}
+
+# This procedure handles the "logger::trace remove" command.  If the tracing
+# feature is enabled, it will remove the Tcl entry and leave trace handlers
+# for each procedure specified.  Each procedure is removed from the list
+# of procedures that the logger trace feature should log when tracing is
+# enabled.
+
+proc ::logger::_trace_remove { service procList } {
+    upvar #0 ::logger::tree::${service}::traceList traceList
+
+    # Handle -ns switch and glob search patterns for procedure names
+
+    set procList [uplevel 1 [list logger::_trace_get_proclist $procList]]
+
+    # Disable tracing for each proc that previously had been specified
+    # via logger::trace add.  If tracing is off, this will just
+    # remove the name of the procedure from the trace list so that it
+    # will be excluded when tracing is turned on.
+
+    foreach procName $procList {
+        set index [lsearch -exact $traceList $procName]
+        if {$index != -1} {
+            set traceList [lreplace $traceList $index $index]
+            ::logger::_disable_traces $service [list $procName]
+        }
+    }
+}
+
+# This procedure enables Tcl trace handlers for all procedures specified.
+# It is used both to enable Tcl's tracing for a single procedure when
+# removed via "logger::trace add", as well as to enable all traces
+# via "logger::trace on".
+
+proc ::logger::_enable_traces { service procList } {
+    upvar #0 ::logger::tree::${service}::tracingEnabled tracingEnabled
+
+    if {$tracingEnabled} {
+        foreach procName $procList {
+            ::trace add execution $procName enter \
+                [list ::logger::_trace_enter $service]
+            ::trace add execution $procName leave \
+                [list ::logger::_trace_leave $service]
+        }
+    }
+}
+
+# This procedure disables Tcl trace handlers for all procedures specified.
+# It is used both to disable Tcl's tracing for a single procedure when
+# removed via "logger::trace remove", as well as to disable all traces
+# via "logger::trace off".
+
+proc ::logger::_disable_traces { service procList } {
+    upvar #0 ::logger::tree::${service}::tracingEnabled tracingEnabled
+
+    if {$tracingEnabled} {
+        foreach procName $procList {
+            ::trace remove execution $procName enter \
+                [list ::logger::_trace_enter $service]
+            ::trace remove execution $procName leave \
+                [list ::logger::_trace_leave $service]
+        }
+    }
+}
+
+########################################################################
+# Trace Handlers
+########################################################################
+
+# This procedure is invoked upon entry into a procedure being traced
+# via "logger::trace add" when tracing is enabled via "logger::trace on"
+# to log information about how the procedure was called.
+
+proc ::logger::_trace_enter { service cmd op } {
+    # Parse the command
+    set procName [uplevel 1 namespace origin [lindex $cmd 0]]
+    set args     [lrange $cmd 1 end]
+
+    # Display the message prefix
+    set callerLvl [expr {[::info level] - 1}]
+    set calledLvl [::info level]
+
+    lappend message "proc" $procName
+    lappend message "level" $calledLvl
+    lappend message "script" [uplevel ::info script]
+
+    # Display the caller information
+    set caller ""
+    if {$callerLvl >= 1} {
+	# Display the name of the caller proc w/prepended namespace
+	catch {
+	    set callerProcName [lindex [::info level $callerLvl] 0]
+	    set caller [uplevel 2 namespace origin $callerProcName]
+	}
+    }
+
+    lappend message "caller" $caller
+
+    # Display the argument names and values
+    set argSpec [uplevel 1 ::info args $procName]
+    set argList ""
+    if {[llength $argSpec]} {
+	foreach argName $argSpec {
+            lappend argList $argName
+
+	    if {$argName == "args"} {
+                lappend argList $args
+                break
+	    } else {
+	        lappend argList [lindex $args 0]
+	        set args [lrange $args 1 end]
+            }
+	}
+    }
+
+    lappend message "procargs" $argList
+    set message [list $op $message]
+
+    ::logger::tree::${service}::tracecmd $message
+}
+
+# This procedure is invoked upon leaving into a procedure being traced
+# via "logger::trace add" when tracing is enabled via "logger::trace on"
+# to log information about the result of the procedure call.
+
+proc ::logger::_trace_leave { service cmd status rc op } {
+    variable RETURN_CODES
+
+    # Parse the command
+    set procName [uplevel 1 namespace origin [lindex $cmd 0]]
+
+    # Gather the caller information
+    set callerLvl [expr {[::info level] - 1}]
+    set calledLvl [::info level]
+
+    lappend message "proc" $procName "level" $calledLvl
+    lappend message "script" [uplevel ::info script]
+
+    # Get the name of the proc being returned to w/prepended namespace
+    set caller ""
+    catch {
+        set callerProcName [lindex [::info level $callerLvl] 0]
+        set caller [uplevel 2 namespace origin $callerProcName]
+    }
+
+    lappend message "caller" $caller
+
+    # Convert the return code from numeric to verbal
+
+    if {$status < [llength $RETURN_CODES]} {
+        set status [lindex $RETURN_CODES $status]
+    }
+
+    lappend message "status" $status
+    lappend message "result" $rc
+
+    # Display the leave message
+
+    set message [list $op $message]
+    ::logger::tree::${service}::tracecmd $message
+
+    return 1
+}
+
