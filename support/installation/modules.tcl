@@ -67,6 +67,7 @@ Module  inifile     _tcl  _man  _null
 Module  irc         _tcl  _man _exa
 Module  javascript  _tcl  _man  _null
 Module  jpeg        _tcl  _man  _null
+Module  json        _tcl  _man  _null
 Module  ldap        _tcl  _man _exa
 Module  log          _msg _man  _null
 Module  math         _tci _man _exa
