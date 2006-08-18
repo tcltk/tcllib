@@ -1,3 +1,7 @@
+2006-08-17  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* support/installation/modules.tcl: added json package
+
 2006-08-15  Michael Schlenker  <mic42@users.sourceforge.net>
 
 	* Added support for nagelfar (nagelfar.berlios.de) to
