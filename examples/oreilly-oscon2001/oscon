@@ -403,7 +403,7 @@ proc postscript {} {
 }
 
 proc wrap {text len} {
-    # @author Jeffrey Hobbs <jeff.hobbs@acm.org>
+    # @author Jeffrey Hobbs <jeff at hobbs org>
     #
     # @c Wraps the given <a text> into multiple lines not
     # @c exceeding <a len> characters each. Lines shorter
