@@ -166,6 +166,7 @@ set ::snit::typeTemplate {
     # Type Constructor
     proc %TYPE%::Snit_typeconstructor {type} {
         %TVARDECS%
+        namespace path [namespace parent $type]
         %TCONSTBODY%
     }
 

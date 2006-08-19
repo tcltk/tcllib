@@ -7757,6 +7757,48 @@ test break-1.3 {Methods called via mymethod "return -code break"} -body {
 } -result {3}
 
 #-----------------------------------------------------------------------
+# Namespace path
+
+test nspath-1.1 {Typemethods call commands from parent namespace} -constraints {
+    snit2
+} -body {
+    namespace eval ::snit_test:: {
+        proc bark {} {return "[namespace current]: Woof"}
+    }
+
+    snit::type ::snit_test::dog {
+        typemethod bark {} {
+            bark
+        }
+    }
+
+    ::snit_test::dog bark
+} -cleanup {
+    ::snit_test::dog destroy
+    namespace forget ::snit_test
+} -result {::snit_test: Woof}
+
+test nspath-1.2 {Methods can call commands from parent namespace} -constraints {
+    snit2
+} -body {
+    namespace eval ::snit_test:: {
+        proc bark {} {return "[namespace current]: Woof"}
+    }
+
+    snit::type ::snit_test::dog {
+        method bark {} {
+            bark
+        }
+    }
+
+    ::snit_test::dog spot
+    spot bark
+} -cleanup {
+    ::snit_test::dog destroy
+    namespace forget ::snit_test
+} -result {::snit_test: Woof}
+
+#-----------------------------------------------------------------------
 # snit::boolean
 
 test boolean-1.1 {boolean: valid} -body {

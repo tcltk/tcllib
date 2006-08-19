@@ -106,6 +106,15 @@ for more examples.
 
 [nl]
 
+Type methods can call commands from the namespace in which the type is
+defined without importing them, e.g., if the type name is 
+[cmd ::parentns::typename], then the type's type methods can call
+[cmd ::parentns::someproc] just as [cmd someproc].  
+[emph {Snit 1.x Incompatibility:}] This does not work in Snit 1.x, as
+it depends on [cmd "namespace path"], a new command in Tcl 8.5.
+
+[nl]
+
 [emph {Snit 1.x Incompatibility:}] In Snit 1.x, the following
 following two calls to this type method are equivalent:
 
@@ -132,6 +141,15 @@ constructor.
 [nl]
 
 A type may define at most one type constructor.
+
+[nl]
+
+The type constructor can call commands from the namespace in which the type is
+defined without importing them, e.g., if the type name is 
+[cmd ::parentns::typename], then the type constructor can call
+[cmd ::parentns::someproc] just as [cmd someproc].  
+[emph {Snit 1.x Incompatibility:}] This does not work in Snit 1.x, as
+it depends on [cmd "namespace path"], a new command in Tcl 8.5.
 
 [call [cmd variable] [arg name] [opt [const -array]] [opt [arg value]]]
 
@@ -204,6 +222,15 @@ Droop, droop
 What we've done is implicitly defined a "tail" method with subcommands
 "wag" and "droop".  Consequently, it's an error to define "tail"
 explicitly.
+
+[nl]
+
+Methods can call commands from the namespace in which the type is
+defined without importing them, e.g., if the type name is 
+[cmd ::parentns::typename], then the type's methods can call
+[cmd ::parentns::someproc] just as [cmd someproc].  
+[emph {Snit 1.x Incompatibility:}] This does not work in Snit 1.x, as
+it depends on [cmd "namespace path"], a new command in Tcl 8.5.
 
 [nl]
 
@@ -424,6 +451,14 @@ any options, the default constructor is defined as follows:
 [example {    constructor {} {}
 }]
 
+As with methods, the constructor can call commands from the namespace
+in which the type is
+defined without importing them, e.g., if the type name is 
+[cmd ::parentns::typename], then the constructor can call
+[cmd ::parentns::someproc] just as [cmd someproc].  
+[emph {Snit 1.x Incompatibility:}] This does not work in Snit 1.x, as
+it depends on [cmd "namespace path"], a new command in Tcl 8.5.
+
 [call [cmd destructor] [arg body]]
 
 The destructor is used to code any actions that must take place when
@@ -436,6 +471,14 @@ The destructor takes no explicit arguments; as with methods, the
 arguments [var type], [var self], [var selfns], and [var win], are 
 defined implicitly, and all type and instance 
 variables are automatically visible in its [arg body].
+
+As with methods, the destructor can call commands from the namespace
+in which the type is
+defined without importing them, e.g., if the type name is 
+[cmd ::parentns::typename], then the destructor can call
+[cmd ::parentns::someproc] just as [cmd someproc].  
+[emph {Snit 1.x Incompatibility:}] This does not work in Snit 1.x, as
+it depends on [cmd "namespace path"], a new command in Tcl 8.5.
 
 [call [cmd proc] [arg name] [arg args] [arg body]]
 
@@ -452,6 +495,16 @@ instance variables as well, provided that it is passed
 
 Although they are not implicitly defined for procs, the argument names
 [const type], [const self], and [const win] should be avoided.
+
+[nl]
+
+As with methods and typemethods, procs can call commands from the namespace
+in which the type is
+defined without importing them, e.g., if the type name is 
+[cmd ::parentns::typename], then the proc can call
+[cmd ::parentns::someproc] just as [cmd someproc].  
+[emph {Snit 1.x Incompatibility:}] This does not work in Snit 1.x, as
+it depends on [cmd "namespace path"], a new command in Tcl 8.5.
 
 [call [cmd delegate] [const method] [arg name] [const to] [arg comp] [opt "[const as] [arg target]"]]
 
