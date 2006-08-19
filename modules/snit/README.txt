@@ -18,11 +18,11 @@ Differences Between Snit 2.0 and Snit 1.x
 V2.0 and V1.x are being developed in parallel.
 
   Version 2.0 takes advantage of some new Tcl/Tk 8.5 commands
-  ([dict] and [namespace ensemble]) to improve Snit's run-time
-  efficiency.  Otherwise, it's intended to be feature-equivalent
-  with V1.x.  When running with Tcl/Tk 8.5, both V2.0 and V1.x are
-  available; when running with Tcl/Tk 8.3 or Tcl/Tk 8.4, only 
-  V1.x is available.
+  ([dict], [namespace ensemble], and [namespace upvar]) to improve 
+  Snit's run-time efficiency.  Otherwise, it's intended to be 
+  feature-equivalent with V1.x.  When running with Tcl/Tk 8.5, both 
+  V2.0 and V1.x are available; when running with Tcl/Tk 8.3 or Tcl/Tk 
+  8.4, only V1.x is available.
 
   Snit 1.x is implemented in snit.tcl; Snit 2.0 in snit2.tcl.
 
