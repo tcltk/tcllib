@@ -6,6 +6,14 @@
 	* snit.man,snitfaq.man: Updated accordingly; also, fixed a couple
 	of typos in snitfaq.man.
 
+	* main2.tcl: Snit 2.x now uses [namespace upvar] where appropriate
+	throughout the Snit run-time and also for implicit declaration of
+	instance variables; I still need to use it for implicit
+	declaration of type variables.  On my machine, dispatch of a
+	method with 10 instance variables is over twice as fast
+	when the variables are declared using [namespace upvar] rather
+	than [::variable ${selfns}::varname].
+	
 2006-08-15  Will Duquette <will@wjduquette.com>
 	* main2.tcl, snit.test: Fixed Bug 1532791: "snit2, 
 	snit::widget problem".
