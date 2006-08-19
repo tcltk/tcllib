@@ -323,6 +323,32 @@ mechanism for method dispatch, at the cost of losing certain features.
 Snit 2.0 method dispatch is faster still in all cases, so 
 [const -simpledispatch] is no longer needed.
 
+[bullet]
+
+In Snit 2.0, a type's code (methods, type methods, etc.) can call commands
+from the type's parent namespace without qualifying or importing
+them, i.e., type [cmd ::parentns::mytype]'s code can call
+[cmd ::parentns::someproc] as just [cmd someproc].
+
+[nl]
+
+This is extremely useful when a type is defined as part of a larger
+package, and shares a parent namespace with the rest of the package;
+it means that the type can call other commands defined by the
+package without any extra work.
+
+[nl]
+
+This feature depends on the new Tcl 8.5 [cmd "namespace path"] command,
+which is why it hasn't been implemented for V1.x.  V1.x code can
+achieve something similar by placing
+
+[example {namespace import [namespace parent]::*}]
+
+in a type constructor.  This is less useful, however, as it picks up
+only those commands which have already been exported by the parent
+namespace at the time the type is defined.
+
 [list_end]
 
 
@@ -1423,7 +1449,7 @@ follows:
 
 [para]
 [example {
-    method gainWeight {
+    method gainWeight {} {
         incr options(-weight)
     }
 }]
@@ -2616,9 +2642,8 @@ object's [cmd wag] method:
 [example {% snit::type dog {
     delegate method wag to mytail
 
-    constructor {args} {
-        install mytail using tail %AUTO% -partof $self
-        $self configurelist $args
+    constructor {} {
+        install mytail using tail %AUTO%
     }
 }
 ::dog

@@ -1,3 +1,11 @@
+2006-08-19  Will Duquette <will@wjduquette.com>
+	* main2.tcl, snit.test: Fixed Bug 1483168: "Namespaced snit objs
+	are not commands in their ns".  In particular, Snit 2.x types and
+	widgets now use [namespace path] to give themselves access to
+	their parent namespace.
+	* snit.man,snitfaq.man: Updated accordingly; also, fixed a couple
+	of typos in snitfaq.man.
+
 2006-08-15  Will Duquette <will@wjduquette.com>
 	* main2.tcl, snit.test: Fixed Bug 1532791: "snit2, 
 	snit::widget problem".
