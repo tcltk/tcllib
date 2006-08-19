@@ -7500,7 +7500,7 @@ test canreplace-1.2 {Can replace commands when "-canreplace yes"} -constraints {
 
 test hasinfo-1.1 {$obj info is defined by default} -body {
     type dog {
-        variable foo
+        variable foo ""
     }
 
     dog spot

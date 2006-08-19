@@ -754,7 +754,7 @@ proc ::snit::Comp.statement.constructor {arglist body} {
     set arglist [concat type selfns win self $arglist]
 
     # Next, add variable declarations to body:
-    set body "%TVARDECS%%IVARDECS%\n$body"
+    set body "%TVARDECS%\n%IVARDECS%\n$body"
 
     set compile(hasconstructor) yes
     append compile(defs) "proc %TYPE%::Snit_constructor [list $arglist] [list $body]\n"
@@ -765,7 +765,7 @@ proc ::snit::Comp.statement.destructor {body} {
     variable compile
 
     # Next, add variable declarations to body:
-    set body "%TVARDECS%%IVARDECS%\n$body"
+    set body "%TVARDECS%\n%IVARDECS%\n$body"
 
     append compile(defs) "proc %TYPE%::Snit_destructor {type selfns win self} [list $body]\n\n"
 } 
@@ -895,7 +895,7 @@ proc ::snit::Comp.statement.oncget {option body} {
     }
 
     # Next, add variable declarations to body:
-    set body "%TVARDECS%%IVARDECS%\n$body"
+    set body "%TVARDECS%\n%IVARDECS%\n$body"
 
     Comp.statement.method _cget$option {_option} $body
     Comp.statement.option $option -cgetmethod _cget$option
@@ -950,7 +950,7 @@ proc ::snit::Comp.statement.method {method arglist body} {
     set arglist [concat type selfns win self $arglist]
 
     # Next, add variable declarations to body:
-    set body "%TVARDECS%%IVARDECS%\n$body"
+    set body "%TVARDECS%\n%IVARDECS%\n$body"
 
     # Next, save the definition script.
     if {[llength $method] == 1} {
@@ -1143,16 +1143,25 @@ proc ::snit::Comp.statement.variable {name args} {
 
     lappend compile(varnames) $name
 
+    # Add a ::variable to instancevars, so that ::variable is used
+    # at least once; ::variable makes the variable visible to
+    # [info vars] even if no value is assigned.
+    append  compile(instancevars) "\n"
+    Mappend compile(instancevars) {::variable ${selfns}::%N} %N $name 
+
     if {$len == 1} {
         append compile(instancevars) \
-            "\nset \${selfns}::$name [list [lindex $args 0]]\n"
+            "\nset $name [list [lindex $args 0]]\n"
     } elseif {$len == 2} {
         append compile(instancevars) \
-            "\narray set \${selfns}::$name [list [lindex $args 1]]\n"
+            "\narray set $name [list [lindex $args 1]]\n"
     } 
 
-    append  compile(ivprocdec) "\n\t    "
-    Mappend compile(ivprocdec) {::variable ${selfns}::%N} %N $name 
+    if {$compile(ivprocdec) eq ""} {
+        set compile(ivprocdec) "\n\t"
+        append compile(ivprocdec) {namespace upvar $selfns}
+    }
+    append compile(ivprocdec) " [list $name $name]"
 } 
 
 # Defines a typecomponent, and handles component options.
@@ -1739,7 +1748,7 @@ proc ::snit::method {type method arglist body} {
     set arglist [concat type selfns win self $arglist]
 
     # Next, add variable declarations to body:
-    set body "$Snit_info(tvardecs)$Snit_info(ivardecs)\n$body"
+    set body "$Snit_info(tvardecs)\n$Snit_info(ivardecs)\n$body"
 
     # Next, define it.
     if {[llength $method] == 1} {
@@ -1863,7 +1872,8 @@ proc ::snit::RT.type.typemethod.create {type name args} {
     RT.MakeInstanceCommand $type $selfns $name
 
     # Initialize the options to their defaults. 
-    upvar ${selfns}::options options
+    namespace upvar ${selfns} options options
+
     foreach opt $Snit_optionInfo(local) {
         set options($opt) $Snit_optionInfo(default-$opt)
     }
@@ -1915,7 +1925,8 @@ proc ::snit::RT.widget.typemethod.create {type name args} {
     namespace eval $selfns { }
             
     # NEXT, Initialize the widget's own options to their defaults.
-    upvar ${selfns}::options options
+    namespace upvar $selfns options options
+
     foreach opt $Snit_optionInfo(local) {
         set options($opt) $Snit_optionInfo(default-$opt)
     }
@@ -2003,7 +2014,9 @@ proc ::snit::RT.MakeInstanceCommand {type selfns instance} {
     # FIRST, remember the instance name.  The Snit_instance variable
     # allows the instance to figure out its current name given the
     # instance namespace.
-    upvar ${selfns}::Snit_instance Snit_instance
+
+    namespace upvar $selfns Snit_instance Snit_instance
+
     set Snit_instance $instance
 
     # NEXT, qualify the proc name if it's a widget.
@@ -2218,7 +2231,7 @@ proc ::snit::RT.DestroyObject {type selfns win} {
     # widgetadaptor. Consequently, there are some things that
     # we don't need to do.
     if {[info exists ${selfns}::Snit_instance]} {
-        upvar ${selfns}::Snit_instance instance
+        namespace upvar $selfns Snit_instance instance
             
         # First, remove the trace on the instance name, so that we
         # don't call RT.DestroyObject recursively.
@@ -2295,9 +2308,11 @@ proc ::snit::RT.RemoveInstanceTrace {type selfns win instance} {
 # cache.
 
 proc ::snit::RT.TypecomponentTrace {type component n1 n2 op} {
-    upvar ${type}::Snit_info Snit_info
-    upvar ${type}::${component} cvar
-    upvar ${type}::Snit_typecomponents Snit_typecomponents
+    namespace upvar $type \
+        Snit_info           Snit_info \
+        $component          cvar      \
+        Snit_typecomponents Snit_typecomponents
+
         
     # Save the new component value.
     set Snit_typecomponents($component) $cvar
@@ -2329,9 +2344,10 @@ proc ::snit::RT.TypecomponentTrace {type component n1 n2 op} {
 # added to the -map; the function returns the empty list.
 
 proc snit::RT.UnknownTypemethod {type eId eCmd method args} {
-    upvar ${type}::Snit_typemethodInfo  Snit_typemethodInfo
-    upvar ${type}::Snit_typecomponents  Snit_typecomponents
-    upvar ${type}::Snit_info            Snit_info
+    namespace upvar $type \
+        Snit_typemethodInfo  Snit_typemethodInfo \
+        Snit_typecomponents  Snit_typecomponents \
+        Snit_info            Snit_info
     
     # FIRST, get the pattern data and the typecomponent name.
     set implicitCreate 0
@@ -2476,9 +2492,10 @@ proc ::snit::RT.Component {type selfns name} {
 # cache.
 
 proc ::snit::RT.ComponentTrace {type selfns component n1 n2 op} {
-    upvar ${type}::Snit_info Snit_info
-    upvar ${selfns}::${component} cvar
-    upvar ${selfns}::Snit_components Snit_components
+    namespace upvar $type Snit_info Snit_info
+    namespace upvar $selfns \
+        $component      cvar            \
+        Snit_components Snit_components
         
     # If they try to redefine the hull component after
     # it's been defined, that's an error--but only if
@@ -2653,10 +2670,11 @@ proc ::snit::RT.ClearInstanceCaches {selfns} {
 proc ::snit::RT.installhull {type {using "using"} {widgetType ""} args} {
     variable ${type}::Snit_info
     variable ${type}::Snit_optionInfo
-    upvar self self
-    upvar selfns selfns
-    upvar ${selfns}::hull hull
-    upvar ${selfns}::options options
+    upvar 1 self self
+    upvar 1 selfns selfns
+    namespace upvar $selfns \
+        hull    hull        \
+        options options
 
     # FIRST, make sure we can do it.
     if {!$Snit_info(isWidget)} { 
@@ -2756,10 +2774,12 @@ proc ::snit::RT.installhull {type {using "using"} {widgetType ""} args} {
 proc ::snit::RT.install {type compName "using" widgetType winPath args} {
     variable ${type}::Snit_optionInfo
     variable ${type}::Snit_info
-    upvar self self
-    upvar selfns selfns
-    upvar ${selfns}::$compName comp
-    upvar ${selfns}::hull hull
+    upvar 1 self   self
+    upvar 1 selfns selfns
+
+    namespace upvar ${selfns} \
+        $compName comp        \
+        hull      hull
 
     # We do the magic option database stuff only if $self is
     # a widget.
@@ -2854,7 +2874,7 @@ proc ::snit::RT.install {type compName "using" widgetType winPath args} {
 
 # Implements %TYPE%::variable.  Requires selfns.
 proc ::snit::RT.variable {varname} {
-    upvar selfns selfns
+    upvar 1 selfns selfns
 
     if {![string match "::*" $varname]} {
         uplevel 1 [list upvar 1 ${selfns}::$varname $varname]
@@ -2877,7 +2897,7 @@ proc ::snit::RT.mytypevar {type name} {
 #
 # This is used to implement the myvar command.
 proc ::snit::RT.myvar {name} {
-    upvar selfns selfns
+    upvar 1 selfns selfns
     return ${selfns}::$name
 }
 
@@ -2917,7 +2937,7 @@ proc ::snit::RT.mytypemethod {type args} {
 # This is used to implement the "mymethod" command.
 
 proc ::snit::RT.mymethod {args} {
-    upvar selfns selfns
+    upvar 1 selfns selfns
     return [linsert $args 0 ::snit::RT.CallInstance ${selfns}]
 }
 
@@ -2934,7 +2954,7 @@ proc ::snit::RT.mymethod {args} {
 # This is used to implement the "mymethod" command.
 
 proc ::snit::RT.CallInstance {selfns args} {
-    upvar ${selfns}::Snit_instance self
+    namespace upvar $selfns Snit_instance self
 
     set retval [catch {uplevel 1 [linsert $args 0 $self]} result]
 
@@ -2961,7 +2981,7 @@ proc ::snit::RT.CallInstance {selfns args} {
 # Implements the "from" command.
 
 proc ::snit::RT.from {type argvName option {defvalue ""}} {
-    variable ${type}::Snit_optionInfo
+    namespace upvar $type Snit_optionInfo Snit_optionInfo
     upvar $argvName argv
 
     set ioption [lsearch -exact $argv $option]
@@ -2999,7 +3019,8 @@ proc ::snit::RT.typemethod.destroy {type} {
         if {![namespace exists $selfns]} {
             continue
         }
-        upvar ${selfns}::Snit_instance obj
+
+        namespace upvar $selfns Snit_instance obj
             
         if {$Snit_info(isWidget)} {
             destroy $obj
@@ -3279,8 +3300,9 @@ proc ::snit::RT.method.configure {type selfns win self args} {
 proc ::snit::RT.GetOptionDbSpec {type selfns win self opt} {
     variable ${type}::Snit_optionInfo
 
-    upvar ${selfns}::Snit_components Snit_components
-    upvar ${selfns}::options         options
+    namespace upvar $selfns \
+        Snit_components Snit_components \
+        options         options
     
     if {[info exists options($opt)]} {
         # This is a locally-defined option.  Just build the
@@ -3445,7 +3467,7 @@ proc ::snit::RT.typemethod.info.instances {type {pattern *}} {
     set result {}
 
     foreach selfns [namespace children $type] {
-        upvar ${selfns}::Snit_instance instance
+        namespace upvar $selfns Snit_instance instance
 
         if {[string match $pattern $instance]} {
             lappend result $instance
@@ -3591,7 +3613,8 @@ proc ::snit::RT.method.info.options {type selfns win self {pattern *}} {
     # If "configure" works as for Tk widgets, add the resulting
     # options to the list.  Skip excepted options
     if {$Snit_optionInfo(starcomp) ne ""} {
-        upvar ${selfns}::Snit_components Snit_components
+        namespace upvar $selfns Snit_components Snit_components
+
         set logicalName $Snit_optionInfo(starcomp)
         set comp $Snit_components($logicalName)
 
