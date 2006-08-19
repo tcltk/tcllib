@@ -15,7 +15,7 @@ http://www.wjduquette.com/snit for details).
 Differences Between Snit 2.0 and Snit 1.x
 --------------------------------------------------------------------
 
-* V2.0 and V1.x are being developed in parallel.
+V2.0 and V1.x are being developed in parallel.
 
   Version 2.0 takes advantage of some new Tcl/Tk 8.5 commands
   ([dict] and [namespace ensemble]) to improve Snit's run-time
@@ -26,19 +26,42 @@ Differences Between Snit 2.0 and Snit 1.x
 
   Snit 1.x is implemented in snit.tcl; Snit 2.0 in snit2.tcl.
 
-* There are three incompatibilities between V2.0 and V1.x:
+V2.0 includes the following enhancements over V1.x:
 
-  * Implicit naming of objects now only works if you set 
+* A type's code (methods, type methods, etc.) can now call commands
+  from the type's parent namespace without qualifying or importing
+  them, i.e., type ::parentns::mytype's code can call
+  ::parentns::someproc as just "someproc".
+
+  This is extremely useful when a type is defined as part of a larger
+  package, and shares a parent namespace with the rest of the package;
+  it means that the type can call other commands defined by the
+  package without any extra work.
+
+  This feature depends on the new Tcl 8.5 [namespace path] command,
+  which is why it hasn't been implemented for V1.x.  V1.x code can
+  achieve something similar by placing
+
+    namespace import [namespace parent]::*
+
+  in a type constructor.  This is less useful, however, as it picks up
+  only those commands which have already been exported by the parent
+  namespace at the time the type is defined.
+
+There are three incompatibilities between V2.0 and V1.x due to the use
+of [namespace ensemble]:
+
+* Implicit naming of objects now only works if you set 
     
-        pragma -hastypemethods 0
+    pragma -hastypemethods 0
 
-    in the type definition.  Otherwise, 
+  in the type definition.  Otherwise, 
 
-        set obj [mytype]
+    set obj [mytype]
 
-    will fail; you must use 
+  will fail; you must use 
 
-        set obj [mytype %AUTO%]
+    set obj [mytype %AUTO%]
 
 * In Snit 1.x and earlier, hierarchical methods and type methods
   could be called in two ways:
