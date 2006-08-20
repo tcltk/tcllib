@@ -13,6 +13,11 @@
 	method with 10 instance variables is over twice as fast
 	when the variables are declared using [namespace upvar] rather
 	than [::variable ${selfns}::varname].
+
+	* main2.tcl: Snit 2.x now uses [namespace upvar] for implicit
+	declaration of type variables as well.  It develops that
+	[namespace upvar] is a lot faster than [::variable] even when 
+	using the default namespace (e.g., "::variable varname").
 	
 2006-08-15  Will Duquette <will@wjduquette.com>
 	* main2.tcl, snit.test: Fixed Bug 1532791: "snit2, 
