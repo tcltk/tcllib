@@ -1120,7 +1120,11 @@ proc ::snit::Comp.statement.typevariable {name args} {
 		"\n\t    [list ::variable $name]"
     }
 
-    append compile(tvprocdec) "\n\t    typevariable ${name}"
+    if {$compile(tvprocdec) eq ""} {
+        set compile(tvprocdec) "\n\t"
+        append compile(tvprocdec) {namespace upvar %TYPE%}
+    }
+    append compile(tvprocdec) " [list $name $name]"
 } 
 
 # Defines an instance variable; the definition will go in the
