@@ -1,3 +1,8 @@
+2006-08-25  Jeff Hobbs  <jeffh@ActiveState.com>
+
+	* json.test: empty list test cases
+	* json.tcl (json::_json2dict): handle empty list case
+
 2006-08-18  Andreas Kupries  <andreask@activestate.com>
 
 	* json.man: Added some more keywords to the docs.
