@@ -5,7 +5,7 @@
 #
 #   Copyright 2006 ActiveState Software Inc.
 #
-#   $Id: json.tcl,v 1.1 2006/08/18 00:50:46 hobbs Exp $
+#   $Id: json.tcl,v 1.2 2006/08/25 23:19:53 hobbs Exp $
 #
 
 if {$::tcl_version < 8.5} {
@@ -154,7 +154,9 @@ proc json::_json2dict {{txtvar txt}} {
 	    # end of list
 	    getc
 	    if {![info exists listVal]} {
-		return -code error "unexpected close bracket in $state mode"
+		#return -code error "unexpected close bracket in $state mode"
+		# must be an empty list
+		return ""
 	    }
 
 	    return $listVal

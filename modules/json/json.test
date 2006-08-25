@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: json.test,v 1.1 2006/08/18 00:50:46 hobbs Exp $
+# RCS: @(#) $Id: json.test,v 1.2 2006/08/25 23:19:53 hobbs Exp $
 
 # -------------------------------------------------------------------------
 
@@ -116,13 +116,25 @@ set JSON(menu2) {{"menu": {
 }}
 set TCL(menu2) {menu {header Viewer items {{id Open} {label {Open New} id OpenNew} null {label {Zoom In} id ZoomIn} {label {Zoom Out} id ZoomOut} null {id Help} {label {About Viewer...} id About}}}}
 
+set JSON(emptyList) {[]}
+set TCL(emptyList) {}
+
+set JSON(emptyList2) {{"menu": []}}
+set TCL(emptyList2) {menu {}}
+
+set JSON(emptyList3) {["menu", []}}
+set TCL(emptyList3) {menu {}}
+
+set JSON(emptyList4) {[[]]}
+set TCL(emptyList4) {{}}
+
 # -------------------------------------------------------------------------
 # Tests
 # -------------------------------------------------------------------------
 
 set i 0
 foreach name [array names JSON] {
-    test json-1.[incr i] "test JSON($name)" \
+    test json-1.[incr i] "test JSON $name" \
         "set res \[json::json2dict \$JSON($name)\]" $TCL($name)
 }
 
