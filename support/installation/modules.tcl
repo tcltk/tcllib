@@ -64,6 +64,7 @@ Module  htmlparse   _tcl  _man  _null
 Module  http        _tcl  _man  _null
 Module  ident       _tcl  _man  _null
 Module  inifile     _tcl  _man  _null
+Module  interp      _tcl  _man  _null
 Module  irc         _tcl  _man _exa
 Module  javascript  _tcl  _man  _null
 Module  jpeg        _tcl  _man  _null
