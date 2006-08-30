@@ -1,21 +1,24 @@
+2006-08-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* support/installation/modules.tcl: New module 'interp'.
+
 2006-08-17  Jeff Hobbs  <jeffh@ActiveState.com>
 
 	* support/installation/modules.tcl: added json package
 
 2006-08-15  Michael Schlenker  <mic42@users.sourceforge.net>
 
-	* Added support for nagelfar (nagelfar.berlios.de) to
-	  the static syntax checking options of sak.tcl while
-	  doing a validate or validate_all.
-	  Fixed a slight inconsistency between validate and validate
-	  all, tclchecker was not checked for validate.
+	* sak.tcl: Added support for nagelfar (nagelfar.berlios.de) to the
+	  static syntax checking options of sak.tcl while doing a validate
+	  or validate_all. Fixed a slight inconsistency between validate
+	  and validate all, tclchecker was not checked for validate.
 	  
 2006-08-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* Makefile.in (*-doc): Forgotten to update the Mkefile targets for
-	  documentation when changing the sak syntax for invoking a doc
-	  conversion. See entry 2006-07-09. Thanks to wohnivec@dix.cz for
-	  noticing and provision of a patch.
+	* Makefile.in (*-doc): Forgotten to update the Makefile targets
+	  for documentation when changing the sak syntax for invoking a
+	  doc conversion. See entry 2006-07-09. Thanks to wohnivec@dix.cz
+	  for noticing and provision of a patch.
 
 2006-08-10  Andreas Kupries  <andreask@activestate.com>
 

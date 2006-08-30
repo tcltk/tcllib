@@ -1,0 +1,13 @@
+2006-08-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* deleg_proc.tcl: Creation of delegation procedures.
+	* deleg_proc.test: 
+
+	* deleg_method.tcl: Creation of delegation methods.
+	* deleg_method.test: 
+
+2006-08-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* interp.tcl: New module. Interpreter creation and alias
+	* interp.man: utility commands. Basic testsuite.
+	* interp.test:
