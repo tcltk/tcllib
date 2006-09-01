@@ -1,3 +1,45 @@
+2006-09-01  Michael Schlenker <mic42@users.sourceforge.net>
+        * ldap.tcl      Major changes to the implementation.
+          ldap.man      The package now uses a fileevent based
+          ldap.test     protocol handler instead of the older blocking
+          pkgIndex.tcl  calls.
+          SASL.txt
+          
+          ***POTENTIAL INCOMPATIBILITY***
+          Connection failures are no longer handled in the blocking
+          ldap::* commands, instead they appear in the fileevent handler
+          and have to be handled with a bgerror procedure.
+          
+          I will add a per handle -errorcallback to the package soon, 
+          which will allow user specified handlers, but those are not
+          yet done.
+          
+          Applied modified patches [SF Tcllib Patches 1542666, 1541828],
+          thanks to Pierre David for comments and code.
+          
+          In addition to this change experimental new (sub-)commands
+          were added:
+          
+          This change introduces new subcommands to ldap::info:
+          
+          saslmechanisms - show the supported SASL mechanisms
+          features       - show the supported server features
+          control        - show the supported server controls
+          extensions     - show the supported server extensions 
+          whoami         - show the current authzId
+          
+          In addition it introduces a new ldap::starttls command,
+          which allows to upgrade an existing connection to TLS,
+          if the tls extension is present and the server supports it.
+          This may be part of a fix for [Tcllib Bug # 1403369].
+          
+          There is also a new ldap::bindSASL command available,
+          which allows a SASL based bind with the help of the
+          tcllib SASL package. See the SASL.txt file for an example.
+          
+          The code has been tested a bit against OpenLDAP 2.3, but is
+          not entirely stable yet.
+          
 2006-08-03  Michael Schlenker <mic42@users.sourceforge.net>
 
         * ldap.tcl    : Applied patch from [SF Tcllib Bug 1191326].
