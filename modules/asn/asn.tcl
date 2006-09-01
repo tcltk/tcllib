@@ -38,7 +38,7 @@
 #   written by Jochen Loewer
 #   3 June, 1999
 #
-#   $Id: asn.tcl,v 1.14 2006/08/16 17:18:51 mic42 Exp $
+#   $Id: asn.tcl,v 1.15 2006/09/01 14:03:26 mic42 Exp $
 #
 #-----------------------------------------------------------------------------
 
@@ -90,6 +90,13 @@ namespace eval asn {
         asnGetUTCTime \
         asnGetBitString \
         asnGetContext 
+    
+    # general BER utility commands    
+    namespace export \
+        asnPeekByte  \
+        asnGetLength \
+        asnRetag         
+        
 }
 
 #-----------------------------------------------------------------------------
@@ -703,7 +710,7 @@ proc ::asn::asnGetResponse {sock data_var} {
 
 proc ::asn::asnGetByte {data_var byte_var} {
     upvar $data_var data $byte_var byte
-
+    
     binary scan [string index $data 0] c byte
     set byte [expr {($byte + 0x100) % 0x100}]  
     set data [string range $data 1 end]
@@ -723,6 +730,16 @@ proc ::asn::asnPeekByte {data_var byte_var} {
     set byte [expr {($byte + 0x100) % 0x100}]  
 
     return
+}
+
+#-----------------------------------------------------------------------------
+# ansRetag: Remove an explicit tag with the real newTag
+#
+#-----------------------------------------------------------------------------
+proc ::asn::asnRetag {data_var newTag} {
+    upvar 1 $data_var data  
+    asnGetByte data tag
+    set data [binary format c $newTag]$data
 }
 
 #-----------------------------------------------------------------------------
@@ -1049,7 +1066,7 @@ proc ::asn::asnGetApplication {data_var appNumber_var {content_var {}}} {
     }    
     set appNumber [expr {$tag & 0x1F}]
 	if {[string length $content_var]} {
-		upvar $content_var content
+		upvar 1 $content_var content
 		asnGetBytes data $length content
 	}	
     return
@@ -1184,12 +1201,12 @@ proc asn::asnGetObjectIdentifier {data_var oid_var} {
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnGetContext {data_var contextNumber_var {content_var {}}} {
-    upvar $data_var data $contextNumber_var contextNumber
+    upvar 1 $data_var data $contextNumber_var contextNumber
 
     asnGetByte   data tag
     asnGetLength data length
 
-    if {($tag & 0xE0) != 0x0A0} {
+    if {($tag & 0xE0) != 0x0a0} {
         return -code error \
             [format "Expected Context (0xa0), but got %02x" $tag]
     }    
@@ -1200,12 +1217,14 @@ proc ::asn::asnGetContext {data_var contextNumber_var {content_var {}}} {
 	}	
     return
 }
+
+
 #-----------------------------------------------------------------------------
 # asnGetNumericString: Decode a Numeric String from the data
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnGetNumericString {data_var print_var} {
-    upvar $data_var data $print_var print
+    upvar 1 $data_var data $print_var print
 
     asnGetByte data tag
     if {$tag != 0x12} {
@@ -1388,5 +1407,5 @@ proc ::asn::asnString {string} {
 }
 
 #-----------------------------------------------------------------------------
-package provide asn 0.6.1
+package provide asn 0.7
 
