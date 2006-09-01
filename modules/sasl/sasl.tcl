@@ -17,7 +17,7 @@ package require Tcl 8.2
 
 namespace eval ::SASL {
     variable version 1.2.0
-    variable rcsid {$Id: sasl.tcl,v 1.7 2006/04/26 09:05:11 patthoyts Exp $}
+    variable rcsid {$Id: sasl.tcl,v 1.8 2006/09/01 14:40:14 patthoyts Exp $}
 
     variable uid
     if {![info exists uid]} { set uid 0 }
@@ -594,6 +594,68 @@ proc ::SASL::CreateNonce {} {
 
 ::SASL::register DIGEST-MD5 40 \
     ::SASL::DIGEST-MD5:client ::SASL::DIGEST-MD5:server
+
+# -------------------------------------------------------------------------
+
+# OTP SASL MECHANISM
+#
+# 	Implementation of the OTP SASL mechanism (RFC2444).
+#
+# Comments:
+#
+#	RFC 2289: A One-Time Password System
+#	RFC 2444: OTP SASL Mechanism
+#	RFC 2243: OTP Extended Responses
+#	Client initializes with authid\0authzid
+#	Server responds with extended OTP responses 
+# 	eg: otp-md5 498 bi32123 ext
+#	Client responds with otp result as:
+#	 hex:xxxxxxxxxxxxxxxx
+# 	or
+#	 word:WWWW WWW WWWW WWWW WWWW
+#
+#	To support changing the otp sequence the extended commands have:
+#	  init-hex:<current>:<new params>:<new>
+#	eg: init-hex:xxxxxxxxxxxx:md5 499 seed987:xxxxxxxxxxxxxx
+#	or init-word
+
+proc ::SASL::OTP:client {context challenge args} {
+    upvar #0 $context ctx
+    package require otp
+    incr ctx(step)
+    switch -exact -- $ctx(step) {
+        1 {
+            set authzid  [eval $ctx(callback) [list $context login]]
+            set username [eval $ctx(callback) [list $context username]]
+            set ctx(response) "$authzid\x00$username"
+            set cont 1
+        }
+        2 {
+            foreach {type count seed ext} $challenge break
+            set type [lindex [split $type -] 1]
+            if {[lsearch -exact {md4 md5 sha1 rmd160} $type] == -1} {
+                return -code error "unsupported digest algorithm \"$type\":\
+                    must be one of md4, md5, sha1 or rmd160"
+            }
+            set challenge [lrange $challenge 3 end]
+            set password [eval $ctx(callback) [list $context password]]
+            set otp [::otp::otp-$type -words -seed $seed \
+                         -count $count $password]
+            if {[string match "ext*" $ext]} {
+                set otp word:$otp
+            }
+            set ctx(response) $otp
+            set cont 0
+        }
+        default {
+            return -code error "unexpected state \"$ctx(step)\":\
+               the SASL OTP mechanism only has 2 steps"
+        }
+    }
+    return $cont
+}
+
+::SASL::register OTP 35 ::SASL::OTP:client
 
 # -------------------------------------------------------------------------
 
