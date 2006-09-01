@@ -38,7 +38,12 @@ test dproc-1.2 {wrong#args} {
 } {wrong # args}
 
 test dproc-1.3 {wrong#args} {
-    catch {snit::type foo {interp::delegate::method a b c d}} msg
+    catch {snit::type foo {interp::delegate::method a b c}} msg
+    set msg
+} {wrong # args}
+
+test dproc-1.4 {wrong#args} {
+    catch {snit::type foo {interp::delegate::method a b c d e}} msg
     set msg
 } {wrong # args}
 
@@ -53,7 +58,7 @@ test dproc-2.0 {bad switch} {
 
 test dproc-3.0 {delegation result} {
     snit::type foo {
-	interp::delegate::method FOO request {}
+	interp::delegate::method request {} COMM ID
     }
     res!
     foo bar
@@ -68,7 +73,7 @@ test dproc-3.0 {delegation result} {
 
 test dproc-4.0 {signature} {
     snit::type foo {
-	interp::delegate::method FOO request {}
+	interp::delegate::method request {} COMM ID
     }
     res!
     res+ \
@@ -76,11 +81,11 @@ test dproc-4.0 {signature} {
 	    [string trimleft [info body foo::Snit_methodrequest]]
     foo destroy
     res?
-} {{{} {FOO send request}}}
+} {{{} {COMM send ID request}}}
 
 test dproc-4.1 {signature} {
     snit::type foo {
-	interp::delegate::method FOO request {a b}
+	interp::delegate::method request {a b} COMM ID
     }
     res!
     res+ \
@@ -88,11 +93,11 @@ test dproc-4.1 {signature} {
 	    [string trimleft [info body foo::Snit_methodrequest]]
     foo destroy
     res?
-} {{{a b} {FOO send [list request $a $b]}}}
+} {{{a b} {COMM send ID [list request $a $b]}}}
 
 test dproc-4.2 {signature} {
     snit::type foo {
-	interp::delegate::method FOO request {a b args}
+	interp::delegate::method request {a b args} COMM ID
     }
     res!
     res+ \
@@ -100,11 +105,11 @@ test dproc-4.2 {signature} {
 	    [string trimleft [info body foo::Snit_methodrequest]]
     foo destroy
     res?
-} {{{a b args} {FOO send [linsert $args 0 request $a $b]}}}
+} {{{a b args} {COMM send ID [linsert $args 0 request $a $b]}}}
 
 test dproc-4.3 {signature} {
     snit::type foo {
-	interp::delegate::method FOO request {args}
+	interp::delegate::method request {args} COMM ID
     }
     res!
     res+ \
@@ -112,13 +117,13 @@ test dproc-4.3 {signature} {
 	    [string trimleft [info body foo::Snit_methodrequest]]
     foo destroy
     res?
-} {{args {FOO send [linsert $args 0 request]}}}
+} {{args {COMM send ID [linsert $args 0 request]}}}
 
 # -------------------------------------------------------------------------
 
 test dproc-5.0 {signature} {
     snit::type foo {
-	interp::delegate::method -async FOO request {}
+	interp::delegate::method -async request {} COMM ID
     }
     res!
     res+ \
@@ -126,11 +131,11 @@ test dproc-5.0 {signature} {
 	    [string trimleft [info body foo::Snit_methodrequest]]
     foo destroy
     res?
-} {{{} {FOO send -async request}}}
+} {{{} {COMM send -async ID request}}}
 
 test dproc-5.1 {signature} {
     snit::type foo {
-	interp::delegate::method -async FOO request {a b}
+	interp::delegate::method -async request {a b} COMM ID
     }
     res!
     res+ \
@@ -138,11 +143,11 @@ test dproc-5.1 {signature} {
 	    [string trimleft [info body foo::Snit_methodrequest]]
     foo destroy
     res?
-} {{{a b} {FOO send -async [list request $a $b]}}}
+} {{{a b} {COMM send -async ID [list request $a $b]}}}
 
 test dproc-5.2 {signature} {
     snit::type foo {
-	interp::delegate::method -async FOO request {a b args}
+	interp::delegate::method -async request {a b args} COMM ID
     }
     res!
     res+ \
@@ -150,11 +155,11 @@ test dproc-5.2 {signature} {
 	    [string trimleft [info body foo::Snit_methodrequest]]
     foo destroy
     res?
-} {{{a b args} {FOO send -async [linsert $args 0 request $a $b]}}}
+} {{{a b args} {COMM send -async ID [linsert $args 0 request $a $b]}}}
 
 test dproc-5.3 {signature} {
     snit::type foo {
-	interp::delegate::method -async FOO request {args}
+	interp::delegate::method -async request {args} COMM ID
     }
     res!
     res+ \
@@ -162,7 +167,7 @@ test dproc-5.3 {signature} {
 	    [string trimleft [info body foo::Snit_methodrequest]]
     foo destroy
     res?
-} {{args {FOO send -async [linsert $args 0 request]}}}
+} {{args {COMM send -async ID [linsert $args 0 request]}}}
 
 # -------------------------------------------------------------------------
 
