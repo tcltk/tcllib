@@ -1,0 +1,6 @@
+2006-09-01  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* modules/otp/otp.tcl:  Initial version of RFC 2289 implementation
+	* modules/otp/otp.test: "A One-Time Password System"
+	* modules/otp/otp.man:
+
