@@ -1,12 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin asn n 0.6.1]
+[manpage_begin asn n 0.7]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {2004 Jochen Loewer <loewerj@web.de>}]
 [copyright {2004-2006 Michael Schlenker <mic42@users.sourceforge.net>}]
 [moddesc   {ASN.1 processing}]
 [titledesc {ASN.1 BER encoder/decoder}]
 [require Tcl 8.4]
-[require asn [opt 0.6.1]]
+[require asn [opt 0.7]]
 [description]
 [para]
 
@@ -33,7 +33,6 @@ and should be read by any implementor.
 
 
 [section {PUBLIC API}]
-
 [subsection ENCODER]
 
 [list_begin definitions]
@@ -165,7 +164,7 @@ General notes:
 
 [list_begin enum]
 [enum]
-All decoder commands take two arguments. These arguments are variable
+Nearly decoder commands take two arguments. These arguments are variable
 names, except for [cmd ::asn::asnGetResponse]. The first variable
 contains the encoded ASN value to decode at the beginning, and more,
 and the second variable is where the value is stored to. The remainder
@@ -183,6 +182,22 @@ extracted value after the call, and not the remainder of the input.
 
 [para]
 [list_begin definitions]
+[call [cmd ::asn::asnPeekByte] [arg data_var] [arg byte_var]]
+
+Retrieve the first byte of the data, without modifing [arg data_var].
+This can be used to check for implicit tags.
+
+[call [cmd ::asn::asnRetag] [arg data_var] [arg newTag]]
+
+Replace the tag in front of the data with [arg newTag]. Use to
+handle implicitely tagged data before further decoding.
+
+[call [cmd ::asn::asnGetLength] [arg data_var] [arg length_var]]
+
+Decode the length information for a block of BER data. The tag has already
+to be removed from the data.
+
+
 
 [call [cmd ::asn::asnGetResponse] [arg chan] [arg data_var]]
 
