@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: ldap.test,v 1.1 2006/06/13 07:59:26 mic42 Exp $
+# RCS: @(#) $Id: ldap.test,v 1.2 2006/09/01 14:21:34 mic42 Exp $
 
 # -------------------------------------------------------------------------
 
@@ -28,18 +28,6 @@ proc printerror {script} {
 # -------------------------------------------------------------------------
 # Tests
 # -------------------------------------------------------------------------
-
-test ldap-1.0 {check info subcommand, no subcommand
-} -body {
-    printerror {ldap::info}
-} -returnCodes {error} \
-  -errorOutput {Usage info connections|ip handle|bound handle|tls handle}
-
-test ldap-1.1 {check info subcommand, wrong subcommand 
-} -body {
-   printerror {ldap::info foo}
-} -returnCodes {error} \
-  -errorOutput {Invalid subcommand "foo", valid commands are connections,ip,bound and tls}
 
 test ldap-2.0 {check info ip subcommand error handling
 } -body {
@@ -77,9 +65,21 @@ test ldap-5.0 {check info tls subcommand error handling
 } -returnCodes {error} \
   -errorOutput {Wrong # of arguments. Usage: ldap::info tls handle}
 
-test ldap-4.1 {check info tls subcommand error handling
+test ldap-5.1 {check info tls subcommand error handling
 } -body {
    printerror {ldap::info tls foobar}
+} -returnCodes {error} \
+  -errorOutput {"foobar" is not a ldap connection handle}
+
+test ldap-6.0 {check info bounduser subcommand error handling
+} -body {
+   printerror {ldap::info bounduser}
+} -returnCodes {error} \
+  -errorOutput {Wrong # of arguments. Usage: ldap::info bounduser handle}
+
+test ldap-6.1 {check info bounduser subcommand error handling
+} -body {
+   printerror {ldap::info bounduser foobar}
 } -returnCodes {error} \
   -errorOutput {"foobar" is not a ldap connection handle}
 
