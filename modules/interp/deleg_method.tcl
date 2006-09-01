@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: deleg_method.tcl,v 1.1 2006/08/30 07:22:38 andreas_kupries Exp $
+# RCS: @(#) $Id: deleg_method.tcl,v 1.2 2006/09/01 19:58:21 andreas_kupries Exp $
 
 package require Tcl 8.3
 package require snit
@@ -22,7 +22,7 @@ namespace eval ::interp::delegate {}
 ## Public API
 
 snit::macro ::interp::delegate::method {args} {
-    # syntax: ?-async? comm name arguments
+    # syntax: ?-async? name arguments comm id
 
     set async 0
     while {[string match -* [set opt [lindex $args 0]]]} {
@@ -33,10 +33,10 @@ snit::macro ::interp::delegate::method {args} {
 	    }
 	}
     }
-    if {[llength $args] != 3} {
+    if {[llength $args] != 4} {
 	return -code error "wrong # args"
     }
-    foreach {comm name arguments} $args break
+    foreach {name arguments comm rid} $args break
 
     if {![llength $arguments]} {
 	set delegate "[list $name]"
@@ -50,11 +50,10 @@ snit::macro ::interp::delegate::method {args} {
 	set delegate "\[list [list $name] \$[join $arguments " \$"]\]"
     }
 
-    if {$async} {
-	set body "[list $comm] send -async $delegate"
-    } else {
-	set body "[list $comm] send $delegate"
-    }
+    set    body ""
+    append body [list $comm] " " "send "
+    if {$async} {append body "-async "}
+    append body [list $rid] " " $delegate
 
     ::method $name $arguments $body
 }
@@ -62,4 +61,4 @@ snit::macro ::interp::delegate::method {args} {
 # ### ### ### ######### ######### #########
 ## Ready to go
 
-package provide interp::delegate::method 0.1
+package provide interp::delegate::method 0.2

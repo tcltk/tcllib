@@ -35,7 +35,12 @@ test dproc-1.2 {wrong#args} {
 } {wrong # args}
 
 test dproc-1.3 {wrong#args} {
-    catch {interp::delegate::proc a b c d} msg
+    catch {interp::delegate::proc a b c} msg
+    set msg
+} {wrong # args}
+
+test dproc-1.4 {wrong#args} {
+    catch {interp::delegate::proc a b c d e} msg
     set msg
 } {wrong # args}
 
@@ -52,7 +57,7 @@ test dproc-3.0 {delegation result} {
     res!
     res+ \
 	    [info commands request] \
-	    [interp::delegate::proc FOO request {}] \
+	    [interp::delegate::proc request {} FOO ID] \
 	    [info commands request]
     rename request {}
     res?
@@ -63,84 +68,84 @@ test dproc-3.0 {delegation result} {
 test dproc-4.0 {signature} {
     res!
     res+ \
-	    [interp::delegate::proc FOO {re quest} {}] \
+	    [interp::delegate::proc {re quest} {} COMM ID] \
 	    [info args {re quest}] \
 	    [info body {re quest}]
     rename {re quest} {}
     res?
-} {{{re quest} {} {FOO send {re quest}}}}
+} {{{re quest} {} {COMM send ID {re quest}}}}
 
 test dproc-4.1 {signature} {
     res!
     res+ \
-	    [interp::delegate::proc FOO {re quest} {a b}] \
+	    [interp::delegate::proc {re quest} {a b} COMM ID] \
 	    [info args {re quest}] \
 	    [info body {re quest}]
     rename {re quest} {}
     res?
-} {{{re quest} {a b} {FOO send [list {re quest} $a $b]}}}
+} {{{re quest} {a b} {COMM send ID [list {re quest} $a $b]}}}
 
 test dproc-4.2 {signature} {
     res!
     res+ \
-	    [interp::delegate::proc FOO {re quest} {a b args}] \
+	    [interp::delegate::proc {re quest} {a b args} COMM ID] \
 	    [info args {re quest}] \
 	    [info body {re quest}]
     rename {re quest} {}
     res?
-} {{{re quest} {a b args} {FOO send [linsert $args 0 {re quest} $a $b]}}}
+} {{{re quest} {a b args} {COMM send ID [linsert $args 0 {re quest} $a $b]}}}
 
 test dproc-4.3 {signature} {
     res!
     res+ \
-	    [interp::delegate::proc FOO {re quest} {args}] \
+	    [interp::delegate::proc {re quest} {args} COMM ID] \
 	    [info args {re quest}] \
 	    [info body {re quest}]
     rename {re quest} {}
     res?
-} {{{re quest} args {FOO send [linsert $args 0 {re quest}]}}}
+} {{{re quest} args {COMM send ID [linsert $args 0 {re quest}]}}}
 
 # -------------------------------------------------------------------------
 
 test dproc-5.0 {signature} {
     res!
     res+ \
-	    [interp::delegate::proc -async FOO {re quest} {}] \
+	    [interp::delegate::proc -async {re quest} {} COMM ID] \
 	    [info args {re quest}] \
 	    [info body {re quest}]
     rename {re quest} {}
     res?
-} {{{re quest} {} {FOO send -async {re quest}}}}
+} {{{re quest} {} {COMM send -async ID {re quest}}}}
 
 test dproc-5.1 {signature} {
     res!
     res+ \
-	    [interp::delegate::proc -async FOO {re quest} {a b}] \
+	    [interp::delegate::proc -async {re quest} {a b} COMM ID] \
 	    [info args {re quest}] \
 	    [info body {re quest}]
     rename {re quest} {}
     res?
-} {{{re quest} {a b} {FOO send -async [list {re quest} $a $b]}}}
+} {{{re quest} {a b} {COMM send -async ID [list {re quest} $a $b]}}}
 
 test dproc-5.2 {signature} {
     res!
     res+ \
-	    [interp::delegate::proc -async FOO {re quest} {a b args}] \
+	    [interp::delegate::proc -async {re quest} {a b args} COMM ID] \
 	    [info args {re quest}] \
 	    [info body {re quest}]
     rename {re quest} {}
     res?
-} {{{re quest} {a b args} {FOO send -async [linsert $args 0 {re quest} $a $b]}}}
+} {{{re quest} {a b args} {COMM send -async ID [linsert $args 0 {re quest} $a $b]}}}
 
 test dproc-5.3 {signature} {
     res!
     res+ \
-	    [interp::delegate::proc -async FOO {re quest} {args}] \
+	    [interp::delegate::proc -async {re quest} {args} COMM ID] \
 	    [info args {re quest}] \
 	    [info body {re quest}]
     rename {re quest} {}
     res?
-} {{{re quest} args {FOO send -async [linsert $args 0 {re quest}]}}}
+} {{{re quest} args {COMM send -async ID [linsert $args 0 {re quest}]}}}
 
 # -------------------------------------------------------------------------
 

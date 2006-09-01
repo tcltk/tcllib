@@ -1,3 +1,14 @@
+2006-09-01  Andreas Kupries <andreask@activestate.com>
+
+	* deleg_proc.man:    Added manpages for the packages creating
+	* deleg_merthod.man: delegation procedures and methods.
+
+	* deleg_proc.tcl:    Fixed bug, forgot that not only a comm
+	* deleg_method.tcl:  channel is needed, but also the id of
+	* deleg_proc.test:   the remote location. Added argument,
+	* deleg_method.test: shuffled arguments, updated testsuites.
+	* pkgIndex.tcl:      ** INCOMPATIBILITY ** Version bumped to 0.2
+
 2006-08-30  Andreas Kupries <andreask@activestate.com>
 
 	* interp.man:        Renamed the manpage, avoid clash with
