@@ -32,6 +32,7 @@ array set guide {}
 
 Exclude calendar
 
+#       name         pkg   doc   example
 Module  aes         _tcl  _man  _null
 Module  asn         _tcl  _man  _null
 Module  base64      _tcl  _man  _null
@@ -81,6 +82,7 @@ Module  ncgi        _tcl  _man  _null
 Module  nmea        _tcl  _man  _null
 Module  nntp        _tcl  _man _exa
 Module  ntp         _tcl  _man _exa
+Module  otp         _tcl  _man  _null
 Module  page         _tcr _man  _null
 Module  pluginmgr   _tcl  _man  _null
 Module  png         _tcl  _man  _null
