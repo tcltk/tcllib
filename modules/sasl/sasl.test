@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: sasl.test,v 1.7 2006/04/26 09:05:11 patthoyts Exp $
+# RCS: @(#) $Id: sasl.test,v 1.8 2006/09/02 23:00:55 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 
@@ -240,6 +240,20 @@ test SASL-DIGESTMD5-4.2 "bug #1412021: ensure service used correctly" {
         string compare $r $R(response)
     } res] $res
 } [list 0 0]
+
+test SASL-OTP-5.0 {Check basic OTP (otp-md5) operation} {
+    list [catch {
+        set r {}
+        set ctx [SASL::new -mechanism OTP \
+                     -callback [list SASLCallback 0]]
+        SASL::step $ctx ""
+        lappend r [SASL::response $ctx]
+        SASL::step $ctx "otp-md5 5 test5 ext"
+        lappend r [SASL::response $ctx]
+        SASL::cleanup $ctx
+        set r
+    } res] $res
+} [list 0 [list "\x00tester" "word:RIG ACRE TALL CALL OAR NEIL"]]
 
 # -------------------------------------------------------------------------
 
