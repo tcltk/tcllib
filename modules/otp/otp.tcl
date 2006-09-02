@@ -12,7 +12,7 @@ package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::otp {
     variable version 1.0.0
-    variable rcsid {$Id: otp.tcl,v 1.1 2006/09/01 08:09:50 patthoyts Exp $}
+    variable rcsid {$Id: otp.tcl,v 1.2 2006/09/02 22:30:17 patthoyts Exp $}
 
     namespace export otp-md4 otp-md5 otp-sha1 otp-rmd160
 
@@ -354,6 +354,7 @@ proc ::otp::otp {args} {
     while {[string match -* [set option [lindex $args 0]]]} {
         switch -exact -- $option {
             -hex   { set opts(-hex) 1}
+            -word - 
             -words { set opts(-words) 1 }
             -hash  { set opts(-hash) [Pop args 1] }
             -seed  { set opts(-seed) [Pop args 1] }
@@ -373,9 +374,6 @@ proc ::otp::otp {args} {
 
     if {[string length $opts(-seed)] < 1 || [string length $opts(-seed)] > 16} {
         return -code error "seed must be between 1 and 16 characters in length"
-    }
-    if {[string length $data] < 11} {
-        return -code error "passphrase too short: only [string length $data] bytes provided"
     }
     switch -exact -- $opts(-hash) {
         md4  { set func ::md4::md4  ; set fold ::otp::Fold64LE }
