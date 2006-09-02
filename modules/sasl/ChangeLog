@@ -1,3 +1,10 @@
+2006-09-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sasl.tcl:     Incremented package version to 1.3.0, updated
+	* sasl.man:     the manual page to cover the OTP mechanism
+	* sasl.test:    and added a test for OTP client functionality.
+	* pkgIndex.tcl:
+
 2006-09-01  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* sasl.tcl:   Support OTP mechanism (depends upon the otp module).

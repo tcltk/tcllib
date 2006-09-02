@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin SASL n 1.2.0]
+[manpage_begin SASL n 1.3.0]
 [copyright {2005-2006, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc {Simple Authentication and Security Layer (SASL)}]
 [titledesc {Implementation of SASL mechanisms for Tcl}]
 [require Tcl 8.2]
-[require SASL [opt 1.2]]
+[require SASL [opt 1.3]]
 [description]
 [para]
 
@@ -221,6 +221,15 @@ password which helps to make the system more secure. As in CRAM-MD5
 the password is hashed with a server nonce and other data before being
 transmitted across the network. Specified in [lb]3[rb].
 
+[lst_item "OTP"]
+
+OTP is the One-Time Password system described in RFC 2289 [lb]6[rb].
+This mechanism is secure against replay attacks and also avoids storing
+password or password equivalents on the server. Only a digest of a seed
+and a passphrase is ever transmitted across the network. Requires the 
+[package otp] package from tcllib and one or more of the cryptographic 
+digest packages (md5 or sha-1 are the most commonly used).
+
 [lst_item "NTLM"]
 
 This is a proprietary protocol developed by Microsoft [lb]5[rb] and is
@@ -253,7 +262,7 @@ with network protocols. The following should give an idea how the SASL
 commands are to be used. In reality this should be event
 driven. Each time the [cmd step] command is called, the last server
 response should be provided as the command argument so that the SASL
-mechanism can take approriate action.
+mechanism can take appropriate action.
 
 [example {
 proc ClientCallback {context command args} {
@@ -309,6 +318,11 @@ proc Demo {{mech PLAIN}} {
     No official specification is available. However,
     [uri http://davenport.sourceforge.net/ntlm.html] provides a good
     description.
+
+[enum]
+    Haller, N. et al., "A One-Time Password System",
+    RFC 2289, February 1998,
+    ([uri http://www.ieft.org/rfc/rfc2289.txt])
 
 [list_end]
 
