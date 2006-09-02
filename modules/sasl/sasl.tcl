@@ -16,8 +16,8 @@
 package require Tcl 8.2
 
 namespace eval ::SASL {
-    variable version 1.2.0
-    variable rcsid {$Id: sasl.tcl,v 1.9 2006/09/02 22:32:19 patthoyts Exp $}
+    variable version 1.3.0
+    variable rcsid {$Id: sasl.tcl,v 1.10 2006/09/02 23:00:55 patthoyts Exp $}
 
     variable uid
     if {![info exists uid]} { set uid 0 }
