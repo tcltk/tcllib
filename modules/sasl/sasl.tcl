@@ -17,7 +17,7 @@ package require Tcl 8.2
 
 namespace eval ::SASL {
     variable version 1.2.0
-    variable rcsid {$Id: sasl.tcl,v 1.8 2006/09/01 14:40:14 patthoyts Exp $}
+    variable rcsid {$Id: sasl.tcl,v 1.9 2006/09/02 22:32:19 patthoyts Exp $}
 
     variable uid
     if {![info exists uid]} { set uid 0 }
@@ -639,7 +639,7 @@ proc ::SASL::OTP:client {context challenge args} {
             }
             set challenge [lrange $challenge 3 end]
             set password [eval $ctx(callback) [list $context password]]
-            set otp [::otp::otp-$type -words -seed $seed \
+            set otp [::otp::otp-$type -word -seed $seed \
                          -count $count $password]
             if {[string match "ext*" $ext]} {
                 set otp word:$otp
@@ -655,7 +655,7 @@ proc ::SASL::OTP:client {context challenge args} {
     return $cont
 }
 
-::SASL::register OTP 35 ::SASL::OTP:client
+::SASL::register OTP 45 ::SASL::OTP:client
 
 # -------------------------------------------------------------------------
 
