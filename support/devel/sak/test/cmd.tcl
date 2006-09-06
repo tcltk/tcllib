@@ -8,14 +8,21 @@
 # * sbase - Location of all files supporting the SAK.
 
 package require sak::util
-if {![sak::util::checkModules argv]} return
+package require sak::test
 
-puts "@@ Shell is \"[info nameofexecutable]\""
+if {![llength $argv]} {
+    sak::test::usage Command missing
+}
 
-exec [info nameofexecutable] \
-    [file join $distribution support devel all.tcl] \
-    -modules $argv \
-    >@ stdout 2>@ stderr
+set cmd  [lindex $argv 0]
+set argv [lrange $argv 1 end]
+
+if {[catch {package require sak::test::$cmd} msg]} {
+    sak::test::usage Unknown command \"$cmd\" : \
+	    \n $::errorInfo
+}
+
+sak::test::$cmd $argv
 
 ##
 # ###
