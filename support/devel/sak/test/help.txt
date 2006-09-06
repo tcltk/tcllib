@@ -29,3 +29,6 @@
 
         Removes the specified paths from the list of shells to use
         when executing testsuites.
+
+    NOTE: The list of registered shells is a per-user configuration
+	  setting and is saved in the file "$HOME/.Tcllib/Registry".
