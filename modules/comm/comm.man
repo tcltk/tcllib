@@ -1,10 +1,11 @@
-[manpage_begin comm n 4.3.1]
+[manpage_begin comm n 4.3.2]
 [copyright {1995-1998 The Open Group. All Rights Reserved.}]
 [copyright {2003-2004 ActiveState Corporation.}]
+[copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Remote communication}]
 [titledesc {A remote communication facility for Tcl (7.6, 8.0, and later)}]
 [require Tcl 8.2]
-[require comm [opt 4.3.1]]
+[require comm [opt 4.3.2]]
 [description]
 
 [para]
@@ -395,7 +396,8 @@ These are the defined [emph events]:
 [lst_item [const connecting]]
 
 Variables:
-[var chan], [var id], [var host], and [var port].
+[var chan], [var id]
+[comment {[var host], and [var port] are NOT defined when this is called}]
 [nl]
 
 This hook is invoked before making a connection to the remote named in
@@ -726,6 +728,11 @@ Note that requiring no version (or a specific version) can also be done.
 The revision history of [package comm] includes these releases:
 
 [list_begin definitions]
+
+[lst_item 4.3.2]
+
+Bugfixes in the handling of -interp for regular and hook
+scripts. Bugfixes in channel cleanup.
 
 [lst_item 4.3.1]
 

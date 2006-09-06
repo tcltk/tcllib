@@ -22,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.20 2006/08/17 04:27:46 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.21 2006/09/06 05:40:03 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -261,7 +261,16 @@ proc ::comm::comm_cmd_destroy {chan} {
     catch {unset comm($chan,interp)}
     catch {unset comm($chan,events)}
     catch {unset comm($chan,socket)}
+    catch {unset comm($chan,remoteid)}
     unset comm($chan,serial)
+    unset comm($chan,chan)
+    unset comm($chan,encoding)
+    unset comm($chan,listen)
+    # array unset would have been nicer, but is not available in
+    # 8.2/8.3
+    foreach pattern {hook,* interp,* vers,*} {
+	foreach k [array names comm $chan,$pattern] {unset comm($k)}
+    }
     set pos [lsearch -exact $comm(chans) $chan]
     set comm(chans) [lreplace $comm(chans) $pos $pos]
     if {![string equal ::comm::comm $chan]} {
@@ -407,11 +416,13 @@ proc ::comm::comm_cmd_send {chan args} {
     # This is unneeded - wraps from 2147483647 to -2147483648
     ### if {$comm($chan,serial) == 0x7fffffff} {set comm($chan,serial) 0}
 
-    commDebug {puts stderr "send <[list [list $cmd $ser $args]]>"}
+    commDebug {puts stderr "<$chan> send <[list [list $cmd $ser $args]]>"}
 
     # The double list assures that the command is a single list when read.
     puts  $fid [list [list $cmd $ser $args]]
     flush $fid
+
+    commDebug {puts stderr "<$chan> sent"}
 
     # wait for reply if so requested
 
@@ -427,7 +438,7 @@ proc ::comm::comm_cmd_send {chan args} {
 	lappend pending $ser
 	set comm($chan,return,$ser) ""		;# we're waiting
 
-	commDebug {puts stderr "--<<waiting $chan $ser>>--"}
+	commDebug {puts stderr "<$chan> --<<waiting $ser>>--"}
 	vwait ::comm::comm($chan,result,$ser)
 
 	# if connection was lost, pending is gone
@@ -437,7 +448,7 @@ proc ::comm::comm_cmd_send {chan args} {
 	}
 
 	commDebug {
-	    puts stderr "result\
+	    puts stderr "<$chan> result\
 		    <$comm($chan,return,$ser);$comm($chan,result,$ser)>"
 	}
 	after idle unset ::comm::comm($chan,result,$ser)
@@ -642,9 +653,21 @@ proc ::comm::commConfigure {chan {force 0} args} {
 
     foreach var {silent interp events} {
 	# FRINK: nocheck
-	if {[info exists $var] && [set $var] != $comm($chan,$var)} {
+	if {[info exists $var] && ([set $var] != $comm($chan,$var))} {
 	    # FRINK: nocheck
-	    set comm($chan,$var) [set $var]
+	    set comm($chan,$var) [set ip [set $var]]
+	    if {[string equal $var "interp"] && ($ip != "")} {
+		# Interrogate the interp about its capabilities.
+		#
+		# Like: set, array set, uplevel present ?
+		# Or:   The above, hidden ?
+		#
+		# This is needed to decide how to execute hook scripts
+		# and regular scripts in this interpreter.
+		set comm($chan,interp,set)  [Capability $ip set]
+		set comm($chan,interp,aset) [Capability $ip array]
+		set comm($chan,interp,upl)  [Capability $ip uplevel]
+	    }
 	}
     }
 
@@ -706,6 +729,34 @@ proc ::comm::commConfigure {chan {force 0} args} {
     return ""
 }
 
+# ::comm::Capability --
+#
+#	Internal command. Interogate an interp for
+#	the commands needed to execute regular and
+#	hook scripts.
+
+proc ::comm::Capability {interp cmd} {
+    if {[lsearch -exact [interp hidden $interp] $cmd] >= 0} {
+	# The command is present, although hidden.
+	return hidden
+    }
+
+    # The command is not a hidden command. Use info to determine if it
+    # is present as regular command. Note that the 'info' command
+    # itself might be hidden.
+
+    if {[catch {
+	set has [llength [interp eval $interp [list info commands $cmd]]]
+    }] && [catch {
+	set has [llength [interp invokehidden $interp info commands $cmd]]
+    }]} {
+	# Unable to interogate the interpreter in any way. Assume that
+	# the command is not present.
+	set has 0
+    }
+    return [expr {$has ? "ok" : "no"}]
+}
+
 # ::comm::commConnect --
 #
 #	Internal command. Called to connect to a remote interp
@@ -722,7 +773,7 @@ proc ::comm::commConfigure {chan {force 0} args} {
 proc ::comm::commConnect {chan id} {
     variable comm
 
-    commDebug {puts stderr "commConnect $id"}
+    commDebug {puts stderr "<$chan> commConnect $id"}
 
     # process connecting hook now
     CommRunHook $chan connecting
@@ -779,7 +830,7 @@ proc ::comm::commConnect {chan id} {
 proc ::comm::commIncoming {chan fid addr remport} {
     variable comm
 
-    commDebug {puts stderr "commIncoming $chan $fid $addr $remport"}
+    commDebug {puts stderr "<$chan> commIncoming $fid $addr $remport"}
 
     # process incoming hook now
     if {[catch {
@@ -794,9 +845,11 @@ proc ::comm::commIncoming {chan fid addr remport} {
     # a list of offered proto versions is the first word of first line
     # remote id is the second word of first line
     # rest of first line is ignored
-    set protoline [gets $fid]
+    set protoline   [gets $fid]
     set offeredvers [lindex $protoline 0]
-    set remid [lindex $protoline 1]
+    set remid       [lindex $protoline 1]
+
+    commDebug {puts stderr "<$chan> offered <$protoline>"}
 
     # use the first supported version in the offered list
     foreach v $offeredvers {
@@ -867,7 +920,7 @@ proc ::comm::commIncoming {chan fid addr remport} {
 proc ::comm::commNewConn {chan id fid} {
     variable comm
 
-    commDebug {puts stderr "commNewConn $id $fid"}
+    commDebug {puts stderr "<$chan> commNewConn $id $fid"}
 
     # There can be a race condition two where comms connect to each other
     # simultaneously.  This code favors our outgoing connection.
@@ -901,7 +954,7 @@ proc ::comm::commNewConn {chan id fid} {
 proc ::comm::commLostConn {chan fid reason} {
     variable comm
 
-    commDebug {puts stderr "commLostConn $fid $reason"}
+    commDebug {puts stderr "<$chan> commLostConn $fid $reason"}
 
     catch {close $fid}
 
@@ -976,13 +1029,17 @@ proc ::comm::commCollect {chan fid} {
 
     # Tcl8 may return an error on read after a close
     if {[catch {read $fid} nbuf] || [eof $fid]} {
+	commDebug {puts stderr "<$chan> collect/lost eof $fid = [eof $fid]"}
+	commDebug {puts stderr "<$chan> collect/lost nbuf = <$nbuf>"}
+	commDebug {puts stderr "<$chan> collect/lost [fconfigure $fid]"}
+
 	fileevent $fid readable {}		;# be safe
 	commLostConn $chan $fid "target application died or connection lost"
 	return
     }
     append data $nbuf
 
-    commDebug {puts stderr "collect <$data>"}
+    commDebug {puts stderr "<$chan> collect <$data>"}
 
     # If data contains at least one complete command, we will
     # be able to take off the first element, which is a list holding
@@ -996,7 +1053,7 @@ proc ::comm::commCollect {chan fid} {
     # it could potentially cause a deadlock.
 
     while {![catch {set cmd [lindex $data 0]}]} {
-	commDebug {puts stderr "cmd <$data>"}
+	commDebug {puts stderr "<$chan> cmd <$data>"}
 	if {[string equal "" $cmd]} break
 	if {[info complete $cmd]} {
 	    set data [lreplace $data 0 0]
@@ -1041,13 +1098,13 @@ proc ::comm::commExec {chan fid remoteid buf} {
     # this id be purely informational!
     set comm($chan,remoteid) [set id $remoteid]
 
-    commDebug {puts stderr "exec <$cmd,$ser,$buf>"}
+    commDebug {puts stderr "<$chan> exec <$cmd,$ser,$buf>"}
 
     switch -- $cmd {
 	send - async - command {}
 	callback {
 	    if {![info exists comm($chan,return,$ser)]} {
-	        commDebug {puts stderr "No one waiting for serial \"$ser\""}
+	        commDebug {puts stderr "<$chan> No one waiting for serial \"$ser\""}
 		return
 	    }
 
@@ -1066,7 +1123,7 @@ proc ::comm::commExec {chan fid remoteid buf} {
 	    catch {CommRunHook $chan callback}
 
 	    # this wakes up the sender
-	    commDebug {puts stderr "--<<wakeup $chan $ser>>--"}
+	    commDebug {puts stderr "<$chan> --<<wakeup $ser>>--"}
 
 	    # the return holds the callback command
 	    # string map the optional %-subs
@@ -1078,7 +1135,7 @@ proc ::comm::commExec {chan fid remoteid buf} {
 			  -errorinfo $return(-errorinfo) \
 			  -result    $ret \
 			 ]
-	    set code [catch {uplevel #0 $comm($chan,return,$ser) $args} err]
+	    set code [catch {uplevel \#0 $comm($chan,return,$ser) $args} err]
 	    catch {unset comm($chan,return,$ser)}
 
 	    # remove pending serial
@@ -1096,7 +1153,7 @@ proc ::comm::commExec {chan fid remoteid buf} {
 	}
 	reply {
 	    if {![info exists comm($chan,return,$ser)]} {
-	        commDebug {puts stderr "No one waiting for serial \"$ser\""}
+	        commDebug {puts stderr "<$chan> No one waiting for serial \"$ser\""}
 		return
 	    }
 
@@ -1115,7 +1172,7 @@ proc ::comm::commExec {chan fid remoteid buf} {
 	    catch {CommRunHook $chan reply}
 
 	    # this wakes up the sender
-	    commDebug {puts stderr "--<<wakeup $chan $ser>>--"}
+	    commDebug {puts stderr "<$chan> --<<wakeup $ser>>--"}
 	    set comm($chan,result,$ser) $ret
 	    set comm($chan,return,$ser) [array get return]
 	    return
@@ -1125,45 +1182,65 @@ proc ::comm::commExec {chan fid remoteid buf} {
 	    return
 	}
 	default {
-	    commDebug {puts stderr "unknown command; discard \"$cmd\""}
+	    commDebug {puts stderr "<$chan> unknown command; discard \"$cmd\""}
 	    return
 	}
     }
 
     # process eval hook now
     set done 0
+    set err  0
     if {[info exists comm($chan,hook,eval)]} {
 	set err [catch {CommRunHook $chan eval} ret]
-	commDebug {puts stderr "eval hook res <$err,$ret>"}
+	commDebug {puts stderr "<$chan> eval hook res <$err,$ret>"}
 	switch $err {
-	    1 {				;# error
+	    1 {
+		# error
 		set done 1
 	    }
-	    2 - 3 {			;# return / break
+	    2 - 3 {
+		# return / break
 		set err 0
 		set done 1
 	    }
 	}
     }
 
+    commDebug {puts stderr "<$chan> hook(eval) done=$done, err=$err"}
+
     # exec command
     if {!$done} {
+	commDebug {puts stderr "<$chan> exec ($buffer)"}
+
 	# Sadly, the uplevel needs to be in the catch to access the local
 	# variables buffer and ret.  These cannot simply be global because
 	# commExec is reentrant (i.e., they could be linked to an allocated
 	# serial number).
 
-	set thecmd [concat [list uplevel #0] $buffer]
 	if {$comm($chan,interp) == {}} {
 	    # Main interpreter
-	    set err [catch $thecmd ret]
+	    set thecmd [concat [list uplevel #0] $buffer]
+	    set err    [catch $thecmd ret]
 	} else {
-	    # Redirect execution into the configured slave interpreter
-	    set err [catch {interp eval $comm($chan,interp) $thecmd} ret]
+	    # Redirect execution into the configured slave
+	    # interpreter. The exact command used depends on the
+	    # capabilities of the interpreter. A best effort is made
+	    # to execute the script in the global namespace.
+	    set interp $comm($chan,interp)
+
+	    if {$comm($chan,interp,upl) == "ok"} {
+		set thecmd [concat [list uplevel #0] $buffer]
+		set err [catch {interp eval $interp $thecmd} ret]
+	    } elseif {$comm($chan,interp,aset) == "hidden"} {
+		set thecmd [linsert $buffer 0 interp invokehidden $interp uplevel \#0]
+		set err [catch $thecmd ret]
+	    } else {
+		set err [catch {interp eval $interp $buffer} ret]
+	    }
 	}
     }
 
-    commDebug {puts stderr "res <$err,$ret>"}
+    commDebug {puts stderr "<$chan> res <$err,$ret> /$cmd"}
 
     # The double list assures that the command is a single list when read.
     if {[string equal send $cmd] || [string equal command $cmd]} {
@@ -1185,11 +1262,13 @@ proc ::comm::commExec {chan fid remoteid buf} {
 	    puts  $fid [list [list $reply $ser $return]]
 	    flush $fid
 	}
+	commDebug {puts stderr "<$chan> reply sent"}
     }
 
     if {$err == 1} {
 	commBgerror $ret
     }
+    commDebug {puts stderr "<$chan> exec complete"}
     return
 }
 
@@ -1197,18 +1276,72 @@ proc ::comm::commExec {chan fid remoteid buf} {
 proc ::comm::CommRunHook {chan event} {
     variable comm
 
+    # The documentation promises the hook scripts to have access to a
+    # number of internal variables. For a regular hook we simply
+    # execute it in the calling level to fulfill this. When the hook
+    # is redirected into an interpreter however we do a best-effort
+    # copying of the variable values into the interpreter. Best-effort
+    # because the 'set' command may not be available in the
+    # interpreter, not even hidden.
+
     if {![info exists comm($chan,hook,$event)]} return
-    set cmd $comm($chan,hook,$event)
+    set cmd    $comm($chan,hook,$event)
+    set interp $comm($chan,interp)
+    commDebug {puts stderr "<$chan> hook($event) run <$cmd>"}
 
     if {
-	($comm($chan,interp) != {}) &&
+	($interp != {}) &&
 	([lsearch -exact $comm($chan,events) $event] >= 0)
     } {
-	interp eval $comm($chan,interp) $cmd
-	return
+	# Best-effort to copy the context into the interpreter for
+	# access by the hook script.
+	set vars   {
+	    addr buffer chan cmd fid host
+	    id port reason remport ret var
+	}
+
+	if {$comm($chan,interp,set) == "ok"} {
+	    foreach v $vars {
+		upvar 1 $v V
+		if {![info exists V]} continue
+		interp eval $interp [list set $v $V]
+	    }
+	} elseif {$comm($chan,interp,set) == "hidden"} {
+	    foreach v $vars {
+		upvar 1 $v V
+		if {![info exists V]} continue
+		interp invokehidden $interp set $v $V
+	    }
+	}
+	upvar 1 return AV
+	if {[info exists AV]} {
+	    if {$comm($chan,interp,aset) == "ok"} {
+		interp eval $interp [list array set return [array get AV]]
+	    } elseif {$comm($chan,interp,aset) == "hidden"} {
+		interp invokehidden $interp array set return [array get AV]
+	    }
+	}
+
+	commDebug {puts stderr "<$chan> /interp $interp"}
+	set code [catch {interp eval $interp $cmd} res]
+    } else {
+	commDebug {puts stderr "<$chan> /main"}
+	set code [catch {uplevel 1 $cmd} res]
     }
 
     eval $cmd
+
+    # Perform the return code propagation promised
+    # to the hook scripts.
+    switch -exact -- $code {
+	0 {}
+	1 {
+	    return -errorinfo $::errorInfo -errorcode $::errorCode -code error $result
+	}
+	3 {return}
+	4 {}
+	default {return -code $code $res}
+    }
     return
 }
 
@@ -1229,4 +1362,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.3.1
+package provide comm 4.3.2
