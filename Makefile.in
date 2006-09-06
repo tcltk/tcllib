@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.98 2006/08/15 01:20:45 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.99 2006/09/06 16:13:03 andreas_kupries Exp $
 
 #========================================================================
 # Nothing of the variables below this line need to be changed.  Please
@@ -71,7 +71,7 @@ install-doc:
 		-no-wait -no-gui -no-apps
 
 test:
-	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` test
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` test run
 
 depend:
 dist:
