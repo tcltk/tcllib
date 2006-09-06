@@ -1,3 +1,12 @@
+2006-09-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* comm.tcl: The rewrite of the hook handling broken the promised
+	* comm.man: semantics. Fixed. Also extended the handling of a
+	  configured -interp to deal with a variety of possibilities
+	  regarding missing or hidden commands. Updated the documentation.
+
+	* pkgIndex.tcl:  Bumped to version 4.3.2
+
 2006-08-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* comm.man: Bumped to version 4.3.1
