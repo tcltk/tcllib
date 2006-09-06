@@ -1,3 +1,30 @@
+2006-09-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* support/devel/all.tcl: Changed to terminate with 'exit' instead
+	  of 'return', to allow the testsuites to be driven by a 'wish'
+	  without having to deal with its event loop.
+
+	* support/devel/sak/test/cmd.tcl: Replaced the existing
+	* support/devel/sak/test/help.txt: implementation of 'test' with a
+	  dispatcher to an extensible set of packages. See below.
+
+	* support/devel/sak/test/pkgIndex.tcl: New implementation of the
+	* support/devel/sak/test/run.tcl: 'test' command and its sub-
+	* support/devel/sak/test/shell.tcl: commands. The 'registry', see
+	* support/devel/sak/test/shells.tcl: below, is used to store the
+	* support/devel/sak/test/test.tcl: registered shells.
+
+	* support/devel/sak/util/pkgIndex.tcl: Registered package.
+	* support/devel/sak/util/registry.tcl: New file, wrapper around
+	  the pregistry, customized to SAK.
+
+	* support/devel/sak/registry/pkgIndex.tcl: Package for a small tree-
+	* support/devel/sak/registry/registry.man: based database similar to
+	* support/devel/sak/registry/registry.tcl: the windows registry. For
+	* support/devel/sak/registry/registry.test: now just an internal
+	  package to support 'sak', in the future it may move and become an
+	  official package.
+
 2006-09-01  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* support/installation/modules.tcl: New module 'otp'.

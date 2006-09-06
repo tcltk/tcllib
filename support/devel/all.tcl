@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.2 2006/08/10 04:53:14 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.3 2006/09/06 06:07:09 andreas_kupries Exp $
 
 catch {wm withdraw .}
 
@@ -206,4 +206,7 @@ foreach module $modules {
 puts stdout "\nTests ended at [eval $timeCmd]"
 ::tcltest::cleanupTests 1
 # FRINK: nocheck
-return
+# Use of 'exit' ensures proper termination of the test system when
+# driven by a 'wish' instead of a 'tclsh'. Otherwise 'wish' would
+# enter its regular event loop and no tests would complete.
+exit
