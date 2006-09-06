@@ -94,7 +94,7 @@ the unix convention for line-endings.
 
 As a list each message is composed of [term words]. Their meaning
 depends on when the message was sent in the overall exchange. This is
-described in the section sections.
+described in the upcoming sections.
 
 
 [subsection {Negotiation Messages - Initial Handshake}]
@@ -108,7 +108,10 @@ The first message send by a client to a server, when opening the
 connection, contains two words. The first word is a list as well, and
 contains the versions of the wire protocol the client is willing to
 accept, with the most prefered version first. The second word is the
-TCP port the client is listening on for connections to itself.
+TCP port the client is listening on for connections to itself. The
+value [const 0] is used here to signal that the client will not listen
+for connections, i.e. that it is purely for sending commands, and not
+receiving them.
 
 [bullet]
 
