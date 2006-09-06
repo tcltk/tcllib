@@ -1,3 +1,8 @@
+2006-09-06  Andreas Kupries <andreask@activestate.com>
+
+	* Makefile.in (test): Updated the target to the new syntax
+	  for running testsuites accepted by sak.
+
 2006-09-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* support/devel/sak/test/help.txt: Added reference to the file
