@@ -1,3 +1,10 @@
+2006-09-08  Michael Schlenker <mic42@users.sourceforge.net>
+
+        * ldapx.tcl     New subpackage ldapx provides a snit
+          ldapx.man     based OO wrapper around the ldap package.
+          pkgIndex.tcl  Based on patch [SF Tcllib Patch 1545931]
+                        by Pierre David <pdav@users.sourceforge.net>.
+          
 2006-09-01  Michael Schlenker <mic42@users.sourceforge.net>
         * ldap.tcl      Major changes to the implementation.
           ldap.man      The package now uses a fileevent based
