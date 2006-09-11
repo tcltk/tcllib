@@ -35,7 +35,7 @@
 #   NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
 #   MODIFICATIONS.
 #
-#   $Id: ldap.tcl,v 1.12 2006/09/01 14:21:34 mic42 Exp $
+#   $Id: ldap.tcl,v 1.13 2006/09/11 16:01:52 mic42 Exp $
 #
 #   written by Jochen Loewer
 #   3 June, 1999
@@ -44,7 +44,7 @@
 
 package require Tcl 8.4
 package require asn 0.7
-package provide ldap 1.6
+package provide ldap 1.6.1
 
 namespace eval ldap {
 
@@ -365,6 +365,7 @@ proc ldap::connect { host {port 389} } {
     set conn(bound)     0
     set conn(bounduser) ""
     set conn(saslBindInProgress) 0
+    set conn(tlsHandshakeInProgress) 0
     
     fileevent $sock readable [list ::ldap::MessageReceiver ::ldap::ldap$sock]
     return ::ldap::ldap$sock
