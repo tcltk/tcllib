@@ -1122,7 +1122,7 @@ proc ::snit::Comp.statement.typevariable {name args} {
 
     if {$compile(tvprocdec) eq ""} {
         set compile(tvprocdec) "\n\t"
-        append compile(tvprocdec) "namespace upvar $compile(type)"
+        append compile(tvprocdec) "namespace upvar [list $compile(type)]"
     }
     append compile(tvprocdec) " [list $name $name]"
 } 
