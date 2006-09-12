@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.test,v 1.21 2006/07/02 20:01:15 mic42 Exp $
+# RCS: @(#) $Id: html.test,v 1.22 2006/09/12 17:12:42 mic42 Exp $
 
 # -------------------------------------------------------------------------
 
@@ -362,14 +362,14 @@ test html-17.1 {html::checkValue} {
     ncgi::reset item=xyz
     ncgi::parse
     html::checkbox item xyz
-} {<input type="checkbox" name="item" value="xyz" CHECKED>
+} {<input type="checkbox" name="item" value="xyz" checked>
 }
 
 test html-18.1 {html::radioValue} {
     ncgi::reset item=xyz
     ncgi::parse
     html::radioValue item xyz
-} {name="item" value="xyz" CHECKED}
+} {name="item" value="xyz" checked}
 
 test html-19.1 {html::radioSet} {
     ncgi::reset item=2
@@ -380,7 +380,7 @@ test html-19.1 {html::radioSet} {
 	Three	3
     }
 } {<input type="radio" name="item" value="1"> One |
-<input type="radio" name="item" value="2" CHECKED> Two |
+<input type="radio" name="item" value="2" checked> Two |
 <input type="radio" name="item" value="3"> Three}
 
 test html-20.1 {html::checkSet} {
@@ -392,8 +392,8 @@ test html-20.1 {html::checkSet} {
 	Three	{3 4}
     }
 } {<input type="checkbox" name="item" value="1"> One |
-<input type="checkbox" name="item" value="2" CHECKED> Two |
-<input type="checkbox" name="item" value="3 4" CHECKED> Three}
+<input type="checkbox" name="item" value="2" checked> Two |
+<input type="checkbox" name="item" value="3 4" checked> Three}
 
 test html-21.1 {html::select} {
     ncgi::reset item=2&x=y
@@ -405,7 +405,7 @@ test html-21.1 {html::select} {
     }
 } {<select name="item" multiple>
 <option value="1">One
-<option value="2" SELECTED>Two
+<option value="2" selected>Two
 <option value="3 4">Three
 </select>
 }
@@ -419,7 +419,7 @@ test html-22.1 {html::selectPlain} {
 } {<select name="item">
 <option value="One">One
 <option value="Two">Two
-<option value="Three" SELECTED>Three
+<option value="Three" selected>Three
 </select>
 }
 
@@ -430,7 +430,7 @@ test html-22.2 {html::selectPlain} {
 	One	Two	Three
     } One
 } {<select name="another">
-<option value="One" SELECTED>One
+<option value="One" selected>One
 <option value="Two">Two
 <option value="Three">Three
 </select>
