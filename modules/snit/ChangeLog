@@ -1,3 +1,8 @@
+2006-09-11  Will Duquette <will@wjduquette.com>
+	* main2.tcl: Comp.statement.typevariable now places the type name
+	directly in the "tvprocdec" rather than waiting to substitute it
+	in later.
+
 2006-08-19  Will Duquette <will@wjduquette.com>
 	* main2.tcl, snit.test: Fixed Bug 1483168: "Namespaced snit objs
 	are not commands in their ns".  In particular, Snit 2.x types and
