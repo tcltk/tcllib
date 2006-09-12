@@ -1,3 +1,8 @@
+2006-09-12  Michael Schlenker <mic42@users.sourceforge.net>
+
+        * html.tcl : fixed [SF Tcllib Bug 1557268], and 
+          html.test: updated the test suite.
+          
 2006-07-02  Michael Schlenker <mic42@users.sourceforge.net>
 
 	* html.tcl : fixed [SF Tcllib Bug 1230699] and updated the tests.

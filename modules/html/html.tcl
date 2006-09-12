@@ -15,7 +15,7 @@
 
 package require Tcl 8.2
 package require ncgi
-package provide html 1.3.2
+package provide html 1.3.3
 
 namespace eval ::html {
 
@@ -793,7 +793,7 @@ proc ::html::checkbox {name value} {
 proc ::html::checkValue {name {value 1}} {
     ::foreach v [ncgi::valueList $name] {
 	::if {[string compare $value $v] == 0} {
-	    return "name=\"$name\" value=\"[quoteFormValue $value]\" CHECKED"
+	    return "name=\"$name\" value=\"[quoteFormValue $value]\" checked"
 	}
     }
     return "name=\"$name\" value=\"[quoteFormValue $value]\""
@@ -813,7 +813,7 @@ proc ::html::checkValue {name {value 1}} {
 
 proc ::html::radioValue {name value {defaultSelection {}}} {
     ::if {[string equal $value [ncgi::value $name $defaultSelection]]} {
-	return "name=\"$name\" value=\"[quoteFormValue $value]\" CHECKED"
+	return "name=\"$name\" value=\"[quoteFormValue $value]\" checked"
     } else {
 	return "name=\"$name\" value=\"[quoteFormValue $value]\""
     }
@@ -867,7 +867,7 @@ proc ::html::select {name param choices {current {}}} {
     ::set html "<select name=\"$name\"[string trimright  " $param"]>\n"
     ::foreach {label v} $choices {
 	::if {[lsearch -exact $def $v] != -1} {
-	    ::set SEL " SELECTED"
+	    ::set SEL " selected"
 	} else {
 	    ::set SEL ""
 	}
@@ -1176,12 +1176,12 @@ proc ::html::tableFromArray {arrname {param {}} {pat *}} {
     upvar 1 $arrname arr
     ::set html ""
     ::if {[info exists arr]} {
-	append html "<TABLE $param>\n"
-	append html "<TR><TH colspan=2>$arrname</TH></TR>\n"
+	append html "<table $param>\n"
+	append html "<tr><th colspan=2>$arrname</th></tr>\n"
 	::foreach name [lsort [array names arr $pat]] {
 	    append html [row $name $arr($name)]
 	}
-	append html </TABLE>\n
+	append html </table>\n
     }
     return $html
 }
@@ -1200,11 +1200,11 @@ proc ::html::tableFromArray {arrname {param {}} {pat *}} {
 proc ::html::tableFromList {querylist {param {}}} {
     ::set html ""
     ::if {[llength $querylist]} {
-	append html "<TABLE $param>"
+	append html "<table $param>"
 	::foreach {label value} $querylist {
 	    append html [row $label $value]
 	}
-	append html </TABLE>
+	append html </table>
     }
     return $html
 }
