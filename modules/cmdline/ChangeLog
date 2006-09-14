@@ -1,3 +1,8 @@
+2006-09-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* cmdline.test: Added 'exit' to the scripts executed in
+	  sub-shells, to make them usable with 'wish'-type shells as well.
+
 2006-04-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* cmdline.tcl: Added the contents of typedCmdline.tcl to this file
