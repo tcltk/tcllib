@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.45 2006/07/19 16:22:26 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.46 2006/09/14 06:01:22 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -593,10 +593,11 @@ test insertintofile-1.9 {insertIntoFile, insertion point beyond end-of-file} {
     set msg
 } {Bad insertion point 4, behind end of data}
 
-    set path [makeFile {} dummy]
-    set  beyond [file size $path]
-    incr beyond
-    removeFile dummy
+# Needed for 1.10
+set path [makeFile {} dummy]
+set  beyond [file size $path]
+incr beyond
+removeFile dummy
 
 test insertintofile-1.10 {insertIntoFile, insertion point beyond end-of-file} {
     set path [makeFile {} dummy]
@@ -2401,6 +2402,7 @@ test tempfile-1.3 {generate 100 unique temporary filenames} {
 # the location of these tests after the regular tempdir/tempfile
 # tests.
 
+removeDirectory x
 set xpath [makeDirectory x]
 removeDirectory x
 
@@ -2780,8 +2782,9 @@ foreach {n base dst ra rb} {
 # -------------------------------------------------------------------------
 # Restore "env" array to the state it had at the beginning of the testsuite.
 
-array unset env *
-array set   env $oldenv
+#array unset env * - 8.4+, package is 8.2+
+foreach k [array names env] {unset env($k)}
+array set env $oldenv
 
 ::tcltest::cleanupTests
 return
