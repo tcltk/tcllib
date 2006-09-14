@@ -7,7 +7,7 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions
 #
-# RCS: @(#) $Id: ncgi.test,v 1.24 2006/09/14 02:21:54 andreas_kupries Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.25 2006/09/14 05:56:20 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -775,8 +775,9 @@ test ncgi-17.4 {ncgi::names} {
 # -------------------------------------------------------------------------
 # Restore "env" array to the state it had at the beginning of the testsuite.
 
-array unset env *
-array set   env $oldenv
+#array unset env * - 8.4+, package is 8.2+
+foreach k [array names env] {unset env($k)}
+array set env $oldenv
 
 # -------------------------------------------------------------------------
 
