@@ -1,3 +1,7 @@
+2006-09-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.test: Fixed 8.4ism in the testsuite of a 8.2+ package.
+
 2006-07-19  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.tcl (fileutil::jail): Fixed [Tcllib SF Bug 1525172], by
