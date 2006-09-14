@@ -196,22 +196,31 @@ if {![package vsatisfies [package provide tcltest] 2.0]} {
     # useful behaviour of 2.0+. If 1.x is present we have to create an
     # emulation layer to get the wanted result.
 
+    # 1.0 is not fully correctly described. If the file was created
+    # before no list is returned at all. We force things by adding a
+    # line to the old procedure which makes the result unconditional
+    # (the name of the file/dir created).
+
     # The same change applies to 'makeDirectory'
 
-    rename ::tcltest::makeFile ::tcltest::makeFile_1
-    proc   ::tcltest::makeFile {data f} {
-	return [lindex [makeFile_1 $data $f] end]
-    }
+    if {![llength [info commands ::tcltest::makeFile_1]]} {
+	# Marker first.
+	proc ::tcltest::makeFile_1 {args} {}
 
-    rename ::tcltest::makeDirectory ::tcltest::makeDirectory_1
-    proc   ::tcltest::makeDirectory {f} {
-	return [lindex [makeDirectory_1 $f] end]
-    }
+	# Extend procedures with command to return the required full
+	# name.
+	proc ::tcltest::makeFile {contents name} \
+		[info body ::tcltest::makeFile]\n[list set fullName]
 
-    namespace eval ::tcltest {
-	namespace export makeFile makeDirectory
+	proc ::tcltest::makeDirectory {name} \
+		[info body ::tcltest::makeDirectory]\n[list set fullName]
+
+	# Re-export
+	namespace eval ::tcltest {
+	    namespace export makeFile makeDirectory
+	}
+	namespace import -force ::tcltest::*
     }
-    namespace import -force ::tcltest::*
 }
 
 # ### ### ### ######### ######### #########
