@@ -8,7 +8,7 @@
 # Copyright (c) 1999 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: cmdline.test,v 1.14 2006/01/29 06:15:34 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.test,v 1.15 2006/09/14 02:21:35 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -226,6 +226,7 @@ test cmdline-4.2 {cmdline::getfiles, one pattern} {pcOnly} {
 	cd cmdlineJunk
 	set result [cmdline::getfiles {foo*} 0]
 	puts -nonewline [lsort $result]
+	exit
     }
 } [list $foo1 $foo2]
 test cmdline-4.3 {cmdline::getfiles, multiple patterns} {pcOnly} {
@@ -233,6 +234,7 @@ test cmdline-4.3 {cmdline::getfiles, multiple patterns} {pcOnly} {
 	cd cmdlineJunk
 	set result [cmdline::getfiles {foo* bar*} 0]
 	puts -nonewline [lsort $result]
+	exit
     }
 } [list $bar3 $foo1 $foo2]
 test cmdline-4.4 {cmdline::getfiles, no match} {pcOnly} {
@@ -240,6 +242,7 @@ test cmdline-4.4 {cmdline::getfiles, no match} {pcOnly} {
 	cd cmdlineJunk
 	set result [cmdline::getfiles {blat* foo*} 0]
 	puts -nonewline [lsort $result]
+	exit
     }
 } "warning: no files match \"blat*\"\n[list $foo1 $foo2]"
 test cmdline-4.5 {cmdline::getfiles, quiet} {pcOnly} {
@@ -247,6 +250,7 @@ test cmdline-4.5 {cmdline::getfiles, quiet} {pcOnly} {
 	cd cmdlineJunk
 	set result [cmdline::getfiles {blat* foo*} 1]
 	puts -nonewline [lsort $result]
+	exit
     }
 } [list $foo1 $foo2]
 test cmdline-4.6 {cmdline::getfiles, relative paths} {
@@ -254,6 +258,7 @@ test cmdline-4.6 {cmdline::getfiles, relative paths} {
 	cd cmdlineJunk
 	set result [cmdline::getfiles {foo1 foo2} 0]
 	puts -nonewline [lsort $result]
+	exit
     }
 } [list $foo1 $foo2]
 test cmdline-4.7 {cmdline::getfiles, absolute paths} {
@@ -261,6 +266,7 @@ test cmdline-4.7 {cmdline::getfiles, absolute paths} {
 	cd cmdlineJunk
 	set result [cmdline::getfiles [list [file join [pwd] foo1]] 0]
 	puts -nonewline [lsort $result]
+	exit
     }
 } [list $foo1]
 test cmdline-4.8 {cmdline::getfiles, no match} {
@@ -268,6 +274,7 @@ test cmdline-4.8 {cmdline::getfiles, no match} {
 	cd cmdlineJunk
 	set result [cmdline::getfiles {blat foo1} 0]
 	puts -nonewline [lsort $result]
+	exit
     }
 } "warning: no files match \"blat\"\n[list $foo1]"
 test cmdline-4.9 {cmdline::getfiles, silent no match} {
@@ -275,6 +282,7 @@ test cmdline-4.9 {cmdline::getfiles, silent no match} {
 	cd cmdlineJunk
 	set result [cmdline::getfiles {blat foo1} 1]
 	puts -nonewline [lsort $result]
+	exit
     }
 } [list $foo1]
 
@@ -283,6 +291,7 @@ test cmdline-4.10 {cmdline::getfiles, backslashes on windows} {pc} {
     runGetFilesTest {
 	set result [cmdline::getfiles {cmdlineJunk\\foo*} 1]
 	puts -nonewline [lsort $result]
+	exit
     }
 } [list $foo1 $foo2]
 
