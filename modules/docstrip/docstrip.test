@@ -13,10 +13,11 @@
 ## **************************************
 ## the true source is the file from which this one was generated.
 ##
-package require tcltest
-set docstrip_sources_dir [file dirname [file normalize [info script]]]
-source [file join $docstrip_sources_dir docstrip.tcl]
-puts "** Has Tcl docstrip package (v [package provide docstrip]) **"
+source [file join [file dirname [file dirname [file join [pwd] [info script]]]] devtools testutilities.tcl]
+testsNeedTcl     8.4
+testsNeedTcltest 1.0
+testing {useLocal docstrip.tcl docstrip}
+set docstrip_sources_dir [localPath {}]
 tcltest::testConstraint docstripSourcesAvailable [expr {[
    file exists [file join $docstrip_sources_dir docstrip.tcl]
 ] && [
