@@ -1,3 +1,9 @@
+2006-09-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* logger.test: Moved the tests of the new trace facility to a
+	* logger_trace.test: separate file, as they require a newer
+	  version of tcltest (2.x), and Tcl 8.4 instead of 8.2.
+
 2006-08-18  Michael Schlenker <mic42@users.sourceforge.net>
         
 	* logger.tcl:        Applied patch [SF Tcllib 1530725] to 
