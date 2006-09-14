@@ -1,3 +1,10 @@
+2006-09-13  Andreas Kupries  <akupries@shaw.ca>
+
+	* testutilities.tcl: Ensure that the makeFile/Dir wrapper are
+	  created only once. Also modified the code to modify the
+	  originals to return the full name. The wrapper are needed only
+	  as indicators.
+
 2006-04-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl: Added set of commands for the easy assembly
