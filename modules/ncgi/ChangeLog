@@ -1,7 +1,8 @@
 2006-09-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ncgi.test: Added 'exit' to the scripts executed in sub-shells,
-	  to make them usable with 'wish'-type shells as well.
+	  to make them usable with 'wish'-type shells as well. Fixed
+	  8.4ism in testsuite of 8.2+ package.
 
 2006-07-02  Michael Schlenker <mic42@users.sourceforge.net>
 
