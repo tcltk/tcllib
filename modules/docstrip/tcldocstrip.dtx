@@ -244,14 +244,13 @@ namespace eval docstrip::util {
 %    Using \texttt{file normalize} to compute it. (LH)}
 % \begin{tcl}
 %<*test,utiltest>
-package require tcltest
-set docstrip_sources_dir [file dirname [file normalize [info script]]]
-source [file join $docstrip_sources_dir docstrip.tcl]
-puts "** Has Tcl docstrip package (v [package provide docstrip]) **"
+source [file join [file dirname [file dirname [file join [pwd] [info script]]]] devtools testutilities.tcl]
+testsNeedTcl     8.4
+testsNeedTcltest 1.0
+testing {useLocal docstrip.tcl docstrip}
+set docstrip_sources_dir [localPath {}]
 %<*utiltest>
-source [file join $docstrip_sources_dir docstrip_util.tcl]
-puts "** Has Tcl docstrip::util package\
-  (v [package provide docstrip::util]) **"
+testing {useLocal docstrip_util.tcl docstrip::util}
 %</utiltest>
 % \end{tcl}
 % One of the tests require that \texttt{tcldocstrip.dtx} (this file) and 
