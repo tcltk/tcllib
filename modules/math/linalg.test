@@ -144,6 +144,13 @@ test norm-3.0 "statistical normalisation - vector" -match numbers -body {
     normalizeStat {1 0 0 0}
 } -result {1.5 -0.5 -0.5 -0.5}
 
+test norm-3.1 "statistical normalisation - matrix" -match numbers -body {
+    normalizeStat {{1 0 0 0} {0 0 0 1} {0 1 1 0} {0 0 0 0}}
+} -result {{ 1.5 -0.5 -0.5 -0.5}
+           {-0.5 -0.5 -0.5  1.5}
+           {-0.5  1.5  1.5 -0.5}
+           {-0.5 -0.5 -0.5 -0.5}}
+
 test dotproduct-1.0" "dot-product - 2 components" -match numbers -body {
     dotproduct {1 -1} {1 -1}
 } -result 2.0
