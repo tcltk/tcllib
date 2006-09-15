@@ -1,3 +1,10 @@
+2006-09-15  Michael Schlenker <mic42@users.sourceforge.net>
+        * ldap.tcl      Fixed broken length calculation in message receiver.
+          pkgIndex.tcl  This fixes bug [SF Tcllib Bug 1558564].
+                        Fixed various smaller bugs with upvaring handles
+                        in info functions.
+                        Fixed wrong debug setting.
+                        
 2006-09-11  Michael Schlenker <mic42@users.sourceforge.net>
         * ldap.tcl      Fixed missing tlsHandshakeInProgress variable when
           ldap.man      when using ldap::connect.
