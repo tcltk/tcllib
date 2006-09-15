@@ -29,7 +29,7 @@ namespace eval ::math::linearalgebra {
     namespace export dim shape conforming symmetric
     namespace export norm norm_one norm_two norm_max normMatrix
     namespace export dotproduct unitLengthVector normalizeStat
-    namespace export axpy axpy_vect axpy_mat
+    namespace export axpy axpy_vect axpy_mat crossproduct
     namespace export add add_vect add_mat
     namespace export sub sub_vect sub_mat
     namespace export scale scale_vect scale_mat matmul transpose
@@ -332,9 +332,52 @@ proc ::math::linearalgebra::unitLengthVector { vector } {
 #     0 and a standard deviation of 1.
 #
 proc ::math::linearalgebra::normalizeStat { mv } {
-   #
-   # TODO
-   #
+
+    if { [llength [lindex $mv 0]] > 1 } {
+        set result {}
+        foreach vector $mv {
+            lappend result [NormalizeStat_vect $vector]
+        }
+        return $result
+    } else {
+        return [NormalizeStat_vect $mv]
+    }
+}
+
+# NormalizeStat_vect --
+#     Normalize a vector in a statistical sense and return the result
+# Arguments:
+#     v        Vector to be normalized
+# Result:
+#     A vector whose elements are normalised to have a mean of
+#     0 and a standard deviation of 1. If all coefficients are equal,
+#     a null-vector is returned.
+#
+proc ::math::linearalgebra::NormalizeStat_vect { v } {
+    if { [llength $v] <= 1 } {
+        return -code error "Vector can not be normalised - too few coefficients"
+    }
+
+    set sum   0.0
+    set sum2  0.0
+    set count 0.0
+    foreach c $v {
+        set sum   [expr {$sum   + $c}]
+        set sum2  [expr {$sum2  + $c*$c}]
+        set count [expr {$count + 1.0}]
+    }
+    set corr   [expr {$sum/$count}]
+    set factor [expr {($sum2-$sum*$sum/$count)/($count-1)}]
+    if { $factor > 0.0 } {
+        set factor [expr {1.0/sqrt($factor)}]
+    } else {
+        set factor 0.0
+    }
+    set result {}
+    foreach c $v {
+        lappend result [expr {$factor*($c-$corr)}]
+    }
+    return $result
 }
 
 # axpy --

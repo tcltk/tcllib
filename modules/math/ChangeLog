@@ -1,3 +1,11 @@
+2006-09-15  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+	* linalg.man: added remark on name conflict with Tk
+	              added missing descriptions of several procedures
+	* linalg.tcl: added crossproduct to the exported commands
+	              implemented normalizeStat
+	* linalg.test: added test for normalizeStat
+
+
 2006-06-13  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
 	* pdf_stat.tcl: check for existence of argv0 - child interpreters
