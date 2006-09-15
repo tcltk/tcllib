@@ -35,7 +35,7 @@
 #   NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
 #   MODIFICATIONS.
 #
-#   $Id: ldap.tcl,v 1.13 2006/09/11 16:01:52 mic42 Exp $
+#   $Id: ldap.tcl,v 1.14 2006/09/15 09:05:29 mic42 Exp $
 #
 #   written by Jochen Loewer
 #   3 June, 1999
@@ -44,7 +44,7 @@
 
 package require Tcl 8.4
 package require asn 0.7
-package provide ldap 1.6.1
+package provide ldap 1.6.2
 
 namespace eval ldap {
 
@@ -69,7 +69,7 @@ namespace eval ldap {
     variable SSLCertifiedAuthoritiesFile
     variable doDebug
 
-    set doDebug 1
+    set doDebug 0
    
     # LDAP result codes from the RFC
     variable resultCode2String
@@ -239,8 +239,7 @@ proc ldap::info_saslmechanisms {args} {
    	return -code error \
 	       "Wrong # of arguments. Usage: ldap::info saslmechanisms handle"
    }
-   upvar #0 [lindex $args 0] conn
-   return [Saslmechanisms $conn]
+   return [Saslmechanisms [lindex $args 0]]
 }
 
 proc ldap::info_extensions {args} {
@@ -248,8 +247,7 @@ proc ldap::info_extensions {args} {
    	return -code error \
 	       "Wrong # of arguments. Usage: ldap::info extensions handle"
    }
-   upvar #0 [lindex $args 0] conn
-   return [Extensions $conn]
+   return [Extensions [lindex $args 0]]
 }
 
 proc ldap::info_control {args} {
@@ -257,8 +255,7 @@ proc ldap::info_control {args} {
    	return -code error \
 	       "Wrong # of arguments. Usage: ldap::info control handle"
    }
-   upvar #0 [lindex $args 0] conn
-   return [Control $conn]
+   return [Control [lindex $args 0]]
 }
 
 proc ldap::info_features {args} {
@@ -266,8 +263,7 @@ proc ldap::info_features {args} {
    	return -code error \
 	       "Wrong # of arguments. Usage: ldap::info features handle"
    }
-   upvar #0 [lindex $args 0] conn
-   return [Features $conn]
+   return [Features [lindex $args 0]]
 }
 
 proc ldap::info_whoami {args} {
@@ -275,8 +271,7 @@ proc ldap::info_whoami {args} {
    	return -code error \
 	       "Wrong # of arguments. Usage: ldap::info whoami handle"
    }
-   upvar #0 [lindex $args 0] conn
-   return [Whoami $conn]
+   return [Whoami [lindex $args 0]]
 }
 
 
@@ -676,7 +671,7 @@ proc ldap::MessageReceiver {handle} {
     #   conn(pdu,length)   -- we have decoded the length if >= 0, if <0 it contains 
     #                         the length of the length encoding in bytes
     #   conn(pdu,payload)  -- the payload buffer
-    #
+    #   conn(pdu,received) -- the data received
     
     # fetch the sequence byte
     if {[::info exists conn(pdu,partial)] && $conn(pdu,partial) != 0} {
@@ -692,11 +687,12 @@ proc ldap::MessageReceiver {handle} {
                         [format "Expected SEQUENCE (0x30) but got %x" $type]
                 } else {
                     set conn(pdu,partial) 1
+                    append conn(pdu,received) $type
                 }
                 }
             default {
                 return -code error \
-                    [format "Error reading response for handle %s : %s" $handle $code]
+                    [format "Error reading SEQUENCE response for handle %s : %s" $handle $code]
                 }
         }
     }
@@ -708,21 +704,23 @@ proc ldap::MessageReceiver {handle} {
     } else {
         if {[::info exists conn(pdu,length)] && $conn(pdu,length) < 0} {
             # we already know the length, but have not received enough bytes to decode it
-            set missing [expr {1+[string length $conn(pdu,length_bytes)] - abs($conn(pdu,length))}]
+            set missing [expr {1+abs($conn(pdu,length))-[string length $conn(pdu,length_bytes)]}]
             if {$missing != 0} {
                 foreach {code bytes} [ReceiveBytes $conn(sock) $missing] {break}
                 switch -- $code {
                     "ok"  {
                         append conn(pdu,length_bytes) $bytes
+                        append conn(pdu,received) $bytes
                         asnGetLength conn(pdu,length_bytes) conn(pdu,length)
                     }
                     "partial" {
                         append conn(pdu,length_bytes) $bytes
+                        append conn(pdu,received) $bytes
                         return
                     }
                     default {
                         return -code error \
-                            [format "Error reading response for handle %s : %s" $handle $code]
+                            [format "Error reading LENGTH2 response for handle %s : %s" $handle $code]
                     }
                 }
             }
@@ -744,7 +742,7 @@ proc ldap::MessageReceiver {handle} {
                 }
                 default {
                     return -code error \
-                        [format "Error reading response for handle %s : %s" $handle $code]
+                        [format "Error reading LENGTH1 response for handle %s : %s" $handle $code]
                 }       
             }
         }
@@ -768,7 +766,7 @@ proc ldap::MessageReceiver {handle} {
             }
             default {
                 return -code error \
-                    [format "Error reading response for handle %s : %s" $handle $code]
+                    [format "Error reading DATA response for handle %s : %s" $handle $code]
             }
         }
     }
@@ -1722,7 +1720,7 @@ proc ldap::disconnect { handle } {
     upvar #0 $handle conn
 
     # should we sent an 'unbind' ?
-    close $conn(sock)
+    catch {close $conn(sock)}
     unset conn
 
     return
