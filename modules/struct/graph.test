@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: graph.test,v 1.23 2006/06/25 21:26:01 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.test,v 1.24 2006/09/15 05:19:27 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -3013,28 +3013,28 @@ test graph-50.0 {arc movement} {
     catch {mygraph arc move} res
     mygraph destroy
     set res
-} {wrong # args: should be "::struct::graph::__arc_move name arc newsource newtarget"}
+} [tcltest::wrongNumArgs ::struct::graph::__arc_move {name arc newsource newtarget} 1]
 
 test graph-50.1 {arc movement} {
     graph mygraph
     catch {mygraph arc move a} res
     mygraph destroy
     set res
-} {wrong # args: should be "::struct::graph::__arc_move name arc newsource newtarget"}
+} [tcltest::wrongNumArgs ::struct::graph::__arc_move {name arc newsource newtarget} 2]
 
 test graph-50.2 {arc movement} {
     graph mygraph
     catch {mygraph arc move a b} res
     mygraph destroy
     set res
-} {wrong # args: should be "::struct::graph::__arc_move name arc newsource newtarget"}
+} [tcltest::wrongNumArgs ::struct::graph::__arc_move {name arc newsource newtarget} 3]
 
 test graph-50.3 {arc movement} {
     graph mygraph
     catch {mygraph arc move a b c d} res
     mygraph destroy
     set res
-} {wrong # args: should be "::struct::graph::__arc_move name arc newsource newtarget"}
+} [tcltest::tooManyArgs ::struct::graph::__arc_move {name arc newsource newtarget}]
 
 test graph-50.4 {arc movement} {
     graph mygraph
@@ -3121,21 +3121,21 @@ test graph-51.0 {arc movement} {
     catch {mygraph arc move-target} res
     mygraph destroy
     set res
-} {wrong # args: should be "::struct::graph::__arc_move-target name arc newtarget"}
+} [tcltest::wrongNumArgs ::struct::graph::__arc_move-target {name arc newtarget} 1]
 
 test graph-51.1 {arc movement} {
     graph mygraph
     catch {mygraph arc move-target a} res
     mygraph destroy
     set res
-} {wrong # args: should be "::struct::graph::__arc_move-target name arc newtarget"}
+} [tcltest::wrongNumArgs ::struct::graph::__arc_move-target {name arc newtarget} 2]
 
 test graph-51.2 {arc movement} {
     graph mygraph
     catch {mygraph arc move-target a b c} res
     mygraph destroy
     set res
-} {wrong # args: should be "::struct::graph::__arc_move-target name arc newtarget"}
+} [tcltest::tooManyArgs ::struct::graph::__arc_move-target {name arc newtarget}]
 
 test graph-51.3 {arc movement} {
     graph mygraph
@@ -3183,21 +3183,21 @@ test graph-52.0 {arc movement} {
     catch {mygraph arc move-source} res
     mygraph destroy
     set res
-} {wrong # args: should be "::struct::graph::__arc_move-source name arc newsource"}
+} [tcltest::wrongNumArgs ::struct::graph::__arc_move-source {name arc newsource} 1]
 
 test graph-52.1 {arc movement} {
     graph mygraph
     catch {mygraph arc move-source a} res
     mygraph destroy
     set res
-} {wrong # args: should be "::struct::graph::__arc_move-source name arc newsource"}
+} [tcltest::wrongNumArgs ::struct::graph::__arc_move-source {name arc newsource} 2]
 
 test graph-52.2 {arc movement} {
     graph mygraph
     catch {mygraph arc move-source a b c} res
     mygraph destroy
     set res
-} {wrong # args: should be "::struct::graph::__arc_move-source name arc newsource"}
+} [tcltest::tooManyArgs ::struct::graph::__arc_move-source {name arc newsource}]
 
 test graph-52.3 {arc movement} {
     graph mygraph
