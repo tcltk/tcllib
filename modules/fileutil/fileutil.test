@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.46 2006/09/14 06:01:22 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.47 2006/09/15 05:07:26 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -1316,6 +1316,17 @@ test updateinplace-2.0 {updateInPlace, string map} {
 } {aragorn |=|go=n}
 
 # -------------------------------------------------------------------------
+# In 8.3+ we can use symbolic permissions, i.e. strings like u+r, or
+# ugo-r when invoking 'file attributes'. This feature is however not
+# available in Tcl 8.2, the lowest revision supported by the
+# package. So we make do without them and use absolute permissions
+# instead.
+
+# 644 = -rw-r--r--
+# 700 = -rwx------
+# 600 = -rw-------
+# 500 = -r-x------
+# 300 = --wx------
 
 proc makewritable {path enable} {
     global tcl_platform
@@ -1323,8 +1334,8 @@ proc makewritable {path enable} {
 	set ro [expr {!$enable}]
 	file attributes $path -readonly $ro
     } else {
-	set mode [expr {$enable ? "u+w" : "ugo-w"}]
-	file attributes $path -permissions $mode
+	set mode [expr {$enable ? "700" : "500"}]
+	file attributes $path -permissions 00$mode
     }
     return
 }
@@ -1334,8 +1345,8 @@ proc makereadable {path enable} {
     if {[string equal $tcl_platform(platform) windows]} {
 	return -code error "Can't do that on Windows"
     } else {
-	set mode [expr {$enable ? "u+r" : "ugo-r"}]
-	file attributes $path -permissions $mode
+	set mode [expr {$enable ? "700" : "300"}]
+	file attributes $path -permissions 00$mode
     }
     return
 }
@@ -1345,8 +1356,8 @@ proc makeexecutable {path enable} {
     if {[string equal $tcl_platform(platform) windows]} {
 	return -code error "Can't do that on Windows"
     } else {
-	set mode [expr {$enable ? "u+x" : "ugo-x"}]
-	file attributes $path -permissions $mode
+	set mode [expr {$enable ? "700" : "600"}]
+	file attributes $path -permissions 00$mode
     }
     return
 }
@@ -2688,17 +2699,17 @@ if {![string equal $::tcl_platform(platform) windows]} {
 test fu-relative-1.0 {fileutil::relative, wrong#args} {
     catch {fileutil::relative} msg
     set msg
-} {wrong # args: should be "fileutil::relative base dst"}
+} [tcltest::wrongNumArgs fileutil::relative {base dst} 0]
 
 test fu-relative-1.1 {fileutil::relative, wrong#args} {
     catch {fileutil::relative a} msg
     set msg
-} {wrong # args: should be "fileutil::relative base dst"}
+} [tcltest::wrongNumArgs fileutil::relative {base dst} 1]
 
 test fu-relative-1.2 {fileutil::relative, wrong#args} {
     catch {fileutil::relative a b c} msg
     set msg
-} {wrong # args: should be "fileutil::relative base dst"}
+} [tcltest::tooManyArgs fileutil::relative {base dst}]
 
 foreach {n base dst result} {
     0  /base         /base/destination    destination
@@ -2735,17 +2746,17 @@ foreach {n base dst ra rb} {
 test fu-relativeurl-1.0 {fileutil::relativeUrl, wrong#args} {
     catch {fileutil::relativeUrl} msg
     set msg
-} {wrong # args: should be "fileutil::relativeUrl base dst"}
+} [tcltest::wrongNumArgs fileutil::relativeUrl {base dst} 0]
 
 test fu-relativeurl-1.1 {fileutil::relativeUrl, wrong#args} {
     catch {fileutil::relativeUrl a} msg
     set msg
-} {wrong # args: should be "fileutil::relativeUrl base dst"}
+} [tcltest::wrongNumArgs fileutil::relativeUrl {base dst} 1]
 
 test fu-relativeurl-1.2 {fileutil::relativeUrl, wrong#args} {
     catch {fileutil::relativeUrl a b c} msg
     set msg
-} {wrong # args: should be "fileutil::relativeUrl base dst"}
+} [tcltest::tooManyArgs fileutil::relativeUrl {base dst}]
 
 foreach {n base dst result} {
     0  /base/file.html         /base/destination/xx.html    destination/xx.html

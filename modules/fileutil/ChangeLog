@@ -1,3 +1,10 @@
+2006-09-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.test: Fixed 8.3isms in the testsuite. Symbolic
+	  permissions for 'file attributes' are not available in 8.2 yet
+	  :(. Also fixed the tests using hardcoded wrong#args messages to
+	  use the compatibility commands instead.
+
 2006-09-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.test: Fixed 8.4ism in the testsuite of a 8.2+ package.
