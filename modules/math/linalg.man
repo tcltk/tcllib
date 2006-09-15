@@ -770,8 +770,6 @@ described above.
 
 Odds and ends: the following algorithms have not been implemented yet:
 [list_begin bullet]
-[bullet]
-normalizeStat (!)
 
 [bullet]
 determineQR
