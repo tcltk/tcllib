@@ -8,7 +8,7 @@
 # Copyright (c) 2005-2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: me_cpu.test,v 1.1 2006/06/29 06:29:05 andreas_kupries Exp $
+# RCS: @(#) $Id: me_cpu.test,v 1.2 2006/09/15 06:01:04 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -28,6 +28,8 @@ testing {
 }
 
 # -------------------------------------------------------------------------
+
+snitErrors
 
 proc cpustate {cpu} {
     set     vstate {}
