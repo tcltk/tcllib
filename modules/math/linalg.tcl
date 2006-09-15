@@ -335,10 +335,10 @@ proc ::math::linearalgebra::normalizeStat { mv } {
 
     if { [llength [lindex $mv 0]] > 1 } {
         set result {}
-        foreach vector $mv {
+        foreach vector [transpose $mv] {
             lappend result [NormalizeStat_vect $vector]
         }
-        return $result
+        return [transpose $result]
     } else {
         return [NormalizeStat_vect $mv]
     }
