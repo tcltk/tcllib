@@ -1,3 +1,9 @@
+2006-09-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph.test: Fixed the new tests for the arc move method. They
+	  used hardcoded wrong#args messages. Now the proper the
+	  compatibility commands are in place.
+
 2006-07-27  Andreas Kupries  <andreask@activestate.com>
 
 	* tree/t.c (t_newnodename): Fixed bug [SF TCllib Bug 1528614],
