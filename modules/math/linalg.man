@@ -38,6 +38,10 @@ as [emph setrow] and [emph getrow], rather than rely on this
 representation explicitly: that way it is to switch to a possibly even
 faster compiled implementation that supports the same API.
 
+[para]
+[emph Note:] When using this package in combination with Tk, there may
+be a naming conflict, as both this package and Tk define a command
+[emph scale]. See the [sectref "NAMING CONFLICT"] section below.
 
 [section "PROCEDURES"]
 
@@ -250,6 +254,31 @@ Euclidean norm or the max norm.
 [arg_def string type] Type of norm (default: 2, the Euclidean norm)
 [list_end]
 
+[call [cmd ::math::linearalgebra::norm_one] [arg vector]]
+
+Returns the L1 norm of the given vector, the sum of absolute values
+
+[list_begin arg]
+[arg_def list vector] Vector, list of coefficients
+[list_end]
+
+[call [cmd ::math::linearalgebra::norm_two] [arg vector]]
+
+Returns the L2 norm of the given vector, the ordinary Euclidean norm
+
+[list_begin arg]
+[arg_def list vector] Vector, list of coefficients
+[list_end]
+
+[call [cmd ::math::linearalgebra::norm_max] [arg vector]]
+
+Returns the Linf norm of the given vector, the maximum absolute
+coefficient
+
+[list_begin arg]
+[arg_def list vector] Vector, list of coefficients
+[list_end]
+
 [nl]
 [call [cmd ::math::linearalgebra::normMatrix] [arg matrix] [arg type]]
 
@@ -299,6 +328,9 @@ is 1.
 Return a vector or matrix that results from a "daxpy" operation, that
 is: compute a*x+y (a a scalar and x and y both vectors or matrices of
 the same shape) and return the result.
+[nl]
+Specialised variants are: axpy_vect and axpy_mat (slightly faster,
+but no check on the arguments)
 
 [list_begin arg]
 [arg_def double scale] The scale factor for the first vector/matrix (a)
@@ -310,6 +342,9 @@ the same shape) and return the result.
 [call [cmd ::math::linearalgebra::add] [arg mv1] [arg mv2]]
 
 Return a vector or matrix that is the sum of the two arguments (x+y)
+[nl]
+Specialised variants are: add_vect and add_mat (slightly faster,
+but no check on the arguments)
 
 [list_begin arg]
 [arg_def list mv1] First vector or matrix (x)
@@ -321,6 +356,9 @@ Return a vector or matrix that is the sum of the two arguments (x+y)
 
 Return a vector or matrix that is the difference of the two arguments
 (x-y)
+[nl]
+Specialised variants are: sub_vect and sub_mat (slightly faster,
+but no check on the arguments)
 
 [list_begin arg]
 [arg_def list mv1] First vector or matrix (x)
@@ -331,6 +369,9 @@ Return a vector or matrix that is the difference of the two arguments
 [call [cmd ::math::linearalgebra::scale] [arg scale] [arg mv]]
 
 Scale a vector or matrix and return the result, that is: compute a*x.
+[nl]
+Specialised variants are: scale_vect and scale_mat (slightly faster,
+but no check on the arguments)
 
 [list_begin arg]
 [arg_def double scale] The scale factor for the vector/matrix (a)
@@ -385,9 +426,9 @@ Compute the angle between two vectors (in radians)
 [list_end]
 
 [nl]
-[call [cmd ::math::linearalgebra::crossproduc5] [arg vect1] [arg vect2]]
+[call [cmd ::math::linearalgebra::crossproduct] [arg vect1] [arg vect2]]
 
-Compute the cross product of two (three-dimensional) vectors 
+Compute the cross product of two (three-dimensional) vectors
 
 [list_begin arg]
 [arg_def list vect1] First vector
@@ -605,6 +646,30 @@ normalized eigenvectors and their eigenvalues.
 [list_end]
 
 [nl]
+[call [cmd ::math::linearalgebra::leastSquaresSVD] [arg A] [arg y] [arg qmin] [arg eps]]
+
+Determines the solution to a least-sqaures problem Ax ~ y via singular
+value decomposition. The result is the vector x.
+
+[list_begin arg]
+[arg_def list A] Matrix of independent variables
+[arg_def list y] List of observed values
+[arg_def float qmin] Minimum singular value to be considered (defaults to 0.0)
+[arg_def float eps] Tolerance (defaults to 2.3e-16)
+[list_end]
+
+[nl]
+[call [cmd ::math::linearalgebra::choleski] [arg matrix]]
+
+Determine the Choleski decomposition of a symmetric positive
+semidefinite matrix (this condition is not checked!). The result
+is the lower-triangular matrix L such that L Lt = matrix.
+
+[list_begin arg]
+[arg_def list matrix] Matrix to be decomposed
+[list_end]
+
+[nl]
 [call [cmd ::math::linearalgebra::orthonormalizeColumns] [arg matrix]]
 
 Use the modified Gram-Schmidt method to orthogonalize and normalize
@@ -709,14 +774,35 @@ Odds and ends: the following algorithms have not been implemented yet:
 normalizeStat (!)
 
 [bullet]
-determineQR, cholesky
-
-[bullet]
-leastSquaresSVD, leastSquares
+determineQR
 
 [bullet]
 certainlyPositive, diagonallyDominant
 [list_end]
+
+[section "NAMING CONFLICT"]
+If you load this package in a Tk-enabled shell like wish, then the
+command
+[example {namespace import ::math::linearalgebra}]
+results in an error
+message about "scale". This is due to the fact that Tk defines all
+its commands in the global namespace. The solution is to import
+the linear algebra commands in a namespace that is not the global one:
+[example {
+package require math::linearalgebra
+namespace eval compute {
+    namespace import ::math::linearalgebra::*
+    ... use the linear algebra version of scale ...
+}
+}]
+To use Tk's scale command in that same namespace you can rename it:
+[example {
+namespace eval compute {
+    rename ::scale scaleTk
+    scaleTk .scale ...
+}
+}]
+
 
 [keywords math "linear algebra" vectors matrices "least squares" "linear equations"]
 
