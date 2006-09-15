@@ -256,7 +256,7 @@ test me-cpucore-lc-${impl}-3.2 {lc, bad index} -setup {
 
 test me-cpucore-tok-${impl}-1.0 {tok, wrong args} -body {
     grammar::me::cpu::core::tok
-} -result {wrong # args: should be "grammar::me::cpu::core::tok state args"} \
+} -result [tcltest::wrongNumArgs grammar::me::cpu::core::tok {state args} 0] \
   -returnCodes error
 
 test me-cpucore-tok-${impl}-1.1 {tok, wrong args} -body {
