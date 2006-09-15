@@ -651,6 +651,11 @@ normalized eigenvectors and their eigenvalues.
 Determines the solution to a least-sqaures problem Ax ~ y via singular
 value decomposition. The result is the vector x.
 
+[nl]
+Note that if you add a column of 1s to the matrix, then this column will
+represent a constant like in: y = a*x1 + b*x2 + c. To force the
+intercept to be zero, simply leave it out.
+
 [list_begin arg]
 [arg_def list A] Matrix of independent variables
 [arg_def list y] List of observed values

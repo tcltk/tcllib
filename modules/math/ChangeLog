@@ -3,8 +3,9 @@
 	              added missing descriptions of several procedures
 	* linalg.tcl: added crossproduct to the exported commands
 	              implemented normalizeStat
+                      corrected error in leastSquaresSVD
 	* linalg.test: added test for normalizeStat
-
+	               added test for leastSquaresSVD
 
 2006-06-13  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
