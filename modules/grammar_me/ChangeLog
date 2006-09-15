@@ -1,3 +1,12 @@
+2006-09-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* me_cpu.testsuite: Replaced hardwired snit error messages with
+	  command constructing them based on the version of snit
+	  used. Fixed test names as well.
+
+	* me_cpucore.testsuite: Replaced hardwired error messages with
+	  command constructing them based on the version of Tcl used.
+
 2006-06-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* grammar_me/me_cpucore.tests.semantics.txt: Extended to cover the
