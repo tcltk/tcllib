@@ -4,17 +4,17 @@
 # ### ### ### ######### ######### #########
 ## Cpu creation.
 
-test me-cpucore-new-${impl}-1.0 {new, wrong args} -body {
+test me-cpu-new-${impl}-1.0 {new, wrong args} -body {
     grammar::me::cpu cpu
 } -result {Error in constructor: wrong # args: should be "::grammar::me::cpu::Snit_constructor type selfns win self code_"} \
   -returnCodes error
 
-test me-cpucore-new-${impl}-1.1 {new, wrong args} -body {
+test me-cpu-new-${impl}-1.1 {new, wrong args} -body {
     grammar::me::cpu cpu a b
 } -result {Error in constructor: wrong # args: should be "::grammar::me::cpu::Snit_constructor type selfns win self code_"} \
   -returnCodes error
 
-test me-cpucore-run-${impl}-2.0 run -setup {
+test me-cpu-run-${impl}-2.0 run -setup {
     grammar::me::cpu cpu {{} {} {}}
 } -body {
     cpu run
@@ -27,7 +27,7 @@ foreach {cmd cargs expected} $asm_table {
     set asm [list [linsert $cargs 0 branchlabel $cmd]]
     incr n
 
-    test me-cpucore-new-${impl}-3.$n "new, $cmd, code" -body {
+    test me-cpu-new-${impl}-3.$n "new, $cmd, code" -body {
 	grammar::me::cpu cpu \
 		[canon_code [grammar::me::cpu::core::asm $asm]]
 	cpu code
@@ -35,7 +35,7 @@ foreach {cmd cargs expected} $asm_table {
 	cpu destroy
     } -result $expected
 
-    test me-cpucore-new-${impl}-4.$n "new, $cmd, state" -body {
+    test me-cpu-new-${impl}-4.$n "new, $cmd, state" -body {
 	grammar::me::cpu cpu \
 		[canon_code [grammar::me::cpu::core::asm $asm]]
 	cpusubst [cpustate cpu] cd {}
@@ -48,7 +48,7 @@ set n -1
 foreach {insns expected} $badmach_table {
     incr n
 
-    test me-cpucore-new-${impl}-5.$n "new error" -body {
+    test me-cpu-new-${impl}-5.$n "new error" -body {
 	grammar::me::cpu cpu $insns
     } -result "Error in constructor: $expected" -returnCodes error
 }
@@ -56,47 +56,47 @@ foreach {insns expected} $badmach_table {
 # ### ### ### ######### ######### #########
 ## CPU manipulation - Add tokens I
 
-test me-cpucore-put-${impl}-1.0 {put, wrong args} -setup {
+test me-cpu-put-${impl}-1.0 {put, wrong args} -setup {
     grammar::me::cpu cpu {{} {} {}}
 } -body {
     cpu put
 } -returnCodes error -cleanup {
     cpu destroy
-} -result {wrong # args: should be "::grammar::me::cpu::Snit_methodput type selfns win self tok lex line col"}
+} -result [snitWrongNumArgs cpu ::grammar::me::cpu::Snit_methodput {tok lex line col} 0]
 
-test me-cpucore-put-${impl}-1.1 {put, wrong args} -setup {
+test me-cpu-put-${impl}-1.1 {put, wrong args} -setup {
     grammar::me::cpu cpu {{} {} {}}
 } -body {
     cpu put a
 } -returnCodes error -cleanup {
     cpu destroy
-} -result {wrong # args: should be "::grammar::me::cpu::Snit_methodput type selfns win self tok lex line col"}
+} -result [snitWrongNumArgs cpu ::grammar::me::cpu::Snit_methodput {tok lex line col} 1]
 
-test me-cpucore-put-${impl}-1.2 {put, wrong args} -setup {
+test me-cpu-put-${impl}-1.2 {put, wrong args} -setup {
     grammar::me::cpu cpu {{} {} {}}
 } -body {
     cpu put a b
 } -returnCodes error -cleanup {
     cpu destroy
-} -result {wrong # args: should be "::grammar::me::cpu::Snit_methodput type selfns win self tok lex line col"}
+} -result [snitWrongNumArgs cpu ::grammar::me::cpu::Snit_methodput {tok lex line col} 2]
 
-test me-cpucore-put-${impl}-1.3 {put, wrong args} -setup {
+test me-cpu-put-${impl}-1.3 {put, wrong args} -setup {
     grammar::me::cpu cpu {{} {} {}}
 } -body {
     cpu put a b c
 } -returnCodes error -cleanup {
     cpu destroy
-} -result {wrong # args: should be "::grammar::me::cpu::Snit_methodput type selfns win self tok lex line col"}
+} -result [snitWrongNumArgs cpu ::grammar::me::cpu::Snit_methodput {tok lex line col} 3]
 
-test me-cpucore-put-${impl}-1.4 {put, wrong args} -setup {
+test me-cpu-put-${impl}-1.4 {put, wrong args} -setup {
     grammar::me::cpu cpu {{} {} {}}
 } -body {
     cpu put a b c d e
 } -returnCodes error -cleanup {
     cpu destroy
-} -result {wrong # args: should be "::grammar::me::cpu::Snit_methodput type selfns win self tok lex line col"}
+} -result [snitTooManyArgs cpu ::grammar::me::cpu::Snit_methodput {tok lex line col}]
 
-test me-cpucore-put-${impl}-2.0 put -setup {
+test me-cpu-put-${impl}-2.0 put -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     set base [cpustate cpu]
 } -body {
@@ -108,7 +108,7 @@ test me-cpucore-put-${impl}-2.0 put -setup {
     unset base
 } -result {tc {{ID ident 1 0} {NUM 12345 1 5}}}
 
-test me-cpucore-put-${impl}-3.0 {put after eof} -setup {
+test me-cpu-put-${impl}-3.0 {put after eof} -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     cpu eof
 } -body {
@@ -121,39 +121,39 @@ test me-cpucore-put-${impl}-3.0 {put after eof} -setup {
 # ### ### ### ######### ######### #########
 ## CPU manipulation - Add tokens II
 
-test me-cpucore-putstring-${impl}-1.0 {putstring, wrong args} -setup {
+test me-cpu-putstring-${impl}-1.0 {putstring, wrong args} -setup {
     grammar::me::cpu cpu {{} {} {}}
 } -body {
     cpu putstring
 } -returnCodes error -cleanup {
     cpu destroy
-} -result {wrong # args: should be "::grammar::me::cpu::Snit_methodputstring type selfns win self str lvar cvar"}
+} -result [snitWrongNumArgs cpu ::grammar::me::cpu::Snit_methodputstring {str lvar cvar} 0]
 
-test me-cpucore-putstring-${impl}-1.1 {putstring, wrong args} -setup {
+test me-cpu-putstring-${impl}-1.1 {putstring, wrong args} -setup {
     grammar::me::cpu cpu {{} {} {}}
 } -body {
     cpu putstring a
 } -returnCodes error -cleanup {
     cpu destroy
-} -result {wrong # args: should be "::grammar::me::cpu::Snit_methodputstring type selfns win self str lvar cvar"}
+} -result [snitWrongNumArgs cpu ::grammar::me::cpu::Snit_methodputstring {str lvar cvar} 1]
 
-test me-cpucore-putstring-${impl}-1.2 {putstring, wrong args} -setup {
+test me-cpu-putstring-${impl}-1.2 {putstring, wrong args} -setup {
     grammar::me::cpu cpu {{} {} {}}
 } -body {
     cpu putstring a b
 } -returnCodes error -cleanup {
     cpu destroy
-} -result {wrong # args: should be "::grammar::me::cpu::Snit_methodputstring type selfns win self str lvar cvar"}
+} -result [snitWrongNumArgs cpu ::grammar::me::cpu::Snit_methodputstring {str lvar cvar} 2]
 
-test me-cpucore-putstring-${impl}-1.3 {putstring, wrong args} -setup {
+test me-cpu-putstring-${impl}-1.3 {putstring, wrong args} -setup {
     grammar::me::cpu cpu {{} {} {}}
 } -body {
     cpu putstring a b c d
 } -returnCodes error -cleanup {
     cpu destroy
-} -result {wrong # args: should be "::grammar::me::cpu::Snit_methodputstring type selfns win self str lvar cvar"}
+} -result [snitTooManyArgs cpu ::grammar::me::cpu::Snit_methodputstring {str lvar cvar}]
 
-test me-cpucore-putstring-${impl}-2.0 put -setup {
+test me-cpu-putstring-${impl}-2.0 put -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     set base [cpustate cpu]
     set l 0
@@ -166,7 +166,7 @@ test me-cpucore-putstring-${impl}-2.0 put -setup {
     unset base
 } -result {0 2 {tc {{I {} 0 0} {D {} 0 1}}}}
 
-test me-cpucore-putstring-${impl}-3.0 {put after eof} -setup {
+test me-cpu-putstring-${impl}-3.0 {put after eof} -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     cpu eof
     set l 0
@@ -180,15 +180,15 @@ test me-cpucore-putstring-${impl}-3.0 {put after eof} -setup {
 # ### ### ### ######### ######### #########
 ## State manipulation - Set eof
 
-test me-cpucore-eof-${impl}-1.0 {eof, wrong args} -setup {
+test me-cpu-eof-${impl}-1.0 {eof, wrong args} -setup {
     grammar::me::cpu cpu {{} {} {}}
 } -body {
     cpu eof x
 } -returnCodes error -cleanup {
     cpu destroy
-} -result {wrong # args: should be "::grammar::me::cpu::Snit_methodeof type selfns win self"}
+} -result [snitTooManyArgs cpu ::grammar::me::cpu::Snit_methodeof {}]
 
-test me-cpucore-eof-${impl}-2.0 eof -setup {
+test me-cpu-eof-${impl}-2.0 eof -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     set base [cpustate cpu]
 } -body {
@@ -201,23 +201,23 @@ test me-cpucore-eof-${impl}-2.0 eof -setup {
 # ### ### ### ######### ######### #########
 ## State accessors - line/col retrieval
 
-test me-cpucore-lc-${impl}-1.0 {lc, wrong args} -setup {
+test me-cpu-lc-${impl}-1.0 {lc, wrong args} -setup {
     grammar::me::cpu cpu {{} {} {}}
 } -body {
     cpu lc
 } -returnCodes error -cleanup {
     cpu destroy
-} -result {wrong # args: should be "::grammar::me::cpu::Snit_methodlc type selfns win self location"}
+} -result [snitWrongNumArgs cpu ::grammar::me::cpu::Snit_methodlc {location} 0]
 
-test me-cpucore-lc-${impl}-1.1 {lc, wrong args} -setup {
+test me-cpu-lc-${impl}-1.1 {lc, wrong args} -setup {
     grammar::me::cpu cpu {{} {} {}}
 } -body {
     cpu lc a b
 } -returnCodes error -cleanup {
     cpu destroy
-} -result {wrong # args: should be "::grammar::me::cpu::Snit_methodlc type selfns win self location"}
+} -result [snitTooManyArgs cpu ::grammar::me::cpu::Snit_methodlc {location}]
 
-test me-cpucore-lc-${impl}-2.0 lc -setup {
+test me-cpu-lc-${impl}-2.0 lc -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     cpu put NUM 12345 1 5
 } -body {
@@ -226,7 +226,7 @@ test me-cpucore-lc-${impl}-2.0 lc -setup {
     cpu destroy
 } -result {1 5}
 
-test me-cpucore-lc-${impl}-3.0 {lc, bad index} -setup {
+test me-cpu-lc-${impl}-3.0 {lc, bad index} -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     cpu put NUM 12345 1 5
 } -body {
@@ -235,7 +235,7 @@ test me-cpucore-lc-${impl}-3.0 {lc, bad index} -setup {
     cpu destroy
 } -result {Illegal location -1}
 
-test me-cpucore-lc-${impl}-3.1 {lc, bad index} -setup {
+test me-cpu-lc-${impl}-3.1 {lc, bad index} -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     cpu put NUM 12345 1 5
 } -body {
@@ -244,7 +244,7 @@ test me-cpucore-lc-${impl}-3.1 {lc, bad index} -setup {
     cpu destroy
 } -result {Illegal location 1}
 
-test me-cpucore-lc-${impl}-3.2 {lc, bad index} -setup {
+test me-cpu-lc-${impl}-3.2 {lc, bad index} -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
 } -body {
     cpu lc 0
@@ -255,7 +255,7 @@ test me-cpucore-lc-${impl}-3.2 {lc, bad index} -setup {
 # ### ### ### ######### ######### #########
 ## State accessors - Token retrieval
 
-test me-cpucore-tok-${impl}-1.0 {tok, wrong args} -setup {
+test me-cpu-tok-${impl}-1.0 {tok, wrong args} -setup {
     grammar::me::cpu cpu {{} {} {}}
 } -body {
     cpu tok a b c
@@ -263,7 +263,7 @@ test me-cpucore-tok-${impl}-1.0 {tok, wrong args} -setup {
     cpu destroy
 } -result {wrong # args: should be "grammar::me::cpu::core::tok state ?from ?to??"}
 
-test me-cpucore-tok-${impl}-2.0 tok -setup {
+test me-cpu-tok-${impl}-2.0 tok -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
 } -body {
     cpu tok
@@ -271,7 +271,7 @@ test me-cpucore-tok-${impl}-2.0 tok -setup {
     cpu destroy
 } -result {}
 
-test me-cpucore-tok-${impl}-2.1 tok -setup {
+test me-cpu-tok-${impl}-2.1 tok -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     cpu put NUM 12345 1 5
 } -body {
@@ -280,7 +280,7 @@ test me-cpucore-tok-${impl}-2.1 tok -setup {
     cpu destroy
 } -result {{NUM 12345 1 5}}
 
-test me-cpucore-tok-${impl}-2.2 tok -setup {
+test me-cpu-tok-${impl}-2.2 tok -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     cpu put ID  lalal 0 0
     cpu put NUM 12345 1 5
@@ -290,7 +290,7 @@ test me-cpucore-tok-${impl}-2.2 tok -setup {
     cpu destroy
 } -result {{ID lalal 0 0} {NUM 12345 1 5}}
 
-test me-cpucore-tok-${impl}-3.0 tok -setup {
+test me-cpu-tok-${impl}-3.0 tok -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
 } -body {
     cpu tok 0
@@ -298,7 +298,7 @@ test me-cpucore-tok-${impl}-3.0 tok -setup {
     cpu destroy
 } -result {Illegal location 0} -returnCodes error
 
-test me-cpucore-tok-${impl}-3.1 tok -setup {
+test me-cpu-tok-${impl}-3.1 tok -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     cpu put NUM 12345 1 5
 } -body {
@@ -307,7 +307,7 @@ test me-cpucore-tok-${impl}-3.1 tok -setup {
     cpu destroy
 } -result {Illegal location -1} -returnCodes error
 
-test me-cpucore-tok-${impl}-3.2 tok -setup {
+test me-cpu-tok-${impl}-3.2 tok -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     cpu put NUM 12345 1 5
 } -body {
@@ -316,7 +316,7 @@ test me-cpucore-tok-${impl}-3.2 tok -setup {
     cpu destroy
 } -result {Illegal location 1} -returnCodes error
 
-test me-cpucore-tok-${impl}-3.3 tok -setup {
+test me-cpu-tok-${impl}-3.3 tok -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     cpu put NUM 12345 1 5
 } -body {
@@ -325,7 +325,7 @@ test me-cpucore-tok-${impl}-3.3 tok -setup {
     cpu destroy
 } -result {{NUM 12345 1 5}}
 
-test me-cpucore-tok-${impl}-3.4 tok -setup {
+test me-cpu-tok-${impl}-3.4 tok -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     cpu put ID  lalal 0 0
     cpu put NUM 12345 1 5
@@ -335,7 +335,7 @@ test me-cpucore-tok-${impl}-3.4 tok -setup {
     cpu destroy
 } -result {{ID lalal 0 0}}
 
-test me-cpucore-tok-${impl}-4.0 tok -setup {
+test me-cpu-tok-${impl}-4.0 tok -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     cpu put NUM 12345 1 5
 } -body {
@@ -344,7 +344,7 @@ test me-cpucore-tok-${impl}-4.0 tok -setup {
     cpu destroy
 } -result {Illegal start location -1} -returnCodes error
 
-test me-cpucore-tok-${impl}-4.1 tok -setup {
+test me-cpu-tok-${impl}-4.1 tok -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     cpu put NUM 12345 1 5
 } -body {
@@ -353,7 +353,7 @@ test me-cpucore-tok-${impl}-4.1 tok -setup {
     cpu destroy
 } -result {Illegal start location 1} -returnCodes error
 
-test me-cpucore-tok-${impl}-4.2 tok -setup {
+test me-cpu-tok-${impl}-4.2 tok -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     cpu put NUM 12345 1 5
 } -body {
@@ -362,7 +362,7 @@ test me-cpucore-tok-${impl}-4.2 tok -setup {
     cpu destroy
 } -result {Illegal end location -1} -returnCodes error
 
-test me-cpucore-tok-${impl}-4.3 tok -setup {
+test me-cpu-tok-${impl}-4.3 tok -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     cpu put NUM 12345 1 5
 } -body {
@@ -371,7 +371,7 @@ test me-cpucore-tok-${impl}-4.3 tok -setup {
     cpu destroy
 } -result {Illegal end location 1} -returnCodes error
 
-test me-cpucore-tok-${impl}-4.4 tok -setup {
+test me-cpu-tok-${impl}-4.4 tok -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     cpu put ID  lalal 0 0
     cpu put NUM 12345 1 5
@@ -381,7 +381,7 @@ test me-cpucore-tok-${impl}-4.4 tok -setup {
     cpu destroy
 } -result {Illegal empty location range 1 .. 0} -returnCodes error
 
-test me-cpucore-tok-${impl}-4.5 tok -setup {
+test me-cpu-tok-${impl}-4.5 tok -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     cpu put ID  lalal 0 0
     cpu put NUM 12345 1 5
@@ -391,7 +391,7 @@ test me-cpucore-tok-${impl}-4.5 tok -setup {
     cpu destroy
 } -result {{ID lalal 0 0} {NUM 12345 1 5}}
 
-test me-cpucore-tok-${impl}-4.6 tok -setup {
+test me-cpu-tok-${impl}-4.6 tok -setup {
     grammar::me::cpu cpu [canon_code [grammar::me::cpu::core::asm {}]]
     cpu put ID  lalal 0 0
     cpu put ID  lalal 0 0
@@ -404,13 +404,13 @@ test me-cpucore-tok-${impl}-4.6 tok -setup {
 # ### ### ### ######### ######### #########
 ## Checking the instruction semantics
 
-test me-cpucore-run-${impl}-1.0 {run, wrong args} -setup {
+test me-cpu-run-${impl}-1.0 {run, wrong args} -setup {
     grammar::me::cpu cpu {{} {} {}}
 } -body {
     cpu run a b
 } -returnCodes error -cleanup {
     cpu destroy
-} -result {wrong # args: should be "::grammar::me::cpu::Snit_methodrun type selfns win self ?n?"}
+} -result [snitTooManyArgs cpu ::grammar::me::cpu::Snit_methodrun {?n?}]
 
 set n -1
 foreach {description input eof stepsSetup steps code expectedDelta} $semantics {
@@ -425,7 +425,7 @@ foreach {description input eof stepsSetup steps code expectedDelta} $semantics {
 	puts $expectedDelta
     }
 
-    test me-cpucore-run-${impl}-2.$n "run $description" -setup {
+    test me-cpu-run-${impl}-2.$n "run $description" -setup {
 	grammar::me::cpu cpu $code
 	foreach token $input {
 	    eval [linsert $token 0 cpu put]
