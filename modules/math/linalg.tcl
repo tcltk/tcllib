@@ -1547,9 +1547,10 @@ proc ::math::linearalgebra::leastSquaresSVD { A y {qmin 0.0} {epsilon 2.3e-16} }
     for {set j 0} {$j < $n} {incr j} {
         set s 0.0
         for {set i 0} {$i < $m} {incr i} {
-            set Aij [lindex $A $i $j]
+            set Uij [lindex $U $i $j]
+            puts "U: $Uij - $i $j"
             set yi  [lindex $y $i]
-            set s [expr {$s + $Aij*$yi}]
+            set s [expr {$s + $Uij*$yi}]
         }
         lappend g $s ;# g[j] = $s
     }
