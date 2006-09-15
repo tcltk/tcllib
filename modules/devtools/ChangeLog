@@ -1,4 +1,9 @@
-2006-09-13  Andreas Kupries  <akupries@shaw.ca>
+2006-09-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* testutilities.tcl: Added commands constructing wrong#args
+	  messages for snit methods, depending on snit version.
+
+2006-09-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl: Ensure that the makeFile/Dir wrapper are
 	  created only once. Also modified the code to modify the
