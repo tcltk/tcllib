@@ -440,6 +440,29 @@ test choleski-1.0 "choleski decomposition of Moler matrix" -match numbers -body 
     choleski $matrix
 } -result {{1 0 0 0 0} {-1 1 0 0 0} {-1 -1 1 0 0} {-1 -1 -1 1 0} {-1 -1 -1 -1 1}}
 
+test leastsquares-1.0 "Least-squares solution" -match numbers -body {
+    #
+    # Known relation: z = 1.0 + x + 0.1*y
+    # Model this as: z = z0 + x + 0.1*y
+    # (The column of 1s allows us to use a non-zero intercept)
+    #
+    #          z0   x   y     z
+    set Ab { {  1  1.0  1.0} 2.1
+             {  1  2.0  1.0} 3.1
+             {  1  2.0  2.0} 3.2
+             {  1  4.0  2.0} 5.2
+             {  1  4.0 22.0} 7.2
+             {  1  5.0 -2.0} 5.8 }
+
+    set A {}
+    set b {}
+    foreach {Ar br} $Ab {
+        lappend A $Ar
+        lappend b $br
+    }
+    set x [::math::linearalgebra::leastSquaresSVD $A $b]
+} -result {1.0 1.0 0.1}
+
 set ::tcl_precision $old_precision
 
 ::tcltest::cleanupTests
