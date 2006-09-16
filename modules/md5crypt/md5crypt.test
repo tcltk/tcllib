@@ -7,7 +7,7 @@
 #
 # Copyright (C) 2003 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# RCS: @(#) $Id: md5crypt.test,v 1.7 2006/01/24 05:10:01 andreas_kupries Exp $
+# RCS: @(#) $Id: md5crypt.test,v 1.8 2006/09/16 21:12:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -34,27 +34,45 @@ testing {
 
 if {[llength [info command ::md5crypt::md5crypt_c]]} {
     puts "> critcl based"
+    set impl critcl
 } else {
     puts "> pure Tcl"
+    set impl tcl
 }
 
 # -------------------------------------------------------------------------
 # Now the package specific tests....
 # -------------------------------------------------------------------------
+# A procedure and a C command generate different error messages.
 
 test md5crypt-1.0 {md5crypt basic usage} {
     catch {::md5crypt::md5crypt} result
-    string match [tcltest::wrongNumArgs {*} {pw salt} 0] $result
+    if {$impl == "critcl"} {
+        set expected {wrong # args: should be "::md5crypt::md5crypt_c magic pw salt"}
+    } else {
+        set expected [tcltest::wrongNumArgs {*} {pw salt} 0]
+    }
+    string match $expected $result
 } 1
 
 test md5crypt-1.1 {md5crypt basic usage} {
     catch {::md5crypt::md5crypt pw} result
-    string match [tcltest::wrongNumArgs {*} {pw salt} 1] $result
+    if {$impl == "critcl"} {
+        set expected {wrong # args: should be "::md5crypt::md5crypt_c magic pw salt"}
+    } else {
+        set expected [tcltest::wrongNumArgs {*} {pw salt} 1]
+    }
+    string match $expected $result
 } 1
 
 test md5crypt-1.2 {md5crypt basic usage} {
     catch {::md5crypt::md5crypt pw salt other} result
-    string match [tcltest::tooManyArgs {*} {pw salt}] $result
+    if {$impl == "critcl"} {
+        set expected {wrong # args: should be "::md5crypt::md5crypt_c magic pw salt"}
+    } else {
+        set expected [tcltest::tooManyArgs {*} {pw salt}]
+    }
+    string match $expected $result
 } 1
 
 # -------------------------------------------------------------------------

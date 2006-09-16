@@ -1,3 +1,9 @@
+2006-09-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* md5crypt.test: The critcl implementation of md5crypt generates
+	  different error messages when called with the wrong number of
+	  arguments. Updated the tests to take this into account.
+
 2006-01-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* md5crypt.test: More boilerplate simplified via use of test support.
