@@ -44,14 +44,26 @@ namespace eval ::snit83 {
 # Initialisation
 
 #
-# Override Tcl functions so we can mimic some behaviours
+# Override Tcl functions so we can mimic some behaviours. This is
+# conditional on not having been done already. Otherwise loading snit
+# twice will fail the second time.
 #
 
 if [info exists tk_version] {
-    rename destroy __destroy__
+    if {
+	![llength [info procs destroy]] ||
+	![regexp snit83 [info body destroy]]
+    } {
+	rename destroy __destroy__
+    }
 }
-rename namespace __namespace__
-rename rename    __rename__ ;# must be last one renamed!
+if {
+    ![llength [info procs namespace]] ||
+    ![regexp snit83 [info body namespace]]
+} {
+    rename namespace __namespace__
+    rename rename    __rename__ ;# must be last one renamed!
+}
 
 #-----------------------------------------------------------------------
 # Global namespace functions
@@ -69,7 +81,7 @@ if [info exists tk_version] {
 	if [info exists cmdTraceTable($index)] {
 	    set cmd $cmdTraceTable($index)
 	    ::unset cmdTraceTable($index) ;# prevent recursive tracing
-	    if [catch {eval $cmd $oldName \"$newName\" delete} err] {
+	    if [catch {eval $cmd $oldName \"$newName\" delete} err] { ; # "
 		error $err
 	    }
 	}

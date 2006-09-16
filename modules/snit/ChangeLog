@@ -1,3 +1,9 @@
+2006-09-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* snit_tcl83_utils.tcl: Made the initialization of the
+	  compatibility system a bit more robust against loading it
+	  multiple times.
+
 2006-09-11  Will Duquette <will@wjduquette.com>
 	* main2.tcl: Comp.statement.typevariable now places the type name
 	directly in the "tvprocdec" rather than waiting to substitute it
