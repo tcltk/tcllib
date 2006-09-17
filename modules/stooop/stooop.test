@@ -2,7 +2,7 @@
 # Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: stooop.test,v 1.9 2006/01/31 04:16:31 andreas_kupries Exp $
+# $Id: stooop.test,v 1.10 2006/09/17 07:17:28 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -8155,11 +8155,7 @@ test stooop-86 {
     bug\
 ]
 
-test stooop-87 {
-    verify member writing and unsetting within class namespaces in member data
-    checking mode
-    (it seems that unset tracing prevents error reporting at this time (bug?))
-} {
+test stooop-87 {verify member writing and unsetting within class namespaces in member data checking mode (it seems that unset tracing prevents error reporting at this time (bug?))} {
     set interpreter [interp create]
     $interpreter eval {
         # reset any existing environment variables:
