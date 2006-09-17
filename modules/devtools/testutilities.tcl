@@ -315,7 +315,7 @@ proc use {fname pname args} {
 	return -code error ""
     }
 
-    puts "$::tcllib::testutils::tag $pname [package present $pname]"
+    puts "$::tcllib::testutils::tag [list $pname] [package present $pname]"
     return
 }
 
@@ -341,7 +341,7 @@ proc useKeep {fname pname args} {
 	return -code error ""
     }
 
-    puts "$::tcllib::testutils::tag $pname [package present $pname]"
+    puts "$::tcllib::testutils::tag [list $pname] [package present $pname]"
     return
 }
 
@@ -360,7 +360,7 @@ proc useLocal {fname pname args} {
 	return -code error ""
     }
 
-    puts "$::tcllib::testutils::tag $pname [package present $pname]"
+    puts "$::tcllib::testutils::tag [list $pname] [package present $pname]"
     return
 }
 
@@ -386,7 +386,7 @@ proc useLocalKeep {fname pname args} {
 	return -code error ""
     }
 
-    puts "$::tcllib::testutils::tag $pname [package present $pname]"
+    puts "$::tcllib::testutils::tag [list $pname] [package present $pname]"
     return
 }
 
