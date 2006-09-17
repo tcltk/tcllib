@@ -1,3 +1,7 @@
+2006-09-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* stooop.test: Description of test 87 modified to be a single line.
+
 2006-01-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* stooop.test: Fixed handling of "env", also did the simplified boilerplate.
