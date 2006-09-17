@@ -11,6 +11,7 @@
 TPtr t_new	 (void);
 void t_delete	 (TPtr t);
 void t_structure (TPtr t);
+void t_dump      (TPtr t, FILE* f);
 
 int  t_deserialize (TPtr dst, Tcl_Interp* interp, Tcl_Obj* src);
 int  t_assign	   (TPtr dst, TPtr src);

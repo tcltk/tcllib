@@ -396,6 +396,40 @@ t_newnodename (T* t)
 }
 
 /* .................................................. */
+
+void
+t_dump (TPtr t, FILE* f)
+{
+    /* Write the structural data of the
+     * tree (i.e. internal pointers) to
+     * the file, as aid in debugging
+     */
+
+    Tcl_HashSearch hs;
+    Tcl_HashEntry* he;
+    TNPtr n;
+
+    fprintf (f, "T (%p) {\n",t);fflush(f);
+    fprintf (f, ".   Lstart %p '%s'\n", t->leaves, t->leaves?Tcl_GetString(t->leaves->name):"");fflush(f);
+    fprintf (f, ".   Nstart %p '%s'\n", t->nodes,  t->nodes ?Tcl_GetString(t->nodes ->name):"");fflush(f);
+
+    for (he = Tcl_FirstHashEntry (&t->node, &hs);
+	 he != NULL;
+	 he = Tcl_NextHashEntry (&hs)) {
+	n = (TNPtr) Tcl_GetHashValue(he);
+	fprintf (f, ".   N [%p '%s']",n,Tcl_GetString(n->name))   ;fflush(f);
+	fprintf (f, " %p",n->tree);fflush(f);
+	fprintf (f, " %p '%s'",n->prevleaf,n->prevleaf?Tcl_GetString(n->prevleaf->name):"");fflush(f);
+	fprintf (f, " %p '%s'",n->nextleaf,n->nextleaf?Tcl_GetString(n->nextleaf->name):"");fflush(f);
+	fprintf (f, " %p '%s'",n->prevnode,n->prevnode?Tcl_GetString(n->prevnode->name):"");fflush(f);
+	fprintf (f, " %p '%s'",n->nextnode,n->nextnode?Tcl_GetString(n->nextnode->name):"");fflush(f);
+	fprintf (f, " %p '%s'",n->parent  ,n->parent  ?Tcl_GetString(n->parent->name)  :"");fflush(f);
+	fprintf (f, "\n");fflush(f);
+    }
+    fprintf (f, "}\n");fflush(f);
+}
+
+/* .................................................. */
 
 /*
  * Local Variables:
