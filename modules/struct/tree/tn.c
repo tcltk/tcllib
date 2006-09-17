@@ -29,7 +29,12 @@ tn_new (TPtr t, CONST char* name)
     n->he = Tcl_CreateHashEntry(&t->node, name, &new);
     Tcl_SetHashValue (n->he, (ClientData) n);
 
-    n->tree = t;
+    n->tree     = t;
+    n->nextleaf = NULL;
+    n->prevleaf = NULL;
+    n->nextnode = NULL;
+    n->prevnode = NULL;
+
     tn_node (n);
     tn_leaf (n);
 
@@ -61,11 +66,11 @@ tn_delete (TNPtr n)
      * can be ignored.
      */
 
-    Tcl_DecrRefCount	(n->name); n->name = NULL;
-    Tcl_DeleteHashEntry (n->he);   n->he   = NULL;
-
     tn_notleaf (n);
     tn_notnode (n);
+
+    Tcl_DecrRefCount	(n->name); n->name = NULL;
+    Tcl_DeleteHashEntry (n->he);   n->he   = NULL;
 
     if (n->child) {
 	int i;
@@ -144,6 +149,13 @@ tn_leaf (TNPtr n)
 {
     TPtr  t	= n->tree;
     TNPtr first = t->leaves;
+
+    if ((t->leaves == n) || n->prevleaf || n->nextleaf) {
+	/* The node is already a leaf */
+	return;
+    }
+
+    /* Now make the non-leaf it a leaf */
 
     t->nleaves ++;
 

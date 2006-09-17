@@ -1,3 +1,15 @@
+2006-09-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tree/tn.c (tn_leaf): Fixed mangling of the list of leaves when
+	  trying to add a node which is already in the list. Tracked down
+	  with valgrind and instrumentation due intermittent failure of
+	  treeql testsuite (seg fault).
+	  (tn_new): Added initialization of list pointers to allow
+	  checking by "tn_leaf".
+
+	* tree/t.c (t_dump): Added function to dump the internal linkage
+	  of nodes. Not used by regular code. For debugging.
+
 2006-09-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph.test: Fixed the new tests for the arc move method. They
