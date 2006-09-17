@@ -1,3 +1,10 @@
+2006-09-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* treeql.testsuite: Fixed generation of the tree used in the
+	  testsuite. The insert used the intended node names as
+	  positions. Adapted some tests influenced by the new structure of
+	  the tree.
+
 2006-08-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* treeql.man: Fixed small typo.
