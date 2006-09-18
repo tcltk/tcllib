@@ -35,7 +35,7 @@
 #   NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
 #   MODIFICATIONS.
 #
-#   $Id: ldap.tcl,v 1.14 2006/09/15 09:05:29 mic42 Exp $
+#   $Id: ldap.tcl,v 1.15 2006/09/18 22:01:59 mic42 Exp $
 #
 #   written by Jochen Loewer
 #   3 June, 1999
@@ -44,7 +44,7 @@
 
 package require Tcl 8.4
 package require asn 0.7
-package provide ldap 1.6.2
+package provide ldap 1.6.3
 
 namespace eval ldap {
 
@@ -875,27 +875,6 @@ proc ldap::SASLAuth {handle mech name password} {
     upvar 1 $handle conn
     
     set conn(options) [list -password $password -username $name]
-    
-    #-----------------------------------------------------------------    
-    #   We send empty SASL credential to start the handshake
-    #-----------------------------------------------------------------
-    set request [buildInitialSASLBindRequest "" $mech ]
-    set messageId [SendMessage $handle $request]
-    set response [WaitForResponse $handle $messageId]
-    FinalizeMessage $handle $messageId
-    
-    debugData bindResponse $response
-    array set msg [decodeSASLBindResponse $handle $response]
-
-    #-----------------------------------------------------------------
-    # Lets see if we have an saslBindInProgress
-    #-----------------------------------------------------------------    
-    if {$msg(resultCode) != 14} {
-        return 	-code error \
-		-errorcode [list LDAP [resultCode2String $msg(resultCode)] \
-				 $msg(matchedDN) $msg(errorMessage)] \
-		"LDAP error [resultCode2String $msg(resultCode)] '$msg(matchedDN)': $msg(errorMessage)"
-    }
 
     # check for tcllib bug # 1545306 an reset the nonce-count if 
     # found, so a second call to this code does not fail
@@ -907,7 +886,8 @@ proc ldap::SASLAuth {handle mech name password} {
     set ctx [SASL::new -mechanism $mech \
                        -service ldap    \
                        -callback [list ::ldap::SASLCallback $handle]]
-    
+
+    set msg(serverSASLCreds) ""
     # Do the SASL Message exchanges
     while {[SASL::step $ctx $msg(serverSASLCreds)]} {
         # Create and send the BindRequest
@@ -952,22 +932,25 @@ proc ldap::SASLAuth {handle mech name password} {
 #----------------------------------------------------------------------------
 
 proc ldap::buildSASLBindRequest {name mech {credentials {}}} {
-    asnApplicationConstr 0            		\
+    if {$credentials ne {}} {
+       set request [  asnApplicationConstr 0            		\
+            [asnInteger 3]                 		\
+            [asnOctetString $name]         		\
+            [asnChoiceConstr 3                   	\
+                    [asnOctetString $mech]      	\
+                    [asnOctetString $credentials] 	\
+            ]                              		                                      
+        ] 
+    } else {  
+    set request [   asnApplicationConstr 0            		\
         [asnInteger 3]                 		\
         [asnOctetString $name]         		\
         [asnChoiceConstr 3                   	\
                 [asnOctetString $mech]      	\
-                [asnOctetString $credentials] 	\
+        ]
         ]                              		                                      
-}
-
-proc ldap::buildInitialSASLBindRequest {name mech} {
-    asnApplicationConstr 0            		\
-        [asnInteger 3]                 		\
-        [asnOctetString $name]         		\
-        [asnChoiceConstr 3                   	\
-                [asnOctetString $mech]      	\
-        ]                              		                                      
+    }
+    return $request
 }
 
 #-------------------------------------------------------------------------------
@@ -1000,22 +983,6 @@ proc ldap::decodeSASLBindResponse {handle response} {
                  errorMessage $errorMessage serverSASLCreds $serverSASLCreds]
 }
 
-#-----------------------------------------------------------------------------
-#
-# Analyze and dump a datablock with openssls asn1parse
-#
-#-----------------------------------------------------------------------------
-proc ldap::dumpASN1Parse {block} {
-    set fd [open asn1.dat w+]
-    fconfigure $fd -translation binary
-    puts -nonewline $fd $block
-    close $fd
-    catch {exec openssl asn1parse -inform DER -in asn1.dat -out dec.txt} msg
-    trace $msg
-    set fd [open dec.txt]
-    trace [read $fd]
-    close $fd
-}
 
 #-----------------------------------------------------------------------------
 #    bind  -  does a bind with simple authentication
@@ -1691,7 +1658,7 @@ proc ldap::modifyDN { handle dn newrdn { deleteOld 1 } {newSuperior ! } } {
 			    [asnContext     0 $newSuperior]  \
 		    ]                                       
     }
-    set messageId [SendRequest $handle $messageId]
+    set messageId [SendMessage $handle $request]
     debugData modifyRequest $request
     set response [WaitForResponse $handle $messageId]
 

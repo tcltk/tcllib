@@ -1,4 +1,11 @@
 2006-09-15  Michael Schlenker <mic42@users.sourceforge.net>
+        * ldapx.tcl     Imported some bug fixes from a new
+          ldapx.man     version of ldapx by Pierre David.
+          pkgIndex.tcl  Fixed bug in modifyDN, fixed wrong start
+                        of SASL handshake, some mechanisms require
+                        the client to send first.
+          
+2006-09-15  Michael Schlenker <mic42@users.sourceforge.net>
         * ldap.tcl      Fixed broken length calculation in message receiver.
           pkgIndex.tcl  This fixes bug [SF Tcllib Bug 1558564].
                         Fixed various smaller bugs with upvaring handles
