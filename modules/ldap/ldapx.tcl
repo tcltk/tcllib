@@ -3,7 +3,7 @@
 #
 # (c) 2006 Pierre David (pdav@users.sourceforge.net)
 #
-# $Id: ldapx.tcl,v 1.1 2006/09/08 21:58:07 mic42 Exp $
+# $Id: ldapx.tcl,v 1.2 2006/09/18 22:01:59 mic42 Exp $
 #
 # History:
 #   2006/08/08 : pda : design
@@ -15,7 +15,7 @@ package require uri 1.1.5	;# tcllib
 package require base64		;# tcllib
 package require ldap 1.6	;# tcllib, low level code for LDAP directories
 
-package provide ldapx 0.1
+package provide ldapx 0.2
 
 ##############################################################################
 # LDAPENTRY object type
@@ -427,7 +427,7 @@ snit::type ::ldapx::entry {
 	    array unset attrvals
 	    array set attrvals [array get bckav]
 	    array unset bckav
-	    array set bckav $swav]
+	    array set bckav $swav
 	} else {
 	    return -code error \
 		"Cannot swap a non backuped object"
@@ -460,7 +460,9 @@ snit::type ::ldapx::entry {
 	    }
 	    mod {
 		foreach submod [lindex $lmod 1] {
-		    foreach {subop attr vals} $submod {break}
+                    set subop [lindex $submod 0]
+		    set attr [lindex $submod 1]
+		    set vals [lindex $submod 2]		    
 		    switch -- $subop {
 			modadd {
 			    $self add $attr $vals
@@ -548,7 +550,7 @@ snit::type ::ldapx::entry {
 	# Computes differences between values in the two entries
 	#
 
-	$self dn [$new dn]
+	$self dn [$old dn]
 	switch -- "[$new isempty][$old isempty]" {
 	    00 {
 		# They may differ
@@ -1042,12 +1044,12 @@ snit::type ::ldapx::ldap {
 		    set delOld [lindex $lchg 2]
 		    set newSup [lindex $lchg 3]
 		    if {[string equal $newSup ""]} then {
-			if {[Check $selfns {::ldap::modifyDN $channel $dn
+			if {[Check $selfns {::ldap::modifyDN $channel $dn \
 						$newrdn $delOld}]} then {
 			    return 0
 			}
 		    } else {
-			if {[Check $selfns {::ldap::modifyDN $channel $dn
+			if {[Check $selfns {::ldap::modifyDN $channel $dn \
 						$newrdn $delOld $newSup}]} then {
 			    return 0
 			}
