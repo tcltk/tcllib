@@ -76,7 +76,7 @@
 	* Released and tagged Tcllib 1.8 ========================
 	* 
 
-2005-10-03  Andreas Kupries <andreask@gila.activestate.com>
+2005-10-03  Andreas Kupries <andreask@activestate.com>
 
 	* me_tcl.test (ME_state): token ranks are stored in an array/dict,
 	  used dictsort to generate a canonical representation we can

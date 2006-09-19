@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: jpeg.tcl,v 1.11 2005/12/15 16:47:32 afaupell Exp $
+# RCS: @(#) $Id: jpeg.tcl,v 1.12 2006/09/19 23:36:17 andreas_kupries Exp $
 
-package provide jpeg 0.2
+package provide jpeg 0.3
 
 namespace eval ::jpeg {}
 

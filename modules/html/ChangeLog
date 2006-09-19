@@ -1,3 +1,9 @@
+2006-09-19  Andreas Kupries <andreask@activestate.com>
+
+	* html.man: Bumped version to 1.4.
+	* html.tcl:
+	* pkgIndex.tcl:
+
 2006-09-12  Michael Schlenker <mic42@users.sourceforge.net>
 
         * html.tcl : fixed [SF Tcllib Bug 1557268], and 

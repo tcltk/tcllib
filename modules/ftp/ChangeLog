@@ -1,3 +1,10 @@
+2006-09-19  Andreas Kupries  <andreask@activestate.com>
+
+	* ftp.man: Bumped version to 2.4.3
+	* ftp.tcl:
+	* pkgIndex.tcl:
+
+
 2006-06-13  Andreas Kupries <andreask@activestate.com>
 
 	* ftp.tcl (::ftp::StateHandler): Replaced use of 8.4ism (expr 'ne'
