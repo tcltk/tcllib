@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tie_file.tcl,v 1.6 2006/01/10 21:44:45 andreas_kupries Exp $
+# RCS: @(#) $Id: tie_file.tcl,v 1.7 2006/09/19 18:05:34 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -64,8 +64,8 @@ snit::type ::tie::std::file {
     constructor {thepath} {
 	# Locate and open the journal file.
 
-	set path [file normalize $thepath]
-	if {[file exists $path]} {
+	set path [::file normalize $thepath]
+	if {[::file exists $path]} {
 	    set chan [open $path {RDWR EXCL APPEND}]
 	} else {
 	    set chan [open $path {RDWR EXCL CREAT APPEND}]
@@ -84,7 +84,7 @@ snit::type ::tie::std::file {
     ## API : Data source methods
 
     method get {} {
-	if {![file size $path]} {return {}}
+	if {![::file size $path]} {return {}}
 	$self LoadJournal
 	return [array get cache]
     }
@@ -102,19 +102,19 @@ snit::type ::tie::std::file {
     }
 
     method names {} {
-	if {![file size $path]} {return {}}
+	if {![::file size $path]} {return {}}
 	$self LoadJournal
 	return [array names cache]
     }
 
     method size {} {
-	if {![file size $path]} {return 0}
+	if {![::file size $path]} {return 0}
 	$self LoadJournal
 	return [array size cache]
     }
 
     method getv {index} {
-	if {![file size $path]} {
+	if {![::file size $path]} {
 	    return -code error "can't read \"$index\": no such variable"
 	}
 	$self LoadJournal
@@ -198,7 +198,7 @@ snit::type ::tie::std::file {
 
 	if {(2*$count) < (3*[array size cache])} return
 
-	file delete -force ${path}.new
+	::file delete -force ${path}.new
 	set new [open ${path}.new {RDWR EXCL CREAT APPEND}]
 	fconfigure $new -buffering none -encoding utf-8
 
@@ -212,12 +212,12 @@ snit::type ::tie::std::file {
 	    # replacing the file with something they own :(
 	    close $chan
 	    close $new
-	    file rename -force ${path}.new $path
+	    ::file rename -force ${path}.new $path
 	    set chan [open ${path} {RDWR EXCL APPEND}]
 	    fconfigure $chan -buffering none -encoding utf-8
 	} else {
 	    # Copy compacted journal over the existing one.
-	    file rename -force ${path}.new $path
+	    ::file rename -force ${path}.new $path
 	    close $chan
 	    set    chan $new
 	}
