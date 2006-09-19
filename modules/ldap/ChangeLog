@@ -1,4 +1,7 @@
 2006-09-15  Michael Schlenker <mic42@users.sourceforge.net>
+        * ldapx.tcl     Some more fixes in the ldif part.
+        
+2006-09-15  Michael Schlenker <mic42@users.sourceforge.net>
         * ldapx.tcl     Imported some bug fixes from a new
           ldapx.man     version of ldapx by Pierre David.
           pkgIndex.tcl  Fixed bug in modifyDN, fixed wrong start
