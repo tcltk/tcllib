@@ -8,7 +8,7 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d.test,v 1.17 2006/01/29 02:09:43 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.test,v 1.18 2006/09/19 18:53:02 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -355,7 +355,7 @@ test pop3-srv-4.0 {connection introspection} {
 } {deleted {} id <==@%%> logon {} msg 0 name {} remotehost 127.0.0.1 remoteport {} server 1 size 0 state auth storage {}}
 
 
-test pop3-srv-5.0 {initial contact, greeting} -body {
+test pop3-srv-5.0 {initial contact, greeting} {
     newsrv
     dialog::dialog_set {
 	dialog::crlf.      ; # Network EOL setting
@@ -366,8 +366,8 @@ test pop3-srv-5.0 {initial contact, greeting} -body {
 
     set res [talk traceonly]
     delsrv
-    set res
-} -result {+OK %% tcllib/pop3d-* ready <==@%%>} -match glob
+    string match {+OK %% tcllib/pop3d-* ready <==@%%>} $res
+} 1
 
 
 test pop3-srv-6.0 {unknown command} {
@@ -440,7 +440,7 @@ foreach {n cmd lidx cidx} {
     10 {PASS xxx}      3 1
     11 {CAPA}         17 1
 } {
-    test pop3-srv-7.0.$n "auth, $cmd" -body {
+    test pop3-srv-7.0.$n "auth, $cmd" {
 	newfsrv
 	dialog::dialog_set {
 	    dialog::crlf.      ; # Network EOL setting
@@ -452,8 +452,8 @@ foreach {n cmd lidx cidx} {
 
 	set res [talk trace+res]
 	delfsrv
-	set res
-    } -match glob -result [list $log($lidx) $cstate($cidx)]
+	string match [list $log($lidx) $cstate($cidx)] $res
+    } 1
 }
 
 # ----------------------------------------------------------------------
@@ -564,7 +564,7 @@ foreach {n cmd lidx cidx} {
     10 {PASS xxx}      7 4
     11 {CAPA}         17 4
 } {
-    test pop3-srv-7.5.$n "trans, $cmd" -body {
+    test pop3-srv-7.5.$n "trans, $cmd" {
 	newfsrv
 	dialog::dialog_set {
 	    dialog::crlf.      ; # Network EOL setting
@@ -578,8 +578,8 @@ foreach {n cmd lidx cidx} {
 
 	set res [talk trace+res]
 	delfsrv
-	set res
-    }  -match glob -result [list $log($lidx) $cstate($cidx)]
+	string match [list $log($lidx) $cstate($cidx)] $res
+    } 1
 }
 
 # ======================================================================
