@@ -1,3 +1,9 @@
+2006-09-19  Andreas Kupries  <andreask@activestate.com>
+
+	* csv.man: Bunped version to 0.7.
+	* csv.tcl:
+	* pkgIndex.tcl
+
 2006-06-15  Andreas Kupries <andreask@activestate.com>
 
 	* csv.tcl:  Extended csv processing to allow different

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tie_file.tcl,v 1.7 2006/09/19 18:05:34 andreas_kupries Exp $
+# RCS: @(#) $Id: tie_file.tcl,v 1.8 2006/09/19 23:36:18 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -265,4 +265,4 @@ snit::type ::tie::std::file {
 ## Ready to go
 
 ::tie::register ::tie::std::file as file
-package provide   tie::std::file 1.0.1
+package provide   tie::std::file 1.0.2

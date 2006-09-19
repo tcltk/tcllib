@@ -1,3 +1,11 @@
+2006-09-19  Andreas Kupries  <andreask@activestate.com>
+
+	* mimetypes.man: Bumped versions to 1.0.1
+	* mimetypes.tcl: 
+	* filetypes.man: 
+	* filetypes.tcl: 
+	* pkgIndex.tcl:
+
 2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* filetypes.test: Fixed usage of temp. files by the testsuites.

@@ -1,7 +1,7 @@
 # Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: pkgIndex.tcl,v 1.8 2005/12/09 18:25:12 andreas_kupries Exp $
+# $Id: pkgIndex.tcl,v 1.9 2006/09/19 23:36:18 andreas_kupries Exp $
 
 # Since stooop redefines the proc command and the default package facility will
 # only load the stooop package at the first unknown command, proc being
@@ -16,4 +16,4 @@ package ifneeded stooop 4.4.1 [list source [file join $dir stooop.tcl]]
 # (comment out the following line if you do not want to use the switched class
 # as a package)
 
-package ifneeded switched 2.2 [list source [file join $dir switched.tcl]]
+package ifneeded switched 2.2.1 [list source [file join $dir switched.tcl]]

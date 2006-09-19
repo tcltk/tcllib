@@ -1,3 +1,9 @@
+2006-09-19  Andreas Kupries <andreask@activestate.com>
+
+	* pkgIndex.tcl: Bumped to version 4.4. changes were extension
+	* comm.tcl:     of the existing API.
+	* comm.man:
+
 2006-09-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* comm_wire.man: Clarified the use of the TCP port in the initial

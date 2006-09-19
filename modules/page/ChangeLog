@@ -1,3 +1,8 @@
+2006-09-19  Andreas Kupries  <andreask@activestate.com>
+
+	* pkgIndex.tcl: Bumped version to 0.2
+	* pluginmgr.tcl:
+
 2006-06-30  Andreas Kupries  <akupries@shaw.ca>
 
 	* compiler_peg_mecpu.tcl: New packages generating ME

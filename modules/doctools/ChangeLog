@@ -1,3 +1,9 @@
+2006-09-19  Andreas Kupries  <andreask@activestate.com>
+
+	* doctools.man: Bumped version to 1.2.1
+	* doctools.tcl: 
+	* pkgIndex.tcl:
+
 2006-08-10  Andreas Kupries <andreask@activestate.com>
 
 	* mpformats/_text.tcl: Replaced textutil with the exact packages

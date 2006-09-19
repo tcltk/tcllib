@@ -1,7 +1,7 @@
 # -- PAGE application packages --
 # -- ---- plugin management
 
-package ifneeded page::pluginmgr 0.1 [list source [file join $dir pluginmgr.tcl]]
+package ifneeded page::pluginmgr 0.2 [list source [file join $dir pluginmgr.tcl]]
 
 # -- PAGE plugin packages
 # -- ---- Canned configurations

@@ -3,10 +3,10 @@
 # Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: switched.tcl,v 1.4 2006/01/10 20:33:55 andreas_kupries Exp $
+# $Id: switched.tcl,v 1.5 2006/09/19 23:36:18 andreas_kupries Exp $
 
 package require stooop
-package provide switched 2.2
+package provide switched 2.2.1
 
 
 ::stooop::class switched {

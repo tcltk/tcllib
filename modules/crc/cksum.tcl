@@ -11,12 +11,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: cksum.tcl,v 1.8 2006/06/29 23:29:32 afaupell Exp $
+# $Id: cksum.tcl,v 1.9 2006/09/19 23:36:15 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::crc {
-    variable cksum_version 1.1.0
+    variable cksum_version 1.1.1
 
     namespace export cksum
 

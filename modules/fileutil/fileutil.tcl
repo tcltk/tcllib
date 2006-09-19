@@ -9,11 +9,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.59 2006/07/19 16:22:26 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.60 2006/09/19 23:36:16 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.8.1
+package provide fileutil 1.9
 
 namespace eval ::fileutil {
     namespace export \
