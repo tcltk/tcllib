@@ -3,31 +3,45 @@
 ##
 # ###
 
-getpackage term::ansi::code::attr term/ansi/code/attr.tcl
-getpackage term::ansi::code::ctrl term/ansi/code/ctrl.tcl
-getpackage textutil::repeat       textutil/repeat.tcl
-
 package require  sak::test::shell
 package require  sak::registry
 package require  sak::animate
-
-::term::ansi::code::ctrl::import ::sak::test::run sda_bg* sda_reset
+getpackage textutil::repeat       textutil/repeat.tcl
 
 namespace eval ::sak::test::run {
-    variable s
-    variable n
-    foreach {s n} {
-	sda_bgcyan    cya
-	sda_bgyellow  yel
-	sda_bgwhite   whi
-	sda_bgmagenta mag
-	sda_bgred     red
-	sda_reset     rst
-    } {
-	rename $s $n
-    }
-    unset s n
     namespace import ::textutil::repeat::blank
+}
+
+if {$::tcl_platform(platform) == "windows"} {
+    # No ansi colorization on windows
+    namespace eval ::sak::test::run {
+	variable n
+	foreach n {cya yel whi mag red rst} {
+	    proc $n {} {return ""}
+	}
+	unset n
+    }
+} else {
+    getpackage term::ansi::code::attr term/ansi/code/attr.tcl
+    getpackage term::ansi::code::ctrl term/ansi/code/ctrl.tcl
+
+    ::term::ansi::code::ctrl::import ::sak::test::run sda_bg* sda_reset
+
+    namespace eval ::sak::test::run {
+	variable s
+	variable n
+	foreach {s n} {
+	    sda_bgcyan    cya
+	    sda_bgyellow  yel
+	    sda_bgwhite   whi
+	    sda_bgmagenta mag
+	    sda_bgred     red
+	    sda_reset     rst
+	} {
+	    rename $s $n
+	}
+	unset s n
+    }
 }
 
 # ###
