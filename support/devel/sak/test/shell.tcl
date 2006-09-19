@@ -22,7 +22,7 @@ proc ::sak::test::shell {argv} {
 	    sak::test::shell::add $argv
 	}
 	delete {
-	    sak::test::shell::del $argv
+	    sak::test::shell::delete $argv
 	}
 	default {
 	    sak::test::usage Unknown command "\"shell $cmd\""

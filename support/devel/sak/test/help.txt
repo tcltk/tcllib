@@ -1,7 +1,7 @@
 
     test -- Execute testsuites
 
-    sak test run ?-s|--shell PATH? ?-g|--valgrind? ?MODULE ...?
+    sak test run ?-s|--shell PATH? ?-g|--valgrind? ?-v? ?MODULE ...?
 
         Run the testsuites of the specified modules, using the shell
         running SAK for the testsuites as well. If no modules are
@@ -14,6 +14,10 @@
         against them. If none are specified the shells registered with
         'shell add' (see below) are used instead. If none are
         specified the shell executing the sak is used instead.
+
+        By default the output from a run is animated feedback of the
+        progress made. If -v is specified the actual log is returned
+        instead.
 
     sak test shells
 
@@ -31,4 +35,4 @@
         when executing testsuites.
 
     NOTE: The list of registered shells is a per-user configuration
-	  setting and is saved in the file "$HOME/.Tcllib/Registry".
+          setting and is saved in the file "$HOME/.Tcllib/Registry".

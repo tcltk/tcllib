@@ -1,3 +1,13 @@
+2006-09-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* support/devel/sak/test/run.tcl: Reworked output generated
+	* support/devel/all.tcl: by testsuites, added processing of
+	  the modified output for progress reporting, condensed reporting,
+	  and in preparation of placing results into a database.
+	* support/devel/sak/test/help.txt: Updated documentation.
+	* support/devel/sak/test/shell.tcl: Fixed typo in name of method
+	  to call to remove shells from the database.
+
 2006-09-06  Andreas Kupries <andreask@activestate.com>
 
 	* Makefile.in (test): Updated the target to the new syntax

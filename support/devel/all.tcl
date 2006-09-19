@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.3 2006/09/06 06:07:09 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.4 2006/09/19 04:17:37 andreas_kupries Exp $
 
 catch {wm withdraw .}
 
@@ -17,59 +17,59 @@ set old_auto_path $auto_path
 if {[lsearch [namespace children] ::tcltest] == -1} {
     namespace eval ::tcltest {}
     proc ::tcltest::processCmdLineArgsAddFlagsHook {} {
-    return [list -modules]
+	return [list -modules]
     }
     proc ::tcltest::processCmdLineArgsHook {argv} {
-    array set foo $argv
-    catch {set ::modules $foo(-modules)}
+	array set foo $argv
+	catch {set ::modules $foo(-modules)}
     }
     proc ::tcltest::cleanupTestsHook {{c {}}} {
-    if { [string equal $c ""] } {
-        return
-    }
-    # Get total/pass/skip/fail counts
-    array set foo [$c eval {array get ::tcltest::numTests}]
-    foreach index [list "Total" "Passed" "Skipped" "Failed"] {
-        incr ::tcltest::numTests($index) $foo($index)
-    }
-    incr ::tcltest::numTestFiles
+	if { [string equal $c ""] } {
+	    return
+	}
+	# Get total/pass/skip/fail counts
+	array set foo [$c eval {array get ::tcltest::numTests}]
+	foreach index [list "Total" "Passed" "Skipped" "Failed"] {
+	    incr ::tcltest::numTests($index) $foo($index)
+	}
+	incr ::tcltest::numTestFiles
 
-    # Append the list of failFiles if necessary
-    set f [$c eval {
-        set ff $::tcltest::failFiles
-        if {($::tcltest::currentFailure) && \
-            ([lsearch -exact $ff $testFileName] == -1)} {
-        set res [file join $::tcllibModule $testFileName]
-        } else {
-        set res ""
-        }
-        set res
-    }] ; # {}
-    if { ![string equal $f ""] } {
-        lappend ::tcltest::failFiles $f
-    }
+	# Append the list of failFiles if necessary
+	set f [$c eval {
+	    set ff $::tcltest::failFiles
+	    if {($::tcltest::currentFailure) && \
+		    ([lsearch -exact $ff $testFileName] == -1)} {
+		set res [file join $::tcllibModule $testFileName]
+	    } else {
+		set res ""
+	    }
+	    set res
+	}] ; # {}
+	if { ![string equal $f ""] } {
+	    lappend ::tcltest::failFiles $f
+	}
 
-    # Get the "skipped because" information
-    unset foo
-    array set foo [$c eval {array get ::tcltest::skippedBecause}]
-    foreach constraint [array names foo] {
-        if { ![info exists ::tcltest::skippedBecause($constraint)] } {
-        set ::tcltest::skippedBecause($constraint) $foo($constraint)
-        } else {
-        incr ::tcltest::skippedBecause($constraint) $foo($constraint)
-        }
-    }
+	# Get the "skipped because" information
+	unset foo
+	array set foo [$c eval {array get ::tcltest::skippedBecause}]
+	foreach constraint [array names foo] {
+	    if { ![info exists ::tcltest::skippedBecause($constraint)] } {
+		set ::tcltest::skippedBecause($constraint) $foo($constraint)
+	    } else {
+		incr ::tcltest::skippedBecause($constraint) $foo($constraint)
+	    }
+	}
 
-    # Clean out the state in the slave
-    $c eval {
-        foreach index [list "Total" "Passed" "Skipped" "Failed"] {
-        set ::tcltest::numTests($index) 0
-        }
-        set ::tcltest::failFiles {}
-        foreach constraint [array names ::tcltest::skippedBecause] {
-        unset ::tcltest::skippedBecause($constraint)
-        }
-    }
+	# Clean out the state in the slave
+	$c eval {
+	    foreach index [list "Total" "Passed" "Skipped" "Failed"] {
+		set ::tcltest::numTests($index) 0
+	    }
+	    set ::tcltest::failFiles {}
+	    foreach constraint [array names ::tcltest::skippedBecause] {
+		unset ::tcltest::skippedBecause($constraint)
+	    }
+	}
     }
 
     package require tcltest
@@ -92,28 +92,28 @@ if {[catch {::tcltest::normalizePath ::tcltest::testsDirectory}]} {
     cd $oldpwd
 }
 
-puts stdout "tcllib tests"
-puts stdout "Test platform:\
- \"$tcl_platform(os)-$tcl_platform(osVersion)-$tcl_platform(machine)\"\
- using Tcl [info patchlevel]"
-puts stdout "Tests running in working dir:  $::tcltest::testsDirectory"
-if {[llength $::tcltest::skip] > 0} {
-    puts stdout "Skipping tests that match:  $::tcltest::skip"
+proc Note {k v} {
+    puts  stdout [list @@ $k $v]
+    flush stdout
+    return
 }
-if {[llength $::tcltest::match] > 0} {
-    puts stdout "Only running tests that match:  $::tcltest::match"
-}
+proc Now {} {return [clock seconds]}
 
-if {[llength $::tcltest::skipFiles] > 0} {
-    puts stdout "Skipping test files that match:  $::tcltest::skipFiles"
-}
-if {[llength $::tcltest::matchFiles] > 0} {
-    puts stdout "Only sourcing test files that match:  $::tcltest::matchFiles"
-}
+puts stdout ""
+Note Host       [info hostname]
+Note Platform   $tcl_platform(os)-$tcl_platform(osVersion)-$tcl_platform(machine)
+Note CWD        $::tcltest::testsDirectory
+Note Shell      [info nameofexecutable]
+Note Tcl        [info patchlevel]
 
-set timeCmd {clock format [clock seconds]}
-puts stdout "Tests began at [eval $timeCmd]"
+# Host  => Platform | Identity of the Test environment.
+# Shell => Tcl      |
+# CWD               | Identity of the Tcllib under test.
 
+if {[llength $::tcltest::skip]}       {Note SkipTests  $::tcltest::skip}
+if {[llength $::tcltest::match]}      {Note MatchTests $::tcltest::match}
+if {[llength $::tcltest::skipFiles]}  {Note SkipFiles  $::tcltest::skipFiles}
+if {[llength $::tcltest::matchFiles]} {Note MatchFiles $::tcltest::matchFiles}
 
 set auto_path $old_auto_path
 set auto_path [linsert $auto_path 0 [file join $root modules]]
@@ -125,11 +125,13 @@ set old_apath $auto_path
 
 if {![info exists modules]} then {
     foreach module [glob [file join $root modules]/*/*.test] {
-    set tmp([lindex [file split $module] end-1]) 1
+	set tmp([lindex [file split $module] end-1]) 1
     }
-    set modules [array names tmp]
+    set modules [lsort -dict [array names tmp]]
     unset tmp
 }
+
+Note Start [Now]
 
 foreach module $modules {
     set ::tcltest::testsDirectory [file join $root modules $module]
@@ -145,10 +147,11 @@ foreach module $modules {
     # tests into the slave. This isolates the test suites from one
     # another.
 
-    puts stdout "Module:\t[file tail $module]"
+    Note Module [file tail $module]
 
     set c [interp create]
     interp alias $c pSet {} set
+    interp alias $c Note {} Note
 
     $c eval {
 	# import the auto_path from the parent interp,
@@ -181,7 +184,11 @@ foreach module $modules {
 	namespace import ::tcltest::*
 	set ::tcltest::testSingleFile false
 	set ::tcltest::testsDirectory [pSet ::tcltest::testsDirectory]
-	#set ::tcltest::verbose ps
+
+	# configure not present in tcltest 1.x
+	if {[catch {::tcltest::configure -verbose bstep}]} {
+	    set ::tcltest::verbose psb
+	}
     }
 
     interp alias \
@@ -191,10 +198,12 @@ foreach module $modules {
     # source each of the specified tests
     foreach file [lsort [::tcltest::getMatchingFiles]] {
 	set tail [file tail $file]
-	puts stdout [string map [list "$root/" ""] $file]
+	Note Testsuite [string map [list "$root/" ""] $file]
 	$c eval {
 	    if {[catch {source [pSet file]} msg]} {
-		puts stdout $errorInfo
+		puts stdout "@+"
+		puts stdout @|[join [split $errorInfo \n] "\n@|"]
+		puts stdout "@-"
 	    }
 	}
     }
@@ -203,10 +212,11 @@ foreach module $modules {
 }
 
 # cleanup
-puts stdout "\nTests ended at [eval $timeCmd]"
+Note End [Now]
 ::tcltest::cleanupTests 1
 # FRINK: nocheck
 # Use of 'exit' ensures proper termination of the test system when
 # driven by a 'wish' instead of a 'tclsh'. Otherwise 'wish' would
 # enter its regular event loop and no tests would complete.
 exit
+
