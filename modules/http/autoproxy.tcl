@@ -20,15 +20,15 @@
 #   package require tls
 #   http::register https 443 ::autoproxy::tls_socket
 #
-# @(#)$Id: autoproxy.tcl,v 1.7 2006/04/26 00:18:41 patthoyts Exp $
+# @(#)$Id: autoproxy.tcl,v 1.8 2006/09/19 23:36:17 andreas_kupries Exp $
 
 package require http;                   # tcl
 package require uri;                    # tcllib
 package require base64;                 # tcllib
 
 namespace eval ::autoproxy {
-    variable rcsid {$Id: autoproxy.tcl,v 1.7 2006/04/26 00:18:41 patthoyts Exp $}
-    variable version 1.2.1
+    variable rcsid {$Id: autoproxy.tcl,v 1.8 2006/09/19 23:36:17 andreas_kupries Exp $}
+    variable version 1.3
     variable options
 
     if {! [info exists options]} {

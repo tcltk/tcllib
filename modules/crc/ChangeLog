@@ -1,3 +1,9 @@
+2006-09-19  Andreas Kupries  <andreask@activestate.com>
+
+	* cksum.tcl: Bumped version to 1.1.1
+	* cksum.man:
+	* pkgIndex.tcl:
+
 2006-06-29  Aaron Faupell <afaupell@users.sourceforge.net>
 
 	* cksum.tcl: fixed typo koin->join

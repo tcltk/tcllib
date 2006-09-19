@@ -572,4 +572,4 @@ namespace eval ::page::pluginmgr {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide page::pluginmgr 0.1
+package provide page::pluginmgr 0.2

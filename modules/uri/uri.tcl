@@ -11,7 +11,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.33 2006/08/10 07:00:25 andreas_kupries Exp $
+# CVS: $Id: uri.tcl,v 1.34 2006/09/19 23:36:18 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -1029,4 +1029,4 @@ uri::register ldap {
     variable	url		"ldap:$schemepart"
 }
 
-package provide uri 1.1.5
+package provide uri 1.2

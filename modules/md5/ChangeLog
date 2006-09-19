@@ -1,3 +1,9 @@
+2006-09-19  Andreas Kupries  <andreask@activestate.com>
+
+	* md5.man: Bumped version to 2.0.5
+	* md5x.tcl:
+	* pkgIndex.tcl:
+
 2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* md5x.test: Fixed usage of duplicate test names.

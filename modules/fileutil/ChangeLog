@@ -1,3 +1,9 @@
+2006-09-19  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.tcl: Bumped version to 1.9
+	* fileutil.man:
+	* pkgIndex.tcl:
+
 2006-09-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.test: Fixed 8.3isms in the testsuite. Symbolic
