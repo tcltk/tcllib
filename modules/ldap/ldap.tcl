@@ -35,7 +35,7 @@
 #   NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
 #   MODIFICATIONS.
 #
-#   $Id: ldap.tcl,v 1.15 2006/09/18 22:01:59 mic42 Exp $
+#   $Id: ldap.tcl,v 1.16 2006/09/19 22:46:06 mic42 Exp $
 #
 #   written by Jochen Loewer
 #   3 June, 1999
@@ -939,7 +939,7 @@ proc ldap::buildSASLBindRequest {name mech {credentials {}}} {
             [asnChoiceConstr 3                   	\
                     [asnOctetString $mech]      	\
                     [asnOctetString $credentials] 	\
-            ]                              		                                      
+            ]  \                            		                                      
         ] 
     } else {  
     set request [   asnApplicationConstr 0            		\
@@ -947,7 +947,7 @@ proc ldap::buildSASLBindRequest {name mech {credentials {}}} {
         [asnOctetString $name]         		\
         [asnChoiceConstr 3                   	\
                 [asnOctetString $mech]      	\
-        ]
+        ] \
         ]                              		                                      
     }
     return $request
