@@ -1,3 +1,10 @@
+2006-09-19  Andreas Kupries <andreask@activestate.com>
+
+	* pop3d.test: Fixed the tests requiring tcltest 2.x syntax,
+	  despite our declaration that tcltest 1.0 is acceptable. This
+	  broke 8.2/8.3, and the missing shutdown of the fake client
+	  processes then hung the testsuite at the end.
+
 2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3d.test: .... Fixed usage of temp. files by testsuite. Fixed
