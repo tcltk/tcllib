@@ -8,7 +8,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md4.tcl,v 1.18 2005/12/09 18:27:16 andreas_kupries Exp $
+# $Id: md4.tcl,v 1.19 2006/09/19 23:36:17 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require md4c 1.0};       # tcllib critcl alternative
@@ -16,8 +16,8 @@ catch {package require md4c 1.0};       # tcllib critcl alternative
 # @mdgen EXCLUDE: md4c.tcl
 
 namespace eval ::md4 {
-    variable version 1.0.3
-    variable rcsid {$Id: md4.tcl,v 1.18 2005/12/09 18:27:16 andreas_kupries Exp $}
+    variable version 1.0.4
+    variable rcsid {$Id: md4.tcl,v 1.19 2006/09/19 23:36:17 andreas_kupries Exp $}
     variable accel
     array set accel {critcl 0 cryptkit 0}
 

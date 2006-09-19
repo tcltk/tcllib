@@ -1,3 +1,9 @@
+2006-09-19  Andreas Kupries  <andreask@activestate.com>
+
+	* ntp_time.man: Bumped version to 1.2.1
+	* time.tcl:
+	* pkgIndex.tcl:
+
 2006-04-20  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* time.tcl: bug #1409219: added missing hyphen.

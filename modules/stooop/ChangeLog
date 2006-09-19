@@ -1,3 +1,8 @@
+2006-09-19  Andreas Kupries  <andreask@activestate.com>
+
+	* switched.tcl: Bumped version to 2.2.1
+	* pkgIndex.tcl:
+
 2006-09-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* stooop.test: Description of test 87 modified to be a single line.

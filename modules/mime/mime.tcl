@@ -12,7 +12,7 @@
 # new string features and inline scan are used, requiring 8.3.
 package require Tcl 8.3
 
-package provide mime 1.4.1
+package provide mime 1.5
 
 if {[catch {package require Trf  2.0}]} {
 

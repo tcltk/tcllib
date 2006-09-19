@@ -1,3 +1,11 @@
+2006-09-19  Andreas Kupries  <andreask@activestate.com>
+
+	* struct_set.man: Bumped versions to 2.1.1
+	* sets.tcl:
+	* struct_tree.man:
+	* tree.tcl:
+	* pkgIndex.tcl:
+
 2006-09-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tree/tn.c (tn_leaf): Fixed mangling of the list of leaves when

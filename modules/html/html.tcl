@@ -15,7 +15,7 @@
 
 package require Tcl 8.2
 package require ncgi
-package provide html 1.3.3
+package provide html 1.4
 
 namespace eval ::html {
 

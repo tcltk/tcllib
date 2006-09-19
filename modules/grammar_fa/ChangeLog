@@ -1,3 +1,11 @@
+2006-09-19  Andreas Kupries  <andreask@activestate.com>
+
+	* faop.man: Bumped versions to 0.2
+	* faop.tcl: 
+	* fa.man: 
+	* fa.tcl: 
+	* pkgIndex.tcl:
+
 2006-06-15  Andreas Kupries <andreask@activestate.com>
 
 	* fa.tcl:         Reworked the internal of the container and

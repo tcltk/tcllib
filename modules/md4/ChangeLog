@@ -1,3 +1,9 @@
+2006-09-19  Andreas Kupries  <andreask@activestate.com>
+
+	* md4.man: Bumped version to 1.0.4
+	* md4.tcl:
+	* pkgIndex.tcl:
+
 2006-01-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* md4.test: More boilerplate simplified via use of test support.

@@ -6,7 +6,7 @@
 #
 # 20040930 Colin McCormack - initial release to tcllib
 #
-# RCS: @(#) $Id: treeql.tcl,v 1.9 2005/10/21 19:32:43 andreas_kupries Exp $
+# RCS: @(#) $Id: treeql.tcl,v 1.10 2006/09/19 23:36:18 andreas_kupries Exp $
 
 package require Tcl 8.4
 
@@ -21,4 +21,4 @@ if {[package vsatisfies [package provide Tcl] 8.5]} {
     source [file join $dir treeql84.tcl]
 }
 
-package provide treeql 1.3
+package provide treeql 1.3.1

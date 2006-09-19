@@ -1,3 +1,9 @@
+2006-09-19  Andreas Kupries  <andreask@activestate.com>
+
+	* uri.man: Bumped version to 1.2
+	* uri.tcl
+	* pkgIndex.tcl:
+
 2006-08-11  Andreas Kupries  <andreask@activestate.com>
 
 	* uri.man: Fixed a typo I left in the manpage :(

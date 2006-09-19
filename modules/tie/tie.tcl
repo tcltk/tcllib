@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tie.tcl,v 1.6 2006/06/07 22:36:56 andreas_kupries Exp $
+# RCS: @(#) $Id: tie.tcl,v 1.7 2006/09/19 23:36:18 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -508,4 +508,4 @@ proc ::tie::Dictsort {dict} {
 # ### ### ### ######### ######### #########
 ## Ready to go
 
-package provide tie 1.0.1
+package provide tie 1.1

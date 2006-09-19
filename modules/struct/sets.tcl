@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets.tcl,v 1.10 2006/01/31 04:57:35 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.tcl,v 1.11 2006/09/19 23:36:18 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -438,4 +438,4 @@ namespace eval ::struct {
     namespace import -force set::set
     namespace export set
 }
-package provide struct::set 2.1
+package provide struct::set 2.1.1

@@ -1,11 +1,11 @@
-[manpage_begin comm n 4.3.2]
+[manpage_begin comm n 4.4]
 [copyright {1995-1998 The Open Group. All Rights Reserved.}]
 [copyright {2003-2004 ActiveState Corporation.}]
 [copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Remote communication}]
 [titledesc {A remote communication facility for Tcl (7.6, 8.0, and later)}]
 [require Tcl 8.2]
-[require comm [opt 4.3.2]]
+[require comm [opt 4.4]]
 [description]
 
 [para]
@@ -729,7 +729,7 @@ The revision history of [package comm] includes these releases:
 
 [list_begin definitions]
 
-[lst_item 4.3.2]
+[lst_item 4.4]
 
 Bugfixes in the handling of -interp for regular and hook
 scripts. Bugfixes in channel cleanup.
