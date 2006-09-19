@@ -1,3 +1,6 @@
+2006-09-19  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+	* linalg.tcl: removed print statement (left over from testing leastSquares)
+
 2006-09-15  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 	* linalg.man: added remark on name conflict with Tk
 	              added missing descriptions of several procedures
