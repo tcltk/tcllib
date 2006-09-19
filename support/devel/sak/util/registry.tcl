@@ -29,6 +29,14 @@ proc ::sak::registry::Setup {} {
     return $_local
 }
 
+proc ::sak::registry::Refresh {} {
+    variable _local
+    $_local destroy
+    set _local {}
+    Setup
+    return
+}
+
 namespace eval ::sak::registry {
     variable _here    [file dirname [info script]]
 
