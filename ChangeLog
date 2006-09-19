@@ -1,3 +1,10 @@
+2006-09-19  Andreas Kupries <andreask@activestate.com>
+
+	* support/devel/sak/test/run.tcl: Extended testsuite logging.
+	* support/devel/sak/test/help.txt: Standard user feedback and
+	  extended information (raw log, summaries) are written to a set
+	  of files. All required information in one run, instead of two.
+
 2006-09-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* installer.tcl: Accepted patch by Michael Schlenker
