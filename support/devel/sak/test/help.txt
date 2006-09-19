@@ -1,7 +1,7 @@
 
     test -- Execute testsuites
 
-    sak test run ?-s|--shell PATH? ?-g|--valgrind? ?-v? ?MODULE ...?
+    sak test run ?-s|--shell PATH? ?-l|--log STEM? ?-g|--valgrind? ?-v? ?MODULE ...?
 
         Run the testsuites of the specified modules, using the shell
         running SAK for the testsuites as well. If no modules are
@@ -18,6 +18,13 @@
         By default the output from a run is animated feedback of the
         progress made. If -v is specified the actual log is returned
         instead.
+
+        If a log STEM is specified the extended log normally activated
+        via -v is written to STEM.log while the user is provided with
+        the regular feedback during execution. In addition the
+        summaries from the feedback are written to STEM.summary as
+        well, and also sorted into STEM.failures, STEM.skipped, and
+        STEM.none. The -l switch overides -v.
 
     sak test shells
 

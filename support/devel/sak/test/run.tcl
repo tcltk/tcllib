@@ -48,7 +48,7 @@ if {$::tcl_platform(platform) == "windows"} {
 
 proc ::sak::test::run {argv} {
     variable run::valgrind
-    array set config {valgrind 0 raw 0 shells {}}
+    array set config {valgrind 0 raw 0 shells {} stem {} log 0}
 
     while {[string match -* [set opt [lindex $argv 0]]]} {
 	switch -exact -- $opt {
@@ -71,11 +71,18 @@ proc ::sak::test::run {argv} {
 		set config(raw) 1
 		set argv [lrange $argv 1 end]
 	    }
+	    -l - --log {
+		set config(log) 1
+		set config(stem) [lindex $argv 1]
+		set argv         [lrange $argv 2 end]
+	    }
 	    default {
 		sak::test::usage Unknown option "\"$opt\""
 	    }
 	}
     }
+
+    if {$config(log)} {set config(raw) 0}
 
     if {![sak::util::checkModules argv]} return
 
@@ -89,6 +96,8 @@ proc ::sak::test::run::Do {cv modules} {
     upvar 1 $cv config
     variable valgrind
     variable araw     $config(raw)
+    variable alog     $config(log)
+    # alog => !araw
 
     set shells $config(shells)
     if {![llength $shells]} {
@@ -96,6 +105,16 @@ proc ::sak::test::run::Do {cv modules} {
     }
     if {![llength $shells]} {
 	set shells [list [info nameofexecutable]]
+    }
+
+    if {$alog} {
+	variable logext [open $config(stem).log      w]
+	variable logsum [open $config(stem).summary  w]
+	variable logfai [open $config(stem).failures w]
+	variable logski [open $config(stem).skipped  w]
+	variable lognon [open $config(stem).none     w]
+    } else {
+	variable logext stdout
     }
 
     # Preprocessing of module names and shell versions to allows
@@ -148,11 +167,14 @@ proc ::sak::test::run::Do {cv modules} {
 	    #puts <<$cmd>>
 
 	    sak::animate::init
-	    if {$araw} {puts ============================================================}
-
+	    if {$alog || $araw} {
+		puts $logext ============================================================
+	    }
 	    if {[catch {close [Process [open |$cmd r+]]} msg]} {
 		=| "~~ [mag]ERR   ${msg}[rst]"
-		if {$araw} {puts [mag]$msg[rst]}
+		if {$alog || $araw} {
+		    puts $logext [mag]$msg[rst]
+		}
 	    }
 	    #sak::animate::last Ok
 	}
@@ -164,11 +186,13 @@ proc ::sak::test::run::Do {cv modules} {
 
 proc ::sak::test::run::Process {pipe} {
     variable araw
+    variable alog
+    variable logext
     while {1} {
 	if {[eof  $pipe]} break
 	if {[gets $pipe line] < 0} break
+	if {$alog || $araw} {puts $logext $line}
 	set line [string trim $line]
-	if {$araw} {puts $line}
 	if {[string equal $line ""]} continue
 	Host;	Platform
 	Cwd;	Shell
@@ -567,6 +591,21 @@ proc ::sak::test::run::=| {string} {
     if {$araw} return
     variable aprefix
     sak::animate::last "$aprefix $string"
+    variable alog
+    if {$alog} {
+	variable logsum
+	variable logfai
+	variable logski
+	variable lognon
+	variable xstatus
+	puts $logsum "$aprefix $string"
+	switch -exact -- $xstatus {
+	    error   -
+	    fail    {puts $logfai "$aprefix $string"}
+	    none    {puts $lognon "$aprefix $string"}
+	    aborted {puts $logski "$aprefix $string"}
+	}
+    }
     set aprefix ""
     return
 }
