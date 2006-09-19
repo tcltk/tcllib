@@ -1,5 +1,10 @@
 2006-09-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* installer.tcl: Accepted patch by Michael Schlenker
+	  <mic42@users.sourceforge.net> for [Tcllib SF Bug 1559489] to
+	  divert error messages to a dialog box instead of stderr where
+	  possible, to avoid them being silently swallowed by windows.
+
 	* support/devel/sak/test/run.tcl: Reworked output generated
 	* support/devel/all.tcl: by testsuites, added processing of
 	  the modified output for progress reporting, condensed reporting,
