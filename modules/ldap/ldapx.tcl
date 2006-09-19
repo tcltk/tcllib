@@ -3,7 +3,7 @@
 #
 # (c) 2006 Pierre David (pdav@users.sourceforge.net)
 #
-# $Id: ldapx.tcl,v 1.2 2006/09/18 22:01:59 mic42 Exp $
+# $Id: ldapx.tcl,v 1.3 2006/09/19 22:46:06 mic42 Exp $
 #
 # History:
 #   2006/08/08 : pda : design
@@ -15,7 +15,7 @@ package require uri 1.1.5	;# tcllib
 package require base64		;# tcllib
 package require ldap 1.6	;# tcllib, low level code for LDAP directories
 
-package provide ldapx 0.2
+package provide ldapx 0.2.1
 
 ##############################################################################
 # LDAPENTRY object type
@@ -1180,8 +1180,7 @@ snit::type ::ldapx::ldif {
     # Methods
     #########################################################################
 
-    # Initialize a channel
-
+    # Initialize a channel    
     method channel {newchan} {
 
 	set channel   $newchan
@@ -1240,15 +1239,14 @@ snit::type ::ldapx::ldif {
 	}
 
 	set r [Lexical $selfns]
-	if {! [string equal [lindex $r 0] "err"]} then {
-	    set r [Syntaxic $selfns [lindex $r 1]]
+        if {[lindex $r 0] ne "err"} then {
+            set r [Syntaxic $selfns [lindex $r 1]]
 	}
 
-	if {[string equal [lindex $r 0] "err"]} then {
-	    set lastError [lindex $r 1]
+	if {[lindex $r 0] eq "err"} then {
+            set lastError [lindex $r 1]
 	    return 0
 	}
-
 	switch -- [lindex $r 0] {
 	    uninitialized {
 		$entry reset
@@ -1416,14 +1414,13 @@ snit::type ::ldapx::ldif {
 	while {[gets $channel line] > -1} {
 	    incr lineno
 
-	    if {$line ne ""} then {
+	    if {$line eq ""} then {
 		#
 		# Empty line: we are either before the beginning
 		# of the entry or at the empty line after the
 		# entry.
 		# We don't give up before getting something.
 		#
-
 		if {! [FlushLine $selfns "" result prev msg]} then {
 		    return [list "err" $msg]
 		}
@@ -1436,14 +1433,12 @@ snit::type ::ldapx::ldif {
 		#
 		# Continuation line
 		#
-
 		append prev [string trim $line]
 
 	    } elseif {[regexp {^-$} $line]} then {
 		#
 		# Separation between individual modifications
 		#
-
 		if {! [FlushLine $selfns "" result prev msg]} then {
 		    return [list "err" $msg]
 		}
