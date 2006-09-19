@@ -3,7 +3,7 @@
 	* tie_file.tcl: Invokations of the builtin 'file' changed to
 	  '::file' to ensure use of the builtin. In snit v2 this resolves
 	  to the class itself apparently, choking the construction of an
-	  instance.
+	  instance. [Tcllib SF Bug 1560851].
 
 2006-03-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
