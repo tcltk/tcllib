@@ -126,7 +126,7 @@ proc xcopy {src dest recurse {pattern *}} {
 
 		    # If the directory is empty after the recursion remove it again.
 		    if {![llength [glob -nocomplain [file join $sub *]]]} {
-			file delete $sub
+			run file delete $sub
 		    }
 		}
 	    } else {
@@ -177,8 +177,13 @@ proc run {args} {
 	log [join $args]
 	return
     }
-    eval $args
-
+    if {[catch {eval $args} msg]} {
+        if {$config(gui)} {
+            installErrorMsgBox $msg
+        } else {
+            return -code error "Install error:\n $msg" 
+        }
+    }
     log* .
     return
 }
@@ -540,6 +545,15 @@ proc validate {} {
 		-parent . -message [get]
 	clear
     }
+    exit 1
+}
+
+proc installErrorMsgBox {msg} {
+    tk_messageBox \
+	    -icon error -type ok \
+	    -default ok \
+	    -title "Install error" \
+	    -parent . -message $msg
     exit 1
 }
 
