@@ -21,7 +21,7 @@ package require Tcl 8.2
 
 namespace eval blowfish {
     variable version 1.0.1
-    variable rcsid {$Id: blowfish.tcl,v 1.5 2006/09/19 10:37:21 patthoyts Exp $}
+    variable rcsid {$Id: blowfish.tcl,v 1.6 2006/09/19 10:41:41 patthoyts Exp $}
     variable uid ; if {![info exists uid]} { set uid 0 }
     variable accel
     array set accel {trf 0}
@@ -637,7 +637,7 @@ proc ::blowfish::blowfish {args} {
         set data [Pad [lindex $args 0] 8]
         if {$accel(trf)} {
             set r [::blowfish -dir $opts(-dir) -mode $opts(-mode) \
-                       -key $opts(-key) -iv $opts(-iv) $data]
+                       -key $opts(-key) -iv $opts(-iv) -- $data]
         } else {
             set Key [Init $opts(-mode) $opts(-key) $opts(-iv)]
             if {[string equal $opts(-dir) "encrypt"]} {
