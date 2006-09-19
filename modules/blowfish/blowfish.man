@@ -4,7 +4,7 @@
 [moddesc   {Blowfish Block Cipher}]
 [titledesc {Implementation of the Blowfish block cipher}]
 [require Tcl 8.4]
-[require blowfish [opt 1.0.0]]
+[require blowfish [opt 1.0.1]]
 [description]
 [para]
 
@@ -26,7 +26,7 @@ blowfish encryption.
         [opt [arg "-out channel"]] \
         [opt [arg "-chunksize size"]] \
         [lb] [arg "-in channel"] | \
-        [arg "data"] [rb]]
+        [opt [arg "--"]] [arg "data"] [rb]]
 
 Perform the [package blowfish] algorithm on either the data provided
 by the argument or on the data read from the [arg "-in"] channel. If

@@ -20,8 +20,8 @@
 package require Tcl 8.2
 
 namespace eval blowfish {
-    variable version 1.0.0
-    variable rcsid {$Id: blowfish.tcl,v 1.4 2005/09/04 17:09:46 patthoyts Exp $}
+    variable version 1.0.1
+    variable rcsid {$Id: blowfish.tcl,v 1.5 2006/09/19 10:37:21 patthoyts Exp $}
     variable uid ; if {![info exists uid]} { set uid 0 }
     variable accel
     array set accel {trf 0}
@@ -613,6 +613,7 @@ proc ::blowfish::blowfish {args} {
             -hex        { set opts(-hex) 1 }
             --          { Pop args; break }
             default {
+                if {[string length $opts(-in)] == 0 && [llength $args] == 1} break
                 set err [join [lsort [array names opts]] ", "]
                 return -code error "bad option \"$option\":\
                     must be one of $err"

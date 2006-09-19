@@ -1,3 +1,10 @@
+2006-09-19  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* blowfish.tcl:  Bug 1560822: hyphen handling.
+	* blowfish.test: Added test for hyphen handling.
+	* blowfish.man:  Note -- for option termination.
+	* pkgIndex.tcl:  Increment patchlevel.
+
 2006-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* blowfish.test: More boilerplate simplified via use of test support.
