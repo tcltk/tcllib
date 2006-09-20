@@ -1,3 +1,17 @@
+2006-09-20  Andreas Kupries  <andreask@activestate.com>
+
+	* math.tcl: Bumped version to 1.2.4
+	* math.man:
+	* qcomplex.man: Bumped version to 1.0.2
+	* qcomplex.tcl:
+	* fourier.man: Bumped version to 1.0.2
+	* fourier.tcl:
+	* interpolate.man: Bumped version to 1.0.2
+	* interpolate.tcl:
+	* linalg.tcl: Bumped version to 1.0.1
+	* linalg.man:
+	* pkgIndex.tcl:
+
 2006-09-19  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 	* linalg.tcl: removed print statement (left over from testing leastSquares)
 
