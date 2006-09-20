@@ -1,3 +1,10 @@
+2006-09-20  Andreas Kupries  <andreask@activestate.com>
+
+	* support/devel/sak/test/run.tcl: Modified to not use echo and cat
+	* support/devel/sak/test/help.txt: when starting a testsuite on
+	  windows. Eliminated the use of valgrind for that platform as
+	  well. Updated the documentation regarding the latter.
+
 2006-09-19  Andreas Kupries <andreask@activestate.com>
 
 	* support/devel/sak/test/run.tcl: Extended testsuite logging.
