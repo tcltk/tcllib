@@ -35,7 +35,7 @@
 #   NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
 #   MODIFICATIONS.
 #
-#   $Id: ldap.tcl,v 1.17 2006/09/20 21:25:36 mic42 Exp $
+#   $Id: ldap.tcl,v 1.18 2006/09/20 23:19:45 mic42 Exp $
 #
 #   written by Jochen Loewer
 #   3 June, 1999
@@ -44,7 +44,7 @@
 
 package require Tcl 8.4
 package require asn 0.7
-package provide ldap 1.6.4
+package provide ldap 1.6.5
 
 namespace eval ldap {
 
@@ -132,13 +132,24 @@ proc ::ldap::resultCode2String {code} {
 }
 
 #-----------------------------------------------------------------------------
+#   Basic sanity check for connection handles
+#   must be an array
+#-----------------------------------------------------------------------------
+proc ::ldap::CheckHandle {handle} {
+    if {![array exists $handle]} {
+        return -code error \
+            [format "Not a valid LDAP connection handle: %s" $handle]
+    }
+}
+
+#-----------------------------------------------------------------------------
 #    info
 #
 #-----------------------------------------------------------------------------
 
 proc ldap::info {args} {
    set cmd [lindex $args 0]
-   set cmds {connections bound bounduser control extensions ip saslmechanism tls whoami}
+   set cmds {connections bound bounduser control extensions ip saslmechanisms tls whoami}
    if {[llength $args] == 0} {
    	return -code error \
 		"Usage: \"info subcommand ?handle?\""    
@@ -160,6 +171,7 @@ proc ldap::info_ip {args} {
    	return -code error \
 	       "Wrong # of arguments. Usage: ldap::info ip handle"
    }
+   CheckHandle [lindex $args 0]
    upvar #0 [lindex $args 0] conn
    if {![::info exists conn(sock)]} {
    	return -code error \
@@ -189,6 +201,7 @@ proc ldap::info_bound {args} {
    	return -code error \
 	       "Wrong # of arguments. Usage: ldap::info bound handle"
    }
+   CheckHandle [lindex $args 0]
    upvar #0 [lindex $args 0] conn
    if {![::info exists conn(bound)]} {
    	return -code error \
@@ -207,6 +220,7 @@ proc ldap::info_bounduser {args} {
    	return -code error \
 	       "Wrong # of arguments. Usage: ldap::info bounduser handle"
    }
+   CheckHandle [lindex $args 0]   
    upvar #0 [lindex $args 0] conn
    if {![::info exists conn(bound)]} {
    	return -code error \
@@ -226,6 +240,7 @@ proc ldap::info_tls {args} {
    	return -code error \
 	       "Wrong # of arguments. Usage: ldap::info tls handle"
    }
+   CheckHandle [lindex $args 0]   
    upvar #0 [lindex $args 0] conn
    if {![::info exists conn(tls)]} {
    	return -code error \
@@ -280,21 +295,25 @@ proc ldap::info_whoami {args} {
 #
 #-----------------------------------------------------------------------------
 proc ldap::Saslmechanisms {conn} {
+    CheckHandle $conn
     lindex [ldap::search $conn {} {(objectClass=*)} \
                     {supportedSASLMechanisms} -scope base] 0 1 1
 }
 
 proc ldap::Extensions {conn} {
+    CheckHandle $conn
     lindex [ldap::search $conn {} {(objectClass=*)} \
                     {supportedExtension} -scope base] 0 1 1
 }
 
 proc ldap::Control {conn} {
+    CheckHandle $conn
     lindex [ldap::search $conn {} {(objectClass=*)} \
                     {supportedControl} -scope base] 0 1 1
 }
 
 proc ldap::Features {conn} {
+    CheckHandle $conn
     lindex [ldap::search $conn {} {(objectClass=*)} \
                     {supportedFeatures} -scope base] 0 1 1
 }
@@ -304,6 +323,7 @@ proc ldap::Features {conn} {
 #
 #-------------------------------------------------------------------------------
 proc ldap::Whoami {handle} {
+    CheckHandle $handle
     if {[lsearch [ldap::Extensions $handle] 1.3.6.1.4.1.4203.1.11.3] == -1} {
         return -code error \
             "Server does not support the \"Who am I?\" extension"
@@ -361,6 +381,7 @@ proc ldap::connect { host {port 389} } {
     set conn(bounduser) ""
     set conn(saslBindInProgress) 0
     set conn(tlsHandshakeInProgress) 0
+    set conn(lastError) ""
     
     fileevent $sock readable [list ::ldap::MessageReceiver ::ldap::ldap$sock]
     return ::ldap::ldap$sock
@@ -422,6 +443,7 @@ proc ldap::secure_connect { host {port 636} } {
     set conn(bounduser) ""
     set conn(saslBindInProgress) 0
     set conn(tlsHandshakeInProgress) 0
+    set conn(lasterror) ""
 
     return ::ldap::ldap$sock
 }
@@ -432,6 +454,8 @@ proc ldap::secure_connect { host {port 636} } {
 #
 #------------------------------------------------------------------------------
 proc ldap::starttls {handle {cafile ""} {certfile ""} {keyfile ""}} {
+    CheckHandle $handle
+
     upvar #0 $handle conn
     
     if {$conn(tls)} {
@@ -455,10 +479,10 @@ proc ldap::starttls {handle {cafile ""} {certfile ""} {keyfile ""}} {
     }
     package require tls
     
-    set conn(tlsHandshakeInProgress) 1
     
     set request [asnApplicationConstr 23 [asnOctetString 1.3.6.1.4.1.1466.20037]]
     set mid [SendMessage $handle $request]
+    set conn(tlsHandshakeInProgress) 1
     set response [WaitForResponse $handle $mid]
  
     asnGetApplication response appNum
@@ -483,6 +507,7 @@ proc ldap::starttls {handle {cafile ""} {certfile ""} {keyfile ""}} {
         asnGetOctetString response oid
     }
     if {$oid ne "1.3.6.1.4.1.1466.20037"} {
+        set conn(tlsHandshakeInProgress) 0
         return -code error \
             "Unexpected LDAP response"
     } 
@@ -595,8 +620,13 @@ proc ldap::WaitForResponse {handle messageId} {
     vwait [namespace which -variable $handle](message,$messageId)
     if {[llength $conn(message,$messageId)] == 0} {
         # We have waited and have been awakended but no message is there
-        return -code error \
-            [format "Broken response received for message %d." $messageId]
+        if {[string length $conn(lastError)]} {
+            return -code error \
+                [format "Protocol error: %s" $conn(lastError)]
+        } else {
+            return -code error \
+                [format "Broken response for message %d" $messageId]
+        }
     }
     set response [lindex $conn(message,$messageId) 0]
     set conn(message,$messageId) [lrange $conn(message,$messageId) 1 end]
@@ -656,6 +686,17 @@ proc ldap::ProcessMessage {handle response} {
 }
 
 #-------------------------------------------------------------------------------
+# Get the code out of waitForResponse in case of errors
+#
+#-------------------------------------------------------------------------------
+proc ldap::CleanupWaitingMessages {handle} {
+    upvar #0 $handle conn
+    foreach message [array names conn message,*] {
+        set conn($message) [list]
+    }
+}
+
+#-------------------------------------------------------------------------------
 #  The basic fileevent based message receiver.
 #  It reads PDU's from the network in a non-blocking fashion.
 #
@@ -679,20 +720,31 @@ proc ldap::MessageReceiver {handle} {
     } else {
         foreach {code type} [ReceiveBytes $conn(sock) 1] {break}
         switch -- $code {
-            "ok" {
+            ok {
                 binary scan $type c byte
                 set type [expr {($byte + 0x100) % 0x100}]  
                 if {$type != 0x30} {
-                    return -code error \
-                        [format "Expected SEQUENCE (0x30) but got %x" $type]
+                    CleanupWaitingMessages $handle
+                    set conn(lastError) [format "Expected SEQUENCE (0x30) but got %x" $type]
+                    return
                 } else {
                     set conn(pdu,partial) 1
                     append conn(pdu,received) $type
                 }
                 }
+            eof {
+                CleanupWaitingMessages $handle
+                set conn(lastError) "Server closed connection"
+                catch {close $conn(sock)}
+                return
+            } 
             default {
-                return -code error \
-                    [format "Error reading SEQUENCE response for handle %s : %s" $handle $code]
+                CleanupWaitingMessages $handle
+                set bytes $type[read $conn(sock)]
+                binary scan $bytes h* values
+                set conn(lastError) [format \
+                    "Error reading SEQUENCE response for handle %s : %s : %s" $handle $code $values]
+                return
                 }
         }
     }
@@ -718,9 +770,17 @@ proc ldap::MessageReceiver {handle} {
                         append conn(pdu,received) $bytes
                         return
                     }
+                    "eof" {
+                        CleanupWaitingMessages $handle            
+                        catch {close $conn(sock)}
+                        set conn(lastError) "Server closed connection"
+                        return
+                    } 
                     default {
-                        return -code error \
-                            [format "Error reading LENGTH2 response for handle %s : %s" $handle $code]
+                        CleanupWaitingMessages $handle            
+                        set conn(lastError) [format \
+                            "Error reading LENGTH2 response for handle %s : %s" $handle $code]
+                        return
                     }
                 }
             }
@@ -740,9 +800,16 @@ proc ldap::MessageReceiver {handle} {
                         asnGetLength conn(pdu,length_bytes) conn(pdu,length)
                     }
                 }
+                "eof" {
+                    CleanupWaitingMessages $handle            
+                    catch {close $conn(sock)}
+                    set conn(lastError) "Server closed connection"
+                }                 
                 default {
-                    return -code error \
-                        [format "Error reading LENGTH1 response for handle %s : %s" $handle $code]
+                    CleanupWaitingMessages $handle            
+                    set conn(lastError) [format \
+                        "Error reading LENGTH1 response for handle %s : %s" $handle $code]
+                    return
                 }       
             }
         }
@@ -764,9 +831,16 @@ proc ldap::MessageReceiver {handle} {
                 append conn(pdu,payload) $bytes
                 return
             }
+            "eof" {
+                CleanupWaitingMessages $handle            
+                catch {close $conn(sock)}
+                set conn(lastError) "Server closed connection"
+            }             
             default {
-                return -code error \
-                    [format "Error reading DATA response for handle %s : %s" $handle $code]
+                CleanupWaitingMessages $handle            
+                set conn(lastError) [format \
+                    "Error reading DATA response for handle %s : %s" $handle $code]
+                return
             }
         }
     }
@@ -806,6 +880,7 @@ proc ldap::ReceiveBytes {sock bytes} {
 #-----------------------------------------------------------------------------
 
 proc ldap::bindSASL {handle {name ""} {password ""} } {
+    CheckHandle $handle
 
     package require SASL
     
@@ -876,7 +951,7 @@ proc ldap::SASLAuth {handle mech name password} {
     
     set conn(options) [list -password $password -username $name]
 
-    # check for tcllib bug # 1545306 an reset the nonce-count if 
+    # check for tcllib bug # 1545306 and reset the nonce-count if 
     # found, so a second call to this code does not fail
     #
     if {[::info exists ::SASL::digest_md5_noncecount]} {
@@ -989,6 +1064,7 @@ proc ldap::decodeSASLBindResponse {handle response} {
 #
 #-----------------------------------------------------------------------------
 proc ldap::bind { handle {name ""} {password ""} } {
+    CheckHandle $handle
     
     upvar #0 $handle conn
 
@@ -1030,6 +1106,7 @@ proc ldap::bind { handle {name ""} {password ""} } {
 #
 #-----------------------------------------------------------------------------
 proc ldap::unbind { handle } {
+    CheckHandle $handle
 
     upvar #0 $handle conn
 
@@ -1159,6 +1236,7 @@ proc ldap::buildUpFilter { filter } {
 #
 #-----------------------------------------------------------------------------
 proc ldap::search { handle baseObject filterString attributes args} {
+    CheckHandle $handle
 
     upvar #0 $handle conn
 
@@ -1185,6 +1263,7 @@ proc ldap::search { handle baseObject filterString attributes args} {
 #-----------------------------------------------------------------------------
 
 proc ldap::searchInProgress {handle} {
+   CheckHandle $handle
    upvar #0 $handle conn
    if {[::info exists conn(searchInProgress)]} {
    	return $conn(searchInProgress)
@@ -1198,6 +1277,7 @@ proc ldap::searchInProgress {handle} {
 #
 #-----------------------------------------------------------------------------
 proc ldap::searchInit { handle baseObject filterString attributes opt} {
+    CheckHandle $handle
 
     upvar #0 $handle conn
 
@@ -1295,6 +1375,8 @@ proc ldap::buildSearchRequest {baseObject scope derefAliases
 #
 #-----------------------------------------------------------------------------
 proc ldap::searchNext { handle } {
+    CheckHandle $handle
+
     upvar #0 $handle conn
 
     if {! [::info exists conn(searchInProgress)]} then {
@@ -1361,6 +1443,7 @@ proc ldap::searchNext { handle } {
 #
 #-----------------------------------------------------------------------------
 proc ldap::searchEnd { handle } {
+    CheckHandle $handle
 
     upvar #0 $handle conn
 
@@ -1381,6 +1464,8 @@ proc ldap::searchEnd { handle } {
 #
 #-----------------------------------------------------------------------------    
 proc ldap::abandon {handle messageId} {
+    CheckHandle $handle
+
     upvar #0 $handle conn
     set request [asnApplicationConstr 16      	\
                         [asnInteger $messageId]         \
@@ -1397,6 +1482,8 @@ proc ldap::abandon {handle messageId} {
 #-----------------------------------------------------------------------------
 proc ldap::modify { handle dn
                     attrValToReplace { attrToDelete {} } { attrValToAdd {} } } {
+
+    CheckHandle $handle
 
     upvar #0 $handle conn
 
@@ -1433,7 +1520,7 @@ proc ldap::modify { handle dn
 proc ldap::modifyMulti {handle dn
                     attrValToReplace {attrValToDelete {}} {attrValToAdd {}}} {
 
-    variable resultCode2String
+    CheckHandle $handle
     upvar #0 $handle conn
 
     set operationAdd     0
@@ -1530,6 +1617,8 @@ proc ldap::packOpAttrVal {op attrValueTuples} {
 #-----------------------------------------------------------------------------
 proc ldap::add { handle dn attrValueTuples } {
 
+    CheckHandle $handle
+
     #
     # In order to handle multi-valuated attributes (see bug 1191326 on
     # sourceforge), we walk through tuples to collect all values for
@@ -1550,6 +1639,8 @@ proc ldap::add { handle dn attrValueTuples } {
 #
 #-----------------------------------------------------------------------------
 proc ldap::addMulti { handle dn attrValueTuples } {
+
+    CheckHandle $handle
 
     upvar #0 $handle conn
 
@@ -1604,6 +1695,8 @@ proc ldap::addMulti { handle dn attrValueTuples } {
 #-----------------------------------------------------------------------------
 proc ldap::delete { handle dn } {
 
+    CheckHandle $handle
+
     upvar #0 $handle conn
 
     #----------------------------------------------------------
@@ -1637,6 +1730,8 @@ proc ldap::delete { handle dn } {
 #
 #-----------------------------------------------------------------------------
 proc ldap::modifyDN { handle dn newrdn { deleteOld 1 } {newSuperior ! } } {
+
+    CheckHandle $handle
 
     upvar #0 $handle conn
 
@@ -1685,6 +1780,8 @@ proc ldap::modifyDN { handle dn newrdn { deleteOld 1 } {newSuperior ! } } {
 #-----------------------------------------------------------------------------
 proc ldap::disconnect { handle } {
 
+    CheckHandle $handle
+    
     upvar #0 $handle conn
 
     # should we sent an 'unbind' ?
