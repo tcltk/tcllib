@@ -3,7 +3,7 @@
 #
 # (c) 2006 Pierre David (pdav@users.sourceforge.net)
 #
-# $Id: ldapx.tcl,v 1.3 2006/09/19 22:46:06 mic42 Exp $
+# $Id: ldapx.tcl,v 1.4 2006/09/20 21:25:36 mic42 Exp $
 #
 # History:
 #   2006/08/08 : pda : design
@@ -15,7 +15,7 @@ package require uri 1.1.5	;# tcllib
 package require base64		;# tcllib
 package require ldap 1.6	;# tcllib, low level code for LDAP directories
 
-package provide ldapx 0.2.1
+package provide ldapx 0.2.2
 
 ##############################################################################
 # LDAPENTRY object type
@@ -859,6 +859,7 @@ snit::type ::ldapx::ldap {
 
 	global errorInfo errorCode
 
+        set lastError ""
 	#
 	# Initiate search
 	#
@@ -876,8 +877,30 @@ snit::type ::ldapx::ldap {
 	#
 	# Execute the specific body for each result found
 	#
+        while {1} {
+	    #
+	    # The first call to searchNext may fail when searchInit
+	    # is given some invalid parameters.
+	    # We must terminate the current search in order to allow
+	    # future searches.
+	    #
 
-	while {[llength [set r [::ldap::searchNext $channel]]] > 0} {
+	    set err [catch {::ldap::searchNext $channel} r]
+
+	    if {$err} then {
+		set ei $errorInfo
+		set ec $errorCode
+		::ldap::searchEnd $channel
+		return -code error -errorinfo $ei -errorcode $ec $r
+	    }
+
+	    #
+	    # End of result messages
+	    #
+
+	    if {[llength $r] == 0} then {
+		break
+	    }
 
 	    #
 	    # Set DN and attributes-values (converted from utf8 if needed)
@@ -984,15 +1007,15 @@ snit::type ::ldapx::ldap {
 		standard {
 		    set echg [::ldapx::entry create %AUTO%]
 		    $echg diff $entry
+                    set dn   [$echg dn]
 		    set lchg [$echg change]
 		    $echg destroy
 		}
 		change {
+                    set dn   [$entry dn]
 		    set lchg [$entry change]
 		}
 	    }
-
-	    set dn   [$entry dn]
 
 	    set op   [lindex $lchg 0]
 

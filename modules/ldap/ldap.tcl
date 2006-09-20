@@ -35,7 +35,7 @@
 #   NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
 #   MODIFICATIONS.
 #
-#   $Id: ldap.tcl,v 1.16 2006/09/19 22:46:06 mic42 Exp $
+#   $Id: ldap.tcl,v 1.17 2006/09/20 21:25:36 mic42 Exp $
 #
 #   written by Jochen Loewer
 #   3 June, 1999
@@ -44,7 +44,7 @@
 
 package require Tcl 8.4
 package require asn 0.7
-package provide ldap 1.6.3
+package provide ldap 1.6.4
 
 namespace eval ldap {
 
@@ -1340,14 +1340,15 @@ proc ldap::searchNext { handle } {
 	asnGetEnumeration response resultCode
 	asnGetOctetString response matchedDN
 	asnGetOctetString response errorMessage
+	set result {}
+	FinalizeMessage $handle $conn(searchInProgress)
+        unset conn(searchInProgress) 
+        
 	if {$resultCode != 0} {
         return -code error \
 		-errorcode [list LDAP [resultCode2String $resultCode] $matchedDN $errorMessage] \
 		"LDAP error [resultCode2String $resultCode] : $errorMessage"
 	}
-	set result {}
-	FinalizeMessage $handle $conn(searchInProgress)
-        unset conn(searchInProgress) 
     } else {
 	 error "unexpected application number ($appNum != 4 or 5)"
     }
