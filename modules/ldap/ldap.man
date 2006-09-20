@@ -1,12 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin ldap n 1.6.3]
+[manpage_begin ldap n 1.6.4]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {2004 Jochen Loewer <loewerj@web.de>}]
 [copyright {2006 Michael Schlenker <mic42@users.sourceforge.net>}]
 [moddesc   {LDAP client}]
 [titledesc {LDAP client}]
 [require Tcl 8.4]
-[require ldap [opt 1.6.3]]
+[require ldap [opt 1.6.4]]
 [description]
 [para]
 
@@ -134,6 +134,9 @@ Only one [cmd ::ldap::search] can be active at a given time, this
 includes the introspection commands [cmd ::ldap::saslmechanisms], [cmd ldap::control] and 
 [cmd ldap::extensions], which invoke a search.
 
+Errors from the server are due to wrong arguments or similar things are returned
+with the first [cmd ::ldap::searchNext] call and should be checked there.
+
 If the list of requested [arg attributes] is empty all attributes will be returned.
 The parameter [arg options] specifies the options to be used in the search,
 and has the following format:
@@ -182,8 +185,8 @@ The default is to retrieve attribute names and values.
 [call [cmd ::ldap::searchNext] [arg handle]]
 
 This command returns the next entry from a LDAP search initiated
-by [cmd ::ldap::searchInit]. The command blocks until a new search result
-is received from the server.
+by [cmd ::ldap::searchInit]. The command blocks in a vwait until a new search 
+result is received from the server.
 
 The returned entry is a list with
 two elements: the first is the DN of the entry, the second is the
