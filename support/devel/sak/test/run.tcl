@@ -6,7 +6,9 @@
 package require  sak::test::shell
 package require  sak::registry
 package require  sak::animate
-getpackage textutil::repeat       textutil/repeat.tcl
+
+getpackage textutil::repeat textutil/repeat.tcl
+getpackage fileutil         fileutil/fileutil.tcl
 
 namespace eval ::sak::test::run {
     namespace import ::textutil::repeat::blank
@@ -141,36 +143,12 @@ proc ::sak::test::run::Do {cv modules} {
 
     foreach sh $shells {
 	foreach m $modules {
-	    # Ok valgrind and no valgrind.
-	    set     script {}
-	    lappend script [list set argv [list -modules [list $m]]]
-	    lappend script {set argc 2}
-	    lappend script [list source [Driver]]
-	    lappend script exit
-
-	    set     cmd ""
-	    lappend cmd echo [join $script \n]
-	    lappend cmd |
-
-	    if {$config(valgrind)} {
-		foreach e $valgrind {lappend cmd $e}
-		if {$config(valgrind) > 1} {
-		    lappend cmd --num-callers=8
-		    lappend cmd --leak-resolution=high
-		    lappend cmd -v --leak-check=yes
-		    lappend cmd --show-reachable=yes
-		}
-	    }
-	    lappend cmd $sh
-	    #lappend cmd >@ stdout 2>@ stderr
-	    lappend cmd |& cat
-	    #puts <<$cmd>>
-
+	    set cmd [Command config $m $sh]
 	    sak::animate::init
 	    if {$alog || $araw} {
 		puts $logext ============================================================
 	    }
-	    if {[catch {close [Process [open |$cmd r+]]} msg]} {
+	    if {[catch {Close [Process [open |$cmd r+]]} msg]} {
 		=| "~~ [mag]ERR   ${msg}[rst]"
 		if {$alog || $araw} {
 		    puts $logext [mag]$msg[rst]
@@ -180,6 +158,85 @@ proc ::sak::test::run::Do {cv modules} {
 	}
     }
     return
+}
+
+# ###
+
+if {$::tcl_platform(platform) == "windows"} {
+
+    proc ::sak::test::run::Command {cv m sh} {
+	variable valgrind
+	upvar 1 $cv config
+
+	# Windows. Construction of the pipe to run a specific
+	# testsuite against a single shell. There is no valgrind to
+	# accomodate, and neither can we expect to have unix commands
+	# like 'echo' and 'cat' available. 'echo' we can go without. A
+	# 'cat' however is needed to merge stdout and stderr of the
+	# testsuite for processing here. We use an emuluation written
+	# in Tcl.
+
+	set catfile cat[pid].tcl
+	fileutil::writeFile $catfile {
+	    catch {wm withdraw .}
+	    while {![eof stdin]} {puts stdout [gets stdin]}
+	    exit
+	}
+
+	set     cmd ""
+	lappend cmd $sh
+	lappend cmd [Driver] -modules [list $m]
+	lappend cmd |& $sh $catfile
+	#puts <<$cmd>>
+
+	return $cmd
+    }
+
+    proc ::sak::test::run::Close {pipe} {
+	close $pipe
+	file delete cat[pid].tcl
+	return
+    }
+} else {
+    proc ::sak::test::run::Command {cv m sh} {
+	variable valgrind
+	upvar 1 $cv config
+
+	# Unix. Construction of the pipe to run a specific testsuite
+	# against a single shell. The command is constructed to work
+	# when using valgrind, and works when not using it as well.
+
+	set     script {}
+	lappend script [list set argv [list -modules [list $m]]]
+	lappend script {set argc 2}
+	lappend script [list source [Driver]]
+	lappend script exit
+
+	set     cmd ""
+	lappend cmd echo [join $script \n]
+	lappend cmd |
+
+	if {$config(valgrind)} {
+	    foreach e $valgrind {lappend cmd $e}
+	    if {$config(valgrind) > 1} {
+		lappend cmd --num-callers=8
+		lappend cmd --leak-resolution=high
+		lappend cmd -v --leak-check=yes
+		lappend cmd --show-reachable=yes
+	    }
+	}
+	lappend cmd $sh
+	#lappend cmd >@ stdout 2>@ stderr
+	lappend cmd |& cat
+	#puts <<$cmd>>
+
+	return $cmd
+    }
+
+    proc ::sak::test::run::Close {pipe} {
+	close $pipe
+	return
+    }
 }
 
 # ###
