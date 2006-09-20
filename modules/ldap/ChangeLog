@@ -1,4 +1,11 @@
 2006-09-15  Michael Schlenker <mic42@users.sourceforge.net>
+        * ldapx.tcl     Some bugfixes for error handling
+          ldap.tcl      when searchInit is called with invalid
+          ldap.man      arguments. Thanks to Pierre David 
+          pkgIndex.tcl  <pdav@users.sourceforge.net> for finding
+                        them.
+
+2006-09-15  Michael Schlenker <mic42@users.sourceforge.net>
         * ldapx.tcl     Some more fixes in the ldif part.
         
 2006-09-15  Michael Schlenker <mic42@users.sourceforge.net>
