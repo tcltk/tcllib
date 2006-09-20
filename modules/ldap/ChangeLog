@@ -1,4 +1,13 @@
-2006-09-15  Michael Schlenker <mic42@users.sourceforge.net>
+2006-09-20  Michael Schlenker <mic42@users.sourceforge.net>
+        * ldap.tcl      Completly redone broken error handling in
+          pkgIndex.tcl  the fileevent handler, now it no
+          ldap.man      longer calls bgerror but cleans up
+                        the outstanding messages for the
+                        connection and delivers the error
+                        to those waiting handlers. More stupid
+                        typo fixes.
+        
+2006-09-20  Michael Schlenker <mic42@users.sourceforge.net>
         * ldapx.tcl     Some bugfixes for error handling
           ldap.tcl      when searchInit is called with invalid
           ldap.man      arguments. Thanks to Pierre David 
