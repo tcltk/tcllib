@@ -12,21 +12,21 @@ reports, suggestions, or comments, feel free to contact me, Will
 Duquette, at will@wjduquette.com; or, join the Snit mailing list (see
 http://www.wjduquette.com/snit for details).
 
-Differences Between Snit 2.0 and Snit 1.x
+Differences Between Snit 2.1 and Snit 1.x
 --------------------------------------------------------------------
 
 V2.0 and V1.x are being developed in parallel.
 
-  Version 2.0 takes advantage of some new Tcl/Tk 8.5 commands
+  Version 2.1 takes advantage of some new Tcl/Tk 8.5 commands
   ([dict], [namespace ensemble], and [namespace upvar]) to improve 
   Snit's run-time efficiency.  Otherwise, it's intended to be 
   feature-equivalent with V1.x.  When running with Tcl/Tk 8.5, both 
   V2.0 and V1.x are available; when running with Tcl/Tk 8.3 or Tcl/Tk 
   8.4, only V1.x is available.
 
-  Snit 1.x is implemented in snit.tcl; Snit 2.0 in snit2.tcl.
+  Snit 1.x is implemented in snit.tcl; Snit 2.1 in snit2.tcl.
 
-V2.0 includes the following enhancements over V1.x:
+V2.1 includes the following enhancements over V1.x:
 
 * A type's code (methods, type methods, etc.) can now call commands
   from the type's parent namespace without qualifying or importing
@@ -48,8 +48,7 @@ V2.0 includes the following enhancements over V1.x:
   only those commands which have already been exported by the parent
   namespace at the time the type is defined.
 
-There are three incompatibilities between V2.0 and V1.x due to the use
-of [namespace ensemble]:
+There are four incompatibilities between V2.1 and V1.x:
 
 * Implicit naming of objects now only works if you set 
     
@@ -74,15 +73,25 @@ of [namespace ensemble]:
     $obj foo bar     ;# This is the first way
     $obj {foo bar}   ;# This is the second way
 
-  In Snit 2.0, the second way no longer works.
+  In Snit 2.1, the second way no longer works.
 
 * In Snit 1.x and earlier, [$obj info methods] and 
   [$obj info typemethods] returned a complete list of all known
   hierarchical methods.  In the example just above, for example,
   the list returned by [$obj info methods] would include 
-  "foo bar".  In Snit 2.0, only the first word of a hierarchical
+  "foo bar".  In Snit 2.1, only the first word of a hierarchical
   method name is returned, [$obj info methods] would include 
   "foo" but not "foo bar".
+
+* Because a type's code (methods, type methods, etc.) can now 
+  call commands from the type's parent namespace without qualifying 
+  or importing them, this means that all commands defined in the
+  parent namespace are visible--and can shadow commands defined
+  in the global namespace, including the standard Tcl commands.
+  There was a case in Tcllib where the Snit type ::tie::std::file
+  contained a bug with Snit 2.1 because the type's own name
+  shadowed the standard [file] command in the type's own code.
+
 
 Changes in V1.2
 --------------------------------------------------------------------

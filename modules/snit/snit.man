@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin snit n 2.0]
-[copyright {2003-2005, by William H. Duquette}]
+[manpage_begin snit n 2.1]
+[copyright {2003-2006, by William H. Duquette}]
 [moddesc {Snit's Not Incr Tcl, OO system}]
 [titledesc  {Snit's Not Incr Tcl}]
 [require Tcl 8.5]
-[require snit [opt 2.0]]
+[require snit [opt 2.1]]
 [description]
 [para]
 
@@ -28,8 +28,8 @@ concepts.
 
 [section {SNIT VERSIONS}]
 
-This man page covers both Snit 2.0 and Snit 1.2.  The primary
-difference between the two versions is simply that Snit 2.0 contains
+This man page covers both Snit 2.1 and Snit 1.2.  The primary
+difference between the two versions is simply that Snit 2.1 contains
 speed optimizations based on new features of Tcl 8.5; Snit 1.2
 supports all of Tcl 8.3, 8.4 and Tcl 8.5.  There are a few minor
 inconsistencies; they are flagged in the body of the man page with the
@@ -122,7 +122,7 @@ following two calls to this type method are equivalent:
     $type {a b} "Hello, world!"
 }]
 
-In Snit 2.0, the second form is invalid.
+In Snit 2.1, the second form is invalid.
 
 [call [cmd typeconstructor] [arg body]]
 
@@ -241,7 +241,7 @@ following two calls to this method are equivalent:
     $self {a b} "Hello, world!"
 }]
 
-In Snit 2.0, the second form is invalid.
+In Snit 2.1, the second form is invalid.
 
 [call [cmd option] [arg namespec] [opt [arg defaultValue]]]
 [call [cmd option] [arg namespec] [opt [arg options...]]]
@@ -2736,7 +2736,7 @@ The wisest course is simply not to do this.
 
 Error stack traces returned by Snit 1.x are extremely ugly and typically
 contain far too much information about Snit internals.  The error
-messages are much improved in Snit 2.0.
+messages are much improved in Snit 2.1.
 
 [bullet]
 
