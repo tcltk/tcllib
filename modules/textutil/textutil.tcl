@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: textutil.tcl,v 1.16 2006/04/21 04:42:28 andreas_kupries Exp $
+# RCS: @(#) $Id: textutil.tcl,v 1.17 2006/09/21 06:46:24 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requirements
@@ -76,4 +76,4 @@ namespace eval ::textutil {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil 0.7
+package provide textutil 0.7.1
