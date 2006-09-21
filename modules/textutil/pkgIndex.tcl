@@ -2,7 +2,7 @@ if {![package vsatisfies [package provide Tcl] 8.2]} {
     # FRINK: nocheck
     return
 }
-package ifneeded textutil           0.7 [list source [file join $dir textutil.tcl]]
+package ifneeded textutil           0.7.1 [list source [file join $dir textutil.tcl]]
 package ifneeded textutil::adjust   0.7 [list source [file join $dir adjust.tcl]]
 package ifneeded textutil::split    0.7 [list source [file join $dir split.tcl]]
 package ifneeded textutil::trim     0.7 [list source [file join $dir trim.tcl]]
