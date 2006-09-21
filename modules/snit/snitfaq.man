@@ -1,6 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin snitfaq n 2.0]
-[copyright {2003-2005, by William H. Duquette}]
+[manpage_begin snitfaq n 2.1]
+[copyright {2003-2006, by William H. Duquette}]
 [moddesc {Snit's Not Incr Tcl, OO system}]
 [titledesc   {Snit Frequently Asked Questions}]
 [description]
@@ -60,9 +60,9 @@ building your application.
 
 [subsection {What version of Tcl does Snit require?}]
 
-Snit 1.1 requires Tcl 8.3 or later; Snit 2.0 requires Tcl 8.5 or
+Snit 1.1 requires Tcl 8.3 or later; Snit 2.1 requires Tcl 8.5 or
 later.  See [sectref {SNIT VERSIONS}] for the differences between Snit
-1.1 and Snit 2.0.
+1.1 and Snit 2.1.
 
 [subsection {Where can I download Snit?}]
 
@@ -153,24 +153,24 @@ can be delegated to the component types automatically.
 [subsection {Which version of Snit should I use?}]
 
 The current Snit distribution includes two versions, Snit 1.1 and Snit
-2.0.  The reason that both are included is that Snit 2.0 takes
+2.1.  The reason that both are included is that Snit 2.1 takes
 advantage of a number of new features of Tcl 8.5 to improve run-time
 efficiency; as a side-effect, the ugliness of Snit's error messages
 and stack traces has been reduced considerably.  The cost of using
-Snit 2.0, of course, is that you must target Tcl 8.5.
+Snit 2.1, of course, is that you must target Tcl 8.5.
 
 [para]
 
-Snit 1.1, on the other hand, lacks Snit 2.0's optimizations, but
+Snit 1.1, on the other hand, lacks Snit 2.1's optimizations, but
 requires only Tcl 8.3 and later.
 
 [para]
 
 In short, if you're targetting Tcl 8.3 or 8.4 you should use Snit 1.1.  If
-you can afford to target Tcl 8.5, you should definitely use Snit 2.0.
+you can afford to target Tcl 8.5, you should definitely use Snit 2.1.
 If you will be targetting both, you can use Snit 1.1 exclusively, or
 (if your code is unaffected by the minor incompatibilities between the
-two versions) you can use Snit 1.1 for Tcl 8.4 and Snit 2.0 for Tcl
+two versions) you can use Snit 1.1 for Tcl 8.4 and Snit 2.1 for Tcl
 8.5.
 
 [subsection {How do I select the version of Snit I want to use?}]
@@ -181,14 +181,14 @@ as follows:
 [example {package require Snit 1.1
 }]
 
-To always use Snit 2.0 (or a later version of Snit 2.x), say this
+To always use Snit 2.1 (or a later version of Snit 2.x), say this
 instead:
 
-[example {package require Snit 2.0
+[example {package require Snit 2.1
 }]
 
-Note that if you request Snit 2.0 explicitly, your application will
-halt with Tcl 8.4, since Snit 2.0 is unavailable for Tcl 8.4.
+Note that if you request Snit 2.1 explicitly, your application will
+halt with Tcl 8.4, since Snit 2.1 is unavailable for Tcl 8.4.
 
 [para]
 
@@ -202,11 +202,11 @@ Tcl will find and load the latest version that's available relative to
 the version of Tcl being used.  In this case, be careful to avoid
 using any incompatible features.
 
-[subsection {How are Snit 1.1 and Snit 2.0 incompatible?}]
+[subsection {How are Snit 1.1 and Snit 2.1 incompatible?}]
 
-To the extent possible, Snit 2.0 is intended to be a drop-in
+To the extent possible, Snit 2.1 is intended to be a drop-in
 replacement for Snit 1.1. Unfortunately, some incompatibilities were
-inevitable because Snit 2.0 uses Tcl 8.5's new 
+inevitable because Snit 2.1 uses Tcl 8.5's new 
 [cmd "namespace ensemble"] mechanism to implement subcommand dispatch.
 This approach is much faster than the mechanism used in Snit 1.1, and
 also results in much better error messages; however, it also places
@@ -214,7 +214,7 @@ new constraints on the implementation.
 
 [para]
 
-There are three specific incompatibilities between Snit 1.1 and Snit 2.0.
+There are four specific incompatibilities between Snit 1.1 and Snit 2.1.
 
 [para]
 
@@ -230,7 +230,7 @@ set obj1 [dog %AUTO%]  ;# Automatic naming
 set obj2 [dog]         ;# Implicit naming
 }]
 
-In Snit 2.0, type commands are defined using the [cmd "namespace ensemble"]
+In Snit 2.1, type commands are defined using the [cmd "namespace ensemble"]
 mechanism; and [cmd "namespace ensemble"] doesn't allow an ensemble command
 to be called without a subcommand.  In short, using 
 [cmd "namespace ensemble"] there's no way to support implicit naming.
@@ -252,7 +252,7 @@ type methods (including the standard type methods, like
 
 [bullet]
 Hierarchical methods and type methods are implemented differently in
-Snit 2.0.  
+Snit 2.1.  
 
 [nl]
 
@@ -283,7 +283,7 @@ is simply one whose name contains multiple words.
 
 [nl]
 
-In Snit 2.0 this is no longer the case, and the "weird" way of calling
+In Snit 2.1 this is no longer the case, and the "weird" way of calling
 hierarchical methods and type methods no longer works.
 
 [bullet]
@@ -297,15 +297,39 @@ the list returned by [cmd "\$obj info methods"] would include
 
 [nl]
 
-In Snit 2.0, hierarchical methods and type methods are no longer
+In Snit 2.1, hierarchical methods and type methods are no longer
 simply ones whose
 name contains multiple words; in the above example, the list returned
 by [cmd "\$obj info methods"] would include [cmd "tag"] but not
 [cmd "tag configure"] or [cmd "tag cget"].
 
+
+[bullet]
+The fourth incompatibility is due to a new feature.  Snit 2.1 uses
+the new [cmd "namespace path"] command so that a type's code can 
+call any command defined in the type's parent namespace without
+qualification or importation.  For example, suppose you have a 
+package called [cmd "mypackage"] which defines a number of commands
+including a type, [cmd "::mypackage::mytype"].  Thanks to 
+[cmd "namespace path"], the type's code can call any of the other
+commands defined in [cmd "::mypackage::"].
+
+[nl]
+
+This is extremely convenient.  However, it also means that commands
+defined in the parent namespace, [cmd "::mypackage::"] can block the
+type's access to identically named commands in the global namespace.
+This can lead to bugs.  For example, Tcllib includes a type called
+[cmd "::tie::std::file"].  This type's code calls the standard
+[cmd "file"] command.  When run with Snit 2.1, the code broke--
+the type's command, [cmd "::tie::std::file"], is itself a command
+in the type's parent namespace, and so instead of calling 
+the standard [cmd "file"] command, the type found itself calling
+itself.
+
 [list_end]
 
-[subsection {Are there other differences between Snit 1.x and Snit 2.0?}]
+[subsection {Are there other differences between Snit 1.x and Snit 2.1?}]
 
 Yes.
 
@@ -320,12 +344,12 @@ Many error messages and stack traces are cleaner.
 The [const -simpledispatch] pragma is obsolete, and ignored if
 present. In Snit 1.x, [const -simpledispatch] substitutes a faster
 mechanism for method dispatch, at the cost of losing certain features.
-Snit 2.0 method dispatch is faster still in all cases, so 
+Snit 2.1 method dispatch is faster still in all cases, so 
 [const -simpledispatch] is no longer needed.
 
 [bullet]
 
-In Snit 2.0, a type's code (methods, type methods, etc.) can call commands
+In Snit 2.1, a type's code (methods, type methods, etc.) can call commands
 from the type's parent namespace without qualifying or importing
 them, i.e., type [cmd ::parentns::mytype]'s code can call
 [cmd ::parentns::someproc] as just [cmd someproc].
@@ -3986,8 +4010,8 @@ caller's scope is two levels up rather than one.
 slightly slower.
 [list_end]
 
-In Snit 2.0, the [const -simpledispatch] macro is obsolete, and
-ignored; all Snit 2.0 method dispatch is faster than Snit 1.x's 
+In Snit 2.1, the [const -simpledispatch] macro is obsolete, and
+ignored; all Snit 2.1 method dispatch is faster than Snit 1.x's 
 [const -simpledispatch].
 
 [section {MACROS}]
