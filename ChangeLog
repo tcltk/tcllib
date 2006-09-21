@@ -1,3 +1,8 @@
+2006-09-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* support/releases/history/README-1.9.txt: New file. Readme file
+	  for the upcoming release, providing an overview of the changes.
+
 2006-09-20  Andreas Kupries  <andreask@activestate.com>
 
 	* support/devel/sak/test/run.tcl: Modified to not use echo and cat
