@@ -1,3 +1,9 @@
+2006-09-20  Will Duquette <will@wjduquette.com>
+	* pkgIndex.tcl, snit2.tcl, snit.man, snitfaq.man, README.txt: 
+	Bumped the version number from 2.0 to 2.1, per Andreas' request.
+	Also, added details about the implications of 2.1's use of
+	[namespace path] to README.txt and the Snit FAQ.
+	
 2006-09-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* snit_tcl83_utils.tcl: Made the initialization of the
