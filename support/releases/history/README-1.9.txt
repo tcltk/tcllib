@@ -97,7 +97,7 @@ dns             dns             1.3.0           1.3.1           B, EF
 ------          -------         -----------     -----------     ---------------
 doctools        doctools        1.2             1.2.1           B
 fileutil        fileutil        1.8             1.9             B, D, EF
-ftp             ftp             2.4.2           2.4.3           B
+ftp             ftp             2.4.2           2.4.4           B
 ------          -------         -----------     -----------     ---------------
 fumagic fileutil::magic::filetype  1.0          1.0.1           B
         fileutil::magic::mimetype  1.0          1.0.1           B
