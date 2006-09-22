@@ -27,7 +27,7 @@ interp          interp                          0.1     Interpreter utilities,
                 interp::delegate::proc          0.2     delegation commands
 ------          -------                 -----------     -----------------------
 json            json                            1.0     JavaScript Object Notation
-ldap            ldapx                           0.1     OO wrapper around ldap
+ldap            ldapx                         0.2.2     OO wrapper around ldap
 ------          -------                 -----------     -----------------------
 math            math::bigfloat                  2.0     Large FP numbers
 nmea            nmea                            0.1     NMEA gps messages
@@ -114,7 +114,7 @@ http            autoproxy       1.2.1           1.3             EF
 inifile         inifile         0.1.1           0.2             B, EF
 irc             irc             0.5             0.6             EF
 jpeg            jpeg            0.2             0.3             B, EF
-ldap            ldap            1.2.1           1.6.2           B, I, EF
+ldap            ldap            1.2.1           1.6.5           B, I, EF
 ------          -------         -----------     -----------     ---------------
 log             logger          0.6.1           0.7             B, EF
                 - appender      1.2             1.3             B
