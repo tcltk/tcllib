@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.41 2006/09/19 23:36:16 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.42 2006/09/22 23:08:04 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -1160,8 +1160,8 @@ proc ::ftp::NList {s { dir ""}} {
     }
 
     unset ftp(Dir)
-    if { $rc } { 
-        return [lsort $ftp(List)]
+    if { $rc } {
+	return [lsort [split [string trim $ftp(List) \n] \n]]
     } else {
         CloseDataConn $s
         return {}
@@ -2988,4 +2988,4 @@ if { [string equal [uplevel "#0" {info commands tkcon}] "tkcon"] } {
 # ==================================================================
 # At last, everything is fine, we can provide the package.
 
-package provide ftp [lindex {Revision: 2.4.3} 1]
+package provide ftp [lindex {Revision: 2.4.4} 1]
