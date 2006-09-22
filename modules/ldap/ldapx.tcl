@@ -3,7 +3,7 @@
 #
 # (c) 2006 Pierre David (pdav@users.sourceforge.net)
 #
-# $Id: ldapx.tcl,v 1.4 2006/09/20 21:25:36 mic42 Exp $
+# $Id: ldapx.tcl,v 1.5 2006/09/22 12:10:20 mic42 Exp $
 #
 # History:
 #   2006/08/08 : pda : design
@@ -536,7 +536,7 @@ snit::type ::ldapx::entry {
 	# standard entry.
 	#
 
-	if {$old ne ""} then {
+	if {$old eq ""} then {
 	    set destroy_old 1
 	    set old [::ldapx::entry create %AUTO%]
 	    $new restore $old
@@ -821,7 +821,7 @@ snit::type ::ldapx::ldap {
 	    return 0
 	}
 
-	if {$binddn ne ""} then {
+	if {$binddn eq ""} then {
 	    set bind 0
 	} else {
 	    set bind 1
@@ -859,7 +859,8 @@ snit::type ::ldapx::ldap {
 
 	global errorInfo errorCode
 
-        set lastError ""
+	set lastError ""
+
 	#
 	# Initiate search
 	#
@@ -877,7 +878,8 @@ snit::type ::ldapx::ldap {
 	#
 	# Execute the specific body for each result found
 	#
-        while {1} {
+
+	while {1} {
 	    #
 	    # The first call to searchNext may fail when searchInit
 	    # is given some invalid parameters.
@@ -1007,12 +1009,12 @@ snit::type ::ldapx::ldap {
 		standard {
 		    set echg [::ldapx::entry create %AUTO%]
 		    $echg diff $entry
-                    set dn   [$echg dn]
+		    set dn   [$echg dn]
 		    set lchg [$echg change]
 		    $echg destroy
 		}
 		change {
-                    set dn   [$entry dn]
+		    set dn   [$entry dn]
 		    set lchg [$entry change]
 		}
 	    }
@@ -1203,7 +1205,8 @@ snit::type ::ldapx::ldif {
     # Methods
     #########################################################################
 
-    # Initialize a channel    
+    # Initialize a channel
+
     method channel {newchan} {
 
 	set channel   $newchan
@@ -1262,14 +1265,15 @@ snit::type ::ldapx::ldif {
 	}
 
 	set r [Lexical $selfns]
-        if {[lindex $r 0] ne "err"} then {
-            set r [Syntaxic $selfns [lindex $r 1]]
+	if {[lindex $r 0] ne "err"} then {
+	    set r [Syntaxic $selfns [lindex $r 1]]
 	}
 
 	if {[lindex $r 0] eq "err"} then {
-            set lastError [lindex $r 1]
+	    set lastError [lindex $r 1]
 	    return 0
 	}
+
 	switch -- [lindex $r 0] {
 	    uninitialized {
 		$entry reset
@@ -1444,6 +1448,7 @@ snit::type ::ldapx::ldif {
 		# entry.
 		# We don't give up before getting something.
 		#
+
 		if {! [FlushLine $selfns "" result prev msg]} then {
 		    return [list "err" $msg]
 		}
@@ -1456,12 +1461,14 @@ snit::type ::ldapx::ldif {
 		#
 		# Continuation line
 		#
+
 		append prev [string trim $line]
 
 	    } elseif {[regexp {^-$} $line]} then {
 		#
 		# Separation between individual modifications
 		#
+
 		if {! [FlushLine $selfns "" result prev msg]} then {
 		    return [list "err" $msg]
 		}
