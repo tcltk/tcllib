@@ -35,7 +35,7 @@
 #   NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
 #   MODIFICATIONS.
 #
-#   $Id: ldap.tcl,v 1.18 2006/09/20 23:19:45 mic42 Exp $
+#   $Id: ldap.tcl,v 1.19 2006/09/22 13:10:51 mic42 Exp $
 #
 #   written by Jochen Loewer
 #   3 June, 1999
@@ -149,7 +149,7 @@ proc ::ldap::CheckHandle {handle} {
 
 proc ldap::info {args} {
    set cmd [lindex $args 0]
-   set cmds {connections bound bounduser control extensions ip saslmechanisms tls whoami}
+   set cmds {connections bound bounduser control extensions features ip saslmechanisms tls whoami}
    if {[llength $args] == 0} {
    	return -code error \
 		"Usage: \"info subcommand ?handle?\""    
