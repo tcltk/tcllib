@@ -1,3 +1,8 @@
+2006-09-22  Michael Schlenker <mic42@users.sourceforge.net>
+	* ldap.test	Added some more smoketests for the public
+			API, so that at least some brokenness is
+			detected.
+
 2006-09-20  Michael Schlenker <mic42@users.sourceforge.net>
         * ldap.tcl      Completly redone broken error handling in
           pkgIndex.tcl  the fileevent handler, now it no
