@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: ldap.test,v 1.2 2006/09/01 14:21:34 mic42 Exp $
+# RCS: @(#) $Id: ldap.test,v 1.3 2006/09/22 13:10:51 mic42 Exp $
 
 # -------------------------------------------------------------------------
 
@@ -39,7 +39,7 @@ test ldap-2.1 {check info ip subcommand error handling
 } -body {
    printerror {ldap::info ip foobar}
 } -returnCodes {error} \
-  -errorOutput {"foobar" is not a ldap connection handle}
+  -errorOutput {Not a valid LDAP connection handle: foobar}
 
 test ldap-3.0 {check info connections subcommand error handling
 } -body {
@@ -57,7 +57,7 @@ test ldap-4.1 {check info bound subcommand error handling
 } -body {
    printerror {ldap::info bound foobar}
 } -returnCodes {error} \
-  -errorOutput {"foobar" is not a ldap connection handle}
+  -errorOutput {Not a valid LDAP connection handle: foobar}
 
 test ldap-5.0 {check info tls subcommand error handling
 } -body {
@@ -69,7 +69,7 @@ test ldap-5.1 {check info tls subcommand error handling
 } -body {
    printerror {ldap::info tls foobar}
 } -returnCodes {error} \
-  -errorOutput {"foobar" is not a ldap connection handle}
+  -errorOutput {Not a valid LDAP connection handle: foobar}
 
 test ldap-6.0 {check info bounduser subcommand error handling
 } -body {
@@ -81,7 +81,183 @@ test ldap-6.1 {check info bounduser subcommand error handling
 } -body {
    printerror {ldap::info bounduser foobar}
 } -returnCodes {error} \
-  -errorOutput {"foobar" is not a ldap connection handle}
+  -errorOutput {Not a valid LDAP connection handle: foobar}
+
+test ldap-7.0 {check info saslmechanisms subcommand error handling
+} -body {
+   printerror {ldap::info saslmechanisms}
+} -returnCodes {error} \
+  -errorOutput {Wrong # of arguments. Usage: ldap::info saslmechanisms handle}
+
+test ldap-7.1 {check info saslmechanisms subcommand error handling
+} -body {
+   printerror {ldap::info saslmechanisms foobar}
+} -returnCodes {error} \
+  -errorOutput {Not a valid LDAP connection handle: foobar}
+
+test ldap-8.0 {check info extensions subcommand error handling
+} -body {
+   printerror {ldap::info extensions}
+} -returnCodes {error} \
+  -errorOutput {Wrong # of arguments. Usage: ldap::info extensions handle}
+
+test ldap-8.1 {check info extensions subcommand error handling
+} -body {
+   printerror {ldap::info extensions foobar}
+} -returnCodes {error} \
+  -errorOutput {Not a valid LDAP connection handle: foobar}
+
+test ldap-9.0 {check info control subcommand error handling
+} -body {
+   printerror {ldap::info control}
+} -returnCodes {error} \
+  -errorOutput {Wrong # of arguments. Usage: ldap::info control handle}
+
+test ldap-9.1 {check info control subcommand error handling
+} -body {
+   printerror {ldap::info control foobar}
+} -returnCodes {error} \
+  -errorOutput {Not a valid LDAP connection handle: foobar}
+
+test ldap-10.0 {check info features subcommand error handling
+} -body {
+   printerror {ldap::info features}
+} -returnCodes {error} \
+  -errorOutput {Wrong # of arguments. Usage: ldap::info features handle}
+
+test ldap-10.1 {check info features subcommand error handling
+} -body {
+   printerror {ldap::info features foobar}
+} -returnCodes {error} \
+  -errorOutput {Not a valid LDAP connection handle: foobar}
+
+test ldap-11.0 {check info whoami subcommand error handling
+} -body {
+   printerror {ldap::info whoami}
+} -returnCodes {error} \
+  -errorOutput {Wrong # of arguments. Usage: ldap::info whoami handle}
+
+test ldap-11.1 {check info whoami subcommand error handling
+} -body {
+   printerror {ldap::info whoami foobar}
+} -returnCodes {error} \
+  -errorOutput {Not a valid LDAP connection handle: foobar}
+
+test ldap-12.0 {check wrong num args for ldap::connect
+} -body {
+   printerror {ldap::connect}
+} -returnCodes {error} \
+  -errorOutput  [tcltest::wrongNumArgs \
+	{ldap::connect} {host ?port?} 0]
+
+test ldap-13.0 {check wrong num args for ldap::secure_connect
+} -body {
+   printerror {ldap::secure_connect}
+} -returnCodes {error} \
+  -errorOutput  [tcltest::wrongNumArgs \
+	{ldap::secure_connect} {host ?port?} 0]
+
+test ldap-14.0 {check wrong num args for ldap::starttls
+} -body {
+   printerror {ldap::starttls}
+} -returnCodes {error} \
+  -errorOutput  [tcltest::wrongNumArgs {ldap::starttls} \
+	{handle ?cafile? ?certfile? ?keyfile?} 0]
+
+test ldap-15.0 {check wrong num args for ldap::bindSASL
+} -body {
+   printerror {ldap::bindSASL}
+} -returnCodes {error} \
+  -errorOutput  [tcltest::wrongNumArgs {ldap::bindSASL} {handle ?name? ?password?} 0]
+
+test ldap-16.0 {check wrong num args for ldap::bind
+} -body {
+   printerror {ldap::bind}
+} -returnCodes {error} \
+  -errorOutput  [tcltest::wrongNumArgs {ldap::bind} {handle ?name? ?password?} 0]
+
+test ldap-17.0 {check wrong num args for ldap::unbind
+} -body {
+   printerror {ldap::unbind}
+} -returnCodes {error} \
+  -errorOutput  [tcltest::wrongNumArgs {ldap::unbind} {handle} 1 ]
+
+test ldap-18.0 {check wrong num args for ldap::search
+} -body {
+   printerror {ldap::search}
+} -returnCodes {error} \
+  -errorOutput  [tcltest::wrongNumArgs {ldap::search} \
+	{handle baseObject filterString attributes args} 0]
+
+test ldap-19.0 {check wrong num args for ldap::searchInit
+} -body {
+   printerror {ldap::searchInit}
+} -returnCodes {error} \
+  -errorOutput  [tcltest::wrongNumArgs {ldap::searchInit} \
+	{handle baseObject filterString attributes opt} 0]
+
+test ldap-20.0 {check wrong num args for ldap::searchNext
+} -body {
+   printerror {ldap::searchNext}
+} -returnCodes {error} \
+  -errorOutput  [tcltest::wrongNumArgs {ldap::searchNext} {handle} 0 ]
+
+test ldap-21.0 {check wrong num args for ldap::searchEnd
+} -body {
+   printerror {ldap::searchEnd}
+} -returnCodes {error} \
+  -errorOutput  [tcltest::wrongNumArgs {ldap::searchEnd} {handle} 0 ]
+
+test ldap-22.0 {check wrong num args for ldap::modify
+} -body {
+   printerror {ldap::modify}
+} -returnCodes {error} \
+  -errorOutput  [tcltest::wrongNumArgs {ldap::modify} \
+	{handle dn attrValToReplace ?attrToDelete? ?attrValToAdd?} 0 ]
+
+test ldap-23.0 {check wrong num args for ldap::modifyMulti
+} -body {
+   printerror {ldap::modifyMulti}
+} -returnCodes {error} \
+  -errorOutput  [tcltest::wrongNumArgs {ldap::modifyMulti} \
+	{handle dn attrValToReplace ?attrValToDelete? ?attrValToAdd?} 0 ]
+
+test ldap-24.0 {check wrong num args for ldap::add
+} -body {
+   printerror {ldap::add}
+} -returnCodes {error} \
+  -errorOutput  [tcltest::wrongNumArgs {ldap::add} \
+	{handle dn attrValueTuples} 0 ]
+
+test ldap-25.0 {check wrong num args for ldap::addMulti
+} -body {
+   printerror {ldap::addMulti}
+} -returnCodes {error} \
+  -errorOutput  [tcltest::wrongNumArgs {ldap::addMulti} \
+	{handle dn attrValueTuples} 0 ]
+
+test ldap-26.0 {check wrong num args for ldap::delete
+} -body {
+   printerror {ldap::delete}
+} -returnCodes {error} \
+  -errorOutput  [tcltest::wrongNumArgs {ldap::delete} \
+	{handle dn} 0 ]
+
+test ldap-27.0 {check wrong num args for ldap::modifyDN
+} -body {
+   printerror {ldap::modifyDN}
+} -returnCodes {error} \
+  -errorOutput  [tcltest::wrongNumArgs {ldap::modifyDN} \
+	{handle dn newrdn ?deleteOld? ?newSuperior?} 0 ]
+
+test ldap-28.0 {check wrong num args for ldap::disconnect
+} -body {
+   printerror {ldap::disconnect}
+} -returnCodes {error} \
+  -errorOutput  [tcltest::wrongNumArgs {ldap::disconnect} \
+	{handle} 0 ]
+
+
 
 
 # -------------------------------------------------------------------------
