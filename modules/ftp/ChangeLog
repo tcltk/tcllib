@@ -1,9 +1,16 @@
+2006-09-22  Andreas Kupries  <andreask@activestate.com>
+
+	* ftp.tcl (::ftp::NList): Fixed [SF Tcllib Bug 1563137] using the
+	* ftp.man:       patch submitted by Keith Vetter
+	* pkgIndex.tcl: <keithv@users.sourceforge.net> as part of his
+	  report. Bumped version to 2.4.4 See also the duplicate entry
+	  [SF Tcllib Bug 1553919].
+
 2006-09-19  Andreas Kupries  <andreask@activestate.com>
 
 	* ftp.man: Bumped version to 2.4.3
 	* ftp.tcl:
 	* pkgIndex.tcl:
-
 
 2006-06-13  Andreas Kupries <andreask@activestate.com>
 
