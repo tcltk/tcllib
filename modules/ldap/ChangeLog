@@ -1,3 +1,9 @@
+2006-09-24  Michael Schlenker <mic42@users.sourceforge.net>
+	* ldap.tcl	Fixed bug in secure_connect. The
+			channel wasn't fconfigured correctly and
+			the fileevent handler was not installed
+			in the correct way.
+
 2006-09-22  Michael Schlenker <mic42@users.sourceforge.net>
 	* ldap.test	Added some more smoketests for the public
 			API, so that at least some brokenness is

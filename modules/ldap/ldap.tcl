@@ -35,7 +35,7 @@
 #   NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
 #   MODIFICATIONS.
 #
-#   $Id: ldap.tcl,v 1.19 2006/09/22 13:10:51 mic42 Exp $
+#   $Id: ldap.tcl,v 1.20 2006/09/24 11:52:12 mic42 Exp $
 #
 #   written by Jochen Loewer
 #   3 June, 1999
@@ -365,7 +365,7 @@ proc ldap::connect { host {port 389} } {
     #   connect via TCP/IP
     #--------------------------------------
     set sock [socket $host $port]
-    fconfigure $sock -blocking no -translation binary
+    fconfigure $sock -blocking no -translation binary -buffering full
 
     #--------------------------------------
     #   initialize connection array
@@ -401,7 +401,7 @@ proc ldap::secure_connect { host {port 636} } {
     #   connect via TCP/IP
     #------------------------------------------------------------------
     set sock [socket $host $port]
-    fconfigure $sock -blocking yes -translation binary
+    fconfigure $sock -blocking no -translation binary -buffering full
 
     #------------------------------------------------------------------
     #   make it a SSL connection
@@ -444,7 +444,8 @@ proc ldap::secure_connect { host {port 636} } {
     set conn(saslBindInProgress) 0
     set conn(tlsHandshakeInProgress) 0
     set conn(lasterror) ""
-
+    
+    fileevent $sock readable [list ::ldap::MessageReceiver ::ldap::ldap$sock]
     return ::ldap::ldap$sock
 }
 
