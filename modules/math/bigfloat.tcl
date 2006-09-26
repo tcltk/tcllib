@@ -2133,7 +2133,8 @@ proc ::math::bigfloat::tostr {number} {
     if {[iszero $number]} {
         # we do not matter how much precision $number has :
         # it can be 0.0000000 or 0.0, the result is still the same : the "0" string
-        return 0
+	# not anymore : 0.000 is not 0.0 !
+    #    return 0
     }
     if {$exp>0} {
         # the power of ten the closest but greater than 2^$exp
@@ -2175,24 +2176,31 @@ proc ::math::bigfloat::tostr {number} {
     # saving the sign, to restore it into the result
     set sign [::math::bignum::sign $integer]
     set result [::math::bignum::abs $integer]
-    set isZero [::math::bignum::iszero $result]
     # rounded 'integer' +/- 'delta'
     set up [::math::bignum::add $result $delta]
     set down [::math::bignum::sub $result $delta]
     if {[sign $up]^[sign $down]} {
         # $up>0 and $down<0 and vice-versa : then the number is considered equal to zero
-        return 0
+	# delta <= 2**n (n = bits(delta))
+	# 2**n  <= 10**exp , then 
+	# exp >= n.log(2)/log(10)
+	# delta <= 10**(n.log(2)/log(10))
+        incr exp [expr {int(ceil([::math::bignum::bits $delta]*log(2)/log(10)))}]
+        set result 0
+        set isZero yes
+    } else {
+	# iterate until the convergence of the rounding
+	# we incr $shift until $up and $down are rounded to the same number
+	# at each pass we lose one digit of precision, so necessarly it will success
+	for {set shift 1} {
+	    [::math::bignum::cmp [roundshift $up $shift] [roundshift $down $shift]]
+	} {
+	    incr shift
+	} {}
+	incr exp $shift
+	set result [::math::bignum::tostr [roundshift $up $shift]]
+	set isZero no
     }
-    # iterate until the convergence of the rounding
-    # we incr $shift until $up and $down are rounded to the same number
-    # at each pass we lose one digit of precision, so necessarly it will success
-    for {set shift 1} {
-        [::math::bignum::cmp [roundshift $up $shift] [roundshift $down $shift]]
-    } {
-        incr shift
-    } {}
-    incr exp $shift
-    set result [::math::bignum::tostr [roundshift $up $shift]]
     set l [string length $result]
     # now formatting the number the most nicely for having a clear reading
     # would'nt we allow a number being constantly displayed
