@@ -1,3 +1,10 @@
+2006-09-26  Stephane Arnold <sarnold75@users.sourceforge.net>
+        * bigfloat.man : fixed a bug in [math::bigfloat::tostr]
+        * bigfloat.tcl : when a number is close to zero,
+        * bigfloat.test  it takes the precision into account,
+        * bigfloat2.tcl  so instead of getting '0' we get '0.e-4'.
+        * bigfloat2.test [math::bigfloat::iszero] is not impacted
+
 2006-09-20  Andreas Kupries  <andreask@activestate.com>
 
 	* math.tcl: Bumped version to 1.2.4

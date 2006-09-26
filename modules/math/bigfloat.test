@@ -311,7 +311,7 @@ proc convTest {version x {decimals 1}} {
 set subversion 0
 foreach decimals {1 2 5 10 100} {
     set version 2.9.$subversion
-    assert int2float $version.0 {tostr [int2float [fromstr 0] $decimals]} 0
+    fassert int2float $version.0 {tostr [int2float [fromstr 0] $decimals]} 0.0
     convTest $version.1 1 $decimals
     convTest $version.2 5 $decimals
     convTest $version.3 5000000000 $decimals
