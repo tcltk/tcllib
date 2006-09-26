@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: ldapx.man,v 1.4 2006/09/20 21:25:36 mic42 Exp $}]
+[comment {$Id: ldapx.man,v 1.5 2006/09/26 16:46:37 andreas_kupries Exp $}]
 [manpage_begin ldapx n 0.2.2]
 [copyright {2006 Pierre David <pdav@users.sourceforge.net>}]
 [moddesc   {LDAP extended object interface}]
@@ -82,7 +82,7 @@ time).
 
 [section {ENTRY CLASS}]
 
-[subsection {Data}]
+[subsection {Entry Instance Data}]
 
 An instance of the [class entry] class keeps the following data:
 
@@ -156,7 +156,7 @@ An instance of the [class entry] class keeps the following data:
 [list_end]
 
 
-[subsection {Options}]
+[subsection {Entry Options}]
 
 No option is defined by this class.
 
@@ -311,7 +311,7 @@ In all methods, attribute names are converted in lower case.
 [list_end]
 
 
-[subsection {Example}]
+[subsection {Entry Example}]
 
 [example {
     package require ldapx
@@ -380,7 +380,7 @@ In all methods, attribute names are converted in lower case.
 
 [section {LDAP CLASS}]
 
-[subsection {Data}]
+[subsection {Ldap Instance Data}]
 
 An instance of the [class ldap] class keeps the following data:
 
@@ -400,7 +400,7 @@ An instance of the [class ldap] class keeps the following data:
 
 [list_end]
 
-[subsection {Options}]
+[subsection {Ldap Options}]
 
 A first set of options of the [class ldap] class is used during
 search operations (methods [method traverse], [method search] and
@@ -480,7 +480,7 @@ in the directory:
 [list_end]
 
 
-[subsection {Methods}]
+[subsection {Ldap Methods}]
 
 [list_begin definitions]
     [call [arg la] [method error] [opt [arg newmsg]]]
@@ -553,7 +553,7 @@ in the directory:
 [list_end]
 
 
-[subsection {Example}]
+[subsection {Ldap Example}]
 
 [example {
     package require ldapx
@@ -564,7 +564,7 @@ in the directory:
 
     ::ldapx::ldap create l
     set url "ldap://server.mycomp.com"
-    if {! [l connect $url "cn=admin,o=mycomp" "mypasswd]} then {
+    if {! [l connect $url "cn=admin,o=mycomp" "mypasswd"]} then {
 	puts stderr "error: [l error]"
 	exit 1
     }
@@ -610,7 +610,7 @@ in the directory:
 
 [section {LDIF CLASS}]
 
-[subsection {Data}]
+[subsection {Ldif Instance Data}]
 
 An instance of the [class ldif] class keeps the following data:
 
@@ -648,7 +648,7 @@ An instance of the [class ldif] class keeps the following data:
 [list_end]
 
 
-[subsection {Options}]
+[subsection {Ldif Options}]
 
 This class defines one option:
 
@@ -669,7 +669,7 @@ This class defines one option:
 
 
 
-[subsection {Methods}]
+[subsection {Ldif Methods}]
 
 [list_begin definitions]
 
@@ -701,7 +701,7 @@ This class defines one option:
 [list_end]
 
 
-[subsection {Example}]
+[subsection {Ldif Example}]
 
 [example {
     package require ldapx
