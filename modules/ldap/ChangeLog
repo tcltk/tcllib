@@ -1,15 +1,24 @@
+2006-09-26  Andreas Kupries  <andreask@activestate.com>
+
+	* ldapx.man: Fixed ambigous subsection titles reported by Larry
+	  Virden via [SF Tcllib Bug 1565836]. Additionally fixed a syntax
+	  error (missing closed double-apostroph) in an example.
+
 2006-09-24  Michael Schlenker <mic42@users.sourceforge.net>
+
 	* ldap.tcl	Fixed bug in secure_connect. The
 			channel wasn't fconfigured correctly and
 			the fileevent handler was not installed
 			in the correct way.
 
 2006-09-22  Michael Schlenker <mic42@users.sourceforge.net>
+
 	* ldap.test	Added some more smoketests for the public
 			API, so that at least some brokenness is
 			detected.
 
 2006-09-20  Michael Schlenker <mic42@users.sourceforge.net>
+
         * ldap.tcl      Completly redone broken error handling in
           pkgIndex.tcl  the fileevent handler, now it no
           ldap.man      longer calls bgerror but cleans up
@@ -17,8 +26,7 @@
                         connection and delivers the error
                         to those waiting handlers. More stupid
                         typo fixes.
-        
-2006-09-20  Michael Schlenker <mic42@users.sourceforge.net>
+
         * ldapx.tcl     Some bugfixes for error handling
           ldap.tcl      when searchInit is called with invalid
           ldap.man      arguments. Thanks to Pierre David 
@@ -26,16 +34,15 @@
                         them.
 
 2006-09-15  Michael Schlenker <mic42@users.sourceforge.net>
+
         * ldapx.tcl     Some more fixes in the ldif part.
-        
-2006-09-15  Michael Schlenker <mic42@users.sourceforge.net>
+
         * ldapx.tcl     Imported some bug fixes from a new
           ldapx.man     version of ldapx by Pierre David.
           pkgIndex.tcl  Fixed bug in modifyDN, fixed wrong start
                         of SASL handshake, some mechanisms require
                         the client to send first.
-          
-2006-09-15  Michael Schlenker <mic42@users.sourceforge.net>
+
         * ldap.tcl      Fixed broken length calculation in message receiver.
           pkgIndex.tcl  This fixes bug [SF Tcllib Bug 1558564].
                         Fixed various smaller bugs with upvaring handles
@@ -43,6 +50,7 @@
                         Fixed wrong debug setting.
                         
 2006-09-11  Michael Schlenker <mic42@users.sourceforge.net>
+
         * ldap.tcl      Fixed missing tlsHandshakeInProgress variable when
           ldap.man      when using ldap::connect.
           pkgIndex.tcl
@@ -55,6 +63,7 @@
                         by Pierre David <pdav@users.sourceforge.net>.
           
 2006-09-01  Michael Schlenker <mic42@users.sourceforge.net>
+
         * ldap.tcl      Major changes to the implementation.
           ldap.man      The package now uses a fileevent based
           ldap.test     protocol handler instead of the older blocking
