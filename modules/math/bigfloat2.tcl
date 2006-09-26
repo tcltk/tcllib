@@ -2041,9 +2041,9 @@ proc ::math::bigfloat::tostr {number} {
     checkFloat $number
     foreach {dummy integer exp delta} $number {break}
     if {[iszero $number]} {
-        # we do not matter how much precision $number has :
-        # it can be 0.0000000 or 0.0, the result is still the same : the "0" string
-        return 0
+        # we do matter how much precision $number has :
+        # it can be 0.0000000 or 0.0, the result is not the same zero
+        #return 0
     }
     if {$exp>0} {
         # the power of ten the closest but greater than 2^$exp
@@ -2081,24 +2081,31 @@ proc ::math::bigfloat::tostr {number} {
     # saving the sign, to restore it into the result
     set result [expr {abs($integer)}]
     set sign [expr {$integer<0}]
-    set isZero [expr {$result==0}]
     # rounded 'integer' +/- 'delta'
     set up [expr {$result+$delta}]
     set down [expr {$result-$delta}]
     if {($up<0 && $down>0)||($up>0 && $down<0)} {
         # $up>0 and $down<0 or vice-versa : then the number is considered equal to zero
-        return 0
+        set isZero yes
+	# delta <= 2**n (n = bits(delta))
+	# 2**n  <= 10**exp , then 
+	# exp >= n.log(2)/log(10)
+	# delta <= 10**(n.log(2)/log(10))
+        incr exp [expr {int(ceil([bits $delta]*log(2)/log(10)))}]
+        set result 0
+    } else {
+	# iterate until the convergence of the rounding
+	# we incr $shift until $up and $down are rounded to the same number
+	# at each pass we lose one digit of precision, so necessarly it will success
+	for {set shift 1} {
+	    [roundshift $up $shift]!=[roundshift $down $shift]
+	} {
+	    incr shift
+	} {}
+	incr exp $shift
+	set result [roundshift $up $shift]
+	set isZero no
     }
-    # iterate until the convergence of the rounding
-    # we incr $shift until $up and $down are rounded to the same number
-    # at each pass we lose one digit of precision, so necessarly it will success
-    for {set shift 1} {
-        [roundshift $up $shift]!=[roundshift $down $shift]
-    } {
-        incr shift
-    } {}
-    incr exp $shift
-    set result [roundshift $up $shift]
     set l [string length $result]
     # now formatting the number the most nicely for having a clear reading
     # would'nt we allow a number being constantly displayed
