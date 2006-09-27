@@ -121,6 +121,7 @@ log             logger          0.6.1           0.7             B, EF
                 - utils         1.2             1.3             B
 ------          -------         -----------     -----------     ---------------
 math            math             1.2.3          1.2.4           B
+		- bigfloat	 1.2		1.2.1		B
                 - bignum         3.1            3.1.1           B
                 - calculus       0.6.1          0.7             B
                 - complexnumbers 1.0.1          1.0.2           B
