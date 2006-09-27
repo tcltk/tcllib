@@ -5,12 +5,12 @@
 #	but only mime-types, i.e. standardized.
 #
 # Copyright (c) 2004-2005 Colin McCormack <coldstore@users.sourceforge.net>
-# Copyright (c) 2005      Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2005-2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: mimetypes.tcl,v 1.7 2006/09/19 23:36:16 andreas_kupries Exp $
+# RCS: @(#) $Id: mimetypes.tcl,v 1.8 2006/09/27 21:19:35 andreas_kupries Exp $
 
 #####
 #
@@ -37,6 +37,9 @@ proc ::fileutil::magic::mimetype {file} {
     if {![file exists $file]} {
         return -code error "file not found: \"$file\""
     }
+    if {[file isdirectory $file]} {
+	return application/x-directory
+    }
 
     rt::open $file
     mimetype::run
@@ -59,7 +62,7 @@ proc ::fileutil::magic::mimetype {file} {
     return $types
 }
 
-package provide fileutil::magic::mimetype 1.0.1
+package provide fileutil::magic::mimetype 1.0.2
 # The actual recognizer is the command below.
 
 ##
