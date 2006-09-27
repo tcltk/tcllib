@@ -1,3 +1,13 @@
+2006-09-27  Andreas Kupries  <andreask@activestate.com>
+
+	* filetypes.tcl: [SF Tcllib Bug 1329207]. Extended commands with
+	* mimetypes.tcl: hardwired check for directory as that cannot be
+	* filetypes.man: done by the generated code. Bumped version to
+	* mimetypes.man: 1.0.2.
+	* filetypes.test:
+	* mimetypes.test:
+	* pkgIndex.tcl:
+
 2006-09-19  Andreas Kupries  <andreask@activestate.com>
 
 	* mimetypes.man: Bumped versions to 1.0.1
