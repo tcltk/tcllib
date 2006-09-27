@@ -13,7 +13,7 @@
 #  October 30, 2000
 #  Robert W. Techentin
 #
-#  "$Id: units.test,v 1.5 2006/01/29 08:15:10 andreas_kupries Exp $"
+#  "$Id: units.test,v 1.6 2006/09/27 21:24:01 andreas_kupries Exp $"
 #
 #----------------------------------------------------------------
 
@@ -504,7 +504,7 @@ test units-9.6 {non-SI curie} {
 
 
 test units-10.1 {leading zero is not octal} {
-    ::units::convert 09mm meter
+    format %5.3f [::units::convert 09mm meter]
 } {0.009}
 
 
