@@ -1,3 +1,8 @@
+2006-09-27  Michael Schlenker <mic42@users.sourceforge.net>
+        
+        * ldapx.test:   New test file for the ldapx entry functions.
+                        Thanks to Pierre David for providing it.
+                        
 2006-09-26  Andreas Kupries  <andreask@activestate.com>
 
 	* ldapx.man: Fixed ambigous subsection titles reported by Larry
