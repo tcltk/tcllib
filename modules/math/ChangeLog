@@ -1,3 +1,8 @@
+2006-09-26  Andreas Kupries  <andreask@activestate.com>
+
+	* bigfloat.tcl: Bumped version to 1.2.1
+	* pkgIndex.tcl:
+
 2006-09-26  Stephane Arnold <sarnold75@users.sourceforge.net>
         * bigfloat.man : fixed a bug in [math::bigfloat::tostr]
         * bigfloat.tcl : when a number is close to zero,
