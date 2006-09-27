@@ -1,4 +1,4 @@
-	Commands avalable through the swiss army knife aka SAK:
+	Commands available through the swiss army knife aka SAK:
 
 	help     - This help
 
