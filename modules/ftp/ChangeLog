@@ -4,7 +4,7 @@
 	* ftp.man:       patch submitted by Keith Vetter
 	* pkgIndex.tcl: <keithv@users.sourceforge.net> as part of his
 	  report. Bumped version to 2.4.4 See also the duplicate entry
-	  [SF Tcllib Bug 1553919].
+	  [SF Tcllib Bug 1553919]. And also [SF Tcllib Bug 748758].
 
 2006-09-19  Andreas Kupries  <andreask@activestate.com>
 
