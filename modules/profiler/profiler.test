@@ -6,7 +6,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: profiler.test,v 1.18 2006/01/24 05:10:01 andreas_kupries Exp $
+# RCS: @(#) $Id: profiler.test,v 1.19 2006/09/27 16:39:24 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -20,6 +20,9 @@ testsNeedTcltest 1.0
 testing {
     useLocal profiler.tcl profiler
 }
+
+::tcltest::testConstraint tcl8.4only \
+	[expr {![package vsatisfies [package provide Tcl] 8.5]}]
 
 # -------------------------------------------------------------------------
 
@@ -292,7 +295,7 @@ test profiler-7.1 {sortFunctions} {
     set result
 } "unknown statistic \"\": should be calls, compileTime, exclusiveRuntime,\
 nonCompileTime, totalRuntime, avgExclusiveRuntime, or avgRuntime"
-test profiler-7.2 {sortFunctions} {
+test profiler-7.2 {sortFunctions} tcl8.4only {
     set c [interp create]
     interp alias $c parentSet {} set
     set result [$c eval {
@@ -311,6 +314,25 @@ test profiler-7.2 {sortFunctions} {
     interp delete $c
     set result
 } [list [list ::bar 1] [list ::foo 2]]
+test profiler-7.2-85 {sortFunctions} tcl8.5plus {
+    set c [interp create]
+    interp alias $c parentSet {} set
+    set result [$c eval {
+	set auto_path [parentSet auto_path]
+	package require profiler
+	profiler::init
+	proc ::foo {} {
+	    set foobar 0
+	}
+	proc ::bar {} {
+	    set foobar 1
+	}
+	foo; foo; bar;
+	profiler::sortFunctions calls
+    }]
+    interp delete $c
+    set result
+} [list [list ::tcl::clock::scan 0] [list ::tcl::clock::format 0] [list ::tcl::clock::add 0] [list ::bar 1] [list ::foo 2]]
 test profiler-7.3 {sortFunctions} {
     set c [interp create]
     interp alias $c parentSet {} set
