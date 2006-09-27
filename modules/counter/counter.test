@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.test,v 1.11 2006/01/29 08:33:59 andreas_kupries Exp $
+# RCS: @(#) $Id: counter.test,v 1.12 2006/09/27 16:49:36 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -66,7 +66,7 @@ test counter-avg-1.0 {counter::count} {
     counter::count avg 2.2
     counter::count avg 3.3
     counter::count avg 9.8
-    counter::get avg -avg
+    format %3.1f [counter::get avg -avg]
 } {5.1}
 
 test counter-avg-1.1 {counter::count} {
@@ -125,7 +125,7 @@ test counter-hist-1.1 {histogram average} {
     counter::count hist 20.4
     counter::count hist 23.3
     counter::count hist 53.3
-    counter::get hist -avg
+    format %13.10f [counter::get hist -avg]
 } {22.6857142857}
 #puts "hist [time {counter::count hist 2.4} 100]"
 
