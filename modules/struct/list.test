@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.23 2006/06/13 19:07:29 andreas_kupries Exp $
+# RCS: @(#) $Id: list.test,v 1.24 2006/09/27 16:26:32 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -354,7 +354,7 @@ test assign-4.3 {assign method} {
 if {[package vcompare [package provide Tcl] 8.5] < 0} {
     set err [tcltest::wrongNumArgs {::struct::list::Lassign} {sequence v args} 1]
 } else {
-    set err [tcltest::wrongNumArgs {lassign} {list varname ?varname ...?} 1]
+    set err [tcltest::wrongNumArgs {lassign} {list varName ?varName ...?} 1]
 }
 test assign-4.4 {assign method} {
     catch {assign {foo bar}} msg ; set msg
