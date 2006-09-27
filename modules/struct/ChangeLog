@@ -1,3 +1,8 @@
+2006-09-27  Andreas Kupries  <andreask@activestate.com>
+
+	* list.test: Fixed expected error message for 8.5.
+	  [SF Tcllib Bug 1566439].
+
 2006-09-19  Andreas Kupries  <andreask@activestate.com>
 
 	* struct_set.man: Bumped versions to 2.1.1
