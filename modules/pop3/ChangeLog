@@ -1,3 +1,9 @@
+2006-09-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3.test: Added use of local log package, fixed bug in dialog
+	  setup for testcases pop3-2.4 and -2.5, extended these two test
+	  cases to have the dialog trace in their result.
+
 2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3.test: Fixed cleanup of temp. files used by testsuite.
