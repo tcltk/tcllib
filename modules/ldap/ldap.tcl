@@ -35,7 +35,7 @@
 #   NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
 #   MODIFICATIONS.
 #
-#   $Id: ldap.tcl,v 1.20 2006/09/24 11:52:12 mic42 Exp $
+#   $Id: ldap.tcl,v 1.21 2006/09/28 23:24:49 mic42 Exp $
 #
 #   written by Jochen Loewer
 #   3 June, 1999
@@ -44,7 +44,7 @@
 
 package require Tcl 8.4
 package require asn 0.7
-package provide ldap 1.6.5
+package provide ldap 1.6.6
 
 namespace eval ldap {
 
@@ -865,11 +865,12 @@ proc ldap::ReceiveBytes {sock bytes} {
     set status [catch {read $sock $bytes} block]
     if { $status != 0 } {
         return [list error $block]
-    } elseif { [string length $block] > 0 } {
+    } elseif { [string length $block] == $bytes } {
+        # we have all bytes we wanted
         return [list ok $block]
     } elseif { [eof $sock] } {
         return [list eof $block]
-    } elseif { [fblocked $sock] } {
+    } elseif { [fblocked $sock] || ([string length $block] < $bytes)} {
         return [list partial $block]
     } else {
         error "Socket state for socket $sock undefined!" 
