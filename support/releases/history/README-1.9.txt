@@ -87,7 +87,7 @@ Module          Package         Old version     New Version     Comments
 ------          -------         -----------     -----------     ---------------
 asn             asn             0.4             0.7             B, EF
 blowfish        blowfish        1.0.0           1.0.1           EF
-cmdline         cmdline         1.2.4           1.2.5           I
+cmdline         cmdline         1.2.4           1.3             I
 comm            comm            4.3             4.4             EF
 crc             cksum           1.1.0           1.1.1           B
 csv             csv             0.6             0.7             EF
@@ -121,7 +121,7 @@ log             logger          0.6.1           0.7             B, EF
                 - utils         1.2             1.3             B
 ------          -------         -----------     -----------     ---------------
 math            math             1.2.3          1.2.4           B
-		- bigfloat	 1.2		1.2.1		B
+                - bigfloat       1.2            1.2.1           B
                 - bignum         3.1            3.1.1           B
                 - calculus       0.6.1          0.7             B
                 - complexnumbers 1.0.1          1.0.2           B
