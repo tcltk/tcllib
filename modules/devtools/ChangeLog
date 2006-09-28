@@ -1,3 +1,15 @@
+2006-09-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* dialog.tcl: Bugfix in 'Input', cleaning up the waiting timer
+	  when reaching eof on the socket. Could otherwise trigger
+	  while executing an unrelated future dialog. Extended to manage
+	  two traces, the new one a condensed form of the existing trace,
+	  easier to put into the result of a testcase.
+
+	* coserv.tcl: Reworked a bit to allow the restart of a server
+	  after a shutdown, by recreating the helper file executed by the
+	  slave-process.
+
 2006-09-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl: Modified use commands to ensure that their

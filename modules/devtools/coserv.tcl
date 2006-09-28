@@ -13,7 +13,7 @@
 # ### ### ### ######### ######### #########
 ## Load "comm" into the master.
 
-namespace eval ::coserv {}
+namespace eval ::coserv {variable subcode {}}
 
 package forget comm
 catch {namespace delete comm}
@@ -32,33 +32,38 @@ puts "- coserv (comm server)"
 # ### ### ### ######### ######### #########
 ## Core of all sub processes.
 
-set ::coserv::subcode [::tcltest::makeFile {
-    #puts "Subshell is \"[info nameofexecutable]\""
-    catch {wm withdraw .}
+proc ::coserv::setup {} {
+    variable subcode
+    if {$subcode != {}} return
+    set subcode [::tcltest::makeFile {
+	#puts "Subshell is \"[info nameofexecutable]\""
+	catch {wm withdraw .}
 
-    # ### ### ### ######### ######### #########
-    ## Get main configuration data out of the command line, i.e.
-    ## - Id of the main process for sending information back.
-    ## - Path to the sources of comm.
+	# ### ### ### ######### ######### #########
+	## Get main configuration data out of the command line, i.e.
+	## - Id of the main process for sending information back.
+	## - Path to the sources of comm.
 
-    foreach {commsrc main cookie} $argv break
+	foreach {commsrc main cookie} $argv break
 
-    # ### ### ### ######### ######### #########
-    ## Load and initialize "comm" in the sub process. The latter
-    ## includes a report to main that we are ready.
+	# ### ### ### ######### ######### #########
+	## Load and initialize "comm" in the sub process. The latter
+	## includes a report to main that we are ready.
 
-    source $commsrc
-    ::comm::comm send $main [list ::coserv::ready $cookie [::comm::comm self]]
+	source $commsrc
+	::comm::comm send $main [list ::coserv::ready $cookie [::comm::comm self]]
 
-    # ### ### ### ######### ######### #########
-    ## Now wait for scripts sent by main for execution in sub.
+	# ### ### ### ######### ######### #########
+	## Now wait for scripts sent by main for execution in sub.
 
-    #comm::comm debug 1
-    vwait forever
+	#comm::comm debug 1
+	vwait forever
 
-    # ### ### ### ######### ######### #########
-    exit
-} coserv.sub]
+	# ### ### ### ######### ######### #########
+	exit
+    } coserv.sub] ; # {}
+    return
+}
 
 # ### ### ### ######### ######### #########
 ## Command used by sub processes to signal that they are ready.
@@ -79,6 +84,7 @@ proc ::coserv::start {cookie} {
 
     set go {}
 
+    setup
     exec [info nameofexecutable] $subcode \
 	    $commsrc [::comm::comm self] $cookie &
 
@@ -103,6 +109,7 @@ proc ::coserv::shutdown {id} {
     #puts "Sub server @ $id\tShutting down ..."
     task $id exit
     tcltest::removeFile $subcode
+    set subcode {}
     return
 }
 
