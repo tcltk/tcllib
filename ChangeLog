@@ -1,3 +1,10 @@
+2006-09-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* support/devel/all.tcl: Ensure that root is absolute across all
+	  versions of Tcl. Added code to recreate the auto_path in the
+	  slave interps and processes after it was smashed by older
+	  revisions of tcltest during their load.
+
 2006-09-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* support/releases/history/README-1.9.txt: New file. Readme file

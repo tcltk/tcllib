@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.4 2006/09/19 04:17:37 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.5 2006/09/28 02:48:10 andreas_kupries Exp $
 
 catch {wm withdraw .}
 
@@ -79,7 +79,6 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 set ::tcltest::testSingleFile false
 set ::tcltest::testsDirectory [file dirname \
 	[file dirname [file dirname [info script]]]]
-set root $::tcltest::testsDirectory
 
 # We need to ensure that the testsDirectory is absolute
 if {[catch {::tcltest::normalizePath ::tcltest::testsDirectory}]} {
@@ -91,6 +90,7 @@ if {[catch {::tcltest::normalizePath ::tcltest::testsDirectory}]} {
     set ::tcltest::testsDirectory [pwd]
     cd $oldpwd
 }
+set root $::tcltest::testsDirectory
 
 proc Note {k v} {
     puts  stdout [list @@ $k $v]
@@ -157,7 +157,7 @@ foreach module $modules {
 	# import the auto_path from the parent interp,
 	# so "package require" works
 
-	set auto_path      [pSet auto_path]
+	set ::auto_path    [pSet ::auto_path]
 	set ::argv0        [pSet ::argv0]
 	set ::tcllibModule [pSet module]
 
@@ -181,6 +181,11 @@ foreach module $modules {
 	}
 
 	package require tcltest
+
+	# Re-import, the loading of an older tcltest package reset it
+	# to the standard set of paths.
+	set ::auto_path [pSet ::auto_path]
+
 	namespace import ::tcltest::*
 	set ::tcltest::testSingleFile false
 	set ::tcltest::testsDirectory [pSet ::tcltest::testsDirectory]
