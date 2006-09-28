@@ -5,10 +5,10 @@
 # built-in commands.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# Copyright (c) 2002-2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2002-2006 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3.test,v 1.20 2006/01/29 02:09:43 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.test,v 1.21 2006/09/28 07:56:44 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -21,6 +21,7 @@ testsNeedTcltest 1.0
 
 support {
     use           comm/comm.tcl comm
+    use           log/log.tcl   log
     useTcllibFile devtools/coserv.tcl
     useTcllibFile devtools/dialog.tcl
 }
@@ -82,7 +83,7 @@ proc uidlFailed {} {
     dialog::respond. {-ERR unknown command 'UIDL'}
 }
 proc retrFailed {} {
-    statusOk
+    loginStatusOk
     dialog::respond. {-ERR unknown command 'LAST'}
     dialog::respond. {+OK localhost coserv shutting down}
 }
@@ -373,18 +374,40 @@ test pop3-2.4 {retrieve, invalid start} {
     set psock [pop3::open localhost ak smash [dialog::listener]]
     catch {pop3::retrieve $psock foo bar} msg
     pop3::close $psock
-    dialog::waitdone
-    set msg
-} {POP3 Retrieval error: Bad start index foo}
+    list $msg [join [dialog::waitdone] \n]
+} {{POP3 Retrieval error: Bad start index foo} {crlf
+>> {+OK localhost coserv ready <534358773_pop3d1_12380@localhost>}
+<< {USER ak}
+>> {+OK please send PASS command}
+<< {PASS smash}
+>> {+OK congratulations}
+<< STAT
+>> {+OK 11 176}
+<< LAST
+>> {-ERR unknown command 'LAST'}
+<< QUIT
+>> {+OK localhost coserv shutting down}
+empty}}
 
 test pop3-2.5 {retrieve, invalid end} {
     dialog::dialog_set retrFailed
     set psock [pop3::open localhost ak smash [dialog::listener]]
     catch {pop3::retrieve $psock 0 bar} msg
     pop3::close $psock
-    dialog::waitdone
-    set msg
-} {POP3 Retrieval error: Bad end index bar}
+    list $msg [join [dialog::waitdone] \n]
+} {{POP3 Retrieval error: Bad end index bar} {crlf
+>> {+OK localhost coserv ready <534358773_pop3d1_12380@localhost>}
+<< {USER ak}
+>> {+OK please send PASS command}
+<< {PASS smash}
+>> {+OK congratulations}
+<< STAT
+>> {+OK 11 176}
+<< LAST
+>> {-ERR unknown command 'LAST'}
+<< QUIT
+>> {+OK localhost coserv shutting down}
+empty}}
 
 set msg {MIME-Version: 1.0
 Content-Type: text/plain;
