@@ -1,3 +1,8 @@
+2006-09-28  Michael Schlenker <mic42@users.sourceforge.net>
+        
+        * ldap.tcl      Nasty bug in ReceiveBytes, not detecting
+                        partial results correctly.
+        
 2006-09-27  Michael Schlenker <mic42@users.sourceforge.net>
         
         * ldapx.test:   New test file for the ldapx entry functions.
