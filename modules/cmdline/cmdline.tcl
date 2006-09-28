@@ -11,10 +11,10 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.23 2006/04/06 03:35:09 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.24 2006/09/28 02:19:20 andreas_kupries Exp $
 
 package require Tcl 8.2
-package provide cmdline 1.2.5
+package provide cmdline 1.3
 
 namespace eval ::cmdline {
     namespace export getArgv0 getopt getKnownOpt getfiles getoptions \
@@ -433,7 +433,7 @@ proc ::cmdline::getArgv0 {} {
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.23 2006/04/06 03:35:09 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.24 2006/09/28 02:19:20 andreas_kupries Exp $
 
 namespace eval ::cmdline {
     namespace export typedGetopt typedGetoptions typedUsage
