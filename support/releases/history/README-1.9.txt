@@ -114,7 +114,7 @@ http            autoproxy       1.2.1           1.3             EF
 inifile         inifile         0.1.1           0.2             B, EF
 irc             irc             0.5             0.6             EF
 jpeg            jpeg            0.2             0.3             B, EF
-ldap            ldap            1.2.1           1.6.5           B, I, EF
+ldap            ldap            1.2.1           1.6.6           B, I, EF
 ------          -------         -----------     -----------     ---------------
 log             logger          0.6.1           0.7             B, EF
                 - appender      1.2             1.3             B
