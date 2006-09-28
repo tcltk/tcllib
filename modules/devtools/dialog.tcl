@@ -34,21 +34,31 @@ proc ::dialog::setup {type cookie} {
     set id [::coserv::start "$type: $cookie"]
     ::coserv::run $id {
 	set responses {}
-	set trace     {}
+	set strace    {}
 	set received  {}
 	set conn      {}
+	set ilog      {}
 
 	proc Log {text} {
-	    global trace ; lappend trace $text
+	    global ilog ; lappend ilog $text
 	}
-	proc Exit {sock reason} {Log [list $reason $sock] ; close $sock ; Done}
+	proc Strace {text} {
+	    global strace ; lappend strace $text
+	}
+	proc Exit {sock reason} {
+	    Strace $reason
+	    Log    [list $reason $sock]
+	    close  $sock
+	    Done
+	}
 	proc Done {} {
-	    global main trace
-	    comm::comm send $main [list dialog::done $trace]
+	    global main strace ilog
+	    comm::comm send $main [list dialog::done [list $strace $ilog]]
 	    return
 	}
-	proc ClearTrace {} {
-	    global trace ; set trace {}
+	proc ClearTraces {} {
+	    global strace ; set strace {}
+	    global ilog   ; set ilog   {}
 	    return
 	}
 	proc Step {sock} {
@@ -64,29 +74,38 @@ proc ::dialog::setup {type cookie} {
 
 	    Log  [list ** $sock $now]
 	    eval [linsert $now end $sock]
+	    return
 	}
 
 	# Step commands ...
 
 	proc .Crlf {sock} {
+	    Strace crlf
 	    Log crlf
 	    fconfigure $sock -translation crlf
 	    Step $sock
+	    return
 	}
 	proc .Binary {sock} {
+	    Strace bin
 	    Log binary
 	    fconfigure $sock -translation binary
 	    Step $sock
+	    return
 	}
 	proc .HaltKeep {sock} {
 	    Log halt.keep
 	    Done
-	    global responses ; set responses {}
+	    global responses
+	    set    responses {}
 	    # No further stepping.
+	    # This keeps the socket open.
+	    # Needs external reset/cleanup
 	    return
 	}
 	proc .Send {line sock} {
-	    Log [list >> $line]
+	    Strace [list >> $line]
+	    Log    [list >> $line]
 
 	    if {[catch {
 		puts  $sock $line
@@ -95,33 +114,38 @@ proc ::dialog::setup {type cookie} {
 		Exit $sock broken
 		return
 	    }
-	    Step  $sock
+	    Step $sock
+	    return
 	}
 	proc .Geval {script sock} {
 	    Log geval
 	    uplevel #0 $script
 	    Step $sock
+	    return
 	}
 	proc .Eval {script sock} {
 	    Log eval
 	    eval $script
 	    Step $sock
+	    return
 	}
 	proc .SendGvar {vname sock} {
 	    upvar #0 $vname line
 	    .Send $line $sock
+	    return
 	}
 	proc .Receive {sock} {
-	    set aid [after 10000 [list Timeout $sock]]
+	    set aid     [after 10000 [list Timeout    $sock]]
 	    fileevent $sock readable [list Input $aid $sock]
 	    # No "Step" here. Comes through input.
-
 	    Log "   Waiting    \[$aid\]"
 	    return
 	}
 	proc Input {aid sock} {
 	    global received
 	    if {[eof $sock]} {
+		# Clean the timer up
+		after cancel $aid
 		Exit $sock close
 		return
 	    }
@@ -135,7 +159,8 @@ proc ::dialog::setup {type cookie} {
 	    fileevent    $sock readable {}
 	    after cancel $aid
 
-	    Log [list << $line]
+	    Strace [list << $line]
+	    Log    [list << $line]
 	    lappend received $line
 
 	    # Now we can step further
@@ -148,8 +173,8 @@ proc ::dialog::setup {type cookie} {
 	}
 	proc Accept {sock host port} {
 	    fconfigure $sock -blocking 0
-	    ClearTrace
-	    Step $sock	    
+	    ClearTraces
+	    Step $sock
 	    return
 	}
 
@@ -158,6 +183,7 @@ proc ::dialog::setup {type cookie} {
 	    # Start listener for dialog
 	    set listener [socket -server Accept 0]
 	    set port     [lindex [fconfigure $listener -sockname] 2]
+	    # implied return of <port>
 	}
 
 	proc Client {port} {
@@ -166,10 +192,11 @@ proc ::dialog::setup {type cookie} {
 
 	    set conn [set sock [socket localhost $port]]
 	    fconfigure $sock -blocking 0
-	    ClearTrace
+	    ClearTraces
 	    Log [list Client @ $port = $sock]
 	    Log [list Channels $port = [lsort [file channels]]]
 	    Step $sock
+	    return
 	}
     }
 
@@ -182,12 +209,14 @@ proc ::dialog::runclient {port} {
     variable id
     variable dtrace {}
     coserv::task $id [list Client $port]
+    return
 }
 
 proc ::dialog::dialog_set {response_script} {
     begin
     uplevel 1 $response_script
     end
+    return
 }
 
 proc ::dialog::begin {{cookie {}}} {
@@ -225,8 +254,8 @@ proc ::dialog::reqgvar.   {vname}  {sendgvar. $vname ; receive.}
 proc ::dialog::geval.     {script} {cmd [list .Geval $script]}
 proc ::dialog::eval.      {script} {cmd [list .Eval  $script]}
 
-proc ::dialog::done {trace} {
-    variable dtrace $trace
+proc ::dialog::done {traces} {
+    variable dtrace $traces
     return
 }
 
@@ -239,13 +268,15 @@ proc ::dialog::waitdone {} {
 	vwait ::dialog::dtrace
     }
 
-    set trace $dtrace
+    foreach {strace ilog} $dtrace break
     set dtrace {}
 
     log::log debug  +---------------------------------------------
-    log::log debug  |\t[join $trace \n|\t]
+    log::log debug  |\t[join $strace \n|\t]
+    log::log debug  +---------------------------------------------
+    log::log debug  /\t[join $ilog \n/\t]
     log::log debug "+============================================ //"
-    return $trace
+    return $strace
 }
 
 proc ::dialog::received {} {
