@@ -50,7 +50,9 @@ if {$::tcl_platform(platform) == "windows"} {
 
 proc ::sak::test::run {argv} {
     variable run::valgrind
-    array set config {valgrind 0 raw 0 shells {} stem {} log 0}
+    array set config {
+	valgrind 0 raw 0 shells {} stem {} log 0
+    }
 
     while {[string match -* [set opt [lindex $argv 0]]]} {
 	switch -exact -- $opt {
@@ -103,7 +105,7 @@ proc ::sak::test::run::Do {cv modules} {
 
     set shells $config(shells)
     if {![llength $shells]} {
-	set shells [sak::test::shell::list]
+	catch {set shells [sak::test::shell::list]}
     }
     if {![llength $shells]} {
 	set shells [list [info nameofexecutable]]
@@ -141,22 +143,47 @@ proc ::sak::test::run::Do {cv modules} {
 	=| "Starting ..."
     }
 
+    set total 0
+    set pass  0
+    set fail  0
+    set skip  0
+    set err   0
+
     foreach sh $shells {
 	foreach m $modules {
 	    set cmd [Command config $m $sh]
 	    sak::animate::init
 	    if {$alog || $araw} {
-		puts $logext ============================================================
+		puts  $logext ============================================================
+		flush $logext
 	    }
 	    if {[catch {Close [Process [open |$cmd r+]]} msg]} {
+		incr err
 		=| "~~ [mag]ERR   ${msg}[rst]"
 		if {$alog || $araw} {
-		    puts $logext [mag]$msg[rst]
+		    puts  $logext [mag]$msg[rst]
+		    flush $logext
 		}
 	    }
 	    #sak::animate::last Ok
 	}
     }
+
+    puts $logext "Passed  [format %6d $pass] of [format %6d $total]"
+    puts $logext "Skipped [format %6d $skip] of [format %6d $total]"
+
+    if {$fail} {
+	puts $logext "Failed  [red][format %6d $fail][rst] of [format %6d $total]"
+    } else {
+	puts $logext "Failed  [format %6d $fail] of [format %6d $total]"
+    }
+    if {$err} {
+	puts $logext "#Errors [mag][format %6d $err][rst]"
+    } else {
+	puts $logext "#Errors [format %6d $err]"
+    }
+
+    exit [expr {($err || $fail) ? 1 : 0}]
     return
 }
 
@@ -248,7 +275,7 @@ proc ::sak::test::run::Process {pipe} {
     while {1} {
 	if {[eof  $pipe]} break
 	if {[gets $pipe line] < 0} break
-	if {$alog || $araw} {puts $logext $line}
+	if {$alog || $araw} {puts $logext $line ; flush $logext}
 	set line [string trim $line]
 	if {[string equal $line ""]} continue
 	Host;	Platform
@@ -431,6 +458,11 @@ proc ::sak::test::run::Summary {} {
     #sak::registry::local set $xmodule Passed  $p ; set p [format %5d $p]
     #sak::registry::local set $xmodule Skipped $s ; set s [format %5d $s]
     #sak::registry::local set $xmodule Failed  $f ; set f [format %5d $f]
+
+    upvar 2 total _total ; incr _total $t
+    upvar 2 pass  _pass  ; incr _pass  $p
+    upvar 2 skip  _skip  ; incr _skip  $s
+    upvar 2 fail  _fail  ; incr _fail  $f
 
     set t [format %5d $t]
     set p [format %5d $p]
@@ -655,12 +687,12 @@ proc ::sak::test::run::=| {string} {
 	variable logski
 	variable lognon
 	variable xstatus
-	puts $logsum "$aprefix $string"
+	puts $logsum "$aprefix $string" ; flush $logsum
 	switch -exact -- $xstatus {
 	    error   -
-	    fail    {puts $logfai "$aprefix $string"}
-	    none    {puts $lognon "$aprefix $string"}
-	    aborted {puts $logski "$aprefix $string"}
+	    fail    {puts $logfai "$aprefix $string" ; flush $logfai}
+	    none    {puts $lognon "$aprefix $string" ; flush $lognon}
+	    aborted {puts $logski "$aprefix $string" ; flush $logski}
 	}
     }
     set aprefix ""
