@@ -1,4 +1,4 @@
-/*	$NetBSD: sha1.h,v 1.4 2005/10/07 14:38:56 patthoyts Exp $	*/
+/*	$NetBSD: sha1.h,v 1.5 2006/10/02 23:42:08 patthoyts Exp $	*/
 
 /*
  * SHA-1 in C
@@ -9,12 +9,7 @@
 #ifndef _SYS_SHA1_H_
 #define	_SYS_SHA1_H_
 
-#ifdef __alpha
 typedef unsigned int  my_int32_t;
-#else
-typedef unsigned long my_int32_t;
-#endif
-
 typedef unsigned char my_char;
 
 typedef struct {
