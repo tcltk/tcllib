@@ -20,8 +20,8 @@
 package require Tcl 8.2
 
 namespace eval blowfish {
-    variable version 1.0.1
-    variable rcsid {$Id: blowfish.tcl,v 1.6 2006/09/19 10:41:41 patthoyts Exp $}
+    variable version 1.0.2
+    variable rcsid {$Id: blowfish.tcl,v 1.7 2006/10/02 20:58:52 patthoyts Exp $}
     variable uid ; if {![info exists uid]} { set uid 0 }
     variable accel
     array set accel {trf 0}
@@ -503,7 +503,7 @@ proc ::blowfish::Decrypt {token data} {
 # -------------------------------------------------------------------------
 # Fileevent handler for chunked file reading.
 #
-proc ::blowfish::Chunk {Key in {out {}} {chunksize 4096}} {
+proc ::blowfish::Chunk {Key in {out {}} {chunksize 4096} {pad \0}} {
     upvar #0 $token state
     
     if {[eof $in]} {
@@ -513,7 +513,9 @@ proc ::blowfish::Chunk {Key in {out {}} {chunksize 4096}} {
 
     set data [read $in $chunksize]
     # FIX ME: we should ony pad after eof
-    set data [Pad $data 8]
+    if {[string length $pad] > 0} {
+        set data [Pad $data 8]
+    }
     
     if {$out == {}} {
         append state(output) [$state(cmd) $Key $data]
@@ -573,6 +575,13 @@ proc ::blowfish::CheckSize {what size thing} {
     return $thing
 }
 
+proc ::blowfish::CheckPad {char} {
+    if {[string length $char] > 1} {
+        return -code error "invalid value: should be a char or empty string"
+    }
+    return $char
+}
+
 proc ::blowfish::Pad {data blocksize {fill \0}} {
     set len [string length $data]
     if {$len == 0} {
@@ -596,7 +605,7 @@ proc ::blowfish::Pop {varname {nth 0}} {
 
 proc ::blowfish::blowfish {args} {
     variable accel
-    array set opts {-dir enc -mode cbc -key {} -in {} -out {} -hex 0}
+    array set opts {-dir enc -mode cbc -key {} -in {} -out {} -hex 0 -pad \0}
     set opts(-chunksize) 4096
     set opts(-iv) [string repeat \0 8]
     set modes {ecb cbc}
@@ -611,6 +620,7 @@ proc ::blowfish::blowfish {args} {
             -out        { set opts(-out) [Pop args 1] }
             -chunksize  { set opts(-chunksize) [Pop args 1] }
             -hex        { set opts(-hex) 1 }
+            -pad        { set opts(-pad) [CheckPad [Pop args 1]] }
             --          { Pop args; break }
             default {
                 if {[string length $opts(-in)] == 0 && [llength $args] == 1} break
@@ -634,7 +644,10 @@ proc ::blowfish::blowfish {args} {
                 should be \"blowfish ?options...? -key keydata plaintext\""
         }
 
-        set data [Pad [lindex $args 0] 8]
+        set data [lindex $args 0]
+        if {[string length $opts(-pad)] > 0} {
+            set data [Pad [lindex $args 0] 8 $opts(-pad)]
+        }
         if {$accel(trf)} {
             set r [::blowfish -dir $opts(-dir) -mode $opts(-mode) \
                        -key $opts(-key) -iv $opts(-iv) -- $data]
@@ -671,7 +684,7 @@ proc ::blowfish::blowfish {args} {
         set state(output) ""
         fileevent $opts(-in) readable \
             [list [namespace origin Chunk] \
-                 $Key $opts(-in) $opts(-out) $opts(-chunksize)]
+                 $Key $opts(-in) $opts(-out) $opts(-chunksize) $opts(-pad)]
         if {[info commands ::tkwait] != {}} {
             tkwait variable [subst $Key](reading)
         } else {
