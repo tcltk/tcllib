@@ -4,7 +4,7 @@
 [moddesc   {Blowfish Block Cipher}]
 [titledesc {Implementation of the Blowfish block cipher}]
 [require Tcl 8.4]
-[require blowfish [opt 1.0.1]]
+[require blowfish [opt 1.0.2]]
 [description]
 [para]
 
@@ -25,6 +25,7 @@ blowfish encryption.
         [opt [arg "-iv vector"]] \
         [opt [arg "-out channel"]] \
         [opt [arg "-chunksize size"]] \
+        [opt [arg "-pad padchar"]] \
         [lb] [arg "-in channel"] | \
         [opt [arg "--"]] [arg "data"] [rb]]
 
@@ -52,7 +53,13 @@ their uses.
 [nl]
 
 Blowfish is a 64-bit block cipher. This means that the data must be
-provided in units that are a multiple of 8 bytes.
+provided in units that are a multiple of 8 bytes. The [cmd blowfish]
+command will by default add nul characters to pad the input data to a
+multiple of 8 bytes if necessary. The programming api commands will
+never add padding and instead will raise an error if the input is not
+a multiple of the block size. The [arg -pad] option can be used to
+change the padding character or to disable padding if the empty string
+is provided as the argument.
 
 [list_end]
 

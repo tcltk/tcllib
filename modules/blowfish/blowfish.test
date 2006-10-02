@@ -1,6 +1,6 @@
 # blowfish.test - Copyright (C) 2004 Pat Thoyts <patthoyts@users.sf.net>
 #
-# $Id: blowfish.test,v 1.7 2006/09/19 10:37:21 patthoyts Exp $
+# $Id: blowfish.test,v 1.8 2006/10/02 20:58:52 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 
@@ -259,6 +259,33 @@ foreach impl [implementations] {
             string compare $plain $text
         } msg] $msg
     } {0 0}
+
+    test blowfish-$impl-9.0 {check -pad option} {
+        list [catch {
+            set key "uP/AD/oGb6q/"
+            set text "01234"
+            set cipher [blowfish::blowfish -mode ecb -hex -key $key \
+                            -dir encrypt -pad a -- $text]
+        } msg] $msg
+    } {0 8927243c2d7d568c}
+
+    test blowfish-$impl-9.1 {check -pad option} {
+        list [catch {
+            set key "uP/AD/oGb6q/"
+            set text "01234"
+            set cipher [blowfish::blowfish -mode ecb -hex -key $key \
+                            -dir encrypt -pad { } -- $text]
+        } msg] $msg
+    } {0 3fc711286b8eca79}
+
+    test blowfish-$impl-9.2 {check -pad option} {
+        list [catch {
+            set key "uP/AD/oGb6q/"
+            set text "01234"
+            set cipher [blowfish::blowfish -mode ecb -hex -key $key \
+                            -dir encrypt -pad "" -- $text]
+        } msg] $msg
+    } {1 {invalid block size: blocks must be 8 bytes}}
 
     reset_implementation
 }

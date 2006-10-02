@@ -1,3 +1,10 @@
+2006-10-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* blowfish.test: Document the padding and added -pad option
+	* blowfish.tcl:  to turn off padding or change the pad char.
+	* blowfish.man:  Increment the patchlevel.
+	* pkgIndex.tcl: 
+
 2006-09-19  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* blowfish.tcl:  Bug 1560822: hyphen handling.
