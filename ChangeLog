@@ -1,3 +1,13 @@
+2006-10-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* Makefile.in (test): Changed to use an explicit -s TCLSH_PROG to
+	  avoid use of the Tcllib registry.
+
+	* support/devel/sak/test/run.tcl: Flush all writes to logfiles, to
+	  ensure that they are uptodate in case an abort is needed. Added
+	  output of totals after the test run, and made exit status
+	  dependent on failures (1 = Ok, 0 = Had problems).
+
 2006-09-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* support/devel/all.tcl: Ensure that root is absolute across all
