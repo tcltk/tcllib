@@ -86,7 +86,7 @@ Legend
 Module          Package         Old version     New Version     Comments
 ------          -------         -----------     -----------     ---------------
 asn             asn             0.4             0.7             B, EF
-blowfish        blowfish        1.0.0           1.0.1           EF
+blowfish        blowfish        1.0.0           1.0.2           B, D, EF
 cmdline         cmdline         1.2.4           1.3             I
 comm            comm            4.3             4.4             EF
 crc             cksum           1.1.0           1.1.1           B
@@ -138,7 +138,7 @@ ntp             time            1.2             1.2.1           B
 profiler        profiler        0.2.3           0.3             EF
 rc4             rc4             1.0.1           1.1.0           B, EF
 ------          -------         -----------     -----------     ---------------
-sasl            SASL            1.0.0           1.3.0           B, EF
+sasl            SASL            1.0.0           1.3.1           B, EF
                 SASL::NTLM      1.0.0           1.1.0           B, EF
 ------          -------         -----------     -----------     ---------------
 snit            snit            1.1             1.2             B, D
