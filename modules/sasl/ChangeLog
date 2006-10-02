@@ -1,3 +1,9 @@
+2006-10-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sasl.tcl (::SASL::CreateNonce): Acquire random data from
+	/dev/urandom to avoid blocking.
+	* pkgIndex.tcl: Increment patchlevel
+	
 2006-09-14  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* ntlm.tcl:     bug 1557494 - added support for OEM-type
