@@ -16,8 +16,8 @@
 package require Tcl 8.2
 
 namespace eval ::SASL {
-    variable version 1.3.0
-    variable rcsid {$Id: sasl.tcl,v 1.10 2006/09/02 23:00:55 patthoyts Exp $}
+    variable version 1.3.1
+    variable rcsid {$Id: sasl.tcl,v 1.11 2006/10/02 21:21:57 patthoyts Exp $}
 
     variable uid
     if {![info exists uid]} { set uid 0 }
@@ -578,9 +578,9 @@ proc ::SASL::DigestResponse2 {user realm pass uri qop nonce noncecount cnonce} {
 #
 proc ::SASL::CreateNonce {} {
     set bytes {}
-    if {[file readable /dev/random]} {
+    if {[file readable /dev/urandom]} {
         catch {
-            set f [open /dev/random r]
+            set f [open /dev/urandom r]
             fconfigure $f -translation binary -buffering none
             set bytes [read $f 16]
             close $f
