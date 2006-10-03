@@ -1827,6 +1827,8 @@ proc ::mime::copymessageaux {token channel} {
                 }
 
                 default {
+		    # Note RFC 2046: See buildmessageaux for details.
+
                     foreach part $state(parts) {
                         puts $channel "\n--$boundary"
                         mime::copymessage $part $channel
@@ -1855,9 +1857,9 @@ proc ::mime::copymessageaux {token channel} {
             puts $channel ""
 
             if {[string compare $converter ""]} {
-                puts $channel [$converter -mode encode -- $state(string)]
+                puts -nonewline $channel [$converter -mode encode -- $state(string)]
             } else {
-		puts $channel $state(string)
+		puts -nonewline $channel $state(string)
 	    }
         }
 	default {
@@ -2036,9 +2038,9 @@ proc ::mime::buildmessageaux {token} {
 		    set size [expr {$size - [string length $X]}]
 		}
 		if {[string compare $converter ""]} {
-		    append result "[$converter -mode encode -- $X]\r\n"
+		    append result [$converter -mode encode -- $X]
 		} else {
-		    append result "$X\r\n"
+		    append result $X
 		}
 	    }
 
@@ -2065,6 +2067,21 @@ proc ::mime::buildmessageaux {token} {
                 }
 
                 default {
+		    # Note RFC 2046:
+		    #
+		    # The boundary delimiter MUST occur at the
+		    # beginning of a line, i.e., following a CRLF, and
+		    # the initial CRLF is considered to be attached to
+		    # the boundary delimiter line rather than part of
+		    # the preceding part.
+		    #
+		    # - The above means that the CRLF before $boundary
+		    #   is needed per the RFC, and the parts must not
+		    #   have a closing CRLF of their own. See Tcllib bug
+		    #   1213527, and patch 1254934 for the problems when
+		    #   both file/string brnaches added CRLF after the
+		    #   body parts.
+
                     foreach part $state(parts) {
                         append result "\r\n--$boundary\r\n"
                         append result [buildmessage $part]
@@ -2080,13 +2097,12 @@ proc ::mime::buildmessageaux {token} {
         }
 
         string {
-
             append result "\r\n"
 
 	    if {[string compare $converter ""]} {
-		append result "[$converter -mode encode -- $state(string)]\r\n"
+		append result [$converter -mode encode -- $state(string)]
 	    } else {
-		append result "$state(string)\r\n"
+		append result $state(string)
 	    }
         }
 	default {
