@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin mime n 1.5]
+[manpage_begin mime n 1.5.1]
 [copyright {1999-2000 Marshall T. Rose}]
 [moddesc   {Mime}]
 [titledesc {Manipulation of MIME body parts}]
 [require Tcl]
-[require mime [opt 1.5]]
+[require mime [opt 1.5.1]]
 [description]
 [para]
 
@@ -403,8 +403,7 @@ for additional information.
 
 [list_end]
 
-
-
 [see_also smtp pop3 ftp http]
-[keywords mail email smtp mime {rfc 821} {rfc 822} internet net]
+[keywords mail email smtp mime internet net]
+[keywords {rfc 821} {rfc 822} {rfc 2045} {rfc 2046} {rfc 2049}]
 [manpage_end]
