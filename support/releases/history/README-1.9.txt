@@ -132,7 +132,7 @@ math            math             1.2.3          1.2.4           B
 ------          -------         -----------     -----------     ---------------
 md4             md4             1.0.3           1.0.4           B
 md5             md5             2.0.4           2.0.5           P
-mime            mime            1.4.1           1.5             B, EF
+mime            mime            1.4.1           1.5.1           B, EF
 ncgi            ncgi            1.3             1.3.2           B, P
 ntp             time            1.2             1.2.1           B
 profiler        profiler        0.2.3           0.3             EF

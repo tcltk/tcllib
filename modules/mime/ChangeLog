@@ -1,3 +1,11 @@
+2006-10-02  Andreas Kupries  <andreask@activestate.com>
+
+	* mime.tcl: Fixed both ::mime::copymessageaux and
+	* mime.man: ::mime::buildmessageaux to not generate too many
+	* pkgIndex.tcl: CRLF's at the end of bodies.
+	  See [SF Tcllib Bug 1213527, and [SF Tcllib Patch 1254934].
+	  Bumped version to 1.5.1.
+
 2006-09-19  Andreas Kupries  <andreask@activestate.com>
 
 	* mime.man: Bumped version to 1.5
