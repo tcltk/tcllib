@@ -2,7 +2,7 @@
 # Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: stooop.test,v 1.10 2006/09/17 07:17:28 andreas_kupries Exp $
+# $Id: stooop.test,v 1.11 2006/10/03 15:50:21 jfontain Exp $
 
 # -------------------------------------------------------------------------
 
@@ -8225,8 +8225,8 @@ test stooop-87 {verify member writing and unsetting within class namespaces in m
                 catch {unset C::D::($o,n)} message; lappend ::result bug
             }
         }
-        catch {incr C::D::(m)} message; lappend ::result $message
-        catch {incr C::D::($o,n)} message; lappend ::result $message
+        catch {set C::D::(m)} message; lappend ::result $message
+        catch {set C::D::($o,n)} message; lappend ::result $message
         catch {unset C::D::(m)} message; lappend ::result bug
         catch {unset C::D::($o,n)} message; lappend ::result bug
         delete $o
