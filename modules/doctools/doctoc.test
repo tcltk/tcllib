@@ -8,7 +8,7 @@
 # Copyright (c) 2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: doctoc.test,v 1.10 2006/01/23 08:18:15 andreas_kupries Exp $
+# RCS: @(#) $Id: doctoc.test,v 1.11 2006/10/03 05:45:30 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -24,6 +24,16 @@ support {
 }
 testing {
     useLocal doctoc.tcl doctools::toc
+}
+
+# -------------------------------------------------------------------------
+
+set oldenv [array get env]
+foreach k [array names env LANG*] {
+    unset env($k)
+}
+foreach k [array names env LC_*] {
+    unset env($k)
 }
 
 # -------------------------------------------------------------------------
@@ -286,4 +296,12 @@ test doctoc-9.0 {doctoc syntax} {
 
 
 namespace forget ::doctools::toc::new
+
+# -------------------------------------------------------------------------
+# Restore "env" array to the state it had at the beginning of the testsuite.
+
+#array unset env * - 8.4+, package is 8.2+
+foreach k [array names env] {unset env($k)}
+array set env $oldenv
+
 ::tcltest::cleanupTests

@@ -1,3 +1,9 @@
+2006-10-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* doctools.test: Made the testsuite robust against locale
+	* doctoc.test:   settings in the environment. The tests
+	* docidx.test:   assume the default locale (LANG=C).
+
 2006-09-19  Andreas Kupries  <andreask@activestate.com>
 
 	* doctools.man: Bumped version to 1.2.1
