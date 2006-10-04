@@ -1,3 +1,9 @@
+2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.9 ========================
+	* 
+
 2006-09-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3.test: Added use of local log package, fixed bug in dialog
