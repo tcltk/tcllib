@@ -1,3 +1,9 @@
+2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.9 ========================
+	* 
+
 2006-06-13  Andreas Kupries <andreask@activestate.com>
 
 	* bench_read.tcl:  Rewrite the internal raw representation, use

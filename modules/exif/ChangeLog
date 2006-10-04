@@ -1,3 +1,9 @@
+2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.9 ========================
+	* 
+
 2006-09-27  Andreas Kupries <andreask@activestate.com>
 
 	* exif.test: [SF Tcllib Bug 1272798]. Using 'format' to get

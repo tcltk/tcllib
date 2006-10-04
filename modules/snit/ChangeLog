@@ -1,3 +1,9 @@
+2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.9 ========================
+	* 
+
 2006-09-20  Will Duquette <will@wjduquette.com>
 	* pkgIndex.tcl, snit2.tcl, snit.man, snitfaq.man, README.txt: 
 	Bumped the version number from 2.0 to 2.1, per Andreas' request.
