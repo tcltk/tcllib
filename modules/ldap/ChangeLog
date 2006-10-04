@@ -1,3 +1,9 @@
+2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.9 ========================
+	* 
+
 2006-09-28  Michael Schlenker <mic42@users.sourceforge.net>
         
         * ldap.tcl      Nasty bug in ReceiveBytes, not detecting
