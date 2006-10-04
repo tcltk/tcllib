@@ -1,3 +1,9 @@
+2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.9 ========================
+	* 
+
 2006-06-29 Aaron Faupell <afaupell@users.sourceforge.net>
 
 	* ini.tcl: added default value option for value command, and added

@@ -1,3 +1,9 @@
+2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.9 ========================
+	* 
+
 2006-09-22  Andreas Kupries  <andreask@activestate.com>
 
 	* ftp.tcl (::ftp::NList): Fixed [SF Tcllib Bug 1563137] using the
