@@ -2,7 +2,7 @@
 # Copyright (c) 2001 by Jean-Luc Fontaine <jfontain@free.fr>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: stooop.test,v 1.11 2006/10/03 15:50:21 jfontain Exp $
+# $Id: stooop.test,v 1.12 2006/10/09 15:23:06 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -35,10 +35,6 @@ set dumpArraysCode {
         return $list
     }
 }
-
-# -------------------------------------------------------------------------
-
-set oldenv [array get env]
 
 # -------------------------------------------------------------------------
 
@@ -9393,14 +9389,8 @@ test stooop-102 {
 ]
 
 # -------------------------------------------------------------------------
-# Restore "env" array to the state it had at the beginning of the testsuite.
 
-array unset env *
-array set   env $oldenv
-
-# -------------------------------------------------------------------------
-
-cleanupTests
+testsuiteCleanup
 return
 
 # Local variables:
