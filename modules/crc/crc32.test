@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: crc32.test,v 1.10 2006/01/22 23:53:28 andreas_kupries Exp $
+# RCS: @(#) $Id: crc32.test,v 1.11 2006/10/09 21:41:40 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -185,7 +185,7 @@ foreach impl [implementations] {
 # -------------------------------------------------------------------------
 
 catch {unset crc::filename}
-::tcltest::cleanupTests
+testsuiteCleanup
 
 # Local Variables:
 #  mode: tcl

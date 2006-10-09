@@ -3,7 +3,7 @@
 # Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: tie_log.test,v 1.6 2006/01/27 03:39:57 andreas_kupries Exp $
+# RCS: @(#) $Id: tie_log.test,v 1.7 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -236,5 +236,5 @@ test tie-log-9.2 {log unsetv} {
 
 # Switch off logging
 log::lvSuppressLE critical 1
-::tcltest::cleanupTests
+testsuiteCleanup
 return

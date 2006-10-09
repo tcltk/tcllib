@@ -1,6 +1,6 @@
 # md4.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# $Id: md4.test,v 1.14 2006/01/24 05:10:01 andreas_kupries Exp $
+# $Id: md4.test,v 1.15 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -281,7 +281,7 @@ test md4-4.4 {Check hmac data that begins with hyphen} {
 } {0 8CE99298976A960211A6D3FB2EAC8B2D}
 
 
-::tcltest::cleanupTests
+testsuiteCleanup
 
 # -------------------------------------------------------------------------
 # Local Variables:

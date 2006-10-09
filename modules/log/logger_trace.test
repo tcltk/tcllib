@@ -7,7 +7,7 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004,2005 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger_trace.test,v 1.1 2006/09/14 05:58:41 andreas_kupries Exp $
+# $Id: logger_trace.test,v 1.2 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -276,5 +276,5 @@ leave {proc ::traceproc2 level 1 script .*logger_trace.test caller {} status ok 
 
 # -------------------------------------------------------------------------
 
-::tcltest::cleanupTests
+testsuiteCleanup
 return

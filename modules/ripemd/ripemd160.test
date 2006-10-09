@@ -1,6 +1,6 @@
 # ripemd160.test - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sf.net>
 #
-# $Id: ripemd160.test,v 1.8 2006/01/24 05:10:01 andreas_kupries Exp $
+# $Id: ripemd160.test,v 1.9 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -220,7 +220,7 @@ test ripemd160-6.4 {Check hmac data that begins with hyphen} {
 
 # -------------------------------------------------------------------------
 
-::tcltest::cleanupTests
+testsuiteCleanup
 
 # -------------------------------------------------------------------------
 # Local Variables:

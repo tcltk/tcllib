@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: matrix1.test,v 1.7 2006/01/29 00:25:39 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix1.test,v 1.8 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -1891,5 +1891,5 @@ foreach {n cmd res resd} {
 # should use special commands to peek at the cache only, without
 # recalculation.
 
-::tcltest::cleanupTests
+testsuiteCleanup
 

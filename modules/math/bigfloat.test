@@ -669,6 +669,6 @@ rename assert ""
 rename fassert ""
 rename Zero ""
 
-tcltest::cleanupTests
+testsuiteCleanup
 
 set ::tcl_precision $old_precision

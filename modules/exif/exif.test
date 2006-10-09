@@ -8,7 +8,7 @@
 # Copyright (c) 2001-2006 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: exif.test,v 1.5 2006/09/27 16:56:31 andreas_kupries Exp $
+# RCS: @(#) $Id: exif.test,v 1.6 2006/10/09 21:41:40 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -39,4 +39,4 @@ test exif-makernote-19.0 {makernote field 19 (afpoint) is optional} {
     set res
 } {AFPointsUsed {3 right} AperatureValue 7.1 AutoFocusMode {AI servo} CameraMake Canon CameraModel {Canon PowerShot S100} ColorSpace 1 ComponentsConfigured 0x00030201 Contrast Normal DateTime {2004:09:06 05:22:56} DateTimeDigitized {2004:09:06 05:22:56} DateTimeOriginal {2004:09:06 05:22:56} ExifImageHeight 1200 ExifImageWidth 1600 ExifInteroperabilityOffset 1088 ExifVersion 0210 ExposureBiasValue 0 ExposureTime {1/250.0 seconds} FNumber 7.1 FileSource {3 - Digital camera} FirmwareVersion {Firmware Version 1.0} Flash no FlashMode auto FlashPixVersion 0100 FocalLength {5.40625 mm} FocalPlaneResolutionUnit inch FocalPlaneXResolution 7766.99029126 FocalPlaneYResolution 7741.93548387 ISO unknown ImageFormat {IMG:JPEG file} ImageNumber 140-4060 ImageQuality Fine ImageSize large MacroMode normal MeteringMode unknown Orientation 1 Owner Irochka ResolutionUnit inch Saturation Normal SensingMethod 2 Sharpness Normal ShootingMode {Single frame} ShutterSpeedValue {250 Hz} SubjectDistance {3.358 m} UnknownTag-0x10 100925440 UserComment {554 - } WhiteBalance Auto XResolution 180.0 YCbCrPositioning {Center of pixel array} YResolution 180.0}
 
-::tcltest::cleanupTests
+testsuiteCleanup

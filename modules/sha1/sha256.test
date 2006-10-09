@@ -5,7 +5,7 @@
 # built-in commands.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# RCS: @(#) $Id: sha256.test,v 1.4 2006/01/29 02:09:43 andreas_kupries Exp $
+# RCS: @(#) $Id: sha256.test,v 1.5 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -69,7 +69,7 @@ foreach {n msg hash} $vectors {
 
 # -------------------------------------------------------------------------
 
-::tcltest::cleanupTests
+testsuiteCleanup
 
 # -------------------------------------------------------------------------
 # Local Variables:

@@ -7,7 +7,7 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004,2005 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.27 2006/09/14 05:58:41 andreas_kupries Exp $
+# $Id: logger.test,v 1.28 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -1210,5 +1210,5 @@ test logger-15.13 {test for namespace with glob pattern} {
     list $::gotcalled $code $msg
 } {0 1 {Invalid cmd '::logtest::*::test' - does not exist}}
 
-::tcltest::cleanupTests
+testsuiteCleanup
 return

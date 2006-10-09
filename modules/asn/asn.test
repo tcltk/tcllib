@@ -5,7 +5,7 @@
 # Copyright (c) 2004-2006 by Michael Schlenker <mic42@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: asn.test,v 1.14 2006/08/15 13:34:22 mic42 Exp $
+# RCS: @(#) $Id: asn.test,v 1.15 2006/10/09 21:41:39 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -787,5 +787,5 @@ test asn-30.0 {asnChoiceConstr smoke test} {
 
 
 
-::tcltest::cleanupTests
+testsuiteCleanup
 

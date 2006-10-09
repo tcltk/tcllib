@@ -8,7 +8,7 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d.test,v 1.18 2006/09/19 18:53:02 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.test,v 1.19 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -757,4 +757,4 @@ foreach {n user pass id lidx} {
 
 # ----------------------------------------------------------------------
 dialog::shutdown
-::tcltest::cleanupTests
+testsuiteCleanup

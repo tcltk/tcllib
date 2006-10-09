@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries
 #
-# RCS: @(#) $Id: sets.test,v 1.12 2006/01/31 04:57:35 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.test,v 1.13 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -537,4 +537,4 @@ test set-14.5 {subsetof} {
 } 1
 
 #----------------------------------------------------------------------
-::tcltest::cleanupTests
+testsuiteCleanup

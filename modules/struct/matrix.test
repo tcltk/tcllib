@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: matrix.test,v 1.20 2006/01/29 00:25:39 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.test,v 1.21 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -2300,5 +2300,5 @@ test matrix-19.4 {copy construction, matrix} {
 # should use special commands to peek at the cache only, without
 # recalculation.
 
-::tcltest::cleanupTests
+testsuiteCleanup
 

@@ -1,7 +1,7 @@
 # -*- tcl -*- Tests for "base32"
 # This testsuite is in the public domain.
 #__________________________________________
-# RCS: @(#) $Id: base32.test,v 1.1 2006/05/27 20:44:36 andreas_kupries Exp $
+# RCS: @(#) $Id: base32.test,v 1.2 2006/10/09 21:41:39 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -61,5 +61,5 @@ base32::SwitchTo {}
 
 # -------------------------------------------------------------------------
 
-::tcltest::cleanupTests
+testsuiteCleanup
 return

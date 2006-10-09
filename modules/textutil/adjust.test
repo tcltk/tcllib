@@ -365,4 +365,4 @@ foo bar
 foo bob}
 
 
-::tcltest::cleanupTests
+testsuiteCleanup

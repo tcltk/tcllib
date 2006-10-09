@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: sha1v1.test,v 1.1 2006/03/12 22:46:13 andreas_kupries Exp $
+# RCS: @(#) $Id: sha1v1.test,v 1.2 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -218,7 +218,7 @@ removeFile $testfile
 
 # -------------------------------------------------------------------------
 
-::tcltest::cleanupTests
+testsuiteCleanup
 
 # -------------------------------------------------------------------------
 # Local Variables:

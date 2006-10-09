@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.test,v 1.44 2006/01/27 03:39:57 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.test,v 1.45 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -255,4 +255,4 @@ unset tests
 struct::tree::SwitchTo {}
 
 ############################################################
-::tcltest::cleanupTests
+testsuiteCleanup

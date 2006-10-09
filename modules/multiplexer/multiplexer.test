@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2003 by David N. Welton <davidw@dedasys.com>.
 #
-# $Id: multiplexer.test,v 1.7 2006/01/24 05:10:01 andreas_kupries Exp $
+# $Id: multiplexer.test,v 1.8 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -206,5 +206,5 @@ test multiplexer-5.2 {add access filter which denies access} {
 } {socket blocked}
 
 
-::tcltest::cleanupTests
+testsuiteCleanup
 return

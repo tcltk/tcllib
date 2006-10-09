@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: md5x.test,v 1.15 2006/01/29 05:58:20 andreas_kupries Exp $
+# RCS: @(#) $Id: md5x.test,v 1.16 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -206,7 +206,7 @@ test md5-v2-7.4 {Check hmac data that begins with hyphen} {
 
 # -------------------------------------------------------------------------
 
-::tcltest::cleanupTests
+testsuiteCleanup
 
 # -------------------------------------------------------------------------
 # Local Variables:

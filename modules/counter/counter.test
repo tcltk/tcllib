@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: counter.test,v 1.12 2006/09/27 16:49:36 andreas_kupries Exp $
+# RCS: @(#) $Id: counter.test,v 1.13 2006/10/09 21:41:40 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -232,4 +232,4 @@ test counter-countReset {counter::reset} {
 } {0}
 
 
-::tcltest::cleanupTests
+testsuiteCleanup
