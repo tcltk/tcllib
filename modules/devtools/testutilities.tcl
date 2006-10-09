@@ -3,10 +3,11 @@
 # Copyright (c) 2006, Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 namespace eval ::tcllib::testutils {
-    set version 1.1
-    set self    [file dirname [file join [pwd] [info script]]]
-    set tcllib  [file dirname $self]
-    set tag     ""
+    variable version 1.1
+    variable self    [file dirname [file join [pwd] [info script]]]
+    variable tcllib  [file dirname $self]
+    variable tag     ""
+    variable theEnv  ; # Saved environment.
 }
 
 # ### ### ### ######### ######### #########
@@ -65,6 +66,53 @@ proc testsNeedTcltest {version} {
 
     # This causes a 'return' in the calling scope.
     return -code return
+}
+
+# ### ### ### ######### ######### #########
+
+## Save/restore the environment, for testsuites which have to
+## manipulate it to (1) either achieve the effects they test
+## for/against, or (2) to shield themselves against manipulation by
+## the environment. We have examples for both in 'fileutil' (1), and
+## 'doctools' (2).
+##
+## Saving is done automatically at the beginning of a test file,
+## through this module. Restoration is done semi-automatically.  We
+## __cannot__ hook into the tcltest cleanup hook It is already used by
+## all.tcl to transfer the information from the slave doing the actual
+## tests to the master. Here the hook is only an alias, and
+## unmodifiable. We create a new cleanup command which runs both our
+## environment cleanup, and the regular one. All .test files are
+## modified to use the new cleanup.
+
+proc ::tcllib::testutils::SaveEnvironment {} {
+    global env
+    variable theEnv [array get env]
+    return
+}
+
+proc ::tcllib::testutils::RestoreEnvironment {} {
+    global env
+    variable theEnv
+    foreach k [array names env] {
+	unset env($k)
+    }
+    array set env $theEnv
+    return
+}
+
+proc testsuiteCleanup {} {
+    ::tcllib::testutils::RestoreEnvironment
+    ::tcltest::cleanupTests
+    return
+}
+
+proc array_unset {a {pattern *}} {
+    upvar 1 $a array
+    foreach k [array names array $pattern] {
+	unset array($k)
+    }
+    return
 }
 
 # ### ### ### ######### ######### #########
@@ -496,6 +544,8 @@ proc res?lines {} {
 
 # ### ### ### ######### ######### #########
 ##
+
+::tcllib::testutils::SaveEnvironment
 
 # ### ### ### ######### ######### #########
 package provide tcllib::testutils $::tcllib::testutils::version
