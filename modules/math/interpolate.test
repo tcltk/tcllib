@@ -324,7 +324,7 @@ test "cubic-splines-2.5" "X too large" \
 
 
 # -------------------------------------------------------------------------
-::tcltest::cleanupTests
+testsuiteCleanup
 
 # Local Variables:
 # mode: tcl

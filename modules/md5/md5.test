@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: md5.test,v 1.10 2006/01/24 05:10:01 andreas_kupries Exp $
+# RCS: @(#) $Id: md5.test,v 1.11 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -87,4 +87,4 @@ foreach {n key text expected} {
     } $expected ; # {}
 }
 
-::tcltest::cleanupTests
+testsuiteCleanup

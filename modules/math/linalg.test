@@ -465,4 +465,4 @@ test leastsquares-1.0 "Least-squares solution" -match numbers -body {
 
 set ::tcl_precision $old_precision
 
-::tcltest::cleanupTests
+testsuiteCleanup

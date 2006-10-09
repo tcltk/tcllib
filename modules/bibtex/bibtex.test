@@ -4,7 +4,7 @@
 # Copyright (c) 2005 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: bibtex.test,v 1.6 2006/01/22 23:53:27 andreas_kupries Exp $
+# RCS: @(#) $Id: bibtex.test,v 1.7 2006/10/09 21:41:40 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -233,4 +233,4 @@ test bibtex-4.0 {Destroying a parser} {
 # ... Tests of addStrings ...
 #     (Requires introspection of parser state)
 
-::tcltest::cleanupTests
+testsuiteCleanup

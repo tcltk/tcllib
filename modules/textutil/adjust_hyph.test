@@ -129,4 +129,4 @@ test string  ein test string ein test string ein test string ein test string
 ein test string ein test string ein test string ein test string   g ein test
 string}
 
-::tcltest::cleanupTests
+testsuiteCleanup

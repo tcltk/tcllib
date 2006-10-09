@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: faop.test,v 1.9 2006/06/15 18:06:16 andreas_kupries Exp $
+# RCS: @(#) $Id: faop.test,v 1.10 2006/10/09 21:41:40 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -40,5 +40,5 @@ foreach f [lsort [glob -nocomplain -dir [file join [file dirname [info script]] 
 }
 
 # -------------------------------------------------------------------------
-::tcltest::cleanupTests
+testsuiteCleanup
 

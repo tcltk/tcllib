@@ -123,5 +123,5 @@ test interp-4.3 {create, test redirection} {
 
 # -------------------------------------------------------------------------
 
-::tcltest::cleanupTests
+testsuiteCleanup
 return

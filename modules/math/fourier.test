@@ -132,4 +132,4 @@ test "dft-2.4" "1024 numbers - to and from" \
 # TODO: tests for lowpass and highpass filters
 
 # End of test cases
-tcltest::cleanupTests
+testsuiteCleanup

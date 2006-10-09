@@ -7,7 +7,7 @@
 # Copyright (c) 2006 by Pierre David <pdav@users.sourceforge.net>
 # All rights reserved.
 #
-# $Id: ldapx.test,v 1.1 2006/09/27 17:25:20 mic42 Exp $
+# $Id: ldapx.test,v 1.2 2006/10/09 21:41:40 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -322,4 +322,4 @@ test ldapx-4.1 {ldapx::entry - deletion} {
 } {}
 
 
-::tcltest::cleanupTests
+testsuiteCleanup

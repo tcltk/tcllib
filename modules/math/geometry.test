@@ -4,7 +4,7 @@
 # Copyright (c) 2001 by Ideogramic ApS and other parties.
 # All rights reserved.
 #
-# RCS: @(#) $Id: geometry.test,v 1.9 2006/01/24 05:10:01 andreas_kupries Exp $
+# RCS: @(#) $Id: geometry.test,v 1.10 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -424,4 +424,4 @@ test geometry-16.9 {geometry::rectangleInsidePolygon, infinityLine crosses point
 
 
 
-::tcltest::cleanupTests
+testsuiteCleanup

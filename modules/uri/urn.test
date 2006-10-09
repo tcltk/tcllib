@@ -2,7 +2,7 @@
 #
 # Provide a set of tests to excercise the urn-scheme package.
 #
-# @(#)$Id: urn.test,v 1.8 2006/01/27 03:39:58 andreas_kupries Exp $
+# @(#)$Id: urn.test,v 1.9 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -165,7 +165,7 @@ foreach {utf8 quoted} $data {
 # -------------------------------------------------------------------------
 # Clean up the tests
 
-::tcltest::cleanupTests
+testsuiteCleanup
 return
 
 # Local variables:

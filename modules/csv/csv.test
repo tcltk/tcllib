@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: csv.test,v 1.19 2006/06/15 22:00:12 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.test,v 1.20 2006/10/09 21:41:40 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -903,5 +903,5 @@ foreach {n sep} {
 }
 
 
-::tcltest::cleanupTests
+testsuiteCleanup
 return

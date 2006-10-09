@@ -149,5 +149,5 @@ test dproc-5.3 {signature} {
 
 # -------------------------------------------------------------------------
 
-::tcltest::cleanupTests
+testsuiteCleanup
 return

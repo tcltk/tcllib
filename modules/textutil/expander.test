@@ -363,6 +363,6 @@ test expander-6.1 {new evalcmd} {} {
 #---------------------------------------------------------------------
 # Clean up
 
-::tcltest::cleanupTests
+testsuiteCleanup
 return
 

@@ -13,7 +13,7 @@
 #  October 30, 2000
 #  Robert W. Techentin
 #
-#  "$Id: units.test,v 1.6 2006/09/27 21:24:01 andreas_kupries Exp $"
+#  "$Id: units.test,v 1.7 2006/10/09 21:41:42 andreas_kupries Exp $"
 #
 #----------------------------------------------------------------
 
@@ -511,4 +511,4 @@ test units-10.1 {leading zero is not octal} {
 
 #-----------------------------------------------------------
 
-::tcltest::cleanupTests
+testsuiteCleanup
