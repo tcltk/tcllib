@@ -3,7 +3,7 @@
 #
 # (c) 2006 Pierre David (pdav@users.sourceforge.net)
 #
-# $Id: ldapx.tcl,v 1.5 2006/09/22 12:10:20 mic42 Exp $
+# $Id: ldapx.tcl,v 1.6 2006/10/09 04:49:17 mic42 Exp $
 #
 # History:
 #   2006/08/08 : pda : design
@@ -15,7 +15,7 @@ package require uri 1.1.5	;# tcllib
 package require base64		;# tcllib
 package require ldap 1.6	;# tcllib, low level code for LDAP directories
 
-package provide ldapx 0.2.2
+package provide ldapx 0.2.3
 
 ##############################################################################
 # LDAPENTRY object type
@@ -1044,8 +1044,10 @@ snit::type ::ldapx::ldap {
 		    foreach submod [lindex $lchg 1] {
 			set subop [lindex $submod 0]
 			set attr [lindex $submod 1]
-			set vals [EncodeUtf8 $selfns [lindex $submod 2]]
-
+                        set vals [lindex $submod 2]
+			if {[MustUtf8 $selfns $attr]} then {
+			    set vals [encoding convertto utf-8 $vals]
+			}
 			switch -- $subop {
 			    modadd {
 				lappend ladd $attr $vals
@@ -1059,7 +1061,7 @@ snit::type ::ldapx::ldap {
 			}
 		    }
 
-		    if {[Check $selfns {::ldap::modify $channel $dn \
+		    if {[Check $selfns {::ldap::modifyMulti $channel $dn \
 						$lrep $ldel $ladd}]} then {
 			return 0
 		    }
@@ -1315,7 +1317,7 @@ snit::type ::ldapx::ldif {
 
     method write {entry} {
 
-	if {$channel ""} then {
+	if {$channel eq ""} then {
 	    return -code error \
 			"Channel not initialized"
 	}
