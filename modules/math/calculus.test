@@ -9,7 +9,7 @@
 # Copyright (c) 2004 by Kevin B. Kenny
 # All rights reserved.
 #
-# RCS: @(#) $Id: calculus.test,v 1.15 2006/03/28 20:36:00 arjenmarkus Exp $
+# RCS: @(#) $Id: calculus.test,v 1.16 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -38,7 +38,6 @@ log::lvSuppress notice
 namespace eval ::math::calculus::test {
 
 namespace import ::tcltest::test
-namespace import ::tcltest::cleanupTests
 namespace import ::math::calculus::*
 
 set prec $::tcl_precision
@@ -637,11 +636,11 @@ test "regula-2.2" "Invalid interval" \
 } -result "Interval must be *" -returnCodes error
 
 # End of test cases
-tcltest::cleanupTests
+testsuiteCleanup
 	
 set ::tcl_precision $prec
 
-cleanupTests
+testsuiteCleanup
 }
 
 namespace delete ::math::calculus::test

@@ -220,4 +220,4 @@ test Expr-5.4 {divide} -constraints {
 #---------------------------------------------------------------------
 # Clean up
 cleanup
-::tcltest::cleanupTests
+testsuiteCleanup

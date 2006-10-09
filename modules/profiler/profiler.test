@@ -6,7 +6,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: profiler.test,v 1.19 2006/09/27 16:39:24 andreas_kupries Exp $
+# RCS: @(#) $Id: profiler.test,v 1.20 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -471,4 +471,4 @@ test profiler-9.1 {dump for multiple functions} {
 catch {unset foo}
 catch {unset bar}
 
-::tcltest::cleanupTests
+testsuiteCleanup

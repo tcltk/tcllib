@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: ntlm.test,v 1.4 2006/09/14 11:33:37 patthoyts Exp $
+# RCS: @(#) $Id: ntlm.test,v 1.5 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -84,7 +84,7 @@ test SASL-NTLM-1.1 {NTLM client response} {
 # -------------------------------------------------------------------------
 
 unset Chk
-::tcltest::cleanupTests
+testsuiteCleanup
 
 # Local Variables:
 #  mode: tcl

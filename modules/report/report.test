@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: report.test,v 1.10 2006/01/29 02:09:43 andreas_kupries Exp $
+# RCS: @(#) $Id: report.test,v 1.11 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -1364,4 +1364,4 @@ true numeric}    15      47    31.91}
 +---+-------------------+-------+-------+--------+
 }
 
-::tcltest::cleanupTests
+testsuiteCleanup

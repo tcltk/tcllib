@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: png.test,v 1.8 2006/01/24 05:10:01 andreas_kupries Exp $
+# RCS: @(#) $Id: png.test,v 1.9 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -251,4 +251,4 @@ foreach f [lsort [glob [file join [file dirname [info script]] testimages cm*.pn
 
 # -------------------------------------------------------------------------
 
-::tcltest::cleanupTests
+testsuiteCleanup

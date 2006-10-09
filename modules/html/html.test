@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: html.test,v 1.22 2006/09/12 17:12:42 mic42 Exp $
+# RCS: @(#) $Id: html.test,v 1.23 2006/10/09 21:41:40 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -835,4 +835,4 @@ test html-34.0 {html::nl2br} {
 } {a<br>b<br>c<br>d}
 
 
-tcltest::cleanupTests
+testsuiteCleanup

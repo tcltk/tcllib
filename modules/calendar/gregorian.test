@@ -5,7 +5,7 @@
 #		Tests for [calendar::CommonCalendar] and
 #	[calendar::GregorianCalendar]
 #
-# RCS: @(#) $Id: gregorian.test,v 1.5 2006/01/29 09:04:27 andreas_kupries Exp $
+# RCS: @(#) $Id: gregorian.test,v 1.6 2006/10/09 21:41:40 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -400,7 +400,7 @@ test calendar-3.2 {Day-of-week from end of month} {
 } {}
 
 #----------------------------------------------------------------------
-cleanupTests
+testsuiteCleanup
 
 # Local Variables:
 # mode:tcl

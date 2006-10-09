@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: math.test,v 1.18 2006/01/24 05:10:01 andreas_kupries Exp $
+# RCS: @(#) $Id: math.test,v 1.19 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -246,4 +246,4 @@ test math-11.1 {math::fibonacci} {
     set result
 } [list 0 1 1 2 3 5 8 13 21 34 55 89 144 233 377]
 
-::tcltest::cleanupTests
+testsuiteCleanup

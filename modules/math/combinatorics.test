@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by Kevin B. Kenny
 # All rights reserved.
 #
-# RCS: @(#) $Id: combinatorics.test,v 1.13 2006/01/24 05:10:01 andreas_kupries Exp $
+# RCS: @(#) $Id: combinatorics.test,v 1.14 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -319,5 +319,5 @@ test combinatorics-4.7 { math::Beta, test with Pascal } {
 } {}
 
     
-::tcltest::cleanupTests
+testsuiteCleanup
 

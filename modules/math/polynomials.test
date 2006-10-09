@@ -257,4 +257,4 @@ test "Polynomials-4.16" "Arithmetical operations - remainder (4)" \
 
 
 # End of test cases
-tcltest::cleanupTests
+testsuiteCleanup

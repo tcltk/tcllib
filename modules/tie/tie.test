@@ -3,7 +3,7 @@
 # Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: tie.test,v 1.10 2006/03/08 04:55:58 andreas_kupries Exp $
+# RCS: @(#) $Id: tie.test,v 1.11 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -553,5 +553,5 @@ test tie-9.7 {register, broken chain} {
 
 # -------------------------------------------------------------------------
 
-::tcltest::cleanupTests
+testsuiteCleanup
 return

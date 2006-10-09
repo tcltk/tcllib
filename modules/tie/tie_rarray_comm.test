@@ -6,7 +6,7 @@
 # This is a tie for remote array ties, actually using separate
 # processes. This is based on the package "comm", also in Tcllib.
 #
-# RCS: @(#) $Id: tie_rarray_comm.test,v 1.9 2006/01/29 00:48:50 andreas_kupries Exp $
+# RCS: @(#) $Id: tie_rarray_comm.test,v 1.10 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -222,5 +222,5 @@ csenda {{exit}}
 interp alias {} csend
 removeFile spawn
 
-::tcltest::cleanupTests
+testsuiteCleanup
 return

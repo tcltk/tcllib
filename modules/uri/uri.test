@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2000 by Zveno Pty Ltd.
 #
-# RCS: @(#) $Id: uri.test,v 1.22 2006/08/10 07:00:25 andreas_kupries Exp $
+# RCS: @(#) $Id: uri.test,v 1.23 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -461,7 +461,7 @@ test uri-9.0 {uri::split bug #936064, user information} {
 # -------------------------------------------------------------------------
 
 
-::tcltest::cleanupTests
+testsuiteCleanup
 return
 
 # -------------------------------------------------------------------------

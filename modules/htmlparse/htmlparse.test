@@ -7,7 +7,7 @@
 # Copyright (c) 2001-2005 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.22 2006/01/27 03:39:57 andreas_kupries Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.23 2006/10/09 21:41:40 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -550,5 +550,5 @@ struct::tree::SwitchTo {}
 
 # Take a look at the cache.
 #parray ::htmlparse::splitdata
-::tcltest::cleanupTests
+testsuiteCleanup
 return

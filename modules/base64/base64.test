@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: base64.test,v 1.12 2006/01/22 23:53:27 andreas_kupries Exp $
+# RCS: @(#) $Id: base64.test,v 1.13 2006/10/09 21:41:39 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -114,5 +114,5 @@ test base64-3.2 {base64 identity test} {
 } 0
 
 
-::tcltest::cleanupTests
+testsuiteCleanup
 return

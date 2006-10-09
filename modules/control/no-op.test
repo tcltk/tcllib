@@ -6,7 +6,7 @@
 # file into Tcl runs the tests and generates output for errors.  No output
 # means no errors were found.
 #
-# RCS: @(#) $Id: no-op.test,v 1.4 2006/01/22 23:53:27 andreas_kupries Exp $
+# RCS: @(#) $Id: no-op.test,v 1.5 2006/10/09 21:41:40 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -40,5 +40,5 @@ test no-op-1.0 {no-op argument substitution} {
     list [no-op a $b {a} {a $b} [a] [a $b] {[a]}] $acount $bcount
 } {{} 2 2}
 
-cleanupTests
+testsuiteCleanup
 return

@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: graph.test,v 1.24 2006/09/15 05:19:27 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.test,v 1.25 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -3241,4 +3241,4 @@ test graph-52.6 {arc movement} {
 } 0
 
 # ---------------------------------------------------  
-::tcltest::cleanupTests
+testsuiteCleanup

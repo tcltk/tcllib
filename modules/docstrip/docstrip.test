@@ -235,7 +235,7 @@ tcltest::test docstrip-2.2 {soucefrom} -setup {
    {A} {B}\
    {2} ""
 ] \n]
-tcltest::cleanupTests
+testsuiteCleanup
 ## 
 ## 
 ## End of file `docstrip.test'.

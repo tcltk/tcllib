@@ -8,7 +8,7 @@
 # Copyright (c) 2002-2006 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3.test,v 1.21 2006/09/28 07:56:44 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.test,v 1.22 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -582,4 +582,4 @@ test pop3-6.1 {uidl} {
 # ----------------------------------------------------------------------
 # ----------------------------------------------------------------------
 dialog::shutdown
-::tcltest::cleanupTests
+testsuiteCleanup

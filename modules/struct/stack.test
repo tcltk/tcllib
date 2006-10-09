@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: stack.test,v 1.15 2006/01/29 00:10:32 andreas_kupries Exp $
+# RCS: @(#) $Id: stack.test,v 1.16 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -292,4 +292,4 @@ test stack-8.7 {rotate operation} {
     set msg
 } {insufficient items on stack to fill request}
 
-::tcltest::cleanupTests
+testsuiteCleanup
