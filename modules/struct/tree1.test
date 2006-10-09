@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree1.test,v 1.6 2006/01/29 00:10:32 andreas_kupries Exp $
+# RCS: @(#) $Id: tree1.test,v 1.7 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -1349,4 +1349,4 @@ test tree-28.2 {serialization} {
     list $t [dictsort $a]
 } {{0 {{3 {}} {4 {}}}} {0 {} 3 {} 4 {}}}
 
-::tcltest::cleanupTests
+testsuiteCleanup

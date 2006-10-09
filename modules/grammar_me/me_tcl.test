@@ -8,7 +8,7 @@
 # Copyright (c) 2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: me_tcl.test,v 1.6 2006/01/29 05:58:20 andreas_kupries Exp $
+# RCS: @(#) $Id: me_tcl.test,v 1.7 2006/10/09 21:41:40 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -1604,4 +1604,4 @@ ord__ {}}
 ## Cleanup and statistics.
 
 rename ME_state {}
-::tcltest::cleanupTests
+testsuiteCleanup

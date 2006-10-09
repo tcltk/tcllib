@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: bessel.test,v 1.12 2006/01/24 05:10:00 andreas_kupries Exp $
+# $Id: bessel.test,v 1.13 2006/10/09 21:41:41 andreas_kupries Exp $
 #
 # Copyright (c) 2004 by Arjen Markus
 # All rights reserved.
@@ -77,4 +77,4 @@ test "Bessel-1.1" "Values of the first-order Bessel function" \
 #
 
 # End of test cases
-tcltest::cleanupTests
+testsuiteCleanup

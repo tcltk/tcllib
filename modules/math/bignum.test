@@ -584,4 +584,4 @@ test testbit-1.2 {test with bit in range of used bits} -setup {
 # -------------------------------------------------------------------------
 
 # End of test cases
-tcltest::cleanupTests
+testsuiteCleanup

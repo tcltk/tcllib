@@ -157,4 +157,4 @@ foreach name {data comments sections} {
 #---------------------------------------------------------------------
 # Clean up
 
-::tcltest::cleanupTests
+testsuiteCleanup

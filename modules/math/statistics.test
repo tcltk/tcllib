@@ -411,4 +411,4 @@ test "Testnormal-1.0" "Test birthweight data for normality - 95%" -match toleran
 
 
 # End of test cases
-::tcltest::cleanupTests
+testsuiteCleanup

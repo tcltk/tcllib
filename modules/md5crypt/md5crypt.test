@@ -7,7 +7,7 @@
 #
 # Copyright (C) 2003 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
-# RCS: @(#) $Id: md5crypt.test,v 1.8 2006/09/16 21:12:01 andreas_kupries Exp $
+# RCS: @(#) $Id: md5crypt.test,v 1.9 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -143,7 +143,7 @@ foreach {n salt passwd expected} [list \
 
 # -------------------------------------------------------------------------
 
-::tcltest::cleanupTests
+testsuiteCleanup
 
 # -------------------------------------------------------------------------
 # Local variables:

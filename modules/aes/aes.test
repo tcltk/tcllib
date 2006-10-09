@@ -9,7 +9,7 @@
 #
 # Monte Carlo Tests with 4 Million cycles through the algorithm will need too much time
 #
-# $Id: aes.test,v 1.5 2006/01/22 23:53:26 andreas_kupries Exp $
+# $Id: aes.test,v 1.6 2006/10/09 21:41:39 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -199,7 +199,7 @@ foreach {n key iv pt ct} $vectors {
 #    3 d3f0bd9279ace6d37dd7a5906c5db669 40d8daf6d1fda0a073b3bd18b7695d2e
 #      c48cd503a21c8ad0b2483ef15f79571d 3edbe80d69a1d2248ca55fc17c4ef3c5
 
-::tcltest::cleanupTests
+testsuiteCleanup
 
 # Local variables:
 # mode: tcl

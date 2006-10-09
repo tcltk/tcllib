@@ -1,6 +1,6 @@
 # blowfish.test - Copyright (C) 2004 Pat Thoyts <patthoyts@users.sf.net>
 #
-# $Id: blowfish.test,v 1.8 2006/10/02 20:58:52 patthoyts Exp $
+# $Id: blowfish.test,v 1.9 2006/10/09 21:41:40 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -292,7 +292,7 @@ foreach impl [implementations] {
 
 # -------------------------------------------------------------------------
 
-::tcltest::cleanupTests
+testsuiteCleanup
 
 # Local variables:
 #   mode: tcl

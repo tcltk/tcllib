@@ -1,6 +1,6 @@
 # uuid.test:  tests for the uuid package                       -*- tcl -*-
 #
-# $Id: uuid.test,v 1.5 2006/01/27 03:39:58 andreas_kupries Exp $
+# $Id: uuid.test,v 1.6 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -87,7 +87,7 @@ foreach impl [implementations] {
 
 # -------------------------------------------------------------------------
 
-::tcltest::cleanupTests
+testsuiteCleanup
 
 # -------------------------------------------------------------------------
 # Local Variables:

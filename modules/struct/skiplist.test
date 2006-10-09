@@ -332,4 +332,4 @@ test skiplist-5.2 {walk} {
 	set size
 } "500"
 
-::tcltest::cleanupTests
+testsuiteCleanup

@@ -8,7 +8,7 @@
 #
 # Copyright (c) 2004 by Arjen Markus.  All rights reserved.
 #
-# RCS: @(#) $Id: elliptic.test,v 1.9 2006/01/24 05:10:01 andreas_kupries Exp $
+# RCS: @(#) $Id: elliptic.test,v 1.10 2006/10/09 21:41:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -74,4 +74,4 @@ test "Elliptic-2.0" "Complete elliptic integral of the second kind" \
 
 
 # End of test cases
-tcltest::cleanupTests
+testsuiteCleanup

@@ -8683,4 +8683,4 @@ test bug-3.1 {Bug 1532791: snit2, snit::widget problem} -constraints {
 #---------------------------------------------------------------------
 # Clean up
 
-::tcltest::cleanupTests
+testsuiteCleanup

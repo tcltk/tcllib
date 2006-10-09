@@ -138,4 +138,4 @@ test textutil-6.5 {lcs, multiple strings} {
 
 
 
-::tcltest::cleanupTests
+testsuiteCleanup

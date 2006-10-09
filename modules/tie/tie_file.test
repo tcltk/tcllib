@@ -3,7 +3,7 @@
 # Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: tie_file.test,v 1.8 2006/01/29 00:48:50 andreas_kupries Exp $
+# RCS: @(#) $Id: tie_file.test,v 1.9 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -388,5 +388,5 @@ test tie-file-10.1 {file compaction, not} {
 	set ae 7
     }
 
-::tcltest::cleanupTests
+testsuiteCleanup
 return

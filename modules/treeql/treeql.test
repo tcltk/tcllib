@@ -75,5 +75,5 @@ struct::tree::SwitchTo {}
 
 # -------------------------------------------------------------------------
 
-::tcltest::cleanupTests
+testsuiteCleanup
 return

@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: comm.test,v 1.8 2006/08/17 04:21:05 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.test,v 1.9 2006/10/09 21:41:40 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -170,5 +170,5 @@ test comm-3.4 {-interp use for -events scripts, eval} {
 # ------------------------------------------------------------------------
 
 slavestop
-::tcltest::cleanupTests
+testsuiteCleanup
 return

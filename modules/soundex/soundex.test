@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: soundex.test,v 1.4 2006/01/27 03:39:57 andreas_kupries Exp $
+# RCS: @(#) $Id: soundex.test,v 1.5 2006/10/09 21:41:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -42,4 +42,4 @@ foreach {n in out} {
 }
 
 # -------------------------------------------------------------------------
-::tcltest::cleanupTests
+testsuiteCleanup
