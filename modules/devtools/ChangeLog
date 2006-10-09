@@ -1,3 +1,11 @@
+2006-10-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* testutilities.tcl: Changed variable definitions to shield
+	  against creative writing. Added common code to save and restore
+	  the environment (::env), for testsuites which have to (1) either
+	  modify it as part of the tests, or (2) shield themselves against
+	  manipulation from the environment.
+
 2006-09-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* dialog.tcl: Bugfix in 'Input', cleaning up the waiting timer

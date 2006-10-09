@@ -1,3 +1,8 @@
+2006-10-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* stooop.test: Rewritten to use new features for handling the
+	  environment.
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

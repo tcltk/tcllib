@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
 #
-# RCS: @(#) $Id: mime.test,v 1.26 2006/10/07 02:54:36 andreas_kupries Exp $
+# RCS: @(#) $Id: mime.test,v 1.27 2006/10/09 15:23:06 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -28,8 +28,6 @@ testing {
 }
 
 # -------------------------------------------------------------------------
-
-set oldenv [array get env]
 
 namespace import mime::*
 
@@ -392,11 +390,6 @@ foreach {n stamp date} {
 }
 
 # -------------------------------------------------------------------------
-# Restore "env" array to the state it had at the beginning of the testsuite.
 
-array unset env *
-array set   env $oldenv
-
-# -------------------------------------------------------------------------
-
-::tcltest::cleanupTests
+testsuiteCleanup
+return
