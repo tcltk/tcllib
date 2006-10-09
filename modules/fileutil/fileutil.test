@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.47 2006/09/15 05:07:26 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.48 2006/10/09 15:23:06 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -26,8 +26,6 @@ support {
 testing {
     useLocal fileutil.tcl fileutil
 }
-
-set oldenv [array get env]
 
 # -------------------------------------------------------------------------
 # Now the package specific tests....
@@ -2789,13 +2787,7 @@ foreach {n base dst ra rb} {
     } "Unable to compute relation for paths of different pathtypes: $ra vs. $rb"
 }
 
-
 # -------------------------------------------------------------------------
-# Restore "env" array to the state it had at the beginning of the testsuite.
 
-#array unset env * - 8.4+, package is 8.2+
-foreach k [array names env] {unset env($k)}
-array set env $oldenv
-
-::tcltest::cleanupTests
+testsuiteCleanup
 return
