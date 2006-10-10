@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 # 
-# RCS: @(#) $Id: all.tcl,v 1.5 2006/09/28 02:48:10 andreas_kupries Exp $
+# RCS: @(#) $Id: all.tcl,v 1.6 2006/10/10 06:07:18 andreas_kupries Exp $
 
 catch {wm withdraw .}
 
@@ -25,11 +25,16 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     }
     proc ::tcltest::cleanupTestsHook {{c {}}} {
 	if { [string equal $c ""] } {
+	    # Ignore calls in the master.
 	    return
 	}
+
+	# When called from a slave copy the information found in the
+	# slave to here and update our own data.
+
 	# Get total/pass/skip/fail counts
 	array set foo [$c eval {array get ::tcltest::numTests}]
-	foreach index [list "Total" "Passed" "Skipped" "Failed"] {
+	foreach index {Total Passed Skipped Failed} {
 	    incr ::tcltest::numTests($index) $foo($index)
 	}
 	incr ::tcltest::numTestFiles
@@ -62,7 +67,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 
 	# Clean out the state in the slave
 	$c eval {
-	    foreach index [list "Total" "Passed" "Skipped" "Failed"] {
+	    foreach index {Total Passed Skipped Failed} {
 		set ::tcltest::numTests($index) 0
 	    }
 	    set ::tcltest::failFiles {}
