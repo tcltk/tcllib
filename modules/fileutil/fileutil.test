@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.48 2006/10/09 15:23:06 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.49 2006/10/12 04:57:13 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -169,11 +169,11 @@ if {0 != [string compare $::tcl_platform(platform) windows]} {
     exec chmod -x [file join $dir find3/find4]
 }
 
-test find-3.0 {inaccessible directory} {unix} {
+test find-3.0 {inaccessible directory} {unix notRoot} {
     lsort [fileutil::find [file join $dir find3]]
 } [list [file join $dir find3 find4]]
 
-test find-3.1 {inaccessible directory} {unix} {
+test find-3.1 {inaccessible directory} {unix notRoot} {
     lsort [fileutil::find [file join $dir find3 find4]]
 } {}
 
@@ -272,7 +272,7 @@ test cat-1.5.2 {cat, bad arguments} {
 set xpath [makeFile {} {cat [2]}]
 removeFile {cat [2]}
 
-test cat-1.5.3 {cat, bad arguments, unreadable file} {unixOnly} {
+test cat-1.5.3 {cat, bad arguments, unreadable file} {unixOnly notRoot} {
     set path [makeFile {} {cat [2]}]
     file attributes $path -permissions 0000
 
@@ -302,7 +302,7 @@ test cat-1.5.5 {cat, bad arguments, directory} {unixOnly} {
 } "Cannot read file \"$xpath\", is not a file"
 
 
-test writefile-1.0 {writeFile, unwriteable file} {unixOnly} {
+test writefile-1.0 {writeFile, unwriteable file} {unixOnly notRoot} {
     set path [makeFile {} unwritable]
     file attributes $path -permissions 0000
 
@@ -403,7 +403,7 @@ test writefile-2.3 {writeFile, translation 2} {
     set res
 } "dummy\r\nfoo"
 
-test appendtofile-1.0 {appendToFile, unwriteable file} {unixOnly} {
+test appendtofile-1.0 {appendToFile, unwriteable file} {unixOnly notRoot} {
     set path [makeFile {} unwritable]
     file attributes $path -permissions 0000
 
@@ -507,7 +507,7 @@ test appendtofile-2.3 {appendToFile, translation 2} {
 } "dummy\r\nfoo"
 
 
-test insertintofile-1.0 {insertIntoFile, unwriteable file} {unixOnly} {
+test insertintofile-1.0 {insertIntoFile, unwriteable file} {unixOnly notRoot} {
     set path [makeFile {} unwritable]
     file attributes $path -permissions 0000
 
@@ -691,7 +691,7 @@ test insertintofile-2.5 {insertIntoFile, translation 2} {
 } "dummy\r\nfoo"
 
 
-test removefromfile-1.0 {removeFromFile, unwriteable file} {unixOnly} {
+test removefromfile-1.0 {removeFromFile, unwriteable file} {unixOnly notRoot} {
     set path [makeFile {} unwritable]
     file attributes $path -permissions 0000
 
@@ -892,7 +892,7 @@ test removefromfile-2.3 {removeFromFile, remove nothing} {
 } {aragorn aragorn}
 
 
-test replaceinfile-1.0 {replaceInFile, unwriteable file} {unixOnly} {
+test replaceinfile-1.0 {replaceInFile, unwriteable file} {unixOnly notRoot} {
     set path [makeFile {} unwritable]
     file attributes $path -permissions 0000
 
@@ -1228,7 +1228,7 @@ test replaceinfile-2.12 {replaceInFile, replacement in the middle, shrink} {
 } {aragorn ara|n}
 
 
-test updateinplace-1.0 {updateInPlace, unwriteable file} {unixOnly} {
+test updateinplace-1.0 {updateInPlace, unwriteable file} {unixOnly notRoot} {
     set path [makeFile {} unwritable]
     file attributes $path -permissions 0000
 
@@ -1383,7 +1383,7 @@ test test-1.0.1 {test read, no variable} {unixOnly} {
     set res
 } {1 PRE}
 
-test test-1.0.2 {test !read} {unixOnly} {
+test test-1.0.2 {test !read} {unixOnly notRoot} {
     set path [makeFile {} x]
     makereadable $path 0
 
@@ -1393,7 +1393,7 @@ test test-1.0.2 {test !read} {unixOnly} {
     set res
 } [list 0 "TEST \"$xpath\": Read access is denied"]
 
-test test-1.0.3 {test !read, no variable} {unixOnly} {
+test test-1.0.3 {test !read, no variable} {unixOnly notRoot} {
     set path [makeFile {} x]
     makereadable $path 0
 
@@ -1403,7 +1403,7 @@ test test-1.0.3 {test !read, no variable} {unixOnly} {
     set res
 } {0 PRE}
 
-test test-1.0.4 {test !read, no label} {unixOnly} {
+test test-1.0.4 {test !read, no label} {unixOnly notRead} {
     set path [makeFile {} x]
     makereadable $path 0
 
@@ -1433,7 +1433,7 @@ test test-2.0.1 {test write, no variable} {
     set res
 } {1 PRE}
 
-test test-2.0.2 {test !write} {
+test test-2.0.2 {test !write} notRoot {
     set path [makeFile {} x]
     makewritable $path 0
 
@@ -1443,7 +1443,7 @@ test test-2.0.2 {test !write} {
     set res
 } [list 0 "TEST \"$xpath\": Write access is denied"]
 
-test test-2.0.3 {test !write, no variable} {
+test test-2.0.3 {test !write, no variable} notRoot {
     set path [makeFile {} x]
     makewritable $path 0
 
@@ -1453,7 +1453,7 @@ test test-2.0.3 {test !write, no variable} {
     set res
 } {0 PRE}
 
-test test-2.0.4 {test !write, no label} {
+test test-2.0.4 {test !write, no label} notRoot {
     set path [makeFile {} x]
     makewritable $path 0
 
@@ -1670,7 +1670,7 @@ test test-1.1.1 {test read, no variable} {unixOnly} {
     set res
 } {1 PRE}
 
-test test-1.1.2 {test !read} {unixOnly} {
+test test-1.1.2 {test !read} {unixOnly notRoot} {
     set path [makeFile {} x]
     makereadable $path 0
 
@@ -1680,7 +1680,7 @@ test test-1.1.2 {test !read} {unixOnly} {
     set res
 } [list 0 "TEST \"$xpath\": Read access is denied"]
 
-test test-1.1.3 {test !read, no variable} {unixOnly} {
+test test-1.1.3 {test !read, no variable} {unixOnly notRoot} {
     set path [makeFile {} x]
     makereadable $path 0
 
@@ -1690,7 +1690,7 @@ test test-1.1.3 {test !read, no variable} {unixOnly} {
     set res
 } {0 PRE}
 
-test test-1.1.4 {test !read, no label} {unixOnly} {
+test test-1.1.4 {test !read, no label} {unixOnly notRoot} {
     set path [makeFile {} x]
     makereadable $path 0
 
@@ -1720,7 +1720,7 @@ test test-2.1.1 {test write, no variable} {
     set res
 } {1 PRE}
 
-test test-2.1.2 {test !write} {
+test test-2.1.2 {test !write} notRoot {
     set path [makeFile {} x]
     makewritable $path 0
 
@@ -1730,7 +1730,7 @@ test test-2.1.2 {test !write} {
     set res
 } [list 0 "TEST \"$xpath\": Write access is denied"]
 
-test test-2.1.3 {test !write, no variable} {
+test test-2.1.3 {test !write, no variable} notRoot {
     set path [makeFile {} x]
     makewritable $path 0
 
@@ -1740,7 +1740,7 @@ test test-2.1.3 {test !write, no variable} {
     set res
 } {0 PRE}
 
-test test-2.1.4 {test !write, no label} {
+test test-2.1.4 {test !write, no label} notRoot {
     set path [makeFile {} x]
     makewritable $path 0
 
