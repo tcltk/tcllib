@@ -1,3 +1,9 @@
+2006-10-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tie_growfile.test: Marked the 8 permission dependent tests as
+	* tie_file.test: ... 'notRoot' as they cannot fail when the
+	  superuser executes the testsuite.
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
