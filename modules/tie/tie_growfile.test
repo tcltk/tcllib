@@ -3,7 +3,7 @@
 # Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: tie_growfile.test,v 1.2 2006/10/09 21:41:42 andreas_kupries Exp $
+# RCS: @(#) $Id: tie_growfile.test,v 1.3 2006/10/12 04:45:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -41,7 +41,7 @@ test tie-growfile-1.2 {file creation, wrong#args} {
     set msg
 } {Error in constructor: wrong # args: should be "::tie::std::growfile::Snit_constructor type selfns win self thepath"}
 
-test tie-growfile-1.3 {file creation, ok args, unwritable file} {unixOnly} {
+test tie-growfile-1.3 {file creation, ok args, unwritable file} {unixOnly notRoot} {
     set f [makeFile {} journal]
     file attributes $f -permissions ugo-w
     catch {tie::std::growfile x $f} msg
@@ -58,7 +58,7 @@ test tie-growfile-1.4 {file creation, ok args, unwritable file} {winOnly} {
     string map [list $f @] $msg
 } {Error in constructor: couldn't open "@": permission denied}
 
-test tie-growfile-1.5 {file creation, ok args, unreadable file} {unixOnly} {
+test tie-growfile-1.5 {file creation, ok args, unreadable file} {unixOnly notRoot} {
     set f [makeFile {} journal]
     file attributes $f -permissions ugo-r
     catch {tie::std::growfile x $f} msg
@@ -66,7 +66,7 @@ test tie-growfile-1.5 {file creation, ok args, unreadable file} {unixOnly} {
      string map [list $f @] $msg
 } {Error in constructor: couldn't open "@": permission denied}
 
-test tie-growfile-1.6 {file creation, ok args, uncreateable file} {unixOnly} {
+test tie-growfile-1.6 {file creation, ok args, uncreateable file} {unixOnly notRoot} {
     set d [makeDirectory jtest]
     set f [makeFile {}   jtest/journal]
 
@@ -82,7 +82,7 @@ test tie-growfile-1.6 {file creation, ok args, uncreateable file} {unixOnly} {
     string map [list $f @] $msg
 } {Error in constructor: couldn't open "@": permission denied}
 
-test tie-growfile-1.7 {file creation, ok args, uncreateable file} {knownBug winOnly} {
+test tie-growfile-1.7 {file creation, ok args, uncreateable file} {knownBug winOnly notRoot} {
     set d [makeDirectory jtest]
     set f [makeFile {}   jtest/journal]
     removeFile jtest/journal
@@ -108,7 +108,7 @@ test tie-growfile-1.9 {file creation, %AUTO%} {
     set msg [tie::std::growfile %AUTO% $f]
     $msg destroy
     removeFile journal
-    string match ::growfile\[79] $msg
+    string match ::growfile\[679] $msg
 } 1
 
 # -------------------------------------------------------------------------
