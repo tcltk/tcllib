@@ -1,3 +1,23 @@
+2006-10-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl: Bumped versions of sha1, sha256 by a patchlevel
+	* sha1.man:     due to the changes to the package internals.
+	* sha1.tcl:
+	* sha1c.tcl:
+
+	* sha256.c: New files implementing sha256 in C
+	* sha256.h: Based on critcl.
+	* sha256c.tcl:
+
+	* sha256.tcl:  Rewritten to deal with multiple implementations,
+	* sha256.test: i.e. tcl and the new critcl one.
+
+2006-10-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sha1.tcl:  Management of multiple implementations rewritten to
+	* sha1.test: conform to the expections of the testsuite helper
+	  commands. Testsuite rewritten to use the new helpers.
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
