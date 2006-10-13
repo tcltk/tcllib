@@ -1,3 +1,10 @@
+2006-10-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* testutilities.tcl: Extended with three commands to make testing
+	  of packages with multiple implementations (accelerators)
+	  easier. A specific API for querying and manipulating
+	  accelerators is assumed.
+
 2006-10-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl: Changed variable definitions to shield
