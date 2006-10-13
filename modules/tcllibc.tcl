@@ -1,6 +1,9 @@
+# Umbrella, i.e. Bundle, to put all of the critcl modules which are
+# found in Tcllib in one shared library.
+
 package require critcl
-package provide tcllibc 0.3.0
+package provide tcllibc 0.3.1
 
 namespace eval ::tcllib {
-    variable tcllibc_rcsid {$Id: tcllibc.tcl,v 1.4 2005/02/21 08:42:08 patthoyts Exp $}
+    variable tcllibc_rcsid {$Id: tcllibc.tcl,v 1.5 2006/10/13 22:08:09 andreas_kupries Exp $}
 }
