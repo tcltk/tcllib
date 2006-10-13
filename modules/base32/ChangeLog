@@ -1,3 +1,9 @@
+2006-10-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* base32.test: Rewritten to make use of the new facilities for
+	* base32.tcl:  testing of multiple implementations put into the
+	  test utilities.
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
