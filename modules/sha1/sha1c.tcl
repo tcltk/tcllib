@@ -2,10 +2,10 @@
 #
 # Wrapper for the Secure Hashing Algorithm (SHA1)
 #
-# $Id: sha1c.tcl,v 1.3 2005/10/07 14:38:56 patthoyts Exp $
+# $Id: sha1c.tcl,v 1.4 2006/10/13 06:23:28 andreas_kupries Exp $
 
 package require critcl;                 # needs critcl
-package provide sha1c 2.0.0;            # 
+package provide sha1c 2.0.3
 
 critcl::cheaders sha1.h;                # NetBSD SHA1 implementation
 critcl::csources sha1.c;                # NetBSD SHA1 implementation

@@ -21,17 +21,21 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: sha1.tcl,v 1.19 2005/12/09 18:27:17 andreas_kupries Exp $
+# $Id: sha1.tcl,v 1.20 2006/10/13 06:23:28 andreas_kupries Exp $
 
 # @mdgen EXCLUDE: sha1c.tcl
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::sha1 {
-    variable version 2.0.2
-    variable rcsid {$Id: sha1.tcl,v 1.19 2005/12/09 18:27:17 andreas_kupries Exp $}
-    variable accel
-    array set accel {critcl 0 cryptkit 0 trf 0}
+    variable  version 2.0.3
+    variable  rcsid {$Id: sha1.tcl,v 1.20 2006/10/13 06:23:28 andreas_kupries Exp $}
+
+    variable  accel
+    array set accel {tcl 0 critcl 0 cryptkit 0 trf 0}
+    variable  loaded {}
+    variable  active
+    array set active {tcl 0 critcl 0 cryptkit 0 trf 0}
 
     namespace export sha1 hmac SHA1Init SHA1Update SHA1Final
 
@@ -42,14 +46,147 @@ namespace eval ::sha1 {
 }
 
 # -------------------------------------------------------------------------
+# Management of sha1 implementations.
+
+# LoadAccelerator --
+#
+#	This package can make use of a number of compiled extensions to
+#	accelerate the digest computation. This procedure manages the
+#	use of these extensions within the package. During normal usage
+#	this should not be called, but the test package manipulates the
+#	list of enabled accelerators.
+#
+proc ::sha1::LoadAccelerator {name} {
+    variable accel
+    set r 0
+    switch -exact -- $name {
+        tcl {
+            # Already present (this file)
+            set r 1
+        }
+        critcl {
+            if {![catch {package require tcllibc}]
+                || ![catch {package require sha1c}]} {
+                set r [expr {[info command ::sha1::sha1c] != {}}]
+            }
+        }
+        cryptkit {
+            if {![catch {package require cryptkit}]} {
+                set r [expr {![catch {cryptkit::cryptInit}]}]
+            }
+        }
+        trf {
+            if {![catch {package require Trf}]} {
+                set r [expr {![catch {::sha1 aa} msg]}]
+            }
+        }
+        default {
+            return -code error "invalid accelerator $key:\
+                must be one of [join [KnownImplementations] {, }]"
+        }
+    }
+    set accel($name) $r
+    return $r
+}
+
+# ::sha1::Implementations --
+#
+#	Determines which implementations are
+#	present, i.e. loaded.
+#
+# Arguments:
+#	None.
+#
+# Results:
+#	A list of implementation keys.
+
+proc ::sha1::Implementations {} {
+    variable accel
+    set res {}
+    foreach n [array names accel] {
+	if {!$accel($n)} continue
+	lappend res $n
+    }
+    return $res
+}
+
+# ::sha1::KnownImplementations --
+#
+#	Determines which implementations are known
+#	as possible implementations.
+#
+# Arguments:
+#	None.
+#
+# Results:
+#	A list of implementation keys. In the order
+#	of preference, most prefered first.
+
+proc ::sha1::KnownImplementations {} {
+    return {critcl cryptkit trf tcl}
+}
+
+proc ::sha1::Names {} {
+    return {
+	critcl   {tcllibc based}
+        cryptkit {cryptkit based}
+        trf      {Trf based}
+	tcl      {pure Tcl}
+    }
+}
+
+# ::sha1::SwitchTo --
+#
+#	Activates a loaded named implementation.
+#
+# Arguments:
+#	key	Name of the implementation to activate.
+#
+# Results:
+#	None.
+
+proc ::sha1::SwitchTo {key} {
+    variable accel
+    variable active
+    variable loaded
+
+    if {[string equal $key $loaded]} {
+	# No change, nothing to do.
+	return
+    } elseif {![string equal $key ""]} {
+	# Validate the target implementation of the switch.
+
+	if {![info exists accel($key)]} {
+	    return -code error "Unable to activate unknown implementation \"$key\""
+	} elseif {![info exists accel($key)] || !$accel($key)} {
+	    return -code error "Unable to activate missing implementation \"$key\""
+	}
+    }
+
+    if {![string equal $loaded ""]} {
+        set active($loaded) 0
+    }
+    if {![string equal $key ""]} {
+        set active($key) 1
+    }
+
+    # Remember the active implementation, for deactivation by future
+    # switches.
+
+    set loaded $key
+    return
+}
+
+# -------------------------------------------------------------------------
 
 # SHA1Init --
 #
 #   Create and initialize an SHA1 state variable. This will be
 #   cleaned up when we call SHA1Final
 #
+
 proc ::sha1::SHA1Init {} {
-    variable accel
+    variable active
     variable uid
     set token [namespace current]::[incr uid]
     upvar #0 $token state
@@ -63,9 +200,9 @@ proc ::sha1::SHA1Init {} {
              D [expr {int(0x10325476)}] \
              E [expr {int(0xC3D2E1F0)}] \
              n 0 i "" ]
-    if {$accel(cryptkit)} {
+    if {$active(cryptkit)} {
         cryptkit::cryptCreateContext state(ckctx) CRYPT_UNUSED CRYPT_ALGO_SHA
-    } elseif {$accel(trf)} {
+    } elseif {$active(trf)} {
         set s {}
         switch -exact -- $::tcl_platform(platform) {
             windows { set s [open NUL w] }
@@ -95,10 +232,10 @@ proc ::sha1::SHA1Init {} {
 #   it here in preference to the pure-Tcl implementation.
 #
 proc ::sha1::SHA1Update {token data} {
-    variable accel
+    variable active
     upvar #0 $token state
 
-    if {$accel(critcl)} {
+    if {$active(critcl)} {
         if {[info exists state(sha1c)]} {
             set state(sha1c) [sha1c $data $state(sha1c)]
         } else {
@@ -494,44 +631,6 @@ proc ::sha1::Hex {data} {
 
 # -------------------------------------------------------------------------
 
-# LoadAccelerator --
-#
-#	This package can make use of a number of compiled extensions to
-#	accelerate the digest computation. This procedure manages the
-#	use of these extensions within the package. During normal usage
-#	this should not be called, but the test package manipulates the
-#	list of enabled accelerators.
-#
-proc ::sha1::LoadAccelerator {name} {
-    variable accel
-    set r 0
-    switch -exact -- $name {
-        critcl {
-            if {![catch {package require tcllibc}]
-                || ![catch {package require sha1c}]} {
-                set r [expr {[info command ::sha1::sha1c] != {}}]
-            }
-        }
-        cryptkit {
-            if {![catch {package require cryptkit}]} {
-                set r [expr {![catch {cryptkit::cryptInit}]}]
-            }
-        }
-        trf {
-            if {![catch {package require Trf}]} {
-                set r [expr {![catch {::sha1 aa} msg]}]
-            }
-        }
-        default {
-            return -code error "invalid accelerator package:\
-                must be one of [join [array names accel] {, }]"
-        }
-    }
-    set accel($name) $r
-}
-
-# -------------------------------------------------------------------------
-
 # Description:
 #  Pop the nth element off a list. Used in options processing.
 #
@@ -699,7 +798,14 @@ proc ::sha1::hmac {args} {
 
 # Try and load a compiled extension to help.
 namespace eval ::sha1 {
-    foreach e {critcl cryptkit trf} { if {[LoadAccelerator $e]} { break } }
+    variable e
+    foreach e [KnownImplementations] {
+	if {[LoadAccelerator $e]} {
+	    SwitchTo $e
+	    break
+	}
+    }
+    unset e
 }
 
 package provide sha1 $::sha1::version
@@ -709,5 +815,3 @@ package provide sha1 $::sha1::version
 #   mode: tcl
 #   indent-tabs-mode: nil
 # End:
-
-

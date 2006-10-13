@@ -1,9 +1,9 @@
-[manpage_begin sha1 n 2.0.2]
+[manpage_begin sha1 n 2.0.3]
 [moddesc   {SHA-x Message-Digest Algorithm}]
 [copyright {2005, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {SHA1 Message-Digest Algorithm}]
 [require Tcl 8.2]
-[require sha1 [opt 2.0.2]]
+[require sha1 [opt 2.0.3]]
 [description]
 [para]
 
