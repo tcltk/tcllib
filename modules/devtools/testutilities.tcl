@@ -543,6 +543,66 @@ proc res?lines {} {
 }
 
 # ### ### ### ######### ######### #########
+## Helper commands to deal with packages
+## which have multiple implementations, i.e.
+## their pure Tcl base line and one or more
+## accelerators. We are assuming a specific
+## API for accessing the data about available
+## accelerators, switching between them, etc.
+
+# == Assumed API ==
+#
+# KnownImplementations --
+#   Returns list of all known implementations.
+#
+# Implementations --
+#   Returns list of activated implementations.
+#   A subset of 'KnownImplementations'
+#
+# Names --
+#   Returns dict mapping all known implementations
+#   to human-readable strings for output during a
+#   test run
+#
+# LoadAccelerator accel --
+#   Tries to make the implementation named
+#   'accel' available for use. Result is boolean.
+#   True indicates a successful activation.
+#
+# SwitchTo accel --
+#   Activate the implementation named 'accel'.
+#   The empty string disables all implementations.
+
+proc TestAccelInit {namespace} {
+    # Disable all implementations ... Base state.
+    ${namespace}::SwitchTo {}
+
+    # List the implementations.
+    array set map [${namespace}::Names]
+    foreach e [${namespace}::KnownImplementations] {
+	if {[${namespace}::LoadAccelerator $e]} {
+	    puts "> $map($e)"
+	}
+    }
+    return
+}
+
+proc TestAccelDo {namespace var script} {
+    upvar 1 $var impl
+    foreach impl [${namespace}::Implementations] {
+	${namespace}::SwitchTo $impl
+	uplevel 1 $script
+    }
+    return
+}
+
+proc TestAccelExit {namespace} {
+    # Reset the system to a fully inactive state.
+    ${namespace}::SwitchTo {}
+    return
+}
+
+# ### ### ### ######### ######### #########
 ##
 
 ::tcllib::testutils::SaveEnvironment
