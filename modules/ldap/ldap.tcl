@@ -35,7 +35,7 @@
 #   NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
 #   MODIFICATIONS.
 #
-#   $Id: ldap.tcl,v 1.21 2006/09/28 23:24:49 mic42 Exp $
+#   $Id: ldap.tcl,v 1.22 2006/10/14 19:09:20 mic42 Exp $
 #
 #   written by Jochen Loewer
 #   3 June, 1999
@@ -44,7 +44,7 @@
 
 package require Tcl 8.4
 package require asn 0.7
-package provide ldap 1.6.6
+package provide ldap 1.6.7
 
 namespace eval ldap {
 
@@ -555,7 +555,7 @@ proc ldap::CreateAndSendMessage {handle payload} {
     
     incr conn(messageId)
     set message [asnSequence [asnInteger $conn(messageId)] $payload]
-    debugData MessageSent $message
+    debugData "Message $conn(messageId) Sent" $message
     puts -nonewline $conn(sock) $message
     flush $conn(sock)
     return $conn(messageId)
@@ -591,6 +591,7 @@ proc ldap::SendMessageNoReply {handle pdu} {
 #------------------------------------------------------------------------------
 proc ldap::FinalizeMessage {handle messageId} {
     upvar #0 $handle conn
+    trace "Message $messageId finalized"
     unset -nocomplain conn(message,$messageId)
 }
 
@@ -604,6 +605,7 @@ proc ldap::FinalizeMessage {handle messageId} {
 proc ldap::WaitForResponse {handle messageId} {
     upvar #0 $handle conn
     
+    trace "Waiting for Message $messageId"
     # check if the message waits for a reply
     if {![::info exists conn(message,$messageId)]} {
         return -code error \
@@ -663,16 +665,16 @@ proc ldap::ProcessMessage {handle response} {
     
     if {0} {
         asnGetApplication response appNum
-        if { $appNum != 24 } {
-             error "unexpected application number ($appNum != 24)"
-        }
+        #if { $appNum != 24 } {
+        #     error "unexpected application number ($appNum != 24)"
+        #}
         asnGetEnumeration response resultCode
         asnGetOctetString response matchedDN
         asnGetOctetString response errorMessage
-        if {[string lentgh $response]} {
+        if {[string length $response]} {
             asnGetOctetString response responseName
         }
-        if {[string lentgh $response]} {
+        if {[string length $response]} {
             asnGetOctetString response responseValue
         }
         if {$resultCode != 0} {
@@ -1399,6 +1401,7 @@ proc ldap::searchNext { handle } {
     asnGetApplication response appNum
 
     if {$appNum == 4} {
+        trace "Search Response Continue"
 	#----------------------------------------------------------
 	#   unmarshal search data packet
 	#----------------------------------------------------------
@@ -1418,6 +1421,7 @@ proc ldap::searchNext { handle } {
 	}
 	set result [list $objectName $result_attributes]
     } elseif {$appNum == 5} {
+        trace "Search Response Done"
 	#----------------------------------------------------------
 	#   unmarshal search final response packet
 	#----------------------------------------------------------
@@ -1457,6 +1461,7 @@ proc ldap::searchEnd { handle } {
     FinalizeMessage $handle $conn(searchInProgress)
     
     unset conn(searchInProgress)
+    puts "Search end done for $handle"
     return
 }
 
@@ -1469,7 +1474,8 @@ proc ldap::abandon {handle messageId} {
     CheckHandle $handle
 
     upvar #0 $handle conn
-    set request [asnApplicationConstr 16      	\
+    trace "MessagesPending: [string length $conn(messageId)]"
+    set request [asnApplication 16      	\
                         [asnInteger $messageId]         \
                 ]                                  	
     SendMessageNoReply $handle $request                
@@ -1774,7 +1780,6 @@ proc ldap::modifyDN { handle dn newrdn { deleteOld 1 } {newSuperior ! } } {
 
     }
 }
-
 
 #-----------------------------------------------------------------------------
 #    disconnect
