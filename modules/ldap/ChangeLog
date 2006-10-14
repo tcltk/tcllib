@@ -1,5 +1,11 @@
 2006-10-09  Michael Schlenker <mic42@users.sourceforge.net>
 
+        * ldap.tcl      The abandon operation was incorrectly encoded.
+                        This is now fixed and the operation works
+                        as expected.
+
+2006-10-09  Michael Schlenker <mic42@users.sourceforge.net>
+
         * ldapx.tcl     Fixed incorrect utf-8 conversion and
                         broken ldif::write method.
                         Thanks to Pierre David for providing
