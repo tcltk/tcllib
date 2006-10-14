@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: uuencode.tcl,v 1.20 2005/09/30 05:36:38 andreas_kupries Exp $
+# @(#)$Id: uuencode.tcl,v 1.21 2006/10/14 06:30:55 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
@@ -16,7 +16,7 @@ if {[catch {package require tcllibc}]} {
 }
 
 namespace eval ::uuencode {
-    variable version 1.1.3
+    variable version 1.1.4
 
     namespace export encode decode uuencode uudecode
 }
@@ -193,17 +193,29 @@ if {[info command ::uuencode::CDecode] != {}} {
 
 proc ::uuencode::uuencode {args} {
     array set opts {mode 0644 filename {} name {}}
+    set wrongargs "wrong \# args: should be\
+            \"uuencode ?-name string? ?-mode octal?\
+            (-file filename | ?--? string)\""
     while {[string match -* [lindex $args 0]]} {
         switch -glob -- [lindex $args 0] {
             -f* {
+                if {[llength $args] < 2} {
+                    return -code error $wrongargs
+                }
                 set opts(filename) [lindex $args 1]
                 set args [lreplace $args 0 0]
             }
             -m* {
+                if {[llength $args] < 2} {
+                    return -code error $wrongargs
+                }
                 set opts(mode) [lindex $args 1]
                 set args [lreplace $args 0 0]
             }
             -n* {
+                if {[llength $args] < 2} {
+                    return -code error $wrongargs
+                }
                 set opts(name) [lindex $args 1]
                 set args [lreplace $args 0 0]
             }
@@ -213,7 +225,7 @@ proc ::uuencode::uuencode {args} {
             }
             default {
                 return -code error "bad option [lindex $args 0]:\
-                      must be -filename or -mode"
+                      must be -file, -mode, or -name"
             }
         }
         set args [lreplace $args 0 0]
@@ -233,8 +245,7 @@ proc ::uuencode::uuencode {args} {
         close $f
     } else {
         if {[llength $args] != 1} {
-            return -code error "wrong \# args: should be\
-                  \"uuencode ?-mode oct? -file name | data\""
+            return -code error $wrongargs
         }
         set data [lindex $args 0]
     }
@@ -259,9 +270,13 @@ proc ::uuencode::uuencode {args} {
 #
 proc ::uuencode::uudecode {args} {
     array set opts {mode 0644 filename {}}
+    set wrongargs "wrong \# args: should be \"uudecode (-file filename | ?--? string)\""
     while {[string match -* [lindex $args 0]]} {
         switch -glob -- [lindex $args 0] {
             -f* {
+                if {[llength $args] < 2} {
+                    return -code error $wrongargs
+                }
                 set opts(filename) [lindex $args 1]
                 set args [lreplace $args 0 0]
             }
@@ -271,7 +286,7 @@ proc ::uuencode::uudecode {args} {
             }
             default {
                 return -code error "bad option [lindex $args 0]:\
-                      must be -filename or -mode"
+                      must be -file"
             }
         }
         set args [lreplace $args 0 0]
@@ -283,8 +298,7 @@ proc ::uuencode::uudecode {args} {
         close $f
     } else {
         if {[llength $args] != 1} {
-            return -code error "wrong \# args: should be\
-                  \"uudecode -file name | data\""
+            return -code error $wrongargs
         }
         set data [lindex $args 0]
     }
