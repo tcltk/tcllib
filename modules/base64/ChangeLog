@@ -1,3 +1,12 @@
+2006-10-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* uuencode.test: Documentation and code (error messages) disagreed
+	* uuencode.man:  about the accepted options, and tests were
+	* uuencode.tcl:  missing entirely. The code additionally missed
+	  some checks regarding the proper number of arguments, nor had it
+	  tests checking that either. Added tests and synchronized code
+	  and documentation.
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

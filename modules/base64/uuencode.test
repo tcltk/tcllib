@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: uuencode.test,v 1.13 2006/10/09 21:41:39 andreas_kupries Exp $
+# RCS: @(#) $Id: uuencode.test,v 1.14 2006/10/14 06:30:55 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -125,6 +125,61 @@ foreach {n in out} {
         list [catch {::uuencode::Encode $in} r] $r
     } [list 0 $out]
 }
+
+# -------------------------------------------------------------------------
+
+test uuencode-4.0 {encode bad args} {
+    catch {::uuencode::uuencode -bogus} result
+    set result
+} {bad option -bogus: must be -file, -mode, or -name}
+
+test uuencode-4.1 {encode wrong#args} {
+    catch {::uuencode::uuencode -file} result
+    set result
+} {wrong # args: should be "uuencode ?-name string? ?-mode octal? (-file filename | ?--? string)"}
+
+test uuencode-4.2 {encode wrong#args} {
+    catch {::uuencode::uuencode -name} result
+    set result
+} {wrong # args: should be "uuencode ?-name string? ?-mode octal? (-file filename | ?--? string)"}
+
+test uuencode-4.3 {encode wrong#args} {
+    catch {::uuencode::uuencode -mode} result
+    set result
+} {wrong # args: should be "uuencode ?-name string? ?-mode octal? (-file filename | ?--? string)"}
+
+test uuencode-4.4 {encode wrong#args} {
+    catch {::uuencode::uuencode -mode 1} result
+    set result
+} {wrong # args: should be "uuencode ?-name string? ?-mode octal? (-file filename | ?--? string)"}
+
+test uuencode-4.5 {encode wrong#args} {
+    catch {::uuencode::uuencode -name foo} result
+    set result
+} {wrong # args: should be "uuencode ?-name string? ?-mode octal? (-file filename | ?--? string)"}
+
+test uuencode-4.6 {encode wrong#args} {
+    catch {::uuencode::uuencode --} result
+    set result
+} {wrong # args: should be "uuencode ?-name string? ?-mode octal? (-file filename | ?--? string)"}
+
+
+
+test uuencode-5.0 {decode bad args} {
+    catch {::uuencode::uudecode -bogus} result
+    set result
+} {bad option -bogus: must be -file}
+
+test uuencode-5.1 {decode wrong#args} {
+    catch {::uuencode::uudecode -file} result
+    set result
+} {wrong # args: should be "uudecode (-file filename | ?--? string)"}
+
+test uuencode-5.2 {decode wrong#args} {
+    catch {::uuencode::uudecode --} result
+    set result
+} {wrong # args: should be "uudecode (-file filename | ?--? string)"}
+
 
 # -------------------------------------------------------------------------
 
