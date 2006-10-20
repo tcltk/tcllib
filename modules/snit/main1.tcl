@@ -2004,9 +2004,7 @@ proc ::snit::Contains {value list} {
 
 # Capitalizes the first letter of a string.
 proc ::snit::Capitalize {text} {
-    set first [string index $text 0]
-    set rest [string range $text 1 end]
-    return "[string toupper $first]$rest"
+    return [string toupper $text 0]
 }
 
 # Converts an arbitrary white-space-delimited string into a list
@@ -2130,22 +2128,28 @@ proc ::snit::RT.widget.typemethod.create {type name args} {
     # Initialize the instance vars to their defaults.
     ${type}::Snit_instanceVars $selfns
 
-    # NEXT, if this is a normal widget (not a widget adaptor) then
-    # create a frame as its hull.  We set the frame's -class to
-    # the user's widgetclass, or, if none, to the basename of
-    # the $type with an initial upper case letter.
+    # NEXT, if this is a normal widget (not a widget adaptor) then create a
+    # frame as its hull.  We set the frame's -class to the user's widgetclass,
+    # or, if none, search for -class in the args list, otherwise default to
+    # the basename of the $type with an initial upper case letter.
     if {!$Snit_info(isWidgetAdaptor)} {
         # FIRST, determine the class name
-        if {"" == $Snit_info(widgetclass)} {
-            set Snit_info(widgetclass) \
-                [::snit::Capitalize [namespace tail $type]]
-        }
+	set wclass $Snit_info(widgetclass)
+        if {$Snit_info(widgetclass) eq ""} {
+	    set idx [lsearch -exact $args -class]
+	    if {$idx >= 0 && ($idx%2 == 0)} {
+		# -class exists and is in the -option position
+		set wclass [lindex $args [expr {$idx+1}]]
+		set args [lreplace $args $idx [expr {$idx+1}]]
+	    } else {
+		set wclass [::snit::Capitalize [namespace tail $type]]
+	    }
+	}
 
         # NEXT, create the widget
         set self $name
         package require Tk
-        ${type}::installhull using \
-            $Snit_info(hulltype) -class $Snit_info(widgetclass)
+        ${type}::installhull using $Snit_info(hulltype) -class $wclass
 
         # NEXT, let's query the option database for our
         # widget, now that we know that it exists.
