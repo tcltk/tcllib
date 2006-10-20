@@ -1,3 +1,12 @@
+2006-10-20  Andreas Kupries  <andreask@activestate.com>
+
+	* ftp.tcl: Wrapped several 'unset ftp(state.data)' into 'catch'
+	* ftp.man: as the state-logic apparently is able to run several
+	* pkgIndex.tcl: of them multiple times in exceptional situations
+	  (i.e. ftp errors). This should fix both [SF Tcllib Bug 1234831]
+	  and [SF Tcllib Bug 1581453]. Thanks to the anonymous submitter
+	  who tracked this down. Version now 2.4.5.
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
