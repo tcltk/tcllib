@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.42 2006/09/22 23:08:04 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.43 2006/10/20 19:33:45 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -507,7 +507,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
                 }
                 default {  
                     if { [string equal $ftp(Mode) "passive"] } {
-                        unset ftp(state.data)
+                        catch {unset ftp(state.data)}
                     }    
                     set errmsg "Error getting directory listing!"
                     set complete_with 0
@@ -753,7 +753,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
                 default {
                     if { [string equal $ftp(Mode) "passive"] } {
                         # close already opened DataConnection
-                        unset ftp(state.data)
+                        catch {unset ftp(state.data)}
                     }  
                     set errmsg "Error opening connection!"
                     set complete_with 0
@@ -826,7 +826,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
                 default {
                     if { [string equal $ftp(Mode) "passive"] } {
                         # close already opened DataConnection
-                        unset ftp(state.data)
+                        catch {unset ftp(state.data)}
                     }  
                     set errmsg "Error opening connection!"
                     set complete_with 0
@@ -912,7 +912,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
                 default {
                     if { [string equal $ftp(Mode) "passive"] } {
                         # close already opened DataConnection
-                        unset ftp(state.data)
+                        catch {unset ftp(state.data)}
                     }  
                     set errmsg "Error retrieving file \"$ftp(RemoteFilename)\"!"
                     set complete_with 0
@@ -982,7 +982,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
                 default {
                     if { [string equal $ftp(Mode) "passive"] } {
                         # close already opened DataConnection
-                        unset ftp(state.data)
+                        catch {unset ftp(state.data)}
                     }  
                     set errmsg "Error retrieving file \"$ftp(RemoteFilename)\"!"
                     set complete_with 0
@@ -2496,7 +2496,7 @@ proc ::ftp::CopyNext {s bytes {error {}}} {
 	    catch {close $ftp(DestCI)}
 	}
         catch {close $ftp(SourceCI)}
-        unset ftp(state.data)
+        catch {unset ftp(state.data)}
         DisplayMsg $s $error error
 
     } elseif { ([eof $ftp(SourceCI)] || ($blocksize <= 0)) } {
@@ -2507,7 +2507,7 @@ proc ::ftp::CopyNext {s bytes {error {}}} {
 	    close $ftp(DestCI)
 	}
         close $ftp(SourceCI)
-        unset ftp(state.data)
+        catch {unset ftp(state.data)}
         if { $VERBOSE } {
             DisplayMsg $s "D: Port closed" data
         }
@@ -2688,7 +2688,7 @@ proc ::ftp::HandleOutput {s sock} {
                 [expr {$ftp(Total) + $ftp(Blocksize)}]]
         if {[catch {puts -nonewline $sock "$substr"} result]} {
             close $sock
-            unset ftp(state.data)
+            catch {unset ftp(state.data)}
             if { $VERBOSE } {
                 DisplayMsg $s "D: Port closed" data
             }
@@ -2988,4 +2988,4 @@ if { [string equal [uplevel "#0" {info commands tkcon}] "tkcon"] } {
 # ==================================================================
 # At last, everything is fine, we can provide the package.
 
-package provide ftp [lindex {Revision: 2.4.4} 1]
+package provide ftp [lindex {Revision: 2.4.5} 1]

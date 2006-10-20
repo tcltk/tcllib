@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin ftp n 2.4.4]
+[manpage_begin ftp n 2.4.5]
 [moddesc   {ftp client}]
 [titledesc {Client-side tcl implementation of the ftp protocol}]
 [require Tcl 8.2]
-[require ftp         [opt 2.4.4]]
+[require ftp         [opt 2.4.5]]
 [require ftp::geturl [opt 0.2]]
 [description]
 
