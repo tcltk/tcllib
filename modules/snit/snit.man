@@ -1914,7 +1914,8 @@ definition.
 
 Any widget can be used as the [cmd hulltype] provided that it supports
 the [const -class] option for changing its widget class name.  See
-the discussion of the [cmd hulltype] command, above.
+the discussion of the [cmd hulltype] command, above.  The user may pass
+[const -class] to the widget at instantion.
 
 [para]
 
