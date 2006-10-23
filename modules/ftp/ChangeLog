@@ -1,3 +1,13 @@
+2006-10-23  Andreas Kupries  <andreask@activestate.com>
+
+	* ftp.tcl (::ftp::StateHandler): Applied patch by Guy Hofkens
+	* ftp.man: <hofkensg@users.sourceforge.net>, with small
+	* pkgIndex.tcl: modification by myself (removing a no-op), for
+	  [SF Tcllib Bug 15822535], reported by same person, fixing an
+	  infinite recursion through vwait because the ctrl socket at eof
+	  is not closed and immediately waited upon again for more
+	  events. Version now 2.4.6.
+
 2006-10-20  Andreas Kupries  <andreask@activestate.com>
 
 	* ftp.tcl: Wrapped several 'unset ftp(state.data)' into 'catch'
