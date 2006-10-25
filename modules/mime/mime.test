@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
 #
-# RCS: @(#) $Id: mime.test,v 1.27 2006/10/09 15:23:06 andreas_kupries Exp $
+# RCS: @(#) $Id: mime.test,v 1.28 2006/10/25 23:19:25 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -58,7 +58,6 @@ test mime-2.2 {Generate a multi-part MIME message} {
 	    -header [list Content-Description "Test Multipart"] \
 	    -parts [list $tok1 $tok2]]
     set msg [mime::buildmessage $bigTok]
-
     # The generated message is predictable except for the Content-ID
     list [regexp "MIME-Version: 1.0\r
 Content-Description: Test Multipart\r
@@ -260,6 +259,17 @@ test mime-4.4 {Test qp_encode with non-US_ASCCI characters.} {
 } "Test de caract=E8res accentu=E9s : =E2 =EE =E9 =E7 et quelques contr=F4le=\ns =22=5B=7C=5D()=22"
 
 
+test mime-4.5 {Test qp_encode with softbreak} {
+    set str1 [string repeat abc 40]
+    mime::qp_encode $str1
+} "abcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabca=
+bcabcabcabcabcabcabcabcabcabcabcabcabcabcabcabc"
+
+test mime-4.6 {Test qp_encode with softbreak} {
+    set str1 [string repeat abc 40]
+    mime::qp_encode $str1 0 1
+} [string repeat abc 40]
+
 
 
 
@@ -288,6 +298,132 @@ test mime-5.5 {Test decode with lowercase quoted-printable method} {
 test mime-5.6 {Test decode with lowercase base64 method} {
 	mime::word_decode "=?ISO-8859-1?b?VGVzdCBsb3dlcmNhc2UgYg==?="
 } {iso8859-1 base64 {Test lowercase b}}
+
+test mime-5.7 {Test word_encode with quoted-printable method across encoded word boundaries} {
+    mime::word_encode iso8859-1 quoted-printable "Test de contrôle effectué" -maxlength 31
+} "=?ISO-8859-1?Q?Test_de_contr?=
+ =?ISO-8859-1?Q?=F4le_effectu?=
+ =?ISO-8859-1?Q?=E9?="
+
+test mime-5.8 {Test word_encode with quoted-printable method across encoded word boundaries} {
+    mime::word_encode iso8859-1 quoted-printable "Test de contrôle effectué" -maxlength 32
+} "=?ISO-8859-1?Q?Test_de_contr?=
+ =?ISO-8859-1?Q?=F4le_effectu?=
+ =?ISO-8859-1?Q?=E9?="
+
+test mime-5.9 {Test word_encode with quoted-printable method and multibyte character} {
+    mime::word_encode euc-jp quoted-printable "Following me is a multibyte character \xA4\xCF"
+} "=?EUC-JP?Q?Following_me_is_a_multibyte_character_=A4=CF?="
+
+set n 10
+while {$n < 14} {
+    test mime-5.$n {Test word_encode with quoted-printable method and multibyte character across encoded word boundary} {
+        mime::word_encode euc-jp quoted-printable "Following me is a multibyte character \xA4\xCF" -maxlength [expr 42 + $n]
+    } "=?EUC-JP?Q?Following_me_is_a_multibyte_character_?=
+ =?EUC-JP?Q?=A4=CF?="
+    incr n
+}
+
+test mime-5.14 {Test word_encode with quoted-printable method and multibyte character (triple)} {
+    mime::word_encode utf-8 quoted-printable "Here is a triple byte encoded character \xE3\x81\xAF"
+} "=?UTF-8?Q?Here_is_a_triple_byte_encoded_character_=E3=81=AF?="
+
+set n 15
+while {$n < 23} {
+    test mime-5.$n {Test word_encode with quoted-printable method and triple byte character across encoded word boundary} {
+        mime::word_encode utf-8 quoted-printable "Here is a triple byte encoded character \xE3\x81\xAF" -maxlength [expr 38 + $n]
+    } "=?UTF-8?Q?Here_is_a_triple_byte_encoded_character_?=
+ =?UTF-8?Q?=E3=81=AF?="
+    incr n
+}
+
+while {$n < 25} {
+    test mime-5.$n {Test word_encode with quoted-printable method and triple byte character across encoded word boundary} {
+        mime::word_encode utf-8 quoted-printable "Here is a triple byte encoded character \xE3\x81\xAF" -maxlength [expr 38 + $n]
+    } "=?UTF-8?Q?Here_is_a_triple_byte_encoded_character_=E3=81=AF?="
+    incr n
+}
+
+while {$n < 29} {
+    test mime-5.$n {Test word_encode with base64 method across encoded word boundaries} {
+        mime::word_encode euc-jp base64 "There is a multibyte character \xA4\xCF" -maxlength [expr 28 + $n]
+    } "=?EUC-JP?B?VGhlcmUgaXMgYSBtdWx0aWJ5dGUgY2hhcmFjdGVy?=
+ =?EUC-JP?B?IKTP?="
+    incr n
+}
+
+while {$n < 33} {
+    test mime-5.$n {Test word_encode with base64 method and triple byte character across encoded word boundary} {
+        mime::word_encode utf-8 base64 "Here is a multibyte character \xE3\x81\xAF" -maxlength [expr 23 + $n]
+    } "=?UTF-8?B?SGVyZSBpcyBhIG11bHRpYnl0ZSBjaGFyYWN0ZXIg?=
+ =?UTF-8?B?44Gv?="
+    incr n
+}
+
+test mime-5.33 {Test word_encode with quoted-printable method and -maxlength set to same length as will the result} {
+    mime::word_encode iso8859-1 quoted-printable "123" -maxlength 20
+} "=?ISO-8859-1?Q?123?="
+
+test mime-5.34 {Test word_encode with base64 method and -maxlength set to same length as will the result} {
+    mime::word_encode iso8859-1 base64 "123" -maxlength 21
+} "=?ISO-8859-1?B?MTIz?="
+
+test mime-5.35 {Test word_encode with quoted-printable method and non charset encoded string} {
+    mime::word_encode utf-8 quoted-printable "\u306F" -charset_encoded 0
+} "=?UTF-8?Q?=E3=81=AF?="
+
+test mime-5.36 {Test word_encode with base64 method and non charset encoded string} {
+    mime::word_encode utf-8 base64 "\u306F" -charset_encoded 0
+} "=?UTF-8?B?44Gv?="
+
+test mime-5.36 {Test word_encode with base64 method and one byte} {
+    mime::word_encode iso8859-1 base64 "a"
+} "=?ISO-8859-1?B?YQ==?="
+
+test mime-5.37 {Test word_encode with base64 method and two bytes} {
+    mime::word_encode euc-jp base64 "\xA4\xCF"
+} "=?EUC-JP?B?pM8=?="
+
+test mime-5.38 {Test word_encode with unknown charset} {
+    catch {mime::word_encode scribble  quoted-printable "scribble is an unknown charset"} errmsg
+    set errmsg
+} "unknown charset 'scribble'"
+
+test mime-5.39 {Test word_encode with invalid charset} {
+    catch {mime::word_encode unicode quoted-printable "unicode is not a valid charset"} errmsg
+    set errmsg
+} "invalid charset 'unicode'"
+
+test mime-5.40 {Test word_encode with invalid method} {
+    catch {mime::word_encode iso8859-1 tea-leaf "tea-leaf is not a valid method"} errmsg
+    set errmsg
+} "unknown method 'tea-leaf', must be base64 or quoted-printable"
+
+test mime-5.41 {Test word_encode with maxlength to short for method quoted-printable} {
+    catch {mime::word_encode iso8859-1 quoted-printable "1" -maxlength 17} errmsg
+    set errmsg
+} "maxlength 17 too short for chosen charset and encoding"
+
+test mime-5.42 {Test word_encode with maxlength on the limit for quoted_printable and an unquoted character} {
+   catch {mime::word_encode iso8859-1 quoted-printable "_" -maxlength 18} errmsg
+   set errmsg
+} "=?ISO-8859-1?Q?_?="
+
+test mime-5.43 {Test word_encode with maxlength to short for method quoted_printable and a character to be quoted} {
+   catch {mime::word_encode iso8859-1 quoted-printable "=" -maxlength 18} errmsg
+   set errmsg
+} "maxlength 18 too short for chosen charset and encoding"
+
+
+test mime-5.44 {Test word_encode with maxlength to short for method quoted-printable and multibyte character} {
+    catch {mime::word_encode euc-jp quoted-printable "\xA4\xCF" -maxlength 17} errmsg
+    set errmsg
+} "maxlength 17 too short for chosen charset and encoding"
+
+test mime-5.45 {Test word_encode with maxlength to short for method base64} {
+    catch {mime::word_encode iso8859-1 base64 "1" -maxlength 20} errmsg
+    set errmsg
+} "maxlength 20 too short for chosen charset and encoding"
 
 test mime-6.1 {Test field_decode (from RFC 2047, part 8)} {
     mime::field_decode {=?US-ASCII?Q?Keith_Moore?= <moore@cs.utk.edu>}
