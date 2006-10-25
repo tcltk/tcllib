@@ -12,9 +12,9 @@
 # new string features and inline scan are used, requiring 8.3.
 package require Tcl 8.3
 
-package provide mime 1.5
+package provide mime 1.5.2
 
-if {[catch {package require Trf  2.0}]} {
+if {[catch {package require Trf 2.0}]} {
 
     # Fall-back to tcl-based procedures of base64 and quoted-printable encoders
     # Warning!
@@ -2410,12 +2410,12 @@ proc ::mime::qp_encode {string {encoded_word 0} {no_softbreak 0}} {
 	    }
 	    append result $line\n
 	}
-    }
     
-    # Trim off last \n, since the above code has the side-effect
-    # of adding an extra \n to the encoded string and return the result.
-
-    set result [string range $result 0 end-1]
+	# Trim off last \n, since the above code has the side-effect
+	# of adding an extra \n to the encoded string and return the
+	# result.
+	set result [string range $result 0 end-1]
+    }
 
     # If the string ends in space or tab, replace with =xx
 
@@ -3671,11 +3671,15 @@ proc ::mime::reversemapencoding {mimeType} {
 #       charset   The character set to encode the message to.
 #       method    The encoding method (base64 or quoted-printable).
 #       string    The string to encode.
+#       ?-charset_encoded   0 or 1      Whether the data is already encoded
+#                                       in the specified charset (default 1)
+#       ?-maxlength         maxlength   The maximum length of each encoded
+#                                       word to return (default 66)
 #
 # Results:
 #	Returns a word encoded string.
 
-proc ::mime::word_encode {charset method string} {
+proc ::mime::word_encode {charset method string {args}} {
 
     variable encodings
 
@@ -3691,13 +3695,83 @@ proc ::mime::word_encode {charset method string} {
 	error "unknown method '$method', must be base64 or quoted-printable"
     }
 
-    set result "=?$encodings($charset)?"
+    # default to encoded and a length that won't make the Subject header to long
+    array set options [list -charset_encoded 1 -maxlength 66]
+    array set options $args
+
+    if { $options(-charset_encoded) } {
+    	set unencoded_string [::encoding convertfrom $charset $string]
+    } else {
+        set unencoded_string $string
+    }
+
+    set string_length [string length $unencoded_string]
+    set string_bytelength [string bytelength $unencoded_string]
+
+    # the 7 is for =?, ?Q?, ?= delimiters of the encoded word
+    set maxlength [expr {$options(-maxlength) - [string length $encodings($charset)] - 7}]
     switch -exact -- $method {
 	base64 {
-	    append result "B?[string trimright [base64 -mode encode -- $string] \n]?="
+            if { $maxlength < 4 } {
+                error "maxlength $options(-maxlength) too short for chosen\
+                    charset and encoding"
+            }
+            set count 0
+            set maxlength [expr {($maxlength / 4) * 3}]
+            while { $count < $string_length } {
+                set length 0
+                set enc_string ""
+                while { ($length < $maxlength) && ($count < $string_length) } {
+                    set char [string range $unencoded_string $count $count]
+                    set enc_char [::encoding convertto $charset $char]
+                    if { ($length + [string length $enc_char]) > $maxlength } {
+                        set length $maxlength
+                    } else {
+                        append enc_string $enc_char
+                        incr count
+                        incr length [string length $enc_char]
+                    }
+                }
+                set encoded_word [base64 -mode encode -- $enc_string]
+                append result "=?$encodings($charset)?B?$encoded_word?=\n "
+            }
+            # Trim off last "\n ", since the above code has the side-effect
+            # of adding an extra "\n " to the encoded string.
+
+            set result [string range $result 0 end-2]
 	}
 	quoted-printable {
-	    append result "Q?[qp_encode $string 1]?="
+            if { $maxlength < 1 } {
+                error "maxlength $options(-maxlength) too short for chosen\
+                    charset and encoding"
+            }
+            set count 0
+            while { $count < $string_length } {
+            set length 0
+            set encoded_word ""
+            while { ($length < $maxlength) && ($count < $string_length) } {
+                set char [string range $unencoded_string $count $count]
+                set enc_char [::encoding convertto $charset $char]
+                set qp_enc_char [qp_encode $enc_char 1]
+                set qp_enc_char_length [string length $qp_enc_char]
+                if { $qp_enc_char_length > $maxlength } {
+                    error "maxlength $options(-maxlength) too short for chosen\
+                        charset and encoding"
+                }
+		if { ($length + [string length $qp_enc_char]) > $maxlength } {
+                    set length $maxlength
+                } else {
+                    append encoded_word $qp_enc_char
+                    incr count
+                    incr length [string length $qp_enc_char]
+                }
+            }
+	    append result "=?$encodings($charset)?Q?$encoded_word?=\n "
+            }
+            # Trim off last "\n ", since the above code has the side-effect
+            # of adding an extra "\n " to the encoded string.
+
+            set result [string range $result 0 end-2]
 	}
 	"" {
 	    # Go ahead
@@ -3769,13 +3843,13 @@ proc ::mime::word_decode {encoded} {
 # ::mime::field_decode --
 #
 #    Word decodes strings that have been word encoded as per RFC 2047
-#    and converts the string from UTF to the original encoding/charset.
+#    and converts the string from the original encoding/charset to UTF.
 #
 # Arguments:
 #       field     The string to decode
 #
 # Results:
-#	Returns the decoded string in its original encoding/charset..
+#	Returns the decoded string in UTF.
 
 proc ::mime::field_decode {field} {
     # ::mime::field_decode is broken.  Here's a new version.
