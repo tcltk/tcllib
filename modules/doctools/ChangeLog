@@ -1,3 +1,9 @@
+2006-10-25  Andreas Kupries  <andreask@activestate.com>
+
+	* doctools.test: Added an explicit LANG=C setting to the tests.
+	* docidx.test:   At least OS X needs the setting to behave correctly.
+	* doctoc.test:   Thanks to Gustaf Neumann for the report.
+
 2006-10-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* doctools.test: Rewritten to use new features for handling the
