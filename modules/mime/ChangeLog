@@ -1,3 +1,19 @@
+2006-10-25  Andreas Kupries  <andreask@activestate.com>
+
+	* mime.tcl: Applied patch for [SF Tcllib Bug 763731], fixing
+	* mime.man: word_encode's problem with creating words which are
+	* pkgIndex.tcl: too long. Version now is 1.5.2
+
+2006-10-24  Andreas Kupries  <andreask@activestate.com>
+
+	* mime.tcl (::mime::qp_encode): Moved the code for chopping off a
+	  superfluous newline into the branch actually adding it. The
+	  unconditional chop caused it to lose the last character if the
+	  branch was not taken. This bug was apparently introduced by the
+	  patch for [SF Tcllib RFE 503336], added 2002-01-16, by
+	  myself. Reported by Gustaf Neumann <neumann@wu-wien.ac.at>, with
+	  a patch.
+
 2006-10-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mime.test: Rewritten to use new features for handling the

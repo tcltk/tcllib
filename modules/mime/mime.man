@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin mime n 1.5.1]
+[manpage_begin mime n 1.5.2]
 [copyright {1999-2000 Marshall T. Rose}]
 [moddesc   {Mime}]
 [titledesc {Manipulation of MIME body parts}]
 [require Tcl]
-[require mime [opt 1.5.1]]
+[require mime [opt 1.5.2]]
 [description]
 [para]
 
