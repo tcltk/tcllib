@@ -58,7 +58,9 @@ Closes the ldap connection refered to by the token
 
 Start TLS negotiation on the connection denoted by [arg handle].
 
-This is currently experimental and subject to change.
+This is currently experimental and subject to change, more control over the TLS details
+will probably be exposed later, to allow users to fine tune the negotiation according
+to their security needs.
 
 [call [cmd ::ldap::bind] [arg handle] [opt [arg name]] [opt [arg password]]]
 
@@ -73,7 +75,7 @@ are not specified.
 By leaving out [arg name] and [arg passwd] you can make an anonymous bind to 
 the ldap server.
 
-You can issue [cmd ::ldap::bind] again to bind with different credentials.
+You can issue [cmd ::ldap::bind] again to bind with different credentials. 
 
 [call [cmd ::ldap::bindSASL] [arg handle] [opt [arg name]] [opt [arg password]]]
 
@@ -81,14 +83,17 @@ This command uses SASL authentication mechanisms to do a multistage bind.
 
 Its otherwise identical to the standard [cmd ::ldap::bind].
 
-This feature is currently experimental and subject to change.
+This feature is currently experimental and subject to change. See the documentation
+for the [package SASL] and the [file SASL.txt] in the tcllib CVS repository for 
+details how to setup and use SASL with openldap.
 
 [call [cmd ::ldap::unbind] [arg handle]]
 
 This command asks the ldap server to release the last bind done for
 the connection refered to by the token in [arg handle].
 
-The [arg handle] is invalid after the unbind, as the server closes the connection.
+The [arg handle] is invalid after the unbind, as the server closes the connection. 
+So this is effectivly just a more polite disconnect operation.
 
 [call [cmd ::ldap::search] [arg handle] [arg baseObject] [arg filterString] [arg attributes] [opt "[option -scope] [arg scope]"]]
 
@@ -123,19 +128,20 @@ attribute names. In other words, it is in the form
 
 This command initiates a LDAP search below the [arg baseObject] tree
 using a complex LDAP search expression [arg filterString]. 
-The search returns the specified [arg attributes] of all matching objects (DNs).
+The search gets the specified [arg attributes] of all matching objects (DNs). 
 
-The initiated search results are returned by subsequent calls to
+The command itself just starts the search, to retrieve the actual results, use 
 [cmd ::ldap::searchNext]. 
 A search can be terminated at any time by
-[cmd ::ldap::searchEnd]. This informs the server that no further results should be sent.
+[cmd ::ldap::searchEnd]. This informs the server that no further results should be sent by sending and ABANDON message
+and cleans up the internal state of the search.
 
 Only one [cmd ::ldap::search] can be active at a given time, this
-includes the introspection commands [cmd ::ldap::saslmechanisms], [cmd ldap::control] and 
-[cmd ldap::extensions], which invoke a search.
+includes the introspection commands [cmd {::ldap::info saslmechanisms}], [cmd {ldap::info control}] and 
+[cmd {ldap::info extensions}], which invoke a search internally.
 
-Errors from the server are due to wrong arguments or similar things are returned
-with the first [cmd ::ldap::searchNext] call and should be checked there.
+Error responses from the server due to wrong arguments or similar things are returned
+with the first [cmd ::ldap::searchNext] call and should be checked and dealed with there.
 
 If the list of requested [arg attributes] is empty all attributes will be returned.
 The parameter [arg options] specifies the options to be used in the search,
@@ -152,12 +158,12 @@ Following options are available:
 [list_begin opt]
 [opt_def -scope  {base one sub} ]
 
-Control the scope of the search to be one of base, one, or  sub,  to  specify  a  base
+Control the scope of the search to be one of [const base], [const one], or [const sub],  to  specify  a  base
 object,  one-level or  subtree  search.   The  default is [const sub].  
 
 [opt_def {-derefaliases} {never search find always}]
 
-Control how aliases dereferencing is done.  Should be one of never, always, search,  or  find  to
+Control how aliases dereferencing is done.  Should be one of [const never], [const always], [const search],  or  [const find]  to
 specify that aliases are never dereferenced, always dereferenced, dereferenced when searching, or
 dereferenced only when locating the base object for the search.  
 The default is to never dereference aliases.
@@ -185,8 +191,9 @@ The default is to retrieve attribute names and values.
 [call [cmd ::ldap::searchNext] [arg handle]]
 
 This command returns the next entry from a LDAP search initiated
-by [cmd ::ldap::searchInit]. The command blocks in a vwait until a new search 
-result is received from the server.
+by [cmd ::ldap::searchInit]. It returns only after a new result is received
+or when no further results are available, but takes care to keep
+the event loop alive.
 
 The returned entry is a list with
 two elements: the first is the DN of the entry, the second is the
@@ -207,7 +214,12 @@ end of the search.
 [call [cmd ::ldap::searchEnd] [arg handle]]
 
 This command terminates a LDAP search initiated
-by [call ::ldap::searchInit].
+by [call ::ldap::searchInit]. It also cleans up
+the internal state so a new search can be initiated.
+
+If the client has not yet received all results, the client
+sends an ABANDON message to inform the server that no
+further results for the previous search should to be sent.
 
 [nl]
 
@@ -352,7 +364,7 @@ This command returns the IP address of the remote LDAP server the handle is conn
 [call [cmd ::ldap::info] [cmd bound] [arg handle]]
 
 This command returns 1 if a handle has successfully completed a [cmd ::ldap::bind]. 
-If no bound was done or it failed, a 0 is returned.
+If no bind was done or it failed, a 0 is returned.
 
 [call [cmd ::ldap::info] [cmd bounduser] [arg handle]]
 
@@ -366,12 +378,12 @@ This command returns all currently existing ldap connection handles.
 [call [cmd ::ldap::info] [cmd tls] [arg handle] ]
 
 This command returns 1 if the ldap connection [arg handle] used TLS/SSL for
-connection via [cmd ldap::secure_connect], 0 otherwise. 
+connection via [cmd ldap::secure_connect] or completed [cmd ldap::starttls], 0 otherwise. 
 
 [call [cmd ::ldap::info] [cmd saslmechanisms] [arg handle]]
 
 Return the supported SASL mechanisms advertised by the server. Only valid in a
-bound state (anyonmous or other).
+bound state (anonymous or other).
 
 This is currently experimental and subject to change.
 
@@ -389,7 +401,8 @@ This is currently experimental and subject to change.
 
 [call [cmd ::ldap::info] [cmd whoami] [arg handle]]
 
-Returns authzId for the current connection.
+Returns authzId for the current connection. This implements the RFC 4532
+protocol extension. 
 
 This is currently experimental and subject to change.
 
