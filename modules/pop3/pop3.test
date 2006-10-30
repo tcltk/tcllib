@@ -8,7 +8,7 @@
 # Copyright (c) 2002-2006 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3.test,v 1.22 2006/10/09 21:41:41 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.test,v 1.23 2006/10/30 06:17:28 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -262,8 +262,8 @@ test pop3-0.4 {too many arguments} {
 
 test pop3-0.5 {connect to missing server} {
     catch {pop3::open localhost foo foo 1111} msg
-    set msg
-} {couldn't open socket: connection refused}
+    string match {couldn't open socket: *} $msg
+} 1
 
 test pop3-0.6 {wrong type of server (fake)} {
     dialog::dialog_set initBad

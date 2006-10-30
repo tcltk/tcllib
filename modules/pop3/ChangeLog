@@ -1,3 +1,9 @@
+2006-10-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3.test: Made pop3-0.5 more robust, accept more than just
+	  'connection refused' as proper failure to connect. Like 'timed
+	  out'.
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
