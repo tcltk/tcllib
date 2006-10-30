@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2003 by David N. Welton <davidw@dedasys.com>.
 #
-# $Id: multiplexer.test,v 1.8 2006/10/09 21:41:41 andreas_kupries Exp $
+# $Id: multiplexer.test,v 1.9 2006/10/30 06:17:09 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -178,8 +178,8 @@ test multiplexer-5.1 {add access filter} {
     vwait ::forever
     vwait ::forever
     ${mp}::destroy
-    set ::forever
-} {127.0.0.1 127.0.0.1}
+    string match {127.*.*.* 127.*.*.*} $::forever
+} 1
 
 proc DenyAccessFilter {chan clientaddress clientport} {
     return -1
