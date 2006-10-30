@@ -8,7 +8,7 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d.test,v 1.19 2006/10/09 21:41:41 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.test,v 1.20 2006/10/30 06:16:54 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -351,8 +351,8 @@ test pop3-srv-4.0 {connection introspection} {
 
     set res [talk resonly]
     delsrv
-    set res
-} {deleted {} id <==@%%> logon {} msg 0 name {} remotehost 127.0.0.1 remoteport {} server 1 size 0 state auth storage {}}
+    string match {deleted {} id <==@%%> logon {} msg 0 name {} remotehost 127.*.*.* remoteport {} server 1 size 0 state auth storage {}} $res
+} 1
 
 
 test pop3-srv-5.0 {initial contact, greeting} {
@@ -390,13 +390,13 @@ test pop3-srv-6.0 {unknown command} {
 # Database of possible responses and server states.
 
 array set cstate {
-    0 {deleted {} id <==@%%> logon user msg 0 name foo remotehost 127.0.0.1 remoteport {} server 1 size 0 state auth storage {}}
-    1 {deleted {} id <==@%%> logon {} msg 0 name {} remotehost 127.0.0.1 remoteport {} server 1 size 0 state auth storage {}}
+    0 {deleted {} id <==@%%> logon user msg 0 name foo remotehost 127.*.*.* remoteport {} server 1 size 0 state auth storage {}}
+    1 {deleted {} id <==@%%> logon {} msg 0 name {} remotehost 127.*.*.* remoteport {} server 1 size 0 state auth storage {}}
     2 {}
-    3 {deleted {} id <==@%%> logon {} msg 0 name foo remotehost 127.0.0.1 remoteport {} server 1 size 0 state auth storage {}}
-    4 {deleted {} id <==@%%> logon {} msg 3 name ak remotehost 127.0.0.1 remoteport {} server 1 size 3 state trans storage usr0}
-    5 {deleted {} id <==@%%> logon {} msg 0 name ak remotehost 127.0.0.1 remoteport {} server 1 size 0 state auth storage {}}
-    6 {deleted 1 id <==@%%> logon {} msg 3 name ak remotehost 127.0.0.1 remoteport {} server 1 size 3 state trans storage usr0}
+    3 {deleted {} id <==@%%> logon {} msg 0 name foo remotehost 127.*.*.* remoteport {} server 1 size 0 state auth storage {}}
+    4 {deleted {} id <==@%%> logon {} msg 3 name ak remotehost 127.*.*.* remoteport {} server 1 size 3 state trans storage usr0}
+    5 {deleted {} id <==@%%> logon {} msg 0 name ak remotehost 127.*.*.* remoteport {} server 1 size 0 state auth storage {}}
+    6 {deleted 1 id <==@%%> logon {} msg 3 name ak remotehost 127.*.*.* remoteport {} server 1 size 3 state trans storage usr0}
 }
 array set log {
     0  {+OK please send PASS command}
@@ -473,8 +473,8 @@ test pop3-srv-7.1 {auth, USER/APOP} {
 
     set res [talk trace+res]
     delfsrv
-    set res
-} [list $log(4) $cstate(0)] ; # {}
+    string match [list $log(4) $cstate(0)] $res
+} 1
 
 test pop3-srv-7.2 {auth, APOP/USER} {
     newfsrv
@@ -494,8 +494,8 @@ test pop3-srv-7.2 {auth, APOP/USER} {
 
     set res [talk trace+res]
     delfsrv
-    set res
-} [list $log(5) $cstate(4)] ; # {}
+    string match [list $log(5) $cstate(4)] $res
+} 1
 
 # ----------------------------------------------------------------------
 # Checking authentication
@@ -518,8 +518,8 @@ foreach {n user pass lidx cidx} {
 
 	set res [talk trace+res]
 	delfsrv
-	set res
-    } [list $log($lidx) $cstate($cidx)] ; # {}
+	string match [list $log($lidx) $cstate($cidx)] $res
+    } 1
 
     test pop3-srv-7.4.$n {APOP} {
 	newfsrv
@@ -539,8 +539,8 @@ foreach {n user pass lidx cidx} {
 
 	set res [talk trace+res]
 	delfsrv
-	set res
-    } [list $log($lidx) $cstate($cidx)] ; # {}
+	string match [list $log($lidx) $cstate($cidx)] $res
+    } 1
 }
 
 
@@ -607,8 +607,8 @@ foreach {n id lidx cidx} {
 
 	set res [talk trace+res]
 	delfsrv
-	set res
-    } [list $log($lidx) $cstate($cidx)] ; # {}
+	string match [list $log($lidx) $cstate($cidx)] $res
+    } 1
 }
 
 test pop3-srv-7.6.4 {DELE, out of range message index} {
@@ -626,8 +626,8 @@ test pop3-srv-7.6.4 {DELE, out of range message index} {
 
     set res [talk trace+res]
     delfsrv
-    set res
-} [list $log(13) $cstate(6)] ; # {}
+    string match [list $log(13) $cstate(6)] $res
+} 1
 
 
 test pop3-srv-7.7 {DELE, abort} {
@@ -652,8 +652,8 @@ test pop3-srv-7.7 {DELE, abort} {
     set res [talk trace+res]
     lappend res [file exists [file join __dbox__ usr0 10]]
     delfsrv
-    set res
-} [list [list $log(9) 1 1] $cstate(6) 1] ; # {}
+    string match [list [list $log(9) 1 1] $cstate(6) 1] $res
+} 1
 
 test pop3-srv-7.8 {DELE, complete} {
     newfsrv
@@ -703,8 +703,8 @@ foreach {n cmd lidx cidx} {
 
 	set res [talk trace+res]
 	delfsrv
-	set res
-    } [list $log($lidx) $cstate($cidx)] ; # {}
+	string match [list $log($lidx) $cstate($cidx)] $res
+    } 1
 }
 
 # ======================================================================
