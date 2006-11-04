@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	$Id: sha256.c,v 1.1 2006/10/13 06:23:28 andreas_kupries Exp $
+ *	$Id: sha256.c,v 1.2 2006/11/04 15:25:34 patthoyts Exp $
  */
 
 /*
@@ -50,12 +50,13 @@
 #endif
 
 #include <string.h>
+#include <stdlib.h>
 
 #include "sha256.h"
 
 #ifndef lint
 static const char rcsid[] =
-	"$Id: sha256.c,v 1.1 2006/10/13 06:23:28 andreas_kupries Exp $";
+	"$Id: sha256.c,v 1.2 2006/11/04 15:25:34 patthoyts Exp $";
 #endif /* !lint */
 
 #if TCL_BYTE_ORDER==1234
@@ -116,9 +117,14 @@ static const uint32_t K[64] = {
 
 #define BYTESWAP(x) ((ROTR((x), 8) & 0xff00ff00L) | \
 		     (ROTL((x), 8) & 0x00ff00ffL))
+
 #define BYTESWAP64(x) _byteswap64(x)
 
-static inline uint64_t _byteswap64(uint64_t x)
+static
+#ifndef _MSC_VER
+ inline
+#endif
+uint64_t _byteswap64(uint64_t x)
 {
   uint32_t a = x >> 32;
   uint32_t b = (uint32_t) x;
@@ -191,16 +197,16 @@ SHA256Init (SHA256Context *sc)
   setEndian ();
 #endif /* RUNTIME_ENDIAN */
 
-  sc->totalLength = 0LL;
-  sc->hash[0] = 0x6a09e667L;
-  sc->hash[1] = 0xbb67ae85L;
-  sc->hash[2] = 0x3c6ef372L;
-  sc->hash[3] = 0xa54ff53aL;
-  sc->hash[4] = 0x510e527fL;
-  sc->hash[5] = 0x9b05688cL;
-  sc->hash[6] = 0x1f83d9abL;
-  sc->hash[7] = 0x5be0cd19L;
-  sc->bufferLength = 0L;
+  sc->totalLength = 0;
+  sc->hash[0] = 0x6a09e667;
+  sc->hash[1] = 0xbb67ae85;
+  sc->hash[2] = 0x3c6ef372;
+  sc->hash[3] = 0xa54ff53a;
+  sc->hash[4] = 0x510e527f;
+  sc->hash[5] = 0x9b05688c;
+  sc->hash[6] = 0x1f83d9ab;
+  sc->hash[7] = 0x5be0cd19;
+  sc->bufferLength = 0;
 }
 
 void
@@ -210,16 +216,16 @@ SHA224Init (SHA256Context *sc)
   setEndian ();
 #endif /* RUNTIME_ENDIAN */
 
-  sc->totalLength = 0LL;
-  sc->hash[0] = 0xc1059ed8L;
-  sc->hash[1] = 0x367cd507L;
-  sc->hash[2] = 0x3070dd17L;
-  sc->hash[3] = 0xf70e5939L;
-  sc->hash[4] = 0xffc00b31L;
-  sc->hash[5] = 0x68581511L;
-  sc->hash[6] = 0x64f98fa7L;
-  sc->hash[7] = 0xbefa4fa4L;
-  sc->bufferLength = 0L;
+  sc->totalLength = 0;
+  sc->hash[0] = 0xc1059ed8;
+  sc->hash[1] = 0x367cd507;
+  sc->hash[2] = 0x3070dd17;
+  sc->hash[3] = 0xf70e5939;
+  sc->hash[4] = 0xffc00b31;
+  sc->hash[5] = 0x68581511;
+  sc->hash[6] = 0x64f98fa7;
+  sc->hash[7] = 0xbefa4fa4;
+  sc->bufferLength = 0;
 }
 
 static void
