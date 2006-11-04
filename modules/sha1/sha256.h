@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	$Id: sha256.h,v 1.1 2006/10/13 06:23:28 andreas_kupries Exp $
+ *	$Id: sha256.h,v 1.2 2006/11/04 15:25:34 patthoyts Exp $
  */
 
 #ifndef _SHA256_H
@@ -42,7 +42,12 @@
 /* Hash size in 32-bit words */
 #define SHA256_HASH_WORDS 8
 
+#ifdef _MSC_VER
+typedef unsigned __int64    uint64_t;
+#else
 typedef unsigned long long  uint64_t;
+#endif
+
 typedef unsigned int        uint32_t;
 typedef unsigned char       uint8_t;
 
