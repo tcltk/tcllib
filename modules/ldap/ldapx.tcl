@@ -3,7 +3,7 @@
 #
 # (c) 2006 Pierre David (pdav@users.sourceforge.net)
 #
-# $Id: ldapx.tcl,v 1.6 2006/10/09 04:49:17 mic42 Exp $
+# $Id: ldapx.tcl,v 1.7 2006/11/04 11:57:57 mic42 Exp $
 #
 # History:
 #   2006/08/08 : pda : design
@@ -15,7 +15,7 @@ package require uri 1.1.5	;# tcllib
 package require base64		;# tcllib
 package require ldap 1.6	;# tcllib, low level code for LDAP directories
 
-package provide ldapx 0.2.3
+package provide ldapx 0.2.4
 
 ##############################################################################
 # LDAPENTRY object type
@@ -549,8 +549,13 @@ snit::type ::ldapx::entry {
 	#
 	# Computes differences between values in the two entries
 	#
-
-	$self dn [$old dn]
+        if {[$old dn] ne ""} then {
+	    $self dn [$old dn]
+	} elseif {[$new dn] ne ""} then {
+	    $self dn [$new dn]
+	} else {
+	    $self dn ""
+	}
 	switch -- "[$new isempty][$old isempty]" {
 	    00 {
 		# They may differ
