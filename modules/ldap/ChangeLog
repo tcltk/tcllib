@@ -1,3 +1,9 @@
+2006-11-04  Michael Schlenker <mic42@users.sourceforge.net>
+        
+        * ldapx.tcl     Fix for entry diff applied.
+          ldap.man      Thanks to Pierre David for providing it.
+          pkgIndex.tcl           
+        
 2006-10-26  Michael Schlenker <mic42@users.sourceforge.net>
 	
 	* ldap.man      Some typo fixes, minor clarifications 
