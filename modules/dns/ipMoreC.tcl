@@ -1,9 +1,16 @@
-
-if {
-    [string equal $::tcl_platform(platform) windows] ||
+# Skip this for window and a specific version of Solaris
+# 
+# This could do with an explanation -- why are we avoiding these platforms
+# and perhaps using critcl's platform::platform command might be better?
+#
+if {[string equal $::tcl_platform(platform) windows] ||
     ([string equal $::tcl_platform(os)      SunOS] &&
      [string equal $::tcl_platform(osVersion) 5.6])
 } {
+    # avoid warnings about nothing to compile
+    critcl::ccode {
+        /* nothing to do */
+    }
     return
 }
 
@@ -232,4 +239,3 @@ critcl::ccommand isOverlapNativec {clientData interp objc objv} {
 }
 
 package provide ipMorec 1.0
-

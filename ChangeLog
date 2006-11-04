@@ -1,3 +1,8 @@
+2006-11-04  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* modules/tcllibc.tcl: Silence critcl warnings. Files with no code
+	raise a warning message. Add an empty critcl::ccode block to avoid.
+
 2006-10-13  Andreas Kupries  <andreask@activestate.com>
 
 	* modules/tcllibc.tcl: Bumped to version 0.3.1. I believe this has

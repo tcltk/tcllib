@@ -10,5 +10,9 @@ package require critcl
 package provide base64c 0.1.0
 
 namespace eval ::base64c {
-    variable base64c_rcsid {$Id: base64c.tcl,v 1.3 2004/01/15 06:36:12 andreas_kupries Exp $}
+    variable base64c_rcsid {$Id: base64c.tcl,v 1.4 2006/11/04 15:20:36 patthoyts Exp $}
+
+    critcl::ccode {
+        /* no code required in this file */
+    }
 }
