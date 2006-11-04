@@ -1,3 +1,9 @@
+2006-11-04  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sha256c.tcl: Support MSVC as well as gcc.
+	* sha256.h:    (critcl2 can use gcc and/or msvc on windows)
+	* sha256.c:
+
 2006-10-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl: Bumped versions of sha1, sha256 by a patchlevel
