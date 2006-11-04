@@ -5,5 +5,8 @@ package require critcl
 package provide tcllibc 0.3.1
 
 namespace eval ::tcllib {
-    variable tcllibc_rcsid {$Id: tcllibc.tcl,v 1.5 2006/10/13 22:08:09 andreas_kupries Exp $}
+    variable tcllibc_rcsid {$Id: tcllibc.tcl,v 1.6 2006/11/04 15:20:36 patthoyts Exp $}
+    critcl::ccode {
+        /* no code required in this file */
+    }
 }
