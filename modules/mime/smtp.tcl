@@ -1,7 +1,7 @@
 # smtp.tcl - SMTP client
 #
 # Copyright (c) 1999-2000 Marshall T. Rose
-# Copyright (c) 2003-2005 Pat Thoyts
+# Copyright (c) 2003-2006 Pat Thoyts
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -32,7 +32,7 @@ catch {
 
 
 namespace eval ::smtp {
-    variable version 1.4.2
+    variable version 1.4.3
     variable trf 1
     variable smtp
     array set smtp { uid 0 }
@@ -1123,6 +1123,10 @@ proc ::smtp::wtextaux {token part} {
 	    while {[regsub -all -- {([^\r])\n} $result "\\1\r\n" result]} {}
             regsub -all -- {\n\.}      $result "\n.."   result
 
+            # Fix for bug #827436 - mail data must end with CRLF.CRLF
+            if {[string compare [string index $result end] "\n"] != 0} {
+                append result "\r\n"
+            }
             set state(size) [string length $result]
             puts -nonewline $state(sd) $result
             set result ""
