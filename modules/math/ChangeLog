@@ -1,8 +1,13 @@
+2006-11-06  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+	* fuzzy.test : fixed a dependency on Tcl 8.4 behaviour in one test case
+	               (the value of tcl_precision)
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.9 ========================
-	* 
+	*
 
 2006-09-26  Andreas Kupries  <andreask@activestate.com>
 
