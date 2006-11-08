@@ -3,7 +3,7 @@
 #
 # (c) 2006 Pierre David (pdav@users.sourceforge.net)
 #
-# $Id: ldapx.tcl,v 1.7 2006/11/04 11:57:57 mic42 Exp $
+# $Id: ldapx.tcl,v 1.8 2006/11/08 19:42:12 mic42 Exp $
 #
 # History:
 #   2006/08/08 : pda : design
@@ -549,13 +549,15 @@ snit::type ::ldapx::entry {
 	#
 	# Computes differences between values in the two entries
 	#
-        if {[$old dn] ne ""} then {
+
+	if {[$old dn] ne ""} then {
 	    $self dn [$old dn]
 	} elseif {[$new dn] ne ""} then {
 	    $self dn [$new dn]
 	} else {
 	    $self dn ""
 	}
+
 	switch -- "[$new isempty][$old isempty]" {
 	    00 {
 		# They may differ
