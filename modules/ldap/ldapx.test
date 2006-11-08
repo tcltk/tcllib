@@ -7,7 +7,7 @@
 # Copyright (c) 2006 by Pierre David <pdav@users.sourceforge.net>
 # All rights reserved.
 #
-# $Id: ldapx.test,v 1.2 2006/10/09 21:41:40 andreas_kupries Exp $
+# $Id: ldapx.test,v 1.3 2006/11/08 19:42:12 mic42 Exp $
 
 # -------------------------------------------------------------------------
 
@@ -140,7 +140,7 @@ test ldapx-3.3 {ldapx::entry - diff toanother modrdn superior} {
     t3 change
 } [list modrdn $rdn1 0 $sup2]
 
-test ldapx-3.4 {ldapx::entry - diff toanother add} {
+test ldapx-3.4 {ldapx::entry - diff toanother add attr} {
     t1 reset
     t1 setall $entry
     t1 backup t2
@@ -149,7 +149,7 @@ test ldapx-3.4 {ldapx::entry - diff toanother add} {
     t3 change
 } {mod {{modadd anotherattribute {v1 v2}}}}
 
-test ldapx-3.5 {ldapx::entry - diff toanother repl} {
+test ldapx-3.5 {ldapx::entry - diff toanother repl attr} {
     t1 reset
     t1 setall $entry
     t1 backup t2
@@ -167,7 +167,7 @@ test ldapx-3.6 {ldapx::entry - diff toanother add value} {
     t3 change
 } {mod {{modadd a3 v34}}}
 
-test ldapx-3.7 {ldapx::entry - diff toanother del} {
+test ldapx-3.7 {ldapx::entry - diff toanother del attr} {
     t1 reset
     t1 setall $entry
     t1 backup t2
@@ -176,16 +176,28 @@ test ldapx-3.7 {ldapx::entry - diff toanother del} {
     t3 change
 } {mod {{moddel a3}}}
 
-test ldapx-3.8 {ldapx::entry - diff toanother del entry} {
+test ldapx-3.8 {ldapx::entry - diff toanother del entry 1} {
     t1 reset
+    t1 dn "$rdn1,$sup1"
     t1 setall $entry
     t1 backup t2
     t1 setall {}
     t3 diff t1 t2
-    t3 change
-} {del}
+    list [t3 dn] [lindex [t3 change] 0]
+} [list "$rdn1,$sup1" del]
 
-test ldapx-3.9 {ldapx::entry - diff toanother add entry} {
+test ldapx-3.9 {ldapx::entry - diff toanother del entry 2} {
+    t1 reset
+    t1 dn "$rdn1,$sup1"
+    t1 setall $entry
+    t1 backup t2
+    t1 dn ""
+    t1 setall {}
+    t3 diff t1 t2
+    list [t3 dn] [lindex [t3 change] 0]
+} [list "$rdn1,$sup1" del]
+
+test ldapx-3.10 {ldapx::entry - diff toanother add entry} {
     t1 reset
     t1 setall {}
     t1 backup t2
@@ -194,7 +206,26 @@ test ldapx-3.9 {ldapx::entry - diff toanother add entry} {
     lsort [list [lindex [t3 change] 0] [lsort [lindex [t3 change] 1]]]
 } [lsort [list add [lsort [string tolower $entry]]]]
 
-test ldapx-3.10 {ldapx::entry - diff tothesame} {
+test ldapx-3.11 {ldapx::entry - diff toanother add entry dn 1} {
+    t1 reset
+    t1 backup t2
+    t1 dn "$rdn1,$sup1"
+    t1 setall $entry
+    t3 diff t1 t2
+    list [t3 dn] [lindex [t3 change] 0]
+} [list "$rdn1,$sup1" add]
+
+test ldapx-3.12 {ldapx::entry - diff toanother add entry dn 2} {
+    t1 reset
+    t1 dn "$rdn1,$sup1"
+    t1 backup t2
+    t1 setall $entry
+    t3 diff t1 t2
+    list [t3 dn] [lindex [t3 change] 0]
+} [list "$rdn1,$sup1" add]
+
+
+test ldapx-3.13 {ldapx::entry - diff tothesame} {
     t1 reset
     t1 setall $entry
     t1 backup
@@ -203,7 +234,7 @@ test ldapx-3.10 {ldapx::entry - diff tothesame} {
     t3 change
 } {mod {{modrepl a3 v34}}}
 
-test ldapx-3.11 {ldapx::entry - restore toanother} {
+test ldapx-3.14 {ldapx::entry - restore toanother} {
     t1 reset
     t1 setall {a v}
     t1 backup
@@ -211,7 +242,7 @@ test ldapx-3.11 {ldapx::entry - restore toanother} {
     t2 getall
 } {a v}
 
-test ldapx-3.12 {ldapx::entry - restore tothesame} {
+test ldapx-3.15 {ldapx::entry - restore tothesame} {
     t1 reset
     t1 setall {a v}
     t1 backup
@@ -220,7 +251,7 @@ test ldapx-3.12 {ldapx::entry - restore tothesame} {
     t1 getall
 } {a v}
 
-test ldapx-3.13 {ldapx::entry - swap} {
+test ldapx-3.16 {ldapx::entry - swap} {
     t1 reset
     t1 setall {a v}
     t1 backup
@@ -232,7 +263,7 @@ test ldapx-3.13 {ldapx::entry - swap} {
     list $l1 $l2
 } {{a v} {b w}}
 
-test ldapx-3.14 {ldapx::entry - apply modrdn rdn} {
+test ldapx-3.17 {ldapx::entry - apply modrdn rdn} {
     t1 reset
     t1 dn "$rdn1,$sup1"
     t2 reset
@@ -242,7 +273,7 @@ test ldapx-3.14 {ldapx::entry - apply modrdn rdn} {
     t1 dn
 } "$rdn2,$sup1"
 
-test ldapx-3.15 {ldapx::entry - apply modrdn superior} {
+test ldapx-3.18 {ldapx::entry - apply modrdn superior} {
     t1 reset
     t1 dn "$rdn1,$sup1"
     t2 reset
@@ -252,7 +283,7 @@ test ldapx-3.15 {ldapx::entry - apply modrdn superior} {
     t1 dn
 } "$rdn1,$sup2"
 
-test ldapx-3.16 {ldapx::entry - apply modrdn rdn+superior} {
+test ldapx-3.19 {ldapx::entry - apply modrdn rdn+superior} {
     t1 reset
     t1 dn "$rdn1,$sup1"
     t2 reset
@@ -262,7 +293,7 @@ test ldapx-3.16 {ldapx::entry - apply modrdn rdn+superior} {
     t1 dn
 } "$rdn2,$sup2"
 
-test ldapx-3.17 {ldapx::entry - apply add} {
+test ldapx-3.20 {ldapx::entry - apply add} {
     t1 reset
     t2 reset
     t2 dn "$rdn1,$sup1"
@@ -271,7 +302,7 @@ test ldapx-3.17 {ldapx::entry - apply add} {
     lsort [t1 getall]
 } [lsort $entry]
 
-test ldapx-3.18 {ldapx::entry - apply del} {
+test ldapx-3.21 {ldapx::entry - apply del} {
     t1 reset
     t1 dn "$rdn1,$sup1"
     t1 setall $entry
@@ -282,7 +313,7 @@ test ldapx-3.18 {ldapx::entry - apply del} {
     lsort [t1 getall]
 } {}
 
-test ldapx-3.19 {ldapx::entry - apply mod add} {
+test ldapx-3.22 {ldapx::entry - apply mod add} {
     t1 reset
     t1 dn "$rdn1,$sup1"
     t1 setall $entry
@@ -293,7 +324,7 @@ test ldapx-3.19 {ldapx::entry - apply mod add} {
     t1 get a4
 } {v41 v42}
 
-test ldapx-3.20 {ldapx::entry - apply mod del} {
+test ldapx-3.23 {ldapx::entry - apply mod del} {
     t1 reset
     t1 dn "$rdn1,$sup1"
     t1 setall $entry
@@ -304,7 +335,7 @@ test ldapx-3.20 {ldapx::entry - apply mod del} {
     t1 get a3
 } {}
 
-test ldapx-3.21 {ldapx::entry - apply mod repl} {
+test ldapx-3.24 {ldapx::entry - apply mod repl} {
     t1 reset
     t1 dn "$rdn1,$sup1"
     t1 setall $entry
