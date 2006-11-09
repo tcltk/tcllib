@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.44 2006/10/23 19:29:08 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.45 2006/11/09 17:24:42 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -260,18 +260,24 @@ proc ::ftp::StateHandler {s {sock ""}} {
 		    DisplayMsg $s $errmsg control
 		}
 	    } else {
-		set buffer $bufline
-			
 		# multi-line format detected ("-"), get all the lines
 		# until the real return code
 
+		set buffer $bufline
+			
 		while { [string equal $multi_line "-"] } {
 		    set number [gets $sock bufline]	
 		    if { $number > 0 } {
 			append buffer \n "$bufline"
 			regexp -- "(^\[0-9\]+)( |-)?(.*)$" $bufline all rc multi_line
+			# multi_line is not set if the bufline does not match the regexp,
+			# I.e. this keeps the '-' which started this around until the
+			# closing line does match and sets it to space.
 		    }
 		}
+
+		# Export the accumulated response. [Bug 1191607].
+		set msgtext $buffer
 	    }
         } elseif { [eof $ftp(CtrlSock)] } {
             # remote server has closed control connection. kill
@@ -2994,4 +3000,4 @@ if { [string equal [uplevel "#0" {info commands tkcon}] "tkcon"] } {
 # ==================================================================
 # At last, everything is fine, we can provide the package.
 
-package provide ftp [lindex {Revision: 2.4.6} 1]
+package provide ftp [lindex {Revision: 2.4.7} 1]
