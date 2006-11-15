@@ -1,3 +1,7 @@
+2006-11-15  Michael Schlenker <mic42@users.sourceforge.net>
+        
+        * ldap.tcl      Removed a leftover debug output..
+        
 2006-11-08  Michael Schlenker <mic42@users.sourceforge.net>
 
         * ldapx.tcl     Whitespace fixes. Tests for fixed bug 

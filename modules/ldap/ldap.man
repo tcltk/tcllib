@@ -6,7 +6,7 @@
 [moddesc   {LDAP client}]
 [titledesc {LDAP client}]
 [require Tcl 8.4]
-[require ldap [opt 1.6.7]]
+[require ldap [opt 1.6.8]]
 [description]
 [para]
 
