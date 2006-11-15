@@ -35,7 +35,7 @@
 #   NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
 #   MODIFICATIONS.
 #
-#   $Id: ldap.tcl,v 1.22 2006/10/14 19:09:20 mic42 Exp $
+#   $Id: ldap.tcl,v 1.23 2006/11/15 19:28:03 mic42 Exp $
 #
 #   written by Jochen Loewer
 #   3 June, 1999
@@ -44,7 +44,7 @@
 
 package require Tcl 8.4
 package require asn 0.7
-package provide ldap 1.6.7
+package provide ldap 1.6.8
 
 namespace eval ldap {
 
@@ -1461,7 +1461,6 @@ proc ldap::searchEnd { handle } {
     FinalizeMessage $handle $conn(searchInProgress)
     
     unset conn(searchInProgress)
-    puts "Search end done for $handle"
     return
 }
 
