@@ -1,3 +1,84 @@
+2006-11-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl: Version of graph bumped to 2.2.
+
+	* graph.man: Updated documentation for new features, extended
+	  abilities, critcl implementation, etc.
+
+	* graph.tcl:     Changed core graph code to support multiple
+	* graph_tcl.tcl: implementations, and Tcl implementation. Added
+	  some more features (arc|node delete multiple nodes, insertion of
+	  multiple nodes, flipping the direction of arcs), internal
+	  refactoring of common argument checks, additional checks closing
+	  some holes.
+
+	* graph_c.tcl: Critcl based implementation of graph.
+	* graph/arc.c:
+	* graph/methods.c:
+	* graph/ds.h:
+	* graph/node.c:
+	* graph/objcmd.h:
+	* graph/attr.c:
+	* graph/arcshimmer.c:
+	* graph/objcmd.c:
+	* graph/arc.h:
+	* graph/filter.c:
+	* graph/methods.h:
+	* graph/util.c:
+	* graph/util.h:
+	* graph/node.h:
+	* graph/graph.h:
+	* graph/graph.c:
+	* graph/nacommon.c:
+	* graph/walk.c:
+	* graph/walk.h:
+	* graph/global.h:
+	* graph/nodeshimmer.c:
+	* graph/attr.h:
+	* graph/global.c:
+	* graph/nacommon.h:
+
+	* graph.test: Reworked testsuite, split into about one file per
+	* graph/tests/Xsetup: tested method, plus helper and control
+	* graph/tests/arc/delete.test: files. Extended testsuite testing
+	* graph/tests/arc/exists.test: several of the holes which were
+	* graph/tests/arc/flip.test: closed and had never been tested
+	* graph/tests/arc/insert.test: before.
+	* graph/tests/arc/move.test:
+	* graph/tests/arc/move-source.test:
+	* graph/tests/arc/move-target.test:
+	* graph/tests/arc/rename.test:
+	* graph/tests/arc/source.test:
+	* graph/tests/arc/target.test:
+	* graph/tests/arc/attr.test:
+	* graph/tests/attr/get.test:
+	* graph/tests/attr/getall.test:
+	* graph/tests/attr/keyexists.test:
+	* graph/tests/attr/keys.test:
+	* graph/tests/attr/lappend.test:
+	* graph/tests/attr/set.test:
+	* graph/tests/attr/unset.test:
+	* graph/tests/attr/append.test:
+	* graph/tests/attr/Xsetup:
+	* graph/tests/node/degree.test:
+	* graph/tests/node/delete.test:
+	* graph/tests/node/exists.test:
+	* graph/tests/node/insert.test:
+	* graph/tests/node/rename.test:
+	* graph/tests/node/opposite.test:
+	* graph/tests/node/attr.test:
+	* graph/tests/walk.test:
+	* graph/tests/Xsupport:
+	* graph/tests/Xcontrol:
+	* graph/tests/arcs.test:
+	* graph/tests/nodes.test:
+	* graph/tests/deserialize.test:
+	* graph/tests/assign.test:
+	* graph/tests/serialize.test:
+	* graph/tests/command.test:
+	* graph/tests/rassign.test:
+	* graph/tests/swap.test:
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
