@@ -1,3 +1,8 @@
+2006-11-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* support/installation/version.tcl: Added critcl implementation of
+	  struct::graph to the list of critcl supported packages.
+
 2006-11-04  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* modules/tcllibc.tcl: Silence critcl warnings. Files with no code
