@@ -22,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.22 2006/09/19 23:36:15 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.23 2006/11/30 03:01:37 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -1329,8 +1329,6 @@ proc ::comm::CommRunHook {chan event} {
 	set code [catch {uplevel 1 $cmd} res]
     }
 
-    eval $cmd
-
     # Perform the return code propagation promised
     # to the hook scripts.
     switch -exact -- $code {
@@ -1362,4 +1360,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.4
+package provide comm 4.4.1
