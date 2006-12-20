@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tar.tcl,v 1.8 2006/06/29 23:16:30 afaupell Exp $
+# RCS: @(#) $Id: tar.tcl,v 1.9 2006/12/20 19:15:37 afaupell Exp $
 
 package provide tar 0.2
 
@@ -22,7 +22,10 @@ proc ::tar::parseOpts {acc opts} {
     while {$i < $len} {
         set name [string trimleft [lindex $opts $i] -]
         if {![info exists flags($name)]} {return -code error "unknown option \"$name\""}
-        if {$flags($name) > 0} {
+        if {$flags($name) == 1} {
+            set $name [lindex $opts [expr {$i + 1}]]
+            incr i $flags($name)
+        } elseif {$flags($name) > 1} {
             set $name [lrange $opts [expr {$i + 1}] [expr {$i + $flags($name)}]]
             incr i $flags($name)
         } else {
@@ -117,7 +120,7 @@ proc ::tar::untar {tar args} {
     } elseif {[info exists glob]} {
         set pattern $glob
     }
-    
+
     set ret {}
     set fh [::open $tar]
     fconfigure $fh -encoding binary -translation lf -eofchar {}
@@ -125,12 +128,11 @@ proc ::tar::untar {tar args} {
         array set header [readHeader [read $fh 512]]
         if {$header(name) == ""} break
         set name [string trimleft $header(prefix)$header(name) /]
-        
         if {![string match $pattern $name] || ($nooverwrite && [file exists $name])} {
             seek $fh [expr {$header(size) + [pad $header(size)]}] current
             continue
         }
-        
+
         set name [file join $dir $name]
         if {![file isdirectory [file dirname $name]]} {
             file mkdir [file dirname $name]
@@ -153,7 +155,7 @@ proc ::tar::untar {tar args} {
         }
         seek $fh [pad $header(size)] current
         if {![file exists $name]} continue
-        
+
         if {$::tcl_platform(platform) == "unix"} {
             if {!$noperms} {
                 catch {file attributes $name -permissions [string range $header(mode) 2 end]}
