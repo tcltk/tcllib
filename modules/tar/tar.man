@@ -30,7 +30,9 @@ foo.jpg {mode 0644 uid 1000 gid 0 size 7580 mtime 811903867 type file linkname {
 
 [call [cmd ::tar::untar] [arg tarball] [arg args]]
 
-Extracts [arg tarball]
+Extracts [arg tarball]. [arg -file] and [arg -glob] limit the extraction
+to files which exactly match or pattern match the given argument. No error is
+thrown if no files match.
 
 [list_begin opt]
 [opt_def -dir dirName]
@@ -49,7 +51,8 @@ Returns the contents of [arg fileName] from the [arg tarball]
 
 [call [cmd ::tar::create] [arg tarball] [arg files] [arg args]]
 
-Creates a new tar file containing the [arg files]
+Creates a new tar file containing the [arg files]. [arg files] must be specified
+as a single argument which is a proper list of filenames.
 
 [list_begin opt]
 [opt_def -dereference]
@@ -58,7 +61,8 @@ Creates a new tar file containing the [arg files]
 
 [call [cmd ::tar::add] [arg tarball] [arg files] [arg args]]
 
-Appends [arg files] to the end of the existing [arg tarball]
+Appends [arg files] to the end of the existing [arg tarball]. [arg files] must be specified
+as a single argument which is a proper list of filenames.
 
 [list_begin opt]
 [opt_def -dereference]
