@@ -32,7 +32,8 @@ foo.jpg {mode 0644 uid 1000 gid 0 size 7580 mtime 811903867 type file linkname {
 
 Extracts [arg tarball]. [arg -file] and [arg -glob] limit the extraction
 to files which exactly match or pattern match the given argument. No error is
-thrown if no files match.
+thrown if no files match. Returns a list of filenames extracted and the file
+size. The size will be null for non regular files.
 
 [list_begin opt]
 [opt_def -dir dirName]
@@ -43,6 +44,12 @@ thrown if no files match.
 [opt_def -noperms]
 [list_end]
 [nl]
+
+[example {
+% foreach {file size} [::tar::untar tarball.tar -glob *.jpg] {
+puts "Extracted $file ($size bytes)"
+}
+}]
 
 [call [cmd ::tar::get] [arg tarball] [arg fileName]]
 
