@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tar.tcl,v 1.9 2006/12/20 19:15:37 afaupell Exp $
+# RCS: @(#) $Id: tar.tcl,v 1.10 2007/01/09 05:06:17 andreas_kupries Exp $
 
-package provide tar 0.2
+package provide tar 0.3
 
 namespace eval ::tar {}
 
