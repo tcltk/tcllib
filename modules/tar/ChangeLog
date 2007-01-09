@@ -1,7 +1,13 @@
+2007-01-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tar.tcl: Bumped version to 0.3, for the bugfix described
+	* tar.man: by the last entry.
+	* pkgIndex.tcl:
+
 2006-12-20  Aaron Faupell  <afaupell@users.sourceforge.net>
 
 	* tar.tcl: fix in parseOpts which affected -file and -glob
-	arguments to tar::untar
+	  arguments to tar::untar
 	* tar.man: clarifications to add, create, and untar
 
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
