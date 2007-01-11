@@ -140,5 +140,6 @@ processing.  Subsequently, different options are checked to see if
 they have been passed to the script, and what their value is.
 
 [keywords {cmdline processing} {argument processing} argv argv0]
+[keywords {command line processing}]
 [manpage_end]
 
