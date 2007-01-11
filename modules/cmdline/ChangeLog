@@ -1,3 +1,8 @@
+2007-01-11  Andreas Kupries  <andreask@activestate.com>
+
+	* cmdline.man: Extended the list of keywords in the documentation.
+	  [SF Tcllib Bug 1615252].
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
