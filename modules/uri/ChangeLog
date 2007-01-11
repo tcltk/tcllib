@@ -1,3 +1,11 @@
+2007-01-11  Andreas Kupries  <andreask@activestate.com>
+
+	* uri.tcl (::uri::SplitHttp): [SF Tcllib Bug 1610655]. Modified to
+	* uri.man: slash of queries after the first question mark, not the
+	* uri.test: last. We have queries with subqueries in the wild,
+	* pkgIndex.tcl: bogus per the spec, but in use. Version has been
+	  bumped to 1.2.1.
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
