@@ -11,7 +11,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.34 2006/09/19 23:36:18 andreas_kupries Exp $
+# CVS: $Id: uri.tcl,v 1.35 2007/01/11 19:35:23 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -293,15 +293,17 @@ proc ::uri::SplitHttp {url} {
     set searchPattern   "\\?(${search})\$"
     set fragmentPattern "#(${segment})\$"
 
-    # slash off possible query
+    # slash off possible query. the 'search' regexp, while official,
+    # is not good enough. We have apparently lots of urls in the wild
+    # which contain unquoted urls with queries in a query. The RE
+    # finds the embedded query, not the actual one. Using string first
+    # now instead of a RE
 
-    if {[regexp -indices -- $searchPattern $url match query]} {
-	set from [lindex $query 0]
-	set to   [lindex $query 1]
-
-	set parts(query) [string range $url $from $to]
-
-	set url [string replace $url [lindex $match 0] end]
+    if {[set pos [string first ? $url]] >= 0} {
+	incr pos
+	set parts(query) [string range   $url $pos end]
+	incr pos -1
+	set url          [string replace $url $pos end]
     }
 
     # slash off possible fragment
@@ -1029,4 +1031,4 @@ uri::register ldap {
     variable	url		"ldap:$schemepart"
 }
 
-package provide uri 1.2
+package provide uri 1.2.1

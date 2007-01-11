@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2000 by Zveno Pty Ltd.
 #
-# RCS: @(#) $Id: uri.test,v 1.23 2006/10/09 21:41:42 andreas_kupries Exp $
+# RCS: @(#) $Id: uri.test,v 1.24 2007/01/11 19:35:23 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -23,6 +23,10 @@ testing {
 
 # -------------------------------------------------------------------------
 # Split tests
+
+test uri-1.0 {uri::split - http w/- nested query} {
+    dictsort [uri::split http://test.net/path/path2?query=url?otherquery]
+} {host test.net path path/path2 port {} pwd {} query query=url?otherquery scheme http user {}}
 
 test uri-1.1 {uri::split - http w/- query} {
     dictsort [uri::split http://test.net/path/path2?query]
