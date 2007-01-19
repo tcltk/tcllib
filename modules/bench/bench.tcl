@@ -2,13 +2,13 @@
 #
 #	Management of benchmarks.
 #
-# Copyright (c) 2005 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2005-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # library derived from runbench.tcl application (C) Jeff Hobbs.
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: bench.tcl,v 1.6 2006/06/13 23:20:30 andreas_kupries Exp $
+# RCS: @(#) $Id: bench.tcl,v 1.7 2007/01/19 07:21:01 andreas_kupries Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -320,11 +320,11 @@ proc ::bench::norm {data col} {
 	if {[string match "desc*"   $key]} continue
 	if {[string match "interp*" $key]} continue
 
-	foreach {desc ip} [split $key ,] break
-	if {[string equal $ip $refip]}                       continue
+	foreach {_ desc ip} $key break
+	if {[string equal $ip $refip]}      continue
 
 	set v $DATA($key)
-	if {![string is double -strict $v]}                  continue
+	if {![string is double -strict $v]} continue
 
 	if {![info exists DATA([list usec $desc $refip])]} {
 	    # We cannot normalize, we do not keep the time value.
@@ -470,4 +470,4 @@ namespace eval ::bench {
 # ### ### ### ######### ######### ######### ###########################
 ## Ready to run
 
-package provide bench 0.1
+package provide bench 0.1.1

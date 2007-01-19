@@ -1,3 +1,12 @@
+2007-01-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bench.tcl (bench::norm): Removed 'split ,' from code, was left
+	* pkgIndex.tcl: in wrongly after the rewrite of the raw
+	  representation. The relevant key is a list which we can and have
+	  to use directly, no split required. The fixed bug caused the
+	  normalization to fail and return the empty string for all
+	  cells. Version number bumped to 0.1.1 for this.
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
