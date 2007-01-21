@@ -5,6 +5,8 @@
 
 	* pkgIndex.tcl: Version of sets bumped to 2.2.
 
+	* sets.bench: New, benchmarks for set operations, incomplete.
+
 	* sets.tcl:     Changed core sets code to support multiple
 	* sets_tcl.tcl: implementations, and Tcl implementation.
 
