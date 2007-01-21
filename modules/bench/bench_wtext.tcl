@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: bench_wtext.tcl,v 1.3 2006/06/13 23:20:30 andreas_kupries Exp $
+# RCS: @(#) $Id: bench_wtext.tcl,v 1.4 2007/01/21 23:29:06 andreas_kupries Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -62,7 +62,7 @@ proc ::bench::out::text {data} {
 
     set dlist {}
     set n 1
-    foreach key [lsort -dict [array names DATA desc*]] {
+    foreach key [lsort -dict -index 1 [array names DATA desc*]] {
 	lappend dlist [lindex $key 1]
 	incr n
     }
@@ -162,4 +162,4 @@ proc ::bench::out::PADR {max str} {
 # ### ### ### ######### ######### ######### ###########################
 ## Ready to run
 
-package provide bench::out::text 0.1.1
+package provide bench::out::text 0.1.2

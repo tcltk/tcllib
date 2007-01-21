@@ -1,3 +1,8 @@
+2007-01-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bench_wcsv.tcl: Fixed sorting of descriptions in text and
+	* bench_wtext.tcl: csv output. Version is now 0.1.2.
+
 2007-01-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* bench.tcl (bench::norm): Removed 'split ,' from code, was left
