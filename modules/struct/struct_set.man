@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_set.man,v 1.7 2006/09/19 23:36:18 andreas_kupries Exp $}]
-[manpage_begin struct::set n 2.1.1]
-[copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[comment {$Id: struct_set.man,v 1.8 2007/01/21 22:15:59 andreas_kupries Exp $}]
+[manpage_begin struct::set n 2.2]
+[copyright {2004-2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc {Tcl Data Structures}]
 [titledesc {Procedures for manipulating sets}]
 [require Tcl 8.0]
-[require struct::set [opt 2.1.1]]
+[require struct::set [opt 2.2]]
 [description]
 
 [para]
@@ -18,6 +18,12 @@ processing finite sets.
 It exports only a single command, [cmd struct::set]. All
 functionality provided here can be reached through a subcommand of
 this command.
+
+[para]
+
+[emph Note:] As of version 2.2 of this package a critcl based C
+implementation is available. This implementation however requires Tcl
+8.4 to run.
 
 [section COMMANDS]
 [list_begin definitions]
