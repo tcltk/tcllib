@@ -4,11 +4,11 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# Copyright (c) 2004 by Andreas Kupries
+# Copyright (c) 2004-2007 by Andreas Kupries
 #
-# RCS: @(#) $Id: sets.test,v 1.13 2006/10/09 21:41:42 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.test,v 1.14 2007/01/21 22:15:59 andreas_kupries Exp $
 
-# -------------------------------------------------------------------------
+#----------------------------------------------------------------------
 
 source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
@@ -18,7 +18,23 @@ testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
 testing {
-    useLocal sets.tcl struct::set
+    if {[useTcllibC]} {
+	useLocalKeep sets.tcl struct::set
+    } else {
+	useLocal     sets.tcl struct::set
+    }
+}
+
+# -------------------------------------------------------------------------
+
+struct::set::SwitchTo {}
+foreach e [struct::set::KnownImpl] {
+    if {[::struct::set::LoadAccel $e]} {
+	switch -exact -- $e {
+	    critcl {puts "> tcllibc based"}
+	    tcl    {puts "> pure Tcl"}
+	}
+    }
 }
 
 # -------------------------------------------------------------------------
@@ -32,509 +48,76 @@ set sd {a b c d e f}     ; # a + c
 set se {c d e f g h}     ; # b + c
 set sf {a b c d e f g h} ; # a + b
 
-interp alias {} setop {} ::struct::set::set
+interp alias {} setop {} ::struct::set
 
-#----------------------------------------------------------------------
+proc luniq {list} {
+    set x() {} ; unset x()
+    foreach l $list {set x($l) .}
+    return [lsort [array names x]]
+}
 
-test set-1.0 {nothing} {
-    catch {setop} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::set} {cmd args} 0]
+############################################################
+## Iterate over all loaded implementations, activate
+## them in turn, and run the tests for the active
+## implementation. As a mini-benchmark we time how
+## long each run takes.
 
-test set-1.1 {bogus} {
-    catch {setop foo} msg
-    set msg
-} {bad option "foo": must be add, contains, difference, empty, equal, exclude, include, intersect, intersect3, size, subsetof, subtract, symdiff, or union}
+#puts "\nset impl. performance"
 
+set usec  0
+set tests [file join [file dirname [info script]] sets.testsuite]
 
-test set-2.0 {emptiness} {
-    catch {setop empty} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Sempty} {set} 0]
+catch {memory validate on}
 
-test set-2.1 {emptiness} {
-    catch {setop empty a b} msg
-    set msg
-} [tcltest::tooManyArgs {::struct::set::Sempty} {set}]
+foreach impl [struct::set::Implementations] {
+    struct::set::SwitchTo $impl
 
-test set-2.2 {emptiness} {
-    setop empty $sempty
-} 1
+    # The global variable  'impl' is part of the public
+    # API the testsuit (in set.testsuite) can expect
+    # from the environment.
 
-test set-2.3 {emptiness} {
-    setop empty $smultiples
-} 0
+    switch -exact -- $impl {
+	critcl {
+	    proc tmWrong {m loarg n} {
+		return [tcltest::wrongNumArgs "::struct::set $m" $loarg $n]
+	    }
 
-test set-2.4 {emptiness} {
-    setop empty $sa
-} 0
+	    proc tmTooMany {m loarg} {
+		return [tcltest::tooManyArgs "::struct::set $m" $loarg]
+	    }
 
+	    proc Nothing {} {
+		return [tcltest::wrongNumArgs {::struct::set} {cmd ?arg ...?} 0]
+	    }
+	}
+	tcl {
+	    proc Nothing {} {
+		return [tcltest::wrongNumArgs {::struct::set} {cmd args} 0]
+	    }
 
-test set-3.0 {size} {
-    catch {setop size} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Ssize} {set} 0]
+	    proc tmWrong {m loarg n} {
+		return [tcltest::wrongNumArgs "::struct::set::S_$m" $loarg $n]
+	    }
 
-test set-3.1 {size} {
-    catch {setop size a b} msg
-    set msg
-} [tcltest::tooManyArgs {::struct::set::Ssize} {set}]
+	    proc tmTooMany {m loarg} {
+		return [tcltest::tooManyArgs "::struct::set::S_$m" $loarg]
+	    }
+	}
+    }
 
-test set-3.2 {size} {
-    setop size $sempty
-} 0
+    set usec [time {source $tests} 1]
 
-test set-3.3 {size} {
-    setop size $smultiples
-} 7
+    #puts "$impl:\t$usec"
+}
 
-test set-3.4 {size} {
-    setop size $sa
-} 4
+catch {memory validate off}
 
+unset usec
+unset tests
 
-test set-4.0 {union} {
-    setop union
-} {}
+# Reset system to fully inactive state.
 
-test set-4.1 {union} {
-    setop union $sempty
-} $sempty
+struct::set::SwitchTo {}
 
-test set-4.2 {union} {
-    setop union $smultiples
-} $smultiples
-
-test set-4.3 {union} {
-    setop union $sa
-} $sa
-
-test set-4.4 {union} {
-    lsort [setop union $sa $sb]
-} $sf
-
-test set-4.5 {union} {
-    lsort [setop union $sa $sc]
-} $sd
-
-test set-4.6 {union} {
-    lsort [setop union $sa $sd]
-} {a b c d e f}
-
-test set-4.7 {union} {
-    lsort [setop union $sa $sempty]
-} $sa
-
-test set-4.8 {union} {
-    lsort [setop union $sempty $sa]
-} $sa
-
-test set-4.9 {union} {
-    lsort [setop union $sempty $sempty]
-} $sempty
-
-test set-4.10 {union} {
-    lsort [setop union $sa $sempty $smultiples]
-} {a b c d f h j}
-
-
-test set-5.0 {intersect} {
-    setop intersect
-} {}
-
-test set-5.1 {intersect} {
-    setop intersect $sempty
-} $sempty
-
-test set-5.2 {intersect} {
-    setop intersect $smultiples
-} $smultiples
-
-test set-5.3 {intersect} {
-    setop intersect $sa
-} $sa
-
-test set-5.4 {intersect} {
-    lsort [setop intersect $sa $sb]
-} $sempty
-
-test set-5.5 {intersect} {
-    lsort [setop intersect $sa $sc]
-} {c d}
-
-test set-5.6 {intersect} {
-    lsort [setop intersect $sa $sd]
-} $sa
-
-test set-5.7 {intersect} {
-    lsort [setop intersect $sa $sempty]
-} $sempty
-
-test set-5.8 {intersect} {
-    lsort [setop intersect $sempty $sa]
-} $sempty
-
-test set-5.9 {intersect} {
-    lsort [setop intersect $sempty $sempty]
-} $sempty
-
-test set-5.10 {intersect} {
-    lsort [setop intersect $sa $sempty $smultiples]
-} $sempty
-
-test set-5.11 {intersect} {
-    lsort [setop intersect $sa $sa]
-} $sa
-
-test set-5.12 {intersect} {
-    lsort [setop intersect $sa $sc $sd]
-} {c d}
-
-test set-5.13 {intersect} {
-    lsort [setop intersect $sa $sc {x y}]
-} $sempty
-
-
-test set-6.0 {difference} {
-    catch {setop difference} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Sdifference} {A B} 0]
-
-test set-6.1 {difference} {
-    catch {setop difference a} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Sdifference} {A B} 1]
-
-test set-6.2 {difference} {
-    catch {setop difference a b c} msg
-    set msg
-} [tcltest::tooManyArgs {::struct::set::Sdifference} {A B}]
-
-test set-6.3 {difference} {
-    setop difference $sa $sempty
-} $sa
-
-test set-6.4 {difference} {
-    setop difference $sempty $sa
-} $sempty
-
-test set-6.5 {difference} {
-    lsort [setop difference $sa $sb]
-} $sa
-
-test set-6.6 {difference} {
-    lsort [setop difference $sa $sc]
-} {a b}
-
-test set-6.7 {difference} {
-    lsort [setop difference $sa $sd]
-} $sempty
-
-test set-6.8 {difference} {
-    lsort [setop difference $sd $sa]
-} {e f}
-
-test set-6.9 {difference} {
-    lsort [setop difference \
-	    [list "Washington, DC (District of Columbia)" Maryland Virginia] \
-	    [list "Washington, DC (District of Columbia)" Virginia]]
-} Maryland
-
-test set-6.10 {difference} {
-    lsort [setop difference \
-	    [list DC Maryland Virginia] \
-	    [list DC Virginia]]
-} Maryland
-
-
-test set-7.0 {symdiff} {
-    catch {setop symdiff} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Ssymdiff} {A B} 0]
-
-test set-7.1 {symdiff} {
-    catch {setop symdiff a} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Ssymdiff} {A B} 1]
-
-test set-7.2 {symdiff} {
-    catch {setop symdiff a b c} msg
-    set msg
-} [tcltest::tooManyArgs {::struct::set::Ssymdiff} {A B}]
-
-test set-7.3 {symdiff} {
-    lsort [setop symdiff $sa $sempty]
-} $sa
-
-test set-7.4 {symdiff} {
-    lsort [setop symdiff $sempty $sa]
-} $sa
-
-test set-7.5 {symdiff} {
-    lsort [setop symdiff $sa $sb]
-} $sf
-
-test set-7.6 {symdiff} {
-    lsort [setop symdiff $sa $sc]
-} {a b e f}
-
-test set-7.7 {symdiff} {
-    lsort [setop symdiff $sa $sd]
-} {e f}
-
-test set-7.8 {symdiff} {
-    lsort [setop symdiff $sd $sa]
-} {e f}
-
-
-test set-8.0 {intersect3} {
-    catch {setop intersect3} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Sintersect3} {A B} 0]
-
-test set-8.1 {intersect3} {
-    catch {setop intersect3 a} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Sintersect3} {A B} 1]
-
-test set-8.2 {intersect3} {
-    catch {setop intersect3 a b c} msg
-    set msg
-} [tcltest::tooManyArgs {::struct::set::Sintersect3} {A B}]
-
-test set-8.3 {intersect3} {
-    foreach {i da db} [setop intersect3 $sa $sempty] break
-    list [lsort $i] [lsort $da] [lsort $db]
-} [list $sempty $sa $sempty]
-
-test set-8.4 {intersect3} {
-    foreach {i da db} [setop intersect3 $sempty $sa] break
-    list [lsort $i] [lsort $da] [lsort $db]
-} [list $sempty $sempty $sa]
-
-test set-8.5 {intersect3} {
-    foreach {i da db} [setop intersect3 $sa $sb] break
-    list [lsort $i] [lsort $da] [lsort $db]
-} [list $sempty $sa $sb]
-
-test set-8.6 {intersect3} {
-    foreach {i da db} [setop intersect3 $sa $sc] break
-    list [lsort $i] [lsort $da] [lsort $db]
-} {{c d} {a b} {e f}}
-
-test set-8.7 {intersect3} {
-    foreach {i da db} [setop intersect3 $sa $sd] break
-    list [lsort $i] [lsort $da] [lsort $db]
-} [list $sa $sempty {e f}]
-
-test set-8.8 {intersect3} {
-    foreach {i da db} [setop intersect3 $sempty $sempty] break
-    list [lsort $i] [lsort $da] [lsort $db]
-} [list $sempty $sempty $sempty]
-
-test set-8.9 {intersect3} {
-    foreach {i da db} [setop intersect3 $sa $sa] break
-    list [lsort $i] [lsort $da] [lsort $db]
-} [list $sa $sempty $sempty]
-
-
-test set-9.0 {equal} {
-    catch {setop equal} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Sequal} {A B} 0]
-
-test set-9.1 {equal} {
-    catch {setop equal a} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Sequal} {A B} 1]
-
-test set-9.2 {equal} {
-    catch {setop equal a b c} msg
-    set msg
-} [tcltest::tooManyArgs {::struct::set::Sequal} {A B}]
-
-test set-9.3 {equal} {
-    setop equal $sempty $sempty
-} 1
-
-test set-9.4 {equal} {
-    setop equal $sempty $sa
-} 0
-
-test set-9.5 {equal} {
-    setop equal $sa $sempty
-} 0
-
-test set-9.6 {equal} {
-    setop equal $sa $sb
-} 0
-
-test set-9.7 {equal} {
-    setop equal $sa $sa
-} 1
-
-test set-9.8 {equal} {
-    setop equal $sa $sd
-} 0
-
-test set-9.9 {equal} {
-    setop equal $smultiples {a b c d f h j}
-} 1
-
-
-test set-10.0 {include} {
-    catch {setop include} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Sinclude} {Avar element} 0]
-
-test set-10.1 {include} {
-    catch {setop include A} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Sinclude} {Avar element} 1]
-
-test set-10.2 {include, non-existing variable} {
-    catch {unset A}
-    setop include A B
-    set A
-} {B}
-
-test set-10.3 {include} {
-    catch {unset A} ; set A $sa
-    setop include A B
-    lsort $A
-} {B a b c d}
-
-test set-10.4 {include} {
-    catch {unset A} ; set A $sa
-    setop include A a
-    lsort $A
-} {a b c d}
-
-
-test set-11.0 {exclude} {
-    catch {setop exclude} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Sexclude} {Avar element} 0]
-
-test set-11.1 {exclude} {
-    catch {setop exclude A} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Sexclude} {Avar element} 1]
-
-test set-11.2 {exclude} {
-    catch {unset A}
-    catch {setop exclude A B} msg
-    set msg
-} {can't read "A": no such variable}
-
-test set-11.3 {exclude} {
-    catch {unset A} ; set A $sa
-    setop exclude A B
-    lsort $A
-} {a b c d}
-
-test set-11.4 {exclude} {
-    catch {unset A} ; set A $sa
-    setop exclude A a
-    lsort $A
-} {b c d}
-
-
-test set-12.0 {add} {
-    catch {setop add} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Sadd} {Avar B} 0]
-
-test set-12.1 {add} {
-    catch {setop add A} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Sadd} {Avar B} 1]
-
-test set-12.2 {add} {
-    catch {unset A}
-    catch {setop add A B} msg
-    set msg
-} {can't read "A": no such variable}
-
-test set-12.3 {add} {
-    catch {unset A} ; set A $sa
-    setop add A $sb
-    lsort $A
-} $sf
-
-test set-12.4 {add} {
-    catch {unset A} ; set A $sa
-    setop add A $sc
-    lsort $A
-} $sd
-
-test set-12.5 {add} {
-    catch {unset A} ; set A $sa
-    setop add A $sa
-    lsort $A
-} $sa
-
-
-test set-13.0 {subtract} {
-    catch {setop subtract} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Ssubtract} {Avar B} 0]
-
-test set-13.1 {subtract} {
-    catch {setop subtract A} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Ssubtract} {Avar B} 1]
-
-test set-13.2 {subtract} {
-    catch {unset A}
-    catch {setop subtract A B} msg
-    set msg
-} {can't read "A": no such variable}
-
-test set-13.3 {subtract} {
-    catch {unset A} ; set A $sa
-    setop subtract A $sb
-    lsort $A
-} $sa
-
-test set-13.4 {subtract} {
-    catch {unset A} ; set A $sa
-    setop subtract A $sc
-    lsort $A
-} {a b}
-
-test set-13.5 {subtract} {
-    catch {unset A} ; set A $sa
-    setop subtract A $sa
-    lsort $A
-} {}
-
-
-test set-14.0 {subsetof} {
-    catch {setop subsetof} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Ssubsetof} {A B} 0]
-
-test set-14.1 {subsetof} {
-    catch {setop subsetof A} msg
-    set msg
-} [tcltest::wrongNumArgs {::struct::set::Ssubsetof} {A B} 1]
-
-test set-14.2 {subsetof} {
-    setop subsetof $sa $sb
-} 0
-
-test set-14.3 {subsetof} {
-    setop subsetof $sa $sc
-} 0
-
-test set-14.4 {subsetof} {
-    setop subsetof $sa $sa
-} 1
-
-test set-14.5 {subsetof} {
-    setop subsetof $sa $sf
-} 1
-
-#----------------------------------------------------------------------
+############################################################
 testsuiteCleanup

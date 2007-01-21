@@ -19,6 +19,7 @@ critcl      sha256c      sha1/sha256c.tcl
 critcl      uuid         uuid/uuid.tcl
 critcl      struct_treec struct/tree_c.tcl
 critcl      struct_graphc struct/graph_c.tcl
+critcl      struct_setc  struct/sets_c.tcl
 critcl      base32c      base32/base32_c.tcl
 critcl      base32hexc   base32/base32hex_c.tcl
 critcl      ipMorec      dns/ipMoreC.tcl

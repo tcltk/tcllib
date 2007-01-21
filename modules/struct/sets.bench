@@ -1,0 +1,151 @@
+# -*- tcl -*-
+# Tcl Benchmark File
+#
+# This file contains a number of benchmarks for the 'struct::set'
+# data structure to allow developers to monitor package performance.
+#
+# (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+# We need at least version 8.2 for the package and thus the
+# benchmarks.
+
+if {![package vsatisfies [package provide Tcl] 8.2]} {
+    return
+}
+
+# ### ### ### ######### ######### ######### ###########################
+## Setting up the environment ...
+
+set moddir [file dirname [file dirname [info script]]]
+lappend auto_path $moddir
+
+package forget struct::set
+catch {namespace delete ::struct::set}
+source [file join [file dirname [info script]] sets.tcl]
+
+#set code "[::struct::set::Loaded] "
+set code {}
+
+# ### ### ### ######### ######### ######### ###########################
+# Helper commands to build various types of sets.
+
+proc makeN {n {times 1}} {
+    set res {}
+    for {set i 0} {$i < $times} {incr i} {
+	for {set j 1} {$j <= $n} {incr j} {
+	    lappend res $j
+	}
+    }
+    return $res
+}
+
+# Select between configurations for quick overview vs full test
+
+#set xtime {1 2}
+#set xlen  {1 10 100}
+set xtime {1 2 3 4}
+set xlen  {1 10 100 1000 10000}
+
+foreach times $xtime {
+    foreach n $xlen {
+	set sx($times,$n) [makeN $n $times]
+    }
+}
+
+# ### ### ### ######### ######### ######### ###########################
+## Benchmarks.
+
+# empty
+# size = cardinality
+# contains
+# union
+# intersect
+# difference
+# symdiff
+# intersect3
+# equal
+# include, add
+# exclude, subtract
+# subsetof
+
+# ### ### ### ######### ######### ######### ###########################
+## empty
+
+bench -desc "${code}empty" -body {
+    struct::set empty {}
+}
+
+if {[llength [info commands struct::set::S_empty]]} {
+    # Not useable for a critcl implementation.
+    bench -desc "${code}empty, raw" -body {
+	struct::set::S_empty {}
+    }
+}
+# ### ### ### ######### ######### ######### ###########################
+## cardinality
+
+foreach times $xtime {
+    foreach n $xlen {
+	bench -desc "${code}size x$times $n" -body {
+	    struct::set size $sx($times,$n)
+	}
+    }
+}
+
+# ### ### ### ######### ######### ######### ###########################
+## contains
+
+foreach times $xtime {
+    foreach n $xlen {
+	bench -desc "${code}contains, not,   x$times $n" -body {
+	    struct::set contains  $sx($times,$n) 0
+	}
+	bench -desc "${code}contains, early, x$times $n" -body {
+	    struct::set contains  $sx($times,$n) 1
+	}
+	bench -desc "${code}contains, last,  x$times $n" -body {
+	    struct::set contains  $sx($times,$n) $n
+	}
+    }
+}
+
+# ### ### ### ######### ######### ######### ###########################
+## union
+# cases: no intersection, partial intersection, equal sets, subsets
+# and always a varying number of duplicates.
+
+
+# ### ### ### ######### ######### ######### ###########################
+## intersect
+
+# ### ### ### ######### ######### ######### ###########################
+## cardinality
+
+# ### ### ### ######### ######### ######### ###########################
+## difference
+
+# ### ### ### ######### ######### ######### ###########################
+## symdiff
+
+# ### ### ### ######### ######### ######### ###########################
+## intersect3
+
+# ### ### ### ######### ######### ######### ###########################
+## equal
+
+# ### ### ### ######### ######### ######### ###########################
+## include, add
+
+# ### ### ### ######### ######### ######### ###########################
+## exclude, subtract
+
+# ### ### ### ######### ######### ######### ###########################
+## subsetof
+
+# ### ### ### ######### ######### ######### ###########################
+## Complete
+
+return
+
+# ### ### ### ######### ######### ######### ###########################
+## Notes ...
