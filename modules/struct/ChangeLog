@@ -1,3 +1,23 @@
+2007-01-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* struct_set.man: Updated documentation to mention the critcl
+	  implementation, version number, etc.
+
+	* pkgIndex.tcl: Version of sets bumped to 2.2.
+
+	* sets.tcl:     Changed core sets code to support multiple
+	* sets_tcl.tcl: implementations, and Tcl implementation.
+
+	* sets_c.tcl: Critcl based implementation of sets.
+	* sets/ds.h:
+	* sets/m.c:
+	* sets/m.h:
+	* sets/s.c:
+	* sets/s.h:
+
+	* sets.testsuite: Reworked the testsuite to handle both Tcl and
+	* sets.test:      critcl implementations.
+
 2006-11-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl: Version of graph bumped to 2.2.
