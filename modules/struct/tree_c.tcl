@@ -9,9 +9,10 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree_c.tcl,v 1.3 2005/10/21 23:13:42 andreas_kupries Exp $
+# RCS: @(#) $Id: tree_c.tcl,v 1.4 2007/01/21 22:15:59 andreas_kupries Exp $
 
 package require critcl
+package provide struct_treec 2.1.1
 package require Tcl 8.2
 
 namespace eval ::struct {
