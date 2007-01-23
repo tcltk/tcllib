@@ -1,3 +1,9 @@
+2007-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* libbench.tcl: Added new benchmark options -ipre, -ipost. Per
+	* pkgIndex.tcl: iteration pre/post scripts, untimed. Version of
+	* bench.cl:     package 'bench' is now 0.2.
+
 2007-01-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* bench_wcsv.tcl: Fixed sorting of descriptions in text and

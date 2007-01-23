@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: bench.tcl,v 1.7 2007/01/19 07:21:01 andreas_kupries Exp $
+# RCS: @(#) $Id: bench.tcl,v 1.8 2007/01/23 03:21:35 andreas_kupries Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -470,4 +470,4 @@ namespace eval ::bench {
 # ### ### ### ######### ######### ######### ###########################
 ## Ready to run
 
-package provide bench 0.1.1
+package provide bench 0.2
