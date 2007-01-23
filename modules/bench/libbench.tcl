@@ -4,9 +4,10 @@
 # This file has to have code that works in any version of Tcl that
 # the user would want to benchmark.
 #
-# RCS: @(#) $Id: libbench.tcl,v 1.1 2005/10/18 05:23:37 andreas_kupries Exp $
+# RCS: @(#) $Id: libbench.tcl,v 1.2 2007/01/23 03:21:35 andreas_kupries Exp $
 #
 # Copyright (c) 2000-2001 Jeffrey Hobbs.
+# Copyright (c) 2007      Andreas Kupries
 #
 
 # This code provides the supporting commands for the execution of a
@@ -169,8 +170,16 @@ proc bench_rm {args} {
 #   -pre	script to run before main timed body
 #   -body	script to run as main timed body
 #   -post	script to run after main timed body
+#   -ipre	script to run before timed body, per iteration of the body.
+#   -ipost	script to run after timed body, per iteration of the body.
 #   -desc	message text
 #   -iterations	<#>
+#
+# Note:
+#
+#   Using -ipre and/or -ipost will cause us to compute the average
+#   time ourselves, i.e. 'time body 1' n times. Required to ensure
+#   that prefix/post operation are executed, yet not timed themselves.
 #
 # Results:
 #
@@ -187,12 +196,16 @@ proc bench {args} {
     # -body script
     # -desc msg
     # -post script
+    # -ipre script
+    # -ipost script
     # -iterations <#>
     array set opts {
 	-pre	{}
 	-body	{}
 	-desc	{}
 	-post	{}
+	-ipre	{}
+	-ipost	{}
     }
     set opts(-iter) $BENCH(ITERS)
     while {[llength $args]} {
@@ -201,6 +214,8 @@ proc bench {args} {
 	    -res*	{ set opts(-res)  [lindex $args 1] }
 	    -pr*	{ set opts(-pre)  [lindex $args 1] }
 	    -po*	{ set opts(-post) [lindex $args 1] }
+	    -ipr*	{ set opts(-ipre)  [lindex $args 1] }
+	    -ipo*	{ set opts(-ipost) [lindex $args 1] }
 	    -bo*	{ set opts(-body) [lindex $args 1] }
 	    -de*	{ set opts(-desc) [lindex $args 1] }
 	    -it*	{
@@ -226,7 +241,13 @@ proc bench {args} {
     }
     if {$opts(-body) != ""} {
 	# always run it once to remove compile phase confusion
+	if {$opts(-ipre) != ""} {
+	    uplevel \#0 $opts(-ipre)
+	}
 	set code [catch {uplevel \#0 $opts(-body)} res]
+	if {$opts(-ipost) != ""} {
+	    uplevel \#0 $opts(-ipost)
+	}
 	if {!$code && [info exists opts(-res)] \
 		&& [string compare $opts(-res) $res]} {
 	    if {$BENCH(ERRORS)} {
@@ -238,8 +259,39 @@ proc bench {args} {
 	    set bench($opts(-desc)) $res
 	    puts $BENCH(OUTFID) [list Sourcing "$opts(-desc): $res"]
 	} else {
-	    set code [catch {uplevel \#0 \
-		    [list time $opts(-body) $opts(-iter)]} res]
+	    if {($opts(-ipre) != "") || ($opts(-ipost) != "")} {
+
+		# We do the averaging on our own, to allow untimed
+		# pre/post execution per iteration. We catch and
+		# handle problems in the pre/post code as if
+		# everything was executed as one block (like it would
+		# be in the other path). We are using floating point
+		# to avoid integer overflow, easily happening when
+		# accumulating a high number (iterations) of large
+		# integers (microseconds).
+
+		set total 0.0
+		for {set i 0} {$i < $opts(-iter)} {incr i} {
+		    set code 0
+		    if {$opts(-ipre) != ""} {
+			set code [catch {uplevel \#0 $opts(-ipre)} res]
+			if {$code} break
+		    }
+		    set code [catch {uplevel \#0 [list time $opts(-body) 1]} res]
+		    if {$code} break
+		    set total [expr {$total + [lindex $res 0]}]
+		    if {$opts(-ipost) != ""} {
+			set code [catch {uplevel \#0 $opts(-ipost)} res]
+			if {$code} break
+		    }
+		}
+		if {!$code} {
+		    set res [list [expr {int ($total/$opts(-iter))}] microseconds per iteration]
+		}
+	    } else {
+		set code [catch {uplevel \#0 \
+			[list time $opts(-body) $opts(-iter)]} res]
+	    }
 	    if {!$BENCH(THREADS)} {
 		if {$code == 0} {
 		    # Get just the microseconds value from the time result
