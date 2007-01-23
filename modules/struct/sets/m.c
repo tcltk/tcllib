@@ -36,6 +36,7 @@ sm_ADD (ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* obj
 
     SPtr        vs, s;
     Tcl_Obj*    val;
+    int         new = 0;
 
     if (objc != 4) {
 	Tcl_WrongNumArgs (interp, 2, objv, "Avar B");
@@ -53,14 +54,34 @@ sm_ADD (ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* obj
 	return TCL_ERROR;
     }
 
-    if (Tcl_IsShared (val)) {
-	val = Tcl_DuplicateObj (val);
-	(void) Tcl_ObjSetVar2 (interp, objv[2], NULL, val, 0);
-	s_get (interp, val, &vs);
-    }
+    if (s->el.numEntries) {
+	int            new, nx = 0;
+	Tcl_HashSearch hs;
+	Tcl_HashEntry* he;
+	CONST char*    key;
 
-    s_add (vs, s);
-    Tcl_InvalidateStringRep(val);
+	for(he = Tcl_FirstHashEntry(&s->el, &hs);
+	    he != NULL;
+	    he = Tcl_NextHashEntry(&hs)) {
+	    key = Tcl_GetHashKey (&s->el, he);
+	    if (Tcl_FindHashEntry (&vs->el, key) != NULL) continue;
+	    /* Key not known to vs, to be added */
+
+	    /* _Now_ unshare the object, if required */
+
+	    if (Tcl_IsShared (val)) {
+		val = Tcl_DuplicateObj (val);
+		(void) Tcl_ObjSetVar2 (interp, objv[2], NULL, val, 0);
+		s_get (interp, val, &vs);
+	    }
+
+	    (void*) Tcl_CreateHashEntry(&vs->el, key, &new);
+	    nx = 1;
+	}
+	if (nx) {
+	    Tcl_InvalidateStringRep(val);
+	}
+    }
     return TCL_OK;
 }
 
@@ -268,6 +289,7 @@ sm_EXCLUDE (ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* CONST*
 
     SPtr        vs;
     Tcl_Obj*    val;
+    char*       key;
 
     if (objc != 4) {
 	Tcl_WrongNumArgs (interp, 2, objv, "Avar element");
@@ -282,14 +304,17 @@ sm_EXCLUDE (ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* CONST*
 	return TCL_ERROR;
     }
 
-    if (Tcl_IsShared (val)) {
-	val = Tcl_DuplicateObj (val);
-	(void) Tcl_ObjSetVar2 (interp, objv[2], NULL, val, 0);
-	s_get (interp, val, &vs);
-    }
+    key = Tcl_GetString (objv[3]);
+    if (s_contains (vs, key)) {
+	if (Tcl_IsShared (val)) {
+	    val = Tcl_DuplicateObj (val);
+	    (void) Tcl_ObjSetVar2 (interp, objv[2], NULL, val, 0);
+	    s_get (interp, val, &vs);
+	}
 
-    s_subtract1 (vs, Tcl_GetString (objv[3]));
-    Tcl_InvalidateStringRep(val);
+	s_subtract1 (vs, key);
+	Tcl_InvalidateStringRep(val);
+    }
     return TCL_OK;
 }
 
@@ -336,19 +361,23 @@ sm_INCLUDE (ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* CONST*
 	(void) Tcl_ObjSetVar2 (interp, objv[2], NULL, val, 0);
     } else {
 	/* Extend variable */
+	char* key;
 
 	if (s_get (interp, val, &vs) != TCL_OK) {
 	    return TCL_ERROR;
 	}
 
-	if (Tcl_IsShared (val)) {
-	    val = Tcl_DuplicateObj (val);
-	    (void) Tcl_ObjSetVar2 (interp, objv[2], NULL, val, 0);
-	    s_get (interp, val, &vs);
-	}
+	key = Tcl_GetString (objv[3]);
+	if (!s_contains (vs, key)) {
+	    if (Tcl_IsShared (val)) {
+		val = Tcl_DuplicateObj (val);
+		(void) Tcl_ObjSetVar2 (interp, objv[2], NULL, val, 0);
+		s_get (interp, val, &vs);
+	    }
 
-	s_add1 (vs, Tcl_GetString (objv[3]));
-	Tcl_InvalidateStringRep(val);
+	    s_add1 (vs, key);
+	    Tcl_InvalidateStringRep(val);
+	}
     }
     return TCL_OK;
 }
@@ -573,6 +602,7 @@ sm_SUBTRACT (ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* CONST
 
     SPtr        vs, s;
     Tcl_Obj*    val;
+    int         del;
 
     if (objc != 4) {
 	Tcl_WrongNumArgs (interp, 2, objv, "Avar B");
@@ -590,14 +620,34 @@ sm_SUBTRACT (ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* CONST
 	return TCL_ERROR;
     }
 
-    if (Tcl_IsShared (val)) {
-	val = Tcl_DuplicateObj (val);
-	(void) Tcl_ObjSetVar2 (interp, objv[2], NULL, val, 0);
-	s_get (interp, val, &vs);
-    }
+    if (s->el.numEntries) {
+	int            new, dx = 0;
+	Tcl_HashSearch hs;
+	Tcl_HashEntry* he;
+	CONST char*    key;
 
-    s_subtract (vs, s);
-    Tcl_InvalidateStringRep(val);
+	for(he = Tcl_FirstHashEntry(&s->el, &hs);
+	    he != NULL;
+	    he = Tcl_NextHashEntry(&hs)) {
+	    key = Tcl_GetHashKey (&s->el, he);
+	    if (Tcl_FindHashEntry (&vs->el, key) == NULL) continue;
+	    /* Key known to vs, to be removed */
+
+	    /* _Now_ unshare the object, if required */
+
+	    if (Tcl_IsShared (val)) {
+		val = Tcl_DuplicateObj (val);
+		(void) Tcl_ObjSetVar2 (interp, objv[2], NULL, val, 0);
+		s_get (interp, val, &vs);
+	    }
+
+	    Tcl_DeleteHashEntry (Tcl_FindHashEntry (&vs->el, key));
+	    dx = 1;
+	}
+	if (dx) {
+	    Tcl_InvalidateStringRep(val);
+	}
+    }
     return TCL_OK;
 }
 
@@ -699,7 +749,7 @@ sm_UNION (ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 
     for (i = 2; i < objc; i++) {
 	s_get (interp, objv[i], &sa);
-	s_add (acc, sa);
+	s_add (acc, sa, NULL);
     }
 
     Tcl_SetObjResult (interp, s_new (acc));

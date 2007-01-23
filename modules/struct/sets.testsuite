@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2004-2007 by Andreas Kupries
 #
-# RCS: @(#) $Id: sets.testsuite,v 1.1 2007/01/21 22:15:59 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.testsuite,v 1.2 2007/01/23 06:10:46 andreas_kupries Exp $
 
 #----------------------------------------------------------------------
 
@@ -372,13 +372,13 @@ test set-${impl}-10.2 {include, non-existing variable} {
     set A
 } {B}
 
-test set-${impl}-10.3 {include} {
+test set-${impl}-10.3 {include, missing} {
     catch {unset A} ; set A $sa
     setop include A B
     lsort $A
 } {B a b c d}
 
-test set-${impl}-10.4 {include} {
+test set-${impl}-10.4 {include, known} {
     catch {unset A} ; set A $sa
     setop include A a
     lsort $A
@@ -424,25 +424,25 @@ test set-${impl}-12.1 {add} {
     set msg
 } [tmWrong add {Avar B} 1]
 
-test set-${impl}-12.2 {add} {
+test set-${impl}-12.2 {add, non-existent variable} {
     catch {unset A}
     catch {setop add A B} msg
     set msg
 } {can't read "A": no such variable}
 
-test set-${impl}-12.3 {add} {
+test set-${impl}-12.3 {add, missing} {
     catch {unset A} ; set A $sa
     setop add A $sb
     lsort $A
 } $sf
 
-test set-${impl}-12.4 {add} {
+test set-${impl}-12.4 {add, missing&known} {
     catch {unset A} ; set A $sa
     setop add A $sc
     lsort $A
 } $sd
 
-test set-${impl}-12.5 {add} {
+test set-${impl}-12.5 {add, known} {
     catch {unset A} ; set A $sa
     setop add A $sa
     lsort $A
