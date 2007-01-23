@@ -1,3 +1,14 @@
+2007-01-22  Andreas Kupries  <akupries@shaw.ca>
+
+	* sets.bench: Added more benchmarks, add/include,
+	  subtract/exclude, equality.
+
+	* sets/m.c: Rewrote sm_ADD, inlined s_add to enable us to defer
+	  set duplication until the set actually changes. This also
+	  ensures that the string-rep is invlaidates only in cvase of a
+	  true change. Ditto rewrites of sm_INCLUDE, sm_SUBTRACT, and
+	  sm_EXCLUDE.
+
 2007-01-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* struct_set.man: Updated documentation to mention the critcl
