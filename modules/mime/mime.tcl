@@ -1,6 +1,16 @@
 # mime.tcl - MIME body parts
 #
 # (c) 1999-2000 Marshall T. Rose
+# (c) 2000      Brent Welch
+# (c) 2000      Sandeep Tamhankar
+# (c) 2000      Dan Kuchler
+# (c) 2000-2001 Eric Melski
+# (c) 2001      Jeff Hobbs
+# (c) 2001-2007 Andreas Kupries
+# (c) 2002-2003 David Welton
+# (c) 2003-2006 Pat Thoyts
+# (c) 2005      Benjamin Riefenstahl
+#
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -3706,6 +3716,11 @@ proc ::mime::word_encode {charset method string {args}} {
     }
 
     set string_length [string length $unencoded_string]
+
+    if {!$string_length} {
+	return ""
+    }
+
     set string_bytelength [string bytelength $unencoded_string]
 
     # the 7 is for =?, ?Q?, ?= delimiters of the encoded word
