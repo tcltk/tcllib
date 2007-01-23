@@ -226,7 +226,7 @@ s_dup (SPtr a)
     Tcl_InitHashTable(&s->el, TCL_STRING_KEYS);
 
     if (!a) return s;
-    s_add (s, a);
+    s_add (s, a, NULL);
     return s;
 }
 
@@ -321,16 +321,16 @@ s_union (SPtr a, SPtr b)
     SPtr s = (SPtr) ckalloc (sizeof (S));
     Tcl_InitHashTable(&s->el, TCL_STRING_KEYS);
 
-    s_add (s, a);
-    s_add (s, b);
+    s_add (s, a, NULL);
+    s_add (s, b, NULL);
 
     return s;
 }
 
 void
-s_add (SPtr a, SPtr b)
+s_add (SPtr a, SPtr b, int* newPtr)
 {
-    int            new;
+    int            new, nx = 0;
     Tcl_HashSearch hs;
     Tcl_HashEntry* he;
     CONST char*    key;
@@ -341,8 +341,10 @@ s_add (SPtr a, SPtr b)
 	    he = Tcl_NextHashEntry(&hs)) {
 	    key = Tcl_GetHashKey (&b->el, he);
 	    (void*) Tcl_CreateHashEntry(&a->el, key, &new);
+	    if (new) {nx = 1;}
 	}
     }
+    if(newPtr) {*newPtr = nx;}
 }
 
 void
@@ -354,12 +356,13 @@ s_add1 (SPtr a, const char* item)
 }
 
 void
-s_subtract (SPtr a, SPtr b)
+s_subtract (SPtr a, SPtr b, int* delPtr)
 {
     int            new;
     Tcl_HashSearch hs;
     Tcl_HashEntry* he, *dhe;
     CONST char*    key;
+    int            dx = 0;
 
     if (b->el.numEntries) {
 	for(he = Tcl_FirstHashEntry(&b->el, &hs);
@@ -368,9 +371,12 @@ s_subtract (SPtr a, SPtr b)
 	    key = Tcl_GetHashKey (&b->el, he);
 	    dhe = Tcl_FindHashEntry(&a->el, key);
 	    if (!dhe) continue;
+	    /* Key is known, to be removed */
+	    dx = 1;
 	    Tcl_DeleteHashEntry (dhe);
 	}
     }
+    if(delPtr) {*delPtr = dx;}
 }
 
 void
