@@ -14,7 +14,7 @@ Tcl_Obj* s_new (SPtr s);
 Tcl_ObjType* s_stype (void);
 Tcl_ObjType* s_ltype (void);
 
-void s_add        (SPtr a, SPtr b);
+void s_add        (SPtr a, SPtr b, int* newPtr);
 void s_add1       (SPtr a, const char* item);
 int  s_contains   (SPtr a, const char* item);
 SPtr s_difference (SPtr a, SPtr b);
@@ -25,7 +25,7 @@ void s_free       (SPtr a);
 SPtr s_intersect  (SPtr a, SPtr b);
 int  s_size       (SPtr a);
 int  s_subsetof   (SPtr a, SPtr b);
-void s_subtract   (SPtr a, SPtr b);
+void s_subtract   (SPtr a, SPtr b, int* delPtr);
 void s_subtract1  (SPtr a, const char* item);
 SPtr s_union      (SPtr a, SPtr b);
 
