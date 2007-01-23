@@ -1,3 +1,8 @@
+2007-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mime.tcl (word_encode): Ensured the return of the empty string
+	  when given the empty string.
+
 2006-11-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* smtp.tcl: bug #827436 - ensure data section is terminated with
