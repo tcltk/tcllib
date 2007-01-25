@@ -32,7 +32,7 @@ catch {
 
 
 namespace eval ::smtp {
-    variable version 1.4.3
+    variable version 1.4.4
     variable trf 1
     variable smtp
     array set smtp { uid 0 }
@@ -92,6 +92,8 @@ if {[catch {package require Trf  2.0}]} {
 #                          request.
 #             -ports       A list of SMTP ports to use for each SMTP server
 #                          specified
+#             -client      The string to use as our host name for EHLO or HELO
+#                          This defaults to 'localhost' or [info hostname]
 #             -maxsecs     Maximum number of seconds to allow the SMTP server
 #                          to accept the message. If not specified, the default
 #                          is 120 seconds.
@@ -125,6 +127,7 @@ proc ::smtp::sendmessage {part args} {
     set originator ""
     set recipients ""
     set servers [list localhost]
+    set client "" ;# default is set after options processing
     set ports [list 25]
     set tlsP 1
     set tlspolicy {}
@@ -190,6 +193,10 @@ proc ::smtp::sendmessage {part args} {
 
             -servers {
                 set servers $value
+            }
+
+            -client {
+                set client $value
             }
 
             -ports {
@@ -402,10 +409,12 @@ proc ::smtp::sendmessage {part args} {
         }
     }
 
-    if {![string compare $servers localhost]} {
-        set client localhost
-    } else {
-        set client [info hostname]
+    if {[string length $client] < 1} {
+        if {![string compare $servers localhost]} {
+            set client localhost
+        } else {
+            set client [info hostname]
+        }
     }
 
     # Create smtp token, which essentially means begin talking to the SMTP
