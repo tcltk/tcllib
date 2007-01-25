@@ -1,3 +1,9 @@
+2007-01-25  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* smtp.tcl: Expose -client option to enable user to supply the
+	* smtp.man: string used for the HELO/EHLO challenge. 
+	            Closes FR #1614860.
+
 2007-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mime.tcl (word_encode): Ensured the return of the empty string
