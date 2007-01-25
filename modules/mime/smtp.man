@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin smtp n 1.4.3]
+[manpage_begin smtp n 1.4.4]
 [copyright {1999-2000 Marshall T. Rose and others}]
 [moddesc   {smtp client}]
 [titledesc {Client-side tcl implementation of the smtp protocol}]
 [require Tcl]
 [require mime [opt 1.4.1]]
-[require smtp [opt 1.4.3]]
+[require smtp [opt 1.4.4]]
 [description]
 [para]
 
@@ -29,6 +29,12 @@ A list of SMTP servers. The default is [const localhost].
 [lst_item [option -ports]]
 
 A list of SMTP ports. The default is [const 25].
+
+[lst_item [option -client]]
+
+The name to use as our hostname when connecting to the server. By
+default this is either localhost if one of the servers is localhost,
+or is set to the string returned by [cmd "info hostname"].
 
 [lst_item [option -queue]]
 
