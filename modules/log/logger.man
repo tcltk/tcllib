@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.18 2006/08/18 15:03:34 mic42 Exp $}]
-[manpage_begin logger n 0.7]
+[comment {$Id: logger.man,v 1.19 2007/02/08 22:09:54 mic42 Exp $}]
+[manpage_begin logger n 0.8]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
 [require Tcl 8.2]
-[require logger [opt 0.7]]
+[require logger [opt 0.8]]
 [description]
 
 [para]
@@ -85,7 +85,7 @@ Returns a list of all the available services.
 
 Globally enables logging at and "above" the given level.  Levels are
 [const debug], [const info], [const notice], [const warn], [const error],
-[const critical].
+[const critical], [const alert], [const emergency].
 
 [call [cmd logger::disable] [arg level]]
 
@@ -112,6 +112,8 @@ Returns the [cmd \${log}] token created by [cmd logger::init] for this service.
 [call [cmd \${log}::warn] [arg message]]
 [call [cmd \${log}::error] [arg message]]
 [call [cmd \${log}::critical] [arg message]]
+[call [cmd \${log}::alert] [arg message]]
+[call [cmd \${log}::emergency] [arg message]]
 
 These are the commands called to actually log a message about an
 event.  [var \${log}] is the variable obtained from [cmd logger::init].
@@ -133,7 +135,7 @@ children, at and above the level specified.  Note that this does [emph not] disa
 Disable logging, in the service referenced by [var \${log}], and its
 children, at and below the level specified. Note that this does [emph not] enable logging above this level, 
 so you should probably use [cmd setlevel] instead.
-Disabling the loglevel [const critical] switches logging off for the service and its children.
+Disabling the loglevel [const emergency] switches logging off for the service and its children.
 
 [call [cmd \${log}::lvlchangeproc] [arg command]]
 [call [cmd \${log}::lvlchangeproc]]

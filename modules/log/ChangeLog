@@ -1,3 +1,15 @@
+2007-02-08  Michael Schlenker <mic42@users.sourceforge.net>
+	
+	* logger.tcl: Accepted patch for [SF Tcllib 1599978],
+	* logger.man: adding emergency and alert levels to the logger
+	* pkgIndex.tcl: package. Raising package version to 0.8,
+	even if it is just a rather minor change. But there is a 
+
+	**** POTENTIAL INCOMPATIBILITY ****
+	If code uses explicitly 'criticalr' to disable all available loggers
+	instead of looking at the highest level in logger::levels, this
+	no longer disables all log messages.
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

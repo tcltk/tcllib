@@ -3,7 +3,7 @@
 #   Tcl implementation of a general logging facility.
 #
 # Copyright (c) 2003      by David N. Welton <davidw@dedasys.com>
-# Copyright (c) 2004-2005 by Michael Schlenker <mic42@users.sourceforge.net>
+# Copyright (c) 2004-2007 by Michael Schlenker <mic42@users.sourceforge.net>
 # Copyright (c) 2006      by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file license.terms.
@@ -14,7 +14,7 @@
 
 
 package require Tcl 8.2
-package provide logger 0.7
+package provide logger 0.8
 
 namespace eval ::logger {
     namespace eval tree {}
@@ -24,7 +24,7 @@ namespace eval ::logger {
     variable services {}
 
     # The log 'levels'.
-    variable levels [list debug info notice warn error critical]
+    variable levels [list debug info notice warn error critical alert emergency]
     
     # The default global log level used for new logging services
     variable enabled "debug"

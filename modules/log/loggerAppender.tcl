@@ -1,6 +1,6 @@
 ##Library Header
 #
-# $Id: loggerAppender.tcl,v 1.3 2006/08/18 15:03:34 mic42 Exp $
+# $Id: loggerAppender.tcl,v 1.4 2007/02/08 22:09:54 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -59,19 +59,21 @@ namespace eval ::logger::appender {
 
     variable  levelToColor
     array set levelToColor {
-	debug    cyan
-	info     blue
-	notice   black
-	warn     red
-	error    red
-	critical red-bold
+	debug     cyan
+	info      blue
+	notice    black
+	warn      red
+	error     red
+	critical  red-bold
+	alert     red-bold
+	emergency red-bold
     }
 }
 
 
 
 ##Procedure Header
-# $Id: loggerAppender.tcl,v 1.3 2006/08/18 15:03:34 mic42 Exp $
+# $Id: loggerAppender.tcl,v 1.4 2007/02/08 22:09:54 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -174,7 +176,7 @@ proc ::logger::appender::console {args} {
 
 
 ##Procedure Header
-# $Id: loggerAppender.tcl,v 1.3 2006/08/18 15:03:34 mic42 Exp $
+# $Id: loggerAppender.tcl,v 1.4 2007/02/08 22:09:54 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -281,7 +283,7 @@ proc ::logger::appender::colorConsole {args} {
 }
 
 ##Procedure Header
-# $Id: loggerAppender.tcl,v 1.3 2006/08/18 15:03:34 mic42 Exp $
+# $Id: loggerAppender.tcl,v 1.4 2007/02/08 22:09:54 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -393,7 +395,7 @@ proc ::logger::appender::fileAppend {args} {
 
 
 ##Internal Procedure Header
-# $Id: loggerAppender.tcl,v 1.3 2006/08/18 15:03:34 mic42 Exp $
+# $Id: loggerAppender.tcl,v 1.4 2007/02/08 22:09:54 mic42 Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
