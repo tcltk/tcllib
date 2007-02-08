@@ -7,7 +7,7 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004,2005 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.28 2006/10/09 21:41:41 andreas_kupries Exp $
+# $Id: logger.test,v 1.29 2007/02/08 22:09:54 mic42 Exp $
 
 # -------------------------------------------------------------------------
 
@@ -209,7 +209,7 @@ test logger-4.4 {enable bad args} {
     catch { ${log}::enable badargs } err
     ${log}::delete
     set err
-} {Invalid level 'badargs' - levels are debug info notice warn error critical}
+} {Invalid level 'badargs' - levels are debug info notice warn error critical alert emergency}
 
 test logger-4.5 {test method inheritance} {
     set log1 [logger::init global]
@@ -228,7 +228,7 @@ test logger-4.6 {disable bad args} {
     catch { ${log}::disable badargs } err
     ${log}::delete
     set err
-} {Invalid level 'badargs' - levels are debug info notice warn error critical}
+} {Invalid level 'badargs' - levels are debug info notice warn error critical alert emergency}
 
 test logger-5.0 {setlevel command} {
     set ::INFO ""
@@ -255,7 +255,7 @@ test logger-5.1 {setlevel, invalid level} {
     set code [catch {${log}::setlevel badargs} msg]
     ${log}::delete
     list $code $msg
-} {1 {Invalid level 'badargs' - levels are debug info notice warn error critical}}
+} {1 {Invalid level 'badargs' - levels are debug info notice warn error critical alert emergency}}
 
 test logger-5.2 {setlevel, with children} {
     set log1 [logger::init global]
@@ -298,11 +298,11 @@ test logger-5.4 {global setlevel after logger::init} {
 test logger-5.5 {global setlevel with wrong level} {
     catch {logger::setlevel badargs} msg
     set msg
-} {Invalid level 'badargs' - levels are debug info notice warn error critical}
+} {Invalid level 'badargs' - levels are debug info notice warn error critical alert emergency}
 
 test logger-6.0 {levels command} {
     logger::levels 
-} {debug info notice warn error critical}
+} {debug info notice warn error critical alert emergency}
 
 test logger-7.0 {currentloglevel} {
     set log [logger::init global]
@@ -312,11 +312,11 @@ test logger-7.0 {currentloglevel} {
     }
     ${log}::delete
     set result
-} {debug info notice warn error critical}
+} {debug info notice warn error critical alert emergency}
 
 test logger-7.1 {currentloglevel, disable all} {
     set log [logger::init global]
-    ${log}::disable critical
+    ${log}::disable emergency
     set result [${log}::currentloglevel]
     ${log}::delete
     set result
@@ -351,7 +351,7 @@ test logger-7.4 {currentloglevel, disable incremental} {
     set log [logger::init global]
     ${log}::enable debug
     lappend results [${log}::currentloglevel]
-    ${log}::disable critical
+    ${log}::disable emergency
     lappend results [${log}::currentloglevel]
     ${log}::disable debug
     lappend results [${log}::currentloglevel]
@@ -366,7 +366,7 @@ test logger-7.5 {currentloglevel, disable incremental} {
     lappend results [${log}::currentloglevel]
     ${log}::disable debug
     lappend results [${log}::currentloglevel]
-    ${log}::disable critical
+    ${log}::disable emergency
     lappend results [${log}::currentloglevel]
     ${log}::delete
     set results
@@ -605,9 +605,9 @@ test logger-12.4 {import subcommand} {
     ${log}::delete
     list $retval $::cmds
     
-} {{{LOGGED: Out} {LOGGED: In} {LOGGED: Out}} {::foo::critical\
+} {{{LOGGED: Out} {LOGGED: In} {LOGGED: Out}} {::foo::alert ::foo::critical\
      ::foo::currentloglevel ::foo::debug ::foo::delete ::foo::delproc\
-     ::foo::disable ::foo::enable ::foo::error ::foo::info\
+     ::foo::disable ::foo::emergency ::foo::enable ::foo::error ::foo::info\
      ::foo::logproc ::foo::notice ::foo::servicename ::foo::services\
      ::foo::setlevel ::foo::trace ::foo::warn}}
 
@@ -634,9 +634,9 @@ test logger-12.5 {import subcommand} {
     
     list $retval $::cmds
     
-} {{{LOGGED: Out} {LOGGED: In} {LOGGED: Out}} {::bar::critical\
+} {{{LOGGED: Out} {LOGGED: In} {LOGGED: Out}} {::bar::alert ::bar::critical\
      ::bar::currentloglevel ::bar::debug ::bar::delete ::bar::delproc\
-     ::bar::disable ::bar::enable ::bar::error ::bar::info\
+     ::bar::disable ::bar::emergency ::bar::enable ::bar::error ::bar::info\
      ::bar::logproc ::bar::notice ::bar::servicename ::bar::services\
      ::bar::setlevel ::bar::trace ::bar::warn}}
 
@@ -707,10 +707,12 @@ test logger-12.8 {import subcommand} {
     
     list $retval $::cmds
     
-} {{{LOGGED: Out} {LOGGED: In} {LOGGED: Out}} {::foo::bar::critical\
-     ::foo::bar::currentloglevel ::foo::bar::debug ::foo::bar::delete ::foo::bar::delproc\
-     ::foo::bar::disable ::foo::bar::enable ::foo::bar::error ::foo::bar::info\
-     ::foo::bar::logproc ::foo::bar::notice ::foo::bar::servicename ::foo::bar::services\
+} {{{LOGGED: Out} {LOGGED: In} {LOGGED: Out}} {::foo::bar::alert\
+     ::foo::bar::critical ::foo::bar::currentloglevel ::foo::bar::debug\
+     ::foo::bar::delete ::foo::bar::delproc ::foo::bar::disable\
+     ::foo::bar::emergency ::foo::bar::enable ::foo::bar::error\
+     ::foo::bar::info ::foo::bar::logproc ::foo::bar::notice\
+     ::foo::bar::servicename ::foo::bar::services\
      ::foo::bar::setlevel ::foo::bar::trace ::foo::bar::warn}}
 
 test logger-12.9 {import subcommand, errors} {
@@ -1059,6 +1061,7 @@ test logger-15.2 {test for logger levelchange callbacks} {
     namespace delete ::logtest
     set changes
 } [list {debug info} {info notice} {notice warn} {warn error} {error critical} \
+        {critical alert} {alert emergency} {emergency alert} {alert critical}  \
         {critical error} {error warn} {warn notice} {notice info} {info debug}]
 
 test logger-15.3 {test for logger levelchange callbacks} {
@@ -1086,6 +1089,7 @@ test logger-15.3 {test for logger levelchange callbacks} {
     namespace delete ::logtest
     set changes
 } [list {debug info} {info notice} {notice warn} {warn error} {error critical} \
+        {critical alert} {alert emergency} {emergency alert} {alert critical}  \
         {critical error} {error warn} {warn notice} {notice info} {info debug}]
 
 test logger-15.4 {test for logger with empty levelchange callback} {
