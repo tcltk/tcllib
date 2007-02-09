@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tar.tcl,v 1.10 2007/01/09 05:06:17 andreas_kupries Exp $
+# RCS: @(#) $Id: tar.tcl,v 1.11 2007/02/09 06:03:56 afaupell Exp $
 
-package provide tar 0.3
+package provide tar 0.4
 
 namespace eval ::tar {}
 
@@ -171,10 +171,10 @@ proc ::tar::untar {tar args} {
     return $ret
 }
 
-proc ::tar::createHeader {name dereference} {
+proc ::tar::createHeader {name followlinks} {
     foreach x {linkname uname gname prefix devmajor devminor} {set $x ""}
     
-    if {$dereference} {
+    if {$followlinks} {
         file stat $name stat
     } else {
         file lstat $name stat
@@ -219,23 +219,23 @@ proc ::tar::createHeader {name dereference} {
     return [string replace $header 148 155 [binary format A8 [format %o $cksum]\x00]]
 }
 
-proc ::tar::recurseDirs {files dereference} {
-    set i 0
+proc ::tar::recurseDirs {files followlinks} {
     foreach x $files {
-        if {[file isdirectory $x] && ([file type $x] != "link" || $dereference)} {
+        if {[file isdirectory $x] && ([file type $x] != "link" || $followlinks)} {
             if {[set more [glob -dir $x -nocomplain *]] != ""} {
-                set files [eval lreplace [list $files] $i $i [recurseDirs $more $dereference]]
+                eval lappend files [recurseDirs $more $followlinks]
+            } else {
+                lappend files $x
             }
         }
-        incr i
     }
     return $files
 }
 
-proc ::tar::writefile {in out dereference} {
-     puts -nonewline $out [createHeader $in $dereference]
+proc ::tar::writefile {in out followlinks} {
+     puts -nonewline $out [createHeader $in $followlinks]
      set size 0
-     if {[file type $in] == "file" || ($dereference && [file type $in] == "link")} {
+     if {[file type $in] == "file" || ($followlinks && [file type $in] == "link")} {
          set in [::open $in]
          fconfigure $in -encoding binary -translation lf -eofchar {}
          set size [fcopy $in $out]
@@ -250,7 +250,6 @@ proc ::tar::create {tar files args} {
     
     set fh [::open $tar w+]
     fconfigure $fh -encoding binary -translation lf -eofchar {}
-
     foreach x [recurseDirs $files $dereference] {
         writefile $x $fh $dereference
     }
