@@ -77,7 +77,7 @@ have it.  It's also available at the Snit Home Page,
 [list_begin bullet]
 [bullet]
 
-A Snit object should should be at least as efficient as a hand-coded Tcl
+A Snit object should be at least as efficient as a hand-coded Tcl
 object (see [uri http://www.wjduquette.com/tcl/objects.html]).
 
 [bullet]
@@ -398,7 +398,7 @@ properties are options accessed using the [method configure] and
 In computer science terms, an abstract data type is a complex data
 structure along with a set of operations--a stack, a queue, a
 binary tree, etc--that is to say, in modern terms, an object.  In systems
-that include include some form of inheritance the word [term class] is
+that include some form of inheritance the word [term class] is
 usually used instead of [term {abstract data type}], but as Snit
 doesn't implement inheritance as it's ordinarily understood
 the older term seems more appropriate.  Sometimes this is called 
@@ -659,7 +659,8 @@ Therefore, don't use [var \$self] for anything that will break if
 [var \$self] changes. For example, don't pass a callback command to
 another object like this:
 
-[example {.btn configure -command [list $self ButtonPress]
+[example {
+    .btn configure -command [list $self ButtonPress]
 }]
 
 You'll get an error if [cmd .btn] calls your command after your object is
@@ -667,9 +668,10 @@ renamed.
 
 [bullet]
 
-Instead, the your object should define its callback command like this:
+Instead, your object should define its callback command like this:
 
-[example {.btn configure -command [mymethod ButtonPress]
+[example {
+    .btn configure -command [mymethod ButtonPress]
 }]
 
 The [cmd mymethod] command returns code that will call the desired
