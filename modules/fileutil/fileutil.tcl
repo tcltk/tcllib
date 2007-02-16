@@ -4,16 +4,16 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # Copyright (c) 2002      by Phil Ehrens <phil@slug.org> (fileType)
-# Copyright (c) 2005-2006 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2005-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.60 2006/09/19 23:36:16 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.61 2007/02/16 05:12:44 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.9
+package provide fileutil 1.10
 
 namespace eval ::fileutil {
     namespace export \
@@ -2032,4 +2032,33 @@ proc ::fileutil::relativeUrl {base dst} {
     } else {
 	return [file join $dstdir [file tail $dst]]
     }
+}
+
+# ::fileutil::fullnormalize --
+#
+#	Normalizes a path completely. I.e. a symlink in the last
+#	element is resolved as well, not only symlinks in the higher
+#	elements.
+#
+# Arguments:
+#	path	The path to normalize
+#
+# Results:
+#	The input path with all symlinks resolved.
+
+proc ::fileutil::fullnormalize {path} {
+    # When encountering symlinks in a file copy operation Tcl copies
+    # the link, not the contents of the file it references. There are
+    # situations there this is not acceptable. For these this command
+    # resolves all symbolic links in the path, including in the last
+    # element of the path. A "file copy" using the return value of
+    # this command copies an actual file, it will not encounter
+    # symlinks.
+
+    # 8.5
+    # return [file join {expand}[lrange [file split \
+    #	    [Normalize [file join $path __dummy__]]] 0 end-1]]
+
+    return [eval [list file join] [lrange [file split \
+	    [Normalize [file join $path __dummy__]]] 0 end-1]]
 }
