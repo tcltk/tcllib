@@ -6,9 +6,10 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # Copyright (c) 2001 by ActiveState Tool Corp.
+# Copyright (c) 2005-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.49 2006/10/12 04:57:13 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.50 2007/02/16 05:12:44 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -2509,7 +2510,6 @@ test jail-2.4.2 {jail is relative itself, spaces in path} {
 # Need tests using non-existing paths for sure. 
 # Similar tests for 'normalize' as well.
 
-
 ## Tests for the internal 'Normalize' command.
 ##
 ## This is our forward compatibility wrapper and it should behave
@@ -2587,21 +2587,21 @@ test fu-normalize-1.3 {link normalisation} {unixOnly} {
 test fu-normalize-1.4 {link normalisation} {unixOnly} {
     # Link higher in path is resolved (Directory, existing last component).
     string equal \
-	    [::fileutil::Normalize [file join $insidefile]] \
+	    [::fileutil::Normalize $insidefile] \
 	    [::fileutil::Normalize [file join $dirlink inside.file]]
 } {1}
 
 test fu-normalize-1.5 {link normalisation} {unixOnly} {
     # Identical paths.
     string equal \
-	    [::fileutil::Normalize [file join $linkinsidefile]] \
-	    [::fileutil::Normalize [file join $linkinsidefile]]
+	    [::fileutil::Normalize $linkinsidefile] \
+	    [::fileutil::Normalize $linkinsidefile]
 } {1}
 
 test fu-normalize-1.6 {link normalisation} {unixOnly} {
     # Double link, one in last component, that one not resolved.
     string equal \
-	    [::fileutil::Normalize [file join $linkinsidefile]] \
+	    [::fileutil::Normalize $linkinsidefile] \
 	    [::fileutil::Normalize [file join $dirlink inside.file]]
 } {0}
 
@@ -2615,7 +2615,7 @@ test fu-normalize-1.7 {link normalisation} {unixOnly} {
 test fu-normalize-1.8 {link normalisation} {unixOnly} {
     # Directory link, and bad last component
     string equal \
-	    [::fileutil::Normalize [file join ${linkinsidefile}foo]] \
+	    [::fileutil::Normalize ${linkinsidefile}foo] \
 	    [::fileutil::Normalize [file join $dirlink inside.filefoo]]
 } {0}
 
@@ -2667,6 +2667,103 @@ test fu-normalize-2.4 {normalisation, non-existing paths} {unixOnly} {
 } /b/c
 
 
+
+# Based on the internal Normalize, a fullnormalize (which resolves a
+# link in the last element as well.
+
+test fu-fullnormalize-1.0 {link normalisation} {unixOnly} {
+    # Symlink of last path element _is_ resolved.
+    string equal \
+	    [::fileutil::fullnormalize $gorpfile] \
+	    [::fileutil::fullnormalize $linkfile]
+} {1}
+
+test fu-fullnormalize-1.1 {link normalisation} {unixOnly} {
+    # Symlink of last path element _is_ resolved.
+    string equal \
+	    [::fileutil::fullnormalize $dirfile] \
+	    [::fileutil::fullnormalize $dirlink]
+} {1}
+
+test fu-fullnormalize-1.2 {link normalisation} {unixOnly} {
+    # Link higher in path is resolved (File!, non-existing last component).
+    string equal \
+	    [::fileutil::fullnormalize [file join $gorpfile foo]] \
+	    [::fileutil::fullnormalize [file join $linkfile foo]]
+} {1}
+
+test fu-fullnormalize-1.3 {link normalisation} {unixOnly} {
+    # Link higher in path is resolved (Directory, non-existing last component).
+    string equal \
+	    [::fileutil::fullnormalize [file join $dirfile foo]] \
+	    [::fileutil::fullnormalize [file join $dirlink foo]]
+} {1}
+
+test fu-fullnormalize-1.4 {link normalisation} {unixOnly} {
+    # Link higher in path is resolved (Directory, existing last component).
+    string equal \
+	    [::fileutil::fullnormalize $insidefile] \
+	    [::fileutil::fullnormalize [file join $dirlink inside.file]]
+} {1}
+
+test fu-fullnormalize-1.5 {link normalisation} {unixOnly} {
+    # Identical paths.
+    string equal \
+	    [::fileutil::fullnormalize $linkinsidefile] \
+	    [::fileutil::fullnormalize $linkinsidefile]
+} {1}
+
+test fu-fullnormalize-1.6 {link normalisation} {unixOnly} {
+    # Double link, one in last component, this one is resolved.
+    string equal \
+	    [::fileutil::fullnormalize $linkinsidefile] \
+	    [::fileutil::fullnormalize [file join $dirlink inside.file]]
+} {1}
+
+test fu-fullnormalize-1.7 {link normalisation} {unixOnly} {
+    # Double link, both higher up, second is file!, both resolved
+    string equal \
+	    [::fileutil::fullnormalize [file join $dirlink linkinside.file foo]] \
+	    [::fileutil::fullnormalize [file join $insidefile foo]]
+} {1}
+
+test fu-fullnormalize-1.8 {link normalisation} {unixOnly} {
+    # Directory link, and bad last component
+    string equal \
+	    [::fileutil::fullnormalize ${linkinsidefile}foo] \
+	    [::fileutil::fullnormalize [file join $dirlink inside.filefoo]]
+} {0}
+
+test fu-fullnormalize-1.10 {link normalisation: double link} {unixOnly} {
+    # Double symlink in one component.
+    string equal \
+	    [::fileutil::fullnormalize [file join $linkinsidefile foo]] \
+	    [::fileutil::fullnormalize [file join $dirblink inside.file foo]]
+} {1}
+
+
+test fu-fullnormalize-2.0 {normalisation, non-existing paths} {unixOnly} {
+    ::fileutil::fullnormalize /a/b/c
+} /a/b/c
+
+test fu-fullnormalize-2.1 {normalisation, non-existing paths} {unixOnly} {
+    ::fileutil::fullnormalize /a/../b/c
+} /b/c
+
+test fu-fullnormalize-2.2 {normalisation, non-existing paths} {unixOnly} {
+    ::fileutil::fullnormalize /a/./b/c
+} /a/b/c
+
+test fu-fullnormalize-2.3 {normalisation, non-existing paths} {unixOnly} {
+    ::fileutil::fullnormalize /../b/c
+} /b/c
+
+test fu-fullnormalize-2.4 {normalisation, non-existing paths} {unixOnly} {
+    ::fileutil::fullnormalize /a/../../b/c
+} /b/c
+
+# Cleaning up after.
+
 removeFile      find3/find4/file5
 removeDirectory find3/find4
 removeDirectory find3
@@ -2692,7 +2789,6 @@ if {![string equal $::tcl_platform(platform) windows]} {
 
 # -------------------------------------------------------------------------
 # Computation of paths relative to a base.
-
 
 test fu-relative-1.0 {fileutil::relative, wrong#args} {
     catch {fileutil::relative} msg
