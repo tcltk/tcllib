@@ -1,4 +1,8 @@
-2007-01-22  Andreas Kupries  <akupries@shaw.ca>
+2007-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph.tcl: pragma/hint for md generator.
+
+2007-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sets.bench: Added more benchmarks, add/include,
 	  subtract/exclude, equality.
@@ -340,7 +344,7 @@
           and Tomasz Kosiak <tk@dacsystem.pl> for spotting it.
           [Tcllib SF Patch 1300795]
 
-2005-09-20  Andreas Kupries  <akupries@shaw.ca>
+2005-09-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tree.testsuite: Added test constraint 'tree_critcl'. Fixed a
 	  number of tests whose results are version dependent, using the
