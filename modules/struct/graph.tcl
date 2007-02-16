@@ -7,7 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: graph.tcl,v 1.29 2006/11/16 06:33:12 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.30 2007/02/16 07:04:48 andreas_kupries Exp $
+
+# @mdgen EXCLUDE: graph_c.tcl
 
 package require Tcl 8.2
 
