@@ -1,3 +1,10 @@
+2007-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.tcl: Added a command [fileutil::fullnormalize].
+	* fileutil.man: Documented it, extended the testsuite. Bumped
+	* filetuil.test: version up to 1.10. Removed nonsensical
+	* pkgIndex.tcl: [file join one_element] calls from the testsuite.
+
 2006-10-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.test: Marked all 20 permission dependent tests as
