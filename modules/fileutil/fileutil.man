@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin fileutil n 1.9]
+[manpage_begin fileutil n 1.10]
 [moddesc   {file utilities}]
 [titledesc {Procedures implementing some file utilities}]
 [require Tcl 8]
-[require fileutil [opt 1.9]]
+[require fileutil [opt 1.10]]
 [description]
 [keywords {file utilities} touch grep type {temp file} test cat]
 [para]
@@ -11,6 +11,15 @@
 This package provides implementations of standard unix utilities.
 
 [list_begin definitions]
+
+[call [cmd ::fileutil::fullnormalize] [arg path]]
+
+This command resolves all symbolic links in the [arg path] and returns
+the changed path as its result.
+
+In contrast to the builtin [cmd {file normalize}] this command
+resolves a symbolic link in the last element of the path as well.
+
 
 [call [cmd ::fileutil::test] [arg path] [arg codes] [opt [arg msgvar]] [opt [arg label]]]
 
