@@ -1,3 +1,12 @@
+2007-02-27  Andreas Kupries  <andreask@activestate.com>
+
+	* sets/s.c (from_any): Crashing bug in the Critcl implementation
+	  of 'struct::set'. Remembered the old object type X in the
+	  from_any conversion function, then converted to type 'list', and
+	  at the end tried to release the list using the freeintrep
+	  function of type X instead of type 'list'. Fixed by moving the
+	  code to remember the type after the conversion to a 'list'.
+
 2007-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph.tcl: pragma/hint for md generator.
