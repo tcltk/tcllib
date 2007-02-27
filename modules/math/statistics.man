@@ -370,6 +370,139 @@ limits.
 
 [list_end]
 
+[section "MULTIVARIATE LINEAR REGRESSION"]
+
+Besides the linear regression with a single independent variable, the
+statistics package provides two procedures for doing ordinary
+least squares (OLS) and weighted least squares (WLS) linear regression
+with several variables. They were written by Eric Kemp-Benedict.
+
+[para]
+In addition to these two, it provides a procedure
+for calculating the value of the t-statistic for the specified number of
+degrees of freedom that is required to demonstrate a given level of
+significance.
+
+[para]
+Note: These procedures depend on the math::linearalgebra package.
+
+[para]
+[emph "Description of the procedures"]
+
+[list_begin definitions]
+[call [cmd ::math::statistics::tstat] [arg dof] [opt alpha]]
+Returns the inverse of the single-tailed t distribution
+given the number of degrees of freedom dof and confidence level
+alpha. The confidence level defaults to 0.05, which can be
+used to establish the 95% confidence interval.
+[nl]
+The return value from this procedure can be compared to
+an estimated t-statistic to determine whether the estimated
+value of a parameter is significantly different from zero at
+the given confidence level.
+
+[list_begin arg]
+[arg_def int dof]
+Number of degrees of freedom
+
+[arg_def float alpha]
+Confidence level of the t-distribution. Defaults to 0.05.
+
+[list_end]
+[nl]
+
+[call [cmd ::math::statistics::mv-wls] [arg wt1] [arg values1] [arg wt2] [arg values2] ...]
+Carries out a weighted least squares linear regression for
+the data points provided, with weights assigned to each point.
+
+[nl]
+The linear model is of the form
+
+[example {
+    y = b0 + b1 * x1 + b2 * x2 ... + bN * xN + error
+}]
+and each point satisfies
+[example {
+    yi = b0 + b1 * xi1 + b2 * xi2 + ... + bN * xiN + Residual_i
+}]
+[nl]
+The procedure returns a list with the following elements:
+[list_begin bullet]
+[bullet]
+The r-squared statistic
+[bullet]
+The adjusted r-squared statistic
+[bullet]
+A list containing the estimated coefficients b1, ... bN, b0
+(The constant b0 comes last in the list.)
+[bullet]
+A list containing the standard errors of the coefficients
+[bullet]
+A list containing the 95% confidence bounds of the coefficients,
+with each set of bounds returned as a list with two values
+[list_end]
+
+Arguments:
+[list_begin arg]
+[arg_def float wt1]
+Weight for the first observation
+
+[arg_def list values1]
+List of the value of the dependent variable y and the independent
+variables x1, x2 to xN - first observation.
+
+[arg_def float wt2]
+Weight for the second observation
+
+[arg_def list values2]
+List of the value of the dependent variable y and the independent
+variables x1, x2 to xN - second observation. And so on.
+
+[list_end]
+[nl]
+
+[call [cmd ::math::statistics::mv-ols] [arg wt1] [arg values1] [arg wt2] [arg values2] ...]
+Carries out an ordinary least squares linear regression for
+the data points provided.
+
+[nl]
+This procedure simply calls ::mvlinreg::wls with the weights
+set to 1.0, and returns the same information.
+
+[list_end]
+
+
+[emph "Example of the use:"]
+[example {
+# Store the value of the unicode value for the "+/-" character
+set pm "\u00B1"
+
+# Provide some data
+set data {{  -.67  14.18  60.03 -7.5  }
+          { 36.97  15.52  34.24 14.61 }
+          {-29.57  21.85  83.36 -7.   }
+          {-16.9   11.79  51.67 -6.56 }
+          { 14.09  16.24  36.97 -12.84}
+          { 31.52  20.93  45.99 -25.4 }
+          { 24.05  20.69  50.27  17.27}
+          { 22.23  16.91  45.07  -4.3 }
+          { 40.79  20.49  38.92  -.73 }
+          {-10.35  17.24  58.77  18.78}}
+
+# Call the ols routine
+set results [eval ::math::statistics::mv-ols $data]
+
+# Pretty-print the results
+puts "R-squared: [lindex $results 0]"
+puts "Adj R-squared: [lindex $results 1]"
+puts "Coefficients $pm s.e. -- \[95% confidence interval\]:"
+foreach val [lindex $results 2] se [lindex $results 3] bounds [lindex $results 4] {
+    set lb [lindex $bounds 0]
+    set ub [lindex $bounds 1]
+    puts "   $val $pm $se -- \[$lb to $ub\]"
+}
+}]
+
 [section "STATISTICAL DISTRIBUTIONS"]
 In the literature a large number of probability distributions can be
 found. The statistics package supports:
