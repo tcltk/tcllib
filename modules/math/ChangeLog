@@ -1,3 +1,11 @@
+2007-02-27  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+	* statistics.man : added description of multivariate linear regression procedures
+                    (contribution by Eric Kemp-Benedict)
+	* statistics.tcl : sources "mvlinreg.tcl" now
+	* mvlinreg.tcl   : original source code from Eric, still needs some polishing
+                    (the test case needs to be integrated too)
+
 2006-11-06  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
 	* fuzzy.test : fixed a dependency on Tcl 8.4 behaviour in one test case

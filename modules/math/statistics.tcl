@@ -8,8 +8,10 @@
 # version 0.1.3: moved initialisation of CDF to first call, november 2004
 # version 0.3:   added test for normality (as implemented by Torsten Reincke), march 2006
 #                (also fixed an error in the export list)
+# version 0.4:   added the multivariate linear regression procedures by
+#                Eric Kemp-Benedict, february 2007
 
-package provide math::statistics 0.3
+package provide math::statistics 0.4
 
 # ::math::statistics --
 #   Namespace holding the procedures and variables
@@ -1274,6 +1276,7 @@ proc ::math::statistics::test-Rchart { control data } {
 source [file join [file dirname [info script]] pdf_stat.tcl]
 source [file join [file dirname [info script]] plotstat.tcl]
 source [file join [file dirname [info script]] liststat.tcl]
+source [file join [file dirname [info script]] mvlinreg.tcl]
 
 #
 # Define the tables
