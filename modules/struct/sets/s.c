@@ -166,12 +166,21 @@ from_any (Tcl_Interp* ip, Tcl_Obj* obj)
 
     int          lc, i, new;
     Tcl_Obj**    lv;
-    Tcl_ObjType* oldTypePtr = obj->typePtr;
+    Tcl_ObjType* oldTypePtr;
     SPtr         s;
 
     if (Tcl_ListObjGetElements (ip, obj, &lc, &lv) != TCL_OK) {
 	return TCL_ERROR;
     }
+
+    /*
+     * Remember the old type after the conversion to list, or we will try to
+     * free a list intrep using the free-proc of whatever type the word had
+     * before. For example 'parsedvarname'. That would be bad. Segfault like
+     * bad.
+     */
+
+    oldTypePtr = obj->typePtr;
 
     /* Gen hash table from list */
 
