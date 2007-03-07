@@ -20,15 +20,15 @@ package ifneeded page::reader::treeser 0.1 [list source [file join $dir plugins/
 # -- PAGE plugin packages
 # -- ---- Writers
 
-package ifneeded page::writer::null     0.1 [list source [file join $dir plugins/writer_null.tcl]]
-package ifneeded page::writer::me       0.1 [list source [file join $dir plugins/writer_me.tcl]]
-package ifneeded page::writer::mecpu    0.1 [list source [file join $dir plugins/writer_mecpu.tcl]]
-package ifneeded page::writer::tree     0.1 [list source [file join $dir plugins/writer_tree.tcl]]
-package ifneeded page::writer::tpc      0.1 [list source [file join $dir plugins/writer_tpc.tcl]]
-package ifneeded page::writer::hb       0.1 [list source [file join $dir plugins/writer_hb.tcl]]
-package ifneeded page::writer::ser      0.1 [list source [file join $dir plugins/writer_ser.tcl]]
-package ifneeded page::writer::peg      0.1 [list source [file join $dir plugins/writer_peg.tcl]]
-package ifneeded page::writer::identity 0.1 [list source [file join $dir plugins/writer_identity.tcl]]
+package ifneeded page::writer::null     0.1   [list source [file join $dir plugins/writer_null.tcl]]
+package ifneeded page::writer::me       0.1   [list source [file join $dir plugins/writer_me.tcl]]
+package ifneeded page::writer::mecpu    0.1.1 [list source [file join $dir plugins/writer_mecpu.tcl]]
+package ifneeded page::writer::tree     0.1   [list source [file join $dir plugins/writer_tree.tcl]]
+package ifneeded page::writer::tpc      0.1   [list source [file join $dir plugins/writer_tpc.tcl]]
+package ifneeded page::writer::hb       0.1   [list source [file join $dir plugins/writer_hb.tcl]]
+package ifneeded page::writer::ser      0.1   [list source [file join $dir plugins/writer_ser.tcl]]
+package ifneeded page::writer::peg      0.1   [list source [file join $dir plugins/writer_peg.tcl]]
+package ifneeded page::writer::identity 0.1   [list source [file join $dir plugins/writer_identity.tcl]]
 
 # -- PAGE plugin packages
 # -- ---- Transformations
