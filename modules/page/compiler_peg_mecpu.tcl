@@ -33,7 +33,7 @@
 
 package require page::plugin ; # S.a. pseudo-package.
 
-package require grammar::me::cpu::gas
+package require grammar::me::cpu::gasm
 package require textutil
 package require struct::graph
 
@@ -1639,4 +1639,4 @@ namespace eval ::page::compiler::peg::mecpu {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide page::compiler::peg::mecpu 0.1
+package provide page::compiler::peg::mecpu 0.1.1
