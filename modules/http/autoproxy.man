@@ -3,7 +3,7 @@
 [titledesc {Automatic HTTP proxy usage and authentication}]
 [require Tcl 8.2]
 [require http [opt 2.0]]
-[require autoproxy [opt 1.3]]
+[require autoproxy [opt 1.4]]
 [description]
 [para]
 
@@ -52,6 +52,23 @@ Retrieve individual package configuration options. See [sectref OPTIONS].
 Configure the autoproxy package. Calling [cmd configure] with no
 options will return a list of all option names and values. 
 See [sectref OPTIONS].
+
+[call [cmd ::autoproxy::tls_connect] [arg "host"] \
+   [arg "port"] [opt [arg "useragent"]]]
+
+Connect to a secure socket through a proxy. HTTP proxy servers permit
+the use of the CONNECT HTTP command to open a link through the proxy
+to the target machine. This function hides the details. For use with
+the http package see [cmd tls_socket].
+
+[call [cmd ::autoproxy::tls_socket] [arg args]]
+
+This function is to be used to register a proxy-aware secure socket
+handler for the https protocol. It may only be used with the Tcl http
+package and should be registered using the http::register command (see
+the examples below). The job of actually creating the tunnelled
+connection is done by the tls_connect command and this may be used
+when not registering with the http package.
 
 [list_end]
 
@@ -119,6 +136,15 @@ autoproxy::init
 autoproxy::configure -basic -username ME -password SEKRET
 set tok [http::geturl http://wiki.tcl.tk/]
 http::data $tok
+}]
+
+[example {
+package require http
+package require tls
+package require autoproxy
+autoproxy::init
+http::register https 443 autoproxy::tls_socket
+set tok [http::geturl https://www.example.com/]
 }]
 
 [section {REFERENCES}]
