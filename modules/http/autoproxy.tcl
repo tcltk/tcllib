@@ -20,15 +20,15 @@
 #   package require tls
 #   http::register https 443 ::autoproxy::tls_socket
 #
-# @(#)$Id: autoproxy.tcl,v 1.8 2006/09/19 23:36:17 andreas_kupries Exp $
+# @(#)$Id: autoproxy.tcl,v 1.9 2007/03/12 22:53:25 patthoyts Exp $
 
 package require http;                   # tcl
 package require uri;                    # tcllib
 package require base64;                 # tcllib
 
 namespace eval ::autoproxy {
-    variable rcsid {$Id: autoproxy.tcl,v 1.8 2006/09/19 23:36:17 andreas_kupries Exp $}
-    variable version 1.3
+    variable rcsid {$Id: autoproxy.tcl,v 1.9 2007/03/12 22:53:25 patthoyts Exp $}
+    variable version 1.4
     variable options
 
     if {! [info exists options]} {
@@ -250,14 +250,45 @@ proc ::autoproxy::Pop {varname {nth 0}} {
 #   A two element list consisting of the users authentication id and 
 #   password. 
 proc ::autoproxy::defAuthProc {{user {}} {passwd {}} {realm {}}} {
-    package require BWidget
     if {[string length $realm] > 0} {
         set title "Realm: $realm"
     } else {
         set title {}
     }
-    return [PasswdDlg .defAuthDlg -parent {} -transient 0 -title $title \
-                -logintext $user -passwdtext $passwd]
+
+    # If you are using BWidgets then the following will do:
+    #
+    #    package require BWidget
+    #    return [PasswdDlg .defAuthDlg -parent {} -transient 0 \
+    #         -title $title -logintext $user -passwdtext $passwd]
+    #
+    # if you just have Tk and no BWidgets --
+    
+    set dlg [toplevel .autoproxy_defAuthProc -class Dialog]
+    wm title $dlg "$realm"
+    label $dlg.ll -text Login -underline 0 -anchor w
+    entry $dlg.le -textvariable [namespace current]::${dlg}:l
+    label $dlg.pl -text Password -underline 0 -anchor w
+    entry $dlg.pe -show * -textvariable [namespace current]::${dlg}:p
+    button $dlg.ok -text OK -default active -width -11 \
+        -command [list set [namespace current]::${dlg}:ok 1]
+    grid $dlg.ll $dlg.le -sticky news
+    grid $dlg.pl $dlg.pe -sticky news
+    grid $dlg.ok - -sticky e
+    grid columnconfigure $dlg 1 -weight 1
+    bind $dlg <Return> [list $dlg.ok invoke]
+    bind $dlg <Alt-l> [list focus $dlg.le]
+    bind $dlg <Alt-p> [list focus $dlg.pe]
+    variable ${dlg}:l $user; variable ${dlg}:p $passwd
+    variable ${dlg}:ok 0
+    wm deiconify $dlg; focus $dlg.pe; update idletasks
+    set old [::grab current]; grab $dlg
+    tkwait variable [namespace current]::${dlg}:ok
+    grab release $dlg ; if {[llength $old] > 0} {::grab $old}
+    set r [list [set ${dlg}:l] [set ${dlg}:p]]
+    unset ${dlg}:l; unset ${dlg}:p; unset ${dlg}:ok
+    destroy $dlg
+    return $r
 }
 
 # -------------------------------------------------------------------------
@@ -333,28 +364,24 @@ proc ::autoproxy::filter {host} {
     return [list $options(proxy_host) $options(proxy_port)]
 }
 
-# autoproxy::tls_socket --
+# autoproxy::tls_connect --
 #
-#	This can be used to handle TLS connections indenpendantly of
-#	proxy presence. It can only be used with the Tcl http package
-#	and to use it you must do:
-#	   http::register https 443 ::autoproxy::tls_socket
-#	After that you can use the http::geturl command to access
-#	secure web pages and any proxy details will be handled for you.
+#	Create a connection to a remote machine through a proxy
+#	if necessary. This is used by the tls_socket comment for 
+#	use with the http package but can also be used more generally
+#	provided your proxy will permit CONNECT attempts to ports
+#	other than port 443 (many will not).
 #
-proc ::autoproxy::tls_socket {args} {
+proc ::autoproxy::tls_connect {host port {useragent {}}} {
     variable options
-
-    # Look into the http package for the actual target. The function
-    # has unfortunately not passed these as parameters.
-    upvar host host port port
-
     if {[string length $options(proxy_host)] > 0} {
         set s [::socket $options(proxy_host) $options(proxy_port)]
         fconfigure $s -blocking 1 -buffering line -translation crlf
         puts $s "CONNECT $host:$port HTTP/1.1"
         puts $s "Host: $host"
-        puts $s "User-Agent: [http::config -useragent]"
+        if {[string length $useragent] > 0} {
+            puts $s "User-Agent: $useragent"
+        }
         puts $s "Proxy-Connection: keep-alive"
         puts $s "Connection: keep-alive"
         if {[string length $options(basic)] > 0} {
@@ -372,10 +399,6 @@ proc ::autoproxy::tls_socket {args} {
         if {$code >= 200 && $code < 300} {
             fconfigure $s -blocking 1 -buffering none -translation binary
             tls::import $s
-            # Record the certificate details in the request array.
-            tls::handshake $s
-            upvar state state
-            set state(tls_status) [tls::status $s]
         } else {
             close $s
             return -code error $result
@@ -383,6 +406,31 @@ proc ::autoproxy::tls_socket {args} {
     } else {
         set s [eval [linsert $args 0 ::tls::socket]]
     }
+    return $s
+}
+
+# autoproxy::tls_socket --
+#
+#	This can be used to handle TLS connections indenpendantly of
+#	proxy presence. It can only be used with the Tcl http package
+#	and to use it you must do:
+#	   http::register https 443 ::autoproxy::tls_socket
+#	After that you can use the http::geturl command to access
+#	secure web pages and any proxy details will be handled for you.
+#
+proc ::autoproxy::tls_socket {args} {
+    variable options
+
+    # Look into the http package for the actual target. The function
+    # has unfortunately not passed these as parameters.
+    upvar host host port port
+    set s [tls_connect $host $port [http::config -useragent]]
+
+    # record the tls connection status in the http state array.
+    upvar state state
+    tls::handshake $s
+    set state(tls_status) [tls::status $s]
+
     return $s
 }
 
