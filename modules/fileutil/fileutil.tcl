@@ -9,11 +9,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.61 2007/02/16 05:12:44 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.62 2007/03/12 23:25:21 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.10
+package provide fileutil 1.11
 
 namespace eval ::fileutil {
     namespace export \
@@ -1677,13 +1677,17 @@ proc ::fileutil::TempDir {} {
     variable tempdirSet
 
     set attempdirs [list]
+    set problems   {}
 
     if {$tempdirSet} {
 	lappend attempdirs $tempdir
+	lappend problems {User/Application specified tempdir}
     } else {
 	foreach tmp {TMPDIR TEMP TMP} {
 	    if { [info exists env($tmp)] } {
 		lappend attempdirs $env($tmp)
+	    } else {
+		lappend problems "No environment variable $tmp"
 	    }
 	}
 
@@ -1695,8 +1699,10 @@ proc ::fileutil::TempDir {} {
 		set tmpdir $env(TRASH_FOLDER)  ;# a better place?
 	    }
 	    default {
-		lappend attempdirs [file join / tmp] \
-			[file join / var tmp] [file join / usr tmp]
+		lappend attempdirs \
+		    [file join / tmp] \
+		    [file join / var tmp] \
+		    [file join / usr tmp]
 	    }
 	}
 
@@ -1706,11 +1712,15 @@ proc ::fileutil::TempDir {} {
     foreach tmp $attempdirs {
 	if { [file isdirectory $tmp] && [file writable $tmp] } {
 	    return $tmp
+	} elseif { ![file isdirectory $tmp] } {
+	    lappend problems "Not a directory: $tmp"
+	} else {
+	    lappend problems "Not writable: $tmp"
 	}
     }
 
     # Fail if nothing worked.
-    return -code error "Unable to determine a proper directory for temporary files"
+    return -code error "Unable to determine a proper directory for temporary files\n[join $problems \n]"
 }
 
 namespace eval ::fileutil {
