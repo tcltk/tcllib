@@ -21,7 +21,7 @@ package require Tcl 8.2
 
 namespace eval blowfish {
     variable version 1.0.2
-    variable rcsid {$Id: blowfish.tcl,v 1.7 2006/10/02 20:58:52 patthoyts Exp $}
+    variable rcsid {$Id: blowfish.tcl,v 1.8 2007/03/12 22:59:57 patthoyts Exp $}
     variable uid ; if {![info exists uid]} { set uid 0 }
     variable accel
     array set accel {trf 0}
@@ -504,7 +504,7 @@ proc ::blowfish::Decrypt {token data} {
 # Fileevent handler for chunked file reading.
 #
 proc ::blowfish::Chunk {Key in {out {}} {chunksize 4096} {pad \0}} {
-    upvar #0 $token state
+    upvar #0 $Key state
     
     if {[eof $in]} {
         fileevent $in readable {}
