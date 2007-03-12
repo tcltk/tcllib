@@ -1,3 +1,12 @@
+2007-03-12  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* autoproxy.tcl: Removed even the demo reference to BWidgets to
+	avoid confising the auto-dependency checker. Rearranged the tls
+	connection code to permit use outside of the http package as
+	tls_connect.
+	* autoproxy.man: Documented the tls functions.
+	* pkgIndex.tcl: Increment version to 1.4
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
