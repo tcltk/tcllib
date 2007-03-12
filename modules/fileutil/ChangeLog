@@ -1,3 +1,10 @@
+2007-03-12  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.tcl (::fileutil::TempDir): Added code to collect all
+	* pkgIndex.tcl: problems encountered, to be reported if no temp
+	* fileutil.man: directory could be found, to aid in the
+	  debugging of the situation. Bumped version up to 1.11.
+
 2007-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.tcl: Added a command [fileutil::fullnormalize].
