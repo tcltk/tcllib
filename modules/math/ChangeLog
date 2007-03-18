@@ -1,3 +1,8 @@
+2007-03-18  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+	* statistics.man : updated description of tstat
+	* statistics.test : converted the example into a test
+
 2007-03-05  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
 	* mvlinreg.tcl   : polished the source code (adding standard headers)
