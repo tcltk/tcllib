@@ -378,7 +378,7 @@ least squares (OLS) and weighted least squares (WLS) linear regression
 with several variables. They were written by Eric Kemp-Benedict.
 
 [para]
-In addition to these two, it provides a procedure
+In addition to these two, it provides a procedure (tstat)
 for calculating the value of the t-statistic for the specified number of
 degrees of freedom that is required to demonstrate a given level of
 significance.
@@ -391,12 +391,22 @@ Note: These procedures depend on the math::linearalgebra package.
 
 [list_begin definitions]
 [call [cmd ::math::statistics::tstat] [arg dof] [opt alpha]]
-Returns the inverse of the single-tailed t distribution
-given the number of degrees of freedom dof and confidence level
-alpha. The confidence level defaults to 0.05, which can be
-used to establish the 95% confidence interval.
+Returns the value of the t-distribution t* satisfying
+
+[example {
+    P(t*)  =  1 - alpha/2
+    P(-t*) =  alpha/2
+}]
+for the number of degrees of freedom dof.
 [nl]
-The return value from this procedure can be compared to
+Given a sample of normally-distributed data x, with an
+estimate xbar for the mean and sbar for the standard deviation,
+the alpha confidence interval for the estimate of the mean can
+be calculated as
+[example {
+      ( xbar - t* sbar , xbar + t* sbar)
+}]
+The return values from this procedure can be compared to
 an estimated t-statistic to determine whether the estimated
 value of a parameter is significantly different from zero at
 the given confidence level.

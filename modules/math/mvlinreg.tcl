@@ -258,5 +258,5 @@ proc ::math::statistics::mv-ols {args} {
     foreach pt $args {
         lappend newargs 1 $pt
     }
-    return [eval wls $newargs]
+    return [eval mv-wls $newargs]
 }
