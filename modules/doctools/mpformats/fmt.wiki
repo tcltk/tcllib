@@ -107,6 +107,7 @@ proc fmt_para    {}     {return \n}
 c_pass 2 fmt_require {pkg {version {}}} NOP
 c_pass 1 fmt_require {pkg {version {}}} {
     if {$version != {}} {set version " $version"}
+    # @mdgen NODEP: '''
     c_hold synopsis "package require '''$pkg$version'''\n"
 }
 
