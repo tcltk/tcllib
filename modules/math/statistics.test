@@ -416,20 +416,20 @@ test "Testnormal-1.0" "Test birthweight data for normality - 95%" -match toleran
 # Provide some data
 test "Testmultivar-1.0" "Ordinary multivariate regression - three independent variables" \
         -match tolerant -body {
-    set data {\
-        {  -.67  14.18  60.03  -7.5} \
-        { 36.97  15.52  34.24  14.61} \
-        {-29.57  21.85  83.36  -7.} \
-        {-16.9   11.79  51.67  -6.56} \
-        { 14.09  16.24  36.97  -12.84} \
-        { 31.52  20.93  45.99  -25.4} \
-        { 24.05  20.69  50.27  17.27} \
-        { 22.23  16.91  45.07  -4.3} \
-        { 40.79  20.49  38.92  -.73} \
+    set data {
+        {  -.67  14.18  60.03  -7.5}
+        { 36.97  15.52  34.24  14.61}
+        {-29.57  21.85  83.36  -7.}
+        {-16.9   11.79  51.67  -6.56}
+        { 14.09  16.24  36.97  -12.84}
+        { 31.52  20.93  45.99  -25.4}
+        { 24.05  20.69  50.27  17.27}
+        { 22.23  16.91  45.07  -4.3}
+        { 40.79  20.49  38.92  -.73}
         {-10.35  17.24  58.77 18.78}}
 
     # Call the ols routine
-    set results [eval ::math::statistics::mv-ols $data]
+    set results [::math::statistics::mv-ols $data]
 
     # Flatten the result (so that we can use the tolerant comparison method)
     eval concat [eval concat $results]

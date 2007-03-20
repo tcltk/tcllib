@@ -421,7 +421,7 @@ Confidence level of the t-distribution. Defaults to 0.05.
 [list_end]
 [nl]
 
-[call [cmd ::math::statistics::mv-wls] [arg wt1] [arg values1] [arg wt2] [arg values2] ...]
+[call [cmd ::math::statistics::mv-wls] [arg wt1] [arg weights_and_values]]
 Carries out a weighted least squares linear regression for
 the data points provided, with weights assigned to each point.
 
@@ -454,24 +454,17 @@ with each set of bounds returned as a list with two values
 
 Arguments:
 [list_begin arg]
-[arg_def float wt1]
-Weight for the first observation
-
-[arg_def list values1]
-List of the value of the dependent variable y and the independent
-variables x1, x2 to xN - first observation.
-
-[arg_def float wt2]
-Weight for the second observation
-
-[arg_def list values2]
-List of the value of the dependent variable y and the independent
-variables x1, x2 to xN - second observation. And so on.
+[arg_def list weights_and_values]
+A list consisting of: the weight for the first observation, the data
+for the first observation (as a sublist), the weight for the second
+observation (as a sublist) and so on. The sublists of data are organised
+as lists of the value of the dependent variable y and the independent
+variables x1, x2 to xN.
 
 [list_end]
 [nl]
 
-[call [cmd ::math::statistics::mv-ols] [arg wt1] [arg values1] [arg wt2] [arg values2] ...]
+[call [cmd ::math::statistics::mv-ols] [arg values]]
 Carries out an ordinary least squares linear regression for
 the data points provided.
 
@@ -500,7 +493,7 @@ set data {{  -.67  14.18  60.03 -7.5  }
           {-10.35  17.24  58.77  18.78}}
 
 # Call the ols routine
-set results [eval ::math::statistics::mv-ols $data]
+set results [::math::statistics::mv-ols $data]
 
 # Pretty-print the results
 puts "R-squared: [lindex $results 0]"
