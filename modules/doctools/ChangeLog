@@ -1,5 +1,9 @@
 2007-03-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* doctoc.tcl: Extended MD pragmas declaring the ownership of
+	* docidx.tcl: various non-code files.
+	* doctools.tcl:
+
 	* support/devel/sak/doc/doc.tcl: Modified to print warnings even
 	  if processed was stopped by an error.
 
