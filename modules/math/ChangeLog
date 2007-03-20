@@ -1,6 +1,12 @@
+2007-03-20  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+	* mvlinreg.tcl    : changed the API to make it more robust (no eval needed)
+	* statistics.man  : updated description of mv-ols and mv-wls
+	* statistics.test : updated the API
+
 2007-03-18  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
-	* statistics.man : updated description of tstat
+	* statistics.man  : updated description of tstat
 	* statistics.test : converted the example into a test
 
 2007-03-05  Arjen Markus  <arjenmarkus@users.sourceforge.net>
