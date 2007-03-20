@@ -134,8 +134,9 @@ proc fmt_list_end {} {
     c_creset
     if {[dt_lnesting] > 0} {
 	return [nr_out]
+    } else {
+	return [nr_p]
     }
-    return {}
 }
 
 proc fmt_enum     {}        {return [nr_item " \[[c_cnext]\]\n"]}

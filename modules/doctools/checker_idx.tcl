@@ -201,7 +201,7 @@ proc url {url label} {
 }
 proc comment {text} {
     if {[Is done]} {Error idx/nodonecmd}
-    fmt_comment $text
+    return ; #fmt_comment $text
 }
 
 # -------------------------------------------------------------

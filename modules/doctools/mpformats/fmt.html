@@ -271,9 +271,12 @@ c_pass 2 fmt_description {} {
 
 proc fmt_list_begin  {what {hint {}}} {
     switch -exact -- $what {
-	enum        {set tag ol}
-	bullet      {set tag ul}
-	arg - cmd - opt - tkoption -
+	enumerated  {set tag ol}
+	itemized    {set tag ul}
+	arguments -
+	commands  -
+	options   -
+	tkoptions -
 	definitions {set tag dl}
     }
     return [if {[llevel]} {limark} else {}][lpush $tag $hint][lsmark 1]
@@ -283,7 +286,7 @@ proc fmt_list_end {}        {return [lpop][lsmark 1]}
 proc fmt_lst_item {text}    {return [limark][tag dt]$text[tag dd][lsmark 1]}
 proc fmt_bullet   {}        {return [limark][tag li][lsmark 1]}
 proc fmt_enum     {}        {return [limark][tag li][lsmark 1]}
-proc fmt_cmd_def  {command} {fmt_lst_item [cmd $command]}
+proc fmt_cmd_def  {command} {fmt_lst_item [fmt_cmd $command]}
 
 proc fmt_arg_def {type name {mode {}}} {
     set    text ""
