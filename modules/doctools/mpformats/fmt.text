@@ -47,9 +47,13 @@ proc NewList {what} {
     # Per list several environments are required.
 
     switch -exact -- $what {
-	enum                                     {NewOrderedList}
-	bullet                                   {NewUnorderedList}
-	arg - cmd - opt - tkoption - definitions {NewDefinitionList}
+	enumerated {NewOrderedList}
+	itemized   {NewUnorderedList}
+	arguments -
+	commands  -
+	options   -
+	tkoptions -
+	definitions {NewDefinitionList}
     }
 }
 

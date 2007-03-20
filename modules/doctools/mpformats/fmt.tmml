@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.22 2005/09/28 04:51:19 andreas_kupries Exp $
+# $Id: fmt.tmml,v 1.23 2007/03/20 05:06:35 andreas_kupries Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -129,13 +129,13 @@ c_pass 1 fmt_para {} NOP
 c_pass 2 fmt_para {} { sequence [xmlContext section] [start p] }
 
 foreach {type gi} {
-    bullet	ul
-    enum	ol
+    itemized	ul
+    enumerated	ol
     definitions	dl
-    arg		arglist
-    cmd		commandlist
-    opt		optlist
-    tkoption	optionlist
+    arguments	arglist
+    commands	commandlist
+    options	optlist
+    tkoptions	optionlist
 } {
     set listTypes($type) $gi
     lappend listGIs $gi

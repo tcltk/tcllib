@@ -106,16 +106,18 @@ proc ::sak::doc::Gen {fmt ext modules} {
 		dt configure -deprecated 1
 	    }
 
-	    if {[catch {
+	    set fail [catch {
 		set data [dt format [get_input $f]]
-	    } msg]} {
-		puts $msg
-		continue
-	    }
+	    } msg]
 
 	    set warnings [dt warnings]
 	    if {[llength $warnings] > 0} {
 		puts stderr [join $warnings \n]
+	    }
+
+	    if {$fail} {
+		puts stderr $msg
+		continue
 	    }
 
 	    if {!$null} {
