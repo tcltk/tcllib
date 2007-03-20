@@ -1,5 +1,9 @@
 2007-03-20  Andreas Kupries  <andreask@activestate.com>
 
+	* apps/dtplite: Added a block of meta data.
+
+2007-03-20  Andreas Kupries  <andreask@activestate.com>
+
 	* mpformats/fmt.wiki: Added MD pragma excluding a bogus dependency
 	  from consideration.
 
