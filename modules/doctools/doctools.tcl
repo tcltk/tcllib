@@ -2,18 +2,21 @@
 #
 #	Implementation of doctools objects for Tcl.
 #
-# Copyright (c) 2003-2005 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2007 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.20 2007/03/20 05:06:34 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.21 2007/03/20 05:11:17 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
 
 # @mdgen OWNER: api.tcl
 # @mdgen OWNER: checker.tcl
+# @mdgen OWNER: mpformats/*.tcl
+# @mdgen OWNER: mpformats/*.msg
+# @mdgen OWNER: mpformats/fmt.*
 
 namespace eval ::doctools {
     # Data storage in the doctools module
