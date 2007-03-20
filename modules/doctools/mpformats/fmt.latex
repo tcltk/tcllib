@@ -155,10 +155,15 @@ proc fmt_list_begin  {what {hint {}}} {
     set  list_state(l,$list_state(level),item) 0
 
     switch -exact -- $what {
-	enum {
+	enumerated {
 	    return \\begin\{enumerate\}
 	}
-	bullet - arg - opt - cmd - tkoption - definitions {
+	itemized -
+	arguments -
+	options -
+	commands -
+	tkoptions -
+	definitions {
 	    return \\begin\{itemize\}
 	}
 	default {

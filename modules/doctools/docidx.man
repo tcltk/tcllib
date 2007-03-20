@@ -2,23 +2,30 @@
 [manpage_begin doctools::idx n 0.2.1]
 [copyright {2003-2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
-[titledesc {Create and manipulate docidx converter objects}]
+[titledesc {docidx - Processing indices}]
 [require Tcl 8.2]
 [require doctools::idx [opt 0.2.1]]
 [description]
 
-This package provides objects for the conversion of text written in
-the [term docidx] format into any output format X, assuming that a
-formatting engine for X is available.
+This package provides a class for the creation of objects able to
+process and convert text written in the [term docidx] markup language
+into any output format X for which a [term {formatting engine}] is
+available.
 
 [para]
 
-This document has two companions.
+A reader interested in the markup language itself should start with
+the [term {docidx language introduction}] and proceed from there to
+the formal specifications, i.e. the [term {docidx language syntax}]
+and the [term {docidx language command reference}].
 
-The first, [term docidx_fmt], is the formal specification of the
-[term docidx] format; the other, [term docidx_api], is the formal
-specification of the interface between the objects provided here and
-the formatting engines they require.
+[para]
+
+If on the other hand the reader wishes to write her own formatting
+engine for some format, i.e. is a [term {plugin writer}] then reading
+and understanding the [term {docidx plugin API reference}] is an
+absolute necessity, as that document specifies the interaction between
+this package and its plugins, i.e. the formatting engines, in detail.
 
 
 [section {PUBLIC API}]
@@ -35,7 +42,7 @@ and [sectref {OBJECT METHODS}]. The object command will be created
 under the current namespace if the [arg objectName] is not fully
 qualified, and in the specified namespace otherwise.
 
-[nl]
+[para]
 
 The options and their values coming after the name of the object are
 used to set the initial configuration of the object.
@@ -56,7 +63,7 @@ a format to the file containing the code for its formatting engine it
 will search for the file in a number of directories stored in a
 list. See section [sectref {FORMAT MAPPING}] for more explanations.
 
-[nl]
+[para]
 
 This list not only contains three default directories which are
 declared by the package itself, but is also extensible user of the
@@ -67,7 +74,7 @@ existing and readable directory it will prepend that directory to the
 list of directories to search. This means that the [arg path] added
 last is later searched through first.
 
-[nl]
+[para]
 
 An error will be thrown if the [arg path] either does not exist, is
 not a directory, or is not readable.
@@ -115,7 +122,7 @@ The method reconfigures the specified [option option]s of the object,
 setting them to the associated [arg value]s, when called with an even
 number of arguments, at least two.
 
-[nl]
+[para]
 
 The legal options are described in the section
 [sectref {OBJECT CONFIGURATION}].
@@ -127,7 +134,7 @@ This method expects a legal configuration option as argument and will
 return the current value of that option for the object the method was
 invoked for.
 
-[nl]
+[para]
 
 The legal configuration options are described in section
 [sectref {OBJECT CONFIGURATION}].
@@ -144,7 +151,7 @@ This method runs the [arg text] through the configured formatting
 engine and returns the generated string as its result. An error will
 be thrown if no [option -format] was configured for the object.
 
-[nl]
+[para]
 
 The method assumes that the [arg text] is in [term docidx] format as
 specified in the companion document [term docidx_fmt]. Errors will be
@@ -159,9 +166,10 @@ This methods add one entry to the per-object mapping from
 The object just stores this mapping and makes it available to the
 configured formatting engine through the command [cmd dt_fmap].
 
-This command is described in more detail in the companion document
-[term docidx_api] which specifies the API between the object and
-index formatting engines.
+This command is described in more detail in the
+[term {docidx plugin API reference}] which specifies the interaction
+between the objects created by this package and index formatting
+engines.
 
 
 [call [arg objectName] [method parameters]]
@@ -208,7 +216,7 @@ invocation of the method [method format].
 
 All docidx objects understand the following configuration options:
 
-[list_begin opt]
+[list_begin options]
 
 [opt_def -file [arg file]]
 
@@ -219,11 +227,11 @@ This command is described in more detail in the companion document
 [term docidx_api] which specifies the API between the object and
 formatting engines.
 
-[nl]
+[para]
 
 The default value of this option is the empty string.
 
-[nl]
+[para]
 
 The configured formatting engine should interpret the value as the
 name of the file containing the document which is currently processed.
@@ -237,14 +245,14 @@ method [method format]. Its default value is the empty string. The
 method [method format] cannot be used if this option is not set to a
 valid value at least once.
 
-[nl]
+[para]
 
 The package will immediately try to map the given name to a file
 containing the code for a formatting engine generating that format. An
 error will be thrown if this mapping fails. In that case a previously
 configured format is left untouched.
 
-[nl]
+[para]
 
 The section [sectref {FORMAT MAPPING}] explains in detail how the
 package and object will look for engine implementations.
@@ -258,7 +266,7 @@ The package and object will perform the following algorithm when
 trying to map a format name [term foo] to a file containing an
 implementation of a formatting engine for [term foo]:
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 
 If [term foo] is the name of an existing file then this file is
@@ -271,7 +279,7 @@ directory in the list the package checks if that directory contains a
 file [file idx.[term foo]]. If yes, then that file is taken as the
 implementation.
 
-[nl]
+[para]
 
 Note that this list of paths is initially empty and can be extended
 through the object method [method search].
@@ -284,7 +292,7 @@ For each directory in the list the package checks if that directory
 contains a file [file idx.[term foo]]. If yes, then that file is taken
 as the implementation.
 
-[nl]
+[para]
 
 This list of paths can be extended
 through the command [cmd ::doctools::idx::search].
@@ -310,13 +318,13 @@ formats. Some of the formatting engines support engine
 parameters. These will be explicitly highlighted.
 
 [list_begin definitions]
-[lst_item html]
+[def html]
 
 This engine generates HTML markup, for processing by web browsers and
 the like. This engine supports three parameters:
 
 [list_begin definitions]
-[lst_item footer]
+[def footer]
 
 The value for this parameter has to be valid selfcontained HTML markup
 for the body section of a HTML document. The default value is the
@@ -324,25 +332,25 @@ empty string. The value is inserted into the generated output just
 before the [const </body>] tag, closing the body of the generated
 HTML.
 
-[nl]
+[para]
 
 This can be used to insert boilerplate footer markup into the
 generated document.
 
-[lst_item header]
+[def header]
 
 The value for this parameter has to be valid selfcontained HTML markup
 for the body section of a HTML document. The default value is the
 empty string. The value is inserted into the generated output just
 after the [const <body>] tag, starting the body of the generated HTML.
 
-[nl]
+[para]
 
 This can be used to insert boilerplate header markup into the
 generated document.
 
 
-[lst_item meta]
+[def meta]
 
 The value for this parameter has to be valid selfcontained HTML markup
 for the header section of a HTML document. The default value is the
@@ -350,43 +358,43 @@ empty string. The value is inserted into the generated output just
 after the [const <head>] tag, starting the header section of the
 generated HTML.
 
-[nl]
+[para]
 
 This can be used to insert boilerplate meta data markup into the
 generated document, like references to a stylesheet, standard meta
 keywords, etc.
 
 [list_end]
-[nl]
+[para]
 
-[lst_item latex]
+[def latex]
 
 This engine generates output suitable for the [syscmd latex] text
 processor coming out of the TeX world.
 
-[lst_item list]
+[def list]
 
 This engine retrieves version, section and title of the manpage from
 the document. As such it can be used to generate a directory listing
 for a set of manpages.
 
-[lst_item nroff]
+[def nroff]
 
 This engine generates nroff output, for processing by [syscmd nroff],
 or [syscmd groff]. The result will be standard man pages as they are
 known in the unix world.
 
-[lst_item null]
+[def null]
 
 This engine generates no outout at all. This can be used if one just
 wants to validate some input.
 
-[lst_item tmml]
+[def tmml]
 
 This engine generates TMML markup as specified by Joe English. The Tcl
 Manpage Markup Language is a derivate of XML.
 
-[lst_item wiki]
+[def wiki]
 
 This engine generates Wiki markup as understood by Jean Claude
 Wippler's [syscmd wikit] application.
@@ -394,7 +402,23 @@ Wippler's [syscmd wikit] application.
 [list_end]
 
 
-[see_also doctools docidx_api docidx_fmt]
-[keywords docidx index {keyword index} documentation manpage]
-[keywords TMML HTML nroff latex wiki conversion markup]
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph doctools] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
+
+[see_also docidx_intro]
+[see_also docidx_lang_intro]
+[see_also docidx_lang_syntax]
+[see_also docidx_lang_cmdref]
+[see_also docidx_plugin_apiref]
+[keywords documentation manpage TMML HTML nroff conversion markup]
+[keywords nroff latex wiki docidx index {keyword index}]
 [manpage_end]
