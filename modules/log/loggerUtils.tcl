@@ -1,6 +1,6 @@
 ##Library Header
 #
-# $Id: loggerUtils.tcl,v 1.5 2006/08/18 15:03:34 mic42 Exp $
+# $Id: loggerUtils.tcl,v 1.6 2007/03/20 16:22:16 andreas_kupries Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -54,11 +54,12 @@ namespace eval ::logger::utils {
 
     logger::import -force -namespace log logger::utils
 
+    # @mdgen OWNER: msgs/*.msg
     ::msgcat::mcload [file join $packageDir msgs]
 }
 
 ##Internal Procedure Header
-# $Id: loggerUtils.tcl,v 1.5 2006/08/18 15:03:34 mic42 Exp $
+# $Id: loggerUtils.tcl,v 1.6 2007/03/20 16:22:16 andreas_kupries Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -163,7 +164,7 @@ proc ::logger::utils::createFormatCmd {text args} {
 
 
 ##Procedure Header
-# $Id: loggerUtils.tcl,v 1.5 2006/08/18 15:03:34 mic42 Exp $
+# $Id: loggerUtils.tcl,v 1.6 2007/03/20 16:22:16 andreas_kupries Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -318,7 +319,7 @@ proc ::logger::utils::createLogProc {args} {
 
 
 ##Procedure Header
-# $Id: loggerUtils.tcl,v 1.5 2006/08/18 15:03:34 mic42 Exp $
+# $Id: loggerUtils.tcl,v 1.6 2007/03/20 16:22:16 andreas_kupries Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
@@ -456,7 +457,7 @@ proc ::logger::utils::applyAppender {args} {
 
 
 ##Internal Procedure Header
-# $Id: loggerUtils.tcl,v 1.5 2006/08/18 15:03:34 mic42 Exp $
+# $Id: loggerUtils.tcl,v 1.6 2007/03/20 16:22:16 andreas_kupries Exp $
 # Copyright (c) 2005 Cisco Systems, Inc.
 #
 # Name:
