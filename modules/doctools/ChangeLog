@@ -1,3 +1,110 @@
+2007-03-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* support/devel/sak/doc/doc.tcl: Modified to print warnings even
+	  if processed was stopped by an error.
+
+	* mpformats/c.msg:  Added messages for a set of newly deprecated
+	* mpformats/de.msg: commands and list types. Added proper umlauts
+	* mpformats/en.msg: to the german messages.
+	* mpformats/fr.msg:
+
+	* doctools.tcl: Added a plugin API command (dt_where), providing
+	  information about the current location, to provide location data
+	  to warnings.
+
+	* checker_toc.tcl: Language change (doctoc, docidx). Comments in
+	* checker_idx.tcl: the input are now swallowed by the checker
+	  layer and not propagated to the backend anymore.
+	
+	* checker.tcl: Language changes.
+	  -- Comments are swallowed, backends do not see them anymore.
+	  -- 'require'ments an now go everywhere in the header, not only
+	  after the 'desc'riptions.
+	  -- Warnings now have location information.
+	  -- The list types 'bullet', 'arg', 'opt', 'cmd', and 'tkoption'
+	  are now deprecated. They are replaced by 'itemized',
+	  'arguments', 'options', 'commands', and 'tkoptions', and their
+	  short forms 'items', 'args', 'opts', and 'cmds'.
+	  -- 'para' can now be used inside of lists. Conversely 'nl' works
+	  outside of lists too. The two commands are identical now, and
+	  'nl' is deprecated.
+	  -- The list entry command 'lst_item' has been deprecated,
+	  replaced by 'def'. Additionally the possible misspellings
+	  'list_item', 'listitem', and 'lstitem' of the old command are
+	  recognized now too, albeit also considered to be deprecated.
+	  -- The list entry command 'bullet' is deprecated, replaced
+	  'item'.
+	  -- The commands 'see_also' and 'keywords' can now go anywhere in
+	  the document, not only after the header.
+
+	  Note that everything which was made deprecated is still accepted
+	  as valid input, however their use does cause the generation of
+	  warnings. This means that the language after the changes is a
+	  proper superset of the language before it. Old documents can be
+	  processed just fine with the new code.
+	
+	* mpformats/fmt.html: Use the new list types for translation.
+	* mpformats/fmt.latex:
+	* mpformats/fmt.text:
+	* mpformats/fmt.tmml:
+
+	* mpformats/fmt.nroff: Add a para when closing an inner list.
+
+	* mpformats/idx.html: Rewritten to be single-pass, defering output
+	  until the index is closed. Changed to ensure that keywords are
+	  printed alpha-sorted (lsort -dict). Added navigation bar and
+	  sectioning of the index.
+
+	* apps/dtplite: Added a format 'validate' as alias for 'null',
+	* apps/dtplite.man: both of these now do not require an output
+	  specification anymore. Added the collection and printing of
+	  warnings. Replaced the homegrown commands for the reading and
+	  writing of files with calls to fileutil commands. Now processing
+	  input files in alphabetical order. Put common code for doctoc
+	  and docidx generation into a small set of commands. toc and idx
+	  are now sorted by description/keyword, output is column-aligned.
+	  The doc* output is saved, to serve as examples. Document titles
+	  are now cross-referencable via 'term', allowing direct links
+	  between documents. Comments about internals added. Documentation
+	  updated for the new functionality, and fixed all warnings due to
+	  use of deprecated commands and list types. Added a section on
+	  how to give feedback.
+	
+	* cvs.man: Fixed all warnings due to use of deprecated commands
+	* changelog.man: and list types, tweaked the titles, and added
+	  sections about how to give feedback.
+
+	* docidx.man: Significant rewrites for better language, better
+	* doctoc.man: referencing of introductory documents. Tweaked the
+	* doctools.man: titles, and added sections about how to give
+	  feedback.
+
+	* docidx_api.man: *** REMOVED *** old documentation about the
+	* docidx_fmt.man: languages and plugin APIs.
+	* doctoc_api.man:
+	* doctoc_fmt.man:
+	* doctools_api.man:
+	* doctools_fmt.man:
+
+	* docidx_intro.man: *** ADDED *** new documentation about the
+	* docidx_lang_cmdref.man: languages and plugin APIs, with basic
+	* docidx_lang_faq.man: introductions, cross-referencing to
+	* docidx_lang_intro.man: related documents, further readings,
+	* docidx_lang_syntax.man: introduction by example, first
+	* docidx_plugin_apiref.man: beginning of faqs.
+	* doctoc_intro.man:
+	* doctoc_lang_cmdref.man:
+	* doctoc_lang_faq.man:
+	* doctoc_lang_intro.man:
+	* doctoc_lang_syntax.man:
+	* doctoc_plugin_apiref.man:
+	* doctools_intro.man:
+	* doctools_lang_cmdref.man:
+	* doctools_lang_faq.man:
+	* doctools_lang_intro.man:
+	* doctools_lang_syntax.man:
+	* doctools_plugin_apiref.man:
+
 2006-10-25  Andreas Kupries  <andreask@activestate.com>
 
 	* doctools.test: Added an explicit LANG=C setting to the tests.

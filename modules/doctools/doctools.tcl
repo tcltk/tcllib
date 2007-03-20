@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.19 2006/09/19 23:36:16 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.20 2007/03/20 05:06:34 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -761,6 +761,7 @@ proc ::doctools::SetupChecker {name} {
 	dt_deprecated Deprecated
 	dt_error      FmtError
 	dt_warning    FmtWarning
+	dt_where      Where
     } {
 	interp alias $chk_ip $cmd {} ::doctools::$ckcmd $name
     }
@@ -878,6 +879,21 @@ proc ::doctools::FmtWarning {name text} {
     upvar ::doctools::doctools${name}::msg msg
     lappend msg $text
     return
+}
+
+# ::doctools::Where --
+#
+#	API for checker. Called when the current location is needed
+#
+# Arguments:
+#	name	Name of the doctools object
+#
+# Results:
+#	List containing offset, line, column
+
+proc ::doctools::Where {name} {
+    upvar ::doctools::doctools${name}::expander expander
+    return [$expander where]
 }
 
 # ::doctools::Eval --

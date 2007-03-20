@@ -25,4 +25,8 @@ mcset fr cmd_list         "Commande restreinte \xE0 l'utilisation dans les liste
 mcset fr opt_list         "Commande restreinte \xE0 l'utilisation dans les listes d'options"
 mcset fr tkoption_list    "Commande restreinte \xE0 l'utilisation dans les listes de tkoption"
 mcset fr depr_strong      "Commande obsol\xE8te \"%s\".\n\tConsultez l'aide s\xE9mantique correspondante ou \[emph\] \xE0 la place."
+mcset fr depr_lstitem     "Commande obsol\xE8te \"%s\".\n\tConsultez \[def\] \xE0 la place."
+mcset fr depr_nl          "Commande obsol\xE8te \"%s\".\n\tConsultez \[para\] \xE0 la place."
+mcset fr depr_bullet      "Commande obsol\xE8te \"%s\".\n\tConsultez \[item\] \xE0 la place."
+mcset fr depr_ltype       "<List type> obsol\xE8te \"%s\".\n\tConsultez \"%s\" \xE0 la place."
 mcset fr sectambig        "@@@ Translate @@@ (Sub)Section title \"%s\" causes ambiguous section references."

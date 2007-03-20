@@ -33,6 +33,11 @@ exec tclsh "$0" ${1+"$@"}
 #	write the generated data to stdout. If $output is a directory
 #	then a file named [[file rootname $file].$format] is written
 #	to the directory.
+
+# Ad 1a)	dtplite validate file
+#
+#	The "validate" format does not generate output at all, only
+#	syntax checking is performed.
 # 
 # Ad 2)	dtplite -o output format directory
 # 
@@ -92,6 +97,12 @@ exec tclsh "$0" ${1+"$@"}
 # That should be enough to allow the creation of good looking formatted
 # documentation without getting overly complex in both implementation
 # and use.
+
+package require doctools
+package require doctools::idx
+package require doctools::toc
+package require fileutil
+package require textutil::repeat
 
 # ### ### ### ######### ######### #########
 ## Internal data and status
@@ -362,6 +373,10 @@ proc ::dtplite::processCmdline {} {
     set format [lindex $argv 0]
     set input  [lindex $argv 1]
 
+    if {[string equal $format validate]} {
+	set format null
+    }
+
     # Final validation across the whole configuration.
 
     if {[string equal $format ""]} {
@@ -371,11 +386,11 @@ proc ::dtplite::processCmdline {} {
 	# Early check: Is the chosen format ok ? For this we have
 	# create and configure a doctools object.
 
-	package require doctools
 	doctools::new dt
 	if {[catch {dt configure -format $format}]} {
 	    ArgError "Unknown format \"$format\""
 	}
+	dt configure -deprecated 1
 
 	# Check style, header, and footer options, if present.
 
@@ -526,6 +541,13 @@ proc ::dtplite::CheckInput {f label} {
 
 proc ::dtplite::CheckTheOutput {{needdir 0}} {
     variable output
+    variable format
+
+    if {[string equal $format null]} {
+	# The format does not generate output, so not specifying an
+	# output file is ok for that case.
+	return
+    }
 
     if {[string equal $output ""]} {
 	ArgError "No output path specified"
@@ -573,12 +595,24 @@ proc ::dtplite::CheckInsert {option label} {
 proc ::dtplite::Get {f} {
     variable data
     if {[info exists data($f)]} {return $data($f)}
-    return [set data($f) [read [set in [open $f r]]][close $in]]
+    return [set data($f) [fileutil::cat $f]]
 }
 
 proc ::dtplite::Write {f data} {
-    puts -nonewline [set out [open $f w]] $data
-    close $out
+    # An empty filename is acceptable, the format will be 'null'
+    if {[string equal $f ""]} return
+    fileutil::writeFile $f $data
+    return
+}
+
+# ### ### ### ######### ######### #########
+## Dump accumulated warnings.
+
+proc ::dtplite::Warnings {} {
+    set warnings [dt warnings]
+    if {[llength $warnings] > 0} {
+	puts stderr [join $warnings \n]
+    }
     return
 }
 
@@ -604,6 +638,7 @@ proc ::dtplite::Do.File {} {
 
     SinglePrep
     Write $output [dt format [Get $input]]
+    Warnings
     return
 }
 
@@ -615,6 +650,7 @@ proc ::dtplite::Do.File.Stdout {} {
     SinglePrep
     puts  stdout [dt format [Get $input]]
     close stdout
+    Warnings
     return
 }
 
@@ -627,6 +663,7 @@ proc ::dtplite::Do.Directory {} {
     variable out
     variable module
     variable meta
+    variable format
 
     # Phase 0. Find the documents to convert.
     # Phase I. Collect meta data, and compute the map from input to
@@ -653,7 +690,7 @@ proc ::dtplite::Do.Directory {} {
     XrefSetup   dt
     FooterSetup dt
 
-    foreach f $files {
+    foreach f [lsort -dict $files] {
 	puts stdout \t$f
 
 	set o $out($f)
@@ -666,7 +703,12 @@ proc ::dtplite::Do.Directory {} {
 	NavbuttonPop
 	StyleSetup dt $o
 
-	Write [At $o] [dt format [Get [Pick $f]]]
+	if {[string equal $format null]} {
+	    dt format [Get [Pick $f]]
+	} else {
+	    Write [At $o] [dt format [Get [Pick $f]]]
+	}
+	Warnings
     }
     return
 }
@@ -680,6 +722,7 @@ proc ::dtplite::Do.Directory.Merge {} {
     variable module
     variable meta
     variable output
+    variable format
 
     # Phase 0. Find the documents to process.
     # Phase I. Collect meta data, and compute the map from input to
@@ -710,7 +753,7 @@ proc ::dtplite::Do.Directory.Merge {} {
     XrefSetup   dt
     FooterSetup dt
 
-    foreach f $files {
+    foreach f [lsort -dict $files] {
 	puts stdout \t$f
 
 	set o $out($f)
@@ -725,7 +768,12 @@ proc ::dtplite::Do.Directory.Merge {} {
 	NavbuttonPop
 	StyleSetup dt $o
 
-	Write [At $o] [dt format [Get [Pick $f]]]
+	if {[string equal $format null]} {
+	    dt format [Get [Pick $f]]
+	} else {
+	    Write [At $o] [dt format [Get [Pick $f]]]
+	}
+	Warnings
     }
     return
 }
@@ -749,7 +797,23 @@ proc ::dtplite::SinglePrep {} {
 ## Get the base meta data out of the listed documents.
 
 proc ::dtplite::MetadataGet {files {floc {}}} {
+    # meta :: map (symbolicfile -> metadata)
+    # metadata = dict (key -> value)
+    # key      = set { desc, fid, file, keywords,
+    #                  module, section, see_also,
+    #                  shortdesc, title, version }
+    # desc      :: string 'document title'
+    # fid       :: string           'file name, without path/extension'
+    # file      :: string           'file name, without path'
+    # keywords  :: list (string...) 'key phrases'
+    # module    :: string           'module the file is in'
+    # section   :: string           'manpage section'
+    # see_also  :: list (string...) 'related files'
+    # shortdesc :: string           'module description'
+    # title     :: string           'manpage file name intended'
+    # version   :: string           'file/package version'
     variable meta
+
     variable out
 
     doctools::new meta -format list -deprecated 1
@@ -829,34 +893,44 @@ proc ::dtplite::TocGenerate {data} {
     # Sort toc (each division) by label.
     # Write as doctoc.
 
-    set lines {}
     array set toc $data
+
+    TagsBegin
     if {[array size toc] < 2} {
 	# Empty, or single division. The division is the TOC, toplevel.
 
 	unset toc
 	set desc [lindex $data 0]
 	set data [lindex [lindex $data 1] 1]
+	TocAlign mxf mxl $data
 
-	lappend lines "\[toc_begin [list {Table Of Contents} $desc]\]"
-	foreach item [lsort -dict -index 1 $data] {
+	Tag+ toc_begin [list {Table Of Contents} $desc]
+	foreach item [lsort -dict -index 2 $data] {
 	    foreach {symfile label desc} $item break
-	    lappend lines "\[item [list $symfile $label $desc]\]"
+	    Tag+ item \
+		    [FmtR mxf $symfile] \
+		    [FmtR mxl $label] \
+		    [list $desc]
 	}
     } else {
-	lappend lines "\[toc_begin [list {Table Of Contents} Modules]\]"
+	Tag+ toc_begin [list {Table Of Contents} Modules]
 	foreach desc [lsort -dict [array names toc]] {
 	    foreach {ref div} $toc($desc) break
-	    lappend lines "\[division_start [list $desc [Output $ref]]\]"
-	    foreach item [lsort -dict -index 1 $div] {
+	    TocAlign mxf mxl $div
+
+	    Tag+ division_start [list $desc [Output $ref]]
+	    foreach item [lsort -dict -index 2 $div] {
 		foreach {symfile label desc} $item break
-		lappend lines "\[item [list $symfile $label $desc]\]"
+		Tag+ item \
+			[FmtR mxf $symfile] \
+			[FmtR mxl $label] \
+			[list $desc]
 	    }
-	    lappend lines {[division_end]}
+	    Tag+ division_end
 	}
     }
 
-    lappend lines "\[toc_end\]"
+    Tag+ toc_end
 
     #puts ____________________\n[join $lines \n]\n_________________________
     return [join $lines \n]
@@ -865,9 +939,11 @@ proc ::dtplite::TocGenerate {data} {
 proc ::dtplite::TocWrite {ftoc findex text {map {}}} {
     variable format
 
+    if {[string equal $format null]} return
+    Write [At .tocdoc] $text
+
     set ft [Output $ftoc]
 
-    package require doctools::toc
     doctools::toc::new toc -format $format -file $ft
 
     NavbuttonPush {Keyword Index} [Output $findex] $ftoc
@@ -880,6 +956,18 @@ proc ::dtplite::TocWrite {ftoc findex text {map {}}} {
 
     Write [At $ft] [toc format $text]
     toc destroy
+    return
+}
+
+proc ::dtplite::TocAlign {fv lv div} {
+    upvar 1 $fv mxf $lv mxl
+    set mxf 0
+    set mxl 0
+    foreach item $div {
+	foreach {symfile label desc} $item break
+	Max mxf $symfile
+	Max mxl $label
+    }
     return
 }
 
@@ -961,17 +1049,20 @@ proc ::dtplite::IdxGenerate {desc data} {
 
     array set keys $data
 
-    set     lines [list]
-    lappend lines "\[index_begin [list {Keyword Index} $desc]\]"
+    TagsBegin
+    Tag+ index_begin [list {Keyword Index} $desc]
+
     foreach k [lsort -dict [array names keys]] {
-	lappend lines "  \[key [list $k]\]"
+	IdxAlign mxf $keys($k)
+
+	Tag+ key [list $k]
 	foreach v [lsort -dict -index 0 $keys($k)] {
 	    foreach {file label} $v break
-	    lappend lines "    \[manpage [list $file $label]\]"
+	    Tag+ manpage [FmtR mxf $file] [list $label]
 	}
     }
-    lappend lines "\[index_end\]"
 
+    Tag+ index_end
     #puts ____________________\n[join $lines \n]\n_________________________
     return [join $lines \n]
 }
@@ -979,9 +1070,11 @@ proc ::dtplite::IdxGenerate {desc data} {
 proc ::dtplite::IdxWrite {findex ftoc text} {
     variable format
 
+    if {[string equal $format null]} return
+    Write [At .idxdoc] $text
+
     set fi [Output $findex]
 
-    package require doctools::idx
     doctools::idx::new idx -format $format -file $fi
 
     NavbuttonPush {Table Of Contents} [Output $ftoc] $findex
@@ -996,12 +1089,60 @@ proc ::dtplite::IdxWrite {findex ftoc text} {
     return
 }
 
+proc ::dtplite::IdxAlign {v keys} {
+    upvar 1 $v mxf
+    set mxf 0
+    foreach item $keys {
+	foreach {symfile label} $item break
+	Max mxf $symfile
+    }
+    return
+}
+
+# ### ### ### ######### ######### #########
+## Column sizing
+
+proc ::dtplite::Max {v str} {
+    upvar 1 $v max
+    set l [string length [list $str]]
+    if {$max < $l} {set max $l}
+    return
+}
+
+proc ::dtplite::FmtR {v str} {
+    upvar 1 $v max
+    return [list $str][textutil::repeat::blank \
+	    [expr {$max - [string length [list $str]]}]]
+}
+
+# ### ### ### ######### ######### #########
+## Code generation.
+
+proc ::dtplite::Tag {n args} {
+    if {[llength $args]} {
+	return "\[$n [join $args]\]"
+    } else {
+	return "\[$n\]"
+    }
+    #return \[[linsert $args 0 $n]\]
+}
+
+proc ::dtplite::Tag+ {n args} {
+    upvar 1 lines lines
+    lappend lines [eval [linsert $args 0 ::dtplite::Tag $n]]
+    return
+}
+
+proc ::dtplite::TagsBegin {} {
+    upvar 1 lines lines
+    set lines {}
+    return
+}
+
 # ### ### ### ######### ######### #########
 ## Find the documents to process.
 
 proc ::dtplite::LocateManpages {path} {
-    package require fileutil
-
     set path [file normalize $path]
     set n    [llength [file split $path]]
     set res  {}
@@ -1068,16 +1209,17 @@ proc ::dtplite::XrefGet {} {
     array set keys {}
     foreach {symfile item} [array get meta] {
 	array set md $item
-
 	# Cross-references ... File based, see-also
 
-	set t  ${md(title)}
+	set t  $md(title)
 	set ts ${t}($md(section))
+	set td $md(desc)
 
 	set xref(sa,$t)  [set _ [list $symfile]]
 	set xref(sa,$ts) $_
-	set xref($t)     $_
-	set xref($ts)    $_
+	set xref($t)     $_ ; # index on manpage file name
+	set xref($ts)    $_ ; # ditto, with section added
+	set xref($td)    $_ ; # index on document title
 
 	# Store an inverted file - keyword relationship, for the index
 	foreach kw $md(keywords) {
@@ -1097,8 +1239,11 @@ proc ::dtplite::XrefGet {} {
 }
 
 proc ::dtplite::XrefGetSaved {} {
+    # xref :: map (xrefid -> list (symbolicfile))
     variable  xref
     array set xref {}
+
+    # Load old cross references, from a previous run
     set fqn [At .xrf]
     if {[file exists $fqn]} {
 	array set xref [set s [Get $fqn]]
@@ -1111,10 +1256,18 @@ proc ::dtplite::XrefGetSaved {} {
 }
 
 proc ::dtplite::XrefSetup {o} {
+    # xref :: map (xrefid -> list (symbolicfile))
     variable xref
+    # Skip if no data available
     if {![array size xref]}         return
+    # Skip if backend doesn't support an index
     if {![in [$o parameters] xref]} return
 
+    # Transfer index data to the backend. The data we keep has to be
+    # re-formatted from a dict into a list of tuples with leading
+    # xrefid.
+
+    # xrefl :: list (list (xrefid symbolicfile...)...)
     variable xrefl
     if {![info exist xrefl]} {
 	set xrefl {}
@@ -1127,9 +1280,13 @@ proc ::dtplite::XrefSetup {o} {
 }
 
 proc ::dtplite::XrefSetupKwid {o} {
+    # kwid :: map (label -> anchorname)
     variable kwid
+    # Skip if no data available
     if {![array size kwid]}         return
+    # Skip if backend doesn't support an index
     if {![in [$o parameters] kwid]} return
+    # Transfer index data to the backend
     $o setparam kwid [array get kwid]
     return
 }
@@ -1138,14 +1295,16 @@ proc ::dtplite::XrefSetupKwid {o} {
 ## Extending and shrinking the navigation bar.
 
 proc ::dtplite::NavbuttonPush {label file ref} {
+    # nav = list (list (label reference) ...)
     variable nav
-    set nav [linsert $nav 0 [list $label [fileutil::relativeUrl $ref $file]]]
+    set      nav [linsert $nav 0 [list $label [fileutil::relativeUrl $ref $file]]]
     return
 }
 
 proc ::dtplite::NavbuttonPop {} {
+    # nav = list (list (label reference) ...)
     variable nav
-    set nav [lrange $nav 1 end]
+    set      nav [lrange $nav 1 end]
     return
 }
 
@@ -1178,7 +1337,7 @@ proc ::dtplite::HeaderSetup {o} {
 		if {!$first} {append hdr "| "} else {append hdr "  "}
 		set first 0
 		foreach {label url} $item break
-		append hdr <a\ href=\"$url\">$label</a>\n
+		append hdr "<a href=\"" $url "\">" $label "</a>\n"
 	    }
 	    append hdr \]\ <hr>\n
 	}

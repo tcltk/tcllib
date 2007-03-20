@@ -222,7 +222,7 @@ proc item {file label desc} {
 }
 proc comment {text} {
     if {[Is done]} {Error toc/nodonecmd}
-    fmt_comment $text
+    return ; #fmt_comment $text
 }
 
 # -------------------------------------------------------------

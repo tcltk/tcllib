@@ -48,13 +48,8 @@ global state lstctx lstitem
 # manpage_begin	| manpage_begin		| header
 # --------------+-----------------------+----------------------
 # header	| moddesc titledesc	| header
-#		| copyright		|
-#		+-----------------------+-----------
-#		| require		| requirements
-#		+-----------------------+-----------
-#		| description		| body
-# --------------+-----------------------+----------------------
-# requirements	| require		| requirements
+#		| copyright keywords	|
+#		| require see_also	|
 #		+-----------------------+-----------
 #		| description		| body
 # --------------+-----------------------+----------------------
@@ -80,15 +75,16 @@ global state lstctx lstitem
 # --------------------------------------+----------------------
 # list_begin/list_end			| Are allowed to nest.
 # --------------------------------------+----------------------
-# 	lst_item/call			| Only in 'definition list'.
-# 	enum				| Only in 'enum list'.
-# 	bullet				| Only in 'bullet list'.
+#	section				| Not allowed in list context
+#
 #	arg_def				| Only in 'argument list'.
 #	cmd_def				| Only in 'command list'.
+#	nl para				| Only in list item context.
 #	opt_def				| Only in 'option list'.
 #	tkoption_def			| Only in 'tkoption list'.
-#	nl				| Only in list item context.
-#	para section			| Not allowed in list context
+# 	def/call			| Only in 'definition list'.
+# 	enum				| Only in 'enum list'.
+# 	item/bullet			| Only in 'bullet list'.
 # --------------------------------------+----------------------
 
 # -------------------------------------------------------------
@@ -113,9 +109,14 @@ proc Error {code {text {}}} {
     dt_error "Manpage error ($code), \"$cmd\" : ${msg}."
     return
 }
-proc Warn {code text} {
+proc Warn {code args} {
     set msg [::msgcat::mc $code]
-    dt_warning "Manpage warning ($code): [join [split [format $msg $text] \n] "\nManpage warning ($code): "]"
+    foreach {off line col} [dt_where] break
+    set msg [eval [linsert $args 0 format $msg]]
+    set msg "In macro at line $line, column $col:\n$msg"
+    set msg [split $msg \n]
+    set prefix "DocTools Warning ($code): "
+    dt_warning "$prefix[join $msg "\n$prefix"]"
     return
 }
 
@@ -144,13 +145,37 @@ proc LOpen {} {
     global lstctx
     expr {$lstctx != {}}
 }
+global    lmap ldmap
+array set lmap {
+    bullet   itemized    item     itemized
+    arg      arguments   args     arguments
+    opt      options     opts     options
+    cmd      commands    cmds     commands
+    enum     enumerated  tkoption tkoptions
+}
+array set ldmap {
+    bullet   . arg . cmd . tkoption . opt .
+}
+proc LMap {what} {
+    global lmap ldmap
+    if {![info exists lmap($what)]} {
+	return $what
+    }
+    if {[dt_deprecated] && [info exists ldmap($what)]} {
+	Warn depr_ltype $what $lmap($what)
+    }
+    return $lmap($what)
+}
 proc LValid {what} {
     switch -exact -- $what {
-	arg - definitions -
-	opt - bullet -
-	cmd - tkoption -
-	enum    {return 1}
-	default {return 0}
+	arguments   -
+	commands    -
+	definitions -
+	enumerated  -
+	itemized    -
+	options     -
+	tkoptions   {return 1}
+	default     {return 0}
     }
 }
 
@@ -252,13 +277,12 @@ proc manpage_end {} {
 }
 proc require {pkg {version {}}} {
     Enter require
-    if {[IsNot header] && [IsNot requirements]} {Error reqcmd}
-    Go requirements
+    if {[IsNot header]} {Error reqcmd}
     fmt_require $pkg $version
 }
 proc description {} {
     Enter description
-    if {[IsNot header] && [IsNot requirements]} {Error reqcmd}
+    if {[IsNot header]} {Error reqcmd}
     Go body
     fmt_description
 }
@@ -267,7 +291,7 @@ global sect
 proc __sid {name} {
     # Identical to 'c_sectionId' in mpformats/_common.tcl
     regsub -all {[ 	]+} [string tolower [string trim $name]] _ id
-    regsub -all {"} $id _ id
+    regsub -all {"} $id _ id ; # "
     return $id
 }
 
@@ -304,13 +328,18 @@ proc subsection {name} {
 proc para {} {
     Enter para
     if {[IsNot body]} {Error bodycmd}
-    if {[LOpen]}      {Error nolistcmd}
-    fmt_para
+    if {[LOpen]}      {
+	if {![LItem]} {Error nolisthdr}
+	fmt_nl
+    } else {
+	fmt_para
+    }
 }
 proc list_begin {what {hint {}}} {
     Enter "list_begin $what $hint"
     if {[IsNot body]}        {Error bodycmd}
     if {[LOpen] && ![LItem]} {Error nolisthdr}
+    set what [LMap $what]
     if {![LValid $what]}     {Error invalidlist $what}
     LPush        $what
     fmt_list_begin $what $hint
@@ -322,8 +351,26 @@ proc list_end {} {
     LPop
     fmt_list_end
 }
+
+# Deprecated command, and its common misspellings. Canon is 'def'.
 proc lst_item {{text {}}} {
-    Enter lst_item
+    if {[dt_deprecated]} {Warn depr_lstitem "\[lst_item\]"}
+    def $text
+}
+proc list_item {{text {}}} {
+    if {[dt_deprecated]} {Warn depr_lstitem "\[list_item\]"}
+    def $text
+}
+proc listitem  {{text {}}} {
+    if {[dt_deprecated]} {Warn depr_lstitem "\[listitem\]"}
+    def $text
+}
+proc lstitem   {{text {}}} {
+    if {[dt_deprecated]} {Warn depr_lstitem "\[lstitem\]"}
+    def $text
+}
+proc def {{text {}}} {
+    Enter def
     if {[IsNot body]}       {Error bodycmd}
     if {![LOpen]}           {Error listcmd}
     if {![LIs definitions]} {Error deflist}
@@ -334,7 +381,7 @@ proc arg_def {type name {mode {}}} {
     Enter arg_def
     if {[IsNot body]}       {Error bodycmd}
     if {![LOpen]}           {Error listcmd}
-    if {![LIs arg]}         {Error arg_list}
+    if {![LIs arguments]}   {Error arg_list}
     LSItem
     fmt_arg_def $type $name $mode
 }
@@ -342,7 +389,7 @@ proc cmd_def {command} {
     Enter cmd_def
     if {[IsNot body]}       {Error bodycmd}
     if {![LOpen]}           {Error listcmd}
-    if {![LIs cmd]}         {Error cmd_list}
+    if {![LIs commands]}    {Error cmd_list}
     LSItem
     fmt_cmd_def $command
 }
@@ -350,7 +397,7 @@ proc opt_def {name {arg {}}} {
     Enter opt_def
     if {[IsNot body]}       {Error bodycmd}
     if {![LOpen]}           {Error listcmd}
-    if {![LIs opt]}         {Error opt_list}
+    if {![LIs options]}     {Error opt_list}
     LSItem
     fmt_opt_def $name $arg
 }
@@ -358,7 +405,7 @@ proc tkoption_def {name dbname dbclass} {
     Enter tkoption_def
     if {[IsNot body]}       {Error bodycmd}
     if {![LOpen]}           {Error listcmd}
-    if {![LIs tkoption]}    {Error tkoption_list}
+    if {![LIs tkoptions]}   {Error tkoption_list}
     LSItem
     fmt_tkoption_def $name $dbname $dbclass
 }
@@ -370,19 +417,24 @@ proc call {cmd args} {
     LSItem
     eval [linsert $args 0 fmt_call $cmd]
 }
+# Deprecated. Use 'item'
 proc bullet {} {
-    Enter bullet
-    if {[IsNot body]}  {Error bodycmd}
-    if {![LOpen]}      {Error listcmd}
-    if {![LIs bullet]} {Error bulletlist}
+    if {[dt_deprecated]} {Warn depr_bullet "\[bullet\]"}
+    item
+}
+proc item {} {
+    Enter item
+    if {[IsNot body]}    {Error bodycmd}
+    if {![LOpen]}        {Error listcmd}
+    if {![LIs itemized]} {Error bulletlist}
     LSItem
     fmt_bullet
 }
 proc enum {} {
     Enter enum
-    if {[IsNot body]} {Error bodycmd}
-    if {![LOpen]}     {Error listcmd}
-    if {![LIs enum]}  {Error enumlist}
+    if {[IsNot body]}      {Error bodycmd}
+    if {![LOpen]}          {Error listcmd}
+    if {![LIs enumerated]} {Error enumlist}
     LSItem
     fmt_enum
 }
@@ -405,31 +457,31 @@ proc example_end {} {
 }
 proc see_also {args} {
     Enter see_also
-    if {[IsNot body]} {Error bodycmd}
-    if {[LOpen]}      {Error nolistcmd}
+    if {[Is done]} {Error nodonecmd}
+    # if {[IsNot body]} {Error bodycmd}
+    # if {[LOpen]}      {Error nolistcmd}
     eval [linsert $args 0 fmt_see_also]
 }
 proc keywords {args} {
     Enter keywords
-    if {[IsNot body]} {Error bodycmd}
-    if {[LOpen]}      {Error nolistcmd}
+    if {[Is done]} {Error nodonecmd}
+    # if {[IsNot body]} {Error bodycmd}
+    # if {[LOpen]}      {Error nolistcmd}
     eval [linsert $args 0 fmt_keywords]
 }
+# nl - Deprecated
 proc nl {} {
-    Enter nl
-    if {[IsNot body]} {Error bodycmd}
-    if {![LOpen]}     {Error listcmd}
-    if {![LItem]}     {Error nolisthdr}
-    fmt_nl
+    if {[dt_deprecated]} {Warn depr_nl "\[nl\]"}
+    para
 }
 proc emph {text} {
-    if {[Is done]}       {Error nodonecmd}
+    if {[Is done]} {Error nodonecmd}
     fmt_emph $text
 }
+# strong - Deprecated
 proc strong {text} {
-    if {[Is done]}       {Error nodonecmd}
-    if {[dt_deprecated]} {Warn depr_strong "\[strong \{$text\}\]"}
-    fmt_emph $text
+    if {[dt_deprecated]} {Warn depr_strong "\[strong\]"}
+    emph $text
 }
 proc arg {text} {
     if {[Is done]} {Error nodonecmd}
@@ -445,7 +497,7 @@ proc opt {text} {
 }
 proc comment {text} {
     if {[Is done]} {Error nodonecmd}
-    fmt_comment $text
+    return ; #fmt_comment $text
 }
 proc sectref {name {label {}}} {
     if {[IsNot body]}        {Error bodycmd}
