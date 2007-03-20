@@ -90,7 +90,7 @@ proc ::math::statistics::tstat {n {alpha 0.05}} {
 #     Weighted Least Squares
 #
 # Arguments:
-#     args       Alternating list of weights and observations
+#     data       Alternating list of weights and observations
 #
 # Result:
 #     List containing:
@@ -104,15 +104,15 @@ proc ::math::statistics::tstat {n {alpha 0.05}} {
 #     The observations are lists starting with the dependent variable y
 #     and then the values of the independent variables (x1, x2, ...):
 #
-#     mv-wls w [list y x's] w [list y x's] ...
+#     mv-wls [list w [list y x's] w [list y x's] ...]
 #
-proc ::math::statistics::mv-wls {args} {
+proc ::math::statistics::mv-wls {data} {
 
     # Fill the matrices of x & y values, and weights
     # For n points, k coefficients
 
     # The number of points is equal to half the arguments (n weights, n points)
-    set n [expr {[llength $args]/2}]
+    set n [expr {[llength $data]/2}]
 
     set firstloop true
     # Sum up all y values to take an average
@@ -121,7 +121,7 @@ proc ::math::statistics::mv-wls {args} {
     set wtsum 0
     # Count over rows (points) as you go
     set point 0
-    foreach {wt pt} $args {
+    foreach {wt pt} $data {
 
         # Check inputs
         if {[string is double $wt] == 0} {
@@ -237,7 +237,7 @@ proc ::math::statistics::mv-wls {args} {
 #     Ordinary Least Squares
 #
 # Arguments:
-#     args       List of observations
+#     data       List of observations, list of lists
 #
 # Result:
 #     List containing:
@@ -253,10 +253,10 @@ proc ::math::statistics::mv-wls {args} {
 #
 #     mv-ols [list y x's] [list y x's] ...
 #
-proc ::math::statistics::mv-ols {args} {
-    set newargs {}
-    foreach pt $args {
-        lappend newargs 1 $pt
+proc ::math::statistics::mv-ols {data} {
+    set newdata {}
+    foreach pt $data {
+        lappend newdata 1 $pt
     }
-    return [eval mv-wls $newargs]
+    return [mv-wls $newdata]
 }
