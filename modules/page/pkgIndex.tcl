@@ -70,7 +70,7 @@ package ifneeded page::analysis::peg::minimize   0.1 [list source [file join $di
 package ifneeded page::analysis::peg::reachable  0.1 [list source [file join $dir analysis_peg_reachable.tcl]]
 package ifneeded page::analysis::peg::realizable 0.1 [list source [file join $dir analysis_peg_realizable.tcl]]
 package ifneeded page::analysis::peg::emodes     0.1 [list source [file join $dir analysis_peg_emodes.tcl]]
-package ifneeded page::compiler::peg::mecpu      0.1 [list source [file join $dir compiler_peg_mecpu.tcl]]
+package ifneeded page::compiler::peg::mecpu      0.1.1 [list source [file join $dir compiler_peg_mecpu.tcl]]
 
 # -- Various other utilities --
 
