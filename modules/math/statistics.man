@@ -9,18 +9,18 @@
 The [package math::statistics] package contains functions and procedures for
 basic statistical data analysis, such as:
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 Descriptive statistical parameters (mean, minimum, maximum, standard
 deviation)
 
-[bullet]
+[item]
 Estimates of the distribution in the form of histograms and quantiles
 
-[bullet]
+[item]
 Basic testing of hypotheses
 
-[bullet]
+[item]
 Probability and cumulative density functions
 
 [list_end]
@@ -49,58 +49,58 @@ The general statistical procedures are:
 
 [call [cmd ::math::statistics::mean] [arg data]]
 Determine the [emph mean] value of the given list of data.
-[nl]
+[para]
 [arg data] - List of data
-[nl]
+[para]
 
 [call [cmd ::math::statistics::min] [arg data]]
 Determine the [emph minimum] value of the given list of data.
-[nl]
+[para]
 [arg data] - List of data
-[nl]
+[para]
 
 [call [cmd ::math::statistics::max] [arg data]]
 Determine the [emph maximum] value of the given list of data.
-[nl]
+[para]
 [arg data] - List of data
-[nl]
+[para]
 
 [call [cmd ::math::statistics::number] [arg data]]
 Determine the [emph number] of non-missing data in the given list
-[nl]
+[para]
 [arg data] - List of data
-[nl]
+[para]
 
 [call [cmd ::math::statistics::stdev] [arg data]]
 Determine the [emph "standard deviation"] of the data in the given list
-[nl]
+[para]
 [arg data] - List of data
-[nl]
+[para]
 
 [call [cmd ::math::statistics::var] [arg data]]
 Determine the [emph variance] of the data in the given list
-[nl]
+[para]
 [arg data] - List of data
-[nl]
+[para]
 
 [call [cmd ::math::statistics::median] [arg data]]
 Determine the [emph median] of the data in the given list
 (Note that this requires sorting the data, which may be a
 costly operation)
-[nl]
+[para]
 [arg data] - List of data
-[nl]
+[para]
 
 [call [cmd ::math::statistics::basic-stats] [arg data]]
 Determine a list of all the descriptive parameters: mean, minimum,
 maximum, number of data, standard deviation and variance.
-[nl]
+[para]
 (This routine is called whenever either or all of the basic statistical
 parameters are required. Hence all calculations are done and the
 relevant values are returned.)
-[nl]
+[para]
 [arg data] - List of data
-[nl]
+[para]
 
 [call [cmd ::math::statistics::histogram] [arg limits] [arg values]]
 Determine histogram information for the given list of data. Returns a
@@ -108,30 +108,30 @@ list consisting of the number of values that fall into each interval.
 (The first interval consists of all values lower than the first limit,
 the last interval consists of all values greater than the last limit.
 There is one more interval than there are limits.)
-[nl]
+[para]
 [arg limits] - List of upper limits (in ascending order) for the
 intervals of the histogram.
-[nl]
+[para]
 [arg values] - List of data
-[nl]
+[para]
 
 [call [cmd ::math::statistics::corr] [arg data1] [arg data2]]
 Determine the correlation coefficient between two sets of data.
-[nl]
+[para]
 [arg data1] - First list of data
-[nl]
+[para]
 [arg data2] - Second list of data
-[nl]
+[para]
 
 [call [cmd ::math::statistics::interval-mean-stdev] [arg data] [arg confidence]]
 Return the interval containing the mean value and one
 containing the standard deviation with a certain
 level of confidence (assuming a normal distribution)
-[nl]
+[para]
 [arg data] - List of raw data values (small sample)
-[nl]
+[para]
 [arg confidence] - Confidence level (0.95 or 0.99 for instance)
-[nl]
+[para]
 
 [call [cmd ::math::statistics::t-test-mean] [arg data] [arg est_mean] \
 [arg est_stdev] [arg confidence]]
@@ -139,15 +139,15 @@ Test whether the mean value of a sample is in accordance with the
 estimated normal distribution with a certain level of confidence.
 Returns 1 if the test succeeds or 0 if the mean is unlikely to fit
 the given distribution.
-[nl]
+[para]
 [arg data] - List of raw data values (small sample)
-[nl]
+[para]
 [arg est_mean] - Estimated mean of the distribution
-[nl]
+[para]
 [arg est_stdev] - Estimated stdev of the distribution
-[nl]
+[para]
 [arg confidence] - Confidence level (0.95 or 0.99 for instance)
-[nl]
+[para]
 
 [call [cmd ::math::statistics::test-normal] [arg data] [arg confidence]]
 Test whether the given data follow a normal distribution
@@ -155,124 +155,124 @@ with a certain level of confidence.
 Returns 1 if the data are normally distributed within the level of
 confidence, returns 0 if not. The underlying test is the Lilliefors
 test.
-[nl]
+[para]
 [arg data] - List of raw data values
-[nl]
+[para]
 [arg confidence] - Confidence level (one of 0.80, 0.90, 0.95 or 0.99)
-[nl]
+[para]
 
 [call [cmd ::math::statistics::lillieforsFit] [arg data]]
 Returns the goodness of fit to a normal distribution according to
 Lilliefors. The higher the number, the more likely the data are indeed
-normally distributed. The test requires at least [strong five] data
+normally distributed. The test requires at least [emph five] data
 points.
-[nl]
+[para]
 [arg data] - List of raw data values
-[nl]
+[para]
 
 [call [cmd ::math::statistics::quantiles] [arg data] [arg confidence]]
 Return the quantiles for a given set of data
-[nl]
+[para]
 [arg data] - List of raw data values
-[nl]
+[para]
 [arg confidence] - Confidence level (0.95 or 0.99 for instance)
-[nl]
+[para]
 
 [call [cmd ::math::statistics::quantiles] [arg limits] [arg counts] [arg confidence]]
 Return the quantiles based on histogram information (alternative to the
 call with two arguments)
-[nl]
+[para]
 [arg limits] - List of upper limits from histogram
-[nl]
+[para]
 [arg counts] - List of counts for for each interval in histogram
-[nl]
+[para]
 [arg confidence] -  Confidence level (0.95 or 0.99 for instance)
-[nl]
+[para]
 
 [call [cmd ::math::statistics::autocorr] [arg data]]
 Return the autocorrelation function as a list of values (assuming
 equidistance between samples, about 1/2 of the number of raw data)
-[nl]
+[para]
 The correlation is determined in such a way that the first value is
 always 1 and all others are equal to or smaller than 1. The number of
 values involved will diminish as the "time" (the index in the list of
 returned values) increases
-[nl]
+[para]
 [arg data] - Raw data for which the autocorrelation must be determined
-[nl]
+[para]
 
 [call [cmd ::math::statistics::crosscorr] [arg data1] [arg data2]]
 Return the cross-correlation function as a list of values (assuming
 equidistance between samples, about 1/2 of the number of raw data)
-[nl]
+[para]
 The correlation is determined in such a way that the values can never
 exceed 1 in magnitude. The number of values involved will diminish
 as the "time" (the index in the list of returned values) increases.
-[nl]
+[para]
 [arg data1] - First list of data
-[nl]
+[para]
 [arg data2] - Second list of data
-[nl]
+[para]
 
 [call [cmd ::math::statistics::mean-histogram-limits] [arg mean] \
 [arg stdev] [arg number]]
 Determine reasonable limits based on mean and standard deviation
 for a histogram
-[nl]
+[para]
 Convenience function - the result is suitable for the histogram function.
-[nl]
+[para]
 [arg mean] - Mean of the data
-[nl]
+[para]
 [arg stdev] - Standard deviation
-[nl]
+[para]
 [arg number] - Number of limits to generate (defaults to 8)
-[nl]
+[para]
 
 [call [cmd ::math::statistics::minmax-histogram-limits] [arg min] \
 [arg max] [arg number]]
 Determine reasonable limits based on a minimum and maximum for a histogram
-[nl]
+[para]
 Convenience function - the result is suitable for the histogram function.
-[nl]
+[para]
 [arg min] - Expected minimum
-[nl]
+[para]
 [arg max] - Expected maximum
-[nl]
+[para]
 [arg number] - Number of limits to generate (defaults to 8)
-[nl]
+[para]
 
 [call [cmd ::math::statistics::linear-model] [arg xdata] \
 [arg ydata] [arg intercept]]
 Determine the coefficients for a linear regression between
 two series of data (the model: Y = A + B*X). Returns a list of
 parameters describing the fit
-[nl]
+[para]
 [arg xdata] - List of independent data
-[nl]
+[para]
 [arg ydata] - List of dependent data to be fitted
-[nl]
+[para]
 [arg intercept] - (Optional) compute the intercept (1, default) or fit
 to a line through the origin (0)
-[nl]
+[para]
 The result consists of the following list:
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 (Estimate of) Intercept A
-[bullet]
+[item]
 (Estimate of) Slope B
-[bullet]
+[item]
 Standard deviation of Y relative to fit
-[bullet]
+[item]
 Correlation coefficient R2
-[bullet]
+[item]
 Number of degrees of freedom df
-[bullet]
+[item]
 Standard error of the intercept A
-[bullet]
+[item]
 Significance level of A
-[bullet]
+[item]
 Standard error of the slope B
-[bullet]
+[item]
 Significance level of B
 [list_end]
 
@@ -280,93 +280,93 @@ Significance level of B
 [arg intercept]]
 Determine the difference between actual data and predicted from
 the linear model.
-[nl]
+[para]
 Returns a list of the differences between the actual data and the
 predicted values.
-[nl]
+[para]
 [arg xdata] - List of independent data
-[nl]
+[para]
 [arg ydata] - List of dependent data to be fitted
-[nl]
+[para]
 [arg intercept] - (Optional) compute the intercept (1, default) or fit
 to a line through the origin (0)
 
 [call [cmd ::math::statistics::test-2x2] [arg n11] [arg n21] [arg n12] [arg n22]]
 Determine if two set of samples, each from a binomial distribution,
 differ significantly or not (implying a different parameter).
-[nl]
+[para]
 Returns the "chi-square" value, which can be used to the determine the
 significance.
-[nl]
+[para]
 [arg n11] - Number of outcomes with the first value from the first sample.
-[nl]
+[para]
 [arg n21] - Number of outcomes with the first value from the second sample.
-[nl]
+[para]
 [arg n12] - Number of outcomes with the second value from the first sample.
-[nl]
+[para]
 [arg n22] - Number of outcomes with the second value from the second sample.
-[nl]
+[para]
 
 [call [cmd ::math::statistics::print-2x2] [arg n11] [arg n21] [arg n12] [arg n22]]
 Determine if two set of samples, each from a binomial distribution,
 differ significantly or not (implying a different parameter).
-[nl]
+[para]
 Returns a short report, useful in an interactive session.
-[nl]
+[para]
 [arg n11] - Number of outcomes with the first value from the first sample.
-[nl]
+[para]
 [arg n21] - Number of outcomes with the first value from the second sample.
-[nl]
+[para]
 [arg n12] - Number of outcomes with the second value from the first sample.
-[nl]
+[para]
 [arg n22] - Number of outcomes with the second value from the second sample.
-[nl]
+[para]
 
 [call [cmd ::math::statistics::control-xbar] [arg data] [opt nsamples]]
 Determine the control limits for an xbar chart. The number of data
 in each subsample defaults to 4. At least 20 subsamples are required.
-[nl]
+[para]
 Returns the mean, the lower limit, the upper limit and the number of
 data per subsample.
-[nl]
+[para]
 [arg data] - List of observed data
-[nl]
+[para]
 [arg nsamples] - Number of data per subsample
-[nl]
+[para]
 
 [call [cmd ::math::statistics::control-Rchart] [arg data] [opt nsamples]]
 Determine the control limits for an R chart. The number of data
 in each subsample defaults to 4. At least 20 subsamples are required.
-[nl]
+[para]
 Returns the mean range, the lower limit, the upper limit and the number
 of data per subsample.
-[nl]
+[para]
 [arg data] - List of observed data
-[nl]
+[para]
 [arg nsamples] - Number of data per subsample
-[nl]
+[para]
 
 [call [cmd ::math::statistics::test-xbar] [arg control] [arg data]]
 Determine if the data exceed the control limits for the xbar chart.
-[nl]
+[para]
 Returns a list of subsamples (their indices) that indeed violate the
 limits.
-[nl]
+[para]
 [arg control] - Control limits as returned by the "control-xbar" procedure
-[nl]
+[para]
 [arg data] - List of observed data
-[nl]
+[para]
 
 [call [cmd ::math::statistics::test-Rchart] [arg control] [arg data]]
 Determine if the data exceed the control limits for the R chart.
-[nl]
+[para]
 Returns a list of subsamples (their indices) that indeed violate the
 limits.
-[nl]
+[para]
 [arg control] - Control limits as returned by the "control-Rchart" procedure
-[nl]
+[para]
 [arg data] - List of observed data
-[nl]
+[para]
 
 [list_end]
 
@@ -398,7 +398,7 @@ Returns the value of the t-distribution t* satisfying
     P(-t*) =  alpha/2
 }]
 for the number of degrees of freedom dof.
-[nl]
+[para]
 Given a sample of normally-distributed data x, with an
 estimate xbar for the mean and sbar for the standard deviation,
 the alpha confidence interval for the estimate of the mean can
@@ -411,7 +411,7 @@ an estimated t-statistic to determine whether the estimated
 value of a parameter is significantly different from zero at
 the given confidence level.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def int dof]
 Number of degrees of freedom
 
@@ -419,13 +419,13 @@ Number of degrees of freedom
 Confidence level of the t-distribution. Defaults to 0.05.
 
 [list_end]
-[nl]
+[para]
 
 [call [cmd ::math::statistics::mv-wls] [arg wt1] [arg weights_and_values]]
 Carries out a weighted least squares linear regression for
 the data points provided, with weights assigned to each point.
 
-[nl]
+[para]
 The linear model is of the form
 
 [example {
@@ -435,25 +435,25 @@ and each point satisfies
 [example {
     yi = b0 + b1 * xi1 + b2 * xi2 + ... + bN * xiN + Residual_i
 }]
-[nl]
+[para]
 The procedure returns a list with the following elements:
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 The r-squared statistic
-[bullet]
+[item]
 The adjusted r-squared statistic
-[bullet]
+[item]
 A list containing the estimated coefficients b1, ... bN, b0
 (The constant b0 comes last in the list.)
-[bullet]
+[item]
 A list containing the standard errors of the coefficients
-[bullet]
+[item]
 A list containing the 95% confidence bounds of the coefficients,
 with each set of bounds returned as a list with two values
 [list_end]
 
 Arguments:
-[list_begin arg]
+[list_begin arguments]
 [arg_def list weights_and_values]
 A list consisting of: the weight for the first observation, the data
 for the first observation (as a sublist), the weight for the second
@@ -462,13 +462,13 @@ as lists of the value of the dependent variable y and the independent
 variables x1, x2 to xN.
 
 [list_end]
-[nl]
+[para]
 
 [call [cmd ::math::statistics::mv-ols] [arg values]]
 Carries out an ordinary least squares linear regression for
 the data points provided.
 
-[nl]
+[para]
 This procedure simply calls ::mvlinreg::wls with the weights
 set to 1.0, and returns the same information.
 
@@ -509,30 +509,30 @@ foreach val [lindex $results 2] se [lindex $results 3] bounds [lindex $results 4
 [section "STATISTICAL DISTRIBUTIONS"]
 In the literature a large number of probability distributions can be
 found. The statistics package supports:
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 The normal or Gaussian distribution
-[bullet]
+[item]
 The uniform distribution - equal probability for all data within a given
 interval
-[bullet]
+[item]
 The exponential distribution - useful as a model for certain
 extreme-value distributions.
-[bullet]
+[item]
 PM - binomial, Poisson, chi-squared, student's T, F.
 [list_end]
 
 In principle for each distribution one has procedures for:
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 The probability density (pdf-*)
-[bullet]
+[item]
 The cumulative density (cdf-*)
-[bullet]
+[item]
 Quantiles for the given distribution (quantiles-*)
-[bullet]
+[item]
 Histograms for the given distribution (histogram-*)
-[bullet]
+[item]
 List of random values with the given distribution (random-*)
 [list_end]
 
@@ -542,117 +542,117 @@ The following procedures have been implemented:
 [call [cmd ::math::statistics::pdf-normal] [arg mean] [arg stdev] [arg value]]
 Return the probability of a given value for a normal distribution with
 given mean and standard deviation.
-[nl]
+[para]
 [arg mean] - Mean value of the distribution
-[nl]
+[para]
 [arg stdev] - Standard deviation of the distribution
-[nl]
+[para]
 [arg value] - Value for which the probability is required
-[nl]
+[para]
 
 [call [cmd ::math::statistics::pdf-exponential] [arg mean] [arg value]]
 Return the probability of a given value for an exponential
 distribution with given mean.
-[nl]
+[para]
 [arg mean] - Mean value of the distribution
-[nl]
+[para]
 [arg value] - Value for which the probability is required
-[nl]
+[para]
 
 [call [cmd ::math::statistics::pdf-uniform] [arg xmin] [arg xmax] [arg value]]
 Return the probability of a given value for a uniform
 distribution with given extremes.
-[nl]
+[para]
 [arg xmin] - Minimum value of the distribution
-[nl]
+[para]
 [arg xmin] - Maximum value of the distribution
-[nl]
+[para]
 [arg value] - Value for which the probability is required
-[nl]
+[para]
 
 [call [cmd ::math::statistics::cdf-normal] [arg mean] [arg stdev] [arg value]]
 Return the cumulative probability of a given value for a normal
 distribution with given mean and standard deviation, that is the
 probability for values up to the given one.
-[nl]
+[para]
 [arg mean] - Mean value of the distribution
-[nl]
+[para]
 [arg stdev] - Standard deviation of the distribution
-[nl]
+[para]
 [arg value] - Value for which the probability is required
-[nl]
+[para]
 
 [call [cmd ::math::statistics::cdf-exponential] [arg mean] [arg value]]
 Return the cumulative probability of a given value for an exponential
 distribution with given mean.
-[nl]
+[para]
 [arg mean] - Mean value of the distribution
-[nl]
+[para]
 [arg value] - Value for which the probability is required
-[nl]
+[para]
 
 [call [cmd ::math::statistics::cdf-uniform] [arg xmin] [arg xmax] [arg value]]
 Return the cumulative probability of a given value for a uniform
 distribution with given extremes.
-[nl]
+[para]
 [arg xmin] - Minimum value of the distribution
-[nl]
+[para]
 [arg xmin] - Maximum value of the distribution
-[nl]
+[para]
 [arg value] - Value for which the probability is required
-[nl]
+[para]
 
 [call [cmd ::math::statistics::cdf-students-t] [arg degrees] [arg value]]
 Return the cumulative probability of a given value for a Student's t
 distribution with given number of degrees.
-[nl]
+[para]
 [arg degrees] - Number of degrees of freedom
-[nl]
+[para]
 [arg value] - Value for which the probability is required
-[nl]
+[para]
 
 [call [cmd ::math::statistics::random-normal] [arg mean] [arg stdev] [arg number]]
 Return a list of "number" random values satisfying a normal
 distribution with given mean and standard deviation.
-[nl]
+[para]
 [arg mean] - Mean value of the distribution
-[nl]
+[para]
 [arg stdev] - Standard deviation of the distribution
-[nl]
+[para]
 [arg number] - Number of values to be returned
-[nl]
+[para]
 
 [call [cmd ::math::statistics::random-exponential] [arg mean] [arg number]]
 Return a list of "number" random values satisfying an exponential
 distribution with given mean.
-[nl]
+[para]
 [arg mean] - Mean value of the distribution
-[nl]
+[para]
 [arg number] - Number of values to be returned
-[nl]
+[para]
 
 [call [cmd ::math::statistics::random-uniform] [arg xmin] [arg xmax] [arg value]]
 Return a list of "number" random values satisfying a uniform
 distribution with given extremes.
-[nl]
+[para]
 [arg xmin] - Minimum value of the distribution
-[nl]
+[para]
 [arg xmin] - Maximum value of the distribution
-[nl]
+[para]
 [arg number] - Number of values to be returned
-[nl]
+[para]
 
 [call [cmd ::math::statistics::histogram-uniform] [arg xmin] [arg xmax] [arg limits] [arg number]]
 Return the expected histogram for a uniform distribution.
-[nl]
+[para]
 [arg xmin] - Minimum value of the distribution
-[nl]
+[para]
 [arg xmax] - Maximum value of the distribution
-[nl]
+[para]
 [arg limits] - Upper limits for the buckets in the histogram
-[nl]
+[para]
 [arg number] - Total number of "observations" in the histogram
-[nl]
+[para]
 
 
 [list_end]
@@ -666,36 +666,36 @@ The data manipulation procedures act on lists or lists of lists:
 [call [cmd ::math::statistics::filter] [arg varname] [arg data] [arg expression]]
 Return a list consisting of the data for which the logical
 expression is true (this command works analogously to the command [cmd foreach]).
-[nl]
+[para]
 [arg varname] - Name of the variable used in the expression
-[nl]
+[para]
 [arg data] - List of data
-[nl]
+[para]
 [arg expression] - Logical expression using the variable name
-[nl]
+[para]
 
 [call [cmd ::math::statistics::map] [arg varname] [arg data] [arg expression]]
 Return a list consisting of the data that are transformed via the
 expression.
-[nl]
+[para]
 [arg varname] - Name of the variable used in the expression
-[nl]
+[para]
 [arg data] - List of data
-[nl]
+[para]
 [arg expression] - Expression to be used to transform (map) the data
-[nl]
+[para]
 
 [call [cmd ::math::statistics::samplescount] [arg varname] [arg list] [arg expression]]
 Return a list consisting of the [emph counts] of all data in the
 sublists of the "list" argument for which the expression is true.
-[nl]
+[para]
 [arg varname] - Name of the variable used in the expression
-[nl]
+[para]
 [arg data] - List of sublists, each containing the data
-[nl]
+[para]
 [arg expression] - Logical expression to test the data (defaults to
 "true").
-[nl]
+[para]
 
 [call [cmd ::math::statistics::subdivide]]
 Routine [emph PM] - not implemented yet
@@ -711,47 +711,47 @@ The following simple plotting procedures are available:
 Set the scale for a plot in the given canvas. All plot routines expect
 this function to be called first. There is no automatic scaling
 provided.
-[nl]
+[para]
 [arg canvas] - Canvas widget to use
-[nl]
+[para]
 [arg xmin] - Minimum x value
-[nl]
+[para]
 [arg xmax] - Maximum x value
-[nl]
+[para]
 [arg ymin] - Minimum y value
-[nl]
+[para]
 [arg ymax] - Maximum y value
-[nl]
+[para]
 
 [call [cmd ::math::statistics::plot-xydata] [arg canvas] \
 [arg xdata] [arg ydata] [arg tag]]
 Create a simple XY plot in the given canvas - the data are
 shown as a collection of dots. The tag can be used to manipulate the
 appearance.
-[nl]
+[para]
 [arg canvas] - Canvas widget to use
-[nl]
+[para]
 [arg xdata] - Series of independent data
-[nl]
+[para]
 [arg ydata] - Series of dependent data
-[nl]
+[para]
 [arg tag] - Tag to give to the plotted data (defaults to xyplot)
-[nl]
+[para]
 
 [call [cmd ::math::statistics::plot-xyline] [arg canvas] \
 [arg xdata] [arg ydata] [arg tag]]
 Create a simple XY plot in the given canvas - the data are
 shown as a line through the data points. The tag can be used to
 manipulate the appearance.
-[nl]
+[para]
 [arg canvas] - Canvas widget to use
-[nl]
+[para]
 [arg xdata] - Series of independent data
-[nl]
+[para]
 [arg ydata] - Series of dependent data
-[nl]
+[para]
 [arg tag] - Tag to give to the plotted data (defaults to xyplot)
-[nl]
+[para]
 
 [call [cmd ::math::statistics::plot-tdata] [arg canvas] \
 [arg tdata] [arg tag]]
@@ -760,69 +760,69 @@ shown as a collection of dots. The horizontal coordinate is equal to the
 index. The tag can be used to manipulate the appearance.
 This type of presentation is suitable for autocorrelation functions for
 instance or for inspecting the time-dependent behaviour.
-[nl]
+[para]
 [arg canvas] - Canvas widget to use
-[nl]
+[para]
 [arg tdata] - Series of dependent data
-[nl]
+[para]
 [arg tag] - Tag to give to the plotted data (defaults to xyplot)
-[nl]
+[para]
 
 [call [cmd ::math::statistics::plot-tline] [arg canvas] \
 [arg tdata] [arg tag]]
 Create a simple XY plot in the given canvas - the data are
 shown as a line. See plot-tdata for an explanation.
-[nl]
+[para]
 [arg canvas] - Canvas widget to use
-[nl]
+[para]
 [arg tdata] - Series of dependent data
-[nl]
+[para]
 [arg tag] - Tag to give to the plotted data (defaults to xyplot)
-[nl]
+[para]
 
 [call [cmd ::math::statistics::plot-histogram] [arg canvas] \
 [arg counts] [arg limits] [arg tag]]
 Create a simple histogram in the given canvas
-[nl]
+[para]
 [arg canvas] - Canvas widget to use
-[nl]
+[para]
 [arg counts] - Series of bucket counts
-[nl]
+[para]
 [arg limits] - Series of upper limits for the buckets
-[nl]
+[para]
 [arg tag] - Tag to give to the plotted data (defaults to xyplot)
-[nl]
+[para]
 
 [list_end]
 
 [section {THINGS TO DO}]
 The following procedures are yet to be implemented:
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 F-test-stdev
-[bullet]
+[item]
 interval-mean-stdev
-[bullet]
+[item]
 histogram-normal
-[bullet]
+[item]
 histogram-exponential
-[bullet]
+[item]
 test-histogram
-[bullet]
+[item]
 test-corr
-[bullet]
+[item]
 quantiles-*
-[bullet]
+[item]
 fourier-coeffs
-[bullet]
+[item]
 fourier-residuals
-[bullet]
+[item]
 onepar-function-fit
-[bullet]
+[item]
 onepar-function-residuals
-[bullet]
+[item]
 plot-linear-model
-[bullet]
+[item]
 subdivide
 [list_end]
 
@@ -942,13 +942,13 @@ puts "Second: [lb]::math::statistics::quantiles $data2 {0.1 0.2 0.5 0.8 0.9}[rb]
 
 [example_end]
 If you run this example, then the following should be clear:
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 There is a strong correlation between two time series, as displayed by
 the raw data and especially by the correlation functions.
-[bullet]
+[item]
 Both time series show a significant periodic component
-[bullet]
+[item]
 The histograms are not very useful in identifying the nature of the time
 series - they do not show the periodic nature.
 [list_end]

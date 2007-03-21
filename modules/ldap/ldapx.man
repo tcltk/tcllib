@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: ldapx.man,v 1.7 2006/11/04 11:57:57 mic42 Exp $}]
+[comment {$Id: ldapx.man,v 1.8 2007/03/21 23:07:19 andreas_kupries Exp $}]
 [manpage_begin ldapx n 0.2.4]
 [copyright {2006 Pierre David <pdav@users.sourceforge.net>}]
 [moddesc   {LDAP extended object interface}]
@@ -88,33 +88,33 @@ An instance of the [class entry] class keeps the following data:
 
 [list_begin definitions]
 
-    [lst_item dn]
+    [def dn]
 
 	This is the DN of the entry, which includes (in LDAP
 	terminology) the RDN (relative DN) and the Superior parts.
 
-    [lst_item format]
+    [def format]
 
 	The format may be [emph uninitialized] (entry not yet used),
 	[emph standard] or [emph change]. Most methods check the
 	format of the entry, which can be reset with the
 	[method reset] method.
 
-    [lst_item attrvals]
+    [def attrvals]
 
 	In a [emph standard] entry, this is where the attributes
 	and associated values are stored. Many methods provide
 	access to these informations. Attribute names are always
 	converted into lower case.
 
-    [lst_item backup]
+    [def backup]
 
 	In a [emph standard] entry, the backup may contain a copy
 	of the dn and all attributes and values. Methods
 	[method backup] and [method restore] manipulate these data,
 	and method [method diff] may use this backup.
 
-    [lst_item change]
+    [def change]
 
 	In a [emph change] entry, these data represent the
 	modifications.  They are represented as a list with one of
@@ -124,17 +124,17 @@ An instance of the [class entry] class keeps the following data:
 	[list_begin enum]
 	    [enum]
 		{} (empty list)
-		[nl]
+		[para]
 		 No modification at all.
 
 	    [enum]
 		{[const add] {attr1 {val1...valn} attr2 {...} ...}}
-		[nl]
+		[para]
 		This change represents the addition of a new entry.
 
 	    [enum]
 		{[const mod] {modop {attr1 [opt val1...valn]} attr2 ...} {modop ...} ...}
-		[nl]
+		[para]
 		This change represents the modification of one or more
 		attributes and/or values, where <modop> can be
 		[const modadd], [const moddel] or [const modrepl]
@@ -142,12 +142,12 @@ An instance of the [class entry] class keeps the following data:
 
 	    [enum]
 		{[const del]}
-		[nl]
+		[para]
 		This change represents the deletion of an old entry.
 
 	    [enum]
 		{[const modrdn] newrdn deleteoldrdn [opt newsuperior]}
-		[nl]
+		[para]
 		This change represents the copy or the renaming of an
 		entry.
 
@@ -386,12 +386,12 @@ An instance of the [class ldap] class keeps the following data:
 
 [list_begin definitions]
 
-    [lst_item channel]
+    [def channel]
 
 	This is the channel used by the [package ldap] package for
 	communication with the LDAP server.
 
-    [lst_item lastError]
+    [def lastError]
 
 	This variable contains the error message which appeared in
 	the last method of the [class ldap] class (this string is
@@ -406,14 +406,14 @@ A first set of options of the [class ldap] class is used during
 search operations (methods [method traverse], [method search] and
 [method read], see below).
 
-[list_begin opt]
+[list_begin options]
 
     [opt_def -scope [const base]|[const one]|[const sub]]
 
 	Specify the scope of the LDAP search to be one of
 	[const base], [const one] or [const sub] to specify
 	a base object, one-level or subtree search.
-	[nl]
+	[para]
 	The default is [const sub].
 
     [opt_def -derefaliases [const never]|[const seach]|[const find]|[const always]]
@@ -424,21 +424,21 @@ search operations (methods [method traverse], [method search] and
 	[const search] that aliases are dereferenced when searching,
 	or [const find] that aliases are dereferenced only  when
 	locating  the  base object for the search.
-	[nl]
+	[para]
 	The default is [const never].
 
     [opt_def -sizelimit integer]
 
 	Specify the maximum number of entries to be retreived
 	during a search. A value of [const 0] means no limit.
-	[nl]
+	[para]
 	Default is [const 0].
 
     [opt_def -timelimit integer]
 
 	Specify the time limit for a search to complete.
 	A value of [const 0] means no limit.
-	[nl]
+	[para]
 	Default is [const 0].
 
     [opt_def -attrsonly [const 0]|[const 1]]
@@ -446,7 +446,7 @@ search operations (methods [method traverse], [method search] and
 	Specify if only attribute names are to be retrieved (value
 	[const 1]). Normally (value [const 0]), attribute values
 	are also retrieved.
-	[nl]
+	[para]
 	Default is [const 0].
 
 [list_end]
@@ -457,7 +457,7 @@ The last option is used when getting entries or committing changes
 in the directory:
 
 
-[list_begin opt]
+[list_begin options]
 
     [opt_def -utf8 {pattern-yes pattern-no}]
 
@@ -472,7 +472,7 @@ in the directory:
 	names which will not be UTF-8 encoded.  It is thus possible
 	to say: convert all attributes, except jpegPhoto.
 
-	[nl]
+	[para]
 
 	Default is {{.*} {}}, meaning: all attributes are converted,
 	without exception.
@@ -516,7 +516,7 @@ in the directory:
 	the script defined by the argument [arg body]. Options are
 	used to refine the search.
 
-	[nl]
+	[para]
 
 	Caution: when this method is used, the script [arg body]
 	cannot perform another LDAP search (methods [method traverse],
@@ -546,7 +546,7 @@ in the directory:
 	This method commits the changes stored in the [arg entry]
 	arguments. Each [arg entry] may be either a [emph change]
 	entry, or a [emph standard] entry with a backup.
-	[nl]
+	[para]
 	Note: in the future, this method should use the LDAP
 	transaction extension provided by OpenLDAP 2.3 and later.
 
@@ -616,7 +616,7 @@ An instance of the [class ldif] class keeps the following data:
 
 [list_begin definitions]
 
-    [lst_item channel]
+    [def channel]
 
 	This is the Tcl channel used to retrieve or store LDIF file
 	contents. The association between an instance and a channel
@@ -624,21 +624,21 @@ An instance of the [class ldif] class keeps the following data:
 	to disrupt this association when the LDIF file operation
 	has ended.
 
-    [lst_item format]
+    [def format]
 
 	LDIF files may contain [emph standard] entries or
 	[emph change] entries, but not both. This variable contains
 	the detected format of the file (when reading) or the format
 	of entries written to the file (when writing).
 
-    [lst_item lastError]
+    [def lastError]
 
 	This variable contains the error message which appeared in
 	the last method of the [class ldif] class (this string is
 	modified in nearly all methods). The [method error] method
 	may be used to fetch this message.
 
-    [lst_item version]
+    [def version]
 
 	This is the version of the LDIF file. Only version 1 is
 	supported: the method [method read] can only read from
@@ -653,7 +653,7 @@ An instance of the [class ldif] class keeps the following data:
 This class defines one option:
 
 
-[list_begin opt]
+[list_begin options]
 
     [opt_def -ignore {list-of-attributes}]
 
@@ -662,7 +662,7 @@ This class defines one option:
 	one must ignore [const replica] and [const time] attributes
 	since they do not conform to the RFC 2849 standard for LDIF
 	files.
-	[nl]
+	[para]
 	Default is empty list: no attribute is ignored.
 
 [list_end]

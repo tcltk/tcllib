@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: loggerUtils.man,v 1.3 2006/01/22 00:27:23 andreas_kupries Exp $}]
+[comment {$Id: loggerUtils.man,v 1.4 2007/03/21 23:07:20 andreas_kupries Exp $}]
 [manpage_begin logger::utils n 1.3]
 [copyright {2005 Aamer Akhter <aakhter@cisco.com>}]
 [moddesc {Object Oriented logging facility}]
@@ -22,14 +22,14 @@ The following strings are the known substitutions (from log4perl)
 allowed to occur in the [arg formatString]:
 
 [list_begin definitions]
-[lst_item %c] Category of the logging event
-[lst_item %C] Fully qualified name of logging event
-[lst_item %d] Current date in yyyy/MM/dd hh:mm:ss
-[lst_item %H] Hostname
-[lst_item %m] Message to be logged
-[lst_item %M] Method where logging event was issued
-[lst_item %p] Priority of logging event
-[lst_item %P] Pid of current process
+[def %c] Category of the logging event
+[def %C] Fully qualified name of logging event
+[def %d] Current date in yyyy/MM/dd hh:mm:ss
+[def %H] Hostname
+[def %m] Message to be logged
+[def %M] Method where logging event was issued
+[def %p] Priority of logging event
+[def %P] Pid of current process
 [list_end]
 
 
@@ -39,7 +39,7 @@ allowed to occur in the [arg formatString]:
 
 This command ...
 
-[list_begin opt]
+[list_begin options]
 
 [opt_def -procName procName]
 
@@ -74,9 +74,9 @@ services. If no service is specified then the appender will be added
 as the default appender for the specified levels. If no levels are
 specified, then all levels are assumed.
 
-[nl]
+[para]
 
-[list_begin opt]
+[list_begin options]
 
 [opt_def -service    loggerservices]
 [opt_def -serviceCmd loggerserviceCmds]
@@ -105,11 +105,11 @@ The list of levels to apply this appender to. If not specified all
 levels are assumed.
 
 [list_end]
-[nl]
+[para]
 
 Example of usage:
 
-[nl]
+[para]
 [example {
    % set log [logger::init testLog]
    ::logger::tree::testLog
@@ -131,9 +131,9 @@ newly created logger instances.
 
 It will return its argument [arg log].
 
-[nl]
+[para]
 Example of usage:
-[nl]
+[para]
 [example {
   logger::utils::applyAppender -appender console
   set log [logger::init applyAppender-3]

@@ -45,11 +45,11 @@ This command creates and configures a new connection [arg object]. The
 fully qualified name of the object command is returned as the result
 of the command.
 
-[nl]
+[para]
 
 The recognized options are listed below.
 
-[list_begin opt]
+[list_begin options]
 
 [opt_def -mode [arg mode]]
 
@@ -57,13 +57,13 @@ This option specifies the mode the object is in. It is optional and
 defaults to [const active] mode. The two possible modes are:
 
 [list_begin definitions]
-[lst_item [const active]]
+[def [const active]]
 
 In this mode the two options [option -host] and [option -port] are
 relevant and specify the host and TCP port the object has to connect
 to. The host is given by either name or IP address.
 
-[lst_item [const passive]]
+[def [const passive]]
 
 In this mode the option [option -host] has no relevance and is ignored
 should it be configured.
@@ -120,7 +120,7 @@ object. When the connection is established the callback [arg command]
 will be invoked with one additional argument, the channel handle of
 the socket over which data can be transfered.
 
-[nl]
+[para]
 
 The detailed behaviour of the method depends on the configured
 mode. For an [term active] object the connection setup is done
@@ -128,7 +128,7 @@ synchronously. I.e. the object will wait until the connection is
 established. In that mode the method returns the empty string as its
 result.
 
-[nl]
+[para]
 
 A [term passive] object however operates asynchronously. The method
 will return immediately after a listener has been set up and the
@@ -137,13 +137,13 @@ method returns the port number of the listening socket, for use by the
 caller, like transfering this information to the counterpart so that
 it may know where to connect to.
 
-[nl]
+[para]
 
 This is necessary as the object might have been configured for port
 [const 0], allowing the OS to choose the actual port it will listen
 on.
 
-[nl]
+[para]
 
 The listening port is closed immediately when the connection was
 established by the partner, to keep the time interval small within

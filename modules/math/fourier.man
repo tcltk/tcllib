@@ -21,10 +21,10 @@ implementation.
 
 [section "GENERAL INFORMATION"]
 The two top-level procedures defined are
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 dft data-list
-[bullet]
+[item]
 inverse_dft data-list
 [list_end]
 
@@ -84,20 +84,20 @@ Determine the [emph "Fourier transform"] of the given list of complex
 numbers. The result is a list of complex numbers representing the
 (complex) amplitudes of the Fourier components.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list in_data] List of data
 [list_end]
-[nl]
+[para]
 
 [call [cmd ::math::fourier::inverse_dft] [arg in_data]]
 Determine the [emph "inverse Fourier transform"] of the given list of
 complex numbers (interpreted as amplitudes). The result is a list of
 complex numbers representing the original (complex) data
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list in_data] List of data (amplitudes)
 [list_end]
-[nl]
+[para]
 
 [call [cmd ::math::fourier::lowpass] [arg cutoff] [arg in_data]]
 Filter the (complex) amplitudes so that high-frequency components
@@ -105,11 +105,11 @@ are suppressed. The implemented filter is a first-order low-pass filter,
 the discrete equivalent of a simple electronic circuit with a resistor
 and a capacitance.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float cutoff] Cut-off frequency
 [arg_def list in_data] List of data (amplitudes)
 [list_end]
-[nl]
+[para]
 
 [call [cmd ::math::fourier::highpass] [arg cutoff] [arg in_data]]
 Filter the (complex) amplitudes so that low-frequency components
@@ -117,11 +117,11 @@ are suppressed. The implemented filter is a first-order low-pass filter,
 the discrete equivalent of a simple electronic circuit with a resistor
 and a capacitance.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float cutoff] Cut-off frequency
 [arg_def list in_data] List of data (amplitudes)
 [list_end]
-[nl]
+[para]
 
 [list_end]
 

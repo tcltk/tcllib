@@ -129,26 +129,26 @@ To get a value of a member, there are several ways to do this.
 
 [enum]
 To get a member value, then use the instance built-in [method cget] method:
-[nl]
+[para]
     [arg instanceName] [method cget] -mem1
 
 [enum]
 To get multiple member values, you can specify them all in one command:
-[nl]
+[para]
     [arg instanceName] [method cget] -mem1 -mem2
 
 [enum]
 To get a list of the key/value of all of the members, there are 3 ways:
-[nl]
+[para]
     - [arg instanceName] [method cget]
-[nl]
+[para]
 	- [arg instanceName] [method configure]
-[nl]
+[para]
 	- [arg instanceName]
 
 [enum]
 To get a value of a nested member, then use the dot notation:
-[nl]
+[para]
     [arg instanceName] [method cget] -mem3.nest1
 
 [list_end]
@@ -163,17 +163,17 @@ To set a value of a member, there are several ways to do this.
 
 [enum]
 To set a member value, then use the instance built-in [method configure] method:
-[nl]
+[para]
     [arg instanceName] [method configure] -mem1 val1
 
 [enum]
 To set multiple member values, you can specify them all in one command:
-[nl]
+[para]
     [arg instanceName] [method configure] -mem1 va1 -mem2 val2
 
 [enum]
 To set a value of a nested member, then use the dot notation:
-[nl]
+[para]
     [arg instanceName] [method configure] -mem3.nest1 value
 
 [list_end]
@@ -240,7 +240,7 @@ to access the data members of the instance. During the instantiation, values for
 that instance can be given, [emph but] all values must be given, and be given
 in key/value pairs. Nested records, need to be in list format.
 
-[nl]
+[para]
 Optionally, [arg #auto] can be used in place of [arg instanceName]. When #auto is used,
 then a instance name will automatically be generated, of the form recordName<integer>, where
 <integer> is a unique integer (starting at 0) that is generated.

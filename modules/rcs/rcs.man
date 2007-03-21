@@ -106,7 +106,7 @@ as specified in the section [sectref {RCS PATCH COMMAND LIST}] back
 into a text in [sectref {RCS patch format}] and returns that text as
 its result.
 
-[nl]
+[para]
 
 Note that this command and [cmd ::rcs::decodeRcsPatch] are not exactly
 complementary, as the latter strips no-ops from its input, which the
@@ -122,7 +122,7 @@ This operation applies a patch in the form of a PCL to a text given in
 the form of a dictionary and returns the modified text, again as
 dictionary, as its result.
 
-[nl]
+[para]
 
 To handle actual text use the commands [cmd ::rcs::text2dict] (or
 equivalent) and [cmd ::rcs::decodeRcsPatch] to transform the inputs
@@ -221,11 +221,11 @@ The first line of a [term {RCS patch}] is always a command line.
 The commands are:
 
 [list_begin definitions]
-[lst_item "\"\""]
+[def "\"\""]
 
 The empty line is a command which does nothing.
 
-[lst_item "\"a[var start] [var n]\""]
+[def "\"a[var start] [var n]\""]
 
 A line starting with the character [const a] is a command for the
 addition of text to the output. It is followed by [var n] lines of
@@ -234,7 +234,7 @@ lines [var start] and [var start]+1. The same effect is had by
 appending the data to the existing text on line [var start]. A
 non-existing line [var start] is created.
 
-[lst_item "\"d[var start] [var n]\""]
+[def "\"d[var start] [var n]\""]
 
 A line starting with the character [const d] is a command for the
 deletion of text from the output. When applied it deletes [var n]
@@ -295,13 +295,13 @@ themselves, where the first item specifies the command and the
 remainder represent the arguments of the command.
 
 [list_begin definitions]
-[lst_item a]
+[def a]
 
 This is the instruction for the addition of text. It has two
 arguments, the index of the line where to add the text, and the text
 to add, in this order.
 
-[lst_item d]
+[def d]
 
 This is the instruction for the deletion of text. It has two
 arguments, the index of the line where to start deleting text, and the

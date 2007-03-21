@@ -103,19 +103,19 @@ one of [option -server] [option -client], [option -type] or
 
 [list_begin definitions]
 
-[lst_item "[option -client] [arg cginame]"]
+[def "[option -client] [arg cginame]"]
 
 returns the filename as sent by the client.
 
-[lst_item "[option -type] [arg cginame]"]
+[def "[option -type] [arg cginame]"]
 
 returns the mime type of the uploaded file.
 
-[lst_item "[option -data] [arg cginame]"]
+[def "[option -data] [arg cginame]"]
 
 returns the contents of the file.
 
-[lst_item "[option -server] [arg cginame] [arg filename]"]
+[def "[option -server] [arg cginame] [arg filename]"]
 
 writes the file contents to a local temporary file (or [arg filename]
 if supplied) and returns the name of the file. The caller is
@@ -143,7 +143,7 @@ is the form value.  If you use [cmd ::ncgi::value] you just get the
 form value.  If you use [cmd ::ncgi::valueList] you get the structured
 value with meta data and the value.
 
-[nl]
+[para]
 
 The [arg type] is the whole Content-Type, including the parameters
 like [arg boundary].  This returns a list of names and values that
@@ -217,11 +217,11 @@ called in order for the cookie to be returned properly.  The
 
 [list_begin definitions]
 
-[lst_item "[option -name] [arg name]"]
-[lst_item "[option -value] [arg value]"]
-[lst_item "[option -expires] [arg date]"]
-[lst_item "[option -path] [arg {path restriction}]"]
-[lst_item "[option -domain] [arg {domain restriction}]"]
+[def "[option -name] [arg name]"]
+[def "[option -value] [arg value]"]
+[def "[option -expires] [arg date]"]
+[def "[option -path] [arg {path restriction}]"]
+[def "[option -domain] [arg {domain restriction}]"]
 [list_end]
 
 
@@ -272,7 +272,7 @@ Return the CGI value identified by [arg key].  If the CGI value is not
 present, then the [arg default] value is returned instead. This value
 defaults to the empty string.
 
-[nl]
+[para]
 
 If the form value [arg key] is repeated, then there are two cases: if
 [cmd ::ncgi::parse] was called, then [cmd ::ncgi::value] only returns

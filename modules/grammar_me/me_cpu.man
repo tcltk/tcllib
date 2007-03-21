@@ -51,7 +51,7 @@ It has the following general form:
 command.
 
 [list_end]
-[nl]
+[para]
 
 The argument [arg matchcode] contains the match instructions the
 machine has to execute while parsing the input stream. Please read
@@ -59,7 +59,7 @@ section [sectref {MATCH CODE REPRESENTATION}] of the documentation for
 the package [package grammar::me::cpu::core] for the specification of
 the structure of this value.
 
-[nl]
+[para]
 
 The [arg tokmap] argument taken by the implementation provided by the
 package [package grammar::me::tcl] is here hidden inside of the match
@@ -95,7 +95,7 @@ in the order mentioned in the previous sentence.
 This allows higher levels to convert the location information found in
 the error status and the generated AST into more human readable data.
 
-[nl]
+[para]
 
 [emph Note] that the command is not able to convert locations which
 have not been reached by the machine yet. In other words, if the
@@ -112,7 +112,7 @@ between the locations [arg from] and [arg to] (both inclusive). If
 [arg to] is not specified it will default to the value of [arg from].
 If [arg from] is not specified either the whole input stream is returned.
 
-[nl]
+[para]
 
 Each element of the returned list is a list of four elements, the
 token, its associated lexeme, line number, and column index, in this
@@ -250,14 +250,14 @@ characters encountered and the data in the variables [arg lvar] and
 This methods causes the engine to execute match instructions until
 either
 
-[list_begin bullet]
-[bullet] [arg n] instructions have been executed, or
-[bullet] a halt instruction was executed, or
-[bullet]
+[list_begin itemized]
+[item] [arg n] instructions have been executed, or
+[item] a halt instruction was executed, or
+[item]
 the input queue is empty and the code is asking for more tokens to
 process.
 [list_end]
-[nl]
+[para]
 
 If no limit [arg n] was set only the last two conditions are checked
 for.
@@ -271,7 +271,7 @@ reached, or the command prefix
 
 [arg nextcmd] ceases to deliver more tokens.
 
-[nl]
+[para]
 
 The command prefix [arg nextcmd] represents the input stream of
 characters and is invoked by the machine whenever the a new character
@@ -286,7 +286,7 @@ The empty list is the signal that the end of the input stream has been
 reached. The lexeme attribute is stored in the terminal cache, but
 otherwise not used by the machine.
 
-[nl]
+[para]
 
 The end of the input stream for this method does not imply that method
 [method eof] is called for the machine as a whole. By avoiding this

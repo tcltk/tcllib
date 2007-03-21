@@ -11,12 +11,12 @@
 [para]
 This package deals with rational functions of one variable:
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 the basic arithmetic operations are extended to rational functions
-[bullet]
+[item]
 computing the derivatives of these functions
-[bullet]
+[item]
 evaluation through a general procedure or via specific procedures)
 [list_end]
 
@@ -41,15 +41,15 @@ can be defined via:
              [list 1 2 1]]
 }]
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list num] Coefficients of the numerator of the rational
 function (in ascending order)
-[nl]
+[para]
 [arg_def list den] Coefficients of the denominator of the rational
 function (in ascending order)
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::math::rationalfunctions::ratioCmd] [arg num] [arg den]]
 
@@ -58,21 +58,21 @@ function is automatically generated. Useful if you need to evaluate
 the function many times, as the procedure consists of a single
 [lb]expr[rb] command.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list num] Coefficients of the numerator of the rational
 function (in ascending order)
-[nl]
+[para]
 [arg_def list den] Coefficients of the denominator of the rational
 function (in ascending order)
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::math::rationalfunctions::evalRatio] [arg rational] [arg x]]
 
 Evaluate the rational function at x.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list rational] The rational function's definition (as returned
 by the rationalFunction command).
 order)
@@ -81,21 +81,21 @@ order)
 
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::rationalfunctions::addRatio] [arg ratio1] [arg ratio2]]
 
 Return a new rational function which is the sum of the two others.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list ratio1] The first rational function operand
 
 [arg_def list ratio2] The second rational function operand
 
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::rationalfunctions::subRatio] [arg ratio1] [arg ratio2]]
@@ -103,14 +103,14 @@ Return a new rational function which is the sum of the two others.
 Return a new rational function which is the difference of the two
 others.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list ratio1] The first rational function operand
 
 [arg_def list ratio2] The second rational function operand
 
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::rationalfunctions::multRatio] [arg ratio1] [arg ratio2]]
@@ -119,14 +119,14 @@ Return a new rational function which is the product of the two others.
 If one of the arguments is a scalar value, the other rational function is
 simply scaled.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list ratio1] The first rational function operand or a scalar
 
 [arg_def list ratio2] The second rational function operand or a scalar
 
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::rationalfunctions::divRatio] [arg ratio1] [arg ratio2]]
@@ -134,37 +134,37 @@ simply scaled.
 Divide the first rational function by the second rational function and
 return the result. The remainder is dropped
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list ratio1] The first rational function operand
 
 [arg_def list ratio2] The second rational function operand
 
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::rationalfunctions::derivPolyn] [arg ratio]]
 
 Differentiate the rational function and return the result.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list ratio] The rational function to be differentiated
 
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::rationalfunctions::coeffsNumerator] [arg ratio]]
 
 Return the coefficients of the numerator of the rational function.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list ratio] The rational function to be examined
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::rationalfunctions::coeffsDenominator] [arg ratio]]
@@ -172,11 +172,11 @@ Return the coefficients of the numerator of the rational function.
 Return the coefficients of the denominator of the rational
 function.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list ratio] The rational function to be examined
 [list_end]
 
-[nl]
+[para]
 
 [list_end]
 

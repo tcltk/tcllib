@@ -26,13 +26,13 @@ number is "119" and the default [arg host] is "news". These defaults
 can be overridden with the environment variables [var NNTPPORT] and
 [var NNTPHOST] respectively.
 
-[nl]
+[para]
 
 Some of the commands supported by this package are not part of the
 nntp rfc 977 ([uri http://www.rfc-editor.org/rfc/rfc977.txt]) and will
 not be available (or implemented) on all nntp servers.
 
-[nl]
+[para]
 
 The access command [arg nntpName] has the following general form:
 
@@ -72,13 +72,13 @@ only one option is supported, [option -binary]. When set articles are
 retrieved as binary data instead of text. The only methods affected by
 this are [method article] and [method body].
 
-[nl]
+[para]
 
 One application of this option would be the download of articles
 containing yEnc encoded images. Although encoded the data is still
 mostly binary and retrieving it as text will corrupt the information.
 
-[nl]
+[para]
 
 See package [package yencode] for both encoder and decoder of such data.
 
@@ -123,7 +123,7 @@ the last known article currently in that newsgroup, <first> is the
 number of the first article currently in the newsgroup, and <p> is
 either 'y' or 'n' indicating whether posting to this newsgroup is
 allowed ('y') or prohibited ('n').
-[nl]
+[para]
 The <first> and <last> fields will always be numeric.  They may have
 leading zeros.  If the <last> field evaluates to less than the
 <first> field, there are no articles currently on file in the
@@ -231,16 +231,16 @@ queried field.  The [arg range] argument can be in any of the following forms:
 
 [list_begin definitions]
 
-[lst_item [const {""}]]
+[def [const {""}]]
 
 The current message is queried.
 
-[lst_item [arg msgid1]-[arg msgid2]]
+[def [arg msgid1]-[arg msgid2]]
 
 All messages between [arg msgid1] and [arg msgid2]
 (including [arg msgid1] and [arg msgid2]) are queried.
 
-[lst_item "[arg msgid1] [arg msgid2]"]
+[def "[arg msgid1] [arg msgid2]"]
 
 All messages between [arg msgid1] and [arg msgid2]
 (including [arg msgid1] and [arg msgid2]) are queried.
@@ -262,16 +262,16 @@ The [arg range] argument can be in any of the following forms:
 [list_begin definitions]
 
 
-[lst_item [const {""}]]
+[def [const {""}]]
 
 The current message is queried.
 
-[lst_item [arg msgid1]-[arg msgid2]]
+[def [arg msgid1]-[arg msgid2]]
 
 All messages between [arg msgid1] and [arg msgid2]
 (including [arg msgid1] and [arg msgid2]) are queried.
 
-[lst_item "[arg msgid1] [arg msgid2]"]
+[def "[arg msgid1] [arg msgid2]"]
 
 All messages between [arg msgid1] and [arg msgid2]
 (including [arg msgid1] and [arg msgid2]) are queried.
@@ -294,16 +294,16 @@ queried field.  The [arg range] argument can be in any of the following forms:
 
 [list_begin definitions]
 
-[lst_item [arg msgid]]
+[def [arg msgid]]
 
 The message specified by [arg msgid] is queried.
 
-[lst_item [arg msgid1]-[arg msgid2]]
+[def [arg msgid1]-[arg msgid2]]
 
 All messages between [arg msgid1] and [arg msgid2]
 (including [arg msgid1] and [arg msgid2]) are queried.
 
-[lst_item "[arg msgid1] [arg msgid2]"]
+[def "[arg msgid1] [arg msgid2]"]
 
 All messages between [arg msgid1] and [arg msgid2]
 (including [arg msgid1] and [arg msgid2]) are queried.

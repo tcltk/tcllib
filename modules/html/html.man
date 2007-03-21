@@ -141,7 +141,7 @@ concatenated to the result value.
 Return a name and value pair, where the value is initialized from
 existing CGI data, if any.  The result has this form:
 
-[nl]
+[para]
 [example {
   name="fred" value="freds value"
 }]

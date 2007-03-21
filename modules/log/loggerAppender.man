@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: loggerAppender.man,v 1.2 2005/11/15 03:52:17 andreas_kupries Exp $}]
+[comment {$Id: loggerAppender.man,v 1.3 2007/03/21 23:07:20 andreas_kupries Exp $}]
 [manpage_begin logger::appender n 1.2]
 [copyright {2005 Aamer Akhter <aakhter@cisco.com>}]
 [moddesc {Object Oriented logging facility}]
@@ -18,7 +18,7 @@ This package provides a predefined set of logger templates.
 	[option -service] [arg service] [opt [arg options]...] \
 ]
 
-[list_begin opt]
+[list_begin options]
 
 [opt_def -level level]
 

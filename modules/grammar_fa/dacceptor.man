@@ -42,7 +42,7 @@ operations on the acceptor. It has the following general form:
 [arg Option] and the [arg arg]s determine the exact behavior of the
 command. See section [sectref {ACCEPTOR METHODS}] for more explanations.
 
-[nl]
+[para]
 
 The acceptor will be based on the deterministic finite automaton
 stored in the object [arg fa]. It will keep a copy of the relevant
@@ -50,7 +50,7 @@ data of the FA in its own storage, in a form easy to use for its
 purposes. This also means that changes made to the [arg fa] after the
 construction of the acceptor [emph {will not}] influence the acceptor.
 
-[nl]
+[para]
 
 If [arg any] has been specified, then the acceptor will convert all
 symbols in the input which are unknown to the base FA to that symbol

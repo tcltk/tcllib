@@ -16,40 +16,40 @@ the Gamma function, the Bessel functions and such.
 Each function is implemented by a procedure that bears its name (well,
 in close approximation):
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 J0 for the zeroth-order Bessel function of the first kind
 
-[bullet]
+[item]
 J1 for the first-order Bessel function of the first kind
 
-[bullet]
+[item]
 Jn for the nth-order Bessel function of the first kind
 
-[bullet]
+[item]
 J1/2 for the half-order Bessel function of the first kind
 
-[bullet]
+[item]
 J-1/2 for the minus-half-order Bessel function of the first kind
 
-[bullet]
+[item]
 I_n for the modified Bessel function of the first kind of order n
 
-[bullet]
+[item]
 Gamma for the Gamma function, erf and erfc for the error function and
 the complementary error function
 
-[bullet]
+[item]
 fresnel_C and fresnel_S for the Fresnel integrals
 
-[bullet]
+[item]
 elliptic_K and elliptic_E (complete elliptic integrals)
 
-[bullet]
+[item]
 exponent_Ei and other functions related to the so-called exponential
 integrals
 
-[bullet]
+[item]
 legendre, hermite: some of the classical orthogonal polynomials.
 
 [list_end]
@@ -109,16 +109,16 @@ the primary functions.
 
 [para]
 The following well-known functions are currently missing from the package:
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 Bessel functions of the second kind (Y_n, K_n)
-[bullet]
+[item]
 Bessel functions of arbitrary order (and hence the Airy functions)
-[bullet]
+[item]
 Chebyshev polynomials of the second kind (U_n)
-[bullet]
+[item]
 The digamma function (psi)
-[bullet]
+[item]
 The incomplete gamma and beta functions
 [list_end]
 
@@ -133,50 +133,50 @@ The package defines the following public procedures:
 
 Compute the Beta function for arguments "x" and "y"
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float x] First argument for the Beta function
 
 [arg_def float y] Second argument for the Beta function
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::math::special::Gamma] [arg x] [arg y]]
 
 Compute the Gamma function for argument "x"
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float x] Argument for the Gamma function
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::math::special::erf] [arg x]]
 
 Compute the error function for argument "x"
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float x] Argument for the error function
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::math::special::erfc] [arg x]]
 
 Compute the complementary error function for argument "x"
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float x] Argument for the complementary error function
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::math::special::J0] [arg x]]
 
 Compute the zeroth-order Bessel function of the first kind for the
 argument "x"
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float x] Argument for the Bessel function
 [list_end]
 
@@ -185,7 +185,7 @@ argument "x"
 Compute the first-order Bessel function of the first kind for the
 argument "x"
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float x] Argument for the Bessel function
 [list_end]
 
@@ -194,7 +194,7 @@ argument "x"
 Compute the nth-order Bessel function of the first kind for the
 argument "x"
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def integer n] Order of the Bessel function
 [arg_def float x] Argument for the Bessel function
 [list_end]
@@ -204,7 +204,7 @@ argument "x"
 Compute the half-order Bessel function of the first kind for the
 argument "x"
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float x] Argument for the Bessel function
 [list_end]
 
@@ -213,7 +213,7 @@ argument "x"
 Compute the minus-half-order Bessel function of the first kind for the
 argument "x"
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float x] Argument for the Bessel function
 [list_end]
 
@@ -222,7 +222,7 @@ argument "x"
 Compute the modified Bessel function of the first kind of order n for
 the argument "x"
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def int x] Positive integer order of the function
 [arg_def float x] Argument for the function
 [list_end]
@@ -232,7 +232,7 @@ the argument "x"
 Compute the elliptic function [emph cn] for the argument "u" and
 parameter "k".
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float u] Argument for the function
 [arg_def float k] Parameter
 [list_end]
@@ -242,7 +242,7 @@ parameter "k".
 Compute the elliptic function [emph dn] for the argument "u" and
 parameter "k".
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float u] Argument for the function
 [arg_def float k] Parameter
 [list_end]
@@ -252,7 +252,7 @@ parameter "k".
 Compute the elliptic function [emph sn] for the argument "u" and
 parameter "k".
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float u] Argument for the function
 [arg_def float k] Parameter
 [list_end]
@@ -262,7 +262,7 @@ parameter "k".
 Compute the complete elliptic integral of the first kind
 for the argument "k"
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float k] Argument for the function
 [list_end]
 
@@ -271,7 +271,7 @@ for the argument "k"
 Compute the complete elliptic integral of the second kind
 for the argument "k"
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float k] Argument for the function
 [list_end]
 
@@ -280,7 +280,7 @@ for the argument "k"
 Compute the exponential integral of the second kind
 for the argument "x"
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float x] Argument for the function (x != 0)
 [list_end]
 
@@ -289,7 +289,7 @@ for the argument "x"
 Compute the exponential integral of the first kind
 for the argument "x" and order n
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def int n] Order of the integral (n >= 0)
 [arg_def float x] Argument for the function (x >= 0)
 [list_end]
@@ -298,7 +298,7 @@ for the argument "x" and order n
 
 Compute the logarithmic integral for the argument "x"
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float x] Argument for the function (x > 0)
 [list_end]
 
@@ -306,7 +306,7 @@ Compute the logarithmic integral for the argument "x"
 
 Compute the cosine integral for the argument "x"
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float x] Argument for the function (x > 0)
 [list_end]
 
@@ -314,7 +314,7 @@ Compute the cosine integral for the argument "x"
 
 Compute the sine integral for the argument "x"
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float x] Argument for the function (x > 0)
 [list_end]
 
@@ -322,7 +322,7 @@ Compute the sine integral for the argument "x"
 
 Compute the hyperbolic cosine integral for the argument "x"
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float x] Argument for the function (x > 0)
 [list_end]
 
@@ -330,7 +330,7 @@ Compute the hyperbolic cosine integral for the argument "x"
 
 Compute the hyperbolic sine integral for the argument "x"
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float x] Argument for the function (x > 0)
 [list_end]
 
@@ -339,7 +339,7 @@ Compute the hyperbolic sine integral for the argument "x"
 
 Compute the Fresnel cosine integral for real argument x
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float x] Argument for the function
 [list_end]
 
@@ -348,7 +348,7 @@ Compute the Fresnel cosine integral for real argument x
 
 Compute the Fresnel sine integral for real argument x
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float x] Argument for the function
 [list_end]
 
@@ -357,7 +357,7 @@ Compute the Fresnel sine integral for real argument x
 
 Compute the sinc function for real argument x
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float x] Argument for the function
 [list_end]
 
@@ -367,45 +367,45 @@ Compute the sinc function for real argument x
 Return the Legendre polynomial of degree n
 (see [sectref "THE ORTHOGONAL POLYNOMIALS"])
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def int n] Degree of the polynomial
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::special::chebyshev] [arg n]]
 
 Return the Chebyshev polynomial of degree n (of the first kind)
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def int n] Degree of the polynomial
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::special::laguerre] [arg alpha] [arg n]]
 
 Return the Laguerre polynomial of degree n with parameter alpha
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def float alpha] Parameter of the Laguerre polynomial
 [arg_def int n] Degree of the polynomial
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::special::hermite] [arg n]]
 
 Return the Hermite polynomial of degree n
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def int n] Degree of the polynomial
 [list_end]
 
-[nl]
+[para]
 
 [list_end]
 

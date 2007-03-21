@@ -74,7 +74,7 @@ when not registering with the http package.
 
 [section {OPTIONS}]
 
-[list_begin opt]
+[list_begin options]
 
 [opt_def "host" "hostname"]
 [opt_def "proxy_host" "hostname"]
@@ -118,7 +118,7 @@ separated by a colon. This encoded text is prefixed with the word
 [para]
 
 The following options exists for this scheme:
-[list_begin opt]
+[list_begin options]
 [opt_def "-username" "name"]
 The username required to authenticate with the configured proxy.
 [opt_def "-password" "password"]

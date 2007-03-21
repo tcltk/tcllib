@@ -30,7 +30,7 @@ close the stream yourself.  If no error is thrown, the return value is
 a serialized array with informative English text about what was found
 in the EXIF block.  Failure during parsing or I/O throw errors.
 
-[nl]
+[para]
 
 If [arg thumbnail] is present and not the empty string it will be
 interpreted as the name of a file, and the thumbnail image contained
@@ -53,7 +53,7 @@ return all the fields listed in the return from exif::fieldnames.
 This function is expected to be primarily useful for building GUIs to
 display results.
 
-[nl]
+[para]
 
 N.B.: Read the implementation of [cmd exif::fieldnames] before
 modifying the implementation of [cmd exif::analyze].

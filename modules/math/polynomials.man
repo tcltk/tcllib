@@ -11,12 +11,12 @@
 [para]
 This package deals with polynomial functions of one variable:
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 the basic arithmetic operations are extended to polynomials
-[bullet]
+[item]
 computing the derivatives and primitives of these functions
-[bullet]
+[item]
 evaluation through a general procedure or via specific procedures)
 [list_end]
 
@@ -37,12 +37,12 @@ can be defined via:
    set f [::math::polynomials::polynomial [list $a $b $c $d]
 }]
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list coeffs] Coefficients of the polynomial (in ascending
 order)
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::math::polynomials::polynCmd] [arg coeffs]]
 
@@ -51,19 +51,19 @@ polynomial is automatically generated. Useful if you need to evualuate
 the polynomial many times, as the procedure consists of a single
 [lb]expr[rb] command.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list coeffs] Coefficients of the polynomial (in ascending
 order) or the polynomial definition returned by the [emph polynomial]
 command.
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::math::polynomials::evalPolyn] [arg polynomial] [arg x]]
 
 Evaluate the polynomial at x.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list polynomial] The polynomial's definition (as returned by
 the polynomial command).
 order)
@@ -72,35 +72,35 @@ order)
 
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::polynomials::addPolyn] [arg polyn1] [arg polyn2]]
 
 Return a new polynomial which is the sum of the two others.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list polyn1] The first polynomial operand
 
 [arg_def list polyn2] The second polynomial operand
 
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::polynomials::subPolyn] [arg polyn1] [arg polyn2]]
 
 Return a new polynomial which is the difference of the two others.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list polyn1] The first polynomial operand
 
 [arg_def list polyn2] The second polynomial operand
 
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::polynomials::multPolyn] [arg polyn1] [arg polyn2]]
@@ -109,14 +109,14 @@ Return a new polynomial which is the product of the two others. If one
 of the arguments is a scalar value, the other polynomial is simply
 scaled.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list polyn1] The first polynomial operand or a scalar
 
 [arg_def list polyn2] The second polynomial operand or a scalar
 
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::polynomials::divPolyn] [arg polyn1] [arg polyn2]]
@@ -124,14 +124,14 @@ scaled.
 Divide the first polynomial by the second polynomial and return the
 result. The remainder is dropped
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list polyn1] The first polynomial operand
 
 [arg_def list polyn2] The second polynomial operand
 
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::polynomials::remainderPolyn] [arg polyn1] [arg polyn2]]
@@ -139,26 +139,26 @@ result. The remainder is dropped
 Divide the first polynomial by the second polynomial and return the
 remainder.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list polyn1] The first polynomial operand
 
 [arg_def list polyn2] The second polynomial operand
 
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::polynomials::derivPolyn] [arg polyn]]
 
 Differentiate the polynomial and return the result.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list polyn] The polynomial to be differentiated
 
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::polynomials::primitivePolyn] [arg polyn]]
@@ -166,24 +166,24 @@ Differentiate the polynomial and return the result.
 Integrate the polynomial and return the result. The integration
 constant is set to zero.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list polyn] The polynomial to be integrated
 
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::polynomials::degreePolyn] [arg polyn]]
 
 Return the degree of the polynomial.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list polyn] The polynomial to be examined
 
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::polynomials::coeffPolyn] [arg polyn] [arg index]]
@@ -191,20 +191,20 @@ Return the degree of the polynomial.
 Return the coefficient of the term of the index'th degree of the
 polynomial.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list polyn] The polynomial to be examined
 [arg_def int  index] The degree of the term
 
 [list_end]
 
-[nl]
+[para]
 
 
 [call [cmd ::math::polynomials::allCoeffsPolyn] [arg polyn]]
 
 Return the coefficients of the polynomial (in ascending order).
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list polyn] The polynomial in question
 
 [list_end]

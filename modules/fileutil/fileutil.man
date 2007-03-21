@@ -30,7 +30,7 @@ letter is a shorthand for a property to test. The recognized keywords,
 shorthands, and associated properties are shown in the list below. The
 tests are executed in the order given to the command.
 
-[nl]
+[para]
 
 The result of the command is a boolean value. It will be true if and
 only if the [arg path] passes all the specified tests.
@@ -44,19 +44,19 @@ failing test will leave a message in the variable referenced by
 [emph Note] that the variabled referenced by [arg msgvar] is not touched at
 all if all the tests pass.
 
-[nl]
+[para]
 [list_begin definitions]
-[lst_item "[emph r]ead"]
+[def "[emph r]ead"]
 [cmd {file readable}]
-[lst_item "[emph w]rite"]
+[def "[emph w]rite"]
 [cmd {file writable}]
-[lst_item "[emph e]xists"]
+[def "[emph e]xists"]
 [cmd {file exists}]
-[lst_item "e[emph x]ec"]
+[def "e[emph x]ec"]
 [cmd {file executable}]
-[lst_item "[emph f]ile"]
+[def "[emph f]ile"]
 [cmd {file isfile}]
-[lst_item "[emph d]ir"]
+[def "[emph d]ir"]
 [cmd {file isdirectory}]
 [list_end]
 
@@ -69,7 +69,7 @@ with interspersed options configuring the process. If there are
 problems reading any of the files, an error will occur, and no data
 will be returned.
 
-[nl]
+[para]
 
 The options accepted are [option -encoding], [option -translation],
 [option -eofchar], and [option --]. With the exception of the last all
@@ -78,7 +78,7 @@ builtin command [cmd fconfigure]. The [option --] has to be used to
 terminate option processing before a file if that file's name begins
 with a dash.
 
-[nl]
+[para]
 
 Each file can have its own set of options coming before it, and for
 anything not specified directly the defaults are inherited from the
@@ -110,7 +110,7 @@ location within the file. In further contrast this command has to be
 given the path to an existing file. It will not create a missing file,
 but throw an error instead.
 
-[nl]
+[para]
 
 The specified location [arg at] has to be an integer number in the
 range [const 0] ... [lb]file size [arg file][rb]. [const 0] will cause
@@ -118,7 +118,7 @@ insertion of the new data before the first character of the existing
 content, whereas [lb]file size [arg file][rb] causes insertion after
 the last character of the existing content, i.e. appending.
 
-[nl]
+[para]
 
 The command accepts the same options as [cmd ::fileutil::cat].
 
@@ -135,7 +135,7 @@ character of the existing content,
 whereas [lb]file size [arg file][rb] - [arg n] causes the removal of
 the tail of the existing content, i.e. the truncation of the file.
 
-[nl]
+[para]
 
 The command accepts the same options as [cmd ::fileutil::cat].
 
@@ -152,7 +152,7 @@ All constraints imposed on [arg at] and [arg n] by
 [cmd ::fileutil::removeFromFile] and [cmd ::fileutil::insertIntoFile]
 are obeyed.
 
-[nl]
+[para]
 
 The command accepts the same options as [cmd ::fileutil::cat].
 
@@ -167,11 +167,11 @@ command prefix [arg cmd] with that data appended to it, and at last
 writes the result of that invokation back as the new contents of the
 file.
 
-[nl]
+[para]
 
 If the executed command throws an error the [arg file] is not changed.
 
-[nl]
+[para]
 
 The command accepts the same options as [cmd ::fileutil::cat].
 
@@ -205,7 +205,7 @@ lose itself in infinite loops upon encountering circular link
 structures. The result of the command is a list containing the paths
 to the interesting files.
 
-[nl]
+[para]
 
 The [arg filtercmd], if specified, is interpreted as a command prefix
 and one argument is added to it, the name of the file or directory
@@ -213,14 +213,14 @@ find is currently looking at. Note that this name is [emph not] fully
 qualified. It has to be joined it with the result of [cmd pwd] to get
 an absolute filename.
 
-[nl]
+[para]
 
 The result of [arg filtercmd] is a boolean value that indicates if the
 current file should be included in the list of interesting files.
 
-[nl]
+[para]
 Example:
-[nl]
+[para]
 [example {
     # find .tcl files
     package require fileutil
@@ -318,12 +318,12 @@ This command ensures that the [arg path] is not escaping the directory
 [arg jail]. It always returns an absolute path derived from [arg path]
 which is within [arg jail].
 
-[nl]
+[para]
 
 If [arg path] is an absolute path and already within [arg jail] it is
 returned unmodified.
 
-[nl]
+[para]
 
 An absolute path outside of [arg jail] is stripped of its root element
 and then put into the [arg jail] by prefixing it with it. The same
@@ -346,7 +346,7 @@ already exist. If [option -r], use the atime and mtime from
 [option -t]. If [option -a], only change the atime. If [option -m],
 only change the mtime.
 
-[nl]
+[para]
 [emph {This command is not available for Tcl versions less than 8.3.}]
 
 
@@ -376,24 +376,24 @@ The directory named in the TMP environment variable.
 A platform specific location:
 
 [list_begin definitions]
-[lst_item {Windows}]
+[def {Windows}]
 
 [file "C:\\TEMP"], [file "C:\\TMP"], [file "\\TEMP"],
 and [file "\\TMP"] are tried in that order.
 
-[lst_item {(classic) Macintosh}]
+[def {(classic) Macintosh}]
 
 The TRASH_FOLDER environment variable is used.  This is most likely
 not correct.
 
-[lst_item {Unix}]
+[def {Unix}]
 
 The directories [file /tmp], [file /var/tmp], and [file /usr/tmp] are
 tried in that order.
 
 [list_end]
 [list_end]
-[nl]
+[para]
 
 The algorithm utilized is mainly that used in the Python standard
 library. The exception is the first item, the ability to have the
@@ -414,7 +414,7 @@ will be writable and contained in the appropriate system specific temp
 directory. The name of the file will be returned as the result of the
 command.
 
-[nl]
+[para]
 
 The code was taken from [uri http://wiki.tcl.tk/772], attributed to
 Igor Volobouev and anon.
@@ -429,7 +429,7 @@ path is returned as the result of the command. As implied in the previous
 sentence, the command is not able to compute this relationship between the
 arguments if one of the paths is absolute and the other relative.
 
-[nl]
+[para]
 
 [emph Note:] The processing done by this command is purely lexical.
 Symbolic links are [emph not] taken into account.
@@ -442,14 +442,14 @@ and computes the path of [arg dst] relative to [arg base], as seen
 from inside of the [arg base]. This is the algorithm how a browser
 resolves a relative link found in the currently shown file.
 
-[nl]
+[para]
 
 The computed relative path is returned as the result of the command.
 As implied in the previous sentence, the command is not able to compute
 this relationship between the arguments if one of the paths is absolute
 and the other relative.
 
-[nl]
+[para]
 
 [emph Note:] The processing done by this command is purely lexical.
 Symbolic links are [emph not] taken into account.

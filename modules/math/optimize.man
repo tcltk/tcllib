@@ -10,15 +10,15 @@
 [para]
 This package implements several optimisation algorithms:
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 Minimize or maximize a function over a given interval
 
-[bullet]
+[item]
 Solve a linear program (maximize a linear function subject to linear
 constraints)
 
-[bullet]
+[item]
 Minimize a function of several variables given an initial guess for the
 location of the minimum.
 
@@ -42,18 +42,18 @@ given interval. The procedure determines the values at both ends and in the
 centre of the interval and then constructs a new interval of 1/2 length
 that includes the minimum. No guarantee is made that the [emph global]
 minimum is found.
-[nl]
+[para]
 The procedure returns the "x" value for which the function is minimal.
-[nl]
+[para]
 [emph {This procedure has been deprecated - use min_bound_1d instead}]
-[nl]
+[para]
 [arg begin] - Start of the interval
-[nl]
+[para]
 [arg end] - End of the interval
-[nl]
+[para]
 [arg func] - Name of the function to be minimized (a procedure taking
 one argument).
-[nl]
+[para]
 [arg maxerr] - Maximum relative error (defaults to 1.0e-4)
 
 [call [cmd ::math::optimize::maximize] [arg begin] [arg end] [arg func] [arg maxerr]]
@@ -62,18 +62,18 @@ given interval. The procedure determines the values at both ends and in the
 centre of the interval and then constructs a new interval of 1/2 length
 that includes the maximum. No guarantee is made that the [emph global]
 maximum is found.
-[nl]
+[para]
 The procedure returns the "x" value for which the function is maximal.
-[nl]
+[para]
 [emph {This procedure has been deprecated - use max_bound_1d instead}]
-[nl]
+[para]
 [arg begin] - Start of the interval
-[nl]
+[para]
 [arg end] - End of the interval
-[nl]
+[para]
 [arg func] - Name of the function to be maximized (a procedure taking
 one argument).
-[nl]
+[para]
 [arg maxerr] - Maximum relative error (defaults to 1.0e-4)
 
 [call [cmd ::math::optimize::min_bound_1d] [arg func] [arg begin] [arg end] [opt "[option -relerror] [arg reltol]"] [opt "[option -abserror] [arg abstol]"] [opt "[option -maxiter] [arg maxiter]"] [opt "[option -trace] [arg traceflag]"]]
@@ -84,11 +84,11 @@ subdivisions if the interpolation is not converging.  No guarantee is made
 that a [emph global] minimum is found.  The function to evaluate, [arg func],
 must be a single Tcl command; it will be evaluated with an abscissa appended
 as the last argument.
-[nl]
+[para]
 [arg x1] and [arg x2] are the two bounds of
 the interval in which the minimum is to be found.  They need not be in
 increasing order.
-[nl]
+[para]
 [arg reltol], if specified, is the desired upper bound
 on the relative error of the result; default is 1.0e-7.  The given value
 should never be smaller than the square root of the machine's floating point
@@ -98,11 +98,11 @@ is 1.0e-10.  Caution must be used with small values of [arg abstol] to
 avoid overflow/underflow conditions; if the minimum is expected to lie
 about a small but non-zero abscissa, you consider either shifting the
 function or changing its length scale.
-[nl]
+[para]
 [arg maxiter] may be used to constrain the number of function evaluations
 to be performed; default is 100.  If the command evaluates the function
 more than [arg maxiter] times, it returns an error to the caller.
-[nl]
+[para]
 [arg traceFlag] is a Boolean value. If true, it causes the command to
 print a message on the standard output giving the abscissa and ordinate
 at each function evaluation, together with an indication of what type
@@ -118,12 +118,12 @@ subdivisions if the interpolation is not converging.  No guarantee is made
 that a [emph global] minimum is found.  The function to evaluate, [arg func],
 must be a single Tcl command; it will be evaluated with an abscissa appended
 as the last argument.
-[nl]
+[para]
 [arg x1] and [arg x2] are two initial guesses at where the minimum
 may lie.  [arg x1] is the starting point for the minimization, and
 the difference between [arg x2] and [arg x1] is used as a hint at the
 characteristic length scale of the problem.
-[nl]
+[para]
 [arg reltol], if specified, is the desired upper bound
 on the relative error of the result; default is 1.0e-7.  The given value
 should never be smaller than the square root of the machine's floating point
@@ -133,11 +133,11 @@ is 1.0e-10.  Caution must be used with small values of [arg abstol] to
 avoid overflow/underflow conditions; if the minimum is expected to lie
 about a small but non-zero abscissa, you consider either shifting the
 function or changing its length scale.
-[nl]
+[para]
 [arg maxiter] may be used to constrain the number of function evaluations
 to be performed; default is 100.  If the command evaluates the function
 more than [arg maxiter] times, it returns an error to the caller.
-[nl]
+[para]
 [arg traceFlag] is a Boolean value. If true, it causes the command to
 print a message on the standard output giving the abscissa and ordinate
 at each function evaluation, together with an indication of what type
@@ -147,13 +147,13 @@ of interpolation was chosen.  Default is 0 (no trace).
 Solve a [emph "linear program"] in standard form using a straightforward
 implementation of the Simplex algorithm. (In the explanation below: The
 linear program has N constraints and M variables).
-[nl]
+[para]
 The procedure returns a list of M values, the values for which the
 objective function is maximal or a single keyword if the linear program
 is not feasible or unbounded (either "unfeasible" or "unbounded")
-[nl]
+[para]
 [arg objective] - The M coefficients of the objective function
-[nl]
+[para]
 [arg constraints] - Matrix of coefficients plus maximum values that
 implement the linear constraints. It is expected to be a list of N lists
 of M+1 numbers each, M coefficients and the maximum value.
@@ -161,9 +161,9 @@ of M+1 numbers each, M coefficients and the maximum value.
 [call [cmd ::math::optimize::linearProgramMaximum] [arg objective] [arg result]]
 Convenience function to return the maximum for the solution found by the
 solveLinearProgram procedure.
-[nl]
+[para]
 [arg objective] - The M coefficients of the objective function
-[nl]
+[para]
 [arg result] - The result as returned by solveLinearProgram
 
 
@@ -173,61 +173,61 @@ Minimizes, in unconstrained fashion, a function of several variable over all
 of space.  The function to evaluate, [arg objective], must be a single Tcl
 command. To it will be appended as many elements as appear in the initial guess at
 the location of the minimum, passed in as a Tcl list, [arg xVector].
-[nl]
+[para]
 [arg xScaleVector] is an initial guess at the problem scale; the first
 function evaluations will be made by varying the co-ordinates in [arg xVector]
 by the amounts in [arg xScaleVector].  If [arg xScaleVector] is not supplied,
 the co-ordinates will be varied by a factor of 1.0001 (if the co-ordinate
 is non-zero) or by a constant 0.0001 (if the co-ordinate is zero).
-[nl]
+[para]
 [arg epsilon] is the desired relative error in the value of the function
 evaluated at the minimum. The default is 1.0e-7, which usually gives three
 significant digits of accuracy in the values of the x's.
-[nl]pp
+[para]pp
 [arg count] is a limit on the number of trips through the main loop of
 the optimizer.  The number of function evaluations may be several times
 this number.  If the optimizer fails to find a minimum to within [arg ftol]
 in [arg maxiter] iterations, it returns its current best guess and an
 error status. Default is to allow 500 iterations.
-[nl]
+[para]
 [arg flag] is a flag that, if true, causes a line to be written to the
 standard output for each evaluation of the objective function, giving
 the arguments presented to the function and the value returned. Default is
 false.
 
-[nl]
+[para]
 The [cmd nelderMead] procedure returns a list of alternating keywords and
 values suitable for use with [cmd {array set}]. The meaning of the keywords is:
 
-[nl]
+[para]
 [arg x] is the approximate location of the minimum.
-[nl]
+[para]
 [arg y] is the value of the function at [arg x].
-[nl]
+[para]
 [arg yvec] is a vector of the best N+1 function values achieved, where
 N is the dimension of [arg x]
-[nl]
+[para]
 [arg vertices] is a list of vectors giving the function arguments
 corresponding to the values in [arg yvec].
-[nl]
+[para]
 [arg nIter] is the number of iterations required to achieve convergence or
 fail.
-[nl]
+[para]
 [arg status] is 'ok' if the operation succeeded, or 'too-many-iterations'
 if the maximum iteration count was exceeded.
-[nl]
+[para]
 [cmd nelderMead] minimizes the given function using the downhill
 simplex method of Nelder and Mead.  This method is quite slow - much
 faster methods for minimization are known - but has the advantage of being
 extremely robust in the face of problems where the minimum lies in
 a valley of complex topology.
-[nl]
+[para]
 [cmd nelderMead] can occasionally find itself "stuck" at a point where
 it can make no further progress; it is recommended that the caller
 run it at least a second time, passing as the initial guess the
 result found by the previous call.  The second run is usually very
 fast.
-[nl]
+[para]
 [cmd nelderMead] can be used in some cases for constrained optimization.
 To do this, add a large value to the objective function if the parameters
 are outside the feasible region.  To work effectively in this mode,

@@ -8,13 +8,13 @@
 The package Fuzzy is meant to solve common problems with floating-point
 numbers in a systematic way:
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 Comparing two numbers that are "supposed" to be identical, like
 1.0 and 2.1/(1.2+0.9) is not guaranteed to give the
 intuitive result.
 
-[bullet]
+[item]
 Rounding a number that is halfway two integer numbers can cause
 strange errors, like int(100.0*2.8) != 28 but 27
 [list_end]
@@ -90,12 +90,12 @@ set roundn  [lb]troundn $x $nodigits[rb]
 [section {TEST CASES}]
 The problems that can occur with floating-point numbers are illustrated
 by the test cases in the file "fuzzy.test":
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 Several test case use the ordinary comparisons, and they
 fail invariably to produce understandable results
 
-[bullet]
+[item]
 One test case uses [lb]expr[rb] without braces ({ and }). It too
 fails.
 [list_end]

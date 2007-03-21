@@ -54,17 +54,17 @@ dotted-quad IP address then the server socket will be bound to that
 network interface. By default the server is bound to all network
 interfaces. For example:
 
-[nl]
+[para]
 
 [example {
   set sock [::smtpd::start [info hostname] 0]
 }]
 
-[nl]
+[para]
 
 will bind to the hosts internet interface on the first available port.
 
-[nl]
+[para]
 
 At present the package only supports a single instance of a SMTP
 server. This could be changed if required at the cost of making the
@@ -73,7 +73,7 @@ for running multiple SMTP services then it will only be necessary to
 fix the [var options] array and the [var ::smtpd::stopped] variable
 usage.
 
-[nl]
+[para]
 
 As the server code uses [cmd fileevent](n) handlers to process the
 input on sockets you will need to run the event loop. This means
@@ -90,7 +90,7 @@ The [var ::smtpd::stopped] variable is set for use with
 
 [cmd vwait](n).
 
-[nl]
+[para]
 
 It should be noted that stopping the server does not disconnect any
 currently active sessions as these are operating over an independent
@@ -109,26 +109,26 @@ procedures.
 
 [list_begin definitions]
 
-[lst_item "[option -validate_host] [arg proc]"]
+[def "[option -validate_host] [arg proc]"]
 
 Callback to authenticate new connections based on the ip-address of
 the client.
 
-[lst_item "[option -validate_sender] [arg proc]"]
+[def "[option -validate_sender] [arg proc]"]
 
 Callback to authenticate new connections based on the senders email
 address.
 
-[lst_item "[option -validate_recipient] [arg proc]"]
+[def "[option -validate_recipient] [arg proc]"]
 
 Callback to validate and authorize a recipient email address
 
-[lst_item "[option -deliverMIME] [arg proc]"]
+[def "[option -deliverMIME] [arg proc]"]
 
 Callback used to deliver mail as a mime token created by the tcllib
 [package mime] package.
 
-[lst_item "[option -deliver] [arg proc]"]
+[def "[option -deliver] [arg proc]"]
 
 Callback used to deliver email. This option has no effect if
 the [option -deliverMIME] option has been set.
@@ -146,14 +146,14 @@ return the value of that option.
 [section CALLBACKS]
 
 [list_begin definitions]
-[lst_item "[cmd validate_host] callback"]
+[def "[cmd validate_host] callback"]
 
 This procedure is called with the clients ip address as soon as a
 connection request has been accepted and before any protocol commands
 are processed. If you wish to deny access to a specific host then an
 error should be returned by this callback. For example:
 
-[nl]
+[para]
 [example {
  proc validate_host {ipnum} {
     if {[string match "192.168.1.*" $ipnum]} {
@@ -161,30 +161,30 @@ error should be returned by this callback. For example:
     }
  }
 }]
-[nl]
+[para]
 
 If access is denied the client will receive a standard message that
 includes the text of your error, such as:
 
-[nl]
+[para]
 [example {
  550 Access denied: I hate you.
 }]
-[nl]
+[para]
 
 As per the SMTP protocol, the connection is not closed but we wait for
 the client to send a QUIT command. Any other commands cause a
 
 [const {503 Bad Sequence}] error.
 
-[lst_item "[cmd validate_sender] callback"]
+[def "[cmd validate_sender] callback"]
 
 The validate_sender callback is called with the senders mail address
 during processing of a MAIL command to allow you to accept or reject
 mail based upon the declared sender. To reject mail you should throw
 an error. For example, to reject mail from user "denied":
 
-[nl]
+[para]
 [example {
  proc validate_sender {address} {
     eval array set addr [mime::parseaddress $address]
@@ -195,18 +195,18 @@ an error. For example, to reject mail from user "denied":
  }
 }]
 
-[nl]
+[para]
 
 The content of any error message will not be passed back to the client.
 
-[lst_item "[cmd validate_recipient] callback"]
+[def "[cmd validate_recipient] callback"]
 
 The validate_recipient callback is similar to the validate_sender
 callback and permits you to verify a local mailbox and accept mail for
 a local user address during RCPT command handling. To reject mail,
 throw an error as above. The error message is ignored.
 
-[lst_item "[cmd deliverMIME] callback"]]
+[def "[cmd deliverMIME] callback"]]
 
 The deliverMIME callback is called once a mail message has been
 successfully passed to the server. A mime token is constructed from
@@ -214,7 +214,7 @@ the sender, recipients and data and the users procedure it called with
 this single argument. When the call returns, the mime token is cleaned
 up so if the user wishes to preserve the data she must make a copy.
 
-[nl]
+[para]
 [example {
  proc deliverMIME {token} {
      set sender [lindex [mime::getheader $token From] 0]
@@ -225,14 +225,14 @@ up so if the user wishes to preserve the data she must make a copy.
  }
 }]
 
-[lst_item "[cmd deliver] callback"]
+[def "[cmd deliver] callback"]
 
 The deliver callback is called once a mail message has been
 successfully passed to the server and there is no -deliverMIME option
 set. The procedure is called with the sender, a list of recipients and
 the text of the mail as a list of lines. For example:
 
-[nl]
+[para]
 [example {
  proc deliver {sender recipients data} {
     set mail "From $sender \
@@ -241,7 +241,7 @@ the text of the mail as a list of lines. For example:
     puts "$mail"
  }
 }]
-[nl]
+[para]
 
 Note that the DATA command will return an error if no sender or
 recipient has yet been defined.
@@ -252,7 +252,7 @@ recipient has yet been defined.
 
 [list_begin definitions]
 
-[lst_item [var ::smtpd::stopped]]
+[def [var ::smtpd::stopped]]
 
 This variable is set to [const true] during the [cmd ::smtpd::stop]
 command to permit the use of the [cmd vwait](n) command.

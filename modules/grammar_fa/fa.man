@@ -102,10 +102,10 @@ automaton contained in the FA object [arg srcFA] over the automaton
 definition in [arg faName]. The old contents of [arg faName] are
 deleted by this operation.
 
-[nl]
+[para]
 
 This operation is in effect equivalent to
-[nl]
+[para]
 [example_begin]
     [arg faName] [method deserialize] [lb][arg srcFA] [method serialize][rb]
 [example_end]
@@ -119,10 +119,10 @@ definition in the object [arg dstFA].
 
 The old contents of [arg dstFA] are deleted by this operation.
 
-[nl]
+[para]
 
 This operation is in effect equivalent to
-[nl]
+[para]
 [example_begin]
     [arg dstFA] [method deserialize] [lb][arg faName] [method serialize][rb]
 [example_end]
@@ -140,14 +140,14 @@ channels, persistence, etc.
 This method is also the basis for both the copy constructor and the
 assignment operator.
 
-[nl]
+[para]
 
 The result of this method has to be semantically identical over all
 implementations of the [package grammar::fa] interface. This is what
 will enable us to copy automatons between different implementations of
 the same interface.
 
-[nl]
+[para]
 
 The result is a list of three elements with the following structure:
 
@@ -166,7 +166,7 @@ FA, and their order is the order in which to create the states when
 deserializing. This is relevant to preserve the order relationship
 between states.
 
-[nl]
+[para]
 
 The value of each dictionary entry is a list of three elements
 describing the state in more detail.
@@ -187,21 +187,21 @@ sets of successor states.
 
 [list_end]
 [list_end]
-[nl]
+[para]
 
 Assuming the following FA (which describes the life of a truck driver
 in a very simple way :)
 
-[nl]
+[para]
 [example {
     Drive -- yellow --> Brake -- red --> (Stop) -- red/yellow --> Attention -- green --> Drive
     (...) is the start state.
 }]
-[nl]
+[para]
 
 a possible serialization is
 
-[nl]
+[para]
 [example {
     grammar::fa \\
     {yellow red green red/yellow} \\
@@ -210,7 +210,7 @@ a possible serialization is
      Stop      {1 0 {red/yellow Attention}} \\
      Attention {0 0 {green      Drive}}}
 }]
-[nl]
+[para]
 
 A possible one, because I did not care about creation order here
 
@@ -395,7 +395,7 @@ symbol [arg sym] is known, and [const false] otherwise.
 
 Define or query transition information.
 
-[nl]
+[para]
 
 If [arg next] is specified, then the method will add a transition from
 the state [arg s] to the [term successor] state [arg next] labeled with
@@ -407,7 +407,7 @@ transition is an [term {epsilon transition}] which will not consume
 input when traversed. The operation will also fail if the combination
 of ([arg s], [arg sym], and [arg next]) is already present in the FA.
 
-[nl]
+[para]
 
 If [arg next] was not specified, then the method will return
 the set of states which can be reached from [arg s] through
@@ -417,14 +417,14 @@ a single transition labeled with symbol [arg sym].
 [call [arg faName] [method !next] [arg s] [arg sym] [opt "[const -->] [arg next]"]]
 
 Remove one or more transitions from the Fa in [arg faName].
-[nl]
+[para]
 
 If [arg next] was specified then the single transition from the state
 [arg s] to the state [arg next] labeled with the symbol [arg sym] is
 removed from the FA. Otherwise [emph all] transitions originating in
 state [arg s] and labeled with the symbol [arg sym] will be removed.
 
-[nl]
+[para]
 
 The operation will fail if [arg s] and/or [arg next] are not known as
 states. It will also fail if a non-empty [arg sym] is not known as
@@ -438,7 +438,7 @@ Returns the set of states which can be reached by a single transition
 originating in a state in the set [arg stateset] and labeled with the
 symbol [arg sym].
 
-[nl]
+[para]
 
 In other words, this is the union of
 [lb][arg faName] next [var s] [arg symbol][rb]
@@ -464,7 +464,7 @@ also complete.
 The result is a boolean value. It will be set to [const true] if the
 FA is deterministic, and [const false] otherwise.
 
-[nl]
+[para]
 
 Note: When a FA has epsilon-transitions transitions over a symbol for
 a state S can be indirect, i.e. not attached directly to S, but to a
@@ -506,7 +506,7 @@ one or more transitions.
 Returns the set of states which are not reachable from any start state
 by any number of transitions. This is
 
-[nl]
+[para]
 [example {
 	 [faName states] - [faName reachable_states]
 }]
@@ -532,7 +532,7 @@ one or more transitions.
 Returns the set of states which are not able to reach a final state by
 any number of transitions. This is
 
-[nl]
+[para]
 [example {
 	 [faName states] - [faName useful_states]
 }]
@@ -592,22 +592,22 @@ descriptions of what they do.
 
 For the mathematically inclined, a FA is a 5-tuple (S,Sy,St,Fi,T) where
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 S is a set of [term {states}],
 
-[bullet]
+[item]
 Sy a set of [term {input symbols}],
 
-[bullet]
+[item]
 St is a subset of S, the set of [term start] states, also known as
 [term initial] states.
 
-[bullet]
+[item]
 Fi is a subset of S, the set of [term final] states, also known as
 [term accepting].
 
-[bullet]
+[item]
 T is a function from S x (Sy + epsilon) to {S}, the [term {transition function}].
 
 Here [const epsilon] denotes the empty input symbol and is distinct

@@ -74,33 +74,33 @@ have it.  It's also available at the Snit Home Page,
 
 [para]
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 
 A Snit object should be at least as efficient as a hand-coded Tcl
 object (see [uri http://www.wjduquette.com/tcl/objects.html]).
 
-[bullet]
+[item]
 
 The fact that Snit was used in an object's implementation should be
 transparent (and irrelevant) to clients of that object.
 
-[bullet]
+[item]
 
 Snit should be able to encapsulate objects from other sources,
 particularly Tk widgets.
 
-[bullet]
+[item]
 
 Snit megawidgets should be (to the extent possible) indistinguishable
 in interface from Tk widgets.
 
-[bullet]
+[item]
 
 Snit should be Tclish--that is, rather than trying to emulate C++,
 Smalltalk, or anything else, it should try to emulate Tcl itself.
 
-[bullet]
+[item]
 
 It should have a simple, easy-to-use, easy-to-remember syntax.
 
@@ -128,20 +128,20 @@ from anything that looks like a Tcl object.
 
 Using Snit, a programmer can:
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 
 Create abstract data types and Tk megawidgets.
 
-[bullet]
+[item]
 
 Define instance variables, type variables, and Tk-style options.
 
-[bullet]
+[item]
 
 Define constructors, destructors, instance methods, type methods, procs.
 
-[bullet]
+[item]
 
 Assemble a type out of component types.  Instance methods and options
 can be delegated to the component types automatically.
@@ -218,8 +218,8 @@ There are four specific incompatibilities between Snit 1.1 and Snit 2.1.
 
 [para]
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 
 Snit 1.1 supports implicit naming of objects.  Suppose you define a
 new [cmd snit::type] called [cmd dog].  You can create instances of
@@ -235,14 +235,14 @@ mechanism; and [cmd "namespace ensemble"] doesn't allow an ensemble command
 to be called without a subcommand.  In short, using 
 [cmd "namespace ensemble"] there's no way to support implicit naming.
 
-[nl]
+[para]
 
 All is not lost, however.  If the type has no type methods, then the
 type command is a simple command rather than an ensemble, and 
 [cmd "namespace ensemble"] is not used.  In this case, implicit naming
 is still possible.
 
-[nl]
+[para]
 
 In short, you can have implicit naming if you're willing to do without
 type methods (including the standard type methods, like 
@@ -250,11 +250,11 @@ type methods (including the standard type methods, like
 
 [example {pragma -hastypemethods 0}]
 
-[bullet]
+[item]
 Hierarchical methods and type methods are implemented differently in
 Snit 2.1.  
 
-[nl]
+[para]
 
 A hierarchical method is an instance method which has
 subcommands; these subcommands are themselves methods.  The Tk text
@@ -270,7 +270,7 @@ method {tag cget} {tag option} {...}
 Here we've implicitly defined a [cmd tag] method which has two
 subcommands, [cmd configure] and [cmd cget].
 
-[nl]
+[para]
 
 In Snit 1.1, hierarchical methods could be called in two ways:
 
@@ -281,12 +281,12 @@ $obj {tag cget} -myoption    ;# The weird way
 In the second call, we see that a hierarchical method or type method
 is simply one whose name contains multiple words.
 
-[nl]
+[para]
 
 In Snit 2.1 this is no longer the case, and the "weird" way of calling
 hierarchical methods and type methods no longer works.
 
-[bullet]
+[item]
 The third incompatibility derives from the second.  In Snit 1.1,
 hierarchical methods were also simply methods whose name contains
 multiple words.  As a result, [cmd "\$obj info methods"] returned the
@@ -295,7 +295,7 @@ the list returned by [cmd "\$obj info methods"] would include
 [cmd "tag configure"] and [cmd "tag cget"] but not [cmd "tag"], since
 [cmd "tag"] is defined only implicitly.
 
-[nl]
+[para]
 
 In Snit 2.1, hierarchical methods and type methods are no longer
 simply ones whose
@@ -304,7 +304,7 @@ by [cmd "\$obj info methods"] would include [cmd "tag"] but not
 [cmd "tag configure"] or [cmd "tag cget"].
 
 
-[bullet]
+[item]
 The fourth incompatibility is due to a new feature.  Snit 2.1 uses
 the new [cmd "namespace path"] command so that a type's code can 
 call any command defined in the type's parent namespace without
@@ -314,7 +314,7 @@ including a type, [cmd "::mypackage::mytype"].  Thanks to
 [cmd "namespace path"], the type's code can call any of the other
 commands defined in [cmd "::mypackage::"].
 
-[nl]
+[para]
 
 This is extremely convenient.  However, it also means that commands
 defined in the parent namespace, [cmd "::mypackage::"] can block the
@@ -333,35 +333,35 @@ itself.
 
 Yes.
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 Method dispatch is considerably faster.
 
-[bullet]
+[item]
 Many error messages and stack traces are cleaner.
 
-[bullet]
+[item]
 The [const -simpledispatch] pragma is obsolete, and ignored if
 present. In Snit 1.x, [const -simpledispatch] substitutes a faster
 mechanism for method dispatch, at the cost of losing certain features.
 Snit 2.1 method dispatch is faster still in all cases, so 
 [const -simpledispatch] is no longer needed.
 
-[bullet]
+[item]
 
 In Snit 2.1, a type's code (methods, type methods, etc.) can call commands
 from the type's parent namespace without qualifying or importing
 them, i.e., type [cmd ::parentns::mytype]'s code can call
 [cmd ::parentns::someproc] as just [cmd someproc].
 
-[nl]
+[para]
 
 This is extremely useful when a type is defined as part of a larger
 package, and shares a parent namespace with the rest of the package;
 it means that the type can call other commands defined by the
 package without any extra work.
 
-[nl]
+[para]
 
 This feature depends on the new Tcl 8.5 [cmd "namespace path"] command,
 which is why it hasn't been implemented for V1.x.  V1.x code can
@@ -444,14 +444,14 @@ Snit allows you to define three kinds of abstract data type:
 
 [para]
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 
 [cmd snit::type]
-[bullet]
+[item]
 
 [cmd snit::widget]
-[bullet]
+[item]
 
 [cmd snit::widgetadaptor]
 [list_end]
@@ -645,14 +645,14 @@ can be renamed, though this flexibility has some consequences:
 
 [para]
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 
 In an instance method, the implicit argument [var self] will always
 contain the object's current name, so instance methods can always call
 other instance methods using [var \$self].
 
-[bullet]
+[item]
 
 If the object is renamed, however, then [var \$self]'s value will change.
 Therefore, don't use [var \$self] for anything that will break if 
@@ -666,7 +666,7 @@ another object like this:
 You'll get an error if [cmd .btn] calls your command after your object is
 renamed.
 
-[bullet]
+[item]
 
 Instead, your object should define its callback command like this:
 
@@ -678,7 +678,7 @@ The [cmd mymethod] command returns code that will call the desired
 method safely; the caller of the callback can add additional
 arguments to the end of the command as usual.
 
-[bullet]
+[item]
 
 Every object has a private namespace; the name of this namespace is
 available in method bodies, etc., as the value of the implicit
@@ -686,7 +686,7 @@ argument [var selfns].  This value is constant for the life of the
 object.  Use [var \$selfns] instead of [var \$self] if you need a 
 unique token to identify the object.
 
-[bullet]
+[item]
 
 When a [cmd snit::widget]'s instance command is renamed, its Tk window
 name remains the same -- and is still extremely
@@ -3021,8 +3021,8 @@ statements, plus a couple of others which will be mentioned below.
 
 [subsection {How do snit::widgets differ from snit::types?}]
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 
 The name of an instance of a [cmd snit::type] can be any valid Tcl
 command name, in any namespace.
@@ -3031,7 +3031,7 @@ The name of an instance of a [cmd snit::widget] must be a valid Tk
 widget name, and its parent widget must already exist.
 
 
-[bullet]
+[item]
 
 An instance of a [cmd snit::type] can be destroyed by calling
 
@@ -3039,7 +3039,7 @@ its [cmd destroy] method.  Instances of a [cmd snit::widget] have no
 destroy method; use the Tk [cmd destroy] command instead.
 
 
-[bullet]
+[item]
 
 Every instance of a [cmd snit::widget] has one predefined component
 called its [var hull] component.
@@ -3048,7 +3048,7 @@ The hull is usually a Tk [cmd frame] or [cmd toplevel] widget; any other
 widgets created as part of the [cmd snit::widget] will usually be
 contained within the hull.
 
-[bullet]
+[item]
 
 [cmd snit::widget]s can have their options receive default values from
 [sectref {THE TK OPTION DATABASE}].
@@ -3303,30 +3303,30 @@ is a brief statement of the requirements, for reference.
 
 [para]
 
-[list_begin bullet]
+[list_begin itemized]
 
-[bullet]
+[item]
 
 If the widget's default widget class is not what is desired, set it
 explicitly using the [cmd widgetclass] statement in the widget
 definition.
 
-[bullet]
+[item]
 
 When defining or delegating options, specify the resource and class
 names explicitly when necessary.
 
-[bullet]
+[item]
 
 Use the [cmd {installhull using}] command to create and install the
 hull for [cmd snit::widgetadaptor]s.
 
-[bullet]
+[item]
 
 Use the [cmd install] command to create and install all
 components which are widgets.
 
-[bullet]
+[item]
 
 Use the [cmd install] command to create and install 
 components which aren't widgets if you'd like them to 
@@ -3735,26 +3735,26 @@ now used:
 The [cmd install] command does the following:
 
 [para]
-[list_begin bullet]
+[list_begin itemized]
 
-[bullet]
+[item]
 
 Builds a list of the options explicitly included in the [cmd install]
 command--in this case, [const -foreground].
 
-[bullet]
+[item]
 
 Queries the option database for all options delegated explicitly to
 the named component.
 
-[bullet]
+[item]
 
 Creates the component using the specified command, after inserting
 into it a list of options and values read from the option database.
 Thus, the explicitly included options (like [const -foreground]) will 
 override anything read from the option database.
 
-[bullet]
+[item]
 
 If the widget definition implicitly delegated options to the component
 using [cmd {delegate option *}], then Snit calls the newly created
@@ -4002,12 +4002,12 @@ comes with a price.  If your type doesn't require the flexibility, the
 dispatch mechanism that runs quite a bit faster.  The limitations
 are these:
 
-[list_begin bullet]
+[list_begin itemized]
 
-[bullet] Methods cannot be delegated.
-[bullet] [cmd uplevel] and [cmd upvar] do not work as expected: the
+[item] Methods cannot be delegated.
+[item] [cmd uplevel] and [cmd upvar] do not work as expected: the
 caller's scope is two levels up rather than one.
-[bullet] The option-handling methods 
+[item] The option-handling methods 
 ([cmd cget], [cmd configure], and [cmd configurelist]) are very
 slightly slower.
 [list_end]

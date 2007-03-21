@@ -21,45 +21,45 @@ from, and the file to write the generated output into. If the
 [const stdin]. If [arg outfile] is "[const -]" the processor will
 write to [const stdout].
 
-[nl]
+[para]
 
 If the option [arg -module] is present its value overrides the internal
 definition of the module name.
 
-[nl]
+[para]
 
 The currently known output formats are
 
 [list_begin definitions]
 
-[lst_item [const nroff]]
+[def [const nroff]]
 
 The processor generates *roff output, the standard format for unix
 manpages.
 
-[lst_item [const html]]
+[def [const html]]
 
 The processor generates HTML output, for usage in and display by web
 browsers.
 
-[lst_item [const tmml]]
+[def [const tmml]]
 
 The processor generates TMML output, the Tcl Manpage Markup Language,
 a derivative of XML.
 
-[lst_item [const latex]]
+[def [const latex]]
 
 The processor generates LaTeX output.
 
-[lst_item [const wiki]]
+[def [const wiki]]
 
 The processor generates Wiki markup as understood by [syscmd wikit].
 
-[lst_item [const list]]
+[def [const list]]
 
 The processor extracts the information provided by [cmd manpage_begin].
 
-[lst_item [const null]]
+[def [const null]]
 
 The processor does not generate any output.
 
@@ -72,7 +72,7 @@ formats for all manpages in the current directory. The manpages are
 recognized through the extension [file .man]. If [arg -verbose] is
 specified the command will list its actions before executing them.
 
-[nl]
+[para]
 
 The [arg module] information is passed to [cmd mpexpand].
 

@@ -241,12 +241,12 @@ and convert the input value appropriately.
 See [cmd ::asn::asnGetPrintableString], [cmd ::asnGetIA5String], etc.
 below for the type-specific conversion commands.
 
-[nl]
+[para]
 
 If the optional third argument [arg type_var] is supplied, then the
 type of the incoming string is stored in the variable named by it.
 
-[nl]
+[para]
 
 The function throws the error
 
@@ -359,7 +359,7 @@ by [arg sequence_var]. Additionally removes all bytes associated with
 the value from the data for further processing by the following
 decoder commands.
 
-[nl]
+[para]
 
 The data in [arg sequence_var] is encoded binary and has to be
 further decoded according to the definition of the sequence, using the
@@ -374,7 +374,7 @@ by [arg set_var]. Additionally removes all bytes associated with the
 value from the data for further processing by the following decoder
 commands.
 
-[nl]
+[para]
 
 The data in [arg set_var] is encoded binary and has to be further
 decoded according to the definition of the set, using the decoder
@@ -393,7 +393,7 @@ If a [arg content_var] is specified, then the command places all data
 associated with it into the named variable, in the binary form which
 can be processed using the decoder commands of this package.
 
-[nl]
+[para]
 
 Otherwise it is the responsibility of the caller to decode the
 remainder of the application construct based on the id retrieved by
@@ -412,7 +412,7 @@ If a [arg content_var] is specified, then the command places all data
 associated with it into the named variable, in the binary form which
 can be processed using the decoder commands of this package.
 
-[nl]
+[para]
 
 Otherwise it is the responsibility of the caller to decode the
 remainder of the construct based on the id retrieved by this command,

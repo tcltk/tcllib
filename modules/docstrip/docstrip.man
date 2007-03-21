@@ -26,9 +26,9 @@ The [package docstrip] Tcl package handles this translation.
 Even for those who do not whole-hartedly subscribe to the philosophy
 behind literate programming, [syscmd docstrip] can bring greater
 clarity to in particular:
-[list_begin bullet]
-  [bullet] programs employing non-obvious mathematics
-  [bullet] projects where separate pieces of code, perhaps in
+[list_begin itemized]
+  [item] programs employing non-obvious mathematics
+  [item] projects where separate pieces of code, perhaps in
     different languages, need to be closely coordinated.
 [list_end]
 The first is by providing access to much more powerful typographical
@@ -310,7 +310,7 @@ The package defines two commands.
   a newline. The [arg terminals] is the list of those guard
   expression terminals which should evaluate to true.
   The available options are:
-  [list_begin opt]
+  [list_begin options]
   [opt_def -annotate [arg lines]]
     Requests the specified number of lines of annotation to follow
     each extracted line in the result. Defaults to 0. Annotation lines
@@ -331,12 +331,12 @@ The package defines two commands.
     Controls what will be done when a format error in the [arg text]
     being processed is detected. The settings are:
     [list_begin definitions]
-    [lst_item [const ignore]]
+    [def [const ignore]]
       Just ignore the error; continue as if nothing happened.
-    [lst_item [const puts]]
+    [def [const puts]]
       Write an error message to [const stderr], then continue
       processing.
-    [lst_item [const throw]]
+    [def [const throw]]
       Throw an error. [var ::errorCode] is set to a list whose
       first element is [const DOCSTRIP], second element is the
       type of error, and third element is the line number where

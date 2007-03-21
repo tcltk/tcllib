@@ -85,7 +85,7 @@ each other can be defined by the caller, via [arg sepChar], but this
 is optional. The default is ",". The quoting character can be defined
 by the caller, but this is optional. The default is '"'.
 
-[nl]
+[para]
 
 If the option [option -alternate] is spcified a slightly different
 syntax is used to parse the input. This syntax is explained below, in
@@ -102,14 +102,14 @@ allowed modes are:
 
 [list_begin definitions]
 
-[lst_item [const none]]
+[def [const none]]
 
 This is the default mode. In this mode it is the responsibility of the
 caller to ensure that the matrix has enough columns to contain the
 full line. If there are not enough columns the list of values is
 silently truncated at the end to fit.
 
-[lst_item [const empty]]
+[def [const empty]]
 
 In this mode the command expands an empty matrix to hold all columns
 of the specified line, but goes no further. The overall effect is that
@@ -117,7 +117,7 @@ the first of a series of lines determines the number of columns in the
 matrix and all following lines are truncated to that size, as if mode
 [const none] was set.
 
-[lst_item [const auto]]
+[def [const auto]]
 
 In this mode the command expands the matrix as needed to hold all
 columns contained in [arg line]. The overall effect is that after

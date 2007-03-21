@@ -22,13 +22,13 @@ returns its fully-qualified name. All invokations of this procedure
 will delegate the actual work to the remote location identified by the
 comm channel [arg comm] and the endpoint [arg id].
 
-[nl]
+[para]
 
 The name of the remote procedure invoked by the delegator is
 [lb]namespace tail [arg name][rb]. I.e., namespace information is
 stripped from the call.
 
-[nl]
+[para]
 
 Normally the generated procedure marshalls the [arg arguments], and
 returns the result from the remote procedure as its own result. If

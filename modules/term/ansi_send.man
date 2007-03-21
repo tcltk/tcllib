@@ -27,7 +27,7 @@ Imports the commands of this package into the namespace [arg ns]. If not specifi
 it defaults to [emph send]. Note that this default is a relative namespace name,
 i.e. the actual namespace will be created under the current namespace.
 
-[nl]
+[para]
 
 By default all commands will be imported, this can however be restricted to specific
 commands, by listing them after the namespace to import them into.
@@ -135,22 +135,22 @@ Exit Graphics Mode.
 [call [cmd ::term::ansi::send::scs1] [arg tag]]
 
 Select Character Set.
-[nl]
+[para]
 
 Choose which character set is used for default (scs0) and alternate font (scs1).
 This does not change whether default or alternate font are used, just their
 definitions.
 
-[nl]
+[para]
 
 The legal tags, and their meanings, are:
 
 [list_begin definitions]
-[lst_item A] United Kingdom Set
-[lst_item B] ASCII Set
-[lst_item 0] Special Graphics
-[lst_item 1] Alternate Character ROM Standard Character Set
-[lst_item 2] Alternate Character ROM Special Graphics
+[def A] United Kingdom Set
+[def B] ASCII Set
+[def 0] Special Graphics
+[def 1] Alternate Character ROM Standard Character Set
+[def 2] Alternate Character ROM Special Graphics
 [list_end]
 
 

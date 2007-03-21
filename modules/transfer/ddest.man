@@ -27,7 +27,7 @@ This command creates and configures a new destination
 [arg object]. The fully qualified name of the object command is
 returned as the result of the command.
 
-[nl]
+[para]
 
 The recognized options are listed below. It should be noted that all
 are semi-exclusive, each specifying a different type of destination
@@ -36,7 +36,7 @@ once then the last option specified is used to actually configure the
 object.
 
 
-[list_begin opt]
+[list_begin options]
 
 [opt_def -channel  [arg handle]]
 

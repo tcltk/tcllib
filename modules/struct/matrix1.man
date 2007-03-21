@@ -231,13 +231,13 @@ second, both times in ascending order. This means that matches to the
 left and the top of the matrix come before matches to the right and
 down.
 
-[nl]
+[para]
 
 The type of the pattern (string, glob, regular expression) is
 determined by the option after the [method search] keyword. If no
 option is given it defaults to [option -exact].
 
-[nl]
+[para]
 
 If the option [option -nocase] is specified the search will be
 case-insensitive.

@@ -66,7 +66,7 @@ region of integration may be arbitrarily large.
 
 [list_begin definitions]
 
-[lst_item [arg f]]
+[def [arg f]]
 
 Function to integrate.  Must be expressed as a single Tcl command,
 to which will be appended a single argument, specifically, the
@@ -76,11 +76,11 @@ caller's scope prior to any evaluation. Given this processing, the
 command may local to the calling namespace rather than needing to be
 global.
 
-[lst_item [arg a]]
+[def [arg a]]
 
 Lower limit of the region of integration.
 
-[lst_item [arg b]]
+[def [arg b]]
 
 Upper limit of the region of integration.  For the
 [cmd romberg_sqrtSingLower], [cmd romberg_sqrtSingUpper],
@@ -89,7 +89,7 @@ Upper limit of the region of integration.  For the
 the lower limit must be strictly less than the upper.  For
 the other procedures, the limits may appear in either order.
 
-[lst_item [arg gamma]]
+[def [arg gamma]]
 
 Power to use for a power law singularity; see section
 [sectref "IMPROPER INTEGRALS"] for details.
@@ -100,7 +100,7 @@ Power to use for a power law singularity; see section
 
 [list_begin definitions]
 
-[lst_item "[option -abserror] [arg epsilon]"]
+[def "[option -abserror] [arg epsilon]"]
 
 Requests that the integration machinery proceed at most until
 the estimated absolute error of the integral is less than
@@ -109,7 +109,7 @@ if the function (or any of its derivatives) contains singularities;
 see section [sectref "IMPROPER INTEGRALS"] for details. Default
 is 1.0e-08.
 
-[lst_item "[option -relerror] [arg epsilon]"]
+[def "[option -relerror] [arg epsilon]"]
 
 Requests that the integration machinery proceed at most until
 the estimated relative error of the integral is less than
@@ -118,7 +118,7 @@ if the function (or any of its derivatives) contains singularities;
 see section [sectref "IMPROPER INTEGRALS"] for details.  Default is
 1.0e-06.
 
-[lst_item "[option -maxiter] [arg m]"]
+[def "[option -maxiter] [arg m]"]
 
 Requests that integration terminate after at most [arg n] triplings of
 the number of evaluations performed.  In other words, given [arg n]
@@ -127,7 +127,7 @@ for [option -maxiter], the integration machinery will make at most
 to a limit approximately 4.8 million evaluations. (Well-behaved
 functions will seldom require more than a few hundred evaluations.)
 
-[lst_item "[option -degree] [arg d]"]
+[def "[option -degree] [arg d]"]
 
 Requests that an extrapolating polynomial of degree [arg d] be used
 in Romberg integration; see section [sectref "DESCRIPTION"] for
@@ -189,7 +189,7 @@ commoner cases.
 
 [list_begin definitions]
 
-[lst_item [cmd romberg_infinity]]
+[def [cmd romberg_infinity]]
 
 Integrates a function over a half-infinite interval; either
 [arg a] or [arg b] may be infinite.  [arg a] and [arg b] must be
@@ -202,7 +202,7 @@ to integrate from the positive value to positive infinity.  The
 variable u=1/x, so that the integral from a to b of f(x) is
 evaluated as the integral from 1/a to 1/b of f(1/u)/u**2.
 
-[lst_item "[cmd romberg_powerLawLower] and [cmd romberg_powerLawUpper]"]
+[def "[cmd romberg_powerLawLower] and [cmd romberg_powerLawUpper]"]
 
 Integrate a function that has an integrable power law singularity
 at either the lower or upper bound of the region of integration
@@ -212,7 +212,7 @@ the power law.  The function or its first derivative are presumed to diverge as
 (x-[arg a])**(-[arg gamma]) or ([arg b]-x)**(-[arg gamma]).  [arg gamma]
 must be greater than zero and less than 1.
 
-[nl]
+[para]
 
 These procedures are useful not only in integrating functions
 that go to infinity at one end of the region of integration, but
@@ -225,24 +225,24 @@ of f(x), f'(x)=x**(-3/4)/4, goes to infinity at the origin.  Integrating
 using [cmd romberg_powerLawLower] with [arg gamma] set to 0.75
 gives much more orderly convergence.
 
-[nl]
+[para]
 
 These procedures operate by making the change of variable
 u=(x-a)**(1-gamma) ([cmd romberg_powerLawLower]) or
 u=(b-x)**(1-gamma) ([cmd romberg_powerLawUpper]).
 
-[nl]
+[para]
 
 To summarize the meaning of gamma:
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 If f(x) ~ x**(-a) (0 < a < 1), use gamma = a
-[bullet]
+[item]
 If f'(x) ~ x**(-b) (0 < b < 1), use gamma = b
 [list_end]
 
-[lst_item "[cmd romberg_sqrtSingLower] and [cmd romberg_sqrtSingUpper]"]
+[def "[cmd romberg_sqrtSingLower] and [cmd romberg_sqrtSingUpper]"]
 
 These procedures behave identically to [cmd romberg_powerLawLower] and
 [cmd romberg_powerLawUpper] for the common case of [arg gamma]=0.5;
@@ -250,7 +250,7 @@ that is, they integrate a function with an inverse square root
 singularity at one end of the interval.  They have a simpler
 implementation involving square roots rather than arbitrary powers.
 
-[lst_item "[cmd romberg_expLower] and [cmd romberg_expUpper]"]
+[def "[cmd romberg_expLower] and [cmd romberg_expUpper]"]
 
 These procedures are for integrating a function that grows or
 decreases exponentially over a half-infinite interval.

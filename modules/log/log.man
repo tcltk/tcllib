@@ -247,22 +247,22 @@ by the caller. Expects full level names, abbreviations are
 The package currently defines the following log levels, the level of
 highest importance listed first.
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 emergency
-[bullet]
+[item]
 alert
-[bullet]
+[item]
 critical
-[bullet]
+[item]
 error
-[bullet]
+[item]
 warning
-[bullet]
+[item]
 notice
-[bullet]
+[item]
 info
-[bullet]
+[item]
 debug
 [list_end]
 

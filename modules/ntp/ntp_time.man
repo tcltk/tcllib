@@ -34,7 +34,7 @@ Get the time from an SNTP server. This accepts exactly the same
 arguments as [cmd ::time::gettime] except that the default port is 
 [const 123]. The result is a token as per [cmd ::time::gettime] and
 should be handled in the same way.
-[nl]
+[para]
 Note that it is unlikely that any SNTP server will reply using tcp so
 you will require the [package tcludp] or the [package ceptcl]
 package. If a suitable package can be loaded then the udp protocol
@@ -47,18 +47,18 @@ configuration options and values. Otherwise it should be called with
 pairs of option name and value.
 
 [list_begin definitions]
-[lst_item "[cmd -protocol] [arg number]"]
+[def "[cmd -protocol] [arg number]"]
   Set the default network protocol. This defaults to udp if the tcludp
   package is available. Otherwise it will use tcp.
-[lst_item "[cmd -port] [arg number]"]
+[def "[cmd -port] [arg number]"]
   Set the default port to use. RFC 868 uses port [const 37], RFC 2030 uses
 port [const 123].
-[lst_item "[cmd -timeout] [arg number]"]
+[def "[cmd -timeout] [arg number]"]
   Set the default timeout value in milliseconds. The default is 10 seconds.
-[lst_item "[cmd -command] [arg number]"]
+[def "[cmd -command] [arg number]"]
   Set a command procedure to be run when a reply is received. The
   procedure is called with the time token appended to the argument list.
-[lst_item "[cmd -loglevel] [arg number]"]
+[def "[cmd -loglevel] [arg number]"]
   Set the logging level. The default is 'warning'.
 [list_end]
 

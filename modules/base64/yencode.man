@@ -45,18 +45,18 @@ element list of filename, file size and data.
 
 [list_begin definitions]
 
-[lst_item "-filename name"]
+[def "-filename name"]
 
 Cause the yencode or ydecode commands to read their data from the
 named file rather that taking a string parameter.
 
-[lst_item "-name string"]
+[def "-name string"]
 
 The encoded data header line contains the suggested file name to be
 used when unpacking the data. Use this option to change this from the
 default of "data.dat".
 
-[lst_item "-line integer"]
+[def "-line integer"]
 
 The yencoded data header line contains records the line length used
 during the encoding. Use this option to select a line length other
@@ -64,7 +64,7 @@ that the default of 128. Note that NNTP imposes a 1000 character line
 length limit and some gateways may have trouble with more than 255
 characters per line.
 
-[lst_item "-crc32 boolean"]
+[def "-crc32 boolean"]
 
 The yEnc specification recommends the inclusion of a cyclic redundancy
 check value in the footer. Use this option to change the default from

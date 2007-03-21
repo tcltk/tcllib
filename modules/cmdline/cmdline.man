@@ -17,25 +17,25 @@ this command will process the first argument and return info on how to
 proceed. The command returns 1 if an option was found, 0 if no more
 options were found, and -1 if an error occurred.
 
-[nl]
+[para]
 
 [arg argvVar] contains the name of the list of arguments to
 process. If options are found the list is modified and the processed
 arguments are removed from the start of the list.
 
-[nl]
+[para]
 
 [arg optstring] contains a list of command options that the
 application will accept.  If the option ends in ".arg" the command
 will use the next argument as an argument to the option.  Otherwise
 the option is a boolean that is set to 1 if present.
 
-[nl]
+[para]
 
 [arg optVar] refers to the variable the command will store the found
 option into (without the leading '-' and without the .arg extension).
 
-[nl]
+[para]
 
 [arg valVar] refers to the variable to store either the value for the
 specified option into upon success or an error message in the case of
@@ -56,12 +56,12 @@ allowed flags if an incorrect flag is specified. The optional
 [arg usage]-argument contains a string to include in front of the
 generated message. If not present it defaults to "options:".
 
-[nl]
+[para]
 
 [arg optlist] contains a list of lists where each element specifies an
 option in the form: [arg flag] [arg default] [arg comment].
 
-[nl]
+[para]
 
 If [arg flag] ends in ".arg" then the value is taken from the command
 line. Otherwise it is a boolean and appears in the result if present
@@ -91,7 +91,7 @@ On Unix, only file existence is tested.  If a file argument produces
 no valid files, a warning is optionally generated (set [arg quiet] to
 true).
 
-[nl]
+[para]
 
 This code also uses the full path for each file.  If not given it
 prepends the current working directory to the filename. This ensures

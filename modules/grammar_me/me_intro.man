@@ -44,32 +44,32 @@ The relevant documents are:
 [para]
 [list_begin definitions]
 
-[lst_item [package grammar::me_vm]]
+[def [package grammar::me_vm]]
 
 Virtual machine specification.
 
-[lst_item [package grammar::me_ast]]
+[def [package grammar::me_ast]]
 
 Specification of various representations used for abstract syntax
 trees.
 
-[lst_item [package grammar::me::util]]
+[def [package grammar::me::util]]
 
 Utility commands.
 
-[lst_item [package grammar::me::tcl]]
+[def [package grammar::me::tcl]]
 
 Singleton ME virtual machine implementation tied to Tcl for control
 flow and stacks. Hardwired for pull operation. Uninteruptible during
 processing.
 
-[lst_item [package grammar::me::cpu]]
+[def [package grammar::me::cpu]]
 
 Object-based ME virtual machine implementation with explicit control
 flow, and stacks, using bytecodes. Suspend/Resumable. Push/pull
 operation.
 
-[lst_item [package grammar::me::cpu::core]]
+[def [package grammar::me::cpu::core]]
 
 Core functionality for state manipulation and stepping used in the
 bytecode based implementation of ME virtual machines.
