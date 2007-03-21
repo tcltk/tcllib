@@ -22,23 +22,23 @@ the main package to avoid overhead for end-users.
   (Tcl Markup Language for Manpages). The different line types are
   treated as follows:
   [list_begin definitions]
-  [lst_item {comment and metacomment lines}]
+  [def {comment and metacomment lines}]
     The '%' and '%%' prefixes are removed, the rest of the text is
     kept as it is.
-  [lst_item {empty lines}]
+  [def {empty lines}]
     These are kept as they are. (Effectively this means that they will
     count as comment lines after a comment line and as code lines
     after a code line.)
-  [lst_item {code lines}]
+  [def {code lines}]
     [cmd example_begin] and [cmd example_end] commands are placed
     at the beginning and end of every block of consecutive code
     lines. Brackets in a code line are converted to [cmd lb] and
     [cmd rb] commands.
-  [lst_item {verbatim guards}]
+  [def {verbatim guards}]
     These are processed as usual, so they do not show up in the
     result but every line in a verbatim block is treated as a code
     line.
-  [lst_item {other guards}]
+  [def {other guards}]
     These are treated as code lines, except that the actual guard is
     [cmd emph]asised.
   [list_end]
@@ -80,7 +80,7 @@ the main package to avoid overhead for end-users.
   [cmd docstrip::util::ddt2man] then the result will be a syntactically
   correct [package doctools] manpage, even though its purpose is a
   bit different.
-  [nl]
+  [para]
 
   It is suggested that master source code files with [package doctools]
   markup are given the suffix [file .ddt], hence the "ddt" in
@@ -92,22 +92,22 @@ the main package to avoid overhead for end-users.
   in the [arg text]. The [arg subcmd] selects what is returned.
 
   [list_begin definitions]
-  [lst_item counts]
+  [def counts]
     List the guard expression terminals with counts. The format of
     the return value is a dictionary which maps the terminal name to
     the number of occurencies of it in the file.
-  [lst_item exprcount]
+  [def exprcount]
     List the guard expressions with counts. The format of the return
     value is a dictionary which maps the expression to the number of
     occurencies of it in the file.
-  [lst_item exprerr]
+  [def exprerr]
     List the syntactically incorrect guard expressions (e.g.
     parentheses do not match, or a terminal is missing). The return
     value is a list, with the elements in no particular order.
-  [lst_item expressions]
+  [def expressions]
     List the guard expressions. The return value is a list, with the
     elements in no particular order.
-  [lst_item exprmods]
+  [def exprmods]
     List the guard expressions with modifiers. The format of the return
     value is a dictionary where each index is a guard expression and
     each entry is a string with one character for every guard line that
@@ -115,10 +115,10 @@ the main package to avoid overhead for end-users.
     modifier was used in that line: +, -, *, /, or (for guard without
     modifier:) space. This is the most primitive form of the
     information gathered by [cmd guards].
-  [lst_item names]
+  [def names]
     List the guard expression terminals. The return value is a list,
     with the elements in no particular order.
-  [lst_item rotten]
+  [def rotten]
     List the malformed guard lines (this does not include lines where
     only the expression is malformed, though). The format of the return
     value is a dictionary which maps line numbers to their contents.

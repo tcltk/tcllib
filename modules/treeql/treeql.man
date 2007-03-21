@@ -55,31 +55,31 @@ qualified name of the object command as its result.
 The API the returned command is following is described in the section
 [sectref {TreeQL OBJECT API}]
 
-[nl]
+[para]
 
 Each query object is associated with a single [arg tree] object. This
 is the object all queries will be run against.
 
-[nl]
+[para]
 
 If the option [option -nodes] was specified then its argument is
 treated as a list of nodes. This list is used to initialize the node
 set. It defaults to the empty list.
 
-[nl]
+[para]
 
 If the option [option -query] was specified then its argument will be
 interpreted as an object, the [term {parent query}] of this query. It
 defaults to the object itself. All queries will be interpreted in the
 environment of this object.
 
-[nl]
+[para]
 
 Any arguments coming after the options are treated as a query and run
 immediately, after the [term {node set}] has been initialized. This
 uses the same syntax for the query as the method [method query].
 
-[nl]
+[para]
 
 The operations of the TreeQL available for this are explained in the
 section about [sectref {The Tree Query Language}]. This section also
@@ -119,13 +119,13 @@ itself, using TreeQL operators.
 The result of the method is the [term {node set}] after the last
 operator of the query has been executed.
 
-[nl]
+[para]
 
 [emph Note] that uncaught errors will leave the [term {node set}] of
 the object in an intermediate state, per the TreeQL operators which
 were executed successfully before the error occurred.
 
-[nl]
+[para]
 
 The above means in detail that:
 
@@ -136,7 +136,7 @@ The first argument is interpreted as the name of a query operator, the
 number of arguments required by that operator is then determined, and
 taken from the immediately following arguments.
 
-[nl]
+[para]
 
 Because of this operators cannot have optional arguments, all
 arguments have to be present as defined.  Failure to do this will, at
@@ -157,7 +157,7 @@ occurred.
 
 [list_end]
 
-[nl]
+[para]
 [example {
     # q is the query object.
 
@@ -181,7 +181,7 @@ occurred.
 	    children \\
 	    get data
 }]
-[nl]
+[para]
 
 The operators of the TreeQL language available for this are explained
 in the section about [sectref {The Tree Query Language}]. This section
@@ -305,7 +305,7 @@ When describing an operator the variable [var N] will be used to refer
 to any node in the node set.
 
 [list_begin definitions]
-[lst_item [method ancestors]]
+[def [method ancestors]]
 
 Replaces the current node set with the ancestors for all nodes [var N]
 in the node set, should [var N] have a parent. In other words, nodes
@@ -315,7 +315,7 @@ order (root last), for all nodes [var N] in the node set. This
 includes the root, but not the node itself.
 
 
-[lst_item [method rootpath]]
+[def [method rootpath]]
 
 Replaces the current node set with the ancestors for all nodes [var N]
 in the node set, should [var N] have a parent. In other words, nodes
@@ -325,14 +325,14 @@ In contrast to the operator [method ancestors] the nodes are added in
 reverse order however, i.e. the root node first.
 
 
-[lst_item [method parent]]
+[def [method parent]]
 
 Replaces the current node set with the parent of node [var N], for all
 nodes [var N] in the node set, should [var N] have a parent. In other
 words, nodes without a parent do not contribute to the new node set.
 
 
-[lst_item [method children]]
+[def [method children]]
 
 Replaces the current node set with the immediate children of node
 [var N], for all nodes [var N] in the node set, should [var N] have
@@ -340,7 +340,7 @@ children. In other words, nodes without children do not contribute to
 the new node set.
 
 
-[lst_item [method left]]
+[def [method left]]
 
 Replaces the current node set with the previous/left sibling for all
 nodes [var N] in the node set, should [var N] have siblings to the
@@ -348,7 +348,7 @@ left. In other words, nodes without left siblings do not contribute to
 the new node set.
 
 
-[lst_item [method right]]
+[def [method right]]
 
 Replaces the current node set with the next/right sibling for all
 nodes [var N] in the node set, should [var N] have siblings to the
@@ -356,7 +356,7 @@ right. In other words, nodes without right siblings do not contribute
 to the new node set.
 
 
-[lst_item [method prev]]
+[def [method prev]]
 
 Replaces the current node set with all previous/left siblings of node
 [var N], for all nodes [var N] in the node set, should [var N] have
@@ -365,7 +365,7 @@ ignored. The left sibling adjacent to the node is added first, and the
 leftmost sibling last (reverse tree order).
 
 
-[lst_item [method esib]]
+[def [method esib]]
 
 Replaces the current node set with all previous/left siblings of node
 [var N], for all nodes [var N] in the node set, should [var N] have
@@ -373,12 +373,12 @@ siblings to the left. In other words, nodes without left siblings are
 ignored. The leftmost sibling is added first, and the left sibling
 adjacent to the node last (tree order).
 
-[nl]
+[para]
 
 The method name is a shorthand for [term {Earlier SIBling}].
 
 
-[lst_item [method next]]
+[def [method next]]
 
 Replaces the current node set with all next/right siblings of node
 [var N], for all nodes [var N] in the node set, should [var N] have
@@ -387,27 +387,27 @@ not contribute to the new node set. The right sibling adjacent to the
 node is added first, and the rightmost sibling last (tree order).
 
 
-[lst_item [method root]]
+[def [method root]]
 
 Replaces the current node set with a node set containing a single
 node, the root of the tree.
 
 
-[lst_item [method tree]]
+[def [method tree]]
 
 Replaces the current node set with a node set containing all nodes
 found in the tree. The nodes are added in pre-order (parent first,
 then children, the latter from left to right, first to last).
 
 
-[lst_item [method descendants]]
+[def [method descendants]]
 
 Replaces the current node set with the nodes in all subtrees rooted at
 node [var N], for all nodes [var N] in the node set, should [var N]
 have children. In other words, nodes without children do not
 contribute to the new node set.
 
-[nl]
+[para]
 
 This is like the operator [method children], but covers the children
 of children as well, i.e. all the [term {proper descendants}]. "Rooted
@@ -415,12 +415,12 @@ at [var N]" means that [var N] itself is not added to the new set,
 which is also implied by [term {proper descendants}].
 
 
-[lst_item [method subtree]]
+[def [method subtree]]
 
 Like operator [method descendants], but includes the node [var N]. In
 other words:
 
-[nl]
+[para]
 
 Replaces the current node set with the nodes of the subtree of node
 [var N], for all nodes [var N] in the node set, should [var N] have
@@ -430,7 +430,7 @@ covers the children of children, etc. as well. "Of [var N]" means that
 [var N] itself is added to the new set.
 
 
-[lst_item [method forward]]
+[def [method forward]]
 
 Replaces the current node set with the nodes in the subtrees rooted at
 the right siblings of node [var N], for all nodes [var N] in the node
@@ -438,23 +438,23 @@ set, should [var N] have right siblings, and they children. In other
 words, nodes without right siblings, and them without children are
 ignored.
 
-[nl]
+[para]
 This is equivalent to the operator sequence
 
 [example {next descendants}]
 
 
-[lst_item [method later]]
+[def [method later]]
 
 This is an alias for the operator [method forward].
 
 
-[lst_item [method backward]]
+[def [method backward]]
 
 Replaces the current node set with the nodes in the flattened previous
 subtrees, in reverse tree order.
 
-[nl]
+[para]
 This is nearly equivalent to the operator sequence
 
 [example {prev descendants}]
@@ -462,12 +462,12 @@ This is nearly equivalent to the operator sequence
 The only difference is that this uses the nodes in reverse order.
 
 
-[lst_item [method earlier]]
+[def [method earlier]]
 
 Replaces the current node set with the nodes in the flattened previous
 subtrees, in tree order.
 
-[nl]
+[para]
 This is equivalent to the operator sequence
 
 [example {prev subtree}]
@@ -486,20 +486,20 @@ set is replaced by the set of nodes fulfilling the filter criteria.
 
 [list_begin definitions]
 
-[lst_item "[method hasatt] [arg attr]"]
+[def "[method hasatt] [arg attr]"]
 
 Reduces the node set to nodes which have an attribute named
 [arg attr].
 
 
-[lst_item "[method withatt] [arg attr] [arg value]"]
+[def "[method withatt] [arg attr] [arg value]"]
 
 Reduces the node set to nodes which have an attribute named
 [arg attr], and where the value of that attribute is equal to
 [arg value] (The "==" operator is [cmd {string equal -nocase}]).
 
 
-[lst_item "[method withatt!] [arg attr] [arg val]"]
+[def "[method withatt!] [arg attr] [arg val]"]
 
 This is the same as [method withatt], but all nodes in the node set
 have to have the attribute, and the "==" operator is
@@ -508,7 +508,7 @@ have to have the attribute, and the "==" operator is
 The operator will fail with an error if they don't have the attribute.
 
 
-[lst_item "[method attof] [arg attr] [arg vals]"]
+[def "[method attof] [arg attr] [arg vals]"]
 
 Reduces the node set to nodes which which have an attribute named
 [arg attr] and where the value of that attribute is contained in the
@@ -518,12 +518,12 @@ the case of the attribute value, [emph {but not}] for the elements of
 [arg vals].
 
 
-[lst_item "[method attmatch] [arg attr] [arg match]"]
+[def "[method attmatch] [arg attr] [arg match]"]
 
 Same as [method withatt], but [cmd {string match}] is used as the "=="
 operator, and [arg match] is the pattern checked for.
 
-[nl]
+[para]
 
 [emph Note] that [arg match] is a interpreted as a partial argument
 [emph list] for [cmd {string match}]. This means that it is
@@ -546,7 +546,7 @@ other words, all these operators have [term {side effects}].
 
 [list_begin definitions]
 
-[lst_item "[method set] [arg attr] [arg val]"]
+[def "[method set] [arg attr] [arg val]"]
 
 Sets the attribute [arg attr] to the value [arg val], for all nodes
 [var N] in the node set.
@@ -555,7 +555,7 @@ The operator will fail if a node does not have an attribute named
 [arg attr]. The tree will be left in a partially modified state.
 
 
-[lst_item "[method unset] [arg attr]"]
+[def "[method unset] [arg attr]"]
 
 Unsets the attribute [arg attr], for all nodes [var N] in the node
 set.
@@ -591,18 +591,18 @@ query processing.
 
 [list_begin definitions]
 
-[lst_item "[method string] [arg op] [arg attr]"]
+[def "[method string] [arg op] [arg attr]"]
 
 Applies the string operator [arg op] to the attribute named
 [arg attr], for all nodes [var N] in the node set, collects the
 results of that application and places them into the node set.
 
-[nl]
+[para]
 
 The operator will fail if a node does not have an attribute named
 [arg attr].
 
-[nl]
+[para]
 
 The argument [arg op] is interpreted as partial argument list for the
 builtin command [cmd string].  Its first word has to be any of the
@@ -611,7 +611,7 @@ all arguments required for the subcommand, except the last.  that last
 argument is supplied by the attribute value.
 
 
-[lst_item "[method get] [arg pattern]"]
+[def "[method get] [arg pattern]"]
 
 For all nodes [var N] in the node set it determines all their
 attributes with names matching the glob [arg pattern], then the values
@@ -619,7 +619,7 @@ of these attributes, at last it replaces the node set with the list of
 these attribute values.
 
 
-[lst_item [method attlist]]
+[def [method attlist]]
 
 This is a convenience definition for the operator
 [method {getvals *}]. In other words, it replaces the node set with a
@@ -627,13 +627,13 @@ list of the attribute values for all attributes for all nodes [var N]
 in the node set.
 
 
-[lst_item "[method attrs] [arg glob]"]
+[def "[method attrs] [arg glob]"]
 
 Replaces the current node set with a list of attribute lists, one
 attribute list per for all nodes [var N] in the node set.
 
 
-[lst_item "[method attval] [arg attname]"]
+[def "[method attval] [arg attname]"]
 
 Reduces the current node set with the operator [method hasatt], and
 then replaces it with a list containing the values of the attribute
@@ -650,36 +650,36 @@ replace the current node set.
 
 [list_begin definitions]
 
-[lst_item "[method andq] [arg query]"]
+[def "[method andq] [arg query]"]
 
 Replaces the node set with the set-intersection of the node set
 generated by the sub-query [arg query] and itself.
 
-[nl]
+[para]
 
 The execution of the sub-query uses the current node set as its own
 initial node set.
 
 
-[lst_item "[method orq] [arg query]"]
+[def "[method orq] [arg query]"]
 
 Replaces the node set with the set-union of the node set generated by
 the sub-query [arg query] and itself. Duplicate nodes are removed.
 
-[nl]
+[para]
 
 The execution of the sub-query uses the current node set as its own
 initial node set.
 
 
-[lst_item "[method notq] [arg query]"]
+[def "[method notq] [arg query]"]
 
 Replaces the node set with the set of nodes generated by the sub-query
 [arg query] which are also not in the current node set. In other word
 the set difference of itself and the node set generated by the
 sub-query.
 
-[nl]
+[para]
 
 The execution of the sub-query uses the current node set as its own
 initial node set.
@@ -699,20 +699,20 @@ tree.
 
 [list_begin definitions]
 
-[lst_item [method unique]]
+[def [method unique]]
 
 Removes duplicate nodes from the node set, preserving order. In other
 words, the earliest occurrence of a node handle is preserved, every
 other occurrence is removed.
 
 
-[lst_item [method select]]
+[def [method select]]
 
 Replaces the current node set with a node set containing only the
 first node from the current node set
 
 
-[lst_item "[method transform] [arg query] [arg var] [arg body]"]
+[def "[method transform] [arg query] [arg var] [arg body]"]
 
 First it interprets the sub-query [arg query], using the current node
 set as its initial node set.
@@ -724,12 +724,12 @@ each node to the variable named in [arg var], and executing the script
 The collected results of these executions is made the new node set,
 replacing the current one.
 
-[nl]
+[para]
 
 The script [arg body] is executed in the context of the caller.
 
 
-[lst_item "[method map] [arg var] [arg body]"]
+[def "[method map] [arg var] [arg body]"]
 
 Iterates over the current node set, binding the handle of each node to
 the variable named in [arg var], and executing the script [arg body].
@@ -737,17 +737,17 @@ the variable named in [arg var], and executing the script [arg body].
 The collected results of these executions is made the new node set,
 replacing the current one.
 
-[nl]
+[para]
 
 The script [arg body] is executed in the context of the caller.
 
 
-[lst_item "[method quote] [arg val]"]
+[def "[method quote] [arg val]"]
 
 Appends the literal value [arg val] to the current node set.
 
 
-[lst_item "[method replace] [arg val]"]
+[def "[method replace] [arg val]"]
 
 Replaces the current node set with the literal list value [arg val].
 
@@ -759,47 +759,47 @@ Replaces the current node set with the literal list value [arg val].
 
 [list_begin definitions]
 
-[lst_item "[method foreach] [arg query] [arg var] [arg body]"]
+[def "[method foreach] [arg query] [arg var] [arg body]"]
 
 Interprets the sub-query [arg query], then performs the equivalent of
 operator [method over] on the nodes in the node set created by that
 query. The current node set is not changed, except through side
 effects from the script [arg body].
 
-[nl]
+[para]
 
 The script [arg body] is executed in the context of the caller.
 
 
-[lst_item "[method with] [arg query] [arg body]"]
+[def "[method with] [arg query] [arg body]"]
 
 Interprets the [arg query], then runs the script [arg body] on the
 node set generated by the query. At last it restores the current node
 set as it was before the execution of the query.
 
-[nl]
+[para]
 
 The script [arg body] is executed in the context of the caller.
 
 
-[lst_item "[method over] [arg var] [arg body]"]
+[def "[method over] [arg var] [arg body]"]
 
 Executes the script [arg body] for each node in the node set, with the
 variable named by [arg var] bound to the name of the current node.
 
 The script [arg body] is executed in the context of the caller.
 
-[nl]
+[para]
 
 This is like the builtin [cmd foreach], with the node set as the
 source of the list to iterate over.
 
-[nl]
+[para]
 
 The results of executing the [arg body] are ignored.
 
 
-[lst_item [method delete]]
+[def [method delete]]
 
 Deletes all the nodes contained in the current node set from the tree.
 
@@ -816,7 +816,7 @@ tree query, html tree editing, and so on.
 
 [list_begin definitions]
 
-[lst_item [method nodetype]]
+[def [method nodetype]]
 
 Returns the node type of nodes.
 
@@ -825,19 +825,19 @@ Attribute string accessor. This is equivalent to
 [example {get @type}]
 
 
-[lst_item "[method oftype] [arg t]"]
+[def "[method oftype] [arg t]"]
 
 Reduces the node set to nodes whose type is equal to [arg t], with
 letter case ignored.
 
 
-[lst_item "[method nottype] [arg t]"]
+[def "[method nottype] [arg t]"]
 
 Reduces the node set to nodes whose type is not equal to [arg t], with
 letter case ignored.
 
 
-[lst_item "[method oftypes] [arg attrs]"]
+[def "[method oftypes] [arg attrs]"]
 
 Reduces set to nodes whose @type is an element in the list [arg attrs]
 of types. The value of @type is used as a glob pattern, and letter

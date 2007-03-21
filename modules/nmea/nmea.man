@@ -54,10 +54,10 @@ proper NMEA checksummed format.
 [section VARIABLES]
 [list_begin definitions]
 
-[lst_item ::nmea::checksum]
+[def ::nmea::checksum]
 A boolean value which determines whether incoming sentences are validated or not.
 
-[lst_item ::nmea::rate]
+[def ::nmea::rate]
 When reading from a file this sets the rate that lines are processed in milliseconds.
 
 [list_end]

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment { $Id: multiplexer.man,v 1.8 2005/09/28 04:51:22 andreas_kupries Exp $ }]
+[comment { $Id: multiplexer.man,v 1.9 2007/03/21 23:07:23 andreas_kupries Exp $ }]
 [manpage_begin multiplexer n 0.2]
 [moddesc   {One-to-many communication with sockets.}]
 [titledesc {One-to-many communication with sockets.}]
@@ -37,7 +37,7 @@ This starts the multiplexer listening on the specified port.
 Use [cmd Config] to configure the multiplexer instance.  Configuration
 options currently include:
 
-[list_begin opt]
+[list_begin options]
 
 [opt_def sendtoorigin]
 

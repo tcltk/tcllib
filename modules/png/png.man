@@ -25,25 +25,25 @@ for are: validity of values within a chunk, multiple header chunks,
 noncontiguous data chunks, end chunk before actual eof. This procedure
 can take lots of time.
 
-[nl]
+[para]
 Possible return values:
 
 [list_begin definitions]
-[lst_item OK]
+[def OK]
 File is a valid PNG file.
-[lst_item SIG]
+[def SIG]
 no/broken PNG signature.
-[lst_item BADLEN]
+[def BADLEN]
 corrupt chunk length.
-[lst_item EOF]
+[def EOF]
 premature end of file.
-[lst_item NOHDR]
+[def NOHDR]
 missing header chunk.
-[lst_item CKSUM]
+[def CKSUM]
 crc mismatch.
-[lst_item NODATA]
+[def NODATA]
 missing data chunk(s).
-[lst_item NOEND]
+[def NOEND]
 missing end marker.
 [list_end]
 

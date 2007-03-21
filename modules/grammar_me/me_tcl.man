@@ -57,7 +57,7 @@ This command (re)initializes the machine. It returns the empty
 string. This command has to be invoked before any other command of
 this package.
 
-[nl]
+[para]
 
 The command prefix [arg nextcmd] represents the input stream of
 characters and is invoked by the machine whenever the a new character
@@ -72,7 +72,7 @@ The empty list is the signal that the end of the input stream has been
 reached. The lexeme attribute is stored in the terminal cache, but
 otherwise not used by the machine.
 
-[nl]
+[para]
 
 The optional dictionary [arg tokmap] maps from tokens to integer
 numbers. If present the numbers impose an order on the tokens, which
@@ -93,7 +93,7 @@ in the order mentioned in the previous sentence.
 This allows higher levels to convert the location information found in
 the error status and the generated AST into more human readable data.
 
-[nl]
+[para]
 
 [emph Note] that the command is not able to convert locations which
 have not been reached by the machine yet. In other words, if the
@@ -102,7 +102,7 @@ machine has read 7 tokens the command is able to convert the offsets
 it is not possible to convert offsets which refer to locations before
 the beginning of the stream.
 
-[nl]
+[para]
 
 After a call of [method init] the state used for the conversion is
 cleared, making further conversions impossible until the machine has
@@ -116,7 +116,7 @@ stream between the locations [arg from] and [arg to] (both
 inclusive). If [arg to] is not specified it will default to the value
 of [arg from].
 
-[nl]
+[para]
 
 Each element of the returned list is a list of four elements, the
 token, its associated lexeme, line number, and column index, in this
@@ -125,7 +125,7 @@ order.
 In other words, each element has the same structure as the result of
 the [arg nextcmd] callback given to [cmd ::grammar::me::tcl::init]
 
-[nl]
+[para]
 
 This command places the same restrictions on its location arguments as
 [cmd ::grammar::me::tcl::lc].
@@ -259,8 +259,8 @@ found. The caller has to perform the appropriate branching.
 The command takes the start location as additional argument, as it is
 managed on the Tcl stack, and not in the machine state.
 
-[lst_item "[cmd icf_ntcall] [arg branchlabel]"]
-[lst_item [cmd icf_ntreturn]]
+[def "[cmd icf_ntcall] [arg branchlabel]"]
+[def [cmd icf_ntreturn]]
 
 These two instructions are not mapped to commands. They are control
 flow instructions and handled in Tcl.
@@ -274,10 +274,10 @@ No changes.
 [call [cmd ::grammar::me::tcl::iok_negate]]
 No changes.
 
-[lst_item "[cmd icf_jalways] [arg branchlabel]"]
-[lst_item "[cmd icf_jok] [arg branchlabel]"]
-[lst_item "[cmd icf_jfail] [arg branchlabel]"]
-[lst_item [cmd icf_halt]]
+[def "[cmd icf_jalways] [arg branchlabel]"]
+[def "[cmd icf_jok] [arg branchlabel]"]
+[def "[cmd icf_jfail] [arg branchlabel]"]
+[def [cmd icf_halt]]
 
 These four instructions are not mapped to commands. They are control
 flow instructions and handled in Tcl.
@@ -292,7 +292,7 @@ It replaces [term icl_push].
 The command takes the location as argument as it comes from the
 Tcl stack, not the machine state.
 
-[lst_item [cmd icl_pop]]
+[def [cmd icl_pop]]
 
 Not mapped, the stacks are not managed by the package.
 

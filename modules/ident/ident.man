@@ -25,18 +25,18 @@ Interpreting the dictionary as list the first key will always be
 the following meanings:
 
 [list_begin definitions]
-[lst_item USERID]
+[def USERID]
 
 This indicates a successful response. Two more keys and associated
 values are returned, [const opsys], and [const user-id].
 
-[lst_item ERROR]
+[def ERROR]
 
 This means the ident server has returned an error.  A second key named
 [const error] is present whose value contains the [const error-type]
 field from the server response.
 
-[lst_item FATAL]
+[def FATAL]
 
 Fatal errors happen when no ident server is listening on the remote
 side, or when the ident server gives a response that does not conform

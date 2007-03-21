@@ -85,7 +85,7 @@ the case of this being a container all contained values are decoded
 recursively as well and the result is a properly nested tcl list
 and/or dictionary.
 
-[nl]
+[para]
 
 If the optional [arg endvar] is set then it is the name of a variable
 to store the index of the first character [emph after] the decoded
@@ -95,7 +95,7 @@ after the bee-value currently decoded. together with [arg start], see
 below, it is possible to iterate over the string to extract all
 contained values.
 
-[nl]
+[para]
 
 The optional [arg start] index defaults to [const 0], i.e. the
 beginning of the string. It is the index of the first character of the
@@ -112,47 +112,47 @@ the first and last character of the bee-value). In case of a container
 the structure also contains the same information for all the embedded
 values.
 
-[nl]
+[para]
 
 Formally the results for the various types of bee-values are:
 
 [list_begin definitions]
-[lst_item string]
+[def string]
 
 A list containing three elements:
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 The constant string [const string], denoting the type of the value.
 
-[bullet]
+[item]
 An integer number greater than or equal to zero. This is the index of
 the first character of the bee-value in the input [arg string].
 
-[bullet]
+[item]
 An integer number greater than or equal to zero. This is the index of
 the last character of the bee-value in the input [arg string].
 
 [list_end]
-[nl]
+[para]
 
 [emph Note] that this information is present in the results for all
 four types of bee-values, with only the first element changing
 according to the type of the value.
 
-[lst_item integer]
+[def integer]
 
 The result is like for strings, except that the type element contains
 the constant string [const integer].
 
-[lst_item list]
+[def list]
 
 The result is like before, with two exceptions: One, the type element
 contains the constant string [const list]. And two, the result
 actually contains four elements. The last element is new, and contains
 the index data as described here for all elements of the bee-list.
 
-[lst_item dictionary]
+[def dictionary]
 
 The result is like for strings, except that the type element contains
 the constant string [const dict]. A fourth element is present as well,
@@ -167,7 +167,7 @@ i.e. serviceable as keys, they are not easy to navigate when trying to
 find particular element. Using the actual keys makes this much easier.
 
 [list_end]
-[nl]
+[para]
 
 
 [call [cmd ::bee::decodeChannel] [arg chan] \
@@ -183,9 +183,9 @@ to remove the decoder again.
 Setting up another bee decoder on [arg chan] while a bee decoder is
 still active will fail with an error message.
 
-[nl]
+[para]
 [list_begin definitions]
-[lst_item [option -command]]
+[def [option -command]]
 
 The command prefix [arg cmdprefix] specified by the [emph required]
 option [option -command] is used to report extracted values and
@@ -194,7 +194,7 @@ exceptional situations (error, and EOF on the channel).
 The callback will be executed at the global level of the interpreter,
 with two or three arguments. The exact call signatures are
 
-[nl]
+[para]
 [list_begin definitions]
 [call [cmd cmdprefix] [method eof] [arg token]]
 
@@ -222,9 +222,9 @@ token is valid. This means that the callback is able to remove the
 decoder.
 
 [list_end]
-[nl]
+[para]
 
-[lst_item [option -exact]]
+[def [option -exact]]
 
 By default the decoder assumes that the remainder of the data in the
 channel consists only of bee-values, and reads as much as possible per
@@ -233,16 +233,16 @@ that if the the input contains non-bee data after a series of
 bee-value the beginning of that data may be lost because it was
 already read by the decoder, but not processed.
 
-[nl]
+[para]
 
 The [option -exact] was made for this situation. When specified the
 decoder will take care to not read any characters behind the currently
 processed bee-value, so that any non-bee data is kept in the channel
 for further processing after removal of the decoder.
 
-[nl]
+[para]
 
-[lst_item [option -prefix]]
+[def [option -prefix]]
 
 If this option is specified its value is assumed to be the beginning
 of the bee-value and used to initialize the internal decoder
@@ -251,7 +251,7 @@ data from the channel to determine if it should create the decoder or
 not. Without the option this data would be lost to the decoding.
 
 [list_end]
-[nl]
+[para]
 
 [call [cmd ::bee::decodeCancel] [arg token]]
 
@@ -278,20 +278,20 @@ integer numbers, and the containers are lists and dictionaries.
 
 [para]
 [list_begin definitions]
-[lst_item "String [arg S]"]
+[def "String [arg S]"]
 
 A string [arg S] of length [arg L] is encoded by the string
 
 "[arg L][const :][arg S]", where the length is written out in textual
 form.
 
-[lst_item "Integer [arg N]"]
+[def "Integer [arg N]"]
 
 An integer number [arg N] is encoded by the string
 
 "[const i][arg N][const e]".
 
-[lst_item "List [arg v1] ... [arg vn]"]
+[def "List [arg v1] ... [arg vn]"]
 
 A list of the values [arg v1] to [arg vn] is encoded by the string
 
@@ -299,7 +299,7 @@ A list of the values [arg v1] to [arg vn] is encoded by the string
 
 where "BV[var i]" is the bee-encoding of the value "v[var i]".
 
-[lst_item "Dict [arg k1] -> [arg v1] ..."]
+[def "Dict [arg k1] -> [arg v1] ..."]
 
 A dictionary mapping the string key [arg k][var i] to the value
 
@@ -312,7 +312,7 @@ for i in [const 1] ... [var n], where "BK[var i]" is the bee-encoding
 of the key string "k[var i]".  and "BV[var i]" is the bee-encoding of
 the value "v[var i]".
 
-[nl]
+[para]
 
 [emph Note]: The bee-encoding does not retain the order of the keys in
 the input, but stores in a sorted order. The sorting is done for the
@@ -326,13 +326,13 @@ from the first character of its representation:
 
 [para]
 [list_begin definitions]
-[lst_item i]
+[def i]
 Integer.
-[lst_item l]
+[def l]
 List.
-[lst_item d]
+[def d]
 Dictionary.
-[lst_item "[lb]0-9[rb]"]
+[def "[lb]0-9[rb]"]
 String.
 [list_end]
 [para]

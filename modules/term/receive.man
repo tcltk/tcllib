@@ -17,11 +17,11 @@ around the builtin commands [cmd read] and [cmd fileevent].
 This command reads a single character from the channel with handle
 [arg chan] and returns it as the result of the command.
 
-[nl]
+[para]
 
 If not specified [arg chan] defaults to [const stdin].
 
-[nl]
+[para]
 
 It is the responsibility of the caller to make sure that the channel
 can provide single characters. On unix this can be done, for example,
@@ -34,11 +34,11 @@ This command sets up a filevent listener for the channel with handle
 [arg chan] and invokes the command prefix [arg cmd] whenever
 characters have been received, or EOF was reached.
 
-[nl]
+[para]
 
 If not specified [arg chan] defaults to [const stdin].
 
-[nl]
+[para]
 
 The signature of the command prefix is
 
@@ -60,7 +60,7 @@ on.  It will be the last call to be received by the callback.
 This command disables the filevent listener for the channel with handle
 [arg chan].
 
-[nl]
+[para]
 
 If not specified [arg chan] defaults to [const stdin].
 

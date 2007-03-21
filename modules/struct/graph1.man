@@ -163,42 +163,42 @@ that involve connected nodes have a list of nodes as argument,
 specified after the name of the restriction itself.
 
 [list_begin definitions]
-[lst_item [option -in]]
+[def [option -in]]
 
 Return a list of all arcs whose target is one of the nodes in the
 [arg nodelist].
 
-[lst_item [option -out]]
+[def [option -out]]
 
 Return a list of all arcs whose source is one of the nodes in the
 [arg nodelist].
 
-[lst_item [option -adj]]
+[def [option -adj]]
 
 Return a list of all arcs adjacent to at least one of the nodes in the
 [arg nodelist]. This is the union of the nodes returned by
 
 [option -in] and [option -out].
 
-[lst_item [option -inner]]
+[def [option -inner]]
 
 Return a list of all arcs adjacent to two of the nodes in the
 
 [arg nodelist]. This is the set of arcs in the subgraph spawned by the
 specified nodes.
 
-[lst_item [option -embedding]]
+[def [option -embedding]]
 
 Return a list of all arcs adjacent to exactly one of the nodes in the
 [arg nodelist]. This is the set of arcs connecting the subgraph
 spawned by the specified nodes to the rest of the graph.
 
-[lst_item "[option -key] [arg key]"]
+[def "[option -key] [arg key]"]
 
 Limit the list of arcs that are returned to those arcs that have an
 associated key [arg key].
 
-[lst_item "[option -value] [arg value]"]
+[def "[option -value] [arg value]"]
 
 This restriction can only be used in combination with
 
@@ -206,7 +206,7 @@ This restriction can only be used in combination with
 arcs whose associated key [arg key] has the value [arg value].
 
 [list_end]
-[nl]
+[para]
 
 The restrictions imposed by either [option -in], [option -out],
 [option -adj], [option -inner], or [option -embedded] are applied
@@ -309,7 +309,7 @@ values associated with the node. The restrictions that involve
 neighboring nodes have a list of nodes as argument, specified after
 the name of the restriction itself.
 
-[nl]
+[para]
 
 The possible restrictions are the same as for method
 
@@ -368,14 +368,14 @@ Perform a breadth-first or depth-first walk of the graph starting at
 the node [arg node] going in either the direction of outgoing or
 opposite to the incoming arcs.
 
-[nl]
+[para]
 
 The type of walk, breadth-first or depth-first, is determined by the
 value of [arg type]; [const bfs] indicates breadth-first,
 
 [const dfs] indicates depth-first.  Depth-first is the default.
 
-[nl]
+[para]
 
 The order of the walk, pre-order, post-order or both-order is
 determined by the value of [arg order]; [const pre] indicates
@@ -388,13 +388,13 @@ visited after any of its neighbors. Both-order walking means that a
 node is visited before [emph and] after any of its neighbors. The
 combination of a bread-first walk with post- or both-order is illegal.
 
-[nl]
+[para]
 
 The direction of the walk is determined by the value of [arg dir];
 [const backward] indicates the direction opposite to the incoming
 arcs, [const forward] indicates the direction of the outgoing arcs.
 
-[nl]
+[para]
 
 As the walk progresses, the command [arg cmd] will be evaluated at
 each node, with the mode of the call ([const enter] or

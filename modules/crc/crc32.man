@@ -37,24 +37,24 @@ default is to return the value as an unsigned integer (format %u).
 
 [list_begin definitions]
 
-[lst_item "-channel [arg name]"]
+[def "-channel [arg name]"]
 
 Return a checksum for the data read from a channel. The command will
 read data from the channel until the [cmd "eof"] is true. If you need
 to be able to process events during this calculation see the
 [sectref {PROGRAMMING INTERFACE}] section
 
-[lst_item "-filename [arg name]"]
+[def "-filename [arg name]"]
 
 This is a convenience option that opens the specified file, sets the
 encoding to binary and then acts as if the [arg -channel] option had
 been used. The file is closed on completion.
 
-[lst_item "-format [arg string]"]
+[def "-format [arg string]"]
 
 Return the checksum using an alternative format template.
 
-[lst_item "-seed [arg value]"]
+[def "-seed [arg value]"]
 
 Select an alternative seed value for the CRC calculation. The default
 is 0xffffffff. This can be useful for calculating the CRC for data

@@ -28,7 +28,7 @@ This command creates a new registry object with the name [arg object],
 initializes it, and returns the fully qualified name of the object
 command as its result.
 
-[nl]
+[para]
 
 The recognized options are explained in section [sectref OPTIONS].
 
@@ -151,7 +151,7 @@ of the key will be the key of E.
 
 The registry object recognize a single option,
 
-[list_begin opt]
+[list_begin options]
 [opt_def -tie tiedefinition]
 
 See the documentation of command [cmd ::tie::tie], in the package

@@ -22,13 +22,13 @@ types of nodes, namely:
 [para]
 [list_begin definitions]
 
-[lst_item Terminal]
+[def Terminal]
 
 Terminal nodes refer to the terminal symbols found in the token
 stream. They are always leaf nodes. I.e. terminal nodes never have
 children.
 
-[lst_item Nonterminal]
+[def Nonterminal]
 
 Nonterminal nodes represent a nonterminal symbol of the grammar used
 during parsing. They can occur as leaf and inner nodes of the
@@ -86,17 +86,17 @@ data beyond the child nodes, i.e. node type and input locations, are
 stored in attributes of the node in the tree object. They are:
 
 [list_begin definitions]
-[lst_item type]
+[def type]
 
 The type of the AST node. The recognized values are [const terminal]
 and [const nonterminal].
 
-[lst_item range]
+[def range]
 
 The locations of the first and last token of the terminal data in the
 input covered by the node. This is a list containing two locations.
 
-[lst_item detail]
+[def detail]
 
 This attribute is present only for nonterminal nodes. It contains the
 name of the nonterminal symbol stored in the node.
@@ -111,18 +111,18 @@ information.
 
 [list_begin definitions]
 
-[lst_item detail]
+[def detail]
 
 This attribute is now present at all nodes. Its contents are unchanged
 for nonterminal nodes. For terminal nodes it contains a list
 describing all tokens from the input which are covered by the node.
 
-[nl]
+[para]
 
 Each element of the list contains the token name, the associated
 lexeme attribute, line number, and column index, in this order.
 
-[lst_item range_lc]
+[def range_lc]
 
 This new attribute is defined for all nodes, and contains the
 locations from attribute [term range] translated into line number and

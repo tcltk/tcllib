@@ -26,7 +26,7 @@ This command creates a new dispatcher object with the name
 [arg object], initializes it, and returns the fully qualified name of
 the object command as its result.
 
-[nl]
+[para]
 
 The argument is a dictionary mapping from strings, i.e. character
 sequences to the command prefices to invoke when the sequence is found
@@ -64,7 +64,7 @@ This methods sets up a filevent listener for the channel with handle
 [arg chan] and invokes the dispatcher object whenever characters have
 been received, or EOF was reached.
 
-[nl]
+[para]
 
 If not specified [arg chan] defaults to [const stdin].
 
@@ -74,7 +74,7 @@ If not specified [arg chan] defaults to [const stdin].
 This methods removes the filevent listener for the channel with handle
 [arg chan].
 
-[nl]
+[para]
 
 If not specified [arg chan] defaults to [const stdin].
 

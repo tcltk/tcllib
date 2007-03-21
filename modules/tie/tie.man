@@ -48,12 +48,12 @@ provided by the argument [arg arrayvarname] and the
 command returns will be saved to the [term {data source}] for
 safekeeping (or distribution).
 
-[nl]
+[para]
 
 The result of the command is always a token which identifies the new
 tie. This token can be used later to destroy this specific tie.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def varname arrayvarname in]
 
 The name of the Tcl array variable to connect the new tie to.
@@ -80,15 +80,15 @@ identifies the [term {data source}] we wish to connect to, and has to
 be appropriate for the chosen type.
 
 [list_end]
-[nl]
+[para]
 
 The command understands a number of additional options which guide the
 process of setting up the connection between Tcl array and
 [term {data source}].
 
-[nl]
+[para]
 
-[list_begin opt]
+[list_begin options]
 [opt_def -open]
 
 The Tcl array for the new tie is [term loaded] from the
@@ -96,7 +96,7 @@ The Tcl array for the new tie is [term loaded] from the
 array are erased. Care is taken to [emph not] erase the previous
 contents should the creation of the tie fail.
 
-[nl]
+[para]
 
 This option and the option [option -save] exclude each other. If
 neither this nor option [option -save] are specified then this option
@@ -109,7 +109,7 @@ The Tcl array for the new tie is [term saved] to the
 [term {data source}], and the previously existing contents of the
 [term {data source}] are erased.
 
-[nl]
+[para]
 
 This option and the option [option -open] exclude each other. If
 neither this nor option [option -open] are specified then option
@@ -124,7 +124,7 @@ conjunction with either [option -open] or [option -save]. They
 determine how data existing in both Tcl array and
 [term {data source}], i.e duplicates, are dealt with.
 
-[nl]
+[para]
 
 When used with [option -open] data in the [term {data source}] has
 precedence.
@@ -132,14 +132,14 @@ precedence.
 In other words, for duplicates the data in the [term {data source}] is
 loaded into the Tcl array.
 
-[nl]
+[para]
 
 When used with [option -save] data in the Tcl array has precedence. In
 other words, for duplicates the data in the Tcl array is saved into
 the [term {data source}].
 
 [list_end]
-[nl]
+[para]
 
 
 [call [cmd ::tie::untie] [arg arrayvarname] [opt [arg token]]]
@@ -151,23 +151,23 @@ stands for is removed, if it is actually connected to the
 array. Trying to remove a specific tie not belonging to the provided
 array will cause an error.
 
-[nl]
+[para]
 
 It should be noted that while severing a tie will destroy management
 information internal to the package the [term {data source}] which was
 handled by the tie will not be touched, only closed.
 
-[nl]
+[para]
 
 After the command returns none of changes made to the array will be
 saved to the [term {data source}] anymore.
 
-[nl]
+[para]
 
 The result of the command is an empty string.
 
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def varname arrayname in]
 
 The name of a Tcl array variable which may have ties.
@@ -177,7 +177,7 @@ The name of a Tcl array variable which may have ties.
 A handle representing a specific tie. This argument is optional.
 
 [list_end]
-[nl]
+[para]
 
 
 [call [cmd ::tie::info] [method ties] [arg arrayvarname]]
@@ -208,27 +208,27 @@ standard data sources.
 
 [list_begin definitions]
 
-[lst_item [const log]]
+[def [const log]]
 
 This [term {data source}] does not maintain any actual data, nor
 persistence. It does not accept any identifying arguments. All changes
 are simply logged to [const stdout].
 
 
-[lst_item [const array]]
+[def [const array]]
 
 This [term {data source}] uses a regular Tcl array as the origin of
 the persistent data. It accepts a single identifying argument, the
 name of this Tcl array. All changes are mirrored to that array.
 
 
-[lst_item [const remotearray]]
+[def [const remotearray]]
 
 This [term {data source}] is similar to [const array]. The difference
 is that the Tcl array to which we are mirroring is not directly
 accessible, but through a [cmd send]-like command.
 
-[nl]
+[para]
 
 It accepts three identifying arguments, the name of the other Tcl
 array, the command prefix for the [cmd send]-like accessor command,
@@ -237,7 +237,7 @@ order. All changes are mirrored to that array, via the command
 prefix. All commands will be executed in the context of the global
 namespace.
 
-[nl]
+[para]
 
 [cmd send]-like means that the command prefix has to have [cmd send]
 syntax and semantics. I.e. it is a channel over which we can send
@@ -247,39 +247,39 @@ The remote array [term {data source}] however uses only the commands
 [cmd set], [cmd unset], [cmd {array exists}], [cmd {array names}], [cmd {array set}], and
 [cmd {array get}] to retrieve and set values in the remote array.
 
-[nl]
+[para]
 
 The command prefix and the entity id are separate to allow the data
 source to use options like [option -async] when assembling the actual
 commands.
 
-[nl]
+[para]
 
 Examples of command prefixes, listed with the id of the remote entity,
 without options. In reality only the part before the id is the command
 prefix:
 
 [list_begin definitions]
-[lst_item "[cmd send] [arg tkname]"]
+[def "[cmd send] [arg tkname]"]
 
 The Tcl array is in a remote interpreter and is accessed via Tk's X
 communication.
 
-[lst_item "[cmd {comm::comm send}] [arg hostportid]"]
+[def "[cmd {comm::comm send}] [arg hostportid]"]
 
 The Tcl array is in a remote interpreter and is accessed through a
 socket.
 
-[lst_item "[cmd {thread::send}] [arg threadid]"]
+[def "[cmd {thread::send}] [arg threadid]"]
 
 The Tcl array is in a remote interpreter in a different thread of this
 process.
 
 [list_end]
-[nl]
+[para]
 
 
-[lst_item [const file]]
+[def [const file]]
 
 This [term {data source}] uses a single file as origin of the
 persistent data. It accepts a single identifying argument, the path to
@@ -288,13 +288,13 @@ exist, the [term {data source}] will create it in that case. This (and
 only this) situation will require that the directory for the file
 exists and is writable as well.
 
-[nl]
+[para]
 
 All changes are saved in the file, as proper Tcl commands, one command
 per operation. In other words, the file will always contain a proper
 Tcl script.
 
-[nl]
+[para]
 
 If the file exists when the tie using it is set up, then it will be
 compacted, i.e. superfluous operations are removed, if the operations
@@ -303,7 +303,7 @@ whole array, or at least 1.5 times more operations than entries in the
 loaded array.
 
 
-[lst_item [const growfile]]
+[def [const growfile]]
 
 This [term {data source}] is like [const file] in terms of the storage
 medium for the array data, and how it is configured. In constrast to
@@ -312,7 +312,7 @@ never shrink. I.e. the creation of new array entries, and the
 modification of existing entries is allowed, but the deletion of
 entries is not, and causes the data source to throw errors.
 
-[nl]
+[para]
 
 This restriction allows us to simplify both file format and access to
 the file radically. For one, the file is read only once and the
@@ -322,19 +322,19 @@ the contents is the string representation of a dictionary which can be
 incrementally extended forever at the end.
 
 
-[lst_item [const dsource]]
+[def [const dsource]]
 
 This [term {data source}] uses an explicitly specified
 [term {data source object}] as the source for the persistent
 data. It accepts a single identifying argument, the command prefix,
 i.e. object command.
 
-[nl]
+[para]
 
 To use this type it is necessary to know how the framework manages
 ties and what [sectref {data source objects}] are.
 
-[nl]
+[para]
 
 All changes are delegated to the specified object.
 
@@ -395,7 +395,7 @@ Using this command causes the tie framework to remember the class
 command [arg dsclasscmd] of a [sectref {data source class}] under the
 type name [arg dstype].
 
-[nl]
+[para]
 
 After the call the argument [arg dstype] of the basic user command
 [cmd ::tie::tie] will accept [arg dstype] as a type name and translate
@@ -422,14 +422,14 @@ The framework itself will always supply the string [const %AUTO%], to
 signal that the class command has to generate not only the object, but
 the object name as well.
 
-[nl]
+[para]
 
 This is followed by a series of arguments identifying the data source
 the new object is for. These are the same [arg dsname] arguments which
 are given to the basic user command [cmd ::tie::tie]. Their actual
 meaning is dependent on the [term {data source class}].
 
-[nl]
+[para]
 
 The result of the class command has to be the fully-qualified name of
 the new [term {data source object}], i.e. the name of the
@@ -501,7 +501,7 @@ is nearly equivalent to [cmd {array unset}].
 This command has to save the [arg value] in the [term {data source}]
 the object talks to, under the key [arg index].
 
-[nl]
+[para]
 
 The result of the command is ignored. If an error is thrown then this
 error will show up as error of the set operation which caused the
@@ -513,7 +513,7 @@ method call.
 This command has to remove the value under the key [arg index] from
 the [term {data source}] the object talks to.
 
-[nl]
+[para]
 
 The result of the command is ignored. If an error is thrown then this
 error will show up as error of the unset operation which caused the

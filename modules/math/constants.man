@@ -16,11 +16,11 @@ ln(10).
 [para]
 It defines two commands:
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 One for importing the constants
 
-[bullet]
+[item]
 One for reporting which constants are defined and what values they
 actually have.
 
@@ -39,12 +39,12 @@ and use the variable radtodeg whenever you need the conversion.
 [para]
 This has two drawbacks:
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 You need to remember the proper formula or value and that is
 error-prone.
 
-[bullet]
+[item]
 Especially with the use of mathematical functions like [emph atan]
 you assume that they have been accurately implemented. This is seldom or
 never the case and for each platform you can get subtle differences.
@@ -64,14 +64,14 @@ Constants that have been defined (their values are mostly taken
 from mathematical tables with more precision than usually can be
 handled) include:
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 basic constants like pi, e, gamma (Euler's constant)
 
-[bullet]
+[item]
 derived values like ln(10) and sqrt(2)
 
-[bullet]
+[item]
 purely numerical values such as 1/3 that are included for convenience
 and for the fact that certain seemingly trivial computations like:
 [example {
@@ -92,7 +92,7 @@ The package defines the following public procedures:
 
 Import the constants whose names are given as arguments
 
-[nl]
+[para]
 
 [call [cmd ::math::constants::print-constants] [arg args]]
 

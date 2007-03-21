@@ -119,20 +119,20 @@ new nodes will be added to the [arg parent] node's child list at the
 index given by [arg index]. The [arg index] can be [const end] in
 which case the new nodes will be added after the current last child.
 
-[nl]
+[para]
 
 If any of the specified children already exist in [arg treeName],
 those nodes will be moved from their original location to the new
 location indicated by this command.
 
-[nl]
+[para]
 
 If no [arg child] is specified, a single node will be added, and a
 name will be generated for the new node. The generated name is of the
 form [emph node][var x], where [var x] is a number. If names are
 specified they must neither contain whitespace nor colons (":").
 
-[nl]
+[para]
 
 The return result from this command is a list of nodes added.
 
@@ -239,7 +239,7 @@ pre-order, [const post] indicates post-order, [const both] indicates
 both-order and [const in] indicates in-order. Pre-order is the
 default.
 
-[nl]
+[para]
 
 Pre-order walking means that a parent node is visited before any of
 its children.  For example, a breadth-first search starting from the
@@ -253,7 +253,7 @@ generalization of in-order walking for binary trees and will do the
 right thing if a binary is walked. The combination of a breadth-first
 walk with in-order is illegal.
 
-[nl]
+[para]
 
 As the walk progresses, the command [arg cmd] will be evaluated at
 each node.  Percent substitution will be performed on [arg cmd] before
@@ -262,19 +262,19 @@ substitutions are recognized:
 
 [list_begin definitions]
 
-[lst_item [const %%]]
+[def [const %%]]
 
 Insert the literal % character.
 
-[lst_item [const %t]]
+[def [const %t]]
 
 Name of the tree object.
 
-[lst_item [const %n]]
+[def [const %n]]
 
 Name of the current node.
 
-[lst_item [const %a]]
+[def [const %a]]
 
 Name of the action occurring; one of [const enter], [const leave],
 or [const visit].  [const enter] actions occur during pre-order

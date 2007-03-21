@@ -62,7 +62,7 @@ construct a FA container object. If this is not done several operations
 will fail as they are unable to construct internal and transient containers
 to hold state and/or partial results.
 
-[nl]
+[para]
 
 Any container class using this package for complex operations should set
 its own class command as the constructor. See package [package grammar::fa]
@@ -83,18 +83,18 @@ Completes the [arg fa] [term complete], but nothing is done if the
 in a series of multiple consecutive complete operations on [arg fa]
 will perform anything. The remainder will be null operations.
 
-[nl]
+[para]
 
 The language of [arg fa] is unchanged by this operation.
 
-[nl]
+[para]
 
 This is done by adding a single new state, the [term sink], and
 transitions from all other states to that sink for all symbols they
 have no transitions for. The sink itself is made complete by adding
 loop transitions for all symbols.
 
-[nl]
+[para]
 
 Note: When a FA has epsilon-transitions transitions over a symbol for
 a state S can be indirect, i.e. not attached directly to S, but to a
@@ -102,14 +102,14 @@ state in the epsilon-closure of S. The symbols for such indirect
 transitions count when computing completeness of a state. In other
 words, these indirectly reached symbols are [emph not] missing.
 
-[nl]
+[para]
 
 The argument [arg sink] provides the name for the new state and most
 not be present in the [arg fa] if specified. If the name is not
 specified the command will name the state "sink[var n]", where [var n]
 is set so that there are no collisions with existing states.
 
-[nl]
+[para]
 
 Note that the sink state is [term {not useful}] by definition.  In
 other words, while the FA becomes complete, it is also
@@ -128,7 +128,7 @@ This implies that only the first in a series of multiple consecutive
 complete operations on [arg fa] will perform anything. The remainder
 will be null operations.
 
-[nl]
+[para]
 
 [emph Note:] This operation may cause states to become unreachable or
 not useful. These states are not removed by this operation.
@@ -144,24 +144,24 @@ The legal values for [arg what] are listed below. The command defaults
 to [const !reachable|!useful] if no specific argument was given.
 
 [list_begin definitions]
-[lst_item [const !reachable]]
+[def [const !reachable]]
 Removes all states which are not reachable from a start state.
 
-[lst_item [const !useful]]
+[def [const !useful]]
 Removes all states which are unable to reach a final state.
 
-[lst_item [const !reachable&!useful]]
-[lst_item [const !(reachable|useful)]]
+[def [const !reachable&!useful]]
+[def [const !(reachable|useful)]]
 Removes all states which are not reachable from a start state and are
 unable to reach a final state.
 
-[lst_item [const !reachable|!useful]]
-[lst_item [const !(reachable&useful)]]
+[def [const !reachable|!useful]]
+[def [const !(reachable&useful)]]
 Removes all states which are not reachable from a start state or are
 unable to reach a final state.
 
 [list_end]
-[nl]
+[para]
 
 
 [call [cmd ::grammar::fa::op::determinize] [arg fa] [opt [arg mapvar]]]
@@ -172,7 +172,7 @@ already [term deterministic]. This implies that only the first in a
 series of multiple consecutive complete operations on [arg fa] will
 perform anything. The remainder will be null operations.
 
-[nl]
+[para]
 
 The command will store a dictionary describing the relationship
 between the new states of the resulting dfa and the states of the
@@ -180,14 +180,14 @@ input nfa in [arg mapvar], if it has been specified. Keys of the
 dictionary are the handles for the states of the resulting dfa, values
 are sets of states from the input nfa.
 
-[nl]
+[para]
 
 [emph Note]: An empty dictionary signals that the command was able to
 make the [arg fa] deterministic without performing a full subset
 construction, just by removing states and shuffling transitions around
 (As part of making the FA epsilon-free).
 
-[nl]
+[para]
 
 [emph Note]: The algorithm fails to make the FA deterministic in the
 technical sense if the FA has no start state(s), because determinism
@@ -208,7 +208,7 @@ declare states unreachable.
 Creates a FA which accepts the same language as [arg fa], but has a
 minimal number of states. Uses Brzozowski's method to accomplish this.
 
-[nl]
+[para]
 
 The command will store a dictionary describing the relationship
 between the new states of the resulting minimal fa and the states of
@@ -216,13 +216,13 @@ the input fa in [arg mapvar], if it has been specified. Keys of the
 dictionary are the handles for the states of the resulting minimal fa,
 values are sets of states from the input fa.
 
-[nl]
+[para]
 
 [emph Note]: An empty dictionary signals that the command was able to
 minimize the [arg fa] without having to compute new states. This
 should happen if and only if the input FA was already minimal.
 
-[nl]
+[para]
 
 [emph Note]: If the algorithm has no start or final states to work
 with then the result might be technically minimal, but have a very
@@ -252,7 +252,7 @@ Complements [arg fa]. This is possible if and only if [arg fa] is
 complementary language of [arg fa]. In other words, all inputs not
 accepted by the input are accepted by the result, and vice versa.
 
-[nl]
+[para]
 
 The result will have all states and transitions of the input, and
 different final states.
@@ -270,7 +270,7 @@ in the language of [arg fa] such that [var S] is the concatenation of
 In other words, the language of the result is the infinite union over
 finite length concatenations over the language of [arg fa].
 
-[nl]
+[para]
 
 The result will have all states and transitions of the input, and new
 start and final states.
@@ -282,7 +282,7 @@ Makes the [arg fa] optional. In other words it computes the FA which
 accepts the language of [arg fa] and the empty the word (epsilon) as
 well.
 
-[nl]
+[para]
 
 The result will have all states and transitions of the input, and new
 start and final states.
@@ -293,14 +293,14 @@ start and final states.
 Combines the FAs [arg fa] and [arg fb] such that the resulting FA
 accepts the union of the languages of the two FAs.
 
-[nl]
+[para]
 
 The result will have all states and transitions of the two input FAs,
 and new start and final states. All states of [arg fb] which exist in
 [arg fa] as well will be renamed, and the [arg mapvar] will contain a
 mapping from the old states of [arg fb] to the new ones, if present.
 
-[nl]
+[para]
 
 It should be noted that the result will be non-deterministic, even if
 the inputs are deterministic.
@@ -314,7 +314,7 @@ words, the result will accept a word if and only if the word is
 accepted by both [arg fa] and [arg fb]. The result will be useful, but
 not necessarily deterministic or minimal.
 
-[nl]
+[para]
 
 The command will store a dictionary describing the relationship
 between the new states of the resulting fa and the pairs of states of
@@ -334,7 +334,7 @@ accepted by [arg fa], but not by [arg fb]. This can also be expressed
 as the intersection of [arg fa] with the complement of [arg fb]. The
 result will be useful, but not necessarily deterministic or minimal.
 
-[nl]
+[para]
 
 The command will store a dictionary describing the relationship
 between the new states of the resulting fa and the pairs of states of
@@ -355,7 +355,7 @@ W will be accepted by the result if there are two words A and B
 accepted by [arg fa], and [arg fb] resp. and W is the concatenation of
 A and B.
 
-[nl]
+[para]
 
 The result FA will be non-deterministic.
 
@@ -372,51 +372,51 @@ specified. This set is important if and only if the complement
 operator "!" is used in [arg regex] as the complementary language of
 an FA is quite different for different sets of symbols.
 
-[nl]
+[para]
 
 The regular expression is represented by a nested list, which forms
 a syntax tree. The following structures are legal:
 
 [list_begin definitions]
 
-[lst_item "{S x}"]
+[def "{S x}"]
 
 Atomic regular expression. Everything else is constructed from
 these. Accepts the [const S]ymbol "x".
 
-[lst_item "{. A1 A2 ...}"]
+[def "{. A1 A2 ...}"]
 
 Concatenation operator. Accepts the concatenation of the regular
 expressions [var A1], [var A2], etc.
 
-[lst_item "{| A1 A2 ...}"]
+[def "{| A1 A2 ...}"]
 
 Choice operator, also called "Alternative". Accepts all input accepted
 by at least one of the regular expressions [var A1], [var A2], etc. In
 other words, the union of [var A1], [var A2].
 
-[lst_item "{& A1 A2 ...}"]
+[def "{& A1 A2 ...}"]
 
 Intersection operator, logical and. Accepts all input accepted which
 is accepted by all of the regular expressions [var A1], [var A2],
 etc. In other words, the intersection of [var A1], [var A2].
 
-[lst_item "{? A}"]
+[def "{? A}"]
 
 Optionality operator. Accepts the empty word and anything from the
 regular expression [var A].
 
-[lst_item "{* A}"]
+[def "{* A}"]
 
 Kleene closure. Accepts the empty word and any finite concatenation of
 words accepted by the regular expression [var A].
 
-[lst_item "{+ A}"]
+[def "{+ A}"]
 
 Positive Kleene closure. Accepts any finite concatenation of words
 accepted by the regular expression [var A], but not the empty word.
 
-[lst_item "{! A}"]
+[def "{! A}"]
 
 Complement operator. Accepts any word not accepted by the regular
 expression [var A]. Note that the complement depends on the set of

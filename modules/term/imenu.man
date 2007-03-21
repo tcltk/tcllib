@@ -23,7 +23,7 @@ This command creates a new menu object with the name [arg object],
 initializes it, and returns the fully qualified name of the object
 command as its result.
 
-[nl]
+[para]
 
 The argument is the menu to show, possibly followed by configuration
 options and their values. The options are explained in the section
@@ -46,7 +46,7 @@ of incoming characters. The method returns when the interaction has
 completed. See section [sectref Interaction] for a description of the
 possible interaction.
 
-[nl]
+[para]
 
 The method returns the symbolic action of the menu item selected by
 the user at the end of the interaction.
@@ -75,7 +75,7 @@ Standard methods to retrieve and configure the options of the menu.
 
 A menu instance recognizes the following options:
 
-[list_begin opt]
+[list_begin options]
 [opt_def -in chan]
 
 Specifies the channel to read character sequences from. Defaults to
@@ -130,17 +130,17 @@ as described. The user can supply more control sequences to act on via
 the configuration, but is not able to overide these defaults.
 
 [list_begin definitions]
-[lst_item {Cursor Up}]
+[def {Cursor Up}]
 
 The selection is moved up one entry, except if the first entry of the
 menu is already selected.
 
-[lst_item {Cursor Down}]
+[def {Cursor Down}]
 
 The selection is moved down one entry, except if the last entry of the
 menu is already selected.
 
-[lst_item Enter/Return]
+[def Enter/Return]
 
 The interaction with the object is terminated.
 

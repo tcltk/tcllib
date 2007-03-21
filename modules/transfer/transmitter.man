@@ -32,13 +32,13 @@ This command creates and configures a new transmitter
 [arg object]. The fully qualified name of the object command is
 returned as the result of the command.
 
-[nl]
+[para]
 
 See the packages [package transfer::data::source]
 and [package transfer::connect] for the main options recognized. Here
 we describe only the options which go beyond the referenced set.
 
-[list_begin opt]
+[list_begin options]
 [opt_def -command   [arg cmdprefix]]
 
 This option specifies the command to invoke when the transmission of

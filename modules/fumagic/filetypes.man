@@ -27,12 +27,12 @@ generated Tcl code.
 
 This command is similar to the command [cmd fileutil::fileType].
 
-[nl]
+[para]
 
 The output of the command for the specified file is a string
 describing the type of the file.
 
-[nl]
+[para]
 
 This list will be empty if the type of the file is not recognized.
 
