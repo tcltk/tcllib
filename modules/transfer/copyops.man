@@ -26,18 +26,18 @@ This command transfers the information in [arg data] to the
 [arg outchannel], according to the [arg options]. The type of the
 information in [arg data] is determined by the first argument.
 
-[nl]
+[para]
 
 The options available to this command are the same as are available to
 the command [cmd transfer::copy::options], and explained there.
 
 [list_begin definitions]
-[lst_item [const chan]]
+[def [const chan]]
 
 The argument [arg data] contains the handle of a channel and the
 actual infomration to transfer is read from that channel.
 
-[lst_item [const string]]
+[def [const string]]
 
 The argument [arg data] contains a string and this is the information
 to be transfered.
@@ -86,11 +86,11 @@ the results in the array variable named by [arg optvar]. The contents
 of that variable are in a format which is directly understood by all
 the commands above which read their options out of an array variable.
 
-[nl]
+[para]
 
 The recognized options are:
 
-[list_begin opt]
+[list_begin options]
 
 [opt_def -blocksize [arg int]]
 
@@ -98,7 +98,7 @@ This option specifies the size of the chunks to transfer in one
 operation. It is optional and defaults to the value of
 [option -buffersize] as configured for the output channel.
 
-[nl]
+[para]
 If specified its value has to be an integer number greater than zero.
 
 
@@ -108,7 +108,7 @@ This option specifies the completion callback of the operation. This
 option has to be specified. An error will be thrown if it is not, or
 if the empty list was specified as argument to it.
 
-[nl]
+[para]
 Its value has to be a command prefix, i.e. a list whose first word is
 the command to execute, followed by words containing fixed
 arguments. When the callback is invoked one or two additional
@@ -123,7 +123,7 @@ This option specifies the progress callback of the operation. It is
 optional and defaults to the empty list. This last possibility signals
 that no feedback was asked for and disabled it.
 
-[nl]
+[para]
 
 Its value has to be a command prefix, see above, [option -command] for
 a more detailed explanation. When the callback is invoked a single
@@ -139,7 +139,7 @@ Its value has to be an integer number and any value less than zero has
 the same meaning, i.e. to transfer all available data. Any other value
 is the amount of bytes to transfer.
 
-[nl]
+[para]
 
 All transfer commands will throw error an when their user tries to
 transfer more data than is available in the input. This happens

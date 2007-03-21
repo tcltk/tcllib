@@ -40,18 +40,18 @@ element list of filename, mode value and data.
 
 [list_begin definitions]
 
-[lst_item "-filename name"]
+[def "-filename name"]
 
 Cause the uuencode or uudecode commands to read their data from the
 named file rather that taking a string parameter.
 
-[lst_item "-name string"]
+[def "-name string"]
 
 The uuencoded data header line contains the suggested file name to be
 used when unpacking the data. Use this option to change this from the
 default of "data.dat".
 
-[lst_item "-mode octal"]
+[def "-mode octal"]
 
 The uuencoded data header line contains a suggested permissions bit
 pattern expressed as an octal string. To change the default of 0644

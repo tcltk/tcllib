@@ -107,54 +107,54 @@ to address them are:
 [list_begin definitions]
 
 
-[lst_item [const top]]
+[def [const top]]
 
 The topmost line of a report. Separates the report from anything which
 came before it. The user can enable the usage of this line at will.
 
-[lst_item [const topdatasep]]
+[def [const topdatasep]]
 
 This line is used to separate the data rows in the top caption region,
 if it contains more than one row and the user enabled its usage.
 
-[lst_item [const topcapsep]]
+[def [const topcapsep]]
 
 This line is used to separate the top caption and data regions, if the
 top caption is not empty and the user enabled its usage.
 
-[lst_item [const datasep]]
+[def [const datasep]]
 
 This line is used to separate the data rows in the data region, if it
 contains more than one row and the user enabled its usage.
 
-[lst_item [const botcapsep]]
+[def [const botcapsep]]
 
 This line is used to separate the data and bottom caption regions, if
 the bottom caption is not empty and the user enabled its usage.
 
-[lst_item [const botdatasep]]
+[def [const botdatasep]]
 
 This line is used to separate the data rows in the bottom caption
 region, if it contains more than one row and the user enabled its
 usage.
 
-[lst_item [const bottom]]
+[def [const bottom]]
 
 The bottommost line of a report. Separates the report from anything
 which comes after it. The user can enable the usage of this line at
 will.
 
-[lst_item [const topdata]]
+[def [const topdata]]
 
 This line defines the format of data lines in the top caption region
 of the report.
 
-[lst_item [const data]]
+[def [const data]]
 
 This line defines the format of data lines in the data region of the
 report.
 
-[lst_item [const botdata]]
+[def [const botdata]]
 
 This line defines the format of data lines in the bottom caption
 region of the report.
@@ -248,7 +248,7 @@ Enables or disables the usage of the template addressed by the
 [arg templatecode]. Only the codes for separator lines are allowed
 here. It is not possible to enable or disable data lines.
 
-[nl]
+[para]
 
 Enabling a template causes the report to check all used templates for
 inconsistencies in the definition of the vertical lines (See section
@@ -278,7 +278,7 @@ it occupies in the matrix to be formatted. Only numbers greater than
 or equal to zero are allowed. If no [arg size] is specified the
 command will return the current size instead.
 
-[nl]
+[para]
 
 Setting the size of the top caption to a value greater than zero
 enables the corresponding data template and causes the report to check
@@ -292,7 +292,7 @@ rows it occupies in the matrix to be formatted. Only numbers greater
 than or equal to zero are allowed. If no [arg size] is specified the
 command will return the current size instead.
 
-[nl]
+[para]
 
 Setting the size of the bottom caption to a value greater than zero
 enables the corresponding data template and causes the report to check
@@ -309,7 +309,7 @@ the column is dynamic. If a fixed [arg number] is used instead of
 characters (padding excluded). Only numbers greater than zero are
 allowed here.
 
-[nl]
+[para]
 
 If no size specification is given the command will return the current
 size of the [arg column] instead.
@@ -321,7 +321,7 @@ call. Its argument is a list containing the sizes to associate with
 the columns. The first item is associated with column 0, the next with
 column 1, and so on.
 
-[nl]
+[para]
 
 If no [arg size-list] is specified the command will return a list
 containing the currently set sizes instead.
@@ -335,7 +335,7 @@ way of specifying the padding is to use vertical separator strings
 longer than one character in the templates (See section
 [sectref TEMPLATES]).
 
-[nl]
+[para]
 
 If no pad specification is given at all the command will return the
 current state of padding for the column instead. This will be a list
@@ -347,7 +347,7 @@ second describing the right padding.
 Declares how the cell values for a [arg column] are filled into the
 report given the specified size of a column in the report.
 
-[nl]
+[para]
 
 For [const left] and [const right] justification a cell value
 shorter than the width of the column is bound with its named edge to
@@ -356,7 +356,7 @@ the case of [const center] the spaces are placed to both sides of the
 value and the left number of spaces is at most one higher than the
 right number of spaces.
 
-[nl]
+[para]
 
 For a value longer than the width of the column the value is cut at
 the named edge. This means for [const left] justification that the
@@ -366,7 +366,7 @@ sides to fit into the column and the number of characters cut at the
 left side of the value is at most one less than the number of
 characters cut from the right side.
 
-[nl]
+[para]
 
 If no justification was specified the command will return the current
 justification for the column instead.

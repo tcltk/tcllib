@@ -18,7 +18,7 @@ functions useful in combinatorial problems.
 Returns the natural logarithm of the Gamma function for the argument
 [arg z].
 
-[nl]
+[para]
 
 The Gamma function is defined as the improper integral from zero to
 positive infinity of
@@ -27,7 +27,7 @@ positive infinity of
   t**(x-1)*exp(-t) dt
 }]
 
-[nl]
+[para]
 
 The approximation used in the Tcl Math Library is from Lanczos,
 [emph {ISIAM J. Numerical Analysis, series B,}] volume 1, p. 86.
@@ -45,29 +45,29 @@ figures.
 
 Returns the factorial of the argument [arg x].
 
-[nl]
+[para]
 
 For integer [arg x], 0 <= [arg x] <= 12, an exact integer result is
 returned.
 
-[nl]
+[para]
 
 For integer [arg x], 13 <= [arg x] <= 21, an exact floating-point
 result is returned on machines with IEEE floating point.
 
-[nl]
+[para]
 
 For integer [arg x], 22 <= [arg x] <= 170, the result is exact to 1
 ULP.
 
-[nl]
+[para]
 
 For real [arg x], [arg x] >= 0, the result is approximated by
 computing [term Gamma(x+1)] using the [cmd ::math::ln_Gamma]
 function, and the result is expected to be precise to better than nine
 significant figures.
 
-[nl]
+[para]
 
 It is an error to present [arg x] <= -1 or [arg x] > 170, or a value
 of [arg x] that is not numeric.
@@ -83,7 +83,7 @@ Returns the binomial coefficient [term {C(n, k)}]
 If both parameters are integers and the result fits in 32 bits, the
 result is rounded to an integer.
 
-[nl]
+[para]
 
 Integer results are exact up to at least [arg n] = 34.  Floating point
 results are precise to better than nine significant figures.

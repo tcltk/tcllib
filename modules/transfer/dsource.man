@@ -29,7 +29,7 @@ This command creates and configures a new source [arg object]. The
 fully qualified name of the object command is returned as the result
 of the command.
 
-[nl]
+[para]
 
 The recognized options are listed below. It should be noted that the
 first four options are semi-exclusive, each specifying a different
@@ -38,7 +38,7 @@ specified more than once then the last option specified is used to
 actually configure the object.
 
 
-[list_begin opt]
+[list_begin options]
 [opt_def -string   [arg text]]
 
 This option specifies that the source of the data is an immediate
@@ -86,14 +86,14 @@ This method returns a string describing the type of the data the
 object is refering to. The possible values and their meanings are:
 
 [list_begin definitions]
-[lst_item [const undefined]]
+[def [const undefined]]
 No data was specified at all, or it was specified incompletely. The
 object does not know the type.
 
-[lst_item [const string]]
+[def [const string]]
 The data to transfer is contained in a string.
 
-[lst_item [const channel]]
+[def [const channel]]
 The data to transfer is contained in a channel.
 
 [list_end]

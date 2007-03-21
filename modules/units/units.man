@@ -109,15 +109,15 @@ define virtually any combination of units, prefixes, and powers.
 Valid unit strings must conform to these rules.
 
 
-[list_begin bullet]
+[list_begin itemized]
 
-[bullet]
+[item]
 A unit string consists of an optional scale factor followed by zero or
 more subunits.  The scale factor must be a valid floating point
 number, and may or may not be separated from the subunits.  The scale
 factor could be negative.
 
-[bullet]
+[item]
 Subunits are separated form each other by one or more separator
 characters, which are space (" "), hyphen ("-"), asterisk ("*"), and
 forward-slash ("/").  Sure, go ahead and complain about using a minus
@@ -127,17 +127,17 @@ asterisk ("*") to separate all units.  But the bottom line is that
 complex unit strings like [emph "m-kg/s^2"] are pleasantly
 readable.
 
-[bullet]
+[item]
 The forward-slash seperator ("/") indicates that following subunits are
 in the denominator.  There can be at most one forward-slash separator.
 
-[bullet]
+[item]
 Subunits can be floating point scale factors, but with the exception
 of the leading scale factor, they must be surrounded by valid
 separators.  Subunit scale factors cannot be negative. (Remember that
 the hyphen is a unit separator.)
 
-[bullet]
+[item]
 Subunits can be valid units or abbreviations.  They may include a
 prefix.  They may include a plural suffix "s" or "es".  They may also
 include a power string denoted by a circumflex ("^"), followed by a

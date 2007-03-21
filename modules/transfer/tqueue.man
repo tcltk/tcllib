@@ -26,7 +26,7 @@ requests coming after it are not served. Currently this means that
 their completion callbacks are never triggered at all. 
 
 [para]
-[strong NOTE]:
+[emph NOTE]:
 
 	Not triggering the completion callbacks of the unserved
 	requests after an error stops the queue object is something I
@@ -76,7 +76,7 @@ This command creates a new queue [arg object] for the management of
 the channel [arg outchannel]. The fully qualified name of the object
 command is returned as the result of the command.
 
-[nl]
+[para]
 
 The only option known is [option -on-status-change]. It is optional
 and defaults to empty, disabling the reporting of status

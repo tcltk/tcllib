@@ -22,7 +22,7 @@ integer indicating the maximum size of the pool; this is the maximum
 number of items the pool may hold. The default for this value is
 [const 10].
      
-[nl]
+[para]
 
 The pool object has an associated global Tcl command whose name is
 [arg poolName]. This command may be used to invoke various
@@ -48,21 +48,21 @@ generates, is to manage pools of discrete items.
       
 Examples of a pool of discrete items are:
 
-[list_begin bullet]
+[list_begin itemized]
 
-[bullet]
+[item]
 the seats in a cinema, theatre, train etc.. for which visitors/travelers can  make a reservation;
-[bullet]
+[item]
 the dynamic IP-addresses that an ISP can dole out  to subscribers;
-[bullet]
+[item]
 a car rental's collection of cars, which can be rented by customers;
-[bullet]
+[item]
 the class rooms in a school building, which need to be scheduled;
-[bullet]
+[item]
 the database connections available to client-threads in a web-server application;
-[bullet]
+[item]
 the books in a library that customers can borrow;
-[bullet]
+[item]
 etc ...
 
 [list_end]
@@ -180,35 +180,35 @@ requested. Only the type [const allocID] uses an additional argument.
 
 [list_begin definitions]
      
-[lst_item "[const allocID] [arg itemName]"]
+[def "[const allocID] [arg itemName]"]
 
 returns the allocID of the item whose name is [arg itemName]. Free
 items have an allocation id of [const -1].
 
-[lst_item [const allitems]]
+[def [const allitems]]
 
 returns a list of all items in the pool.
  
-[lst_item [const allocstate]]
+[def [const allocstate]]
 
 Returns a list of key-value pairs, where the keys are the items and
 the values are the corresponding allocation id's. Free items have an
 allocation id of [const -1].
       
-[lst_item [const cursize]]
+[def [const cursize]]
 
 returns the current pool size, i.e. the number of items in the pool.
       
-[lst_item [const freeitems]]
+[def [const freeitems]]
 
 returns a list of items that currently are not allocated.
       
-[lst_item [const maxsize]]
+[def [const maxsize]]
 
 returns the maximum size of the pool.
 
 [list_end]
-[nl]          
+[para]          
 
 [call [arg poolName] [method maxsize] [opt [arg maxsize]]]
 
@@ -218,9 +218,9 @@ supplied, the maximum size of the pool will be set to that value. If
 no argument is supplied, the current maximum size of the pool is
 returned. In this variant, the command is an alias for:
 
-[nl]
+[para]
 [cmd {poolName info maxsize}].
-[nl]
+[para]
 
 The [arg maxsize] argument has to be a positive integer.
      
@@ -263,7 +263,7 @@ error if the variable was not defined before issuing the request. The
 command returns 0.
 
 [list_end]
-[nl]
+[para]
 
 The return values from this command are meant to be inspected. The
 examples below show how to do this. Failure to check the return value
@@ -271,12 +271,12 @@ may result in erroneous behaviour. If no preference for a particular
 item is supplied through the option [option -prefer] (see below), then
 all requests are honoured as long as items are available.
 
-[nl]
+[para]
 The following options are supported:
 
 [list_begin definitions]
  
-[lst_item "[option -allocID] [arg allocID]"]
+[def "[option -allocID] [arg allocID]"]
 
 If the request is honoured, an item will be allocated to the entity
 identified by allocID. If the allocation state of an item is queried,
@@ -287,7 +287,7 @@ by [const dummyID]. Allocation id's may be anything except the value
 -1, which is reserved for free items.
 
      
-[lst_item "[option -prefer] [arg preferredItem]"]
+[def "[option -prefer] [arg preferredItem]"]
 
 This option modifies the allocation strategy as follows: If the item
 whose name is [arg preferredItem] is not allocated at the time when

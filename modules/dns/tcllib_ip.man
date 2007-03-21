@@ -69,7 +69,7 @@ This command converts the string [arg prefix] from dotted form
 containing two elements, ipaddress and mask, in this order, in
 hexadecimal notation.
 
-[nl]
+[para]
 [example {
    % ip::prefixToNative 1.1.1.0/24
    0x01010100 0xffffff00
@@ -82,8 +82,8 @@ hexadecimal notation.
 This command converts from native (hex) form to dotted form.
 It is the complement of [cmd ::ip::prefixToNative].
 
-[nl]
-[list_begin arg]
+[para]
+[list_begin arguments]
 [arg_def list nativeList in]
 
 List of several ip addresses in native form. The native form is a list
@@ -94,13 +94,13 @@ as returned by [cmd ::ip::prefixToNative].
 A list as returned by [cmd ::ip::prefixToNative].
 
 [list_end]
-[nl]
+[para]
 
 The command returns a list of addresses in dotted form if it was
 called with a list of addresses. Otherwise a single address in dotted
 form is returned.
 
-[nl]
+[para]
 [example {
    % ip::nativeToPrefix {0x01010100 0xffffff00} -ipv4
    1.1.1.0/24
@@ -112,7 +112,7 @@ form is returned.
 This command converts from an ip address specified as integer number
 to dotted form.
 
-[nl]
+[para]
 [example {
        ip::intToString 4294967295
        255.255.255.255
@@ -123,7 +123,7 @@ to dotted form.
 
 This command converts a dotted form ip into an integer number.
 
-[nl]
+[para]
 [example {
    % ::ip::toInteger 1.1.1.0
    16843008
@@ -134,7 +134,7 @@ This command converts a dotted form ip into an integer number.
 
 This command converts dotted form ip into a hexadecimal number.
 
-[nl]
+[para]
 [example {
    % ::ip::toHex 1.1.1.0
    0x01010100
@@ -146,7 +146,7 @@ This command converts dotted form ip into a hexadecimal number.
 This command convert an ipmask in either dotted (255.255.255.0) form
 or mask length form (24) into an integer number.
 
-[nl]
+[para]
 [example {
    ::ip::maskToInt 24
    4294967040
@@ -159,7 +159,7 @@ This commands returns a broadcast address in dotted form for the given
 route [arg prefix], either in the form "addr/mask", or in native
 form. The result is in dotted form.
 
-[nl]
+[para]
 [example {
    ::ip::broadcastAddress 1.1.1.0/24
    1.1.1.255
@@ -176,7 +176,7 @@ form. The result is in dotted form.
 This command converts the dotted or integer form of an ipmask to
 the mask length form.
 
-[nl]
+[para]
 [example {
    ::ip::maskToLength 0xffffff00 -ipv4
    24
@@ -191,7 +191,7 @@ the mask length form.
 This command converts an ipmask in mask length form to its dotted
 form.
 
-[nl]
+[para]
 [example {
    ::ip::lengthToMask 24
    255.255.255.0
@@ -206,13 +206,13 @@ This command returns an ipaddress in the same position in the
 [arg count] next network. The default value for [arg count] is
 [const 1].
 
-[nl]
+[para]
 
 The address can be specified as either integer number or in dotted
 form. The mask can be specified as either integer number, dotted form,
 or mask length form.
 
-[nl]
+[para]
 
 The result is in hex form.
 
@@ -224,7 +224,7 @@ are in dotted "addr/mask" form. All arguments after the first prefix
 are compared against the first prefix. The result is a boolean
 value. It is true if an overlap was found for any of the prefixes.
 
-[nl]
+[para]
 [example {
   % ::ip::isOverlap 1.1.1.0/24 2.1.0.1/32
   0
@@ -250,33 +250,33 @@ overlap, not only until the first one is found.
 If the option [option -inline] is specified the command returns the
 overlapping prefix instead of index values.
 
-[nl]
+[para]
 
 The result of the command is, depending on the specified options,
 
 [list_begin definitions]
-[lst_item {no options}]
+[def {no options}]
 
 The index of the first overlap found, or 0 if there is none.
 
-[lst_item -all]
+[def -all]
 
 A list containing the indices of all overlaps found, or an empty list
 
 if there are none.
 
-[lst_item -inline]
+[def -inline]
 
 The first overlapping prefix, or an empoty string if there is none.
 
-[lst_item {-all -inline}]
+[def {-all -inline}]
 
 A list containing the prefixes of all overlaps found, or an empty list
 if there are none.
 
 [list_end]
 
-[nl]
+[para]
 [example {
   % ::ip::isOverlapNative 0x01010100 0xffffff00 {{0x02010001 0xffffffff}}
   0
@@ -291,7 +291,7 @@ if there are none.
 This command an converts ipv4 address in dotted form into a layer 2
 multicast address, also in dotted form.
 
-[nl]
+[para]
 [example {
   % ::ip::ipToLayer2Multicast 224.0.0.2
   01.00.5e.00.00.02
@@ -307,7 +307,7 @@ found in the [arg prefixExcludeList].
 
 The result is an ip address in dotted form.
 
-[nl]
+[para]
 [example {
   %::ip::ipHostFromPrefix  1.1.1.5/24
   1.1.1.1
@@ -325,7 +325,7 @@ nets. The prefixes are in either addr/mask form or in native format.
 The result is a list containing the non-overlapping ip prefixes from
 the input.
 
-[nl]
+[para]
 [example {
   % ::ip::reduceToAggregates {1.1.1.0/24 1.1.0.0/8  2.1.1.0/24 1.1.1.1/32 }
   1.0.0.0/8 2.1.1.0/24
@@ -343,7 +343,7 @@ dotted form, or integer form.
 The result is the prefix which is the most specific match to the host
 address.
 
-[nl]
+[para]
 [example {
   % ::ip::longestPrefixMatch 1.1.1.1 {1.1.1.0/24 1.0.0.0/8  2.1.1.0/24 1.1.1.0/28 }
   1.1.1.0/28

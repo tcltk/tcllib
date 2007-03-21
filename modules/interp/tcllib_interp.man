@@ -21,7 +21,7 @@ This commands creates an empty Tcl interpreter and returns it
 name. Empty means that the new interpreter has neither namespaces, nor
 any commands. It is useful only for the creation of aliases.
 
-[nl]
+[para]
 
 If a [arg path] is specified then it is taken as the name of the new
 interpreter.
@@ -32,7 +32,7 @@ interpreter.
 This command assumes that it was called from within a method of a snit
 object, and that the command [cmd mymethod] is available.
 
-[nl]
+[para]
 
 It extends the interpreter specified by [arg path] with aliases for
 all methods found in the [arg methodlist], with the alias directing
@@ -43,7 +43,7 @@ Each element of [arg methodlist] is actually interpreted as a command
 prefix, with the first word of each prefix the name of the method to
 link to.
 
-[nl]
+[para]
 
 The result of the command is the empty string.
 
@@ -60,7 +60,7 @@ command prefixes.
 This command allows the creation of more complex command-method
 mappings than [cmd ::interp::snitLink].
 
-[nl]
+[para]
 
 The result of the command is the empty string.
 

@@ -57,7 +57,7 @@ present in the file.
 
 [example {
     puts [::tiff::imageInfo photo.tif]
-    [nl]
+    [para]
     ImageWidth 686 ImageLength 1024 BitsPerSample {8 8 8} Compression 1
     PhotometricInterpretation 2 ImageDescription {} Orientation 1
     XResolution 170.667 YResolution 170.667 ResolutionUnit 2 DateTime {2005:12:28 19:44:45}

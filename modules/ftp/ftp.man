@@ -70,22 +70,22 @@ used by the generic command [cmd ::uri::geturl] to retrieve the
 contents of ftp urls. Internally it uses the ftp commands described
 below to fulfill the request.
 
-[nl]
+[para]
 
 The contents of an ftp url are defined as follows:
 
 [list_begin definitions]
 
-[lst_item [term file]]
+[def [term file]]
 
 The contents of the specified file itself.
 
-[lst_item [term directory]]
+[def [term directory]]
 
 A listing of the contents of the directory in key value notation where
 the file name is the key and its attributes the associated value.
 
-[lst_item [term link]]
+[def [term link]]
 
 The attributes of the link, including the path it refers to.
 
@@ -97,7 +97,7 @@ This command is used to start a FTP session by establishing a control
 connection to the FTP server. The defaults are used for any option not
 specified by the caller.
 
-[nl]
+[para]
 
 The command takes a host name [arg server], a user name [arg user] and
 a password [arg password] as its parameters and returns a session
@@ -109,26 +109,26 @@ dotted decimal notation) of the ftp server to connect to. The
 [arg user] and [arg passwd] parameters must contain a valid user name
 and password to complete the login process.
 
-[nl]
+[para]
 
 The options overwrite some default values or set special abilities:
 
 [list_begin definitions]
 
-[lst_item "[option -blocksize] [arg size]"]
+[def "[option -blocksize] [arg size]"]
 
 The blocksize is used during data transfer. At most [arg size] bytes
 are transfered at once. The default value for this option is 4096.
 The package will evaluate the [cmd {-progress callback}] for the
 session after the transfer of each block.
 
-[lst_item "[option -timeout] [arg seconds]"]
+[def "[option -timeout] [arg seconds]"]
 
 If [arg seconds] is non-zero, then [cmd ::ftp::Open] sets up a timeout
 which will occur after the specified number of seconds. The default
 value is 600.
 
-[lst_item "[option -port] [arg number]"]
+[def "[option -port] [arg number]"]
 
 The port [arg number] specifies an alternative remote port on the ftp
 server on which the ftp service resides. Most ftp services listen for
@@ -136,7 +136,7 @@ connection requests on the default port 21. Sometimes, usually for
 security reasons, port numbers other than 21 are used for ftp
 connections.
 
-[lst_item "[option -mode] [arg mode]"]
+[def "[option -mode] [arg mode]"]
 
 The transfer [arg mode] option determines if a file transfer occurs in
 [const active] or [const passive] mode. In passive mode the client
@@ -145,19 +145,19 @@ connection rather than to initiate the process by itself when a data
 transfer request comes in. Passive mode is normally a requirement when
 accessing sites via a firewall. The default mode is [const active].
 
-[lst_item "[option -progress] [arg callback]"]
+[def "[option -progress] [arg callback]"]
 
 This [arg callback] is evaluated whenever a block of data was
 transfered. See the option [option -blocksize] for how to specify the
 size of the transfered blocks.
 
-[nl]
+[para]
 
 When evaluating the [arg callback] one argument is appended to the
 callback script, the current accumulated number of bytes transferred
 so far.
 
-[lst_item "[option -command] [arg callback]"]
+[def "[option -command] [arg callback]"]
 
 Specifying this option places the connection into asynchronous
 mode. The [arg callback] is evaluated after the completion of any
@@ -165,7 +165,7 @@ operation. When an operation is running no further operations must be
 started until a callback has been received for the currently executing
 operation.
 
-[nl]
+[para]
 
 When evaluating the [arg callback] several arguments are appended to
 the callback script, namely the keyword of the operation that has
@@ -173,7 +173,7 @@ completed and any additional arguments specific to the operation.  If
 an error occurred during the execution of the operation the callback is
 given the keyword [const error].
 
-[lst_item "[option -output] [arg callback]"]
+[def "[option -output] [arg callback]"]
 
 This option has no default. If it is set the default implementation of
 [cmd ::ftp::DisplayMsg] will use its value as command prefix to log
@@ -199,17 +199,17 @@ to a specified target [arg directory].  The command returns 1 if the
 current working directory was successfully changed to the specified
 directory or 0 if it fails.  The target directory can be
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 
 a subdirectory of the current directory,
 
-[bullet]
+[item]
 
 Two dots, [const ..]  (as an indicator for the parent directory of
 the current directory)
 
-[bullet]
+[item]
 
 or a fully qualified path to a new working directory.
 
@@ -226,7 +226,7 @@ This command sets the ftp file transfer type to either [const ascii],
 [const binary], or [const tenex]. The command always returns the
 currently set type. If called without type no change is made.
 
-[nl]
+[para]
 
 Currently only [const ascii] and [const binary] types are
 supported. There is some early (alpha) support for Tenex mode. The
@@ -247,7 +247,7 @@ name, the command lists entries relative to the current remote
 directory.  If no [arg pattern] is specified, the contents of the
 current remote directory is returned.
 
-[nl]
+[para]
 
 The listing includes any system-dependent information that the server
 chooses to include. For example most UNIX systems produce output from
@@ -256,7 +256,7 @@ information as a tcl list with one item per entry. Empty lines and
 UNIX's "total" lines are ignored and not included in the result as
 reported by this command.
 
-[nl]
+[para]
 
 If the command fails an empty list is returned.
 
@@ -271,7 +271,7 @@ file names are returned in a sorted list.
 This command returns the size of the specified [arg file] on the ftp
 server. If the command fails an empty string is returned.
 
-[nl]
+[para]
 
 [emph ATTENTION!] It will not work properly when in ascii mode and
 is not supported by all ftp server implementations.
@@ -309,13 +309,13 @@ unspecified, the server will use the name of the local file as the
 name of the remote file. The command returns 1 to indicate a successful
 transfer and 0 in the case of a failure.
 
-[nl]
+[para]
 
 If [option -data] [arg data] is specified instead of a local file, the
 system will not transfer a file, but the [arg data] passed into it. In
 this case the name of the remote file has to be specified.
 
-[nl]
+[para]
 
 If [option -channel] [arg chan] is specified instead of a local file,
 the system will not transfer a file, but read the contents of the
@@ -342,13 +342,13 @@ returns 1 to indicate a successful transfer and 0 in the case of a
 failure. The command will throw an error if the directory the file
 [arg local] is to be placed in does not exist.
 
-[nl]
+[para]
 
 If [option -variable] [arg varname] is specified, the system will
 store the retrieved data into the variable [arg varname] instead of a
 file.
 
-[nl]
+[para]
 
 If [option -channel] [arg chan] is specified, the system will write
 the retrieved data into the channel [arg chan] instead of a file. The
@@ -366,7 +366,7 @@ failure.  The command will throw an error if the directory the file
 when transferring very large files over networks that tend to drop
 connections.
 
-[nl]
+[para]
 
 Specifying the additional byte offsets [arg from] and [arg to] will
 cause the command to change its behaviour and to download exactly the
@@ -407,7 +407,7 @@ transferring files. It is included to allow an application to execute
 commands on the ftp server which are not provided by this package.
 The arguments are sent verbatim, i.e. as is, with no changes.
 
-[nl]
+[para]
 
 In contrast to the other commands in this package this command will
 not parse the response it got from the ftp server but return it
@@ -426,14 +426,14 @@ to different colors is recommended by the author. The package
 
 [package log] is useful for this.
 
-[lst_item [var ::ftp::VERBOSE]]
+[def [var ::ftp::VERBOSE]]
 
 A state variable controlling the output of the package. Setting
 
 [var ::ftp::VERBOSE] to "1" forces the package to show all responses
 from a remote server. The default value is "0".
 
-[lst_item [var ::ftp::DEBUG]]
+[def [var ::ftp::DEBUG]]
 
 A state variable controlling the output of ftp. Setting
 

@@ -50,7 +50,7 @@ This method returns a list containing a disassembly of the match
 instructions in [arg asm]. The format of [arg asm] is specified in the
 section [sectref {MATCH PROGRAM REPRESENTATION}].
 
-[nl]
+[para]
 
 Each element of the result contains instruction label, instruction
 name, and the instruction arguments, in this order. The label can be
@@ -73,14 +73,14 @@ code [arg asm], which is in the format as returned by the method
 This method creates state value for a ME virtual machine in its
 initial state and returns it as its result.
 
-[nl]
+[para]
 
 The argument [arg matchcode] contains a Tcl representation of the
 match instructions the machine has to execute while parsing the input
 stream. Its format is specified in the section
 [sectref {MATCH PROGRAM REPRESENTATION}].
 
-[nl]
+[para]
 
 The [arg tokmap] argument taken by the implementation provided by the
 package [package grammar::me::tcl] is here hidden inside of the match
@@ -95,7 +95,7 @@ number and column index. The result of the method is a 2-element list
 containing the two pieces in the order mentioned in the previous
 sentence.
 
-[nl]
+[para]
 
 [emph Note] that the method cannot convert locations which the machine
 has not yet read from the input stream. In other words, if the machine
@@ -104,7 +104,7 @@ has read 7 characters so far it is possible to convert the offsets
 it is not possible to convert offsets which refer to locations before
 the beginning of the stream.
 
-[nl]
+[para]
 
 This utility allows higher levels to convert the location offsets
 found in the error status and the AST into more human readable data.
@@ -118,7 +118,7 @@ locations [arg from] and [arg to] (both inclusive). If [arg to] is not
 specified it will default to the value of [arg from]. If [arg from] is
 not specified either the whole input stream is returned.
 
-[nl]
+[para]
 
 This method places the same restrictions on its location arguments as
 the method [method lc].
@@ -244,7 +244,7 @@ the variable named by [arg statevar] and modifies it so that the token
 [arg tok] is added to the end of the input queue, with associated
 lexeme data [arg lex] and [arg line]/[arg col]umn information.
 
-[nl]
+[para]
 
 The operation will fail with an error if the eof flag of the machine
 has been set through the method [method eof].
@@ -257,18 +257,18 @@ the variable named by [arg statevar], executes a number of
 instructions and stores the state resulting from their modifications
 back into the variable.
 
-[nl]
+[para]
 
 The execution loop will run until either
 
-[list_begin bullet]
-[bullet] [arg n] instructions have been executed, or
-[bullet] a halt instruction was executed, or
-[bullet]
+[list_begin itemized]
+[item] [arg n] instructions have been executed, or
+[item] a halt instruction was executed, or
+[item]
 the input queue is empty and the code is asking for more tokens to
 process.
 [list_end]
-[nl]
+[para]
 
 If no limit [arg n] was set only the last two conditions are checked
 for.

@@ -65,21 +65,21 @@ after the namespace argument.
 [call [cmd ::term::ansi::code::ctrl::scs1] [arg tag]] Set alternate character set
 
 Select Character Set.
-[nl]
+[para]
 
 Choose which character set is used for either default (scs0) or
 alternate font (scs1). This does not change whether default or
 alternate font are used, only their definition.
 
-[nl]
+[para]
 The legal tags, and their meanings, are:
 
 [list_begin definitions]
-[lst_item A] United Kingdom Set
-[lst_item B] ASCII Set
-[lst_item 0] Special Graphics
-[lst_item 1] Alternate Character ROM Standard Character Set
-[lst_item 2] Alternate Character ROM Special Graphics
+[def A] United Kingdom Set
+[def B] ASCII Set
+[def 0] Special Graphics
+[def 1] Alternate Character ROM Standard Character Set
+[def 2] Alternate Character ROM Special Graphics
 [list_end]
 
 

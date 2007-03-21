@@ -31,7 +31,7 @@ Opens a LDAPv3 connection to the specified [arg host], at the given
 [arg handle] argument for all other commands. If no [arg port] is
 specified it will default to [const 389].
 
-[nl]
+[para]
 
 The command blocks until the connection has been established, or
 establishment definitely failed.
@@ -44,7 +44,7 @@ depends on the availability of the package [package TLS], which is a
 SSL binding for Tcl. If [package TLS] is not available, then this
 command will fail.
 
-[nl]
+[para]
 
 The command blocks until the connection has been established, or
 establishment definitely failed.
@@ -105,23 +105,23 @@ command blocks until it has received all results. The default scope used
 is subtree, but can be overriden with the [option -scope] option, valid scopes are
 [const base], [const subtree] or [const onelevel].
 
-[nl]
+[para]
 An example of a search expression is
-[nl]
+[para]
 [example {
     set filterString "|(cn=Linus*)(sn=Torvalds*)"
 }]
-[nl]
+[para]
 
 The return value of the command is a list of nested dictionaries. The
 first level keys are object identifiers (DNs), second levels keys are
 attribute names. In other words, it is in the form
 
-[nl]
+[para]
 [example {
     {dn1 {attr1 {val11 val12 ...} attr2 {val21...} ...}} {dn2 {a1 {v11 ...} ...}} ...
 }]
-[nl]
+[para]
 
 
 [call [cmd ::ldap::searchInit] [arg handle] [arg baseObject] [arg filterString] [arg attributes] [arg options]]
@@ -147,15 +147,15 @@ If the list of requested [arg attributes] is empty all attributes will be return
 The parameter [arg options] specifies the options to be used in the search,
 and has the following format:
 
-[nl]
+[para]
 [example {
     {-option1 value1 -option2 value2 ... }
 }]
-[nl]
+[para]
 
 Following options are available:
 
-[list_begin opt]
+[list_begin options]
 [opt_def -scope  {base one sub} ]
 
 Control the scope of the search to be one of [const base], [const one], or [const sub],  to  specify  a  base
@@ -185,7 +185,7 @@ If set to 1 only the attribute names but not the values will be present in the s
 The default is to retrieve attribute names and values.
 
 [list_end]
-[nl]
+[para]
 
 
 [call [cmd ::ldap::searchNext] [arg handle]]
@@ -199,17 +199,17 @@ The returned entry is a list with
 two elements: the first is the DN of the entry, the second is the
 list of attributes and values, under the format:
 
-[nl]
+[para]
 [example {
     dn {attr1 {val11 val12 ...} attr2 {val21...} ...}
 }]
-[nl]
+[para]
 
 The [cmd ::ldap::searchNext] command returns an empty list at the
 end of the search.
 
 
-[nl]
+[para]
 
 [call [cmd ::ldap::searchEnd] [arg handle]]
 
@@ -221,7 +221,7 @@ If the client has not yet received all results, the client
 sends an ABANDON message to inform the server that no
 further results for the previous search should to be sent.
 
-[nl]
+[para]
 
 [call [cmd ::ldap::modify] [arg handle] [arg dn] \
 	[arg attrValToReplace] \
@@ -236,7 +236,7 @@ All arguments are dictionaries mapping attribute names to values. The
 optional arguments default to the empty dictionary, which means that
 no attributes will be deleted nor added.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def dictionary attrValToReplace in]
 
 No attributes will be changed if this argument is empty. The
@@ -257,7 +257,7 @@ No attributes will be added if this argument is empty. The dictionary
 values are the values for the new attributes.
 
 [list_end]
-[nl]
+[para]
 
 The command blocks until all modifications have completed. Its result
 is the empty string.
@@ -273,16 +273,16 @@ connected to via [arg handle]. It replaces attributes with new values,
 deletes attributes, and adds new attributes with new values.
 
 All arguments are lists with the format:
-[nl]
+[para]
 [example {
     attr1 {val11 val12 ...} attr2 {val21...} ...
 }]
-[nl]
+[para]
 where each value list may be empty for deleting all attributes.
 The optional arguments default to empty lists of attributes to
 delete and to add.
 
-[list_begin arg]
+[list_begin arguments]
 [arg_def list attrValToReplace in]
 
 No attributes will be changed if this argument is empty. The
@@ -300,7 +300,7 @@ will be deleted.
 No attributes will be added if this argument is empty.
 
 [list_end]
-[nl]
+[para]
 
 The command blocks until all modifications have completed. Its result
 is the empty string.

@@ -26,12 +26,12 @@ beginning of the string and a newline, or between 2 newlines, or
 between a newline and the end of the string. If the input string is
 small enough, the returned string won't contain any newlines.
 
-[nl]
+[para]
 
 Together with [cmd ::textutil::indent] it is possible to create
 properly wrapped paragraphs with arbitrary indentations.
 
-[nl]
+[para]
 
 By default, any occurrence of spaces characters or tabulation are
 replaced by a single space so each word in a line is separated from
@@ -49,13 +49,13 @@ trailing spaces are ignored before returning the string (see
 
 [list_begin definitions]
 
-[lst_item "-full [arg boolean]"]
+[def "-full [arg boolean]"]
 
 If set to [const false], any trailing space chars are deleted before
 returning the string. If set to [const true], any trailing space
 chars are left in the string. Default to [const false].
 
-[lst_item "[option -hyphenate] [arg boolean]"]
+[def "[option -hyphenate] [arg boolean]"]
 
 if set to [const false], no hyphenation will be done. If set to
 [const true], the last word of a line is tried to be hyphenated.
@@ -63,7 +63,7 @@ Defaults to [const false]. Note: hyphenation patterns must be loaded
 prior, using the command [cmd ::textutil::adjust::readPatterns].
 
 
-[lst_item "[option -justify] [const center|left|plain|right]"]
+[def "[option -justify] [const center|left|plain|right]"]
 
 Set the justification of the returned string to [const center],
 
@@ -78,27 +78,27 @@ meaning of each value is:
 
 [list_begin definitions]
 
-[lst_item [const center]]
+[def [const center]]
 
 The real line is centered in the logical line. If needed, a set of
 space characters are added at the beginning (half of the needed set)
 and at the end (half of the needed set) of the line if required (see
 the option [option -full]).
 
-[lst_item [const left]]
+[def [const left]]
 
 The real line is set on the left of the logical line. It means that
 there are no space chars at the beginning of this line. If required,
 all needed space chars are added at the end of the line (see the
 option [option -full]).
 
-[lst_item [const plain]]
+[def [const plain]]
 
 The real line is exactly set in the logical line. It means that there
 are no leading or trailing space chars. All the needed space chars are
 added in the [emph real] line, between 2 (or more) words.
 
-[lst_item [const right]]
+[def [const right]]
 
 The real line is set on the right of the logical line. It means that
 there are no space chars at the end of this line, and there may be
@@ -106,14 +106,14 @@ some space chars at the beginning, despite of the [option -full] option.
 
 [list_end]
 
-[lst_item "[option -length] [arg integer]"]
+[def "[option -length] [arg integer]"]
 
 Set the length of the [emph logical] line in the string to
 [arg integer].  [arg integer] must be a positive integer
 value. Defaults to [const 72].
 
 
-[lst_item "[option -strictlength] [arg boolean]"]
+[def "[option -strictlength] [arg boolean]"]
 
 If set to [const false], a line can exceed the specified
 
@@ -134,7 +134,7 @@ command [cmd ::textutil::adjust] with
 "[option -hyphenate] [const true]", or the hyphenation process will
 not work correctly.
 
-[nl]
+[para]
 
 The package comes with a number of predefined pattern files, and the
 command [cmd ::textutil::adjust::listPredefined] can be used to find
@@ -161,7 +161,7 @@ Each line in the [arg string] indented by adding the string
 [arg prefix] at its beginning. The modified string is returned
 as the result of the command.
 
-[nl]
+[para]
 
 If [arg skip] is specified the first [arg skip] lines are left
 untouched. The default for [arg skip] is [const 0], causing the
@@ -169,7 +169,7 @@ modification of all lines. Negative values for [arg skip] are treated
 like [const 0]. In other words, [arg skip] > [const 0] creates a
 hanging indentation.
 
-[nl]
+[para]
 
 Together with [cmd ::textutil::adjust] it is possible to create
 properly wrapped paragraphs with arbitrary indentations.
@@ -181,13 +181,13 @@ The command computes the common prefix for all
 lines in [arg string] consisting solely out of whitespace,
 removes this from each line and returns the modified string.
 
-[nl]
+[para]
 
 Lines containing only whitespace are always reduced to completely
 empty lines. They and empty lines are also ignored when computing the
 prefix to remove.
 
-[nl]
+[para]
 
 Together with [cmd ::textutil::adjust] it is possible to create
 properly wrapped paragraphs with arbitrary indentations.
@@ -235,7 +235,7 @@ algorithm is used however. Instead of replacing any substring of
 [arg num] spaces this command works more like an editor. [arg num]
 defaults to 8.
 
-[nl]
+[para]
 
 Each line of the text in [arg string] is treated as if there are
 tabstops every [arg num] columns. Only sequences of space characters
@@ -312,7 +312,7 @@ tabstop. This is the complement of the actions taken by
 
 [cmd ::textutil::tabify2]. [arg num] defaults to 8.
 
-[nl]
+[para]
 
 There is one asymmetry though: A tab can be replaced with a single
 space, but not the other way around.
@@ -361,7 +361,7 @@ Computes the longest common prefix for either the [arg string]s given
 to the command, or the strings specified in the single [arg list], and
 returns it as the result of the command.
 
-[nl]
+[para]
 
 If no strings were specified the result is the empty string.  If only
 one string was specified, the string itself is returned, as it is its

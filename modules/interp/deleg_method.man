@@ -24,12 +24,12 @@ invokations of this method will delegate the actual work to the remote
 location identified by the comm channel [arg comm] and the endpoint
 [arg id].
 
-[nl]
+[para]
 
 The name of the remote method invoked by the delegator is identical to
 the name of the method itself.
 
-[nl]
+[para]
 
 Normally the generated method marshalls the [arg arguments], and
 returns the result from the remote method as its own result. If

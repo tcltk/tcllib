@@ -19,7 +19,7 @@ result. Inserts the character [arg wrapchar] every [arg maxlen]
 characters of output. [arg wrapchar] defaults to newline. [arg maxlen]
 defaults to [const 60].
 
-[nl]
+[para]
 
 [emph {Note well}]: If your string is not simple ascii you should fix
 the string encoding before doing base64 encoding. See the examples.

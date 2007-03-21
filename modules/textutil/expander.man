@@ -36,15 +36,15 @@ implement a markup language similar to HTML.
 The [cmd subst] command is efficient, but it has three drawbacks for
 this kind of template processing:
 
-[list_begin bullet]
+[list_begin itemized]
 
-[bullet]
+[item]
 
 There's no way to identify and process the plain text between two
 embedded Tcl commands; that makes it difficult to handle plain text in
 a context-sensitive way.
 
-[bullet]
+[item]
 
 Embedded commands are necessarily bracketed by [const [lb]] and
 [const [rb]]; it's convenient to be able to choose different brackets
@@ -52,7 +52,7 @@ in special cases.  Someone producing web pages that include a large
 quantity of Tcl code examples might easily prefer to use [const <<]
 and [const >>] as the embedded code delimiters instead.
 
-[bullet]
+[item]
 
 There's no easy way to handle incremental input, as one might wish to
 do when reading data from a socket.
@@ -168,27 +168,27 @@ Sets the macro expansion error mode to one of [const nothing],
 error is detected during expansion of a macro.
 
 [list_begin definitions]
-[lst_item [const fail]]
+[def [const fail]]
 
 The error propagates normally and can be caught or ignored by the
 application.
 
-[lst_item [const error]]
+[def [const error]]
 
 The macro expands into a detailed error message, and expansion
 continues.
 
-[lst_item [const macro]]
+[def [const macro]]
 
 The macro expands to itself; that is, it is passed along to the output
 unchanged.
 
-[lst_item [const nothing]]
+[def [const nothing]]
 
 The macro expands to the empty string, and is effectively ignored.
 
 [list_end]
-[nl]
+[para]
 
 [call [arg expanderName] [method evalcmd] [opt [arg newEvalCmd]]]
 
@@ -204,7 +204,7 @@ additional argument: the macro to evaluate.
 Expands the input string, replacing embedded macros with their
 expanded values, and returns the expanded string.
 
-[nl]
+[para]
 
 If [arg brackets] is given, it must be a list of two strings; the
 items will be used as the left and right macro expansion bracket
@@ -258,7 +258,7 @@ encounters, giving the user of the object the ability to process all
 plain text in some standard way before writing it to the output. The
 object expects that the command returns the processed plain text.
 
-[nl]
+[para]
 
 [emph Note] that the combination of "[cmd textcmd] [arg plaintext]"
 is run through the [arg evalcmd] for the actual evaluation. In other

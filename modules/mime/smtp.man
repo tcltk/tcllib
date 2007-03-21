@@ -22,52 +22,52 @@ of options and their associated values.  The recognized options are:
 
 [list_begin definitions]
 
-[lst_item [option -servers]]
+[def [option -servers]]
 
 A list of SMTP servers. The default is [const localhost].
 
-[lst_item [option -ports]]
+[def [option -ports]]
 
 A list of SMTP ports. The default is [const 25].
 
-[lst_item [option -client]]
+[def [option -client]]
 
 The name to use as our hostname when connecting to the server. By
 default this is either localhost if one of the servers is localhost,
 or is set to the string returned by [cmd "info hostname"].
 
-[lst_item [option -queue]]
+[def [option -queue]]
 
 Indicates that the SMTP server should be asked to queue the message
 for later processing. A boolean value.
 
-[lst_item [option -atleastone]]
+[def [option -atleastone]]
 
 Indicates that the SMTP server must find at least one recipient
 acceptable for the message to be sent. A boolean value.
 
-[lst_item [option -originator]]
+[def [option -originator]]
 
 A string containing an 822-style address specification. If present the
 header isn't examined for an originator address.
 
-[lst_item [option -recipients]]
+[def [option -recipients]]
 
 A string containing one or more 822-style address specifications. If
 present the header isn't examined for recipient addresses). If the
 string contains more than one address they will be separated by
 commas.
 
-[lst_item [option -header]]
+[def [option -header]]
 
 A list of keywords and their values (may occur zero or more times).
 
-[lst_item [option -usetls]]
+[def [option -usetls]]
 
 This package supports the RFC 3207 TLS extension (3) by default provided the 
 tls package is available. You can turn this off with this boolean option.
 
-[lst_item [option -tlspolicy]]
+[def [option -tlspolicy]]
 
 This option lets you specify a command to be called if an error occurs 
 during TLS setup. The command is called with the SMTP code and diagnostic
@@ -76,8 +76,8 @@ insecure will cause the package to continue on the unencrypted channel.
 Returning 'secure' will cause the socket to be closed and the next server
 in the [option -servers] list to be tried.
 
-[lst_item [option -username]]
-[lst_item [option -password]]
+[def [option -username]]
+[def [option -password]]
 
 If your SMTP server requires authentication (RFC 2554 (4)) before
 accepting mail you can use [option -username] and [option -password]
@@ -89,7 +89,7 @@ methods. Note that if the server permits a TLS connection, then the
 authorization will occur after we begin using the secure channel.
 
 [list_end]
-[nl]
+[para]
 
 If the [option -originator] option is not present, the originator
 address is taken from [const From] (or [const Resent-From]);
@@ -101,7 +101,7 @@ in the MIME part) are consulted. Regardless, header key/values are
 added to the outgoing message as necessary to ensure that a valid
 822-style message is sent.
 
-[nl]
+[para]
 
 The command returns a list indicating which recipients were
 unacceptable to the SMTP server. Each element of the list is another
