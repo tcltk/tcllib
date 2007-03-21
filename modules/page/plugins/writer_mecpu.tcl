@@ -1,5 +1,5 @@
 # -*- tcl -*- 
-# -- $Id: writer_mecpu.tcl,v 1.1 2006/07/01 01:35:21 andreas_kupries Exp $ ---
+# -- $Id: writer_mecpu.tcl,v 1.2 2007/03/21 23:15:53 andreas_kupries Exp $ ---
 #
 # PAGE plugin - writer - ME cpu ~ Match Engine CPU
 #
@@ -113,4 +113,4 @@ proc page_wrun {chan data} {
 # ### ### ### ######### ######### #########
 ## Initialization
 
-package provide page::writer::mecpu 0.1
+package provide page::writer::mecpu 0.1.1
