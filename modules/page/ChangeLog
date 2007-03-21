@@ -1,3 +1,9 @@
+2007-03-21  Andreas Kupries <andreask@activestate.com>
+
+	* pkgIndex.tcl: Fixed version mismatches, index vs. package.
+	* plugins/pkgIndex.tcl:
+	* plugins/writer_mecpu.tcl:
+
 2007-03-07  Andreas Kupries  <andreask@activestate.com>
 
 	* compiler_peg_mecpu.tcl: Fixed typo in name of required package
