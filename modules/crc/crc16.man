@@ -37,15 +37,15 @@ using the [arg format](n) specifier provided or as an unsigned integer
 
 [list_begin definitions]
 
-[lst_item "-filename [arg name]"]
+[def "-filename [arg name]"]
 
 Return a checksum for the file contents instead of for parameter data.
 
-[lst_item "-format [arg string]"]
+[def "-format [arg string]"]
 
 Return the checksum using an alternative format template.
 
-[lst_item "-seed [arg value]"]
+[def "-seed [arg value]"]
 
 Select an alternative seed value for the CRC calculation. The default
 is 0 for the CRC16 calculation and 0xFFFF for the CCITT version.
@@ -55,7 +55,7 @@ string. The CRC of the previous member can be used as the seed for
 calculating the CRC of the next member. It is also used for
 accumulating a checksum from fragments of a large message (or file)
 
-[lst_item "-implementation [arg procname]"]
+[def "-implementation [arg procname]"]
 
 This hook is provided to allow users to provide their own
 implementation (perhaps a C compiled extension). The

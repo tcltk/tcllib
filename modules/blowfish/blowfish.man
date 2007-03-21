@@ -34,7 +34,7 @@ by the argument or on the data read from the [arg "-in"] channel. If
 an [arg "-out"] channel is given then the result will be written to
 this channel.
 
-[nl]
+[para]
 
 The [arg -key] option must be given. This parameter takes a binary
 string of variable length and is used to generate the [package blowfish]
@@ -42,7 +42,7 @@ key schedule. You should be aware that creating a key
 schedule is quite an expensive operation in blowfish so it is worth
 reusing the key where possible. See [cmd Reset].
 
-[nl]
+[para]
 
 The [arg -mode] and [arg -dir] options are optional and default to cbc
 mode and encrypt respectively. The initialization vector [arg -iv]
@@ -50,7 +50,7 @@ takes an 8 byte binary argument which defaults to 8 zeros.
 See [sectref "MODES OF OPERATION"] for more about available modes and
 their uses.
 
-[nl]
+[para]
 
 Blowfish is a 64-bit block cipher. This means that the data must be
 provided in units that are a multiple of 8 bytes. The [cmd blowfish]
@@ -105,14 +105,14 @@ Once this function has been called the key may not be used again.
 
 [list_begin definitions]
 
-[lst_item "Electronic Code Book (ECB)"]
+[def "Electronic Code Book (ECB)"]
 ECB is the basic mode of all block ciphers. Each block is encrypted
 independently and so identical plain text will produce identical
 output when encrypted with the same key. Any encryption errors will
 only affect a single block however this is vulnerable to known
 plaintext attacks.
 
-[lst_item "Cipher Block Chaining (CBC)"]
+[def "Cipher Block Chaining (CBC)"]
 
 CBC mode uses the output of the last block encryption to affect the
 current block. An initialization vector of the same size as the cipher

@@ -36,35 +36,35 @@ The keys used and their values are:
 
 [list_begin definitions]
 
-[lst_item [const totalCalls]]
+[def [const totalCalls]]
 
 The total number of times [arg functionName] was called.
 
-[lst_item [const callerDist]]
+[def [const callerDist]]
 
 A list of key/value pairs mapping each calling function that called
 [arg functionName] to the number of times it called
 
 [arg functionName].
 
-[lst_item [const compileTime]]
+[def [const compileTime]]
 
 The runtime, in clock clicks, of [arg functionName] the first time
 that it was called.
 
-[lst_item [const totalRuntime]]
+[def [const totalRuntime]]
 
 The sum of the runtimes of all calls of [arg functionName].
 
-[lst_item [const averageRuntime]]
+[def [const averageRuntime]]
 
 Average runtime of [arg functionName].
 
-[lst_item [const descendantTime]]
+[def [const descendantTime]]
 
 Sum of the time spent in descendants of [arg functionName].
 
-[lst_item [const averageDescendantTime]]
+[def [const averageDescendantTime]]
 
 Average time spent in descendants of [arg functionName]. 
 

@@ -23,7 +23,7 @@ This command creates a new pager object with the name [arg object],
 initializes it, and returns the fully qualified name of the object
 command as its result.
 
-[nl]
+[para]
 
 The argument is the text to show, possibly followed by configuration
 options and their values. The options are explained in the section
@@ -75,7 +75,7 @@ Standard methods to retrieve and configure the options of the pager.
 
 A pager instance recognizes the following options:
 
-[list_begin opt]
+[list_begin options]
 [opt_def -in chan]
 
 Specifies the channel to read character sequences from. Defaults to
@@ -117,29 +117,29 @@ as described. The user can supply more control sequences to act on via
 the configuration, but is not able to overide these defaults.
 
 [list_begin definitions]
-[lst_item {Cursor Up}]
+[def {Cursor Up}]
 
 The text is scrolled down a single line, making one more line visible
 at the top. The pager will not react if the first line of the text is
 already shown.
 
-[lst_item {Cursor Down}]
+[def {Cursor Down}]
 
 The text is scrolled up a single line, making one more line visible at
 the bottom. The pager will not react if the last line of the text is
 already shown.
 
-[lst_item {Page Up}]
+[def {Page Up}]
 
 The text is scrolled down a page. The pager will not react if the
 first line of the text is already shown.
 
-[lst_item {Page Down}]
+[def {Page Down}]
 
 The text is scrolled up a page. The pager will not react if the last
 line of the text is already shown.
 
-[lst_item Enter/Return]
+[def Enter/Return]
 
 The interaction with the object is terminated.
 

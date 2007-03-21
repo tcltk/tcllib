@@ -29,7 +29,7 @@ command being customized, and are documented with the command.
 When disabled, the [cmd assert] command behaves exactly like the
 [cmd no-op] command.
 
-[nl]
+[para]
 
 When enabled, the [cmd assert] command evaluates [arg expr] as an
 expression (in the same way that [cmd expr] evaluates its argument).
@@ -44,12 +44,12 @@ joined by [cmd join] to form the message string.  The message string
 is then appended as an argument to a callback command, and the
 completed callback command is evaluated in the global namespace.
 
-[nl]
+[para]
 
 The [cmd assert] command can be customized by the [cmd control]
 command in two ways:
 
-[nl]
+[para]
 
 [lb][cmd "control::control assert enabled"] [opt [arg boolean]][rb]
 queries or sets whether [cmd control::assert] is enabled.  When called
@@ -59,7 +59,7 @@ called with a valid boolean value as the [arg boolean] argument, the
 [cmd control::assert] command is enabled or disabled to match the
 argument, and an empty string is returned.
 
-[nl]
+[para]
 
 [lb][cmd "control::control assert callback"] [opt [arg command]][rb]
 queries or sets the callback command that will be called by an enabled
@@ -72,7 +72,7 @@ is disabled.  The default callback command is
 
 [lb][cmd "return -code error"][rb].
 
-[nl]
+[para]
 
 Note that [cmd control::assert] has been written so that in
 combination with [lb][cmd "namespace import"][rb], it is possible to
@@ -82,7 +82,7 @@ use enabled [cmd assert] commands in some namespaces and disabled
 capability is useful so that debugging efforts can be independently
 controlled module by module.
 
-[nl]
+[para]
 
 [example {
 % package require control

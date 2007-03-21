@@ -41,7 +41,7 @@ The description of a menu is converted into a formatted rectangular
 block of text, with the menu command characters highlighted using bold
 red text.  The result is returned as the result of the command.
 
-[nl]
+[para]
 
 The description, [arg menu], is a dictionary mapping from menu label
 to command character.

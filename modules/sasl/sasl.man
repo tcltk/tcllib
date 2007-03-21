@@ -74,7 +74,7 @@ from the returned list. This permits a security threshold to be set. Mechanisms
 with a preference less that 25 transmit authentication are particularly
 susceptible to eavesdropping and should not be provided unless a secure
 channel is in use (eg: tls).
-[nl]
+[para]
 The [arg type] parameter
 may be one of [arg client] or [arg server] and defaults to [arg client].
 Only mechanisms that have an implementation matching the [arg type] are 
@@ -99,19 +99,19 @@ then the recorded values are updated.
 
 [list_begin definitions]
 
-[lst_item [option "-callback"]]
+[def [option "-callback"]]
 
 Specify a command to be evaluated when the SASL mechanism requires
 information about the user. The command is called with the current
 SASL context and a name specifying the information desired. See
 [sectref EXAMPLES].
 
-[lst_item [option "-mechanism"]]
+[def [option "-mechanism"]]
 
 Set the SASL mechanism to be used. See [cmd mechanisms] for a list of
 supported authentication mechanisms.
 
-[lst_item [option "-service"]]
+[def [option "-service"]]
 
 Set the service type for this context. Some mechanisms may make use of
 this parameter (eg DIGEST-MD5, GSSAPI and Kerberos). If not set it
@@ -119,12 +119,12 @@ defaults to an empty string. If the [option -type] is set to 'server'
 then this option should be set to a valid service identity. Some
 examples of valid service names are smtp, ldap, beep and xmpp.
 
-[lst_item [option "-server"]]
+[def [option "-server"]]
 
 This option is used to set the server name used in SASL challenges
 when operating as a SASL server.
 
-[lst_item [option "-type"]]
+[def [option "-type"]]
 
 The context type may be one of 'client' or 'server'. The default is to
 operate as a client application and respond to server
@@ -147,34 +147,34 @@ In all cases a single response string should be returned.
 
 [list_begin definitions]
 
-[lst_item "login"]
+[def "login"]
 
 The callback procedure should return the users authorization identity.
 Return an empty string unless this is to be different to the authentication
 identity. Read [lb]1[rb] for a discussion about the specific meaning of
 authorization and authentication identities within SASL.
 
-[lst_item "username"]
+[def "username"]
 
 The callback procedure should return the users authentication identity.
 Read [lb]1[rb] for a discussion about the specific meaning of
 authorization and authentication identities within SASL.
 
-[lst_item "password"]
+[def "password"]
 
 The callback procedure should return the password that matches the
 authentication identity as used within the current realm.
-[nl]
+[para]
 For server mechanisms the password callback should always be called with 
 the authentication identity and the realm as the first two parameters.
 
-[lst_item "realm"]
+[def "realm"]
 
 Some SASL mechanisms use realms to partition authentication identities.
 The realm string is protocol dependent and is often the current DNS
 domain or in the case of the NTLM mechanism it is the Windows NT domain name.
 
-[lst_item "hostname"]
+[def "hostname"]
 
 Returns the client host name - typically [lb]info host[rb].
 
@@ -186,25 +186,25 @@ Returns the client host name - typically [lb]info host[rb].
 
 [list_begin definitions]
 
-[lst_item "ANONYMOUS"]
+[def "ANONYMOUS"]
 
 As used in FTP this mechanism only passes an email address for
 authentication. The ANONYMOUS mechanism is specified in [lb]2[rb].
 
-[lst_item "PLAIN"]
+[def "PLAIN"]
 
 This is the simplest mechanism. The users authentication details are
 transmitted in plain text. This mechanism should not be provided
 unless an encrypted link is in use - typically after SSL or TLS has
 been negotiated.
 
-[lst_item "LOGIN"]
+[def "LOGIN"]
 
 The LOGIN [lb]1[rb] mechanism transmits the users details with base64
 encoding. This is no more secure than PLAIN and likewise should not be
 used without a secure link.
 
-[lst_item "CRAM-MD5"]
+[def "CRAM-MD5"]
 
 This mechanism avoids sending the users password over the network in
 plain text by hashing the password with a server provided random value
@@ -212,7 +212,7 @@ plain text by hashing the password with a server provided random value
 server must maintain a database of plaintext passwords for
 comparison. CRAM-MD5 was defined in [lb]4[rb].
 
-[lst_item "DIGEST-MD5"]
+[def "DIGEST-MD5"]
 
 This mechanism improves upon the CRAM-MD5 mechanism by avoiding the
 need for the server to store plaintext passwords. With digest
@@ -221,7 +221,7 @@ password which helps to make the system more secure. As in CRAM-MD5
 the password is hashed with a server nonce and other data before being
 transmitted across the network. Specified in [lb]3[rb].
 
-[lst_item "OTP"]
+[def "OTP"]
 
 OTP is the One-Time Password system described in RFC 2289 [lb]6[rb].
 This mechanism is secure against replay attacks and also avoids storing
@@ -230,7 +230,7 @@ and a passphrase is ever transmitted across the network. Requires the
 [package otp] package from tcllib and one or more of the cryptographic 
 digest packages (md5 or sha-1 are the most commonly used).
 
-[lst_item "NTLM"]
+[def "NTLM"]
 
 This is a proprietary protocol developed by Microsoft [lb]5[rb] and is
 in common use for authenticating users in a Windows network
@@ -241,7 +241,7 @@ As this mechanism has additional dependencies it is made available as
 a separate sub-package. To enable this mechanism your application must 
 load the SASL::NTLM package.
 
-[lst_item "X-GOOGLE-TOKEN"]
+[def "X-GOOGLE-TOKEN"]
 
 This is a proprietary protocol developed by Google and used for 
 authenticating users for the Google Talk service. This mechanism makes

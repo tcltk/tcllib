@@ -37,7 +37,7 @@ or [term http] else. Currently only the schemes [term http],
 
 See section [sectref EXTENDING] on how to expand that range.
 
-[nl]
+[para]
 
 The set of constituents of an url (= the set of keys in the returned
 dictionary) is dependent on the scheme of the url. The only key which
@@ -45,26 +45,26 @@ is therefore always present is [const scheme]. For the following
 schemes the constituents and their keys are known:
 
 [list_begin definitions]
-[lst_item ftp]
+[def ftp]
 [const user], [const pwd], [const host], [const port],
 [const path], [const type]
 
-[lst_item http(s)]
+[def http(s)]
 [const user], [const pwd], [const host], [const port],
 [const path], [const query], [const fragment]. The fragment
 is optional.
 
-[lst_item file]
+[def file]
 [const path], [const host]. The host is optional.
 
-[lst_item mailto]
+[def mailto]
 [const user], [const host]. The host is optional.
 
-[lst_item news]
+[def news]
 Either [const message-id] or [const newsgroup-name].
 
 [list_end]
-[nl]
+[para]
 
 
 [call [cmd uri::join] [opt "[arg key] [arg value]"]...]
@@ -110,12 +110,12 @@ the package itself. This command is called with the given [arg url]
 and all given [arg options]. Currently [cmd geturl] does not handle
 any options itself.
 
-[nl]
+[para]
 
 [emph Note:] [term file]-urls are an exception to the rule
 described above. They are handled internally.
 
-[nl]
+[para]
 
 It is not possible to specify results of the command. They depend on
 the [cmd geturl]-command for the scheme the request was dispatched to.

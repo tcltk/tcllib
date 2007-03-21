@@ -22,13 +22,13 @@ mime-types.
 
 This command is similar to the command [cmd fileutil::fileType].
 
-[nl]
+[para]
 
 The output of the command for the specified file is not a list of
 attributes describing the type of the file, but a list of standard
 mime-types the file may have.
 
-[nl]
+[para]
 
 This list will be empty if the type of the file is not recognized.
 

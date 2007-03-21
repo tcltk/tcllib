@@ -62,7 +62,7 @@ This command (re)initializes the interpreter. It returns the
 empty string. This command has to be invoked first, before any
 matching run.
 
-[nl]
+[para]
 
 Its argument [arg peg] is the handle of an object containing the
 parsing expression grammar to interpret. This grammar has to be
@@ -81,7 +81,7 @@ error information will be stored into the variable referenced by
 always contain the generated abstract syntax tree, however in the
 case of an error it will be only partial and possibly malformed.
 
-[nl]
+[para]
 
 The abstract syntax tree is represented by a nested list, as
 described in section [sectref {ABSTRACT SYNTAX TREE}] of

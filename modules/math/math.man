@@ -9,53 +9,53 @@
 
 The [package math] package provides utility math functions.
 [para]
-Besides a set of basic commands, available via the package [strong math],
+Besides a set of basic commands, available via the package [emph math],
 there are more specialised packages:
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 [package math::bigfloat] - Arbitrary-precision floating-point
 arithmetic
-[bullet]
+[item]
 [package math::bignum] - Arbitrary-precision integer arithmetic
-[bullet]
+[item]
 [package math::calculus::romberg] - Robust integration methods for
 functions of one variable, using Romberg integration
-[bullet]
+[item]
 [package math::calculus] - Integration of functions, solving ordinary
 differential equations
-[bullet]
+[item]
 [package math::combinatorics] - Procedures for various combinatorial
 functions (for instance the Gamma function and "k out of n")
-[bullet]
+[item]
 [package math::complexnumbers] - Complex number arithmetic
-[bullet]
+[item]
 [package math::constants] - A set of well-known mathematical
 constants, such as Pi, E, and the golden ratio
-[bullet]
+[item]
 [package math::fourier] - Discrete Fourier transforms
-[bullet]
+[item]
 [package math::fuzzy] - Fuzzy comparisons of floating-point numbers
-[bullet]
+[item]
 [package math::geometry] - 2D geometrical computations
-[bullet]
+[item]
 [package math::interpolate] - Various interpolation methods
-[bullet]
+[item]
 [package math::linearalgebra] - Linear algebra package
-[bullet]
+[item]
 [package math::optimize] - Optimization methods
-[bullet]
+[item]
 [package math::polynomials] - Polynomial arithmetic (includes families
 of classical polynomials)
-[bullet]
+[item]
 [package math::rationalfunctions] - Arithmetic of rational functions
-[bullet]
+[item]
 [package math::roman] - Manipulation (including arithmetic) of Roman
 numerals
-[bullet]
+[item]
 [package math::special] - Approximations of special functions from
 mathematical physics
-[bullet]
+[item]
 [package math::statistics] - Statistical operations and tests
 [list_end]
 

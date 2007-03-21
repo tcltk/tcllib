@@ -182,22 +182,22 @@ These configuration variables can be changed (descriptions of them are
 elsewhere in this manual page):
 
 [list_begin definitions]
-[lst_item "[option -listen] [opt [arg 0|1]]"]
-[lst_item "[option -local]  [opt [arg 0|1]]"]
-[lst_item "[option -port]   [opt [arg port]]"]
-[lst_item "[option -silent] [opt [arg 0|1]]"]
+[def "[option -listen] [opt [arg 0|1]]"]
+[def "[option -local]  [opt [arg 0|1]]"]
+[def "[option -port]   [opt [arg port]]"]
+[def "[option -silent] [opt [arg 0|1]]"]
 
-[lst_item "[option -interp] [opt [arg interpreter]]"]
-[lst_item "[option -events] [opt [arg eventlist]]"]
+[def "[option -interp] [opt [arg interpreter]]"]
+[def "[option -events] [opt [arg eventlist]]"]
 [list_end]
 
 [para]
 These configuration variables are read only:
 
 [list_begin definitions]
-[lst_item "[option -chan]    [arg chan]"]
-[lst_item "[option -serial]  [arg n]"]
-[lst_item "[option -socket]  sock[arg In]"]
+[def "[option -chan]    [arg chan]"]
+[def "[option -serial]  [arg n]"]
+[def "[option -socket]  sock[arg In]"]
 [list_end]
 
 [para]
@@ -335,7 +335,7 @@ the default [cmd ::comm::comm] channel to be closed such that the
 listening socket, preventing both incoming and outgoing commands on
 the channel.  This sequence reinitializes the default channel:
 
-[nl]
+[para]
 [example {
     "::comm::comm destroy; ::comm::comm new ::comm::comm"
 }]
@@ -364,25 +364,25 @@ Without this, a new [arg script] replaces any existing script.  When
 invoked without a script, no change is made.  In all cases, the new
 hook script is returned by the command.
 
-[nl]
+[para]
 
 When an [arg event] occurs, the [arg script] associated with it is
 evaluated with the listed variables in scope and available.  The
 return code ([emph not] the return value) of the script is commonly
 used decide how to further process after the hook.
 
-[nl]
+[para]
 Common variables include:
 
 [list_begin definitions]
 
-[lst_item [var chan]]
+[def [var chan]]
 the name of the comm channel (and command)
 
-[lst_item [var id]]
+[def [var id]]
 the id of the remote in question
 
-[lst_item [var fid]]
+[def [var fid]]
 the file id for the socket of the connection
 
 [list_end]
@@ -393,18 +393,18 @@ These are the defined [emph events]:
 
 [list_begin definitions]
 
-[lst_item [const connecting]]
+[def [const connecting]]
 
 Variables:
 [var chan], [var id]
 [comment {[var host], and [var port] are NOT defined when this is called}]
-[nl]
+[para]
 
 This hook is invoked before making a connection to the remote named in
 [arg id].  An error return (via [cmd error]) will abort the connection
 attempt with the error.  Example:
 
-[nl]
+[para]
 [example {
     % ::comm::comm hook connecting {
         if {[string match {*[02468]} $id]} {
@@ -416,11 +416,11 @@ attempt with the error.  Example:
     %
 }]
 
-[lst_item [const connected]]
+[def [const connected]]
 
 Variables:
 [var chan], [var fid], [var id], [var host], and [var port].
-[nl]
+[para]
 
 This hook is invoked immediately after making a remote connection to
 [arg id], allowing arbitrary authentication over the socket named by
@@ -430,11 +430,11 @@ extracted from the [arg id]; changing any of these will have no effect
 on the connection, however.  It is also possible to substitute and
 replace [arg fid].
 
-[lst_item [const incoming]]
+[def [const incoming]]
 
 Variables:
 [var chan], [var fid], [var addr], and [var remport].
-[nl]
+[para]
 
 Hook invoked when receiving an incoming connection, allowing arbitrary
 authentication over socket named by [arg fid].  An error return (via
@@ -442,7 +442,7 @@ authentication over socket named by [arg fid].  An error return (via
 peer is named by [arg remport] and [arg addr] but that the remote
 [emph id] is still unknown.  Example:
 
-[nl]
+[para]
 [example {
     ::comm::comm hook incoming {
         if {[string match 127.0.0.1 $addr]} {
@@ -452,11 +452,11 @@ peer is named by [arg remport] and [arg addr] but that the remote
 }]
 
 
-[lst_item [const eval]]
+[def [const eval]]
 
 Variables:
 [var chan], [var id], [var cmd], and [var buffer].
-[nl]
+[para]
 
 This hook is invoked after collecting a complete script from a remote
 but [emph before] evaluating it.  This allows complete control over
@@ -465,7 +465,7 @@ the processing of incoming commands.  [arg cmd] contains either
 evaluate.  At the time the hook is called, [arg {$chan remoteid}] is
 identical in value to [arg id].
 
-[nl]
+[para]
 
 By changing [arg buffer], the hook can change the script to be
 evaluated.  The hook can short circuit evaluation and cause a value to
@@ -479,7 +479,7 @@ script in [arg buffer] as normal.  For compatibility with 3.2,
 acting similarly to [cmd {return {}}] and [cmd {return -code return}]
 [arg result].
 
-[nl]
+[para]
 
 Examples:
 
@@ -487,7 +487,7 @@ Examples:
 
 [enum]
 augmenting a command
-[nl]
+[para]
 [example {
     % ::comm::comm send [::comm::comm self] pid
     5013
@@ -499,7 +499,7 @@ augmenting a command
 
 [enum]
 short circuiting a command
-[nl]
+[para]
 [example {
     % ::comm::comm hook eval {puts "would have executed $buffer"; return 0}
     % ::comm::comm send [::comm::comm self] pid
@@ -509,7 +509,7 @@ short circuiting a command
 
 [enum]
 Replacing double eval semantics
-[nl]
+[para]
 [example {
     % ::comm::comm send [::comm::comm self] llength {a b c}
     wrong # args: should be "llength list"
@@ -521,7 +521,7 @@ Replacing double eval semantics
 
 [enum]
 Using a slave interpreter
-[nl]
+[para]
 [example {
     % interp create foo
     % ::comm::comm hook eval {return [foo eval $buffer]}
@@ -535,14 +535,14 @@ Using a slave interpreter
 
 [enum]
 Using a slave interpreter (double eval)
-[nl]
+[para]
 [example {
     % ::comm::comm hook eval {return [eval foo eval $buffer]}
 }]
 
 [enum]
 Subverting the script to execute
-[nl]
+[para]
 [example {
     % ::comm::comm hook eval {
         switch -- $buffer {
@@ -560,64 +560,64 @@ Subverting the script to execute
 [list_end]
 
 
-[lst_item [const reply]]
+[def [const reply]]
 
 Variables:
 [var chan], [var id], [var buffer], [var ret], and [var return()].
-[nl]
+[para]
 
 This hook is invoked after collecting a complete reply script from a
 remote but [emph before] evaluating it.  This allows complete
 control over the processing of replies to sent commands.  The reply
 [arg buffer] is in one of the following forms
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 return result
-[bullet]
+[item]
 return -code code result
-[bullet]
+[item]
 return -code code -errorinfo info -errorcode ecode msg
 [list_end]
-[nl]
+[para]
 
 For safety reasons, this is decomposed.  The return result is in
 [arg ret], and the return switches are in the return array:
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 [emph return(-code)]
-[bullet]
+[item]
 [emph return(-errorinfo)]
-[bullet]
+[item]
 [emph return(-errorcode)]
 [list_end]
-[nl]
+[para]
 
 Any of these may be the empty string.  Modifying these four variables
 can change the return value, whereas modifying [arg buffer] has no
 effect.
 
 
-[lst_item [const callback]]
+[def [const callback]]
 
 Variables:
 [var chan], [var id], [var buffer], [var ret], and [var return()].
-[nl]
+[para]
 
 Similar to [emph reply], but used for callbacks.
 
-[lst_item [const lost]]
+[def [const lost]]
 
 Variables:
 [var chan], [var id], and [var reason].
-[nl]
+[para]
 
 This hook is invoked when the connection to [var id] is lost.  Return
 value (or thrown error) is ignored.  [arg reason] is an explanatory
 string indicating why the connection was lost.  Example:
 
-[nl]
+[para]
 
 [example {
     ::comm::comm hook lost {
@@ -649,7 +649,7 @@ Invoking this procedure will substitute the Tk [cmd send] and
 [cmd {winfo interps}] commands with these equivalents that use
 [cmd ::comm::comm].
 
-[nl]
+[para]
 
 [example {
     proc send {args} {
@@ -729,52 +729,52 @@ The revision history of [package comm] includes these releases:
 
 [list_begin definitions]
 
-[lst_item 4.4.1]
+[def 4.4.1]
 
 Bugfix in the execution of hooks.
 
-[lst_item 4.4]
+[def 4.4]
 
 Bugfixes in the handling of -interp for regular and hook
 scripts. Bugfixes in channel cleanup.
 
-[lst_item 4.3.1]
+[def 4.3.1]
 
 Introduced -interp and -events to enable easy use of a slave interp
 for execution of received scripts, and of event scripts.
 
-[lst_item 4.3]
+[def 4.3]
 
 Bugfixes, and introduces -silent to allow the user to force the
 server/listening side to silently ignore connection attempts where the
 protocol negotiation failed.
 
-[lst_item 4.2]
+[def 4.2]
 
 Bugfixes, and most important, switched to utf-8 as default encoding
 for full i18n without any problems.
 
-[lst_item 4.1]
+[def 4.1]
 
 Rewrite of internal code to remove old pseudo-object model.  Addition
 of send -command asynchronous callback option.
 
-[lst_item 4.0]
+[def 4.0]
 
 Per request by John LoVerso. Improved handling of error for async
 invoked commands.
 
-[lst_item 3.7]
+[def 3.7]
 
 Moved into tcllib and placed in a proper namespace.
 
-[lst_item 3.6]
+[def 3.6]
 
 A bug in the looking up of the remoteid for a executed command could
 be triggered when the connection was closed while several asynchronous
 sends were queued to be executed.
 
-[lst_item 3.5]
+[def 3.5]
 
 Internal change to how reply messages from a [cmd send] are handled.
 Reply messages are now decoded into the [arg value] to pass to
@@ -786,7 +786,7 @@ still the case.  Instead, the reply handling code decodes the
 
 [const reply] message.
 
-[lst_item 3.4]
+[def 3.4]
 
 Added more source commentary, as well as documenting config variables
 in this man page.  Fixed bug were loss of connection would give error
@@ -801,13 +801,13 @@ the internal procedure [cmd commSend].  Also added propagation of
 the [arg errorCode] variable.  This means that these commands return
 exactly as they would with [cmd send]:
 
-[nl]
+[para]
 [example {
     comm send id break
     catch {comm send id break}
     comm send id expr 1 / 0
 }]
-[nl]
+[para]
 
 Added a new hook for reply messages.  Reworked method invocation to
 avoid the use of comm:* procedures; this also cut the invocation time
@@ -815,13 +815,13 @@ down by 40%.  Documented [cmd {comm config}] (as this manual page
 still listed the defunct [cmd {comm init}]!)
 
 
-[lst_item 3.3]
+[def 3.3]
 
 Some minor bugs were corrected and the documentation was cleaned up.
 Added some examples for hooks.  The return semantics of the [cmd eval]
 hook were changed.
 
-[lst_item 3.2]
+[def 3.2]
 
 A new wire protocol, version 3, was added.  This is backwards
 compatible with version 2 but adds an exchange of supported protocol
@@ -829,12 +829,12 @@ versions to allow protocol negotiation in the future.  Several bugs
 with the hook implementation were fixed.  A new section of the man
 page on blocking semantics was added.
 
-[lst_item 3.1]
+[def 3.1]
 
 All the documented hooks were implemented.  [cmd commLostHook] was
 removed.  A bug in [cmd {comm new}] was fixed.
 
-[lst_item 3.0]
+[def 3.0]
 
 This is a new version of [package comm] with several major changes.
 There is a new way of creating the methods available under the
@@ -847,7 +847,7 @@ protocol version exchanged when a connection is established.  This
 will allow for future on-wire protocol changes.  Currently, the
 protocol version is set to 2.
 
-[lst_item 2.3]
+[def 2.3]
 
 [cmd {comm ids}] was renamed to [cmd {comm channels}].  General
 support for [cmd {comm hook}] was fully implemented, but only the
@@ -856,17 +856,17 @@ hook API.  [cmd commLostHook] was unsupported (replaced by
 
 [cmd {comm hook lost}]) and [cmd commLost] was removed.
 
-[lst_item 2.2]
+[def 2.2]
 
 The [term died] hook was renamed [term lost], to be accessed by
 [cmd commLostHook] and an early implementation of
 [cmd {comm lost hook}].  As such, [cmd commDied] is now
 [cmd commLost].
 
-[lst_item 2.1]
+[def 2.1]
 Unsupported method [cmd {comm remoteid}] was added.
 
-[lst_item 2.0]
+[def 2.0]
 [package comm] has been rewritten from scratch (but is fully compatible
 with Comm 1.0, without the requirement to use obTcl).
 
@@ -894,14 +894,14 @@ used for free, without any licensing fee or royalty.
 
 
 [section BUGS]
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 
 If there is a failure initializing a channel created with
 [cmd {::comm::comm new}], then the channel should be destroyed.
 Currently, it is left in an inconsistent state.
 
-[bullet]
+[item]
 
 There should be a way to force a channel to quiesce when changing the
 configuration.
@@ -913,13 +913,13 @@ The following items can be implemented with the existing hooks and are
 listed here as a reminder to provide a sample hook in a future
 version.
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 
 Allow easier use of a slave interp for actual command execution
 (especially when operating in "not local" mode).
 
-[bullet]
+[item]
 
 Add host list (xhost-like) or "magic cookie" (xauth-like)
 authentication to initial handshake.
@@ -929,14 +929,14 @@ authentication to initial handshake.
 [para]
 The following are outstanding todo items.
 
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 
 Add an interp discovery and name->port mapping.  This is likely to be
 in a separate, optional nameserver.  (See also the related work,
 below.)
 
-[bullet]
+[item]
 
 Fix the [emph {{id host}}] form so as not to be dependent upon
 canonical hostnames.  This requires fixes to Tcl to resolve hostnames!

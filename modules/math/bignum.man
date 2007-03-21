@@ -15,11 +15,11 @@ The bignum package provides arbitrary precision integer math
 Big numbers are internally represented at Tcl lists: this
 package provides a set of procedures operating against
 the internal representation in order to:
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 perform math operations
 
-[bullet]
+[item]
 convert bignums from the internal representation to a string in
 the desired radix and vice versa.
 

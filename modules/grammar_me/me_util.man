@@ -54,13 +54,13 @@ input stream and returns a Tcl list containing the specified part of
 the input stream. Both location are inclusive. If [arg to] is not
 specified it will default to the value of [arg from].
 
-[nl]
+[para]
 
 Each element of the returned list is a list containing the token, its
 associated lexeme, the line number, and column index, in this order.
 
 [list_end]
-[nl]
+[para]
 
 Both the ensemble command [cmd ::grammar::me::tcl] provided by the
 package [package grammar::me::tcl] and the objects command created by

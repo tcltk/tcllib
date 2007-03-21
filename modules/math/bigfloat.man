@@ -13,9 +13,9 @@ capabilities to the Tcl language. It is designed to work with Tcl 8.5,
 but for Tcl 8.4 is provided an earlier version of this package.
 See [sectref "WHAT ABOUT TCL 8.4 ?"] for more explanations.
 By convention, we will talk about the numbers treated in this library as :
-[list_begin bullet]
-[bullet]BigFloat for floating-point numbers of arbitrary length.
-[bullet]integers for arbitrary length signed integers, just as basic integers since Tcl 8.5.
+[list_begin itemized]
+[item]BigFloat for floating-point numbers of arbitrary length.
+[item]integers for arbitrary length signed integers, just as basic integers since Tcl 8.5.
 [list_end]
 Each BigFloat is an interval, namely [lb][emph "m-d, m+d"][rb],
 where [emph m] is the mantissa and [emph d] the uncertainty, representing the
@@ -28,11 +28,11 @@ BigFloat can handle this problem - trusting the digits you get - plus the abilit
 BigFloats are internally represented at Tcl lists: this
 package provides a set of procedures operating against
 the internal representation in order to :
-[list_begin bullet]
-[bullet]
+[list_begin itemized]
+[item]
 perform math operations on BigFloats and (optionnaly) with integers.
 
-[bullet]
+[item]
 convert BigFloats from their internal representations to strings, and vice versa.
 
 [list_end]
@@ -45,7 +45,7 @@ Converts [emph number] into a BigFloat. Its precision
 is at least the number of digits provided by [emph number].
 If the [arg number] contains only digits and eventually a minus sign, it is considered as
 an integer. Subsequently, no conversion is done at all.
-[nl]
+[para]
 [arg trailingZeros] - the number of zeros to append at the end of the floating-point number
 to get more precision. It cannot be applied to an integer.
 
@@ -61,7 +61,7 @@ set m [lb]fromstr 10000000000[rb]
 set n -39
 # t, m and n are integers
 [example_end]
-[nl]
+[para]
 The [emph number]'s last digit is considered by the procedure to be true at +/-1,
 For example, 1.00 is the interval [lb]0.99, 1.01[rb],
 and 0.43 the interval [lb]0.42, 0.44[rb].
@@ -69,7 +69,7 @@ The Pi constant may be approximated by the number "3.1415".
 This string could be considered as the interval [lb]3.1414 , 3.1416[rb] by [cmd fromstr].
 So, when you mean 1.0 as a double, you may have to write 1.000000 to get enough precision.
 To learn more about this subject, see [sectref PRECISION].
-[nl]
+[para]
 For example :
 [example_begin]
 set x [lb]fromstr 1.0000000000[rb]
@@ -169,9 +169,9 @@ It only works if [emph n] is an integer.
 [call [cmd iszero] [arg x]]
 
 Returns 1 if [emph x] is :
-[list_begin bullet]
-[bullet]a BigFloat close enough to zero to raise "divide by zero".
-[bullet]the integer 0.
+[list_begin itemized]
+[item]a BigFloat close enough to zero to raise "divide by zero".
+[item]the integer 0.
 [list_end]
 See here how numbers that are close to zero are converted to strings:
 [example_begin]
@@ -233,9 +233,9 @@ Returns a BigFloat representing the Pi constant with [emph n] digits after the d
 [call [cmd rad2deg] [arg radians]]
 [call [cmd deg2rad] [arg degrees]]
 [arg radians] - angle expressed in radians (BigFloat)
-[nl]
+[para]
 [arg degrees] - angle expressed in degrees (BigFloat)
-[nl]
+[para]
 Convert an angle from radians to degrees, and [emph "vice versa"].
 
 [list_end]
@@ -255,12 +255,12 @@ and returns it as an integer.
 
 How do conversions work with precision ?
 
-[list_begin bullet]
-[bullet] When a BigFloat is converted from string, the internal representation
+[list_begin itemized]
+[item] When a BigFloat is converted from string, the internal representation
 holds its uncertainty as 1 at the level of the last digit.
-[bullet] During computations, the uncertainty of each result
+[item] During computations, the uncertainty of each result
 is internally computed the closest to the reality, thus saving the memory used.
-[bullet] When converting back to string, the digits that are printed
+[item] When converting back to string, the digits that are printed
 are not subject to uncertainty. However, some rounding is done, as not doing so
 causes severe problems.
 [list_end]

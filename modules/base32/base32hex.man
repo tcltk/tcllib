@@ -31,12 +31,12 @@ This commands takes the [arg estring] and decodes it under the
 assumption that it is a valid extended hex base32 encoded string. The
 result of the decoding is returned as the result of the command.
 
-[nl]
+[para]
 
 Note that while the encoder will generate only uppercase characters
 this decoder accepts input in lowercase as well.
 
-[nl]
+[para]
 
 The command will always throw an error whenever encountering
 conditions which signal some type of bogus input, namely if

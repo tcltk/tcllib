@@ -1,3 +1,10 @@
+2007-03-21  Andreas Kupries  <andreask@activestate.com>
+
+	* Changed all documentation files (*.man). Replaced all deprecated
+	  commands and list types with their new canonical names, putting
+	  the Tcllib documentation back in line with the current
+	  definition of the doctools language and its companions.
+
 2006-11-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* support/installation/version.tcl: Added critcl implementation of

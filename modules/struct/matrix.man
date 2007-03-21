@@ -50,7 +50,7 @@ form:
 command.
 
 [list_end]
-[nl]
+[para]
 
 If [arg matrixName] is not specified a unique name will be generated
 by the package itself. If a [arg source] is specified the new matrix
@@ -60,29 +60,29 @@ another matrix object, and the assignment operator [method =] will be
 executed. For [const deserialize] the [arg source] is a serialized
 matrix object and [method deserialize] will be executed.
 
-[nl]
+[para]
 
 In other words
-[nl]
+[para]
 [example {
     ::struct::matrix mymatrix = b
 }]
-[nl]
+[para]
 is equivalent to
-[nl]
+[para]
 [example {
     ::struct::matrix mymatrix
     mymatrix = b
 }]
-[nl]
+[para]
 and 
-[nl]
+[para]
 [example {
     ::struct::matrix mymatrix deserialize $b
 }]
-[nl]
+[para]
 is equivalent to
-[nl]
+[para]
 [example {
     ::struct::matrix mymatrix
     mymatrix deserialize $b
@@ -104,10 +104,10 @@ contained in the matrix object [arg sourcematrix] over the matrix data in
 [arg matrixName]. The old contents of [arg matrixName] are deleted by
 this operation.
 
-[nl]
+[para]
 
 This operation is in effect equivalent to
-[nl]
+[para]
 [example_begin]
     [arg matrixName] [method deserialize] [lb][arg sourcematrix] [method serialize][rb]
 [example_end]
@@ -121,10 +121,10 @@ data in the object [arg destmatrix].
 
 The old contents of [arg destmatrix] are deleted by this operation.
 
-[nl]
+[para]
 
 This operation is in effect equivalent to
-[nl]
+[para]
 [example_begin]
     [arg destmatrix] [method deserialize] [lb][arg matrixName] [method serialize][rb]
 [example_end]
@@ -337,13 +337,13 @@ second, both times in ascending order. This means that matches to the
 left and the top of the matrix come before matches to the right and
 down.
 
-[nl]
+[para]
 
 The type of the pattern (string, glob, regular expression) is
 determined by the option after the [method search] keyword. If no
 option is given it defaults to [option -exact].
 
-[nl]
+[para]
 
 If the option [option -nocase] is specified the search will be
 case-insensitive.
@@ -377,24 +377,24 @@ thereof) over arbitrary channels, persistence, etc.
 This method is also the basis for both the copy constructor and the
 assignment operator.
 
-[nl]
+[para]
 
 The result of this method has to be semantically identical over all
 implementations of the matrix interface. This is what will enable us
 to copy matrix data between different implementations of the same
 interface.
 
-[nl]
+[para]
 
 The result is a list containing exactly three items.
 
-[nl]
+[para]
 
 The first two elements of the list specify the number of rows and
 columns of the matrix, in that order. The values integer numbers
 greater than or equal to zero.
 
-[nl]
+[para]
 
 The last element of the list contains the values of the matrix cells
 we have serialized, in the form of a value like it is returned by the
@@ -414,7 +414,7 @@ the proper size despite the missing values.
     #
     # 3 4 {{a b d g} {c e} {f}}
 }]
-[nl]
+[para]
 
 
 [call [arg matrixName] [method {set cell}] [arg {column row value}]]

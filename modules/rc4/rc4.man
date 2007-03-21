@@ -33,7 +33,7 @@ channel is given then the result will be written to this channel.
 Giving the [arg "-hex"] option will return a hexadecimal encoded
 version of the result if not using an [arg -out] channel.
 
-[nl]
+[para]
 
 The data to be processes can be specified either as a string argument to
 the rc4 command, or as a filename or a pre-opened channel. If the 
@@ -43,7 +43,7 @@ given then data is read from the channel until the end of file. The
 channel is not closed. If the [arg "-out"] argument is given then the
 processing result is written to this channel.
 
-[nl]
+[para]
 
 If [arg "-command"] is provided then the rc4 command does not return
 anything. Instead the command provided is called with the rc4 result data
@@ -51,7 +51,7 @@ appended as the final parameter. This is most useful when reading from Tcl
 channels as a fileevent is setup on the channel and the data processed in
 chunks
 
-[nl]
+[para]
 
 Only one of [arg "-infile"], [arg "-in"] or [arg "string"] should be given.
 

@@ -34,7 +34,7 @@ Calculate the RIPEMD-160 digest of the data given in string. This is
 returned as a binary string by default. Giving the [arg "-hex"] option
 will return a hexadecimal encoded version of the digest.
 
-[nl]
+[para]
 
 The data to be hashed can be specified either as a string argument to
 the ripemd160 command, or as a filename or a pre-opened channel. If the 
@@ -43,7 +43,7 @@ and hashed and the file is closed. If the [arg "-channel"] argument is
 given then data is read from the channel until the end of file. The
 channel is not closed.
 
-[nl]
+[para]
 
 Only one of [arg "-file"], [arg "-channel"] or [arg "string"] should be given.
 

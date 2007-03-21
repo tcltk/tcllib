@@ -64,7 +64,7 @@ The default is [const main].
 Returns a dictionary containing the EXIF information for the specified section.
 
 For example:
-[nl]
+[para]
 [example {
     set exif {
 	Make     Canon
@@ -86,7 +86,7 @@ may be passed in, the entire exif is not required.
         puts "$key: $val"
     }
 }]
-[nl]
+[para]
 [example {
     array set exif [::jpeg::getExif photo.jpg]
     puts "max f-stop: [::jpeg::formatExif [list MaxAperture $exif(MaxAperture)]]

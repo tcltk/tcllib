@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.19 2007/02/08 22:09:54 mic42 Exp $}]
+[comment {$Id: logger.man,v 1.20 2007/03/21 23:07:20 andreas_kupries Exp $}]
 [manpage_begin logger n 0.8]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
@@ -183,28 +183,28 @@ the argument provided to the logproc is a dictionary consisting of the
 [const enter] or [const leave] keyword along with another dictionary of
 details about the trace.  These include:
 
-[list_begin bullet]
+[list_begin itemized]
 
-[bullet] [const proc] - Name of the procedure being traced.
+[item] [const proc] - Name of the procedure being traced.
 
-[bullet] [const level] - The stack level for the procedure invocation
+[item] [const level] - The stack level for the procedure invocation
 (from [cmd info] [cmd level]).
 
-[bullet] [const script] - The name of the file in which the procedure is
+[item] [const script] - The name of the file in which the procedure is
 defined, or an empty string if defined in interactive mode.
 
-[bullet] [const caller] - The name of the procedure calling the procedure
+[item] [const caller] - The name of the procedure calling the procedure
 being traced, or an empty string if the procedure was called from the
 global scope (stack level 0).
 
-[bullet] [const procargs] - A dictionary consisting of the names of arguments
+[item] [const procargs] - A dictionary consisting of the names of arguments
 to the procedure paired with values given for those arguments ([const enter]
 traces only).
 
-[bullet] [const status] - The Tcl return code (e.g. [const ok],
+[item] [const status] - The Tcl return code (e.g. [const ok],
 [const continue], etc.) ([const leave] traces only).
 
-[bullet] [const result] - The value returned by the procedure ([const leave]
+[item] [const result] - The value returned by the procedure ([const leave]
 traces only).
 
 [list_end]

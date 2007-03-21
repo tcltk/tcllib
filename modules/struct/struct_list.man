@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_list.man,v 1.16 2006/06/13 19:07:29 andreas_kupries Exp $}]
+[comment {$Id: struct_list.man,v 1.17 2007/03/21 23:07:28 andreas_kupries Exp $}]
 [manpage_begin struct::list n 1.6]
 [copyright {2003-2005 by Kevin B. Kenny. All rights reserved}]
 [copyright {2003-2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
@@ -33,7 +33,7 @@ Returns the longest common subsequence of elements in the two lists
 is provided, the common subsequence is restricted to elements that
 occur no more than [arg maxOccurs] times in [arg sequence2].
 
-[nl]
+[para]
 
 The return value is a list of two lists of equal length. The first
 sublist is of indices into [arg sequence1], and the second sublist is
@@ -56,7 +56,7 @@ common sequence of only those elements that occur no more than
 to align the two lists, determining the longest common subsequences of
 the sublists between the two elements.
 
-[nl]
+[para]
 
 As with [method longestCommonSubsequence], the return value is a list
 of two lists of equal length.  The first sublist is of indices into
@@ -75,12 +75,12 @@ This command takes a description of a longest common subsequence
 here that as the input describes which parts of the two sequences are
 identical the output describes the differences instead.
 
-[nl]
+[para]
 
 To be fully defined the lengths of the two sequences have to be known
 and are specified through [arg len1] and [arg len2].
 
-[nl]
+[para]
 
 The result is a list where each element describes one chunk of the
 differences between the two sequences. This description is a list
@@ -91,7 +91,7 @@ containing three elements, a type and two pairs of indices into
 The type can be one of three values:
 
 [list_begin definitions]
-[lst_item [const added]]
+[def [const added]]
 
 Describes an addition. I.e. items which are missing in [arg sequence1]
 can be found in [arg sequence2].
@@ -106,7 +106,7 @@ which has been added to it. The first index refers to the first item
 in the range, and the second index refers to the last item in the
 range.
 
-[lst_item [const deleted]]
+[def [const deleted]]
 
 Describes a deletion. I.e. items which are in [arg sequence1] are
 missing from [arg sequence2].
@@ -120,7 +120,7 @@ range had been expected to be in [arg sequence2]. The first index
 refers to the item just before the deleted range, and the second index
 refers to the item just after the deleted range.
 
-[lst_item [const changed]]
+[def [const changed]]
 
 Describes a general change. I.e a range of items in [arg sequence1]
 has been replaced by a different range of items in [arg sequence2].
@@ -136,7 +136,7 @@ in the range.
 
 [list_end]
 
-[nl]
+[para]
 [example {
     sequence 1 = {a b r a c a d a b r a}
     lcs 1      =   {1 2   4 5     8 9 10}
@@ -150,13 +150,13 @@ in the range.
 }]
 
 [emph Notes:]
-[nl]
-[list_begin bullet]
-[bullet]
+[para]
+[list_begin itemized]
+[item]
 An index of [const -1] in a [term deleted] chunk refers to just before
 the first element of the second sequence.
 
-[bullet]
+[item]
 Also an index equal to the length of the first sequence in an
 [term added] chunk refers to just behind the end of the sequence.
 
@@ -176,14 +176,14 @@ Similar to [method lcsInvert]. It returns essentially the same
 structure as that command, except that it may contain chunks of type
 [const unchanged] too.
 
-[nl]
+[para]
 
 These new chunks describe the parts which are unchanged between the
 two sequences. This means that the result of this command describes
 both the changed and unchanged parts of the two sequences in one
 structure.
 
-[nl]
+[para]
 [example {
     sequence 1 = {a b r a c a d a b r a}
     lcs 1      =   {1 2   4 5     8 9 10}
@@ -223,13 +223,13 @@ The subcommand assigns the first [var n] elements of the input
 after the sequence, where [var n] is the number of specified
 variables.
 
-[nl]
+[para]
 
 If there are more variables specified than there are elements in the
 [arg sequence] the empty string will be assigned to the superfluous
 variables.
 
-[nl]
+[para]
 
 If there are more elements in the [arg sequence] than variable names
 specified the subcommand returns a list containing the unassigned
@@ -252,7 +252,7 @@ sequence where one level of nesting was removed from the input
 sequence. In other words, the sublists in the input sequence are
 replaced by their elements.
 
-[nl]
+[para]
 
 The subcommand will remove any nesting it finds if the option
 [option -full] is specified.
@@ -272,13 +272,13 @@ prefix ([arg cmdprefix]) specifying an operation, applies the command
 prefix to each element of the sequence and returns a sequence
 consisting of the results of that application.
 
-[nl]
+[para]
 
 The command prefix will be evaluated with a single word appended to
 it. The evaluation takes place in the context of the caller of the
 subcommand.
 
-[nl]
+[para]
 
 [example {
     tclsh> # squaring all elements in a list
@@ -302,13 +302,13 @@ The subcommand takes a [arg sequence] to operate on and a tcl [arg script],
 applies the script to each element of the sequence and returns a sequence
 consisting of the results of that application.
 
-[nl]
+[para]
 
 The script will be evaluated as is, and has access to the current list element
 through the specified iteration variable [arg var]. The evaluation takes place
 in the context of the caller of the subcommand.
 
-[nl]
+[para]
 
 [example {
     tclsh> # squaring all elements in a list
@@ -340,13 +340,13 @@ In other words, this command filters out all elements of the input
 [arg sequence] which fail the test the [arg cmdprefix] represents, and
 returns the remaining elements.
 
-[nl]
+[para]
 
 The command prefix will be evaluated with a single word appended to
 it. The evaluation takes place in the context of the caller of the
 subcommand.
 
-[nl]
+[para]
 
 [example {
     tclsh> # removing all odd numbers from the input
@@ -356,7 +356,7 @@ subcommand.
     2 4
 }]
 
-[nl]
+[para]
 
 [emph Note:] The [method filter] is a specialized application of
 [method fold] where the result is extended with the current item or
@@ -374,13 +374,13 @@ In other words, this command filters out all elements of the input
 [arg sequence] which fail the test the condition [arg expr] represents, and
 returns the remaining elements.
 
-[nl]
+[para]
 
 The expression will be evaluated as is, and has access to the current list
 element through the specified iteration variable [arg var]. The evaluation
 takes place in the context of the caller of the subcommand.
 
-[nl]
+[para]
 
 [example {
     tclsh> # removing all odd numbers from the input
@@ -396,7 +396,7 @@ This is a variant of method [method filter], see above. Instead of
 returning just the elements passing the test we get lists of both
 passing and failing elements.
 
-[nl]
+[para]
 
 If no variable names are specified then the result of the command will
 be a list containing the list of passing elements, and the list of
@@ -405,7 +405,7 @@ failing elements are stored into the two specified variables, and the
 result will be a list containing two numbers, the number of elements
 passing the test, and the number of elements failing, in this order.
 
-[nl]
+[para]
 
 The interface to the test is the same as used by [method filter].
 
@@ -416,45 +416,45 @@ The subcommand takes a [arg sequence] to operate on, an arbitrary
 string [arg {initial value}] and a command prefix ([arg cmdprefix])
 specifying an operation.
 
-[nl]
+[para]
 
 The command prefix will be evaluated with two words appended to
 it. The second of these words will always be an element of the
 sequence. The evaluation takes place in the context of the caller of
 the subcommand.
 
-[nl]
+[para]
 
 It then reduces the sequence into a single value through repeated
 application of the command prefix and returns that value. This
 reduction is done by
 
 [list_begin definitions]
-[lst_item [const 1]]
+[def [const 1]]
 
 Application of the command to the initial value and the first element
 of the list.
 
-[lst_item [const 2]]
+[def [const 2]]
 
 Application of the command to the result of the last call and the
 second element of the list.
 
-[lst_item [const ...]]
-[lst_item [const i]]
+[def [const ...]]
+[def [const i]]
 
 Application of the command to the result of the last call and the
 [var i]'th element of the list.
 
-[lst_item [const ...]]
-[lst_item [const end]]
+[def [const ...]]
+[def [const end]]
 
 Application of the command to the result of the last call and the last
 element of the list. The result of this call is returned as the result
 of the subcommand.
 
 [list_end]
-[nl]
+[para]
 [example {
     tclsh> # summing the elements in a list.
     tclsh> proc + {a b} {expr {$a + $b}}
@@ -481,7 +481,7 @@ The subcommand returns a list containing the integer numbers
 in the range [const {[0,n)}]. The element at index [var i]
 of the list contain the number [const i].
 
-[nl]
+[para]
 
 For "[arg n] == [const 0]" an empty list will be returned.
 
@@ -493,7 +493,7 @@ equality. In other words, they have to be of the same length and have
 to contain the same elements in the same order. If an element is a
 list the same definition of equality applies recursively.
 
-[nl]
+[para]
 
 A boolean value will be returned as the result of the command.
 This value will be [const true] if the two lists are equal, and
@@ -515,9 +515,9 @@ Note that [cmd {repeat 1 arg ...}]  is identical to
 [cmd {list arg ...}], though the [arg arg] is required
 with [method repeat].
 
-[nl]
+[para]
 [emph Examples:]
-[nl]
+[para]
 [example {
     tclsh> ::struct::list repeat 3 a
     a a a
@@ -536,12 +536,12 @@ all positions. The exact size and degree of nesting is determined by
 the [arg size] arguments, all of which have to be integer numbers
 greater than or equal to zero.
 
-[nl]
+[para]
 
 A single argument [arg size] which is a list of more than one element
 will be treated as if more than argument [arg size] was specified.
 
-[nl]
+[para]
 
 If only one argument [arg size] is present the returned list will not
 be nested, of length [arg size] and contain [arg value] in all
@@ -553,11 +553,11 @@ list will be nested, and of the length specified by the last
 are defined as the result of [cmd Repeat] for the same arguments,
 but with the last [arg size] value removed.
 
-[nl]
+[para]
 
 An empty list will be returned if no [arg size] arguments are present.
 
-[nl]
+[para]
 [example {
     tclsh> ::struct::list repeatn  0 3 4
     {0 0 0} {0 0 0} {0 0 0} {0 0 0}
@@ -578,7 +578,7 @@ join will be performed. This can also be triggered by specifying
 [option -inner]. The various possible join operations are explained in
 detail in section [sectref {TABLE JOIN}].
 
-[nl]
+[para]
 
 If the [option -keys] is present its argument is the name of a
 variable to store the full list of found keys into. Depending on the
@@ -588,11 +588,11 @@ declare a variable for this information and then insert it into the
 output table on its own, as she will have more information about the
 placement than this command.
 
-[nl]
+[para]
 
 What is left to explain is the format of the arguments.
 
-[nl]
+[para]
 
 The [arg keycol] arguments are the indices of the columns in the
 tables which contain the key values to use for the joining. Each
@@ -602,7 +602,7 @@ column. The table associated with the column index has to have at
 least [arg keycol]+1 columns. An error will be thrown if there are
 less.
 
-[nl]
+[para]
 
 The [arg table] arguments represent a table or matrix of rows and
 columns of values. We use the same representation as generated and
@@ -612,7 +612,7 @@ representing the whole matrix.  Its elements are lists too, each
 representing a single rows of the matrix. The elements of the
 row-lists are the column values.
 
-[nl]
+[para]
 
 The table resulting from the join operation is returned as the result
 of the command. We use the same representation as described above for
@@ -650,7 +650,7 @@ This subcommand accepts a permutation of a set of elements (provided
 by [arg perm]) and returns the next permutatation in lexicographic
 sequence.
 
-[nl]
+[para]
 The algorithm used here is by Donal E. Knuth, see section
 [sectref REFERENCES] for details.
 
