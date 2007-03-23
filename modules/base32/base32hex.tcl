@@ -7,9 +7,9 @@
 # Management code for switching between Tcl and C accelerated
 # implementations.
 #
-# RCS: @(#) $Id: base32hex.tcl,v 1.1 2006/05/27 20:44:36 andreas_kupries Exp $
+# RCS: @(#) $Id: base32hex.tcl,v 1.2 2007/03/23 17:31:17 andreas_kupries Exp $
 
-# @mdgen EXCLUDE: base32_c.tcl
+# @mdgen EXCLUDE: base32hex_c.tcl
 
 package require Tcl 8.4
 
