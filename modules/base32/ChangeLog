@@ -1,3 +1,7 @@
+2007-03-23  Andreas Kupries <andreask@activestate.com>
+
+	* base32hex.tcl: Added MD hints.
+
 2006-10-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* base32.test: Rewritten to make use of the new facilities for
