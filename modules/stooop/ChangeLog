@@ -1,3 +1,7 @@
+2007-03-23  Andreas Kupries <andreask@activestate.com>
+
+	* pkgIndex.tcl: Added MD hints.
+
 2006-10-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* stooop.test: Rewritten to use new features for handling the
