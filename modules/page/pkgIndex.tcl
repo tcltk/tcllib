@@ -51,6 +51,7 @@ package ifneeded page::parse::peghb      0.1 [list source [file join $dir parse_
 package ifneeded page::util::norm::peg   0.1 [list source [file join $dir util_norm_peg.tcl]]
 package ifneeded page::util::norm::lemon 0.1 [list source [file join $dir util_norm_lemon.tcl]]
 
+# @mdgen EXCLUDE: peg_grammar.tcl
 ### package ifneeded pg::peg::grammar      0.1 [list source [file join $dir peg_grammar.tcl]]
 
 # -- PAGE packages --
