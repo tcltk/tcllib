@@ -22,11 +22,13 @@
 # -------------------------------------------------------------------------
 #
 
+# @mdgen EXCLUDE: sha256c.tcl
+
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::sha2 {
     variable version 1.0.2
-    variable rcsid {$Id: sha256.tcl,v 1.4 2006/10/13 06:23:28 andreas_kupries Exp $}
+    variable rcsid {$Id: sha256.tcl,v 1.5 2007/03/23 17:30:42 andreas_kupries Exp $}
 
     variable  accel
     array set accel {tcl 0 critcl 0}
