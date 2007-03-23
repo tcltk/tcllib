@@ -1,3 +1,7 @@
+2007-03-23  Andreas Kupries <andreask@activestate.com>
+
+	* pkgIndex.tcl: Added MD hints.
+
 2007-03-21  Andreas Kupries <andreask@activestate.com>
 
 	* pkgIndex.tcl: Fixed version mismatches, index vs. package.
