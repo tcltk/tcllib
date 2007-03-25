@@ -1,3 +1,8 @@
+2007-03-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* cmdline.man: Fixed all warnings due to use of now deprecated
+	  commands. Added a section about how to give feedback.
+
 2007-01-11  Andreas Kupries  <andreask@activestate.com>
 
 	* cmdline.man: Extended the list of keywords in the documentation.

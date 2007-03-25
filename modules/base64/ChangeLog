@@ -1,3 +1,9 @@
+2007-03-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* base64.man: Fixed all warnings due to use of now deprecated
+	* uuencode.man: commands. Added a section about how to give
+	* yencode.man: feedback.
+
 2006-11-04  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* base64c.tcl: Silence critcl warning.

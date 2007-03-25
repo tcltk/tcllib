@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_list.man,v 1.17 2007/03/21 23:07:28 andreas_kupries Exp $}]
+[comment {$Id: struct_list.man,v 1.18 2007/03/25 01:29:29 andreas_kupries Exp $}]
 [manpage_begin struct::list n 1.6]
 [copyright {2003-2005 by Kevin B. Kenny. All rights reserved}]
 [copyright {2003-2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
@@ -732,7 +732,7 @@ tables. There are three variants of outerjoins, called [term left],
 [term right], and [term full] outer joins. Their result always
 contains all rows from an inner join and then some additional rows.
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 
 For the left outer join the additional rows are all rows from the left
@@ -799,7 +799,7 @@ Examples for all the joins:
 
 [section REFERENCES]
 
-[list_begin enum]
+[list_begin enumerated]
 
 [enum]
 J. W. Hunt and M. D. McIlroy, "An algorithm for differential 
@@ -813,6 +813,18 @@ volume 4". Available on the Web at the author's personal site:
 [uri http://www-cs-faculty.stanford.edu/~knuth/fasc2b.ps.gz].
 
 [list_end]
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph {struct :: list}] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
 
 [keywords list diff differential comparison common subsequence]
 [keywords {longest common subsequence}]

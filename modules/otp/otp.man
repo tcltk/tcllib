@@ -53,7 +53,7 @@ e249b58257c80087
 
 [section {REFERENCES}]
 
-[list_begin enum]
+[list_begin enumerated]
 
 [enum]
         Haller, N. et al., "A One-Time Password System", RFC 2289, February 1998.
@@ -79,6 +79,18 @@ e249b58257c80087
 	([uri http://www.itl.nist.gov/fipspubs/fip180-1.htm])
 
 [list_end]
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph otp] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
 
 [see_also md4 md5 sha1 ripemd160 SASL]
 [keywords password hashing message-digest security {rfc 2289}]

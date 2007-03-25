@@ -129,7 +129,7 @@ were executed successfully before the error occurred.
 
 The above means in detail that:
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 
 The first argument is interpreted as the name of a query operator, the
@@ -221,7 +221,7 @@ categories, and each category has its own section.
 [comment {
     Local table of contents just for this section.
 }]
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 [sectref {TreeQL Concepts}]
 [enum]
@@ -259,7 +259,7 @@ currently of interest to the query object.
 
 To name it a [term set] is a bit of a misnomer, because
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 A node (handle) can occur in the structure more than once, and
 
@@ -852,7 +852,7 @@ case is relevant.
 
 [section References]
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 [uri http://wiki.tcl.tk/COST COST] on the Tcler's Wiki.
 
@@ -862,6 +862,18 @@ case is relevant.
 this package there.
 
 [list_end]
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph treeql] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
 
 [keywords {tree query language} {structured queries}]
 [keywords tree TreeQL Cost XPath DOM XSLT]

@@ -1,3 +1,18 @@
+2007-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ansi_cattr.man: Fixed all warnings due to use of now
+	* ansi_cctrl.man: deprecated. Added a section about how
+	* ansi_cmacros.man: to give feedback.
+	* ansi_code.man:
+	* ansi_ctrlu.man:
+	* ansi_send.man:
+	* imenu.man:
+	* ipager.man:
+	* receive.man:
+	* term.man:
+	* term_bind.man:
+	* term_send.man:
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

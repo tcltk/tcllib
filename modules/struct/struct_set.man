@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_set.man,v 1.8 2007/01/21 22:15:59 andreas_kupries Exp $}]
+[comment {$Id: struct_set.man,v 1.9 2007/03/25 01:29:29 andreas_kupries Exp $}]
 [manpage_begin struct::set n 2.2]
 [copyright {2004-2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc {Tcl Data Structures}]
@@ -131,6 +131,18 @@ subset of or equal to the set [arg B] ([const true]), or not
 
 
 [section REFERENCES]
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph {struct :: set}] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
 
 [keywords set union intersection difference {symmetric difference}]
 [keywords emptiness membership cardinality]

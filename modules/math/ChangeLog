@@ -1,3 +1,25 @@
+2007-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bigfloat.man: Fixed all warnings due to use of now deprecated
+	* bignum.man:   commands. Added a section about how to give
+	* calculus.man: feedback.
+	* combinatorics.man:
+	* constants.man:
+	* fourier.man:
+	* fuzzy.man:
+	* geometry.man:
+	* interpolate.man:
+	* linalg.man:
+	* math.man:
+	* optimize.man:
+	* polynomials.man:
+	* qcomplex.man:
+	* rational_funcs.man:
+	* roman.man:
+	* romberg.man:
+	* special.man:
+	* statistics.man:
+
 2007-03-20  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
 	* mvlinreg.tcl    : changed the API to make it more robust (no eval needed)
