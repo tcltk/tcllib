@@ -483,7 +483,7 @@ acting similarly to [cmd {return {}}] and [cmd {return -code return}]
 
 Examples:
 
-[list_begin enum]
+[list_begin enumerated]
 
 [enum]
 augmenting a command
@@ -987,6 +987,17 @@ Andreas Kupries <andreas_kupries@users.sourceforge.net> uses
 [package comm] and has built a simple nameserver as part of his Pool
 library.  See [uri http://www.purl.org/net/akupries/soft/pool/index.htm].
 
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph comm] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
+
 [see_also send(n)]
 [manpage_end]
-

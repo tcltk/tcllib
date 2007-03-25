@@ -1,3 +1,8 @@
+2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.man: Fixed all warnings due to use of now deprecated
+	  commands. Added a section about how to give feedback.
+
 2007-03-12  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.tcl (::fileutil::TempDir): Added code to collect all

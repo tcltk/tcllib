@@ -305,7 +305,7 @@ messages, and token (actually character) classes to match are coded as
 references into the [term pool] as well.
 
 [para]
-[list_begin enum]
+[list_begin enumerated]
 
 [enum] "[cmd ict_advance] [arg message]"
 [enum] "[cmd ict_match_token] [arg tok] [arg message]"
@@ -345,7 +345,7 @@ references into the [term pool] as well.
 
 A state value is a list containing the following elements, in the order listed below:
 
-[list_begin enum]
+[list_begin enumerated]
 [enum] [term code]: Match instructions, see [sectref {MATCH PROGRAM REPRESENTATION}].
 [enum] [term pc]:   Program counter, [term int].
 [enum] [term halt]: Halt flag, [term boolean].
@@ -391,5 +391,17 @@ into the [term pool] element of the [term code].
 [term nc], the nonterminal cache is keyed by nonterminal name and
 location, each value a four-element list containing current location,
 match status, semantic value, and error status, in this order.
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph grammar_me] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
 
 [manpage_end]

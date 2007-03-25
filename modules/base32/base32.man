@@ -40,7 +40,7 @@ this decoder accepts input in lowercase as well.
 The command will always throw an error whenever encountering
 conditions which signal some type of bogus input, namely if
 
-[list_begin enum]
+[list_begin enumerated]
 [enum] the input contains characters which are not valid output of a base32 encoder,
 [enum] the length of the input is not a multiple of eight,
 [enum] padding appears not at the end of input, but in the middle,
@@ -68,5 +68,17 @@ be easily confused with "O", "o" and "l" (L).
 	7 H   16 Q   25 Z
 	8 I   17 R   26 2
 }]
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph base32] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
 
 [manpage_end]

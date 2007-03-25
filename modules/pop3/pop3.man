@@ -18,7 +18,9 @@ protocol commands.  All server errors are returned as Tcl errors
 
 [list_begin definitions]
 
-[call [cmd ::pop3::open] [opt "[option -msex] 0|1"] [opt "[option -retr-mode] retr|list|slow"] [arg {host username password}] [opt [arg port]]]
+[call [cmd ::pop3::open] [opt "[option -msex] 0|1"] \
+	[opt "[option -retr-mode] retr|list|slow"] \
+	[arg {host username password}] [opt [arg port]]]
 
 Open a socket connection to the server specified by [arg host],
 transmit the [arg username] and [arg password] as login information to
@@ -177,6 +179,18 @@ Gracefully close the connect after sending a POP3 QUIT command down
 the socket.
 
 [list_end]
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph pop3] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
 
 [keywords mail email pop pop3 {rfc 1939}]
 [manpage_end]

@@ -1,3 +1,13 @@
+2007-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* me_ast.man: Fixed all warnings due to use of now deprecated
+	* me_cpu.man: commands. Added a section about how to give
+	* me_cpucore.man: feedback.
+	* me_intro.man:
+	* me_tcl.man:
+	* me_util.man:
+	* me_vm.man:
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

@@ -1,3 +1,20 @@
+2007-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph.man:  Fixed all warnings due to use of now
+	* graph1.man: deprecated. Added a section about how
+	* matrix.man: to give feedback.
+	* matrix1.man:
+	* pool.man:
+	* prioqueue.man:
+	* queue.man:
+	* record.man:
+	* skiplist.man:
+	* stack.man:
+	* struct_list.man:
+	* struct_set.man:
+	* struct_tree.man:
+	* struct_tree1.man:
+
 2007-02-27  Andreas Kupries  <andreask@activestate.com>
 
 	* sets/s.c (from_any): Crashing bug in the Critcl implementation

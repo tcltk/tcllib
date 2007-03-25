@@ -2,6 +2,12 @@
 
 	* base32hex.tcl: Added MD hints.
 
+2007-03-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* base32.man: Fixed all warnings due to use of now deprecated
+	* base32core.man: commands. Added a section about how to give
+	* base32hex.man: feedback.
+
 2006-10-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* base32.test: Rewritten to make use of the new facilities for

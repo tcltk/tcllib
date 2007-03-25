@@ -1,3 +1,10 @@
+2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sum.man: Fixed all warnings due to use of now deprecated
+	* cksum.man: commands. Added a section about how to give feedback.
+	* crc16.man:
+	* crc32.man:
+
 2006-11-04  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* crcc.tcl: Silence critcl warning.

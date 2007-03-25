@@ -423,7 +423,7 @@ or come from:
 
 [para]
 
-[list_begin enum]
+[list_begin enumerated]
 [enum] The directory            [file ~/.page/plugin]
 [enum] The environment variable [term PAGE_PLUGINS]
 [enum] The registry entry       [term "HKEY_LOCAL_MACHINE\\SOFTWARE\\PAGE\\PLUGINS"]
@@ -436,7 +436,7 @@ The type-specific paths searched by [syscmd page] either are, or come
 from:
 
 [para]
-[list_begin enum]
+[list_begin enumerated]
 [enum] The directory            [file ~/.page/plugin/<TYPE>]
 [enum] The environment variable [term PAGE_<TYPE>_PLUGINS]
 [enum] The registry entry       [term "HKEY_LOCAL_MACHINE\\SOFTWARE\\PAGE\\<TYPE>\\PLUGINS"]
@@ -448,7 +448,7 @@ from:
 Where the placeholder [term <TYPE>] is always one of the values below,
 properly capitalized.
 
-[list_begin enum]
+[list_begin enumerated]
 [enum] reader
 [enum] writer
 [enum] transform
@@ -464,6 +464,18 @@ other platforms will ignore them.
 The contents of both environment variables and registry entries are
 interpreted as a list of paths, with the elements separated by either
 colon (Unix), or semicolon (Windows).
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the application it describes, will undoubtedly
+contain bugs and other problems.
+
+Please report such in the category [emph page] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+application and/or documentation.
+
 
 [see_also page::pluginmgr]
 [keywords {text processing} {parser generator}]

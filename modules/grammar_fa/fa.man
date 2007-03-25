@@ -151,7 +151,7 @@ the same interface.
 
 The result is a list of three elements with the following structure:
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 The constant string [const grammar::fa].
 
@@ -171,7 +171,7 @@ between states.
 The value of each dictionary entry is a list of three elements
 describing the state in more detail.
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 A boolean flag. If its value is [const true] then the state is a
 start state, otherwise it is not.
@@ -683,5 +683,17 @@ symbol" can also be "executing some code".
 
 Transducers are not handled by this package. They will get their own
 package in the future.
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph grammar_fa] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
 
 [manpage_end]

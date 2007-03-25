@@ -55,7 +55,7 @@ and interpret the master source files directly.
 
 Readers who are not previously familiar with [syscmd docstrip] but
 want to know more about it may consult the following sources.
-[list_begin enum]
+[list_begin enumerated]
 [enum]
   [emph {The tclldoc package and class}],
   [uri {http://tug.org/tex-archive/macros/latex/contrib/tclldoc/}].
