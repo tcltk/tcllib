@@ -1,3 +1,8 @@
+2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* rcs.man: Fixed all warnings due to use of now deprecated
+	  commands. Added a section about how to give feedback.
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

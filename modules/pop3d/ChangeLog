@@ -1,3 +1,9 @@
+2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3d.man: Fixed all warnings due to use of now deprecated
+	* pop3d_dbox.man: commands. Added a section about how to give feedback.
+	* pop3d_udb.man:
+
 2006-10-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3d.test: Accept anything matching 127.*.*.* as ip-address for

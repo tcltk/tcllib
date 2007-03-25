@@ -717,7 +717,7 @@ associated with the whole graph.
 
 Regarding the other elements; each triple consists of
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 The name of the node to be described,
 
@@ -731,7 +731,7 @@ And a list describing all the arcs starting at that node.
 
 The elements of the arc list are lists containing three elements each, i.e.
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 The name of the arc described by the element,
 
@@ -853,7 +853,7 @@ a node [const enter]s it, the second visit [const leave]s it.
 [section {Changes for 2.0}]
 The following noteworthy changes have occurred:
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 
 The API for accessing attributes and their values has been
@@ -920,6 +920,18 @@ criterium.
 
 
 [list_end]
+
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph {struct :: graph}] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
 
 
 [keywords graph cgraph serialization]

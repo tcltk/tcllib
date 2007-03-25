@@ -1,3 +1,8 @@
+2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ftp.man: Fixed all warnings due to use of now deprecated
+	  commands. Added a section about how to give feedback.
+
 2006-11-09  Andreas Kupries  <andreask@activestate.com>
 
 	* ftp.tcl (::ftp::StateHandler): Fixed [Bug 1191607] using the

@@ -1,3 +1,8 @@
+2007-03-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* blowfish.man: Fixed all warnings due to use of now deprecated
+	  commands. Added a section about how to give feedback.
+
 2007-03-12  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* blowfish.tcl: Applied patch from bug #1664626 by Neil Madden to

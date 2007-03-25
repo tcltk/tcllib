@@ -55,10 +55,23 @@ the input was found to be valid.
 The rules checked by the command, beyond rejection of bad characters,
 are:
 
-[list_begin enum]
+[list_begin enumerated]
 [enum] The length of the input is not a multiple of eight,
 [enum] The padding appears not at the end of input, but in the middle,
 [enum] The padding has not of length six, four, three, or one characters,
 [list_end]
 [list_end]
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph base32] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
+
 [manpage_end]

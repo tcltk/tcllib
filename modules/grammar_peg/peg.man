@@ -99,7 +99,7 @@ the start expression is the [term language] of the grammar.
 
 Some definitions for nonterminals and expressions:
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 A nonterminal A is called [term reachable] if it is possible to derive
 a parsing expression from the start expression which contains A.
@@ -138,7 +138,7 @@ empty sentence can be derived from it.
 
 And based on the above definitions for grammars:
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 A grammar G is [term recursive] if and only if it contains a nonterminal
 A which is recursive. The terms [term left-] and [term right-recursive],
@@ -284,7 +284,7 @@ the same interface.
 
 The result is a list of four elements with the following structure:
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 The constant string [const grammar::peg].
 
@@ -513,7 +513,7 @@ format such parsing expressions are in.
 
 [para]
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 The string [const epsilon] is an atomic parsing expression. It matches
 the empty string.
@@ -706,7 +706,7 @@ Grammars.
 
 [section REFERENCES]
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 [uri {http://www.pdos.lcs.mit.edu/~baford/packrat/} \
 	{The Packrat Parsing and Parsing Expression Grammars Page}],
@@ -724,6 +724,18 @@ applicabilities, including error recovery techniques.
 [uri {http://scifac.ru.ac.za/compilers/} \
 	{Compilers and Compiler Generators}], an online book using
 CoCo/R, a generator for recursive descent parsers.
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph grammar_peg] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
 
 [list_end]
 [manpage_end]

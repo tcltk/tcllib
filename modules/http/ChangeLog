@@ -1,3 +1,8 @@
+2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* autoproxy.man: Fixed all warnings due to use of now deprecated
+	  commands. Added a section about how to give feedback.
+
 2007-03-12  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* autoproxy.tcl: Removed even the demo reference to BWidgets to

@@ -62,5 +62,17 @@ When reading from a file this sets the rate that lines are processed in millisec
 
 [list_end]
 
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph nmea] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
+
 [keywords nmea]
 [manpage_end]

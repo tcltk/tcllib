@@ -28,7 +28,7 @@ in question.
 The main contribution of this package is a generic framework which
 allows the easy declaration of
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 How to translate a plugin name to the name of the package implementing
 it, and vice versa.
@@ -80,7 +80,7 @@ based on the given [arg name]s.
 
 It will search for:
 
-[list_begin enum]
+[list_begin enumerated]
 
 [enum]
 
@@ -270,7 +270,7 @@ manager object.
 [para]
 The algorithm to locate and load the plugin employed is:
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 
 If the [arg string] contains the path to an existing file then this
@@ -289,7 +289,7 @@ The load fails.
 
 The algorithm to validate and initialize the loaded code is:
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 If the option [option -api] is non-empty introspection commands are
 used to ascertain that the plugin provides the listed commands.
@@ -436,6 +436,18 @@ define commands, packages, etc. a chosen plugin may need while being
 loaded.
 
 [list_end]
+
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph pluginmgr] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
 
 
 [see_also {plugin management} {plugin search}]

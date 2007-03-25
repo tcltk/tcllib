@@ -291,7 +291,7 @@ proc Demo {{mech PLAIN}} {
 
 [section "REFERENCES"]
 
-[list_begin enum]
+[list_begin enumerated]
 
 [enum]
     Myers, J. "Simple Authentication and Security Layer (SASL)",
@@ -329,6 +329,17 @@ proc Demo {{mech PLAIN}} {
 [section AUTHORS]
 Pat Thoyts
 
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph sasl] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
+
 [keywords SASL authentication]
 [manpage_end]
-
