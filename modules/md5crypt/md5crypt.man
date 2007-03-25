@@ -61,7 +61,18 @@ $apr1$01234567$IXBaQywhAhc0d75ZbaSDp/
 }]
 
 
-[see_also md5]
+[section {BUGS, IDEAS, FEEDBACK}]
 
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph md5crypt] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
+
+[see_also md5]
 [keywords md5crypt md5 hashing message-digest security]
 [manpage_end]

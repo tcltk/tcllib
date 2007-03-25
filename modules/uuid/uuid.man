@@ -37,13 +37,25 @@ b12dc22c-5c36-41d2-57da-e29d0ef5839c
 
 [section {REFERENCES}]
 
-[list_begin enum]
+[list_begin enumerated]
 
 [enum]
     Paul J. Leach, "UUIDs and GUIDs", February 1998.
     ([uri http://www.opengroup.org/dce/info/draft-leach-uuids-guids-01.txt])
 
 [list_end]
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph uuid] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
 
 [keywords UUID GUID]
 [manpage_end]

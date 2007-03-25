@@ -39,7 +39,7 @@ i.e. how we can mix text and markup commands with each other.
 
 In the syntax rules listed in the next section
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 <TEXT> stands for all text except markup commands.
 
@@ -64,7 +64,7 @@ lexical level of the language was covered in the previous section.
 
 Regarding the syntax of the (E)BNF itself 
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 The construct { X } stands for zero or more occurrences of X.
 [enum]

@@ -111,7 +111,7 @@ traversal do not fit.
 
 Two general observations beforehand:
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 
 The root node of the tree can be used in most places where a node is
@@ -687,7 +687,7 @@ evaluating a script and passing the node via a loop variable.
 
 The following noteworthy changes have occurred:
 
-[list_begin enum]
+[list_begin enumerated]
 [enum]
 
 The API for accessing attributes and their values has been
@@ -797,6 +797,18 @@ The following example demonstrates the creation of new nodes:
     #                              generated name. The name is returned
     #                              as the result of the command.
 }]
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph {struct :: tree}] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
 
 [keywords tree serialization node pre-order post-order in-order depth-first breadth-first]
 [manpage_end]

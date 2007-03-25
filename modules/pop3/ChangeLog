@@ -1,3 +1,8 @@
+2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3.man: Fixed all warnings due to use of now deprecated
+	  commands. Added a section about how to give feedback.
+
 2006-10-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3.test: Made pop3-0.5 more robust, accept more than just

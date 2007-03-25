@@ -410,6 +410,17 @@ It can be solved with the following fragment:
 
 [see_also romberg]
 
-[keywords math calculus integration "differential equations" roots]
+[section {BUGS, IDEAS, FEEDBACK}]
 
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph {math :: calculus}] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
+
+[keywords math calculus integration "differential equations" roots]
 [manpage_end]

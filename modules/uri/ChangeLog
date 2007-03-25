@@ -1,3 +1,8 @@
+2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* uri.man: Fixed all warnings due to use of now deprecated
+	  commands. Added a section about how to give feedback.
+
 2007-01-11  Andreas Kupries  <andreask@activestate.com>
 
 	* uri.tcl (::uri::SplitHttp): [SF Tcllib Bug 1610655]. Modified to

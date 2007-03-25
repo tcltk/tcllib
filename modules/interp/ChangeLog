@@ -1,3 +1,9 @@
+2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tcllib_interp.man: Fixed all warnings due to use of now
+	* deleg_method.man: deprecated commands. Added a section about how
+	* deleg_proc.man: to give feedback.
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

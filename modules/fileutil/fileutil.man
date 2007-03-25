@@ -356,7 +356,7 @@ The command returns the path of a directory where the caller can
 place temporary files, such as [file /tmp] on Unix systems. The
 algorithm we use to find the correct directory is as follows:
 
-[list_begin enum]
+[list_begin enumerated]
 
 [enum]
 The directory set by an invokation of [cmd ::fileutil::tempdir] with
@@ -455,4 +455,16 @@ and the other relative.
 Symbolic links are [emph not] taken into account.
 
 [list_end]
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph fileutil] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
+
 [manpage_end]

@@ -1,3 +1,9 @@
+2007-03-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* comm.man: Fixed all warnings due to use of now deprecated
+	* comm_wire.man: commands. Added a section about how to give
+	  feedback.
+
 2006-11-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* comm.tcl (commRunHook): Fixed double execution of the hook

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.20 2007/03/21 23:07:20 andreas_kupries Exp $}]
+[comment {$Id: logger.man,v 1.21 2007/03/25 01:29:25 andreas_kupries Exp $}]
 [manpage_begin logger n 0.8]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
@@ -383,6 +383,18 @@ side effects.
      ${log}::logproc debug log_local_var
      }
 ]
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph logger] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
 
 
 [keywords logger log service {log level}]

@@ -142,7 +142,7 @@ These commands are identical to the MD5 equivalent commands.
 
 [section {REFERENCES}]
 
-[list_begin enum]
+[list_begin enumerated]
 
 [enum]
        Rivest, R., "The MD5 Message-Digest Algorithm", RFC 1321, MIT and
@@ -161,6 +161,18 @@ These commands are identical to the MD5 equivalent commands.
 [list_end]
 
 [see_also md4 sha1]
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph md5] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
 
 [keywords md5 hashing message-digest security {rfc 1320} {rfc 1321} {rfc 2104}]
 [manpage_end]

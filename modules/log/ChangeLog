@@ -1,3 +1,10 @@
+2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* log.man: Fixed all warnings due to use of now deprecated
+	* logger.man: commands. Added a section about how to give
+	* loggerUtils.man: feedback.
+	* loggerAppender.man:
+
 2007-03-20  Andreas Kupries  <andreask@activestate.com>
 
 	* loggerUtils.tcl: Added MD pragmas regarding ownership of the

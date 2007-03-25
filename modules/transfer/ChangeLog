@@ -1,3 +1,11 @@
+2007-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* transmitter.man: Fixed all warnings due to use of now deprecated
+	* receiver.man: commands. Added a section about how to give feedback.
+	* tqueue.man:
+	* copyops.man:
+	* connect.man:
+
 2006-10-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

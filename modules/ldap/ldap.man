@@ -515,5 +515,17 @@ results.
     ldap::disconnect $handle
 }]
 
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph ldap] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
+
 [keywords ldap asn {rfc 2251} ber x.680 x.690 {ldap client} {directory access} internet protocol]
 [manpage_end]

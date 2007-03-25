@@ -149,7 +149,7 @@ into the channel [arg chan].
 
 The format of regular CSV files is specified as 
 
-[list_begin enum]
+[list_begin enumerated]
 
 [enum]
 Each record of a csv file (comma-separated values, as exported e.g. by
@@ -218,6 +218,18 @@ d) "
 
 instead. As can be seen only item (d) is different, now a " instead of
 the empty string.
+
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph csv] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
 
 
 [see_also matrix queue]
