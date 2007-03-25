@@ -23,7 +23,7 @@
  * OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF
  * SUCH DAMAGE.
  *
- *	$Id: sha256.c,v 1.2 2006/11/04 15:25:34 patthoyts Exp $
+ *	$Id: sha256.c,v 1.3 2007/03/25 11:33:41 patthoyts Exp $
  */
 
 /*
@@ -56,7 +56,7 @@
 
 #ifndef lint
 static const char rcsid[] =
-	"$Id: sha256.c,v 1.2 2006/11/04 15:25:34 patthoyts Exp $";
+	"$Id: sha256.c,v 1.3 2007/03/25 11:33:41 patthoyts Exp $";
 #endif /* !lint */
 
 #if TCL_BYTE_ORDER==1234
@@ -355,6 +355,13 @@ SHA256Update (SHA256Context *sc, const void *data, uint32_t len)
   uint32_t bytesToCopy;
   int needBurn = 0;
 
+  /* gcc 4 complains that the following construction has an invalid lvalue:
+   *   ((uint8_t *) data) += bytesToCopy;
+   * apparently they have decided that assigment to cast values is a bad idea
+   * so we have to do the cast now as a work around -- assholes.
+   */
+  uint8_t *dataPtr = (uint8_t *)data;
+
 #ifdef SHA256_FAST_COPY
   if (sc->bufferLength) {
     bufferBytesLeft = 64L - sc->bufferLength;
@@ -363,12 +370,12 @@ SHA256Update (SHA256Context *sc, const void *data, uint32_t len)
     if (bytesToCopy > len)
       bytesToCopy = len;
 
-    memcpy (&sc->buffer.bytes[sc->bufferLength], data, bytesToCopy);
+    memcpy (&sc->buffer.bytes[sc->bufferLength], dataPtr, bytesToCopy);
 
     sc->totalLength += bytesToCopy * 8L;
 
     sc->bufferLength += bytesToCopy;
-    ((uint8_t *) data) += bytesToCopy;
+    dataPtr += bytesToCopy;
     len -= bytesToCopy;
 
     if (sc->bufferLength == 64L) {
@@ -381,15 +388,15 @@ SHA256Update (SHA256Context *sc, const void *data, uint32_t len)
   while (len > 63L) {
     sc->totalLength += 512L;
 
-    SHA256Guts (sc, data);
+    SHA256Guts (sc, dataPtr);
     needBurn = 1;
 
-    ((uint8_t *) data) += 64L;
+    dataPtr += 64L;
     len -= 64L;
   }
 
   if (len) {
-    memcpy (&sc->buffer.bytes[sc->bufferLength], data, len);
+    memcpy (&sc->buffer.bytes[sc->bufferLength], dataPtr, len);
 
     sc->totalLength += len * 8L;
 
@@ -403,12 +410,13 @@ SHA256Update (SHA256Context *sc, const void *data, uint32_t len)
     if (bytesToCopy > len)
       bytesToCopy = len;
 
-    memcpy (&sc->buffer.bytes[sc->bufferLength], data, bytesToCopy);
+    memcpy (&sc->buffer.bytes[sc->bufferLength], dataPtr, bytesToCopy);
 
     sc->totalLength += bytesToCopy * 8L;
 
     sc->bufferLength += bytesToCopy;
-    ((uint8_t *) data) += bytesToCopy;
+
+    dataPtr += bytesToCopy;
     len -= bytesToCopy;
 
     if (sc->bufferLength == 64L) {
