@@ -1,3 +1,8 @@
+2007-03-26  Andreas Kupries  <andreask@activestate.com>
+
+	* peg.man: Uh, the section was put into the list instead of
+	  after. Fixed. [Bug 1688650].
+
 2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* peg.man: Fixed all warnings due to use of now deprecated
