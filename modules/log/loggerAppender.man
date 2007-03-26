@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: loggerAppender.man,v 1.4 2007/03/25 01:29:25 andreas_kupries Exp $}]
+[comment {$Id: loggerAppender.man,v 1.5 2007/03/26 19:17:19 andreas_kupries Exp $}]
 [manpage_begin logger::appender n 1.2]
 [copyright {2005 Aamer Akhter <aakhter@cisco.com>}]
 [moddesc {Object Oriented logging facility}]
@@ -57,6 +57,7 @@ contain the name of the procedure.
 See [cmd ::logger::appender::colorConsole] for a description of the
 applicable options.
 
+[list_end]
 
 [section {BUGS, IDEAS, FEEDBACK}]
 
@@ -70,5 +71,4 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.
 
 
-[list_end]
 [manpage_end]
