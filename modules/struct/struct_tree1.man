@@ -23,7 +23,7 @@ command.
 
 [para]
 
-A tree is a collection of elements, called nodes, one of which is
+A tree is a collection of named elements, called nodes, one of which is
 distinguished as a root, along with a relation ("parenthood") that
 places a hierarchical structure on the nodes. (Data Structures and
 Algorithms; Aho, Hopcroft and Ullman; Addison-Wesley, 1987).  In
@@ -32,6 +32,28 @@ implementation allows any number of keyed values to be associated with
 each node.
 
 [para]
+
+The element names can be arbitrary strings.
+
+[para][comment {This comparison (C) 2007 Lars Bergstrom, Bug 1687902}]
+
+A tree is thus similar to an array, but with three important
+differences:
+
+[list_begin enumerated]
+[enum] Trees are accessed through an object command, whereas arrays are
+accessed as variables. (This means trees cannot be local to a procedure.)
+
+[enum] Trees have a hierarchical structure, whereas an array is just an
+unordered collection.
+
+[enum] Each node of a tree has a separate collection of attributes and
+values. This is like an array where every value is a dictionary.
+
+[list_end]
+
+[para]
+
 
 The following commands are possible for tree objects:
 
