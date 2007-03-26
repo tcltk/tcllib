@@ -724,6 +724,7 @@ applicabilities, including error recovery techniques.
 [uri {http://scifac.ru.ac.za/compilers/} \
 	{Compilers and Compiler Generators}], an online book using
 CoCo/R, a generator for recursive descent parsers.
+[list_end]
 
 [section {BUGS, IDEAS, FEEDBACK}]
 
@@ -737,5 +738,4 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.
 
 
-[list_end]
 [manpage_end]
