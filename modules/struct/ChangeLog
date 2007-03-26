@@ -1,3 +1,8 @@
+2007-03-26  Andreas Kupries  <andreask@activestate.com>
+
+	* struct_tree.man:  Documentation improvements as suggested by Lars
+	* struct_tree1.man: Bergstrom ([Bug 1687902]).
+
 2007-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph.man:  Fixed all warnings due to use of now
