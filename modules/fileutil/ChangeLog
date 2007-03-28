@@ -1,3 +1,9 @@
+2007-03-28  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.tcl (::fileutil::fileType): Added definitions to
+	* pkgIndex.tcl: recognize Apple .icns files.
+	* fileutil.man:  Bumped version up to 1.12.
+
 2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.man: Fixed all warnings due to use of now deprecated

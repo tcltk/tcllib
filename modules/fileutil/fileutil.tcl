@@ -9,11 +9,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.62 2007/03/12 23:25:21 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.63 2007/03/28 22:48:23 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.11
+package provide fileutil 1.12
 
 namespace eval ::fileutil {
     namespace export \
@@ -1420,7 +1420,7 @@ if {[package vsatisfies [package provide Tcl] 8.3]} {
 #                       text
 #                       script <interpreter>
 #                       executable [elf, dos, ne, pe]
-#                       binary graphic [gif, jpeg, png, tiff, bitmap]
+#                       binary graphic [gif, jpeg, png, tiff, bitmap, icns]
 #                       ps, eps, pdf
 #                       html
 #                       xml <doctype>
@@ -1513,6 +1513,10 @@ proc ::fileutil::fileType {filename} {
         lappend type compressed zip
     } elseif { $binary && [string match "GIF*" $test] } {
         lappend type graphic gif
+    } elseif { $binary && [string match "icns*" $test] } {
+        lappend type graphic icns bigendian
+    } elseif { $binary && [string match "snci*" $test] } {
+        lappend type graphic icns smallendian
     } elseif { $binary && [string match "\x89PNG*" $test] } {
         lappend type graphic png
     } elseif { $binary && [string match "\xFF\xD8\xFF*" $test] } {
