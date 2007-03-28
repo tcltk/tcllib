@@ -2,6 +2,28 @@
 # -*- tcl -*- \
 exec tclsh "$0" ${1+"$@"}
 
+# @@ Meta Begin
+# Application tcldocstrip 1.0
+# Meta platform     tcl
+# Meta summary      TeX's docstrip written in Tcl
+# Meta description  This application is an implementation
+# Meta description  of TeX's docstrip application in Tcl.
+# Meta description  It provides commands to convert a docstrip
+# Meta description  weave according to a set of guards, to
+# Meta description  assemble an output based on several sets
+# Meta description  guards and input files, i.e. of a document
+# Meta description  spread over several inputs and/or guards,
+# Meta description  and to extract and list all unique guard
+# Meta description  expressions found in a document.
+# Meta category     Processing docstrip documents
+# Meta subject      docstrip TeX LaTeX
+# Meta require      docstrip
+# Meta author       Andreas Kupries
+# Meta license      BSD
+# @@ Meta End
+
+package provide tcldocstrip 1.0
+
 # TODO __________________________
 # Add handling of pre- and postambles.
 

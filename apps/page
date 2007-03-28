@@ -2,13 +2,35 @@
 # -*- tcl -*- \
 exec tclsh "$0" ${1+"$@"}
 
+# @@ Meta Begin
+# Application page 1.0
+# Meta platform     tcl
+# Meta summary      Tool for general text transformation
+# Meta description  While the name is an allusion to parser
+# Meta description  generation, the modular plugin-based
+# Meta description  nature of this application allows for
+# Meta description  any type of text transformation which
+# Meta description  can be put into a plugin. Still, the
+# Meta description  plugins coming with Tcllib all deal
+# Meta description  with parser generation.
+# Meta category     Processing text files
+# Meta subject      {parser generation} {text transformation}
+# Meta require      page::pluginmgr
+# Meta require      logger
+# Meta require      struct::matrix
+# Meta author       Andreas Kupries
+# Meta license      BSD
+# @@ Meta End
+
+package provide page 1.0
+
 lappend auto_path [file join [file dirname [file dirname [file normalize [info script]]]] modules]
 
 #lappend auto_path [file join [file dirname [info script]] .. modules]
 #source [file join [file dirname [info script]] .. modules struct tree.tcl]
 
 # /=
-#  $Id: page,v 1.1 2005/09/28 04:51:19 andreas_kupries Exp $
+#  $Id: page,v 1.2 2007/03/28 17:49:44 andreas_kupries Exp $
 # \=
 #
 # PAGE - PArser GEnerator | GTT - General Text Transformation
@@ -380,7 +402,7 @@ proc ::page::Usage {} {
 }
 
 proc ::page::Version {} {
-    puts stderr {$Id: page,v 1.1 2005/09/28 04:51:19 andreas_kupries Exp $}
+    puts stderr {$Id: page,v 1.2 2007/03/28 17:49:44 andreas_kupries Exp $}
     exit 1
 }
 
