@@ -1,3 +1,7 @@
+2007-03-28  Andreas Kupries  <andreask@activestate.com>
+
+	* apps/page: Added a block of meta data.
+
 2007-03-23  Andreas Kupries <andreask@activestate.com>
 
 	* pkgIndex.tcl: Added MD hints.
