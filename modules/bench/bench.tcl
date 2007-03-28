@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: bench.tcl,v 1.8 2007/01/23 03:21:35 andreas_kupries Exp $
+# RCS: @(#) $Id: bench.tcl,v 1.9 2007/03/28 17:49:44 andreas_kupries Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -238,7 +238,7 @@ proc ::bench::locate {pattern paths} {
 #	List of interpreters (paths)
 #
 # Results:
-#	dictonary interpreter -> version.
+#	dictionary: interpreter -> version.
 
 proc ::bench::versions {interps} {
     set res {}
