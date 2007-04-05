@@ -1,11 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin grammar::fa::dexec n 0.1.1]
+[manpage_begin grammar::fa::dexec n 0.2]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2007 Bogdan <rftghost@users.sourceforge.net>}]
 [moddesc   {Finite automaton operations and usage}]
 [titledesc {Execute deterministic finite automatons}]
 [require Tcl 8.4]
 [require snit]
-[require grammar::fa::dexec [opt 0.1.1]]
+[require grammar::fa::dexec [opt 0.2]]
 [description]
 [keywords execution running grammar automaton {finite automaton}]
 [keywords state {regular expression} {regular grammar}]
@@ -24,8 +25,8 @@ the packages [package grammar::fa] and [package grammar::fa::op].
 [para]
 
 The objects follow a push model. Symbols are pushed into the executor,
-and when something important happens, i.e. and error occurs, or a
-final state is entered this will be reported via the callback
+and when something important happens, i.e. error occurs, a state transition,
+or a final state is entered this will be reported via the callback
 specified via the option [option -command]. Note that conversion of
 this into a pull model where the environment retrieves messages from
 the object and the object uses a callback to ask for more symbols is
@@ -114,6 +115,11 @@ Unconditionally sets the executor into the start state of the
 underlying FA. This also clears any error condition  [method put] may
 have encountered.
 
+[call [arg daName] [method state]]
+
+Returns the current state of the underlying FA. This allow for 
+introspection without the need to pass data from the callback command.
+
 [list_end]
 
 
@@ -157,6 +163,10 @@ The executor has entered the final state [arg stateid].
 [call [arg cmdprefix] [method reset]]
 
 The executor was reset.
+
+[call [arg cmdprefix] [method state] [arg stateid]]
+
+The FA changed state due to a transition. [arg stateid] is the new state.
 
 [list_end]
 

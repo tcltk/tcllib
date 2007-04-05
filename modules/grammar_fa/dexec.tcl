@@ -33,6 +33,7 @@ snit::type ::grammar::fa::dexec {
 
     method reset {} {}
     method put  {sy} {}
+    method state {} {}
 
     option -command {}
     option -any     {}
@@ -124,6 +125,10 @@ snit::type ::grammar::fa::dexec {
 	return
     }
 
+    method state {} {
+	return $curr
+    }
+
     method put {sy} {
 	if {$inerr} return
 	## puts " --($sy)-->"
@@ -153,6 +158,10 @@ snit::type ::grammar::fa::dexec {
 	    return
 	}
 	set curr $new
+	
+	uplevel #0 [linsert $cmd end \
+		state $curr]
+	
 	## puts -nonewline " \[$curr\]" ; flush stdout
 
 	if {[info exists final($curr)]} {
@@ -176,4 +185,4 @@ snit::type ::grammar::fa::dexec {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide grammar::fa::dexec 0.1.1
+package provide grammar::fa::dexec 0.2
