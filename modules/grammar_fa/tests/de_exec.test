@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: de_exec.test,v 1.4 2006/01/10 23:05:19 andreas_kupries Exp $
+# RCS: @(#) $Id: de_exec.test,v 1.5 2007/04/05 21:32:41 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Regular expression for C comments (Extended notation, using the 'not' operator).
@@ -42,7 +42,7 @@ global events
 
 # -------------------------------------------------------------------------
 
-test da-reset-1.0 {reset error} {
+test de-reset-1.0 {reset error} {
     grammar::fa::dexec de ccomments -command {lappend events}
     catch {de reset x} msg
     de destroy
@@ -57,26 +57,26 @@ foreach {n string acceptany accept} {
     {reset . error BADSYM {Bad symbol "x"} .}
 
     1 {/ * * /}
-    {reset . . . . final 4}
-    {reset . . . . final 4}
+    {reset . state 1 . state 2 . state 3 . state 4 final 4}
+    {reset . state 1 . state 2 . state 3 . state 4 final 4}
 
     2 {/ * x * /}
-    {reset . . . . . final 4}
-    {reset . . . error BADSYM {Bad symbol "x"} . .}
+    {reset . state 1 . state 2 . state 2 . state 3 . state 4 final 4}
+    {reset . state 1 . state 2 . error BADSYM {Bad symbol "x"} . .}
 
     3 {/ * * / * /}
-    {reset . . . . final 4 . error BADTRANS {Bad transition ("4" "*"), no destination} .}
-    {reset . . . . final 4 . error BADTRANS {Bad transition ("4" "*"), no destination} .}
+    {reset . state 1 . state 2 . state 3 . state 4 final 4 . error BADTRANS {Bad transition ("4" "*"), no destination} .}
+    {reset . state 1 . state 2 . state 3 . state 4 final 4 . error BADTRANS {Bad transition ("4" "*"), no destination} .}
 
     4 {/ * x * / x * /}
-    {reset . . . . . final 4 . error BADTRANS {Bad transition ("4" "any"), no destination} . .}
-    {reset . . . error BADSYM {Bad symbol "x"} . . . . .}
+    {reset . state 1 . state 2 . state 2 . state 3 . state 4 final 4 . error BADTRANS {Bad transition ("4" "any"), no destination} . .}
+    {reset . state 1 . state 2 . error BADSYM {Bad symbol "x"} . . . . .}
 
     5 {/ * * * / * * /}
-    {reset . . . . . final 4 . error BADTRANS {Bad transition ("4" "*"), no destination} . .}
-    {reset . . . . . final 4 . error BADTRANS {Bad transition ("4" "*"), no destination} . .}
+    {reset . state 1 . state 2 . state 3 . state 3 . state 4 final 4 . error BADTRANS {Bad transition ("4" "*"), no destination} . .}
+    {reset . state 1 . state 2 . state 3 . state 3 . state 4 final 4 . error BADTRANS {Bad transition ("4" "*"), no destination} . .}
 } {
-    test da-put-2.$n {put, -any any} {
+    test de-put-2.$n {put, -any any} {
 	set events {}
 	grammar::fa::dexec de ccomments -any any -command {lappend events}
 	foreach sy $string {
@@ -87,7 +87,7 @@ foreach {n string acceptany accept} {
 	set events
     } $acceptany ; # {}
 
-    test da-put-3.$n {put} {
+    test de-put-3.$n {put} {
 	set events {}
 	grammar::fa::dexec de ccomments -command {lappend events}
 	foreach sy $string {

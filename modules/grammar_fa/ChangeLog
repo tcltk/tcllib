@@ -1,3 +1,13 @@
+2007-04-03  Andreas Kupries  <andreask@activestate.com>
+
+	* dexec.tcl: Accepted [Tcllib RFE 1692954] and the associated
+	* dexec.man: patch [Tcllib Patch 1693491], by Bogdan
+	* pkgIndex.tcl: <rftghost@users.sourceforge.net>. Bumped version
+	* test/de_exec.test: number to 0.2. New API: State introspection,
+	  additional callback invokation for state transitions. Updated
+	  testsuite to accept the additional callbacks in the activity
+	  traces.
+
 2007-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* dacceptor.man: Fixed all warnings due to use of now deprecated
