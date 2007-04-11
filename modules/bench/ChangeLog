@@ -1,3 +1,11 @@
+2007-04-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bench_lang_intro.man: New files, documentation of the
+	* bench_lang_spec.man: benchmark declaration language, and
+	* bench_read.man: of the supporting packages.
+	* bench_wcsv.man:
+	* bench_wtext.man:
+
 2007-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* libbench.tcl: Added new benchmark options -ipre, -ipost. Per
