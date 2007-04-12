@@ -2,28 +2,28 @@
 # Graph tests - arc rename
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: rename.test,v 1.1 2006/11/16 06:33:13 andreas_kupries Exp $
+# RCS: @(#) $Id: rename.test,v 1.2 2007/04/12 03:01:55 andreas_kupries Exp $
 
 # Syntax: graph arc rename ARC NEWNAME
 
 # -------------------------------------------------------------------------
 # Wrong # args: Missing, Too many
 
-test graph-${impl}-arc-rename-1.0 {arc rename, wrong # args, missing} {
+test graph-${impl}-${setimpl}-arc-rename-1.0 {arc rename, wrong # args, missing} {
     SETUP
     catch {mygraph arc rename} result
     mygraph destroy
     set result
 } [tmWrong {arc rename} {arc newname} 0]
 
-test graph-${impl}-arc-rename-1.1 {arc rename, wrong # args, missing} {
+test graph-${impl}-${setimpl}-arc-rename-1.1 {arc rename, wrong # args, missing} {
     SETUP
     catch {mygraph arc rename foo} result
     mygraph destroy
     set result
 } [tmWrong {arc rename} {arc newname} 1]
 
-test graph-${impl}-arc-rename-1.2 {arc rename, wrong # args, too many} {
+test graph-${impl}-${setimpl}-arc-rename-1.2 {arc rename, wrong # args, too many} {
     SETUP
     catch {mygraph arc rename foo far fox} result
     mygraph destroy
@@ -33,14 +33,14 @@ test graph-${impl}-arc-rename-1.2 {arc rename, wrong # args, too many} {
 # -------------------------------------------------------------------------
 # Logical arguments checks and failures
 
-test graph-${impl}-arc-rename-2.0 {arc rename, missing arc} {
+test graph-${impl}-${setimpl}-arc-rename-2.0 {arc rename, missing arc} {
     SETUP
     catch {mygraph arc rename 0 foo} result
     mygraph destroy
     set result
 } [MissingArc $MY 0]
 
-test graph-${impl}-arc-rename-2.1 {arc rename, duplicate arc for target} {
+test graph-${impl}-${setimpl}-arc-rename-2.1 {arc rename, duplicate arc for target} {
     SETUP
     mygraph node insert 0 1
     mygraph arc  insert 0 1 a
@@ -54,7 +54,7 @@ test graph-${impl}-arc-rename-2.1 {arc rename, duplicate arc for target} {
 # -------------------------------------------------------------------------
 # Ok arguments.
 
-test graph-${impl}-arc-rename-3.0 {arc rename, node linkage} {
+test graph-${impl}-${setimpl}-arc-rename-3.0 {arc rename, node linkage} {
     SETUP
 
     mygraph node insert a b
@@ -82,7 +82,7 @@ test graph-${impl}-arc-rename-3.0 {arc rename, node linkage} {
     set result
 } {a b 1 0 0 0 | a b 0 1 snarf snarf}
 
-test graph-${impl}-arc-rename-3.1 {arc rename, attribute transfer} {
+test graph-${impl}-${setimpl}-arc-rename-3.1 {arc rename, attribute transfer} {
     SETUP
     mygraph node insert a b
     mygraph arc  insert a b 0

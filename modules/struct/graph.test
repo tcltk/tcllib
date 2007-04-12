@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: graph.test,v 1.26 2006/11/16 06:33:12 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.test,v 1.27 2007/04/12 03:01:54 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -21,33 +21,29 @@ testsNeedTcltest 1.0
 
 support {
     useLocal list.tcl struct::list
-    useLocal sets.tcl struct::set
+
+    useAccel [useTcllibC] struct/sets.tcl struct::set
+    TestAccelInit                         struct::set
+
+    useLocalFile graph/tests/Xsupport
 }
 testing {
-    if {[useTcllibC]} {
-	useLocalKeep graph.tcl struct::graph
-    } else {
-	useLocal     graph.tcl struct::graph
-    }
-    TestAccelInit              struct::graph
+    useAccel [useTcllibC] struct/graph.tcl struct::graph
+    TestAccelInit                          struct::graph
 }
 
 # -------------------------------------------------------------------------
 
-useLocalFile         graph/tests/Xsupport
-set tests [localPath graph/tests/Xcontrol]
-
-#----------------------------------------------------------------------
-
 # The global variable 'impl' is part of the public API the testsuite
 # (in graph.testsuite) is expecting from the environment.
 
-TestAccelDo struct::graph impl {
-    source $tests
+TestAccelDo struct::set setimpl {
+    TestAccelDo struct::graph impl {
+	source [localPath graph/tests/Xcontrol]
+    }
 }
 
 #----------------------------------------------------------------------
-
-unset tests
 TestAccelExit struct::graph
+TestAccelExit struct::set
 testsuiteCleanup

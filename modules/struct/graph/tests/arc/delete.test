@@ -2,14 +2,14 @@
 # Graph tests - arc deletion
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: delete.test,v 1.1 2006/11/16 06:33:13 andreas_kupries Exp $
+# RCS: @(#) $Id: delete.test,v 1.2 2007/04/12 03:01:55 andreas_kupries Exp $
 
 # Syntax: graph arc delete ARC ARC...
 
 # -------------------------------------------------------------------------
 # Wrong # args: Missing, Too many
 
-test graph-${impl}-arc-delete-1.0 {arc delete, wrong#args, missing} {
+test graph-${impl}-${setimpl}-arc-delete-1.0 {arc delete, wrong#args, missing} {
     SETUP
     catch {mygraph arc delete} msg
     mygraph destroy
@@ -27,7 +27,7 @@ test graph-${impl}-arc-delete-1.0 {arc delete, wrong#args, missing} {
 # -------------------------------------------------------------------------
 # Logical arguments checks and failures
 
-test graph-${impl}-arc-delete-2.0 {arc delete, missing arc} {
+test graph-${impl}-${setimpl}-arc-delete-2.0 {arc delete, missing arc} {
     SETUP
     catch {mygraph arc delete arc0} msg
     mygraph destroy
@@ -37,7 +37,7 @@ test graph-${impl}-arc-delete-2.0 {arc delete, missing arc} {
 # -------------------------------------------------------------------------
 # Ok arguments, single, multiple deletion.
 
-test graph-${impl}-arc-delete-3.0 {arc delete} {
+test graph-${impl}-${setimpl}-arc-delete-3.0 {arc delete} {
     SETUP
 
     mygraph node insert node0 node1
@@ -52,7 +52,7 @@ test graph-${impl}-arc-delete-3.0 {arc delete} {
     set res
 } {1 {} 0}
 
-test graph-${impl}-arc-delete-3.1 {arc delete, multiple at once} {
+test graph-${impl}-${setimpl}-arc-delete-3.1 {arc delete, multiple at once} {
     SETUP
 
     mygraph node insert node0 node1 node2 node3
@@ -76,7 +76,7 @@ test graph-${impl}-arc-delete-3.1 {arc delete, multiple at once} {
     set res
 } {1 1 1 1 {} 0 0 0 0}
 
-test graph-${impl}-arc-delete-3.2 {arc delete, keeping adjacent nodes} {
+test graph-${impl}-${setimpl}-arc-delete-3.2 {arc delete, keeping adjacent nodes} {
     SETUP
 
     mygraph node insert node0 node1

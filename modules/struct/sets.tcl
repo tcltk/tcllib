@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets.tcl,v 1.12 2007/01/21 22:15:59 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.tcl,v 1.13 2007/04/12 03:01:54 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ namespace eval ::struct::set {}
 # ### ### ### ######### ######### #########
 ## Management of set implementations.
 
-# ::struct::set::LoadAccel --
+# ::struct::set::LoadAccelerator --
 #
 #	Loads a named implementation, if possible.
 #
@@ -33,7 +33,7 @@ namespace eval ::struct::set {}
 #	A boolean flag. True if the implementation
 #	was successfully loaded; and False otherwise.
 
-proc ::struct::set::LoadAccel {key} {
+proc ::struct::set::LoadAccelerator {key} {
     variable accel
     set r 0
     switch -exact -- $key {
@@ -129,7 +129,7 @@ proc ::struct::set::Implementations {} {
     return $res
 }
 
-# ::struct::set::KnownImpl --
+# ::struct::set::KnownImplementations --
 #
 #	Determines which implementations are known
 #	as possible implementations.
@@ -141,8 +141,15 @@ proc ::struct::set::Implementations {} {
 #	A list of implementation keys. In the order
 #	of preference, most prefered first.
 
-proc ::struct::set::KnownImpl {} {
+proc ::struct::set::KnownImplementations {} {
     return {critcl tcl}
+}
+
+proc ::struct::set::Names {} {
+    return {
+	critcl {tcllibc based}
+	tcl    {pure Tcl}
+    }
 }
 
 # ### ### ### ######### ######### #########
@@ -162,8 +169,8 @@ namespace eval ::struct::set {
 
 namespace eval ::struct::set {
     variable e
-    foreach e [KnownImpl] {
-	if {[LoadAccel $e]} {
+    foreach e [KnownImplementations] {
+	if {[LoadAccelerator $e]} {
 	    SwitchTo $e
 	    break
 	}

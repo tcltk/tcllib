@@ -2,7 +2,7 @@
 # Graph tests - graph/arc/node set (attribute set)
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: set.test,v 1.1 2006/11/16 06:33:14 andreas_kupries Exp $
+# RCS: @(#) $Id: set.test,v 1.2 2007/04/12 03:01:56 andreas_kupries Exp $
 
 # Syntax: graph      set      KEY ?VALUE?
 # Syntax: graph arc  set ARC  KEY ?VALUE?
@@ -20,21 +20,21 @@ foreach {e ex stem mp mk} {
     # -------------------------------------------------------------------------
     # Wrong # args: Missing, Too many
 
-    test graph-${impl}-${e}-set-1.0 "$e set, wrong # args, missing" {
+    test graph-${impl}-${setimpl}-${e}-set-1.0 "$e set, wrong # args, missing" {
 	SETUP
 	catch {CMD set} msg
 	mygraph destroy
 	set msg
     } [tmWrong "${mp}set" "${mp}key ?value?" 0 "${mp}key args"] ; # {}
 
-    test graph-${impl}-${e}-set-1.1 "$e set, wrong # args, missing" !graph {
+    test graph-${impl}-${setimpl}-${e}-set-1.1 "$e set, wrong # args, missing" !graph {
 	SETUP
 	catch {CMD set a} msg
 	mygraph destroy
 	set msg
     } [tmWrong "${mp}set" "${mp}key ?value?" 1 "${mp}key args"] ; # {}
 
-    test graph-${impl}-${e}-set-1.2 "$e set, wrong # args, too many" {
+    test graph-${impl}-${setimpl}-${e}-set-1.2 "$e set, wrong # args, too many" {
 	SETUP
 	catch {CMD set a b c d} msg
 	mygraph destroy
@@ -44,14 +44,14 @@ foreach {e ex stem mp mk} {
     # -------------------------------------------------------------------------
     # Logical arguments checks and failures
 
-    test graph-${impl}-${e}-set-2.0 "$e set, missing $e" !graph {
+    test graph-${impl}-${setimpl}-${e}-set-2.0 "$e set, missing $e" !graph {
 	SETUP
 	catch {CMD set x data} msg
 	mygraph destroy
 	set msg
     } [Missing$ex $MY x] ; # {}
 
-    test graph-${impl}-${e}-set-2.1 "$e set, no attributes (retrieval)" {
+    test graph-${impl}-${setimpl}-${e}-set-2.1 "$e set, no attributes (retrieval)" {
 	SETUP
 	$ex
 	catch {SetR$ex foo} msg
@@ -59,7 +59,7 @@ foreach {e ex stem mp mk} {
 	set msg
     } [MissingKey $mk $e foo] ; # {}
 
-    test graph-${impl}-${e}-set-2.2 "$e set, missing key (retrieval)" {
+    test graph-${impl}-${setimpl}-${e}-set-2.2 "$e set, missing key (retrieval)" {
 	SETUP
 	$ex
 	SetW$ex data ""
@@ -71,7 +71,7 @@ foreach {e ex stem mp mk} {
     # -------------------------------------------------------------------------
     # Ok arguments.
 
-    test graph-${impl}-${e}-set-3.0 "$e set, set value, result" {
+    test graph-${impl}-${setimpl}-${e}-set-3.0 "$e set, set value, result" {
 	SETUP
 	$ex
 	set     result {}
@@ -81,7 +81,7 @@ foreach {e ex stem mp mk} {
 	set result
     } {foobar foobar} ; # {}
 
-    test graph-${impl}-${e}-set-3.1 "$e set, retrieve value" {
+    test graph-${impl}-${setimpl}-${e}-set-3.1 "$e set, retrieve value" {
 	SETUP
 	$ex
 	SetW$ex baz foobar
