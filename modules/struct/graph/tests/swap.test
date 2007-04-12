@@ -2,28 +2,28 @@
 # Graph tests - swap
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: swap.test,v 1.1 2006/11/16 06:33:13 andreas_kupries Exp $
+# RCS: @(#) $Id: swap.test,v 1.2 2007/04/12 03:01:55 andreas_kupries Exp $
 
 # Syntax: graph swap NODE-1 NODE-2
 
 # -------------------------------------------------------------------------
 # Wrong # args: Missing, Too many
 
-test graph-${impl}-swap-1.0 {swap, wrong#args, missing} {
+test graph-${impl}-${setimpl}-swap-1.0 {swap, wrong#args, missing} {
     SETUP
     catch {mygraph swap} msg
     mygraph destroy
     set msg
 } [tmWrong swap {node1 node2} 0]
 
-test graph-${impl}-swap-1.1 {swap, wrong#args, missing} {
+test graph-${impl}-${setimpl}-swap-1.1 {swap, wrong#args, missing} {
     SETUP
     catch {mygraph swap a} msg
     mygraph destroy
     set msg
 } [tmWrong swap {node1 node2} 1]
 
-test graph-${impl}-swap-1.2 {swap, wrong#args, too many} {
+test graph-${impl}-${setimpl}-swap-1.2 {swap, wrong#args, too many} {
     SETUP
     catch {mygraph swap a b c} msg
     mygraph destroy
@@ -33,7 +33,7 @@ test graph-${impl}-swap-1.2 {swap, wrong#args, too many} {
 # -------------------------------------------------------------------------
 # Logical arguments checks and failures
 
-test graph-${impl}-swap-2.0 {swap, missing node} {
+test graph-${impl}-${setimpl}-swap-2.0 {swap, missing node} {
     SETUP
     mygraph node insert       node1
     catch {mygraph swap node0 node1} msg
@@ -41,7 +41,7 @@ test graph-${impl}-swap-2.0 {swap, missing node} {
     set msg
 } [MissingNode $MY node0]
 
-test graph-${impl}-swap-2.1 {swap, missing node} {
+test graph-${impl}-${setimpl}-swap-2.1 {swap, missing node} {
     SETUP
     mygraph node insert node0
     catch {mygraph swap node0 node1} msg
@@ -49,7 +49,7 @@ test graph-${impl}-swap-2.1 {swap, missing node} {
     set msg
 } [MissingNode $MY node1]
 
-test graph-${impl}-swap-2.2 {swap, self} {
+test graph-${impl}-${setimpl}-swap-2.2 {swap, self} {
     SETUP
     mygraph node insert node0
     catch {mygraph swap node0 node0} msg
@@ -76,7 +76,7 @@ proc SETUP_2 {} {
     return
 }
 
-test graph-${impl}-swap-3.0 {swap, node relationships} {
+test graph-${impl}-${setimpl}-swap-3.0 {swap, node relationships} {
     SETUP
     SETUP_2
 
@@ -90,7 +90,7 @@ test graph-${impl}-swap-3.0 {swap, node relationships} {
     set result
 } {{n3 n4} {n0 n2}}
 
-test graph-${impl}-swap-3.1 {swap, node relationships} {
+test graph-${impl}-${setimpl}-swap-3.1 {swap, node relationships} {
     SETUP
     SETUP_2
 
@@ -104,7 +104,7 @@ test graph-${impl}-swap-3.1 {swap, node relationships} {
     set result
 } {{} {n1 n2}}
 
-test graph-${impl}-swap-3.2 {swap, node relationships} {
+test graph-${impl}-${setimpl}-swap-3.2 {swap, node relationships} {
     SETUP
     SETUP_2
 

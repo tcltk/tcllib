@@ -2,7 +2,7 @@
 # Graph tests - arcs
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: arcs.test,v 1.1 2006/11/16 06:33:13 andreas_kupries Exp $
+# RCS: @(#) $Id: arcs.test,v 1.2 2007/04/12 03:01:54 andreas_kupries Exp $
 
 # Syntax: graph arcs
 # (1)     graph arcs -key KEY
@@ -27,7 +27,7 @@
 # -------------------------------------------------------------------------
 # Logical arguments checks and failures
 
-test graph-${impl}-arcs-1.0 {arcs, bad switch} {
+test graph-${impl}-${setimpl}-arcs-1.0 {arcs, bad switch} {
     SETUP
     catch {mygraph arcs -foo} msg
     mygraph destroy
@@ -37,14 +37,14 @@ test graph-${impl}-arcs-1.0 {arcs, bad switch} {
 # -------------------------------------------------------------------------
 # Ok arguments.
 
-test graph-${impl}-arcs-2.0 {arcs, empty graph} {
+test graph-${impl}-${setimpl}-arcs-2.0 {arcs, empty graph} {
     SETUP
     set result [mygraph arcs]
     mygraph destroy
     set result
 } {}
 
-test graph-${impl}-arcs-2.1 {arcs, nodes without arcs} {
+test graph-${impl}-${setimpl}-arcs-2.1 {arcs, nodes without arcs} {
     SETUP
     mygraph node insert 0 1 2 3 4 5
     set result [mygraph arcs]
@@ -52,7 +52,7 @@ test graph-${impl}-arcs-2.1 {arcs, nodes without arcs} {
     set result
 } {}
 
-test graph-${impl}-arcs-2.2 {arcs} {
+test graph-${impl}-${setimpl}-arcs-2.2 {arcs} {
     SETUP
     mygraph node insert 0 1 2 3 4 5
     mygraph arc  insert 0 1 a
@@ -69,14 +69,14 @@ test graph-${impl}-arcs-2.2 {arcs} {
 # -------------------------------------------------------------------------
 # Wrong # args: Missing, Too many
 
-test graph-${impl}-arcs-key-1.0 {arcs, wrong#args, missing} {
+test graph-${impl}-${setimpl}-arcs-key-1.0 {arcs, wrong#args, missing} {
     SETUP
     catch {mygraph arcs -key} msg
     mygraph destroy
     set msg
 } "wrong # args: should be \"$MY arcs ?-key key? ?-value value? ?-filter cmd? ?-in|-out|-adj|-inner|-embedding node node...?\""
 
-test graph-${impl}-arcs-key-1.1 {arcs, wrong#args, missing} {
+test graph-${impl}-${setimpl}-arcs-key-1.1 {arcs, wrong#args, missing} {
     SETUP
     catch {mygraph arcs -value} msg
     mygraph destroy
@@ -86,21 +86,21 @@ test graph-${impl}-arcs-key-1.1 {arcs, wrong#args, missing} {
 # -------------------------------------------------------------------------
 # Logical arguments checks and failures
 
-test graph-${impl}-arcs-key-2.0 {arcs, multiple -key} {
+test graph-${impl}-${setimpl}-arcs-key-2.0 {arcs, multiple -key} {
     SETUP
     catch {mygraph arcs -key foobar -value 1 -key foo} msg
     mygraph destroy
     set msg
 } {invalid restriction: illegal multiple use of "-key"}
 
-test graph-${impl}-arcs-key-2.1 {arcs, multiple -value} {
+test graph-${impl}-${setimpl}-arcs-key-2.1 {arcs, multiple -value} {
     SETUP
     catch {mygraph arcs -key foobar -value 1 -value foo} msg
     mygraph destroy
     set msg
 } {invalid restriction: illegal multiple use of "-value"}
 
-test graph-${impl}-arcs-key-2.2 {arcs, -value without -key} {
+test graph-${impl}-${setimpl}-arcs-key-2.2 {arcs, -value without -key} {
     SETUP
     catch {mygraph arcs -value 1} msg
     mygraph destroy
@@ -110,7 +110,7 @@ test graph-${impl}-arcs-key-2.2 {arcs, -value without -key} {
 # -------------------------------------------------------------------------
 # Ok arguments.
 
-test graph-${impl}-arcs-key-3.0 {arcs, -key} {
+test graph-${impl}-${setimpl}-arcs-key-3.0 {arcs, -key} {
     SETUP
     mygraph node insert n0 n1
     mygraph arc  insert n0 n1 a1
@@ -123,7 +123,7 @@ test graph-${impl}-arcs-key-3.0 {arcs, -key} {
     set msg
 } a1
 
-test graph-${impl}-arcs-key-3.1 {arcs, -key, -value} {
+test graph-${impl}-${setimpl}-arcs-key-3.1 {arcs, -key, -value} {
     SETUP
     mygraph node insert n0 n1
     mygraph arc  insert n0 n1 a1
@@ -142,7 +142,7 @@ test graph-${impl}-arcs-key-3.1 {arcs, -key, -value} {
 # -------------------------------------------------------------------------
 # Wrong # args: Missing, Too many
 
-test graph-${impl}-arcs-filter-1.0 {arcs, wrong#args, missing} {
+test graph-${impl}-${setimpl}-arcs-filter-1.0 {arcs, wrong#args, missing} {
     SETUP
     catch {mygraph arcs -filter} msg
     mygraph destroy
@@ -152,7 +152,7 @@ test graph-${impl}-arcs-filter-1.0 {arcs, wrong#args, missing} {
 # -------------------------------------------------------------------------
 # Logical arguments checks and failures
 
-test graph-${impl}-arcs-filter-2.0 {arcs, multiple -filter} {
+test graph-${impl}-${setimpl}-arcs-filter-2.0 {arcs, multiple -filter} {
     SETUP
     catch {mygraph arcs -filter foobar -filter foo} msg
     mygraph destroy
@@ -162,7 +162,7 @@ test graph-${impl}-arcs-filter-2.0 {arcs, multiple -filter} {
 # -------------------------------------------------------------------------
 # Ok arguments.
 
-test graph-${impl}-arcs-filter-3.0 {arcs, -filter} {
+test graph-${impl}-${setimpl}-arcs-filter-3.0 {arcs, -filter} {
     SETUP
 
     mygraph node insert 1 2 3 4 5 6
@@ -188,7 +188,7 @@ test graph-${impl}-arcs-filter-3.0 {arcs, -filter} {
     set result
 } {A C}
 
-test graph-${impl}-arcs-filter-3.1 {arcs, -filter} {
+test graph-${impl}-${setimpl}-arcs-filter-3.1 {arcs, -filter} {
     SETUP
 
     mygraph node insert 1 2 3 4 5 6
@@ -224,7 +224,7 @@ test graph-${impl}-arcs-filter-3.1 {arcs, -filter} {
 set n 0
 foreach switch {-in -out -adj -inner -embedding} {
 
-    test graph-${impl}-arcs-ioaie-1.$n "arcs, $switch, wrong#args, missing" {
+    test graph-${impl}-${setimpl}-arcs-ioaie-1.$n "arcs, $switch, wrong#args, missing" {
 	SETUP
 	catch {mygraph arcs $switch} msg
 	mygraph destroy
@@ -240,7 +240,7 @@ foreach switch {-in -out -adj -inner -embedding} {
 set n 0
 foreach switch {-in -out -adj -inner -embedding} {
 
-    test graph-${impl}-arcs-ioaie-2.$n "arcs, $switch, missing node" {
+    test graph-${impl}-${setimpl}-arcs-ioaie-2.$n "arcs, $switch, missing node" {
 	SETUP
 	catch {mygraph arcs $switch x} msg
 	mygraph destroy
@@ -251,7 +251,7 @@ foreach switch {-in -out -adj -inner -embedding} {
 
     foreach switchB {-in -out -adj -inner -embedding} {
 
-	test graph-${impl}-arcs-ioaie-2.$n "arcs, $switch, $switchB together" {
+	test graph-${impl}-${setimpl}-arcs-ioaie-2.$n "arcs, $switch, $switchB together" {
 	    SETUP
 	    catch {mygraph arcs $switch $switchB x} msg
 	    mygraph destroy
@@ -293,7 +293,7 @@ foreach {switch nodes expected} {
     -inner     {1 1}   {}               -inner     {4 4}   {}
     -embedding {1 1}   {A D E}          -embedding {4 4}   {A}
 } {
-    test graph-${impl}-arcs-ioaie-3.$n "arcs, $switch" {
+    test graph-${impl}-${setimpl}-arcs-ioaie-3.$n "arcs, $switch" {
 	SETUP
 
 	mygraph node insert 1 2 3 4 5 6

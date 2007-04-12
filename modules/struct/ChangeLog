@@ -1,3 +1,58 @@
+2007-04-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sets.tcl: Renamed various commands handling accelerators. This
+	  brought their names into compliance with the requirements of the
+	  'TestAccel*' commands in devtools.
+
+	* sets.test: Rewritten to use the 'TestAccel*' convenience
+	  commands.
+
+	* tree.test: Rewritten to use the 'TestAccel*' convenience
+	  commands. Additionally moved the helper commands into a new,
+	  separate file
+
+	* tree/tests/Xsupport: New file now containing the helper commands
+	  for testing struct::tree.
+
+	* graph.test: Rewritten to make use of 'useAccel'.
+
+	* graph.test:               The testsuite already switches various
+	* graph/tests/arcs.test:    implementations of struct::graph. Added
+	* graph/tests/assign.test:  the switching of struct::set
+	* graph/tests/command.test: implementations.
+	* graph/tests/deserialize.test:
+	* graph/tests/nodes.test:
+	* graph/tests/rassign.test:
+	* graph/tests/serialize.test:
+	* graph/tests/swap.test:
+	* graph/tests/walk.test:
+	* graph/tests/arc/attr.test:
+	* graph/tests/arc/delete.test:
+	* graph/tests/arc/exists.test:
+	* graph/tests/arc/flip.test:
+	* graph/tests/arc/insert.test:
+	* graph/tests/arc/move-source.test:
+	* graph/tests/arc/move-target.test:
+	* graph/tests/arc/move.test:
+	* graph/tests/arc/rename.test:
+	* graph/tests/arc/source.test:
+	* graph/tests/arc/target.test:
+	* graph/tests/attr/append.test:
+	* graph/tests/attr/get.test:
+	* graph/tests/attr/getall.test:
+	* graph/tests/attr/keyexists.test:
+	* graph/tests/attr/keys.test:
+	* graph/tests/attr/lappend.test:
+	* graph/tests/attr/set.test:
+	* graph/tests/attr/unset.test:
+	* graph/tests/node/attr.test:
+	* graph/tests/node/degree.test:
+	* graph/tests/node/delete.test:
+	* graph/tests/node/exists.test:
+	* graph/tests/node/insert.test:
+	* graph/tests/node/opposite.test:
+	* graph/tests/node/rename.test:
+
 2007-03-26  Andreas Kupries  <andreask@activestate.com>
 
 	* struct_tree.man:  Documentation improvements as suggested by Lars
@@ -151,7 +206,7 @@
 
 	*
 	* Released and tagged Tcllib 1.9 ========================
-	* 
+	*
 
 2006-09-27  Andreas Kupries  <andreask@activestate.com>
 
@@ -229,11 +284,11 @@
 	  testsuites proper into a supporting file.
 
 	* graph1.test: Fixed duplicate usage of test names.
-	* list.test:   
-	* matrix.test: 
-	* matrix1.test: 
-	* stack.test: 
-	* tree1.test: 
+	* list.test:
+	* matrix.test:
+	* matrix1.test:
+	* stack.test:
+	* tree1.test:
 
 2006-01-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -331,7 +386,7 @@
 
 	*
 	* Released and tagged Tcllib 1.8 ========================
-	* 
+	*
 
 2005-10-07  Andreas Kupries <andreask@activestate.com>
 
@@ -407,7 +462,7 @@
 	* tree.test: Moved actual tests into "tree.testsuite". This file
 	  now contains the generic helper commands and management code
 	  loading, activating and iterating over all available
-	  implementations.	
+	  implementations.
 	* tree.testsuite (**NEW**): Contains the actual tests, moved out
 	  of "tree.test". The tests were updated to take the cosmetic
 	  differences between tcl and critcl implementations into account.
@@ -472,7 +527,7 @@
 
 	* list.tests: Extended testsuite for the new functionality, see
 	  below.
-	
+
 	* list.tcl: New functionality. Exchange of two elements of a list,
 	  and handling of list permutations (first, next, all, foreach).
 	  The code has been taken from the Wiki, page 11262. The swap code
@@ -486,7 +541,7 @@
 
 	*
 	* Released and tagged Tcllib 1.7 ========================
-	* 
+	*
 
 2004-10-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -550,9 +605,9 @@
 	  colons).
 
 	* stack.man: Stack, queue; version bumped to 1.3.
-	* queue.man: 
-	* stack.tcl: 
-	* queue.tcl: 
+	* queue.man:
+	* stack.tcl:
+	* queue.tcl:
 	* pkgIndex.tcl:
 
 	* queue.test:
@@ -628,7 +683,7 @@
 
 	*
 	* Released and tagged Tcllib 1.6.1 ========================
-	* 
+	*
 
 2004-05-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -715,7 +770,7 @@
 
 	*
 	* Released and tagged Tcllib 1.6 ========================
-	* 
+	*
 
 2004-02-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -799,7 +854,7 @@
 	  changes below.
 
 	* tree.test: Updated testsuite to reflect the changes made below.
-	
+
 	* tree.tcl (walk): Changed API to be more like [foreach]. Allowing
 	  break/return/continue in the walk body as well now too.
 
@@ -851,7 +906,7 @@
 	* queue.tcl:
 	* stack.tcl:
 	* pool.tcl:
-	
+
 	* pool.tcl (::struct::pool::request): Changed to return 0 as
 	  documented when trying to get an already allocated item. Fixed
 	  [SF Tcllib Bug 842408]. Used the alternative fix.
@@ -905,7 +960,7 @@
 
 2003-07-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* tree.test:	
+	* tree.test:
 	* tree.tcl: Reworked node attribute storage. Name of array to
 	  store the information is now dissociated from the name of the
 	  node. This enables the use of arbitrary node names, i.e. ':' in
@@ -956,7 +1011,7 @@
 2003-05-16  Andreas Kupries  <andreask@activestate.com>
 
 	* Extension of the package functionality warrants version bump to 1.4.
-	
+
 	* list.man: Added descriptions of the db join commands, and
 	  section explaining the table joins.
 
@@ -983,7 +1038,7 @@
 
 2003-05-06  Jeff Hobbs  <jeffh@ActiveState.com>
 
-	* tree.test: 
+	* tree.test:
 	* tree.tcl: allow node names with space chars and single :.
 	  Double :: may be OK, but the check against it is still in.
 
@@ -991,7 +1046,7 @@
 
 	*
 	* Released and tagged Tcllib 1.4 ========================
-	* 
+	*
 
 2003-05-05  Andreas Kupries  <andreask@activestate.com>
 
@@ -1107,7 +1162,7 @@
 
 	* list.tcl:  Added commands 'reverse', 'assign', 'flatten',
 	* list.man:  'map', and 'fold' to the suite of list functions.
-	* list.test: 
+	* list.test:
 
 2003-04-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -1159,7 +1214,7 @@
 
 2002-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* graph.test: 
+	* graph.test:
 	* graph.man:
 	* graph.tcl: Implemented FR 603924. getall, keys, keyexists
 	  methods for keys of the whole graph.
@@ -1270,9 +1325,9 @@
 	* matrix.tcl: See below, but not complete.
 	* queue.test
 	* stack.test:
-	* graph.tcl: 
-	* graph.test: 
-	* tree.tcl: 
+	* graph.tcl:
+	* graph.test:
+	* tree.tcl:
 	* tree.test: Updated code and tests to cover all paths through the
 	  code.
 
@@ -1361,24 +1416,24 @@
 
 2000-04-07  Eric Melski  <ericm@scriptics.com>
 
-	* stack.test: 
+	* stack.test:
 	* queue.test: Changed "package require struct" to "source [file
 	  join [file dirname [info script]] xxxx.tcl]", which is more reliable.
 
-	* tree.test: 
+	* tree.test:
 	* tree.tcl: Added support for different walk orders (post,
 	  in, and both) [RFE: 4420].  Added support for percent substitution
 	  on walk command.  (WalkCall) Added protection against node/tree
 	  names with spaces.
 
-	* graph.tcl: 
-	* graph.test: 
+	* graph.tcl:
+	* graph.test:
 	* graph.n: Graph implementation from Andreas Kupries.
 
 2000-03-20  Eric Melski  <ericm@scriptics.com>
 
-	* tree.test: 
-	* tree.n: 
+	* tree.test:
+	* tree.n:
 	* tree.tcl: Added support for inserting/moving multiple nodes at
 	  once.  Changed behavior of insert with respect to inserting nodes
 	  that already exist; instead of an error, it will move the node.
@@ -1389,16 +1444,16 @@
 
 2000-03-10  Eric Melski  <ericm@scriptics.com>
 
-	* tree.n: 
-	* tree.tcl: 
+	* tree.n:
+	* tree.tcl:
 	* tree.test: Applied patch from [RFE: 4337], with enhancements for
 	  better efficiency, and additional test cases; adds cut and splice
 	  functions to tree.
 
 2000-03-09  Eric Melski  <ericm@scriptics.com>
 
-	* tree.n: 
-	* tree.tcl: 
+	* tree.n:
+	* tree.tcl:
 	* tree.test: Applied patch from [RFE: 4338]; adds index function to
 	  tree.  Applied patch from [RFE: 4339], with slight modification; adds
 	  numchildren function to tree.  Applied patch from [RFE: 4336],
@@ -1410,8 +1465,8 @@
 	* struct.tcl: Changed order of namespace import/namespace export
 	  calls.  Added -force to namespace import calls.
 
-	* tree.test: 
-	* stack.test: 
+	* tree.test:
+	* stack.test:
 	* queue.test: Adapted tests to run in/out of tcllib test framework.
 
 	* tree.test:

@@ -2,7 +2,7 @@
 # Graph tests - serialize
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: serialize.test,v 1.1 2006/11/16 06:33:13 andreas_kupries Exp $
+# RCS: @(#) $Id: serialize.test,v 1.2 2007/04/12 03:01:55 andreas_kupries Exp $
 
 # Syntax: graph serialize ?NODE...?
 
@@ -14,7 +14,7 @@
 # -------------------------------------------------------------------------
 # Logical arguments checks and failures
 
-test graph-${impl}-serialize-1.0 {serialize, missing node} {
+test graph-${impl}-${setimpl}-serialize-1.0 {serialize, missing node} {
     SETUP
     catch {mygraph serialize foo} result
     mygraph destroy
@@ -24,7 +24,7 @@ test graph-${impl}-serialize-1.0 {serialize, missing node} {
 # -------------------------------------------------------------------------
 # Ok arguments.
  
-test graph-${impl}-serialize-2.0 {serialize, empty graph} {
+test graph-${impl}-${setimpl}-serialize-2.0 {serialize, empty graph} {
     SETUP
     set serial [mygraph serialize]
     set result [validate_serial mygraph $serial]
@@ -34,7 +34,7 @@ test graph-${impl}-serialize-2.0 {serialize, empty graph} {
     # serial = {{}}
 } ok
 
-test graph-${impl}-serialize-2.1 {serialize, complete graph} {
+test graph-${impl}-${setimpl}-serialize-2.1 {serialize, complete graph} {
     SETUP
 
     mygraph node insert %0 %1 %2 %3
@@ -73,7 +73,7 @@ test graph-${impl}-serialize-2.1 {serialize, complete graph} {
 } ok
 
 
-test graph-${impl}-serialize-2.2 {serialize, complete graph, no attributes} {
+test graph-${impl}-${setimpl}-serialize-2.2 {serialize, complete graph, no attributes} {
     SETUP
 
     mygraph node insert %0 %1 %2 %3
@@ -107,7 +107,7 @@ test graph-${impl}-serialize-2.2 {serialize, complete graph, no attributes} {
     # {}
 } ok
 
-test graph-${impl}-serialize-2.3 {serialize, subgraph} {
+test graph-${impl}-${setimpl}-serialize-2.3 {serialize, subgraph} {
     SETUP
 
     mygraph node insert %0 %1 %2 %3
@@ -135,7 +135,7 @@ test graph-${impl}-serialize-2.3 {serialize, subgraph} {
 } ok
 
 
-test graph-${impl}-serialize-2.4 {serialize, subgraph, duplicate nodes} {
+test graph-${impl}-${setimpl}-serialize-2.4 {serialize, subgraph, duplicate nodes} {
     SETUP
 
     mygraph node insert %0 %1 %2 %3
