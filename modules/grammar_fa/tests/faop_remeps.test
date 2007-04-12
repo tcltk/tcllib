@@ -1,25 +1,25 @@
 # -*- tcl -*-
 # fa_operations.test:  tests for the FA operations.
 #
-# Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: faop_remeps.test,v 1.4 2006/01/29 05:58:20 andreas_kupries Exp $
+# RCS: @(#) $Id: faop_remeps.test,v 1.5 2007/04/12 03:43:15 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
-test faop-remove-eps-1.0 {remove-eps, error} {
+test faop-remove-${setimpl}-eps-1.0 {remove-eps, error} {
     catch {grammar::fa::op::remove_eps} res
     set res
 } {wrong # args: should be "grammar::fa::op::remove_eps fa"}
 
 
-test faop-remove-eps-1.1 {remove-eps, error} {
+test faop-remove-${setimpl}-eps-1.1 {remove-eps, error} {
     catch {grammar::fa::op::remove_eps a b} res
     set res
 } {wrong # args: should be "grammar::fa::op::remove_eps fa"}
 
 
-test faop-remove-eps-1.2 {remove-eps, error} {
+test faop-remove-${setimpl}-eps-1.2 {remove-eps, error} {
     catch {grammar::fa::op::remove_eps a} res
     set res
 } {invalid command name "a"}
@@ -75,7 +75,7 @@ foreach {n code result} {
 	a destroy
     }
 
-    test faop-remove-eps-2.$key {remove-eps} {
+    test faop-remove-${setimpl}-eps-2.$key {remove-eps} {
 	grammar::fa a
 	gen $code
 	grammar::fa::op::remove_eps a
@@ -85,7 +85,7 @@ foreach {n code result} {
 	set res
     } {1 ok}
 
-    test faop-remove-eps-3.$key {second remove eps is null operation} {
+    test faop-remove-${setimpl}-eps-3.$key {second remove eps is null operation} {
 	grammar::fa a
 	gen $code
 	grammar::fa::op::remove_eps a
@@ -96,7 +96,7 @@ foreach {n code result} {
 	set res
     } ok
 
-    test faop-remove-eps-4.$key {remove-eps, as method} {
+    test faop-remove-${setimpl}-eps-4.$key {remove-eps, as method} {
 	grammar::fa a
 	gen $code
 	a remove_eps
@@ -106,7 +106,7 @@ foreach {n code result} {
 	set res
     } {1 ok}
 
-    test faop-remove-eps-5.$key {second remove eps is null operation, as method} {
+    test faop-remove-${setimpl}-eps-5.$key {second remove eps is null operation, as method} {
 	grammar::fa a
 	gen $code
 	a remove_eps
@@ -125,7 +125,7 @@ foreach {n code st fin stnew finnew} {
     02 dopt  u x {u v x} {u w x} 
     03 drep  u x {u v x} {u w x}
 } {
-    test faop-remove-eps-6.$n.$code {remove epsilon, start/final propagation} {
+    test faop-remove-${setimpl}-eps-6.$n.$code {remove epsilon, start/final propagation} {
 	grammar::fa a
 	gen $code
 	a start add $st
@@ -139,7 +139,7 @@ foreach {n code st fin stnew finnew} {
 	set res
     } {1 1}
 
-    test faop-remove-eps-7.$n.$code {remove epsilon, start/final propagation, as method} {
+    test faop-remove-${setimpl}-eps-7.$n.$code {remove epsilon, start/final propagation, as method} {
 	grammar::fa a
 	gen $code
 	a start add $st

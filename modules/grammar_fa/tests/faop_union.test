@@ -1,31 +1,31 @@
 # -*- tcl -*-
 # fa_operations.test:  tests for the FA operations.
 #
-# Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: faop_union.test,v 1.3 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: faop_union.test,v 1.4 2007/04/12 03:43:15 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
-test faop-union-1.0 {union, error} {
+test faop-union-${setimpl}-1.0 {union, error} {
     catch {grammar::fa::op::union} res
     set res
 } {wrong # args: should be "grammar::fa::op::union fa fb ?mapvar?"}
 
 
-test faop-union-1.1 {union, error} {
+test faop-union-${setimpl}-1.1 {union, error} {
     catch {grammar::fa::op::union a b c d} res
     set res
 } {wrong # args: should be "grammar::fa::op::union fa fb ?mapvar?"}
 
 
-test faop-union-1.2 {union, error} {
+test faop-union-${setimpl}-1.2 {union, error} {
     catch {grammar::fa::op::union a b} res
     set res
 } {invalid command name "a"}
 
 
-test faop-union-1.3 {union, error} {
+test faop-union-${setimpl}-1.3 {union, error} {
     grammar::fa a
     catch {grammar::fa::op::union a b} res
     a destroy
@@ -33,7 +33,7 @@ test faop-union-1.3 {union, error} {
 } {invalid command name "b"}
 
 
-test faop-union-1.4 {union, error} {
+test faop-union-${setimpl}-1.4 {union, error} {
     grammar::fa a
     grammar::fa b
     catch {grammar::fa::op::union a b} res
@@ -43,7 +43,7 @@ test faop-union-1.4 {union, error} {
 } {Unable to union FAs without start/final states}
 
 
-test faop-union-1.5 {union, error} {
+test faop-union-${setimpl}-1.5 {union, error} {
     grammar::fa a
     grammar::fa b
     a state add x
@@ -55,7 +55,7 @@ test faop-union-1.5 {union, error} {
 } {Unable to union FAs without start/final states}
 
 
-test faop-union-1.6 {union, error} {
+test faop-union-${setimpl}-1.6 {union, error} {
     grammar::fa a
     grammar::fa b
     a state add x
@@ -85,7 +85,7 @@ foreach {n fa fb fres rmap} {
 } {
     set key ${n}
 
-    test faop-union-2.$key {union} {
+    test faop-union-${setimpl}-2.$key {union} {
 	grammar::fa a deserialize $fa
 	grammar::fa b deserialize $fb
 	grammar::fa::op::union a b map
@@ -96,7 +96,7 @@ foreach {n fa fb fres rmap} {
 	set res
     } {ok 1}
 
-    test faop-union-3.$key {union, as method} {
+    test faop-union-${setimpl}-3.$key {union, as method} {
 	grammar::fa a deserialize $fa
 	grammar::fa b deserialize $fb
 	a union b map

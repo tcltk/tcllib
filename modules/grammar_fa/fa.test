@@ -1,9 +1,9 @@
 # -*- tcl -*-
 # fa.test:  tests for the grammar::fa container.
 #
-# Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: fa.test,v 1.10 2006/10/09 21:41:40 andreas_kupries Exp $
+# RCS: @(#) $Id: fa.test,v 1.11 2007/04/12 03:43:14 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -15,11 +15,13 @@ testsNeedTcl     8.4
 testsNeedTcltest 1.0
 
 support {
-    use      snit/snit.tcl   snit ; # 1.1 always, even when Tcl 8.5 runs the testsuite.
-    use      struct/sets.tcl struct::set
-    use      struct/list.tcl struct::list
+    useAccel [useTcllibC] struct/sets.tcl struct::set
+    TestAccelInit                         struct::set
 
-    useLocalFile tests.support
+    use snit/snit.tcl   snit ; # 1.1 always, even when Tcl 8.5 runs the testsuite.
+    use struct/list.tcl struct::list
+
+    useLocalFile tests/Xsupport
     useLocal     faop.tcl grammar::fa::op
 }
 testing {
@@ -32,10 +34,10 @@ set class ::grammar::fa
 
 # -------------------------------------------------------------------------
 
-foreach f [lsort [glob -nocomplain -dir [file join [file dirname [info script]] tests] fa_*.test]] {
-    #puts   \ \ \ \ [file tail $f]\ \t[expr {double([lindex [time {source $f} 1] 0])/1000000}]\ seconds
-    source $f
+TestAccelDo struct::set setimpl {
+    TestFiles tests/fa_*.test
 }
 
 # -------------------------------------------------------------------------
+TestAccelExit struct::set
 testsuiteCleanup
