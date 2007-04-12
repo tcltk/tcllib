@@ -1,3 +1,45 @@
+2007-04-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* dacceptor.test: Added the switching of struct::set
+	* dexec.test:     implementations to the testsuite.
+	* fa.test:
+	* faop.test:
+	* tests/da_accept.test:
+	* tests/da_cons.test:
+	* tests/de_cons.test:
+	* tests/de_exec.test:
+	* tests/fa_cons.test:
+	* tests/fa_ec.test:
+	* tests/fa_final.test:
+	* tests/fa_is.test:
+	* tests/fa_is_complete.test:
+	* tests/fa_is_deterministic.test:
+	* tests/fa_is_epsfree.test:
+	* tests/fa_is_useful.test:
+	* tests/fa_next.test:
+	* tests/fa_reach.test:
+	* tests/fa_serial.test:
+	* tests/fa_start.test:
+	* tests/fa_state.test:
+	* tests/fa_states.test:
+	* tests/fa_symbol.test:
+	* tests/fa_symbols.test:
+	* tests/fa_symbols_at.test:
+	* tests/fa_useful.test:
+	* tests/faop_complete.test:
+	* tests/faop_concat.test:
+	* tests/faop_determinize.test:
+	* tests/faop_difference.test:
+	* tests/faop_intersect.test:
+	* tests/faop_kleene.test:
+	* tests/faop_minimize.test:
+	* tests/faop_optional.test:
+	* tests/faop_regex.test:
+	* tests/faop_remeps.test:
+	* tests/faop_reverse.test:
+	* tests/faop_trim.test:
+	* tests/faop_union.test:
+
 2007-04-03  Andreas Kupries  <andreask@activestate.com>
 
 	* dexec.tcl: Accepted [Tcllib RFE 1692954] and the associated
@@ -19,14 +61,14 @@
 
 	*
 	* Released and tagged Tcllib 1.9 ========================
-	* 
+	*
 
 2006-09-19  Andreas Kupries  <andreask@activestate.com>
 
 	* faop.man: Bumped versions to 0.2
-	* faop.tcl: 
-	* fa.man: 
-	* fa.tcl: 
+	* faop.tcl:
+	* fa.man:
+	* fa.tcl:
 	* pkgIndex.tcl:
 
 2006-06-15  Andreas Kupries <andreask@activestate.com>
@@ -43,9 +85,9 @@
 2006-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tests/fa_symbols_at.test: Fixed use of duplicate test names.
-	* tests/fa_symbol.test: 
-	* tests/faop_remeps.test: 
-	* tests/faop_reverse.test: 
+	* tests/fa_symbol.test:
+	* tests/faop_remeps.test:
+	* tests/faop_reverse.test:
 
 2006-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -56,10 +98,10 @@
 
 	* tests/faop_trim.test:  Replaced old 'queryconstraint' with proper
 	* tests/fa_serial.test: 'testConstraint' call.
-	* tests/fa_is_useful.test: 
-	* tests/fa_is_deterministic.test: 
-	* tests/da_cons.test: 
-	* tests/de_cons.test: 
+	* tests/fa_is_useful.test:
+	* tests/fa_is_deterministic.test:
+	* tests/da_cons.test:
+	* tests/de_cons.test:
 
 2006-01-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -81,15 +123,15 @@
 
 	*
 	* Released and tagged Tcllib 1.8 ========================
-	* 
+	*
 
 2005-09-20  Andreas Kupries  <akupries@shaw.ca>
 
 	* tests/fa_final.test: Fixed problems of testsuite with
 	* tests/fa_next.test:  Tcl 8.5, caused by changes to the
 	* tests/fa_start.test: proc error messages.
-	* tests/fa_state.test: 
-	* tests/fa_symbol.test: 
+	* tests/fa_state.test:
+	* tests/fa_symbol.test:
 
 2004-11-22  Andreas Kupries <andreask@activestate.com>
 
@@ -104,7 +146,7 @@
 
 	*
 	* Released and tagged Tcllib 1.7 ========================
-	* 
+	*
 
 2004-08-05  Andreas Kupries  <andreask@activestate.com>
 
@@ -121,7 +163,7 @@
 2004-07-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tests/da_cons.test: Updated tests to changed error message of snit.
-	* tests/de_cons.test: 
+	* tests/de_cons.test:
 
 	* tests/faop_difference.test: Fixed problem with missing object
 	* tests/faop_intersect.test:  destruction uncovered by the new
@@ -143,19 +185,19 @@
 	* faop.test:      suites in the same way. Updated all manpages
 	* dacceptor.tcl:  to contain the correct package requirements
 	* dexec.tcl:      as well.
-	* fa.tcl: 
-	* faop.tcl: 
-	* dacceptor.man: 
-	* dexec.man: 
-	* fa.man: 
-	* faop.man: 
+	* fa.tcl:
+	* faop.tcl:
+	* dacceptor.man:
+	* dexec.man:
+	* fa.man:
+	* faop.man:
 
 2004-04-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* dacceptor.man: Slight renaming of a section for better
 	  understanding.
 
-	* dexec.tcl:  New package, execution of deterministic 
+	* dexec.tcl:  New package, execution of deterministic
 	* dexec.man:  finite automatons. Executors can do only this,
 	* dexec.test: and cannot be manipulated. Added reference
 	* fa.man:     to this package to the FA documenation.

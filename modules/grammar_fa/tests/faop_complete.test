@@ -1,31 +1,31 @@
 # -*- tcl -*-
 # fa_operations.test:  tests for the FA operations.
 #
-# Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: faop_complete.test,v 1.3 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: faop_complete.test,v 1.4 2007/04/12 03:43:15 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
-test faop-complete-1.0 {complete, error} {
+test faop-complete-${setimpl}-1.0 {complete, error} {
     catch {grammar::fa::op::complete} res
     set res
 } {wrong # args: should be "grammar::fa::op::complete fa ?sink?"}
 
 
-test faop-complete-1.1 {complete, error} {
+test faop-complete-${setimpl}-1.1 {complete, error} {
     catch {grammar::fa::op::complete a b c} res
     set res
 } {wrong # args: should be "grammar::fa::op::complete fa ?sink?"}
 
 
-test faop-complete-1.2 {complete, error} {
+test faop-complete-${setimpl}-1.2 {complete, error} {
     catch {grammar::fa::op::complete a} res
     set res
 } {invalid command name "a"}
 
 
-test faop-complete-1.3 {complete, error} {
+test faop-complete-${setimpl}-1.3 {complete, error} {
     grammar::fa a
     a state add sink x
     a symbol add @
@@ -59,7 +59,7 @@ foreach {n code result} {
 } {
     set key ${n}.${code}
 
-    test faop-complete-2.$key {complete} {
+    test faop-complete-${setimpl}-2.$key {complete} {
 	grammar::fa a
 	gen $code
 	grammar::fa::op::complete a sink
@@ -69,7 +69,7 @@ foreach {n code result} {
 	set res
     } {1 ok}
 
-    test faop-complete-3.$key {second complete is a null operation} {
+    test faop-complete-${setimpl}-3.$key {second complete is a null operation} {
 	grammar::fa a
 	gen $code
 	grammar::fa::op::complete a
@@ -80,7 +80,7 @@ foreach {n code result} {
 	set res
     } ok
 
-    test faop-complete-4.$key {complete, as method} {
+    test faop-complete-${setimpl}-4.$key {complete, as method} {
 	grammar::fa a
 	gen $code
 	a complete sink
@@ -90,7 +90,7 @@ foreach {n code result} {
 	set res
     } {1 ok}
 
-    test faop-complete-5.$key {as method, second complete is a null operation} {
+    test faop-complete-${setimpl}-5.$key {as method, second complete is a null operation} {
 	grammar::fa a
 	gen $code
 	a complete

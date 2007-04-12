@@ -1,9 +1,9 @@
 # -*- tcl -*-
 # finite_automaton.test:  tests for the grammar::fa container.
 #
-# Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: fa_is_complete.test,v 1.4 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: fa_is_complete.test,v 1.5 2007/04/12 03:43:14 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ foreach {n code result} {
     35 xyz!-=  0
     36 xyz!-e  0
 } {
-    test fa-is-complete-1.${n}.$code {is complete} {
+    test fa-is-${setimpl}-complete-1.${n}.$code {is complete} {
 	grammar::fa a
 	gen $code
 	set res [a is complete]

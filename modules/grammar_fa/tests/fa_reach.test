@@ -1,13 +1,13 @@
 # -*- tcl -*-
 # finite_automaton.test:  tests for the grammar::fa container.
 #
-# Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: fa_reach.test,v 1.3 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: fa_reach.test,v 1.4 2007/04/12 03:43:14 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
-test fa-reach-1.0 {reachability} {
+test fa-reach-${setimpl}-1.0 {reachability} {
     grammar::fa a
     catch {a reachable_states x} res
     a destroy
@@ -15,7 +15,7 @@ test fa-reach-1.0 {reachability} {
 } {wrong # args: should be "::grammar::fa::Snit_methodreachable_states type selfns win self"}
 
 
-test fa-reach-1.1 {!reachability} {
+test fa-reach-${setimpl}-1.1 {!reachability} {
     grammar::fa a
     catch {a unreachable_states a} res
     a destroy
@@ -23,7 +23,7 @@ test fa-reach-1.1 {!reachability} {
 } {wrong # args: should be "::grammar::fa::Snit_methodunreachable_states type selfns win self"}
 
 
-test fa-reach-1.2 {reachability} {
+test fa-reach-${setimpl}-1.2 {reachability} {
     grammar::fa a
     catch {a reachable} res
     a destroy
@@ -31,7 +31,7 @@ test fa-reach-1.2 {reachability} {
 } {wrong # args: should be "::grammar::fa::Snit_methodreachable type selfns win self s"}
 
 
-test fa-reach-1.3 {reachability} {
+test fa-reach-${setimpl}-1.3 {reachability} {
     grammar::fa a
     catch {a reachable x} res
     a destroy
@@ -39,7 +39,7 @@ test fa-reach-1.3 {reachability} {
 } {Illegal state "x"}
 
 
-test fa-reach-1.4 {reachability} {
+test fa-reach-${setimpl}-1.4 {reachability} {
     grammar::fa a
     catch {a reachable x y} res
     a destroy
@@ -50,7 +50,7 @@ test fa-reach-1.4 {reachability} {
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-test fa-reach-2.0 {reachable states, empty fa} {
+test fa-reach-${setimpl}-2.0 {reachable states, empty fa} {
     grammar::fa a
     set res [a reachable_states]
     a destroy
@@ -58,7 +58,7 @@ test fa-reach-2.0 {reachable states, empty fa} {
 } {}
 
 
-test fa-reach-2.1 {reachable states, state addition, plain} {
+test fa-reach-${setimpl}-2.1 {reachable states, state addition, plain} {
     grammar::fa a
     a state add x
     set res [a reachable_states]
@@ -66,7 +66,7 @@ test fa-reach-2.1 {reachable states, state addition, plain} {
     set res
 } {}
 
-test fa-reach-2.2 {reachable states, state addition, final} {
+test fa-reach-${setimpl}-2.2 {reachable states, state addition, final} {
     grammar::fa a
     a state add x
     a final add x
@@ -76,7 +76,7 @@ test fa-reach-2.2 {reachable states, state addition, final} {
 } {}
 
 
-test fa-reach-2.3 {reachable states, state addition, start} {
+test fa-reach-${setimpl}-2.3 {reachable states, state addition, start} {
     grammar::fa a
     a state add x
     a start add x
@@ -89,7 +89,7 @@ test fa-reach-2.3 {reachable states, state addition, start} {
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-test fa-reach-3.0 {unreachable states, empty fa} {
+test fa-reach-${setimpl}-3.0 {unreachable states, empty fa} {
     grammar::fa a
     set res [a unreachable_states]
     a destroy
@@ -97,7 +97,7 @@ test fa-reach-3.0 {unreachable states, empty fa} {
 } {}
 
 
-test fa-reach-3.1 {unreachable states, state addition, plain} {
+test fa-reach-${setimpl}-3.1 {unreachable states, state addition, plain} {
     grammar::fa a
     a state add x
     set res [a unreachable_states]
@@ -105,7 +105,7 @@ test fa-reach-3.1 {unreachable states, state addition, plain} {
     set res
 } x
 
-test fa-reach-3.2 {unreachable states, state addition, final} {
+test fa-reach-${setimpl}-3.2 {unreachable states, state addition, final} {
     grammar::fa a
     a state add x
     a final add x
@@ -115,7 +115,7 @@ test fa-reach-3.2 {unreachable states, state addition, final} {
 } x
 
 
-test fa-reach-3.3 {unreachable states, state addition, start} {
+test fa-reach-${setimpl}-3.3 {unreachable states, state addition, start} {
     grammar::fa a
     a state add x
     a start add x
@@ -308,7 +308,7 @@ foreach {n code setup_result} {
 	foreach x $reachable {lappend expected 1}
 	foreach x $unreach   {lappend expected 0}
 
-	test fa-reach-4.$key {reachable states} {
+	test fa-reach-${setimpl}-4.$key {reachable states} {
 	    grammar::fa a
 	    gen $code
 	    a start set $fset
@@ -317,7 +317,7 @@ foreach {n code setup_result} {
 	    set res
 	} $reachable ; # {}
 
-	test fa-reach-5.$key {!reachable states} {
+	test fa-reach-${setimpl}-5.$key {!reachable states} {
 	    grammar::fa a
 	    gen $code
 	    a start set $fset
@@ -326,7 +326,7 @@ foreach {n code setup_result} {
 	    set res
 	} $unreach ; # {}
 
-	test fa-reach-6.$key {reachability testing} {
+	test fa-reach-${setimpl}-6.$key {reachability testing} {
 	    grammar::fa a
 	    gen $code
 	    a start set $fset
