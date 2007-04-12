@@ -610,6 +610,16 @@ proc TestAccelExit {namespace} {
 # ### ### ### ######### ######### #########
 ##
 
+proc TestFiles {pattern} {
+    foreach f [lsort -dict [glob -nocomplain -directory $::tcltest::testsDirectory $pattern]] {
+	uplevel 1 [list source $f]
+    }
+    return
+}
+
+# ### ### ### ######### ######### #########
+##
+
 ::tcllib::testutils::SaveEnvironment
 
 # ### ### ### ######### ######### #########
