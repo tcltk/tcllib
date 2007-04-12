@@ -438,6 +438,11 @@ proc useLocalKeep {fname pname args} {
     return
 }
 
+proc useAccel {acc fname pname args} {
+    set use [expr {$acc ? "useKeep" : "use"}]
+    uplevel 1 [linsert $args 0 $use $fname $pname]
+}
+
 proc support {script} {
     set ::tcllib::testutils::tag "-"
     if {[catch {
