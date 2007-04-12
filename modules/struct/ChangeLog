@@ -1,3 +1,12 @@
+2007-04-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tree.tcl: Renamed various commands handling accelerators. This
+	  brought their names into compliance with the requirements of the
+	  'TestAccel*' commands in devtools.
+
+	* sets.tcl: Fixed use of KnownImplementations missed by last
+	  change.
+
 2007-04-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sets.tcl: Renamed various commands handling accelerators. This

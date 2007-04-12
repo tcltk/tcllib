@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets.tcl,v 1.13 2007/04/12 03:01:54 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.tcl,v 1.14 2007/04/12 08:00:54 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -50,7 +50,7 @@ proc ::struct::set::LoadAccelerator {key} {
 	}
         default {
             return -code error "invalid accelerator/impl. package $key:\
-                must be one of [join [KnownImpl] {, }]"
+                must be one of [join [KnownImplementations] {, }]"
         }
     }
     set accel($key) $r
