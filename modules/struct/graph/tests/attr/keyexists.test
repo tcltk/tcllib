@@ -2,7 +2,7 @@
 # Graph tests - graph/arc/node keyexists (attribute keyexists)
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: keyexists.test,v 1.1 2006/11/16 06:33:14 andreas_kupries Exp $
+# RCS: @(#) $Id: keyexists.test,v 1.2 2007/04/12 03:01:56 andreas_kupries Exp $
 
 # Syntax: graph      keyexists      KEY
 # Syntax: graph arc  keyexists ARC  KEY
@@ -20,21 +20,21 @@ foreach {e ex stem mp mk} {
     # -------------------------------------------------------------------------
     # Wrong # args: Missing, Too many
 
-    test graph-${impl}-${e}-keyexists-1.0 "$e keyexists, wrong # args, missing" {
+    test graph-${impl}-${setimpl}-${e}-keyexists-1.0 "$e keyexists, wrong # args, missing" {
 	SETUP
 	catch {CMD keyexists} msg
 	mygraph destroy
 	set msg
     } [tmWrong "${mp}keyexists" "${mp}key" 0] ; # {}
 
-    test graph-${impl}-${e}-keyexists-1.1 "$e keyexists, wrong # args, missing" !graph {
+    test graph-${impl}-${setimpl}-${e}-keyexists-1.1 "$e keyexists, wrong # args, missing" !graph {
 	SETUP
 	catch {CMD keyexists a} msg
 	mygraph destroy
 	set msg
     } [tmWrong "${mp}keyexists" "${mp}key" 1] ; # {}
 
-    test graph-${impl}-${e}-keyexists-1.2 "$e keyexists, wrong # args, too many" {
+    test graph-${impl}-${setimpl}-${e}-keyexists-1.2 "$e keyexists, wrong # args, too many" {
 	SETUP
 	catch {CMD keyexists a b c} msg
 	mygraph destroy
@@ -44,7 +44,7 @@ foreach {e ex stem mp mk} {
     # -------------------------------------------------------------------------
     # Logical arguments checks and failures
 
-    test graph-${impl}-${e}-keyexists-2.0 "$e keyexists, missing $e" !graph {
+    test graph-${impl}-${setimpl}-${e}-keyexists-2.0 "$e keyexists, missing $e" !graph {
 	SETUP
 	catch {Keyexists$ex foo} msg
 	mygraph destroy
@@ -54,7 +54,7 @@ foreach {e ex stem mp mk} {
     # -------------------------------------------------------------------------
     # Ok arguments.
 
-    test graph-${impl}-${e}-keyexists-3.0 "$e keyexists, no attributes" {
+    test graph-${impl}-${setimpl}-${e}-keyexists-3.0 "$e keyexists, no attributes" {
 	SETUP
 	$ex
 	set result [Keyexists$ex bogus]
@@ -62,7 +62,7 @@ foreach {e ex stem mp mk} {
 	set result
     } 0 ; # {}
 
-    test graph-${impl}-${e}-keyexists-3.1 "$e keyexists, missing key" {
+    test graph-${impl}-${setimpl}-${e}-keyexists-3.1 "$e keyexists, missing key" {
 	SETUP
 	$ex
 	SetW$ex ok ""
@@ -71,7 +71,7 @@ foreach {e ex stem mp mk} {
 	set result
     } 0 ; # {}
 
-    test graph-${impl}-${e}-keyexists-3.2 "$e keyexists, existing key" {
+    test graph-${impl}-${setimpl}-${e}-keyexists-3.2 "$e keyexists, existing key" {
 	SETUP
 	$ex
 	SetW$ex ok ""

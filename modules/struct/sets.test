@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2004-2007 by Andreas Kupries
 #
-# RCS: @(#) $Id: sets.test,v 1.14 2007/01/21 22:15:59 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.test,v 1.15 2007/04/12 03:01:54 andreas_kupries Exp $
 
 #----------------------------------------------------------------------
 
@@ -18,23 +18,8 @@ testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
 testing {
-    if {[useTcllibC]} {
-	useLocalKeep sets.tcl struct::set
-    } else {
-	useLocal     sets.tcl struct::set
-    }
-}
-
-# -------------------------------------------------------------------------
-
-struct::set::SwitchTo {}
-foreach e [struct::set::KnownImpl] {
-    if {[::struct::set::LoadAccel $e]} {
-	switch -exact -- $e {
-	    critcl {puts "> tcllibc based"}
-	    tcl    {puts "> pure Tcl"}
-	}
-    }
+    useAccel [useTcllibC] struct/sets.tcl struct::set
+    TestAccelInit                         struct::set
 }
 
 # -------------------------------------------------------------------------
@@ -59,21 +44,11 @@ proc luniq {list} {
 ############################################################
 ## Iterate over all loaded implementations, activate
 ## them in turn, and run the tests for the active
-## implementation. As a mini-benchmark we time how
-## long each run takes.
+## implementation.
 
-#puts "\nset impl. performance"
-
-set usec  0
-set tests [file join [file dirname [info script]] sets.testsuite]
-
-catch {memory validate on}
-
-foreach impl [struct::set::Implementations] {
-    struct::set::SwitchTo $impl
-
-    # The global variable  'impl' is part of the public
-    # API the testsuit (in set.testsuite) can expect
+TestAccelDo struct::set impl {
+    # The global variable 'impl' is part of the public
+    # API the testsuite (in set.testsuite) can expect
     # from the environment.
 
     switch -exact -- $impl {
@@ -105,19 +80,9 @@ foreach impl [struct::set::Implementations] {
 	}
     }
 
-    set usec [time {source $tests} 1]
-
-    #puts "$impl:\t$usec"
+    source [localPath sets.testsuite]
 }
 
-catch {memory validate off}
-
-unset usec
-unset tests
-
-# Reset system to fully inactive state.
-
-struct::set::SwitchTo {}
-
 ############################################################
+TestAccelExit struct::set
 testsuiteCleanup

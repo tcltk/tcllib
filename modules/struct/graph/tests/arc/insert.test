@@ -2,28 +2,28 @@
 # Graph tests - arc insertion
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: insert.test,v 1.1 2006/11/16 06:33:13 andreas_kupries Exp $
+# RCS: @(#) $Id: insert.test,v 1.2 2007/04/12 03:01:55 andreas_kupries Exp $
 
 # Syntax: graph arc insert START END ?ARC?
 
 # -------------------------------------------------------------------------
 # Wrong # args: Missing, Too many
 
-test graph-${impl}-arc-insert-1.0 {arc insert, wrong#args, missing} {
+test graph-${impl}-${setimpl}-arc-insert-1.0 {arc insert, wrong#args, missing} {
     SETUP
     catch {mygraph arc insert} msg
     mygraph destroy
     set msg
 } [tmWrong {arc insert} {source target ?arc?} 0 {source target args}]
 
-test graph-${impl}-arc-insert-1.1 {arc insert, wrong#args, missing} {
+test graph-${impl}-${setimpl}-arc-insert-1.1 {arc insert, wrong#args, missing} {
     SETUP
     catch {mygraph arc insert 0} msg
     mygraph destroy
     set msg
 } [tmWrong {arc insert} {source target ?arc?} 1 {source target args}]
 
-test graph-${impl}-arc-insert-1.2 {arc insert, wrong#args, too many} {
+test graph-${impl}-${setimpl}-arc-insert-1.2 {arc insert, wrong#args, too many} {
     SETUP
     catch {mygraph arc insert 0 1 2 3} msg
     mygraph destroy
@@ -38,7 +38,7 @@ test graph-${impl}-arc-insert-1.2 {arc insert, wrong#args, too many} {
 # -------------------------------------------------------------------------
 # Logical arguments checks and failures
 
-test graph-${impl}-arc-insert-2.0 {arc insert, missing start} {
+test graph-${impl}-${setimpl}-arc-insert-2.0 {arc insert, missing start} {
     SETUP
     mygraph node insert node1
     catch {mygraph arc insert node0 node1 arc0} msg
@@ -46,7 +46,7 @@ test graph-${impl}-arc-insert-2.0 {arc insert, missing start} {
     set msg
 } "source [MissingNode $MY node0]"
 
-test graph-${impl}-arc-insert-2.1 {arc insert, missing end} {
+test graph-${impl}-${setimpl}-arc-insert-2.1 {arc insert, missing end} {
     SETUP
     mygraph node insert node0
     catch {mygraph arc insert node0 node1 arc0} msg
@@ -54,7 +54,7 @@ test graph-${impl}-arc-insert-2.1 {arc insert, missing end} {
     set msg
 } "target [MissingNode $MY node1]"
 
-test graph-${impl}-arc-insert-2.2 {arc insert, existing arc} {
+test graph-${impl}-${setimpl}-arc-insert-2.2 {arc insert, existing arc} {
     SETUP
     mygraph node insert node0 node1
     mygraph arc  insert node0 node1 arc0
@@ -66,7 +66,7 @@ test graph-${impl}-arc-insert-2.2 {arc insert, existing arc} {
 # -------------------------------------------------------------------------
 # Ok arguments.
 
-test graph-${impl}-arc-insert-3.0 {arc insert, node/arc linkage} {
+test graph-${impl}-${setimpl}-arc-insert-3.0 {arc insert, node/arc linkage} {
     SETUP
     mygraph node insert node0 node1
     mygraph arc  insert node0 node1 arc0
@@ -82,7 +82,7 @@ test graph-${impl}-arc-insert-3.0 {arc insert, node/arc linkage} {
     set result
 } {1 node0 node1 arc0 arc0}
 
-test graph-${impl}-arc-insert-3.1 {arc insert, attribute defaults} {
+test graph-${impl}-${setimpl}-arc-insert-3.1 {arc insert, attribute defaults} {
     SETUP
     mygraph node insert node0 node1
     mygraph arc  insert node0 node1 arc0
@@ -93,7 +93,7 @@ test graph-${impl}-arc-insert-3.1 {arc insert, attribute defaults} {
     set result
 } {}
 
-test graph-${impl}-arc-insert-3.2 {arc insert, auto-generated name} {
+test graph-${impl}-${setimpl}-arc-insert-3.2 {arc insert, auto-generated name} {
     SETUP
     mygraph node insert n0
 
