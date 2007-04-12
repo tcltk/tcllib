@@ -1,5 +1,8 @@
 2007-04-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* testutilities.tcl: Added 'TestFiles', a command to run a set of
+	  subordinate test files, found by globbing.
+
 	* testutilities.tcl: Added 'useAccel' to help with the setup of
 	  packages which have accelerators, automatically using the proper
 	  use variant.
@@ -99,7 +102,7 @@
 
 	*
 	* Released and tagged Tcllib 1.8 ========================
-	* 
+	*
 
 2004-10-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -122,25 +125,25 @@
 
 	*
 	* Released and tagged Tcllib 1.7 ========================
-	* 
+	*
 
 2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.6.1 ========================
-	* 
+	*
 
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.6 ========================
-	* 
+	*
 
 2003-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.4 ========================
-	* 
+	*
 
 2003-05-01  Andreas Kupries  <andreask@activestate.com>
 
@@ -152,5 +155,5 @@
 
 2003-04-09  Andreas Kupries  <andreask@activestate.com>
 
-	* New module. 
+	* New module.
 	* First contents are support for sub-processes in testsuites.
