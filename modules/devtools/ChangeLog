@@ -1,3 +1,9 @@
+2007-04-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* testutilities.tcl: Added 'useAccel' to help with the setup of
+	  packages which have accelerators, automatically using the proper
+	  use variant.
+
 2006-10-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl: Extended with three commands to make testing
