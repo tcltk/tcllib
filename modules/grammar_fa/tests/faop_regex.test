@@ -1,31 +1,31 @@
 # -*- tcl -*-
 # fa_operations.test:  tests for the FA operations.
 #
-# Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: faop_regex.test,v 1.4 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: faop_regex.test,v 1.5 2007/04/12 03:43:15 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
-test faop-regex-1.0 {fromRegex, error} {
+test faop-regex-${setimpl}-1.0 {fromRegex, error} {
     catch {grammar::fa::op::fromRegex} res
     set res
 } {wrong # args: should be "grammar::fa::op::fromRegex fa regex ?over?"}
 
 
-test faop-regex-1.1 {fromRegex, error} {
+test faop-regex-${setimpl}-1.1 {fromRegex, error} {
     catch {grammar::fa::op::fromRegex a b c d} res
     set res
 } {wrong # args: should be "grammar::fa::op::fromRegex fa regex ?over?"}
 
 
-test faop-regex-1.2 {fromRegex, error} {
+test faop-regex-${setimpl}-1.2 {fromRegex, error} {
     catch {grammar::fa::op::fromRegex a b} res
     set res
 } {Expected . ! ? * | &, or S, got "b"}
 
 
-test faop-regex-1.3 {fromRegex, error} {
+test faop-regex-${setimpl}-1.3 {fromRegex, error} {
     catch {grammar::fa::op::fromRegex a {S b}} res
     set res
 } {invalid command name "a"}
@@ -75,7 +75,7 @@ foreach {n over re fres} {
 } {
     set key ${n}
 
-    test faop-regex-2.$key {fromRegex} {
+    test faop-regex-${setimpl}-2.$key {fromRegex} {
 	grammar::fa a
 	grammar::fa::op::fromRegex a $re $over
 	set res [validate_serial $fres a]
@@ -84,7 +84,7 @@ foreach {n over re fres} {
 
     } ok
 
-    test faop-regex-3.$key {fromRegex, as method} {
+    test faop-regex-${setimpl}-3.$key {fromRegex, as method} {
 	grammar::fa a
 	a fromRegex $re $over
 	set res [validate_serial $fres a]

@@ -1,31 +1,31 @@
 # -*- tcl -*-
 # fa_operations.test:  tests for the FA operations.
 #
-# Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: faop_optional.test,v 1.3 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: faop_optional.test,v 1.4 2007/04/12 03:43:15 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
-test faop-optional-1.0 {optional, error} {
+test faop-optional-${setimpl}-1.0 {optional, error} {
     catch {grammar::fa::op::optional} res
     set res
 } {wrong # args: should be "grammar::fa::op::optional fa"}
 
 
-test faop-optional-1.1 {optional, error} {
+test faop-optional-${setimpl}-1.1 {optional, error} {
     catch {grammar::fa::op::optional a b} res
     set res
 } {wrong # args: should be "grammar::fa::op::optional fa"}
 
 
-test faop-optional-1.2 {optional, error} {
+test faop-optional-${setimpl}-1.2 {optional, error} {
     catch {grammar::fa::op::optional a} res
     set res
 } {invalid command name "a"}
 
 
-test faop-optional-1.3 {optional, error} {
+test faop-optional-${setimpl}-1.3 {optional, error} {
     grammar::fa a
     catch {grammar::fa::op::optional a} res
     a destroy
@@ -33,7 +33,7 @@ test faop-optional-1.3 {optional, error} {
 } {Unable to make a FA without start/final states optional}
 
 
-test faop-optional-1.4 {optional, error} {
+test faop-optional-${setimpl}-1.4 {optional, error} {
     grammar::fa a
     a state add x
     a start add x
@@ -43,7 +43,7 @@ test faop-optional-1.4 {optional, error} {
 } {Unable to make a FA without start/final states optional}
 
 
-test faop-optional-1.5 {optional, error} {
+test faop-optional-${setimpl}-1.5 {optional, error} {
     grammar::fa a
     a state add x
     a final add x
@@ -74,7 +74,7 @@ foreach {n code st fin result} {
 } {
     set key ${n}.${code}
 
-    test faop-optional-2.$key {optional} {
+    test faop-optional-${setimpl}-2.$key {optional} {
 	grammar::fa a
 	gen $code
 	a start add $st
@@ -85,7 +85,7 @@ foreach {n code st fin result} {
 	set res
     } ok
 
-    test faop-optional-3.$key {optional, as method} {
+    test faop-optional-${setimpl}-3.$key {optional, as method} {
 	grammar::fa a
 	gen $code
 	a start add $st

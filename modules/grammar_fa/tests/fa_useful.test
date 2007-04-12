@@ -1,13 +1,13 @@
 # -*- tcl -*-
 # finite_automaton.test:  tests for the grammar::fa container.
 #
-# Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: fa_useful.test,v 1.3 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: fa_useful.test,v 1.4 2007/04/12 03:43:15 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
-test fa-useful-1.0 {usefulness} {
+test fa-useful-${setimpl}-1.0 {usefulness} {
     grammar::fa a
     catch {a useful_states x} res
     a destroy
@@ -15,7 +15,7 @@ test fa-useful-1.0 {usefulness} {
 } {wrong # args: should be "::grammar::fa::Snit_methoduseful_states type selfns win self"}
 
 
-test fa-useful-1.1 {!usefulness} {
+test fa-useful-${setimpl}-1.1 {!usefulness} {
     grammar::fa a
     catch {a unuseful_states a} res
     a destroy
@@ -23,7 +23,7 @@ test fa-useful-1.1 {!usefulness} {
 } {wrong # args: should be "::grammar::fa::Snit_methodunuseful_states type selfns win self"}
 
 
-test fa-useful-1.2 {usefulness} {
+test fa-useful-${setimpl}-1.2 {usefulness} {
     grammar::fa a
     catch {a useful} res
     a destroy
@@ -31,7 +31,7 @@ test fa-useful-1.2 {usefulness} {
 } {wrong # args: should be "::grammar::fa::Snit_methoduseful type selfns win self s"}
 
 
-test fa-useful-1.3 {usefulness} {
+test fa-useful-${setimpl}-1.3 {usefulness} {
     grammar::fa a
     catch {a useful x} res
     a destroy
@@ -39,7 +39,7 @@ test fa-useful-1.3 {usefulness} {
 } {Illegal state "x"}
 
 
-test fa-useful-1.4 {usefulness} {
+test fa-useful-${setimpl}-1.4 {usefulness} {
     grammar::fa a
     catch {a useful x y} res
     a destroy
@@ -50,7 +50,7 @@ test fa-useful-1.4 {usefulness} {
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-test fa-useful-2.0 {useful states, empty fa} {
+test fa-useful-${setimpl}-2.0 {useful states, empty fa} {
     grammar::fa a
     set res [a useful_states]
     a destroy
@@ -58,7 +58,7 @@ test fa-useful-2.0 {useful states, empty fa} {
 } {}
 
 
-test fa-useful-2.1 {useful states, state addition, plain} {
+test fa-useful-${setimpl}-2.1 {useful states, state addition, plain} {
     grammar::fa a
     a state add x
     set res [a useful_states]
@@ -66,7 +66,7 @@ test fa-useful-2.1 {useful states, state addition, plain} {
     set res
 } {}
 
-test fa-useful-2.2 {useful states, state addition, final} {
+test fa-useful-${setimpl}-2.2 {useful states, state addition, final} {
     grammar::fa a
     a state add x
     a final add x
@@ -76,7 +76,7 @@ test fa-useful-2.2 {useful states, state addition, final} {
 } x
 
 
-test fa-useful-2.3 {useful states, state addition, start} {
+test fa-useful-${setimpl}-2.3 {useful states, state addition, start} {
     grammar::fa a
     a state add x
     a start add x
@@ -89,7 +89,7 @@ test fa-useful-2.3 {useful states, state addition, start} {
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-test fa-useful-3.0 {unuseful states, empty fa} {
+test fa-useful-${setimpl}-3.0 {unuseful states, empty fa} {
     grammar::fa a
     set res [a unuseful_states]
     a destroy
@@ -97,7 +97,7 @@ test fa-useful-3.0 {unuseful states, empty fa} {
 } {}
 
 
-test fa-useful-3.1 {unuseful states, state addition, plain} {
+test fa-useful-${setimpl}-3.1 {unuseful states, state addition, plain} {
     grammar::fa a
     a state add x
     set res [a unuseful_states]
@@ -105,7 +105,7 @@ test fa-useful-3.1 {unuseful states, state addition, plain} {
     set res
 } x
 
-test fa-useful-3.2 {unuseful states, state addition, final} {
+test fa-useful-${setimpl}-3.2 {unuseful states, state addition, final} {
     grammar::fa a
     a state add x
     a final add x
@@ -115,7 +115,7 @@ test fa-useful-3.2 {unuseful states, state addition, final} {
 } {}
 
 
-test fa-useful-3.3 {unuseful states, state addition, start} {
+test fa-useful-${setimpl}-3.3 {unuseful states, state addition, start} {
     grammar::fa a
     a state add x
     a start add x
@@ -308,7 +308,7 @@ foreach {n code setup_result} {
 	foreach x $useful {lappend expected 1}
 	foreach x $unuse  {lappend expected 0}
 
-	test fa-useful-4.$key {useful states} {
+	test fa-useful-${setimpl}-4.$key {useful states} {
 	    grammar::fa a
 	    gen $code
 	    a final set $fset
@@ -317,7 +317,7 @@ foreach {n code setup_result} {
 	    set res
 	} $useful ; # {}
 
-	test fa-useful-5.$key {!useful states} {
+	test fa-useful-${setimpl}-5.$key {!useful states} {
 	    grammar::fa a
 	    gen $code
 	    a final set $fset
@@ -326,7 +326,7 @@ foreach {n code setup_result} {
 	    set res
 	} $unuse ; # {}
 
-	test fa-useful-6.$key {usefulness testing} {
+	test fa-useful-${setimpl}-6.$key {usefulness testing} {
 	    grammar::fa a
 	    gen $code
 	    a final set $fset
