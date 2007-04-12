@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree.tcl,v 1.42 2006/09/19 23:36:18 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.43 2007/04/12 08:00:54 andreas_kupries Exp $
 
 # @mdgen EXCLUDE: tree_c.tcl
 
@@ -30,7 +30,7 @@ namespace eval ::struct::tree {}
 #	A boolean flag. True if the implementation
 #	was successfully loaded; and False otherwise.
 
-proc ::struct::tree::LoadAccel {key} {
+proc ::struct::tree::LoadAccelerator {key} {
     variable accel
     set r 0
     switch -exact -- $key {
@@ -47,7 +47,7 @@ proc ::struct::tree::LoadAccel {key} {
 	}
         default {
             return -code error "invalid accelerator/impl. package $key:\
-                must be one of [join [KnownImpl] {, }]"
+                must be one of [join [KnownImplementations] {, }]"
         }
     }
     set accel($key) $r
@@ -123,7 +123,7 @@ proc ::struct::tree::Implementations {} {
     return $res
 }
 
-# ::struct::tree::KnownImpl --
+# ::struct::tree::KnownImplementations --
 #
 #	Determines which implementations are known
 #	as possible implementations.
@@ -135,8 +135,15 @@ proc ::struct::tree::Implementations {} {
 #	A list of implementation keys. In the order
 #	of preference, most prefered first.
 
-proc ::struct::tree::KnownImpl {} {
+proc ::struct::tree::KnownImplementations {} {
     return {critcl tcl}
+}
+
+proc ::struct::tree::Names {} {
+    return {
+	critcl {tcllibc based}
+	tcl    {pure Tcl}
+    }
 }
 
 # ### ### ### ######### ######### #########
@@ -156,8 +163,8 @@ namespace eval ::struct::tree {
 
 namespace eval ::struct::tree {
     variable e
-    foreach e [KnownImpl] {
-	if {[LoadAccel $e]} {
+    foreach e [KnownImplementations] {
+	if {[LoadAccelerator $e]} {
 	    SwitchTo $e
 	    break
 	}
