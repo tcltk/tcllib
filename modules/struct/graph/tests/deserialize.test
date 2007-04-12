@@ -2,21 +2,21 @@
 # Graph tests - deserialize
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: deserialize.test,v 1.1 2006/11/16 06:33:13 andreas_kupries Exp $
+# RCS: @(#) $Id: deserialize.test,v 1.2 2007/04/12 03:01:55 andreas_kupries Exp $
 
 # Syntax: graph deserialize SERIALIZATION
 
 # -------------------------------------------------------------------------
 # Wrong # args: Missing, Too many
 
-test graph-${impl}-deserialize-1.0 {deserialize, wrong #args, missing} {
+test graph-${impl}-${setimpl}-deserialize-1.0 {deserialize, wrong #args, missing} {
     SETUP
     catch {mygraph deserialize} result
     mygraph destroy
     set result
 } [tmWrong deserialize serial 0]
 
-test graph-${impl}-deserialize-1.1 {deserialize, wrong #args, to many} {
+test graph-${impl}-${setimpl}-deserialize-1.1 {deserialize, wrong #args, to many} {
     SETUP
     catch {mygraph deserialize foo bar} result
     mygraph destroy
@@ -26,7 +26,7 @@ test graph-${impl}-deserialize-1.1 {deserialize, wrong #args, to many} {
 # -------------------------------------------------------------------------
 # Logical arguments checks and failures
 
-test graph-${impl}-deserialize-2.0 {deserialize, incorrect length} {
+test graph-${impl}-${setimpl}-deserialize-2.0 {deserialize, incorrect length} {
     SETUP
     set serial {. %3 {} {{f 6 {}}} %0 {foo bar} {{a 6 {}} {b 9 {bar snarf}} {c 0 {}}} %1 {} {{d 9 {}}} %2 {} {{e 0 {}}} {data foo}}
     set fail [catch {mygraph deserialize $serial} result]
@@ -34,7 +34,7 @@ test graph-${impl}-deserialize-2.0 {deserialize, incorrect length} {
     list $fail $result
 } {1 {error in serialization: list length not 1 mod 3.}}
 
-test graph-${impl}-deserialize-2.1 {deserialize, attributes, graph, !dict} {
+test graph-${impl}-${setimpl}-deserialize-2.1 {deserialize, attributes, graph, !dict} {
     SETUP
     set serial {%3 {} {{f 6 {}}} %0 {foo bar} {{a 6 {}} {b 9 {bar snarf}} {c 0 {}}} %1 {} {{d 9 {}}} %2 {} {{e 0 {}}} {data . foo}}
     set fail [catch {mygraph deserialize $serial} result]
@@ -42,7 +42,7 @@ test graph-${impl}-deserialize-2.1 {deserialize, attributes, graph, !dict} {
     list $fail $result
 } {1 {error in serialization: malformed graph attribute dictionary.}}
 
-test graph-${impl}-deserialize-2.2 {deserialize, attributes, node, !dict} {
+test graph-${impl}-${setimpl}-deserialize-2.2 {deserialize, attributes, node, !dict} {
     SETUP
     set serial {%3 {.} {{f 6 {}}} %0 {foo bar} {{a 6 {}} {b 9 {bar snarf}} {c 0 {}}} %1 {} {{d 9 {}}} %2 {} {{e 0 {}}} {data foo}}
     set fail [catch {mygraph deserialize $serial} result]
@@ -50,7 +50,7 @@ test graph-${impl}-deserialize-2.2 {deserialize, attributes, node, !dict} {
     list $fail $result
 } {1 {error in serialization: malformed node attribute dictionary.}}
 
-test graph-${impl}-deserialize-2.3 {deserialize, attributes, arc, !dict} {
+test graph-${impl}-${setimpl}-deserialize-2.3 {deserialize, attributes, arc, !dict} {
     SETUP
     set serial {%3 {} {{f 6 {.}}} %0 {foo bar} {{a 6 {}} {b 9 {bar snarf}} {c 0 {}}} %1 {} {{d 9 {}}} %2 {} {{e 0 {}}} {data foo}}
     set fail [catch {mygraph deserialize $serial} result]
@@ -58,7 +58,7 @@ test graph-${impl}-deserialize-2.3 {deserialize, attributes, arc, !dict} {
     list $fail $result
 } {1 {error in serialization: malformed arc attribute dictionary.}}
 
-test graph-${impl}-deserialize-2.4 {deserialize, duplicate arcs} {
+test graph-${impl}-${setimpl}-deserialize-2.4 {deserialize, duplicate arcs} {
     SETUP
     set serial {%3 {} {{a 6 {}}} %0 {foo bar} {{a 6 {}} {b 9 {bar snarf}} {c 0 {}}} %1 {} {{d 9 {}}} %2 {} {{e 0 {}}} {data foo}}
     set fail [catch {mygraph deserialize $serial} result]
@@ -66,7 +66,7 @@ test graph-${impl}-deserialize-2.4 {deserialize, duplicate arcs} {
     list $fail $result
 } {1 {error in serialization: duplicate definition of arc "a".}}
 
-test graph-${impl}-deserialize-2.5 {deserialize, non-numeric node-reference} {
+test graph-${impl}-${setimpl}-deserialize-2.5 {deserialize, non-numeric node-reference} {
     SETUP
     set serial {%3 {} {{f . {}}} %0 {foo bar} {{a 6 {}} {b 9 {bar snarf}} {c 0 {}}} %1 {} {{d 9 {}}} %2 {} {{e 0 {}}} {data foo}}
     set fail [catch {mygraph deserialize $serial} result]
@@ -74,7 +74,7 @@ test graph-${impl}-deserialize-2.5 {deserialize, non-numeric node-reference} {
     list $fail $result
 } {1 {error in serialization: bad arc destination reference ".".}}
 
-test graph-${impl}-deserialize-2.6 {deserialize, incorrect node-reference, not 0 mod 3} {
+test graph-${impl}-${setimpl}-deserialize-2.6 {deserialize, incorrect node-reference, not 0 mod 3} {
     SETUP
     set serial {%3 {} {{f 2 {}}} %0 {foo bar} {{a 6 {}} {b 9 {bar snarf}} {c 0 {}}} %1 {} {{d 9 {}}} %2 {} {{e 0 {}}} {data foo}}
     set fail [catch {mygraph deserialize $serial} result]
@@ -82,7 +82,7 @@ test graph-${impl}-deserialize-2.6 {deserialize, incorrect node-reference, not 0
     list $fail $result
 } {1 {error in serialization: bad arc destination reference "2".}}
 
-test graph-${impl}-deserialize-2.7 {deserialize, out-of-range node-reference, lower bound} {
+test graph-${impl}-${setimpl}-deserialize-2.7 {deserialize, out-of-range node-reference, lower bound} {
     SETUP
     set serial {%3 {} {{f -2 {}}} %0 {foo bar} {{a 6 {}} {b 9 {bar snarf}} {c 0 {}}} %1 {} {{d 9 {}}} %2 {} {{e 0 {}}} {data foo}}
     set fail [catch {mygraph deserialize $serial} result]
@@ -90,7 +90,7 @@ test graph-${impl}-deserialize-2.7 {deserialize, out-of-range node-reference, lo
     list $fail $result
 } {1 {error in serialization: bad arc destination reference "-2".}}
 
-test graph-${impl}-deserialize-2.8 {deserialize, out-of-range node-reference, upper bound} {
+test graph-${impl}-${setimpl}-deserialize-2.8 {deserialize, out-of-range node-reference, upper bound} {
     SETUP
     set serial {%3 {} {{f 14 {}}} %0 {foo bar} {{a 6 {}} {b 9 {bar snarf}} {c 0 {}}} %1 {} {{d 9 {}}} %2 {} {{e 0 {}}} {data foo}}
     set fail [catch {mygraph deserialize $serial} result]
@@ -98,7 +98,7 @@ test graph-${impl}-deserialize-2.8 {deserialize, out-of-range node-reference, up
     list $fail $result
 } {1 {error in serialization: bad arc destination reference "14".}}
 
-test graph-${impl}-deserialize-2.9 {deserialize, duplicate nodes} {
+test graph-${impl}-${setimpl}-deserialize-2.9 {deserialize, duplicate nodes} {
     SETUP
     set serial {%1 {foo bar} {{a 3 {}} {c 6 {}}} %1 {} {} %3 {} {{f 3 {}}} {data foo}}
     set fail [catch {mygraph deserialize $serial} result]
@@ -106,7 +106,7 @@ test graph-${impl}-deserialize-2.9 {deserialize, duplicate nodes} {
     list $fail $result
 } {1 {error in serialization: duplicate node names.}}
 
-test graph-${impl}-deserialize-2.10 {deserialize, wrong arc information length, missing} {
+test graph-${impl}-${setimpl}-deserialize-2.10 {deserialize, wrong arc information length, missing} {
     SETUP
     set serial {%3 {} {{f 6}} %0 {foo bar} {{a 6 {}} {b 9 {bar snarf}} {c 0 {}}} %1 {} {{d 9 {}}} %2 {} {{e 0 {}}} {data foo}}
     set fail [catch {mygraph deserialize $serial} result]
@@ -114,7 +114,7 @@ test graph-${impl}-deserialize-2.10 {deserialize, wrong arc information length, 
     list $fail $result
 } {1 {error in serialization: arc information length not 3.}}
 
-test graph-${impl}-deserialize-2.11 {deserialize, wrong arc information length, too many} {
+test graph-${impl}-${setimpl}-deserialize-2.11 {deserialize, wrong arc information length, too many} {
     SETUP
     set serial {%3 {} {{f 6 {. .} toomuch}} %0 {foo bar} {{a 6 {}} {b 9 {bar snarf}} {c 0 {}}} %1 {} {{d 9 {}}} %2 {} {{e 0 {}}} {data foo}}
     set fail [catch {mygraph deserialize $serial} result]
@@ -125,7 +125,7 @@ test graph-${impl}-deserialize-2.11 {deserialize, wrong arc information length, 
 # -------------------------------------------------------------------------
 # Ok arguments.
 
-test graph-${impl}-deserialize-3.0 {deserialize, empty graph} {
+test graph-${impl}-${setimpl}-deserialize-3.0 {deserialize, empty graph} {
     SETUP
     set serial {{}}
     mygraph deserialize $serial
@@ -134,7 +134,7 @@ test graph-${impl}-deserialize-3.0 {deserialize, empty graph} {
     set result
 } ok
 
-test graph-${impl}-deserialize-3.1 {deserialize} {
+test graph-${impl}-${setimpl}-deserialize-3.1 {deserialize} {
     SETUP
 
     # Our check of the success of the deserialize
@@ -153,7 +153,7 @@ test graph-${impl}-deserialize-3.1 {deserialize} {
     set result
 } {attr/graph/data-mismatch ok}
 
-test graph-${impl}-deserialize-3.2 {deserialize} {
+test graph-${impl}-${setimpl}-deserialize-3.2 {deserialize} {
     SETUP
 
     # Our check of the success of the deserialize

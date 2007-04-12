@@ -2,7 +2,7 @@
 # Graph tests - graph/arc/node unset (attribute unset)
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: unset.test,v 1.1 2006/11/16 06:33:14 andreas_kupries Exp $
+# RCS: @(#) $Id: unset.test,v 1.2 2007/04/12 03:01:56 andreas_kupries Exp $
 
 # Syntax: graph      unset      KEY
 # Syntax: graph arc  unset ARC  KEY
@@ -34,21 +34,21 @@ foreach {e ex stem mp mk} {
     # -------------------------------------------------------------------------
     # Wrong # args: Missing, Too many
 
-    test graph-${impl}-${e}-unset-1.0 "$e unset, wrong # args, missing" {
+    test graph-${impl}-${setimpl}-${e}-unset-1.0 "$e unset, wrong # args, missing" {
 	SETUP
 	catch {CMD unset} msg
 	mygraph destroy
 	set msg
     } [tmWrong "${mp}unset" "${mp}key" 0] ; # {}
 
-    test graph-${impl}-${e}-unset-1.1 "$e unset, wrong # args, missing" !graph {
+    test graph-${impl}-${setimpl}-${e}-unset-1.1 "$e unset, wrong # args, missing" !graph {
 	SETUP
 	catch {CMD unset a} msg
 	mygraph destroy
 	set msg
     } [tmWrong "${mp}unset" "${mp}key" 1] ; # {}
 
-    test graph-${impl}-${e}-unset-1.2 "$e unset, wrong # args, too many" {
+    test graph-${impl}-${setimpl}-${e}-unset-1.2 "$e unset, wrong # args, too many" {
 	SETUP
 	catch {CMD unset a b c} msg
 	mygraph destroy
@@ -58,7 +58,7 @@ foreach {e ex stem mp mk} {
     # -------------------------------------------------------------------------
     # Logical arguments checks and failures
 
-    test graph-${impl}-${e}-unset-2.0 "$e unset, missing $e" !graph {
+    test graph-${impl}-${setimpl}-${e}-unset-2.0 "$e unset, missing $e" !graph {
 	SETUP
 	catch {Unset$ex data} msg
 	mygraph destroy
@@ -68,7 +68,7 @@ foreach {e ex stem mp mk} {
     # -------------------------------------------------------------------------
     # Ok arguments.
 
-    test graph-${impl}-${e}-unset-3.0 "$e unset, no attributes, ok" {
+    test graph-${impl}-${setimpl}-${e}-unset-3.0 "$e unset, no attributes, ok" {
 	SETUP
 	$ex
 	set result [list [catch {Unset$ex bogus} msg] $msg]
@@ -76,7 +76,7 @@ foreach {e ex stem mp mk} {
 	set result
     } {0 {}} ; # {}
 
-    test graph-${impl}-${e}-unset-3.1 "$e unset, missing key, ok" {
+    test graph-${impl}-${setimpl}-${e}-unset-3.1 "$e unset, missing key, ok" {
 	SETUP
 	$ex
 	SetW$ex foo ""
@@ -85,7 +85,7 @@ foreach {e ex stem mp mk} {
 	set result
     } {0 {}} ; # {}
 
-    test graph-${impl}-${e}-unset-3.2 "$e unset, data is gone" {
+    test graph-${impl}-${setimpl}-${e}-unset-3.2 "$e unset, data is gone" {
 	SETUP
 	$ex
 	set     result {}
@@ -98,7 +98,7 @@ foreach {e ex stem mp mk} {
 	set result
     } {0 1 0} ; # {}
 
-    test graph-${impl}-${e}-unset-3.6 "$e unset, then $e delete" !graph {
+    test graph-${impl}-${setimpl}-${e}-unset-3.6 "$e unset, then $e delete" !graph {
 	SETUP
 	$ex
 	set result {}

@@ -2,21 +2,21 @@
 # Graph tests - node degree
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: degree.test,v 1.1 2006/11/16 06:33:14 andreas_kupries Exp $
+# RCS: @(#) $Id: degree.test,v 1.2 2007/04/12 03:01:56 andreas_kupries Exp $
 
 # Syntax: graph node degree ?-in|-out? NODE
 
 # -------------------------------------------------------------------------
 # Wrong # args: Missing, Too many
 
-test graph-${impl}-node-degree-1.0 {node degree, wrong#args, missing} {
+test graph-${impl}-${setimpl}-node-degree-1.0 {node degree, wrong#args, missing} {
     SETUP
     catch {mygraph node degree} msg
     mygraph destroy
     set msg
 } "wrong # args: should be \"$MY node degree ?-in|-out? node\""
 
-test graph-${impl}-node-degree-1.1 {node degree, wrong#args, too many} {
+test graph-${impl}-${setimpl}-node-degree-1.1 {node degree, wrong#args, too many} {
     SETUP
     catch {mygraph node degree foo bar baz} msg
     mygraph destroy
@@ -26,14 +26,14 @@ test graph-${impl}-node-degree-1.1 {node degree, wrong#args, too many} {
 # -------------------------------------------------------------------------
 # Logical arguments checks and failures
 
-test graph-${impl}-node-degree-2.0 {node degree, missing node} {
+test graph-${impl}-${setimpl}-node-degree-2.0 {node degree, missing node} {
     SETUP
     catch {mygraph node degree node0} msg
     mygraph destroy
     set msg
 } [MissingNode $MY node0]
 
-test graph-${impl}-node-degree-2.1 {node degree, bad switch} {
+test graph-${impl}-${setimpl}-node-degree-2.1 {node degree, bad switch} {
     SETUP
     catch {mygraph node degree -foo node0} msg
     mygraph destroy
@@ -43,7 +43,7 @@ test graph-${impl}-node-degree-2.1 {node degree, bad switch} {
 # -------------------------------------------------------------------------
 # Ok arguments.
 
-test graph-${impl}-node-degree-3.0 {node degree} {
+test graph-${impl}-${setimpl}-node-degree-3.0 {node degree} {
     SETUP
     mygraph node insert node0 node1 node2 node3 node4 node5
 
