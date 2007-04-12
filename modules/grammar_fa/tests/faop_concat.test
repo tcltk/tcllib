@@ -1,31 +1,31 @@
 # -*- tcl -*-
 # fa_operations.test:  tests for the FA operations.
 #
-# Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: faop_concat.test,v 1.3 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: faop_concat.test,v 1.4 2007/04/12 03:43:15 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
-test faop-concat-1.0 {concat, error} {
+test faop-concat-${setimpl}-1.0 {concat, error} {
     catch {grammar::fa::op::concatenate} res
     set res
 } {wrong # args: should be "grammar::fa::op::concatenate fa fb ?mapvar?"}
 
 
-test faop-concat-1.1 {concat, error} {
+test faop-concat-${setimpl}-1.1 {concat, error} {
     catch {grammar::fa::op::concatenate a b c d} res
     set res
 } {wrong # args: should be "grammar::fa::op::concatenate fa fb ?mapvar?"}
 
 
-test faop-concat-1.2 {concat, error} {
+test faop-concat-${setimpl}-1.2 {concat, error} {
     catch {grammar::fa::op::concatenate a b} res
     set res
 } {invalid command name "a"}
 
 
-test faop-concat-1.3 {concat, error} {
+test faop-concat-${setimpl}-1.3 {concat, error} {
     grammar::fa a
     catch {grammar::fa::op::concatenate a b} res
     a destroy
@@ -33,7 +33,7 @@ test faop-concat-1.3 {concat, error} {
 } {invalid command name "b"}
 
 
-test faop-concat-1.4 {concat, error} {
+test faop-concat-${setimpl}-1.4 {concat, error} {
     grammar::fa a
     grammar::fa b
     catch {grammar::fa::op::concatenate a b} res
@@ -43,7 +43,7 @@ test faop-concat-1.4 {concat, error} {
 } {Unable to concatenate FAs without start/final states}
 
 
-test faop-concat-1.5 {concat, error} {
+test faop-concat-${setimpl}-1.5 {concat, error} {
     grammar::fa a
     grammar::fa b
     a state add x
@@ -55,7 +55,7 @@ test faop-concat-1.5 {concat, error} {
 } {Unable to concatenate FAs without start/final states}
 
 
-test faop-concat-1.6 {concat, error} {
+test faop-concat-${setimpl}-1.6 {concat, error} {
     grammar::fa a
     grammar::fa b
     a state add x
@@ -85,7 +85,7 @@ foreach {n fa fb fres rmap} {
 } {
     set key ${n}
 
-    test faop-concat-2.$key {concat} {
+    test faop-concat-${setimpl}-2.$key {concat} {
 	grammar::fa a deserialize $fa
 	grammar::fa b deserialize $fb
 	grammar::fa::op::concatenate a b map
@@ -96,7 +96,7 @@ foreach {n fa fb fres rmap} {
 	set res
     } {ok 1}
 
-    test faop-concat-3.$key {concat, as method} {
+    test faop-concat-${setimpl}-3.$key {concat, as method} {
 	grammar::fa a deserialize $fa
 	grammar::fa b deserialize $fb
 	a concatenate b map

@@ -1,13 +1,13 @@
 # -*- tcl -*-
 # finite_automaton.test:  tests for the grammar::fa container.
 #
-# Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: fa_state.test,v 1.5 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: fa_state.test,v 1.6 2007/04/12 03:43:15 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
-test fa-state-1.0 {state, error} {
+test fa-state-${setimpl}-1.0 {state, error} {
     grammar::fa a
     catch {a state} res
     a destroy
@@ -15,7 +15,7 @@ test fa-state-1.0 {state, error} {
 } [tcltest::wrongNumArgs ::grammar::fa::Snit_methodstate {type selfns win self cmd s args} 5]
 
 
-test fa-state-1.1 {state, error} {
+test fa-state-${setimpl}-1.1 {state, error} {
     grammar::fa a
     catch {a state add} res
     a destroy
@@ -23,7 +23,7 @@ test fa-state-1.1 {state, error} {
 } [tcltest::wrongNumArgs ::grammar::fa::Snit_methodstate {type selfns win self cmd s args} 5]
 
 
-test fa-state-1.2 {state, error} {
+test fa-state-${setimpl}-1.2 {state, error} {
     grammar::fa a
     a state add x
     catch {a state foo x} res
@@ -32,7 +32,7 @@ test fa-state-1.2 {state, error} {
 } {Expected add, exists, delete, or rename, got "foo"}
 
 
-test fa-state-1.3 {state, error} {
+test fa-state-${setimpl}-1.3 {state, error} {
     grammar::fa a
     a state add x
     catch {a state add x} res
@@ -41,7 +41,7 @@ test fa-state-1.3 {state, error} {
 } {State "x" is already known}
 
 
-test fa-state-1.4 {state, error} {
+test fa-state-${setimpl}-1.4 {state, error} {
     grammar::fa a
     catch {a state exists} res
     a destroy
@@ -49,7 +49,7 @@ test fa-state-1.4 {state, error} {
 } [tcltest::wrongNumArgs ::grammar::fa::Snit_methodstate {type selfns win self cmd s args} 5]
 
 
-test fa-state-1.5 {state, error} {
+test fa-state-${setimpl}-1.5 {state, error} {
     grammar::fa a
     catch {a state exists a b} res
     a destroy
@@ -57,7 +57,7 @@ test fa-state-1.5 {state, error} {
 } {wrong#args: ::a state exists s}
 
 
-test fa-state-1.6 {state, error} {
+test fa-state-${setimpl}-1.6 {state, error} {
     grammar::fa a
     catch {a state delete} res
     a destroy
@@ -65,7 +65,7 @@ test fa-state-1.6 {state, error} {
 } [tcltest::wrongNumArgs ::grammar::fa::Snit_methodstate {type selfns win self cmd s args} 5]
 
 
-test fa-state-1.7 {state, error} {
+test fa-state-${setimpl}-1.7 {state, error} {
     grammar::fa a
     catch {a state delete x} res
     a destroy
@@ -73,7 +73,7 @@ test fa-state-1.7 {state, error} {
 } {Illegal state "x"}
 
 
-test fa-state-1.8 {state, error} {
+test fa-state-${setimpl}-1.8 {state, error} {
     grammar::fa a
     catch {a state rename} res
     a destroy
@@ -81,7 +81,7 @@ test fa-state-1.8 {state, error} {
 } [tcltest::wrongNumArgs ::grammar::fa::Snit_methodstate {type selfns win self cmd s args} 0]
 
 
-test fa-state-1.9 {state, error} {
+test fa-state-${setimpl}-1.9 {state, error} {
     grammar::fa a
     catch {a state rename foo} res
     a destroy
@@ -89,7 +89,7 @@ test fa-state-1.9 {state, error} {
 } {wrong#args: ::a state rename s s'}
 
 
-test fa-state-1.10 {state, error} {
+test fa-state-${setimpl}-1.10 {state, error} {
     grammar::fa a
     catch {a state rename x y} res
     a destroy
@@ -97,7 +97,7 @@ test fa-state-1.10 {state, error} {
 } {Illegal state "x"}
 
 
-test fa-state-1.11 {state, error} {
+test fa-state-${setimpl}-1.11 {state, error} {
     grammar::fa a
     a state add x y
     catch {a state rename x y} res
@@ -109,7 +109,7 @@ test fa-state-1.11 {state, error} {
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-test fa-state-2.0 {state add} {
+test fa-state-${setimpl}-2.0 {state add} {
     grammar::fa a
     set res [a state add x]
     a destroy
@@ -117,7 +117,7 @@ test fa-state-2.0 {state add} {
 } {}
 
 
-test fa-state-2.1 {state add, variadic} {
+test fa-state-${setimpl}-2.1 {state add, variadic} {
     grammar::fa a
     set res [a state add x y]
     a destroy
@@ -125,7 +125,7 @@ test fa-state-2.1 {state add, variadic} {
 } {}
 
 
-test fa-state-2.2 {state add / states / exists} {
+test fa-state-${setimpl}-2.2 {state add / states / exists} {
     grammar::fa a
     a state add x
     set     res [a states]
@@ -136,7 +136,7 @@ test fa-state-2.2 {state add / states / exists} {
 } {x 1 0}
 
 
-test fa-state-2.3 {state add / states / exists} {
+test fa-state-${setimpl}-2.3 {state add / states / exists} {
     grammar::fa a
     a state add x y
     set res {}
@@ -148,7 +148,7 @@ test fa-state-2.3 {state add / states / exists} {
 } {{x y} 1 1}
 
 
-test fa-state-2.4 {state add, basic properties} {
+test fa-state-${setimpl}-2.4 {state add, basic properties} {
     grammar::fa a
     a state add x
     set res {}
@@ -162,7 +162,7 @@ test fa-state-2.4 {state add, basic properties} {
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-test fa-state-3.0 {state delete} {
+test fa-state-${setimpl}-3.0 {state delete} {
     grammar::fa a
     a state add x
     set     res [a states]
@@ -174,7 +174,7 @@ test fa-state-3.0 {state delete} {
     set res
 } {x 1 {} 0}
 
-test fa-state-3.1 {state delete, variadic} {
+test fa-state-${setimpl}-3.1 {state delete, variadic} {
     grammar::fa a
     a state add x y
     set     res {}
@@ -189,7 +189,7 @@ test fa-state-3.1 {state delete, variadic} {
     set res
 } {{x y} 1 1 {} 0 0}
 
-test fa-state-3.2 {state delete, loop} {
+test fa-state-${setimpl}-3.2 {state delete, loop} {
     grammar::fa a
     a state  add a
     a symbol add @
@@ -198,7 +198,7 @@ test fa-state-3.2 {state delete, loop} {
     a destroy
 } {}
 
-test fa-state-3.3 {state delete, inbound transition} {
+test fa-state-${setimpl}-3.3 {state delete, inbound transition} {
     grammar::fa a
     gen xyz!-=
     set res [a next x @]
@@ -209,7 +209,7 @@ test fa-state-3.3 {state delete, inbound transition} {
 } {y {}}
 
 
-test fa-state-3.4 {state delete, outbound transition} {
+test fa-state-${setimpl}-3.4 {state delete, outbound transition} {
     grammar::fa a
     gen xy-
     a state delete x
@@ -223,7 +223,7 @@ test fa-state-3.4 {state delete, outbound transition} {
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-test fa-state-4.0 {state, exists} {
+test fa-state-${setimpl}-4.0 {state, exists} {
     grammar::fa a
     set res [a state exists x]
     a destroy
@@ -231,7 +231,7 @@ test fa-state-4.0 {state, exists} {
 } 0
 
 
-test fa-state-4.1 {state, exists} {
+test fa-state-${setimpl}-4.1 {state, exists} {
     grammar::fa a
     a state add x
     set res [a state exists x]
@@ -243,7 +243,7 @@ test fa-state-4.1 {state, exists} {
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-test fa-state-5.4 {state rename} {
+test fa-state-${setimpl}-5.4 {state rename} {
     grammar::fa a
     a state add x y
     a state rename x z
@@ -253,7 +253,7 @@ test fa-state-5.4 {state rename} {
 } {grammar::fa {} {z {0 0 {}} y {0 0 {}}}}
 
 
-test fa-state-5.5 {state rename} {
+test fa-state-${setimpl}-5.5 {state rename} {
     grammar::fa a
     a state add x y
     a state rename y z
@@ -263,7 +263,7 @@ test fa-state-5.5 {state rename} {
 } {grammar::fa {} {x {0 0 {}} z {0 0 {}}}}
 
 
-test fa-state-5.6 {state rename} {
+test fa-state-${setimpl}-5.6 {state rename} {
     grammar::fa a
     a state add x y
     a symbol add @
@@ -275,7 +275,7 @@ test fa-state-5.6 {state rename} {
 } {grammar::fa @ {z {0 0 {@ y}} y {0 0 {}}}}
 
 
-test fa-state-5.7 {state rename} {
+test fa-state-${setimpl}-5.7 {state rename} {
     grammar::fa a
     a state add x y
     a symbol add @

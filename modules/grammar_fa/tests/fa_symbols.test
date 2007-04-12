@@ -1,13 +1,13 @@
 # -*- tcl -*-
 # finite_automaton.test:  tests for the grammar::fa container.
 #
-# Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2004-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: fa_symbols.test,v 1.3 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: fa_symbols.test,v 1.4 2007/04/12 03:43:15 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
-test fa-symbols-1.0 {symbols, argument errors} {
+test fa-symbols-${setimpl}-1.0 {symbols, argument errors} {
     grammar::fa a
     catch {a symbols x} res
     a destroy
@@ -15,7 +15,7 @@ test fa-symbols-1.0 {symbols, argument errors} {
 } {wrong # args: should be "::grammar::fa::Snit_methodsymbols type selfns win self"}
 
 
-test fa-symbols-1.1 {symbol mgmt} {
+test fa-symbols-${setimpl}-1.1 {symbol mgmt} {
     grammar::fa a
     catch {a symbols x y} res
     a destroy
@@ -26,14 +26,14 @@ test fa-symbols-1.1 {symbol mgmt} {
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-test fa-symbols-2.0 {symbols, empty fa} {
+test fa-symbols-${setimpl}-2.0 {symbols, empty fa} {
     grammar::fa a
     set res [a symbols]
     a destroy
     set res
 } {}
 
-test fa-symbols-2.1 {symbols, symbol addition} {
+test fa-symbols-${setimpl}-2.1 {symbols, symbol addition} {
     grammar::fa a
     a symbol add x
     set res [a symbols]
@@ -41,7 +41,7 @@ test fa-symbols-2.1 {symbols, symbol addition} {
     set res
 } x
 
-test fa-symbols-2.2 {symbols, symbol addition} {
+test fa-symbols-${setimpl}-2.2 {symbols, symbol addition} {
     grammar::fa a
     a symbol add x y
     set res [lsort [a symbols]]
@@ -49,7 +49,7 @@ test fa-symbols-2.2 {symbols, symbol addition} {
     set res
 } {x y}
 
-test fa-symbols-2.3 {symbols, symbol addition and removal} {
+test fa-symbols-${setimpl}-2.3 {symbols, symbol addition and removal} {
     grammar::fa a
     a symbol add x y
     a symbol delete x
@@ -58,7 +58,7 @@ test fa-symbols-2.3 {symbols, symbol addition and removal} {
     set res
 } y
 
-test fa-symbols-2.4 {symbols, symbol addition and removal} {
+test fa-symbols-${setimpl}-2.4 {symbols, symbol addition and removal} {
     grammar::fa a
     a symbol add x y
     a symbol delete y
@@ -67,7 +67,7 @@ test fa-symbols-2.4 {symbols, symbol addition and removal} {
     set res
 } x
 
-test fa-symbols-2.5 {symbols, symbol addition and removal} {
+test fa-symbols-${setimpl}-2.5 {symbols, symbol addition and removal} {
     grammar::fa a
     a symbol add x y
     a symbol delete x y
