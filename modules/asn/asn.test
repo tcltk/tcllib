@@ -2,10 +2,10 @@
 # asn.test:  tests for the asn BER encoding/decoding module.
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
-# Copyright (c) 2004-2006 by Michael Schlenker <mic42@users.sourceforge.net>
+# Copyright (c) 2004-2007 by Michael Schlenker <mic42@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: asn.test,v 1.15 2006/10/09 21:41:39 andreas_kupries Exp $
+# RCS: @(#) $Id: asn.test,v 1.16 2007/04/20 18:51:05 mic42 Exp $
 
 # -------------------------------------------------------------------------
 
@@ -785,7 +785,43 @@ test asn-30.0 {asnChoiceConstr smoke test} {
 	bytes2hex [asn::asnChoiceConstr 1 $data]
 } {A1 02 05 00}
 
+test asn-31.0 {asnPeekTag smoke test} {
+	set data [asn::asnNull]
+	asn::asnPeekTag data tag tagtype constr
+	list $tag $tagtype $constr
+} {5 UNIVERSAL 0}
 
+test asn-32.0 {asnTag smoke test} {
+	bytes2hex [asn::asnTag 5 UNIVERSAL P]
+} {05}
+
+test asn-32.1 {asnTag short tag} {
+	bytes2hex [asn::asnTag 30 UNIVERSAL P]
+} {1E} 
+
+test asn-32.2 {asnTag long tag} {
+	bytes2hex [asn::asnTag 31 UNIVERSAL P]
+} {1F 1F}
+
+test asn-32.3 {asnTag long tag} {
+	bytes2hex [asn::asnTag 31 APPLICATION P]
+} {5F 1F}
+
+test asn-32.4 {asnTag long tag} {
+	bytes2hex [asn::asnTag 127 UNIVERSAL P]
+} {1F 7F}
+
+test asn-32.5 {asnTag long tag} {
+	bytes2hex [asn::asnTag 128 UNIVERSAL P]
+} {1F 81 00}
+
+test asn-32.6 {asnTag long tag} {
+	bytes2hex [asn::asnTag 16384 UNIVERSAL P]
+} {1F 81 80 00}
+
+test asn-32.7 {asnTag long tag} {
+	bytes2hex [asn::asnTag 16385 UNIVERSAL P]
+} {1F 81 80 01}
 
 testsuiteCleanup
 

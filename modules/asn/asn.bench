@@ -55,5 +55,47 @@ foreach n {10 100 1000 10000} {
     }
 }
 
+for {set n 1; set i 0} {$i < 64} { set n [expr {wide($n)*2}] ; incr i} {
+    bench -desc "ASN asnLength 2^${i}" -body {
+	asn::asnLength $n
+    }
+}
+
+for {set n 0} {$n < 10} { incr n} {
+    bench -desc "ASN oid with ${n}+2 components" -pre {
+	set oid [list 1 10]
+	for {set i 0} {$i < $n} {incr i} {
+	    lappend oid $i
+	}
+    } -body {
+	asn::asnObjectIdentifier $oid
+    } -post {
+	unset oid
+    }
+}
+
+foreach n {10 100 1000 10000 100000} {
+    bench -desc "ASN asnGetByte ${n}" -pre {
+	set bytes [binary format a* [string repeat X $n]]
+    } -body {
+	::asn::asnGetByte bytes dummy
+    } -post {
+	unset bytes
+	unset dummy
+    }
+}
+
+
+foreach n {10 100 1000 10000 100000} {
+    bench -desc "ASN asnGetBytes ${n} len 5" -pre {
+	set bytes [binary format a* [string repeat X $n]]
+    } -body {
+	::asn::asnGetBytes bytes 5 dummy
+    } -post {
+	unset bytes
+	unset dummy
+    }
+}
+
 # ### ### ### ######### ######### ######### ###########################
 ## Complete

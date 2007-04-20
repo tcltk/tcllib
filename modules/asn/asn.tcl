@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------
 #   Copyright (C) 1999-2004 Jochen C. Loewer (loewerj@web.de)
-#   Copyright (C) 2004-2006 Michael Schlenker (mic42@users.sourceforge.net)
+#   Copyright (C) 2004-2007 Michael Schlenker (mic42@users.sourceforge.net)
 #-----------------------------------------------------------------------------
 #   
 #   A partial ASN decoder/encoder implementation in plain Tcl. 
@@ -38,7 +38,7 @@
 #   written by Jochen Loewer
 #   3 June, 1999
 #
-#   $Id: asn.tcl,v 1.15 2006/09/01 14:03:26 mic42 Exp $
+#   $Id: asn.tcl,v 1.16 2007/04/20 18:51:05 mic42 Exp $
 #
 #-----------------------------------------------------------------------------
 
@@ -62,7 +62,8 @@ namespace eval asn {
         asnEnumeration \
         asnBoolean \
         asnOctetString \
-        asnUTCTime \
+        asnNull	   \
+	asnUTCTime \
 	asnNumericString \
         asnPrintableString \
         asnIA5String\
@@ -95,7 +96,9 @@ namespace eval asn {
     namespace export \
         asnPeekByte  \
         asnGetLength \
-        asnRetag         
+        asnRetag     \
+	asnPeekTag   \
+	asnTag	     
         
 }
 
@@ -643,7 +646,7 @@ proc ::asn::asnObjectIdentifier {oid} {
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnGetResponse {sock data_var} {
-    upvar $data_var data
+    upvar 1 $data_var data
 
     # We expect a sequence here (tag 0x30). The code below is an
     # inlined replica of 'asnGetSequence', modified for reading from a
@@ -723,23 +726,26 @@ proc ::asn::asnGetByte {data_var byte_var} {
 #               without removing it.
 #-----------------------------------------------------------------------------
 
-proc ::asn::asnPeekByte {data_var byte_var} {
-    upvar $data_var data $byte_var byte
+proc ::asn::asnPeekByte {data_var byte_var {offset 0}} {
+    upvar 1 $data_var data $byte_var byte
     
-    binary scan [string index $data 0] c byte
+    binary scan [string index $data $offset] c byte
     set byte [expr {($byte + 0x100) % 0x100}]  
 
     return
 }
 
 #-----------------------------------------------------------------------------
-# ansRetag: Remove an explicit tag with the real newTag
+# asnRetag: Remove an explicit tag with the real newTag
 #
 #-----------------------------------------------------------------------------
 proc ::asn::asnRetag {data_var newTag} {
-    upvar 1 $data_var data  
-    asnGetByte data tag
-    set data [binary format c $newTag]$data
+    upvar 1 $data_var data 
+    set tag ""
+    set type ""
+    set len [asnPeekTag data tag type dummy]	
+    asnGetBytes data $len tagbytes
+    set data [binary format c* $newTag]$data
 }
 
 #-----------------------------------------------------------------------------
@@ -747,7 +753,7 @@ proc ::asn::asnRetag {data_var newTag} {
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnGetBytes {data_var length bytes_var} {
-    upvar $data_var data  $bytes_var bytes
+    upvar 1 $data_var data  $bytes_var bytes
 
     incr length -1
     set bytes [string range $data 0 $length]
@@ -757,13 +763,86 @@ proc ::asn::asnGetBytes {data_var length bytes_var} {
     return
 }
 
+#-----------------------------------------------------------------------------
+# asnPeekTag : Decode the tag value
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnPeekTag {data_var tag_var tagtype_var constr_var} {
+    upvar 1 $data_var data $tag_var tag $tagtype_var tagtype $constr_var constr
+    
+    set type 0	
+    set offset 0
+    asnPeekByte data type $offset
+    # check if we have a simple tag, < 31, which fits in one byte
+     
+    set tval [expr {$type & 0x1f}]
+    if {$tval == 0x1f} {
+	# long tag, max 64-bit with Tcl 8.4, unlimited with 8.5 bignum
+	asnPeekByte data tagbyte [incr offset]
+	set tval [expr {wide($tagbyte & 0x7f)}]
+	while {($tagbyte & 0x80)} {
+	    asnPeekByte data tagbyte [incr offset] 
+	    set tval [expr {($tval << 7) + ($tagbyte & 0x7f)}]
+	}
+    } 
+
+    set tagtype [lindex {UNIVERSAL CONTEXT APPLICATION PRIVAT} \
+	[expr {($type & 0xc0) >>6}]]
+    set tag $tval
+    set constr [expr {$type & 0x20}]
+
+    return [incr offset]	
+}
+
+#-----------------------------------------------------------------------------
+# asnTag : Build a tag value
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnTag {tagnumber {class UNIVERSAL} {tagstyle P}} {
+    set first 0
+    if {$tagnumber < 31} {
+	# encode everything in one byte
+	set first $tagnumber	
+	set bytes [list]
+    } else {
+	# multi-byte tag
+	set first 31
+	set bytes [list [expr {$tagnumber & 0x7f}]]
+	set tagnumber [expr {$tagnumber >> 7}]
+	while {$tagnumber > 0} {
+	    lappend bytes [expr {($tagnumber & 0x7f)+0x80}]
+	    set tagnumber [expr {$tagnumber >>7}]	
+	}
+
+    }
+    
+    if {$tagstyle eq "C"} {incr first 32}
+    switch -glob -- $class {
+	U* {		    ;# UNIVERSAL } 
+	A* { incr first 64  ;# APPLICATION }
+	C* { incr first 128 ;# CONTEXT }
+	P* { incr first 192 ;# PRIVATE }
+	default {
+	    return -code error "Unknown tag class \"$class\""
+	}	
+    }
+    if {[llength $bytes] > 0} {
+	# long tag
+	set rbytes [list]
+	for {set i [expr {[llength $bytes]-1}]} {$i >= 0} {incr i -1} {
+	    lappend rbytes [lindex $bytes $i]
+	}
+	return [binary format cc* $first $rbytes ]
+    } 
+    return [binary format c $first]
+}
 
 #-----------------------------------------------------------------------------
 # asnGetLength : Decode an ASN length value (See notes)
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnGetLength {data_var length_var} {
-    upvar $data_var data  $length_var length
+    upvar 1 $data_var data  $length_var length
 
     asnGetByte data length
     if {$length == 0x080} {
@@ -840,7 +919,7 @@ proc ::asn::asnGetBigLength {data_var biglength_var} {
     # 
     package require math::bignum
     
-    upvar $data_var data  $length_var length
+    upvar 1 $data_var data  $biglength_var length
 
     asnGetByte data length
     if {$length == 0x080} {
@@ -872,7 +951,7 @@ proc ::asn::asnGetBigLength {data_var biglength_var} {
 proc ::asn::asnGetInteger {data_var int_var} {
     # Tag is 0x02. 
 
-    upvar $data_var data $int_var int
+    upvar 1 $data_var data $int_var int
 
     asnGetByte   data tag
 
@@ -932,7 +1011,7 @@ proc ::asn::asnGetBigInteger {data_var bignum_var} {
     # maximal efficiency, i.e. without a prefix 0x81 prefix. If a prefix
     # is used this decoder will fail.
 
-    upvar $data_var data $bignum_var bignum
+    upvar 1 $data_var data $bignum_var bignum
 
     asnGetByte   data tag
 
@@ -965,7 +1044,7 @@ proc ::asn::asnGetBigInteger {data_var bignum_var} {
 proc ::asn::asnGetEnumeration {data_var enum_var} {
     # This is like 'asnGetInteger', except for a different tag.
 
-    upvar $data_var data $enum_var enum
+    upvar 1 $data_var data $enum_var enum
 
     asnGetByte   data tag
 
@@ -997,7 +1076,7 @@ proc ::asn::asnGetEnumeration {data_var enum_var} {
 proc ::asn::asnGetOctetString {data_var string_var} {
     # Here we need the full decoder for length data.
 
-    upvar $data_var data $string_var string
+    upvar 1 $data_var data $string_var string
     
     asnGetByte data tag
     if {$tag != 0x04} { 
@@ -1017,7 +1096,7 @@ proc ::asn::asnGetOctetString {data_var string_var} {
 proc ::asn::asnGetSequence {data_var sequence_var} {
     # Here we need the full decoder for length data.
 
-    upvar $data_var data $sequence_var sequence
+    upvar 1 $data_var data $sequence_var sequence
 
     asnGetByte data tag
     if {$tag != 0x030} { 
@@ -1037,7 +1116,7 @@ proc ::asn::asnGetSequence {data_var sequence_var} {
 proc ::asn::asnGetSet {data_var set_var} {
     # Here we need the full decoder for length data.
 
-    upvar $data_var data $set_var set
+    upvar 1 $data_var data $set_var set
 
     asnGetByte data tag
     if {$tag != 0x031} { 
@@ -1054,16 +1133,20 @@ proc ::asn::asnGetSet {data_var set_var} {
 # asnGetApplication
 #-----------------------------------------------------------------------------
 
-proc ::asn::asnGetApplication {data_var appNumber_var {content_var {}}} {
-    upvar $data_var data $appNumber_var appNumber
+proc ::asn::asnGetApplication {data_var appNumber_var {content_var {}} {encodingType_var {}} } {
+    upvar 1 $data_var data $appNumber_var appNumber
 
     asnGetByte   data tag
     asnGetLength data length
 
-    if {($tag & 0xE0) != 0x060} {
+    if {($tag & 0xC0) != 0x40} {
         return -code error \
-            [format "Expected Application (0x60), but got %02x" $tag]
+            [format "Expected Application, but got %02x" $tag]
     }    
+    if {$encodingType_var != {}} {
+	upvar 1 $encodingType_var encodingType
+	set encodingType [expr {$tag & 0x20}]
+    }
     set appNumber [expr {$tag & 0x1F}]
 	if {[string length $content_var]} {
 		upvar 1 $content_var content
@@ -1077,7 +1160,7 @@ proc ::asn::asnGetApplication {data_var appNumber_var {content_var {}}} {
 #-----------------------------------------------------------------------------
 
 proc asn::asnGetBoolean {data_var bool_var} {
-    upvar $data_var data $bool_var bool
+    upvar 1 $data_var data $bool_var bool
 
     asnGetByte data tag
     if {$tag != 0x01} {
@@ -1098,7 +1181,7 @@ proc asn::asnGetBoolean {data_var bool_var} {
 #-----------------------------------------------------------------------------
 
 proc asn::asnGetUTCTime {data_var utc_var} {
-    upvar $data_var data $utc_var utc
+    upvar 1 $data_var data $utc_var utc
 
     asnGetByte data tag
     if {$tag != 0x17} {
@@ -1124,7 +1207,7 @@ proc asn::asnGetUTCTime {data_var utc_var} {
 #-----------------------------------------------------------------------------
 
 proc asn::asnGetBitString {data_var bitstring_var} {
-    upvar $data_var data $bitstring_var bitstring
+    upvar 1 $data_var data $bitstring_var bitstring
 
     asnGetByte data tag
     if {$tag != 0x03} {
@@ -1150,7 +1233,7 @@ proc asn::asnGetBitString {data_var bitstring_var} {
 #-----------------------------------------------------------------------------
 
 proc asn::asnGetObjectIdentifier {data_var oid_var} {
-      upvar $data_var data $oid_var oid
+      upvar 1 $data_var data $oid_var oid
 
       asnGetByte data tag
       if {$tag != 0x06} {
@@ -1200,19 +1283,23 @@ proc asn::asnGetObjectIdentifier {data_var oid_var} {
 #
 #-----------------------------------------------------------------------------
 
-proc ::asn::asnGetContext {data_var contextNumber_var {content_var {}}} {
-    upvar 1 $data_var data $contextNumber_var contextNumber
-
+proc ::asn::asnGetContext {data_var contextNumber_var {content_var {}} {encodingType_var {}}} {
+    upvar 1 $data_var data $contextNumber_var contextNumber 
+    
     asnGetByte   data tag
     asnGetLength data length
 
-    if {($tag & 0xE0) != 0x0a0} {
+    if {($tag & 0xC0) != 0x80} {
         return -code error \
-            [format "Expected Context (0xa0), but got %02x" $tag]
+            [format "Expected Context, but got %02x" $tag]
     }    
+    if {$encodingType_var != {}} { 
+	upvar 1 $encodingType_var encodingType 
+	set encodingType [expr {$tag & 0x20}]
+    }
     set contextNumber [expr {$tag & 0x1F}]
-	if {[string length content_var]} {
-		upvar $content_var content
+	if {[string length $content_var]} {
+		upvar 1 $content_var content
 		asnGetBytes data $length content
 	}	
     return
@@ -1242,7 +1329,7 @@ proc ::asn::asnGetNumericString {data_var print_var} {
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnGetPrintableString {data_var print_var} {
-    upvar $data_var data $print_var print
+    upvar 1 $data_var data $print_var print
 
     asnGetByte data tag
     if {$tag != 0x13} {
@@ -1260,7 +1347,7 @@ proc ::asn::asnGetPrintableString {data_var print_var} {
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnGetIA5String {data_var print_var} {
-    upvar $data_var data $print_var print
+    upvar 1 $data_var data $print_var print
 
     asnGetByte data tag
     if {$tag != 0x16} {
@@ -1276,7 +1363,7 @@ proc ::asn::asnGetIA5String {data_var print_var} {
 # asnGetBMPString: Decode Basic Multiningval (UCS2 string) from data
 #------------------------------------------------------------------------
 proc asn::asnGetBMPString {data_var print_var} {
-	upvar $data_var data $print_var print
+    upvar 1 $data_var data $print_var print
     asnGetByte data tag
     if {$tag != 0x1e} {
         return -code error \
@@ -1299,7 +1386,7 @@ proc asn::asnGetBMPString {data_var print_var} {
 # asnGetUTF8String: Decode UTF8 string from data
 #------------------------------------------------------------------------
 proc asn::asnGetUTF8String {data_var print_var} {
-	upvar $data_var data $print_var print
+    upvar 1 $data_var data $print_var print
     asnGetByte data tag
     if {$tag != 0x0c} {
         return -code error \
@@ -1318,7 +1405,7 @@ proc asn::asnGetUTF8String {data_var print_var} {
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnGetNull {data_var} {
-    upvar $data_var data 
+    upvar 1 $data_var data 
 
     asnGetByte data tag
     if {$tag != 0x05} {
@@ -1359,7 +1446,7 @@ namespace eval asn {
 #---------------------------------------------------------------------------
 proc ::asn::asnGetString {data_var print_var {type_var {}}} {
 	variable stringTypes
-	upvar $data_var data $print_var print
+	upvar 1 $data_var data $print_var print
 	asnPeekByte data tag
 	set tag [format %02x $tag]
 	if {![info exists stringTypes($tag)]} {
@@ -1407,5 +1494,5 @@ proc ::asn::asnString {string} {
 }
 
 #-----------------------------------------------------------------------------
-package provide asn 0.7
+package provide asn 0.8
 
