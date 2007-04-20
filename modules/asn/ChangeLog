@@ -1,3 +1,11 @@
+2007-04-20  Michael Schlenker <mic42@users.sourceforge.net>
+	* asn.tcl   : Fixed documentation bug Tcllib [1703408].
+	  asn.man   : Fixed parts of [1558351] by adding handling
+	  asn.bench : for tag numbers > 31 and some new commands
+	  asn.test  : for changing tags.
+	  Fixed Bug [1645333]. Some new benchmarks.
+	  Raised Version to 0.8 because of new commands.
+
 2007-03-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* asn.man: Fixed all warnings due to use of now deprecated
