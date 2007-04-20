@@ -1,12 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin asn n 0.7]
+[manpage_begin asn n 0.8]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {2004 Jochen Loewer <loewerj@web.de>}]
 [copyright {2004-2006 Michael Schlenker <mic42@users.sourceforge.net>}]
 [moddesc   {ASN.1 processing}]
 [titledesc {ASN.1 BER encoder/decoder}]
 [require Tcl 8.4]
-[require asn [opt 0.7]]
+[require asn [opt 0.8]]
 [description]
 [para]
 
@@ -103,6 +103,9 @@ Returns the encoded form of the specified boolean value
 
 Returns the encoded form of the specified [arg string].
 
+[call [cmd ::asn::asnNull]]
+
+Returns the NULL encoding.
 
 [call [cmd ::asn::asnNumericString] [arg string]]
 
@@ -164,7 +167,7 @@ General notes:
 
 [list_begin enumerated]
 [enum]
-Nearly decoder commands take two arguments. These arguments are variable
+Nearly all decoder commands take two arguments. These arguments are variable
 names, except for [cmd ::asn::asnGetResponse]. The first variable
 contains the encoded ASN value to decode at the beginning, and more,
 and the second variable is where the value is stored to. The remainder
@@ -186,11 +189,6 @@ extracted value after the call, and not the remainder of the input.
 
 Retrieve the first byte of the data, without modifing [arg data_var].
 This can be used to check for implicit tags.
-
-[call [cmd ::asn::asnRetag] [arg data_var] [arg newTag]]
-
-Replace the tag in front of the data with [arg newTag]. Use to
-handle implicitely tagged data before further decoding.
 
 [call [cmd ::asn::asnGetLength] [arg data_var] [arg length_var]]
 
@@ -420,6 +418,38 @@ using the decoder commands of this package.
 
 [list_end]
 [para]
+[subsection {HANDLING TAGS}]
+
+Working with ASN.1 you often need to decode tagged values, which use a tag thats different
+from the universal tag for a type. In those cases you have to replace the tag with the universal tag
+used for the type, to decode the value.
+
+To decode a tagged value use the [cmd ::asn::asnRetag] to change the tag to the appropriate type
+to use one of the decoders for primitive values.
+
+To help with this the module contains three functions:
+
+[list_begin definitions]
+[call [cmd ::asn::asnPeekTag] [arg data_var] [arg tag_var] [arg tagtype_var] [arg constr_var]]
+
+The [cmd ::asn::asnPeekTag] command can be used to take a peek at the data and decode the tag value, without
+removing it from the data. The [arg tag_var] gets set to the tag number, while the [arg tagtype_var] gets set
+to the class of the tag. (Either UNIVERSAL, CONTEXT, APPLICATION or PRIVAT). The [arg constr_var] is set to 1 if the
+tag is for a constructed value, and to 0 for not constructed. It returns the length of the tag.
+
+[call [cmd ::asn::asnTag] [arg tagnumber] [arg class] [arg tagstyle]]
+
+The [cmd ::asn::asnTag] can be used to create a tag value. The [arg tagnumber] gives the number of the tag, while
+the [arg class] gives one of the classes (UNIVERSAL,CONTEXT,APPLICATION or PRIVAT). The class may be abbreviated to just the first letter (U,C,A,P),
+default is UNIVERSAL.    
+The [arg tagstyle] is either C for Constructed encoding, or P for primitve encoding. It defaults to P.
+
+[call [cmd ::asn::asnRetag] [arg data_var] [arg newTag]]
+
+Replaces the tag in front of the data in [arg data_var] with [arg newTag]. The new Tag can be created using the [cmd ::asn::asnTag] command.
+[list_end]
+
+
 
 [section EXAMPLES]
 
