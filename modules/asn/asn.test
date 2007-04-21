@@ -5,7 +5,7 @@
 # Copyright (c) 2004-2007 by Michael Schlenker <mic42@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: asn.test,v 1.16 2007/04/20 18:51:05 mic42 Exp $
+# RCS: @(#) $Id: asn.test,v 1.17 2007/04/21 12:35:14 mic42 Exp $
 
 # -------------------------------------------------------------------------
 
@@ -791,6 +791,27 @@ test asn-31.0 {asnPeekTag smoke test} {
 	list $tag $tagtype $constr
 } {5 UNIVERSAL 0}
 
+foreach {n hex tag type constr} {
+    1	05	    5	    UNIVERSAL	0
+    2	1E	    30	    UNIVERSAL	0
+    3	1F1F	    31	    UNIVERSAL	0
+    4	5F1F	    31	    APPLICATION	0
+    5   1F818000    16384   UNIVERSAL   0
+    6	45	    5	    APPLICATION 0
+    7	65	    5	    APPLICATION 1
+    8	85	    5	    CONTEXT	0
+    9	a5	    5	    CONTEXT	1
+    10	c5	    5	    PRIVATE	0
+    11	e5	    5	    PRIVATE	1
+    12	25	    5	    UNIVERSAL	1
+} {
+    test asn-31.$n "asnPeekTag $tag $type $constr" \
+	"set data \[binary format H* $hex\]
+	 asn::asnPeekTag data tag tagtype constr
+	 list \$tag \$tagtype \$constr" \
+    [list $tag $type $constr]	 
+}
+
 test asn-32.0 {asnTag smoke test} {
 	bytes2hex [asn::asnTag 5 UNIVERSAL P]
 } {05}
@@ -822,6 +843,34 @@ test asn-32.6 {asnTag long tag} {
 test asn-32.7 {asnTag long tag} {
 	bytes2hex [asn::asnTag 16385 UNIVERSAL P]
 } {1F 81 80 01}
+
+test asn-32.8 {asnTag tag APPLICATION, PRIMITIVE} {
+	bytes2hex [asn::asnTag 5 APPLICATION P]
+} {45}
+
+test asn-32.9 {asnTag tag APPLICATION, CONSTRUCTED} {
+	bytes2hex [asn::asnTag 5 APPLICATION C]
+} {65}
+
+test asn-32.10 {asnTag tag CONTEXT, PRIMITIVE} {
+	bytes2hex [asn::asnTag 5 CONTEXT P]
+} {85}
+
+test asn-32.11 {asnTag tag CONTEXT, CONSTRUCTED} {
+	bytes2hex [asn::asnTag 5 CONTEXT C]
+} {A5}
+
+test asn-32.12 {asnTag tag PRIVATE,PRIMITIVE} {
+	bytes2hex [asn::asnTag 5 PRIVATE P]
+} {C5}
+
+test asn-32.13 {asnTag tag PRIVATE,CONSTRUCTED} {
+	bytes2hex [asn::asnTag 5 PRIVATE C]
+} {E5}
+
+test asn-32.14 {asnTag tag UNIVERSAL, CONSTRUCTED} {
+	bytes2hex [asn::asnTag 5 UNIVERSAL C]
+} {25}
 
 testsuiteCleanup
 
