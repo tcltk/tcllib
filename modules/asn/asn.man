@@ -6,7 +6,7 @@
 [moddesc   {ASN.1 processing}]
 [titledesc {ASN.1 BER encoder/decoder}]
 [require Tcl 8.4]
-[require asn [opt 0.8]]
+[require asn [opt 0.8.1]]
 [description]
 [para]
 
@@ -379,7 +379,7 @@ decoded according to the definition of the set, using the decoder
 commands here.
 
 
-[call [cmd ::asn::asnGetApplication] [arg data_var] [arg appNumber_var] [opt [arg content_var]]]
+[call [cmd ::asn::asnGetApplication] [arg data_var] [arg appNumber_var] [opt [arg content_var]] [opt [arg encodingType_var]]]
 
 Assumes that an ASN application construct is at the front of the data
 stored in the variable named [arg data_var], and stores its id into
@@ -391,6 +391,9 @@ If a [arg content_var] is specified, then the command places all data
 associated with it into the named variable, in the binary form which
 can be processed using the decoder commands of this package.
 
+If a [arg encodingType_var] is specified, then that var is set to 1 if
+the encoding is constructed and 0 if it is primitive.
+
 [para]
 
 Otherwise it is the responsibility of the caller to decode the
@@ -398,7 +401,7 @@ remainder of the application construct based on the id retrieved by
 this command, using the decoder commands of this package.
 
 
-[call [cmd ::asn::asnGetContext] [arg data_var] [arg contextNumber_var] [opt [arg content_var]]]
+[call [cmd ::asn::asnGetContext] [arg data_var] [arg contextNumber_var] [opt [arg content_var]] [opt [arg encodingType_var]]] 
 
 Assumes that an ASN context tag construct is at the front of the data
 stored in the variable named [arg data_var], and stores its id into
@@ -409,6 +412,9 @@ by the following decoder commands.
 If a [arg content_var] is specified, then the command places all data
 associated with it into the named variable, in the binary form which
 can be processed using the decoder commands of this package.
+
+If a [arg encodingType_var] is specified, then that var is set to 1 if
+the encoding is constructed and 0 if it is primitive.
 
 [para]
 
@@ -434,15 +440,16 @@ To help with this the module contains three functions:
 
 The [cmd ::asn::asnPeekTag] command can be used to take a peek at the data and decode the tag value, without
 removing it from the data. The [arg tag_var] gets set to the tag number, while the [arg tagtype_var] gets set
-to the class of the tag. (Either UNIVERSAL, CONTEXT, APPLICATION or PRIVAT). The [arg constr_var] is set to 1 if the
+to the class of the tag. (Either UNIVERSAL, CONTEXT, APPLICATION or PRIVATE). The [arg constr_var] is set to 1 if the
 tag is for a constructed value, and to 0 for not constructed. It returns the length of the tag.
 
 [call [cmd ::asn::asnTag] [arg tagnumber] [arg class] [arg tagstyle]]
 
 The [cmd ::asn::asnTag] can be used to create a tag value. The [arg tagnumber] gives the number of the tag, while
-the [arg class] gives one of the classes (UNIVERSAL,CONTEXT,APPLICATION or PRIVAT). The class may be abbreviated to just the first letter (U,C,A,P),
+the [arg class] gives one of the classes (UNIVERSAL,CONTEXT,APPLICATION or PRIVATE). The class may be abbreviated to just the first letter (U,C,A,P),
 default is UNIVERSAL.    
-The [arg tagstyle] is either C for Constructed encoding, or P for primitve encoding. It defaults to P.
+The [arg tagstyle] is either C for Constructed encoding, or P for primitve encoding. It defaults to P. You can also use 1 instead of C and
+0 instead of P for direct use of the values returned by [cmd ::asn::asnPeekTag].
 
 [call [cmd ::asn::asnRetag] [arg data_var] [arg newTag]]
 
