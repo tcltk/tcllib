@@ -38,7 +38,7 @@
 #   written by Jochen Loewer
 #   3 June, 1999
 #
-#   $Id: asn.tcl,v 1.16 2007/04/20 18:51:05 mic42 Exp $
+#   $Id: asn.tcl,v 1.17 2007/04/21 12:35:14 mic42 Exp $
 #
 #-----------------------------------------------------------------------------
 
@@ -786,10 +786,10 @@ proc ::asn::asnPeekTag {data_var tag_var tagtype_var constr_var} {
 	}
     } 
 
-    set tagtype [lindex {UNIVERSAL CONTEXT APPLICATION PRIVAT} \
+    set tagtype [lindex {UNIVERSAL APPLICATION CONTEXT PRIVATE} \
 	[expr {($type & 0xc0) >>6}]]
     set tag $tval
-    set constr [expr {$type & 0x20}]
+    set constr [expr {($type & 0x20) > 0}]
 
     return [incr offset]	
 }
@@ -816,7 +816,7 @@ proc ::asn::asnTag {tagnumber {class UNIVERSAL} {tagstyle P}} {
 
     }
     
-    if {$tagstyle eq "C"} {incr first 32}
+    if {$tagstyle eq "C" || $tagstyle == 1 } {incr first 32}
     switch -glob -- $class {
 	U* {		    ;# UNIVERSAL } 
 	A* { incr first 64  ;# APPLICATION }
@@ -1145,7 +1145,7 @@ proc ::asn::asnGetApplication {data_var appNumber_var {content_var {}} {encoding
     }    
     if {$encodingType_var != {}} {
 	upvar 1 $encodingType_var encodingType
-	set encodingType [expr {$tag & 0x20}]
+	set encodingType [expr {($tag & 0x20) > 0}]
     }
     set appNumber [expr {$tag & 0x1F}]
 	if {[string length $content_var]} {
@@ -1295,7 +1295,7 @@ proc ::asn::asnGetContext {data_var contextNumber_var {content_var {}} {encoding
     }    
     if {$encodingType_var != {}} { 
 	upvar 1 $encodingType_var encodingType 
-	set encodingType [expr {$tag & 0x20}]
+	set encodingType [expr {($tag & 0x20) > 0}]
     }
     set contextNumber [expr {$tag & 0x1F}]
 	if {[string length $content_var]} {
@@ -1494,5 +1494,5 @@ proc ::asn::asnString {string} {
 }
 
 #-----------------------------------------------------------------------------
-package provide asn 0.8
+package provide asn 0.8.1
 
