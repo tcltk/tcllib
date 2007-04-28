@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: png.tcl,v 1.8 2005/09/30 05:36:39 andreas_kupries Exp $
+# RCS: @(#) $Id: png.tcl,v 1.9 2007/04/28 19:26:42 afaupell Exp $
 
 package provide png 0.1.1
 
@@ -158,6 +158,7 @@ proc ::png::removeComments {file} {
     }
     close $fh
     set fh [open $file w]
+    fconfigure $fh -encoding binary -translation binary -eofchar {}
     puts -nonewline $fh $data
     close $fh
 }
