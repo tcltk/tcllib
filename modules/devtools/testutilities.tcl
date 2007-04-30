@@ -611,10 +611,28 @@ proc TestAccelExit {namespace} {
 ##
 
 proc TestFiles {pattern} {
-    foreach f [lsort -dict [glob -nocomplain -directory $::tcltest::testsDirectory $pattern]] {
+    if {[package vsatisfies [package provide Tcl] 8.3]} {
+	# 8.3+ -directory ok
+	set flist [glob -nocomplain -directory $::tcltest::testsDirectory $pattern]
+    } else {
+	# 8.2 or less, no -directory
+	set flist [glob -nocomplain [file join $::tcltest::testsDirectory $pattern]]
+    }
+    foreach f [lsort -dict $flist] {
 	uplevel 1 [list source $f]
     }
     return
+}
+
+proc TestFilesGlob {pattern} {
+    if {[package vsatisfies [package provide Tcl] 8.3]} {
+	# 8.3+ -directory ok
+	set flist [glob -nocomplain -directory $::tcltest::testsDirectory $pattern]
+    } else {
+	# 8.2 or less, no -directory
+	set flist [glob -nocomplain [file join $::tcltest::testsDirectory $pattern]]
+    }
+    return [lsort -dict $flist]
 }
 
 # ### ### ### ######### ######### #########
