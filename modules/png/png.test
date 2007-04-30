@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: png.test,v 1.9 2006/10/09 21:41:41 andreas_kupries Exp $
+# RCS: @(#) $Id: png.test,v 1.10 2007/04/30 22:47:14 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ testing {
 # -------------------------------------------------------------------------
 # Validation
 
-foreach f [glob [file join [file dirname [info script]] testimages *.png]] {
+foreach f [TestFilesGlob testimages/*.png] {
     set root [file rootname [file tail $f]]
 
     # All files have a valid signature, except for two.
@@ -48,7 +48,7 @@ foreach f [glob [file join [file dirname [info script]] testimages *.png]] {
 
 # Validation II, the bad files ...
 
-foreach f [glob [file join [file dirname [info script]] testimages x*.png]] {
+foreach f [TestFilesGlob testimages/x*.png] {
     set root [file rootname [file tail $f]]
 
     test png-validate-$root {full validation} {
@@ -217,7 +217,7 @@ array set expected {
     z09n2c08 {color 2 compression 0 depth 8 filter 0 height 32 interlace 0 width 32}
 }
 
-foreach f [lsort [glob [file join [file dirname [info script]] testimages *.png]]] {
+foreach f [TestFilesGlob testimages/*.png] {
     set root [file rootname [file tail $f]]
 
     # Files beginning with x are invalid, and thus not usable in these
@@ -239,7 +239,7 @@ array set exptime {
     cm9n0g04 946684799
 }
 
-foreach f [lsort [glob [file join [file dirname [info script]] testimages cm*.png]]] {
+foreach f [TestFilesGlob testimages/cm*.png] {
     set root [file rootname [file tail $f]]
 
     #puts [clock format $exptime($root) -gmt 1]
@@ -250,5 +250,57 @@ foreach f [lsort [glob [file join [file dirname [info script]] testimages cm*.pn
 }
 
 # -------------------------------------------------------------------------
+# Comments
 
+array set   comex {
+    ct1n0g04 {{Title PngSuite} {Author {Willem A.J. van Schaik
+(willem@schaik.com)}} {Copyright {Copyright Willem van Schaik, Singapore 1995-96}} {Description {A compilation of a set of images created to test the
+various color-types of the PNG format. Included are
+black&white, color, paletted, with alpha channel, with
+transparency formats. All bit-depths allowed according
+to the spec are present.}} {Software {Created on a NeXTstation color using "pnmtopng".}} {Disclaimer Freeware.}}   
+    ctzn0g04 {{Title PngSuite} {Author {Willem A.J. van Schaik
+(willem@schaik.com)}}}
+}
+
+# - Retrieval
+
+foreach f [TestFilesGlob testimages/*.png] {
+    set root [file rootname [file tail $f]]
+
+    # All files have a valid signature, except for two. These we ignore.
+    if {[string equal $root xcrn0g04]} continue
+    if {[string equal $root xlfn0g04]} continue
+    # All files are fully valid, except for all beginning with an
+    # 'x'. We ignore them as well.
+    if {[string match x* $root]} continue
+
+    test png-getcomment-$root {get comments} {
+	::png::getComments $f
+    } [expr {
+	     ![info exists comex($root)] ? "" : $comex($root)
+    }] ; # {}
+}
+
+# - Removal
+
+# Note: For a bad removeComments tests fail only on platforms where
+# the system encoding is not ASCII like, or the EOL is not a plain
+# LF. Windows for example, or asian systems.
+
+foreach root [array names comex] {
+    set f [localPath testimages/${root}.png]
+
+    test png-removecomment-$root {remove comments} {
+	set copy [makeFile {} pngrc.$root]
+	file copy -force $f $copy
+
+	::png::removeComments $copy
+	set res [list [::png::validate $copy] [::png::getComments $copy]]
+	removeFile pngrc.$root
+	set res
+    } {OK {}}
+}
+
+# -------------------------------------------------------------------------
 testsuiteCleanup

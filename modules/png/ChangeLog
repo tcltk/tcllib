@@ -1,3 +1,8 @@
+2007-04-30  Andreas Kupries  <andreask@activestate.com>
+
+	* png.test: Added tests for removeComments, also converted to use
+	  of 'TestFilesGlob'.
+
 2004-04-28  Aaron Faupell <afaupell@users.sourceforge.net>
 
 	* png.tcl: fixed output file encoding in removeComments
