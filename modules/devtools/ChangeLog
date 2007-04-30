@@ -1,3 +1,9 @@
+2007-04-30  Andreas Kupries  <andreask@activestate.com>
+
+	* testutilities.tcl: Made TestFiles 8.2-ready. Added command
+	  'TestFilesGlob' to simply return files instead of immediately
+	  sourcing them.
+
 2007-04-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl: Added 'TestFiles', a command to run a set of
