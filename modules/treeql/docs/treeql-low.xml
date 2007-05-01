@@ -16,7 +16,7 @@
       <name>apply</name>
       <args><arg>cmd</arg> <arg>args</arg></args>
       <result>returns the list of results of application</result>
-      <detail>apply [<arg>tree</arg> <arg>$node</arg> {expand}<arg>cmd</arg> {expand}<arg>args</arg>] form to each node in node set</detail>
+      <detail>apply [<arg>tree</arg> <arg>$node</arg> {*}<arg>cmd</arg> {*}<arg>args</arg>] form to each node in node set</detail>
     </method>
     
     <method>
@@ -24,7 +24,7 @@
       <name>sapply</name>
       <args><arg>cmd</arg> <arg>args</arg></args>
       <result>returns the concatenated strings of results of application</result>
-      <detail>apply [<arg>tree</arg> <arg>$node</arg> {expand}<arg>cmd</arg> {expand}<arg>args</arg>] form to each node in node set</detail>
+      <detail>apply [<arg>tree</arg> <arg>$node</arg> {*}<arg>cmd</arg> {*}<arg>args</arg>] form to each node in node set</detail>
     </method>
     
     <method>
@@ -32,7 +32,7 @@
       <name>applyself</name>
       <args><arg>cmd</arg> <arg>args</arg></args>
       <result>returns the list of results of the application</result>
-      <detail>apply [<arg>query</arg> {expand}<arg>cmd</arg> <arg>node</arg> {expand}<arg>args</arg>] to each <arg>node</arg>, discarding null results</detail>
+      <detail>apply [<arg>query</arg> {*}<arg>cmd</arg> <arg>node</arg> {*}<arg>args</arg>] to each <arg>node</arg>, discarding null results</detail>
     </method>
     
     <method>
@@ -40,7 +40,7 @@
       <name>mapself</name>
       <args><arg>cmd</arg></args>
       <result>returns the list of results of the application</result>
-      <detail>apply [<arg>query</arg> {expand}<arg>cmd</arg> <arg>node</arg> {expand}<arg>args</arg>] to each node in node set, keeping null results</detail>
+      <detail>apply [<arg>query</arg> {*}<arg>cmd</arg> <arg>node</arg> {*}<arg>args</arg>] to each node in node set, keeping null results</detail>
     </method>
     
   </group>
@@ -55,7 +55,7 @@
       <name>filter</name>
       <args><arg>cmd</arg> <arg>args</arg></args>
       <result>returns the list of results of application when application is non nil</result>
-      <detail>filter nodes by [<arg>tree</arg> {expand}<arg>cmd</arg> {expand}<arg>args</arg>]</detail>
+      <detail>filter nodes by [<arg>tree</arg> {*}<arg>cmd</arg> {*}<arg>args</arg>]</detail>
     </method>
     
     <method>
@@ -63,7 +63,7 @@
       <name>bool</name>
       <args><arg>cmd</arg> <arg>args</arg></args>
       <result>returns the list of results of application when application is true</result>
-      <detail>filter nodes by the predicate [<arg>tree</arg> {expand}<arg>cmd</arg> {expand}<arg>args</arg>]</detail>
+      <detail>filter nodes by the predicate [<arg>tree</arg> {*}<arg>cmd</arg> {*}<arg>args</arg>]</detail>
     </method>
     
     <method>
@@ -71,7 +71,7 @@
       <name>stringP</name>
       <args><arg>op</arg> <arg>attr</arg></args>
       <result>returns the list of nodes for which predicate is true</result>
-      <detail>filter nodes by predicate [string {expand}<arg>op</arg>] over attribute <arg>attr</arg></detail>
+      <detail>filter nodes by predicate [string {*}<arg>op</arg>] over attribute <arg>attr</arg></detail>
     </method>
     
     <method>
@@ -79,7 +79,7 @@
       <name>stringNP</name>
       <args><arg>op</arg> <arg>attr</arg></args>
       <result>returns the list of nodes for which predicate is false</result>
-      <detail>filter nodes by negating the predicate [string {expand}<arg>op</arg>] over attribute <arg>attr</arg></detail>
+      <detail>filter nodes by negating the predicate [string {*}<arg>op</arg>] over attribute <arg>attr</arg></detail>
     </method>
     
     <method>
@@ -87,7 +87,7 @@
       <name>exprP</name>
       <args><arg>op</arg> <arg>attr</arg></args>
       <result>returns the list of nodes for which predicate is true</result>
-      <detail>filter nodes by predicate [expr {expand}<arg>op</arg>] over attribute <arg>attr</arg></detail>
+      <detail>filter nodes by predicate [expr {*}<arg>op</arg>] over attribute <arg>attr</arg></detail>
     </method>
     
     <method>
@@ -95,7 +95,7 @@
       <name>exprNP</name>
       <args><arg>op</arg> <arg>attr</arg></args>
       <result>returns the list of nodes for which predicate is false</result>
-      <detail>filter nodes by predicate ![expr {expand}<arg>op</arg>] over attribute <arg>attr</arg></detail>
+      <detail>filter nodes by predicate ![expr {*}<arg>op</arg>] over attribute <arg>attr</arg></detail>
     </method>
 
   </group>
