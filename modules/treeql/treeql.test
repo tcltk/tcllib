@@ -14,66 +14,30 @@ testsNeedTcl     8.4
 testsNeedTcltest 1.0
 
 support {
-    use struct/list.tcl struct::list
-    use struct/sets.tcl struct::set
-    if {[useTcllibC]} {
-	useKeep struct/tree.tcl struct::tree
-    } else {
-	use     struct/tree.tcl struct::tree
-    }
     use snit/snit.tcl   snit
+    use struct/list.tcl struct::list
+
+    # TODO: Add accel handling
+    use struct/sets.tcl struct::set
+
+    useAccel [useTcllibC] struct/tree.tcl struct::tree
+    TestAccelInit                         struct::tree
 }
 testing {
     useLocal treeql.tcl treeql
 }
 
 # -------------------------------------------------------------------------
+# The global variable 'impl' is part of the public API the testsuite
+# (in treeql.testsuite) can expect from the environment.
 
-struct::tree::SwitchTo {}
-foreach e [struct::tree::KnownImpl] {
-    if {[::struct::tree::LoadAccel $e]} {
-	switch -exact -- $e {
-	    critcl {puts "> tree : tcllibc based"}
-	    tcl    {puts "> tree : pure Tcl"}
-	}
-    }
-}
-
-# -------------------------------------------------------------------------
-# We now run the tests. As they depend on a struct::tree, we have to
-# test all the available implementations.
-
-set tests [localPath treeql.testsuite]
-
-puts ""
-catch {memory validate on}
-
-foreach impl [struct::tree::Implementations] {
-    struct::tree::SwitchTo $impl
-
-    # The global variable 'impl' is part of the public API the
-    # testsuit (in htmlparse_tree.testsuite) can expect from the
-    # environment.
-
+TestAccelDo struct::tree impl {
     namespace import -force struct::tree
 
-    set usec [time {source $tests} 1]
-
-    #puts "$impl:\t$usec"
+    source [localPath treeql.testsuite]
 }
 
-catch {memory validate off}
-
-unset usec
-unset tests
-
-#puts ""
-
-# Reset system to fully inactive state.
-
-struct::tree::SwitchTo {}
-
 # -------------------------------------------------------------------------
-
+TestAccelExit struct::tree
 testsuiteCleanup
 return

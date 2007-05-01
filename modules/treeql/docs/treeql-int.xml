@@ -13,7 +13,7 @@
       <name>do_attr</name>
       <args><arg>node</arg> <arg>op</arg> <arg>attr</arg></args>
       <result>returns the result of functionally applying <arg>op</arg> to the node's attribute</result>
-      <detail>shim to perform operation {expand}<arg>op</arg> on attribute <arg>attr</arg> of <arg>node</arg></detail>
+      <detail>shim to perform operation {*}<arg>op</arg> on attribute <arg>attr</arg> of <arg>node</arg></detail>
     </function>
     
     <function>
