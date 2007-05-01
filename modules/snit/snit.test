@@ -693,6 +693,7 @@ test dtypemethod-1.5 {delegating unknown typemethods to existing typecomponent} 
     dog destroy
 } -result {3}
 
+# Case 1
 test dtypemethod-1.6 {delegating unknown typemethod to existing typecomponent with error} -body {
     type dog {
         delegate typemethod * to stringhandler
@@ -703,9 +704,27 @@ test dtypemethod-1.6 {delegating unknown typemethod to existing typecomponent wi
     }
 
     dog foo bar
+} -constraints {
+    snit1
 } -returnCodes {
     error
 } -result {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
+
+test dtypemethod-1.6a {delegating unknown typemethod to existing typecomponent with error} -body {
+    type dog {
+        delegate typemethod * to stringhandler
+
+        typeconstructor {
+            set stringhandler string
+        }
+    }
+
+    dog foo bar
+} -constraints {
+    snit2
+} -returnCodes {
+    error
+} -result {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
 
 test dtypemethod-1.7 {can't delegate local typemethod: order 1} -body {
     type dog {
@@ -3229,11 +3248,32 @@ test dmethod-1.6 {delegating unknown method to existing component with error} -b
 
     dog create spot
     spot foo bar
+} -constraints {
+    snit1
 } -returnCodes {
     error
 } -cleanup {
     dog destroy
 } -result {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
+
+test dmethod-1.6a {delegating unknown method to existing component with error} -body {
+    type dog {
+        constructor {args} {
+            set stringhandler string
+        }
+
+        delegate method * to stringhandler
+    }
+
+    dog create spot
+    spot foo bar
+} -constraints {
+    snit2
+} -returnCodes {
+    error
+} -cleanup {
+    dog destroy
+} -result {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
 
 test dmethod-1.7 {can't delegate local method: order 1} -body {
     type cat {
@@ -5788,9 +5828,21 @@ test expose-1.1 {can't expose nothing} -body {
     type dog {
 	expose
     }
+} -constraints {
+    snit1
 } -returnCodes {
     error
 } -result [tcltest::wrongNumArgs ::snit::Comp.statement.expose {component ?as? ?methodname?} 0]
+
+test expose-1.1a {can't expose nothing} -body {
+    type dog {
+	expose
+    }
+} -constraints {
+    snit2
+} -returnCodes {
+    error
+} -result [tcltest::wrongNumArgs expose {component ?as? ?methodname?} 0]
 
 test expose-1.2 {expose a component that's never installed} -body {
     type dog {
