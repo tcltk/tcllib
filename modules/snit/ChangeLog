@@ -1,3 +1,9 @@
+2007-05-01  Andreas Kupries  <andreask@activestate.com>
+
+	* main2.tcl: [Bug 1710640]. Replaced deprecated {expand} with {*}.
+
+	* snit.test: Updated to changes in 8.5a6.
+
 2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* snit.man: Fixed all warnings due to use of now deprecated
