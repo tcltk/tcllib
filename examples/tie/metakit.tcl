@@ -58,7 +58,7 @@ snit::type mktie {
 	mk::loop c tqs.$options(-var) {
 	    set val [mk::get $c name text]
 	    #puts stderr "get $options(-var)(\#$c) - $val"
-	    dict set dict {expand}$val
+	    dict set dict {*}$val
 	}
 	return $dict
     }

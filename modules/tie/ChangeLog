@@ -1,3 +1,8 @@
+2007-05-01  Andreas Kupries <andreask@activestate.com>
+
+	* examples/tie/metakit.tcl (get): Updated to use {*} instead of
+	  the deprecated {expand}.
+
 2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tie.man: Fixed all warnings due to use of now deprecated
