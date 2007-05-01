@@ -6,7 +6,7 @@
 #
 # 20040930 Colin McCormack - initial release to tcllib
 #
-# RCS: @(#) $Id: treeql85.tcl,v 1.1 2005/10/21 19:32:43 andreas_kupries Exp $
+# RCS: @(#) $Id: treeql85.tcl,v 1.2 2007/05/01 17:00:25 andreas_kupries Exp $
 
 package require Tcl 8.5
 package require snit
@@ -23,31 +23,31 @@ snit::type ::treeql {
 	return $tree
     }
 
-    # apply the [$tree cmd {expand}$args] form to each node
+    # apply the [$tree cmd {*}$args] form to each node
     # returns the list of results of application
     method apply {cmd args} {
 	set result {}
 	foreach node $nodes {
 	    if {[catch {
-		$tree {expand}$cmd $node {expand}$args
+		$tree {*}$cmd $node {*}$args
 	    } application eo]} {
 		puts stderr "apply ERROR: $tree $cmd $node $args -> $application - $eo"
 	    } else {
 		#puts stderr "Apply: $tree $cmd $node $args -> $application"
-		lappend result {expand}$application
+		lappend result {*}$application
 	    }
 	}
 
 	return $result
     }
 
-    # filter nodes by [$tree cmd {expand}$args]
+    # filter nodes by [$tree cmd {*}$args]
     # returns the list of results of application when application is non nil
     method filter {cmd args} {
 	set result {}
 	foreach node $nodes {
 	    if {[catch {
-		$tree {expand}$cmd $node {expand}$args
+		$tree {*}$cmd $node {*}$args
 	    } application eo]} {
 		puts stderr "filter ERROR: $tree $cmd $node $args -> $application - $eo"
 	    } else {
@@ -60,12 +60,12 @@ snit::type ::treeql {
 	return $result
     }
 
-    # filter nodes by the predicate [$tree cmd {expand}$args]
+    # filter nodes by the predicate [$tree cmd {*}$args]
     # returns the list of results of application when application is true
     method bool {cmd args} {
 
 	#puts stderr "Bool: $tree $cmd - $args"
-	#set result [::struct::list filter $nodes [list $tree $cmd {expand}$args]]
+	#set result [::struct::list filter $nodes [list $tree $cmd {*}$args]]
 	#puts stderr "Bool: $tree $cmd - $nodes - $args -> $result"
 	#return $result
 
@@ -73,7 +73,7 @@ snit::type ::treeql {
 	set result {}
 	foreach node $nodes {
 	    if {[catch {
-		$tree {expand}$cmd $node {expand}$args
+		$tree {*}$cmd $node {*}$args
 	    } application eo]} {
 		puts stderr "bool ERROR: $tree $cmd $node $args -> $application - $eo"
 	    } else {
@@ -93,12 +93,12 @@ snit::type ::treeql {
 	set result {}
 	foreach node $nodes {
 	    if {[catch {
-		$query {expand}$cmd $node {expand}$args
+		$query {*}$cmd $node {*}$args
 	    } application eo]} {
 		puts stderr "applyself ERROR: $tree $cmd $node $args -> $application - $eo"
 	    } else {
 		if {[llength $application]} {
-		    lappend result {expand}$application
+		    lappend result {*}$application
 		}
 	    }
 	}
@@ -112,7 +112,7 @@ snit::type ::treeql {
 	set result {}
 	foreach node $nodes {
 	    if {[catch {
-		$query {expand}$cmd $node {expand}$args
+		$query {*}$cmd $node {*}$args
 	    } application eo]} {
 		puts stderr "mapself ERROR: $tree $cmd $node $args -> $application - $eo"
 	    } else {
@@ -128,13 +128,13 @@ snit::type ::treeql {
     method do_attr {node op attr} {
 	set attrv [$tree get $node $attr]
 	#puts stderr "$self do_attr node:'$node' op:'$op' attr:'$attr' attrv:'$attrv'"
-	return [{expand}$op $attrv]
+	return [{*}$op $attrv]
     }
 
     # filter nodes by predicate [string $op] over attribute $attr
     method stringP {op attr args} {
 	set n {}
-	set map [$self mapself do_attr [list string {expand}$op] $attr]
+	set map [$self mapself do_attr [list string {*}$op] $attr]
 	foreach result $map node $nodes {
 	    #puts stderr "$self stringP $op $attr -> $result - $node"
 	    if {$result} {
@@ -148,7 +148,7 @@ snit::type ::treeql {
     # filter nodes by negated predicate [string $op] over attribute $attr
     method stringNP {op attr args} {
 	set n {}
-	set map [$self mapself do_attr [list string {expand}$op] $attr]
+	set map [$self mapself do_attr [list string {*}$op] $attr]
 	foreach result $map node $nodes {
 	    if {!$result} {
 		lappend n $node
@@ -158,10 +158,10 @@ snit::type ::treeql {
 	return $args
     }
 
-    # filter nodes by predicate [expr {expand}$op] over attribute $attr
+    # filter nodes by predicate [expr {*}$op] over attribute $attr
     method exprP {op attr args} {
 	set n {}
-	set map [$self mapself do_attr [list expr {expand}$op] $attr]
+	set map [$self mapself do_attr [list expr {*}$op] $attr]
 	foreach result $map node $nodes {
 	    if {$result} {
 		lappend n $node
@@ -171,10 +171,10 @@ snit::type ::treeql {
 	return $args
     }
 
-    # filter nodes by predicate ![expr {expand}$op] over attribute $attr
+    # filter nodes by predicate ![expr {*}$op] over attribute $attr
     method exprNP {op attr args} {
 	set n {}
-	set map [$self mapself do_attr [list expr {expand}$op] $attr]
+	set map [$self mapself do_attr [list expr {*}$op] $attr]
 	foreach result $map node $nodes {
 	    if {!$result} {
 		lappend n $node
@@ -325,7 +325,7 @@ snit::type ::treeql {
 	set children [$tree children $node]
 	foreach child $children {
 	    set descendants [$self do_subtree $child]
-	    lappend nodeset {expand}$descendants
+	    lappend nodeset {*}$descendants
 	}
 	#puts stderr "do_subtree $node -> $nodeset"
 	return $nodeset
@@ -338,7 +338,7 @@ snit::type ::treeql {
 	foreach node $nodes {
 	    set subtree [$self do_subtree $node]
 	    set descendants [lrange $subtree 1 end]
-	    lappend nodeset {expand}$descendants
+	    lappend nodeset {*}$descendants
 	}
 	set nodes $nodeset
 	return $args
@@ -349,7 +349,7 @@ snit::type ::treeql {
 	set nodeset {}
 	foreach node $nodes {
 	    set descendants [$self do_subtree $node]
-	    lappend nodeset {expand}$descendants
+	    lappend nodeset {*}$descendants
 	}
 	set nodes $nodeset
 	return $args
@@ -404,12 +404,12 @@ snit::type ::treeql {
 
     # Reduce to nodes of @type $t
     method oftype {t args} {
-	return [$self stringP [list equal -nocase $t] @type {expand}$args]
+	return [$self stringP [list equal -nocase $t] @type {*}$args]
     }
 
     # Reduce to nodes not of @type $t
     method nottype {t args} {
-	return [$self stringNP [list equal -nocase $t] @type {expand}$args]
+	return [$self stringNP [list equal -nocase $t] @type {*}$args]
     }
 
     # Reduce to nodes whose @type is one of $attrs
@@ -442,12 +442,12 @@ snit::type ::treeql {
     # Reduce to nodes with attribute $attr of $value
     method withatt {attr value args} {
 	$self hasatt $attr	;# only nodes with attribute
-	return [$self stringP [list equal -nocase $value] $attr {expand}$args]
+	return [$self stringP [list equal -nocase $value] $attr {*}$args]
     }
 
     # Reduce to nodes with attribute $attr of $value
     method withatt! {attr val args} {
-	return [$self stringP [list equal $val] $attr {expand}$args]
+	return [$self stringP [list equal $val] $attr {*}$args]
     }
 
     # Reduce to nodes with attribute $attr value one of $vals
@@ -467,7 +467,7 @@ snit::type ::treeql {
 
     # Reduce to nodes whose attribute $attr string matches $match
     method attmatch {attr match args} {
-	$self stringP [list match {expand}$match] $attr
+	$self stringP [list match {*}$match] $attr
 	return $args
     }
 
@@ -485,7 +485,7 @@ snit::type ::treeql {
 
     # apply string operation $op to attribute $attr on each node
     method string {op attr} {
-	set nodes [$self mapself do_attr [list string {expand}$op] $attr]
+	set nodes [$self mapself do_attr [list string {*}$op] $attr]
 	return {}	;# terminate query
     }
 
@@ -512,7 +512,7 @@ snit::type ::treeql {
     # return result of new query $query, preserving current node set
     method subquery {args} {
 	set org $nodes	;# save current node set
-	set new [uplevel 1 [list $query query {expand}$args]]
+	set new [uplevel 1 [list $query query {*}$args]]
 	set nodes $org	;# restore old node set
 
 	return $new
@@ -520,7 +520,7 @@ snit::type ::treeql {
 
     # perform a subquery and and in the result
     method andq {q args} {
-	$self and [uplevel 1 [list $self subquery {expand}$q]]
+	$self and [uplevel 1 [list $self subquery {*}$q]]
 	return $args
     }
 
@@ -533,7 +533,7 @@ snit::type ::treeql {
 
     # perform a subquery and or in the result
     method orq {q args} {
-	$self or [uplevel 1 [list $self subquery {expand}$q]]
+	$self or [uplevel 1 [list $self subquery {*}$q]]
 	return $args
     }
 
@@ -545,7 +545,7 @@ snit::type ::treeql {
 
     # perform a subquery and return the set of nodes not in the result
     method notq {q args} {
-	$self not [uplevel 1 [list $self subquery {expand}$q]]
+	$self not [uplevel 1 [list $self subquery {*}$q]]
 	return $args
     }
 
@@ -559,7 +559,7 @@ snit::type ::treeql {
     method transform {q var body args} {
 	upvar 1 $var iter
 	set new {}
-	foreach n [uplevel 1 [list $self subquery {expand}$q]] {
+	foreach n [uplevel 1 [list $self subquery {*}$q]] {
 	    set iter $n
 	    switch -exact -- [catch {
 		uplevel 1 $body
@@ -634,7 +634,7 @@ snit::type ::treeql {
     # perform a subquery $query then map $body over results
     method foreach {q var body args} {
 	upvar 1 $var iter
-	foreach n [uplevel 1 [list $self subquery {expand}$q]] {
+	foreach n [uplevel 1 [list $self subquery {*}$q]] {
 	    set iter $n
 	    uplevel 1 $body
 	}
@@ -646,7 +646,7 @@ snit::type ::treeql {
 	# save current node set, implied reset
 	set org $nodes; set nodes {}
 
-	uplevel 1 [list $self query {expand}$q]
+	uplevel 1 [list $self query {*}$q]
 	set result [uplevel 1 $body]
 
 	# restore old node set
@@ -671,7 +671,7 @@ snit::type ::treeql {
 	# iterate over the args, treating each as a method invocation
 	while {$args != {}} {
 	    #puts stderr "query $self $args"
-	    set args [uplevel 1 [list $query {expand}$args]]
+	    set args [uplevel 1 [list $query {*}$args]]
 	    #puts stderr "-> $nodes"
 	}
 
@@ -722,7 +722,7 @@ snit::type ::treeql {
 
 	set tree [from args -tree ""]
 
-	uplevel 1 [list $self query {expand}$args]
+	uplevel 1 [list $self query {*}$args]
     }
 
     # Return result, and destroy this query
