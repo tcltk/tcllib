@@ -1,3 +1,12 @@
+2007-05-01  Andreas Kupries  <andreask@activestate.com>
+
+	* comm.tcl: Added ability to asynchronously generate script
+	* comm.man: results. Enables proper handling of long-running
+	* comm.test: operations (like db queries) without blocking the
+	* comm.slaveboot: server, nor requiring nested eventloops. 
+	* pkgIndex.tcl: Extended documentation, and testsuite. Version
+	  bumped to 4.5. Now depending on snit, and Tcl 8.3.
+
 2007-03-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* comm.man: Fixed all warnings due to use of now deprecated
