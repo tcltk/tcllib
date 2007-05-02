@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: comm.test,v 1.9 2006/10/09 21:41:40 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.test,v 1.10 2007/05/02 00:30:08 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -18,6 +18,10 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
+support {
+    # Using snit1 here, whatever the version of Tcl
+    use snit/snit.tcl snit
+}
 testing {
     useLocal comm.tcl comm
 }
@@ -166,6 +170,79 @@ test comm-3.4 {-interp use for -events scripts, eval} {
     comm::comm send [slave] {FOO destroy}
     set res
 } 2
+
+# ------------------------------------------------------------------------
+
+test comm-4.0 {async generation of result on remote side} {
+    ::comm::comm send [slave] {
+	proc future {} {
+	    set f [comm::comm return_async]
+	    after 3000 [list $f return "delayed $f"]
+	    return ignored
+	}
+    }
+    ::comm::comm send [slave] {future}
+} {delayed ::comm::future1}
+
+test comm-4.1 {async reception of a result via callback} {
+    set res {}
+    proc foo {args} {
+	array set tmp $args
+	unset tmp(-id)
+	unset tmp(-serial)
+	global res ; lappend res [dictsort [array get tmp]]
+    }
+    ::comm::comm send -command foo [slave] {list $foo $fox}
+    vwait res
+    rename foo {}
+    set res
+} {{-chan ::comm::comm -code 0 -errorcode {} -errorinfo {} -result {b a}}}
+
+
+
+test comm-4.2 {async generation/reception of results in parallel} {
+
+    # Setup long running operations with async result generation.
+    ::comm::comm send [slave] {
+	proc future {n x} {
+	    set f [comm::comm return_async]
+	    after $n [list $f return "delayed $x"]
+	    return ignored
+	}
+    }
+
+    # Setup async receiver callback.
+    proc receive {args} {
+	global res tick tock
+	array set tmp $args
+	unset tmp(-id)
+	unset tmp(-serial)
+	unset tmp(-chan)
+	unset tmp(-code)
+	unset tmp(-errorcode)
+	unset tmp(-errorinfo)
+	lappend res [dictsort [array get tmp]]
+	incr tock -1
+	if {!$tock} {set tick .}
+	return
+    }
+
+    # Execute two requests, the second of which is returns before the first.
+    # The main point is that the server does process it due to first doing
+    # an async return.
+
+    set tick .
+    set tock 2
+    set res {}
+
+    ::comm::comm send -command receive [slave] {future 5000 A}
+    ::comm::comm send -command receive [slave] {future 2500 B}
+    vwait tick
+    rename receive {}
+    set res
+    # B returned before A, A was sent before B
+} {{-result {delayed B}} {-result {delayed A}}}
+
 
 # ------------------------------------------------------------------------
 
