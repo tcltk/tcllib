@@ -1,11 +1,11 @@
-[manpage_begin comm n 4.4.1]
+[manpage_begin comm n 4.5]
 [copyright {1995-1998 The Open Group. All Rights Reserved.}]
 [copyright {2003-2004 ActiveState Corporation.}]
 [copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Remote communication}]
-[titledesc {A remote communication facility for Tcl (7.6, 8.0, and later)}]
-[require Tcl 8.2]
-[require comm [opt 4.4.1]]
+[titledesc {A remote communication facility for Tcl (8.3 and later)}]
+[require Tcl 8.3]
+[require comm [opt 4.5]]
 [description]
 
 [para]
@@ -707,6 +707,123 @@ event loop (since [package comm] doesn't require Tk).  One of these
 approaches will be available in a future [package comm] release as an
 optional component.
 
+[subsection {ASYNCHRONOUS RESULT GENERATION}]
+
+By default the result returned by a remotely invoked command is the
+result sent back to the invoker. This means that the result is
+generated synchronously, and the server handling the call is blocked
+for the duration of the command.
+
+[para]
+
+While this is tolerable as long as only short-running commands are
+invoked on the server long-running commands, like database queries
+make this a problem. One command can prevent the processing requests
+of all other clients for an arbitrary period of time.
+
+[para]
+
+Before version 4.5 of comm the only solution was to rewrite the server
+command to use the Tcl builtin command [cmd vwait], or one of its
+relatives like [cmd tkwait], to open a new event loop which processes
+requests while the long-running operation is executed. This however
+has its own perils, as this makes it possible to both overflow the Tcl
+stack with a large number of event loop, and to have a newer requests
+block the return of older ones, as the eventloop have to be unwound in
+the order of their creation.
+
+[para]
+
+The proper solution is to have the invoked command indicate to
+[package comm] that it cannot or will not deliver an immediate,
+synchronous result, but will do so later. At that point the framework
+can put sending the actual result on hold and continue processing
+requests using the main event loop. No blocking, no nesting of event
+loops. At some future date the long running operation delivers the
+result to comm, via the future object, which is then forwarded to the
+invoker as usual.
+
+[para]
+
+The necessary support for this solution has been added to comm since
+version 4.5, in the form of the new method [method return_async].
+
+[list_begin definitions]
+[call [cmd {::comm::comm return_async}]]
+
+This command is used by a remotely invoked script to notify the comm
+channel which invoked it that the result to send back to the invoker
+is not generated synchronously. If this command is not called the
+default/standard behaviour of comm is to send the synchronously
+generated result of the script itself to the invoker.
+
+[para]
+
+The result of [cmd return_async] is an object. This object, called a
+[term future] is where the result of the script has to be delivered to
+when it becomes ready. When that happens it will take all the
+necessary actions to deliver the result to the invoker of the script,
+and then destroy itself. Should comm have lost the connection to the
+invoker while the result is being computed the future will not try to
+deliver the result it got, but just destroy itself. The future can be
+configured with a command to call when the invoker is lost. This
+enables the user to implement an early abort of the long-running
+operation, should this be supported by it.
+
+[para]
+An example:
+
+[example {
+# Procedure invoked by remote clients to run database operations.
+proc select {sql} {
+    # Signal the async generation of the result
+
+    set future [::comm::comm return_async]
+
+    # Generate an async db operation and tell it where to deliver the result.
+
+    set query [db query -command [list $future return] $sql]
+
+    # Tell the database system which query to cancel if the connection
+    # goes away while it is running.
+
+    $future configure -command [list db cancel $query]
+
+    # Note: The above will work without problem only if the async
+    # query will nover run its completion callback immediately, but
+    # only from the eventloop. Because otherwise the future we wish to
+    # configure may already be gone. If that is possible use 'catch'
+    # to prevent the error from propagating.
+    return
+}
+}]
+[para]
+
+The API of a future object is:
+
+[list_begin definitions]
+[call [cmd \$future] [method return] [opt "[option -code] [arg code]"] [opt [arg value]]]
+
+Use this method to tell the future that long-running operation has
+completed. Arguments are an optional return value (defaults to the
+empty string), and the Tcl return code (defaults to OK).
+
+[para]
+
+The future will deliver this information to invoker, if the connection
+was not lost in the meantime, and then destroy itself. If the
+connection was lost it will do nothing but destroy itself.
+
+[call [cmd \$future] [method configure] [opt "[option -command] [opt [arg cmdprefix]]"]]
+[call [cmd \$future] [method cget] [option -command]]
+
+These methods allow the user to retrieve and set a command to be
+called if the connection the future belongs to has been lost.
+
+[list_end]
+
+[list_end]
+
 [subsection COMPATIBILITY]
 [para]
 
@@ -728,6 +845,15 @@ Note that requiring no version (or a specific version) can also be done.
 The revision history of [package comm] includes these releases:
 
 [list_begin definitions]
+
+[def 4.5]
+
+New server-side feature. The command invoked on the server can now
+switch comm from the standard synchronous return of its result to an
+asynchronous (defered) return. Due to the use of snit to implement the
+[term future] objects used by this feature from this version on comm
+requires at least Tcl 8.3 to run. Please read the section
+[sectref {ASYNCHRONOUS RESULT GENERATION}] for more details.
 
 [def 4.4.1]
 
