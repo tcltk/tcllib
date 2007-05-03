@@ -249,6 +249,9 @@ proc ppackages {args} {
 	    if {![regexp {provide} $line]} {continue}
 	    if {![regexp {package} $line]} {continue}
 
+	    # Now a stronger check for the actual command
+	    if {![regexp {package[ 	][ 	]*provide} $line]} {continue}
+
 	    set xline $line
 	    regsub {^.*provide } $line {} line
 	    regsub {\].*$}       $line {\1} line
