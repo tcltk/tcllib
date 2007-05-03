@@ -21,7 +21,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: sha1.tcl,v 1.20 2006/10/13 06:23:28 andreas_kupries Exp $
+# $Id: sha1.tcl,v 1.21 2007/05/03 21:41:10 andreas_kupries Exp $
 
 # @mdgen EXCLUDE: sha1c.tcl
 
@@ -29,7 +29,7 @@ package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::sha1 {
     variable  version 2.0.3
-    variable  rcsid {$Id: sha1.tcl,v 1.20 2006/10/13 06:23:28 andreas_kupries Exp $}
+    variable  rcsid {$Id: sha1.tcl,v 1.21 2007/05/03 21:41:10 andreas_kupries Exp $}
 
     variable  accel
     array set accel {tcl 0 critcl 0 cryptkit 0 trf 0}
@@ -798,7 +798,7 @@ proc ::sha1::hmac {args} {
 
 # Try and load a compiled extension to help.
 namespace eval ::sha1 {
-    variable e
+    variable e {}
     foreach e [KnownImplementations] {
 	if {[LoadAccelerator $e]} {
 	    SwitchTo $e
