@@ -28,7 +28,7 @@ package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::sha2 {
     variable version 1.0.2
-    variable rcsid {$Id: sha256.tcl,v 1.5 2007/03/23 17:30:42 andreas_kupries Exp $}
+    variable rcsid {$Id: sha256.tcl,v 1.6 2007/05/03 21:41:10 andreas_kupries Exp $}
 
     variable  accel
     array set accel {tcl 0 critcl 0}
@@ -818,7 +818,7 @@ proc ::sha2::hmac {args} {
 
 # Try and load a compiled extension to help.
 namespace eval ::sha2 {
-    variable e
+    variable e {}
     foreach e [KnownImplementations] {
 	if {[LoadAccelerator $e]} {
 	    SwitchTo $e
