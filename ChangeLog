@@ -1,3 +1,9 @@
+2007-05-03  Andreas Kupries  <andreask@activestate.com>
+
+	* sak.tcl: Added stronger check for 'package provided' command to
+	  'ppackages'. Code in critcl.tcl generated for tcllibc slips past
+	  the less strong filters.
+
 2007-03-21  Andreas Kupries  <andreask@activestate.com>
 
 	* Changed all documentation files (*.man). Replaced all deprecated
