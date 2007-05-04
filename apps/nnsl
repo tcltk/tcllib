@@ -1,0 +1,201 @@
+#! /bin/sh
+# -*- tcl -*- \
+exec tclsh "$0" ${1+"$@"}
+
+# @@ Meta Begin
+# Application nnsl 1.0
+# Meta platform     tcl
+# Meta summary      Nano Name Service Listing
+# Meta description  This application connects to a name service demon
+# Meta description  and queries its contents.
+# Meta subject      {name service} list
+# Meta require      {Tcl 8.4}
+# Meta require      comm
+# Meta require      logger
+# Meta require      nameserv::common
+# Meta require      nameserv
+# Meta require      report
+# Meta require      struct::matrix
+# Meta author       Andreas Kupries
+# Meta license      BSD
+# @@ Meta End
+
+package provide nnsl 1.0
+
+# nnsl - Nano Name Service Lister
+# ==== = ========================
+#
+# Use cases
+# ---------
+# 
+# (1)	Query a nano name service
+#	
+# Command syntax
+# --------------
+#
+# Ad 1) nnsl ?-host NAME|IP? ?-port PORT?
+#
+#       Query the server. If no port is specified the default port 38573
+#       is used to connect to it. If no host is specified the default
+#       (localhost) is used to connect to it.
+
+lappend auto_path [file join [file dirname [file dirname [file normalize [info script]]]] modules]
+
+package require nameserv
+package require report
+package require struct::matrix
+
+namespace eval ::nnsl {}
+
+proc ::nnsl::ProcessCommandLine {} {
+    global argv
+    variable xmode 1 ;# plainis default
+
+    # Process the options, perform basic validation.
+
+    while {[llength $argv]} {
+	set opt [lindex $argv 0]
+	if {![string match "-*" $opt]} break
+
+	switch -exact -- $opt {
+	    -host {
+		if {[llength $argv] % 2 == 1} Usage
+
+		set host [lindex $argv 1]
+		set argv [lrange $argv 2 end]
+
+		nameserv::configure -host $host
+	    }
+	    -port {
+		if {[llength $argv] % 2 == 1} Usage
+
+		# Todo: Check non-zero unsigned short integer
+		set port [lindex $argv 1]
+		set argv [lrange $argv 2 end]
+
+		nameserv::configure -port $port
+	    }
+	    -plain  {
+		if {[llength $argv] % 2 == 1} Usage
+
+		# Todo: Check boolean
+		set xmode [lindex $argv 1]
+		set argv  [lrange $argv 2 end]
+	    }
+	    -debug {
+		# Undocumented. Activate the logger services provided
+		# by various packages.
+		logger::setlevel debug
+		set argv [lrange $argv 1 end]
+	    }
+	    default {
+		Usage
+	    }
+	}
+    }
+
+    # Additional validation, and extraction of the non-option
+    # arguments. Of which this application has none.
+
+    if {[llength $argv]} Usage
+    return
+}
+
+proc ::nnsl::Usage {} {
+    global argv0
+    puts stderr "$argv0 wrong#args, expected:\
+	    ?-host NAME|IP? ?-port PORT? ?-plain BOOL?"
+    exit 1
+}
+
+proc ::nnsl::ArgError {text} {
+    global argv0
+    puts stderr "$argv0: $text"
+    exit 1
+}
+
+# ### ### ### ######### ######### #########
+## Setup a text|graphical report
+
+proc ::nnsl::Write {plain text} {
+
+    if {!$plain} {
+	package require term::ansi::send
+	package require term::ansi::code::macros
+
+	term::ansi::code::macros::import mt
+	term::ansi::send::import         vt
+
+	vt::init
+	set text [mt::frame $text]
+
+	puts "   [join [split $text \n] "\n   "]"
+	puts ""
+    } else {
+	puts "    [join [split $text \n] "\n    "]"
+	puts ""
+    }
+    return
+}
+
+proc ::nnsl::blank {s} {
+    regsub -all -- {[^	]} $s { } s
+    return $s
+}
+
+# ### ### ### ######### ######### #########
+## Main
+
+proc ::nnsl::Do {} {
+    global argv0
+    variable xmode
+
+    ProcessCommandLine
+
+    set mp [nameserv::protocol]
+    set sp [nameserv::server_protocol]
+    set sf [join [nameserv::server_features] {, }]
+
+    if {[llength $sf] > 1} {
+	set sf [linsert $sf end-1 and]
+    }
+
+    set app "$argv0 [package require nnsl]"
+    set pfx [blank $app]
+
+    puts "$app (Client Protocol $mp)"
+    puts "$pfx (Server Protocol $sp, Features: $sf)"
+
+    # Test: Register self ...
+    # nameserv::bind NNSL @home
+
+
+    set contents [nameserv::search]
+
+    if {![llength $contents]} {
+	puts "Nothing found..."
+	return
+    }
+
+    struct::matrix M
+    M add columns 2
+
+    foreach {name data} $contents {
+	M add row [list $name $data]
+    }
+
+    Write $xmode [M format 2string]
+    return
+}
+
+# ### ### ### ######### ######### #########
+## Invoking the functionality.
+
+if {[catch {
+    ::nnsl::Do
+} msg]} {
+    ::nnsl::ArgError $msg
+}
+
+# ### ### ### ######### ######### #########
+exit
