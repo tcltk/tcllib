@@ -1,11 +1,11 @@
-[manpage_begin comm n 4.5]
+[manpage_begin comm n 4.5.1]
 [copyright {1995-1998 The Open Group. All Rights Reserved.}]
 [copyright {2003-2004 ActiveState Corporation.}]
 [copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Remote communication}]
 [titledesc {A remote communication facility for Tcl (8.3 and later)}]
 [require Tcl 8.3]
-[require comm [opt 4.5]]
+[require comm [opt 4.5.1]]
 [description]
 
 [para]
@@ -845,6 +845,13 @@ Note that requiring no version (or a specific version) can also be done.
 The revision history of [package comm] includes these releases:
 
 [list_begin definitions]
+
+[def 4.5.1]
+
+Bugfixes in the handling of -interp for regular scripts. The handling
+of the buffer was wrong for scripts which are a single statement as
+list. Fixed missing argument to new command [cmd commSendReply],
+introduced by version 4.5. Affected debugging.
 
 [def 4.5]
 

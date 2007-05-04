@@ -22,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.24 2007/05/02 00:30:08 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.25 2007/05/04 21:10:56 andreas_kupries Exp $
 
 package require Tcl 8.3
 package require snit ; # comm::future objects.
@@ -221,7 +221,7 @@ proc ::comm::comm_cmd_return_async {chan} {
     # cancel them if the peer is lost before the promise implicit in
     # the future is redeemed.
 
-    set future [::comm::future %AUTO% $cmdfid $cmd $ser]
+    set future [::comm::future %AUTO% $chan $cmdfid $cmd $ser]
 
     lappend comm(future,fid,$cmdfid) $future
     set     comm(current,state)      $future
@@ -1319,7 +1319,8 @@ proc ::comm::commExec {chan fid remoteid buf} {
 		set thecmd [linsert $buffer 0 interp invokehidden $interp uplevel \#0]
 		set err [catch $thecmd ret]
 	    } else {
-		set err [catch {interp eval $interp $buffer} ret]
+		set thecmd [concat [list interp eval $interp] $buffer]
+		set err [catch $thecmd ret]
 	    }
 	}
     }
@@ -1327,7 +1328,7 @@ proc ::comm::commExec {chan fid remoteid buf} {
     # Check and handle possible async result generation.
     if {[AsyncCheck]} return
 
-    commSendReply $fid $cmd $ser $err $ret
+    commSendReply $chan $fid $cmd $ser $err $ret
     return
 }
 
@@ -1346,7 +1347,7 @@ proc ::comm::commExec {chan fid remoteid buf} {
 # Results:
 #	None.
 
-proc ::comm::commSendReply {fid cmd ser err ret} {
+proc ::comm::commSendReply {chan fid cmd ser err ret} {
     variable comm
 
     commDebug {puts stderr "<$chan> res <$err,$ret> /$cmd"}
@@ -1481,9 +1482,9 @@ proc ::comm::AsyncCheck {} {
 # generated result to the proper invoker. This also removes the future
 # from the list of pending futures for the comm channel.
 
-proc comm::FutureDone {future fid cmd sid rcode rvalue} {
+proc comm::FutureDone {future chan fid cmd sid rcode rvalue} {
     variable comm
-    commSendReply $fid $cmd $sid $rcode $rvalue
+    commSendReply $chan $fid $cmd $sid $rcode $rvalue
 
     set pos [lsearch -exact $comm(future,fid,$fid) $future]
     set comm(future,fid,$fid) [lreplace $comm(future,fid,$fid) $pos $pos]
@@ -1562,10 +1563,11 @@ proc ::comm::InitWrappers {} {
 snit::type comm::future {
     option -command -default {}
 
-    constructor {fid cmd ser} {
-	set xfid $fid
-	set xcmd $cmd
-	set xser $ser
+    constructor {chan fid cmd ser} {
+	set xfid  $fid
+	set xcmd  $cmd
+	set xser  $ser
+	set xchan $chan
 	return
     }
 
@@ -1598,7 +1600,7 @@ snit::type comm::future {
 	}
 
 	if {!$canceled} {
-	    comm::FutureDone $self $xfid $xcmd $xser $rcode $rvalue
+	    comm::FutureDone $self $xchan $xfid $xcmd $xser $rcode $rvalue
 	    set canceled 1
 	}
 	# assert: canceled == 1
@@ -1606,9 +1608,10 @@ snit::type comm::future {
 	return
     }
 
-    variable xfid {}
-    variable xcmd {}
-    variable xser {}
+    variable xfid  {}
+    variable xcmd  {}
+    variable xser  {}
+    variable xchan {}
     variable canceled 0
 
     # Internal method for use by comm channels. Marks the future as
@@ -1643,4 +1646,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.5
+package provide comm 4.5.1
