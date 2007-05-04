@@ -1,3 +1,12 @@
+2007-05-04  Andreas Kupries  <andreask@activestate.com>
+
+	* comm.tcl: Bugfixes in the handling of -interp for regular
+	* comm.man: scripts. The handling of the buffer was wrong for
+	* pkgIndex.tcl: scripts which are a single statement as
+	  list. Fixed missing argument to new command commSendReply,
+	  introduced by version 4.5. Affected debugging. Bumped package
+	  version to 4.5.1.
+
 2007-05-01  Andreas Kupries  <andreask@activestate.com>
 
 	* comm.tcl: Added ability to asynchronously generate script
