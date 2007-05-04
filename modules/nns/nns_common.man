@@ -1,0 +1,31 @@
+[manpage_begin nameserv::common n 0.1]
+[copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[moddesc   {Name service facility}]
+[titledesc {Name service facility, shared definitions}]
+[require Tcl 8]
+[require nameserv::common [opt 0.1]]
+[description]
+
+This package provides the commands of the name service facility which
+are shared by the client and server implemented by the packages
+[package nameserv::server] and [package nameserv] (the client).
+
+[section API]
+
+The package exports a single command, as specified below:
+
+[list_begin definitions]
+
+[call [cmd ::nameserv::common::port]]
+
+The result returned by the command is the id of the default TCP/IP
+port a nameservice server will listen on, and a name service client
+will try to connect to.
+
+[list_end]
+
+[keywords {name service} client server]
+[see_also nameserv::client(n)]
+[see_also nameserv::server(n)]
+[manpage_end]
+

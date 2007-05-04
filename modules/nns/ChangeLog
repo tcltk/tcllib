@@ -1,0 +1,8 @@
+2007-05-04  Andreas Kupries  <andreask@activestate.com>
+
+	* NNS - Nano Name Service.
+	  Initial commit. TODO: Documentation for client and server, ditto
+	  testsuites, are needed. Only the trivial code shared by both is
+	  documented and tested. Manual testing has been done however,
+	  using the nns* applications, see apps/
+
