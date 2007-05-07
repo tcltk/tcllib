@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.45 2006/11/09 17:24:42 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.46 2007/05/07 21:15:19 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -99,10 +99,11 @@ proc ::ftp::DisplayMsg {s msg {state ""}} {
     #              variable VERBOSE is still relevant as it controls
     #              whether this procedure is called or not.
 
+    global errorInfo
     switch -exact -- $state {
         data    {log::log debug "$state | $msg"}
         control {log::log debug "$state | $msg"}
-        error   {log::log error "$state | E: $msg"}
+        error   {log::log error "$state | E: $msg:\n$errorInfo"}
         default {log::log debug "$state | $msg"}
     }
     return
@@ -2031,7 +2032,15 @@ proc ::ftp::Get {s args} {
 		set returnData $ftp(GetData)
 	    }
 	}
-	catch {unset ftp(get:channel)}
+	# catch {unset ftp(get:channel)}
+	# SF Bug 1708350. DISABLED. In async mode (Open -command) the
+	# unset here causes HandleData to blow up, see marker <@>. In
+	# essence in async mode HandleData can be entered multiple
+	# times, and unsetting get:channel here causes it to think
+	# that the data goes into a local file, not a channel, but the
+	# state does not contain local file information, so an error
+	# is thrown. Removing the catch here seems to fix it without
+	# adverse effects elsewhere. Maybe. We hope.
         return 1
     } else {
         if {$ftp(inline)} {
@@ -2556,6 +2565,7 @@ proc ::ftp::HandleData {s sock} {
 	# A channel was specified by the caller. Use that instead of a
 	# file.
 
+	# SF Bug 1708350 <@>
 	if {[info exists ftp(get:channel)]} {
 	    set ftp(DestCI) $ftp(get:channel)
 	    set rc 0
@@ -3000,4 +3010,4 @@ if { [string equal [uplevel "#0" {info commands tkcon}] "tkcon"] } {
 # ==================================================================
 # At last, everything is fine, we can provide the package.
 
-package provide ftp [lindex {Revision: 2.4.7} 1]
+package provide ftp [lindex {Revision: 2.4.8} 1]
