@@ -1,3 +1,8 @@
+2007-05-07  Andreas Kupries   <andreask@activestate.com>
+
+	* nns.man: Added documentation for client and server packages.
+	* nns_server.man:
+
 2007-05-04  Andreas Kupries  <andreask@activestate.com>
 
 	* NNS - Nano Name Service.

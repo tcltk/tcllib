@@ -1,0 +1,161 @@
+[manpage_begin nameserv n 0.1]
+[copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[moddesc   {Name service facility}]
+[titledesc {Name service facility, Client}]
+[require Tcl 8.4]
+[require nameserv [opt 0.1]]
+[require comm]
+[require logger]
+[description]
+
+This package provides a client for the name service facility
+implemented by the package [package nameserv::server].
+
+[section API]
+
+The package exports eight commands, as specified below:
+
+[list_begin definitions]
+
+[call [cmd ::nameserv::bind] [arg name] [arg data]]
+
+The caller of this command registers the given [arg name] as its name
+in the configured name service, and additionally associates a piece of
+[arg data] with it. The service does nothing with this information
+beyond storing it and delivering it as part of search results. The
+meaning is entirely up to the applications using the name service.
+
+[para]
+
+A generally useful choice would for example be an identifier for a
+communication endpoint managed by the package [package comm]. Anybody
+retrieving the name becomes immediately able to talk to this endpoint,
+i.e. the registering application.
+
+[para]
+
+Of further importance is that a caller can register itself under more
+than one name, and each name can have its own piece of [arg data].
+
+[para]
+
+Note that the name service, and thwerefore this command, will throw an
+error if the chosen name is already registered.
+
+
+[call [cmd ::nameserv::release]]
+
+Invoking this command releases all names (and their data) registered
+by all previous calls to [cmd ::nameserv::bind] of this client. Note
+that the name service will run this command implicitly when it loses
+the connection to this client.
+
+
+[call [cmd ::nameserv::search] [opt [arg pattern]]]
+
+This command searches the name service for all registered names
+matching the specified glob-[arg pattern]. If not specified the
+pattern defaults to [const *], matching everything. The result of the
+command is a dictionary mapping the matching names to the data
+associated with them at [term bind]-time.
+
+
+[call [cmd ::nameserv::protocol]]
+
+This command returns the highest version of the name service protocol
+supported by the package.
+
+
+[call [cmd ::nameserv::server_protocol]]
+
+This command returns the highest version of the name service protocol
+supported by the name service the client is currently connected to.
+
+
+[call [cmd ::nameserv::server_features]]
+
+This command returns a list containing the names of the features of
+the name service protocol which are supported by the name service the
+client is currently connected to.
+
+
+[call [cmd ::nameserv::cget] [option -option]]
+
+This command returns the currently configured value for the specified
+[option -option]. The list of supported options and their meaning can
+be found in section [sectref OPTIONS].
+
+[call [cmd ::nameserv::configure]]
+
+In this form the command returns a dictionary of all supported
+options, and their current values. The list of supported options and
+their meaning can be found in section [sectref OPTIONS].
+
+
+[call [cmd ::nameserv::configure] [option -option]]
+
+In this form the command is an alias for
+"[cmd ::nameserv::cget] [option -option]]".
+
+The list of supported options and their meaning can be found in
+section [sectref OPTIONS].
+
+
+[call [cmd ::nameserv::configure] "[option -option] [arg value]..."]
+
+In this form the command is used to configure one or more of the
+supported options. At least one option has to be specified, and each
+option is followed by its new value.
+
+The list of supported options and their meaning can be found in
+section [sectref OPTIONS].
+
+[para]
+
+This form can be used only as long as the client has not contacted the
+name service yet. After contact has been made reconfiguration is not
+possible anymore. This means that this form of the command is for the
+initalization of the client before it use.
+
+The command forcing a contact with the name service are
+
+[list_begin commands]
+[cmd_def bind]
+[cmd_def release]
+[cmd_def search]
+[cmd_def server_protocol]
+[cmd_def server_features]
+[list_end]
+[list_end]
+
+
+[section OPTIONS]
+
+The options supported by the client are for the specification of which
+name service to contact, i.e. of the location of the name service.
+
+They are:
+
+[list_begin options]
+[opt_def -host [arg name]|[arg ipaddress]]
+
+This option specifies the host name service to contact is running on,
+either by [arg name], or by [arg ipaddress]. The initial default is
+[const localhost], i.e. it is expected to contact a name service
+running on the same host as the application using this package.
+
+
+[opt_def -port [arg number]]
+
+This option specifies the port the name service to contact is
+listening on. It has to be a positive integer number (> 0) not greater
+than 65536 (unsigned short). The initial default is the number
+returned by the command [cmd ::nameserv::common::port], as provided by
+the package [package ::nameserv::common].
+
+[list_end]
+
+[keywords {name service} client]
+[see_also nameserv::common(n)]
+[see_also nameserv::server(n)]
+[manpage_end]
