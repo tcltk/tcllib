@@ -1,3 +1,10 @@
+2007-05-07  Andreas Kupries  <andreask@activestate.com>
+
+	* ftp.tcl (::ftp::Get): SF Bug 1708350. Do not unset get:channel
+	* pkgIndex.tcl: state information to prevent async get from
+	* ftp.man: blowing in HandleData. More comments in the
+	  code. Version bumped to 2.4.8.
+
 2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ftp.man: Fixed all warnings due to use of now deprecated
