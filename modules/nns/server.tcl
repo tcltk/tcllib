@@ -144,9 +144,6 @@ proc ::nameserv::server::LOST {args} {
     # Currently just to see when a client goes away.
 
     upvar 1 id id chan chan reason reason
-
-    puts LOST/$args/[list $id $chan $reason]
-
     ReleaseId $id
     return
 }
@@ -174,16 +171,16 @@ proc ::nameserv::server::configure {args} {
     variable comm
 
     if {![llength $args]} {
-	return [list -local $localonly -port $port]
+	return [list -localonly $localonly -port $port]
     }
     if {[llength $args] == 1} {
 	# cget
 	set opt [lindex $args 0]
 	switch -exact -- $opt {
-	    -local { return $localonly }
-	    -port  { return $port }
+	    -localonly { return $localonly }
+	    -port      { return $port }
 	    default {
-		return -code error "bad option \"$opt\", expected -local, or -port"
+		return -code error "bad option \"$opt\", expected -localonly, or -port"
 	    }
 	}
     }
@@ -196,7 +193,7 @@ proc ::nameserv::server::configure {args} {
     while {[llength $args]} {
 	set opt [lindex $args 0]
 	switch -exact -- $opt {
-	    -local {
+	    -localonly {
 		if {[llength $args] % 2 == 1} {
 		    return -code error "value for \"$opt\" is missing"
 		}
@@ -221,7 +218,7 @@ proc ::nameserv::server::configure {args} {
 		set args [lrange $args 2 end]
 	    }
 	    default {
-		return -code error "bad option \"$opt\", expected -local, or -port"
+		return -code error "bad option \"$opt\", expected -localonly, or -port"
 	    }
 	}
     }
@@ -243,7 +240,7 @@ namespace eval        ::nameserv::server {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide nameserv::server 0.1
+package provide nameserv::server 0.2
 
 ##
 # ### ### ### ######### ######### #########

@@ -32,10 +32,10 @@ package provide nnsd 1.0
 # Command syntax
 # --------------
 #
-# Ad 1) nnsd ?-local BOOL? ?-port PORT?
+# Ad 1) nnsd ?-localonly BOOL? ?-port PORT?
 #
 #       Run the server. If no port is specified the default port 38573
-#       is used to listen for client. The option -local determines
+#       is used to listen for client. The option -localonly determines
 #       what connections are acceptable, local only (default), or
 #       remote connections as well. Local connections are whose
 #       originating from the same host which is running the server.
@@ -57,14 +57,14 @@ proc ::nnsd::ProcessCommandLine {} {
 	if {![string match "-*" $opt]} break
 
 	switch -exact -- $opt {
-	    -local {
+	    -localonly {
 		if {[llength $argv] % 2 == 1} Usage
 
 		# Todo: Check boolean 
 		set local [lindex $argv 1]
 		set argv [lrange $argv 2 end]
 
-		nameserv::server::configure -local $local
+		nameserv::server::configure -localonly $local
 	    }
 	    -port {
 		if {[llength $argv] % 2 == 1} Usage
@@ -98,7 +98,7 @@ proc ::nnsd::ProcessCommandLine {} {
 proc ::nnsd::Usage {} {
     global argv0
     puts stderr "$argv0 wrong#args, expected:\
-	    ?-local BOOL? ?-port PORT?"
+	    ?-localonly BOOL? ?-port PORT?"
     exit 1
 }
 

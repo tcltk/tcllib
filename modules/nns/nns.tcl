@@ -102,9 +102,6 @@ proc ::nameserv::SERV {} {
 
 proc ::nameserv::LOST {args} {
     upvar 1 id id chan chan reason reason
-
-    puts LOST/$args/[list $id $chan $reason]
-
     variable comm ; $comm destroy ; set comm {}
     log::debug [list LOST @ $sid]
     variable sid  ;		    set sid  {}
