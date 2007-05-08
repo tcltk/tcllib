@@ -1,3 +1,21 @@
+2007-05-08  Andreas Kupries  <andreask@activestate.com>
+
+	* nns_client.man: New name for nns.man, to avoid clashing with the
+	* nns.tcl: nns.man of the command line client, and removed unwanted
+	  log output from the client package.
+
+	* ../../apps/nnsl: Merged nnsl and nnst into one command line client
+	* ../../apps/nnst: application, nns. Added documentation for that
+	* ../../apps/nns: application.
+	* ../../apps/nns.man
+
+	* ../../apps/nnsd.man: Added documentation for the command line
+	  server application.
+
+	* nns_server.man: Changed configuration -local to -localonly
+	* server.tcl: for better understanding. Bumped to version 0.2
+	* pkgIndex.tcl: Removed unwanted log output.
+
 2007-05-07  Andreas Kupries   <andreask@activestate.com>
 
 	* nns.man: Added documentation for client and server packages.

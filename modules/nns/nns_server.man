@@ -1,9 +1,9 @@
-[manpage_begin nameserv::server n 0.1]
+[manpage_begin nameserv::server n 0.2]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Name service facility}]
 [titledesc {Name service facility, Server}]
 [require Tcl 8.4]
-[require nameserv::server [opt 0.1]]
+[require nameserv::server [opt 0.2]]
 [require comm]
 [require interp]
 [require logger]
@@ -96,11 +96,11 @@ not.
 They are:
 
 [list_begin options]
-[opt_def -local [arg bool]]
+[opt_def -localonly [arg bool]]
 
-This option specifies whether to accept only local connections (-local
-1) or remote connections as well (-local 0). The default is accept
-only local connections.
+This option specifies whether to accept only local connections
+(-localonly 1) or remote connections as well (-localonly 0). The
+default is to accept only local connections.
 
 [opt_def -port [arg number]]
 
