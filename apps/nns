@@ -1,0 +1,224 @@
+#! /bin/sh
+# -*- tcl -*- \
+exec tclsh "$0" ${1+"$@"}
+
+# @@ Meta Begin
+# Application nnst 1.0
+# Meta platform     tcl
+# Meta summary      Nano Name Service Client
+# Meta description  This application connects to a name service demon
+# Meta description  and either registers a name with associated data
+# Meta description  (until exit) or searches for entries matching a
+# Meta description  glob pattern. Operations to identify client and
+# Meta description  server are made available as well.
+# Meta description  
+# Meta subject      {name service} client
+# Meta require      {Tcl 8.4}
+# Meta require      comm
+# Meta require      logger
+# Meta require      struct::matrix
+# Meta require      nameserv::common
+# Meta require      nameserv
+# Meta author       Andreas Kupries
+# Meta license      BSD
+# @@ Meta End
+
+package provide nns 1.0
+
+# nns - Nano Name Service Client
+# === = ========================
+#
+# Use cases
+# ---------
+# 
+# (1)	Register something at a nano name service
+# (2)   Query protocol and feature information.
+# (3)   Provide application version, and protocol information
+# (4)   Search service for entries matching a glob-pattern
+#	
+# Command syntax
+# --------------
+#
+# Ad 1) nns bind  ?-host NAME|IP? ?-port PORT? name data
+# Ad 2) nns ident ?-host NAME|IP? ?-port PORT?
+# Ad 3) nns who
+#
+#       Register a name with data. If no port is specified the default
+# 	port 38573 is used to connect to it. If no host is specified
+# 	the default (localhost) is used to connect to it.
+
+#lappend auto_path [file join [file dirname [file dirname \
+#			[file normalize [info script]]]] modules]
+
+package require nameserv
+package require struct::matrix
+
+namespace eval ::nns {}
+
+proc ::nns::ProcessCommandLine {} {
+    global argv
+    variable xcmd
+    variable xname
+    variable xdata
+    variable xpat  *
+
+    # Process the options, perform basic validation.
+
+    if {[llength $argv] < 1} Usage
+
+    set cmd  [lindex $argv 0]
+    set argv [lrange $argv 1 end]
+
+    switch -exact -- $cmd {
+	bind - ident - who - search {set xcmd $cmd}
+	default Usage
+    }
+
+    while {[llength $argv]} {
+	set opt [lindex $argv 0]
+	if {![string match "-*" $opt]} break
+
+	switch -exact -- $opt {
+	    -host {
+		if {$xcmd == "who"} Usage
+		if {[llength $argv] % 2 == 1} Usage
+
+		set host [lindex $argv 1]
+		set argv [lrange $argv 2 end]
+
+		nameserv::configure -host $host
+	    }
+	    -port {
+		if {$xcmd == "who"} Usage
+		if {[llength $argv] % 2 == 1} Usage
+
+		# Todo: Check non-zero unsigned short integer
+		set port [lindex $argv 1]
+		set argv [lrange $argv 2 end]
+
+		nameserv::configure -port $port
+	    }
+	    -debug {
+		# Undocumented. Activate the logger services provided
+		# by various packages.
+		logger::setlevel debug
+		set argv [lrange $argv 1 end]
+	    }
+	    default Usage
+	}
+    }
+
+    # Additional validation, and extraction of the non-option
+    # arguments. Of which this application has none.
+
+    switch -exact -- $xcmd {
+	bind {
+	    if {[llength $argv] != 2} Usage
+	    foreach {xname xdata} $argv break
+	}
+	search {
+	    if {[llength $argv] > 1} Usage
+	    if {[llength $argv] == 1} {
+		set xpat [lindex $argv 0]
+	    }
+	}
+	who - ident {
+	    if {[llength $argv] != 0} Usage
+	}
+    }
+    return
+}
+
+proc ::nns::Usage {{sfx {}}} {
+    global argv0 ; append argv0 $sfx
+    set    blank [blank $argv0]
+    puts stderr "$argv0 wrong#args, expected: bind   ?-host NAME|IP? ?-port PORT? NAME DATA"
+    puts stderr "$blank                       ident  ?-host NAME|IP? ?-port PORT?"
+    puts stderr "$blank                       search ?-host NAME|IP? ?-port PORT? ?PATTERN?"
+    puts stderr "$blank                       who"
+    exit 1
+}
+
+proc ::nns::ArgError {text} {
+    global argv0
+    puts stderr "$argv0: $text"
+    #puts $::errorInfo
+    exit 1
+}
+
+# ### ### ### ######### ######### #########
+## Setup a text|graphical report
+
+proc ::nns::blank {s} {
+    regsub -all -- {[^	]} $s { } s
+    return $s
+}
+
+# ### ### ### ######### ######### #########
+## Main
+
+proc ::nns::Do.bind {} {
+    global argv0
+    variable xname
+    variable xdata
+
+    nameserv::bind $xname $xdata
+    vwait forever
+    return
+}
+
+proc ::nns::Do.ident {} {
+    set sp [nameserv::server_protocol]
+    set sf [join [nameserv::server_features] {, }]
+
+    if {[llength $sf] > 1} {
+	set sf [linsert $sf end-1 and]
+    }
+
+    puts "Server [nameserv::cget -host] @[nameserv::cget -port]"
+    puts "  Protocol: $sp"
+    puts "  Features: $sf"
+    return
+}
+
+proc ::nns::Do.search {} {
+    variable xpat
+
+    set contents [nameserv::search $xpat]
+
+    if {![llength $contents]} {
+	puts "Nothing found..."
+	return
+    }
+
+    struct::matrix M
+    M add columns 2
+
+    foreach {name data} $contents {
+	M add row [list $name $data]
+    }
+
+    M format 2chan
+    puts ""
+    return
+}
+
+proc ::nns::Do.who {} {
+    # FUTURE: access and print the metadata contained in ourselves.
+    global argv0
+    puts "$argv0 [package require nns] (Client Protocol [nameserv::protocol])"
+    return
+}
+
+# ### ### ### ######### ######### #########
+## Invoking the functionality.
+
+::nns::ProcessCommandLine
+if {[catch {
+    ::nns::Do.$::nns::xcmd
+} msg]} {
+    ::nns::ArgError $msg
+}
+
+# ### ### ### ######### ######### #########
+exit
