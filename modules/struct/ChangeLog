@@ -1,3 +1,12 @@
+2007-05-16  Kevin B. Kenny  <kennykb@acm.org>
+
+	* list.tcl (LlcsInvertMerge2): Fixed a bug where incorrect
+	"unchanged" entries were generated on a merged list.
+	* list.test (lcsInv-4.2,lcsInv-4.3): Corrected the test cases
+	because they were expecting incorrect results from
+	the above bug. [Bug 1720331]
+	* pkgIndex.tcl: Advanced version number of 'struct::list' to 1.6.1
+	
 2007-04-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tree.tcl: Renamed various commands handling accelerators. This

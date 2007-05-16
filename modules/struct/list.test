@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.25 2006/10/09 21:41:42 andreas_kupries Exp $
+# RCS: @(#) $Id: list.test,v 1.26 2007/05/16 22:20:16 kennykb Exp $
 
 # -------------------------------------------------------------------------
 
@@ -310,7 +310,11 @@ test list-lcsInv-4.2 {lcsInvertMerge} {
     # (when result actually empty).
 
     diff2 ab "a b" 
-} {{unchanged {-1 0} {-1 0}} {added {0 1} {1 1}}}
+} {{unchanged {0 0} {0 0}} {added {0 1} {1 1}} {unchanged {1 1} {2 2}}}
+
+test list-lcsInv-4.3 {lcsInvertMerge} {
+    diff2 abcde afcge
+} {{unchanged {0 0} {0 0}} {changed {1 1} {1 1}} {unchanged {2 2} {2 2}} {changed {3 3} {3 3}} {unchanged {4 4} {4 4}}}
 
 #----------------------------------------------------------------------
 
