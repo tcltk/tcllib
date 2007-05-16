@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.21 2006/06/13 19:07:29 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.22 2007/05/16 22:20:16 kennykb Exp $
 #
 #----------------------------------------------------------------------
 
@@ -474,41 +474,40 @@ proc ::struct::list::LlcsInvertMerge2 {idx1 idx2 len1 len2} {
 
 	if {$empty1 && $empty2} {
 	    # Case (d), add 'unchanged' chunk.
-	    # [765321] 
-	    # Note: We canot extend an 'unchanged' chunk at the
-	    #       end if the result has no content yet.
-
-	    if {[llength $result] > 0} {
-		foreach {type left right} [lindex $result end] break
+	    set type --
+	    foreach {type left right} [lindex $result end] break
+	    if {[string match unchanged $type]} {
+		# There is an existing result to extend
+		lset left end $a
+		lset right end $b
+		lset result end [::list unchanged $left $right]
 	    } else {
-		set type -- ; # dummy value
+		# There is an unchanged result at the start of the list;
+		# it may be extended.
+		lappend result [::list unchanged [::list $a $a] [::list $b $b]]
 	    }
-	    if {[string equal $type unchanged]} {
-		# We extend the 'unchanged' chunk found at the end.
-		lset result end [::list unchanged [::list [lindex $left 0] $a] [::list [lindex $right 0] $b]]
-	    } else {
-		lappend result [::list unchanged [::list $last1 $a] [::list $last2 $b]]
-	    }
-
-	} elseif {$empty1} {
-	    # Case (b), 'addition'.
-	    incr last2 ; incr b -1
-	    lappend result [::list added [::list $last1 $a] [::list $last2 $b]]
-	    incr b
-	} elseif {$empty2} {
-	    # Case (c), 'deletion'
-	    incr last1 ; incr a -1
-	    lappend result [::list deleted [::list $last1 $a] [::list $last2 $b]]
-	    incr a
 	} else {
-	    # Case (q), 'change'.
-	    incr last1 ; incr a -1
-	    incr last2 ; incr b -1
-	    lappend result [::list changed [::list $last1 $a] [::list $last2 $b]]
-	    incr a
-	    incr b
+	    if {$empty1} {
+		# Case (b), 'addition'.
+		incr last2 ; incr b -1
+		lappend result [::list added [::list $last1 $a] [::list $last2 $b]]
+		incr b
+	    } elseif {$empty2} {
+		# Case (c), 'deletion'
+		incr last1 ; incr a -1
+		lappend result [::list deleted [::list $last1 $a] [::list $last2 $b]]
+		incr a
+	    } else {
+		# Case (a), 'change'.
+		incr last1 ; incr a -1
+		incr last2 ; incr b -1
+		lappend result [::list changed [::list $last1 $a] [::list $last2 $b]]
+		incr a
+		incr b
+	    }
+	    # Finally, the two matching lines are a new unchanged region
+	    lappend result [::list unchanged [::list $a $a] [::list $b $b]]
 	}
-
 	set last1 $a
 	set last2 $b
     }
@@ -1799,4 +1798,4 @@ namespace eval ::struct {
     namespace import -force list::list
     namespace export list
 }
-package provide struct::list 1.6
+package provide struct::list 1.6.1
