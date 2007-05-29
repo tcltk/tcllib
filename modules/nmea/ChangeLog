@@ -1,3 +1,7 @@
+2007-05-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* nmea.man: Added title, extended set of keywords.
+
 2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* nmea.man: Fixed all warnings due to use of now deprecated
