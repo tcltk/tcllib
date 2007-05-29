@@ -9,7 +9,7 @@
 # Copyright (c) 2005-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.50 2007/02/16 05:12:44 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.51 2007/05/29 03:00:22 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -2427,7 +2427,7 @@ test tempdir-1.4 {tempdir, user-specified, bad} {
     ::fileutil::tempdir $path
 
     catch {::fileutil::tempdir} msg
-    set msg
+    lindex [split $msg \n] 0 ; # First line only.
 } {Unable to determine a proper directory for temporary files}
 
 test tempdir-1.5 {tempdir, user-specified, ok} {
@@ -2820,6 +2820,7 @@ foreach {n base dst result} {
     11  base/sub      base/sub            .
     12 /base/sub     /base                ..
     13  base/sub      base                ..
+    14  base/sub      destination         ../../destination
 } {
     test fu-relative-2.$n {fileutil::relative} {
 	fileutil::relative $base $dst
@@ -2833,7 +2834,7 @@ foreach {n base dst ra rb} {
     test fu-relative-3.$n {fileutil::relative, bad mix} {
 	catch {fileutil::relative $base $dst} msg
 	set msg
-    } "Unable to compute relation for paths of different pathtypes: $ra vs. $rb"
+    } "Unable to compute relation for paths of different pathtypes: $ra vs. $rb, ($base vs. $dst)"
 }
 
 
@@ -2867,6 +2868,7 @@ foreach {n base dst result} {
     11  base/sub/file.html      base/sub/xx.html            xx.html
     12 /base/sub/file.html     /base/xx.html                ../xx.html
     13  base/sub/file.html      base/xx.html                ../xx.html
+    14  base/sub/file.html      xx.html                     ../../xx.html
 } {
     test fu-relativeurl-2.$n {fileutil::relativeUrl} {
 	fileutil::relativeUrl $base $dst
@@ -2880,7 +2882,7 @@ foreach {n base dst ra rb} {
     test fu-relativeurl-3.$n {fileutil::relativeUrl, bad mix} {
 	catch {fileutil::relativeUrl $base $dst} msg
 	set msg
-    } "Unable to compute relation for paths of different pathtypes: $ra vs. $rb"
+    } "Unable to compute relation for paths of different pathtypes: $ra vs. $rb, ([file dirname $base] vs. [file dirname $dst])"
 }
 
 # -------------------------------------------------------------------------

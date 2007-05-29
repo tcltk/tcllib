@@ -9,11 +9,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.63 2007/03/28 22:48:23 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.64 2007/05/29 03:00:22 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.12
+package provide fileutil 1.13
 
 namespace eval ::fileutil {
     namespace export \
@@ -21,7 +21,7 @@ namespace eval ::fileutil {
 	    jail stripPwd stripN stripPath tempdir tempfile \
 	    install fileType writeFile appendToFile \
 	    insertIntoFile removeFromFile replaceInFile \
-	    updateInPlace test
+	    updateInPlace test tempdirReset
 }
 
 # ::fileutil::grep --
@@ -1675,6 +1675,12 @@ proc ::fileutil::tempdir {args} {
     return [Normalize [TempDir]]
 }
 
+proc ::fileutil::tempdirReset {} {
+    variable tempdir    {}
+    variable tempdirSet 0
+    return
+}
+
 proc ::fileutil::TempDir {} {
     global tcl_platform env
     variable tempdir
@@ -1978,7 +1984,7 @@ proc ::fileutil::relative {base dst} {
     # the directory 'base'.
 
     if {![string equal [file pathtype $base] [file pathtype $dst]]} {
-	return -code error "Unable to compute relation for paths of different pathtypes: [file pathtype $base] vs. [file pathtype $dst]"
+	return -code error "Unable to compute relation for paths of different pathtypes: [file pathtype $base] vs. [file pathtype $dst], ($base vs. $dst)"
     }
 
     set save $dst
@@ -1991,7 +1997,7 @@ proc ::fileutil::relative {base dst} {
 	if {![llength $dst]} {break}
     }
 
-    set dstlen [llength $dst]
+    set dstlen  [llength $dst]
     set baselen [llength $base]
 
     if {($dstlen == 0) && ($baselen == 0)} {
@@ -2011,7 +2017,8 @@ proc ::fileutil::relative {base dst} {
 	    set dst [linsert $dst 0 ..]
 	    incr baselen -1
 	}
-	set dst [eval file join $dst]
+	# 8.5: set dst [file join {*}$dst]
+	set dst [eval [linsert $dst 0 file join]]
     }
 
     return $dst
@@ -2041,8 +2048,13 @@ proc ::fileutil::relativeUrl {base dst} {
 
     set dstdir  [relative $basedir $dstdir]
 
+    # dstdir == '.' on input => dstdir output has trailing './'. Strip
+    # this superfluous segment off.
+
     if {[string equal $dstdir "."]} {
 	return [file tail $dst]
+    } elseif {[string equal [file tail $dstdir] "."]} {
+	return [file join [file dirname $dstdir] [file tail $dst]]
     } else {
 	return [file join $dstdir [file tail $dst]]
     }
