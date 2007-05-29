@@ -1,3 +1,13 @@
+2007-05-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.tcl: Added command 'tempdirReset' to allow users to
+	* fileutil.man: clear the information set via 'tempdir path'.
+	* pkgIndex.tcl: Bumped package to version 1.13. Additionally
+	  extended relative-url computation to make the result of an
+	  edge-case nicer looking (result was ok, but not
+	  optimal). Extended testsuite for this. Extended error output
+	  when computation of relative path fails.
+
 2007-03-28  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.tcl (::fileutil::fileType): Added definitions to

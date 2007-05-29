@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin fileutil n 1.12]
+[manpage_begin fileutil n 1.13]
 [moddesc   {file utilities}]
 [titledesc {Procedures implementing some file utilities}]
 [require Tcl 8]
-[require fileutil [opt 1.12]]
+[require fileutil [opt 1.13]]
 [description]
 [keywords {file utilities} touch grep type {temp file} test cat]
 [para]
@@ -405,6 +405,11 @@ In this mode the command sets the [arg path] as the first and only
 directory to try as a temp. directory. See the previous item for the
 use of the set directory. The command returns the empty string.
 
+[call [cmd ::fileutil::tempdirReset]]
+
+Invoking this command clears the information set by the
+last call of [lb][cmd ::fileutil::tempdir] [arg path][rb].
+See the last item too.
 
 [call [cmd ::fileutil::tempfile] [opt [arg prefix]]]
 
