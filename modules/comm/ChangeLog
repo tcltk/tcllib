@@ -1,3 +1,9 @@
+2007-06-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* comm.tcl: Bugfixes in the wrapper for 'update'.
+	* comm.man: Bumped the package version to 4.5.3.
+	* pkgIndex.tcl:
+
 2007-05-10  Andreas Kupries  <andreask@activestate.com>
 
 	* comm.tcl: Bugfix in the wrapper for 'update'. Bumped the
