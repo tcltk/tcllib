@@ -22,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.26 2007/05/10 22:11:07 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.27 2007/06/10 20:47:32 andreas_kupries Exp $
 
 package require Tcl 8.3
 package require snit ; # comm::future objects.
@@ -1504,11 +1504,15 @@ proc ::comm::Vwait {varname} {
     variable ::comm::comm
 
     set hasstate [info exists comm(current,async)]
+    set hasremote 0
     if {$hasstate} {
 	set chan     [lindex $comm(current,state) 0]
 	set async    $comm(current,async)
 	set state    $comm(current,state)
-	set remoteid $comm($chan,remoteid)
+	set hasremote [info exists comm($chan,remoteid)]
+	if {$hasremote} {
+	    set remoteid $comm($chan,remoteid)
+	}
     }
 
     set code [catch {uplevel 1 ::comm::VwaitOrig $varname} res]
@@ -1516,6 +1520,8 @@ proc ::comm::Vwait {varname} {
     if {$hasstate} {
 	set comm(current,async)  $async
 	set comm(current,state)	 $state
+    }
+    if {$hasremote} {
 	set comm($chan,remoteid) $remoteid
     }
 
@@ -1526,11 +1532,16 @@ proc ::comm::Update {args} {
     variable ::comm::comm
 
     set hasstate [info exists comm(current,async)]
+    set hasremote 0
     if {$hasstate} {
 	set chan     [lindex $comm(current,state) 0]
 	set async    $comm(current,async)
 	set state    $comm(current,state)
-	set remoteid $comm($chan,remoteid)
+
+	set hasremote [info exists comm($chan,remoteid)]
+	if {$hasremote} {
+	    set remoteid $comm($chan,remoteid)
+	}
     }
 
     set code [catch {uplevel 1 [linsert $args 0 ::comm::UpdateOrig]} res]
@@ -1538,6 +1549,8 @@ proc ::comm::Update {args} {
     if {$hasstate} {
 	set comm(current,async)  $async
 	set comm(current,state)	 $state
+    }
+    if {$hasremote} {
 	set comm($chan,remoteid) $remoteid
     }
 
@@ -1646,4 +1659,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.5.2
+package provide comm 4.5.3
