@@ -1,3 +1,9 @@
+2007-06-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* traverse.tcl: Fixed invokation of -filter callback when used for
+	* pkgIndex.tcl:	directories. Wrongly used only the short path. Now
+	  correctly uses the full name. Bumped package version to 0.2.
+
 2007-05-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.tcl: Added command 'tempdirReset' to allow users to
