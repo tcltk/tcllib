@@ -1,3 +1,8 @@
+2007-06-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* peg.man: Fixed [Bug 1735588], added text explaining the relation
+	  to context-free grammars, per Lars Hellstrom's proposal.
+
 2007-03-26  Andreas Kupries  <andreask@activestate.com>
 
 	* peg.man: Uh, the section was put into the list instead of
