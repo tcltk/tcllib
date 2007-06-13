@@ -32,6 +32,10 @@ on top of that virtual machine.
 
 [subsection {TERMS & CONCEPTS}]
 
+PEGs are similar to context-free grammars, but not equivalent; in some
+cases PEGs are strictly more powerful than context-free grammars (there
+exist PEGs for some non-context-free languages).
+
 The formal mathematical definition of parsing expressions and parsing
 expression grammars can be found in section
 [sectref {PARSING EXPRESSION GRAMMARS}].
