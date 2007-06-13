@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: traverse.tcl,v 1.2 2006/03/23 04:56:46 andreas_kupries Exp $
+# RCS: @(#) $Id: traverse.tcl,v 1.3 2007/06/13 04:19:22 andreas_kupries Exp $
 
 package require Tcl 8.3
 package require snit    ; # OO core
@@ -208,7 +208,7 @@ snit::type ::fileutil::traverse {
 		}
 	    }
 
-	    if {[$self Valid $top]} {
+	    if {[$self Valid $fulltop]} {
 		set currentfile $fulltop
 		return 1
 	    }
@@ -383,4 +383,4 @@ if {[string equal $::tcl_platform(platform) windows]} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::traverse 0.1
+package provide fileutil::traverse 0.2
