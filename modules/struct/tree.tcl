@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: tree.tcl,v 1.43 2007/04/12 08:00:54 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.tcl,v 1.44 2007/06/17 01:22:18 andreas_kupries Exp $
 
 # @mdgen EXCLUDE: tree_c.tcl
 
@@ -19,7 +19,7 @@ namespace eval ::struct::tree {}
 # ### ### ### ######### ######### #########
 ## Management of tree implementations.
 
-# ::struct::tree::LoadAccel --
+# ::struct::tree::LoadAccelerator --
 #
 #	Loads a named implementation, if possible.
 #
