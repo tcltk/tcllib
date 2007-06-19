@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.64 2007/05/29 03:00:22 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.65 2007/06/19 01:56:34 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -2081,10 +2081,5 @@ proc ::fileutil::fullnormalize {path} {
     # this command copies an actual file, it will not encounter
     # symlinks.
 
-    # 8.5
-    # return [file join {expand}[lrange [file split \
-    #	    [Normalize [file join $path __dummy__]]] 0 end-1]]
-
-    return [eval [list file join] [lrange [file split \
-	    [Normalize [file join $path __dummy__]]] 0 end-1]]
+    return [file dirname [Normalize [file join $path __dummy__]]]
 }
