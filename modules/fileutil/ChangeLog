@@ -1,3 +1,9 @@
+2007-06-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil.tcl (::fileutil::fullnormalize): Simplified the
+	  implementation by recognizing that the complex
+	  file split/lrange/eval/join combo is just 'file dirname'.
+
 2007-06-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* traverse.tcl: Fixed invokation of -filter callback when used for
