@@ -28,36 +28,37 @@ the HEAD section.
 
 [call [cmd ::html::bodyTag] [arg args]]
 
-Generate a BODY tag.  The tag parameters are taken from [arg args] or
+Generate a [term body] tag.  The tag parameters are taken from [arg args] or
 from the body.* attributes define with [cmd ::html::init].
 
 
 [call [cmd ::html::cell] [arg {param value}] [opt [arg tag]]]
 
-Generate a TD (or TH) tag, a value, and a closing TD (or TH) tag. The
+Generate a [term td] (or [term th]) tag, a value, and a closing
+[term td] (or [term th]) tag. The
 tag parameters come from [arg param] or TD.* attributes defined with
 [cmd ::html::init].  This uses [cmd ::html::font] to insert a standard
-FONT tag into the table cell. The [arg tag] argument defaults to "td".
+[term font] tag into the table cell. The [arg tag] argument defaults to "td".
 
 
 [call [cmd ::html::checkbox] [arg {name value}]]
 
-Generate a CHECKBOX form element with the specified name and value.
+Generate a [term checkbox] form element with the specified name and value.
 This uses [cmd ::html::checkValue].
 
 
 [call [cmd ::html::checkSet] [arg {key sep list}]]
 
-Generate a set of CHECKBOX form elements and associated labels.  The
+Generate a set of [term checkbox] form elements and associated labels.  The
 [arg list] should contain an alternating list of labels and values.
-This uses [cmd ::html::checkbox]. All the CHECKBOX buttons share the
+This uses [cmd ::html::checkbox]. All the [term checkbox] buttons share the
 same [arg key] for their name. The [arg sep] is text used to separate
 the elements.
 
 
 [call [cmd ::html::checkValue] [arg name] [opt [arg value]]]
 
-Generate the "name=[arg name] value=[arg value] for a CHECKBOX form
+Generate the "name=[arg name] value=[arg value] for a [term checkbox] form
 element.  If the CGI variable [arg name] has the value [arg value],
 then SELECTED is added to the return value. [arg value] defaults to
 "1".
@@ -66,7 +67,7 @@ then SELECTED is added to the return value. [arg value] defaults to
 [call [cmd ::html::closeTag]]
 
 Pop a tag off the stack created by [cmd ::html::openTag] and generate
-the corresponding close tag (e.g., /BODY).
+the corresponding close tag (e.g., </body>).
 
 
 [call [cmd ::html::default] [arg key] [opt [arg param]]]
@@ -85,7 +86,7 @@ values. [arg param] defaults to the empty string.
 [call [cmd ::html::description] [arg description]]
 
 [emph {Side effect only}].  Call this before [cmd ::html::head] to
-define a description META tag for the page.  This tag is generated
+define a description [term meta] tag for the page.  This tag is generated
 later in the call to [cmd ::html::head].
 
 
@@ -116,7 +117,7 @@ name.
 
 [call [cmd ::html::font] [arg args]]
 
-Generate a standard FONT tag.  The parameters to the tag are taken
+Generate a standard [term font] tag.  The parameters to the tag are taken
 from [arg args] and the HTML defaults defined with [cmd ::html::init].
 
 
@@ -156,64 +157,64 @@ args is a list of string match patterns for form element names.
 
 [call [cmd ::html::getTitle]]
 
-Return the title string, with out the surrounding TITLE tag, set with
-a previous call to [cmd ::html::title].
+Return the title string, with out the surrounding [term title] tag,
+set with a previous call to [cmd ::html::title].
 
 
 [call [cmd ::html::h] [arg {level string}] [opt [arg param]]]
 
-Generate a heading (e.g., H1) tag.  The [arg string] is nested in the
+Generate a heading (e.g., [term h[var level]]) tag.  The [arg string] is nested in the
 heading, and [arg param] is used for the tag parameters.
 
 [call [cmd ::html::h1] [arg string] [opt [arg param]]]
 
-Generate an H1 tag.  See [cmd ::html::h].
+Generate an [term h1] tag.  See [cmd ::html::h].
 
 [call [cmd ::html::h2] [arg string] [opt [arg param]]]
 
-Generate an H2 tag.  See [cmd ::html::h].
+Generate an [term h2] tag.  See [cmd ::html::h].
 
 [call [cmd ::html::h3] [arg string] [opt [arg param]]]
 
-Generate an H3 tag.  See [cmd ::html::h].
+Generate an [term h3] tag.  See [cmd ::html::h].
 
 [call [cmd ::html::h4] [arg string] [opt [arg param]]]
 
-Generate an H4 tag.  See [cmd ::html::h].
+Generate an [term h4] tag.  See [cmd ::html::h].
 
 [call [cmd ::html::h5] [arg string] [opt [arg param]]]
 
-Generate an H5 tag.  See [cmd ::html::h].
+Generate an [term h5] tag.  See [cmd ::html::h].
 
 [call [cmd ::html::h6] [arg string] [opt [arg param]]]
 
-Generate an H6 tag.  See [cmd ::html::h].
+Generate an [term h6] tag.  See [cmd ::html::h].
 
 
 [call [cmd ::html::hdrRow] [arg args]]
 
-Generate a table row, including TR and TH tags.
+Generate a table row, including [term tr] and [term th] tags.
 Each value in [arg args] is place into its own table cell.
 This uses [cmd ::html::cell].
 
 
 [call [cmd ::html::head] [arg title]]
 
-Generate the HEAD section that includes the page TITLE.
+Generate the [term head] section that includes the page [term title].
 If previous calls have been made to
 [cmd ::html::author], 
 [cmd ::html::keywords], 
 [cmd ::html::description], 
 or
 [cmd ::html::meta]
-then additional tags are inserted into the HEAD section.
-This leaves an open HTML tag pushed on the stack with
+then additional tags are inserted into the [term head] section.
+This leaves an open [term html] tag pushed on the stack with
 [cmd ::html::openTag].
 
 
 [call [cmd ::html::headTag] [arg string]]
 
-Save a tag for inclusion in the HEAD section generated by
+Save a tag for inclusion in the [term head] section generated by
 
 [cmd ::html::head].  The [arg string] is everything in the tag except
 the enclosing angle brackets, < >.
@@ -234,11 +235,19 @@ slightly more restrictive than that of the built-in Tcl [cmd if]
 control structure.
 
 
+[call [cmd ::html::init] [opt [arg list]]]
+
+[cmd ::html::init] accepts a Tcl-style name-value list that defines
+values for items with a name of the form "tag.parameter".  For
+example, a default with key "body.bgcolor" defines the background
+color for the [term body] tag.
+
+
 [call [cmd ::html::keywords] [arg args]]
 
 [emph {Side effect only}].  Call this before [cmd ::html::head] to
-define a keyword META tag for the page.  The META tag is included in
-the result of [cmd ::html::head].
+define a keyword [term meta] tag for the page.  The [term meta] tag
+is included in the result of [cmd ::html::head].
 
 
 [call [cmd ::html::mailto] [arg email] [opt [arg subject]]]
@@ -249,18 +258,10 @@ Generate a hypertext link to a mailto: URL.
 [call [cmd ::html::meta] [arg args]]
 
 [emph {Side effect only}].  Call this before [cmd ::html::head] to
-define a META tag for the page.  The [arg args] is a Tcl-style name,
+define a [term meta] tag for the page.  The [arg args] is a Tcl-style name,
 value list that is used for the name= and value= parameters for the
-META tag.  The META tag is included in the result of
-
+[term meta] tag.  The [term meta] tag is included in the result of
 [cmd ::html::head].
-
-
-[call [cmd ::html::minorMenu] [arg list] [opt [arg sep]]]
-
-Generate a series of hypertext links.  The [arg list] is a Tcl-style
-name, value list of labels and urls for the links.  The [arg sep] is
-the text to put between each link. It defaults to " | ".
 
 
 [call [cmd ::html::minorList] [arg list] [opt [arg ordered]]]
@@ -272,29 +273,49 @@ Tcl-style name, value list of labels and urls for the links.
 unordered list. It defaults to [const false].
 
 
+[call [cmd ::html::minorMenu] [arg list] [opt [arg sep]]]
+
+Generate a series of hypertext links.  The [arg list] is a Tcl-style
+name, value list of labels and urls for the links.  The [arg sep] is
+the text to put between each link. It defaults to " | ".
+
+
 [call [cmd ::html::nl2br] [arg string]]
 
-This command replaces all line-endings in the [arg string] with a <br>
-tag and returns the modified text.
+This command replaces all line-endings in the [arg string] with a
+[term br] tag and returns the modified text.
 
 
-[call [cmd ::html::openTag] [arg {tag args}]]
+[call [cmd ::html::openTag] [arg tag] [opt [arg param]]]
 
 Push [arg tag] onto a stack and generate the opening tag for
+[arg tag]. Use [cmd ::html::closeTag] to pop the tag from the
+stack. The second argument provides any tag arguments, as a
+list whose elements are formatted to be in the form
+"[var key]=[const value]".
 
-[arg tag].  Use [cmd ::html::closeTag] to pop the tag from the stack.
+
+[call [cmd ::html::paramRow] [arg list] [opt [arg rparam]] [opt [arg cparam]]]
+
+Generate a table row, including [term tr] and [term td] tags. Each value in
+
+[arg list] is placed into its own table cell. This uses
+
+[cmd ::html::cell]. The value of [arg rparam] is used as parameter for
+the [term tr] tag. The value of [arg cparam] is passed to [cmd ::html::cell]
+as parameter for the [term td] tags.
 
 
 [call [cmd ::html::passwordInput] [opt [arg name]]]
 
-Generate an INPUT tag of type PASSWORD. The [arg name] defaults to
+Generate an [term input] tag of type [term password]. The [arg name] defaults to
 "password".
 
 
 [call [cmd ::html::passwordInputRow] [arg label] [opt [arg name]]]
 
-Format a table row containing a label and an INPUT tag of type
-PASSWORD. The [arg name] defaults to "password".
+Format a table row containing a label and an [term input] tag of type
+[term password]. The [arg name] defaults to "password".
 
 
 [call [cmd ::html::quoteFormValue] [arg value]]
@@ -305,7 +326,7 @@ entities for quotes, ampersand, and angle brackets.
 
 [call [cmd ::html::radioSet] [arg {key sep list}]]
 
-Generate a set of INPUT tags of type RADIO and an associated text
+Generate a set of [term input] tags of type [term radio] and an associated text
 label.  All the radio buttons share the same [arg key] for their name.
 The [arg sep] is text used to separate the elements.  The [arg list]
 is a Tcl-style label, value list.
@@ -313,64 +334,39 @@ is a Tcl-style label, value list.
 
 [call [cmd ::html::radioValue] [arg {name value}]]
 
-Generate the "name=[arg name] value=[arg value] for a RADIO form
+Generate the "name=[arg name] value=[arg value] for a [term radio] form
 element.  If the CGI variable [arg name] has the value [arg value],
 then SELECTED is added to the return value.
 
 
 [call [cmd ::html::refresh] [arg {seconds url}]]
 
-Set up a refresh META tag. Call this before [cmd ::html::head] and the
-HEAD section will contain a META tag that causes the document to
+Set up a refresh [term meta] tag. Call this before [cmd ::html::head] and the
+HEAD section will contain a [term meta] tag that causes the document to
 refresh in [arg seconds] seconds.  The [arg url] is optional.  If
 specified, it specifies a new page to load after the refresh interval.
 
 
-[call [cmd ::html::init] [opt [arg list]]]
-
-[cmd ::html::init] accepts a Tcl-style name-value list that defines
-values for items with a name of the form "tag.parameter".  For
-example, a default with key "body.bgcolor" defines the background
-color for the BODY tag.
-
-
 [call [cmd ::html::row] [arg args]]
 
-Generate a table row, including TR and TD tags.  Each value in
-
+Generate a table row, including [term tr] and [term td] tags.  Each value in
 [arg args] is place into its own table cell. This uses
-
-[cmd ::html::cell].
-
-
-[call [cmd ::html::paramRow] [arg list] [opt [arg rparam]] [opt [arg cparam]]]
-
-Generate a table row, including TR and TD tags. Each value in
-
-[arg list] is placed into its own table cell. This uses
-
-[cmd ::html::cell]. The value of [arg rparam] is used as parameter for
-the TR tag. The value of [arg cparam] is passed to [cmd ::html::cell]
-as parameter for the TD tags.
+[cmd ::html::cell]. Ignores any default information set up via
+[cmd ::html::init].
 
 
 [call [cmd ::html::select] [arg {name param choices}] [opt [arg current]]]
 
-Generate a SELECT form element and nested OPTION tags. The [arg name]
-and [arg param] are used to generate the SELECT tag. The [arg choices]
+Generate a [term select] form element and nested [term option] tags. The [arg name]
+and [arg param] are used to generate the [term select] tag. The [arg choices]
 list is a Tcl-style name, value list.
 
 
 [call [cmd ::html::selectPlain] [arg {name param choices}] [opt [arg current]]]
 
 Like [cmd ::html::select] except that [arg choices] is a Tcl list of
-values used for the OPTION tags.  The label and the value for each
-OPTION are the same.
-
-[call [cmd ::html::submit] [arg label] [opt [arg name]]]
-
-Generate an INPUT tag of type SUBMIT. [arg name] defaults to "submit".
-
+values used for the [term option] tags.  The label and the value for each
+[term option] are the same.
 
 [call [cmd ::html::set] [arg {var val}]]
 
@@ -380,46 +376,49 @@ template file without appending unwanted results.  The other
 difference is that it must take two arguments.
 
 
+[call [cmd ::html::submit] [arg label] [opt [arg name]]]
+
+Generate an [term input] tag of type [term submit]. [arg name] defaults to "submit".
+
+
 [call [cmd ::html::tableFromArray] [arg arrname] [opt [arg param]] [opt [arg pat]]]
 
-Generate a TABLE and nested rows to display a Tcl array. The
-
-[arg param] are for the TABLE tag. The [arg pat] is a
-
+Generate a [term table] and nested rows to display a Tcl array. The
+[arg param] are for the [term table] tag. The [arg pat] is a
 [cmd {string match}] pattern used to select array elements. It
 defaults to "*".
 
 
 [call [cmd ::html::tableFromList] [arg querylist] [opt [arg param]]]
 
-Generate a TABLE and nested rows to display [arg querylist], which is
-a Tcl-style name, value list.  The [arg param] are for the TABLE tag.
+Generate a [term table] and nested rows to display [arg querylist], which is
+a Tcl-style name, value list.  The [arg param] are for the [term table] tag.
 
 
 [call [cmd ::html::textarea] [arg name] [opt [arg param]] [opt [arg current]]]
 
-Generate a TEXTAREA tag wrapped around its current values.
+Generate a [term textarea] tag wrapped around its current values.
 
 
 [call [cmd ::html::textInput] [arg {name value args}]]
 
-Generate an INPUT form tag with type TEXT.  This uses
+Generate an [term input] form tag with type [term text].  This uses
 
 [cmd ::html::formValue].  The args is any additional tag attributes
-you want to put into the INPUT tag.
+you want to put into the [term input] tag.
 
 
 [call [cmd ::html::textInputRow] [arg {label name value args}]]
 
-Generate an INPUT form tag with type TEXT formatted into a table row
+Generate an [term input] form tag with type [term text] formatted into a table row
 with an associated label.  The args is any additional tag attributes
-you want to put into the INPUT tag.
+you want to put into the [term input] tag.
 
 
 [call [cmd ::html::title] [arg title]]
 
 [emph {Side effect only}].  Call this before [cmd ::html::head] to
-define the TITLE for a page.
+define the [term title] for a page.
 
 
 [call [cmd ::html::varEmpty] [arg name]]
