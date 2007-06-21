@@ -60,7 +60,7 @@ button is pressed.
 
 [call [cmd ::javascript::makeMasterButton] [arg {master value slavePattern boolean}]]
 
-Create an HTML button that sets it's slave checkboxs to the boolean
+Create an HTML button that sets its slave checkboxs to the boolean
 value.  The [arg master] argument is the name of the child's parent
 html checkbox object.  The [arg value] argument is the value of the
 master.  The [arg slaves] argument is the name of child html checkbox
@@ -71,7 +71,7 @@ or "false".
 
 [call [cmd ::javascript::makeParentCheckbox] [arg {parentName childName}]]
 
-Create an HTML checkbox and tie its value to that of it's child
+Create an HTML checkbox and tie its value to that of its child
 checkbox.  If the parent is unchecked, the child is automatically
 unchecked.  The [arg parentName] argument is the name of parent html
 checkbox object to create. The [arg childName] argument is the name of
@@ -80,7 +80,7 @@ the parent's child html checkbox object.
 
 [call [cmd ::javascript::makeChildCheckbox] [arg {parentName childName}]]
 
-Create an HTML checkbox and tie its value to that of it's parent
+Create an HTML checkbox and tie its value to that of its parent
 checkbox.  If the child is checked, the parent is automatically
 checked.  The [arg parentName] argument is the name of the child's
 parent html checkbox object.  The [arg childName] argument is the name
