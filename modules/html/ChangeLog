@@ -1,3 +1,9 @@
+2007-06-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* html.man: Fixed bug [SF Bug 1740573], documentation typos,
+	  etc. Thanks to David Scott Cargo <escargo@users.sourceforge.net>
+	  for the report.
+
 2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* html.man: Fixed all warnings due to use of now deprecated
