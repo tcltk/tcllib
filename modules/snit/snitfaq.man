@@ -1423,13 +1423,13 @@ Arctic Boar Hound
 }]
 [para]
 
-In Tcl 8.5, the [cmd {expand}] keyword can be used with 
+In Tcl 8.5, the [cmd {*}] keyword can be used with 
 [method configure] in this case:
 
 [para]
 [example {% set features [list -color dun -breed "Arctic Boar Hound"]
 -color dun -breed {Arctic Boar Hound}
-% fido configure {expand}$features
+% fido configure {*}$features
 % fido cget -color
 dun
 % fido cget -breed
