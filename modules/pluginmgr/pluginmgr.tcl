@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pluginmgr.tcl,v 1.5 2006/06/30 18:53:45 andreas_kupries Exp $
+# RCS: @(#) $Id: pluginmgr.tcl,v 1.6 2007/06/23 03:39:34 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Description
@@ -298,7 +298,7 @@ snit::type ::pluginmgr {
 	set cip $options(-cmdip)
 	foreach {pcmd ecmd} $options(-cmds) {
 	    eval [linsert $ecmd 0 interp alias $sip $pcmd $cip]
-	    #interp alias $sip $pcmd $cip {expand}$ecmd
+	    #interp alias $sip $pcmd $cip {*}$ecmd
 	}
 	return
     }

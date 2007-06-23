@@ -1,3 +1,8 @@
+2007-06-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* me_cpu.testsuite: Replaced deprecated {expand} syntax in
+	  comments with {*}.
+
 2007-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* me_ast.man: Fixed all warnings due to use of now deprecated
