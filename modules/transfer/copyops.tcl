@@ -316,7 +316,7 @@ proc ::transfer::copy::Run {cmdv args} {
     foreach a $args {lappend command $a}
     return [uplevel #0 $command]
 
-    # 8.5: {expand}$c {expand}$args
+    # 8.5: {*}$c {*}$args
 }
 
 proc ::transfer::copy::CGet {chan} {

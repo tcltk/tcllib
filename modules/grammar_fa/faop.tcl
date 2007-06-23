@@ -1073,7 +1073,7 @@ proc ::grammar::fa::op::MergePrepare {fa fb label mapvar} {
 	return -code error "Unable to $label FAs without start/final states"
     }
 
-    # FUTURE: add {expand}[symbols], ignore dup's
+    # FUTURE: add {*}[symbols], ignore dup's
     foreach sym [$fb symbols] {catch {$fa symbol add $sym}}
 
     set dup [struct::set intersect [$fa states] [$fb states]]

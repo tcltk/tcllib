@@ -101,8 +101,8 @@ proc ::page::pluginmgr::rlabel {} {
 proc ::page::pluginmgr::read {read eof {complete {}}} {
     variable reader
 
-    #interp alias $ip page_read {} {expand}$read
-    #interp alias $ip page_eof  {} {expand}$eof
+    #interp alias $ip page_read {} {*}$read
+    #interp alias $ip page_eof  {} {*}$eof
 
     set ip [$reader interpreter]
     eval [linsert $read 0 interp alias $ip page_read {}]

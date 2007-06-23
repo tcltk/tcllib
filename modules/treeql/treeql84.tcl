@@ -6,7 +6,7 @@
 #
 # 20040930 Colin McCormack - initial release to tcllib
 #
-# RCS: @(#) $Id: treeql84.tcl,v 1.9 2005/10/21 19:32:43 andreas_kupries Exp $
+# RCS: @(#) $Id: treeql84.tcl,v 1.10 2007/06/23 03:39:34 andreas_kupries Exp $
 
 package require Tcl 8.4
 package require snit
@@ -23,7 +23,7 @@ snit::type ::treeql {
 	return $tree
     }
 
-    # apply the [$tree cmd {expand}$args] form to each node
+    # apply the [$tree cmd {*}$args] form to each node
     # returns the list of results of application
     method apply {cmd args} {
 	set result {}
@@ -42,7 +42,7 @@ snit::type ::treeql {
 	return $result
     }
 
-    # filter nodes by [$tree cmd {expand}$args]
+    # filter nodes by [$tree cmd {*}$args]
     # returns the list of results of application when application is non nil
     method filter {cmd args} {
 	set result {}
@@ -62,12 +62,12 @@ snit::type ::treeql {
 	return $result
     }
 
-    # filter nodes by the predicate [$tree cmd {expand}$args]
+    # filter nodes by the predicate [$tree cmd {*}$args]
     # returns the list of results of application when application is true
     method bool {cmd args} {
 
 	#puts stderr "Bool: $tree $cmd - $args"
-	#set result [::struct::list filter $nodes [list $tree $cmd {expand}$args]]
+	#set result [::struct::list filter $nodes [list $tree $cmd {*}$args]]
 	#puts stderr "Bool: $tree $cmd - $nodes - $args -> $result"
 	#return $result
 
@@ -163,7 +163,7 @@ snit::type ::treeql {
 	return $args
     }
 
-    # filter nodes by predicate [expr {expand}$op] over attribute $attr
+    # filter nodes by predicate [expr {*}$op] over attribute $attr
     method exprP {op attr args} {
 	set n {}
 	set map [$self mapself do_attr [linsert $op 0 expr] $attr]
@@ -176,7 +176,7 @@ snit::type ::treeql {
 	return $args
     }
 
-    # filter nodes by predicate ![expr {expand}$op] over attribute $attr
+    # filter nodes by predicate ![expr {*}$op] over attribute $attr
     method exprNP {op attr args} {
 	set n {}
 	set map [$self mapself do_attr [linsert $op 0 expr] $attr]

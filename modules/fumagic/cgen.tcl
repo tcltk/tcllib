@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cgen.tcl,v 1.6 2005/09/28 04:51:19 andreas_kupries Exp $
+# RCS: @(#) $Id: cgen.tcl,v 1.7 2007/06/23 03:39:34 andreas_kupries Exp $
 
 #####
 #
@@ -152,7 +152,7 @@ proc ::fileutil::magic::cgen::tree_el {tree parent file line type qual comp offs
     # now add children
     foreach el $args {
 	eval [linsert $el 0 tree_el $tree $node $file]
-   	# 8.5 # tree_el $tree $node $file {expand}$el
+   	# 8.5 # tree_el $tree $node $file {*}$el
     }
     return $node
 }
@@ -178,7 +178,7 @@ proc ::fileutil::magic::cgen::2tree {script} {
    	    set file [lindex $el 1]
    	} else {
 	    set node [eval [linsert $el 0 tree_el $tree root $file]]
-	    # 8.5 # set more [tree_el $tree root $file {expand}$el]
+	    # 8.5 # set more [tree_el $tree root $file {*}$el]
    	    append result $node
    	}
     }
@@ -320,7 +320,7 @@ proc ::fileutil::magic::cgen::optNum {tree node} {
 	set nodes [lsort -command [list ::fileutil::magic::cgen::switchNSort $tree] $nodes]
 
 	eval [linsert $nodes 0 $tree move $switch end]
-	# 8.5 # $tree move $switch end {expand}$nodes
+	# 8.5 # $tree move $switch end {*}$nodes
 	set     path [$tree get [$tree parent $switch] path]
 	lappend path [$tree index $switch]
 	$tree set $switch path $path

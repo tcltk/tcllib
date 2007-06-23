@@ -110,7 +110,7 @@ snit::type ::transfer::transmitter {
 	uplevel #0 $cmd
 	return
 
-	# 8.5: {expand}$options(-command) {expand}$alist
+	# 8.5: {*}$options(-command) {*}$alist
     }
 
     # ### ### ### ######### ######### #########

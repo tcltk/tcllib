@@ -1,3 +1,9 @@
+2007-06-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* receiver.tcl:    Replaced deprecated {expand} syntax in comments
+	* transmitter.tcl: with {*}.
+	* copyops.tcl:
+
 2007-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* transmitter.man: Fixed all warnings due to use of now deprecated
