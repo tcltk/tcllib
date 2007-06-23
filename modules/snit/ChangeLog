@@ -1,3 +1,7 @@
+2007-06-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* snitfaq.man: Replaced deprecated {expand} with {*}.
+
 2007-05-01  Andreas Kupries  <andreask@activestate.com>
 
 	* main2.tcl: [Bug 1710640]. Replaced deprecated {expand} with {*}.
