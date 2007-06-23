@@ -1,3 +1,8 @@
+2007-06-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* faop.tcl: Replaced deprecated {expand} syntax in comments with
+	  {*}.
+
 2007-04-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* dacceptor.test: Added the switching of struct::set
