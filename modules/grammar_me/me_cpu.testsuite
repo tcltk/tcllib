@@ -429,7 +429,7 @@ foreach {description input eof stepsSetup steps code expectedDelta} $semantics {
 	grammar::me::cpu cpu $code
 	foreach token $input {
 	    eval [linsert $token 0 cpu put]
-	    # cpu put {expand}$token
+	    # cpu put {*}$token
 	}
 	if {$eof}        {cpu eof}
 	if {$stepsSetup} {cpu run $stepsSetup}

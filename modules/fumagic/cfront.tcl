@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cfront.tcl,v 1.5 2005/09/28 04:51:19 andreas_kupries Exp $
+# RCS: @(#) $Id: cfront.tcl,v 1.6 2007/06/23 03:39:34 andreas_kupries Exp $
 
 #####
 #
@@ -283,7 +283,7 @@ proc ::fileutil::magic::cfront::process {file {maxlevel 10000}} {
    	    while {[catch {
    		# get the insertion point
    		set insertion [eval [linsert $depth 0 lindex $script]]
-		# 8.5 #	set insertion [lindex $script {expand}$depth]
+		# 8.5 #	set insertion [lindex $script {*}$depth]
    	    }]} {
    		# handle scripts which jump levels,
    		# reduce depth to current-depth+1
@@ -295,7 +295,7 @@ proc ::fileutil::magic::cfront::process {file {maxlevel 10000}} {
 
    	    # re-insert the record into its correct position
    	    eval [linsert [linsert $depth 0 lset script] end $insertion]
-   	    # 8.5 # lset script {expand}$depth $insertion
+   	    # 8.5 # lset script {*}$depth $insertion
    	}
     }
     #puts "Script: $script"
@@ -311,7 +311,7 @@ proc ::fileutil::magic::cfront::compile {args} {
    	    foreach file [glob [file join $arg *]] {
    		set script1 [process $file]
 		eval [linsert $script1 0 lappend script [list file $file]]
-   		# 8.5 # lappend script [list file $file] {expand}$script1
+   		# 8.5 # lappend script [list file $file] {*}$script1
 
    		#append tcl "magic::file_start $file" \n
    		#append tcl [run $script1] \n
@@ -320,7 +320,7 @@ proc ::fileutil::magic::cfront::compile {args} {
    	    set file $arg
    	    set script1 [process $file]
    	     eval [linsert $script1 0 lappend script [list file $file]]
-   	    # 8.5 # lappend script [list file $file] {expand}$script1
+   	    # 8.5 # lappend script [list file $file] {*}$script1
 
    	    #append tcl "magic::file_start $file" \n
    	    #append tcl [run $script1] \n
