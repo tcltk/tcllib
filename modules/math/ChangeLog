@@ -1,3 +1,9 @@
+2007-06-26  Kevin B. Kenny  <kennykb@acm.org>
+
+	* elliptic.tcl: Removed a spurious 'puts' in the computation of
+	Jacobian elliptic functions.
+	* special.tcl: Advanced patchlevel to 0.2.1.
+	
 2007-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* bigfloat.man: Fixed all warnings due to use of now deprecated

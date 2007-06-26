@@ -133,7 +133,7 @@ proc ::math::special::IterateUK { u k } {
         set kvalues [concat $k $kvalues]
         set u [expr {$u*2.0/(1.0+$k)}]
         incr nmax
-        puts "$nmax -$u - $k"
+        #puts "$nmax -$u - $k"
     }
     foreach k $kvalues {
         set u [expr {( $u + asin($k*sin($u)) )/2.0}]
