@@ -4,7 +4,7 @@ package ifneeded math::geometry          1.0.3 [list source [file join $dir geom
 package ifneeded math::fuzzy             0.2   [list source [file join $dir fuzzy.tcl]]
 package ifneeded math::statistics        0.4   [list source [file join $dir statistics.tcl]]
 package ifneeded math::complexnumbers    1.0.2 [list source [file join $dir qcomplex.tcl]]
-package ifneeded math::special           0.2   [list source [file join $dir special.tcl]]
+package ifneeded math::special           0.2.1 [list source [file join $dir special.tcl]]
 package ifneeded math::constants         1.0.1 [list source [file join $dir constants.tcl]]
 package ifneeded math::polynomials       1.0.1 [list source [file join $dir polynomials.tcl]]
 package ifneeded math::rationalfunctions 1.0.1 [list source [file join $dir rational_funcs.tcl]]

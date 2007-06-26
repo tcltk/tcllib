@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2004 by Arjen Markus. All rights reserved.
 #
-# RCS: @(#) $Id: special.tcl,v 1.9 2005/10/06 05:16:37 andreas_kupries Exp $
+# RCS: @(#) $Id: special.tcl,v 1.10 2007/06/26 18:55:18 kennykb Exp $
 #
 package require math
 package require math::constants
@@ -185,4 +185,4 @@ source [file join [file dirname [info script]] "classic_polyns.tcl"]
 source [file join [file dirname [info script]] "elliptic.tcl"]
 source [file join [file dirname [info script]] "exponential.tcl"]
 
-package provide math::special 0.2
+package provide math::special 0.2.1
