@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin snit n 2.1]
+[manpage_begin snit n 2.2]
 [copyright {2003-2006, by William H. Duquette}]
 [moddesc {Snit's Not Incr Tcl, OO system}]
 [titledesc  {Snit's Not Incr Tcl}]
 [require Tcl 8.5]
-[require snit [opt 2.1]]
+[require snit [opt 2.2]]
 [description]
 [para]
 
@@ -28,9 +28,9 @@ concepts.
 
 [section {SNIT VERSIONS}]
 
-This man page covers both Snit 2.1 and Snit 1.2.  The primary
-difference between the two versions is simply that Snit 2.1 contains
-speed optimizations based on new features of Tcl 8.5; Snit 1.2
+This man page covers both Snit 2.2 and Snit 1.3.  The primary
+difference between the two versions is simply that Snit 2.2 contains
+speed optimizations based on new features of Tcl 8.5; Snit 1.3
 supports all of Tcl 8.3, 8.4 and Tcl 8.5.  There are a few minor
 inconsistencies; they are flagged in the body of the man page with the
 label "Snit 1.x Incompatibility"; they are also discussed in the [cmd snitfaq].
@@ -122,7 +122,7 @@ following two calls to this type method are equivalent:
     $type {a b} "Hello, world!"
 }]
 
-In Snit 2.1, the second form is invalid.
+In Snit 2.2, the second form is invalid.
 
 [call [cmd typeconstructor] [arg body]]
 
@@ -241,7 +241,7 @@ following two calls to this method are equivalent:
     $self {a b} "Hello, world!"
 }]
 
-In Snit 2.1, the second form is invalid.
+In Snit 2.2, the second form is invalid.
 
 [call [cmd option] [arg namespec] [opt [arg defaultValue]]]
 [call [cmd option] [arg namespec] [opt [arg options...]]]
@@ -1282,6 +1282,27 @@ If [arg pattern] is given, it's used as a [cmd {string match}]
 pattern; only names that match the pattern are returned.
 
 
+[call [cmd {$type}] [method {info args}] [arg method]]
+
+Returns a list containing the names of the arguments to the type's
+[arg method], in order. This method cannot be applied to delegated
+type methods.
+
+
+[call [cmd {$type}] [method {info body}] [arg method]]
+
+Returns the body of typemethod [arg method]. This method cannot be
+applied to delegated type methods.
+
+
+[call [cmd {$type}] [method {info default}] [arg method] [arg aname] [arg varname]]
+
+Returns a boolean value indicating whether the argument [arg aname] of
+the type's [arg method] has a default value ([const true]) or not
+([const false]). If the argument has a default its value is placed into
+the variable [arg varname].
+
+
 [call [cmd {$type}] [method {info instances}] [opt [arg pattern]]]
 
 Returns a list of the type's instances.  For [cmd snit::type]s, it
@@ -1480,6 +1501,27 @@ pattern; only names that match the pattern are returned.
 
 [emph "Snit 1.x Incompatibility:"]  In Snit 1.x, the full multi-word
 names of hierarchical type methods are included in the return value.
+
+
+[call [cmd {$object}] [method {info args}] [arg method]]
+
+Returns a list containing the names of the arguments to the instance's
+[arg method], in order. This method cannot be applied to delegated methods.
+
+
+[call [cmd {$object}] [method {info body}] [arg method]]
+
+Returns the body of the instance's method [arg method]. This method
+cannot be applied to delegated methods.
+
+
+[call [cmd {$object}] [method {info default}] [arg method] [arg aname] [arg varname]]
+
+Returns a boolean value indicating whether the argument [arg aname] of
+the instance's [arg method] has a default value ([const true]) or not
+([const false]). If the argument has a default its value is placed into
+the variable [arg varname].
+
 
 [list_end]
 
@@ -2737,7 +2779,7 @@ The wisest course is simply not to do this.
 
 Error stack traces returned by Snit 1.x are extremely ugly and typically
 contain far too much information about Snit internals.  The error
-messages are much improved in Snit 2.1.
+messages are much improved in Snit 2.2.
 
 [item]
 

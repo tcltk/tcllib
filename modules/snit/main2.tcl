@@ -950,7 +950,7 @@ proc ::snit::Comp.statement.method {method arglist body} {
     set arglist [concat type selfns win self $arglist]
 
     # Next, add variable declarations to body:
-    set body "%TVARDECS%\n%IVARDECS%\n$body"
+    set body "%TVARDECS%\n%IVARDECS%\n# END snit method prolog\n$body"
 
     # Next, save the definition script.
     if {[llength $method] == 1} {
@@ -1037,7 +1037,7 @@ proc ::snit::Comp.statement.typemethod {method arglist body} {
     set arglist [concat type $arglist]
 
     # Next, add typevariable declarations to body:
-    set body "%TVARDECS%\n$body"
+    set body "%TVARDECS%\n# END snit method prolog\n$body"
 
     # Next, save the definition script
     if {[llength $method] == 1} {
@@ -3375,6 +3375,9 @@ proc ::snit::RT.typemethod.info {type command args} {
     global errorCode
 
     switch -exact $command {
+	args        -
+	body        -
+	default     -
         typevars    -
         typemethods -
         instances {
@@ -3462,6 +3465,118 @@ proc ::snit::RT.typemethod.info.typemethods {type {pattern *}} {
     return $result
 }
 
+# $type info args
+#
+# Returns a method's list of arguments. does not work for delegated
+# methods, nor for the internal dispatch methods of multi-word
+# methods.
+
+proc ::snit::RT.typemethod.info.args {type method} {
+    upvar ${type}::Snit_typemethodInfo  Snit_typemethodInfo
+
+    # Snit_methodInfo: method -> list (flag cmd component)
+
+    # flag      : 1 -> internal dispatcher for multi-word method.
+    #             0 -> regular method
+    #
+    # cmd       : template mapping from method to command prefix, may
+    #             contain placeholders for various pieces of information.
+    #
+    # component : is empty for normal methods.
+
+    #parray Snit_typemethodInfo
+
+    if {![info exists Snit_typemethodInfo($method)]} {
+	return -code error "Unknown typemethod \"$method\""
+    }
+    foreach {flag cmd component} $Snit_typemethodInfo($method) break
+    if {$flag} {
+	return -code error "Unknown typemethod \"$method\""
+    }
+    if {$component != ""} {
+	return -code error "Delegated typemethod \"$method\""
+    }
+
+    set map     [list %m $method %j [join $method _] %t $type]
+    set theproc [lindex [string map $map $cmd] 0]
+    return [lrange [::info args $theproc] 1 end]
+}
+
+# $type info body
+#
+# Returns a method's body. does not work for delegated
+# methods, nor for the internal dispatch methods of multi-word
+# methods.
+
+proc ::snit::RT.typemethod.info.body {type method} {
+    upvar ${type}::Snit_typemethodInfo  Snit_typemethodInfo
+
+    # Snit_methodInfo: method -> list (flag cmd component)
+
+    # flag      : 1 -> internal dispatcher for multi-word method.
+    #             0 -> regular method
+    #
+    # cmd       : template mapping from method to command prefix, may
+    #             contain placeholders for various pieces of information.
+    #
+    # component : is empty for normal methods.
+
+    #parray Snit_typemethodInfo
+
+    if {![info exists Snit_typemethodInfo($method)]} {
+	return -code error "Unknown typemethod \"$method\""
+    }
+    foreach {flag cmd component} $Snit_typemethodInfo($method) break
+    if {$flag} {
+	return -code error "Unknown typemethod \"$method\""
+    }
+    if {$component != ""} {
+	return -code error "Delegated typemethod \"$method\""
+    }
+
+    set map     [list %m $method %j [join $method _] %t $type]
+    set theproc [lindex [string map $map $cmd] 0]
+    return [RT.body [::info body $theproc]]
+}
+
+# $type info default
+#
+# Returns a method's list of arguments. does not work for delegated
+# methods, nor for the internal dispatch methods of multi-word
+# methods.
+
+proc ::snit::RT.typemethod.info.default {type method aname dvar} {
+    upvar 1 $dvar def
+    upvar ${type}::Snit_typemethodInfo  Snit_typemethodInfo
+
+    # Snit_methodInfo: method -> list (flag cmd component)
+
+    # flag      : 1 -> internal dispatcher for multi-word method.
+    #             0 -> regular method
+    #
+    # cmd       : template mapping from method to command prefix, may
+    #             contain placeholders for various pieces of information.
+    #
+    # component : is empty for normal methods.
+
+    #parray Snit_methodInfo
+
+    if {![info exists Snit_typemethodInfo($method)]} {
+	return -code error "Unknown typemethod \"$method\""
+    }
+    foreach {flag cmd component} $Snit_typemethodInfo($method) break
+    if {$flag} {
+	return -code error "Unknown typemethod \"$method\""
+    }
+    if {$component != ""} {
+	return -code error "Delegated typemethod \"$method\""
+    }
+
+    set map     [list %m $method %j [join $method _] %t $type]
+    set theproc [lindex [string map $map $cmd] 0]
+    return [::info default $theproc $aname def]
+}
+
 # Returns a list of the type's instances whose names match
 # a pattern.
 #
@@ -3499,6 +3614,9 @@ proc ::snit::RT.typemethod.info.instances {type {pattern *}} {
 
 proc ::snit::RT.method.info {type selfns win self command args} {
     switch -exact $command {
+	args        -
+	body        -
+	default     -
         type        -
         vars        -
         options     -
@@ -3594,6 +3712,118 @@ proc ::snit::RT.method.info.methods {type selfns win self {pattern *}} {
     return $result
 }
 
+# $self info args
+#
+# Returns a method's list of arguments. does not work for delegated
+# methods, nor for the internal dispatch methods of multi-word
+# methods.
+
+proc ::snit::RT.method.info.args {type selfns win self method} {
+
+    upvar ${type}::Snit_methodInfo  Snit_methodInfo
+
+    # Snit_methodInfo: method -> list (flag cmd component)
+
+    # flag      : 1 -> internal dispatcher for multi-word method.
+    #             0 -> regular method
+    #
+    # cmd       : template mapping from method to command prefix, may
+    #             contain placeholders for various pieces of information.
+    #
+    # component : is empty for normal methods.
+
+    #parray Snit_methodInfo
+
+    if {![info exists Snit_methodInfo($method)]} {
+	return -code error "Unknown method \"$method\""
+    }
+    foreach {flag cmd component} $Snit_methodInfo($method) break
+    if {$flag} {
+	return -code error "Unknown method \"$method\""
+    }
+    if {$component != ""} {
+	return -code error "Delegated method \"$method\""
+    }
+
+    set map     [list %m $method %j [join $method _] %t $type %n $selfns %w $win %s $self]
+    set theproc [lindex [string map $map $cmd] 0]
+    return [lrange [::info args $theproc] 4 end]
+}
+
+# $self info body
+#
+# Returns a method's body. does not work for delegated
+# methods, nor for the internal dispatch methods of multi-word
+# methods.
+
+proc ::snit::RT.method.info.body {type selfns win self method} {
+
+    upvar ${type}::Snit_methodInfo  Snit_methodInfo
+
+    # Snit_methodInfo: method -> list (flag cmd component)
+
+    # flag      : 1 -> internal dispatcher for multi-word method.
+    #             0 -> regular method
+    #
+    # cmd       : template mapping from method to command prefix, may
+    #             contain placeholders for various pieces of information.
+    #
+    # component : is empty for normal methods.
+
+    #parray Snit_methodInfo
+
+    if {![info exists Snit_methodInfo($method)]} {
+	return -code error "Unknown method \"$method\""
+    }
+    foreach {flag cmd component} $Snit_methodInfo($method) break
+    if {$flag} {
+	return -code error "Unknown method \"$method\""
+    }
+    if {$component != ""} {
+	return -code error "Delegated method \"$method\""
+    }
+
+    set map     [list %m $method %j [join $method _] %t $type %n $selfns %w $win %s $self]
+    set theproc [lindex [string map $map $cmd] 0]
+    return [RT.body [::info body $theproc]]
+}
+
+# $self info default
+#
+# Returns a method's list of arguments. does not work for delegated
+# methods, nor for the internal dispatch methods of multi-word
+# methods.
+
+proc ::snit::RT.method.info.default {type selfns win self method aname dvar} {
+    upvar 1 $dvar def
+    upvar ${type}::Snit_methodInfo  Snit_methodInfo
+
+    # Snit_methodInfo: method -> list (flag cmd component)
+
+    # flag      : 1 -> internal dispatcher for multi-word method.
+    #             0 -> regular method
+    #
+    # cmd       : template mapping from method to command prefix, may
+    #             contain placeholders for various pieces of information.
+    #
+    # component : is empty for normal methods.
+
+    if {![info exists Snit_methodInfo($method)]} {
+	return -code error "Unknown method \"$method\""
+    }
+    foreach {flag cmd component} $Snit_methodInfo($method) break
+    if {$flag} {
+	return -code error "Unknown method \"$method\""
+    }
+    if {$component != ""} {
+	return -code error "Delegated method \"$method\""
+    }
+
+    set map     [list %m $method %j [join $method _] %t $type %n $selfns %w $win %s $self]
+    set theproc [lindex [string map $map $cmd] 0]
+    return [::info default $theproc $aname def]
+}
+
 # $self info vars
 #
 # Returns the instance's instance variables
@@ -3647,4 +3877,9 @@ proc ::snit::RT.method.info.options {type selfns win self {pattern *}} {
     }
 
     return $names
+}
+
+proc ::snit::RT.body {body} {
+    regsub -all ".*# END snit method prolog\n" $body {} body
+    return $body
 }
