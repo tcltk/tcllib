@@ -5449,6 +5449,195 @@ test iinfo-8.5 {info methods, with hierarchical methods} -body {
     dog destroy
 } -result {{comp bar} {comp foo} destroy info}
 
+test iinfo-9.1 {info args} -body {
+    type dog {
+	method bark {volume} {}
+    }
+
+    dog spot
+
+    spot info args bark
+} -cleanup {
+    dog destroy
+} -result {volume}
+
+test iinfo-9.2 {info args, too few args} -body {
+    type dog {
+	method bark {volume} {}
+    }
+
+    dog spot
+
+    spot info args
+} -returnCodes error -cleanup {
+    dog destroy
+} -result [tcltest::wrongNumArgs ::snit::RT.method.info.args {type selfns win self method} 4]
+
+test iinfo-9.3 {info args, too many args} -body {
+    type dog {
+	method bark {volume} {}
+    }
+
+    dog spot
+
+    spot info args bark wag
+} -returnCodes error -cleanup {
+    dog destroy
+} -result [tcltest::tooManyArgs ::snit::RT.method.info.args {type selfns win self method}]
+
+test iinfo-9.4 {info args, unknown method} -body {
+    type dog {
+    }
+
+    dog spot
+
+    spot info args bark
+} -returnCodes error -cleanup {
+    dog destroy
+} -result {Unknown method "bark"}
+
+test iinfo-9.5 {info args, delegated method} -body {
+    type dog {
+	component x
+	delegate method bark to x
+    }
+
+    dog spot
+
+    spot info args bark
+} -returnCodes error -cleanup {
+    dog destroy
+} -result {Delegated method "bark"}
+
+test iinfo-10.1 {info default} -body {
+    type dog {
+	method bark {{volume 50}} {}
+    }
+
+    dog spot
+
+    list [spot info default bark volume def] $def
+} -cleanup {
+    dog destroy
+} -result {1 50}
+
+test iinfo-10.2 {info default, too few args} -body {
+    type dog {
+	method bark {volume} {}
+    }
+
+    dog spot
+
+    spot info default
+} -returnCodes error -cleanup {
+    dog destroy
+} -result [tcltest::wrongNumArgs ::snit::RT.method.info.default {type selfns win self method aname dvar} 4]
+
+test iinfo-10.3 {info default, too many args} -body {
+    type dog {
+	method bark {volume} {}
+    }
+
+    dog spot
+
+    spot info default bark wag def foo
+} -returnCodes error -cleanup {
+    dog destroy
+} -result [tcltest::tooManyArgs ::snit::RT.method.info.default {type selfns win self method aname dvar}]
+
+test iinfo-10.4 {info default, unknown method} -body {
+    type dog {
+    }
+
+    dog spot
+
+    spot info default bark x var
+} -returnCodes error -cleanup {
+    dog destroy
+} -result {Unknown method "bark"}
+
+test iinfo-10.5 {info default, delegated method} -body {
+    type dog {
+	component x
+	delegate method bark to x
+    }
+
+    dog spot
+
+    spot info default bark x var
+} -returnCodes error -cleanup {
+    dog destroy
+} -result {Delegated method "bark"}
+
+test iinfo-11.1 {info body} -body {
+    type dog {
+	typevariable x
+	variable y
+	method bark {volume} {
+	    speaker on
+	    speaker play bark.snd
+	    speaker off
+	}
+    }
+
+    dog spot
+
+    spot info body bark
+} -cleanup {
+    dog destroy
+} -result {
+	    speaker on
+	    speaker play bark.snd
+	    speaker off
+	}
+
+test iinfo-11.2 {info body, too few args} -body {
+    type dog {
+	method bark {volume} {}
+    }
+
+    dog spot
+
+    spot info body
+} -returnCodes error -cleanup {
+    dog destroy
+} -result [tcltest::wrongNumArgs ::snit::RT.method.info.body {type selfns win self method} 4]
+
+test iinfo-11.3 {info body, too many args} -body {
+    type dog {
+	method bark {volume} {}
+    }
+
+    dog spot
+
+    spot info body bark wag
+} -returnCodes error -cleanup {
+    dog destroy
+} -result [tcltest::tooManyArgs ::snit::RT.method.info.body {type selfns win self method}]
+
+test iinfo-11.4 {info body, unknown method} -body {
+    type dog {
+    }
+
+    dog spot
+
+    spot info body bark
+} -returnCodes error -cleanup {
+    dog destroy
+} -result {Unknown method "bark"}
+
+test iinfo-11.5 {info body, delegated method} -body {
+    type dog {
+	component x
+	delegate method bark to x
+    }
+
+    dog spot
+
+    spot info body bark
+} -returnCodes error -cleanup {
+    dog destroy
+} -result {Delegated method "bark"}
 
 #-----------------------------------------------------------------------
 # Type Introspection
@@ -5640,6 +5829,162 @@ test tinfo-5.5 {info typemethods, with hierarchical typemethods} -body {
     dog destroy
 } -result {{comp bar} {comp foo} create destroy info}
 
+test tinfo-6.1 {type info args} -body {
+    type dog {
+	typemethod bark {volume} {}
+    }
+
+    dog info args bark
+} -cleanup {
+    dog destroy
+} -result {volume}
+
+test tinfo-6.2 {type info args, too few args} -body {
+    type dog {
+	typemethod bark {volume} {}
+    }
+
+    dog info args
+} -returnCodes error -cleanup {
+    dog destroy
+} -result [tcltest::wrongNumArgs ::snit::RT.typemethod.info.args {type method} 2]
+
+test tinfo-6.3 {type info args, too many args} -body {
+    type dog {
+	typemethod bark {volume} {}
+    }
+
+    dog info args bark wag
+} -returnCodes error -cleanup {
+    dog destroy
+} -result [tcltest::tooManyArgs ::snit::RT.typemethod.info.args {type method}]
+
+test tinfo-6.4 {type info args, unknown method} -body {
+    type dog {
+    }
+
+    dog info args bark
+} -returnCodes error -cleanup {
+    dog destroy
+} -result {Unknown typemethod "bark"}
+
+test tinfo-6.5 {type info args, delegated method} -body {
+    type dog {
+	delegate typemethod bark to x
+    }
+
+    dog info args bark
+} -returnCodes error -cleanup {
+    dog destroy
+} -result {Delegated typemethod "bark"}
+
+test tinfo-7.1 {type info default} -body {
+    type dog {
+	typemethod bark {{volume 50}} {}
+    }
+
+    list [dog info default bark volume def] $def
+} -cleanup {
+    dog destroy
+} -result {1 50}
+
+test tinfo-7.2 {type info default, too few args} -body {
+    type dog {
+	typemethod bark {volume} {}
+    }
+
+    dog info default
+} -returnCodes error -cleanup {
+    dog destroy
+} -result [tcltest::wrongNumArgs ::snit::RT.typemethod.info.default {type method aname dvar} 2]
+
+test tinfo-7.3 {type info default, too many args} -body {
+    type dog {
+	typemethod bark {volume} {}
+    }
+
+    dog info default bark wag def foo
+} -returnCodes error -cleanup {
+    dog destroy
+} -result [tcltest::tooManyArgs ::snit::RT.typemethod.info.default {type method aname dvar}]
+
+test tinfo-7.4 {type info default, unknown method} -body {
+    type dog {
+    }
+
+    dog info default bark x var
+} -returnCodes error -cleanup {
+    dog destroy
+} -result {Unknown typemethod "bark"}
+
+test tinfo-7.5 {type info default, delegated method} -body {
+    type dog {
+	delegate typemethod bark to x
+    }
+
+    dog info default bark x var
+} -returnCodes error -cleanup {
+    dog destroy
+} -result {Delegated typemethod "bark"}
+
+test tinfo-8.1 {type info body} -body {
+    type dog {
+	typevariable x
+	variable y
+	typemethod bark {volume} {
+	    speaker on
+	    speaker play bark.snd
+	    speaker off
+	}
+    }
+
+    dog info body bark
+} -cleanup {
+    dog destroy
+} -result {
+	    speaker on
+	    speaker play bark.snd
+	    speaker off
+	}
+
+test tinfo-8.2 {type info body, too few args} -body {
+    type dog {
+	typemethod bark {volume} {}
+    }
+
+    dog info body
+} -returnCodes error -cleanup {
+    dog destroy
+} -result [tcltest::wrongNumArgs ::snit::RT.typemethod.info.body {type method} 2]
+
+test tinfo-8.3 {type info body, too many args} -body {
+    type dog {
+	typemethod bark {volume} {}
+    }
+
+    dog info body bark wag
+} -returnCodes error -cleanup {
+    dog destroy
+} -result [tcltest::tooManyArgs ::snit::RT.typemethod.info.body {type method}]
+
+test tinfo-8.4 {type info body, unknown method} -body {
+    type dog {
+    }
+
+    dog info body bark
+} -returnCodes error -cleanup {
+    dog destroy
+} -result {Unknown typemethod "bark"}
+
+test tinfo-8.5 {type info body, delegated method} -body {
+    type dog {
+	delegate typemethod bark to x
+    }
+
+    dog info body bark
+} -returnCodes error -cleanup {
+    dog destroy
+} -result {Delegated typemethod "bark"}
 
 #-----------------------------------------------------------------------
 # Setting the widget class explicitly
