@@ -1090,9 +1090,6 @@ proc ::snit::Comp.statement.oncget {option body} {
         return -code error "$errRoot, option \"$option\" unknown"
     }
 
-    # Next, add variable declarations to body:
-    set body "%TVARDECS%%IVARDECS%\n$body"
-
     Comp.statement.method _cget$option {_option} $body
     Comp.statement.option $option -cgetmethod _cget$option
 }

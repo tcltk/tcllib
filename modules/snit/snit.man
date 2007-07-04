@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin snit n 2.2]
+[manpage_begin snit n 2.2.1]
 [copyright {2003-2006, by William H. Duquette}]
 [moddesc {Snit's Not Incr Tcl, OO system}]
 [titledesc  {Snit's Not Incr Tcl}]
 [require Tcl 8.5]
-[require snit [opt 2.2]]
+[require snit [opt 2.2.1]]
 [description]
 [para]
 
