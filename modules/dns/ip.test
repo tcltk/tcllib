@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: ip.test,v 1.6 2006/10/09 21:41:40 andreas_kupries Exp $
+# RCS: @(#) $Id: ip.test,v 1.7 2007/07/05 13:39:32 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 
@@ -30,13 +30,13 @@ set Data {
     127.0.0.1 4 0.0.0.0 4 192.168.0.4 4 255.255.255.255 4 127/8 4 192/16 4
     :: 6 ::1 6 fec0::1 6 ::192.168.0.4 6 fec0:0:0:0:0:0:0:1 6 fffe:0:0::2 6
     2002:192.168.0.4:: 6 2001:192.168.0.4:: -1 2002:127.0.0.1::1 6
-    hello -1 -1 -1
+    hello -1 -1 -1 1.2.3.4.example.com -1 bogus.1.2.3.4.example.com -1
 }
 set n 0
 foreach {addr result} $Data {
     test ip-1.[incr n] [list ip version $addr] {
-        list [catch {ip::version $addr} msg] $msg
-    } [list 0 $result]
+        list [catch {ip::version $addr} msg] $addr $msg
+    } [list 0 $addr $result]
 }
 
 # is
@@ -44,16 +44,16 @@ set n 0
 foreach {addr result} $Data {
     if {$result != 4} {set result 0}
     test ip-2.[incr n] [list ip::is ipv4 $addr] {
-        list [catch {expr {[ip::is ipv4 $addr] ? 4 : 0}} msg] $msg
-    } [list 0 $result]
+        list [catch {expr {[ip::is ipv4 $addr] ? 4 : 0}} msg] $addr $msg
+    } [list 0 $addr $result]
 }
 
 set n 0
 foreach {addr result} $Data {
     if {$result != 6} {set result 0}
     test ip-3.[incr n] [list ip::is ipv6 $addr] {
-        list [catch {expr {[ip::is ipv6 $addr] ? 6 : 0}} msg] $msg
-    } [list 0 $result]
+        list [catch {expr {[ip::is ipv6 $addr] ? 6 : 0}} msg] $addr $msg
+    } [list 0 $addr $result]
 }
 
 # normalize
