@@ -1,3 +1,9 @@
+2007-07-05  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* des.test: Previous version of DES used to pad the key to 64
+	* des.tcl:  bits. If we are using the old options then add padding. The new
+	            version will raise an error instead.
+
 2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* des.man: Fixed all warnings due to use of now deprecated

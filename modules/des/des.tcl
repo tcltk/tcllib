@@ -18,7 +18,7 @@ if {[catch {package require tclDES 1.0.0}]} {
 
 namespace eval DES {
     variable version 1.0.0
-    variable rcsid {$Id: des.tcl,v 1.12 2005/09/26 09:16:59 patthoyts Exp $}
+    variable rcsid {$Id: des.tcl,v 1.13 2007/07/05 13:19:20 patthoyts Exp $}
     variable uid ; if {![info exists uid]} { set uid 0 }
 }
 
@@ -26,6 +26,11 @@ proc ::DES::Init {mode key iv {weak 0}} {
     variable uid
     set Key [namespace current]::[incr uid]
     upvar #0 $Key state
+    if {[string length $key] % 8 != 0} {
+        return -code error "invalid key length of\
+             [expr {[string length $key] * 8}] bits:\
+             DES requires 64 bit keys (56 bits plus parity bits)"
+    }
     array set state [list M $mode I $iv K [des::keyset create $key $weak]]
     return $Key
 }
@@ -144,7 +149,7 @@ proc ::DES::Hex {data} {
 
 proc ::DES::des {args} {
     array set opts {
-        -dir encrypt -mode cbc -key {} -in {} -out {} -chunksize 4096 -hex 0 -weak 0
+        -dir encrypt -mode cbc -key {} -in {} -out {} -chunksize 4096 -hex 0 -weak 0 old 0
     }
     set blocksize 8
     set opts(-iv) [string repeat \0 $blocksize]
@@ -161,6 +166,7 @@ proc ::DES::des {args} {
                         # someone is using the old interface, therefore ecb
                         set mode ecb
                         set opts(-weak) 1
+                        set opts(old) 1
                         set opts(-dir) [expr {[string match en* $M] ? "encrypt" : "decrypt"}]
                     }
                 }
@@ -176,7 +182,7 @@ proc ::DES::des {args} {
             -weak      { set opts(-weak) 1 }
             --         { Pop args ; break }
             default {
-                set err [join [lsort [array names opts]] ", "]
+                set err [join [lsort [array names opts -*]] ", "]
                 return -code error "bad option \"$option\":\
                     must be one of $err"
             }
@@ -186,6 +192,14 @@ proc ::DES::des {args} {
 
     if {$opts(-key) == {}} {
         return -code error "no key provided: the -key option is required"
+    }
+
+    # pad the key if backwards compat required
+    if {$opts(old)} {
+        set pad [expr {8 - ([string length $opts(-key)] % 8)}]
+        if {$pad != 8} {
+            append opts(-key) [string repeat \0 $pad]
+        }
     }
 
     set r {}
