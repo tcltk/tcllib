@@ -463,6 +463,9 @@ test leastsquares-1.0 "Least-squares solution" -match numbers -body {
     set x [::math::linearalgebra::leastSquaresSVD $A $b]
 } -result {1.0 1.0 0.1}
 
+# Additional tests: procedures by Federico Ferri
+source ferri/ferri.test
+
 set ::tcl_precision $old_precision
 
 testsuiteCleanup

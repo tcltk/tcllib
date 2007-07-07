@@ -75,7 +75,7 @@ customMatch almostzero matchAlmostZero
 #
 test "BasicStats-1.0" "Basic statistics - uniform data" -match tolerant -body {
   set all_data [::math::statistics::BasicStats all $::data_uniform]
-} -result [list 1.0 1.0 1.0 [llength $::data_uniform] 0.0 0.0]
+} -result [list 1.0 1.0 1.0 [llength $::data_uniform] 0.0 0.0 0.0 0.0]
 
 test "BasicStats-1.1" "Basic statistics - empty data" -match glob -body {
   catch {
@@ -89,7 +89,7 @@ test "BasicStats-1.1" "Basic statistics - empty data" -match glob -body {
 #
 test "BasicStats-1.2" "Basic statistics - missing data" -match tolerant -body {
   set all_data [::math::statistics::BasicStats all $::data_missing]
-} -result [list 1.0 1.0 1.0 [llength $::data_uniform] 0.0 0.0]
+} -result [list 1.0 1.0 1.0 [llength $::data_uniform] 0.0 0.0 0.0 0.0]
 
 test "BasicStats-1.3" "Basic statistics - linear data - mean" -match tolerant -body {
   set value [::math::statistics::mean $::data_linear]
@@ -120,6 +120,18 @@ test "BasicStats-1.8" "Basic statistics - missing data - stdev" -match almostzer
 test "BasicStats-1.9" "Basic statistics - missing data - var" -match almostzero -body {
   set value1 [::math::statistics::stdev  $::data_linear]
   set value2 [::math::statistics::var    $::data_missing2]
+  expr {$value1*$value1-$value2}
+} -result 0.001 ;# Zero is impossible
+
+test "BasicStats-1.10" "Basic statistics - missing data - pstdev" -match almostzero -body {
+  set value1 [::math::statistics::pstdev  $::data_linear]
+  set value2 [::math::statistics::pstdev  $::data_missing2]
+  expr {abs($value1-$value2)}
+} -result 0.001 ;# Zero is impossible
+
+test "BasicStats-1.11" "Basic statistics - missing data - pvar" -match almostzero -body {
+  set value1 [::math::statistics::pstdev  $::data_linear]
+  set value2 [::math::statistics::pvar    $::data_missing2]
   expr {$value1*$value1-$value2}
 } -result 0.001 ;# Zero is impossible
 
