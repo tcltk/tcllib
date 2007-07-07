@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: math.test,v 1.19 2006/10/09 21:41:41 andreas_kupries Exp $
+# RCS: @(#) $Id: math.test,v 1.20 2007/07/07 16:17:08 arjenmarkus Exp $
 
 # -------------------------------------------------------------------------
 
@@ -23,6 +23,22 @@ testing {
 }
 
 # -------------------------------------------------------------------------
+#
+# Create and register (in that order!) custom matching procedures
+#
+proc matchTolerant { expected actual } {
+   set match 1
+   foreach a $actual e $expected {
+      if { abs($e-$a)>0.0001*abs($e) &&
+           abs($e-$a)>0.0001*abs($a)     } {
+         set match 0
+         break
+      }
+   }
+   return $match
+}
+customMatch tolerant   matchTolerant
+
 
 test math-1.1 {math::min, wrong num args} {
     catch {math::min} msg
@@ -80,9 +96,9 @@ test math-3.4 {math::mean} {
 test math-3.5 {math::mean with negative numbers} {
     math::mean 2 1 0 -11
 } -2.0
-test math-3.6 {math::mean with floating point numbers} {
+test math-3.6 {math::mean with floating point numbers} -match tolerant -body {
     math::mean 2 1 0 -10 10.5
-} 0.7
+} -result 0.7
 
 test math-4.1 {math::sum, wrong num args} {
     catch {math::sum} msg
@@ -94,9 +110,9 @@ test math-4.2 {math::sum} {
 test math-4.3 {math::sum} {
     math::sum 1 2 3
 } 6
-test math-4.4 {math::sum} {
+test math-4.4 {math::sum} -match tolerant -body {
     math::sum 0.1 0.2 0.3 1
-} 1.6
+} -result 1.6
 test math-4.5 {math::sum} {
     math::sum -1 1
 } 0
@@ -155,7 +171,7 @@ test math-7.3 {simple math::cov} {
 } 100.0
 
 test math-7.4 {math::cov} {
-    if {![catch { 
+    if {![catch {
 	math::cov 0 2 1 0
     } msg]} {
 	if { [string equal $msg Infinity] || [string equal $msg Inf] } {
@@ -182,7 +198,7 @@ test math-7.6 {math::cov with floating point numbers} {
 } 4
 test math-7.7 {math::cov with zero mean} {
     # Throw an error
-    catch { 
+    catch {
        math::cov 1 1 -2
     } msg
 } 1
@@ -206,10 +222,10 @@ test math-8.3 { simple math::stats } {
 test math-9.1 { math::integrate, insufficient data points } {
      catch { math::integrate {1 10 2 20 3 30 4 40} } msg
      set msg
-} "at least 5 x,y pairs must be given"     
+} "at least 5 x,y pairs must be given"
 test math-9.2 { simple math::integrate } {
      math::integrate {1 10 2 20 3 30 4 40 5 50 6 60 7 70 8 80 9 90 10 100}
-} {500.0 0.5}     
+} {500.0 0.5}
 
 test math-10.1 { math::random } {
     set result [expr round(srand(12345) * 1000)]

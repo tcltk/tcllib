@@ -1,3 +1,11 @@
+2007-07-07  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+	* math.test: Added a small tolerance for two tests
+	* statistics.man: Added pvar and pstdev, difference between var and pvar documented
+	* statistics.tcl: Added population stdev and variance
+	* statistics.test: Added tests for pvar and pstdev
+	* special.test: Added dependency on math::linearalgebra
+
 2007-06-26  Kevin B. Kenny  <kennykb@acm.org>
 
 	* elliptic.tcl: Removed a spurious 'puts' in the computation of
