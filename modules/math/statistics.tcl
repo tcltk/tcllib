@@ -10,8 +10,10 @@
 #                (also fixed an error in the export list)
 # version 0.4:   added the multivariate linear regression procedures by
 #                Eric Kemp-Benedict, february 2007
+# version 0.5:   added the population standard deviation and variance,
+#                as suggested by Dimitrios Zachiaridis
 
-package provide math::statistics 0.4
+package provide math::statistics 0.5
 
 # ::math::statistics --
 #   Namespace holding the procedures and variables
@@ -21,7 +23,7 @@ namespace eval ::math::statistics {
     #
     # Safer: change to short procedures
     #
-    namespace export mean min max number var stdev basic-stats corr \
+    namespace export mean min max number var stdev pvar pstdev basic-stats corr \
 	    histogram interval-mean-stdev t-test-mean quantiles \
 	    test-normal lillieforsFit \
 	    autocorr crosscorr filter map samplescount median \
@@ -53,7 +55,7 @@ namespace eval ::math::statistics {
     }
 }
 
-# mean, min, max, number, var, stdev --
+# mean, min, max, number, var, stdev, pvar, pstdev --
 #    Return the mean (minimum, maximum) value of a list of numbers
 #    or number of non-missing values
 #
@@ -66,7 +68,7 @@ namespace eval ::math::statistics {
 #
 #
 namespace eval ::math::statistics {
-    foreach type {mean min max number stdev var} {
+    foreach type {mean min max number stdev var pstdev pvar} {
 	proc $type { values } "BasicStats $type \$values"
     }
     proc basic-stats { values } "BasicStats all \$values"
@@ -130,13 +132,22 @@ proc ::math::statistics::BasicStats { type values } {
         }
 	set stdev  [expr {sqrt($var)}]
     }
+	set pvar [expr {($sumsq-$mean*$sum)/double($number)}]
+        #
+        # Take care of a rare situation: uniform data might
+        # cause a tiny negative difference
+        #
+        if { $pvar < 0.0 } {
+           set pvar 0.0
+        }
+	set pstdev  [expr {sqrt($pvar)}]
 
-    set all [list $mean $min $max $number $stdev $var]
+    set all [list $mean $min $max $number $stdev $var $pstdev $pvar]
 
     #
     # Return the appropriate value
     #
-    if { [lsearch {all mean min max number stdev var} $type] >= 0 } {
+    if { [lsearch {all mean min max number stdev var pstdev pvar} $type] >= 0 } {
 	# FRINK: nocheck
 	return [set $type]
     } else {

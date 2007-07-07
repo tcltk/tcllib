@@ -1,8 +1,8 @@
-[manpage_begin math::statistics n 0.2]
+[manpage_begin math::statistics n 0.5]
 [moddesc {Tcl Math Library}]
 [titledesc {Basic statistical functions and procedures}]
 [require Tcl 8]
-[require math::statistics 0.2]
+[require math::statistics 0.5]
 [description]
 [para]
 
@@ -72,13 +72,28 @@ Determine the [emph number] of non-missing data in the given list
 [para]
 
 [call [cmd ::math::statistics::stdev] [arg data]]
-Determine the [emph "standard deviation"] of the data in the given list
+Determine the [emph "sample standard deviation"] of the data in the
+given list
 [para]
 [arg data] - List of data
 [para]
 
 [call [cmd ::math::statistics::var] [arg data]]
-Determine the [emph variance] of the data in the given list
+Determine the [emph "sample variance"] of the data in the given list
+[para]
+[arg data] - List of data
+[para]
+
+[call [cmd ::math::statistics::pstdev] [arg data]]
+Determine the [emph "population standard deviation"] of the data
+in the given list
+[para]
+[arg data] - List of data
+[para]
+
+[call [cmd ::math::statistics::pvar] [arg data]]
+Determine the [emph "population variance"] of the data in the
+given list
 [para]
 [arg data] - List of data
 [para]
@@ -93,7 +108,8 @@ costly operation)
 
 [call [cmd ::math::statistics::basic-stats] [arg data]]
 Determine a list of all the descriptive parameters: mean, minimum,
-maximum, number of data, standard deviation and variance.
+maximum, number of data, sample standard deviation, sample variance,
+population standard deviation and population variance.
 [para]
 (This routine is called whenever either or all of the basic statistical
 parameters are required. Hence all calculations are done and the
