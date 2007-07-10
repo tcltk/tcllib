@@ -11,7 +11,7 @@
 # version 0.4:   added the multivariate linear regression procedures by
 #                Eric Kemp-Benedict, february 2007
 # version 0.5:   added the population standard deviation and variance,
-#                as suggested by Dimitrios Zachiaridis
+#                as suggested by Dimitrios Zachariadis
 
 package provide math::statistics 0.5
 
