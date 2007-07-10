@@ -974,7 +974,7 @@ series - they do not show the periodic nature.
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 
-Please report such in the category [emph {math :: statistics}] of the
+Please report such in the category [term {math :: statistics}] of the
 [uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
 
 Please also report any ideas for enhancements you may have for either
