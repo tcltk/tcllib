@@ -48,58 +48,58 @@ The general statistical procedures are:
 [list_begin definitions]
 
 [call [cmd ::math::statistics::mean] [arg data]]
-Determine the [emph mean] value of the given list of data.
+Determine the [term mean] value of the given list of data.
 [para]
 [arg data] - List of data
 [para]
 
 [call [cmd ::math::statistics::min] [arg data]]
-Determine the [emph minimum] value of the given list of data.
+Determine the [term minimum] value of the given list of data.
 [para]
 [arg data] - List of data
 [para]
 
 [call [cmd ::math::statistics::max] [arg data]]
-Determine the [emph maximum] value of the given list of data.
+Determine the [term maximum] value of the given list of data.
 [para]
 [arg data] - List of data
 [para]
 
 [call [cmd ::math::statistics::number] [arg data]]
-Determine the [emph number] of non-missing data in the given list
+Determine the [term number] of non-missing data in the given list
 [para]
 [arg data] - List of data
 [para]
 
 [call [cmd ::math::statistics::stdev] [arg data]]
-Determine the [emph "sample standard deviation"] of the data in the
+Determine the [term "sample standard deviation"] of the data in the
 given list
 [para]
 [arg data] - List of data
 [para]
 
 [call [cmd ::math::statistics::var] [arg data]]
-Determine the [emph "sample variance"] of the data in the given list
+Determine the [term "sample variance"] of the data in the given list
 [para]
 [arg data] - List of data
 [para]
 
 [call [cmd ::math::statistics::pstdev] [arg data]]
-Determine the [emph "population standard deviation"] of the data
+Determine the [term "population standard deviation"] of the data
 in the given list
 [para]
 [arg data] - List of data
 [para]
 
 [call [cmd ::math::statistics::pvar] [arg data]]
-Determine the [emph "population variance"] of the data in the
+Determine the [term "population variance"] of the data in the
 given list
 [para]
 [arg data] - List of data
 [para]
 
 [call [cmd ::math::statistics::median] [arg data]]
-Determine the [emph median] of the data in the given list
+Determine the [term median] of the data in the given list
 (Note that this requires sorting the data, which may be a
 costly operation)
 [para]
@@ -702,7 +702,7 @@ expression.
 [para]
 
 [call [cmd ::math::statistics::samplescount] [arg varname] [arg list] [arg expression]]
-Return a list consisting of the [emph counts] of all data in the
+Return a list consisting of the [term counts] of all data in the
 sublists of the "list" argument for which the expression is true.
 [para]
 [arg varname] - Name of the variable used in the expression
