@@ -9,6 +9,7 @@ package require Tcl 8.4
 package require comm             ; # Generic message transport
 package require logger           ; # Tracing internal activity
 package require nameserv::common ; # Common/shared utilities
+package require uevent           ; # Generate events for connection-loss
 
 namespace eval ::nameserv {}
 
@@ -102,9 +103,16 @@ proc ::nameserv::SERV {} {
 
 proc ::nameserv::LOST {args} {
     upvar 1 id id chan chan reason reason
-    variable comm ; $comm destroy ; set comm {}
-    log::debug [list LOST @ $sid]
-    variable sid  ;		    set sid  {}
+    variable comm
+    variable sid 
+
+    log::debug [list LOST @ $sid - $reason]
+    uevent::generate nameserv lost-connection [list reason $reason]
+
+    $comm destroy
+
+    set comm {}
+    set sid  {}
     return
 }
 
@@ -195,7 +203,7 @@ namespace eval        ::nameserv {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide nameserv 0.1
+package provide nameserv 0.2
 
 ##
 # ### ### ### ######### ######### #########
