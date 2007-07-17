@@ -7,6 +7,9 @@
 [require comm]
 [require interp]
 [require logger]
+[keywords {name service} server]
+[see_also nameserv::common(n)]
+[see_also nameserv::client(n)]
 [description]
 
 This package provides an implementation of the serviver side of the
@@ -112,7 +115,16 @@ provided by the package [package ::nameserv::server::common].
 
 [list_end]
 
-[keywords {name service} server]
-[see_also nameserv::common(n)]
-[see_also nameserv::client(n)]
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph nameserv] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
 [manpage_end]

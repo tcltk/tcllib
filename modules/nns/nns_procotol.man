@@ -2,6 +2,10 @@
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Name service facility}]
 [titledesc {Name service facility, client/server protocol}]
+[keywords comm {name service} protocol]
+[see_also nameserv::server(n)]
+[see_also nameserv(n)]
+[see_also comm_wire(n)]
 [description]
 
 The packages [package nameserv::server], [package nameserv], and
@@ -97,9 +101,17 @@ have to return [const {{Core}}].
 
 [list_end]
 
-[keywords comm {name service} protocol]
-[see_also nameserv::server(n)]
-[see_also nameserv(n)]
-[see_also comm_wire(n)]
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph nameserv] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
 [manpage_end]
 
