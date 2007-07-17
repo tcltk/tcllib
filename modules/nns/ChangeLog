@@ -1,3 +1,13 @@
+2007-07-17  Andreas Kupries <andreask@activestate.com>
+
+	* nns_auto.tcl: Name service client on top of the basic facility.
+	* nns_auto.man: Provides automatic restoration of registered names
+	* pkgIndex.tcl: after a loss of connection.
+
+	* nns.tcl: Extended to use the services of 'uevent' to generate
+	  events for important changes, like the loss of the connection to
+	  the server. The package version is bumped to 0.2.
+
 2007-05-08  Andreas Kupries  <andreask@activestate.com>
 
 	* nns_client.man: New name for nns.man, to avoid clashing with the
