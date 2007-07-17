@@ -38,7 +38,7 @@ Module  asn         _tcl  _man  _null
 Module  base64      _tcl  _man  _null
 Module  base32      _tcl  _man  _null
 Module  bee         _tcl  _man  _null
-Module  bench       _tcl  _null _null
+Module  bench       _tcl _null  _null
 Module  bibtex      _tcl  _man  _null
 Module  blowfish    _tcl  _man  _null
 Module  calendar     _tci _man  _null
@@ -102,12 +102,13 @@ Module  soundex     _tcl  _man  _null
 Module  stooop      _tcl  _man  _null
 Module  struct      _tcl  _man _exa
 Module  tar         _tcl  _man  _null
-Module  term        _tcr _man  _exa
-Module  textutil    _tex _man  _null
-Module  tie         _tcl _man  _null
-Module  tiff        _tcl _man  _null
+Module  term         _tcr _man _exa
+Module  textutil     _tex _man  _null
+Module  tie         _tcl  _man  _null
+Module  tiff        _tcl  _man  _null
 Module  transfer    _tcl  _man  _null
-Module  treeql      _tcl _man  _null
+Module  treeql      _tcl  _man  _null
+Module  uev         _tcl  _man  _null
 Module  units       _tcl  _man  _null
 Module  uri         _tcl  _man  _null
 Module  uuid        _tcl  _man  _null

@@ -1,0 +1,3 @@
+2007-07-17  Andreas Kupries  <andreask@activestate.com>
+
+	* New package 'uevent', handling of user events.
