@@ -3,7 +3,7 @@
 exec tclsh "$0" ${1+"$@"}
 
 # @@ Meta Begin
-# Application nnst 1.0
+# Application nnst 1.1
 # Meta platform     tcl
 # Meta summary      Nano Name Service Client
 # Meta description  This application connects to a name service demon
@@ -16,14 +16,15 @@ exec tclsh "$0" ${1+"$@"}
 # Meta require      {Tcl 8.4}
 # Meta require      comm
 # Meta require      logger
-# Meta require      struct::matrix
-# Meta require      nameserv::common
 # Meta require      nameserv
+# Meta require      nameserv::common
+# Meta require      snit
+# Meta require      struct::matrix
 # Meta author       Andreas Kupries
 # Meta license      BSD
 # @@ Meta End
 
-package provide nns 1.0
+package provide nns 1.1
 
 # nns - Nano Name Service Client
 # === = ========================
@@ -39,16 +40,17 @@ package provide nns 1.0
 # Command syntax
 # --------------
 #
-# Ad 1) nns bind  ?-host NAME|IP? ?-port PORT? name data
-# Ad 2) nns ident ?-host NAME|IP? ?-port PORT?
-# Ad 3) nns who
+# (Ad 1) nns bind  ?-host NAME|IP? ?-port PORT? name data
+# (Ad 2) nns ident ?-host NAME|IP? ?-port PORT?
+# (Ad 3) nns who
+# (Ad 4) nns search ?-host NAME|IP? ?-port PORT? ?-continuous? ?pattern?
 #
 #       Register a name with data. If no port is specified the default
 # 	port 38573 is used to connect to it. If no host is specified
 # 	the default (localhost) is used to connect to it.
 
-#lappend auto_path [file join [file dirname [file dirname \
-#			[file normalize [info script]]]] modules]
+lappend auto_path [file join [file dirname [file dirname \
+			[file normalize [info script]]]] modules]
 
 package require nameserv
 package require struct::matrix
@@ -60,7 +62,8 @@ proc ::nns::ProcessCommandLine {} {
     variable xcmd
     variable xname
     variable xdata
-    variable xpat  *
+    variable xpat   *
+    variable xwatch 0
 
     # Process the options, perform basic validation.
 
@@ -98,6 +101,10 @@ proc ::nns::ProcessCommandLine {} {
 
 		nameserv::configure -port $port
 	    }
+	    -continuous {
+		set xwatch 1
+		set argv [lrange $argv 1 end]
+	    }
 	    -debug {
 		# Undocumented. Activate the logger services provided
 		# by various packages.
@@ -134,7 +141,7 @@ proc ::nns::Usage {{sfx {}}} {
     set    blank [blank $argv0]
     puts stderr "$argv0 wrong#args, expected: bind   ?-host NAME|IP? ?-port PORT? NAME DATA"
     puts stderr "$blank                       ident  ?-host NAME|IP? ?-port PORT?"
-    puts stderr "$blank                       search ?-host NAME|IP? ?-port PORT? ?PATTERN?"
+    puts stderr "$blank                       search ?-host NAME|IP? ?-port PORT? ?-continuous? ?PATTERN?"
     puts stderr "$blank                       who"
     exit 1
 }
@@ -154,6 +161,11 @@ proc ::nns::blank {s} {
     return $s
 }
 
+proc ::nns::Exit {args} {
+    puts {Exiting client due to loss of connection with service}
+    exit 0
+}
+
 # ### ### ### ######### ######### #########
 ## Main
 
@@ -163,6 +175,8 @@ proc ::nns::Do.bind {} {
     variable xdata
 
     nameserv::bind $xname $xdata
+
+    uevent::bind nameserv lost-connection ::nns::Exit
     vwait forever
     return
 }
@@ -183,17 +197,49 @@ proc ::nns::Do.ident {} {
 
 proc ::nns::Do.search {} {
     variable xpat
+    variable xwatch
 
-    set contents [nameserv::search $xpat]
+    struct::matrix M
+    M add columns 2
 
+    if {$xwatch} {
+	set contents [nameserv::search -continuous $xpat]
+	$contents configure -command [list ::nns::Do.search.change $contents]
+
+	uevent::bind nameserv lost-connection ::nns::Exit
+	vwait forever
+	# Not reached.
+    } else {
+	Do.search.print [nameserv::search $xpat]
+    }
+    return
+}
+
+proc ::nns::Do.search.change {res type response} {
+    # Ignoring the arguments, we simply print the full results every
+    # time.
+
+    if {$type eq "stop"} {
+	$res destroy
+	puts {Lost connection, search closed}
+	return
+    }
+
+    # Clear screen ...
+    puts -nonewline stdout "\033\[H\033\[J"; # Home + Erase Down
+    flush           stdout
+
+    ::nns::Do.search.print [$res getall]
+    return
+}
+
+proc ::nns::Do.search.print {contents} {
     if {![llength $contents]} {
 	puts "Nothing found..."
 	return
     }
 
-    struct::matrix M
-    M add columns 2
-
+    catch {M delete rows [M rows]}
     foreach {name data} $contents {
 	M add row [list $name $data]
     }

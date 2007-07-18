@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin nns n 1.0]
+[manpage_begin nns n 1.1]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Name service facility}]
 [titledesc {Name service facility, Commandline Client Application}]
@@ -61,6 +61,7 @@ section [sectref OPTIONS].
 [call [cmd nns] [method search] \
 	[opt "[option -host] [arg host]"] \
 	[opt "[option -port] [arg port]"] \
+        [opt [option -continuous] \
 	[opt [arg pattern]]]
 
 This form searches the specified name service for entries matching the
@@ -71,6 +72,13 @@ matching everything.
 [para]
 The options to specify the name service will be explained later, in
 section [sectref OPTIONS].
+
+[para]
+
+If the option [option -continuous] is specified the client will not exit
+after performing the search, but start to continuously monitor the service
+for changes to the set of matching entries, appropriately updating the
+display as changes arrive.
 
 
 [call [cmd nns] [method ident] \
