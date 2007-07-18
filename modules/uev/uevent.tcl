@@ -95,9 +95,11 @@ proc ::uevent::generate {tag event {details {}}} {
     if {![info exists db($key)]} return
 
     foreach t $db($key) {
-	log::debug [list trigger! $t]
-	after 0 [linsert [lindex $tk($k) 2] end $tag $event $details]
+	set cmd [lindex $tk($t) 2]
+	log::debug [list trigger! $t = $cmd]
+	after 0 [linsert $cmd end $tag $event $details]
     }
+
     return
 }
 
@@ -126,7 +128,7 @@ namespace eval        ::uevent {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide uevent 0.1
+package provide uevent 0.1.1
 
 ##
 # ### ### ### ######### ######### #########
