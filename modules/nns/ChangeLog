@@ -1,3 +1,19 @@
+2007-07-18  Andreas Kupries  <andreask@activestate.com>
+
+	* ../../apps/nnsd: Fixed option bug. Bumped version to 1.0.1.
+
+	* ../../apps/nns: Extended example client application with
+	* ../../apps/nns.man: continuous search. Further extended to
+	  detect and handle loss of connection with service, by exiting.
+	  Bumped version to 1.1
+
+	* server.tcl: Implemented asynchronous and continuous searches.
+	* nns.tcl: Ditto in client. Documented this feature, and the
+	* nns_client.man: extensions to the protocol it needs.
+	* nns_server.man: Bumped both server and client to version 0.3.
+	* nns_protocol.man:
+	* pkgIndex.tcl:
+
 2007-07-17  Andreas Kupries <andreask@activestate.com>
 
 	* nns_auto.tcl: Name service client on top of the basic facility.

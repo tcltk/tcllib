@@ -25,7 +25,7 @@ proc ::nameserv::auto::bind {name data} {
     variable delay
 
     # Watch base client for loss of connection.
-    uevent::bind nameserv lost ::nameserv::auto::Reconnect
+    uevent::bind nameserv lost-connection ::nameserv::auto::Reconnect
 
     if {[catch {
 	nameserv::bind $name $data
