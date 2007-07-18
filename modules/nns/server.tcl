@@ -31,6 +31,8 @@ proc ::nameserv::server::start {} {
 	Bind
 	Release
 	Search
+	Search/Continuous/Start
+	Search/Continuous/Stop
 	ProtocolVersion
 	ProtocolFeatures
     } {
@@ -81,7 +83,7 @@ proc ::nameserv::server::active? {} {
 ## INT: Protocol operations
 
 proc ::nameserv::server::ProtocolVersion  {} {return 1}
-proc ::nameserv::server::ProtocolFeatures {} {return {Core}}
+proc ::nameserv::server::ProtocolFeatures {} {return {Core Search/Continuous}}
 
 proc ::nameserv::server::Bind {name cdata} {
     variable comm
@@ -90,7 +92,7 @@ proc ::nameserv::server::Bind {name cdata} {
 
     set id [$comm remoteid]
 
-    log::debug "bind [list $name $cdata], for $id"
+    log::debug "bind ([list $name -> $cdata]), for $id"
 
     if {[info exists data($name)]} {
 	return -code error "Name \"$name\" is already bound"
@@ -98,6 +100,8 @@ proc ::nameserv::server::Bind {name cdata} {
 
     lappend names($id)  $name
     set     data($name) $cdata
+
+    Search/Continuous/NotifyAdd $name $cdata
     return
 }
 
@@ -115,13 +119,129 @@ proc ::nameserv::server::Search {pattern} {
 proc ::nameserv::server::ReleaseId {id} {
     variable names
     variable data
+    variable searchi
 
     log::debug "release id $id"
 
-    if {![info exists names($id)]} return
+    # Two steps. Release all searches the client may have open, then
+    # all names it may have bound. That last step may trigger
+    # notifications for searches by other clients. It must not trigger
+    # searches from the client just going away, hence their release
+    # first.
 
-    foreach n $names($id) {catch {unset data($n)}}
-    unset names($id)
+    foreach k [array names searchi [list $id *]] {
+	Search/Release $k
+    }
+
+    if {[info exists names($id)]} {
+	set gone {}
+	foreach n $names($id) {
+	    lappend gone $n $data($n)
+	    catch {unset data($n)}
+
+	    log::debug "release name <$n>"
+	}
+	unset names($id)
+
+	Search/Continuous/NotifyRelease $gone
+    }
+    return
+}
+
+# ### ### ### ######### ######### #########
+## Support for continuous and async searches
+
+proc ::nameserv::server::Search/Continuous/Start {tag pattern} {
+    variable data
+    variable searchi
+    variable searchp
+    variable comm
+
+    set id [$comm remoteid]
+
+    # Register the search, then generate the initial response.
+    # Non-unique tags are silently discarded. Clients will wait
+    # forever.
+
+    set k [list $id $tag]
+    if {[info exists searchi($k)]} return
+
+    set searchi($k) $pattern
+    lappend searchp($pattern) $k
+
+    $comm send -async $id [list Search/Continuous/Change \
+			       $tag add [array get data $pattern]]
+    return
+}
+
+proc ::nameserv::server::Search/Continuous/Stop {tag} {
+    Search/Release [list [$comm remoteid] $tag]
+    return
+}
+
+proc ::nameserv::server::Search/Release {k} {
+    variable searchi
+    variable searchp
+
+    # Remove search information from the data store
+
+    if {![info exists searchi($k)]} return
+
+    log::debug "release search <$k>"
+
+    set pattern $searchi($k)
+    unset searchi($k)
+
+    set pos [lsearch -exact $searchp($pattern) $k]
+    if {$pos < 0} return
+    set new [lreplace $searchp($pattern) $pos $pos]
+    if {[llength $new]} {
+	# Shorten the callback list.
+	set searchp($pattern) $new
+    } else {
+	# Nothing monitors that pattern anymore, remove it completely.
+	unset searchp($pattern)
+    }
+    return
+}
+
+proc ::nameserv::server::Search/Continuous/NotifyAdd {name val} {
+    variable searchp
+
+    # Abort quickly if there are no searches waiting.
+    if {![array size searchp]} return
+
+    foreach p [array names searchp] {
+	if {![string match $p $name]} continue
+	Notify $p add [list $name $val]
+    }
+    return
+}
+
+proc ::nameserv::server::Search/Continuous/NotifyRelease {gone} {
+    variable searchp
+
+    # Abort quickly if there are no searches waiting.
+    if {![array size searchp]} return
+
+    array set m $gone
+    foreach p [array names searchp] {
+	set response [array get m $p]
+	if {![llength $response]} continue
+	Notify $p remove $response
+    }
+    return
+}
+
+proc ::nameserv::server::Notify {p type response} {
+    variable searchp
+    variable comm
+
+    foreach item $searchp($p) {
+	foreach {id tag} $item break
+	$comm send -async $id \
+	    [list Search/Continuous/Change $tag $type $response]
+    }
     return
 }
 
@@ -130,11 +250,21 @@ proc ::nameserv::server::ReleaseId {id} {
 
 namespace eval ::nameserv::server {
     # Database
-    # array (id   -> list (name)) : Names under which a connection is known.
-    # array (name -> data)        : Data associated with a name.
+    # search = list (id tag) : Searches are identified by client and a tag.
+    #
+    # array (id   -> list (name))      : Names under which a connection is known.
+    # array (name -> data)             : Data associated with a name.
+    #
+    # array (pattern -> list (search)) : Per pattern the list of searches using it.
+    # array (search -> pattern)        : Pattern per active search.
+    #
+    # searchp <~~> names
+    # searchi <~~> data
 
-    variable names ; array set names {}
-    variable data  ; array set data  {}
+    variable names   ; array set names {}
+    variable data    ; array set data  {}
+    variable searchp ; array set searchp {}
+    variable searchi ; array set searchi {}
 }
 
 # ### ### ### ######### ######### #########
@@ -240,7 +370,7 @@ namespace eval        ::nameserv::server {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide nameserv::server 0.2
+package provide nameserv::server 0.3
 
 ##
 # ### ### ### ######### ######### #########

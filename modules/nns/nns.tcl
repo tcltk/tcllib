@@ -7,8 +7,10 @@
 
 package require Tcl 8.4
 package require comm             ; # Generic message transport
+package require interp           ; # Interpreter helpers.
 package require logger           ; # Tracing internal activity
 package require nameserv::common ; # Common/shared utilities
+package require snit             ; # OO support, for streaming search class
 package require uevent           ; # Generate events for connection-loss
 
 namespace eval ::nameserv {}
@@ -37,12 +39,67 @@ proc ::nameserv::release {} {
     return
 }
 
-proc ::nameserv::search {{pattern *}} {
+proc ::nameserv::search {args} {
     # Searches the configured name service for applications whose name
     # matches the given pattern. Returns a dictionary mapping from the
     # names to the data they provided at 'bind' time.
 
-    return [DO Search $pattern]
+    # In continuous and async modes it returns an object whose
+    # contents reflect the current set of matching entries.
+
+    switch -exact [llength $args] {
+	0 {
+	    set continuous 0
+	    set pattern    *
+	}
+	1 {
+	    set opt [lindex $args 0]
+	    if {$opt eq "-continuous"} {
+		set oneshot    0
+		set continuous 1
+		set pattern    *
+	    } elseif {$opt eq "-async"} {
+		set oneshot    1
+		set continuous 1
+		set pattern    *
+	    } else {
+		set continuous 0
+		set pattern    $opt
+	    }
+	}
+	2 {
+	    set opt [lindex $args 0]
+	    if {$opt eq "-continuous"} {
+		set oneshot    0
+		set continuous 1
+		set pattern    [lindex $args 1]
+	    } elseif {$opt eq "-async"} {
+		set oneshot    1
+		set continuous 1
+		set pattern    [lindex $args 1]
+	    } else {
+		return -code error "wrong\#args: Expected ?-continuous|-async? ?pattern?"
+	    }
+	}
+	default {
+	    return -code error "wrong\#args: Expected ?-continuous|-async? ?pattern?"
+	}
+    }
+
+    if {$continuous} {
+	variable search
+	# This client uses the receiver object as tag for the search
+	# in the service. This is easily unique, and makes dispatch of
+	# incoming results later easy too.
+
+	set receiver [receiver %AUTO% $oneshot]
+	ASYNC Search/Continuous/Start $receiver $pattern
+
+	set search($receiver) .
+	return $receiver
+    } else {
+	return [DO Search $pattern]
+    }
 }
 
 proc ::nameserv::protocol {} {
@@ -78,6 +135,24 @@ proc ::nameserv::DO {args} {
     return $msg
 }
 
+proc ::nameserv::ASYNC {args} {
+    variable sid
+    log::debug [linsert $args end @ $sid]
+
+    if {[catch {
+	[SERV] send -async $sid $args
+	#eval [linsert $args 0 [SERV] send $sid] ;# $args
+    } msg]} {
+	if {[string match "*refused*" $msg]} {
+	    return -code error "No name server present @ $sid"
+	} else {
+	    return -code error $msg
+	}
+    }
+    # No result to return
+    return
+}
+
 proc ::nameserv::SERV {} {
     variable comm
     variable sid
@@ -90,8 +165,16 @@ proc ::nameserv::SERV {} {
     #          name service. Might make sense to auto-force
     #          -local 0 for host ne "localhost".
 
+    set     interp [interp::createEmpty]
+    foreach msg {
+	Search/Continuous/Change
+    } {
+	interp alias $interp $msg {} ::nameserv::$msg
+    }
+
     set sid  [list $port $host]
     set comm [comm::comm new ::nameserv::CSERV \
+		  -interp $interp \
 		  -local  1 \
 		  -listen 1]
 
@@ -104,15 +187,23 @@ proc ::nameserv::SERV {} {
 proc ::nameserv::LOST {args} {
     upvar 1 id id chan chan reason reason
     variable comm
-    variable sid 
+    variable sid
+    variable search
 
     log::debug [list LOST @ $sid - $reason]
-    uevent::generate nameserv lost-connection [list reason $reason]
 
     $comm destroy
 
     set comm {}
     set sid  {}
+
+    # Notify async/cont search of the loss.
+    foreach r [array names search] {
+	$r DATA stop
+	unset search($r)
+    }
+
+    uevent::generate nameserv lost-connection [list reason $reason]
     return
 }
 
@@ -126,6 +217,10 @@ namespace eval ::nameserv {
 
     variable comm {}
     variable sid  {}
+
+    # Table of active async/cont searches
+
+    variable search ; array set search {}
 }
 
 # ### ### ### ######### ######### #########
@@ -190,6 +285,106 @@ proc ::nameserv::configure {args} {
 }
 
 # ### ### ### ######### ######### #########
+## Receiver for continuous and async searches
+
+proc ::nameserv::Search/Continuous/Change {tag type response} {
+
+    # Ignore messages for searches which were canceled already.
+    #
+    # Due to the async nature of the messages for cont/async search
+    # the client may have canceled the receiver object already, sent
+    # the stop message already, but still has to process search
+    # results which were already in flight. We ignore them.
+
+    if {![llength [info commands $tag]]} return
+
+    # This client uses the receiver object as tag, dispatch the
+    # received notification to it.
+
+    $tag DATA $type $response
+    return
+}
+
+snit::type ::nameserv::receiver {
+
+    option -command -default {}
+
+    constructor {{once 0}} {
+	set singleshot $once
+	return
+    }
+
+    destructor {
+	if {$singleshot} return
+	ASYNC Search/Continuous/Stop $self
+	Callback stop {}
+	return
+    }
+
+    method get {k} {
+	if {![info exists current($k)]} {return -code error "Unknown key \"$k\""}
+	return $current($k)
+    }
+
+    method names {} {
+	return [array names current]
+    }
+
+    method size {} {
+	return [array size current]
+    }
+
+    method getall {{pattern *}} {
+	return [array get current $pattern]
+    }
+
+    method filled {} {
+	return $filled
+    }
+
+    method {DATA stop} {} {
+	if {$filled && $singleshot} return
+	set singleshot 1 ; # Prevent 'stop' again during destruction.
+	Callback stop {}
+	return
+    }
+
+    method {DATA add} {response} {
+	set filled 1
+	if {$singleshot} {
+	    ASYNC Search/Continuous/Stop $self
+	}
+	array set current $response
+	Callback add $response
+	if {$singleshot} {
+	    Callback stop {}
+	}
+	return
+    }
+
+    method {DATA remove} {response} {
+	set filled 1
+	foreach {k v} $response {
+	    unset -nocomplain current($k)
+	}
+	Callback remove $response
+	return
+    }
+
+    proc Callback {type response} {
+	upvar 1 options options
+	if {$options(-command) eq ""} return
+	# Defer execution to event loop
+	after 0 [linsert $options(-command) end $type $response]
+	return
+    }
+
+    variable singleshot 0
+    variable current -array {}
+    variable filled 0
+}
+
+# ### ### ### ######### ######### #########
 ## Initialization - Tracing, Configuration
 
 logger::initNamespace ::nameserv
@@ -203,7 +398,7 @@ namespace eval        ::nameserv {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide nameserv 0.2
+package provide nameserv 0.3
 
 ##
 # ### ### ### ######### ######### #########

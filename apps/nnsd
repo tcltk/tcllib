@@ -3,7 +3,7 @@
 exec tclsh "$0" ${1+"$@"}
 
 # @@ Meta Begin
-# Application nnsd 1.0
+# Application nnsd 1.0.1
 # Meta platform     tcl
 # Meta summary      Nano Name Service Demon
 # Meta description  This application is a simple demon on top
@@ -19,7 +19,7 @@ exec tclsh "$0" ${1+"$@"}
 # Meta license      BSD
 # @@ Meta End
 
-package provide nnsd 1.0
+package provide nnsd 1.0.1
 
 # nnsd - Nano Name Service Demon
 # ==== = =======================
@@ -120,7 +120,7 @@ proc bgerror {args} {
 proc ::nnsd::Headline {} {
     global argv0 
     set p        [nameserv::server::cget -port]
-    set l [expr {[nameserv::server::cget -local]
+    set l [expr {[nameserv::server::cget -localonly]
 		 ? "local only"
 		 : "local & remote"}]
 
