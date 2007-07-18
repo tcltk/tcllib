@@ -1,9 +1,9 @@
-[manpage_begin nameserv::server n 0.2]
+[manpage_begin nameserv::server n 0.3]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Name service facility}]
 [titledesc {Name service facility, Server}]
 [require Tcl 8.4]
-[require nameserv::server [opt 0.2]]
+[require nameserv::server [opt 0.3]]
 [require comm]
 [require interp]
 [require logger]
@@ -16,6 +16,12 @@ This package provides an implementation of the serviver side of the
 name service facility queried by the client provided by the package
 [package nameserv]. All information required by the server will be
 held in memory. There is no persistent state.
+
+[para]
+
+This server supports the [term Core] protocol feature, and since
+version 0.3 the [term Search/Continuous] feature as well.
+
 
 [section API]
 
@@ -113,6 +119,20 @@ greater than 65536 (unsigned short). The initial default is the number
 returned by the command [cmd ::nameserv::server::common::port], as
 provided by the package [package ::nameserv::server::common].
 
+[list_end]
+
+
+[section HISTORY]
+[list_begin definitions]
+[def 0.3]
+Extended the server with the ability to perform asynchronous and
+continuous searches.
+
+[def 0.2]
+Changed name of -local switch to -localonly.
+
+[def 0.1]
+Initial implementation of the server.
 [list_end]
 
 

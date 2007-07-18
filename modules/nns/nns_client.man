@@ -1,9 +1,9 @@
-[manpage_begin nameserv n 0.2]
+[manpage_begin nameserv n 0.3]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Name service facility}]
 [titledesc {Name service facility, Client}]
 [require Tcl 8.4]
-[require nameserv [opt 0.2]]
+[require nameserv [opt 0.3]]
 [require comm]
 [require logger]
 [keywords {name service} client]
@@ -54,13 +54,45 @@ that the name service will run this command implicitly when it loses
 the connection to this client.
 
 
-[call [cmd ::nameserv::search] [opt [arg pattern]]]
+[call [cmd ::nameserv::search] [opt [option -async]|[option -continuous]] [opt [arg pattern]]]
 
 This command searches the name service for all registered names
 matching the specified glob-[arg pattern]. If not specified the
 pattern defaults to [const *], matching everything. The result of the
 command is a dictionary mapping the matching names to the data
 associated with them at [term bind]-time.
+
+[para]
+
+If either option [option -async] or [option -continuous] were
+specified the result of this command changes and becomes the Tcl
+command of an object holding the actual result.
+
+These two options are supported if and only if the service the client
+is connected to supports the protocol feature
+[term Search/Continuous].
+
+[para]
+
+For [option -async] the result object is asynchronously filled with
+the entries matching the pattern at the time of the search and then
+not modified any more.
+
+The option [option -continuous] extends this behaviour by additionally
+continuously monitoring the service for the addition and removal of
+entries which match the pattern, and updating the object's contents
+appropriately.
+
+[para]
+
+[emph Note] that the caller is responsible for configuring the object
+with a callback for proper notification when the current result (or
+further changes) arrive.
+
+[para]
+
+For more information about this object see section
+[sectref {ASYNCHRONOUS AND CONTINUOUS SEARCHES}].
 
 
 [call [cmd ::nameserv::protocol]]
@@ -190,11 +222,107 @@ the package [package ::nameserv::common].
 [list_end]
 
 
+[section {ASYNCHRONOUS AND CONTINUOUS SEARCHES}]
+
+Asynchronous and continuous searches are invoked by using either
+option [option -async] or [option -continuous] as argument to the
+command [cmd ::nameserv::search].
+
+[para]
+
+[emph Note] that these two options are supported if and only if the
+service the client is connected to supports the protocol feature
+[term Search/Continuous]. The service provided by the package
+[package ::nameserv::server] does this since version 0.3.
+
+[para]
+
+For such searches the result of the search command is the Tcl command
+of an object holding the actual result. The API provided by these
+objects is:
+
+[list_begin definitions]
+
+[lst_item Options:]
+[list_begin options]
+[opt_def -command [arg command_prefix]]
+
+This option has to be set if a user of the result object wishes to get
+asynchronous notifications when the search result or changes to it
+arrive.
+
+[para]
+
+[emph Note] that while it is possible to poll for the arrival of the
+initial search result via the method [method filled], and for
+subsequent changes by comparing the output of method [method getall]
+against a saved copy, this is not the recommended behaviour. Setting
+the [option -command] callback and processing the notifications as
+they arrive is much more efficient.
+
+[para]
+
+The [arg command_prefix] is called with two arguments, the type of
+change, and the data of the change. The type is either [const add] or
+[const remove], indicating new data, or deleted data, respectively.
+The data of the change is always a dictionary listing the
+added/removed names and their associated data.
+
+[para]
+
+The first change reported for a search is always the set of matching
+entries at the time of the search.
+
+[list_end]
+
+[lst_item Methods:]
+[list_begin definitions]
+
+[call [cmd \$result] [method destroy]]
+
+Destroys the object and cancels any continuous monitoring of the
+service the object may have had active.
+
+
+[call [cmd \$result] [method filled]]
+
+The result is a boolean value indicating whether the search result has
+already arrived ([const True]), or not ([const False]).
+
+[call [cmd \$result] [method get] [arg name]]
+
+Returns the data associated with the given [arg name] at
+[term bind]-time.
+
+[call [cmd \$result] [method names]]
+
+Returns a list containing all names known to the object at the time of
+the invokation.
+
+[call [cmd \$result] [method size]]
+
+Returns an integer value specifying the size of the result at the time
+of the invokation.
+
+[call [cmd \$result] [method getall] [opt [arg pattern]]]
+
+Returns a dictionary containing the search result at the time of the
+invokation, mapping the matching names to the data associated with
+them at [term bind]-time.
+
+[list_end]
+[list_end]
+
+
 [section HISTORY]
 [list_begin definitions]
+[def 0.3]
+Extended the client with the ability to perform asynchronous and
+continuous searches.
+
 [def 0.2]
-Extended client with ability to generate events when it loses its
-connection to the name service. Based on package [package uevent].
+Extended the client with the ability to generate events when it loses
+its connection to the name service. Based on package [package uevent].
 
 [def 0.1]
 Initial implementation of the client.
