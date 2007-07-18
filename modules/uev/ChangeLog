@@ -1,3 +1,9 @@
+2007-07-18  Andreas Kupries  <andreask@activestate.com>
+
+	* uevent.tcl (::uevent::generate): Fixed typo in variable name,
+	* uevent.man: used non-existing var. Bumped version to 0.1.1.
+	* pkgIndex.tcl:
+
 2007-07-17  Andreas Kupries  <andreask@activestate.com>
 
 	* New package 'uevent', handling of user events.
