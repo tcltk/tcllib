@@ -1,3 +1,9 @@
+2007-07-20  Andreas Kupries  <andreask@activestate.com>
+
+	* uevent.tcl: Added missing loading of package logger. Bumped
+	* pkgIndex.tcl: version to 0.1.2.
+	* uevent.man:
+
 2007-07-18  Andreas Kupries  <andreask@activestate.com>
 
 	* uevent.tcl (::uevent::generate): Fixed typo in variable name,
