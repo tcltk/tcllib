@@ -6,6 +6,7 @@
 ## Requirements
 
 package require Tcl 8.4
+package require logger
 
 namespace eval ::uevent {}
 
@@ -128,7 +129,7 @@ namespace eval        ::uevent {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide uevent 0.1.1
+package provide uevent 0.1.2
 
 ##
 # ### ### ### ######### ######### #########
