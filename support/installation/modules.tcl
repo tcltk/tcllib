@@ -112,6 +112,7 @@ Module  uev         _tcl  _man  _null
 Module  units       _tcl  _man  _null
 Module  uri         _tcl  _man  _null
 Module  uuid        _tcl  _man  _null
+Module  wip         _tcl  _man  _null
 
 Application  dtplite
 Application  tcldocstrip
