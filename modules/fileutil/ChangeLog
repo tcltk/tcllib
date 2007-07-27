@@ -1,3 +1,14 @@
+2007-07-27  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.tcl: Fixed problems of 'relative' and 'relativeUrl'
+	* fileutil.man: with paths containing . and .., i.e. like
+	* fileutil.test: '/foo/bar/../common'. Done by making the paths
+	* pkgIndex.man: absolute and then using LexNormalize to remove
+	  them. Added a fast path to LexNormalize to quickly return for
+	  paths not containing . nor .. Also fixed bug in handling .. with
+	  short relative paths. Extended the testsuite. Package bumped to
+	  version 1.13.1 (patchlevel, bugfixes only).
+
 2007-06-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.tcl (::fileutil::fullnormalize): Simplified the
