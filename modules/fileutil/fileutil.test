@@ -9,7 +9,7 @@
 # Copyright (c) 2005-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.51 2007/05/29 03:00:22 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.52 2007/07/27 20:26:07 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -2821,6 +2821,10 @@ foreach {n base dst result} {
     12 /base/sub     /base                ..
     13  base/sub      base                ..
     14  base/sub      destination         ../../destination
+    15  base/tcl      base/common         ../common
+    16  base/tcl/x    base/common         ../../common
+    17 /base/tcl     /base/common         ../common
+    18 /base/tcl/x   /base/common         ../../common
 } {
     test fu-relative-2.$n {fileutil::relative} {
 	fileutil::relative $base $dst
@@ -2869,6 +2873,10 @@ foreach {n base dst result} {
     12 /base/sub/file.html     /base/xx.html                ../xx.html
     13  base/sub/file.html      base/xx.html                ../xx.html
     14  base/sub/file.html      xx.html                     ../../xx.html
+    15  base/tcl/a.html         base/common/../common/./style.css       ../common/style.css
+    16  base/tcl/x/a.html       base/common/../common/./style.css       ../../common/style.css
+    17 /base/tcl/a.html        /base/common/../common/./style.css       ../common/style.css
+    18 /base/tcl/x/a.html      /base/common/../common/./style.css       ../../common/style.css
 } {
     test fu-relativeurl-2.$n {fileutil::relativeUrl} {
 	fileutil::relativeUrl $base $dst
@@ -2882,7 +2890,30 @@ foreach {n base dst ra rb} {
     test fu-relativeurl-3.$n {fileutil::relativeUrl, bad mix} {
 	catch {fileutil::relativeUrl $base $dst} msg
 	set msg
-    } "Unable to compute relation for paths of different pathtypes: $ra vs. $rb, ([file dirname $base] vs. [file dirname $dst])"
+    } "Unable to compute relation for paths of different pathtypes: $ra vs. $rb, ($base vs. $dst)"
+}
+
+if {[llength [info commands ::fileutil::LexNormalize]]} {
+
+    # Check an internal command. May not exist (i.e. an accelerator
+    # may not define it).
+
+    foreach {n base dst} {
+	0 a/../b  b
+	1 a/./b   a/b
+	2 a       a
+	3 a/b     a/b
+	4 ./a     a
+	5 ../a    a
+	6 /../a   /a
+	7 /./a    /a
+	8 /a/../b /b
+	9 /foo/bar/../snafu/../gobble /foo/gobble
+    } {
+	test fu-lexnormalize-1.$n "fileutil::LexNormalize $base" {
+	    fileutil::LexNormalize $base
+	} $dst
+    }
 }
 
 # -------------------------------------------------------------------------
