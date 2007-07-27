@@ -1,3 +1,8 @@
+2007-07-27  Andreas Kupries  <andreask@activestate.com>
+
+	* support/installation/modules.tcl: New module 'wip' added. A mini
+	  interpreter for word lists based on ideas in 'treeql'.
+
 2007-07-17  Andreas Kupries  <andreask@activestate.com>
 
 	* support/installation/modules.tcl: New module 'uev' added, for
