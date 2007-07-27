@@ -9,11 +9,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.65 2007/06/19 01:56:34 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.66 2007/07/27 20:26:07 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.13
+package provide fileutil 1.13.1
 
 namespace eval ::fileutil {
     namespace export \
@@ -1840,19 +1840,35 @@ proc ::fileutil::install {args} {
 # ### ### ### ######### ######### #########
 
 proc ::fileutil::LexNormalize {sp} {
-    set sp [file split $sp]
+    set spx [file split $sp]
 
     # Resolution of embedded relative modifiers (., and ..).
 
+    if {
+	([lsearch -exact $spx . ] < 0) &&
+	([lsearch -exact $spx ..] < 0)
+    } {
+	# Quick path out if there are no relative modifiers
+	return $sp
+    }
+
+    set absolute [expr {![string equal [file pathtype $sp] relative]}]
+    # A volumerelative path counts as absolute for our purposes.
+
+    set sp $spx
     set np {}
     set noskip 1
+
     while {[llength $sp]} {
 	set ele    [lindex $sp 0]
 	set sp     [lrange $sp 1 end]
 	set islast [expr {[llength $sp] == 0}]
 
 	if {[string equal $ele ".."]} {
-	    if {[llength $np] > 1} {
+	    if {
+		($absolute  && ([llength $np] >  1)) ||
+		(!$absolute && ([llength $np] >= 1))
+	    } {
 		# .. : Remove the previous element added to the
 		# new path, if there actually is enough to remove.
 		set np [lrange $np 0 end-1]
@@ -1866,7 +1882,8 @@ proc ::fileutil::LexNormalize {sp} {
 	}
     }
     if {[llength $np] > 0} {
-	return [eval file join $np]
+	return [eval [linsert $np 0 file join]]
+	# 8.5: return [file join {*}$np]
     }
     return {}
 }
@@ -1987,6 +2004,9 @@ proc ::fileutil::relative {base dst} {
 	return -code error "Unable to compute relation for paths of different pathtypes: [file pathtype $base] vs. [file pathtype $dst], ($base vs. $dst)"
     }
 
+    set base [LexNormalize [file join [pwd] $base]]
+    set dst  [LexNormalize [file join [pwd] $dst]]
+
     set save $dst
     set base [file split $base]
     set dst  [file split $dst]
@@ -2042,6 +2062,13 @@ proc ::fileutil::relative {base dst} {
 proc ::fileutil::relativeUrl {base dst} {
     # Like 'relative', but for links from _inside_ a file to a
     # different file.
+
+    if {![string equal [file pathtype $base] [file pathtype $dst]]} {
+	return -code error "Unable to compute relation for paths of different pathtypes: [file pathtype $base] vs. [file pathtype $dst], ($base vs. $dst)"
+    }
+
+    set base [LexNormalize [file join [pwd] $base]]
+    set dst  [LexNormalize [file join [pwd] $dst]]
 
     set basedir [file dirname $base]
     set dstdir  [file dirname $dst]
