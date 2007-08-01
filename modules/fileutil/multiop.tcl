@@ -226,8 +226,8 @@ snit::type ::fileutil::multi::op {
     }
 
     # Exceptions
-    method But    {} { run_next_while {not} ; return }
-    method Except {} { run_next_while {for} ; return }
+    method But    {} { run_next_while {not exclude} ; return }
+    method Except {} { run_next_while {for}         ; return }
 
     method Exclude {pattern} {
 	lappend excl $pattern
@@ -236,7 +236,7 @@ snit::type ::fileutil::multi::op {
 
     # Define the files to operate on, and perform the operation.
     method The {pattern} {
-	run_next_while {as but except}
+	run_next_while {as but except exclude}
 
 	switch -exact -- $op {
 	    move   {Move   [Resolve [Exclude [Expand $src  $pattern]]]}
