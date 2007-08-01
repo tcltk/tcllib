@@ -1,3 +1,11 @@
+2007-07-31  Andreas Kupries  <andreask@activestate.com>
+
+	* multiop.tcl: New packages in module. Scatter/gather
+	* multiop.test: operations, multi-file operations.
+	* multiop.man: First user of 'wip' code.
+	* multi.tcl:
+	* pkgIndex.tcl:
+
 2007-07-27  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.tcl: Fixed problems of 'relative' and 'relativeUrl'
