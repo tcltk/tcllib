@@ -1,3 +1,9 @@
+2007-08-01  Andreas Kupries  <andreask@activestate.com>
+
+	* me_util.test: Updated to use the TestAccel utility commands to
+	  handle accelerators.
+	* me_tcl.test: Updated 8.5 specific test to extensions in 'string is'.
+
 2007-06-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* me_cpu.testsuite: Replaced deprecated {expand} syntax in
