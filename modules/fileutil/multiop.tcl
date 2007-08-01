@@ -241,7 +241,7 @@ snit::type ::fileutil::multi::op {
 
     # Define the files to operate on, and perform the operation.
     method The {pattern} {
-	run_next_while {as but except exclude}
+	run_next_while {as but except exclude from into in to}
 
 	switch -exact -- $op {
 	    move   {Move   [Resolve [Exclude [Expand $src  $pattern]]]}

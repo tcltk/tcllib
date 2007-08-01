@@ -1,5 +1,14 @@
 2007-08-01  Andreas Kupries  <andreask@activestate.com>
 
+	* fileutil.test: Fixed problems with the tests for
+	  fileutil::writeFile and companions. The regsub did not like
+	  paths containing special characters like '+'. Replaced with a
+	  'string map' construction.
+
+	* multiop.tcl: Language tweak. Allow 'from', and 'into' (and aliases)
+	* multiop.man: as qualifiers to 'the', i.e. allow specification after
+	* multiop.test: 'the'. Updates documentation and examples too.
+
 	* multi.tcl: Added documentation and testsuite for the multiop
 	* multi.man: package built on top of the multiop objects. Bug
 	* multi.test: fixes.
