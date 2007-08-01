@@ -18,7 +18,13 @@ namespace eval ::coserv {variable subcode {}}
 package forget comm
 catch {namespace delete comm}
 
+set ::coserv::snitsrc [file join [file dirname [file dirname [info script]]] snit snit.tcl]
 set ::coserv::commsrc [file join [file dirname [file dirname [info script]]] comm comm.tcl]
+
+if {[catch {source $::coserv::snitsrc} msg]} {
+    puts "Error loading \"snit\": $msg"
+    error ""
+}
 if {[catch {source $::coserv::commsrc} msg]} {
     puts "Error loading \"comm\": $msg"
     error ""
@@ -44,12 +50,13 @@ proc ::coserv::setup {} {
 	## - Id of the main process for sending information back.
 	## - Path to the sources of comm.
 
-	foreach {commsrc main cookie} $argv break
+	foreach {snitsrc commsrc main cookie} $argv break
 
 	# ### ### ### ######### ######### #########
 	## Load and initialize "comm" in the sub process. The latter
 	## includes a report to main that we are ready.
 
+	source $snitsrc
 	source $commsrc
 	::comm::comm send $main [list ::coserv::ready $cookie [::comm::comm self]]
 
@@ -79,6 +86,7 @@ proc ::coserv::ready {cookie id} {
 
 proc ::coserv::start {cookie} {
     variable subcode
+    variable snitsrc
     variable commsrc
     variable go
 
@@ -86,7 +94,7 @@ proc ::coserv::start {cookie} {
 
     setup
     exec [info nameofexecutable] $subcode \
-	    $commsrc [::comm::comm self] $cookie &
+	    $snitsrc $commsrc [::comm::comm self] $cookie &
 
     #puts "Waiting for sub server to boot"
     vwait ::coserv::go
