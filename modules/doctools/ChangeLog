@@ -1,3 +1,8 @@
+2007-08-01  Andreas Kupries  <andreask@activestate.com>
+
+	* doctools.test: Updated test 8.4 for changes in the formatting of
+	  warnings.
+
 2007-03-20  Andreas Kupries  <andreask@activestate.com>
 
 	* apps/dtplite: Added a block of meta data.

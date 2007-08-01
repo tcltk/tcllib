@@ -8,7 +8,7 @@
 # Copyright (c) 2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: doctools.test,v 1.17 2006/10/25 16:24:10 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.test,v 1.18 2007/08/01 21:34:00 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -295,8 +295,9 @@ test doctools-8.4 {format} {
     lappend res [mydoctools warnings]
     mydoctools destroy
     set res
-} {manpage {desc {} fid {} file {} keywords {} module {} section n seealso {} shortdesc {} title foo version 1.0} {{Manpage warning (depr_strong): Deprecated command "[strong {foo}]".
-Manpage warning (depr_strong): 	Please consider appropriate semantic markup or [emph] instead.}}}
+} {manpage {desc {} fid {} file {} keywords {} module {} section n seealso {} shortdesc {} title foo version 1.0} {{DocTools Warning (depr_strong): In macro at line 1, column 38:
+DocTools Warning (depr_strong): Deprecated command "[strong]".
+DocTools Warning (depr_strong): 	Please consider appropriate semantic markup or [emph] instead.}}}
 
 
 
