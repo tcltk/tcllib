@@ -277,11 +277,11 @@ snit::type wip {
     }
 
     # Replace the current programm
-    method set {args} {
+    method replace {args} {
 	set program $args
 	return
     }
-    method setl {alist} {
+    method replacel {alist} {
 	set program $alist
 	return
     }
@@ -358,7 +358,7 @@ snit::macro wip::dsl {{suffix {}}} {
     # to manually add a call of this method to the constructor.
 
     method wip${suffix}_setup {} [string map [list @@ $suffix] {
-	install {wip@@} using wip $self
+	install {wip@@} using wip "${selfns}::wip@@" $self
     }]
 
     # Procedures for easy access to the processor methods, without
@@ -367,7 +367,7 @@ snit::macro wip::dsl {{suffix {}}} {
     foreach {p} {
 	add	addl	def
 	defd	defdva	defl	deflva
-	insert	insertl	set	setl
+	insert	insertl	replace	replacel
 	push	pushl	run	runl
 	next	peek	peekall	run_next
 	run_next_until	run_next_while
