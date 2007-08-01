@@ -1,3 +1,7 @@
+2007-08-01  Andreas Kupries  <andreask@activestate.com>
+
+	* tie_rarray_comm.test: Updated to handle new 'snit' dependency in 'comm'.
+
 2007-05-01  Andreas Kupries <andreask@activestate.com>
 
 	* examples/tie/metakit.tcl (get): Updated to use {*} instead of
