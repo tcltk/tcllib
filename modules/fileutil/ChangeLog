@@ -1,3 +1,8 @@
+2007-07-31  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* multiop.man: Wrote the actual documentation for the core
+	* multiop.tcl: multi-file objects. Tweaked the syntax a bit.
+
 2007-07-31  Andreas Kupries  <andreask@activestate.com>
 
 	* multiop.tcl: New packages in module. Scatter/gather

@@ -1,465 +1,280 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin fileutil n 1.13]
+[manpage_begin multi_op n 0.1]
 [moddesc   {file utilities}]
-[titledesc {Procedures implementing some file utilities}]
-[require Tcl 8]
-[require fileutil [opt 1.13]]
+[titledesc {Multi-file operation, scatter/gather}]
+[require Tcl 8.4]
+[require fileutil::multi::op [opt 0.1]]
+[require wip [opt 1.0]]
 [description]
-[keywords {file utilities} touch grep type {temp file} test cat]
+[keywords {file utilities} copy move remove multi-file]
 [para]
 
-This package provides implementations of standard unix utilities.
+This package provides objects which are able to perform actions on
+multiple files selected by glob patterns.
+
+[para]
+
+At the core is a domain specific language allowing the easy
+specification of multi-file copy and/or move and/or deletion
+operations. Alternate names would be scatter/gather processor, or
+maybe even assembler.
+
+[section {CLASS API}]
+
+The main command of the package is:
 
 [list_begin definitions]
 
-[call [cmd ::fileutil::fullnormalize] [arg path]]
-
-This command resolves all symbolic links in the [arg path] and returns
-the changed path as its result.
-
-In contrast to the builtin [cmd {file normalize}] this command
-resolves a symbolic link in the last element of the path as well.
-
-
-[call [cmd ::fileutil::test] [arg path] [arg codes] [opt [arg msgvar]] [opt [arg label]]]
-
-A command for the testing of several properties of a [arg path]. The
-properties to test for are specified in [arg codes], either as a list
-of keywords describing the properties, or as a string where each
-letter is a shorthand for a property to test. The recognized keywords,
-shorthands, and associated properties are shown in the list below. The
-tests are executed in the order given to the command.
-
-[para]
-
-The result of the command is a boolean value. It will be true if and
-only if the [arg path] passes all the specified tests.
-
-In the case of the [arg path] not passing one or more test the first
-failing test will leave a message in the variable referenced by
-
-[arg msgvar], if such is specified. The message will be prefixed with
-[arg label], if it is specified.
-
-[emph Note] that the variabled referenced by [arg msgvar] is not touched at
-all if all the tests pass.
-
-[para]
-[list_begin definitions]
-[def "[emph r]ead"]
-[cmd {file readable}]
-[def "[emph w]rite"]
-[cmd {file writable}]
-[def "[emph e]xists"]
-[cmd {file exists}]
-[def "e[emph x]ec"]
-[cmd {file executable}]
-[def "[emph f]ile"]
-[cmd {file isfile}]
-[def "[emph d]ir"]
-[cmd {file isdirectory}]
-[list_end]
-
-
-[call [cmd ::fileutil::cat] ([opt [arg options]] [arg file])...]
-
-A tcl implementation of the UNIX [syscmd cat] command.  Returns the
-contents of the specified file(s). The arguments are files to read,
-with interspersed options configuring the process. If there are
-problems reading any of the files, an error will occur, and no data
-will be returned.
-
-[para]
-
-The options accepted are [option -encoding], [option -translation],
-[option -eofchar], and [option --]. With the exception of the last all
-options take a single value as argument, as specified by the tcl
-builtin command [cmd fconfigure]. The [option --] has to be used to
-terminate option processing before a file if that file's name begins
-with a dash.
-
-[para]
-
-Each file can have its own set of options coming before it, and for
-anything not specified directly the defaults are inherited from the
-options of the previous file. The first file inherits the system
-default for unspecified options.
-
-
-[call [cmd ::fileutil::writeFile] [opt [arg options]] [arg file] [arg data]]
-
-The command replaces the current contents of the specified [arg file]
-with [arg data], with the process configured by the options. The
-command accepts the same options as [cmd ::fileutil::cat]. The
-specification of a non-existent file is legal and causes the command
-to create the file (and all required but missing directories).
-
-
-[call [cmd ::fileutil::appendToFile] [opt [arg options]] [arg file] [arg data]]
-
-This command is like [cmd ::fileutil::writeFile], except that the
-previous contents of [arg file] are not replaced, but appended to. The
-command accepts the same options as [cmd ::fileutil::cat]
-
-
-[call [cmd ::fileutil::insertIntoFile] [opt [arg options]] [arg file] [arg at] [arg data]]
-
-This comment is similar to [cmd ::fileutil::appendToFile], except that
-the new data is not appended at the end, but inserted at a specified
-location within the file. In further contrast this command has to be
-given the path to an existing file. It will not create a missing file,
-but throw an error instead.
-
-[para]
-
-The specified location [arg at] has to be an integer number in the
-range [const 0] ... [lb]file size [arg file][rb]. [const 0] will cause
-insertion of the new data before the first character of the existing
-content, whereas [lb]file size [arg file][rb] causes insertion after
-the last character of the existing content, i.e. appending.
-
-[para]
-
-The command accepts the same options as [cmd ::fileutil::cat].
-
-
-[call [cmd ::fileutil::removeFromFile] [opt [arg options]] [arg file] [arg at] [arg n]]
-
-This command is the complement to [cmd ::fileutil::insertIntoFile], removing [arg n] characters from the [arg file], starting at location [arg at].
-
-The specified location [arg at] has to be an integer number in the
-range [const 0] ... [lb]file size [arg file][rb] - [arg n]. [const 0]
-will cause the removal of the new data to start with the first
-character of the existing content,
-
-whereas [lb]file size [arg file][rb] - [arg n] causes the removal of
-the tail of the existing content, i.e. the truncation of the file.
-
-[para]
-
-The command accepts the same options as [cmd ::fileutil::cat].
-
-
-[call [cmd ::fileutil::replaceInFile] [opt [arg options]] [arg file] [arg at] [arg n] [arg data]]
-
-This command is a combination of [cmd ::fileutil::removeFromFile] and
-[cmd ::fileutil::insertIntoFile]. It first removes the part of the
-contents specified by the arguments [arg at] and [arg n], and then
-inserts [arg data] at the given location, effectively replacing the
-removed by content with [arg data].
-
-All constraints imposed on [arg at] and [arg n] by
-[cmd ::fileutil::removeFromFile] and [cmd ::fileutil::insertIntoFile]
-are obeyed.
-
-[para]
-
-The command accepts the same options as [cmd ::fileutil::cat].
-
-
-[call [cmd ::fileutil::updateInPlace] [opt [arg options]] [arg file] [arg cmd]]
-
-This command can be seen as the generic core functionality of
-[cmd ::fileutil::replaceInFile].
-
-It first reads the contents of the specified [arg file], then runs the
-command prefix [arg cmd] with that data appended to it, and at last
-writes the result of that invokation back as the new contents of the
-file.
-
-[para]
-
-If the executed command throws an error the [arg file] is not changed.
-
-[para]
-
-The command accepts the same options as [cmd ::fileutil::cat].
-
-
-[call [cmd ::fileutil::fileType] [arg filename]]
-
-An implementation of the UNIX [syscmd file] command, which uses
-various heuristics to guess the type of a file.  Returns a list
-specifying as much type information as can be determined about the
-file, from most general (eg, "binary" or "text") to most specific (eg,
-"gif").  For example, the return value for a GIF file would be "binary
-graphic gif".  The command will detect the following types of files:
-directory, empty, binary, text, script (with interpreter), executable
-elf, executable dos, executable ne, executable pe, graphic gif,
-graphic jpeg, graphic png, graphic tiff, graphic bitmap, html,
-xml (with doctype if available), message pgp, binary pdf, text ps,
-text eps, binary gravity_wave_data_frame, compressed bzip,
-compressed gzip, compressed zip, compressed tar, audio wave,
-audio mpeg, and link.
-
-
-[call [cmd ::fileutil::find] [opt "[arg basedir] [opt [arg filtercmd]]"]]
-
-An implementation of the unix command [syscmd find]. Adapted from the
-Tcler's Wiki. Takes at most two arguments, the path to the directory
-to start searching from and a command to use to evaluate interest in
-each file. The path defaults to [file .], i.e. the current
-directory. The command defaults to the empty string, which means that
-all files are of interest. The command takes care [emph not] to
-lose itself in infinite loops upon encountering circular link
-structures. The result of the command is a list containing the paths
-to the interesting files.
-
-[para]
-
-The [arg filtercmd], if specified, is interpreted as a command prefix
-and one argument is added to it, the name of the file or directory
-find is currently looking at. Note that this name is [emph not] fully
-qualified. It has to be joined it with the result of [cmd pwd] to get
-an absolute filename.
-
-[para]
-
-The result of [arg filtercmd] is a boolean value that indicates if the
-current file should be included in the list of interesting files.
-
-[para]
-Example:
-[para]
-[example {
-    # find .tcl files
-    package require fileutil
-    proc is_tcl {name} {return [string match *.tcl $name]}
-    set tcl_files [fileutil::find . is_tcl]
-}]
-
-
-[call [cmd ::fileutil::findByPattern] [arg basedir] \
-     [opt [option -regexp]|[option -glob]] [opt [option --]] \
-     [arg patterns]]
-
-This command is based upon the [package TclX] command
-
-[cmd recursive_glob], except that it doesn't allow recursion over more
-than one directory at a time. It uses [cmd ::fileutil::find]
-internally and is thus able to and does follow symbolic links,
-something the [package TclX] command does not do. First argument is
-the directory to start the search in, second argument is a list of
-[arg patterns]. The command returns a list of all files reachable
-through [arg basedir] whose names match at least one of the
-patterns. The options before the pattern-list determine the style of
-matching, either regexp or glob. glob-style matching is the default if
-no options are given. Usage of the option [option --] stops option
-processing. This allows the use of a leading '-' in the patterns.
-
-
-[call [cmd ::fileutil::foreachLine] [arg {var filename cmd}]]
-
-The command reads the file [arg filename] and executes the script
-
-[arg cmd] for every line in the file. During the execution of the
-script the variable [arg var] is set to the contents of the current
-line. The return value of this command is the result of the last
-invocation of the script [arg cmd] or the empty string if the file was
-empty.
-
-
-[call [cmd ::fileutil::grep] [arg pattern] [opt [arg files]]]
-
-Implementation of [syscmd grep]. Adapted from the Tcler's Wiki. The
-first argument defines the [arg pattern] to search for. This is
-followed by a list of [arg files] to search through. The list is
-optional and [const stdin] will be used if it is missing. The result
-of the procedures is a list containing the matches. Each match is a
-single element of the list and contains filename, number and contents
-of the matching line, separated by a colons.
-
-[call [cmd ::fileutil::install] [opt "[option -m] [arg "mode"]"] [arg source] [arg destination]]
-
-The [cmd install] command is similar in functionality to the [syscmd install]
-command found on many unix systems, or the shell script
-distributed with many source distributions (unix/install-sh in the Tcl
-sources, for example).  It copies [arg source], which can be either a
-file or directory to [arg destination], which should be a directory,
-unless [arg source] is also a single file.  The [opt -m] option lets
-the user specify a unix-style mode (either octal or symbolic - see
-[cmd {file attributes}].
-
-[call [cmd ::fileutil::stripN] [arg path] [arg n]]
-
-Removes the first [arg n] elements from the specified [arg path] and
-returns the modified path. If [arg n] is greater than the number of
-components in [arg path] an empty string is returned. The number of
-components in a given path may be determined by performing
-[cmd llength] on the list returned by [cmd {file split}].
-
-[call [cmd ::fileutil::stripPwd] [arg path]]
-
-If, and only if the [arg path] is inside of the directory returned by
-[lb][cmd pwd][rb] (or the current working directory itself) it is made
-relative to that directory. In other words, the current working
-directory is stripped from the [arg path].  The possibly modified path
-is returned as the result of the command. If the current working
-directory itself was specified for [arg path] the result is the string
-"[const .]".
-
-
-[call [cmd ::fileutil::stripPath] [arg prefix] [arg path]]
-
-If, and only of the [arg path] is inside of the directory
-
-[file prefix] (or the prefix directory itself) it is made relative to
-that directory. In other words, the prefix directory is stripped from
-the [arg path]. The possibly modified path is returned as the result
-of the command.
-
-If the prefix directory itself was specified for [arg path] the result
-is the string "[const .]".
-
-
-[call [cmd ::fileutil::jail] [arg jail] [arg path]]
-
-This command ensures that the [arg path] is not escaping the directory
-[arg jail]. It always returns an absolute path derived from [arg path]
-which is within [arg jail].
-
-[para]
-
-If [arg path] is an absolute path and already within [arg jail] it is
-returned unmodified.
-
-[para]
-
-An absolute path outside of [arg jail] is stripped of its root element
-and then put into the [arg jail] by prefixing it with it. The same
-happens if [arg path] is relative, except that nothing is stripped of
-it. Before adding the [arg jail] prefix the [arg path] is lexically
-normalized to prevent the caller from using [const ..] segments in
-[arg path] to escape the jail.
-
-
-[call [cmd ::fileutil::touch] [opt [option -a]] [opt [option -c]] [opt [option -m]] [opt "[option -r] [arg ref_file]"] [opt "[option -t] [arg time]"] [arg filename] [opt [arg ...]]]
-
-Implementation of [syscmd touch]. Alter the atime and mtime of the
-specified files. If [option -c], do not create files if they do not
-already exist. If [option -r], use the atime and mtime from
-
-[arg ref_file]. If [option -t], use the integer clock value
-
-[arg time]. It is illegal to specify both [option -r] and
-
-[option -t]. If [option -a], only change the atime. If [option -m],
-only change the mtime.
-
-[para]
-[emph {This command is not available for Tcl versions less than 8.3.}]
-
-
-[call [cmd ::fileutil::tempdir]]
-
-The command returns the path of a directory where the caller can
-place temporary files, such as [file /tmp] on Unix systems. The
-algorithm we use to find the correct directory is as follows:
-
-[list_begin enumerated]
-
-[enum]
-The directory set by an invokation of [cmd ::fileutil::tempdir] with
-an argument. If this is present it is tried exclusively and none of
-the following item are tried.
-
-[enum]
-The directory named in the TMPDIR environment variable.
-
-[enum]
-The directory named in the TEMP environment variable.
-
-[enum]
-The directory named in the TMP environment variable.
-
-[enum]
-A platform specific location:
+[call [cmd ::fileutil::multi::op] [opt [arg opName]] [opt [arg word]...]]
+
+The command creates a new multi-file operation object with an
+associated global Tcl command whose name is [arg opName].  This
+command can be used to invoke the various possible file operations.
+It has the following general form:
 
 [list_begin definitions]
-[def {Windows}]
+[call [cmd opName] [arg option] [opt [arg "arg arg ..."]]]
 
-[file "C:\\TEMP"], [file "C:\\TMP"], [file "\\TEMP"],
-and [file "\\TMP"] are tried in that order.
-
-[def {(classic) Macintosh}]
-
-The TRASH_FOLDER environment variable is used.  This is most likely
-not correct.
-
-[def {Unix}]
-
-The directories [file /tmp], [file /var/tmp], and [file /usr/tmp] are
-tried in that order.
-
-[list_end]
-[list_end]
-[para]
-
-The algorithm utilized is mainly that used in the Python standard
-library. The exception is the first item, the ability to have the
-search overridden by a user-specified directory.
-
-[call [cmd ::fileutil::tempdir] [arg path]]
-
-In this mode the command sets the [arg path] as the first and only
-directory to try as a temp. directory. See the previous item for the
-use of the set directory. The command returns the empty string.
-
-[call [cmd ::fileutil::tempdirReset]]
-
-Invoking this command clears the information set by the
-last call of [lb][cmd ::fileutil::tempdir] [arg path][rb].
-See the last item too.
-
-[call [cmd ::fileutil::tempfile] [opt [arg prefix]]]
-
-The command generates a temporary file name suitable for writing to,
-and the associated file.  The file name will be unique, and the file
-will be writable and contained in the appropriate system specific temp
-directory. The name of the file will be returned as the result of the
+[arg Option] and the [arg arg]s determine the exact behavior of the
 command.
 
+[list_end]
 [para]
 
-The code was taken from [uri http://wiki.tcl.tk/772], attributed to
-Igor Volobouev and anon.
-
-
-
-[call [cmd ::fileutil::relative] [arg base] [arg dst]]
-
-This command takes two directory paths, both either absolute or relative
-and computes the path of [arg dst] relative to [arg base]. This relative
-path is returned as the result of the command. As implied in the previous
-sentence, the command is not able to compute this relationship between the
-arguments if one of the paths is absolute and the other relative.
+If the string [const %AUTO%] is used as the [arg opName] then the
+package will generate a unique name on its own.
 
 [para]
 
-[emph Note:] The processing done by this command is purely lexical.
-Symbolic links are [emph not] taken into account.
-
-
-[call [cmd ::fileutil::relativeUrl] [arg base] [arg dst]]
-
-This command takes two file paths, both either absolute or relative
-and computes the path of [arg dst] relative to [arg base], as seen
-from inside of the [arg base]. This is the algorithm how a browser
-resolves a relative link found in the currently shown file.
-
-[para]
-
-The computed relative path is returned as the result of the command.
-As implied in the previous sentence, the command is not able to compute
-this relationship between the arguments if one of the paths is absolute
-and the other relative.
-
-[para]
-
-[emph Note:] The processing done by this command is purely lexical.
-Symbolic links are [emph not] taken into account.
+If one or more [arg word]s are specified they are interpreted as an
+initial set of file commands to execute. I.e. the method [method do]
+of the newly constructed object is implicitly invoked using the words
+as its arguments.
 
 [list_end]
+
+[para]
+
+
+[section {OBJECT API}]
+
+The following methods are possible for multi-file operation objects:
+
+[list_begin definitions]
+
+[call [cmd \$opName] [method do] [opt [arg word]...]]
+
+This method interprets the specified words as file commands to
+execute. See the section [sectref {FILE API}] for the set of
+acceptable commands, their syntax, and semantics.
+
+[para]
+
+The result of the method is the result generated by the last file
+command it executed.
+
+[list_end]
+
+
+[section {FILE API}]
+
+Both object constructor and method [method do] take a list of words
+and interpret them as file commands to execute. The names were chosen
+to allow the construction of operations as sentences in near-natural
+language. Most of the commands influence just the state of the object,
+i.e. are simply providing the configuration used by the command
+triggering the actual action.
+
+[list_begin definitions]
+[call [cmd into] [arg directory]]
+
+Specifies the destination directory for operations.
+
+[call [cmd in] [arg directory]]
+
+Alias for [cmd into].
+
+[call [cmd to] [arg directory]]
+
+Alias for [cmd into].
+
+[call [cmd from] [arg directory]]
+
+Specifies the source directory for operations.
+
+[call [cmd not] [arg pattern]]
+
+Specifies a glob pattern for paths to be excluded from the operation.
+
+[call [cmd for] [arg pattern]]
+
+Alias for [cmd not].
+
+[call [cmd exclude] [arg pattern]]
+
+Alias for [cmd not].
+
+[call [cmd but]]
+
+Has no arguments of its own, but looks ahead in the list of words and
+executes all [cmd not] commands immediately following it. This allows the
+construction of "but not" and "but exclude" clauses for a more natural
+sounding specification of excluded paths.
+
+[call [cmd except]]
+
+A semi-alias for [cmd but]. Has no arguments of its own, but looks
+ahead in the list of words and executes all [cmd for] commands
+immediately following it. This allows the construction of "except for"
+clauses for a more natural sounding specification of excluded paths.
+
+[call [cmd as] [arg name]]
+
+Specifies a new name for the first file handled by the current
+operation. I.e. for the renaming of a single file during the
+operation.
+
+[call [cmd copy]]
+
+Signals that the operation is the copying of files from source to
+destination directory per the specified inclusion and exclusion
+patterns.
+
+[call [cmd move]]
+
+
+Signals that the operation is the moving of files from source to
+destination directory per the specified inclusion and exclusion
+patterns.
+
+[call [cmd remove]]
+
+Signals that the operation is the removal of files in the destination
+directory per the specified inclusion and exclusion patterns.
+
+[call [cmd reset]]
+
+Forces the object into the ground state where all parts of the
+configuration have default values.
+
+[call [cmd "("]]
+
+Saves a copy of the current object state on a stack.
+
+[call [cmd ")"]]
+
+Takes the state at the top of the state stack and restores it,
+i.e. makes it the new current object state.
+
+[call [cmd cd] [arg directory]]
+
+Changes the destination directory to the sub-directory [arg directory]
+of the current destination.
+
+[call [cmd up]]
+
+Changes the destination directory to the parent directory of the
+current destination.
+
+[call [cmd the] [arg pattern]]
+
+This command specifies the files to operate on per a glob pattern, and
+is also the active element, i.e. the command which actually performs
+the specified operation. All the other commands only modified the
+object state to set the operation up, but di nothing else.
+
+[para]
+
+To allow for a more natural sounding syntax this command also looks
+ahead in the list of words looks and executes all [cmd as],
+[cmd but], [cmd exclude], and [cmd except] commands immediately
+following it. That way they are like qualifiers, and take effect as if
+they had been written before this command.
+
+[para]
+
+After the operation has been performed the object state of the
+qualifier commands is reset, but nothing else.
+
+[list_end]
+
+
+[section EXAMPLES]
+
+The following examples assume that the variable [var F] contains a
+reference to a multi-file operation object.
+
+[example {
+    $F do copy                       \\
+	into [installdir_of tls]      \\
+	from c:/TDK/PrivateOpenSSL/bin \\
+	the  *.dll
+}]
+
+[example {
+    $F do move       \\
+	from /sources \\
+	into /scratch  \\
+	the  *         \\
+	but not *.html \\
+
+    # Alternatively use 'except for *.html'.
+}]
+
+[example {
+    $F do            \\
+	move          \\
+	from /sources  \\
+	into /scratch   \\
+	the  index       \\
+	as   pkgIndex.tcl
+}]
+
+[example {
+    $F do         \\
+	remove     \\
+	in /scratch \\
+	the *.txt
+}]
+
+Note that the fact that most commands just modify the object state
+allows us to use more off forms as specifications instead of just
+nearly-natural language sentences.
+
+For example the second example in this section can re-arranged into:
+
+[example {
+    $F do            \\
+	from /sources \\
+	into /scratch  \\
+	but not *.html \\
+	move           \\
+	the  *
+}]
+
+and the result is not only still a valid specification, but even stays
+relatively readable.
+
+[para]
+
+Further note that the information collected by the commands [cmd but],
+[cmd except], and [cmd as] is automatically reset after the associated
+[cmd the] was executed. However no other state is reset in that
+manner, allowing the user to avoid repetitions of unchanging
+information. For example the second and third examples of this section
+can be merged and rewritten into the equivalent:
+
+[example {
+$F do                   \\
+    move                 \\
+    into /scratch         \\
+    from /sources          \\
+    the  *                  \\
+    but not *.html not index \\
+    the  index               \\
+    as   pkgIndex.tcl
+}]
+
 [section {BUGS, IDEAS, FEEDBACK}]
 
 This document, and the package it describes, will undoubtedly contain
@@ -470,6 +285,5 @@ Please report such in the category [emph fileutil] of the
 
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.
-
 
 [manpage_end]
