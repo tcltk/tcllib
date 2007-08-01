@@ -7,7 +7,7 @@
 # Copyright (c) 2001-2005 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.23 2006/10/09 21:41:40 andreas_kupries Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.24 2007/08/01 22:40:59 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -20,29 +20,16 @@ testsNeedTcltest 1.0
 
 support {
     use struct/list.tcl     struct::list
-    if {[useTcllibC]} {
-	useKeep struct/tree.tcl struct::tree
-    } else {
-	use     struct/tree.tcl struct::tree
-    }
+
+    useAccel [useTcllibC] struct/tree.tcl struct::tree
+    TestAccelInit                         struct::tree
+
     use struct/queue.tcl    struct::queue
     use struct/stack.tcl    struct::stack
     use cmdline/cmdline.tcl cmdline
 }
 testing {
     useLocal htmlparse.tcl htmlparse
-}
-
-# -------------------------------------------------------------------------
-
-struct::tree::SwitchTo {}
-foreach e [struct::tree::KnownImpl] {
-    if {[::struct::tree::LoadAccel $e]} {
-	switch -exact -- $e {
-	    critcl {puts "> tree : tcllibc based"}
-	    tcl    {puts "> tree : pure Tcl"}
-	}
-    }
 }
 
 # -------------------------------------------------------------------------
@@ -521,9 +508,7 @@ set tests [file join [file dirname [info script]] htmlparse.tree_testsuite]
 
 catch {memory validate on}
 
-foreach impl [struct::tree::Implementations] {
-    struct::tree::SwitchTo $impl
-
+TestAccelDo struct::tree impl {
     # The global variable 'impl' is part of the public API the
     # testsuit (in htmlparse_tree.testsuite) can expect from the
     # environment.
@@ -540,15 +525,10 @@ catch {memory validate off}
 unset usec
 unset tests
 
-#puts ""
-
-# Reset system to fully inactive state.
-
-struct::tree::SwitchTo {}
-
 # -------------------------------------------------------------------------
 
 # Take a look at the cache.
 #parray ::htmlparse::splitdata
+TestAccelExit struct::tree
 testsuiteCleanup
 return
