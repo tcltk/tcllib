@@ -1,3 +1,7 @@
+2007-08-01  Andreas Kupries  <andreask@activestate.com>
+
+	* pop3.test: Updated to new snit dependency in comm.
+
 2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3.man: Fixed all warnings due to use of now deprecated
