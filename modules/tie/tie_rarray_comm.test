@@ -6,7 +6,7 @@
 # This is a tie for remote array ties, actually using separate
 # processes. This is based on the package "comm", also in Tcllib.
 #
-# RCS: @(#) $Id: tie_rarray_comm.test,v 1.10 2006/10/09 21:41:42 andreas_kupries Exp $
+# RCS: @(#) $Id: tie_rarray_comm.test,v 1.11 2007/08/01 22:53:18 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -59,7 +59,8 @@ proc mysend {args} {
 set path(spawn) [makeFile {
     ##puts [set fh [open ~/foo w]] $argv ; close $fh
 
-    set master [lindex $argv 1]
+    set master [lindex $argv 2]
+    source     [lindex $argv 1] ; # load 'snit'
     source     [lindex $argv 0] ; # load 'comm'
     # and wait for commands. But first send our
     # own server socket to the initiator
@@ -76,7 +77,7 @@ proc slaveat {id} {
 
 #puts "self @ [::comm::comm self]"
 
-exec [info nameofexecutable] $path(spawn) $comm_code [::comm::comm self] &
+exec [info nameofexecutable] $path(spawn) $comm_code $snit_code [::comm::comm self] &
 
 #puts "Waiting for spawned comm system to boot"
 # Wait for the slave to initialize itself.
