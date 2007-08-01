@@ -1,0 +1,100 @@
+# -*- tcl -*-
+# Tests for the multi-op system.
+#
+# Sourcing this file into Tcl runs the tests and generates output for errors.
+# No output means no errors were found.
+#
+# Copyright (c) 2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# All rights reserved.
+#
+# RCS: @(#) $Id: multiop.test,v 1.1 2007/08/01 00:15:17 andreas_kupries Exp $
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.4
+testsNeedTcltest 2.1
+
+support {
+    use       struct/list.tcl struct::list
+    use       wip/wip.tcl     wip
+    useLocal  fileutil.tcl    fileutil
+}
+testing {
+    useLocal multiop.tcl  fileutil::multi::op
+}
+
+# -------------------------------------------------------------------------
+# Now the package specific tests....
+
+proc setup {} {
+    makeDirectory origin
+    makeFile   {} origin/anneliese
+    makeFile   {} origin/bertram
+    makeFile   {} origin/connie
+    makeFile   {} origin/detlev
+    makeDirectory origin/egon
+    makeFile   {} origin/egon/suse
+    makeFile   {} origin/egon/bettina
+    makeDirectory destination
+    return
+}
+
+proc cleanup {} {
+    removeDirectory origin
+    removeDirectory destination
+    return
+}
+
+proc scan {d} {
+    set base [file normalize $::tcltest::temporaryDirectory/$d]
+    return [lsort -dict \
+		[struct::list map [fileutil::find $base] \
+		     [list fileutil::stripPath $base]]]
+}
+
+# -------------------------------------------------------------------------
+
+set dir $::tcltest::temporaryDirectory
+
+test multiop-1.0 {fileutil multi operations, copying} -setup {
+    setup
+    fileutil::multi::op X
+} -body {
+    X do copy from $dir/origin to $dir/destination the *e* except for *n*
+    list [scan origin] [scan destination]
+} -cleanup {
+    cleanup
+    X destroy
+} -result {{anneliese bertram connie detlev egon egon/bettina egon/suse} {bertram detlev}}
+
+test multiop-1.1 {fileutil multi operations, moving} -setup {
+    setup
+    fileutil::multi::op X
+} -body {
+    X do move from $dir/origin into $dir/destination the *e* except for *n*
+    list [scan origin] [scan destination]
+} -cleanup {
+    cleanup
+    X destroy
+} -result {{anneliese connie egon egon/bettina egon/suse} {bertram detlev}}
+
+test multiop-1.1 {fileutil multi operations, deletion} -setup {
+    setup
+    fileutil::multi::op X
+} -body {
+    X do copy from $dir/origin into $dir/destination the *e* except for *n*
+    X do remove in $dir/destination the *a*
+    scan destination
+} -cleanup {
+    cleanup
+    X destroy
+} -result {detlev}
+
+# -------------------------------------------------------------------------
+unset dir
+testsuiteCleanup
+return
