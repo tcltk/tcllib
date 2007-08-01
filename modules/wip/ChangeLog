@@ -1,3 +1,9 @@
+2007-07-30  Andreas Kupries  <andreask@activestate.com>
+
+	* wip.man: Fixed bugs uncovered during test of
+	* wip.tcl: first user, fileutil::multi::op.
+	* wip2.tcl:
+
 2007-07-27  Andreas Kupries  <andreask@activestate.com>
 
 	* New Module.

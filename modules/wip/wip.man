@@ -287,7 +287,7 @@ Basic programm accessor method. Inserts the specified [arg wordlist]
 into the program, just before the word at position [arg at]. Positions
 are counted from [const zero].
 
-[call [arg wipName] [method setl] [arg wordlist]]
+[call [arg wipName] [method replacel] [arg wordlist]]
 
 Basic programm accessor method. Replaces the whole stored program with
 the specified [arg wordlist].
@@ -313,7 +313,7 @@ the end of the remaining program. Equivalent to
 Like method [method insertl], except the words are specified through
 multiple arguments.
 
-[call [arg wipName] [method set] [arg word]...]
+[call [arg wipName] [method replace] [arg word]...]
 
 Like method [method setl], except the words are specified through
 multiple arguments.
