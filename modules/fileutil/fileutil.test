@@ -9,7 +9,7 @@
 # Copyright (c) 2005-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: fileutil.test,v 1.52 2007/07/27 20:26:07 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.test,v 1.53 2007/08/01 20:49:23 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -312,8 +312,7 @@ test writefile-1.0 {writeFile, unwriteable file} {unixOnly notRoot} {
     file attributes $path -permissions 0600
     removeFile unwritable
 
-    regsub $path $msg @ msg
-    set msg
+    string map [list $path @] $msg
 } {Cannot use file "@", write access is denied}
 
 test writefile-1.1 {writeFile, not a file} {unixOnly} {
@@ -322,8 +321,7 @@ test writefile-1.1 {writeFile, not a file} {unixOnly} {
     catch {fileutil::writeFile $path {}} msg
 
     removeDirectory notafile
-    regsub $path $msg @ msg
-    set msg
+    string map [list $path @] $msg
 } {Cannot use file "@", is not a file}
 
 test writefile-1.2 {writeFile, wrong#args} {
@@ -413,8 +411,7 @@ test appendtofile-1.0 {appendToFile, unwriteable file} {unixOnly notRoot} {
     file attributes $path -permissions 0600
     removeFile unwritable
 
-    regsub $path $msg @ msg
-    set msg
+    string map [list $path @] $msg
 } {Cannot use file "@", write access is denied}
 
 test appendtofile-1.1 {appendToFile, not a file} {unixOnly} {
@@ -423,8 +420,7 @@ test appendtofile-1.1 {appendToFile, not a file} {unixOnly} {
     catch {fileutil::appendToFile $path {}} msg
 
     removeDirectory notafile
-    regsub $path $msg @ msg
-    set msg
+    string map [list $path @] $msg
 } {Cannot use file "@", is not a file}
 
 test appendtofile-1.2 {appendToFile, wrong#args} {
@@ -517,8 +513,7 @@ test insertintofile-1.0 {insertIntoFile, unwriteable file} {unixOnly notRoot} {
     file attributes $path -permissions 0600
     removeFile unwritable
 
-    regsub $path $msg @ msg
-    set msg
+    string map [list $path @] $msg
 } {Cannot use file "@", write access is denied}
 
 test insertintofile-1.1 {insertIntoFile, not a file} {unixOnly} {
@@ -527,8 +522,7 @@ test insertintofile-1.1 {insertIntoFile, not a file} {unixOnly} {
     catch {fileutil::insertIntoFile $path 0 {}} msg
 
     removeDirectory notafile
-    regsub $path $msg @ msg
-    set msg
+    string map [list $path @] $msg
 } {Cannot use file "@", is not a file}
 
 test insertintofile-1.2 {insertIntoFile, missing file} {
@@ -537,8 +531,7 @@ test insertintofile-1.2 {insertIntoFile, missing file} {
 
     catch {fileutil::insertIntoFile $path 0 {}} msg
 
-    regsub $path $msg @ msg
-    set msg
+    string map [list $path @] $msg
 } {Cannot use file "@", does not exist}
 
 test insertintofile-1.3 {insertIntoFile, wrong#args} {
@@ -701,8 +694,7 @@ test removefromfile-1.0 {removeFromFile, unwriteable file} {unixOnly notRoot} {
     file attributes $path -permissions 0600
     removeFile unwritable
 
-    regsub $path $msg @ msg
-    set msg
+    string map [list $path @] $msg
 } {Cannot use file "@", write access is denied}
 
 test removefromfile-1.1 {removeFromFile, not a file} {unixOnly} {
@@ -711,8 +703,7 @@ test removefromfile-1.1 {removeFromFile, not a file} {unixOnly} {
     catch {fileutil::removeFromFile $path 0 {}} msg
 
     removeDirectory notafile
-    regsub $path $msg @ msg
-    set msg
+    string map [list $path @] $msg
 } {Cannot use file "@", is not a file}
 
 test removefromfile-1.2 {removeFromFile, missing file} {
@@ -721,8 +712,7 @@ test removefromfile-1.2 {removeFromFile, missing file} {
 
     catch {fileutil::removeFromFile $path 0 {}} msg
 
-    regsub $path $msg @ msg
-    set msg
+    string map [list $path @] $msg
 } {Cannot use file "@", does not exist}
 
 test removefromfile-1.3 {removeFromFile, wrong#args} {
@@ -902,8 +892,7 @@ test replaceinfile-1.0 {replaceInFile, unwriteable file} {unixOnly notRoot} {
     file attributes $path -permissions 0600
     removeFile unwritable
 
-    regsub $path $msg @ msg
-    set msg
+    string map [list $path @] $msg
 } {Cannot use file "@", write access is denied}
 
 test replaceinfile-1.1 {replaceInFile, not a file} {unixOnly} {
@@ -912,8 +901,7 @@ test replaceinfile-1.1 {replaceInFile, not a file} {unixOnly} {
     catch {fileutil::replaceInFile $path 0 0 {}} msg
 
     removeDirectory notafile
-    regsub $path $msg @ msg
-    set msg
+    string map [list $path @] $msg
 } {Cannot use file "@", is not a file}
 
 test replaceinfile-1.2 {replaceInFile, missing file} {
@@ -922,8 +910,7 @@ test replaceinfile-1.2 {replaceInFile, missing file} {
 
     catch {fileutil::replaceInFile $path 0 0 {}} msg
 
-    regsub $path $msg @ msg
-    set msg
+    string map [list $path @] $msg
 } {Cannot use file "@", does not exist}
 
 test replaceinfile-1.3 {replaceInFile, wrong#args} {
@@ -1238,8 +1225,7 @@ test updateinplace-1.0 {updateInPlace, unwriteable file} {unixOnly notRoot} {
     file attributes $path -permissions 0600
     removeFile unwritable
 
-    regsub $path $msg @ msg
-    set msg
+    string map [list $path @] $msg
 } {Cannot use file "@", write access is denied}
 
 test updateinplace-1.1 {updateInPlace, not a file} {unixOnly} {
@@ -1248,8 +1234,7 @@ test updateinplace-1.1 {updateInPlace, not a file} {unixOnly} {
     catch {fileutil::updateInPlace $path {string map {}}} msg
 
     removeDirectory notafile
-    regsub $path $msg @ msg
-    set msg
+    string map [list $path @] $msg
 } {Cannot use file "@", is not a file}
 
 test updateinplace-1.2 {updateInPlace, missing file} {
@@ -1258,8 +1243,7 @@ test updateinplace-1.2 {updateInPlace, missing file} {
 
     catch {fileutil::updateInPlace $path {string map {}}} msg
 
-    regsub $path $msg @ msg
-    set msg
+    string map [list $path @] $msg
 } {Cannot use file "@", does not exist}
 
 test updateinplace-1.3 {updateInPlace, wrong#args} {

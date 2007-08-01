@@ -186,15 +186,19 @@ object state to set the operation up, but di nothing else.
 [para]
 
 To allow for a more natural sounding syntax this command also looks
-ahead in the list of words looks and executes all [cmd as],
-[cmd but], [cmd exclude], and [cmd except] commands immediately
-following it. That way they are like qualifiers, and take effect as if
-they had been written before this command.
+ahead in the list of words looks and executes several commands
+immediately following it before performing its own actions.
+
+These commands are [cmd as], [cmd but], [cmd exclude], [cmd except],
+[cmd from], and [cmd into] (and aliases). That way these commands act
+like qualifiers, and still take effect as if they had been written
+before this command.
 
 [para]
 
-After the operation has been performed the object state of the
-qualifier commands is reset, but nothing else.
+After the operation has been performed the object state the exclude
+patterns and the alias name, if specified, are reset to their default
+values (i.e. empty), but nothing else.
 
 [list_end]
 
@@ -206,35 +210,35 @@ reference to a multi-file operation object.
 
 [example {
     $F do copy                       \\
-	into [installdir_of tls]      \\
+	the  *.dll                    \\
 	from c:/TDK/PrivateOpenSSL/bin \\
-	the  *.dll
+	to   [installdir_of tls]
 }]
 
 [example {
-    $F do move       \\
+    $F do move      \\
+	the  *       \\
 	from /sources \\
 	into /scratch  \\
-	the  *         \\
-	but not *.html \\
+	but not *.html
 
     # Alternatively use 'except for *.html'.
 }]
 
 [example {
-    $F do            \\
-	move          \\
+    $F do           \\
+	move         \\
+	the  index    \\
 	from /sources  \\
 	into /scratch   \\
-	the  index       \\
 	as   pkgIndex.tcl
 }]
 
 [example {
     $F do         \\
 	remove     \\
-	in /scratch \\
-	the *.txt
+	the *.txt  \\
+	in /scratch
 }]
 
 Note that the fact that most commands just modify the object state
@@ -267,9 +271,9 @@ can be merged and rewritten into the equivalent:
 [example {
 $F do                   \\
     move                 \\
-    into /scratch         \\
+    the  *                \\
     from /sources          \\
-    the  *                  \\
+    into /scratch           \\
     but not *.html not index \\
     the  index               \\
     as   pkgIndex.tcl
