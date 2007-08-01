@@ -7,7 +7,7 @@
 # Copyright (c) 2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: multiop.test,v 1.2 2007/08/01 20:20:23 andreas_kupries Exp $
+# RCS: @(#) $Id: multi.test,v 1.1 2007/08/01 20:20:23 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -19,25 +19,14 @@ testsNeedTcl     8.4
 testsNeedTcltest 2.1
 
 support {
-    use       snit/snit.tcl   snit
-    use       struct/list.tcl struct::list
-
-    # Note: Order is important for the next two. First ::fileutil is
-    # wiped out, and through this all previously created multi::op
-    # objects, like from the 'multi.test'. This also kills the
-    # embedded wip objects, and wiping out ::wip after is ok.
-
-    # However, if we were to wipe out ::wip before ::fileutil kills
-    # the wip objects, and leaves the multi::op objects with dangling
-    # references. Wiping them then out then causes snit to write error
-    # messages to stdout (RT.InstanceTrace) due to the already deleted
-    # namespaces for the wip objects.
-
-    useLocal  fileutil.tcl    fileutil
-    use       wip/wip.tcl     wip
+    use      snit/snit.tcl   snit
+    use      struct/list.tcl struct::list
+    use      wip/wip.tcl     wip
+    useLocal fileutil.tcl    fileutil
+    useLocal multiop.tcl     fileutil::multi::op
 }
 testing {
-    useLocal  multiop.tcl     fileutil::multi::op
+    useLocalKeep multi.tcl   fileutil::multi
 }
 
 # -------------------------------------------------------------------------
@@ -73,38 +62,32 @@ proc scan {d} {
 
 set dir $::tcltest::temporaryDirectory
 
-test multiop-1.0 {fileutil multi operations, copying} -setup {
+test multi-1.0 {fileutil multi operations, copying} -setup {
     setup
-    fileutil::multi::op X
 } -body {
-    X do copy from $dir/origin to $dir/destination the *e* except for *n*
+    fileutil::multi reset copy from $dir/origin to $dir/destination the *e* except for *n*
     list [scan origin] [scan destination]
 } -cleanup {
     cleanup
-    X destroy
 } -result {{anneliese bertram connie detlev egon egon/bettina egon/suse} {bertram detlev}}
 
-test multiop-1.1 {fileutil multi operations, moving} -setup {
+test multi-1.1 {fileutil multi operations, moving} -setup {
     setup
-    fileutil::multi::op X
 } -body {
-    X do move from $dir/origin into $dir/destination the *e* except for *n*
+    fileutil::multi reset move from $dir/origin into $dir/destination the *e* except for *n*
     list [scan origin] [scan destination]
 } -cleanup {
     cleanup
-    X destroy
 } -result {{anneliese connie egon egon/bettina egon/suse} {bertram detlev}}
 
-test multiop-1.1 {fileutil multi operations, deletion} -setup {
+test multi-1.1 {fileutil multi operations, deletion} -setup {
     setup
-    fileutil::multi::op X
 } -body {
-    X do copy from $dir/origin into $dir/destination the *e* except for *n*
-    X do remove in $dir/destination the *a*
+    fileutil::multi reset copy from $dir/origin into $dir/destination the *e* except for *n*
+    fileutil::multi reset remove in $dir/destination the *a*
     scan destination
 } -cleanup {
     cleanup
-    X destroy
 } -result {detlev}
 
 # -------------------------------------------------------------------------

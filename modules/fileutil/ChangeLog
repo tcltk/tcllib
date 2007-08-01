@@ -1,3 +1,12 @@
+2007-08-01  Andreas Kupries  <andreask@activestate.com>
+
+	* multi.tcl: Added documentation and testsuite for the multiop
+	* multi.man: package built on top of the multiop objects. Bug
+	* multi.test: fixes.
+	* multiop.tcl:
+	* multiop.man:
+	* multiop.test:
+
 2007-07-31  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* multiop.man: Wrote the actual documentation for the core

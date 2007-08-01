@@ -14,9 +14,13 @@ package require fileutil::multi::op
 
 namespace eval ::fileutil {}
 
-# Create the multiop processor object and make it the main command
-# of this package.
-::fileutil::multi::op ::fileutil::multi
+# Create the multiop processor object and make its do method the main
+# command of this package.
+::fileutil::multi::op ::fileutil::multi::obj
+
+proc ::fileutil::multi {args} {
+    return [uplevel 1 [linsert $args 0 ::fileutil::multi::obj do]]
+}
 
 # ### ### ### ######### ######### #########
 ## Ready

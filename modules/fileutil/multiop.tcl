@@ -158,6 +158,11 @@ snit::type ::fileutil::multi::op {
 	return
     }
 
+    destructor {
+	$wip destroy
+	return
+    }
+
     method do {args} {
 	return [runl $args]
     }

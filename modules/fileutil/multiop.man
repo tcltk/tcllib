@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin multi_op n 0.1]
+[manpage_begin fileutil::multi::op n 0.1]
 [moddesc   {file utilities}]
 [titledesc {Multi-file operation, scatter/gather}]
 [require Tcl 8.4]
