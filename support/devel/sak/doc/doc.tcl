@@ -20,7 +20,16 @@ proc ::sak::doc::dvi {modules} {
     latex $modules
     file mkdir [file join doc dvi]
     cd         [file join doc dvi]
+
     foreach f [glob -nocomplain ../latex/*.tex] {
+
+	set target [file rootname [file tail $f]].dvi
+
+	if {[file exists $target] 
+	    && [file mtime $target] > [file mtime $f]} {
+	    continue
+	}
+
 	puts "Gen (dvi): $f"
 	exec latex $f 1>@ stdout 2>@ stderr
     }
@@ -33,6 +42,14 @@ proc ::sak::doc::ps {modules} {
     file mkdir [file join doc ps]
     cd         [file join doc ps]
     foreach f [glob -nocomplain ../dvi/*.dvi] {
+
+	set target [file rootname [file tail $f]].ps
+
+	if {[file exists $target] 
+	    && [file mtime $target] > [file mtime $f]} {
+	    continue
+	}
+
 	puts "Gen (ps): $f"
 	exec dvips -o [file rootname [file tail $f]].ps $f >@ stdout 2>@ stderr
     }
