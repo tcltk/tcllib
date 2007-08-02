@@ -21,10 +21,9 @@ proc ::sak::doc::dvi {modules} {
     file mkdir [file join doc dvi]
     cd         [file join doc dvi]
 
-    foreach f [glob -nocomplain ../latex/*.tex] {
+    foreach f [lsort -dict [glob -nocomplain ../latex/*.tex]] {
 
 	set target [file rootname [file tail $f]].dvi
-
 	if {[file exists $target] 
 	    && [file mtime $target] > [file mtime $f]} {
 	    continue
@@ -41,17 +40,35 @@ proc ::sak::doc::ps {modules} {
     dvi $modules
     file mkdir [file join doc ps]
     cd         [file join doc ps]
-    foreach f [glob -nocomplain ../dvi/*.dvi] {
+    foreach f [lsort -dict [glob -nocomplain ../dvi/*.dvi]] {
 
 	set target [file rootname [file tail $f]].ps
-
 	if {[file exists $target] 
 	    && [file mtime $target] > [file mtime $f]} {
 	    continue
 	}
 
 	puts "Gen (ps): $f"
-	exec dvips -o [file rootname [file tail $f]].ps $f >@ stdout 2>@ stderr
+	exec dvips -o $target $f >@ stdout 2>@ stderr
+    }
+    cd ../..
+    return
+}
+
+proc ::sak::doc::pdf {modules} {
+    dvi $modules
+    file mkdir [file join doc pdf]
+    cd         [file join doc pdf]
+    foreach f [lsort -dict [glob -nocomplain ../ps/*.ps]] {
+
+	set target [file rootname [file tail $f]].pdf
+	if {[file exists $target] 
+	    && [file mtime $target] > [file mtime $f]} {
+	    continue
+	}
+
+	puts "Gen (pdf): $f"
+	exec ps2pdf $f $target >@ stdout 2>@ stderr
     }
     cd ../..
     return
