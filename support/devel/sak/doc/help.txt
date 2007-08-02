@@ -22,6 +22,7 @@
         - list    A list of manpages
         - nroff   Manpages
         - ps      See dvi, + conversion to PostScript (via 'dvips' application)
+	- pdf     See ps, + conversion to PDF (via 'ps2pdf' application)
         - text    Plain text
         - tmml    TMML (Tcl Manpage Markup Language)
         - wiki    Wiki markup (Tcler's Wiki)
