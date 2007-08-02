@@ -1,5 +1,13 @@
 2007-08-02  Andreas Kupries  <andreask@activestate.com>
 
+	* mpformats/fmt.latex: Further reworking of the backend internals
+	  for proper quoting of TeX special characters, prevention of
+	  double-quoting, and markup of wanted special characters. Further
+	  removed the use of 'quote' environments. Not needed for the
+	  formatting and its use restricts the nesting of lists to three
+	  levels. Without we can nest seven levels. Final fixes for
+	  [Tcllib SF Bug 1766381].
+
 	* mpformats/fmt.text: Fixed handling of 'cmd_def'.
 	* mpformats/fmt.tmml: Fixed handling of nested lists.
 	* mpformats/fmt.latex: Fixed handling of list_end, was not updated
