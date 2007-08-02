@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.23 2007/03/20 05:06:35 andreas_kupries Exp $
+# $Id: fmt.tmml,v 1.24 2007/08/02 19:01:14 andreas_kupries Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -29,7 +29,7 @@ dt_source _xml.tcl
 
 c_holdBuffers synopsis see_also keywords
 
-variable block {section dd li}	;# block context elements
+variable block {section dd li desc}	;# block context elements
 
 proc fmt_nl  	{}	{ emptyElement br }
 proc fmt_arg 	{text}	{ wrap $text m }
@@ -146,7 +146,7 @@ c_pass 1 fmt_list_end {} NOP
 c_pass 2 fmt_list_begin {what {hint {}}} {
     variable listTypes
     sequence \
-    	[xmlContext {section dd li}] \
+    	[xmlContext $::block] \
 	[start $listTypes($what)] \
 	;
 }

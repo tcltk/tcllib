@@ -1,3 +1,15 @@
+2007-08-02  Andreas Kupries  <andreask@activestate.com>
+
+	* mpformats/fmt.text: Fixed handling of 'cmd_def'.
+	* mpformats/fmt.tmml: Fixed handling of nested lists.
+	* mpformats/fmt.latex: Fixed handling of list_end, was not updated
+	  to the new list type codes.
+	* mpformats/fmt.latex: Fixed handling of ^ character. Has to be
+	  escaped in regular text. Fixed handling of keywords and
+	  references (see also). May contain special character in need of
+	  escaping. Quote backslashes in paths.
+	  Fixes for [Tcllib SF Bug 1766381.]
+
 2007-08-01  Andreas Kupries  <andreask@activestate.com>
 
 	* doctools.test: Updated test 8.4 for changes in the formatting of
