@@ -54,7 +54,7 @@ c_pass 2 fmt_manpage_begin {title section version} {
     append  hdr "\\author\{[dt_user]\}" \n
 
     set    titletext ""
-    append titletext "$module / $title \\\\"
+    append titletext "$module / $title \\\\ "
     append titletext "$shortdesc : $description"
 
     append  hdr "\\title\{[texEscape $titletext]\}" \n
@@ -80,10 +80,18 @@ c_pass 2 fmt_manpage_end {} {
     set ct [c_get_copyright]
 
     if {[llength $sa] > 0} {
+	set tmp {}
+	foreach x $sa {lappend tmp [texEscape $x]}
+	set sa $tmp
+
 	append res [fmt_section {SEE ALSO}] \n
 	append res [join [lsort $sa] ", "] \n
     }
     if {[llength $kw] > 0} {
+	set tmp {}
+	foreach x $kw {lappend tmp [texEscape $x]}
+	set kw $tmp
+
 	append res [fmt_section KEYWORDS] \n
 	append res [join [lsort $kw] ", "] \n
     }
@@ -99,8 +107,8 @@ c_pass 2 fmt_manpage_end {} {
 
 
 
-proc fmt_section    {name} {return "\\section\{$name\}"}
-proc fmt_subsection {name} {return "\\subsection\{$name\}"}
+proc fmt_section    {name} {return "\\section\{[texEscape $name]\}"}
+proc fmt_subsection {name} {return "\\subsection\{[texEscape $name]\}"}
 proc fmt_para    {}        {return \n\n}
 
 c_pass 2 fmt_require {pkg {version {}}} NOP
@@ -117,7 +125,7 @@ c_pass 1 fmt_require {pkg {version {}}} {
 c_pass 2 fmt_usage {cmd args} NOP
 c_pass 1 fmt_usage {cmd args} {c_hold synopsis "\\item\[\] $cmd [join $args " "]"}
 
-c_pass 2 fmt_call {cmd args} {return "[fmt_lst_item "$cmd [join $args " "]"]"}
+c_pass 2 fmt_call {cmd args} {return "[fmt_lst_item "$cmd [join $args " "]" 0]"}
 c_pass 1 fmt_call {cmd args} {c_hold synopsis "\\item\[\] $cmd [join $args " "]"}
 
 c_pass 1 fmt_description {} NOP
@@ -184,13 +192,17 @@ proc fmt_list_end {} {
     incr list_state(level) -1
 
     switch -exact -- $what {
-	enum {
+	enumerated {
 	    return \\end\{enumerate\}
 	}
-	bullet {
+	itemized {
 	    return \\end\{itemize\}
 	}
-	definitions - arg - opt - cmd - tkoption {
+	arguments -
+	options -
+	commands -
+	tkoptions -
+	definitions {
 	    if {$item} {
 		return \\end\{quote\}\n\\end\{itemize\}
 	    } else {
@@ -206,13 +218,15 @@ proc fmt_list_end {} {
 proc fmt_bullet {} {return "\\item\n"}
 proc fmt_enum   {} {return "\\item\n"}
 
-proc fmt_lst_item {text} {
+proc fmt_lst_item {text {escape 1}} {
     global list_state
 
     set item $list_state(l,$list_state(level),item)
     set list_state(l,$list_state(level),item) 1
 
-    ## set text [texEscape $text]
+    if {$escape} {
+	set text [texEscape $text]
+    }
     if {$item} {
 	return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
     } else {
@@ -329,7 +343,7 @@ proc fmt_package {text} {Bold $text}
 proc fmt_class   {text} {Bold $text}
 proc fmt_var     {text} {Bold $text}
 proc fmt_file    {text} {return "\"[Italic $text]\""}
-proc fmt_namespace     {text} {Bold $text}
+proc fmt_namespace     {text} {Bold $text]}
 proc fmt_uri     {text {label {}}} {
     if {$label == {}} {
 	# Without label we use the link directly as part of the text.
@@ -355,7 +369,7 @@ proc Underline {text} {return "\\underline\{[texEscape $text]\}"}
 ################################################################
 
 proc texEscape {text} {
-    string map {_ \\_ % \\% $ \\$ < $<$ > $>$ # \\# & \\&} $text
+    string map {\\ $\\backslash$ _ \\_ % \\% ^ \\^ $ \\$ < $<$ > $>$ # \\# & \\&} $text
 }
 
 ################################################################

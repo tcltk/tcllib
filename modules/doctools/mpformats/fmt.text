@@ -325,7 +325,7 @@ c_pass 2 fmt_enum {} {
 }
 
 c_pass 1 fmt_cmd_def  {command} NOP
-c_pass 2 fmt_cmd_def  {command} {fmt_lst_item [cmd $command]}
+c_pass 2 fmt_cmd_def  {command} {fmt_lst_item [fmt_cmd $command]}
 
 c_pass 1 fmt_arg_def {type name {mode {}}} NOP
 c_pass 2 fmt_arg_def {type name {mode {}}} {
