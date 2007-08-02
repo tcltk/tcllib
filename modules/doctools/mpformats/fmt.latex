@@ -32,6 +32,12 @@ proc Year {} {clock format [clock seconds] -format %Y}
 
 c_holdBuffers require
 
+proc fmt_postprocess {text} {
+    regsub -all -- "\n+" $text "\n" text
+    return [string map {\1\\ \\ \1$ $} $text]
+    #return $text
+}
+
 ################################################################
 ## Backend for LaTeX markup
 
@@ -49,16 +55,16 @@ c_pass 2 fmt_manpage_begin {title section version} {
     }
     append  hdr [Comment "CVS: \$Id\$ $title.$section"] \n
     append  hdr \n
-    append  hdr "\\documentclass\{article\}" \n
-    append  hdr "\\begin\{document\}" \n
-    append  hdr "\\author\{[dt_user]\}" \n
+    append  hdr "\1\\documentclass\{article\}" \n
+    append  hdr "\1\\begin\{document\}" \n
+    append  hdr "\1\\author\{[dt_user]\}" \n
 
     set    titletext ""
-    append titletext "$module / $title \\\\ "
+    append titletext "$module / $title -- "
     append titletext "$shortdesc : $description"
 
-    append  hdr "\\title\{[texEscape $titletext]\}" \n
-    append  hdr "\\maketitle" \n
+    append  hdr "\1\\title\{[texEscape $titletext]\}" \n
+    append  hdr "\1\\maketitle" \n
     return $hdr
 }
 
@@ -97,18 +103,18 @@ c_pass 2 fmt_manpage_end {} {
     }
     if {$ct != {}} {
 	append res [fmt_section COPYRIGHT] \n
-	append res \\begin\{flushleft\} \n
-	append res [join [split $ct \n] \\linebreak\n] \\linebreak\n
-	append res \\end\{flushleft\} \n
+	append res \1\\begin\{flushleft\} \n
+	append res [join [split $ct \n] \1\\linebreak\n] \1\\linebreak\n
+	append res \1\\end\{flushleft\} \n
     }
-    append  res "\\end\{document\}"
+    append  res "\1\\end\{document\}"
     return $res
 }
 
 
 
-proc fmt_section    {name} {return "\\section\{[texEscape $name]\}"}
-proc fmt_subsection {name} {return "\\subsection\{[texEscape $name]\}"}
+proc fmt_section    {name} {return "\1\\section\{[texEscape $name]\}"}
+proc fmt_subsection {name} {return "\1\\subsection\{[texEscape $name]\}"}
 proc fmt_para    {}        {return \n\n}
 
 c_pass 2 fmt_require {pkg {version {}}} NOP
@@ -123,10 +129,10 @@ c_pass 1 fmt_require {pkg {version {}}} {
 }
 
 c_pass 2 fmt_usage {cmd args} NOP
-c_pass 1 fmt_usage {cmd args} {c_hold synopsis "\\item\[\] $cmd [join $args " "]"}
+c_pass 1 fmt_usage {cmd args} {c_hold synopsis "\1\\item\[\] $cmd [join $args " "]"}
 
-c_pass 2 fmt_call {cmd args} {return "[fmt_lst_item "$cmd [join $args " "]" 0]"}
-c_pass 1 fmt_call {cmd args} {c_hold synopsis "\\item\[\] $cmd [join $args " "]"}
+c_pass 2 fmt_call {cmd args} {return "[fmt_lst_item "$cmd [join $args " "]"]"}
+c_pass 1 fmt_call {cmd args} {c_hold synopsis "\1\\item\[\] $cmd [join $args " "]"}
 
 c_pass 1 fmt_description {} NOP
 c_pass 2 fmt_description {} {
@@ -136,14 +142,14 @@ c_pass 2 fmt_description {} {
     if {$req != {} || $syn != {}} {
 	append res [fmt_section SYNOPSIS]\n
 	if {$req != {}} {
-	    append res \\begin\{flushleft\} \n
+	    append res \1\\begin\{flushleft\} \n
 	    append res $req \n
-	    append res \\end\{flushleft\} \n
+	    append res \1\\end\{flushleft\} \n
 	}
 	if {$syn != {}} {
-	    append res "\\begin\{itemize\}" \n
+	    append res "\1\\begin\{itemize\}" \n
 	    append res ${syn} \n\n
-	    append res "\\end\{itemize\}" \n
+	    append res "\1\\end\{itemize\}" \n
 	}
     }
     append res [fmt_section DESCRIPTION]
@@ -164,7 +170,7 @@ proc fmt_list_begin  {what {hint {}}} {
 
     switch -exact -- $what {
 	enumerated {
-	    return \\begin\{enumerate\}
+	    return \1\\begin\{enumerate\}
 	}
 	itemized -
 	arguments -
@@ -172,7 +178,7 @@ proc fmt_list_begin  {what {hint {}}} {
 	commands -
 	tkoptions -
 	definitions {
-	    return \\begin\{itemize\}
+	    return \1\\begin\{itemize\}
 	}
 	default {
 	    return -code error "Must not happen"
@@ -193,21 +199,15 @@ proc fmt_list_end {} {
 
     switch -exact -- $what {
 	enumerated {
-	    return \\end\{enumerate\}
+	    return \1\\end\{enumerate\}
 	}
-	itemized {
-	    return \\end\{itemize\}
-	}
+	itemized -
 	arguments -
 	options -
 	commands -
 	tkoptions -
 	definitions {
-	    if {$item} {
-		return \\end\{quote\}\n\\end\{itemize\}
-	    } else {
-		return \\end\{itemize\}
-	    }
+	    return \1\\end\{itemize\}
 	}
 	default {
 	    return -code error "Must not happen"
@@ -215,23 +215,17 @@ proc fmt_list_end {} {
     }
 }
 
-proc fmt_bullet {} {return "\\item\n"}
-proc fmt_enum   {} {return "\\item\n"}
+proc fmt_bullet {} {return "\n%\n\1\\item\n%\n"}
+proc fmt_enum   {} {return "\n%\n\1\\item\n%\n"}
 
-proc fmt_lst_item {text {escape 1}} {
+proc fmt_lst_item {text} {
     global list_state
 
     set item $list_state(l,$list_state(level),item)
     set list_state(l,$list_state(level),item) 1
 
-    if {$escape} {
-	set text [texEscape $text]
-    }
-    if {$item} {
-	return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
-    } else {
-	return "\\item\[\] $text\n\\begin\{quote\}\n"
-    }
+    set text [texEscape $text]
+    return "\n%\n\1\\item\[\] $text\n%\n"
 }
 
 proc fmt_arg_def {type name {mode {}}} {
@@ -244,12 +238,7 @@ proc fmt_arg_def {type name {mode {}}} {
     append text [fmt_arg $name]
     append text " $type"
     if {$mode != {}} {append text " ($mode)"}
-
-    if {$item} {
-	return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
-    } else {
-	return "\\item\[\] $text\n\\begin\{quote\}\n"
-    }
+    return "\n%\n\1\\item\[\] $text\n%\n"
 }
 
 proc fmt_cmd_def {command} {
@@ -259,12 +248,7 @@ proc fmt_cmd_def {command} {
     set list_state(l,$list_state(level),item) 1
 
     set text [fmt_cmd $command]
-
-    if {$item} {
-	return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
-    } else {
-	return "\\item\[\] $text\n\\begin\{quote\}\n"
-    }
+    return "\n%\n\1\\item\[\] $text\n%\n"
 }
 
 proc fmt_opt_def {name {arg {}}} {
@@ -275,12 +259,7 @@ proc fmt_opt_def {name {arg {}}} {
 
     set text [fmt_option $name]
     if {$arg != {}} {append text " $arg"}
-
-    if {$item} {
-	return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
-    } else {
-	return "\\item\[\] $text\n\\begin\{quote\}\n"
-    }
+    return "\n%\n\1\\item\[\] $text\n%\n"
 }
 
 proc fmt_tkoption_def {name dbname dbclass} {
@@ -293,12 +272,7 @@ proc fmt_tkoption_def {name dbname dbclass} {
     append text "Command-Line Switch:	[Bold $name]\\\\\n"
     append text "Database Name:	[Bold $dbname]\\\\\n"
     append text "Database Class:	[Bold $dbclass]\\\\\n"
-
-    if {$item} {
-	return "\\end\{quote\}\n\\item\[\] $text\n\\begin\{quote\}\n"
-    } else {
-	return "\\item\[\] $text\n\\begin\{quote\}\n"
-    }
+    return "\n%\n\1\\item\[\] $text\n%\n"
 }
 
 ################################################################
@@ -314,7 +288,7 @@ proc fmt_example_end   {} {
     return {\end{verbatim}}
 }
 # No mapping of special characters
-proc fmt_example {code} { return "\\begin\{verbatim\}\n${code}\n\\end\{verbatim\}\n" }
+proc fmt_example {code} { return "\1\\begin\{verbatim\}\n${code}\n\1\\end\{verbatim\}\n" }
 
 proc fmt_nl     {}     {return}
 proc fmt_arg    {text} {Underline $text}
@@ -351,7 +325,7 @@ proc fmt_uri     {text {label {}}} {
     } else {
 	# Label is used in the text, refered link is delegated into a
 	# footnote.
-	return "[Underline $label] \\footnote\{[texEscape $text]\}"
+	return "[Underline $label] \1\\footnote\{[texEscape $text]\}"
     }
 }
 proc fmt_term    {text} {Italic $text}
@@ -362,14 +336,35 @@ proc fmt_const   {text} {Bold $text}
 # latex specific commands
 
 proc Comment   {text} {return "% [join [split $text \n] "\n% "]"}
-proc Bold      {text} {return "\{\\bf [texEscape $text]\}"}
-proc Italic    {text} {return "\{\\it [texEscape $text]\}"}
-proc Underline {text} {return "\\underline\{[texEscape $text]\}"}
+proc Bold      {text} {return "\{\1\\bf [texEscape $text]\}"}
+proc Italic    {text} {return "\{\1\\it [texEscape $text]\}"}
+proc Underline {text} {return "\1\\underline\{[texEscape $text]\}"}
 
 ################################################################
 
 proc texEscape {text} {
-    string map {\\ $\\backslash$ _ \\_ % \\% ^ \\^ $ \\$ < $<$ > $>$ # \\# & \\&} $text
+    set x 0
+    if {[string match *%* $text]} {
+	#puts_stderr '$text'
+	set x 1
+    }
+
+    # Important: \1 protected sequences are left unchanged, they are already escaped.
+    set text [string map {
+        \1$\\backslash$ \1$\\backslash$ \1$<$ \1$<$ \1$>$ \1$>$
+	\1\\_ \1\\_
+	\1\\% \1\\%
+	\1\\^ \1\\^
+	\1\\$ \1\\$
+	\1\\# \1\\#
+	\1\\& \1\\&
+	\1\\ \1\\
+	\\ \1$\\backslash$ _ \1\\_ % \1\\% ^ \1\\^ $ \1\\$ < \1$<$ > \1$>$ # \1\\# & \1\\&
+    } $text]
+    if {$x} {
+	#puts_stderr "==> '$text'"
+    }
+    return $text
 }
 
 ################################################################
