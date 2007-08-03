@@ -1,3 +1,7 @@
+2007-08-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* typedCmdline.test: Updated to changes in Tcl 8.5 head.
+
 2007-03-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* cmdline.man: Fixed all warnings due to use of now deprecated
