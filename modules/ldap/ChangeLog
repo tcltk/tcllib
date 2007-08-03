@@ -8,8 +8,6 @@
 			Introduced a "-utf8" option in the LDIF class.
 			Fixed indentation for LDIF continuation lines
 			for Base64 encoded values.
-			Fixed set1 return value to be compatible with
-			set return value (not a documented feature).
 			Fixed set1 when given an empty value: it deletes
 			the attribute (as with set).
 	  ldapx.test	Fixed test for the new replacement mode.
