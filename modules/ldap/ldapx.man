@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: ldapx.man,v 1.9 2007/03/25 01:29:24 andreas_kupries Exp $}]
-[manpage_begin ldapx n 0.2.4]
+[comment {$Id: ldapx.man,v 1.10 2007/08/03 15:13:52 pdav Exp $}]
+[manpage_begin ldapx n 0.2.5]
 [copyright {2006 Pierre David <pdav@users.sourceforge.net>}]
 [moddesc   {LDAP extended object interface}]
 [titledesc {LDAP extended object interface}]
 [require Tcl 8.4]
-[require ldapx [opt 0.2.4]]
+[require ldapx [opt 0.2.5]]
 [description]
 [para]
 
@@ -78,7 +78,8 @@ methods [method read] and [method write] read or write entries from
 or to this channel. This class can make use of standard or change
 entries, according to the type of the LDIF file which may contain
 either standard entries or change entries (but not both at the same
-time).
+time). The option [option -utf8] works exactly as with the [class
+ldap] class.
 
 [section {ENTRY CLASS}]
 
@@ -650,7 +651,7 @@ An instance of the [class ldif] class keeps the following data:
 
 [subsection {Ldif Options}]
 
-This class defines one option:
+This class defines two options:
 
 
 [list_begin options]
@@ -664,6 +665,24 @@ This class defines one option:
 	files.
 	[para]
 	Default is empty list: no attribute is ignored.
+
+    [opt_def -utf8 {pattern-yes pattern-no}]
+
+	Specify which attribute values are encoded in UTF-8. This
+	information is specific to the LDAP schema in use by the
+	application, since some attributes such as jpegPhoto, for
+	example, are not encoded in UTF-8. This option takes the
+	form of a list with two regular expressions suitable for
+	the [cmd regexp] command (anchored by ^ and $).
+	The first specifies which attribute names are to be UTF-8
+	encoded, and the second selects, among those, the attribute
+	names which will not be UTF-8 encoded.  It is thus possible
+	to say: convert all attributes, except jpegPhoto.
+
+	[para]
+
+	Default is {{.*} {}}, meaning: all attributes are converted,
+	without exception.
 
 [list_end]
 
