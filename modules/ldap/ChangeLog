@@ -1,3 +1,21 @@
+2007-08-03  Pierre David <pdav@users.sourceforge.net>
+
+	* ldap.tcl	Fixed reading of LDIF change entries.
+			Fixed modification of an entry by replacing
+			values instead of removing and adding the minimal
+			set of changes, since LDAP schemas don't necessarily
+			include equality operator for each attribute.
+			Introduced a "-utf8" option in the LDIF class.
+			Fixed indentation for LDIF continuation lines
+			for Base64 encoded values.
+			Fixed set1 return value to be compatible with
+			set return value (not a documented feature).
+			Fixed set1 when given an empty value: it deletes
+			the attribute (as with set).
+	  ldapx.test	Fixed test for the new replacement mode.
+	  ldapx.man	Added documentation for "-utf8" option.
+
+
 2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ldap.man: Fixed all warnings due to use of now deprecated
