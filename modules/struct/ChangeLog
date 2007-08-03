@@ -1,3 +1,8 @@
+2007-08-03  Andreas Kupries  <andreask@activestate.com>
+
+	* sets.test (Nothing): Updated to changes in reporting of errors
+	  with alias commands in 8.5.
+
 2007-05-16  Kevin B. Kenny  <kennykb@acm.org>
 
 	* list.tcl (LlcsInvertMerge2): Fixed a bug where incorrect
