@@ -1,3 +1,8 @@
+2007-08-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mime.tcl (::mime::word_encode): Unbreak the unconditional
+	  line-breaking performed by some of the base64 encoders we use.
+
 2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mime.man: Fixed all warnings due to use of now deprecated

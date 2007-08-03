@@ -3747,7 +3747,8 @@ proc ::mime::word_encode {charset method string {args}} {
                         incr length [string length $enc_char]
                     }
                 }
-                set encoded_word [base64 -mode encode -- $enc_string]
+                set encoded_word [string map [list \n {}] \
+				      [base64 -mode encode -- $enc_string]]
                 append result "=?$encodings($charset)?B?$encoded_word?=\n "
             }
             # Trim off last "\n ", since the above code has the side-effect
