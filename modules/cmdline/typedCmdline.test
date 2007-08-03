@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Ross Palmer Mohn.
 # All rights reserved.
 #
-# RCS: @(#) $Id: typedCmdline.test,v 1.10 2006/10/09 21:41:40 andreas_kupries Exp $
+# RCS: @(#) $Id: typedCmdline.test,v 1.11 2007/08/03 04:27:38 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -115,7 +115,7 @@ if {[::tcltest::testConstraint tcl8.5plus]} {
 	catch {unset arg}
 	set argList {-foo 123}
 	list [catch {cmdline::typedGetopt argList {a.arg foo.bar b} opt arg} msg] $msg $argList $opt $arg
-    } [list 1 {Illegal option type specification: must be one of alnum|alpha|ascii|control|boolean|digit|double|false|graph|integer|lower|print|punct|space|true|upper|wideinteger|wordchar|xdigit} {-foo 123} {} {}]
+    } [list 1 {Illegal option type specification: must be one of alnum|alpha|ascii|control|boolean|digit|double|false|graph|integer|list|lower|print|punct|space|true|upper|wideinteger|wordchar|xdigit} {-foo 123} {} {}]
 } else {
     test typed-cmdline-6.14 {cmdline::typedGetopt, integer options} {
 	catch {unset opt}
