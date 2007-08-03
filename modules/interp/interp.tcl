@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: interp.tcl,v 1.1 2006/08/30 07:22:38 andreas_kupries Exp $
+# RCS: @(#) $Id: interp.tcl,v 1.2 2007/08/03 04:52:41 andreas_kupries Exp $
 
 package require Tcl 8.3
 
@@ -30,19 +30,28 @@ proc ::interp::createEmpty {args} {
 	set i [interp create]
     }
 
-    # Clear out namespaces and commands, leaving an
-    # empty interpreter behind. Take care to delete
-    # the rename command last, as it is needed to
-    # perform the deletions.
+    # Clear out namespaces and commands, leaving an empty interpreter
+    # behind. Take care to delete the rename command last, as it is
+    # needed to perform the deletions. We have to keep the 'rename'
+    # command until last to allow us to delete all ocmmands. We also
+    # have to defer deletion of the ::tcl namespace (if present), as
+    # it may contain state for the auto-loader, which may be
+    # invoked. This also forces us to defer the deletion of the
+    # builtin command 'namespace' so that we can delete ::tcl at last.
 
-    foreach n [interp eval $i [list namespace children ::]] {
+    foreach n [interp eval $i [list ::namespace children ::]] {
+	if {[string equal $n ::tcl]} continue
 	interp eval $i [list namespace delete $n]
     }
-    foreach c [interp eval $i [list info commands]] {
-	if {[string equal $c rename]} continue
-	interp eval $i [list rename $c {}]
+    foreach c [interp eval $i [list ::info commands]] {
+	if {[string equal $c rename]}    continue
+	if {[string equal $c namespace]} continue
+	interp eval $i [list ::rename $c {}]
     }
-    interp eval $i [list rename rename {}]
+
+    interp eval $i [list ::namespace delete ::tcl]
+    interp eval $i [list ::rename namespace {}]
+    interp eval $i [list ::rename rename    {}]
 
     # Done. Result is ready.
 
