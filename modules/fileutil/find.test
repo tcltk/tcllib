@@ -1,0 +1,185 @@
+# -*- tcl -*-
+# Tests for the find function.
+#
+# Sourcing this file into Tcl runs the tests and generates output for errors.
+# No output means no errors were found.
+#
+# Copyright (c) 1998-2000 by Ajuba Solutions.
+# Copyright (c) 2001 by ActiveState Tool Corp.
+# Copyright (c) 2005-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# All rights reserved.
+#
+# RCS: @(#) $Id: find.test,v 1.3 2007/08/03 23:07:25 andreas_kupries Exp $
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.2
+testsNeedTcltest 1.0
+
+testing {
+    useLocal fileutil.tcl fileutil
+}
+
+# -------------------------------------------------------------------------
+# Now the package specific tests....
+
+# Build a sample tree to search
+# Structure
+#
+#	dir
+#	+--{find 1}
+#          +--{find 2}
+#          |  +--{file* 2}  (This file is unix only)
+#          +--{file 1}
+#
+#       dir2
+#       +-- dotfiles
+#           +-- .foo
+#           +-- foo
+
+makeDirectory {find 1}
+makeDirectory [file join {find 1} {find 2}]
+makeFile "" [file join {find 1} {file [1]}]
+
+if {0 != [string compare $::tcl_platform(platform) windows]} {
+    makeFile "test" [file join {find 1} {find 2} {file* 2}]
+}
+
+set dir $::tcltest::temporaryDirectory
+
+makeDirectory dotfiles
+makeFile "" [file join dotfiles foo]
+makeFile "" [file join dotfiles .foo]
+
+
+
+proc fileIsBiggerThan {s f} {
+    expr {![file isdirectory $f] && [file size $f] > $s}
+}
+
+test find-1.1 {standard recursive find} {macOrUnix} {
+    lsort [fileutil::find [file join $dir {find 1}]]
+} [list [file join $dir {find 1} {file [1]}] \
+	[file join $dir {find 1} {find 2}] \
+	[file join $dir {find 1} {find 2} {file* 2}]]
+
+test find-1.2 {standard recursive find} {win} {
+    lsort [fileutil::find [file join $dir {find 1}]]
+} [list [file join $dir {find 1} {file [1]}] \
+	[file join $dir {find 1} {find 2}]]
+
+test find-1.3 {find directories} {
+    fileutil::find [file join $dir {find 1}] {file isdirectory}
+} [list [file join $dir {find 1} {find 2}]]
+
+test find-1.4 {find files bigger than a given size} {macOrUnix} {
+    fileutil::find [file join $dir {find 1}] {fileIsBiggerThan 1}
+} [list [file join $dir {find 1} {find 2} {file* 2}]]
+
+
+# Extend the previous sample tree
+# Extended structure:
+#
+#	dir
+#	+--{find 1}
+#          +--{find 2}          <----------+
+#          |  +--{file* 2}		   |
+#          |  +--{file 3} --> ../{find 2} -+
+#          +--{file [1]}
+
+test find-1.5 {handling of circular links} {unix} {
+    catch {file delete -force [file join $dir {find 1} {find 2} {file 3}]}
+    exec ln -s [file join .. {find 2}] [file join $dir {find 1} {find 2} {file 3}]
+
+    # Find has to skip '{file 3}'. Actually not. It should include
+    # {file 3} itself in the result, but must not follow it further.
+
+    lsort [fileutil::find [file join $dir {find 1}]]
+} [list [file join $dir {find 1} {file [1]}] \
+	[file join $dir {find 1} {find 2}] \
+	[file join $dir {find 1} {find 2} {file 3}] \
+	[file join $dir {find 1} {find 2} {file* 2}]]
+
+test find-1.6 {find file} {
+    ::fileutil::find [file join $dir {find 1} {file [1]}]
+} [list [file join $dir {find 1} {file [1]}]]
+
+test find-1.7 {find file with filter} {
+    ::fileutil::find [file join $dir {find 1} {file [1]}] {file isfile}
+} [list [file join $dir {find 1} {file [1]}]]
+
+test find-1.8 {find file with filter - negative} {
+    ::fileutil::find [file join $dir {find 1} {file [1]}] {file isdirectory}
+} {}
+
+# Behaviour of find with regard to dot-files.
+
+test find-1.9 {find file dot-files} {
+    lsort [::fileutil::find [file join $dir dotfiles]]
+} [list \
+	[file join $dir dotfiles .foo] \
+	[file join $dir dotfiles foo]  \
+	]
+
+# find by pattern tests
+
+test find-2.0 {find by pattern} {
+    list [catch {
+        ::fileutil::findByPattern $dir -glob {fil*} foo
+    } err] $err
+} {1 {wrong#args for "::fileutil::findByPattern", should be "::fileutil::findByPattern basedir ?-regexp|-glob? ?--? patterns"}}
+
+test find-2.1 {find by pattern} {
+    list [catch {
+        ::fileutil::findByPattern $dir -glob
+    } err] $err
+} {1 {wrong#args for "::fileutil::findByPattern", should be "::fileutil::findByPattern basedir ?-regexp|-glob? ?--? patterns"}}
+
+test find-2.2 {find by pattern} {macOrUnix} {
+    lsort [::fileutil::findByPattern [file join $dir {find 1}] -glob {fil*}]
+} [list [file join $dir {find 1} {file [1]}] \
+	[file join $dir {find 1} {find 2} {file 3}] \
+	[file join $dir {find 1} {find 2} {file* 2}] \
+	]
+
+test find-2.3 {find by pattern} {win} {
+    lsort [::fileutil::findByPattern [file join $dir {find 1}] -glob {fil*}]
+} [list [file join $dir {find 1} {file [1]}]]
+
+test find-2.4 {find by pattern} {
+    lsort [::fileutil::findByPattern [file join $dir {find 1}] -regexp {.*\\[1\\]$}]
+} [list [file join $dir {find 1} {file [1]}]]
+
+# Finding inaccessible directories (unix only) (I do not know howe
+# make the directory inaccessible on Windows, and then reaccessible
+# again)
+
+makeDirectory find3
+makeDirectory find3/find4
+makeFile {}   find3/find4/file5
+
+if {0 != [string compare $::tcl_platform(platform) windows]} {
+    exec chmod -x [file join $dir find3/find4]
+}
+
+test find-3.0 {inaccessible directory} {unix notRoot} {
+    lsort [fileutil::find [file join $dir find3]]
+} [list [file join $dir find3 find4]]
+
+test find-3.1 {inaccessible directory} {unix notRoot} {
+    lsort [fileutil::find [file join $dir find3 find4]]
+} {}
+
+
+if {0 != [string compare $::tcl_platform(platform) windows]} {
+    exec chmod +x [file join $dir find3/find4]
+}
+
+# -------------------------------------------------------------------------
+
+testsuiteCleanup
+return
