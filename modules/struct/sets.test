@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2004-2007 by Andreas Kupries
 #
-# RCS: @(#) $Id: sets.test,v 1.15 2007/04/12 03:01:54 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.test,v 1.16 2007/08/03 17:05:12 andreas_kupries Exp $
 
 #----------------------------------------------------------------------
 
@@ -66,8 +66,16 @@ TestAccelDo struct::set impl {
 	    }
 	}
 	tcl {
-	    proc Nothing {} {
-		return [tcltest::wrongNumArgs {::struct::set} {cmd args} 0]
+	    if {[package vsatisfies [package present Tcl] 8.5]} {
+		# In 8.5 head the alias itself is reported, not what it
+		# resolved to.
+		proc Nothing {} {
+		    return [tcltest::wrongNumArgs setop {cmd args} 0]
+		}
+	    } else {
+		proc Nothing {} {
+		    return [tcltest::wrongNumArgs {::struct::set} {cmd args} 0]
+		}
 	    }
 
 	    proc tmWrong {m loarg n} {
