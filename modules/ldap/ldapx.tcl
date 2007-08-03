@@ -3,7 +3,7 @@
 #
 # (c) 2006 Pierre David (pdav@users.sourceforge.net)
 #
-# $Id: ldapx.tcl,v 1.8 2006/11/08 19:42:12 mic42 Exp $
+# $Id: ldapx.tcl,v 1.9 2007/08/03 15:13:52 pdav Exp $
 #
 # History:
 #   2006/08/08 : pda : design
@@ -15,7 +15,7 @@ package require uri 1.1.5	;# tcllib
 package require base64		;# tcllib
 package require ldap 1.6	;# tcllib, low level code for LDAP directories
 
-package provide ldapx 0.2.4
+package provide ldapx 0.2.5
 
 ##############################################################################
 # LDAPENTRY object type
@@ -269,7 +269,13 @@ snit::type ::ldapx::entry {
 
     method set1 {attr val} {
 
-	return [$self set $attr [list $val]]
+	if {$val eq ""} then {
+	    set l {}
+	} else {
+	    set l [list $val]
+	}
+
+	return [$self set $attr $l]
     }
 
     # Add some values to an attribute
@@ -606,88 +612,14 @@ snit::type ::ldapx::entry {
 	    if {[info exists told($a)]} then {
 		#
 		# They are new and old values for this attribute.
-		# Compare them one by one.
+		# We cannot use individual delete or add (rfc 4512,
+		# paragraph 2.5.1) for attributes which do not have an
+		# equality operator, so we use "replace" everywhere.
 		#
 
-		foreach v $tnew($a) {
-		    set vnew($v) 1
-		}
-		foreach v $told($a) {
-		    set vold($v) 1
-		}
-
-		# Eliminate all common values
-		foreach v [array names vnew] {
-		    if {[info exists vold($v)]} then {
-			unset vnew($v)
-			unset vold($v)
-		    }
-		}
-
-		# Look at what remains there
-		set nnew [array size vnew]
-		set nold [array size vold]
-
-		if {$nold == 0} then {
-		    if {$nnew == 0} then {
-			#
-			# Neither new nor old value after comparison:
-			# all values for this attribute are equal.
-			# No need to change anything
-			#
-			set ladd {}
-			set ldel {}
-		    } else {
-			#
-			# There is at least a new value to be added
-			#
-			set ladd [array names vnew]
-			set ldel {}
-		    }
-		} else {
-		    #
-		    # There are old values which are not in the new values
-		    #
-		    if {$nnew == 0} then {
-			#
-			# Old values to be deleted. Must all values
-			# be deleted?
-			#
-			set ladd {}
-			set ldel [array names vold]
-		    } else {
-			#
-			# Old values to replace by new ones
-			#
-			set ladd [array names vnew]
-			set ldel [array names vold]
-		    }
-		}
-
-		array unset vnew
-		array unset vold
-
-		#
-		# What is the best way of specifying this difference?
-		# To decide, just compute the number of changes.
-		#
-
-		set nadd [llength $ladd]
-		set ndel [llength $ldel]
-		set nrep [expr {$nadd + [llength $tnew($a)]}]
-
-		if {$nadd + $ndel < $nrep} then {
-		    if {$nadd > 0} then {
-			lappend lmod [list "modadd" $a $ladd]
-		    }
-		    if {$ndel > 0} then {
-			if {$ndel == [llength $told($a)]} then {
-			    lappend lmod [list "moddel" $a]
-			} else {
-			    lappend lmod [list "moddel" $a $ldel]
-			}
-		    }
-		} else {
+		set lnew [lsort $tnew($a)]
+		set lold [lsort $told($a)]
+		if {$lold ne $lnew} then {
 		    lappend lmod [list "modrepl" $a $tnew($a)]
 		}
 
@@ -745,6 +677,71 @@ snit::type ::ldapx::entry {
 }
 
 ##############################################################################
+# UTF8 translator, component used to manage the -utf8 option
+##############################################################################
+
+snit::type ::ldapx::utf8trans {
+
+    #########################################################################
+    # Option
+    #########################################################################
+
+    option -utf8	 -default {{.*} {}}
+
+    #########################################################################
+    # Methods
+    #########################################################################
+
+    method must {attr} {
+	set utf8yes [lindex $options(-utf8) 0]
+	set utf8no  [lindex $options(-utf8) 1]
+	set r 0
+	if {[regexp -expanded -nocase "^$utf8yes$" $attr]} then {
+	    set r 1
+	    if {[regexp -expanded -nocase "^$utf8no$" $attr]} then {
+		set r 0
+	    }
+	}
+	return $r
+    }
+
+    method encode {attr val} {
+	if {[$self must $attr]} then {
+	    set val [encoding convertto utf-8 $val]
+	}
+	return $val
+    }
+
+    method decode {attr val} {
+	if {[$self must $attr]} then {
+	    set val [encoding convertfrom utf-8 $val]
+	}
+	return $val
+    }
+
+    method encodepairs {avpairs} {
+	set r {}
+	foreach {attr vals} $avpairs {
+	    if {[llength $vals]} then {
+		lappend r $attr [$self encode $attr $vals]
+	    } else {
+		lappend r $attr
+	    }
+	}
+	return $r
+    }
+
+    method decodepairs {avpairs} {
+	set r {}
+	foreach {attr vals} $avpairs {
+	    set vals [$self decode $attr $vals]
+	    lappend r $attr $vals
+	}
+	return $r
+    }
+}
+
+##############################################################################
 # LDAP object type
 ##############################################################################
 
@@ -761,7 +758,8 @@ snit::type ::ldapx::ldap {
     option -timelimit	 -default 0
     option -attrsonly	 -default 0
 
-    option -utf8	 -default {{.*} {}}
+    component translator
+    delegate option -utf8 to translator
 
     #
     # Channel descriptor
@@ -785,6 +783,19 @@ snit::type ::ldapx::ldap {
 				    ldaps {636 ::ldap::secure_connect}
 				}
 
+
+    #########################################################################
+    # Constructor
+    #########################################################################
+
+    constructor {args} {
+	install translator using ::ldapx::utf8trans create %AUTO%
+	$self configurelist $args
+    }
+
+    destructor {
+	catch {$translator destroy}
+    }
 
     #########################################################################
     # Methods
@@ -919,7 +930,7 @@ snit::type ::ldapx::ldap {
 	    $entry reset
 
 	    $entry dn [lindex $r 0]
-	    $entry setall [DecodeUtf8 $selfns [lindex $r 1]]
+	    $entry setall [$translator decodepairs [lindex $r 1]]
 
 	    #
 	    # Execute body with the entry
@@ -1033,7 +1044,7 @@ snit::type ::ldapx::ldap {
 		    # nothing to do
 		}
 		add {
-		    set av [EncodeUtf8 $selfns [lindex $lchg 1]]
+		    set av [$translator encodepairs [lindex $lchg 1]]
 		    if {[Check $selfns {::ldap::addMulti $channel $dn $av}]} then {
 			return 0
 		    }
@@ -1052,9 +1063,8 @@ snit::type ::ldapx::ldap {
 			set subop [lindex $submod 0]
 			set attr [lindex $submod 1]
                         set vals [lindex $submod 2]
-			if {[MustUtf8 $selfns $attr]} then {
-			    set vals [encoding convertto utf-8 $vals]
-			}
+
+			set vals [$translator encode $attr $vals]
 			switch -- $subop {
 			    modadd {
 				lappend ladd $attr $vals
@@ -1110,45 +1120,6 @@ snit::type ::ldapx::ldap {
 	return [catch {uplevel 1 $script} lastError]
     }
 
-    proc MustUtf8 {selfns attr} {
-	set utf8yes [lindex $options(-utf8) 0]
-	set utf8no  [lindex $options(-utf8) 1]
-	set r 0
-	if {[regexp -expanded -nocase "^$utf8yes$" $attr]} then {
-	    set r 1
-	    if {[regexp -expanded -nocase "^$utf8no$" $attr]} then {
-		set r 0
-	    }
-	}
-	return $r
-    }
-
-    proc EncodeUtf8 {selfns avpairs} {
-	set r {}
-	foreach {attr vals} $avpairs {
-	    if {[llength $vals]} then {
-		if {[MustUtf8 $selfns $attr]} then {
-		    set vals [encoding convertto utf-8 $vals]
-		}
-		lappend r $attr $vals
-	    } else {
-		lappend r $attr
-	    }
-	}
-	return $r
-    }
-
-    proc DecodeUtf8 {selfns avpairs} {
-	set r {}
-	foreach {attr vals} $avpairs {
-	    if {[MustUtf8 $selfns $attr]} then {
-		set vals [encoding convertfrom utf-8 $vals]
-	    }
-	    lappend r $attr $vals
-	}
-	return $r
-    }
-
     #########################################################################
     # End of LDAP object type
     #########################################################################
@@ -1161,7 +1132,7 @@ snit::type ::ldapx::ldap {
 snit::type ::ldapx::ldif {
 
     #########################################################################
-    # Option
+    # Options
     #########################################################################
 
     #
@@ -1169,6 +1140,10 @@ snit::type ::ldapx::ldif {
     #
 
     option -ignore {}
+
+    component translator
+    delegate option -utf8 to translator
+
 
     #########################################################################
     # Variables
@@ -1209,6 +1184,19 @@ snit::type ::ldapx::ldif {
     #
 
     variable format "uninitialized"
+
+    #########################################################################
+    # Constructor
+    #########################################################################
+
+    constructor {args} {
+	install translator using ::ldapx::utf8trans create %AUTO%
+	$self configurelist $args
+    }
+
+    destructor {
+	catch {$translator destroy}
+    }
 
     #########################################################################
     # Methods
@@ -1511,7 +1499,7 @@ snit::type ::ldapx::ldif {
 	upvar $_result result  $_prev prev  $_msg msg
 
 	if {$prev ne ""} then {
-	    set r [DecodeLine $prev]
+	    set r [DecodeLine $selfns $prev]
 	    if {[llength $r] != 2} then {
 		set msg "$lineno: invalid syntax"
 		return 0
@@ -1547,13 +1535,15 @@ snit::type ::ldapx::ldif {
 	return 1
     }
 
-    proc DecodeLine {str} {
+    proc DecodeLine {selfns str} {
 	if {[regexp {^([^:]*)::[ \t]*(.*)} $str d key val]} then {
-	    set val [::base64::decode $val]
 	    set key [string tolower $key]
-	    set r [list $key [encoding convertfrom utf-8 $val]]
+	    set val [::base64::decode $val]
+	    set val [$translator decode $key $val]
+	    set r [list $key $val]
 	} elseif {[regexp {^([^:]*):[ \t]*(.*)} $str d key val]} then {
 	    set key [string tolower $key]
+	    set val [$translator decode $key $val]
 	    set r [list $key $val]
 	} else {
 	    # syntax error
@@ -1576,7 +1566,7 @@ snit::type ::ldapx::ldif {
 	    {EOF:*		end		{set r [list "empty"]}}
 	}
 	dn {
-	    {changetype:modify	mod		{set t "change" ; set r [list mod $dn]}}
+	    {changetype:modify	mod		{set t "change" ; set r {mod}}}
 	    {changetype:modrdn	modrdn		{set t "change" ; set newsup {}}}
 	    {changetype:add	add		{set t "change"}}
 	    {changetype:delete	del		{set t "change"}}
@@ -1695,6 +1685,7 @@ snit::type ::ldapx::ldif {
 	    set sep ":"
 	} else {
 	    set sep "::"
+	    set val [$translator encode $attr $val]
 	    set val [::base64::encode $val]
 	}
 
@@ -1704,7 +1695,7 @@ snit::type ::ldapx::ldif {
 		puts $channel "$attr$sep $line"
 		set first 0
 	    } else {
-		puts $channel "  $line"
+		puts $channel " $line"
 	    }
 	}
     }
