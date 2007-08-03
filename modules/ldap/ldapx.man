@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: ldapx.man,v 1.10 2007/08/03 15:13:52 pdav Exp $}]
+[comment {$Id: ldapx.man,v 1.11 2007/08/03 21:30:46 andreas_kupries Exp $}]
 [manpage_begin ldapx n 0.2.5]
 [copyright {2006 Pierre David <pdav@users.sourceforge.net>}]
 [moddesc   {LDAP extended object interface}]
@@ -78,8 +78,8 @@ methods [method read] and [method write] read or write entries from
 or to this channel. This class can make use of standard or change
 entries, according to the type of the LDIF file which may contain
 either standard entries or change entries (but not both at the same
-time). The option [option -utf8] works exactly as with the [class
-ldap] class.
+time). The option [option -utf8] works exactly as with the
+[class ldap] class.
 
 [section {ENTRY CLASS}]
 
