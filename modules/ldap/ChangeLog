@@ -1,3 +1,7 @@
+2007-08-03  Andreas Kupries  <andreask@activestate.com>
+
+	* ldapx.man: Fix class command which was broken across lines.
+
 2007-08-03  Pierre David <pdav@users.sourceforge.net>
 
 	* ldap.tcl	Fixed reading of LDIF change entries.
