@@ -8,7 +8,7 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d.test,v 1.20 2006/10/30 06:16:54 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.test,v 1.21 2007/08/03 05:06:59 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -20,8 +20,8 @@ testsNeedTcl     8.3
 testsNeedTcltest 1.0
 
 support {
-    use           comm/comm.tcl  comm
-    useTcllibFile devtools/coserv.tcl
+    #use           comm/comm.tcl  comm
+    useTcllibFile devtools/coserv.tcl ; # loads comm too
     useTcllibFile devtools/dialog.tcl
     use           md5/md5x.tcl   md5
     use           mime/mime.tcl  mime
