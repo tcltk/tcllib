@@ -1,3 +1,13 @@
+2007-08-03  Andreas Kupries  <andreask@activestate.com>
+
+	* filetype.test: Split the overly large file fileutil.test
+	* fileutil.test: into a series of smaller test files for
+	* find.test: specific commands.
+	* inplace.test:
+	* pathops.test:
+	* strip.test:
+	* test.test:
+
 2007-08-01  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.test: Fixed problems with the tests for
