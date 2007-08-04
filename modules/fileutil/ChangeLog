@@ -1,5 +1,7 @@
 2007-08-03  Andreas Kupries  <andreask@activestate.com>
 
+	* fileutil.test: Cleaned the setup/cleanup code up a bit.
+
 	* filetype.test: Split the overly large file fileutil.test
 	* fileutil.test: into a series of smaller test files for
 	* find.test: specific commands.
