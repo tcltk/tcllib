@@ -4,7 +4,7 @@
 
 2007-08-03  Pierre David <pdav@users.sourceforge.net>
 
-	* ldap.tcl	Fixed reading of LDIF change entries.
+	* ldapx.tcl	Fixed reading of LDIF change entries.
 			Fixed modification of an entry by replacing
 			values instead of removing and adding the minimal
 			set of changes, since LDAP schemas don't necessarily
