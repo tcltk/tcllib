@@ -3,7 +3,7 @@
 #
 # (c) 2006 Pierre David (pdav@users.sourceforge.net)
 #
-# $Id: ldapx.tcl,v 1.9 2007/08/03 15:13:52 pdav Exp $
+# $Id: ldapx.tcl,v 1.10 2007/08/06 13:26:48 pdav Exp $
 #
 # History:
 #   2006/08/08 : pda : design
@@ -427,7 +427,7 @@ snit::type ::ldapx::entry {
 	    #
 	    set swdn $dn
 	    set dn $bckdn
-	    set bckdn $dn
+	    set bckdn $swdn
 
 	    set swav [array get attrvals]
 	    array unset attrvals
