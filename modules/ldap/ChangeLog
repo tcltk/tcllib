@@ -1,3 +1,8 @@
+2007-08-06  Pierre David <pdav@users.sourceforge.net>
+
+	* ldapx.tcl	Backuped dn was not restored during swap method.
+	  ldapx.test	Added test for backuped dn.
+
 2007-08-03  Andreas Kupries  <andreask@activestate.com>
 
 	* ldapx.man: Fix class command which was broken across lines.
