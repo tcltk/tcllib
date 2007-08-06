@@ -7,7 +7,7 @@
 # Copyright (c) 2006 by Pierre David <pdav@users.sourceforge.net>
 # All rights reserved.
 #
-# $Id: ldapx.test,v 1.4 2007/08/03 15:13:52 pdav Exp $
+# $Id: ldapx.test,v 1.5 2007/08/06 13:26:48 pdav Exp $
 
 # -------------------------------------------------------------------------
 
@@ -255,14 +255,16 @@ test ldapx-3.15 {ldapx::entry - restore tothesame} {
 test ldapx-3.16 {ldapx::entry - swap} {
     t1 reset
     t1 setall {a v}
+    t1 dn d1
     t1 backup
     t1 setall {b w}
+    t1 dn d2
     t1 swap
-    set l1 [t1 getall]
+    set l1 [list [t1 dn] [t1 getall]]
     t1 swap
-    set l2 [t1 getall]
+    set l2 [list [t1 dn] [t1 getall]]
     list $l1 $l2
-} {{a v} {b w}}
+} {{d1 {a v}} {d2 {b w}}}
 
 test ldapx-3.17 {ldapx::entry - apply modrdn rdn} {
     t1 reset
