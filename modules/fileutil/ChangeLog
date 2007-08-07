@@ -1,3 +1,14 @@
+2007-08-07  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.tcl (::fileutil::find): Command rewritten to use a
+	* pkgIndex.tcl: portable iterative traversal core. Platform and
+	* fileutil.man: Tcl version dependencies have been re-factored
+	  into separate small commands. Should be more readable and
+	  maintainable. Handling of circular symbolic links is now
+	  portable (via a portable 'file normalize'). Order of paths in
+	  the output changed, this however was never documented. Version
+	  bumped to 1.13.2.
+
 2007-08-03  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.test: Cleaned the setup/cleanup code up a bit.

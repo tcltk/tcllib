@@ -9,11 +9,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.66 2007/07/27 20:26:07 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.67 2007/08/07 22:46:20 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.13.1
+package provide fileutil 1.13.2
 
 namespace eval ::fileutil {
     namespace export \
@@ -63,279 +63,266 @@ proc ::fileutil::grep {pattern {files {}}} {
 }
 
 # ::fileutil::find ==
+
+# Below is the core command, which is portable across Tcl versions and
+# platforms. Functionality which is common or platform and/or Tcl
+# version dependent, has been factored out/ encapsulated into separate
+# (small) commands. Only these commands may have multiple variant
+# implementations per the available features of the Tcl core /
+# platform.
 #
-# Two different implementations of this command, one for Unix with its
-# softlinks, the other for the Win* platform. The trouble with
-# softlink is that they can generate circles in the directory and/or
-# file structure, leading a simple recursion into infinity. So we
-# record device/inode information for each file and directory we touch
-# to be able to skip it should we happen to visit it again.
+# These commands are
+#
+# FADD   - Add path result, performs filtering. Portable!
+# GLOBF  - Return files in a directory.         Tcl version/platform dependent.
+# GLOBD  - Return dirs  in a directory.         Tcl version/platform dependent.
+# ACCESS - Check directory for accessibility.   Tcl version/platform dependent.
 
-# Note about the general implementation: The tcl interpreter sets a
-# tcl stack limit of 1000 levels to prevent infinite recursions from
-# running out of bounds. As this command is implemented recursively it
-# will fail for very deeply nested directory structures.
+proc ::fileutil::find {{basedir .} {filtercmd {}}} {
+    set result {}
+    set filt   [string length $filtercmd]
 
-if {[string compare unix $tcl_platform(platform)]} {
-    # Not a unix platform => Original implementation
-    # Note: This may still fail for directories mounted via SAMBA,
-    # i.e. coming from a unix server.
+    if {[file isfile $basedir]} {
+	# The base is a file, and therefore only possible result,
+	# modulo filtering.
 
-    # ::fileutil::find --
-    #
-    #	Implementation of find.  Adapted from the Tcler's Wiki.
-    #
-    # Arguments:
-    #	basedir		directory to start searching from; default is .
-    #	filtercmd	command to use to evaluate interest in each file.
-    #			If NULL, all files are interesting.
-    #
-    # Results:
-    #	files		a list of interesting files.
+	FADD $basedir
 
-    proc ::fileutil::find {{basedir .} {filtercmd {}}} {
-	# Instead of getting a directory, we have received one file
-	# name.  Do not do directory operations.
-	if { [file isfile $basedir] } {
-	    set cwd "" ; # This variable is needed below.
-	    set fileisbasedir 1
-	    set filenames [list $basedir]
-	} elseif { [file isdirectory $basedir] } {
-	    set fileisbasedir 0
-	    set oldwd [pwd]
-	    if {[catch {
-		cd $basedir
-	    }]} {
-		# The directory is not accessible.
-		# Ignore it. No files found.
-		return {}
+    } elseif {[file isdirectory $basedir]} {
+
+	# For a directory as base we do an iterative recursion through
+	# the directory hierarchy starting at the base. We use a queue
+	# (Tcl list) of directories we have to check. We access it by
+	# index, and stop when we have reached beyond the end of the
+	# list. This is faster than removing elements from the be-
+	# ginning of the list, as that entails copying down a possibly
+	# large list of directories, making it O(n*n). The index is
+	# faster, O(n), at the expense of memory. Nothing is deleted
+	# from the list until we have processed all directories in the
+	# hierarchy.
+	#
+	# We scan each directory at least twice. First for files, then
+	# for directories. The scans may internally make several
+	# passes (normal vs hidden files).
+	#
+	# Looped directory structures due to symbolic links are
+	# handled by _fully_ normalizing directory paths and checking
+	# if we encountered the normalized form before. The array
+	# 'known' is our cache where we record the known normalized
+	# paths.
+
+	set pending [list $basedir]
+	set at      0
+	array set   known {}
+
+	while {$at < [llength $pending]} {
+	    # Get next directory not yet processed.
+	    set current [lindex $pending $at]
+	    incr at
+
+	    # Is the directory accessible? Continue if not.
+	    ACCESS $current
+
+	    # Files first, then the sub-directories ...
+
+	    foreach f [GLOBF $current] { FADD $f }
+
+	    foreach f [GLOBD $current] {
+		# Ignore current and parent directory, this needs
+		# explicit filtering outside of the filter command.
+		if {
+		    [string equal [file tail $f]  "."] ||
+		    [string equal [file tail $f] ".."]
+		} continue
+
+		# Extend result, modulo filtering.
+		FADD $f
+
+		# Detection of symlink loops via a portable path
+		# normalization computing a canonical form of the path
+		# followed by a check if that canonical form was
+		# encountered before. If ok, record directory for
+		# expansion in future iterations.
+
+		set norm [fileutil::fullnormalize $f]
+		if {[info exists known($norm)]} continue
+		set known($norm) .
+
+		lappend pending $f
 	    }
-	    set cwd [pwd]
-	    # Use only *, on Windows dot-files are listed as well.
-	    set filenames [glob -nocomplain *]
-	} else {
-	    return -code error "$basedir does not exist"
+	}
+    } else {
+	return -code error "$basedir does not exist"
+    }
+
+    return $result
+}
+
+# Helper command for fileutil::find. Performs the filtering of the
+# result per a filter command for the candidates found by the
+# traversal core, see above. This is portable.
+
+proc ::fileutil::FADD {filename} {
+    upvar 1 result result filt filt filtercmd filtercmd
+    if {!$filt || [uplevel 2 [linsert $filtercmd end $filename]]} {
+	lappend result $filename
+    }
+    return
+}
+
+# The next three helper commands for fileutil::find depend stronly on
+# the version of Tcl, and partially on the platform.
+
+# 1. The -directory and -types swithes were added to glob in Tcl
+#    8.3. This means that we have to emulate them for Tcl 8.2.
+#
+# 2. In Tcl 8.3 using -types f will return only true files, but not
+#    links to files. This changed in 8.4+ where links to files are
+#    returned as well. So for 8.3 we have to handle the links
+#    separately (-types l) and also filter on our own.
+#    Note that Windows file links are hard links which are reported by
+#    -types f, but not -types l, so we can optimize that for the two
+#    platforms.
+#
+# 3. In Tcl 8.3 we also have a crashing bug in glob (SIGABRT, "stat on
+#    a known file") when trying to perform 'glob -types {hidden f}' on
+#    a directory without e'x'ecute permissions. We code around by
+#    testing if we can cd into the directory (stat might return enough
+#    information too (mode), but possibly also not portable).
+#
+#    For Tcl 8.2 and 8.4+ glob simply delivers an empty result
+#    (-nocomplain), without crashing. For them this command is defined
+#    so that the bytecode compiler removes it from the bytecode.
+#
+#    This bug made the ACCESS helper necessary.
+#    We code around the problem by testing if we can cd into the
+#    directory (stat might return enough information too (mode), but
+#    possibly also not portable).
+
+if {[package vsatisfies [package present Tcl] 8.4]} {
+    # Tcl 8.4+.
+    # (Ad 1) We have -directory, and -types,
+    # (Ad 2) Links are returned for -types f/d if they refer to files/dirs.
+    # (Ad 3) No bug to code around
+
+    proc ::fileutil::ACCESS {args} {}
+
+    proc ::fileutil::GLOBF {current} {
+	concat \
+	    [glob -nocomplain -directory $current -types f          -- *] \
+	    [glob -nocomplain -directory $current -types {hidden f} -- *]
+    }
+
+    proc ::fileutil::GLOBD {current} {
+	concat \
+	    [glob -nocomplain -directory $current -types d          -- *] \
+	    [glob -nocomplain -directory $current -types {hidden d} -- *]
+    }
+
+} elseif {[package vsatisfies [package present Tcl] 8.3]} {
+    # 8.3.
+    # (Ad 1) We have -directory, and -types,
+    # (Ad 2) Links are NOT returned for -types f/d, collect separately.
+    #        No symbolic file links on Windows.
+    # (Ad 3) Bug to code around.
+
+    proc ::fileutil::ACCESS {current} {
+	if {[catch {
+	    set h [pwd] ; cd $current ; cd $h
+	}]} {return -code continue}
+	return
+    }
+
+    if {[string equal $::tcl_platform(platform) windows]} {
+	proc ::fileutil::GLOBF {current} {
+	    concat \
+		[glob -nocomplain -directory $current -types f          -- *] \
+		[glob -nocomplain -directory $current -types {hidden f} -- *]]
+	}
+    } else {
+	proc ::fileutil::GLOBF {current} {
+	    set l [concat \
+		       [glob -nocomplain -directory $current -types f          -- *] \
+		       [glob -nocomplain -directory $current -types {hidden f} -- *]]
+
+	    foreach x [concat \
+			   [glob -nocomplain -directory $current -types l          -- *] \
+			   [glob -nocomplain -directory $current -types {hidden l} -- *]] {
+		if {![file isfile $x]} continue
+		lappend l $x
+	    }
+
+	    return $l
+	}
+    }
+
+    proc ::fileutil::GLOBD {current} {
+	set l [concat \
+		   [glob -nocomplain -directory $current -types d          -- *] \
+		   [glob -nocomplain -directory $current -types {hidden d} -- *]]
+
+	foreach x [concat \
+		       [glob -nocomplain -directory $current -types l          -- *] \
+		       [glob -nocomplain -directory $current -types {hidden l} -- *]] {
+	    if {![file isdirectory $x]} continue
+	    lappend l $x
 	}
 
-	set files {}
-	set filt [string length $filtercmd]
-	# If we don't remove . and .. from the file list, we'll get stuck in
-	# an infinite loop in an infinite loop in an infinite loop in an inf...
-	foreach special [list "." ".."] {
-	    set index [lsearch -exact $filenames $special]
-	    set filenames [lreplace $filenames $index $index]
-	}
-	foreach filename $filenames {
-	    # Use uplevel to eval the command, not eval, so that variable 
-	    # substitutions occur in the right context.
-	    if {!$filt || [uplevel $filtercmd [list $filename]]} {
-		lappend files [file join $cwd $filename]
-	    }
-	    if {[file isdirectory $filename]} {
-		set files [concat $files [find $filename $filtercmd]]
-	    }
-	}
-	if { ! $fileisbasedir } {
-	    cd $oldwd
-	}
-	return $files
+	return $l
     }
 } else {
-    # Unix, record dev/inode to detect and break circles
+    # 8.2.
+    # (Ad 1,2,3) We do not have -directory, nor -types. Full emulation required.
 
-    # SF tcllib bug [784157], distinguish between pre and post Tcl
-    # 8.4. In 8.4 and post 8.4. we have to conditionally exclude
-    # dev/inode checking. This is not required for pre 8.4.
+    proc ::fileutil::ACCESS {args} {}
 
-    if {[package vcompare [package present Tcl] 8.4] >= 0} {
-	# ::fileutil::find --
-	#
-	#	Implementation of find.  Adapted from the Tcler's Wiki.
-	#
-	# Arguments:
-	#	basedir		directory to start searching from; default is .
-	#	filtercmd	command to use to evaluate interest in each file.
-	#			If NULL, all files are interesting.
-	#
-	# Results:
-	#	files		a list of interesting files.
+    if {[string equal $::tcl_platform(platform) windows]} {
+	# Hidden files cannot be handled by Tcl 8.2 in glob. We have
+	# to punt.
 
-	proc ::fileutil::find {{basedir .} {filtercmd {}} {nodeVar {}}} {
-	    if {$nodeVar == {}} {
-		# Main call, setup the device/inode structure
-		array set inodes {}
-	    } else {
-		# Recursive call, import the device/inode record from the caller.
-		upvar $nodeVar inodes
+	proc ::fileutil::GLOBF {current} {
+	    set current \\[join [split $current {}] \\]
+	    set res {}
+	    foreach x [glob -nocomplain -- [file join $current *]] {
+		if {![file isfile $x]} continue
+		lappend res $x
 	    }
-
-	    # Instead of getting a directory, we have received one file
-	    # name.  Do not do directory operations.
-	    if { [file isfile $basedir] } {
-		set cwd "" ; # This variable is needed below.
-		set fileisbasedir 1
-		set filenames [list $basedir]
-	    } elseif { [file isdirectory $basedir] } {
-		set fileisbasedir 0
-		set oldwd [pwd]
-		if {[catch {
-		    cd $basedir
-		}]} {
-		    # The directory is not accessible.
-		    # Ignore it. No files found.
-		    return {}
-		}
-		set cwd [pwd]
-		# Unix: Need the .* pattern as well to retrieve dot-files
-		set filenames [glob -nocomplain * .*]
-	    } else {
-		return -code error "$basedir does not exist"
-	    }
-
-	    set files {}
-	    set filt [string length $filtercmd]
-	    # If we don't remove . and .. from the file list, we'll get stuck in
-	    # an infinite loop in an infinite loop in an infinite loop in an inf...
-	    foreach special [list "." ".."] {
-		set index [lsearch -exact $filenames $special]
-		set filenames [lreplace $filenames $index $index]
-	    }
-	    foreach filename $filenames {
-		# Stat each file/directory get exact information about its identity
-		# (device, inode). Non-'stat'able files are either junk (link to
-		# non-existing target) or not readable, i.e. inaccessible. In both
-		# cases it makes sense to ignore them.
-
-		if {[catch {file lstat [set full [file join $cwd $filename]] stat}]} {
-		    continue
-		}
-
-		# SF [ 647974 ] find has problems recursing a metakit fs ...
-		#
-		# The following code is a HACK / workaround. We assume that virtual
-		# FS's do not support links, and therefore there is no need for
-		# keeping track of device/inode information. A good thing as the 
-		# the virtual FS's usually give us bad data for these anyway, as
-		# illustrated by the bug referenced above.
-
-		if {[string equal native [lindex [file system $full] 0]]} {
-		    # No skip over previously recorded files/directories and
-		    # record the new files/directories.
-
-		    set key "$stat(dev),$stat(ino)"
-		    if {[info exists inodes($key)]} {
-			continue
-		    }
-		    set inodes($key) 1
-		}
-
-		# Use uplevel to eval the command, not eval, so that variable 
-		# substitutions occur in the right context.
-		if {!$filt || [uplevel $filtercmd [list $filename]]} {
-		    lappend files $full
-		}
-		if {[file isdirectory $filename]} {
-		    set files [concat $files [find $filename $filtercmd inodes]]
-		}
-	    }
-	    if { ! $fileisbasedir } {
-		cd $oldwd
-	    }
-	    return $files
+	    return $res
 	}
 
+	proc ::fileutil::GLOBD {current} {
+	    set current \\[join [split $current {}] \\]
+	    set res {}
+	    foreach x [glob -nocomplain -- [file join $current *]] {
+		if {![file isdirectory $x]} continue
+		lappend res $x
+	    }
+	    return $res
+	}
     } else {
-	# Unix, pre 8.4. No virtual file system is present, therefore there is no
-	# need to conditionally exclude dev/inode checking.
+	# Hidden files on Unix are dot-files. We emulate the switch
+	# '-types hidden' by using an explicit pattern.
 
-	# ::fileutil::find --
-	#
-	#	Implementation of find.  Adapted from the Tcler's Wiki.
-	#
-	# Arguments:
-	#	basedir		directory to start searching from; default is .
-	#	filtercmd	command to use to evaluate interest in each file.
-	#			If NULL, all files are interesting.
-	#
-	# Results:
-	#	files		a list of interesting files.
-
-	proc ::fileutil::find {{basedir .} {filtercmd {}} {nodeVar {}}} {
-	    if {$nodeVar == {}} {
-		# Main call, setup the device/inode structure
-		array set inodes {}
-	    } else {
-		# Recursive call, import the device/inode record from the caller.
-		upvar $nodeVar inodes
+	proc ::fileutil::GLOBF {current} {
+	    set current \\[join [split $current {}] \\]
+	    set res {}
+	    foreach x [glob -nocomplain -- [file join $current *] [file join $current .*]] {
+		if {![file isfile $x]} continue
+		lappend res $x
 	    }
-
-	    # Instead of getting a directory, we have received one file
-	    # name.  Do not do directory operations.
-	    if { [file isfile $basedir] } {
-		set cwd "" ; # This variable is needed below.
-		set fileisbasedir 1
-		set filenames [list $basedir]
-	    } elseif { [file isdirectory $basedir] } {
-		set fileisbasedir 0
-		set oldwd [pwd]
-		if {[catch {
-		    cd $basedir
-		}]} {
-		    # The directory is not accessible.
-		    # Ignore it. No files found.
-		    return {}
-		}
-		set cwd [pwd]
-		# Unix: Need the .* pattern as well to retrieve dot-files
-		set filenames [glob -nocomplain * .*]
-	    } else {
-		return -code error "$basedir does not exist"
-	    }
-
-	    set files {}
-	    set filt [string length $filtercmd]
-	    # If we don't remove . and .. from the file list, we'll get stuck in
-	    # an infinite loop in an infinite loop in an infinite loop in an inf...
-	    foreach special [list "." ".."] {
-		set index [lsearch -exact $filenames $special]
-		set filenames [lreplace $filenames $index $index]
-	    }
-	    foreach filename $filenames {
-		# Stat each file/directory get exact information about its identity
-		# (device, inode). Non-'stat'able files are either junk (link to
-		# non-existing target) or not readable, i.e. inaccessible. In both
-		# cases it makes sense to ignore them.
-
-		if {[catch {file lstat [set full [file join $cwd $filename]] stat}]} {
-		    continue
-		}
-
-		# No skip over previously recorded files/directories and
-		# record the new files/directories.
-
-		set key "$stat(dev),$stat(ino)"
-		if {[info exists inodes($key)]} {
-		    continue
-		}
-		set inodes($key) 1
-
-		# Use uplevel to eval the command, not eval, so that variable 
-		# substitutions occur in the right context.
-		if {!$filt || [uplevel $filtercmd [list $filename]]} {
-		    lappend files $full
-		}
-		if {[file isdirectory $filename]} {
-		    set files [concat $files [find $filename $filtercmd inodes]]
-		}
-	    }
-	    if { ! $fileisbasedir } {
-		cd $oldwd
-	    }
-	    return $files
+	    return $res
 	}
 
+	proc ::fileutil::GLOBD {current} {
+	    set current \\[join [split $current {}] \\]
+	    set res {}
+	    foreach x [glob -nocomplain -- [file join $current *] [file join $current .*]] {
+		if {![file isdirectory $x]} continue
+		lappend res $x
+	    }
+	    return $res
+	}
     }
-    # end if
 }
 
 # ::fileutil::findByPattern --
@@ -394,8 +381,9 @@ proc ::fileutil::findByPattern {basedir args} {
 #			matches at least one of the patterns.
 
 proc ::fileutil::FindRegexp {patterns filename} {
+    set fx [file tail $filename]
     foreach p $patterns {
-	if {[regexp -- $p $filename]} {
+	if {[regexp -- $p $fx]} {
 	    return 1
 	}
     }
@@ -415,8 +403,9 @@ proc ::fileutil::FindRegexp {patterns filename} {
 #			matches at least one of the patterns.
 
 proc ::fileutil::FindGlob {patterns filename} {
+    set fx [file tail $filename]
     foreach p $patterns {
-	if {[string match $p $filename]} {
+	if {[string match $p $fx]} {
 	    return 1
 	}
     }
