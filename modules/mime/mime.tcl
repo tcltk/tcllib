@@ -3890,7 +3890,8 @@ proc ::mime::field_decode {field} {
 	set decoded [word_decode $encoded]
         foreach {charset - string} $decoded break
 
-	append result [::encoding convertfrom $charset $string]
+append result $string
+	#append result [::encoding convertfrom $charset $string]
     }
 
     append result $field
