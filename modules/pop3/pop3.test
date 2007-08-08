@@ -8,7 +8,7 @@
 # Copyright (c) 2002-2006 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3.test,v 1.24 2007/08/01 23:17:33 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.test,v 1.25 2007/08/08 21:23:01 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -20,10 +20,10 @@ testsNeedTcl     8.3 ; # for snit below
 testsNeedTcltest 1.0
 
 support {
-    use           snit/snit.tcl snit ;# comm futures, not used, still a dependency
+    #use           snit/snit.tcl snit ;# comm futures, not used, still a dependency
     #use           comm/comm.tcl comm
     use           log/log.tcl   log
-    useTcllibFile devtools/coserv.tcl ; # loads comm too!
+    useTcllibFile devtools/coserv.tcl ; # loads comm, snit too!
     useTcllibFile devtools/dialog.tcl
 }
 testing {

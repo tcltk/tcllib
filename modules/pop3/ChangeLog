@@ -1,3 +1,8 @@
+2007-08-08  Andreas Kupries  <andreask@activestate.com>
+
+	* pop3.test: And snit is loaded by coserv.tcl too, no explicit
+	  load required.
+
 2007-08-01  Andreas Kupries  <andreask@activestate.com>
 
 	* pop3.test: Updated to new snit dependency in comm.
