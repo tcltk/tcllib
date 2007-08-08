@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.67 2007/08/07 22:46:20 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.68 2007/08/08 19:42:43 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -2097,5 +2097,14 @@ proc ::fileutil::fullnormalize {path} {
     # this command copies an actual file, it will not encounter
     # symlinks.
 
-    return [file dirname [Normalize [file join $path __dummy__]]]
+    # BUG / WORKAROUND. Using the / instead of the join seems to work
+    # around a bug in the path handling on windows which can break the
+    # core 'file normalize' for symbolic links. This was exposed by
+    # the find testsuite which could not reproduced outside. I believe
+    # that there is some deep path bug in the core triggered under
+    # special circumstances. Use of / likely forces a refresh through
+    # the string rep and so avoids the problem with the path intrep.
+
+    return [file dirname [Normalize $path/__dummy__]]
+    #return [file dirname [Normalize [file join $path __dummy__]]]
 }

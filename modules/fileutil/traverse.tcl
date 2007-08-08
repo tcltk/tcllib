@@ -2,12 +2,12 @@
 #
 #	Directory traversal.
 #
-# Copyright (c) 2006 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2006-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: traverse.tcl,v 1.3 2007/06/13 04:19:22 andreas_kupries Exp $
+# RCS: @(#) $Id: traverse.tcl,v 1.4 2007/08/08 19:42:43 andreas_kupries Exp $
 
 package require Tcl 8.3
 package require snit    ; # OO core
@@ -89,10 +89,7 @@ snit::type ::fileutil::traverse {
     option -errorcmd  -default {} -readonly 1
 
     constructor {basedir args} {
-	set _base    $basedir
-	set _pending [list $_base]
-	set _prefix  {}
-
+	set _base $basedir
 	$self configurelist $args
 	return
     }
@@ -107,9 +104,7 @@ snit::type ::fileutil::traverse {
 	upvar 1 $fvar currentfile
 
 	# (Re-)initialize the traversal state on every call.
-	set _pending [list $_base]
-	set _prefix  {}
-	array unset _inodes *
+	$self Init
 
 	while {[$self next currentfile]} {
 	    set code [catch {uplevel 1 $body} result]
@@ -142,245 +137,261 @@ snit::type ::fileutil::traverse {
 	return
     }
 
-    variable _base          {} ; # Base directory (or file) to start the traversal from
-    variable _pending       {} ; # Stack of paths waiting for processing (TOP at end)
-    variable _prefix        {} ; # Stack of basepaths to  join with glob results (TOP at end)
-    variable _inodes -array {} ; # Set of dev/inode's already visited.
-
     method next {fvar} {
 	upvar 1 $fvar currentfile
-	while {[llength $_pending]} {
-	    # Take first item on stack (_pending) and interpret it.
-	    # Stack empty? - Stop and signal that iteration is done.
-	    # - Empty: Pop a prefix
-	    # - File:  Use filter to determine validity
-	    #          Ok: Stop and return this item
-	    #          !ok: Continue interpretation loop.
-	    # - Directory:
-	    #          Use prefilter to determine if we recurse into
-	    #          it. If yes, glob its contents, push them on
-	    #          the stack. Also push a new prefix.
-	    #          Use filter to determine validity as result.
-	    #          Ok: Stop and return this item
-	    #          !ok: Continue interpretation loop.
 
+	# Initialize on first call.
+	if {!$_init} {
+	    $self Init
+	}
+
+	# We (still) have valid paths in the result stack, return the
+	# next one.
+
+	if {[llength $_results]} {
+	    set top      [lindex   $_results end]
+	    set _results [lreplace $_results end end]
+	    set currentfile $top
+	    return 1
+	}
+
+	# Take the next directory waiting in the processing stack and
+	# fill the result stack with all valid files and sub-
+	# directories contained in it. Extend the processing queue
+	# with all sub-directories not yet seen already (!circular
+	# symlinks) and accepted by the prefilter. We stop iterating
+	# when we either have no directories to process anymore, or
+	# the result stack contains at least one path we can return.
+
+	while {[llength $_pending]} {
 	    set top      [lindex   $_pending end]
 	    set _pending [lreplace $_pending end end]
 
-	    if {[string equal $top ""]} {
-		# Pop prefix and restore previous directory. No
-		# attempt at catching problems, as the parent
-		# directory should exist, going up from a child.
-
-		set _prefix [lreplace $_prefix end end]
+	    # Directory accessible? Skip if not.
+	    if {![ACCESS $top]} {
+		Error $top "Inacessible directory"
 		continue
 	    }
 
-	    set currentbase [lindex $_prefix end]
-	    set fulltop     [file join $currentbase $top]
+	    # Expand the result stack with all files in the directory,
+	    # modulo filtering.
 
-	    if {[file isfile $fulltop]} {
-		if {[$self Valid $fulltop]} {
-		    set currentfile $fulltop
-		    return 1
-		}
-		continue
+	    foreach f [GLOBF $top] {
+		if {![Valid $f]} continue
+		lappend _results $f
 	    }
 
-	    # Directory ...
+	    # Expand the result stack with all sub-directories in the
+	    # directory, modulo filtering. Further expand the
+	    # processing stack with the same directories, if not seen
+	    # yet and modulo pre-filtering.
 
-	    if {[$self Recurse $fulltop]} {
-		lappend _pending {}
-		lappend _prefix $fulltop
-		if {[catch {
-		    foreach f [Glob $fulltop _inodes] {
-			# If we don't remove . and .. from the file
-			# list, we'll get stuck in an infinite loop in
-			# an infinite loop in an infinite loop in an
-			# inf...
+	    foreach f [GLOBD $top] {
+		if {
+		    [string equal [file tail $f]  "."] ||
+		    [string equal [file tail $f] ".."]
+		} continue
 
-			if {[string equal $f .]}  continue
-			if {[string equal $f ..]} continue
-			lappend _pending $f
-		    }
-		} msg]} {
-		    $self Error $fulltop $msg
+		if {[Valid $f]} {
+		    lappend _results $f
+		}
+
+		set norm [fileutil::fullnormalize $f]
+		if {[info exists _known($norm)]} continue
+		set _known($norm) .
+
+		if {[Recurse $f]} {
+		    lappend _pending $f
 		}
 	    }
 
-	    if {[$self Valid $fulltop]} {
-		set currentfile $fulltop
+	    # Stop expanding if we have paths to return.
+
+	    if {[llength $_results]} {
+		set top    [lindex   $_results end]
+		set _results [lreplace $_results end end]
+		set currentfile $top
 		return 1
 	    }
 	}
+
+	# Allow re-initialization with next call.
+
+	set _init 0
 	return 0
     }
 
-    method Valid {path} {
-	if {![llength $options(-filter)]} {return 1}
-	set code [catch {uplevel #0 [linsert $options(-filter) end $path]} valid]
-	if {!$code} {return $valid}
-	$self Error $path $valid
-	return 0
-    }
+    # ### ### ### ######### ######### #########
+    ## Traversal state
 
-    method Recurse {path} {
-	if {![llength $options(-prefilter)]} {return 1}
-	set code [catch {uplevel #0 [linsert $options(-prefilter) end $path]} valid]
-	if {!$code} {return $valid}
-	$self Error $path $valid
-	return 0
-    }
+    # * Initialization flag. Checked in 'next', reset by next when no
+    #   more files are available. Set in 'Init'.
+    # * Base directory (or file) to start the traversal from.
+    # * Stack of prefiltered unknown directories waiting for
+    #   processing, i.e. expansion (TOP at end).
+    # * Stack of valid paths waiting to be returned as results.
+    # * Set of directories already visited (normalized paths), for
+    #   detection of circular symbolic links.
 
-    method Error {path msg} {
-	if {![llength $options(-errorcmd)]} return
-	uplevel #0 [linsert $options(-errorcmd) end $path $msg]
+    variable _init         0  ; # Initialization flag.
+    variable _base         {} ; # Base directory.
+    variable _pending      {} ; # Processing stack.
+    variable _results      {} ; # Result stack.
+    variable _known -array {} ; # Seen paths.
+
+    # ### ### ### ######### ######### #########
+    ## Internal helpers.
+
+    method Init {} {
+	# Path ok as result?
+	if {[Valid $_base]} {
+	    lappend _results $_base
+	}
+
+	# Expansion allowed by prefilter?
+	if {[file isdirectory $_base] && [Recurse $_base]} {
+	    lappend _pending $_base
+	}
+
+	array unset _known *
+
+	# System is set up now.
+	set _init 1
 	return
     }
 
-    # Glob is a procedure, its implementation dependent on Tcl version
-    # and system architecture. It definition comes below.
+    proc Valid {path} {
+	upvar 1 options options
+	if {![llength $options(-filter)]} {return 1}
+	set code [catch {uplevel \#0 [linsert $options(-filter) end $path]} valid]
+	if {!$code} {return $valid}
+	Error $path $valid
+	return 0
+    }
+
+    proc Recurse {path} {
+	upvar 1 options options
+	if {![llength $options(-prefilter)]} {return 1}
+	set code [catch {uplevel \#0 [linsert $options(-prefilter) end $path]} valid]
+	if {!$code} {return $valid}
+	Error $path $valid
+	return 0
+    }
+
+    proc Error {path msg} {
+	upvar 1 options options
+	if {![llength $options(-errorcmd)]} return
+	uplevel \#0 [linsert $options(-errorcmd) end $path $msg]
+	return
+    }
 
     ##
     # ### ### ### ######### ######### #########
 }
 
 # ### ### ### ######### ######### #########
-## Implementation of 'Glob'.
+##
 
-# Glob path inodevar -> list (path ...)
+# The next three helper commands for the traverser depend strongly on
+# the version of Tcl, and partially on the platform.
 
-if {[string equal $::tcl_platform(platform) windows]} {
-    # Windows. No symbolic links, no inodes. No trouble with virtual
-    # filesystems.
+# 1. In Tcl 8.3 using -types f will return only true files, but not
+#    links to files. This changed in 8.4+ where links to files are
+#    returned as well. So for 8.3 we have to handle the links
+#    separately (-types l) and also filter on our own.
+#    Note that Windows file links are hard links which are reported by
+#    -types f, but not -types l, so we can optimize that for the two
+#    platforms.
+#
+# 2. In Tcl 8.3 we also have a crashing bug in glob (SIGABRT, "stat on
+#    a known file") when trying to perform 'glob -types {hidden f}' on
+#    a directory without e'x'ecute permissions. We code around by
+#    testing if we can cd into the directory (stat might return enough
+#    information too (mode), but possibly also not portable).
+#
+#    For Tcl 8.2 and 8.4+ glob simply delivers an empty result
+#    (-nocomplain), without crashing. For them this command is defined
+#    so that the bytecode compiler removes it from the bytecode.
+#
+#    This bug made the ACCESS helper necessary.
+#    We code around the problem by testing if we can cd into the
+#    directory (stat might return enough information too (mode), but
+#    possibly also not portable).
 
-    # The only pattern used is *, on Windows dot-files are
-    # automatically listed as well.
+if {[package vsatisfies [package present Tcl] 8.4]} {
+    # Tcl 8.4+.
+    # (Ad 1) We have -directory, and -types,
+    # (Ad 2) Links are returned for -types f/d if they refer to files/dirs.
+    # (Ad 3) No bug to code around
 
-    if {[package vcompare [package present Tcl] 8.4] >= 0} {
-	# Tcl 8.4+. glob has switches -directory, -tails
+    proc ::fileutil::traverse::ACCESS {args} {return 1}
 
-	proc ::fileutil::traverse::Glob {path iv} {
-	    # Ignoring iv = inodes
-	    return [glob -nocomplain -directory $path -tails *]
+    proc ::fileutil::traverse::GLOBF {current} {
+	concat \
+	    [glob -nocomplain -directory $current -types f          -- *] \
+	    [glob -nocomplain -directory $current -types {hidden f} -- *]
+    }
+
+    proc ::fileutil::traverse::GLOBD {current} {
+	concat \
+	    [glob -nocomplain -directory $current -types d          -- *] \
+	    [glob -nocomplain -directory $current -types {hidden d} -- *]
+    }
+
+} else {
+    # 8.3.
+    # (Ad 1) We have -directory, and -types,
+    # (Ad 2) Links are NOT returned for -types f/d, collect separately.
+    #        No symbolic file links on Windows.
+    # (Ad 3) Bug to code around.
+
+    proc ::fileutil::traverse::ACCESS {current} {
+	if {[catch {
+	    set h [pwd] ; cd $current ; cd $h
+	}]} {return 0}
+	return 1
+    }
+
+    if {[string equal $::tcl_platform(platform) windows]} {
+	proc ::fileutil::traverse::GLOBF {current} {
+	    concat \
+		[glob -nocomplain -directory $current -types f          -- *] \
+		[glob -nocomplain -directory $current -types {hidden f} -- *]]
 	}
     } else {
-	# Tcl 8.3-. glob has no -directory, -tails, we have to emulate
-	# it.
+	proc ::fileutil::traverse::GLOBF {current} {
+	    set l [concat \
+		       [glob -nocomplain -directory $current -types f          -- *] \
+		       [glob -nocomplain -directory $current -types {hidden f} -- *]]
 
-	proc ::fileutil::traverse::Glob {path iv} {
-	    # Ignore iv = inodes
-	    set oldwd [pwd]
-	    set code [catch {
-		cd $path
-		set files [glob -nocomplain *]
-	    } msg] ; # {}
-	    catch {cd $oldwd}
-	    if {$code} {
-		return -code $code -errorinfo $::errorInfo -errorcode $::errorCode
+	    foreach x [concat \
+			   [glob -nocomplain -directory $current -types l          -- *] \
+			   [glob -nocomplain -directory $current -types {hidden l} -- *]] {
+		if {![file isfile $x]} continue
+		lappend l $x
 	    }
-	    return $files
+
+	    return $l
 	}
     }
-} else {
-    # Unixoid system. Use inodes to prevent infinite traversal across
-    # cyclic symbolic links. Except while traversing a virtual fs,
-    # where we do not have dev/inode information. But no symbolic
-    # links either. Note that a virtual fs can occur only for Tcl
-    # 8.4+. Pre Tcl 8.4 dev/inode checking can be done uncondtionally.
 
-    if {[package vcompare [package present Tcl] 8.4] >= 0} {
-	# Tcl 8.4+. glob has switches -directory, -tails
+    proc ::fileutil::traverse::GLOBD {current} {
+	set l [concat \
+		   [glob -nocomplain -directory $current -types d          -- *] \
+		   [glob -nocomplain -directory $current -types {hidden d} -- *]]
 
-	proc ::fileutil::traverse::Glob {path iv} {
-	    upvar 1 $iv inodes
-	    set files {}
-	    # Unix: Need the .* pattern as well to retrieve dot-files
-	    foreach f [glob -nocomplain -directory $path -tails * .*] {
-		set fx [file join $path $f]
-
-		# SF [ 647974 ] find has problems recursing a metakit fs ...
-		#
-		# The following code is a HACK / workaround. We assume that virtual
-		# FS's do not support links, and therefore there is no need for
-		# keeping track of device/inode information. A good thing as the 
-		# the virtual FS's usually give us bad data for these anyway, as
-		# illustrated by the bug referenced above.
-
-		if {[string equal native [lindex [file system $fx] 0]]} {
-		    # Do not skip over previously recorded
-		    # files/directories and record the new
-		    # files/directories.
-
-		    # Stat each file/directory get exact information about its identity
-		    # (device, inode). Non-'stat'able files are either junk (link to
-		    # non-existing target) or not readable, i.e. inaccessible. In both
-		    # cases it makes sense to ignore them.
-
-		    if {[catch {file lstat $fx stat}]} {
-			continue
-		    }
-
-		    set key [list $stat(dev) $stat(ino)]
-		    if {[info exists inodes($key)]} {
-			continue
-		    }
-		    set inodes($key) 1
-		}
-
-		lappend files $f
-	    }
-	    return $files
+	foreach x [concat \
+		       [glob -nocomplain -directory $current -types l          -- *] \
+		       [glob -nocomplain -directory $current -types {hidden l} -- *]] {
+	    if {![file isdirectory $x]} continue
+	    lappend l $x
 	}
 
-    } else {
-	# Tcl 8.3-. glob has no -directory, -tails, we have to emulate
-	# it.
-
-	proc ::fileutil::traverse::Glob {path iv} {
-	    upvar 1 $iv inodes
-
-	    set oldwd [pwd]
-	    set code [catch {
-		cd $path
-		set temp [glob -nocomplain * .*]
-	    } msg] ; # {}
-	    catch {cd $oldwd}
-	    if {$code} {
-		return -code $code -errorinfo $::errorInfo -errorcode $::errorCode
-	    }
-
-	    set files {}
-	    # Unix: Need the .* pattern as well to retrieve dot-files
-	    foreach f $temp {
-		set fx [file join $path $f]
-
-		# Do not skip over previously recorded
-		# files/directories and record the new
-		# files/directories.
-
-		# Stat each file/directory get exact information about its identity
-		# (device, inode). Non-'stat'able files are either junk (link to
-		# non-existing target) or not readable, i.e. inaccessible. In both
-		# cases it makes sense to ignore them.
-
-		if {[catch {file lstat $fx stat}]} {
-		    continue
-		}
-
-		set key [list $stat(dev) $stat(ino)]
-		if {[info exists inodes($key)]} {
-		    continue
-		}
-		set inodes($key) 1
-		lappend files $f
-	    }
-	    return $files
-	}
+	return $l
     }
 }
 
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::traverse 0.2
+package provide fileutil::traverse 0.3
