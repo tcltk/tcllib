@@ -9,7 +9,7 @@
 # Copyright (c) 2005-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: inplace.test,v 1.1 2007/08/03 23:07:25 andreas_kupries Exp $
+# RCS: @(#) $Id: inplace.test,v 1.2 2007/08/08 19:42:43 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -206,7 +206,7 @@ test writefile-2.1 {writeFile, replace file} {
 test writefile-2.2 {writeFile, translation 1} {
     set path [makeFile {} out]
 
-    fileutil::writeFile $path "dummy\nfoo"
+    fileutil::writeFile -translation binary $path "dummy\nfoo"
     set res [fileutil::cat -translation binary $path]
 
     removeFile out
@@ -306,7 +306,7 @@ test appendtofile-2.2 {appendToFile, translation 1} {
     set path [makeFile {} out]
     fileutil::writeFile $path {}
 
-    fileutil::appendToFile $path "dummy\nfoo"
+    fileutil::appendToFile -translation binary $path "dummy\nfoo"
     set res [fileutil::cat -translation binary $path]
 
     removeFile out
@@ -487,7 +487,7 @@ test insertintofile-2.4 {insertIntoFile, translation 1} {
     set path [makeFile {} out]
     fileutil::writeFile $path {}
 
-    fileutil::insertIntoFile $path 0 "dummy\nfoo"
+    fileutil::insertIntoFile -translation binary $path 0 "dummy\nfoo"
     set res [fileutil::cat -translation binary $path]
 
     removeFile out
