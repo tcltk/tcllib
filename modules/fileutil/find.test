@@ -9,7 +9,7 @@
 # Copyright (c) 2005-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: find.test,v 1.4 2007/08/08 04:33:20 andreas_kupries Exp $
+# RCS: @(#) $Id: find.test,v 1.5 2007/08/08 19:42:43 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -20,122 +20,11 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
+support {
+    useLocalFile find.setup
+}
 testing {
     useLocal fileutil.tcl fileutil
-}
-
-# -------------------------------------------------------------------------
-
-# Build a sample tree to search
-# Structure
-#
-#	dir
-#	+--{find 1}
-#          +--{find 2}
-#          |  +--{file* 2}  (This file is unix only)
-#          +--{file 1}
-#
-#       dir2
-#       +-- dotfiles
-#           +-- .foo
-#           +-- foo
-
-proc f_setup {} {
-    makeDirectory            {find 1}
-    makeDirectory [file join {find 1} {find 2}]
-    makeFile ""   [file join {find 1} {file [1]}]
-
-    if {[string equal $::tcl_platform(platform) windows]} return
-
-    makeFile "test" [file join {find 1} {find 2} {file* 2}]
-    return
-}
-
-proc f_cleanup {} {
-    removeDirectory {find 1}
-    return
-}
-
-# Extend the previous sample tree with circular symbolic
-# links. Unix-only.
-#
-#	dir
-#	+--{find 1}
-#          +--{find 2}          <----------+
-#          |  +--{file* 2}		   |
-#          |  +--{file 3} --> ../{find 2} -+
-#          +--{file [1]}
-
-proc f_setupcircle {} {
-    f_setup
-
-    set fthree [file join {find 1} {find 2} {file 3}]
-    set path   [makeFile "" $fthree]
-    removeFile $fthree
-
-    # Can't use 'file link' for two reasons. For one it is not
-    # available in Tcl 8.[23], and for two it always creates absolute
-    # links.
-
-    exec ln -s [file join .. {find 2}] $fthree
-    return
-}
-
-proc f_setupdot {} {
-    makeDirectory          dotfiles
-    makeFile "" [file join dotfiles foo]
-    makeFile "" [file join dotfiles .foo]
-    return
-}
-
-proc f_cleanupdot {} {
-    removeDirectory dotfiles
-    return
-}
-
-proc f_setupnostat {} {
-    # Finding inaccessible directories (unix only) (I do not know howe
-    # make the directory inaccessible on Windows, and then
-    # reaccessible again).
-
-    makeDirectory find3
-    makeDirectory find3/find4
-    makeFile {}   find3/find4/file5
-
-    if {[string equal $::tcl_platform(platform) windows]} return
-    exec chmod -x [tempPath find3/find4]
-    return
-}
-
-proc f_cleanupnostat {} {
-    if {![string equal $::tcl_platform(platform) windows]} {
-	exec chmod +x [tempPath find3/find4]
-    }
-    removeDirectory find3
-    return
-}
-
-proc f_cleanall {} {
-    rename f_setup          {}
-    rename f_cleanup        {}
-    rename f_setupcircle    {}
-    rename f_setupdot       {}
-    rename f_cleanupdot     {}
-    rename f_setupnostat    {}
-    rename f_cleanupnostat  {}
-    rename f_cleanall       {}
-    rename fileIsBiggerThan {}
-    unset ::res
-    return
-}
-
-# -------------------------------------------------------------------------
-
-proc fileIsBiggerThan {s f} {
-    expr {
-	  ![file isdirectory $f] &&
-	  ([file size $f] > $s)
-    }
 }
 
 # -------------------------------------------------------------------------
@@ -171,9 +60,12 @@ test find-1.4 {find files bigger than a given size} {macOrUnix} {
     set res
 } [list [tempPath {find 1/find 2/file* 2}]]
 
-test find-1.5 {handling of circular links} {unix} {
-    # Find has to skip '{file 3}'. Actually not. It should include
-    # {file 3} itself in the result, but must not follow it further.
+# Find has to skip '{file 3}', in the sense that the path should be in
+# the output, but it must not be expanded further. Two tests, one for
+# all versions of Tcl (8.2+), but only unix, and one for windows,
+# restricted to Tcl 8.4+.
+
+test find-1.5.0 {handling of circular links} {unix} {
     f_setupcircle
     set res [lsort [fileutil::find [tempPath {find 1}]]]
     f_cleanup
@@ -182,6 +74,15 @@ test find-1.5 {handling of circular links} {unix} {
 	[tempPath {find 1/find 2}] \
 	[tempPath {find 1/find 2/file 3}] \
 	[tempPath {find 1/find 2/file* 2}]]
+
+test find-1.5.1 {handling of circular links} {win tcl8.4plus} {
+    f_setupcircle
+    set res [lsort [fileutil::find [tempPath {find 1}]]]
+    f_cleanup
+    set res
+} [list [tempPath {find 1/file [1]}] \
+	[tempPath {find 1/find 2}] \
+	[tempPath {find 1/find 2/file 3}]]
 
 test find-1.6 {find file} {
     f_setup

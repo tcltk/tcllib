@@ -1,3 +1,21 @@
+2007-08-08  Andreas Kupries  <andreask@activestate.com>
+
+	* inplace.test: Fixed failures of some tests on Windows.
+
+	* fileutil.tcl: Working around a possible bug in the handling of
+	  path intreps by the core, on Windows. See commentary in
+	  'fullnormalize', and 'find.setup' (f_setupcircle).
+
+	* find.test: Moved the support code into a separate file, the new
+	* find.setup: 'find.setup'. Added a testsuite for the package
+	* traverse.test: 'fileutil::traverse', using the same support
+	* traverse.tcl: code. Rewrote the internals of traverse.tcl based
+	* traverse.man: on the experience gained by the rewrite of 'find',
+	* pkgIndex.tcl: using similar re-focatorization of the platform
+	  and core dependencies, and made the traversal state variables
+	  easier to understand (separated the processing and result
+	  stack). Bumped version of traverse to 0.3.
+
 2007-08-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* find.test: Reworked the setup/cleanup code, made the tests more
