@@ -1,3 +1,11 @@
+2007-08-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* find.test: Reworked the setup/cleanup code, made the tests more
+	  independent from each other.
+
+	* traverse.man: New file, first documentation for
+	  fileutil::traverse.
+
 2007-08-07  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.tcl (::fileutil::find): Command rewritten to use a
