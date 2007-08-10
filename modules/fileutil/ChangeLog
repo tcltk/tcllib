@@ -1,3 +1,11 @@
+2007-08-10  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.tcl: The rewrite of find changed how it invoked the
+	* fileutil.man: filter command. As that however is documented this
+	* pkgIndex.tcl: change is a bug. Restored the old way of invoking
+	* find.test: the filter command. Version bumped to 1.13.3. Extend
+	  the testsuite to verify the API.
+
 2007-08-08  Andreas Kupries  <andreask@activestate.com>
 
 	* inplace.test: Fixed failures of some tests on Windows.

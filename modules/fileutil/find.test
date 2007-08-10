@@ -9,7 +9,7 @@
 # Copyright (c) 2005-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: find.test,v 1.5 2007/08/08 19:42:43 andreas_kupries Exp $
+# RCS: @(#) $Id: find.test,v 1.6 2007/08/10 18:21:43 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -167,6 +167,30 @@ test find-3.1 {inaccessible directory} {unix notRoot} {
     f_cleanupnostat
     set res
 } {}
+
+# -------------------------------------------------------------------------
+
+proc rec {f} {
+    # Documented filter API:
+    # f   = unqualified filename,
+    # pwd = directory the file is in.
+    global  res
+    lappend res [list [pwd] $f]
+    return 1
+}
+
+test find-4.0 {find file with filter, filter API} {
+    f_setup
+    set res {}
+    ::fileutil::find [tempPath {find 1}] rec
+    f_cleanup
+    lsort $res
+} [list \
+       [list [tempPath {find 1/find 2}] {file* 2}]  \
+       [list [tempPath {find 1}]        {file [1]}] \
+       [list [tempPath {find 1}]        {find 2}]   \
+      ]
+#            pwd                        fname
 
 # -------------------------------------------------------------------------
 
