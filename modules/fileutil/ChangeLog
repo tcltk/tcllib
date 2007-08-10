@@ -1,5 +1,14 @@
 2007-08-10  Andreas Kupries  <andreask@activestate.com>
 
+	* multiop.tcl: New features - Recursive processing.
+	* multiop.test: Expand only mode. Save/restore set of files
+	* pkgIndex.tcl: to/from a variable. Platform checking
+	* multi.test: semi-conditional commands. Invoke a user command for
+	* multiop.man: the file set. Test suite extended, documentation
+	  updated. Version bumped to 0.2
+
+2007-08-10  Andreas Kupries  <andreask@activestate.com>
+
 	* fileutil.tcl: The rewrite of find changed how it invoked the
 	* fileutil.man: filter command. As that however is documented this
 	* pkgIndex.tcl: change is a bug. Restored the old way of invoking

@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin fileutil::multi::op n 0.1]
+[manpage_begin fileutil::multi::op n 0.2]
 [moddesc   {file utilities}]
 [titledesc {Multi-file operation, scatter/gather}]
 [require Tcl 8.4]
-[require fileutil::multi::op [opt 0.1]]
+[require fileutil::multi::op [opt 0.2]]
 [require wip [opt 1.0]]
 [description]
 [keywords {file utilities} copy move remove multi-file]
@@ -134,6 +134,15 @@ Specifies a new name for the first file handled by the current
 operation. I.e. for the renaming of a single file during the
 operation.
 
+[call [cmd recursive]]
+
+Signals that file expansion should happen in the whole directory
+hierarchy and not just the directory itself.
+
+[call [cmd recursively]]
+
+An alias for [cmd recursive].
+
 [call [cmd copy]]
 
 Signals that the operation is the copying of files from source to
@@ -141,7 +150,6 @@ destination directory per the specified inclusion and exclusion
 patterns.
 
 [call [cmd move]]
-
 
 Signals that the operation is the moving of files from source to
 destination directory per the specified inclusion and exclusion
@@ -151,6 +159,20 @@ patterns.
 
 Signals that the operation is the removal of files in the destination
 directory per the specified inclusion and exclusion patterns.
+
+[call [cmd expand]]
+
+Signals that there is no operation but the calculation of the set of
+files from the include and exclude patterns. This operation is not
+available if [cmd the-set] is used.
+
+[call [cmd invoke] [arg cmdprefix]]
+
+Signals that the user-specified command prefix [arg cmdprefix] is the
+operation to perform. The command prefix is executed at the global
+level and given the source directory, destination directory, and set
+of files (as dictionary mapping from source to destination files), in
+this order.
 
 [call [cmd reset]]
 
@@ -176,6 +198,18 @@ of the current destination.
 Changes the destination directory to the parent directory of the
 current destination.
 
+[call [cmd for-windows]]
+
+Checks that Windows is the current platform. Aborts processing if not.
+
+[call [cmd for-win]]
+
+An alias for [cmd for-windows].
+
+[call [cmd for-unix]]
+
+Checks that Unix is the current platform. Aborts processing if not.
+
 [call [cmd the] [arg pattern]]
 
 This command specifies the files to operate on per a glob pattern, and
@@ -199,6 +233,18 @@ before this command.
 After the operation has been performed the object state the exclude
 patterns and the alias name, if specified, are reset to their default
 values (i.e. empty), but nothing else.
+
+[call [cmd the-set] [arg varname]]
+
+Like [cmd the], however the set of files to use is not specified
+implicitly per a glob pattern, but contained and loaded from the 
+specified variable. The operation [cmd expand] is not available
+if this command is used.
+
+[call [cmd ->] [arg varname]]
+
+Saves the set of files from the last expansion into the specified
+variable.
 
 [list_end]
 
