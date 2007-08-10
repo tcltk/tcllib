@@ -1,11 +1,11 @@
-[manpage_begin comm n 4.5.3]
+[manpage_begin comm n 4.5.4]
 [copyright {1995-1998 The Open Group. All Rights Reserved.}]
 [copyright {2003-2004 ActiveState Corporation.}]
 [copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Remote communication}]
 [titledesc {A remote communication facility for Tcl (8.3 and later)}]
 [require Tcl 8.3]
-[require comm [opt 4.5.3]]
+[require comm [opt 4.5.4]]
 [description]
 
 [para]
@@ -845,6 +845,23 @@ Note that requiring no version (or a specific version) can also be done.
 The revision history of [package comm] includes these releases:
 
 [list_begin definitions]
+
+[def 4.5.4]
+
+Bugfix in the handling of the result received by the [method send]
+method. Replaced an [emph {after idle unset result}] with an immediate
+[cmd unset], with the information saved to a local variable.
+
+[para]
+
+The [cmd {after idle}] can spill into a forked child process if there
+is no event loop between its setup and the fork. This may bork the
+child if the next event loop is the [cmd vwait] of [package comm]'s
+[method send] a few lines above the [cmd {after idle}], and the child
+used the same serial number for its next request. In that case the
+parent's [cmd {after idle unset}] will delete the very array element
+the child is waiting for, unlocking the [cmd vwait], causing it to
+access a now missing array element, instead of the expected result.
 
 [def 4.5.3]
 
