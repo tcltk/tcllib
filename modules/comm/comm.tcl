@@ -6,7 +6,7 @@
 # Copyright (C) 1995-1998 The Open Group.   All Rights Reserved.
 # (Please see the file "comm.LICENSE" that accompanied this source,
 #  or http://www.opengroup.org/www/dist_client/caubweb/COPYRIGHT.free.html)
-# Copyright (c) 2003 ActiveState Corporation
+# Copyright (c) 2003-2007 ActiveState Corporation
 #
 # This is the 'comm' package written by Jon Robert LoVerso, placed
 # into its own namespace during integration into tcllib.
@@ -22,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.27 2007/06/10 20:47:32 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.28 2007/08/10 15:59:58 andreas_kupries Exp $
 
 package require Tcl 8.3
 package require snit ; # comm::future objects.
@@ -501,19 +501,20 @@ proc ::comm::comm_cmd_send {chan args} {
 	    puts stderr "<$chan> result\
 		    <$comm($chan,return,$ser);$comm($chan,result,$ser)>"
 	}
-	after idle unset ::comm::comm($chan,result,$ser)
 
 	array set return $comm($chan,return,$ser)
 	unset comm($chan,return,$ser)
+	set thisres $comm($chan,result,$ser)
+	unset comm($chan,result,$ser)
 	switch -- $return(-code) {
-	    "" - 0 {return $comm($chan,result,$ser)}
+	    "" - 0 {return $thisres}
 	    1 {
 		return  -code $return(-code) \
 			-errorinfo $return(-errorinfo) \
 			-errorcode $return(-errorcode) \
-			$comm($chan,result,$ser)
+			$thisres
 	    }
-	    default {return -code $return(-code) $comm($chan,result,$ser)}
+	    default {return -code $return(-code) $thisres}
 	}
     }
 }
@@ -1659,4 +1660,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.5.3
+package provide comm 4.5.4
