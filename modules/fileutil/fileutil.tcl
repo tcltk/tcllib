@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.69 2007/08/10 18:21:43 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.70 2007/08/10 19:40:49 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -180,7 +180,7 @@ proc ::fileutil::FADD {filename} {
     return
 }
 
-# The next three helper commands for fileutil::find depend stronly on
+# The next three helper commands for fileutil::find depend strongly on
 # the version of Tcl, and partially on the platform.
 
 # 1. The -directory and -types swithes were added to glob in Tcl
