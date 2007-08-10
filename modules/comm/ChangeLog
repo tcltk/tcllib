@@ -1,3 +1,20 @@
+2007-08-09  Andreas Kupries  <andreask@activestate.com>
+
+	* comm.tcl (comm::comm_cmd_send): Replaced the 'after idle unset
+	  result' with an immediate unset, saving the infromation into a
+	  local variable. The 'after idle' can spill into a forked child
+	  process if there is no event loop between its location and the
+	  fork. This may bork the child if the next event loop is the
+	  'vwait' of comm's send a few lines above, and the child used the
+	  same serial number for its next request. In that case the
+	  parent's 'after idle unset' will delete the very array element
+	  the child is waiting for, unlocking the vwait, causing it to
+	  access a now missing array element, instead of the expected
+	  result. Fix by JeffH, Analysis by AndreasK, bugfix actually done
+	  before the analysis. This bug happened at Cisco.	
+	* comm.man: Bumped the package version to 4.5.4.
+	* pkgIndex.tcl:
+
 2007-06-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* comm.tcl: Bugfixes in the wrapper for 'update'.
