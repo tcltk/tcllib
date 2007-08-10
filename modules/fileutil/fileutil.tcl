@@ -9,11 +9,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.68 2007/08/08 19:42:43 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.69 2007/08/10 18:21:43 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.13.2
+package provide fileutil 1.13.3
 
 namespace eval ::fileutil {
     namespace export \
@@ -164,9 +164,19 @@ proc ::fileutil::find {{basedir .} {filtercmd {}}} {
 
 proc ::fileutil::FADD {filename} {
     upvar 1 result result filt filt filtercmd filtercmd
-    if {!$filt || [uplevel 2 [linsert $filtercmd end $filename]]} {
+    if {!$filt} {
+	lappend result $filename
+	return
+    }
+
+    set here [pwd]
+    cd [file dirname $filename]
+
+    if {[uplevel 2 [linsert $filtercmd end [file tail $filename]]]} {
 	lappend result $filename
     }
+
+    cd $here
     return
 }
 
@@ -381,9 +391,8 @@ proc ::fileutil::findByPattern {basedir args} {
 #			matches at least one of the patterns.
 
 proc ::fileutil::FindRegexp {patterns filename} {
-    set fx [file tail $filename]
     foreach p $patterns {
-	if {[regexp -- $p $fx]} {
+	if {[regexp -- $p $filename]} {
 	    return 1
 	}
     }
@@ -403,9 +412,8 @@ proc ::fileutil::FindRegexp {patterns filename} {
 #			matches at least one of the patterns.
 
 proc ::fileutil::FindGlob {patterns filename} {
-    set fx [file tail $filename]
     foreach p $patterns {
-	if {[string match $p $fx]} {
+	if {[string match $p $filename]} {
 	    return 1
 	}
     }
