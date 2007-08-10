@@ -151,7 +151,11 @@ snit::type ::fileutil::multi::op {
 	    move   Move		copy Copy	remove  Remove	\
 	    but    But		not  Exclude	the     The	\
 	    except Except	for  Exclude    exclude Exclude \
-	    to     Into
+	    to     Into         ->   Save       the-set TheSet  \
+	    recursive Recursive recursively Recursive           \
+	    for-win     ForWindows   for-unix   ForUnix         \
+	    for-windows ForWindows   expand     Expand          \
+	    invoke Invoke
 
 	$self Reset
 	runl $args
@@ -174,17 +178,18 @@ snit::type ::fileutil::multi::op {
     # General reset of processor state
     method Reset {} {
 	$stack clear
-	set base  ""
-	set alias ""
-	set op    ""
-	set src   ""
-	set excl  ""
+	set base     ""
+	set alias    ""
+	set op       ""
+	set recursive 0 
+	set src      ""
+	set excl     ""
 	return
     }
 
     # Stack manipulation
     method Push {} {
-	$stack push [list $base $alias $op $src $excl]
+	$stack push [list $base $alias $op $opcmd $recursive $src $excl]
 	return
     }
 
@@ -192,7 +197,7 @@ snit::type ::fileutil::multi::op {
 	if {![$stack size]} {
 	    return -code error {Stack underflow}
 	}
-	foreach {base alias op src excl} [$stack pop] break
+	foreach {base alias op opcmd recursive src excl} [$stack pop] break
 	return
     }
 
@@ -219,6 +224,16 @@ snit::type ::fileutil::multi::op {
     method Move   {} { set op move   ; return }
     method Copy   {} { set op copy   ; return }
     method Remove {} { set op remove ; return }
+    method Expand {} { set op expand ; return }
+
+    method Invoke {cmdprefix} {
+	set op    invoke
+	set opcmd $cmdprefix
+	return
+    }
+
+    # Operation qualifier
+    method Recursive {} { set recursive 1 ; return }
 
     # Source directory
     method From {dir} {
@@ -244,29 +259,98 @@ snit::type ::fileutil::multi::op {
 	run_next_while {as but except exclude from into in to}
 
 	switch -exact -- $op {
-	    move   {Move   [Resolve [Exclude [Expand $src  $pattern]]]}
-	    copy   {Copy   [Resolve [Exclude [Expand $src  $pattern]]]}
-	    remove {Remove          [Exclude [Expand $base $pattern]] }
+	    invoke {Invoke [Resolve [Remember [Exclude [Expand $src  $pattern]]]]}
+	    move   {Move   [Resolve [Remember [Exclude [Expand $src  $pattern]]]]}
+	    copy   {Copy   [Resolve [Remember [Exclude [Expand $src  $pattern]]]]}
+	    remove {Remove          [Remember [Exclude [Expand $base $pattern]]] }
+	    expand {                 Remember [Exclude [Expand $base $pattern]]  }
 	}
 
 	# Reset the per-pattern flags of the resolution context back
 	# to their defaults, for the next pattern.
 
-	set alias {}
-	set excl  {}
+	set alias    {}
+	set excl     {}
+	set recursive 0
+	return
+    }
+
+    # Like 'The' above, except that the fileset is taken from the
+    # specified variable. Semi-complementary to 'Save' below.
+    # Exclusion data and recursion info do not apply for this, this is
+    # already implicitly covered by the set, when it was generated.
+
+    method TheSet {varname} {
+	# See 'Save' for the levels we jump here.
+	upvar 5 $varname var
+
+	run_next_while {as from into in to}
+
+	switch -exact -- $op {
+	    invoke {Invoke [Resolve $var]}
+	    move   {Move   [Resolve $var]}
+	    copy   {Copy   [Resolve $var]}
+	    remove {Remove          $var }
+	    expand {
+		return -code error "Expansion does not make sense\
+                                    when we already have a set of files."
+	    }
+	}
+
+	# Reset the per-pattern flags of the resolution context back
+	# to their defaults, for the next pattern.
+
+	set alias    {}
+	return
+    }
+
+    # Save the last expansion result to a variable for use by future commands.
+
+    method Save {varname} {
+	# Levels to jump. Brittle.
+	# 5: Caller
+	# 4:   object do ...
+	# 3:     runl
+	# 2:       wip::runl
+	# 1:         run_next
+	# 0: Here
+	upvar 5 $varname v
+	set v $lastexpansion
+	return
+    }
+
+    # Platform conditionals ...
+
+    method ForUnix {} {
+	global tcl_platform
+	if {$tcl_platform(platform) eq "unix"} return
+	# Kill the remaining code. This effectively aborts processing.
+	replacel {}
+	return
+    }
+
+    method ForWindows {} {
+	global tcl_platform
+	if {$tcl_platform(platform) eq "windows"} return
+	# Kill the remaining code. This effectively aborts processing.
+	replacel {}
 	return
     }
 
     # ### ### ### ######### ######### #########
     ## DSL State
 
-    component stack    ; # State stack     - ( )
-    variable  base  "" ; # Destination dir - into, in, cd, up
-    variable  alias "" ; # Detail          - as
-    variable  op    "" ; # Operation       - move, copy, remove
-    variable  src   "" ; # Source dir      - from
-    variable  excl  "" ; # Excluded files  - but not|exclude, except for
-    # incl             ; # Included files  - the (immediate use)
+    component stack       ; # State stack     - ( )
+    variable  base     "" ; # Destination dir - into, in, cd, up
+    variable  alias    "" ; # Detail          - as
+    variable  op       "" ; # Operation       - move, copy, remove, expand, invoke
+    variable  opcmd    "" ; # Command prefix for invoke.
+    variable  recursive 0 ; # Op. qualifier: recursive expansion?
+    variable  src      "" ; # Source dir      - from
+    variable  excl     "" ; # Excluded files  - but not|exclude, except for
+    # incl                ; # Included files  - the (immediate use)
+
+    variable lastexpansion "" ; # Area for last expansion result, for 'Save' to take from.
 
     # ### ### ### ######### ######### #########
     ## Internal -- Path manipulation helpers.
@@ -301,6 +385,12 @@ snit::type ::fileutil::multi::op {
 
     # ### ### ### ######### ######### #########
     ## Internal - Operation execution helpers
+
+    proc Invoke {files} {
+	upvar 1 base base src src opcmd opcmd
+	uplevel #0 [linsert $opcmd end $src $base $files]
+	return
+    }
 
     proc Move {files} {
 	upvar 1 base base src src
@@ -341,12 +431,22 @@ snit::type ::fileutil::multi::op {
     ## Internal -- Resolution helper commands
 
     proc Expand {dir pattern} {
+	upvar 1 recursive recursive
 	# FUTURE: struct::list filter ...
 
 	set files {}
-	foreach f [glob -nocomplain -directory $dir -- $pattern] {
-	    if {![file isfile $f]} continue
-	    lappend files [fileutil::stripPath $dir $f]
+	if {$recursive} {
+	    # Recursion through the entire directory hierarchy, save
+	    # all matching files.
+	    foreach f [fileutil::find $dir {file isfile}] {
+		if {![string match $pattern $f]} continue
+		lappend files [fileutil::stripPath $dir $f]
+	    }
+	} else {
+	    # No recursion, just scan the whole directory for matching files.
+	    foreach f [glob -nocomplain -directory $dir -types f -- $pattern] {
+		lappend files [fileutil::stripPath $dir $f]
+	    }
 	}
 
 	if {[llength $files]} {return $files}
@@ -388,12 +488,23 @@ snit::type ::fileutil::multi::op {
 	    if {$thealias eq ""} {
 		set d $f
 	    } else {
-		set d [file join [file dirname $f] $thealias]
+		set d [file dirname $f]
+		if {$d eq "."} {
+		    set d $thealias
+		} else {
+		    set d [file join $d $thealias]
+		}
 	    }
 
 	    lappend res $f $d
 	}
 	return $res
+    }
+
+    proc Remember {files} {
+	upvar 1 lastexpansion lastexpansion
+	set lastexpansion $files
+	return $files
     }
 
     ##
@@ -403,4 +514,4 @@ snit::type ::fileutil::multi::op {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::multi::op 0.1
+package provide fileutil::multi::op 0.2

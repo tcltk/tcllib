@@ -7,7 +7,7 @@
 # Copyright (c) 2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: multiop.test,v 1.3 2007/08/01 20:49:23 andreas_kupries Exp $
+# RCS: @(#) $Id: multiop.test,v 1.4 2007/08/10 19:40:50 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -63,21 +63,31 @@ proc cleanup {} {
 }
 
 proc scan {d} {
-    set base [file normalize $::tcltest::temporaryDirectory/$d]
+    set base [tempPath $d]
     return [lsort -dict \
 		[struct::list map [fileutil::find $base] \
 		     [list fileutil::stripPath $base]]]
 }
 
-# -------------------------------------------------------------------------
+proc cleanup_all {} {
+    rename setup       {}
+    rename cleanup     {}
+    rename scan        {}
+    rename cleanup_all {}
+    unset ::src ::dst
+    return
+}
 
-set dir $::tcltest::temporaryDirectory
+set src [tempPath origin]
+set dst [tempPath destination]
+
+# -------------------------------------------------------------------------
 
 test multiop-1.0 {fileutil multi operations, copying} -setup {
     setup
     fileutil::multi::op X
 } -body {
-    X do copy the *e* from $dir/origin to $dir/destination except for *n*
+    X do copy the *e* from $src to $dst except for *n*
     list [scan origin] [scan destination]
 } -cleanup {
     cleanup
@@ -88,7 +98,7 @@ test multiop-1.1 {fileutil multi operations, moving} -setup {
     setup
     fileutil::multi::op X
 } -body {
-    X do move the *e* from $dir/origin into $dir/destination except for *n*
+    X do move the *e* from $src into $dst except for *n*
     list [scan origin] [scan destination]
 } -cleanup {
     cleanup
@@ -99,15 +109,131 @@ test multiop-1.1 {fileutil multi operations, deletion} -setup {
     setup
     fileutil::multi::op X
 } -body {
-    X do copy the *e* from $dir/origin into $dir/destination except for *n*
-    X do remove the *a* in $dir/destination
+    X do copy the *e* from $src into $dst except for *n*
+    X do remove the *a* in $dst
     scan destination
 } -cleanup {
     cleanup
     X destroy
 } -result {detlev}
 
+test multiop-1.2 {fileutil multi operations, recursive copying} -setup {
+    setup
+    fileutil::multi::op X
+} -body {
+    X do recursively copy the * from $src to $dst
+    list [scan origin] [scan destination]
+} -cleanup {
+    cleanup
+    X destroy
+} -result {{anneliese bertram connie detlev egon egon/bettina egon/suse} {anneliese bertram connie detlev egon egon/bettina egon/suse}}
+
+test multiop-1.3 {fileutil multi operations, recursive move} -setup {
+    setup
+    fileutil::multi::op X
+} -body {
+    X do recursively move the * from $src to $dst
+    list [scan origin] [scan destination]
+} -cleanup {
+    cleanup
+    X destroy
+} -result {egon {anneliese bertram connie detlev egon egon/bettina egon/suse}}
+
+test multiop-1.4 {fileutil multi operations, expand and save} -setup {
+    setup
+    fileutil::multi::op X
+} -body {
+    X do expand the *a* in $src -> v
+    set v
+} -cleanup {
+    cleanup ; unset v
+    X destroy
+} -result {anneliese bertram}
+
+test multiop-1.5 {fileutil multi operations, expand and save} -setup {
+    setup
+    fileutil::multi::op X
+} -body {
+    set v {bertram egon}
+    X do copy the-set v from $src to $dst
+    scan destination
+} -cleanup {
+    cleanup ; unset v
+    X destroy
+} -result {bertram egon egon/bettina egon/suse}
+
 # -------------------------------------------------------------------------
-unset dir
+
+test multiop-2.0 {fileutil multi operations, platform conditionals, not matching, win on unix} -setup {
+    setup
+    fileutil::multi::op X
+} -constraints unix -body {
+    set v {bertram egon}
+    X do for-win copy the-set v from $src to $dst
+    scan destination
+} -cleanup {
+    cleanup ; unset v
+    X destroy
+} -result {}
+
+test multiop-2.1 {fileutil multi operations, platform conditionals, not matching, unix on win} -setup {
+    setup
+    fileutil::multi::op X
+} -constraints win -body {
+    set v {bertram egon}
+    X do for-unix copy the-set v from $src to $dst
+    scan destination
+} -cleanup {
+    cleanup ; unset v
+    X destroy
+} -result {}
+
+test multiop-2.2 {fileutil multi operations, platform conditionals, matching, unix} -setup {
+    setup
+    fileutil::multi::op X
+} -constraints unix -body {
+    set v {bertram}
+    X do for-unix copy the-set v from $src to $dst
+    scan destination
+} -cleanup {
+    cleanup ; unset v
+    X destroy
+} -result {bertram}
+
+test multiop-2.3 {fileutil multi operations, platform conditionals, matching, windows} -setup {
+    setup
+    fileutil::multi::op X
+} -constraints win -body {
+    set v {bertram}
+    X do for-win copy the-set v from $src to $dst
+    scan destination
+} -cleanup {
+    cleanup ; unset v
+    X destroy
+} -result {bertram}
+
+# -------------------------------------------------------------------------
+
+proc rec {args} {
+    global  res
+    lappend res $args
+    return
+}
+
+test multiop-3.0 {fileutil multi operations, invoke user operation} -setup {
+    setup
+    fileutil::multi::op X
+} -constraints unix -body {
+    set v {bertram egon}
+    set res {}
+    X do invoke rec the-set v from $src to $dst as X
+    set res
+} -cleanup {
+    cleanup ; unset v res
+    X destroy
+} -result [list [list $src $dst {bertram X egon egon}]]
+
+# -------------------------------------------------------------------------
+cleanup_all
 testsuiteCleanup
 return
