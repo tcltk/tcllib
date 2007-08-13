@@ -1,5 +1,8 @@
 2007-08-13  Andreas Kupries  <andreask@activestate.com>
 
+	* multiop.tcl (Expand): Fixed bug in recursive expansion, pattern
+	  applies to the last segment of the path.
+
 	* multiop.tcl: New features coming out of dog-fooding: Removed
 	* multiop.man: hardwired fixation on files, accept all paths by
 	* multiop.test: default, and added commands to allow the user to

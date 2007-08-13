@@ -490,7 +490,7 @@ snit::type ::fileutil::multi::op {
 	    }
 
 	    foreach f [fileutil::find $dir $filter] {
-		if {![string match $pattern $f]} continue
+		if {![string match $pattern [file tail $f]]} continue
 		lappend files [fileutil::stripPath $dir $f]
 	    }
 	} else {
