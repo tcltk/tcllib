@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin fileutil::multi::op n 0.2]
+[manpage_begin fileutil::multi::op n 0.3]
 [moddesc   {file utilities}]
 [titledesc {Multi-file operation, scatter/gather}]
 [require Tcl 8.4]
-[require fileutil::multi::op [opt 0.2]]
+[require fileutil::multi::op [opt 0.3]]
 [require wip [opt 1.0]]
 [description]
 [keywords {file utilities} copy move remove multi-file]
@@ -245,6 +245,37 @@ if this command is used.
 
 Saves the set of files from the last expansion into the specified
 variable.
+
+[call [cmd strict]]
+
+Make file expansion and definition of destination directory ([cmd in]
+and aliases) strict, i.e. report errors for missing directories, and
+empty expansion.
+
+[call [cmd !strict]]
+
+Complement of [cmd strict]. A missing destination directory or empty
+expansion are not reported as errors.
+
+[call [cmd files]]
+
+Limit the search to files. Default is to accept every type of path.
+
+[call [cmd links]]
+
+Limit the search to symbolic links. Default is to accept every type of path.
+
+[call [cmd directories]]
+
+Limit the search to directories. Default is to accept every type of path.
+
+[call [cmd dirs]]
+
+An alias for [cmd directories].
+
+[call [cmd all]]
+
+Accept all types of paths (default).
 
 [list_end]
 
