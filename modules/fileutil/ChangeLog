@@ -1,3 +1,14 @@
+2007-08-13  Andreas Kupries  <andreask@activestate.com>
+
+	* multiop.tcl: New features coming out of dog-fooding: Removed
+	* multiop.man: hardwired fixation on files, accept all paths by
+	* multiop.test: default, and added commands to allow the user to
+	* multi.test: limit the expansion to files, firectories, or links.
+	* pkgIndex.tcl: New command to allow the user to specify how
+	  strict checking of the 'in(to)' argument is, and if empty
+	  expansions are acceptable. Documentation updated. Testsuite
+	  updated and extended. Version bumped to 0.3
+
 2007-08-10  Andreas Kupries  <andreask@activestate.com>
 
 	* multiop.tcl: New features - Recursive processing.

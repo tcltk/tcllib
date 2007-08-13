@@ -7,7 +7,7 @@
 # Copyright (c) 2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: multiop.test,v 1.4 2007/08/10 19:40:50 andreas_kupries Exp $
+# RCS: @(#) $Id: multiop.test,v 1.5 2007/08/13 22:32:25 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -132,7 +132,7 @@ test multiop-1.3 {fileutil multi operations, recursive move} -setup {
     setup
     fileutil::multi::op X
 } -body {
-    X do recursively move the * from $src to $dst
+    X do recursively move the * files from $src to $dst
     list [scan origin] [scan destination]
 } -cleanup {
     cleanup
@@ -232,6 +232,83 @@ test multiop-3.0 {fileutil multi operations, invoke user operation} -setup {
     cleanup ; unset v res
     X destroy
 } -result [list [list $src $dst {bertram X egon egon}]]
+
+# -------------------------------------------------------------------------
+
+test multiop-4.0 {fileutil multi operations, moving, files} -setup {
+    setup
+    fileutil::multi::op X
+} -body {
+    X do move the * files from $src into $dst
+    list [scan origin] [scan destination]
+} -cleanup {
+    cleanup
+    X destroy
+} -result {{egon egon/bettina egon/suse} {anneliese bertram connie detlev}}
+
+test multiop-4.1 {fileutil multi operations, moving, directories} -setup {
+    setup
+    fileutil::multi::op X
+} -body {
+    X do move the * directories from $src into $dst
+    list [scan origin] [scan destination]
+} -cleanup {
+    cleanup
+    X destroy
+} -result {{anneliese bertram connie detlev} {egon egon/bettina egon/suse}}
+
+test multiop-4.2 {fileutil multi operations, moving, links} -setup {
+    setup
+    fileutil::multi::op X
+} -body {
+    X do move the * links from $src into $dst
+    list [scan origin] [scan destination]
+} -cleanup {
+    cleanup
+    X destroy
+} -result {{anneliese bertram connie detlev egon egon/bettina egon/suse} {}}
+
+# -------------------------------------------------------------------------
+
+test multiop-5.0 {fileutil multi operations, strict destination} -setup {
+    setup
+    fileutil::multi::op X
+} -body {
+    X do strict into ${dst}x
+} -cleanup {
+    cleanup
+    X destroy
+} -returnCodes error -result "Destination directory \"${dst}x\": Does not exist"
+
+test multiop-5.1 {fileutil multi operations, non-strict destination} -setup {
+    setup
+    fileutil::multi::op X
+} -body {
+    X do !strict into ${dst}x
+} -cleanup {
+    cleanup
+    X destroy
+} -result {}
+
+test multiop-5.2 {fileutil multi operations, strict expansion} -setup {
+    setup
+    fileutil::multi::op X
+} -body {
+    X do strict expand the A* in $src
+} -cleanup {
+    cleanup
+    X destroy
+} -returnCodes error -result "No files matching pattern \"A*\" in directory \"$src\""
+
+test multiop-5.3 {fileutil multi operations, non-strict expansion} -setup {
+    setup
+    fileutil::multi::op X
+} -body {
+    X do !strict expand the A* in $src
+} -cleanup {
+    cleanup
+    X destroy
+} -result {}
 
 # -------------------------------------------------------------------------
 cleanup_all

@@ -7,7 +7,7 @@
 # Copyright (c) 2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: multi.test,v 1.2 2007/08/10 19:40:49 andreas_kupries Exp $
+# RCS: @(#) $Id: multi.test,v 1.3 2007/08/13 22:32:25 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -114,7 +114,7 @@ test multi-1.2 {fileutil multi operations, recursive copying} -setup {
 test multi-1.3 {fileutil multi operations, recursive move} -setup {
     setup
 } -body {
-    fileutil::multi reset recursively move the * from $src to $dst
+    fileutil::multi reset recursively move the * files from $src to $dst
     list [scan origin] [scan destination]
 } -cleanup {
     cleanup
@@ -199,6 +199,69 @@ test multi-3.0 {fileutil multi operations, invoke user operation} -setup {
 } -cleanup {
     cleanup ; unset v res
 } -result [list [list $src $dst {bertram X egon egon}]]
+
+# -------------------------------------------------------------------------
+
+test multi-4.0 {fileutil multi operations, moving, files} -setup {
+    setup
+} -body {
+    fileutil::multi reset move the * files from $src into $dst
+    list [scan origin] [scan destination]
+} -cleanup {
+    cleanup
+} -result {{egon egon/bettina egon/suse} {anneliese bertram connie detlev}}
+
+test multi-4.1 {fileutil multi operations, moving, directories} -setup {
+    setup
+} -body {
+    fileutil::multi reset move the * directories from $src into $dst
+    list [scan origin] [scan destination]
+} -cleanup {
+    cleanup
+} -result {{anneliese bertram connie detlev} {egon egon/bettina egon/suse}}
+
+test multi-4.2 {fileutil multi operations, moving, links} -setup {
+    setup
+} -body {
+    fileutil::multi reset move the * links from $src into $dst
+    list [scan origin] [scan destination]
+} -cleanup {
+    cleanup
+} -result {{anneliese bertram connie detlev egon egon/bettina egon/suse} {}}
+
+# -------------------------------------------------------------------------
+
+test multi-5.0 {fileutil multi operations, strict destination} -setup {
+    setup
+} -body {
+    fileutil::multi reset strict into ${dst}x
+} -cleanup {
+    cleanup
+} -returnCodes error -result "Destination directory \"${dst}x\": Does not exist"
+
+test multi-5.1 {fileutil multi operations, non-strict destination} -setup {
+    setup
+} -body {
+    fileutil::multi reset !strict into ${dst}x
+} -cleanup {
+    cleanup
+} -result {}
+
+test multi-5.2 {fileutil multi operations, strict expansion} -setup {
+    setup
+} -body {
+    fileutil::multi reset strict expand the A* in $src
+} -cleanup {
+    cleanup
+} -returnCodes error -result "No files matching pattern \"A*\" in directory \"$src\""
+
+test multi-5.3 {fileutil multi operations, non-strict expansion} -setup {
+    setup
+} -body {
+    fileutil::multi reset !strict expand the A* in $src
+} -cleanup {
+    cleanup
+} -result {}
 
 # -------------------------------------------------------------------------
 cleanup_all

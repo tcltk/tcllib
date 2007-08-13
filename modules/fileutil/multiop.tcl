@@ -155,7 +155,9 @@ snit::type ::fileutil::multi::op {
 	    recursive Recursive recursively Recursive           \
 	    for-win     ForWindows   for-unix   ForUnix         \
 	    for-windows ForWindows   expand     Expand          \
-	    invoke Invoke
+	    invoke Invoke strict Strict !strict NotStrict \
+	    files  Files  links  Links  all Everything    \
+	    dirs   Directories directories Directories
 
 	$self Reset
 	runl $args
@@ -184,12 +186,14 @@ snit::type ::fileutil::multi::op {
 	set recursive 0 
 	set src      ""
 	set excl     ""
+	set types    {}
+	set strict   0
 	return
     }
 
     # Stack manipulation
     method Push {} {
-	$stack push [list $base $alias $op $opcmd $recursive $src $excl]
+	$stack push [list $base $alias $op $opcmd $recursive $src $excl $types $strict]
 	return
     }
 
@@ -197,14 +201,14 @@ snit::type ::fileutil::multi::op {
 	if {![$stack size]} {
 	    return -code error {Stack underflow}
 	}
-	foreach {base alias op opcmd recursive src excl} [$stack pop] break
+	foreach {base alias op opcmd recursive src excl types strict} [$stack pop] break
 	return
     }
 
     # Destination directory
     method Into {dir} {
 	if {$dir eq ""} {set dir [pwd]}
-	if {![fileutil::test $dir edr msg {Destination directory}]} {
+	if {$strict && ![fileutil::test $dir edr msg {Destination directory}]} {
 	    return -code error $msg
 	}
 	set base $dir
@@ -256,7 +260,7 @@ snit::type ::fileutil::multi::op {
 
     # Define the files to operate on, and perform the operation.
     method The {pattern} {
-	run_next_while {as but except exclude from into in to}
+	run_next_while {as but except exclude from into in to files dirs directories links all}
 
 	switch -exact -- $op {
 	    invoke {Invoke [Resolve [Remember [Exclude [Expand $src  $pattern]]]]}
@@ -337,6 +341,40 @@ snit::type ::fileutil::multi::op {
 	return
     }
 
+    # Strictness
+
+    method Strict {} {
+	set strict 1
+	return
+    }
+
+    method NotStrict {} {
+	set strict 0
+	return
+    }
+
+    # Type qualifiers
+
+    method Files {} {
+	set types f
+	return
+    }
+
+    method Links {} {
+	set types l
+	return
+    }
+
+    method Directories {} {
+	set types d
+	return
+    }
+
+    method Everything {} {
+	set types {}
+	return
+    }
+
     # ### ### ### ######### ######### #########
     ## DSL State
 
@@ -349,6 +387,8 @@ snit::type ::fileutil::multi::op {
     variable  src      "" ; # Source dir      - from
     variable  excl     "" ; # Excluded files  - but not|exclude, except for
     # incl                ; # Included files  - the (immediate use)
+    variable types     {} ; # Limit glob/find to specific types (f, l, d).
+    variable strict    0  ; # Strictness of into/Expand
 
     variable lastexpansion "" ; # Area for last expansion result, for 'Save' to take from.
 
@@ -431,29 +471,61 @@ snit::type ::fileutil::multi::op {
     ## Internal -- Resolution helper commands
 
     proc Expand {dir pattern} {
-	upvar 1 recursive recursive
+	upvar 1 recursive recursive strict strict types types
 	# FUTURE: struct::list filter ...
 
 	set files {}
 	if {$recursive} {
 	    # Recursion through the entire directory hierarchy, save
-	    # all matching files.
-	    foreach f [fileutil::find $dir {file isfile}] {
+	    # all matching paths.
+
+	    if {$types eq "f"} {
+		set filter [myproc TFile]
+	    } elseif {$types eq "l"} {
+		set filter [myproc TLink]
+	    } elseif {$types eq "d"} {
+		set filter [myproc TDir]
+	    } else {
+		set filter {}
+	    }
+
+	    foreach f [fileutil::find $dir $filter] {
 		if {![string match $pattern $f]} continue
 		lappend files [fileutil::stripPath $dir $f]
 	    }
 	} else {
-	    # No recursion, just scan the whole directory for matching files.
-	    foreach f [glob -nocomplain -directory $dir -types f -- $pattern] {
-		lappend files [fileutil::stripPath $dir $f]
+	    # No recursion, just scan the whole directory for matching paths.
+	    # check for specific types integrated.
+
+	    if {$types eq "f"} {
+		foreach f [glob -nocomplain -directory $dir -types f -- $pattern] {
+		    lappend files [fileutil::stripPath $dir $f]
+		}
+	    } elseif {$types eq "l"} {
+		foreach f [glob -nocomplain -directory $dir -types l -- $pattern] {
+		    lappend files [fileutil::stripPath $dir $f]
+		}
+	    } elseif {$types eq "d"} {
+		foreach f [glob -nocomplain -directory $dir -types d -- $pattern] {
+		    lappend files [fileutil::stripPath $dir $f]
+		}
+	    } else {
+		foreach f [glob -nocomplain -directory $dir -- $pattern] {
+		    lappend files [fileutil::stripPath $dir $f]
+		}
 	    }
 	}
 
 	if {[llength $files]} {return $files}
+	if {!$strict}         {return {}}
 
 	return -code error \
 	    "No files matching pattern \"$pattern\" in directory \"$dir\""
     }
+
+    proc TFile {f} {file isfile $f}
+    proc TDir  {f} {file isdirectory $f}
+    proc TLink {f} {expr {[file type $f] eq "link"}}
 
     proc Exclude {files} {
 	upvar 1 excl excl
@@ -514,4 +586,4 @@ snit::type ::fileutil::multi::op {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::multi::op 0.2
+package provide fileutil::multi::op 0.3
