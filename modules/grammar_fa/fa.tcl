@@ -1,4 +1,5 @@
 # -*- tcl -*-
+# (c) 2004-1007 Andreas Kupries
 # Grammar / Finite Automatons / Container
 
 # ### ### ### ######### ######### #########
@@ -592,11 +593,22 @@ snit::type ::grammar::fa {
 	return [array names symbol]
     }
 
-    method symbols@ {s} {
+    method symbols@ {s {t {}}} {
 	$self StateCheck $s
+	if {$t ne ""} {	$self StateCheck $t}
 	upvar #0 ${selfns}::trans_$order($s) jump
 	if {![info exists jump]} {return {}}
-	return [array names jump]
+	if {$t eq ""} {
+	    # No destination, all symbols.
+	    return [array names jump]
+	}
+	# Specific destination, locate the symbols going there.
+	set result {}
+	foreach sym [array names jump] {
+	    if {[lsearch -exact $jump($sym) $t] < 0} continue
+	    lappend result $sym
+	}
+	return [lsort -uniq $result]
     }
 
     method symbols@set {states} {
@@ -1255,4 +1267,4 @@ snit::type ::grammar::fa {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide grammar::fa 0.2
+package provide grammar::fa 0.3
