@@ -1,3 +1,11 @@
+2007-08-14  Andreas Kupries <andreask@activestate.com>
+
+	* tests/fa_symbols_at.test: Added proper documentation for the
+	* fa.tcl: methods symbols@ and symbols@set. Extended method
+	* fa.man: symbols@ to allow querying of symbols between two
+	* pkgIndex.tcl: states, extended documentation, and updated
+	  testsuite. Bumped package version to 0.3.
+
 2007-06-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* faop.tcl: Replaced deprecated {expand} syntax in comments with
