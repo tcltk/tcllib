@@ -1,6 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin grammar::fa n 0.2]
-[copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[manpage_begin grammar::fa n 0.3]
+[copyright {2004-2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Finite automaton operations and usage}]
 [titledesc {Create and manipulate finite automatons}]
 [require Tcl 8.4]
@@ -8,7 +8,7 @@
 [require struct::list]
 [require struct::set]
 [require grammar::fa::op [opt 0.2]]
-[require grammar::fa     [opt 0.2]]
+[require grammar::fa     [opt 0.3]]
 [description]
 [keywords grammar automaton {finite automaton}]
 [keywords state {regular expression} {regular grammar}]
@@ -338,20 +338,25 @@ The result is a boolean value. It will be set to [const true] if a
 final state is present in [arg stateset], and [const false] otherwise.
 
 
-[call [arg faName] [method symbols] [opt [arg s]]]
+[call [arg faName] [method symbols]]
 
-If no state [arg s] is specified then it returns the set of all
-symbols known to the FA [arg faName]. Otherwise it returns the set of
-all symbols for which the state [arg s] has transitions. If the empty
-symbol is present then [arg s] has epsilon transitions.
+Returns the set of all symbols known to the FA [arg faName].
 
 
-[call [arg faName] [method symbolset] [arg stateset]]
+[call [arg faName] [method symbols@] [arg s] [opt [arg d]]]
+
+Returns the set of all symbols for which the state [arg s] has transitions.
+If the empty symbol is present then [arg s] has epsilon transitions. If two
+states are specified the result is the set of symbols which have transitions
+from [arg s] to [arg t]. This set may be empty if there are no transitions
+between the two specified states.
+
+[call [arg faName] [method symbols@set] [arg stateset]]
 
 Returns the set of all symbols for which at least one state in the set
 of states [arg stateset] has transitions.
 
-In other words, the union of [lb][arg faName] [method symbols] [var s][rb]
+In other words, the union of [lb][arg faName] [method symbols@] [var s][rb]
 for all states [var s] in [arg stateset].
 
 If the empty symbol is present then at least one state contained in
