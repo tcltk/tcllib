@@ -1,3 +1,9 @@
+2007-08-14  Andreas Kupries  <andreask@activestate.com>
+
+	* comm.tcl (::comm::CommRunHook): Fixed typo in variable name,
+ 	* comm.man: should be 'res', not 'result'. Bumped the package
+	* pkgIndex.tcl: version to 4.5.5.
+
 2007-08-09  Andreas Kupries  <andreask@activestate.com>
 
 	* comm.tcl (comm::comm_cmd_send): Replaced the 'after idle unset

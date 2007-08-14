@@ -22,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.28 2007/08/10 15:59:58 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.29 2007/08/14 20:41:24 andreas_kupries Exp $
 
 package require Tcl 8.3
 package require snit ; # comm::future objects.
@@ -1444,7 +1444,7 @@ proc ::comm::CommRunHook {chan event} {
     switch -exact -- $code {
 	0 {}
 	1 {
-	    return -errorinfo $::errorInfo -errorcode $::errorCode -code error $result
+	    return -errorinfo $::errorInfo -errorcode $::errorCode -code error $res
 	}
 	3 {return}
 	4 {}
@@ -1660,4 +1660,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.5.4
+package provide comm 4.5.5
