@@ -1,3 +1,9 @@
+2007-08-15  Andreas Kupries  <andreask@activestate.com>
+
+	* multiop.tcl (ChDir, ChUp): Fixed the method calls in change dir
+	* multiop.man: operations, forget the $self. Version bumped to 0.4.
+	* pkgIndex.tcl:
+
 2007-08-13  Andreas Kupries  <andreask@activestate.com>
 
 	* multiop.tcl (Expand): Fixed bug in recursive expansion, pattern
