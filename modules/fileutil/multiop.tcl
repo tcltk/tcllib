@@ -215,8 +215,8 @@ snit::type ::fileutil::multi::op {
 	return
     }
 
-    method ChDir {dir} { Into [file join    $base $dir] ; return }
-    method ChUp  {}    { Into [file dirname $base]      ; return }
+    method ChDir {dir} { $self Into [file join    $base $dir] ; return }
+    method ChUp  {}    { $self Into [file dirname $base]      ; return }
 
     # Detail
     method As {fname} {
@@ -586,4 +586,4 @@ snit::type ::fileutil::multi::op {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::multi::op 0.3
+package provide fileutil::multi::op 0.4
