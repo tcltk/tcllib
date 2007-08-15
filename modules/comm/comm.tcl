@@ -22,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.29 2007/08/14 20:41:24 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.30 2007/08/15 21:33:37 andreas_kupries Exp $
 
 package require Tcl 8.3
 package require snit ; # comm::future objects.
@@ -1516,7 +1516,7 @@ proc ::comm::Vwait {varname} {
 	}
     }
 
-    set code [catch {uplevel 1 ::comm::VwaitOrig $varname} res]
+    set code [catch {uplevel 1 [list ::comm::VwaitOrig $varname]} res]
 
     if {$hasstate} {
 	set comm(current,async)  $async
@@ -1660,4 +1660,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.5.5
+package provide comm 4.5.6
