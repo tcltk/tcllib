@@ -1,3 +1,12 @@
+2007-08-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* multiop.setup: Moved the common setup code for the testing of
+	* multiop.test: the multi-file operations into a separate file.
+	* multi.test: Added commands to query the state of objects.
+	* multiop.tcl: Updated both testsuite and documentation. Version
+	* multiop.man: bumped to 0.5.
+	* pkgIndex.tcl:
+
 2007-08-15  Andreas Kupries  <andreask@activestate.com>
 
 	* multiop.tcl (ChDir, ChUp): Fixed the method calls in change dir
@@ -27,13 +36,11 @@
 	* multiop.man: the file set. Test suite extended, documentation
 	  updated. Version bumped to 0.2
 
-2007-08-10  Andreas Kupries  <andreask@activestate.com>
-
 	* fileutil.tcl: The rewrite of find changed how it invoked the
 	* fileutil.man: filter command. As that however is documented this
 	* pkgIndex.tcl: change is a bug. Restored the old way of invoking
-	* find.test: the filter command. Version bumped to 1.13.3. Extend
-	  the testsuite to verify the API.
+	* find.test: the filter command. Version bumped to 1.13.3.
+	  Extended the testsuite to verify the API.
 
 2007-08-08  Andreas Kupries  <andreask@activestate.com>
 

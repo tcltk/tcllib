@@ -157,7 +157,11 @@ snit::type ::fileutil::multi::op {
 	    for-windows ForWindows   expand     Expand          \
 	    invoke Invoke strict Strict !strict NotStrict \
 	    files  Files  links  Links  all Everything    \
-	    dirs   Directories directories Directories
+	    dirs   Directories directories Directories    \
+	    state? QueryState from? QueryFrom into? QueryInto \
+	    excluded? QueryExcluded as? QueryAs type? QueryType \
+	    recursive? QueryRecursive operation? QueryOperation \
+	    strict? QueryStrict !recursive NotRecursive
 
 	$self Reset
 	runl $args
@@ -237,7 +241,8 @@ snit::type ::fileutil::multi::op {
     }
 
     # Operation qualifier
-    method Recursive {} { set recursive 1 ; return }
+    method Recursive    {} { set recursive 1 ; return }
+    method NotRecursive {} { set recursive 0 ; return }
 
     # Source directory
     method From {dir} {
@@ -356,23 +361,62 @@ snit::type ::fileutil::multi::op {
     # Type qualifiers
 
     method Files {} {
-	set types f
+	set types files
 	return
     }
 
     method Links {} {
-	set types l
+	set types links
 	return
     }
 
     method Directories {} {
-	set types d
+	set types dirs
 	return
     }
 
     method Everything {} {
 	set types {}
 	return
+    }
+
+    # State interogation
+
+    method QueryState {} {
+	return [list \
+		    from      $src \
+		    into      $base \
+		    as        $alias \
+		    op        $op \
+		    excluded  $excl \
+		    recursive $recursive \
+		    type      $types \
+		    strict    $strict \
+		   ]
+    }
+    method QueryExcluded {} {
+	return $excl
+    }
+    method QueryFrom {} {
+	return $src
+    }
+    method QueryInto {} {
+	return $base
+    }
+    method QueryAs {} {
+	return $alias
+    }
+    method QueryOperation {} {
+	return $op
+    }
+    method QueryRecursive {} {
+	return $recursive
+    }
+    method QueryType {} {
+	return $types
+    }
+    method QueryStrict {} {
+	return $strict
     }
 
     # ### ### ### ######### ######### #########
@@ -470,8 +514,15 @@ snit::type ::fileutil::multi::op {
     # ### ### ### ######### ######### #########
     ## Internal -- Resolution helper commands
 
+    typevariable tmap -array {
+	files {f TFile}
+	links {l TLink}
+	dirs  {d TDir}
+	{}    {{} {}}
+    }
+
     proc Expand {dir pattern} {
-	upvar 1 recursive recursive strict strict types types
+	upvar 1 recursive recursive strict strict types types tmap tmap
 	# FUTURE: struct::list filter ...
 
 	set files {}
@@ -479,14 +530,9 @@ snit::type ::fileutil::multi::op {
 	    # Recursion through the entire directory hierarchy, save
 	    # all matching paths.
 
-	    if {$types eq "f"} {
-		set filter [myproc TFile]
-	    } elseif {$types eq "l"} {
-		set filter [myproc TLink]
-	    } elseif {$types eq "d"} {
-		set filter [myproc TDir]
-	    } else {
-		set filter {}
+	    set filter [lindex $tmap($types) 1]
+	    if {$filter ne ""} {
+		set filter [myproc $filter]
 	    }
 
 	    foreach f [fileutil::find $dir $filter] {
@@ -497,16 +543,9 @@ snit::type ::fileutil::multi::op {
 	    # No recursion, just scan the whole directory for matching paths.
 	    # check for specific types integrated.
 
-	    if {$types eq "f"} {
-		foreach f [glob -nocomplain -directory $dir -types f -- $pattern] {
-		    lappend files [fileutil::stripPath $dir $f]
-		}
-	    } elseif {$types eq "l"} {
-		foreach f [glob -nocomplain -directory $dir -types l -- $pattern] {
-		    lappend files [fileutil::stripPath $dir $f]
-		}
-	    } elseif {$types eq "d"} {
-		foreach f [glob -nocomplain -directory $dir -types d -- $pattern] {
+	    set filter [lindex $tmap($types) 0]
+	    if {$filter ne ""} {
+		foreach f [glob -nocomplain -directory $dir -types $filter -- $pattern] {
 		    lappend files [fileutil::stripPath $dir $f]
 		}
 	    } else {
@@ -586,4 +625,4 @@ snit::type ::fileutil::multi::op {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::multi::op 0.4
+package provide fileutil::multi::op 0.5
