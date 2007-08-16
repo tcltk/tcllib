@@ -1,3 +1,8 @@
+2007-08-16 Aaron Faupell <afaupell@users.sourceforge.net>
+
+        * nmea.tcl fixed bug in read_port when using logging,
+        bug id 1765388
+
 2007-05-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* nmea.man: Added title, extended set of keywords.
