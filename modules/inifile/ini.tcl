@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ini.tcl,v 1.11 2006/06/29 23:08:17 afaupell Exp $
+# RCS: @(#) $Id: ini.tcl,v 1.12 2007/08/16 17:56:35 afaupell Exp $
 
 package provide inifile 0.2
 
@@ -225,11 +225,11 @@ proc ::ini::get {fh sec} {
 }
 
 # return the value of a key
-# error if key or section is nonexistant
+# return default value if key or section is nonexistant otherwise error
 
 proc ::ini::value {fh sec key {default {}}} {
     _valid_ns $fh
-    if {$default != "" && ![info exists ::ini::${fh}::sections($sec)]} {
+    if {$default != "" && ![info exists ::ini::${fh}::data($sec\000$key)]} {
         return $default
     }
     _exists $fh $sec $key
