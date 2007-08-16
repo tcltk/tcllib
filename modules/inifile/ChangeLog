@@ -1,3 +1,9 @@
+2007-08-16 Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* ini.man: clarifications to ini::open and ini::remove
+	* ini.tcl fixed bug in ini::value where default value only
+	worked if the section didnt exist
+
 2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ini.man: Fixed all warnings due to use of now deprecated

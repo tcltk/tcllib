@@ -12,11 +12,12 @@ This package provides an interface for easy manipulation of Windows INI files.
 
 [list_begin definitions]
 
-[call [cmd ::ini::open] [arg file] [opt [arg mode]]]
+[call [cmd ::ini::open] [arg file] [opt [arg access]]]
 
 Opens an INI file and returns a handle that is used by other commands.
-Mode has the same types as the [const open] command, with the exception
-that mode [const a] is not supported. The default mode is [const r+].
+[arg access] is the same as the first form (non POSIX) of the [const open]
+command, with the exception that mode [const a] is not supported. The
+default mode is [const r+].
 
 [call [cmd ::ini::close] [arg ini]]
 
@@ -69,7 +70,8 @@ exist then a new one is created.
 
 [call [cmd ::ini::delete] [arg ini] [arg section] [opt [arg key]]]
 
-Removes the key or the entire section and all its keys.
+Removes the key or the entire section and all its keys. A section is not
+automatically deleted when it has no remaining keys.
 
 [call [cmd ::ini::comment] [arg ini] [arg section] [opt [arg key]] [opt [arg text]]]
 
