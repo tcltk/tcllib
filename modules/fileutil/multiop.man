@@ -1,9 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin fileutil::multi::op n 0.3]
+[manpage_begin fileutil::multi::op n 0.5]
 [moddesc   {file utilities}]
 [titledesc {Multi-file operation, scatter/gather}]
 [require Tcl 8.4]
-[require fileutil::multi::op [opt 0.3]]
+[require fileutil::multi::op [opt 0.5]]
 [require wip [opt 1.0]]
 [description]
 [keywords {file utilities} copy move remove multi-file]
@@ -277,6 +277,45 @@ An alias for [cmd directories].
 
 Accept all types of paths (default).
 
+[call [cmd state?]]
+
+Returns the current state of the object as dictionary. The dictionary keys and their meanings are:
+
+[list_begin definitions]
+[def [const as]]
+Last setting made by [cmd as].
+[def [const excluded]]
+List of currently known exclusion patterns.
+[def [const from]]
+Current source directory, set by [cmd from].
+[def [const into]]
+Current destination directory, set by [cmd into] (and aliases).
+[def [const operation]]
+Current operation to perform, set by [cmd copy], [cmd move], [cmd remove], [cmd expand], or [cmd invoke].
+[def [const recursive]]
+Current recursion status. Set/unset by [cmd recursive] and [cmd !recursive].
+[def [const strict]]
+Current strictness. Set/unset by [cmd strict] and [cmd !strict].
+[def [const type]]
+Current path type limiter. Set by either [cmd files], [cmd directories], [cmd links], or [cmd all].
+[list_end]
+
+[call [cmd as?]]
+Returns the current alias name.
+[call [cmd excluded?]]
+Returns the current set of exclusion patterns.
+[call [cmd from?]]
+Returns the current source directory.
+[call [cmd into?]]
+Returns the current destination directory.
+[call [cmd operation?]]
+Returns the current operation to perform.
+[call [cmd recursive?]]
+Returns the current recursion status.
+[call [cmd strict?]]
+Returns the current strictness.
+[call [cmd type?]]
+Returns the current path type limiter.
 [list_end]
 
 
