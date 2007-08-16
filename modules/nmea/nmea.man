@@ -1,7 +1,7 @@
 [manpage_begin nmea n 0.1]
 [copyright {2006, Aaron Faupell <afaupell@users.sourceforge.net>}]
 [moddesc   {NMEA protocol implementation}]
-[titledesc {Process NMEA GPS data}]
+[titledesc {Process NMEA data}]
 [require Tcl 8.2]
 [require nmea [opt 0.1]]
 [description]
