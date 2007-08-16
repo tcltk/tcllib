@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2006 Aaron Faupell
 #
-# RCS: @(#) $Id: nmea.tcl,v 1.1 2006/06/30 20:25:51 afaupell Exp $
+# RCS: @(#) $Id: nmea.tcl,v 1.2 2007/08/16 17:49:36 afaupell Exp $
 
 package require Tcl 8.2
 package provide nmea 0.1
@@ -50,7 +50,7 @@ proc ::nmea::close_file {} {
 proc ::nmea::read_port {f} {
     set line [gets $f]
     if {$::nmea::nmea(log) != ""} {
-        puts $nmea(log) $line
+        puts $::nmea::nmea(log) $line
     }
     ::nmea::parse_nmea $line
 }
