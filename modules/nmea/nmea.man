@@ -38,7 +38,7 @@ Close the open file
 [call [cmd ::nmea::do_line]]
 If there is a currently open file, this command will read and process a single line from it.
 
-[call [cmd ::nmea::log] [arg file]]]
+[call [cmd ::nmea::log] [arg file]]
 Starts or stops file logging. If a file name is specified then all NMEA output will be logged
 to the file in append mode. If file is an empty string then any logging will be stopped.
 
