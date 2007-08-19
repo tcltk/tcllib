@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: ldapx.man,v 1.11 2007/08/03 21:30:46 andreas_kupries Exp $}]
+[comment {$Id: ldapx.man,v 1.12 2007/08/19 20:20:43 pdav Exp $}]
 [manpage_begin ldapx n 0.2.5]
 [copyright {2006 Pierre David <pdav@users.sourceforge.net>}]
 [moddesc   {LDAP extended object interface}]
 [titledesc {LDAP extended object interface}]
 [require Tcl 8.4]
-[require ldapx [opt 0.2.5]]
+[require ldapx [opt 1.0]]
 [description]
 [para]
 
@@ -118,39 +118,37 @@ An instance of the [class entry] class keeps the following data:
     [def change]
 
 	In a [emph change] entry, these data represent the
-	modifications.  They are represented as a list with one of
-	the following formats (which match the corresponding LDAP
-	operations):
+	modifications. Such modifications are handled by specialized
+	methods such as [method apply] or [method commit].
+	Detailed format should not be used directly by programs.
+	[para]
+	Internally, modifications are represented as a list of
+	elements, each element has one of the following formats
+	(which match the corresponding LDAP operations):
 
 	[list_begin enumerated]
-	    [enum]
-		{} (empty list)
-		[para]
-		 No modification at all.
 
 	    [enum]
 		{[const add] {attr1 {val1...valn} attr2 {...} ...}}
 		[para]
-		This change represents the addition of a new entry.
+		Addition of a new entry.
 
 	    [enum]
 		{[const mod] {modop {attr1 [opt val1...valn]} attr2 ...} {modop ...} ...}
 		[para]
-		This change represents the modification of one or more
-		attributes and/or values, where <modop> can be
-		[const modadd], [const moddel] or [const modrepl]
-		(see the LDAP modify operation).
+		Modification of one or more attributes and/or values,
+		where <modop> can be [const modadd], [const moddel]
+		or [const modrepl] (see the LDAP modify operation).
 
 	    [enum]
 		{[const del]}
 		[para]
-		This change represents the deletion of an old entry.
+		Deletion of an old entry.
 
 	    [enum]
 		{[const modrdn] newrdn deleteoldrdn [opt newsuperior]}
 		[para]
-		This change represents the copy or the renaming of an
-		entry.
+		Renaming of an entry.
 
 	[list_end]
 
@@ -299,6 +297,9 @@ In all methods, attribute names are converted in lower case.
 	modifies the change list (see subsection [sectref Data] for
 	the exact format). In both cases, current change list is
 	returned.
+	Warning: values returned by this method should only be used
+	by specialized methods such as [method apply] or
+	[method commit].
 
     [call [arg ce] [method diff] [arg new] [opt [arg old]]]
 
@@ -307,7 +308,8 @@ In all methods, attribute names are converted in lower case.
 	stores this list into the current [emph change] entry. If
 	the optional argument [arg old] is not specified, difference
 	is computed from the entry and its internal backup (see
-	section [sectref OVERVIEW]).
+	section [sectref OVERVIEW]). Return value is the computed
+	change list.
 
 [list_end]
 
