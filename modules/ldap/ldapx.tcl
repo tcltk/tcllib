@@ -3,7 +3,7 @@
 #
 # (c) 2006 Pierre David (pdav@users.sourceforge.net)
 #
-# $Id: ldapx.tcl,v 1.10 2007/08/06 13:26:48 pdav Exp $
+# $Id: ldapx.tcl,v 1.11 2007/08/19 20:20:43 pdav Exp $
 #
 # History:
 #   2006/08/08 : pda : design
@@ -15,7 +15,7 @@ package require uri 1.1.5	;# tcllib
 package require base64		;# tcllib
 package require ldap 1.6	;# tcllib, low level code for LDAP directories
 
-package provide ldapx 0.2.5
+package provide ldapx 1.0
 
 ##############################################################################
 # LDAPENTRY object type
@@ -64,7 +64,7 @@ snit::type ::ldapx::entry {
     # Change entry
     #
     # Syntax:
-    #	{<op> <parameters>}
+    #	{{<op> <parameters>} ... }
     #	    if <op> = mod
     #		{mod {{<modop> <attr> [ {<val1> ... <valn>} ]} ...} }
     #		where <modop> = modrepl, modadd, moddel
@@ -451,63 +451,79 @@ snit::type ::ldapx::entry {
 	# Apply $chg modifications to $self
 	#
 
-	set lmod [$chg change]
-	set op [lindex $lmod 0]
-	switch -- $op {
-	    add {
-		if {! [$self isempty]} then {
-		    return -code error \
-			"Cannot add an entry to a non-empty entry"
-		}
-		$self setall [lindex $lmod 1]
-		if {[string equal [$self dn] ""]} then {
-		    $self dn [$chg dn]
-		}
-	    }
-	    mod {
-		foreach submod [lindex $lmod 1] {
-                    set subop [lindex $submod 0]
-		    set attr [lindex $submod 1]
-		    set vals [lindex $submod 2]		    
-		    switch -- $subop {
-			modadd {
-			    $self add $attr $vals
-			}
-			moddel {
-			    $self del $attr $vals
-			}
-			modrepl {
-			    $self del $attr
-			    $self add $attr $vals
-			}
-			default {
-			    return -code error \
-				"Invalid submod operation '$subop'"
-			}
-
+	foreach mod [$chg change] {
+	    set op [lindex $mod 0]
+	    switch -- $op {
+		add {
+		    if {! [$self isempty]} then {
+			return -code error \
+			    "Cannot add an entry to a non-empty entry"
+		    }
+		    $self setall [lindex $mod 1]
+		    if {[string equal [$self dn] ""]} then {
+			$self dn [$chg dn]
 		    }
 		}
-	    }
-	    del {
-		array unset attrvals
-	    }
-	    modrdn {
-		set newrdn [lindex $lmod 1]
-		set newsup [lindex $lmod 3]
-		if {$newsup eq ""} then {
-		    regexp {^[^,]+,(.*)} [$self dn] tmp oldsup
-		    set dn "$newrdn,$oldsup"
-		} else {
-		    set dn "$newrdn,$newsup"
+		mod {
+		    foreach submod [lindex $mod 1] {
+			set subop [lindex $submod 0]
+			set attr [lindex $submod 1]
+			set vals [lindex $submod 2]		    
+			switch -- $subop {
+			    modadd {
+				$self add $attr $vals
+			    }
+			    moddel {
+				$self del $attr $vals
+			    }
+			    modrepl {
+				$self del $attr
+				$self add $attr $vals
+			    }
+			    default {
+				return -code error \
+				    "Invalid submod operation '$subop'"
+			    }
+			}
+		    }
 		}
-		$self dn $dn
-	    }
-	    {} {
-		# nothing to do
-	    }
-	    default {
-		return -code error \
-		    "Invalid change operation '$op'"
+		del {
+		    array unset attrvals
+		}
+		modrdn {
+		    set newrdn [lindex $mod 1]
+		    set delold [lindex $mod 2]
+		    set newsup [lindex $mod 3]
+
+		    if {! [regexp {^([^=]+)=([^,]+)$} $newrdn m nattr nval]} then {
+			return -code "Invalid new RDN '$newrdn'"
+		    }
+
+		    set olddn  [$self dn]
+		    if {! [regexp {^([^=]+)=([^,]+),(.*)} $olddn m oattr oval osup]} then {
+			return -code "Invalid old DN '$olddn'"
+		    }
+
+		    if {$newsup eq ""} then {
+			set dn "$newrdn,$osup"
+		    } else {
+			set dn "$newrdn,$newsup"
+		    }
+		    $self dn $dn
+
+		    if {$delold} then {
+			$self del1 $oattr $oval
+		    }
+
+		    # XXX should we ignore case ?
+		    if {[lsearch -exact [$self get $nattr] $nval] == -1} then {
+			$self add1 $nattr $nval
+		    }
+		}
+		default {
+		    return -code error \
+			"Invalid change operation '$op'"
+		}
 	    }
 	}
     }
@@ -550,8 +566,6 @@ snit::type ::ldapx::entry {
 	    set destroy_old 0
 	}
 
-	set lchg {}
-
 	#
 	# Computes differences between values in the two entries
 	#
@@ -567,27 +581,21 @@ snit::type ::ldapx::entry {
 	switch -- "[$new isempty][$old isempty]" {
 	    00 {
 		# They may differ
-		set lchg [DiffEntries $new $old]
+		set change [DiffEntries $new $old]
 	    }
 	    01 {
 		# new has been added
-		set lchg [list "add" [$new getall]]
+		set change [list [list "add" [$new getall]]]
 	    }
 	    10 {
 		# new has been deleted
-		set lchg [list "del"]
+		set change [list [list "del"]]
 	    }
 	    11 {
 		# they are both empty: no change
-		set lchg {}
+		set change {}
 	    }
 	}
-
-	#
-	# Install changes into instance
-	#
-
-	set change $lchg
 
 	#
 	# Remove temporary standard entry (backup was internal)
@@ -597,7 +605,7 @@ snit::type ::ldapx::entry {
 	    $old destroy
 	}
 
-	return
+	return $change
     }
 
     # local procedure to compute differences between two non empty entries
@@ -607,6 +615,16 @@ snit::type ::ldapx::entry {
 	array set told [$old getall]
 
 	set lmod {}
+
+	#
+	# First step : is there a DN change?
+	#
+
+	set moddn [DiffDn [$new dn] [$old dn] tnew told]
+
+	#
+	# Second step : pick up changes in attributes and/or values
+	#
 
 	foreach a [array names tnew] {
 	    if {[info exists told($a)]} then {
@@ -638,38 +656,113 @@ snit::type ::ldapx::entry {
 	set lchg {}
 
 	if {[llength $lmod]} then {
-	    set lchg [list "mod" $lmod]
+	    lappend lchg [list "mod" $lmod]
 	}
 
+	#
+	# Third step : insert modDN changes
+	#
 
-	if {! [string equal -nocase [$new dn] [$old dn]]} then {
-	    if {[llength $lchg] == 0} then {
-		#
-		# This is a DN modification only
-		#
-		set newrdn [$new rdn]
-		set lchg [list "modrdn" $newrdn 0]
+	if {[llength $moddn]} then {
+	    set newrdn       [lindex $moddn 0]
+	    set deleteoldrdn [lindex $moddn 1]
+	    set newsuperior  [lindex $moddn 2]
 
-		#########################################################
-		# XXX : there should be an option to delete the old rdn
-		# (to rename the entry)
-		#########################################################
-
-		set newsup [$new superior]
-		set oldsup [$old superior]
-		if {$newsup ne $oldsup} then {
-		    lappend lchg $newsup
-		}
-	    } else {
-		#
-		# This is not a DN modification, but the addition
-		# of a new entry
-		#
-		set lchg [list "add" [$new getall]]
+	    set lmod [list "modrdn" $newrdn $deleteoldrdn]
+	    if {! [string equal $newsuperior ""]} then {
+		lappend lmod $newsuperior
 	    }
+	    lappend lchg $lmod
 	}
+
 	return $lchg
     }
+
+    proc DiffDn {newdn olddn _tnew _told} {
+	upvar $_tnew tnew
+	upvar $_told told
+
+	#
+	# If DNs are the same, exit
+	#
+
+	if {[string equal -nocase $newdn $olddn]} then {
+	    return {}
+	}
+
+	#
+	# Split components of both DNs : attribute, value, superior
+	#
+
+	if {! [regexp {^([^=]+)=([^,]+),(.*)} $olddn m oattr oval osup]} then {
+	    return -code "Invalid old DN '$olddn'"
+	}
+	set oattr [string tolower $oattr]
+	set ordn "$oattr=$oval"
+
+	if {! [regexp {^([^=]+)=([^,]+),(.*)} $newdn m nattr nval nsup]} then {
+	    return -code "Invalid new DN '$newdn'"
+	}
+	set nattr [string tolower $nattr]
+	set nrdn "$nattr=$nval"
+
+	#
+	# Checks if superior has changed
+	#
+
+	if {! [string equal -nocase $osup $nsup]} then {
+	    set newsuperior $nsup
+	} else {
+	    set newsuperior ""
+	}
+
+	#
+	# Checks if rdn has changed
+	#
+
+	if {! [string equal -nocase $ordn $nrdn]} then {
+	    #
+	    # Checks if old rdn must be deleted
+	    #
+
+	    set deleteoldrdn 1
+	    if {[info exists tnew($oattr)]} then {
+		set pos [lsearch -exact [string tolower $tnew($oattr)] \
+					[string tolower $oval]]
+		if {$pos != -1} then {
+		    set deleteoldrdn 0
+		}
+	    }
+
+	    #
+	    # Remove old and new rdn such as DiffEntries doesn't
+	    # detect any modification.
+	    #
+
+	    foreach t {tnew told} {
+		foreach {a v} [list $oattr $oval $nattr $nval] {
+		    if {[info exists ${t}($a)]} then {
+			set l [set ${t}($a)]
+			set pos [lsearch -exact [string tolower $l] \
+						[string tolower $v] ]
+			if {$pos != -1} then {
+			    set l [lreplace $l $pos $pos]
+			    if {[llength $l]} then {
+				set ${t}($a) $l
+			    } else {
+				unset -nocomplain ${t}($a)
+			    }
+			}
+		    }
+		}
+	    }
+	} else {
+	    set deleteoldrdn 0
+	}
+
+	return [list $nrdn $deleteoldrdn $newsuperior]
+    }
+
 
     #########################################################################
     # End of ldapentry
@@ -1026,9 +1119,8 @@ snit::type ::ldapx::ldap {
 		}
 		standard {
 		    set echg [::ldapx::entry create %AUTO%]
-		    $echg diff $entry
+		    set lchg [$echg diff $entry]
 		    set dn   [$echg dn]
-		    set lchg [$echg change]
 		    $echg destroy
 		}
 		change {
@@ -1037,65 +1129,67 @@ snit::type ::ldapx::ldap {
 		}
 	    }
 
-	    set op   [lindex $lchg 0]
+	    foreach chg $lchg {
+		set op   [lindex $chg 0]
 
-	    switch -- $op {
-		{} {
-		    # nothing to do
-		}
-		add {
-		    set av [$translator encodepairs [lindex $lchg 1]]
-		    if {[Check $selfns {::ldap::addMulti $channel $dn $av}]} then {
-			return 0
+		switch -- $op {
+		    {} {
+			# nothing to do
 		    }
-		}
-		del {
-		    if {[Check $selfns {::ldap::delete $channel $dn}]} then {
-			return 0
-		    }
-		}
-		mod {
-		    set lrep {}
-		    set ldel {}
-		    set ladd {}
-
-		    foreach submod [lindex $lchg 1] {
-			set subop [lindex $submod 0]
-			set attr [lindex $submod 1]
-                        set vals [lindex $submod 2]
-
-			set vals [$translator encode $attr $vals]
-			switch -- $subop {
-			    modadd {
-				lappend ladd $attr $vals
-			    }
-			    moddel {
-				lappend ldel $attr $vals
-			    }
-			    modrepl {
-				lappend lrep $attr $vals
-			    }
-			}
-		    }
-
-		    if {[Check $selfns {::ldap::modifyMulti $channel $dn \
-						$lrep $ldel $ladd}]} then {
-			return 0
-		    }
-		}
-		modrdn {
-		    set newrdn [lindex $lchg 1]
-		    set delOld [lindex $lchg 2]
-		    set newSup [lindex $lchg 3]
-		    if {[string equal $newSup ""]} then {
-			if {[Check $selfns {::ldap::modifyDN $channel $dn \
-						$newrdn $delOld}]} then {
+		    add {
+			set av [$translator encodepairs [lindex $chg 1]]
+			if {[Check $selfns {::ldap::addMulti $channel $dn $av}]} then {
 			    return 0
 			}
-		    } else {
-			if {[Check $selfns {::ldap::modifyDN $channel $dn \
-						$newrdn $delOld $newSup}]} then {
+		    }
+		    del {
+			if {[Check $selfns {::ldap::delete $channel $dn}]} then {
 			    return 0
+			}
+		    }
+		    mod {
+			set lrep {}
+			set ldel {}
+			set ladd {}
+
+			foreach submod [lindex $chg 1] {
+			    set subop [lindex $submod 0]
+			    set attr [lindex $submod 1]
+			    set vals [lindex $submod 2]
+
+			    set vals [$translator encode $attr $vals]
+			    switch -- $subop {
+				modadd {
+				    lappend ladd $attr $vals
+				}
+				moddel {
+				    lappend ldel $attr $vals
+				}
+				modrepl {
+				    lappend lrep $attr $vals
+				}
+			    }
+			}
+
+			if {[Check $selfns {::ldap::modifyMulti $channel $dn \
+						    $lrep $ldel $ladd}]} then {
+			    return 0
+			}
+		    }
+		    modrdn {
+			set newrdn [lindex $chg 1]
+			set delOld [lindex $chg 2]
+			set newSup [lindex $chg 3]
+			if {[string equal $newSup ""]} then {
+			    if {[Check $selfns {::ldap::modifyDN $channel $dn \
+						    $newrdn $delOld}]} then {
+				return 0
+			    }
+			} else {
+			    if {[Check $selfns {::ldap::modifyDN $channel $dn \
+						    $newrdn $delOld $newSup}]} then {
+				return 0
+			    }
 			}
 		    }
 		}
@@ -1295,7 +1389,7 @@ snit::type ::ldapx::ldif {
 		} else {
 		    $entry reset
 		    $entry dn     [lindex $r 1]
-		    $entry change [lindex $r 2]
+		    $entry change [list [lindex $r 2]]
 		    set r 1
 		}
 	    }
@@ -1347,7 +1441,7 @@ snit::type ::ldapx::ldif {
 		$self compatible "change"
 
 		set lchg [$entry change]
-		if {[llength $lchg]} then {
+		foreach chg $lchg {
 		    if {$nentries == 0} then {
 			if {$version == 0} then {
 			    set version 1
@@ -1358,11 +1452,11 @@ snit::type ::ldapx::ldif {
 
 		    WriteLine $selfns "dn" [$entry dn]
 
-		    set op [lindex $lchg 0]
+		    set op [lindex $chg 0]
 		    switch -- $op {
 			add {
 			    WriteLine $selfns "changetype" "add"
-			    foreach {attr vals} [lindex $lchg 1] {
+			    foreach {attr vals} [lindex $chg 1] {
 				foreach v $vals {
 				    WriteLine $selfns $attr $v
 				}
@@ -1373,7 +1467,7 @@ snit::type ::ldapx::ldif {
 			}
 			mod {
 			    WriteLine $selfns "changetype" "modify"
-			    foreach submod [lindex $lchg 1] {
+			    foreach submod [lindex $chg 1] {
 				set subop [lindex $submod 0]
 				set attr [lindex $submod 1]
 				set vals [lindex $submod 2]
@@ -1397,9 +1491,9 @@ snit::type ::ldapx::ldif {
 			}
 			modrdn {
 			    WriteLine $selfns "changetype" "modrdn"
-			    set newrdn [lindex $lchg 1]
-			    set delold [lindex $lchg 2]
-			    set newsup [lindex $lchg 3]
+			    set newrdn [lindex $chg 1]
+			    set delold [lindex $chg 2]
+			    set newsup [lindex $chg 3]
 			    WriteLine $selfns "newrdn" $newrdn
 			    WriteLine $selfns "deleteOldRDN" $delold
 			    if {$newsup ne ""} then {
@@ -1410,7 +1504,6 @@ snit::type ::ldapx::ldif {
 		    puts $channel ""
 		    incr nentries
 		}
-
 	    }
 	    default {
 		return -code error \
@@ -1699,5 +1792,4 @@ snit::type ::ldapx::ldif {
 	    }
 	}
     }
-
 }

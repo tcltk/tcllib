@@ -1,3 +1,16 @@
+2007-08-xx  Pierre David <pdav@users.sourceforge.net>
+
+	* ldapx.tcl	Modified format for "change" entries
+	  ldapx.test	Adapted tests
+	  ldapx.man	Added a note about the format: for internal use only.
+
+          ***POTENTIAL INCOMPATIBILITY***
+	  Format of ldapx::entry "change" data was not sufficient
+	  to represent all modifications made on entries. So, the
+	  format has been modified to include several invidual
+	  changes. This should not be a problem since "change"
+	  format is intended to be used only by ldapx methods.
+
 2007-08-06  Pierre David <pdav@users.sourceforge.net>
 
 	* ldapx.tcl	Backuped dn was not restored during swap method.
