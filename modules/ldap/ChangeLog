@@ -1,8 +1,8 @@
 2007-08-xx  Pierre David <pdav@users.sourceforge.net>
 
-	* ldapx.tcl	Modified format for "change" entries
-	  ldapx.test	Adapted tests
-	  ldapx.man	Added a note about the format: for internal use only.
+	* ldapx.tcl:	Modified format for "change" entries
+	* ldapx.test:	Adapted tests
+	* ldapx.man:	Added a note about the format: for internal use only.
 
           ***POTENTIAL INCOMPATIBILITY***
 	  Format of ldapx::entry "change" data was not sufficient
@@ -13,8 +13,8 @@
 
 2007-08-06  Pierre David <pdav@users.sourceforge.net>
 
-	* ldapx.tcl	Backuped dn was not restored during swap method.
-	  ldapx.test	Added test for backuped dn.
+	* ldapx.tcl:	Saved dn was not restored during swap method.
+	  ldapx.test:	Added test for backuped dn.
 
 2007-08-03  Andreas Kupries  <andreask@activestate.com>
 
@@ -22,7 +22,7 @@
 
 2007-08-03  Pierre David <pdav@users.sourceforge.net>
 
-	* ldapx.tcl	Fixed reading of LDIF change entries.
+	* ldapx.tcl:	Fixed reading of LDIF change entries.
 			Fixed modification of an entry by replacing
 			values instead of removing and adding the minimal
 			set of changes, since LDAP schemas don't necessarily
@@ -32,8 +32,8 @@
 			for Base64 encoded values.
 			Fixed set1 when given an empty value: it deletes
 			the attribute (as with set).
-	  ldapx.test	Fixed test for the new replacement mode.
-	  ldapx.man	Added documentation for "-utf8" option.
+	* ldapx.test:	Fixed test for the new replacement mode.
+	* ldapx.man:	Added documentation for "-utf8" option.
 
 
 2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
@@ -43,33 +43,33 @@
 
 2006-11-15  Michael Schlenker <mic42@users.sourceforge.net>
         
-        * ldap.tcl      Removed a leftover debug output..
+        * ldap.tcl:      Removed a leftover debug output..
         
 2006-11-08  Michael Schlenker <mic42@users.sourceforge.net>
 
-        * ldapx.tcl     Whitespace fixes. Tests for fixed bug 
-          ldapx.test    added.
+        * ldapx.tcl:     Whitespace fixes. Tests for fixed bug 
+        * ldapx.test:    added.
           
 2006-11-04  Michael Schlenker <mic42@users.sourceforge.net>
         
-        * ldapx.tcl     Fix for entry diff applied.
-          ldap.man      Thanks to Pierre David for providing it.
-          pkgIndex.tcl           
+        * ldapx.tcl:     Fix for entry diff applied.
+        * ldap.man:      Thanks to Pierre David for providing it.
+        * pkgIndex.tcl:           
         
 2006-10-26  Michael Schlenker <mic42@users.sourceforge.net>
 	
-	* ldap.man      Some typo fixes, minor clarifications 
+	* ldap.man:     Some typo fixes, minor clarifications 
 	                and rewording.
 
 2006-10-09  Michael Schlenker <mic42@users.sourceforge.net>
 
-        * ldap.tcl      The abandon operation was incorrectly encoded.
+        * ldap.tcl:     The abandon operation was incorrectly encoded.
                         This is now fixed and the operation works
                         as expected.
 
 2006-10-09  Michael Schlenker <mic42@users.sourceforge.net>
 
-        * ldapx.tcl     Fixed incorrect utf-8 conversion and
+        * ldapx.tcl:    Fixed incorrect utf-8 conversion and
                         broken ldif::write method.
                         Thanks to Pierre David for providing
                         the fix.
@@ -82,7 +82,7 @@
 
 2006-09-28  Michael Schlenker <mic42@users.sourceforge.net>
         
-        * ldap.tcl      Nasty bug in ReceiveBytes, not detecting
+        * ldap.tcl:     Nasty bug in ReceiveBytes, not detecting
                         partial results correctly.
         
 2006-09-27  Michael Schlenker <mic42@users.sourceforge.net>
