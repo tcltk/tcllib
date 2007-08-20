@@ -17,8 +17,8 @@ if {[catch {package require tclDES 1.0.0}]} {
 }
 
 namespace eval DES {
-    variable version 1.0.0
-    variable rcsid {$Id: des.tcl,v 1.13 2007/07/05 13:19:20 patthoyts Exp $}
+    variable version 1.1.0
+    variable rcsid {$Id: des.tcl,v 1.14 2007/08/20 19:58:54 andreas_kupries Exp $}
     variable uid ; if {![info exists uid]} { set uid 0 }
 }
 
