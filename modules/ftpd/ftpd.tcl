@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.26 2004/10/05 19:15:52 andreas_kupries Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.27 2007/08/20 20:41:19 andreas_kupries Exp $
 #
 
 # Define the ftpd package version 1.1.2
@@ -534,8 +534,15 @@ proc ::ftpd::read {sock} {
     switch -exact -- $data(state) {
 	command {
 	    gets $sock command
-	    set parts [split $command]
-	    set cmd [string toupper [lindex  $parts 0]]
+	    set argument ""
+	    if {![regexp {^([^ ]+) (.*)$} $command -> cmd argument]} {
+		if {![regexp {^([^ ]+)$} $command -> cmd]} {
+		    # Very bad command syntax.
+		    puts $sock "500 Command not understood."
+		    return
+		}
+	    }
+	    set cmd [string toupper $cmd]
 	    auto_load ::ftpd::command::$cmd
             if {($data(access) == 0) && ((![info exists data(user)]) || \
 	            ($data(user) == "")) && (![string equal $cmd "USER"])} {
@@ -550,7 +557,7 @@ proc ::ftpd::read {sock} {
                 puts $sock "530 Please login with USER and PASS."
 	    } elseif {[info command ::ftpd::command::$cmd] != ""} {
 		Log debug $command
-		::ftpd::command::$cmd $sock [lrange $parts 1 end]
+		::ftpd::command::$cmd $sock $argument
 		catch {flush $sock}
 	    } else {
 		Log error "Unknown command: $cmd"
@@ -727,10 +734,9 @@ proc ::ftpd::command::ABOR {sock list} {
 #       The data is copied to from the socket data(sock2) to the
 #       writable channel to create a file.
 
-proc ::ftpd::command::APPE {sock list} {
+proc ::ftpd::command::APPE {sock filename} {
     upvar #0 ::ftpd::$sock data
 
-    set filename [lindex $list 0]
     set path [file join $data(cwd) [string trimleft $filename /]]
     if {[::ftpd::hasCallback authFileCmd]} {
         set cmd $::ftpd::cfg(authFileCmd)
@@ -791,10 +797,8 @@ proc ::ftpd::command::CDUP {sock list} {
 # Side Effects:
 #       Changes the data(cwd) to the appropriate directory.
 
-proc ::ftpd::command::CWD {sock list} {
+proc ::ftpd::command::CWD {sock relativepath} {
     upvar #0 ::ftpd::$sock data
-
-    set relativepath [lindex $list 0]
 
     if {[string equal $relativepath .]} {
 	puts $sock "250 CWD command successful."
@@ -826,10 +830,9 @@ proc ::ftpd::command::CWD {sock list} {
 # Side Effects:
 #       The specified file is deleted.
 
-proc ::ftpd::command::DELE {sock list} {
+proc ::ftpd::command::DELE {sock filename} {
     upvar #0 ::ftpd::$sock data
 
-    set filename [lindex $list 0]
     set path [file join $data(cwd) [string trimleft $filename /]]
     if {[::ftpd::hasCallback authFileCmd]} {
         set cmd $::ftpd::cfg(authFileCmd)
@@ -861,11 +864,11 @@ proc ::ftpd::command::DELE {sock list} {
 # Side Effects:
 #       Displays a helpful message.
 
-proc ::ftpd::command::HELP {sock list} {
+proc ::ftpd::command::HELP {sock command} {
     upvar #0 ::ftpd::$sock data
 
-    if {[llength $list] > 0} {
-        set command [string toupper [lindex $list 0]]
+    if {$command != ""} {
+        set command [string toupper $command]
         if {![info exists ::ftpd::commands($command)]} {
             puts $sock "502 Unknown command '$command'."
 	} elseif {[info commands ::ftpd::command::$command] == ""} {
@@ -913,8 +916,7 @@ proc ::ftpd::command::HELP {sock list} {
 # Side Effects:
 #       A listing of files is written to the socket.
 
-proc ::ftpd::command::LIST {sock list} {
-    set filename [lindex $list 0]
+proc ::ftpd::command::LIST {sock filename} {
     ::ftpd::List $sock $filename list
     return
 }
@@ -934,10 +936,9 @@ proc ::ftpd::command::LIST {sock list} {
 # Side Effects:
 #       Prints the modification time of the specified file to the socket.
 
-proc ::ftpd::command::MDTM {sock list} {
+proc ::ftpd::command::MDTM {sock filename} {
     upvar #0 ::ftpd::$sock data
 
-    set filename [lindex $list 0]
     set path [file join $data(cwd) [string trimleft $filename /]]
     if {[catch {::ftpd::Fs mtime $path $sock} msg]} {
 	puts $sock "500 MDTM Failed: $path $msg"
@@ -960,10 +961,9 @@ proc ::ftpd::command::MDTM {sock list} {
 # Side Effects:
 #       The directory specified by $path (if it exists) is deleted.
 
-proc ::ftpd::command::MKD {sock list} {
+proc ::ftpd::command::MKD {sock filename} {
     upvar #0 ::ftpd::$sock data
 
-    set filename [lindex $list 0]
     set path [file join $data(cwd) [string trimleft $filename /]]
 
     if {[::ftpd::hasCallback authFileCmd]} {
@@ -1016,8 +1016,7 @@ proc ::ftpd::command::NOOP {sock list} {
 # Side Effects:
 #       A listing of file stats is written to the socket.
 
-proc ::ftpd::command::NLST {sock list} {
-    set filename [lindex $list 0]
+proc ::ftpd::command::NLST {sock filename} {
     ::ftpd::List $sock $filename nlst
     return
 }
@@ -1041,14 +1040,14 @@ proc ::ftpd::command::NLST {sock list} {
 #       The user is accepted, or an error is logged and the user/password is
 #       denied..
 
-proc ::ftpd::command::PASS {sock list} {
+proc ::ftpd::command::PASS {sock password} {
     upvar #0 ::ftpd::$sock data
 
-    if {[llength $list] == 0} {
+    if {$password == ""} {
         puts $sock "530 Please login with USER and PASS."
         return
     }
-    set data(pass) [lindex $list 0]
+    set data(pass) $password
 
     ::ftpd::Log debug "pass <$data(pass)>"
 
@@ -1095,9 +1094,9 @@ proc ::ftpd::command::PASS {sock list} {
 # Side Effects:
 #       A new socket, data(sock2), is opened.
 
-proc ::ftpd::command::PORT {sock list} {
+proc ::ftpd::command::PORT {sock numbers} {
     upvar #0 ::ftpd::$sock data
-    set x [split [lindex $list 0] ,]
+    set x [split $numbers ,]
 
     ::ftpd::FinishData $sock
 
@@ -1208,10 +1207,9 @@ proc ::ftpd::command::REIN {sock list} {
 #       The file specified by $path (if it exists) is copied to the socket
 #       data(sock2) otherwise a 'Copy Failed' message is output.
 
-proc ::ftpd::command::RETR {sock list} {
+proc ::ftpd::command::RETR {sock filename} {
     upvar #0 ::ftpd::$sock data
 
-    set filename [lindex $list 0]
     set path [file join $data(cwd) [string trimleft $filename /]]
 
     if {[::ftpd::hasCallback authFileCmd]} {
@@ -1250,10 +1248,9 @@ proc ::ftpd::command::RETR {sock list} {
 # Side Effects:
 #       The directory specified by $path (if it exists) is deleted.
 
-proc ::ftpd::command::RMD {sock list} {
+proc ::ftpd::command::RMD {sock filename} {
     upvar #0 ::ftpd::$sock data
 
-    set filename [lindex $list 0]
     set path [file join $data(cwd) [string trimleft $filename /]]
 
     if {[::ftpd::hasCallback authFileCmd]} {
@@ -1286,10 +1283,9 @@ proc ::ftpd::command::RMD {sock list} {
 #       If the file specified by $path exists, then store the name and request
 #       the next name.
 
-proc ::ftpd::command::RNFR {sock list} {
+proc ::ftpd::command::RNFR {sock filename} {
     upvar #0 ::ftpd::$sock data
 
-    set filename [lindex $list 0]
     set path [file join $data(cwd) [string trimleft $filename /]]
 
     if {[file exists $path]} {
@@ -1325,13 +1321,13 @@ proc ::ftpd::command::RNFR {sock list} {
 # Side Effects:
 #       The specified file is renamed.
 
-proc ::ftpd::command::RNTO {sock list} {
+proc ::ftpd::command::RNTO {sock filename} {
 
-    if {[llength $list] == 0} {
+    if {$filename == ""} {
         puts $sock "500 'RNTO': command not understood."
         return
     }
-    set filename [lindex $list 0]
+
     set path [file join $data(cwd) [string trimleft $filename /]]
 
     if {![info exists data(renameFrom)]} {
@@ -1372,10 +1368,9 @@ proc ::ftpd::command::RNTO {sock list} {
 # Side Effects:
 #       Prints the size of the specified file to the socket.
 
-proc ::ftpd::command::SIZE {sock list} {
+proc ::ftpd::command::SIZE {sock filename} {
     upvar #0 ::ftpd::$sock data
 
-    set filename [lindex $list 0]
     set path [file join $data(cwd) [string trimleft $filename /]]
     if {[catch {::ftpd::Fs size $path $sock} msg]} {
 	puts $sock "500 SIZE Failed: $path $msg"
@@ -1401,10 +1396,9 @@ proc ::ftpd::command::SIZE {sock list} {
 #       The data is copied to from the socket data(sock2) to the
 #       writable channel to create a file.
 
-proc ::ftpd::command::STOR {sock list} {
+proc ::ftpd::command::STOR {sock filename} {
     upvar #0 ::ftpd::$sock data
 
-    set filename [lindex $list 0]
     set path [file join $data(cwd) [string trimleft $filename /]]
     if {[::ftpd::hasCallback authFileCmd]} {
         set cmd $::ftpd::cfg(authFileCmd)
@@ -1445,10 +1439,9 @@ proc ::ftpd::command::STOR {sock list} {
 #       The data is copied to from the socket data(sock2) to the
 #       writable channel to create a file.
 
-proc ::ftpd::command::STOU {sock list} {
+proc ::ftpd::command::STOU {sock filename} {
     upvar #0 ::ftpd::$sock data
 
-    set filename [lindex $list 0]
     set path [file join $data(cwd) [string trimleft $filename /]]
     if {[::ftpd::hasCallback authFileCmd]} {
         set cmd $::ftpd::cfg(authFileCmd)
@@ -1529,9 +1522,9 @@ proc ::ftpd::command::SYST {sock list} {
 #       The translation mode of the data channel is changed to the appropriate
 #       mode.
  
-proc ::ftpd::command::TYPE {sock list} {
+proc ::ftpd::command::TYPE {sock type} {
     upvar #0 ::ftpd::$sock data
-    set type [lindex $list 0]
+
     if {[string compare i [string tolower $type]] == 0} {
 	set data(mode) binary
     } else {
@@ -1560,14 +1553,14 @@ proc ::ftpd::command::TYPE {sock list} {
 # Side Effects:
 #       A message is printed asking for the password.
 
-proc ::ftpd::command::USER {sock list} {
+proc ::ftpd::command::USER {sock username} {
     upvar #0 ::ftpd::$sock data
 
-    if {[llength $list] == 0} {
+    if {$username == ""} {
         puts $sock "530 Please login with USER and PASS."
         return
     }
-    set data(user) [lindex $list 0]
+    set data(user) $username
     puts $sock "331 Password Required"
 
     ::ftpd::Log debug "user <$data(user)>"
@@ -1993,13 +1986,13 @@ proc ::ftpd::fsFile::FormDate {seconds} {
 #
 # Patched Mark O'Connor
 #
-package provide ftpd 1.2.2
+package provide ftpd 1.2.3
 
 
 ##
 ## Implementation of passive command
 ##
-proc ::ftpd::command::PASV {sock args} {
+proc ::ftpd::command::PASV {sock argument} {
     upvar #0 ::ftpd::$sock data
 
     set data(sock2a) [socket -server [list ::ftpd::PasvAccept $sock] 0]
