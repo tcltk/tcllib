@@ -1,10 +1,10 @@
-[manpage_begin tcllib_ip n 1.1.1]
+[manpage_begin tcllib_ip n 1.1.2]
 [copyright {2004, Pat Thoyts}]
 [copyright {2005 Aamer Akhter <aakhter@cisco.com>}]
 [moddesc   {Domain Name Service}]
 [titledesc {IPv4 and IPv6 address manipulation}]
 [require Tcl 8.2]
-[require ip [opt 1.1.1]]
+[require ip [opt 1.1.2]]
 [description]
 [para]
 
