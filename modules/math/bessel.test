@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: bessel.test,v 1.13 2006/10/09 21:41:41 andreas_kupries Exp $
+# $Id: bessel.test,v 1.14 2007/08/20 23:21:22 andreas_kupries Exp $
 #
 # Copyright (c) 2004 by Arjen Markus
 # All rights reserved.
@@ -23,6 +23,7 @@ testsNeedTcltest 2.1
 support {
     useLocal math.tcl       math
     useLocal constants.tcl  math::constants
+    useLocal linalg.tcl     math::linearalgebra ;# for statistics
     useLocal statistics.tcl math::statistics
 }
 testing {
