@@ -20,8 +20,8 @@
 package require Tcl 8.2
 
 namespace eval blowfish {
-    variable version 1.0.2
-    variable rcsid {$Id: blowfish.tcl,v 1.8 2007/03/12 22:59:57 patthoyts Exp $}
+    variable version 1.0.3
+    variable rcsid {$Id: blowfish.tcl,v 1.9 2007/08/20 19:36:49 andreas_kupries Exp $}
     variable uid ; if {![info exists uid]} { set uid 0 }
     variable accel
     array set accel {trf 0}
