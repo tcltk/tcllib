@@ -1,37 +1,37 @@
-	Commands available through the swiss army knife aka SAK:
+        Commands available through the swiss army knife aka SAK:
 
-	help     - This help
+        help     - This help
 
-	/Configuration
-	/===========================================================
+        /Configuration
+        /===========================================================
 
-	version  - Return the bundle's version number
-	major    - Return the bundle's major version number
-	minor    - Return the bundle's minor version number
-	name     - Return the bundle's package name
+        version  - Return the bundle's version number
+        major    - Return the bundle's major version number
+        minor    - Return the bundle's minor version number
+        name     - Return the bundle's package name
 
-	/Development
-	/===========================================================
+        /Development
+        /===========================================================
 
-	modules          - Return list of modules.
+        modules          - Return list of modules.
         contributors     - Print a list of contributors to the bundle.
-	lmodules         - See above, however one module per line
-	imodules         - Return list of modules known to the installer.
+        lmodules         - See above, however one module per line
+        imodules         - Return list of modules known to the installer.
         critcl-modules   - Return a list of modules with critcl enhancements.
 
-	packages         - Return indexed packages in the bundle, plus versions,
-	                   one package per line. Extracted from the
-	                   package indices found in the modules.
-	provided         - Return list and versions of provided packages
-	                   (in contrast to indexed).
-	vcompare pkglist - Compare package list of previous 'packages'
-	                   call with current packages. Marks all new
-	                   and unchanged packages for higher attention.
+        packages         - Return indexed packages in the bundle, plus versions,
+                           one package per line. Extracted from the
+                           package indices found in the modules.
+        provided         - Return list and versions of provided packages
+                           (in contrast to indexed).
+        vcompare pkglist - Compare package list of previous 'packages'
+                           call with current packages. Marks all new
+                           and unchanged packages for higher attention.
 
         critcl ?module?  - Build a critcl module [default is @@].
 
         bench ?opt? ?module..?
-	                 - Run benchmark scripts (*.bench).
+                         - Run benchmark scripts (*.bench).
 
                 Options: -throwerrors 0|1  Propagate errors if set.
                          -match   pattern  Exclude benchmarks not matching the
@@ -46,7 +46,7 @@
                          -verbose          Informational output during the run.
                          -debug            Internal output during the run.
 
-	bench/show ?-o path? ?-format f? ?-norm col? file...
+        bench/show ?-o path? ?-format f? ?-norm col? file...
 
                          Reads the files, merges the data, then
                          writes the result back in the specified
@@ -54,17 +54,17 @@
                          normalizing to a column. Without a file
                          the result is written to stdout.
 
-	bench/edit ?-o path? ?-format f? file col newvalue
+        bench/edit ?-o path? ?-format f? file col newvalue
 
-	                 Reads the file, changes the interpreter
-	                 path in the column to a new value. For
-	                 merging of data from the same interpreter,
-	                 but possibly different versions of the
-	                 benchmarked package, like Tcllib.
+                         Reads the file, changes the interpreter
+                         path in the column to a new value. For
+                         merging of data from the same interpreter,
+                         but possibly different versions of the
+                         benchmarked package, like Tcllib.
 
-	bench/del ?-o path? ?-format f? file col...
+        bench/del ?-o path? ?-format f? file col...
 
-	                 Reads the file and removes the specified
+                         Reads the file and removes the specified
                          columns. To delete unnecessary data in merged
                          results.
 
@@ -105,3 +105,8 @@
 
         rstatus  - Determines the status of the code base with regard
                    to the last release.
+
+        approve pkg - Suppress named package in rstatus output.
+                      I.e. mark the packages which are done while going
+                      over all of them for a release.
+

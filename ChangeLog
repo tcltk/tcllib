@@ -1,3 +1,8 @@
+2007-08-20  Andreas Kupries  <andreask@activestate.com>
+
+	* support/releases/history/README-1.10.txt: README listing the
+	  changes for the upcoming release.
+
 2007-07-27  Andreas Kupries  <andreask@activestate.com>
 
 	* support/installation/modules.tcl: New module 'wip' added. A mini
