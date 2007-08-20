@@ -1,3 +1,9 @@
+2007-08-20  Andreas Kupries  <andreask@activestate.com>
+
+	* ini.man: Bumped package version to 0.2.1, due to bugfix in last
+	* ini.tcl: entry.
+	* pkgIndex.tcl:
+
 2007-08-16 Aaron Faupell <afaupell@users.sourceforge.net>
 
 	* ini.man: clarifications to ini::open and ini::remove
