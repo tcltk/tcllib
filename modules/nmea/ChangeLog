@@ -1,3 +1,9 @@
+2007-08-20  Andreas Kupries  <andreask@activestate.com>
+
+	* nmea.man: Bumped package version to 0.1.1.
+	* nmea/tcl:
+	* pkgIndex.tcl:
+
 2007-08-16 Aaron Faupell <afaupell@users.sourceforge.net>
 
         * nmea.tcl fixed bug in read_port when using logging,

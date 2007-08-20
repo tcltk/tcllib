@@ -1,9 +1,9 @@
 [manpage_begin nmea n 0.1]
-[copyright {2006, Aaron Faupell <afaupell@users.sourceforge.net>}]
+[copyright {2006-2007, Aaron Faupell <afaupell@users.sourceforge.net>}]
 [moddesc   {NMEA protocol implementation}]
 [titledesc {Process NMEA data}]
 [require Tcl 8.2]
-[require nmea [opt 0.1]]
+[require nmea [opt 0.1.1]]
 [description]
 [para]
 
