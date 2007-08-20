@@ -2,14 +2,14 @@
 #
 #       Querying and modifying old-style windows configuration files (.ini)
 #
-# Copyright (c) 2003    Aaron Faupell <afaupell@users.sourceforge.net>
+# Copyright (c) 2003-2007    Aaron Faupell <afaupell@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ini.tcl,v 1.12 2007/08/16 17:56:35 afaupell Exp $
+# RCS: @(#) $Id: ini.tcl,v 1.13 2007/08/20 21:03:17 andreas_kupries Exp $
 
-package provide inifile 0.2
+package provide inifile 0.2.1
 
 namespace eval ini {
     variable nexthandle; if {![info exists nexthandle]} {set nexthandle 0}
