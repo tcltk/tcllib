@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: docidx.tcl,v 1.13 2007/03/20 05:11:17 andreas_kupries Exp $
+# RCS: @(#) $Id: docidx.tcl,v 1.14 2007/08/20 20:11:59 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -902,4 +902,4 @@ namespace eval ::doctools::idx {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools::idx 0.2.1
+package provide doctools::idx 0.3
