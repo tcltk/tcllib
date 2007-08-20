@@ -1,3 +1,7 @@
+2007-08-20  Andreas Kupries  <andreask@activestate.com>
+
+	* comm.test: Updated to require Tcl 8.3 (for snit).
+
 2007-08-15  Andreas Kupries  <andreask@activestate.com>
 
 	* comm.tcl (::comm::Vwait): Fixed uplevel which failed when used
