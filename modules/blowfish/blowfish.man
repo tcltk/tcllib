@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin blowfish n 1.0.0]
+[manpage_begin blowfish n 1.0.3]
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc   {Blowfish Block Cipher}]
 [titledesc {Implementation of the Blowfish block cipher}]
 [require Tcl 8.4]
-[require blowfish [opt 1.0.2]]
+[require blowfish [opt 1.0.3]]
 [description]
 [para]
 

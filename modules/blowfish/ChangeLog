@@ -1,3 +1,9 @@
+2007-08-20  Andreas Kupries  <andreask@activestate.com>
+
+	* blowfish.man: Version bumped to 1.0.3 due to bugfix at Mar 12.
+	* blowfish.tcl:
+	* pkgIndex.tcl:
+
 2007-03-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* blowfish.man: Fixed all warnings due to use of now deprecated
