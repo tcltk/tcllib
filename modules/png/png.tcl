@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: png.tcl,v 1.9 2007/04/28 19:26:42 afaupell Exp $
+# RCS: @(#) $Id: png.tcl,v 1.10 2007/08/20 22:06:58 andreas_kupries Exp $
 
-package provide png 0.1.1
+package provide png 0.1.2
 
 namespace eval ::png {}
 

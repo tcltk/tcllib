@@ -1,11 +1,11 @@
-[manpage_begin png n 0.1.1]
+[manpage_begin png n 0.1.2]
 [copyright {2004, Code: Aaron Faupell <afaupell@users.sourceforge.net>}]
 [copyright {2004, Doc:  Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Image manipulation}]
 [titledesc {PNG querying and manipulation of meta data}]
 [require Tcl 8.2]
 [require crc32]
-[require png [opt 0.1.1]]
+[require png [opt 0.1.2]]
 [description]
 [para]
 
