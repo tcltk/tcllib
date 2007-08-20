@@ -1,3 +1,9 @@
+2007-08-20  Andreas Kupries  <andreask@activestate.com>
+
+	* des.man: Bumped version to 1.1 due to API extension made by
+	* des.tcl: the last change.
+	* pkgIndex.tcl:
+
 2007-07-05  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* des.test: Previous version of DES used to pad the key to 64
