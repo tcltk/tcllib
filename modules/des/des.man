@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin des n 1.0]
+[manpage_begin des n 1.1]
 [copyright {2005, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc {Data Encryption Standard (DES)}]
 [titledesc {Implementation of the DES and triple-DES ciphers}]
 [require Tcl 8.2]
-[require des 1.0]
+[require des 1.1]
 [description]
 [para]
 
