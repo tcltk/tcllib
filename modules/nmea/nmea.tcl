@@ -2,12 +2,12 @@
 #
 # NMEA protocol implementation
 #
-# Copyright (c) 2006 Aaron Faupell
+# Copyright (c) 2006-2007 Aaron Faupell
 #
-# RCS: @(#) $Id: nmea.tcl,v 1.2 2007/08/16 17:49:36 afaupell Exp $
+# RCS: @(#) $Id: nmea.tcl,v 1.3 2007/08/20 21:55:27 andreas_kupries Exp $
 
 package require Tcl 8.2
-package provide nmea 0.1
+package provide nmea 0.1.1
 
 namespace eval ::nmea {
     set ::nmea::nmea(checksum) 1
