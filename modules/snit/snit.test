@@ -5847,7 +5847,7 @@ test tinfo-6.2 {type info args, too few args} -body {
     dog info args
 } -returnCodes error -cleanup {
     dog destroy
-} -result [tcltest::wrongNumArgs ::snit::RT.typemethod.info.args {type method} 2]
+} -result [tcltest::wrongNumArgs ::snit::RT.typemethod.info.args {type method} 1]
 
 test tinfo-6.3 {type info args, too many args} -body {
     type dog {
@@ -5896,7 +5896,7 @@ test tinfo-7.2 {type info default, too few args} -body {
     dog info default
 } -returnCodes error -cleanup {
     dog destroy
-} -result [tcltest::wrongNumArgs ::snit::RT.typemethod.info.default {type method aname dvar} 2]
+} -result [tcltest::wrongNumArgs ::snit::RT.typemethod.info.default {type method aname dvar} 1]
 
 test tinfo-7.3 {type info default, too many args} -body {
     type dog {
@@ -5955,7 +5955,7 @@ test tinfo-8.2 {type info body, too few args} -body {
     dog info body
 } -returnCodes error -cleanup {
     dog destroy
-} -result [tcltest::wrongNumArgs ::snit::RT.typemethod.info.body {type method} 2]
+} -result [tcltest::wrongNumArgs ::snit::RT.typemethod.info.body {type method} 1]
 
 test tinfo-8.3 {type info body, too many args} -body {
     type dog {
