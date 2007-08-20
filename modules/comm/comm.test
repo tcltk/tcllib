@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: comm.test,v 1.10 2007/05/02 00:30:08 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.test,v 1.11 2007/08/20 23:07:05 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.2
+testsNeedTcl     8.3 ; # snit
 testsNeedTcltest 1.0
 
 support {
