@@ -7,8 +7,8 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: bench.tcl,v 1.9 2007/03/28 17:49:44 andreas_kupries Exp $
+#
+# RCS: @(#) $Id: bench.tcl,v 1.10 2007/08/21 20:02:21 andreas_kupries Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -38,8 +38,6 @@ namespace eval ::bench::out {}
 #	Dictionary.
 
 proc ::bench::run {args} {
-    variable self
-
     log::debug [linsert $args 0 ::bench::run]
 
     # -errors  0|1         default 1, propagate errors in benchmarks
@@ -47,6 +45,7 @@ proc ::bench::run {args} {
     # -match  <pattern>    only run tests matching this pattern
     # -rmatch <pattern>    only run tests matching this pattern
     # -iters  <num>        default 1000, max#iterations for any benchmark
+    # -pkgdir <dir>        Defaults to nothing, regular bench invokation.
 
     # interps - dict (path -> version)
     # files   - list (of files)
@@ -59,6 +58,8 @@ proc ::bench::run {args} {
     set match   {}   ; # Do not exclude benchmarks based on glob pattern
     set rmatch  {}   ; # Do not exclude benchmarks based on regex pattern
     set iters   1000 ; # Limit #iterations for any benchmark
+    set pkgdirs {}   ; # List of dirs to put in front of auto_path in the
+                       # bench interpreters. Default: nothing.
 
     while {[string match "-*" [set opt [lindex $args 0]]]} {
 	set val [lindex $args 1]
@@ -87,6 +88,10 @@ proc ::bench::run {args} {
 		}
 		set iters   [lindex $args 1]
 	    }
+	    -pkgdir {
+		CheckPkgDirArg  $val
+		lappend pkgdirs $val
+	    }
 	    default {
 		return -code error "Unknown option \"$opt\", should -errors, -threads, -match, -rmatch, or -iters"
 	    }
@@ -102,67 +107,18 @@ proc ::bench::run {args} {
 
     array set DATA {}
 
-    foreach {ip ver} $interps {
-	log::info "Benchmark $ver $ip"
-
-	set DATA([list interp ${ip}]) $ver
-
-	set cmd [list $ip [file join $self libbench.tcl] \
-		-match   $match   \
-		-rmatch  $rmatch  \
-		-iters   $iters   \
-		-interp  $ip      \
-		-errors  $errors  \
-		-threads $threads \
-		]
-
-	# Determine elapsed time per file, logged.
-	set start [clock seconds]
-
-	array set tmp {}
-
-	if {$threads} {
-	    if {[catch {
-		eval exec $cmd $files
-	    } output]} {
-		if {$errors} {
-		    error $::errorInfo
-		}
-	    } else {
-		array set tmp $output
-	    }
-	} else {
-	    foreach file $files {
-		log::info [file tail $file]
-		if {[catch {
-		    eval exec [linsert $cmd end $file]
-		} output]} {
-		    if {$errors} {
-			error $::errorInfo
-		    } else {
-			continue
-		    }
-		} else {
-		    array set tmp $output
-		}
+    if {![llength $pkgdirs]} {
+	# No user specified package directories => Simple run.
+	foreach {ip ver} $interps {
+	    Invoke $ip $ver {} ;# DATA etc passed via upvar.
+	}
+    } else {
+	# User specified package directories.
+	foreach {ip ver} $interps {
+	    foreach pkgdir $pkgdirs {
+		Invoke $ip $ver $pkgdir ;# DATA etc passed via upvar.
 	    }
 	}
-
-	catch {unset tmp(Sourcing)}
-	catch {unset tmp(__THREADED)}
-
-	foreach desc [array names tmp] {
-	    set DATA([list desc $desc]) {}
-	    set DATA([list usec $desc $ip]) $tmp($desc)
-	}
-
-	unset tmp
-	set elapsed [expr {[clock seconds] - $start}]
-
-	set hour [expr {$elapsed / 3600}]
-	set min  [expr {$elapsed / 60}]
-	set sec  [expr {$elapsed % 60}]
-	log::info " [format %.2d:%.2d:%.2d $hour $min $sec] elapsed"
     }
 
     # Benchmark data ... Structure, dict (key -> value)
@@ -199,7 +155,7 @@ proc ::bench::locate {pattern paths} {
 
     foreach path $paths {
 	foreach ip [glob -nocomplain [file join $path $pattern]] {
-	    if {$::tcl_version > 8.4} {
+	    if {[package vsatisfies [package provide Tcl] 8.4]} {
 		set ip [file normalize $ip]
 	    }
 
@@ -226,6 +182,7 @@ proc ::bench::locate {pattern paths} {
 	}
     }
 
+puts <<$res>>
     return $res
 }
 
@@ -253,14 +210,17 @@ proc ::bench::versions {interps} {
 	lappend res [list $patchlevel $ip]
     }
 
-    set tmp [lsort -uniq -dictionary -decreasing -index 0 $res]
-    set res {}
-    foreach item $tmp {
+    # -uniq 8.4-ism, replaced with use of array.
+    array set tmp {}
+    set resx {}
+    foreach item [lsort -dictionary -decreasing -index 0 $res] {
 	foreach {p ip} $item break
-	lappend res $ip $p
+	if {[info exists tmp($p)]} continue
+	set tmp($p) .
+	lappend resx $ip $p
     }
 
-    return $res
+    return $resx
 }
 
 # ::bench::merge --
@@ -387,7 +347,7 @@ proc ::bench::edit {data col new} {
     unset                         DATA($refkey)
 
     foreach key [array names DATA *$refip] {
-	if {[lindex $key 0] ne "usec"} continue
+	if {![string equal [lindex $key 0] "usec"]} continue
 	foreach {__ desc ip} $key break
 	set DATA([list usec $desc $new]) $DATA($key)
 	unset                             DATA($key)
@@ -429,7 +389,7 @@ proc ::bench::del {data col} {
 
     # Do not use 'array unset'. Keep 8.2 clean.
     foreach key [array names DATA *$refip] {
-	if {[lindex $key 0] ne "usec"} continue
+	if {![string equal [lindex $key 0] "usec"]} continue
 	unset DATA($key)
     }
 
@@ -457,6 +417,98 @@ proc ::bench::out::raw {data} {
 # ### ### ### ######### ######### ######### ###########################
 ## Internal commands
 
+proc ::bench::CheckPkgDirArg {path {expected {}}} {
+    # Allow empty string, special.
+    if {![string length $path]} return
+
+    if {![file isdirectory $path]} {
+	return -code error \
+	    "The path \"$path\" is not a directory."
+    }
+    if {![file readable $path]} {
+	return -code error \
+	    "The path \"$path\" is not readable."
+    }
+}
+
+proc ::bench::Invoke {ip ver pkgdir} {
+    variable self
+    # Import remainder of the current configuration/settings.
+
+    upvar 1 DATA DATA match match rmatch rmatch \
+	iters iters errors errors threads threads \
+	files files
+
+    if {[string length $pkgdir]} {
+	log::info "Benchmark $ver ($pkgdir) $ip"
+	set idstr "$ip ($pkgdir)"
+    } else {
+	log::info "Benchmark $ver $ip"
+	set idstr $ip
+    }
+
+    set DATA([list interp $idstr]) $ver
+
+    set cmd [list $ip [file join $self libbench.tcl] \
+		 -match   $match   \
+		 -rmatch  $rmatch  \
+		 -iters   $iters   \
+		 -interp  $ip      \
+		 -errors  $errors  \
+		 -threads $threads \
+		 -pkgdir  $pkgdir  \
+		]
+
+    # Determine elapsed time per file, logged.
+    set start [clock seconds]
+
+    array set tmp {}
+
+    if {$threads} {
+	if {[catch {
+	    eval exec $cmd $files
+	} output]} {
+	    if {$errors} {
+		error $::errorInfo
+	    }
+	} else {
+	    array set tmp $output
+	}
+    } else {
+	foreach file $files {
+	    log::info [file tail $file]
+	    if {[catch {
+		eval exec [linsert $cmd end $file]
+	    } output]} {
+		if {$errors} {
+		    error $::errorInfo
+		} else {
+		    continue
+		}
+	    } else {
+		array set tmp $output
+	    }
+	}
+    }
+
+    catch {unset tmp(Sourcing)}
+    catch {unset tmp(__THREADED)}
+
+    foreach desc [array names tmp] {
+	set DATA([list desc $desc]) {}
+	set DATA([list usec $desc $idstr]) $tmp($desc)
+    }
+
+    unset tmp
+    set elapsed [expr {[clock seconds] - $start}]
+
+    set hour [expr {$elapsed / 3600}]
+    set min  [expr {$elapsed / 60}]
+    set sec  [expr {$elapsed % 60}]
+    log::info " [format %.2d:%.2d:%.2d $hour $min $sec] elapsed"
+    return
+}
+
 # ### ### ### ######### ######### ######### ###########################
 ## Initialize internal data structures.
 
@@ -470,4 +522,4 @@ namespace eval ::bench {
 # ### ### ### ######### ######### ######### ###########################
 ## Ready to run
 
-package provide bench 0.2
+package provide bench 0.3

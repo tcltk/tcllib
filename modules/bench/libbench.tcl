@@ -4,7 +4,7 @@
 # This file has to have code that works in any version of Tcl that
 # the user would want to benchmark.
 #
-# RCS: @(#) $Id: libbench.tcl,v 1.2 2007/01/23 03:21:35 andreas_kupries Exp $
+# RCS: @(#) $Id: libbench.tcl,v 1.3 2007/08/21 20:02:21 andreas_kupries Exp $
 #
 # Copyright (c) 2000-2001 Jeffrey Hobbs.
 # Copyright (c) 2007      Andreas Kupries
@@ -350,6 +350,7 @@ foreach {var val} {
 	FILES		{}
 	ITERS		1000
 	THREADS		0
+        PKGDIR          {}
 	EXIT		"[info exists tk_version]"
 } {
     if {![info exists BENCH($var)]} {
@@ -369,6 +370,7 @@ if {[llength $argv]} {
 	    -mat*	{ set BENCH(MATCH)   [lindex $argv 1] }
 	    -iter*	{ set BENCH(ITERS)   [lindex $argv 1] }
 	    -thr*	{ set BENCH(THREADS) [lindex $argv 1] }
+            -pkg*       { set BENCH(PKGDIR)  [lindex $argv 1] }
 	    default {
 		foreach arg $argv {
 		    if {![file exists $arg]} { usage }
@@ -379,6 +381,10 @@ if {[llength $argv]} {
 	}
 	set argv [lreplace $argv 0 1]
     }
+}
+
+if {[string length $BENCH(PKGDIR)]} {
+    set auto_path [linsert $auto_path 0 $BENCH(PKGDIR)]
 }
 
 if {$BENCH(THREADS)} {
