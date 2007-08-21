@@ -1,3 +1,12 @@
+2007-08-21  Andreas Kupries  <andreask@activestate.com>
+
+	* support/devel/sak/test/run.tcl: Reworked the handling of setup
+	  errors and of the various failure states to ensure that they are
+	  properly reported as problems in the summary output instead of
+	  giving the appearance that everything is ok. Some trouble in the
+	  math testsuite was spotted only by reading the detailed log and
+	  would have been missed otherwise.
+
 2007-08-20  Andreas Kupries  <andreask@activestate.com>
 
 	* support/releases/history/README-1.10.txt: README listing the
