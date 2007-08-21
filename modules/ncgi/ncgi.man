@@ -295,6 +295,36 @@ The second element is the form value.
 
 [list_end]
 
+[section EXAMPLES]
+
+Uploading a file
+[example {
+HTML:
+<html><form action="/cgi-bin/upload.cgi" method="POST"
+enctype="multipart/form-data">
+Path: <input type="file" name="filedata">
+<br>Name: <input type="text" name="filedesc">
+<br><input type="submit">
+</form></html>
+
+TCL: upload.cgi
+#!/usr/local/bin/tclsh
+
+::ncgi::parse
+set filedata [::ncgi::value fileupl]
+set filedesc [::ncgi::value filedesc]
+
+puts "<html> File uploaded at <a
+href=\"/images/$filedesc\">$filedesc</a> </html>"
+
+set filename /www/images/$filedesc
+
+set fh [open $filename w]
+puts -nonewline $fh $filedata
+close $fh
+}]
+
+[para]
 
 [section {BUGS, IDEAS, FEEDBACK}]
 
