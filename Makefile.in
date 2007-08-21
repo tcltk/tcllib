@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: Makefile.in,v 1.100 2006/10/02 00:36:51 andreas_kupries Exp $
+# RCS: @(#) $Id: Makefile.in,v 1.101 2007/08/21 22:04:14 andreas_kupries Exp $
 
 #========================================================================
 # Nothing of the variables below this line need to be changed.  Please
@@ -60,9 +60,14 @@ install:
 install-libraries:
 	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/installer.tcl` \
 		-pkg-path   $(DESTDIR)$(pkglibdir) \
-		-app-path   $(DESTDIR)$(bindir) \
 		-no-examples -no-html -no-nroff \
 		-no-wait -no-gui -no-apps
+
+install-applications:
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/installer.tcl` \
+		-app-path   $(DESTDIR)$(bindir) \
+		-no-examples -no-html -no-nroff \
+		-no-wait -no-gui -no-pkgs
 
 install-doc:
 	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/installer.tcl` \
@@ -71,6 +76,15 @@ install-doc:
 		-no-wait -no-gui -no-apps
 
 test:
+	if test -t 1 ; \
+	then $(MAKE) test_interactive ; \
+	else $(MAKE) test_batch ; \
+	fi
+
+test_batch:
+	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` test run -v -s "$(TCLSH_PROG)"
+
+test_interactive:
 	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/sak.tcl` test run -s "$(TCLSH_PROG)"
 
 depend:
