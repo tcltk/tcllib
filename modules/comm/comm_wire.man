@@ -31,7 +31,7 @@ protocol.
     other endpoint without having to worry if there is direct
     connection to this endpoint or not. A secure tunnel then neatly
     fits into this. Its endpoints are routing agents which take
-    arbitrariry commands, route them through the tunnel and then
+    arbitrarily commands, route them through the tunnel and then
     dispatch them to the correct endpoint on the other side.
 
     Note: A special case would be to have such a router facility built
@@ -55,14 +55,14 @@ protocol.
     plus arguments.
 
     At this point it begins to make sense to have implementations in other
-    scripting languages. Because then it beomes irrelevant in what
+    scripting languages. Because then it becomes irrelevant in what
     language the server is implemented. The comm protocol becomes a
     portable RPC protocol, which can also be used for transport Tcl
     scripts when both sides are Tcl and allowing this.
 
     (*) And IMHO it should be done 90% of the time, just to get proper
     security. Note that just using a safe interp is not quite enough, as
-    it still allows aribtrary scripts. The interp has to contains aliases
+    it still allows arbitrary scripts. The interp has to contains aliases
     for the wanted commands, and only them for us to get a large security
     wall.
 }]
@@ -79,16 +79,20 @@ as is, without the need for armoring it.
 
 On top of the [sectref {Basic Layer}] we have a
 
-[term {message oriented}] exchange of data. Each [term message] is a
-syntactically valid Tcl list terminated with an additional EOL. Note
-that EOL characters can occur within the list as well. They can be
-distinguished from the terminating EOL by the fact that the data from
-the beginning up to their location is not a valid Tcl list.
+[term {message oriented}] exchange of data. 
+
+The totality of all characters written to the channel is a Tcl list,
+with each element a separate [term message], each itself a list. The
+messages in the overall list are separated by EOL. Note that EOL
+characters can occur within the list as well. They can be
+distinguished from the message-separating EOL by the fact that the
+data from the beginning up to their location is not a valid Tcl list.
 
 [para]
 
-EOL is signaled through the character [const "\n"]. This is following
-the unix convention for line-endings.
+EOL is signaled through the linefeed character, i.e [const LF], or,
+hex [const 0x0a]. This is following the unix convention for
+line-endings.
 
 [para]
 
@@ -107,7 +111,7 @@ The command protocol is defined like this:
 The first message send by a client to a server, when opening the
 connection, contains two words. The first word is a list as well, and
 contains the versions of the wire protocol the client is willing to
-accept, with the most prefered version first. The second word is the
+accept, with the most preferred version first. The second word is the
 TCP port the client is listening on for connections to itself. The
 value [const 0] is used here to signal that the client will not listen
 for connections, i.e. that it is purely for sending commands, and not
@@ -167,7 +171,7 @@ that message.
 [def [const command]]
 
 The payload is the Tcl script to execute on the server. It is actually
-a list containing the script fragments. These fragement are
+a list containing the script fragments. These fragment are
 
 [cmd concat]enated together by the server to form the full script to
 execute on the server side.
@@ -265,7 +269,7 @@ Examples:
 	 V2
 
 
-	 V3      This is prefered version and uses UTF 8 encoding.
+	 V3      This is preferred version and uses UTF 8 encoding.
 
 	         This is actually the only version which will work IIU
 		 the code right. Because the server part of comm will
@@ -288,6 +292,6 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.
 
 
-[keywords socket {remote communication} communication ipc message rpc]
+[keywords socket {remote communication} communication ipc message rpc comm]
 [see_also comm]
 [manpage_end]
