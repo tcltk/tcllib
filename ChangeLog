@@ -1,5 +1,9 @@
 2007-08-21  Andreas Kupries  <andreask@activestate.com>
 
+	* README.developer: Added a small introduction to the testing of
+	  modules via 'sak.tcl'. This fixes [SF Tcllib Bug 1750655] by
+	  Larry Virden.
+
 	* support/devel/sak/test/run.tcl: Reworked the handling of setup
 	  errors and of the various failure states to ensure that they are
 	  properly reported as problems in the summary output instead of
