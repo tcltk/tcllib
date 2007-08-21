@@ -1,4 +1,4 @@
-RCS: @(#) $Id: README.developer,v 1.1 2006/07/01 02:43:15 andreas_kupries Exp $
+RCS: @(#) $Id: README.developer,v 1.2 2007/08/21 21:00:59 andreas_kupries Exp $
 
 Welcome to the tcllib, the Tcl Standard Library.
 ================================================
@@ -31,3 +31,48 @@ Basics
 	sak.tcl
 
 < Tasks, and how to perform them >
+
+
+Testing modules
+---------------
+
+To run the testsuite of a module FOO in tcllib use the 'test run'
+command of sak.tcl, like so:
+
+	% pwd
+	/the/tcllib/toplevel/directory
+
+	% ./sak.tcl test run FOO
+or	% ./sak.tcl test run modules/FOO
+
+To run the testsuites of all modules eiter invoke 'test run' without a
+module name, or use 'make test'. The latter assumes that configure was
+run for Tcllib before.
+
+In all of the above cases the result will be short combination of
+progress display and testsuite log, showing for which modules tests
+failed and how many (summary at the end).
+
+To get a detailed log it is necessary to invoke 'test run' with
+additional options.
+
+For one:
+	% ./sak.tcl test run -l LOG FOO
+
+This shows the same short log on the terminal, and writes a detailed
+log to the file LOG.log, and excerpts to other files (LOG.summary,
+LOG.failures, etc.).
+
+For two:
+	% ./sak.tcl test run -v FOO
+
+This writes the detailed log to stdout, instead of the short log.
+
+In all cases the detailed log contains a list of all test cases
+executed, which failed, and how they failed (expected versus actual
+results).
+
+Non-developers should reports problems in Tcllib's bug tracker.
+Information about its location and the relevant category can be found
+in the section 'BUGS, IDEAS, FEEDBACK' of the manpage of the module
+and/or package.
