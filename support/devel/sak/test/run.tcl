@@ -298,6 +298,7 @@ proc ::sak::test::run::Process {pipe} {
 	CaptureStackStart
 	CaptureStack
 
+	SetupError
 	Aborted
 	AbortCause
 
@@ -371,7 +372,6 @@ proc ::sak::test::run::Match||Skip||Sourced {} {
     if {[string match "Files with failing tests*" $line]} {return -code continue}
     if {[string match "Number of tests skipped*"  $line]} {return -code continue}
     if {[string match "\[0-9\]*"                  $line]} {return -code continue}
-    if {[string match "SETUP Error *"             $line]} {return -code continue}
     return
 }
 
@@ -553,6 +553,11 @@ proc ::sak::test::run::TestFailed {} {
     variable xactual   ""
     variable xexpected ""
     variable xstatus   fail
+    # Ignore failed status if we already have it, or an error
+    # status. The latter is more important to show. We do override
+    # status 'aborted'.
+    if {$xstatus == "ok"}      {set xstatus fail}
+    if {$xstatus == "aborted"} {set xstatus fail}
     return -code continue
 }
 
@@ -613,7 +618,10 @@ proc ::sak::test::run::Aborted {} {
     upvar 1 line line
     if {![string match {Aborting the tests found *} $line]} return
     variable xfile
-    variable xstatus aborted
+    variable xstatus
+    # Ignore aborted status if we already have it, or some other error
+    # status (like error, or fail). These are more important to show.
+    if {$xstatus == "ok"} {set xstatus aborted}
     = Aborted
     #sak::registry::local set $xfile Aborted {}
     return -code continue
@@ -653,6 +661,14 @@ proc ::sak::test::run::CaptureStack {} {
 	variable xfile
 	#sak::registry::local set $xfile Stacktrace $xstack
     }
+    return -code continue
+}
+
+proc ::sak::test::run::SetupError {} {
+    upvar 1 line line
+    if {![string match {SETUP Error*} $line]} return
+    variable xstatus error
+    = {Setup error}
     return -code continue
 }
 
