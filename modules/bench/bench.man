@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin bench n 0.2]
+[manpage_begin bench n 0.3]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Benchmarking/Performance tools}]
 [titledesc {bench - Processing benchmark suites}]
 [require Tcl 8.2]
-[require bench [opt 0.2]]
+[require bench [opt 0.3]]
 [description]
 
 This package provides commands for the execution of benchmarks written
@@ -85,6 +85,31 @@ string, to execute all patterns.
 The argument is positive integer number, the maximal number of
 iterations for any benchmark. The default is [const 1000]. Individual
 benchmarks can override this.
+
+[opt_def -pkgdir [arg path]]
+
+The argument is a path to an existing, readable directory. Multiple
+paths can be specified, simply use the option multiple times, each
+time with one of the paths to use.
+
+[para]
+
+If no paths were specified the system will behave as before.
+If one or more paths are specified, say [var N], each of the specified
+interpreters will be invoked [var N] times, with one of the specified
+paths. The chosen path is put into the interpreters' [var auto_path],
+thus allowing it to find specific versions of a package.
+
+[para]
+
+In this way the use of [option -pkgdir] allows the user to benchmark
+several different versions of a package, against one or more interpreters.
+
+[para]
+
+[emph Note:] The empty string is allowed as a path and causes the system to
+run the specified interpreters with an unmodified [var auto_path]. In case
+the package in question is available there as well.
 
 [list_end]
 [para]
