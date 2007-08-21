@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: bench.tcl,v 1.10 2007/08/21 20:02:21 andreas_kupries Exp $
+# RCS: @(#) $Id: bench.tcl,v 1.11 2007/08/21 22:31:03 andreas_kupries Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -182,7 +182,6 @@ proc ::bench::locate {pattern paths} {
 	}
     }
 
-puts <<$res>>
     return $res
 }
 
