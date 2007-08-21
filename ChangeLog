@@ -1,5 +1,21 @@
 2007-08-21  Andreas Kupries  <andreask@activestate.com>
 
+	* README.developer: Section about testing updated for the changes
+	  in the Makefile.
+
+	* Makefile.in (install-applications): New target, complement to
+	  'install-libraries', for applications only.
+
+	* Makefile.in (test): The target now distinguishes interactive
+	  invokation and batch mode, and chooses its log mode accordingly
+	  (interactive: progress feedback, short log, batch: detailed
+	  log). The batch mode is invoked by redirecting the stdout to a
+	  file. Per a suggestion of Mikhail Teterin. The two modes are
+	  also directly acessible, via the new targets 'test_batch' and
+	  'test_interactive'.
+
+2007-08-21  Andreas Kupries  <andreask@activestate.com>
+
 	* README.developer: Added a small introduction to the testing of
 	  modules via 'sak.tcl'. This fixes [SF Tcllib Bug 1750655] by
 	  Larry Virden.
