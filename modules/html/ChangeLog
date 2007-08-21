@@ -1,3 +1,10 @@
+2007-08-21  Andreas Kupries  <andreask@activestate.com>
+
+	* html.man: Documentation of tableFrom{Array,List} extended per
+	  [Tcllib SF Bug 1740573] (David Scott Cargo). Disabled the
+	  documentation of 'html::title', per the same report, the command
+	  seems to be not really for users, but only for internal use.
+
 2007-06-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* html.man: Fixed bug [SF Bug 1740573], documentation typos,
