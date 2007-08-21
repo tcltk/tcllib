@@ -1,9 +1,10 @@
 2007-08-21  Andreas Kupries  <andreask@activestate.com>
 
-	* bench.tcl (::bench::run): Extended with a new option -pkgdirs
+	* bench.tcl (::bench::run): Extended with a new option -pkgdir
 	* bench.man: helping in the handling of multiple versions of a
-	* pkgIndex.tcl: package to benchmark. Moved invokation of libbench
-	* libbench.tcl: to a separate helper procedure. Extended the
+	* pkgIndex.tcl: package to benchmark, as suggested and first
+	* libbench.tcl: implemented by Rolf Ade. Moved invokation of
+	  libbench to a separate helper procedure. Extended the
 	  documentation. Version bumped to 0.3.
 
 2007-04-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
