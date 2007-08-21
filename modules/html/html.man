@@ -383,17 +383,21 @@ Generate an [term input] tag of type [term submit]. [arg name] defaults to "subm
 
 [call [cmd ::html::tableFromArray] [arg arrname] [opt [arg param]] [opt [arg pat]]]
 
-Generate a [term table] and nested rows to display a Tcl array. The
-[arg param] are for the [term table] tag. The [arg pat] is a
-[cmd {string match}] pattern used to select array elements. It
-defaults to "*".
-
+Generate a two-column [term table] and nested rows to display a Tcl array. The
+table gets a heading that matches the array name, and each generated row
+contains a name, value pair. The array names are sorted ([cmd lsort] without
+special options). The argument [arg param] is for the [term table] tag and has
+to contain a pre-formatted string. The [arg pat] is a [cmd {string match}]
+pattern used to select the array elements to show in the table. It defaults to
+[const *], i.e. the whole array is shown.
 
 [call [cmd ::html::tableFromList] [arg querylist] [opt [arg param]]]
 
-Generate a [term table] and nested rows to display [arg querylist], which is
-a Tcl-style name, value list.  The [arg param] are for the [term table] tag.
-
+Generate a two-column [term table] and nested rows to display [arg querylist],
+which is a Tcl dictionary. Each generated row contains a name, value pair. The
+information is shown in the same order as specified in the dictionary. The
+argument [arg param] is for the [term table] tag  and has to contain a
+pre-formatted string.
 
 [call [cmd ::html::textarea] [arg name] [opt [arg param]] [opt [arg current]]]
 
@@ -414,12 +418,12 @@ Generate an [term input] form tag with type [term text] formatted into a table r
 with an associated label.  The args is any additional tag attributes
 you want to put into the [term input] tag.
 
-
+[comment {
 [call [cmd ::html::title] [arg title]]
 
 [emph {Side effect only}].  Call this before [cmd ::html::head] to
 define the [term title] for a page.
-
+}]
 
 [call [cmd ::html::varEmpty] [arg name]]
 
