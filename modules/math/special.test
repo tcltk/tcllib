@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: special.test,v 1.12 2007/07/07 16:17:08 arjenmarkus Exp $
+# $Id: special.test,v 1.13 2007/08/21 17:33:00 andreas_kupries Exp $
 #
 # Copyright (c) 2004 by Arjen Markus
 # All rights reserved.
@@ -17,7 +17,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.2
+testsNeedTcl     8.4;# statistics,linalg!
 testsNeedTcltest 2.1
 
 support {

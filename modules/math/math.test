@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: math.test,v 1.20 2007/07/07 16:17:08 arjenmarkus Exp $
+# RCS: @(#) $Id: math.test,v 1.21 2007/08/21 17:33:00 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -37,7 +37,8 @@ proc matchTolerant { expected actual } {
    }
    return $match
 }
-customMatch tolerant   matchTolerant
+# tcltest 2.0-ism, we rely here only on 1.0 features
+#customMatch tolerant matchTolerant
 
 
 test math-1.1 {math::min, wrong num args} {
@@ -96,9 +97,9 @@ test math-3.4 {math::mean} {
 test math-3.5 {math::mean with negative numbers} {
     math::mean 2 1 0 -11
 } -2.0
-test math-3.6 {math::mean with floating point numbers} -match tolerant -body {
-    math::mean 2 1 0 -10 10.5
-} -result 0.7
+test math-3.6 {math::mean with floating point numbers} {
+    matchTolerant 0.7 [math::mean 2 1 0 -10 10.5]
+} 1
 
 test math-4.1 {math::sum, wrong num args} {
     catch {math::sum} msg
@@ -110,9 +111,9 @@ test math-4.2 {math::sum} {
 test math-4.3 {math::sum} {
     math::sum 1 2 3
 } 6
-test math-4.4 {math::sum} -match tolerant -body {
-    math::sum 0.1 0.2 0.3 1
-} -result 1.6
+test math-4.4 {math::sum} {
+    matchTolerant 1.6 [math::sum 0.1 0.2 0.3 1]
+} 1
 test math-4.5 {math::sum} {
     math::sum -1 1
 } 0
