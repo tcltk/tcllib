@@ -1,3 +1,17 @@
+2007-08-21  Andreas Kupries  <andreask@activestate.com>
+
+	* math.test (matchTolerant): Changed to not use tcltest 2.0+
+	  features in a testsuite for tcltest 1.0. Rewritten the tests
+	  using this custom comparison command to be tcltest 1.0
+	  compliant.
+
+	* pkgIndex.tcl: With permission from Arjen moved math::statistics
+	* bessel.test: into the 8.4 section. Due to its new dependency on
+	* elliptic.test: math::linearalgebra via multi-variate linear
+	* statistics.test: regression it now depends on Tcl 8.4+ too.
+	* special.test: Updated the tests using math::statistics for this
+	  as well.
+
 2007-08-20  Andreas Kupries  <andreask@activestate.com>
 
 	* bessel.test: Added missing dependency on math::linearalgebra.

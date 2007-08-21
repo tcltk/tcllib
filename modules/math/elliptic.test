@@ -8,7 +8,7 @@
 #
 # Copyright (c) 2004 by Arjen Markus.  All rights reserved.
 #
-# RCS: @(#) $Id: elliptic.test,v 1.11 2007/08/20 23:21:22 andreas_kupries Exp $
+# RCS: @(#) $Id: elliptic.test,v 1.12 2007/08/21 17:33:00 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.2
+testsNeedTcl     8.4;# statistics,linalg!
 testsNeedTcltest 2.1
 
 support {
