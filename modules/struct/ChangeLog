@@ -1,3 +1,9 @@
+2007-08-22  Andreas Kupries  <andreask@activestate.com>
+
+	* struct_list.man: Fixed example for 'filterfor', removed the
+	  bogus 'expr' layer. The command runs 'expr' itself. This fixes
+	  [SF Tcllib Bug 1779424].
+
 2007-08-03  Andreas Kupries  <andreask@activestate.com>
 
 	* sets.test (Nothing): Updated to changes in reporting of errors
