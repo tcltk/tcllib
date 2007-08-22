@@ -300,12 +300,13 @@ The second element is the form value.
 Uploading a file
 [example {
 HTML:
-<html><form action="/cgi-bin/upload.cgi" method="POST"
-enctype="multipart/form-data">
-Path: <input type="file" name="filedata">
-<br>Name: <input type="text" name="filedesc">
-<br><input type="submit">
-</form></html>
+<html>
+<form action="/cgi-bin/upload.cgi" method="POST" enctype="multipart/form-data">
+Path: <input type="file" name="filedata"><br>
+Name: <input type="text" name="filedesc"><br>
+<input type="submit">
+</form>
+</html>
 
 TCL: upload.cgi
 #!/usr/local/bin/tclsh
@@ -314,8 +315,7 @@ TCL: upload.cgi
 set filedata [::ncgi::value fileupl]
 set filedesc [::ncgi::value filedesc]
 
-puts "<html> File uploaded at <a
-href=\"/images/$filedesc\">$filedesc</a> </html>"
+puts "<html> File uploaded at <a href=\"/images/$filedesc\">$filedesc</a> </html>"
 
 set filename /www/images/$filedesc
 
