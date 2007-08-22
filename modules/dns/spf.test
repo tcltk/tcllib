@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: spf.test,v 1.7 2006/10/09 21:41:40 andreas_kupries Exp $
+# RCS: @(#) $Id: spf.test,v 1.8 2007/08/22 20:37:50 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -17,6 +17,14 @@ source [file join \
 testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
+support {
+    useLocal dns.tcl            dns;          # tcllib 1.3
+    useLocal ip.tcl             ip;           # tcllib 1.7
+    use      log/logger.tcl     logger;       # tcllib 1.3
+    use      struct/list.tcl    struct::list; # tcllib 1.7
+    use      uri/uri.tcl        uri;          # - clear scheme registry
+    use      uri/urn-scheme.tcl uri::urn;     # tcllib 1.3
+}
 testing {
     useLocal spf.tcl spf
 }
