@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: faop_regex.test,v 1.5 2007/04/12 03:43:15 andreas_kupries Exp $
+# RCS: @(#) $Id: faop_regex.test,v 1.6 2007/08/22 23:23:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -93,6 +93,115 @@ foreach {n over re fres} {
     } ok
 }
 
+# -------------------------------------------------------------------------
+
+test faop-regex-${setimpl}-4.0 {toRegexp, error} {
+    catch {grammar::fa::op::toRegexp} res
+    set res
+} {wrong # args: should be "grammar::fa::op::toRegexp fa"}
+
+test faop-regex-${setimpl}-4.1 {toRegexp, error} {
+    catch {grammar::fa::op::toRegexp a b} res
+    set res
+} {wrong # args: should be "grammar::fa::op::toRegexp fa"}
+
+test faop-regex-${setimpl}-4.2 {toRegexp, error} {
+    catch {grammar::fa::op::toRegexp a} res
+    set res
+} {invalid command name "a"}
+
+test faop-regex-${setimpl}-4.3 {toRegexp} {
+    grammar::fa a
+    a state add 0 1 2
+    a symbol add a
+    a symbol add b
+    a next 0 a --> 1
+    a next 0 b --> 2
+    a next 1 b --> 0
+    a next 2 b --> 0
+    a start add 0
+    a final add 0
+
+    set res [grammar::fa::op::toRegexp a]
+    a destroy
+    set res
+} {* {| {. {S a} {S b}} {. {S b} {S b}}}}
+
+
+test faop-regex-${setimpl}-5.0 {toRegexp2, error} {
+    catch {grammar::fa::op::toRegexp2} res
+    set res
+} {wrong # args: should be "grammar::fa::op::toRegexp2 fa"}
+
+test faop-regex-${setimpl}-5.1 {toRegexp2, error} {
+    catch {grammar::fa::op::toRegexp2 a b} res
+    set res
+} {wrong # args: should be "grammar::fa::op::toRegexp2 fa"}
+
+test faop-regex-${setimpl}-5.2 {toRegexp2, error} {
+    catch {grammar::fa::op::toRegexp2 a} res
+    set res
+} {invalid command name "a"}
+
+test faop-regex-${setimpl}-5.3 {toRegexp2} {
+    grammar::fa a
+    a state add 0 1 2
+    a symbol add a
+    a symbol add b
+    a next 0 a --> 1
+    a next 0 b --> 2
+    a next 1 b --> 0
+    a next 2 b --> 0
+    a start add 0
+    a final add 0
+
+    set res [grammar::fa::op::toRegexp2 a]
+    a destroy
+    set res
+} {* {| {. {S a} {S b}} {. {S b} {S b}}}}
+
+# -------------------------------------------------------------------------
+
+test faop-regex-${setimpl}-6.0 {toTclRegexp, error} {
+    catch {grammar::fa::op::toTclRegexp} res
+    set res
+} {wrong # args: should be "grammar::fa::op::toTclRegexp re symdict"}
+
+test faop-regex-${setimpl}-6.1 {toTclRegexp, error} {
+    catch {grammar::fa::op::toTclRegexp a b c} res
+    set res
+} {wrong # args: should be "grammar::fa::op::toTclRegexp re symdict"}
+
+test faop-regex-${setimpl}-6.2 {toTclRegexp, error} {
+    catch {grammar::fa::op::toTclRegexp a {}} res
+    set res
+} {invalid command name "a"}
+
+test faop-regex-${setimpl}-6.3 {toTclRegexp} {
+    grammar::fa::op::toTclRegexp {* {| {. {S a} {S b}} {. {S b} {S b}}}} {}
+} {(ab|bb)*}
+
+# -------------------------------------------------------------------------
+
+test faop-regex-${setimpl}-7.0 {simplifyRegexp, error} {
+    catch {grammar::fa::op::simplifyRegexp} res
+    set res
+} {wrong # args: should be "grammar::fa::op::simplifyRegexp RE0"}
+
+test faop-regex-${setimpl}-7.1 {simplifyRegexp, error} {
+    catch {grammar::fa::op::simplifyRegexp a b} res
+    set res
+} {wrong # args: should be "grammar::fa::op::simplifyRegexp RE0"}
+
+test faop-regex-${setimpl}-7.2 {simplifyRegexp} {
+    set re {* {. {| {S a} {S b}} {S b}}}
+    grammar::fa::op::simplifyRegexp $re
+} {* {. {| {S a} {S b}} {S b}}}
+
+test faop-regex-${setimpl}-7.3 {simplifyRegexp} {
+    set re {* {| {. {S a} {S b}} {. {S b} {S b}}}}
+    grammar::fa::op::simplifyRegexp $re
+} {* {. {| {S a} {S b}} {S b}}}
 
 # -------------------------------------------------------------------------
 ::tcltest::cleanupTests

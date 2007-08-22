@@ -3,12 +3,12 @@
 	* faop.tcl: Extended the package with commands to convert finite
 	* faop.man: automatons back to regular expressions, simplify
 	* pkgIndex.tcl: regular expressions, and translate regular
-	  expressions to Tcl syntax. Extended the documentation. Untested.
-	  This fixes [SF Tcllib RFE 1735601], submitted by Lars Hellstroem
-	  <lars_h@users.sourceforge.net>. He submitted the code used for
-	  this as well. Documentation however by myself, based on his
-	  comments in the original code (dtx format). Version of the
-	  package bumped to 0.4.
+	* tests/faop_regexp.test: expressions to Tcl syntax. Extended the
+	  documentation and testsuite. This fixes [SF Tcllib RFE 1735601],
+	  submitted by Lars Hellstroem <lars_h@users.sourceforge.net>. He
+	  submitted the code used for this as well. Documentation however
+	  by myself, based on his comments in the original code (dtx
+	  format). Version of the package bumped to 0.4.
 
 2007-08-21  Andreas Kupries  <andreask@activestate.com>
 
