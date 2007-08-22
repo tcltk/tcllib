@@ -3,7 +3,7 @@
 exec tclsh "$0" ${1+"$@"}
 
 # @@ Meta Begin
-# Application tcldocstrip 1.0
+# Application tcldocstrip 1.0.1
 # Meta platform     tcl
 # Meta summary      TeX's docstrip written in Tcl
 # Meta description  This application is an implementation
@@ -22,7 +22,7 @@ exec tclsh "$0" ${1+"$@"}
 # Meta license      BSD
 # @@ Meta End
 
-package provide tcldocstrip 1.0
+package provide tcldocstrip 1.0.1
 
 # TODO __________________________
 # Add handling of pre- and postambles.
@@ -192,7 +192,11 @@ proc ::tcldocstrip::processCmdline {} {
     set stitchbuf {}
     set get output
 
-    set argv [eval [linsert $argv 0 linsert $defaults end]]
+    if {![llength $argv]} {
+	set argv $defaults
+    } else {
+	set argv [eval [linsert $argv 0 linsert $defaults end]]
+    }
 
     while {[llength $argv]} {
 	set opt [lindex $argv 0]
