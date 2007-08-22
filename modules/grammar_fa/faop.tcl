@@ -745,8 +745,8 @@ proc ::grammar::fa::op::fromRegex {fa regex {over {}}} {
     # Convert a regular expression into a FA. The regex is given as
     # parse tree in the form of a nested list.
 
-    # {. A B ...} ... Concatenation.
-    # {| A B ...} ... Alternatives.
+    # {. A B ...} ... Concatenation (accepts zero|one arguments).
+    # {| A B ...} ... Alternatives  (accepts zero|one arguments).
     # {? A}       ... Optional.
     # {* A}       ... Kleene.
     # {+ A}       ... Pos.Kleene.
@@ -908,7 +908,16 @@ proc ::grammar::fa::op::Regex {fa regex idvar} {
 	. {
 	    # Concatenation ...
 
-	    if {[llength $regex] < 3} {
+	    if {[llength $regex] == 1} {
+		# Optimized path. No sub-expressions. This represents
+		# language containing only the empty string, aka
+		# epsilon.
+
+		set a $id ; incr id ; $fa state add $a
+		set b $id ; incr id ; $fa state add $b
+		$fa next $a "" --> $b
+
+	    } elseif {[llength $regex] == 2} {
 		# Optimized path. Concatenation of one sub-expression
 		# is the sub-expression itself.
 
@@ -930,7 +939,14 @@ proc ::grammar::fa::op::Regex {fa regex idvar} {
 	| {
 	    # Alternatives ... (Union)
 
-	    if {[llength $regex] < 3} {
+	    if {[llength $regex] == 1} {
+		# Optimized path. No sub-expressions. This represents
+		# the empty language, i.e. the language without words.
+
+		set a $id ; incr id ; $fa state add $a
+		set b $id ; incr id ; $fa state add $b
+
+	    } elseif {[llength $regex] == 2} {
 		# Optimized path. Choice/Union of one sub-expression
 		# is the sub-expression itself.
 
@@ -1163,4 +1179,4 @@ proc ::grammar::fa::op::cons {} {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide grammar::fa::op 0.2
+package provide grammar::fa::op 0.3

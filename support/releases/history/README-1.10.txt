@@ -67,6 +67,7 @@ ftpd		ftpd               1.2.2	1.2.3   	B, D
 ------          -------         -----------     -----------     ---------------
 grammar_fa	grammar::fa        0.2		0.3     	EF, D
 		grammar::fa::dexec 0.1.1	0.2     	EF (ext. introspection), D
+		grammar::fa::op    0.2         	0.3		EF (nullary .|), D
 ------          -------         -----------     -----------     ---------------
 http		autoproxy          1.3		1.4     	B, D
 inifile		inifile            0.2		0.2.1     	B, D
@@ -140,7 +141,6 @@ fumagic		fileutil::magic::cfront         1.0
 		fileutil::magic::mimetype       1.0.2       	D
 		fileutil::magic::rt             1.0         	
 grammar_fa	grammar::fa::dacceptor          0.1.1       	D
-		grammar::fa::op                 0.2         	D
 grammar_me	grammar::me::cpu                0.2         	D, T
 		grammar::me::cpu::core          0.2         	D, T
 		grammar::me::cpu::gasm          0.1         	D, T
