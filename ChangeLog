@@ -1,3 +1,9 @@
+2007-08-22  Andreas Kupries  <andreask@activestate.com>
+
+	* apps/tcldocstrip (::tcldocstrip::processCmdline): Fixed handling
+	  of arguments if there are none. The linsert construction broke
+	  for that case. Application version bumped to 1.0.1.
+
 2007-08-21  Andreas Kupries  <andreask@activestate.com>
 
 	* README.developer: Section about testing updated for the changes
