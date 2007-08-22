@@ -38,8 +38,8 @@ namespace eval ::grammar::fa::op {
     proc toRegexp    {fa} {}
     proc toRegexp2   {fa} {}
 
-    proc simplifyRegexp {rex}
-    proc toTclRegexp    {rex}
+    proc simplifyRegexp {rex} {}
+    proc toTclRegexp    {rex symdict} {}
 
     # ### ### ### ######### ######### #########
 
@@ -1488,7 +1488,7 @@ proc ::grammar::fa::op::nonnull::S {name} {
 ## API. Translate RE of this package to Tcl REs
 
 proc ::grammar::fa::op::toTclRegexp {re symdict} {
-    return [namespace inscope tclre $re $symdict]
+    return [lindex [namespace inscope tclre $re $symdict] 1]
 }
 
 # ### ### ### ######### ######### #########
