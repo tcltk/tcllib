@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin grammar::fa::op n 0.2]
+[manpage_begin grammar::fa::op n 0.3]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Finite automaton operations and usage}]
 [titledesc {Operations on finite automatons}]
@@ -7,7 +7,7 @@
 [require snit]
 [require struct::list]
 [require struct::set]
-[require grammar::fa::op [opt 0.2]]
+[require grammar::fa::op [opt 0.3]]
 [description]
 [keywords grammar automaton {finite automaton}]
 [keywords state {regular expression} {regular grammar}]
@@ -389,11 +389,22 @@ these. Accepts the [const S]ymbol "x".
 Concatenation operator. Accepts the concatenation of the regular
 expressions [var A1], [var A2], etc.
 
+[para]
+
+[emph Note] that this operator accepts zero or more arguments. With zero
+arguments the represented language is [term epsilon], the empty word.
+
 [def "{| A1 A2 ...}"]
 
 Choice operator, also called "Alternative". Accepts all input accepted
 by at least one of the regular expressions [var A1], [var A2], etc. In
 other words, the union of [var A1], [var A2].
+
+[para]
+
+[emph Note] that this operator accepts zero or more arguments. With zero
+arguments the represented language is the [term empty] language,
+the language without words.
 
 [def "{& A1 A2 ...}"]
 
