@@ -1,3 +1,12 @@
+2007-08-21  Andreas Kupries  <andreask@activestate.com>
+
+	* faop.man: Extend fromRegex and helper commands to accept zero
+	* faop.tcl: arguments for "|" (Choice) and "." (Sequence), to
+	* pkgIndex.tcl: represent empty language and epsilon
+	  language. Documentation extended. Version of package fa::op
+	  bumped to 0.3. This implements [SF Tcllib Bug 1759532], an RFE
+	  submitted by Lars Hellstroem.
+
 2007-08-14  Andreas Kupries <andreask@activestate.com>
 
 	* tests/fa_symbols_at.test: Added proper documentation for the
