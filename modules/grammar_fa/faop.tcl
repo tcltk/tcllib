@@ -35,12 +35,19 @@ namespace eval ::grammar::fa::op {
 
     proc fromRegex   {fa regex {over {}}} {}
 
+    proc toRegexp    {fa} {}
+    proc toRegexp2   {fa} {}
+
+    proc simplifyRegexp {rex}
+    proc toTclRegexp    {rex}
+
     # ### ### ### ######### ######### #########
 
     namespace export reverse complete remove_eps trim \
 	    determinize minimize complement kleene \
 	    optional union intersect difference \
-	    concatenate fromRegex
+	    concatenate fromRegex toRegexp toRegexp2 \
+	    simplifyRegexp toTclRegexp
 
     # ### ### ### ######### ######### #########
     ## Internal data structures.
@@ -739,7 +746,7 @@ proc ::grammar::fa::op::concatenate {fa fb {mapvar {}}} {
 }
 
 # ### ### ### ######### ######### #########
-## API implementation. Compilation.
+## API implementation. Compilation (regexp -> FA).
 
 proc ::grammar::fa::op::fromRegex {fa regex {over {}}} {
     # Convert a regular expression into a FA. The regex is given as
@@ -1164,6 +1171,435 @@ proc ::grammar::fa::op::FindNewState {fa prefix} {
 }
 
 # ### ### ### ######### ######### #########
+## API implementation. Decompilation (FA -> regexp).
+
+proc ::grammar::fa::op::toRegexp {fa} {
+    # NOTE: FUTURE - Do not go through the serialization, nor through
+    # a matrix. The algorithm can be expressed more directly as
+    # operations on the automaton (states and transitions).
+
+    set ET [ser_to_ematrix [$fa serialize]]
+    while {[llength $ET] > 2} {
+	set ET [matrix_drop_state $ET]
+    }
+    return [lindex $ET 0 1]
+}
+
+proc ::grammar::fa::op::toRegexp2 {fa} {
+    # NOTE: FUTURE - See above.
+    set ET [ser_to_ematrix [$fa serialize]]
+    while {[llength $ET] > 2} {
+	set ET [matrix_drop_state $ET re2]
+    }
+    return [lindex $ET 0 1]
+}
+
+# ### ### ### ######### ######### #########
+## Internal helpers.
+
+proc ::grammar::fa::op::ser_to_ematrix {ser} {
+    if {[lindex $ser 0] ne "grammar::fa"} then {
+	error "Expected grammar::fa automaton serialisation"
+    }
+    set stateL {}
+    set n 2; foreach {state des} [lindex $ser 2] {
+	lappend stateL $state
+	set N($state) $n
+	incr n
+    }
+    set row0 {}
+    for {set k 0} {$k<$n} {incr k} {lappend row0 [list |]}
+    set res [list $row0 $row0]
+    foreach {from des} [lindex $ser 2] {
+	set row [lrange $row0 0 1]
+	if {[lindex $des 0]} then {lset res 0 $N($from) [list .]}
+	if {[lindex $des 1]} then {lset row 1 [list .]}
+	foreach to $stateL {set S($to) [list |]}
+	foreach {symbol targetL} [lindex $des 2] {
+	    if {$symbol eq ""} then {
+		set atom [list .]
+	    } else {
+		set atom [list S $symbol]
+	    }
+	    foreach to $targetL {lappend S($to) $atom}
+	}
+	foreach to $stateL {
+	    if {[llength $S($to)] == 2} then {
+		lappend row [lindex $S($to) 1]
+	    } else {
+		lappend row $S($to)
+	    }
+	}
+	lappend res $row
+    }
+    return $res
+}
+
+proc ::grammar::fa::op::matrix_drop_state {T_in {ns re1}} {
+    set sumcmd ${ns}::|
+    set prodcmd ${ns}::.
+    set T1 {}
+    set lastcol {}
+    foreach row $T_in {
+	lappend T1 [lreplace $row end end]
+	lappend lastcol [lindex $row end]
+    }
+    set lastrow [lindex $T1 end]
+    set T1 [lreplace $T1 end end]
+    set b [${ns}::* [lindex $lastcol end]]
+    set lastcol [lreplace $lastcol end end]
+    set res {}
+    foreach row $T1 a $lastcol {
+	set newrow {}
+	foreach pos $row c $lastrow {
+	    lappend newrow [$sumcmd $pos [$prodcmd $a $b $c]]
+	}
+	lappend res $newrow
+    }
+    return $res
+}
+
+# ### ### ### ######### ######### #########
+## Internal helpers. Regexp simplification I.
+
+namespace eval ::grammar::fa::op::re1 {
+    namespace export | . {\*}
+}
+
+proc ::grammar::fa::op::re1::| {args} {
+    set L {}
+
+    # | = Choices.
+    # Sub-choices are lifted into the top expression (foreach).
+    # Identical choices are reduced to a single term (lsort -uniq).
+
+    foreach re $args {
+	switch -- [lindex $re 0] "|" {
+	    foreach term [lrange $re 1 end] {lappend L $term}
+	} default {
+	    lappend L $re
+	}
+    }
+    set L [lsort -unique $L]
+    if {[llength $L] == 1} then {
+	return [lindex $L 0]
+    } else {
+	return [linsert $L 0 |]
+    }
+}
+
+proc ::grammar::fa::op::re1::. {args} {
+    set L {}
+
+    # . = Sequence.
+    # One element sub-choices are lifted into the top expression.
+    # Sub-sequences are lifted into the top expression.
+
+    foreach re $args {
+	switch -- [lindex $re 0] "." {
+	    foreach term [lrange $re 1 end] {lappend L $term}
+	} "|" {
+	    if {[llength $re] == 1} then {return $re}
+	    lappend L $re
+	} default {
+	    lappend L $re
+	}
+    }
+    if {[llength $L] == 1} then {
+	return [lindex $L 0]
+    } else {
+	return [linsert $L 0 .]
+    }
+}
+
+proc ::grammar::fa::op::re1::* {re} {
+    # * = Kleene closure.
+    # Sub-closures are lifted into the top expression.
+    # One-element sub-(choices,sequences) are lifted into the top expression.
+
+    switch -- [lindex $re 0] "|" - "." {
+	if {[llength $re] == 1} then {
+	    return [list .]
+	} else {
+	    return [list * $re]
+	}
+    } "*" {
+	return $re
+    } default {
+	return [list * $re]
+    }
+}
+
+# ### ### ### ######### ######### #########
+## Internal helpers. Regexp simplification II.
+
+namespace eval ::grammar::fa::op::re2 {
+    # Inherit choices and kleene-closure from the basic simplifier.
+
+    namespace import [namespace parent]::re1::|
+    namespace import [namespace parent]::re1::\\*
+}
+
+proc ::grammar::fa::op::re2::. {args} {
+
+    # . = Sequences
+    # Sub-sequences are lifted into the top expression.
+    # Sub-choices are multiplied out.
+    # <Example a(b|c) => ab|ac >
+
+    set L {}
+    set n -1
+    foreach re $args {
+	incr n
+	switch -- [lindex $re 0] "." {
+	    foreach term [lrange $re 1 end] {lappend L $term}
+	} "|" {
+	    set res [list |]
+	    set L2 [lreplace $args 0 $n]
+	    foreach term [lrange $re 1 end] {
+		lappend res [eval [list .] $L [list $term] $L2]
+	    }
+	    return [eval $res]
+	} default {
+	    lappend L $re
+	}
+    }
+    if {[llength $L] == 1} then {
+	return [lindex $L 0]
+    } else {
+	return [linsert $L 0 .]
+    }
+}
+
+# ### ### ### ######### ######### #########
+## API. Simplification of regular expressions.
+
+proc ::grammar::fa::op::simplifyRegexp {RE0} {
+    set RE1 [namespace inscope nonnull $RE0]
+    if {[lindex $RE1 0] eq "S" || $RE1 eq "." || $RE1 eq "|"} then {
+	return $RE1
+    }
+    set tmp [grammar::fa %AUTO% fromRegex $RE1]
+    $tmp minimize
+    set RE1 [toRegexp $tmp]
+    $tmp destroy
+    if {[string length $RE1] < [string length $RE0]} then {
+	set RE0 $RE1
+    }
+    if {[lindex $RE0 0] eq "S"} then {return $RE0}
+    set res [lrange $RE0 0 0]
+    foreach branch [lrange $RE0 1 end] {
+	lappend res [simplifyRegexp $branch]
+    }
+    return $res
+}
+
+# ### ### ### ######### ######### #########
+## Internal helpers.
+
+namespace eval ::grammar::fa::op::nonnull {}
+
+proc ::grammar::fa::op::nonnull::| {args} {
+    set also_empty false
+    set res [list |]
+    foreach branch $args {
+	set RE [eval $branch]
+	if {[lindex $RE 0] eq "?"} then {
+	    set also_empty true
+	    set RE [lindex $RE 1]
+	}
+	switch -- [lindex $RE 0] "|" {
+	    eval [lreplace $RE 0 0 lappend res]
+	} "." {
+	    if {[llength $RE] == 1} then {
+		set also_empty true
+	    } else {
+		lappend res $RE
+	    }
+	} default {
+	    lappend res $RE
+	}
+    }
+    if {!$also_empty} then {return $res}
+    foreach branch [lrange $res 1 end] {
+	if {[lindex $branch 0] eq "*"} then {return $res}
+    }
+    if {[llength $res] == 1} then {
+	return [list .]
+    } elseif {[llength $res] == 2} then {
+	return [lreplace $res 0 0 ?]
+    } else {
+	return [list ? $res]
+    }
+}
+
+proc ::grammar::fa::op::nonnull::. {args} {
+    set res [list .]
+    foreach branch $args {
+	set RE [eval $branch]
+	switch -- [lindex $RE 0] "|" {
+	    if {[llength $RE] == 1} then {return $RE}
+	    lappend res $RE
+	} "." {
+	    eval [lreplace $RE 0 0 lappend res]
+	} default {
+	    lappend res $RE
+	}
+    }
+    return $res
+}
+
+proc ::grammar::fa::op::nonnull::* {sub} {
+    set RE [eval $sub]
+    switch -- [lindex $RE 0] "*" - "?" - "+" {
+	return [lreplace $RE 0 0 *]
+    } default {
+	return [list * $RE]
+    }
+}
+
+proc ::grammar::fa::op::nonnull::+ {sub} {
+    set RE [eval $sub]
+    switch -- [lindex $RE 0] "+" {
+	return $RE
+    } "*" - "?" {
+	return [lreplace $RE 0 0 *]
+    } default {
+	return [list * $RE]
+    }
+}
+
+proc ::grammar::fa::op::nonnull::? {sub} {
+    set RE [eval $sub]
+    switch -- [lindex $RE 0] "?" - "*" {
+	return $RE
+    } "+" {
+	return [lreplace $RE 0 0 *]
+    } default {
+	return [list ? $RE]
+    }
+}
+
+proc ::grammar::fa::op::nonnull::S {name} {
+    return [list S $name]
+}
+
+# ### ### ### ######### ######### #########
+## API. Translate RE of this package to Tcl REs
+
+proc ::grammar::fa::op::toTclRegexp {re symdict} {
+    return [namespace inscope tclre $re $symdict]
+}
+
+# ### ### ### ######### ######### #########
+## Internal helpers.
+
+namespace eval ::grammar::fa::op::tclre {}
+
+proc ::grammar::fa::op::tclre::S {name dict} {
+    array set A $dict
+    if {[info exists A($name)]} then {
+	return $A($name)
+    } elseif {[string length $name] == 1} then {
+	if {[regexp {[\\\[\]{}.()*+?^$]} $name]} then {
+	    return [list char \\$name]
+	} else {
+	    return [list char $name]
+	}
+    } else {
+	return [list class "\[\[:${name}:\]\]"]
+    }
+}
+
+proc ::grammar::fa::op::tclre::. {args} {
+    set suffix [lrange $args end end]
+    set L {}
+    foreach factor [lrange $args 0 end-1] {
+	set pair [eval $factor $suffix]
+	switch -- [lindex $pair 0] "sum" {
+	    lappend L ([lindex $pair 1])
+	} default {
+	    lappend L [lindex $pair 1]
+	}
+    }
+    return [list prod [join $L ""]]
+}
+
+proc ::grammar::fa::op::tclre::* {re dict} {
+    set pair [eval $re [list $dict]]
+    switch -- [lindex $pair 0] "sum" - "prod" {
+	return [list prod "([lindex $pair 1])*"]
+    } default {
+	return [list prod "[lindex $pair 1]*"]
+    }
+}
+
+proc ::grammar::fa::op::tclre::+ {re dict} {
+    set pair [eval $re [list $dict]]
+    switch -- [lindex $pair 0] "sum" - "prod" {
+	return [list prod "([lindex $pair 1])+"]
+    } default {
+	return [list prod "[lindex $pair 1]+"]
+    }
+}
+
+proc ::grammar::fa::op::tclre::? {re dict} {
+    set pair [eval $re [list $dict]]
+    switch -- [lindex $pair 0] "sum" - "prod" {
+	return [list prod "([lindex $pair 1])?"]
+    } default {
+	return [list prod "[lindex $pair 1]?"]
+    }
+}
+
+proc ::grammar::fa::op::tclre::| {args} {
+    set suffix [lrange $args end end]
+    set charL {}
+    set classL {}
+    set prodL {}
+    foreach factor [lrange $args 0 end-1] {
+	set pair [eval $factor $suffix]
+	switch -- [lindex $pair 0] "char" {
+	    lappend charL [lindex $pair 1]
+	} "class" {
+	    lappend classL [string range [lindex $pair 1] 1 end-1]
+	} default {
+	    lappend prodL [lindex $pair 1]
+	}
+    }
+    if {[llength $charL]>1 || [llength $classL]>0} then {
+	while {[set n [lsearch $charL -]] >= 0} {
+	    lset charL $n {\-}
+	}
+	set bracket "\[[join $charL ""][join $classL ""]\]"
+	if {![llength $prodL]} then {
+	    return [list atom $bracket]
+	}
+	lappend prodL $bracket
+    } else {
+	eval [list lappend prodL] $charL
+    }
+    return [list sum [join $prodL |]]
+}
+
+proc ::grammar::fa::op::tclre::& {args} {
+    error "Cannot express language intersection in Tcl-RE's"
+
+    # Note: This can be translated by constructing an automaton for
+    # the intersection, and then translating its conversion to a
+    # regular expression.
+}
+
+proc ::grammar::fa::op::tclre::! {args} {
+    error "Cannot express language complementation in Tcl-RE's"
+
+    # Note: This can be translated by constructing an automaton for
+    # the complement, and then translating its conversion to a regular
+    # expression. This however requires knowledge regarding the set of
+    # symbols. Large (utf-8) for Tcl regexes.
+}
+
+# ### ### ### ######### ######### #########
 
 proc ::grammar::fa::op::constructor {cmd} {
     variable cons $cmd
@@ -1179,4 +1615,4 @@ proc ::grammar::fa::op::cons {} {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide grammar::fa::op 0.3
+package provide grammar::fa::op 0.4
