@@ -67,7 +67,7 @@ ftpd		ftpd               1.2.2	1.2.3   	B, D
 ------          -------         -----------     -----------     ---------------
 grammar_fa	grammar::fa        0.2		0.3     	EF, D
 		grammar::fa::dexec 0.1.1	0.2     	EF (ext. introspection), D
-		grammar::fa::op    0.2         	0.3		EF (nullary .|), D
+		grammar::fa::op    0.2         	0.4		EF (nullary .|, 2regexp), D
 ------          -------         -----------     -----------     ---------------
 http		autoproxy          1.3		1.4     	B, D
 inifile		inifile            0.2		0.2.1     	B, D

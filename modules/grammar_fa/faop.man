@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin grammar::fa::op n 0.3]
+[manpage_begin grammar::fa::op n 0.4]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Finite automaton operations and usage}]
 [titledesc {Operations on finite automatons}]
@@ -7,7 +7,7 @@
 [require snit]
 [require struct::list]
 [require struct::set]
-[require grammar::fa::op [opt 0.3]]
+[require grammar::fa::op [opt 0.4]]
 [description]
 [keywords grammar automaton {finite automaton}]
 [keywords state {regular expression} {regular grammar}]
@@ -436,6 +436,56 @@ symbol the result should run over. See the discussion of the argument
 
 
 [list_end]
+
+
+[call [cmd ::grammar::fa::op::toRegexp] [arg fa]]
+
+This command generates and returns a regular expression which accepts
+the same language as the finite automaton [arg fa]. The regular
+expression is in the format as described above, for
+[cmd ::grammar::fa::op::fromRegex].
+
+[call [cmd ::grammar::fa::op::toRegexp2] [arg fa]]
+
+This command has the same functionality as [cmd ::grammar::fa::op::toRegexp],
+but uses a different algorithm to simplify the generated regular expressions.
+
+
+[call [cmd ::grammar::fa::op::toTclRegexp] [arg regexp] [arg symdict]]
+
+This command generates and returns a regular expression in Tcl syntax for the
+regular expression [arg regexp], if that is possible. [arg regexp] is in the
+same format as expected by [cmd ::grammar::fa::op::fromRegex].
+
+[para]
+
+The command will fail and throw an error if [arg regexp] contains
+complementation and intersection operations.
+
+[para]
+
+The argument [arg symdict] is a dictionary mapping symbol names to 
+pairs of [term {syntactic type}] and Tcl-regexp. If a symbol 
+occurring in the [arg regexp] is not listed in this dictionary then 
+single-character symbols are considered to designate themselves 
+whereas multiple-character symbols are considered to be a character 
+class name.
+
+
+[call [cmd ::grammar::fa::op::simplifyRegexp] [arg regexp]]
+
+This command simplifies a regular expression by applying the following
+algorithm first to the main expression and then recursively to all
+sub-expressions:
+
+[list_begin enum]
+[enum] Convert the expression into a finite automaton.
+[enum] Minimize the automaton.
+[enum] Convert the automaton back to a regular expression.
+[enum] Choose the shorter of original expression and expression from
+the previous step.
+[list_end]
+
 [list_end]
 
 [para]
