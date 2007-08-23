@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: bench.tcl,v 1.11 2007/08/21 22:31:03 andreas_kupries Exp $
+# RCS: @(#) $Id: bench.tcl,v 1.12 2007/08/23 17:35:10 andreas_kupries Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -298,7 +298,7 @@ proc ::bench::norm {data col} {
 	set DATA($key) [expr {$v/double($vref)}]
     }
 
-    foreach key [array names DATA *$refip] {
+    foreach key [array names DATA [list * $refip]] {
 	if {![string is double -strict $DATA($key)]} continue
 	set DATA($key) 1
     }
@@ -345,7 +345,7 @@ proc ::bench::edit {data col new} {
     set DATA([list interp $new]) $DATA($refkey)
     unset                         DATA($refkey)
 
-    foreach key [array names DATA *$refip] {
+    foreach key [array names DATA [list * $refip]] {
 	if {![string equal [lindex $key 0] "usec"]} continue
 	foreach {__ desc ip} $key break
 	set DATA([list usec $desc $new]) $DATA($key)
@@ -387,7 +387,7 @@ proc ::bench::del {data col} {
     unset DATA([list interp $refip])
 
     # Do not use 'array unset'. Keep 8.2 clean.
-    foreach key [array names DATA *$refip] {
+    foreach key [array names DATA [list * $refip]] {
 	if {![string equal [lindex $key 0] "usec"]} continue
 	unset DATA($key)
     }
@@ -521,4 +521,4 @@ namespace eval ::bench {
 # ### ### ### ######### ######### ######### ###########################
 ## Ready to run
 
-package provide bench 0.3
+package provide bench 0.3.1
