@@ -46,7 +46,7 @@ Module          Package         Old version     New Version     Comments
 asn		asn                0.7		0.8.1   	D, B
 base64		uuencode           1.1.3	1.1.4   	B, D
 ------          -------         -----------     -----------     ---------------
-bench		bench              0.1		0.3     	EF, D, B
+bench		bench              0.1		0.3.1     	EF, D, B
 		bench::out::csv    0.1.1        0.1.2   	B
 		bench::out::text   0.1.1        0.1.2   	B
 ------          -------         -----------     -----------     ---------------
