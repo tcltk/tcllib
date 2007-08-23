@@ -4,7 +4,8 @@
 	* bench.man: the data array, was not matching the list quoting
 	* pkgIndex.tcl: used to generate the keys. Was fine while we had
 	  no keys with spaces in the interp reference, but with -pkgdir
-	  this is possible, and broke. Version bumped to 0.3.1.
+	  this is possible, and broke. Version bumped to 0.3.1. Reported
+	  by Rolf Ade.
 
 2007-08-21  Andreas Kupries  <andreask@activestate.com>
 
