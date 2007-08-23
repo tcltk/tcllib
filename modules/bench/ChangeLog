@@ -1,3 +1,11 @@
+2007-08-23  Andreas Kupries  <andreask@activestate.com>
+
+	* bench.tcl: Fixed problem with the glob patterns used to query
+	* bench.man: the data array, was not matching the list quoting
+	* pkgIndex.tcl: used to generate the keys. Was fine while we had
+	  no keys with spaces in the interp reference, but with -pkgdir
+	  this is possible, and broke. Version bumped to 0.3.1.
+
 2007-08-21  Andreas Kupries  <andreask@activestate.com>
 
 	* bench.tcl (::bench::run): Extended with a new option -pkgdir
