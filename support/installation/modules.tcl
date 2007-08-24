@@ -72,6 +72,7 @@ Module  jpeg        _tcl  _man  _null
 Module  json        _tcl  _man  _null
 Module  ldap        _tcl  _man _exa
 Module  log          _msg _man  _null
+Module  mapproj     _tcl  _man _exa
 Module  math         _tci _man _exa
 Module  md4         _tcl  _man  _null
 Module  md5         _tcl  _man  _null
