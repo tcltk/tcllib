@@ -1,4 +1,4 @@
-RCS: @(#) $Id: README.developer,v 1.3 2007/08/21 22:04:14 andreas_kupries Exp $
+RCS: @(#) $Id: README.developer,v 1.4 2007/08/24 20:17:52 andreas_kupries Exp $
 
 Welcome to the tcllib, the Tcl Standard Library.
 ================================================
@@ -31,6 +31,96 @@ Basics
 	sak.tcl
 
 < Tasks, and how to perform them >
+
+
+Adding a new module
+-------------------
+
+Assuming that FOO is the name of the new module, and T is the toplevel
+directory of the Tcllib sources
+
+(1)	Create the directory T/modules/FOO and put all the files of
+	the module into it. Note:
+
+	* The file 'pkgIndex.tcl' is required.
+
+	* Implementation files should have the extension '.tcl',
+	  naturally.
+
+	* If available, documentation should be in doctools format,
+          and the files should have the extension '.man' for SAK to
+          recognize them.
+
+	* If available a/the testsuite(s) should use 'tcltest' and the
+	  general format as used by the other modules in Tcllib
+	  (Declaration of minimally needed Tcl, tcltest, supporting
+	  packages, etc.). The file(s) should have the extension
+	  '.test' for SAK to recognize them.
+
+	* If available a/the testsuite(s) should use 'bench' and the
+          general format as used by the other modules in Tcllib. The
+          file(s) should have the extension '.bench' for SAK to
+          recognize them.
+
+	* Other files can be named and placed as the module sees fit.
+
+(2)	If the new module has an example applications A which is
+	polished enough for general use put this application into the
+	file "T/apps/A.tcl", and its documentation into the file
+	"T/apps/EA.man". The latter is optional.
+
+	For examples which are not full-fledged applications, or a
+	skeleton, or not really polished for use, etc. create the
+	directory T/examples/FOO/ and put them there.
+
+	A key difference is what happens to them on installation, and
+	what the target audience is.
+
+	The examples are for developers using packages in Tcllib,
+	whereas the applications are also for users of Tcllib which do
+	not have an interest in developing for and with it. As such
+	they are installed as regular binaries, acessible through the
+	PATH, and examples are not.
+
+(3)	To make Tcllib's installer aware of FOO edit the file
+
+		T/support/installation/modules.tcl
+
+	Add a line 'Module FOO $impaction $docaction $exaction'. The
+	various actions describe to the installer how to install the
+	implementation files, the documentation, and the examples.
+
+	Add a line 'Application A' for any application A which was
+	added to T/apps for FOO.
+
+	The following actions are available:
+
+	Implementation
+
+		_tcl - Copy all .tcl files in T/modules/FOO into the installation.
+		_tcr - See above, does it for .tcl files in subdirectories as well.
+		_tci - _tcl + Copying of a tclIndex - special to modules 'math', 'control'.
+		_msg - _tcl + Copying of subdir 'msgs' - special to modules 'dns', 'log'.
+		_doc - _tcl + Copying of subdir 'mpformats' - special to module 'doctools'.
+		_tex - _tcl + Copying of .tex files - special to module 'textutil'.
+
+		The _null action, see below, is available in principle
+		too, but a module without implementation does not make
+		sense.
+
+	Documentation
+
+		_null - Module has no documentation, do nothing.
+		_man  - Process the .man files in T/modules/FOO and
+			install the results (nroff and/or html) in the
+			proper location, as given to the installer.
+
+	Examples
+
+		_null - Module has no examples, do nothing
+		_exa  - Copy the directory T/examples/FOO
+			(recursively) to the install location for
+			examples.
 
 
 Testing modules
