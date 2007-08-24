@@ -1,3 +1,7 @@
+2007-08-24  Kevin B. Kenny  <kennykb@acm.org>
+
+	* support/installation/modules.tcl: New module 'mapproj' added.
+	
 2007-08-24  Andreas Kupries  <andreask@activestate.com>
 
 	* README.developer: Added a section describing the basic steps of
