@@ -95,6 +95,10 @@ returned.
   Set the domain search list. This is currently not used.
 [def "[cmd -timeout] [arg milliseconds]"]
   Set the default timeout value for DNS lookups. Default is 30 seconds.
+[def "[cmd -loglevel] [arg level]"]
+  Set the log level used for emitting diagnostic messages from this
+  package. The default is [term warn]. See the [package log] package
+  for details of the available levels.
 [list_end]
 
 
