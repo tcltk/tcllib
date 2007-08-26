@@ -29,7 +29,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: dns.tcl,v 1.34 2006/05/05 08:02:20 patthoyts Exp $
+# $Id: dns.tcl,v 1.35 2007/08/26 00:44:34 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -38,8 +38,8 @@ package require uri::urn;               # tcllib 1.2
 package require ip;                     # tcllib 1.7
 
 namespace eval ::dns {
-    variable version 1.3.1
-    variable rcsid {$Id: dns.tcl,v 1.34 2006/05/05 08:02:20 patthoyts Exp $}
+    variable version 1.3.2
+    variable rcsid {$Id: dns.tcl,v 1.35 2007/08/26 00:44:34 patthoyts Exp $}
 
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
@@ -660,10 +660,6 @@ proc ::dns::TcpTransmit {token} {
     variable $token
     upvar 0 $token state
 
-    # For TCP the message must be prefixed with a 16bit length field.
-    set req [binary format S [string length $state(request)]]
-    append req $state(request)
-
     # setup the timeout
     if {$state(-timeout) > 0} {
         set state(after) [after $state(-timeout) \
@@ -672,16 +668,36 @@ proc ::dns::TcpTransmit {token} {
                                    "operation timed out"]]
     }
 
-    set s [socket $state(-nameserver) $state(-port)]
-    fconfigure $s -blocking 0 -translation binary -buffering none
+    # Sometimes DNS servers drop TCP requests. So it's better to
+    # use asynchronous connect
+    set s [socket -async $state(-nameserver) $state(-port)]
+    fileevent $s writable [list [namespace origin TcpConnected] $token $s]
     set state(sock) $s
     set state(status) connect
+
+    return $token
+}
+
+proc ::dns::TcpConnected {token s} {
+    variable $token
+    upvar 0 $token state
+
+    fileevent $s writable {}
+    if {[catch {fconfigure $s -peername}]} {
+	# TCP connection failed
+        Finish $token "can't connect to server"
+	return
+    }
+
+    fconfigure $s -blocking 0 -translation binary -buffering none
+
+    # For TCP the message must be prefixed with a 16bit length field.
+    set req [binary format S [string length $state(request)]]
+    append req $state(request)
 
     puts -nonewline $s $req
 
     fileevent $s readable [list [namespace current]::TcpEvent $token]
-    
-    return $token
 }
 
 # -------------------------------------------------------------------------
