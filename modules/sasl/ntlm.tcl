@@ -18,8 +18,8 @@ package require md4;                    # tcllib 1.4
 
 namespace eval ::SASL {
     namespace eval NTLM {
-        variable version 1.1.0
-        variable rcsid {$Id: ntlm.tcl,v 1.7 2006/09/14 11:33:37 patthoyts Exp $}
+        variable version 1.1.1
+        variable rcsid {$Id: ntlm.tcl,v 1.8 2007/08/26 00:36:45 patthoyts Exp $}
         array set NTLMFlags {
             unicode        0x00000001
             oem            0x00000002
@@ -63,6 +63,9 @@ proc ::SASL::NTLM::NTLM {context challenge args} {
             array set params [Decode $challenge]
             set user [eval [linsert $ctx(callback) end $context username]]
             set pass [eval [linsert $ctx(callback) end $context password]]
+            if {[info exists params(domain)]} {
+                set ctx(realm) $params(domain)
+            }
             set ctx(response) [CreateResponse \
                                    $ctx(realm) $ctx(hostname) \
                                    $user $pass $params(nonce) $params(flags)]
