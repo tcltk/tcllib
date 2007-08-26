@@ -1,3 +1,8 @@
+2007-08-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* gtoken.tcl: Applied patch #1774859 from Sergei Golovan to handle
+	failed authentication.
+
 2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sasl.man: Fixed all warnings due to use of now deprecated
