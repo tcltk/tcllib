@@ -3,7 +3,7 @@
 [moddesc   {Domain Name Service}]
 [titledesc {Tcl Domain Name Service Client}]
 [require Tcl 8.2]
-[require dns [opt 1.3.0]]
+[require dns [opt 1.3.2]]
 [description]
 [para]
 
