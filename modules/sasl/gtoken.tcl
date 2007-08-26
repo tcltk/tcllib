@@ -17,8 +17,8 @@ package require tls
 
 namespace eval ::SASL {
     namespace eval XGoogleToken {
-        variable version 1.0.0
-        variable rcsid {$Id: gtoken.tcl,v 1.3 2007/08/26 00:27:45 patthoyts Exp $}
+        variable version 1.0.1
+        variable rcsid {$Id: gtoken.tcl,v 1.4 2007/08/26 00:36:45 patthoyts Exp $}
         variable URLa https://www.google.com/accounts/ClientAuth
         variable URLb https://www.google.com/accounts/IssueAuthToken
 

@@ -1,5 +1,7 @@
 2007-08-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* ntlm.tcl: Applied patch #1653431 to make use of the returned NT
+	domain if present.
 	* gtoken.tcl: Applied patch #1774859 from Sergei Golovan to handle
 	failed authentication.
 
