@@ -18,7 +18,7 @@ package require tls
 namespace eval ::SASL {
     namespace eval XGoogleToken {
         variable version 1.0.0
-        variable rcsid {$Id: gtoken.tcl,v 1.2 2006/04/26 09:05:11 patthoyts Exp $}
+        variable rcsid {$Id: gtoken.tcl,v 1.3 2007/08/26 00:27:45 patthoyts Exp $}
         variable URLa https://www.google.com/accounts/ClientAuth
         variable URLb https://www.google.com/accounts/IssueAuthToken
 
@@ -49,16 +49,20 @@ proc ::SASL::XGoogleToken::client {context challenge args} {
         foreach line [split [http::data $tok] \n] {
             array set g [split $line =]
         }
-        set query [http::formatQuery SID $g(SID) LSID $g(LSID) \
-                       service mail Session true]
-        set tok2 [http::geturl $URLb -query $query -timeout 30000]
+        if {![info exists g(Error)]} {
+            set query [http::formatQuery SID $g(SID) LSID $g(LSID) \
+                           service mail Session true]
+            set tok2 [http::geturl $URLb -query $query -timeout 30000]
 
-        if {[http::status $tok2] eq "ok"} {
-            set reply "\0$username\0[http::data $tok2]"
-        } else {
-            set err [http::error $tok2]
-        }
-        http::cleanup $tok2
+            if {[http::status $tok2] eq "ok"} {
+                set reply "\0$username\0[http::data $tok2]"
+            } else {
+                set err [http::error $tok2]
+            }
+            http::cleanup $tok2
+       } else {
+           set err "Invalid username or password"
+       }
     } else {
         set err [http::error $tok]
     }
