@@ -13,6 +13,8 @@ Module          Package                 New Version     Comments
 fileutil        fileutil::multi                 0.1      multi-file operations
                 fileutil::multi::op             0.5      ditto, OO API
 ------          -------                 -----------     -----------------------
+mapproj		mapproj				1.0	Map projections.
+------          -------                 -----------     -----------------------
 nns             nameserv                        0.3      nameservice client
                 nameserv::auto                  0.1      nameservice extended client
                 nameserv::common                0.1      nameservice shared code
@@ -53,7 +55,9 @@ bench           bench              0.1          0.3.1           EF, D, B
 blowfish        blowfish           1.0.2        1.0.3           B, D
 comm            comm               4.4          4.5.6           EF (futures), B, D
 des             des                1.0.0        1.1.0           EF (padding), D
-dns             ip                 1.1.1        1.1.2           B, D
+------          -------         -----------     -----------     ---------------
+dns             dns                1.3.1        1.3.3           B, D
+                ip                 1.1.1        1.1.2           B, D
 ------          -------         -----------     -----------     ---------------
 doctools        doctools           1.2.1        1.3             EF (syntax), B, D, T
                 doctools::idx      0.2.1        0.3             EF (syntax), D, T
@@ -87,6 +91,9 @@ mime            mime               1.5.1        1.5.2           B, T, D
 nmea            nmea               0.1          0.1.1           B, D
 page            page::compiler::peg::mecpu 0.1  0.1.1           B
 png             png                0.1.1        0.1.2           B, D, T
+------          -------         -----------     -----------     ---------------
+sasl            SASL::NTLM         1.1.0        1.1.1           B, D
+                SASL::XGoogleToken 1.0.0        1.0.1           B, D
 ------          -------         -----------     -----------     ---------------
 sha1            sha1               2.0.2        2.0.3           B, D, T
                 sha256             1.0.1        1.0.2           B, D, T
@@ -125,8 +132,7 @@ crc             cksum                           1.1.1           D
 csv             csv                             0.7             D
 des             tclDES                          1.0.0
                 tclDESjr                        1.0.0
-dns             dns                             1.3.1           D
-                ip                              1.1.1           B
+dns             ip                              1.1.1           B
                 resolv                          1.0.3
                 spf                             1.1.0
 docstrip        docstrip                        1.2
@@ -218,9 +224,7 @@ report          report                          0.3.1           D
 ripemd          ripemd128                       1.0.3           D
                 ripemd160                       1.0.3           D
 sasl            SASL                            1.3.1           D
-                SASL::NTLM                      1.1.0           D
-                SASL::XGoogleToken              1.0.0           D
-sha1            sha1                            1.1.0           D, T
+                sha1                            1.1.0           D, T
 smtpd           smtpd                           1.4.0           D
 soundex         soundex                         1.0             D
 stooop          stooop                          4.4.1           D, T
