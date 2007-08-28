@@ -1,9 +1,9 @@
 Overview
 ========
 
-  6 new packages in 3 new modules and 1 modules with 2 new packages.
- 40 changed packages.
-167 unchanged packages (or non-visible changes, like testsuites)
+  7 new packages in 4 new modules and 1 module with 2 new packages.
+ 43 changed packages.
+164 unchanged packages (or non-visible changes, like testsuites)
 
 New in Tcllib 1.10
 ==================
@@ -13,7 +13,7 @@ Module          Package                 New Version     Comments
 fileutil        fileutil::multi                 0.1      multi-file operations
                 fileutil::multi::op             0.5      ditto, OO API
 ------          -------                 -----------     -----------------------
-mapproj		mapproj				1.0	Map projections.
+mapproj         mapproj                         1.0     Map projections.
 ------          -------                 -----------     -----------------------
 nns             nameserv                        0.3      nameservice client
                 nameserv::auto                  0.1      nameservice extended client
