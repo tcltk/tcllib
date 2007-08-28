@@ -1,3 +1,8 @@
+2007-08-28  Andreas Kupries  <andreask@activestate.com>
+
+	* support/releases/history/README-1.10.txt: Whitespace and
+	  formatting cleanup after various updates for modified packages.
+
 2007-08-24  Kevin B. Kenny  <kennykb@acm.org>
 
 	* support/installation/modules.tcl: New module 'mapproj' added.
