@@ -1,3 +1,17 @@
+2007-08-29  Andreas Kupries  <andreask@activestate.com>
+
+	* tree.testsuite: Simplified constraint definition, we now have a
+	  standard syntax (backward compat def for tcltest 1.0 in the
+	  devtools/testutilities.tcl).
+
+	* sets.testsuite: Added a test demonstrating a shimmering problem
+	  in the C implementation of struct::set (handling of pure list
+	  values is bad).
+
+	* sets/s.c: Fixed the bug demonstrated by the new test, see
+	* pkgIndex.tcl: above. Version of package bumped to 2.2.1. Version
+	  of tcllibc bumped to 0.3.2.
+
 2007-08-22  Andreas Kupries  <andreask@activestate.com>
 
 	* struct_list.man: Fixed example for 'filterfor', removed the

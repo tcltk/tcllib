@@ -103,7 +103,7 @@ snit            snit               1.2          1.3.1           EF (introspectio
 ------          -------         -----------     -----------     ---------------
 struct          struct::graph      2.1          2.2             EF (Critcl), T, D
                 struct::list       1.6          1.6.1           B
-                struct::set        2.1.1        2.2             EF (Critcl), T, D
+                struct::set        2.1.1        2.2.1           EF (Critcl), B, T, D
 ------          -------         -----------     -----------     ---------------
 tar             tar                0.2          0.4             B, D
 uri             uri                1.2          1.2.1           B, D
