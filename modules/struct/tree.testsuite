@@ -8,20 +8,9 @@
 # Copyright (c) 2000-2007 by Andreas Kupries
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.testsuite,v 1.5 2007/08/29 22:10:31 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.testsuite,v 1.6 2007/08/29 23:03:36 andreas_kupries Exp $
 
 ::tcltest::testConstraint tree_critcl [string equal $impl critcl]
-
-if 0 
-if {[package vsatisfies [package provide tcltest] 2.0]} {
-    # tcltest2.0+ has an API to specify a test constraint
-    ::tcltest::testConstraint tree_critcl \
-	[string equal $impl critcl]
-} else {
-    # In tcltest1.0, a global variable needs to be set directly.
-    set ::tcltest::testConstraints(tree_critcl) \
-	[string equal $impl critcl]
-}
 
 ############################################################
 # I. Tree object construction and destruction ...
