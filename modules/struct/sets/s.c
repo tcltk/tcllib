@@ -182,6 +182,21 @@ from_any (Tcl_Interp* ip, Tcl_Obj* obj)
 
     oldTypePtr = obj->typePtr;
 
+    /* Now, if the value was pure we forcibly generate the string-rep, to
+     * capture the existing semantics of the value. Because we now enter the
+     * realm of unordered, and the actual value may not be. If so, then not
+     * having the string-rep will later cause the generation of an arbitrarily
+     * ordered string-rep when the value is shimmered to some other type. This
+     * is most visible for lists, which are ordered. A shimmer list->set->list
+     * may reorder the elements if we do not capture their order in the
+     * string-rep.
+     *
+     * See test case -15.0 in sets.testsuite demonstrating this.
+     * Disable the Tcl_GetString below and see the test fail.
+     */
+
+     Tcl_GetString (obj);
+
     /* Gen hash table from list */
 
     s = (SPtr) ckalloc (sizeof (S));
