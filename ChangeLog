@@ -1,7 +1,13 @@
 2007-08-30  Andreas Kupries  <andreask@activestate.com>
 
+	* devdoc/critcl-tcllib.txt: Fixed [SF Tcllib Bug 1784843], applied
+	* devdoc/dirlayout_install.txt: Larry Virden's patches fixing typos,
+	* devdoc/indexing.txt: and doing other editorial changes.
+	* devdoc/installation.txt:
+	* devdoc/devguide.html:
+
 	* README.developer: Fixed [SF Tcllib Bug 1784836], applied Larry
-	* README: Virden patches fixing typos, and doing other editorial
+	* README: Virden's patches fixing typos, and doing other editorial
 	  changes.
 
 2007-08-29  Andreas Kupries  <andreask@activestate.com>
