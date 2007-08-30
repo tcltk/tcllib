@@ -1,3 +1,9 @@
+2007-08-30  Andreas Kupries  <andreask@activestate.com>
+
+	* page_pluginmgr.man: First documentation for the packages, intro,
+	* page_intro.man: and the plugin management.
+	* pluginmgr.tcl: Fixed a typo in a comment.
+
 2007-06-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pluginmgr.tcl: Replaced deprecated {expand} syntax in comments

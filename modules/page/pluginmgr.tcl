@@ -287,7 +287,7 @@ proc ::page::pluginmgr::report {level text {from {}} {to {}}} {
 
 ## Data structures
 ##
-## - reader    | Instances of puginmgr configured for input,
+## - reader    | Instances of pluginmgr configured for input,
 ## - transform | transformational, and output plugins. The
 ## - writer    | manager for transforms is actually a template
 ##             | from which the actual instances are cloned.
