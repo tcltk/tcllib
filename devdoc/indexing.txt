@@ -5,7 +5,7 @@ This document describes the possibilities for using one or more
 pkgIndex.tcl files in an installation of tcllib to provide the
 information about all of its packages to a tcl interpreter, discusses
 their pro and contra and makes a choice for Tcllib 1.4. A roadmap of
-changes in the future is made available as appendix.
+changes in the future is made available as an appendix.
 
 Background under which to see the solutions:
 
@@ -27,7 +27,7 @@ Background under which to see the solutions:
         Other checks are possible, but currently not in use.
 
 Note I:
-	Whether a solutions is actually applicable depends on external
+	Whether a solution is actually applicable depends on external
 	factors, like the chosen directory layout of an installed
 	tcllib.
 
@@ -86,7 +86,7 @@ Note III:
 
                 [[1]]   Relies on the module package index files for
                         the actual registration of packages, thus
-                        automatically inherits the correct contraints
+                        automatically inherits the correct constraints
                         on the registration of packages. No additional
                         complexities.
 
@@ -185,7 +185,7 @@ Note III:
                 [[1]]
                 [[2]]
                 [[6]]   In contrast to [i2/ad] and [i3/ag] repeated
-                        glob'bing for package index files is
+                        glob'ing for package index files is
                         avoided. This cuts down on costly FS accesses.
                         I.e. another perf. boost.
 
@@ -344,12 +344,12 @@ of the sub-ordinate indices to get everything right.
 
 Now axis (a), performance, [i6/dr] is most likely the winner as it
 causes only one index to be read and nothing else. This is followed by
-the all *d solutions, they read the subordinate indices, but do not
-need much globbing. The actual order in this group is difficult to
+the all *d solutions, which read the subordinate indices, but do not
+need much glob'ing. The actual order in this group is difficult to
 determine. I guess that the auto_path extending methods are slower
 than the sourcing methods, and the adding of one directory faster than
 the adding of all, as the latter looks for much more subdirectories.
-The next group oare the *g solutions as they their own globbing too
+The next group are the *g solutions as they perform their own glob'ing too
 beyond that done by the package mgmt.
 
 Two final rankings
@@ -383,7 +383,7 @@ Other opinions:
 	as [i7/ad] fallback for older Tcl before 8.3.1
 
 	Joe English strictly opposes any solution modifying the
-	auto_path, violoating his opinion that index scripts should
+	auto_path, violating his opinion that index scripts should
 	have no side-effects beyond registering a package.
 
 
@@ -393,15 +393,15 @@ Chosen solution for Tcllib 1.4
 After comparing the code for the combination of [i7/ad] and [i6/dr] as
 submitted by Don Porter, and for [i4/sd] as submitted by myself
 (Andreas), and a small discussion on the Tcl'ers chat between Don and
-me we took [i4/sd] for the main body of the idnex, and the header of
+me, we took [i4/sd] for the main body of the index, and the header of
 Don's code. Basically the chosen package index is a combination of
 [i7/id] and of [i4/sd] as fallback.
 
 This is still as easy to generate as [4/sd], the index is also only a
-bit more complex, and speed should be ok too.
+bit more complex, and speed should be okay too.
 
 Don convinced me that while extending auto_path is definitely bad in
-the long-term it is still ok for the short-term and release 1.4.
+the long-term it is still okay for the short-term and release 1.4.
 
 
 Roadmap
