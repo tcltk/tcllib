@@ -1,3 +1,9 @@
+2007-08-30  Andreas Kupries  <andreask@activestate.com>
+
+	* README.developer: Fixed [SF Tcllib Bug 1784836], applied Larry
+	* README: Virden patches fixing typos, and doing other editorial
+	  changes.
+
 2007-08-29  Andreas Kupries  <andreask@activestate.com>
 
 	* modules/tcllibc.tcl: Version of package bumped to 0.3.2 for the
