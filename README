@@ -1,6 +1,6 @@
-RCS: @(#) $Id: README,v 1.8 2004/01/15 06:36:11 andreas_kupries Exp $
+RCS: @(#) $Id: README,v 1.9 2007/08/30 17:24:13 andreas_kupries Exp $
 
-Welcome to the tcllib, the Tcl Standard Library.  This package is
+Welcome to the Tcllib, the Tcl Standard Library.  This package is
 intended to be a collection of Tcl packages that provide utility
 functions useful to a large collection of Tcl programmers.
 
@@ -42,9 +42,9 @@ will be added to tcllib:
   (in the form of a group of *.test files in the module directory).
 
   [*] Possible forms: doctools, TMML/XML, nroff (man), or HTML.
-      The first format is the most prefered as it can be processed with
+      The first format is the most preferred as it can be processed with
       tools provided by tcllib itself (See module doctools). The first
-      two are prefered in general as they are semantic markup and thus
+      two are preferred in general as they are semantic markup and thus
       easier to convert into other formats.
 
 * the module must have either documentation or a test suite.  It can
