@@ -21,7 +21,7 @@
     platform dependent subdirectory and a suitable pkgIndex file is
     created. 
 
-    There are four main possiblities:
+    There are four main possibilities:
        1) library-per-package
        2) package-per-package
        3) package-per-module
@@ -105,7 +105,7 @@
     quite significant - at least for Windows. Building a library for
     all 5 packages is only around 4000 bytes larger than the library
     for a single package. There is also a cost involved in loading
-    each dynamic libary as they have to be loaded from disk and
+    each dynamic library as they have to be loaded from disk and
     relocated in memory. Other concerns are the package namespace
     pollution - by which I mean the proliferation of package names
     caused by creating compiled packages for each tcllib package. Also

@@ -35,7 +35,7 @@ roadmap of changes in the future is made available as appendix.
 	Contra:
 		Directories should be versioned to avoid conflicts
 		between multiple releases. modules have no
-		version. This can be faked for mdules containing one
+		version. This can be faked for modules containing one
 		package, but not for the modules with more.
 
 
@@ -75,7 +75,7 @@ Roadmap
 	package per directory, with appropriate index (and meta data).
 
 	This not only makes sense for easier handling of installation
-	and package indices, but also in the geater context of
+	and package indices, but also in the greater context of
 	wrapping code for deployment.
 
 
