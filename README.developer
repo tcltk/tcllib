@@ -1,4 +1,4 @@
-RCS: @(#) $Id: README.developer,v 1.4 2007/08/24 20:17:52 andreas_kupries Exp $
+RCS: @(#) $Id: README.developer,v 1.5 2007/08/30 17:24:13 andreas_kupries Exp $
 
 Welcome to the tcllib, the Tcl Standard Library.
 ================================================
@@ -10,7 +10,7 @@ This README is intended to be a guide to the tools available to a
 
 	Developer
 
-working on Tcllib to help him with his tasks, i.e. making them easier
+working on Tcllib to help him with his tasks, i.e. making the tasks easier
 to perform. It is our hope that this will improve the quality of even
 non-released revisions of Tcllib, and make the work of the release
 manager easier as well.
@@ -18,8 +18,8 @@ manager easier as well.
 Audience
 --------
 
-The intended audience are first and foremost developers beginning to
-work on Tclib. To an experienced developer this document will be less
+The intended audience, are first and foremost, developers beginning to
+work on Tcllib. To an experienced developer this document will be less
 of a guide and more of a reference. Anybody else interested in working
 on Tcllib is invited as well.
 
@@ -51,26 +51,31 @@ directory of the Tcllib sources
           and the files should have the extension '.man' for SAK to
           recognize them.
 
-	* If available a/the testsuite(s) should use 'tcltest' and the
+	* If available the testsuite(s) should use 'tcltest' and the
 	  general format as used by the other modules in Tcllib
-	  (Declaration of minimally needed Tcl, tcltest, supporting
+	  (declaration of minimally needed Tcl, tcltest, supporting
 	  packages, etc.). The file(s) should have the extension
 	  '.test' for SAK to recognize them.
 
-	* If available a/the testsuite(s) should use 'bench' and the
+	  Note that an empty testsuite, or a testsuite which does not
+	  perform any tests is less than useful and will not be
+	  accepted.
+
+	* If available the benchmark(s) should use 'bench' and the
           general format as used by the other modules in Tcllib. The
           file(s) should have the extension '.bench' for SAK to
           recognize them.
 
 	* Other files can be named and placed as the module sees fit.
 
-(2)	If the new module has an example applications A which is
-	polished enough for general use put this application into the
+(2)	If the new module has an example application A which is
+	polished enough for general use, put this application into the
 	file "T/apps/A.tcl", and its documentation into the file
-	"T/apps/EA.man". The latter is optional.
+	"T/apps/A.man". While documentation for the application is
+	optional, it is preferred.
 
-	For examples which are not full-fledged applications, or a
-	skeleton, or not really polished for use, etc. create the
+	For examples which are not full-fledged applications, a
+	skeleton, or not really polished for use, etc., create the
 	directory T/examples/FOO/ and put them there.
 
 	A key difference is what happens to them on installation, and
@@ -78,11 +83,11 @@ directory of the Tcllib sources
 
 	The examples are for developers using packages in Tcllib,
 	whereas the applications are also for users of Tcllib which do
-	not have an interest in developing for and with it. As such
-	they are installed as regular binaries, acessible through the
-	PATH, and examples are not.
+	not have an interest in developing for and with it. As such,
+	they are installed as regular commands, accessible through the
+	PATH, and example files are not installed.
 
-(3)	To make Tcllib's installer aware of FOO edit the file
+(3)	To make Tcllib's installer aware of FOO, edit the file
 
 		T/support/installation/modules.tcl
 
@@ -112,7 +117,7 @@ directory of the Tcllib sources
 
 		_null - Module has no documentation, do nothing.
 		_man  - Process the .man files in T/modules/FOO and
-			install the results (nroff and/or html) in the
+			install the results (nroff and/or HTML) in the
 			proper location, as given to the installer.
 
 	Examples
@@ -127,7 +132,7 @@ Testing modules
 ---------------
 
 To run the testsuite of a module FOO in tcllib use the 'test run'
-command of sak.tcl, like so:
+argument of sak.tcl, like so:
 
 	% pwd
 	/the/tcllib/toplevel/directory
@@ -135,7 +140,7 @@ command of sak.tcl, like so:
 	% ./sak.tcl test run FOO
 or	% ./sak.tcl test run modules/FOO
 
-To run the testsuites of all modules eiter invoke 'test run' without a
+To run the testsuites of all modules either invoke 'test run' without a
 module name, or use 'make test'. The latter assumes that configure was
 run for Tcllib before, i.e.:
 
@@ -144,25 +149,25 @@ or	% ./sak.tcl test run modules/FOO
 	% make test
 
 In all of the above cases the result will be a combination of progress
-display and testsuite log, showing for which modules tests failed and
-how many (summary at the end).
+display and testsuite log, showing for each module the tests that pass
+or failed and how many of each in a summary at the end.
 
-To get a detailed log it is necessary to invoke 'test run' with
+To get a detailed log, it is necessary to invoke 'test run' with
 additional options.
 
-For one:
+First example:
 	% ./sak.tcl test run -l LOG FOO
 
 This shows the same short log on the terminal, and writes a detailed
 log to the file LOG.log, and excerpts to other files (LOG.summary,
 LOG.failures, etc.).
 
-For two:
+Second example:
 	% ./sak.tcl test run -v FOO
 	% make test > LOG
 
 This writes the detailed log to stdout, or to the file LOG, instead of
-the short log. In all cases the detailed log contains a list of all
+the short log. In all cases, the detailed log contains a list of all
 test cases executed, which failed, and how they failed (expected
 versus actual results).
 
