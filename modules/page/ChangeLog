@@ -1,3 +1,9 @@
+2007-08-31  Andreas Kupries  <andreask@activestate.com>
+
+	* page_util_peg.man: New files. Three more manpages, for most of
+	* page_util_quote.man: the utility packages.
+	* page_util_flow.man: 
+
 2007-08-30  Andreas Kupries  <andreask@activestate.com>
 
 	* page_pluginmgr.man: First documentation for the packages, intro,
