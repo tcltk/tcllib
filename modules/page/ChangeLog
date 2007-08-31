@@ -1,5 +1,8 @@
 2007-08-31  Andreas Kupries  <andreask@activestate.com>
 
+	* page_util_norm_peg.man: New files. Two, for the remaining utility
+	* page_util_norm_lemon.man: packages. Lemon docs are partial.
+
 	* page_util_peg.man: New files. Three more manpages, for most of
 	* page_util_quote.man: the utility packages.
 	* page_util_flow.man: 
