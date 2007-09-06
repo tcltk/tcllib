@@ -1,3 +1,7 @@
+2007-09-06  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
+	* linalg.tcl: Solved bug with matmul (SF bug 1784637)
+
 2007-08-21  Andreas Kupries  <andreask@activestate.com>
 
 	* math.test (matchTolerant): Changed to not use tcltest 2.0+
