@@ -759,7 +759,7 @@ proc ::math::linearalgebra::matmul_mv { matrix vector } {
 #     The vector xtrans*A = Atrans*x
 #
 proc ::math::linearalgebra::matmul_vm { vector matrix } {
-   return [matmul_mv [transpose $matrix] $vector]
+   return [transpose [matmul_mv [transpose $matrix] $vector]]
 }
 
 # matmul_vv --
@@ -1725,7 +1725,7 @@ proc ::math::linearalgebra::from_LA { mv } {
 #
 # Announce the package's presence
 #
-package provide math::linearalgebra 1.0.1
+package provide math::linearalgebra 1.0.2
 
 if { 0 } {
 Te doen:
