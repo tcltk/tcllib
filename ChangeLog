@@ -1,3 +1,8 @@
+2007-09-07  Andreas Kupries  <andreask@activestate.com>
+
+	* support/releases/history/README-1.10.txt: Updated for modified
+	  math package.
+
 2007-08-30  Andreas Kupries  <andreask@activestate.com>
 
 	* devdoc/critcl-tcllib.txt: Fixed [SF Tcllib Bug 1784843], applied
