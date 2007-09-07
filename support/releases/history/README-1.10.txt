@@ -82,7 +82,8 @@ ldap            ldap               1.6.6        1.6.8           B, D
 ------          -------         -----------     -----------     ---------------
 log             logger             0.7          0.8             EF, D
 ------          -------         -----------     -----------     ---------------
-math            math::special      0.2          0.2.1           B, D
+math            math::linearalgebra 1.0.1       1.0.2           B, D
+                math::special      0.2          0.2.1           B, D
                 math::statistics   0.3          0.5             EF (mv linreg), D, T
 ------          -------         -----------     -----------     ---------------
 mime            mime               1.5.1        1.5.2           B, T, D
@@ -177,7 +178,6 @@ math            math                            1.2.4           D
                 math::fuzzy                     0.2             T, D
                 math::geometry                  1.0.3           D
                 math::interpolate               1.0.2           D
-                math::linearalgebra             1.0.1           D
                 math::optimize                  1.0             D
                 math::polynomials               1.0.1           D
                 math::rationalfunctions         1.0.1           D
