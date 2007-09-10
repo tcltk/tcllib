@@ -61,7 +61,7 @@ section [sectref OPTIONS].
 [call [cmd nns] [method search] \
 	[opt "[option -host] [arg host]"] \
 	[opt "[option -port] [arg port]"] \
-        [opt [option -continuous] \
+	[opt [option -continuous]] \
 	[opt [arg pattern]]]
 
 This form searches the specified name service for entries matching the
