@@ -716,7 +716,7 @@ proc ::math::linearalgebra::matmul { mv1 mv2 } {
          return -code error "Can not multiply a matrix with a row vector - wrong order"
     }
     "CM" {
-         return [matmul_vm $mv1 $mv2]
+         return [transpose [matmul_vm $mv1 $mv2]]
     }
     "CR" {
          return [matmul_vv $mv1 [transpose $mv2]]
