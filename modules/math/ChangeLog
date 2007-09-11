@@ -1,6 +1,7 @@
 2007-09-11  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
 	* linalg.test: Corrected test that was linked to SF bug 1784637
+	* linalg.tcl: Corrected case in matmul that was linked to SF bug 1784637
 
 2007-09-06  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
