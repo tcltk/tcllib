@@ -1,3 +1,9 @@
+2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.10 ========================
+	* 
+
 2007-06-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* peg.man: Fixed [Bug 1735588], added text explaining the relation

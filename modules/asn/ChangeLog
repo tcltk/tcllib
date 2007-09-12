@@ -1,3 +1,9 @@
+2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.10 ========================
+	* 
+
 2007-04-20  Michael Schlenker <mic42@users.sourceforge.net>
 
 	* asn.tcl   : Fixed misspelt PRIVATE name in docs and code,

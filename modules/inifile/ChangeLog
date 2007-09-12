@@ -1,3 +1,9 @@
+2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.10 ========================
+	* 
+
 2007-08-20  Andreas Kupries  <andreask@activestate.com>
 
 	* ini.man: Bumped package version to 0.2.1, due to bugfix in last
