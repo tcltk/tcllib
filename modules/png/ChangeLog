@@ -1,3 +1,9 @@
+2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.10 ========================
+	* 
+
 2007-08-20  Andreas Kupries  <andreask@activestate.com>
 
 	* png.tcl: Bumped version of package to 0.1.2.

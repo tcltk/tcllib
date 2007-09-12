@@ -1,3 +1,9 @@
+2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.10 ========================
+	* 
+
 2007-08-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* dns.tcl: Applied patch #1610330 from Sergei Golovan to provide
