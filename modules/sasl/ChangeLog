@@ -1,3 +1,9 @@
+2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.10 ========================
+	* 
+
 2007-08-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* ntlm.tcl: Applied patch #1653431 to make use of the returned NT

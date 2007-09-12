@@ -1,3 +1,9 @@
+2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.10 ========================
+	* 
+
 2007-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* textutil.man: Fixed all warnings due to use of now deprecated
