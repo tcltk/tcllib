@@ -23,7 +23,7 @@ generated Tcl code.
 
 [list_begin definitions]
 
-[call [cmd ::fileutil::magic::file] [arg filename]]
+[call [cmd ::fileutil::magic::filetype] [arg filename]]
 
 This command is similar to the command [cmd fileutil::fileType].
 
