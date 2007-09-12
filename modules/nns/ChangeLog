@@ -1,3 +1,9 @@
+2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.10 ========================
+	* 
+
 2007-07-18  Andreas Kupries  <andreask@activestate.com>
 
 	* ../../apps/nnsd: Fixed option bug. Bumped version to 1.0.1.

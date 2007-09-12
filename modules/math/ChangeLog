@@ -1,3 +1,9 @@
+2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.10 ========================
+	* 
+
 2007-09-11  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
 	* linalg.test: Corrected test that was linked to SF bug 1784637
