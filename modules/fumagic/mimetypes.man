@@ -18,7 +18,7 @@ mime-types.
 
 [list_begin definitions]
 
-[call [cmd ::fileutil::magic::mime] [arg filename]]
+[call [cmd ::fileutil::magic::mimetype] [arg filename]]
 
 This command is similar to the command [cmd fileutil::fileType].
 

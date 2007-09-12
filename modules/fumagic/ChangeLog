@@ -1,3 +1,8 @@
+2007-09-12  Andreas Kupries  <andreask@activestate.com>
+
+	* filetypes.man: Fixed typos in the documentation, incomplete
+	* mimetypes.man: command names. Fixes [SF Bug 1791379].
+
 2007-06-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* cfront.tcl: Replaced deprecated {expand} syntax in comments with
