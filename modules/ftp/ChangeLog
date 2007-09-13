@@ -1,3 +1,10 @@
+2007-09-13  Andreas Kupries  <andreask@activestate.com>
+
+	* ftp_geturl.tcl (::ftp::geturl): Fixed the handling of urls which
+	* pkgIndex.tcl: are directories instead of files, per the patch
+	* ftp.man: coming with [SF Tcllib Bug 1793855], suggested by
+	  Gerald Lester. Bumped version of ftp::geturl to 0.2.1.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
