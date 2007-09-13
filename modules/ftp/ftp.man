@@ -4,7 +4,7 @@
 [titledesc {Client-side tcl implementation of the ftp protocol}]
 [require Tcl 8.2]
 [require ftp         [opt 2.4.8]]
-[require ftp::geturl [opt 0.2]]
+[require ftp::geturl [opt 0.2.1]]
 [description]
 
 
