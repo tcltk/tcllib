@@ -81,7 +81,11 @@ proc ::ftp::geturl {url} {
     #switch -exact -- [lindex $flist($ftp_file) 0] {}
     switch -exact -- [string index [lindex $flist 0] 0] {
 	- {
-	    ftp::Get $fdc $ftp_file -variable contents
+	    if {[string equal $ftp_file {}]} {
+                set contents [ftp::NList $fdc $ftp_file]
+            } else {
+                ftp::Get $fdc $ftp_file -variable contents
+            }
 	}
 	d {
 	    set contents [ftp::NList $fdc $ftp_file]
@@ -128,4 +132,4 @@ proc ::ftp::ParseList {flist} {
 # ==================================================================
 # At last, everything is fine, we can provide the package.
 
-package provide ftp::geturl [lindex {Revision: 0.2} 1]
+package provide ftp::geturl [lindex {Revision: 0.2.1} 1]
