@@ -1,3 +1,9 @@
+2007-09-17  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* blowfish.test: Fix default if -dir option is not specified it
+	defaults to 'enc' and this fails to match 'encrypt' and results in
+	the default operation being 'decrypt'
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
