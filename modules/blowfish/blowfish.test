@@ -1,6 +1,6 @@
 # blowfish.test - Copyright (C) 2004 Pat Thoyts <patthoyts@users.sf.net>
 #
-# $Id: blowfish.test,v 1.10 2007/03/13 09:08:29 patthoyts Exp $
+# $Id: blowfish.test,v 1.11 2007/09/17 14:19:07 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 
@@ -291,6 +291,16 @@ foreach impl [implementations] {
                 || [string equal $msg \
                         {can not encrypt incomplete block at end of input}]}]
     } {1 1}
+
+    test blowfish-$impl-9.3 {check -dir option default is encrypt} {
+        list [catch {
+            set key "04B915BA43FEB5B6"
+            set text "42FD443059577FA2"
+            set cipher [blowfish::blowfish -mode ecb -pad "" -hex\
+                            -key [binary format H* $key]\
+                            -- [binary format H* $text]]
+        } msg] $msg
+    } {0 353882b109ce8f1a}
 
     reset_implementation
 }

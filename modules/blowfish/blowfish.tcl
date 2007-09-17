@@ -20,8 +20,8 @@
 package require Tcl 8.2
 
 namespace eval blowfish {
-    variable version 1.0.3
-    variable rcsid {$Id: blowfish.tcl,v 1.9 2007/08/20 19:36:49 andreas_kupries Exp $}
+    variable version 1.0.4
+    variable rcsid {$Id: blowfish.tcl,v 1.10 2007/09/17 14:19:07 patthoyts Exp $}
     variable uid ; if {![info exists uid]} { set uid 0 }
     variable accel
     array set accel {trf 0}
@@ -605,7 +605,7 @@ proc ::blowfish::Pop {varname {nth 0}} {
 
 proc ::blowfish::blowfish {args} {
     variable accel
-    array set opts {-dir enc -mode cbc -key {} -in {} -out {} -hex 0 -pad \0}
+    array set opts {-dir encrypt -mode cbc -key {} -in {} -out {} -hex 0 -pad \0}
     set opts(-chunksize) 4096
     set opts(-iv) [string repeat \0 8]
     set modes {ecb cbc}

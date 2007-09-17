@@ -4,7 +4,7 @@
 [moddesc   {Blowfish Block Cipher}]
 [titledesc {Implementation of the Blowfish block cipher}]
 [require Tcl 8.4]
-[require blowfish [opt 1.0.3]]
+[require blowfish [opt 1.0.4]]
 [description]
 [para]
 
