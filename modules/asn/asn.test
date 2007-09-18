@@ -5,7 +5,7 @@
 # Copyright (c) 2004-2007 by Michael Schlenker <mic42@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: asn.test,v 1.17 2007/04/21 12:35:14 mic42 Exp $
+# RCS: @(#) $Id: asn.test,v 1.18 2007/09/18 21:03:18 mic42 Exp $
 
 # -------------------------------------------------------------------------
 
@@ -871,6 +871,36 @@ test asn-32.13 {asnTag tag PRIVATE,CONSTRUCTED} {
 test asn-32.14 {asnTag tag UNIVERSAL, CONSTRUCTED} {
 	bytes2hex [asn::asnTag 5 UNIVERSAL C]
 } {25}
+
+foreach {n hex bin} {
+    1	03020780    1
+    2   030206c0    11
+    3   03020680    10
+    4   030200ff    11111111
+    5   03020000    00000000
+    6   0303078000  100000000
+} {
+    test asn-33.$n "asnBitstring $bin" \
+	"binary scan \[asn::asnBitString $bin\] H* val
+	 set val" \
+	$hex
+}
+
+foreach {n hex bin} {
+    1	03020780    1
+    2   030206c0    11
+    3   03020680    10
+    4   030200ff    11111111
+    5   03020000    00000000
+    6   0303078000  100000000
+} {
+    test asn-34.$n "asnGetBitstring $bin" \
+	"set data \[binary format H* $hex\] 
+	 asn::asnGetBitString data bits 
+	 set bits " \
+	 $bin
+}
+
 
 testsuiteCleanup
 
