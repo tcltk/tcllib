@@ -1,3 +1,9 @@
+2007-09-18  Michael Schlenker <mic42@users.sourceforge.net>
+
+        * asn.tcl  : Fixed missing padding in bitstring encoder 
+          asn.man  : Tcllib SF [1797428], added some tests for
+          asn.test :  Bitstrings. Patchlevel now 0.8.2.
+	  
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

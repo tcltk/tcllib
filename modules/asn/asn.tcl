@@ -38,7 +38,7 @@
 #   written by Jochen Loewer
 #   3 June, 1999
 #
-#   $Id: asn.tcl,v 1.17 2007/04/21 12:35:14 mic42 Exp $
+#   $Id: asn.tcl,v 1.18 2007/09/18 21:03:18 mic42 Exp $
 #
 #-----------------------------------------------------------------------------
 
@@ -481,9 +481,9 @@ proc ::asn::asnBitString {bitstring} {
     set bitlen [string length $bitstring]
     set padding [expr {(8 - ($bitlen % 8)) % 8}]
     set len [expr {($bitlen / 8) + 1}]
-    if {$padding != 0} {incr len}
-    
-    return [binary format H2a*B* 03 [asnLength $len] $bitstring]    
+    if {$padding != 0} { incr len }
+
+    return [binary format H2a*cB* 03 [asnLength $len] $padding $bitstring]    
 }
 
 #-----------------------------------------------------------------------------
@@ -1494,5 +1494,5 @@ proc ::asn::asnString {string} {
 }
 
 #-----------------------------------------------------------------------------
-package provide asn 0.8.1
+package provide asn 0.8.2
 
