@@ -6,7 +6,7 @@
 [moddesc   {ASN.1 processing}]
 [titledesc {ASN.1 BER encoder/decoder}]
 [require Tcl 8.4]
-[require asn [opt 0.8.1]]
+[require asn [opt 0.8.2]]
 [description]
 [para]
 
