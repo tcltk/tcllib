@@ -1,3 +1,13 @@
+2007-09-19  Andreas Kupries  <andreask@activestate.com>
+
+	* list.tcl (::struct::list::Lpermutations): Fixed use of
+	  unqualified 'list' command for case of 1-element list. This
+	  fixes [SF Tcllib Bug 1798337]. Thanks to Glenn Jackman
+	  <glennjnn@users.sourceforge.net> for both report and fix.
+	* pkgIndex.tcl: Version bumped to 1.6.2. Extended the
+	* struct_list.man: testsuite with a test for this case.
+	* list.test:
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

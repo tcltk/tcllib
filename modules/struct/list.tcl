@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.22 2007/05/16 22:20:16 kennykb Exp $
+# RCS: @(#) $Id: list.tcl,v 1.23 2007/09/19 20:44:21 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -1676,7 +1676,7 @@ proc ::struct::list::Lnextperm {perm} {
 proc ::struct::list::Lpermutations {list} {
 
     if {[llength $list] < 2} {
-	return [list $list]
+	return [::list $list]
     }
 
     set res {}
@@ -1798,4 +1798,4 @@ namespace eval ::struct {
     namespace import -force list::list
     namespace export list
 }
-package provide struct::list 1.6.1
+package provide struct::list 1.6.2
