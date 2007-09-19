@@ -1,3 +1,9 @@
+2007-09-19  Andreas Kupries  <andreask@activestate.com>
+
+	* pluginmgr.man: Fixed typo in the example, used the wrong
+	  dot-path (.../plugins, should be .../plugin). Thanks to Jeremy
+	  Cowgar for finding this.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

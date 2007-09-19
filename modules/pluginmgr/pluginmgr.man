@@ -155,8 +155,8 @@ Examples:
        reg  HKEY_LOCAL_MACHINE\SOFTWARE\doctools\idx\PLUGINS
        reg  HKEY_CURRENT_USER\SOFTWARE\doctools\PLUGINS
        reg  HKEY_CURRENT_USER\SOFTWARE\doctools\idx\PLUGINS
-       path ~/.doctools/plugins
-       path ~/.doctools/idx/plugins
+       path ~/.doctools/plugin
+       path ~/.doctools/idx/plugin
 }]
 
 [list_end]
