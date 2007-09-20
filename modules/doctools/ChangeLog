@@ -1,5 +1,9 @@
 2007-09-20  Andreas Kupries  <andreask@activestate.com>
 
+	* mpformats/fmt.html: Added closing of paragraphs per the request
+	  in [SF Tcllib Bug 1798427]. Tis more complicated. Paragraphs
+	  inside of list elements are not yet closed.
+
 	* mpformats/fmt.html: Reworking handling of list items a bit to
 	  properly close the dt, dd, and li tags. Requested by [SF Tcllib
 	  Bug 1798427].
