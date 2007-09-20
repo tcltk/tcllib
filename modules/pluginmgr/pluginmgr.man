@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- paths manpage}]
-[manpage_begin plugin n 1.1]
+[manpage_begin pluginmgr n 0.2]
 [copyright {2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Plugin management}]
 [titledesc {Manage a plugin}]
 [require Tcl 8.4]
-[require pluginmgr [opt 0.1]]
+[require pluginmgr [opt 0.2]]
 [description]
 
 This package provides commands and objects for the generic management
@@ -117,6 +117,10 @@ The casing of letters is not changed.
 [enum]
 
 The directory [file "~/.[arg name]/plugin"].
+
+[enum]
+
+The directory [file "~/.[arg name]/plugins"].
 
 [para]
 
