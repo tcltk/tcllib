@@ -1,3 +1,15 @@
+2007-09-19  Andreas Kupries  <akupries@shaw.ca>
+
+	* pluginmgr.tcl (AddPaths): Fixed typo in the code converting the
+	* pluginmgr.man: package pattern into a regular expression. A
+	* pkgIndex.tcl: bogus space char separated * from its quoting
+	  backslash, end result was a RE pattern without capturing
+	  parentheses, so the plugin name was never properly extracted
+	  from the package name. This fixes [SF Tcllib Bug 1798210].
+	  Thanks to Jeremy Cowgar for the report. Additionally added
+	  support for directory 'plugins' in the dot-directories
+	  (pluginmgr::path). Package version bumped to 0.2.
+
 2007-09-19  Andreas Kupries  <andreask@activestate.com>
 
 	* pluginmgr.man: Fixed typo in the example, used the wrong
