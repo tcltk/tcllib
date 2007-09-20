@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pluginmgr.tcl,v 1.6 2007/06/23 03:39:34 andreas_kupries Exp $
+# RCS: @(#) $Id: pluginmgr.tcl,v 1.7 2007/09/20 04:17:14 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Description
@@ -124,7 +124,7 @@ snit::type ::pluginmgr {
 		+  \\+  ?  \\?    \
 		\[ \\\[ \] \\\]   \
 		(  \\(  )  \\)    \
-		. \\. \ *  {(.*)} \
+		. \\. \*  {(.*)} \
 		] $options(-pattern)]
 
 	# @mdgen NODEP: bogus-package
@@ -326,7 +326,7 @@ snit::type ::pluginmgr {
 
 	#puts "$pmgr += ($name) $sep"
 
-	regsub -all {::+} $name \000 name
+	regsub -all {::+} [string trim $name :] \000 name
 	set name [split $name \000]
 
 	# Environment variables
@@ -383,6 +383,19 @@ snit::type ::pluginmgr {
 	    if {[file exists $pd]} {
 		$pmgr path $pd
 	    }
+
+	    # Cover for the goof in the example found in the docs.
+	    # Note that supporting the directory name 'plugins' is
+	    # also more consistent with the environment variables
+	    # above, where we also use plugins, plural.
+
+	    set pd [file join ~ .[join $prefix /] plugins]
+
+	    #puts "+? path($pd)"
+
+	    if {[file exists $pd]} {
+		$pmgr path $pd
+	    }
 	}
 	return
     }
@@ -391,4 +404,4 @@ snit::type ::pluginmgr {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pluginmgr 0.1
+package provide pluginmgr 0.2
