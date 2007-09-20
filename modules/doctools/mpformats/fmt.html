@@ -54,23 +54,27 @@ set    liststack [list]
 set    hintstack [list]
 set    chint     ""
 set    lmark     0
+set    prev_litem_close   {} ;# Piece of html to close the previous list element, if any.
+#                   ;# Saved on the stack!
 
 proc llevel {} {global liststack ; return [llength $liststack]}
 
 proc lpush {t hint} {
-    global  liststack hintstack chint
-    lappend liststack [tag/ $t]
+    global  liststack hintstack chint prev_litem_close
+    lappend liststack [list [tag/ $t] $prev_litem_close]
     lappend hintstack $chint
     set     chint $hint
+    set prev_litem_close {}
     return [tag $t]
 }
 
 proc lpop {} {
-    global liststack hintstack chint
+    global liststack hintstack chint prev_litem_close
     set t         [lindex   $liststack end]
     set liststack [lreplace $liststack end end]
     set chint     [lindex   $hintstack end]
     set hintstack [lreplace $hintstack end end]
+    foreach {t prev_litem_close} $t break
     return $t
 }
 
@@ -282,10 +286,30 @@ proc fmt_list_begin  {what {hint {}}} {
     return [if {[llevel]} {limark} else {}][lpush $tag $hint][lsmark 1]
 }
 
-proc fmt_list_end {}        {return [lpop][lsmark 1]}
-proc fmt_lst_item {text}    {return [limark][tag dt]$text[tag dd][lsmark 1]}
-proc fmt_bullet   {}        {return [limark][tag li][lsmark 1]}
-proc fmt_enum     {}        {return [limark][tag li][lsmark 1]}
+proc fmt_list_end {}        {
+    global prev_litem_close
+    set res $prev_litem_close[lpop][lsmark 1]
+    set prev_litem_close {}
+    return $res
+}
+proc fmt_lst_item {text}    {
+    global prev_litem_close
+    set res [limark]$prev_litem_close[tag dt]$text[tag/ dt][tag dd][lsmark 1]
+    set prev_litem_close [tag/ dd]
+    return $res
+}
+proc fmt_bullet {} {
+    global prev_litem_close
+    set res [limark]$prev_litem_close[tag li][lsmark 1]
+    set prev_litem_close [tag/ li]
+    return $res
+}
+proc fmt_enum {} {
+    global prev_litem_close
+    set res [limark]$prev_litem_close[tag li][lsmark 1]
+    set prev_litem_close [tag/ li]
+    return $res
+}
 proc fmt_cmd_def  {command} {fmt_lst_item [fmt_cmd $command]}
 
 proc fmt_arg_def {type name {mode {}}} {
