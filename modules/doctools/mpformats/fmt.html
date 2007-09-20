@@ -135,7 +135,7 @@ c_pass 2 fmt_manpage_begin {title section version} {
 
     append  hdr "[markup <h1>] [string trimleft $title :]($section) $version $module \"$shortdesc\"[markup </h1>]\n"
     append  hdr [fmt_section NAME]\n
-    append  hdr "[fmt_para] $title - $description"
+    append  hdr "[para_open] $title - $description"
     return $hdr
 }
 
@@ -170,6 +170,8 @@ c_pass 2 fmt_manpage_end {} {
 	append res [join [split $ct \n] [tag br]\n] [tag br]\n
     }
 
+    append res [para_close]
+
     # Engine parameter - insert 'footer'
     if {[set footer [Get footer]] != {}} {append res [markup $footer]\n}
 
@@ -180,16 +182,16 @@ c_pass 2 fmt_manpage_end {} {
 c_pass 1 fmt_section {name} {c_newSection $name 1 end}
 c_pass 2 fmt_section {name} {
     set id [c_sectionId $name]
-    return "[markup <h2><]a name=[markup \"]$id[markup \">]$name[markup </a></h2>\n<p>]"
+    return "[para_close][markup <h2><]a name=[markup \"]$id[markup \">]$name[markup </a></h2>]\n[para_open]"
 }
 
 c_pass 1 fmt_subsection {name} {c_newSection $name 2 end}
 c_pass 2 fmt_subsection {name} {
     set id [c_sectionId $name]
-    return "[markup <h3><]a name=[markup \"]$id[markup \">]$name[markup </a></h3>\n<p>]"
+    return "[para_close][markup <h3><]a name=[markup \"]$id[markup \">]$name[markup </a></h3>]\n[para_open]"
 }
 
-proc fmt_para {} {return [markup <p>]}
+proc fmt_para {} {para_open}
 
 c_pass 2 fmt_require {pkg {version {}}} NOP
 c_pass 1 fmt_require {pkg {version {}}} {
@@ -283,12 +285,12 @@ proc fmt_list_begin  {what {hint {}}} {
 	tkoptions -
 	definitions {set tag dl}
     }
-    return [if {[llevel]} {limark} else {}][lpush $tag $hint][lsmark 1]
+    return [para_close][if {[llevel]} {limark} else {}][lpush $tag $hint][lsmark 1]
 }
 
 proc fmt_list_end {}        {
     global prev_litem_close
-    set res $prev_litem_close[lpop][lsmark 1]
+    set res $prev_litem_close[lpop][lsmark 1][para_open]
     set prev_litem_close {}
     return $res
 }
@@ -338,10 +340,10 @@ proc fmt_tkoption_def {name dbname dbclass} {
 
 proc fmt_example_begin {} {
     lsmark 0
-    return [markup "<p><table><tr><td bgcolor=black>&nbsp;</td><td><pre class='sample'>"]
+    return [para_close][markup "<table><tr><td bgcolor=black>&nbsp;</td><td><pre class='sample'>"]
 }
 proc fmt_example_end   {} {
-    return [markup "</pre></td></tr></table></p>"]
+    return [markup "</pre></td></tr></table>"][para_open]
 }
 proc fmt_example {code} {
     return "[fmt_example_begin][fmt_plain_text $code][fmt_example_end]"
@@ -389,6 +391,27 @@ proc fmt_uri     {text {label {}}} {
 }
 proc fmt_term    {text} {em [XrefMatch $text kw sa]}
 proc fmt_const   {text} {strong $text}
+
+################################################################
+
+global para_is_open
+set    para_is_open 0
+
+proc para_open {} {
+    global para_is_open
+    if {$para_is_open} {
+	return [para_close][tag p]
+    }
+    set para_is_open 1
+    return [tag p]
+}
+
+proc para_close {} {
+    global para_is_open
+    if {!$para_is_open} {return ""}
+    set para_is_open 0
+    return [tag/ p]
+}
 
 ################################################################
 
