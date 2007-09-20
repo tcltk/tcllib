@@ -1,3 +1,9 @@
+2007-09-20  Andreas Kupries  <andreask@activestate.com>
+
+	* mpformats/fmt.html: Reworking handling of list items a bit to
+	  properly close the dt, dd, and li tags. Requested by [SF Tcllib
+	  Bug 1798427].
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
