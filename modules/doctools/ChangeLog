@@ -1,5 +1,8 @@
 2007-09-25  Andreas Kupries  <andreask@activestate.com>
 
+	* mpformats/fmt.nroff: Fixed argument swap in fmt_arg_def, fixing
+	  [SF Tcllib Bug 1800420].
+	
 	* mpformats/fmt.html: Handled [SF Tcllib Bug 1800408] and [SF
 	  Tcllib Bug 411], removing superfluous whitespace around link
 	  text and adding more class names to semantic markup.
