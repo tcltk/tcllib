@@ -1,3 +1,9 @@
+2007-09-25  Andreas Kupries  <andreask@activestate.com>
+
+	* mpformats/fmt.html: Handled [SF Tcllib Bug 1800408] and [SF
+	  Tcllib Bug 411], removing superfluous whitespace around link
+	  text and adding more class names to semantic markup.
+
 2007-09-20  Andreas Kupries  <andreask@activestate.com>
 
 	* mpformats/fmt.html: Added closing of paragraphs per the request

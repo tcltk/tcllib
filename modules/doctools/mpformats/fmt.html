@@ -205,13 +205,30 @@ c_pass 1 fmt_require {pkg {version {}}} {
 }
 
 c_pass 2 fmt_usage {cmd args} NOP
-c_pass 1 fmt_usage {cmd args} {c_hold synopsis "[trtop][td]$cmd [join $args " "][markup </td></tr>]"}
+c_pass 1 fmt_usage {cmd args} {
+    if {[llength $args]} {
+	set text "$cmd [join $args " "]"
+    } else {
+	set text $cmd
+    }
+    c_hold synopsis "[trtop][td]$text[markup </td></tr>]"
+}
 
 c_pass 1 fmt_call {cmd args} {
-    c_hold synopsis "[trtop][td][markup "<a href=\"#[c_cnext]\">"]$cmd [join $args " "][markup </a></td></tr>]"
+    if {[llength $args]} {
+	set text "$cmd [join $args " "]"
+    } else {
+	set text $cmd
+    }
+    c_hold synopsis "[trtop][td][link $text "#[c_cnext]"][markup </td></tr>]"
 }
 c_pass 2 fmt_call {cmd args} {
-    return "[fmt_lst_item "[markup "<a name=\"[c_cnext]\">"]$cmd [join $args " "][markup </a>]"]\n"
+    if {[llength $args]} {
+	set text "$cmd [join $args " "]"
+    } else {
+	set text $cmd
+    }
+    return "[fmt_lst_item [anchor [c_cnext] $text]]\n"
 }
 
 c_pass 1 fmt_description {} NOP
@@ -330,8 +347,8 @@ proc fmt_opt_def {name {arg {}}} {
 proc fmt_tkoption_def {name dbname dbclass} {
     set    text ""
     append text "Command-Line Switch:\t[fmt_option $name][markup <br>]\n"
-    append text "Database Name:\t[strong $dbname][markup <br>]\n"
-    append text "Database Class:\t[strong $dbclass][markup <br>]\n"
+    append text "Database Name:\t[bold $dbname optdbname][markup <br>]\n"
+    append text "Database Class:\t[bold $dbclass optdbclass][markup <br>]\n"
     fmt_lst_item $text
 }
 
@@ -353,13 +370,16 @@ proc fmt_nl {} {
     if {[lcompact]} {return [tag br]}
     return [tag br][tag br]
 }
-proc fmt_arg    {text} {return "[markup "<i class='arg'>"]$text[markup </i>]" }
-proc fmt_cmd    {text} {return "[markup "<b class='cmd'>"][XrefMatch $text sa][markup </b>]" }
-
-proc fmt_emph	{text}	{ em $text }
+proc fmt_arg    {text} { return [italic $text                arg] }
+proc fmt_cmd    {text} { return [bold   [XrefMatch $text sa] cmd] }
+proc fmt_emph	{text} { em $text }
 
 proc strong {text} {return "[markup <strong>]$text[markup </strong>]"}
 proc em     {text} {return "[markup <em>]$text[markup </em>]"}
+
+proc bold   {text class} {return "[markup <]b class='$class'[markup >]$text[markup </b>]"}
+proc italic {text class} {return "[markup <]i class='$class'[markup >]$text[markup </i>]"}
+
 
 
 proc fmt_opt     {text} {return "?$text?" }
@@ -374,23 +394,24 @@ proc fmt_sectref {text {label {}}} {
     	return "[markup <b>]$label[markup </b>]"
     }
 }
-proc fmt_syscmd  {text} {strong [XrefMatch $text sa]}
-proc fmt_method  {text} {strong $text}
-proc fmt_option  {text} {strong $text}
-proc fmt_widget  {text} {strong $text}
-proc fmt_fun     {text} {strong $text}
-proc fmt_type    {text} {strong $text}
-proc fmt_package {text} {strong [XrefMatch $text sa kw]}
-proc fmt_class   {text} {strong $text}
-proc fmt_var     {text} {strong $text}
-proc fmt_file    {text} {return "\"[strong $text]\""}
-proc fmt_namespace     {text} {strong $text}
+
+proc fmt_syscmd  {text} {bold [XrefMatch $text sa] syscmd}
+proc fmt_method  {text} {bold $text method}
+proc fmt_option  {text} {bold $text option}
+proc fmt_widget  {text} {bold $text widget}
+proc fmt_fun     {text} {bold $text function}
+proc fmt_type    {text} {bold $text type}
+proc fmt_package {text} {bold [XrefMatch $text sa kw] package}
+proc fmt_class   {text} {bold $text class}
+proc fmt_var     {text} {bold $text variable}
+proc fmt_file    {text} {return "\"[bold $text file]\""}
+proc fmt_namespace     {text} {bold $text namespace}
 proc fmt_uri     {text {label {}}} {
     if {$label == {}} {set label $text}
     return "[markup <]a href=[markup \"]$text[markup \">]$label[markup </a>]"
 }
-proc fmt_term    {text} {em [XrefMatch $text kw sa]}
-proc fmt_const   {text} {strong $text}
+proc fmt_term    {text} {italic [XrefMatch $text kw sa] term}
+proc fmt_const   {text} {bold $text const}
 
 ################################################################
 
@@ -518,5 +539,5 @@ proc XrefLink {dest label} {
 
     #puts_stderr "XrefLink --> $dest"
 
-    return "[markup "<a href=\"$dest\">"] $label [markup </a>]" ; # "
+    return "[markup "<a href=\"$dest\">"]${label}[markup </a>]" ; # "
 }

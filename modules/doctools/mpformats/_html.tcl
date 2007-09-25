@@ -50,9 +50,24 @@ proc htmlEscape {text} {
     return [string map $textMap $text]
 }
 
-proc fmt_postprocess {text}	{
+proc fmt_postprocess {text} {
     global finalMap
-    return [string map $finalMap $text]
+
+    if 0 {
+	puts_stderr ____________________________________________________________
+	puts_stderr $text
+	puts_stderr ____________________________________________________________
+    }
+
+    set text [string map $finalMap $text]
+
+    if 0 {
+	puts_stderr @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+	puts_stderr $text
+	puts_stderr @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    }
+
+    return $text
 }
 
 # markup text --
@@ -78,8 +93,8 @@ proc ptop   {}         {return [markup "<p valign=top>"]}
 proc td     {}         {return [markup "<td [use_bg]>"]}
 proc trtop  {}         {return [markup "<tr valign=top [use_bg]>"]}
 proc tr     {}         {return [markup "<tr            [use_bg]>"]}
-proc sect   {s}        {return [markup "<b>$s</b><br><hr>"]}
-proc link   {text url} {return [markup "<a href=\"$url\">$text</a>"]}
+proc sect   {s}        {return [markup <b>]$s[markup </b><br><hr>]}
+proc link   {text url} {return [markup "<a href=\"$url\">"]$text[markup </a>]}
 proc table  {}         {return [markup "<table [border] width=100% cellspacing=0 cellpadding=0>"]}
 proc btable {}         {return [markup "<table border=1 width=100% cellspacing=0 cellpadding=0>"]}
 proc stable {}         {return [markup "<table [border] cellspacing=0 cellpadding=0>"]}
@@ -131,3 +146,8 @@ proc wrap {content gi} {
 }
 proc startTag {x args} {if {[llength $args]} {taga $x $args} else {tag $x}}
 proc endTag   {x} {tag/ $x}
+
+
+proc anchor {name text} {
+    return [taga a [list name $name]]$text[tag/ a]
+}
