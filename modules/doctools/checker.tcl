@@ -110,6 +110,9 @@ proc Error {code {text {}}} {
     return
 }
 proc Warn {code args} {
+    global pass
+    if {$pass > 1} return
+    # Warnings only in the first pass!
     set msg [::msgcat::mc $code]
     foreach {off line col} [dt_where] break
     set msg [eval [linsert $args 0 format $msg]]
@@ -190,11 +193,12 @@ proc Log  {text} {}
 
 # -------------------------------------------------------------
 # Framing
-proc ck_initialize {} {
+proc ck_initialize {p} {
     global state   ; set state manpage_begin
     global lstctx  ; set lstctx [list]
     global lstitem ; set lstitem 0
     global sect    ; catch {unset sect} ; set sect() . ; unset sect()
+    global pass    ; set pass $p
     return
 }
 proc ck_complete {} {
