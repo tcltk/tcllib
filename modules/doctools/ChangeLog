@@ -1,5 +1,11 @@
 2007-09-25  Andreas Kupries  <andreask@activestate.com>
 
+	* doctools.tcl: Extended processor to pass the pass number to the
+	* checker.tcl: checker layer as well. Modified the checker layer
+	* pkgIndex.tcl: to suppress generation of warnings in all but the
+	* doctools.man: first pass, to avoid replication. Bumped version
+	  to 1.3.1. This fixes [SF Tcllib Bug 1800413].
+
 	* mpformats/fmt.nroff: Fixed argument swap in fmt_arg_def, fixing
 	  [SF Tcllib Bug 1800420].
 	
