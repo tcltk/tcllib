@@ -146,8 +146,7 @@ proc fmt_cmd_def  {command} {return [nr_blt [fmt_cmd $command]]\n}
 
 proc fmt_arg_def {type name {mode {}}} {
     set    text [nr_blt ""]
-    append text [fmt_arg $name]
-    append text " $type"
+    append text "$type [fmt_arg $name]"
     if {$mode != {}} {append text " ($mode)"}
     return $text
 }
