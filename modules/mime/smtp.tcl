@@ -686,6 +686,13 @@ proc ::smtp::initialize {args} {
     return -code $code -errorinfo $einfo -errorcode $ecode $result
 }
 
+# If we cannot load the tls package, ignore the error
+proc ::smtp::load_tls {} {
+    set r [catch {package require tls}]
+    if {$r} {set ::errorInfo ""}
+    return $r
+}
+
 proc ::smtp::initialize_ehlo {token} {
     global errorCode errorInfo
     upvar einfo einfo
@@ -739,7 +746,7 @@ proc ::smtp::initialize_ehlo {token} {
         if {($options(-usetls)) && ![info exists state(tls)] \
                 && (([lsearch $response(args) STARTTLS] >= 0)
                     || ([lsearch $response(args) TLS] >= 0))} {
-            if {![catch {package require tls}]} {
+            if {![load_tls]} {
                 set state(tls) 0
                 if {![catch {smtp::talk $token 300 STARTTLS} resp]} {
                     array set starttls $resp
