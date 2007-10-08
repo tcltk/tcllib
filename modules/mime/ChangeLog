@@ -1,3 +1,8 @@
+2007-10-08  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* mime.tcl: bug #1658061: reset errorInfo after catches known
+	* smtp.tcl: to fail to avoid confusion.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
