@@ -9,10 +9,12 @@
 # Copyright (c) 2004 Richard Suchenwirth
 # Copyright (c) 2007 Patrick Thoyts
 #
-# Copyright (c) 2001-2003 by David N. Welton <davidw@dedasys.com>.
-# This code may be distributed under the same terms as Tcl.
+# -------------------------------------------------------------------------
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# -------------------------------------------------------------------------
 #
-# $Id: picoirc.tcl,v 1.1 2007/10/19 21:17:13 patthoyts Exp $
+# $Id: picoirc.tcl,v 1.2 2007/10/19 21:18:53 patthoyts Exp $
 
 namespace eval ::picoirc {
     variable version 0.5
