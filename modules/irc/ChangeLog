@@ -1,3 +1,9 @@
+2007-10-19  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* picoirc.man: Added an alternative that is somewhat simpler 
+	* picoirc.tcl: to embed in an application. Based upon the picoirc
+	               code posted to the wiki and as used in tkchat.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
