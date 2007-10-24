@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: traverse.tcl,v 1.4 2007/08/08 19:42:43 andreas_kupries Exp $
+# RCS: @(#) $Id: traverse.tcl,v 1.5 2007/10/24 19:28:36 andreas_kupries Exp $
 
 package require Tcl 8.3
 package require snit    ; # OO core
@@ -327,9 +327,19 @@ if {[package vsatisfies [package present Tcl] 8.4]} {
     proc ::fileutil::traverse::ACCESS {args} {return 1}
 
     proc ::fileutil::traverse::GLOBF {current} {
-	concat \
-	    [glob -nocomplain -directory $current -types f          -- *] \
-	    [glob -nocomplain -directory $current -types {hidden f} -- *]
+	set res [concat \
+		     [glob -nocomplain -directory $current -types f          -- *] \
+		     [glob -nocomplain -directory $current -types {hidden f} -- *]]
+
+	# Look for broken links (They are reported as neither file nor directory).
+	foreach l [concat \
+		       [glob -nocomplain -directory $current -types l          -- *] \
+		       [glob -nocomplain -directory $current -types {hidden l} -- *] ] {
+	    if {[file isfile      $l]} continue
+	    if {[file isdirectory $l]} continue
+	    lappend res $l
+	}
+	return $res
     }
 
     proc ::fileutil::traverse::GLOBD {current} {
@@ -367,7 +377,8 @@ if {[package vsatisfies [package present Tcl] 8.4]} {
 	    foreach x [concat \
 			   [glob -nocomplain -directory $current -types l          -- *] \
 			   [glob -nocomplain -directory $current -types {hidden l} -- *]] {
-		if {![file isfile $x]} continue
+		if {[file isdirectory $x]} continue
+		# We have now accepted files, links to files, and broken links.
 		lappend l $x
 	    }
 
@@ -394,4 +405,4 @@ if {[package vsatisfies [package present Tcl] 8.4]} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::traverse 0.3
+package provide fileutil::traverse 0.4

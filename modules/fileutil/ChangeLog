@@ -1,3 +1,14 @@
+2007-10-22  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.tcl: Changed handling of broken symbolic links
+	* fileutil.man: by fileutil::find and fileutil::traverse.
+	* traverse.tcl: They are now recognized and returned.
+	* traverse.man: Extended the testsuite. Bumped fileutil
+	* pkgIndex.tcl: to v1.13.4 and fileutil::traverse to v0.4.
+	* find.setup:
+	* find.test:
+	* traverse.text:
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
