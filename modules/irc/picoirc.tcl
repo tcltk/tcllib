@@ -14,7 +14,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: picoirc.tcl,v 1.2 2007/10/19 21:18:53 patthoyts Exp $
+# $Id: picoirc.tcl,v 1.3 2007/10/24 10:38:57 patthoyts Exp $
 
 namespace eval ::picoirc {
     variable version 0.5
@@ -39,7 +39,14 @@ proc ::picoirc::splituri {uri} {
     return [list $server $port $channel]
 }
 
-proc ::picoirc::connect {callback nick url} {
+proc ::picoirc::connect {callback nick args} {
+    if {[llength $args] > 2} {
+        return -code error "wrong # args: must be \"callback nick ?passwd? url\""
+    } elseif {[llength $args] == 1} {
+        set url [lindex $args 0]
+    } else {
+        foreach {passwd url} $args break 
+    }
     variable defaults
     variable uid
     set context [namespace current]::irc[incr uid]
@@ -49,6 +56,7 @@ proc ::picoirc::connect {callback nick url} {
     if {[info exists channel] && $channel ne ""} {set irc(channel) $channel}
     if {[info exists server] && $server ne ""} {set irc(server) $server}
     if {[info exists port] && $port ne ""} {set irc(port) $port}
+    if {[info exists passwd] && $passwd ne ""} {set irc(passwd) $passwd}
     set irc(callback) $callback
     set irc(nick) $nick
     Callback $context init
@@ -87,9 +95,12 @@ proc ::picoirc::Write {context} {
     }
     fconfigure $irc(socket) -blocking 0 -buffering line -translation crlf -encoding utf-8
     Callback $context connect
-    send $context "NICK $irc(nick)"
+    if {[info exists irc(passwd)]} {
+        send $context "PASS $irc(passwd)"
+    }
     set ver [join [lrange [split [Version $context] :] 0 1] " "]
-    send $context "USER $irc(nick) 0 * :$ver user"
+    send $context "NICK $irc(nick)"
+    send $context "USER $::tcl_platform(user) 0 * :$ver user"
     if {$irc(channel) ne {}} {
         after idle [list [namespace origin send] $context "JOIN $irc(channel)"]
     }
@@ -140,7 +151,7 @@ proc ::picoirc::Read {context} {
                 if {$type eq "ACTION"} {
                     regexp {(\S+) (.+)} $msg -> nick msg 
                 } else {
-                    regexp {<([^>]+)>(.+)} $msg -> nick msg
+                    regexp {<([^>]+)> (.+)} $msg -> nick msg
                 }
             }
             Callback $context chat $target $nick $msg $type
@@ -196,7 +207,7 @@ proc ::picoirc::Read {context} {
                     return
                 }
             }
-            Callback $context system "" "[lrange $parts 1 end] $rest"
+            Callback $context system "" "[lrange [split $parts] 1 end] $rest"
         } else {
             Callback $context system "" $line
         }
@@ -220,6 +231,7 @@ proc ::picoirc::post {context channel msg} {
             topic {send $context "TOPIC $channel :$msg" }
  	    quote {send $context $msg}
  	    join {send $context "JOIN $msg" }
+            version {send $context "PRIVMSG $first :\001VERSION\001"}
  	    msg {
  		if {[regexp {([^ ]+) +(.*)} $msg -> target querymsg]} {
  		    send $context "PRIVMSG $target :$msg"
