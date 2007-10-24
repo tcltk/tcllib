@@ -9,7 +9,7 @@
 # Copyright (c) 2005-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: find.test,v 1.6 2007/08/10 18:21:43 andreas_kupries Exp $
+# RCS: @(#) $Id: find.test,v 1.7 2007/10/24 19:28:36 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -114,6 +114,31 @@ test find-1.9 {find file dot-files} {
     set res
 } [list [tempPath dotfiles/.foo] \
 	[tempPath dotfiles/foo]]
+
+
+# Find has to skip '{file 3}', in the sense that the path should be in
+# the output, but it cannot be expanded further, being a broken
+# link. Two tests, one for all versions of Tcl (8.2+), but only unix,
+# and one for windows, restricted to Tcl 8.4+.
+
+test find-1.10.0 {handling of broken links} {unix} {
+    f_setupbroken
+    set res [lsort [fileutil::find [tempPath {find 1}]]]
+    f_cleanup
+    set res
+} [list [tempPath {find 1/file [1]}] \
+	[tempPath {find 1/find 2}] \
+	[tempPath {find 1/find 2/file 3}] \
+	[tempPath {find 1/find 2/file* 2}]]
+
+test find-1.10.1 {handling of broken links} {win tcl8.4plus} {
+    f_setupbroken
+    set res [lsort [fileutil::find [tempPath {find 1}]]]
+    f_cleanup
+    set res
+} [list [tempPath {find 1/file [1]}] \
+	[tempPath {find 1/find 2}] \
+	[tempPath {find 1/find 2/file 3}]]
 
 # -------------------------------------------------------------------------
 

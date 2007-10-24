@@ -9,11 +9,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.70 2007/08/10 19:40:49 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.71 2007/10/24 19:28:36 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.13.3
+package provide fileutil 1.13.4
 
 namespace eval ::fileutil {
     namespace export \
@@ -183,7 +183,7 @@ proc ::fileutil::FADD {filename} {
 # The next three helper commands for fileutil::find depend strongly on
 # the version of Tcl, and partially on the platform.
 
-# 1. The -directory and -types swithes were added to glob in Tcl
+# 1. The -directory and -types switches were added to glob in Tcl
 #    8.3. This means that we have to emulate them for Tcl 8.2.
 #
 # 2. In Tcl 8.3 using -types f will return only true files, but not
@@ -193,6 +193,9 @@ proc ::fileutil::FADD {filename} {
 #    Note that Windows file links are hard links which are reported by
 #    -types f, but not -types l, so we can optimize that for the two
 #    platforms.
+#
+#    Note further that we have to handle broken links on our own. They
+#    are not returned by glob yet we want them in the output.
 #
 # 3. In Tcl 8.3 we also have a crashing bug in glob (SIGABRT, "stat on
 #    a known file") when trying to perform 'glob -types {hidden f}' on
@@ -218,9 +221,19 @@ if {[package vsatisfies [package present Tcl] 8.4]} {
     proc ::fileutil::ACCESS {args} {}
 
     proc ::fileutil::GLOBF {current} {
-	concat \
-	    [glob -nocomplain -directory $current -types f          -- *] \
-	    [glob -nocomplain -directory $current -types {hidden f} -- *]
+	set res [concat \
+		     [glob -nocomplain -directory $current -types f          -- *] \
+		     [glob -nocomplain -directory $current -types {hidden f} -- *]]
+
+	# Look for broken links (They are reported as neither file nor directory).
+	foreach l [concat \
+		       [glob -nocomplain -directory $current -types l          -- *] \
+		       [glob -nocomplain -directory $current -types {hidden l} -- *] ] {
+	    if {[file isfile      $l]} continue
+	    if {[file isdirectory $l]} continue
+	    lappend res $l
+	}
+	return $res
     }
 
     proc ::fileutil::GLOBD {current} {
@@ -258,7 +271,8 @@ if {[package vsatisfies [package present Tcl] 8.4]} {
 	    foreach x [concat \
 			   [glob -nocomplain -directory $current -types l          -- *] \
 			   [glob -nocomplain -directory $current -types {hidden l} -- *]] {
-		if {![file isfile $x]} continue
+		if {[file isdirectory $x]} continue
+		# We have now accepted files, links to files, and broken links.
 		lappend l $x
 	    }
 
@@ -294,7 +308,13 @@ if {[package vsatisfies [package present Tcl] 8.4]} {
 	    set current \\[join [split $current {}] \\]
 	    set res {}
 	    foreach x [glob -nocomplain -- [file join $current *]] {
-		if {![file isfile $x]} continue
+		if {[file isdirectory $x]} continue
+		if {[catch {file type $x}]} continue
+		# We have now accepted files, links to files, and
+		# broken links. We may also have accepted a directory
+		# as well, if the current path was inaccessible. This
+		# however will cause 'file type' to throw an error,
+		# hence the second check.
 		lappend res $x
 	    }
 	    return $res
@@ -317,7 +337,14 @@ if {[package vsatisfies [package present Tcl] 8.4]} {
 	    set current \\[join [split $current {}] \\]
 	    set res {}
 	    foreach x [glob -nocomplain -- [file join $current *] [file join $current .*]] {
-		if {![file isfile $x]} continue
+		if {[file isdirectory $x]} continue
+		if {[catch {file type $x}]} continue
+		# We have now accepted files, links to files, and
+		# broken links. We may also have accepted a directory
+		# as well, if the current path was inaccessible. This
+		# however will cause 'file type' to throw an error,
+		# hence the second check.
+
 		lappend res $x
 	    }
 	    return $res
@@ -326,7 +353,7 @@ if {[package vsatisfies [package present Tcl] 8.4]} {
 	proc ::fileutil::GLOBD {current} {
 	    set current \\[join [split $current {}] \\]
 	    set res {}
-	    foreach x [glob -nocomplain -- [file join $current *] [file join $current .*]] {
+	    foreach x [glob -nocomplain -- $current/* [file join $current .*]] {
 		if {![file isdirectory $x]} continue
 		lappend res $x
 	    }

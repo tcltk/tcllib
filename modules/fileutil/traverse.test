@@ -7,7 +7,7 @@
 # Copyright (c) 2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: traverse.test,v 1.1 2007/08/08 19:42:43 andreas_kupries Exp $
+# RCS: @(#) $Id: traverse.test,v 1.2 2007/10/24 19:28:36 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -98,6 +98,40 @@ test traverse-1.0.3 {Traverse result, windows} -setup {
 	       [tempPath {find 1}] \
 	       [tempPath {find 1/file [1]}] \
 	       [tempPath {find 1/find 2}]]
+
+# Find has to skip '{file 3}', in the sense that the path should be in
+# the output, but it cannot be expanded further, being a broken
+# link. Two tests, one for all versions of Tcl (8.2+), but only unix,
+# and one for windows, restricted to Tcl 8.4+.
+
+test traverse-1.0.4 {Traverse result, broken links, unix} -setup {
+    f_setupbroken
+    set t [fileutil::traverse %AUTO% [tempPath {find 1}]]
+} -constraints unix -body {
+    lsort [$t files]
+} -cleanup {
+    $t destroy
+    f_cleanup
+} -result [list \
+	       [tempPath {find 1}] \
+	       [tempPath {find 1/file [1]}] \
+	       [tempPath {find 1/find 2}] \
+	       [tempPath {find 1/find 2/file 3}] \
+	       [tempPath {find 1/find 2/file* 2}]]
+
+test traverse-1.0.5 {Traverse result, broken links, windows, 8.4+} -setup {
+    f_setupbroken
+    set t [fileutil::traverse %AUTO% [tempPath {find 1}]]
+} -constraints {win tcl8.4plus} -body {
+    lsort [$t files]
+} -cleanup {
+    $t destroy
+    f_cleanup
+} -result [list \
+	       [tempPath {find 1}] \
+	       [tempPath {find 1/file [1]}] \
+	       [tempPath {find 1/find 2}] \
+	       [tempPath {find 1/find 2/file 3}]]
 
 # -------------------------------------------------------------------------
 
