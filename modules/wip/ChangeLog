@@ -1,3 +1,14 @@
+2007-10-26  Andreas Kupries  <andreask@activestate.com>
+
+	* wip.tcl: Extended error reporting, and fixes of bad indices in
+	* wip2.tcl: the methods manipulating the program (insert, push,
+	  etc). wip v2 only extended error reporting.
+
+	* wip.tcl: Extended with method to undef DSL commands.
+	* wip2.tcl: Updated both variants, and the documentation.
+	* wip.man: Bumped versions to 1.1 and 2.1 respectively.
+	* pkgIndex.tcl:
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

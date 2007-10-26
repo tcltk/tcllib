@@ -46,6 +46,9 @@ snit::type wip {
     method deflva         {args}         {} ; # s.a. defl, var arg form
     method defdva         {args}         {} ; # s.a. defd, var arg form
 
+    method undefva        {args}         {} ; # Remove DSL commands from the map.
+    method undefl         {names}        {} ; # Ditto, names given as list.
+
     # Execution of word lists.
     method runl           {alist}   {} ; # execute list of words
     method run            {args}    {} ; # ditto, words as varargs
@@ -176,6 +179,15 @@ snit::type wip {
 	return
     }
 
+    method undefva {args} { $self undefl $args ; return }
+    method undefl {names} {
+	foreach name $names {
+	    unset -nocomplain cmd($name)
+	    unset -nocomplain arity($name)
+	}
+	return
+    }
+
     # ### ### ### ######### ######### #########
     ## API: DSL execution
     #
@@ -223,7 +235,7 @@ snit::type wip {
 
 	set c [lindex $program 0]
 	if {![info exists arity($c)]} {
-	    return -code error \
+	    return -code error -errorcode WIP \
 		"Unknown command \"$c\""
 	}
 
@@ -231,6 +243,11 @@ snit::type wip {
 	set m $cmd($c)
 
 	# Take the fixed arguments from the input as well.
+
+	if {[llength $program] <= $n} {
+	    return -code error -errorcode WIP \
+		"Not enough arguments for command \"$c\""
+	}
 
 	set cargs [lrange $program 1 $n]
 	incr n
@@ -291,31 +308,31 @@ snit::type wip {
 
     # Insert words into the input stream.
     method insert {at args} {
-	set program [eval [linsert $args end linsert $program $at]]
+	set program [eval [linsert $args 0 linsert $program $at]]
 	return
     }
     method insertl {at alist} {
-	set program [eval [linsert $alist end linsert $program $at]]
+	set program [eval [linsert $alist 0 linsert $program $at]]
 	return
     }
 
     # <=> insert 0
     method push {args} {
-	set program [eval [linsert $args end linsert $program 0]]
+	set program [eval [linsert $args 0 linsert $program 0]]
 	return
     }
     method pushl {alist} {
-	set program [eval [linsert $alist end linsert $program 0]]
+	set program [eval [linsert $alist 0 linsert $program 0]]
 	return
     }
 
     # <=> insert end
     method add {args} {
-	set program [eval [linsert $args end linsert $program end]]
+	set program [eval [linsert $args 0 linsert $program end]]
 	return
     }
     method addl {alist} {
-	set program [eval [linsert $alist end linsert $program end]]
+	set program [eval [linsert $alist 0 linsert $program end]]
 	return
     }
 
@@ -368,7 +385,7 @@ snit::macro wip::dsl {{suffix {}}} {
     # having to use self and wip. I.e. special delegation.
 
     foreach {p} {
-	add	addl	def
+	add	addl	def     undefva undefl
 	defd	defdva	defl	deflva
 	insert	insertl	replace	replacel
 	push	pushl	run	runl
@@ -383,4 +400,4 @@ snit::macro wip::dsl {{suffix {}}} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide wip 1.0
+package provide wip 1.1
