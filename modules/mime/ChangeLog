@@ -1,3 +1,14 @@
+2007-11-05  Andreas Kupries  <andreask@activestate.com>
+
+	* mime.tcl (::mime::parsepart): Fixed [SF Tcllib Bug 1825092],
+	* mime.test: as reported by Max Stroebel
+	* pkgIndex.tcl: <mstrhh@users.sourceforge.net>. The code parsing
+	* mime.man: multiparts assumed that eol sequences are always two
+	  characters (cr+lf), this however may not be the case. This
+	  caused the parser to miscount the last line in a part and
+	  wrongly remove its last character from the part. Extended the
+	  testsuite, and bumped the version to 1.5.3.
+
 2007-10-08  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* mime.tcl: bug #1658061: reset errorInfo after catches known
