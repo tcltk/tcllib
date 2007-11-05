@@ -22,7 +22,7 @@
 # new string features and inline scan are used, requiring 8.3.
 package require Tcl 8.3
 
-package provide mime 1.5.2
+package provide mime 1.5.3
 
 if {[catch {package require Trf 2.0}]} {
 
@@ -838,7 +838,7 @@ proc ::mime::parsepart {token} {
               if {[set x [gets $state(fd) line]] < 0} {
                   error "end-of-file encountered while parsing $state(content)"
               }
-           }
+	    }
             incr pos [expr {$x+1}]
         } else {
 
@@ -854,6 +854,9 @@ proc ::mime::parsepart {token} {
         }
         if {[string last "\r" $line] == [expr {$x-1}]} {
             set line [string range $line 0 [expr {$x-2}]]
+	    set crlf 2
+	} else {
+	    set crlf 1
         }
 
         if {[string first "--$boundary" $line] != 0} {
@@ -890,7 +893,7 @@ proc ::mime::parsepart {token} {
         lappend state(parts) $child
 
         if {$fileP} {
-            if {[set count [expr {$pos-($start+$x+3)}]] < 0} {
+            if {[set count [expr {$pos-($start+$x+$crlf+1)}]] < 0} {
                 set count 0
             }
 
@@ -1753,7 +1756,7 @@ proc ::mime::copymessageaux {token channel} {
         }
     } elseif {([string match multipart/* $state(content)]) \
                     && (![string compare $boundary ""])} {
-# we're doing everything in one pass...
+	# we're doing everything in one pass...
         set key [clock seconds]$token[info hostname][array get state]
         set seqno 8
         while {[incr seqno -1] >= 0} {
@@ -1769,7 +1772,7 @@ proc ::mime::copymessageaux {token channel} {
     if {[info exists state(error)]} {
         unset state(error)
     }
-                
+
     switch -- $state(value) {
         file {
             set closeP 1
