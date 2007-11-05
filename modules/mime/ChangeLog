@@ -1,7 +1,7 @@
 2007-11-05  Andreas Kupries  <andreask@activestate.com>
 
 	* mime.tcl (::mime::parsepart): Fixed [SF Tcllib Bug 1825092],
-	* mime.test: as reported by Max Stroebel
+	* mime.test: as reported by Max Strobel
 	* pkgIndex.tcl: <mstrhh@users.sourceforge.net>. The code parsing
 	* mime.man: multiparts assumed that eol sequences are always two
 	  characters (cr+lf), this however may not be the case. This
