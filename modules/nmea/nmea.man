@@ -7,10 +7,12 @@
 [description]
 [para]
 
-This package provides commands to read NMEA standard data from COM ports or files.
-The sentences are optionally checksummed and then passed on to user defined procs
-for handling. To use a handler, create a proc with the NMEA sentence name in the
-::nmea namespace. For example to process GPS fix data use "proc ::nmea::GPGSA". The
+This package provides a standard interface for writing software which recieves
+NMEA standard input data. It allows for reading data from COM ports, files,
+or programmatic input. It also supports the checksumming and logging of incoming data.
+After parsing, input is dispatched to user defined handler commands for processing.
+To define a handler, create a proc with the NMEA sentence name in the
+::nmea namespace. For example, to process GPS fix data use "proc ::nmea::GPGSA". The
 proc must take one argument, which is a list of the data values.
 
 [section COMMANDS]
@@ -26,6 +28,9 @@ The file format may omit the leading [const \$] and/or the checksum. If rate is 
 will only be processed when a call to [cmd do_line] is made. The rate may be adjusted by setting
 ::nmea::nmea(rate).
 
+[call [cmd ::nmea::input] [arg sentence]]
+Processes and dispatches the supplied sentence. If [arg sentence] contains no commas it is treated as a Tcl list, otherwise it must be standard comma delimited NMEA data, with an optional checksum and leading [const \$].
+
 [call [cmd ::nmea::configure_port] [arg settings]]
 Changes the current port settings. [arg settings] has the same format as fconfigure -mode.
 
@@ -36,7 +41,7 @@ Close the open port
 Close the open file
 
 [call [cmd ::nmea::do_line]]
-If there is a currently open file, this command will read and process a single line from it.
+If there is a currently open file, this command will read and process a single line from it. Returns the number of lines read.
 
 [call [cmd ::nmea::log] [arg file]]
 Starts or stops file logging. If a file name is specified then all NMEA output will be logged
