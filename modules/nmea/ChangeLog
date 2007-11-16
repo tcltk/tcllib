@@ -1,3 +1,9 @@
+2007-11-15 Aaron Faupell <afaupell@users.sourceforge.net>
+
+	* nmea.tcl: added return values to do_line, new input command
+	bumped minor rev
+	* nmea.man: updated for do_line, input, new intro paragraph
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
