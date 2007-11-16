@@ -4,10 +4,10 @@
 #
 # Copyright (c) 2006-2007 Aaron Faupell
 #
-# RCS: @(#) $Id: nmea.tcl,v 1.3 2007/08/20 21:55:27 andreas_kupries Exp $
+# RCS: @(#) $Id: nmea.tcl,v 1.4 2007/11/16 03:42:24 afaupell Exp $
 
 package require Tcl 8.2
-package provide nmea 0.1.1
+package provide nmea 0.2.0
 
 namespace eval ::nmea {
     set ::nmea::nmea(checksum) 1
@@ -77,6 +77,17 @@ proc ::nmea::do_line {} {
         } else {
             ::nmea::parse_nmea \$$line
         }
+        return 1
+    }
+    return 0
+}
+
+proc ::nmea::input {sentence} {
+    if {![string match "*,*" $sentence]} { set sentence [join $sentence ,] }
+    if {[string match {$*} $sentence]} {
+        ::nmea::parse_nmea $sentence
+    } else {
+        ::nmea::parse_nmea \$$sentence
     }
 }
 
