@@ -1,3 +1,10 @@
+2007-11-20  Andreas Kupries   <andreask@activestate.com>
+
+	* jpeg.tcl (::jpeg::stripJPEG): Fixed encoding bug reported by
+	* pkgIndex.tcl: Martin Lemburg on news:clt. The output file was
+	* jpeg.man: not set to binary, breaking the jpeg data written to
+	  it. Bumped version to 0.3.1.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
@@ -24,7 +31,7 @@
 2005-12-15  Aaron Faupell <afaupell@users.sourceforge.net>
 
 	* jpeg.tcl fixed bug in removeComments and removeExif
-	where file was opened and not configured as binary
+	  where file was opened and not configured as binary
 
 2005-11-10  Aaron Faupell <afaupell@users.sourceforge.net>
 
