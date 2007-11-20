@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: jpeg.tcl,v 1.12 2006/09/19 23:36:17 andreas_kupries Exp $
+# RCS: @(#) $Id: jpeg.tcl,v 1.13 2007/11/20 19:36:27 andreas_kupries Exp $
 
-package provide jpeg 0.3
+package provide jpeg 0.3.1
 
 namespace eval ::jpeg {}
 
@@ -160,6 +160,7 @@ proc ::jpeg::stripJPEG {file} {
 
     close $fh
     set fh [open $file w+]
+    fconfigure $fh -encoding binary -translation binary -eofchar {}
     # write a jpeg file sig, a jfif header, and all the remaining data
     puts -nonewline $fh \xFF\xD8$jfif$data
     close $fh
