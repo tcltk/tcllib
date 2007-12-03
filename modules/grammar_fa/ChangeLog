@@ -1,3 +1,9 @@
+2007-12-03  Andreas Kupries  <andreask@activestate.com>
+
+	* tests/faop_regex.test: Added examples for to(Tcl)Regexp provided
+	  by Lars Hellstroem <lars_h@users.sourceforge.net>, see [Tcllib SF
+	  Bug 1841979].
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
