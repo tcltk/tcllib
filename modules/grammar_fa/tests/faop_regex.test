@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: faop_regex.test,v 1.6 2007/08/22 23:23:57 andreas_kupries Exp $
+# RCS: @(#) $Id: faop_regex.test,v 1.7 2007/12/03 21:46:25 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -202,6 +202,55 @@ test faop-regex-${setimpl}-7.3 {simplifyRegexp} {
     set re {* {| {. {S a} {S b}} {. {S b} {S b}}}}
     grammar::fa::op::simplifyRegexp $re
 } {* {. {| {S a} {S b}} {S b}}}
+
+# -------------------------------------------------------------------------
+## Two larger examples
+
+test faop-regex-${setimpl}-8.0 {to(Tcl)Regexp, match 2 mod 3, decimal} {
+    set fa [grammar::fa decimal_2_mod_3]
+    $fa state  add 0 1 2
+    $fa symbol add 0 1 2 3 4 5 6 7 8 9
+    foreach state [$fa states] {
+	foreach digit [$fa symbols] {
+	    $fa next $state $digit --> [expr {(10*$state + $digit) % 3}]
+	}
+    }
+    $fa start add 0
+    $fa final add 2
+    set RE ^([grammar::fa::op::toTclRegexp [grammar::fa::op::toRegexp $fa] {}])\$
+    # Check the generated regex for correctness. Should match all ints 2 mod 3.
+    set res {}
+    for {set n 0} {$n<1000} {incr n} {
+	if {[regexp $RE $n] != ($n % 3 == 2)} {
+	    lappend res $n
+	}
+    }
+    $fa destroy
+    set res
+} {}
+
+test faop-regex-${setimpl}-8.1 {to(Tcl)Regexp, match 1 mod 8, octal} {
+
+    set fa [grammar::fa octal_1_mod_3]
+    $fa state  add 0 1 2
+    $fa symbol add 0 1 2 3 4 5 6 7
+    foreach state [$fa states] {
+	foreach digit [$fa symbols] {
+	    $fa next $state $digit --> [expr {(8*$state + $digit) % 3}]
+	}
+    }
+    $fa start add 0
+    $fa final add 1
+    set RE ^([grammar::fa::op::toTclRegexp [grammar::fa::op::toRegexp $fa] {}])\$
+    set res {}
+    for {set n 0} {$n<4096} {incr n} {
+	if {[regexp $RE [format %o $n]] != ($n % 3 == 1)} {
+	    lappend res $n
+	}
+    }
+    $fa destroy
+    set res
+} {}
 
 # -------------------------------------------------------------------------
 ::tcltest::cleanupTests
