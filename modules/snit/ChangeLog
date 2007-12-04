@@ -1,3 +1,9 @@
+2007-12-04  Andreas Kupries  <andreask@activestate.com>
+
+	* snit.test: Updated some results to changes in the Tcl 8.5
+	  head. This fixes [SF Tcllib Bug 1844106], reported by Larry
+	  Virden <lvirden@users.sourceforg.net>. Thanks.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
