@@ -724,7 +724,7 @@ test dtypemethod-1.6a {delegating unknown typemethod to existing typecomponent w
     snit2
 } -returnCodes {
     error
-} -result {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
+} -result {unknown or ambiguous subcommand "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
 
 test dtypemethod-1.7 {can't delegate local typemethod: order 1} -body {
     type dog {
@@ -3273,7 +3273,7 @@ test dmethod-1.6a {delegating unknown method to existing component with error} -
     error
 } -cleanup {
     dog destroy
-} -result {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
+} -result {unknown or ambiguous subcommand "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
 
 test dmethod-1.7 {can't delegate local method: order 1} -body {
     type cat {
