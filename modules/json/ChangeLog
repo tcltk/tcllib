@@ -1,3 +1,11 @@
+2007-12-05  Andreas Kupries  <andreask@activestate.com>
+
+	* json.test: Brought the test results into sync with the ordered
+	  dicts of Tcl 8.5. NOTE: This will cause the combination of Tcl
+	  8.4 with a backported dict to fail, at least until either the
+	  backported dict does the same ordering, or the tests are split
+	  into variants, one for both of the two cases.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

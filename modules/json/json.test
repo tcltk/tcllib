@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: json.test,v 1.4 2006/10/09 21:41:40 andreas_kupries Exp $
+# RCS: @(#) $Id: json.test,v 1.5 2007/12/06 00:35:22 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -46,7 +46,7 @@ set JSON(array) {[
          "Country":   "US"
       }
      ]}
-set TCL(array) {{Country US Latitude 37.7668 precision zip State CA City {SAN FRANCISCO} Address {} Zip 94107 Longitude -122.3959} {Country US Latitude 37.371991 precision zip State CA City SUNNYVALE Address {} Zip 94085 Longitude -122.026020}}
+set TCL(array) {{precision zip Latitude 37.7668 Longitude -122.3959 Address {} City {SAN FRANCISCO} State CA Zip 94107 Country US} {precision zip Latitude 37.371991 Longitude -122.026020 Address {} City SUNNYVALE State CA Zip 94085 Country US}}
 
 set JSON(glossary) {{
     "glossary": {
@@ -63,7 +63,7 @@ set JSON(glossary) {{
                 "A meta-markup language, used ...",
                 "GlossSeeAlso": ["GML", "XML", "markup"]}]}}
 }}
-set TCL(glossary) {glossary {mixlist {{a "" str} -0.09 null {} {member true}} title {example glossary} GlossDiv {GlossList {{GlossSeeAlso {GML XML markup} GlossTerm {Standard \" Language} Acronym SGML\\ ID SGML Abbrev {ISO 8879:1986} GlossDef {A meta-markup language, used ...}}} title S}}}
+set TCL(glossary) {glossary {title {example glossary} mixlist {{a "" str} -0.09 null {} {member true}} GlossDiv {title S GlossList {{ID SGML GlossTerm {Standard \" Language} Acronym SGML\\ Abbrev {ISO 8879:1986} GlossDef {A meta-markup language, used ...} GlossSeeAlso {GML XML markup}}}}}}
 
 set JSON(menu) {{"menu": {
     "id": "file",
@@ -77,7 +77,7 @@ set JSON(menu) {{"menu": {
     }
 }
 }}
-set TCL(menu) [list menu [list popup {menuitem {{value Open onclick OpenDoc()} {value Close onclick CloseDoc()}}} value File: id file unival \u6021:]]
+set TCL(menu) [list menu [list id file value File: unival \u6021: popup {menuitem {{value Open onclick OpenDoc()} {value Close onclick CloseDoc()}}}]]
 
 set JSON(widget) {{"widget": {
     "debug": "on",
@@ -98,7 +98,7 @@ set JSON(widget) {{"widget": {
     }
 }
 }}
-set TCL(widget) {widget {window {width 500 height 500 name main_window title {Sample Widget}} text {vOffset 100 name null style bold data {Click Here} onMouseUp {sun1.opacity = (sun1.opacity / 100) * 90;} alignment center hOffset 250 size 36} debug on}}
+set TCL(widget) {widget {debug on window {title {Sample Widget} name main_window width 500 height 500} text {data {Click Here} size 36 style bold name null hOffset 250 vOffset 100 alignment center onMouseUp {sun1.opacity = (sun1.opacity / 100) * 90;}}}}
 
 set JSON(menu2) {{"menu": {
     "header": "Viewer",
@@ -114,7 +114,7 @@ set JSON(menu2) {{"menu": {
              ]
 }
 }}
-set TCL(menu2) {menu {header Viewer items {{id Open} {label {Open New} id OpenNew} null {label {Zoom In} id ZoomIn} {label {Zoom Out} id ZoomOut} null {id Help} {label {About Viewer...} id About}}}}
+set TCL(menu2) {menu {header Viewer items {{id Open} {id OpenNew label {Open New}} null {id ZoomIn label {Zoom In}} {id ZoomOut label {Zoom Out}} null {id Help} {id About label {About Viewer...}}}}}
 
 set JSON(emptyList) {[]}
 set TCL(emptyList) {}
