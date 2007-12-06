@@ -4,7 +4,9 @@
 	  dicts of Tcl 8.5. NOTE: This will cause the combination of Tcl
 	  8.4 with a backported dict to fail, at least until either the
 	  backported dict does the same ordering, or the tests are split
-	  into variants, one for both of the two cases.
+	  into variants, one for both of the two cases. This fixes [Tcllib
+	  SF Bug 1844104], reported by Larry Virden
+	  <lvirden@users.sourceforge.net>. Thanks.
 
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
