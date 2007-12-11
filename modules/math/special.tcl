@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2004 by Arjen Markus. All rights reserved.
 #
-# RCS: @(#) $Id: special.tcl,v 1.10 2007/06/26 18:55:18 kennykb Exp $
+# RCS: @(#) $Id: special.tcl,v 1.11 2007/12/11 05:41:17 arjenmarkus Exp $
 #
 package require math
 package require math::constants
@@ -28,8 +28,6 @@ namespace eval ::math::special {
     #
     if { [info commands Beta] == {} } {
        namespace import ::math::Beta
-    }
-    if { [info commands Beta] == {} } {
        namespace import ::math::ln_Gamma
     }
 
@@ -43,7 +41,10 @@ namespace eval ::math::special {
 #    The Gamma function - synonym for "factorial"
 #
 proc ::math::special::Gamma {x} {
-    ::math::factorial [expr { $x + 1 }]
+    if { [catch { expr {exp( [ln_Gamma $x] )} } result] } {
+        return -code error -errorcode $::errorCode $result
+    }
+    return $result
 }
 
 # erf --
