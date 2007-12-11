@@ -1,8 +1,11 @@
+2007-12-11  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* special.tcl: Corrected implementation of Gamma function (reported by EKB)
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.10 ========================
-	* 
+	*
 
 2007-09-11  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
