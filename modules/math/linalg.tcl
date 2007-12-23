@@ -1449,7 +1449,7 @@ proc ::math::linearalgebra::determineSVD { A {epsilon 2.3e-16} } {
 #     symmetric matrix via the SVD
 # Arguments:
 #     A          Matrix to be examined
-#     epsilon    Tolerance for the procedure (defaults to 2.3e-16)
+#     eps        Tolerance for the procedure (defaults to 2.3e-16)
 #
 # Result:
 #     List of the matrix of eigenvectors and the vector of corresponding
@@ -1460,7 +1460,7 @@ proc ::math::linearalgebra::determineSVD { A {epsilon 2.3e-16} } {
 #     that can be found in the second edition of Nash's book
 #     "Compact numerical methods for computers"
 #
-proc ::math::linearalgebra::eigenvectorsSVD { A {epsilon 2.3e-16} } {
+proc ::math::linearalgebra::eigenvectorsSVD { A {eps 2.3e-16} } {
     foreach {m n} [shape $A] {break}
     if { $m != $n } {
        return -code error "Expected a square matrix"
@@ -1472,7 +1472,7 @@ proc ::math::linearalgebra::eigenvectorsSVD { A {epsilon 2.3e-16} } {
     #
     set h {}
     set i 0
-    foreach row $matrix {
+    foreach row $A {
         set aii [lindex $row $i]
         set sum [expr {2.0*abs($aii) - [norm_one $row]}]
         incr i
@@ -1484,7 +1484,7 @@ proc ::math::linearalgebra::eigenvectorsSVD { A {epsilon 2.3e-16} } {
     if { $h <= $eps } {
         set h [expr {$h - sqrt($eps)}]
         # try to make smallest eigenvalue positive and not too small
-        set A [sub $A [mkIdentity $m $h]]
+        set A [sub $A [scale_mat $h [mkIdentity $m]]]
     } else {
         set h 0.0
     }
@@ -1498,28 +1498,29 @@ proc ::math::linearalgebra::eigenvectorsSVD { A {epsilon 2.3e-16} } {
     #
     # Rescale and flip signs if all negative or zero
     #
-    set evals {}
     for {set j 0} {$j < $n} {incr j} {
         set s 0.0
         set notpositive 0
         for {set i 0} {$i < $n} {incr i} {
-            set Aij [lindex $A $i $j]
-            if { $Aij <= 0.0 } {
+            set Uij [lindex $U $i $j]
+            if { $Uij <= 0.0 } {
                incr notpositive
             }
-            set s [expr {$s + $Aij*$Aij}]
+            set s [expr {$s + $Uij*$Uij}]
         }
         set s [expr {sqrt($s)}]
         if { $notpositive == $n } {
-            set sf [expr {0.0-$s}]
+            set sf [expr {-$s}]
         } else {
             set sf $s
         }
-        set colv [getcol $A $j]
-        setcol A [scale [expr {1.0/$sf}] $colv]
-        lappend evals [expr {$s+$h}]
+        set colv [getcol $U $j]
+        setcol U $j [scale_vect [expr {1.0/$sf}] $colv]
     }
-    return [list $A $evals]
+    for {set j 0} {$j < $n} {incr j} {
+        lset S $j [expr {[lindex $S $j] + $h}]
+    }
+    return [list $U $S]
 }
 
 # leastSquaresSVD --
@@ -1725,7 +1726,7 @@ proc ::math::linearalgebra::from_LA { mv } {
 #
 # Announce the package's presence
 #
-package provide math::linearalgebra 1.0.2
+package provide math::linearalgebra 1.0.3
 
 if { 0 } {
 Te doen:
