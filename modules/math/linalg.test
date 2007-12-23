@@ -463,6 +463,23 @@ test leastsquares-1.0 "Least-squares solution" -match numbers -body {
     set x [::math::linearalgebra::leastSquaresSVD $A $b]
 } -result {1.0 1.0 0.1}
 
+test eigenvectors-1.0 "Eigenvectors solution" -match numbers -body {
+    #
+    # Matrix:
+    #    /2   1\
+    #    \1   2/
+    # has eigenvalues 3 and 1 with eigenvectors:
+    #    / 1\      /1\
+    #    \-1/  and \1/
+    # (so include a factor 1/sqrt(2) in the answer)
+    #
+    set A  { {2 1}
+             {1 2} } ;# Note: integer coefficients!
+
+    set result [::math::linearalgebra::eigenvectorsSVD $A]
+} -result {{{0.707107 -0.707107} {0.707107 0.707107} {3.0 1.0}}
+
+
 # Additional tests: procedures by Federico Ferri
 #source ferri/ferri.test
 
