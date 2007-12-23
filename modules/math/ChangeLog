@@ -1,3 +1,8 @@
+2007-12-22  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* linalg.tcl: Corrected bug #1805912 (eigenvectorsSVD) by means of path #1852519
+	* linalg.test: Added simple test case for eigenvectorsSVD
+	* pkgIndex.tcl: Increased version number for linear algebra (1.0.3 now)
+
 2007-12-11  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* special.tcl: Corrected implementation of Gamma function (reported by EKB)
 

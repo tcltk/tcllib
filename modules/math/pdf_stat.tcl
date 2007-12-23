@@ -23,7 +23,8 @@ namespace eval ::math::statistics {
     variable cdf_normal_prob     {}
     variable cdf_normal_x        {}
     variable cdf_toms322_cached  {}
-    variable initialised_cdf     0                 
+    variable initialised_cdf     0
+    variable twopi               [expr {2.0*acos(-1.0)}]
 }
 
 # pdf-normal --
@@ -296,8 +297,8 @@ proc ::math::statistics::Inverse-cdf-normal { mean stdev prob } {
     variable cdf_normal_prob
     variable cdf_normal_x
 
-    variable initialised_cdf                      
-    if { $initialised_cdf == 0 } { 
+    variable initialised_cdf
+    if { $initialised_cdf == 0 } {
        Initialise-cdf-normal
     }
 
@@ -350,8 +351,8 @@ proc ::math::statistics::Initialise-cdf-normal { } {
     variable cdf_normal_prob
     variable cdf_normal_x
 
-    variable initialised_cdf                      
-    set initialised_cdf 1           
+    variable initialised_cdf
+    set initialised_cdf 1
 
     set dx [expr {10.0/128.0}]
 
@@ -439,7 +440,13 @@ proc ::math::statistics::random-exponential { mean number } {
 # Result:
 #    List of random numbers
 #
+# Note:
+#    This version uses the Box-Muller transformation,
+#    a quick and robust method for generating normally-
+#    distributed numbers.
+#
 proc ::math::statistics::random-normal { mean stdev number } {
+    variable twopi
 
     if { $stdev <= 0.0 } {
 	return -code error -errorcode ARG \
@@ -447,9 +454,22 @@ proc ::math::statistics::random-normal { mean stdev number } {
 		"Standard deviation must be positive"
     }
 
+#    set result {}
+#    for { set i 0 }  {$i < $number } { incr i } {
+#        lappend result [Inverse-cdf-normal $mean $stdev [expr {rand()}]]
+#    }
+
     set result {}
-    for { set i 0 }  {$i < $number } { incr i } {
-	lappend result [Inverse-cdf-normal $mean $stdev [expr {rand()}]]
+
+    for { set i 0 }  {$i < $number } { incr i 2 } {
+        set angle [expr {$twopi * rand()}]
+        set rad   [expr {sqrt(-2.0*log(rand()))}]
+        set xrand [expr {$rad * cos($angle)}]
+        set yrand [expr {$rad * sin($angle)}]
+        lappend result [expr {$mean + $stdev * $xrand}]
+        if { $i < $number-1 } {
+            lappend result [expr {$mean + $stdev * $yrand}]
+        }
     }
 
     return $result
@@ -487,6 +507,9 @@ proc ::math::statistics::random-normal { mean stdev number } {
 #    The original code can be found at <http://www.netlib.org>
 #
 proc ::math::statistics::Cdf-toms322 { m n x } {
+    if { $x == 0.0 } {
+        return 0.0
+    }
     set m [expr {$m < 300?  int($m) : 300}]
     set n [expr {$n < 5000? int($n) : 5000}]
     if { $m < 1 || $n < 1 } {
