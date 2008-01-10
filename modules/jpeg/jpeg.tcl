@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: jpeg.tcl,v 1.13 2007/11/20 19:36:27 andreas_kupries Exp $
+# RCS: @(#) $Id: jpeg.tcl,v 1.14 2008/01/10 18:16:56 afaupell Exp $
 
-package provide jpeg 0.3.1
+package provide jpeg 0.3.2
 
 namespace eval ::jpeg {}
 
@@ -215,7 +215,9 @@ proc ::jpeg::formatExif {exif} {
                 FNumber {set val [format %2.1f $val]}
                 MaxApertureValue -
                 ApertureValue {
-                    set val [format %2.1f [expr {2 * (log($val) / log(2))}]]
+                    if {$val > 0} {
+                        set val [format %2.1f [expr {2 * (log($val) / log(2))}]]
+                    }
                 }
                 ShutterSpeedValue {
                     set val [expr {pow(2, $val)}]
