@@ -5,7 +5,7 @@
 [titledesc {Simulated annealing}]
 
 [require Tcl [opt 8.4]]
-[provide simulation::annealing]
+[require simulation::annealing 0.1]
 [require simulation::random]
 
 [description]
@@ -32,7 +32,7 @@ global optimum within the search space.
 The method resembles the cooling of material, hence the name.
 [para]
 
-The package [code simulation::annealing] offers the command [code findMinimum]:
+The package [term simulation::annealing] offers the command [term findMinimum]:
 
 [example {
     puts [::simulation::annealing::findMinimum \
@@ -57,7 +57,7 @@ The package defines the following auxiliary procedures:
 
 [call [cmd ::simulation::annealing::getOption] [arg keyword]]
 
-Get the value of an option given as part of the [code findMinimum]
+Get the value of an option given as part of the [term findMinimum]
 command.
 
 [list_begin arguments]
@@ -87,7 +87,7 @@ Set the value of the given option.
 
 [list_end]
 
-The main procedure is [code findMinimum]:
+The main procedure is [term findMinimum]:
 
 [list_begin definitions]
 
@@ -99,37 +99,37 @@ keyword-value pairs.
 
 [list_begin args]
 [arg_def int n] List of keyword-value pairs, all of which are available
-during the execution via the [code getOption] command.
+during the execution via the [term getOption] command.
 [list_end]
 
 [list_end]
 
-The [code findMinimum] command predefines the following options:
+The [term findMinimum] command predefines the following options:
 
 [list_begin itemized]
 [item]
-[code "-parameters list"]: triples defining parameters and ranges
+[term "-parameters list"]: triples defining parameters and ranges
 [item]
-[code "-function expr"]: expression defining the function
+[term "-function expr"]: expression defining the function
 [item]
-[code "-code body"]: body of code to define the function (takes
-precedence over [code -function]). The code should set the variable
+[term "-code body"]: body of code to define the function (takes
+precedence over [term -function]). The code should set the variable
 "result"
 [item]
-[code "-init code"]: code to be run at start up
-[code "-final code"]: code to be run at the end
-[code "-trials n"]: number of trials before reducing the temperature
-[code "-reduce factor"]: reduce the temperature by this factor (between 0 and 1)
-[code "-initial-temp t"]: initial temperature
-[code "-scale s"]: scale of the function (order of magnitude of the values)
-[code "-estimate-scale y/n"]: estimate the scale (only if [code -scale]
+[term "-init code"]: code to be run at start up
+[term "-final code"]: code to be run at the end
+[term "-trials n"]: number of trials before reducing the temperature
+[term "-reduce factor"]: reduce the temperature by this factor (between 0 and 1)
+[term "-initial-temp t"]: initial temperature
+[term "-scale s"]: scale of the function (order of magnitude of the values)
+[term "-estimate-scale y/n"]: estimate the scale (only if [term -scale]
 not present)
 [list_end]
 Any other options can be used via the getOption procedure
 in the body.
 
 [section TIPS]
-The procedure [code findMinimum] works by constructing a temporary
+The procedure [term findMinimum] works by constructing a temporary
 procedure that does the actual work. It loops until the point
 representing the estimated optimum does not change anymore within the
 given number of trials. As the temperature gets lower and lower the
@@ -170,7 +170,7 @@ but often you need to use a large number of trials and a slow reduction
 of temperature to get reliable and repeatable estimates.
 
 [para]
-You can use the [code -final] option to use a deterministic optimization
+You can use the [term -final] option to use a deterministic optimization
 method, once you are sure you are near the required optimum.
 
 [keywords math optimization "simulated annealing"]
