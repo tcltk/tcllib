@@ -452,6 +452,38 @@ test "Testmultivar-1.0" "Ordinary multivariate regression - three independent va
 -2.16569743834 -1.00124210139 -0.536696631937 0.609162254594
 -15.0697565684 80.2129990564}
 
+#
+# pdf/cdf tests - transformed from the contributions by Eric K. Benedict
+#                 Cf. the examples.
+#
+
+test "gamma-distribution-1.0" "Test pdf-gamma" -match tolerant -body {
+    set x [list \
+        [::math::statistics::pdf-gamma 1.5 2.7 3.0] \
+        [::math::statistics::pdf-gamma 7.5 0.2 30.0] \
+        [::math::statistics::pdf-gamma 15.0 1.2 2.0]]
+} -result {0.00263194027271168 0.0302770403110644 2.62677891379834e-07}
+
+test "gamma-distribution-1.1" "Test cdf-gamma" -match tolerant -body {
+    set x [list \
+        [::math::statistics::cdf-gamma 1.9 0.45 2.5] \
+        [::math::statistics::cdf-gamma 45.0 2.2 32.7]]
+} -result {0.340299345090375 0.999731419881902}
+
+test "poisson-distribution-1.0" "Test pdf-poisson" -match tolerant -body {
+    set x [list \
+        [::math::statistics::pdf-poisson 100 130] \
+        [::math::statistics::pdf-poisson 27.2 37] \
+        [::math::statistics::pdf-poisson 7.3 11.2]]
+} -result {0.000575252683815462 0.0134122817590761 0.0530940708960824}
+
+test "poisson-distribution-1.1" "Test cdf-poisson" -match tolerant -body {
+    set x [list \
+        [::math::statistics::cdf-poisson 4 7] \
+        [::math::statistics::cdf-poisson 80 70] \
+        [::math::statistics::cdf-poisson 4.9 6.2]]
+} -result {0.948866384207153 0.14338996716003 0.77665467292263}
+
 
 # End of test cases
 testsuiteCleanup
