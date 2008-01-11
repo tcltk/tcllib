@@ -4,7 +4,10 @@
 #    cumulative density functions
 #    Part of "math::statistics"
 #
-# version 0.1: initial implementation, january 2003
+#    january 2008: added procedures by Eric Kemp Benedict for
+#                  Gamma, Poisson and t-distributed variables.
+#                  Replacing some older versions.
+#
 
 # ::math::statistics --
 #   Namespace holding the procedures and variables
@@ -18,7 +21,11 @@ namespace eval ::math::statistics {
 	    cdf-students-t \
 	    random-normal random-uniform \
 	    random-exponential \
-	    histogram-uniform
+	    histogram-uniform \
+	    pdf-gamma pdf-poisson \
+	    cdf-gamma cdf-poisson \
+	    random-gamma random-poisson \
+	    incompleteGamma
 
     variable cdf_normal_prob     {}
     variable cdf_normal_x        {}
@@ -26,6 +33,7 @@ namespace eval ::math::statistics {
     variable initialised_cdf     0
     variable twopi               [expr {2.0*acos(-1.0)}]
 }
+
 
 # pdf-normal --
 #    Return the probabilities belonging to a normal distribution
@@ -51,6 +59,7 @@ proc ::math::statistics::pdf-normal { mean stdev x } {
 
     return $prob
 }
+
 
 # pdf-uniform --
 #    Return the probabilities belonging to a uniform distribution
@@ -78,6 +87,7 @@ proc ::math::statistics::pdf-uniform { pmin pmax x } {
 
     return $prob
 }
+
 
 # pdf-exponential --
 #    Return the probabilities belonging to an exponential
@@ -110,6 +120,7 @@ proc ::math::statistics::pdf-exponential { mean x } {
     return $prob
 }
 
+
 # cdf-normal --
 #    Return the cumulative probability belonging to a normal distribution
 #
@@ -139,6 +150,7 @@ proc ::math::statistics::cdf-normal { mean stdev x } {
     return $prob
 }
 
+
 # cdf-students-t --
 #    Return the cumulative probability belonging to the
 #    Student's t distribution
@@ -163,6 +175,7 @@ proc ::math::statistics::cdf-students-t { degrees x } {
 
     return $prob
 }
+
 
 # cdf-uniform --
 #    Return the cumulative probabilities belonging to a uniform
@@ -191,6 +204,7 @@ proc ::math::statistics::cdf-uniform { pmin pmax x } {
     return $prob
 }
 
+
 # cdf-exponential --
 #    Return the cumulative probabilities belonging to an exponential
 #    distribution
@@ -218,6 +232,7 @@ proc ::math::statistics::cdf-exponential { mean x } {
 
     return $prob
 }
+
 
 # Inverse-cdf-uniform --
 #    Return the argument belonging to the cumulative probability
@@ -251,6 +266,7 @@ proc ::math::statistics::Inverse-cdf-uniform { pmin pmax prob } {
     return $x
 }
 
+
 # Inverse-cdf-exponential --
 #    Return the argument belonging to the cumulative probability
 #    for an exponential distribution
@@ -278,6 +294,7 @@ proc ::math::statistics::Inverse-cdf-exponential { mean prob } {
 
     return $x
 }
+
 
 # Inverse-cdf-normal --
 #    Return the argument belonging to the cumulative probability
@@ -336,6 +353,7 @@ proc ::math::statistics::Inverse-cdf-normal { mean stdev prob } {
     return [expr {$mean+$stdev*$x}]
 }
 
+
 # Initialise-cdf-normal --
 #    Initialise the private data for the normal cdf
 #
@@ -373,6 +391,7 @@ proc ::math::statistics::Initialise-cdf-normal { } {
     }
 }
 
+
 # random-uniform --
 #    Return a list of random numbers satisfying a uniform
 #    distribution (parameters as minimum/maximum)
@@ -401,6 +420,7 @@ proc ::math::statistics::random-uniform { pmin pmax number } {
     return $result
 }
 
+
 # random-exponential --
 #    Return a list of random numbers satisfying an exponential
 #    distribution
@@ -427,6 +447,7 @@ proc ::math::statistics::random-exponential { mean number } {
 
     return $result
 }
+
 
 # random-normal --
 #    Return a list of random numbers satisfying a normal
@@ -474,6 +495,7 @@ proc ::math::statistics::random-normal { mean stdev number } {
 
     return $result
 }
+
 
 # Cdf-toms322 --
 #    Calculate the cumulative density function for several distributions
@@ -573,6 +595,7 @@ proc ::math::statistics::Cdf-toms322 { m n x } {
     return $prob
 }
 
+
 # Inverse-cdf-toms322 --
 #    Return the argument belonging to the cumulative probability
 #    for an F, chi-square or t distribution
@@ -643,6 +666,7 @@ proc ::math::statistics::Inverse-cdf-toms322 { m n prob } {
     return $x1
 }
 
+
 # HistogramMake --
 #    Distribute the "observations" according to the cdf
 #
@@ -675,6 +699,7 @@ proc ::math::statistics::HistogramMake { cdf-values number } {
     return $result
 }
 
+
 # histogram-uniform --
 #    Return the expected histogram for a uniform distribution
 #
@@ -701,6 +726,383 @@ proc ::math::statistics::histogram-uniform { min max limits number } {
 
     return [HistogramMake $cdf_result $number]
 }
+
+
+# incompleteGamma --
+#     Evaluate the incomplete Gamma function Gamma(p,x)
+#
+# Arguments:
+#     x         X-value
+#     p         Parameter
+#
+# Result:
+#     Value of Gamma(p,x)
+#
+# Note:
+#     Implementation by Eric K. Benedict (2007)
+#     Adapted from Fortran code in the Royal Statistical Society's StatLib
+#     library (http://lib.stat.cmu.edu/apstat/), algorithm AS 32 (with
+#     some modifications from AS 239)
+#
+#     Calculate normalized incomplete gamma function
+#
+#                     1       / x               p-1
+#       P(p,x) =  --------   |   dt exp(-t) * t
+#                 Gamma(p)  / 0
+#
+#     Tested some values against R's pgamma function
+#
+proc ::math::statistics::incompleteGamma {x p {tol 1.0e-9}} {
+    set overflow 1.0e37
+
+    if {$x < 0} {
+        return -code error -errorCode ARG -errorInfo "x must be positive"
+    }
+    if {$p <= 0} {
+        return -code error -errorCode ARG -errorInfo "p must be greater than or equal to zero"
+    }
+
+    # If x is zero, incGamma is zero
+    if {$x == 0.0} {
+        return 0.0
+    }
+
+    # Use normal approx is p > 1000
+    if {$p > 1000} {
+        set pn1 [expr {3.0 * sqrt($p) * (pow(1.0 * $x/$p, 1.0/3.0) + 1.0/(9.0 * $p) - 1.0)}]
+        # pnorm is not robust enough for this calculation (overflows); cdf-normal could also be used
+        return [::math::statistics::pnorm_quicker $pn1]
+    }
+
+    # If x is extremely large compared to a (and now know p < 1000), then return 1.0
+    if {$x > 1.e8} {
+        return 1.0
+    }
+
+    set factor [expr {exp($p * log($x) -$x - [::math::ln_Gamma $p])}]
+
+    # Use series expansion (first option) or continued fraction
+    if {$x <= 1.0 || $x < $p} {
+        set gin 1.0
+        set term 1.0
+        set rn $p
+        while {1} {
+            set rn [expr {$rn + 1.0}]
+            set term [expr {1.0 * $term * $x/$rn}]
+            set gin [expr {$gin + $term}]
+            if {$term < $tol} {
+                set gin [expr {1.0 * $gin * $factor/$p}]
+                break
+            }
+        }
+    } else {
+        set a [expr {1.0 - $p}]
+        set b [expr {$a + $x + 1.0}]
+        set term 0.0
+        set pn1 1.0
+        set pn2 $x
+        set pn3 [expr {$x + 1.0}]
+        set pn4 [expr {$x * $b}]
+        set gin [expr {1.0 * $pn3/$pn4}]
+        while {1} {
+            set a [expr {$a + 1.0}]
+            set b [expr {$b + 2.0}]
+            set term [expr {$term + 1.0}]
+            set an [expr {$a * $term}]
+            set pn5 [expr {$b * $pn3 - $an * $pn1}]
+            set pn6 [expr {$b * $pn4 - $an * $pn2}]
+            if {$pn6 != 0.0} {
+                set rn [expr {1.0 * $pn5/$pn6}]
+                set dif [expr {abs($gin - $rn)}]
+                if {$dif <= $tol && $dif <= $tol * $rn} {
+                    break
+                }
+                set gin $rn
+            }
+            set pn1 $pn3
+            set pn2 $pn4
+            set pn3 $pn5
+            set pn4 $pn6
+            # Too big? Rescale
+            if {abs($pn5) >= $overflow} {
+                set pn1 [expr {$pn1 / $overflow}]
+                set pn2 [expr {$pn2 / $overflow}]
+                set pn3 [expr {$pn3 / $overflow}]
+                set pn4 [expr {$pn4 / $overflow}]
+            }
+        }
+        set gin [expr {1.0 - $factor * $gin}]
+    }
+
+    return $gin
+
+}
+
+
+# pdf-gamma --
+#    Return the probabilities belonging to a gamma distribution
+#
+# Arguments:
+#    alpha     Shape parameter
+#    beta      Rate parameter
+#    x         Value of variate
+#
+# Result:
+#    Probability density of the given value of x to occur
+#
+# Note:
+#    Implemented by Eric Kemp-Benedict, 2007
+#
+#    This uses the following parameterization for the gamma:
+#        GammaDist(x) = beta * (beta * x)^(alpha-1) e^(-beta * x) / GammaFunc(alpha)
+#    Here, alpha is the shape parameter, and beta is the rate parameter
+#    Alternatively, a "scale parameter" theta = 1/beta is sometimes used
+#
+proc ::math::statistics::pdf-gamma { alpha beta x } {
+
+    if {$beta < 0} {
+        return -code error -errorcode ARG -errorinfo "Rate parameter 'beta' must be positive"
+    }
+
+    set prod [expr {1.0 * $x * $beta}]
+    set Galpha [expr {exp([::math::ln_Gamma $alpha])}]
+
+    expr {(1.0 * $beta/$Galpha) * pow($prod, ($alpha - 1.0)) * exp(-$prod)}
+}
+
+
+# pdf-poisson --
+#    Return the probabilities belonging to a Poisson
+#    distribution
+#
+# Arguments:
+#    mu       Mean of the distribution
+#    k        Number of occurrences
+#
+# Result:
+#    Probability of k occurrences under the given distribution
+#
+# Note:
+#    Implemented by Eric Kemp-Benedict, 2007
+#
+proc ::math::statistics::pdf-poisson { mu k } {
+    set intk [expr {int($k)}]
+    expr {exp(-$mu + floor($k) * log($mu) - [::math::ln_Gamma [incr intk]])}
+}
+
+
+# cdf-gamma --
+#    Return the cumulative probabilities belonging to a gamma distribution
+#
+# Arguments:
+#    alpha     Shape parameter
+#    beta      Rate parameter
+#    x         Value of variate
+#
+# Result:
+#    Cumulative probability of the given value of x to occur
+#
+# Note:
+#    Implemented by Eric Kemp-Benedict, 2007
+#
+proc ::math::statistics::cdf-gamma { alpha beta x } {
+    incompleteGamma [expr {$beta * $x}] $alpha
+}
+
+
+# cdf-poisson --
+#    Return the cumulative probabilities belonging to a Poisson
+#    distribution
+#
+# Arguments:
+#    mu       Mean of the distribution
+#    x        Number of occurrences
+#
+# Result:
+#    Probability of k occurrences under the given distribution
+#
+# Note:
+#    Implemented by Eric Kemp-Benedict, 2007
+#
+proc ::math::statistics::cdf-poisson { mu x } {
+    return [expr {1.0 - [incompleteGamma $mu [expr {floor($x) + 1}]]}]
+}
+
+
+# random-gamma --
+#    Generate a list of gamma-distributed deviates
+#
+# Arguments:
+#    alpha     Shape parameter
+#    beta      Rate parameter
+#    x         Value of variate
+#
+# Result:
+#    List of random values
+#
+# Note:
+#    Implemented by Eric Kemp-Benedict, 2007
+#    Generate a list of gamma-distributed random deviates
+#    Use Cheng's envelope rejection method, as documented in:
+#        Dagpunar, J.S. 2007
+#           "Simulation and Monte Carlo: With Applications in Finance and MCMC"
+#
+proc ::math::statistics::random-gamma {alpha beta number} {
+    if {$alpha <= 1} {
+        set lambda $alpha
+    } else {
+        set lambda [expr {sqrt(2.0 * $alpha - 1.0)}]
+    }
+    set retval {}
+    for {set i 0} {$i < $number} {incr i} {
+        while {1} {
+            # Two rands: one for deviate, one for acceptance/rejection
+            set r1 [expr {rand()}]
+            set r2 [expr {rand()}]
+            # Calculate deviate from enveloping proposal distribution (a Lorenz distribution)
+            set lnxovera [expr {(1.0/$lambda) * (log(1.0 - $r1) - log($r1))}]
+            if {![catch {expr {$alpha * exp($lnxovera)}} x]} {
+                # Apply acceptance criterion
+                if {log(4.0*$r1*$r1*$r2) < ($alpha - $lambda) * $lnxovera + $alpha - $x} {
+                    break
+                }
+            }
+        }
+        lappend retval [expr {1.0 * $x/$beta}]
+    }
+
+    return $retval
+}
+
+
+# random-poisson --
+#    Generate a list of Poisson-distributed deviates
+#
+# Arguments:
+#    mu        Mean value
+#    number    Number of deviates to return
+#
+# Result:
+#    List of random values
+#
+# Note:
+#    Implemented by Eric Kemp-Benedict, 2007
+#
+proc ::math::statistics::random-poisson {mu number} {
+    if {$mu < 20} {
+        return [Randp_invert $mu $number]
+    } else {
+        return [Randp_PTRS $mu $number]
+    }
+}
+
+
+# Random_invert --
+#    Generate a list of Poisson-distributed deviates - method 1
+#
+# Arguments:
+#    mu        Mean value
+#    number    Number of deviates to return
+#
+# Result:
+#    List of random values
+#
+# Note:
+#    Implemented by Eric Kemp-Benedict, 2007
+#
+#    Generate a poisson-distributed random deviate
+#    Use algorithm in section 4.9 of Dagpunar, J.S,
+#       "Simulation and Monte Carlo: With Applications
+#       in Finance and MCMC", pub. 2007 by Wiley
+#    This inverts the cdf using a "chop-down" search
+#    to avoid storing an extra intermediate value.
+#    It is only good for small mu.
+#
+proc ::math::statistics::Randp_invert {mu number} {
+    set W0 [expr {exp(-$mu)}]
+
+    set retval {}
+
+    for {set i 0} {$i < $number} {incr i} {
+        set W $W0
+        set R [expr {rand()}]
+        set X 0
+
+        while {$R > $W} {
+            set R [expr {$R - $W}]
+            incr X
+            set W [expr {$W * $mu/double($X)}]
+        }
+
+        lappend retval $X
+    }
+
+    return $retval
+}
+
+
+# Random_PTRS --
+#    Generate a list of Poisson-distributed deviates - method 2
+#
+# Arguments:
+#    mu        Mean value
+#    number    Number of deviates to return
+#
+# Result:
+#    List of random values
+#
+# Note:
+#    Implemented by Eric Kemp-Benedict, 2007
+#    Generate a poisson-distributed random deviate
+#    Use the transformed rejection method with
+#    squeeze of Hoermann:
+#        Wolfgang Hoermann, "The Transformed Rejection Method
+#        for Generating Poisson Random Variables,"
+#        Preprint #2, Dept of Applied Statistics and
+#        Data Processing, Wirtshcaftsuniversitaet Wien,
+#        http://statistik.wu-wien.ac.at/
+#    This method works for mu >= 10.
+#
+proc ::math::statistics::Randp_PTRS {mu number} {
+    set smu [expr {sqrt($mu)}]
+    set b [expr {0.931 + 2.53 * $smu}]
+    set a [expr {-0.059 + 0.02483 * $b}]
+    set vr [expr {0.9277 - 3.6224/($b - 2.0)}]
+    set invalpha [expr {1.1239 + 1.1328/($b - 3.4)}]
+    set lnmu [expr {log($mu)}]
+
+    set retval {}
+    for {set i 0} {$i < $number} {incr i} {
+        while 1 {
+            set U [expr {rand() - 0.5}]
+            set V [expr {rand()}]
+
+            set us [expr {0.5 - abs($U)}]
+            set k [expr {int(floor((2.0 * $a/$us + $b) * $U + $mu + 0.43))}]
+
+            if {$us >= 0.07 && $V <= $vr} {
+                break
+            }
+
+            if {$k < 0} {
+                continue
+            }
+
+            if {$us < 0.013 && $V > $us} {
+                continue
+            }
+
+            set kp1 [expr {$k+1}]
+            if {log($V * $invalpha / ($a/($us * $us) + $b)) <= -$mu + $k * $lnmu - [::math::ln_Gamma $kp1]} {
+                break
+            }
+        }
+
+        lappend retval $k
+    }
+    return $retval
+}
+
 
 #
 # Simple numerical tests
