@@ -5,7 +5,7 @@
 [titledesc {Monte Carlo simulations}]
 
 [require Tcl [opt 8.4]]
-[provide simulation::montecarlo]
+[require simulation::montecarlo 0.1]
 [require simulation::random]
 [require math::statistics]
 
@@ -29,7 +29,7 @@ kind or in fact anything that can be quantitatively described and has
 some stochastic element in it.
 [para]
 
-The package [code simulation::montecarlo] offers a basic framework for
+The package [term simulation::montecarlo] offers a basic framework for
 such a modelling technique:
 
 [example {
@@ -76,8 +76,7 @@ The package defines the following auxiliary procedures:
 
 [call [cmd ::simulation::montecarlo::getOption] [arg keyword]]
 
-Get the value of an option given as part of the [code
-singeExperiment] command.
+Get the value of an option given as part of the [term singeExperiment] command.
 
 [list_begin arguments]
 [arg_def string keyword] Given keyword (without leading minus)
@@ -137,7 +136,7 @@ the final phase or after completion of the command).
 [call [cmd ::simulation::montecarlo::getExpResult]]
 
 Get the results of the entire experiment (typically used in the final
-phase or even after completion of the [code singleExperiment] command).
+phase or even after completion of the [term singleExperiment] command).
 
 [nl]
 
@@ -151,7 +150,7 @@ Interchange columns and rows of a list of lists and return the result.
 
 [list_end]
 
-There are two main procedures: [code integral2D] and [code singleExperiment].
+There are two main procedures: [term integral2D] and [term singleExperiment].
 
 [list_begin definitions]
 
@@ -172,43 +171,43 @@ keyword-value pairs.
 
 [list_begin args]
 [arg_def int n] List of keyword-value pairs, all of which are available
-during the execution via the [code getOption] command.
+during the execution via the [term getOption] command.
 [list_end]
 
 [list_end]
 
-The [code singleExperiment] command predefines the following
+The [term singleExperiment] command predefines the following
 options:
 
 [list_begin itemized]
 [item]
-[code "-init code"]: code to be run at start up
+[term "-init code"]: code to be run at start up
 [item]
-[code "-loop body"]: body of code that defines the computation to
-be run time and again. The code should use [code setTrialResult]
+[term "-loop body"]: body of code that defines the computation to
+be run time and again. The code should use [term setTrialResult]
 to store the results of each trial (typically a list of numbers,
 but the interpretation is up to the implementation). Note: Required keyword.
 [item]
-[code "-final code"]: code to be run at the end
+[term "-final code"]: code to be run at the end
 [item]
-[code "-trials n"]: number of trials in the experiment (required)
+[term "-trials n"]: number of trials in the experiment (required)
 [item]
-[code "-reportfile file"]: opened file to send the output to (default: stdout)
+[term "-reportfile file"]: opened file to send the output to (default: stdout)
 [item]
-[code "-verbose"]: write the intermediate results (1) or not (0) (default: 0)
+[term "-verbose"]: write the intermediate results (1) or not (0) (default: 0)
 [item]
-[code "-analysis proc"]: either "none" (no automatic analysis), standard
+[term "-analysis proc"]: either "none" (no automatic analysis), standard
 (basic statistics of the trial results and a correlation matrix) or the
 name of a procedure that will take care of the analysis.
 [item]
-[code "-columns list"]: list of column names, useful for verbose output
+[term "-columns list"]: list of column names, useful for verbose output
 and the analysis
 [list_end]
 Any other options can be used via the getOption procedure
 in the body.
 
 [section TIPS]
-The procedure [code singleExperiment] works by constructing a
+The procedure [term singleExperiment] works by constructing a
 temporary procedure that does the actual work. It loops for the given
 number of trials.
 [para]
