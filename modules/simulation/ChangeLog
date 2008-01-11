@@ -1,0 +1,8 @@
+2008-01-11  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* annealing.tcl: Package for simulated annealing added
+	* annealing.man: Description of simulated annealing added
+	* montecarlo.tcl: Package for Monte Carlo simulation added
+	* montecarlo.man: Description of Monte Carlo simulation added
+	* random.tcl: Package for random number generators added
+	* random.man: Description of random number generators added
+
