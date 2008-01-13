@@ -677,6 +677,28 @@ interval (k) for a Poisson distribution with given mean (mu)
 [nl]
 
 
+[call [cmd ::math::statistics::pdf-chisquare] [arg df] [arg value]]
+Return the probability of a given value for a chi square
+distribution with given degrees of freedom
+
+[list_begin arguments]
+[arg_def float df] - Degrees of freedom
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[nl]
+
+
+[call [cmd ::math::statistics::pdf-sutdent-t] [arg df] [arg value]]
+Return the probability of a given value for a Student's t
+distribution with given degrees of freedom
+
+[list_begin arguments]
+[arg_def float df] - Degrees of freedom
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[nl]
+
+
 [call [cmd ::math::statistics::cdf-normal] [arg mean] [arg stdev] [arg value]]
 Return the cumulative probability of a given value for a normal
 distribution with given mean and standard deviation, that is the
@@ -791,13 +813,24 @@ a Gamma distribution with given shape and rate parameters
 [nl]
 
 
-[call [cmd ::math::statistics::cdf-poisson] [arg mu] [arg k]]
-Return a list of "number" random values satisfying a Poisson distribution
-with given mean (mu)
+[call [cmd ::math::statistics::random-chisquare] [arg df] [arg number]]
+Return a list of "number" random values satisfying
+a chi square distribution with given degrees of freedom
 
 [list_begin arguments]
-[arg_def float mu] - Mean number of occurrences
-[arg_def int number] - Number of occurences
+[arg_def float df] - Degrees of freedom
+[arg_def int number] - Number of values to be returned
+[list_end]
+[nl]
+
+
+[call [cmd ::math::statistics::random-student-t] [arg df] [arg number]]
+Return a list of "number" random values satisfying
+a Student's t distribution with given degrees of freedom
+
+[list_begin arguments]
+[arg_def float df] - Degrees of freedom
+[arg_def int number] - Number of values to be returned
 [list_end]
 [nl]
 

@@ -22,9 +22,9 @@ namespace eval ::math::statistics {
 	    random-normal random-uniform \
 	    random-exponential \
 	    histogram-uniform \
-	    pdf-gamma pdf-poisson \
-	    cdf-gamma cdf-poisson \
-	    random-gamma random-poisson \
+	    pdf-gamma pdf-poisson pdf-chisquare pdf-students-t \
+	    cdf-gamma cdf-poisson cdf-chisquare \
+	    random-gamma random-poisson random-chisquare random-students-t \
 	    incompleteGamma
 
     variable cdf_normal_prob     {}
@@ -32,6 +32,7 @@ namespace eval ::math::statistics {
     variable cdf_toms322_cached  {}
     variable initialised_cdf     0
     variable twopi               [expr {2.0*acos(-1.0)}]
+    variable pi                  [expr {acos(-1.0)}]
 }
 
 
@@ -756,10 +757,10 @@ proc ::math::statistics::incompleteGamma {x p {tol 1.0e-9}} {
     set overflow 1.0e37
 
     if {$x < 0} {
-        return -code error -errorCode ARG -errorInfo "x must be positive"
+        return -code error -errorcode ARG -errorinfo "x must be positive"
     }
     if {$p <= 0} {
-        return -code error -errorCode ARG -errorInfo "p must be greater than or equal to zero"
+        return -code error -errorcode ARG -errorinfo "p must be greater than or equal to zero"
     }
 
     # If x is zero, incGamma is zero
@@ -863,6 +864,9 @@ proc ::math::statistics::pdf-gamma { alpha beta x } {
     if {$beta < 0} {
         return -code error -errorcode ARG -errorinfo "Rate parameter 'beta' must be positive"
     }
+    if {$x < 0.0} {
+        return 0.0
+    }
 
     set prod [expr {1.0 * $x * $beta}]
     set Galpha [expr {exp([::math::ln_Gamma $alpha])}]
@@ -891,6 +895,59 @@ proc ::math::statistics::pdf-poisson { mu k } {
 }
 
 
+# pdf-chisquare --
+#    Return the probabilities belonging to a chi square distribution
+#
+# Arguments:
+#    df        Degree of freedom
+#    x         Value of variate
+#
+# Result:
+#    Probability density of the given value of x to occur
+#
+# Note:
+#    Implemented by Eric Kemp-Benedict, 2007
+#
+proc ::math::statistics::pdf-chisquare { df x } {
+
+    if {$df <= 0} {
+        return -code error -errorcode ARG -errorinfo "Degrees of freedom must be positive"
+    }
+
+    return [pdf-gamma [expr {0.5*$df}] 0.5 $x]
+}
+
+
+# pdf-students-t --
+#    Return the probabilities belonging to a Student's t distribution
+#
+# Arguments:
+#    degrees   Degree of freedom
+#    x         Value of variate
+#
+# Result:
+#    Probability density of the given value of x to occur
+#
+# Note:
+#    Implemented by Eric Kemp-Benedict, 2007
+#
+proc ::math::statistics::pdf-students-t { degrees x } {
+    variable pi
+
+    if {$degrees <= 0} {
+        return -code error -errorcode ARG -errorinfo "Degrees of freedom must be positive"
+    }
+
+    set nplus1over2 [expr {0.5 * ($degrees + 1)}]
+    set f1 [expr {exp([::math::ln_Gamma $nplus1over2] - \
+        [::math::ln_Gamma [expr {$nplus1over2 - 0.5}]])}]
+    set f2 [expr {1.0/sqrt($degrees * $pi)}]
+
+    expr {$f1 * $f2 * pow(1.0 + $x * $x/double($degrees), -$nplus1over2)}
+
+}
+
+
 # cdf-gamma --
 #    Return the cumulative probabilities belonging to a gamma distribution
 #
@@ -906,6 +963,9 @@ proc ::math::statistics::pdf-poisson { mu k } {
 #    Implemented by Eric Kemp-Benedict, 2007
 #
 proc ::math::statistics::cdf-gamma { alpha beta x } {
+    if { $x <= 0 } {
+        return 0.0
+    }
     incompleteGamma [expr {$beta * $x}] $alpha
 }
 
@@ -926,6 +986,29 @@ proc ::math::statistics::cdf-gamma { alpha beta x } {
 #
 proc ::math::statistics::cdf-poisson { mu x } {
     return [expr {1.0 - [incompleteGamma $mu [expr {floor($x) + 1}]]}]
+}
+
+
+# cdf-chisquare --
+#    Return the cumulative probabilities belonging to a chi square distribution
+#
+# Arguments:
+#    df        Degree of freedom
+#    x         Value of variate
+#
+# Result:
+#    Cumulative probability density of the given value of x to occur
+#
+# Note:
+#    Implemented by Eric Kemp-Benedict, 2007
+#
+proc ::math::statistics::cdf-chisquare { df x } {
+
+    if {$df <= 0} {
+        return -code error -errorcode ARG -errorinfo "Degrees of freedom must be positive"
+    }
+
+    return [cdf-gamma [expr {0.5*$df}] 0.5 $x]
 }
 
 
@@ -994,6 +1077,71 @@ proc ::math::statistics::random-poisson {mu number} {
     } else {
         return [Randp_PTRS $mu $number]
     }
+}
+
+
+# random-chisquare --
+#    Return a list of random numbers according to a chi square distribution
+#
+# Arguments:
+#    df        Degree of freedom
+#    number    Number of values to return
+#
+# Result:
+#    List of random numbers
+#
+# Note:
+#    Implemented by Eric Kemp-Benedict, 2007
+#
+proc ::math::statistics::random-chisquare { df number } {
+
+    if {$df <= 0} {
+        return -code error -errorcode ARG -errorinfo "Degrees of freedom must be positive"
+    }
+
+    return [random-gamma [expr {0.5*$df}] 0.5 $number]
+}
+
+
+# random-students-t --
+#    Return a list of random numbers according to a chi square distribution
+#
+# Arguments:
+#    degrees   Degree of freedom
+#    number    Number of values to return
+#
+# Result:
+#    List of random numbers
+#
+# Note:
+#    Implemented by Eric Kemp-Benedict, 2007
+#
+#    Use method from Appendix 4.3 in Dagpunar, J.S.,
+#    "Simulation and Monte Carlo: With Applications in Finance and MCMC"
+#
+proc ::math::statistics::random-students-t { degrees number } {
+    variable pi
+
+    if {$degrees < 1} {
+        return -code error -errorcode ARG -errorinfo "Degrees of freedom must be at least 1"
+    }
+
+    set dd [expr {double($degrees)}]
+    set k [expr {2.0/($dd - 1.0)}]
+
+    for {set i 0} {$i < $number} {incr i} {
+        set r1 [expr {rand()}]
+        if {$degrees > 1} {
+            set r2 [expr {rand()}]
+            set c [expr {cos(2.0 * $pi * $r2)}]
+            lappend retval [expr {sqrt($dd/ \
+                (1.0/(1.0 - pow($r1, $k)) \
+                - $c * $c)) * $c}]
+        } else {
+            lappend retval [expr {tan(0.5 * $pi * ($r1 + $r1 - 1))}]
+        }
+    }
+    set retval
 }
 
 
