@@ -484,6 +484,33 @@ test "poisson-distribution-1.1" "Test cdf-poisson" -match tolerant -body {
         [::math::statistics::cdf-poisson 4.9 6.2]]
 } -result {0.948866384207153 0.14338996716003 0.77665467292263}
 
+test "chisquare-distribution-1.0" "Test pdf-chisquare" -match tolerant -body {
+    set x [list \
+        [::math::statistics::pdf-chisquare 3 1.75]  \
+        [::math::statistics::pdf-chisquare 10 2.9]  \
+        [::math::statistics::pdf-chisquare 4 17.45] \
+        [::math::statistics::pdf-chisquare 2.5 1.8]]
+} -result {0.219999360547348 0.0216024880121444 0.000708787557977144 0.218446210041615}
+
+test "chisquare-distribution-1.1" "Test cdf-chisquare" -match tolerant -body {
+    set x [list \
+        [::math::statistics::cdf-chisquare 2 3.5]   \
+        [::math::statistics::cdf-chisquare 5 2.2]   \
+        [::math::statistics::cdf-chisquare 5 100]   \
+        [::math::statistics::cdf-chisquare 3.9 4.2] \
+        [::math::statistics::cdf-chisquare 1  2.0]  \
+        [::math::statistics::cdf-chisquare 3 -2.0]]
+} -result {0.826226056549555 0.179164030785504 1.0 0.634682741547709 0.842700792949715 0.0}
+
+test "students-t-distribution-1.0" "Test pdf-students-t" -match tolerant -body {
+    set x [list \
+        [::math::statistics::pdf-students-t 1 0.1]  \
+        [::math::statistics::pdf-students-t 0.5 0.1]  \
+        [::math::statistics::pdf-students-t 4 3.2]  \
+        [::math::statistics::pdf-students-t 3 2.0]  \
+        [::math::statistics::pdf-students-t 3 7.5]]
+} -result {0.315158303152268 0.265700672177405 0.0156821741652879 0.0675096606638929 0.000942291548015668}
+
 
 # End of test cases
 testsuiteCleanup

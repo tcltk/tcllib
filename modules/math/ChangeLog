@@ -1,4 +1,10 @@
-2008-01-10  Arjen Markus <arjenmarkus@users.sourceforge.net>
+2008-01-13  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* statistics.man: Update manual; added description of various new procedures
+	* statistics.test: Added tests for chi square and Student's t distributions
+	* pdf-stat.tcl: Added procedures for chi square and Student's t distributions
+	                (Next batch of feature requests by Eric K. Benedict)
+
+2008-01-11  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* statistics.man: Update manual; added description of various new procedures
 	* statistics.test: Added tests for Gamma and Poisson distributions
 	* pdf-stat.tcl: Added procedures for Gamma and Poission distributions
