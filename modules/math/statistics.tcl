@@ -12,8 +12,11 @@
 #                Eric Kemp-Benedict, february 2007
 # version 0.5:   added the population standard deviation and variance,
 #                as suggested by Dimitrios Zachariadis
+# version 0.6:   added pdf and cdf procedures for various distributions
+#                (provided by Eric Kemp-Benedict)
 
-package provide math::statistics 0.5
+package provide math::statistics 0.6
+package require math
 
 # ::math::statistics --
 #   Namespace holding the procedures and variables

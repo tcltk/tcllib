@@ -688,12 +688,24 @@ distribution with given degrees of freedom
 [nl]
 
 
-[call [cmd ::math::statistics::pdf-sutdent-t] [arg df] [arg value]]
+[call [cmd ::math::statistics::pdf-student-t] [arg df] [arg value]]
 Return the probability of a given value for a Student's t
 distribution with given degrees of freedom
 
 [list_begin arguments]
 [arg_def float df] - Degrees of freedom
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[nl]
+
+
+[call [cmd ::math::statistics::pdf-beta] [arg a] [arg b] [arg value]]
+Return the probability of a given value for a Beta
+distribution with given shape parameters
+
+[list_begin arguments]
+[arg_def float a] - First shape parameter
+[arg_def float b] - First shape parameter
 [arg_def float value] - Value for which the probability is required
 [list_end]
 [nl]
@@ -768,6 +780,18 @@ the same interval (k) for a Poisson distribution with given mean (mu)
 [nl]
 
 
+[call [cmd ::math::statistics::cdf-beta] [arg a] [arg b] [arg value]]
+Return the cumulative probability of a given value for a Beta
+distribution with given shape parameters
+
+[list_begin arguments]
+[arg_def float a] - First shape parameter
+[arg_def float b] - First shape parameter
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[nl]
+
+
 [call [cmd ::math::statistics::random-normal] [arg mean] [arg stdev] [arg number]]
 Return a list of "number" random values satisfying a normal
 distribution with given mean and standard deviation.
@@ -835,6 +859,18 @@ a Student's t distribution with given degrees of freedom
 [nl]
 
 
+[call [cmd ::math::statistics::random-beta] [arg a] [arg b] [arg number]]
+Return a list of "number" random values satisfying
+a Beta distribution with given shape parameters
+
+[list_begin arguments]
+[arg_def float a] - First shape parameter
+[arg_def float b] - Second shape parameter
+[arg_def int number] - Number of values to be returned
+[list_end]
+[nl]
+
+
 [call [cmd ::math::statistics::histogram-uniform] [arg xmin] [arg xmax] [arg limits] [arg number]]
 Return the expected histogram for a uniform distribution.
 
@@ -859,6 +895,18 @@ Evaluate the incomplete Gamma integral
 [list_begin arguments]
 [arg_def float x] - Value of x (limit of the integral)
 [arg_def float p] - Value of p in the integrand
+[arg_def float tol] - Required tolerance (default: 1.0e-9)
+[list_end]
+[nl]
+
+
+[call [cmd ::math::statistics::incompleteBeta] [arg a] [arg b] [arg x] [opt tol]]
+Evaluate the incomplete Beta integral
+
+[list_begin arguments]
+[arg_def float a] - First shape parameter
+[arg_def float b] - Second shape parameter
+[arg_def float x] - Value of x (limit of the integral)
 [arg_def float tol] - Required tolerance (default: 1.0e-9)
 [list_end]
 [nl]

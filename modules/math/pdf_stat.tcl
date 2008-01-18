@@ -22,10 +22,10 @@ namespace eval ::math::statistics {
 	    random-normal random-uniform \
 	    random-exponential \
 	    histogram-uniform \
-	    pdf-gamma pdf-poisson pdf-chisquare pdf-students-t \
-	    cdf-gamma cdf-poisson cdf-chisquare \
-	    random-gamma random-poisson random-chisquare random-students-t \
-	    incompleteGamma
+	    pdf-gamma pdf-poisson pdf-chisquare pdf-students-t pdf-beta \
+	    cdf-gamma cdf-poisson cdf-chisquare cdf-beta \
+	    random-gamma random-poisson random-chisquare random-students-t random-beta \
+	    incompleteGamma incompleteBeta
 
     variable cdf_normal_prob     {}
     variable cdf_normal_x        {}
@@ -948,6 +948,168 @@ proc ::math::statistics::pdf-students-t { degrees x } {
 }
 
 
+# pdf-beta --
+#    Return the probabilities belonging to a Beta distribution
+#
+# Arguments:
+#    a         First parameter of the Beta distribution
+#    b         Second parameter of the Beta distribution
+#    x         Value of variate
+#
+# Result:
+#    Probability density of the given value of x to occur
+#
+# Note:
+#    Implemented by Eric Kemp-Benedict, 2008
+#
+proc ::math::statistics::pdf-beta { a b x } {
+    if {$x < 0.0 || $x > 1.0} {
+        return -code error "Value out of range in Beta density: x = $x, not in \[0, 1\]"
+    }
+    if {$a <= 0.0} {
+        return -code error "Value out of range in Beta density: a = $a, must be > 0"
+    }
+    if {$b <= 0.0} {
+        return -code error "Value out of range in Beta density: b = $b, must be > 0"
+    }
+    #
+    # Corner cases ... need to check these!
+    #
+    if {$x == 0.0} {
+        return 0.0
+    }
+    if {$x == 1.0} {
+        return 0.0
+    }
+    set aplusb [expr {$a + $b}]
+    set term1 [expr {[::math::ln_Gamma $aplusb]- [::math::ln_Gamma $a] - [::math::ln_Gamma $b]}]
+    set term2 [expr {($a - 1.0) * log($x) + ($b - 1.0) * log(1.0 - $x)}]
+
+    expr {exp($term1 + $term2)}
+}
+
+
+# incompleteBeta --
+#    Evaluate the incomplete Beta integral
+#
+# Arguments:
+#    a         First parameter of the Beta integral
+#    b         Second parameter of the Beta integral
+#    x         Integration limit
+#    tol       (Optional) error tolerance (defaults to 1.0e-9)
+#
+# Result:
+#    Probability density of the given value of x to occur
+#
+# Note:
+#    Implemented by Eric Kemp-Benedict, 2008
+#
+proc ::math::statistics::incompleteBeta {a b x {tol 1.0e-9}} {
+    if {$x < 0.0 || $x > 1.0} {
+        return -code error "Value out of range in incomplete Beta function: x = $x, not in \[0, 1\]"
+    }
+    if {$a <= 0.0} {
+        return -code error "Value out of range in incomplete Beta function: a = $a, must be > 0"
+    }
+    if {$b <= 0.0} {
+        return -code error "Value out of range in incomplete Beta function: b = $b, must be > 0"
+    }
+
+    if {$x < $tol} {
+        return 0.0
+    }
+    if {$x > 1.0 - $tol} {
+        return 1.0
+    }
+
+    # Rearrange if necessary to get continued fraction to behave
+    if {$x < 0.5} {
+        return [beta_cont_frac $a $b $x $tol]
+    } else {
+        set z [beta_cont_frac $b $a [expr {1.0 - $x}] $tol]
+        return [expr {1.0 - $z}]
+    }
+}
+
+
+# beta_cont_frac --
+#    Evaluate the incomplete Beta integral via a continued fraction
+#
+# Arguments:
+#    a         First parameter of the Beta integral
+#    b         Second parameter of the Beta integral
+#    x         Integration limit
+#    tol       (Optional) error tolerance (defaults to 1.0e-9)
+#
+# Result:
+#    Probability density of the given value of x to occur
+#
+# Note:
+#    Implemented by Eric Kemp-Benedict, 2008
+#
+#    Continued fraction for Ix(a,b)
+#    Abramowitz & Stegun 26.5.9
+#
+proc ::math::statistics::beta_cont_frac {a b x {tol 1.0e-9}} {
+    set max_iter 512
+
+    set aplusb [expr {$a + $b}]
+    set amin1 [expr {$a - 1}]
+    set lnGapb [::math::ln_Gamma $aplusb]
+    set term1 [expr {$lnGapb- [::math::ln_Gamma $a] - [::math::ln_Gamma $b]}]
+    set term2 [expr {$a * log($x) + ($b - 1.0) * log(1.0 - $x)}]
+    set pref [expr {exp($term1 + $term2)/$a}]
+
+    set z [expr {$x / (1.0 - $x)}]
+
+    set v 1.0
+    set h_1 1.0
+    set h_2 0.0
+    set k_1 1.0
+    set k_2 1.0
+
+    for {set m 1} {$m < $max_iter} {incr m} {
+        set f1 [expr {$amin1 + 2 * $m}]
+        set e2m [expr {-$z * double(($amin1 + $m) * ($b - $m))/ \
+            double(($f1 - 1) * $f1)}]
+        set e2mp1 [expr {$z * double($m * ($aplusb - 1 + $m)) / \
+            double($f1 * ($f1 + 1))}]
+        set h_2m [expr {$h_1 + $e2m * $h_2}]
+        set k_2m [expr {$k_1 + $e2m * $k_2}]
+
+        set h_2 $h_2m
+        set k_2 $k_2m
+
+        set h_1 [expr {$h_2m + $e2mp1 * $h_1}]
+        set k_1 [expr {$k_2m + $e2mp1 * $k_1}]
+
+        set vprime [expr {$h_1/$k_1}]
+
+        if {abs($v - $vprime) < $tol} {
+            break
+        }
+
+        set v $vprime
+
+    }
+
+    if {$m == $max_iter} {
+        return -code error "beta_cont_frac: Exceeded maximum number of iterations"
+    }
+
+    set retval [expr {$pref * $v}]
+
+    # Because of imprecision in underlying Tcl calculations, may fall out of bounds
+    if {$retval < 0.0} {
+        set retval 0.0
+    } elseif {$retval > 1.0} {
+        set retval 1.0
+    }
+
+    return $retval
+}
+
+
 # cdf-gamma --
 #    Return the cumulative probabilities belonging to a gamma distribution
 #
@@ -997,7 +1159,7 @@ proc ::math::statistics::cdf-poisson { mu x } {
 #    x         Value of variate
 #
 # Result:
-#    Cumulative probability density of the given value of x to occur
+#    Cumulative probability of the given value of x to occur
 #
 # Note:
 #    Implemented by Eric Kemp-Benedict, 2007
@@ -1009,6 +1171,25 @@ proc ::math::statistics::cdf-chisquare { df x } {
     }
 
     return [cdf-gamma [expr {0.5*$df}] 0.5 $x]
+}
+
+
+# cdf-beta --
+#    Return the cumulative probabilities belonging to a Beta distribution
+#
+# Arguments:
+#    a         First parameter of the Beta distribution
+#    b         Second parameter of the Beta distribution
+#    x         Value of variate
+#
+# Result:
+#    Cumulative probability of the given value of x to occur
+#
+# Note:
+#    Implemented by Eric Kemp-Benedict, 2008
+#
+proc ::math::statistics::cdf-beta { a b x } {
+        incompleteBeta $a $b $x
 }
 
 
@@ -1142,6 +1323,33 @@ proc ::math::statistics::random-students-t { degrees number } {
         }
     }
     set retval
+}
+
+
+# random-beta --
+#    Return a list of random numbers according to a Beta distribution
+#
+# Arguments:
+#    a         First parameter of the Beta distribution
+#    b         Second parameter of the Beta distribution
+#    number    Number of values to return
+#
+# Result:
+#    Cumulative probability of the given value of x to occur
+#
+# Note:
+#    Implemented by Eric Kemp-Benedict, 2008
+#
+#    Use trick from J.S. Dagpunar, "Simulation and
+#        Monte Carlo: With Applications in Finance
+#        and MCMC", Section 4.5
+#
+proc ::math::statistics::random-beta { a b number } {
+    set retval {}
+    foreach w [random-gamma $a 1.0 $number] y [random-gamma $b 1.0 $number] {
+        lappend retval [expr {$w / ($w + $y)}]
+    }
+    return $retval
 }
 
 
