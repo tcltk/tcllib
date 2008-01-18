@@ -1,3 +1,9 @@
+2008-01-18  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* statistics.man: Update manual; added beta distribution 
+	* statistics.test: Added tests for beta distribution
+	* pdf-stat.tcl: Added procedures for beta distirbution
+	                (Improved implementation by Eric K. Benedict)
+
 2008-01-13  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* statistics.man: Update manual; added description of various new procedures
 	* statistics.test: Added tests for chi square and Student's t distributions
