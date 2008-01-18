@@ -511,6 +511,39 @@ test "students-t-distribution-1.0" "Test pdf-students-t" -match tolerant -body {
         [::math::statistics::pdf-students-t 3 7.5]]
 } -result {0.315158303152268 0.265700672177405 0.0156821741652879 0.0675096606638929 0.000942291548015668}
 
+test "beta-distribution-1.0" "Test pdf-beta" -match tolerant -body {
+    set x [list \
+        [::math::statistics::pdf-beta 1.3 2.4 0.2] \
+        [::math::statistics::pdf-beta 1 1 0.5] \
+        [::math::statistics::pdf-beta 3.7 0.9 0.0] \
+        [::math::statistics::pdf-beta 1.8 4.2 1.0] \
+        [::math::statistics::pdf-beta 320 400 0.4] \
+        [::math::statistics::pdf-beta 500   1 0.2] \
+        [::math::statistics::pdf-beta 1000 1000 0.50]]
+} -result {1.68903180472449 1.0 0.0 0.0 1.18192376783860 0.0 35.6780222917086}
+
+test "beta-distribution-1.1" "Test cdf-beta" -match tolerant -body {
+    set x [list \
+        [::math::statistics::cdf-beta 2.1 3.0 0.2] \
+        [::math::statistics::cdf-beta 4.2 17.3 0.5] \
+        [::math::statistics::cdf-beta 500 375 0.7] \
+        [::math::statistics::cdf-beta 250 760 0.2] \
+        [::math::statistics::cdf-beta 43.2 19.7 0.6] \
+        [::math::statistics::cdf-beta 500 640 0.3] \
+        [::math::statistics::cdf-beta 400 640 0.3] \
+        [::math::statistics::cdf-beta 0.1 30 0.1] \
+        [::math::statistics::cdf-beta 0.01 0.03 0.9] \
+        [::math::statistics::cdf-beta 2 3 0.9999] \
+        [::math::statistics::cdf-beta 249.9999 759.99999 0.2] \
+        [::math::statistics::cdf-beta 1000 1000 0.4] \
+        [::math::statistics::cdf-beta 1000 1000 0.499] \
+        [::math::statistics::cdf-beta 1000 1000 0.5] \
+        [::math::statistics::cdf-beta 1000 1000 0.7] \
+        [::math::statistics::cdf-beta 2 3 0.6]]
+} -result {0.16220409275804 0.998630771123192 1.0 0.000125234318666948 0.0728881294218269
+           2.99872547567313e-23 3.07056696205524e-09 0.998641008671625 0.765865005703006
+           0.999999999996 0.000125237075575121 8.23161135486914e-20 0.464369443974288
+           0.5 1.0 0.8208}
 
 # End of test cases
 testsuiteCleanup
