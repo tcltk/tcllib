@@ -123,7 +123,10 @@ precedence over [term -function]). The code should set the variable
 [term "-initial-temp t"]: initial temperature
 [term "-scale s"]: scale of the function (order of magnitude of the values)
 [term "-estimate-scale y/n"]: estimate the scale (only if [term -scale]
-not present)
+is not present)
+[term "-verbose y/n"]: print detailed information on progress to the
+report file (1) or not (0)
+[term "-reportfile file"]: opened file to print to (defaults to stdout)
 [list_end]
 Any other options can be used via the getOption procedure
 in the body.
