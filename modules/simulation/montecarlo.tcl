@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: montecarlo.tcl,v 1.1 2008/01/11 13:35:19 arjenmarkus Exp $
+# RCS: @(#) $Id: montecarlo.tcl,v 1.2 2008/01/23 05:35:02 arjenmarkus Exp $
 #------------------------------------------------------------------------------
 
 package require Tcl 8.4
@@ -19,14 +19,15 @@ package require math::statistics
 namespace eval ::simulation::montecarlo {
 }
 
-# AcceptAll2D --
+
+# AcceptAll --
 #     Accept any point
 #
 # Arguments:
-#     x               X-coordinate
+#     args            Coordinates
 #     y               Y-coordinate
 #
-proc ::simulation::montecarlo::AcceptAll2D {x y} {
+proc ::simulation::montecarlo::AcceptAll {args} {
     return 1
 }
 
@@ -44,7 +45,7 @@ proc ::simulation::montecarlo::AcceptAll2D {x y} {
 #     Estimated value of the integral
 #
 proc ::simulation::montecarlo::integral2D {domain func args} {
-    set option(-region)  AcceptAll2D
+    set option(-region)  AcceptAll
     set option(-samples) 1000
 
     foreach {key value} $args {
@@ -68,6 +69,58 @@ proc ::simulation::montecarlo::integral2D {domain func args} {
 
         if { [$option(-region) $x $y] } {
             set sum [expr {$sum + [$func $x $y]}]
+            incr accepted
+        }
+        incr count
+    }
+
+    #
+    # The ratio accepted/count gives an estimate of the area
+    # over which we just integrated.
+    #
+    return [expr {$accepted*$sum/$count/$count*$area}]
+}
+
+
+# integral3D --
+#     Estimate an integral over a three-dimensional domain, using MC
+#
+# Arguments:
+#     domain          List of minimum x, maximum x, minimum y and maximum y,
+#                     minimum z, maximum z
+#     func            Function to be integrated
+#     args            Option-value pairs:
+#                     -region proc  - accept or reject the chosen point
+#                     -samples n    - number of samples to use
+# Result:
+#     Estimated value of the integral
+#
+proc ::simulation::montecarlo::integral3D {domain func args} {
+    set option(-region)  AcceptAll
+    set option(-samples) 1000
+
+    foreach {key value} $args {
+        if { [string index $key 0] != "-" } {
+            return -code error "Incorrect option: $key - should start with a -"
+        }
+        set option($key) $value
+    }
+
+    set sum      0.0
+    set count    0
+    set accepted 0
+    set maxcount [expr {10*$option(-samples)}]
+
+    foreach {xmin xmax ymin ymax zmin zmax} $domain {break}
+    set area [expr {($xmax-$xmin)*($ymax-$ymin)*($zmax-$zmin)}]
+
+    while { $accepted < $option(-samples) && $count < $maxcount } {
+        set x [expr {$xmin + ($xmax-$xmin)*rand()}]
+        set y [expr {$ymin + ($ymax-$ymin)*rand()}]
+        set z [expr {$zmin + ($zmax-$zmin)*rand()}]
+
+        if { [$option(-region) $x $y $z] } {
+            set sum [expr {$sum + [$func $x $y $z]}]
             incr accepted
         }
         incr count
