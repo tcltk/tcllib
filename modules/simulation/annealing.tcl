@@ -7,11 +7,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: annealing.tcl,v 1.1 2008/01/11 13:35:18 arjenmarkus Exp $
+# RCS: @(#) $Id: annealing.tcl,v 1.2 2008/01/23 05:35:02 arjenmarkus Exp $
 #------------------------------------------------------------------------------
 
 package require Tcl 8.4
-package require simulation::random
+#package require simulation::random
+source random.tcl
 
 # ::simulation::annealing --
 #     Create the namespace
@@ -93,6 +94,8 @@ proc ::simulation::annealing::hasOption {option} {
 #                     -scale s         - scale of the function (order of
 #                                        magnitude of the values)
 #                     -estimate-scale y/n - estimate the scale (only if -scale not present)
+#                     -verbose y/n     - Turn verbose printing on (1) or off (0)
+#                     -reportfile file - Channel to write verbose output to
 #                     Any others can be used via the getOption procedure
 #                     in the body.
 #
@@ -116,6 +119,8 @@ proc ::simulation::annealing::findMinimum {args} {
     set ann_option(-initial-temp)   1.0
     set ann_option(-scale)          {}
     set ann_option(-estimate-scale) 0
+    set ann_option(-verbose)        0
+    set ann_option(-reportfile)     stdout
 
     foreach {option value} $args {
         set ann_option($option) $value
@@ -161,6 +166,8 @@ proc ::simulation::annealing::findMinimum {args} {
         set _temperature_ [getOption initial-temp]
         set _reduce_      [getOption reduce]
         set _noparams_    [expr {[llength {PARAMETERS}]/3}]
+        set _verbose_     [getOption verbose]
+        set _reportfile_  [getOption reportfile]
 
         INIT
 
@@ -185,6 +192,9 @@ proc ::simulation::annealing::findMinimum {args} {
         } else {
             set _scale_ [getOption scale]
         }
+        if { $_verbose_ } {
+            puts $_reportfile_ "Scale value: $_scale_"
+        }
 
         #
         # Start the outer loop
@@ -197,7 +207,13 @@ proc ::simulation::annealing::findMinimum {args} {
         CODE
         set _old_result_ $result
 
+        if { $_verbose_ } {
+            puts $_reportfile_ "Result -- Mean of accepted values -- % accepted"
+        }
+
         while {1} {
+            set _sum_       $_old_result_
+            set _accepted_  1
             for { set _trial_ 0 } { $_trial_ < $_trials_} { incr _trial_ } {
                 set _randp_ [expr {3*int($_noparams_*rand())}]
                 set _param_ [lindex {PARAMETERS} $_randp_]
@@ -215,11 +231,17 @@ proc ::simulation::annealing::findMinimum {args} {
                 if { log($_rand_) < -($result-$_old_result_)/($_scale_*$_temperature_) } {
                     incr _changes_
                     set _old_result_ $result
-                   #puts "Accepted: $_changes_ - $x, $y"
+                    set _sum_        [expr {$_sum_ + $result}]
+                    incr _accepted_
                 } else {
                     set $_param_ $_old_param_
-                   #puts "Rejected: $_changes_ - $x, $y"
                 }
+            }
+
+            if { $_verbose_ } {
+                puts $_reportfile_ \
+                    [format "%.5g -- %.5g -- %.2f %%" $_old_result_ \
+                        [expr {$_sum_/$_accepted_}] [expr {100.0*double($_changes_)/$_trials_}]]
             }
 
             set _temperature_ [expr {$_reduce_ * $_temperature_}]
@@ -253,9 +275,10 @@ package provide simulation::annealing 0.1
 # main --
 #     Example
 #
-if { 0 } {
+if { 1 } {
 puts [::simulation::annealing::findMinimum \
     -trials 300 \
+    -verbose 1 \
     -parameters {x -5.0 5.0 y -5.0 5.0} \
     -function {$x*$x+$y*$y+sin(10.0*$x)+4.0*cos(20.0*$y)}]
 
