@@ -7,12 +7,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: annealing.tcl,v 1.2 2008/01/23 05:35:02 arjenmarkus Exp $
+# RCS: @(#) $Id: annealing.tcl,v 1.3 2008/01/24 05:45:45 arjenmarkus Exp $
 #------------------------------------------------------------------------------
 
 package require Tcl 8.4
-#package require simulation::random
-source random.tcl
+package require simulation::random
 
 # ::simulation::annealing --
 #     Create the namespace
