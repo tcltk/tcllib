@@ -20,8 +20,8 @@ if {[catch {package require tcllibc}]} {
 }
 
 namespace eval md5crypt {
-    variable version 1.0.0
-    variable rcsid {$Id: md5crypt.tcl,v 1.4 2005/12/09 18:27:17 andreas_kupries Exp $}
+    variable version 1.1.0
+    variable rcsid {$Id: md5crypt.tcl,v 1.5 2008/01/26 23:56:26 patthoyts Exp $}
     variable itoa64 \
         {./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz}
 
@@ -37,6 +37,17 @@ proc ::md5crypt::to64_tcl {v n} {
         set v [expr {($v >> 6) & 0x3FFFFFFF}]
     }
     return $s
+}
+
+# ::md5crypt::salt --
+#	Generate a salt string suitable for use with the md5crypt command.
+proc ::md5crypt::salt {{len 8}} {
+    variable itoa64
+    set salt ""
+    for {set n 0} {$n < $len} {incr n} {
+        append salt [string index $itoa64 [expr {int(rand() * 64)}]]
+    }
+    return $salt
 }
 
 proc ::md5crypt::md5crypt_tcl {magic pw salt} {
@@ -119,13 +130,13 @@ proc ::md5crypt::md5crypt_tcl {magic pw salt} {
     return $result
 }
 
-if {[info command ::md5crypt::to64_c] == {}} {
+if {[info commands ::md5crypt::to64_c] == {}} {
     interp alias {} ::md5crypt::to64 {} ::md5crypt::to64_tcl
 } else {
     interp alias {} ::md5crypt::to64 {} ::md5crypt::to64_c
 }
 
-if {[info command ::md5crypt::md5crypt_c] == {}} {
+if {[info commands ::md5crypt::md5crypt_c] == {}} {
     interp alias {} ::md5crypt::md5crypt {} ::md5crypt::md5crypt_tcl {$1$}
     interp alias {} ::md5crypt::aprcrypt {} ::md5crypt::md5crypt_tcl {$apr1$}
 } else {
