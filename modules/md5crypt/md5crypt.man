@@ -1,10 +1,10 @@
-[manpage_begin md5crypt n 1.0.0]
+[manpage_begin md5crypt n 1.1.0]
 [moddesc   {MD5-based password encryption}]
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {MD5-based password encryption}]
 [require Tcl 8.2]
 [require md5 2.0]
-[require md5crypt [opt 1.0.0]]
+[require md5crypt [opt 1.1.0]]
 [description]
 [para]
 
@@ -35,6 +35,11 @@ password and a random salt (see SALT).
 Generate an Apache compatible md5-encoded password hash from the plaintext
 password and a random salt (see SALT).
 
+[call [cmd "::md5crypt::salt"] [opt [arg "length"]]]
+
+Generate a random salt string suitable for use with the [cmd md5crypt] and
+[cmd aprcrypt] commands.
+
 [list_end]
 
 [section {SALT}]
@@ -47,6 +52,9 @@ maximum of 8 characters are then used as the salt. The salt text
 should probably be restricted the set of ASCII alphanumeric characters
 plus "./" (dot and forward-slash) - this is to preserve maximum
 compatability with the unix password file format.
+[para]
+If a password is being generated rather than checked from a password
+file then the [cmd salt] command may be used to generate a random salt.
 
 [section {EXAMPLES}]
 
@@ -60,6 +68,10 @@ $1$01234567$b5lh2mHyD2PdJjFfALlEz1
 $apr1$01234567$IXBaQywhAhc0d75ZbaSDp/
 }]
 
+[example {
+% md5crypt::md5crypt password [md5crypt::salt]
+$1$dFmvyRmO$T.V3OmzqeEf3hqJp2WFcb.
+}]
 
 [section {BUGS, IDEAS, FEEDBACK}]
 

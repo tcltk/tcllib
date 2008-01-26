@@ -1,3 +1,9 @@
+2008-01-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md5crypt.tcl: Implemented FR #1824212 from Aaron Faupell to
+	* md5crypt.man: provide a salt command for use when generating
+	* pkgIndex.tcl: passwords.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
