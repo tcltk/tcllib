@@ -4,12 +4,12 @@
 #
 #	Definitions for the processing of sets.
 #
-# Copyright (c) 2004-2007 by Andreas Kupries.
+# Copyright (c) 2004-2008 by Andreas Kupries.
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets.tcl,v 1.15 2007/08/29 22:10:31 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.tcl,v 1.16 2008/01/28 23:42:20 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -186,4 +186,4 @@ namespace eval ::struct {
     namespace export set
 }
 
-package provide struct::set 2.2.1
+package provide struct::set 2.2.2

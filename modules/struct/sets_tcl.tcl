@@ -4,12 +4,12 @@
 #
 #	Definitions for the processing of sets.
 #
-# Copyright (c) 2004-2007 by Andreas Kupries.
+# Copyright (c) 2004-2008 by Andreas Kupries.
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets_tcl.tcl,v 1.1 2007/01/21 22:15:59 andreas_kupries Exp $
+# RCS: @(#) $Id: sets_tcl.tcl,v 1.2 2008/01/28 23:42:20 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -311,8 +311,12 @@ proc ::struct::set::S_equal {A B} {
 proc ::struct::set::Cleanup {A} {
     # unset A to avoid collisions
     if {[llength $A] < 2} {return $A}
-    foreach [lindex [list $A [unset A]] 0] {.} {break}
-    return [info locals]
+    # We cannot use variables to avoid an explicit array. The set
+    # elements may look like namespace vars (i.e. contain ::), and
+    # such elements break that, cannot be proc-local variables.
+    array set S {}
+    foreach item $A {set S($item) .}
+    return [array names S]
 }
 
 # ::struct::set::S_include --
