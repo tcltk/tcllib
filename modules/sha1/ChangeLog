@@ -1,3 +1,8 @@
+2008-01-28  Andreas Kupries  <andreask@activestate.com>
+
+	* sha256c.tcl: Disabled the critcl::debug and critcl::cheaders -g
+	  definitions.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
