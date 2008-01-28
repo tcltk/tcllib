@@ -1,5 +1,14 @@
 2008-01-28  Andreas Kupries  <andreask@activestate.com>
 
+	* sets_tcl.tcl (::struct::set::Cleanup): Fixed handling of set
+	* sets.testsuite: elements looking like namespace variable
+	* sets.test: names. They break our hack of using the proc-local
+	* sets.tcl: var hashtable. We have to use an explicit
+	* pkgIndex.tcl: array. Updated the testsuite to use such
+	* struct_set.man: elements. Bumped version to 2.2.2.
+
+2008-01-28  Andreas Kupries  <andreask@activestate.com>
+
 	* graph_c.tcl: Disabled the critcl::debug and critcl::cheaders -g
 	* sets_c.tcl:  definitions.
 	* tree_c.tcl: 
