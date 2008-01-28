@@ -1,3 +1,9 @@
+2008-01-28  Andreas Kupries  <andreask@activestate.com>
+
+	* graph_c.tcl: Disabled the critcl::debug and critcl::cheaders -g
+	* sets_c.tcl:  definitions.
+	* tree_c.tcl: 
+
 2007-09-19  Andreas Kupries  <andreask@activestate.com>
 
 	* list.tcl (::struct::list::Lpermutations): Fixed use of

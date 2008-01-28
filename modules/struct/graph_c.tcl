@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: graph_c.tcl,v 1.1 2006/11/16 06:33:12 andreas_kupries Exp $
+# RCS: @(#) $Id: graph_c.tcl,v 1.2 2008/01/28 22:58:18 andreas_kupries Exp $
 
 package require critcl
 package provide struct_graphc 2.1
@@ -19,8 +19,8 @@ namespace eval ::struct {
     # Supporting code for the main command.
 
     catch {
-	critcl::cheaders -g
-	critcl::debug memory symbols
+	#critcl::cheaders -g
+	#critcl::debug memory symbols
     }
 
     critcl::cheaders graph/*.h

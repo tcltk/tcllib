@@ -4,7 +4,7 @@
 #
 # Public domain
 #
-# RCS: @(#) $Id: base32_c.tcl,v 1.2 2006/05/28 04:29:09 andreas_kupries Exp $
+# RCS: @(#) $Id: base32_c.tcl,v 1.3 2008/01/28 22:58:18 andreas_kupries Exp $
 
 package require critcl
 package require Tcl 8.4
@@ -12,8 +12,8 @@ package require Tcl 8.4
 namespace eval ::base32 {
     # Supporting code for the main command.
     catch {
-	critcl::cheaders -g
-	critcl::debug memory symbols
+	#critcl::cheaders -g
+	#critcl::debug memory symbols
     }
 
     # Main commands, encoder & decoder

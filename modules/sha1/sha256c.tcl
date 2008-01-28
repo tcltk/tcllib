@@ -5,7 +5,7 @@
 #
 # Wrapper for the Secure Hashing Algorithm (SHA256)
 #
-# $Id: sha256c.tcl,v 1.2 2006/11/04 15:25:34 patthoyts Exp $
+# $Id: sha256c.tcl,v 1.3 2008/01/28 22:58:18 andreas_kupries Exp $
 
 package require critcl;        # needs critcl
 package provide sha256c 1.0.2
@@ -23,7 +23,7 @@ critcl::cheaders -DTCL_BYTE_ORDER=$byteOrder
 namespace eval ::sha2 {
     # Supporting code for the main command.
     catch {
-        critcl::debug memory symbols
+        #critcl::debug memory symbols
     }
 
     critcl::ccode {
