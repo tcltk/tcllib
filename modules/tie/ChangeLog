@@ -1,3 +1,10 @@
+2008-01-28  Andreas Kupries  <andreask@activestate.com>
+
+	* tie_file.tcl (Replay): Accepted fix for [SF Tcllib Bug 1850838],
+	* pkgIndex.tcl: adding the missing use of the utf8 encoding.
+	  Thanks to Richard Suchenwirth <suchenwi@users.sourceforge.net>
+	  for report and fix. Version updated to 1.0.3.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
