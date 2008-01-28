@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets_c.tcl,v 1.1 2007/01/21 22:15:59 andreas_kupries Exp $
+# RCS: @(#) $Id: sets_c.tcl,v 1.2 2008/01/28 22:58:18 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -21,8 +21,8 @@ namespace eval ::struct {
     # Supporting code for the main command.
 
     catch {
-        critcl::cheaders -g
-        critcl::debug memory symbols
+        #critcl::cheaders -g
+        #critcl::debug memory symbols
     }
 
     critcl::cheaders sets/*.h
