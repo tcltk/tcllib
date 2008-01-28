@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tie_file.tcl,v 1.8 2006/09/19 23:36:18 andreas_kupries Exp $
+# RCS: @(#) $Id: tie_file.tcl,v 1.9 2008/01/28 22:41:40 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -177,7 +177,12 @@ snit::type ::tie::std::file {
 	array set cache {}
 	set       count 0
 
-	$ip invokehidden -global source $path
+	set chan [open $path r]
+	fconfigure $chan -encoding utf-8
+	set data [read $chan]
+	close $chan
+
+	$ip eval [list ::uplevel \#0 $data]
 	interp delete $ip
 
 	set cvalid 1
@@ -265,4 +270,4 @@ snit::type ::tie::std::file {
 ## Ready to go
 
 ::tie::register ::tie::std::file as file
-package provide   tie::std::file 1.0.2
+package provide   tie::std::file 1.0.3
