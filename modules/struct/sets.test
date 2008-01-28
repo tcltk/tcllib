@@ -4,9 +4,9 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# Copyright (c) 2004-2007 by Andreas Kupries
+# Copyright (c) 2004-2008 by Andreas Kupries
 #
-# RCS: @(#) $Id: sets.test,v 1.16 2007/08/03 17:05:12 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.test,v 1.17 2008/01/28 23:42:20 andreas_kupries Exp $
 
 #----------------------------------------------------------------------
 
@@ -25,13 +25,19 @@ testing {
 # -------------------------------------------------------------------------
 
 set sempty {}
-set smultiples {a b c a d f a f c h j}
-set sa {a b c d}
-set sb {e f g h}
-set sc {c d e f}
-set sd {a b c d e f}     ; # a + c
-set se {c d e f g h}     ; # b + c
-set sf {a b c d e f g h} ; # a + b
+set smultiples {a::foo b::foo c::foo a::foo d::foo f::foo a::foo f::foo c::foo h::foo j::foo}
+set sa {a::foo b::foo c::foo d::foo}
+set sb {e::foo f::foo g::foo h::foo}
+set sc {c::foo d::foo e::foo f::foo}
+set sd {a::foo b::foo c::foo d::foo e::foo f::foo}               ; # a + c
+set se {c::foo d::foo e::foo f::foo g::foo h::foo}               ; # b + c
+set sf {a::foo b::foo c::foo d::foo e::foo f::foo g::foo h::foo} ; # a + b
+set sg {a::foo b::foo c::foo d::foo f::foo h::foo j::foo}
+set sh {c::foo d::foo}
+set si {a::foo b::foo}
+set sj {e::foo f::foo}
+set sk {a::foo b::foo e::foo f::foo}
+set sl {b::foo c::foo d::foo}
 
 interp alias {} setop {} ::struct::set
 
