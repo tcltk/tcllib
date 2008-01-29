@@ -1,3 +1,10 @@
+2008-01-29  Andreas Kupries  <andreask@activestate.com>
+
+	* unicode.man: Replaced bad backslash-quoted brackets with proper
+	  [lb], [rb] markup.
+
+	* stringprep.man: Fixed missing closing bracket.
+
 2008-01-29  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* stringprep: Initial import of an RFC 3454 'StringPrep' implementation

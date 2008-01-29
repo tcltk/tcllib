@@ -22,7 +22,7 @@ them to prepare Unicode strings for comparison as defined in RFC-3454.
         [opt [arg "-prohibited list"]] \
         [opt [arg "-prohibitedList list"]] \
         [opt [arg "-prohibitedCommand command"]] \
-        [opt [arg "-prohibitedBidi boolean"]]
+        [opt [arg "-prohibitedBidi boolean"]]]
 
 Register the [package stringprep] profile named [arg profile]. Options
 are the following.
