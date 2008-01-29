@@ -1,3 +1,10 @@
+2008-01-29  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sasl.tcl: Added support for the 'charset' parameter in DIGEST-MD5
+	for gsasl servers which are picky about this.
+	* sasl.tcl: digest-md5 noncecount parameter moved into context
+	array so it is only used for maintained connections.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
@@ -6,6 +13,8 @@
 
 2007-08-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
+	* sasl.tcl: Fix bug #1545306 noncecount mishandled in DIGEST-MD5.
+	Enable support for re-authentication in client via SASL::reset
 	* ntlm.tcl: Applied patch #1653431 to make use of the returned NT
 	domain if present.
 	* gtoken.tcl: Applied patch #1774859 from Sergei Golovan to handle
