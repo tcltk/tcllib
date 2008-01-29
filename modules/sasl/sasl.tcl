@@ -16,8 +16,8 @@
 package require Tcl 8.2
 
 namespace eval ::SASL {
-    variable version 1.3.1
-    variable rcsid {$Id: sasl.tcl,v 1.11 2006/10/02 21:21:57 patthoyts Exp $}
+    variable version 1.3.2
+    variable rcsid {$Id: sasl.tcl,v 1.12 2008/01/29 00:51:39 patthoyts Exp $}
 
     variable uid
     if {![info exists uid]} { set uid 0 }
@@ -106,9 +106,9 @@ proc ::SASL::response {context} {
 #	Reset the SASL state. This permits the same instance to be reused
 #	for a new round of authentication.
 #
-proc ::SASL::reset {context} {
+proc ::SASL::reset {context {step 0}} {
     upvar #0 $context ctx
-    array set ctx [list step 0 response "" valid false count 0]
+    array set ctx [list step $step response "" valid false count 0]
     return $context
 }
 
@@ -442,29 +442,41 @@ proc ::SASL::ANONYMOUS:server {context clientrsp args} {
 # Comments:
 #
 proc ::SASL::DIGEST-MD5:client {context challenge args} {
-    variable digest_md5_noncecount
     upvar #0 $context ctx
     md5_init
     if {$ctx(step) == 0 && [string length $challenge] == 0} {
-        set ctx(response) ""
-        return 1
+        if {[info exists ctx(challenge)]} {
+            set challenge $ctx(challenge)
+        } else {
+            set ctx(response) ""
+            return 1
+        }
     }
     incr ctx(step)
     set result 0
     switch -exact -- $ctx(step) {
         1 {
+            set ctx(challenge) $challenge
             array set params [DigestParameters $challenge]
             
-            if {![info exists digest_md5_noncecount]} {
-                set digest_md5_noncecount 0
+            if {![info exists ctx(noncecount)]} {
+                set ctx(noncecount) 0
             }
             set nonce $params(nonce)
             set cnonce [CreateNonce]
-            set noncecount [format %08u [incr digest_md5_noncecount]]
+            set noncecount [format %08u [incr ctx(noncecount)]]
             set qop auth
             
+            # support the 'charset' parameter.
             set username [eval $ctx(callback) [list $context username]]
             set password [eval $ctx(callback) [list $context password]]
+            set encoding iso8859-1
+            if {[info exists params(charset)]} {
+                set encoding $params(charset)
+            }
+            set username [encoding convertto $encoding $username]
+            set password [encoding convertto $encoding $password]
+
             if {[info exists params(realm)]} {
                 set realm $params(realm)
             } else {
@@ -476,6 +488,9 @@ proc ::SASL::DIGEST-MD5:client {context challenge args} {
                        $qop $nonce $noncecount $cnonce]
             
             set ctx(response) "username=\"$username\",realm=\"$realm\",nonce=\"$nonce\",nc=\"$noncecount\",cnonce=\"$cnonce\",digest-uri=\"$uri\",response=\"$R\",qop=$qop"
+            if {[info exists params(charset)]} {
+                append ctx(response) ",charset=$params(charset)"
+            }
             set result 1
         }
         
@@ -491,7 +506,6 @@ proc ::SASL::DIGEST-MD5:client {context challenge args} {
 }
 
 proc ::SASL::DIGEST-MD5:server {context challenge args} {
-    variable digest_md5_noncecount
     upvar #0 $context ctx
     md5_init
     incr ctx(step)
@@ -500,6 +514,7 @@ proc ::SASL::DIGEST-MD5:server {context challenge args} {
         1 {
             set realm [eval $ctx(callback) [list $context realm]]
             set ctx(nonce) [CreateNonce]
+            set ctx(nc) 0
             set ctx(response) "realm=\"$realm\",nonce=\"$ctx(nonce)\",qop=\"auth\",charset=utf-8,algorithm=md5-sess"
             set result 1
         }
@@ -509,13 +524,14 @@ proc ::SASL::DIGEST-MD5:server {context challenge args} {
             set password [eval $ctx(callback)\
                               [list $context password $params(username) $realm]]
             set uri "$ctx(service)/$realm"
+            set nc [format %08u [expr {$ctx(nc) + 1}]]
             set R [DigestResponse $params(username) $realm $password \
-                       $uri auth $ctx(nonce) $params(nc) $params(cnonce)]
+                       $uri auth $ctx(nonce) $nc $params(cnonce)]
             if {[string equal $R $params(response)]} {
                 set R2 [DigestResponse $params(username) $realm $password \
-                        $uri auth $ctx(nonce) $params(nc) $params(cnonce)]
+                        $uri auth $ctx(nonce) $nc $params(cnonce)]
                 set ctx(response) "rspauth=$R2"
-                set ctx(nc) $params(nc)
+                incr ctx(nc)
                 set result 1
             } else {
                 return -code error "authentication failed"
