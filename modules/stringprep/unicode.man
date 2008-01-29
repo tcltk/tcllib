@@ -39,7 +39,7 @@ by canonical composition), [arg KD] (compatibility decomposition), or [arg KC]
         [arg string]]
 
 A shortcut to
-::unicode::tostring \[unicode::normalize \$form \[::unicode::fromstring \$string\]\].
+::unicode::tostring [lb]unicode::normalize \$form [lb]::unicode::fromstring \$string[rb][rb].
 Normalizes Tcl string and returns normalized string.
 
 [list_end]
