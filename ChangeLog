@@ -1,3 +1,8 @@
+2008-01-29  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* modules/stringprep:               New module 'stringprep'.
+	* support/installation/modules.tcl:
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

@@ -1,0 +1,4 @@
+2008-01-29  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* stringprep: Initial import of an RFC 3454 'StringPrep' implementation
+	* unicode:    provided by Sergei Golovan.
