@@ -1,3 +1,14 @@
+2008-02-05  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* autoproxy.man: Increment version to 1.5 and document.
+	* autoproxy.tcl: Fixed architectural problems that prevented the
+	http registered command from having tls package options
+	appended. This makes an incompatible change to the tls_connect
+	command and the host and port must now be the last two options.
+	* autoproxy.tcl: Re-organised the tls_connect code to split out
+	the connect and the tls parts to create a tunnel_connect command
+	that can form a non-SSL tunnel through a proxy.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

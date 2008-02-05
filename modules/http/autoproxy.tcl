@@ -20,15 +20,15 @@
 #   package require tls
 #   http::register https 443 ::autoproxy::tls_socket
 #
-# @(#)$Id: autoproxy.tcl,v 1.9 2007/03/12 22:53:25 patthoyts Exp $
+# @(#)$Id: autoproxy.tcl,v 1.10 2008/02/05 01:22:44 patthoyts Exp $
 
 package require http;                   # tcl
 package require uri;                    # tcllib
 package require base64;                 # tcllib
 
 namespace eval ::autoproxy {
-    variable rcsid {$Id: autoproxy.tcl,v 1.9 2007/03/12 22:53:25 patthoyts Exp $}
-    variable version 1.4
+    variable rcsid {$Id: autoproxy.tcl,v 1.10 2008/02/05 01:22:44 patthoyts Exp $}
+    variable version 1.5
     variable options
 
     if {! [info exists options]} {
@@ -40,6 +40,9 @@ namespace eval ::autoproxy {
             authProc   {}
         }
     }
+
+    variable uid
+    if {![info exists uid]} { set uid 0 }
 
     variable winregkey
     set winregkey [join {
@@ -364,44 +367,26 @@ proc ::autoproxy::filter {host} {
     return [list $options(proxy_host) $options(proxy_port)]
 }
 
+# -------------------------------------------------------------------------
 # autoproxy::tls_connect --
 #
 #	Create a connection to a remote machine through a proxy
-#	if necessary. This is used by the tls_socket comment for 
+#	if necessary. This is used by the tls_socket command for 
 #	use with the http package but can also be used more generally
 #	provided your proxy will permit CONNECT attempts to ports
 #	other than port 443 (many will not).
+#	This command defers to 'tunnel_connect' to link to the target
+#	host and then upgrades the link to SSL/TLS
 #
-proc ::autoproxy::tls_connect {host port {useragent {}}} {
+proc ::autoproxy::tls_connect {args} {
     variable options
     if {[string length $options(proxy_host)] > 0} {
-        set s [::socket $options(proxy_host) $options(proxy_port)]
-        fconfigure $s -blocking 1 -buffering line -translation crlf
-        puts $s "CONNECT $host:$port HTTP/1.1"
-        puts $s "Host: $host"
-        if {[string length $useragent] > 0} {
-            puts $s "User-Agent: $useragent"
-        }
-        puts $s "Proxy-Connection: keep-alive"
-        puts $s "Connection: keep-alive"
-        if {[string length $options(basic)] > 0} {
-            puts $s [join $options(basic) ": "]
-        }
-        puts $s ""
-
-        set block ""
-        while {[gets $s r] > 0} {
-            lappend block $r
-        }
-        set result [lindex $block 0]
-        set code [lindex [split $result { }] 1]
-
-        if {$code >= 200 && $code < 300} {
-            fconfigure $s -blocking 1 -buffering none -translation binary
-            tls::import $s
+        set s [eval [linsert $args 0 tunnel_connect]]
+        fconfigure $s -blocking 1 -buffering none -translation binary
+        if {[string equal "-async" [lindex $args end-2]]} {
+            eval [linsert [lrange $args 0 end-3] 0 ::tls::import $s]
         } else {
-            close $s
-            return -code error $result
+            eval [linsert [lrange $args 0 end-2] 0 ::tls::import $s]
         }
     } else {
         set s [eval [linsert $args 0 ::tls::socket]]
@@ -409,9 +394,98 @@ proc ::autoproxy::tls_connect {host port {useragent {}}} {
     return $s
 }
 
+# autoproxy::tunnel_connect --
+#
+#	Create a connection to a remote machine through a proxy
+#	if necessary. This is used by the tls_socket command for 
+#	use with the http package but can also be used more generally
+#	provided your proxy will permit CONNECT attempts to ports
+#	other than port 443 (many will not).
+#	Note: this command just opens the socket through the proxy to
+#	the target machine -- no SSL/TLS negotiation is done yet.
+#
+proc ::autoproxy::tunnel_connect {args} {
+    variable options
+    variable uid
+    set code ok
+    if {[string length $options(proxy_host)] > 0} {
+        set token [namespace current]::[incr uid]
+        upvar #0 $token state
+        set state(endpoint) [lrange $args end-1 end]
+        set state(state) connect
+        set state(data) ""
+        set state(useragent) [http::config -useragent]
+        set state(sock) [::socket $options(proxy_host) $options(proxy_port)]
+        fileevent $state(sock) writable [namespace code [list tunnel_write $token]]
+        vwait [set token](state)
+        
+        if {[string length $state(error)] > 0} {
+            set result $state(error)
+            close $state(sock)
+            unset state
+            set code error
+        } elseif {$state(code) >= 300 || $state(code) < 200} {
+            set result [lindex $state(headers) 0]
+            regexp {HTTP/\d.\d\s+\d+\s+(.*)} $result -> result
+            close $state(sock)
+            set code error
+        } else {
+            set result $state(sock)
+        }
+        unset state
+    } else {
+        set result [eval [linsert $args 0 ::socket]]
+    }
+    return -code $code $result
+}
+
+proc ::autoproxy::tunnel_write {token} {
+    upvar #0 $token state
+    variable options
+    fileevent $state(sock) writable {}
+    if {[catch {set state(error) [fconfigure $state(sock) -error]} err]} {
+        set state(error) $err
+    }
+    if {[string length $state(error)] > 0} {
+        set state(state) error
+        return
+    }
+    fconfigure $state(sock) -blocking 0 -buffering line -translation crlf
+    foreach {host port} $state(endpoint) break
+    puts $state(sock) "CONNECT $host:$port HTTP/1.1"
+    puts $state(sock) "Host: $host"
+    if {[string length $state(useragent)] > 0} {
+        puts $state(sock) "User-Agent: $state(useragent)"
+    }
+    puts $state(sock) "Proxy-Connection: keep-alive"
+    puts $state(sock) "Connection: keep-alive"
+    if {[string length $options(basic)] > 0} {
+        puts $state(sock) [join $options(basic) ": "]
+    }
+    puts $state(sock) ""
+
+    fileevent $state(sock) readable [namespace code [list tunnel_read $token]]
+    return
+}
+    
+proc ::autoproxy::tunnel_read {token} {
+    upvar #0 $token state
+    set len [gets $state(sock) line]
+    if {[eof $state(sock)]} {
+        fileevent $state(sock) readable {}
+        set state(state) eof
+    } elseif {$len == 0} {
+        set state(code) [lindex [split [lindex $state(headers) 0] { }] 1]
+        fileevent $state(sock) readable {}
+        set state(state) ok
+    } else {
+        lappend state(headers) $line
+    }
+}
+
 # autoproxy::tls_socket --
 #
-#	This can be used to handle TLS connections indenpendantly of
+#	This can be used to handle TLS connections independently of
 #	proxy presence. It can only be used with the Tcl http package
 #	and to use it you must do:
 #	   http::register https 443 ::autoproxy::tls_socket
@@ -421,10 +495,14 @@ proc ::autoproxy::tls_connect {host port {useragent {}}} {
 proc ::autoproxy::tls_socket {args} {
     variable options
 
-    # Look into the http package for the actual target. The function
-    # has unfortunately not passed these as parameters.
-    upvar host host port port
-    set s [tls_connect $host $port [http::config -useragent]]
+    # Look into the http package for the actual target. If a proxy is in use then
+    # The function appends the proxy host and port and not the target.
+
+    upvar host uhost port uport
+    set args [lrange $args 0 end-2]
+    lappend args $uhost $uport
+
+    set s [eval [linsert $args 0 tls_connect]]
 
     # record the tls connection status in the http state array.
     upvar state state
