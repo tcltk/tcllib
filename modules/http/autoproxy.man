@@ -3,7 +3,7 @@
 [titledesc {Automatic HTTP proxy usage and authentication}]
 [require Tcl 8.2]
 [require http [opt 2.0]]
-[require autoproxy [opt 1.4]]
+[require autoproxy [opt 1.5]]
 [description]
 [para]
 
@@ -53,13 +53,27 @@ Configure the autoproxy package. Calling [cmd configure] with no
 options will return a list of all option names and values. 
 See [sectref OPTIONS].
 
-[call [cmd ::autoproxy::tls_connect] [arg "host"] \
-   [arg "port"] [opt [arg "useragent"]]]
+[call [cmd ::autoproxy::tls_connect] [arg args]]
 
 Connect to a secure socket through a proxy. HTTP proxy servers permit
 the use of the CONNECT HTTP command to open a link through the proxy
 to the target machine. This function hides the details. For use with
 the http package see [cmd tls_socket].
+[para]
+The [arg args] list may contain any of the [package tls] package options but
+must end with the host and port as the last two items.
+
+[call [cmd ::autoproxy::tunnel_connect] [arg args]]
+
+Connect to a target host throught a proxy. This uses the same CONNECT
+HTTP command as the [cmd tls_connect] but does not promote the link
+security once the connection is established.
+[para]
+The [arg args] list may contain any of the [package tls] package options but
+must end with the host and port as the last two items.
+[para]
+Note that many proxy servers will permit CONNECT calls to a limited
+set of ports - typically only port 443 (the secure HTTP port).
 
 [call [cmd ::autoproxy::tls_socket] [arg args]]
 
