@@ -3,7 +3,7 @@
 #
 # (c) 2006 Pierre David (pdav@users.sourceforge.net)
 #
-# $Id: ldapx.tcl,v 1.11 2007/08/19 20:20:43 pdav Exp $
+# $Id: ldapx.tcl,v 1.12 2008/02/07 21:19:39 pdav Exp $
 #
 # History:
 #   2006/08/08 : pda : design
@@ -1702,8 +1702,7 @@ snit::type ::ldapx::ldif {
 	    {EOF:*		end		{set r [list modrdn $newrdn $delold] }}
 	}
 	modrdn-end {
-	    {EOF:*		end		{set r [list modrdn $newrdn
-						    $delold $newsup]}}
+	    {EOF:*		end		{set r [list modrdn $newrdn $delold $newsup]}}
 	}
 	add {
 	    {EOF:*		end		{set r [list add [array get tab]]}}

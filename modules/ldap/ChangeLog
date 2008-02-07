@@ -1,3 +1,7 @@
+2008-02-07  Pierre David <pdav@users.sourceforge.net>
+
+	* ldapx.tcl:	Fixed a small bug when reading an LDIF modrdn
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
