@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: matrix.tcl,v 1.22 2005/09/30 05:36:39 andreas_kupries Exp $
+# RCS: @(#) $Id: matrix.tcl,v 1.23 2008/02/20 00:39:39 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -2236,7 +2236,7 @@ proc ::struct::matrix::_unlink {name avar} {
 proc ::struct::matrix::ChkColumnIndex {name column} {
     variable ${name}::columns
 
-    switch -regex -- $column {
+    switch -regexp -- $column {
 	{end-[0-9]+} {
 	    set column [string map {end- ""} $column]
 	    set cc [expr {$columns - 1 - $column}]
@@ -2280,7 +2280,7 @@ proc ::struct::matrix::ChkColumnIndex {name column} {
 proc ::struct::matrix::ChkRowIndex {name row} {
     variable ${name}::rows
 
-    switch -regex -- $row {
+    switch -regexp -- $row {
 	{end-[0-9]+} {
 	    set row [string map {end- ""} $row]
 	    set rr [expr {$rows - 1 - $row}]
@@ -2325,7 +2325,7 @@ proc ::struct::matrix::ChkRowIndex {name row} {
 proc ::struct::matrix::ChkColumnIndexNeg {name column} {
     variable ${name}::columns
 
-    switch -regex -- $column {
+    switch -regexp -- $column {
 	{end-[0-9]+} {
 	    set column [string map {end- ""} $column]
 	    set cc [expr {$columns - 1 - $column}]
@@ -2367,7 +2367,7 @@ proc ::struct::matrix::ChkColumnIndexNeg {name column} {
 proc ::struct::matrix::ChkRowIndexNeg {name row} {
     variable ${name}::rows
 
-    switch -regex -- $row {
+    switch -regexp -- $row {
 	{end-[0-9]+} {
 	    set row [string map {end- ""} $row]
 	    set rr [expr {$rows - 1 - $row}]
@@ -2408,7 +2408,7 @@ proc ::struct::matrix::ChkRowIndexNeg {name row} {
 proc ::struct::matrix::ChkColumnIndexAll {name column} {
     variable ${name}::columns
 
-    switch -regex -- $column {
+    switch -regexp -- $column {
 	{end-[0-9]+} {
 	    set column [string map {end- ""} $column]
 	    set cc [expr {$columns - 1 - $column}]
@@ -2443,7 +2443,7 @@ proc ::struct::matrix::ChkColumnIndexAll {name column} {
 proc ::struct::matrix::ChkRowIndexAll {name row} {
     variable ${name}::rows
 
-    switch -regex -- $row {
+    switch -regexp -- $row {
 	{end-[0-9]+} {
 	    set row [string map {end- ""} $row]
 	    set rr [expr {$rows - 1 - $row}]
@@ -2784,4 +2784,4 @@ namespace eval ::struct {
     namespace import -force matrix::matrix
     namespace export matrix
 }
-package provide struct::matrix 2.0.1
+package provide struct::matrix 2.0.2
