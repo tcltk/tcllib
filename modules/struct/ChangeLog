@@ -1,3 +1,9 @@
+2008-02-14  Andreas Kupries  <andreask@activestate.com>
+
+	* matrix.tcl: Changed uses of abbreviated '-regex' in switch
+	* pkgIndex.tcl: commands to the full option, '-regexp'. Bumped
+	  version to 2.0.2.
+
 2008-01-28  Andreas Kupries  <andreask@activestate.com>
 
 	* sets_tcl.tcl (::struct::set::Cleanup): Fixed handling of set
