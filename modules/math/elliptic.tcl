@@ -206,7 +206,7 @@ proc ::math::special::sn { u k } {
         return [expr {1.0/cosh($u)}]
     } else {
         set u [IterateUK $u $k]
-        return [expr {sqrt(1.0-$k*$k*sin($u)}]
+        return [expr {sqrt(1.0-$k*$k*sin($u))}]
     }
 }
 
