@@ -1,12 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin simulation::annealing n 0.1]
+[manpage_begin simulation::annealing n 0.2]
 [copyright {2008 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [moddesc   {Tcl Simulation Tools}]
 [titledesc {Simulated annealing}]
 
 [require Tcl [opt 8.4]]
-[require simulation::annealing 0.1]
-[require simulation::random]
+[require simulation::annealing 0.2]
 
 [description]
 [para]
@@ -87,7 +86,7 @@ Set the value of the given option.
 
 [list_end]
 
-The main procedure is [term findMinimum]:
+The main procedures are [term findMinimum] and [term findCombinatorialMinimum]:
 
 [list_begin definitions]
 
@@ -95,6 +94,17 @@ The main procedure is [term findMinimum]:
 
 Find the minimum of a function using simulated annealing. The function
 and the method's parameters is given via a list of
+keyword-value pairs.
+
+[list_begin args]
+[arg_def int n] List of keyword-value pairs, all of which are available
+during the execution via the [term getOption] command.
+[list_end]
+
+[call [cmd ::simulation::annealing::findCombinatorialMinimum] [arg args]]
+
+Find the minimum of a function of discrete variables using simulated
+annealing. The function and the method's parameters is given via a list of
 keyword-value pairs.
 
 [list_begin args]
@@ -130,6 +140,19 @@ report file (1) or not (0)
 [list_end]
 Any other options can be used via the getOption procedure
 in the body.
+
+The [term findCombinatorialMinimum] command predefines the following
+options:
+
+[list_begin itemized]
+[item]
+[term "-number-params n"]: number of binary parameters (the solution
+space consists of lists of 1s and 0s). This is a required option.
+[item]
+[term "-initial-values"]: list of 1s and 0s constituting the start of
+the search.
+[list_end]
+The other predefined options are identical to those of [term findMinimum].
 
 [section TIPS]
 The procedure [term findMinimum] works by constructing a temporary
@@ -175,6 +198,59 @@ of temperature to get reliable and repeatable estimates.
 [para]
 You can use the [term -final] option to use a deterministic optimization
 method, once you are sure you are near the required optimum.
+
+[para]
+The [term findCombinatorialMinimum] procedure is suited for situations
+where the parameters have the values 0 or 1 (and there can be many of
+them). Here is an example:
+
+[list_begin itemized]
+
+[item]
+We have a function that attains an absolute minimum if the first ten
+numbers are 1 and the rest is 0:
+
+[example {
+proc cost {params} {
+    set cost 0
+    foreach p [lrange $params 0 9] {
+        if { $p == 0 } {
+            incr cost
+        }
+    }
+    foreach p [lrange $params 10 end] {
+        if { $p == 1 } {
+            incr cost
+        }
+    }
+    return $cost
+}
+}]
+
+[item]
+We want to find the solution that gives this minimum for various lengths
+of the solution vector [term params]:
+
+[example {
+foreach n {100 1000 10000} {
+    break
+    puts "Problem size: $n"
+    puts [::simulation::annealing::findCombinatorialMinimum \
+        -trials 300 \
+        -verbose 0 \
+        -number-params $n \
+        -code {set result [cost $params]}]
+}
+}]
+
+[item]
+As the vector grows, the computation time increases, but the procedure
+will stop if some kind of equilibrium is reached. To achieve a useful
+solution you may want to try different values of the trials parameter
+for instance. Also ensure that the function to be minimized depends on
+all or most parameters - see the source code for a counter example and
+run that.
+[list_end]
 
 [keywords math optimization "simulated annealing"]
 [manpage_end]
