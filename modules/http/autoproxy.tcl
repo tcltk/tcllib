@@ -20,14 +20,14 @@
 #   package require tls
 #   http::register https 443 ::autoproxy::tls_socket
 #
-# @(#)$Id: autoproxy.tcl,v 1.10 2008/02/05 01:22:44 patthoyts Exp $
+# @(#)$Id: autoproxy.tcl,v 1.11 2008/02/27 20:11:25 patthoyts Exp $
 
 package require http;                   # tcl
 package require uri;                    # tcllib
 package require base64;                 # tcllib
 
 namespace eval ::autoproxy {
-    variable rcsid {$Id: autoproxy.tcl,v 1.10 2008/02/05 01:22:44 patthoyts Exp $}
+    variable rcsid {$Id: autoproxy.tcl,v 1.11 2008/02/27 20:11:25 patthoyts Exp $}
     variable version 1.5
     variable options
 
@@ -268,7 +268,8 @@ proc ::autoproxy::defAuthProc {{user {}} {passwd {}} {realm {}}} {
     # if you just have Tk and no BWidgets --
     
     set dlg [toplevel .autoproxy_defAuthProc -class Dialog]
-    wm title $dlg "$realm"
+    wm title $dlg $title
+    wm withdraw $dlg
     label $dlg.ll -text Login -underline 0 -anchor w
     entry $dlg.le -textvariable [namespace current]::${dlg}:l
     label $dlg.pl -text Password -underline 0 -anchor w
