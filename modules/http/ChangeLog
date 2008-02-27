@@ -1,3 +1,7 @@
+2008-02-27  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* autoproxy.tcl: Fix title usage in defAuthProc
+
 2008-02-05  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* autoproxy.man: Increment version to 1.5 and document.
