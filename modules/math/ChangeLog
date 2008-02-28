@@ -1,5 +1,9 @@
 2008-02-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* linalg.test (eigenvectors-1.0): Moved brace to correct location.
+
+2008-02-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
 	* linalg.test (eigenvectors-1.0): Fixed missing closing brace.
 
 2008-01-18  Arjen Markus <arjenmarkus@users.sourceforge.net>
