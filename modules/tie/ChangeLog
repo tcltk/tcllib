@@ -1,3 +1,10 @@
+2008-02-27  Andreas Kupries  <akupries@shaw.ca>
+
+	* tie_file.tcl (Replay): Fixed bug in the changes made in the last
+	* pkgIndex.tcl: commit. Tried to use a command (uplevel) removed
+	  from the interp just a few lines above :( This fixes the SF
+	  Tcllib bugs [1892687] and [1897850]. Version updated to 1.0.4.
+
 2008-01-28  Andreas Kupries  <andreask@activestate.com>
 
 	* tie_file.tcl (Replay): Accepted fix for [SF Tcllib Bug 1850838],
