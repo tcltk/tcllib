@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.27 2007/09/19 20:44:21 andreas_kupries Exp $
+# RCS: @(#) $Id: list.test,v 1.28 2008/02/28 06:56:27 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -356,10 +356,14 @@ test assign-4.3 {assign method} {
 } {{} foo bar {}}
 
 if {[package vcompare [package provide Tcl] 8.5] < 0} {
+    # 8.4
     set err [tcltest::wrongNumArgs {::struct::list::Lassign} {sequence v args} 1]
 } else {
-    set err [tcltest::wrongNumArgs {lassign} {list varName ?varName ...?} 1]
+    # 8.5+
+    #set err [tcltest::wrongNumArgs {lassign}                 {list varName ?varName ...?} 1]
+    set err [tcltest::wrongNumArgs {::struct::list::Lassign} {list varName ?varName ...?} 1]
 }
+
 test assign-4.4 {assign method} {
     catch {assign {foo bar}} msg ; set msg
 } $err
@@ -626,9 +630,12 @@ test repeatn-4.4 {repeatn command} {
 interp alias {} repeat {} ::struct::list::list repeat
 
 if {[package vcompare [package provide Tcl] 8.5] < 0} {
+    # 8.4
     set err [tcltest::wrongNumArgs {::struct::list::Lrepeat} {positiveCount value args} 0]
 } else {
-    set err [tcltest::wrongNumArgs {lrepeat} {positiveCount value ?value ...?} 0]
+    # 8.5+
+    #set err [tcltest::wrongNumArgs {lrepeat} {positiveCount value ?value ...?} 0]
+    set err [tcltest::wrongNumArgs {::struct::list::Lrepeat} {positiveCount value ?value ...?} 0]
 }
 test repeat-4.1 {repeat command} {
     catch {repeat} msg
@@ -637,9 +644,12 @@ test repeat-4.1 {repeat command} {
 
 
 if {[package vcompare [package provide Tcl] 8.5] < 0} {
+    # 8.4
     set err [tcltest::wrongNumArgs {::struct::list::Lrepeat} {positiveCount value args} 1]
 } else {
-    set err [tcltest::wrongNumArgs {lrepeat} {positiveCount value ?value ...?} 1]
+    # 8.5+
+    #set err [tcltest::wrongNumArgs {lrepeat} {positiveCount value ?value ...?} 1]
+    set err [tcltest::wrongNumArgs {::struct::list::Lrepeat} {positiveCount value ?value ...?} 1]
 }
 test repeat-4.2 {repeat command} {
     catch {repeat a} msg
