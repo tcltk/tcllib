@@ -2,16 +2,25 @@
 #
 #	Directory traversal.
 #
-# Copyright (c) 2006-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2006-2008 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: traverse.tcl,v 1.5 2007/10/24 19:28:36 andreas_kupries Exp $
+# RCS: @(#) $Id: traverse.tcl,v 1.6 2008/02/28 07:11:34 andreas_kupries Exp $
 
 package require Tcl 8.3
-package require snit    ; # OO core
-package require control ; # Helpers for control structures
+
+# OO core
+if {[package vsatisfies [package present Tcl] 8.5]} {
+    # Use new Tcl 8.5a6+ features to specify the allowed packages.
+    # We can use anything above 1.3. This means v2 as well.
+    package require snit 1.3-
+} else {
+    # For Tcl 8.{3,4} only snit1 of a suitable patchlevel is possible.
+    package require snit 1.3
+}
+package require control  ; # Helpers for control structures
 
 snit::type ::fileutil::traverse {
 
