@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tie_file.tcl,v 1.10 2008/02/28 05:15:42 andreas_kupries Exp $
+# RCS: @(#) $Id: tie_file.tcl,v 1.11 2008/02/28 06:19:56 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -177,10 +177,10 @@ snit::type ::tie::std::file {
 	array set cache {}
 	set       count 0
 
-	set chan [open $path r]
-	fconfigure $chan -encoding utf-8
-	set data [read $chan]
-	close $chan
+	set jchan [open $path r]
+	fconfigure $jchan -encoding utf-8
+	set data [read $jchan]
+	close $jchan
 
 	$ip eval $data
 	interp delete $ip
