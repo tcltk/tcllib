@@ -477,7 +477,7 @@ test eigenvectors-1.0 "Eigenvectors solution" -match numbers -body {
              {1 2} } ;# Note: integer coefficients!
 
     set result [::math::linearalgebra::eigenvectorsSVD $A]
-} -result {{{0.707107 -0.707107} {0.707107 0.707107} {3.0 1.0}}
+} -result {{{0.707107 -0.707107} {0.707107 0.707107} {3.0 1.0}}}
 
 
 # Additional tests: procedures by Federico Ferri
