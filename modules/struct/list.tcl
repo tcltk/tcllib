@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.23 2007/09/19 20:44:21 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.24 2008/02/28 06:56:27 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -584,7 +584,7 @@ proc ::struct::list::Lreverse {sequence} {
 # Do a compatibility version of [assign] for pre-8.5 versions of Tcl.
 
 if { [package vcompare [package provide Tcl] 8.5] < 0 } {
-
+    # 8.4
     proc ::struct::list::Lassign {sequence v args} {
 	set args [linsert $args 0 $v]
 	set a [::llength $args]
@@ -605,7 +605,7 @@ if { [package vcompare [package provide Tcl] 8.5] < 0 } {
 }
 
 } else {
-    # For 8.5 simply redirect the method to the core command.
+    # For 8.5+ simply redirect the method to the core command.
 
     interp alias {} ::struct::list::Lassign {} lassign
 }

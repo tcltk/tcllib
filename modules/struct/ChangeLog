@@ -1,3 +1,10 @@
+2008-02-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* list.test: Updated tests to have error messages in line with the
+	* list.tcl: 8.5 core. Added light comments to make separation of
+	  8.4 and 8.5+ clear. This fixes the SF Tcllib Bugs [1897846]
+	  and [1897848] (and their duplicates).
+
 2008-02-14  Andreas Kupries  <andreask@activestate.com>
 
 	* matrix.tcl: Changed uses of abbreviated '-regex' in switch
