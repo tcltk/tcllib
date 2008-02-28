@@ -1,27 +1,36 @@
+2008-02-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* linalg.test (eigenvectors-1.0): Fixed missing closing brace.
+
 2008-01-18  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* statistics.man: Update manual; added beta distribution 
 	* statistics.test: Added tests for beta distribution
 	* pdf-stat.tcl: Added procedures for beta distirbution
 	                (Improved implementation by Eric K. Benedict)
 
 2008-01-13  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* statistics.man: Update manual; added description of various new procedures
 	* statistics.test: Added tests for chi square and Student's t distributions
 	* pdf-stat.tcl: Added procedures for chi square and Student's t distributions
 	                (Next batch of feature requests by Eric K. Benedict)
 
 2008-01-11  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* statistics.man: Update manual; added description of various new procedures
 	* statistics.test: Added tests for Gamma and Poisson distributions
 	* pdf-stat.tcl: Added procedures for Gamma and Poission distributions
 	                (Feature requests by Eric K. Benedict)
 
 2007-12-22  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* linalg.tcl: Corrected bug #1805912 (eigenvectorsSVD) by means of path #1852519
 	* linalg.test: Added simple test case for eigenvectorsSVD
 	* pkgIndex.tcl: Increased version number for linear algebra (1.0.3 now)
 
 2007-12-11  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* special.tcl: Corrected implementation of Gamma function (reported by EKB)
 
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
