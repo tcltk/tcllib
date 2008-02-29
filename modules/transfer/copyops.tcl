@@ -227,7 +227,7 @@ proc ::transfer::copy::doString {str out ov} {
 	if {$length < $size} {
 	    Run command 0 \
 		    "Transfer impossible,\
-		    not enough data for size"]
+		    not enough data for size"
 	    return
 	}
 	set last $size
@@ -351,4 +351,4 @@ proc ::transfer::copy::Configure {chan settings} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide transfer::copy 0.1
+package provide transfer::copy 0.2
