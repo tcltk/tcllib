@@ -1,3 +1,9 @@
+2008-02-29  Andreas Kupries  <andreask@activestate.com>
+
+	* ftpd.tcl: Renamed ::ftpd::read -> ftp::Read to prevent clash
+	* ftpd.man: with Tcl's builtin command. Version bumped to 1.2.4.
+	* pkgIndex.tcl:
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
