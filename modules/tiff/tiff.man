@@ -1,9 +1,9 @@
-[manpage_begin tiff n 0.1]
+[manpage_begin tiff n 0.2]
 [copyright {2005-2006, Aaron Faupell <afaupell@users.sourceforge.net>}]
 [moddesc   {TIFF image manipulation}]
 [titledesc {TIFF reading, writing, and querying and manipulation of meta data}]
 [require Tcl 8.2]
-[require tiff [opt 0.1]]
+[require tiff [opt 0.2]]
 [description]
 [para]
 
