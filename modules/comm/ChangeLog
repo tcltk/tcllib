@@ -1,3 +1,11 @@
+2008-02-29  Andreas Kupries  <andreask@activestate.com>
+
+	* comm.tcl: Accepted Hemang's <hemanglavana@users.sourceforge.net>
+	* comm.man: patch for the [SF Tcllib Bug 1861565] he
+	* comm.test: reported. This changes the handling of 'port already
+	* pkgIndex.tcl: in use' errors to provide a clear
+	  message. Testsuite was updated. Version bumped to 4.5.7.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
