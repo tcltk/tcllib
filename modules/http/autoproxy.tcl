@@ -1,4 +1,4 @@
-# autoproxy.tcl - Copyright (C) 2002 Pat Thoyts <patthoyts@users.sf.net>
+# autoproxy.tcl - Copyright (C) 2002-2008 Pat Thoyts <patthoyts@users.sf.net>
 #
 # On Unix the standard for identifying the local HTTP proxy server
 # seems to be to use the environment variable http_proxy or ftp_proxy and
@@ -20,15 +20,15 @@
 #   package require tls
 #   http::register https 443 ::autoproxy::tls_socket
 #
-# @(#)$Id: autoproxy.tcl,v 1.11 2008/02/27 20:11:25 patthoyts Exp $
+# @(#)$Id: autoproxy.tcl,v 1.12 2008/02/29 23:57:12 andreas_kupries Exp $
 
 package require http;                   # tcl
 package require uri;                    # tcllib
 package require base64;                 # tcllib
 
 namespace eval ::autoproxy {
-    variable rcsid {$Id: autoproxy.tcl,v 1.11 2008/02/27 20:11:25 patthoyts Exp $}
-    variable version 1.5
+    variable rcsid {$Id: autoproxy.tcl,v 1.12 2008/02/29 23:57:12 andreas_kupries Exp $}
+    variable version 1.5.1
     variable options
 
     if {! [info exists options]} {
@@ -58,7 +58,7 @@ namespace eval ::autoproxy {
 #
 proc ::autoproxy::cget {option} {
     variable options
-    switch -glob -- $option] {
+    switch -glob -- $option {
         -host -
         -proxy_h* { set options(proxy_host) }
         -port -
