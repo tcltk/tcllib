@@ -22,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.30 2007/08/15 21:33:37 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.31 2008/02/29 20:21:50 andreas_kupries Exp $
 
 package require Tcl 8.3
 package require snit ; # comm::future objects.
@@ -323,7 +323,10 @@ proc ::comm::comm_cmd_destroy {chan} {
     }
     set pos [lsearch -exact $comm(chans) $chan]
     set comm(chans) [lreplace $comm(chans) $pos $pos]
-    if {![string equal ::comm::comm $chan]} {
+    if {
+	![string equal ::comm::comm $chan] &&
+	![string equal [info proc $chan] ""]
+    } {
 	rename $chan {}
     }
     return
@@ -765,7 +768,10 @@ proc ::comm::commConfigure {chan {force 0} args} {
 	}
 	if {[info exists userport] || ![string match "*already in use" $ret]} {
 	    # don't eradicate the class
-	    if {![string equal ::comm::comm $chan]} {
+	    if {
+		![string equal ::comm::comm $chan] &&
+		![string equal [info proc $chan] ""]
+	    } {
 		rename $chan {}
 	    }
 	    return -code error $ret
@@ -1660,4 +1666,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.5.6
+package provide comm 4.5.7
