@@ -9,10 +9,10 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.27 2007/08/20 20:41:19 andreas_kupries Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.28 2008/02/29 23:56:18 andreas_kupries Exp $
 #
 
-# Define the ftpd package version 1.1.2
+# Define the ftpd package version 1.2.4
 
 package require Tcl 8.2
 namespace eval ::ftpd {
@@ -431,7 +431,7 @@ proc ::ftpd::server {{myaddr {}}} {
 #
 #       Checks if the connecting IP is authorized to connect or not.  If not
 #       the socket is closed and failure is logged.  Otherwise, a welcome is
-#       printed out, and a ftpd::read filevent is placed on the socket.
+#       printed out, and a ftpd::Read filevent is placed on the socket.
 #
 # Arguments:
 #       sock -                   The channel for this connection to the ftpd.
@@ -442,7 +442,7 @@ proc ::ftpd::server {{myaddr {}}} {
 #       None.
 #
 # Side Effects:
-#       Sets up a ftpd::read fileevent to trigger whenever the channel is
+#       Sets up a ftpd::Read fileevent to trigger whenever the channel is
 #       readable.  Logs an error and closes the connection if the IP is
 #       not authorized to connect.
 
@@ -497,14 +497,14 @@ proc ::ftpd::accept {sock ipaddr client_port} {
         sock2           ""]
 
     fconfigure $sock -buffering line
-    fileevent  $sock readable [list ::ftpd::read $sock]
+    fileevent  $sock readable [list ::ftpd::Read $sock]
     puts       $sock "220 $welcome"
 
     Log debug "Accept $ipaddr"
     return
 }
 
-# ::ftpd::read --
+# ::ftpd::Read --
 #
 #       Checks the state of a channel and then reads a command from the
 #       channel if it is not at end of file yet.  If there is a command named
@@ -522,7 +522,7 @@ proc ::ftpd::accept {sock ipaddr client_port} {
 #       Runs the appropriate command depending on the state in the state
 #       machine, and the command that is specified.
 
-proc ::ftpd::read {sock} {
+proc ::ftpd::Read {sock} {
     upvar #0 ::ftpd::$sock data
     variable CurrentSocket 
 
@@ -1986,7 +1986,7 @@ proc ::ftpd::fsFile::FormDate {seconds} {
 #
 # Patched Mark O'Connor
 #
-package provide ftpd 1.2.3
+package provide ftpd 1.2.4
 
 
 ##
