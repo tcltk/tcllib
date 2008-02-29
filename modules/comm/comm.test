@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: comm.test,v 1.11 2007/08/20 23:07:05 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.test,v 1.12 2008/02/29 20:21:50 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -243,7 +243,18 @@ test comm-4.2 {async generation/reception of results in parallel} {
     # B returned before A, A was sent before B
 } {{-result {delayed B}} {-result {delayed A}}}
 
+# ------------------------------------------------------------------------
 
+test comm-5.0 {-port already in use} {
+    # First start a server on port 12345
+    set port 12345
+    catch {set shdl [socket -server foo $port]}
+    catch {::comm::comm new bar -port $port -listen 1 -local 0} msg
+    catch {close $shdl}
+    unset -nocomplain shdl port
+    set msg
+} {couldn't open socket: address already in use}
+ 
 # ------------------------------------------------------------------------
 
 slavestop
