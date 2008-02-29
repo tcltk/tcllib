@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tiff.tcl,v 1.3 2006/07/20 07:09:58 afaupell Exp $
+# RCS: @(#) $Id: tiff.tcl,v 1.4 2008/02/29 23:44:06 andreas_kupries Exp $
 
-package provide tiff 0.1
+package provide tiff 0.2
 
 namespace eval ::tiff {}
 
@@ -759,7 +759,7 @@ proc ::tiff::_unformat {end tag type value} {
                 set val [_unscan $end i [lindex $val 0]][_unscan $end i [lindex $val 1]]
             }
             6 { set val [_unscan $end c $val] }
-            7 { set count [string length $val }
+            7 { set count [string length $val] }
             8 { set val [_unscan $end s $val] }
             9 { set val [_unscan $end i $val] }
             10 {
