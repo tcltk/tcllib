@@ -1,3 +1,9 @@
+2008-02-29  Andreas Kupries  <andreask@activestate.com>
+
+	* autoproxy.tcl (::autoproxy::cget): Removed bogus closing
+	* autoproxy.man: bracket. Bumped version to 1.5.1
+	* pkgIndex.tcl:
+
 2008-02-27  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* autoproxy.tcl: Fix title usage in defAuthProc
