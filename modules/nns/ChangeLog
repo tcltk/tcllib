@@ -1,3 +1,9 @@
+2008-02-29  Andreas Kupries  <andreask@activestate.com>
+
+	* nns_auto.tcl (::nameserv::auto::Rebind, ::nameserv::auto::bind):
+	* nns_auto.man: Fixed string match with bad pattern and missing
+	* pkgIndex.tcl: string to match against. Version bumped to 0.2.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
