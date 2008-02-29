@@ -30,7 +30,7 @@ proc ::nameserv::auto::bind {name data} {
     if {[catch {
 	nameserv::bind $name $data
     } msg]} {
-	if {[string match *No name server*]} {
+	if {[string match {*No name server*} $msg]} {
 	    # No nameserver. Remember, and start reconnect polling.
 	    set bindings($name) $data
 	    after $delay ::nameserv::auto::Reconnect
@@ -71,7 +71,7 @@ proc ::nameserv::auto::Rebind {} {
 	} msg]} {
 	    # Lost server while rebinding names. Abort and wait for
 	    # the reconnect to try again.
-	    if {[string match *No name server*]} break
+	    if {[string match {*No name server*} $msg]} break
 
 	    # Other error => (name already bound) That means someone
 	    # else took the name while we were not connected to the
@@ -150,7 +150,7 @@ namespace eval        ::nameserv::auto {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide nameserv::auto 0.1
+package provide nameserv::auto 0.2
 
 ##
 # ### ### ### ######### ######### #########
