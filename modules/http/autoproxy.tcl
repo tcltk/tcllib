@@ -20,14 +20,14 @@
 #   package require tls
 #   http::register https 443 ::autoproxy::tls_socket
 #
-# @(#)$Id: autoproxy.tcl,v 1.12 2008/02/29 23:57:12 andreas_kupries Exp $
+# @(#)$Id: autoproxy.tcl,v 1.13 2008/03/01 00:41:35 andreas_kupries Exp $
 
 package require http;                   # tcl
 package require uri;                    # tcllib
 package require base64;                 # tcllib
 
 namespace eval ::autoproxy {
-    variable rcsid {$Id: autoproxy.tcl,v 1.12 2008/02/29 23:57:12 andreas_kupries Exp $}
+    variable rcsid {$Id: autoproxy.tcl,v 1.13 2008/03/01 00:41:35 andreas_kupries Exp $}
     variable version 1.5.1
     variable options
 
@@ -144,6 +144,7 @@ proc ::autoproxy::init {{httpproxy {}} {no_proxy {}}} {
         }
     } else {
         if {$tcl_platform(platform) == "windows"} {
+            #checker -scope block exclude nonPortCmd
             package require registry 1.0
             array set reg {ProxyEnable 0 ProxyServer "" ProxyOverride {}}
             catch {
@@ -222,6 +223,7 @@ proc ::autoproxy::init {{httpproxy {}} {no_proxy {}}} {
 #
 proc ::autoproxy::GetWin32Proxy {protocol} {
     variable winregkey
+    #checker exclude nonPortCmd
     set proxies [split [registry get $winregkey "ProxyServer"] ";"]
     foreach proxy $proxies {
         if {[string first = $proxy] == -1} {
