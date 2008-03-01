@@ -1,5 +1,9 @@
 2008-02-29  Andreas Kupries  <andreask@activestate.com>
 
+	* autoproxy.tcl (::autoproxy::init, ::autoproxy::GetWin32Proxy):
+	  Added tclchecker pragmas to suppress false non-portable command
+	  warnings.
+
 	* autoproxy.tcl (::autoproxy::cget): Removed bogus closing
 	* autoproxy.man: bracket. Bumped version to 1.5.1
 	* pkgIndex.tcl:
