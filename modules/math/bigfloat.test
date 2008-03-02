@@ -662,6 +662,15 @@ foreach i {1 2 3 4 5 6 7 8 9} {
 rename hyper ""
 
 ################################################################################
+# tostr with -nosci option
+################################################################################
+set version 5.0
+fassert tostr-nosci $version.0 {tostr -nosci [fromstr 23450.e+7]} 234500000000.
+fassert tostr-nosci $version.1 {tostr -nosci [fromstr 23450.e-7]} 0.002345
+fassert tostr-nosci $version.2 {tostr -nosci [fromstr 23450000]} 23450000.
+fassert tostr-nosci $version.3 {tostr -nosci [fromstr 2345.0]} 2345.
+
+################################################################################
 # end of testsuite for bigfloat 1.0
 ################################################################################
 # cleanup global procs
