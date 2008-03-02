@@ -1,5 +1,5 @@
 [manpage_begin math::bigfloat n 2.0]
-[copyright {2004-2005, by Stephane Arnold <stephanearnold at yahoo dot fr>}]
+[copyright {2004-2008, by Stephane Arnold <stephanearnold at yahoo dot fr>}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Arbitrary precision floating-point numbers}]
 
@@ -78,11 +78,13 @@ set y [lb]fromstr 1. 10[rb]
 [example_end]
 
 
-[call [cmd tostr] [arg number]]
+[call [cmd tostr] [opt [option -nosci]] [arg number]]
 Returns a string form of a BigFloat, in which all digits are exacts.
 [emph "All exact digits"] means a rounding may occur, for example to zero,
 if the uncertainty interval does not clearly show the true digits.
 [emph number] may be an integer, causing the command to return exactly the input argument.
+With the [option -nosci] option, the number returned is never shown in scientific
+notation, i.e. not like '3.4523e+5' but like '345230.'.
 [example_begin]
 puts [lb]tostr [lb]fromstr 0.99999[rb][rb] ;# 1.0000
 puts [lb]tostr [lb]fromstr 1.00001[rb][rb] ;# 1.0000
