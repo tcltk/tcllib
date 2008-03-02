@@ -2123,8 +2123,17 @@ proc ::math::bigfloat::todouble {x} {
 ################################################################################
 # converts a number stored as a list to a string in which all digits are true
 ################################################################################
-proc ::math::bigfloat::tostr {number} {
+proc ::math::bigfloat::tostr {args} {
     variable five
+	if {[llength $args]==2} {
+		if {![string equal [lindex $args 0] -nosci]} {error "unknown option: should be -nosci"}
+		set nosci yes
+		set number [lindex $args 1]
+	} else {
+		if {[llength $args]!=1} {error "syntax error: should be tostr ?-nosci? number"}
+		set nosci no
+		set number [lindex $args 0]
+	}
     if {[isInt $number]} {
         return [::math::bignum::tostr $number]
     }
@@ -2181,60 +2190,70 @@ proc ::math::bigfloat::tostr {number} {
     set down [::math::bignum::sub $result $delta]
     if {[sign $up]^[sign $down]} {
         # $up>0 and $down<0 and vice-versa : then the number is considered equal to zero
-	# delta <= 2**n (n = bits(delta))
-	# 2**n  <= 10**exp , then 
-	# exp >= n.log(2)/log(10)
-	# delta <= 10**(n.log(2)/log(10))
+		# delta <= 2**n (n = bits(delta))
+		# 2**n  <= 10**exp , then 
+		# exp >= n.log(2)/log(10)
+		# delta <= 10**(n.log(2)/log(10))
         incr exp [expr {int(ceil([::math::bignum::bits $delta]*log(2)/log(10)))}]
         set result 0
         set isZero yes
     } else {
-	# iterate until the convergence of the rounding
-	# we incr $shift until $up and $down are rounded to the same number
-	# at each pass we lose one digit of precision, so necessarly it will success
-	for {set shift 1} {
-	    [::math::bignum::cmp [roundshift $up $shift] [roundshift $down $shift]]
-	} {
-	    incr shift
-	} {}
-	incr exp $shift
-	set result [::math::bignum::tostr [roundshift $up $shift]]
-	set isZero no
+		# iterate until the convergence of the rounding
+		# we incr $shift until $up and $down are rounded to the same number
+		# at each pass we lose one digit of precision, so necessarly it will success
+		for {set shift 1} {
+			[::math::bignum::cmp [roundshift $up $shift] [roundshift $down $shift]]
+		} {
+			incr shift
+		} {}
+		incr exp $shift
+		set result [::math::bignum::tostr [roundshift $up $shift]]
+		set isZero no
     }
     set l [string length $result]
     # now formatting the number the most nicely for having a clear reading
     # would'nt we allow a number being constantly displayed
     # as : 0.2947497845e+012 , would we ?
-    if {$exp>0} {
-        # we display 423*10^6 as : 4.23e+8
-        # Length of mantissa : $l
-        # Increment exp by $l-1 because the first digit is placed before the dot,
-        # the other ($l-1) digits following the dot.
-        incr exp [incr l -1]
-        set result [string index $result 0].[string range $result 1 end]
-        append result "e+$exp"
-    } elseif {$exp==0} {
-        # it must have a dot to be a floating-point number (syntaxically speaking)
-        append result .
-    } else {
-        set exp [expr {-$exp}]
-        if {$exp < $l} {
-            # we can display the number nicely as xxxx.yyyy*
-            # the problem of the sign is solved finally at the bottom of the proc
-            set n [string range $result 0 end-$exp]
-            incr exp -1
-            append n .[string range $result end-$exp end]
-            set result $n
-        } elseif {$l==$exp} {
-            # we avoid to use the scientific notation
-            # because it is harder to read
-            set result "0.$result"
-        } else  {
-            # ... but here there is no choice, we should not represent a number
-            # with more than one leading zero
-            set result [string index $result 0].[string range $result 1 end]e-[expr {$exp-$l+1}]
-        }
-    }
+	if {$nosci} {
+		if {$exp >= 0} {
+			append result [string repeat 0 $exp].
+		} elseif {$l + $exp > 0} {
+			set result [string range $result 0 end-[expr {-$exp}]].[string range $result end-[expr {-1-$exp}] end]
+		} else {
+			set result 0.[string repeat 0 [expr {-$exp-$l}]]$result
+		}
+	} else {
+		if {$exp>0} {
+			# we display 423*10^6 as : 4.23e+8
+			# Length of mantissa : $l
+			# Increment exp by $l-1 because the first digit is placed before the dot,
+			# the other ($l-1) digits following the dot.
+			incr exp [incr l -1]
+			set result [string index $result 0].[string range $result 1 end]
+			append result "e+$exp"
+		} elseif {$exp==0} {
+			# it must have a dot to be a floating-point number (syntaxically speaking)
+			append result .
+		} else {
+			set exp [expr {-$exp}]
+			if {$exp < $l} {
+				# we can display the number nicely as xxxx.yyyy*
+				# the problem of the sign is solved finally at the bottom of the proc
+				set n [string range $result 0 end-$exp]
+				incr exp -1
+				append n .[string range $result end-$exp end]
+				set result $n
+			} elseif {$l==$exp} {
+				# we avoid to use the scientific notation
+				# because it is harder to read
+				set result "0.$result"
+			} else  {
+				# ... but here there is no choice, we should not represent a number
+				# with more than one leading zero
+				set result [string index $result 0].[string range $result 1 end]e-[expr {$exp-$l+1}]
+			}
+		}
+	}
     # restore the sign : we only put a minus on numbers that are different from zero
     if {$sign==1 && !$isZero} {set result "-$result"}
     return $result
