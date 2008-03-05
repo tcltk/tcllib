@@ -6,9 +6,11 @@
 
 	* linalg.test (eigenvectors-1.0): Fixed missing closing brace.
 
-2008-01-18  Arjen Markus <arjenmarkus@users.sourceforge.net>
+2008-02-21  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* elliptic.tcl: Error in expression (missing ))
 
-	* statistics.man: Update manual; added beta distribution 
+2008-01-18  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* statistics.man: Update manual; added beta distribution
 	* statistics.test: Added tests for beta distribution
 	* pdf-stat.tcl: Added procedures for beta distirbution
 	                (Improved implementation by Eric K. Benedict)
