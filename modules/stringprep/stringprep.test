@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stringprep.test,v 1.1 2008/01/29 02:18:10 patthoyts Exp $
+# RCS: @(#) $Id: stringprep.test,v 1.2 2008/03/07 05:45:10 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -86,7 +86,7 @@ test stringprep-2.2 {stringprep: prohibited character} {
     set result
 } {prohibited_character}
 
-test stringprep-2.3 {stringprep: prohibited bidi} {
+test stringprep-2.3 {stringprep: prohibited bidi} knownBug {
     catch {::stringprep::stringprep nameprep "\u0627\u0031"} result
     set result
 } {invalid_bidi}
@@ -116,10 +116,18 @@ set vectors {
 set id 0
 foreach vector $vectors {
     foreach {comment input output} $vector break
-    test nameprep-$id $comment {
-        list [catch {::stringprep::stringprep nameprep \
-                         [encoding convertfrom utf-8 $input]} res] $res
-    } [list 0 [encoding convertfrom utf-8 $output]]
+
+    if {$id == 5} {
+	test nameprep-$id $comment knownBug {
+	    list [catch {::stringprep::stringprep nameprep \
+			     [encoding convertfrom utf-8 $input]} res] $res
+	} [list 0 [encoding convertfrom utf-8 $output]]
+    } else {
+	test nameprep-$id $comment {
+	    list [catch {::stringprep::stringprep nameprep \
+			     [encoding convertfrom utf-8 $input]} res] $res
+	} [list 0 [encoding convertfrom utf-8 $output]]
+    }
     incr id
 }
 
@@ -141,9 +149,15 @@ foreach {n input result title} {
     6  "\u0007"       {1 prohibited_character} "Error - prohibited character"
     7  "\u0627\u0031" {1 invalid_bidi} "Error - bidirectional check"
 } {
-    test saslprep-1.$n $title {
-        list [catch {::stringprep::stringprep saslprep $input} res] $res
-    } $result
+    if {$n == 7} {
+	test saslprep-1.$n $title knownBug {
+	    list [catch {::stringprep::stringprep saslprep $input} res] $res
+	} $result
+    } else {
+	test saslprep-1.$n $title {
+	    list [catch {::stringprep::stringprep saslprep $input} res] $res
+	} $result
+    }
 }
 
 # -------------------------------------------------------------------------
