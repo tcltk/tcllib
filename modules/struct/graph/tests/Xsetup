@@ -4,7 +4,7 @@
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: Xsetup,v 1.1 2006/11/16 06:33:13 andreas_kupries Exp $
+# RCS: @(#) $Id: Xsetup,v 1.2 2008/03/07 06:51:36 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -32,6 +32,26 @@ switch -exact -- $impl {
 	}
 
 	proc tmE {tcl critcl} {return $critcl}
+
+	if {[package vsatisfies [package present Tcl] 8.5]} {
+	    proc tmWrongA {m loarg n {xarg {}}} {
+		if {[llength $m] > 1} {set m [lindex $m 1]}
+		return [tcltest::wrongNumArgs "CMD $m" $loarg $n]
+	    }
+
+	    proc tmTooManyA {m loarg {xarg {}}} {
+		if {[llength $m] > 1} {set m [lindex $m 1]}
+		return [tcltest::tooManyArgs "CMD $m" $loarg]
+	    }
+	} else {
+	    proc tmWrongA {m loarg n {xarg {}}} {
+		return [tcltest::wrongNumArgs "mygraph $m" $loarg $n]
+	    }
+
+	    proc tmTooManyA {m loarg {xarg {}}} {
+		return [tcltest::tooManyArgs "mygraph $m" $loarg]
+	    }
+	}
     }
     tcl {
 	set MY ::mygraph
@@ -45,6 +65,21 @@ switch -exact -- $impl {
 	}
 
 	proc tmTooMany {m loarg {xarg {}}} {
+	    if {$xarg == {}} {set xarg $loarg}
+	    if {$xarg != {}} {set xarg " $xarg"}
+	    if {[llength $m] > 1} {set m _[join $m _]}
+	    return [tcltest::tooManyArgs "::struct::graph::_$m" "name$xarg"]
+	}
+
+	proc tmWrongA {m loarg n {xarg {}}} {
+	    if {$xarg == {}} {set xarg $loarg}
+	    if {$xarg != {}} {set xarg " $xarg"}
+	    if {[llength $m] > 1} {set m _[join $m _]}
+	    incr n
+	    return [tcltest::wrongNumArgs "::struct::graph::_$m" "name$xarg" $n]
+	}
+
+	proc tmTooManyA {m loarg {xarg {}}} {
 	    if {$xarg == {}} {set xarg $loarg}
 	    if {$xarg != {}} {set xarg " $xarg"}
 	    if {[llength $m] > 1} {set m _[join $m _]}

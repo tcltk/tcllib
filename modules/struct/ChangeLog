@@ -1,3 +1,16 @@
+2008-03-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sets.test: Updated tests to have error messages in line with the
+	* graph/tests/Xsetup: 8.5 core.
+	* graph/tests/attr/append.test:
+	* graph/tests/attr/get.test:
+	* graph/tests/attr/getall.test:
+	* graph/tests/attr/keyexists.test:
+	* graph/tests/attr/keys.test:
+	* graph/tests/attr/lappend.test:
+	* graph/tests/attr/set.test:
+	* graph/tests/attr/unset.test:
+
 2008-02-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* list.test: Updated tests to have error messages in line with the
