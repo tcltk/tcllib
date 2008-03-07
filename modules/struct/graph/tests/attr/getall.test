@@ -2,7 +2,7 @@
 # Graph tests - graph/arc/node getall (attribute getall)
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: getall.test,v 1.2 2007/04/12 03:01:56 andreas_kupries Exp $
+# RCS: @(#) $Id: getall.test,v 1.3 2008/03/07 06:51:37 andreas_kupries Exp $
 
 # Syntax: graph      getall      ?PATTERN?
 # Syntax: graph arc  getall ARC  ?PATTERN?
@@ -25,14 +25,14 @@ foreach {e ex stem mp mk} {
 	catch {CMD getall} msg
 	mygraph destroy
 	set msg
-    } [tmWrong "${mp}getall" "${mp}?pattern?" 0] ; # {}
+    } [tmWrongA "${mp}getall" "${mp}?pattern?" 0] ; # {}
 
     test graph-${impl}-${setimpl}-${e}-getall-1.1 "$e getall, wrong # args, too many" {
 	SETUP
 	catch {CMD getall a b c} msg
 	mygraph destroy
 	set msg
-    } [tmTooMany "${mp}getall" "${mp}?pattern?"] ; # {}
+    } [tmTooManyA "${mp}getall" "${mp}?pattern?"] ; # {}
 
     # -------------------------------------------------------------------------
     # Logical arguments checks and failures
