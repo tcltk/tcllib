@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2004-2008 by Andreas Kupries
 #
-# RCS: @(#) $Id: sets.test,v 1.17 2008/01/28 23:42:20 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.test,v 1.18 2008/03/07 06:51:36 andreas_kupries Exp $
 
 #----------------------------------------------------------------------
 
@@ -59,16 +59,30 @@ TestAccelDo struct::set impl {
 
     switch -exact -- $impl {
 	critcl {
-	    proc tmWrong {m loarg n} {
-		return [tcltest::wrongNumArgs "::struct::set $m" $loarg $n]
-	    }
+	    if {[package vsatisfies [package present Tcl] 8.5]} {
+		proc tmWrong {m loarg n} {
+		    return [tcltest::wrongNumArgs "setop $m" $loarg $n]
+		}
 
-	    proc tmTooMany {m loarg} {
-		return [tcltest::tooManyArgs "::struct::set $m" $loarg]
-	    }
+		proc tmTooMany {m loarg} {
+		    return [tcltest::tooManyArgs "setop $m" $loarg]
+		}
 
-	    proc Nothing {} {
-		return [tcltest::wrongNumArgs {::struct::set} {cmd ?arg ...?} 0]
+		proc Nothing {} {
+		    return [tcltest::wrongNumArgs {setop} {cmd ?arg ...?} 0]
+		}
+	    } else {
+		proc tmWrong {m loarg n} {
+		    return [tcltest::wrongNumArgs "::struct::set $m" $loarg $n]
+		}
+
+		proc tmTooMany {m loarg} {
+		    return [tcltest::tooManyArgs "::struct::set $m" $loarg]
+		}
+
+		proc Nothing {} {
+		    return [tcltest::wrongNumArgs {::struct::set} {cmd ?arg ...?} 0]
+		}
 	    }
 	}
 	tcl {

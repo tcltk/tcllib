@@ -2,7 +2,7 @@
 # Graph tests - graph/arc/node append (attribute append)
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: append.test,v 1.2 2007/04/12 03:01:55 andreas_kupries Exp $
+# RCS: @(#) $Id: append.test,v 1.3 2008/03/07 06:51:36 andreas_kupries Exp $
 
 # Syntax: graph      append      KEY VALUE
 # Syntax: graph arc  append ARC  KEY VALUE
@@ -25,28 +25,28 @@ foreach {e ex stem mp mk} {
 	catch {CMD append} msg
 	mygraph destroy
 	set msg
-    } [tmWrong "${mp}append" "${mp}key value" 0] ; # {}
+    } [tmWrongA "${mp}append" "${mp}key value" 0] ; # {}
 
     test graph-${impl}-${setimpl}-${e}-append-1.1 "$e append, wrong#args, missing" {
 	SETUP
 	catch {CMD append a} msg
 	mygraph destroy
 	set msg
-    } [tmWrong "${mp}append" "${mp}key value" 1] ; # {}
+    } [tmWrongA "${mp}append" "${mp}key value" 1] ; # {}
 
     test graph-${impl}-${setimpl}-${e}-append-1.2 "$e append, wrong#args, missing" !graph {
 	SETUP
 	catch {CMD append a b} msg
 	mygraph destroy
 	set msg
-    } [tmWrong "${mp}append" "${mp}key value" 2] ; # {}
+    } [tmWrongA "${mp}append" "${mp}key value" 2] ; # {}
 
     test graph-${impl}-${setimpl}-${e}-append-1.3 "$e append, wrong#args, too many" {
 	SETUP
 	catch {CMD append a b c d} msg
 	mygraph destroy
 	set msg
-    } [tmTooMany "${mp}append" "${mp}key value"] ; # {}
+    } [tmTooManyA "${mp}append" "${mp}key value"] ; # {}
 
     # -------------------------------------------------------------------------
     # Logical arguments checks and failures
