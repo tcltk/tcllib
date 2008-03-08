@@ -463,6 +463,7 @@ proc ::sak::test::run::Summary {} {
     upvar 2 pass  _pass  ; incr _pass  $p
     upvar 2 skip  _skip  ; incr _skip  $s
     upvar 2 fail  _fail  ; incr _fail  $f
+    upvar 2 err   _err
 
     set t [format %5d $t]
     set p [format %5d $p]
@@ -489,7 +490,10 @@ proc ::sak::test::run::Summary {} {
     switch -exact -- $xstatus {
 	none    {=| "~~ [yel]$st T $t[rst] P $p S $s F $f"}
 	aborted {=| "~~ [whi]$st[rst] T $t P $p S $s F $f"}
-	error   {=| "~~ [mag]$st[rst] T $t P $p S $s F $f"}
+	error   {
+	    =| "~~ [mag]$st[rst] T $t P $p S $s F $f"
+	    incr _err
+	}
 	fail    {=| "~~ [red]$st[rst] T $t P $p S $s [red]F $f[rst]"}
     }
     return -code continue
