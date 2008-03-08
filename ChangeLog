@@ -1,3 +1,9 @@
+2008-03-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* support/devel/sak/test/run.tcl (::sak::test::run::Summary):
+	  Fixed [Bug 1909367]. Error information is now passed from the
+	  file summary code to the counters for the whole test run.
+
 2008-01-29  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* modules/stringprep:               New module 'stringprep'.
