@@ -2,12 +2,12 @@
 #
 #	Implementation of doctools objects for Tcl.
 #
-# Copyright (c) 2003-2007 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2008 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.23 2007/09/25 23:11:11 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.24 2008/03/09 05:05:05 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -275,19 +275,19 @@ proc ::doctools::_cget {name option} {
 #	The value of one particular option if called with a single argument.
 
 proc ::doctools::_configure {name args} {
-    upvar ::doctools::doctools${name}::format_ip  format_ip
-    upvar ::doctools::doctools${name}::chk_ip     chk_ip
-    upvar ::doctools::doctools${name}::expander   expander
-    upvar ::doctools::doctools${name}::passes     passes
+    upvar #0 ::doctools::doctools${name}::format_ip  format_ip
+    upvar #0 ::doctools::doctools${name}::chk_ip     chk_ip
+    upvar #0 ::doctools::doctools${name}::expander   expander
+    upvar #0 ::doctools::doctools${name}::passes     passes
 
     if {[llength $args] == 0} {
 	# Retrieve the current configuration.
 
-	upvar ::doctools::doctools${name}::file       file
-	upvar ::doctools::doctools${name}::module     module
-	upvar ::doctools::doctools${name}::format     format
-	upvar ::doctools::doctools${name}::copyright  copyright
-	upvar ::doctools::doctools${name}::deprecated deprecated
+	upvar #0 ::doctools::doctools${name}::file       file
+	upvar #0 ::doctools::doctools${name}::module     module
+	upvar #0 ::doctools::doctools${name}::format     format
+	upvar #0 ::doctools::doctools${name}::copyright  copyright
+	upvar #0 ::doctools::doctools${name}::deprecated deprecated
 
 	set     res [list]
 	lappend res -file       $file
@@ -302,23 +302,23 @@ proc ::doctools::_configure {name args} {
 
 	switch -exact -- [lindex $args 0] {
 	    -file {
-		upvar ::doctools::doctools${name}::file file
+		upvar #0 ::doctools::doctools${name}::file file
 		return $file
 	    }
 	    -module {
-		upvar ::doctools::doctools${name}::module module
+		upvar #0 ::doctools::doctools${name}::module module
 		return $module
 	    }
 	    -copyright {
-		upvar ::doctools::doctools${name}::copyright copyright
+		upvar #0 ::doctools::doctools${name}::copyright copyright
 		return $copyright
 	    }
 	    -format {
-		upvar ::doctools::doctools${name}::format format
+		upvar #0 ::doctools::doctools${name}::format format
 		return $format
 	    }
 	    -deprecated {
-		upvar ::doctools::doctools${name}::deprecated deprecated
+		upvar #0 ::doctools::doctools${name}::deprecated deprecated
 		return $deprecated
 	    }
 	    default {
@@ -337,22 +337,22 @@ proc ::doctools::_configure {name args} {
 	foreach {option value} $args {
 	    switch -exact -- $option {
 		-file {
-		    upvar ::doctools::doctools${name}::file file
+		    upvar #0 ::doctools::doctools${name}::file file
 		    set file $value
 		}
 		-module {
-		    upvar ::doctools::doctools${name}::module module
+		    upvar #0 ::doctools::doctools${name}::module module
 		    set module $value
 		}
 		-copyright {
-		    upvar ::doctools::doctools${name}::copyright copyright
+		    upvar #0 ::doctools::doctools${name}::copyright copyright
 		    set copyright $value
 		}
 		-format {
 		    if {[catch {
 			set fmtfile [LookupFormat $name $value]
 			SetupFormatter $name $fmtfile
-			upvar ::doctools::doctools${name}::format format
+			upvar #0 ::doctools::doctools${name}::format format
 			set format $value
 		    } msg]} {
 			return -code error "doctools::_configure: -format: $msg"
@@ -363,7 +363,7 @@ proc ::doctools::_configure {name args} {
 			return -code error \
 				"doctools::_configure: -deprecated expected a boolean, got \"$value\""
 		    }
-		    upvar ::doctools::doctools${name}::deprecated deprecated
+		    upvar #0 ::doctools::doctools${name}::deprecated deprecated
 		    set deprecated $value
 		}
 		default {
@@ -420,7 +420,7 @@ proc ::doctools::_destroy {name} {
 #	None.
 
 proc ::doctools::_map {name sfname afname} {
-    upvar ::doctools::doctools${name}::map map
+    upvar #0 ::doctools::doctools${name}::map map
     set map($sfname) $afname
     return
 }
@@ -438,17 +438,17 @@ proc ::doctools::_map {name sfname afname} {
 #	The conversion result.
 
 proc ::doctools::_format {name text} {
-    upvar ::doctools::doctools${name}::format format
+    upvar #0 ::doctools::doctools${name}::format format
     if {$format == ""} {
 	return -code error "$name: No format was specified"
     }
 
-    upvar ::doctools::doctools${name}::format_ip format_ip
-    upvar ::doctools::doctools${name}::chk_ip    chk_ip
-    upvar ::doctools::doctools${name}::ex_ok     ex_ok
-    upvar ::doctools::doctools${name}::expander  expander
-    upvar ::doctools::doctools${name}::passes    passes
-    upvar ::doctools::doctools${name}::msg       warnings
+    upvar #0 ::doctools::doctools${name}::format_ip format_ip
+    upvar #0 ::doctools::doctools${name}::chk_ip    chk_ip
+    upvar #0 ::doctools::doctools${name}::ex_ok     ex_ok
+    upvar #0 ::doctools::doctools${name}::expander  expander
+    upvar #0 ::doctools::doctools${name}::passes    passes
+    upvar #0 ::doctools::doctools${name}::msg       warnings
 
     if {!$ex_ok}       {SetupExpander  $name}
     if {$chk_ip == ""} {SetupChecker   $name}
@@ -516,7 +516,7 @@ proc ::doctools::_search {name path} {
     if {![file isdirectory $path]} {return -code error "$name search: path is not a directory"}
     if {![file readable    $path]} {return -code error "$name search: path cannot be read"}
 
-    upvar ::doctools::doctools${name}::paths paths
+    upvar #0 ::doctools::doctools${name}::paths paths
     set paths [linsert $paths 0 $path]
     return
 }
@@ -532,7 +532,7 @@ proc ::doctools::_search {name path} {
 #	A list of warnings.
 
 proc ::doctools::_warnings {name} {
-    upvar ::doctools::doctools${name}::msg msg
+    upvar #0 ::doctools::doctools${name}::msg msg
     return $msg
 }
 
@@ -548,7 +548,7 @@ proc ::doctools::_warnings {name} {
 #	A list of parameter names
 
 proc ::doctools::_parameters {name} {
-    upvar ::doctools::doctools${name}::param param
+    upvar #0 ::doctools::doctools${name}::param param
     return $param
 }
 
@@ -565,7 +565,7 @@ proc ::doctools::_parameters {name} {
 #	None.
 
 proc ::doctools::_setparam {name param value} {
-    upvar ::doctools::doctools${name}::format_ip format_ip
+    upvar #0 ::doctools::doctools${name}::format_ip format_ip
 
     if {$format_ip == {}} {
 	return -code error \
@@ -601,7 +601,7 @@ proc ::doctools::LookupFormat {name format} {
 	return $format
     }
 
-    upvar ::doctools::doctools${name}::paths opaths
+    upvar #0 ::doctools::doctools${name}::paths opaths
     foreach path $opaths {
 	set f [file join $path fmt.$format]
 	if {[file exists $f]} {
@@ -694,12 +694,12 @@ proc ::doctools::SetupFormatter {name format} {
     # now invalid. It will be recreated during the
     # next call of 'format'.
 
-    upvar ::doctools::doctools${name}::formatfile formatfile
-    upvar ::doctools::doctools${name}::format_ip  format_ip
-    upvar ::doctools::doctools${name}::chk_ip     chk_ip
-    upvar ::doctools::doctools${name}::expander   expander
-    upvar ::doctools::doctools${name}::passes     xpasses
-    upvar ::doctools::doctools${name}::param      xparam
+    upvar #0 ::doctools::doctools${name}::formatfile formatfile
+    upvar #0 ::doctools::doctools${name}::format_ip  format_ip
+    upvar #0 ::doctools::doctools${name}::chk_ip     chk_ip
+    upvar #0 ::doctools::doctools${name}::expander   expander
+    upvar #0 ::doctools::doctools${name}::passes     xpasses
+    upvar #0 ::doctools::doctools${name}::param      xparam
 
     if {$chk_ip != {}}    {interp delete $chk_ip}
     if {$format_ip != {}} {interp delete $format_ip}
@@ -749,11 +749,11 @@ proc ::doctools::SetupChecker {name} {
 
     variable here
 
-    upvar ::doctools::doctools${name}::chk_ip    chk_ip
+    upvar #0 ::doctools::doctools${name}::chk_ip    chk_ip
     if {$chk_ip != ""} {return}
 
-    upvar ::doctools::doctools${name}::expander  expander
-    upvar ::doctools::doctools${name}::format_ip format_ip
+    upvar #0 ::doctools::doctools${name}::expander  expander
+    upvar #0 ::doctools::doctools${name}::format_ip format_ip
 
     set chk_ip [interp create] ; # interpreter hosting the formal format checker
 
@@ -805,10 +805,10 @@ proc ::doctools::SetupChecker {name} {
 #	None.
 
 proc ::doctools::SetupExpander {name} {
-    upvar ::doctools::doctools${name}::ex_ok    ex_ok
+    upvar #0 ::doctools::doctools${name}::ex_ok    ex_ok
     if {$ex_ok} {return}
 
-    upvar ::doctools::doctools${name}::expander expander
+    upvar #0 ::doctools::doctools${name}::expander expander
     ::textutil::expander $expander
     $expander evalcmd [list ::doctools::Eval $name]
     $expander textcmd plain_text
@@ -828,7 +828,7 @@ proc ::doctools::SetupExpander {name} {
 #	None.
 
 proc ::doctools::SearchPaths {name} {
-    upvar ::doctools::doctools${name}::paths opaths
+    upvar #0 ::doctools::doctools${name}::paths opaths
     variable paths
 
     set p $opaths
@@ -848,7 +848,7 @@ proc ::doctools::SearchPaths {name} {
 #	None.
 
 proc ::doctools::Deprecated {name} {
-    upvar ::doctools::doctools${name}::deprecated deprecated
+    upvar #0 ::doctools::doctools${name}::deprecated deprecated
     return $deprecated
 }
 
@@ -879,7 +879,7 @@ proc ::doctools::FmtError {name text} {
 #	None.
 
 proc ::doctools::FmtWarning {name text} {
-    upvar ::doctools::doctools${name}::msg msg
+    upvar #0 ::doctools::doctools${name}::msg msg
     lappend msg $text
     return
 }
@@ -895,7 +895,7 @@ proc ::doctools::FmtWarning {name text} {
 #	List containing offset, line, column
 
 proc ::doctools::Where {name} {
-    upvar ::doctools::doctools${name}::expander expander
+    upvar #0 ::doctools::doctools${name}::expander expander
     return [$expander where]
 }
 
@@ -911,7 +911,7 @@ proc ::doctools::Where {name} {
 #	None.
 
 proc ::doctools::Eval {name macro} {
-    upvar ::doctools::doctools${name}::chk_ip chk_ip
+    upvar #0 ::doctools::doctools${name}::chk_ip chk_ip
 
     #puts stderr "\t\t$name [lindex [split $macro] 0]"
 
@@ -945,7 +945,7 @@ proc ::doctools::Eval {name macro} {
 #	None.
 
 proc ::doctools::ExpandInclude {name path} {
-    upvar ::doctools::doctools${name}::file file
+    upvar #0 ::doctools::doctools${name}::file file
 
     set ipath [file join [file dirname $file] $path]
     if {![file exists $ipath]} {
@@ -959,7 +959,7 @@ proc ::doctools::ExpandInclude {name path} {
     set    text [read $chan]
     close $chan
 
-    upvar ::doctools::doctools${name}::expander  expander
+    upvar #0 ::doctools::doctools${name}::expander  expander
 
     return [$expander expand $text]
 }
@@ -993,7 +993,7 @@ proc ::doctools::GetFile {name} {
 
     #puts stderr "GetFile $name"
 
-    upvar ::doctools::doctools${name}::file file
+    upvar #0 ::doctools::doctools${name}::file file
 
     #puts stderr "ok $file"
     return $file
@@ -1042,7 +1042,7 @@ proc ::doctools::FileCmd {cmd args} {
 #	Module information
 
 proc ::doctools::GetModule {name} {
-    upvar ::doctools::doctools${name}::module module
+    upvar #0 ::doctools::doctools${name}::module module
     return   $module
 }
 
@@ -1057,7 +1057,7 @@ proc ::doctools::GetModule {name} {
 #	Copyright information
 
 proc ::doctools::GetCopyright {name} {
-    upvar ::doctools::doctools${name}::copyright copyright
+    upvar #0 ::doctools::doctools${name}::copyright copyright
     return   $copyright
 }
 
@@ -1072,7 +1072,7 @@ proc ::doctools::GetCopyright {name} {
 #	Format information
 
 proc ::doctools::GetFormat {name} {
-    upvar ::doctools::doctools${name}::format format
+    upvar #0 ::doctools::doctools${name}::format format
     return $format
 }
 
@@ -1087,7 +1087,7 @@ proc ::doctools::GetFormat {name} {
 #	Boolean flag.
 
 proc ::doctools::ListLevel {name} {
-    upvar ::doctools::doctools${name}::chk_ip chk_ip
+    upvar #0 ::doctools::doctools${name}::chk_ip chk_ip
     return [$chk_ip eval LNest]
 }
 
@@ -1105,7 +1105,7 @@ proc ::doctools::ListLevel {name} {
 #	Actual name of the file.
 
 proc ::doctools::MapFile {name fname} {
-    upvar ::doctools::doctools${name}::map map
+    upvar #0 ::doctools::doctools${name}::map map
 
     #parray map
 
