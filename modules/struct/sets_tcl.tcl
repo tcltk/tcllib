@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets_tcl.tcl,v 1.3 2008/03/09 04:24:37 andreas_kupries Exp $
+# RCS: @(#) $Id: sets_tcl.tcl,v 1.4 2008/03/09 04:38:47 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -359,8 +359,9 @@ proc ::struct::set::S_include {Avar element} {
 #	the element remove (if the element was actually present).
 
 proc ::struct::set::S_exclude {Avar element} {
-    # Avar = Avar + {element}
+    # Avar = Avar - {element}
     upvar 1 $Avar A
+    if {![info exists A]} {return -code error "can't read \"$Avar\": no such variable"}
     while {[::set pos [lsearch -exact $A $element]] >= 0} {
 	::set A [lreplace [K $A [::set A {}]] $pos $pos]
     }
@@ -410,6 +411,7 @@ proc ::struct::set::S_add {Avar B} {
 proc ::struct::set::S_subtract {Avar B} {
     # Avar = Avar - B
     upvar 1 $Avar A
+    if {![info exists A]} {return -code error "can't read \"$Avar\": no such variable"}
     ::set A [S_difference [K $A [::set A {}]] $B]
     return
 }
