@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2004-2008 by Andreas Kupries
 #
-# RCS: @(#) $Id: sets.testsuite,v 1.4 2008/01/28 23:42:20 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.testsuite,v 1.5 2008/03/09 04:24:37 andreas_kupries Exp $
 
 #----------------------------------------------------------------------
 
@@ -384,6 +384,12 @@ test set-${impl}-10.4 {include, known} {
     lsort $A
 } $sa
 
+test set-${impl}-10.5-bug-1908098 {include, non-existent variable} {
+    catch {unset A}
+    catch {unset res}
+    lappend res [setop include A a::foo]
+    lappend res [lsort $A]
+} {{} a::foo}
 
 test set-${impl}-11.0 {exclude} {
     catch {setop exclude} msg
@@ -426,9 +432,10 @@ test set-${impl}-12.1 {add} {
 
 test set-${impl}-12.2 {add, non-existent variable} {
     catch {unset A}
-    catch {setop add A B} msg
-    set msg
-} {can't read "A": no such variable}
+    catch {unset res}
+    lappend res [setop add A B]
+    lappend res $A
+} {{} B}
 
 test set-${impl}-12.3 {add, missing} {
     catch {unset A} ; set A $sa
