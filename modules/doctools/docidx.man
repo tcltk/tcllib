@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin doctools::idx n 0.3]
-[copyright {2003-2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[manpage_begin doctools::idx n 0.3.1]
+[copyright {2003-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {docidx - Processing indices}]
 [require Tcl 8.2]
-[require doctools::idx [opt 0.3]]
+[require doctools::idx [opt 0.3.1]]
 [description]
 
 This package provides a class for the creation of objects able to
