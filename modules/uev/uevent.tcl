@@ -59,7 +59,7 @@ proc ::uevent::unbind {token} {
     if {![info exists tk($token)]} return
 
     set tec $tk($token)
-    set te [lrange $tex 0 1]
+    set te [lrange $tec 0 1]
 
     log::debug [linsert [linsert $tec 0 =] end-1 ->]
 
@@ -129,7 +129,7 @@ namespace eval        ::uevent {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide uevent 0.1.2
+package provide uevent 0.1.3
 
 ##
 # ### ### ### ######### ######### #########
