@@ -38,7 +38,7 @@
 #   written by Jochen Loewer
 #   3 June, 1999
 #
-#   $Id: asn.tcl,v 1.18 2007/09/18 21:03:18 mic42 Exp $
+#   $Id: asn.tcl,v 1.19 2008/03/09 21:00:22 mic42 Exp $
 #
 #-----------------------------------------------------------------------------
 
@@ -707,12 +707,85 @@ proc ::asn::asnGetResponse {sock data_var} {
     }
 }
 
+if {[package vsatisfies [package present Tcl] 8.5.0]} {
+##############################################################################
+# Code for 8.5
+##############################################################################
+#-----------------------------------------------------------------------------
+# asnGetByte (8.5 version) : Retrieve a single byte from the data (unsigned)
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnGetByte {data_var byte_var} {
+    upvar 1 $data_var data $byte_var byte
+    
+    binary scan [string index $data 0] cu byte
+    set data [string range $data 1 end]
+
+    return
+}
+
+#-----------------------------------------------------------------------------
+# asnPeekByte (8.5 version) : Retrieve a single byte from the data (unsigned) 
+#               without removing it.
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnPeekByte {data_var byte_var {offset 0}} {
+    upvar 1 $data_var data $byte_var byte
+    
+    binary scan [string index $data $offset] cu byte
+
+    return
+}
+
+#-----------------------------------------------------------------------------
+# asnGetLength (8.5 version) : Decode an ASN length value (See notes)
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnGetLength {data_var length_var} {
+    upvar 1 $data_var data  $length_var length
+
+    asnGetByte data length
+    if {$length == 0x080} {
+        return -code error "Indefinite length BER encoding not yet supported"
+    }
+    if {$length > 0x080} {
+    # The retrieved byte is a prefix value, and the integer in the
+    # lower nibble tells us how many bytes were used to encode the
+    # length data following immediately after this prefix.
+
+        set len_length [expr {$length & 0x7f}]
+        
+        if {[string length $data] < $len_length} {
+            return -code error \
+		"length information invalid, not enough octets left" 
+        }
+        
+        asnGetBytes data $len_length lengthBytes
+
+        switch $len_length {
+            1 { binary scan $lengthBytes     cu length }
+            2 { binary scan $lengthBytes     Su length }
+            3 { binary scan \x00$lengthBytes Iu length }
+            4 { binary scan $lengthBytes     Iu length }
+            default {                
+                binary scan $lengthBytes H* hexstr
+		scan $hexstr %llx length
+            }
+        }
+    }
+    return
+}
+
+} else {
+##############################################################################
+# Code for Tcl 8.4
+##############################################################################
 #-----------------------------------------------------------------------------
 # asnGetByte : Retrieve a single byte from the data (unsigned)
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnGetByte {data_var byte_var} {
-    upvar $data_var data $byte_var byte
+    upvar 1 $data_var data $byte_var byte
     
     binary scan [string index $data 0] c byte
     set byte [expr {($byte + 0x100) % 0x100}]  
@@ -734,6 +807,75 @@ proc ::asn::asnPeekByte {data_var byte_var {offset 0}} {
 
     return
 }
+
+#-----------------------------------------------------------------------------
+# asnGetLength : Decode an ASN length value (See notes)
+#-----------------------------------------------------------------------------
+
+proc ::asn::asnGetLength {data_var length_var} {
+    upvar 1 $data_var data  $length_var length
+
+    asnGetByte data length
+    if {$length == 0x080} {
+        return -code error "Indefinite length BER encoding not yet supported"
+    }
+    if {$length > 0x080} {
+    # The retrieved byte is a prefix value, and the integer in the
+    # lower nibble tells us how many bytes were used to encode the
+    # length data following immediately after this prefix.
+
+        set len_length [expr {$length & 0x7f}]
+        
+        if {[string length $data] < $len_length} {
+            return -code error \
+		"length information invalid, not enough octets left" 
+        }
+        
+        asnGetBytes data $len_length lengthBytes
+
+        switch $len_length {
+            1 {
+        # Efficiently coded data will not go through this
+        # path, as small length values can be coded directly,
+        # without a prefix.
+
+            binary scan $lengthBytes     c length 
+            set length [expr {($length + 0x100) % 0x100}]
+            }
+            2 { binary scan $lengthBytes     S length 
+            set length [expr {($length + 0x10000) % 0x10000}]
+            }
+            3 { binary scan \x00$lengthBytes I length 
+            set length [expr {($length + 0x1000000) % 0x1000000}]
+            }
+            4 { binary scan $lengthBytes     I length 
+            set length [expr {(wide($length) + 0x100000000) % 0x100000000}]
+            }
+            default {                
+                binary scan $lengthBytes H* hexstr
+                # skip leading zeros which are allowed by BER
+                set hexlen [string trimleft $hexstr 0] 
+                # check if it fits into a 64-bit signed integer
+                if {[string length $hexlen] > 16} {
+                    return -code error -errorcode {ARITH IOVERFLOW 
+                            {Length value too large for normal use, try asnGetBigLength}} \
+			    "Length value to large"
+                } elseif {  [string length $hexlen] == 16 \
+			&& ([string index $hexlen 0] & 0x8)} { 
+                    # check most significant bit, if set we need bignum
+                    return -code error -errorcode {ARITH IOVERFLOW 
+                            {Length value too large for normal use, try asnGetBigLength}} \
+			    "Length value to large"
+                } else {
+                    scan $hexstr "%lx" length
+                }
+            }
+        }
+    }
+    return
+}
+
+} 
 
 #-----------------------------------------------------------------------------
 # asnRetag: Remove an explicit tag with the real newTag
@@ -837,72 +979,6 @@ proc ::asn::asnTag {tagnumber {class UNIVERSAL} {tagstyle P}} {
     return [binary format c $first]
 }
 
-#-----------------------------------------------------------------------------
-# asnGetLength : Decode an ASN length value (See notes)
-#-----------------------------------------------------------------------------
-
-proc ::asn::asnGetLength {data_var length_var} {
-    upvar 1 $data_var data  $length_var length
-
-    asnGetByte data length
-    if {$length == 0x080} {
-        return -code error "Indefinite length BER encoding not yet supported"
-    }
-    if {$length > 0x080} {
-    # The retrieved byte is a prefix value, and the integer in the
-    # lower nibble tells us how many bytes were used to encode the
-    # length data following immediately after this prefix.
-
-        set len_length [expr {$length & 0x7f}]
-        
-        if {[string length $data] < $len_length} {
-            return -code error \
-		"length information invalid, not enough octets left" 
-        }
-        
-        asnGetBytes data $len_length lengthBytes
-
-        switch $len_length {
-            1 {
-        # Efficiently coded data will not go through this
-        # path, as small length values can be coded directly,
-        # without a prefix.
-
-            binary scan $lengthBytes     c length 
-            set length [expr {($length + 0x100) % 0x100}]
-            }
-            2 { binary scan $lengthBytes     S length 
-            set length [expr {($length + 0x10000) % 0x10000}]
-            }
-            3 { binary scan \x00$lengthBytes I length 
-            set length [expr {($length + 0x1000000) % 0x1000000}]
-            }
-            4 { binary scan $lengthBytes     I length 
-            set length [expr {(wide($length) + 0x100000000) % 0x100000000}]
-            }
-            default {                
-                binary scan $lengthBytes H* hexstr
-                # skip leading zeros which are allowed by BER
-                set hexlen [string trimleft $hexstr 0] 
-                # check if it fits into a 64-bit signed integer
-                if {[string length $hexlen] > 16} {
-                    return -code error -errorcode {ARITH IOVERFLOW 
-                            {Length value too large for normal use, try asnGetBigLength}} \
-			    "Length value to large"
-                } elseif {  [string length $hexlen] == 16 \
-			&& ([string index $hexlen 0] & 0x8)} { 
-                    # check most significant bit, if set we need bignum
-                    return -code error -errorcode {ARITH IOVERFLOW 
-                            {Length value too large for normal use, try asnGetBigLength}} \
-			    "Length value to large"
-                } else {
-                    scan $hexstr "%lx" length
-                }
-            }
-        }
-    }
-    return
-}
 
 
 #-----------------------------------------------------------------------------
@@ -1494,5 +1570,5 @@ proc ::asn::asnString {string} {
 }
 
 #-----------------------------------------------------------------------------
-package provide asn 0.8.2
+package provide asn 0.8.3
 
