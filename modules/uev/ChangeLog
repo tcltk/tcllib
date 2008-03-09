@@ -1,3 +1,9 @@
+2008-03-09  Michael Schlenker <mic42@users.sourceforge.net>
+
+        * uevent.tcl:  Fixed wrong variable name tex in unbind.
+	* pkgIndex.tcl:
+	* uvent.man:
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
