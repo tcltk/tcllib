@@ -2,12 +2,12 @@
 #
 #	Implementation of doctoc objects for Tcl.
 #
-# Copyright (c) 2003-2007 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2008 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctoc.tcl,v 1.14 2007/08/20 20:11:59 andreas_kupries Exp $
+# RCS: @(#) $Id: doctoc.tcl,v 1.15 2008/03/09 05:05:05 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -230,8 +230,8 @@ proc ::doctools::toc::_configure {name args} {
     if {[llength $args] == 0} {
 	# Retrieve the current configuration.
 
-	upvar ::doctools::toc::doctoc${name}::file    file
-	upvar ::doctools::toc::doctoc${name}::format  format
+	upvar #0 ::doctools::toc::doctoc${name}::file    file
+	upvar #0 ::doctools::toc::doctoc${name}::format  format
 
 	set     res [list]
 	lappend res -file       $file
@@ -243,11 +243,11 @@ proc ::doctools::toc::_configure {name args} {
 
 	switch -exact -- [lindex $args 0] {
 	    -file {
-		upvar ::doctools::toc::doctoc${name}::file file
+		upvar #0 ::doctools::toc::doctoc${name}::file file
 		return $file
 	    }
 	    -format {
-		upvar ::doctools::toc::doctoc${name}::format format
+		upvar #0 ::doctools::toc::doctoc${name}::format format
 		return $format
 	    }
 	    default {
@@ -266,14 +266,14 @@ proc ::doctools::toc::_configure {name args} {
 	foreach {option value} $args {
 	    switch -exact -- $option {
 		-file {
-		    upvar ::doctools::toc::doctoc${name}::file file
+		    upvar #0 ::doctools::toc::doctoc${name}::file file
 		    set file $value
 		}
 		-format {
 		    if {[catch {
 			set fmtfile [LookupFormat $name $value]
 			SetupFormatter $name $fmtfile
-			upvar ::doctools::toc::doctoc${name}::format format
+			upvar #0 ::doctools::toc::doctoc${name}::format format
 			set format $value
 		    } msg]} {
 			return -code error "doctools::toc::_configure: -format: $msg"
@@ -333,7 +333,7 @@ proc ::doctools::toc::_destroy {name} {
 #	None.
 
 proc ::doctools::toc::_map {name sfname afname} {
-    upvar ::doctools::toc::doctoc${name}::map map
+    upvar #0 ::doctools::toc::doctoc${name}::map map
     set map($sfname) $afname
     return
 }
@@ -351,17 +351,17 @@ proc ::doctools::toc::_map {name sfname afname} {
 #	The conversion result.
 
 proc ::doctools::toc::_format {name text} {
-    upvar ::doctools::toc::doctoc${name}::format format
+    upvar #0 ::doctools::toc::doctoc${name}::format format
     if {$format == ""} {
 	return -code error "$name: No format was specified"
     }
 
-    upvar ::doctools::toc::doctoc${name}::format_ip format_ip
-    upvar ::doctools::toc::doctoc${name}::chk_ip    chk_ip
-    upvar ::doctools::toc::doctoc${name}::ex_ok     ex_ok
-    upvar ::doctools::toc::doctoc${name}::expander  expander
-    upvar ::doctools::toc::doctoc${name}::passes    passes
-    upvar ::doctools::toc::doctoc${name}::msg       warnings
+    upvar #0 ::doctools::toc::doctoc${name}::format_ip format_ip
+    upvar #0 ::doctools::toc::doctoc${name}::chk_ip    chk_ip
+    upvar #0 ::doctools::toc::doctoc${name}::ex_ok     ex_ok
+    upvar #0 ::doctools::toc::doctoc${name}::expander  expander
+    upvar #0 ::doctools::toc::doctoc${name}::passes    passes
+    upvar #0 ::doctools::toc::doctoc${name}::msg       warnings
 
     if {!$ex_ok}       {SetupExpander  $name}
     if {$chk_ip == ""} {SetupChecker   $name}
@@ -429,7 +429,7 @@ proc ::doctools::toc::_search {name path} {
     if {![file isdirectory $path]} {return -code error "$name search: path is not a directory"}
     if {![file readable    $path]} {return -code error "$name search: path cannot be read"}
 
-    upvar ::doctools::toc::doctoc${name}::paths paths
+    upvar #0 ::doctools::toc::doctoc${name}::paths paths
     set paths [linsert $paths 0 $path]
     return
 }
@@ -445,7 +445,7 @@ proc ::doctools::toc::_search {name path} {
 #	A list of warnings.
 
 proc ::doctools::toc::_warnings {name} {
-    upvar ::doctools::toc::doctoc${name}::msg msg
+    upvar #0 ::doctools::toc::doctoc${name}::msg msg
     return $msg
 }
 
@@ -461,7 +461,7 @@ proc ::doctools::toc::_warnings {name} {
 #	A list of parameter names
 
 proc ::doctools::toc::_parameters {name} {
-    upvar ::doctools::toc::doctoc${name}::param param
+    upvar #0 ::doctools::toc::doctoc${name}::param param
     return $param
 }
 
@@ -478,7 +478,7 @@ proc ::doctools::toc::_parameters {name} {
 #	None.
 
 proc ::doctools::toc::_setparam {name param value} {
-    upvar ::doctools::toc::doctoc${name}::format_ip format_ip
+    upvar #0 ::doctools::toc::doctoc${name}::format_ip format_ip
 
     if {$format_ip == {}} {
 	return -code error \
@@ -514,7 +514,7 @@ proc ::doctools::toc::LookupFormat {name format} {
 	return $format
     }
 
-    upvar ::doctools::toc::doctoc${name}::paths opaths
+    upvar #0 ::doctools::toc::doctoc${name}::paths opaths
     foreach path $opaths {
 	set f [file join $path toc.$format]
 	if {[file exists $f]} {
@@ -606,12 +606,12 @@ proc ::doctools::toc::SetupFormatter {name format} {
     # now invalid. It will be recreated during the
     # next call of 'format'.
 
-    upvar ::doctools::toc::doctoc${name}::formatfile formatfile
-    upvar ::doctools::toc::doctoc${name}::format_ip  format_ip
-    upvar ::doctools::toc::doctoc${name}::chk_ip     chk_ip
-    upvar ::doctools::toc::doctoc${name}::expander   expander
-    upvar ::doctools::toc::doctoc${name}::passes     xpasses
-    upvar ::doctools::toc::doctoc${name}::param      xparam
+    upvar #0 ::doctools::toc::doctoc${name}::formatfile formatfile
+    upvar #0 ::doctools::toc::doctoc${name}::format_ip  format_ip
+    upvar #0 ::doctools::toc::doctoc${name}::chk_ip     chk_ip
+    upvar #0 ::doctools::toc::doctoc${name}::expander   expander
+    upvar #0 ::doctools::toc::doctoc${name}::passes     xpasses
+    upvar #0 ::doctools::toc::doctoc${name}::param      xparam
 
     if {$chk_ip != {}}    {interp delete $chk_ip}
     if {$format_ip != {}} {interp delete $format_ip}
@@ -655,11 +655,11 @@ proc ::doctools::toc::SetupChecker {name} {
 
     variable here
 
-    upvar ::doctools::toc::doctoc${name}::chk_ip    chk_ip
+    upvar #0 ::doctools::toc::doctoc${name}::chk_ip    chk_ip
     if {$chk_ip != ""} {return}
 
-    upvar ::doctools::toc::doctoc${name}::expander  expander
-    upvar ::doctools::toc::doctoc${name}::format_ip format_ip
+    upvar #0 ::doctools::toc::doctoc${name}::expander  expander
+    upvar #0 ::doctools::toc::doctoc${name}::format_ip format_ip
 
     set chk_ip [interp create] ; # interpreter hosting the formal format checker
 
@@ -704,10 +704,10 @@ proc ::doctools::toc::SetupChecker {name} {
 #	None.
 
 proc ::doctools::toc::SetupExpander {name} {
-    upvar ::doctools::toc::doctoc${name}::ex_ok    ex_ok
+    upvar #0 ::doctools::toc::doctoc${name}::ex_ok    ex_ok
     if {$ex_ok} {return}
 
-    upvar ::doctools::toc::doctoc${name}::expander expander
+    upvar #0 ::doctools::toc::doctoc${name}::expander expander
     ::textutil::expander $expander
     $expander evalcmd [list ::doctools::toc::Eval $name]
     $expander textcmd plain_text
@@ -727,7 +727,7 @@ proc ::doctools::toc::SetupExpander {name} {
 #	None.
 
 proc ::doctools::toc::SearchPaths {name} {
-    upvar ::doctools::toc::doctoc${name}::paths opaths
+    upvar #0 ::doctools::toc::doctoc${name}::paths opaths
     variable paths
 
     set p $opaths
@@ -762,7 +762,7 @@ proc ::doctools::toc::FmtError {name text} {
 #	None.
 
 proc ::doctools::toc::FmtWarning {name text} {
-    upvar ::doctools::toc::doctoc${name}::msg msg
+    upvar #0 ::doctools::toc::doctoc${name}::msg msg
     lappend msg $text
     return
 }
@@ -779,7 +779,7 @@ proc ::doctools::toc::FmtWarning {name text} {
 #	None.
 
 proc ::doctools::toc::Eval {name macro} {
-    upvar ::doctools::toc::doctoc${name}::chk_ip chk_ip
+    upvar #0 ::doctools::toc::doctoc${name}::chk_ip chk_ip
 
     # Handle the [include] command directly
     if {[string match include* $macro]} {
@@ -807,7 +807,7 @@ proc ::doctools::toc::ExpandInclude {name path} {
     # use the current working directory. Throw an error
     # if the file couldn't be found.
 
-    upvar ::doctools::toc::doctoc${name}::file file
+    upvar #0 ::doctools::toc::doctoc${name}::file file
 
     set ipath [file join [file dirname $file] $path]
     if {![file exists $ipath]} {
@@ -821,7 +821,7 @@ proc ::doctools::toc::ExpandInclude {name path} {
     set    text [read $chan]
     close $chan
 
-    upvar ::doctools::toc::doctoc${name}::expander  expander
+    upvar #0 ::doctools::toc::doctoc${name}::expander  expander
 
     return [$expander expand $text]
 }
@@ -852,7 +852,7 @@ proc ::doctools::toc::GetUser {name} {
 #	Format information
 
 proc ::doctools::toc::GetFormat {name} {
-    upvar ::doctools::toc::doctoc${name}::format format
+    upvar #0 ::doctools::toc::doctoc${name}::format format
     return $format
 }
 
@@ -870,7 +870,7 @@ proc ::doctools::toc::GetFormat {name} {
 #	Actual name of the file.
 
 proc ::doctools::toc::MapFile {name fname} {
-    upvar ::doctools::toc::doctoc${name}::map map
+    upvar #0 ::doctools::toc::doctoc${name}::map map
     if {[info exists map($fname)]} {
 	return $map($fname)
     }

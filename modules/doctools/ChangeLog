@@ -1,3 +1,17 @@
+2008-03-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* doctools.tcl: Code cleanup, giving all upvar commands an
+	* docidx.tcl: explicit level argument. Bumped all version
+	* doctoc.tcl: numbers by one patchlevel. doctools -> 1.3.2,
+	* cvs.tcl: doctools::toc -> 0.3.1, doctools::idx -> 0.3.1,
+	* changelog.tcl: doctools::cvs -> 0.1.2,
+	* pkgIndex.tcl:  doctools::changelog -> 0.1.2
+	* docidx.man:
+	* doctoc.man:
+	* doctools.man:
+	* cvs.man:
+	* changelog.man:
+
 2007-09-25  Andreas Kupries  <andreask@activestate.com>
 
 	* doctools.tcl: Extended processor to pass the pass number to the

@@ -2,12 +2,12 @@
 #
 #	Handling of ChangeLog's.
 #
-# Copyright (c) 2003 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2008 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: changelog.tcl,v 1.5 2005/09/28 04:51:19 andreas_kupries Exp $
+# RCS: @(#) $Id: changelog.tcl,v 1.6 2008/03/09 05:05:05 andreas_kupries Exp $
 
 
 # FUTURE -- Expand pre-parsed log (nested lists) into flat structures
@@ -117,7 +117,7 @@ proc ::doctools::changelog::scan {text} {
 
 
 proc ::doctools::changelog::closeSection {} {
-    upvar clist clist comment comment files files
+    upvar 1 clist clist comment comment files files
 
     if {
 	([string length $comment] > 0) ||
@@ -131,8 +131,8 @@ proc ::doctools::changelog::closeSection {} {
 }
 
 proc ::doctools::changelog::closeEntry {} {
-    upvar clist clist comment comment files files first first
-    upvar date date author author entries entries
+    upvar 1 clist clist comment comment files files first first \
+	date date author author entries entries
 
     if {!$first} {
 	closeSection
