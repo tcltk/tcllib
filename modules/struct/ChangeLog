@@ -1,3 +1,21 @@
+2008-03-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sets/m.c (sm_ADD): Brought the behaviour of method 'add' back
+	* sets.testsuite: into line with the behaviour of 'include',
+	* sets.tcl: i.e. create a missing variable, in both Tcl and critcl
+	* struct_set.man: implementations. Updated the relevant tests as
+	* pkgIndex.tcl: well. See changelog entry 2006-01-30 as well,
+	  and [SF Tcllib Bug 1414051]. Bumped version to 2.2.3.
+
+	* sets/m.c (sm_INCLUDE): Replaced bogus TCL_LEAVE_ERR_MSG when
+	* sets.testsuite: checking for variable existence, as the variable
+	  is created if missing. In contrast to exclude/subtract which
+	  require the variable to exist. This is likely a copy/paste
+	  error. The bogus error message was returned as the result of the
+	  command, not an error trace, but could be mistaken for it in
+	  interactive use. This fixes [Bug 1908098] reported by Stephane
+	  Jeanjean <sjeanjean@users.sourceforge.net>. Testsuite extended.
+
 2008-03-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sets.test: Updated tests to have error messages in line with the
@@ -195,7 +213,7 @@
 
 	* sets/m.c: Rewrote sm_ADD, inlined s_add to enable us to defer
 	  set duplication until the set actually changes. This also
-	  ensures that the string-rep is invlaidates only in cvase of a
+	  ensures that the string-rep is invalidated only in cvase of a
 	  true change. Ditto rewrites of sm_INCLUDE, sm_SUBTRACT, and
 	  sm_EXCLUDE.
 

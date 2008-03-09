@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: sets_tcl.tcl,v 1.2 2008/01/28 23:42:20 andreas_kupries Exp $
+# RCS: @(#) $Id: sets_tcl.tcl,v 1.3 2008/03/09 04:24:37 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -386,6 +386,7 @@ proc ::struct::set::S_exclude {Avar element} {
 proc ::struct::set::S_add {Avar B} {
     # Avar = Avar + B
     upvar 1 $Avar A
+    if {![info exists A]} {set A {}}
     ::set A [S_union [K $A [::set A {}]] $B]
     return
 }
