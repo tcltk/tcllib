@@ -2,12 +2,12 @@
 #
 #	Handling of various cvs output formats.
 #
-# Copyright (c) 2003 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2008 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cvs.tcl,v 1.7 2005/09/28 04:51:19 andreas_kupries Exp $
+# RCS: @(#) $Id: cvs.tcl,v 1.8 2008/03/09 05:05:05 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil
@@ -41,9 +41,9 @@ proc ::doctools::cvs::scanLog {text evar cvar fvar} {
     set text [split $text \n]
     set n    [llength $text]
 
-    upvar $evar entries  ;    #set       entries  [list]
-    upvar $cvar comments ;    #array set comments {}
-    upvar $fvar files    ;    #array set files    {}
+    upvar 1 $evar entries  ;    #set       entries  [list]
+    upvar 1 $cvar comments ;    #array set comments {}
+    upvar 1 $fvar files    ;    #array set files    {}
 
     for {set i 0} {$i < $n} {incr i} {
 	set line [lindex $text $i]
@@ -98,9 +98,7 @@ proc ::doctools::cvs::scanLog {text evar cvar fvar} {
 #	Original author unknown.
 
 proc ::doctools::cvs::toChangeLog {evar cvar fvar} {
-    upvar $evar entries
-    upvar $cvar comments
-    upvar $fvar files
+    upvar 1 $evar entries $cvar comments $fvar files
 
     set linebuffer [list]
 

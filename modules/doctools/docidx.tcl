@@ -2,12 +2,12 @@
 #
 #	Implementation of docidx objects for Tcl.
 #
-# Copyright (c) 2003-2007 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2008 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: docidx.tcl,v 1.14 2007/08/20 20:11:59 andreas_kupries Exp $
+# RCS: @(#) $Id: docidx.tcl,v 1.15 2008/03/09 05:05:05 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -230,8 +230,8 @@ proc ::doctools::idx::_configure {name args} {
     if {[llength $args] == 0} {
 	# Retrieve the current configuration.
 
-	upvar ::doctools::idx::docidx${name}::file    file
-	upvar ::doctools::idx::docidx${name}::format     format
+	upvar #0 ::doctools::idx::docidx${name}::file    file
+	upvar #0 ::doctools::idx::docidx${name}::format  format
 
 	set     res [list]
 	lappend res -file       $file
@@ -243,11 +243,11 @@ proc ::doctools::idx::_configure {name args} {
 
 	switch -exact -- [lindex $args 0] {
 	    -file {
-		upvar ::doctools::idx::docidx${name}::file file
+		upvar #0 ::doctools::idx::docidx${name}::file file
 		return $file
 	    }
 	    -format {
-		upvar ::doctools::idx::docidx${name}::format format
+		upvar #0 ::doctools::idx::docidx${name}::format format
 		return $format
 	    }
 	    default {
@@ -266,14 +266,14 @@ proc ::doctools::idx::_configure {name args} {
 	foreach {option value} $args {
 	    switch -exact -- $option {
 		-file {
-		    upvar ::doctools::idx::docidx${name}::file file
+		    upvar #0 ::doctools::idx::docidx${name}::file file
 		    set file $value
 		}
 		-format {
 		    if {[catch {
 			set fmtfile [LookupFormat $name $value]
 			SetupFormatter $name $fmtfile
-			upvar ::doctools::idx::docidx${name}::format format
+			upvar #0 ::doctools::idx::docidx${name}::format format
 			set format $value
 		    } msg]} {
 			return -code error "doctools::idx::_configure: -format: $msg"
@@ -333,7 +333,7 @@ proc ::doctools::idx::_destroy {name} {
 #	None.
 
 proc ::doctools::idx::_map {name sfname afname} {
-    upvar ::doctools::idx::docidx${name}::map map
+    upvar #0 ::doctools::idx::docidx${name}::map map
     set map($sfname) $afname
     return
 }
@@ -351,17 +351,17 @@ proc ::doctools::idx::_map {name sfname afname} {
 #	The conversion result.
 
 proc ::doctools::idx::_format {name text} {
-    upvar ::doctools::idx::docidx${name}::format format
+    upvar #0 ::doctools::idx::docidx${name}::format format
     if {$format == ""} {
 	return -code error "$name: No format was specified"
     }
 
-    upvar ::doctools::idx::docidx${name}::format_ip format_ip
-    upvar ::doctools::idx::docidx${name}::chk_ip    chk_ip
-    upvar ::doctools::idx::docidx${name}::ex_ok     ex_ok
-    upvar ::doctools::idx::docidx${name}::expander  expander
-    upvar ::doctools::idx::docidx${name}::passes    passes
-    upvar ::doctools::idx::docidx${name}::msg       warnings
+    upvar #0 ::doctools::idx::docidx${name}::format_ip format_ip
+    upvar #0 ::doctools::idx::docidx${name}::chk_ip    chk_ip
+    upvar #0 ::doctools::idx::docidx${name}::ex_ok     ex_ok
+    upvar #0 ::doctools::idx::docidx${name}::expander  expander
+    upvar #0 ::doctools::idx::docidx${name}::passes    passes
+    upvar #0 ::doctools::idx::docidx${name}::msg       warnings
 
     if {!$ex_ok}       {SetupExpander  $name}
     if {$chk_ip == ""} {SetupChecker   $name}
@@ -429,7 +429,7 @@ proc ::doctools::idx::_search {name path} {
     if {![file isdirectory $path]} {return -code error "$name search: path is not a directory"}
     if {![file readable    $path]} {return -code error "$name search: path cannot be read"}
 
-    upvar ::doctools::idx::docidx${name}::paths paths
+    upvar #0 ::doctools::idx::docidx${name}::paths paths
     set paths [linsert $paths 0 $path]
     return
 }
@@ -445,7 +445,7 @@ proc ::doctools::idx::_search {name path} {
 #	A list of warnings.
 
 proc ::doctools::idx::_warnings {name} {
-    upvar ::doctools::idx::docidx${name}::msg msg
+    upvar #0 ::doctools::idx::docidx${name}::msg msg
     return $msg
 }
 
@@ -461,7 +461,7 @@ proc ::doctools::idx::_warnings {name} {
 #	A list of parameter names
 
 proc ::doctools::idx::_parameters {name} {
-    upvar ::doctools::idx::docidx${name}::param param
+    upvar #0 ::doctools::idx::docidx${name}::param param
     return $param
 }
 
@@ -478,7 +478,7 @@ proc ::doctools::idx::_parameters {name} {
 #	None.
 
 proc ::doctools::idx::_setparam {name param value} {
-    upvar ::doctools::idx::docidx${name}::format_ip format_ip
+    upvar #0 ::doctools::idx::docidx${name}::format_ip format_ip
 
     if {$format_ip == {}} {
 	return -code error \
@@ -514,7 +514,7 @@ proc ::doctools::idx::LookupFormat {name format} {
 	return $format
     }
 
-    upvar ::doctools::idx::docidx${name}::paths opaths
+    upvar #0 ::doctools::idx::docidx${name}::paths opaths
     foreach path $opaths {
 	set f [file join $path idx.$format]
 	if {[file exists $f]} {
@@ -606,12 +606,12 @@ proc ::doctools::idx::SetupFormatter {name format} {
     # now invalid. It will be recreated during the
     # next call of 'format'.
 
-    upvar ::doctools::idx::docidx${name}::formatfile formatfile
-    upvar ::doctools::idx::docidx${name}::format_ip  format_ip
-    upvar ::doctools::idx::docidx${name}::chk_ip     chk_ip
-    upvar ::doctools::idx::docidx${name}::expander   expander
-    upvar ::doctools::idx::docidx${name}::passes     xpasses
-    upvar ::doctools::idx::docidx${name}::param      xparam
+    upvar #0 ::doctools::idx::docidx${name}::formatfile formatfile
+    upvar #0 ::doctools::idx::docidx${name}::format_ip  format_ip
+    upvar #0 ::doctools::idx::docidx${name}::chk_ip     chk_ip
+    upvar #0 ::doctools::idx::docidx${name}::expander   expander
+    upvar #0 ::doctools::idx::docidx${name}::passes     xpasses
+    upvar #0 ::doctools::idx::docidx${name}::param      xparam
 
     if {$chk_ip != {}}    {interp delete $chk_ip}
     if {$format_ip != {}} {interp delete $format_ip}
@@ -655,11 +655,11 @@ proc ::doctools::idx::SetupChecker {name} {
 
     variable here
 
-    upvar ::doctools::idx::docidx${name}::chk_ip    chk_ip
+    upvar #0 ::doctools::idx::docidx${name}::chk_ip    chk_ip
     if {$chk_ip != ""} {return}
 
-    upvar ::doctools::idx::docidx${name}::expander  expander
-    upvar ::doctools::idx::docidx${name}::format_ip format_ip
+    upvar #0 ::doctools::idx::docidx${name}::expander  expander
+    upvar #0 ::doctools::idx::docidx${name}::format_ip format_ip
 
     set chk_ip [interp create] ; # interpreter hosting the formal format checker
 
@@ -703,10 +703,10 @@ proc ::doctools::idx::SetupChecker {name} {
 #	None.
 
 proc ::doctools::idx::SetupExpander {name} {
-    upvar ::doctools::idx::docidx${name}::ex_ok    ex_ok
+    upvar #0 ::doctools::idx::docidx${name}::ex_ok    ex_ok
     if {$ex_ok} {return}
 
-    upvar ::doctools::idx::docidx${name}::expander expander
+    upvar #0 ::doctools::idx::docidx${name}::expander expander
     ::textutil::expander $expander
     $expander evalcmd [list ::doctools::idx::Eval $name]
     $expander textcmd plain_text
@@ -726,7 +726,7 @@ proc ::doctools::idx::SetupExpander {name} {
 #	None.
 
 proc ::doctools::idx::SearchPaths {name} {
-    upvar ::doctools::idx::docidx${name}::paths opaths
+    upvar #0 ::doctools::idx::docidx${name}::paths opaths
     variable paths
 
     set p $opaths
@@ -761,7 +761,7 @@ proc ::doctools::idx::FmtError {name text} {
 #	None.
 
 proc ::doctools::idx::FmtWarning {name text} {
-    upvar ::doctools::idx::docidx${name}::msg msg
+    upvar #0 ::doctools::idx::docidx${name}::msg msg
     lappend msg $text
     return
 }
@@ -778,7 +778,7 @@ proc ::doctools::idx::FmtWarning {name text} {
 #	None.
 
 proc ::doctools::idx::Eval {name macro} {
-    upvar ::doctools::idx::docidx${name}::chk_ip chk_ip
+    upvar #0 ::doctools::idx::docidx${name}::chk_ip chk_ip
 
     # Handle the [include] command directly
     if {[string match include* $macro]} {
@@ -801,7 +801,7 @@ proc ::doctools::idx::Eval {name macro} {
 #	None.
 
 proc ::doctools::idx::ExpandInclude {name path} {
-    upvar ::doctools::idx::docidx${name}::file file
+    upvar #0 ::doctools::idx::docidx${name}::file file
 
     set ipath [file join [file dirname $file] $path]
     if {![file exists $ipath]} {
@@ -815,7 +815,7 @@ proc ::doctools::idx::ExpandInclude {name path} {
     set    text [read $chan]
     close $chan
 
-    upvar ::doctools::idx::docidx${name}::expander  expander
+    upvar #0 ::doctools::idx::docidx${name}::expander  expander
 
     return [$expander expand $text]
 }
@@ -846,7 +846,7 @@ proc ::doctools::idx::GetUser {name} {
 #	Format information
 
 proc ::doctools::idx::GetFormat {name} {
-    upvar ::doctools::idx::docidx${name}::format format
+    upvar #0 ::doctools::idx::docidx${name}::format format
     return $format
 }
 
@@ -864,7 +864,7 @@ proc ::doctools::idx::GetFormat {name} {
 #	Actual name of the file.
 
 proc ::doctools::idx::MapFile {name fname} {
-    upvar ::doctools::idx::docidx${name}::map map
+    upvar #0 ::doctools::idx::docidx${name}::map map
     if {[info exists map($fname)]} {
 	return $map($fname)
     }
