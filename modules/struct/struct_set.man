@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_set.man,v 1.10 2008/01/28 23:42:20 andreas_kupries Exp $}]
-[manpage_begin struct::set n 2.2.2]
+[comment {$Id: struct_set.man,v 1.11 2008/03/09 04:24:37 andreas_kupries Exp $}]
+[manpage_begin struct::set n 2.2.3]
 [copyright {2004-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc {Tcl Data Structures}]
 [titledesc {Procedures for manipulating sets}]
 [require Tcl 8.0]
-[require struct::set [opt 2.2.2]]
+[require struct::set [opt 2.2.3]]
 [description]
 
 [para]
@@ -95,7 +95,8 @@ Returns a boolean value indicating if the two sets are equal
 
 The element [arg item] is added to the set specified by the variable
 name in [arg svar]. The return value of the command is empty. This is
-the equivalent of [cmd lappend] for sets.
+the equivalent of [cmd lappend] for sets. If the variable named by
+[arg svar] does not exist it will be created.
 
 
 [call [cmd ::struct::set] [method exclude] [arg svar] [arg item]]
@@ -110,7 +111,8 @@ empty. This is a near-equivalent of [cmd lreplace] for sets.
 All the element of [arg set] are added to the set specified by the
 variable name in [arg svar]. The return value of the command is
 empty. This is like the method [method include], but for the addition
-of a whole set.
+of a whole set. If the variable named by [arg svar] does not exist it
+will be created.
 
 
 [call [cmd ::struct::set] [method subtract] [arg svar] [arg set]]
