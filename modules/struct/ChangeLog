@@ -1,5 +1,13 @@
 2008-03-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* sets_tcl.tcl (::struct::set::S_subtract,::struct::set::S_exclude):
+	* sets.testsuite: Added an explicit check for the existence of the
+	  variable so that we can report the actual name of the missing
+	  variable instead of the name internally used by the
+	  implementation. Modified the relevant testcases to use a
+	  variable name different from the internal name to expose this
+	  properly. This should fix [Bug 1680176].
+
 	* sets/m.c (sm_ADD): Brought the behaviour of method 'add' back
 	* sets.testsuite: into line with the behaviour of 'include',
 	* sets.tcl: i.e. create a missing variable, in both Tcl and critcl
