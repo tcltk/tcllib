@@ -43,14 +43,19 @@ sm_ADD (ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* obj
 	return TCL_ERROR;
     }
 
-    val = Tcl_ObjGetVar2(interp, objv[2], NULL, TCL_LEAVE_ERR_MSG);
-    if (val == NULL) {
-	return TCL_ERROR;
-    }
-    if (s_get (interp, val, &vs) != TCL_OK) {
-	return TCL_ERROR;
-    }
     if (s_get (interp, objv[3], &s) != TCL_OK) {
+	return TCL_ERROR;
+    }
+
+    val = Tcl_ObjGetVar2(interp, objv[2], NULL, 0);
+    if (val == NULL) {
+	/* Create missing variable */
+
+	vs  = s_dup (NULL);
+	val = s_new (vs);
+	(void) Tcl_ObjSetVar2 (interp, objv[2], NULL, val, 0);
+
+    } else if (s_get (interp, val, &vs) != TCL_OK) {
 	return TCL_ERROR;
     }
 
@@ -350,7 +355,7 @@ sm_INCLUDE (ClientData clientData, Tcl_Interp* interp, int objc, Tcl_Obj* CONST*
 	return TCL_ERROR;
     }
 
-    val = Tcl_ObjGetVar2(interp, objv[2], NULL, TCL_LEAVE_ERR_MSG);
+    val = Tcl_ObjGetVar2(interp, objv[2], NULL, 0);
     if (val == NULL) {
 	/* Create missing variable */
 
