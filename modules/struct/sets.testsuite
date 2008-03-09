@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2004-2008 by Andreas Kupries
 #
-# RCS: @(#) $Id: sets.testsuite,v 1.5 2008/03/09 04:24:37 andreas_kupries Exp $
+# RCS: @(#) $Id: sets.testsuite,v 1.6 2008/03/09 04:38:47 andreas_kupries Exp $
 
 #----------------------------------------------------------------------
 
@@ -401,11 +401,11 @@ test set-${impl}-11.1 {exclude} {
     set msg
 } [tmWrong exclude {Avar element} 1]
 
-test set-${impl}-11.2 {exclude} {
-    catch {unset A}
-    catch {setop exclude A B} msg
+test set-${impl}-11.2 {exclude, non-existent variable} {
+    catch {unset X}
+    catch {setop exclude X B} msg
     set msg
-} {can't read "A": no such variable}
+} {can't read "X": no such variable}
 
 test set-${impl}-11.3 {exclude} {
     catch {unset A} ; set A $sa
@@ -466,11 +466,11 @@ test set-${impl}-13.1 {subtract} {
     set msg
 } [tmWrong subtract {Avar B} 1]
 
-test set-${impl}-13.2 {subtract} {
-    catch {unset A}
-    catch {setop subtract A B} msg
+test set-${impl}-13.2 {subtract, non-existent variable} {
+    catch {unset X}
+    catch {setop subtract X B} msg
     set msg
-} {can't read "A": no such variable}
+} {can't read "X": no such variable}
 
 test set-${impl}-13.3 {subtract} {
     catch {unset A} ; set A $sa
