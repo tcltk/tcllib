@@ -11,12 +11,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: cksum.tcl,v 1.9 2006/09/19 23:36:15 andreas_kupries Exp $
+# $Id: cksum.tcl,v 1.10 2008/03/10 04:31:30 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::crc {
-    variable cksum_version 1.1.1
+    variable cksum_version 1.1.2
 
     namespace export cksum
 
@@ -142,8 +142,8 @@ proc ::crc::cksum {args} {
     while {[string match -* [set option [lindex $args 0]]]} {
         switch -glob -- $option {
             -file*   { set opts(-filename) [Pop args 1] }
-            -chan*   { set opts(-filename) [Pop args 1] }
-            -chunk*  { set opts(-filename) [Pop args 1] }
+            -chan*   { set opts(-channel) [Pop args 1] }
+            -chunk*  { set opts(-chunksize) [Pop args 1] }
             -for*    { set opts(-format)   [Pop args 1] }
             -command { set opts(-command)  [Pop args 1] }
             default {
