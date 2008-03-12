@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: changelog.tcl,v 1.6 2008/03/09 05:05:05 andreas_kupries Exp $
+# RCS: @(#) $Id: changelog.tcl,v 1.7 2008/03/12 17:52:39 andreas_kupries Exp $
 
 
 # FUTURE -- Expand pre-parsed log (nested lists) into flat structures
@@ -257,4 +257,4 @@ proc ::doctools::changelog::toDoctools {title module version entries} {
 #------------------------------------
 # Module initialization
 
-package provide doctools::changelog 0.1.1
+package provide doctools::changelog 0.1.2
