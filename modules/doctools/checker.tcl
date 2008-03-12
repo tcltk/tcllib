@@ -4,8 +4,7 @@
 # Code used inside of a checker interpreter to ensure correct usage of
 # doctools formatting commands.
 #
-# Copyright (c) 2003 Andreas Kupries <andreas_kupries@sourceforge.net>
-# Copyright (c) 2004 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2008 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 # L10N
 
@@ -523,7 +522,7 @@ proc option {text} {
 }
 proc widget {text} {
     if {[Is done]} {Error nodonecmd}
-    widget $text
+    fmt_widget $text
 }
 proc fun {text} {
     if {[Is done]} {Error nodonecmd}
