@@ -1,3 +1,8 @@
+2008-03-14  Andreas Kupries  <andreask@activestate.com>
+
+	* statistics.man: Cleaned up a bit, replaced deprecated [nl] usage
+	  with [para].
+
 2008-02-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* linalg.test (eigenvectors-1.0): Moved brace to correct location.
