@@ -1609,10 +1609,10 @@ proc ::grammar::fa::op::constructor {cmd} {
 proc ::grammar::fa::op::cons {} {
     variable cons
     if {$cons ne ""} {return $cons}
-    return -code errror "No constructor for FA container was established."
+    return -code error "No constructor for FA container was established."
 }
 
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide grammar::fa::op 0.4
+package provide grammar::fa::op 0.4.1
