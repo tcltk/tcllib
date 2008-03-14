@@ -1,3 +1,9 @@
+2008-03-14  Andreas Kupries  <andreask@activestate.com>
+
+	* spf.tcl (::spf::_exists): Fixed bad use of 'return', reported in
+	* pkgIndex.tcl: [SF Tcllib Bug 1826418], by Erik Leunissen. Bumped
+	  to version 1.1.1.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
