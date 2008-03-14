@@ -1,3 +1,9 @@
+2008-03-14  Andreas Kupries   <andreask@activestate.com>
+
+	* faop.tcl (::grammar::fa::op::cons): Fixed bad return code,
+	* pkgIndex.tcl: reported in [SF Tcllib Bug 1826418], by Erik
+	* faop.man: Leunissen. Bumped to version 0.4.1.
+
 2007-12-03  Andreas Kupries  <andreask@activestate.com>
 
 	* tests/faop_regex.test: Added examples for to(Tcl)Regexp provided
