@@ -82,7 +82,7 @@ Get the value of an option given as part of the [term singeExperiment] command.
 [arg_def string keyword] Given keyword (without leading minus)
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::simulation::montecarlo::hasOption] [arg keyword]]
 
@@ -92,7 +92,7 @@ Returns 1 if the option is available, 0 if not.
 [arg_def string keyword] Given keyword (without leading minus)
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::simulation::montecarlo::setOption] [arg keyword] [arg value]]
 
@@ -103,7 +103,7 @@ Set the value of the given option.
 [arg_def string value] (New) value for the option
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::simulation::montecarlo::setTrialResult] [arg values]]
 
@@ -113,7 +113,7 @@ Store the results of the trial for later analysis
 [arg_def list values] List of values to be stored
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::simulation::montecarlo::setExpResult] [arg values]]
 
@@ -124,21 +124,21 @@ phase).
 [arg_def list values] List of values to be stored
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::simulation::montecarlo::getTrialResults]]
 
 Get the results of all individual trials for analysis (typically used in
 the final phase or after completion of the command).
 
-[nl]
+[para]
 
 [call [cmd ::simulation::montecarlo::getExpResult]]
 
 Get the results of the entire experiment (typically used in the final
 phase or even after completion of the [term singleExperiment] command).
 
-[nl]
+[para]
 
 [call [cmd ::simulation::montecarlo::transposeData] [arg values]]
 
@@ -158,10 +158,10 @@ There are two main procedures: [term integral2D] and [term singleExperiment].
 
 Integrate a function over a two-dimensional region using a Monte Carlo
 approach.
-[nl]
+[para]
 Arguments PM
 
-[nl]
+[para]
 
 [call [cmd ::simulation::montecarlo::singleExperiment] [arg args]]
 

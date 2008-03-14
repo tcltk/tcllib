@@ -1,8 +1,16 @@
+2008-03-14  Andreas Kupries <andreask@activestate.com>
+
+	* annealing.man: Cleaned up a bit, replaced deprecated [nl] usage
+	* montecarlo.man: with [para].
+	* random.man:
+
 2008-02-22  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* annealing.tcl: Added function for combinatorial problems
 	* annealing.man: Described new function
 
 2008-01-11  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* annealing.tcl: Package for simulated annealing added
 	* annealing.man: Description of simulated annealing added
 	* montecarlo.tcl: Package for Monte Carlo simulation added
