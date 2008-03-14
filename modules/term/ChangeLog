@@ -1,3 +1,9 @@
+2008-03-14  Andreas Kupries  <andreask@activestate.com>
+
+	* ansi/code/ctrl.tcl (DEFC): Fixed bad use of 'args' argument,
+	* pkgIndex.tcl: reported in [SF Tcllib Bug 1826418], by Erik
+	* ansi_cctrl.man: Leunissen. Bumped to version 0.1.1.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
