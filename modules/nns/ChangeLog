@@ -1,3 +1,8 @@
+2008-03-14  Andreas Kupries  <andreask@activestate.com>
+
+	* nns_client.man: Cleaned up a bit, replaced deprecated [lst_item]
+	  usage with [def].
+
 2008-02-29  Andreas Kupries  <andreask@activestate.com>
 
 	* nns_auto.tcl (::nameserv::auto::Rebind, ::nameserv::auto::bind):
