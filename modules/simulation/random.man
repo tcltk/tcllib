@@ -44,7 +44,7 @@ distribution: the value is either 1 or 0, with a chance p to be 1
 [arg_def float p] Chance the outcome is 1
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::simulation::random::prng_Discrete] [arg n]]
 
@@ -55,7 +55,7 @@ probability.
 [arg_def int n] Number of different values (ranging from 0 to n-1)
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::simulation::random::prng_Poisson] [arg lambda]]
 
@@ -83,7 +83,7 @@ between "min" and "max".
 [arg_def float max] Maximum number that will be generated
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::simulation::random::prng_Exponential] [arg min] [arg mean]]
 
@@ -95,7 +95,7 @@ with a given minimum value and a given mean value.
 [arg_def float mean] Mean value for the numbers
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::simulation::random::prng_Normal] [arg mean] [arg stdev]]
 
@@ -107,7 +107,7 @@ with a given mean value and a given standard deviation.
 [arg_def float stdev] Standard deviation
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::simulation::random::prng_Pareto] [arg min] [arg steep]]
 
@@ -119,7 +119,7 @@ Pareto with a given minimum value and a given distribution steepness.
 [arg_def float steep] Steepness of the distribution
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::simulation::random::prng_Gumbel] [arg min] [arg f]]
 
@@ -135,7 +135,7 @@ probability density function is:
 [arg_def float f] Scale factor for the values
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::simulation::random::prng_chiSquared] [arg df]]
 
@@ -163,7 +163,7 @@ uniformly spread over a disk of given radius.
 [arg_def float rad] Radius of the disk
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::simulation::random::prng_Sphere] [arg rad]]
 
@@ -174,7 +174,7 @@ uniformly spread over the surface of a sphere of given radius.
 [arg_def float rad] Radius of the disk
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::simulation::random::prng_Ball] [arg rad]]
 
@@ -185,7 +185,7 @@ uniformly spread within a ball of given radius.
 [arg_def float rad] Radius of the ball
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::simulation::random::prng_Rectangle] [arg length] [arg width]]
 
@@ -197,7 +197,7 @@ uniformly spread over a rectangle.
 [arg_def float width] Width of the rectangle (y-direction)
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::simulation::random::prng_Block] [arg length] [arg width] [arg depth]]
 
