@@ -48,9 +48,9 @@ proc ::term::ansi::code::ctrl::DEF {name esc value} {
     return
 }
 
-proc ::term::ansi::code::ctrl::DEFC {name args script} {
+proc ::term::ansi::code::ctrl::DEFC {name arguments script} {
     variable  ctrl
-    proc             $name $args $script
+    proc             $name $arguments $script
     lappend   ctrl   $name
     namespace export $name
     return
@@ -263,7 +263,7 @@ namespace eval ::term::ansi::code::ctrl {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide term::ansi::code::ctrl 0.1
+package provide term::ansi::code::ctrl 0.1.1
 
 ##
 # ### ### ### ######### ######### #########

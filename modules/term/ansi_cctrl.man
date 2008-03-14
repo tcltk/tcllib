@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin term::ansi::code::ctrl n 0.1]
-[copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2006-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Terminal control}]
 [titledesc {ANSI control sequences}]
 [require Tcl 8.4]
 [require term::ansi::code       [opt 0.1]]
-[require term::ansi::code::ctrl [opt 0.1]]
+[require term::ansi::code::ctrl [opt 0.1.1]]
 [description]
 
 This package provides symbolic names for the ANSI control
