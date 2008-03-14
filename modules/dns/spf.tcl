@@ -20,7 +20,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: spf.tcl,v 1.4 2004/07/30 23:58:06 patthoyts Exp $
+# $Id: spf.tcl,v 1.5 2008/03/14 21:21:12 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require dns;                    # tcllib 1.3
@@ -30,8 +30,8 @@ package require struct::list;           # tcllib 1.7
 package require uri::urn;               # tcllib 1.3
 
 namespace eval spf {
-    variable version 1.1.0
-    variable rcsid {$Id: spf.tcl,v 1.4 2004/07/30 23:58:06 patthoyts Exp $}
+    variable version 1.1.1
+    variable rcsid {$Id: spf.tcl,v 1.5 2008/03/14 21:21:12 andreas_kupries Exp $}
 
     namespace export spf
 
@@ -311,7 +311,7 @@ proc ::spf::_exists {ip domain sender param} {
     if {[catch {A $testdomain}]} {
         return 0
     }
-    return return 1
+    return 1
 }
 
 # 5.1: Redirected query
