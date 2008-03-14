@@ -1,3 +1,8 @@
+2008-03-14  Andreas Kupries  <andreask@activestate.com>
+
+	* picoirc.man: Cleaned up a bit, replaced deprecated [nl] usage
+	  with [para].
+
 2007-10-19  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* picoirc.man: Added an alternative that is somewhat simpler 
