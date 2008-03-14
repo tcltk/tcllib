@@ -63,7 +63,7 @@ command.
 [arg_def string keyword] Given keyword (without leading minus)
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::simulation::annealing::hasOption] [arg keyword]]
 
@@ -73,7 +73,7 @@ Returns 1 if the option is available, 0 if not.
 [arg_def string keyword] Given keyword (without leading minus)
 [list_end]
 
-[nl]
+[para]
 
 [call [cmd ::simulation::annealing::setOption] [arg keyword] [arg value]]
 
