@@ -7,13 +7,13 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ini.tcl,v 1.13 2007/08/20 21:03:17 andreas_kupries Exp $
+# RCS: @(#) $Id: ini.tcl,v 1.14 2008/03/14 21:55:42 andreas_kupries Exp $
 
-package provide inifile 0.2.1
+package provide inifile 0.2.2
 
 namespace eval ini {
-    variable nexthandle; if {![info exists nexthandle]} {set nexthandle 0}
-    variable commentchar; if {![info exists commentchar]} {set commentchar \;}
+    variable nexthandle  0
+    variable commentchar \;
 }
 
 proc ::ini::open {ini {mode r+}} {

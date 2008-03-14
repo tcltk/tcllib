@@ -1,3 +1,9 @@
+2008-03-14  Andreas Kupries  <andreask@activestate.com>
+
+	* ini.tcl: Simplified the initialization code. Bumped version to
+	* ini.man: 0.2.2.
+	* pkgIndex.tcl:
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
