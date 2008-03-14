@@ -122,7 +122,7 @@ called when users join, leave or change names.
 [arg action] is either entered, left or nickchange and [arg nick]
 is the user doing the action. [arg newnick] is
 the new name if [arg action] is nickchange.
-[nl]
+[para]
 [emph NOTE]: [arg channel] is often empty for these messages as nick
 activities are global for the irc server. You will have
 to manage the nick for all connected channels yourself.
@@ -132,11 +132,11 @@ to manage the nick for all connected channels yourself.
 This is called to request a version string to use to
 override the internal version. If implemented, you should
 return as colon delimited string as
-[nl]
+[para]
   Appname:Appversion:LibraryVersion
-[nl]
+[para]
 For example, the default is
-[nl]
+[para]
   PicoIRC:[lb]package provide picoirc[rb]:Tcl [lb]info patchlevel[rb]
 
 [opt_def debug "[arg type] [arg raw]"]
@@ -145,7 +145,7 @@ called when data is either being read or written to the network
 socket. [arg type] is set to [const read] when reading data and
 [const write] if the data is to be written. [arg raw] is the
 unprocessed IRC protocol data.
-[nl]
+[para]
 In both cases the application can return a break error code to
 interrupt further processing of the raw data. If this is a 
 [const read] operation then the package will not handle this line. If
