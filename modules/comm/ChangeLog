@@ -1,3 +1,8 @@
+2008-03-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* comm_wire.man: Changed 'require' information to show that this
+	  manpage belongs to the documentation for the package 'comm'.
+
 2008-02-29  Andreas Kupries  <andreask@activestate.com>
 
 	* comm.tcl: Accepted Hemang's <hemanglavana@users.sourceforge.net>

@@ -2,7 +2,7 @@
 [copyright {2005 Docs. Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Remote communication}]
 [titledesc {The comm wire protocol}]
-[require comm_wire]
+[require comm]
 [description]
 
 [para]
