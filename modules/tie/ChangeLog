@@ -1,4 +1,9 @@
-2008-02-27  Andreas Kupries  <akupries@shaw.ca>
+2008-03-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tie_std.man: Added documentation for the internal packages of
+	  this module, to clarify their nature as such.
+
+2008-02-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tie_file.tcl (Replay): Fixed bug in the changes made in the last
 	* pkgIndex.tcl: commit. Tried to use a command (uplevel) removed
