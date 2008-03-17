@@ -1,3 +1,8 @@
+2008-03-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sha256.man: Added documentation for the sha256 package.
+	* sha1.man: Fixed typos.
+
 2008-01-28  Andreas Kupries  <andreask@activestate.com>
 
 	* sha256c.tcl: Disabled the critcl::debug and critcl::cheaders -g

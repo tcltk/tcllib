@@ -10,7 +10,7 @@
 This package provides an implementation in Tcl of the SHA1
 message-digest algorithm as specified by FIPS PUB 180-1 (1). This
 algorithm takes a message and generates a 160-bit digest from the
-input. The SHA1 algorithm is related to the MD4 algorith (2) but has
+input. The SHA1 algorithm is related to the MD4 algorithm (2) but has
 been strengthend against certain types of cryptographic attack. SHA1
 should be used in preference to MD4 or MD5 in new applications.
 
@@ -135,7 +135,7 @@ ae6251fa51b95b18cba2be95eb031d07475ff03c
 % sha1::SHA1Update $tok "Tcl "
 % sha1::SHA1Update $tok "does "
 % sha1::SHA1Update $tok "SHA1"
-% sha1::Hex [md5::MD5Final $tok]
+% sha1::Hex [sha1::SHA1Final $tok]
 285a6a91c45a9066bf39fcf24425796ef0b2a8bf
 }]
 
