@@ -1,3 +1,14 @@
+2008-03-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* adjust.man: Added documentation for the packages the
+	* repeat.man: textutil bundle consists of.
+	* split.man:
+	* string.man:
+	* tabify.man:
+	* trim.man:
+	* textutil.man: Noted that the bundle package is now deprecated
+	  and will go away in the future.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

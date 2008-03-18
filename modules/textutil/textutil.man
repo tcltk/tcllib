@@ -5,9 +5,29 @@
 [require textutil [opt 0.7.1]]
 [description]
 
-The [package textutil] package provides commands that manipulate
+The package [package textutil] provides commands that manipulate
 strings or texts (a.k.a. long strings or string with embedded newlines
 or paragraphs).
+
+It is actually a bundle providing the commands of the six packages
+
+[list_begin definitions]
+[def [package textutil::adjust]]
+[def [package textutil::repeat]]
+[def [package textutil::split]]
+[def [package textutil::string]]
+[def [package textutil::tabify]]
+[def [package textutil::trim]]
+[list_end]
+
+in the namespace [namespace textutil].
+
+[para]
+
+The bundle is [emph deprecated], and it will be removed in a future
+release of Tcllib, after the next release. It is recommended to use the
+relevant sub packages instead for whatever functionality is needed by
+the using package or application.
 
 [para]
 
