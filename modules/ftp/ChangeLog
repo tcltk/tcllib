@@ -1,3 +1,8 @@
+2008-03-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ftp_geturl.man: Separated the documentation of the ftp and
+	* ftp.man: ftp::geturl packages into two files.
+
 2007-09-13  Andreas Kupries  <andreask@activestate.com>
 
 	* ftp_geturl.tcl (::ftp::geturl): Fixed the handling of urls which
