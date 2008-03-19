@@ -1,1 +1,1 @@
-help	How to use help.
+help		How to use help.
