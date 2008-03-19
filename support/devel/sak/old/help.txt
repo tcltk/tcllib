@@ -68,10 +68,10 @@
                          columns. To delete unnecessary data in merged
                          results.
 
-        validate ?module..?     - Check listed modules for problems.
+        oldvalidate ?module..?     - Check listed modules for problems.
                                   For all modules if none specified.
 
-        validate_v ?module..?   - Check listed modules for for version
+        oldvalidate_v ?module..?   - Check listed modules for for version
                                   problems. For all modules if none
                                   specified.
 
