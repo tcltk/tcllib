@@ -1,5 +1,10 @@
 2008-03-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* support/devel/sak/doc/cmd.tcl: Fixed a typo.
+	* support/devel/sak/doc/topic.txt: Deeper indentation.
+	* support/devel/sak/help/topic.txt: Deeper indentation.
+	* support/devel/sak/old/topic.txt: Deeper indentation.
+
 	* support/devel/sak/test/run.tcl: Replaced custom color code with
 	  use of the new package sak::color.
 	* support/devel/sak/test/cmd.tcl: Fixed a typo.
