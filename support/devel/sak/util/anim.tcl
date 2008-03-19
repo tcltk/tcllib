@@ -51,6 +51,8 @@ proc ::sak::animate::Extend {sv} {
 # ###
 
 namespace eval ::sak::animate {
+    namespace export init next last
+
     variable  prefix {
 	{*   }	{*   }	{*   }	{*   }	{*   }
 	{ *  }	{ *  }	{ *  }	{ *  }	{ *  }
