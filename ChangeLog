@@ -1,5 +1,15 @@
 2008-03-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* support/devel/sak/old/help.txt: Renamed old validation command.
+	* sak.tcl: Renamed old validation command.
+
+	* support/devel/sak/validate/cmd.tcl: New validation code, currently
+	* support/devel/sak/validate/help.txt: only checking documentation.
+	* support/devel/sak/validate/manpages.tcl:
+	* support/devel/sak/validate/pkgIndex.tcl:
+	* support/devel/sak/validate/topic.txt:
+	* support/devel/sak/validate/validate.tcl:
+
 	* support/devel/sak/doc/cmd.tcl: Fixed a typo.
 	* support/devel/sak/doc/topic.txt: Deeper indentation.
 	* support/devel/sak/help/topic.txt: Deeper indentation.

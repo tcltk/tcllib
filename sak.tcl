@@ -2055,7 +2055,7 @@ proc _bench_all {paths flags interp norm format verbose output} {
 
 # -------------------------------------------------------------------------
 
-proc __validate_v {} {
+proc __oldvalidate_v {} {
     global argv
     if {[llength $argv] == 0} {
 	_validate_all_v
@@ -2097,7 +2097,7 @@ proc _validate_module_v {m} {
 }
 
 
-proc __validate {} {
+proc __oldvalidate {} {
     global argv
     if {[llength $argv] == 0} {
 	_validate_all
