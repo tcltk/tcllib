@@ -1,3 +1,12 @@
+2008-03-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* support/devel/sak/util/pkgIndex.tcl: Added two new sak support
+	* support/devel/sak/util/color.tcl: packages to handle colorization
+	* support/devel/sak/util/feedback.tcl: and common feedback ops (on
+	  top of the animation).
+
+	* support/devel/sak/util/anim.tcl: Exported the public commands.
+
 2008-03-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* support/devel/sak/test/run.tcl (::sak::test::run::Summary):
