@@ -1,3 +1,12 @@
+2008-03-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* unicode.man: Added the standard section about feedback.
+	* stringprep.man: 
+
+	* stringprep_data.man: Wrote documentation for the two helper
+	* unicode_data.man: packages holding the data tables for the main
+	  (public) packages.
+
 2008-03-14  Andreas Kupries  <andreask@activestate.com>
 
 	* stringprep.man: Cleaned up a bit, replaced deprecated [nl] usage
