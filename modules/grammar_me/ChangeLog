@@ -1,3 +1,7 @@
+2008-03-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* gasm.man: Added documentation for package 'grammar::me::cpu::gasm'.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
