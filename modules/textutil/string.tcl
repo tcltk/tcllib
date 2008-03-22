@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: string.tcl,v 1.1 2006/04/21 04:42:28 andreas_kupries Exp $
+# RCS: @(#) $Id: string.tcl,v 1.2 2008/03/22 16:03:11 mic42 Exp $
 
 # ### ### ### ######### ######### #########
 ## Requirements
@@ -87,15 +87,13 @@ proc ::textutil::string::longestCommonPrefix {args} {
 }
 
 proc ::textutil::string::longestCommonPrefixList {list} {
-    if {[llength $list] == 0} {
-	return ""
-    } elseif {[llength $list] == 1} {
+    if {[llength $list] <= 1} {
 	return [lindex $list 0]
     }
 
-    set list [lsort  $list]
-    set min  [lindex $list 0]
-    set max  [lindex $list end]
+    set list [lsort $list]
+    set min [lindex $list 0]
+    set max [lindex $list end]
 
     # Min and max are the two strings which are most different. If
     # they have a common prefix, it will also be the common prefix for
@@ -104,18 +102,16 @@ proc ::textutil::string::longestCommonPrefixList {list} {
     # Fast bailouts for common cases.
 
     set n [string length $min]
-    if {$n == 0}                         {return ""}
+    if {$n == 0} {return ""}
     if {0 == [string compare $min $max]} {return $min}
 
     set prefix ""
-    for {set i 0} {$i < $n} {incr i} {
-	if {0 == [string compare [set x [string range $min 0 $i]] [string range $max 0 $i]]} {
-	    set prefix $x
-	    continue
-	}
-	break
+    set i 0
+    while {[string index $min $i] == [string index $max $i]} {
+	append prefix [string index $min $i]
+	if {[incr i] > $n} {break}
     }
-    return $prefix
+    set prefix
 }
 
 # ### ### ### ######### ######### #########
@@ -132,4 +128,4 @@ namespace eval ::textutil::string {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil::string 0.7
+package provide textutil::string 0.7.1
