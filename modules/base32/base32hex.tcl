@@ -7,7 +7,7 @@
 # Management code for switching between Tcl and C accelerated
 # implementations.
 #
-# RCS: @(#) $Id: base32hex.tcl,v 1.2 2007/03/23 17:31:17 andreas_kupries Exp $
+# RCS: @(#) $Id: base32hex.tcl,v 1.3 2008/03/22 23:46:42 andreas_kupries Exp $
 
 # @mdgen EXCLUDE: base32hex_c.tcl
 
@@ -138,6 +138,13 @@ proc ::base32::hex::Implementations {} {
 
 proc ::base32::hex::KnownImplementations {} {
     return {critcl tcl}
+}
+
+proc ::base32::hex::Names {} {
+    return {
+	critcl {tcllibc based}
+	tcl    {pure Tcl}
+    }
 }
 
 # ### ### ### ######### ######### #########

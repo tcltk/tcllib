@@ -1,3 +1,14 @@
+2008-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* base32hex.tcl: Added missing implementation of 'Names' for use
+	  by TestAccelInit.
+	* base32hex.test: Cleaned up to use the standard TestAccel*
+	  commands for handling of accelerators in a testsuite. Moved
+	  loading of base32::core to testing section, as that internal
+	  package is implicitly tested as well.	
+	* base32.test: Moved loading of base32::core to testing section,
+	  as that internal package is implicitly tested as well.
+
 2008-01-28  Andreas Kupries  <andreask@activestate.com>
 
 	* base32hex_c.tcl: Disabled the critcl::debug and cheaders -g
