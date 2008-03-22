@@ -1,3 +1,10 @@
+2008-03-22  Michael Schlenker <mic42@users.sourceforge.net>
+
+        * string.tcl:   Faster longestCommonPrefixList proc
+	* string.bench: Bench file for ::textutil::string package
+	* string.man: 
+        * pkgIndex.tcl: subpackage version to 0.7.1
+
 2008-03-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* adjust.man: Added documentation for the packages the
