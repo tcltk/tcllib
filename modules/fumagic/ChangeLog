@@ -1,3 +1,11 @@
+2008-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* rtcore.man: Added documentation for the runtime package
+	* cgen.man: 'fileutil::magic::rt', and the two compiler packages
+	* cfront.man: 'fileutil::magic::cgen' and 'fileutil::magic::cfront'.
+
+	* cfront.tcl: Fixed a typo in the export clause.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

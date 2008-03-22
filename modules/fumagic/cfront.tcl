@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cfront.tcl,v 1.6 2007/06/23 03:39:34 andreas_kupries Exp $
+# RCS: @(#) $Id: cfront.tcl,v 1.7 2008/03/22 01:10:32 andreas_kupries Exp $
 
 #####
 #
@@ -52,7 +52,7 @@ namespace eval ::fileutil::magic::cfront {
     # Make backend functionality accessible
     namespace import ::fileutil::magic::cgen::*
 
-    namespace export compile prodef install
+    namespace export compile procdef install
 }
 
 # parse an individual line
