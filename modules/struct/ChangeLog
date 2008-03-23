@@ -1,3 +1,18 @@
+2008-03-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph/tests/nodes.test: Extended with tests to capture the
+	  situation of [Bug 1923685]. They properly crash without the fix
+	  and pass when the fix is applied.
+
+	* graph/util.h (ASSERT): Extended to reported the asserted expression,
+	  and the file and line the assert is at.
+
+	* graph/filter.c (filter_mode_n_in, filter_mode_n_out): Fixed bug
+	  in checking for duplicate nodes. Allowed dups to remain, causing
+	  parallel arcs more than the number of total nodes to trigger the
+	  overrun assertion. Reported as [Bug 1923685] by Georgios Petasis
+	  <petasis@users.sourceforge.net>. Thanks.
+
 2008-03-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sets_tcl.tcl (::struct::set::S_subtract,::struct::set::S_exclude):
