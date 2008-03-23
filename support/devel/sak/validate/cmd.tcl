@@ -52,7 +52,14 @@ if {![sak::util::checkModules argv]} return
 
 if {$log} { set raw 0 }
 
-sak::validate::$cmd $argv $raw $log $stem
+array set mode {
+    00 short
+    01 log
+    10 verbose
+    11 _impossible_
+}
+
+sak::validate::$cmd $argv $mode($raw$log) $stem
 
 ##
 # ###
