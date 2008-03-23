@@ -24,26 +24,26 @@ proc ::uevent::bind {tag event command} {
     variable ex
     variable tcounter
 
-    log::debug [list bind: $tag $event -> $command]
+    log::debug [::list bind: $tag $event -> $command]
 
-    set tec [list $tag $event $command]
+    set tec [::list $tag $event $command]
 
     # Same combination as before, same token
     if {[info exists ex($tec)]} {
-	log::debug [list known! $ex($tec)]
+	log::debug [::list known! $ex($tec)]
 	return $ex($tec)
     }
 
     # New token, and enter everything ...
 
-    set te [list $tag $event]
+    set te [::list $tag $event]
     set t uev[incr tcounter]
 
     set     tk($t) $tec
     set     ex($tec) $t
     lappend db($te)  $t
 
-    log::debug [list new! $t]
+    log::debug [::list new! $t]
     return $t
 }
 
@@ -54,7 +54,7 @@ proc ::uevent::unbind {token} {
     variable tk
     variable ex
 
-    log::debug [list unbind: $token]
+    log::debug [::list unbind: $token]
 
     if {![info exists tk($token)]} return
 
@@ -85,23 +85,71 @@ proc ::uevent::generate {tag event {details {}}} {
     # Generates the event on the tag, with detail information (a
     # dictionary). This notifies all registered observers.  The
     # notifications are put into the Tcl event queue via 'after 0'
-    # events, decoupling them in time from them issueing code.
+    # events, decoupling them in time from the issueing code.
 
     variable db
     variable tk
 
-    log::debug [list generate: $tag $event $details]
+    log::debug [::list generate: $tag $event $details]
 
-    set key [list $tag $event]
+    set key [::list $tag $event]
     if {![info exists db($key)]} return
 
     foreach t $db($key) {
 	set cmd [lindex $tk($t) 2]
-	log::debug [list trigger! $t = $cmd]
+	log::debug [::list trigger! $t = $cmd]
 	after 0 [linsert $cmd end $tag $event $details]
     }
 
     return
+}
+
+proc ::uevent::list {args} {
+    # list           - Return all known tags
+    # list tag       - Return all events bound to the tag
+    # list tag event - Return commands bound to event in tag
+
+    switch -- [llength $args] {
+	0 {
+	    variable db
+	    # Return all known tags.
+	    set res {}
+	    foreach te [array names db] {
+		lappend res [lindex $te 0]
+	    }
+	    return [lsort -uniq $res]
+	}
+	1 {
+	    variable db
+	    # Return all known events for a specific tag
+	    set res {}
+	    set tag [lindex $args 0]
+	    foreach te [array names db [::list $tag *]] {
+		lappend res [lindex $te 1]
+	    }
+	    if {![llength $res]} {
+		return -code error "Tag \"$tag\" is not known"
+	    }
+	    return $res
+	}
+	2 {
+	    variable db
+	    variable tk
+	    # Return all commands bound to a tag/event combination
+	    if {![info exists db($args)]} {
+		foreach {tag event} $args break
+		return -code error "Tag/Event \"$tag\"/\"$event\" is not known"
+	    }
+	    set res {}
+	    foreach t $db($args) {
+		lappend res [lindex $tk($t) 2]
+	    }
+	    return $res
+	}
+	default {
+	    return -code error "wrong#args: expected ?tag? ?event?"
+	}
+    }
 }
 
 # ### ### ### ######### ######### #########
@@ -124,12 +172,14 @@ namespace eval        ::uevent {
     variable ex ; array set ex {}
 
     variable tcounter 0
+
+    namespace export bind unbind generate list
 }
 
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide uevent 0.1.3
+package provide uevent 0.2
 
 ##
 # ### ### ### ######### ######### #########
