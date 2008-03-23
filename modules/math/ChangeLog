@@ -1,3 +1,8 @@
+2008-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* constants.test: Fixed declaration of package under test, was
+	  wrongly declared as support.
+
 2008-03-14  Andreas Kupries  <andreask@activestate.com>
 
 	* statistics.man: Cleaned up a bit, replaced deprecated [nl] usage
