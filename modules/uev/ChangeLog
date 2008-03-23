@@ -1,3 +1,11 @@
+2008-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* uevent.tcl: Added a new command 'uevent::list', in fulfilment of
+	* uevent.man: [Bug 1804388]. Extended the documentation. Bumped
+	* pkgIndex.tcl: the package to version 0.2.
+
+	* uevent.test: New, a testsuite for the package.
+
 2008-03-09  Michael Schlenker <mic42@users.sourceforge.net>
 
         * uevent.tcl:  Fixed wrong variable name tex in unbind.
