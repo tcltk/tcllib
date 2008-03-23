@@ -39,6 +39,14 @@
 	testsuites
 		Report modules and packages without testsuites.
 
+		Note that this command is _not_ actually executing the
+		testsuites. That is done via
+
+			sak test run ...
+
+		See its documentation (sak help test) for more
+		information.
+
 	syntax
 		Scan modules and packages using various tools
 		statically checking Tcl syntax, and report their
