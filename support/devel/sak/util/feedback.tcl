@@ -3,6 +3,30 @@
 ##
 # ###
 
+# Feedback modes
+#
+# [short]   Animated short feedback on stdout, no logging
+# [log]     Animated short feedback on stdout, logging to multiple files.
+# [verbose] Logging to stdout
+#
+# Output commands for various destinations:
+#
+# <v> Verbose Log
+# <s> Short Log
+#
+# Handling of the destinations per mode
+#
+#           <s>        <v>
+# [short]   stdout,    /dev/null
+# [log]     stdout,    file
+# [verbose] /dev/null, stdout
+
+# Log files for different things are opened on demand, i.e. on the
+# first write to them. We can configure (per possible log) a string to
+# be written before the first write. Reconfiguring that string for a
+# log clears the flag for that log and causes the string to be
+# rewritten on the next write.
+
 package require sak::animate
 
 namespace eval ::sak::feedback {
@@ -12,46 +36,63 @@ namespace eval ::sak::feedback {
 
 # ###
 
-proc ::sak::feedback::init {araw alog astem {extlist log}} {
-    variable prefix ""
-    variable raw    $araw
-    variable log    $alog
-    variable stem   $astem
-    variable logc   ; unset logc ; array set logc {}
-    variable dst    ""
+proc ::sak::feedback::init {mode stem} {
+    variable  prefix  ""
+    variable  short   [expr {$mode ne "verbose"}]
+    variable  verbose [expr {$mode ne "short"}]
+    variable  tofile  [expr {$mode eq "log"}]
+    variable  lstem   $stem
+    variable  dst     ""
+    variable  lfirst
+    unset     lfirst
+    array set lfirst {}
+    # Note: lchan is _not_ reset. We keep channels, allowing us to
+    #       merge output from different modules, if they are run as
+    #       one unit (Example: validate and its various parts, which
+    #       can be run separately, and together).
+    return
+}
 
-    if {$alog} {
-	foreach e $extlist { set logc($e) [open ${astem}.$e w] }
-    } else {
-	foreach e $extlist { set logc($e) stdout }
-    }
+proc ::sak::feedback::first {dst string} {
+    variable lfirst
+    set lfirst($dst) $string
     return
 }
 
 ###
 
+proc ::sak::feedback::summary {text} {
+    #=|  $text
+    #log $text
+
+    variable short
+    variable verbose
+    if {$short}   { puts                $text }
+    if {$verbose} { puts [_channel log] $text }
+    return
+}
+
+
 proc ::sak::feedback::log {text {ext log}} {
-    variable raw
-    variable log
-    if {!$log && !$raw} return
-    variable logc
-    puts $logc($ext) $text
+    variable verbose
+    if {!$verbose} return
+    puts [_channel $ext] $text
     return
 }
 
 ###
 
 proc ::sak::feedback::! {} {
-    variable raw
-    if {$raw} return
+    variable short
+    if {!$short} return
     variable prefix ""
-	sak::animate::init
+    sak::animate::init
     return
 }
 
 proc ::sak::feedback::+= {string} {
-    variable raw
-    if {$raw} return
+    variable short
+    if {!$short} return
     variable prefix
     append   prefix " " $string
     aNext               $prefix
@@ -59,27 +100,31 @@ proc ::sak::feedback::+= {string} {
 }
 
 proc ::sak::feedback::= {string} {
-    variable raw
-    if {$raw} return
+    variable short
+    if {!$short} return
     variable prefix
     aNext  "$prefix $string"
     return
 }
 
 proc ::sak::feedback::=| {string} {
-    variable raw
-    if {$raw} return
+    variable short
+    if {!$short} return
+
     variable prefix
     aLast  "$prefix $string"
-    variable log
-    if {$log} {
+
+    variable verbose
+    if {$verbose} {
 	variable dst
 	if {[string length $dst]} {
-	    log "$prefix $string" $dst
+	    # inlined 'log'
+	    puts [_channel $dst] "$prefix $string"
 	    set dst ""
 	}
     }
-    set      prefix ""
+
+    set prefix ""
     return
 }
 
@@ -90,15 +135,41 @@ proc ::sak::feedback::>> {string} {
 
 # ###
 
-namespace eval ::sak::feedback {
-    namespace export >> ! += = =| init log
+proc ::sak::feedback::_channel {dst} {
+    variable tofile
+    if {!$tofile} { return stdout }
+    variable lchan
+    if {[info exists lchan($dst)]} {
+	set c $lchan($dst)
+    } else {
+	variable lstem
+	set c [open ${lstem}.$dst w]
+	set lchan($dst) $c
+    }
+    variable lfirst
+    if {[info exists lfirst($dst)]} {
+	puts $c $lfirst($dst)
+	unset lfirst($dst)
+    }
+    return $c
+}
 
-    variable prefix ""
-    variable raw    0
-    variable log    0
-    variable stem   ""
-    variable logc   ; array set logc {}
-    variable dst    ""
+# ###
+
+namespace eval ::sak::feedback {
+    namespace export >> ! += = =| init log summary
+
+    variable  dst      ""
+    variable  prefix   ""
+    variable  short    ""
+    variable  verbose  ""
+    variable  tofile   ""
+    variable  lstem    ""
+    variable  lchan
+    array set lchan {}
+
+    variable  lfirst
+    array set lfirst {}
 }
 
 ##

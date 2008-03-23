@@ -1,3 +1,24 @@
+2008-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* support/devel/sak/validate/help.txt: Clarified that testsuite
+	  validation is not testsuite execution.
+
+	* support/devel/sak/validate/validate.tcl: Added testsuite
+	* support/devel/sak/validate/cmd.tcl: validation, using the new
+	  entrypoints to move summaries after the checking phases, and
+	  updated to the feedback api changes.
+
+	* support/devel/sak/validate/testsuites.tcl: New code, validation
+	  of testsuites (= checking which packages are without).
+
+	* support/devel/sak/validate/manpages.tcl: Reworked for changed
+	  feedback module, split summary generation from main body, and
+	  set up proper multiple entry points.
+
+	* support/devel/sak/util/feedback.tcl: Reworked for easier use
+	  when used from multiple packages which can be run separately and
+	  together. Added support for summary generation.
+
 2008-03-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* support/devel/sak/old/help.txt: Renamed old validation command.
