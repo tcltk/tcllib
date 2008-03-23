@@ -1,9 +1,9 @@
-[manpage_begin uevent n 0.1.3]
+[manpage_begin uevent n 0.2]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {User events}]
 [titledesc {User events}]
 [require Tcl 8.4]
-[require uevent [opt 0.1.3]]
+[require uevent [opt 0.2]]
 [require logger]
 [keywords event bind unbind {generate event}]
 [description]
@@ -103,6 +103,27 @@ system returns to the event loop.
 Generating an event for an unknown tag, or for a
 <[arg tag],[arg event]> combination which has no commands bound to it
 is allowed, such calls will be ignored.
+
+
+[call [cmd ::uevent::list]]
+
+In this form the command returns a list containing the names of all
+tags which have events with commands bound to them.
+
+
+[call [cmd ::uevent::list] [arg tag]]
+
+In this format the command returns a list containing the names of all
+events for the [arg tag] with commands bound to them. Specifying an
+unknown tag, i.e. a tag without event and commands, will cause the
+command to throw an error.
+
+
+[call [cmd ::uevent::list] [arg tag] [arg event]]
+
+In this format the command returns a list containing all commands
+bound to the [arg event] for the [arg tag]. Specifying an unknown tag
+or unknown event, will cause the command to throw an error.
 
 [list_end]
 
