@@ -8,8 +8,7 @@ package require  sak::feedback
 package require  sak::color
 
 getpackage textutil::repeat textutil/repeat.tcl
-#getpackage fileutil         fileutil/fileutil.tcl
-getpackage doctools doctools/doctools.tcl
+getpackage doctools         doctools/doctools.tcl
 
 namespace eval ::sak::validate::manpages {
     namespace import ::textutil::repeat::blank
@@ -20,18 +19,27 @@ namespace eval ::sak::validate::manpages {
     namespace import ::sak::feedback::=
     namespace import ::sak::feedback::=|
     namespace import ::sak::feedback::log
+    namespace import ::sak::feedback::summary
+    rename summary sum
 }
 
 # ###
 
-proc ::sak::validate::manpages {modules raw log stem} {
-    # assert: log => !raw
-    sak::feedback::init $raw $log $stem {log unc fail warn miss}
-    manpages::Do $modules
+proc ::sak::validate::manpages {modules mode stem} {
+    manpages::run $modules $mode $stem
+    manpages::summary
     return
 }
 
-proc ::sak::validate::manpages::Do {modules} {
+proc ::sak::validate::manpages::run {modules mode stem} {
+    sak::feedback::init $mode $stem
+    sak::feedback::first log  "\[ Documentation \] ==============================================="
+    sak::feedback::first unc  "\[ Documentation \] ==============================================="
+    sak::feedback::first fail "\[ Documentation \] ==============================================="
+    sak::feedback::first warn "\[ Documentation \] ==============================================="
+    sak::feedback::first miss "\[ Documentation \] ==============================================="
+    sak::feedback::first none "\[ Documentation \] ==============================================="
+
     # Preprocessing of module names to allow better formatting of the
     # progress output, i.e. vertically aligned columns
 
@@ -50,7 +58,7 @@ proc ::sak::validate::manpages::Do {modules} {
     # - Documentation has neither errors nor warnings.
 
     # Progress report per module: Packages it is working on.
-    # Summary is at module level:
+    # Summary at module level:
     # - Number of packages, number of packages with documentation,
     # - Number of errors, number of warnings.
 
@@ -66,10 +74,6 @@ proc ::sak::validate::manpages::Do {modules} {
 
     Count $modules
     MapPackages
-
-    #!
-    #Head Module
-    #=| "~~ Doc'd / Pkg's !Claimed Errors . Warnings"
 
     InitCounters
     foreach m $modules {
@@ -91,13 +95,12 @@ proc ::sak::validate::manpages::Do {modules} {
 	ModuleSummary
     }
 
-    #!
-    #Head Module
-    #=| "~~ Doc'd / Pkg's !Claimed Errors . Warnings"
-
-    Summary
-
     dt destroy
+    return
+}
+
+proc ::sak::validate::manpages::summary {} {
+    Summary
     return
 }
 
@@ -289,7 +292,7 @@ proc ::sak::validate::manpages::Count {modules} {
 	set l [string length $m]
 	if {$l > $maxml} {set maxml $l}
     }
-    =| "Starting validation of documentation ..."
+    =| "Validate documentation (existence, errors, warnings) ..."
     return
 }
 
@@ -318,6 +321,7 @@ proc ::sak::validate::manpages::ModuleSummary {} {
     variable mwarnings
 
     set complete [F $mhavedoc]/[F $mtotal]
+    set not      "! [F [expr {$mtotal - $mhavedoc}]]"
     set err      "E [F $merrors]"
     set warn     "W [F $mwarnings]"
     set unc      "U [F $munclaimed]"
@@ -328,21 +332,23 @@ proc ::sak::validate::manpages::ModuleSummary {} {
     }
     if {!$mhavedoc && $mtotal} {
 	set complete [=red $complete]
-	>> miss
+	set not      [=red $not]
+	>> none
     } elseif {$mhavedoc < $mtotal} {
 	set complete [=yel $complete]
+	set not      [=yel $not]
 	>> miss
     }
     if {$merrors} {
-	set err [red]$err
-	set warn $warn[rst]
+	set err  [=red $err]
+	set warn [=red $warn]
 	>> fail
     } elseif {$mwarnings} {
 	set warn [=yel $warn]
 	>> warn
     }
 
-    =| "~~ $complete $unc $err $warn"
+    =| "~~ $complete $not $unc $err $warn"
     return
 }
 
@@ -366,8 +372,11 @@ proc ::sak::validate::manpages::Summary {} {
 
     set tot   [F $total]
     set doc   [F $havedoc]
+    set udc   [F [expr {$total - $havedoc}]]
+
     set unc   [F $unclaimed]
     set per   [format %6.2f [expr {$havedoc*100./$total}]]
+    set uper  [format %6.2f [expr {($total - $havedoc)*100./$total}]]
     set err   [F $errors]
     set wrn   [F $warnings]
 
@@ -377,15 +386,20 @@ proc ::sak::validate::manpages::Summary {} {
 
     if {!$havedoc && $total} {
 	set doc [=red $doc]
+	set udc [=red $udc]
     } elseif {$havedoc < $total} {
 	set doc [=yel $doc]
+	set udc [=yel $udc]
     }
 
-    =| ""
-    =| "#Packages:   $tot            #Errors:     $err"
-    =| "#Documented: $doc (${per}%)  #Warnings:   $wrn"
-    =| "#Unclaimed:  $unc"
-    =| ""
+    sum ""
+    sum "Documentation statistics"
+    sum "#Packages:     $tot"
+    sum "#Documented:   $doc (${per}%)"
+    sum "#Undocumented: $udc (${uper}%)"
+    sum "#Unclaimed:    $unc"
+    sum "#Errors:       $err"
+    sum "#Warnings:     $wrn"
     return
 }
 
@@ -412,17 +426,17 @@ namespace eval ::sak::validate::manpages {
     variable maxml 0
 
     # Counters across all modules
-    variable total     0 ; # Number of packages overall.				     
-    variable havedoc   0 ; # Number of packages with documentation.			     
-    variable unclaimed 0 ; # Number of errors found in all documentation.		     
-    variable errors    0 ; # Number of warnings found in all documentation.		     
-    variable warnings  0 ; # Number of manpages not claimed by a specific package.
+    variable total     0 ; # Number of packages overall.
+    variable havedoc   0 ; # Number of packages with documentation.
+    variable unclaimed 0 ; # Number of manpages not claimed by a specific package.
+    variable errors    0 ; # Number of errors found in all documentation.
+    variable warnings  0 ; # Number of warnings found in all documentation.
 
     # Same counters, per module.
-    variable mtotal     0	     
-    variable mhavedoc   0	     
-    variable munclaimed 0	     
-    variable merrors    0	     
+    variable mtotal     0
+    variable mhavedoc   0
+    variable munclaimed 0
+    variable merrors    0
     variable mwarnings  0
 
     # Name of currently processed manpage
