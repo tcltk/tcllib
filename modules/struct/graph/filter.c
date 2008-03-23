@@ -751,9 +751,9 @@ filter_mode_n_in (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
 	    /* il->a in INa (NS) => il->a->start in INn (NS),
 	     * modulo already recorded
 	     */
-	    if (Tcl_FindHashEntry (&ht, (char*) il->a->start)) continue;
+	    if (Tcl_FindHashEntry (&ht, (char*) il->a->start->n)) continue;
 	    ASSERT_BOUNDS(j, gx->n);
-	    Tcl_CreateHashEntry (&ht, (char*) il->a->start, &new);
+	    Tcl_CreateHashEntry (&ht, (char*) il->a->start->n, &new);
 	    l->v[j] = il->a->start->n->base.name;
 	    j ++;
 	}
@@ -867,9 +867,9 @@ filter_mode_n_out (GCC* gx, NARES* l, int nc, Tcl_Obj* const* nv, G* g)
 	    /* il->a in OUTa (NS) => il->a->end in OUTn (NS),
 	     * modulo already recorded
 	     */
-	    if (Tcl_FindHashEntry (&ht, (char*) il->a->end)) continue;
+	    if (Tcl_FindHashEntry (&ht, (char*) il->a->end->n)) continue;
 	    ASSERT_BOUNDS(j, gx->n);
-	    Tcl_CreateHashEntry (&ht, (char*) il->a->end, &new);
+	    Tcl_CreateHashEntry (&ht, (char*) il->a->end->n, &new);
 	    l->v[j] = il->a->end->n->base.name;
 	    j ++;
 	}
