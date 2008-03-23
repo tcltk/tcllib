@@ -8,7 +8,7 @@
 #
 # Copyright (c) 2004 by Arjen Markus. All rights reserved.
 #
-# RCS: @(#) $Id: constants.test,v 1.9 2006/10/09 21:41:41 andreas_kupries Exp $
+# RCS: @(#) $Id: constants.test,v 1.10 2008/03/23 04:39:48 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -22,7 +22,7 @@ testsNeedTcltest 2.1
 support {
     useLocal math.tcl math
 }
-support {
+testing {
     useLocal constants.tcl math::constants
 }
 
