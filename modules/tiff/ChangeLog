@@ -1,3 +1,24 @@
+2008-03-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tiff.test: Added testsuite for the package, and example images.
+	* testimages/IMG_7898.tiff:
+	* testimages/IMG_7917.tiff:
+	* testimages/IMG_7950.tiff:
+
+	* tiff.man: Small formatting change in section LIMITATIONS,
+	  putting the information into a proper enumerated list. Put type
+	  codes for 'addEntry' into a list as well, and removed bad para
+	  in an example.
+
+	* tiff.tcl (::tiff::byteOrder): Fixed bad access to variable
+	  byteOrder.
+	* tiff.tcl (::tiff::dimensions): Fixed result of command
+	  'dimensions' to be the documented list of horizontal and
+	  vertical pixel counts instead of a tagged dictionary.
+	* tiff.tcl (::tiff::addEntry): Fixed use of bad variable name.
+	* tiff.man: Bumped version to 0.2.1
+	* pkgIndex.tcl:
+
 2008-02-29  Andreas Kupries  <andreask@activestate.com>
 
 	* tiff.tcl (::tiff::_unformat): Fixed missing closing bracket.
