@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: jpeg.tcl,v 1.14 2008/01/10 18:16:56 afaupell Exp $
+# RCS: @(#) $Id: jpeg.tcl,v 1.15 2008/03/24 00:21:09 andreas_kupries Exp $
 
-package provide jpeg 0.3.2
+package provide jpeg 0.3.3
 
 namespace eval ::jpeg {}
 
@@ -266,6 +266,9 @@ proc ::jpeg::getExif {file {type main}} {
         if {$magic != 42} { close $fh; return }
         seek $fh [expr {$start + $next}] start
         if {$type != "thumbnail"} {
+	    if {$type != "main"} {
+		return -code error "Bad type \"$type\", expected one of \"main\", or \"thumbnail\""
+	    }
             set data [_exif $fh $byteOrder $start]
         } else {
             # number of entries in this exif block
