@@ -1,8 +1,28 @@
+2008-03-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* jpeg.tcl (::jpeg::getExif): Added check to reject bad section
+	* jpeg.man: types outside of {main, thumbnail}. Bumped version to
+	* pkgIndex.tcl: 0.3.3
+
+	* jpeg.test: Added testsuite and example images for it.
+	* testimages/IMG_7898.JPG:
+	* testimages/IMG_7898.JPG.thumb:
+	* testimages/IMG_7898.exif.txt:
+	* testimages/IMG_7898.thumbexif.txt:
+	* testimages/IMG_7917.JPG:
+	* testimages/IMG_7917.JPG.thumb:
+	* testimages/IMG_7917.exif.txt:
+	* testimages/IMG_7917.thumbexif.txt:
+	* testimages/IMG_7950.JPG:
+	* testimages/IMG_7950.JPG.thumb:
+	* testimages/IMG_7950.exif.txt:
+	* testimages/IMG_7950.thumbexif.txt:
+
 2008-1-10  Aaron Faupell <afaupell@users.sourceforge.net>
 
 	* jpeg.tcl: fix for bug 1868088 "Integer value too large to
-	represent" in MaxAperture arm of formatExif. Bumped version
-	to 0.3.2
+	  represent" in MaxAperture arm of formatExif. Bumped version to
+	  0.3.2
 
 2007-11-20  Andreas Kupries   <andreask@activestate.com>
 
