@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tiff.tcl,v 1.4 2008/02/29 23:44:06 andreas_kupries Exp $
+# RCS: @(#) $Id: tiff.tcl,v 1.5 2008/03/24 03:48:59 andreas_kupries Exp $
 
-package provide tiff 0.2
+package provide tiff 0.2.1
 
 namespace eval ::tiff {}
 
@@ -42,7 +42,7 @@ proc ::tiff::isTIFF {file} {
 }
 
 proc ::tiff::byteOrder {file} {
-    global $byteOrder
+    variable byteOrder
     set fh [openTIFF $file]
     close $fh
     return $byteOrder
@@ -83,7 +83,8 @@ proc ::tiff::numImages {file} {
 }
 
 proc ::tiff::dimensions {file {image 0}} {
-    return [getEntry $file {0100 0101} $image]
+    array set tmp [getEntry $file {0100 0101} $image]
+    return [list $tmp(0100) $tmp(0101)]
 }
 
 proc ::tiff::imageInfo {file {image 0}} {
@@ -136,7 +137,7 @@ proc ::tiff::addEntry {file entry {image 0}} {
         _readifd $fh ifd
         if {$i == $image || $image == "all"} {
             foreach e [nametotag $entry] {
-                set ifd($tag) [eval _unformat $byteOrder $e]
+                set ifd($e) [eval [linsert $e 0 _unformat $byteOrder]]
             }
         }
         _copyData $fh $new ifd

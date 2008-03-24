@@ -1,9 +1,9 @@
-[manpage_begin tiff n 0.2]
+[manpage_begin tiff n 0.2.1]
 [copyright {2005-2006, Aaron Faupell <afaupell@users.sourceforge.net>}]
 [moddesc   {TIFF image manipulation}]
 [titledesc {TIFF reading, writing, and querying and manipulation of meta data}]
 [require Tcl 8.2]
-[require tiff [opt 0.2]]
+[require tiff [opt 0.2.1]]
 [description]
 [para]
 
@@ -57,7 +57,7 @@ present in the file.
 
 [example {
     puts [::tiff::imageInfo photo.tif]
-    [para]
+
     ImageWidth 686 ImageLength 1024 BitsPerSample {8 8 8} Compression 1
     PhotometricInterpretation 2 ImageDescription {} Orientation 1
     XResolution 170.667 YResolution 170.667 ResolutionUnit 2 DateTime {2005:12:28 19:44:45}
@@ -99,19 +99,21 @@ exists, it is overwritten.
     ::tiff::addEntry photo.tif {{010e 2 "an example photo"} {013b 2 "Aaron F"}}
 }]
 
-data types are defined as follows
-    1 BYTE (8 bit unsigned integer)
-    2 ASCII
-    3 SHORT (16 bit unsigned integer)
-    4 LONG (32 bit unsigned integer)
-    5 RATIONAL
-    6 SBYTE (8 bit signed byte)
-    7 UNDEFINED (uninterpreted binary data)
-    8 SSHORT (signed 16 bit integer)
-    9 SLONG (signed 32 bit integer)
-    10 SRATIONAL
-    11 FLOAT (32 bit floating point number)
-    12 DOUBLE (64 bit floating point number)
+The data types are defined as follows
+[list_begin definitions]
+[def [const 1]] BYTE (8 bit unsigned integer)
+[def [const 2]] ASCII
+[def [const 3]] SHORT (16 bit unsigned integer)
+[def [const 4]] LONG (32 bit unsigned integer)
+[def [const 5]] RATIONAL
+[def [const 6]] SBYTE (8 bit signed byte)
+[def [const 7]] UNDEFINED (uninterpreted binary data)
+[def [const 8]] SSHORT (signed 16 bit integer)
+[def [const 9]] SLONG (signed 32 bit integer)
+[def [const 10]] SRATIONAL
+[def [const 11]] FLOAT (32 bit floating point number)
+[def [const 12]] DOUBLE (64 bit floating point number)
+[list_end]
 
 Throws an error if [arg file] is not a TIFF image.
 
@@ -157,9 +159,11 @@ mapping uses the array ::tiff::tiff_sgat.
 
 [section LIMITATIONS]
 
-cannot write exif ifd
-reading limited to uncompressed 8 bit rgb and 8 bit palletized images
-writing limited to uncompressed 8 bit rgb
+[list_begin enumerated]
+[enum] Cannot write exif ifd
+[enum] Reading limited to uncompressed 8 bit rgb and 8 bit palletized images
+[enum] Writing limited to uncompressed 8 bit rgb
+[list_end]
 
 [section {BUGS, IDEAS, FEEDBACK}]
 
