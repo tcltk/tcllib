@@ -1,4 +1,26 @@
-2008-03-24  Andreas Kupries  <akupries@shaw.ca>
+2008-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sak.tcl (ppackages): Added code to recognize a pragma '@sak
+	  notprovided' which we can use to mark the packages which have
+	  provide statements yet are not really visible and thus not
+	  indexed.
+
+	* modules/sha1/sha256c.tcl: Added notprovided pragmas to the
+	* modules/sha1/sha1c.tcl: critcl based package implementations
+	* modules/md5/md5c.tcl: and the pseudo-packages declared by
+	* modules/struct/graph_c.tcl: plugin management code.
+	* modules/struct/tree_c.tcl:
+	* modules/struct/sets_c.tcl:
+	* modules/dns/ipMoreC.tcl:
+	* modules/md5crypt/md5cryptc.tcl:
+	* modules/rc4/rc4c.tcl:
+	* modules/crc/crcc.tcl:
+	* modules/base64/base64c.tcl:
+	* modules/md4/md4c.tcl:
+	* modules/page/peg_grammar.tcl:
+	* modules/page/pluginmgr.tcl:
+
+2008-03-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* support/installation/modules.tcl: Added 'simulation' to the list
 	  of official modules.

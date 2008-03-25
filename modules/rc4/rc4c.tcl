@@ -11,9 +11,10 @@
 #  tclsh sak.tcl critcl
 # generates a tcllibc module.
 #
-# $Id: rc4c.tcl,v 1.2 2005/10/05 00:18:39 patthoyts Exp $
+# $Id: rc4c.tcl,v 1.3 2008/03/25 07:15:35 andreas_kupries Exp $
 
 package require critcl
+# @sak notprovided rc4c
 package provide rc4c 1.0.0
 
 namespace eval ::rc4 {
