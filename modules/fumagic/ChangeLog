@@ -1,3 +1,7 @@
+2008-03-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* cfront.man: Fixed typo in the new documentation.
+
 2008-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* rtcore.man: Added documentation for the runtime package
