@@ -1,3 +1,8 @@
+2008-03-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl: Synchronized indexed and provided versions of
+	* bigfloat.man: math::bigfloat.
+
 2008-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* constants.test: Fixed declaration of package under test, was

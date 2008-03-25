@@ -1,10 +1,10 @@
-[manpage_begin math::bigfloat n 2.0]
+[manpage_begin math::bigfloat n 2.0.1]
 [copyright {2004-2008, by Stephane Arnold <stephanearnold at yahoo dot fr>}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Arbitrary precision floating-point numbers}]
 
 [require Tcl 8.5]
-[require math::bigfloat [opt 2.0]]
+[require math::bigfloat [opt 2.0.1]]
 
 [description]
 
