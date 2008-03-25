@@ -14,7 +14,7 @@
 This package provides the frontend of a compiler of magic(5) files
 into recognizers based on the [package fileutil::magic::rt] recognizer
 runtime package. For the generator backed used by this compiler see
-the package [package fileutil::magic::cfront].
+the package [package fileutil::magic::cgen].
 
 [section COMMANDS]
 
