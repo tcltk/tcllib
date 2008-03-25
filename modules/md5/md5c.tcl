@@ -4,9 +4,10 @@
 #
 # Written by Jean-Claude Wippler <jcw@equi4.com>
 #
-# $Id: md5c.tcl,v 1.3 2004/01/15 06:36:13 andreas_kupries Exp $
+# $Id: md5c.tcl,v 1.4 2008/03/25 07:15:34 andreas_kupries Exp $
 
 package require critcl;                 # needs critcl
+# @sak notprovided md5c
 package provide md5c 0.11;              # 
 
 critcl::cheaders md5.h;                 # The RSA header file

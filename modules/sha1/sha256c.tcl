@@ -5,9 +5,10 @@
 #
 # Wrapper for the Secure Hashing Algorithm (SHA256)
 #
-# $Id: sha256c.tcl,v 1.3 2008/01/28 22:58:18 andreas_kupries Exp $
+# $Id: sha256c.tcl,v 1.4 2008/03/25 07:15:34 andreas_kupries Exp $
 
 package require critcl;        # needs critcl
+# @sak notprovided sha256c
 package provide sha256c 1.0.2
 			       
 critcl::cheaders sha256.h;     # FreeBSD SHA256 implementation

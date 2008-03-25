@@ -221,6 +221,8 @@ proc ppackages {args} {
     set capout [fileutil::tempfile] ; set capcout [open $capout w]
     set caperr [fileutil::tempfile] ; set capcerr [open $caperr w]
 
+    array set notprovided {}
+
     foreach f $files {
 	# We ignore package indices and all files not in a module.
 
@@ -245,6 +247,11 @@ proc ppackages {args} {
 
 	set ok -1
 	foreach line [split [read $fh] \n] {
+	    if {[regexp "\#\\s*@sak\\s+notprovided\\s+(\[^\\s\]+)" $line -> nppname]} {
+		sakdebug {puts stderr "PRAGMA notprovided = $nppname"}
+		set notprovided($nppname) .
+	    }
+
 	    regsub "\#.*$" $line {} line
 	    if {![regexp {provide} $line]} {continue}
 	    if {![regexp {package} $line]} {continue}
@@ -362,6 +369,14 @@ proc ppackages {args} {
 
     close $capcout ; file delete $capout
     close $capcerr ; file delete $caperr
+
+    # Process the accumulated pragma information, remove all the
+    # packages which exist but not really, in terms of indexing.
+
+    foreach n [array names notprovided] {
+	catch { unset p($n) }
+	array unset pf $n,*
+    }
 
     set   pp [array get p]
     unset p
