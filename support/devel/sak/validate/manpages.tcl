@@ -79,7 +79,7 @@ proc ::sak::validate::manpages::run {modules mode stem} {
     foreach m $modules {
 	InitModuleCounters
 	!
-	log <$m>
+	log "@@ Module $m"
 	Head $m
 
 	# Per module: Find all doctools manpages inside and process
@@ -249,7 +249,7 @@ proc ::sak::validate::manpages::+doc {pkg} {
 
 proc ::sak::validate::manpages::nodoc {pkg} {
     = "$pkg Bad"
-    log "\tPackage without documentation: $pkg"
+    log "@@ WARN  No documentation: $pkg"
     return
 }
 
@@ -260,7 +260,7 @@ proc ::sak::validate::manpages::+w {msg} {
     variable warnings  ; incr warnings
     variable current
     foreach {a b c} [split $msg \n] break
-    log "\t$current: [Trim $a] [Trim $b] [Trim $c]"
+    log "@@ WARN  $current: [Trim $a] [Trim $b] [Trim $c]"
     return
 }
 
@@ -268,7 +268,7 @@ proc ::sak::validate::manpages::+e {msg} {
     variable merrors ; incr merrors
     variable errors  ; incr errors
     variable current
-    log "\t$current $msg"
+    log "@@ ERROR $current $msg"
     return
 }
 
@@ -278,7 +278,7 @@ proc ::sak::validate::manpages::+u {f} {
     variable munclaimed ; incr munclaimed
     variable unclaimed  ; incr unclaimed
     set used($f) .
-    log "\tUnclaimed documentation file: $f"
+    log "@@ WARN  Unclaimed documentation file: $f"
     return
 }
 
