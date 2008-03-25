@@ -1,3 +1,16 @@
+2008-03-24  Andreas Kupries  <akupries@shaw.ca>
+
+	* support/installation/modules.tcl: Added 'simulation' to the list
+	  of official modules.
+
+	* support/devel/sak/validate/versions.tcl: New code for the
+	  comparison of indexed versus provides packages.
+	* support/devel/sak/validate/validate.tcl: Activated new
+	  validation module.
+
+	* support/devel/sak/validate/testsuites.tcl: Reworked log format.
+	* support/devel/sak/validate/manpages.tcl:   Reworked log format.
+
 2008-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* support/devel/sak/validate/help.txt: Clarified that testsuite

@@ -97,6 +97,7 @@ Module  report      _tcl  _man  _null
 Module  ripemd      _tcl  _man  _null
 Module  sasl        _tcl  _man  _null
 Module  sha1        _tcl  _man  _null
+Module  simulation  _tcl  _man  _null
 Module  smtpd       _tcl  _man _exa
 Module  snit        _tcl  _man  _null
 Module  soundex     _tcl  _man  _null

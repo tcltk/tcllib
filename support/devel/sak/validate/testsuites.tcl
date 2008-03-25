@@ -69,7 +69,7 @@ proc ::sak::validate::testsuites::run {modules mode stem} {
     foreach m $modules {
 	InitModuleCounters
 	!
-	log <$m>
+	log "@@ Module $m"
 	Head $m
 
 	# Per module: Find all testsuites in the module and process
@@ -162,7 +162,7 @@ proc ::sak::validate::testsuites::Scan {data} {
 	} msg]} {
 	    if {[string match {can't read "*": no such variable} $msg]} {
 		regexp  {can't read "(.*)": no such variable} $msg -> var
-		log "\t+ variable \"$var\""
+		log "@@ + variable \"$var\""
 		$ip eval [list set $var {}]
 		continue
 	    }
@@ -314,7 +314,7 @@ proc ::sak::validate::testsuites::+tests {pkg} {
 
 proc ::sak::validate::testsuites::notests {pkg} {
     = "$pkg Bad"
-    log "\tPackage without testsuite(s): $pkg"
+    log "@@ WARN  No testsuite: $pkg"
     return
 }
 
@@ -324,7 +324,7 @@ proc ::sak::validate::testsuites::+e {msg} {
     variable merrors ; incr merrors
     variable errors  ; incr errors
     variable current
-    log "\t$current $msg"
+    log "@@ ERROR $current $msg"
     return
 }
 
@@ -334,7 +334,7 @@ proc ::sak::validate::testsuites::+u {f} {
     variable munclaimed ; incr munclaimed
     variable unclaimed  ; incr unclaimed
     set used($f) .
-    log "\tUnclaimed testsuite: $f"
+    log "@@ NOTE  Unclaimed testsuite $f"
     return
 }
 
