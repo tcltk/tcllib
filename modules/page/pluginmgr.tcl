@@ -334,6 +334,8 @@ proc ::page::pluginmgr::InitializeReader {} {
 
 proc ::page::pluginmgr::InitializeReaderIp {p ip} {
     interp eval $ip {
+	# @sak notprovided page::plugin
+	# @sak notprovided page::plugin::reader
 	package provide page::plugin         1.0
 	package provide page::plugin::reader 1.0
     }
@@ -363,6 +365,8 @@ proc ::page::pluginmgr::InitializeWriter {} {
 
 proc ::page::pluginmgr::InitializeWriterIp {p ip} {
     interp eval $ip {
+	# @sak notprovided page::plugin
+	# @sak notprovided page::plugin::writer
 	package provide page::plugin         1.0
 	package provide page::plugin::writer 1.0
     }
@@ -393,6 +397,8 @@ proc ::page::pluginmgr::InitializeTransform {} {
 
 proc ::page::pluginmgr::InitializeTransformIp {p ip} {
     interp eval $ip {
+	# @sak notprovided page::plugin
+	# @sak notprovided page::plugin::transform
 	package provide page::plugin            1.0
 	package provide page::plugin::transform 1.0
     }

@@ -21,6 +21,7 @@
 
 
 package require critcl
+# @sak notprovided md5cryptc
 package provide md5cryptc 1.0
 
 critcl::cheaders ../md5/md5.h

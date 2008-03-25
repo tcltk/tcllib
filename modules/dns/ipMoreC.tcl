@@ -238,4 +238,5 @@ critcl::ccommand isOverlapNativec {clientData interp objc objv} {
 
 }
 
+# @sak notprovided ipMorec
 package provide ipMorec 1.0
