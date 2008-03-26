@@ -199,7 +199,7 @@ proc ::sak::validate::syntax::Setup {} {
     interp eval $ip [list ::rename rename    {}]
 
     foreach m {
-	pcx::register
+	pcx::register unknown
     } {
 	interp alias $ip $m {} ::sak::validate::syntax::PCX/[string map {:: _} $m] $ip
     }
@@ -232,9 +232,13 @@ proc ::sak::validate::syntax::Scan {data} {
     return $pcxpackage
 }
 
-proc ::sak::validate::syntax::Process/pcx_register {ip pkg} {
+proc ::sak::validate::syntax::PCX/pcx_register {ip pkg} {
     variable pcxpackage $pkg
     return
+}
+
+proc ::sak::validate::syntax::PCX/unknown {ip args} {
+    return 0
 }
 
 ###
