@@ -162,6 +162,9 @@ proc ::sak::validate::syntax::ProcessTclSources {m} {
     if {![llength $tclchecker]} return
 
     foreach t [modtclfiles $m] {
+	# Ignore TeX files.
+	if {[string equal [file extension $t] .tex]} continue
+
 	=file $t
 	set cmd [Command $t]
 	if {[catch {Close [Process [open |$cmd r+]]} msg]} {
