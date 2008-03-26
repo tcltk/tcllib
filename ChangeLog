@@ -1,3 +1,9 @@
+2008-03-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* support/devel/sak/validate/syntax.tcl: Fix problem in pcx scan
+	  logic, have to handle unknown commands. Like is done for
+	  testsuites.
+
 2008-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* support/devel/sak/validate/syntax.tcl: Do not try to check TeX
