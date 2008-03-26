@@ -76,7 +76,9 @@ proc ::sak::feedback::summary {text} {
 proc ::sak::feedback::log {text {ext log}} {
     variable verbose
     if {!$verbose} return
-    puts [_channel $ext] $text
+    set    c [_channel $ext]
+    puts  $c $text
+    flush $c
     return
 }
 
@@ -119,7 +121,9 @@ proc ::sak::feedback::=| {string} {
 	variable dst
 	if {[string length $dst]} {
 	    # inlined 'log'
-	    puts [_channel $dst] "$prefix $string"
+	    set    c [_channel $dst]
+	    puts  $c "$prefix $string"
+	    flush $c
 	    set dst ""
 	}
     }

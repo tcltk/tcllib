@@ -67,6 +67,9 @@ proc ::sak::validate::testsuites::run {modules mode stem} {
 
     InitCounters
     foreach m $modules {
+	# Skip tcllibc shared library, not a module.
+	if {[string equal $m tcllibc]} continue
+
 	InitModuleCounters
 	!
 	log "@@ Module $m"
