@@ -1,7 +1,12 @@
 2008-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* support/devel/sak/validate/syntax.tcl: Do not try to check TeX
+	  files for Tcl syntax.
+
 	* support/devel/sak/validate/syntax.tcl: New code, syntax checking
 	  via tclchecker.
+	* support/devel/sak/validate/validate.tcl: Activated new
+	  validation module.
 
 	* support/devel/sak/validate/manpages.tcl: Skip tcllibc.
 	* support/devel/sak/validate/testsuites.tcl: Skip tcllibc.
