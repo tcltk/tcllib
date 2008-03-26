@@ -77,6 +77,9 @@ proc ::sak::validate::manpages::run {modules mode stem} {
 
     InitCounters
     foreach m $modules {
+	# Skip tcllibc shared library, not a module.
+	if {[string equal $m tcllibc]} continue
+
 	InitModuleCounters
 	!
 	log "@@ Module $m"
@@ -341,7 +344,7 @@ proc ::sak::validate::manpages::ModuleSummary {} {
     }
     if {$merrors} {
 	set err  [=red $err]
-	set warn [=red $warn]
+	set warn [=yel $warn]
 	>> fail
     } elseif {$mwarnings} {
 	set warn [=yel $warn]

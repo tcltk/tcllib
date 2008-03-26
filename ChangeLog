@@ -1,5 +1,13 @@
 2008-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* support/devel/sak/validate/syntax.tcl: New code, syntax checking
+	  via tclchecker.
+
+	* support/devel/sak/validate/manpages.tcl: Skip tcllibc.
+	* support/devel/sak/validate/testsuites.tcl: Skip tcllibc.
+
+	* support/devel/sak/util/feedback.tcl: Flush log lines.
+
 	* sak.tcl (ppackages): Added code to recognize a pragma '@sak
 	  notprovided' which we can use to mark the packages which have
 	  provide statements yet are not really visible and thus not
