@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.24 2006/09/28 02:19:20 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.25 2008/03/26 06:44:26 andreas_kupries Exp $
 
 package require Tcl 8.2
 package provide cmdline 1.3
@@ -433,7 +433,7 @@ proc ::cmdline::getArgv0 {} {
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.24 2006/09/28 02:19:20 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.25 2008/03/26 06:44:26 andreas_kupries Exp $
 
 namespace eval ::cmdline {
     namespace export typedGetopt typedGetoptions typedUsage
@@ -447,6 +447,7 @@ namespace eval ::cmdline {
     #    String of character class names separated by "|" characters.
 
     variable charclasses
+    #checker exclude badKey
     catch {string is . .} charclasses
     regexp -- {must be (.+)$} $charclasses dummy charclasses
     regsub -all -- {, (or )?} $charclasses {|} charclasses

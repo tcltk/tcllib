@@ -1,3 +1,9 @@
+2008-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* cmdline.tcl: Added prgma forcing the tclchecker to ignore an
+	  intentional and caught badKey problem used to introspect the
+	  runtime.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
