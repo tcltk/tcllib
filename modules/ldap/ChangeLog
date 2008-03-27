@@ -1,6 +1,13 @@
+2008-03-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ldap.tcl (ldap::buildSASLBindRequest): Fixed a bad continuation
+	* ldap.man: line, i.e. whitespace between the backslash and the
+	* pkgIndex.tcl: end-of-line. Generally removed all trailing
+	  whitespace from the whole file. Bumped version to 1.6.9.
+
 2008-02-07  Pierre David <pdav@users.sourceforge.net>
 
-	* ldapx.tcl:	Fixed a small bug when reading an LDIF modrdn
+	* ldapx.tcl:	Fixed a small bug when reading an LDIF modrdn.
 
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 

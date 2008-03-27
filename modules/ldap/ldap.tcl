@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------
 #   Copyright (C) 1999-2004 Jochen C. Loewer (loewerj@web.de)
-#   Copyright (C) 2006      Michael Schlenker (mic42@users.sourceforge.net)    
+#   Copyright (C) 2006      Michael Schlenker (mic42@users.sourceforge.net)
 #-----------------------------------------------------------------------------
 #
 #   A (partial) LDAPv3 protocol implementation in plain Tcl.
@@ -35,7 +35,7 @@
 #   NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
 #   MODIFICATIONS.
 #
-#   $Id: ldap.tcl,v 1.23 2006/11/15 19:28:03 mic42 Exp $
+#   $Id: ldap.tcl,v 1.24 2008/03/27 04:21:05 andreas_kupries Exp $
 #
 #   written by Jochen Loewer
 #   3 June, 1999
@@ -44,7 +44,7 @@
 
 package require Tcl 8.4
 package require asn 0.7
-package provide ldap 1.6.8
+package provide ldap 1.6.9
 
 namespace eval ldap {
 
@@ -65,12 +65,12 @@ namespace eval ldap {
 		        info
 
     namespace import ::asn::*
-    
+
     variable SSLCertifiedAuthoritiesFile
     variable doDebug
 
     set doDebug 0
-   
+
     # LDAP result codes from the RFC
     variable resultCode2String
     array set resultCode2String {
@@ -114,7 +114,7 @@ namespace eval ldap {
         69  objectClassModsProhibited
         80  other
     }
-    
+
 }
 
 
@@ -152,19 +152,19 @@ proc ldap::info {args} {
    set cmds {connections bound bounduser control extensions features ip saslmechanisms tls whoami}
    if {[llength $args] == 0} {
    	return -code error \
-		"Usage: \"info subcommand ?handle?\""    
+		"Usage: \"info subcommand ?handle?\""
    }
    if {[lsearch -exact $cmds $cmd] == -1} {
    	return -code error \
 		"Invalid subcommand \"$cmd\", valid commands are\
-		[join [lrange $cmds 0 end-1] ,] and [lindex $cmds end]" 
+		[join [lrange $cmds 0 end-1] ,] and [lindex $cmds end]"
    }
-   eval [linsert [lrange $args 1 end] 0 ldap::info_$cmd]    
+   eval [linsert [lrange $args 1 end] 0 ldap::info_$cmd]
 }
 
 #-----------------------------------------------------------------------------
 #    get the ip address of the server we connected to
-# 
+#
 #-----------------------------------------------------------------------------
 proc ldap::info_ip {args} {
    if {[llength $args] != 1} {
@@ -187,7 +187,7 @@ proc ldap::info_ip {args} {
 proc ldap::info_connections {args} {
    if {[llength $args] != 0} {
    	return -code error \
-	       "Wrong # of arguments. Usage: ldap::info connections"   
+	       "Wrong # of arguments. Usage: ldap::info connections"
    }
    return [::info vars ::ldap::ldap*]
 }
@@ -207,7 +207,7 @@ proc ldap::info_bound {args} {
    	return -code error \
 		"\"[lindex $args 0]\" is not a ldap connection handle"
    }
-   
+
    return $conn(bound)
 }
 
@@ -220,13 +220,13 @@ proc ldap::info_bounduser {args} {
    	return -code error \
 	       "Wrong # of arguments. Usage: ldap::info bounduser handle"
    }
-   CheckHandle [lindex $args 0]   
+   CheckHandle [lindex $args 0]
    upvar #0 [lindex $args 0] conn
    if {![::info exists conn(bound)]} {
    	return -code error \
 		"\"[lindex $args 0]\" is not a ldap connection handle"
    }
-   
+
    return $conn(bounduser)
 }
 
@@ -240,7 +240,7 @@ proc ldap::info_tls {args} {
    	return -code error \
 	       "Wrong # of arguments. Usage: ldap::info tls handle"
    }
-   CheckHandle [lindex $args 0]   
+   CheckHandle [lindex $args 0]
    upvar #0 [lindex $args 0] conn
    if {![::info exists conn(tls)]} {
    	return -code error \
@@ -328,17 +328,17 @@ proc ldap::Whoami {handle} {
         return -code error \
             "Server does not support the \"Who am I?\" extension"
     }
-    
+
     set request [asnApplicationConstr 23 [asnOctetString 1.3.6.1.4.1.4203.1.11.3]]
     set mid [SendMessage $handle $request]
     set response [WaitForResponse $handle $mid]
- 
+
     asnGetApplication response appNum
     if {$appNum != 24} {
         return -code error \
-             "unexpected application number ($appNum != 24)"        
+             "unexpected application number ($appNum != 24)"
     }
-    
+
     asnGetEnumeration response resultCode
     asnGetOctetString response matchedDN
     asnGetOctetString response errorMessage
@@ -382,7 +382,7 @@ proc ldap::connect { host {port 389} } {
     set conn(saslBindInProgress) 0
     set conn(tlsHandshakeInProgress) 0
     set conn(lastError) ""
-    
+
     fileevent $sock readable [list ::ldap::MessageReceiver ::ldap::ldap$sock]
     return ::ldap::ldap$sock
 }
@@ -444,7 +444,7 @@ proc ldap::secure_connect { host {port 636} } {
     set conn(saslBindInProgress) 0
     set conn(tlsHandshakeInProgress) 0
     set conn(lasterror) ""
-    
+
     fileevent $sock readable [list ::ldap::MessageReceiver ::ldap::ldap$sock]
     return ::ldap::ldap$sock
 }
@@ -458,41 +458,41 @@ proc ldap::starttls {handle {cafile ""} {certfile ""} {keyfile ""}} {
     CheckHandle $handle
 
     upvar #0 $handle conn
-    
+
     if {$conn(tls)} {
         return -code error \
             "Cannot StartTLS on connection, TLS already running"
     }
-    
+
     if {[ldap::waitingForMessages $handle]} {
         return -code error \
             "Cannot StartTLS while waiting for repsonses"
     }
-    
+
     if {$conn(saslBindInProgress)} {
         return -code error \
             "Cannot StartTLS while SASL bind in progress"
     }
-    
+
     if {[lsearch -exact [ldap::Extensions $handle] 1.3.6.1.4.1.1466.20037] == -1} {
         return -code error \
             "Server does not support the StartTLS extension"
     }
     package require tls
-    
-    
+
+
     set request [asnApplicationConstr 23 [asnOctetString 1.3.6.1.4.1.1466.20037]]
     set mid [SendMessage $handle $request]
     set conn(tlsHandshakeInProgress) 1
     set response [WaitForResponse $handle $mid]
- 
+
     asnGetApplication response appNum
     if {$appNum != 24} {
         set conn(tlsHandshakeInProgress) 0
         return -code error \
-             "unexpected application number ($appNum != 24)"        
+             "unexpected application number ($appNum != 24)"
     }
-    
+
     asnGetEnumeration response resultCode
     asnGetOctetString response matchedDN
     asnGetOctetString response errorMessage
@@ -511,7 +511,7 @@ proc ldap::starttls {handle {cafile ""} {certfile ""} {keyfile ""}} {
         set conn(tlsHandshakeInProgress) 0
         return -code error \
             "Unexpected LDAP response"
-    } 
+    }
 
     tls::import $conn(sock) -cafile $cafile -certfile $certfile -keyfile $keyfile \
                       -request 1 -server 0 -require 0 -ssl2 no -ssl3 yes -tls1 yes
@@ -547,12 +547,12 @@ proc ldap::starttls {handle {cafile ""} {certfile ""} {keyfile ""}} {
 
 proc ldap::CreateAndSendMessage {handle payload} {
     upvar #0 $handle conn
-    
+
     if {$conn(tlsHandshakeInProgress)} {
         return -code error \
             "Cannot send other LDAP PDU while TLS handshake in progress"
     }
-    
+
     incr conn(messageId)
     set message [asnSequence [asnInteger $conn(messageId)] $payload]
     debugData "Message $conn(messageId) Sent" $message
@@ -563,17 +563,17 @@ proc ldap::CreateAndSendMessage {handle payload} {
 
 #------------------------------------------------------------------------------
 #  Send a message to the server which expects a response,
-#  returns the messageId which is to be used with FinalizeMessage 
+#  returns the messageId which is to be used with FinalizeMessage
 #  and WaitForResponse
 #
 #------------------------------------------------------------------------------
 proc ldap::SendMessage {handle pdu} {
     upvar #0 $handle conn
-    set mid [CreateAndSendMessage $handle $pdu] 
-    
-    # safe the state to match responses   
+    set mid [CreateAndSendMessage $handle $pdu]
+
+    # safe the state to match responses
     set conn(message,$mid) [list]
-    return $mid                
+    return $mid
 }
 
 #------------------------------------------------------------------------------
@@ -582,7 +582,7 @@ proc ldap::SendMessage {handle pdu} {
 #------------------------------------------------------------------------------
 proc ldap::SendMessageNoReply {handle pdu} {
     upvar #0 $handle conn
-    return [CreateAndSendMessage $handle $pdu]                
+    return [CreateAndSendMessage $handle $pdu]
 }
 
 #------------------------------------------------------------------------------
@@ -604,21 +604,21 @@ proc ldap::FinalizeMessage {handle messageId} {
 #------------------------------------------------------------------------------
 proc ldap::WaitForResponse {handle messageId} {
     upvar #0 $handle conn
-    
+
     trace "Waiting for Message $messageId"
     # check if the message waits for a reply
     if {![::info exists conn(message,$messageId)]} {
         return -code error \
             [format "Cannot wait for message %d." $messageId]
     }
-    
+
     # check if we have a received response in the buffer
     if {[llength $conn(message,$messageId)] > 0} {
         set response [lindex $conn(message,$messageId) 0]
         set conn(message,$messageId) [lrange $conn(message,$messageId) 1 end]
         return $response
     }
-    
+
     # wait for an incoming response
     vwait [namespace which -variable $handle](message,$messageId)
     if {[llength $conn(message,$messageId)] == 0} {
@@ -633,7 +633,7 @@ proc ldap::WaitForResponse {handle messageId} {
     }
     set response [lindex $conn(message,$messageId) 0]
     set conn(message,$messageId) [lrange $conn(message,$messageId) 1 end]
-    return $response        
+    return $response
 }
 
 proc ldap::waitingForMessages {handle} {
@@ -652,17 +652,17 @@ proc ldap::ProcessMessage {handle response} {
 
     # decode the messageId
     asnGetInteger  response messageId
-    
+
     # check if we wait for a response
     if {[::info exists conn(message,$messageId)]} {
-        # append the new message, which triggers 
+        # append the new message, which triggers
         # message handlers using vwait on the entry
         lappend conn(message,$messageId) $response
         return
     }
-    
+
     # handle unsolicited server responses
-    
+
     if {0} {
         asnGetApplication response appNum
         #if { $appNum != 24 } {
@@ -680,12 +680,12 @@ proc ldap::ProcessMessage {handle response} {
         if {$resultCode != 0} {
             return -code error \
 		    -errorcode [list LDAP [resultCode2String $resultCode] $matchedDN $errorMessage] \
-		    "LDAP error [resultCode2String $resultCode] '$matchedDN': $errorMessage"    
+		    "LDAP error [resultCode2String $resultCode] '$matchedDN': $errorMessage"
         }
     }
     #dumpASN1Parse $response
     #error "Unsolicited message from server"
-    
+
 }
 
 #-------------------------------------------------------------------------------
@@ -706,26 +706,26 @@ proc ldap::CleanupWaitingMessages {handle} {
 #-------------------------------------------------------------------------------
 proc ldap::MessageReceiver {handle} {
     upvar #0 $handle conn
-    
+
     # We have to account for partial PDUs received, so
     # we keep some state information.
     #
     #   conn(pdu,partial)  -- we are reading a partial pdu if non zero
     #   conn(pdu,length_bytes) -- the buffer for loading the length
-    #   conn(pdu,length)   -- we have decoded the length if >= 0, if <0 it contains 
+    #   conn(pdu,length)   -- we have decoded the length if >= 0, if <0 it contains
     #                         the length of the length encoding in bytes
     #   conn(pdu,payload)  -- the payload buffer
     #   conn(pdu,received) -- the data received
-    
+
     # fetch the sequence byte
     if {[::info exists conn(pdu,partial)] && $conn(pdu,partial) != 0} {
-        # we have decoded at least the type byte    
+        # we have decoded at least the type byte
     } else {
         foreach {code type} [ReceiveBytes $conn(sock) 1] {break}
         switch -- $code {
             ok {
                 binary scan $type c byte
-                set type [expr {($byte + 0x100) % 0x100}]  
+                set type [expr {($byte + 0x100) % 0x100}]
                 if {$type != 0x30} {
                     CleanupWaitingMessages $handle
                     set conn(lastError) [format "Expected SEQUENCE (0x30) but got %x" $type]
@@ -740,7 +740,7 @@ proc ldap::MessageReceiver {handle} {
                 set conn(lastError) "Server closed connection"
                 catch {close $conn(sock)}
                 return
-            } 
+            }
             default {
                 CleanupWaitingMessages $handle
                 set bytes $type[read $conn(sock)]
@@ -751,8 +751,8 @@ proc ldap::MessageReceiver {handle} {
                 }
         }
     }
-    
-    
+
+
     # fetch the length
     if {[::info exists conn(pdu,length)] && $conn(pdu,length) >= 0} {
         # we already have a decoded length
@@ -774,13 +774,13 @@ proc ldap::MessageReceiver {handle} {
                         return
                     }
                     "eof" {
-                        CleanupWaitingMessages $handle            
+                        CleanupWaitingMessages $handle
                         catch {close $conn(sock)}
                         set conn(lastError) "Server closed connection"
                         return
-                    } 
+                    }
                     default {
-                        CleanupWaitingMessages $handle            
+                        CleanupWaitingMessages $handle
                         set conn(lastError) [format \
                             "Error reading LENGTH2 response for handle %s : %s" $handle $code]
                         return
@@ -794,30 +794,30 @@ proc ldap::MessageReceiver {handle} {
                 "ok"  {
                     set conn(pdu,length_bytes) $bytes
                     binary scan $bytes c byte
-                    set size [expr {($byte + 0x100) % 0x100}]  
+                    set size [expr {($byte + 0x100) % 0x100}]
                     if {$size > 0x080} {
                         set conn(pdu,length) [expr {-1* ($size & 0x7f)}]
                         # fetch the rest with the next fileevent
-                        return 
+                        return
                     } else {
                         asnGetLength conn(pdu,length_bytes) conn(pdu,length)
                     }
                 }
                 "eof" {
-                    CleanupWaitingMessages $handle            
+                    CleanupWaitingMessages $handle
                     catch {close $conn(sock)}
                     set conn(lastError) "Server closed connection"
-                }                 
+                }
                 default {
-                    CleanupWaitingMessages $handle            
+                    CleanupWaitingMessages $handle
                     set conn(lastError) [format \
                         "Error reading LENGTH1 response for handle %s : %s" $handle $code]
                     return
-                }       
+                }
             }
         }
     }
-    
+
     if {[::info exists conn(pdu,payload)]} {
         # length is decoded, we can read the rest
         set missing [expr {$conn(pdu,length) - [string length $conn(pdu,payload)]}]
@@ -835,26 +835,26 @@ proc ldap::MessageReceiver {handle} {
                 return
             }
             "eof" {
-                CleanupWaitingMessages $handle            
+                CleanupWaitingMessages $handle
                 catch {close $conn(sock)}
                 set conn(lastError) "Server closed connection"
-            }             
+            }
             default {
-                CleanupWaitingMessages $handle            
+                CleanupWaitingMessages $handle
                 set conn(lastError) [format \
                     "Error reading DATA response for handle %s : %s" $handle $code]
                 return
             }
         }
     }
-    
+
     # we have a complete PDU, push it for processing
     set pdu $conn(pdu,payload)
     set conn(pdu,payload) ""
     set conn(pdu,partial) 0
-    unset -nocomplain set conn(pdu,length) 
-    set conn(pdu,length_bytes) ""    
-   
+    unset -nocomplain set conn(pdu,length)
+    set conn(pdu,length_bytes) ""
+
     # reschedule message Processing
     after 0 [list ::ldap::ProcessMessage $handle $pdu]
 }
@@ -875,8 +875,8 @@ proc ldap::ReceiveBytes {sock bytes} {
     } elseif { [fblocked $sock] || ([string length $block] < $bytes)} {
         return [list partial $block]
     } else {
-        error "Socket state for socket $sock undefined!" 
-    }  
+        error "Socket state for socket $sock undefined!"
+    }
 }
 
 #-----------------------------------------------------------------------------
@@ -887,12 +887,12 @@ proc ldap::bindSASL {handle {name ""} {password ""} } {
     CheckHandle $handle
 
     package require SASL
-    
+
     upvar #0 $handle conn
-    
+
     set mechs [ldap::Saslmechanisms $handle]
-    
-    set conn(saslBindInProgress) 1    
+
+    set conn(saslBindInProgress) 1
     set auth 0
     foreach mech [SASL::mechanisms] {
         if {[lsearch -exact $mechs $mech] == -1} { continue }
@@ -902,14 +902,14 @@ proc ldap::bindSASL {handle {name ""} {password ""} } {
         } msg]} {
             trace [format "AUTH %s failed: %s" $mech $msg]
         } else {
-	   # AUTH was successful 
+	   # AUTH was successful
 	   if {$msg == 1} {
 	       set auth 1
 	       break
 	   }
-	}    
-    }        
-    
+	}
+    }
+
     set conn(saslBindInProgress) 0
     return $auth
 }
@@ -931,7 +931,7 @@ proc ::ldap::SASLCallback {handle context command args} {
         username { return $options(-username) }
         password { return $options(-password) }
         hostname { return [::info hostname] }
-        realm    { 
+        realm    {
             if {[string equal $ctx(mech) "NTLM"] \
                     && [info exists ::env(USERDOMAIN)]} {
                 return $::env(USERDOMAIN)
@@ -939,7 +939,7 @@ proc ::ldap::SASLCallback {handle context command args} {
                 return ""
             }
         }
-        default  { 
+        default  {
             return -code error "error: unsupported SASL information requested"
         }
     }
@@ -952,16 +952,16 @@ proc ::ldap::SASLCallback {handle context command args} {
 
 proc ldap::SASLAuth {handle mech name password} {
     upvar 1 $handle conn
-    
+
     set conn(options) [list -password $password -username $name]
 
-    # check for tcllib bug # 1545306 and reset the nonce-count if 
+    # check for tcllib bug # 1545306 and reset the nonce-count if
     # found, so a second call to this code does not fail
     #
     if {[::info exists ::SASL::digest_md5_noncecount]} {
         set ::SASL::digest_md5_noncecount 0
     }
-    
+
     set ctx [SASL::new -mechanism $mech \
                        -service ldap    \
                        -callback [list ::ldap::SASLCallback $handle]]
@@ -973,26 +973,26 @@ proc ldap::SASLAuth {handle mech name password} {
         set request [buildSASLBindRequest "" $mech [SASL::response $ctx]]
         set messageId [SendMessage $handle $request]
         debugData bindRequest $request
-        
+
         set response [WaitForResponse $handle $messageId]
         FinalizeMessage $handle $messageId
         debugData bindResponse $response
-        
+
         array set msg [decodeSASLBindResponse $handle $response]
-        
+
 	# Check for Bind success
-        if {$msg(resultCode) == 0} { 
+        if {$msg(resultCode) == 0} {
             set conn(bound) 1
             set conn(bounduser) $name
             SASL::cleanup $ctx
-            break        
+            break
         }
-        
+
 	# Check if next SASL step is requested
         if {$msg(resultCode) == 14} {
             continue
         }
-	
+
         SASL::cleanup $ctx
         # Something went wrong
         return 	-code error \
@@ -1000,7 +1000,7 @@ proc ldap::SASLAuth {handle mech name password} {
 				 $msg(matchedDN) $msg(errorMessage)] \
 		"LDAP error [resultCode2String $msg(resultCode)] '$msg(matchedDN)': $msg(errorMessage)"
     }
-    
+
     return 1
 }
 
@@ -1018,16 +1018,16 @@ proc ldap::buildSASLBindRequest {name mech {credentials {}}} {
             [asnChoiceConstr 3                   	\
                     [asnOctetString $mech]      	\
                     [asnOctetString $credentials] 	\
-            ]  \                            		                                      
-        ] 
-    } else {  
+            ]  \
+        ]
+    } else {
     set request [   asnApplicationConstr 0            		\
         [asnInteger 3]                 		\
         [asnOctetString $name]         		\
         [asnChoiceConstr 3                   	\
                 [asnOctetString $mech]      	\
         ] \
-        ]                              		                                      
+        ]
     }
     return $request
 }
@@ -1056,7 +1056,7 @@ proc ldap::decodeSASLBindResponse {handle response} {
         asnGetOctetString response serverSASLCreds
     } else {
         set serverSASLCreds ""
-    } 
+    }
     return [list appNum $appNum \
                  resultCode $resultCode matchedDN $matchedDN \
                  errorMessage $errorMessage serverSASLCreds $serverSASLCreds]
@@ -1069,7 +1069,7 @@ proc ldap::decodeSASLBindResponse {handle response} {
 #-----------------------------------------------------------------------------
 proc ldap::bind { handle {name ""} {password ""} } {
     CheckHandle $handle
-    
+
     upvar #0 $handle conn
 
     #-----------------------------------------------------------------
@@ -1080,14 +1080,14 @@ proc ldap::bind { handle {name ""} {password ""} } {
                         [asnInteger 3]                 \
                         [asnOctetString $name]         \
                         [asnChoice 0 $password]        \
-                ]                                  
-    set messageId [SendMessage $handle $request]            
+                ]
+    set messageId [SendMessage $handle $request]
     debugData bindRequest $request
-    
+
     set response [WaitForResponse $handle $messageId]
     FinalizeMessage $handle $messageId
     debugData bindResponse $response
-    
+
     asnGetApplication response appNum
     if { $appNum != 1 } {
         error "unexpected application number ($appNum != 1)"
@@ -1117,9 +1117,9 @@ proc ldap::unbind { handle } {
     #------------------------------------------------
     #   marshal unbind request packet and send it
     #------------------------------------------------
-    set request [asnApplication 2 ""]         
+    set request [asnApplication 2 ""]
     SendMessageNoReply $handle $request
-    
+
     set conn(bounduser) ""
     set conn(bound) 0
     close $conn(sock)
@@ -1178,7 +1178,7 @@ proc ldap::buildUpFilter { filter } {
             regexp {^([0-9A-z.]*)=(.*)$} $first all attributetype value
             regsub -all {\*+} $value {*} value
             set value [split $value "*"]
-            
+
             set firstsubstrtype 0       ;# initial
             set lastsubstrtype  2       ;# final
             if {[string equal [lindex $value 0] ""]} {
@@ -1189,9 +1189,9 @@ proc ldap::buildUpFilter { filter } {
                 set lastsubstrtype 1        ;# any
                 set value [lreplace $value end end]
             }
-        
+
             set n [llength $value]
-        
+
             set i 1
             set l {}
             set substrtype 0            ;# initial
@@ -1273,7 +1273,7 @@ proc ldap::searchInProgress {handle} {
    	return $conn(searchInProgress)
    } else {
        	return 0
-   }	   
+   }
 }
 
 #-----------------------------------------------------------------------------
@@ -1287,9 +1287,9 @@ proc ldap::searchInit { handle baseObject filterString attributes opt} {
 
     if {[searchInProgress $handle]} {
         return -code error \
-            "Cannot start search. Already a search in progress for this handle."    
+            "Cannot start search. Already a search in progress for this handle."
     }
-    
+
     set scope        2
     set derefAliases 0
     set sizeLimit    0
@@ -1330,13 +1330,13 @@ proc ldap::searchInit { handle baseObject filterString attributes opt} {
 	    }
         }
     }
-    
+
     set request [buildSearchRequest $baseObject $scope \
     			$derefAliases $sizeLimit $timeLimit $attrsOnly $filterString \
 			$attributes]
     set messageId [SendMessage $handle $request]
     debugData searchRequest $request
-    
+
     # Keep the message Id, so we know about the search
     set conn(searchInProgress) $messageId
 
@@ -1371,8 +1371,8 @@ proc ldap::buildSearchRequest {baseObject scope derefAliases
                         [asnBoolean     $attrsOnly]     \
                         $berFilter                      \
                         [asnSequence    $berAttributes] \
-                ]                                   
-                
+                ]
+
 }
 #-----------------------------------------------------------------------------
 #    searchNext - returns the next result of an LDAP search
@@ -1430,8 +1430,8 @@ proc ldap::searchNext { handle } {
 	asnGetOctetString response errorMessage
 	set result {}
 	FinalizeMessage $handle $conn(searchInProgress)
-        unset conn(searchInProgress) 
-        
+        unset conn(searchInProgress)
+
 	if {$resultCode != 0} {
         return -code error \
 		-errorcode [list LDAP [resultCode2String $resultCode] $matchedDN $errorMessage] \
@@ -1455,20 +1455,20 @@ proc ldap::searchEnd { handle } {
 
     if {! [::info exists conn(searchInProgress)]} then {
         # no harm done, just do nothing
-	return 
+	return
     }
-    abandon $handle $conn(searchInProgress)	
+    abandon $handle $conn(searchInProgress)
     FinalizeMessage $handle $conn(searchInProgress)
-    
+
     unset conn(searchInProgress)
     return
 }
 
 #-----------------------------------------------------------------------------
-# 
-#    Send an LDAP abandon message 
 #
-#-----------------------------------------------------------------------------    
+#    Send an LDAP abandon message
+#
+#-----------------------------------------------------------------------------
 proc ldap::abandon {handle messageId} {
     CheckHandle $handle
 
@@ -1476,8 +1476,8 @@ proc ldap::abandon {handle messageId} {
     trace "MessagesPending: [string length $conn(messageId)]"
     set request [asnApplication 16      	\
                         [asnInteger $messageId]         \
-                ]                                  	
-    SendMessageNoReply $handle $request                
+                ]
+    SendMessageNoReply $handle $request
 }
 
 #-----------------------------------------------------------------------------
@@ -1576,11 +1576,11 @@ proc ldap::modifyMulti {handle dn
     set request [asnApplicationConstr 6              \
                         [asnOctetString $dn ]            \
                         [asnSequence    $modifications ] \
-                ]                                    
-    set messageId [SendMessage $handle $request]            
+                ]
+    set messageId [SendMessage $handle $request]
     debugData modifyRequest $request
     set response [WaitForResponse $handle $messageId]
-    FinalizeMessage $handle $messageId    
+    FinalizeMessage $handle $messageId
     debugData bindResponse $response
 
     asnGetApplication response appNum
@@ -1593,7 +1593,7 @@ proc ldap::modifyMulti {handle dn
     if {$resultCode != 0} {
         return -code error \
 		-errorcode [list LDAP [resultCode2String $resultCode] $matchedDN $errorMessage] \
-		"LDAP error [resultCode2String $resultCode] '$matchedDN': $errorMessage"    
+		"LDAP error [resultCode2String $resultCode] '$matchedDN': $errorMessage"
     }
 }
 
@@ -1674,12 +1674,12 @@ proc ldap::addMulti { handle dn attrValueTuples } {
     set request [asnApplicationConstr 8             \
                         [asnOctetString $dn       ] \
                         [asnSequence    $attrList ] \
-                ]                               
-                
+                ]
+
     set messageId [SendMessage $handle $request]
     debugData addRequest $request
     set response [WaitForResponse $handle $messageId]
-    FinalizeMessage $handle $messageId    
+    FinalizeMessage $handle $messageId
     debugData bindResponse $response
 
     asnGetApplication response appNum
@@ -1709,12 +1709,12 @@ proc ldap::delete { handle dn } {
     #----------------------------------------------------------
     #   marshal 'delete' request packet and send it
     #----------------------------------------------------------
-    set request [asnApplication 10 $dn ] 
+    set request [asnApplication 10 $dn ]
     set messageId [SendMessage $handle $request]
     debugData deleteRequest $request
     set response [WaitForResponse $handle $messageId]
     FinalizeMessage $handle $messageId
-        
+
     debugData deleteResponse $response
 
     asnGetApplication response appNum
@@ -1751,15 +1751,15 @@ proc ldap::modifyDN { handle dn newrdn { deleteOld 1 } {newSuperior ! } } {
 			    [asnOctetString $dn ]            \
 			    [asnOctetString $newrdn ]        \
 			    [asnBoolean     $deleteOld ]     \
-		    ]                                         
-		    
+		    ]
+
     } else {
 	set request [asnApplicationConstr 12                 \
 			    [asnOctetString $dn ]            \
 			    [asnOctetString $newrdn ]        \
 			    [asnBoolean     $deleteOld ]     \
 			    [asnContext     0 $newSuperior]  \
-		    ]                                       
+		    ]
     }
     set messageId [SendMessage $handle $request]
     debugData modifyRequest $request
@@ -1787,7 +1787,7 @@ proc ldap::modifyDN { handle dn newrdn { deleteOld 1 } {newSuperior ! } } {
 proc ldap::disconnect { handle } {
 
     CheckHandle $handle
-    
+
     upvar #0 $handle conn
 
     # should we sent an 'unbind' ?
