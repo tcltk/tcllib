@@ -1,8 +1,14 @@
+2008-03-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* asn.man: Added documentation for a number of public yet not
+	  documented.
+
 2008-03-09  Michael Schlenker <mic42@users.sourceforge.net>
 
 	* asn.tcl  : Added (optional ) support for Tcl 8.5 unsigned binary 
 	  asn.man  : scan to speed up byte extraction.
 	  pkgIndex.tcl:
+
 2007-09-18  Michael Schlenker <mic42@users.sourceforge.net>
 
         * asn.tcl  : Fixed missing padding in bitstring encoder 
