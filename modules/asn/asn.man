@@ -52,7 +52,7 @@ returns its encoded binary form.
 Takes zero or more encoded values, packs them into an ASN set and
 returns its encoded binary form.
 
-[call [cmd ::asn::asnSet] [arg elist]]
+[call [cmd ::asn::asnSetFromList] [arg elist]]
 
 Takes a list of encoded values, packs them into an ASN set and
 returns its encoded binary form.
@@ -99,13 +99,43 @@ Returns the encoded form of the specified boolean value
 [arg bool].
 
 
-[call [cmd ::asn::asnOctetString] [arg string]]
+[call [cmd ::asn::asnContext] [arg context] [arg data]]
 
-Returns the encoded form of the specified [arg string].
+Takes an encoded value and packs it into a constructed value with
+application tag, the [arg context] number.
+
+
+[call [cmd ::asn::asnContextConstr] [arg context] [arg evalue]...]
+
+Takes zero or more encoded values and packs them into a constructed
+value with application tag, the [arg context] number.
+
+
+[call [cmd ::asn::asnObjectIdentifier] [arg idlist]]
+
+Takes a list of at least 2 integers describing an object identifier
+(OID) value, and returns the encoded value.
+
+
+[call [cmd ::asn::asnUTCTime] [arg utcstring]]
+
+Returns the encoded form of the specified UTC time string.
+
 
 [call [cmd ::asn::asnNull]]
 
 Returns the NULL encoding.
+
+
+[call [cmd ::asn::asnBitString] [arg string]]
+
+Returns the encoded form of the specified [arg string].
+
+
+[call [cmd ::asn::asnOctetString] [arg string]]
+
+Returns the encoded form of the specified [arg string].
+
 
 [call [cmd ::asn::asnNumericString] [arg string]]
 
@@ -443,7 +473,7 @@ removing it from the data. The [arg tag_var] gets set to the tag number, while t
 to the class of the tag. (Either UNIVERSAL, CONTEXT, APPLICATION or PRIVATE). The [arg constr_var] is set to 1 if the
 tag is for a constructed value, and to 0 for not constructed. It returns the length of the tag.
 
-[call [cmd ::asn::asnTag] [arg tagnumber] [arg class] [arg tagstyle]]
+[call [cmd ::asn::asnTag] [arg tagnumber] [opt [arg class]] [opt [arg tagstyle]]]
 
 The [cmd ::asn::asnTag] can be used to create a tag value. The [arg tagnumber] gives the number of the tag, while
 the [arg class] gives one of the classes (UNIVERSAL,CONTEXT,APPLICATION or PRIVATE). The class may be abbreviated to just the first letter (U,C,A,P),
