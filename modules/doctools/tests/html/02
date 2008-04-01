@@ -1,0 +1,34 @@
+<html><head>
+<title>TEST - ..THE_MODULE.. </title>
+</head>
+<! -- Generated from file '.FILE.' by tcllib/doctools with format 'html'
+   -->
+<! -- Copyright &copy; .COPYRIGHT.
+   -->
+<! -- CVS: $Id: 02,v 1.1 2008/04/01 06:06:40 andreas_kupries Exp $ TEST.z
+   -->
+
+<body>
+<h1> TEST(z) 3.14.15.926 .MODULE. &quot;..THE_MODULE..&quot;</h1>
+<h2><a name="name">NAME</a></h2>
+<p>
+</p><p> TEST - ..THE_TITLE..
+
+
+
+
+<h2><a name="table_of_contents">TABLE OF CONTENTS</a></h2>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#table_of_contents">TABLE OF CONTENTS</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#synopsis">SYNOPSIS</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#description">DESCRIPTION</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#copyright">COPYRIGHT</a><br>
+</p><h2><a name="synopsis">SYNOPSIS</a></h2>
+<p>
+package require <b>AAA</b><br>
+package require <b>BBB VVV</b><br>
+<br></p><h2><a name="description">DESCRIPTION</a></h2>
+<p>
+</p><h2><a name="copyright">COPYRIGHT</a></h2>
+<p>
+Copyright &copy; .COPYRIGHT.<br>
+</p></body></html>

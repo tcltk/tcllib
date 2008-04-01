@@ -8,7 +8,7 @@
 # Copyright (c) 2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: doctools.test,v 1.18 2007/08/01 21:34:00 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.test,v 1.19 2008/04/01 06:06:39 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -21,6 +21,7 @@ testsNeedTcltest 1.0
 
 support {
     use textutil/expander.tcl textutil::expander
+    use fileutil/fileutil.tcl fileutil
 }
 testing {
     useLocal doctools.tcl doctools
@@ -312,10 +313,42 @@ test doctools-9.0 {manpage syntax} {
 [plain_text foo]
 --> (FmtError) Manpage error (body), "plain_text foo" : Plain text not allowed outside of the body of the manpage.}
 
+# -------------------------------------------------------------------------
+## Series of tests for all available backends, check their formatting.
 
-namespace forget ::doctools::new
+set k 10
+foreach format {
+    html
+    nroff
+} {
+    set n 0
+    foreach src [TestFilesGlob tests/man/*] {
+	# File containing the expected result
+	set dst [localPath [file join tests $format [file tail $src]]]
+
+	test doctools-${k}.$n "doctools, backend $format, [file tail $src]" {
+	    set res {}
+	    catch {
+		new mydoctools
+		mydoctools configure \
+		    -format    $format \
+		    -module    .MODULE. \
+		    -file      .FILE. \
+		    -copyright .COPYRIGHT.
+		set res [mydoctools format [fileutil::cat $src]]
+	    }
+	    mydoctools destroy
+	    #fileutil::writeFile ${dst}.actual $res
+	    set res
+	} [fileutil::cat $dst]
+	incr n
+    }
+    incr k
+}
 
 # -------------------------------------------------------------------------
+
+namespace forget ::doctools::new
 
 testsuiteCleanup
 return

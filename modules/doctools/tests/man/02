@@ -1,0 +1,7 @@
+[manpage_begin TEST z 3.14.15.926]
+[moddesc ..THE_MODULE..]
+[titledesc ..THE_TITLE..]
+[require AAA]
+[require BBB VVV]
+[description]
+[manpage_end]
