@@ -1,3 +1,29 @@
+2008-03-31  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* doctools.test: Added tests to invoke the backends on a series of
+	  input files and check the results against expectations.
+	* tests/man/00: First set of input files, and expected output for
+	* tests/man/01: the html and nroff backends.
+	* tests/man/02:
+	* tests/man/03:
+	* tests/man/04:
+	* tests/man/05:
+	* tests/man/06:
+	* tests/html/00:
+	* tests/html/01:
+	* tests/html/02:
+	* tests/html/03:
+	* tests/html/04:
+	* tests/html/05:
+	* tests/html/06:
+	* tests/nroff/00:
+	* tests/nroff/01:
+	* tests/nroff/02:
+	* tests/nroff/03:
+	* tests/nroff/04:
+	* tests/nroff/05:
+	* tests/nroff/06:
+
 2008-03-12  Andreas Kupries  <andreask@activestate.com>
 
 	* checker.tcl (widget): Fixed bad call propagation.
