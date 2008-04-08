@@ -19,17 +19,39 @@ for the most common cases.
 
 [list_begin definitions]
 
-[call [cmd ::crc::crc16] [opt "-format [arg format]"] [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [arg message]]
-[call [cmd ::crc::crc16] [opt "-format [arg format]"] [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
-[call [cmd ::crc::crc-ccitt] [opt "-format [arg format]"] [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [arg message]]
-[call [cmd ::crc::crc-ccitt] [opt "-format [arg format]"] [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
+[call [cmd ::crc::crc16] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [arg message]]
+[call [cmd ::crc::crc16] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
+[call [cmd ::crc::crc-ccitt] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [arg message]]
+[call [cmd ::crc::crc-ccitt] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
+[call [cmd ::crc::xmodem] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] [arg message]]
+[call [cmd ::crc::xmodem] [opt "-format [arg format]"] \
+  [opt "-seed [arg value]"] [opt "-implementation [arg procname]"] "-filename [arg file]"]
 
-The command takes string data or a file name and returns a checksum
+The command takes either string data or a file name and returns a checksum
 value calculated using the CRC algorithm. The command used sets up the
 CRC polynomial, initial value and bit ordering for the desired
 standard checksum calculation. The result is formatted
 using the [arg format](n) specifier provided or as an unsigned integer
 (%u) by default.
+
+[para]
+
+A number of common polynomials are in use with the CRC algorithm and
+the most commonly used of these are included in this package. For
+convenience each of these has a command alias in the crc namespace.
+
+[para]
+
+It is possible to implement the CRC-32 checksum using this crc16
+package as the implementation is sufficiently generic to extend to 32
+bit checksums. As an example this has been done already - however this
+is not the fastest method to implement this algorithm in Tcl and a
+separate crc32 package is available.
 
 [list_end]
 
@@ -62,6 +84,11 @@ implementation (perhaps a C compiled extension). The
 procedure specfied is called with two parameters. The first is the
 data to be checksummed and the second is the seed value. An
 integer is expected as the result.
+[para]
+The package provides some implementations of standard CRC polynomials
+for the XMODEM, CCITT and the usual CRC-16 checksum. For convenience,
+additional commands have been provided that make use of these
+implementations.
 
 [list_end]
 
