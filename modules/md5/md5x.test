@@ -8,7 +8,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: md5x.test,v 1.16 2006/10/09 21:41:41 andreas_kupries Exp $
+# RCS: @(#) $Id: md5x.test,v 1.17 2008/04/08 00:33:07 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 
@@ -97,6 +97,7 @@ set tests {
     "D174AB98D277D9F5A5611C2C9F419D9F"
     7    "12345678901234567890123456789012345678901234567890123456789012345678901234567890"
     "57EDF4A22BE3C955AC49DA2E2107B67A"
+    8    "a\$apr1\$a" "020C3DD6931F7E94ECC99A1F4E4C53E2"
 }
 foreach impl [implementations] {
     select_implementation $impl
