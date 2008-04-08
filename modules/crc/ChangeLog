@@ -1,3 +1,7 @@
+2008-04-08  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* crc16.man: document the xmodem command (bug #1895277)
+
 2008-03-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* cksum.tcl (::crc::cksum): Fixed handling of options -chunksize
