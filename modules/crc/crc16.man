@@ -51,7 +51,7 @@ It is possible to implement the CRC-32 checksum using this crc16
 package as the implementation is sufficiently generic to extend to 32
 bit checksums. As an example this has been done already - however this
 is not the fastest method to implement this algorithm in Tcl and a
-separate crc32 package is available.
+separate [package crc32] package is available.
 
 [list_end]
 

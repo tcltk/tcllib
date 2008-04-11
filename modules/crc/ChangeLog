@@ -1,3 +1,7 @@
+2008-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* crc16.man: Marked name of crc32 up as package.
+
 2008-04-08  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* crc16.man: document the xmodem command (bug #1895277)
