@@ -1,0 +1,99 @@
+
+<html><head>
+<title>BASIC -  </title>
+</head>
+<! -- Generated from file '.FILE.' by tcllib/doctools with format 'html'
+   -->
+<! -- Copyright &copy; .COPYRIGHT.
+   -->
+<! -- CVS: @ID@ BASIC.a
+   -->
+
+<body>
+<h1> BASIC(a) 5 .MODULE. &quot;&quot;</h1>
+<h2><a name="name">NAME</a></h2>
+<p>
+</p><p> BASIC - 
+<h2><a name="table_of_contents">TABLE OF CONTENTS</a></h2>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#table_of_contents">TABLE OF CONTENTS</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#synopsis">SYNOPSIS</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#description">DESCRIPTION</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#copyright">COPYRIGHT</a><br>
+</p><h2><a name="synopsis">SYNOPSIS</a></h2>
+<p>
+<table border=1 width=100% cellspacing=0 cellpadding=0><tr            bgcolor=lightyellow><td bgcolor=lightyellow><table 0 width=100% cellspacing=0 cellpadding=0><tr valign=top ><td ><a href="#1">a-command</a></td></tr>
+</table></td></tr></table>
+</p><h2><a name="description">DESCRIPTION</a></h2>
+<p>
+OK
+</p><p>
+<dl>
+<dt>integer <i class='arg'>argument-1</i></dt><dd>
+verification
+<br><br>
+</dd><dt>string <i class='arg'>argument-2</i> (out)</dt><dd> mogrification
+</dd></dl><p>
+</p><p>
+<dl>
+<dt><b class='cmd'>command-a</b></dt><dd> explanation
+<br><br>
+</dd><dt><b class='cmd'>command-b</b></dt><dd>
+elucidation
+</dd></dl><p>
+</p><p>
+<dl>
+<dt>term</dt><dd> definition
+<br><br>
+</dd><dt><a name="1">a-command</a></dt><dd>
+
+semantic
+</dd></dl><p>
+</p><p>
+<ol>
+<li>
+A
+<br><br>
+</li><li> B
+<br><br>
+C
+<br><br>
+D
+</li></ol><p>
+</p><p>
+<ul>
+<li>
+1
+<br><br>
+</li><li> 2
+<br><br>
+2a
+<br><br>
+2b
+</li></ul><p>
+</p><p>
+<dl>
+<dt><b class='option'>option-1</b></dt><dd> meaning
+<br><br>
+</dd><dt><b class='option'>option-2</b> value</dt><dd>
+elaboration
+</dd></dl><p>
+</p><p>
+<dl>
+<dt>Command-Line Switch:	<b class='option'>background</b><br>
+Database Name:	<b class='optdbname'>Background</b><br>
+Database Class:	<b class='optdbclass'>Color</b><br>
+</dt><dd> candy
+<br><br>
+</dd><dt>Command-Line Switch:	<b class='option'>foreground</b><br>
+Database Name:	<b class='optdbname'>Foreground</b><br>
+Database Class:	<b class='optdbclass'>Color</b><br>
+</dt><dd>
+caramel
+</dd></dl><p>
+</p><p>
+KO
+
+<h2><a name="copyright">COPYRIGHT</a></h2>
+<p>
+Copyright &copy; .COPYRIGHT.<br>
+</p></body></html>
