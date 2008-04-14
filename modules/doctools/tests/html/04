@@ -1,0 +1,37 @@
+<html><head>
+<title>TEST -  </title>
+</head>
+<! -- Generated from file '.FILE.' by tcllib/doctools with format 'html'
+   -->
+<! -- Copyright &copy; .COPYRIGHT.
+   -->
+<! -- CVS: @ID@ TEST.z
+   -->
+
+<body>
+<h1> TEST(z) 3.14.15.926 .MODULE. &quot;&quot;</h1>
+</p><h2><a name="name">NAME</a></h2>
+<p>
+</p><p> TEST - 
+<h2><a name="table_of_contents">TABLE OF CONTENTS</a></h2>
+<p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#table_of_contents">TABLE OF CONTENTS</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#description">DESCRIPTION</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#copyright">COPYRIGHT</a><br>
+</p><h2><a name="description">DESCRIPTION</a></h2>
+<p>
+BEGINNE HIER
+</p><table><tr><td bgcolor=black>&nbsp;</td><td><pre class='sample'>
+	 Example Block  More Lines
+</pre></td></tr></table><p>
+</p><p>
+<p>
+</p><table><tr><td bgcolor=black>&nbsp;</td><td><pre class='sample'>
+Inlined Example \
+Next Line
+</pre></td></tr></table><p>
+FERTIG
+</p><h2><a name="copyright">COPYRIGHT</a></h2>
+<p>
+Copyright &copy; .COPYRIGHT.<br>
+</p></body></html>
+

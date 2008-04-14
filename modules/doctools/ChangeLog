@@ -1,3 +1,32 @@
+2008-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tests/html/00: Replaced $ I d $ placeholder with @ID@. See
+	* tests/html/01: doctools.test.
+	* tests/html/02:
+	* tests/html/03:
+
+	* tests/man/04: Replaced placeholder text with actual input to
+	* tests/man/05: run through the formatting backends.
+	* tests/man/06:
+
+	* tests/html/04: Made results current. The handling of
+	* tests/html/05: backslashes is known to be wrong, noted
+	* tests/html/06: other ugliness.
+
+	* tests/nroff/04: Made results current, fixed some formatting
+	* tests/nroff/05: problems, see below.
+	* tests/nroff/06:
+
+	* mpformats/fmt.nroff (fmt_arg_def, fmt_opt_def): Added newlines
+	  to output for proper formatting of elements in argument and
+	  option lists.
+
+	* doctools.test: Fix handling of $ I d $ placeholder used in input
+	  files and expected results. Extended to handle errors, to catch
+	  problems other than differences between expected and actual
+	  results. Ignore CVS subdirectory and handle missing files for
+	  expected results.
+
 2008-03-31  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* doctools.test: Added tests to invoke the backends on a series of
