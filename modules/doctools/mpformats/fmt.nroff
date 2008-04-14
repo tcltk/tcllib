@@ -148,13 +148,13 @@ proc fmt_arg_def {type name {mode {}}} {
     set    text [nr_blt ""]
     append text "$type [fmt_arg $name]"
     if {$mode != {}} {append text " ($mode)"}
-    return $text
+    return $text\n
 }
 proc fmt_opt_def {name {arg {}}} {
     #if {[string match -* $name]} {set name \1\\$name}
     set name [fmt_option $name]
     if {$arg != {}} {append name " $arg"}
-    return [nr_blt $name]
+    return [nr_blt $name]\n
 }
 proc fmt_tkoption_def {name dbname dbclass} {
     set    text ""
