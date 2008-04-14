@@ -1,0 +1,19 @@
+% Generated from file '.FILE.' by tcllib/doctools with format 'latex'
+% Copyright (c) .COPYRIGHT.
+% CVS: @ID@ TEST.z
+\documentclass{article}
+\begin{document}
+\author{aku}
+\title{.MODULE. / TEST -- ..THE\_MODULE.. : ..THE\_TITLE..}
+\maketitle
+\section{SYNOPSIS}
+\begin{flushleft}
+package require {\bf AAA}
+package require {\bf BBB VVV}
+\end{flushleft}
+\section{DESCRIPTION}
+\section{COPYRIGHT}
+\begin{flushleft}
+Copyright (c) .COPYRIGHT.\linebreak
+\end{flushleft}
+\end{document}
