@@ -1,5 +1,64 @@
 2008-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* doctools.test: Added the remaining backends to the list of
+	  backends checked.
+
+	* tests/tmml/00: Expected results for TMML backend.
+	* tests/tmml/01:
+	* tests/tmml/02:
+	* tests/tmml/03:
+	* tests/tmml/04:
+	* tests/tmml/05:
+	* tests/tmml/06:
+
+	* tests/text/00: Expected results for TEXT backend.
+	* tests/text/01:
+	* tests/text/02:
+	* tests/text/03:
+	* tests/text/04:
+	* tests/text/05:
+	* tests/text/06:
+
+	* tests/wiki/00: Expected results for WIKI backend.
+	* tests/wiki/01:
+	* tests/wiki/02:
+	* tests/wiki/03:
+	* tests/wiki/04:
+	* tests/wiki/05:
+	* tests/wiki/06:
+
+	* tests/latex/00: Expected results for LATEX backend.
+	* tests/latex/01:
+	* tests/latex/02:
+	* tests/latex/03:
+	* tests/latex/04:
+	* tests/latex/05:
+	* tests/latex/06:
+
+	* tests/desc/00: Expected results for DESC backend.
+	* tests/desc/01:
+	* tests/desc/02:
+	* tests/desc/03:
+	* tests/desc/04:
+	* tests/desc/05:
+	* tests/desc/06:
+
+	* tests/list/00: Expected results for LIST backend.
+	* tests/list/01:
+	* tests/list/02:
+	* tests/list/03:
+	* tests/list/04:
+	* tests/list/05:
+	* tests/list/06:
+
+	* tests/null/00: Expected results for NULL backend.
+	* tests/null/01:
+	* tests/null/02:
+	* tests/null/03:
+	* tests/null/04:
+	* tests/null/05:
+	* tests/null/06:
+
 	* tests/html/00: Replaced $ I d $ placeholder with @ID@. See
 	* tests/html/01: doctools.test.
 	* tests/html/02:
