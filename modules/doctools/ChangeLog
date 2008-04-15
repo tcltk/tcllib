@@ -1,3 +1,14 @@
+2008-04-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* doctools.test: Fixed [Bug 1942472], reported by Michael
+	* tests/latex/00: Schlenker, in made with the new test cases.
+	* tests/latex/01: Now mapping the name of the user running
+	* tests/latex/02: the tests around in the expected and
+	* tests/latex/03: actual results as well. Modified the
+	* tests/latex/04: expected results for the one backend
+	* tests/latex/05: affected by the change.
+	* tests/latex/06:
+
 2008-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* doctools.test: Added the remaining backends to the list of
