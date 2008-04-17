@@ -8,7 +8,7 @@
 # Copyright (c) 2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: doctools.test,v 1.22 2008/04/15 06:08:06 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.test,v 1.23 2008/04/17 13:54:51 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -356,6 +356,34 @@ foreach format {
 	incr n
     }
     incr k
+}
+
+# -------------------------------------------------------------------------
+## Series of tests for the frontend, cover all possible syntax errors.
+
+set n 0
+foreach src [TestFilesGlob tests/syntax/e_*] {
+    set dst      [file join [file dirname $src] r_[string range [file tail ${src}] 2 end]]
+    set expected [string trim [fileutil::cat $dst]]
+
+    test doctools-11.$n "doctools frontend, syntax error, [file tail $src]" {
+	new mydoctools
+	mydoctools configure    \
+	    -format    null     \
+	    -module    .MODULE. \
+	    -file      .FILE.   \
+	    -copyright .COPYRIGHT.
+
+	catch {
+	    mydoctools format [fileutil::cat $src]
+	} res
+	mydoctools destroy
+	#fileutil::writeFile ${src}.actual $msg
+	set res
+    } $expected
+
+    #fileutil::writeFile ${dst}.expected $expected
+    incr n
 }
 
 # -------------------------------------------------------------------------
