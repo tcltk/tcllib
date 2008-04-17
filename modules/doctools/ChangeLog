@@ -1,3 +1,12 @@
+2008-04-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* doctools.test: Extended with loop to test response to the various
+	* tests/syntax/e_*: syntax errors we may find in doctools files, plus
+	* tests/syntax/r_*: first set of input files and error results.
+	* checker.tcl: Modified errors for commands which are allowed
+	  everywhere in the header section since the extended syntax came
+	  into effect.
+
 2008-04-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* doctools.test: Fixed [Bug 1942472], reported by Michael

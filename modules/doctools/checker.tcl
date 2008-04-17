@@ -280,12 +280,12 @@ proc manpage_end {} {
 }
 proc require {pkg {version {}}} {
     Enter require
-    if {[IsNot header]} {Error reqcmd}
+    if {[IsNot header]} {Error hdrcmd}
     fmt_require $pkg $version
 }
 proc description {} {
     Enter description
-    if {[IsNot header]} {Error reqcmd}
+    if {[IsNot header]} {Error hdrcmd}
     Go body
     fmt_description
 }
