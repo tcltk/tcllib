@@ -1,3 +1,8 @@
+2008-04-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tests/syntax/e_*: Additional input and result files, completing
+	* tests/syntax/r_*: the list errors.
+
 2008-04-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* doctools.test: Extended with loop to test response to the various
