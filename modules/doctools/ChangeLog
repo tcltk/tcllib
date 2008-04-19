@@ -1,7 +1,8 @@
 2008-04-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tests/syntax/e_*: Additional input and result files, completing
-	* tests/syntax/r_*: the list errors.
+	* tests/syntax/r_*: the list errors. Ditto the example commands,
+	  sectref, and the commands for the semantic categories.
 
 2008-04-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
