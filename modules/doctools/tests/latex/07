@@ -11,18 +11,20 @@
 %
 \item
 %
- 1  2  3
+ 1
 %
 \item
 %
+ 2
 \begin{enumerate}
 %
 \item
 %
- a  b  c
+ a
 %
 \item
 %
+ b
 \begin{itemize}
 %
 \item[] foo
@@ -37,15 +39,17 @@
 %
  gork
 \end{itemize}
+bb
 %
 \item
 %
- a  b  c
+ a
 \end{enumerate}
+22
 %
 \item
 %
- 4  5  6
+ 3
 \end{itemize}
 \section{COPYRIGHT}
 \begin{flushleft}

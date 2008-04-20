@@ -1,5 +1,10 @@
 2008-04-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* tests/*/06: Extended for nested lists.
+	* tests/*/07: 2nd input and results for nested lists.
+	* mpformats/_nroff.tcl (nr_vspace): Added newlines to output for
+	  proper formatting of text coming after it.
+
 	* tests/syntax/e_*: Additional input and result files, completing
 	* tests/syntax/r_*: the list errors. Ditto the example commands,
 	  sectref, and the commands for the semantic categories.

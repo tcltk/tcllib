@@ -22,7 +22,7 @@ proc nr_p       {}          {return \n.PP\n}
 proc nr_comment {text}      {return "\1'\1\\\" [join [split $text \n] "\n\1'\1\\\" "]"} ; # "
 proc nr_enum    {num}       {nr_item " \[$num\]"}
 proc nr_item    {{text {}}} {return "\n.IP$text"}
-proc nr_vspace  {}          {return \n.sp}
+proc nr_vspace  {}          {return \n.sp\n}
 proc nr_blt     {text}      {return "\n.TP\n$text"}
 proc nr_bltn    {n text}    {return "\n.TP $n\n$text"}
 proc nr_in      {}          {return \n.RS}
