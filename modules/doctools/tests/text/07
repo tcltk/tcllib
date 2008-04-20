@@ -13,15 +13,11 @@ DESCRIPTION
 
     *   1
 
-        2
-
-        3
+    *   2
 
         [1] a
 
-            b
-
-            c
+        [2] b
 
             foo
 
@@ -35,17 +31,13 @@ DESCRIPTION
 
                 gork
 
-        [2] a
+        [3] bb
 
-            b
+        [4] a
 
-            c
+    *   22
 
-    *   4
-
-        5
-
-        6
+    *   3
 
 COPYRIGHT
 =========

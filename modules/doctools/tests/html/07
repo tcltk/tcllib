@@ -21,13 +21,15 @@
 <p>
 
 </p><ul>
-<li> 1 <br><br> 2 <br><br> 3
+<li> 1
 <br><br>
-</li><li>
+</li><li> 2
+<br><br>
 <ol>
-<li> a <br><br> b <br><br> c
+<li> a
 <br><br>
-</li><li>
+</li><li> b
+<br><br>
 <dl>
 <dt>foo</dt><dd> snafu
 <br><br>
@@ -35,9 +37,13 @@
 <br><br>
 </dd><dt>roo</dt><dd> gork
 </dd></dl><p>
-<li> a <br><br> b <br><br> c
+bb
+<br><br>
+<li> a
 </li></ol></p><p>
-<li> 4 <br><br> 5 <br><br> 6
+22
+<br><br>
+<li> 3
 </li></ul><p>
 </p><h2><a name="copyright">COPYRIGHT</a></h2>
 <p>
