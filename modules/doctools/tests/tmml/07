@@ -16,15 +16,15 @@
 
 <ul>
 
-<li> 1 <br/> 2 <br/> 3
+<li> 1
 </li>
-<li>
+<li> 2
 
 <ol>
 
-<li> a <br/> b <br/> c
+<li> a
 </li>
-<li>
+<li> b
 
 <dl>
 
@@ -45,13 +45,15 @@
 </dle>
 
 </dl>
+bb
 </li>
-<li> a <br/> b <br/> c
+<li> a
 </li>
 
 </ol>
+22
 </li>
-<li> 4 <br/> 5 <br/> 6
+<li> 3
 </li>
 
 </ul>
