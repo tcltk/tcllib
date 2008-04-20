@@ -10,19 +10,13 @@ TEST \-
 .SH DESCRIPTION
 .IP \(bu
 1
-.sp
-2
-.sp
-3
 .IP \(bu
+2
 .RS
 .IP [1]
 a
-.sp
-b
-.sp
-c
 .IP [2]
+b
 .RS
 .TP
 foo
@@ -34,19 +28,13 @@ barf
 roo
 gork
 .RE
+bb
 .IP [3]
 a
-.sp
-b
-.sp
-c
 .RE
+22
 .IP \(bu
-4
-.sp
-5
-.sp
-6
+3
 .PP
 .SH COPYRIGHT
 .nf
