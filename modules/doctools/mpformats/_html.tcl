@@ -59,7 +59,12 @@ proc fmt_postprocess {text} {
 	puts_stderr ____________________________________________________________
     }
 
+    # Put protected characters into their final form.
     set text [string map $finalMap $text]
+    # Remove empty paragraphs
+    regsub -all "<p>\[\t\n \]*</p>" $text {} text
+    # Remove empty lines.
+    regsub -all "\n\n\n*" $text \n text
 
     if 0 {
 	puts_stderr @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -99,6 +104,7 @@ proc table  {}         {return [markup "<table [border] width=100% cellspacing=0
 proc btable {}         {return [markup "<table border=1 width=100% cellspacing=0 cellpadding=0>"]}
 proc stable {}         {return [markup "<table [border] cellspacing=0 cellpadding=0>"]}
 
+proc link   {text url} {return [markup "<a href=\"$url\">"]$text[markup </a>]}
 
 proc tcl_cmd {cmd} {return "[markup <b>]\[$cmd][markup </b>]"}
 proc wget    {url} {exec /usr/bin/wget -q -O - $url 2>/dev/null}
@@ -120,6 +126,11 @@ proc img {tag alt img} {
 
 proc protect {text} {return [string map [list & "&amp;" < "&lt;" > "&gt;"] $text]}
 
+proc strong {text}       {tag_ strong $text}
+proc em     {text}       {tag_ em     $text}
+proc bold   {text class} {tag_ b      $text class $class}
+proc italic {text class} {tag_ i      $text class $class}
+proc span   {text class} {tag_ span   $text class $class}
 
 proc tag  {t} {return [markup <$t>]}
 proc taga {t av} {
@@ -134,7 +145,13 @@ proc tag_ {t block args} {
     if {$args == {}} {return "[tag $t]$block[tag/ $t]"}
     return "[taga $t $args]$block[tag/ $t]"
 }
-
+proc tag* {t args} {
+    if {[llength $args]} {
+	taga $t $args
+    } else {
+	tag $t
+    }
+}
 
 proc ht_comment {text}   {return "[markup <]! -- [join [split $text \n] "   -- "]\n   --[markup >]"}
 
