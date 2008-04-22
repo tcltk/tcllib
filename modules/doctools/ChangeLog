@@ -1,3 +1,13 @@
+2008-04-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/fmt.html: Modified to put sections and subsections
+	* mpformats/_html.tcl: into divisions a CSS can lock onto. Changed
+	* tests/html/*: to properly close paragraphs, sections, and sub-
+	  sections. Changed to remove empty paragraphs, and empty lines.
+	  Put the whole body into a division. Put text marked up as
+	  optional into a span. Put section references into a span. Put
+	  examples into a division. Some general cleanup of the internals.
+
 2008-04-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tests/*/06: Extended for nested lists.
