@@ -28,9 +28,9 @@ proc c_possibleReference {text gi} {
     global SectionNames
     set id [c_sectionId $text]
     if {[info exists SectionNames($id)]} {
-	return [taga a [list href #$id]]$text[tag/ a]
+	return [link $text "#$id"]
     } else {
-	return [tag $gi]$text[tag/ $gi]
+	return [tag_ $gi $text]
     }
 }
 
@@ -115,25 +115,25 @@ c_pass 2 fmt_manpage_begin {title section version} {
     set copyright   [c_get_copyright]
 
     set     hdr ""
-    append  hdr "[markup <html><head>]\n"
-    append  hdr "[markup <title>]$title - $shortdesc [markup </title>]\n"
+    append  hdr [tag html] [tag head] \n
+    append  hdr [tag_ title "$title - $shortdesc"] \n
 
     # Engine parameter - insert 'meta'
-    if {[set meta [Get meta]] != {}} {append hdr [markup $meta]\n}
+    Extend hdr meta
 
-    append  hdr "[markup </head>]\n"
+    append  hdr [tag/ head] \n
     append  hdr [ht_comment [c_provenance]]\n
     if {$copyright != {}} {
 	append  hdr [ht_comment $copyright]\n
     }
-    append  hdr [ht_comment "CVS: \$Id\$ $title.$section"]\n
-    append  hdr \n
-    append  hdr [markup <body>]\n
+    append  hdr [ht_comment "CVS: \$Id\$ $title.$section"]
+    append  hdr \n\n
+    append  hdr [tag body] [tag* div id doctools] \n
 
     # Engine parameter - insert 'header'
-    if {[set header [Get header]] != {}} {append hdr [markup $header]\n}
+    Extend hdr header
 
-    append  hdr "[markup <h1>] [string trimleft $title :]($section) $version $module \"$shortdesc\"[markup </h1>]\n"
+    append  hdr [tag_ h1 "[string trimleft $title :]($section) $version $module \"$shortdesc\""] \n
     append  hdr [fmt_section NAME]\n
     append  hdr "[para_open] $title - $description"
     return $hdr
@@ -170,25 +170,26 @@ c_pass 2 fmt_manpage_end {} {
 	append res [join [split $ct \n] [tag br]\n] [tag br]\n
     }
 
-    append res [para_close]
+   # Close last paragraph, subsection, and section.
+    append res [para_close][subsec_close][sec_close]
 
     # Engine parameter - insert 'footer'
-    if {[set footer [Get footer]] != {}} {append res [markup $footer]\n}
+    Extend res footer
 
-    append res [markup </body></html>]
+    append res [tag/ div] [tag/ body] [tag/ html]
     return $res
 }
 
 c_pass 1 fmt_section {name} {c_newSection $name 1 end}
 c_pass 2 fmt_section {name} {
     set id [c_sectionId $name]
-    return "[para_close][markup <h2><]a name=[markup \"]$id[markup \">]$name[markup </a></h2>]\n[para_open]"
+    return "[sec_open $id][markup <h2><]a name=[markup \"]$id[markup \">]$name[markup </a></h2>]\n[para_open]"
 }
 
 c_pass 1 fmt_subsection {name} {c_newSection $name 2 end}
 c_pass 2 fmt_subsection {name} {
     set id [c_sectionId $name]
-    return "[para_close][markup <h3><]a name=[markup \"]$id[markup \">]$name[markup </a></h3>]\n[para_open]"
+    return "[subsec_open $id][markup <h3><]a name=[markup \"]$id[markup \">]$name[markup </a></h3>]\n[para_open]"
 }
 
 proc fmt_para {} {para_open}
@@ -261,10 +262,8 @@ c_pass 2 fmt_description {} {
 
     foreach {name id level} $sections {
 	append result \
-		[markup [string repeat "&nbsp;&nbsp;&nbsp;&nbsp;" $level]] \
-		[taga a [list href #$id]] \
-		$name \
-		[tag/ a][tag br]\n
+	    [markup [string repeat "&nbsp;&nbsp;&nbsp;&nbsp;" $level]] \
+	    [link $name "#$id"] [tag br] \n
     }
 
     # Implicit sections coming after the TOC (Synopsis, then the
@@ -276,13 +275,15 @@ c_pass 2 fmt_description {} {
 	append result [fmt_section SYNOPSIS]\n
     }
     if {$req != {}} {
-	append result $req \n
-	append result [markup <br>]
+	append result $req \n [tag br]
     }
     if {$syn != {}} {
 	proc bgcolor {} {return lightyellow}
 
-	append result [btable][tr][td][table]${syn}\n[markup </table></td></tr></table>]\n
+	append result \
+	    [btable] [tr] [td] [table] \
+	    $syn \n \
+	    [tag/ table] [tag/ td] [tag/ tr] [tag/ table] \n
 
 	proc bgcolor {} {return ""}
     }
@@ -333,22 +334,22 @@ proc fmt_cmd_def  {command} {fmt_lst_item [fmt_cmd $command]}
 
 proc fmt_arg_def {type name {mode {}}} {
     set    text ""
-    append text "$type [fmt_arg $name]"
+    append text $type " " [fmt_arg $name]
     if {$mode != {}} {
-	append text " ($mode)"
+	append text " (" $mode ")"
     }
     fmt_lst_item $text
 }
 proc fmt_opt_def {name {arg {}}} {
     set text [fmt_option $name]
-    if {$arg != {}} {append text " $arg"}
+    if {$arg != {}} {append text " " $arg}
     fmt_lst_item $text
 }
 proc fmt_tkoption_def {name dbname dbclass} {
     set    text ""
-    append text "Command-Line Switch:\t[fmt_option $name][markup <br>]\n"
-    append text "Database Name:\t[bold $dbname optdbname][markup <br>]\n"
-    append text "Database Class:\t[bold $dbclass optdbclass][markup <br>]\n"
+    append text "Command-Line Switch:\t[fmt_option $name][tag br]\n"
+    append text "Database Name:\t[bold $dbname optdbname][tag br]\n"
+    append text "Database Class:\t[bold $dbclass optdbclass][tag br]\n"
     fmt_lst_item $text
 }
 
@@ -357,10 +358,10 @@ proc fmt_tkoption_def {name dbname dbclass} {
 
 proc fmt_example_begin {} {
     lsmark 0
-    return [para_close][markup "<table><tr><td bgcolor=black>&nbsp;</td><td><pre class='sample'>"]
+    return [para_close][tag* div class example][tag table][tag tr][tag_ td [markup "&nbsp;"] bgcolor black][tag td][tag* pre class sample]
 }
 proc fmt_example_end   {} {
-    return [markup "</pre></td></tr></table>"][para_open]
+    return [tag/ pre][tag/ td][tag/ tr][tag/ table][tag/ div][para_open]
 }
 proc fmt_example {code} {
     return "[fmt_example_begin][fmt_plain_text $code][fmt_example_end]"
@@ -370,28 +371,20 @@ proc fmt_nl {} {
     if {[lcompact]} {return [tag br]}
     return [tag br][tag br]
 }
-proc fmt_arg    {text} { return [italic $text                arg] }
-proc fmt_cmd    {text} { return [bold   [XrefMatch $text sa] cmd] }
-proc fmt_emph	{text} { em $text }
+proc fmt_arg  {text} { italic $text                arg }
+proc fmt_cmd  {text} { bold   [XrefMatch $text sa] cmd }
+proc fmt_emph {text} { em     $text }
+proc fmt_opt  {text} { span   "?$text?" opt }
 
-proc strong {text} {return "[markup <strong>]$text[markup </strong>]"}
-proc em     {text} {return "[markup <em>]$text[markup </em>]"}
-
-proc bold   {text class} {return "[markup <]b class='$class'[markup >]$text[markup </b>]"}
-proc italic {text class} {return "[markup <]i class='$class'[markup >]$text[markup </i>]"}
-
-
-
-proc fmt_opt     {text} {return "?$text?" }
 proc fmt_comment {text} {ht_comment $text}
 proc fmt_sectref {text {label {}}} {
     global SectionNames
     if {![string length $label]} {set label $text}
     set id [c_sectionId $text]
     if {[info exists SectionNames($id)]} {
-    	return "[markup <]a href=[markup \"]#$id[markup \">]$label[markup </a>]"
+    	return [span [link $label "#$id"] sectref]
     } else {
-    	return "[markup <b>]$label[markup </b>]"
+	return [bold $label sectref]
     }
 }
 
@@ -408,10 +401,48 @@ proc fmt_file    {text} {return "\"[bold $text file]\""}
 proc fmt_namespace     {text} {bold $text namespace}
 proc fmt_uri     {text {label {}}} {
     if {$label == {}} {set label $text}
-    return "[markup <]a href=[markup \"]$text[markup \">]$label[markup </a>]"
+    return [link $label $text]
 }
 proc fmt_term    {text} {italic [XrefMatch $text kw sa] term}
 proc fmt_const   {text} {bold $text const}
+
+################################################################
+
+global sec_is_open
+set    sec_is_open 0
+
+proc sec_open  {id} {
+    global sec_is_open
+    set res [para_close][subsec_close][sec_close][tag* div id $id class section]
+    set sec_is_open 1
+    return $res
+}
+
+proc sec_close {}   {
+    global sec_is_open
+    if {!$sec_is_open} {return ""}
+    set sec_is_open 0
+    return [tag/ div]\n
+}
+
+################################################################
+
+global subsec_is_open
+set    subsec_is_open 0
+
+proc subsec_open  {id} {
+    global subsec_is_open
+    set res [para_close][subsec_close][tag* div id $id class subsection]
+    set subsec_is_open 1
+    return $res
+}
+
+proc subsec_close {}   {
+    global subsec_is_open
+    if {!$subsec_is_open} {return ""}
+    set subsec_is_open 0
+    return [tag/ div]\n
+}
 
 ################################################################
 
@@ -420,18 +451,16 @@ set    para_is_open 0
 
 proc para_open {} {
     global para_is_open
-    if {$para_is_open} {
-	return [para_close][tag p]
-    }
+    set res [para_close][tag p]
     set para_is_open 1
-    return [tag p]
+    return $res
 }
 
 proc para_close {} {
     global para_is_open
     if {!$para_is_open} {return ""}
     set para_is_open 0
-    return [tag/ p]
+    return [tag/ p]\n
 }
 
 ################################################################
@@ -451,6 +480,15 @@ proc fmt_varset        {varname text} {
     global __var
     if {![info exists __var($varname)]} {return -code error "Unknown engine variable \"$varname\""}
     set __var($varname) $text
+    return
+}
+
+# Engine parameter handling
+proc Extend {v by} {
+    set html [Get $by]
+    if {$html == {}} return
+    upvar 1 $v text
+    append text [markup $html] \n
     return
 }
 
@@ -538,6 +576,5 @@ proc XrefLink {dest label} {
     }
 
     #puts_stderr "XrefLink --> $dest"
-
-    return "[markup "<a href=\"$dest\">"]${label}[markup </a>]" ; # "
+    return [link $label $dest]
 }
