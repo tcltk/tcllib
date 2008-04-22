@@ -1,5 +1,5 @@
 <html><head>
-<title>TEST - ..THE_MODULE.. </title>
+<title>TEST - ..THE_MODULE..</title>
 </head>
 <! -- Generated from file '.FILE.' by tcllib/doctools with format 'html'
    -->
@@ -7,28 +7,30 @@
    -->
 <! -- CVS: @ID@ TEST.z
    -->
-
-<body>
-<h1> TEST(z) 3.14.15.926 .MODULE. &quot;..THE_MODULE..&quot;</h1>
-<h2><a name="name">NAME</a></h2>
-<p>
-</p><p> TEST - ..THE_TITLE..
-
-
-
-
-<h2><a name="table_of_contents">TABLE OF CONTENTS</a></h2>
+<body><div id="doctools">
+<h1>TEST(z) 3.14.15.926 .MODULE. &quot;..THE_MODULE..&quot;</h1>
+<div id="name" class="section"><h2><a name="name">NAME</a></h2>
+<p> TEST - ..THE_TITLE..
+</p>
+</div>
+<div id="table_of_contents" class="section"><h2><a name="table_of_contents">TABLE OF CONTENTS</a></h2>
 <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#table_of_contents">TABLE OF CONTENTS</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#synopsis">SYNOPSIS</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#description">DESCRIPTION</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#copyright">COPYRIGHT</a><br>
-</p><h2><a name="synopsis">SYNOPSIS</a></h2>
+</p>
+</div>
+<div id="synopsis" class="section"><h2><a name="synopsis">SYNOPSIS</a></h2>
 <p>
 package require <b>AAA</b><br>
 package require <b>BBB VVV</b><br>
-<br></p><h2><a name="description">DESCRIPTION</a></h2>
-<p>
-</p><h2><a name="copyright">COPYRIGHT</a></h2>
+<br></p>
+</div>
+<div id="description" class="section"><h2><a name="description">DESCRIPTION</a></h2>
+</div>
+<div id="copyright" class="section"><h2><a name="copyright">COPYRIGHT</a></h2>
 <p>
 Copyright &copy; .COPYRIGHT.<br>
-</p></body></html>
+</p>
+</div>
+</div></body></html>
