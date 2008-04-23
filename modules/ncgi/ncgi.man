@@ -64,7 +64,8 @@ empty string as its value.
 
 [call [cmd ::ncgi::exists] [arg name]]
 
-Returns 1 if the CGI variable [arg name] is not present.
+The return value is a boolean. It returns [const 0] if the CGI
+variable [arg name] is not present, and [const 1] otherwise.
 
 
 [call [cmd ::ncgi::encode] [arg string]]
