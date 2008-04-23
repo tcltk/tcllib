@@ -613,15 +613,15 @@ proc ::ncgi::setDefaultValueList {key valuelist} {
     }
 }
 
-# ::ncgi::empty --
+# ::ncgi::exists --
 #
-#	Return true if the CGI variable doesn't exist.
+#	Return false if the CGI variable doesn't exist.
 #
 # Arguments:
 #	name	Name of the CGI variable
 #
 # Results:
-#	1 if the variable doesn't exist
+#	0 if the variable doesn't exist
 
 proc ::ncgi::exists {var} {
     variable value
