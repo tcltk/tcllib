@@ -1,3 +1,14 @@
+2008-04-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tests/man/02: Added see_also and keyword references to this
+	* tests/html/02: example. Updated all changed results.
+	* tests/latex/02: 
+	* tests/list/02: 
+	* tests/nroff/02: 
+	* tests/text/02: 
+	* tests/tmml/02: 
+	* tests/wiki/02: 
+
 2008-04-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/fmt.html: Modified to put sections and subsections

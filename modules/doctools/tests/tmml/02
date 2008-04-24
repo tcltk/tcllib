@@ -13,6 +13,8 @@
 
 
 
+
+
 <synopsis>
 <syntax>
 package require <package>AAA</package> 
@@ -22,7 +24,13 @@ package require <package>BBB</package> VVV
 <section>
 <title>DESCRIPTION</title>
 </section>
-
-
+<seealso>
+<ref>OTHER</ref>
+<ref>ELSE</ref>
+</seealso>
+<keywords>
+<keyword>KEYA</keyword>
+<keyword>KEYZ</keyword>
+</keywords>
 
 </manpage>

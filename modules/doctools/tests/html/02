@@ -17,6 +17,8 @@
 <p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#table_of_contents">TABLE OF CONTENTS</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#synopsis">SYNOPSIS</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#description">DESCRIPTION</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#see_also">SEE ALSO</a><br>
+&nbsp;&nbsp;&nbsp;&nbsp;<a href="#keywords">KEYWORDS</a><br>
 &nbsp;&nbsp;&nbsp;&nbsp;<a href="#copyright">COPYRIGHT</a><br>
 </p>
 </div>
@@ -27,6 +29,16 @@ package require <b>BBB VVV</b><br>
 <br></p>
 </div>
 <div id="description" class="section"><h2><a name="description">DESCRIPTION</a></h2>
+</div>
+<div id="see_also" class="section"><h2><a name="see_also">SEE ALSO</a></h2>
+<p>
+ELSE, OTHER
+</p>
+</div>
+<div id="keywords" class="section"><h2><a name="keywords">KEYWORDS</a></h2>
+<p>
+KEYA, KEYZ
+</p>
 </div>
 <div id="copyright" class="section"><h2><a name="copyright">COPYRIGHT</a></h2>
 <p>

@@ -14,6 +14,10 @@ package require \fBBBB  VVV\fR
 .sp
 .BE
 .SH DESCRIPTION
+.SH "SEE ALSO"
+ELSE, OTHER
+.SH KEYWORDS
+KEYA, KEYZ
 .SH COPYRIGHT
 .nf
 Copyright (c) .COPYRIGHT.
