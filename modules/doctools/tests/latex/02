@@ -12,6 +12,10 @@ package require {\bf AAA}
 package require {\bf BBB VVV}
 \end{flushleft}
 \section{DESCRIPTION}
+\section{SEE ALSO}
+ELSE, OTHER
+\section{KEYWORDS}
+KEYA, KEYZ
 \section{COPYRIGHT}
 \begin{flushleft}
 Copyright (c) .COPYRIGHT.\linebreak

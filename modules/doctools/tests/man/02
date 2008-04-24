@@ -3,5 +3,7 @@
 [titledesc ..THE_TITLE..]
 [require AAA]
 [require BBB VVV]
+[keywords KEYA KEYZ]
+[see_also OTHER ELSE]
 [description]
 [manpage_end]
