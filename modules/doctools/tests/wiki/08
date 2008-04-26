@@ -1,0 +1,85 @@
+ALL 5 '''.MODULE.''' ''''
+
+
+
+
+----
+'''SYNOPSIS'''
+
+
+   * CMDNAME ...
+
+   * CMDNAME ...
+
+   * CMDNAME ...
+
+
+
+
+----
+'''DESCRIPTION'''
+
+
+
+   ''NAME'' TYPE:  DESCRIPTION
+
+   ''NAME'' TYPE:  DESCRIPTION
+
+   ''NAME'' TYPE (MODE):  DESCRIPTION
+
+   '''NAME''':   DESCRIPTION
+
+   '''NAME''':   DESCRIPTION
+
+   '''NAME''':   DESCRIPTION
+
+   TERM:   DESCRIPTION
+
+   TERM:   DESCRIPTION
+
+   TERM:   DESCRIPTION
+
+   CMDNAME ...:   DESCRIPTION
+
+   CMDNAME ...:   DESCRIPTION
+
+   CMDNAME ...:   DESCRIPTION
+
+   1.  PARAGRAPH
+
+   1.  PARAGRAPH
+
+   1.  PARAGRAPH
+
+   *  PARAGRAPH
+
+   *  PARAGRAPH
+
+   *  PARAGRAPH
+
+   '''NAME''':   DESCRIPTION
+
+   '''NAME''':   DESCRIPTION
+
+   '''NAME''' ARGUMENT:   DESCRIPTION
+
+   Command-Line Switch:	'''NAME'''
+   Database Name:	'''DBNAME'''
+   Database Class:	'''CLASS'''
+   *  DESCRIPTION
+
+   Command-Line Switch:	'''NAME'''
+   Database Name:	'''DBNAME'''
+   Database Class:	'''CLASS'''
+   *  DESCRIPTION
+
+   Command-Line Switch:	'''NAME'''
+   Database Name:	'''DBNAME'''
+   Database Class:	'''CLASS'''
+   *  DESCRIPTION
+
+----
+'''COPYRIGHT'''
+
+ Copyright (c) .COPYRIGHT.
+
