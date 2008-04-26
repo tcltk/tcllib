@@ -1,0 +1,114 @@
+
+ALL - 
+Generated from file '.FILE.' by tcllib/doctools with format 'text'
+ALL(a) 5 .MODULE. ""
+
+NAME
+====
+
+ALL -
+
+SYNOPSIS
+========
+
+CMDNAME ...
+CMDNAME ...
+CMDNAME ...
+
+DESCRIPTION
+===========
+
+    TYPE NAME
+
+        DESCRIPTION
+
+    TYPE NAME
+
+        DESCRIPTION
+
+    TYPE NAME (MODE)
+
+        DESCRIPTION
+
+    NAME
+
+        DESCRIPTION
+
+    NAME
+
+        DESCRIPTION
+
+    NAME
+
+        DESCRIPTION
+
+    TERM
+
+        DESCRIPTION
+
+    TERM
+
+        DESCRIPTION
+
+    TERM
+
+        DESCRIPTION
+
+    CMDNAME ...
+
+        DESCRIPTION
+
+    CMDNAME ...
+
+        DESCRIPTION
+
+    CMDNAME ...
+
+        DESCRIPTION
+
+    [1] PARAGRAPH
+
+    [2] PARAGRAPH
+
+    [3] PARAGRAPH
+
+    *   PARAGRAPH
+
+    *   PARAGRAPH
+
+    *   PARAGRAPH
+
+    NAME
+
+        DESCRIPTION
+
+    NAME
+
+        DESCRIPTION
+
+    NAME ARGUMENT
+
+        DESCRIPTION
+
+    Command-Line Switch:	NAME
+    Database Name:	*DBNAME*
+    Database Class:	*CLASS*
+
+        DESCRIPTION
+
+    Command-Line Switch:	NAME
+    Database Name:	*DBNAME*
+    Database Class:	*CLASS*
+
+        DESCRIPTION
+
+    Command-Line Switch:	NAME
+    Database Name:	*DBNAME*
+    Database Class:	*CLASS*
+
+        DESCRIPTION
+
+COPYRIGHT
+=========
+
+Copyright (c) .COPYRIGHT.

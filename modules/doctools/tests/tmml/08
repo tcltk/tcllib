@@ -1,0 +1,178 @@
+
+<!-- Generated from file '.FILE.' by tcllib/doctools with format 'tmml' -->
+<manpage id='.FILE' cat='cmd' title='ALL' version='5' package='.MODULE.'>
+<head>
+<info key='copyright' value='Copyright (c) .COPYRIGHT.'/>
+</head>
+<namesection>
+<name>ALL</name>
+<desc></desc>
+
+</namesection>
+
+<synopsis>
+<syntax>
+CMDNAME ...
+CMDNAME ...
+CMDNAME ...
+</syntax>
+</synopsis>
+<section>
+<title>DESCRIPTION</title>
+
+<arglist>
+
+<argdef>
+<argtype>TYPE</argtype>
+<name>NAME</name>
+
+<desc> DESCRIPTION
+</desc>
+</argdef>
+<argdef>
+<argtype>TYPE</argtype>
+<name>NAME</name>
+
+<desc> DESCRIPTION
+</desc>
+</argdef>
+<argdef>
+<argtype>TYPE</argtype>
+<name>NAME</name>
+<argmode>MODE</argmode>
+<desc> DESCRIPTION
+</desc>
+</argdef>
+
+</arglist>
+
+<commandlist>
+
+<commanddef>
+<command>NAME</command>
+<desc> DESCRIPTION
+</desc>
+</commanddef>
+<commanddef>
+<command>NAME</command>
+<desc> DESCRIPTION
+</desc>
+</commanddef>
+<commanddef>
+<command>NAME</command>
+<desc> DESCRIPTION
+</desc>
+</commanddef>
+
+</commandlist>
+
+<dl>
+
+<dle>
+<dt>TERM</dt>
+<dd> DESCRIPTION
+</dd>
+</dle>
+<dle>
+<dt>TERM</dt>
+<dd> DESCRIPTION
+</dd>
+</dle>
+<dle>
+<dt>TERM</dt>
+<dd> DESCRIPTION
+</dd>
+</dle>
+<dle>
+<dt>CMDNAME ...</dt>
+<dd> DESCRIPTION
+</dd>
+</dle>
+<dle>
+<dt>CMDNAME ...</dt>
+<dd> DESCRIPTION
+</dd>
+</dle>
+<dle>
+<dt>CMDNAME ...</dt>
+<dd> DESCRIPTION
+</dd>
+</dle>
+
+</dl>
+
+<ol>
+
+<li> PARAGRAPH
+</li>
+<li> PARAGRAPH
+</li>
+<li> PARAGRAPH
+</li>
+
+</ol>
+
+<ul>
+
+<li> PARAGRAPH
+</li>
+<li> PARAGRAPH
+</li>
+<li> PARAGRAPH
+</li>
+
+</ul>
+
+<optlist>
+
+<optdef>
+<optname>NAME</optname>
+
+<desc> DESCRIPTION
+</desc>
+</optdef>
+<optdef>
+<optname>NAME</optname>
+
+<desc> DESCRIPTION
+</desc>
+</optdef>
+<optdef>
+<optname>NAME</optname>
+<optarg>ARGUMENT</optarg>
+<desc> DESCRIPTION
+</desc>
+</optdef>
+
+</optlist>
+
+<optionlist>
+
+<optiondef>
+<name>NAME</name>
+<dbname>DBNAME</dbname>
+<dbclass>CLASS</dbclass>
+<desc> DESCRIPTION
+</desc>
+</optiondef>
+<optiondef>
+<name>NAME</name>
+<dbname>DBNAME</dbname>
+<dbclass>CLASS</dbclass>
+<desc> DESCRIPTION
+</desc>
+</optiondef>
+<optiondef>
+<name>NAME</name>
+<dbname>DBNAME</dbname>
+<dbclass>CLASS</dbclass>
+<desc> DESCRIPTION
+</desc>
+</optiondef>
+
+</optionlist>
+</section>
+
+
+
+</manpage>

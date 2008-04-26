@@ -1,0 +1,42 @@
+[comment {LISTS, ALL TYPES}]
+[manpage_begin ALL a 5]
+[description]
+[list_begin arguments]
+[arg_def TYPE NAME] DESCRIPTION
+[arg_def TYPE NAME] DESCRIPTION
+[arg_def TYPE NAME MODE] DESCRIPTION
+[list_end]
+[list_begin commands]
+[cmd_def NAME] DESCRIPTION
+[cmd_def NAME] DESCRIPTION
+[cmd_def NAME] DESCRIPTION
+[list_end]
+[list_begin definitions]
+[def TERM] DESCRIPTION
+[def TERM] DESCRIPTION
+[def TERM] DESCRIPTION
+[call CMDNAME ...] DESCRIPTION
+[call CMDNAME ...] DESCRIPTION
+[call CMDNAME ...] DESCRIPTION
+[list_end]
+[list_begin enumerated]
+[enum] PARAGRAPH
+[enum] PARAGRAPH
+[enum] PARAGRAPH
+[list_end]
+[list_begin itemized]
+[item] PARAGRAPH
+[item] PARAGRAPH
+[item] PARAGRAPH
+[list_end]
+[list_begin options]
+[opt_def NAME] DESCRIPTION
+[opt_def NAME] DESCRIPTION
+[opt_def NAME ARGUMENT] DESCRIPTION
+[list_end]
+[list_begin tkoptions]
+[tkoption_def NAME DBNAME CLASS] DESCRIPTION
+[tkoption_def NAME DBNAME CLASS] DESCRIPTION
+[tkoption_def NAME DBNAME CLASS] DESCRIPTION
+[list_end]
+[manpage_end]

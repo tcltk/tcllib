@@ -1,3 +1,16 @@
+2008-04-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tests/man/08: Added test demonstrating all possible list types.
+	* tests/desc/08:
+	* tests/html/08:
+	* tests/latex/08:
+	* tests/list/08:
+	* tests/nroff/08:
+	* tests/null/08:
+	* tests/text/08:
+	* tests/tmml/08:
+	* tests/wiki/08:
+
 2008-04-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tests/man/02: Added see_also and keyword references to this
