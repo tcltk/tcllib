@@ -1,0 +1,117 @@
+'\"
+'\" Generated from file '.FILE.' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) .COPYRIGHT.
+'\"
+.so man.macros
+.TH "ALL" a 5 .MODULE. ""
+.BS
+.SH NAME
+ALL \-
+.SH SYNOPSIS
+CMDNAME ...
+.sp
+CMDNAME ...
+.sp
+CMDNAME ...
+.sp
+.BE
+.SH DESCRIPTION
+.TP
+TYPE \fINAME\fR
+DESCRIPTION
+.TP
+TYPE \fINAME\fR
+DESCRIPTION
+.TP
+TYPE \fINAME\fR (MODE)
+DESCRIPTION
+.PP
+.TP
+\fBNAME\fR
+DESCRIPTION
+.TP
+\fBNAME\fR
+DESCRIPTION
+.TP
+\fBNAME\fR
+DESCRIPTION
+.PP
+.TP
+TERM
+DESCRIPTION
+.TP
+TERM
+DESCRIPTION
+.TP
+TERM
+DESCRIPTION
+.TP
+CMDNAME ...
+DESCRIPTION
+.TP
+CMDNAME ...
+DESCRIPTION
+.TP
+CMDNAME ...
+DESCRIPTION
+.PP
+.IP [1]
+PARAGRAPH
+.IP [2]
+PARAGRAPH
+.IP [3]
+PARAGRAPH
+.PP
+.IP \(bu
+PARAGRAPH
+.IP \(bu
+PARAGRAPH
+.IP \(bu
+PARAGRAPH
+.PP
+.TP
+\fBNAME\fR
+DESCRIPTION
+.TP
+\fBNAME\fR
+DESCRIPTION
+.TP
+\fBNAME\fR ARGUMENT
+DESCRIPTION
+.PP
+.LP
+.nf
+.ta 6c
+Command-Line Switch:	\fBNAME\fR
+Database Name:	\fBDBNAME\fR
+Database Class:	\fBCLASS\fR
+
+.fi
+.IP
+DESCRIPTION
+.LP
+.nf
+.ta 6c
+Command-Line Switch:	\fBNAME\fR
+Database Name:	\fBDBNAME\fR
+Database Class:	\fBCLASS\fR
+
+.fi
+.IP
+DESCRIPTION
+.LP
+.nf
+.ta 6c
+Command-Line Switch:	\fBNAME\fR
+Database Name:	\fBDBNAME\fR
+Database Class:	\fBCLASS\fR
+
+.fi
+.IP
+DESCRIPTION
+.PP
+.SH COPYRIGHT
+.nf
+Copyright (c) .COPYRIGHT.
+
+.fi
