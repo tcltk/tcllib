@@ -1,3 +1,15 @@
+2008-04-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/fmt.html: Changed example formatting, removed the nested
+	* tests/html/*: table structure. Changed toc and synopsis
+	  formatting to be more sematical, using classed unordered lists.
+	  Added classes to the list formatting. Removed hardwired
+	  linebreaks between last list element and end of list. Replaced
+	  linebreaks in list items with proper paragraph formatting. Fixed
+	  initialization error causing spurious para_close at the
+	  beginning. Added foundation for an internal style-sheet. No
+	  definitions yet however.
+
 2008-04-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tests/man/08: Added test demonstrating all possible list types.
