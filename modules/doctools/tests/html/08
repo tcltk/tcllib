@@ -1,29 +1,41 @@
 
 <html><head>
-<title>ALL - </title>
+<title>ALL - ..THE_MODULE..</title>
 <style type="text/css"><!--
 --></style>
 </head>
 <! -- Generated from file '.FILE.' by tcllib/doctools with format 'html'
    -->
-<! -- Copyright &copy; .COPYRIGHT.
+<! -- Copyright &copy; **Copyright**
    -->
 <! -- CVS: @ID@ ALL.a
    -->
 <body><div class="doctools">
-<h1>ALL(a) 5 .MODULE. &quot;&quot;</h1>
+<h1>ALL(a) 5 .MODULE. &quot;..THE_MODULE..&quot;</h1>
 <div id="name" class="section"><h2><a name="name">NAME</a></h2>
-<p>ALL -</p>
+<p>ALL - ..THE_TITLE..</p>
 </div>
 <div id="table_of_contents" class="section"><h2><a name="table_of_contents">TABLE OF CONTENTS</a></h2>
 <ul class="toc">
 <li class="section"><a href="#table_of_contents">TABLE OF CONTENTS</a></li>
 <li class="section"><a href="#synopsis">SYNOPSIS</a></li>
 <li class="section"><a href="#description">DESCRIPTION</a></li>
+<li class="section"><a href="#api">API</a>
+<ul>
+<li class="subsection"><a href="#nargle">NARGLE</a></li>
+</ul>
+</li>
+<li class="section"><a href="#see_also">SEE ALSO</a></li>
+<li class="section"><a href="#keywords">KEYWORDS</a></li>
 <li class="section"><a href="#copyright">COPYRIGHT</a></li>
 </ul>
 </div>
 <div id="synopsis" class="section"><h2><a name="synopsis">SYNOPSIS</a></h2>
+<ul class="requirements">
+<li>package require <b class="pkgname">AAA</b></li>
+<li>package require <b class="pkgname">BBB VVV</b></li>
+<li>package require <b class="pkgname">CCC <span class="opt">?VVV?</span></b></li>
+</ul>
 <ul class="syntax">
 <li><a href="#1">CMDNAME ...</a></li>
 <li><a href="#2">CMDNAME ...</a></li>
@@ -31,73 +43,89 @@
 </ul>
 </div>
 <div id="description" class="section"><h2><a name="description">DESCRIPTION</a></h2>
-<dl class="arguments">
-<dt>TYPE <i class="arg">NAME</i></dt>
-<dd><p>DESCRIPTION</p></dd>
-<dt>TYPE <i class="arg">NAME</i></dt>
-<dd><p>DESCRIPTION</p></dd>
-<dt>TYPE <i class="arg">NAME</i> (MODE)</dt>
-<dd><p>DESCRIPTION</p></dd>
-</dl>
 <dl class="commands">
 <dt><b class="cmd">NAME</b></dt>
-<dd><p>DESCRIPTION</p></dd>
+<dd><p>DESCRIPTION ::<b class="cmd">Command</b>::</p></dd>
 <dt><b class="cmd">NAME</b></dt>
-<dd><p>DESCRIPTION</p></dd>
+<dd><p>DESCRIPTION ::::</p></dd>
 <dt><b class="cmd">NAME</b></dt>
-<dd><p>DESCRIPTION</p></dd>
+<dd><p>DESCRIPTION ::<b class="const">Constant</b>::</p></dd>
 </dl>
+</div>
+<div id="api" class="section"><h2><a name="api">API</a></h2>
 <dl class="definitions">
 <dt>TERM</dt>
-<dd><p>DESCRIPTION</p></dd>
+<dd><p>DESCRIPTION ::<em>Emphasis</em>::</p></dd>
 <dt>TERM</dt>
-<dd><p>DESCRIPTION</p></dd>
-<dt>TERM</dt>
-<dd><p>DESCRIPTION</p></dd>
-<dt><a name="1">CMDNAME ...</a></dt>
-<dd><p>DESCRIPTION</p></dd>
-<dt><a name="2">CMDNAME ...</a></dt>
-<dd><p>DESCRIPTION</p></dd>
-<dt><a name="3">CMDNAME ...</a></dt>
-<dd><p>DESCRIPTION</p></dd>
-</dl>
-<ol class="enumerated">
-<li><p>PARAGRAPH</p></li>
-<li><p>PARAGRAPH</p></li>
-<li><p>PARAGRAPH</p></li>
-</ol>
-<ul class="itemized">
-<li><p>PARAGRAPH</p></li>
-<li><p>PARAGRAPH</p></li>
-<li><p>PARAGRAPH</p></li>
-</ul>
-<dl class="options">
-<dt><b class="option">NAME</b></dt>
-<dd><p>DESCRIPTION</p></dd>
-<dt><b class="option">NAME</b></dt>
-<dd><p>DESCRIPTION</p></dd>
-<dt><b class="option">NAME</b> ARGUMENT</dt>
-<dd><p>DESCRIPTION</p></dd>
-</dl>
+<dd><p>DESCRIPTION ::&quot;<b class="file">File/Path</b>&quot;::</p>
 <dl class="tkoptions">
 <dt>Command-Line Switch:	<b class="option">NAME</b><br>
 Database Name:	<b class="optdbname">DBNAME</b><br>
 Database Class:	<b class="optdbclass">CLASS</b><br>
 </dt>
-<dd><p>DESCRIPTION</p></dd>
+<dd><p>DESCRIPTION <span class="sectref"><a href="#nargle">NARGLE</a></span></p></dd>
 <dt>Command-Line Switch:	<b class="option">NAME</b><br>
 Database Name:	<b class="optdbname">DBNAME</b><br>
 Database Class:	<b class="optdbclass">CLASS</b><br>
 </dt>
-<dd><p>DESCRIPTION</p></dd>
+<dd><p>DESCRIPTION ::<b class="function">Function</b>::</p></dd>
 <dt>Command-Line Switch:	<b class="option">NAME</b><br>
 Database Name:	<b class="optdbname">DBNAME</b><br>
 Database Class:	<b class="optdbclass">CLASS</b><br>
 </dt>
+<dd><p>DESCRIPTION ::<b class="method">Method</b>::</p></dd>
+</dl></dd>
+<dt>TERM</dt>
 <dd><p>DESCRIPTION</p></dd>
+<dt><a name="1">CMDNAME ...</a></dt>
+<dd><p>DESCRIPTION ::<b class="namespace">Namespace</b>::</p>
+<dl class="arguments">
+<dt>TYPE <i class="arg">NAME</i></dt>
+<dd><p>DESCRIPTION ::<i class="arg">Argument</i>::</p></dd>
+<dt>TYPE <i class="arg">NAME</i></dt>
+<dd><p>DESCRIPTION ::<b class="option">Option</b>::</p></dd>
+<dt>TYPE <i class="arg">NAME</i> (MODE)</dt>
+<dd><p>DESCRIPTION ::<span class="opt">?Optional?</span>::</p>
+<div class="example"><pre class="example">
+    THE ARGUMENT IS USED IN THIS
+    AND/OR THAT MANNER
+</pre></div>
+</dd>
+</dl></dd>
+<dt><a name="2">CMDNAME ...</a></dt>
+<dd><p>DESCRIPTION ::<b class="package">Package</b>::</p></dd>
+<dt><a name="3">CMDNAME ...</a></dt>
+<dd><p>DESCRIPTION ::<b class="syscmd">SystemCommand</b>::</p>
+<dl class="options">
+<dt><b class="option">NAME</b></dt>
+<dd><p>DESCRIPTION ::<i class="term">Term</i>::</p></dd>
+<dt><b class="option">NAME</b></dt>
+<dd><p>DESCRIPTION ::<b class="type">Type</b>::</p></dd>
+<dt><b class="option">NAME</b> ARGUMENT</dt>
+<dd><p>DESCRIPTION ::<a href="Uri">Uri</a>::</p></dd>
+</dl></dd>
 </dl>
+<div id="nargle" class="subsection"><h3><a name="nargle">NARGLE</a></h3>
+<ol class="enumerated">
+<li><p>PARAGRAPH ::<a href="Uri">UriLabel</a>::</p></li>
+<li><p>PARAGRAPH ::<b class="variable">Variable</b>::</p></li>
+<li><p>PARAGRAPH ::<b class="widget">Widget</b>::</p>
+<ul class="itemized">
+<li><p>PARAGRAPH ::<b class="class">Class</b>::</p></li>
+<li><p>PARAGRAPH</p></li>
+<li><p>PARAGRAPH</p></li>
+</ul>
+</li>
+</ol>
+</div>
+</div>
+<div id="see_also" class="section"><h2><a name="see_also">SEE ALSO</a></h2>
+<p>ELSE, OTHER</p>
+</div>
+<div id="keywords" class="section"><h2><a name="keywords">KEYWORDS</a></h2>
+<p>KEYA, KEYZ</p>
 </div>
 <div id="copyright" class="section"><h2><a name="copyright">COPYRIGHT</a></h2>
-<p>Copyright &copy; .COPYRIGHT.</p>
+<p>Copyright &copy; **Copyright**</p>
 </div>
 </div></body></html>
