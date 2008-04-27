@@ -1,6 +1,8 @@
 
 <html><head>
 <title>ALL - </title>
+<style type="text/css"><!--
+--></style>
 </head>
 <! -- Generated from file '.FILE.' by tcllib/doctools with format 'html'
    -->
@@ -8,100 +10,94 @@
    -->
 <! -- CVS: @ID@ ALL.a
    -->
-<body><div id="doctools">
+<body><div class="doctools">
 <h1>ALL(a) 5 .MODULE. &quot;&quot;</h1>
-</p>
 <div id="name" class="section"><h2><a name="name">NAME</a></h2>
-<p> ALL - 
-</p>
+<p>ALL -</p>
 </div>
 <div id="table_of_contents" class="section"><h2><a name="table_of_contents">TABLE OF CONTENTS</a></h2>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#table_of_contents">TABLE OF CONTENTS</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#synopsis">SYNOPSIS</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#description">DESCRIPTION</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#copyright">COPYRIGHT</a><br>
-</p>
+<ul class="toc">
+<li class="section"><a href="#table_of_contents">TABLE OF CONTENTS</a></li>
+<li class="section"><a href="#synopsis">SYNOPSIS</a></li>
+<li class="section"><a href="#description">DESCRIPTION</a></li>
+<li class="section"><a href="#copyright">COPYRIGHT</a></li>
+</ul>
 </div>
 <div id="synopsis" class="section"><h2><a name="synopsis">SYNOPSIS</a></h2>
-<p>
-<table border=1 width=100% cellspacing=0 cellpadding=0><tr            bgcolor=lightyellow><td bgcolor=lightyellow><table 0 width=100% cellspacing=0 cellpadding=0><tr valign=top ><td ><a href="#1">CMDNAME ...</a></td></tr>
-<tr valign=top ><td ><a href="#2">CMDNAME ...</a></td></tr>
-<tr valign=top ><td ><a href="#3">CMDNAME ...</a></td></tr>
-</table></td></tr></table>
-</p>
+<ul class="syntax">
+<li><a href="#1">CMDNAME ...</a></li>
+<li><a href="#2">CMDNAME ...</a></li>
+<li><a href="#3">CMDNAME ...</a></li>
+</ul>
 </div>
 <div id="description" class="section"><h2><a name="description">DESCRIPTION</a></h2>
-<dl>
-<dt>TYPE <i class="arg">NAME</i></dt><dd> DESCRIPTION
-<br><br>
-</dd><dt>TYPE <i class="arg">NAME</i></dt><dd> DESCRIPTION
-<br><br>
-</dd><dt>TYPE <i class="arg">NAME</i> (MODE)</dt><dd> DESCRIPTION
-</dd></dl>
-<dl>
-<dt><b class="cmd">NAME</b></dt><dd> DESCRIPTION
-<br><br>
-</dd><dt><b class="cmd">NAME</b></dt><dd> DESCRIPTION
-<br><br>
-</dd><dt><b class="cmd">NAME</b></dt><dd> DESCRIPTION
-</dd></dl>
-<dl>
-<dt>TERM</dt><dd> DESCRIPTION
-<br><br>
-</dd><dt>TERM</dt><dd> DESCRIPTION
-<br><br>
-</dd><dt>TERM</dt><dd> DESCRIPTION
-<br><br>
-</dd><dt><a name="1">CMDNAME ...</a></dt><dd>
- DESCRIPTION
-<br><br>
-</dd><dt><a name="2">CMDNAME ...</a></dt><dd>
- DESCRIPTION
-<br><br>
-</dd><dt><a name="3">CMDNAME ...</a></dt><dd>
- DESCRIPTION
-</dd></dl>
-<ol>
-<li> PARAGRAPH
-<br><br>
-</li><li> PARAGRAPH
-<br><br>
-</li><li> PARAGRAPH
-</li></ol>
-<ul>
-<li> PARAGRAPH
-<br><br>
-</li><li> PARAGRAPH
-<br><br>
-</li><li> PARAGRAPH
-</li></ul>
-<dl>
-<dt><b class="option">NAME</b></dt><dd> DESCRIPTION
-<br><br>
-</dd><dt><b class="option">NAME</b></dt><dd> DESCRIPTION
-<br><br>
-</dd><dt><b class="option">NAME</b> ARGUMENT</dt><dd> DESCRIPTION
-</dd></dl>
-<dl>
+<dl class="arguments">
+<dt>TYPE <i class="arg">NAME</i></dt>
+<dd><p>DESCRIPTION</p></dd>
+<dt>TYPE <i class="arg">NAME</i></dt>
+<dd><p>DESCRIPTION</p></dd>
+<dt>TYPE <i class="arg">NAME</i> (MODE)</dt>
+<dd><p>DESCRIPTION</p></dd>
+</dl>
+<dl class="commands">
+<dt><b class="cmd">NAME</b></dt>
+<dd><p>DESCRIPTION</p></dd>
+<dt><b class="cmd">NAME</b></dt>
+<dd><p>DESCRIPTION</p></dd>
+<dt><b class="cmd">NAME</b></dt>
+<dd><p>DESCRIPTION</p></dd>
+</dl>
+<dl class="definitions">
+<dt>TERM</dt>
+<dd><p>DESCRIPTION</p></dd>
+<dt>TERM</dt>
+<dd><p>DESCRIPTION</p></dd>
+<dt>TERM</dt>
+<dd><p>DESCRIPTION</p></dd>
+<dt><a name="1">CMDNAME ...</a></dt>
+<dd><p>DESCRIPTION</p></dd>
+<dt><a name="2">CMDNAME ...</a></dt>
+<dd><p>DESCRIPTION</p></dd>
+<dt><a name="3">CMDNAME ...</a></dt>
+<dd><p>DESCRIPTION</p></dd>
+</dl>
+<ol class="enumerated">
+<li><p>PARAGRAPH</p></li>
+<li><p>PARAGRAPH</p></li>
+<li><p>PARAGRAPH</p></li>
+</ol>
+<ul class="itemized">
+<li><p>PARAGRAPH</p></li>
+<li><p>PARAGRAPH</p></li>
+<li><p>PARAGRAPH</p></li>
+</ul>
+<dl class="options">
+<dt><b class="option">NAME</b></dt>
+<dd><p>DESCRIPTION</p></dd>
+<dt><b class="option">NAME</b></dt>
+<dd><p>DESCRIPTION</p></dd>
+<dt><b class="option">NAME</b> ARGUMENT</dt>
+<dd><p>DESCRIPTION</p></dd>
+</dl>
+<dl class="tkoptions">
 <dt>Command-Line Switch:	<b class="option">NAME</b><br>
 Database Name:	<b class="optdbname">DBNAME</b><br>
 Database Class:	<b class="optdbclass">CLASS</b><br>
-</dt><dd> DESCRIPTION
-<br><br>
-</dd><dt>Command-Line Switch:	<b class="option">NAME</b><br>
+</dt>
+<dd><p>DESCRIPTION</p></dd>
+<dt>Command-Line Switch:	<b class="option">NAME</b><br>
 Database Name:	<b class="optdbname">DBNAME</b><br>
 Database Class:	<b class="optdbclass">CLASS</b><br>
-</dt><dd> DESCRIPTION
-<br><br>
-</dd><dt>Command-Line Switch:	<b class="option">NAME</b><br>
+</dt>
+<dd><p>DESCRIPTION</p></dd>
+<dt>Command-Line Switch:	<b class="option">NAME</b><br>
 Database Name:	<b class="optdbname">DBNAME</b><br>
 Database Class:	<b class="optdbclass">CLASS</b><br>
-</dt><dd> DESCRIPTION
-</dd></dl>
+</dt>
+<dd><p>DESCRIPTION</p></dd>
+</dl>
 </div>
 <div id="copyright" class="section"><h2><a name="copyright">COPYRIGHT</a></h2>
-<p>
-Copyright &copy; .COPYRIGHT.<br>
-</p>
+<p>Copyright &copy; .COPYRIGHT.</p>
 </div>
 </div></body></html>

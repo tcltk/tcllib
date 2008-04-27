@@ -2,7 +2,7 @@
 #
 # fmt.html
 #
-# Copyright (c) 2001-2003 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2001-2008 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # Definitions to convert a tcl based manpage definition into
 # a manpage based upon HTML markup.
@@ -13,7 +13,7 @@
 dt_source _common.tcl   ; # Shared code
 dt_source _html.tcl     ; # HTML basic formatting
 
-proc c_copyrightsymbol {} {markup "&copy;"}
+proc c_copyrightsymbol {} {return "[markup "&"]copy;"}
 
 proc bgcolor {} {return ""}
 proc border  {} {return 0}
@@ -34,7 +34,7 @@ proc c_possibleReference {text gi} {
     }
 }
 
-c_holdBuffers require
+c_holdBuffers require synopsis
 
 ################################################################
 ## Backend for HTML markup
@@ -45,60 +45,24 @@ c_holdBuffers require
 # existing checks.
 
 global liststack ; # stack of list tags to use in list_end
-global hintstack ; # stack of hint information.
-global chint     ; # current hint settings
-global lmark     ; # boolean flag, 1 = list item command was last
-#                ; #               0 = something other than a list item command
+set    liststack {}
 
-set    liststack [list]
-set    hintstack [list]
-set    chint     ""
-set    lmark     0
-set    prev_litem_close   {} ;# Piece of html to close the previous list element, if any.
-#                   ;# Saved on the stack!
-
-proc llevel {} {global liststack ; return [llength $liststack]}
-
-proc lpush {t hint} {
-    global  liststack hintstack chint prev_litem_close
-    lappend liststack [list [tag/ $t] $prev_litem_close]
-    lappend hintstack $chint
-    set     chint $hint
-    set prev_litem_close {}
-    return [tag $t]
+proc lpush {t class} {
+    global  liststack 
+    lappend liststack [list [tag/ $t] [litc_getandclear]]
+    return [taga $t [list class $class]]
 }
 
 proc lpop {} {
-    global liststack hintstack chint prev_litem_close
+    global liststack
     set t         [lindex   $liststack end]
     set liststack [lreplace $liststack end end]
-    set chint     [lindex   $hintstack end]
-    set hintstack [lreplace $hintstack end end]
-    foreach {t prev_litem_close} $t break
+    foreach {t l} $t break
+    litc_set $l
     return $t
 }
 
-proc lsmark {value} {
-    global lmark ; set lmark $value ; return
-}
-
-proc limark {} {
-    # hint and mark processing.
-    # hint: compact list, do not create additional whitespace
-    if {[lcompact]} {return ""}
-
-    # hint: wide list, create additional whitespace.
-    # mark: exception: two list items following each other have no whitespace.
-    global lmark ; if {$lmark} {return ""}
-    return [tag br][tag br]\n
-}
-
-proc lcompact {} {global chint ; string equal $chint compact}
-
 proc fmt_plain_text {text} {
-    # Control list state
-    set redux [string map [list " " "" "\t" "" "\n" ""] $text]
-    if {$redux != {}} {lsmark 0}
     return $text
 }
 
@@ -107,6 +71,14 @@ proc fmt_plain_text {text} {
 
 c_pass 1 fmt_manpage_begin {title section version} {c_cinit ; c_clrSections ; return}
 c_pass 2 fmt_manpage_begin {title section version} {
+
+    global sec_is_open      ; set sec_is_open      0
+    global subsec_is_open   ; set subsec_is_open   0
+    global prev_litem_close ; set prev_litem_close {}
+    global para_is_open     ; set para_is_open     0
+    global liststack        ; set liststack        {}
+    global defaultstyle
+
     XrefInit
     c_cinit
     set module      [dt_module]
@@ -118,8 +90,12 @@ c_pass 2 fmt_manpage_begin {title section version} {
     append  hdr [tag html] [tag head] \n
     append  hdr [tag_ title "$title - $shortdesc"] \n
 
-    # Engine parameter - insert 'meta'
-    Extend hdr meta
+    if {![Extend hdr ByParameter meta]} {
+	# Insert standard CSS definitions.
+	append hdr [tag_ style \
+			"[markup <]!--${defaultstyle}--[markup >]" \
+			type text/css] \n
+    }
 
     append  hdr [tag/ head] \n
     append  hdr [ht_comment [c_provenance]]\n
@@ -128,13 +104,12 @@ c_pass 2 fmt_manpage_begin {title section version} {
     }
     append  hdr [ht_comment "CVS: \$Id\$ $title.$section"]
     append  hdr \n\n
-    append  hdr [tag body] [tag* div id doctools] \n
+    append  hdr [tag body] [tag* div class doctools] \n
 
-    # Engine parameter - insert 'header'
-    Extend hdr header
+    Extend hdr ByParameter header
 
     append  hdr [tag_ h1 "[string trimleft $title :]($section) $version $module \"$shortdesc\""] \n
-    append  hdr [fmt_section NAME]\n
+    append  hdr [fmt_section NAME] \n
     append  hdr "[para_open] $title - $description"
     return $hdr
 }
@@ -173,8 +148,7 @@ c_pass 2 fmt_manpage_end {} {
    # Close last paragraph, subsection, and section.
     append res [para_close][subsec_close][sec_close]
 
-    # Engine parameter - insert 'footer'
-    Extend res footer
+    Extend res ByParameter footer
 
     append res [tag/ div] [tag/ body] [tag/ html]
     return $res
@@ -183,25 +157,23 @@ c_pass 2 fmt_manpage_end {} {
 c_pass 1 fmt_section {name} {c_newSection $name 1 end}
 c_pass 2 fmt_section {name} {
     set id [c_sectionId $name]
-    return "[sec_open $id][markup <h2><]a name=[markup \"]$id[markup \">]$name[markup </a></h2>]\n[para_open]"
+    return "[sec_open $id][tag_ h2 [anchor $id $name]]\n[para_open]"
 }
 
 c_pass 1 fmt_subsection {name} {c_newSection $name 2 end}
 c_pass 2 fmt_subsection {name} {
     set id [c_sectionId $name]
-    return "[subsec_open $id][markup <h3><]a name=[markup \"]$id[markup \">]$name[markup </a></h3>]\n[para_open]"
+    return "[subsec_open $id][tag_ h3 [anchor $id $name]]\n[para_open]"
 }
 
+# Para breaks inside and outside of lists are identical
+proc fmt_nl   {} {para_open}
 proc fmt_para {} {para_open}
 
 c_pass 2 fmt_require {pkg {version {}}} NOP
 c_pass 1 fmt_require {pkg {version {}}} {
-    set result "package require [markup <b>]$pkg"
-    if {$version != {}} {
-	append result " $version"
-    }
-    append result [markup "</b><br>"]
-    c_hold require $result
+    if {$version != {}} { append pkg " " $version }
+    c_hold require [tag_ li "package require [bold $pkg pkgname]"]
     return
 }
 
@@ -212,7 +184,8 @@ c_pass 1 fmt_usage {cmd args} {
     } else {
 	set text $cmd
     }
-    c_hold synopsis "[trtop][td]$text[markup </td></tr>]"
+    c_hold synopsis [tag_ li $text]
+    return
 }
 
 c_pass 1 fmt_call {cmd args} {
@@ -221,7 +194,8 @@ c_pass 1 fmt_call {cmd args} {
     } else {
 	set text $cmd
     }
-    c_hold synopsis "[trtop][td][link $text "#[c_cnext]"][markup </td></tr>]"
+    c_hold synopsis [tag_ li [link $text "#[c_cnext]"]]
+    return
 }
 c_pass 2 fmt_call {cmd args} {
     if {[llength $args]} {
@@ -229,7 +203,7 @@ c_pass 2 fmt_call {cmd args} {
     } else {
 	set text $cmd
     }
-    return "[fmt_lst_item [anchor [c_cnext] $text]]\n"
+    return [fmt_lst_item [anchor [c_cnext] $text]]
 }
 
 c_pass 1 fmt_description {} NOP
@@ -242,7 +216,7 @@ c_pass 2 fmt_description {} {
 
     # Pass 1: We have a number of special sections which were not
     #         listed explicitly in the document sources. Add them
-    #         now. Note the inverse order for the section added
+    #         now. Note the inverse order for the sections added
     #         at the beginning.
 
     c_newSection DESCRIPTION 1 0
@@ -256,15 +230,39 @@ c_pass 2 fmt_description {} {
     set sections $::SectionList
 
     # Pass 2: Generate the markup for the TOC, indenting the
-    #         links according to the level of the section.
+    #         links according to the level of each section.
 
-    append result [fmt_section {TABLE OF CONTENTS}]
-
+    append result [fmt_section {TABLE OF CONTENTS}] [para_close] \n
+    append result [taga ul {class toc}] \n
+    set lastlevel 1
+    set close 0
     foreach {name id level} $sections {
-	append result \
-	    [markup [string repeat "&nbsp;&nbsp;&nbsp;&nbsp;" $level]] \
-	    [link $name "#$id"] [tag br] \n
+	# level in {1,2}, 1 = sectio n, 2 = subsection
+	if {$level == $lastlevel} {
+	    # Close previous item.
+	    if {$close} { append result [tag/ li] \n }
+	} elseif {$level > $lastlevel} {
+	    # Start list of subsections
+	    append result \n [tag ul] \n
+	} else { # level < lastlevel
+	    # End list of subsections, and of previous item (two
+	    # actually, the subsection, and the section item).
+	    append result [tag/ li] \n [tag/ ul] \n [tag/ li] \n
+	}
+	# Start entry
+	if {$level == 1} {
+	    append result [taga li {class section}] [link $name "#$id"]
+	} else {
+	    append result [taga li {class subsection}] [link $name "#$id"]
+	}
+	set close 1
+
+	set lastlevel $level
     }
+    if {$lastlevel > 1 } { append result [tag/ ul] \n }
+    if {$close}          { append result [tag/ li] \n }
+
+    append result [tag/ ul] \n
 
     # Implicit sections coming after the TOC (Synopsis, then the
     # description which starts the actual document). The other
@@ -272,28 +270,23 @@ c_pass 2 fmt_description {} {
     # are generated by 'fmt_manpage_end' in the second pass.
 
     if {$syn != {} || $req != {}} {
-	append result [fmt_section SYNOPSIS]\n
+	append result [fmt_section SYNOPSIS] [para_close] \n
     }
     if {$req != {}} {
-	append result $req \n [tag br]
+	append result [tag_ ul \n$req\n class requirements] \n
     }
     if {$syn != {}} {
-	proc bgcolor {} {return lightyellow}
-
-	append result \
-	    [btable] [tr] [td] [table] \
-	    $syn \n \
-	    [tag/ table] [tag/ td] [tag/ tr] [tag/ table] \n
-
-	proc bgcolor {} {return ""}
+	append result [tag_ ul \n$syn\n class syntax] \n
     }
-    append result [fmt_section DESCRIPTION]
+    append result [fmt_section DESCRIPTION] \n
     return $result
 }
 
 ################################################################
 
 proc fmt_list_begin  {what {hint {}}} {
+    # NOTE: The hint is ignored. Use stylesheet definitions to modify
+    # item and general list spacing.
     switch -exact -- $what {
 	enumerated  {set tag ol}
 	itemized    {set tag ul}
@@ -303,35 +296,32 @@ proc fmt_list_begin  {what {hint {}}} {
 	tkoptions -
 	definitions {set tag dl}
     }
-    return [para_close][if {[llevel]} {limark} else {}][lpush $tag $hint][lsmark 1]
+    return [para_close][lpush $tag $what]
 }
 
 proc fmt_list_end {}        {
-    global prev_litem_close
-    set res $prev_litem_close[lpop][lsmark 1][para_open]
-    set prev_litem_close {}
+    set res [para_close][litc_getandclear]\n[lpop][para_open]
     return $res
 }
 proc fmt_lst_item {text}    {
-    global prev_litem_close
-    set res [limark]$prev_litem_close[tag dt]$text[tag/ dt][tag dd][lsmark 1]
-    set prev_litem_close [tag/ dd]
+    set res [para_close][litc_getandclear]\n[tag_ dt $text]\n[tag dd][para_open]
+    litc_set [tag/ dd]
     return $res
 }
 proc fmt_bullet {} {
-    global prev_litem_close
-    set res [limark]$prev_litem_close[tag li][lsmark 1]
-    set prev_litem_close [tag/ li]
+    set res [para_close][litc_getandclear]\n[tag li][para_open]
+    litc_set [tag/ li]
     return $res
 }
 proc fmt_enum {} {
-    global prev_litem_close
-    set res [limark]$prev_litem_close[tag li][lsmark 1]
-    set prev_litem_close [tag/ li]
+    set res [para_close][litc_getandclear]\n[tag li][para_open]
+    litc_set [tag/ li]
     return $res
 }
-proc fmt_cmd_def  {command} {fmt_lst_item [fmt_cmd $command]}
 
+proc fmt_cmd_def {command} {
+    fmt_lst_item [fmt_cmd $command]
+}
 proc fmt_arg_def {type name {mode {}}} {
     set    text ""
     append text $type " " [fmt_arg $name]
@@ -353,24 +343,20 @@ proc fmt_tkoption_def {name dbname dbclass} {
     fmt_lst_item $text
 }
 
-
 ################################################################
 
 proc fmt_example_begin {} {
-    lsmark 0
-    return [para_close][tag* div class example][tag table][tag tr][tag_ td [markup "&nbsp;"] bgcolor black][tag td][tag* pre class sample]
+    return [para_close]\n[tag* div class example][tag* pre class example]
 }
 proc fmt_example_end   {} {
-    return [tag/ pre][tag/ td][tag/ tr][tag/ table][tag/ div][para_open]
+    return [tag/ pre][tag/ div]\n[para_open]
 }
 proc fmt_example {code} {
     return "[fmt_example_begin][fmt_plain_text $code][fmt_example_end]"
 }
 
-proc fmt_nl {} {
-    if {[lcompact]} {return [tag br]}
-    return [tag br][tag br]
-}
+################################################################
+
 proc fmt_arg  {text} { italic $text                arg }
 proc fmt_cmd  {text} { bold   [XrefMatch $text sa] cmd }
 proc fmt_emph {text} { em     $text }
@@ -446,6 +432,27 @@ proc subsec_close {}   {
 
 ################################################################
 
+# Piece of html to close the previous list element, if any.
+# Saved on the list stack
+
+global prev_litem_close
+set    prev_litem_close   {}
+
+proc litc_getandclear {} {
+    global prev_litem_close
+    set res $prev_litem_close
+    set prev_litem_close {}
+    return $res
+}
+
+proc litc_set {value} {
+    global prev_litem_close
+    set prev_litem_close $value
+    return
+}
+
+################################################################
+
 global para_is_open
 set    para_is_open 0
 
@@ -460,7 +467,7 @@ proc para_close {} {
     global para_is_open
     if {!$para_is_open} {return ""}
     set para_is_open 0
-    return [tag/ p]\n
+    return [tag/ p]
 }
 
 ################################################################
@@ -484,12 +491,16 @@ proc fmt_varset        {varname text} {
 }
 
 # Engine parameter handling
-proc Extend {v by} {
+proc Extend {v _ by} {
     set html [Get $by]
-    if {$html == {}} return
+    if {$html == {}} { return 0 }
     upvar 1 $v text
     append text [markup $html] \n
-    return
+    return 1
+}
+
+global defaultstyle
+set    defaultstyle {
 }
 
 ################################################################
