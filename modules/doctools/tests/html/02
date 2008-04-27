@@ -1,5 +1,7 @@
 <html><head>
 <title>TEST - ..THE_MODULE..</title>
+<style type="text/css"><!--
+--></style>
 </head>
 <! -- Generated from file '.FILE.' by tcllib/doctools with format 'html'
    -->
@@ -7,42 +9,36 @@
    -->
 <! -- CVS: @ID@ TEST.z
    -->
-<body><div id="doctools">
+<body><div class="doctools">
 <h1>TEST(z) 3.14.15.926 .MODULE. &quot;..THE_MODULE..&quot;</h1>
 <div id="name" class="section"><h2><a name="name">NAME</a></h2>
-<p> TEST - ..THE_TITLE..
-</p>
+<p>TEST - ..THE_TITLE..</p>
 </div>
 <div id="table_of_contents" class="section"><h2><a name="table_of_contents">TABLE OF CONTENTS</a></h2>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#table_of_contents">TABLE OF CONTENTS</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#synopsis">SYNOPSIS</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#description">DESCRIPTION</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#see_also">SEE ALSO</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#keywords">KEYWORDS</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#copyright">COPYRIGHT</a><br>
-</p>
+<ul class="toc">
+<li class="section"><a href="#table_of_contents">TABLE OF CONTENTS</a></li>
+<li class="section"><a href="#synopsis">SYNOPSIS</a></li>
+<li class="section"><a href="#description">DESCRIPTION</a></li>
+<li class="section"><a href="#see_also">SEE ALSO</a></li>
+<li class="section"><a href="#keywords">KEYWORDS</a></li>
+<li class="section"><a href="#copyright">COPYRIGHT</a></li>
+</ul>
 </div>
 <div id="synopsis" class="section"><h2><a name="synopsis">SYNOPSIS</a></h2>
-<p>
-package require <b>AAA</b><br>
-package require <b>BBB VVV</b><br>
-<br></p>
+<ul class="requirements">
+<li>package require <b class="pkgname">AAA</b></li>
+<li>package require <b class="pkgname">BBB VVV</b></li>
+</ul>
 </div>
 <div id="description" class="section"><h2><a name="description">DESCRIPTION</a></h2>
 </div>
 <div id="see_also" class="section"><h2><a name="see_also">SEE ALSO</a></h2>
-<p>
-ELSE, OTHER
-</p>
+<p>ELSE, OTHER</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">KEYWORDS</a></h2>
-<p>
-KEYA, KEYZ
-</p>
+<p>KEYA, KEYZ</p>
 </div>
 <div id="copyright" class="section"><h2><a name="copyright">COPYRIGHT</a></h2>
-<p>
-Copyright &copy; .COPYRIGHT.<br>
-</p>
+<p>Copyright &copy; .COPYRIGHT.</p>
 </div>
 </div></body></html>
