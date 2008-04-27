@@ -1,5 +1,16 @@
 2008-04-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* tests/man/08: All possible list types are in testcase 5 already.
+	* tests/desc/08: Changed to demo all the commands in one file.
+	* tests/html/08: This makes trying out styles for the HTML easier too
+	* tests/latex/08: as everything can looked at in one file.
+	* tests/list/08:
+	* tests/nroff/08:
+	* tests/null/08:
+	* tests/text/08:
+	* tests/tmml/08:
+	* tests/wiki/08:
+
 	* mpformats/fmt.html: Changed example formatting, removed the nested
 	* tests/html/*: table structure. Changed toc and synopsis
 	  formatting to be more sematical, using classed unordered lists.

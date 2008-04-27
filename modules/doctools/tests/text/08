@@ -1,15 +1,19 @@
 
-ALL - 
+ALL - ..THE_MODULE..
 Generated from file '.FILE.' by tcllib/doctools with format 'text'
-ALL(a) 5 .MODULE. ""
+ALL(a) 5 .MODULE. "..THE_MODULE.."
 
 NAME
 ====
 
-ALL -
+ALL - ..THE_TITLE..
 
 SYNOPSIS
 ========
+
+package require AAA
+package require BBB VVV
+package require CCC ?VVV?
 
 CMDNAME ...
 CMDNAME ...
@@ -18,37 +22,46 @@ CMDNAME ...
 DESCRIPTION
 ===========
 
-    TYPE NAME
+    NAME
 
-        DESCRIPTION
-
-    TYPE NAME
-
-        DESCRIPTION
-
-    TYPE NAME (MODE)
-
-        DESCRIPTION
+        DESCRIPTION ::Command::
 
     NAME
 
-        DESCRIPTION
+        DESCRIPTION ::::
 
     NAME
 
-        DESCRIPTION
+        DESCRIPTION ::*Constant*::
 
-    NAME
-
-        DESCRIPTION
+API
+===
 
     TERM
 
-        DESCRIPTION
+        DESCRIPTION ::_Emphasis_::
 
     TERM
 
-        DESCRIPTION
+        DESCRIPTION ::"File/Path"::
+
+        Command-Line Switch:	NAME
+        Database Name:	*DBNAME*
+        Database Class:	*CLASS*
+
+            DESCRIPTION -> NARGLE
+
+        Command-Line Switch:	NAME
+        Database Name:	*DBNAME*
+        Database Class:	*CLASS*
+
+            DESCRIPTION ::*Function*::
+
+        Command-Line Switch:	NAME
+        Database Name:	*DBNAME*
+        Database Class:	*CLASS*
+
+            DESCRIPTION ::Method::
 
     TERM
 
@@ -56,59 +69,70 @@ DESCRIPTION
 
     CMDNAME ...
 
-        DESCRIPTION
+        DESCRIPTION ::*Namespace*::
+
+        TYPE NAME
+
+            DESCRIPTION ::Argument::
+
+        TYPE NAME
+
+            DESCRIPTION ::Option::
+
+        TYPE NAME (MODE)
+
+            DESCRIPTION ::?Optional?::
+
+
+            | THE ARGUMENT IS USED IN THIS
+            | AND/OR THAT MANNER
 
     CMDNAME ...
 
-        DESCRIPTION
+        DESCRIPTION ::*Package*::
 
     CMDNAME ...
 
-        DESCRIPTION
+        DESCRIPTION ::*SystemCommand*::
 
-    [1] PARAGRAPH
+        NAME
 
-    [2] PARAGRAPH
+            DESCRIPTION ::_Term_::
 
-    [3] PARAGRAPH
+        NAME
 
-    *   PARAGRAPH
+            DESCRIPTION ::*Type*::
 
-    *   PARAGRAPH
+        NAME ARGUMENT
 
-    *   PARAGRAPH
+            DESCRIPTION ::<URL:Uri>::
 
-    NAME
+NARGLE
+------
 
-        DESCRIPTION
+    [1] PARAGRAPH ::_UriLabel_ <URL:Uri>::
 
-    NAME
+    [2] PARAGRAPH ::*Variable*::
 
-        DESCRIPTION
+    [3] PARAGRAPH ::*Widget*::
 
-    NAME ARGUMENT
+        *   PARAGRAPH ::*Class*::
 
-        DESCRIPTION
+        *   PARAGRAPH
 
-    Command-Line Switch:	NAME
-    Database Name:	*DBNAME*
-    Database Class:	*CLASS*
+        *   PARAGRAPH
 
-        DESCRIPTION
+SEE ALSO
+========
 
-    Command-Line Switch:	NAME
-    Database Name:	*DBNAME*
-    Database Class:	*CLASS*
+ELSE, OTHER
 
-        DESCRIPTION
+KEYWORDS
+========
 
-    Command-Line Switch:	NAME
-    Database Name:	*DBNAME*
-    Database Class:	*CLASS*
-
-        DESCRIPTION
+KEYA, KEYZ
 
 COPYRIGHT
 =========
 
-Copyright (c) .COPYRIGHT.
+Copyright (c) **Copyright**
