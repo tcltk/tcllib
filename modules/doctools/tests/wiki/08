@@ -1,11 +1,17 @@
-ALL 5 '''.MODULE.''' ''''
+ALL 5 '''.MODULE.''' ''..THE_MODULE..''
 
-
+..THE_TITLE..
 
 
 ----
 '''SYNOPSIS'''
 
+
+package require '''AAA'''
+
+package require '''BBB VVV'''
+
+package require '''CCC ?VVV?'''
 
    * CMDNAME ...
 
@@ -21,65 +27,93 @@ ALL 5 '''.MODULE.''' ''''
 
 
 
-   ''NAME'' TYPE:  DESCRIPTION
+   '''NAME''':   DESCRIPTION ::'''Command'''::
 
-   ''NAME'' TYPE:  DESCRIPTION
+   '''NAME''':   DESCRIPTION ::::
 
-   ''NAME'' TYPE (MODE):  DESCRIPTION
+   '''NAME''':   DESCRIPTION ::'''Constant'''::
 
-   '''NAME''':   DESCRIPTION
+----
+'''API'''
 
-   '''NAME''':   DESCRIPTION
 
-   '''NAME''':   DESCRIPTION
+
+   TERM:   DESCRIPTION ::''Emphasis''::
+
+   TERM:   DESCRIPTION ::"''File/Path''"::
+
+   Command-Line Switch:	'''NAME'''
+   Database Name:	'''DBNAME'''
+   Database Class:	'''CLASS'''
+   *  DESCRIPTION '''NARGLE'''
+
+   Command-Line Switch:	'''NAME'''
+   Database Name:	'''DBNAME'''
+   Database Class:	'''CLASS'''
+   *  DESCRIPTION ::'''Function'''::
+
+   Command-Line Switch:	'''NAME'''
+   Database Name:	'''DBNAME'''
+   Database Class:	'''CLASS'''
+   *  DESCRIPTION ::'''Method'''::
 
    TERM:   DESCRIPTION
 
-   TERM:   DESCRIPTION
+   CMDNAME ...:   DESCRIPTION ::'''Namespace'''::
 
-   TERM:   DESCRIPTION
+   ''NAME'' TYPE:  DESCRIPTION ::''Argument''::
 
-   CMDNAME ...:   DESCRIPTION
+   ''NAME'' TYPE:  DESCRIPTION ::'''Option'''::
 
-   CMDNAME ...:   DESCRIPTION
+   ''NAME'' TYPE (MODE):  DESCRIPTION ::?Optional?::
 
-   CMDNAME ...:   DESCRIPTION
+ |     THE ARGUMENT IS USED IN THIS
+ |     AND/OR THAT MANNER
 
-   1.  PARAGRAPH
 
-   1.  PARAGRAPH
 
-   1.  PARAGRAPH
+   CMDNAME ...:   DESCRIPTION ::'''Package'''::
+
+   CMDNAME ...:   DESCRIPTION ::'''SystemCommand'''::
+
+   '''NAME''':   DESCRIPTION ::''Term''::
+
+   '''NAME''':   DESCRIPTION ::'''Type'''::
+
+   '''NAME''' ARGUMENT:   DESCRIPTION ::''Uri''::
+
+''NARGLE''
+
+
+
+   1.  PARAGRAPH ::''UriLabel'' [[Uri]]::
+
+   1.  PARAGRAPH ::'''Variable'''::
+
+   1.  PARAGRAPH ::'''Widget'''::
+
+   *  PARAGRAPH ::'''Class'''::
 
    *  PARAGRAPH
 
    *  PARAGRAPH
 
-   *  PARAGRAPH
+----
+'''SEE ALSO'''
 
-   '''NAME''':   DESCRIPTION
 
-   '''NAME''':   DESCRIPTION
+ELSE, OTHER
 
-   '''NAME''' ARGUMENT:   DESCRIPTION
 
-   Command-Line Switch:	'''NAME'''
-   Database Name:	'''DBNAME'''
-   Database Class:	'''CLASS'''
-   *  DESCRIPTION
+----
+'''KEYWORDS'''
 
-   Command-Line Switch:	'''NAME'''
-   Database Name:	'''DBNAME'''
-   Database Class:	'''CLASS'''
-   *  DESCRIPTION
 
-   Command-Line Switch:	'''NAME'''
-   Database Name:	'''DBNAME'''
-   Database Class:	'''CLASS'''
-   *  DESCRIPTION
+KEYA, KEYZ
+
 
 ----
 '''COPYRIGHT'''
 
- Copyright (c) .COPYRIGHT.
+ Copyright (c) **Copyright**
 
