@@ -1,5 +1,7 @@
 <html><head>
 <title>TEST - </title>
+<style type="text/css"><!--
+--></style>
 </head>
 <! -- Generated from file '.FILE.' by tcllib/doctools with format 'html'
    -->
@@ -7,60 +9,46 @@
    -->
 <! -- CVS: @ID@ TEST.z
    -->
-<body><div id="doctools">
+<body><div class="doctools">
 <h1>TEST(z) 3.14.15.926 .MODULE. &quot;&quot;</h1>
-</p>
 <div id="name" class="section"><h2><a name="name">NAME</a></h2>
-<p> TEST - 
-</p>
+<p>TEST -</p>
 </div>
 <div id="table_of_contents" class="section"><h2><a name="table_of_contents">TABLE OF CONTENTS</a></h2>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#table_of_contents">TABLE OF CONTENTS</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#description">DESCRIPTION</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#aaa">AaA</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#bbb">BbB</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#bbb.ccc">BbB.cCc</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a href="#bbb.ddd">BbB.dDd</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#eee">EeE</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#copyright">COPYRIGHT</a><br>
-</p>
+<ul class="toc">
+<li class="section"><a href="#table_of_contents">TABLE OF CONTENTS</a></li>
+<li class="section"><a href="#description">DESCRIPTION</a></li>
+<li class="section"><a href="#aaa">AaA</a></li>
+<li class="section"><a href="#bbb">BbB</a>
+<ul>
+<li class="subsection"><a href="#bbb.ccc">BbB.cCc</a></li>
+<li class="subsection"><a href="#bbb.ddd">BbB.dDd</a></li>
+</ul>
+</li>
+<li class="section"><a href="#eee">EeE</a></li>
+<li class="section"><a href="#copyright">COPYRIGHT</a></li>
+</ul>
 </div>
 <div id="description" class="section"><h2><a name="description">DESCRIPTION</a></h2>
 </div>
 <div id="aaa" class="section"><h2><a name="aaa">AaA</a></h2>
-<p>
-1
-</p>
+<p>1</p>
 </div>
 <div id="bbb" class="section"><h2><a name="bbb">BbB</a></h2>
-<p>
-22
-</p>
+<p>22</p>
 <div id="bbb.ccc" class="subsection"><h3><a name="bbb.ccc">BbB.cCc</a></h3>
-<p>
-333
-</p>
+<p>333</p>
 </div>
 <div id="bbb.ddd" class="subsection"><h3><a name="bbb.ddd">BbB.dDd</a></h3>
-<p>
-4444
-</p>
+<p>4444</p>
 </div>
 </div>
 <div id="eee" class="section"><h2><a name="eee">EeE</a></h2>
-<p>
-5555
-</p>
-<p>
-At <span class="sectref"><a href="#aaa">AaA</a></span>.
-</p>
-<p>
-At <b class="sectref">__undefined__</b>.
-</p>
+<p>5555</p>
+<p>At <span class="sectref"><a href="#aaa">AaA</a></span>.</p>
+<p>At <b class="sectref">__undefined__</b>.</p>
 </div>
 <div id="copyright" class="section"><h2><a name="copyright">COPYRIGHT</a></h2>
-<p>
-Copyright &copy; .COPYRIGHT.<br>
-</p>
+<p>Copyright &copy; .COPYRIGHT.</p>
 </div>
 </div></body></html>

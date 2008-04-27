@@ -61,8 +61,28 @@ proc fmt_postprocess {text} {
 
     # Put protected characters into their final form.
     set text [string map $finalMap $text]
+    # Remove leading/trailing whitespace from paragraphs.
+    regsub -all "<p>\[\t\n \]*" $text {<p>} text
+    regsub -all "\[\t\n \]*</p>" $text {</p>} text
+    # Remove trailing linebreaks from paragraphs.
+    while {[regsub -all "<br>\[\t\n \]*</p>" $text {</p>} text]} continue
     # Remove empty paragraphs
     regsub -all "<p>\[\t\n \]*</p>" $text {} text
+    # Separate paragraphs
+    regsub -all "</p><p>" $text "</p>\n<p>" text
+    # Separate bigger structures
+    foreach outer {div p dl ul ol} {
+	foreach inner {div p dl ul ol} {
+	    regsub -all "</${outer}><${inner}"  $text "</${outer}>\n<${inner}"  text
+	    regsub -all "</${outer}></${inner}" $text "</${outer}>\n</${inner}" text
+	}
+    }
+    regsub -all "<li><dl"   $text "<li>\n<dl"  text
+    regsub -all "<li><ol"   $text "<li>\n<ol"  text
+    regsub -all "<li><ul"   $text "<li>\n<ul"  text
+    regsub -all "</dl></li" $text "</dl>\n</li" text
+    regsub -all "</ol></li" $text "</ol>\n</li" text
+    regsub -all "</ul></li" $text "</ul>\n</li" text
     # Remove empty lines.
     regsub -all "\n\n\n*" $text \n text
 
@@ -153,7 +173,9 @@ proc tag* {t args} {
     }
 }
 
-proc ht_comment {text}   {return "[markup <]! -- [join [split $text \n] "   -- "]\n   --[markup >]"}
+proc ht_comment {text}   {
+    return "[markup <]! -- [join [split $text \n] "   -- "]\n   --[markup >]"
+}
 
 # wrap content gi --
 #	Returns $content wrapped inside <$gi> ... </$gi> tags.

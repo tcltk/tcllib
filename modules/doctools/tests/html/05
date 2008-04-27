@@ -1,6 +1,8 @@
 
 <html><head>
 <title>BASIC - </title>
+<style type="text/css"><!--
+--></style>
 </head>
 <! -- Generated from file '.FILE.' by tcllib/doctools with format 'html'
    -->
@@ -8,93 +10,77 @@
    -->
 <! -- CVS: @ID@ BASIC.a
    -->
-<body><div id="doctools">
+<body><div class="doctools">
 <h1>BASIC(a) 5 .MODULE. &quot;&quot;</h1>
-</p>
 <div id="name" class="section"><h2><a name="name">NAME</a></h2>
-<p> BASIC - 
-</p>
+<p>BASIC -</p>
 </div>
 <div id="table_of_contents" class="section"><h2><a name="table_of_contents">TABLE OF CONTENTS</a></h2>
-<p>&nbsp;&nbsp;&nbsp;&nbsp;<a href="#table_of_contents">TABLE OF CONTENTS</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#synopsis">SYNOPSIS</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#description">DESCRIPTION</a><br>
-&nbsp;&nbsp;&nbsp;&nbsp;<a href="#copyright">COPYRIGHT</a><br>
-</p>
+<ul class="toc">
+<li class="section"><a href="#table_of_contents">TABLE OF CONTENTS</a></li>
+<li class="section"><a href="#synopsis">SYNOPSIS</a></li>
+<li class="section"><a href="#description">DESCRIPTION</a></li>
+<li class="section"><a href="#copyright">COPYRIGHT</a></li>
+</ul>
 </div>
 <div id="synopsis" class="section"><h2><a name="synopsis">SYNOPSIS</a></h2>
-<p>
-<table border=1 width=100% cellspacing=0 cellpadding=0><tr            bgcolor=lightyellow><td bgcolor=lightyellow><table 0 width=100% cellspacing=0 cellpadding=0><tr valign=top ><td ><a href="#1">a-command</a></td></tr>
-</table></td></tr></table>
-</p>
+<ul class="syntax">
+<li><a href="#1">a-command</a></li>
+</ul>
 </div>
 <div id="description" class="section"><h2><a name="description">DESCRIPTION</a></h2>
-<p>
-OK
-</p>
-<dl>
-<dt>integer <i class="arg">argument-1</i></dt><dd>
-verification
-<br><br>
-</dd><dt>string <i class="arg">argument-2</i> (out)</dt><dd> mogrification
-</dd></dl>
-<dl>
-<dt><b class="cmd">command-a</b></dt><dd> explanation
-<br><br>
-</dd><dt><b class="cmd">command-b</b></dt><dd>
-elucidation
-</dd></dl>
-<dl>
-<dt>term</dt><dd> definition
-<br><br>
-</dd><dt><a name="1">a-command</a></dt><dd>
-semantic
-</dd></dl>
-<ol>
-<li>
-A
-<br><br>
-</li><li> B
-<br><br>
-C
-<br><br>
-D
-</li></ol>
-<ul>
-<li>
-1
-<br><br>
-</li><li> 2
-<br><br>
-2a
-<br><br>
-2b
-</li></ul>
-<dl>
-<dt><b class="option">option-1</b></dt><dd> meaning
-<br><br>
-</dd><dt><b class="option">option-2</b> value</dt><dd>
-elaboration
-</dd></dl>
-<dl>
+<p>OK</p>
+<dl class="arguments">
+<dt>integer <i class="arg">argument-1</i></dt>
+<dd><p>verification</p></dd>
+<dt>string <i class="arg">argument-2</i> (out)</dt>
+<dd><p>mogrification</p></dd>
+</dl>
+<dl class="commands">
+<dt><b class="cmd">command-a</b></dt>
+<dd><p>explanation</p></dd>
+<dt><b class="cmd">command-b</b></dt>
+<dd><p>elucidation</p></dd>
+</dl>
+<dl class="definitions">
+<dt>term</dt>
+<dd><p>definition</p></dd>
+<dt><a name="1">a-command</a></dt>
+<dd><p>semantic</p></dd>
+</dl>
+<ol class="enumerated">
+<li><p>A</p></li>
+<li><p>B</p>
+<p>C</p>
+<p>D</p></li>
+</ol>
+<ul class="itemized">
+<li><p>1</p></li>
+<li><p>2</p>
+<p>2a</p>
+<p>2b</p></li>
+</ul>
+<dl class="options">
+<dt><b class="option">option-1</b></dt>
+<dd><p>meaning</p></dd>
+<dt><b class="option">option-2</b> value</dt>
+<dd><p>elaboration</p></dd>
+</dl>
+<dl class="tkoptions">
 <dt>Command-Line Switch:	<b class="option">background</b><br>
 Database Name:	<b class="optdbname">Background</b><br>
 Database Class:	<b class="optdbclass">Color</b><br>
-</dt><dd> candy
-<br><br>
-</dd><dt>Command-Line Switch:	<b class="option">foreground</b><br>
+</dt>
+<dd><p>candy</p></dd>
+<dt>Command-Line Switch:	<b class="option">foreground</b><br>
 Database Name:	<b class="optdbname">Foreground</b><br>
 Database Class:	<b class="optdbclass">Color</b><br>
-</dt><dd>
-caramel
-</dd></dl>
-<p>
-KO
-</p>
+</dt>
+<dd><p>caramel</p></dd>
+</dl>
+<p>KO</p>
 </div>
 <div id="copyright" class="section"><h2><a name="copyright">COPYRIGHT</a></h2>
-<p>
-Copyright &copy; .COPYRIGHT.<br>
-</p>
+<p>Copyright &copy; .COPYRIGHT.</p>
 </div>
 </div></body></html>
