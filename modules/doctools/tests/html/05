@@ -2,6 +2,94 @@
 <html><head>
 <title>BASIC - </title>
 <style type="text/css"><!--
+    HTML {
+	background: 	#FFFFFF;
+	color: 		black;
+    }
+    BODY {
+	background: 	#FFFFFF;
+	color:	 	black;
+    }
+    DIV.doctools {
+	margin-left:	10%;
+	margin-right:	10%;
+    }
+    DIV.doctools H1,DIV.doctools H2 {
+	margin-left:	-5%;
+    }
+    H1, H2, H3, H4 {
+	margin-top: 	1em;
+	font-family:	sans-serif;
+	font-size:	large;
+	color:		#005A9C;
+	background: 	transparent;
+	text-align:		left;
+    }
+    H1.title {
+	text-align: center;
+    }
+    UL,OL {
+	margin-right: 0em;
+	margin-top: 3pt;
+	margin-bottom: 3pt;
+    }
+    UL LI {
+	list-style: disc;
+    }
+    OL LI {
+	list-style: decimal;
+    }
+    DT {
+	padding-top: 	1ex;
+    }
+    UL.toc,UL.toc UL, UL.toc UL UL {
+	font:		normal 12pt/14pt sans-serif;
+	list-style:	none;
+    }
+    LI.section, LI.subsection {
+	list-style: 	none;
+	margin-left: 	0em;
+	text-indent:	0em;
+	padding: 	0em;
+    }
+    PRE {
+	display: 	block;
+	font-family:	monospace;
+	white-space:	pre;
+	margin:		0%;
+	padding-top:	0.5ex;
+	padding-bottom:	0.5ex;
+	padding-left:	1ex;
+	padding-right:	1ex;
+	width:		100%;
+    }
+    PRE.example {
+	color: 		black;
+	background: 	#f5dcb3;
+	border:		1px solid black;
+    }
+    UL.requirements LI, UL.syntax LI {
+	list-style: 	none;
+	margin-left: 	0em;
+	text-indent:	0em;
+	padding:	0em;
+    }
+    DIV.synopsis {
+	color: 		black;
+	background: 	#80ffff;
+	border:		1px solid black;
+	font-family:	serif;
+	margin-top: 	1em;
+	margin-bottom: 	1em;
+    }
+    UL.syntax {
+	margin-top: 	1em;
+	border-top:	1px solid black;
+    }
+    UL.requirements {
+	margin-bottom: 	1em;
+	border-bottom:	1px solid black;
+    }
 --></style>
 </head>
 <! -- Generated from file '.FILE.' by tcllib/doctools with format 'html'
@@ -11,7 +99,7 @@
 <! -- CVS: @ID@ BASIC.a
    -->
 <body><div class="doctools">
-<h1>BASIC(a) 5 .MODULE. &quot;&quot;</h1>
+<h1 class="title">BASIC(a) 5 .MODULE. &quot;&quot;</h1>
 <div id="name" class="section"><h2><a name="name">NAME</a></h2>
 <p>BASIC -</p>
 </div>
@@ -24,9 +112,11 @@
 </ul>
 </div>
 <div id="synopsis" class="section"><h2><a name="synopsis">SYNOPSIS</a></h2>
+<div class="synopsis">
 <ul class="syntax">
 <li><a href="#1">a-command</a></li>
 </ul>
+</div>
 </div>
 <div id="description" class="section"><h2><a name="description">DESCRIPTION</a></h2>
 <p>OK</p>

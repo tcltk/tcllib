@@ -1,4 +1,6 @@
 # -*- tcl -*-
+# Copyright (c) 2001-2008 Andreas Kupries <andreas_kupries@sourceforge.net>
+#
 # Helper rules for the creation of the memchan website from the .exp files.
 # General formatting instructions ...
 
