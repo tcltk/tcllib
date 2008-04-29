@@ -8,7 +8,7 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md4.tcl,v 1.19 2006/09/19 23:36:17 andreas_kupries Exp $
+# $Id: md4.tcl,v 1.20 2008/04/29 10:07:45 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require md4c 1.0};       # tcllib critcl alternative
@@ -16,8 +16,8 @@ catch {package require md4c 1.0};       # tcllib critcl alternative
 # @mdgen EXCLUDE: md4c.tcl
 
 namespace eval ::md4 {
-    variable version 1.0.4
-    variable rcsid {$Id: md4.tcl,v 1.19 2006/09/19 23:36:17 andreas_kupries Exp $}
+    variable version 1.0.5
+    variable rcsid {$Id: md4.tcl,v 1.20 2008/04/29 10:07:45 patthoyts Exp $}
     variable accel
     array set accel {critcl 0 cryptkit 0}
 
@@ -351,6 +351,7 @@ regsub -all -line \
 
 # Define the MD4 hashing procedure with inline functions.
 proc ::md4::MD4Hash {token msg} $::md4::MD4Hash_body
+unset ::md4::MD4Hash_body
 
 # -------------------------------------------------------------------------
 
@@ -559,6 +560,7 @@ proc ::md4::hmac {args} {
 # Try and load a compiled extension to help.
 namespace eval ::md4 {
     foreach e {critcl cryptkit} { if {[LoadAccelerator $e]} { break } }
+    unset e
 }
 
 package provide md4 $::md4::version
