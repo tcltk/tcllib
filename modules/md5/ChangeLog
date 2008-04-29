@@ -1,3 +1,7 @@
+2008-04-29  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md5x.tcl: Clean up the MD5Hash_body once the proc defined.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

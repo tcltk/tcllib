@@ -16,13 +16,13 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md5x.tcl,v 1.17 2006/09/19 23:36:17 andreas_kupries Exp $
+# $Id: md5x.tcl,v 1.18 2008/04/29 10:04:17 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::md5 {
-    variable version 2.0.5
-    variable rcsid {$Id: md5x.tcl,v 1.17 2006/09/19 23:36:17 andreas_kupries Exp $}
+    variable version 2.0.6
+    variable rcsid {$Id: md5x.tcl,v 1.18 2008/04/29 10:04:17 patthoyts Exp $}
     variable accel
     array set accel {critcl 0 cryptkit 0 trf 0}
 
@@ -405,7 +405,7 @@ regsub -all -line \
     {\[expr {(\$[ABCD]) \+ \(\((.*)\)\s+<<<\s+(\d+)\)}\]} \
     $::md5::MD5Hash_body \
     {[expr {int(\1 + [<<< [expr {\2}] \3])}]} \
-    ::md5::MD5Hash_bodyX
+    ::md5::MD5Hash_body
 
 # RFC1321:3.4 - function F
 proc ::md5::F {X Y Z} {
@@ -415,9 +415,9 @@ proc ::md5::F {X Y Z} {
 # Inline the F function
 regsub -all -line \
     {\[F (\$[ABCD]) (\$[ABCD]) (\$[ABCD])\]} \
-    $::md5::MD5Hash_bodyX \
+    $::md5::MD5Hash_body \
     {( (\1 \& \2) | ((~\1) \& \3) )} \
-    ::md5::MD5Hash_bodyX
+    ::md5::MD5Hash_body
     
 # RFC1321:3.4 - function G
 proc ::md5::G {X Y Z} {
@@ -427,9 +427,9 @@ proc ::md5::G {X Y Z} {
 # Inline the G function
 regsub -all -line \
     {\[G (\$[ABCD]) (\$[ABCD]) (\$[ABCD])\]} \
-    $::md5::MD5Hash_bodyX \
+    $::md5::MD5Hash_body \
     {(((\1 \& \3) | (\2 \& (~\3))))} \
-    ::md5::MD5Hash_bodyX
+    ::md5::MD5Hash_body
 
 # RFC1321:3.4 - function H
 proc ::md5::H {X Y Z} {
@@ -439,9 +439,9 @@ proc ::md5::H {X Y Z} {
 # Inline the H function
 regsub -all -line \
     {\[H (\$[ABCD]) (\$[ABCD]) (\$[ABCD])\]} \
-    $::md5::MD5Hash_bodyX \
+    $::md5::MD5Hash_body \
     {(\1 ^ \2 ^ \3)} \
-    ::md5::MD5Hash_bodyX
+    ::md5::MD5Hash_body
 
 # RFC1321:3.4 - function I
 proc ::md5::I {X Y Z} {
@@ -451,9 +451,9 @@ proc ::md5::I {X Y Z} {
 # Inline the I function
 regsub -all -line \
     {\[I (\$[ABCD]) (\$[ABCD]) (\$[ABCD])\]} \
-    $::md5::MD5Hash_bodyX \
+    $::md5::MD5Hash_body \
     {(\2 ^ (\1 | (~\3)))} \
-    ::md5::MD5Hash_bodyX
+    ::md5::MD5Hash_body
 
 
 # RFC 1321:3.4 step 4: inline the set of constant modifiers.
@@ -489,12 +489,13 @@ namespace eval md5 {
     } {
         lappend map \$$tName $tVal
     }
-    set ::md5::MD5Hash_bodyX [string map $map $::md5::MD5Hash_bodyX]
-    unset map
+    set ::md5::MD5Hash_body [string map $map $::md5::MD5Hash_body]
+    unset map tName tVal
 }
 
 # Define the MD5 hashing procedure with inline functions.
-proc ::md5::MD5Hash {token msg} $::md5::MD5Hash_bodyX
+proc ::md5::MD5Hash {token msg} $::md5::MD5Hash_body
+unset ::md5::MD5Hash_body
 
 # -------------------------------------------------------------------------
 
@@ -701,6 +702,7 @@ proc ::md5::hmac {args} {
 # Try and load a compiled extension to help.
 namespace eval ::md5 {
     foreach e {critcl cryptkit trf} { if {[LoadAccelerator $e]} { break } }
+    unset e
 }
 
 package provide md5 $::md5::version
