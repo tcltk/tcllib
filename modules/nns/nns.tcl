@@ -233,6 +233,7 @@ proc ::nameserv::cget {option} {
 proc ::nameserv::configure {args} {
     variable host
     variable port
+    variable comm
 
     if {![llength $args]} {
 	return [list -host $host -port $port]
@@ -398,7 +399,7 @@ namespace eval        ::nameserv {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide nameserv 0.3
+package provide nameserv 0.3.1
 
 ##
 # ### ### ### ######### ######### #########
