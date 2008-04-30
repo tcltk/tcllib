@@ -1,9 +1,9 @@
-[manpage_begin nameserv n 0.3]
-[copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[manpage_begin nameserv n 0.3.1]
+[copyright {2007-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Name service facility}]
 [titledesc {Name service facility, Client}]
 [require Tcl 8.4]
-[require nameserv [opt 0.3]]
+[require nameserv [opt 0.3.1]]
 [require comm]
 [require logger]
 [keywords {name service} client]
@@ -11,8 +11,19 @@
 [see_also nameserv::server(n)]
 [description]
 
+Please read [term {Name service facility, introduction}] first.
+
+[para]
+
 This package provides a client for the name service facility
 implemented by the package [package nameserv::server].
+
+[para]
+
+This service is built in top of and for the package [package comm].
+It has nothing to do with the Internet's Domain Name System. If the
+reader is looking for a package dealing with that please see Tcllib's
+packages [package dns] and [package resolv].
 
 [section API]
 
@@ -316,6 +327,9 @@ them at [term bind]-time.
 
 [section HISTORY]
 [list_begin definitions]
+[def 0.3.1]
+Fixed SF Bug 1954771.
+
 [def 0.3]
 Extended the client with the ability to perform asynchronous and
 continuous searches.
