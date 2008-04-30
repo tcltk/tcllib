@@ -1,3 +1,21 @@
+2008-04-30  Andreas Kupries  <andreask@activestate.com>
+
+	* nns.tcl (::nameserv::configure): Fixed [Bug 1954771], bringing
+	* pkgIndex.tcl: missing variable into scope. Thanks to Joe Brandt
+	* nns_client:man: <vonbane@users.sourceforge.net> for both report
+	  and fix. Bumped version to 0.3.1.
+
+2008-04-30  Andreas Kupries  <andreask@activestate.com>
+
+	* nns_intro.man: New file, giving an overview of the packages and
+	* nns_auto.man: applications in the module. All other documents now
+	* nns_client.man: refer back to the introduction. Also clarified
+	* nns_common.man: the relationship to DNS, which is none, plus
+	* nns_protocol.man: reference to the Tcllib packages which do
+	* nns_server.man: handle DNS. Pointed applications out as examples
+	* ../../apps/nnsd.man: of use for the packages.
+	* ../../apps/nns.man:
+
 2008-04-03  Andreas Kupries  <andreask@activestate.com>
 
 	* nns_protocol.man: Renamed nns_procotol.man, fixed the typo in
@@ -76,4 +94,3 @@
 	  testsuites, are needed. Only the trivial code shared by both is
 	  documented and tested. Manual testing has been done however,
 	  using the nns* applications, see apps/
-
