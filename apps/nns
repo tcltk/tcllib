@@ -84,7 +84,7 @@ proc ::nns::ProcessCommandLine {} {
 	switch -exact -- $opt {
 	    -host {
 		if {$xcmd == "who"} Usage
-		if {[llength $argv] % 2 == 1} Usage
+		if {[llength $argv] < 2} Usage
 
 		set host [lindex $argv 1]
 		set argv [lrange $argv 2 end]
@@ -93,7 +93,7 @@ proc ::nns::ProcessCommandLine {} {
 	    }
 	    -port {
 		if {$xcmd == "who"} Usage
-		if {[llength $argv] % 2 == 1} Usage
+		if {[llength $argv] < 2} Usage
 
 		# Todo: Check non-zero unsigned short integer
 		set port [lindex $argv 1]

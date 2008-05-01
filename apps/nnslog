@@ -1,0 +1,194 @@
+#! /bin/sh
+# -*- tcl -*- \
+exec tclsh "$0" ${1+"$@"}
+
+# @@ Meta Begin
+# Application nnslog 1.0
+# Meta platform     tcl
+# Meta summary      Nano Name Service Logger
+# Meta description  This application connects to a name service demon
+# Meta description  and then continuously logs all changes (new/removed
+# Meta description  definitions) to the standard output.
+# Meta subject      {name service} client log
+# Meta require      {Tcl 8.4}
+# Meta require      comm
+# Meta require      logger
+# Meta require      nameserv
+# Meta require      nameserv::common
+# Meta require      term::ansi::code::attr
+# Meta require      term::ansi::code::ctrl
+# Meta require      snit
+# Meta author       Andreas Kupries
+# Meta license      BSD
+# @@ Meta End
+
+package provide nnslog 1.0
+
+# nns - Nano Name Service Logger
+# === = ========================
+#
+# Use cases
+# ---------
+# 
+# (1)	Continuously monitor a nameservice for changes.
+#
+# Command syntax
+# --------------
+#
+# (Ad 1) nnslog ?-host NAME|IP? ?-port PORT? ?-color BOOL?
+#
+#       Monitor a name server. If no port is specified the default
+# 	port 38573 is used to connect to it. If no host is specified
+# 	the default (localhost) is used to connect to it.
+
+lappend auto_path [file join [file dirname [file dirname \
+			[file normalize [info script]]]] modules]
+
+package require nameserv
+
+package require term::ansi::code::attr
+package require term::ansi::code::ctrl
+
+::term::ansi::code::ctrl::import ::nnslog sda_bg* sda_reset
+
+namespace eval ::nnslog {
+    variable  map
+    array set map {
+	add    +++
+	remove ---
+    }
+    variable  cmap
+    array set cmap {
+	add    sda_bgcyan
+	remove sda_bgmagenta
+    }
+}
+
+proc ::nnslog::ProcessCommandLine {} {
+    global argv xcolor
+
+    # Process the options, perform basic validation.
+    set xcolor 0
+
+    if {[llength $argv] < 1} return
+
+    while {[llength $argv]} {
+	set opt [lindex $argv 0]
+	if {![string match "-*" $opt]} break
+
+	switch -exact -- $opt {
+	    -host {
+		if {[llength $argv] < 2} Usage
+
+		set host [lindex $argv 1]
+		set argv [lrange $argv 2 end]
+
+		nameserv::configure -host $host
+	    }
+	    -port {
+		if {[llength $argv] < 2} Usage
+
+		# Todo: Check non-zero unsigned short integer
+		set port [lindex $argv 1]
+		set argv [lrange $argv 2 end]
+
+		nameserv::configure -port $port
+	    }
+	    -color {
+		if {[llength $argv] < 2} Usage
+
+		set flag [lindex $argv 1]
+		set argv [lrange $argv 2 end]
+
+		if {![string is boolean -strict $flag]} Usage
+		set xcolor $flag
+	    }
+	    -debug {
+		# Undocumented. Activate the logger services provided
+		# by various packages.
+		logger::setlevel debug
+		set argv [lrange $argv 1 end]
+	    }
+	    default Usage
+	}
+    }
+
+    # Additional validation. no arguments should be left over.
+    if {[llength $argv] > 1} Usage
+    return
+}
+
+proc ::nnslog::Usage {{sfx {}}} {
+    global argv0 ; append argv0 $sfx
+    puts stderr "$argv0 wrong#args, expected: ?-host NAME|IP? ?-port PORT?"
+    exit 1
+}
+
+proc ::nnslog::ArgError {text} {
+    global argv0
+    puts stderr "$argv0: $text"
+    #puts $::errorInfo
+    exit 1
+}
+
+# ### ### ### ######### ######### #########
+## Setup a text|graphical report
+
+proc ::nnslog::Exit {args} {
+    puts {Exiting client due to loss of connection with service}
+    exit 0
+}
+
+# ### ### ### ######### ######### #########
+
+proc ::nnslog::Color {type text} {
+    variable cmap
+    global xcolor
+    if {!$xcolor} { return $text }
+    return [$cmap($type)]$text[sda_reset]
+}
+
+# ### ### ### ######### ######### #########
+## Main
+
+proc ::nnslog::Do.search {} {
+    set contents [nameserv::search -continuous *]
+    $contents configure -command [list ::nnslog::Do.search.change $contents]
+
+    uevent::bind nameserv lost-connection ::nnslog::Exit
+    vwait ::forever
+    # Not reached.
+    return
+}
+
+proc ::nnslog::Do.search.change {res type response} {
+    variable map
+    # Ignoring the arguments, we simply print the full results every
+    # time.
+
+    if {$type eq "stop"} {
+	$res destroy
+	puts {Lost connection, search closed}
+	return
+    }
+    # Print events ...
+    set now [clock format [clock seconds]]
+    foreach {name value} $response {
+	puts  stdout [Color $type "\[$now\] $map($type)\t$name = $value"]
+    }
+    flush stdout
+    return
+}
+
+# ### ### ### ######### ######### #########
+## Invoking the functionality.
+
+::nnslog::ProcessCommandLine
+if {[catch {
+    ::nnslog::Do.search
+} msg]} {
+    ::nnslog::ArgError $msg
+}
+
+# ### ### ### ######### ######### #########
+exit

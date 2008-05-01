@@ -1,3 +1,14 @@
+2008-04-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ../../apps/nns (::nns::ProcessCommandLine): Fixed inccorrect
+	* ../../apps/nns.man: checking for wrong#args in the code handling
+	* ../../apps/nnsd.man: the options -host and -port. Reworked
+	  the descriptiond of the applications a bit.
+
+	* ../../apps/nnslog: New application and its documentation, a
+	* ../../apps/nnslog.man: stripped down form of 'nns search
+	  -continuous *' with different output (log of events).
+
 2008-04-30  Andreas Kupries  <andreask@activestate.com>
 
 	* nns.tcl (::nameserv::configure): Fixed [Bug 1954771], bringing

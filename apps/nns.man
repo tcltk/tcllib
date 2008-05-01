@@ -1,6 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin nns n 1.1]
-[copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2007-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Name service facility}]
 [titledesc {Name service facility, Commandline Client Application}]
 [description]
@@ -8,15 +8,20 @@
 
 The application described by this document, [syscmd nns], is a simple
 command line client for the nano name service facility provided by the
-Tcllib packages [package nameserv], [package nameserv::common], and
-[package nameserv::server]. Beyond that the application's sources also
-serve as an example of how to use the client package. All abilities of
-a client are covered, from configuration to registration of names to
+Tcllib packages [package nameserv], and [package nameserv::server].
+
+Beyond that the application's sources also serve as an example of how
+to use the client package [package nameserv]. All abilities of a
+client are covered, from configuration to registration of names to
 searching.
 
 [para]
 
-[syscmd nns] is based upon the package [package nameserv]
+This name service facility has nothing to do with the Internet's
+[term {Domain Name System}], otherwise known as [term DNS]. If the
+reader is looking for a package dealing with that please see either of
+the packages [package dns] and [package resolv], both found in Tcllib
+too.
 
 [subsection {USE CASES}]
 
