@@ -122,7 +122,7 @@ proc ::nameserv::auto::configure {args} {
 	set opt [lindex $args 0]
 	switch -exact -- $opt {
 	    -delay {
-		if {[llength $args] % 2 == 1} {
+		if {[llength $args] < 2} {
 		    return -code error "value for \"$opt\" is missing"
 		}
 		# TODO: check integer > 0
@@ -150,7 +150,7 @@ namespace eval        ::nameserv::auto {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide nameserv::auto 0.2
+package provide nameserv::auto 0.2.1
 
 ##
 # ### ### ### ######### ######### #########
