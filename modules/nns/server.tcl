@@ -324,7 +324,7 @@ proc ::nameserv::server::configure {args} {
 	set opt [lindex $args 0]
 	switch -exact -- $opt {
 	    -localonly {
-		if {[llength $args] % 2 == 1} {
+		if {[llength $args] < 2} {
 		    return -code error "value for \"$opt\" is missing"
 		}
 		# Todo: Check boolean 
@@ -340,7 +340,7 @@ proc ::nameserv::server::configure {args} {
 		if {$comm ne ""} {
 		    return -code error "Unable to configure an active server"
 		}
-		if {[llength $args] % 2 == 1} {
+		if {[llength $args] < 2} {
 		    return -code error "value for \"$opt\" is missing"
 		}
 		# Todo: Check non-zero unsigned short integer
@@ -370,7 +370,7 @@ namespace eval        ::nameserv::server {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide nameserv::server 0.3
+package provide nameserv::server 0.3.1
 
 ##
 # ### ### ### ######### ######### #########
