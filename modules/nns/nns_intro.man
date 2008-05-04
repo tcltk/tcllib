@@ -71,8 +71,7 @@ application [syscmd nns].
 The second client package, [package nameserv::auto], provides
 additional functionality for the entering of name/port definitions
 into a name service, automatically detecting the loss of the server
-and re-entering the data when the server comes back. The application
-[syscmd nns] demonstrates its use as well.
+and re-entering the data when the server comes back.
 
 [para]
 
@@ -80,6 +79,12 @@ The package [package nameserv::common] is of no interest to users. It
 is an internal package containing code and definitions common to the
 packages [package nameserv] and [package nameserv::server].
 
+[para]
+
+All packages use the [package uevent] package for the reporting of
+special circumstances via events, and reserve the uevent-tag
+[term nameserv] for their exclusive use. All their events will be
+posted to that tag.
 
 [section Internals]
 
@@ -95,7 +100,7 @@ internals of the nameservice facility however are strongly advised to
 read it.
 
 
-[section {BUGS, IDEAS, FEEDBACK}]
+[section {Bugs, Ideas, Feedback}]
 
 This document, will undoubtedly contain bugs and other problems.
 
