@@ -1,6 +1,17 @@
+2008-05-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* nns_auto.tcl (::nameserv::auto::configure): Fixed incorrect
+	* server.tcl (::nameserv::server::configure): checking for 
+	* nns.tcl (::nameserv::configure): wrong#args in the code
+	* pkgIndex.tcl: handling the various options. Bumped client
+	* nns_client.man: to version 0.3.2, server to 0.3.1, and auto
+	* nns_server.man: to 0.2.1. Also general documentation work.
+	* nns_auto.man:
+	* nns_intro.man:
+
 2008-04-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* ../../apps/nns (::nns::ProcessCommandLine): Fixed inccorrect
+	* ../../apps/nns (::nns::ProcessCommandLine): Fixed incorrect
 	* ../../apps/nns.man: checking for wrong#args in the code handling
 	* ../../apps/nnsd.man: the options -host and -port. Reworked
 	  the descriptiond of the applications a bit.

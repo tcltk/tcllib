@@ -263,14 +263,14 @@ proc ::nameserv::configure {args} {
 	set opt [lindex $args 0]
 	switch -exact -- $opt {
 	    -host {
-		if {[llength $args] % 2 == 1} {
+		if {[llength $args] < 2} {
 		    return -code error "value for \"$opt\" is missing"
 		}
 		set host [lindex $args 1]
 		set args [lrange $args 2 end]
 	    }
 	    -port {
-		if {[llength $args] % 2 == 1} {
+		if {[llength $args] < 2} {
 		    return -code error "value for \"$opt\" is missing"
 		}
 		set port [lindex $args 1]
@@ -399,7 +399,7 @@ namespace eval        ::nameserv {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide nameserv 0.3.1
+package provide nameserv 0.3.2
 
 ##
 # ### ### ### ######### ######### #########
