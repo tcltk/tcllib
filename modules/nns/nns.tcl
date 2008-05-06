@@ -32,8 +32,8 @@ proc ::nameserv::bind {name data} {
 }
 
 proc ::nameserv::release {} {
-    # Releases all names the application is registered under
-    # at the configured name service.
+    # Releases all names the application has registered at the
+    # configured name service.
 
     DO Release
     return
@@ -47,44 +47,10 @@ proc ::nameserv::search {args} {
     # In continuous and async modes it returns an object whose
     # contents reflect the current set of matching entries.
 
-    switch -exact [llength $args] {
-	0 {
-	    set continuous 0
-	    set pattern    *
-	}
-	1 {
-	    set opt [lindex $args 0]
-	    if {$opt eq "-continuous"} {
-		set oneshot    0
-		set continuous 1
-		set pattern    *
-	    } elseif {$opt eq "-async"} {
-		set oneshot    1
-		set continuous 1
-		set pattern    *
-	    } else {
-		set continuous 0
-		set pattern    $opt
-	    }
-	}
-	2 {
-	    set opt [lindex $args 0]
-	    if {$opt eq "-continuous"} {
-		set oneshot    0
-		set continuous 1
-		set pattern    [lindex $args 1]
-	    } elseif {$opt eq "-async"} {
-		set oneshot    1
-		set continuous 1
-		set pattern    [lindex $args 1]
-	    } else {
-		return -code error "wrong\#args: Expected ?-continuous|-async? ?pattern?"
-	    }
-	}
-	default {
-	    return -code error "wrong\#args: Expected ?-continuous|-async? ?pattern?"
-	}
-    }
+    array set a [search-parseargs $args]
+    upvar 0 a(oneshot)    oneshot
+    upvar 0 a(continuous) continuous
+    upvar 0 a(pattern)    pattern
 
     if {$continuous} {
 	variable search
@@ -93,7 +59,14 @@ proc ::nameserv::search {args} {
 	# incoming results later easy too.
 
 	set receiver [receiver %AUTO% $oneshot]
-	ASYNC Search/Continuous/Start $receiver $pattern
+	if {[catch {
+	    ASYNC Search/Continuous/Start $receiver $pattern
+	} err]} {
+	    # Release the allocated object to prevent a leak, then
+	    # rethrow the error.
+	    $receiver destroy
+	    return -code error $err
+	}
 
 	set search($receiver) .
 	return $receiver
@@ -112,6 +85,56 @@ proc ::nameserv::server_protocol {} {
 
 proc ::nameserv::server_features {} {
     return [DO ProtocolFeatures]
+}
+
+# ### ### ### ######### ######### #########
+## semi-INT: search argument processing.
+
+proc ::nameserv::search-parseargs {arguments} {
+    # This command is semi-public. It is not documented for public
+    # use, however the package nameserv::auto uses as helper in its
+    # implementation of the search command.
+
+    switch -exact [llength $arguments] {
+	0 {
+	    set continuous 0
+	    set pattern    *
+	}
+	1 {
+	    set opt [lindex $arguments 0]
+	    if {$opt eq "-continuous"} {
+		set oneshot    0
+		set continuous 1
+		set pattern    *
+	    } elseif {$opt eq "-async"} {
+		set oneshot    1
+		set continuous 1
+		set pattern    *
+	    } else {
+		set continuous 0
+		set pattern    $opt
+	    }
+	}
+	2 {
+	    set opt [lindex $arguments 0]
+	    if {$opt eq "-continuous"} {
+		set oneshot    0
+		set continuous 1
+		set pattern    [lindex $arguments 1]
+	    } elseif {$opt eq "-async"} {
+		set oneshot    1
+		set continuous 1
+		set pattern    [lindex $arguments 1]
+	    } else {
+		return -code error "wrong\#args: Expected ?-continuous|-async? ?pattern?"
+	    }
+	}
+	default {
+	    return -code error "wrong\#args: Expected ?-continuous|-async? ?pattern?"
+	}
+    }
+
+    return [list oneshot $oneshot continuous $continuous pattern $pattern]
 }
 
 # ### ### ### ######### ######### #########
@@ -307,7 +330,6 @@ proc ::nameserv::Search/Continuous/Change {tag type response} {
 }
 
 snit::type ::nameserv::receiver {
-
     option -command -default {}
 
     constructor {{once 0}} {
@@ -317,7 +339,7 @@ snit::type ::nameserv::receiver {
 
     destructor {
 	if {$singleshot} return
-	ASYNC Search/Continuous/Stop $self
+	::nameserv::ASYNC Search/Continuous/Stop $self
 	Callback stop {}
 	return
     }
@@ -394,12 +416,15 @@ namespace eval        ::nameserv {
 
     variable host localhost
     variable port [nameserv::common::port]
+
+    namespace export bind release search protocol \
+	server_protocol server_features configure cget
 }
 
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide nameserv 0.3.2
+package provide nameserv 0.4
 
 ##
 # ### ### ### ######### ######### #########

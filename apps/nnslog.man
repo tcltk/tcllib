@@ -6,6 +6,10 @@
 [description]
 [para]
 
+Please read [term {Name service facility, introduction}] first.
+
+[para]
+
 The application described by this document, [syscmd nnslog], is a
 simple command line client for the nano name service facility provided
 by the Tcllib packages [package nameserv], and [package nameserv::server].
@@ -43,13 +47,14 @@ terminal.
 [list_begin definitions]
 [call [cmd nnslog] \
      [opt "[option -host] [arg host]"] \
-     [opt "[option -port] [arg port]"] \
-     [opt "[option -color] [arg bool]"]]
+     [opt "[option -port] [arg port]"]]
 
 The command connects to the specified name service, sets up a search
 for all changes and then prints all received events to stdout, with
 each events on its own line. The command will not exit until it is
-explicitly terminated by the user.
+explicitly terminated by the user. It will especially survive the loss
+of the connection to the name service and reestablish the search and
+log when the connection is restored.
 
 [para]
 The options to specify the name service will be explained later, in
@@ -74,15 +79,6 @@ to is running on.
 If this option is not specified it defaults to [const 38573]. It
 specifies the TCP port the name service to talk to is listening on for
 requests.
-
-[opt_def -color boolean]
-
-If this option is not specified it defaults to [const false]. If set
-to [const true] the text written to stdout will be colorized using
-ANSI terminal control sequences.
-
-New entries will be shown in [const cyan], and removed entries in
-[const magenta].
 
 [list_end]
 
