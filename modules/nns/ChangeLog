@@ -1,3 +1,28 @@
+2008-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ../../apps/nns: Switched to use of nameserv::auto to handle the
+	* ../../apps/nnslog: loss and restoration of the server
+	  automatically. Got rid of the colorization frills.
+
+	* server.tcl (::nameserv::server::bind): Small extension of log
+	* pkgIndex.tcl: output for failure case of bind. Added log output 
+	* nns_server.man: to trace searches. Bumped package version to 0.3.2.
+
+	* nns_auto.tcl: Refactored the bind and restore code, put the
+	* nns_auto.man: commonalities into shared commands. Extended the
+	* pkgIndex.tcl: API to become a full drop-in replacement for
+	  'nameserv', just with the persistence feature. Extended the
+	  persistence to continuous and unfulfilled async searches. Now
+	  exporting the API commands. Bumped package version to 0.3.
+
+	* nns.tcl: Factored the argument processing for searches into a
+	* pkgIndex.tcl: separate command. Pseudo-public. Undocumented, but
+	* nns_client.man: can be used by other nameserver packages. Fixed
+	  leak when encountering a missing name server during creation of
+	  a continuous or async search. Fixed async destruction of a
+	  continous search from receiver object. Now exporting the API
+	  commands. Bumped package version to 0.4.
+
 2008-05-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* nns_auto.tcl (::nameserv::auto::configure): Fixed incorrect

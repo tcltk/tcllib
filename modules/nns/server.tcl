@@ -95,6 +95,7 @@ proc ::nameserv::server::Bind {name cdata} {
     log::debug "bind ([list $name -> $cdata]), for $id"
 
     if {[info exists data($name)]} {
+	log::debug "bind failed, \"$name\" is already bound"
 	return -code error "Name \"$name\" is already bound"
     }
 
@@ -164,7 +165,15 @@ proc ::nameserv::server::Search/Continuous/Start {tag pattern} {
     # forever.
 
     set k [list $id $tag]
-    if {[info exists searchi($k)]} return
+
+    log::debug "search <$k>"
+
+    if {[info exists searchi($k)]} {
+	log::debug "search already known"
+	return
+    }
+
+    log::debug "search added"
 
     set searchi($k) $pattern
     lappend searchp($pattern) $k
@@ -370,7 +379,7 @@ namespace eval        ::nameserv::server {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide nameserv::server 0.3.1
+package provide nameserv::server 0.3.2
 
 ##
 # ### ### ### ######### ######### #########
