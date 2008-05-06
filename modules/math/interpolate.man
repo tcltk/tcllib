@@ -135,10 +135,10 @@ must be computed.
 
 [para]
 
-[call [cmd ::math::interpolate::prepare_cubic_splines] [arg xcoord] [arg ycoord]]
+[call [cmd ::math::interpolate::prepare-cubic-splines] [arg xcoord] [arg ycoord]]
 
 Returns a list of coefficients for the second routine
-[emph interp_cubic_splines] to actually interpolate.
+[emph interp-cubic-splines] to actually interpolate.
 
 [list_begin arguments]
 [arg_def list xcoord] List of x-coordinates for the value of the
@@ -152,14 +152,14 @@ function at the given x-coordinates).
 
 [para]
 
-[call [cmd ::math::interpolate::interp_cubic_splines] [arg coeffs] [arg x]]
+[call [cmd ::math::interpolate::interp-cubic-splines] [arg coeffs] [arg x]]
 
 Returns the interpolated value at coordinate x. The coefficients are
-computed by the procedure [emph prepare_cubic_splines].
+computed by the procedure [emph prepare-cubic-splines].
 
 [list_begin arguments]
 [arg_def list coeffs] List of coefficients as returned by
-prepare_cubic_splines
+prepare-cubic-splines
 
 [arg_def float x] x-coordinate at which to estimate the function. Must
 be between the first and last x-coordinate for which values were given.
@@ -242,11 +242,11 @@ Suppose the following values are given:
 }]
 Then to estimate the values at 0.1, 0.2, 0.3, ... 1.0, you can use:
 [example {
-   set coeffs [::math::interpolate::prepare_cubic_splines \
+   set coeffs [::math::interpolate::prepare-cubic-splines \
                  {0.1 0.3 0.4 0.8  1.0} \
                  {1.0 2.1 2.2 4.11 4.12}]
    foreach x {0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0} {
-      puts "$x: [::math::interpolate::interp_cubic_splines $coeffs $x]"
+      puts "$x: [::math::interpolate::interp-cubic-splines $coeffs $x]"
    }
 }]
 to get the following output:
