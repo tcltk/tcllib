@@ -1,9 +1,9 @@
-[manpage_begin nameserv n 0.3.2]
+[manpage_begin nameserv n 0.4]
 [copyright {2007-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Name service facility}]
 [titledesc {Name service facility, Client}]
 [require Tcl 8.4]
-[require nameserv [opt 0.3.2]]
+[require nameserv [opt 0.4]]
 [require comm]
 [require logger]
 [keywords {name service} client]
@@ -200,7 +200,7 @@ tag.
 
 [section EVENTS]
 
-This package generated only one event, [term lost-connection]. The
+This package generates only one event, [term lost-connection]. The
 detail information provided to that event is a Tcl dictionary. The
 only key contained in the dictionnary is [const reason], and its value
 will be a string describing why the connection was lost.

@@ -6,6 +6,10 @@
 [description]
 [para]
 
+Please read [term {Name service facility, introduction}] first.
+
+[para]
+
 The application described by this document, [syscmd nns], is a simple
 command line server for the nano name service facility provided by the
 Tcllib packages [package nameserv], and [package nameserv::server].

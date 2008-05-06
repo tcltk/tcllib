@@ -37,11 +37,13 @@ It is also an example on the use of the server-side package
 
 Complementing this server is the [syscmd nns] client application.
 
-A possible, but no very (...) use would be to enter name/port bindings
-into a server from a shell script. (...), as shell scripts normally do
-not provide a [package comm]-based service.
+A possible, but no very sensible use would be to enter name/port
+bindings into a server from a shell script. Not sensible, as shell
+scripts normally do not provide a [package comm]-based service.
 
-The only case for this making some sense would be in a shell script
+[para]
+
+The only case for this to make some sense would be in a shell script
 wrapped around a Tcl script FOO which is using comm, to register the
 listening port used by FOO.
 
@@ -51,6 +53,17 @@ can be used as both example and template.
 
 Beyond that it may also be useful to perform nameservice queries from
 shell scripts.
+
+[para]
+
+The third application, [syscmd nnslog] is a stripped down form of the
+[syscmd nns] client application. It is reduced to perform a continuous
+search for all changes and logs all received events to stdout.
+
+[para]
+
+Both clients use the [package nameserv::auto] package to automatically
+hande the loss and restoration of the connection to the server.
 
 
 [section Packages]
@@ -68,10 +81,12 @@ application [syscmd nns].
 
 [para]
 
-The second client package, [package nameserv::auto], provides
-additional functionality for the entering of name/port definitions
-into a name service, automatically detecting the loss of the server
-and re-entering the data when the server comes back.
+The second client package, [package nameserv::auto] is API compatible
+to the basic client, but provides the additional functionality that it
+will automatically restore data like bound names when the connection
+to the name service was lost and then reestablished. I.e. it
+automatically detects the loss of the server and re-enters the data
+when the server comes back.
 
 [para]
 
