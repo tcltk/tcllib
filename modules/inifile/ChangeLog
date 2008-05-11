@@ -1,3 +1,10 @@
+2008-05-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ini.tcl: Fixed definition of procedure 'commentchar'. Was
+	* ini.man: defined global instead of in the '::ini' namespace.
+	* pkgIndex.tcl: This fixes [SF Tcllib Bug 1917035]. Bumped version
+	  to 0.2.3.
+
 2008-03-14  Andreas Kupries  <andreask@activestate.com>
 
 	* ini.tcl: Simplified the initialization code. Bumped version to
