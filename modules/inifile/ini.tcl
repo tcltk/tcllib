@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ini.tcl,v 1.14 2008/03/14 21:55:42 andreas_kupries Exp $
+# RCS: @(#) $Id: ini.tcl,v 1.15 2008/05/11 00:53:58 andreas_kupries Exp $
 
-package provide inifile 0.2.2
+package provide inifile 0.2.3
 
 namespace eval ini {
     variable nexthandle  0
@@ -172,12 +172,15 @@ if { [package vcompare [package provide Tcl] 8.4] < 0 } {
 
 # get and set the ini comment character
 
-proc commentchar { {new {}} } {
+proc ::ini::commentchar { {new {}} } {
+    variable commentchar
     if {$new != ""} {
-        if {[string length $new] > 1} { error "comment char must be a single character" }
-        ::set ::ini::commentchar $new
+        if {[string length $new] > 1} {
+	    return -code error "comment char must be a single character"
+	}
+        ::set commentchar $new
     }
-    return $::ini::commentchar
+    return $commentchar
 }
 
 # return all section names
