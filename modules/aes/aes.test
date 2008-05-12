@@ -9,7 +9,7 @@
 #
 # Monte Carlo Tests with 4 Million cycles through the algorithm will need too much time
 #
-# $Id: aes.test,v 1.6 2006/10/09 21:41:39 andreas_kupries Exp $
+# $Id: aes.test,v 1.7 2008/05/12 23:16:09 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -198,6 +198,39 @@ foreach {n key iv pt ct} $vectors {
 #      983bf6f5a6dfbcdaa19370666e83a99a 40d8daf6d1fda0a073b3bd18b7695d2e
 #    3 d3f0bd9279ace6d37dd7a5906c5db669 40d8daf6d1fda0a073b3bd18b7695d2e
 #      c48cd503a21c8ad0b2483ef15f79571d 3edbe80d69a1d2248ca55fc17c4ef3c5
+
+# Bugs
+
+# N key ic plain cipher
+set vectors {
+    1
+    3132333435363738393031323334353637383930313233343536373839303132
+    c3f0929f353c2fc78b9c6705397f22c8
+    005a0000003b00000000000000000000
+    97d94ab5d6a6bf3e9a126b67b8b3bc12
+}
+
+foreach {n key iv pt ct} $vectors {
+    test aes-cbc-x${n}e {RFC3602 AES-128 CBC mode encryption} {
+        list [catch {
+            set K [binary format H* $key]
+            set I [binary format H* $iv]
+            set aes [aes::aes -mode cbc -dir enc -key $K -iv $I [binary format H* $pt]]
+            binary scan $aes H* r
+            set r
+        } msg] $msg
+    } [list 0 $ct]
+    
+    test aes-cbc-x${n}d {RFC3602 AES-128 CBC mode decryption} {
+        list [catch {
+            set K [binary format H* $key]
+            set I [binary format H* $iv]
+            set aes [aes::aes -mode cbc -dir dec -key $K -iv $I [binary format H* $ct]]
+            binary scan $aes H* r
+            set r
+        } msg] $msg
+    } [list 0 $pt]
+}
 
 testsuiteCleanup
 
