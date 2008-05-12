@@ -22,8 +22,8 @@
 package require Tcl 8.2
 
 namespace eval ::aes {
-    variable version 1.0.0
-    variable rcsid {$Id: aes.tcl,v 1.5 2005/09/04 17:15:56 patthoyts Exp $}
+    variable version 1.0.1
+    variable rcsid {$Id: aes.tcl,v 1.6 2008/05/12 23:16:09 andreas_kupries Exp $}
     variable uid ; if {![info exists uid]} { set uid 0 }
 
     namespace export {aes}
@@ -146,7 +146,7 @@ proc ::aes::EncryptBlock {Key block} {
             return -code error "invalid initialization vector: must be 16 bytes"
         }
         for {set n 0} {$n < 4} {incr n} {
-            lappend data2 [expr {[lindex $data $n] ^ [lindex $iv $n]}]
+            lappend data2 [expr {0xffffffff & ([lindex $data $n] ^ [lindex $iv $n])}]
         }
         set data $data2
     }
@@ -178,7 +178,7 @@ proc ::aes::DecryptBlock {Key block} {
             return -code error "invalid initialization vector: must be 16 bytes"
         }
         for {set n 0} {$n < 4} {incr n} {
-            lappend data2 [expr {[lindex $data $n] ^ [lindex $iv $n]}]
+            lappend data2 [expr {0xffffffff & ([lindex $data $n] ^ [lindex $iv $n])}]
         }
         set data $data2
     }
@@ -485,7 +485,7 @@ proc ::aes::Pad {data blocksize {fill \0}} {
 }
 
 proc ::aes::Pop {varname {nth 0}} {
-    upvar $varname args
+    upvar 1 $varname args
     set r [lindex $args $nth]
     set args [lreplace $args $nth $nth]
     return $r
@@ -555,7 +555,7 @@ proc ::aes::aes {args} {
         }
 
         set Key [Init $opts(-mode) $opts(-key) $opts(-iv)]
-        upvar $Key state
+        upvar 1 $Key state
         set state(reading) 1
         if {[string equal $opts(-dir) "encrypt"]} {
             set state(cmd) Encrypt

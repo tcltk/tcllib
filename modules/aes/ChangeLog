@@ -1,3 +1,14 @@
+2008-05-12  Andreas Kupries  <andreask@activestate.com>
+
+	* aes.tcl (DecryptBlock, EncryptBlock): Added code limiting the
+	* aes.man: values to int32 range, to prevent going out of range
+	* aes.test: when run by Tcl 8.5 and its bignums. Extended
+	* pkgIndex.tcl: testsuite to catch a problematic case which fails
+	  without the change. Bumped version to 1.0.1.
+
+	* aes.tcl (::aes::Pop, ::aes::aes): Also, cleaned up upvar command
+	  without explicit level information.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
