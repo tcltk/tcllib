@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin aes n 1.0]
+[manpage_begin aes n 1.0.1]
 [copyright {2005, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc {Advanced Encryption Standard (AES)}]
 [titledesc {Implementation of the AES block cipher}]
 [require Tcl 8.2]
-[require aes [opt 1.0]]
+[require aes [opt 1.0.1]]
 [description]
 [para]
 
