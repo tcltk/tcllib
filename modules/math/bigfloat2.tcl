@@ -1992,13 +1992,13 @@ proc ::math::bigfloat::todouble {x} {
     set fractionalPart [lindex $l 1]
     # The number of digits in Mantissa, excluding the dot and the leading zeros, of course
     set integer [string trimleft $integerPart$fractionalPart 0]
-    if {$integer==""} {
+    if {$integer eq ""} {
         set integer 0
     }
     set len [string length $integer]
     # Now Mantissa is stored in $integer
-    if {$len>$tcl_precision} {
-        set lenDiff [expr {$len-$tcl_precision}]
+    if {$len>$precision} {
+        set lenDiff [expr {$len-$precision}]
         # true when the number begins with a zero
         set zeroHead 0
         if {[string index $integer 0]==0} {
