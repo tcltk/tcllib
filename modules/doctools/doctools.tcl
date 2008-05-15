@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.25 2008/03/12 17:46:49 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.26 2008/05/15 19:20:42 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -1191,4 +1191,4 @@ namespace eval ::doctools {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools 1.3.2
+package provide doctools 1.3.3
