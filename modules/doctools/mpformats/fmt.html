@@ -677,5 +677,11 @@ proc XrefLink {dest label} {
     }
 
     #puts_stderr "XrefLink --> $dest"
+    if {[string equal $dest [lindex [file split [dt_fmap [dt_file]]] end]]} {
+	# Suppress self-referential links, i.e. links made from the
+	# current file to itself. Note that links to specific parts of
+	# the current file are not suppressed, only exact links.
+	return $label
+    }
     return [link $label $dest]
 }
