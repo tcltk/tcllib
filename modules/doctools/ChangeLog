@@ -1,3 +1,10 @@
+2008-05-15  Andreas Kupries  <andreask@activestate.com>
+
+	* mpformats/fmt.html (XrefLink): Now checking for and suppressing
+	* doctools.tcl: self-referential links from the current output
+	* doctools.man: file to itself exactly. Bump version to 1.3.3.
+	* pkgIndex.tcl:
+
 2008-04-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/fmt.html: Gave title h1 tag a class. Put a div around
