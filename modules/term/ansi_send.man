@@ -15,7 +15,7 @@ the other for sending to [emph stdout].
 
 The commands are defined using the control sequences provided by the package
 [package term::ansi::code::ctrl]. They have the same arguments as the commands
-they are based, with the exception of the variant for sending to any channel.
+they are based on, with the exception of the variant for sending to any channel.
 Their first argument is always a channel handle, then followed by the original
 arguments. Below we will list only the variant sending to [emph stdout].
 
