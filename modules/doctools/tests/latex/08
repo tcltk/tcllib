@@ -7,7 +7,7 @@
 \author{@USR@}
 \title{.MODULE. / ALL -- ..THE\_MODULE.. : ..THE\_TITLE..}
 \maketitle
-\section{SYNOPSIS}
+\section{Synopsis}\label{synopsis}
 \begin{flushleft}
 package require {\bf AAA}
 package require {\bf BBB VVV}
@@ -18,7 +18,7 @@ package require {\bf CCC ?VVV?}
 \item[] CMDNAME ...
 \item[] CMDNAME ...
 \end{itemize}
-\section{DESCRIPTION}
+\section{Description}\label{section1}
 \begin{itemize}
 %
 \item[] {\bf NAME}
@@ -33,7 +33,7 @@ package require {\bf CCC ?VVV?}
 %
  DESCRIPTION ::{\bf Constant}::
 \end{itemize}
-\section{API}
+\section{API}\label{section2}
 \begin{itemize}
 %
 \item[] TERM
@@ -49,7 +49,7 @@ package require {\bf CCC ?VVV?}
 Database Name:	{\bf DBNAME}\\
 Database Class:	{\bf CLASS}\\
 %
- DESCRIPTION {\bf NARGLE}
+ DESCRIPTION {\bf NARGLE (\ref{subsection1})}
 %
 \item[] Command-Line Switch:	{\bf NAME}\\
 Database Name:	{\bf DBNAME}\\
@@ -112,7 +112,7 @@ Database Class:	{\bf CLASS}\\
  DESCRIPTION ::\underline{Uri}::
 \end{itemize}
 \end{itemize}
-\subsection{NARGLE}
+\subsection{NARGLE}\label{subsection1}
 \begin{enumerate}
 %
 \item
@@ -141,11 +141,11 @@ Database Class:	{\bf CLASS}\\
  PARAGRAPH
 \end{itemize}
 \end{enumerate}
-\section{SEE ALSO}
+\section{See Also}\label{see-also}
 ELSE, OTHER
-\section{KEYWORDS}
+\section{Keywords}\label{keywords}
 KEYA, KEYZ
-\section{COPYRIGHT}
+\section{Copyright}\label{copyright}
 \begin{flushleft}
 Copyright (c) **Copyright**\linebreak
 \end{flushleft}

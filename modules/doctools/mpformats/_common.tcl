@@ -199,7 +199,7 @@ set    SectionList {}   ;# order of definition.
 proc c_sectionId {name} {
     # Identical to '__sid' in checker.tcl
     regsub -all {[ 	]+} [string tolower [string trim $name]] _ id
-    regsub -all {"} $id _ id
+    regsub -all {"} $id _ id ; # "
     return $id
 }
 
@@ -219,10 +219,11 @@ proc c_possibleReference {text gi {label {}}} {
     }
 }
 
-proc c_newSection {name level location} {
+proc c_newSection {name level location {id {}}} {
     global SectionList SectionNames
-    set id          [c_sectionId $name]
-
+    if {$id == {}} {
+	set id [c_sectionId $name]
+    }
     set SectionNames($id) .
     set SectionList [linsert $SectionList $location $name $id $level]
     return

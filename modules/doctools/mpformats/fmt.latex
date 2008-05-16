@@ -90,7 +90,7 @@ c_pass 2 fmt_manpage_end {} {
 	foreach x $sa {lappend tmp [texEscape $x]}
 	set sa $tmp
 
-	append res [fmt_section {SEE ALSO}] \n
+	append res [fmt_section {See Also} see-also] \n
 	append res [join [lsort $sa] ", "] \n
     }
     if {[llength $kw] > 0} {
@@ -98,11 +98,11 @@ c_pass 2 fmt_manpage_end {} {
 	foreach x $kw {lappend tmp [texEscape $x]}
 	set kw $tmp
 
-	append res [fmt_section KEYWORDS] \n
+	append res [fmt_section Keywords keywords] \n
 	append res [join [lsort $kw] ", "] \n
     }
     if {$ct != {}} {
-	append res [fmt_section COPYRIGHT] \n
+	append res [fmt_section Copyright copyright] \n
 	append res \1\\begin\{flushleft\} \n
 	append res [join [split $ct \n] \1\\linebreak\n] \1\\linebreak\n
 	append res \1\\end\{flushleft\} \n
@@ -111,10 +111,8 @@ c_pass 2 fmt_manpage_end {} {
     return $res
 }
 
-
-
-proc fmt_section    {name} {return "\1\\section\{[texEscape $name]\}"}
-proc fmt_subsection {name} {return "\1\\subsection\{[texEscape $name]\}"}
+proc fmt_section    {name id} {return    "\1\\section\{[texEscape $name]\}\1\\label\{$id\}"}
+proc fmt_subsection {name id} {return "\1\\subsection\{[texEscape $name]\}\1\\label\{$id\}"}
 proc fmt_para    {}        {return \n\n}
 
 c_pass 2 fmt_require {pkg {version {}}} NOP
@@ -134,13 +132,13 @@ c_pass 1 fmt_usage {cmd args} {c_hold synopsis "\1\\item\[\] $cmd [join $args " 
 c_pass 2 fmt_call {cmd args} {return "[fmt_lst_item "$cmd [join $args " "]"]"}
 c_pass 1 fmt_call {cmd args} {c_hold synopsis "\1\\item\[\] $cmd [join $args " "]"}
 
-c_pass 1 fmt_description {} NOP
-c_pass 2 fmt_description {} {
+c_pass 1 fmt_description {id} NOP
+c_pass 2 fmt_description {id} {
     set res ""
     set req [c_held require]
     set syn [c_held synopsis]
     if {$req != {} || $syn != {}} {
-	append res [fmt_section SYNOPSIS]\n
+	append res [fmt_section Synopsis synopsis]\n
 	if {$req != {}} {
 	    append res \1\\begin\{flushleft\} \n
 	    append res $req \n
@@ -152,7 +150,7 @@ c_pass 2 fmt_description {} {
 	    append res "\1\\end\{itemize\}" \n
 	}
     }
-    append res [fmt_section DESCRIPTION]
+    append res [fmt_section Description $id]
     return $res
 }
 
@@ -305,7 +303,7 @@ proc fmt_comment {text} {
 }
 proc fmt_sectref {text {label {}}} {
     if {![string length $label]} {set label $text}
-    Bold $label
+    Bold "$text (\1\\ref\{$label\})"
 }
 proc fmt_syscmd  {text} {Bold $text}
 proc fmt_method  {text} {Bold $text}

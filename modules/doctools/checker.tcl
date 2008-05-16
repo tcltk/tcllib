@@ -121,6 +121,17 @@ proc Warn {code args} {
     dt_warning "$prefix[join $msg "\n$prefix"]"
     return
 }
+proc WarnX {code args} {
+    # Warnings only in the first pass!
+    set msg [::msgcat::mc $code]
+    foreach {off line col} [dt_where] break
+    set msg [eval [linsert $args 0 format $msg]]
+    set msg "In macro at line $line, column $col:\n$msg"
+    set msg [split $msg \n]
+    set prefix "DocTools Warning ($code): "
+    dt_warning "$prefix[join $msg "\n$prefix"]"
+    return
+}
 
 proc Is    {s} {global state ; return [string equal $state $s]}
 proc IsNot {s} {global state ; return [expr {![string equal $state $s]}]}
@@ -196,8 +207,11 @@ proc ck_initialize {p} {
     global state   ; set state manpage_begin
     global lstctx  ; set lstctx [list]
     global lstitem ; set lstitem 0
-    global sect    ; catch {unset sect} ; set sect() . ; unset sect()
+    global sect
+    if {$p == 1} { catch {unset sect} ; set sect() . ; unset sect() }
     global pass    ; set pass $p
+    global countersection    ; set countersection    0
+    global countersubsection ; set countersubsection 0
     return
 }
 proc ck_complete {} {
@@ -287,47 +301,71 @@ proc description {} {
     Enter description
     if {[IsNot header]} {Error hdrcmd}
     Go body
-    fmt_description
+    fmt_description [Sectdef section Description description]
 }
 
-global sect
-proc __sid {name} {
-    # Identical to 'c_sectionId' in mpformats/_common.tcl
-    regsub -all {[ 	]+} [string tolower [string trim $name]] _ id
-    regsub -all {"} $id _ id ; # "
-    return $id
-}
+# Storage for (sub)section ids to enable checking for ambigous
+# identificaton. The ids on this level are logical names. The backends
+# are given physical names (via counters).
+global sect   ; # Map of logical -> physical ids
+global sectci ; # Current section (id)
+global sectct ; # Current section (title)
+global countersection
+global countersubsection
 
-proc section {name} {
+proc section {title {id {}}} {
     global sect
 
     Enter section
     if {[IsNot body]} {Error bodycmd}
     if {[LOpen]}      {Error nolistcmd}
 
-    set sid [__sid $name]
-    if {[info exists sect($sid)]} {
-	Warn sectambig $name
-    }
-    set sect($sid) .
-
-    fmt_section $name
+    fmt_section $title [Sectdef section $title $id]
 }
-proc subsection {name} {
+proc subsection {title {id {}}} {
     global sect
 
     Enter subsection
     if {[IsNot body]} {Error bodycmd}
     if {[LOpen]}      {Error nolistcmd}
 
-    set sid [__sid $name]
-    if {[info exists sect($sid)]} {
-	Warn sectambig $name
-    }
-    set sect($sid) .
-
-    fmt_subsection $name
+    fmt_subsection $title [Sectdef subsection $title $id]
 }
+
+proc Sectdef {type title id} {
+    global sect sectci sectct countersection countersubsection pass
+
+    # Compute a (sub)section id from the name (= section label/title)
+    # if the user did not provide their own id.
+    if {![string length $id]} {
+	if {$type == "section"} {
+	    set id [list $title]
+	} elseif {$type == "subsection"} {
+	    set id [list $sectci $title]
+	} else {
+	    error INTERNAL
+	}
+    }
+    # Check if the id is unambigous. Issue a warning if not. For
+    # sections we remember the now-current name and id for use by
+    # subsections.
+    if {$pass == 1} {
+	if {[info exists sect($id)]} {
+	    set msg $title
+	    if {$type == "subsection"} {
+		append msg " (in " $sectct ")"
+	    }
+	    Warn sectambig $msg
+	}
+	set sect($id) $type[incr counter$type]
+    }
+    if {$type == "section"} {
+	set sectci $id
+	set sectct $title
+    }
+    return $sect($id)
+}
+
 proc para {} {
     Enter para
     if {[IsNot body]} {Error bodycmd}
@@ -502,11 +540,66 @@ proc comment {text} {
     if {[Is done]} {Error nodonecmd}
     return ; #fmt_comment $text
 }
-proc sectref {name {label {}}} {
+proc sectref-external {title} {
     if {[IsNot body]}        {Error bodycmd}
     if {[LOpen] && ![LItem]} {Error nolisthdr}
-    if {![string length $label]} {set label $name}
-    fmt_sectref $name $label
+
+    fmt_sectref $title {}
+}
+proc sectref {title {id {}}} {
+    if {[IsNot body]}        {Error bodycmd}
+    if {[LOpen] && ![LItem]} {Error nolisthdr}
+
+    # Check existence of referenced (sub)section.
+    global sect sectci pass
+    set msg "$title"
+    if {$id != {}} { append msg " (id $id)" }
+
+    set pid {}
+    if {$id == {}} {
+	# Derive an id from the title, searching at the same
+	# time. First see if it is the id of a section. If not look
+	# for subsection ids. Issue a warning if many are possible. In
+	# that case prefer a reference in the current section,
+	# otherwise select randomly. Issue a warning if no subsection
+	# is possible either.
+
+	set id [list $title]
+	if {![info exists sect($id)]} {
+	    # Subsection based id candidates
+	    set ic [array names sect [list * $title]]
+	    if {![llength $ic]} {
+		# None. 
+		if {$pass > 1 } { WarnX missingsect $msg }
+		set pid {}
+	    } elseif {[llength $ic] > 1} {
+		# Too many.
+		if {$pass == 2} { WarnX sectambig $msg }
+		set id [list $sectci $title]
+		if {![info exists sect($id)]} {
+		    # No candidate in current section, so chose
+		    # randomly.
+		    set id [lindex $ic 0]
+		}
+		set pid $sect($id)
+	    } else {
+		# Unique. Take it.
+		set id [lindex $ic 0]
+		set pid $sect($id)
+	    }
+	} else {
+	    set pid $sect($id)
+	}
+    } else {
+	# A logical id was given, check directly.
+	if {![info exists sect($id)]} {
+	    if {$pass > 1 } { WarnX missingsect $msg }
+	} else {
+	    set pid $sect($id)
+	}
+    }
+
+    fmt_sectref $title $pid
 }
 proc syscmd {text} {
     if {[Is done]} {Error nodonecmd}

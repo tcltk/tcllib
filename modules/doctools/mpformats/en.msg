@@ -31,6 +31,7 @@ mcset en depr_nl          "Deprecated command \"%s\".\n\tPlease use \[para\] ins
 mcset en depr_bullet      "Deprecated command \"%s\".\n\tPlease use \[item\] instead."
 mcset en depr_ltype       "Deprecated list type \"%s\".\n\tPlease use \"%s\" instead."
 mcset en sectambig        "(Sub)Section title \"%s\" causes ambiguous section references."
+mcset en missingsect      "Refered (Sub)Section \"%s\" is not known."
 
 mcset en end/open/toc  "\[toc_end\] missing."
 mcset en toc/plaintext "Plain text beyond whitespace is not allowed."

@@ -7,11 +7,11 @@
 \author{@USR@}
 \title{.MODULE. / BASIC --  : }
 \maketitle
-\section{SYNOPSIS}
+\section{Synopsis}\label{synopsis}
 \begin{itemize}
 \item[] a-command 
 \end{itemize}
-\section{DESCRIPTION}
+\section{Description}\label{section1}
 OK
 \begin{itemize}
 %
@@ -92,7 +92,7 @@ Database Class:	{\bf Color}\\
 caramel
 \end{itemize}
 KO
-\section{COPYRIGHT}
+\section{Copyright}\label{copyright}
 \begin{flushleft}
 Copyright (c) .COPYRIGHT.\linebreak
 \end{flushleft}

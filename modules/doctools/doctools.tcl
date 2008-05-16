@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.26 2008/05/15 19:20:42 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.27 2008/05/16 06:09:28 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -471,7 +471,7 @@ proc ::doctools::_format {name text} {
 	    catch {$format_ip eval fmt_shutdown}
 	    return -code error "Could not initialize pass $n of engine"
 	}
-	$chk_ip eval ck_initialize $p
+	$chk_ip eval ck_initialize $n
 
 	if {[catch {set result [$expander expand $text]} msg]} {
 	    catch {$format_ip eval fmt_shutdown}

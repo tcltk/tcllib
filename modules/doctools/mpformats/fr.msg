@@ -30,3 +30,4 @@ mcset fr depr_nl          "Commande obsol\xE8te \"%s\".\n\tConsultez \[para\] \x
 mcset fr depr_bullet      "Commande obsol\xE8te \"%s\".\n\tConsultez \[item\] \xE0 la place."
 mcset fr depr_ltype       "<List type> obsol\xE8te \"%s\".\n\tConsultez \"%s\" \xE0 la place."
 mcset fr sectambig        "@@@ Translate @@@ (Sub)Section title \"%s\" causes ambiguous section references."
+mcset fr missingsect      "@@@ Translate @@@ Refered (Sub)Section \"%s\" is not known."

@@ -26,7 +26,7 @@ CMDNAME ...
 CMDNAME ...
 </syntax>
 </synopsis>
-<section>
+<section id='section1'>
 <title>DESCRIPTION</title>
 
 <commandlist>
@@ -49,7 +49,7 @@ CMDNAME ...
 
 </commandlist>
 </section>
-<section id='api'>
+<section id='section2'>
 <title>API</title>
 
 <dl>
@@ -69,7 +69,7 @@ CMDNAME ...
 <name>NAME</name>
 <dbname>DBNAME</dbname>
 <dbclass>CLASS</dbclass>
-<desc> DESCRIPTION <ref refid='nargle'>NARGLE</ref>
+<desc> DESCRIPTION <ref refid='subsection1'>NARGLE</ref>
 </desc>
 </optiondef>
 <optiondef>
@@ -168,7 +168,7 @@ CMDNAME ...
 
 </dl>
 
-<subsection id='nargle'>
+<subsection id='subsection1'>
 <title>NARGLE</title>
 </subsection>
 <ol>
