@@ -141,7 +141,7 @@ virtual machine.
 
 This command returns the current semantic value [term SV] stored in
 the machine. This is an abstract syntax tree as specified in the
-document [syscmd grammar::me_ast], section [sectref {AST VALUES}].
+document [syscmd grammar::me_ast], section [sectref-external {AST VALUES}].
 
 
 [call [cmd ::grammar::me::tcl] [method ast]]
@@ -149,7 +149,7 @@ document [syscmd grammar::me_ast], section [sectref {AST VALUES}].
 This method returns the abstract syntax tree currently at the top of
 the AST stack of the ME virtual machine. This is an abstract syntax
 tree as specified in the document [syscmd grammar::me_ast], section
-[sectref {AST VALUES}].
+[sectref-external {AST VALUES}].
 
 
 [call [cmd ::grammar::me::tcl] [method astall]]
@@ -158,8 +158,8 @@ This method returns the whole stack of abstract syntax trees currently
 known to the ME virtual machine. Each element of the returned list is
 an abstract syntax tree as specified in the document
 
-[syscmd grammar::me_ast], section [sectref {AST VALUES}]. The top of
-the stack resides at the end of the list.
+[syscmd grammar::me_ast], section [sectref-external {AST VALUES}].
+The top of the stack resides at the end of the list.
 
 
 [call [cmd ::grammar::me::tcl] [method ctok]]
