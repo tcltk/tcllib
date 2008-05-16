@@ -1,4 +1,8 @@
-2008-05-15  Andreas Kupries  <andreask@activestate.com>
+2008-05-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* doctools.tcl: Bumped version to 1.3.4.
+	* doctools.man: 
+	* pkgIndex.tcl:
 
 	* checker.tcl: Reworked the (sub)section handling, enabled the
 	* doctools_lang_cmdref.man: documentation writer to label
@@ -60,7 +64,7 @@
 
 	* mpformats/fmt.html (XrefLink): Now checking for and suppressing
 	* doctools.tcl: self-referential links from the current output
-	* doctools.man: file to itself exactly. Bump version to 1.3.3.
+	* doctools.man: file to itself exactly. Bumped version to 1.3.3.
 	* pkgIndex.tcl:
 
 2008-04-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
