@@ -121,7 +121,7 @@ a Tk widget, an Incr Tcl object, a BWidget or almost anything else.
 [para]
 
 Note that you can achieve the effect of inheritance using 
-[sectref COMPONENTS components] and [sectref "DELEGATION"]--and you can inherit
+[sectref COMPONENTS] and [sectref "DELEGATION"]--and you can inherit
 from anything that looks like a Tcl object.
 
 [subsection {What can I do with Snit?}]
@@ -404,8 +404,7 @@ doesn't implement inheritance as it's ordinarily understood
 the older term seems more appropriate.  Sometimes this is called 
 [term {object-based}] programming as opposed to object-oriented
 programming.  Note that you can easily create the effect of 
-inheritance using [sectref COMPONENTS components] and 
-[sectref "DELEGATION"].
+inheritance using [sectref COMPONENTS] and [sectref "DELEGATION"].
 
 [para]
 
@@ -479,7 +478,7 @@ that can be used to define dog objects.
 [para]
 
 An instance of a [cmd snit::type] can have [sectref {INSTANCE METHODS}],
-[sectref {INSTANCE VARIABLES}], [sectref OPTIONS], and [sectref COMPONENTS components].
+[sectref {INSTANCE VARIABLES}], [sectref OPTIONS], and [sectref COMPONENTS].
 The type itself can have [sectref {TYPE METHODS}],
 [sectref {TYPE VARIABLES}], [sectref {TYPE COMPONENTS}], and 
 [sectref PROCS]. 
@@ -2101,7 +2100,7 @@ dalmatian
 The drawback is that this syntax is non-standard, and may
 limit the compatibility of your new type with other people's code.
 For example, Snit assumes that it can create 
-[sectref COMPONENTS components] using the standard creation syntax.
+[sectref COMPONENTS] using the standard creation syntax.
 
 [subsection {Are there any limitations on constructor arguments?}]
 
@@ -2124,8 +2123,8 @@ options to components, and there are specific issues relating to
 
 A destructor is a special kind of method that's called when an object
 is destroyed.  It's responsible for doing any necessary clean-up when
-the object goes away: destroying [sectref COMPONENTS components],
-closing files, and so forth.
+the object goes away: destroying [sectref COMPONENTS], closing files,
+and so forth.
 
 [subsection {How do I define a destructor?}]
 
@@ -2226,7 +2225,7 @@ generally to catch and ignore any errors while destroying components.
 }]
 
 
-[section COMPONENTS components]
+[section COMPONENTS]
 
 [subsection {What is a component?}]
 
@@ -2238,7 +2237,7 @@ of them, so they are called components of the object.
 [para]
 
 But Snit also has a more precise meaning for 
-[sectref {COMPONENT} components].  The components of a Snit object are those
+[sectref COMPONENTS COMPONENT].  The components of a Snit object are those
 objects to which methods or options can be delegated.
 (See [sectref DELEGATION] for more information about delegation.)
 
@@ -2548,7 +2547,7 @@ relationship between [sectref {INSTANCE VARIABLES}] and
 
 [para]
 
-Once you understand [sectref COMPONENTS components] and
+Once you understand [sectref COMPONENTS] and
 [sectref {DELEGATION}], type components are just more of the same.
 
 [subsection {How do I declare a type component?}]
@@ -2599,7 +2598,7 @@ snit::type dog {
 [subsection {Are there any limitations on type component names?}]
 
 Yes, the same as on [sectref {INSTANCE VARIABLES}], 
-[sectref {TYPE VARIABLES}], and normal [sectref COMPONENTS components].
+[sectref {TYPE VARIABLES}], and normal [sectref COMPONENTS].
 
 
 [section DELEGATION]
@@ -2656,7 +2655,7 @@ Delegation occurs frequently enough that Snit makes it easy. Any
 method can be delegated to any component or type component 
 by placing a single [cmd delegate] statement in the type definition.
 
-(See [sectref COMPONENTS components] and [sectref {TYPE COMPONENTS}]
+(See [sectref COMPONENTS] and [sectref {TYPE COMPONENTS}]
 for more information about component names.)
 
 [para]

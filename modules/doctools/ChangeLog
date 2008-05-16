@@ -1,3 +1,18 @@
+2008-05-16  Andreas Kupries  <andreask@activestate.com>
+
+	* checker.tcl (sectref): The way it was documented confused me and
+	* doctools.tcl: the last change flipped identifying and text
+	* doctools.man: argument, changing the meaning of sectref. Should
+	* pkgIndex.tcl: have seen that quicker with how comm/comm_wire.man
+	  had to be updated. Fixed this now, restoring the proper
+	  order. Rewrote docs as well for better understanding. Bumped to
+	  version 1.3.5.
+
+	* ../comm/comm_wire.man: Fixed the sectref argument order issues.
+	* ../rcs/rcs.man: Fixed the sectref argument order issues.
+	* ../snit/snitfaq.man: Fixed the sectref argument order issues.
+	* ../tie/tie.man: Fixed the sectref argument order issues.
+
 2008-05-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* doctools.tcl: Bumped version to 1.3.4.
@@ -61,6 +76,27 @@
 	* mpformats/_nroff.tcl: Modified the nroff backend to convert
 	* tests/nroff/03: (sub)section titles into uppercase in the
 	  output. Updated testsuite results.
+
+	* checker.tcl: Reworked the (sub)section handling, enabled the
+	  documentation writer to label (sub)sections with logical names
+	  and use these in references. Automatic logical names are
+	  improved, taking the current section into account, making for a
+	  better ambiguity check. References are now better as well.
+	  Backends are given unique physical (sub)section ids.
+
+	* mpformats/c.msg: Message catalogs extended with new warning
+	* mpformats/de.msg: 'missingsect' for apparently dangling
+	* mpformats/en.msg: (sub)section references.
+	* mpformats/fr.msg:
+
+	* mpformats/fmt.html: Updated backends for the changes in the
+	* mpformats/fmt.latex: frontend/backend API. Nroff backend
+	* mpformats/fmt.nroff: additionally modified to automatically
+	* mpformats/fmt.text: convert (sub)section titles into uppercase.
+	* mpformats/fmt.tmml:
+	* mpformats/fmt.wiki:
+	* mpformats/_common.tcl:
+	* mpformats/_nroff.tcl:
 
 	* mpformats/fmt.html (XrefLink): Now checking for and suppressing
 	* doctools.tcl: self-referential links from the current output
