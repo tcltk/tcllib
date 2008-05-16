@@ -91,7 +91,7 @@ returns this list as its result.
 
 It is assumed that the input text is in [term {diff -n format}], also
 known as [term {RCS patch}] format, as specified in the section
-[sectref {RCS PATCH FORMAT} rpf].
+[sectref rpf].
 
 Please note that the command ignores no-ops in the input, in other
 words the resulting PCL contains only instructions doing something.
@@ -103,8 +103,7 @@ This command provides the complementary operation to
 
 [cmd ::rcs::decodeRcsPatch]. It convert a patch comand list (PCL) list
 as specified in the section [sectref {RCS PATCH COMMAND LIST}] back
-into a text in [sectref {RCS patch format} rpf] and returns that text as
-its result.
+into a text in [sectref rpf] and returns that text as its result.
 
 [para]
 
@@ -317,7 +316,7 @@ as input by the patch encoder and applicator commands.
 [para]
 
 An example for a patch command is shown below, it represents the
-example RCS patch found in section [sectref {RCS PATCH FORMAT} rpf].
+example RCS patch found in section [sectref rpf].
 
 [para]
 [example {{{d 1 2} {d 4 1} {a 4 {The named is the mother of all things.

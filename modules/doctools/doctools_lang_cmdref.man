@@ -323,18 +323,17 @@ argument has to be plain text. Implicitly closes the last paragraph
 coming before it and also implicitly opens the first paragraph of the
 new section.
 
-[call [cmd sectref] [arg text] [opt [arg id]]]
+[call [cmd sectref] [arg id] [opt [arg text]]]
 
-Text markup. The plain [arg text] argument is marked up as a reference
-to the (sub)section of the same document referenced by the [arg id].
-Without an explicit id the text itself serves as the id as well.
-
+Text markup. Formats a reference to the section identified by [arg id].
+If no [arg text] is specified the title of the referenced section is
+used in the output, otherwise [arg text] is used.
 
 [call [cmd sectref-external] [arg text]]
 
 Text markup. Like [cmd sectref], except that the section is assumed to
-be in a different document and therefore doesn't need an id, nor are
-any checks for existence made.
+be in a different document and therefore doesn't need to be identified,
+nor are any checks for existence made. Only the text to format is needed.
 
 
 [call [cmd see_also] [arg args]]

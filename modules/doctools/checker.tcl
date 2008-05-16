@@ -208,8 +208,11 @@ proc ck_initialize {p} {
     global lstctx  ; set lstctx [list]
     global lstitem ; set lstitem 0
     global sect
-    if {$p == 1} { catch {unset sect} ; set sect() . ; unset sect() }
-    global pass    ; set pass $p
+    if {$p == 1} {
+	catch {unset sect}  ; set sect()  . ; unset sect()
+	catch {unset sectt} ; set sectt() . ; unset sectt()
+    }
+    global pass              ; set pass $p
     global countersection    ; set countersection    0
     global countersubsection ; set countersubsection 0
     return
@@ -308,6 +311,7 @@ proc description {} {
 # identificaton. The ids on this level are logical names. The backends
 # are given physical names (via counters).
 global sect   ; # Map of logical -> physical ids
+global sectt  ; # Map of logical -> section title
 global sectci ; # Current section (id)
 global sectct ; # Current section (title)
 global countersection
@@ -333,7 +337,7 @@ proc subsection {title {id {}}} {
 }
 
 proc Sectdef {type title id} {
-    global sect sectci sectct countersection countersubsection pass
+    global sect sectt sectci sectct countersection countersubsection pass
 
     # Compute a (sub)section id from the name (= section label/title)
     # if the user did not provide their own id.
@@ -359,6 +363,7 @@ proc Sectdef {type title id} {
 	}
 	set sect($id) $type[incr counter$type]
     }
+    set sectt($id) $title
     if {$type == "section"} {
 	set sectci $id
 	set sectct $title
@@ -546,59 +551,70 @@ proc sectref-external {title} {
 
     fmt_sectref $title {}
 }
-proc sectref {title {id {}}} {
+proc sectref {id {title {}}} {
     if {[IsNot body]}        {Error bodycmd}
     if {[LOpen] && ![LItem]} {Error nolisthdr}
 
+    # syntax: id ?title?
     # Check existence of referenced (sub)section.
-    global sect sectci pass
-    set msg "$title"
-    if {$id != {}} { append msg " (id $id)" }
+    global sect sectt sectci pass
 
-    set pid {}
-    if {$id == {}} {
-	# Derive an id from the title, searching at the same
-	# time. First see if it is the id of a section. If not look
-	# for subsection ids. Issue a warning if many are possible. In
-	# that case prefer a reference in the current section,
-	# otherwise select randomly. Issue a warning if no subsection
-	# is possible either.
+    # Two things are done.
+    # (1) Check that the id is known and determine the full id.
+    # (2) Determine physical id, and, if needed, the title.
 
-	set id [list $title]
-	if {![info exists sect($id)]} {
-	    # Subsection based id candidates
-	    set ic [array names sect [list * $title]]
+    if {[info exists sect($id)]} {
+	# Logical id, likely user-supplied, exists.
+	set pid $sect($id)
+	set fid $id
+    } else {
+	# Doesn't exist directly. Assume that the id is derived from a
+	# (sub)section title, search various combinations.
+
+	set fid [list $id]
+	if {[info exists sect($fid)]} {
+	    # Id was wrapped section title.
+	    set pid $sect($fid)
+	} else {
+	    # See if the id is the tail end of a subsection id.
+	    set ic [array names sect [list * $id]]
 	    if {![llength $ic]} {
-		# None. 
-		if {$pass > 1 } { WarnX missingsect $msg }
+		# No, it is not. Give up.
+		if {$pass > 1 } { WarnX missingsect $id }
 		set pid {}
-	    } elseif {[llength $ic] > 1} {
-		# Too many.
-		if {$pass == 2} { WarnX sectambig $msg }
-		set id [list $sectci $title]
-		if {![info exists sect($id)]} {
+	    } elseif {[llength $ic] == 1} {
+		# Yes, and it is unique. Take it.
+		set fid [lindex $ic 0]
+		set pid $sect($fid)
+	    } else {
+		# Yes, however it is ambigous. Issue warning, then
+		# select one of the possibilities. Prefer to keep the
+		# reference within the currenc section, otherwise,
+		# i.e. if we cannot do that, choose randomly.
+		if {$pass == 2} { WarnX sectambig $id }
+		set fid [list $sectci $id]
+		if {![info exists sect($fid)]} {
 		    # No candidate in current section, so chose
 		    # randomly.
-		    set id [lindex $ic 0]
+		    set fid [lindex $ic 0]
 		}
-		set pid $sect($id)
-	    } else {
-		# Unique. Take it.
-		set id [lindex $ic 0]
-		set pid $sect($id)
+		set pid $sect($fid)
 	    }
-	} else {
-	    set pid $sect($id)
-	}
-    } else {
-	# A logical id was given, check directly.
-	if {![info exists sect($id)]} {
-	    if {$pass > 1 } { WarnX missingsect $msg }
-	} else {
-	    set pid $sect($id)
 	}
     }
 
+    # If we have no text take the section title as text, if we
+    # can. Last fallback for thext is the id.
+    if {$title == {}} {
+	if {$pid != {}} {
+	    set title $sectt($fid)
+	} else {
+	    set title $id
+	}
+    }
+
+    # Hand both chosen title and physical id to the backend for
+    # actual formatting.
     fmt_sectref $title $pid
 }
 proc syscmd {text} {
