@@ -36,15 +36,15 @@ proc nr_bolde   {}          {return \n.BE}
 
 proc nr_section {name} {
     if {![regexp {[ 	]} $name]} {
-	return "\n.SH $name"
+	return "\n.SH [string toupper $name]"
     }
-    return "\n.SH \"$name\""
+    return "\n.SH \"[string toupper $name]\""
 }
 proc nr_subsection {name}   {
     if {![regexp {[ 	]} $name]} {
-	return "\n.SS $name"
+	return "\n.SS [string toupper $name]"
     }
-    return "\n.SS \"$name\""
+    return "\n.SS \"[string toupper $name]\""
 }
 
 

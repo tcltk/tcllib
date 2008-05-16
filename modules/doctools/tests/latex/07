@@ -6,7 +6,7 @@
 \author{@USR@}
 \title{.MODULE. / TEST --  : }
 \maketitle
-\section{DESCRIPTION}
+\section{Description}\label{section1}
 \begin{itemize}
 %
 \item
@@ -51,7 +51,7 @@ bb
 %
  3
 \end{itemize}
-\section{COPYRIGHT}
+\section{Copyright}\label{copyright}
 \begin{flushleft}
 Copyright (c) .COPYRIGHT.\linebreak
 \end{flushleft}

@@ -115,8 +115,8 @@ unchanged input if no mapping was established for [arg symfname].
 [para]
 
 The required mappings are established with the method [method map] of
-a frontend, as explained in section [sectref {OBJECT METHODS}] of the
-documentation for the package [package doctools].
+a frontend, as explained in section [sectref-external {OBJECT METHODS}]
+of the documentation for the package [package doctools].
 
 [call [cmd dt_format]]
 

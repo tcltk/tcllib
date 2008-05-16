@@ -89,8 +89,8 @@ c_pass 2 fmt_manpage_end {} {
 
 proc fmt_postprocess {nroff} {return [nroff_postprocess $nroff]}
 
-proc fmt_section    {name} {return [nr_section $name]}
-proc fmt_subsection {name} {return [nr_subsection $name]}
+proc fmt_section    {name {id {}}} {return [nr_section    $name]}
+proc fmt_subsection {name {id {}}} {return [nr_subsection $name]}
 proc fmt_para {} {nr_p}
 
 c_pass 2 fmt_require {pkg {version {}}} NOP
@@ -105,8 +105,8 @@ c_pass 2 fmt_usage {cmd args} NOP
 c_pass 1 fmt_call  {cmd args} {c_hold synopsis       "$cmd [join $args " "]\n[fmt_nl]"}
 c_pass 2 fmt_call  {cmd args} {return "[fmt_lst_item "$cmd [join $args " "]"]"}
 
-c_pass 1 fmt_description {} NOP
-c_pass 2 fmt_description {} {
+c_pass 1 fmt_description {id} NOP
+c_pass 2 fmt_description {id} {
     set text ""
     if {[set syn [c_held synopsis]] != {}} {
 	append text [fmt_section SYNOPSIS]\n
@@ -207,7 +207,7 @@ proc fmt_comment {text} {
 }
 proc fmt_sectref {text {label {}}} {
     if {![string length $label]} {set label $text}
-    bold $label
+    bold $text
 }
 proc fmt_syscmd  {text} {bold $text}
 proc fmt_method  {text} {bold $text}

@@ -6,7 +6,7 @@
 \author{@USR@}
 \title{.MODULE. / TEST --  : }
 \maketitle
-\section{DESCRIPTION}
+\section{Description}\label{section1}
 Argument	::\underline{Argument}::
 Class		::{\bf Class}::
 Command		::{\bf Command}::
@@ -26,7 +26,7 @@ Type		::{\bf Type}::
 Uri		::\underline{Uri}::
 Variable	::{\bf Variable}::
 Widget		::{\bf Widget}::
-\section{COPYRIGHT}
+\section{Copyright}\label{copyright}
 \begin{flushleft}
 Copyright (c) **Copyright**\linebreak
 \end{flushleft}

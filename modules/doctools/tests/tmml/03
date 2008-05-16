@@ -10,33 +10,33 @@
 </namesection>
 
 
-<section>
+<section id='section1'>
 <title>DESCRIPTION</title>
 </section>
-<section id='aaa'>
+<section id='section2'>
 <title>AAA</title>
 1
 </section>
-<section id='bbb'>
+<section id='section3'>
 <title>BBB</title>
 22
 
-<subsection id='bbb.ccc'>
+<subsection id='subsection1'>
 <title>BBB.CCC</title>
 333
 </subsection>
-<subsection id='bbb.ddd'>
+<subsection id='subsection2'>
 <title>BBB.DDD</title>
 4444
 </subsection>
 </section>
-<section id='eee'>
+<section id='section4'>
 <title>EEE</title>
 5555
 
 
 <p>
-At <ref refid='aaa'>AaA</ref>.
+At <ref refid='section2'>AaA</ref>.
 </p>
 <p>
 At <emph>__undefined__</emph>.
