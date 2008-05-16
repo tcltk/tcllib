@@ -152,7 +152,7 @@ second.
 
 [subsection {Script/Command Messages}]
 
-All messages coming after the [sectref {initial handshake} ih]
+All messages coming after the [sectref ih {initial handshake}]
 consist of three words. These are an instruction, a transaction id,
 and the payload. The valid instructions are shown below. The
 transaction ids are used by the client to match any incoming replies
