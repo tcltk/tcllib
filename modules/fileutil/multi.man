@@ -35,9 +35,9 @@ The main command of the package is:
 [call [cmd ::fileutil::multi] [opt [arg word]...]]
 
 This command interprets the specified words as file commands to
-execute. See the section [sectref {FILE API}] of the documentation for
-the package [package fileutil::multi::op] for the set of acceptable
-commands, their syntax, and semantics.
+execute. See the section [sectref-external {FILE API}] of the
+documentation for the package [package fileutil::multi::op] for
+the set of acceptable commands, their syntax, and semantics.
 
 [para]
 

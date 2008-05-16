@@ -332,7 +332,7 @@ i.e. object command.
 [para]
 
 To use this type it is necessary to know how the framework manages
-ties and what [sectref {data source objects}] are.
+ties and what [sectref {data source objects} dso] are.
 
 [para]
 
@@ -348,7 +348,7 @@ developers wishing to create new data sources have to know the
 information provided herein.
 
 
-[subsection {DATA SOURCE OBJECTS}]
+[subsection {DATA SOURCE OBJECTS} dso]
 
 All ties are represented internally by an in-memory object which
 mediates between the tie framework and the specific
@@ -357,7 +357,7 @@ This is the [term {data source object}].
 
 [para]
 
-Its class, the [sectref {data source class}] is [emph not] generic,
+Its class, the [sectref {data source class} dsc] is [emph not] generic,
 but specific to the type of the [term {data source}]. Writing a new
 [term {data source}] requires us to write such a class, and then
 registering it with the framework as a new type.
@@ -365,7 +365,7 @@ registering it with the framework as a new type.
 [para]
 
 The following subsections describe the various APIs a
-[sectref {data source class}] and the objects it generates will have
+[sectref {data source class} dsc] and the objects it generates will have
 to follow to be compatible with the tie framework.
 
 [para]
@@ -385,14 +385,14 @@ survive the removal of the ties using them as well.
 
 [subsection {REGISTERING A NEW DATA SOURCE CLASS}]
 
-After a [sectref {data source class}] has been written it is necessary
+After a [sectref {data source class} dsc] has been written it is necessary
 to register it as a new type with the framework.
 
 [list_begin definitions]
 [call [cmd ::tie::register] [arg dsclasscmd] [const as] [arg dstype]]
 
 Using this command causes the tie framework to remember the class
-command [arg dsclasscmd] of a [sectref {data source class}] under the
+command [arg dsclasscmd] of a [sectref {data source class} dsc] under the
 type name [arg dstype].
 
 [para]
@@ -400,12 +400,12 @@ type name [arg dstype].
 After the call the argument [arg dstype] of the basic user command
 [cmd ::tie::tie] will accept [arg dstype] as a type name and translate
 it internally to the appropriate class command for the creation of
-[sectref {data source objects}] for the new [term {data source}].
+[sectref {data source objects} dso] for the new [term {data source}].
 
 [list_end]
 
 
-[subsection {DATA SOURCE CLASS}]
+[subsection {DATA SOURCE CLASS} dsc]
 
 Each data source class is represented by a single command, also called
 the [term {class command}], or [term {object creation command}]. Its
@@ -443,7 +443,7 @@ The interface this command has to follow is described in the section
 
 [subsection {DATA SOURCE OBJECT API}]
 
-Please read the section [sectref {DATA SOURCE CLASS}] first, to know
+Please read the section [sectref {DATA SOURCE CLASS} dsc] first, to know
 how to generate new [term {object commands}].
 
 [para]

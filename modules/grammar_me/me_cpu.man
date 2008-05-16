@@ -55,9 +55,9 @@ command.
 
 The argument [arg matchcode] contains the match instructions the
 machine has to execute while parsing the input stream. Please read
-section [sectref {MATCH CODE REPRESENTATION}] of the documentation for
-the package [package grammar::me::cpu::core] for the specification of
-the structure of this value.
+section [sectref-external {MATCH CODE REPRESENTATION}] of the
+documentation for the package [package grammar::me::cpu::core] for
+the specification of the structure of this value.
 
 [para]
 
@@ -150,7 +150,7 @@ the current token.
 
 This command returns the current semantic value [term SV] stored in
 the machine. This is an abstract syntax tree as specified in the
-document [syscmd grammar::me_ast], section [sectref {AST VALUES}].
+document [syscmd grammar::me_ast], section [sectref-external {AST VALUES}].
 
 
 [call [arg meName] [method ok]]
@@ -204,7 +204,7 @@ the nonterminal match cache as a dictionary.
 This method returns the current top entry of the AST stack [term AS].
 
 This is an abstract syntax tree as specified in the document
-[syscmd grammar::me_ast], section [sectref {AST VALUES}].
+[syscmd grammar::me_ast], section [sectref-external {AST VALUES}].
 
 
 [call [arg meName] [method halted]]

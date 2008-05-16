@@ -154,7 +154,7 @@ This method takes the state value of a ME virtual machine and returns
 the current semantic value stored in it.
 
 This is an abstract syntax tree as specified in the document
-[syscmd grammar::me_ast], section [sectref {AST VALUES}].
+[syscmd grammar::me_ast], section [sectref-external {AST VALUES}].
 
 
 [call [cmd ::grammar::me::cpu::core] [method ok] [arg state]]
@@ -212,7 +212,7 @@ the abstract syntax tree currently at the top of the AST stack stored
 in it.
 
 This is an abstract syntax tree as specified in the document
-[syscmd grammar::me_ast], section [sectref {AST VALUES}].
+[syscmd grammar::me_ast], section [sectref-external {AST VALUES}].
 
 
 [call [cmd ::grammar::me::cpu::core] [method halted] [arg state]]
