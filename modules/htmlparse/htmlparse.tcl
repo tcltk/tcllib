@@ -235,7 +235,7 @@ namespace eval ::htmlparse {
 #			incremental mode. Normal mode is used if this
 #			option is not present.
 #
-#		After the option the command explect a single argument
+#		After the options the command expects a single argument
 #		containing the HTML string to parse.
 #
 # Side Effects:
