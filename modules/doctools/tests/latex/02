@@ -6,17 +6,17 @@
 \author{@USR@}
 \title{.MODULE. / TEST -- ..THE\_MODULE.. : ..THE\_TITLE..}
 \maketitle
-\section{SYNOPSIS}
+\section{Synopsis}\label{synopsis}
 \begin{flushleft}
 package require {\bf AAA}
 package require {\bf BBB VVV}
 \end{flushleft}
-\section{DESCRIPTION}
-\section{SEE ALSO}
+\section{Description}\label{section1}
+\section{See Also}\label{see-also}
 ELSE, OTHER
-\section{KEYWORDS}
+\section{Keywords}\label{keywords}
 KEYA, KEYZ
-\section{COPYRIGHT}
+\section{Copyright}\label{copyright}
 \begin{flushleft}
 Copyright (c) .COPYRIGHT.\linebreak
 \end{flushleft}

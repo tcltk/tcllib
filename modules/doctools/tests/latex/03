@@ -6,20 +6,20 @@
 \author{@USR@}
 \title{.MODULE. / TEST --  : }
 \maketitle
-\section{DESCRIPTION}
-\section{AaA}
+\section{Description}\label{section1}
+\section{AaA}\label{section2}
 1
-\section{BbB}
+\section{BbB}\label{section3}
 22
-\subsection{BbB.cCc}
+\subsection{BbB.cCc}\label{subsection1}
 333
-\subsection{BbB.dDd}
+\subsection{BbB.dDd}\label{subsection2}
 4444
-\section{EeE}
+\section{EeE}\label{section4}
 5555
-At {\bf AaA}.
-At {\bf \_\_undefined\_\_}.
-\section{COPYRIGHT}
+At {\bf AaA (\ref{section2})}.
+At {\bf \_\_undefined\_\_ (\ref{\_\_undefined\_\_})}.
+\section{Copyright}\label{copyright}
 \begin{flushleft}
 Copyright (c) .COPYRIGHT.\linebreak
 \end{flushleft}
