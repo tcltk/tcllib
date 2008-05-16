@@ -84,7 +84,7 @@ case of an error it will be only partial and possibly malformed.
 [para]
 
 The abstract syntax tree is represented by a nested list, as
-described in section [sectref {ABSTRACT SYNTAX TREE}] of
+described in section [sectref-external {ABSTRACT SYNTAX TREE}] of
 package [package grammar::mengine].
 
 [list_end]

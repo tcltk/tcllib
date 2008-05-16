@@ -101,7 +101,7 @@ depends on when the message was sent in the overall exchange. This is
 described in the upcoming sections.
 
 
-[subsection {Negotiation Messages - Initial Handshake}]
+[subsection {Negotiation Messages - Initial Handshake} ih]
 
 The command protocol is defined like this:
 
@@ -152,10 +152,7 @@ second.
 
 [subsection {Script/Command Messages}]
 
-All messages coming after the
-
-[sectref {Negotiation Messages - Initial Handshake} {initial handshake}]
-
+All messages coming after the [sectref {initial handshake} ih]
 consist of three words. These are an instruction, a transaction id,
 and the payload. The valid instructions are shown below. The
 transaction ids are used by the client to match any incoming replies

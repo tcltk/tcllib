@@ -1,3 +1,8 @@
+2008-05-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* peg_interp.man: Updated to changes in doctools (sub)section
+	  reference handling.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
