@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# $Id: fmt.tmml,v 1.24 2007/08/02 19:01:14 andreas_kupries Exp $
+# $Id: fmt.tmml,v 1.25 2008/05/16 06:09:35 andreas_kupries Exp $
 #
 # [expand] definitions to convert a tcl based manpage definition
 # into TMML.
@@ -34,7 +34,7 @@ variable block {section dd li desc}	;# block context elements
 proc fmt_nl  	{}	{ emptyElement br }
 proc fmt_arg 	{text}	{ wrap $text m }
 proc fmt_cmd	{text}	{ wrap $text cmd }
-proc fmt_emph	{text}	{ c_possibleReference $text emph }
+proc fmt_emph	{text}	{ wrap $text emph }
 proc fmt_opt 	{text}	{ wrap $text o }
 
 c_pass 1 fmt_example_begin {}	NOP
@@ -45,7 +45,17 @@ c_pass 2 fmt_example_end   {}	{ end example }
 c_pass 2 fmt_example {code} 	{ sequence [xmlContext $::block] [wrap $code example] }
 
 proc fmt_comment {text} {xmlComment $text}
-proc fmt_sectref {text {label {}}} {c_possibleReference $text emph $label}
+proc fmt_sectref {text {id {}}} {
+    global SectionNames
+    if {$id == {}} {
+	set id [c_sectionId $text]
+    }
+    if {[info exists SectionNames($id)]} {
+	return "[startTag ref refid $id]$text[endTag ref]"
+    } else {
+	return [wrap $text emph]
+    }
+}
 proc fmt_syscmd  {text} {wrap $text syscmd}
 proc fmt_method  {text} {wrap $text method}
 proc fmt_option  {text} {wrap $text option}
@@ -97,30 +107,32 @@ c_pass 2 fmt_moddesc     {args} NOP
 c_pass 2 fmt_titledesc   {args} NOP
 c_pass 2 fmt_copyright   {desc} NOP
 
-c_pass 1 fmt_description {} NOP
-c_pass 2 fmt_description {} {
+c_pass 1 fmt_description {id} NOP
+c_pass 2 fmt_description {id} {
     sequence \
 	[xmlContext manpage] \
 	[wrapLines? [c_held synopsis] syntax synopsis] \
-	[start section] \
+	[start section id $id] \
 	[wrap "DESCRIPTION" title] \
 	;
 }
 
-c_pass 1 fmt_section {name} {c_newSection $name 1 end}
-c_pass 2 fmt_section {name} {
+c_pass 1 fmt_section {name {id {}}} {c_newSection $name 1 end $id}
+c_pass 2 fmt_section {name {id {}}} {
+    if {$id == {}} { set id [c_sectionId $name] }
     sequence \
 	[xmlContext manpage] \
-    	[start section id [c_sectionId $name]] \
+    	[start section id $id] \
 	[wrap [string toupper $name] title] \
 	;
 }
 
-c_pass 1 fmt_subsection {name} {c_newSection $name 2 end}
-c_pass 2 fmt_subsection {name} {
+c_pass 1 fmt_subsection {name {id {}}} {c_newSection $name 2 end $id}
+c_pass 2 fmt_subsection {name {id {}}} {
+    if {$id == {}} { set id [c_sectionId $name] }
     sequence \
 	[xmlContext section] \
-    	[start subsection id [c_sectionId $name]] \
+    	[start subsection id $id] \
 	[wrap [string toupper $name] title] \
 	;
 }

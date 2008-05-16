@@ -99,8 +99,8 @@ c_pass 2 fmt_manpage_end {} {
     return $wiki
 }
 
-proc fmt_section    {name} {return "\n\n----\n'''$name'''\n\n"}
-proc fmt_subsection {name} {return "\n\n''$name''\n\n"}
+proc fmt_section    {name {id {}}} {return "\n\n----\n'''$name'''\n\n"}
+proc fmt_subsection {name {id {}}} {return "\n\n''$name''\n\n"}
 
 proc fmt_para    {}     {return \n}
 
@@ -117,8 +117,8 @@ c_pass 1 fmt_usage {cmd args} {c_hold synopsis "   * $cmd [join $args " "]\n"}
 c_pass 2 fmt_call {cmd args} {return "[fmt_lst_item "$cmd [join $args " "]"]"}
 c_pass 1 fmt_call {cmd args} {c_hold synopsis "   * $cmd [join $args " "]\n"}
 
-c_pass 1 fmt_description {} NOP
-c_pass 2 fmt_description {} {
+c_pass 1 fmt_description {id} NOP
+c_pass 2 fmt_description {id} {
     set result ""
     if {[set syn [c_held synopsis]] != {}} {
 	append result [fmt_section SYNOPSIS] \n
@@ -199,7 +199,7 @@ proc fmt_opt     {text} {return ?$text?}
 proc fmt_comment {text} {return {}}
 proc fmt_sectref {text {label {}}} {
     if {![string length $label]} {set label $text}
-    strong $label
+    strong $text
 }
 proc fmt_syscmd  {text} {strong $text}
 proc fmt_method  {text} {strong $text}

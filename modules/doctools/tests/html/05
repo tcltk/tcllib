@@ -100,25 +100,25 @@
    -->
 <body><div class="doctools">
 <h1 class="title">BASIC(a) 5 .MODULE. &quot;&quot;</h1>
-<div id="name" class="section"><h2><a name="name">NAME</a></h2>
+<div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>BASIC -</p>
 </div>
-<div id="table_of_contents" class="section"><h2><a name="table_of_contents">TABLE OF CONTENTS</a></h2>
+<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
 <ul class="toc">
-<li class="section"><a href="#table_of_contents">TABLE OF CONTENTS</a></li>
-<li class="section"><a href="#synopsis">SYNOPSIS</a></li>
-<li class="section"><a href="#description">DESCRIPTION</a></li>
-<li class="section"><a href="#copyright">COPYRIGHT</a></li>
+<li class="section"><a href="#toc">Table Of Contents</a></li>
+<li class="section"><a href="#synopsis">Synopsis</a></li>
+<li class="section"><a href="#section1">Description</a></li>
+<li class="section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">SYNOPSIS</a></h2>
+<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
 <div class="synopsis">
 <ul class="syntax">
 <li><a href="#1">a-command</a></li>
 </ul>
 </div>
 </div>
-<div id="description" class="section"><h2><a name="description">DESCRIPTION</a></h2>
+<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
 <p>OK</p>
 <dl class="arguments">
 <dt>integer <i class="arg">argument-1</i></dt>
@@ -170,7 +170,7 @@ Database Class:	<b class="optdbclass">Color</b><br>
 </dl>
 <p>KO</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">COPYRIGHT</a></h2>
+<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; .COPYRIGHT.</p>
 </div>
 </div></body></html>

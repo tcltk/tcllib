@@ -31,6 +31,7 @@ mcset de depr_nl          "Misbilligter Befehl \"%s\".\n\tBitte verwenden sie \[
 mcset de depr_bullet      "Misbilligter Befehl \"%s\".\n\tBitte verwenden sie \[item\]."
 mcset de depr_ltype       "Misbilligte Listen-Art \"%s\".\n\tBitte verwenden sie \"%s\"."
 mcset de sectambig        "Die Kapitel\xFCberschrift \"%s\" ist nicht eindeutig, Referenzen k\xF6nnen falsch sein."
+mcset de missingsect      "Die Kapitel\xFCberschrift \"%s\" ist nicht bekannt."
 
 mcset de end/open/toc  "\[toc_end\] fehlt."
 mcset de toc/plaintext "Normaler Text ist (mit Ausnahme von reinem Leerraum) nicht erlaubt."

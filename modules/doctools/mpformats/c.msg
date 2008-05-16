@@ -31,6 +31,7 @@ mcset c depr_nl          "Deprecated command \"%s\".\n\tPlease use \[para\] inst
 mcset c depr_bullet      "Deprecated command \"%s\".\n\tPlease use \[item\] instead."
 mcset c depr_ltype       "Deprecated list type \"%s\".\n\tPlease use \"%s\" instead."
 mcset c sectambig        "(Sub)Section title \"%s\" causes ambiguous section references."
+mcset c missingsect      "Refered (Sub)Section \"%s\" is not known."
 
 # TOC messages
 

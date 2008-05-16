@@ -100,25 +100,25 @@
    -->
 <body><div class="doctools">
 <h1 class="title">ALL(a) 5 .MODULE. &quot;..THE_MODULE..&quot;</h1>
-<div id="name" class="section"><h2><a name="name">NAME</a></h2>
+<div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>ALL - ..THE_TITLE..</p>
 </div>
-<div id="table_of_contents" class="section"><h2><a name="table_of_contents">TABLE OF CONTENTS</a></h2>
+<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
 <ul class="toc">
-<li class="section"><a href="#table_of_contents">TABLE OF CONTENTS</a></li>
-<li class="section"><a href="#synopsis">SYNOPSIS</a></li>
-<li class="section"><a href="#description">DESCRIPTION</a></li>
-<li class="section"><a href="#api">API</a>
+<li class="section"><a href="#toc">Table Of Contents</a></li>
+<li class="section"><a href="#synopsis">Synopsis</a></li>
+<li class="section"><a href="#section1">Description</a></li>
+<li class="section"><a href="#section2">API</a>
 <ul>
-<li class="subsection"><a href="#nargle">NARGLE</a></li>
+<li class="subsection"><a href="#subsection1">NARGLE</a></li>
 </ul>
 </li>
-<li class="section"><a href="#see_also">SEE ALSO</a></li>
-<li class="section"><a href="#keywords">KEYWORDS</a></li>
-<li class="section"><a href="#copyright">COPYRIGHT</a></li>
+<li class="section"><a href="#see-also">See Also</a></li>
+<li class="section"><a href="#keywords">Keywords</a></li>
+<li class="section"><a href="#copyright">Copyright</a></li>
 </ul>
 </div>
-<div id="synopsis" class="section"><h2><a name="synopsis">SYNOPSIS</a></h2>
+<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">AAA</b></li>
@@ -132,7 +132,7 @@
 </ul>
 </div>
 </div>
-<div id="description" class="section"><h2><a name="description">DESCRIPTION</a></h2>
+<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
 <dl class="commands">
 <dt><b class="cmd">NAME</b></dt>
 <dd><p>DESCRIPTION ::<b class="cmd">Command</b>::</p></dd>
@@ -142,7 +142,7 @@
 <dd><p>DESCRIPTION ::<b class="const">Constant</b>::</p></dd>
 </dl>
 </div>
-<div id="api" class="section"><h2><a name="api">API</a></h2>
+<div id="section2" class="section"><h2><a name="section2">API</a></h2>
 <dl class="definitions">
 <dt>TERM</dt>
 <dd><p>DESCRIPTION ::<em>Emphasis</em>::</p></dd>
@@ -153,7 +153,7 @@
 Database Name:	<b class="optdbname">DBNAME</b><br>
 Database Class:	<b class="optdbclass">CLASS</b><br>
 </dt>
-<dd><p>DESCRIPTION <span class="sectref"><a href="#nargle">NARGLE</a></span></p></dd>
+<dd><p>DESCRIPTION <span class="sectref"><a href="#subsection1">NARGLE</a></span></p></dd>
 <dt>Command-Line Switch:	<b class="option">NAME</b><br>
 Database Name:	<b class="optdbname">DBNAME</b><br>
 Database Class:	<b class="optdbclass">CLASS</b><br>
@@ -195,7 +195,7 @@ Database Class:	<b class="optdbclass">CLASS</b><br>
 <dd><p>DESCRIPTION ::<a href="Uri">Uri</a>::</p></dd>
 </dl></dd>
 </dl>
-<div id="nargle" class="subsection"><h3><a name="nargle">NARGLE</a></h3>
+<div id="subsection1" class="subsection"><h3><a name="subsection1">NARGLE</a></h3>
 <ol class="enumerated">
 <li><p>PARAGRAPH ::<a href="Uri">UriLabel</a>::</p></li>
 <li><p>PARAGRAPH ::<b class="variable">Variable</b>::</p></li>
@@ -209,13 +209,13 @@ Database Class:	<b class="optdbclass">CLASS</b><br>
 </ol>
 </div>
 </div>
-<div id="see_also" class="section"><h2><a name="see_also">SEE ALSO</a></h2>
+<div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
 <p>ELSE, OTHER</p>
 </div>
-<div id="keywords" class="section"><h2><a name="keywords">KEYWORDS</a></h2>
+<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
 <p>KEYA, KEYZ</p>
 </div>
-<div id="copyright" class="section"><h2><a name="copyright">COPYRIGHT</a></h2>
+<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; **Copyright**</p>
 </div>
 </div></body></html>
