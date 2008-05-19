@@ -1,3 +1,6 @@
+2008-05-19  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* roman.man: correct namespace ::math::roman, was ::roman.
+
 2008-03-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl: Synchronized indexed and provided versions of

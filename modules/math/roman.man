@@ -7,7 +7,7 @@
 [require math::roman [opt 1.0]]
 [description]
   [para]
-    [cmd math::roman] is a pure-Tcl library for converting between integers
+    [cmd ::math::roman] is a pure-Tcl library for converting between integers
     and roman numerals. It also provides utility functions for sorting and performing
     arithmetic on roman numerals.
   [para]
@@ -23,17 +23,17 @@
 [section {COMMANDS}]
   [list_begin definitions]
 
-    [call [cmd ::roman::toroman] [arg i]]
+    [call [cmd ::math::roman::toroman] [arg i]]
       Convert an integer to roman numerals. The result is always in
       upper case. The value zero is converted to an empty string.
 
-    [call [cmd ::roman::tointeger] [arg r]]
+    [call [cmd ::math::roman::tointeger] [arg r]]
       Convert a roman numeral into an integer.
 
-    [call [cmd ::roman::sort] [arg list]]
+    [call [cmd ::math::roman::sort] [arg list]]
       Sort a list of roman nnumerals from smallest to largest.
 
-    [call [cmd ::roman::expr] [arg args]]
+    [call [cmd ::math::roman::expr] [arg args]]
       Evaluate an expression where the operands are all roman numerals.
 
   [list_end]
