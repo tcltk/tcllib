@@ -1,3 +1,15 @@
+2008-05-23  Andreas Kupries  <andreask@activestate.com>
+
+	* mime.tcl (::mime::parsepart): [SF Tcllib Bug 1961881]. Accepted
+	* mime.man: patch, and extended. Now handling malformed input
+	* mime.test: without having to throw an eror, and without going
+	* pkgIndex.tcl: into an infinite loop. See also [Bug 631314], and
+	  Changelog entries 2003-06-06, 2003-06-25. The testcases
+	  mime-3.{7,8} are not redundant, but significantly different. 3.7
+	  actually has a terminating boundary, but misses the starting
+	  one, causing non-recognition of any terminating one. Bumped the
+	  version to 1.5.4.
+
 2007-11-05  Andreas Kupries  <andreask@activestate.com>
 
 	* mime.tcl (::mime::parsepart): Fixed [SF Tcllib Bug 1825092],
