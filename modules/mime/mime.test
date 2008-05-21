@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
 #
-# RCS: @(#) $Id: mime.test,v 1.29 2007/11/05 23:11:50 andreas_kupries Exp $
+# RCS: @(#) $Id: mime.test,v 1.30 2008/05/21 19:41:55 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -169,20 +169,27 @@ Content-Type: text/plain\r
 foo}"
 
 test mime-3.7 {Test mime with a bad email [SF Bug 631314 ]} {
-    catch {
-	set tok [mime::initialize -file \
-		[file join $tcltest::testsDirectory badmail1.txt]]
-    } msg ; #{}
-    set msg
-} {termination string missing in multipart/mixed}
+    set tok [mime::initialize -file \
+		 [file join $tcltest::testsDirectory badmail1.txt]]
+
+    set res {}
+    set ctok [lindex [mime::getproperty $tok parts] 0]
+    lappend res [dictsort [mime::getproperty $tok]]
+    lappend res [dictsort [mime::getproperty $ctok]]
+    mime::finalize $tok
+    string map [list $ctok CHILD] $res
+} {{content multipart/mixed encoding {} params {boundary ----------CSFNU9QKPGZL79} parts CHILD size 0} {content application/octet-stream encoding {} params {charset us-ascii} size 0}}
 
 test mime-3.8 {Test mime with another bad email [SF Bug 631314 ]} {
-    catch {
-	set tok [mime::initialize -file \
-		[file join $tcltest::testsDirectory badmail2.txt]]
-    } msg ; #{}
-    set msg
-} {termination string missing in multipart/related}
+    set tok [mime::initialize -file \
+		 [file join $tcltest::testsDirectory badmail2.txt]]
+    set res {}
+    set ctok [lindex [mime::getproperty $tok parts] 0]
+    lappend res [dictsort [mime::getproperty $tok]]
+    lappend res [dictsort [mime::getproperty $ctok]]
+    mime::finalize $tok
+    string map [list $ctok CHILD] $res
+} {{content multipart/related encoding {} params {boundary ----=_NextPart_000_0000_2CBA2CBA.150C56D2} parts CHILD size 659} {content application/octet-stream encoding base64 params {} size 659}}
 
 test mime-3.9 {Parse a MIME message with a charset encoded body and use getbody -decode to get it back} {
     set msg {MIME-Version: 1.0
