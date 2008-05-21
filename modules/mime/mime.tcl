@@ -6,9 +6,9 @@
 # (c) 2000      Dan Kuchler
 # (c) 2000-2001 Eric Melski
 # (c) 2001      Jeff Hobbs
-# (c) 2001-2007 Andreas Kupries
+# (c) 2001-2008 Andreas Kupries
 # (c) 2002-2003 David Welton
-# (c) 2003-2006 Pat Thoyts
+# (c) 2003-2008 Pat Thoyts
 # (c) 2005      Benjamin Riefenstahl
 #
 #
@@ -22,7 +22,7 @@
 # new string features and inline scan are used, requiring 8.3.
 package require Tcl 8.3
 
-package provide mime 1.5.3
+package provide mime 1.5.4
 
 if {[catch {package require Trf 2.0}]} {
 
@@ -825,19 +825,41 @@ proc ::mime::parsepart {token} {
 
     if {$fileP} {
         set pos [tell $state(fd)]
+	# This variable is like 'start', for the reasons laid out
+	# below, in the other branch of this conditional.
+	set initialpos $pos
+    } else {
+	# This variable is like 'start', a list of lines in the
+	# part. This record is made even before we find a starting
+	# boundary and used if we run into the terminating boundary
+	# before a starting boundary was found. In that case the lines
+	# before the terminator as recorded by tracelines are seen as
+	# the part, or at least we attempt to parse them as a
+	# part. See the forceoctet and nochild flags later. We cannot
+	# use 'start' as that records lines only after the starting
+	# boundary was found.
+	set tracelines [list]
     }
 
     set inP 0
     set moreP 1
+    set forceoctet 0
     while {$moreP} {
         if {$fileP} {
             if {$pos > $last} {
-                 error "termination string missing in $state(content)"
-                 set line "--$boundary--"
+		# We have run over the end of the part per the outer
+		# information without finding a terminating boundary.
+		# We now fake the boundary and force the parser to
+		# give any new part coming of this a mime-type of
+		# application/octet-stream regardless of header
+		# information.
+		set line "--$boundary--"
+		set x [string length $line]
+		set forceoctet 1
             } else {
-              if {[set x [gets $state(fd) line]] < 0} {
-                  error "end-of-file encountered while parsing $state(content)"
-              }
+		if {[set x [gets $state(fd) line]] < 0} {
+		    error "end-of-file encountered while parsing $state(content)"
+		}
 	    }
             incr pos [expr {$x+1}]
         } else {
@@ -865,47 +887,116 @@ proc ::mime::parsepart {token} {
              }
 
              continue
-        }
+        } else {
+	    lappend tracelines $line
+	}
 
         if {!$inP} {
-            if {![string compare $line "--$boundary"]} {
+	    # Haven't seen the starting boundary yet. Check if the
+	    # current line contains this starting boundary.
+
+            if {[string equal $line "--$boundary"]} {
+		# Yes. Switch parser state to now search for the
+		# terminating boundary of the part and record where
+		# the part begins (or initialize the recorder for the
+		# lines in the part).
                 set inP 1
                 if {$fileP} {
                     set start $pos
                 } else {
 		    set start [list]
                 }
-            }
+		continue
+            } elseif {[string equal $line "--$boundary--"]} {
+		# We just saw a terminating boundary before we ever
+		# saw the starting boundary of a part. This forces us
+		# to stop parsing, we do this by forcing the parser
+		# into an accepting state. We will try to create a
+		# child part based on faked start position or recorded
+		# lines, or, if that fails, let the current part have
+		# no children.
 
-            continue
-        }
+		# As an example note the test case mime-3.7 and the
+		# referenced file "badmail1.txt".
+
+                set inP 1
+                if {$fileP} {
+                    set start $initialpos
+                } else {
+		    set start $tracelines
+                }
+		set forceoctet 1
+		# Fall through. This brings to the creation of the new
+		# part instead of searching further and possible
+		# running over the end.
+	    } else {
+		continue
+	    }
+	}
+
+	# Looking for the end of the current part. We accept both a
+	# terminating boundary and the starting boundary of the next
+	# part as the end of the current part.
 
         if {([set moreP [string compare $line "--$boundary--"]]) \
                 && ([string compare $line "--$boundary"])} {
+	    # The current part has not ended, so we record the line
+	    # if we are inside a part and doing string parsing.
             if {$inP && !$fileP} {
 		lappend start $line
             }
             continue
         }
+
+	# The current part has ended. We now determine the exact
+	# boundaries, create a mime part object for it and recursively
+	# parse it deeper as part of that action.
+
 	# FRINK: nocheck
         variable [set child $token-[incr state(cid)]]
 
         lappend state(parts) $child
 
+	set nochild 0
         if {$fileP} {
             if {[set count [expr {$pos-($start+$x+$crlf+1)}]] < 0} {
                 set count 0
             }
-
-            mime::initializeaux $child \
-                -file $state(file) -root $state(root) \
-                -offset $start -count $count
-
-            seek $state(fd) [set start $pos] start
+	    if {$forceoctet} {
+		set ::errorInfo {}
+		if {[catch {
+		    mime::initializeaux $child \
+			-file $state(file) -root $state(root) \
+			-offset $start -count $count
+		}]} {
+		    set nochild 1
+		    set state(parts) [lrange $state(parts) 0 end-1]
+		}
+	    } else {
+		mime::initializeaux $child \
+		    -file $state(file) -root $state(root) \
+		    -offset $start -count $count
+	    }
+	    seek $state(fd) [set start $pos] start
         } else {
-	    mime::initializeaux $child -lineslist $start
+	    if {$forceoctet} {
+		if {[catch {
+		    mime::initializeaux $child -lineslist $start
+		}]} {
+		    set nochild 1
+		    set state(parts) [lrange $state(parts) 0 end-1]
+		}
+	    } else {
+		mime::initializeaux $child -lineslist $start
+	    }
             set start ""
         }
+	if {$forceoctet && !$nochild} {
+	    variable $child
+	    upvar 0  $child childstate
+	    set childstate(content) application/octet-stream
+	}
+	set forceoctet 0
     }
 }
 
