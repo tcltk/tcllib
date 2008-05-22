@@ -1,0 +1,30 @@
+#
+#  YAML parser for Tcl.
+#
+# Load this file!
+# >> yaml::load "CHANGES"
+#
+---
+title: YAML parser for Tcl.
+version: 0.2.2
+authors:
+  - KATO Kanryu: k.kanryu@gmail.com
+license: tcllib's BSD-style license
+copyright: (c) 2008 KATO Kanryu
+
+changes:
+
+  0.2.2:
+    - 2008-05-17
+    - begin to implement tag treatment
+    - add !!float / !!binary(base64) parsing.
+    - merge mapping "<<"
+  0.2.1:
+    - 2008-05-14
+    - add timestamp / integer parsing.
+    - improved a manual.
+  0.2.0:
+    - parser reimplimented from scratch.
+    - write a manual.
+  0.1.0:
+    - Changed the library name, from yapt-0.1.2 to yaml-0.1.0
