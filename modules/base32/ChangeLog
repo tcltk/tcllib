@@ -11,8 +11,8 @@
 
 2008-01-28  Andreas Kupries  <andreask@activestate.com>
 
-	* base32hex_c.tcl: Disabled the critcl::debug and cheaders -g
-	* base32_c.tcl: definitions
+	* base32hex_c.tcl: Disabled the critcl::debug and critcl::cheaders
+	* base32_c.tcl: -g definitions
 
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
