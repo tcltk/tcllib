@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: base64.tcl,v 1.27 2005/12/09 18:27:15 andreas_kupries Exp $
+# RCS: @(#) $Id: base64.tcl,v 1.28 2008/05/22 20:18:26 andreas_kupries Exp $
 
 # Version 1.0   implemented Base64_Encode, Base64_Decode
 # Version 2.0   uses the base64 namespace
@@ -80,23 +80,56 @@ if {![catch {package require Trf 2.0}]} {
     
 	# [string is] requires Tcl8.2; this works with 8.0 too
 	if {[catch {expr {$maxlen % 2}}]} {
-	    error "expected integer but got \"$maxlen\""
+	    return -code error "expected integer but got \"$maxlen\""
+	} elseif {$maxlen < 0} {
+	    return -code error "expected positive integer but got \"$maxlen\""
 	}
 
 	set string [lindex $args end]
 	set result [::base64 -mode encode -- $string]
-	set result [string map [list \n ""] $result]
 
-	if {$maxlen > 0} {
-	    set res ""
-	    set edge [expr {$maxlen - 1}]
-	    while {[string length $result] > $maxlen} {
-		append res [string range $result 0 $edge]$wrapchar
-		set result [string range $result $maxlen end]
+	# Trf's encoder implicitly uses the settings -maxlen 76,
+	# -wrapchar \n for its output. We may have to reflow this for
+	# the settings chosen by the user. A second difference is that
+	# Trf closes the output with the wrap char sequence,
+	# always. The code here doesn't. Therefore 'trimright' is
+	# needed in the fast cases.
+
+	if {($maxlen == 76) && [string equal $wrapchar \n]} {
+	    # Both maxlen and wrapchar are identical to Trf's
+	    # settings. This is the super-fast case, because nearly
+	    # nothing has to be done. Only thing to do is strip a
+	    # terminating wrapchar.
+	    set result [string trimright $result]
+	} elseif {$maxlen == 76} {
+	    # wrapchar has to be different here, length is the
+	    # same. We can use 'string map' to transform the wrap
+	    # information.
+	    set result [string map [list \n $wrapchar] \
+			    [string trimright $result]]
+	} elseif {$maxlen == 0} {
+	    # Have to reflow the output to no wrapping. Another fast
+	    # case using only 'string map'. 'trimright' is not needed
+	    # here.
+
+	    set result [string map [list \n ""] $result]
+	} else {
+	    # Have to reflow the output from 76 to the chosen maxlen,
+	    # and possibly change the wrap sequence as well.
+
+	    # Note: After getting rid of the old wrap sequence we
+	    # extract the relevant segments from the string without
+	    # modifying the string. Modification, i.e. removal of the
+	    # processed part, means 'shifting down characters in
+	    # memory', making the algorithm O(n^2). By avoiding the
+	    # modification we stay in O(n).
+	    
+	    set result [string map [list \n ""] $result]
+	    set l [expr {[string length $result]-$maxlen}]
+	    for {set off 0} {$off < $l} {incr off $maxlen} {
+		append res [string range $result $off [expr {$off+$maxlen-1}]] $wrapchar
 	    }
-	    if {[string length $result] > 0} {
-		append res $result
-	    }
+	    append res [string range $result $off end]
 	    set result $res
 	}
 
@@ -220,7 +253,9 @@ if {![catch {package require Trf 2.0}]} {
     
 	# [string is] requires Tcl8.2; this works with 8.0 too
 	if {[catch {expr {$maxlen % 2}}]} {
-	    error "expected integer but got \"$maxlen\""
+	    return -code error "expected integer but got \"$maxlen\""
+	} elseif {$maxlen < 0} {
+	    return -code error "expected positive integer but got \"$maxlen\""
 	}
 
 	set string [lindex $args end]
@@ -233,21 +268,14 @@ if {![catch {package require Trf 2.0}]} {
 	# Process the input bytes 3-by-3
 
 	binary scan $string c* X
+
 	foreach {x y z} $X {
-	    # Do the line length check before appending so that we don't get an
-	    # extra newline if the output is a multiple of $maxlen chars long.
-	    if {$maxlen && $length >= $maxlen} {
-		append result $wrapchar
-		set length 0
-	    }
-	
-	    append result [lindex $base64_en [expr {($x >>2) & 0x3F}]] 
+	    ADD [lindex $base64_en [expr {($x >>2) & 0x3F}]]
 	    if {$y != {}} {
-		append result [lindex $base64_en [expr {(($x << 4) & 0x30) | (($y >> 4) & 0xF)}]] 
+		ADD [lindex $base64_en [expr {(($x << 4) & 0x30) | (($y >> 4) & 0xF)}]]
 		if {$z != {}} {
-		    append result \
-			    [lindex $base64_en [expr {(($y << 2) & 0x3C) | (($z >> 6) & 0x3)}]]
-		    append result [lindex $base64_en [expr {($z & 0x3F)}]]
+		    ADD [lindex $base64_en [expr {(($y << 2) & 0x3C) | (($z >> 6) & 0x3)}]]
+		    ADD [lindex $base64_en [expr {($z & 0x3F)}]]
 		} else {
 		    set state 2
 		    break
@@ -256,14 +284,31 @@ if {![catch {package require Trf 2.0}]} {
 		set state 1
 		break
 	    }
-	    incr length 4
 	}
 	if {$state == 1} {
-	    append result [lindex $base64_en [expr {(($x << 4) & 0x30)}]]== 
+	    ADD [lindex $base64_en [expr {(($x << 4) & 0x30)}]]
+	    ADD =
+	    ADD =
 	} elseif {$state == 2} {
-	    append result [lindex $base64_en [expr {(($y << 2) & 0x3C)}]]=  
+	    ADD [lindex $base64_en [expr {(($y << 2) & 0x3C)}]]
+	    ADD =
 	}
 	return $result
+    }
+
+    proc ::base64::ADD {x} {
+	# The line length check is always done before appending so
+	# that we don't get an extra newline if the output is a
+	# multiple of $maxlen chars long.
+
+	upvar 1 maxlen maxlen length length result result wrapchar wrapchar
+	if {$maxlen && $length >= $maxlen} {
+	    append result $wrapchar
+	    set length 0
+	}
+	append result $x
+	incr length
+	return
     }
 
     # ::base64::decode --
@@ -323,4 +368,4 @@ if {![catch {package require Trf 2.0}]} {
     }
 }
 
-package provide base64 2.3.2
+package provide base64 2.3.3

@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: base64.test,v 1.13 2006/10/09 21:41:39 andreas_kupries Exp $
+# RCS: @(#) $Id: base64.test,v 1.14 2008/05/22 20:18:26 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -73,6 +73,42 @@ test base64-1.9 {base64::encode, errors} {
 test base64-1.10 {base64::encode, errors} {
     list [catch {base64::encode -foo bar} msg] $msg
 } [list 1 "unknown option \"-foo\": must be -maxlen or -wrapchar"]
+test base64-1.11 {base64::encode with bogus wrap length (< 0)} {
+    set str "The short red fox ran quickly through the green field "
+    append str "and jumped over the tall brown bear\n"
+    list [catch { base64::encode -maxlen -3 $str } msg] $msg
+} {1 {expected positive integer but got "-3"}}
+test base64-1.12 {base64::encode with bogus wrap length (non-numeric)} {
+    set str "The short red fox ran quickly through the green field "
+    append str "and jumped over the tall brown bear\n"
+    list [catch { base64::encode -maxlen foo $str } msg] $msg
+} {1 {expected integer but got "foo"}}
+test base64-1.13 {base64::encode with bogus wrap length (non-integer)} {
+    set str "The short red fox ran quickly through the green field "
+    append str "and jumped over the tall brown bear\n"
+    list [catch { base64::encode -maxlen 1.5 $str } msg] $msg
+} {1 {expected integer but got "1.5"}}
+test base64-1.14 {base64::encode with wrap length set to 20} {
+    set str "The short red fox ran quickly through the green field "
+    append str "and jumped over the tall brown bear\n"
+    base64::encode -maxlen 20 $str
+} "VGhlIHNob3J0IHJlZCBm
+b3ggcmFuIHF1aWNrbHkg
+dGhyb3VnaCB0aGUgZ3Jl
+ZW4gZmllbGQgYW5kIGp1
+bXBlZCBvdmVyIHRoZSB0
+YWxsIGJyb3duIGJlYXIK"
+test base64-1.15 {base64::encode with wrap length set to 23 (prime)} {
+    set str "The short red fox ran quickly through the green field "
+    append str "and jumped over the tall brown bear\n"
+    base64::encode -maxlen 23 $str
+} "VGhlIHNob3J0IHJlZCBmb3g
+gcmFuIHF1aWNrbHkgdGhyb3
+VnaCB0aGUgZ3JlZW4gZmllb
+GQgYW5kIGp1bXBlZCBvdmVy
+IHRoZSB0YWxsIGJyb3duIGJ
+lYXIK"
+
 
 test base64-2.1 {base64::decode} {
     base64::decode "dGhpcyBpcyBhIHRlc3QK"
