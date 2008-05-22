@@ -440,7 +440,7 @@ proc ::page::pluginmgr::ReportStderr {level text from to} {
     WriteLocation $from
     if {![llength $to]} {
 	puts -nonewline stderr { }
-    } {
+    } else {
 	puts -nonewline stderr {-}
     }
     WriteLocation $to
