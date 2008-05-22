@@ -1,0 +1,577 @@
+#
+# yaml.test:  tests for the yaml library.
+#
+
+lappend auto_path [pwd]
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+puts [package require yaml]
+
+namespace eval loadtest {
+    test loadtest-1 "test of ::yaml::load 1 sequence of sequences" -body {
+        set sequences {
+---
+-
+  - Mark McGwire^---
+  - Sammy Sosa
+-
+  - Sammy Sosa
+  - Ken Griffey
+}
+
+        yaml::load $sequences
+    } -result {{{Mark McGwire^---} {Sammy Sosa}} {{Sammy Sosa} {Ken Griffey}}}
+
+    test loadtest-2 "test of ::yaml::load 2" -body {
+        set mappings {
+---
+bill-to:
+    given  : Chris
+    family : Dumars
+hello-to:
+    given  : Arnold Berry
+    family : Son
+}
+        yaml::load $mappings
+    } -result {bill-to {given Chris family Dumars} hello-to {given {Arnold Berry} family Son}}
+
+    test loadtest-3 "test of ::yaml::load 3" -body {
+        set map_seqs {
+---
+hr: # 1998 hr ranking
+  - Mark McGwire
+  - Sammy Sosa
+rbi:
+  # 1998 rbi ranking
+  - Sammy Sosa
+  - Ken Griffey
+}
+        yaml::load $map_seqs
+    } -result {hr {{Mark McGwire} {Sammy Sosa}} rbi {{Sammy Sosa} {Ken Griffey}}}
+
+    test loadtest-4 "test of ::yaml::load 4" -body {
+        set seq_maps {
+---
+-
+  name: Mark McGwire
+  hr:   65
+  avg:  0.278
+-
+  name: Sammy Sosa
+  hr:   63
+  avg:  0.288
+}
+        yaml::load $seq_maps
+    } -result {{name {Mark McGwire} hr 65 avg 0.278} {name {Sammy Sosa} hr 63 avg 0.288}}
+
+    test loadtest-5 "test of ::yaml::load 5 inline sequences" -body {
+        set inline_seq_seqs {
+---
+- [name        , hr, avg  ]
+- [Mark McGwire, 65, 0.278]
+- [Sammy Sosa  , 63, 0.288]
+}
+        yaml::load $inline_seq_seqs
+    } -result {{name hr avg} {{Mark McGwire} 65 0.278} {{Sammy Sosa} 63 0.288}}
+
+    test loadtest-6 "test of ::yaml::load 6 inline mappings" -body {
+        set inline_map_maps {
+---
+Mark McGwire: {hr: 65, avg: 0.278}
+Sammy Sosa: { hr: 63, avg: 0.288}
+}
+        yaml::load $inline_map_maps
+    } -result {{Mark McGwire} {hr 65 avg 0.278} {Sammy Sosa} {hr 63 avg 0.288}}
+
+    test loadtest-7 "test of ::yaml::load 7 boolean" -body {
+        set boolean {
+---
+india:
+    pork   : yes
+    beef   : n
+    oil    : off
+    polytheism : true
+arabia:
+    pork   : no
+    beef   : y
+    oil    : on
+    polytheism : false
+}
+        yaml::load $boolean
+    } -result {india {pork 1 beef 0 oil 0 polytheism 1} arabia {pork 0 beef 1 oil 1 polytheism 0}}
+
+    test loadtest-8 "test of ::yaml::load 8 - Literal Block Scalar" -body {
+        set literal {
+---
+clipped: | # comment
+    This has one newline.
+  # comment
+
+
+same as "clipped" above: "This has one newline.\n" # comment
+
+stripped: |- # comment
+    This has no newline.
+
+
+
+same as "stripped" above: "This has no newline." # comment
+kept: |+
+    This has four newlines.
+
+
+
+same as "kept" above: "This has four newlines.\n\n\n\n"
+}
+        yaml::load $literal
+    } -result {clipped {This has one newline.
+} {same as "clipped" above} {This has one newline.
+} stripped {This has no newline.} {same as "stripped" above} {This has no newline.} kept {This has four newlines.
+
+
+
+} {same as "kept" above} {This has four newlines.
+
+
+
+}}
+
+    test loadtest-9 "test of ::yaml::load 9 - Folding Block Scalar" -body {
+        set folding {
+---
+clipped: >
+    This
+    has one newline.
+
+
+
+same as "clipped" above: "This has one newline.\n" 
+
+stripped: >-
+    This
+    has
+    no newline.
+
+
+
+same as "stripped" above: "This has no newline."
+
+kept: >+
+    This
+    has
+    no newline.
+
+
+
+same as "kept" above: "This has four newlines.\n\n\n\n"}
+        yaml::load $folding
+    } -result {clipped {This has one newline.
+} {same as "clipped" above} {This has one newline.
+} stripped {This has no newline.} {same as "stripped" above} {This has no newline.} kept {This has no newline.
+
+
+} {same as "kept" above} {This has four newlines.
+
+
+
+}}
+
+    test loadtest-10 "test of ::yaml::load 10 - Folded Block as a Mapping Value" -body {
+        set foldedmap {
+---
+quote: >
+    Mark McGwire's
+    year was crippled
+    by a knee injury.
+source: espn
+}
+        yaml::load $foldedmap
+    } -result {quote {Mark McGwire's year was crippled by a knee injury.
+} source espn}
+
+    test loadtest-11 "test of ::yaml::load 11 - Alias Node" -body {
+        set alias {
+---
+- &showell Steve
+- Clark 
+- Brian 
+- Oren 
+- *showell 
+}
+        yaml::load $alias
+    } -result {Steve Clark Brian Oren Steve}
+
+    test loadtest-12 "test of ::yaml::load 12 - Alias Node" -body {
+        set alias2 {
+---
+- &hello 
+    Meat: pork 
+    Starch: potato 
+- banana 
+- *hello 
+}
+        yaml::load $alias2
+    } -result {{Meat pork Starch potato} banana {Meat pork Starch potato}}
+
+    test loadtest-13 "test of ::yaml::load 13 - Flow Alias Node" -body {
+        set alias3 {
+---
+- &hello 
+    { Meat: &meat pork,
+      Starch: potato }
+- banana 
+- *hello 
+- &bye
+    [ The last man, children, *meat ]
+- habana 
+- *bye
+}
+        yaml::load $alias3
+    } -result {{Meat pork Starch potato} banana {Meat pork Starch potato} {{The last man} children pork} habana {{The last man} children pork}}
+
+    test loadtest-14 "test of ::yaml::load 14 - Plane Characters" -body {
+    set plane_characters {
+---
+# Outside flow collection:
+- ::std::vector
+- Up, up and away!
+- -123
+# Inside flow collection:
+- [ ::std::vector,
+  "Up, up and away!",
+  -123 ]
+}
+        yaml::load $plane_characters
+    } -result {::std::vector {Up, up and away!} -123 {::std::vector {Up, up and away!} -123}}
+
+
+
+    test loadtest-15 "test of ::yaml::load 15 error" -body {
+        set error1 {
+---
+- [name        , \{hr: avg \[\hr: avg\} \] ]
+}
+        set code [catch {yaml::load $error1} msg]
+        concat $code $msg
+    } -result [concat 1 line(3): $yaml::errors(MAPEND_NOT_IN_MAP)]
+
+    test loadtest-16 "test of ::yaml::load 16 error" -body {
+        set error2 {
+---
+- [name        , \[hr: avg \{\hr: avg\] \} ]
+}
+        set code [catch {yaml::load $error2} msg]
+        concat $code $msg
+    } -result [concat 1 line(3): $yaml::errors(SEQEND_NOT_IN_SEQ)]
+
+    test loadtest-17 "test of ::yaml::load 17 error" -body {
+        set error3 {
+---
+- Clark 
+- @Brian 
+}
+        set code [catch {yaml::load $error3} msg]
+        concat $code $msg
+    } -result [concat 1 line(4): $yaml::errors(AT_IN_PLAIN)]
+
+    test loadtest-18 "test of ::yaml::load 18 error" -body {
+        set error4 {
+---
+- Clark 
+- `Brian 
+}
+        set code [catch {yaml::load $error4} msg]
+        concat $code $msg
+    } -result [concat 1 line(4): $yaml::errors(BT_IN_PLAIN)]
+
+    test loadtest-19 "test of ::yaml::load 19 error" -body {
+        set error5 {
+---
+- Clark 
+- 	Brian 
+}
+        set code [catch {yaml::load $error5} msg]
+        concat $code $msg
+    } -result [concat 1 line(4): $yaml::errors(TAB_IN_PLAIN)]
+
+    test loadtest-20 "test of ::yaml::load 20 error" -body {
+        set error6 {
+---
+- *a
+- Brian 
+- @a Geoge
+}
+        set code [catch {yaml::load $error6} msg]
+        concat $code $msg
+    } -result [concat 1 line(4): $yaml::errors(ANCHOR_NOT_FOUND)]
+
+    test loadtest-21 "test of ::yaml::load 21 error" -body {
+        set error7 {
+---
+- "Clark 
+- Brian 
+}
+        set code [catch {yaml::load $error7} msg]
+        concat $code $msg
+    } -result [concat 1 $yaml::errors(MALFORM_D_QUOTE)]
+
+    test loadtest-22 "test of ::yaml::load 21 error" -body {
+        set error8 {
+---
+- 'Clark 
+- Brian 
+}
+        set code [catch {yaml::load $error8} msg]
+        concat $code $msg
+    } -result [concat 1 $yaml::errors(MALFORM_S_QUOTE)]
+
+    test loadtest-23 "test of ::yaml::load 23 - Invoice" -body {
+        set Invoice {
+--- # !<tag:clarkevans.com,2002:invoice>
+invoice: 34843
+date   : 2001-01-23
+bill-to: &id001
+    given  : Chris
+    family : Dumars
+    address:
+        lines: |
+            458 Walkman Dr.
+            Suite #292
+        city    : Royal Oak
+        state   : MI
+        postal  : 48046
+ship-to: *id001
+product:
+    - sku         : BL394D
+      quantity    : 4
+      description : Basketball
+      price       : 450.00
+    - sku         : BL4438H
+      quantity    : 1
+      description : Super Hoop
+      price       : 2392.00
+tax  : 251.42
+total: 4443.52
+comments:
+    Late afternoon is best.
+    Backup contact is Nancy
+    Billsmer @ 338-4338.
+}
+        yaml::load $Invoice
+    } -result [string map [list TIMESTAMP [clock scan "2001-01-23" -format {%Y-%m-%d}]] \
+{invoice 34843 date TIMESTAMP bill-to {given Chris family Dumars address {lines {458 Walkman Dr.
+Suite #292
+} city {Royal Oak} state MI postal 48046}} ship-to {given Chris family Dumars address {lines {458 Walkman Dr.
+Suite #292
+} city {Royal Oak} state MI postal 48046}} product {{sku BL394D quantity 4 description Basketball price 450.00} {sku BL4438H quantity 1 description {Super Hoop} price 2392.00}} tax 251.42 total 4443.52 comments {Late afternoon is best. Backup contact is Nancy Billsmer @ 338-4338.}} ]
+
+
+    test loadtest-24 "test of ::yaml::load 24 - Alias Node" -body {
+        set data [yaml::load -file "CHANGES"]
+        dict get $data title
+    } -result {YAML parser for Tcl.}
+
+    test loadtest-25 "test of ::yaml::load 25 - Timestamps" -body {
+        set timestamps {
+- 2001-12-15T02:59:43.1Z
+- 2001-12-14t21:59:43.10-05:00
+- 2001-12-14 21:59:43.10 -5
+- 2001-12-15 2:59:43.10
+- 2002-12-14
+}
+
+        yaml::load $timestamps
+    } -result [list \
+        [clock scan "2001-12-15 02:59:43 Z" -format {%Y-%m-%d %k:%M:%S %Z}] \
+        [clock scan "2001-12-14 21:59:43 -05:00" -format {%Y-%m-%d %k:%M:%S %Z}] \
+        [clock scan "2001-12-14 21:59:43 -05:00" -format {%Y-%m-%d %k:%M:%S %Z}] \
+        [clock scan "2001-12-15 02:59:43" -format {%Y-%m-%d %k:%M:%S}] \
+        [clock scan "2002-12-14" -format {%Y-%m-%d}]
+    ]
+
+# {1008385183 1008385183 1008385183 1008352783 1039791600} <- JST
+
+    test loadtest-26 "test of ::yaml::load 26 - integer" -body {
+        set integers {
+- 1
+- 1000
+- 100,000,000
+}
+        yaml::load $integers
+    } -result {1 1000 100000000}
+
+    test loadtest-27 "test of ::yaml::load 27 - double quote" -body {
+        set dquote {
+- "1st non-empty,
+
+   2nd non-empty,
+   	3rd non-empty"
+}
+        yaml::load $dquote
+    } -result {{1st non-empty,
+2nd non-empty, 3rd non-empty}}
+
+
+    test loadtest-28 "test of ::yaml::load 28 - double quote" -body {
+        set squote {
+- '1st non-empty,
+
+   2nd ''non-empty'',
+   	3rd non-empty'
+}
+
+        yaml::load $squote
+    } -result {{1st non-empty,
+2nd 'non-empty', 3rd non-empty}}
+
+package require base64
+    test loadtest-29 "test of ::yaml::load 29 - explicit_tags" -body {
+        set explicit_tags {
+---
+not-date: !!str 2002-04-28
+picture: !!binary |
+ R0lGODlhDAAMAIQAAP//9/X
+ 17unp5WZmZgAAAOfn515eXv
+ Pz7Y6OjuDg4J+fn5OTk6enp
+ 56enmleECcgggoBADs=
+
+}
+
+        yaml::load $explicit_tags
+    } -result [list not-date 2002-04-28 picture [::base64::decode {
+R0lGODlhDAAMAIQAAP//9/X
+17unp5WZmZgAAAOfn515eXv
+Pz7Y6OjuDg4J+fn5OTk6enp
+56enmleECcgggoBADs=
+}]]
+
+    test loadtest-30 "test of ::yaml::load 30 - explicit_tags(inline)" -body {
+        set explicit_tags {
+---
+{not-date: !!str 2002-04-28,
+ picture: !!binary
+   "R0lGODlhDAAMAIQAAP//9/X
+    17unp5WZmZgAAAOfn515eXv
+    Pz7Y6OjuDg4J+fn5OTk6enp
+    56enmleECcgggoBADs="
+}
+}
+
+        yaml::load $explicit_tags
+    } -result [list not-date 2002-04-28 picture [::base64::decode {
+R0lGODlhDAAMAIQAAP//9/X
+17unp5WZmZgAAAOfn515eXv
+Pz7Y6OjuDg4J+fn5OTk6enp
+56enmleECcgggoBADs=
+}]]
+
+    test loadtest-31 "Merge key" -body {
+        set data {
+---
+mapping:
+  name: Joe
+  job: Accountant
+  <<:
+    age: 38
+}
+        yaml::load $data
+    } -result {mapping {name Joe job Accountant age 38}}
+
+    test loadtest-32 "Merge key 2" -body {
+        set data {
+---
+- &CENTER { x: 1, y: 2 }
+- &LEFT { x: 0, y: 2 }
+- &BIG { r: "spaced string" }
+- &SMALL { r: 1 }
+
+# All the following maps are equal:
+
+- # Explicit keys
+  x: 1
+  y: 2
+  r: 10
+  label: center/big
+
+- # Merge one map
+  << : *CENTER
+  r: 10
+  label: center/big
+
+- # Merge multiple maps
+  << : [ *CENTER, *BIG ]
+  label: center/big
+
+- # Override
+  << : [ *BIG, *LEFT, *SMALL ]
+  x: 1
+  label: center/big
+}
+        yaml::load $data
+    } -result {{x 1 1 2} {x 0 1 2} {r {spaced string}} {r 1} {x 1 1 2 r 10 label center/big} {x 1 1 2 r 10 label center/big} {x 1 1 2 r {spaced string} label center/big} {r 1 x 1 1 2 label center/big}}
+
+
+
+
+
+
+# dumping
+
+    test dumptest-1 "test of ::yaml::list2yaml" -body {
+        set dump1 {
+{Mark McGwire} {Sammy Sosa}
+}
+
+        yaml::list2yaml $dump1
+    } -result {---
+- Mark McGwire
+- Sammy Sosa
+}
+
+    test dumptest-2 "test of ::yaml::dict2yaml" -body {
+        set dump2 {
+  name {Sammy Sosa} hr 63 avg 0.288
+}
+
+        yaml::dict2yaml $dump2
+    } -result {---
+name: Sammy Sosa
+hr: 63
+avg: 0.288
+}
+
+    test dumptest-3 "test of ::yaml::dict2yaml block/flow scalars" -body {
+        set dump_scalars {
+{http://www.activestate.com/Products/activetcl/}
+{This is the core development home for the tcllib standardized Tcl library. This is a set of pure-Tcl extensions that you can use to become even more productive with Tcl. See also the Tcl Foundry that collects information about many Tcl-related SourceForge projects.}
+{tklib: A library of all-Tcl routines for Tk
+tclapps: A set of little apps for Tcl or Tk, to be used as examples, or just for fun
+tclbench: A benchmarking suite for Tcl and Tk}
+}
+
+        yaml::list2yaml $dump_scalars
+    } -result {---
+- >
+  http://www.activestate.com/Products/activetcl/
+- >
+  This is the core development home for 
+  the tcllib standardized Tcl library. 
+  This is a set of pure-Tcl extensions 
+  that you can use to become even more 
+  productive with Tcl. See also the Tcl 
+  Foundry that collects information about 
+  many Tcl-related SourceForge projects.
+- |
+  tklib: A library of all-Tcl routines for Tk
+  tclapps: A set of little apps for Tcl or Tk, to be used as examples, or just for fun
+  tclbench: A benchmarking suite for Tcl and Tk
+}
+
+
+tcltest::cleanupTests
+}
+
