@@ -1,3 +1,15 @@
+2008-05-22  Andreas Kupries  <andreask@activestate.com>
+
+	* base64.test: Extended with tests using bogus values of -maxchar,
+	* base64.tcl: and non-standard values. Fixed bugs in the maxlen
+	* base64.man: handling of the pure Tcl implementation which
+	* pkgIndex.tcl: allowed the output to have more than maxlen
+	  characters per line. Performance fix: Replaced Miguel's O(n^2)
+	  reflow algorithm (maxlen handling after Trf) with Gustaf
+	  Neumann's O(n) algorithm. Minor changes to the guarding
+	  conditions by myself, and fixes for the fast cases. Bumped the
+	  version to 2.3.3.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
