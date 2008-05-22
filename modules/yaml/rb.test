@@ -1,0 +1,565 @@
+#
+# rb.test:  test samples for the yaml library.
+# http://yaml4r.sourceforge.net/cookbook/
+#
+
+lappend auto_path [pwd]
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest
+    namespace import ::tcltest::*
+}
+
+puts [package require yaml]
+
+namespace eval loadtest {
+    test loadtest-1 "Simple Sequence" -body {
+        set data {
+---
+- apple 
+- banana 
+- carrot 
+}
+        yaml::load $data
+    } -result {apple banana carrot}
+
+    test loadtest-1 "Nested Sequences" -body {
+        set data {
+---
+- 
+ - foo 
+ - bar 
+ - baz 
+}
+        yaml::load $data
+    } -result {{foo bar baz}}
+
+    test loadtest-1 "Mixed Sequences" -body {
+        set data {
+---
+- apple 
+- 
+ - foo 
+ - bar 
+ - x123 
+- banana 
+- carrot 
+}
+        yaml::load $data
+    } -result {apple {foo bar x123} banana carrot}
+
+    test loadtest-1 "Deeply Nested Sequences" -body {
+        set data {
+---
+- 
+ - 
+  - uno 
+  - dos 
+}
+        yaml::load $data
+    } -result {{{uno dos}}}
+
+    test loadtest-1 "Simple Mapping" -body {
+        set data {
+---
+foo: whatever 
+bar: stuff 
+}
+        yaml::load $data
+    } -result {foo whatever bar stuff}
+
+    test loadtest-1 "Sequence in a Mapping" -body {
+        set data {
+---
+foo: whatever 
+bar: 
+ - uno 
+ - dos 
+}
+        yaml::load $data
+    } -result {foo whatever bar {uno dos}}
+
+    test loadtest-1 "Nested Mappings" -body {
+        set data {
+---
+foo: whatever 
+bar: 
+ fruit: apple 
+ name: steve 
+ sport: baseball 
+}
+        yaml::load $data
+    } -result {foo whatever bar {fruit apple name steve sport baseball}}
+
+    test loadtest-1 "Mixed Mapping" -body {
+        set data {
+---
+foo: whatever 
+bar: 
+ - 
+   fruit: apple 
+   name: steve 
+   sport: baseball 
+ - more 
+ - 
+   python: rocks 
+   perl: papers 
+   ruby: scissorses 
+}
+        yaml::load $data
+    } -result {foo whatever bar {{fruit apple name steve sport baseball} more {python rocks perl papers ruby scissorses}}}
+
+    test loadtest-1 "Mapping-in-Sequence Shortcut" -body {
+        set data {
+---
+- work on YAML.py: 
+   - work on Store
+}
+        yaml::load $data
+    } -result {{{work on YAML.py} {{work on Store}}}}
+
+    test loadtest-1 "Sequence-in-Mapping Shortcut" -body {
+        set data {
+---
+allow:
+- 'localhost'
+- '%.sourceforge.net'
+- '%.freepan.org'
+}
+        yaml::load $data
+    } -result {localhost %.sourceforge.net %.freepan.org}
+
+    test loadtest-1 "Merge key" -body {
+        set data {
+---
+mapping:
+  name: Joe
+  job: Accountant
+  <<:
+    age: 38
+}
+        yaml::load $data
+    } -result {mapping {name Joe job Accountant age 38}}
+
+    test loadtest-1 "Simple Inline Array" -body {
+        set data {
+---  
+seq: [ a, b, c ] 
+}
+        yaml::load $data
+    } -result {seq {a b c}}
+
+    test loadtest-1 "Simple Inline Hash" -body {
+        set data {
+---  
+hash: { name: Steve, foo: bar }
+}
+        yaml::load $data
+    } -result {hash {name Steve foo bar}}
+
+    test loadtest-1 "Multi-line Inline Collections" -body {
+        set data {
+---  
+languages: [ Ruby, 
+             Perl, 
+             Python ] 
+websites: { YAML: yaml.org, 
+            Ruby: ruby-lang.org, 
+            Python: python.org, 
+            Perl: use.perl.org }
+}
+        yaml::load $data
+    } -result {languages {Ruby Perl Python} websites {YAML yaml.org Ruby ruby-lang.org Python python.org Perl use.perl.org}}
+
+    test loadtest-1 "Commas in Values" -body {
+        set data {
+---  
+attendances: [ 45,123, 70,000, 17,222 ]
+}
+        yaml::load $data
+    } -result {attendances {45 123 70 000 17 222}}
+
+    test loadtest-1 "Strings" -body {
+        set data {
+--- String
+}
+        yaml::load $data
+    } -result {String}
+
+    test loadtest-1 "String characters" -body {
+        set data {
+---
+- What's Yaml? 
+- It's for writing data structures in plain text. 
+- And? 
+- And what? That's not good enough for you? 
+- No, I mean, "And what about Yaml?" 
+- Oh, oh yeah. Uh.. Yaml for Ruby. 
+}
+        yaml::load $data
+    } -result {{What's Yaml?} {It's for writing data structures in plain text.} And? {And what? That's not good enough for you?} {No, I mean, "And what about Yaml?"} {Oh, oh yeah. Uh.. Yaml for Ruby.}}
+
+    test loadtest-1 "Indicators in Strings" -body {
+        set data {
+---  
+the colon followed by space is an indicator: but is a string:right here 
+same for the pound sign: here we have it#in a string 
+the comma can, honestly, be used in most cases: [ but not in, inline collections ]
+}
+        yaml::load $data
+    } -result {{the colon followed by space is an indicator} {but is a string:right here} {same for the pound sign} {here we have it#in a string} {the comma can, honestly, be used in most cases} {{but not in} {inline collections}}}
+
+    test loadtest-1 "Forcing Strings" -body {
+        set data {
+---  
+date string: !!str 2001-08-01 
+number string: !!str 192 
+}
+        yaml::load $data
+    } -result {{date string} 2001-08-01 {number string} 192}
+
+    test loadtest-1 "Single-quoted Strings" -body {
+        set data {
+---  
+all my favorite symbols: '#:!/%.)' 
+a few i hate: '&(*' 
+why do i hate them?: 'it''s very hard to explain' 
+}
+        yaml::load $data
+    } -result {{all my favorite symbols} #:!/%.) {a few i hate} &(* {why do i hate them?} {it's very hard to explain}}
+
+    test loadtest-1 "Double-quoted Strings" -body {
+        set data {
+---  
+i know where i want my line breaks: "one here\nand another here\n" 
+}
+        yaml::load $data
+    } -result {{i know where i want my line breaks} {one here
+and another here
+}}
+
+    test loadtest-1 "Multi-line Quoted Strings" -body {
+        set data {
+---  
+i want a long string: "so i'm going to
+  let it go on and on to other lines
+  until i end it with a quote."
+}
+        yaml::load $data
+    } -result {{i want a long string} {so i'm going to let it go on and on to other lines until i end it with a quote.}}
+
+    test loadtest-1 "Plain scalars" -body {
+        set data {
+---  
+- My little toe is broken in two places;
+- I'm crazy to have skied this way;
+- I'm not the craziest he's seen, since there was always the German guy
+  who skied for 3 hours on a broken shin bone (just below the kneecap);
+- Nevertheless, second place is respectable, and he doesn't
+  recommend going for the record;
+- He's going to put my foot in plaster for a month;
+- This would impair my skiing ability somewhat for the
+  duration, as can be imagined.
+}
+        yaml::load $data
+    } -result {{My little toe is broken in two places;} {I'm crazy to have skied this way;} {I'm not the craziest he's seen, since there was always the German guy who skied for 3 hours on a broken shin bone (just below the kneecap);} {Nevertheless, second place is respectable, and he doesn't recommend going for the record;} {He's going to put my foot in plaster for a month;} {This would impair my skiing ability somewhat for the duration, as can be imagined.}}
+
+    test loadtest-1 "Null" -body {
+        set data {
+---  
+name: Mr. Show 
+hosted by: Bob and David 
+date of next season: ~ 
+}
+        yaml::load $data
+    } -result {name {Mr. Show} {hosted by} {Bob and David} {date of next season} {}}
+
+    test loadtest-1 "Boolean" -body {
+        set data {
+---  
+Is Gus a Liar?: true
+Do I rely on Gus for Sustenance?: false 
+}
+        yaml::load $data
+    } -result {{Is Gus a Liar?} 1 {Do I rely on Gus for Sustenance?} 0}
+
+    test loadtest-1 "Integers" -body {
+        set data {
+---  
+zero: 0 
+simple: 12 
+one-thousand: 1,000 
+negative one-thousand: -1,000 
+}
+        yaml::load $data
+    } -result {zero 0 simple 12 one-thousand 1000 {negative one-thousand} -1000}
+
+    test loadtest-1 "Integers as Map Keys" -body {
+        set data {
+---  
+1: one 
+2: two 
+3: three 
+}
+        yaml::load $data
+    } -result {1 one 2 two 3 three}
+
+    test loadtest-1 "Floats" -body {
+        set data {
+---  
+a simple float: 2.00 
+larger float: 1,000.09 
+scientific notation: 1.00009e+3 
+}
+        yaml::load $data
+    } -result {{a simple float} 2.00 {larger float} 1000.09 {scientific notation} 1.00009e+3}
+
+    test loadtest-1 "Time" -body {
+        set data {
+---  
+iso8601: 2001-12-14t21:59:43.10-05:00 
+space seperated: 2001-12-14 21:59:43.10 -05:00 
+}
+        yaml::load $data
+    } -result [string map [list TIMESTAMP1 [clock scan "2001-12-14 21:59:43 -05:00" -format {%Y-%m-%d %k:%M:%S %Z}] \
+                                TIMESTAMP2 [clock scan "2001-12-14 21:59:43 -05:00" -format {%Y-%m-%d %k:%M:%S %Z}]] \
+                 {iso8601 TIMESTAMP1 {space seperated} TIMESTAMP2}]
+
+    test loadtest-1 "Date" -body {
+        set data {
+--- 1976-07-31
+}
+        yaml::load $data
+    } -result [clock scan "1976-07-31" -format {%Y-%m-%d}]
+
+    test loadtest-1 "Blocks" -body {
+        set data {
+---
+this: |
+    Foo
+    Bar
+}
+        yaml::load $data
+    } -result {this {Foo
+Bar
+}}
+
+    test loadtest-1 "The '+' indicator" -body {
+        set data {
+---
+normal: |
+  extra new lines not kept
+
+preserving: |+
+  extra new lines are kept
+
+
+dummy: value
+}
+        yaml::load $data
+    } -result {normal {extra new lines not kept
+} preserving {extra new lines are kept
+
+
+} dummy value}
+
+    test loadtest-1 "Three trailing newlines in literals" -body {
+        set data {
+---
+clipped: |
+    This has one newline.
+
+
+
+same as "clipped" above: "This has one newline.\n"
+
+stripped: |-
+    This has no newline.
+
+
+
+same as "stripped" above: "This has no newline."
+
+kept: |+
+    This has four newlines.
+
+
+
+same as "kept" above: "This has four newlines.\n\n\n\n"
+}
+        yaml::load $data
+    } -result {clipped {This has one newline.
+} {same as "clipped" above} {This has one newline.
+} stripped {This has no newline.} {same as "stripped" above} {This has no newline.} kept {This has four newlines.
+
+
+
+} {same as "kept" above} {This has four newlines.
+
+
+
+}}
+
+    test loadtest-1 "Extra trailing newlines with spaces" -body {
+        set data {
+---
+this: |
+    Foo
+
+
+kept: |+
+    Foo
+}
+        yaml::load $data
+    } -result {this {Foo
+} kept {Foo
+}}
+
+    test loadtest-1 "Folded Block in a Sequence" -body {
+        set data {
+---
+- apple
+- banana
+- >
+    can't you see
+    the beauty of yaml?
+    hmm
+- dog
+}
+        yaml::load $data
+    } -result {apple banana {can't you see the beauty of yaml? hmm
+} dog}
+
+    test loadtest-1 "Folded Block as a Mapping Value" -body {
+        set data {
+---
+quote: >
+    Mark McGwire's
+    year was crippled
+    by a knee injury.
+source: espn
+}
+        yaml::load $data
+    } -result {quote {Mark McGwire's year was crippled by a knee injury.
+} source espn}
+
+    test loadtest-1 "Three trailing newlines in folded blocks" -body {
+        set data {
+---
+clipped: >
+    This has one newline.
+
+
+
+same as "clipped" above: "This has one newline.\n" 
+
+stripped: >-
+    This has no newline.
+
+
+
+same as "stripped" above: "This has no newline."
+
+kept: >+
+    This has four newlines.
+
+
+
+same as "kept" above: "This has four newlines.\n\n\n\n"
+}
+        yaml::load $data
+    } -result {clipped {This has one newline.
+} {same as "clipped" above} {This has one newline.
+} stripped {This has no newline.} {same as "stripped" above} {This has no newline.} kept {This has four newlines.
+
+
+} {same as "kept" above} {This has four newlines.
+
+
+
+}}
+
+    test loadtest-1 "Extra trailing newlines with spaces" -body {
+        set data {
+---
+- &showell Steve 
+- Clark 
+- Brian 
+- Oren 
+- *showell
+}
+        yaml::load $data
+    } -result {Steve Clark Brian Oren Steve}
+
+    test loadtest-1 "Alias of a Mapping" -body {
+        set data {
+---
+- &hello 
+    Meat: pork 
+    Starch: potato 
+- banana 
+- *hello 
+}
+        yaml::load $data
+    } -result {{Meat pork Starch potato} banana {Meat pork Starch potato}}
+
+#    test loadtest-1 "Trailing Document Separator" -body {
+#        set data {
+#- foo: 1
+#  bar: 2
+#---
+#more: stuff
+#}
+#        yaml::load $data
+#    } -result {Steve Clark Brian Oren Steve}
+
+    test loadtest-1 "Alias of a Mapping" -body {
+        set data {
+--- %YAML:1.0 
+foo: 1 
+bar: 2 
+}
+        yaml::load $data
+    } -result {foo 1 bar 2}
+
+    test loadtest-1 "Red Herring Document Separator" -body {
+        set data {
+---
+foo: |
+    ---
+}
+        yaml::load $data
+    } -result {foo {---
+}}
+
+    test loadtest-1 "Multiple Document Separators in Block" -body {
+        set data {
+---
+foo: | 
+    ---
+    foo: bar
+    ---
+    yo: baz
+bar: | 
+    fooness
+}
+        yaml::load $data
+    } -result {foo {---
+foo: bar
+---
+yo: baz
+} bar {fooness
+}}
+
+# YAML For Ruby
+# (ignored)
+
+
+
+
+
+
+
+tcltest::cleanupTests
+}
+
