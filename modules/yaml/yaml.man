@@ -1,7 +1,7 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin yaml n 0.2.2]
-[copyright {2008 KATO Kanryu <k.kanryu@gmail.com>}]
-[moddesc   {YAML}]
+[copyright {2008 KATO Kanryu <kanryu6@users.sourceforge.net>}]
+[moddesc   {YAML processing}]
 [titledesc {YAML Format Encoder/Decoder}]
 [require Tcl 8.4]
 [require yaml [opt 0.2.2]]
@@ -25,13 +25,17 @@ required for use.
 
 Parse yaml formatted text [arg txt] into a Tcl dict and return the value.
 
-[list_begin definitions]
-[def [const -file]]
+[list_begin options]
+[opt_def [const -file]]
 
-[arg txt] should be a filename of a YAML-stream.
+[arg txt] is a filename of YAML-stream.
+
+[opt_def [const -stream]]
+
+[arg txt] is just a YAML-stream.
 
 
-[def "[const -types] [arg list]"]
+[opt_def "[const -types] [arg list]"]
 
 The [arg list] is a type list for the yaml-scalar types.(e.g. !!str !!timestamp !!integer !!true ...)
 
@@ -39,7 +43,7 @@ The [arg list] is a type list for the yaml-scalar types.(e.g. !!str !!timestamp 
 ]
 In this case, if a string matched "timestamp", converted to the TCL internal timestamp.(e.g. "2001-12-15T02:59:43.1Z" => 1008385183)
 
-[def "[const -m:true] [arg param]"]
+[opt_def "[const -m:true] [arg param]"]
 
 The [arg param] is two elements of list for the value of true, and considered strings.
 
@@ -47,21 +51,21 @@ The [arg param] is two elements of list for the value of true, and considered st
 ]
 In this case, the string "yes" found in YAML Stream, automatically converted 1.
 
-[def "[const -m:false] [arg param]"]
+[opt_def "[const -m:false] [arg param]"]
 
 The [arg param] is two elements of list for the value of false, and considered strings.
 
 [example { -m:false {0 {false off - no n}}}
 ]
 
-[def "[const -m:null] [arg param]"]
+[opt_def "[const -m:null] [arg param]"]
 
 The [arg param] is two elements of list for the value of null, and considered strings.
 
 [example { -m:null {"" {null nil "" ~}}}
 ]
 
-[def [const -validate]]
+[opt_def [const -validate]]
 
 Experiment: Output stream contains YAML's-tag, each node.
 

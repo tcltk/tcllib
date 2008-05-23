@@ -3,7 +3,7 @@
 #
 #   See http://www.yaml.org/spec/1.1/
 #
-#   yaml.tcl,v 0.2.2 2008-05-17 21:52:18 KATO Kanryu(k.kanryu@gmail.com)
+#   yaml.tcl,v 0.2.2 2008-05-24 04:07:14 KATO Kanryu(k.kanryu@gmail.com)
 #
 #   It is published with the terms of tcllib's BSD-style license.
 #   See the file named license.terms.
@@ -72,6 +72,7 @@ namespace eval ::yaml {
 
     variable opts [lrange [::cmdline::GetOptionDefaults {
         {file             {input is filename}}
+        {stream           {input is stream}}
         {m.arg        ""  {fixed-modifiers bulk setting(null/true/false)}}
         {m:null.arg   ""  {null modifier setting(default {"" {null "" ~}})}}
         {m:true.arg   ""  {true modifier setting(default {1 {true on + yes y}})}}
@@ -82,15 +83,17 @@ namespace eval ::yaml {
 
     variable errors
     array set errors {
-        TAB_IN_PLAIN      {Tabs can be used only in comments, and in quoted "..." '...'.}
-        AT_IN_PLAIN       {Reserved indicators {@} can't start a plain scalar.}
-        BT_IN_PLAIN       {Reserved indicators {`} can't start a plain scalar.}
-        SEQEND_NOT_IN_SEQ {There is a flow-sequence end '\]' not in flow-sequence [v, ...].}
-        MAPEND_NOT_IN_MAP {There is a flow-mapping end '\}' not in flow-mapping {k: v, ...}.}
-        ANCHOR_NOT_FOUND  {Could not find the anchor-name(current-version, "after refering" is not supported)}
-        MALFORM_D_QUOTE   {Double quote "..." parsing error. end of quote is missing?}
-        MALFORM_S_QUOTE   {Single quote '...' parsing error. end of quote is missing?}
-        TAG_NOT_FOUND     {The "$p1" handle wasn't declared.}
+        TAB_IN_PLAIN        {Tabs can be used only in comments, and in quoted "..." '...'.}
+        AT_IN_PLAIN         {Reserved indicators {@} can't start a plain scalar.}
+        BT_IN_PLAIN         {Reserved indicators {`} can't start a plain scalar.}
+        SEQEND_NOT_IN_SEQ   {There is a flow-sequence end '\]' not in flow-sequence [v, ...].}
+        MAPEND_NOT_IN_MAP   {There is a flow-mapping end '\}' not in flow-mapping {k: v, ...}.}
+        ANCHOR_NOT_FOUND    {Could not find the anchor-name(current-version, "after refering" is not supported)}
+        MALFORM_D_QUOTE     {Double quote "..." parsing error. end of quote is missing?}
+        MALFORM_S_QUOTE     {Single quote '...' parsing error. end of quote is missing?}
+        TAG_NOT_FOUND       {The "$p1" handle wasn't declared.}
+        INVALID_MERGE_KEY   {merge-key ">>" is not impremented in not mapping scope(e.g. in sequence).}
+        MALFORMED_MERGE_KEY {malformed merge-key ">>" using.}
     }
 }
 
@@ -114,7 +117,7 @@ proc ::yaml::load {args} {
 proc ::yaml::setOptions {argv} {
     variable defaults
     array set options [_imp_getOptions argv]
-    array set defaults $options
+    array set defaults [array get options]
 }
 
 # Dump TCL List to YAML
@@ -165,8 +168,8 @@ proc ::yaml::_getOption {argv} {
     # default setting
     array set options [_imp_getOptions argv]
 
-    array set fixed $options(fixed)
-    array set parsers $options(parsers)
+    array set fixed    $options(fixed)
+    array set parsers  $options(parsers)
     array set composer $options(composer)
     array set data [list validate $options(validate) types $options(types)]
     set isfile $options(isfile)
@@ -195,9 +198,12 @@ proc ::yaml::_imp_getOptions {{argvvar argv}} {
     # parse argv
     set argc [llength $argv]
     while {[set err [::cmdline::getopt argv $opts opt arg]]} {
-        switch $opt {
+        switch -- $opt {
             "file" {
                 set options(isfile) 1
+            }
+            "stream" {
+                set options(isfile) 0
             }
             "m" {
                 array set options(fixed) $arg
@@ -211,11 +217,11 @@ proc ::yaml::_imp_getOptions {{argvvar argv}} {
             default {
                 if [regexp {m:(\w+)} $opt nop type] {
                     if {$arg eq ""} {
-                        set fixed($type:Group) ""
+                        set fixed(${type}:Group) ""
                     } else {
                         foreach {value group} $arg {
-                            set fixed($type:Value) $value
-                            set fixed($type:Group) $group
+                            set fixed(${type}:Value) $value
+                            set fixed(${type}:Group) $group
                         }
                     }
                 }
@@ -270,7 +276,7 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1} {parentkey ""}} {
             _ungetc
             break
         }
-        switch $type {
+        switch -- $type {
             "-" { ; # block sequence entry
                 set cc "[_getc][_getc]"
                 if {"$type$cc" eq "---" && $current == 0} {
@@ -326,7 +332,7 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1} {parentkey ""}} {
                     set c [_getc]
                     if {$c eq ":"} {
                         set status "MAPPING"
-                        set list [_parseBlockNode "" [expr $pos+1]]
+                        set list [_parseBlockNode "" [expr {$pos+1}]]
                         if {$::tcl_version >= 8.5} {
                             set value [concat {*}$list]
                         } else {
@@ -338,13 +344,13 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1} {parentkey ""}} {
                                 foreach {val} $prev {lappend result $val}
                                 set prev {}
                             } else {
-                                error {malformed merge-key using}
+                                error [_getErrorMessage MALFORMED_MERGE_KEY]
                             }
                         }
                         foreach {val} $value {lappend result $val}
                         unset value
                     } else {
-                        error {merge-key is not impremented in not mapping scope(e.g. in sequence)}
+                        error [_getErrorMessage INVALID_MERGE_KEY]
                     }
                 } else {
                     _ungetc
@@ -394,7 +400,7 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1} {parentkey ""}} {
             set scalar 0
         }
         if [info exists value] {
-            switch $status {
+            switch -- $status {
                 "NODE" {
                     return $value
                 }
@@ -448,9 +454,9 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1} {parentkey ""}} {
     return $result
 }
 
-proc _doValidate {type result {param ""}} {
+proc ::yaml::_doValidate {type result {param ""}} {
     if {$yaml::data(validate)} {
-        switch $type {
+        switch -- $type {
             "PAIR" {
                 return $result;
             }
@@ -478,7 +484,7 @@ proc _doValidate {type result {param ""}} {
             }
         }
     } else {
-        switch $type {
+        switch -- $type {
             "PAIR" {
                 foreach {type value} $result break
                 return $value
@@ -523,7 +529,7 @@ proc ::yaml::_parseBlockScalar {base separator} {
         set sep $separator
     }
     if [info exists pos] {_setpos $pos}
-    switch $chomping {
+    switch -- $chomping {
         "strip" {
         }
         "keep" {
@@ -602,7 +608,7 @@ proc ::yaml::_toType {value} {
             if {$pair ne ""} {return $pair}
             continue
         }
-        switch $type {
+        switch -- $type {
             int {
                 # YAML 1.1
                 if [regexp {^-?\d[\d,]+\d$|^\d$} $value] {
@@ -641,7 +647,7 @@ proc ::yaml::_parseFlowNode {{status ""}} {
     while {1} {
         _skipSpaces 1
         set type [_getc]
-        switch $type {
+        switch -- $type {
             "" {
                 break
             }
@@ -715,7 +721,7 @@ proc ::yaml::_parseFlowNode {{status ""}} {
                 _setAnchor $anchor [list $value]
                 unset anchor
             }
-            switch $status {
+            switch -- $status {
                 "" {
                     return $value
                 }
@@ -741,7 +747,7 @@ proc ::yaml::_parseFlowNode {{status ""}} {
 }
 
 proc ::yaml::_parseScalarNode {type scope {pos 0}} {
-    switch $type {
+    switch -- $type {
         {"} { ; # surrounds a double-quoted flow scalar
             set value [_parseDoubleQuoted]
             set value [_doValidate "" $value]
@@ -769,8 +775,8 @@ proc ::yaml::_parseScalarNode {type scope {pos 0}} {
 # 2001-12-15T02:59:43.1Z       => 1008385183
 # 2001-12-14t21:59:43.10-05:00 => 1008385183
 # 2001-12-14 21:59:43.10 -5    => 1008385183
-# 2001-12-15 2:59:43.10        => 1008352783
-# 2002-12-14                   => 1039791600
+# 2001-12-15 2:59:43.10 => 1008352783
+# 2002-12-14               => 1039791600
 proc ::yaml::_parseTimestamp {scalar} {
     if {![regexp {^\d\d\d\d-\d\d-\d\d} $scalar]} {return ""}
     set datestr  {\d\d\d\d-\d\d-\d\d}
@@ -809,16 +815,16 @@ proc ::yaml::_parseDirective {} {
         _skipSpaces
         set version [_getToken]
         set data(YAMLVersion) $version
-        if {![regexp {^\d\.\d$} $version]}   { error $yaml::errors(ILLEGAL_YAML_DIRECTIVE) }
+        if {![regexp {^\d\.\d$} $version]}   { error [_getErrorMessage ILLEGAL_YAML_DIRECTIVE] }
     } elseif [regexp {^%TAG} $directive] {
         # TAG directive
         _skipSpaces
         set handle [_getToken]
-        if {![regexp {^!$|^!\w*!$} $handle]} { error $yaml::errors(ILLEGAL_TAG_DIRECTIVE) }
+        if {![regexp {^!$|^!\w*!$} $handle]} { error [_getErrorMessage ILLEGAL_YAML_DIRECTIVE] }
 
         _skipSpaces
         set prefix [_getToken]
-        if {![regexp {^!$|^!\w*!$} $prefix]} { error $yaml::errors(ILLEGAL_TAG_DIRECTIVE) }
+        if {![regexp {^!$|^!\w*!$} $prefix]} { error [_getErrorMessage ILLEGAL_YAML_DIRECTIVE] }
         set shorthands(handle) $prefix
     }
 }
@@ -828,7 +834,7 @@ proc ::yaml::_parseTagHandle {} {
     
     if [regexp {^(!|!\w*!)(.*)} $token nop handle named] {
         # shorthand or non-specific Tags
-        switch $handle {
+        switch -- $handle {
             ! { ;       # local or non-specific Tags
             }
             !! { ;      # yaml Tags
@@ -837,12 +843,12 @@ proc ::yaml::_parseTagHandle {} {
                 
             }
         }
-        if {![info exists prefix($handle)]} { error $yaml::errors(TAG_NOT_FOUND) }
+        if {![info exists prefix($handle)]} { error [_getErrorMessage TAG_NOT_FOUND] }
     } elseif [regexp {^!<(.+)>} $token nop uri] {
         # Verbatim Tags
-        if {![regexp {^[\w:/]$} $token nop uri]} { error $yaml::errors(ILLEGAL_TAG_HANDLE) }
+        if {![regexp {^[\w:/]$} $token nop uri]} { error [_getErrorMessage ILLEGAL_TAG_HANDLE] }
     } else {
-        error $yaml::errors(ILLEGAL_TAG_HANDLE)
+        error [_getErrorMessage ILLEGAL_TAG_HANDLE]
     }
     
     return "!<$prefix($handle)$named>"
@@ -853,7 +859,7 @@ proc ::yaml::_parseDoubleQuoted {} {
     # capture quoted string with backslash sequences
     set reStr {(?:(?:\")(?:[^\\\"]*(?:\\.[^\\\"]*)*)(?:\"))}
     set result [_getFoldedString $reStr]
-    if {$result eq ""} { error $yaml::errors(MALFORM_D_QUOTE) }
+    if {$result eq ""} { error [_getErrorMessage MALFORM_D_QUOTE] }
 
     # [116] nb-double-multi-line
     regsub -all {[ \t]*\n[\t ]*} $result "\r" result
@@ -873,7 +879,7 @@ proc ::yaml::_parseDoubleQuoted {} {
 proc ::yaml::_parseSingleQuoted {} {
     set reStr {(?:(?:')(?:[^']*(?:''[^']*)*)(?:'))}
     set result [_getFoldedString $reStr]
-    if {$result eq ""} { error $yaml::errors(MALFORM_S_QUOTE) }
+    if {$result eq ""} { error [_getErrorMessage MALFORM_S_QUOTE] }
 
     # [126] nb-single-multi-line
     regsub -all {[ \t]*\n[\t ]*} $result "\r" result
@@ -937,7 +943,7 @@ proc ::yaml::_skipSpaces {{commentSkip 0}} {
     while {1} {
         set ch [string index $data(buffer) $data(start)]
         incr data(start)
-        switch $ch {
+        switch -- $ch {
             " " {
                 incr data(current)
                 continue
