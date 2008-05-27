@@ -153,7 +153,7 @@ Mark McGwire: {hr: 65, avg: 0.278}
 Sammy Sosa: { hr: 63, avg: 0.288}
 }
     yaml::load $inline_map_maps
-} -result {{Mark McGwire} {hr 65 avg 0.278} {Sammy Sosa} {hr 63 avg 0.288}}
+} -result [dict create {Mark McGwire} {hr 65 avg 0.278} {Sammy Sosa} {hr 63 avg 0.288}]
 
 
 
@@ -185,7 +185,7 @@ kept: |+
 same as "kept" above: "This has four newlines.\n\n\n\n"
 }
         yaml::load $literal
-} -result {clipped {This has one newline.
+} -result [dict create clipped {This has one newline.
 } {same as "clipped" above} {This has one newline.
 } stripped {This has no newline.} {same as "stripped" above} {This has no newline.} kept {This has four newlines.
 
@@ -195,7 +195,7 @@ same as "kept" above: "This has four newlines.\n\n\n\n"
 
 
 
-}}
+}]
 
 test yaml-3.3 "Folding Block Scalar" -body {
     set folding {
@@ -227,7 +227,7 @@ kept: >+
 same as "kept" above: "This has four newlines.\n\n\n\n"}
 
     yaml::load $folding
-} -result {clipped {This has one newline.
+} -result [dict create clipped {This has one newline.
 } {same as "clipped" above} {This has one newline.
 } stripped {This has no newline.} {same as "stripped" above} {This has no newline.} kept {This has no newline.
 
@@ -236,7 +236,7 @@ same as "kept" above: "This has four newlines.\n\n\n\n"}
 
 
 
-}}
+}]
 
 test yaml-3.4 "Folded Block as a Mapping Value" -body {
     set foldedmap {
@@ -248,8 +248,8 @@ quote: >
 source: espn
 }
     yaml::load $foldedmap
-} -result {quote {Mark McGwire's year was crippled by a knee injury.
-} source espn}
+} -result [dict create quote {Mark McGwire's year was crippled by a knee injury.
+} source espn]
 
 # -----------------------
 # Anchor - Aliaces  .....
@@ -276,7 +276,7 @@ test yaml-4.2 "Alias Node" -body {
 - *hello 
 }
     yaml::load $alias2
-} -result {{Meat pork Starch potato} banana {Meat pork Starch potato}}
+} -result [list [dict create Meat pork Starch potato] banana [dict create Meat pork Starch potato]]
 
 test yaml-4.3 "Flow Alias Node" -body {
     set alias3 {
@@ -329,9 +329,10 @@ arabia:
     polytheism : false
 }
     yaml::load $boolean
-} -result {india {pork 1 beef 0 oil 0 polytheism 1} arabia {pork 0 beef 1 oil 1 polytheism 0}}
+} -result [dict create india [dict create pork 1 beef 0 oil 0 polytheism 1] arabia [dict create pork 0 beef 1 oil 1 polytheism 0]]
 
-test yaml-5.3 "Timestamps" -body {
+if {$::tcl_version < 8.5} {
+    test yaml-5.3 "Timestamps" -body {
     set timestamps {
 - 2001-12-15T02:59:43.1Z
 - 2001-12-14t21:59:43.10-05:00
@@ -340,15 +341,33 @@ test yaml-5.3 "Timestamps" -body {
 - 2002-12-14
 }
 
-    yaml::load $timestamps
-} -result [list \
-        [clock scan "2001-12-15 02:59:43 Z" -format {%Y-%m-%d %k:%M:%S %Z}] \
-        [clock scan "2001-12-14 21:59:43 -05:00" -format {%Y-%m-%d %k:%M:%S %Z}] \
-        [clock scan "2001-12-14 21:59:43 -05:00" -format {%Y-%m-%d %k:%M:%S %Z}] \
-        [clock scan "2001-12-15 02:59:43" -format {%Y-%m-%d %k:%M:%S}] \
-        [clock scan "2002-12-14" -format {%Y-%m-%d}]
-    ]
+        yaml::load $timestamps
+    } -result [list \
+            [clock scan "2001-12-15 02:59:43" -gmt 1] \
+            [clock scan "+5 hours" -base [clock scan "2001-12-14 21:59:43" -gmt 1]] \
+            [clock scan "+5 hours" -base [clock scan "2001-12-14 21:59:43" -gmt 1]] \
+            [clock scan "2001-12-15 02:59:43"] \
+            [clock scan "2002-12-14"]
+        ]
+} else {
+    test yaml-5.3 "Timestamps" -body {
+    set timestamps {
+- 2001-12-15T02:59:43.1Z
+- 2001-12-14t21:59:43.10-05:00
+- 2001-12-14 21:59:43.10 -5
+- 2001-12-15 2:59:43.10
+- 2002-12-14
+}
 
+        yaml::load $timestamps
+    } -result [list \
+            [clock scan "2001-12-15 02:59:43 Z" -format {%Y-%m-%d %k:%M:%S %Z}] \
+            [clock scan "2001-12-14 21:59:43 -05:00" -format {%Y-%m-%d %k:%M:%S %Z}] \
+            [clock scan "2001-12-14 21:59:43 -05:00" -format {%Y-%m-%d %k:%M:%S %Z}] \
+            [clock scan "2001-12-15 02:59:43" -format {%Y-%m-%d %k:%M:%S}] \
+            [clock scan "2002-12-14" -format {%Y-%m-%d}]
+        ]
+}
 # {1008385183 1008385183 1008385183 1008352783 1039791600} <- JST
 
 test yaml-5.4 "integer" -body {
@@ -390,7 +409,7 @@ hello-to:
     family : Son
 }
     yaml::load $mappings
-} -result {bill-to {given Chris family Dumars} hello-to {given {Arnold Berry} family Son}}
+} -result [dict create bill-to [dict create given Chris family Dumars] hello-to [dict create given {Arnold Berry} family Son]]
 
 test yaml-6.3 "block mapping, sequence" -body {
     set map_seqs {
@@ -404,7 +423,7 @@ rbi:
   - Ken Griffey
 }
     yaml::load $map_seqs
-} -result {hr {{Mark McGwire} {Sammy Sosa}} rbi {{Sammy Sosa} {Ken Griffey}}}
+} -result [dict create hr {{Mark McGwire} {Sammy Sosa}} rbi {{Sammy Sosa} {Ken Griffey}}]
 
 test yaml-6.4 "block sequence, mapping" -body {
     set seq_maps {
@@ -419,7 +438,7 @@ test yaml-6.4 "block sequence, mapping" -body {
   avg:  0.288
 }
     yaml::load $seq_maps
-} -result {{name {Mark McGwire} hr 65 avg 0.278} {name {Sammy Sosa} hr 63 avg 0.288}}
+} -result [list [dict create name {Mark McGwire} hr 65 avg 0.278] [dict create name {Sammy Sosa} hr 63 avg 0.288]]
 
 
 
@@ -481,7 +500,7 @@ picture: !!binary |
 }
 
     yaml::load $explicit_tags
-} -result [list not-date 2002-04-28 picture [::base64::decode {
+} -result [dict create not-date 2002-04-28 picture [::base64::decode {
 R0lGODlhDAAMAIQAAP//9/X
 17unp5WZmZgAAAOfn515eXv
 Pz7Y6OjuDg4J+fn5OTk6enp
@@ -518,7 +537,7 @@ mapping:
     age: 38
 }
     yaml::load $data
-} -result {mapping {name Joe job Accountant age 38}}
+} -result [list mapping [dict create name Joe job Accountant age 38]]
 
 test yaml-10.2 "Merge key 2" -body {
     set data {
@@ -551,7 +570,7 @@ test yaml-10.2 "Merge key 2" -body {
   label: center/big
 }
     yaml::load $data
-} -result {{x 1 1 2} {x 0 1 2} {r {spaced string}} {r 1} {x 1 1 2 r 10 label center/big} {x 1 1 2 r 10 label center/big} {x 1 1 2 r {spaced string} label center/big} {r 1 x 1 1 2 label center/big}}
+} -result [list {x 1 1 2} {x 0 1 2} {r {spaced string}} {r 1} [dict create x 1 1 2 r 10 label center/big] [dict create x 1 1 2 r 10 label center/big] [dict create x 1 1 2 r {spaced string} label center/big] [dict create r 1 x 1 1 2 label center/big]]
 
 test yaml-11.1 "Invoice" -body {
     set Invoice {
@@ -586,12 +605,12 @@ comments:
     Billsmer @ 338-4338.
 }
     yaml::load $Invoice
-} -result [string map [list TIMESTAMP [clock scan "2001-01-23" -format {%Y-%m-%d}]] \
-{invoice 34843 date TIMESTAMP bill-to {given Chris family Dumars address {lines {458 Walkman Dr.
+} -result [string map [list TIMESTAMP [clock scan "2001-01-23"]] \
+[dict create invoice 34843 date TIMESTAMP bill-to [dict create given Chris family Dumars address [dict create lines {458 Walkman Dr.
 Suite #292
-} city {Royal Oak} state MI postal 48046}} ship-to {given Chris family Dumars address {lines {458 Walkman Dr.
+} city {Royal Oak} state MI postal 48046]] ship-to [dict create given Chris family Dumars address [dict create lines {458 Walkman Dr.
 Suite #292
-} city {Royal Oak} state MI postal 48046}} product {{sku BL394D quantity 4 description Basketball price 450.00} {sku BL4438H quantity 1 description {Super Hoop} price 2392.00}} tax 251.42 total 4443.52 comments {Late afternoon is best. Backup contact is Nancy Billsmer @ 338-4338.}} ]
+} city {Royal Oak} state MI postal 48046]] product [list [dict create sku BL394D quantity 4 description Basketball price 450.00] [dict create sku BL4438H quantity 1 description {Super Hoop} price 2392.00]] tax 251.42 total 4443.52 comments {Late afternoon is best. Backup contact is Nancy Billsmer @ 338-4338.}] ]
 
 
 

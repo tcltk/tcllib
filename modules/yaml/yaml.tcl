@@ -3,7 +3,7 @@
 #
 #   See http://www.yaml.org/spec/1.1/
 #
-#   yaml.tcl,v 0.2.2 2008-05-24 04:07:14 KATO Kanryu(k.kanryu@gmail.com)
+#   yaml.tcl,v 0.2.2 2008-05-27 01:52:49 KATO Kanryu(k.kanryu@gmail.com)
 #
 #   It is published with the terms of tcllib's BSD-style license.
 #   See the file named license.terms.
@@ -149,7 +149,7 @@ proc ::yaml::dict2yaml {dict {indent 2} {wordwrap 40}} {
     set out "---\n"
     
     # Start at the base of the array and move through it.
-    dict for {key value} $dict {
+    foreach {key value} $dict {
         set out "$out[_dumpNode $key $value 0]"
     }
     return $out
@@ -333,11 +333,7 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1} {parentkey ""}} {
                     if {$c eq ":"} {
                         set status "MAPPING"
                         set list [_parseBlockNode "" [expr {$pos+1}]]
-                        if {$::tcl_version >= 8.5} {
-                            set value [concat {*}$list]
-                        } else {
-                            set value [eval concat $list]
-                        }
+                        set value [_concat_list $list]
                         unset list
                         if {$prev ne ""} {
                             if {[llength $prev] >= 2} {
@@ -378,7 +374,7 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1} {parentkey ""}} {
             }
             default {
                 if [regexp {^[\[\]\{\}\"']$} $type] {
-                    set pos [expr 1 + $current]
+                    set pos [expr {1 + $current}]
                     _ungetc
                     set value [_parseFlowNode]
                 } else {
@@ -433,7 +429,13 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1} {parentkey ""}} {
         if [info exists prev] {
             foreach {val} $prev {lappend result $val}
         }
-        set result [eval dict create $result]
+        # when overwrapped nodes with alias merging, 
+        #  to overwrite by after node(key/val)
+        
+        #  valid. but can't write convenient test suite for under Tcl8.4 ...
+         set result [eval dict create $result]
+        
+#        set result [_remove_duplication $result]
     } else {
         if [info exists prev] {
             set result $prev
@@ -452,6 +454,28 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1} {parentkey ""}} {
         unset anchor
     }
     return $result
+}
+
+# remove duplications with saving key order
+proc ::yaml::_remove_duplication {dict} {
+    array set tmp $dict
+    array set tmp2 {}
+    foreach {key nop} $dict {
+        if [info exists tmp2($key)] continue
+        lappend result $key $tmp($key)
+        set tmp2($key) 1
+    }
+    return $result
+}
+
+if {$::tcl_version < 8.5} {
+    proc ::yaml::_concat_list {list} {
+        return [eval concat $list]
+    }
+} else {
+    proc ::yaml::_concat_list {list} {
+        return [concat {*}$list]
+    }
 }
 
 proc ::yaml::_doValidate {type result {param ""}} {
@@ -525,7 +549,7 @@ proc ::yaml::_parseBlockScalar {base separator} {
         if {$indent <= $base} {
             break
         }
-        append value $sep[string repeat " " [expr $indent - $first]]$line
+        append value $sep[string repeat " " [expr {$indent - $first}]]$line
         set sep $separator
     }
     if [info exists pos] {_setpos $pos}
@@ -775,8 +799,8 @@ proc ::yaml::_parseScalarNode {type scope {pos 0}} {
 # 2001-12-15T02:59:43.1Z       => 1008385183
 # 2001-12-14t21:59:43.10-05:00 => 1008385183
 # 2001-12-14 21:59:43.10 -5    => 1008385183
-# 2001-12-15 2:59:43.10 => 1008352783
-# 2002-12-14               => 1039791600
+# 2001-12-15 2:59:43.10        => 1008352783
+# 2002-12-14                   => 1039791600
 proc ::yaml::_parseTimestamp {scalar} {
     if {![regexp {^\d\d\d\d-\d\d-\d\d} $scalar]} {return ""}
     set datestr  {\d\d\d\d-\d\d-\d\d}
@@ -785,19 +809,40 @@ proc ::yaml::_parseTimestamp {scalar} {
 
     set canonical [subst -nobackslashes -nocommands {^($datestr)[Tt ]($timestr)\.\d+ ?($timezone)?$}]
     set dttm [subst -nobackslashes -nocommands {^($datestr)(?:[Tt ]($timestr))?$}]
-    if [regexp $canonical $scalar nop dt tm zone] {
-        # Canonical
-        if {$zone ne ""} {
+    if {$::tcl_version < 8.5} {
+        if [regexp $canonical $scalar nop dt tm zone] {
+            # Canonical
+            if {$zone eq ""} {
+                return [list !!timestamp [clock scan "$dt $tm"]]
+            } elseif {$zone eq "Z"} {
+                return [list !!timestamp [clock scan "$dt $tm" -gmt 1]]
+            }
             if [regexp {^([-+])(\d\d?)$} $zone nop sign d] {set zone [format "$sign%02d:00" $d]}
-            return [list !!timestamp [clock scan "$dt $tm $zone" -format {%Y-%m-%d %k:%M:%S %Z}]]
-        } else {
-            return [list !!timestamp [clock scan "$dt $tm"       -format {%Y-%m-%d %k:%M:%S}]]
+            regexp {^([-+]\d\d):(\d\d)} $zone nop h m
+            set m [expr {$h > 0 ? $h*60 + $m : $h*60 - $m}]
+            return [list !!timestamp [clock scan "[expr -$m] minutes" -base [clock scan "$dt $tm" -gmt 1]]]
+        } elseif [regexp $dttm $scalar nop dt tm] {
+            if {$tm ne ""} {
+                return [list !!timestamp [clock scan "$dt $tm"]]
+            } else {
+                return [list !!timestamp [clock scan $dt]]
+            }
         }
-    } elseif [regexp $dttm $scalar nop dt tm] {
-        if {$tm ne ""} {
-            return [list !!timestamp [clock scan "$dt $tm" -format {%Y-%m-%d %k:%M:%S}]]
-        } else {
-            return [list !!timestamp [clock scan $dt       -format {%Y-%m-%d}]]
+    } else {
+        if [regexp $canonical $scalar nop dt tm zone] {
+            # Canonical
+            if {$zone ne ""} {
+                if [regexp {^([-+])(\d\d?)$} $zone nop sign d] {set zone [format "$sign%02d:00" $d]}
+                return [list !!timestamp [clock scan "$dt $tm $zone" -format {%Y-%m-%d %k:%M:%S %Z}]]
+            } else {
+                return [list !!timestamp [clock scan "$dt $tm"       -format {%Y-%m-%d %k:%M:%S}]]
+            }
+        } elseif [regexp $dttm $scalar nop dt tm] {
+            if {$tm ne ""} {
+                return [list !!timestamp [clock scan "$dt $tm" -format {%Y-%m-%d %k:%M:%S}]]
+            } else {
+                return [list !!timestamp [clock scan $dt       -format {%Y-%m-%d}]]
+            }
         }
     }
     return ""
@@ -871,7 +916,7 @@ proc ::yaml::_parseDoubleQuoted {} {
     # chop off outer ""s and substitute backslashes
     # This does more than the RFC-specified backslash sequences,
     # but it does cover them all
-    set chopped [subst -nocommand -novariable \
+    set chopped [subst -nocommands -novariables \
         [string range $result 1 end-1]]
     return $chopped
 }
@@ -952,8 +997,8 @@ proc ::yaml::_skipSpaces {{commentSkip 0}} {
                 set data(current) 0
                 continue
             }
-            "#" {
-                if $commentSkip {
+            "\#" {
+                if {$commentSkip} {
                     _getLine
                     continue
                 }
@@ -973,10 +1018,10 @@ proc ::yaml::_getLine {{scrolled 1}} {
     if {$pos == -1} {
         set pos $data(length)
     }
-    set line [string range $data(buffer) $data(start) [expr $pos-1]]
+    set line [string range $data(buffer) $data(start) [expr {$pos-1}]]
     regexp {^( *)(.*)} $line nop space result
     if {$scrolled} {
-        set data(start) [expr $pos + 1]
+        set data(start) [expr {$pos + 1}]
         set data(current) 0
     }
     return [list [string length $space] [string index $result 0] $result]
@@ -984,7 +1029,7 @@ proc ::yaml::_getLine {{scrolled 1}} {
 
 proc ::yaml::_getCurrent {} {
     variable data
-    return [expr $data(current) ? $data(current)-1 : 0]
+    return [expr {$data(current) ? $data(current)-1 : 0}]
 }
 
 proc ::yaml::_getLineNum {} {
@@ -1010,7 +1055,7 @@ proc ::yaml::_getc {{scrolled 1}} {
 
 proc ::yaml::_eof {} {
     variable data
-    return [expr $data(start) == $data(length)]
+    return [expr {$data(start) == $data(length)}]
 }
 
 
@@ -1026,8 +1071,8 @@ proc ::yaml::_setpos {pos} {
 
 proc ::yaml::_ungetc {{len 1}} {
     variable data
-    incr data(start) [expr -$len]
-    incr data(current) [expr -$len]
+    incr data(start) [expr {-$len}]
+    incr data(current) [expr {-$len}]
 }
 
 proc ::yaml::_next_is_blank {} {
@@ -1130,7 +1175,7 @@ proc ::yaml::_doFolding {value indent} {
 # Finds and returns the indentation of a YAML line
 proc ::yaml::_getIndent {line} {
     set match [regexp -inline -- {^\s{1,}} " $line"]
-    return [expr [string length $match] - 3]
+    return [expr {[string length $match] - 3}]
 }
 
 # http://wiki.tcl.tk/1774
