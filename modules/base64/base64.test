@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: base64.test,v 1.14 2008/05/22 20:18:26 andreas_kupries Exp $
+# RCS: @(#) $Id: base64.test,v 1.15 2008/05/28 17:34:31 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -35,18 +35,18 @@ if {[catch {package present Trf}]} {
 test base64-1.1 {base64::encode} {
     base64::encode "this is a test\n"
 } "dGhpcyBpcyBhIHRlc3QK"
-test base64-1.2 {base64::encode wraps lines at 60 characters} {
+test base64-1.2 {base64::encode wraps lines at 76 characters} {
     set str "The short red fox ran quickly through the green field "
     append str "and jumped over the tall brown bear\n"
     base64::encode $str
-} "VGhlIHNob3J0IHJlZCBmb3ggcmFuIHF1aWNrbHkgdGhyb3VnaCB0aGUgZ3Jl
-ZW4gZmllbGQgYW5kIGp1bXBlZCBvdmVyIHRoZSB0YWxsIGJyb3duIGJlYXIK"
-test base64-1.3 {base64::encode with wrap length set to 76} {
-    set str "The short red fox ran quickly through the green field "
-    append str "and jumped over the tall brown bear\n"
-    base64::encode -maxlen 76 $str
 } "VGhlIHNob3J0IHJlZCBmb3ggcmFuIHF1aWNrbHkgdGhyb3VnaCB0aGUgZ3JlZW4gZmllbGQgYW5k
 IGp1bXBlZCBvdmVyIHRoZSB0YWxsIGJyb3duIGJlYXIK"
+test base64-1.3 {base64::encode with wrap length set to 60} {
+    set str "The short red fox ran quickly through the green field "
+    append str "and jumped over the tall brown bear\n"
+    base64::encode -maxlen 60 $str
+} "VGhlIHNob3J0IHJlZCBmb3ggcmFuIHF1aWNrbHkgdGhyb3VnaCB0aGUgZ3Jl
+ZW4gZmllbGQgYW5kIGp1bXBlZCBvdmVyIHRoZSB0YWxsIGJyb3duIGJlYXIK"
 test base64-1.4 {base64::encode with wrap length set to 0} {
     set str "The short red fox ran quickly through the green field "
     append str "and jumped over the tall brown bear\n"
