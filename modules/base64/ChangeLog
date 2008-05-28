@@ -1,3 +1,13 @@
+2008-05-28  Andreas Kupries  <andreask@activestate.com>
+
+	* base64.tcl: Changed the default setting for -maxlen to 76 to
+	* base64.man: coincide with MIME definitions and Trf, making
+	* base64.test: the very fast path default, with no output reflow
+	* pkgIndex.tcl: required at all. Bumped version to 2.4.
+
+	** POTENTIAL INCOMPATIBILITY ** for all users depending on the
+	  default setting to be 60.
+
 2008-05-22  Andreas Kupries  <andreask@activestate.com>
 
 	* base64.test: Extended with tests using bogus values of -maxchar,

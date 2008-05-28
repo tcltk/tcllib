@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: base64.tcl,v 1.28 2008/05/22 20:18:26 andreas_kupries Exp $
+# RCS: @(#) $Id: base64.tcl,v 1.29 2008/05/28 17:34:31 andreas_kupries Exp $
 
 # Version 1.0   implemented Base64_Encode, Base64_Decode
 # Version 2.0   uses the base64 namespace
@@ -43,12 +43,13 @@ if {![catch {package require Trf 2.0}]} {
     #	by $wrapchar.
     
     proc ::base64::encode {args} {
-	# Set the default wrapchar and maximum line length to match the output
-	# of GNU uuencode 4.2.  Various RFCs allow for different wrapping 
-	# characters and wraplengths, so these may be overridden by command line
-	# options.
+	# Set the default wrapchar and maximum line length to match
+	# the settings for MIME encoding (RFC 3548, RFC 2045). These
+	# are the settings used by Trf as well. Various RFCs allow for
+	# different wrapping characters and wraplengths, so these may
+	# be overridden by command line options.
 	set wrapchar "\n"
-	set maxlen 60
+	set maxlen 76
 
 	if { [llength $args] == 0 } {
 	    error "wrong # args: should be \"[lindex [info level 0] 0]\
@@ -216,12 +217,13 @@ if {![catch {package require Trf 2.0}]} {
     proc ::base64::encode {args} {
 	set base64_en $::base64::base64_en
 	
-	# Set the default wrapchar and maximum line length to match the output
-	# of GNU uuencode 4.2.  Various RFCs allow for different wrapping 
-	# characters and wraplengths, so these may be overridden by command line
-	# options.
+	# Set the default wrapchar and maximum line length to match
+	# the settings for MIME encoding (RFC 3548, RFC 2045). These
+	# are the settings used by Trf as well. Various RFCs allow for
+	# different wrapping characters and wraplengths, so these may
+	# be overridden by command line options.
 	set wrapchar "\n"
-	set maxlen 60
+	set maxlen 76
 
 	if { [llength $args] == 0 } {
 	    error "wrong # args: should be \"[lindex [info level 0] 0]\
@@ -368,4 +370,4 @@ if {![catch {package require Trf 2.0}]} {
     }
 }
 
-package provide base64 2.3.3
+package provide base64 2.4
