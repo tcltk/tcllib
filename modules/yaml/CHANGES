@@ -6,14 +6,19 @@
 #
 ---
 title: YAML parser for Tcl.
-version: 0.2.2
+version: 0.3.0
 authors:
-  - KATO Kanryu: k.kanryu@gmail.com
+  - KATO Kanryu: kanryu6@users.sourceforge.net
 license: tcllib's BSD-style license
 copyright: (c) 2008 KATO Kanryu
 
 changes:
 
+  0.3.0:
+    - 2008-06-01
+    - testsuites for Tcl8.4
+    - using huddle-lib
+    - not to auto-convert for mapping keys
   0.2.2:
     - 2008-05-17
     - begin to implement tag treatment
