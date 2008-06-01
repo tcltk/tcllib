@@ -13,6 +13,7 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     package require tcltest
     namespace import ::tcltest::*
     puts [package require yaml]
+
 } else {
     # all.tcl
     source [file join \
@@ -22,9 +23,48 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     testsNeedTcl     8.3
     testsNeedTcltest 1.0
     testing {
+        useLocal huddle.tcl huddle
         useLocal yaml.tcl yaml
     }
 
+}
+proc dictsort2 {dict {pattern d}} {
+    set cur  [lindex $pattern 0]
+    set subs [lrange $pattern 1 end]
+    foreach {tag sw} $cur break
+    set out {}
+    if {$sw ne ""} {array set msubs $sw}
+    if {$tag eq "l"} { ; # list
+        set i 0
+        foreach {node} $dict {
+            set subs1 $subs
+            if {$sw ne "" && [info exists msubs($i)]} {
+                set subs1 $msubs($i)
+            }
+            if {$subs1 ne ""} {
+                set node [dictsort2 $node $subs1]
+            }
+            lappend out $node
+            incr i
+        }
+        return $out
+    }
+    if {$tag eq "d"} { ; # dict
+        array set map $dict
+        foreach key [lsort [array names map]] {
+            set node $map($key)
+            set subs1 $subs
+            if {$sw ne "" && [info exists msubs($key)]} {
+                set subs1 $msubs($key)
+            }
+            if {$subs1 ne ""} {
+                set node [dictsort2 $node $subs1]
+            }
+            lappend out $key $node
+        }
+        return $out
+    }
+    error
 }
 
 # ------------
@@ -152,9 +192,18 @@ test yaml-2.2 "flow mappings" -body {
 Mark McGwire: {hr: 65, avg: 0.278}
 Sammy Sosa: { hr: 63, avg: 0.288}
 }
-    yaml::load $inline_map_maps
-} -result [dict create {Mark McGwire} {hr 65 avg 0.278} {Sammy Sosa} {hr 63 avg 0.288}]
+    dictsort2 [yaml::load $inline_map_maps] {d d}
+} -result [dictsort2 {{Mark McGwire} {hr 65 avg 0.278} {Sammy Sosa} {hr 63 avg 0.288}} {d d}]
 
+test yaml-2.3 "flow mappings" -body {
+    set inline_map_maps {
+---
+? Mark McGwire: {? hr: 65, ? avg: 0.278}
+? Sammy Sosa
+: {? hr: 63, ? avg: 0.288}
+}
+    dictsort2 [yaml::load $inline_map_maps] {d d}
+} -result [dictsort2 {{Mark McGwire} {hr 65 avg 0.278} {Sammy Sosa} {hr 63 avg 0.288}} {d d}]
 
 
 # ------------------
@@ -184,8 +233,8 @@ kept: |+
 
 same as "kept" above: "This has four newlines.\n\n\n\n"
 }
-        yaml::load $literal
-} -result [dict create clipped {This has one newline.
+        dictsort2 [yaml::load $literal]
+} -result [dictsort2 {clipped {This has one newline.
 } {same as "clipped" above} {This has one newline.
 } stripped {This has no newline.} {same as "stripped" above} {This has no newline.} kept {This has four newlines.
 
@@ -195,7 +244,7 @@ same as "kept" above: "This has four newlines.\n\n\n\n"
 
 
 
-}]
+}}]
 
 test yaml-3.3 "Folding Block Scalar" -body {
     set folding {
@@ -226,8 +275,8 @@ kept: >+
 
 same as "kept" above: "This has four newlines.\n\n\n\n"}
 
-    yaml::load $folding
-} -result [dict create clipped {This has one newline.
+    dictsort2 [yaml::load $folding]
+} -result [dictsort2 {clipped {This has one newline.
 } {same as "clipped" above} {This has one newline.
 } stripped {This has no newline.} {same as "stripped" above} {This has no newline.} kept {This has no newline.
 
@@ -236,7 +285,7 @@ same as "kept" above: "This has four newlines.\n\n\n\n"}
 
 
 
-}]
+}}]
 
 test yaml-3.4 "Folded Block as a Mapping Value" -body {
     set foldedmap {
@@ -291,9 +340,9 @@ test yaml-4.3 "Flow Alias Node" -body {
 - habana 
 - *bye
 }
-    yaml::load $alias3
-} -result {{Meat pork Starch potato} banana {Meat pork Starch potato} {{The last man} children pork} habana {{The last man} children pork}}
-
+    dictsort2 [yaml::load $alias3] {{l {0 d 2 d}}}
+} -result [dictsort2 {{Meat pork Starch potato} banana {Meat pork Starch potato} {{The last man} children pork} habana {{The last man} children pork}} \
+{{l {0 d 2 d}}} ]
 
 # -----------------------
 # Plane Characters  .....
@@ -328,8 +377,8 @@ arabia:
     oil    : on
     polytheism : false
 }
-    yaml::load $boolean
-} -result [dict create india [dict create pork 1 beef 0 oil 0 polytheism 1] arabia [dict create pork 0 beef 1 oil 1 polytheism 0]]
+    dictsort2 [yaml::load $boolean] {d d}
+} -result [dictsort2 {india {pork 1 beef 0 oil 0 polytheism 1} arabia {pork 0 beef 1 oil 1 polytheism 0}} {d d}]
 
 if {$::tcl_version < 8.5} {
     test yaml-5.3 "Timestamps" -body {
@@ -519,13 +568,13 @@ test yaml-9.2 "explicit_tags(inline)" -body {
 }
 }
 
-    yaml::load $explicit_tags
-} -result [list not-date 2002-04-28 picture [::base64::decode {
+    dictsort2 [yaml::load $explicit_tags]
+} -result [dictsort2 [list not-date 2002-04-28 picture [::base64::decode {
 R0lGODlhDAAMAIQAAP//9/X
 17unp5WZmZgAAAOfn515eXv
 Pz7Y6OjuDg4J+fn5OTk6enp
 56enmleECcgggoBADs=
-}]]
+} ]] ]
 
 test yaml-10.1 "Merge key" -body {
     set data {
@@ -553,12 +602,12 @@ test yaml-10.2 "Merge key 2" -body {
   x: 1
   y: 2
   r: 10
-  label: center/big
+  label: base
 
 - # Merge one map
   << : *CENTER
   r: 10
-  label: center/big
+  label: center
 
 - # Merge multiple maps
   << : [ *CENTER, *BIG ]
@@ -567,10 +616,14 @@ test yaml-10.2 "Merge key 2" -body {
 - # Override
   << : [ *BIG, *LEFT, *SMALL ]
   x: 1
-  label: center/big
+  label: big/left/small
 }
     yaml::load $data
-} -result [list {x 1 1 2} {x 0 1 2} {r {spaced string}} {r 1} [dict create x 1 1 2 r 10 label center/big] [dict create x 1 1 2 r 10 label center/big] [dict create x 1 1 2 r {spaced string} label center/big] [dict create r 1 x 1 1 2 label center/big]]
+} -result [list {x 1 y 2} {x 0 y 2} {r {spaced string}} {r 1} \
+            [dict create x 1 y 2 r 10 label base] \
+            [dict create x 1 y 2 r 10 label center] \
+            [dict create x 1 y 2 r {spaced string} label center/big] \
+            [dict create r 1 x 1 y 2 label big/left/small]]
 
 test yaml-11.1 "Invoice" -body {
     set Invoice {
@@ -604,13 +657,15 @@ comments:
     Backup contact is Nancy
     Billsmer @ 338-4338.
 }
-    yaml::load $Invoice
-} -result [string map [list TIMESTAMP [clock scan "2001-01-23"]] \
+    dictsort2 [yaml::load $Invoice] {{d {bill-to {{d {address d}}} ship-to {{d {address d}}} product {l d}}}}
+#    yaml::load $Invoice
+} -result [dictsort2 [string map [list TIMESTAMP [clock scan "2001-01-23"]] \
 [dict create invoice 34843 date TIMESTAMP bill-to [dict create given Chris family Dumars address [dict create lines {458 Walkman Dr.
 Suite #292
 } city {Royal Oak} state MI postal 48046]] ship-to [dict create given Chris family Dumars address [dict create lines {458 Walkman Dr.
 Suite #292
-} city {Royal Oak} state MI postal 48046]] product [list [dict create sku BL394D quantity 4 description Basketball price 450.00] [dict create sku BL4438H quantity 1 description {Super Hoop} price 2392.00]] tax 251.42 total 4443.52 comments {Late afternoon is best. Backup contact is Nancy Billsmer @ 338-4338.}] ]
+} city {Royal Oak} state MI postal 48046]] product [list [dict create sku BL394D quantity 4 description Basketball price 450.00] [dict create sku BL4438H quantity 1 description {Super Hoop} price 2392.00]] tax 251.42 total 4443.52 comments {Late afternoon is best. Backup contact is Nancy Billsmer @ 338-4338.}] ] \
+{{d {bill-to {{d {address d}}} ship-to {{d {address d}}} product {l d}}}}]
 
 
 
