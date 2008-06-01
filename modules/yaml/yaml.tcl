@@ -3,7 +3,7 @@
 #
 #   See http://www.yaml.org/spec/1.1/
 #
-#   yaml.tcl,v 0.2.2 2008-05-27 01:52:49 KATO Kanryu(k.kanryu@gmail.com)
+#   yaml.tcl,v 0.3.0 2008-06-01 22:28:28 KATO Kanryu(k.kanryu@gmail.com)
 #
 #   It is published with the terms of tcllib's BSD-style license.
 #   See the file named license.terms.
@@ -16,8 +16,10 @@ if {$::tcl_version < 8.5} {
     package require dict
 }
 
-package provide yaml 0.2.2
+package provide yaml 0.3.0
 package require cmdline
+package require huddle
+
 
 namespace eval ::yaml {
     namespace export load setOptions dict2dump list2dump
@@ -92,8 +94,8 @@ namespace eval ::yaml {
         MALFORM_D_QUOTE     {Double quote "..." parsing error. end of quote is missing?}
         MALFORM_S_QUOTE     {Single quote '...' parsing error. end of quote is missing?}
         TAG_NOT_FOUND       {The "$p1" handle wasn't declared.}
-        INVALID_MERGE_KEY   {merge-key ">>" is not impremented in not mapping scope(e.g. in sequence).}
-        MALFORMED_MERGE_KEY {malformed merge-key ">>" using.}
+        INVALID_MERGE_KEY   {merge-key "<<" is not impremented in not mapping scope(e.g. in sequence).}
+        MALFORMED_MERGE_KEY {malformed merge-key "<<" using.}
     }
 }
 
@@ -103,6 +105,18 @@ namespace eval ::yaml {
 ####################
 
 proc ::yaml::load {args} {
+    _getOption $args
+    
+    if {$yaml::data(validate)} {
+        set result [_parseBlockNode]
+        set result [string map "{\n} {\\n}" $result]
+    } else {
+        set result [_parseBlockNode]
+    }
+    return [huddle strip $result]
+}
+
+proc ::yaml::loadHuddle {args} {
     _getOption $args
     
     if {$yaml::data(validate)} {
@@ -236,19 +250,17 @@ proc ::yaml::_imp_getOptions {{argvvar argv}} {
 # Scalar/Block Composers
 #########################
 proc ::yaml::_composeTags {tag value} {
+    if {$tag eq ""} {return $value}
+    set value [huddle strip $value]
     if {$tag eq "!!str"} {
         set pair [list $tag $value]
     } elseif [info exists yaml::composer($tag)] {
-        if {$yaml::data(validate)} {
-            foreach {nop val} $value break
-            set pair [$yaml::composer($tag) $val]
-        } else {
-            set pair [$yaml::composer($tag) $value]
-        }
+        set pair [$yaml::composer($tag) $value]
     } else {
         error [_getErrorMessage TAG_NOT_FOUND $tag]
     }
-    return  $pair
+    foreach {tag value} $pair break
+    return  [huddle wrap $tag $value]
 }
 
 proc ::yaml::_composeBinary {value} {
@@ -256,98 +268,140 @@ proc ::yaml::_composeBinary {value} {
     return [list !!binary [::base64::decode $value]]
 }
 
+proc ::yaml::_composePlain {value} {
+    if {[huddle type $value] ne "plain"} {return $value}
+    set value [huddle strip $value]
+    set pair [_toType $value]
+    foreach {tag value} $pair break
+    return  [huddle wrap $tag $value]
+}
+
+proc ::yaml::_toType {value} {
+    if {$value eq ""} {return [list !!str ""]}
+    
+    set lowerval [string tolower $value]
+    foreach {type} $yaml::data(types) {
+        if [info exists yaml::parsers($type)] {
+            set pair [$yaml::parsers($type) $value]
+            if {$pair ne ""} {return $pair}
+            continue
+        }
+        switch -- $type {
+            int {
+                # YAML 1.1
+                if [regexp {^-?\d[\d,]*\d$|^\d$} $value] {
+                    regsub -all "," $value "" integer
+                    return [list !!int $integer]
+                }
+            }
+            float {
+                # don't run before "integer"
+                regsub -all "," $value "" val
+                if [string is double $val] {
+                    return [list !!float $val]
+                }
+            }
+            default {
+                # !!null !!true !!false
+                if {[info exists yaml::fixed($type:Group)] \
+                 && [lsearch $yaml::fixed($type:Group) $lowerval] >= 0} {
+                    set value $yaml::fixed($type:Value)
+                    return [list !!$type $value]
+                }
+            }
+        }
+    }
+
+    # the others
+    return [list !!str $value]
+}
+
 ####################
 # Block Node parser
 ####################
-
-proc ::yaml::_parseBlockNode {{status ""} {indent -1} {parentkey ""}} {
+proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
     set prev {}
-    if {$parentkey ne ""} {
-        set prev $parentkey
-    }
-    set scalar 0
     set result {}
+    set scalar 0
     set pos 0
+    set tag ""
     while {1} {
         _skipSpaces 1
         set type [_getc]
         set current [_getCurrent]
+# set dd1 "$yaml::data(current) $yaml::data(start)"
+        if {$type eq "-"} {
+            set cc "[_getc][_getc]"
+            if {"$type$cc" eq "---" && $current == 0} {
+                continue
+            } else {
+                _ungetc 2
+                
+                # [Spec]
+                # Since people perceive theÅg-Åhindicator as indentation, 
+                # nested block sequences may be indented by one less space 
+                # to compensate, except, of course, 
+                # if nested inside another block sequence.
+                incr current
+            }
+        }
+# set dd2 "$yaml::data(current) $yaml::data(start)"
+# if {$dd1 ne $dd2} {error "$dd1/$dd2"}
         if {$type eq ""  || $current <= $indent} { ; # end document
             _ungetc
             break
         }
         switch -- $type {
             "-" { ; # block sequence entry
-                set cc "[_getc][_getc]"
-                if {"$type$cc" eq "---" && $current == 0} {
-                    continue
-                } else {
-                    _ungetc 2
-                    set pos $current
-                    # [196]      l-block-seq-entry(n,c)
-                    if [_next_is_blank] {
-                        set status "SEQUENCE"
-                        set value [_parseBlockNode "" $pos]
-                    } else {
-                        _ungetc
-                        set scalar 1
-                    }
-                }
+                set pos $current
+                # [196]      l-block-seq-entry(n,c)
+                foreach {scalar value} [_parseSubBlock $pos "SEQUENCE"] break
             }
             "?" { ; # mapping key
-                if [_next_is_blank] {
-                } else {
-                    _ungetc
-                    set scalar 1
-                }
+                foreach {scalar nop} [_parseSubBlock $pos ""] break
             }
             ":" { ; # mapping value
-                if [_next_is_blank] {
-                    if {$status eq "MAPPING" && [llength $prev] == 2} {
-                        foreach {key value} $prev break
-                        set prev $value
-                        set value [_parseBlockNode "" $pos $key]
-                    } else {
-                        set status "MAPPING"
-                        set value [_parseBlockNode "" $pos]
-                    }
-                } else {
-                    _ungetc
-                    set scalar 1
-                }
+                if {$current < $pos} {set pos [expr {$current+1}]}
+                foreach {scalar value} [_parseSubBlock $pos "MAPPING"] break
             }
             "|" { ; # literal block scalar
                 set value [_parseBlockScalar $indent "\n"]
-                set value [_doValidate "" $value]
             }
             ">" { ; # folded block scalar
                 set value [_parseBlockScalar $indent " "]
-                set value [_doValidate "" $value]
             }
-            "<" { ; # folded block scalar
+            "<" { ; # mergeing
                 set c [_getc]
                 if {"$type$c" eq "<<"} {
                     set pos [_getCurrent]
                     _skipSpaces 1
                     set c [_getc]
-                    if {$c eq ":"} {
-                        set status "MAPPING"
-                        set list [_parseBlockNode "" [expr {$pos+1}]]
-                        set value [_concat_list $list]
-                        unset list
-                        if {$prev ne ""} {
-                            if {[llength $prev] >= 2} {
-                                foreach {val} $prev {lappend result $val}
-                                set prev {}
-                            } else {
-                                error [_getErrorMessage MALFORMED_MERGE_KEY]
-                            }
+                    if {$c ne ":"} {error [_getErrorMessage INVALID_MERGE_KEY]}
+                    if {$status ne "" && $status ne "MAPPING"} {error [_getErrorMessage INVALID_MERGE_KEY]}
+                    set status "MAPPING"
+                    if {$result eq ""} {set result [huddle mapping]}
+                    if {$prev ne ""} {
+                        if {[llength $prev] == 2} {
+                            set result [_set_huddle_mapping $result $prev]
+                            set prev {}
+                        } else {
+                            error [_getErrorMessage MALFORMED_MERGE_KEY]
                         }
-                        foreach {val} $value {lappend result $val}
-                        unset value
-                    } else {
-                        error [_getErrorMessage INVALID_MERGE_KEY]
                     }
+
+                    set value [_parseBlockNode "" [expr {$pos}]]
+                    # merging expanded aliases
+                    if {[huddle type $value] eq "list"} {
+                        set len [huddle llength $value]
+                        for {set i 0} {$i < $len} {incr i} {
+                            set sub [huddle get $value $i]
+                            set result [huddle combine $result $sub]
+                        }
+                        unset sub len
+                    } else {
+                        set result [huddle combine $result $value]
+                    }
+                    unset value
                 } else {
                     _ungetc
                     set scalar 1
@@ -386,13 +440,8 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1} {parentkey ""}} {
             set pos [_getCurrent]
             _ungetc
             set value [_parseScalarNode $type "BLOCK" $pos]
-            if [info exists tag] {
-                set value [_composeTags $tag $value]
-                unset tag
-            } else {
-                set value [_toType $value]
-            }
-            set value [_doValidate "PAIR" $value]
+            set value [_composeTags $tag $value]
+            set tag ""
             set scalar 0
         }
         if [info exists value] {
@@ -401,16 +450,12 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1} {parentkey ""}} {
                     return $value
                 }
                 "SEQUENCE" {
-                    if {$yaml::data(validate)} {
-                        foreach {val} $value {lappend result $val}
-                    } else {
-                        lappend result $value
-                    }
+                    lappend result [_composePlain $value]
                 }
                 "MAPPING" {
                     if [info exists prev] {
                         if {[llength $prev] == 2} {
-                            foreach {val} $prev {lappend result $val}
+                            set result [_set_huddle_mapping $result $prev]
                             set prev [list $value]
                         } else {
                             lappend prev $value
@@ -425,36 +470,62 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1} {parentkey ""}} {
         }
     }
     if {$status eq "SEQUENCE"} {
+        set result [eval huddle sequence $result]
     } elseif {$status eq "MAPPING"} {
-        if [info exists prev] {
-            foreach {val} $prev {lappend result $val}
+        if {[llength $prev] == 2} {
+            set result [_set_huddle_mapping $result $prev]
         }
-        # when overwrapped nodes with alias merging, 
-        #  to overwrite by after node(key/val)
-        
-        #  valid. but can't write convenient test suite for under Tcl8.4 ...
-         set result [eval dict create $result]
-        
-#        set result [_remove_duplication $result]
     } else {
         if [info exists prev] {
             set result $prev
         }
         set result [lindex $result 0]
+        set result [_composePlain $result]
+        if {![huddle isHuddle $result]} {
+            set result [huddle wrap !!str $result]
+        }
     }
-    if [info exists tag] {
+    if {$tag ne ""} {
         set result [_composeTags $tag $result]
-        set result [_doValidate "PAIR" $result]
         unset tag
     }
-    set result [_doValidate $status $result]
     if [info exists anchor] {
         _setAnchor $anchor $result
-        set result [_doValidate "ANCHOR" $result $anchor]
         unset anchor
     }
     return $result
 }
+
+proc ::yaml::_parseSubBlock {pos statusnew} {
+    upvar 1 status status
+    set scalar 0
+    set value ""
+    if [_next_is_blank] {
+        if {$statusnew ne ""} {
+            set status $statusnew
+            set value [_parseBlockNode "" $pos]
+        }
+    } else {
+        _ungetc
+        set scalar 1
+    }
+    return [list $scalar $value]
+}
+
+proc ::yaml::_set_huddle_mapping {result prev} {
+    foreach {key val} $prev break
+    set val [_composePlain $val]
+    if [huddle isHuddle $key] {
+        set key [huddle strip $key]
+    }
+    if {$result eq ""} {
+        set result [huddle mapping $key $val]
+    } else {
+        huddle append result $key $val
+    }
+    return $result
+}
+
 
 # remove duplications with saving key order
 proc ::yaml::_remove_duplication {dict} {
@@ -468,56 +539,9 @@ proc ::yaml::_remove_duplication {dict} {
     return $result
 }
 
-if {$::tcl_version < 8.5} {
-    proc ::yaml::_concat_list {list} {
-        return [eval concat $list]
-    }
-} else {
-    proc ::yaml::_concat_list {list} {
-        return [concat {*}$list]
-    }
-}
-
 proc ::yaml::_doValidate {type result {param ""}} {
-    if {$yaml::data(validate)} {
-        switch -- $type {
-            "PAIR" {
-                return $result;
-            }
-            "SEQUENCE" {
-                return [list !!seq $result]
-            }
-            "MAPPING" {
-                set ret {}
-                foreach {t1 v1} $result {
-                    lappend ret ? $t1 : $v1
-                }
-                return [list !!map $ret]
-            }
-            "ANCHOR" {
-                return "&$param $result"
-            }
-            "ALIAS" {
-                return $result
-            }
-            default {
-                if [regexp {^!!} [lindex $result 0]] {
-                    return $result
-                }
-                return [list !!str $result]
-            }
-        }
-    } else {
-        switch -- $type {
-            "PAIR" {
-                foreach {type value} $result break
-                return $value
-            }
-            default {
-                return $result
-            }
-        }
-    }
+    foreach {type value} $result break
+    return $value
 }
 
 
@@ -533,6 +557,7 @@ proc ::yaml::_parseBlockScalar {base separator} {
     # the first line, NOT ignored comment (as a normal-string)
     set first $indent
     set value $line
+    set stop 0
     
     while {![_eof]} {
         set pos [_getpos]
@@ -547,12 +572,13 @@ proc ::yaml::_parseBlockScalar {base separator} {
             continue
         }
         if {$indent <= $base} {
+            set stop 1
             break
         }
         append value $sep[string repeat " " [expr {$indent - $first}]]$line
         set sep $separator
     }
-    if [info exists pos] {_setpos $pos}
+    if {[info exists pos] && $stop} {_setpos $pos}
     switch -- $chomping {
         "strip" {
         }
@@ -563,7 +589,7 @@ proc ::yaml::_parseBlockScalar {base separator} {
             append value "\n"
         }
     }
-    return $value
+    return [huddle wrap !!str $value]
 }
 
 # in {> |}
@@ -622,52 +648,13 @@ proc ::yaml::_parsePlainScalarInBlock {base} {
     return $result
 }
 
-proc ::yaml::_toType {value} {
-    if {$value eq ""} {return [list !!str ""]}
-    
-    set lowerval [string tolower $value]
-    foreach {type} $yaml::data(types) {
-        if [info exists yaml::parsers($type)] {
-            set pair [$yaml::parsers($type) $value]
-            if {$pair ne ""} {return $pair}
-            continue
-        }
-        switch -- $type {
-            int {
-                # YAML 1.1
-                if [regexp {^-?\d[\d,]+\d$|^\d$} $value] {
-                    regsub -all "," $value "" integer
-                    return [list !!int $integer]
-                }
-            }
-            float {
-                # don't run before "integer"
-                regsub -all "," $value "" val
-                if [string is double $val] {
-                    return [list !!float $val]
-                }
-            }
-            default {
-                # !!null !!true !!false
-                if {[info exists yaml::fixed($type:Group)] \
-                 && [lsearch $yaml::fixed($type:Group) $lowerval] >= 0} {
-                    set value $yaml::fixed($type:Value)
-                    return [list !!$type $value]
-                }
-            }
-        }
-    }
-
-    # the others
-    return [list !!str $value]
-}
-
 ####################
 # Flow Node parser
 ####################
 proc ::yaml::_parseFlowNode {{status ""}} {
     set scalar 0
     set result {}
+    set tag ""
     while {1} {
         _skipSpaces 1
         set type [_getc]
@@ -675,13 +662,7 @@ proc ::yaml::_parseFlowNode {{status ""}} {
             "" {
                 break
             }
-            "?" { ; # mapping key
-                if [_next_is_blank] {
-                    set value [_parseFlowNode "NODE"]
-                } else {
-                    set scalar 1
-                }
-            }
+            "?" -
             ":" { ; # mapping value
                 if [_next_is_blank] {
                     set value [_parseFlowNode "NODE"]
@@ -700,14 +681,15 @@ proc ::yaml::_parseFlowNode {{status ""}} {
             }
             "\}" { ; # ends a flow mapping
                 if {$status ne "MAPPING"}  {error [_getErrorMessage MAPEND_NOT_IN_MAP] }
-                return [_doValidate "MAPPING" $result]
+                return $result
             }
             "\[" { ; # starts a flow sequence
                  set value [_parseFlowNode "SEQUENCE"]
             }
             "\]" { ; # ends a flow sequence
                 if {$status ne "SEQUENCE"} {error [_getErrorMessage SEQEND_NOT_IN_SEQ] }
-                return [_doValidate "SEQUENCE" $result]
+                set result [eval huddle sequence $result]
+                return $result
             }
             "&" { ; # node's anchor property
                 set anchor [_getToken]
@@ -731,35 +713,28 @@ proc ::yaml::_parseFlowNode {{status ""}} {
         if {$scalar} {
             _ungetc
             set value [_parseScalarNode $type "FLOW"]
-            if [info exists tag] {
-                set value [_composeTags $tag $value]
-                unset tag
-            } else {
-                set value [_toType $value]
-            }
-            set value [_doValidate "PAIR" $value]
+            set value [_composeTags $tag $value]
+            set tag ""
             set scalar 0
         }
         if [info exists value] {
             if [info exists anchor] {
-                _setAnchor $anchor [list $value]
+                _setAnchor $anchor $value
                 unset anchor
             }
             switch -- $status {
-                "" {
-                    return $value
-                }
+                "" -
                 "NODE" {
                     return $value
                 }
                 "SEQUENCE" {
-                    lappend result $value
+                    lappend result [_composePlain $value]
                 }
                 "MAPPING" {
                     if {![info exists key]} {
                         set key $value
                     } else {
-                        lappend result $key $value
+                        set result [_set_huddle_mapping $result [list $key $value]]
                         unset key
                     }
                 }
@@ -767,18 +742,17 @@ proc ::yaml::_parseFlowNode {{status ""}} {
             unset value
         }
     }
-    return [_doValidate $status $result]
+    return $result
 }
 
 proc ::yaml::_parseScalarNode {type scope {pos 0}} {
+    set tag !!str
     switch -- $type {
         {"} { ; # surrounds a double-quoted flow scalar
             set value [_parseDoubleQuoted]
-            set value [_doValidate "" $value]
         }
         {'} { ; # surrounds a single-quoted flow scalar
             set value [_parseSingleQuoted]
-            set value [_doValidate "" $value]
         }
         "\t" {error [_getErrorMessage TAB_IN_PLAIN] }
         "@"  {error [_getErrorMessage AT_IN_PLAIN] }
@@ -790,9 +764,10 @@ proc ::yaml::_parseScalarNode {type scope {pos 0}} {
             } elseif {$scope eq "BLOCK"} {
                 set value [_parsePlainScalarInBlock $pos]
             }
+            set tag !!plain
         }
     }
-    return $value
+    return [huddle wrap $tag $value]
 }
 
 
@@ -1073,6 +1048,11 @@ proc ::yaml::_ungetc {{len 1}} {
     variable data
     incr data(start) [expr {-$len}]
     incr data(current) [expr {-$len}]
+    if {$data(current) < 0} {
+        set prev [string range $data(buffer) 0 $data(start)]
+        if {[string index $prev end] eq "\n"} {set prev [string replace $prev end end a]}
+        set data(current) [expr {$data(start) - [string last "\n" $prev] - 1}]
+    }
 }
 
 proc ::yaml::_next_is_blank {} {
@@ -1196,5 +1176,92 @@ proc ::yaml::_simple_justify {text width {wrap \n} {cut 0}} {
     }
     return $result$text
 }
+
+########################
+## Huddle Settings    ##
+########################
+
+
+proc ::yaml::_huddle_mapping {command args} {
+    switch -- $command {
+        setting { ; # type definition
+            return {
+                type dict
+                method {mapping}
+                tag {!!map parent}
+                constructor mapping
+                str !!str
+            }
+        }
+        mapping { ; # $args: all arguments after "huddle mapping"
+            if {[llength $args] % 2} {error {wrong # args: should be "huddle mapping ?key value ...?"}}
+            set resultL {}
+            foreach {key value} $args {
+                lappend resultL $key [huddle to_node $value !!str]
+            }
+            return [huddle wrap !!map $resultL]
+        }
+        default { ; # devolving to default dict-callback
+            return [huddle call D $command $args]
+        }
+    }
+}
+
+proc ::yaml::_huddle_sequence {command args} {
+    switch -- $command {
+        setting { ; # type definition
+            return {
+                type list
+                method {sequence}
+                tag {!!seq parent}
+                constructor sequence
+                str !!str
+            }
+        }
+        sequence {
+            set resultL {}
+            foreach {value} $args {
+                lappend resultL [huddle to_node $value !!str]
+            }
+            return [huddle wrap !!seq $resultL]
+        }
+        default {
+            return [huddle call L $command $args]
+        }
+    }
+}
+
+proc ::yaml::_makeChildType {type tag} {
+    set procname ::yaml::_huddle_$type
+    proc $procname {command args} [string map "@TYPE@ $type @TAG@ $tag" {
+        switch -- $command {
+            setting { ; # type definition
+                return {
+                    type @TYPE@
+                    method {}
+                    tag {@TAG@ child}
+                    constructor ""
+                    str @TAG@
+                }
+            }
+            default {
+                return [huddle call s $command $args]
+            }
+        }
+    }]
+    return $procname
+}
+
+huddle addType ::yaml::_huddle_mapping
+huddle addType ::yaml::_huddle_sequence
+huddle addType [::yaml::_makeChildType string !!str]
+huddle addType [::yaml::_makeChildType string !!timestamp]
+huddle addType [::yaml::_makeChildType string !!float]
+huddle addType [::yaml::_makeChildType string !!int]
+huddle addType [::yaml::_makeChildType string !!null]
+huddle addType [::yaml::_makeChildType string !!true]
+huddle addType [::yaml::_makeChildType string !!false]
+huddle addType [::yaml::_makeChildType string !!binary]
+huddle addType [::yaml::_makeChildType plain !!plain]
 
 
