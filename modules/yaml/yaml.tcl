@@ -3,7 +3,7 @@
 #
 #   See http://www.yaml.org/spec/1.1/
 #
-#   yaml.tcl,v 0.3.0 2008-06-01 22:28:28 KATO Kanryu(k.kanryu@gmail.com)
+#   yaml.tcl,v 0.3.2 2008-06-03 00:26:51 KATO Kanryu(k.kanryu@gmail.com)
 #
 #   It is published with the terms of tcllib's BSD-style license.
 #   See the file named license.terms.
@@ -16,7 +16,7 @@ if {$::tcl_version < 8.5} {
     package require dict
 }
 
-package provide yaml 0.3.0
+package provide yaml 0.3.2
 package require cmdline
 package require huddle
 
@@ -104,26 +104,22 @@ namespace eval ::yaml {
 # Public APIs
 ####################
 
-proc ::yaml::load {args} {
+proc ::yaml::yaml2dict {args} {
     _getOption $args
     
+    set result [_parseBlockNode]
     if {$yaml::data(validate)} {
-        set result [_parseBlockNode]
         set result [string map "{\n} {\\n}" $result]
-    } else {
-        set result [_parseBlockNode]
     }
     return [huddle strip $result]
 }
 
-proc ::yaml::loadHuddle {args} {
+proc ::yaml::yaml2huddle {args} {
     _getOption $args
     
+    set result [_parseBlockNode]
     if {$yaml::data(validate)} {
-        set result [_parseBlockNode]
         set result [string map "{\n} {\\n}" $result]
-    } else {
-        set result [_parseBlockNode]
     }
     return $result
 }
@@ -144,30 +140,22 @@ proc ::yaml::setOptions {argv} {
 # you can turn off wordwrap by passing in 0.
 
 proc ::yaml::list2yaml {list {indent 2} {wordwrap 40}} {
-    set yaml::_dumpIndent   $indent
-    set yaml::_dumpWordWrap $wordwrap
-    # New YAML document
-    set out "---\n"
-    
-    # Start at the base of the array and move through it.
-    foreach {value} $list {
-        set out "$out[_dumpNode {} $value 0]"
-    }
-    return $out
+    return [huddle2yaml [eval huddle list $list] $indent $wordwrap]
 }
 
 proc ::yaml::dict2yaml {dict {indent 2} {wordwrap 40}} {
+    return [huddle2yaml [eval huddle create $dict] $indent $wordwrap]
+}
+
+proc ::yaml::huddle2yaml {huddle {indent 2} {wordwrap 40}} {
     set yaml::_dumpIndent   $indent
     set yaml::_dumpWordWrap $wordwrap
-    # New YAML document
-    set out "---\n"
     
     # Start at the base of the array and move through it.
-    foreach {key value} $dict {
-        set out "$out[_dumpNode $key $value 0]"
-    }
+    set out [join [list "---\n" [_imp_huddle2yaml $huddle] "\n"] ""]
     return $out
 }
+
 
 ####################
 # Option Setting
@@ -212,6 +200,7 @@ proc ::yaml::_imp_getOptions {{argvvar argv}} {
     # parse argv
     set argc [llength $argv]
     while {[set err [::cmdline::getopt argv $opts opt arg]]} {
+        if {$err eq -1} break
         switch -- $opt {
             "file" {
                 set options(isfile) 1
@@ -229,7 +218,7 @@ proc ::yaml::_imp_getOptions {{argvvar argv}} {
                 set options(types) $arg
             }
             default {
-                if [regexp {m:(\w+)} $opt nop type] {
+                if {[regexp {m:(\w+)} $opt nop type]} {
                     if {$arg eq ""} {
                         set fixed(${type}:Group) ""
                     } else {
@@ -254,7 +243,7 @@ proc ::yaml::_composeTags {tag value} {
     set value [huddle strip $value]
     if {$tag eq "!!str"} {
         set pair [list $tag $value]
-    } elseif [info exists yaml::composer($tag)] {
+    } elseif {[info exists yaml::composer($tag)]} {
         set pair [$yaml::composer($tag) $value]
     } else {
         error [_getErrorMessage TAG_NOT_FOUND $tag]
@@ -281,7 +270,7 @@ proc ::yaml::_toType {value} {
     
     set lowerval [string tolower $value]
     foreach {type} $yaml::data(types) {
-        if [info exists yaml::parsers($type)] {
+        if {[info exists yaml::parsers($type)]} {
             set pair [$yaml::parsers($type) $value]
             if {$pair ne ""} {return $pair}
             continue
@@ -289,7 +278,7 @@ proc ::yaml::_toType {value} {
         switch -- $type {
             int {
                 # YAML 1.1
-                if [regexp {^-?\d[\d,]*\d$|^\d$} $value] {
+                if {[regexp {^-?\d[\d,]*\d$|^\d$} $value]} {
                     regsub -all "," $value "" integer
                     return [list !!int $integer]
                 }
@@ -297,7 +286,7 @@ proc ::yaml::_toType {value} {
             float {
                 # don't run before "integer"
                 regsub -all "," $value "" val
-                if [string is double $val] {
+                if {[string is double $val]} {
                     return [list !!float $val]
                 }
             }
@@ -381,12 +370,9 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
                     set status "MAPPING"
                     if {$result eq ""} {set result [huddle mapping]}
                     if {$prev ne ""} {
-                        if {[llength $prev] == 2} {
-                            set result [_set_huddle_mapping $result $prev]
-                            set prev {}
-                        } else {
-                            error [_getErrorMessage MALFORMED_MERGE_KEY]
-                        }
+                        if {[llength $prev] < 2} {error [_getErrorMessage MALFORMED_MERGE_KEY]}
+                        set result [_set_huddle_mapping $result $prev]
+                        set prev {}
                     }
 
                     set value [_parseBlockNode "" [expr {$pos}]]
@@ -427,7 +413,7 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
                 _getLine
             }
             default {
-                if [regexp {^[\[\]\{\}\"']$} $type] {
+                if {[regexp {^[\[\]\{\}\"']$} $type]} {
                     set pos [expr {1 + $current}]
                     _ungetc
                     set value [_parseFlowNode]
@@ -444,7 +430,7 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
             set tag ""
             set scalar 0
         }
-        if [info exists value] {
+        if {[info exists value]} {
             switch -- $status {
                 "NODE" {
                     return $value
@@ -453,7 +439,7 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
                     lappend result [_composePlain $value]
                 }
                 "MAPPING" {
-                    if [info exists prev] {
+                    if {[info exists prev]} {
                         if {[llength $prev] == 2} {
                             set result [_set_huddle_mapping $result $prev]
                             set prev [list $value]
@@ -476,7 +462,7 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
             set result [_set_huddle_mapping $result $prev]
         }
     } else {
-        if [info exists prev] {
+        if {[info exists prev]} {
             set result $prev
         }
         set result [lindex $result 0]
@@ -489,7 +475,7 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
         set result [_composeTags $tag $result]
         unset tag
     }
-    if [info exists anchor] {
+    if {[info exists anchor]} {
         _setAnchor $anchor $result
         unset anchor
     }
@@ -500,7 +486,7 @@ proc ::yaml::_parseSubBlock {pos statusnew} {
     upvar 1 status status
     set scalar 0
     set value ""
-    if [_next_is_blank] {
+    if {[_next_is_blank]} {
         if {$statusnew ne ""} {
             set status $statusnew
             set value [_parseBlockNode "" $pos]
@@ -515,7 +501,7 @@ proc ::yaml::_parseSubBlock {pos statusnew} {
 proc ::yaml::_set_huddle_mapping {result prev} {
     foreach {key val} $prev break
     set val [_composePlain $val]
-    if [huddle isHuddle $key] {
+    if {[huddle isHuddle $key]} {
         set key [huddle strip $key]
     }
     if {$result eq ""} {
@@ -532,7 +518,7 @@ proc ::yaml::_remove_duplication {dict} {
     array set tmp $dict
     array set tmp2 {}
     foreach {key nop} $dict {
-        if [info exists tmp2($key)] continue
+        if {[info exists tmp2($key)]} continue
         lappend result $key $tmp($key)
         set tmp2($key) 1
     }
@@ -598,7 +584,7 @@ proc ::yaml::_parseBlockIndicator {} {
     set explicit 0
     while {1} {
         set type [_getc]
-        if [regexp {[1-9]} $type digit] { ; # block indentation
+        if {[regexp {[1-9]} $type digit]} { ; # block indentation
             set explicit $digit
         } elseif {$type eq "-"} {   ; # strip chomping
             set chomping "strip"
@@ -626,7 +612,7 @@ proc ::yaml::_parsePlainScalarInBlock {base} {
         while {1} {
             set fpos [_getpos]
             foreach {indent nop line} [_getLine] break
-            if [_eof] {break}
+            if {[_eof]} {break}
 
             if {$line ne "" && [string index $line 0] ne "#"} {
                 break
@@ -664,7 +650,7 @@ proc ::yaml::_parseFlowNode {{status ""}} {
             }
             "?" -
             ":" { ; # mapping value
-                if [_next_is_blank] {
+                if {[_next_is_blank]} {
                     set value [_parseFlowNode "NODE"]
                 } else {
                     set scalar 1
@@ -717,8 +703,8 @@ proc ::yaml::_parseFlowNode {{status ""}} {
             set tag ""
             set scalar 0
         }
-        if [info exists value] {
-            if [info exists anchor] {
+        if {[info exists value]} {
+            if {[info exists anchor]} {
                 _setAnchor $anchor $value
                 unset anchor
             }
@@ -785,18 +771,18 @@ proc ::yaml::_parseTimestamp {scalar} {
     set canonical [subst -nobackslashes -nocommands {^($datestr)[Tt ]($timestr)\.\d+ ?($timezone)?$}]
     set dttm [subst -nobackslashes -nocommands {^($datestr)(?:[Tt ]($timestr))?$}]
     if {$::tcl_version < 8.5} {
-        if [regexp $canonical $scalar nop dt tm zone] {
+        if {[regexp $canonical $scalar nop dt tm zone]} {
             # Canonical
             if {$zone eq ""} {
                 return [list !!timestamp [clock scan "$dt $tm"]]
             } elseif {$zone eq "Z"} {
                 return [list !!timestamp [clock scan "$dt $tm" -gmt 1]]
             }
-            if [regexp {^([-+])(\d\d?)$} $zone nop sign d] {set zone [format "$sign%02d:00" $d]}
+            if {[regexp {^([-+])(\d\d?)$} $zone nop sign d]} {set zone [format "$sign%02d:00" $d]}
             regexp {^([-+]\d\d):(\d\d)} $zone nop h m
             set m [expr {$h > 0 ? $h*60 + $m : $h*60 - $m}]
             return [list !!timestamp [clock scan "[expr -$m] minutes" -base [clock scan "$dt $tm" -gmt 1]]]
-        } elseif [regexp $dttm $scalar nop dt tm] {
+        } elseif {[regexp $dttm $scalar nop dt tm]} {
             if {$tm ne ""} {
                 return [list !!timestamp [clock scan "$dt $tm"]]
             } else {
@@ -804,15 +790,15 @@ proc ::yaml::_parseTimestamp {scalar} {
             }
         }
     } else {
-        if [regexp $canonical $scalar nop dt tm zone] {
+        if {[regexp $canonical $scalar nop dt tm zone]} {
             # Canonical
             if {$zone ne ""} {
-                if [regexp {^([-+])(\d\d?)$} $zone nop sign d] {set zone [format "$sign%02d:00" $d]}
+                if {[regexp {^([-+])(\d\d?)$} $zone nop sign d]} {set zone [format "$sign%02d:00" $d]}
                 return [list !!timestamp [clock scan "$dt $tm $zone" -format {%Y-%m-%d %k:%M:%S %Z}]]
             } else {
                 return [list !!timestamp [clock scan "$dt $tm"       -format {%Y-%m-%d %k:%M:%S}]]
             }
-        } elseif [regexp $dttm $scalar nop dt tm] {
+        } elseif {[regexp $dttm $scalar nop dt tm]} {
             if {$tm ne ""} {
                 return [list !!timestamp [clock scan "$dt $tm" -format {%Y-%m-%d %k:%M:%S}]]
             } else {
@@ -830,13 +816,13 @@ proc ::yaml::_parseDirective {} {
 
     set directive [_getToken]
     
-    if [regexp {^%YAML} $directive] {
+    if {[regexp {^%YAML} $directive]} {
         # YAML directive
         _skipSpaces
         set version [_getToken]
         set data(YAMLVersion) $version
         if {![regexp {^\d\.\d$} $version]}   { error [_getErrorMessage ILLEGAL_YAML_DIRECTIVE] }
-    } elseif [regexp {^%TAG} $directive] {
+    } elseif {[regexp {^%TAG} $directive]} {
         # TAG directive
         _skipSpaces
         set handle [_getToken]
@@ -852,7 +838,7 @@ proc ::yaml::_parseDirective {} {
 proc ::yaml::_parseTagHandle {} {
     set token [_getToken]
     
-    if [regexp {^(!|!\w*!)(.*)} $token nop handle named] {
+    if {[regexp {^(!|!\w*!)(.*)} $token nop handle named]} {
         # shorthand or non-specific Tags
         switch -- $handle {
             ! { ;       # local or non-specific Tags
@@ -864,7 +850,7 @@ proc ::yaml::_parseTagHandle {} {
             }
         }
         if {![info exists prefix($handle)]} { error [_getErrorMessage TAG_NOT_FOUND] }
-    } elseif [regexp {^!<(.+)>} $token nop uri] {
+    } elseif {[regexp {^!<(.+)>} $token nop uri]} {
         # Verbatim Tags
         if {![regexp {^[\w:/]$} $token nop uri]} { error [_getErrorMessage ILLEGAL_TAG_HANDLE] }
     } else {
@@ -939,7 +925,7 @@ proc ::yaml::_getFoldedString {reStr} {
     
     set len [string length $token]
     if {[string first $token "\n"] >= 0} { ; # multi-line
-        set data(current) [expr $len - [string last $token "\n"]]
+        set data(current) [expr {$len - [string last $token "\n"]}]
     } else {
         incr data(current) $len
     }
@@ -1084,59 +1070,78 @@ proc ::yaml::_getErrorMessage {ID {p1 ""}} {
     }
 }
 
+# Finds and returns the indentation of a YAML line
+proc ::yaml::_getIndent {line} {
+    set match [regexp -inline -- {^\s{1,}} " $line"]
+    return [expr {[string length $match] - 3}]
+}
+
 
 ################
 ## Dumpers    ##
 ################
 
-# There is a big problem in Tcl's Structures/Containers
-# about Array/List/Dictionary(dict).
-# (e.g.) {a b {This is a pen.} d e}
-#     3rd element is a List or String?
-#
-# To enable it to write out correctly, the internal expression
-# which can distinguish each other is needed.
+proc ::yaml::_imp_huddle2yaml {data {offset ""}} {
+    set nextoff "$offset[string repeat { } $yaml::_dumpIndent]"
+    switch -- [huddle type $data] {
+        "string" {
+            set data [huddle strip $data]
+            return [_dumpScalar $data $offset]
+        }
+        "list" {
+            set inner {}
+            set len [huddle llength $data]
+            for {set i 0} {$i < $len} {incr i} {
+                set sub [huddle get $data $i]
+                set sep [expr {[huddle type $sub] eq "string" ? " " : "\n"}]
+                lappend inner [join [list $offset - $sep [_imp_huddle2yaml $sub $nextoff]] ""]
+            }
+            return [join $inner "\n"]
+        }
+        "dict" {
+            set inner {}
+            foreach {key} [huddle keys $data] {
+                set sub [huddle get $data $key]
+                set sep [expr {[huddle type $sub] eq "string" ? " " : "\n"}]
+                lappend inner [join [list $offset $key: $sep [_imp_huddle2yaml $sub $nextoff]] ""]
+            }
+            return [join $inner "\n"]
+        }
+        default {
+            return $data
+        }
+    }
+}
 
-# Return YAML from a key and a value
-proc ::yaml::_dumpNode {key value indent} {
-    # do some folding here, for blocks
+proc ::yaml::_dumpScalar {value offset} {
     if {   [string first "\n" $value] >= 0
         || [string first ": " $value] >= 0
         || [string first "- " $value] >= 0} {
-        set value [_doLiteralBlock $value $indent]
+        return [_doLiteralBlock $value $offset]
     } else {
-        set value [_doFolding $value $indent]
+        return [_doFolding $value $offset]
     }
-    
-    set spaces [string repeat " " $indent]
-    
-    if {$key eq ""} {
-        # It's a sequence
-        set str "$spaces- $value\n"
-    } else {
-        # It's a mapping
-        set str "$spaces$key: $value\n"
-    }
-    return $str
 }
 
-
 # Creates a literal block for dumping
-proc ::yaml::_doLiteralBlock {value indent} {
-    variable _dumpIndent
+proc ::yaml::_doLiteralBlock {value offset} {
+    if {[string index $value end] eq "\n"} {
+        set newValue "|"
+        set value [string range $value 0 end-1]
+    } else {
+        set newValue "|-"
+    }
     set exploded [split $value "\n"]
-    set newValue "|"
-    incr indent $_dumpIndent
-    set spaces [string repeat " " $indent]
+
+    set value [string trimright $value]
     foreach {line} $exploded {
-        set newValue "$newValue\n$spaces[string trim $line]"
+        set newValue "$newValue\n$offset[string trim $line]"
     }
     return $newValue
 }
 
 # Folds a string of text, if necessary
-proc ::yaml::_doFolding {value indent} {
-    variable _dumpIndent
+proc ::yaml::_doFolding {value offset} {
     variable _dumpWordWrap
     # Don't do anything if wordwrap is set to 0
     if {$_dumpWordWrap == 0} {
@@ -1144,22 +1149,15 @@ proc ::yaml::_doFolding {value indent} {
     }
     
     if {[string length $value] > $_dumpWordWrap} {
-        incr indent $_dumpIndent
-        set spaces [string repeat " " $indent]
-        set wrapped [_simple_justify $value $_dumpWordWrap "\n$spaces"]
-        set value ">\n$spaces$wrapped"
+        set wrapped [_simple_justify $value $_dumpWordWrap "\n$offset"]
+        set value ">\n$offset$wrapped"
     }
     return $value
 }
 
-# Finds and returns the indentation of a YAML line
-proc ::yaml::_getIndent {line} {
-    set match [regexp -inline -- {^\s{1,}} " $line"]
-    return [expr {[string length $match] - 3}]
-}
-
 # http://wiki.tcl.tk/1774
 proc ::yaml::_simple_justify {text width {wrap \n} {cut 0}} {
+    set brk ""
     for {set result {}} {[string length $text] > $width} {
                 set text [string range $text [expr {$brk+1}] end]
             } {
