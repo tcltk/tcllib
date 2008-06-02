@@ -79,7 +79,7 @@ test yaml.rb-1 "Simple Sequence" -body {
 - banana 
 - carrot 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {apple banana carrot}
 
 test yaml.rb-2 "Nested Sequences" -body {
@@ -90,7 +90,7 @@ test yaml.rb-2 "Nested Sequences" -body {
  - bar 
  - baz 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {{foo bar baz}}
 
 test yaml.rb-3 "Mixed Sequences" -body {
@@ -103,7 +103,7 @@ test yaml.rb-3 "Mixed Sequences" -body {
 - bana na
 - carr ot
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {{{fo o}} {{x1 23}} {bana na} {carr ot}}
 
 test yaml.rb-4 "Deeply Nested Sequences" -body {
@@ -114,7 +114,7 @@ test yaml.rb-4 "Deeply Nested Sequences" -body {
   - uno 
   - dos 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {{{uno dos}}}
 
 test yaml.rb-5 "Simple Mapping" -body {
@@ -123,7 +123,7 @@ test yaml.rb-5 "Simple Mapping" -body {
 foo: whatever 
 bar: stuff 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {foo whatever bar stuff}
 
 test yaml.rb-6 "Sequence in a Mapping" -body {
@@ -134,7 +134,7 @@ bar:
  - uno 
  - dos 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {foo whatever bar {uno dos}}
 
 test yaml.rb-7 "Nested Mappings" -body {
@@ -146,7 +146,7 @@ bar:
  name: steve 
  sport: baseball 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result [dict create foo whatever bar [dict create fruit apple name steve sport baseball]]
 
 test yaml.rb-8 "Mixed Mapping" -body {
@@ -164,7 +164,7 @@ bar:
    perl: papers 
    ruby: scissorses 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result [dict create foo whatever bar [list [dict create fruit apple name steve sport baseball] more [dict create python rocks perl papers ruby scissorses]]]
 
 test yaml.rb-9 "Mapping-in-Sequence Shortcut" -body {
@@ -173,7 +173,7 @@ test yaml.rb-9 "Mapping-in-Sequence Shortcut" -body {
 - work on YAML.py: 
    - work on Store
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {{{work on YAML.py} {{work on Store}}}}
 
 test yaml.rb-10 "Sequence-in-Mapping Shortcut" -body {
@@ -184,7 +184,7 @@ allow:
 - '%.sourceforge.net'
 - '%.freepan.org'
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {allow {localhost %.sourceforge.net %.freepan.org}}
 
 test yaml.rb-11 "Merge key" -body {
@@ -196,7 +196,7 @@ mapping:
   <<:
     age: 38
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result [list mapping [dict create name Joe job Accountant age 38]]
 
 test yaml.rb-12 "Simple Inline Array" -body {
@@ -204,7 +204,7 @@ test yaml.rb-12 "Simple Inline Array" -body {
 ---  
 seq: [ a, b, c ] 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {seq {a b c}}
 
 test yaml.rb-13 "Simple Inline Hash" -body {
@@ -212,7 +212,7 @@ test yaml.rb-13 "Simple Inline Hash" -body {
 ---  
 hash: { name: Steve, foo: bar }
 }
-    dictsort2 [yaml::load $data] {d d}
+    dictsort2 [yaml::yaml2dict $data] {d d}
 } -result [dictsort2 {hash {name Steve foo bar}} {d d}]
 
 test yaml.rb-14 "Multi-line Inline Collections" -body {
@@ -226,7 +226,7 @@ websites: { YAML: yaml.org,
             Python: python.org, 
             Perl: use.perl.org }
 }
-    dictsort2 [yaml::load $data] {{d {websites d}}}
+    dictsort2 [yaml::yaml2dict $data] {{d {websites d}}}
 } -result [dictsort2 {languages {Ruby Perl Python} websites {YAML yaml.org Ruby ruby-lang.org Python python.org Perl use.perl.org}} \
 {{d {websites d}}} ]
 
@@ -235,14 +235,14 @@ test yaml.rb-15 "Commas in Values" -body {
 ---  
 attendances: [ 45,123, 70,000, 17,222 ]
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {attendances {45 123 70 000 17 222}}
 
 test yaml.rb-16 "Strings" -body {
     set data {
 --- String
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {String}
 
 test yaml.rb-17 "String characters" -body {
@@ -255,7 +255,7 @@ test yaml.rb-17 "String characters" -body {
 - No, I mean, "And what about Yaml?" 
 - Oh, oh yeah. Uh.. Yaml for Ruby. 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {{What's Yaml?} {It's for writing data structures in plain text.} And? {And what? That's not good enough for you?} {No, I mean, "And what about Yaml?"} {Oh, oh yeah. Uh.. Yaml for Ruby.}}
 
 test yaml.rb-18 "Indicators in Strings" -body {
@@ -265,7 +265,7 @@ the colon followed by space is an indicator: but is a string:right here
 same for the pound sign: here we have it#in a string 
 the comma can, honestly, be used in most cases: [ but not in, inline collections ]
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result [dict create {the colon followed by space is an indicator} {but is a string:right here} {same for the pound sign} {here we have it#in a string} {the comma can, honestly, be used in most cases} {{but not in} {inline collections}}]
 
 test yaml.rb-19 "Forcing Strings" -body {
@@ -274,7 +274,7 @@ test yaml.rb-19 "Forcing Strings" -body {
 date string: !!str 2001-08-01 
 number string: !!str 192 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result [dict create {date string} 2001-08-01 {number string} 192]
 
 test yaml.rb-20 "Single-quoted Strings" -body {
@@ -284,7 +284,7 @@ all my favorite symbols: '#:!/%.)'
 a few i hate: '&(*' 
 why do i hate them?: 'it''s very hard to explain' 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {{all my favorite symbols} #:!/%.) {a few i hate} &(* {why do i hate them?} {it's very hard to explain}}
 
 test yaml.rb-21 "Double-quoted Strings" -body {
@@ -292,7 +292,7 @@ test yaml.rb-21 "Double-quoted Strings" -body {
 ---  
 i know where i want my line breaks: "one here\nand another here\n" 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {{i know where i want my line breaks} {one here
 and another here
 }}
@@ -304,7 +304,7 @@ i want a long string: "so i'm going to
   let it go on and on to other lines
   until i end it with a quote."
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {{i want a long string} {so i'm going to let it go on and on to other lines until i end it with a quote.}}
 
 test yaml.rb-23 "Plain scalars" -body {
@@ -320,7 +320,7 @@ test yaml.rb-23 "Plain scalars" -body {
 - This would impair my skiing ability somewhat for the
   duration, as can be imagined.
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {{My little toe is broken in two places;} {I'm crazy to have skied this way;} {I'm not the craziest he's seen, since there was always the German guy who skied for 3 hours on a broken shin bone (just below the kneecap);} {Nevertheless, second place is respectable, and he doesn't recommend going for the record;} {He's going to put my foot in plaster for a month;} {This would impair my skiing ability somewhat for the duration, as can be imagined.}}
 
 test yaml.rb-24 "Null" -body {
@@ -330,7 +330,7 @@ name: Mr. Show
 hosted by: Bob and David 
 date of next season: ~ 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {name {Mr. Show} {hosted by} {Bob and David} {date of next season} {}}
 
 test yaml.rb-25 "Boolean" -body {
@@ -339,7 +339,7 @@ test yaml.rb-25 "Boolean" -body {
 Is Gus a Liar?: true
 Do I rely on Gus for Sustenance?: false 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result [dict create {Is Gus a Liar?} 1 {Do I rely on Gus for Sustenance?} 0]
 
 test yaml.rb-26 "Integers" -body {
@@ -350,7 +350,7 @@ simple: 12
 one-thousand: 1,000 
 negative one-thousand: -1,000 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result [dict create zero 0 simple 12 one-thousand 1000 {negative one-thousand} -1000]
 
 test yaml.rb-27 "Integers as Map Keys" -body {
@@ -360,7 +360,7 @@ test yaml.rb-27 "Integers as Map Keys" -body {
 2: two 
 3: three 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {1 one 2 two 3 three}
 
 test yaml.rb-28 "Floats" -body {
@@ -370,7 +370,7 @@ a simple float: 2.00
 larger float: 1,000.09 
 scientific notation: 1.00009e+3 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result [dict create {a simple float} 2.00 {larger float} 1000.09 {scientific notation} 1.00009e+3]
 
 
@@ -381,7 +381,7 @@ if {$::tcl_version < 8.5} {
 iso8601: 2001-12-14t21:59:43.10-05:00 
 space seperated: 2001-12-14 21:59:43.10 -05:00 
 }
-        yaml::load $data
+        yaml::yaml2dict $data
     } -result [eval dict create [string map \
                  [list TIMESTAMP1 [clock scan "+5 hours" -base [clock scan "2001-12-14 21:59:43" -gmt 1]] \
                        TIMESTAMP2 [clock scan "+5 hours" -base [clock scan "2001-12-14 21:59:43" -gmt 1]]] \
@@ -393,7 +393,7 @@ space seperated: 2001-12-14 21:59:43.10 -05:00
 iso8601: 2001-12-14t21:59:43.10-05:00 
 space seperated: 2001-12-14 21:59:43.10 -05:00 
 }
-        yaml::load $data
+        yaml::yaml2dict $data
     } -result [string map [list TIMESTAMP1 [clock scan "2001-12-14 21:59:43 -05:00" -format {%Y-%m-%d %k:%M:%S %Z}] \
                                     TIMESTAMP2 [clock scan "2001-12-14 21:59:43 -05:00" -format {%Y-%m-%d %k:%M:%S %Z}]] \
                      {iso8601 TIMESTAMP1 {space seperated} TIMESTAMP2}]
@@ -403,7 +403,7 @@ test yaml.rb-30 "Date" -body {
     set data {
 --- 1976-07-31
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result [clock scan "1976-07-31"]
 
 test yaml.rb-31 "Blocks" -body {
@@ -413,7 +413,7 @@ this: |
     Foo
     Bar
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {this {Foo
 Bar
 }}
@@ -430,7 +430,7 @@ preserving: |+
 
 dummy: value
 }
-    dictsort [yaml::load $data]
+    dictsort [yaml::yaml2dict $data]
 } -result [dictsort {normal {extra new lines not kept
 } preserving {extra new lines are kept
 
@@ -461,7 +461,7 @@ kept: |+
 
 same as "kept" above: "This has four newlines.\n\n\n\n"
 }
-    dictsort [yaml::load $data]
+    dictsort [yaml::yaml2dict $data]
 } -result [dictsort {clipped {This has one newline.
 } {same as "clipped" above} {This has one newline.
 } stripped {This has no newline.} {same as "stripped" above} {This has no newline.} kept {This has four newlines.
@@ -484,7 +484,7 @@ this: |
 kept: |+
     Foo
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result [dict create this {Foo
 } kept {Foo
 }]
@@ -500,7 +500,7 @@ test yaml.rb-35 "Folded Block in a Sequence" -body {
     hmm
 - dog
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {apple banana {can't you see the beauty of yaml? hmm
 } dog}
 
@@ -513,7 +513,7 @@ quote: >
     by a knee injury.
 source: espn
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result [dict create quote {Mark McGwire's year was crippled by a knee injury.
 } source espn]
 
@@ -541,7 +541,7 @@ kept: >+
 
 same as "kept" above: "This has four newlines.\n\n\n\n"
 }
-    dictsort [yaml::load $data]
+    dictsort [yaml::yaml2dict $data]
 } -result [dictsort {clipped {This has one newline.
 } {same as "clipped" above} {This has one newline.
 } stripped {This has no newline.} {same as "stripped" above} {This has no newline.} kept {This has four newlines.
@@ -562,7 +562,7 @@ test yaml.rb-38 "Extra trailing newlines with spaces" -body {
 - Oren 
 - *showell
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {Steve Clark Brian Oren Steve}
 
 test yaml.rb-39 "Alias of a Mapping" -body {
@@ -574,7 +574,7 @@ test yaml.rb-39 "Alias of a Mapping" -body {
 - banana 
 - *hello 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result [list [dict create Meat pork Starch potato] banana [dict create Meat pork Starch potato]]
 
 #test yaml.rb-40 "Trailing Document Separator" -body {
@@ -584,7 +584,7 @@ test yaml.rb-39 "Alias of a Mapping" -body {
 #---
 #more: stuff
 #}
-#    yaml::load $data
+#    yaml::yaml2dict $data
 #} -result {Steve Clark Brian Oren Steve}
 
 test yaml.rb-41 "Alias of a Mapping" -body {
@@ -593,7 +593,7 @@ test yaml.rb-41 "Alias of a Mapping" -body {
 foo: 1 
 bar: 2 
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {foo 1 bar 2}
 
 test yaml.rb-42 "Red Herring Document Separator" -body {
@@ -602,7 +602,7 @@ test yaml.rb-42 "Red Herring Document Separator" -body {
 foo: |
     ---
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {foo {---
 }}
 
@@ -617,7 +617,7 @@ foo: |
 bar: | 
     fooness
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result {foo {---
 foo: bar
 ---

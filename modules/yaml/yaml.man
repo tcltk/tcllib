@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin yaml n 0.3.0]
+[manpage_begin yaml n 0.3.2]
 [copyright {2008 KATO Kanryu <kanryu6@users.sourceforge.net>}]
 [moddesc   {YAML processing}]
 [titledesc {YAML Format Encoder/Decoder}]
 [require Tcl 8.4]
-[require yaml [opt 0.3.0]]
+[require yaml [opt 0.3.2]]
 [description]
 [para]
 
@@ -22,8 +22,9 @@ required for use.
 [list_begin definitions]
 
 [call [cmd ::yaml::yaml2dict] [opt [arg options]] [arg txt]]
+[call [cmd ::yaml::yaml2huddle] [opt [arg options]] [arg txt]]
 
-Parse yaml formatted text [arg txt] into a Tcl dict and return the value.
+Parse yaml formatted text [arg txt] into a Tcl dict/huddle and return the value.
 
 [list_begin options]
 [opt_def [const -file]]
@@ -78,12 +79,14 @@ Experiment: Output stream contains YAML's-tag, each node.
 
 [call [cmd ::yaml::setOption] [opt [arg options]]]
 Change implicit options for the library.
-Now, the params are the same as [cmd ::yaml::load].
-Arguments of[cmd ::yaml::load] is more priority then this setting.
+Now, the params are the same as [cmd ::yaml::yaml2dict].
+Arguments of[cmd ::yaml::yaml2dict] is more priority than this setting.
 
 
 [call [cmd ::yaml::dict2yaml] [opt [arg indent]] [opt [arg wordwrap]]]
-Convert a Tcl dict into YAML striam.
+[call [cmd ::yaml::list2yaml] [opt [arg indent]] [opt [arg wordwrap]]]
+[call [cmd ::yaml::huddle2yaml] [opt [arg indent]] [opt [arg wordwrap]]]
+Convert a dict/list/huddle object into YAML stream.
 
 [list_begin definitions]
 [def indent]
@@ -95,8 +98,6 @@ word wrap for YAML stream.
 currently default is 40.
 [list_end]
 
-[call [cmd ::yaml::list2yaml] [opt [arg indent]] [opt [arg wordwrap]]]
-Convert a Tcl list into YAML striam.
 
 [list_end]
 [para]
@@ -190,6 +191,6 @@ Please report such in the category [emph yaml] of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.
 
-
-[keywords {text processing} parsing {data exchange} {exchange format}]
+[see_also json huddle base64]
+[keywords yaml {text processing} parsing {data exchange} huddle]
 [manpage_end]

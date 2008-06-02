@@ -75,7 +75,7 @@ test yaml-1.1 "error" -body {
 ---
 - [name        , \{hr: avg \[\hr: avg\} \] ]
 }
-    set code [catch {yaml::load $error1} msg]
+    set code [catch {yaml::yaml2dict $error1} msg]
     concat $code $msg
 } -result [concat 1 line(3): $yaml::errors(MAPEND_NOT_IN_MAP)]
 
@@ -84,7 +84,7 @@ test yaml-1.2 "error" -body {
 ---
 - [name        , \[hr: avg \{\hr: avg\] \} ]
 }
-    set code [catch {yaml::load $error2} msg]
+    set code [catch {yaml::yaml2dict $error2} msg]
     concat $code $msg
 } -result [concat 1 line(3): $yaml::errors(SEQEND_NOT_IN_SEQ)]
 
@@ -94,7 +94,7 @@ test yaml-1.3 "error" -body {
 - Clark 
 - @Brian 
 }
-    set code [catch {yaml::load $error3} msg]
+    set code [catch {yaml::yaml2dict $error3} msg]
     concat $code $msg
 } -result [concat 1 line(4): $yaml::errors(AT_IN_PLAIN)]
 
@@ -104,7 +104,7 @@ test yaml-1.4 "error" -body {
 - Clark 
 - `Brian 
 }
-    set code [catch {yaml::load $error4} msg]
+    set code [catch {yaml::yaml2dict $error4} msg]
     concat $code $msg
 } -result [concat 1 line(4): $yaml::errors(BT_IN_PLAIN)]
 
@@ -114,7 +114,7 @@ test yaml-1.5 "error" -body {
 - Clark 
 - 	Brian 
 }
-    set code [catch {yaml::load $error5} msg]
+    set code [catch {yaml::yaml2dict $error5} msg]
     concat $code $msg
 } -result [concat 1 line(4): $yaml::errors(TAB_IN_PLAIN)]
 
@@ -125,7 +125,7 @@ test yaml-1.6 "error" -body {
 - Brian 
 - @a Geoge
 }
-    set code [catch {yaml::load $error6} msg]
+    set code [catch {yaml::yaml2dict $error6} msg]
     concat $code $msg
 } -result [concat 1 line(4): $yaml::errors(ANCHOR_NOT_FOUND)]
 
@@ -135,7 +135,7 @@ test yaml-1.7 "error" -body {
 - "Clark 
 - Brian 
 }
-    set code [catch {yaml::load $error7} msg]
+    set code [catch {yaml::yaml2dict $error7} msg]
     concat $code $msg
 } -result [concat 1 line(3): $yaml::errors(MALFORM_D_QUOTE)]
 
@@ -145,7 +145,7 @@ test yaml-1.8 "error" -body {
 - 'Clark 
 - Brian 
 }
-    set code [catch {yaml::load $error8} msg]
+    set code [catch {yaml::yaml2dict $error8} msg]
     concat $code $msg
 } -result [concat 1 line(3): $yaml::errors(MALFORM_S_QUOTE)]
 
@@ -155,7 +155,7 @@ test yaml-1.9 "error" -body {
 - !!invalidtag Clark 
 - Brian 
 }
-    set code [catch {yaml::load $error9} msg]
+    set code [catch {yaml::yaml2dict $error9} msg]
     concat $code $msg
 } -result [concat 1 {line(4): The "!!invalidtag" handle wasn't declared.}]
 
@@ -166,7 +166,7 @@ test yaml-1.10 "error" -body {
 <<
   - Brian 
 }
-    set code [catch {yaml::load $error10} msg]
+    set code [catch {yaml::yaml2dict $error10} msg]
     concat $code $msg
 } -result [concat 1 line(5): $yaml::errors(INVALID_MERGE_KEY)]
 
@@ -183,7 +183,7 @@ test yaml-2.1 "flow sequence" -body {
 - [Mark McGwire, 65, 0.278]
 - [Sammy Sosa  , 63, 0.288]
 }
-    yaml::load $inline_seq_seqs
+    yaml::yaml2dict $inline_seq_seqs
 } -result {{name hr avg} {{Mark McGwire} 65 0.278} {{Sammy Sosa} 63 0.288}}
 
 test yaml-2.2 "flow mappings" -body {
@@ -192,7 +192,7 @@ test yaml-2.2 "flow mappings" -body {
 Mark McGwire: {hr: 65, avg: 0.278}
 Sammy Sosa: { hr: 63, avg: 0.288}
 }
-    dictsort2 [yaml::load $inline_map_maps] {d d}
+    dictsort2 [yaml::yaml2dict $inline_map_maps] {d d}
 } -result [dictsort2 {{Mark McGwire} {hr 65 avg 0.278} {Sammy Sosa} {hr 63 avg 0.288}} {d d}]
 
 test yaml-2.3 "flow mappings" -body {
@@ -202,7 +202,7 @@ test yaml-2.3 "flow mappings" -body {
 ? Sammy Sosa
 : {? hr: 63, ? avg: 0.288}
 }
-    dictsort2 [yaml::load $inline_map_maps] {d d}
+    dictsort2 [yaml::yaml2dict $inline_map_maps] {d d}
 } -result [dictsort2 {{Mark McGwire} {hr 65 avg 0.278} {Sammy Sosa} {hr 63 avg 0.288}} {d d}]
 
 
@@ -233,7 +233,7 @@ kept: |+
 
 same as "kept" above: "This has four newlines.\n\n\n\n"
 }
-        dictsort2 [yaml::load $literal]
+        dictsort2 [yaml::yaml2dict $literal]
 } -result [dictsort2 {clipped {This has one newline.
 } {same as "clipped" above} {This has one newline.
 } stripped {This has no newline.} {same as "stripped" above} {This has no newline.} kept {This has four newlines.
@@ -275,7 +275,7 @@ kept: >+
 
 same as "kept" above: "This has four newlines.\n\n\n\n"}
 
-    dictsort2 [yaml::load $folding]
+    dictsort2 [yaml::yaml2dict $folding]
 } -result [dictsort2 {clipped {This has one newline.
 } {same as "clipped" above} {This has one newline.
 } stripped {This has no newline.} {same as "stripped" above} {This has no newline.} kept {This has no newline.
@@ -296,7 +296,7 @@ quote: >
     by a knee injury.
 source: espn
 }
-    yaml::load $foldedmap
+    yaml::yaml2dict $foldedmap
 } -result [dict create quote {Mark McGwire's year was crippled by a knee injury.
 } source espn]
 
@@ -312,7 +312,7 @@ test yaml-4.1 "Alias Node" -body {
 - Oren 
 - *showell 
 }
-    yaml::load $alias
+    yaml::yaml2dict $alias
 } -result {Steve Clark Brian Oren Steve}
 
 test yaml-4.2 "Alias Node" -body {
@@ -324,7 +324,7 @@ test yaml-4.2 "Alias Node" -body {
 - banana 
 - *hello 
 }
-    yaml::load $alias2
+    yaml::yaml2dict $alias2
 } -result [list [dict create Meat pork Starch potato] banana [dict create Meat pork Starch potato]]
 
 test yaml-4.3 "Flow Alias Node" -body {
@@ -340,7 +340,7 @@ test yaml-4.3 "Flow Alias Node" -body {
 - habana 
 - *bye
 }
-    dictsort2 [yaml::load $alias3] {{l {0 d 2 d}}}
+    dictsort2 [yaml::yaml2dict $alias3] {{l {0 d 2 d}}}
 } -result [dictsort2 {{Meat pork Starch potato} banana {Meat pork Starch potato} {{The last man} children pork} habana {{The last man} children pork}} \
 {{l {0 d 2 d}}} ]
 
@@ -360,7 +360,7 @@ test yaml-5.1 "Plane Characters" -body {
   "Up, up and away!",
   -123 ]
 }
-    yaml::load $plane_characters
+    yaml::yaml2dict $plane_characters
 } -result {::std::vector {Up, up and away!} -123 {::std::vector {Up, up and away!} -123}}
 
 test yaml-5.2 "boolean" -body {
@@ -377,7 +377,7 @@ arabia:
     oil    : on
     polytheism : false
 }
-    dictsort2 [yaml::load $boolean] {d d}
+    dictsort2 [yaml::yaml2dict $boolean] {d d}
 } -result [dictsort2 {india {pork 1 beef 0 oil 0 polytheism 1} arabia {pork 0 beef 1 oil 1 polytheism 0}} {d d}]
 
 if {$::tcl_version < 8.5} {
@@ -390,7 +390,7 @@ if {$::tcl_version < 8.5} {
 - 2002-12-14
 }
 
-        yaml::load $timestamps
+        yaml::yaml2dict $timestamps
     } -result [list \
             [clock scan "2001-12-15 02:59:43" -gmt 1] \
             [clock scan "+5 hours" -base [clock scan "2001-12-14 21:59:43" -gmt 1]] \
@@ -408,7 +408,7 @@ if {$::tcl_version < 8.5} {
 - 2002-12-14
 }
 
-        yaml::load $timestamps
+        yaml::yaml2dict $timestamps
     } -result [list \
             [clock scan "2001-12-15 02:59:43 Z" -format {%Y-%m-%d %k:%M:%S %Z}] \
             [clock scan "2001-12-14 21:59:43 -05:00" -format {%Y-%m-%d %k:%M:%S %Z}] \
@@ -425,7 +425,7 @@ test yaml-5.4 "integer" -body {
 - 1000
 - 100,000,000
 }
-    yaml::load $integers
+    yaml::yaml2dict $integers
 } -result {1 1000 100000000}
 
 
@@ -444,7 +444,7 @@ test yaml-6.1 "block sequences" -body {
   - Ken Griffey
 }
 
-    yaml::load $sequences
+    yaml::yaml2dict $sequences
 } -result {{{Mark McGwire^---} {Sammy Sosa}} {{Sammy Sosa} {Ken Griffey}}}
 
 test yaml-6.2 "block mapping" -body {
@@ -457,7 +457,7 @@ hello-to:
     given  : Arnold Berry
     family : Son
 }
-    yaml::load $mappings
+    yaml::yaml2dict $mappings
 } -result [dict create bill-to [dict create given Chris family Dumars] hello-to [dict create given {Arnold Berry} family Son]]
 
 test yaml-6.3 "block mapping, sequence" -body {
@@ -471,7 +471,7 @@ rbi:
   - Sammy Sosa
   - Ken Griffey
 }
-    yaml::load $map_seqs
+    yaml::yaml2dict $map_seqs
 } -result [dict create hr {{Mark McGwire} {Sammy Sosa}} rbi {{Sammy Sosa} {Ken Griffey}}]
 
 test yaml-6.4 "block sequence, mapping" -body {
@@ -486,7 +486,7 @@ test yaml-6.4 "block sequence, mapping" -body {
   hr:   63
   avg:  0.288
 }
-    yaml::load $seq_maps
+    yaml::yaml2dict $seq_maps
 } -result [list [dict create name {Mark McGwire} hr 65 avg 0.278] [dict create name {Sammy Sosa} hr 63 avg 0.288]]
 
 
@@ -496,13 +496,13 @@ test yaml-6.4 "block sequence, mapping" -body {
 
 
 test yaml-7.1 "load from file" -body {
-    set data [yaml::load -file [file join [file dirname [info script]] CHANGES]]
+    set data [yaml::yaml2dict -file [file join [file dirname [info script]] CHANGES]]
     dict get $data title
 } -result {YAML parser for Tcl.}
 
 test yaml-7.2 "load from file" -body {
     yaml::setOptions -file
-    set data [yaml::load [file join [file dirname [info script]] CHANGES]]
+    set data [yaml::yaml2dict [file join [file dirname [info script]] CHANGES]]
     yaml::setOptions -stream
     dict get $data title
 } -result {YAML parser for Tcl.}
@@ -518,7 +518,7 @@ test yaml-8.1 "double quote" -body {
    2nd non-empty,
    	3rd non-empty"
 }
-    yaml::load $dquote
+    yaml::yaml2dict $dquote
 } -result {{1st non-empty,
 2nd non-empty, 3rd non-empty}}
 
@@ -531,7 +531,7 @@ test yaml-8.2 "single quote" -body {
    	3rd non-empty'
 }
 
-    yaml::load $squote
+    yaml::yaml2dict $squote
 } -result {{1st non-empty,
 2nd 'non-empty', 3rd non-empty}}
 
@@ -548,7 +548,7 @@ picture: !!binary |
 
 }
 
-    yaml::load $explicit_tags
+    yaml::yaml2dict $explicit_tags
 } -result [dict create not-date 2002-04-28 picture [::base64::decode {
 R0lGODlhDAAMAIQAAP//9/X
 17unp5WZmZgAAAOfn515eXv
@@ -568,7 +568,7 @@ test yaml-9.2 "explicit_tags(inline)" -body {
 }
 }
 
-    dictsort2 [yaml::load $explicit_tags]
+    dictsort2 [yaml::yaml2dict $explicit_tags]
 } -result [dictsort2 [list not-date 2002-04-28 picture [::base64::decode {
 R0lGODlhDAAMAIQAAP//9/X
 17unp5WZmZgAAAOfn515eXv
@@ -585,7 +585,7 @@ mapping:
   <<:
     age: 38
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result [list mapping [dict create name Joe job Accountant age 38]]
 
 test yaml-10.2 "Merge key 2" -body {
@@ -618,7 +618,7 @@ test yaml-10.2 "Merge key 2" -body {
   x: 1
   label: big/left/small
 }
-    yaml::load $data
+    yaml::yaml2dict $data
 } -result [list {x 1 y 2} {x 0 y 2} {r {spaced string}} {r 1} \
             [dict create x 1 y 2 r 10 label base] \
             [dict create x 1 y 2 r 10 label center] \
@@ -657,8 +657,7 @@ comments:
     Backup contact is Nancy
     Billsmer @ 338-4338.
 }
-    dictsort2 [yaml::load $Invoice] {{d {bill-to {{d {address d}}} ship-to {{d {address d}}} product {l d}}}}
-#    yaml::load $Invoice
+    dictsort2 [yaml::yaml2dict $Invoice] {{d {bill-to {{d {address d}}} ship-to {{d {address d}}} product {l d}}}}
 } -result [dictsort2 [string map [list TIMESTAMP [clock scan "2001-01-23"]] \
 [dict create invoice 34843 date TIMESTAMP bill-to [dict create given Chris family Dumars address [dict create lines {458 Walkman Dr.
 Suite #292
@@ -689,25 +688,23 @@ test yaml-20.1 "list2yaml" -body {
 }
 
 test yaml-20.2 "dict2yaml" -body {
-    set dump2 {
-  name {Sammy Sosa} hr 63 avg 0.288
-}
-
-    yaml::dict2yaml $dump2
-} -result {---
-name: Sammy Sosa
-hr: 63
-avg: 0.288
-}
+    set dump2 { name {Sammy Sosa} hr 63 avg 0.288 }
+    set _before [eval huddle create $dump2]
+    set yaml2 [yaml::dict2yaml $dump2]
+    set _after [yaml::yaml2dict $yaml2]
+    set _after [eval huddle create $_after]
+    huddle equal $_before $_after
+} -result {1}
 
 test yaml-20.3 "dict2yaml block/flow scalars" -body {
-    set dump_scalars {
-{http://www.activestate.com/Products/activetcl/}
-{This is the core development home for the tcllib standardized Tcl library. This is a set of pure-Tcl extensions that you can use to become even more productive with Tcl. See also the Tcl Foundry that collects information about many Tcl-related SourceForge projects.}
+    set dump_scalars [list \
+{http://www.activestate.com/Products/activetcl/} \
+{This is the core development home for the tcllib standardized Tcl library. This is a set of pure-Tcl extensions that you can use to become even more productive with Tcl. See also the Tcl Foundry that collects information about many Tcl-related SourceForge projects.} \
 {tklib: A library of all-Tcl routines for Tk
 tclapps: A set of little apps for Tcl or Tk, to be used as examples, or just for fun
-tclbench: A benchmarking suite for Tcl and Tk}
-}
+tclbench: A benchmarking suite for Tcl and Tk} ]
+
+
 
     yaml::list2yaml $dump_scalars
 } -result {---
@@ -721,7 +718,7 @@ tclbench: A benchmarking suite for Tcl and Tk}
   productive with Tcl. See also the Tcl 
   Foundry that collects information about 
   many Tcl-related SourceForge projects.
-- |
+- |-
   tklib: A library of all-Tcl routines for Tk
   tclapps: A set of little apps for Tcl or Tk, to be used as examples, or just for fun
   tclbench: A benchmarking suite for Tcl and Tk
