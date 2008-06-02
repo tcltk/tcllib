@@ -6,7 +6,7 @@
 #
 ---
 title: YAML parser for Tcl.
-version: 0.3.0
+version: 0.3.2
 authors:
   - KATO Kanryu: kanryu6@users.sourceforge.net
 license: tcllib's BSD-style license
@@ -14,6 +14,12 @@ copyright: (c) 2008 KATO Kanryu
 
 changes:
 
+  0.3.2:
+    - add command yaml2huddle
+    - validate check fors scripts
+  0.3.1:
+    - change comanndname from load to yaml2dict
+    - add command huddle2yaml
   0.3.0:
     - 2008-06-01
     - testsuites for Tcl8.4

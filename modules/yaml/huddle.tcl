@@ -1,6 +1,6 @@
 # huddle.tcl (working title)
 #
-# huddle.tcl 0.1.2 2008-06-01 22:28:30 KATO Kanryu(k.kanryu@gmail.com)
+# huddle.tcl 0.1.2 2008-06-03 00:26:54 KATO Kanryu(kanryu6@users.sourceforge.net)
 #
 #   It is published with the terms of tcllib's BSD-style license.
 #   See the file named license.terms.
@@ -25,50 +25,25 @@ namespace eval ::huddle {
     variable types
 }
 
-if {$::tcl_version < 8.5} {
-    proc huddle {command args} {
-        variable huddle::methods
-        if [info exists huddle::methods($command)] {
-            return [eval $huddle::methods($command) $command $args]
-        }
-        switch -- $command {
-            set {
-                return [eval ::huddle::_set $args]
-            }
-            append {
-                return [eval ::huddle::_append $args]
-            }
-            call {
-                variable huddle::types
-                foreach {tag cmd args} $args break
-                return [eval $huddle::types(callback:$tag) $cmd $args]
-            }
-            default {
-                return [eval ::huddle::$command $args]
-            }
-        }
+proc huddle {command args} {
+    variable huddle::methods
+    if {[info exists huddle::methods($command)]} {
+        return [eval $huddle::methods($command) $command $args]
     }
-} else {
-    proc huddle {command args} {
-        variable huddle::methods
-        if [info exists huddle::methods($command)] {
-            return [$huddle::methods($command) $command {*}$args]
+    switch -- $command {
+        set {
+            return [eval ::huddle::_set $args]
         }
-        switch -- $command {
-            set {
-                return [::huddle::_set {*}$args]
-            }
-            append {
-                return [::huddle::_append {*}$args]
-            }
-            call {
-                variable huddle::types
-                foreach {tag cmd args} $args break
-                return [$huddle::types(callback:$tag) $cmd {*}$args]
-            }
-            default {
-                return [::huddle::$command {*}$args]
-            }
+        append {
+            return [eval ::huddle::_append $args]
+        }
+        call {
+            variable huddle::types
+            foreach {tag cmd args} $args break
+            return [eval $huddle::types(callback:$tag) $cmd $args]
+        }
+        default {
+            return [eval ::huddle::$command $args]
         }
     }
 }
@@ -105,7 +80,7 @@ proc ::huddle::isHuddle {arg} {
 proc ::huddle::strip {node} {
     variable types
     foreach {head value} $node break
-    if [info exists types(type:$head)] {
+    if {[info exists types(type:$head)]} {
         if {$types(node:$head) eq "parent"} {
             return [$types(callback:$head) strip $value]
         } else {
@@ -153,7 +128,7 @@ proc ::huddle::checkHuddle {src} {
 
 proc ::huddle::to_node {src {tag ""}} {
     if {$tag eq ""} {set tag s}
-    if [isHuddle $src] {
+    if {[isHuddle $src]} {
         return [lindex $src 1]
     } else {
         return [list $tag $src]
@@ -235,7 +210,7 @@ proc ::huddle::_set_subs {command node len path value} {
         set key [lindex $path 0]
         set subpath [lrange $path 1 end]
         incr len -1
-        if [info exists types(type:$tag)] {
+        if {[info exists types(type:$tag)]} {
             set subs [$types(callback:$tag) get_sub $src $key]
             set subs [_set_subs $command $subs $len $subpath $value]
             set src [$types(callback:$tag) set $src $key $subs]
@@ -243,7 +218,7 @@ proc ::huddle::_set_subs {command node len path value} {
         }
         error "\{$src\} don't have any child node."
     }
-    if [info exists types(type:$tag)] {
+    if {[info exists types(type:$tag)]} {
         set src [$types(callback:$tag) $command $src $path $value]
         return [list $tag $src]
     }
@@ -257,13 +232,13 @@ proc ::huddle::_key_reflexive {command node len path {option ""}} {
         set key [lindex $path 0]
         set subpath [lrange $path 1 end]
         incr len -1
-        if [info exists types(type:$tag)] {
+        if {[info exists types(type:$tag)]} {
             set subs [$types(callback:$tag) get_sub $src $key]
             return [_key_reflexive $command $subs $len $subpath $option] 
         }
         error "\{$src\} don't have any child node."
     }
-    if [info exists types(type:$tag)] {
+    if {[info exists types(type:$tag)]} {
         return [$command $node $path $option]
     }
     error "\{$src\} is not a huddle node."
@@ -467,7 +442,7 @@ proc ::huddle::jsondump {data {offset ""}} {
     switch -- [huddle type $data] {
         "string" {
             set data [huddle strip $data]
-            if [regexp {^true$|^false$} $data] {return $data}
+            if {[regexp {^true$|^false$} $data]} {return $data}
             return "\"$data\""
         }
         "list" {
