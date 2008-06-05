@@ -577,7 +577,7 @@ Pz7Y6OjuDg4J+fn5OTk6enp
 } ]] ]
 
 test yaml-10.1 "Merge key" -body {
-    set data {
+    set merge1 {
 ---
 mapping:
   name: Joe
@@ -585,11 +585,11 @@ mapping:
   <<:
     age: 38
 }
-    yaml::yaml2dict $data
-} -result [list mapping [dict create name Joe job Accountant age 38]]
+    dictsort2 [yaml::yaml2dict $merge1] {d d}
+} -result [dictsort2 {mapping {name Joe job Accountant age 38}} {d d}]
 
 test yaml-10.2 "Merge key 2" -body {
-    set data {
+    set merge2 {
 ---
 - &CENTER { x: 1, y: 2 }
 - &LEFT { x: 0, y: 2 }
@@ -618,7 +618,7 @@ test yaml-10.2 "Merge key 2" -body {
   x: 1
   label: big/left/small
 }
-    yaml::yaml2dict $data
+    yaml::yaml2dict $merge2
 } -result [list {x 1 y 2} {x 0 y 2} {r {spaced string}} {r 1} \
             [dict create x 1 y 2 r 10 label base] \
             [dict create x 1 y 2 r 10 label center] \
