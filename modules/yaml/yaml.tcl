@@ -3,7 +3,7 @@
 #
 #   See http://www.yaml.org/spec/1.1/
 #
-#   yaml.tcl,v 0.3.2 2008-06-03 00:26:51 KATO Kanryu(k.kanryu@gmail.com)
+#   yaml.tcl,v 0.3.3 2008-06-05 17:51:27 KATO Kanryu(kanryu6@users.sourceforge.net)
 #
 #   It is published with the terms of tcllib's BSD-style license.
 #   See the file named license.terms.
@@ -16,7 +16,7 @@ if {$::tcl_version < 8.5} {
     package require dict
 }
 
-package provide yaml 0.3.2
+package provide yaml 0.3.3
 package require cmdline
 package require huddle
 
@@ -49,7 +49,7 @@ namespace eval ::yaml {
     array set defaults {
         isfile   0
         validate 0
-        types {timestamp int float null true false merge}
+        types {timestamp int float null true false}
         composer {
             !!binary ::yaml::_composeBinary
         }
@@ -132,12 +132,6 @@ proc ::yaml::setOptions {argv} {
 
 # Dump TCL List to YAML
 #
-# TCL's interp can not treate mixed structure (list/dict/space separeted string).
-# So, when really to implement the command, we should prepare library
-# to express solid structures.
-#
-# Indent's default is 2 spaces, wordwrap's default is 40 characters.  And
-# you can turn off wordwrap by passing in 0.
 
 proc ::yaml::list2yaml {list {indent 2} {wordwrap 40}} {
     return [huddle2yaml [eval huddle list $list] $indent $wordwrap]
@@ -248,8 +242,7 @@ proc ::yaml::_composeTags {tag value} {
     } else {
         error [_getErrorMessage TAG_NOT_FOUND $tag]
     }
-    foreach {tag value} $pair break
-    return  [huddle wrap $tag $value]
+    return  [eval huddle wrap $pair]
 }
 
 proc ::yaml::_composeBinary {value} {
@@ -261,8 +254,7 @@ proc ::yaml::_composePlain {value} {
     if {[huddle type $value] ne "plain"} {return $value}
     set value [huddle strip $value]
     set pair [_toType $value]
-    foreach {tag value} $pair break
-    return  [huddle wrap $tag $value]
+    return  [eval huddle wrap $pair]
 }
 
 proc ::yaml::_toType {value} {
@@ -318,7 +310,6 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
         _skipSpaces 1
         set type [_getc]
         set current [_getCurrent]
-# set dd1 "$yaml::data(current) $yaml::data(start)"
         if {$type eq "-"} {
             set cc "[_getc][_getc]"
             if {"$type$cc" eq "---" && $current == 0} {
@@ -334,8 +325,6 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
                 incr current
             }
         }
-# set dd2 "$yaml::data(current) $yaml::data(start)"
-# if {$dd1 ne $dd2} {error "$dd1/$dd2"}
         if {$type eq ""  || $current <= $indent} { ; # end document
             _ungetc
             break
@@ -368,26 +357,7 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
                     if {$c ne ":"} {error [_getErrorMessage INVALID_MERGE_KEY]}
                     if {$status ne "" && $status ne "MAPPING"} {error [_getErrorMessage INVALID_MERGE_KEY]}
                     set status "MAPPING"
-                    if {$result eq ""} {set result [huddle mapping]}
-                    if {$prev ne ""} {
-                        if {[llength $prev] < 2} {error [_getErrorMessage MALFORMED_MERGE_KEY]}
-                        set result [_set_huddle_mapping $result $prev]
-                        set prev {}
-                    }
-
-                    set value [_parseBlockNode "" [expr {$pos}]]
-                    # merging expanded aliases
-                    if {[huddle type $value] eq "list"} {
-                        set len [huddle llength $value]
-                        for {set i 0} {$i < $len} {incr i} {
-                            set sub [huddle get $value $i]
-                            set result [huddle combine $result $sub]
-                        }
-                        unset sub len
-                    } else {
-                        set result [huddle combine $result $value]
-                    }
-                    unset value
+                    foreach {result prev} [_mergeExpandedAliases $result $pos $prev] break
                 } else {
                     _ungetc
                     set scalar 1
@@ -431,27 +401,8 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
             set scalar 0
         }
         if {[info exists value]} {
-            switch -- $status {
-                "NODE" {
-                    return $value
-                }
-                "SEQUENCE" {
-                    lappend result [_composePlain $value]
-                }
-                "MAPPING" {
-                    if {[info exists prev]} {
-                        if {[llength $prev] == 2} {
-                            set result [_set_huddle_mapping $result $prev]
-                            set prev [list $value]
-                        } else {
-                            lappend prev $value
-                        }
-                    }
-                }
-                default {
-                    lappend prev $value
-                }
-            }
+            if {$status eq "NODE"} {return $value}
+            foreach {result prev} [_pushValue $result $prev $status $value "BLOCK"] break
             unset value
         }
     }
@@ -481,6 +432,29 @@ proc ::yaml::_parseBlockNode {{status ""} {indent -1}} {
     }
     return $result
 }
+
+proc ::yaml::_mergeExpandedAliases {result pos prev} {
+    if {$result eq ""} {set result [huddle mapping]}
+    if {$prev ne ""} {
+        if {[llength $prev] < 2} {error [_getErrorMessage MALFORMED_MERGE_KEY]}
+        set result [_set_huddle_mapping $result $prev]
+        set prev {}
+    }
+
+    set value [_parseBlockNode "" $pos]
+    if {[huddle type $value] eq "list"} {
+        set len [huddle llength $value]
+        for {set i 0} {$i < $len} {incr i} {
+            set sub [huddle get $value $i]
+            set result [huddle combine $result $sub]
+        }
+        unset sub len
+    } else {
+        set result [huddle combine $result $value]
+    }
+    return [list $result $prev]
+}
+
 
 proc ::yaml::_parseSubBlock {pos statusnew} {
     upvar 1 status status
@@ -525,11 +499,6 @@ proc ::yaml::_remove_duplication {dict} {
     return $result
 }
 
-proc ::yaml::_doValidate {type result {param ""}} {
-    foreach {type value} $result break
-    return $value
-}
-
 
 # literal "|" (line separator is "\n")
 # folding ">" (line separator is " ")
@@ -538,7 +507,7 @@ proc ::yaml::_parseBlockScalar {base separator} {
     
     set idch [string repeat " " $explicit]
     set sep $separator
-    foreach {indent c line} [_getLine] {}
+    foreach {indent c line} [_getLine] break
     if {$indent < $base} {return ""}
     # the first line, NOT ignored comment (as a normal-string)
     set first $indent
@@ -547,7 +516,7 @@ proc ::yaml::_parseBlockScalar {base separator} {
     
     while {![_eof]} {
         set pos [_getpos]
-        foreach {indent c line} [_getLine] {}
+        foreach {indent c line} [_getLine] break
         if {$line eq ""} {
             regsub " " $sep "" sep
             append sep "\n"
@@ -641,6 +610,7 @@ proc ::yaml::_parseFlowNode {{status ""}} {
     set scalar 0
     set result {}
     set tag ""
+    set prev {}
     while {1} {
         _skipSpaces 1
         set type [_getc]
@@ -708,33 +678,46 @@ proc ::yaml::_parseFlowNode {{status ""}} {
                 _setAnchor $anchor $value
                 unset anchor
             }
-            switch -- $status {
-                "" -
-                "NODE" {
-                    return $value
-                }
-                "SEQUENCE" {
-                    lappend result [_composePlain $value]
-                }
-                "MAPPING" {
-                    if {![info exists key]} {
-                        set key $value
-                    } else {
-                        set result [_set_huddle_mapping $result [list $key $value]]
-                        unset key
-                    }
-                }
-            }
+            if {$status eq "" || $status eq "NODE"} {return $value}
+            foreach {result prev} [_pushValue $result $prev $status $value "FLOW"] break
             unset value
         }
     }
     return $result
 }
 
+proc ::yaml::_pushValue {result prev status value scope} {
+    switch -- $status {
+        "SEQUENCE" {
+            lappend result [_composePlain $value]
+        }
+        "MAPPING" {
+            if {$scope eq "BLOCK"} {
+                if {[llength $prev] == 2} {
+                    set result [_set_huddle_mapping $result $prev]
+                    set prev [list $value]
+                } else {
+                    lappend prev $value
+                }
+            } else {
+                lappend prev $value
+                if {[llength $prev] == 2} {
+                    set result [_set_huddle_mapping $result $prev]
+                    set prev ""
+                }
+            }
+        }
+        default {
+            if {$scope eq "BLOCK"} {lappend prev $value}
+        }
+    }
+    return [list $result $prev]
+}
+
 proc ::yaml::_parseScalarNode {type scope {pos 0}} {
     set tag !!str
     switch -- $type {
-        {"} { ; # surrounds a double-quoted flow scalar
+        \" { ; # surrounds a double-quoted flow scalar
             set value [_parseDoubleQuoted]
         }
         {'} { ; # surrounds a single-quoted flow scalar
@@ -756,7 +739,7 @@ proc ::yaml::_parseScalarNode {type scope {pos 0}} {
     return [huddle wrap $tag $value]
 }
 
-
+# [time scanning at JST]
 # 2001-12-15T02:59:43.1Z       => 1008385183
 # 2001-12-14t21:59:43.10-05:00 => 1008385183
 # 2001-12-14 21:59:43.10 -5    => 1008385183
@@ -781,7 +764,7 @@ proc ::yaml::_parseTimestamp {scalar} {
             if {[regexp {^([-+])(\d\d?)$} $zone nop sign d]} {set zone [format "$sign%02d:00" $d]}
             regexp {^([-+]\d\d):(\d\d)} $zone nop h m
             set m [expr {$h > 0 ? $h*60 + $m : $h*60 - $m}]
-            return [list !!timestamp [clock scan "[expr -$m] minutes" -base [clock scan "$dt $tm" -gmt 1]]]
+            return [list !!timestamp [clock scan "[expr {-$m}] minutes" -base [clock scan "$dt $tm" -gmt 1]]]
         } elseif {[regexp $dttm $scalar nop dt tm]} {
             if {$tm ne ""} {
                 return [list !!timestamp [clock scan "$dt $tm"]]

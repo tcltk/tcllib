@@ -1,6 +1,6 @@
 # huddle.tcl (working title)
 #
-# huddle.tcl 0.1.2 2008-06-03 00:26:54 KATO Kanryu(kanryu6@users.sourceforge.net)
+# huddle.tcl 0.1.3 2008-06-05 17:51:30 KATO Kanryu(kanryu6@users.sourceforge.net)
 #
 #   It is published with the terms of tcllib's BSD-style license.
 #   See the file named license.terms.
@@ -12,7 +12,7 @@ if {$::tcl_version < 8.5} {
     package require dict
 }
 
-package provide huddle 0.1.2
+package provide huddle 0.1.3
 
 namespace eval ::huddle {
     namespace export huddle
@@ -52,7 +52,6 @@ proc huddle {command args} {
 proc ::huddle::addType {procedure} {
     variable methods
     variable types
-    variable callbacks
     
     set setting [$procedure setting]
     dict with setting {
@@ -143,7 +142,6 @@ proc ::huddle::wrap {head src} {
     }
 }
 
-
 proc ::huddle::get {src args} {
     checkHuddle $src
     return [_key_reflexive _get [lindex $src 1] [llength $args] $args 0]
@@ -210,19 +208,15 @@ proc ::huddle::_set_subs {command node len path value} {
         set key [lindex $path 0]
         set subpath [lrange $path 1 end]
         incr len -1
-        if {[info exists types(type:$tag)]} {
-            set subs [$types(callback:$tag) get_sub $src $key]
-            set subs [_set_subs $command $subs $len $subpath $value]
-            set src [$types(callback:$tag) set $src $key $subs]
-            return [list $tag $src]
-        }
-        error "\{$src\} don't have any child node."
-    }
-    if {[info exists types(type:$tag)]} {
-        set src [$types(callback:$tag) $command $src $path $value]
+        if {![info exists types(type:$tag)]} {error "\{$src\} don't have any child node."}
+        set subs [$types(callback:$tag) get_sub $src $key]
+        set subs [_set_subs $command $subs $len $subpath $value]
+        set src [$types(callback:$tag) set $src $key $subs]
         return [list $tag $src]
     }
-    error "\{$src\} is not a huddle node."
+    if {![info exists types(type:$tag)]} {error "\{$src\} is not a huddle node."}
+    set src [$types(callback:$tag) $command $src $path $value]
+    return [list $tag $src]
 }
 
 proc ::huddle::_key_reflexive {command node len path {option ""}} {
@@ -232,16 +226,12 @@ proc ::huddle::_key_reflexive {command node len path {option ""}} {
         set key [lindex $path 0]
         set subpath [lrange $path 1 end]
         incr len -1
-        if {[info exists types(type:$tag)]} {
-            set subs [$types(callback:$tag) get_sub $src $key]
-            return [_key_reflexive $command $subs $len $subpath $option] 
-        }
-        error "\{$src\} don't have any child node."
+        if {![info exists types(type:$tag)]} {error "\{$src\} don't have any child node."}
+        set subs [$types(callback:$tag) get_sub $src $key]
+        return [_key_reflexive $command $subs $len $subpath $option] 
     }
-    if {[info exists types(type:$tag)]} {
-        return [$command $node $path $option]
-    }
-    error "\{$src\} is not a huddle node."
+    if {![info exists types(type:$tag)]} {error "\{$src\} is not a huddle node."}
+    return [$command $node $path $option]
 }
 
 proc ::huddle::_get {node path strip} {

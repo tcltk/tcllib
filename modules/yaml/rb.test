@@ -196,8 +196,8 @@ mapping:
   <<:
     age: 38
 }
-    yaml::yaml2dict $data
-} -result [list mapping [dict create name Joe job Accountant age 38]]
+    dictsort2 [yaml::yaml2dict $data] {d d}
+} -result [dictsort2 {mapping {name Joe job Accountant age 38}} {d d}]
 
 test yaml.rb-12 "Simple Inline Array" -body {
     set data {
