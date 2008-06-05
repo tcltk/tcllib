@@ -1,5 +1,8 @@
-#
+# -*- tcl -*-
 # huddle.test:  tests for the huddle library.
+#
+# Copyright (c) 2008 by KATO Kanryu <kanryu6@users.sourceforge.net>
+# All rights reserved.
 #
 
 
