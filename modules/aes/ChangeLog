@@ -1,3 +1,8 @@
+2008-06-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* aes.pcx: New file. Syntax definitions for the public commands of
+	  the aes package.
+
 2008-05-13  Andreas Kupries  <andreask@activestate.com>
 
 	* pkgIndex.tcl: Version bump missed the index :(
