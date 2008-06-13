@@ -1,3 +1,9 @@
+2008-06-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* base64.pcx: New files. Syntax definitions for the public
+	* uuencode.pcx: commands of the packages base74, uuencode,
+	* yencode.pcx: and yencode.
+
 2008-05-28  Andreas Kupries  <andreask@activestate.com>
 
 	* base64.tcl: Changed the default setting for -maxlen to 76 to
