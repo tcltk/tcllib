@@ -1,3 +1,11 @@
+2008-06-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* fileutil_magic_cfront.pcx: New file. Syntax definitions for the
+	* fileutil_magic_cgen.pcx: public commands of the fileutil::magic
+	* fileutil_magic_filetype.pcx: packages.
+	* fileutil_magic_mimetype.pcx:
+	* fileutil_magic_rt.pcx:
+
 2008-03-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* cfront.man: Fixed typo in the new documentation.
