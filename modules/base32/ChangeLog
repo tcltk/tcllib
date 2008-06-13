@@ -1,3 +1,9 @@
+2008-06-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* base32.pcx: New file. Syntax definitions for the public commands
+	* base32_core.pcx: of the bibtex package.
+	* base32_hex.pcx:
+
 2008-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* base32hex.tcl: Added missing implementation of 'Names' for use
