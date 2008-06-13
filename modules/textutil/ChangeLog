@@ -1,3 +1,12 @@
+2008-06-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* textutil_adjust.pcx: New file. Syntax definitions for the public
+	* textutil_repeat.pcx: commands of the textutil packages.
+	* textutil_split.pcx:
+	* textutil_string.pcx:
+	* textutil_tabify.pcx:
+	* textutil_trim.pcx:
+
 2008-03-22  Michael Schlenker <mic42@users.sourceforge.net>
 
         * string.tcl:   Faster longestCommonPrefixList proc
