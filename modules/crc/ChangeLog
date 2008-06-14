@@ -1,3 +1,10 @@
+2008-06-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* cksum.pcx: New files. Syntax definitions for the public
+	* crc16.pcx: commands of the various crc packages.
+	* crc32.pcx:
+	* sum.pcx:
+
 2008-04-11  Andreas Kupries  <andreask@activestate.com>
 
 	* crc16.man: Marked name of crc32 up as package.
