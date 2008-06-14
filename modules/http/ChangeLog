@@ -1,3 +1,8 @@
+2008-06-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* autoproxy.pcx: New file. Syntax definitions for the public
+	  commands of the autoproxy package.
+
 2008-02-29  Andreas Kupries  <andreask@activestate.com>
 
 	* autoproxy.tcl (::autoproxy::init, ::autoproxy::GetWin32Proxy):
