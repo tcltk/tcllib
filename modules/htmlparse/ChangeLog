@@ -1,3 +1,8 @@
+2008-06-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* htmlparse.pcx: New file. Syntax definitions for the public
+	  commands of the htmlparse package.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
