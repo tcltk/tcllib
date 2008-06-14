@@ -1,3 +1,8 @@
+2008-06-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* cmdline.pcx: New file. Syntax definitions for the public
+	  commands of the cmdline package.
+
 2008-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* cmdline.tcl: Added pragma forcing the tclchecker to ignore an
