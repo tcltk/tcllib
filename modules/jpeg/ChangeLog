@@ -1,3 +1,8 @@
+2008-06-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* jpeg.pcx: New file. Syntax definitions for the public commands
+	  of the jpeg package.
+
 2008-03-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* jpeg.tcl (::jpeg::getExif): Added check to reject bad section
