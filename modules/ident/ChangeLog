@@ -1,3 +1,8 @@
+2008-06-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ident.pcx: New file. Syntax definitions for the public commands
+	  of the ident package.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
