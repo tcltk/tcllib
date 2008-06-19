@@ -1,332 +1,180 @@
 # stack.tcl --
 #
-#	Stack implementation for Tcl.
+#	Implementation of a stack data structure for Tcl.
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
+# Copyright (c) 2008 by Andreas Kupries
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: stack.tcl,v 1.14 2008/06/19 06:44:27 andreas_kupries Exp $
-
-namespace eval ::struct {}
-
-namespace eval ::struct::stack {
-    # The stacks array holds all of the stacks you've made
-    variable stacks
-    
-    # counter is used to give a unique name for unnamed stacks
-    variable counter 0
-
-    # Only export one command, the one used to instantiate a new stack
-    namespace export stack
-}
-
-# ::struct::stack::stack --
 #
-#	Create a new stack with a given name; if no name is given, use
-#	stackX, where X is a number.
+# RCS: @(#) $Id: stack.tcl,v 1.15 2008/06/19 23:03:35 andreas_kupries Exp $
+
+# @mdgen EXCLUDE: stack_c.tcl
+
+package require Tcl 8.2
+namespace eval ::struct::stack {}
+
+# ### ### ### ######### ######### #########
+## Management of stack implementations.
+
+# ::struct::stack::LoadAccelerator --
+#
+#	Loads a named implementation, if possible.
 #
 # Arguments:
-#	name	name of the stack; if null, generate one.
+#	key	Name of the implementation to load.
 #
 # Results:
-#	name	name of the stack created
+#	A boolean flag. True if the implementation
+#	was successfully loaded; and False otherwise.
 
-proc ::struct::stack::stack {args} {
-    variable stacks
-    variable counter
-    
-    switch -exact -- [llength [info level 0]] {
-	1 {
-	    # Missing name, generate one.
-	    incr counter
-	    set name "stack${counter}"
+proc ::struct::stack::LoadAccelerator {key} {
+    variable accel
+    set r 0
+    switch -exact -- $key {
+	critcl {
+	    # Critcl implementation of stack requires Tcl 8.4.
+	    if {![package vsatisfies [package provide Tcl] 8.4]} {return 0}
+	    if {[catch {package require tcllibc}]} {return 0}
+	    set r [llength [info commands ::struct::stack_critcl]]
 	}
-	2 {
-	    # Standard call. New empty stack.
-	    set name [lindex $args 0]
+	tcl {
+	    variable selfdir
+	    source [file join $selfdir stack_tcl.tcl]
+	    set r 1
 	}
-	default {
-	    # Error.
-	    return -code error \
-		    "wrong # args: should be \"stack ?name?\""
-	}
-    }
-
-    # FIRST, qualify the name.
-    if {![string match "::*" $name]} {
-        # Get caller's namespace; append :: if not global namespace.
-        set ns [uplevel 1 [list namespace current]]
-        if {"::" != $ns} {
-            append ns "::"
+        default {
+            return -code error "invalid accelerator/impl. package $key:\
+                must be one of [join [KnownImplementations] {, }]"
         }
-
-        set name "$ns$name"
     }
-    if {[llength [info commands $name]]} {
-	return -code error \
-		"command \"$name\" already exists, unable to create stack"
-    }
-
-    set stacks($name) [list ]
-
-    # Create the command to manipulate the stack
-    interp alias {} $name {} ::struct::stack::StackProc $name
-
-    return $name
+    set accel($key) $r
+    return $r
 }
 
-##########################
-# Private functions follow
-
-# ::struct::stack::StackProc --
+# ::struct::stack::SwitchTo --
 #
-#	Command that processes all stack object commands.
+#	Activates a loaded named implementation.
 #
 # Arguments:
-#	name	name of the stack object to manipulate.
-#	args	command name and args for the command
+#	key	Name of the implementation to activate.
 #
 # Results:
-#	Varies based on command to perform
+#	None.
 
-proc ::struct::stack::StackProc {name cmd args} {
-    # Do minimal args checks here
-    if { [llength [info level 0]] == 2 } {
-	return -code error "wrong # args: should be \"$name option ?arg arg ...?\""
-    }
+proc ::struct::stack::SwitchTo {key} {
+    variable accel
+    variable loaded
 
-    # Split the args into command and args components
-    set sub _$cmd
-    if { [llength [info commands ::struct::stack::$sub]] == 0 } {
-	set optlist [lsort [info commands ::struct::stack::_*]]
-	set xlist {}
-	foreach p $optlist {
-	    set p [namespace tail $p]
-	    lappend xlist [string range $p 1 end]
+    if {[string equal $key $loaded]} {
+	# No change, nothing to do.
+	return
+    } elseif {![string equal $key ""]} {
+	# Validate the target implementation of the switch.
+
+	if {![info exists accel($key)]} {
+	    return -code error "Unable to activate unknown implementation \"$key\""
+	} elseif {![info exists accel($key)] || !$accel($key)} {
+	    return -code error "Unable to activate missing implementation \"$key\""
 	}
-	set optlist [linsert [join $xlist ", "] "end-1" "or"]
-	return -code error \
-		"bad option \"$cmd\": must be $optlist"
     }
 
-    uplevel 1 [linsert $args 0 ::struct::stack::$sub $name]
-}
+    # Deactivate the previous implementation, if there was any.
 
-# ::struct::stack::_clear --
-#
-#	Clear a stack.
-#
-# Arguments:
-#	name	name of the stack object.
-#
-# Results:
-#	None.
+    if {![string equal $loaded ""]} {
+	rename ::struct::stack ::struct::stack_$loaded
+    }
 
-proc ::struct::stack::_clear {name} {
-    set ::struct::stack::stacks($name) [list]
+    # Activate the new implementation, if there is any.
+
+    if {![string equal $key ""]} {
+	rename ::struct::stack_$key ::struct::stack
+    }
+
+    # Remember the active implementation, for deactivation by future
+    # switches.
+
+    set loaded $key
     return
 }
 
-# ::struct::stack::_destroy --
+# ::struct::stack::Implementations --
 #
-#	Destroy a stack object by removing it's storage space and 
-#	eliminating it's proc.
+#	Determines which implementations are
+#	present, i.e. loaded.
 #
 # Arguments:
-#	name	name of the stack object.
-#
-# Results:
 #	None.
-
-proc ::struct::stack::_destroy {name} {
-    unset ::struct::stack::stacks($name)
-    interp alias {} $name {}
-    return
-}
-
-# ::struct::stack::_peek --
-#
-#	Retrieve the value of an item on the stack without popping it.
-#
-# Arguments:
-#	name	name of the stack object.
-#	count	number of items to pop; defaults to 1
 #
 # Results:
-#	items	top count items from the stack; if there are not enough items
-#		to fulfill the request, throws an error.
+#	A list of implementation keys.
 
-proc ::struct::stack::_peek {name {count 1}} {
-    variable stacks
-    upvar 0  stacks($name) mystack
-
-    if { $count < 1 } {
-	return -code error "invalid item count $count"
-    } elseif { $count > [llength $mystack] } {
-	return -code error "insufficient items on stack to fill request"
+proc ::struct::stack::Implementations {} {
+    variable accel
+    set res {}
+    foreach n [array names accel] {
+	if {!$accel($n)} continue
+	lappend res $n
     }
-
-    if { $count == 1 } {
-	# Handle this as a special case, so single item peeks are not
-	# listified
-	return [lindex $mystack end]
-    }
-
-    # Otherwise, return a list of items
-    incr count -1
-    return [lreverse [lrange $mystack end-$count end]]
+    return $res
 }
 
-# ::struct::stack::_pop --
+# ::struct::stack::KnownImplementations --
 #
-#	Pop an item off a stack.
-#
-# Arguments:
-#	name	name of the stack object.
-#	count	number of items to pop; defaults to 1
-#
-# Results:
-#	item	top count items from the stack; if the stack is empty, 
-#		returns a list of count nulls.
-
-proc ::struct::stack::_pop {name {count 1}} {
-    variable stacks
-    upvar 0  stacks($name) mystack
-
-    if { $count < 1 } {
-	return -code error "invalid item count $count"
-    } elseif { $count > [llength $mystack] } {
-	return -code error "insufficient items on stack to fill request"
-    }
-
-    if { $count == 1 } {
-	# Handle this as a special case, so single item pops are not
-	# listified
-	set item [lindex $mystack end]
-	if {$count == [llength $mystack]} {
-	    set mystack [list]
-	} else {
-	    set mystack [lreplace [K $mystack [unset mystack]] end end]
-	}
-	return $item
-    }
-
-    # Otherwise, return a list of items, and remove the items from the
-    # stack.
-    if {$count == [llength $mystack]} {
-	set result  [lreverse [K $mystack [unset mystack]]]
-	set mystack [list]
-    } else {
-	incr count -1
-	set result  [lreverse [lrange $mystack end-$count end]]
-	set mystack [lreplace [K $mystack [unset mystack]] end-$count end]
-    }
-    return $result
-}
-
-# ::struct::stack::_push --
-#
-#	Push an item onto a stack.
+#	Determines which implementations are known
+#	as possible implementations.
 #
 # Arguments:
-#	name	name of the stack object
-#	args	items to push.
-#
-# Results:
 #	None.
-
-proc ::struct::stack::_push {name args} {
-    if { [llength $args] == 0 } {
-	return -code error "wrong # args: should be \"$name push item ?item ...?\""
-    }
-    variable stacks
-    upvar 0  stacks($name) mystack
-    if {[llength $args] == 1} {
-        lappend mystack [lindex $args 0]
-    } else {
-	# 8.5: lappend mystack {*}$args
-	eval [linsert $args 0 lappend mystack]
-    }
-    return
-}
-
-# ::struct::stack::_rotate --
-#
-#	Rotate the top count number of items by step number of steps.
-#
-# Arguments:
-#	name	name of the stack object.
-#	count	number of items to rotate.
-#	steps	number of steps to rotate.
 #
 # Results:
-#	None.
+#	A list of implementation keys. In the order
+#	of preference, most prefered first.
 
-proc ::struct::stack::_rotate {name count steps} {
-    variable stacks
-    upvar 0  stacks($name) mystack
-    set len [llength $mystack]
-    if { $count > $len } {
-	return -code error "insufficient items on stack to fill request"
-    }
-
-    # Rotation algorithm:
-    # do
-    #   Find the insertion point in the stack
-    #   Move the end item to the insertion point
-    # repeat $steps times
-
-    set start [expr {$len - $count}]
-    set steps [expr {$steps % $count}]
-
-    if {$steps == 0} return
-
-    for {set i 0} {$i < $steps} {incr i} {
-	set item [lindex $mystack end]
-	set mystack [linsert \
-			 [lreplace \
-			      [K $mystack [unset mystack]] \
-			      end end] $start $item]
-    }
-    return
+proc ::struct::stack::KnownImplementations {} {
+    return {critcl tcl}
 }
 
-# ::struct::stack::_size --
-#
-#	Return the number of objects on a stack.
-#
-# Arguments:
-#	name	name of the stack object.
-#
-# Results:
-#	count	number of items on the stack.
-
-proc ::struct::stack::_size {name} {
-    return [llength $::struct::stack::stacks($name)]
+proc ::struct::stack::Names {} {
+    return {
+	critcl {tcllibc based}
+	tcl    {pure Tcl}
+    }
 }
 
 # ### ### ### ######### ######### #########
+## Initialization: Data structures.
 
-proc ::struct::stack::K {x y} { set x }
+namespace eval ::struct::stack {
+    variable  selfdir [file dirname [info script]]
+    variable  accel
+    array set accel   {tcl 0 critcl 0}
+    variable  loaded  {}
+}
 
-if {![llength [info commands lreverse]]} {
-    proc ::struct::stack::lreverse {x} {
-	# assert (llength(x) > 1)
-	set r [list]
-	set l [llength $x]
-	while {$l} { lappend r [lindex $x [incr l -1]] }
-	return $r
+# ### ### ### ######### ######### #########
+## Initialization: Choose an implementation,
+## most prefered first. Loads only one of the
+## possible implementations. And activates it.
+
+namespace eval ::struct::stack {
+    variable e
+    foreach e [KnownImplementations] {
+	if {[LoadAccelerator $e]} {
+	    SwitchTo $e
+	    break
+	}
     }
+    unset e
 }
 
 # ### ### ### ######### ######### #########
 ## Ready
 
 namespace eval ::struct {
-    # Get 'stack::stack' into the general structure namespace.
-    namespace import -force stack::stack
+    # Export the constructor command.
     namespace export stack
 }
-package provide struct::stack 1.3.2
+
+package provide struct::stack 1.3.3

@@ -33,7 +33,7 @@ source [file join [file dirname [info script]] stack.tcl]
 namespace import struct::stack
 
 set code tcl
-if {0&&![catch {package present tcllibc}]} {
+if {![catch {package present tcllibc}]} {
     set code {C  }
 }
 #set code $struct::tree::loaded
@@ -109,6 +109,8 @@ foreach base {10 100 1000 10000} {
 # rotate
 # - Time to rotate 1,N/4,N/2,N-1 steps of 10/100/1000 elements atop 10/100/1000/10000
 # Expected: Linear time in number of rotating elements.
+# C:   As expected.
+# Tcl: Linear in both number of rotating elements and number of steps! Fix this.
 
 foreach n {10 100 1000 10000} {
     foreach top {10 100 1000} {
@@ -131,8 +133,8 @@ foreach n {10 100 1000 10000} {
 # - As above, to a stack containing 1/10/100/1000 elements already.
 # Expected: Amortized linear time in number of elements added.
 
-foreach base {0 1 10 100 1000} {
-    foreach add {1 10 100 1000} {
+foreach base  {0 1 10 100 1000 10000} {
+    foreach add {1 10 100 1000 10000} {
 	bench -desc "stack push once $base/$add" -ipre {
 	    makeN $base
 	    set cmd [makeNcmd $add]
@@ -178,7 +180,7 @@ foreach n {0 1 10 100 1000 10000} {
 # - Time to clear a stack containing 0/1/10/100/1000/10000 elements.
 # Expected: Constant to linear time in number of elements to clear.
 
-foreach n {0 1 10 100 1000 1000} {
+foreach n {0 1 10 100 1000 10000} {
     bench -desc "stack clear $n" -ipre {
 	makeN $n
     } -body {
