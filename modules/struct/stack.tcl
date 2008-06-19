@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: stack.tcl,v 1.13 2005/10/03 17:52:22 andreas_kupries Exp $
+# RCS: @(#) $Id: stack.tcl,v 1.14 2008/06/19 06:44:27 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -125,7 +125,7 @@ proc ::struct::stack::StackProc {name cmd args} {
 #	None.
 
 proc ::struct::stack::_clear {name} {
-    set ::struct::stack::stacks($name) [list ]
+    set ::struct::stack::stacks($name) [list]
     return
 }
 
@@ -160,26 +160,23 @@ proc ::struct::stack::_destroy {name} {
 
 proc ::struct::stack::_peek {name {count 1}} {
     variable stacks
-    if { $count < 1 } {
-	error "invalid item count $count"
-    }
+    upvar 0  stacks($name) mystack
 
-    if { $count > [llength $stacks($name)] } {
-	error "insufficient items on stack to fill request"
+    if { $count < 1 } {
+	return -code error "invalid item count $count"
+    } elseif { $count > [llength $mystack] } {
+	return -code error "insufficient items on stack to fill request"
     }
 
     if { $count == 1 } {
-	# Handle this as a special case, so single item pops aren't listified
-	set item [lindex $stacks($name) end]
-	return $item
+	# Handle this as a special case, so single item peeks are not
+	# listified
+	return [lindex $mystack end]
     }
 
     # Otherwise, return a list of items
-    set result [list ]
-    for {set i 0} {$i < $count} {incr i} {
-	lappend result [lindex $stacks($name) "end-${i}"]
-    }
-    return $result
+    incr count -1
+    return [lreverse [lrange $mystack end-$count end]]
 }
 
 # ::struct::stack::_pop --
@@ -196,29 +193,36 @@ proc ::struct::stack::_peek {name {count 1}} {
 
 proc ::struct::stack::_pop {name {count 1}} {
     variable stacks
-    if { $count > [llength $stacks($name)] } {
-	error "insufficient items on stack to fill request"
-    } elseif { $count < 1 } {
-	error "invalid item count $count"
+    upvar 0  stacks($name) mystack
+
+    if { $count < 1 } {
+	return -code error "invalid item count $count"
+    } elseif { $count > [llength $mystack] } {
+	return -code error "insufficient items on stack to fill request"
     }
 
     if { $count == 1 } {
-	# Handle this as a special case, so single item pops aren't listified
-	set item [lindex $stacks($name) end]
-	set stacks($name) [lreplace $stacks($name) end end]
+	# Handle this as a special case, so single item pops are not
+	# listified
+	set item [lindex $mystack end]
+	if {$count == [llength $mystack]} {
+	    set mystack [list]
+	} else {
+	    set mystack [lreplace [K $mystack [unset mystack]] end end]
+	}
 	return $item
     }
 
-    # Otherwise, return a list of items
-    set result [list ]
-    for {set i 0} {$i < $count} {incr i} {
-	lappend result [lindex $stacks($name) "end-${i}"]
+    # Otherwise, return a list of items, and remove the items from the
+    # stack.
+    if {$count == [llength $mystack]} {
+	set result  [lreverse [K $mystack [unset mystack]]]
+	set mystack [list]
+    } else {
+	incr count -1
+	set result  [lreverse [lrange $mystack end-$count end]]
+	set mystack [lreplace [K $mystack [unset mystack]] end-$count end]
     }
-
-    # Remove these items from the stack
-    incr i -1
-    set stacks($name) [lreplace $stacks($name) "end-${i}" end]
-
     return $result
 }
 
@@ -235,11 +239,17 @@ proc ::struct::stack::_pop {name {count 1}} {
 
 proc ::struct::stack::_push {name args} {
     if { [llength $args] == 0 } {
-	error "wrong # args: should be \"$name push item ?item ...?\""
+	return -code error "wrong # args: should be \"$name push item ?item ...?\""
     }
-    foreach item $args {
-	lappend ::struct::stack::stacks($name) $item
+    variable stacks
+    upvar 0  stacks($name) mystack
+    if {[llength $args] == 1} {
+        lappend mystack [lindex $args 0]
+    } else {
+	# 8.5: lappend mystack {*}$args
+	eval [linsert $args 0 lappend mystack]
     }
+    return
 }
 
 # ::struct::stack::_rotate --
@@ -256,9 +266,10 @@ proc ::struct::stack::_push {name args} {
 
 proc ::struct::stack::_rotate {name count steps} {
     variable stacks
-    set len [llength $stacks($name)]
+    upvar 0  stacks($name) mystack
+    set len [llength $mystack]
     if { $count > $len } {
-	error "insufficient items on stack to fill request"
+	return -code error "insufficient items on stack to fill request"
     }
 
     # Rotation algorithm:
@@ -269,10 +280,15 @@ proc ::struct::stack::_rotate {name count steps} {
 
     set start [expr {$len - $count}]
     set steps [expr {$steps % $count}]
+
+    if {$steps == 0} return
+
     for {set i 0} {$i < $steps} {incr i} {
-	set item [lindex $stacks($name) end]
-	set stacks($name) [lreplace $stacks($name) end end]
-	set stacks($name) [linsert $stacks($name) $start $item]
+	set item [lindex $mystack end]
+	set mystack [linsert \
+			 [lreplace \
+			      [K $mystack [unset mystack]] \
+			      end end] $start $item]
     }
     return
 }
@@ -292,6 +308,20 @@ proc ::struct::stack::_size {name} {
 }
 
 # ### ### ### ######### ######### #########
+
+proc ::struct::stack::K {x y} { set x }
+
+if {![llength [info commands lreverse]]} {
+    proc ::struct::stack::lreverse {x} {
+	# assert (llength(x) > 1)
+	set r [list]
+	set l [llength $x]
+	while {$l} { lappend r [lindex $x [incr l -1]] }
+	return $r
+    }
+}
+
+# ### ### ### ######### ######### #########
 ## Ready
 
 namespace eval ::struct {
@@ -299,4 +329,4 @@ namespace eval ::struct {
     namespace import -force stack::stack
     namespace export stack
 }
-package provide struct::stack 1.3.1
+package provide struct::stack 1.3.2

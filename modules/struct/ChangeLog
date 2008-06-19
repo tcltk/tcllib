@@ -1,3 +1,10 @@
+2008-06-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* stack.bench: New file, added benchmarks for stack objects.
+	* stack.tcl: Rewrites of various commands for speed, using K
+	* pkgIndex.tcl: operator etc. Bumped to version 1.3.2.
+	* stack.man:
+
 2008-03-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph/tests/nodes.test: Extended with tests to capture the
