@@ -1,3 +1,8 @@
+2008-06-20  Andreas Kupries  <andreask@activestate.com>
+
+ 	* support/installation/version.tcl: Added code integrated
+	  struct::stack's critcl implementation into the build.
+
 2008-05-22  Andreas Kupries  <andreask@activestate.com>
 
 	* support/installation/modules.tcl: Added 'yaml' to the list
