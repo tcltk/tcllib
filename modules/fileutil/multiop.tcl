@@ -1,6 +1,6 @@
 # ### ### ### ######### ######### #########
 ##
-# (c) 2007 Andreas Kupries.
+# (c) 2007-2008 Andreas Kupries.
 
 # DSL allowing the easy specification of multi-file copy and/or move
 # and/or deletion operations. Alternate names would be scatter/gather
@@ -140,7 +140,7 @@ snit::type ::fileutil::multi::op {
     ## API - Implementation.
 
     constructor {args} {
-	install stack using struct::stack::stack ${selfns}::stack
+	install stack using struct::stack ${selfns}::stack
 	$self wip_setup
 
 	# Mapping dsl commands to methods.
@@ -625,4 +625,4 @@ snit::type ::fileutil::multi::op {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::multi::op 0.5
+package provide fileutil::multi::op 0.5.1
