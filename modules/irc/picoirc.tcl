@@ -14,10 +14,10 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: picoirc.tcl,v 1.3 2007/10/24 10:38:57 patthoyts Exp $
+# $Id: picoirc.tcl,v 1.4 2008/06/24 22:06:56 patthoyts Exp $
 
 namespace eval ::picoirc {
-    variable version 0.5
+    variable version 0.5.1
     variable uid; if {![info exists uid]} { set uid 0 }
     variable defaults {
         server   "irc.freenode.net"
@@ -138,16 +138,27 @@ proc ::picoirc::Read {context} {
                 switch -- $ctcp {
                     ACTION { set type ACTION ; set msg $data }
                     VERSION {
-                        send $context "PRIVMSG $nick :\001VERSION [Version $context]\001"
+                        send $context "NOTICE $nick :\001VERSION [Version $context]\001"
                         return 
                     }
+                    PING {
+                        send $context "NOTICE $nick :\001PING [lindex $data 0]\001"
+                        return
+                    }
+                    TIME {
+                        set time [clock format [clock seconds] \
+                                      -format {%a %b %d %H:%M:%S %Y %Z}]
+                        send $context "NOTICE $nick :\001TIME $time\001"
+                        return
+                    }
                     default {
-                        send $context "PRIVMSG $nick :\001ERRMSG $msg : unknown query"
+                        set err [string map [list \001 ""] $msg]
+                        send $context "NOTICE $nick :\001ERRMSG $err : unknown query\001"
                         return
                     }
                 }
             }
-            if {[lsearch -exact {azbridge ijchain} $nick] != -1} {
+            if {[lsearch -exact {ijchain wubchain} $nick] != -1} {
                 if {$type eq "ACTION"} {
                     regexp {(\S+) (.+)} $msg -> nick msg 
                 } else {
