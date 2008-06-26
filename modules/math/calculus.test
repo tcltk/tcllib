@@ -9,7 +9,7 @@
 # Copyright (c) 2004 by Kevin B. Kenny
 # All rights reserved.
 #
-# RCS: @(#) $Id: calculus.test,v 1.16 2006/10/09 21:41:41 andreas_kupries Exp $
+# RCS: @(#) $Id: calculus.test,v 1.17 2008/06/26 20:04:23 arjenmarkus Exp $
 
 # -------------------------------------------------------------------------
 
@@ -634,6 +634,11 @@ test "regula-2.2" "Invalid interval" \
    -match glob -body {
    set x1 [::math::calculus::regula_falsi ::f3 0.0 5.0]
 } -result "Interval must be *" -returnCodes error
+
+test "solveTriDiagonal-1.0" "Solve tridiagonal system" \
+   -match numbers -body {
+   set x [::math::calculus::solveTriDiagonal {3 3} {1 1 1} {2 2} {1 0 0}]
+} -result [list [expr {5.0/11.0}] [expr {3.0/11.0}] [expr {-9.0/11.0}]]
 
 # End of test cases
 testsuiteCleanup

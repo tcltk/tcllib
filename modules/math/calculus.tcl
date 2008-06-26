@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: calculus.tcl,v 1.13 2006/03/28 20:36:00 arjenmarkus Exp $
+# RCS: @(#) $Id: calculus.tcl,v 1.14 2008/06/26 20:04:23 arjenmarkus Exp $
 
 package require Tcl 8.4
 package require math::interpolate
@@ -503,7 +503,7 @@ proc ::math::calculus::boundaryValueSecondOrder {
    set D2 [expr {$D-$C*[lindex $rightbnd 1]}]
    set dvalue [concat $D1 [lrange $dvalue 1 end-1] $D2]
 
-   set yvec [solveTriDiagonal $acoeff $bcoeff $ccoeff $dvalue]
+   set yvec [solveTriDiagonal [lrange $acoeff 1 end] $bcoeff [lrange $ccoeff 0 end-1] $dvalue]
 
    foreach x $xvec y $yvec {
       lappend result $x $y
@@ -531,19 +531,20 @@ proc ::math::calculus::solveTriDiagonal { acoeff bcoeff ccoeff dvalue } {
    set B [lindex $bcoeff 0]
    set C [lindex $ccoeff 0]
    set D [lindex $dvalue 0]
+   set acoeff  [concat 0.0 $acoeff]
    set bcoeff2 [list $B]
    set dvalue2 [list $D]
-   for { set i 1 } { $i < $nostep } { incr i } {
+   for { set i 1 } { $i <= $nostep } { incr i } {
       set A2    [lindex $acoeff $i]
       set B2    [lindex $bcoeff $i]
-      set C2    [lindex $ccoeff $i]
       set D2    [lindex $dvalue $i]
-      set ratab [expr {$A2/$B}]
+      set ratab [expr {$A2/double($B)}]
       set B2    [expr {$B2-$ratab*$C}]
       set D2    [expr {$D2-$ratab*$D}]
       lappend bcoeff2 $B2
       lappend dvalue2 $D2
       set B     $B2
+      set C     [lindex $ccoeff $i]
       set D     $D2
    }
 
@@ -554,7 +555,7 @@ proc ::math::calculus::solveTriDiagonal { acoeff bcoeff ccoeff dvalue } {
    set B [lindex $bcoeff2 end]
    set D [lindex $dvalue2 end]
    set y [expr {$D/$B}]
-   for { set i [expr {$nostep-2}] } { $i >= 0 } { incr i -1 } {
+   for { set i [expr {$nostep-1}] } { $i >= 0 } { incr i -1 } {
       set yvec  [concat $y $yvec]
       set B     [lindex $bcoeff2 $i]
       set C     [lindex $ccoeff  $i]
