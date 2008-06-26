@@ -31,12 +31,16 @@
       Convert a roman numeral into an integer.
 
     [call [cmd ::math::roman::sort] [arg list]]
-      Sort a list of roman nnumerals from smallest to largest.
+      Sort a list of roman numerals from smallest to largest.
 
     [call [cmd ::math::roman::expr] [arg args]]
       Evaluate an expression where the operands are all roman numerals.
 
   [list_end]
+
+Of these commands both [code toroman] and [code tointeger] are exported
+for easier use. The other two are not, as they could interfer or be
+confused with existing Tcl commands.
 
 [section {BUGS, IDEAS, FEEDBACK}]
 
