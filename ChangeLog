@@ -1,3 +1,9 @@
+2008-06-30  Andreas Kupries  <andreask@activestate.com>
+
+	* support/installation/actions.tcl (_manfile): Tossed two of the
+	  three identical copies of this procedure. Thanks to Stuart
+	  Cassoff for noticing and reporting this.
+
 2008-06-20  Andreas Kupries  <andreask@activestate.com>
 
  	* support/installation/version.tcl: Added code integrated
