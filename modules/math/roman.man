@@ -38,7 +38,7 @@
 
   [list_end]
 
-Of these commands both [code toroman] and [code tointeger] are exported
+Of these commands both [emph toroman] and [emph tointeger] are exported
 for easier use. The other two are not, as they could interfer or be
 confused with existing Tcl commands.
 
