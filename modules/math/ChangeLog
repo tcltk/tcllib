@@ -1,3 +1,6 @@
+2008-07-01  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* roman.man: corrected wrong mark-up command
+
 2008-06-25  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* calculus.tcl: solved problem with solveTriDiagonal (bug 2001539)
 	* calculus.tcl: repaired hidden problem with boundaryValueSecondOrder
