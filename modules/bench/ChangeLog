@@ -1,3 +1,12 @@
+2008-06-30  Andreas Kupries  <andreask@activestate.com>
+
+	* bench.tcl (::bench::Invoke): Reworked the protocol between
+	* libbench.tcl: manager and execution system to allow for
+	  incremental returning of results and proper progress
+	  feedback. This enables users to see how a benchmark progresses,
+	  and to provide their own notes about conditions and decisions as
+	  well.
+
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
