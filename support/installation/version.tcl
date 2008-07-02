@@ -21,6 +21,7 @@ critcl      struct_treec  struct/tree_c.tcl
 critcl      struct_graphc struct/graph_c.tcl
 critcl      struct_setc   struct/sets_c.tcl
 critcl      struct_stackc struct/stack_c.tcl
+critcl      struct_queuec struct/queue_c.tcl
 critcl      base32c       base32/base32_c.tcl
 critcl      base32hexc    base32/base32hex_c.tcl
 critcl      ipMorec       dns/ipMoreC.tcl
