@@ -4,7 +4,7 @@
 # This file has to have code that works in any version of Tcl that
 # the user would want to benchmark.
 #
-# RCS: @(#) $Id: libbench.tcl,v 1.3 2007/08/21 20:02:21 andreas_kupries Exp $
+# RCS: @(#) $Id: libbench.tcl,v 1.4 2008/07/02 23:34:06 andreas_kupries Exp $
 #
 # Copyright (c) 2000-2001 Jeffrey Hobbs.
 # Copyright (c) 2007      Andreas Kupries
@@ -157,6 +157,11 @@ proc bench_rm {args} {
     }
 }
 
+proc bench_puts {args} {
+    eval [linsert $args 0 FEEDBACK]
+    return
+}
+
 # bench --
 #
 #   Main bench procedure.
@@ -230,6 +235,9 @@ proc bench {args} {
 	}
 	set args [lreplace $args 0 1]
     }
+
+    FEEDBACK "Running <$opts(-desc)>"
+
     if {($BENCH(MATCH) != "") && ![string match $BENCH(MATCH) $opts(-desc)]} {
 	return
     }
@@ -256,11 +264,10 @@ proc bench {args} {
 	    } else {
 		set res "BAD_RES"
 	    }
-	    set bench($opts(-desc)) $res
-	    puts $BENCH(OUTFID) [list Sourcing "$opts(-desc): $res"]
+	    #set bench($opts(-desc)) $res
+	    RESULT $opts(-desc) $res
 	} else {
 	    if {($opts(-ipre) != "") || ($opts(-ipost) != "")} {
-
 		# We do the averaging on our own, to allow untimed
 		# pre/post execution per iteration. We catch and
 		# handle problems in the pre/post code as if
@@ -308,8 +315,8 @@ proc bench {args} {
 			set res "ERR"
 		    }
 		}
-		set bench($opts(-desc)) $res
-		puts $BENCH(OUTFID) [list Sourcing "$opts(-desc): $res"]
+		#set bench($opts(-desc)) $res
+		RESULT $opts(-desc) $res
 	    } else {
 		# Threaded runs report back asynchronously
 		thread::send $BENCH(us) \
@@ -323,6 +330,19 @@ proc bench {args} {
     }
     return
 }
+
+proc RESULT {desc time} {
+    global BENCH
+    puts $BENCH(OUTFID) [list RESULT $desc $time]
+    return
+}
+
+proc FEEDBACK {text} {
+    global BENCH
+    puts $BENCH(OUTFID) [list LOG $text]
+    return
+}
+
 
 proc usage {} {
     set me [file tail [info script]]
@@ -423,7 +443,7 @@ if {$BENCH(THREADS)} {
 	set BENCH(FILES) [lrange $BENCH(FILES) 1 end]
 	if {[file exists $file]} {
 	    incr BENCH(inuse)
-	    puts $BENCH(OUTFID) [list Sourcing $file]
+	    FEEDBACK [list Sourcing $file]
 	    if {$id} {
 		set them $id
 	    } else {
@@ -439,7 +459,7 @@ if {$BENCH(THREADS)} {
 			[list proc bench {args} [info body bench]]
 	    }
 	    if {[info exists ::DEBUG]} {
-		puts stderr "SEND [clock seconds] thread $them $file INUSE\
+		FEEDBACK "SEND [clock seconds] thread $them $file INUSE\
 		$BENCH(inuse) of $BENCH(THREADS)"
 	    }
 	    thread::send -async $them [list source $file]
@@ -453,7 +473,7 @@ if {$BENCH(THREADS)} {
 	global BENCH
 	while {[llength $BENCH(FILES)]} {
 	    if {[info exists ::DEBUG]} {
-		puts stderr "THREAD ONE [lindex $BENCH(FILES) 0]"
+		FEEDBACK "THREAD ONE [lindex $BENCH(FILES) 0]"
 	    }
 	    thread_one
 	    if {$BENCH(inuse) >= $BENCH(THREADS)} {
@@ -468,12 +488,12 @@ if {$BENCH(THREADS)} {
 	incr BENCH(inuse) -1
 	if {[llength $BENCH(FILES)]} {
 	    if {[info exists ::DEBUG]} {
-		puts stderr "SEND ONE [clock seconds] thread $id"
+		FEEDBACK "SEND ONE [clock seconds] thread $id"
 	    }
 	    thread_one $id
 	} else {
 	    if {[info exists ::DEBUG]} {
-		puts stderr "UNWIND thread $id"
+		FEEDBACK "UNWIND thread $id"
 	    }
 	    thread::send -async $id { thread::unwind }
 	}
@@ -496,7 +516,8 @@ if {$BENCH(THREADS)} {
 		set res "ERR"
 	    }
 	}
-	set bench($desc) $res
+	#set bench($desc) $res
+	RESULT $desc $res
     }
 
     proc thread_finish {{delay 4000}} {
@@ -506,9 +527,9 @@ if {$BENCH(THREADS)} {
 	if {$val} {
 	    after $delay [info level 0]
 	} else {
-	    foreach desc [array names bench] {
-		puts $BENCH(OUTFID) [list $desc $bench($desc)]
-	    }
+	    if {0} {foreach desc [array names bench] {
+		RESULT $desc $bench($desc)
+	    }}
 	    if {$BENCH(EXIT)} {
 		exit.true ; # needed for Tk tests
 	    }
@@ -517,7 +538,7 @@ if {$BENCH(THREADS)} {
 
     set BENCH(us) [thread::id]
     set BENCH(inuse) 0 ; # num threads in use
-    puts $BENCH(OUTFID) [list __THREADED [package provide Thread]]
+    FEEDBACK [list __THREADED [package provide Thread]]
 
     thread_em
     thread_finish
@@ -525,14 +546,14 @@ if {$BENCH(THREADS)} {
 } else {
     foreach BENCH(file) $BENCH(FILES) {
 	if {[file exists $BENCH(file)]} {
-	    puts $BENCH(OUTFID) [list Sourcing $BENCH(file)]
+	    FEEDBACK [list Sourcing $BENCH(file)]
 	    source $BENCH(file)
 	}
     }
 
-    foreach desc [array names bench] {
-	puts $BENCH(OUTFID) [list $desc $bench($desc)]
-    }
+    if {0} {foreach desc [array names bench] {
+	RESULT $desc $bench($desc)
+    }}
 
     if {$BENCH(EXIT)} {
 	exit.true ; # needed for Tk tests
