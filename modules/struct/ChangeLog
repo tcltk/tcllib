@@ -1,3 +1,22 @@
+2008-07-02  Andreas Kupries  <andreask@activestate.com>
+
+	* queue.tcl: Changed core queue code to support multiple
+	* queue_tcl.tcl: implementations, and Tcl implementation. Bumped
+	* queue.man: to version 1.4.1. Updated documentation to mention
+	* pkgIndex.tcl: the critcl implementation, version number,
+	  etc. Reworked the Tcl implementation as well for speed (split
+	  buffer, indexing, avoid memcopies, K-operator).
+
+	* queue_c.tcl: Critcl based implementation of queues.
+	* queue/ds.h:
+	* queue/m.c:
+	* queue/m.h:
+	* queue/q.c:
+	* queue/q.h:
+
+	* queue.testsuite: Reworked the testsuite to handle both Tcl and
+	* queue.test:      critcl implementations.
+
 2008-06-19  Andreas Kupries  <andreask@activestate.com>
 
 	* stack.tcl: Changed core stack code to support multiple
