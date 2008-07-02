@@ -1,286 +1,180 @@
 # queue.tcl --
 #
-#	Queue implementation for Tcl.
+#	Implementation of a queue data structure for Tcl.
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
+# Copyright (c) 2008 by Andreas Kupries
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: queue.tcl,v 1.13 2005/09/30 23:48:41 andreas_kupries Exp $
-
-namespace eval ::struct {}
-namespace eval ::struct::queue {
-    # The queues array holds all of the queues you've made
-    variable queues
-    
-    # counter is used to give a unique name for unnamed queues
-    variable counter 0
-
-    # Only export one command, the one used to instantiate a new queue
-    namespace export queue
-}
-
-# ::struct::queue::queue --
 #
-#	Create a new queue with a given name; if no name is given, use
-#	queueX, where X is a number.
+# RCS: @(#) $Id: queue.tcl,v 1.14 2008/07/02 23:35:07 andreas_kupries Exp $
+
+# @mdgen EXCLUDE: queue_c.tcl
+
+package require Tcl 8.2
+namespace eval ::struct::queue {}
+
+# ### ### ### ######### ######### #########
+## Management of queue implementations.
+
+# ::struct::queue::LoadAccelerator --
+#
+#	Loads a named implementation, if possible.
 #
 # Arguments:
-#	name	name of the queue; if null, generate one.
+#	key	Name of the implementation to load.
 #
 # Results:
-#	name	name of the queue created
+#	A boolean flag. True if the implementation
+#	was successfully loaded; and False otherwise.
 
-proc ::struct::queue::queue {args} {
-    variable queues
-    variable counter
-
-    switch -exact -- [llength [info level 0]] {
-	1 {
-	    # Missing name, generate one.
-	    incr counter
-	    set name "queue${counter}"
+proc ::struct::queue::LoadAccelerator {key} {
+    variable accel
+    set r 0
+    switch -exact -- $key {
+	critcl {
+	    # Critcl implementation of queue requires Tcl 8.4.
+	    if {![package vsatisfies [package provide Tcl] 8.4]} {return 0}
+	    if {[catch {package require tcllibc}]} {return 0}
+	    set r [llength [info commands ::struct::queue_critcl]]
 	}
-	2 {
-	    # Standard call. New empty queue.
-	    set name [lindex $args 0]
+	tcl {
+	    variable selfdir
+	    source [file join $selfdir queue_tcl.tcl]
+	    set r 1
 	}
-	default {
-	    # Error.
-	    return -code error \
-		    "wrong # args: should be \"queue ?name?\""
-	}
-    }
-
-    # FIRST, qualify the name.
-    if {![string match "::*" $name]} {
-        # Get caller's namespace; append :: if not global namespace.
-        set ns [uplevel 1 [list namespace current]]
-        if {"::" != $ns} {
-            append ns "::"
+        default {
+            return -code error "invalid accelerator/impl. package $key:\
+                must be one of [join [KnownImplementations] {, }]"
         }
-
-        set name "$ns$name"
     }
-    if {[llength [info commands $name]]} {
-	return -code error \
-		"command \"$name\" already exists, unable to create queue"
-    }
-
-    # Initialize the queue as empty
-    set queues($name) [list ]
-
-    # Create the command to manipulate the queue
-    interp alias {} $name {} ::struct::queue::QueueProc $name
-
-    return $name
+    set accel($key) $r
+    return $r
 }
 
-##########################
-# Private functions follow
-
-# ::struct::queue::QueueProc --
+# ::struct::queue::SwitchTo --
 #
-#	Command that processes all queue object commands.
+#	Activates a loaded named implementation.
 #
 # Arguments:
-#	name	name of the queue object to manipulate.
-#	args	command name and args for the command
+#	key	Name of the implementation to activate.
 #
 # Results:
-#	Varies based on command to perform
+#	None.
 
-proc ::struct::queue::QueueProc {name {cmd ""} args} {
-    # Do minimal args checks here
-    if { [llength [info level 0]] == 2 } {
-	error "wrong # args: should be \"$name option ?arg arg ...?\""
-    }
-    
-    # Split the args into command and args components
-    set sub _$cmd
-    if { [llength [info commands ::struct::queue::$sub]] == 0 } {
-	set optlist [lsort [info commands ::struct::queue::_*]]
-	set xlist {}
-	foreach p $optlist {
-	    set p [namespace tail $p]
-	    lappend xlist [string range $p 1 end]
+proc ::struct::queue::SwitchTo {key} {
+    variable accel
+    variable loaded
+
+    if {[string equal $key $loaded]} {
+	# No change, nothing to do.
+	return
+    } elseif {![string equal $key ""]} {
+	# Validate the target implementation of the switch.
+
+	if {![info exists accel($key)]} {
+	    return -code error "Unable to activate unknown implementation \"$key\""
+	} elseif {![info exists accel($key)] || !$accel($key)} {
+	    return -code error "Unable to activate missing implementation \"$key\""
 	}
-	set optlist [linsert [join $xlist ", "] "end-1" "or"]
-	return -code error \
-		"bad option \"$cmd\": must be $optlist"
     }
 
-    uplevel 1 [linsert $args 0 ::struct::queue::_$cmd $name]
-}
+    # Deactivate the previous implementation, if there was any.
 
-# ::struct::queue::_clear --
-#
-#	Clear a queue.
-#
-# Arguments:
-#	name	name of the queue object.
-#
-# Results:
-#	None.
+    if {![string equal $loaded ""]} {
+	rename ::struct::queue ::struct::queue_$loaded
+    }
 
-proc ::struct::queue::_clear {name} {
-    variable queues
-    set queues($name) [list ]
+    # Activate the new implementation, if there is any.
+
+    if {![string equal $key ""]} {
+	rename ::struct::queue_$key ::struct::queue
+    }
+
+    # Remember the active implementation, for deactivation by future
+    # switches.
+
+    set loaded $key
     return
 }
 
-# ::struct::queue::_destroy --
+# ::struct::queue::Implementations --
 #
-#	Destroy a queue object by removing it's storage space and 
-#	eliminating it's proc.
+#	Determines which implementations are
+#	present, i.e. loaded.
 #
 # Arguments:
-#	name	name of the queue object.
-#
-# Results:
 #	None.
-
-proc ::struct::queue::_destroy {name} {
-    variable queues
-    unset queues($name)
-    interp alias {} $name {}
-    return
-}
-
-# ::struct::queue::_get --
-#
-#	Get an item from a queue.
-#
-# Arguments:
-#	name	name of the queue object.
-#	count	number of items to get; defaults to 1
 #
 # Results:
-#	item	first count items from the queue; if there are not enough 
-#		items in the queue, throws an error.
+#	A list of implementation keys.
 
-proc ::struct::queue::_get {name {count 1}} {
-    variable queues
-    if { $count < 1 } {
-	error "invalid item count $count"
+proc ::struct::queue::Implementations {} {
+    variable accel
+    set res {}
+    foreach n [array names accel] {
+	if {!$accel($n)} continue
+	lappend res $n
     }
-
-    if { $count > [llength $queues($name)] } {
-	error "insufficient items in queue to fill request"
-    }
-
-    if { $count == 1 } {
-	# Handle this as a special case, so single item gets aren't listified
-	set item [lindex $queues($name) 0]
-	set queues($name) [lreplace $queues($name) 0 0]
-	return $item
-    }
-
-    # Otherwise, return a list of items
-    set index [expr {$count - 1}]
-    set result [lrange $queues($name) 0 $index]
-    set queues($name) [lreplace $queues($name) 0 $index]
-
-    return $result
+    return $res
 }
 
-# ::struct::queue::_peek --
+# ::struct::queue::KnownImplementations --
 #
-#	Retrieve the value of an item on the queue without removing it.
-#
-# Arguments:
-#	name	name of the queue object.
-#	count	number of items to peek; defaults to 1
-#
-# Results:
-#	items	top count items from the queue; if there are not enough items
-#		to fulfill the request, throws an error.
-
-proc ::struct::queue::_peek {name {count 1}} {
-    variable queues
-    if { $count < 1 } {
-	error "invalid item count $count"
-    }
-
-    if { $count > [llength $queues($name)] } {
-	error "insufficient items in queue to fill request"
-    }
-
-    if { $count == 1 } {
-	# Handle this as a special case, so single item pops aren't listified
-	return [lindex $queues($name) 0]
-    }
-
-    # Otherwise, return a list of items
-    set index [expr {$count - 1}]
-    return [lrange $queues($name) 0 $index]
-}
-
-# ::struct::queue::_put --
-#
-#	Put an item into a queue.
+#	Determines which implementations are known
+#	as possible implementations.
 #
 # Arguments:
-#	name	name of the queue object
-#	args	items to put.
-#
-# Results:
 #	None.
-
-proc ::struct::queue::_put {name args} {
-    variable queues
-    if { [llength $args] == 0 } {
-	error "wrong # args: should be \"$name put item ?item ...?\""
-    }
-    foreach item $args {
-	lappend queues($name) $item
-    }
-    return
-}
-
-# ::struct::queue::_unget --
-#
-#	Put an item into a queue. At the _front_!
-#
-# Arguments:
-#	name	name of the queue object
-#	item	item to put at the front of the queue
 #
 # Results:
-#	None.
+#	A list of implementation keys. In the order
+#	of preference, most prefered first.
 
-proc ::struct::queue::_unget {name item} {
-    variable queues
-    if {![llength $queues($name)]} {
-	set queues($name) [list $item]
-    } else {
-	set queues($name) [linsert $queues($name) 0 $item]
-    }
-    return
+proc ::struct::queue::KnownImplementations {} {
+    return {critcl tcl}
 }
 
-# ::struct::queue::_size --
-#
-#	Return the number of objects on a queue.
-#
-# Arguments:
-#	name	name of the queue object.
-#
-# Results:
-#	count	number of items on the queue.
+proc ::struct::queue::Names {} {
+    return {
+	critcl {tcllibc based}
+	tcl    {pure Tcl}
+    }
+}
 
-proc ::struct::queue::_size {name} {
-    variable queues
-    return [llength $queues($name)]
+# ### ### ### ######### ######### #########
+## Initialization: Data structures.
+
+namespace eval ::struct::queue {
+    variable  selfdir [file dirname [info script]]
+    variable  accel
+    array set accel   {tcl 0 critcl 0}
+    variable  loaded  {}
+}
+
+# ### ### ### ######### ######### #########
+## Initialization: Choose an implementation,
+## most prefered first. Loads only one of the
+## possible implementations. And activates it.
+
+namespace eval ::struct::queue {
+    variable e
+    foreach e [KnownImplementations] {
+	if {[LoadAccelerator $e]} {
+	    SwitchTo $e
+	    break
+	}
+    }
+    unset e
 }
 
 # ### ### ### ######### ######### #########
 ## Ready
 
 namespace eval ::struct {
-    # Get 'queue::queue' into the general structure namespace.
-    namespace import -force queue::queue
+    # Export the constructor command.
     namespace export queue
 }
-package provide struct::queue 1.4
+
+package provide struct::queue 1.4.1
