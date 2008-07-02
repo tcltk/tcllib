@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: bench.tcl,v 1.12 2007/08/23 17:35:10 andreas_kupries Exp $
+# RCS: @(#) $Id: bench.tcl,v 1.13 2008/07/02 23:34:06 andreas_kupries Exp $
 
 # ### ### ### ######### ######### ######### ###########################
 ## Requisites - Packages and namespace for the commands and data.
@@ -464,34 +464,28 @@ proc ::bench::Invoke {ip ver pkgdir} {
     array set tmp {}
 
     if {$threads} {
+	foreach f $files { lappend cmd $f }
 	if {[catch {
-	    eval exec $cmd $files
+	    close [Process [open |$cmd r+]]
 	} output]} {
 	    if {$errors} {
 		error $::errorInfo
 	    }
-	} else {
-	    array set tmp $output
 	}
     } else {
 	foreach file $files {
 	    log::info [file tail $file]
 	    if {[catch {
-		eval exec [linsert $cmd end $file]
+		close [Process [open |[linsert $cmd end $file] r+]]
 	    } output]} {
 		if {$errors} {
 		    error $::errorInfo
 		} else {
 		    continue
 		}
-	    } else {
-		array set tmp $output
 	    }
 	}
     }
-
-    catch {unset tmp(Sourcing)}
-    catch {unset tmp(__THREADED)}
 
     foreach desc [array names tmp] {
 	set DATA([list desc $desc]) {}
@@ -506,6 +500,41 @@ proc ::bench::Invoke {ip ver pkgdir} {
     set sec  [expr {$elapsed % 60}]
     log::info " [format %.2d:%.2d:%.2d $hour $min $sec] elapsed"
     return
+}
+
+
+proc ::bench::Process {pipe} {
+    while {1} {
+	if {[eof  $pipe]} break
+	if {[gets $pipe line] < 0} break
+	# AK: FUTURE: Log all lines?!
+	#puts |$line|
+	set line [string trim $line]
+	if {[string equal $line ""]} continue
+
+	Result
+	Feedback
+	# Unknown lines are printed. Future: Callback?!
+	log::info $line
+    }
+    return $pipe
+}
+
+proc ::bench::Result {} {
+    upvar 1 line line
+    if {[lindex $line 0] ne "RESULT"} return
+    upvar 2 tmp tmp
+    foreach {_ desc result} $line break
+    set tmp($desc) $result
+    return -code continue
+}
+
+proc ::bench::Feedback {} {
+    upvar 1 line line
+    if {[lindex $line 0] ne "LOG"} return
+    # AK: Future - Run through callback?!
+    log::info [lindex $line 1]
+    return -code continue
 }
 
 # ### ### ### ######### ######### ######### ###########################
