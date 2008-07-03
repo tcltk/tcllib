@@ -12,7 +12,10 @@
 static int  qsize  (Q* q, int* u, int* r, int* a);
 static void qshift (Q* q);
 
-#ifdef QUEUE_DEBUG
+#undef QUEUE_DUMP
+/*#define QUEUE_DUMP 1*/
+
+#if QUEUE_DUMP
 static void qdump  (Q* q);
 #else
 #define qdump(q) /* Ignore */
@@ -458,7 +461,7 @@ qshift (Q* q)
     qdump (q);
 }
 
-#ifdef QUEUE_DEBUG
+#ifdef QUEUE_DUMP
 static void
 qdump (Q* q)
 {
