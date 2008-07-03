@@ -1,3 +1,11 @@
+2008-07-03  Andreas Kupries  <andreask@activestate.com>
+
+	* queue/m.c: Separated qdump from queue_debug mode.
+	* queue/util.h: Brought all assert macros in line with the
+	* stack/util.h: definitions provided to graph (which print
+	* tree/util.h: file/line information). Also activated assertions
+	  throughout for regular build.
+
 2008-07-02  Andreas Kupries  <andreask@activestate.com>
 
 	* queue.tcl: Changed core queue code to support multiple
