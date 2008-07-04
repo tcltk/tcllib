@@ -16,13 +16,13 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: md5x.tcl,v 1.18 2008/04/29 10:04:17 patthoyts Exp $
+# $Id: md5x.tcl,v 1.19 2008/07/04 18:27:00 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::md5 {
-    variable version 2.0.6
-    variable rcsid {$Id: md5x.tcl,v 1.18 2008/04/29 10:04:17 patthoyts Exp $}
+    variable version 2.0.7
+    variable rcsid {$Id: md5x.tcl,v 1.19 2008/07/04 18:27:00 andreas_kupries Exp $}
     variable accel
     array set accel {critcl 0 cryptkit 0 trf 0}
 
@@ -701,8 +701,9 @@ proc ::md5::hmac {args} {
 
 # Try and load a compiled extension to help.
 namespace eval ::md5 {
-    foreach e {critcl cryptkit trf} { if {[LoadAccelerator $e]} { break } }
-    unset e
+    variable e
+    foreach  e {critcl cryptkit trf} { if {[LoadAccelerator $e]} { break } }
+    unset    e
 }
 
 package provide md5 $::md5::version
