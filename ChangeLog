@@ -1,3 +1,9 @@
+2008-07-08  Andreas Kupries  <andreask@activestate.com>
+
+	* support/installation/modules.tcl: New module 'amazon-s3' with
+	  packages 'S3' and 'xsxp', by Darren New. Access to Amazon's
+	  Simple Storage Service.
+
 2008-06-30  Andreas Kupries  <andreask@activestate.com>
 
 	* support/installation/actions.tcl (_manfile): Tossed two of the
