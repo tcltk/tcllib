@@ -1,5 +1,9 @@
 2008-07-08  Andreas Kupries  <andreask@activestate.com>
 
+	* xsxp.man: Added boilerplate section to the documentation
+	* S3.man: directing bug reports and other feedback to the Tcllib
+	  SF trackers.
+
 	* xsxp.test: Added the boilerplate necessary for integration
 	* S3.test: with tcllib's test framework.
 
