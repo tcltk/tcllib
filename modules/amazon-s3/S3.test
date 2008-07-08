@@ -1,8 +1,35 @@
-lappend auto_path .
+# -*- tcl -*-
+# S3.test:  tests for the S3 access package.
 
-package require tcltest
+# This file contains a collection of tests for the S3
+# package. Sourcing this file into Tcl runs the tests and generates
+# output for errors.  No output means no errors were found.
 
-package require S3 1.0.0
+# Copyright (c) 2006,2008 Darren New. All Rights Reserved.
+# Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+#               (Boilerplate stuff (header, footer))
+# All rights reserved.
+#
+# RCS: @(#) $Id: S3.test,v 1.2 2008/07/08 22:24:35 andreas_kupries Exp $
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    # Requires xml (TclXML)
+    useLocal xsxp.tcl xsxp
+}
+testing {
+    useLocal S3.tcl S3
+}
+
+# -------------------------------------------------------------------------
 
 # I normally leave BucketDeletion false, because Amazon gets cranky
 # if you delete a bucket and then try to recreate it any time soon.
@@ -1726,6 +1753,8 @@ test S3-100.60 {Toss} \
 
 CleanUpBuckets [tcltest::testConstraint BucketDeletion]
 
-tcltest::cleanupTests
+#----------------------------------------------------------------------
+
+testsuiteCleanup
 puts "(If anything failed, check all test buckets got cleaned up!)"
 puts "Done!" ; after 5000
