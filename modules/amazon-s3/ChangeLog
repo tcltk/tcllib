@@ -1,0 +1,6 @@
+2008-07-08  Andreas Kupries  <andreask@activestate.com>
+
+	* New module 'amazon-s3', with packages S3 and xsxp, by Darren
+	  New. Physical integration of all the new files.
+	  Todo: Integration with the installer, and fixes for the
+	  testsuites to use Tcllib's boilerplate.
