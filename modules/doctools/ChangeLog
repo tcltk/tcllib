@@ -1,3 +1,14 @@
+2008-07-08  Andreas Kupries  <andreask@activestate.com>
+
+	* changelog.man: Bumped the packages to version 1. They have
+	* changelog.tcl: been on 0 long enough.
+	* cvs.man:
+	* cvs.tcl:
+	* docidx.man:
+	* docidx.tcl:
+	* doctoc.man:
+	* doctoc.tcl:
+
 2008-05-16  Andreas Kupries  <andreask@activestate.com>
 
 	* checker.tcl (sectref): The way it was documented confused me and

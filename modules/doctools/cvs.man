@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin doctools::cvs n 0.1.2]
+[manpage_begin doctools::cvs n 1]
 [copyright {2003-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {Processing text in 'cvs log' format}]
 [require Tcl 8.2]
 [require textutil]
-[require doctools::cvs [opt 0.1.2]]
+[require doctools::cvs [opt 1]]
 [description]
 
 This package provides Tcl commands for the processing and reformatting
