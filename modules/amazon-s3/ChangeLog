@@ -1,5 +1,8 @@
 2008-07-08  Andreas Kupries  <andreask@activestate.com>
 
+	* xsxp.test: Added the boilerplate necessary for integration
+	* S3.test: with tcllib's test framework.
+
 	* New module 'amazon-s3', with packages S3 and xsxp, by Darren
 	  New. Physical integration of all the new files.
 	  Todo: Integration with the installer, and fixes for the

@@ -1,5 +1,34 @@
-lappend auto_path .
-package require tcltest
+# -*- tcl -*-
+# xsxp.test:  tests for the xsxp package.
+
+# This file contains a collection of tests for the xsxp
+# package. Sourcing this file into Tcl runs the tests and generates
+# output for errors.  No output means no errors were found.
+
+# Copyright (c) 2006,2008 Darren New. All Rights Reserved.
+# Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+#               (Boilerplate stuff (header, footer))
+# All rights reserved.
+#
+# RCS: @(#) $Id: xsxp.test,v 1.2 2008/07/08 22:24:35 andreas_kupries Exp $
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    # Requires xml (TclXML)
+}
+testing {
+    useLocal xsxp.tcl xsxp
+}
+
+# -------------------------------------------------------------------------
 package require -exact xsxp 1.0
 
 tcltest::configure -verbose {body error pass}
@@ -126,6 +155,6 @@ if {0} {
     }
 }
 
-tcltest::cleanupTests
-
+#----------------------------------------------------------------------
+testsuiteCleanup
 puts "Done!" ; after 5000
