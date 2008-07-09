@@ -11,10 +11,10 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.25 2008/03/26 06:44:26 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.26 2008/07/09 18:02:59 andreas_kupries Exp $
 
 package require Tcl 8.2
-package provide cmdline 1.3
+package provide cmdline 1.3.1
 
 namespace eval ::cmdline {
     namespace export getArgv0 getopt getKnownOpt getfiles getoptions \
@@ -433,7 +433,7 @@ proc ::cmdline::getArgv0 {} {
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.25 2008/03/26 06:44:26 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.26 2008/07/09 18:02:59 andreas_kupries Exp $
 
 namespace eval ::cmdline {
     namespace export typedGetopt typedGetoptions typedUsage
@@ -449,9 +449,10 @@ namespace eval ::cmdline {
     variable charclasses
     #checker exclude badKey
     catch {string is . .} charclasses
-    regexp -- {must be (.+)$} $charclasses dummy charclasses
-    regsub -all -- {, (or )?} $charclasses {|} charclasses
-
+    variable dummy
+    regexp      -- {must be (.+)$} $charclasses dummy charclasses
+    regsub -all -- {, (or )?}      $charclasses {|}   charclasses
+    unset dummy
 }
 
 # ::cmdline::typedGetopt --
