@@ -1,3 +1,10 @@
+2008-07-09  Andreas Kupries  <andreask@activestate.com>
+
+	* cmdline.tcl: Fixed problem of creative writing to variable
+	* cmdline.man: 'dummy' in package initialization code by defining
+	* pkgIndex.tcl: the variable in the namespace for the time it is
+	  needed. This fixes the [Bug 2014325]. Version bumped to 1.3.1.
+
 2008-06-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* cmdline.pcx: New file. Syntax definitions for the public
