@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.24 2008/02/28 06:56:27 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.25 2008/07/11 22:34:25 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -26,6 +26,7 @@ namespace eval ::struct::list {
 	namespace export Lassign
 	namespace export LdbJoin
 	namespace export LdbJoinOuter
+	namespace export Ldelete
 	namespace export Lequal
 	namespace export Lfilter
 	namespace export Lfilterfor
@@ -905,6 +906,30 @@ proc ::struct::list::Liota {n} {
 	::lappend retval $i
     }
     return $retval
+}
+
+# ::struct::list::Ldelete --
+#
+#	Delete an element from a list by name.
+#	Similar to 'struct::set exclude', however
+#	this here preserves order and list intrep.
+#
+# Parameters:
+#	a	First list to compare.
+#	b	Second list to compare.
+#
+# Results:
+#	A boolean. True if the lists are delete.
+#
+# Side effects:
+#       None
+
+proc ::struct::list::Ldelete {var item} {
+    upvar 1 $var list
+    set pos [lsearch -exact $list $item]
+    if {$pos < 0} return
+    set list [lreplace [K $list [set list {}]] $pos $pos]
+    return
 }
 
 # ::struct::list::Lequal --
@@ -1798,4 +1823,4 @@ namespace eval ::struct {
     namespace import -force list::list
     namespace export list
 }
-package provide struct::list 1.6.2
+package provide struct::list 1.7

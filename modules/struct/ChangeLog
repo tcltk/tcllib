@@ -1,3 +1,10 @@
+2008-07-11  Andreas Kupries  <andreask@activestate.com>
+
+	* list.tcl (::struct::list::Ldelete): Added a 'delete' command
+	* struct_list.man: for removing of elements from a list by name
+	* list.test: Bumped version to 1.7.
+	* pkgIndex.tcl:
+
 2008-07-03  Andreas Kupries  <andreask@activestate.com>
 
 	* queue/m.c: Separated qdump from queue_debug mode.
