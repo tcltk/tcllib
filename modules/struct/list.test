@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.28 2008/02/28 06:56:27 andreas_kupries Exp $
+# RCS: @(#) $Id: list.test,v 1.29 2008/07/11 22:34:25 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -711,6 +711,51 @@ test equal-4.4 {equal command} {
     equal {{0 2 3} 1} {{0 2 3} 1}
 } 1
 
+#----------------------------------------------------------------------
+
+interp alias {} delete {} ::struct::list::list delete
+
+test delete-1.0 {delete command} {
+    catch {delete} msg
+    set msg
+} {wrong # args: should be "::struct::list::Ldelete var item"}
+
+test delete-1.1 {delete command} {
+    catch {delete x} msg
+    set msg
+} {wrong # args: should be "::struct::list::Ldelete var item"}
+
+test delete-1.2 {delete command} {
+    set l {}
+    delete l x
+    set l
+} {}
+
+test delete-1.3 {delete command} {
+    set l {a x b}
+    delete l x
+    set l
+} {a b}
+
+test delete-1.4 {delete command} {
+    set l {x a b}
+    delete l x
+    set l
+} {a b}
+
+test delete-1.5 {delete command} {
+    set l {a b x}
+    delete l x
+    set l
+} {a b}
+
+test delete-1.6 {delete command} {
+    set l {a b}
+    delete l x
+    set l
+} {a b}
+
+unset l
 #----------------------------------------------------------------------
 
 interp alias {} dbjoin  {} ::struct::list::list dbJoin
