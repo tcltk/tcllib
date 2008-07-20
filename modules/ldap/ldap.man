@@ -6,14 +6,14 @@
 [moddesc   {LDAP client}]
 [titledesc {LDAP client}]
 [require Tcl 8.4]
-[require ldap [opt 1.6.9]]
+[require ldap [opt 1.7]]
 [description]
 [para]
 
-The [package ldap] package provides a simple Tcl-only client library
+The [package ldap] package provides a Tcl-only client library
 for the LDAPv3 protocol as specified in
 
-RFC 2251 ([uri http://www.rfc-editor.org/rfc/rfc2251.txt]).
+RFC 4511 ([uri http://www.rfc-editor.org/rfc/rfc4511.txt]).
 
 It works by opening the standard (or secure) LDAP socket on the
 server, and then providing a Tcl API to access the LDAP protocol
@@ -385,8 +385,6 @@ connection via [cmd ldap::secure_connect] or completed [cmd ldap::starttls], 0 o
 Return the supported SASL mechanisms advertised by the server. Only valid in a
 bound state (anonymous or other).
 
-This is currently experimental and subject to change.
-
 [call [cmd ::ldap::info] [cmd control] [arg handle] ]
 
 Return the supported controls advertised by the server as a list of OIDs. Only valid in a bound state.
@@ -403,8 +401,6 @@ This is currently experimental and subject to change.
 
 Returns authzId for the current connection. This implements the RFC 4532
 protocol extension. 
-
-This is currently experimental and subject to change.
 
 [list_end]
 [para]
@@ -526,6 +522,8 @@ Please report such in the category [emph ldap] of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.
 
+One know bug is the usage of [cmd vwait] inside the dispatch mechanism, which makes
+it currently unsafe to use this code in code that also enters the event loop.
 
-[keywords ldap asn {rfc 2251} ber x.680 x.690 {ldap client} {directory access} internet protocol]
+[keywords ldap {rfc 2251} {rfc 4511} x.500 {ldap client} {directory access} internet protocol]
 [manpage_end]
