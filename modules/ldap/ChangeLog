@@ -1,3 +1,14 @@
+2008-03-26  Michael Schlenker  <mic42@users.sourceforge.net>
+
+	* ldap.tcl: Applied Tcllib patch #2018141 with some changes,
+	* ldap.man: This fixes and enhances the ldap search 
+	* ldap.test: filter handling. Big thanks to Konstantin
+	* pkgIndex.tcl: Khomoutov for the patch and tests.
+	  This fixes Tcllib bugs #1751871 and #1852718.
+	  Additionally fixed the other ldap tests to use
+	  a more concise style.
+	  Bumped version to 1.7.
+
 2008-03-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ldap.tcl (ldap::buildSASLBindRequest): Fixed a bad continuation

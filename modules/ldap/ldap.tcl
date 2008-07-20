@@ -5,7 +5,7 @@
 #
 #   A (partial) LDAPv3 protocol implementation in plain Tcl.
 #
-#   See RFC 2251 and ASN.1 (X.680) and BER (X.690).
+#   See RFC 4510 and ASN.1 (X.680) and BER (X.690).
 #
 #
 #   This software is copyrighted by Jochen C. Loewer (loewerj@web.de). The
@@ -35,7 +35,7 @@
 #   NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
 #   MODIFICATIONS.
 #
-#   $Id: ldap.tcl,v 1.24 2008/03/27 04:21:05 andreas_kupries Exp $
+#   $Id: ldap.tcl,v 1.25 2008/07/20 19:50:55 mic42 Exp $
 #
 #   written by Jochen Loewer
 #   3 June, 1999
@@ -44,7 +44,7 @@
 
 package require Tcl 8.4
 package require asn 0.7
-package provide ldap 1.6.9
+package provide ldap 1.7
 
 namespace eval ldap {
 
@@ -1128,109 +1128,6 @@ proc ldap::unbind { handle } {
 
 
 #-----------------------------------------------------------------------------
-#    buildUpFilter  -   parses the text representation of LDAP search
-#                       filters and transforms it into the correct
-#                       marshalled representation for the search request
-#                       packet
-#
-#-----------------------------------------------------------------------------
-proc ldap::buildUpFilter { filter } {
-
-    set first [lindex $filter 0]
-    set data ""
-    switch -regexp -- $first {
-        ^\\&$ {  #--- and -------------------------------------------
-            foreach term [lrange $filter 1 end] {
-                append data [buildUpFilter $term]
-            }
-            return [asnChoiceConstr 0 $data]
-        }
-        ^\\|$ {  #--- or --------------------------------------------
-            foreach term [lrange $filter 1 end] {
-                append data [buildUpFilter $term]
-            }
-            return [asnChoiceConstr 1 $data]
-        }
-        ^\\!$ {  #--- not -------------------------------------------
-            return [asnChoiceConstr 2 [buildUpFilter [lindex $filter 1]]]
-        }
-        =\\*$ {  #--- present ---------------------------------------
-            set endpos [expr {[string length $first] -3}]
-            set attributetype [string range $first 0 $endpos]
-            return [asnChoice 7 $attributetype]
-        }
-        ^[0-9A-z.]*~= {  #--- approxMatch --------------------------
-            regexp {^([0-9A-z.]*)~=(.*)$} $first all attributetype value
-            return [asnChoiceConstr 8 [asnOctetString $attributetype] \
-                                      [asnOctetString $value]         ]
-        }
-        ^[0-9A-z.]*<= {  #--- lessOrEqual --------------------------
-            regexp {^([0-9A-z.]*)<=(.*)$} $first all attributetype value
-            return [asnChoiceConstr 6 [asnOctetString $attributetype] \
-                                      [asnOctetString $value]         ]
-        }
-        ^[0-9A-z.]*>= {  #--- greaterOrEqual -----------------------
-            regexp {^([0-9A-z.]*)>=(.*)$} $first all attributetype value
-            return [asnChoiceConstr 5 [asnOctetString $attributetype] \
-                                      [asnOctetString $value]         ]
-        }
-        ^[0-9A-z.]*=.*\\*.* {  #--- substrings -----------------
-            regexp {^([0-9A-z.]*)=(.*)$} $first all attributetype value
-            regsub -all {\*+} $value {*} value
-            set value [split $value "*"]
-
-            set firstsubstrtype 0       ;# initial
-            set lastsubstrtype  2       ;# final
-            if {[string equal [lindex $value 0] ""]} {
-                set firstsubstrtype 1       ;# any
-                set value [lreplace $value 0 0]
-            }
-            if {[string equal [lindex $value end] ""]} {
-                set lastsubstrtype 1        ;# any
-                set value [lreplace $value end end]
-            }
-
-            set n [llength $value]
-
-            set i 1
-            set l {}
-            set substrtype 0            ;# initial
-            foreach str $value {
-            if {$i == 1 && $i == $n} {
-                if {$firstsubstrtype == 0} {
-                set substrtype 0    ;# initial
-                } elseif {$lastsubstrtype == 2} {
-                set substrtype 2    ;# final
-                } else {
-                set substrtype 1    ;# any
-                }
-            } elseif {$i == 1} {
-                set substrtype $firstsubstrtype
-            } elseif {$i == $n} {
-                set substrtype $lastsubstrtype
-            } else {
-                set substrtype 1        ;# any
-            }
-            lappend l [asnChoice $substrtype $str]
-            incr i
-            }
-            return [asnChoiceConstr 4 [asnOctetString $attributetype]     \
-                      [asnSequenceFromList $l] ]
-        }
-        ^[0-9A-z.]*= {  #--- equal ---------------------------------
-            regexp {^([0-9A-z.]*)=(.*)$} $first all attributetype value
-            trace "equal: attributetype='$attributetype' value='$value'"
-            return [asnChoiceConstr 3 [asnOctetString $attributetype] \
-                                      [asnOctetString $value]         ]
-        }
-        default {
-            return [buildUpFilter $first]
-            #error "cant handle $first for filter part"
-        }
-    }
-}
-
-#-----------------------------------------------------------------------------
 #    search  -  performs a LDAP search below the baseObject tree using a
 #               complex LDAP search expression (like "|(cn=Linus*)(sn=Torvalds*)"
 #               and returns all matching objects (DNs) with given attributes
@@ -1349,10 +1246,7 @@ proc ldap::buildSearchRequest {baseObject scope derefAliases
     #----------------------------------------------------------
     #   marshal filter and attributes parameter
     #----------------------------------------------------------
-    regsub -all {\(} $filterString " \{" filterString
-    regsub -all {\)} $filterString "\} " filterString
-
-    set berFilter [buildUpFilter $filterString]
+    set berFilter [filter::encode $filterString]
 
     set berAttributes ""
     foreach attribute $attributes {
@@ -1437,9 +1331,14 @@ proc ldap::searchNext { handle } {
 		-errorcode [list LDAP [resultCode2String $resultCode] $matchedDN $errorMessage] \
 		"LDAP error [resultCode2String $resultCode] : $errorMessage"
 	}
-    } else {
-	 error "unexpected application number ($appNum != 4 or 5)"
     }
+
+    # Unknown application type of result set.
+    # We should just ignore it since the only PDU the server
+    # MUST return if it understood our request is the "search response
+    # done" (apptype 5) which we know how to process.
+
+    # TODO we should implement processing of apptype 19 (search reference)
 
     return $result
 }
@@ -1855,3 +1754,348 @@ proc ldap::debugData { info data } {
     }
     trace ""
 }
+
+#-----------------------------------------------------------------------------
+# ldap::filter -- set of procedures for construction of BER-encoded
+#                 data defined by ASN.1 type Filter described in RFC 4511
+#                 from string representations of search filters
+#                 defined in RFC 4515.
+#-----------------------------------------------------------------------------
+namespace eval ldap::filter {
+    # Regexp which matches strings of type AttribyteType:
+    variable reatype {[A-Za-z][A-Za-z0-9-]*|\d+(?:\.\d+)+}
+
+    # Regexp which matches attribute options in strings
+    # of type AttributeDescription:
+    variable reaopts {(?:;[A-Za-z0-9-]+)*}
+
+    # Regexp which matches strings of type AttributeDescription.
+    # Note that this regexp captures attribute options,
+    # with leading ";", if any.
+    variable readesc (?:$reatype)($reaopts)
+
+    # Two regexps to match strings representing "left hand side" (LHS)
+    # in extensible match assertion.
+    # In fact there could be one regexp with two alterations,
+    # but this would complicate capturing of regexp parts.
+    # The first regexp captures, in this order:
+    # 1. Attribute description.
+    # 2. Attribute options.
+    # 3. ":dn" string, indicating "Use DN attribute types" flag.
+    # 4. Matching rule ID.
+    # The second regexp captures, in this order:
+    # 1. ":dn" string.
+    # 2. Matching rule ID.
+    variable reaextmatch1 ^($readesc)(:dn)?(?::($reatype))?\$
+    variable reaextmatch2 ^(:dn)?:($reatype)\$
+
+    # The only validation proc using this regexp requires it to be
+    # anchored to the boundaries of a string being validated,
+    # so we change it here to allow this regexp to be compiled:
+    set readesc ^$readesc\$
+
+    unset reatype reaopts
+
+    namespace import ::asn::*
+}
+
+# "Public API" function.
+# Parses the string represntation of an LDAP search filter expression
+# and returns its BER-encoded form.
+# NOTE While RFC 4515 strictly defines that any filter expression must
+# be surrounded by parentheses it is customary for LDAP client software
+# to allow specification of simple (i.e. non-compound) filter expressions
+# without enclosing parentheses, so we also do this (in fact, we allow
+# omission of outermost parentheses in any filter expression).
+proc ldap::filter::encode s {
+    if {[string match (*) $s]} {
+	ProcessFilter $s
+    } else {
+	ProcessFilterComp $s
+    }
+}
+
+# Parses the string represntation of an LDAP search filter expression
+# and returns its BER-encoded form.
+proc ldap::filter::ProcessFilter s {
+    if {![string match (*) $s]} {
+	return -code error "Invalid filter: filter expression must be\
+	    surrounded by parentheses"
+    }
+    ProcessFilterComp [string range $s 1 end-1]
+}
+
+# Parses "internals" of a filter expression, i.e. what's contained
+# between its enclosing parentheses.
+# It classifies the type of filter expression (compound, negated or
+# simple) and invokes its corresponding handler.
+# Returns a BER-encoded form of the filter expression.
+proc ldap::filter::ProcessFilterComp s {
+    switch -- [string index $s 0] {
+	& {
+	    ProcessFilterList 0 [string range $s 1 end]
+	}
+	| {
+	    ProcessFilterList 1 [string range $s 1 end]
+	}
+	! {
+	    ProcessNegatedFilter [string range $s 1 end]
+	}
+	default {
+	    ProcessMatch $s
+	}
+    }
+}
+
+# Parses string $s containing a chain of one or more filter
+# expressions (as found in compound filter expressions),
+# processes each filter in such chain and returns
+# a BER-encoded form of this chain tagged with specified
+# application type given as $apptype.
+proc ldap::filter::ProcessFilterList {apptype s} {
+    set data ""
+    set rest $s
+    while 1 {
+	foreach {filter rest} [ExtractFilter $rest] break
+	append data [ProcessFilter $filter]
+	if {$rest == ""} break
+    }
+    # TODO looks like it's impossible to hit this condition
+    if {[string length $data] == 0} {
+	return -code error "Invalid filter: filter composition must\
+	    consist of at least one element"
+    }
+    asnChoiceConstr $apptype $data
+}
+
+# Parses a string $s representing a filter expression
+# and returns a BER construction representing negation
+# of that filter expression.
+proc ldap::filter::ProcessNegatedFilter s {
+    asnChoiceConstr 2 [ProcessFilter $s]
+}
+
+# Parses a string $s representing an "attribute matching rule"
+# (i.e. the contents of a non-compound filter expression)
+# and returns its BER-encoded form.
+proc ldap::filter::ProcessMatch s {
+    if {![regexp -indices {(=|~=|>=|<=|:=)} $s range]} {
+	return -code error "Invalid filter: no match operator in item"
+    }
+    foreach {a z} $range break
+    set lhs   [string range $s 0 [expr {$a - 1}]]
+    set match [string range $s $a $z]
+    set val   [string range $s [expr {$z + 1}] end]
+
+    switch -- $match {
+	= {
+	    if {$val eq "*"} {
+		ProcessPresenceMatch $lhs
+	    } else {
+		if {[regexp {^([^*]*)(\*(?:[^*]*\*)*)([^*]*)$} $val \
+			-> initial any final]} {
+		    ProcessSubstringMatch $lhs $initial $any $final
+		} else {
+		    ProcessSimpleMatch 3 $lhs $val
+		}
+	    }
+	}
+	>= {
+	    ProcessSimpleMatch 5 $lhs $val
+	}
+	<= {
+	    ProcessSimpleMatch 6 $lhs $val
+	}
+	~= {
+	    ProcessSimpleMatch 8 $lhs $val
+	}
+	:= {
+	    ProcessExtensibleMatch $lhs $val
+	}
+    }
+}
+
+# From a string $s, containing a chain of filter
+# expressions (as found in compound filter expressions)
+# extracts the first filter expression and returns
+# a two element list composed of the extracted filter
+# expression and the remainder of the source string.
+proc ldap::filter::ExtractFilter s {
+    if {[string index $s 0] ne "("} {
+	return -code error "Invalid filter: malformed compound filter expression"
+    }
+    set pos   1
+    set nopen 1
+    while 1 {
+	if {![regexp -indices -start $pos {\)|\(} $s match]} {
+	    return -code error "Invalid filter: unbalanced parenthesis"
+	}
+	set pos [lindex $match 0]
+	if {[string index $s $pos] eq "("} {
+	    incr nopen
+	} else {
+	    incr nopen -1
+	}
+	if {$nopen == 0} {
+	    return [list [string range $s 0 $pos] \
+		[string range $s [incr pos] end]]
+	}
+	incr pos
+    }
+}
+
+# Constructs a BER-encoded form of a "presence" match
+# involving an attribute description string passed in $attrdesc.
+proc ldap::filter::ProcessPresenceMatch attrdesc {
+    ValidateAttributeDescription $attrdesc options
+    asnChoice 7 [LDAPString $attrdesc]
+}
+
+# Constructs a BER-encoded form of a simple match designated
+# by application type $apptype and involving an attribute
+# description $attrdesc and attribute value $val.
+# "Simple" match is one of: equal, less or equal, greater
+# or equal, approximate.
+proc ldap::filter::ProcessSimpleMatch {apptype attrdesc val} {
+    ValidateAttributeDescription $attrdesc options
+    append data [asnOctetString [LDAPString $attrdesc]] \
+	[asnOctetString [AssertionValue $val]]
+    asnChoiceConstr $apptype $data
+}
+
+# Constructs a BER-encoded form of a substrings match
+# involving an attribute description $attrdesc and parts of attribute
+# value -- $initial, $any and $final.
+# A string contained in any may be compound -- several strings
+# concatenated by asterisks ("*"), they are extracted and used as
+# multiple attribute value parts of type "any".
+proc ldap::filter::ProcessSubstringMatch {attrdesc initial any final} {
+    ValidateAttributeDescription $attrdesc options
+
+    set data [asnOctetString [LDAPString $attrdesc]]
+
+    set seq [list]
+    set parts 0
+    if {$initial != ""} {
+	lappend seq [asnChoice 0 [AssertionValue $initial]]
+	incr parts
+    }
+
+    foreach v [split [string trim $any *] *] {
+	if {$v != ""} {
+	    lappend seq [asnChoice 1 [AssertionValue $v]]
+	    incr parts
+	}
+    }
+
+    if {$final != ""} {
+	lappend seq [asnChoice 2 [AssertionValue $final]]
+	incr parts
+    }
+
+    if {$parts == 0} {
+	return -code error "Invalid filter: substrings match parses to zero parts"
+    }
+
+    append data [asnSequenceFromList $seq]
+
+    asnChoiceConstr 4 $data
+}
+
+# Constructs a BER-encoded form of an extensible match
+# involving an attribute value given in $value and a string
+# containing the matching rule OID, if present a "Use DN attribute
+# types" flag, if present, and an atttibute description, if present,
+# given in $lhs (stands for "Left Hand Side").
+proc ldap::filter::ProcessExtensibleMatch {lhs value} {
+    ParseExtMatchLHS $lhs attrdesc options dn ruleid
+    set data ""
+    foreach {apptype val} [list 1 $ruleid 2 $attrdesc] {
+	if {$val != ""} {
+	    append data [asnChoice $apptype [LDAPString $val]]
+	}
+    }
+    append data [asnChoice 3 [AssertionValue $value]]
+    if {$dn} {
+	# [asnRetag] is broken in asn, so we use the trick
+	# to simulate "boolean true" BER-encoding which
+	# is octet 1 of length 1:
+	append data [asnChoice 4 [binary format cc 1 1]]
+    }
+    asnChoiceConstr 9 $data
+}
+
+# Parses a string $s, representing a "left hand side" of an extensible match
+# expression, into several parts: attribute desctiption, options,
+# "Use DN attribute types" flag and rule OID. These parts are
+# assigned to corresponding variables in the caller's scope.
+proc ldap::filter::ParseExtMatchLHS {s attrdescVar optionsVar dnVar ruleidVar} {
+    upvar 1 $attrdescVar attrdesc $optionsVar options $dnVar dn $ruleidVar ruleid
+    variable reaextmatch1
+    variable reaextmatch2
+    if {[regexp $reaextmatch1 $s -> attrdesc opts dnstr ruleid]} {
+	set options [ProcessAttrTypeOptions $opts]
+	set dn [expr {$dnstr != ""}]
+    } elseif {[regexp $reaextmatch2 $s -> dnstr ruleid]} {
+	set attrdesc ""
+	set options [list]
+	set dn [expr {$dnstr != ""}]
+    } else {
+	return -code error "Invalid filter: malformed attribute description"
+    }
+}
+
+# Validates an attribute description passed as $attrdesc.
+# Raises an error if it's ill-formed.
+# Variable in the caller's scope whose name is passed in optionsVar
+# is set to a list of attribute options (which may be empty if
+# there's no options in the attribute type).
+proc ldap::filter::ValidateAttributeDescription {attrdesc optionsVar} {
+    variable readesc
+    if {![regexp $readesc $attrdesc -> opts]} {
+	return -code error "Invalid filter: malformed attribute description"
+    }
+    upvar 1 $optionsVar options
+    set options [ProcessAttrTypeOptions $opts]
+    return
+}
+
+# Parses a string $s containing one or more attribute
+# options, delimited by seimcolons, with the leading semicolon,
+# if non-empty.
+# Returns a list of distinct options, lowercased for normalization
+# purposes.
+proc ldap::filter::ProcessAttrTypeOptions s {
+    set opts [list]
+    foreach opt [split [string trimleft $s \;] \;] {
+	lappend opts [string tolower $opt]
+    }
+    set opts
+}
+
+# Checks an assertion value $s for validity and substitutes
+# any backslash escapes in it with their respective values.
+# Returns canonical form of the attribute value
+# ready to be packed into a BER-encoded stream.
+proc ldap::filter::AssertionValue s {
+    set v [encoding convertto utf-8 $s]
+    if {[regexp {\\(?:[[:xdigit:]])?(?![[:xdigit:]])|[()*\0]} $v]} {
+	return -code error "Invalid filter: malformed assertion value"
+    }
+
+    variable escmap
+    if {![info exists escmap]} {
+	for {set i 0} {$i <= 0xff} {incr i} {
+	    lappend escmap [format {\%02x} $i] [format %c $i]
+	}
+    }
+    string map -nocase $escmap $v
+}
+
+# Turns a given Tcl string $s into a binary blob ready to be packed
+# into a BER-encoded stream.
+proc ldap::filter::LDAPString s {
+    encoding convertto utf-8 $s
+}
+
+# vim:ts=8:sw=4:sts=4:noet
