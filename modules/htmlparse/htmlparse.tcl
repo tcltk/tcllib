@@ -101,6 +101,11 @@ namespace eval ::htmlparse {
 	euro \u20AC
     }
 
+    # IV. Special Entities (XHTML, XML)
+    array set namedEntities {
+	apos \u0027
+    }
+
     # Internal cache for the foreach variable-lists and the
     # substitution strings used to split a HTML string into
     # incrementally handleable scripts. This should reduce the
@@ -891,4 +896,4 @@ proc ::htmlparse::Reorder {tree node} {
 
 # ### ######### ###########################
 
-package provide htmlparse 1.1.2
+package provide htmlparse 1.1.3

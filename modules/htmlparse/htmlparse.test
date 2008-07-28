@@ -7,7 +7,7 @@
 # Copyright (c) 2001-2005 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.24 2007/08/01 22:40:59 andreas_kupries Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.25 2008/07/28 22:21:51 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -267,6 +267,10 @@ test htmlparse-4.7 {numeric, hexidecimal entities; out-of-range} {
 test htmlparse-4.8 {numeric character references, leading zeros} {
     ::htmlparse::mapEscapes {Ampersand: &#038;.}
 } {Ampersand: &.}
+
+test htmlparse-4.9 {XHTML/XML entity apos, bug 2028993} {
+    ::htmlparse::mapEscapes {Apostrophe &apos;}
+} {Apostrophe '}
 
 # Bug #861277
 test htmlparse-6.1 {Backslashes in content} {
