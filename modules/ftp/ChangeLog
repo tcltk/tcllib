@@ -1,3 +1,9 @@
+2008-08-05  Andreas Kupries  <andreask@activestate.com>
+
+	* ftp.tcl: Fixed [Bug 2038279], a creative-writing problem.
+	* ftp.man: Bumped package version to 2.4.9.
+	* pkgIndex.tcl:
+
 2008-03-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ftp_geturl.man: Separated the documentation of the ftp and
