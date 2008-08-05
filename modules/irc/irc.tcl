@@ -5,12 +5,12 @@
 # Copyright (c) 2001-2003 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
 #
-# $Id: irc.tcl,v 1.26 2006/04/23 22:35:57 patthoyts Exp $
+# $Id: irc.tcl,v 1.27 2008/08/05 20:40:04 andreas_kupries Exp $
 
 package require Tcl 8.3
 
 namespace eval ::irc {
-    variable version 0.6
+    variable version 0.6.1
 
     # counter used to differentiate connections
     variable conn 0
@@ -107,12 +107,18 @@ proc ::irc::connection { args } {
     set name [format "%s::irc%s" [namespace current] $conn]
 
     namespace eval $name {
+	variable sock
+	variable dispatch
+	variable linedata
+	variable config
+
 	set sock {}
 	array set dispatch {}
 	array set linedata {}
 	array set config [array get ::irc::config]
 	if { $config(logger) || $config(debug)} {
 	    package require logger
+	    variable logger
             set logger [logger::init [namespace tail [namespace current]]]
             if { !$config(debug) } { ${logger}::disable debug }
         }

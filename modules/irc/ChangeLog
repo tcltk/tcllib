@@ -1,3 +1,9 @@
+2008-08-05  Andreas Kupries  <andreask@activestate.com>
+
+	* irc.tcl (::irc::connection): Fixed [Bug 2038217], a
+	* irc.man: creative-writing problem. Bumped the package
+	* pkgIndex.tcl: version to 0.6.1.
+
 2008-06-24  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* picoirc.tcl: Fixed ctcp responses (should use NOTICE).
