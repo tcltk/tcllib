@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.46 2007/05/07 21:15:19 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.47 2008/08/05 20:34:32 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -58,9 +58,9 @@ namespace eval ::ftp {
 	    FileSize ModTime Delete Rename Put Append Get Reget \
 	    Newer Quote MkDir RmDir
 
-    set serial 0
-    set VERBOSE 0
-    set DEBUG 0
+    variable serial  0
+    variable VERBOSE 0
+    variable DEBUG   0
 }
 
 #############################################################################
@@ -3010,4 +3010,4 @@ if { [string equal [uplevel "#0" {info commands tkcon}] "tkcon"] } {
 # ==================================================================
 # At last, everything is fine, we can provide the package.
 
-package provide ftp [lindex {Revision: 2.4.8} 1]
+package provide ftp [lindex {Revision: 2.4.9} 1]
