@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2004 by Arjen Markus. All rights reserved.
 #
-# RCS: @(#) $Id: special.tcl,v 1.11 2007/12/11 05:41:17 arjenmarkus Exp $
+# RCS: @(#) $Id: special.tcl,v 1.12 2008/08/12 12:29:09 arjenmarkus Exp $
 #
 package require math
 package require math::constants
@@ -53,23 +53,41 @@ proc ::math::special::Gamma {x} {
 #    x          The value for which the function must be evaluated
 # Result:
 #    erf(x)
+# Note:
+#    The algoritm used is due to George Marsaglia
+#    See: http://www.velocityreviews.com/forums/t317358-erf-function-in-c.html
+#    I did not want to copy and convert the even more accurate but
+#    rather lengthy algorithm used by lcc-win32/Sun
 #
 proc ::math::special::erf {x} {
-    set x2 $x
-    if { $x > 0.0 } {
-        set x2 [expr {-$x}]
-    }
-    if { $x2 != 0.0 } {
-        set r [::math::statistics::cdf-normal 0.0 [expr {sqrt(0.5)}] $x2]
-        if { $x > 0.0 } {
-            return [expr {1.0-2.0*$r}]
-        } else {
-            return [expr {2.0*$r-1.0}]
-        }
-    } else {
-        return 0.0
-    }
+    set x    [expr {$x*sqrt(2.0)}]
+
+    if { $x >  10.0 } { return  1.0 }
+    if { $x < -10.0 } { return -1.0 }
+
+    set a    1.2533141373155
+    set b   -1.0
+    set pwr  1.0
+    set t    0.0
+    set z    0.0
+
+    set s [expr {$a+$b*$x}]
+
+    set i 2
+    while { $s != $t } {
+        set a   [expr {($a+$z*$b)/double($i)}]
+        set b   [expr {($b+$z*$a)/double($i+1)}]
+        set pwr [expr {$pwr*$x*$x}]
+        set t   $s
+        set s   [expr {$s+$pwr*($a+$x*$b)}]
+
+        incr i 2
+   }
+
+   return [expr {1.0-2.0*$s*exp(-0.5*$x*$x-0.9189385332046727418)}]
 }
+
+
 
 # erfc --
 #    The complement of the error function
@@ -79,21 +97,33 @@ proc ::math::special::erf {x} {
 #    erfc(x) = 1.0-erf(x)
 #
 proc ::math::special::erfc {x} {
-    set x2 $x
-    if { $x > 0.0 } {
-        set x2 [expr {-$x}]
-    }
-    if { $x2 != 0.0 } {
-        set r [::math::statistics::cdf-normal 0.0 [expr {sqrt(0.5)}] $x2]
-        if { $x > 0.0 } {
-            return [expr {2.0*$r}]
-        } else {
-            return [expr {2.0-2.0*$r}]
-        }
-    } else {
-        return 1.0
-    }
+    set x    [expr {$x*sqrt(2.0)}]
+
+    if { $x >  10.0 } { return  0.0 }
+    if { $x < -10.0 } { return  0.0 }
+
+    set a    1.2533141373155
+    set b   -1.0
+    set pwr  1.0
+    set t    0.0
+    set z    0.0
+
+    set s [expr {$a+$b*$x}]
+
+    set i 2
+    while { $s != $t } {
+        set a   [expr {($a+$z*$b)/double($i)}]
+        set b   [expr {($b+$z*$a)/double($i+1)}]
+        set pwr [expr {$pwr*$x*$x}]
+        set t   $s
+        set s   [expr {$s+$pwr*($a+$x*$b)}]
+
+        incr i 2
+   }
+
+   return [expr {2.0*$s*exp(-0.5*$x*$x-0.9189385332046727418)}]
 }
+
 
 # ComputeFG --
 #    Compute the auxiliary functions f and g
