@@ -1,3 +1,6 @@
+2008-08-11  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* special.tcl: replaced old algorithm for erf() and erfc() - bug #2024843
+
 2008-07-01  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* roman.man: corrected wrong mark-up command
 
