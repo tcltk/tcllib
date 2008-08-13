@@ -5,7 +5,7 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require nameserv ; # Name service client-side core
+package require nameserv 0.4.1 ; # Name service client-side core
 package require uevent   ; # Watch for connection-loss
 
 namespace eval ::nameserv::auto {}

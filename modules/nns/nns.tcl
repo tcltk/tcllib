@@ -111,6 +111,7 @@ proc ::nameserv::search-parseargs {arguments} {
 		set continuous 1
 		set pattern    *
 	    } else {
+		set oneshot    0
 		set continuous 0
 		set pattern    $opt
 	    }
@@ -424,7 +425,7 @@ namespace eval        ::nameserv {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide nameserv 0.4
+package provide nameserv 0.4.1
 
 ##
 # ### ### ### ######### ######### #########
