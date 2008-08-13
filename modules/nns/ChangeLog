@@ -1,3 +1,9 @@
+2008-08-13  Michael Schlenker <mic42@users.sourceforge.net>
+
+	* nns.tcl: Fixed missing variable. Bumped version to 0.4.1.
+	* nns_auto.tcl:
+	* pkgIndex.tcl:
+
 2008-05-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ../../apps/nns: Switched to use of nameserv::auto to handle the
