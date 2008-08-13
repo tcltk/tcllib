@@ -1,3 +1,10 @@
+2008-08-12  Michael Schlenker <mic42@users.sourceforge.net>
+
+	* graph1.tcl: Removed reference to the cgraph download.
+	* graph1.man: Its no longer available from that site,
+	  and there is currently no replacement site. Newer
+	  code should use graph 2 with the critcl accelerators. 
+
 2008-07-11  Andreas Kupries  <andreask@activestate.com>
 
 	* list.tcl (::struct::list::Ldelete): Added a 'delete' command
