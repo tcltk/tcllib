@@ -23,14 +23,6 @@ command.
 
 [para]
 
-[emph Note:] A C-implementation of the command can be had from the
-location [uri http://www.purl.org/NET/schlenker/tcl/cgraph]. See also
-[uri http://wiki.tcl.tk/cgraph].  This implementation uses a bit less
-memory than the tcl version provided here directly, and is faster.
-
-
-[para]
-
 A directed graph is a structure containing two collections of
 elements, called [emph nodes] and [emph arcs] respectively, together
 with a relation ("connectivity") that places a general structure upon
