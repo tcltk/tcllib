@@ -700,6 +700,18 @@ child window.
 
 [subsection {How do I destroy a Snit object?}]
 
+Any Snit object of any type can be destroyed by renaming
+it to the empty string using the Tcl [cmd rename] command.
+
+[para]
+
+Snit megawidgets (i.e., instances of [cmd snit::widget] and
+[cmd snit::widgetadaptor]) can be destroyed like any other widget: by
+using the Tk [cmd destroy] command on the widget or on one of its
+ancestors in the window hierarchy.
+
+[para]
+
 Every instance of a [cmd snit::type] has a [method destroy] method:
 
 [para]
@@ -714,18 +726,6 @@ Every instance of a [cmd snit::type] has a [method destroy] method:
 invalid command name "spot"
 %
 }]
-[para]
-
-Snit megawidgets (i.e., instances of [cmd snit::widget] and
-[cmd snit::widgetadaptor]) are destroyed like any other widget: by
-using the Tk [cmd destroy] command on the widget or on one of its
-ancestors in the window hierarchy.
-
-[para]
-
-In addition, any Snit object of any type can be destroyed by renaming
-it to the empty string using the Tcl [cmd rename] command.
-
 [para]
 
 Finally, every Snit type has a type method called [method destroy]; calling it
