@@ -1,6 +1,6 @@
 # ### ### ### ######### ######### #########
 ##
-# (c) 2007 Andreas Kupries.
+# (c) 2008 Andreas Kupries.
 
 # WIP = Word Interpreter (Also a Work In Progress :). Especially while
 # it is running :P
@@ -24,8 +24,8 @@
 package require Tcl 8.5
 
 # Use new Tcl 8.5a6+ features for specification of allowed packages.
-# We can use either snit 2.2+, or 1.3+ if snit2 is not available.
-package require snit 2.2 1.3
+# We can use snit 1.3 and anything above (incl. v2+).
+package require snit 1.3-
 
 # The run_next_* methods use set operations (x in set)
 package require struct::set
@@ -369,13 +369,13 @@ snit::macro wip::dsl {{suffix {}}} {
     if {$suffix ne ""} {set suffix _$suffix}
 
     # Instance state, wip processor used to run the language
-    component wip$suffix
+    component mywip$suffix
 
     # Standard method to create the processor component. The user has
     # to manually add a call of this method to the constructor.
 
     method wip${suffix}_setup {} [string map [list @@ $suffix] {
-	install {wip@@} using wip "${selfns}::wip@@" $self
+	install {mywip@@} using wip "${selfns}::mywip@@" $self
     }]
 
     # Procedures for easy access to the processor methods, without
@@ -389,7 +389,7 @@ snit::macro wip::dsl {{suffix {}}} {
 	next	peek	peekall	run_next
 	run_next_until	run_next_while
     } {
-	wip::methodasproc wip$suffix $p $suffix
+	wip::methodasproc mywip$suffix $p $suffix
     }
     return
 }
@@ -397,4 +397,4 @@ snit::macro wip::dsl {{suffix {}}} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide wip 2.1
+package provide wip 2.1.1
