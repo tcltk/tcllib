@@ -496,6 +496,7 @@ proc useTcllibC {} {
     package require tcllibc
 
     puts "$::tcllib::testutils::tag tcllibc [package present tcllibc]"
+    puts "$::tcllib::testutils::tag tcllibc = [package ifneeded tcllibc [package present tcllibc]]"
     return 1    
 }
 
