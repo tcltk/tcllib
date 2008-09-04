@@ -1,9 +1,9 @@
-[manpage_begin struct::prioqueue n 1.3]
+[manpage_begin struct::prioqueue n 1.4]
 [moddesc   {Tcl Data Structures}]
 [copyright {2003 Michael Schlenker <mic42@users.sourceforge.net>}]
 [titledesc {Create and manipulate prioqueue objects}]
 [require Tcl 8.2]
-[require struct::prioqueue [opt 1.3]]
+[require struct::prioqueue [opt 1.4]]
 [description]
 
 This package implements a simple priority queue using nested tcl lists.
@@ -48,6 +48,11 @@ command.  The following commands are possible for prioqueue objects:
 [call [arg prioqueueName] [cmd clear]]
 
 Remove all items from the prioqueue.
+
+
+[call [arg prioqueueName] [cmd remove] [arg item]]
+
+Remove the selected item from this priority queue.
 
 
 [call [arg prioqueueName] [cmd destroy]]

@@ -1,3 +1,12 @@
+2008-09-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* prioqueue.man: Extended with a 'remove' method for the
+	* prioqueue.tcl: deletion of items from queues before their
+	* prioqueue.test: time comes up with 'get'. Bumped version
+	* pkgIndex.tcl: to 1.4. Code originally by Alejandro Paz
+	  <vidriloco@gmail.com> for GSoC 2008, with modifications by
+	  myself to make the item search more efficient.
+
 2008-09-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tree.testsuite: Updated tests based on walk error stack traces
