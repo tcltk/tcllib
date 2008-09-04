@@ -169,7 +169,7 @@ snit::type ::fileutil::multi::op {
     }
 
     destructor {
-	$wip destroy
+	$mywip destroy
 	return
     }
 
@@ -625,4 +625,4 @@ snit::type ::fileutil::multi::op {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::multi::op 0.5.1
+package provide fileutil::multi::op 0.5.2
