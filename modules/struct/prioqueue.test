@@ -9,7 +9,7 @@
 # Copyright (c) 2002 Michael Schlenker
 # All rights reserved.
 #
-# RCS: @(#) $Id: prioqueue.test,v 1.9 2006/10/09 21:41:42 andreas_kupries Exp $
+# RCS: @(#) $Id: prioqueue.test,v 1.10 2008/09/04 04:35:02 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -47,7 +47,7 @@ test prioqueue-0.3 {prioqueue errors} {
     catch {myprioqueue foo} msg
     myprioqueue destroy
     set msg
-} "bad option \"foo\": must be clear, destroy, get, peek, put, size, or peekpriority"
+} "bad option \"foo\": must be clear, destroy, get, peek, put, remove, size, or peekpriority"
 test prioqueue-0.4 {prioqueue errors} {
     catch {prioqueue set} msg
     set msg
@@ -486,5 +486,26 @@ test prioqueue-10.1 {test inserting} {
     myprioqueue destroy
     set result
 } [list 3 4 2 1 5]
+
+test prioqueue-10.2 {test deleting} {
+    prioqueue -integer myprioqueue
+    myprioqueue put 1 1
+    myprioqueue put 2 2
+    myprioqueue put 3 3
+    myprioqueue put 4 4
+    set sizep [myprioqueue size]
+    myprioqueue remove 2
+    set sizen [myprioqueue size]
+    set result1 [expr {$sizep > $sizen}]
+    set result2 0
+    while {[myprioqueue size] > 0} {
+	set last [myprioqueue get]
+	if {$last == 2} {
+	    set result2 1
+	}
+    }
+    myprioqueue destroy
+    set result "$result1 $result2"
+} {1 0}
 
 testsuiteCleanup
