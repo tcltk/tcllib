@@ -4,11 +4,12 @@
 #
 # adapted from queue.tcl
 # Copyright (c) 2002,2003 Michael Schlenker
+# Copyright (c) 2008 Alejandro Paz <vidriloco@gmail.com>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: prioqueue.tcl,v 1.9 2005/09/23 16:17:26 mic42 Exp $
+# RCS: @(#) $Id: prioqueue.tcl,v 1.10 2008/09/04 04:35:02 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -28,6 +29,7 @@ namespace eval ::struct::prioqueue {
         "get"   \
         "peek"  \
         "put"   \
+        "remove" \
         "size"  \
         "peekpriority" \
         ]
@@ -366,6 +368,52 @@ proc ::struct::prioqueue::_put {name args} {
     return
 }
 
+# ::struct::prioqueue::_remove --
+#
+#   Delete an item together with it's related priority value from the queue.
+#
+# Arguments:
+#   name    name of the queue object
+#   item    item to be removed
+#
+# Results:
+#   None.
+
+if {[package vcompare [package present Tcl] 8.5] < 0} {
+    # 8.4-: We have -index option for lsearch, so we use glob to allow
+    # us to create a pattern which can ignore the priority value. We
+    # quote everything in the item to prevent it from being
+    # glob-matched, exact matching is required.
+
+    proc ::struct::prioqueue::_remove {name item} {
+	variable queues
+	set queuelist $queues($name)
+	set itemrep "* \\[join [split $item {}] "\\"]"
+	set foundat [lsearch -glob $queuelist $itemrep]
+
+	# the item to remove was not found if foundat remains at -1,
+	# nothing to replace then
+	if {$foundat < 0} return
+	set queues($name) [lreplace $queuelist $foundat $foundat]
+	return
+    }
+} else {
+    # 8.5+: We have the -index option, allowing us to exactly address
+    # the column used to search.
+
+    proc ::struct::prioqueue::_remove {name item} {
+	variable queues
+	set queuelist $queues($name)
+	set foundat [lsearch -index 1 -exact $queuelist $item]
+
+	# the item to remove was not found if foundat remains at -1,
+	# nothing to replace then
+	if {$foundat < 0} return
+	set queues($name) [lreplace $queuelist $foundat $foundat]
+	return
+    }
+}
+
 # ::struct::prioqueue::_size --
 #
 #   Return the number of objects on a queue.
@@ -483,4 +531,5 @@ namespace eval ::struct {
     namespace import -force prioqueue::prioqueue
     namespace export prioqueue
 }
-package provide struct::prioqueue 1.3.1
+
+package provide struct::prioqueue 1.4
