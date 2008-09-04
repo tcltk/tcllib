@@ -1,3 +1,11 @@
+2008-09-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* modules/devtools/testutilities.tcl (useTcllibC): Added code to
+	  print the location of the tcllibc used by the testsuite.
+
+	* support/devel/sak/test/run.tcl (::sak::test::run::AbortCause):
+	  Tweaked to be more lenient and accept more error messages.
+
 2008-07-08  Andreas Kupries  <andreask@activestate.com>
 
 	* support/installation/modules.tcl: New module 'amazon-s3' with
