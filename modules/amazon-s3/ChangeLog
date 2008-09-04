@@ -1,3 +1,8 @@
+2008-09-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* S3.test: Added guards to protect testsuite against a
+	* xsxp.test: missing xml package.
+
 2008-07-08  Andreas Kupries  <andreask@activestate.com>
 
 	* xsxp.man: Added boilerplate section to the documentation
