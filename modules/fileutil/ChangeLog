@@ -1,3 +1,9 @@
+2008-09-03  Andreas Kupries  <akupries@shaw.ca>
+
+	* multiop.tcl: Sync'd to S2008 Sep 3 change in wip-core, using
+	* multiop.man: the new name of the wip processor component.
+	* pkgIndex.tcl: Bumped version to 0.5.2.
+
 2008-06-20  Andreas Kupries  <andreask@activestate.com>
 
 	* multiop.tcl: Fixed usage of struct::stack. Now using the
