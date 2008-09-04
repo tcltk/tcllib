@@ -10,7 +10,7 @@
 #               (Boilerplate stuff (header, footer))
 # All rights reserved.
 #
-# RCS: @(#) $Id: xsxp.test,v 1.2 2008/07/08 22:24:35 andreas_kupries Exp $
+# RCS: @(#) $Id: xsxp.test,v 1.3 2008/09/04 02:11:13 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -20,6 +20,12 @@ source [file join \
 
 testsNeedTcl     8.5
 testsNeedTcltest 2.0
+
+if {[catch {package require xml}]} {
+    puts "    Aborting the tests found in \"[file tail [info script]]\""
+    puts "    Requiring xml package, not found."
+    return
+}
 
 support {
     # Requires xml (TclXML)
