@@ -605,7 +605,7 @@ proc ::sak::test::run::Aborted {} {
 proc ::sak::test::run::AbortCause {} {
     upvar 1 line line
     if {
-	![string match {Requiring at least *} $line] &&
+	![string match {Requiring *} $line] &&
 	![string match {Error in *} $line]
     } return ; # {}
     variable xfile
