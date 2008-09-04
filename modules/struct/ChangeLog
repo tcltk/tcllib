@@ -1,3 +1,13 @@
+2008-09-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tree.testsuite: Updated tests based on walk error stack traces
+	  to handle new differences between 8.4 and 8.5.
+
+	* tree.testsuite.4417b84.txt: Moved the stacktraces to separate files
+	* tree.testsuite.4417=84tcl.txt: for better readability of both the
+	* tree.testsuite.4417a84tcl.txt: traces and the test using it.
+	* tree.testsuite.4417a83critcl.txt:
+
 2008-08-12  Michael Schlenker <mic42@users.sourceforge.net>
 
 	* graph1.tcl: Removed reference to the cgraph download.
