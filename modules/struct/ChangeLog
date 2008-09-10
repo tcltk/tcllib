@@ -1,3 +1,11 @@
+2008-09-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* disjointset.man: Added a modified form of the disjoint-set class
+	* disjointset.tcl: created by  Alejandro Paz <vidriloco@gmail.com>
+	* disjointset.test: for the Google Summer Of Code 2008. Version 1.0.
+	* disjointset.testsuite: 
+	* pkgIndex.tcl:
+
 2008-09-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* prioqueue.man: Extended with a 'remove' method for the
