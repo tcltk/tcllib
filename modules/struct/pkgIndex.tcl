@@ -11,6 +11,7 @@ package ifneeded struct::pool      1.2.1 [list source [file join $dir pool.tcl]]
 package ifneeded struct::record    1.2.1 [list source [file join $dir record.tcl]]
 package ifneeded struct::list      1.7   [list source [file join $dir list.tcl]]
 package ifneeded struct::set       2.2.3 [list source [file join $dir sets.tcl]]
+package ifneeded struct::disjointset 1.0 [list source [file join $dir disjointset.tcl]]
 package ifneeded struct::prioqueue 1.4   [list source [file join $dir prioqueue.tcl]]
 package ifneeded struct::skiplist  1.3   [list source [file join $dir skiplist.tcl]]
 
