@@ -3,7 +3,7 @@
 # Copyright (c) 2006, Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 namespace eval ::tcllib::testutils {
-    variable version 1.1
+    variable version 1.2
     variable self    [file dirname [file join [pwd] [info script]]]
     variable tcllib  [file dirname $self]
     variable tag     ""
@@ -189,8 +189,31 @@ if {![package vsatisfies [package provide tcltest] 2.0]} {
 ## by Tcl procedures when called with the wrong number of arguments,
 ## either too many, or not enough.
 
-if {[package vsatisfies [package provide Tcl] 8.5]} {
-    # 8.5+
+if {[package vsatisfies [package provide Tcl] 8.6]} {
+    # 8.6+
+    proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
+	if {[string match args [lindex $argList end]]} {
+	    set argList [lreplace $argList end end ?arg ...?]
+	}
+	if {$argList != {}} {set argList " $argList"}
+	set msg "wrong # args: should be \"$functionName$argList\""
+	return $msg
+    }
+
+    proc ::tcltest::tooManyArgs {functionName argList} {
+	# create a different message for functions with no args
+	if {[llength $argList]} {
+	    if {[string match args [lindex $argList end]]} {
+		set argList [lreplace $argList end end ?arg ...?]
+	    }
+	    set msg "wrong # args: should be \"$functionName $argList\""
+	} else {
+	    set msg "wrong # args: should be \"$functionName\""
+	}
+	return $msg
+    }
+} elseif {[package vsatisfies [package provide Tcl] 8.5]} {
+    # 8.5
     proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
 	if {[string match args [lindex $argList end]]} {
 	    set argList [lreplace $argList end end ...]
