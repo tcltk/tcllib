@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: log.test,v 1.9 2006/10/09 21:41:40 andreas_kupries Exp $
+# RCS: @(#) $Id: log.test,v 1.10 2008/09/25 21:52:57 eee Exp $
 
 # -------------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ test log-2.1 {abbreviation error} {
 	error "e is an unique abbreviation of a level name"
     }
     set msg
-} {"e" is no unique abbreviation of a level name}
+} {bad level "e": must be alert, critical, debug, emergency, error, info, notice, or warning.}
 
 foreach {level color} {
 	emergency red        warning   yellow
@@ -82,7 +82,7 @@ test log-3.1 {color conversion error} {
 	error "foo is an unique abbreviation of a level name"
     }
     set msg
-} {"foo" is no unique abbreviation of a level name}
+} {bad level "foo": must be alert, critical, debug, emergency, error, info, notice, or warning.}
 
 foreach {level priority} {
 	emergency 7        warning   3
@@ -100,7 +100,7 @@ test log-4.1 {priority conversion error} {
 	error "foo is an unique abbreviation of a level name"
     }
     set msg
-} {"foo" is no unique abbreviation of a level name}
+} {bad level "foo": must be alert, critical, debug, emergency, error, info, notice, or warning.}
 
 foreach level {alert critical debug error emergency info notice warning} {
     test log-5.0.$level {cmd retrieval} {
@@ -113,7 +113,7 @@ test log-5.1 {cmd error} {
 	error "foo is an unique abbreviation of a level name"
     }
     set msg
-} {"foo" is no unique abbreviation of a level name}
+} {bad level "foo": must be alert, critical, debug, emergency, error, info, notice, or warning.}
 
 foreach {level chan} {
 	emergency  stderr        warning    stdout
@@ -131,7 +131,7 @@ test log-6.1 {channel error} {
 	error "foo is an unique abbreviation of a level name"
     }
     set msg
-} {"foo" is no unique abbreviation of a level name}
+} {bad level "foo": must be alert, critical, debug, emergency, error, info, notice, or warning.}
 
 foreach level {alert critical error emergency} {
     test log-7.0.$level {query suppression state} {
@@ -149,7 +149,7 @@ test log-7.1 {error when querying suppression state} {
 	error "foo is an unique abbreviation of a level name"
     }
     set msg
-} {"foo" is no unique abbreviation of a level name}
+} {bad level "foo": must be alert, critical, debug, emergency, error, info, notice, or warning.}
 
 
 foreach {la lb res} {
@@ -181,14 +181,14 @@ test log-8.1 {comparison errors} {
 	error "foo is an unique abbreviation of a level name"
     }
     set msg
-} {"foo" is no unique abbreviation of a level name}
+} {bad level "foo": must be alert, critical, debug, emergency, error, info, notice, or warning.}
 
 test log-8.2 {comparison errors} {
     if {![catch {::log::lvCompare error foo} msg]} {
 	error "foo is an unique abbreviation of a level name"
     }
     set msg
-} {"foo" is no unique abbreviation of a level name}
+} {bad level "foo": must be alert, critical, debug, emergency, error, info, notice, or warning.}
 
 
 foreach level {alert critical debug error emergency info notice warning} {
@@ -362,7 +362,7 @@ test log-13.3 {log error} {
 	error "e is an unique abbreviation of a level name"
     }
     set msg
-} {"e" is no unique abbreviation of a level name}
+} {bad level "e": must be alert, critical, debug, emergency, error, info, notice, or warning.}
 
 
 set lastlevel warning
