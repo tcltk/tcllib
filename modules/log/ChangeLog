@@ -1,3 +1,10 @@
+2008-09-25  Elchonon Edelson  <eee@users.sourceforge.net>
+
+	* log.tcl: Changed the error message returned by the log::log
+	* log.test: function. Instead of saying ""foo" is no unique
+	  abbreviation of a level name", it now gives a reasonable
+	  error message that lists the valid levels.
+
 2008-06-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* log.pcx: New file. Syntax definitions for the public commands of
