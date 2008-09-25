@@ -225,7 +225,7 @@ proc ::log::lv2longform {level} {
 	return $levelMap($level)
     }
 
-    return -code error "\"$level\" is no unique abbreviation of a level name"
+    return -code error "bad level \"$level\": must be [join [lreplace [levels] end end "or [lindex [levels] end]"] ", "]."
 }
 
 # log::lv2color --
