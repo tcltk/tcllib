@@ -3,15 +3,15 @@
 #	Tcl implementations of CSV reader and writer
 #
 # Copyright (c) 2001      by Jeffrey Hobbs
-# Copyright (c) 2001-2005 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2001-2008 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: csv.tcl,v 1.25 2006/09/19 23:36:15 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.tcl,v 1.26 2008/10/02 22:26:48 andreas_kupries Exp $
 
 package require Tcl 8.3
-package provide csv 0.7
+package provide csv 0.7.1
 
 namespace eval ::csv {
     namespace export join joinlist read2matrix read2queue report 
@@ -181,6 +181,12 @@ proc ::csv::read2matrix {args} {
 	}
     }
 
+    if {[string length $sepChar] < 1} {
+	return -code error "illegal separator character \"$sepChar\", is empty"
+    } elseif {[string length $sepChar] > 1} {
+	return -code error "illegal separator character \"$sepChar\", is a string"
+    }
+
     set data ""
     while {![eof $chan]} {
 	if {[gets $chan line] < 0} {continue}
@@ -257,6 +263,12 @@ proc ::csv::read2queue {args} {
 	default {
 	    return -code error "wrong#args: Should be ?-alternate? chan q ?separator?"
 	}
+    }
+
+    if {[string length $sepChar] < 1} {
+	return -code error "illegal separator character \"$sepChar\", is empty"
+    } elseif {[string length $sepChar] > 1} {
+	return -code error "illegal separator character \"$sepChar\", is a string"
     }
 
     set data ""
@@ -607,6 +619,12 @@ proc ::csv::split2matrix {args} {
 	}
     }
 
+    if {[string length $sepChar] < 1} {
+	return -code error "illegal separator character \"$sepChar\", is empty"
+    } elseif {[string length $sepChar] > 1} {
+	return -code error "illegal separator character \"$sepChar\", is a string"
+    }
+
     Split2matrix $alternate $m $line $sepChar $expand
     return
 }
@@ -704,6 +722,12 @@ proc ::csv::split2queue {args} {
 	default {
 	    return -code error "wrong#args: Should be ?-alternate? q line ?separator?"
 	}
+    }
+
+    if {[string length $sepChar] < 1} {
+	return -code error "illegal separator character \"$sepChar\", is empty"
+    } elseif {[string length $sepChar] > 1} {
+	return -code error "illegal separator character \"$sepChar\", is a string"
     }
 
     $q put [Split $alternate $line $sepChar]
