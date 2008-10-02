@@ -4,10 +4,10 @@
 # Sourcing this file into Tcl runs the tests and generates output for errors.
 # No output means no errors were found.
 #
-# Copyright (c) 2001 by Andreas Kupries <a.kupries@westend.com>
+# Copyright (c) 2001-2008 by Andreas Kupries <a.kupries@westend.com>
 # All rights reserved.
 #
-# RCS: @(#) $Id: csv.test,v 1.20 2006/10/09 21:41:40 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.test,v 1.21 2008/10/02 22:26:48 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -315,6 +315,33 @@ test csv-4.4 {joinlist, sepChar, custom delimiter} {
 } "a@b@c\nd@e@f\n"
 
 
+test csv-5.0.0 {reading csv files, bad separator, empty} {
+    ::struct::queue q
+    catch {::csv::read2queue dummy q {}} result
+    q destroy
+    set result
+} {illegal separator character "", is empty}
+
+test csv-5.0.1 {reading csv files, bad separator, string} {
+    ::struct::queue q
+    catch {::csv::read2queue dummy q foo} result
+    q destroy
+    set result
+} {illegal separator character "foo", is a string}
+
+test csv-5.0.2 {reading csv files, bad separator, empty} {
+    ::struct::matrix m
+    catch {::csv::read2matrix dummy m {}} result
+    m destroy
+    set result
+} {illegal separator character "", is empty}
+
+test csv-5.0.3 {reading csv files, bad separator, string} {
+    ::struct::matrix m
+    catch {::csv::read2matrix dummy m foo} result
+    m destroy
+    set result
+} {illegal separator character "foo", is a string}
 
 test csv-5.1 {reading csv files} {
     set f [open [file join $::tcltest::testsDirectory mem_debug_bench.csv] r]
@@ -901,6 +928,34 @@ foreach {n sep} {
 	::csv::split [join [list REC DPI AD1 AD2 AD3] $sep] $sep =
     } {REC DPI AD1 AD2 AD3}
 }
+
+test csv-200.0 {splitting to queue, bad separator, empty} {
+    ::struct::queue q
+    catch {::csv::split2queue q dummy-line {}} result
+    q destroy
+    set result
+} {illegal separator character "", is empty}
+
+test csv-200.1 {splitting to queue, bad separator, string} {
+    ::struct::queue q
+    catch {::csv::split2queue q dummy-line foo} result
+    q destroy
+    set result
+} {illegal separator character "foo", is a string}
+
+test csv-200.2 {splitting to matrix, bad separator, empty} {
+    ::struct::matrix m
+    catch {::csv::split2matrix m dummy-line {}} result
+    m destroy
+    set result
+} {illegal separator character "", is empty}
+
+test csv-200.3 {splitting to matrix, bad separator, string} {
+    ::struct::matrix m
+    catch {::csv::split2matrix m dummy-line foo} result
+    m destroy
+    set result
+} {illegal separator character "foo", is a string}
 
 
 testsuiteCleanup
