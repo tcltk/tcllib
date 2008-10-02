@@ -1,10 +1,10 @@
 [comment {-*- tcl -*-}]
-[manpage_begin csv n 0.7]
-[copyright {2002-2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[manpage_begin csv n 0.7.1]
+[copyright {2002-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {CSV processing}]
 [titledesc {Procedures to handle CSV data.}]
 [require Tcl 8.3]
-[require csv [opt 0.7]]
+[require csv [opt 0.7.1]]
 [description]
 
 [para]
