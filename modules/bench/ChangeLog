@@ -1,3 +1,9 @@
+2008-10-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* bench.tcl: Bumped to version 0.4 for 2008-06-30 commit by
+	* bench.man: myself. Was a major rewrite of the internals,
+	* pkgIndex.tcl: should have been bumped then.
+
 2008-06-30  Andreas Kupries  <andreask@activestate.com>
 
 	* bench.tcl (::bench::Invoke): Reworked the protocol between

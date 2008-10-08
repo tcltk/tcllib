@@ -32,7 +32,7 @@ catch {
 
 
 namespace eval ::smtp {
-    variable version 1.4.4
+    variable version 1.4.5
     variable trf 1
     variable smtp
     array set smtp { uid 0 }
