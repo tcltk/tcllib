@@ -144,7 +144,7 @@ proc ::sak::validate::testsuites::Setup {} {
     interp eval $ip [list ::rename rename    {}]
 
     foreach m {
-	testing unknown useLocal useLocalKeep
+	testing unknown useLocal useLocalKeep useAccel
     } {
 	interp alias $ip $m {} ::sak::validate::testsuites::Process/$m $ip
     }
@@ -197,6 +197,12 @@ proc ::sak::validate::testsuites::Process/useLocal {ip f p args} {
 }
 
 proc ::sak::validate::testsuites::Process/useLocalKeep {ip f p args} {
+    variable testing
+    lappend  testing $p
+    return
+}
+
+proc ::sak::validate::testsuites::Process/useAccel {ip _ f p} {
     variable testing
     lappend  testing $p
     return

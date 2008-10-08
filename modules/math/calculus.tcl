@@ -8,11 +8,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: calculus.tcl,v 1.14 2008/06/26 20:04:23 arjenmarkus Exp $
+# RCS: @(#) $Id: calculus.tcl,v 1.15 2008/10/08 03:30:48 andreas_kupries Exp $
 
 package require Tcl 8.4
 package require math::interpolate
-package provide math::calculus 0.7
+package provide math::calculus 0.7.1
 
 # math::calculus --
 #    Namespace for the commands

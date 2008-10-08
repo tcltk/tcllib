@@ -1,19 +1,31 @@
+2008-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* calculus.tcl: Bumped version to 0.7.1, for the commit on
+	* calculus.man: 2008-06-25 by Arjen. Was a bugfix, should
+	* pkgIndex.tcl: have bumped the version then.
+
 2008-08-12  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* special.tcl: bumped version to 0.2.2 (because of previous change)
 	* pkgIndex.tcl: bumped version of "special" to 0.2.2 
 
 2008-08-11  Arjen Markus <arjenmarkus@users.sourceforge.net>
-	* special.tcl: replaced old algorithm for erf() and erfc() - bug #2024843
+
+	* special.tcl: Replaced old algorithm for erf() and erfc(). Bug
+	 #2024843.
 
 2008-07-01  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* roman.man: corrected wrong mark-up command
 
 2008-06-25  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* calculus.tcl: solved problem with solveTriDiagonal (bug 2001539)
 	* calculus.tcl: repaired hidden problem with boundaryValueSecondOrder
 	* calculus.test: added test case for solveTriDiagonal
 
 2008-05-19  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* roman.man: correct namespace ::math::roman, was ::roman.
 
 2008-03-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
@@ -40,9 +52,11 @@
 	* linalg.test (eigenvectors-1.0): Fixed missing closing brace.
 
 2008-02-21  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* elliptic.tcl: Error in expression (missing ))
 
 2008-01-18  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* statistics.man: Update manual; added beta distribution
 	* statistics.test: Added tests for beta distribution
 	* pdf-stat.tcl: Added procedures for beta distirbution
@@ -70,7 +84,8 @@
 
 2007-12-11  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
-	* special.tcl: Corrected implementation of Gamma function (reported by EKB)
+	* special.tcl: Corrected implementation of Gamma
+	  function (reported by EKB)
 
 2007-09-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -81,7 +96,8 @@
 2007-09-11  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
 	* linalg.test: Corrected test that was linked to SF bug 1784637
-	* linalg.tcl: Corrected case in matmul that was linked to SF bug 1784637
+	* linalg.tcl: Corrected case in matmul that was linked to SF bug
+	  1784637
 
 2007-09-06  Arjen Markus <arjenmarkus@users.sourceforge.net>
 

@@ -1,3 +1,9 @@
+2008-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* smtp.tcl: Bumped version to 1.5.4, for the change made on
+	* smtp.man: 2007-10-08 by Pat. Was a bugfix, should have bumped
+	* pkgInsdex.tcl: the version at that time.
+
 2008-05-23  Andreas Kupries  <andreask@activestate.com>
 
 	* mime.tcl (::mime::parsepart): [SF Tcllib Bug 1961881]. Accepted

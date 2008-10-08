@@ -7,7 +7,7 @@
 # See the file license.terms.
 
 package require Tcl 8
-package provide log 1.2
+package provide log 1.2.1
 
 # ### ### ### ######### ######### #########
 
