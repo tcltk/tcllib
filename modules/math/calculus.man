@@ -1,9 +1,9 @@
-[manpage_begin math::calculus n 0.7]
+[manpage_begin math::calculus n 0.7.1]
 [copyright {2002,2003,2004 Arjen Markus}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Integration and ordinary differential equations}]
 [require Tcl 8.4]
-[require math::calculus 0.7]
+[require math::calculus 0.7.1]
 [description]
 [para]
 This package implements several simple mathematical algorithms:
