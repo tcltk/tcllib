@@ -1,3 +1,9 @@
+2008-10-10  Andreas Kupries  <andreask@activestate.com>
+
+	* string.man: Renamed to textutil_string.man. Avoid clash with core.
+	* split.man:  Renamed to textutil_split.man. Avoid clash with core.
+	  Fix [Bug 2124508].
+
 2008-06-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* textutil_adjust.pcx: New file. Syntax definitions for the public
