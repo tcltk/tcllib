@@ -207,6 +207,327 @@ gm_arc_APPEND (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
 /*
  *---------------------------------------------------------------------------
  *
+ * gm_arc_GETUNWEIGH --
+ *
+ *      
+ *	
+ *
+ * Results:
+ *	A standard Tcl result code.
+ *
+ * Side effects:
+ *	May release and allocate memory.
+ *
+ *---------------------------------------------------------------------------
+ */
+
+int
+gm_arc_GETUNWEIGH (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+{
+    /* Syntax: graph arc getunweighted
+     *	       [0]   [1] [2]
+     */
+
+    GA* a;
+    Tcl_Obj** rv;
+    int       rc;
+
+    if (objc != 3) {
+	Tcl_WrongNumArgs (interp, 3, objv, NULL);
+	return TCL_ERROR;
+    }
+
+    rv = NALLOC (g->arcs.n, Tcl_Obj*);
+    rc = 0;
+
+    for (a = (GA*) g->arcs.first; a ; a = a->base.next) {
+	if (a->weight) continue;
+
+	ASSERT_BOUNDS (rc, g->arcs.n);
+
+	rv [rc++] = a->base.name;
+    }
+
+    Tcl_SetObjResult (interp, Tcl_NewListObj (rc, rv));
+
+    ckfree ((char*) rv);
+    return TCL_OK;
+}
+
+/*
+ *---------------------------------------------------------------------------
+ *
+ * gm_arc_GETWEIGHT --
+ *
+ *      
+ *	
+ *
+ * Results:
+ *	A standard Tcl result code.
+ *
+ * Side effects:
+ *	May release and allocate memory.
+ *
+ *---------------------------------------------------------------------------
+ */
+
+int
+gm_arc_GETWEIGHT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+{
+    /* Syntax: graph arc getweight ARC
+     *	       [0]   [1] [2]       [3]
+     */
+
+    GA* a;
+
+    if (objc != 4) {
+	Tcl_WrongNumArgs (interp, 3, objv, "arc");
+	return TCL_ERROR;
+    }
+
+    a = ga_get_arc (g, objv [3], interp, objv [0]);
+    FAIL (a);
+
+    if (!a->weight) {
+	Tcl_AppendResult (interp,
+			  "arc \"", Tcl_GetString (a->base.name), "\" has no weight",
+			  NULL);
+	return TCL_ERROR;
+    }
+
+    Tcl_SetObjResult (interp, a->weight);
+    return TCL_OK;
+}
+
+/*
+ *---------------------------------------------------------------------------
+ *
+ * gm_arc_SETUNWEIGH --
+ *
+ *      
+ *	
+ *
+ * Results:
+ *	A standard Tcl result code.
+ *
+ * Side effects:
+ *	May release and allocate memory.
+ *
+ *---------------------------------------------------------------------------
+ */
+
+int
+gm_arc_SETUNWEIGH (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+{
+    /* Syntax: graph arc setunweighted ?weight?
+     *	       [0]   [1] [2]           [3]
+     */
+
+    GA* a;
+    Tcl_Obj* weight;
+
+    if ((objc != 3) && (objc != 4)) {
+	Tcl_WrongNumArgs (interp, 3, objv, "?weight?");
+	return TCL_ERROR;
+    }
+
+    if (objc == 4) {
+	weight = objv [3];
+    } else {
+	weight = Tcl_NewIntObj (0);
+    }
+
+    for (a = (GA*) g->arcs.first; a ; a = a->base.next) {
+	if (a->weight) continue;
+
+	a->weight = weight;
+	Tcl_IncrRefCount (weight);
+    }
+
+    return TCL_OK;
+}
+
+/*
+ *---------------------------------------------------------------------------
+ *
+ * gm_arc_SETWEIGHT --
+ *
+ *      
+ *	
+ *
+ * Results:
+ *	A standard Tcl result code.
+ *
+ * Side effects:
+ *	May release and allocate memory.
+ *
+ *---------------------------------------------------------------------------
+ */
+
+int
+gm_arc_SETWEIGHT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+{
+    /* Syntax: graph arc setweight ARC WEIGHT
+     *	       [0]   [1] [2]       [3] [4]
+     */
+
+    GA* a;
+
+    if (objc != 5) {
+	Tcl_WrongNumArgs (interp, 3, objv, "arc weight");
+	return TCL_ERROR;
+    }
+
+    a = ga_get_arc (g, objv [3], interp, objv [0]);
+    FAIL (a);
+
+    if (a->weight) {
+	Tcl_DecrRefCount (a->weight);
+    }
+
+    a->weight = objv [4];
+    Tcl_IncrRefCount (a->weight);
+
+    Tcl_SetObjResult (interp, a->weight);
+    return TCL_OK;
+}
+
+/*
+ *---------------------------------------------------------------------------
+ *
+ * gm_arc_UNSETWEIGH --
+ *
+ *      
+ *	
+ *
+ * Results:
+ *	A standard Tcl result code.
+ *
+ * Side effects:
+ *	May release and allocate memory.
+ *
+ *---------------------------------------------------------------------------
+ */
+
+int
+gm_arc_UNSETWEIGH (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+{
+    /* Syntax: graph arc unsetweight ARC
+     *	       [0]   [1] [2]         [3]
+     */
+
+    GA* a;
+
+    if (objc != 4) {
+	Tcl_WrongNumArgs (interp, 3, objv, "arc");
+	return TCL_ERROR;
+    }
+
+    a = ga_get_arc (g, objv [3], interp, objv [0]);
+    FAIL (a);
+
+    if (a->weight) {
+	Tcl_DecrRefCount (a->weight);
+	a->weight = NULL;
+    }
+
+    return TCL_OK;
+}
+
+/*
+ *---------------------------------------------------------------------------
+ *
+ * gm_arc_HASWEIGHT --
+ *
+ *      
+ *	
+ *
+ * Results:
+ *	A standard Tcl result code.
+ *
+ * Side effects:
+ *	May release and allocate memory.
+ *
+ *---------------------------------------------------------------------------
+ */
+
+int
+gm_arc_HASWEIGHT (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+{
+    /* Syntax: graph arc hasweight ARC
+     *	       [0]   [1] [2]       [3]
+     */
+
+    GA* a;
+
+    if (objc != 4) {
+	Tcl_WrongNumArgs (interp, 3, objv, "arc");
+	return TCL_ERROR;
+    }
+
+    a = ga_get_arc (g, objv [3], interp, objv [0]);
+    FAIL (a);
+
+    Tcl_SetObjResult (interp, Tcl_NewIntObj (a->weight != NULL));
+    return TCL_OK;
+}
+
+/*
+ *---------------------------------------------------------------------------
+ *
+ * gm_arc_WEIGHTS --
+ *
+ *      
+ *	
+ *
+ * Results:
+ *	A standard Tcl result code.
+ *
+ * Side effects:
+ *	May release and allocate memory.
+ *
+ *---------------------------------------------------------------------------
+ */
+
+int
+gm_arc_WEIGHTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
+{
+    /* Syntax: graph arc weights
+     *	       [0]   [1] [2]
+     */
+
+    GA* a;
+    Tcl_Obj** rv;
+    int       rc, rcmax;
+
+    if (objc != 3) {
+	Tcl_WrongNumArgs (interp, 3, objv, NULL);
+	return TCL_ERROR;
+    }
+
+    rcmax = 2 * g->arcs.n;
+    rv = NALLOC (rcmax, Tcl_Obj*);
+    rc = 0;
+
+    for (a = (GA*) g->arcs.first; a ; a = a->base.next) {
+	if (!a->weight) continue;
+
+	ASSERT_BOUNDS (rc,   rcmax);
+	ASSERT_BOUNDS (rc+1, rcmax);
+
+	rv [rc++] = a->base.name;
+	rv [rc++] = a->weight;
+    }
+
+    Tcl_SetObjResult (interp, Tcl_NewListObj (rc, rv));
+
+    ckfree ((char*) rv);
+    return TCL_OK;
+}
+
+/*
+ *---------------------------------------------------------------------------
+ *
  * gm_arc_ATTR --
  *
  *      

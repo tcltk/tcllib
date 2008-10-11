@@ -295,9 +295,9 @@ g_deserialize (G* dst, Tcl_Interp* interp, Tcl_Obj* src)
 	    if (Tcl_ListObjGetElements (interp, av[k], &axc, &axv) != TCL_OK) {
 		return TCL_ERROR;
 	    }
-	    if (axc != 3) {
+	    if ((axc != 3) && (axc != 4)) {
 		Tcl_AppendResult (interp,
-				  "error in serialization: arc information length not 3.",
+				  "error in serialization: arc information length not 3 or 4.",
 				  NULL);
 		return TCL_ERROR;
 	    }
@@ -368,7 +368,12 @@ g_deserialize (G* dst, Tcl_Interp* interp, Tcl_Obj* src)
 	    }
 	    Tcl_GetIntFromObj (interp, axv[1], &nref);
 	    ndst = gn_get_node (new, lv[nref], NULL, NULL);
-	    ga_new (new, Tcl_GetString (axv[0]), n, ndst);
+	    a = ga_new (new, Tcl_GetString (axv[0]), n, ndst);
+
+	    if (axc == 4) {
+		a->weight = axv[3];
+		Tcl_IncrRefCount (a->weight);
+	    }
 	}
     }
 

@@ -43,17 +43,20 @@ g_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
     };
 
     static CONST char* a_methods [] = {
-	"append",  "attr",   "delete",	    "exists",      "flip",
-	"get",     "getall", "insert",      "keyexists",   "keys",
-	"lappend", "move",   "move-source", "move-target", "rename",
-	"set",     "source", "target",      "unset",
+	"append",      "attr",   "delete",        "exists",        "flip",
+	"get",         "getall", "getunweighted", "getweight",     "hasweight", "insert",
+	"keyexists",   "keys",   "lappend",       "move",          "move-source",
+	"move-target", "rename", "set",           "setunweighted", "setweight",
+	"source",      "target", "unset",         "unsetweight",   "weights",
 	NULL
     };
     enum a_methods {
-	MA_APPEND,  MA_ATTR,   MA_DELETE,      MA_EXISTS,      MA_FLIP,
-	MA_GET,     MA_GETALL, MA_INSERT,      MA_KEYEXISTS,   MA_KEYS,
-	MA_LAPPEND, MA_MOVE,   MA_MOVE_SOURCE, MA_MOVE_TARGET, MA_RENAME,
-	MA_SET,     MA_SOURCE, MA_TARGET,      MA_UNSET
+	MA_APPEND,      MA_ATTR,        MA_DELETE,        MA_EXISTS,    MA_FLIP,
+	MA_GET,         MA_GETALL,      MA_GETUNWEIGHTED, MA_GETWEIGHT, MA_HASWEIGHT,
+	MA_INSERT,      MA_KEYEXISTS,   MA_KEYS,          MA_LAPPEND,   MA_MOVE,
+	MA_MOVE_SOURCE, MA_MOVE_TARGET, MA_RENAME,        MA_SET,       MA_SETUNWEIGHTED,
+	MA_SETWEIGHT,	MA_SOURCE,      MA_TARGET,        MA_UNSET,     MA_UNSETWEIGHT,
+	MA_WEIGHTS
     };
 
     static CONST char* n_methods [] = {
@@ -93,25 +96,32 @@ g_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	    return TCL_ERROR;
 	}
 	switch (m) {
-	case MA_APPEND:	     return gm_arc_APPEND    (g, interp, objc, objv);
-	case MA_ATTR:	     return gm_arc_ATTR	     (g, interp, objc, objv);
-	case MA_DELETE:	     return gm_arc_DELETE    (g, interp, objc, objv);
-	case MA_EXISTS:	     return gm_arc_EXISTS    (g, interp, objc, objv);
-	case MA_FLIP:        return gm_arc_FLIP      (g, interp, objc, objv);
-	case MA_GET:	     return gm_arc_GET	     (g, interp, objc, objv);
-	case MA_GETALL:	     return gm_arc_GETALL    (g, interp, objc, objv);
-	case MA_INSERT:	     return gm_arc_INSERT    (g, interp, objc, objv);
-	case MA_KEYEXISTS:   return gm_arc_KEYEXISTS (g, interp, objc, objv);
-	case MA_KEYS:	     return gm_arc_KEYS	     (g, interp, objc, objv);
-	case MA_LAPPEND:     return gm_arc_LAPPEND   (g, interp, objc, objv);
-	case MA_MOVE:        return gm_arc_MOVE      (g, interp, objc, objv);
-	case MA_MOVE_SOURCE: return gm_arc_MOVE_SRC  (g, interp, objc, objv);
-	case MA_MOVE_TARGET: return gm_arc_MOVE_TARG (g, interp, objc, objv);
-	case MA_RENAME:	     return gm_arc_RENAME    (g, interp, objc, objv);
-	case MA_SET:	     return gm_arc_SET	     (g, interp, objc, objv);
-	case MA_SOURCE:	     return gm_arc_SOURCE    (g, interp, objc, objv);
-	case MA_TARGET:	     return gm_arc_TARGET    (g, interp, objc, objv);
-	case MA_UNSET:	     return gm_arc_UNSET     (g, interp, objc, objv);
+	case MA_APPEND:	       return gm_arc_APPEND     (g, interp, objc, objv);
+	case MA_ATTR:	       return gm_arc_ATTR	(g, interp, objc, objv);
+	case MA_DELETE:	       return gm_arc_DELETE     (g, interp, objc, objv);
+	case MA_EXISTS:	       return gm_arc_EXISTS     (g, interp, objc, objv);
+	case MA_FLIP:          return gm_arc_FLIP       (g, interp, objc, objv);
+	case MA_GET:	       return gm_arc_GET	(g, interp, objc, objv);
+	case MA_GETALL:	       return gm_arc_GETALL     (g, interp, objc, objv);
+	case MA_GETUNWEIGHTED: return gm_arc_GETUNWEIGH (g, interp, objc, objv);
+	case MA_GETWEIGHT:     return gm_arc_GETWEIGHT  (g, interp, objc, objv);
+	case MA_HASWEIGHT:     return gm_arc_HASWEIGHT  (g, interp, objc, objv);
+	case MA_INSERT:	       return gm_arc_INSERT     (g, interp, objc, objv);
+	case MA_KEYEXISTS:     return gm_arc_KEYEXISTS  (g, interp, objc, objv);
+	case MA_KEYS:	       return gm_arc_KEYS	(g, interp, objc, objv);
+	case MA_LAPPEND:       return gm_arc_LAPPEND    (g, interp, objc, objv);
+	case MA_MOVE:          return gm_arc_MOVE       (g, interp, objc, objv);
+	case MA_MOVE_SOURCE:   return gm_arc_MOVE_SRC   (g, interp, objc, objv);
+	case MA_MOVE_TARGET:   return gm_arc_MOVE_TARG  (g, interp, objc, objv);
+	case MA_RENAME:	       return gm_arc_RENAME     (g, interp, objc, objv);
+	case MA_SET:	       return gm_arc_SET	(g, interp, objc, objv);
+	case MA_SETUNWEIGHTED: return gm_arc_SETUNWEIGH (g, interp, objc, objv);
+	case MA_SETWEIGHT:     return gm_arc_SETWEIGHT  (g, interp, objc, objv);
+	case MA_SOURCE:	       return gm_arc_SOURCE     (g, interp, objc, objv);
+	case MA_TARGET:	       return gm_arc_TARGET     (g, interp, objc, objv);
+	case MA_UNSET:	       return gm_arc_UNSET      (g, interp, objc, objv);
+	case MA_UNSETWEIGHT:   return gm_arc_UNSETWEIGH (g, interp, objc, objv);
+	case MA_WEIGHTS:       return gm_arc_WEIGHTS    (g, interp, objc, objv);
 	}
 	break;
     case M_ARCS:	return gm_ARCS	      (g, interp, objc, objv);
