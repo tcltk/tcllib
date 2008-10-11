@@ -11,14 +11,14 @@
  * The data structures for a graph are mainly double-linked lists, combined
  * with hash maps.
  *
- * We have single structure per interpreter, -> GG.  This structure holds the
- * counter and string buffer for the generation of automatic graph names.
+ * We have a single structure per interpreter, -> GG.  This structure holds
+ * the counter and string buffer for the generation of automatic graph names.
  *
  * We have one structure per graph, -> G. It holds a single hash map for the
  * attributes, and two hash maps with associated lists for nodes and arcs. The
- * maps for retrieval by name, the lists when searches by various features are
- * done. Beyond we have the counters and string buffer for the generation of
- * automatic arc- and node-names. As the information for nodes and arcs are
+ * maps are for retrieval by name, the lists when searches by various features
+ * are done. Beyond we have the counters and string buffer for the generation
+ * of automatic arc- and node-names. As the information for nodes and arcs are
  * identical they are pulled together in their own common structure -> GCC.
  *
  * The basic information of both nodes and arcs themselves is the same as
@@ -122,6 +122,8 @@ typedef struct GA {
 
     GL* start; /* Interlink to node where arc begins */
     GL* end;   /* Interlink to node where arc ends */
+
+    Tcl_Obj* weight; /* If not NULL the weight of the arc */
 } GA;
 
 /*

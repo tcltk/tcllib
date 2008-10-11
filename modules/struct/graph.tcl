@@ -7,11 +7,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: graph.tcl,v 1.30 2007/02/16 07:04:48 andreas_kupries Exp $
+# RCS: @(#) $Id: graph.tcl,v 1.31 2008/10/11 23:23:47 andreas_kupries Exp $
 
 # @mdgen EXCLUDE: graph_c.tcl
 
-package require Tcl 8.2
+package require Tcl 8.4
 
 namespace eval ::struct::graph {}
 
@@ -177,4 +177,4 @@ namespace eval ::struct {
     namespace export graph
 }
 
-package provide struct::graph 2.2
+package provide struct::graph 2.3
