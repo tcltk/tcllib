@@ -7,7 +7,7 @@
 # Copyright (c) 2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: multi.test,v 1.4 2007/08/16 04:11:49 andreas_kupries Exp $
+# RCS: @(#) $Id: multi.test,v 1.5 2008/10/11 05:42:37 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -83,7 +83,7 @@ test multi-1.4 {multi-file operation, expand and save} -setup {
     mo_setup
 } -body {
     fileutil::multi reset expand the *a* in $src -> v
-    set v
+    lsort $v
 } -cleanup {
     mo_cleanup ; unset v
 } -result {anneliese bertram}
