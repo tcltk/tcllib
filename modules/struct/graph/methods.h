@@ -32,15 +32,22 @@ int gm_arc_DELETE     (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
 int gm_arc_EXISTS     (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
 int gm_arc_GET	      (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
 int gm_arc_GETALL     (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
+int gm_arc_GETUNWEIGH (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
+int gm_arc_GETWEIGHT  (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
+int gm_arc_HASWEIGHT  (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
 int gm_arc_INSERT     (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
 int gm_arc_KEYEXISTS  (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
 int gm_arc_KEYS	      (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
 int gm_arc_LAPPEND    (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
 int gm_arc_RENAME     (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
 int gm_arc_SET	      (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
+int gm_arc_SETUNWEIGH (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
+int gm_arc_SETWEIGHT  (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
 int gm_arc_SOURCE     (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
 int gm_arc_TARGET     (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
 int gm_arc_UNSET      (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
+int gm_arc_UNSETWEIGH (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
+int gm_arc_WEIGHTS    (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
 
 int gm_node_APPEND    (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);
 int gm_node_ATTR      (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv);

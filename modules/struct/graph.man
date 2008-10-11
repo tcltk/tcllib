@@ -1,11 +1,12 @@
 [comment {-*- tcl -*-}]
-[manpage_begin struct::graph n 2.2]
-[copyright {2002-2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[manpage_begin struct::graph n 2.3]
+[copyright {2002-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate directed graph objects}]
-[require Tcl 8.2]
-[require struct::graph [opt 2.2]]
+[require Tcl 8.4]
+[require struct::graph [opt 2.3]]
 [require struct::list  [opt 1.5]]
+[require struct::set   [opt 2.2.3]]
 [description]
 [para]
 
@@ -274,6 +275,18 @@ match the pattern will be part of the returned dictionary. The pattern
 is a [cmd glob] pattern.
 
 
+[call [arg graphName] [method {arc getunweighted}]]
+
+Returns a list containing the names of all arcs in the graph which
+have no weight associated with them.
+
+
+[call [arg graphName] [method {arc getweight}] [arg arc]]
+
+Returns the weight associated with the [arg arc]. Throws an error if
+the arc has no weight associated with it.
+
+
 [call [arg graphName] [method {arc keys}] [arg arc] [opt [arg pattern]]]
 
 Returns a list of keys for the [arg arc].
@@ -320,6 +333,31 @@ if [arg value] is specified, this command assigns that value to the key, and ret
 that value.
 
 
+[call [arg graphName] [method {arc setunweighted}] [opt [arg weight]]]
+
+Sets the weight of all arcs without a weight to [arg weight]. Returns
+the empty string as its result. If not present [arg weight] defaults
+to [const 0].
+
+
+[call [arg graphName] [method {arc setweight}] [arg arc] [arg weight]]
+
+Sets the weight of the [arg arc] to [arg weight]. Returns [arg weight].
+
+
+[call [arg graphName] [method {arc unsetweight}] [arg arc]]
+
+Removes the weight of the [arg arc], if present. Does nothing
+otherwise. Returns the empty string.
+
+
+[call [arg graphName] [method {arc hasweight}] [arg arc]]
+
+Determines if the [arg arc] has a weight associated with it.  The
+result is a boolean value, [const True] if a weight is defined, and
+[const False] otherwise.
+
+
 [call [arg graphName] [method {arc source}] [arg arc]]
 
 Return the node the given [arg arc] begins at.
@@ -352,6 +390,12 @@ and [arg newtarget] resp.
 
 Remove a keyed value from the arc [arg arc]. The method will do
 nothing if the [arg key] does not exist.
+
+
+[call [arg graphName] [method {arc weights}]]
+
+Returns a dictionary whose keys are the names of all arcs which have a
+weight associated with them, and the values are these weights.
 
 
 [call [arg graphName] [method arcs] [opt "-key [arg key]"] [opt "-value [arg value]"] [opt "-filter [arg cmdprefix]"] [opt "-in|-out|-adj|-inner|-embedding [arg {node node...}]"]]
@@ -729,7 +773,8 @@ And a list describing all the arcs starting at that node.
 [list_end]
 [para]
 
-The elements of the arc list are lists containing three elements each, i.e.
+The elements of the arc list are lists containing three or four
+elements each, i.e.
 
 [list_begin enumerated]
 [enum]
@@ -748,6 +793,21 @@ consistency requirement for the serialization.
 
 [enum]
 And a dictionary containing the attributes associated with the arc.
+
+[enum]
+The weight associated with the arc. This value is optional. Its
+non-presence means that the arc in question has no weight associated
+with it.
+
+[para][emph Note:] This information is new, compared to the
+serialization of [package graph] 2.3 and earlier. By making it an
+optional element the new format is maximally compatible with the
+old. This means that any graph not using weights will generate a
+serialization which is still understood by the older graph package. A
+serialization will not be understood any longer by the older packages
+if, and only if the graph it was generated from actually has arcs with
+weights.
+
 [list_end]
 [para]
 
@@ -777,7 +837,7 @@ relevance, nor has the order of the arcs per node.
     #
     # %3 {} {{f 6 {}}} %0 {} {{a 6 {}} {b 9 {}} {c 0 {}}} %1 {} {{d 9 {}}} %2 {} {{e 0 {}}} {}
     #
-    # This assumes that the graph has no attribute data.
+    # This assumes that the graph has neither attribute data nor weighted arcs.
 }]
 [para]
 

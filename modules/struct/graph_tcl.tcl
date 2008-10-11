@@ -2,14 +2,15 @@
 #
 #	Implementation of a graph data structure for Tcl.
 #
-# Copyright (c) 2000-2006 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2000-2008 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2008      by Alejandro Paz <vidriloco@gmail.com>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph_tcl.tcl,v 1.1 2006/11/16 06:33:12 andreas_kupries Exp $
+# RCS: @(#) $Id: graph_tcl.tcl,v 1.2 2008/10/11 23:23:47 andreas_kupries Exp $
 
-package require Tcl 8.2
+package require Tcl 8.4
 package require struct::list
 package require struct::set
 
@@ -141,6 +142,12 @@ proc ::struct::graph::graph_tcl {args} {
 	# Set up a counter for use in creating attribute arrays.
 	variable nextAttr
 	set      nextAttr 0
+
+        # Set up a map from arcs to their weights. Note: Only arcs
+        # which actually have a weight are recorded in the map, to
+        # keep memory usage down.
+        variable arcWeight
+        array set arcWeight {}
     }
 
     # Create the command to manipulate the graph
@@ -319,6 +326,7 @@ proc ::struct::graph::__arc_delete {name args} {
     variable ${name}::outArcs
     variable ${name}::arcNodes
     variable ${name}::arcAttr
+    variable ${name}::arcWeight
 
     foreach arc $args {
 	foreach {source target} $arcNodes($arc) break ; # lassign
@@ -326,8 +334,11 @@ proc ::struct::graph::__arc_delete {name args} {
 	unset arcNodes($arc)
 
 	if {[info exists arcAttr($arc)]} {
-	    unset ${name}::$arcAttr($arc)
+	    unset ${name}::$arcAttr($arc) ;# Note the double indirection here
 	    unset arcAttr($arc)
+	}
+	if {[info exists arcWeight($arc)]} {
+	    unset arcWeight($arc)
 	}
 
 	# Remove arc from the arc lists of source and target nodes.
@@ -568,6 +579,7 @@ proc ::struct::graph::__arc_rename {name arc newname} {
     variable ${name}::inArcs
     variable ${name}::outArcs
     variable ${name}::arcNodes
+    variable ${name}::arcWeight
 
     # Arc relocation
 
@@ -586,6 +598,11 @@ proc ::struct::graph::__arc_rename {name arc newname} {
     if {[info exists arcAttr($oldname)]} {
 	set arcAttr($newname) $arcAttr($oldname)
 	unset                  arcAttr($oldname)
+    }
+
+    if {[info exists arcWeight($oldname)]} {
+	set arcWeight($newname) $arcWeight($oldname)
+	unset                    arcWeight($oldname)
     }
 
     return $newname
@@ -933,6 +950,140 @@ proc ::struct::graph::__arc_unset {name arc key} {
     return
 }
 
+# ::struct::graph::__arc_getunweighted --
+#
+#	Return the arcs which have no weight defined.
+#
+# Arguments:
+#	name	name of the graph.
+#
+# Results:
+#	arcs	list of arcs without weights.
+
+proc ::struct::graph::__arc_getunweighted {name} {
+    variable ${name}::arcNodes
+    variable ${name}::arcWeight
+    return [struct::set difference \
+		[array names arcNodes] \
+		[array names arcWeight]]
+}
+
+# ::struct::graph::__arc_getweight --
+#
+#	Get the weight given to an arc in a graph.
+#	Throws an error if the arc has no weight defined for it.
+#
+# Arguments:
+#	name	name of the graph.
+#	arc	arc to query.
+#
+# Results:
+#	weight	The weight defined for the arc.
+
+proc ::struct::graph::__arc_getweight {name arc} {
+    CheckMissingArc $name $arc
+
+    variable ${name}::arcWeight
+    if {![info exists arcWeight($arc)]} {
+	return -code error "arc \"$arc\" has no weight"
+    }
+    return $arcWeight($arc)
+}
+
+# ::struct::graph::__arc_setunweighted --
+#
+#	Define a weight for all arcs which have no weight defined.
+#	After this call no arc will be unweighted.
+#
+# Arguments:
+#	name	name of the graph.
+#	defval	weight to give to all unweighted arcs
+#
+# Results:
+#	None
+
+proc ::struct::graph::__arc_setunweighted {name {weight 0}} {
+    variable ${name}::arcWeight
+    foreach arc [__arc_getunweighted $name] {
+	set arcWeight($arc) $weight
+    }
+    return
+}
+
+# ::struct::graph::__arc_setweight --
+#
+#	Define a weight for an arc.
+#
+# Arguments:
+#	name	name of the graph.
+#	arc	arc to modify
+#	weight	the weight to set for the arc
+#
+# Results:
+#	weight	The new weight
+
+proc ::struct::graph::__arc_setweight {name arc weight} {
+    CheckMissingArc $name $arc
+
+    variable ${name}::arcWeight
+    set arcWeight($arc) $weight
+    return $weight 
+}
+
+# ::struct::graph::__arc_unsetweight --
+#
+#	Remove the weight for an arc.
+#
+# Arguments:
+#	name	name of the graph.
+#	arc	arc to modify
+#
+# Results:
+#	None.
+
+proc ::struct::graph::__arc_unsetweight {name arc} {
+    CheckMissingArc $name $arc
+
+    variable ${name}::arcWeight
+    if {[info exists arcWeight($arc)]} {
+	unset arcWeight($arc)
+    }
+    return
+}
+
+# ::struct::graph::__arc_hasweight --
+#
+#	Remove the weight for an arc.
+#
+# Arguments:
+#	name	name of the graph.
+#	arc	arc to modify
+#
+# Results:
+#	None.
+
+proc ::struct::graph::__arc_hasweight {name arc} {
+    CheckMissingArc $name $arc
+
+    variable ${name}::arcWeight
+    return [info exists arcWeight($arc)]
+}
+
+# ::struct::graph::__arc_weights --
+#
+#	Return the arcs and weights for all arcs which have such.
+#
+# Arguments:
+#	name	name of the graph.
+#
+# Results:
+#	aw	dictionary mapping arcs to their weights.
+
+proc ::struct::graph::__arc_weights {name} {
+    variable ${name}::arcWeight
+    return [array get arcWeight]
+}
+
 # ::struct::graph::_arcs --
 #
 #	Return a list of all arcs in a graph satisfying some
@@ -1201,7 +1352,7 @@ proc ::struct::graph::_deserialize {name serial} {
     #    and check it for validity.
 
     CheckSerialization $serial \
-	    gattr nattr aattr ina outa arcn
+	    gattr nattr aattr ina outa arcn arcw
 
     # Get all the relevant data into the scope
 
@@ -1212,22 +1363,24 @@ proc ::struct::graph::_deserialize {name serial} {
     variable ${name}::outArcs
     variable ${name}::arcNodes
     variable ${name}::nextAttr
+    variable ${name}::arcWeight
 
     # Kill the existing information and insert the new
     # data in their place.
 
-    foreach n [array names inArcs] {
-	unset inArcs($n) outArcs($n)
-    }
-    array set inArcs   [array get ina]
-    array set outArcs  [array get outa]
+    array unset inArcs *
+    array unset outArcs *
+    array set   inArcs   [array get ina]
+    array set   outArcs  [array get outa]
     unset ina outa
 
-    foreach a [array names arcNodes] {
-	unset arcNodes($a)
-    }
-    array set arcNodes [array get arcn]
+    array unset arcNodes *
+    array set   arcNodes [array get arcn]
     unset arcn
+
+    array unset arcWeight *
+    array set   arcWeight [array get arcw]
+    unset arcw
 
     set nextAttr 0
     foreach a [array names nodeAttr] {
@@ -1244,10 +1397,9 @@ proc ::struct::graph::_deserialize {name serial} {
 	GenAttributeStorage $name arc $a
 	array set ${name}::$arcAttr($a) $aattr($a)
     }
-    foreach k [array names graphAttr] {
-	unset graphAttr($k)
-    }
-    array set graphAttr $gattr
+
+    array unset graphAttr *
+    array set   graphAttr $gattr
 
     ## Debug ## Dump internals ...
     if {0} {
@@ -1258,6 +1410,7 @@ proc ::struct::graph::_deserialize {name serial} {
 	parray nodeAttr
 	parray arcAttr
 	parray graphAttr
+	parray arcWeight
 	puts ___________________________________
     }
     return
@@ -2259,6 +2412,7 @@ proc ::struct::graph::_serialize {name args} {
     # arcs.
 
     variable ${name}::arcNodes
+    variable ${name}::arcWeight
     variable ${name}::inArcs
 
     set all 0
@@ -2314,6 +2468,12 @@ proc ::struct::graph::_serialize {name args} {
 	    lappend arc [array get data]
 	} else {
 	    lappend arc {}
+	}
+
+	# Add weight information, if there is any.
+
+	if {[info exists arcWeight($a)]} {
+	    lappend arc $arcWeight($a)
 	}
 
 	# Add the information to the node
@@ -2902,20 +3062,22 @@ proc ::struct::graph::CheckE {name what arguments} {
     return
 }
 
-proc ::struct::graph::CheckSerialization {ser gavar navar aavar inavar outavar arcnvar} {
+proc ::struct::graph::CheckSerialization {ser gavar navar aavar inavar outavar arcnvar arcwvar} {
     upvar 1 \
 	    $gavar   graphAttr \
 	    $navar   nodeAttr  \
 	    $aavar   arcAttr   \
 	    $inavar  inArcs    \
 	    $outavar outArcs   \
-	    $arcnvar arcNodes
+	    $arcnvar arcNodes  \
+	    $arcwvar arcWeight
 
     array set nodeAttr  {}
     array set arcAttr   {}
     array set inArcs    {}
     array set outArcs   {}
     array set arcNodes  {}
+    array set arcWeight {}
 
     # Overall length ok ?
     if {[llength $ser] % 3 != 1} {
@@ -2949,9 +3111,12 @@ proc ::struct::graph::CheckSerialization {ser gavar navar aavar inavar outavar a
 	}
 
 	foreach arcd $narcs {
-	    if {[llength $arcd] != 3} {
+	    if {
+		([llength $arcd] != 3) &&
+		([llength $arcd] != 4)
+	    } {
 		return -code error \
-			"error in serialization: arc information length not 3."
+			"error in serialization: arc information length not 3 or 4."
 	    }
 
 	    foreach {arc dst aattr} $arcd break
@@ -2969,6 +3134,11 @@ proc ::struct::graph::CheckSerialization {ser gavar navar aavar inavar outavar a
 	    # Remember attribute data only for non-empty nodes
 	    if {[llength $aattr]} {
 		set arcAttr($arc) $aattr
+	    }
+
+	    # Remember weight data if it was specified.
+	    if {[llength $arcd] == 4} {
+		set arcWeight($arc) [lindex $arcd 3]
 	    }
 
 	    # Destination reference ok ?
