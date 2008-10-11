@@ -32,8 +32,9 @@ ga_new (G* g, const char* name, GN* src, GN* dst)
 
     /* node / arc linkage */
 
-    a->start = gla_link (a, ALLOC (GL), src, &src->out);
-    a->end   = gla_link (a, ALLOC (GL), dst, &dst->in);
+    a->start  = gla_link (a, ALLOC (GL), src, &src->out);
+    a->end    = gla_link (a, ALLOC (GL), dst, &dst->in);
+    a->weight = NULL; /* New arcs have no weight */
 
     return a;
 }
@@ -53,6 +54,12 @@ ga_delete (GA* a)
 
     ckfree ((char*) a->start); a->start = NULL;
     ckfree ((char*) a->end);   a->end   = NULL;
+
+    if (a->weight) {
+	Tcl_DecrRefCount (a->weight);
+	a->weight = NULL;
+    }
+
     ckfree ((char*) a);
 }
 
@@ -87,13 +94,18 @@ ga_mv_dst (GA* a, GN* ndst)
 Tcl_Obj*
 ga_serial (GA* a, Tcl_Obj* empty, int nodeId)
 {
-    Tcl_Obj* lv [3];
+    Tcl_Obj* lv [4];
 
     lv [0] = a->base.name;
     lv [1] = Tcl_NewIntObj (nodeId);
     lv [2] = g_attr_serial (a->base.attr, empty);
 
-    return Tcl_NewListObj (3, lv);
+    if (a->weight) {
+	lv [3] = a->weight;
+	return Tcl_NewListObj (4, lv);
+    } else {
+	return Tcl_NewListObj (3, lv);
+    }
 }
 
 /* .................................................. */

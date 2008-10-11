@@ -6,7 +6,7 @@
 #
 # All rights reserved.
 #
-# RCS: @(#) $Id: Xsupport,v 1.1 2006/11/16 06:33:13 andreas_kupries Exp $
+# RCS: @(#) $Id: Xsupport,v 1.2 2008/10/11 23:23:48 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -41,7 +41,7 @@ proc validate_serial {g serial {nodes {}}} {
 	if {[llength $attr] % 2} {
 	    return node/$node/attr/wrong#elements
 	}
-	# Node attribues matching ?
+	# Node attributes matching ?
 	if {![string equal \
 		[dictsort $attr] \
 		[dictsort [$g node getall $node]]]} {
@@ -53,7 +53,7 @@ proc validate_serial {g serial {nodes {}}} {
 	# Go through the attached arcs.
 	foreach a $arcs {
 	    # Structure correct ?
-	    if {[llength $a] != 3} {
+	    if {([llength $a] != 3) && ([llength $a] != 4)} {
 		return node/$node/arc/wrong#elements
 	    }
 	    # Decode structure
@@ -92,6 +92,16 @@ proc validate_serial {g serial {nodes {}}} {
 	    }
 	    if {![string equal [lindex $serial $dst] [$g arc target $arc]]} {
 		return arc/$arc/dst/mismatch/$node/[$g arc target $arc]
+	    }
+	    # Arc weight ok?
+	    if {[llength $a] == 4} {
+		if {![$g arc hasweight $arc]} {
+		    return arc/$arc/weight/mismatch/existence/defined-but-missing
+		} elseif {[lindex $a end] ne [$g arc getweight $arc]} {
+		    return arc/$arc/weight/mismatch/value/[lindex $a end]/[$g arc getweight $arc]/
+		}
+	    } elseif {[$g arc hasweight $arc]} {
+		return arc/$arc/weight/mismatch/existence/undefined-but-notmissing
 	    }
 	    # Remember for check for multiples
 	    set an($arc) .

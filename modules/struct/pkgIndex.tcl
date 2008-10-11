@@ -2,7 +2,6 @@ if {![package vsatisfies [package provide Tcl] 8.2]} {return}
 package ifneeded struct            2.1   [list source [file join $dir struct.tcl]]
 package ifneeded struct            1.4   [list source [file join $dir struct1.tcl]]
 
-package ifneeded struct::graph     2.2   [list source [file join $dir graph.tcl]]
 package ifneeded struct::queue     1.4.1 [list source [file join $dir queue.tcl]]
 package ifneeded struct::stack     1.3.3 [list source [file join $dir stack.tcl]]
 package ifneeded struct::tree      2.1.1 [list source [file join $dir tree.tcl]]
@@ -18,3 +17,6 @@ package ifneeded struct::skiplist  1.3   [list source [file join $dir skiplist.t
 package ifneeded struct::graph     1.2.1 [list source [file join $dir graph1.tcl]]
 package ifneeded struct::tree      1.2.2 [list source [file join $dir tree1.tcl]]
 package ifneeded struct::matrix    1.2.1 [list source [file join $dir matrix1.tcl]]
+
+if {![package vsatisfies [package provide Tcl] 8.4]} {return}
+package ifneeded struct::graph     2.3   [list source [file join $dir graph.tcl]]
