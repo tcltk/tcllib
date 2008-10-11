@@ -1,4 +1,9 @@
-2008-09-03  Andreas Kupries  <akupries@shaw.ca>
+2008-10-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* multiop.test: Canonicalized sorting of two test results.
+	* multi.test: 
+
+2008-09-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* multiop.tcl: Sync'd to S2008 Sep 3 change in wip-core, using
 	* multiop.man: the new name of the wip processor component.
