@@ -7,7 +7,7 @@
 # Copyright (c) 2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: multiop.test,v 1.6 2007/08/16 04:11:49 andreas_kupries Exp $
+# RCS: @(#) $Id: multiop.test,v 1.7 2008/10/11 05:42:37 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -105,7 +105,7 @@ test multiop-1.4 {multi-file operation, expand and save} -setup {
     fileutil::multi::op X
 } -body {
     X do expand the *a* in $src -> v
-    set v
+    lsort $v
 } -cleanup {
     mo_cleanup ; unset v
     X destroy
