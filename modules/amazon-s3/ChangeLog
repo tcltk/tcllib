@@ -1,3 +1,9 @@
+2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.11 ========================
+	* 
+
 2008-09-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* S3.test: Added guards to protect testsuite against a

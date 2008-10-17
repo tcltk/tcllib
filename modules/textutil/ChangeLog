@@ -1,3 +1,9 @@
+2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.11 ========================
+	* 
+
 2008-10-10  Andreas Kupries  <andreask@activestate.com>
 
 	* string.man: Renamed to textutil_string.man. Avoid clash with core.

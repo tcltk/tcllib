@@ -1,3 +1,9 @@
+2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.11 ========================
+	* 
+
 2008-03-14  Andreas Kupries  <andreask@activestate.com>
 
 	* ansi/code/ctrl.tcl (DEFC): Fixed bad use of 'args' argument,

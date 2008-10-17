@@ -1,3 +1,9 @@
+2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.11 ========================
+	* 
+
 2007-09-19  Andreas Kupries  <akupries@shaw.ca>
 
 	* pluginmgr.tcl (AddPaths): Fixed typo in the code converting the

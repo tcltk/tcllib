@@ -54,48 +54,49 @@ asn         	asn                   0.8.1    	0.8.3   	B, D
 base64      	base64                2.3.2    	2.4     	Changed defaults, B, D
 bench       	bench                 0.3.1    	0.4		I
 blowfish    	blowfish              1.0.3    	1.0.4   	T
-cmdline     	cmdline               1.3      	1.3.1   	B, D
+cmdline     	cmdline                 1.3    	1.3.1   	B, D
 comm        	comm                  4.5.6    	4.5.7   	B, D
 crc         	cksum                 1.1.1    	1.1.2   	B, D
-csv         	csv                   0.7      	0.7.1     	B
+csv         	csv                     0.7    	0.7.1     	B
 dns         	spf                   1.1.0    	1.1.1   	B
-doctools    	doctools              1.3      	1.3.5   	B
+doctools    	doctools                1.3    	1.3.5   	B
             	doctools::changelog   0.1.1    	1       	Accept maturity
             	doctools::cvs         0.1.1    	1       	.
-            	doctools::idx         0.3      	1       	.
-            	doctools::toc         0.3      	1       	.
-fileutil    	fileutil              1.13.3   	1.13.4  	B
-            	fileutil::multi::op   0.5      	0.5.2   	B
-            	fileutil::traverse    0.3      	0.4     	B
+            	doctools::idx           0.3    	1       	.
+            	doctools::toc           0.3    	1       	.
+fileutil    	fileutil             1.13.3   	1.13.4  	B
+            	fileutil::multi::op     0.5    	0.5.2   	B
+            	fileutil::traverse      0.3    	0.4     	B
 ftp         	ftp                   2.4.8    	2.4.9   	B, D
-            	ftp::geturl           0.2      	0.2.1   	B
+            	ftp::geturl             0.2    	0.2.1   	B
 ftpd        	ftpd                  1.2.3    	1.2.4   	B
-grammar_fa  	grammar::fa::op       0.4      	0.4.1   	B
+grammar_fa  	grammar::fa::op         0.4    	0.4.1   	B
 htmlparse   	htmlparse             1.1.2    	1.1.3   	B, D
 http        	autoproxy             1.4      	1.5.1   	I, B, D
 inifile     	inifile               0.2.1    	0.2.3   	I, B, D
-irc         	irc                   0.6      	0.6.1   	B, D
-jpeg        	jpeg                  0.3      	0.3.3   	D, B, T
+irc         	irc                     0.6    	0.6.1   	B, D
+jpeg        	jpeg                    0.3    	0.3.3   	D, B, T
 ldap        	ldap                  1.6.8    	1.7     	EF, B
-log         	log                   1.2      	1.2.1     	B, D
+log         	log                     1.2    	1.2.1     	B, D
 math        	math::bigfloat        1.2.1    	1.2.2   	B
-            	math::bigfloat        2.0      	2.0.1   	B
-            	math::calculus        0.7      	0.7.1     	B
+            	math::bigfloat          2.0    	2.0.1   	B
+            	math::calculus          0.7    	0.7.1     	B
             	math::linearalgebra   1.0.2    	1.0.3   	B, T
             	math::special         0.2.1    	0.2.2   	B
-            	math::statistics      0.5      	0.6     	EF, D, T
+            	math::statistics        0.5    	0.6     	EF, D, T
 md4         	md4                   1.0.4    	1.0.5   	B
 md5         	md5                   2.0.5    	2.0.7   	B
 md5crypt    	md5crypt              1.0.0    	1.1.0   	EF
 mime        	mime                  1.5.2    	1.5.4   	B
             	smtp                  1.4.4    	1.4.5   	B
 nmea        	nmea                  0.1.1    	0.2.0   	EF, B, D
-nns         	nameserv              0.3      	0.4.1   	B, D
-            	nameserv::auto        0.1      	0.3     	I, B, D
-            	nameserv::server      0.3      	0.3.2   	I, B, D
-pluginmgr   	pluginmgr             0.1      	0.2     	B, D
+nns         	nameserv                0.3    	0.4.1   	B, D
+            	nameserv::auto          0.1    	0.3     	I, B, D
+            	nameserv::server        0.3    	0.3.2   	I, B, D
+pluginmgr   	pluginmgr               0.1    	0.2     	B, D
 sasl        	SASL                  1.3.1    	1.3.2   	B
-struct      	struct::list          1.6.1    	1.7     	B, T, EF
+struct         	struct::graph           2.2     2.3     	EF, T
+	      	struct::list          1.6.1    	1.7     	B, T, EF
             	struct::matrix        2.0.1    	2.0.2   	B
             	struct::prioqueue     1.3.1    	1.4     	EF
             	struct::queue           1.4     1.4.1   	I, D
@@ -233,7 +234,6 @@ stooop      	stooop                          4.4.1
 struct      	struct                          1.4     	
             	struct                          2.1     	
             	struct::graph                   1.2.1   	
-            	struct::graph                   2.2     	T
             	struct::matrix                  1.2.1   	
             	struct::pool                    1.2.1   	
             	struct::record                  1.2.1   	
