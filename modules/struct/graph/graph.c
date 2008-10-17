@@ -643,7 +643,7 @@ dup (G* src)
     GA* ao; GA* a;
     GC* c;
 
-    /* I. Duplicate nodes. NOTE. In the list of odes in src we break the chain
+    /* I. Duplicate nodes. NOTE. In the list of nodes in src we break the chain
      * of prev references and use that to point from each src node to its
      * duplicate. This is then used during the duplication of arcs (-> II.) to
      * quickly locate the nodes to connect. After that is done the chain can
@@ -669,6 +669,11 @@ dup (G* src)
 		    (GN*) ao->start->n->ORIG,
 		    (GN*) ao->end->n->ORIG);
 	g_attr_dup (&a->base.attr, ao->base.attr);
+
+	if (ao->weight) {
+	    a->weight = ao->weight;
+	    Tcl_IncrRefCount (a->weight);
+	}
     }
 
 #undef ORIG
@@ -676,12 +681,14 @@ dup (G* src)
     /* III. Re-chain the nodes in the original */
 
     c = src->nodes.first;
-    c->prev = NULL;
-    c = c->next;
+    if (c) {
+	c->prev = NULL;
+	c = c->next;
 
-    for (; c != NULL; c = c->next) {
-	if (!c->next) break;
-	c->next->prev = c;
+	for (; c != NULL; c = c->next) {
+	    if (!c->next) break;
+	    c->next->prev = c;
+	}
     }
 
     g_attr_dup (&new->attr, src->attr);
