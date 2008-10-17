@@ -1,3 +1,9 @@
+2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.11 ========================
+	* 
+
 2008-01-26  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* md5crypt.tcl: Implemented FR #1824212 from Aaron Faupell to

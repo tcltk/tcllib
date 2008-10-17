@@ -1,3 +1,9 @@
+2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.11 ========================
+	* 
+
 2008-03-14  Andreas Kupries  <andreask@activestate.com>
 
 	* spf.tcl (::spf::_exists): Fixed bad use of 'return', reported in
