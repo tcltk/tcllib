@@ -1,3 +1,9 @@
+2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.11 ========================
+	* 
+
 2008-01-29  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* sasl.tcl: Added support for the 'charset' parameter in DIGEST-MD5
