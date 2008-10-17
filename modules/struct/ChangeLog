@@ -1,3 +1,15 @@
+2008-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph/graph.c (dup): Fixed duplication of an empty graph, mis-
+	* graph/tests/command.test: handled the re-chaining of the node-
+	  list in the source. Added test for this case.
+
+2008-10-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph/graph.c (dup): Fixed missing propagation of arc weights.
+	* graph/tests/command.test: Added test for graph assignment with
+	  weights.
+
 2008-10-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph.man: Extended graphs with the ability to define arc
