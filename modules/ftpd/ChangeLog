@@ -1,3 +1,9 @@
+2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.11 ========================
+	* 
+
 2008-02-29  Andreas Kupries  <andreask@activestate.com>
 
 	* ftpd.tcl: Renamed ::ftpd::read -> ftp::Read to prevent clash

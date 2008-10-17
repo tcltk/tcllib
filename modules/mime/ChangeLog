@@ -1,3 +1,9 @@
+2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.11 ========================
+	* 
+
 2008-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* smtp.tcl: Bumped version to 1.5.4, for the change made on
