@@ -1,3 +1,10 @@
+2008-10-21  Andreas Kupries  <andreask@activestate.com>
+
+	* nns.tcl: Fixed [Bug 2182378], reported by Joe Brandt
+	* pkgIndex.tcl: <vonbane@users.sourceforge.net>. Added
+	* nns_client.man: the missing assignment for 'oneshot'.
+	  Version bumped to 0.4.2.
+
 2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
 
 	*
