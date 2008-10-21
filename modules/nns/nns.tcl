@@ -97,6 +97,7 @@ proc ::nameserv::search-parseargs {arguments} {
 
     switch -exact [llength $arguments] {
 	0 {
+	    set oneshot    0
 	    set continuous 0
 	    set pattern    *
 	}
@@ -425,7 +426,7 @@ namespace eval        ::nameserv {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide nameserv 0.4.1
+package provide nameserv 0.4.2
 
 ##
 # ### ### ### ######### ######### #########
