@@ -1,3 +1,10 @@
+2008-11-04  Andreas Kupries  <andreask@activestate.com>
+
+	* uevent_onidle.pcx: Added new package 'uevent::onidle' for
+	* uevent_onidle.tcl: deferal of actions to idle time, merging
+	* uevent_onidle.man: multiple requests.
+	* pkgIndex.tcl:
+
 2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
 
 	*
