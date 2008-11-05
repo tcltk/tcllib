@@ -1,0 +1,24 @@
+# -*- tcl -*-
+# graph.testsuite:  tests for the graph operations.
+#
+# This file contains a collection of tests for one or more of the Tcl
+# built-in commands.  Sourcing this file into Tcl runs the tests and
+# generates output for errors.  No output means no errors were found.
+#
+# Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# All rights reserved.
+#
+# RCS: @(#) $Id: XOpsControl,v 1.1 2008/11/05 07:28:53 andreas_kupries Exp $
+
+# -------------------------------------------------------------------------
+
+set SELF [file dirname [info script]]
+
+# -------------------------------------------------------------------------
+
+source ${SELF}/Xsetup
+source ${SELF}/XOpsSetup
+
+source ${SELF}/ops/adjmatrix.test
+
+# -------------------------------------------------------------------------
