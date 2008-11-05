@@ -1,0 +1,79 @@
+# -*- tcl -*-
+# Graph ops tests - Adjacency Matrix.
+# Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# All rights reserved.
+# RCS: @(#) $Id: adjmatrix.test,v 1.1 2008/11/05 07:28:53 andreas_kupries Exp $
+
+# Syntax: struct::graph::op::toAdjacencyMatrix
+# (1)     struct::graph::op::toAdjacencyMatrix
+#         struct::graph::op::toAdjacencyMatrix
+# (2)     struct::graph::op::toAdjacencyMatrix
+# (3)     struct::graph::op::toAdjacencyMatrix
+#         struct::graph::op::toAdjacencyMatrix
+#         struct::graph::op::toAdjacencyMatrix
+#         struct::graph::op::toAdjacencyMatrix
+#         struct::graph::op::toAdjacencyMatrix
+
+# We can use one in each group (1,2,3)
+
+# -------------------------------------------------------------------------
+# Wrong # args: Missing, Too many
+
+# Cannot have missing arguments (zero is fine),
+# except when switches are in use. That however
+# is tested with the switches. Ditto for too many
+# arguments.
+
+# -------------------------------------------------------------------------
+# Logical arguments checks and failures
+
+test graphop-${impl}-${setimpl}-toAdjacencyMatrix-1.0 {toAdjacencyMatrix, wrong args, missing} {
+    catch {struct::graph::op::toAdjacencyMatrix} msg
+    set msg
+} [tcltest::wrongNumArgs struct::graph::op::toAdjacencyMatrix {g args} 0]
+
+# -------------------------------------------------------------------------
+# Ok arguments.
+
+test graphop-${impl}-${setimpl}-toAdjacencyMatrix-2.0 {toAdjacencyMatrix, empty graph} {
+    SETUP
+    set result [struct::graph::op::toAdjacencyMatrix mygraph]
+    mygraph destroy
+    set result
+} {{{}}}
+
+test graphop-${impl}-${setimpl}-toAdjacencyMatrix-2.1 {toAdjacencyMatrix, nodes, no arcs} {
+    SETUP
+    mygraph node insert 0 1 2 3 4 5
+    set result [struct::graph::op::toAdjacencyMatrix mygraph]
+    mygraph destroy
+    set result
+} {{{} 0 1 2 3 4 5} {0 0 0 0 0 0 0} {1 0 0 0 0 0 0} {2 0 0 0 0 0 0} {3 0 0 0 0 0 0} {4 0 0 0 0 0 0} {5 0 0 0 0 0 0}}
+
+test graphop-${impl}-${setimpl}-toAdjacencyMatrix-2.2 {toAdjacencyMatrix, nodes, arcs} {
+    SETUP
+    mygraph node insert 0 1 2 3 4 5
+    mygraph arc  insert 0 1 a
+    mygraph arc  insert 2 3 b
+    mygraph arc  insert 4 5 c
+    set result [struct::graph::op::toAdjacencyMatrix mygraph]
+    mygraph destroy
+    set result
+} {{{} 0 1 2 3 4 5} {0 0 1 0 0 0 0} {1 1 0 0 0 0 0} {2 0 0 0 1 0 0} {3 0 0 1 0 0 0} {4 0 0 0 0 0 1} {5 0 0 0 0 1 0}}
+
+test graphop-${impl}-${setimpl}-toAdjacencyMatrix-2.3 {toAdjacencyMatrix, nodes, parallel arcs, loops} {
+    SETUP
+    mygraph node insert 0 1 2 3 4 5
+    mygraph arc  insert 0 1 a
+    mygraph arc  insert 0 1 b
+    mygraph arc  insert 2 3 c
+    mygraph arc  insert 3 2 d
+    mygraph arc  insert 4 4 e
+    set result [struct::graph::op::toAdjacencyMatrix mygraph]
+    mygraph destroy
+    set result
+} {{{} 0 1 2 3 4 5} {0 0 1 0 0 0 0} {1 1 0 0 0 0 0} {2 0 0 0 1 0 0} {3 0 0 1 0 0 0} {4 0 0 0 0 1 0} {5 0 0 0 0 0 0}}
+
+# ---------------------------------------------------
+
+# ---------------------------------------------------
