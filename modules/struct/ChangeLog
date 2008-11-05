@@ -1,3 +1,14 @@
+2008-11-04  1.11  <andreas_kupries@users.sourceforge.net>
+
+	* graphops.tcl: Starting on the integration of Alejandro Paz's
+	* graphops.man: (<vidriloco@gmail.com>) work on graph operations
+	* graphops.test: for GSoC 2008. First operation: Adjacency matrix.
+	* pkgIndex.tcl:
+	* graph/test/XOpsControl:
+	* graph/test/XOpsSetup:
+	* graph/test/XOpsSupport:
+	* graph/test/ops/adjmatrix.test:
+
 2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
 
 	*
@@ -23,7 +34,7 @@
 	* graph_tcl.tcl: information. Extended the serialization format to
 	* pkgIndex.tcl: handle graphs with and without arc weights.
 	* graph/arc.c: Implemented in both Tcl and C. The Tcl code is
-	* graph/ds.h: derived from Alejandro Paz's ( <vidriloco@gmail.com>)
+	* graph/ds.h: derived from Alejandro Paz's (<vidriloco@gmail.com>)
 	* graph/methods.c: work during GSoC 2008. Extended testsuite and
 	* graph/methods.h: documentation. The package now requires Tcl 8.4
 	* graph/objcmd.c: for operation. Bumped the package version to 2.3.
