@@ -1,4 +1,12 @@
-2008-11-04  1.11  <andreas_kupries@users.sourceforge.net>
+2008-11-06  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* graphops.tcl: Continued integration of graph algorithms.
+	* graphops.man: Minimum spanning tree/forest as per Kruskal.
+	* graph/tests/ops/kruskal.test:
+	* graph/tests/XOpsControl:
+	* graph/tests/XOpsSetup:
+
+2008-11-04  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* graphops.tcl: Starting on the integration of Alejandro Paz's
 	* graphops.man: (<vidriloco@gmail.com>) work on graph operations
@@ -9,7 +17,7 @@
 	* graph/test/XOpsSupport:
 	* graph/test/ops/adjmatrix.test:
 
-2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
+2008-10-16  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.11 ========================
