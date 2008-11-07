@@ -4,11 +4,74 @@
 # Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: XOpsSetup,v 1.1 2008/11/05 07:28:53 andreas_kupries Exp $
+# RCS: @(#) $Id: XOpsSetup,v 1.2 2008/11/07 03:47:33 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
 # Place holder for future setup / helper actions.
+
+
+proc SETUP_A {} {
+    graph mygraph
+    mygraph node insert 'node0'
+    mygraph node insert 'node1'
+    mygraph node insert 'node2'
+    mygraph node insert 'node3'
+    mygraph node insert 'node4'
+    mygraph node insert 'node5'
+    mygraph node insert 'node6'
+
+    mygraph arc insert 'node0' 'node1' 'arc0_1'
+    mygraph arc insert 'node0' 'node3' 'arc0_3'
+    mygraph arc insert 'node1' 'node3' 'arc1_3' 
+    mygraph arc insert 'node1' 'node4' 'arc1_4'
+    mygraph arc insert 'node2' 'node0' 'arc2_0'
+    mygraph arc insert 'node2' 'node5' 'arc2_5'
+    mygraph arc insert 'node3' 'node4' 'arc3_4'
+    mygraph arc insert 'node3' 'node6' 'arc3_6'
+    mygraph arc insert 'node3' 'node2' 'arc3_2'
+    mygraph arc insert 'node3' 'node5' 'arc3_5'
+    mygraph arc insert 'node4' 'node6' 'arc4_6'
+    mygraph arc insert 'node6' 'node5' 'arc6_5'
+
+    mygraph arc setweight 'arc0_1' 2
+    mygraph arc setweight 'arc0_3' 1
+    mygraph arc setweight 'arc1_3' 3
+    mygraph arc setweight 'arc1_4' 10
+    mygraph arc setweight 'arc2_0' 4
+    mygraph arc setweight 'arc2_5' 5
+    mygraph arc setweight 'arc3_4' 2
+    mygraph arc setweight 'arc3_6' 4
+    mygraph arc setweight 'arc3_2' 2
+    mygraph arc setweight 'arc3_5' 8
+    mygraph arc setweight 'arc4_6' 6
+    mygraph arc setweight 'arc6_5' 1
+
+    # 2 --/4/--> 0 --/2/--> 1
+    # |^         |         /|
+    # - \        -        / -
+    # 5  -|2|-   1   -/3/-  10
+    # -       \  -  /       -
+    # |        \ | /        |
+    # V         \VV         V
+    # 5 <--/8/-- 3 --/2/--> 4
+    #  ^         |         /
+    #   \        -        /
+    #    -|1|-   4   -/6/-
+    #         \  -  /
+    #          \ | /
+    #           \VV
+    #            6
+
+    return
+}
+
+proc SETUP_A2 {} {
+    SETUP-A
+    mygraph arc insert 'node0' 'node2' 'arc0_2'
+    mygraph arc insert 'node0' 'node4' 'arc0_4'
+    return
+}
 
 # -------------------------------------------------------------------------
 # -------------------------------------------------------------------------
