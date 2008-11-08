@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: graphops.tcl,v 1.3 2008/11/08 06:43:18 andreas_kupries Exp $
+# RCS: @(#) $Id: graphops.tcl,v 1.4 2008/11/08 09:57:32 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -17,6 +17,7 @@ package require Tcl 8.4
 
 package require struct::disjointset ; # Used by kruskal
 package require struct::prioqueue   ; # Used by kruskal, prim
+package require struct::queue       ; # Used by isBipartite?
 
 # ### ### ### ######### ######### #########
 ##
@@ -281,6 +282,110 @@ proc ::struct::graph::op::prim {g} {
     return [array names arcmap]
 }
 
+# ### ### ### ######### ######### #########
+##
+
+# This command checks whether the graph argument is bi-partite or not,
+# and returns the result as a boolean value, true for a bi-partite
+# graph, and false otherwise. A variable can be provided to store the
+# bi-partition into.
+#
+# Reference: http://en.wikipedia.org/wiki/Bipartite_graph
+
+proc ::struct::graph::op::isBipartite? {g {bipartitionvar {}}} {
+
+    # Handle the special cases of empty graphs, or one without arcs
+    # quickly. Both are bi-partite.
+
+    if {$bipartitionvar ne ""} {
+	upvar 1 $bipartitionvar bipartitions
+    }
+    if {![llength [$g nodes]]} {
+	set  bipartitions {{} {}}
+	return 1
+    } elseif {![llength [$g arcs]]} {
+	if {$bipartitionvar ne ""} {
+	    set  bipartitions [list [$g nodes] {}]
+	}
+	return 1
+    }
+
+    # Transient helper data structure, a queue of the nodes waiting
+    # for processing.
+
+    set pending [struct::queue pending]
+    set nodes   [$g nodes]
+
+    # Another structure, a map from node names to their 'color',
+    # indicating which of the two partitions a node belngs to. All
+    # nodes start out as undefined (0). Traversing the arcs we
+    # set and flip them as needed (1,2).
+
+    array set color {}
+    foreach node $nodes {
+	set color($node) 0
+    }
+
+    # Iterating over all nodes we use their connections to traverse
+    # the components and assign colors. We abort when encountering
+    # paradox, as that means that the graph is not bi-partite.
+
+    foreach node $nodes {
+	# Ignore nodes already in the second partition.
+	if {$color($node)} continue
+
+	# Flip the color, then travel the component and check for
+	# conflicts with the neighbours.
+
+	set color($node) 1 
+
+	$pending put $node
+	while {[$pending size]} {
+	    set current [$pending get]
+	    foreach neighbour [$g nodes -adj $current] {
+		if {!$color($neighbour)} {
+		    # Exchange the color between current and previous
+		    # nodes, and remember the neighbour for further
+		    # processing.
+		    set color($neighbour) [expr {3 - $color($current)}]
+		    $pending put $neighbour
+		} elseif {$color($neighbour) == $color($current)} {
+		    # Color conflict between adjacent nodes, should be
+		    # different.  This graph is not bi-partite. Kill
+		    # the data structure and abort.
+
+		    $pending destroy
+		    return 0
+		}
+	    }
+	}
+    }
+
+    # The graph is bi-partite. Kill the transient data structure, and
+    # move the partitions into the provided variable, if there is any.
+
+    $pending destroy
+
+    if {$bipartitionvar ne ""} {
+	# Build bipartition, then set the data into the variable
+	# passed as argument to this command.
+
+	set X {}
+	set Y {}
+
+	foreach {node partition} [array get color] {
+	    if {$partition == 1} {
+		lappend X $node
+	    } else {
+		lappend Y $node
+	    }
+	}
+	set bipartitions [list $X $Y]
+    }
+
+    return 1 
+}
+
 #
 ## place holder for the operations to come
 #
@@ -302,4 +407,4 @@ namespace eval ::struct::graph::op {
     #namespace export ...
 }
 
-package provide struct::graph::op 0.2
+package provide struct::graph::op 0.3
