@@ -1,5 +1,5 @@
 [comment {-*- tcl -*-}]
-[manpage_begin struct::graph::op n 0.1]
+[manpage_begin struct::graph::op n 0.3]
 [copyright {2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Operation for (un)directed graph objects}]
@@ -87,6 +87,16 @@ A note regarding the result, the command refrains from explicitly
 listing the nodes of the MST as this information is implicitly
 provided in the arcs already.
 
+
+
+[call [cmd struct::graph:op::isBipartite?] [arg g] [opt [arg bipartvar]]]
+
+This command takes the graph [arg g] and returns a boolean value
+indicating whether it is bipartite ([const true]) or not
+([const false]). If the variable [arg bipartvar] is specified the two
+partitions of the graph are there as a list, if, and only if the graph
+is bipartit. If it is not the variable, if specified, is not touched.
+
 [list_end]
 
 
@@ -96,6 +106,7 @@ provided in the arcs already.
 [enum] [uri http://en.wikipedia.org/wiki/Adjacency_matrix      {Adjacency matrix}]
 [enum] [uri http://en.wikipedia.org/wiki/Kruskal%27s_algorithm {Kruskal's algorithm}]
 [enum] [uri http://en.wikipedia.org/wiki/Prim%27s_algorithm    {Prim's algorithm}]
+[enum] [uri http://en.wikipedia.org/wiki/Bipartite_graph       {Bipartite graph}]
 [list_end]
 
 
