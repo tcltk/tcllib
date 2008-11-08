@@ -1,3 +1,13 @@
+2008-11-08  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+	* graphops.tcl: Continued integration of graph algorithms.
+	* graphops.man: Test for bipartite graph. Bumped version
+	* graph/tests/ops/bipartite.test: to 0.3
+	* graph/tests/XOpsControl:
+	* graph/tests/XOpsSetup:
+	* graph/tests/XOpsSupport:
+	* pkgIndex.tcl:
+
 2008-11-07  Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 	* graphops.tcl: Continued integration of graph algorithms.
