@@ -36,7 +36,7 @@ This document describes the procedures and explains their usage.
 This package defines the following public procedures:
 [list_begin definitions]
 
-[call [cmd ::math::optimize::minimize] [arg begin] [arg end] [arg func] [arg maxerr]]
+[call [cmd ::math::optimize::minimum] [arg begin] [arg end] [arg func] [arg maxerr]]
 Minimize the given (continuous) function by examining the values in the
 given interval. The procedure determines the values at both ends and in the
 centre of the interval and then constructs a new interval of 1/2 length
@@ -56,7 +56,7 @@ one argument).
 [para]
 [arg maxerr] - Maximum relative error (defaults to 1.0e-4)
 
-[call [cmd ::math::optimize::maximize] [arg begin] [arg end] [arg func] [arg maxerr]]
+[call [cmd ::math::optimize::maximum] [arg begin] [arg end] [arg func] [arg maxerr]]
 Maximize the given (continuous) function by examining the values in the
 given interval. The procedure determines the values at both ends and in the
 centre of the interval and then constructs a new interval of 1/2 length
