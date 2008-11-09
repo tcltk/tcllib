@@ -1,8 +1,12 @@
+2008-11-09  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
+	* optimize.man: corrected names of minimum and maximum procedures
+
 2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.11 ========================
-	* 
+	*
 
 2008-10-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -13,7 +17,7 @@
 2008-08-12  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
 	* special.tcl: bumped version to 0.2.2 (because of previous change)
-	* pkgIndex.tcl: bumped version of "special" to 0.2.2 
+	* pkgIndex.tcl: bumped version of "special" to 0.2.2
 
 2008-08-11  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
