@@ -4,7 +4,7 @@
 # Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: XOpsSetup,v 1.4 2008/11/08 09:57:32 andreas_kupries Exp $
+# RCS: @(#) $Id: XOpsSetup,v 1.5 2008/11/13 05:36:53 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -215,15 +215,15 @@ proc SETUP_E {} {
     mygraph node insert 8b
     
     mygraph arc insert 1b 1w
-    mygraph arc insert 2b 1w
     mygraph arc insert 1b 2w
+    mygraph arc insert 2b 1w
     mygraph arc insert 2b 2w
     mygraph arc insert 2b 3w
     mygraph arc insert 2b 4w
-    mygraph arc insert 3b 3w
-    mygraph arc insert 3w 4b
     mygraph arc insert 3b 2w
+    mygraph arc insert 3b 3w
     mygraph arc insert 3b 5w
+    mygraph arc insert 3w 4b
     mygraph arc insert 4b 3w
     mygraph arc insert 4b 4w
     mygraph arc insert 4b 6w
@@ -261,18 +261,18 @@ proc SETUP_F {} {
     mygraph node insert 4w
     mygraph node insert 4b
     
-    mygraph arc insert 1b 3w
     mygraph arc insert 1b 2w
+    mygraph arc insert 1b 3w
     mygraph arc insert 1b 4w
-    mygraph arc insert 4w 2b
-    mygraph arc insert 4w 3b
-    mygraph arc insert 2b 3w
+    mygraph arc insert 1w 3b
     mygraph arc insert 2b 1w
+    mygraph arc insert 2b 3w
+    mygraph arc insert 3b 2w
     mygraph arc insert 3w 4b
     mygraph arc insert 4b 1w
-    mygraph arc insert 1w 3b
-    mygraph arc insert 3b 2w
     mygraph arc insert 4b 2w
+    mygraph arc insert 4w 2b
+    mygraph arc insert 4w 3b
     return
 }
 
@@ -300,16 +300,16 @@ proc SETUP_G {} {
     mygraph node insert 5b
     
     mygraph arc insert 1b 5w bridge1
-    mygraph arc insert 5w 3b nobridge
-    mygraph arc insert 5w 2b
     mygraph arc insert 2b 4w
-    mygraph arc insert 3b 4w
-    mygraph arc insert 4b 4w bridge2
     mygraph arc insert 2w 4b
-    mygraph arc insert 3w 4b
     mygraph arc insert 2w 5b
+    mygraph arc insert 3b 4w
+    mygraph arc insert 3w 4b
     mygraph arc insert 3w 5b
+    mygraph arc insert 4b 4w bridge2
     mygraph arc insert 5b 1w bridge3
+    mygraph arc insert 5w 2b
+    mygraph arc insert 5w 3b nobridge
     return
 }
 

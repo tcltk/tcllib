@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: graphops.tcl,v 1.4 2008/11/08 09:57:32 andreas_kupries Exp $
+# RCS: @(#) $Id: graphops.tcl,v 1.5 2008/11/13 05:36:53 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -18,6 +18,7 @@ package require Tcl 8.4
 package require struct::disjointset ; # Used by kruskal
 package require struct::prioqueue   ; # Used by kruskal, prim
 package require struct::queue       ; # Used by isBipartite?
+package require struct::stack       ; # Used by tarjan
 
 # ### ### ### ######### ######### #########
 ##
@@ -386,6 +387,111 @@ proc ::struct::graph::op::isBipartite? {g {bipartitionvar {}}} {
     return 1 
 }
 
+# ### ### ### ######### ######### #########
+##
+
+# This command computes a maximal matching, if it exists, for the
+# graph argument G and its bi-partition as specified through the node
+# sets X and Y. As is implied, this method requires that the graph is
+# bi-partite. Use the command 'isBipartite?' to check for this
+# property, and to obtain the bi-partition.
+
+proc ::struct::graph::op::maxMatching {g X Y} {
+    return -code error "not implemented yet"
+}
+
+# ### ### ### ######### ######### #########
+##
+
+# This command computes the strongly connected components (SCCs) of
+# the graph argument G. The result is a list of node-sets, each set
+# containing the nodes of one SCC of G. In anny SCC there is directed
+# path between any two nodes U, V from U to V. If all SCCs contain
+# only a single node the graph is acyclic.
+
+proc ::struct::graph::op::tarjan {g} {
+
+    set all [$g nodes]
+
+    # Quick bailout for simple special cases, i.e. graphs without
+    # nodes or arcs.
+    if {![llength $all]} {
+	# No nodes => no SCCs
+	return {}
+    } elseif {![llength [$g arcs]]} {
+	# Have nodes, but no arcs => each node is its own SCC.
+	set r {} ; foreach a $all { lappend r [list $a] }
+	return $r
+    }
+
+    # Transient data structures. Stack of nodes to consider, the
+    # result, and various state arrays. TarjanSub upvar's all them
+    # into its scope.
+
+    set pending [::struct::stack pending]
+    set result  {}
+
+    array set index   {}
+    array set lowlink {}
+    array set instack {}
+
+    # Invoke the main search system while we have unvisited
+    # nodes. TarjanSub will remove all visited nodes from 'all',
+    # ensuring termination.
+
+    while {[llength $all]} {
+	TarjanSub [lindex $all 0] 0
+    }
+
+    # Release the transient structures and return result.
+    $pending destroy
+    return $result
+}
+
+proc ::struct::graph::op::TarjanSub {start counter} {
+    # Import the tracer state from our caller.
+    upvar 1 g g index index lowlink lowlink instack instack result result pending pending all all
+
+    struct::set subtract all $start
+
+    set component {}
+    set   index($start) $counter
+    set lowlink($start) $counter
+    incr counter
+
+    $pending push $start
+    set instack($start) 1
+
+    foreach outarc [$g arcs -out $start] {
+	set neighbour [$g arc target $outarc]
+
+	if {![info exists index($neighbour)]} {
+	    # depth-first-search of reachable nodes from the neighbour
+	    # node. Original from the chosen startnode.
+	    TarjanSub $neighbour $counter
+	    set lowlink($start) [Min $lowlink($start) $lowlink($neighbour)]
+
+	} elseif {[info exists instack($neighbour)]} {
+	    set lowlink($start) [Min $lowlink($start) $index($neighbour)]
+	}
+    }
+
+    # Check if the 'start' node on this recursion level is the root
+    # node of a SCC, and collect the component if yes.
+
+    if {$lowlink($start) == $index($start)} {
+	while {1} {
+	    set v [$pending pop]
+	    unset instack($v)
+	    lappend component $v
+	    if {$v eq $start} break
+	}
+	lappend result $component
+    }
+
+    return
+}
+
 #
 ## place holder for the operations to come
 #
@@ -393,9 +499,17 @@ proc ::struct::graph::op::isBipartite? {g {bipartitionvar {}}} {
 # ### ### ### ######### ######### #########
 ## Internal helpers
 
+proc ::struct::graph::op::Min {first second} {
+    if {$first > $second} {
+	return $second
+    } else {
+	return $first
+    }
+}
+
 # This method verifies that every arc on the graph has a weight
 # assigned to it. This is required for some algorithms.
-proc  ::struct::graph::op::VerifyWeightsAreOk {g} {
+proc ::struct::graph::op::VerifyWeightsAreOk {g} {
     if {![llength [$g arc getunweighted]]} return
     return -code error "Operation invalid for graph with unweighted arcs."
 }
@@ -407,4 +521,4 @@ namespace eval ::struct::graph::op {
     #namespace export ...
 }
 
-package provide struct::graph::op 0.3
+package provide struct::graph::op 0.4
