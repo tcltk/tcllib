@@ -4,7 +4,7 @@
 # Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: XOpsSetup,v 1.5 2008/11/13 05:36:53 andreas_kupries Exp $
+# RCS: @(#) $Id: XOpsSetup,v 1.6 2008/11/14 04:13:16 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -310,6 +310,106 @@ proc SETUP_G {} {
     mygraph arc insert 5b 1w bridge3
     mygraph arc insert 5w 2b
     mygraph arc insert 5w 3b nobridge
+    return
+}
+
+# -------------------------------------------------------------------------
+
+proc SETUP_H {} {
+    # Predefined Graph for testing on:
+    # - isConnected?
+    # - isEulerian?
+    # Author: Alejandro Eduardo Cruz Paz
+    # 28 August 2008
+
+    graph mygraph
+    mygraph node insert A
+    mygraph node insert B
+    mygraph node insert C
+    mygraph node insert D
+    mygraph node insert E
+
+    mygraph arc insert A B A_B ;    mygraph arc setweight A_B 10
+    mygraph arc insert B C B_C ;    mygraph arc setweight B_C 8
+    mygraph arc insert D C D_C ;    mygraph arc setweight D_C 2
+    mygraph arc insert B D B_D ;    mygraph arc setweight B_D 7
+    mygraph arc insert C D C_D ;    mygraph arc setweight C_D 1
+    mygraph arc insert D E D_E ;    mygraph arc setweight D_E 6
+    mygraph arc insert E A E_A ;    mygraph arc setweight E_A 4
+    return
+}
+
+# -------------------------------------------------------------------------
+
+proc SETUP_I {} {
+    # Predefined Graph for testing on:
+    # isConnected?
+    # isEulerian?
+    # Author: Alejandro Eduardo Cruz Paz
+    # 28 August 2008
+
+    graph mygraph
+    
+    mygraph node insert N1 
+    mygraph node insert N2
+    mygraph node insert N3
+    mygraph node insert N4
+    mygraph node insert N5
+    
+    mygraph arc insert N1 N5 N1_N5
+    mygraph arc insert N2 N5 N2_N5
+    mygraph arc insert N3 N5 N3_N5
+    mygraph arc insert N4 N5 N4_N5
+    return
+}
+
+# -------------------------------------------------------------------------
+
+proc SETUP_J {} {
+    # Predefined Graph for testing on:
+    # isConnected?
+    # Author: Alejandro Eduardo Cruz Paz
+    # 28 August 2008
+
+    graph mygraph
+    
+    mygraph node insert 1
+    mygraph node insert 2
+    mygraph node insert 3
+    mygraph node insert 4
+    mygraph node insert 5
+    mygraph node insert 6
+    mygraph node insert 7
+    
+    mygraph arc insert 7 6
+    mygraph arc insert 6 7
+    mygraph arc insert 1 4
+    mygraph arc insert 4 5
+    return
+}
+
+# -------------------------------------------------------------------------
+
+proc SETUP_K {} {
+    # Predefined Graph for testing on:
+    # isConnected?
+    # Author: Alejandro Eduardo Cruz Paz
+    # 28 August 2008
+
+    graph mygraph
+    
+    mygraph node insert No1
+    mygraph node insert No2
+    mygraph node insert No3
+    mygraph node insert No4
+    mygraph node insert No5
+    
+    mygraph arc insert No1 No2
+    mygraph arc insert No2 No3
+    mygraph arc insert No3 No4
+    mygraph arc insert No4 No2
+    
+    mygraph arc insert No5 No5
     return
 }
 

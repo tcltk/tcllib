@@ -1,3 +1,14 @@
+2008-11-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graphops.tcl: Continued integration of graph algorithms.
+	* graphops.man: Connected components. Bumped package version
+	* graph/tests/ops/components.test: to 0.5.
+	* graph/tests/ops/componentof.test: 
+	* graph/tests/XOpsControl:
+	* graph/tests/XOpsSetup:
+	* graph/tests/XOpsSupport:
+	* pkgIndex.tcl:
+
 2008-11-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graphops.tcl: Continued integration of graph algorithms.
