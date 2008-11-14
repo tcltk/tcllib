@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: graphops.tcl,v 1.5 2008/11/13 05:36:53 andreas_kupries Exp $
+# RCS: @(#) $Id: graphops.tcl,v 1.6 2008/11/14 04:13:16 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -17,7 +17,7 @@ package require Tcl 8.4
 
 package require struct::disjointset ; # Used by kruskal
 package require struct::prioqueue   ; # Used by kruskal, prim
-package require struct::queue       ; # Used by isBipartite?
+package require struct::queue       ; # Used by isBipartite?, connectedComponent(Of)
 package require struct::stack       ; # Used by tarjan
 
 # ### ### ### ######### ######### #########
@@ -405,12 +405,11 @@ proc ::struct::graph::op::maxMatching {g X Y} {
 
 # This command computes the strongly connected components (SCCs) of
 # the graph argument G. The result is a list of node-sets, each set
-# containing the nodes of one SCC of G. In anny SCC there is directed
+# containing the nodes of one SCC of G. In any SCC there is a directed
 # path between any two nodes U, V from U to V. If all SCCs contain
 # only a single node the graph is acyclic.
 
 proc ::struct::graph::op::tarjan {g} {
-
     set all [$g nodes]
 
     # Quick bailout for simple special cases, i.e. graphs without
@@ -492,6 +491,80 @@ proc ::struct::graph::op::TarjanSub {start counter} {
     return
 }
 
+# ### ### ### ######### ######### #########
+##
+
+# This command computes the connected components (CCs) of the graph
+# argument G. The result is a list of node-sets, each set containing
+# the nodes of one CC of G. In any CC there is UN-directed path
+# between any two nodes U, V.
+
+proc ::struct::graph::op::connectedComponents {g} {
+    set all [$g nodes]
+
+    # Quick bailout for simple special cases, i.e. graphs without
+    # nodes or arcs.
+    if {![llength $all]} {
+	# No nodes => no CCs
+	return {}
+    } elseif {![llength [$g arcs]]} {
+	# Have nodes, but no arcs => each node is its own CC.
+	set r {} ; foreach a $all { lappend r [list $a] }
+	return $r
+    }
+
+    # Invoke the main search system while we have unvisited
+    # nodes.
+
+    set result  {}
+    while {[llength $all]} {
+	set component [ComponentOf $g [lindex $all 0]]
+	lappend result $component
+	# all = all - component
+	struct::set subtract all $component
+    }
+    return $result
+}
+
+# A derivative command which computes the connected component (CC) of
+# the graph argument G containing the node N. The result is a node-set
+# containing the nodes of the CC of N in G.
+
+proc ::struct::graph::op::connectedComponentOf {g n} {
+    # Quick bailout for simple special cases
+    if {![$g node exists $n]} {
+	return -code error "node \"$n\" does not exist in graph \"$g\""
+    } elseif {![llength [$g arcs -adj $n]]} {
+	# The chosen node has no neighbours, so is its own CC.
+	return [list $n]
+    }
+
+    # Invoke the main search system for the chosen node.
+
+    return [ComponentOf $g $n]
+}
+
+# Internal helper for finding connected components. 
+
+proc ::struct::graph::op::ComponentOf {g start} {
+    set pending [::struct::queue pending]
+    $pending put $start
+
+    array set visited {}
+    set visited($start) .
+
+    while {[$pending size]} {
+	set current [$pending get 1]
+	foreach neighbour [$g nodes -adj $current] {
+	    if {[info exists visited($neighbour)]} continue
+	    $pending put $neighbour
+	    set visited($neighbour) 1
+	}
+    }
+    $pending destroy
+    return [array names visited]
+}
+
 #
 ## place holder for the operations to come
 #
@@ -521,4 +594,4 @@ namespace eval ::struct::graph::op {
     #namespace export ...
 }
 
-package provide struct::graph::op 0.4
+package provide struct::graph::op 0.5
