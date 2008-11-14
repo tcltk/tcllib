@@ -4,7 +4,7 @@
 # Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: XOpsControl,v 1.5 2008/11/13 05:36:53 andreas_kupries Exp $
+# RCS: @(#) $Id: XOpsControl,v 1.6 2008/11/14 04:13:16 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -21,5 +21,7 @@ source ${SELF}/ops/prim.test        ; # Minimum spanning tree/forest by Prim
 source ${SELF}/ops/bipartite.test   ; # Compute bi-partitions.
 source ${SELF}/ops/maxmatching.test ; # Compute maximal matching from bipartitions.
 source ${SELF}/ops/tarjan.test      ; # Compute SCCs via Tarjan.
+source ${SELF}/ops/components.test  ; # Compute connected components.
+source ${SELF}/ops/componentof.test ; # Compute connected components II.
 
 # -------------------------------------------------------------------------
