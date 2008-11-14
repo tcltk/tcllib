@@ -5,7 +5,7 @@
 #
 # All rights reserved.
 #
-# RCS: @(#) $Id: XOpsSupport,v 1.3 2008/11/13 05:36:53 andreas_kupries Exp $
+# RCS: @(#) $Id: XOpsSupport,v 1.4 2008/11/14 04:13:16 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -19,10 +19,10 @@ proc bicanon {bi} {
 
 proc setsetcanon {s} {
     set r {}
-    foreach item [lsort -dict $s] {
+    foreach item $s {
 	lappend r [lsort -dict $item]
     }
-    return $r
+    return [lsort -dict $r]
 }
 
 #----------------------------------------------------------------------

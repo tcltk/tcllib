@@ -1,9 +1,11 @@
 [comment {-*- tcl -*-}]
-[manpage_begin struct::graph::op n 0.3]
-[copyright {2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[manpage_begin struct::graph::op n 0.5]
+[copyright {2008 Alejandro Paz <vidriloco@gmail.com>}]
+[copyright {2008 (docs) Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Operation for (un)directed graph objects}]
 [require Tcl 8.4]
+[require struct::graph::op [opt 0.5]]
 [comment {[require struct::graph [opt 2.3]]   }]
 [comment {[require struct::list  [opt 1.5]]   }]
 [comment {[require struct::set   [opt 2.2.3]] }]
@@ -101,17 +103,45 @@ is bipartit. If it is not the variable, if specified, is not touched.
 
 [call [cmd struct::graph:op::tarjan] [arg g]]
 
-This command computes the set of strongly connected components (SCCs)
-of the graph [arg g]. The result of the command is a list of sets,
-each of which contains the nodes for one of the SCCs of [arg g]. The
-union of all SCCs covers the whole graph, and no two SCCs intersect
-with each other.
+This command computes the set of [emph {strongly connected}]
+components (SCCs) of the graph [arg g]. The result of the command is a
+list of sets, each of which contains the nodes for one of the SCCs of
+[arg g]. The union of all SCCs covers the whole graph, and no two SCCs
+intersect with each other.
 
 [para]
 
-If all SCCs in the result containonly a single node the graph [arg g]
-is acyclic.
+The graph [arg g] is [term acyclic] if all SCCs in the result contain
+only a single node. The graph [arg g] is [term {strongly connected}]
+if the result contains only a single SCC containing all nodes of
+[arg g].
 
+
+
+[call [cmd struct::graph:op::connectedComponents] [arg g]]
+
+This command computes the set of [emph connected] components (CCs) of
+the graph [arg g]. The result of the command is a list of sets, each
+of which contains the nodes for one of the CCs of [arg g]. The union
+of all CCs covers the whole graph, and no two CCs intersect with each
+other.
+
+[para]
+
+The graph [arg g] is [term connected] if the result contains only a
+single SCC containing all nodes of [arg g].
+
+
+[call [cmd struct::graph:op::connectedComponentOf] [arg g] [arg n]]
+
+This command computes the [emph connected] component (CC) of the graph
+[arg g] containing the node [arg n]. The result of the command is a
+sets which contains the nodes for the CC of [arg n] in [arg g].
+
+[para]
+
+The command will throw an error if [arg n] is not a node of the graph
+[arg g].
 
 [list_end]
 
