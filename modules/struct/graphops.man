@@ -1,11 +1,11 @@
 [comment {-*- tcl -*-}]
-[manpage_begin struct::graph::op n 0.5]
+[manpage_begin struct::graph::op n 0.6]
 [copyright {2008 Alejandro Paz <vidriloco@gmail.com>}]
 [copyright {2008 (docs) Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Operation for (un)directed graph objects}]
 [require Tcl 8.4]
-[require struct::graph::op [opt 0.5]]
+[require struct::graph::op [opt 0.6]]
 [comment {[require struct::graph [opt 2.3]]   }]
 [comment {[require struct::list  [opt 1.5]]   }]
 [comment {[require struct::set   [opt 2.2.3]] }]
@@ -143,6 +143,42 @@ sets which contains the nodes for the CC of [arg n] in [arg g].
 The command will throw an error if [arg n] is not a node of the graph
 [arg g].
 
+
+
+[call [cmd struct::graph:op::isConnected?] [arg g]]
+
+This is a convenience command determining whether the graph [arg g] is
+[term connected] or not.  The result is a boolean value, [const true]
+if the graph is connected, and [const false] otherwise.
+
+
+
+[call [cmd struct::graph:op::isCutVertex?] [arg g] [arg n]]
+
+This command determines whether the node [arg n] in the graph [arg g]
+is a [term {cut vertex}] (aka [term {articulation point}]). The result
+is a boolean value, [const true] if the node is a cut vertex, and
+[const false] otherwise.
+
+[para]
+
+The command will throw an error if [arg n] is not a node of the graph
+[arg g].
+
+
+[call [cmd struct::graph:op::isBridge?] [arg g] [arg a]]
+
+This command determines whether the arc [arg a] in the graph [arg g]
+is a [term bridge] (aka [term {cut edge}], or [term isthmus]). The
+result is a boolean value, [const true] if the arc is a bridge, and
+[const false] otherwise.
+
+[para]
+
+The command will throw an error if [arg a] is not an arc of the graph
+[arg g].
+
+
 [list_end]
 
 
@@ -155,6 +191,8 @@ The command will throw an error if [arg n] is not a node of the graph
 [enum] [uri http://en.wikipedia.org/wiki/Bipartite_graph       {Bipartite graph}]
 [enum] [uri http://en.wikipedia.org/wiki/Strongly_connected_components {Strongly connected components}]
 [enum] [uri http://en.wikipedia.org/wiki/Tarjan%27s_strongly_connected_components_algorithm {Tarjan's strongly connected components algorithm}]
+[enum] [uri http://en.wikipedia.org/wiki/Cut_vertex {Cut vertex}]
+[enum] [uri http://en.wikipedia.org/wiki/Bridge_(graph_theory) Bridge]
 [list_end]
 
 
@@ -173,4 +211,7 @@ package and/or documentation.
 [keywords graph]
 [keywords edge arc node vertex subgraph neighbour]
 [keywords adjacent loop degree]
+[keywords {cut vertex} {articulation point} {connected component}]
+[keywords {strongly connected component} {adjacency matrix}]
+[keywords {minimal spanning tree} bipartite bridge {cut edge} isthmus]
 [manpage_end]

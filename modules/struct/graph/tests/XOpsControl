@@ -4,7 +4,7 @@
 # Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: XOpsControl,v 1.6 2008/11/14 04:13:16 andreas_kupries Exp $
+# RCS: @(#) $Id: XOpsControl,v 1.7 2008/11/15 05:48:27 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -23,5 +23,8 @@ source ${SELF}/ops/maxmatching.test ; # Compute maximal matching from bipartitio
 source ${SELF}/ops/tarjan.test      ; # Compute SCCs via Tarjan.
 source ${SELF}/ops/components.test  ; # Compute connected components.
 source ${SELF}/ops/componentof.test ; # Compute connected components II.
+source ${SELF}/ops/connected.test   ; # Graph connected ?
+source ${SELF}/ops/cutvertex.test   ; # Node a cut vertex?
+source ${SELF}/ops/bridge.test      ; # Arc a bridge?
 
 # -------------------------------------------------------------------------
