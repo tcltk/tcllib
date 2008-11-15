@@ -1,3 +1,13 @@
+2008-11-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graphops.tcl: Continued integration of graph algorithms. More
+	* graphops.man: about connectivity. Bumped the package version
+	* graph/tests/ops/connected.test: to 0.6.
+	* graph/tests/ops/cutvertex.test: 
+	* graph/tests/ops/bridge.test: 
+	* graph/tests/XOpsControl:
+	* pkgIndex.tcl:
+
 2008-11-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graphops.tcl: Continued integration of graph algorithms.
