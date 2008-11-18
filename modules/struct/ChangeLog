@@ -1,3 +1,14 @@
+2008-11-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graphops.tcl: Continued integration of graph algorithms. Euler
+	* graphops.man: paths and tours. Bumped the package version
+	* graph/tests/ops/eulertour.test: to 0.7.
+	* graph/tests/ops/eulerpath.test: 
+	* graph/tests/XOpsControl:
+	* graph/tests/XOpsSetup:
+	* graph/tests/XOpsSupport:
+	* pkgIndex.tcl:
+
 2008-11-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graphops.tcl: Continued integration of graph algorithms. More
