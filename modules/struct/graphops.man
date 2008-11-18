@@ -1,11 +1,11 @@
 [comment {-*- tcl -*-}]
-[manpage_begin struct::graph::op n 0.6]
+[manpage_begin struct::graph::op n 0.7]
 [copyright {2008 Alejandro Paz <vidriloco@gmail.com>}]
 [copyright {2008 (docs) Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Operation for (un)directed graph objects}]
 [require Tcl 8.4]
-[require struct::graph::op [opt 0.6]]
+[require struct::graph::op [opt 0.7]]
 [comment {[require struct::graph [opt 2.3]]   }]
 [comment {[require struct::list  [opt 1.5]]   }]
 [comment {[require struct::set   [opt 2.2.3]] }]
@@ -177,6 +177,33 @@ result is a boolean value, [const true] if the arc is a bridge, and
 
 The command will throw an error if [arg a] is not an arc of the graph
 [arg g].
+
+
+[call [cmd struct::graph:op::isEulerian?] [arg g] [opt [arg tourvar]]]
+
+This is command determines whether the graph [arg g] is
+[term eulerian] or not.  The result is a boolean value, [const true]
+if the graph is eulerian, and [const false] otherwise.
+
+[para]
+
+If the graph is eulerian and [arg tourvar] is specified then an euler
+tour is computed as well and stored in the named variable. The tour is
+represented by the list of arcs traversed, in the order of traversal.
+
+
+[call [cmd struct::graph:op::isSemiEulerian?] [arg g] [opt [arg pathvar]]]
+
+This is command determines whether the graph [arg g] is
+[term semi-eulerian] or not.  The result is a boolean value, [const true]
+if the graph is semi-eulerian, and [const false] otherwise.
+
+[para]
+
+If the graph is semi-eulerian and [arg pathvar] is specified then an
+euler path is computed as well and stored in the named variable. The
+path is represented by the list of arcs traversed, in the order of
+traversal.
 
 
 [list_end]

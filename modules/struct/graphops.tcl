@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: graphops.tcl,v 1.7 2008/11/15 05:48:27 andreas_kupries Exp $
+# RCS: @(#) $Id: graphops.tcl,v 1.8 2008/11/18 03:49:57 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -19,6 +19,7 @@ package require struct::disjointset ; # Used by kruskal
 package require struct::prioqueue   ; # Used by kruskal, prim
 package require struct::queue       ; # Used by isBipartite?, connectedComponent(Of)
 package require struct::stack       ; # Used by tarjan
+package require struct::graph       ; # isBridge, isCutVertex
 
 # ### ### ### ######### ######### #########
 ##
@@ -598,7 +599,7 @@ proc ::struct::graph::op::isBridge? {g arc} {
 	return 0
     }
 
-    set copy       [struct::graph C = $g]
+    set copy       [struct::graph BridgeCopy = $g]
     $copy arc delete $arc
     set compAfter  [ComponentOf $copy $src]
     $copy destroy
@@ -643,7 +644,7 @@ proc ::struct::graph::op::isCutVertex? {g n} {
     # (straight ==).
     struct::set subtract compBefore $n
 
-    set copy       [struct::graph C = $g]
+    set copy       [struct::graph CutVertexCopy = $g]
     $copy node delete $n
     set compAfter  [ComponentOf $copy [lindex $compBefore 0]]
     $copy destroy
@@ -655,6 +656,155 @@ proc ::struct::graph::op::isCutVertex? {g n} {
 
 proc ::struct::graph::op::isConnected? {g} {
     return [expr { [llength [connectedComponents $g]] == 1 }]
+}
+
+# ### ### ### ######### ######### #########
+##
+
+# This command determines if the specified graph G has an eulerian
+# cycle (aka euler tour, <=> g is eulerian) or not. If yes, it can
+# return the cycle through the named variable, as a list of arcs
+# traversed.
+#
+# Note that for a graph to be eulerian all nodes have to have an even
+# degree, and the graph has to be connected. And if more than two
+# nodes have an odd degree the graph is not even semi-eulerian (cannot
+# even have an euler path).
+
+proc ::struct::graph::op::isEulerian? {g {eulervar {}}} {
+    set nodes [$g nodes]
+    if {![llength $nodes] || ![llength [$g arcs]]} {
+	# Quick bailout for special cases. No nodes, or no arcs imply
+	# that no euler cycle is present.
+	return 0
+    }
+
+    # Check the condition regarding even degree nodes, then
+    # connected-ness.
+
+    foreach n $nodes {
+	if {([$g node degree $n] % 2) == 0} continue
+	# Odd degree node found, not eulerian.
+	return 0
+    }
+
+    if {![isConnected? $g]} {
+	return 0
+    }
+
+    # At this point the graph is connected, with all nodes of even
+    # degree. As per Carl Hierholzer the graph has to have an euler
+    # tour. If the user doesn't request it we do not waste the time to
+    # actually compute one.
+
+    if {$eulervar eq ""} {
+	return 1
+    }
+
+    upvar 1 $eulervar tour
+
+    # We start the tour at an arbitrary node.
+
+    Fleury $g [lindex $nodes 0] tour
+    return 1
+}
+
+# This command determines if the specified graph G has an eulerian
+# path (<=> g is semi-eulerian) or not. If yes, it can return the
+# path through the named variable, as a list of arcs traversed.
+#
+# (*) Aka euler tour.
+#
+# Note that for a graph to be semi-eulerian at most two nodes are
+# allowed to have an odd degree, all others have to be of even degree,
+# and the graph has to be connected.
+
+proc ::struct::graph::op::isSemiEulerian? {g {eulervar {}}} {
+    set nodes [$g nodes]
+    if {![llength $nodes] || ![llength [$g arcs]]} {
+	# Quick bailout for special cases. No nodes, or no arcs imply
+	# that no euler path is present.
+	return 0
+    }
+
+    # Check the condition regarding oddd/even degree nodes, then
+    # connected-ness.
+
+    set odd 0
+    foreach n $nodes {
+	if {([$g node degree $n] % 2) == 0} continue
+	incr odd
+	set lastodd $n
+    }
+    if {($odd > 2) || ![isConnected? $g]} {
+	return 0
+    }
+
+    # At this point the graph is connected, with the node degrees
+    # supporting existence of an euler path. If the user doesn't
+    # request it we do not waste the time to actually compute one.
+
+    if {$eulervar eq ""} {
+	return 1
+    }
+
+    upvar 1 $eulervar path
+
+    # We start at either an odd-degree node, or any node, if there are
+    # no odd-degree ones. In the last case we are actually
+    # constructing an euler tour, i.e. a closed path.
+
+    if {$odd} {
+	set start $lastodd
+    } else {
+	set start [lindex $nodes 0]
+    }
+
+    Fleury $g $start path
+    return 1
+}
+
+proc ::struct::graph::op::Fleury {g start eulervar} {
+
+    upvar 1 $eulervar path
+
+    # We start at the chosen node.
+
+    set copy  [struct::graph FleuryCopy = $g]
+    set path  {}
+
+    # Edges are chosen per Fleury's algorithm. That is easy,
+    # especially as we already have a command to determine whether an
+    # arc is a bridge or not.
+
+    set arcs [$copy arcs]
+    while {![struct::set empty $arcs]} {
+	set adjacent [$copy arcs -adj $start]
+
+	if {[llength $adjacent] == 1} {
+	    # No choice in what arc to traverse.
+	    set arc [lindex $adjacent 0]
+	} else {
+	    # Choose first non-bridge arcs. The euler conditions force
+	    # that at least two such are present.
+
+	    set has 0
+	    foreach arc $adjacent {
+		if {[isBridge? $copy $arc]} continue
+		set has 1
+		break
+	    }
+	    if {!$has} { return -code error {Internal error} }
+	}
+
+	set start [$copy node opposite $start $arc]
+	$copy arc delete $arc
+	struct::set subtract arcs $arc
+	lappend path $arc
+    }
+
+    $copy destroy
+    return
 }
 
 #
@@ -686,4 +836,4 @@ namespace eval ::struct::graph::op {
     #namespace export ...
 }
 
-package provide struct::graph::op 0.6
+package provide struct::graph::op 0.7

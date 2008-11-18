@@ -4,7 +4,7 @@
 # Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: XOpsSetup,v 1.6 2008/11/14 04:13:16 andreas_kupries Exp $
+# RCS: @(#) $Id: XOpsSetup,v 1.7 2008/11/18 03:49:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -115,6 +115,25 @@ proc SETUP_B {} {
     #          > B --/5/--> D
     #
 
+    return
+}
+
+proc SETUP_B2 {} {
+    graph mygraph
+
+    mygraph node insert A B C D E F G
+
+    mygraph arc insert A B
+    mygraph arc insert A E
+    mygraph arc insert B D
+    mygraph arc insert B F
+    mygraph arc insert C A
+    mygraph arc insert D C
+    mygraph arc insert E B
+    mygraph arc insert E F
+    mygraph arc insert F A
+    mygraph arc insert F G
+    mygraph arc insert G E
     return
 }
 
@@ -404,12 +423,86 @@ proc SETUP_K {} {
     mygraph node insert No4
     mygraph node insert No5
     
-    mygraph arc insert No1 No2
-    mygraph arc insert No2 No3
-    mygraph arc insert No3 No4
-    mygraph arc insert No4 No2
+    mygraph arc insert No1 No2 a
+    mygraph arc insert No2 No3 b
+    mygraph arc insert No3 No4 c
+    mygraph arc insert No4 No2 d
     
-    mygraph arc insert No5 No5
+    mygraph arc insert No5 No5 e
+    return
+}
+
+proc SETUP_K2 {} {
+    SETUP_K
+    mygraph arc insert No5 No1 f
+    mygraph arc insert No5 No2 g
+    return
+}
+
+# -------------------------------------------------------------------------
+
+proc SETUP_L {} {
+    # Koenigsberg.
+
+    graph mygraph
+    mygraph node insert a b c d
+    mygraph arc  insert a c
+    mygraph arc  insert a d
+    mygraph arc  insert b a
+    mygraph arc  insert b c
+    mygraph arc  insert c a
+    mygraph arc  insert d a
+    mygraph arc  insert d b
+    return
+}    
+
+# -------------------------------------------------------------------------
+
+proc SETUP_M {} {
+    # penta-hex-something
+
+    graph mygraph
+    mygraph node insert 1 2 3 4 5 6
+    mygraph arc  insert 1 2
+    mygraph arc  insert 2 3
+    mygraph arc  insert 3 4
+    mygraph arc  insert 4 5
+    mygraph arc  insert 5 1
+    mygraph arc  insert 1 6
+    mygraph arc  insert 6 2
+    mygraph arc  insert 2 5
+    mygraph arc  insert 5 6
+    mygraph arc  insert 6 3
+    mygraph arc  insert 3 1
+    return
+}    
+
+# -------------------------------------------------------------------------
+
+proc SETUP_N {} {
+    # Predefined Graph for testing on:
+    # isConnected?
+    # Author: Alejandro Eduardo Cruz Paz
+    # 28 August 2008
+
+    graph mygraph
+    
+    mygraph node insert 0 1 2 a b c d e f
+    mygraph arc insert 0 1
+    mygraph arc insert 1 2
+    mygraph arc insert 2 0
+
+    mygraph arc insert a b
+    mygraph arc insert b 0
+    mygraph arc insert 0 a
+
+    mygraph arc insert c d
+    mygraph arc insert d 1
+    mygraph arc insert 1 c
+
+    mygraph arc insert e f
+    mygraph arc insert f 2
+    mygraph arc insert 2 e
     return
 }
 
