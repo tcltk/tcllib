@@ -1,4 +1,9 @@
-2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
+2008-11-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* support/installation/modules.tcl: New module 'cache' with
+	  package 'cache::async'.
+
+2008-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.11 ========================
