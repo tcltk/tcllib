@@ -1,11 +1,11 @@
 [comment {-*- tcl -*-}]
-[manpage_begin struct::graph::op n 0.7]
+[manpage_begin struct::graph::op n 0.8]
 [copyright {2008 Alejandro Paz <vidriloco@gmail.com>}]
 [copyright {2008 (docs) Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Operation for (un)directed graph objects}]
 [require Tcl 8.4]
-[require struct::graph::op [opt 0.7]]
+[require struct::graph::op [opt 0.8]]
 [comment {[require struct::graph [opt 2.3]]   }]
 [comment {[require struct::list  [opt 1.5]]   }]
 [comment {[require struct::set   [opt 2.2.3]] }]
@@ -181,9 +181,9 @@ The command will throw an error if [arg a] is not an arc of the graph
 
 [call [cmd struct::graph:op::isEulerian?] [arg g] [opt [arg tourvar]]]
 
-This is command determines whether the graph [arg g] is
-[term eulerian] or not.  The result is a boolean value, [const true]
-if the graph is eulerian, and [const false] otherwise.
+This command determines whether the graph [arg g] is [term eulerian]
+or not.  The result is a boolean value, [const true] if the graph is
+eulerian, and [const false] otherwise.
 
 [para]
 
@@ -194,7 +194,7 @@ represented by the list of arcs traversed, in the order of traversal.
 
 [call [cmd struct::graph:op::isSemiEulerian?] [arg g] [opt [arg pathvar]]]
 
-This is command determines whether the graph [arg g] is
+This command determines whether the graph [arg g] is
 [term semi-eulerian] or not.  The result is a boolean value, [const true]
 if the graph is semi-eulerian, and [const false] otherwise.
 
@@ -206,6 +206,34 @@ path is represented by the list of arcs traversed, in the order of
 traversal.
 
 
+[call [cmd struct::graph:op::disjkstra] [arg g] [arg start] [opt [arg options]...]]
+
+This command determines distances in the weighted [arg g] from the
+node [arg start] to all other nodes in the graph. The options specify
+how to traverse graphs, and the format of the result.
+
+[para]
+
+Two options are recognized
+
+[list_begin options]
+[opt_def -arcmode mode]
+
+The accepted mode values are [const directed] and [const undirected].
+For directed traversal all arcs are traversed from source to
+target. For undirected traversal all arcs are traversed in the
+opposite direction as well. Undirected traversal is the default.
+
+[opt_def -outputformat format]
+
+The accepted format values are [const distances] and [const tree]. In
+both cases the result is a dictionary keyed by the names of all nodes
+in the graph. For [const distances] the value is the distance of the
+node to [arg start], whereas for [const tree] the value is the path
+from the node to [arg start], excluding the node itself, but including
+[arg start]. Tree format is the default.
+
+[list_end]
 [list_end]
 
 
