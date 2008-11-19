@@ -42,6 +42,7 @@ Module  bee         _tcl  _man  _null
 Module  bench       _tcl _null  _null
 Module  bibtex      _tcl  _man  _null
 Module  blowfish    _tcl  _man  _null
+Module  cache       _tcl  _man  _null
 Module  calendar     _tci _man  _null
 Module  cmdline     _tcl  _man  _null
 Module  comm        _tcl  _man  _null

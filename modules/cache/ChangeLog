@@ -1,0 +1,7 @@
+2008-11-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* async.man: New module 'cache', containing the new package
+	* async.tcl: 'cache::async'.
+	* async.test: 
+	* pkgIndex.tcl: 
+
