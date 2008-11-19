@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: graphops.tcl,v 1.8 2008/11/18 03:49:57 andreas_kupries Exp $
+# RCS: @(#) $Id: graphops.tcl,v 1.9 2008/11/19 07:39:33 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -807,6 +807,138 @@ proc ::struct::graph::op::Fleury {g start eulervar} {
     return
 }
 
+# ### ### ### ######### ######### #########
+##
+
+# This command uses dijktra's algorithm to find all shortest paths in
+# the graph G starting at node N. The operation can be configured to
+# traverse arcs directed and undirected, and the format of the result.
+
+proc ::struct::graph::op::dijkstra {g node args} {
+    # Default traversal is undirected.
+    # Default output format is tree.
+
+    set arcTraversal undirected
+    set resultFormat tree
+
+    # Process options to override the defaults, if any.
+    foreach {option param} $args {
+	switch -exact -- $option {
+	    -arcmode {
+		switch -exact -- $param {
+		    directed -
+		    undirected {
+			set arcTraversal $param
+		    }
+		    default {
+			return -code error "Bad value for -arcmode, expected one of \"directed\" or \"undirected\""
+		    }
+		}
+	    }
+	    -outputformat {
+		switch -exact -- $param {
+		    tree -
+		    distances {
+			set resultFormat $param
+		    }
+		    default {
+			return -code error "Bad value for -outputformat, expected one of \"distances\" or \"tree\""
+		    }
+		}
+	    }
+	    default {		
+		return -code error "Bad option \"$option\", expected one of \"-arcmode\" or \"-outputformat\""
+	    }
+	}
+    }
+
+    # We expect that all arcs of g are given a weight.
+    VerifyWeightsAreOk $g
+
+    # And the start node has to belong to the graph too, of course.
+    if {![$g node exists $node]} {
+	return -code error "node \"$node\" does not exist in graph \"$g\""
+    }
+
+    # TODO: Quick bailout for special cases (no arcs).
+
+    # Transient and other data structures for the core algorithm.
+    set pending [::struct::prioqueue -dictionary DijkstraQueue]
+    array set distance {} ; # array: node -> distance to 'n'
+    array set previous {} ; # array: node -> parent in shortest path to 'n'.
+    array set visited  {} ; # array: node -> bool, true when node processed
+
+    # Initialize the data structures.
+    foreach n [$g nodes] {
+	set distance($n) Inf
+	set previous($n) undefined
+	set  visited($n) 0
+    }
+
+    # Compute the distances ...
+    $pending put $node 0
+    set distance($node) 0
+    set previous($node) none
+
+    while {[$pending size]} {
+	set current [$pending get]
+	set visited($current) 1
+
+	# Traversal to neighbours according to the chosen mode.
+	if {$arcTraversal eq "undirected"} {
+	    set arcNeighbours [$g arcs -adj $current]
+	} else {
+	    set arcNeighbours [$g arcs -out $current]
+	}
+
+	# Compute distances, record newly discovered nodes, minimize
+	# distances for nodes reachable through multiple paths.
+	foreach arcNeighbour $arcNeighbours {
+	    set cost      [$g arc getweight $arcNeighbour]
+	    set neighbour [$g node opposite $current $arcNeighbour]
+	    set delta     [expr {$distance($current) + $cost}]
+
+	    if {
+		($distance($neighbour) eq "Inf") ||
+		($delta < $distance($neighbour))
+	    } {
+		# First path, or better path to the node folund,
+		# update our records.
+
+		set distance($neighbour) $delta
+		set previous($neighbour) $current
+		if {!$visited($neighbour)} {
+		    $pending put $neighbour $delta
+		}
+	    }
+	}
+    }
+
+    $pending destroy
+
+    # Now generate the result based on the chosen format.
+    if {$resultFormat eq "distances"} {
+	return [array get distance]
+    } else {
+	array set listofprevious {}
+	foreach n [$g nodes] {
+	    set current $n
+	    while {1} {
+		if {$current eq "undefined"} break
+		if {$current eq $node} {
+		    lappend listofprevious($n) $current
+		    break
+		}
+		if {$current ne $n} {
+		    lappend listofprevious($n) $current
+		}
+		set current $previous($current)
+	    }
+	}
+	return [array get listofprevious]
+    }
+}
+
 #
 ## place holder for the operations to come
 #
@@ -836,4 +968,4 @@ namespace eval ::struct::graph::op {
     #namespace export ...
 }
 
-package provide struct::graph::op 0.7
+package provide struct::graph::op 0.8

@@ -4,7 +4,7 @@
 # Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: XOpsSetup,v 1.7 2008/11/18 03:49:57 andreas_kupries Exp $
+# RCS: @(#) $Id: XOpsSetup,v 1.8 2008/11/19 07:39:33 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -69,7 +69,7 @@ proc SETUP_A {} {
 }
 
 proc SETUP_A2 {} {
-    SETUP-A
+    SETUP_A
     mygraph arc insert 'node0' 'node2' 'arc0_2'
     mygraph arc insert 'node0' 'node4' 'arc0_4'
     return
