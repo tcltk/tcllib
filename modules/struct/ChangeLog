@@ -1,8 +1,40 @@
+2008-11-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph1.test: Cleanup to avoid interference with the accelerators
+	* graphops.test: of graph v2. Bring in the accelerators for queues
+	* graph/tests/ops/adjmatrix.test: and stacks. Fixed bug in tarjan
+	* graph/tests/ops/bipartite.test: exposed by the accelerator (*).
+	* graph/tests/ops/bridge.test: (*) Changed order of arc traversal.
+	* graph/tests/ops/componentof.test:
+	* graph/tests/ops/components.test:
+	* graph/tests/ops/connected.test:
+	* graph/tests/ops/cutvertex.test:
+	* graph/tests/ops/diameter.test:
+	* graph/tests/ops/dijkstra.test:
+	* graph/tests/ops/distance.test:
+	* graph/tests/ops/eccentricity.test:
+	* graph/tests/ops/eulerpath.test:
+	* graph/tests/ops/eulertour.test:
+	* graph/tests/ops/kruskal.test:
+	* graph/tests/ops/maxmatching.test:
+	* graph/tests/ops/prim.test:
+	* graph/tests/ops/radius.test:
+	* graph/tests/ops/tarjan.test:
+
+	* graphops.tcl: Near-completed integration of graph algorithms.
+	* graphops.man: Node distances, eccentricity, radius, diameter.
+	* graph/tests/ops/distance.test: Bumped package version to 0.9.
+	* graph/tests/ops/radius.test: Disabled the placeholders for max-
+	* graph/tests/ops/diameter.test: matching, the only algorithm we
+	* graph/tests/ops/eccentricity.test: are missing.
+	* graph/tests/XOpsControl:
+	* pkgIndex.tcl:
+
 2008-11-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graphops.tcl: Continued integration of graph algorithms. Node
 	* graphops.man: distances, dijkstra's algorithm. Bumped the
-	* graph/tests/ops/disjkstra.test: package version to 0.8.
+	* graph/tests/ops/dijkstra.test: package version to 0.8.
 	* graph/tests/XOpsControl:
 	* graph/tests/XOpsSetup:
 	* pkgIndex.tcl:

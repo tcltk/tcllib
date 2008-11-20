@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: graphops.tcl,v 1.9 2008/11/19 07:39:33 andreas_kupries Exp $
+# RCS: @(#) $Id: graphops.tcl,v 1.10 2008/11/20 07:26:43 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -396,10 +396,10 @@ proc ::struct::graph::op::isBipartite? {g {bipartitionvar {}}} {
 # sets X and Y. As is implied, this method requires that the graph is
 # bi-partite. Use the command 'isBipartite?' to check for this
 # property, and to obtain the bi-partition.
-
+if 0 {
 proc ::struct::graph::op::maxMatching {g X Y} {
     return -code error "not implemented yet"
-}
+}}
 
 # ### ### ### ######### ######### #########
 ##
@@ -472,7 +472,7 @@ proc ::struct::graph::op::TarjanSub {start counter} {
 	    set lowlink($start) [Min $lowlink($start) $lowlink($neighbour)]
 
 	} elseif {[info exists instack($neighbour)]} {
-	    set lowlink($start) [Min $lowlink($start) $index($neighbour)]
+	    set lowlink($start) [Min $lowlink($start) $lowlink($neighbour)]
 	}
     }
 
@@ -765,7 +765,6 @@ proc ::struct::graph::op::isSemiEulerian? {g {eulervar {}}} {
 }
 
 proc ::struct::graph::op::Fleury {g start eulervar} {
-
     upvar 1 $eulervar path
 
     # We start at the chosen node.
@@ -790,7 +789,9 @@ proc ::struct::graph::op::Fleury {g start eulervar} {
 
 	    set has 0
 	    foreach arc $adjacent {
-		if {[isBridge? $copy $arc]} continue
+		if {[isBridge? $copy $arc]} {
+		    continue
+		}
 		set has 1
 		break
 	    }
@@ -810,7 +811,7 @@ proc ::struct::graph::op::Fleury {g start eulervar} {
 # ### ### ### ######### ######### #########
 ##
 
-# This command uses dijktra's algorithm to find all shortest paths in
+# This command uses dijkstra's algorithm to find all shortest paths in
 # the graph G starting at node N. The operation can be configured to
 # traverse arcs directed and undirected, and the format of the result.
 
@@ -939,8 +940,151 @@ proc ::struct::graph::op::dijkstra {g node args} {
     }
 }
 
+# This convenience command is a wrapper around dijkstra's algorithm to
+# find the (un)directed distance between two nodes in the graph G.
+
+proc ::struct::graph::op::distance {g origin destination args} {
+    if {![$g node exists $origin]} {
+	return -code error "node \"$origin\" does not exist in graph \"$g\""
+    }
+    if {![$g node exists $destination]} {
+	return -code error "node \"$destination\" does not exist in graph \"$g\""
+    }
+
+    set arcTraversal undirected
+
+    # Process options to override the defaults, if any.
+    foreach {option param} $args {
+	switch -exact -- $option {
+	    -arcmode {
+		switch -exact -- $param {
+		    directed -
+		    undirected {
+			set arcTraversal $param
+		    }
+		    default {
+			return -code error "Bad value for -arcmode, expected one of \"directed\" or \"undirected\""
+		    }
+		}
+	    }
+	    default {		
+		return -code error "Bad option \"$option\", expected \"-arcmode\""
+	    }
+	}
+    }
+
+    # Quick bailout for special case: the distance from a node to
+    # itself is zero
+
+    if {$origin eq $destination} {
+	return 0
+    }
+
+    # Compute all distances, then pick and return the one we are
+    # interested in.
+    array set distance [dijkstra $g $origin -outputformat distances -arcmode $arcTraversal]
+    return $distance($destination)
+}
+
+# This convenience command is a wrapper around dijkstra's algorithm to
+# find the (un)directed eccentricity of the node N in the graph G. The
+# eccentricity is the maximal distance to any other node in the graph.
+
+proc ::struct::graph::op::eccentricity {g node args} {
+    if {![$g node exists $node]} {
+	return -code error "node \"$node\" does not exist in graph \"$g\""
+    }
+
+    set arcTraversal undirected
+
+    # Process options to override the defaults, if any.
+    foreach {option param} $args {
+	switch -exact -- $option {
+	    -arcmode {
+		switch -exact -- $param {
+		    directed -
+		    undirected {
+			set arcTraversal $param
+		    }
+		    default {
+			return -code error "Bad value for -arcmode, expected one of \"directed\" or \"undirected\""
+		    }
+		}
+	    }
+	    default {		
+		return -code error "Bad option \"$option\", expected \"-arcmode\""
+	    }
+	}
+    }
+
+    # Compute all distances, then pick out the max
+
+    set ecc 0
+    foreach {n distance} [dijkstra $g $node -outputformat distances -arcmode $arcTraversal] {
+	if {$distance eq "Inf"} { return Inf }
+	if {$distance > $ecc} { set ecc $distance }
+    }
+
+    return $ecc
+}
+
+# This convenience command is a wrapper around eccentricity to find
+# the (un)directed radius of the graph G. The radius is the minimal
+# eccentricity over all nodes in the graph.
+
+proc ::struct::graph::op::radius {g args} {
+    return [lindex [RD $g $args] 0]
+}
+
+# This convenience command is a wrapper around eccentricity to find
+# the (un)directed diameter of the graph G. The diameter is the
+# maximal eccentricity over all nodes in the graph.
+
+proc ::struct::graph::op::diameter {g args} {
+    return [lindex [RD $g $args] 1]
+}
+
+proc ::struct::graph::op::RD {g options} {
+    set arcTraversal undirected
+
+    # Process options to override the defaults, if any.
+    foreach {option param} $options {
+	switch -exact -- $option {
+	    -arcmode {
+		switch -exact -- $param {
+		    directed -
+		    undirected {
+			set arcTraversal $param
+		    }
+		    default {
+			return -code error "Bad value for -arcmode, expected one of \"directed\" or \"undirected\""
+		    }
+		}
+	    }
+	    default {		
+		return -code error "Bad option \"$option\", expected \"-arcmode\""
+	    }
+	}
+    }
+
+    set radius   Inf
+    set diameter 0
+    foreach n [$g nodes] {
+	set e [eccentricity $g $n -arcmode $arcTraversal]
+	#puts "$n ==> ($e)"
+	if {($e eq "Inf") || ($e > $diameter)} {
+	    set diameter $e
+	}
+	if {($radius eq "Inf") || ($e < $radius)} {
+	    set radius $e
+	}
+    }
+
+    return [list $radius $diameter]
+}
+
 #
-## place holder for the operations to come
+## place holder for operations to come
 #
 
 # ### ### ### ######### ######### #########
@@ -968,4 +1112,4 @@ namespace eval ::struct::graph::op {
     #namespace export ...
 }
 
-package provide struct::graph::op 0.8
+package provide struct::graph::op 0.9

@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: graph1.test,v 1.8 2006/10/09 21:41:42 andreas_kupries Exp $
+# RCS: @(#) $Id: graph1.test,v 1.9 2008/11/20 07:26:43 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -1895,6 +1895,14 @@ test graph1-38.3 {keyexists respects -key flag} {
     mygraph destroy
     set result
 } "1"
+
+# ---------------------------------------------------
+# Big cleanup, get out of the way of graph v2.
+# Order of test files is graph, graph1, graphops, and the first and
+# last use graph v2. Leaving the class command of graph v1 in place
+# will mess up the handling of accelerated operations.
+
+rename struct::graph {}
 
 # ---------------------------------------------------  
 testsuiteCleanup
