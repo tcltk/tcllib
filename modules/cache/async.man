@@ -1,9 +1,9 @@
-[manpage_begin cache::async n 0.1]
+[manpage_begin cache::async n 0.2]
 [copyright {2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {In-memory caches}]
 [titledesc {Asynchronous in-memory cache}]
 [require Tcl 8.4]
-[require cache::async [opt 0.1]]
+[require cache::async [opt 0.2]]
 [keywords cache asynchronous synchronous callback]
 [description]
 
