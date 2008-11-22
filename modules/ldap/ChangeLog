@@ -1,3 +1,10 @@
+2008-11-22  Michael Schlenker  <mic42@users.sourceforge.net>
+	
+	* ldap.tcl: Added handling for search result references.
+	* ldap.man: Those are common for ActiveDirectory. 
+	* pkgIndex.tcl: Bumped version to 1.8.
+	* ldap.test:
+
 2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
 
 	*
