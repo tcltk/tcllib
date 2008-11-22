@@ -1,3 +1,7 @@
+2008-11-22  Michael Schlenker <mic42@users.sourceforge.net>
+	
+	* dns.tcl: Fixed typo in flags for errorcode decoding
+
 2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
 
 	*
