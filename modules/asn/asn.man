@@ -2,7 +2,7 @@
 [manpage_begin asn n 0.8]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {2004 Jochen Loewer <loewerj@web.de>}]
-[copyright {2004-2006 Michael Schlenker <mic42@users.sourceforge.net>}]
+[copyright {2004-2008 Michael Schlenker <mic42@users.sourceforge.net>}]
 [moddesc   {ASN.1 processing}]
 [titledesc {ASN.1 BER encoder/decoder}]
 [require Tcl 8.4]
@@ -11,7 +11,8 @@
 [para]
 
 The [package asn] package provides [emph partial] de- and encoder
-commands for BER encoded ASN.1 data.
+commands for BER encoded ASN.1 data. It can also be used for
+decoding DER, which is a restricted subset of BER.
 
 [para]
 
