@@ -6,7 +6,7 @@
 [moddesc   {LDAP client}]
 [titledesc {LDAP client}]
 [require Tcl 8.4]
-[require ldap [opt 1.7]]
+[require ldap [opt 1.8]]
 [description]
 [para]
 
@@ -95,15 +95,15 @@ the connection refered to by the token in [arg handle].
 The [arg handle] is invalid after the unbind, as the server closes the connection. 
 So this is effectivly just a more polite disconnect operation.
 
-[call [cmd ::ldap::search] [arg handle] [arg baseObject] [arg filterString] [arg attributes] [opt "[option -scope] [arg scope]"]]
+[call [cmd ::ldap::search] [arg handle] [arg baseObject] [arg filterString] [arg attributes] [arg options]]
 
 This command performs a LDAP search below the [arg baseObject] tree
 using a complex LDAP search expression [arg filterString] and returns
 the specified [arg attributes] of all matching objects (DNs). If the
 list of [arg attributes] was empty all attributes are returned. The
-command blocks until it has received all results. The default scope used
-is subtree, but can be overriden with the [option -scope] option, valid scopes are
-[const base], [const subtree] or [const onelevel].
+command blocks until it has received all results.
+
+The valid [arg options] are identical to the options listed for [cmd ::ldap::searchInit].
 
 [para]
 An example of a search expression is
@@ -183,6 +183,12 @@ limit. The default is 0, no limit.
 
 If set to 1 only the attribute names but not the values will be present in the search result.
 The default is to retrieve attribute names and values.
+
+[opt_def {-referencevar] varname]
+
+If set the search result reference LDAPURIs, if any, are returned in the given variable.
+The caller can than decide to follow those references and query other LDAP servers for
+further results.
 
 [list_end]
 [para]
