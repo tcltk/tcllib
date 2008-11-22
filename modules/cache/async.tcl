@@ -65,7 +65,7 @@ snit::type cache::async {
 
 	# This is the first query for this key, ask the provider.
 
-	after idle [list $myprovider get $key $self]
+	after idle [linsert $myprovider end get $key $self]
 	return
     }
 
@@ -90,6 +90,10 @@ snit::type cache::async {
 	    WrongArgs ?key?
 	}
 	return
+    }
+
+    method exists {key} {
+	return [expr {[info exists myhit($key)] || [info exists mymiss($key)]}]
     }
 
     method set {key value} {
@@ -154,7 +158,7 @@ snit::type cache::async {
     # ### ### ### ######### ######### #########
     ## State
 
-    variable myprovider          ; # Object providing the data to cache.
+    variable myprovider          ; # Command prefix providing the data to cache.
     variable myhit     -array {} ; # Cache array mapping keys to values.
     variable mymiss    -array {} ; # Cache array mapping keys to holes.
     variable mywaiting -array {} ; # Map of keys pending to notifier commands.
