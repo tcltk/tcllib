@@ -1,3 +1,9 @@
+2008-11-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* async.tcl (exists): Added method querying the cache about
+	  knowledge of a key. Fixed handling of provider command
+	  prefix. Bumped version to 0.2.
+
 2008-11-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* async.man: New module 'cache', containing the new package
