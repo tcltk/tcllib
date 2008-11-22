@@ -35,7 +35,7 @@
 #   NO OBLIGATION TO PROVIDE MAINTENANCE, SUPPORT, UPDATES, ENHANCEMENTS, OR
 #   MODIFICATIONS.
 #
-#   $Id: ldap.tcl,v 1.25 2008/07/20 19:50:55 mic42 Exp $
+#   $Id: ldap.tcl,v 1.26 2008/11/22 12:25:27 mic42 Exp $
 #
 #   written by Jochen Loewer
 #   3 June, 1999
@@ -44,7 +44,7 @@
 
 package require Tcl 8.4
 package require asn 0.7
-package provide ldap 1.7
+package provide ldap 1.8
 
 namespace eval ldap {
 
@@ -382,6 +382,8 @@ proc ldap::connect { host {port 389} } {
     set conn(saslBindInProgress) 0
     set conn(tlsHandshakeInProgress) 0
     set conn(lastError) ""
+    set conn(referenceVar) [namespace current]::searchReferences
+    set conn(returnReferences) 0
 
     fileevent $sock readable [list ::ldap::MessageReceiver ::ldap::ldap$sock]
     return ::ldap::ldap$sock
@@ -444,7 +446,9 @@ proc ldap::secure_connect { host {port 636} } {
     set conn(saslBindInProgress) 0
     set conn(tlsHandshakeInProgress) 0
     set conn(lasterror) ""
-
+    set conn(referenceVar) [namespace current]::searchReferences
+    set conn(returnReferences) 0
+    
     fileevent $sock readable [list ::ldap::MessageReceiver ::ldap::ldap$sock]
     return ::ldap::ldap$sock
 }
@@ -1221,6 +1225,9 @@ proc ldap::searchInit { handle baseObject filterString attributes opt} {
 	    -attrsonly {
 		set attrsOnly $value
 	    }
+	    -referencevar {
+		set referenceVar $value
+	    }
 	    default {
 		return -code error \
 			"Invalid search option '$key'"
@@ -1235,7 +1242,11 @@ proc ldap::searchInit { handle baseObject filterString attributes opt} {
     debugData searchRequest $request
 
     # Keep the message Id, so we know about the search
-    set conn(searchInProgress) $messageId
+    set conn(searchInProgress) 	$messageId
+    if {[::info exists referenceVar]} {
+	set conn(referenceVar) $referenceVar
+	set $referenceVar [list]
+    }
 
     return $conn(searchInProgress)
 }
@@ -1331,14 +1342,45 @@ proc ldap::searchNext { handle } {
 		-errorcode [list LDAP [resultCode2String $resultCode] $matchedDN $errorMessage] \
 		"LDAP error [resultCode2String $resultCode] : $errorMessage"
 	}
+    } elseif {$appNum == 19} {
+    	trace "Search Result Reference"
+	#---------------------------------------------------------
+	#   unmarshall search result reference packet
+	#---------------------------------------------------------
+	
+	# This should be a sequence but Microsoft AD sends just 
+	# a URI encoded as an OctetString, so have a peek at the tag
+	# and go on.
+	
+	asnPeekTag response tag type constr
+	if {$tag == 0x04} {
+	    set references $response
+	} elseif {$tag == 0x030} {
+	    asnGetSequence response references
+	} 
+
+	set urls {}
+	while {[string length $references]} {
+	    asnGetOctetString references url
+	    lappend urls $url	   
+	}
+	if {[::info exists conn(referenceVar)]} {	
+	    upvar 0 conn(referenceVar) refs
+	    if {[llength $refs]} {
+		set refs [concat [set $refs $urls]]
+	    } else {
+		set refs $urls
+	    }
+	}
+
+	# Get the next search result instead
+	set result [searchNext $handle]
     }
 
     # Unknown application type of result set.
     # We should just ignore it since the only PDU the server
     # MUST return if it understood our request is the "search response
     # done" (apptype 5) which we know how to process.
-
-    # TODO we should implement processing of apptype 19 (search reference)
 
     return $result
 }
@@ -1360,6 +1402,7 @@ proc ldap::searchEnd { handle } {
     FinalizeMessage $handle $conn(searchInProgress)
 
     unset conn(searchInProgress)
+    unset -nocomplain conn(referenceVar)
     return
 }
 
