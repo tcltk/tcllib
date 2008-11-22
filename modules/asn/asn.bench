@@ -62,7 +62,7 @@ for {set n 1; set i 0} {$i < 64} { set n [expr {wide($n)*2}] ; incr i} {
 }
 
 for {set n 0} {$n < 10} { incr n} {
-    bench -desc "ASN oid with ${n}+2 components" -pre {
+    bench -desc "ASN encode oid with ${n}+2 components" -pre {
 	set oid [list 1 10]
 	for {set i 0} {$i < $n} {incr i} {
 	    lappend oid $i
@@ -71,6 +71,21 @@ for {set n 0} {$n < 10} { incr n} {
 	asn::asnObjectIdentifier $oid
     } -post {
 	unset oid
+    }
+}
+
+for {set n 0} {$n < 10} { incr n} {
+    bench -desc "ASN decode oid with ${n}+2 components" -pre {
+	set oid [list 1 10]
+	for {set i 0} {$i < $n} {incr i} {
+	    lappend oid $i
+	}
+	set oidval [asn::asnObjectIdentifier $oid]
+    } -body {
+	asn::asnGetObjectIdentifier $oidval
+    } -post {
+	unset oid
+	unset oidval
     }
 }
 
