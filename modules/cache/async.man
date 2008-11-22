@@ -49,8 +49,6 @@ option to [const false] forces the cache to respond to them
 synchronuously, although still through the specified callback.
 
 [list_end]
-
-
 [list_end]
 
 The object commands created by the class commands above have
@@ -123,6 +121,13 @@ or "unset key".
 This also means that these methods invoke the [arg donecmd] of all
 [method get]-requests waiting for information about the modified
 [arg key].
+
+
+[call [arg objectName] [method exists] [arg key]]
+
+This method queries the cache for knowledge about the [arg key] and
+returns a boolean value. The result is [const true] if the key is
+known, and [const false] otherwise.
 
 
 [call [arg objectName] [method clear] [opt [arg key]]]
