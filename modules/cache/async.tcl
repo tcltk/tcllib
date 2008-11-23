@@ -98,9 +98,18 @@ snit::type cache::async {
 
     method set {key value} {
 	# Add data to the cache, and notify all outstanding queries.
+	# Nothing is done if the key is already known and has the same
+	# value.
+
 	# This is the method invoked by the provider in response to
 	# queries, and also the method to use to prefill the cache
 	# with data.
+
+	if {
+	    [info exists myhit($key)] &&
+	    ($value eq $myhit($key))
+	} return
+
 	set                myhit($key) $value
 	unset -nocomplain mymiss($key)
 	$self NotifySet 0 $key
@@ -121,33 +130,37 @@ snit::type cache::async {
     method NotifySet {found key} {
 	if {![info exists mywaiting($key)] || ![llength $mywaiting($key)]} return
 
+	set pending $mywaiting($key)
+	unset mywaiting($key)
+
 	set value $myhit($key)
 	if {$found && !$options(-full-async-results)} {
-	    foreach donecmd $mywaiting($key) {
+	    foreach donecmd $pending {
 		uplevel \#0 [linsert $donecmd end set $key $value]
 	    }
 	} else {
-	    foreach donecmd $mywaiting($key) {
+	    foreach donecmd $pending {
 		after idle [linsert $donecmd end set $key $value]
 	    }
 	}
-	unset mywaiting($key)
 	return
     }
 
     method NotifyUnset {found key} {
 	if {![info exists mywaiting($key)] || ![llength $mywaiting($key)]} return
 
+	set pending $mywaiting($key)
+	unset mywaiting($key)
+
 	if {$found && !$options(-full-async-results)} {
-	    foreach donecmd $mywaiting($key) {
+	    foreach donecmd $pending {
 		uplevel \#0 [linsert $donecmd end unset $key]
 	    }
 	} else {
-	    foreach donecmd $mywaiting($key) {
+	    foreach donecmd $pending {
 		after idle [linsert $donecmd end unset $key]
 	    }
 	}
-	unset mywaiting($key)
 	return
     }
 
@@ -169,5 +182,4 @@ snit::type cache::async {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide cache::async 0.2
-
+package provide cache::async 0.3
