@@ -1,3 +1,3 @@
 if {![package vsatisfies [package provide Tcl] 8.4]} {return}
-package ifneeded cache::async 0.2 [list source [file join $dir async.tcl]]
+package ifneeded cache::async 0.3 [list source [file join $dir async.tcl]]
 

@@ -1,3 +1,12 @@
+2008-11-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* async.tcl: Moved the cleanup of state regarding pending
+	* async.man: callbacks in the notification methods forward
+	* pkgIndex.tcl: to ensure consistent internal state in case of
+	  recursive call to set method by the callbacks. Also added guard
+	  in 'set' to avoid multiple sets for identical values. Bumped to
+	  version 0.3.
+
 2008-11-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* async.tcl (exists): Added method querying the cache about
