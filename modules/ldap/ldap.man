@@ -184,7 +184,7 @@ limit. The default is 0, no limit.
 If set to 1 only the attribute names but not the values will be present in the search result.
 The default is to retrieve attribute names and values.
 
-[opt_def {-referencevar] varname]
+[opt_def {-referencevar} varname]
 
 If set the search result reference LDAPURIs, if any, are returned in the given variable.
 The caller can than decide to follow those references and query other LDAP servers for

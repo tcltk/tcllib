@@ -1,3 +1,8 @@
+2008-11-24  Andreas Kupries  <andreask@activestate.com>
+
+	* ldap.man: Fixed syntax error in unvalidated documentation of
+	  last checkin.
+
 2008-11-22  Michael Schlenker  <mic42@users.sourceforge.net>
 	
 	* ldap.tcl: Added handling for search result references.
@@ -5,7 +10,7 @@
 	* pkgIndex.tcl: Bumped version to 1.8.
 	* ldap.test:
 
-2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
+2008-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.11 ========================
