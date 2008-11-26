@@ -90,7 +90,7 @@ defs    = { INCLUDE | VSET | <WHITE> }
 
 header  = { TITLEDESC | MODDESC | COPYRIGHT | REQUIRE | defs | xref }
 
-xref    = KEYWORDS | SEE_ALSO
+xref    = KEYWORDS | SEE_ALSO | CATEGORY
 
 body    = paras { SECTION    sbody  }
 sbody   = paras { SUBSECTION ssbody }

@@ -57,6 +57,14 @@ It is expected that the formatted term is not only printed in place,
 but also in the table of contents of the document, or synopsis,
 depending on the output format.
 
+
+[call [cmd category] [arg text]]
+
+Document information. Anywhere. This command registers its plain text
+arguments as the category this document belongs to. If this command is
+used multiple times the last value specified is used.
+
+
 [call [cmd class] [arg text]]
 
 Text markup. The argument is marked up as the name of a

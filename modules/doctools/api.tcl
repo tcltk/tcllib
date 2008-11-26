@@ -22,7 +22,7 @@ foreach __cmd {
     section para list_begin list_end lst_item call bullet enum see_also
     keywords example example_begin example_end nl arg cmd opt emph strong
     comment sectref syscmd method option widget fun type package class var
-    file uri term const copyright
+    file uri term const copyright category
 } {
     proc fmt_$__cmd {args} [list return  "return -code error \"Unimplemented API command $__cmd\""]
 }

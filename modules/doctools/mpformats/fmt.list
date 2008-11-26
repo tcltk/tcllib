@@ -39,6 +39,7 @@ proc fmt_manpage_begin {title section version} {
     set    data(shortdesc) ""
     set    data(keywords)  [list]
     set    data(seealso)   [list]
+    set    data(category)  ""
     return
 }
 
@@ -46,5 +47,6 @@ proc fmt_moddesc   {desc} {global data ; set data(shortdesc) $desc}
 proc fmt_titledesc {desc} {global data ; set data(desc)      $desc}
 proc fmt_keywords  {args} {global data ; foreach ref $args {lappend data(keywords) $ref} ; return}
 proc fmt_see_also  {args} {global data ; foreach ref $args {lappend data(seealso)  $ref} ; return}
+proc fmt_category  {text} {global data ; set data(category) $text ; return}
 
 ################################################################
