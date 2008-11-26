@@ -1,4 +1,31 @@
-2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
+2008-11-26  Andreas Kupries  <andreask@activestate.com>
+
+	* api.tcl: Extended doctools language with a 'category'
+	* checker.tcl: command. This allows manpages to provide
+	* doctools.tcl: a category string, like they already
+	* doctools_lang_cmdref.man: provide keywords and see-also
+	* doctools_lang_syntax.man: references. Updated all engines
+	* mpformats/_common.tcl: to handle the command in some way.
+	* mpformats/fmt.html: Bumped package version to 1.3.6.
+	* mpformats/fmt.latex: Needed: Some tests to demo the
+	* mpformats/fmt.list: handling of 'category'.
+	* mpformats/fmt.nroff:
+	* mpformats/fmt.null:
+	* mpformats/fmt.text:
+	* mpformats/fmt.tmml:
+	* mpformats/fmt.wiki:
+	* doctools.test:
+	* tests/list/00:
+	* tests/list/01:
+	* tests/list/02:
+	* tests/list/03:
+	* tests/list/04:
+	* tests/list/05:
+	* tests/list/06:
+	* tests/list/07:
+	* tests/list/08:
+
+2008-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.11 ========================

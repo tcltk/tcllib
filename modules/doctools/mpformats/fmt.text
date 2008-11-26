@@ -191,11 +191,13 @@ c_pass 1 fmt_manpage_end {} NOP
 c_pass 2 fmt_manpage_end {} {
     set sa [c_xref_seealso]
     set kw [c_xref_keywords]
+    set ca [c_xref_category]
     set ct [c_get_copyright]
 
     CloseParagraph
     if {[llength $sa] > 0} {Section {SEE ALSO} ; Text [join [lsort $sa] ", "] ; CloseParagraph}
     if {[llength $kw] > 0} {Section KEYWORDS   ; Text [join [lsort $kw] ", "] ; CloseParagraph}
+    if {$ca ne ""}         {Section CATEGORY   ; Text $ca                     ; CloseParagraph}
     if {$ct != {}}         {Section COPYRIGHT  ; Text $ct ; CloseParagraph [Verbatim]}
     return
 }

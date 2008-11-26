@@ -83,6 +83,7 @@ c_pass 2 fmt_manpage_end {} {
 
     set sa [c_xref_seealso]
     set kw [c_xref_keywords]
+    set ca [c_xref_category]
     set ct [c_get_copyright]
 
     if {[llength $sa] > 0} {
@@ -100,6 +101,12 @@ c_pass 2 fmt_manpage_end {} {
 
 	append res [fmt_section Keywords keywords] \n
 	append res [join [lsort $kw] ", "] \n
+    }
+    if {$ca ne ""} {
+	set ca [texEscape $ca]
+
+	append res [fmt_section Category category] \n
+	append res $ca \n
     }
     if {$ct != {}} {
 	append res [fmt_section Copyright copyright] \n
