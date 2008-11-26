@@ -18,7 +18,9 @@ package require sak::util
 if {![sak::util::checkModules argv]} return
 
 set matches 0
-foreach f {html nroff tmml text wiki latex dvi ps pdf list validate} {
+foreach f {
+    html nroff tmml text wiki latex dvi ps pdf list validate imake ishow
+} {
     if {![string match $format $f]} continue
     incr matches
 }
@@ -31,7 +33,9 @@ if {!$matches} {
 
 package require sak::doc
 
-foreach f {html nroff tmml text wiki latex dvi ps pdf list validate} {
+foreach f {
+    html nroff tmml text wiki latex dvi ps pdf list validate imake ishow
+} {
     if {![string match $format $f]} continue
     sak::doc::$f $argv
 }
