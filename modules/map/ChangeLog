@@ -1,0 +1,11 @@
+2008-11-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* New module for packages dealing with slippy-based maps.
+
+	* map_slippy_cache.man: Openstreetmap's slippy system. Accessing
+	* map_slippy_cache.tcl: slippy servers and fetching tiles, caching
+	* map_slippy_fetcher.man: tiles in the local filesystem, and shared
+	* map_slippy_fetcher.tcl: utility code.
+	* map_slippy.man: 
+	* map_slippy.tcl: 
+	* pkgIndex.tcl:
