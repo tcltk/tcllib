@@ -3,7 +3,9 @@
 
 package require sak::util
 
-namespace eval ::sak::doc {}
+namespace eval ::sak::doc {
+    set here [file dirname [file normalize [info script]]]
+}
 
 # ###
 # API commands
@@ -15,6 +17,39 @@ proc ::sak::doc::tmml     {modules} {Gen tmml  tmml $modules}
 proc ::sak::doc::text     {modules} {Gen text  txt  $modules}
 proc ::sak::doc::wiki     {modules} {Gen wiki  wiki $modules}
 proc ::sak::doc::latex    {modules} {Gen latex tex  $modules}
+
+proc ::sak::doc::imake {modules} {
+    global base ; # SAK environment, set up for each cmd.
+    set idxfile [IDX]
+
+    set top [file normalize $base]
+
+    set manpages {}
+    foreach page [fileutil::findByPattern $top *.man] {
+	lappend manpages [fileutil::stripPath $top $page]
+    }
+    fileutil::writeFile $idxfile [join $manpages \n]\n
+    return
+}
+
+proc ::sak::doc::ishow {modules} {
+    set idxfile [IDX]
+
+    if {[catch {
+	set manpages [fileutil::cat $idxfile]
+    } msg]} {
+	puts stderr "Unable to use manpage listing '$idxfile'\n$msg"
+    } else {
+	puts -nonewline $manpages
+    }
+    return
+}
+
+proc ::sak::doc::IDX {} {
+    variable here
+    getpackage fileutil fileutil/fileutil.tcl
+    return [file join $here manpages.txt]
+}
 
 proc ::sak::doc::dvi {modules} {
     latex $modules
