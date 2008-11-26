@@ -82,6 +82,7 @@ c_pass 2 fmt_manpage_end {} {
 
     set sa [c_xref_seealso]
     set kw [c_xref_keywords]
+    set ca [c_xref_category]
     set ct [c_get_copyright]
 
     if {[llength $sa] > 0} {
@@ -91,6 +92,10 @@ c_pass 2 fmt_manpage_end {} {
     if {[llength $kw] > 0} {
 	append wiki [fmt_section KEYWORDS] \n
 	append wiki [join [lsort $kw] ", "] \n
+    }
+    if {$ca ne ""} {
+	append wiki [fmt_section CATEGORY] \n
+	append wiki $ca \n
     }
     if {$ct != {}} {
 	append wiki [fmt_section COPYRIGHT]

@@ -116,6 +116,7 @@ c_pass 2 fmt_manpage_end {} {
 
     set sa [c_xref_seealso]
     set kw [c_xref_keywords]
+    set ca [c_xref_category]
     set ct [c_get_copyright]
 
     if {[llength $sa] > 0} {
@@ -125,6 +126,10 @@ c_pass 2 fmt_manpage_end {} {
     if {[llength $kw] > 0} {
 	append res [fmt_section Keywords keywords] \n
 	append res [join [XrefList [lsort $kw] kw] ", "] \n
+    }
+    if {$ca ne ""} {
+	append res [fmt_section Category category] \n
+	append res $ca \n
     }
     if {$ct != {}} {
 	append res [fmt_section Copyright copyright] \n
@@ -207,8 +212,9 @@ c_pass 2 fmt_description {did} {
     if {$syn != {} || $req != {}} {c_newSection Synopsis 1 0 synopsis}
     c_newSection {Table Of Contents} 1 0 toc
 
-    if {[llength [c_xref_seealso]] > 0}  {c_newSection {See Also} 1 end see-also}
+    if {[llength [c_xref_seealso]]  > 0} {c_newSection {See Also} 1 end see-also}
     if {[llength [c_xref_keywords]] > 0} {c_newSection Keywords   1 end keywords}
+    if {[c_xref_category]         ne ""} {c_newSection Category   1 end category}
     if {[c_get_copyright]         != {}} {c_newSection Copyright  1 end copyright}
 
     set sections $::SectionList

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.29 2008/05/16 18:18:21 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.30 2008/11/26 21:49:14 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -129,6 +129,7 @@ proc ::doctools::help {} {
 	    * example       - example block\n\
 	    * example_begin - begin example\n\
 	    * example_end   - end of example\n\
+	    * category      - category declaration\n\
 	    * see_also      - cross reference declaration\n\
 	    * keywords      - keyword declaration\n\
 	    * nl            - paragraph break in list items\n\
@@ -787,7 +788,7 @@ proc ::doctools::SetupChecker {name} {
 	keywords nl arg cmd opt comment sectref syscmd method option
 	widget fun type package class var file uri usage term const
 	arg_def cmd_def opt_def tkoption_def emph strong plain_text
-	namespace subsection
+	namespace subsection category
     } {
 	interp alias $chk_ip fmt_$cmd $format_ip fmt_$cmd
     }
@@ -1191,4 +1192,4 @@ namespace eval ::doctools {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools 1.3.5
+package provide doctools 1.3.6
