@@ -243,7 +243,7 @@ proc c_clrSections {} {
 # produces output.
 #
 
-c_holdBuffers synopsis see_also keywords precomments
+c_holdBuffers synopsis see_also keywords precomments category
 
 ################################################################
 # Management of see-also and keyword cross-references
@@ -251,10 +251,18 @@ c_holdBuffers synopsis see_also keywords precomments
 proc c_xref_init {} {
     global seealso  seealso__  ; set seealso  [list] ; catch {unset seealso__}  ; array set seealso__  {}
     global keywords keywords__ ; set keywords [list] ; catch {unset keywords__} ; array set keywords__ {}
+    global category            ; set category ""
 }
 
 proc c_xref_seealso  {} {global seealso  ; return $seealso}
 proc c_xref_keywords {} {global keywords ; return $keywords}
+proc c_xref_category {} {global category ; return $category}
+
+c_pass 1 fmt_category {text} {
+    global category
+    set    category $text
+    return
+}
 
 c_pass 1 fmt_see_also {args} {
     global seealso seealso__
@@ -276,6 +284,7 @@ c_pass 1 fmt_keywords {args} {
     return
 }
 
+c_pass 2 fmt_category {args} NOP
 c_pass 2 fmt_see_also {args} NOP
 c_pass 2 fmt_keywords {args} NOP
 

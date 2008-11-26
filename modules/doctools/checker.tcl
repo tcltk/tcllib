@@ -48,7 +48,7 @@ global state lstctx lstitem
 # --------------+-----------------------+----------------------
 # header	| moddesc titledesc	| header
 #		| copyright keywords	|
-#		| require see_also	|
+#		| require see_also category |
 #		+-----------------------+-----------
 #		| description		| body
 # --------------+-----------------------+----------------------
@@ -59,7 +59,7 @@ global state lstctx lstitem
 #		| keywords sectref enum	|
 #		| arg_def cmd_def	|
 #		| opt_def tkoption_def	|
-#		| subsection		|
+#		| subsection category	|
 #		+-----------------------+-----------
 #		| example_begin		| example
 #		+-----------------------+-----------
@@ -514,6 +514,13 @@ proc keywords {args} {
     # if {[IsNot body]} {Error bodycmd}
     # if {[LOpen]}      {Error nolistcmd}
     eval [linsert $args 0 fmt_keywords]
+}
+proc category {text} {
+    Enter category
+    if {[Is done]} {Error nodonecmd}
+    # if {[IsNot body]} {Error bodycmd}
+    # if {[LOpen]}      {Error nolistcmd}
+    eval [linsert $args 0 fmt_category]
 }
 # nl - Deprecated
 proc nl {} {
