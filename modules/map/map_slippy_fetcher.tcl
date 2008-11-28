@@ -169,4 +169,4 @@ snit::type map::slippy::fetcher {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide map::slippy::fetcher 0.1
+package provide map::slippy::fetcher 0.2
