@@ -160,4 +160,4 @@ snit::type map::slippy {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide map::slippy 0.1
+package provide map::slippy 0.2

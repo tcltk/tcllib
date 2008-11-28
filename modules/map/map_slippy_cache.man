@@ -1,12 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin map::slippy::cache n 0.1]
+[manpage_begin map::slippy::cache n 0.2]
 [moddesc   {Mapping utilities}]
 [titledesc {Management of a tile cache in the local filesystem}]
 [require Tcl 8.4]
 [require Tk 8.4]
 [require img::png]
 [require map::slippy]
-[require map::slippy::cache [opt 0.1]]
+[require map::slippy::cache [opt 0.2]]
 [description]
 
 This package provides a class for managing a cache of tiles for
