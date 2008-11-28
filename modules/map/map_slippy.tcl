@@ -62,7 +62,7 @@ snit::type map::slippy {
 	if {($r < 0) || ($r >= $tiles) ||
 	    ($c < 0) || ($c >= $tiles)
 	} {
-	    set msg "Bad cell '$r $c' (max: $$tiles)"
+	    set msg "Bad cell '$r $c' (max: $tiles)"
 	    return 0
 	}
 
@@ -160,4 +160,4 @@ snit::type map::slippy {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide map::slippy 1.0
+package provide map::slippy 0.1
