@@ -1,12 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin map::slippy::fetcher n 0.1]
+[manpage_begin map::slippy::fetcher n 0.2]
 [moddesc   {Mapping utilities}]
 [titledesc {Accessing a server providing tiles for slippy-based maps}]
 [require Tcl 8.4]
 [require Tk 8.4]
 [require img::png]
 [require map::slippy]
-[require map::slippy::fetcher [opt 0.1]]
+[require map::slippy::fetcher [opt 0.2]]
 [description]
 
 This package provides a class for accessing http servers providing
