@@ -138,4 +138,4 @@ snit::type map::slippy::cache {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide map::slippy::cache 0.1
+package provide map::slippy::cache 0.2
