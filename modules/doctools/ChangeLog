@@ -1,3 +1,9 @@
+2008-12-01  Andreas Kupries  <andreask@activestate.com>
+
+	* doctools.tcl: New command in doctools language is extended API.
+	* doctools.man: Bumped minor version, to 1.4.
+	* pkgIndex.tcl: 
+
 2008-11-26  Andreas Kupries  <andreask@activestate.com>
 
 	* api.tcl: Extended doctools language with a 'category'
