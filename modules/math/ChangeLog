@@ -1,3 +1,9 @@
+2008-12-01  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
+	* linalg.man: changed int to integer, documented new procedures by Michael Baudin
+	* linalg.test: incorporated new tests by Michael Baudin
+	* linalg.tcl: incorporated new procedures, extensions and several bug fixes by Michael Baudin
+
 2008-11-09  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
 	* optimize.man: corrected names of minimum and maximum procedures
