@@ -1,3 +1,9 @@
+2008-12-01  Andreas Kupries  <andreask@activestate.com>
+
+	* linalg.man: New commands in last checkin means extended API.
+	* linalg.tcl: Bumping minor version, to 1.1.
+	* pkgIndex.tcl:
+
 2008-12-01  Arjen Markus <arjenmarkus@users.sourceforge.net>
 
 	* linalg.man: changed int to integer, documented new procedures by Michael Baudin
