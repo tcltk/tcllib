@@ -40,10 +40,13 @@ namespace eval ::math::linearalgebra {
     namespace export mkMoler mkWilkinsonW+ mkWilkinsonW-
     namespace export solveGauss solveTriangular
     namespace export solveGaussBand solveTriangularBand
+    namespace export solvePGauss
     namespace export determineSVD eigenvectorsSVD
     namespace export leastSquaresSVD
     namespace export orthonormalizeColumns orthonormalizeRows
     namespace export show to_LA from_LA
+    namespace export swaprows swapcols
+    namespace export dger dgetrf mkRandom mkTriangular
 }
 
 # dim --
@@ -184,6 +187,9 @@ proc ::math::linearalgebra::angle { vect1 vect2 } {
 #                norm (default: 2, the euclidean norm)
 # Result:
 #     The (1-, 2- or Inf-) norm of a vector
+# Level-1 BLAS : 
+#     if type = 1, corresponds to DASUM
+#     if type = 2, corresponds to DNRM2
 #
 proc ::math::linearalgebra::norm { vector {type 2} } {
     if { $type == 2 } {
@@ -235,15 +241,31 @@ proc ::math::linearalgebra::norm_two { vector } {
 #     Compute the inf-norm of a vector (maximum of its components)
 # Arguments:
 #     vector     Vector
+#     index, optional     if non zero, returns a list made of the maximum 
+#                         value and the index where that maximum was found.
+#	                  if zero, returns the maximum value.
 # Result:
 #     The inf-norm of a vector
+# Level-1 BLAS : 
+#     if index!=0, corresponds to IDAMAX
 #
-proc ::math::linearalgebra::norm_max { vector } {
+proc ::math::linearalgebra::norm_max { vector {index 0}} {
     set max [lindex $vector 0]
+    set imax 0
+    set i 0
     foreach c $vector {
-        set max [expr {abs($c)>$max? abs($c) : $max}]
+        if {[expr {abs($c)>$max}]} then {
+          set imax $i
+          set max [expr {abs($c)}]
+        }
+        incr i
     }
-    return $max
+    if {$index == 0} then {
+      set result $max
+    } else {
+      set result [list $max $imax]
+    }
+    return $result
 }
 
 # normMatrix --
@@ -296,6 +318,7 @@ proc ::math::linearalgebra::symmetric { matrix {eps 1.0e-8} } {
 #     vect2      Second vector
 # Result:
 #     The dot product of the two vectors
+# Level-1 BLAS : corresponds to DDOT
 #
 proc ::math::linearalgebra::dotproduct { vect1 vect2 } {
     if { [llength $vect1] != [llength $vect2] } {
@@ -389,6 +412,7 @@ proc ::math::linearalgebra::NormalizeStat_vect { v } {
 #     mv2        Second vector/matrix (y)
 # Result:
 #     The result of a*x+y
+# Level-1 BLAS : if mv1 is a vector, corresponds to DAXPY
 #
 proc ::math::linearalgebra::axpy { scale mv1 mv2 } {
     if { [llength [lindex $mv1 0]] > 1 } {
@@ -406,6 +430,7 @@ proc ::math::linearalgebra::axpy { scale mv1 mv2 } {
 #     vect2      Second vector (y)
 # Result:
 #     The result of a*x+y
+# Level-1 BLAS : corresponds to DAXPY
 #
 proc ::math::linearalgebra::axpy_vect { scale vect1 vect2 } {
     set result {}
@@ -536,6 +561,7 @@ proc ::math::linearalgebra::sub_mat { mat1 mat2 } {
 #     mv         Vector/matrix (x)
 # Result:
 #     The result of a*x
+# Level-1 BLAS : if mv is a vector, corresponds to DSCAL
 #
 proc ::math::linearalgebra::scale { scale mv } {
     if { [llength [lindex $mv 0]] > 1 } {
@@ -552,6 +578,7 @@ proc ::math::linearalgebra::scale { scale mv } {
 #     vect       Vector to be scaled (x)
 # Result:
 #     The result of a*x
+# Level-1 BLAS : corresponds to DSCAL
 #
 proc ::math::linearalgebra::scale_vect { scale vect } {
     set result {}
@@ -724,6 +751,9 @@ proc ::math::linearalgebra::matmul { mv1 mv2 } {
     "CC" {
          return [matmul_vv $mv1 $mv2]
     }
+    "SS" {
+        return [expr {$mv1 * $mv2}]
+    }
     default {
          return -code error "Can not use a scalar object"
     }
@@ -737,6 +767,7 @@ proc ::math::linearalgebra::matmul { mv1 mv2 } {
 #     vector     Vector (interpreted as column vector: x)
 # Result:
 #     The vector A*x
+# Level-2 BLAS : corresponds to DTRMV
 #
 proc ::math::linearalgebra::matmul_mv { matrix vector } {
    set newvect {}
@@ -793,6 +824,9 @@ proc ::math::linearalgebra::matmul_vv { vect1 vect2 } {
 #     By transposing matrix B we can access the columns
 #     as rows - much easier and quicker, as they are
 #     the elements of the outermost list.
+# Level-3 BLAS : 
+#     corresponds to DGEMM (alpha op(A) op(B) + beta C) when alpha=1, op(X)=X and beta=0
+#     corresponds to DTRMM (alpha op(A) B) when alpha = 1, op(X)=X          
 #
 proc ::math::linearalgebra::matmul_mm { mat1 mat2 } {
    set newmat {}
@@ -912,8 +946,6 @@ proc ::math::linearalgebra::mkDiagonal { diag } {
 #     of algorithms and implementations.
 #
 proc ::math::linearalgebra::mkHilbert { size } {
-    set size   [llength $diag]
-
     set result {}
     for { set j 0 } { $j < $size } { incr j } {
         set row {}
@@ -1102,18 +1134,96 @@ proc ::math::linearalgebra::mkWilkinsonW- { size } {
     }
     return $result
 }
+# mkRandom --
+#     Make a square matrix consisting of random numbers
+# Arguments:
+#     size       Number of rows/columns
+# Result:
+#     A nested list, representing a size x size matrix,
+#     filled with random numbers
+#
+proc ::math::linearalgebra::mkRandom { size } {
+    set result {}
+    for { set j 0 } { $j < $size } { incr j } {
+        set row {}
+        for { set i 0 } { $i < $size } { incr i } {
+            lappend row [expr {rand()}]
+        }
+        lappend result $row
+    }
+    return $result
+}
+# mkTriangular --
+#     Make a triangular matrix consisting of a constant
+# Arguments:
+#     size       Number of rows/columns
+#     uplo       U if the matrix is upper triangular (default), L if the 
+#                matrix is lower triangular.
+#     value      Default value for all elements (default: 0.0)
+# Result:
+#     A nested list, representing a size x size matrix,
+#     filled with random numbers
+#
+proc ::math::linearalgebra::mkTriangular { size {uplo "U"} {value 1.0}} {
+    switch -- $uplo {
+        "U" {
+            set result {}
+            for { set j 0 } { $j < $size } { incr j } {
+                set row {}
+                for { set i 0 } { $i < $size } { incr i } {
+                    if {$i<$j} then {
+                        lappend row 0.
+                    } else {
+                        lappend row $value
+                    }
+                }
+                lappend result $row
+            }
+        }
+        "L" {
+            set result {}
+            for { set j 0 } { $j < $size } { incr j } {
+                set row {}
+                for { set i 0 } { $i < $size } { incr i } {
+                    if {$i>$j} then {
+                        lappend row 0.
+                    } else {
+                        lappend row $value
+                    }
+                }
+                lappend result $row
+            }
+        }
+        default {
+            error "Unknown value for parameter uplo : $uplo"
+        }
+    }
+    return $result
+}
 
 # getrow --
 #     Get the specified row from a matrix
 # Arguments:
 #     matrix     Matrix in question
 #     row        Index of the row
+#     imin       Minimum index of the column (default 0)
+#     imax       Maximum index of the column (default ncols-1)
 #
 # Result:
 #     A list with the values on the requested row
 #
-proc ::math::linearalgebra::getrow { matrix row } {
-    lindex $matrix $row
+proc ::math::linearalgebra::getrow { matrix row {imin 0} {imax ""}} {
+    if {$imax==""} then {
+        foreach {nrows ncols} [shape $matrix] {break}
+        if {$ncols==""} then {
+            # the matrix is a vector
+            set imax 0
+        } else {
+            set imax [expr {$ncols - 1}]
+        }
+    }
+    set row [lindex $matrix $row]
+    return [lrange $row $imin $imax]
 }
 
 # setrow --
@@ -1122,15 +1232,33 @@ proc ::math::linearalgebra::getrow { matrix row } {
 #     matrix     _Name_ of matrix in question
 #     row        Index of the row
 #     newvalues  New values for the row
+#     imin       Minimum column index (default 0)
+#     imax       Maximum column index (default ncols-1)
 #
 # Result:
 #     Updated matrix
 # Side effect:
 #     The matrix is updated
 #
-proc ::math::linearalgebra::setrow { matrix row newvalues } {
+proc ::math::linearalgebra::setrow { matrix row newvalues {imin 0} {imax ""}} {
     upvar $matrix mat
-    lset mat $row $newvalues
+    if {$imax==""} then {
+        foreach {nrows ncols} [shape $mat] {break}
+        if {$ncols==""} then {
+            # the matrix is a vector
+            set imax 0
+        } else {
+            set imax [expr {$ncols - 1}]
+        }
+    }
+    set icol $imin
+    foreach value $newvalues {
+        lset mat $row $icol $value
+        incr icol
+        if {$icol>$imax} then {
+            break
+        }
+    }
     return $mat
 }
 
@@ -1139,14 +1267,24 @@ proc ::math::linearalgebra::setrow { matrix row newvalues } {
 # Arguments:
 #     matrix     Matrix in question
 #     col        Index of the column
+#     imin       Minimum row index (default 0)
+#     imax       Minimum row index (default nrows-1)
 #
 # Result:
 #     A list with the values on the requested column
 #
-proc ::math::linearalgebra::getcol { matrix col } {
+proc ::math::linearalgebra::getcol { matrix col {imin 0} {imax ""}} {
+    if {$imax==""} then {
+        set nrows [llength $matrix]
+        set imax [expr {$nrows - 1}]
+    }
     set result {}
-    foreach r $matrix {
-        lappend result [lindex $r $col]
+    set iline 0
+    foreach row $matrix {
+        if {$iline>=$imin && $iline<=$imax} then {
+            lappend result [lindex $row $col]
+        }
+        incr iline
     }
     return $result
 }
@@ -1157,16 +1295,24 @@ proc ::math::linearalgebra::getcol { matrix col } {
 #     matrix     _Name_ of matrix in question
 #     col        Index of the column
 #     newvalues  New values for the column
+#     imin       Minimum row index (default 0)
+#     imax       Minimum row index (default nrows-1)
 #
 # Result:
 #     Updated matrix
 # Side effect:
 #     The matrix is updated
 #
-proc ::math::linearalgebra::setcol { matrix col newvalues } {
+proc ::math::linearalgebra::setcol { matrix col newvalues  {imin 0} {imax ""}} {
     upvar $matrix mat
-    for { set i 0 } { $i < [llength $mat] } { incr i } {
-        lset mat $i $col [lindex $newvalues $i]
+    if {$imax==""} then {
+        set nrows [llength $mat]
+        set imax [expr {$nrows - 1}]
+    }
+    set index 0
+    for { set i $imin } { $i <= $imax } { incr i } {
+        lset mat $i $col [lindex $newvalues $index]
+        incr index
     }
     return $mat
 }
@@ -1211,6 +1357,81 @@ proc ::math::linearalgebra::setelem { matrix row col {newvalue {}} } {
     }
     return $mat
 }
+# swaprows --
+#     Swap two rows of a matrix
+# Arguments:
+#     matrix     Matrix defining the coefficients
+#     irow1      Index of first row
+#     irow2      Index of second row
+#     imin       Minimum column index (default 0)
+#     imax       Maximum column index (default ncols-1)
+#
+# Result:
+#     The matrix with the two rows swaped.
+#
+proc ::math::linearalgebra::swaprows { matrix irow1 irow2 {imin 0} {imax ""}} {
+    upvar $matrix mat
+    #swaprows1 mat $irow1 $irow2 $imin $imax
+    swaprows2 mat $irow1 $irow2 $imin $imax
+}
+proc ::math::linearalgebra::swaprows1 { matrix irow1 irow2 {imin 0} {imax ""}} {
+    upvar $matrix mat
+    if {$imax==""} then {
+        foreach {nrows ncols} [shape $mat] {break}
+        if {$ncols==""} then {
+            # the matrix is a vector
+            set imax 0
+        } else {
+            set imax [expr {$ncols - 1}]
+        }
+    }
+    set row1 [getrow $mat $irow1 $imin $imax]
+    set row2 [getrow $mat $irow2 $imin $imax]
+    setrow mat $irow1 $row2 $imin $imax
+    setrow mat $irow2 $row1 $imin $imax
+    return $mat
+}
+proc ::math::linearalgebra::swaprows2 { matrix irow1 irow2 {imin 0} {imax ""}} {
+    upvar $matrix mat
+    if {$imax==""} then {
+        foreach {nrows ncols} [shape $mat] {break}
+        if {$ncols==""} then {
+            # the matrix is a vector
+            set imax 0
+        } else {
+            set imax [expr {$ncols - 1}]
+        }
+    }
+    set row1 [lrange [lindex $mat $irow1] $imin $imax]
+    set row2 [lrange [lindex $mat $irow2] $imin $imax]
+    setrow mat $irow1 $row2 $imin $imax
+    setrow mat $irow2 $row1 $imin $imax
+    return $mat
+}
+# swapcols --
+#     Swap two cols of a matrix
+# Arguments:
+#     matrix     Matrix defining the coefficients
+#     icol1      Index of first column
+#     icol2      Index of second column
+#     imin       Minimum row index (default 0)
+#     imax       Minimum row index (default nrows-1)
+#
+# Result:
+#     The matrix with the two columns swaped.
+#
+proc ::math::linearalgebra::swapcols { matrix icol1 icol2 {imin 0} {imax ""}} {
+    upvar $matrix mat
+    if {$imax==""} then {
+        set nrows [llength $mat]
+        set imax [expr {$nrows - 1}]
+    }
+    set col1 [getcol $mat $icol1 $imin $imax]
+    set col2 [getcol $mat $icol2 $imin $imax]
+    setcol mat $icol1 $col2 $imin $imax
+    setcol mat $icol2 $col1 $imin $imax
+    return $mat
+}
 
 # solveGauss --
 #     Solve a system of linear equations using Gauss elimination
@@ -1220,6 +1441,7 @@ proc ::math::linearalgebra::setelem { matrix row col {newvalue {}} } {
 #
 # Result:
 #     Solution of the system or an error in case of singularity
+# LAPACK : corresponds to DGETRS, without row interchanges
 #
 proc ::math::linearalgebra::solveGauss { matrix bvect } {
     set norows [llength $matrix]
@@ -1242,6 +1464,47 @@ proc ::math::linearalgebra::solveGauss { matrix bvect } {
 
     return [solveTriangular $matrix $bvect]
 }
+# solvePGauss --
+#     Solve a system of linear equations using Gauss elimination
+#     with partial pivoting
+# Arguments:
+#     matrix     Matrix defining the coefficients
+#     bvect      Right-hand side (may be several columns)
+#
+# Result:
+#     Solution of the system or an error in case of singularity
+# LAPACK : corresponds to DGETRS
+#
+proc ::math::linearalgebra::solvePGauss { matrix bvect } {
+
+    set ipiv [dgetrf matrix]
+    set norows [llength $matrix]
+    set nm1 [expr {$norows - 1}]
+
+    # Perform all permutations on b
+    for { set k 0 } { $k < $nm1 } { incr k } {
+        # Swap b(k) and b(mu) with mu = P(k)
+        set tmp [lindex $bvect $k]
+        set mu [lindex $ipiv $k]
+        setrow bvect $k [lindex $bvect $mu]
+        setrow bvect $mu $tmp
+    }
+
+    # Perform forward substitution
+    for { set k 0 } { $k < $nm1 } { incr k } {
+        set bk [lindex $bvect $k]
+        # Substitution
+        for { set iline [expr {$k+1}] } { $iline < $norows } { incr iline } {
+            set aik [lindex $matrix $iline $k]
+            set maik [expr {-1. * $aik}]
+            set bi [lindex $bvect $iline]
+            setrow bvect $iline [axpy $maik $bk $bi]
+        }
+    }
+
+    # Perform backward substitution
+    return [solveTriangular $matrix $bvect]
+}
 
 # solveTriangular --
 #     Solve a system of linear equations where the matrix is
@@ -1249,31 +1512,59 @@ proc ::math::linearalgebra::solveGauss { matrix bvect } {
 # Arguments:
 #     matrix     Matrix defining the coefficients
 #     bvect      Right-hand side (may be several columns)
+#     uplo       U if the matrix is upper triangular (default), L if the 
+#                matrix is lower triangular.
 #
 # Result:
 #     Solution of the system or an error in case of singularity
+# LAPACK : corresponds to DTPTRS, but in the current command, the matrix 
+#          is in regular format (unpacked).
 #
-proc ::math::linearalgebra::solveTriangular { matrix bvect } {
+proc ::math::linearalgebra::solveTriangular { matrix bvect {uplo "U"}} {
     set norows [llength $matrix]
     set nocols $norows
 
-    for { set i [expr {$norows-1}] } { $i >= 0 } { incr i -1 } {
-        set sweep_row   [getrow $matrix $i]
-        set bvect_sweep [getrow $bvect  $i]
-        set sweep_fact  [expr {double([lindex $sweep_row $i])}]
-        set norm_fact   [expr {1.0/$sweep_fact}]
+    switch -- $uplo {
+        "U" {
+            for { set i [expr {$norows-1}] } { $i >= 0 } { incr i -1 } {
+                set sweep_row   [getrow $matrix $i]
+                set bvect_sweep [getrow $bvect  $i]
+                set sweep_fact  [expr {double([lindex $sweep_row $i])}]
+                set norm_fact   [expr {1.0/$sweep_fact}]
+                
+                lset bvect $i [scale $norm_fact $bvect_sweep]
+                
+                for { set j [expr {$i-1}] } { $j >= 0 } { incr j -1 } {
+                    set current_row   [getrow $matrix $j]
+                    set bvect_current [getrow $bvect  $j]
+                    set factor     [expr {-[lindex $current_row $i]/$sweep_fact}]
+                    
+                    lset bvect  $j [axpy_vect $factor $bvect_sweep $bvect_current]
+                }
+            }
+        }
+        "L" {
+            for { set i 0 } { $i < $norows } { incr i } {
+                set sweep_row   [getrow $matrix $i]
+                set bvect_sweep [getrow $bvect  $i]
+                set sweep_fact  [expr {double([lindex $sweep_row $i])}]
+                set norm_fact   [expr {1.0/$sweep_fact}]
 
-        lset bvect $i [scale $norm_fact $bvect_sweep]
+                lset bvect $i [scale $norm_fact $bvect_sweep]
 
-        for { set j [expr {$i-1}] } { $j >= 0 } { incr j -1 } {
-            set current_row   [getrow $matrix $j]
-            set bvect_current [getrow $bvect  $j]
-            set factor     [expr {-[lindex $current_row $i]/$sweep_fact}]
-
-            lset bvect  $j [axpy_vect $factor $bvect_sweep $bvect_current]
+                for { set j 0 } { $j < $i } { incr j } {
+                set bvect_current [getrow $bvect  $i]
+                    set bvect_sweep [getrow $bvect  $j]
+                    set factor [lindex $sweep_row $j]
+                    set factor [expr { -1. * $factor * $norm_fact }]
+                    lset bvect  $i [axpy_vect $factor $bvect_sweep $bvect_current]
+                }
+            }
+        }
+        default {
+            error "Unknown value for parameter uplo : $uplo"
         }
     }
-
     return $bvect
 }
 
@@ -1674,6 +1965,104 @@ proc ::math::linearalgebra::orthonormalizeRows { matrix } {
     }
     return $result
 }
+# dger --
+#     Performs the rank 1 operation alpha*x*y' + A
+# Arguments:
+#     matrix     name of the matrix to process (the matrix must be square)
+#     alpha      a real value
+#     x          a vector
+#     y          a vector
+#     scope      if not provided, the operation is performed on all rows/columns of A
+#                if provided, it is expected to be the list [list imin imax jmin jmax]
+#                where :
+#                imin       Minimum  row index
+#                imax       Maximum  row index
+#                jmin       Minimum  column index
+#                jmax       Maximum  column index
+#
+# Result:
+#     Updated matrix
+# Level-3 BLAS : corresponds to DGER
+#
+proc ::math::linearalgebra::dger { matrix alpha x y {scope ""}} {
+    upvar $matrix mat
+    set nrows [llength $mat]
+    set ncols $nrows
+    if {$scope==""} then {
+        set imin 0
+        set imax [expr {$nrows - 1}]
+        set jmin 0
+        set jmax [expr {$ncols - 1}]
+    } else {
+        foreach {imin imax jmin jmax} $scope {break}
+    }
+    set xy [matmul $x $y]
+    set alphaxy [scale $alpha $xy]
+    for { set iline $imin } { $iline <= $imax } { incr iline } {
+        set ilineshift [expr {$iline - $imin}]
+        set matiline [lindex $mat $iline]
+        set alphailine [lindex $alphaxy $ilineshift]
+        for { set icol $jmin } { $icol <= $jmax } { incr icol } {
+            set icolshift [expr {$icol - $jmin}]
+            set aij [lindex $matiline $icol]
+            set shift [lindex $alphailine $icolshift]
+            setelem mat $iline $icol [expr {$aij + $shift}]
+        }
+    }
+    return $mat
+}
+# dgetrf --
+#     Computes an LU factorization of a general matrix, using partial,    
+#     pivoting with row interchanges.
+#
+# Arguments:
+#     matrix     On entry, the matrix to be factored.
+#                On exit, the factors L and U from the factorization
+#                P*A = L*U; the unit diagonal elements of L are not stored.
+#
+# Result:
+#     Returns the permutation vector
+#     The factorization has the form
+#        P * A = L * U
+#     where P is a permutation matrix, L is lower triangular with unit
+#     diagonal elements, and U is upper triangular.
+#
+# LAPACK : corresponds to DGETRF
+#
+proc ::math::linearalgebra::dgetrf { matrix } {
+    upvar $matrix mat
+    set norows [llength $mat]
+    set nocols $norows
+    
+    # Initialize permutation
+    set nm1 [expr {$norows - 1}]
+    set ipiv {}
+    # Perform Gauss transforms
+    for { set k 0 } { $k < $nm1 } { incr k } {
+        # Search pivot in column n, from lines k to n
+        set column [getcol $mat $k $k $nm1]
+        foreach {abspivot murel} [norm_max $column 1] {break}
+        # Shift mu, because max returns with respect to the column (k:n,k)
+        set mu [expr {$murel + $k}]
+        # Swap lines k and mu from columns 1 to n
+        swaprows mat $k $mu
+        set akk [lindex $mat $k $k]
+        # Store permutation
+        lappend ipiv $mu
+        # Store pivots for lines k+1 to n in columns k+1 to n
+        set kp1 [expr {$k+1}]
+        set akp1 [getcol $mat $k $kp1 $nm1]
+        set mult [expr {1. / double($akk)}]
+        set akp1 [scale $mult $akp1]
+        setcol mat $k $akp1 $kp1 $nm1
+        # Perform transform for lines k+1 to n
+        set akp1k [getcol $mat $k $kp1 $nm1]
+        set akkp1 [lrange [lindex $mat $k] $kp1 $nm1]
+        set scope [list $kp1 $nm1 $kp1 $nm1]
+        dger mat -1. $akp1k $akkp1 $scope
+    }
+    return $ipiv
+}
 
 # to_LA --
 #     Convert a matrix or vector to the LA format
@@ -1726,7 +2115,7 @@ proc ::math::linearalgebra::from_LA { mv } {
 #
 # Announce the package's presence
 #
-package provide math::linearalgebra 1.0.3
+package provide math::linearalgebra 1.0.4
 
 if { 0 } {
 Te doen:
@@ -1739,17 +2128,17 @@ PCA
 }
 
 if { 0 } {
-set matrix {{1.0  2.0 -1.0}
-            {3.0  1.1  0.5}
-            {1.0 -2.0  3.0}}
-set bvect  {{1.0  2.0 -1.0}
-            {3.0  1.1  0.5}
-            {1.0 -2.0  3.0}}
-puts [join [::math::linearalgebra::solveGauss $matrix $bvect] \n]
-set bvect  {{4.0   2.0}
-            {12.0  1.2}
-            {4.0  -2.0}}
-puts [join [::math::linearalgebra::solveGauss $matrix $bvect] \n]
+    set matrix {{1.0  2.0 -1.0}
+        {3.0  1.1  0.5}
+    {1.0 -2.0  3.0}}
+    set bvect  {{1.0  2.0 -1.0}
+        {3.0  1.1  0.5}
+    {1.0 -2.0  3.0}}
+    puts [join [::math::linearalgebra::solveGauss $matrix $bvect] \n]
+    set bvect  {{4.0   2.0}
+        {12.0  1.2}
+    {4.0  -2.0}}
+    puts [join [::math::linearalgebra::solveGauss $matrix $bvect] \n]
 }
 
 if { 0 } {
@@ -1766,27 +2155,39 @@ if { 0 } {
 }
 
 if { 0 } {
-set M {{1 2} {2 1}}
-puts "[::math::linearalgebra::determineSVD $M]"
+    set M {{1 2} {2 1}}
+    puts "[::math::linearalgebra::determineSVD $M]"
 }
 if { 0 } {
-set M {{1 2} {2 1}}
-puts "[::math::linearalgebra::normMatrix $M]"
+    set M {{1 2} {2 1}}
+    puts "[::math::linearalgebra::normMatrix $M]"
 }
 if { 0 } {
-set M {{1.3 2.3} {2.123 1}}
-puts "[::math::linearalgebra::show $M]"
-set M {{1.3 2.3 45 3.} {2.123 1 5.6 0.01}}
-puts "[::math::linearalgebra::show $M]"
-puts "[::math::linearalgebra::show $M %12.4f]"
+    set M {{1.3 2.3} {2.123 1}}
+    puts "[::math::linearalgebra::show $M]"
+    set M {{1.3 2.3 45 3.} {2.123 1 5.6 0.01}}
+    puts "[::math::linearalgebra::show $M]"
+    puts "[::math::linearalgebra::show $M %12.4f]"
 }
 if { 0 } {
     set M {{1 0 0}
-           {1 1 0}
-           {1 1 1}}
+        {1 1 0}
+    {1 1 1}}
     puts [::math::linearalgebra::orthonormalizeRows $M]
 }
 if { 0 } {
     set M [::math::linearalgebra::mkMoler 5]
     puts [::math::linearalgebra::choleski $M]
+}
+if { 0 } {
+    set M [::math::linearalgebra::mkRandom 20]
+    set b [::math::linearalgebra::mkVector 20]
+    puts "Gauss A = LU"
+    puts [time {::math::linearalgebra::solveGauss $M $b} 5]
+    puts "Gauss PA = LU"
+    puts [time {::math::linearalgebra::solvePGauss $M $b} 5]
+    # Gauss A = LU
+    # 7607.4 microseconds per iteration
+    # Gauss PA = LU
+    # 17428.4 microseconds per iteration
 }

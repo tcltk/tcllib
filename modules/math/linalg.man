@@ -1,12 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin math::linearalgebra n 1.0.1]
-[copyright {2004-2006 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
+[copyright {2004-2008 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [copyright {2004 Ed Hume <http://www.hume.com/contact.us.htm>}]
+[copyright {2008 Michael Buadin <relaxkmike@users.sourceforge.net>}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Linear Algebra}]
 
 [require Tcl [opt 8.4]]
-[require math::linearalgebra [opt 1.0.1]]
+[require math::linearalgebra [opt 1.0.4]]
 
 [description]
 [para]
@@ -88,47 +89,56 @@ elements have the value [emph value].
 [list_end]
 
 [para]
-[call [cmd ::math::linearalgebra::getrow] [arg matrix] [arg row]]
+[call [cmd ::math::linearalgebra::getrow] [arg matrix] [arg row] [opt imin] [opt imax]]
 
 Returns a single row of a matrix as a list
 
 [list_begin arguments]
 [arg_def list matrix] Matrix in question
-[arg_def int row] Index of the row to return
+[arg_def integer row] Index of the row to return
+[arg_def integer imin] Minimum index of the column (default: 0)
+[arg_def integer imax] Maximum index of the column (default: ncols-1)
+
 [list_end]
 
 [para]
-[call [cmd ::math::linearalgebra::setrow] [arg matrix] [arg row] [arg newvalues]]
+[call [cmd ::math::linearalgebra::setrow] [arg matrix] [arg row] [arg newvalues] [opt imin] [opt imax]]
 
 Set a single row of a matrix to new values (this list must have the same
 number of elements as the number of [emph columns] in the matrix)
 
 [list_begin arguments]
 [arg_def list matrix] [emph name] of the matrix in question
-[arg_def int row] Index of the row to update
+[arg_def integer row] Index of the row to update
 [arg_def list newvalues] List of new values for the row
+[arg_def integer imin] Minimum index of the column (default: 0)
+[arg_def integer imax] Maximum index of the column (default: ncols-1)
 [list_end]
 
 [para]
-[call [cmd ::math::linearalgebra::getcol] [arg matrix] [arg col]]
+[call [cmd ::math::linearalgebra::getcol] [arg matrix] [arg col] [opt imin] [opt imax]]
 
 Returns a single column of a matrix as a list
 
 [list_begin arguments]
 [arg_def list matrix] Matrix in question
-[arg_def int col] Index of the column to return
+[arg_def integer col] Index of the column to return
+[arg_def integer imin] Minimum index of the row (default: 0)
+[arg_def integer imax] Maximum index of the row (default: nrows-1)
 [list_end]
 
 [para]
-[call [cmd ::math::linearalgebra::setcol] [arg matrix] [arg col] [arg newvalues]]
+[call [cmd ::math::linearalgebra::setcol] [arg matrix] [arg col] [arg newvalues] [opt imin] [opt imax]]
 
 Set a single column of a matrix to new values (this list must have
 the same number of elements as the number of [emph rows] in the matrix)
 
 [list_begin arguments]
 [arg_def list matrix] [emph name] of the matrix in question
-[arg_def int col] Index of the column to update
+[arg_def integer col] Index of the column to update
 [arg_def list newvalues] List of new values for the column
+[arg_def integer imin] Minimum index of the row (default: 0)
+[arg_def integer imax] Maximum index of the row (default: nrows-1)
 [list_end]
 
 [para]
@@ -138,8 +148,8 @@ Returns a single element of a matrix/vector
 
 [list_begin arguments]
 [arg_def list matrix] Matrix or vector in question
-[arg_def int row] Row of the element
-[arg_def int col] Column of the element (not present for vectors)
+[arg_def integer row] Row of the element
+[arg_def integer col] Column of the element (not present for vectors)
 [list_end]
 
 [para]
@@ -149,8 +159,34 @@ Set a single element of a matrix (or vector) to a new value
 
 [list_begin arguments]
 [arg_def list matrix] [emph name] of the matrix in question
-[arg_def int row] Row of the element
-[arg_def int col] Column of the element (not present for vectors)
+[arg_def integer row] Row of the element
+[arg_def integer col] Column of the element (not present for vectors)
+[list_end]
+
+[para]
+[call [cmd ::math::linearalgebra::swaprows] [arg matrix] [arg irow1] [arg irow2] [opt imin] [opt imax]]
+
+Swap two rows in a matrix completely or only a selected part
+
+[list_begin arguments]
+[arg_def list matrix] [emph name] of the matrix in question
+[arg_def integer irow1] Index of first row
+[arg_def integer irow2] Index of second row
+[arg_def integer imin] Minimum column index (default: 0)
+[arg_def integer imin] Maximum column index (default: ncols-1)
+[list_end]
+
+[para]
+[call [cmd ::math::linearalgebra::swapcols] [arg matrix] [arg icol1] [arg icol2] [opt imin] [opt imax]]
+
+Swap two columns in a matrix completely or only a selected part
+
+[list_begin arguments]
+[arg_def list matrix] [emph name] of the matrix in question
+[arg_def integer irow1] Index of first column
+[arg_def integer irow2] Index of second column
+[arg_def integer imin] Minimum row index (default: 0)
+[arg_def integer imin] Maximum row index (default: nrows-1)
 [list_end]
 
 [list_end]
@@ -270,13 +306,17 @@ Returns the L2 norm of the given vector, the ordinary Euclidean norm
 [arg_def list vector] Vector, list of coefficients
 [list_end]
 
-[call [cmd ::math::linearalgebra::norm_max] [arg vector]]
+[call [cmd ::math::linearalgebra::norm_max] [arg vector] [opt index]]
 
 Returns the Linf norm of the given vector, the maximum absolute
 coefficient
 
 [list_begin arguments]
 [arg_def list vector] Vector, list of coefficients
+[arg_def integer index] (optional) if non zero, returns a list made of the maximum
+value and the index where that maximum was found.
+if zero, returns the maximum value.
+
 [list_end]
 
 [para]
@@ -476,6 +516,28 @@ vector [emph diag].
 [list_end]
 
 [para]
+[call [cmd ::math::linearalgebra::mkRandom] [arg size]]
+
+Create a square matrix whose elements are uniformly distributed random
+numbers between 0 and 1 of dimension [emph size].
+
+[list_begin arguments]
+[arg_def integer size] Dimension of the matrix
+[list_end]
+
+[para]
+[call [cmd ::math::linearalgebra::mkTriangular] [arg size] [opt uplo] [opt value]]
+
+Create a triangular matrix with non-zero elements in the upper or lower
+part, depending on argument [emph uplo].
+
+[list_begin arguments]
+[arg_def integer size] Dimension of the matrix
+[arg_def string uplo] Fill the upper (U) or lower part (L)
+[arg_def double value] Value to fill the matrix with
+[list_end]
+
+[para]
 [call [cmd ::math::linearalgebra::mkHilbert] [arg size]]
 
 Create a Hilbert matrix of dimension [emph size].
@@ -584,16 +646,30 @@ bvect.
 b-vectors
 [list_end]
 
+[call [cmd ::math::linearalgebra::solvePGauss] [arg matrix] [arg bvect]]
+
+Solve a system of linear equations (Ax=b) using Gauss elimination with
+partial pivoting. Returns the solution (x) as a vector or matrix of the
+same shape as bvect.
+
+[list_begin arguments]
+[arg_def list matrix] Square matrix (matrix A)
+[arg_def list bvect] Vector or matrix whose columns are the individual
+b-vectors
+[list_end]
+
 [para]
-[call [cmd ::math::linearalgebra::solveTriangular] [arg matrix] [arg bvect]]
+[call [cmd ::math::linearalgebra::solveTriangular] [arg matrix] [arg bvect] [opt uplo]]
 
 Solve a system of linear equations (Ax=b) by backward substitution. The
 matrix is supposed to be upper-triangular.
 
 [list_begin arguments]
-[arg_def list matrix] Upper-triangular matrix (matrix A)
+[arg_def list matrix] Lower or upper-triangular matrix (matrix A)
 [arg_def list bvect] Vector or matrix whose columns are the individual
 b-vectors
+[arg_def string uplo] Indicates whether the matrix is lower-triangular
+(L) or upper-triangular (U). Defaults to "U".
 [list_end]
 
 [call [cmd ::math::linearalgebra::solveGaussBand] [arg matrix] [arg bvect]]
@@ -692,6 +768,47 @@ the [emph rows] of the given matrix and return the result.
 
 [list_begin arguments]
 [arg_def list matrix] Matrix whose rows must be orthonormalized
+[list_end]
+
+[para]
+[call [cmd ::math::linearalgebra::dger] [arg matrix] [arg alpha] [arg x] [arg y] [opt scope]]
+
+Perform the rank 1 operation A + alpha*x*y' inline (that is: the matrix A is adjusted).
+For convenience the new matrix is also returned as the result.
+
+[list_begin arguments]
+[arg_def list matrix] Matrix whose rows must be adjusted
+[arg_def double alpha] Scale factor
+[arg_def list x] A column vector
+[arg_def list y] A column vector
+[arg_def list scope] If not provided, the operation is performed on all rows/columns of A
+if provided, it is expected to be the list {imin imax jmin jmax}
+where:
+[list_begin bullet]
+[bullet] [term imin] Minimum row index
+[bullet] [term imax] Maximum row index
+[bullet] [term jmin] Minimum column index
+[bullet] [term jmax] Maximum column index
+[list_end]
+[list_end]
+
+[para]
+[call [cmd ::math::linearalgebra::dgetrf] [arg matrix]]
+
+Computes an LU factorization of a general matrix, using partial,
+pivoting with row interchanges. Returns the permutation vector.
+[nl]
+The factorization has the form
+[example {
+   P * A = L * U
+}]
+where P is a permutation matrix, L is lower triangular with unit
+diagonal elements, and U is upper triangular.
+
+[list_begin arguments]
+[arg_def list matrix] On entry, the matrix to be factored.
+On exit, the factors L and U from the factorization
+P*A = L*U; the unit diagonal elements of L are not stored.
 [list_end]
 
 [list_end]
