@@ -9,11 +9,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.71 2007/10/24 19:28:36 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.72 2008/12/02 17:29:09 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.13.4
+package provide fileutil 1.13.5
 
 namespace eval ::fileutil {
     namespace export \
@@ -1730,7 +1730,7 @@ proc ::fileutil::TempDir {} {
 		lappend attempdirs "C:\\TEMP" "C:\\TMP" "\\TEMP" "\\TMP"
 	    }
 	    macintosh {
-		set tmpdir $env(TRASH_FOLDER)  ;# a better place?
+		lappend attempdirs $env(TRASH_FOLDER)  ;# a better place?
 	    }
 	    default {
 		lappend attempdirs \

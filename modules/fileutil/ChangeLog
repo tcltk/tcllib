@@ -1,3 +1,9 @@
+2008-12-02  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.man: Fixed [Bug 2376321] (fileutil::TempDir, use
+	* fileutil.tcl: of env(TRASHFOLDER) for OSX). Bumped version
+	* pkgIndex.tcl: to 1.13.5. 
+
 2008-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
@@ -11,7 +17,7 @@
 
 2008-09-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* multiop.tcl: Sync'd to S2008 Sep 3 change in wip-core, using
+	* multiop.tcl: Sync'd to 2008 Sep 3 change in wip-core, using
 	* multiop.man: the new name of the wip processor component.
 	* pkgIndex.tcl: Bumped version to 0.5.2.
 
