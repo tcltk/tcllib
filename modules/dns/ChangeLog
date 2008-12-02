@@ -2,7 +2,7 @@
 	
 	* dns.tcl: Fixed typo in flags for errorcode decoding
 
-2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
+2008-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.11 ========================

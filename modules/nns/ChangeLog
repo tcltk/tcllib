@@ -5,7 +5,7 @@
 	* nns_client.man: the missing assignment for 'oneshot'.
 	  Version bumped to 0.4.2.
 
-2008-10-16  1.11  <andreas_kupries@users.sourceforge.net>
+2008-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.11 ========================
