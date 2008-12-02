@@ -29,6 +29,7 @@ Module          Package         Old version     New Version     Comments
 ------          -------         -----------     -----------     ---------------
 dns		dns		1.3.2		1.3.3		B
 doctools	doctools	1.3.5		1.4		EF, D, T
+fileutil	fileutil	1.13.4		1.13.5		B
 ldap		ldap		1.7		1.8		EF
 math		math::linalg	1.0.1		1.1		EF, B, T
 nns		nameserv	0.4.1		0.4.2		B
