@@ -3,7 +3,7 @@ Overview
 
 	4 new packages		in 2 new modules.
 	2 new packages		in 2 existing modules.
-	7 changed packages	in 7 modules.
+	8 changed packages	in 8 modules.
 
 New in Tcllib 1.11.1
 ==================
@@ -27,6 +27,7 @@ Changes from Tcllib 1.11 to 1.11.1
                                 Tcllib 1.11     Tcllib 1.11.1
 Module          Package         Old version     New Version     Comments
 ------          -------         -----------     -----------     ---------------
+base64		yencode		1.1.1		1.1.2		B
 dns		dns		1.3.2		1.3.3		B
 doctools	doctools	1.3.5		1.4		EF, D, T
 fileutil	fileutil	1.13.4		1.13.5		B
@@ -38,6 +39,7 @@ nns		nameserv	0.4.1		0.4.2		B
 Invisible changes (no version change)
 ------          -------         -----------     -----------     ---------------
 asn		asn				0.8		D
+base64		uuencode			1.1.4		T
 tar		tar				0.4		D
 ------          -------         -----------     -----------     ---------------
 
