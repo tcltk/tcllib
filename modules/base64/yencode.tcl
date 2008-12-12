@@ -6,14 +6,16 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: yencode.tcl,v 1.11 2005/09/28 04:51:19 andreas_kupries Exp $
+# @(#)$Id: yencode.tcl,v 1.12 2008/12/12 04:57:46 andreas_kupries Exp $
+
+# FUTURE: Rework to allow switching between the tcl/critcl implementations.
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require crc32};          # tcllib 1.1
 catch {package require tcllibc};        # critcl enhancements for tcllib
 
 namespace eval ::yencode {
-    variable version 1.1.1
+    variable version 1.1.2
     namespace export encode decode yencode ydecode
 }
 
@@ -27,7 +29,7 @@ proc ::yencode::Encode {s} {
         if {$v == 0x00 || $v == 0x09 || $v == 0x0A 
             || $v == 0x0D || $v == 0x3D} {
             append r "="
-            set v [expr {($v + 42) % 256}]
+            set v [expr {($v + 64) % 256}]
         }
         append r [format %c $v]
     }
@@ -46,7 +48,7 @@ proc ::yencode::Decode {s} {
         }
         set v [expr {($c - 42) % 256}]
         if {$esc} {
-            set v [expr {($v - 42) % 256}]
+            set v [expr {($v - 64) % 256}]
             set esc 0
         }
         append r [format %c $v]
@@ -98,7 +100,7 @@ if {[package provide critcl] != {}} {
                 v = (*p + 42) % 256;
                 if (v == 0 || v == 9 || v == 0x0A || v == 0x0D || v == 0x3D) {
                     *r++ = '=';
-                    v = (v + 42) % 256;
+                    v = (v + 64) % 256;
                 }
                 *r++ = v;
             }
@@ -136,7 +138,7 @@ if {[package provide critcl] != {}} {
                 }
                 v = (*p - 42) % 256;
                 if (esc) {
-                    v = (v - 42) % 256;
+                    v = (v - 64) % 256;
                     esc = 0;
                 }
                 *r++ = v;
