@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: yencode.test,v 1.10 2006/10/09 21:41:39 andreas_kupries Exp $
+# RCS: @(#) $Id: yencode.test,v 1.11 2008/12/12 04:57:46 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -18,12 +18,14 @@ testsNeedTcl     8.2
 testsNeedTcltest 1.0
 
 testing {
-    useLocal yencode.tcl yencode
+    # FUTURE: Switch tcl/critcl implementations
+    useTcllibC
+    useLocalKeep yencode.tcl yencode
 }
 
 # -------------------------------------------------------------------------
 
-if {[info command ::yencode::CEncode] != {}} {
+if {[llength [info commands ::yencode::CEncode]]} {
     puts "> critcl based"
 } else {
     puts "> pure tcl"
@@ -56,7 +58,7 @@ foreach {n in out} {
     1 ABC      {klm}
     2 \0\1\2   {*+,}
     3 "\r\n\t" {743}
-    4 "\xd6\xe0\xe3" {=*=4=7}
+    4 "\xd6\xe0\xe3" {=@=J=M}
 } {
     test yencode-2.$n.a {check the pure tcl encode} {
         list [catch {::yencode::Encode $in} r] $r
@@ -66,13 +68,13 @@ foreach {n in out} {
     } [list 0 $in]
 }
 
-if {[info command ::yencode::CEncode] != {}} {
+if {[llength [info commands ::yencode::CEncode]]} {
     foreach {n in out} {
         0 A        {k}
         1 ABC      {klm}
         2 \0\1\2   {*+,}
         3 "\r\n\t" {743}
-        4 "\xd6\xe0\xe3" {=*=4=7}
+        4 "\xd6\xe0\xe3" {=@=J=M}
     } {
         test yencode-3.$n.a {check the critcl encode} {
             list [catch {::yencode::Encode $in} r] $r

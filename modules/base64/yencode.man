@@ -1,9 +1,9 @@
-[manpage_begin yencode n 1.1.1]
+[manpage_begin yencode n 1.1.2]
 [copyright {2002, Pat Thoyts}]
 [moddesc   {Text encoding & decoding binary data}]
 [titledesc {Y-encode/decode binary data}]
 [require Tcl 8.2]
-[require yencode [opt 1.1.1]]
+[require yencode [opt 1.1.2]]
 [description]
 [para]
 
@@ -79,6 +79,12 @@ check value in the footer. Use this option to change the default from
  -o- data not shown -o-
 =yend size=584 crc32=ded29f4f
 }]
+
+[section References]
+
+[list_begin enum]
+[enum] [uri http://www.yenc.org/yenc-draft.1.3.txt]
+[list_end]
 
 [section {BUGS, IDEAS, FEEDBACK}]
 
