@@ -1,3 +1,12 @@
+2008-12-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* yencode.tcl: Fixed bug in the yencoder. Escaped characters
+	* yencode.man: have to be rotated by 64 according to the yEnc
+	* yencode.test: specification v1.3, not 42. Bumped version to
+	* pkgIndex.tcl: 1.1.2. Updated tests.
+
+	* uuencode.test: Better handling of loading 'tcllibc'.
+
 2008-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
