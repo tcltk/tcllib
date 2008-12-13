@@ -1,3 +1,9 @@
+2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph_tcl.tcl (::struct::graph::_walk): Fixed post-order dfs
+	* graph/tests/walk.test: problem [Bug 2420330] in Tcl side.
+	* pkgIndex.tcl: Extended testsuite. Bumped to version 2.3.1
+
 2008-11-19  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph1.test: Cleanup to avoid interference with the accelerators

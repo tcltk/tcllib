@@ -2,7 +2,7 @@
 # Graph tests - walk
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: walk.test,v 1.2 2007/04/12 03:01:55 andreas_kupries Exp $
+# RCS: @(#) $Id: walk.test,v 1.3 2008/12/13 03:57:33 andreas_kupries Exp $
 
 # Syntax: graph walk NODE ?-dir forward|backward? ?-order pre|post|both? ?-type bfs|dfs? -command cmd
 
@@ -132,6 +132,19 @@ test graph-${impl}-${setimpl}-walk-3.1 {walk, forward post dfs} {
     set t
 } [tmE  {leave viii leave vi leave v leave iv leave iii leave ii leave ix leave vii leave i} \
 	{leave viii leave vi leave vii leave ix leave v leave iv leave iii leave ii leave i}]
+
+test graph-${impl}-${setimpl}-walk-3.1.1 {walk, forward post dfs} {
+    SETUP
+    mygraph node insert i ii iii
+    mygraph arc insert i  ii  1
+    mygraph arc insert i  iii 2
+    mygraph arc insert ii iii 3
+    set t [list ]
+    mygraph walk i -order post -command record
+    mygraph destroy
+    set t
+} [tmE  {leave iii leave ii leave i} \
+	{leave iii leave ii leave i}]
 
 test graph-${impl}-${setimpl}-walk-3.2 {walk, forward both dfs} {
     SETUPwalk
