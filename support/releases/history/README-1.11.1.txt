@@ -3,7 +3,7 @@ Overview
 
 	4 new packages		in 2 new modules.
 	2 new packages		in 2 existing modules.
-	8 changed packages	in 8 modules.
+	9 changed packages	in 9 modules.
 
 New in Tcllib 1.11.1
 ==================
@@ -34,6 +34,7 @@ fileutil	fileutil	1.13.4		1.13.5		B
 ldap		ldap		1.7		1.8		EF
 math		math::linalg	1.0.1		1.1		EF, B, T
 nns		nameserv	0.4.1		0.4.2		B
+struct		struct::graph	2.3		2.3.1		B
 ------          -------         -----------     -----------     ---------------
 
 Invisible changes (no version change)
