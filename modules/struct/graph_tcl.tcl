@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph_tcl.tcl,v 1.2 2008/10/11 23:23:47 andreas_kupries Exp $
+# RCS: @(#) $Id: graph_tcl.tcl,v 1.3 2008/12/13 03:57:33 andreas_kupries Exp $
 
 package require Tcl 8.4
 package require struct::list
@@ -2782,6 +2782,12 @@ proc ::struct::graph::_walk {name node args} {
 		    # then evaluate the command.
 
 		    ldelete st end
+		    # Bug 2420330. Note: The visited node may be
+		    # multiple times on the stack (neighbour of more
+		    # than one node). Remove all occurences.
+		    while {[set index [lsearch -exact $st $node]] != -1} {
+			set st [lreplace $st $index $index]
+		    }
 
 		    # Evaluate the command at this node
 		    set cmdcpy $cmd
