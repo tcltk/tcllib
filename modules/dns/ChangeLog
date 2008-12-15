@@ -1,3 +1,9 @@
+2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.11.1 ========================
+	* 
+
 2008-11-22  Michael Schlenker <mic42@users.sourceforge.net>
 	
 	* dns.tcl: Fixed typo in flags for errorcode decoding

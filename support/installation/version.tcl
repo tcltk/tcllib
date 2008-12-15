@@ -1,4 +1,4 @@
-package_version 1.11
+package_version 1.11.1
 package_name    tcllib
 
 dist_exclude    config
