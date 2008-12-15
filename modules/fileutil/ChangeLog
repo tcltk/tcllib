@@ -1,3 +1,9 @@
+2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.11.1 ========================
+	* 
+
 2008-12-02  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.man: Fixed [Bug 2376321] (fileutil::TempDir, use

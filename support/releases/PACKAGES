@@ -1,4 +1,4 @@
-@@ RELEASE 1.11
+@@ RELEASE 1.11.1
 
 S3                              1.0.0
 SASL                            1.3.2
@@ -18,6 +18,7 @@ bench::out::csv                 0.1.2
 bench::out::text                0.1.2
 bibtex                          0.5
 blowfish                        1.0.4
+cache::async                    0.3
 calendar                        0.2
 cksum                           1.1.2
 cmdline                         1.3.1
@@ -28,16 +29,16 @@ crc16                           1.1.1
 crc32                           1.3
 csv                             0.7.1
 des                             1.1.0
-dns                             1.3.2
+dns                             1.3.3
 docstrip                        1.2
 docstrip::util                  1.2
-doctools                        1.3.5
+doctools                        1.4
 doctools::changelog             1
 doctools::cvs                   1
 doctools::idx                   1
 doctools::toc                   1
 exif                            1.1.2
-fileutil                        1.13.4
+fileutil                        1.13.5
 fileutil::magic::cfront         1.0
 fileutil::magic::cgen           1.0
 fileutil::magic::filetype       1.0.2
@@ -73,12 +74,15 @@ irc                             0.6.1
 javascript                      1.0.2
 jpeg                            0.3.3
 json                            1.0
-ldap                            1.7
+ldap                            1.8
 ldapx                           1.0
 log                             1.2.1
 logger                          0.8
 logger::appender                1.3
 logger::utils                   1.3
+map::slippy                     0.2
+map::slippy::cache              0.2
+map::slippy::fetcher            0.2
 mapproj                         1.0
 math                            1.2.4
 math::bigfloat                  1.2.2
@@ -91,7 +95,7 @@ math::fourier                   1.0.2
 math::fuzzy                     0.2
 math::geometry                  1.0.3
 math::interpolate               1.0.2
-math::linearalgebra             1.0.3
+math::linearalgebra             1.1
 math::optimize                  1.0
 math::polynomials               1.0.1
 math::rationalfunctions         1.0.1
@@ -104,7 +108,7 @@ md5                             2.0.7
 md5crypt                        1.1.0
 mime                            1.5.4
 multiplexer                     0.2
-nameserv                        0.4.1
+nameserv                        0.4.2
 nameserv::auto                  0.3
 nameserv::common                0.1
 nameserv::server                0.3.2
@@ -185,7 +189,8 @@ struct                          1.4
 struct                          2.1
 struct::disjointset             1.0
 struct::graph                   1.2.1
-struct::graph                   2.3
+struct::graph                   2.3.1
+struct::graph::op               0.9
 struct::list                    1.7
 struct::matrix                  1.2.1
 struct::matrix                  2.0.2
@@ -241,6 +246,7 @@ transfer::receiver              0.1
 transfer::transmitter           0.1
 treeql                          1.3.1
 uevent                          0.2
+uevent::onidle                  0.1
 unicode                         1.0.0
 unicode::data                   1.0.0
 units                           2.1
@@ -252,4 +258,4 @@ wip                             1.1.1
 wip                             2.1.1
 xsxp                            1.0
 yaml                            0.3.3
-yencode                         1.1.1
+yencode                         1.1.2

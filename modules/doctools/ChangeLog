@@ -1,3 +1,9 @@
+2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.11.1 ========================
+	* 
+
 2008-12-01  Andreas Kupries  <andreask@activestate.com>
 
 	* doctools.tcl: New command in doctools language is extended API.
