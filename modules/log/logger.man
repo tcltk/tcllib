@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.21 2007/03/25 01:29:25 andreas_kupries Exp $}]
+[comment {$Id: logger.man,v 1.22 2008/12/17 21:51:17 mic42 Exp $}]
 [manpage_begin logger n 0.8]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
 [require Tcl 8.2]
-[require logger [opt 0.8]]
+[require logger [opt 0.9]]
 [description]
 
 [para]
