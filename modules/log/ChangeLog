@@ -1,3 +1,13 @@
+2008-12-17  Michael Schlenker <mic42@users.sourceforge.net>
+
+        * logger.tcl: Applied modified patch [RFE 2381524].
+	* logger.test: Thanks to Hemang Lavana for the patch.
+	* pkgIndex.tcl: Added -errorcode arguments and msgcat::mc
+	  calls to all error messages, so this could be localized.
+	  Bumped version to 0.9.
+	  Proc bodies are now constructed via format instead of
+	  all the quoting hell.
+
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
