@@ -266,6 +266,12 @@ info
 debug
 [list_end]
 
+[emph Note] that by default all messages with levels [const warning] down to
+[const debug] are suppressed. This is done intentionally, because (we believe
+that) in most situations debugging output is not wanted. Most people wish to
+have such output only when actually debugging an application.
+
+
 [section {BUGS, IDEAS, FEEDBACK}]
 
 This document, and the package it describes, will undoubtedly contain

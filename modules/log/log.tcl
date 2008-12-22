@@ -159,6 +159,9 @@ namespace eval ::log {
     # 0 - messages with with level are written out.
     # 1 - messages with this level are suppressed.
 
+    # Note: This initialization is partially overridden via
+    # 'log::lvSuppressLE' at the bottom of this file.
+
     variable  suppressed
     array set suppressed {
 	emergency 0
