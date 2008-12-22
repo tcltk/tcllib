@@ -1,3 +1,10 @@
+2008-12-22  Andreas Kupries  <andreask@activestate.com>
+
+	* log.man: Extended documentation a bit to tel about the levels 
+	* log.tcl: which are suppressed by default. Added comment to code
+	  to point from the first initialization to the second at the
+	  bottom of the file. Fixes [Bug 2418580].
+
 2008-12-17  Michael Schlenker <mic42@users.sourceforge.net>
 
         * logger.tcl: Applied modified patch [RFE 2381524].
