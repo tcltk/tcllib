@@ -66,7 +66,7 @@ Returns the checksum of the supplied data.
 If there is a currently open port, this command will write the specified sentence and data to the port
 in proper NMEA checksummed format.
 
-[call [cmd ::nmea::event [arg setence] [opt command]]]
+[call [cmd ::nmea::event] [arg setence] [opt command]]
 Registers a handler proc for a given NMEA [arg sentence]. There may be at most one handler per
 sentence, any existing handler is replaced.  
 If no command is specified, returns the name of the current handler for the given [arg setence]
