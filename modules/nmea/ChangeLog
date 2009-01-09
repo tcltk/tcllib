@@ -1,3 +1,8 @@
+2009-01-09  Andreas Kupries  <andreask@activestate.com>
+
+	* nmea.man: Fixed manpage problems reported by 'sak.tcl doc
+	  validate nmea'.
+
 2009-01-08 Aaron Faupell <afaupell@users.sourceforge.net>
 	nmea.tcl: lots of changes, bumped major ver to 1.0.0
 		- close_port and close_file become close
