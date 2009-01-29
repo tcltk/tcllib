@@ -46,7 +46,7 @@ a boolean value, [const true] if the tile is valid, and [const false]
 otherwise. For the latter a message is left in the variable named by
 [arg msgvar], should it be specified.
 
-[nl]
+[para]
 
 A tile identifier as stored in [arg tile] is a list containing zoom
 level, tile row, and tile column, in this order. The command
@@ -112,4 +112,3 @@ containing zoom level, y, and x, in this order) to a tile identifier
 
 [keywords slippy map location geodesy geography latitute longitude zoom]
 [manpage_end]
-

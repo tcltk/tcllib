@@ -3,7 +3,7 @@
 [copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [moddesc   {Tcl Simulation Tools}]
 [titledesc {Pseudo-random number generators}]
-
+[category  Mathematics]
 [require Tcl [opt 8.4]]
 [require simulation::random 0.1]
 

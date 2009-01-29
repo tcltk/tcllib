@@ -4,6 +4,10 @@
 [copyright {2006-2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Remote communication}]
 [titledesc {A remote communication facility for Tcl (8.3 and later)}]
+[category  {Programming tools}]
+[see_also  send(n)]
+[keywords  socket {remote execution} {remote communication} send]
+[keywords  communication ipc message rpc comm]
 [require Tcl 8.3]
 [require comm [opt 4.5.7]]
 [description]
@@ -1172,5 +1176,4 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.
 
 
-[see_also send(n)]
 [manpage_end]

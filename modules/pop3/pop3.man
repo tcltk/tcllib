@@ -2,6 +2,7 @@
 [comment {-*- tcl -*- doctools manpage}]
 [moddesc   {Tcl POP3 Client Library}]
 [titledesc {Tcl client for POP3 email protocol}]
+[category  Networking]
 [require Tcl  8.2]
 [require pop3 [opt 1.6.3]]
 [description]

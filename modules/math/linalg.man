@@ -5,7 +5,7 @@
 [copyright {2008 Michael Buadin <relaxkmike@users.sourceforge.net>}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Linear Algebra}]
-
+[category  Mathematics]
 [require Tcl [opt 8.4]]
 [require math::linearalgebra [opt 1.1]]
 
@@ -784,11 +784,11 @@ For convenience the new matrix is also returned as the result.
 [arg_def list scope] If not provided, the operation is performed on all rows/columns of A
 if provided, it is expected to be the list {imin imax jmin jmax}
 where:
-[list_begin bullet]
-[bullet] [term imin] Minimum row index
-[bullet] [term imax] Maximum row index
-[bullet] [term jmin] Minimum column index
-[bullet] [term jmax] Maximum column index
+[list_begin itemized]
+[item] [term imin] Minimum row index
+[item] [term imax] Maximum row index
+[item] [term jmin] Minimum column index
+[item] [term jmax] Maximum column index
 [list_end]
 [list_end]
 
@@ -797,7 +797,7 @@ where:
 
 Computes an LU factorization of a general matrix, using partial,
 pivoting with row interchanges. Returns the permutation vector.
-[nl]
+[para]
 The factorization has the form
 [example {
    P * A = L * U
@@ -938,4 +938,3 @@ package and/or documentation.
 
 [keywords math "linear algebra" vectors matrices "least squares" "linear equations"]
 [manpage_end]
-

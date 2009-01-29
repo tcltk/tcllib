@@ -2,6 +2,7 @@
 [manpage_begin struct::queue n 1.4.1]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate queue objects}]
+[category  {Data structures}]
 [require Tcl 8.2]
 [require struct::queue [opt 1.4.1]]
 [description]

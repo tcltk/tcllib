@@ -3,6 +3,7 @@
 [copyright {2006 ActiveState Software Inc.}]
 [moddesc   {JSON parser}]
 [titledesc {JSON parser}]
+[category  {CGI programming}]
 [require Tcl 8.4]
 [require json [opt 1.0]]
 [description]
