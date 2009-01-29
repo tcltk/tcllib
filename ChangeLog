@@ -6,6 +6,17 @@
 	* apps/*.man: Added category information to the majority of man
 	* modules/*/*.man: pages. 
 
+	* support/devel/sak/doc/cmd.tcl: Moved the main code for the
+	* support/devel/sak/doc/doc.tcl: imake/ishow commands into a
+	* support/devel/sak/doc/pkgIndex.tcl: separate package. Added a
+	* support/devel/sak/doc/doc_auto.tcl: new command 'doc index'
+	* support/devel/sak/doc/manpages.txt: which not only updates
+	* support/devel/sak/doc/kwic.txt: 'manpages.txt', but also
+	* support/devel/sak/doc/toc.txt: generates a keyword index
+	  ('kwic.txt'), and a table of contents ('idx.txt'). The first
+	  result are committed as part of this change. The newly generated
+	  files are in docidx and doctoc formats, respectively.
+
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

@@ -2,13 +2,99 @@
 # sak::doc - Documentation facilities
 
 package require sak::util
+package require sak::doc::auto
 
-namespace eval ::sak::doc {
-    set here [file dirname [file normalize [info script]]]
-}
+namespace eval ::sak::doc {}
 
 # ###
 # API commands
+
+## ### ### ### ######### ######### #########
+
+proc ::sak::doc::index {modules} {
+    # The argument (= set of modules) is irrelevant to this command.
+    global base
+
+    # First locate all manpages in the CVS workspace.
+    set manpages [auto::findManpages $base]
+    auto::saveManpages $manpages
+
+    # Then scan the found pages and extract the information needed for
+    # keyword index and table of contents.
+    array set meta [auto::scanManpages $manpages]
+
+    # Sort through the extracted data.
+    array set kwic  {}
+    array set title {}
+    array set cat   {}
+    array set name  {}
+    set       apps  {}
+    array set mods  {}
+
+    foreach page [array names meta] {
+	unset -nocomplain m
+	array set m $meta($page)
+
+	# Collect keywords and file mapping for index.
+	foreach kw $m(keywords) {
+	    lappend kwic($kw) $page
+	}
+	# Get page title, relevant for display order
+	if {$m(desc) eq ""} {
+	    set m(desc) $m(shortdesc)
+	}
+	set title($page) $m(desc)
+	# Get page name/title, relevant for display order.
+	set name($page) $m(title)
+	# Get page category, for sectioning and display order in the
+	# table of contents
+	if {$m(category) ne ""} {
+	    set c $m(category)
+	} else {
+	    set c Unfiled
+	}
+	lappend cat($c) $page
+	
+	# Type of documented entity
+	set type [lindex [file split $page] 0]
+	if {$type eq "apps"} {
+	    lappend apps $page
+	} else {
+	    lappend mods([lindex [file split $page] 1]) $page
+	}
+    }
+
+    #parray meta
+    #parray kwic
+    #parray title
+    #parray name
+    #parray cat
+    #puts "apps = $apps"
+    #parray mods
+
+    auto::saveKeywordIndex    kwic  name
+    auto::saveTableOfContents title name cat apps mods
+    return
+}
+
+proc ::sak::doc::imake {modules} {
+    # The argument (= set of modules) is irrelevant to this command.
+    auto::saveManpages [auto::findManpages]
+    return
+}
+
+proc ::sak::doc::ishow {modules} {
+    if {[catch {
+	set manpages [auto::loadManpages]
+    } msg]} {
+	puts stderr "Unable to use manpage listing '[auto::manpages]'\n$msg"
+    } else {
+	puts [join $manpages \n]
+    }
+    return
+}
+
+## ### ### ### ######### ######### #########
 
 proc ::sak::doc::validate {modules} {Gen null  null $modules}
 proc ::sak::doc::html     {modules} {Gen html  html $modules}
@@ -17,39 +103,6 @@ proc ::sak::doc::tmml     {modules} {Gen tmml  tmml $modules}
 proc ::sak::doc::text     {modules} {Gen text  txt  $modules}
 proc ::sak::doc::wiki     {modules} {Gen wiki  wiki $modules}
 proc ::sak::doc::latex    {modules} {Gen latex tex  $modules}
-
-proc ::sak::doc::imake {modules} {
-    global base ; # SAK environment, set up for each cmd.
-    set idxfile [IDX]
-
-    set top [file normalize $base]
-
-    set manpages {}
-    foreach page [fileutil::findByPattern $top *.man] {
-	lappend manpages [fileutil::stripPath $top $page]
-    }
-    fileutil::writeFile $idxfile [join $manpages \n]\n
-    return
-}
-
-proc ::sak::doc::ishow {modules} {
-    set idxfile [IDX]
-
-    if {[catch {
-	set manpages [fileutil::cat $idxfile]
-    } msg]} {
-	puts stderr "Unable to use manpage listing '$idxfile'\n$msg"
-    } else {
-	puts -nonewline $manpages
-    }
-    return
-}
-
-proc ::sak::doc::IDX {} {
-    variable here
-    getpackage fileutil fileutil/fileutil.tcl
-    return [file join $here manpages.txt]
-}
 
 proc ::sak::doc::dvi {modules} {
     latex $modules
