@@ -2,6 +2,7 @@
 [manpage_begin fileutil_traverse n 0.4]
 [moddesc   {file utilities}]
 [titledesc {Iterative directory traversal}]
+[category  {Programming tools}]
 [require Tcl 8.3]
 [require fileutil::traverse [opt 0.4]]
 [description]

@@ -3,6 +3,7 @@
 [copyright {2003-2006, by William H. Duquette}]
 [moddesc {Snit's Not Incr Tcl, OO system}]
 [titledesc   {Snit Frequently Asked Questions}]
+[category  {Programming tools}]
 [description]
 [para]
 

@@ -3,6 +3,7 @@
 [copyright {2001-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Logging facility}]
 [titledesc {Procedures to log messages of libraries and applications.}]
+[category  {Programming tools}]
 [require Tcl 8]
 [require log [opt 1.2.1]]
 [description]

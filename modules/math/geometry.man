@@ -3,7 +3,7 @@
 [copyright {2004 by Ideogramic ApS and other parties}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Geometrical computations}]
-
+[category  Mathematics]
 [require Tcl [opt 8.3]]
 [require math::geometry [opt 1.0.3]]
 

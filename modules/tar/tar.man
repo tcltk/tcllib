@@ -2,6 +2,7 @@
 [manpage_begin tar n 0.4]
 [moddesc   {Tar file handling}]
 [titledesc {Tar file creation, extraction & manipulation}]
+[category  {File formats}]
 [require Tcl 8.4]
 [require tar [opt 0.4]]
 [description]

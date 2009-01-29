@@ -2,6 +2,7 @@
 [manpage_begin irc n 0.6.1]
 [moddesc   {Low Level Tcl IRC Interface}]
 [titledesc {Create IRC connection and interface.}]
+[category  Networking]
 [require Tcl]
 [require irc [opt 0.6.1]]
 [description]
