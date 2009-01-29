@@ -1,3 +1,8 @@
+2009-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* apps/dtplite: Added missing EOL to last line of the generated
+	  .toc and .idx files. Bumped version to 1.0.1
+
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
