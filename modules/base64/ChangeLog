@@ -1,3 +1,8 @@
+2009-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* base64.tcl: Define a number of transient variables in the
+	  namespace, to avoid creative-writing. Fixes [Bug 2538424].
+
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
