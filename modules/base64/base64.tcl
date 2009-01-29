@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: base64.tcl,v 1.29 2008/05/28 17:34:31 andreas_kupries Exp $
+# RCS: @(#) $Id: base64.tcl,v 1.30 2009/01/29 04:29:10 andreas_kupries Exp $
 
 # Version 1.0   implemented Base64_Encode, Base64_Decode
 # Version 2.0   uses the base64 namespace
@@ -161,6 +161,8 @@ if {![catch {package require Trf 2.0}]} {
 	variable base64_en {}
 
 	# We create the auxiliary array base64_tmp, it will be unset later.
+	variable base64_tmp
+	variable i
 
 	set i 0
 	foreach char {A B C D E F G H I J K L M N O P Q R S T U V W X Y Z \
@@ -179,6 +181,10 @@ if {![catch {package require Trf 2.0}]} {
 	#
 
 	# the last ascii char is 'z'
+	variable char
+	variable len
+	variable val
+
 	scan z %c len
 	for {set i 0} {$i <= $len} {incr i} {
 	    set char [format %c $i]
