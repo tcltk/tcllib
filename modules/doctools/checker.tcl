@@ -4,7 +4,7 @@
 # Code used inside of a checker interpreter to ensure correct usage of
 # doctools formatting commands.
 #
-# Copyright (c) 2003-2008 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2009 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 # L10N
 
@@ -520,7 +520,7 @@ proc category {text} {
     if {[Is done]} {Error nodonecmd}
     # if {[IsNot body]} {Error bodycmd}
     # if {[LOpen]}      {Error nolistcmd}
-    eval [linsert $args 0 fmt_category]
+    fmt_category $text
 }
 # nl - Deprecated
 proc nl {} {
