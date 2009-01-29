@@ -2,6 +2,7 @@
 [manpage_begin htmlparse n 1.1.3]
 [moddesc   {HTML Parser}]
 [titledesc {Procedures to parse HTML strings}]
+[category  {Text processing}]
 [require Tcl 8.2]
 [require struct::stack 1.3]
 [require cmdline 1.1]

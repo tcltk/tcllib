@@ -4,6 +4,7 @@
 [copyright {2008 (docs) Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Operation for (un)directed graph objects}]
+[category  {Data structures}]
 [require Tcl 8.4]
 [require struct::graph::op [opt 0.9]]
 [comment {[require struct::graph [opt 2.3]]   }]

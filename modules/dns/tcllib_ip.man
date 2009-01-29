@@ -3,6 +3,7 @@
 [copyright {2005 Aamer Akhter <aakhter@cisco.com>}]
 [moddesc   {Domain Name Service}]
 [titledesc {IPv4 and IPv6 address manipulation}]
+[category  Networking]
 [require Tcl 8.2]
 [require ip [opt 1.1.2]]
 [description]

@@ -3,6 +3,7 @@
 [copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl POP3 Server Package}]
 [titledesc {Tcl POP3 server implementation}]
+[category  Networking]
 [require Tcl 8.3]
 [require pop3d [opt 1.1.0]]
 [description]
