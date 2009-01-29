@@ -3,6 +3,7 @@
 [copyright {2003-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {docidx - Processing indices}]
+[category  {Documentation tools}]
 [require Tcl 8.2]
 [require doctools::idx [opt 1]]
 [description]

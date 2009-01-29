@@ -1,3 +1,35 @@
+2009-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* checker.tcl: Fixed bug in handling 'category' command. Bumped
+	* doctools.tcl: version to 1.4.1
+	* doctools.man:
+	* pkgIndex.tcl:
+
+	* changelog.man: Added 'category' information to all manpages.
+	* cvs.man:
+	* docidx.man:
+	* docidx_intro.man:
+	* docidx_lang_cmdref.man:
+	* docidx_lang_faq.man:
+	* docidx_lang_intro.man:
+	* docidx_lang_syntax.man:
+	* docidx_plugin_apiref.man:
+	* doctoc.man:
+	* doctoc_intro.man:
+	* doctoc_lang_cmdref.man:
+	* doctoc_lang_faq.man:
+	* doctoc_lang_intro.man:
+	* doctoc_lang_syntax.man:
+	* doctoc_plugin_apiref.man:
+	* doctools.man:
+	* doctools_intro.man:
+	* doctools_lang_cmdref.man:
+	* doctools_lang_faq.man:
+	* doctools_lang_intro.man:
+	* doctools_lang_syntax.man:
+	* doctools_plugin_apiref.man:
+	* mpexpand.man:
+
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
