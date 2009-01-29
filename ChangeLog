@@ -3,6 +3,9 @@
 	* apps/dtplite: Added missing EOL to last line of the generated
 	  .toc and .idx files. Bumped version to 1.0.1
 
+	* apps/*.man: Added category information to the majority of man
+	* modules/*/*.man: pages. 
+
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

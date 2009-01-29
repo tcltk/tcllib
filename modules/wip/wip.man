@@ -3,6 +3,7 @@
 [copyright {2007-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Word Interpreter}]
 [titledesc {Word Interpreter}]
+[category  {Programming tools}]
 [require Tcl 8.4]
 [require wip [opt 2.1.1]]
 [require snit [opt 1.3]]

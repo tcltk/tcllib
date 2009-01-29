@@ -2,6 +2,7 @@
 [manpage_begin ftpd n 1.2.4]
 [moddesc   {Tcl FTP Server Package}]
 [titledesc {Tcl FTP server implementation}]
+[category  Networking]
 [require Tcl 8.3]
 [require ftpd [opt 1.2.4]]
 [description]

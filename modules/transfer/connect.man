@@ -3,6 +3,7 @@
 [copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Data transfer facilities}]
 [titledesc {Connection setup}]
+[category  {Transfer module}]
 [require Tcl               8.4]
 [require snit              [opt 1.0]]
 [require transfer::connect [opt 0.1]]

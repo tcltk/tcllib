@@ -3,6 +3,7 @@
 [copyright {2005, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc {Advanced Encryption Standard (AES)}]
 [titledesc {Implementation of the AES block cipher}]
+[category  {Hashes, checksums, and encryption}]
 [require Tcl 8.2]
 [require aes [opt 1.0.1]]
 [description]

@@ -3,6 +3,7 @@
 [copyright {2001, Miguel Sofer}]
 [moddesc   {Text encoding & decoding binary data}]
 [titledesc {base64-encode/decode binary data}]
+[category  {Text processing}]
 [require Tcl 8]
 [require base64 [opt 2.4.1]]
 [description]

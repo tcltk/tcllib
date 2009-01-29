@@ -3,6 +3,7 @@
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc   {RC4 Stream Cipher}]
 [titledesc {Impementation of the RC4 stream cipher}]
+[category  {Hashes, checksums, and encryption}]
 [require Tcl 8.2]
 [require rc4 [opt 1.1.0]]
 [description]

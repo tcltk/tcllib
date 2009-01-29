@@ -3,6 +3,7 @@
 [copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Data transfer facilities}]
 [titledesc {Data transfer foundation}]
+[category  {Transfer module}]
 [require Tcl 8.4]
 [require transfer::copy [opt 0.2]]
 [description]
