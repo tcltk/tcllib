@@ -3,6 +3,9 @@
 	* base64.tcl: Define a number of transient variables in the
 	  namespace, to avoid creative-writing. Fixes [Bug 2538424].
 
+	* pkgIndex.tcl: Bumped version to 2.4.1.
+	* base64.man:
+
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
