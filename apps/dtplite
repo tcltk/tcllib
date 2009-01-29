@@ -22,7 +22,7 @@ exec tclsh "$0" ${1+"$@"}
 # Meta license      BSD
 # @@ Meta End
 
-package provide dtplite 1.0
+package provide dtplite 1.0.1
 
 # dtp lite - Lightweight DocTools Processor
 # ======== = ==============================
@@ -955,7 +955,7 @@ proc ::dtplite::TocGenerate {data} {
     Tag+ toc_end
 
     #puts ____________________\n[join $lines \n]\n_________________________
-    return [join $lines \n]
+    return [join $lines \n]\n
 }
 
 proc ::dtplite::TocWrite {ftoc findex text {map {}}} {
@@ -1086,7 +1086,7 @@ proc ::dtplite::IdxGenerate {desc data} {
 
     Tag+ index_end
     #puts ____________________\n[join $lines \n]\n_________________________
-    return [join $lines \n]
+    return [join $lines \n]\n
 }
 
 proc ::dtplite::IdxWrite {findex ftoc text} {
