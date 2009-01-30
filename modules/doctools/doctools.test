@@ -8,7 +8,7 @@
 # Copyright (c) 2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: doctools.test,v 1.24 2008/11/26 21:49:14 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.test,v 1.25 2009/01/30 04:56:47 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -331,6 +331,9 @@ foreach format {
 	set dst [localPath [file join tests $format [file tail $src]]]
 	set map @ID@   ; lappend map \$Id\$ ; lappend map @USR@ $tcl_platform(user)
 	set rem \$Id\$ ; lappend rem @ID@   ; lappend $tcl_platform(user) @USR@
+	if {$format eq "nroff"} {
+		lappend map ".so man.macros\n" [fileutil::cat [localPath mpformats/man.macros]]
+	}
 	if {[catch {
 	    set expected [string map $map [fileutil::cat $dst]]
 	}]} { set expected **missing** }
