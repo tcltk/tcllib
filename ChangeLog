@@ -1,3 +1,18 @@
+2009-01-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* examples/bibtex/bibtex.tcl: Modified examples to assume that
+	* examples/htmlparse/webviewer.tcl: they are run by a tclsh found
+	* examples/irc/irc_example.tcl: on the PATH, and that this shell
+	* examples/mapproj/tkmap.tcl: has access to the packages of
+	* examples/math/bigfloat.demo.tcl: Tcllib required by the example.
+	* examples/ntp/rdate.tcl: Stuart Cassoff <stwo@users.sourceforge.net>
+	* examples/sasl/saslclient.tcl: provided by the patches as
+	* examples/struct/diff.tcl: part of his work on making a Tcllib
+	* examples/struct/diff2.tcl: OpenBSD port.
+
+	* support/installation/modules.tcl: Added the examples for a
+	  number of modules to the installer. Patch by Stuart, see above.
+
 2009-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* apps/dtplite: Added missing EOL to last line of the generated
