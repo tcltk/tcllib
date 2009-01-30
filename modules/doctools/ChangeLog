@@ -1,3 +1,17 @@
+2009-01-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* docidx.tcl: Extended the plugin APIs for all formats with a new
+	* docidx_plugin_apiref.man: command "dt_read" to read a file's
+	* doctoc.tcl: contents into a plugin. Modified the nroff plugins
+	* doctoc_plugin_apiref.man: to inline the man.macros file into
+	* doctools.tcl: their result instead of generating a
+	* doctools.test: '.so man.macros' command. Stuart Cassoff
+	* doctools_plugin_apiref.man: <stwo@users.sourceforge.net> did the
+	* mpformats/_nroff.tcl: work and provided the patches as part of
+	* mpformats/fmt.nroff: his effort on making a Tcllib OpenBSD port.
+	* mpformats/idx.nroff: 
+	* mpformats/toc.nroff:
+
 2009-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* checker.tcl: Fixed bug in handling 'category' command. Bumped

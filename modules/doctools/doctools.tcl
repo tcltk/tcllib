@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.32 2009/01/29 05:56:17 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.33 2009/01/30 04:56:47 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -650,6 +650,7 @@ proc ::doctools::SetupFormatter {name format} {
     $mpip invokehidden source [file join $here api.tcl]
     #$mpip eval [list source [file join $here api.tcl]]
     interp alias $mpip dt_source   {} ::doctools::Source  $mpip [file dirname $format]
+    interp alias $mpip dt_read     {} ::doctools::Read    $mpip [file dirname $format]
     interp alias $mpip dt_package  {} ::doctools::Package $mpip
     interp alias $mpip file        {} ::doctools::FileOp  $mpip
     interp alias $mpip puts_stderr {} ::puts stderr
@@ -1135,6 +1136,11 @@ proc ::doctools::Source {ip path file} {
     return
 }
 
+proc ::doctools::Read {ip path file} {
+    #puts stderr "$ip (read $path $file)"
+
+    return [read [set f [open [file join $path [file tail $file]]]]][close $f]
+}
 
 proc ::doctools::Locate {p} {
     # @mdgen NODEP: doctools::__undefined__
