@@ -81,7 +81,6 @@ proc ::facebook::sign {query} {
     set query [dict remove $query secret]
     foreach x [lsort [dict keys $query]] {
         append str $x=[dict get $query $x]
-        lappend new $x [dict get $query $x]
     }
     append str $secret
     dict append query sig [string tolower [md5::md5 -hex $str]]

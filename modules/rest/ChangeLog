@@ -1,3 +1,9 @@
+2009-02-05  Aaron Faupell  <afaupell@users.sourceforge.net>
+
+	rest.tcl: fix some errors regarding static args, the body command
+	rest.man: add more documentation and examples. still needs formatting
+	facebook: remove extraneous line in sign proc
+
 2009-02-04  Aaron Faupell  <afaupell@users.sourceforge.net>
 
 	Initial commit
