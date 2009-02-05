@@ -64,7 +64,7 @@ proc ::rest::create_interface {name} {
         set opts [list]
         lappend proc "set static \{[expr {[dict exists $config static_args] ? [dict get $config static_args] : {}}]\}"
         lappend proc {variable static_args}
-        lappend proc {if {[info exists static_args]} { set static_args [dict merge $static $static_args] }}
+        lappend proc {if {[info exists static_args]} { set static [dict merge $static $static_args] }}
         lappend opts [expr {[dict exists $config req_args] ? [dict get $config req_args] : ""}]
         lappend opts [expr {[dict exists $config opt_args] ? [dict get $config opt_args] : ""}]
         lappend proc "set parsed \[::rest::parse_opts \$static $opts \$args]"
@@ -74,7 +74,7 @@ proc ::rest::create_interface {name} {
         if {[dict exists $config body]} {
             if {[string match req* [dict get $config body]]} {
                 lappend proc {if {$body == ""} { return -code error "a request body is required" }}
-            } elseif {[string match no* [dict get $config none]]} {
+            } elseif {[string match no* [dict get $config body]]} {
                 lappend proc {if {$body != ""} { return -code error "extra arguments after options" }}
             }
         }
@@ -120,6 +120,7 @@ proc ::rest::create_interface {name} {
             lappend proc {return $t}
             proc ::${name}::$call args [join $proc \n]
             set proc {}
+            lappend proc {upvar token token}
         } else {
             lappend proc {set result [::rest::_call {} $headers $url $query $body]}
         }
@@ -164,7 +165,7 @@ proc ::rest::create_interface {name} {
     set ::${name}::static_args {}
     
     # print the contents of all the dynamic generated procs
-    if {0} {
+    if {1} {
         foreach x [info commands ::${name}::*] {
             puts "proc $x \{[info args $x]\} \{\n[info body $x]\n\}\n"
         }
@@ -266,7 +267,9 @@ proc ::rest::_call {callback headers url query body} {
     # with no other body. doesnt seem technically correct but works for
     # everything I have encountered. there is no way for the call definition to
     # specify the difference between url parameters and request body
-    if {($method == "post" || $method == "put") && $query != "" && $body == ""} {
+    if {[dict exists $config body] && [string match no* [dict get $config body]]} {
+        # never put the query in the body if the user said no body
+    } elseif {($method == "post" || $method == "put") && $query != "" && $body == ""} {
         set body $query
         set query {}
     }
@@ -302,6 +305,11 @@ proc ::rest::_call {callback headers url query body} {
         return -code error [list HTTP [http::ncode $t]]
     }
     set data [http::data $t]
+    # copy the token into the calling scope so that the transforms can access it
+    # via uplevel, and we can still call cleanup on the real token
+    upvar token token
+    array set token [array get $t]
+
     #parray $t
     #puts "data: $data"
     http::cleanup $t
@@ -328,11 +336,13 @@ proc ::rest::_call {callback headers url query body} {
 #       nothing
 #
 proc ::rest::_callback {datacb usercb t} {
+    # copy the token into the local scope so that the datacb can access it
+    # via uplevel, and we can still call cleanup on the real token
+    array set token [array get $t]
     if {![string match 2* [http::ncode $t]]} {
         set data [list HTTP [http::ncode $t]]
         if {[http::ncode $t] == "302"} {
-            upvar #0 $t a
-            lappend data [dict get $a(meta) Location]
+            lappend data [dict get $token(meta) Location]
         }
         http::cleanup $t
         $usercb ERROR $data
@@ -379,12 +389,16 @@ proc ::rest::parse_opts {static required optional options} {
         if {[string index $opt end] == ":"} {
             set opt [string range $opt 0 end-1]
         }
-        if {[set i [lsearch -exact $args -$opt]] < 0} {
+        if {[set i [lsearch -exact $args -$opt]] >= 0} {
+            if {[llength $args] <= $i+1} { return -code error "the -$opt argument requires a value" }
+            lappend query $opt [lindex $args [expr {$i+1}]]
+            set args [lreplace $args $i [expr {$i+1}]]
+        } elseif {[set i [lsearch -regexp $static ^-?$opt$]] >= 0} {
+            lappend query $opt [lindex $static [expr {$i+1}]]
+            set static [lreplace $static $i [expr {$i+1}]]
+        } else {
             return -code error "the -$opt argument is required"
         }
-        if {[llength $args] <= $i+1} { return -code error "the -$opt argument requires a value" }
-        lappend query $opt [lindex $args [expr {$i+1}]]
-        set args [lreplace $args $i [expr {$i+1}]]
     }
 
     while {[llength $args] > 0} {
@@ -411,7 +425,10 @@ proc ::rest::parse_opts {static required optional options} {
     }
     
     foreach opt $optional {
-        if {[string match *:?* $opt]} {
+        if {[set i [lsearch -regexp $static ^-?$opt$]] >= 0} {
+            lappend query $opt [lindex $static [expr {$i+1}]]
+            set static [lreplace $static $i [expr {$i+1}]]
+        } elseif {[string match *:?* $opt]} {
             set opt [split $opt :]
             lappend query [lindex $opt 0] [join [lrange $opt 1 end]]
         }
