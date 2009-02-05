@@ -9,11 +9,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.72 2008/12/02 17:29:09 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.73 2009/02/05 23:40:07 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.13.5
+package provide fileutil 1.13.6
 
 namespace eval ::fileutil {
     namespace export \
@@ -512,22 +512,47 @@ proc ::fileutil::stripN {path n} {
 # Results:
 #	path		The (possibly) modified path.
 
-proc ::fileutil::stripPath {prefix path} {
-    # [file split] is used to generate a canonical form for both
-    # paths, for easy comparison, and also one which is easy to modify
-    # using list commands.
+if {[string equal $tcl_platform(platform) windows]} {
 
-    if {[string equal $prefix $path]} {
-	return "."
+    # Windows. While paths are stored with letter-case preserved al
+    # comparisons have to be done case-insensitive. For reference see
+    # SF Tcllib Bug 2499641.
+
+    proc ::fileutil::stripPath {prefix path} {
+	# [file split] is used to generate a canonical form for both
+	# paths, for easy comparison, and also one which is easy to modify
+	# using list commands.
+
+	if {[string equal -nocase $prefix $path]} {
+	    return "."
+	}
+
+	set prefix [file split $prefix]
+	set npath  [file split $path]
+
+	if {[string match -nocase ${prefix}* $npath]} {
+	    set path [eval [linsert [lrange $npath [llength $prefix] end] 0 file join ]]
+	}
+	return $path
     }
+} else {
+    proc ::fileutil::stripPath {prefix path} {
+	# [file split] is used to generate a canonical form for both
+	# paths, for easy comparison, and also one which is easy to modify
+	# using list commands.
 
-    set prefix [file split $prefix]
-    set npath  [file split $path]
+	if {[string equal $prefix $path]} {
+	    return "."
+	}
 
-    if {[string match ${prefix}* $npath]} {
-	set path [eval [linsert [lrange $npath [llength $prefix] end] 0 file join ]]
+	set prefix [file split $prefix]
+	set npath  [file split $path]
+
+	if {[string match ${prefix}* $npath]} {
+	    set path [eval [linsert [lrange $npath [llength $prefix] end] 0 file join ]]
+	}
+	return $path
     }
-    return $path
 }
 
 # ::fileutil::jail --
