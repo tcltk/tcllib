@@ -1,0 +1,107 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin rest n 1.0]
+[moddesc   {Tar file handling}]
+[titledesc {Tar file creation, extraction & manipulation}]
+[require Tcl 8.5]
+[require rest [opt 1.0]]
+[description]
+[para]
+
+An interface to a REST API consists of a series of definitions of REST calls contained in an array. The array name becomes a namespace containing the defined commands. Each array element defines the name of the call and takes the form of a dict, aka key/value pairs. These keys are the defined configuration options below.
+After creating the definitions simply call rest::create_interface on the array to create the commands.
+
+[example {
+package require rest
+
+set yweather(forecast) {
+   url http://weather.yahooapis.com/forecastrss
+   req_args { p: }
+   opt_args { u: }
+}
+
+rest::create_interface yweather
+
+puts [yweather::forecast -p 94089]
+}]
+
+
+::${name}::basic_auth [arg u] [arg p]
+
+::${name}::set_static_args [opt args]]
+
+[call [cmd ::rest::save] [arg name] [arg file]]
+saves a copy of the dynamically created procs to a file for later loading
+
+[call [cmd ::rest::describe [arg name]]]
+print a description of defined api calls
+
+[call [cmd ::rest::parameters] [arg url] [opt args]]
+parse a url query string into a dict
+
+[call [cmd ::rest::parse_opts] [arg static] [arg required] [arg optional] [arg string]]
+
+[call [cmd ::rest::substitute] [arg string] [opt var]]
+take a string and substitute real values for any option identifiers
+
+
+[list_begin definitions]
+
+[call [cmd ::rest::create_interface] [arg name]]
+TOKENS
+     the value is substituted into the url at call time. tokens in the form of %name:default_value% will be an optional argument with a default value.
+
+url
+    the target of the http request
+description
+    a string which describes the call. used only for [call describe]
+body
+    indicates if arguments are required for the request body or not. should
+    be one of none, optional, or required. default is optional.
+method
+    The HTTP method to call on the url. The default is GET.
+copy
+    this copies the definition of a previously defined call. after copying you can override selected options by defining them again.
+unset
+    removes the named option. useful when using copy of another definition.
+headers
+    the value must be another dict containing header fields and their values. The default is to not add any additional headers.
+content-type
+    Specifies the content type for the request data.
+req_args
+    a list of the required arguments. names ending in a colon will require a value.
+opt_args
+    arguments that may be present but are not required.
+static_args
+    arguments that are always the same. no sense in troubling the user with these. A leading - is allowed but not required to maintain consistancy with the command line.
+auth
+    currently only accepts the value "basic". if this argument is used you can configure basic auth with the proc auth_basic which takes 2 arguments, the username and password.
+callback
+    If this option is present then the method will be created as an async call. An async call will return immediately with the value of the http token. The event loop must be active to use this option. The value of this option is the name of a proc which is invoked when the HTTP call is complete. The proc receives three arguments, the name of the calling procedure, the status of the result (one of OK or ERROR), and the data associated with the result.
+cookie
+    a list of cookies to be passed in the http header. this is just a shortcut to the headers option
+input_transform
+    commands which take the variable $query and transform it in some manner before returning a new value. return value must be a dict which will be passed to http::formatQuery
+format
+    defines the format of the returned data. should be one of discard, raw, json, xml, or tdom. the default is auto which should auto detect between xml and json. rss is formated as
+    a special case of xml.
+pre_transform
+    this value takes the form of a proc which should perform some action on $result and return a value. it is run on the result before the output (xml/json/etc) transformation is done.
+result
+    may have the value xml, json, tdom, raw, or auto. the default is auto and should auto detect json or xml results and transform them into a tcl list. this is here if you want to specify it explicitly.
+post_transform
+    this value takes the form of a proc which should perform some action on $result and return a value. it is run on the result after the output transformation but before returning the value to the calling procedure.
+check_result
+    this value should be a list of 2 expressions either of which may be empty. the first expression is checks the OK condition, it must return true when the result is satisfactory. the second expression is the error condition, it must return false unless there is an error.
+
+
+INCLUDED
+functional but incomplete implementations are included for the following services:
+flickr
+twitter
+yahoo boss
+yahoo weather
+google calendar
+facebook
+del.icio.us
+read the file or source it and use [call describe] for more information. also see the
+developers documentation on the respective sites.
