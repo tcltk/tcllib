@@ -1,3 +1,10 @@
+2009-02-05  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.tcl (::fileutil::stripPath): Fixed handling
+	* fileutil.man: of letter-case on windows, comparisons
+	* strip.test: have to be case-insensitive. Bumped version
+	* pkgIndex.tcl: to 1.13.6. See [SF Tcllib Bug 2499641].
+
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
