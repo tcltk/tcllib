@@ -1,0 +1,253 @@
+# documentation: http://www.flickr.com/services/api/
+
+package require rest
+package require md5
+
+set flickr(_proto) {
+   url http://api.flickr.com/services/rest/
+   req_args { auth_token: api_key: secret: }
+   auth { sign sign }
+}
+
+set flickr(activity.userComments) {
+   copy _proto
+   opt_args { per_page: page: }
+   static_args { -method flickr.activity.userComments }
+}
+
+set flickr(activity.userPhotos) {
+   copy _proto
+   opt_args { per_page: page: timeframe: }
+   static_args { -method flickr.activity.userPhotos }
+}
+
+set flickr(auth.getFrob) {
+   url http://api.flickr.com/services/rest/
+   req_args { api_key: secret: }
+   static_args { -method flickr.auth.getFrob }
+   auth { sign sign }
+   check_result { {} {[regexp {stat fail} $result]} }
+   post_transform { return [lindex $result 2 0 2 0 1] }
+}
+
+set flickr(auth.getToken) {
+   url http://api.flickr.com/services/rest/
+   req_args { api_key: frob: secret: }
+   static_args { -method flickr.auth.getToken }
+   check_result { {} {[regexp {stat fail} $result]} }
+   auth { sign sign }
+}
+
+set flickr(blogs.getList) {
+   copy _proto
+   static_args { -method flickr.blogs.getList }
+}
+
+set flickr(contacts.getList) {
+   copy _proto
+   opt_args { per_page: page: filter: }
+   static_args { -method flickr.contats.getList }
+}
+
+set flickr(contacts.getListRecentlyUploaded) {
+   copy _proto
+   opt_args { date_lastupload: filter: }
+   static_args { -method flickr.contacts.getListRecentlyUploaded }
+}
+
+set flickr(contacts.getPublicList) {
+   copy _proto
+   opt_args { per_page: page: }
+   static_args { -method flickr.contacts.getPublicList }
+}
+
+set flickr(favorites.add) {
+   copy _proto
+   req_args { auth_token: api_key: secret: photo_id: }
+   static_args { -method flickr.favorites.add }
+}
+
+set flickr(favorites.getList) {
+   copy _proto
+   opt_args { user_id: min_fav_date: max_fav_date: extras: per_page: page: }
+   static_args { -method flickr.favorites.getList }
+}
+
+set flickr(favorites.getPublicList) {
+   copy _proto
+   req_args { api_key: user_id: }
+   opt_args { min_fav_date: max_fav_date: extras: per_page: page: }
+   static_args { -method flickr.favorites.getPublicList }
+}
+
+set flickr(favorites.remove) {
+   copy _proto
+   req_args { auth_token: api_key: secret: photo_id: }
+   static_args { -method flickr.favorites.remove }
+}
+
+set flickr(groups.browse) {
+   copy _proto
+   opts_args { cat_id: }
+   static_args { -method flickr.groups.browse }
+}
+
+set flickr(groups.getInfo) {
+   copy _proto
+   req_args { api_key: group_id: }
+   opt_args { lang: }
+   static_args { -method flickr.groups.getInfo }
+}
+
+set flickr(groups.search) {
+   copy _proto
+   req_args { api_key: text: }
+   opt_args { per_page: page: }
+   static_args { -method flickr.groups.search }
+}
+
+set flickr() {
+   copy _proto
+   opt_args { per_page: page: }
+   static_args { -method }
+}
+
+
+
+set flickr(reflection.getMethods) {
+   url http://api.flickr.com/services/rest/
+   req_args { api_key: }
+   static_args { -method flickr.reflection.getMethods }
+   check_result { {} {[regexp {stat fail} $result]} }
+   post_transform {
+      foreach {a b c} [lindex $result 2 0 2] {
+         if {[lindex $c 0] == "method"} { lappend out [lindex $c 2 0 1] }
+      }
+      return $out
+   }
+}
+
+set flickr(reflection.getMethodInfo) {
+   url http://api.flickr.com/services/rest/
+   req_args { api_key: method_name: }
+   static_args { -method flickr.reflection.getMethodInfo }
+   check_result { {} {[regexp {stat fail} $result]} }
+   post_transform {
+      return [lindex $result 2]
+   }
+}
+
+set flickr(interestingness.getList) {
+   copy _proto
+   req_args { api_key: }
+   opt_args { date: extras: per_page: page: }
+   static_args { -method flickr.interestingness.getList }
+}
+
+set flickr(people.findByEmail) {
+   copy _proto
+   req_args { api_key: find_email: }
+   static_args { -method flickr.people.findByEmail }
+}
+
+set flickr(people.findByUsername) {
+   copy _proto
+   req_args { api_key: username: }
+   static_args { -method flickr.people.findByUsername }
+}
+
+set flickr(people.getInfo) {
+   copy _proto
+   req_args { api_key: user_id: }
+   static_args { -method flickr.people.getInfo }
+}
+
+set flickr(people.getPublicGroups) {
+   copy _proto
+   req_args { api_key: user_id: }
+   static_args { -method flickr.people.getPublicGroups }
+}
+
+set flickr(people.getPublicPhotos) {
+   copy _proto
+   req_args { api_key: user_id: }
+   opt_args { safe_search: extras: per_page: page: }
+   static_args { -method flickr.people.getPublicPhotos }
+}
+
+set flickr(photos.addTags) {
+   copy _proto
+   req_args { auth_token: api_key: secret: photo_id: tags: }
+   static_args { -method flickr.photos.addTags }
+}
+
+set flickr(photos.delete) {
+   copy _proto
+   req_args { auth_token: api_key: secret: photo_id: }
+   static_args { -method flickr.photos.delete }
+}
+
+set flickr(photos.getContactsPhotos) {
+   copy _proto
+   opt_args { count: just_friends: single_photo: include_self: extras: }
+   static_args { -method flickr.photos.getContactsPhotos }
+}
+
+set flickr(photos.) {
+   copy _proto
+   opt_args { per_page: page: }
+   static_args { -method flickr.photos. }
+}
+
+set flickr(photos.) {
+   copy _proto
+   opt_args { per_page: page: }
+   static_args { -method flickr.photos. }
+}
+
+set flickr(photos.) {
+   copy _proto
+   opt_args { per_page: page: }
+   static_args { -method flickr.photos. }
+}
+
+set flickr() {
+   copy _proto
+   opt_args { per_page: page: }
+   static_args { -method }
+}
+
+
+
+rest::create_interface flickr
+
+proc ::flickr::build {key} {
+   set methods [::flickr::reflection.getMethods -api_key $key]
+   set call {url http://api.flickr.com/services/rest/ opt_args {} static_args {} req_args {}}
+   foreach m flickr.photos.removeTag {
+      set info [::flickr::reflection.getMethodInfo -api_key $key -method_name $m]
+      puts $info
+      set tmp [lindex $info 1]
+      set name [dict get $tmp name]
+      if {[dict get $tmp needslogin] == 1} { dict lappend $call req_args api_key: }
+      if {[dict get $tmp needssigning] == 1} { dict lappend $call req_args secret:; dict set $call auth [list sign sign] }
+      puts $call
+   }
+   #::rest::create_interface
+}
+
+proc ::flickr::sign {query} {
+    set str [dict get $query secret]
+    set query [dict remove $query secret]
+    foreach x [lsort [dict keys $query]] {
+        append str $x[dict get $query $x]
+    }
+    dict append query api_sig [md5::md5 -hex $str]
+    return $query
+}
+
+proc ::flickr::loginLink {args} {
+   set query [lindex [::rest::parse_opts {} {api_key: secret: perms: frob:} {} $args] 0]
+   set query [::flickr::sign $query]
+   return http://flickr.com/services/auth/?[eval ::http::formatQuery $query]
+}
