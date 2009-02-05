@@ -74,22 +74,52 @@ opt_args
 static_args
     arguments that are always the same. no sense in troubling the user with these. A leading - is allowed but not required to maintain consistancy with the command line.
 auth
-    currently only accepts the value "basic". if this argument is used you can configure basic auth with the proc auth_basic which takes 2 arguments, the username and password.
+    should be one of basic or sign. if basic is used you can configure basic auth with the proc auth_basic which takes 2 arguments, the username and password.
+    if sign is specified then the value must be a list with the second element being the name of a proc which will be called to perform the request signing.
+[example {
+set delicious(updated) {
+    url https://api.del.icio.us/v1/posts/update
+    auth basic
+}
+
+rest::create_interface flickr
+
+flickr::basic_auth username password
+}
+
+[example {
+set flickr(auth.getToken) {
+   url http://api.flickr.com/services/rest/
+   req_args { api_key: secret: }
+   auth { sign do_signature }
+}
+
+rest::create_interface flickr
+
+proc ::flickr::do_signature {query} {
+    # perform some operations on the query here
+    return $query
+}
+}]
 callback
     If this option is present then the method will be created as an async call. An async call will return immediately with the value of the http token. The event loop must be active to use this option. The value of this option is the name of a proc which is invoked when the HTTP call is complete. The proc receives three arguments, the name of the calling procedure, the status of the result (one of OK or ERROR), and the data associated with the result.
+    the http request header is available via [call uplevel token token]
 cookie
     a list of cookies to be passed in the http header. this is just a shortcut to the headers option
 input_transform
     commands which take the variable $query and transform it in some manner before returning a new value. return value must be a dict which will be passed to http::formatQuery
+    the request body is accessible via [call upvar body body]
 format
     defines the format of the returned data. should be one of discard, raw, json, xml, or tdom. the default is auto which should auto detect between xml and json. rss is formated as
     a special case of xml.
 pre_transform
     this value takes the form of a proc which should perform some action on $result and return a value. it is run on the result before the output (xml/json/etc) transformation is done.
+    the http request header is available via [call uplevel token token]
 result
     may have the value xml, json, tdom, raw, or auto. the default is auto and should auto detect json or xml results and transform them into a tcl list. this is here if you want to specify it explicitly.
 post_transform
     this value takes the form of a proc which should perform some action on $result and return a value. it is run on the result after the output transformation but before returning the value to the calling procedure.
+    the http request header is available via [call uplevel token token]
 check_result
     this value should be a list of 2 expressions either of which may be empty. the first expression is checks the OK condition, it must return true when the result is satisfactory. the second expression is the error condition, it must return false unless there is an error.
 
