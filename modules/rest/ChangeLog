@@ -1,3 +1,8 @@
+2009-02-06  Aaron Faupell  <afaupell@users.sourceforge.net>
+
+	twitter: forgot to check this one in
+	flickr: fixed some broken or incomplete calls
+
 2009-02-05  Aaron Faupell  <afaupell@users.sourceforge.net>
 
 	rest.tcl: fix some errors regarding static args, the body command
