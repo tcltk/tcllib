@@ -21,6 +21,7 @@ package ifneeded math::interpolate       1.0.2 [list source [file join $dir inte
 package ifneeded math::linearalgebra     1.1   [list source [file join $dir linalg.tcl]]
 package ifneeded math::bignum            3.1.1 [list source [file join $dir bignum.tcl]]
 package ifneeded math::bigfloat          1.2.2 [list source [file join $dir bigfloat.tcl]]
+package ifneeded math::machineparameters 0.1   [list source [file join $dir machineparameters.tcl]]
 
 if {![package vsatisfies [package provide Tcl] 8.5]} {return}
 package ifneeded math::bigfloat          2.0.1 [list source [file join $dir bigfloat2.tcl]]
