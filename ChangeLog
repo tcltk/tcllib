@@ -1,3 +1,9 @@
+2009-02-06  Andreas Kupries  <andreask@activestate.com>
+
+	* support/installation/modules.tcl (Module): Put 'exif' on the
+	  exclude list, deprecating it. Use 'jpeg' instead to access the
+	  exif information block in images.
+
 2009-01-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* examples/bibtex/bibtex.tcl: Modified examples to assume that
