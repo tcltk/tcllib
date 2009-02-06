@@ -31,6 +31,7 @@ array set guide {}
 # @@ Registration START
 
 Exclude calendar
+Exclude exif
 
 #       name         pkg   doc   example
 Module  aes         _tcl  _man  _null
