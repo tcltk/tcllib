@@ -57,12 +57,15 @@ set flickr(contacts.getListRecentlyUploaded) {
 
 set flickr(contacts.getPublicList) {
    copy _proto
+   req_args { api_key: user_id: }
    opt_args { per_page: page: }
    static_args { -method flickr.contacts.getPublicList }
 }
 
 set flickr(favorites.add) {
    copy _proto
+   body none
+   method post
    req_args { auth_token: api_key: secret: photo_id: }
    static_args { -method flickr.favorites.add }
 }
@@ -82,6 +85,8 @@ set flickr(favorites.getPublicList) {
 
 set flickr(favorites.remove) {
    copy _proto
+   body none
+   method post
    req_args { auth_token: api_key: secret: photo_id: }
    static_args { -method flickr.favorites.remove }
 }
@@ -104,37 +109,6 @@ set flickr(groups.search) {
    req_args { api_key: text: }
    opt_args { per_page: page: }
    static_args { -method flickr.groups.search }
-}
-
-set flickr() {
-   copy _proto
-   opt_args { per_page: page: }
-   static_args { -method }
-}
-
-
-
-set flickr(reflection.getMethods) {
-   url http://api.flickr.com/services/rest/
-   req_args { api_key: }
-   static_args { -method flickr.reflection.getMethods }
-   check_result { {} {[regexp {stat fail} $result]} }
-   post_transform {
-      foreach {a b c} [lindex $result 2 0 2] {
-         if {[lindex $c 0] == "method"} { lappend out [lindex $c 2 0 1] }
-      }
-      return $out
-   }
-}
-
-set flickr(reflection.getMethodInfo) {
-   url http://api.flickr.com/services/rest/
-   req_args { api_key: method_name: }
-   static_args { -method flickr.reflection.getMethodInfo }
-   check_result { {} {[regexp {stat fail} $result]} }
-   post_transform {
-      return [lindex $result 2]
-   }
 }
 
 set flickr(interestingness.getList) {
@@ -177,12 +151,16 @@ set flickr(people.getPublicPhotos) {
 
 set flickr(photos.addTags) {
    copy _proto
+   body none
+   method post
    req_args { auth_token: api_key: secret: photo_id: tags: }
    static_args { -method flickr.photos.addTags }
 }
 
 set flickr(photos.delete) {
    copy _proto
+   body none
+   method post
    req_args { auth_token: api_key: secret: photo_id: }
    static_args { -method flickr.photos.delete }
 }
@@ -193,48 +171,109 @@ set flickr(photos.getContactsPhotos) {
    static_args { -method flickr.photos.getContactsPhotos }
 }
 
-set flickr(photos.) {
+set flickr(photos.getCounts) {
    copy _proto
-   opt_args { per_page: page: }
-   static_args { -method flickr.photos. }
+   opt_args { dates: taken_dates: }
+   static_args { -method flickr.photos.getCounts }
 }
 
-set flickr(photos.) {
+set flickr(photos.getExif) {
    copy _proto
-   opt_args { per_page: page: }
-   static_args { -method flickr.photos. }
+   req_args { api_key: photo_id: }
+   opt_args { secret: }
+   static_args { -method flickr.photos.getExif }
 }
 
-set flickr(photos.) {
+set flickr(photos.getInfo) {
    copy _proto
-   opt_args { per_page: page: }
-   static_args { -method flickr.photos. }
+   req_args { api_key: photo_id: }
+   opt_args { secret: }
+   static_args { -method flickr.photos.getInfo }
 }
 
-set flickr() {
+set flickr(photos.getRecent) {
    copy _proto
-   opt_args { per_page: page: }
-   static_args { -method }
+   req_args { api_key: }
+   opt_args { per_page: page: extras: }
+   static_args { -method flickr.photos.getRecent }
 }
 
+set flickr(photos.getSizes) {
+   copy _proto
+   req_args { api_key: photo_id: }
+   static_args { -method flickr.photos.getSizes }
+}
+
+set flickr(photos.search) {
+   copy _proto
+   req_args { api_key: }
+   opt_args { user_id: tags: tag_mode: text: min_upload_date: max_upload_date:
+              min_taken_date: max_taken_date: license: sort: privacy_filter:
+              extras: page: per_page: group_id: safe_search: }
+   static_args { -method flickr.photos.search }
+}
+
+set flickr(photos.setTags) {
+   copy _proto
+   body none
+   method post
+   req_args { auth_token: api_key: secret: photo_id: tags: }
+   static_args { -method flickr.photos.setTags }
+}
+
+set flickr(photos.comments.addComment) {
+   copy _proto
+   body none
+   method post
+   req_args { auth_token: api_key: secret: photo_id: comment_text: }
+   static_args { -method flickr.photos.comments.addComment }
+}
+
+set flickr(photos.comments.getList) {
+   copy _proto
+   req_args { api_key: photo_id: }
+   opt_args { min_comment_date: max_comment_date: }
+   static_args { -method flickr.photos.comments.getList }
+}
+
+set flickr(photosets.addPhoto) {
+   copy _proto
+   body none
+   method post
+   req_args { auth_token: api_key: secret: photo_id: photoset_id: }
+   static_args { -method flickr.photosets.addPhoto }
+}
+
+set flickr(photosets.create) {
+   copy _proto
+   body none
+   method post
+   req_args { auth_token: api_key: secret: title: primary_photo_id: }
+   opt_args { description: }
+   static_args { -method flickr.photosets.create }
+}
+
+set flickr(photosets.getInfo) {
+   copy _proto
+   req_args { api_key: photoset_id: }
+   static_args { -method flickr.photosets.getInfo }
+}
+
+set flickr(photosets.getPhotos) {
+   copy _proto
+   req_args { api_key: photoset_id: }
+   opt_args { per_page: page: media: extras: privacy_filter: }
+   static_args { -method flickr.photosets.getPhotos }
+}
+
+set flickr(photosets.getList) {
+   copy _proto
+   req_args { api_key: user_id: }
+   static_args { -method flickr.photosets.getList }
+}
 
 
 rest::create_interface flickr
-
-proc ::flickr::build {key} {
-   set methods [::flickr::reflection.getMethods -api_key $key]
-   set call {url http://api.flickr.com/services/rest/ opt_args {} static_args {} req_args {}}
-   foreach m flickr.photos.removeTag {
-      set info [::flickr::reflection.getMethodInfo -api_key $key -method_name $m]
-      puts $info
-      set tmp [lindex $info 1]
-      set name [dict get $tmp name]
-      if {[dict get $tmp needslogin] == 1} { dict lappend $call req_args api_key: }
-      if {[dict get $tmp needssigning] == 1} { dict lappend $call req_args secret:; dict set $call auth [list sign sign] }
-      puts $call
-   }
-   #::rest::create_interface
-}
 
 proc ::flickr::sign {query} {
     set str [dict get $query secret]
