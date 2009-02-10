@@ -5,7 +5,7 @@
 	* docidx.test: documentation, where not already in alignment.
 	* docidx_lang_intro.man: Extended testsuite. Fixed small typo
 	* docidx_lang_syntax.man: orthogonal to this change.
-	* pkgIndex.tcl:
+	* pkgIndex.tcl: Fixes [SF Tcllib Bug 2557107].
 
 2009-01-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
