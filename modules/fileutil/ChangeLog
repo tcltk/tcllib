@@ -1,3 +1,9 @@
+2009-02-10  Andreas Kupries  <andreask@activestate.com>
+
+	* traverse.man: Fixed bug in the requirements, this package
+	* traverse.tcl: needs fileutil (-> fullnormalize). Bumped
+	* pkgIndex.tcl: version to 0.4.1.
+
 2009-02-05  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.tcl (::fileutil::stripPath): Fixed handling
