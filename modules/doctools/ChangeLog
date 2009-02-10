@@ -1,3 +1,12 @@
+2009-02-10  Andreas Kupries  <andreask@activestate.com>
+
+	* checker_idx.tcl (index_end): Allow empty index (no keys).
+	* docidx.tcl: Bumped package to vrsion 1.0.1. Updated the
+	* docidx.test: documentation, where not already in alignment.
+	* docidx_lang_intro.man: Extended testsuite. Fixed small typo
+	* docidx_lang_syntax.man: orthogonal to this change.
+	* pkgIndex.tcl:
+
 2009-01-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* docidx.tcl: Extended the plugin APIs for all formats with a new
