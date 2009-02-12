@@ -2,6 +2,7 @@
 [copyright {2006-2009, Aaron Faupell <afaupell@users.sourceforge.net>}]
 [moddesc   {NMEA protocol implementation}]
 [titledesc {Process NMEA data}]
+[category Networking]
 [require Tcl 8.4]
 [require nmea [opt 1.0.0]]
 [description]
