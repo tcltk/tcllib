@@ -1,3 +1,15 @@
+2009-02-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* checker_toc.tcl: TOC language extended to allow empty tocs, empty
+	* docidx.test: divisions, and the mixing of items and divisions at
+	* doctoc.tcl: every level. Extended testsuite. Updated documentation.
+	* doctoc.test: Bumped version to 1.1. Fixed bug in the documentation
+	* doctoc_lang_cmdref.man: of markup command 'item' (arguments were
+	* doctoc_lang_intro.man: missing).
+	* doctoc_lang_syntax.man:
+	* doctoc.man:
+	* pkgIndex.tcl:
+
 2009-02-10  Andreas Kupries  <andreask@activestate.com>
 
 	* checker_idx.tcl (index_end): Allow empty index (no keys).
