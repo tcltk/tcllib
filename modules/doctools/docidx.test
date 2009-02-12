@@ -5,10 +5,10 @@
 # built-in commands.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# Copyright (c) 2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2003-2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: docidx.test,v 1.14 2009/02/10 22:56:12 andreas_kupries Exp $
+# RCS: @(#) $Id: docidx.test,v 1.15 2009/02/12 05:42:47 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
