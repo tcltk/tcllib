@@ -3,7 +3,7 @@
 #
 # Copyright (c) 2004-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
-# RCS: @(#) $Id: fa_state.test,v 1.6 2007/04/12 03:43:15 andreas_kupries Exp $
+# RCS: @(#) $Id: fa_state.test,v 1.7 2009/02/13 23:18:31 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -285,6 +285,18 @@ test fa-state-${setimpl}-5.7 {state rename} {
     a destroy
     set res
 } {grammar::fa @ {x {0 0 {@ z}} z {0 0 {}}}}
+
+
+test fa-state-${setimpl}-6.0 {state rename with loop, SF bug 2595296} {
+    grammar::fa a
+    a state add x
+    a symbol add @
+    a next x @ --> x
+    a state rename x y
+    set res [a serialize]
+    a destroy
+    set res
+} {grammar::fa @ {y {0 0 {@ y}}}}
 
 
 # -------------------------------------------------------------------------
