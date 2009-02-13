@@ -1,5 +1,5 @@
 # -*- tcl -*-
-# (c) 2004-1007 Andreas Kupries
+# (c) 2004-2009 Andreas Kupries
 # Grammar / Finite Automatons / Container
 
 # ### ### ### ######### ######### #########
@@ -401,11 +401,17 @@ snit::type ::grammar::fa {
 		    unset transinv($s)
 
 		    # We have to perform a bit more here. We have to
-		    # go through the inbound transitions and chane the
+		    # go through the inbound transitions and change the
 		    # listed destination state to the new name.
 
 		    foreach srcitem $transinv($snew) {
 			struct::list assign $srcitem sin sym
+			# For loops access the 'order' array under the
+			# new name, the old entry is already gone. See
+			# above. See bug SF 2595296.
+			if {$sin eq $s} {
+			    set sin $snew
+			}
 			upvar #0 ${selfns}::trans_$order($sin) jump
 			upvar 0 jump($sym) destinations
 			set pos [lsearch -exact $destinations $s]
@@ -1267,4 +1273,4 @@ snit::type ::grammar::fa {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide grammar::fa 0.3
+package provide grammar::fa 0.3.1
