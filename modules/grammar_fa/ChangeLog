@@ -1,3 +1,10 @@
+2009-02-13  Andreas Kupries  <andreask@activestate.com>
+
+	* fa.tcl: Fixed [SF Tcllib Bug 2595296], renaming of states
+	* fa.man: having loop transitions. Bumped version to 0.3.1.
+	* pkgIndex.tcl: Extended testsuite.
+	* tests/fa_state.test
+
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
