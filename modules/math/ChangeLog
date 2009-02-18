@@ -1,3 +1,6 @@
+2009-02-18  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* machineparameters.man: Replaced deprecated markup (bug #2597454)
+
 2009-02-06  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* pkgIndex.tcl: Added machineparameters package
 	* machineparameters.tcl: New package by Michael Baudin
