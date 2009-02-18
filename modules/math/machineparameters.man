@@ -20,7 +20,7 @@ where digits satisfy
 0 <= di <= basis - 1, i = 1, t
 }]
 with the convention :
-[list_begin bullet]
+[list_begin itemized]
 [item] t is the size of the mantissa
 [item] basis is the basis (the "radix")
 [list_end]
@@ -103,7 +103,7 @@ tcl_platform(wordSize)  = 4
 
 [section REFERENCES]
 
-[list_begin bullet]
+[list_begin itemized]
 [item] "Algorithms to Reveal Properties of Floating-Point Arithmetic", Michael A. Malcolm, Stanford University, Communications of the ACM, Volume 15 ,  Issue 11  (November 1972), Pages: 949 - 951
 [item] "More on Algorithms that Reveal Properties of Floating, Point Arithmetic Units", W. Morven Gentleman, University of Waterloo, Scott B. Marovich, Purdue University, Communications of the ACM, Volume 17 ,  Issue 5  (May 1974), Pages: 276 - 277
 [list_end]
@@ -155,7 +155,7 @@ Computes the machine parameters.
 
 Returns the value corresponding with given key.
 The following is the list of available keys.
-[list_begin bullet]
+[list_begin itemized]
 [item] -epsilon : smallest value so that 1+epsilon>1 is false
 [item] -rounding : The rounding mode used on the machine.
 The rounding occurs when more than t digits would be required to
