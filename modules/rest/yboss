@@ -1,3 +1,5 @@
+# documentation: http://developer.yahoo.com/search/boss/boss_guide/
+
 package require rest
 
 set yboss(web) {
