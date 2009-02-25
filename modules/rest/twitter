@@ -1,3 +1,5 @@
+# documentation: http://apiwiki.twitter.com/REST+API+Documentation
+
 package require rest
 
 set twitter(public_timeline) {
