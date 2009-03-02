@@ -1,3 +1,12 @@
+2009-03-02  Andreas Kupries  <andreask@activestate.com>
+
+	* wip.man: Made the use of 'wip' class in the snit macro
+	* wip.tcl: 'wip::dsl' fully qualified to prevent mis-resolutions
+	* wip2.tcl: of the name in case the user is a '...::wip' class
+	* pkgIndex.tcl: itself. In snit say this would resolve to the user
+	  instead of the wip interpreter. Bumped the versions to 1.1.2 and
+	  2.1.2 respectively.
+
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
