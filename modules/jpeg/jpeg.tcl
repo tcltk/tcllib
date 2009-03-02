@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: jpeg.tcl,v 1.15 2008/03/24 00:21:09 andreas_kupries Exp $
+# RCS: @(#) $Id: jpeg.tcl,v 1.16 2009/03/02 18:35:53 andreas_kupries Exp $
 
-package provide jpeg 0.3.3
+package provide jpeg 0.3.4
 
 namespace eval ::jpeg {}
 
@@ -51,7 +51,7 @@ proc ::jpeg::markers {fh} {
 }
 
 proc ::jpeg::imageInfo {file} {
-    set fh [openJFIF $file r+]
+    set fh [openJFIF $file r]
     set data {}
     if {[set app0 [lsearch -inline [markers $fh] "e0 *"]] != ""} {
         seek $fh [lindex $app0 1] start
