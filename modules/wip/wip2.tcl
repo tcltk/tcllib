@@ -1,6 +1,6 @@
 # ### ### ### ######### ######### #########
 ##
-# (c) 2008 Andreas Kupries.
+# (c) 2008-2009 Andreas Kupries.
 
 # WIP = Word Interpreter (Also a Work In Progress :). Especially while
 # it is running :P
@@ -375,7 +375,7 @@ snit::macro wip::dsl {{suffix {}}} {
     # to manually add a call of this method to the constructor.
 
     method wip${suffix}_setup {} [string map [list @@ $suffix] {
-	install {mywip@@} using wip "${selfns}::mywip@@" $self
+	install {mywip@@} using ::wip "${selfns}::mywip@@" $self
     }]
 
     # Procedures for easy access to the processor methods, without
@@ -397,4 +397,4 @@ snit::macro wip::dsl {{suffix {}}} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide wip 2.1.1
+package provide wip 2.1.2
