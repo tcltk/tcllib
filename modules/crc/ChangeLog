@@ -1,3 +1,8 @@
+2009-03-04  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* crc32.man:  Add note on feeding crc32 values in as -seed.
+	* crc32.test: Tests to ensure -seed usage is as expected.
+
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
