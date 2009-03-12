@@ -238,7 +238,8 @@ proc ::rest::parameters {url args} {
 # _call --
 #
 # makes an http request
-# expected to be called only by a generated procedure
+# expected to be called only by a generated procedure because it depends on the
+# config dict
 #
 # ARGS:
 #       name       name of the array containing command definitions
@@ -260,8 +261,8 @@ proc ::rest::_call {callback headers url query body} {
     # get the settings from the calling proc
     upvar config config
     
-    set method get
-    if {[dict exists $config method]} { set method [dict get $config method] }
+    set method GET
+    if {[dict exists $config method]} { set method [string toupper [dict get $config method]] }
 
     # assume the query should really be the body for post or put requests
     # with no other body. doesnt seem technically correct but works for
@@ -269,7 +270,7 @@ proc ::rest::_call {callback headers url query body} {
     # specify the difference between url parameters and request body
     if {[dict exists $config body] && [string match no* [dict get $config body]]} {
         # never put the query in the body if the user said no body
-    } elseif {($method == "post" || $method == "put") && $query != "" && $body == ""} {
+    } elseif {($method == "POST" || $method == "PUT") && $query != "" && $body == ""} {
         set body $query
         set query {}
     }
@@ -298,9 +299,9 @@ proc ::rest::_call {callback headers url query body} {
     if {$callback != ""} { return $t }
     if {![string match 2* [http::ncode $t]]} {
         #parray $t
-        if {[http::ncode $t] == "302"} {
+        if {[string match {30[12]} [http::ncode $t]]} {
             upvar #0 $t a
-            return -code error [list HTTP 302 [dict get $a(meta) Location]]
+            return -code error [list HTTP [http::ncode $t] [dict get $a(meta) Location]]
         }
         return -code error [list HTTP [http::ncode $t]]
     }
@@ -482,6 +483,8 @@ proc ::rest::substitute {input q} {
         set opt [lindex [split $name :] 0]
         if {[dict exists $query $opt]} {
             set replace [dict get $query $opt]
+            #set replace [string map {/ %2F} $replace]
+            #set replace [string range [http::formatQuery "" $replace] 1 end]
             set query [dict remove $query $opt]
         } else {
             set replace {}
