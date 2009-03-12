@@ -1,3 +1,7 @@
+2009-03-11  Aaron Faupell  <afaupell@users.sourceforge.net>
+	rest.tcl: make http methods upper case
+		add 301 to redirect errors
+
 2009-02-06  Aaron Faupell  <afaupell@users.sourceforge.net>
 
 	twitter: forgot to check this one in
