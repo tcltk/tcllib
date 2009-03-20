@@ -1,3 +1,7 @@
+2009-03-20  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* linalg.tcl: Solving bugs with test matrices (bugs #2695513, 2695564, 2695618)
+	* linalg.test: Added test cases for border matrix and Wilkinson W- and W+
+
 2009-02-18  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* machineparameters.man: Replaced deprecated markup (bug #2597454)
 
