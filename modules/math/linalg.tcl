@@ -187,7 +187,7 @@ proc ::math::linearalgebra::angle { vect1 vect2 } {
 #                norm (default: 2, the euclidean norm)
 # Result:
 #     The (1-, 2- or Inf-) norm of a vector
-# Level-1 BLAS : 
+# Level-1 BLAS :
 #     if type = 1, corresponds to DASUM
 #     if type = 2, corresponds to DNRM2
 #
@@ -241,12 +241,12 @@ proc ::math::linearalgebra::norm_two { vector } {
 #     Compute the inf-norm of a vector (maximum of its components)
 # Arguments:
 #     vector     Vector
-#     index, optional     if non zero, returns a list made of the maximum 
+#     index, optional     if non zero, returns a list made of the maximum
 #                         value and the index where that maximum was found.
 #	                  if zero, returns the maximum value.
 # Result:
 #     The inf-norm of a vector
-# Level-1 BLAS : 
+# Level-1 BLAS :
 #     if index!=0, corresponds to IDAMAX
 #
 proc ::math::linearalgebra::norm_max { vector {index 0}} {
@@ -824,9 +824,9 @@ proc ::math::linearalgebra::matmul_vv { vect1 vect2 } {
 #     By transposing matrix B we can access the columns
 #     as rows - much easier and quicker, as they are
 #     the elements of the outermost list.
-# Level-3 BLAS : 
+# Level-3 BLAS :
 #     corresponds to DGEMM (alpha op(A) op(B) + beta C) when alpha=1, op(X)=X and beta=0
-#     corresponds to DTRMM (alpha op(A) B) when alpha = 1, op(X)=X          
+#     corresponds to DTRMM (alpha op(A) B) when alpha = 1, op(X)=X
 #
 proc ::math::linearalgebra::matmul_mm { mat1 mat2 } {
    set newmat {}
@@ -1056,18 +1056,12 @@ proc ::math::linearalgebra::mkBorder { size } {
             set entry 0.0
             if { $i == $j } {
                 set entry 1.0
-            }
-            if { $i == $size-1 } {
+            } elseif { $j != $size-1 && $i == $size-1 } {
                 set entry [expr {pow(2.0,-$j)}]
-                if { $j == $size-1 } {
-                   set entry 0.0
-                }
-            }
-            if { $j == $size-1 } {
+            } elseif { $i != $size-1 && $j == $size-1 } {
                 set entry [expr {pow(2.0,-$i)}]
-                if { $i == $size-1 } {
-                   set entry 0.0
-                }
+            } else {
+                set entry 0.0
             }
             lappend row $entry
         }
@@ -1091,13 +1085,14 @@ proc ::math::linearalgebra::mkWilkinsonW+ { size } {
     for { set j 0 } { $j < $size } { incr j } {
         set row {}
         for { set i 0 } { $i < $size } { incr i } {
-            set entry 0.0
             if { $i == $j } {
-                set entry [expr {$size/2 + 1 -
-                                   ($i>$size-$i+1? $size-$i : $i+1)}]
-            }
-            if { $i == $j+1 || $i+1 == $j } {
+                # int(n/2) + 1 - min(i,n-i+1)
+                set min   [expr {(($i+1)>$size-($i+1)+1? $size-($i+1)+1 : ($i+1))}]
+                set entry [expr {int($size/2) + 1 - $min}]
+            } elseif { $i == $j+1 || $i+1 == $j } {
                 set entry 1
+            } else {
+                set entry 0.0
             }
             lappend row $entry
         }
@@ -1106,12 +1101,12 @@ proc ::math::linearalgebra::mkWilkinsonW+ { size } {
     return $result
 }
 
-# mkWilkinsonW+ --
-#     Make a Wilkinson W+ matrix
+# mkWilkinsonW- --
+#     Make a Wilkinson W- matrix
 # Arguments:
 #     size       Size of the matrix
 # Result:
-#     A nested list, representing a Wilkinson W+ matrix
+#     A nested list, representing a Wilkinson W- matrix
 # Note:
 #     This kind of matrix has pairs of eigenvalues with
 #     opposite signs (if the order is odd).
@@ -1121,12 +1116,12 @@ proc ::math::linearalgebra::mkWilkinsonW- { size } {
     for { set j 0 } { $j < $size } { incr j } {
         set row {}
         for { set i 0 } { $i < $size } { incr i } {
-            set entry 0.0
             if { $i == $j } {
-                set entry [expr {$size/2 + $i}]
-            }
-            if { $i == $j+1 || $i+1 == $j } {
+                set entry [expr {int($size/2) + 1 - ($i+1)}]
+            } elseif { $i == $j+1 || $i+1 == $j } {
                 set entry 1
+            } else {
+                set entry 0.0
             }
             lappend row $entry
         }
@@ -1157,7 +1152,7 @@ proc ::math::linearalgebra::mkRandom { size } {
 #     Make a triangular matrix consisting of a constant
 # Arguments:
 #     size       Number of rows/columns
-#     uplo       U if the matrix is upper triangular (default), L if the 
+#     uplo       U if the matrix is upper triangular (default), L if the
 #                matrix is lower triangular.
 #     value      Default value for all elements (default: 0.0)
 # Result:
@@ -1512,12 +1507,12 @@ proc ::math::linearalgebra::solvePGauss { matrix bvect } {
 # Arguments:
 #     matrix     Matrix defining the coefficients
 #     bvect      Right-hand side (may be several columns)
-#     uplo       U if the matrix is upper triangular (default), L if the 
+#     uplo       U if the matrix is upper triangular (default), L if the
 #                matrix is lower triangular.
 #
 # Result:
 #     Solution of the system or an error in case of singularity
-# LAPACK : corresponds to DTPTRS, but in the current command, the matrix 
+# LAPACK : corresponds to DTPTRS, but in the current command, the matrix
 #          is in regular format (unpacked).
 #
 proc ::math::linearalgebra::solveTriangular { matrix bvect {uplo "U"}} {
@@ -1531,14 +1526,14 @@ proc ::math::linearalgebra::solveTriangular { matrix bvect {uplo "U"}} {
                 set bvect_sweep [getrow $bvect  $i]
                 set sweep_fact  [expr {double([lindex $sweep_row $i])}]
                 set norm_fact   [expr {1.0/$sweep_fact}]
-                
+
                 lset bvect $i [scale $norm_fact $bvect_sweep]
-                
+
                 for { set j [expr {$i-1}] } { $j >= 0 } { incr j -1 } {
                     set current_row   [getrow $matrix $j]
                     set bvect_current [getrow $bvect  $j]
                     set factor     [expr {-[lindex $current_row $i]/$sweep_fact}]
-                    
+
                     lset bvect  $j [axpy_vect $factor $bvect_sweep $bvect_current]
                 }
             }
@@ -2012,7 +2007,7 @@ proc ::math::linearalgebra::dger { matrix alpha x y {scope ""}} {
     return $mat
 }
 # dgetrf --
-#     Computes an LU factorization of a general matrix, using partial,    
+#     Computes an LU factorization of a general matrix, using partial,
 #     pivoting with row interchanges.
 #
 # Arguments:
@@ -2033,7 +2028,7 @@ proc ::math::linearalgebra::dgetrf { matrix } {
     upvar $matrix mat
     set norows [llength $mat]
     set nocols $norows
-    
+
     # Initialize permutation
     set nm1 [expr {$norows - 1}]
     set ipiv {}
