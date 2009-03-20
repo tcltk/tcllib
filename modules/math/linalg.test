@@ -698,6 +698,35 @@ test mkTriangular-2 "make triangular matrix" -match numbers -body {
     mkTriangular 3 "L" 2.
 } -result {{2. 0. 0.} {2. 2. 0.} {2. 2. 2.}}
 
+test mkBorder "make border matrix"- match numbers -body {
+    mkBorder 5
+} -result {
+{1.0000 1.0000 0.0000 0.0000 1.0000}
+{0.0000 1.0000 0.0000 0.0000 0.5000}
+{0.0000 0.0000 1.0000 0.0000 0.2500}
+{0.0000 0.0000 0.0000 1.0000 0.1250}
+{1.0000 0.5000 0.2500 0.1250 1.0000}}
+
+test mkWilkinsonW- "make Wilkinson W- matrix"- match numbers -body {
+    mkWilkinsonW- 5
+} -result {
+{2.0000 1.0000 0.0000 0.0000 0.0000}
+{1.0000 1.0000 1.0000 0.0000 0.0000}
+{0.0000 1.0000 0.0000 1.0000 0.0000}
+{0.0000 0.0000 1.0000 -1.0000 1.0000}
+{0.0000 0.0000 0.0000 1.0000 -2.0000}}
+
+test mkWilkinsonW+ "make Wilkinson W+ matrix"- match numbers -body {
+    mkWilkinsonW+ 7
+} -result {
+{3.0000 1.0000 0.0000 0.0000 0.0000 0.0000 0.0000}
+{1.0000 2.0000 1.0000 0.0000 0.0000 0.0000 0.0000}
+{0.0000 1.0000 1.0000 1.0000 0.0000 0.0000 0.0000}
+{0.0000 0.0000 1.0000 0.0000 1.0000 0.0000 0.0000}
+{0.0000 0.0000 0.0000 1.0000 1.0000 1.0000 0.0000}
+{0.0000 0.0000 0.0000 0.0000 1.0000 2.0000 1.0000}
+{0.0000 0.0000 0.0000 0.0000 0.0000 1.0000 3.0000}}
+
 # Additional tests: procedures by Federico Ferri
 #source ferri/ferri.test
 
