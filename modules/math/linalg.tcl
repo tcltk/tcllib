@@ -2110,7 +2110,7 @@ proc ::math::linearalgebra::from_LA { mv } {
 #
 # Announce the package's presence
 #
-package provide math::linearalgebra 1.1
+package provide math::linearalgebra 1.1.1
 
 if { 0 } {
 Te doen:

@@ -39,7 +39,7 @@ if {$regular==1} then {
     namespace import tcltest::customMatch
     set basedir [file normalize [file dirname [info script]]]
     set ::auto_path [linsert $::auto_path 0 $basedir]
-    package require math::linearalgebra 1.0.4
+    package require math::linearalgebra 1.1
 }
 # -------------------------------------------------------------------------
 
