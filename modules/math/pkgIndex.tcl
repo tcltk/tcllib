@@ -18,7 +18,7 @@ package ifneeded math::statistics        0.6   [list source [file join $dir stat
 package ifneeded math::optimize          1.0   [list source [file join $dir optimize.tcl]]
 package ifneeded math::calculus          0.7.1 [list source [file join $dir calculus.tcl]]
 package ifneeded math::interpolate       1.0.2 [list source [file join $dir interpolate.tcl]]
-package ifneeded math::linearalgebra     1.1   [list source [file join $dir linalg.tcl]]
+package ifneeded math::linearalgebra     1.1.1 [list source [file join $dir linalg.tcl]]
 package ifneeded math::bignum            3.1.1 [list source [file join $dir bignum.tcl]]
 package ifneeded math::bigfloat          1.2.2 [list source [file join $dir bigfloat.tcl]]
 package ifneeded math::machineparameters 0.1   [list source [file join $dir machineparameters.tcl]]
