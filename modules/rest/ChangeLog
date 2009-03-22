@@ -1,3 +1,11 @@
+2009-03-21  Aaron Faupell  <afaupell@users.sourceforge.net>
+	rest.tcl: comment out debugging code which dumped the proc contents
+		add rest::simple command for making simple requests
+		change _format procs for format for easier use with simple calls
+		add version to http package require
+		add format as an alias to result config option
+		if a transform is a single cmd it is called directly instead of creating a proc
+
 2009-03-11  Aaron Faupell  <afaupell@users.sourceforge.net>
 	rest.tcl: make http methods upper case
 		add 301 to redirect errors
