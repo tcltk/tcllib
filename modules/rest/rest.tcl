@@ -1,5 +1,5 @@
 package require Tcl 8.5
-package require http
+package require http 2.7
 package require json
 package require tdom
 package require base64
@@ -11,9 +11,78 @@ namespace eval ::rest {
     describe substitute
 }
 
+# simple --
+#
+# perform a simple rest call
+#
+# ARGS:
+#       url        name of the array containing command definitions
+#       query      query string or list of key/value pairs to be passed to http::formatQuery
+#       config     (optional) dict containing configuration options for the call
+#       body       (optional) data for the body of the http request
+#
+# RETURNS:
+#       the data from the rest call
+#
+proc ::rest::simple {url query args} {
+    set headers [list]
+    set config [lindex $args 0]
+    if {[string index $config 0] == "-"} {
+        set opts [parse_opts {} {} {headers: cookie: auth: format: method:} [join $args]]
+        set config [lindex $opts 0]
+        set body [lindex $opts 1]
+    } else {
+        set body [lindex $args 1]
+    }
+
+    # make sure we know which method to use
+    if {![dict exists $config method]} {
+        # set the method using the name we were invoked with (through interp alias)
+        dict set config method [namespace tail [lindex [dict get [info frame -1] cmd] 0]]
+        if {[dict get $config method] == "simple"} { dict set config method get }
+    }
+
+    if {[string first " " $query] > 0} {
+        # if query has a space assume it is a list of key value pairs, and do the formatting
+        set query [eval ::http::formatQuery $query]
+    } elseif {[string first ? $url] > 0 && $query == ""} {
+        # if the url contains a query string and query empty then split it to the correct vars
+        set query [join [lrange [split $url ?] 1 end] ?]
+        set url [lindex [split $url ?] 0]
+    }
+
+    if {[dict exists $config auth]} {
+        set auth [dict get $config auth]
+        if {[lindex $auth 0] == "basic"} {
+            lappend headers Authorization "Basic [base64::encode [lindex $auth 1]:[lindex $auth 2]]"
+        }
+    }
+    if {[dict exists $config headers]} {
+        dict for {key val} [dict get $config headers] { lappend headers $key $val }
+    }
+    if {[dict exists $config cookie]} {
+        lappend headers Cookie [join [dict get $config cookie] \;]
+    }
+
+    set result [::rest::_call {} $headers $url $query $body]
+
+    # if a format was specified then convert the data, but dont do any auto formatting
+    if {[dict exists $config result]} {
+        set result [::rest::format_[dict get $config result] $result]
+    }
+
+    return $result
+}
+
+interp alias {} ::rest::get    {} ::rest::simple
+interp alias {} ::rest::post   {} ::rest::simple
+interp alias {} ::rest::head   {} ::rest::simple
+interp alias {} ::rest::put    {} ::rest::simple
+interp alias {} ::rest::delete {} ::rest::simple
+
 # create_interface --
 #
-# main entry point - construct a new rest API
+# use an array which defines a rest API to construct a set of procs
 #
 # ARGS:
 #       name       name of the array containing command definitions
@@ -99,12 +168,7 @@ proc ::rest::create_interface {name} {
         if {[dict exists $config cookie]} {
             lappend proc {lappend headers Cookie [join [dict get $config cookie] \;]}
         }
-
-        if {[dict exists $config input_transform]} {
-            lappend proc "set query \[::${name}::_input_transform_$call \$query]"
-            proc ::${name}::_input_transform_$call query [dict get $config input_transform]
-        }
-
+        _transform $name $call $config proc input_transform
         if {[dict exists $config auth] && [lindex [dict get $config auth] 0] == "sign"} {
             lappend proc "set query \[::${name}::[lindex [dict get $config auth] 1] \$query]"
         }
@@ -126,19 +190,15 @@ proc ::rest::create_interface {name} {
         }
         
         # process results
-        if {[dict exists $config pre_transform]} {
-            lappend proc "set result \[::${name}::_pre_transform_$call \$result]"
-            proc ::${name}::_pre_transform_$call result [dict get $config pre_transform]
-        }
+        _transform $name $call $config proc pre_transform
         if {[dict exists $config result]} {
-            lappend proc "set result \[::rest::_format_[dict get $config result] \$result]"
+            lappend proc "set result \[::rest::format_[dict get $config result] \$result]"
+        } elseif {[dict exists $config format]} {
+            lappend proc "set result \[::rest::format_[dict get $config format] \$result]"
         } else {
-            lappend proc "set result \[::rest::_format_auto \$result]"
+            lappend proc "set result \[::rest::format_auto \$result]"
         }
-        if {[dict exists $config post_transform]} {
-            lappend proc "set result \[::${name}::_post_transform_$call \$result]"
-            proc ::${name}::_post_transform_$call result [dict get $config post_transform]
-        }
+        _transform $name $call $config proc post_transform
         if {[dict exists $config check_result]} {
             lappend proc "::rest::_check_result \$result [dict get $config check_result]"
         }
@@ -165,12 +225,42 @@ proc ::rest::create_interface {name} {
     set ::${name}::static_args {}
     
     # print the contents of all the dynamic generated procs
-    if {1} {
+    if {0} {
         foreach x [info commands ::${name}::*] {
             puts "proc $x \{[info args $x]\} \{\n[info body $x]\n\}\n"
         }
     }
     return $name
+}
+
+# _transform --
+#
+# called by create_interface to handle the creation of user defined procedures
+#
+# ARGS:
+#       ns         target namespace
+#       call       name of the proc that is being created
+#       config     dict of config options
+#       proc       name of variable holding the proc being created
+#       name       name of the transform
+#
+# EFFECTS:
+#       appends commands to the proc variable and possible creates a new proc
+#
+# RETURNS:
+#       nothing
+#
+proc ::rest::_transform {ns call config proc name} {
+    upvar $proc p
+    if {[dict exists $config $name]} {
+        set t [dict get $config $name]
+        if {[llength [split $t]] == 1 && [info commands $t] != ""} {
+            lappend p "set result \[$t \$result]"
+        } else {
+            lappend p "set result \[::${ns}::_${name}_$call \$result]"
+            proc ::${ns}::_${name}_$call result $t
+        }
+    }
 }
 
 # save --
@@ -201,8 +291,8 @@ package require tls
     
     puts $fh "namespace eval ::$name \{\}\n"
     foreach x {_call _callback parse_opts _addopts substitute _check_result \
-            _format_auto _format_raw _format_xml _format_json _format_discard \
-            _format_tdom} {
+            format_auto format_raw format_xml format_json format_discard \
+            format_tdom} {
         puts $fh "proc ::${name}::$x \{[info args $x]\} \{[info body $x]\n\}\n"
     }
     foreach x [info commands ::${name}::*] {
@@ -590,7 +680,7 @@ proc ::rest::_check_result {result ok err} {
     return -code error [list ERR $result "ok expression failed or returned false" $ok $out]
 }
 
-# _format_auto --
+# format_auto --
 #
 # the default data formatter. tries to detect the data type and dispatch
 # to a specific handler
@@ -601,41 +691,41 @@ proc ::rest::_check_result {result ok err} {
 # RETURNS:
 #       data, possibly transformed in a representation specific manner
 #
-proc ::rest::_format_auto {data} {
+proc ::rest::format_auto {data} {
     if {[string match {<*} [string trimleft $data]]} {
-        return [_format_xml $data]
+        return [format_xml $data]
     }
     if {[string match \{* $data] || [regexp {":\s*[\{\[]} $data]} {
-        return [_format_json $data]
+        return [format_json $data]
     }
     return $data
 }
 
-proc ::rest::_format_raw {data} {
+proc ::rest::format_raw {data} {
     return $data
 }
 
-proc ::rest::_format_discard {data} {
+proc ::rest::format_discard {data} {
     return -code ok
 }
 
-proc ::rest::_format_json {data} {
+proc ::rest::format_json {data} {
     #if {[regexp -nocase {^[a-z_.]+ *= *(.*)} $data -> json]} {
     #    set data $json
     #}
     return [json::json2dict $data]
 }
 
-proc ::rest::_format_xml {data} {
+proc ::rest::format_xml {data} {
     set d [[dom parse $data] documentElement]
     set data [$d asList]
     if {[lindex $data 0] == "rss"} {
-        set data [_format_rss $data]
+        set data [format_rss $data]
     }
     return $data
 }
 
-proc ::rest::_format_rss {data} {
+proc ::rest::format_rss {data} {
     set data [lindex $data 2 0 2]
     set out {}
     set channel {}
@@ -655,6 +745,6 @@ proc ::rest::_format_rss {data} {
     return [linsert $out 0 channel $channel]
 }
 
-proc ::rest::_format_tdom {data} {
+proc ::rest::format_tdom {data} {
     return [[dom parse $data] documentElement]
 }

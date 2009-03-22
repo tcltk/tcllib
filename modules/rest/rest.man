@@ -7,6 +7,45 @@
 [description]
 [para]
 
+There are 2 types of usage this package supports: simple calls, and complete interfaces. In an interface you specify a set of rules and then the package builds commands which correspond to the REST methods. These commands can have many options such as input and output transformations and data type specific formatting. This results in a cleaner and simpler script. On the other hand, a simple call is easier and quicker to implement but less featureful. It takes the url and a few options on the command and returns the result directly. Any formatting or checking is up to rest of the script.
+
+Simple usage
+In simple usage you make calls using http method procedures and then check or process the returned data yourself
+[call [cmd ::rest::simple] [arg url] [arg query] [opt config] [opt body]]
+[call [cmd ::rest::get] [arg url] [arg query] [opt config] [opt body]]
+[call [cmd ::rest::post] [arg url] [arg query] [opt config] [opt body]]
+[call [cmd ::rest::head] [arg url] [arg query] [opt config] [opt body]]
+[call [cmd ::rest::put] [arg url] [arg query] [opt config] [opt body]]
+[call [cmd ::rest::delete] [arg url] [arg query] [opt config] [opt body]]
+The above commands are all equivalent except for the http method used. If you use [cmd simple] then the method should be specified as an option in the [opt config] dict, otherwise it defaults to [const get]. If a body is needed then the config dict must be present, however it may be empty. 
+
+[example {
+    set appid APPID
+    set search tcl
+    set res [rest::get http://boss.yahooapis.com/ysearch/web/v1/$search [list appid $appid]]
+    set res [rest::format_json $res]
+}]
+
+[example {
+    set res [rest::simple http://twitter.com/statuses/update.json \
+        [list status $text] \
+        {
+          method post
+          auth {basic user password}
+          format json
+        }
+    ]
+}]
+the options supported in the config dict are as follows
+headers
+cookie
+auth
+format
+method
+content-type
+
+
+Interface usage
 An interface to a REST API consists of a series of definitions of REST calls contained in an array. The array name becomes a namespace containing the defined commands. Each array element defines the name of the call and takes the form of a dict, aka key/value pairs. These keys are the defined configuration options below.
 After creating the definitions simply call rest::create_interface on the array to create the commands.
 
@@ -109,7 +148,7 @@ cookie
 input_transform
     commands which take the variable $query and transform it in some manner before returning a new value. return value must be a dict which will be passed to http::formatQuery
     the request body is accessible via [call upvar body body]
-format
+format or result
     defines the format of the returned data. should be one of discard, raw, json, xml, or tdom. the default is auto which should auto detect between xml and json. rss is formated as
     a special case of xml.
 pre_transform
