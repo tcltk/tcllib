@@ -508,7 +508,7 @@ proc ::rest::parse_opts {static required optional options} {
         } else {
             set opts {}
             foreach x [concat $required $optional] { lappend opts -[string trimright $x :] }
-            if {[[length $opts] > 0} {
+            if {[length $opts] > 0} {
                 return -code error "bad option \"$opt\": Must be [join $opts ", "]"
             }
             return -code error "bad option \"$opt\""

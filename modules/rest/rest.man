@@ -11,12 +11,14 @@ There are 2 types of usage this package supports: simple calls, and complete int
 
 Simple usage
 In simple usage you make calls using http method procedures and then check or process the returned data yourself
+[list_begin definitions]
 [call [cmd ::rest::simple] [arg url] [arg query] [opt config] [opt body]]
 [call [cmd ::rest::get] [arg url] [arg query] [opt config] [opt body]]
 [call [cmd ::rest::post] [arg url] [arg query] [opt config] [opt body]]
 [call [cmd ::rest::head] [arg url] [arg query] [opt config] [opt body]]
 [call [cmd ::rest::put] [arg url] [arg query] [opt config] [opt body]]
 [call [cmd ::rest::delete] [arg url] [arg query] [opt config] [opt body]]
+[list_end]
 The above commands are all equivalent except for the http method used. If you use [cmd simple] then the method should be specified as an option in the [opt config] dict, otherwise it defaults to [const get]. If a body is needed then the config dict must be present, however it may be empty. 
 
 [example {
@@ -68,10 +70,12 @@ puts [yweather::forecast -p 94089]
 
 ::${name}::set_static_args [opt args]]
 
+[list_begin definitions]
+
 [call [cmd ::rest::save] [arg name] [arg file]]
 saves a copy of the dynamically created procs to a file for later loading
 
-[call [cmd ::rest::describe [arg name]]]
+[call [cmd ::rest::describe] [arg name]]
 print a description of defined api calls
 
 [call [cmd ::rest::parameters] [arg url] [opt args]]
@@ -82,8 +86,6 @@ parse a url query string into a dict
 [call [cmd ::rest::substitute] [arg string] [opt var]]
 take a string and substitute real values for any option identifiers
 
-
-[list_begin definitions]
 
 [call [cmd ::rest::create_interface] [arg name]]
 TOKENS
@@ -124,7 +126,7 @@ set delicious(updated) {
 rest::create_interface flickr
 
 flickr::basic_auth username password
-}
+}]
 
 [example {
 set flickr(auth.getToken) {
@@ -162,8 +164,9 @@ post_transform
 check_result
     this value should be a list of 2 expressions either of which may be empty. the first expression is checks the OK condition, it must return true when the result is satisfactory. the second expression is the error condition, it must return false unless there is an error.
 
+[list_end]
 
-INCLUDED
+[section INCLUDED]
 functional but incomplete implementations are included for the following services:
 flickr
 twitter
@@ -172,5 +175,7 @@ yahoo weather
 google calendar
 facebook
 del.icio.us
-read the file or source it and use [call describe] for more information. also see the
+read the file or source it and use [cmd describe] for more information. also see the
 developers documentation on the respective sites.
+
+[manpage_end]
