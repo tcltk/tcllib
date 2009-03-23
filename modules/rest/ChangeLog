@@ -1,3 +1,10 @@
+2009-03-23  Andreas Kupries  <andreask@activestate.com>
+
+	* rest.man: Fixed all the reported syntax errors. Quick hack,
+	  large sections of the document were unformatted and not touched,
+	  I did not have the time to perform big cleanup.
+	* rest.tcl: Fixed syntax error in parse_opts.
+
 2009-03-21  Aaron Faupell  <afaupell@users.sourceforge.net>
 	rest.tcl: comment out debugging code which dumped the proc contents
 		add rest::simple command for making simple requests
