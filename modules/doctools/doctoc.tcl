@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctoc.tcl,v 1.19 2009/02/12 05:42:47 andreas_kupries Exp $
+# RCS: @(#) $Id: doctoc.tcl,v 1.20 2009/03/31 02:31:36 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -782,6 +782,7 @@ proc ::doctools::toc::Eval {name macro} {
 
     # Handle the [include] command directly
     if {[string match include* $macro]} {
+	set macro [$chk_ip eval [list subst $macro]]
 	foreach {cmd filename} $macro break
 	return [ExpandInclude $name $filename]
     }
@@ -808,7 +809,7 @@ proc ::doctools::toc::ExpandInclude {name path} {
 
     upvar #0 ::doctools::toc::doctoc${name}::file file
 
-    set ipath [file join [file dirname $file] $path]
+    set ipath [file normalize [file join [file dirname $file] $path]]
     if {![file exists $ipath]} {
 	set ipath $path
 	if {![file exists $ipath]} {
@@ -822,7 +823,12 @@ proc ::doctools::toc::ExpandInclude {name path} {
 
     upvar #0 ::doctools::toc::doctoc${name}::expander  expander
 
-    return [$expander expand $text]
+    set saved $file
+    set file $ipath
+    set res [$expander expand $text]
+    set file $saved
+
+    return $res
 }
 
 # ::doctools::toc::GetUser --
@@ -913,4 +919,4 @@ namespace eval ::doctools::toc {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools::toc 1.1
+package provide doctools::toc 1.1.1
