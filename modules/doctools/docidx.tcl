@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: docidx.tcl,v 1.19 2009/02/10 22:56:12 andreas_kupries Exp $
+# RCS: @(#) $Id: docidx.tcl,v 1.20 2009/03/31 02:31:36 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -781,6 +781,7 @@ proc ::doctools::idx::Eval {name macro} {
 
     # Handle the [include] command directly
     if {[string match include* $macro]} {
+	set macro [$chk_ip eval [list subst $macro]]
 	foreach {cmd filename} $macro break
 	return [ExpandInclude $name $filename]
     }
@@ -802,7 +803,7 @@ proc ::doctools::idx::Eval {name macro} {
 proc ::doctools::idx::ExpandInclude {name path} {
     upvar #0 ::doctools::idx::docidx${name}::file file
 
-    set ipath [file join [file dirname $file] $path]
+    set ipath [file normalize [file join [file dirname $file] $path]]
     if {![file exists $ipath]} {
 	set ipath $path
 	if {![file exists $ipath]} {
@@ -816,7 +817,12 @@ proc ::doctools::idx::ExpandInclude {name path} {
 
     upvar #0 ::doctools::idx::docidx${name}::expander  expander
 
-    return [$expander expand $text]
+    set saved $file
+    set file $ipath
+    set res [$expander expand $text]
+    set file $saved
+
+    return $res
 }
 
 # ::doctools::idx::GetUser --
@@ -907,4 +913,4 @@ namespace eval ::doctools::idx {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools::idx 1.0.1
+package provide doctools::idx 1.0.2

@@ -1,3 +1,25 @@
+2009-03-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* checker.tcl (manpage): Added new markup command for document
+	  references (manpage). For now formatted like a 'term'.
+
+	* doctools.tcl: Fixed handling of include files. Search relative
+	* doctools.man: to processed file, and run the command through
+	  'subst' first, to resolve embedded commands (vset uses). Bumped
+	  to version 1.4.2.
+
+	* docidx.tcl: Fixed handling of include files. Search relative
+	* docidx.man: to processed file, and run the command through
+	  'subst' first, to resolve embedded commands (vset uses). Bumped
+	  to version 1.0.2
+
+	* doctoc.tcl: Fixed handling of include files. Search relative
+	* doctoc.man: to processed file, and run the command through
+	  'subst' first, to resolve embedded commands (vset uses). Bumped
+	  to version 1.1.1.
+
+	* docidx_lang_syntax.man: Added notes about command arguments.
+
 2009-02-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* checker_toc.tcl: TOC language extended to allow empty tocs, empty
