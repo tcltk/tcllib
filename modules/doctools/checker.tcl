@@ -683,6 +683,15 @@ proc uri {text {label {}}} {
 	fmt_uri $text $label
     }
 }
+proc manpage {text} {
+    if {[Is done]} {Error nodonecmd}
+    # The label argument is left out when undefined so that we can
+    # control old formatters as well, if the input is not using uri
+    # labels.
+
+    fmt_term $text
+    #fmt_manpage $text
+}
 proc usage {args} {
     if {[Is done]} {Error nodonecmd}
     eval fmt_usage $args
