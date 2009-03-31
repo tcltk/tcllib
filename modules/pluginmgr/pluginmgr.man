@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- paths manpage}]
-[manpage_begin pluginmgr n 0.2]
+[manpage_begin pluginmgr n 0.3]
 [copyright {2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Plugin management}]
 [titledesc {Manage a plugin}]
 [category  {Programming tools}]
 [require Tcl 8.4]
-[require pluginmgr [opt 0.2]]
+[require pluginmgr [opt 0.3]]
 [description]
 [keywords {plugin management} {plugin search}]
 
