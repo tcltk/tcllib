@@ -88,6 +88,25 @@ keyword   = defs KEY ref { ref }
 ref       = MANPAGE | URL | defs
 }]
 
+At last a rule we were unable to capture in the EBNF syntax, as it is
+about the arguments of the markup commands, something which is not
+modeled here.
+
+[list_begin enumerated]
+[enum]
+
+The arguments of all markup commands have to be plain text, and/or text
+markup commands, i.e. one of
+
+[list_begin enumerated]
+[enum][cmd lb],
+[enum][cmd rb], or
+[enum][cmd vset] (1-argument form).
+[list_end]
+
+[list_end]
+
+
 [section {BUGS, IDEAS, FEEDBACK}]
 
 This document, will undoubtedly contain bugs and other problems.
