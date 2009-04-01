@@ -1,3 +1,9 @@
+2009-04-01  Andreas Kupries  <andreask@activestate.com>
+
+	* multiop.tcl (Copy): Fix special case with copying directories
+	* multiop.man: where the source is one level to deep, or copy fails.
+	* pkgIndex.tcl: Bumped version to 0.5.3.
+
 2009-02-10  Andreas Kupries  <andreask@activestate.com>
 
 	* traverse.man: Fixed bug in the requirements, this package
