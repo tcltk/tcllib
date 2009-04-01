@@ -1,0 +1,5 @@
+[vset PACKAGE html]
+[vset NAME    HTML]
+[vset REQUIRE html]
+[vset CONFIG  html]
+[include include/export/plugin.inc]
