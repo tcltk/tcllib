@@ -47,6 +47,7 @@ namespace eval ::math::linearalgebra {
     namespace export show to_LA from_LA
     namespace export swaprows swapcols
     namespace export dger dgetrf mkRandom mkTriangular
+    namespace export det largesteigen
 }
 
 # dim --
@@ -1960,6 +1961,7 @@ proc ::math::linearalgebra::orthonormalizeRows { matrix } {
     }
     return $result
 }
+
 # dger --
 #     Performs the rank 1 operation alpha*x*y' + A
 # Arguments:
@@ -2016,7 +2018,14 @@ proc ::math::linearalgebra::dger { matrix alpha x y {scope ""}} {
 #                P*A = L*U; the unit diagonal elements of L are not stored.
 #
 # Result:
-#     Returns the permutation vector
+#     Returns the permutation vector, as a list of length n-1.
+#     The last entry of the permutation is not stored, since it is
+#     implicitely known, with value n (the last row is not swapped
+#     with any other row).
+#     At index #i of the permutation is stored the index of the row #j
+#     which is swapped with row #i at step #i. That means that each
+#     index of the permutation gives the permutation at each step, not the
+#     cumulated permutation matrix, which is the product of permutations.
 #     The factorization has the form
 #        P * A = L * U
 #     where P is a permutation matrix, L is lower triangular with unit
@@ -2057,6 +2066,81 @@ proc ::math::linearalgebra::dgetrf { matrix } {
         dger mat -1. $akp1k $akkp1 $scope
     }
     return $ipiv
+}
+
+# det --
+#     Returns the determinant of the given matrix, based on PA=LU
+#     decomposition (i.e. dgetrf).
+#
+# Arguments:
+#     matrix     The matrix values.
+#     ipiv   The pivots (optionnal).
+#       If the pivots are not provided, a PA=LU decomposition
+#       is performed.
+#       If the pivots are provided, we assume that it
+#       contains the pivots and that the matrix A contains the
+#       L and U factors, as provided by dgterf.
+#
+# Result:
+#     Returns the determinant
+#
+proc ::math::linearalgebra::det { matrix {ipiv ""}} {
+    if { $ipiv == "" } then {
+        set ipiv [dgetrf matrix]
+    }
+    set det 1.0
+    set norows [llength $matrix]
+    set i 0
+    foreach row $matrix {
+        set uu [lindex $row $i]
+        set det [expr {$det * $uu}]
+        if { $i < $norows - 1 } then {
+            set ii [lindex $ipiv $i]
+            if {  $ii!=$i  } then {
+                set det [expr {-1.0 * $det}]
+            }
+        }
+        incr i
+    }
+    return $det
+}
+
+# largesteigen --
+#     Returns a list made of the largest eigenvalue (in magnitude)
+#     and associated eigenvector.
+#     Uses Power Method.
+#
+# Arguments:
+#     matrix     The matrix values.
+#     tolerance  The relative tolerance of the eigenvalue.
+#     maxiter    The maximum number of iterations
+#
+# Result:
+#     Returns a list of two items, where the first item
+#     is the eigenvalue and the second is the eigenvector.
+# Note
+#     This is algorithm #7.3.3 of Golub & Van Loan.
+#
+proc ::math::linearalgebra::largesteigen { matrix {tolerance 1.e-8} {maxiter 10}} {
+    set norows [llength $matrix]
+    set q [mkVector $norows 1.0]
+    set lambda 1.0
+    for { set k 0 } { $k < $maxiter } { incr k } {
+        set z [matmul $matrix $q]
+        set zn [norm $z]
+        if { $zn == 0.0 } then {
+            return -code error "Cannot continue power method : matrix is singular"
+        }
+        set s [expr {1.0 / $zn}]
+        set q [scale $s $z]
+        set prod [matmul $matrix $q]
+        set lambda_old $lambda
+        set lambda [dotproduct $q $prod]
+        if { abs($lambda - $lambda_old) < $tolerance * abs($lambda_old) } then {
+            break
+        }
+    }
+    return [list $lambda $q]
 }
 
 # to_LA --
@@ -2110,7 +2194,7 @@ proc ::math::linearalgebra::from_LA { mv } {
 #
 # Announce the package's presence
 #
-package provide math::linearalgebra 1.1.1
+package provide math::linearalgebra 1.1.2
 
 if { 0 } {
 Te doen:
