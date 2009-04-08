@@ -2,4 +2,5 @@
 [vset NAME    nroff]
 [vset REQUIRE nroff]
 [vset CONFIG  nroff]
+[vset VERSION 0.2]
 [include include/export/plugin.inc]
