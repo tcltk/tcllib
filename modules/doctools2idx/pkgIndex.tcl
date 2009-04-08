@@ -15,11 +15,11 @@ package ifneeded doctools::idx::export         0.1 [list source [file join $dir 
 package ifneeded doctools::idx::import         0.1 [list source [file join $dir import.tcl]]
 
 package ifneeded doctools::idx::export::docidx 0.1 [list source [file join $dir export_docidx.tcl]]
-package ifneeded doctools::idx::export::html   0.1 [list source [file join $dir export_html.tcl]]
+package ifneeded doctools::idx::export::html   0.2 [list source [file join $dir export_html.tcl]]
 package ifneeded doctools::idx::export::json   0.1 [list source [file join $dir export_json.tcl]]
-package ifneeded doctools::idx::export::nroff  0.1 [list source [file join $dir export_nroff.tcl]]
-package ifneeded doctools::idx::export::text   0.1 [list source [file join $dir export_text.tcl]]
-package ifneeded doctools::idx::export::wiki   0.1 [list source [file join $dir export_wiki.tcl]]
+package ifneeded doctools::idx::export::nroff  0.2 [list source [file join $dir export_nroff.tcl]]
+package ifneeded doctools::idx::export::text   0.2 [list source [file join $dir export_text.tcl]]
+package ifneeded doctools::idx::export::wiki   0.2 [list source [file join $dir export_wiki.tcl]]
 
 package ifneeded doctools::idx::import::docidx 0.1 [list source [file join $dir import_docidx.tcl]]
 package ifneeded doctools::idx::import::json   0.1 [list source [file join $dir import_json.tcl]]

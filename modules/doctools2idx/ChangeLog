@@ -1,5 +1,11 @@
 2009-04-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+        * export_html.tcl: Fixed plugin API check.
+        * export_nroff.tcl: Ditto.
+        * export_text.tcl: Ditto.
+        * export_wiki.tcl: Ditto, plus fix in file mapping.
+	* pkgIndex.tcl: Bumped to version 0.2.
+
         * export.man: Typo fixed.
         * import.man: Ditto.
         * introduction.man: Ditto.
