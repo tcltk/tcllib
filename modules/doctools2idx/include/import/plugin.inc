@@ -32,7 +32,7 @@ provides.
 [section API]
 
 The API provided by this package satisfies the specification of the
-docidx export plugin API version 2.
+docidx import plugin API version 2.
 
 [list_begin definitions]
 

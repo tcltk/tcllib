@@ -55,7 +55,7 @@ The plugin system of our class is based on the package
 [enum] the path [file {~/.doctools/plugins}]
 [enum] the registry entry "HKEY_CURRENT_USER\SOFTWARE\DOCTOOLS\IDX\EXPORT\PLUGINS"
 [enum] the registry entry "HKEY_CURRENT_USER\SOFTWARE\DOCTOOLS\IDX\PLUGINS"
-[enum] the registry entry "HKEY_CURRENT_USER\SOFTWARE\DOCTOOLS\\PLUGINS"
+[enum] the registry entry "HKEY_CURRENT_USER\SOFTWARE\DOCTOOLS\PLUGINS"
 [list_end]
 
 The last three are used only when the package is run on a machine
