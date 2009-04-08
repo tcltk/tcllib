@@ -1,5 +1,14 @@
 2009-04-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* include/export/plugin.inc: Made version info configurable
+        * export_docidx.tcl: Version 0.1, unchanged
+        * export_json.tcl: Version 0.1, unchanged
+
+        * export_html.tcl: Bumped version to 0.2.
+        * export_nroff.tcl: Ditto.
+        * export_text.tcl: Ditto.
+        * export_wiki.tcl: Ditto.
+
         * export_html.tcl: Fixed plugin API check.
         * export_nroff.tcl: Ditto.
         * export_text.tcl: Ditto.
