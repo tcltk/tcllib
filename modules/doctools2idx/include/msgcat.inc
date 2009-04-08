@@ -32,7 +32,7 @@ If you are such please go the documentation of either
 Within the system architecture this package resides under the package
 [package doctools::msgcat] providing the general message catalog
 management within the system. [emph Note] that there is [emph no]
-explicit dependency between the manage and catalog package. The
+explicit dependency between the manager and catalog packages. The
 catalog is a plugin which is selected and loaded dynamically.
 
 

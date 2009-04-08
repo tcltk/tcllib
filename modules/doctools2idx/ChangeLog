@@ -1,3 +1,15 @@
+2009-04-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+        * export.man: Typo fixed.
+        * import.man: Ditto.
+        * introduction.man: Ditto.
+        * include/msgcat.inc: Ditto.
+        * include/export/config/html.inc: Ditto.
+        * include/import/plugin.inc: Ditto.
+        * import_docidx.tcl: Ditto. 
+        * import_json.tcl: Ditto.
+        * tests/parse: Ditto.
+
 2009-03-31  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Doctools version 2, index processing.
