@@ -92,14 +92,14 @@ keyword indices, i.e. import from textual formats, programmatic
 manipulation in memory, and export to textual formats. These are
 
 [list_begin definitions]
-[def [package doctoools::idx]]
+[def [package doctools::idx]]
 Programmatic manipulation of keyword indices in memory.
 
-[def [package doctoools::idx::import]]
+[def [package doctools::idx::import]]
 Import of keyword indices from various textual formats. The set of
 supported formats is extensible through plugin packages.
 
-[def [package doctoools::idx::export]]
+[def [package doctools::idx::export]]
 Export of keyword indices to various textual formats. The set of
 supported formats is extensible through plugin packages.
 
@@ -116,8 +116,8 @@ These APIs are described in the documentation for the two relevant
 packages, i.e.
 
 [list_begin itemized]
-[item] [package doctoools::idx::import]
-[item] [package doctoools::idx::export]
+[item] [package doctools::idx::import]
+[item] [package doctools::idx::export]
 [list_end]
 
 [list_end]
