@@ -1,14 +1,14 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin transfer::connect n 0.1]
-[copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[manpage_begin transfer::connect n 0.2]
+[copyright {2006-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Data transfer facilities}]
 [titledesc {Connection setup}]
 [category  {Transfer module}]
 [require Tcl               8.4]
 [require snit              [opt 1.0]]
-[require transfer::connect [opt 0.1]]
+[require transfer::connect [opt 0.2]]
 [description]
-[keywords transfer channel connection passive active]
+[keywords transfer channel connection passive active ssl tls secure]
 [para]
 
 This package provides objects holding enough information to enable
@@ -88,6 +88,19 @@ expected to connect to. For [term passive] mode however it is the port
 where the object creates the listening socket waiting for a
 connection. It defaults to [const 0], which allows the OS to choose
 the actual port to listen on.
+
+[opt_def -socketcmd [arg command]]
+
+This option allows the user to specify which command to use to open a
+socket. The default is to use the builtin [cmd ::socket]. Any
+compatible with that command is allowed.
+
+[para]
+
+The envisioned main use is the specfication of tls::socket. I.e.  this
+option allows the creation of secure transfer channels, without making
+this package explicitly dependent on the [package TLS] package.
+
 
 [opt_def -encoding encodingname]
 [opt_def -eofchar eofspec]

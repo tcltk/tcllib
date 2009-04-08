@@ -1,12 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin transfer::data::destination n 0.1]
-[copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[manpage_begin transfer::data::destination n 0.2]
+[copyright {2006-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Data transfer facilities}]
 [titledesc {Data destination}]
 [category  {Transfer module}]
 [require Tcl                         8.4]
 [require snit                        [opt 1.0]]
-[require transfer::data::destination [opt 0.1]]
+[require transfer::data::destination [opt 0.2]]
 [description]
 [keywords transfer copy channel {data destination}]
 [para]
@@ -57,6 +57,13 @@ This option specifies that the destination of the data is a variable,
 and its associated argument contains the name of the variable to write
 the received data to. The variable is assumed to be global or
 namespaced, anchored at the global namespace.
+
+[opt_def -progress [arg command]]
+
+This option, if specified, defines a command to be invoked for each
+chunk of bytes received, allowing the user to monitor the progress of
+the reception of the data. The callback is always invoked with one
+additional argument, the number of bytes received so far.
 
 [list_end]
 
