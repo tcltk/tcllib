@@ -1,6 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin transfer::transmitter n 0.1]
-[copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[manpage_begin transfer::transmitter n 0.2]
+[copyright {2006-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Data transfer facilities}]
 [titledesc {Data source}]
 [category  {Transfer module}]
@@ -8,8 +8,8 @@
 [require snit                   [opt 1.0]]
 [require transfer::copy         [opt 0.1]]
 [require transfer::data::source [opt 0.1]]
-[require transfer::connect      [opt 0.1]]
-[require transfer::transmitter  [opt 0.1]]
+[require transfer::connect      [opt 0.2]]
+[require transfer::transmitter  [opt 0.2]]
 [description]
 [keywords transfer copy channel {data source} transmitter]
 [para]
@@ -55,6 +55,44 @@ This option specifies the size of the chunk to be transmitted in one
 block. It is optional and defaults to 1024.
 
 [list_end]
+
+
+[call [cmd transfer::transmitter] [method {stream channel}] \
+     [arg chan] [arg host] [arg port] [opt [arg arg]...]]
+
+Creates a fire-and-forget transfer for the data contained in the
+channel [arg chan], starting at the current seek location. The channel
+is configured to binary translation and encoding for the transfer. The
+channel is automatically closed when the transfer has completed.
+
+[para]
+
+If both [arg host] and [arg port] are provided an [const active]
+connection is made. If only a [arg port] is specified then a [const \
+passive] connection is made instead.
+
+[para]
+
+Any arguments after the port are treated as options and are used to
+configure the internal transmitter object. The signature of the
+-command callback differs however from the signature for the
+transmitter object. Here the signature is
+
+[list_begin definitions]
+[call [cmd -command] [arg n] [opt [arg errormessage]]]
+[list_end]
+
+[para]
+
+The created transmitter object is returned as the result of the
+command.
+
+
+[call [cmd transfer::transmitter] [method {stream channel}] \
+     [arg path] [arg host] [arg port] [opt [arg arg]...]]
+
+This type method is like [method {stream channel}], except that the
+data contained in the file [arg path] is transfered.
 
 
 [call [arg object] [method destroy]]
