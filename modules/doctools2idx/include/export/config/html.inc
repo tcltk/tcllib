@@ -84,7 +84,7 @@ output just before the </body> tag, in the class.footer <div>'ision.
 [arg_def dictionary kwid]
 
 The value of this variable (default: empty) maps keywords to the
-identifiers to use their anchor names. Each keyword [var FOO] not
+identifiers to use as their anchor names. Each keyword [var FOO] not
 found in the dictionary uses [const KW-][var FOO] as anchor,
 i.e. itself prefixed with the string [const KW-].
 
@@ -92,7 +92,7 @@ i.e. itself prefixed with the string [const KW-].
 [arg_def string sepline]
 
 The value of this variable is the string to use for the separator
-comments inserted inot the output when the outpout is broken across
+comments inserted into the output when the outpout is broken across
 lines and/or indented. The default string consists of 60 dashes.
 
 
