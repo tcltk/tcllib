@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: export_wiki.tcl,v 1.1 2009/04/01 04:28:37 andreas_kupries Exp $
+# RCS: @(#) $Id: export_wiki.tcl,v 1.2 2009/04/08 04:10:32 andreas_kupries Exp $
 
 # This package is a plugin for the the doctools::idx v2 system.  It
 # takes the list serialization of a keyword index and produces text in
@@ -18,11 +18,12 @@
 ## Requisites
 
 package require Tcl 8.4
-package require doctools::idx::export    ; # Presence of this pseudo
-					   # package indicates
-					   # execution inside of a
-					   # properly initialized
-					   # plugin interpreter.
+package require doctools::idx::export::plugin ; # Presence of this
+						# pseudo package
+						# indicates execution
+						# inside of a properly
+						# initialized plugin
+						# interpreter.
 package require doctools::idx::structure ; # Verification that the
 					   # input is proper.
 package require doctools::text           ; # Text assembly package
@@ -129,7 +130,7 @@ proc export {serial configuration} {
 # ### ### ### ######### ######### #########
 
 proc FormatReference {id} {
-    upvar 1 r r
+    upvar 1 r r map map
     foreach {type label} $r($id) break
     return "\[[Map $type $id]%|%$label\]"
 }
@@ -156,5 +157,5 @@ proc Map {type id} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::idx::export::wiki 0.1
+package provide doctools::idx::export::wiki 0.2
 return
