@@ -1,3 +1,28 @@
+2009-04-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* transmitter.tcl: Tweaked the result of the convenience
+	* receiver.tcl: stream commands.
+
+	* ../../examples/transfer/stransmit.tcl: New files, example of
+	* ../../examples/transfer/sreceive.tcl: ssl-secured transfers.
+	* ../../examples/transfer/certs:
+
+	* connect.man: General face-lift, using a common structure for
+	* copyops.man: the documentation of classes and objects. Moved
+	* ddest.man: common text blocks into include files. Examples
+	* dsource.man: added showing use of TLS. Added feedback sections
+	* receiver.man: where missing, standardized on feedback.inc of
+	* tqueue.man: doctools2base.
+	* transmitter.man:
+
+	* include/complete.inc: New files, shared blocks of text.
+	* include/connect_options.inc:
+	* include/connect_result.inc:
+	* include/connect_result_ref.inc:
+	* include/ddest_options.inc:
+	* include/dsource_options.inc:
+	* include/secure.inc:
+
 2009-04-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ../../examples/transfer: New directory, and files, demonstrating
