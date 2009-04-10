@@ -44,8 +44,7 @@ snit::type ::transfer::receiver {
 			  [$receiver cget -command]]
 
 	# Begin transmission (or wait for other side to connect).
-	$receiver start
-	return $receiver
+	return [$receiver start]
     }
 
     typemethod {stream file} {file host port args} {
