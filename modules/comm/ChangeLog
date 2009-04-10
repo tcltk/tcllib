@@ -1,3 +1,11 @@
+2009-04-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* comm.tcl: Added option -socketcmd enabling users to override how
+	* comm.man: a socket is opened. The envisioned main use is the
+	* pkgIndex.tcl: specification of tls::socket to secure the
+	* comm.pcx: communications. Version bumped to 4.6. Extended syntax
+	* comm.test: definitions for tclchecker, and extended testsuite.
+
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
