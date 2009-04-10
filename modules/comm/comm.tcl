@@ -22,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.31 2008/02/29 20:21:50 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.32 2009/04/10 23:46:55 andreas_kupries Exp $
 
 package require Tcl 8.3
 package require snit ; # comm::future objects.
@@ -67,6 +67,7 @@ namespace eval ::comm {
     # comm()
     #	$ch,port		listening port (our id)
     #	$ch,socket		listening socket
+    #	$ch,socketcmd		command to use to create sockets.
     #   $ch,silent      boolean to indicate whether to throw error on
     #                   protocol negotiation failure
     #	$ch,local		boolean to indicate if port is local
@@ -311,6 +312,7 @@ proc ::comm::comm_cmd_destroy {chan} {
     catch {unset comm($chan,interp)}
     catch {unset comm($chan,events)}
     catch {unset comm($chan,socket)}
+    catch {unset comm($chan,socketcmd)}
     catch {unset comm($chan,remoteid)}
     unset comm($chan,serial)
     unset comm($chan,chan)
@@ -411,6 +413,7 @@ proc ::comm::comm_cmd_new {chan ch args} {
     set comm($chan,encoding) $comm(defaultEncoding)
     set comm($chan,interp)   {}
     set comm($chan,events)   {}
+    set comm($chan,socketcmd) ::socket
 
     if {[llength $args] > 0} {
 	if {[catch [linsert $args 0 commConfigure $chan 1] err]} {
@@ -568,6 +571,7 @@ proc ::comm::commConfVars {v t} {
 ::comm::commConfVars local    b
 ::comm::commConfVars listen   b
 ::comm::commConfVars socket   ro
+::comm::commConfVars socketcmd socketcmd
 ::comm::commConfVars chan     ro
 ::comm::commConfVars serial   ro
 ::comm::commConfVars encoding enc
@@ -689,14 +693,25 @@ proc ::comm::commConfigure {chan {force 0} args} {
 		set $var $optval
 		set skip 1
 	    }
-	    ro { return -code error "Readonly configuration option: -$var" }
+	    ro {
+		return -code error "Readonly configuration option: -$var"
+	    }
+	    socketcmd {
+		if {$optval eq {}} {
+		    return -code error \
+			"Non-command to configuration option: -$var"
+		}
+
+		set $var $optval
+		set skip 1
+	    }
 	}
     }
     if {[info exists skip]} {
 	return -code error "Missing value for option: $arg"
     }
 
-    foreach var {port listen local} {
+    foreach var {port listen local socketcmd} {
 	# FRINK: nocheck
 	if {[info exists $var] && [set $var] != $comm($chan,$var)} {
 	    incr force
@@ -758,7 +773,7 @@ proc ::comm::commConfigure {chan {force 0} args} {
 	set nport $comm($chan,port)
     }
     while {1} {
-	set cmd [list socket -server [list ::comm::commIncoming $chan]]
+	set cmd [list $comm($chan,socketcmd) -server [list ::comm::commIncoming $chan]]
 	if {$comm($chan,local)} {
 	    lappend cmd -myaddr $comm(localhost)
 	}
@@ -848,7 +863,7 @@ proc ::comm::commConnect {chan id} {
 	set host $comm(localhost)
     }
     set port [lindex $id 0]
-    set fid [socket $host $port]
+    set fid [$comm($chan,socketcmd) $host $port]
 
     # process connected hook now
     if {[catch {
@@ -1666,4 +1681,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.5.7
+package provide comm 4.6
