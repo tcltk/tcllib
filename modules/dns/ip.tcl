@@ -9,15 +9,15 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 #
-# $Id: ip.tcl,v 1.12 2007/08/20 20:03:04 andreas_kupries Exp $
+# $Id: ip.tcl,v 1.13 2009/04/13 20:33:17 andreas_kupries Exp $
 
 # @mdgen EXCLUDE: ipMoreC.tcl
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ip {
-    variable version 1.1.2
-    variable rcsid {$Id: ip.tcl,v 1.12 2007/08/20 20:03:04 andreas_kupries Exp $}
+    variable version 1.1.3
+    variable rcsid {$Id: ip.tcl,v 1.13 2009/04/13 20:33:17 andreas_kupries Exp $}
 
     namespace export is version normalize equal type contract mask
     #catch {namespace ensemble create}
@@ -68,7 +68,7 @@ proc ::ip::is {class ip} {
 proc ::ip::version {ip} {
     set version -1
     foreach {addr mask} [split $ip /] break
-    if {[string first $addr :] < 0 && [IPv4? $addr]} {
+    if {[IPv4? $addr]} {
         set version 4
     } elseif {[IPv6? $addr]} {
         set version 6
@@ -165,6 +165,9 @@ proc ::ip::mask {ip} {
 # Returns true is the argument can be converted into an IPv4 address.
 #
 proc ::ip::IPv4? {ip} {
+    if {[string first : $ip] >= 0} {
+        return 0
+    }
     if {[catch {Normalize4 $ip}]} {
         return 0
     }
