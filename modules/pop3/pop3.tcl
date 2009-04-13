@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.34 2009/04/13 22:03:37 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.35 2009/04/13 22:33:51 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -274,7 +274,7 @@ proc ::pop3::open {args} {
     }
     foreach {host user password port} $args break
     if {$port == {}} {
-	if {($socketcmd eq "tls::socket") || ($socketcmd eq "::tls::socket")} {
+	if {($cstate(socketcmd) eq "tls::socket") || ($cstate(socketcmd) eq "::tls::socket")} {
 	    # Standard port for SSL-based pop3 connections.
 	    set port 995
 	} else {
