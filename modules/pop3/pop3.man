@@ -211,29 +211,11 @@ command when opening the connection.
 
 [example {
 	package require tls
+	tls::init -cafile /path/to/ca/cert -keyfile ...
 
-	proc PWD {} {
-		return the/password
-	}
-
-	proc CMD {
-		# See http://wiki.tcl.tk/2630
-	}
-
-	tls::init \\
-	    -keyfile  path/to/our/key/file \\
-	    -certfile path/to/our/certificate/file \\
-	    -cafile   path/to/our/cert-auth/certificate/file \\
-	    -ssl2 1    \\
-	    -ssl3 1    \\
-	    -tls1 0    \\
-	    -require 1 \\
-	    -password PWD \\
-	    -command  CMD
-
+	# Create secured pop3 channel
 	pop3::open -socketcmd tls::socket \\
-		somehost.somewhere.org \\
-		$theuser $thepassword
+		$thehost $theuser $thepassword
 
 	...
 }]
