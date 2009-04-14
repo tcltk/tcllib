@@ -442,7 +442,7 @@ proc ::huddle::jsondump {data {offset "  "} {newline "\n"} {begin ""}} {
     set nextoff "$begin$offset"
     set nlof "$newline$nextoff"
     set sp " "
-#     if {[string equal $offset ""]} {set sp ""}
+    if {[string equal $offset ""]} {set sp ""}
     
     set type [huddle type $data]
     switch -- $type {
