@@ -1,16 +1,16 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin transfer::receiver n 0.1]
+[manpage_begin transfer::receiver n 0.2]
 [copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Data transfer facilities}]
 [titledesc {Data source}]
 [category  {Transfer module}]
 [require Tcl                         8.4]
 [require snit                        [opt 1.0]]
-[require transfer::data::destination [opt 0.1]]
-[require transfer::connect           [opt 0.1]]
-[require transfer::receiver          [opt 0.1]]
+[require transfer::data::destination [opt 0.2]]
+[require transfer::connect           [opt 0.2]]
+[require transfer::receiver          [opt 0.2]]
 [description]
-[keywords transfer copy channel {data destination} receiver]
+[keywords transfer copy channel {data destination} receiver ssl tls secure]
 [para]
 
 This package pulls data destinations and connection setup together
@@ -46,6 +46,58 @@ namespace otherwise.
 
 The fully qualified name of the object command is returned as the
 result of the command.
+
+[call [cmd transfer::receiver] [method {stream channel}] \
+     [arg chan] [arg host] [arg port] [opt [arg arg]...]]
+
+This method creates a fire-and-forget transfer for the data coming
+from the source at host/port (details below) and writing to the
+channel [arg chan], starting at the current seek location. The channel
+is configured to use binary translation and encoding for the transfer.
+
+The channel is [emph not] closed when the transfer has completed. This
+is left to the completion callback.
+
+[para]
+
+If both [arg host] and [arg port] are provided an [const active]
+connection to the data source is made. If only a [arg port] is
+specified (with [arg host] the empty string) then a [const passive]
+connection is made instead, i.e. the receiver then waits for a
+conneciton by the transmitter.
+
+[para]
+
+Any arguments after the port are treated as options and are used to
+configure the internal receiver object.
+
+See the section [sectref Options] for a list of the supported options
+and their meaning.
+
+[emph Note] however that the signature of the command prefix specified
+for the [option -command] callback differs from the signature for the
+same option of the receiver object.
+
+This callback is only given the number of bytes and transfered, and
+possibly an error message. No reference to the internally used
+receiver object is made.
+
+[para]
+[vset RETURNER command]
+[vset OBJECT {if it was set}]
+[vset QUALIFIER {internal receiver}]
+[include include/connect_result_ref.inc]
+
+
+[call [cmd transfer::receiver] [method {stream file}] \
+     [arg path] [arg host] [arg port] [opt [arg arg]...]]
+
+This method is like [method {stream channel}], except that the
+received data is written to the file [arg path], replacing any prior
+content.
+
+
+
 
 [list_end]
 

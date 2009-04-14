@@ -88,7 +88,7 @@ transmitter object is made.
 [include include/connect_result_ref.inc]
 
 
-[call [cmd transfer::transmitter] [method {stream channel}] \
+[call [cmd transfer::transmitter] [method {stream file}] \
      [arg path] [arg host] [arg port] [opt [arg arg]...]]
 
 This method is like [method {stream channel}], except that the data
