@@ -22,11 +22,19 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
 
     testsNeedTcl     8.3
     testsNeedTcltest 1.0
+
+    if {$::tcl_version < 8.5} {
+        if {[catch {package require dict}]} {
+            puts "    Aborting the tests found in \"[file tail [info script]]\""
+            puts "    Requiring dict package, not found."
+            return
+        }
+    }
+
     testing {
         useLocal huddle.tcl huddle
         useLocal yaml.tcl yaml
     }
-
 }
 proc dictsort2 {dict {pattern d}} {
     set cur  [lindex $pattern 0]
