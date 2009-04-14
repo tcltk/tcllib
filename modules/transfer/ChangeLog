@@ -1,3 +1,11 @@
+2009-04-14  Andreas Kupries  <andreask@activestate.com>
+
+	* receiver.man: Added missing docs for the reception stream
+	  commands, and the missing keywords regarding secure transfer.
+
+	* transmitter.man: Fixed typos in the documentation of the stream
+	  commands.
+
 2009-04-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* transmitter.tcl: Tweaked the result of the convenience
