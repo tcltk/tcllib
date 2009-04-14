@@ -25,13 +25,24 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     }
 } else {
     # all.tcl
-    package require json
     source [file join \
         [file dirname [file dirname [file join [pwd] [info script]]]] \
         devtools testutilities.tcl]
 
     testsNeedTcl     8.3
     testsNeedTcltest 1.0
+
+    if {$::tcl_version < 8.5} {
+        if {[catch {package require dict}]} {
+            puts "    Aborting the tests found in \"[file tail [info script]]\""
+            puts "    Requiring dict package, not found."
+            return
+        }
+    }
+
+    support {
+	use json/json.tcl json
+    }
     testing {
         useLocal huddle.tcl huddle
     }
@@ -228,6 +239,8 @@ test huddle-4.10 "test of huddle equal" -body {
     huddle equal $data_list {HUDDLE {L {{L {{s i} {s baa} {s k} {L {{s e} {s f} {s g} {s h}}}}} {s t}}}}
 } -result 0
 
+# ... Tests of addStrings ...
+#     (Requires introspection of parser state)
 
 
 if [info exists selfrun] {
