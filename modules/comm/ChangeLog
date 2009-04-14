@@ -76,7 +76,7 @@
 2007-08-09  Andreas Kupries  <andreask@activestate.com>
 
 	* comm.tcl (comm::comm_cmd_send): Replaced the 'after idle unset
-	  result' with an immediate unset, saving the infromation into a
+	  result' with an immediate unset, saving the information into a
 	  local variable. The 'after idle' can spill into a forked child
 	  process if there is no event loop between its location and the
 	  fork. This may bork the child if the next event loop is the
