@@ -6,7 +6,7 @@
 #
 ---
 title: YAML parser for Tcl.
-version: 0.3.3
+version: 0.3.4
 authors:
   - KATO Kanryu: kanryu6@users.sourceforge.net
 license: tcllib's BSD-style license
@@ -14,6 +14,13 @@ copyright: (c) 2008 KATO Kanryu
 
 changes:
 
+  0.3.4:
+    - 2008-09-27
+    - fixed for some incorrect use of "string first/last"
+  0.3.3:
+    - 2008-06-05
+    - add benchmark
+    - validate check fors scripts
   0.3.2:
     - 2008-06-03
     - add command huddle2yaml

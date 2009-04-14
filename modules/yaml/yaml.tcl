@@ -3,7 +3,7 @@
 #
 #   See http://www.yaml.org/spec/1.1/
 #
-#   yaml.tcl,v 0.3.3 2008-06-05 17:51:27 KATO Kanryu(kanryu6@users.sourceforge.net)
+#   yaml.tcl,v 0.3.4 2009-04-15 06:56:48 KATO Kanryu(kanryu6@users.sourceforge.net)
 #
 #   It is published with the terms of tcllib's BSD-style license.
 #   See the file named license.terms.
@@ -16,7 +16,7 @@ if {$::tcl_version < 8.5} {
     package require dict
 }
 
-package provide yaml 0.3.3
+package provide yaml 0.3.4
 package require cmdline
 package require huddle
 
@@ -907,8 +907,8 @@ proc ::yaml::_getFoldedString {reStr} {
     if {![info exists token]} {return}
     
     set len [string length $token]
-    if {[string first $token "\n"] >= 0} { ; # multi-line
-        set data(current) [expr {$len - [string last $token "\n"]}]
+    if {[string first "\n" $token] >= 0} { ; # multi-line
+        set data(current) [expr {$len - [string last "\n" $token]}]
     } else {
         incr data(current) $len
     }
