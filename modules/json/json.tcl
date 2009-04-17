@@ -5,7 +5,7 @@
 #
 #   Copyright 2006 ActiveState Software Inc.
 #
-#   $Id: json.tcl,v 1.2 2006/08/25 23:19:53 hobbs Exp $
+#   $Id: json.tcl,v 1.3 2009/04/17 23:20:54 kanryu6 Exp $
 #
 
 if {$::tcl_version < 8.5} {
@@ -194,7 +194,7 @@ proc json::_json2dict {{txtvar txt}} {
 	    # but it may be 0.xxx
 	    string is double -failindex last $txt
 	    if {$last > 0} {
-		set num [string range $txt 0 [expr {$last - 1}]]
+        regexp -- {-?[\d\.]+([eE][\+-]?\d+)?} $txt num
 		set txt [string range $txt $last end]
 
 		switch -- $state {

@@ -1,3 +1,8 @@
+2009-04-18  KATO Kanryu  <kanryu6@users.sourceforge.net>
+
+	* json.tcl: fixed to parse last integer
+	* json.test: improved to compare dicts
+
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
