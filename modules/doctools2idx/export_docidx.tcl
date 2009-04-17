@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: export_docidx.tcl,v 1.1 2009/04/01 04:28:37 andreas_kupries Exp $
+# RCS: @(#) $Id: export_docidx.tcl,v 1.2 2009/04/17 05:42:07 andreas_kupries Exp $
 
 # This package is a plugin for the doctools::idx v2 system.  It takes
 # the list serialization of a keyword index and produces text in
@@ -204,6 +204,5 @@ proc FmtR {v str} {
 
 # ### ### ### ######### ######### #########
 ## Ready
-
-package provide doctools::idx::export::docidx 0
+package provide doctools::idx::export::docidx 0.1
 return
