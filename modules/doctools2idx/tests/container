@@ -4,7 +4,7 @@
 # Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: container,v 1.1 2009/04/01 04:28:37 andreas_kupries Exp $
+# RCS: @(#) $Id: container,v 1.2 2009/04/17 05:42:07 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -310,7 +310,7 @@ foreach {k style section} {
     1 table -table
 } {
     TestFilesProcess $mytestdir ok serial wiki$section -> n label input data expected {
-	test doctools-idx-export-59.$k.$n "doctools::idx serialize wiki, $label$section, ok" -setup {
+	test doctools-idx-59.$k.$n "doctools::idx serialize wiki, $label$section, ok" -setup {
 	    doctools::idx::export OUT
 	    OUT config set style $style
 	    doctools::idx I
@@ -334,7 +334,7 @@ foreach {k inline section} {
     1 1 -inlined
 } {
     TestFilesProcess $mytestdir ok serial nroff$section -> n label input data expected {
-	test doctools-idx-export-60.$k.$n "doctools::idx serialize nroff, $label$section, ok" -setup {
+	test doctools-idx-60.$k.$n "doctools::idx serialize nroff, $label$section, ok" -setup {
 	    doctools::idx::export OUT
 	    OUT config set inline $inline
 	    doctools::idx I
