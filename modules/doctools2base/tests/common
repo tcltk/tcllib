@@ -4,7 +4,7 @@
 # Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: common,v 1.1 2009/04/01 04:27:47 andreas_kupries Exp $
+# RCS: @(#) $Id: common,v 1.2 2009/04/17 05:41:24 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -23,6 +23,7 @@ proc TestFilesProcess {maindir section inset outset -> nv lv iv dv ev script} {
     }
     foreach src $files {
 	if {[string match *README* $src]} continue
+	if {[file isdirectory      $src]} continue
 
 	set srcname  [file tail $src]
 	set exp      [localPath $maindir]/$section/$outset/$srcname

@@ -212,5 +212,5 @@ namespace eval ::doctools::text {
 }
 
 # # ## ### ##### ######## ############# #####################
-package provide doctools::text 1
+package provide doctools::text 0.1
 return
