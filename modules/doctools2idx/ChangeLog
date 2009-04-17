@@ -1,3 +1,9 @@
+2009-04-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* container.man: Fix version mismatch.
+	* export_docidx.tcl: Fix version mismatch.
+	* tests/container: Fix test names.
+
 2009-04-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* include/export/plugin.inc: Made version info configurable
