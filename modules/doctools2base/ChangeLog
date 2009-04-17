@@ -1,3 +1,9 @@
+2009-04-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* html.tcl: Fix version mismatch.
+	* text.tcl: Fix version mismatch.
+	* tests/common: Fix handling of directories.
+
 2009-03-31  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Doctools version 2, base packages.
