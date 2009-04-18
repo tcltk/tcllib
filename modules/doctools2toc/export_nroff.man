@@ -1,0 +1,5 @@
+[vset PACKAGE nroff]
+[vset NAME    nroff]
+[vset REQUIRE nroff]
+[vset CONFIG  nroff]
+[include include/export/plugin.inc]
