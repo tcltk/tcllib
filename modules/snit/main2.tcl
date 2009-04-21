@@ -350,6 +350,10 @@ proc ::snit::Comp.Init {} {
 
         # Initialize the interpreter
 	$compiler eval {
+	    close stdout
+	    close stderr
+	    close stdin
+
             # Load package information
             # TBD: see if this can be moved outside.
 	    # @mdgen NODEP: ::snit::__does_not_exist__

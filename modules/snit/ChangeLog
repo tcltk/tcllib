@@ -1,3 +1,12 @@
+2009-04-21  Andreas Kupries  <andreask@activestate.com>
+
+	* main1.tcl (::snit::Comp.Init): Close unused standard channels
+	* main1_83.tcl (::snit::Comp.Init): to prevent the internal compile
+	* main2.tcl (::snit::Comp.Init): interp from blocking a close/open
+	* snit.tcl: dance to replace them in the main interp. Bumped the
+	* snit2.tcl: packages to versions 1.3.2 and 2.2.2 respectively.
+	* pkgIndex.tcl:
+
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
