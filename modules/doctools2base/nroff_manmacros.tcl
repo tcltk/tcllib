@@ -10,17 +10,17 @@
 
 package require Tcl 8.4 ; # Required Core
 
-namespace eval ::doctools::nroff::man.macros {
+namespace eval ::doctools::nroff::man_macros {
     # Contents of the file we carry
     variable c {}
 }
 
-proc ::doctools::nroff::man.macros::contents {} {
+proc ::doctools::nroff::man_macros::contents {} {
     variable c
     return  $c
 }
 
-set ::doctools::nroff::man.macros::c {'\" The definitions below are for supplemental macros used in Tcl/Tk
+set ::doctools::nroff::man_macros::c {'\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
 '\"
 '\" .AP type name in/out ?indent?
@@ -81,7 +81,7 @@ set ::doctools::nroff::man.macros::c {'\" The definitions below are for suppleme
 '\" .UL arg1 arg2
 '\"	Print arg1 underlined, then print arg2 normally.
 '\"
-'\" RCS: @(#) $Id: nroff_manmacros.tcl,v 1.1 2009/04/01 04:27:47 andreas_kupries Exp $
+'\" RCS: @(#) $Id: nroff_manmacros.tcl,v 1.2 2009/04/29 02:09:46 andreas_kupries Exp $
 '\"
 '\"	# Set up traps and other miscellaneous stuff for Tcl/Tk man pages.
 .if t .wh -1.3i ^B
@@ -257,5 +257,5 @@ Database Class:	\\fB\\$3\\fR
 \\$1\l'|0\(ul'\\$2
 ..}
 
-package provide doctools::nroff::man.macros 0.1
+package provide doctools::nroff::man_macros 0.1
 return
