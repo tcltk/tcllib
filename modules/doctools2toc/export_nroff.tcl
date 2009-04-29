@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: export_nroff.tcl,v 1.1 2009/04/18 21:14:18 andreas_kupries Exp $
+# RCS: @(#) $Id: export_nroff.tcl,v 1.2 2009/04/29 02:10:57 andreas_kupries Exp $
 
 # This package is a plugin for the doctools::toc v2 system.  It takes
 # the list serialization of a keyword index and produces text in nroff
@@ -26,7 +26,7 @@ package require doctools::toc::export::plugin ; # Presence of this
 package require doctools::toc::structure    ; # Verification that the
 					      # input is proper.
 package require doctools::text              ; # Text assembly package
-package require doctools::nroff::man.macros ; # Macro definitions for result.
+package require doctools::nroff::man_macros ; # Macro definitions for result.
 
 doctools::text::import ;# -> ::text::*
 
@@ -78,7 +78,7 @@ proc export {serial configuration} {
     Provenance
     if {$config(inline)} {
 	text::newline?
-	text::+ [doctools::nroff::man.macros::contents]
+	text::+ [doctools::nroff::man_macros::contents]
     } else {
 	.so man.macros
     }
@@ -212,5 +212,5 @@ proc .TH {name} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::toc::export::nroff 0.1
+package provide doctools::toc::export::nroff 0.2
 return

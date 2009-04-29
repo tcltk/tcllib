@@ -4,7 +4,7 @@
 # Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: export.test,v 1.1 2009/04/18 21:14:17 andreas_kupries Exp $
+# RCS: @(#) $Id: export.test,v 1.2 2009/04/29 02:10:56 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -25,7 +25,7 @@ support {
 
     use doctools2base/config.tcl          doctools::config
     useLocal structure.tcl   doctools::toc::structure
-    use doctools2base/nroff_manmacros.tcl doctools::nroff::man.macros
+    use doctools2base/nroff_manmacros.tcl doctools::nroff::man_macros
 
     source [tcllibPath doctools2base/tests/common]
 }

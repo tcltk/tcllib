@@ -1,3 +1,21 @@
+2009-04-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* container.test: Updated the nroff export plugin and related files
+	* export.test: to new name of the nroff man.macros package. Bumped
+	* export_nroff.tcl: to version 0.2.
+	* export_nroff.test:
+	* pkgIndex.tcl:
+	* include/dependencies.inc:
+	* include/export/format/nroff.inc:
+
+	* include/export/plugin.inc: Made version info configurable
+        * export_docidx.tcl: Version 0.1, unchanged
+        * export_json.tcl: Version 0.1, unchanged
+        * export_html.tcl: Version 0.1, unchanged
+        * export_text.tcl: Version 0.1, unchanged
+        * export_wiki.tcl: Version 0.1, unchanged
+        * export_nroff.tcl: Bumped version to 0.2.
+
 2009-04-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* Doctools version 2, processing tables of contents.
