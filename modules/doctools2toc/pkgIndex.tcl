@@ -17,7 +17,7 @@ package ifneeded doctools::toc::import         0.1 [list source [file join $dir 
 package ifneeded doctools::toc::export::doctoc 0.1 [list source [file join $dir export_doctoc.tcl]]
 package ifneeded doctools::toc::export::html   0.1 [list source [file join $dir export_html.tcl]]
 package ifneeded doctools::toc::export::json   0.1 [list source [file join $dir export_json.tcl]]
-package ifneeded doctools::toc::export::nroff  0.1 [list source [file join $dir export_nroff.tcl]]
+package ifneeded doctools::toc::export::nroff  0.2 [list source [file join $dir export_nroff.tcl]]
 package ifneeded doctools::toc::export::text   0.1 [list source [file join $dir export_text.tcl]]
 package ifneeded doctools::toc::export::wiki   0.1 [list source [file join $dir export_wiki.tcl]]
 
