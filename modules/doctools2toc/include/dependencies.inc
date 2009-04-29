@@ -23,7 +23,7 @@ doctools::config        =                         |     |    |                  
                                                                         |                       |
           doctools::html  doctools::html::cssdefaults           doctools::tcl::parse    doctools::msgcat        
                 |                                                                               |
-          doctools::text  doctools::nroff::man.macros                                           =
+          doctools::text  doctools::nroff::man_macros                                           =
                                                                                                 |
                                                                                         doctools::msgcat::toc::<*>
                                                                                                 c, en, de, fr
