@@ -1,3 +1,11 @@
+2009-04-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* paths.tcl: Fixed version mismatch.
+	* nroff_manmacros.tcl: Renamed package (man.macros -> man_macros)
+	* nroff_manmacros.man: to match the set of allowed characters in
+	* tests/common: Tcl Module names. This fixes [Bug 2782256].
+	* pkgIndex.tcl:
+
 2009-04-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* html.tcl: Fix version mismatch.

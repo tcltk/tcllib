@@ -13,7 +13,7 @@ if {![package vsatisfies [package provide Tcl] 8.4]} {return}
 package ifneeded doctools::config            0.1 [list source [file join $dir config.tcl]]
 package ifneeded doctools::paths             0.1 [list source [file join $dir paths.tcl]]
 package ifneeded doctools::text              0.1 [list source [file join $dir text.tcl]]
-package ifneeded doctools::nroff::man.macros 0.1 [list source [file join $dir nroff_manmacros.tcl]]
+package ifneeded doctools::nroff::man_macros 0.1 [list source [file join $dir nroff_manmacros.tcl]]
 package ifneeded doctools::html              0.1 [list source [file join $dir html.tcl]]
 package ifneeded doctools::html::cssdefaults 0.1 [list source [file join $dir html_cssdefaults.tcl]]
 package ifneeded doctools::msgcat            0.1 [list source [file join $dir msgcat.tcl]]
