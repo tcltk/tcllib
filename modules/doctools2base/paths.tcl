@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: paths.tcl,v 1.1 2009/04/01 04:27:47 andreas_kupries Exp $
+# RCS: @(#) $Id: paths.tcl,v 1.2 2009/04/29 02:09:46 andreas_kupries Exp $
 
 # Each object manages a list of paths.
 
@@ -72,5 +72,5 @@ snit::type ::doctools::paths {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::paths 0
+package provide doctools::paths 0.1
 return
