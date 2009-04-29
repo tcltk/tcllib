@@ -1,2 +1,2 @@
 [require doctools::text]
-[require doctools::nroff::man.macros]
+[require doctools::nroff::man_macros]
