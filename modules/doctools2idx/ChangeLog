@@ -1,3 +1,14 @@
+2009-04-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* container.test: Updated the nroff export plugin and related files
+	* export.test: to new name of the nroff man.macros package. Bumped
+	* export_nroff.tcl: to version 0.3.
+	* export_nroff.test:
+	* export_nroff.man:
+	* pkgIndex.tcl:
+	* include/dependencies.inc:
+	* include/export/format/nroff.inc:
+
 2009-04-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* container.man: Fix version mismatch.
