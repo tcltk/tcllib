@@ -2,4 +2,5 @@
 [vset NAME    JSON]
 [vset REQUIRE json]
 [vset CONFIG  json]
+[vset VERSION 0.1]
 [include include/export/plugin.inc]
