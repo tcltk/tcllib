@@ -1,3 +1,8 @@
+2009-05-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* crc32.tcl: Remove unecessary read-type from Trf implementation
+	and tidied the critcl code a little. Bump to 1.3.1.
+
 2009-04-21  Andreas Kupries  <andreask@activestate.com>
 
 	* cksum.tcl (::crc::CksumFinal): Added the missing 'unset state'
