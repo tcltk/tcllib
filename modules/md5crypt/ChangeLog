@@ -1,3 +1,7 @@
+2009-05-07  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* md5cryptc.tcl: Fixed poor idiom setting interp result.
+
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
