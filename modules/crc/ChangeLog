@@ -1,3 +1,7 @@
+2009-05-07  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* sum.tcl: Fixed poor idiom setting interp result.
+
 2009-05-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* crc32.tcl: Remove unecessary read-type from Trf implementation
