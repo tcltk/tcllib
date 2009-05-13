@@ -314,7 +314,7 @@ TCL: upload.cgi
 #!/usr/local/bin/tclsh
 
 ::ncgi::parse
-set filedata [::ncgi::value fileupl]
+set filedata [::ncgi::value filedata]
 set filedesc [::ncgi::value filedesc]
 
 puts "<html> File uploaded at <a href=\"/images/$filedesc\">$filedesc</a> </html>"
