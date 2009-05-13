@@ -1,3 +1,9 @@
+2009-05-12  Aaron Faupell  <afaupell@users.sourceforge.net>
+
+	* tar.tcl: add support for reading pre-posix archives.
+	  if a file isnt writable when extracting, try deleting
+	  before giving up
+
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
