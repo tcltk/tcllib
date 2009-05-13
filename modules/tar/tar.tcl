@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tar.tcl,v 1.11 2007/02/09 06:03:56 afaupell Exp $
+# RCS: @(#) $Id: tar.tcl,v 1.12 2009/05/13 06:28:48 afaupell Exp $
 
-package provide tar 0.4
+package provide tar 0.5
 
 namespace eval ::tar {}
 
@@ -45,13 +45,36 @@ proc ::tar::readHeader {data} {
     binary scan $data a100a8a8a8a12a12a8a1a100a6a2a32a32a8a8a155 \
                       name mode uid gid size mtime cksum type \
                       linkname magic version uname gname devmajor devminor prefix
-                               
-    foreach x {name mode type linkname magic uname gname prefix mode uid gid size mtime cksum version devmajor devminor} {
+
+    foreach x {name type linkname} {
         set $x [string trim [set $x] "\x00"]
     }
-    set mode [string trim $mode " \x00"]
-    foreach x {uid gid size mtime cksum version devmajor devminor} {
+    foreach x {uid gid size mtime cksum} {
         set $x [format %d 0[string trim [set $x] " \x00"]]
+    }
+    set mode [string trim $mode " \x00"]
+
+    if {$magic == "ustar "} {
+        # gnu tar
+        # not fully supported
+        foreach x {uname gname prefix} {
+            set $x [string trim [set $x] "\x00"]
+        }
+        foreach x {devmajor devminor} {
+            set $x [format %d 0[string trim [set $x] " \x00"]]
+        }
+    } elseif {$magic == "ustar\x00"} {
+        # posix tar
+        foreach x {uname gname prefix} {
+            set $x [string trim [set $x] "\x00"]
+        }
+        foreach x {devmajor devminor} {
+            set $x [format %d 0[string trim [set $x] " \x00"]]
+        }
+    } else {
+        # old style tar
+        foreach x {uname gname devmajor devminor prefix} { set $x {} }
+        if {$type == ""} { set type 0 }
     }
 
     return [list name $name mode $mode uid $uid gid $gid size $size mtime $mtime \
@@ -139,7 +162,11 @@ proc ::tar::untar {tar args} {
             lappend ret [file dirname $name] {}
         }
         if {[string match {[0346]} $header(type)]} {
-            set new [::open $name w+]
+            if {[catch {::open $name w+} new]} {
+                # sometimes if we dont have write permission we can still delete
+                catch {file delete -force $name}
+                set new [::open $name w+]
+            }
             fconfigure $new -encoding binary -translation lf -eofchar {}
             fcopy $fh $new -size $header(size)
             close $new
@@ -158,7 +185,7 @@ proc ::tar::untar {tar args} {
 
         if {$::tcl_platform(platform) == "unix"} {
             if {!$noperms} {
-                catch {file attributes $name -permissions [string range $header(mode) 2 end]}
+                catch {file attributes $name -permissions 0[string range $header(mode) 2 end]}
             }
             catch {file attributes $name -owner $header(uid) -group $header(gid)}
             catch {file attributes $name -owner $header(uname) -group $header(gname)}
