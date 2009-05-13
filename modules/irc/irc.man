@@ -41,11 +41,6 @@ deprecated.  Use [cmd connect] instead to specify this information.
 Returns a list of all the current connections that were created with
 [const connection]
 
-
-[call [cmd ::irc::destroy] [arg net]]
-
-Deletes a connection and its associated namespace and information.
-
 [list_end]
 
 [section {Per-connection Commands}]
@@ -214,6 +209,11 @@ Invites [arg target] to join the channel [arg channel]
 [call [arg net] [method send] [arg text]]
 
 Sends [arg text] to the IRC server.
+
+
+[call [arg net] [method destroy]]
+
+Deletes the connection and its associated namespace and information.
 
 [list_end]
 
