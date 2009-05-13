@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tar.tcl,v 1.13 2009/05/13 18:21:53 afaupell Exp $
+# RCS: @(#) $Id: tar.tcl,v 1.14 2009/05/13 21:27:29 afaupell Exp $
 
 package provide tar 0.5
 
@@ -91,6 +91,7 @@ proc ::tar::readHeader {data} {
 
 proc ::tar::contents {file} {
     set fh [::open $file]
+    set ret {}
     while {![eof $fh]} {
         array set header [readHeader [read $fh 512]]
         if {$header(name) == ""} break
@@ -103,6 +104,7 @@ proc ::tar::contents {file} {
 
 proc ::tar::stat {tar {file {}}} {
     set fh [::open $tar]
+    set ret {}
     while {![eof $fh]} {
         array set header [readHeader [read $fh 512]]
         if {$header(name) == ""} break
