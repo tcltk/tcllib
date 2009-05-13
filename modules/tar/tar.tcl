@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tar.tcl,v 1.12 2009/05/13 06:28:48 afaupell Exp $
+# RCS: @(#) $Id: tar.tcl,v 1.13 2009/05/13 18:21:53 afaupell Exp $
 
 package provide tar 0.5
 
@@ -74,7 +74,13 @@ proc ::tar::readHeader {data} {
     } else {
         # old style tar
         foreach x {uname gname devmajor devminor prefix} { set $x {} }
-        if {$type == ""} { set type 0 }
+        if {$type == ""} {
+            if {[string match */ $name]} {
+                set type 5
+            } else {
+                set type 0
+            }
+        }
     }
 
     return [list name $name mode $mode uid $uid gid $gid size $size mtime $mtime \
