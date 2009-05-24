@@ -1,6 +1,6 @@
 # huddle.tcl (working title)
 #
-# huddle.tcl 0.1.4 2009-04-15 06:29:57 KATO Kanryu(kanryu6@users.sourceforge.net)
+# huddle.tcl 0.1.4 2009-04-16 21:44:12 KATO Kanryu(kanryu6@users.sourceforge.net)
 #
 #   It is published with the terms of tcllib's BSD-style license.
 #   See the file named license.terms.
@@ -71,11 +71,15 @@ proc ::huddle::addType {procedure} {
 }
 
 proc ::huddle::isHuddle {arg} {
-    if {[lindex $arg 0] eq "HUDDLE" && [llength $arg] == 2} {
-        return 1
-    } else {
+    if {[lindex $arg 0] ne "HUDDLE" || [llength $arg] != 2} {
         return 0
     }
+    variable types
+    set sub [lindex $arg 1]
+    if {[llength $sub] != 2 && [array get types "type:[lindex $sub 1]"] == ""} {
+        return 0
+    }
+    return 1
 }
 
 proc ::huddle::strip {node} {

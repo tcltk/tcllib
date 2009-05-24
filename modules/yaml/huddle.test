@@ -178,9 +178,10 @@ test huddle-3.2 "test of huddle jsondump" -body {
 ]}
 
 test huddle-3.3 "test of huddle jsondump" -body {
-    huddle jsondump {HUDDLE {D {dd {D {bb {D {a {s baa} c {s {d
+    set huddle1 {HUDDLE {D {dd {D {bb {D {a {s baa} c {s {d
 a}}}} cc {D {g {s h}}}}} ee {D {i {s j} k {s 1} j {s { m\a}}}}}}}
-} -result {{
+    set json1 [huddle jsondump $huddle1]
+    set json2 {{
   "dd": {
     "bb": {
       "a": "baa",
@@ -194,6 +195,11 @@ a}}}} cc {D {g {s h}}}}} ee {D {i {s j} k {s 1} j {s { m\a}}}}}}}
     "j": " m\\a"
   }
 }}
+    if {$json1 == $json2} {return 1}
+    set data [json::json2dict $json1]
+    set data [huddle compile {dict dd {dict * dict} ee dict} $data]
+    huddle equal $huddle1 $data
+} -result {1}
 
 
 # ... Tests of addStrings ...
