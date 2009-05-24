@@ -9,7 +9,8 @@
 if {[lsearch [namespace children] ::tcltest] == -1} {
     # single test
     set selfrun 1
-    lappend auto_path [pwd]
+#    lappend auto_path [pwd]
+    set auto_path [linsert $auto_path 0 [pwd]]
     package require tcltest
     namespace import ::tcltest::*
     puts [package require yaml]
@@ -190,6 +191,8 @@ test yaml-2.1 "flow sequence" -body {
 - [name        , hr, avg  ]
 - [Mark McGwire, 65, 0.278]
 - [Sammy Sosa  , 63, 0.288]
+...
+- [Sammy Sosa2  , 64, 0.388]
 }
     yaml::yaml2dict $inline_seq_seqs
 } -result {{name hr avg} {{Mark McGwire} 65 0.278} {{Sammy Sosa} 63 0.288}}
@@ -496,6 +499,15 @@ test yaml-6.4 "block sequence, mapping" -body {
 }
     yaml::yaml2dict $seq_maps
 } -result [list [dict create name {Mark McGwire} hr 65 avg 0.278] [dict create name {Sammy Sosa} hr 63 avg 0.288]]
+
+test yaml-6.5 "block mapping, noheader" -body {
+    set maps {bar:
+ fruit: apple
+ name: steve
+ sport: baseball
+}
+    dictsort2 [yaml::yaml2dict $maps] {d d}
+} -result [dictsort2 {bar {sport baseball name steve fruit apple}} {d d}]
 
 
 
