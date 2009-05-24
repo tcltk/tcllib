@@ -161,27 +161,27 @@ begin offset as spaces "  ".
 
 [list_end]
 
-[example {% huddle jsondump {HUDDLE {L {{L {{s i} {s baa} {s \\k} {L {{s 1.0} {s true} {s /g} {s h}}} {L {{s g}}}}} {s t}}}}
+[example {# normal output has some indents. some strings are escaped.
+% huddle jsondump {HUDDLE {L {{L {{s i} {s baa} {s \\k} {L {{s 1.0} {s true} {s /g} {s h}}} {L {{s g}}}}} {s t}}}}
 [
   [
-"i",
-"baa",
-"\\k",
-[
-
-  1.0,
-
-  true,
-
-  "\/g",
-
-  "h"
-
-],
-["g"]    ],
+    "i",
+    "baa",
+    "\\k",
+    [
+      1.0,
+      true,
+      "\/g",
+      "h"
+    ],
+    ["g"]
+  ],
   "t"
 ]
-{"dd":{"bb":{"a":"baa","c":"d\na"},"cc":{"g":"h"}},"ee":{"i":"j","k":1,"j":" m\\a"}}
+# stripped output
+% huddle jsondump {HUDDLE {D {dd {D {bb {D {a {s baa} c {s {d
+a}}}} cc {D {g {s h}}}}} ee {D {i {s j} k {s 1} j {s { m\a}}}}}}} "" ""
+{"dd": {"bb": {"a": "baa","c": "d\na"},"cc": {"g": "h"}},"ee": {"i": "j","k": 1,"j": " m\\a"}}
 }]
 
 [call [cmd "huddle compile"] [arg spec] [arg data]]
