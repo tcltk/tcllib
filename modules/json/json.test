@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: json.test,v 1.6 2009/04/17 23:20:54 kanryu6 Exp $
+# RCS: @(#) $Id: json.test,v 1.7 2009/05/26 11:45:59 kanryu6 Exp $
 
 # -------------------------------------------------------------------------
 
@@ -47,14 +47,17 @@ proc dictsort3 {spec data} {
                 return $json
             }
             list {
-                if {![llength $spec]} {
-                    set spec string
-                } else {
-                    set spec [lindex $spec 0]
-                }
+                lappend spec * string
                 set json {}
+                set idx 0
                 foreach {val} $data {
-                    lappend json [dictsort3 $spec $val]
+                    foreach {keymatch valtype} $spec {
+                        if {$idx == $keymatch || $keymatch eq "*"} {
+                            lappend json [dictsort3 $valtype $val]
+                            break
+                        }
+                    }
+                    incr idx
                 }
                 return $json
             }
@@ -146,7 +149,7 @@ set JSON(widget) {{"widget": {
 }
 }}
 set TCL(widget) {widget {debug on window {title {Sample Widget} name main_window width 500 height 500} text {data {Click Here} size 36 style bold name null hOffset 250 vOffset 100 alignment center onMouseUp {sun1.opacity = (sun1.opacity / 100) * 90;}}}}
-set DICTSORT(menu) {dict * {dict text dict window dict}}
+set DICTSORT(widget) {dict * {dict text dict window dict}}
 
 set JSON(menu2) {{"menu": {
     "header": "Viewer",
@@ -163,7 +166,7 @@ set JSON(menu2) {{"menu": {
 }
 }}
 set TCL(menu2) {menu {header Viewer items {{id Open} {id OpenNew label {Open New}} null {id ZoomIn label {Zoom In}} {id ZoomOut label {Zoom Out}} null {id Help} {id About label {About Viewer...}}}}}
-set DICTSORT(menu) {dict * {dict items {list 1 dict 3 dict 4 dict 6 dict}}}
+set DICTSORT(menu2) {dict * {dict items {list 0 dict 1 dict 3 dict 4 dict 6 dict 7 dict}}}
 
 set JSON(emptyList) {[]}
 set TCL(emptyList) {}
