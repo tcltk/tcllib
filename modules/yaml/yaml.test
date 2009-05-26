@@ -9,12 +9,10 @@
 if {[lsearch [namespace children] ::tcltest] == -1} {
     # single test
     set selfrun 1
-#    lappend auto_path [pwd]
-    set auto_path [linsert $auto_path 0 [pwd]]
     package require tcltest
     namespace import ::tcltest::*
-    puts [package require yaml]
-
+    puts [source huddle.tcl]
+    puts [source yaml.tcl]
 } else {
     # all.tcl
     source [file join \
