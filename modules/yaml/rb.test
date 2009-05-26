@@ -9,16 +9,9 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     lappend auto_path [pwd]
     package require tcltest
     namespace import ::tcltest::*
-    puts [package require yaml]
+    puts [source huddle.tcl]
+    puts [source yaml.tcl]
 
-    proc dictsort {dict} {
-        array set a $dict
-        set out [list]
-        foreach key [lsort [array names a]] {
-            lappend out $key $a($key)
-        }
-        return $out
-    }
 } else {
     # all.tcl
     source [file join \
@@ -39,6 +32,15 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     testing {
         useLocal yaml.tcl yaml
     }
+}
+
+proc dictsort {dict} {
+    array set a $dict
+    set out [list]
+    foreach key [lsort [array names a]] {
+        lappend out $key $a($key)
+    }
+    return $out
 }
 
 proc dictsort2 {dict {pattern d}} {
