@@ -1,3 +1,9 @@
+2009-06-02  Andreas Kupries <andreask@activestate.com>
+
+	* README.developer: Extended with more information about the basic
+	  directory hierarchy and files to be found, testing and
+	  validating modules, writing of test cases, and documentation.
+
 2009-02-06  Andreas Kupries  <andreask@activestate.com>
 
 	* support/installation/modules.tcl (Module): Put 'exif' on the
