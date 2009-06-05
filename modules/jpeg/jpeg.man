@@ -1,4 +1,4 @@
-[manpage_begin jpeg n 0.3.4]
+[manpage_begin jpeg n 0.3.5]
 [copyright {2004-2005, Code: Aaron Faupell <afaupell@users.sourceforge.net>}]
 [copyright {2007, Code:  Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {2004-2009, Doc:  Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
@@ -6,7 +6,7 @@
 [titledesc {JPEG querying and manipulation of meta data}]
 [category  {File formats}]
 [require Tcl 8.2]
-[require jpeg [opt 0.3.4]]
+[require jpeg [opt 0.3.5]]
 [description]
 [para]
 

@@ -1,5 +1,10 @@
 2009-06-05  Andreas Kupries  <andreask@activestate.com>
 
+	* jpeg.tcl (::jpeg::exif): Accepted (with slight changes) and
+	* pkgIndex.tcl: applied patch by Matt Plumlee <mdplumlee@users.sourceforge.net>
+	* jpeg.man: to parse GPS data in the EXIF block. Bumped the
+	  package to version 0.3.5. This fixes [Bug 2801896].
+
 	* jpeg.man: Added binary settings to the thumbnail example. This
 	  fixes [Bug 2801587].
 
