@@ -1,3 +1,8 @@
+2009-06-05  Andreas Kupries  <andreask@activestate.com>
+
+	* jpeg.man: Added binary settings to the thumbnail example. This
+	  fixes [Bug 2801587].
+
 2009-03-02  Andreas Kupries  <andreask@activestate.com>
 
 	* jpeg.tcl (::jpeg::imageInfo): Accepted and applied patch by
