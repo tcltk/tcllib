@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: jpeg.tcl,v 1.17 2009/06/05 19:36:40 andreas_kupries Exp $
+# RCS: @(#) $Id: jpeg.tcl,v 1.18 2009/06/05 19:58:26 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -473,9 +473,10 @@ proc ::jpeg::_exif2 {data} {
 }
 
 # reads an exif block and returns key-value pairs
-proc ::jpeg::_exif {fh byteOrder offset} {
+proc ::jpeg::_exif {fh byteOrder offset {tag_info exif_tags}} {
     variable exif_formats
     variable exif_tags
+    variable gps_tags
     set return {}
     for {_scan $byteOrder [read $fh 2] s num} {$num > 0} {incr num -1} {
         binary scan [read $fh 2] H2H2 t1 t2
@@ -495,8 +496,18 @@ proc ::jpeg::_exif {fh byteOrder offset} {
             seek $fh $pos start
             continue
         }
+	# special tag, another exif block holding GPS/location information.
+	if {$tag == "8825"} {
+            _scan $byteOrder $value i next
+            set pos [tell $fh]
+            seek $fh [expr {$offset + $next}] start
+            eval lappend return [_exif $fh $byteOrder $offset gps_tags]
+            seek $fh $pos start
+            continue
+	}
         if {![info exists exif_formats($format)]} continue
-        if {[info exists exif_tags($tag)]} { set tag $exif_tags($tag) }
+	upvar 0 $tag_info thetags
+        if {[info exists thetags($tag)]} { set tag $thetags($tag) }
         set size [expr {$exif_formats($format) * $components}]
         # if the data is over 4 bytes, its stored later in the file, with the
         # data being the offset relative to the exif header
@@ -804,6 +815,41 @@ array set ::jpeg::exif_tags {
     9216 TIFF/EPStandardID
 }
 
+# list of recognized exif tags for the GPSInfo section--added by mdp 6/5/2009
+array set ::jpeg::gps_tags {
+    0000 GPSVersionID
+    0001 GPSLatitudeRef
+    0002 GPSLatitude
+    0003 GPSLongitudeRef
+    0004 GPSLongitude
+    0005 GPSAltitudeRef
+    0006 GPSAltitude
+    0007 GPSTimeStamp
+    0008 GPSSatellites
+    0009 GPSStatus
+    000a GPSMeasureMode
+    000b GPSDOP
+    000c GPSSpeedRef
+    000d GPSSpeed
+    000e GPSTrackRef
+    000f GPSTrack
+    0010 GPSImgDirectionRef
+    0011 GPSImgDirection
+    0012 GPSMapDatum
+    0013 GPSDestLatitudeRef
+    0014 GPSDestLatitude
+    0015 GPSDestLongitudeRef
+    0016 GPSDestLongitude
+    0017 GPSDestBearingRef
+    0018 GPSDestBearing
+    0019 GPSDestDistanceRef
+    001a GPSDestDistance
+    001b GPSProcessingMethod
+    001c GPSAreaInformation
+    001d GPSDateStamp
+    001e GPSDifferential
+}
+
 # for mapping exif values to plain english by [formatExif]
 array set ::jpeg::exif_values {
     Compression,1 none
@@ -1071,4 +1117,4 @@ if {![llength [info commands lassign]]} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide jpeg 0.3.4
+package provide jpeg 0.3.5
