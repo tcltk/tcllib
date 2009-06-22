@@ -2577,6 +2577,8 @@ proc snit::RT.CacheTypemethodCommand {type method} {
         } else {
             return [list ]
         }
+    } elseif {[llength $method] > 1} {
+	return [list ]
     } elseif {$Snit_info(hasinstances)} {
         # Assume the unknown name is an instance name to create, unless
         # this is a widget and the style of the name is wrong, or the

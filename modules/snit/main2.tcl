@@ -2377,6 +2377,8 @@ proc snit::RT.UnknownTypemethod {type eId eCmd method args} {
             # Or should we treat it as an instance name?
             return [list ]
         }
+    } elseif {[llength $fullMethod] > 1} {
+	return [list ]
     } elseif {$Snit_info(hasinstances)} {
         # Assume the unknown name is an instance name to create, unless
         # this is a widget and the style of the name is wrong, or the
