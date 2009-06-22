@@ -579,6 +579,39 @@ test htypemethod-1.6 {proper error on missing submethod} -constraints {
     dog destroy
 } -result {wrong # args: should be "dog wag subcommand ?argument ...?"}
 
+# Case 1
+test htypemethod-1.7 {proper error on bogus submethod} -constraints {
+    snit1
+} -body {
+    cleanup
+
+    type dog {
+        typemethod {wag tail} {} { }
+    }
+
+    dog wag ears
+} -returnCodes {
+    error
+}  -cleanup {
+    dog destroy
+} -result {"::dog wag ears" is not defined}
+
+# Case 2
+test htypemethod-1.8 {proper error on bogus submethod} -constraints {
+    snit2
+} -body {
+    cleanup
+
+    type dog {
+        typemethod {wag tail} {} { }
+    }
+
+    dog wag ears
+} -returnCodes {
+    error
+} -cleanup {
+    dog destroy
+} -result {unknown subcommand "ears": namespace ::dog does not export any commands}
 
 test htypemethod-2.1 {prefix/method collision, level 1, order 1} -body {
     type dog {
