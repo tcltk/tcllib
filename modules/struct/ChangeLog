@@ -1,3 +1,15 @@
+2009-06-22  Andreas Kupries  <andreask@activestate.com>
+
+	* tree_tcl.tcl (::struct::tree::_swap): Removed code which flipped
+	  the attributes around. This is wrong. They stay with their
+	  nodes, per the node name. Thanks to Tom Krehbiel for the report.
+
+	* tree.testsuite : Extended with a test for method swap which
+	  checks that the attributes of the nodes are handled correctly.
+
+	* pkgIndex.tcl: Bumped to version 2.1.2.
+	* tree.tcl:
+
 2009-04-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* struct_tree.man: Fixed typo.

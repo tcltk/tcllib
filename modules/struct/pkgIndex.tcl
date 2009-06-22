@@ -4,7 +4,7 @@ package ifneeded struct            1.4   [list source [file join $dir struct1.tc
 
 package ifneeded struct::queue     1.4.1 [list source [file join $dir queue.tcl]]
 package ifneeded struct::stack     1.3.3 [list source [file join $dir stack.tcl]]
-package ifneeded struct::tree      2.1.1 [list source [file join $dir tree.tcl]]
+package ifneeded struct::tree      2.1.2 [list source [file join $dir tree.tcl]]
 package ifneeded struct::matrix    2.0.2 [list source [file join $dir matrix.tcl]]
 package ifneeded struct::pool      1.2.1 [list source [file join $dir pool.tcl]]
 package ifneeded struct::record    1.2.1 [list source [file join $dir record.tcl]]
