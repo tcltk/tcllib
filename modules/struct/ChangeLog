@@ -1,3 +1,15 @@
+2009-07-10  Andreas Kupries  <andreask@activestate.com>
+
+	* graphops.tcl (::struct::graph::op::TarjanSub):
+	* graphops.tcl (::struct::graph::op::isCutVertex?):
+	* graphops.tcl (::struct::graph::op::Fleury):
+	* pkgIndex.tcl: Fixed [Bug 2815302]. Replaced a number of uses of
+	* graphops.man: struct::set subtract' with the proper 'struct::set
+	  exclude', as these places remove a single element, not a
+	  set. Use of the wrong method then breaks the code if elements
+	  (node/arc names) with whitespace in them is used. Bumped version
+	  to 0.9.1.
+
 2009-06-22  Andreas Kupries  <andreask@activestate.com>
 
 	* tree_tcl.tcl (::struct::tree::_swap): Removed code which flipped

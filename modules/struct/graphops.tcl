@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: graphops.tcl,v 1.10 2008/11/20 07:26:43 andreas_kupries Exp $
+# RCS: @(#) $Id: graphops.tcl,v 1.11 2009/07/10 16:25:47 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -452,7 +452,7 @@ proc ::struct::graph::op::TarjanSub {start counter} {
     # Import the tracer state from our caller.
     upvar 1 g g index index lowlink lowlink instack instack result result pending pending all all
 
-    struct::set subtract all $start
+    struct::set exclude all $start
 
     set component {}
     set   index($start) $counter
@@ -642,7 +642,7 @@ proc ::struct::graph::op::isCutVertex? {g n} {
     # select a new start node without fear of hitting on the
     # cut-vertex candidate. Also makes the comparison later easier
     # (straight ==).
-    struct::set subtract compBefore $n
+    struct::set exclude compBefore $n
 
     set copy       [struct::graph CutVertexCopy = $g]
     $copy node delete $n
@@ -800,7 +800,7 @@ proc ::struct::graph::op::Fleury {g start eulervar} {
 
 	set start [$copy node opposite $start $arc]
 	$copy arc delete $arc
-	struct::set subtract arcs $arc
+	struct::set exclude arcs $arc
 	lappend path $arc
     }
 
@@ -1112,4 +1112,4 @@ namespace eval ::struct::graph::op {
     #namespace export ...
 }
 
-package provide struct::graph::op 0.9
+package provide struct::graph::op 0.9.1
