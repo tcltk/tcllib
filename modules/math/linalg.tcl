@@ -58,7 +58,12 @@ namespace eval ::math::linearalgebra {
 #     Dimension: 0 for a scalar, 1 for a vector, 2 for a matrix
 #
 proc ::math::linearalgebra::dim { obj } {
-    return [llength [shape $obj]]
+    set shape [shape $obj]
+    if { $shape != 1 } {
+        return [llength [shape $obj]]
+    } else {
+        return 0
+    }
 }
 
 # shape --
@@ -66,13 +71,10 @@ proc ::math::linearalgebra::dim { obj } {
 # Arguments:
 #     obj        Object like a scalar, vector or matrix
 # Result:
-#     List of the sizes: empty list for a scalar, number of components
+#     List of the sizes: 1 for a scalar, number of components
 #     for a vector, number of rows and columns for a matrix
 #
 proc ::math::linearalgebra::shape { obj } {
-    if { [llength $obj] <= 1 } {
-       return {}
-    }
     set result [llength $obj]
     if { [llength [lindex $obj 0]] <= 1 } {
        return $result
@@ -2194,7 +2196,7 @@ proc ::math::linearalgebra::from_LA { mv } {
 #
 # Announce the package's presence
 #
-package provide math::linearalgebra 1.1.2
+package provide math::linearalgebra 1.1.3
 
 if { 0 } {
 Te doen:
