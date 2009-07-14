@@ -50,7 +50,7 @@ set ::tcl_precision 17
 
 #
 # Returns 1 if the expected value is close to the actual value,
-# that is their relative difference is small with respect to the 
+# that is their relative difference is small with respect to the
 # given epsilon.
 # If the expected value is zero, use an absolute error instead.
 #
@@ -138,7 +138,7 @@ test dimshape-1.2 "dimension of matrix" -body {
 
 test dimshape-2.0 "shape of scalar" -body {
     shape 1
-} -result {}
+} -result {1}
 
 test dimshape-2.1 "shape of vector" -body {
     shape {1 2 3}
@@ -742,10 +742,10 @@ test mkTriangular-2 "make triangular matrix" -match numbers -body {
 test mkBorder "make border matrix" -match numbers -body {
     mkBorder 5
 } -result {
-{1.0 0.0 0.0 0.0 1.0} 
-{0.0 1.0 0.0 0.0 0.5} 
-{0.0 0.0 1.0 0.0 0.25} 
-{0.0 0.0 0.0 1.0 0.125} 
+{1.0 0.0 0.0 0.0 1.0}
+{0.0 1.0 0.0 0.0 0.5}
+{0.0 0.0 1.0 0.0 0.25}
+{0.0 0.0 0.0 1.0 0.125}
 {1.0 0.5 0.25 0.125 1.0}}
 
 test mkWilkinsonW- "make Wilkinson W- matrix" -match numbers -body {
@@ -819,7 +819,7 @@ test largesteigen-3 "power method" -body {
       catch {
         set pm [largesteigen $a]
       } errmsg
-    set errmsg 
+    set errmsg
 } -result {Cannot continue power method : matrix is singular}
 
 # Additional tests: procedures by Federico Ferri
