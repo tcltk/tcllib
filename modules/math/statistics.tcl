@@ -90,6 +90,12 @@ namespace eval ::math::statistics {
 proc ::math::statistics::BasicStats { type values } {
     variable TOOFEWDATA
 
+    if { [lsearch {all mean min max number stdev var pstdev pvar} $type] < 0 } {
+	return -code error \
+		-errorcode ARG -errorinfo [list unknown type of statistic -- $type] \
+		[list unknown type of statistic -- $type]
+    }
+
     set min    {}
     set max    {}
     set mean   {}
@@ -155,14 +161,7 @@ proc ::math::statistics::BasicStats { type values } {
     #
     # Return the appropriate value
     #
-    if { [lsearch {all mean min max number stdev var pstdev pvar} $type] >= 0 } {
-	# FRINK: nocheck
-	return [set $type]
-    } else {
-	return -code error \
-		-errorcode ARG -errorinfo [list unknown type of statistic -- $type] \
-		[list unknown type of statistic -- $type]
-    }
+    set $type
 }
 
 # histogram --
