@@ -15,7 +15,7 @@
 # version 0.6:   added pdf and cdf procedures for various distributions
 #                (provided by Eric Kemp-Benedict)
 
-package provide math::statistics 0.6
+package provide math::statistics 0.6.1
 package require math
 
 # ::math::statistics --
@@ -99,6 +99,7 @@ proc ::math::statistics::BasicStats { type values } {
     set sum    0.0
     set sumsq  0.0
     set number 0
+    set first  {}
 
     foreach value $values {
 	if { $value == {} } {
@@ -106,9 +107,13 @@ proc ::math::statistics::BasicStats { type values } {
 	}
 	set value [expr {double($value)}]
 
+	if { $first == {} } {
+	    set first $value
+	}
+
 	incr number
 	set  sum    [expr {$sum+$value}]
-	set  sumsq  [expr {$sumsq+$value*$value}]
+	set  sumsq  [expr {$sumsq+($value-$first)*($value-$first)}]
 
 	if { $min == {} || $value < $min } {
 	    set min $value
@@ -125,7 +130,7 @@ proc ::math::statistics::BasicStats { type values } {
     }
 
     if { $number > 1 } {
-	set var    [expr {($sumsq-$mean*$sum)/double($number-1)}]
+	set var    [expr {($sumsq-($mean-$first)*($sum-$number*$first))/double($number-1)}]
         #
         # Take care of a rare situation: uniform data might
         # cause a tiny negative difference
@@ -135,7 +140,7 @@ proc ::math::statistics::BasicStats { type values } {
         }
 	set stdev  [expr {sqrt($var)}]
     }
-	set pvar [expr {($sumsq-$mean*$sum)/double($number)}]
+	set pvar [expr {($sumsq-($mean-$first)*($sum-$number*$first))/double($number)}]
         #
         # Take care of a rare situation: uniform data might
         # cause a tiny negative difference
