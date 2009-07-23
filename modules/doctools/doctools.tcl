@@ -2,12 +2,12 @@
 #
 #	Implementation of doctools objects for Tcl.
 #
-# Copyright (c) 2003-2008 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2009 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.34 2009/03/31 02:31:36 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.35 2009/07/23 17:03:51 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -17,6 +17,7 @@ package require textutil::expander
 # @mdgen OWNER: mpformats/*.tcl
 # @mdgen OWNER: mpformats/*.msg
 # @mdgen OWNER: mpformats/fmt.*
+# @mdgen OWNER: mpformats/man.macros
 
 namespace eval ::doctools {
     # Data storage in the doctools module
@@ -1205,4 +1206,4 @@ namespace eval ::doctools {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools 1.4.2
+package provide doctools 1.4.3
