@@ -2,12 +2,12 @@
 #
 #	Implementation of doctoc objects for Tcl.
 #
-# Copyright (c) 2003-2008 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2009 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctoc.tcl,v 1.20 2009/03/31 02:31:36 andreas_kupries Exp $
+# RCS: @(#) $Id: doctoc.tcl,v 1.21 2009/07/23 17:03:51 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -17,6 +17,7 @@ package require textutil::expander
 # @mdgen OWNER: mpformats/*.tcl
 # @mdgen OWNER: mpformats/*.msg
 # @mdgen OWNER: mpformats/toc.*
+# @mdgen OWNER: mpformats/man.macros
 
 namespace eval ::doctools {}
 namespace eval ::doctools::toc {
@@ -919,4 +920,4 @@ namespace eval ::doctools::toc {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools::toc 1.1.1
+package provide doctools::toc 1.1.2
