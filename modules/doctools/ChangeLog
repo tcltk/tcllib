@@ -1,3 +1,11 @@
+2009-07-21  Andreas Kupries  <andreask@activestate.com>
+
+	* doctools.tcl: Fixed @mdgen instructions, added forgotten
+	  ownership reference to man.macros. See ActiveState Bug 83781,
+	  reported by Nicolas Castagne. Bumped to version 1.4.3.
+	* docidx.tcl: See above, bumped to version 1.0.3.
+	* doctoc.tcl: See above, bumped to version 1.1.2.
+
 2009-03-30  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* checker.tcl (manpage): Added new markup command for document
