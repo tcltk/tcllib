@@ -1,3 +1,14 @@
+2009-08-07  Andreas Kupries  <andreask@activestate.com>
+
+	* export_doctoc.tcl: Added missing '@mdgen NODEP' hints for the
+	* export_html.tcl: pseudo-packages 'doctools::toc::export::plugin'
+	* export_json.tcl: and 'doctools::toc::import::plugin' to keep them
+	* export_nroff.tcl: out of the requirements listed in the meta data.
+	* export_text.tcl:
+	* export_wiki.tcl:
+	* import_doctoc.tcl:
+	* import_json.tcl:
+
 2009-04-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* container.test: Updated the nroff export plugin and related files
