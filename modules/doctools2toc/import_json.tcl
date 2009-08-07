@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: import_json.tcl,v 1.1 2009/04/18 21:14:19 andreas_kupries Exp $
+# RCS: @(#) $Id: import_json.tcl,v 1.2 2009/08/07 18:52:13 andreas_kupries Exp $
 
 # This package is a plugin for the the doctools::toc v2 system.  It
 # takes text in json format and produces the list serialization of a
@@ -16,6 +16,8 @@
 
 # ### ### ### ######### ######### #########
 ## Requisites
+
+# @mdgen NODEP: doctools::toc::import::plugin
 
 package require Tcl 8.4
 package require doctools::toc::import::plugin ; # The presence of this
