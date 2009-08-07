@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: export_text.tcl,v 1.2 2009/04/08 04:10:32 andreas_kupries Exp $
+# RCS: @(#) $Id: export_text.tcl,v 1.3 2009/08/07 18:53:11 andreas_kupries Exp $
 
 # This package is a plugin for the the doctools::idx v2 system.  It
 # takes the list serialization of a keyword index and produces text in
@@ -16,6 +16,8 @@
 
 # ### ### ### ######### ######### #########
 ## Requisites
+
+# @mdgen NODEP: doctools::idx::export::plugin
 
 package require Tcl 8.4
 package require doctools::idx::export::plugin ; # Presence of this
