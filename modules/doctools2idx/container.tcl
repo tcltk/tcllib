@@ -1,30 +1,30 @@
-# doctoc.tcl --
+# docidx.tcl --
 #
-#	Implementation of doctoc objects for Tcl. v2.
+#	Implementation of docidx objects for Tcl. v2.
 #
 # Copyright (c) 2009 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: container.tcl,v 1.2 2009/08/07 18:53:11 andreas_kupries Exp $
+# RCS: @(#) $Id: container.tcl,v 1.3 2009/08/11 22:52:47 andreas_kupries Exp $
 
 # Each object manages one index, with methods to add and remove keys
 # and references, singly, or in bulk. The bulk methods accept various
-# forms of textual serializations, among them text using the doctoc
+# forms of textual serializations, among them text using the docidx
 # markup language.
 
 # ### ### ### ######### ######### #########
 ## Requisites
 
 package require Tcl 8.4
-package require doctools::toc::structure
+package require doctools::idx::structure
 package require snit
 
 # ### ### ### ######### ######### #########
 ## API
 
-snit::type ::doctools::toc {
+snit::type ::doctools::idx {
 
     # Concepts:
     # - An index consists of a (possibly empty) set of keys, 
@@ -64,7 +64,7 @@ snit::type ::doctools::toc {
     # ### ### ### ######### ######### #########
 
     method invalidate {} {
-	array unset mytoc *
+	array unset myidx *
 	return
     }
 
@@ -109,7 +109,7 @@ snit::type ::doctools::toc {
 	# Ignore addition of an already known key
 	if {[info exists mykey($key)]} return
 	set mykey($key) {}
-	array unset mytoc *
+	array unset myidx *
 	return
     }
 
@@ -128,7 +128,7 @@ snit::type ::doctools::toc {
 	    unset myrefuse($name)
 	    unset myref($name)
 	}
-	array unset mytoc *
+	array unset myidx *
 	return
     }
 
@@ -163,7 +163,7 @@ snit::type ::doctools::toc {
 	    lappend myrefuse($name) $key
 	    set mylink([list $name $key]) .
 	}
-	array unset mytoc *
+	array unset myidx *
 	return
     }
 
@@ -177,7 +177,7 @@ snit::type ::doctools::toc {
 	}
 	unset myref($name)
 	unset myrefuse($name)
-	array unset mytoc *
+	array unset myidx *
 	return
     }
 
@@ -217,7 +217,7 @@ snit::type ::doctools::toc {
 
 	if {$format ne "serial"} {
 	    set data [$self Import $format $data]
-	    # doctools::toc::structure verify-as-canonical $data
+	    # doctools::idx::structure verify-as-canonical $data
 	    # ImportSerial verifies.
 	}
 
@@ -233,12 +233,12 @@ snit::type ::doctools::toc {
 
 	if {$format ne "serial"} {
 	    set data [$self Import $format $data]
-	    # doctools::toc::structure verify-as-canonical $data
+	    # doctools::idx::structure verify-as-canonical $data
 	    # merge or ImportSerial verify the structure.
 	}
 
-	set data [doctools::toc::structure merge [$self serialize] $data]
-	# doctools::toc::structure verify-as-canonical $data
+	set data [doctools::idx::structure merge [$self serialize] $data]
+	# doctools::idx::structure verify-as-canonical $data
 	# ImportSerial verifies.
 
 	$self ImportSerial $data
@@ -257,8 +257,8 @@ snit::type ::doctools::toc {
 	# index for the chosen format, and return it, if such is
 	# known.
 
-	if {[info exists mytoc($format)]} {
-	    return $mytoc($format)
+	if {[info exists myidx($format)]} {
+	    return $myidx($format)
 	}
 
 	# If there is no cached representation we have to generate it
@@ -299,7 +299,7 @@ snit::type ::doctools::toc {
 	}
 
 	# Construct result
-	set serial [list doctools::toc \
+	set serial [list doctools::idx \
 			[list \
 			     label      $mylabel \
 			     keywords   $keywords \
@@ -308,9 +308,9 @@ snit::type ::doctools::toc {
 
 	# This is just present to assert that the code above creates
 	# correct serializations.
-	doctools::toc::structure verify-as-canonical $serial
+	doctools::idx::structure verify-as-canonical $serial
 
-	set mytoc(serial) $serial
+	set myidx(serial) $serial
 	return $serial
     }
 
@@ -319,23 +319,23 @@ snit::type ::doctools::toc {
 	    return -code error "Unable to export from \"$format\", no exporter configured"
 	}
 	set res [$myexporter export object $self $format]
-	set mytoc($format) $res
+	set myidx($format) $res
 	return $res
     }
 
     method ImportSerial {serial} {
-	doctools::toc::structure verify $serial iscanonical
+	doctools::idx::structure verify $serial iscanonical
 
-	array unset mytoc    *
+	array unset myidx    *
 	array unset mykey    *
 	array unset myrefuse *
 	array unset myref    *
 	array unset mylink   *
 
 	# Unpack the serialization.
-	array set toc $serial
-	array set toc $toc(doctools::toc)
-	unset     toc(doctools::toc)
+	array set idx $serial
+	array set idx $idx(doctools::idx)
+	unset     idx(doctools::idx)
 
 	# We are setting the relevant variables directly instead of
 	# going through the accessor methods.
@@ -343,11 +343,11 @@ snit::type ::doctools::toc {
 	# II. Keys and references
 	# III. Back index references -> keys.
 
-	set mytitle $toc(title)
-	set mylabel $toc(label)
+	set mytitle $idx(title)
+	set mylabel $idx(label)
 
-	array set mykey $toc(keywords)
-	array set myref $toc(references)
+	array set mykey $idx(keywords)
+	array set myref $idx(references)
 
 	foreach k [array names mykey] {
 	    foreach r $mykey($k) {
@@ -359,7 +359,7 @@ snit::type ::doctools::toc {
 	# Extend cache (only if canonical, as we return only canonical
 	# data).
 	if {$iscanonical} {
-	    set mytoc(serial) $serial
+	    set myidx(serial) $serial
 	}
 	return
     }
@@ -392,221 +392,14 @@ snit::type ::doctools::toc {
     # Array serving as cache holding alternative representations of
     # the index generated via 'serialize', i.e. data export.
 
-    variable mytoc -array {}
-
-    ##
-    # ### ### ### ######### ######### #########
-
-    method element {labels} {
-	...
-	return [::doctools::toc::ELEM %AUTO% $self $mytree $node]
-    }
-
-}
-
-# ### ### ### ######### ######### #########
-##
-
-snit::type ::doctools::toc::ELEM {
-    # ### ### ### ######### ######### #########
-
-    constructor {toc tree node} {
-	set mytoc  $toc
-	set mytree $tree
-	set myself $node
-	set mytype [$mytree get $node type]
-	$self SetupMethods
-	$mytoc Register $self
-	return
-    }
-
-    destructor {
-	$mytoc Unregister $self
-	return
-    }
-
-    # ### ### ### ######### ######### #########
-
-    delegate method * to myaccess
-
-    method clone {{name %AUTO%}} {
-	return [$type create $name $mytoc $mytree $mynode]
-    }
-
-    method up {} {
-	GO [$mytree parent $mynode]
-	return
-    }
-
-    method next {} {
-	GO [$mytree next $mynode]
-	return
-    }
-
-    method prev {} {
-	GO [$mytree prev $mynode]
-	return
-    }
-
-    method child {label} {
-	array set l [$mytree get $mynode labelindex]
-	if {![info exists l($label)]} {
-	    return -code error
-	}
-	GO $l($label)
-	return
-    }
-
-    # ### ### ### ######### ######### #########
-
-    method label {{value {}}} {
-	set thelabel [$mytree get $mynode label]
-	if {
-	    ([llength [info level 0]] == 5) &&
-	    ($value ne $thelabel)
-	} {
-	    # Handle only calls which change the label
-
-	    set parent [$mytree parent $mynode]
-	    array set l [$mytree get $parent labelindex]
-
-	    if {[info exists l($value)]} {
-		return -code error bad-label-already-known
-	    }
-
-	    # Copy node information and re-label.
-	    set   l($value) $l($thelabel)
-	    unset l($thelabel)
-	    $mytree set $mynode label $value
-	    $mytree set $parent labelindex [array get l]
-
-	    set thelabel $value
-	}
-	return $thelabel
-    }
-
-    # ### ### ### ######### ######### #########
-    ##
-
-    method GO {node} {
-	set newtype [$mytree get $node type]
-	set mynode  $node
-	if {$mytype ne $newtype} {
-	    $self SetupMethods
-	}
-	set mytype $newtype
-	return
-    }
-
-    method SetupMethods {} {
-	catch { $myaccess destroy }
-	set myaccess [::doctools::toc::E_$mytype ${selfns}::A \
-			  $mytoc $mytree $mynode]
-	return
-    }
-
-    # ### ### ### ######### ######### #########
-
-    variable  mytoc  {} ; #
-    variable  mytree {} ; #
-    variable  mynode {} ; #
-    variable  mytype {} ; #
-    component myaccess  ; #
+    variable myidx -array {}
 
     ##
     # ### ### ### ######### ######### #########
 }
-
-snit::type ::doctools::toc::E_reference {
-    constructor {toc tree node} {
-	set mytoc  $toc
-	set mytree $tree
-	set myself $node
-	return
-    }
-
-    method description {{value {}}} {
-	set thedescription [$mytree get $mynode description]
-	if {
-	    ([llength [info level 0]] == 5) &&
-	    ($value ne $thedescription)
-	} {
-	    # Handle only calls which change the description
-	    $mytree set $mynode description $value
-
-	    set thedescription $value
-	}
-	return $thedescription
-    }
-
-    method docid {{value {}}} {
-	set thedocid [$mytree get $mynode docid]
-	if {
-	    ([llength [info level 0]] == 5) &&
-	    ($value ne $thedocid)
-	} {
-	    if {$value eq {}} {
-		return -code error bad-id-empty-not-allowed
-	    }
-
-	    # Handle only calls which change the docid
-	    $mytree set $mynode docid $value
-
-	    set thedocid $value
-	}
-	return $thedocid
-    }
-
-    # ### ### ### ######### ######### #########
-
-    variable  mytoc  {} ; #
-    variable  mytree {} ; #
-    variable  mynode {} ; #
-
-    ##
-    # ### ### ### ######### ######### #########
-}
-
-snit::type ::doctools::toc::E_division {
-    constructor {toc tree node} {
-	set mytoc  $toc
-	set mytree $tree
-	set myself $node
-	return
-    }
-
-
-    method docid {{value {}}} {
-	set thedocid [$mytree get $mynode docid]
-	if {
-	    ([llength [info level 0]] == 5) &&
-	    ($value ne $thedocid)
-	} {
-	    if {$value eq {}} {
-		return -code error bad-id-empty-not-allowed
-	    }
-
-	    # Handle only calls which change the docid
-	    $mytree set $mynode docid $value
-
-	    set thedocid $value
-	}
-	return $thedocid
-    }
-
-    # ### ### ### ######### ######### #########
-
-    variable  mytoc  {} ; #
-    variable  mytree {} ; #
-    variable  mynode {} ; #
-
-    ##
-    # ### ### ### ######### ######### #########
-}
-
 
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::toc 2
+package provide doctools::idx 2
 return
