@@ -15,7 +15,7 @@
 # version 0.6:   added pdf and cdf procedures for various distributions
 #                (provided by Eric Kemp-Benedict)
 
-package provide math::statistics 0.6.1
+package provide math::statistics 0.6.2
 package require math
 
 # ::math::statistics --
@@ -491,7 +491,6 @@ proc ::math::statistics::t-test-mean { data est_mean est_stdev confidence } {
 #
 proc ::math::statistics::interval-mean-stdev { data confidence } {
     variable TOOFEWDATA
-    variable student_t_table
 
     set allstats [BasicStats all $data]
 
@@ -502,9 +501,8 @@ proc ::math::statistics::interval-mean-stdev { data confidence } {
 
     if { $number > 1 } {
 	set degrees    [expr {$number-1}]
-	set student_t \
-		[::math::interpolation::interpolate2d $student_t_table \
-		$degrees $conf2]
+	set student_t2 [Inverse-cdf-toms322 1 $degrees $conf2]
+	set student_t  [expr {sqrt($student_t2)}]
 	set mean_lower [expr {$mean-$student_t*$stdev/sqrt($number)}]
 	set mean_upper [expr {$mean+$student_t*$stdev/sqrt($number)}]
 	set stdev_lower {}
