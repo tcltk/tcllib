@@ -1,3 +1,6 @@
+2009-08-21  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* statistics.tcl: Remove a local variable from interval-mean-stdev
+
 2009-08-12  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* statistics.tcl: Solve bug 2835712 regarding interval-mean-stdev
 

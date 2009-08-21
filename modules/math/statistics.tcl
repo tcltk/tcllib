@@ -501,8 +501,7 @@ proc ::math::statistics::interval-mean-stdev { data confidence } {
 
     if { $number > 1 } {
 	set degrees    [expr {$number-1}]
-	set student_t2 [Inverse-cdf-toms322 1 $degrees $conf2]
-	set student_t  [expr {sqrt($student_t2)}]
+	set student_t  [expr {sqrt([Inverse-cdf-toms322 1 $degrees $conf2])}]
 	set mean_lower [expr {$mean-$student_t*$stdev/sqrt($number)}]
 	set mean_upper [expr {$mean+$student_t*$stdev/sqrt($number)}]
 	set stdev_lower {}
