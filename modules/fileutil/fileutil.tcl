@@ -4,16 +4,16 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # Copyright (c) 2002      by Phil Ehrens <phil@slug.org> (fileType)
-# Copyright (c) 2005-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2005-2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.73 2009/02/05 23:40:07 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.74 2009/09/14 17:10:07 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.13.6
+package provide fileutil 1.14
 
 namespace eval ::fileutil {
     namespace export \
@@ -605,13 +605,13 @@ proc fileutil::jail {jail filename} {
 	# symlinks may have bent it out of shape in unrecognizable ways.
 
 	return [eval [linsert [lrange [file split \
-		[LexNormalize $filename]] 1 end] 0 file join [pwd] $jail]]
+		[lexnormalize $filename]] 1 end] 0 file join [pwd] $jail]]
     } else {
 	# The path is relative, consider it as outside
 	# implicitly. Normalize it lexically! to prevent escapes, then
 	# put the jail in front, use PWD to ensure absoluteness.
 
-	return [eval [linsert [file split [LexNormalize $filename]] 0 \
+	return [eval [linsert [file split [lexnormalize $filename]] 0 \
 		file join [pwd] $jail]]
     }
 }
@@ -1888,7 +1888,7 @@ proc ::fileutil::install {args} {
 
 # ### ### ### ######### ######### #########
 
-proc ::fileutil::LexNormalize {sp} {
+proc ::fileutil::lexnormalize {sp} {
     set spx [file split $sp]
 
     # Resolution of embedded relative modifiers (., and ..).
@@ -2053,8 +2053,8 @@ proc ::fileutil::relative {base dst} {
 	return -code error "Unable to compute relation for paths of different pathtypes: [file pathtype $base] vs. [file pathtype $dst], ($base vs. $dst)"
     }
 
-    set base [LexNormalize [file join [pwd] $base]]
-    set dst  [LexNormalize [file join [pwd] $dst]]
+    set base [lexnormalize [file join [pwd] $base]]
+    set dst  [lexnormalize [file join [pwd] $dst]]
 
     set save $dst
     set base [file split $base]
@@ -2116,8 +2116,8 @@ proc ::fileutil::relativeUrl {base dst} {
 	return -code error "Unable to compute relation for paths of different pathtypes: [file pathtype $base] vs. [file pathtype $dst], ($base vs. $dst)"
     }
 
-    set base [LexNormalize [file join [pwd] $base]]
-    set dst  [LexNormalize [file join [pwd] $dst]]
+    set base [lexnormalize [file join [pwd] $base]]
+    set dst  [lexnormalize [file join [pwd] $dst]]
 
     set basedir [file dirname $base]
     set dstdir  [file dirname $dst]
