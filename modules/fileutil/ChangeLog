@@ -1,3 +1,12 @@
+2009-09-14  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.tcl: Renamed the internal command 'LexNormalize' to
+	* fileutil.man: 'lexnormalize' and documented it, making it
+	* pkgIndex.tcl: public. Bumped version to 1.14. This closes and
+	  accepts the feature request [SF Tcllib Bug 2855302]. Tests are
+	  currently only indirect, through testing of commands 'jail' and
+	  'relativeUrl'.
+
 2009-04-01  Andreas Kupries  <andreask@activestate.com>
 
 	* multiop.tcl (Copy): Fix special case with copying directories

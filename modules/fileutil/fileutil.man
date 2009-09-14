@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin fileutil n 1.13.6]
+[manpage_begin fileutil n 1.14]
 [moddesc   {file utilities}]
 [titledesc {Procedures implementing some file utilities}]
 [category  {Programming tools}]
 [require Tcl 8]
-[require fileutil [opt 1.13.6]]
+[require fileutil [opt 1.14]]
 [description]
 [keywords {file utilities} touch grep type {temp file} test cat]
 [para]
@@ -12,6 +12,21 @@
 This package provides implementations of standard unix utilities.
 
 [list_begin definitions]
+
+[call [cmd ::fileutil::lexnormalize] [arg path]]
+
+This command performs purely lexical normalization on the [arg path] and returns
+the changed path as its result. Symbolic links in the path are [emph not] resolved.
+
+[para]
+Examples:
+[example {
+    fileutil::lexnormalize /foo/./bar
+    => /foo/bar
+
+    fileutil::lexnormalize /foo/../bar
+    => /bar
+}]
 
 [call [cmd ::fileutil::fullnormalize] [arg path]]
 
