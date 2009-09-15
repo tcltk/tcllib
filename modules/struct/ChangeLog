@@ -1,3 +1,32 @@
+2009-09-15  Andreas Kupries  <andreask@activestate.com>
+
+	* graphops.tcl: Starting on the integration of Michal
+	* graphops.man: Antoniewski's (<antoniewsli@gmail.com>) work on
+	* graphops.test: graph operations for GSoC 2009. Added all
+	* graphops.man: operations, and their documentation. Version
+	* graphops.tcl: bumped to 0.10. The graphops package now requires
+	* graphops.test: Tcl 8.5. The testsuite requires tcltest v2.
+	* pkgIndex.tcl: Extended setup commands for upcoming new tests.
+	* graph/tests/XOpsSetup: The package and tests now require
+	* graph/tests/ops/adjmatrix.test: struct::tree, another package
+	* graph/tests/ops/bipartite.test: with acceleration via critcl.
+	* graph/tests/ops/bridge.test: Testsuite updated to switch its
+	* graph/tests/ops/componentof.test: implementations well. The
+	* graph/tests/ops/components.test: testsuites for the new
+	* graph/tests/ops/connected.test: commands will be added
+	* graph/tests/ops/cutvertex.test: incrementally over the next
+	* graph/tests/ops/diameter.test: days.
+	* graph/tests/ops/dijkstra.test:
+	* graph/tests/ops/distance.test:
+	* graph/tests/ops/eccentricity.test:
+	* graph/tests/ops/eulerpath.test:
+	* graph/tests/ops/eulertour.test:
+	* graph/tests/ops/kruskal.test:
+	* graph/tests/ops/maxmatching.test:
+	* graph/tests/ops/prim.test:
+	* graph/tests/ops/radius.test:
+	* graph/tests/ops/tarjan.test:
+
 2009-09-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph/filter.c: Fixed bug in 'arcs -adj' implementation. Wrong
