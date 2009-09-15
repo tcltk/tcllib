@@ -2,7 +2,7 @@
 # Graph ops tests - Euler tours.
 # Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: eulerpath.test,v 1.2 2008/11/20 07:26:43 andreas_kupries Exp $
+# RCS: @(#) $Id: eulerpath.test,v 1.3 2009/09/15 03:47:25 andreas_kupries Exp $
 
 # Syntax: struct::graph::op::isSemiEulerian? G A
 
@@ -25,189 +25,239 @@ test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-1.1 {
 # -------------------------------------------------------------------------
 # Ok arguments.
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.0 {isSemiEulerian?, empty graph} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.0 {isSemiEulerian?, empty graph} -setup {
     SETUP
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph]
-    mygraph destroy
     set result
-} 0
+} -cleanup {
+    mygraph destroy
+} -result 0
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.1 {isSemiEulerian?, nodes, no arcs} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.1 {isSemiEulerian?, nodes, no arcs} -setup {
     SETUP
+} -body {
     mygraph node insert 0 1 2 3 4 5
     set result [struct::graph::op::isSemiEulerian? mygraph]
-    mygraph destroy
     set result
-} 0
+} -cleanup {
+    mygraph destroy
+} -result 0
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.2 {isSemiEulerian?} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.2 {isSemiEulerian?} -setup {
     SETUP_A
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph]
-    mygraph destroy
     set result
-} 0
+} -cleanup {
+    mygraph destroy
+} -result 0
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.3 {isSemiEulerian?} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.3 {isSemiEulerian?} -setup {
     SETUP_B
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph]
-    mygraph destroy
     set result
-} 1
+} -cleanup {
+    mygraph destroy
+} -result 1
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.4 {isSemiEulerian?} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.4 {isSemiEulerian?} -setup {
     SETUP_B2
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph]
-    mygraph destroy
     set result
-} 1
+} -cleanup {
+    mygraph destroy
+} -result 1
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.5 {isSemiEulerian?} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.5 {isSemiEulerian?} -setup {
     SETUP_C
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph]
-    mygraph destroy
     set result
-} 1
+} -cleanup {
+    mygraph destroy
+} -result 1
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.6 {isSemiEulerian?} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.6 {isSemiEulerian?} -setup {
     SETUP_D
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph]
-    mygraph destroy
     set result
-} 0
+} -cleanup {
+    mygraph destroy
+} -result 0
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.7 {isSemiEulerian?} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.7 {isSemiEulerian?} -setup {
     SETUP_E
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph]
-    mygraph destroy
     set result
-} 0
+} -cleanup {
+    mygraph destroy
+} -result 0
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.8 {isSemiEulerian?} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.8 {isSemiEulerian?} -setup {
     SETUP_F
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph]
-    mygraph destroy
     set result
-} 0
+} -cleanup {
+    mygraph destroy
+} -result 0
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.9 {isSemiEulerian?} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.9 {isSemiEulerian?} -setup {
     SETUP_G
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph]
-    mygraph destroy
     set result
-} 0
+} -cleanup {
+    mygraph destroy
+} -result 0
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.10 {isSemiEulerian?} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.10 {isSemiEulerian?} -setup {
     SETUP_H
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph]
-    mygraph destroy
     set result
-} 1
+} -cleanup {
+    mygraph destroy
+} -result 1
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.11 {isSemiEulerian?} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.11 {isSemiEulerian?} -setup {
     SETUP_I
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph]
-    mygraph destroy
     set result
-} 0
+} -cleanup {
+    mygraph destroy
+} -result 0
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.12 {isSemiEulerian?} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.12 {isSemiEulerian?} -setup {
     SETUP_J
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph]
-    mygraph destroy
     set result
-} 0
+} -cleanup {
+    mygraph destroy
+} -result 0
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.13 {isSemiEulerian?} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.13 {isSemiEulerian?} -setup {
     SETUP_K
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph]
-    mygraph destroy
     set result
-} 0
+} -cleanup {
+    mygraph destroy
+} -result 0
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.14 {isSemiEulerian?} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.14 {isSemiEulerian?} -setup {
     SETUP_K2
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph]
-    mygraph destroy
     set result
-} 1
+} -cleanup {
+    mygraph destroy
+} -result 1
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.15 {isSemiEulerian?} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.15 {isSemiEulerian?} -setup {
     SETUP_L
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph]
-    mygraph destroy
     set result
-} 0
+} -cleanup {
+    mygraph destroy
+} -result 0
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.16 {isSemiEulerian?} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.16 {isSemiEulerian?} -setup {
     SETUP_M
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph]
-    mygraph destroy
     set result
-} 1
+} -cleanup {
+    mygraph destroy
+} -result 1
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.17 {isSemiEulerian?} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-3.17 {isSemiEulerian?} -setup {
     SETUP_N
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph]
-    mygraph destroy
     set result
-} 1
+} -cleanup {
+    mygraph destroy
+} -result 1
 
 # ---------------------------------------------------
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-4.3 {isSemiEulerian?, and path} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-4.3 {isSemiEulerian?, and path} -setup {
     SETUP_B
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph path]
     lappend result [EulerPath mygraph $path]
-    mygraph destroy
     set result
-} {1 ok}
+} -cleanup {
+    mygraph destroy
+} -result {1 ok}
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-4.4 {isSemiEulerian?, and path} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-4.4 {isSemiEulerian?, and path} -setup {
     SETUP_B2
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph path]
     lappend result [EulerPath mygraph $path]
-    mygraph destroy
     set result
-} {1 ok}
+} -cleanup {
+    mygraph destroy
+} -result {1 ok}
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-4.5 {isSemiEulerian?, and path} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-4.5 {isSemiEulerian?, and path} -setup {
     SETUP_C
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph path]
     lappend result [EulerPath mygraph $path]
-    mygraph destroy
     set result
-} {1 ok}
+} -cleanup {
+    mygraph destroy
+} -result {1 ok}
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-4.10 {isSemiEulerian?, and path} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-4.10 {isSemiEulerian?, and path} -setup {
     SETUP_H
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph path]
     lappend result [EulerPath mygraph $path]
-    mygraph destroy
     set result
-} {1 ok}
+} -cleanup {
+    mygraph destroy
+} -result {1 ok}
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-4.14 {isSemiEulerian?, and path} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-4.14 {isSemiEulerian?, and path} -setup {
     SETUP_K2
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph path]
     lappend result [EulerPath mygraph $path]
-    mygraph destroy
     set result
-} {1 ok}
+} -cleanup {
+    mygraph destroy
+} -result {1 ok}
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-4.16 {isSemiEulerian?, and path} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-4.16 {isSemiEulerian?, and path} -setup {
     SETUP_M
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph path]
     lappend result [EulerPath mygraph $path]
-    mygraph destroy
     set result
-} {1 ok}
+} -cleanup {
+    mygraph destroy
+} -result {1 ok}
 
-test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-4.17 {isSemiEulerian?, and path} {
+test graphop-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-isSemiEulerian?-4.17 {isSemiEulerian?, and path} -setup {
     SETUP_N
+} -body {
     set result [struct::graph::op::isSemiEulerian? mygraph path]
     lappend result [EulerPath mygraph $path]
-    mygraph destroy
     set result
-} {1 ok}
+} -cleanup {
+    mygraph destroy
+} -result {1 ok}
 
 # ---------------------------------------------------

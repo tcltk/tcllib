@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: graphops.tcl,v 1.11 2009/07/10 16:25:47 andreas_kupries Exp $
+# RCS: @(#) $Id: graphops.tcl,v 1.12 2009/09/15 03:47:25 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -795,7 +795,10 @@ proc ::struct::graph::op::Fleury {g start eulervar} {
 		set has 1
 		break
 	    }
-	    if {!$has} { return -code error {Internal error} }
+	    if {!$has} {
+		$copy destroy
+		return -code error {Internal error}
+	    }
 	}
 
 	set start [$copy node opposite $start $arc]
@@ -1112,4 +1115,4 @@ namespace eval ::struct::graph::op {
     #namespace export ...
 }
 
-package provide struct::graph::op 0.9.1
+package provide struct::graph::op 0.9.2
