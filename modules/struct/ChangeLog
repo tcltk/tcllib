@@ -1,5 +1,32 @@
 2009-09-15  Andreas Kupries  <andreask@activestate.com>
 
+	* graph/tests/XOpsControl: Added new testsuites.
+
+	* graph/tests/ops/busackergowen.test: Changes like for
+	  edmondskarp.test, i.e. equivalent data leakage bugs (1.4-1.6).
+
+	* graph/tests/ops/edmondskarp.test: Ditto, plus conversion of a
+	  few tests to tcltest v2 form, to make the setup and cleanup of
+	  resources more explicit, fixing data leakage between tests
+	  (FF-1.5-1.9), and fixing test results of these. First actual bug
+	  fixes.
+
+	* graph/tests/ops/adjlist.test: Ditto, except this one is using a
+	  custom sorting command.	
+
+	* graph/tests/ops/floydwarshall.test: Ditto.
+	* graph/tests/ops/johnsons.test: Ditto.
+
+	* graph/tests/ops/bellmanford.test: New testsuite for bellman-ford
+	  algorithm. Changes compared to GSoC result:
+	  - Test names extended with 'treeimpl'.
+	  - Added dictsort to force a canonical ordering on the
+	    results.
+	  - Results updated to be in the canonical ordering.
+	  - Indentation, line-endings
+	  This passes the testsuite for both tcl and critcl
+	  implementations of struct::graph.
+
 	* graphops.tcl: Starting on the integration of Michal
 	* graphops.man: Antoniewski's (<antoniewsli@gmail.com>) work on
 	* graphops.test: graph operations for GSoC 2009. Added all
