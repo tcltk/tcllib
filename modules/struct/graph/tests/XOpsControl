@@ -4,7 +4,7 @@
 # Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: XOpsControl,v 1.11 2009/09/15 03:47:25 andreas_kupries Exp $
+# RCS: @(#) $Id: XOpsControl,v 1.12 2009/09/15 21:08:42 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -35,5 +35,12 @@ source ${SELF}/ops/distance.test     ; # Node distances
 source ${SELF}/ops/eccentricity.test ; # Node eccentricity
 source ${SELF}/ops/radius.test       ; # Graph radius
 source ${SELF}/ops/diameter.test     ; # Graph diameter
+
+source ${SELF}/ops/adjlist.test      ; # Adjacency lists
+source ${SELF}/ops/bellmanford.test  ; # Distances by Bellman-Ford
+source ${SELF}/ops/busackergowen.test; # Minimum-Cost Maximum-Flow by Busacker-Gowen
+source ${SELF}/ops/edmondskarp.test  ; # Maximum-Flow by Edmonds-Karp
+source ${SELF}/ops/floydwarshall.test; # Distances by Floyd-Warshall
+source ${SELF}/ops/johnsons.test     ; # Distances by Johnsons
 
 # -------------------------------------------------------------------------
