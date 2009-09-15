@@ -1,5 +1,9 @@
 2009-09-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* graph/filter.c: Fixed bug in 'arcs -adj' implementation. Wrong
+	* graph/tests/arcs.test: range check. Extended testsuite. Bumped
+	* ../tcllibc.tcl: version of tcllibc containing this fix to 0.3.5.
+
 	* graphops.tcl: Destroy internal temporary object on internal
 	* graphops.man: error. Bumped version to 0.9.2.
 	* pkgIndex.tcl:
