@@ -1,5 +1,17 @@
 2009-09-16  Andreas Kupries  <andreask@activestate.com>
 
+	* graph/tests/XOpsControl: Added testsuite for maxcut.
+	* graph/tests/ops/maxcut.test: Testsuite for maxcut.
+	  Changes compared to GSoC result:
+	  - Test names extended with 'treeimpl'.
+	  - Indentation, line-endings
+	  - test 1.4 demonstrates not only how the heuristic can run into
+	    local optimum, but also how the result is influenced by node
+	    ordering, critcl implementation gives optimal solution
+	    instead, now accepted.
+	  This passes the testsuite for both tcl and critcl
+	  implementations of struct::graph.
+
 	* graphops.tcl: Fixed indentation, and removed trailing
 	  whitespace.
 
