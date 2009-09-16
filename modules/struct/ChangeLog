@@ -1,3 +1,20 @@
+2009-09-16  Andreas Kupries  <andreask@activestate.com>
+
+	* graphops.tcl: Fixed indentation, and removed trailing
+	  whitespace.
+
+	* graph/tests/XOpsControl: Added testsuite for BFS.
+	* graph/tests/ops/bfs.test: Testsuite for breadth-first
+	  search. Changes compared to GSoC result:
+	  - Test names extended with 'treeimpl'.
+	  - Added dictsort and lsort to force a canonical ordering on
+	    results. Where sorting was not possible we provide the two
+	    valid results for Tcl and Critcl implementations.
+	  - Results updated to be in the canonical ordering.
+	  - Indentation, line-endings
+	  This passes the testsuite for both tcl and critcl
+	  implementations of struct::graph.
+
 2009-09-15  Andreas Kupries  <andreask@activestate.com>
 
 	* graph/tests/XOpsControl: Added new testsuites.
