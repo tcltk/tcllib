@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: graphops.tcl,v 1.13 2009/09/15 19:24:12 andreas_kupries Exp $
+# RCS: @(#) $Id: graphops.tcl,v 1.14 2009/09/16 18:51:16 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -111,8 +111,8 @@ proc ::struct::graph::op::toAdjacencyMatrix {g} {
 #In comparison to Adjacency Matrix it doesn't force using array with quite big
 #size - V^2, where V is a number of vertices ( instead, memory we need is about O(E) ).
 #It's especially important when concerning rare graphs ( graphs with amount of vertices
-#far bigger than amount of edges ). In practise, it turns out that generally, 
-#Adjacency List is more effective. Moreover, going through the set of edges take 
+#far bigger than amount of edges ). In practise, it turns out that generally,
+#Adjacency List is more effective. Moreover, going through the set of edges take
 #less time ( O(E) instead of O(E^2) ) and adding new edges is rapid.
 #On the other hand, checking if particular edge exists in graph G takes longer
 #( checking if edge {v1,v2} belongs to E(G) in proportion to min{deg(v1,v2)} ).
@@ -137,77 +137,77 @@ proc ::struct::graph::op::toAdjacencyMatrix {g} {
 
 proc ::struct::graph::op::toAdjacencyList {G args} {
 
-	set arcTraversal "undirected"
-	set weightsOn 0
-	
-	#options for procedure
-	foreach option $args {
-		switch -exact -- $option {
-			-directed {
-				set arcTraversal "directed"
-			}
-			-weights {
-				#checking if all edges have their weights set
-				VerifyWeightsAreOk $G
-				set weightsOn 1
-			}
-			default {
-				return -code error "Bad option \"$option\". Expected -directed or -weights"
-			}
-		}
+    set arcTraversal "undirected"
+    set weightsOn 0
+
+    #options for procedure
+    foreach option $args {
+	switch -exact -- $option {
+	    -directed {
+		set arcTraversal "directed"
+	    }
+	    -weights {
+		#checking if all edges have their weights set
+		VerifyWeightsAreOk $G
+		set weightsOn 1
+	    }
+	    default {
+		return -code error "Bad option \"$option\". Expected -directed or -weights"
+	    }
 	}
-		
-	set V [lsort -dict [$G nodes]]
-			
-	#mainloop
-	switch -exact -- $arcTraversal {
-		undirected {
-			#setting up the Adjacency List with nodes
-			foreach v [lsort -dict [$G nodes]] {
-               dict set AdjacencyList $v {}
-			}
-			#appending the edges adjacent to nodes
-			foreach e [$G arcs] {
-			
-               set v [$G arc source $e]
-			   set u [$G arc target $e]
-			   
-			   if { !$weightsOn } {
-					dict lappend AdjacencyList $v $u
-					dict lappend AdjacencyList $u $v
-			   } else {
-					dict lappend AdjacencyList $v [list $u [$G arc getweight $e]]
-					dict lappend AdjacencyList $u [list $v [$G arc getweight $e]]
-			   }
-			}
-			#deleting duplicated edges
-			foreach x [dict keys $AdjacencyList] {
-				dict set AdjacencyList $x [lsort -unique [dict get $AdjacencyList $x]]
-			}
+    }
+
+    set V [lsort -dict [$G nodes]]
+
+    #mainloop
+    switch -exact -- $arcTraversal {
+	undirected {
+	    #setting up the Adjacency List with nodes
+	    foreach v [lsort -dict [$G nodes]] {
+		dict set AdjacencyList $v {}
+	    }
+	    #appending the edges adjacent to nodes
+	    foreach e [$G arcs] {
+
+		set v [$G arc source $e]
+		set u [$G arc target $e]
+
+		if { !$weightsOn } {
+		    dict lappend AdjacencyList $v $u
+		    dict lappend AdjacencyList $u $v
+		} else {
+		    dict lappend AdjacencyList $v [list $u [$G arc getweight $e]]
+		    dict lappend AdjacencyList $u [list $v [$G arc getweight $e]]
 		}
-		directed {
-			foreach v $V {
-				set E [$G arcs -out $v]
-				set adjNodes {}
-				foreach e $E {
-					if { !$weightsOn } {
-						lappend adjNodes [$G arc target $e]
-					} else {
-						lappend adjNodes [list [$G arc target $e] [$G arc getweight $e]]
-					}
-				}
-				dict set AdjacencyList $v $adjNodes
-			}
-		}
-		default {
-				return -code error "Error while executing procedure"
-		}
+	    }
+	    #deleting duplicated edges
+	    foreach x [dict keys $AdjacencyList] {
+		dict set AdjacencyList $x [lsort -unique [dict get $AdjacencyList $x]]
+	    }
 	}
-	
-	return $AdjacencyList
+	directed {
+	    foreach v $V {
+		set E [$G arcs -out $v]
+		set adjNodes {}
+		foreach e $E {
+		    if { !$weightsOn } {
+			lappend adjNodes [$G arc target $e]
+		    } else {
+			lappend adjNodes [list [$G arc target $e] [$G arc getweight $e]]
+		    }
+		}
+		dict set AdjacencyList $v $adjNodes
+	    }
+	}
+	default {
+	    return -code error "Error while executing procedure"
+	}
+    }
+
+    return $AdjacencyList
 }
 
-#Bellman's Ford Algorithm 
+#Bellman's Ford Algorithm
 #-------------------------------------------------------------------------------------
 #Searching for shortest paths between chosen node and
 #all other nodes in graph G. Based on relaxation method. In comparison to Dijkstra
@@ -228,55 +228,55 @@ proc ::struct::graph::op::toAdjacencyList {G args} {
 #
 
 proc ::struct::graph::op::BellmanFord { G startnode } {
-	
-	#checking if all edges have their weights set
-	VerifyWeightsAreOk $G
-	
-	#checking if the startnode exists in given graph G
+
+    #checking if all edges have their weights set
+    VerifyWeightsAreOk $G
+
+    #checking if the startnode exists in given graph G
     if {![$G node exists $startnode]} {
-		return -code error "node \"$startnode\" does not exist in graph \"$G\""
+	return -code error "node \"$startnode\" does not exist in graph \"$G\""
     }
-	
-	#sets of nodes and edges for graph G
-	set V [$G nodes]   
-	set E [$G arcs]
-	
-	#initialization
-	foreach i $V {
-		dict set distances $i Inf
+
+    #sets of nodes and edges for graph G
+    set V [$G nodes]
+    set E [$G arcs]
+
+    #initialization
+    foreach i $V {
+	dict set distances $i Inf
+    }
+
+    dict set distances $startnode 0
+
+    #main loop (relaxation)
+    for { set i 1 } { $i <= ([dict size $distances]-1) } { incr i } {
+
+	foreach j $E {
+	    set u [$G arc source $j]	;# start node of edge j
+	    set v [$G arc target $j]	;# end node of edge j
+
+	    if { [ dict get $distances $v ] > [ dict get $distances $u ] + [ $G arc getweight $j ]} {
+		dict set distances $v [ expr {[dict get $distances $u] + [$G arc getweight $j]} ]
+	    }
 	}
-	
-	dict set distances $startnode 0
-	
-	#main loop (relaxation)
-	for { set i 1 } { $i <= ([dict size $distances]-1) } { incr i } {
-		
-		foreach j $E {
-			set u [$G arc source $j]	;# start node of edge j
-			set v [$G arc target $j]	;# end node of edge j
-			
-			if { [ dict get $distances $v ] > [ dict get $distances $u ] + [ $G arc getweight $j ]} {
-				dict set distances $v [ expr {[dict get $distances $u] + [$G arc getweight $j]} ]
-			}
-		}
+    }
+
+    #checking if there exists cycle with negative sum of weights
+    foreach i $E {
+	set u [$G arc source $i]	;# start node of edge i
+	set v [$G arc target $i]	;# end node of edge i
+
+	if { [dict get $distances $v] > [ dict get $distances $u ] + [$G arc getweight $i] } {
+	    return -code error "Error. Given graph \"$G\" contains cycle with negative sum of weights."
 	}
-	
-	#checking if there exists cycle with negative sum of weights
-	foreach i $E {
-		set u [$G arc source $i]	;# start node of edge i
-		set v [$G arc target $i]	;# end node of edge i
-		
-		if { [dict get $distances $v] > [ dict get $distances $u ] + [$G arc getweight $i] } {
-			return -code error "Error. Given graph \"$G\" contains cycle with negative sum of weights."
-		}
-	}
-	
-	return $distances
-	 
+    }
+
+    return $distances
+
 }
 
 
-#Johnson's Algorithm 
+#Johnson's Algorithm
 #-------------------------------------------------------------------------------------
 #Searching paths between all pairs of vertices in graph. For rare graphs
 #asymptotically quicker than Floyd-Warshall's algorithm. Johnson's algorithm
@@ -287,8 +287,8 @@ proc ::struct::graph::op::BellmanFord { G startnode } {
 #any cycles with negative sum of weights ( the presence of such cycles means
 #there is no shortest path, since the total weight becomes lower each time the
 #cycle is traversed ). Possible negative weights on edges.
-#Possible options: 
-# 	-filter ( returns only existing distances, cuts all Inf values for 
+#Possible options:
+# 	-filter ( returns only existing distances, cuts all Inf values for
 #  non-existing connections between pairs of nodes )
 #
 #Output:
@@ -299,79 +299,79 @@ proc ::struct::graph::op::BellmanFord { G startnode } {
 
 proc ::struct::graph::op::Johnsons { G args } {
 
-	#options for procedure
-	set displaymode 0
-	foreach option $args {
-		switch -exact -- $option {
-			-filter {
-				set displaymode 1
-			}
-			default {
-				return -code error "Bad option \"$option\". Expected -filter"
-			}
+    #options for procedure
+    set displaymode 0
+    foreach option $args {
+	switch -exact -- $option {
+	    -filter {
+		set displaymode 1
+	    }
+	    default {
+		return -code error "Bad option \"$option\". Expected -filter"
+	    }
+	}
+    }
+
+    #checking if all edges have their weights set
+    VerifyWeightsAreOk $G
+
+    #Transformation of graph G - adding one more node connected with
+    #each existing node with an edge, which weight is 0
+    set V [$G nodes]
+    set s [$G node insert]
+
+    foreach i $V {
+	if { $i ne $s } {
+	    $G arc insert $s $i
+	}
+    }
+
+    $G arc setunweighted
+
+    #set potential values with Bellman-Ford's
+    set h [BellmanFord $G $s]
+
+    #transformed graph no needed longer - deleting added node and edges
+    $G node delete $s
+
+    #setting new weights for edges in graph G
+    foreach i [$G arcs] {
+	set u [$G arc source $i]
+	set v [$G arc target $i]
+
+	lappend weights [$G arc getweight $i]
+	$G arc setweight $i [ expr { [$G arc getweight $i] + [dict get $h $u] - [dict get $h $v] } ]
+    }
+
+    #finding distances between all pair of nodes with Dijkstra started from each node
+    foreach i [$G nodes] {
+	set dijkstra [dijkstra $G $i -arcmode directed -outputformat distances]
+
+	foreach j [$G nodes] {
+	    if { $i ne $j } {
+		if { $displaymode eq 1 } {
+		    if { [dict get $dijkstra $j] ne "Inf" } {
+			dict set values [list $i $j] [ expr {[ dict get $dijkstra $j] - [dict get $h $i] + [dict get $h $j]} ]
+		    }
+		} else {
+		    dict set values [list $i $j] [ expr {[ dict get $dijkstra $j] - [dict get $h $i] + [dict get $h $j]} ]
 		}
+	    }
 	}
-	
-	#checking if all edges have their weights set
-	VerifyWeightsAreOk $G
-	
-	#Transformation of graph G - adding one more node connected with
-	#each existing node with an edge, which weight is 0
-	set V [$G nodes]
-	set s [$G node insert]
-	
-	foreach i $V {
-		if { $i ne $s } {
-			$G arc insert $s $i 
-		}
-	}
-	
-	$G arc setunweighted
-	
-	#set potential values with Bellman-Ford's
-	set h [BellmanFord $G $s]
-	
-	#transformed graph no needed longer - deleting added node and edges
-	$G node delete $s
-		
-	#setting new weights for edges in graph G
-	foreach i [$G arcs] {
-		set u [$G arc source $i]
-		set v [$G arc target $i]
-		
-		lappend weights [$G arc getweight $i]
-		$G arc setweight $i [ expr { [$G arc getweight $i] + [dict get $h $u] - [dict get $h $v] } ]
-	}
-		
-	#finding distances between all pair of nodes with Dijkstra started from each node
-	foreach i [$G nodes] {
-		set dijkstra [dijkstra $G $i -arcmode directed -outputformat distances]
-		
-		foreach j [$G nodes] {
-			if { $i ne $j } {
-				if { $displaymode eq 1 } {
-					if { [dict get $dijkstra $j] ne "Inf" } {
-						dict set values [list $i $j] [ expr {[ dict get $dijkstra $j] - [dict get $h $i] + [dict get $h $j]} ]
-					}
-				} else {
-					dict set values [list $i $j] [ expr {[ dict get $dijkstra $j] - [dict get $h $i] + [dict get $h $j]} ]
-				}
-			}
-		}
-	}
-	
-	#setting back edge weights for graph G
-	set k 0
-	foreach i [$G arcs] {
-		$G arc setweight $i [ lindex $weights $k ]
-		incr k
-	}
-	
-	return $values
+    }
+
+    #setting back edge weights for graph G
+    set k 0
+    foreach i [$G arcs] {
+	$G arc setweight $i [ lindex $weights $k ]
+	incr k
+    }
+
+    return $values
 }
 
 
-#Floyd-Warshall's Algorithm 
+#Floyd-Warshall's Algorithm
 #-------------------------------------------------------------------------------------
 #Searching shortest paths between all pairs of edges in weighted graphs.
 #Time complexity: O(V^3) - where V is number of vertices.
@@ -381,9 +381,9 @@ proc ::struct::graph::op::Johnsons { G args } {
 #
 #Algorithm finds solutions dynamically. It compares all possible paths through the graph
 #between each pair of vertices. Graph shouldn't possess any cycle with negative
-#sum of weights ( the presence of such cycles means there is no shortest path, 
+#sum of weights ( the presence of such cycles means there is no shortest path,
 #since the total weight becomes lower each time the cycle is traversed ).
-#On the other hand algorithm can be used to find those cycles - if any shortest distance 
+#On the other hand algorithm can be used to find those cycles - if any shortest distance
 #found by algorithm for any nodes v and u (when v is the same node as u) is negative,
 #that node surely belong to at least one negative cycle.
 #
@@ -391,44 +391,44 @@ proc ::struct::graph::op::Johnsons { G args } {
 #
 
 proc ::struct::graph::op::FloydWarshall { G } {
-	
-	VerifyWeightsAreOk $G
-	
-	foreach v1 [$G nodes] {
-		foreach v2 [$G nodes] {
-			dict set values [list $v1 $v2] Inf
-		}
-		dict set values [list $v1 $v1] 0
+
+    VerifyWeightsAreOk $G
+
+    foreach v1 [$G nodes] {
+	foreach v2 [$G nodes] {
+	    dict set values [list $v1 $v2] Inf
 	}
-	
-	foreach e [$G arcs] {
-		set v1 [$G arc source $e]
-		set v2 [$G arc target $e]
-		dict set values [list $v1 $v2] [$G arc getweight $e]
+	dict set values [list $v1 $v1] 0
     }
-	
-	foreach u [$G nodes] {
-		foreach v1 [$G nodes] {
-			foreach v2 [$G nodes] {
-			
-				set x [dict get $values [list $v1 $u]]
-				set y [dict get $values [list $u $v2]]
-				set d [ expr {$x + $y}]
-				
-				if { [dict get $values [list $v1 $v2]] > $d } {
-					dict set values [list $v1 $v2] $d
-				}
-			}
+
+    foreach e [$G arcs] {
+	set v1 [$G arc source $e]
+	set v2 [$G arc target $e]
+	dict set values [list $v1 $v2] [$G arc getweight $e]
+    }
+
+    foreach u [$G nodes] {
+	foreach v1 [$G nodes] {
+	    foreach v2 [$G nodes] {
+
+		set x [dict get $values [list $v1 $u]]
+		set y [dict get $values [list $u $v2]]
+		set d [ expr {$x + $y}]
+
+		if { [dict get $values [list $v1 $v2]] > $d } {
+		    dict set values [list $v1 $v2] $d
 		}
+	    }
 	}
-	#finding negative cycles
-	foreach v [$G nodes] {
-		if { [dict get $values [list $v $v]] < 0 } {
-			return -code error "Error. Given graph \"$G\" contains cycle with negative sum of weights."
-		}
+    }
+    #finding negative cycles
+    foreach v [$G nodes] {
+	if { [dict get $values [list $v $v]] < 0 } {
+	    return -code error "Error. Given graph \"$G\" contains cycle with negative sum of weights."
 	}
-	
-	return $values
+    }
+
+    return $values
 }
 
 #Metric Travelling Salesman Problem (TSP) - 2 approximation algorithm
@@ -454,27 +454,27 @@ proc ::struct::graph::op::FloydWarshall { G } {
 
 proc ::struct::graph::op::MetricTravellingSalesman { G } {
 
-	#checking if graph is connected
-	if { ![isConnected? $G] } {
-		return -code error "Error. Given graph \"$G\" is not a connected graph."
-	}	
-	#checking if all weights are set
-	VerifyWeightsAreOk $G
-	
-	createCompleteGraph $G originalEdges
-		
-	#create minimum spanning tree for graph G
-	set T [prim $G]
-	
-	#TGraph - spanning tree of graph G
-	#filling TGraph with edges and nodes
-	set TGraph [createTGraph $G $T 0]
-	
-	#finding Hamilton cycle
-	set result [findHamiltonCycle $TGraph $originalEdges $G]
-	
-	$TGraph destroy
-	return $result
+    #checking if graph is connected
+    if { ![isConnected? $G] } {
+	return -code error "Error. Given graph \"$G\" is not a connected graph."
+    }
+    #checking if all weights are set
+    VerifyWeightsAreOk $G
+
+    createCompleteGraph $G originalEdges
+
+    #create minimum spanning tree for graph G
+    set T [prim $G]
+
+    #TGraph - spanning tree of graph G
+    #filling TGraph with edges and nodes
+    set TGraph [createTGraph $G $T 0]
+
+    #finding Hamilton cycle
+    set result [findHamiltonCycle $TGraph $originalEdges $G]
+
+    $TGraph destroy
+    return $result
 }
 
 #Christofides Algorithm - for Metric Travelling Salesman Problem (TSP)
@@ -499,153 +499,153 @@ proc ::struct::graph::op::MetricTravellingSalesman { G } {
 
 proc ::struct::graph::op::Christofides { G } {
 
-	#checking if graph is connected
-	if { ![isConnected? $G] } {
-		return -code error "Error. Given graph \"$G\" is not a connected graph."
-	}	
-	#checking if all weights are set
-	VerifyWeightsAreOk $G
-	
-	createCompleteGraph $G originalEdges
-		
-	#create minimum spanning tree for graph G
-	set T [prim $G]
-	
-	#setting graph algorithm is working on - spanning tree of graph G
-	set TGraph [createTGraph $G $T 1]
-	
-	set oddTGraph [struct::graph]
-	
-	set oddNodes {}
-	foreach v [$TGraph nodes] {
-		if { [$TGraph node degree $v] % 2 == 1 } {
-			$oddTGraph node insert $v
-		}
+    #checking if graph is connected
+    if { ![isConnected? $G] } {
+	return -code error "Error. Given graph \"$G\" is not a connected graph."
+    }
+    #checking if all weights are set
+    VerifyWeightsAreOk $G
+
+    createCompleteGraph $G originalEdges
+
+    #create minimum spanning tree for graph G
+    set T [prim $G]
+
+    #setting graph algorithm is working on - spanning tree of graph G
+    set TGraph [createTGraph $G $T 1]
+
+    set oddTGraph [struct::graph]
+
+    set oddNodes {}
+    foreach v [$TGraph nodes] {
+	if { [$TGraph node degree $v] % 2 == 1 } {
+	    $oddTGraph node insert $v
 	}
-	
-	#create complete graph
-	foreach v [$oddTGraph nodes] {
-		foreach u [$oddTGraph nodes] {
-			if { ($u != $v) && ![$oddTGraph arc exists [list $u $v]] } {
-				$oddTGraph arc insert $v $u [list $v $u]
-				$oddTGraph arc setweight [list $v $u] [distance $G $v $u]
-			}
-			
-		}
+    }
+
+    #create complete graph
+    foreach v [$oddTGraph nodes] {
+	foreach u [$oddTGraph nodes] {
+	    if { ($u != $v) && ![$oddTGraph arc exists [list $u $v]] } {
+		$oddTGraph arc insert $v $u [list $v $u]
+		$oddTGraph arc setweight [list $v $u] [distance $G $v $u]
+	    }
+
 	}
-	
-	####
-	#		MAX MATCHING HERE!!!
-	####
-	set M [GreedyMaxMatching $oddTGraph]
-			
-	foreach e [$oddTGraph arcs] {
-		if { ![struct::set contains $M $e] } {
-			$oddTGraph arc delete $e
-		}
+    }
+
+    ####
+    #		MAX MATCHING HERE!!!
+    ####
+    set M [GreedyMaxMatching $oddTGraph]
+
+    foreach e [$oddTGraph arcs] {
+	if { ![struct::set contains $M $e] } {
+	    $oddTGraph arc delete $e
 	}
-	
-	#operation: M + T
-	foreach e [$oddTGraph arcs] {
-		set v [$oddTGraph arc source $e]
-		set u [$oddTGraph arc target $e]
-		$TGraph arc insert $u $v [list $u $v]
-		$TGraph arc setweight [list $u $v] [$oddTGraph arc getweight $e]
-	}
-	
-	#finding Hamilton Cycle
-	set result [findHamiltonCycle $TGraph $originalEdges $G]
-	$oddTGraph destroy
-	$TGraph destroy
-	return $result
+    }
+
+    #operation: M + T
+    foreach e [$oddTGraph arcs] {
+	set v [$oddTGraph arc source $e]
+	set u [$oddTGraph arc target $e]
+	$TGraph arc insert $u $v [list $u $v]
+	$TGraph arc setweight [list $u $v] [$oddTGraph arc getweight $e]
+    }
+
+    #finding Hamilton Cycle
+    set result [findHamiltonCycle $TGraph $originalEdges $G]
+    $oddTGraph destroy
+    $TGraph destroy
+    return $result
 }
 
 #Greedy Max Matching procedure, which finds maximal ( not maximum ) matching
 #for given graph G. It adds edges to solution, beginning from edges with the
-#lowest cost. 
+#lowest cost.
 
 proc ::struct::graph::op::GreedyMaxMatching {G} {
-	
-	set maxMatch {}
-	
-	foreach e [sortEdges $G] {
-		set v [$G arc source $e]
-		set u [$G arc target $e]
-		set neighbours [$G arcs -adj $v $u]
-		set noAdjacentArcs 1
-		
-		lremove neighbours $e
-		
-		foreach a $neighbours {
-			if { $a in $maxMatch } {
-				set noAdjacentArcs 0
-				break
-			}
-		}
-		if { $noAdjacentArcs } {
-			lappend maxMatch $e
-		}
+
+    set maxMatch {}
+
+    foreach e [sortEdges $G] {
+	set v [$G arc source $e]
+	set u [$G arc target $e]
+	set neighbours [$G arcs -adj $v $u]
+	set noAdjacentArcs 1
+
+	lremove neighbours $e
+
+	foreach a $neighbours {
+	    if { $a in $maxMatch } {
+		set noAdjacentArcs 0
+		break
+	    }
 	}
-	
-	return $maxMatch
+	if { $noAdjacentArcs } {
+	    lappend maxMatch $e
+	}
+    }
+
+    return $maxMatch
 }
 
 #Subprocedure which for given graph G, returns the set of edges
 #sorted with their costs.
 proc ::struct::graph::op::sortEdges {G} {
-	set weights [$G arc weights]
-		
-	set sortedEdges {}
-	
-	foreach val [lsort [dict values $weights]] {
-		foreach x [dict keys $weights] {
-			if { [dict get $weights $x] == $val } {
-				set weights [dict remove $weights $x]
-				lappend sortedEdges $x ;#[list $val $x]
-			}
-		}
+    set weights [$G arc weights]
+
+    set sortedEdges {}
+
+    foreach val [lsort [dict values $weights]] {
+	foreach x [dict keys $weights] {
+	    if { [dict get $weights $x] == $val } {
+		set weights [dict remove $weights $x]
+		lappend sortedEdges $x ;#[list $val $x]
+	    }
 	}
-	
-	return $sortedEdges
+    }
+
+    return $sortedEdges
 }
 
 #Subprocedure, which for given graph G, returns the dictionary
-#containing edges sorted by weights (sortMode -> weights) or 
+#containing edges sorted by weights (sortMode -> weights) or
 #nodes sorted by degree (sortMode -> degrees).
 
 proc ::struct::graph::op::sortGraph {G sortMode} {
-	
-	switch -exact -- $sortMode {
-		weights {
-			set weights [$G arc weights]
-			foreach val [lsort [dict values $weights]] {
-				foreach x [dict keys $weights] {
-					if { [dict get $weights $x] == $val } {
-						set weights [dict remove $weights $x]
-						dict set sortedVals $x $val
-					}
-				}
-			}
+
+    switch -exact -- $sortMode {
+	weights {
+	    set weights [$G arc weights]
+	    foreach val [lsort [dict values $weights]] {
+		foreach x [dict keys $weights] {
+		    if { [dict get $weights $x] == $val } {
+			set weights [dict remove $weights $x]
+			dict set sortedVals $x $val
+		    }
 		}
-		degrees {
-			foreach v [$G nodes] {
-				dict set degrees $v [$G node degree $v]
-			}	
-			foreach x [lsort -integer -decreasing [dict values $degrees]] {
-				foreach y [dict keys $degrees] {
-					if { [dict get $degrees $y] == $x } {
-						set degrees [dict remove $degrees $y]
-						dict set sortedVals $y $x
-					}
-				}
-			}
-		}
-		default {
-			return -code error "Unknown sort mode \"$sortMode\", expected weights, or degrees"
-		}
+	    }
 	}
-		
-	return $sortedVals
+	degrees {
+	    foreach v [$G nodes] {
+		dict set degrees $v [$G node degree $v]
+	    }
+	    foreach x [lsort -integer -decreasing [dict values $degrees]] {
+		foreach y [dict keys $degrees] {
+		    if { [dict get $degrees $y] == $x } {
+			set degrees [dict remove $degrees $y]
+			dict set sortedVals $y $x
+		    }
+		}
+	    }
+	}
+	default {
+	    return -code error "Unknown sort mode \"$sortMode\", expected weights, or degrees"
+	}
+    }
+
+    return $sortedVals
 }
 
 #Finds Hamilton cycle in given graph G
@@ -654,46 +654,46 @@ proc ::struct::graph::op::sortGraph {G sortMode} {
 
 proc ::struct::graph::op::findHamiltonCycle {G originalEdges originalGraph} {
 
-	isEulerian? $G tourvar
-	lappend result [$G arc source [lindex $tourvar 0]]
-	
-	lappend tourvar [lindex $tourvar 0]
-	
-	foreach i $tourvar {
-		set u [$G arc target $i]
-		
-		if { $u ni $result } {
-			set va [lindex $result end]
-			set vb $u
-			
-			if { ([list $va $vb] in $originalEdges) || ([list $vb $va] in $originalEdges) } {
-				lappend result $u
-			} else {
-								
-				set path [dict get [dijkstra $G $va] $vb]
-				
-				#reversing the path
-				set path [lreverse $path]
-				#cutting the start element
-				set path [lrange $path 1 end]
-								
-				#adding the path and the target element
-				lappend result {*}$path				
-				lappend result $vb
-			}
-		}
-	}
-	
-	set path [dict get [dijkstra $originalGraph [lindex $result 0]] [lindex $result end]]
-	set path [lreverse $path]
-	
-	set path [lrange $path 1 end]
-	
-	if { [llength $path] } {
+    isEulerian? $G tourvar
+    lappend result [$G arc source [lindex $tourvar 0]]
+
+    lappend tourvar [lindex $tourvar 0]
+
+    foreach i $tourvar {
+	set u [$G arc target $i]
+
+	if { $u ni $result } {
+	    set va [lindex $result end]
+	    set vb $u
+
+	    if { ([list $va $vb] in $originalEdges) || ([list $vb $va] in $originalEdges) } {
+		lappend result $u
+	    } else {
+
+		set path [dict get [dijkstra $G $va] $vb]
+
+		#reversing the path
+		set path [lreverse $path]
+		#cutting the start element
+		set path [lrange $path 1 end]
+
+		#adding the path and the target element
 		lappend result {*}$path
+		lappend result $vb
+	    }
 	}
-	lappend result [$G arc source [lindex $tourvar 0]]
-	return $result
+    }
+
+    set path [dict get [dijkstra $originalGraph [lindex $result 0]] [lindex $result end]]
+    set path [lreverse $path]
+
+    set path [lrange $path 1 end]
+
+    if { [llength $path] } {
+	lappend result {*}$path
+    }
+    lappend result [$G arc source [lindex $tourvar 0]]
+    return $result
 }
 
 #Subprocedure for TSP problems.
@@ -710,39 +710,39 @@ proc ::struct::graph::op::findHamiltonCycle {G originalEdges originalGraph} {
 #
 
 proc ::struct::graph::op::createTGraph {G Edges doubledArcs} {
-	set TGraph [struct::graph]
-	
-	#checking if given set of edges is proper (all edges are in graph G)
-	foreach e $Edges {
-		if { ![$G arc exists $e] } {
-			return -code error "Edge \"$e\" doesn't exist in graph \"$G\". Set the proper set of edges."
-		}
+    set TGraph [struct::graph]
+
+    #checking if given set of edges is proper (all edges are in graph G)
+    foreach e $Edges {
+	if { ![$G arc exists $e] } {
+	    return -code error "Edge \"$e\" doesn't exist in graph \"$G\". Set the proper set of edges."
 	}
-	
-	#checking if
-	
-	#fill TGraph with nodes
-	foreach v [$G nodes] {
-		$TGraph node insert
+    }
+
+    #checking if
+
+    #fill TGraph with nodes
+    foreach v [$G nodes] {
+	$TGraph node insert
+    }
+
+    #fill TGraph with arcs
+    foreach e $Edges {
+	set v [$G arc source $e]
+	set u [$G arc target $e]
+	if { ![$TGraph arc exists [list $u $v]] } {
+	    $TGraph arc insert $u $v [list $u $v]
+	    $TGraph arc setweight [list $u $v] [$G arc getweight $e]
 	}
-	
-	#fill TGraph with arcs 
-	foreach e $Edges {
-		set v [$G arc source $e]
-		set u [$G arc target $e]
-		if { ![$TGraph arc exists [list $u $v]] } {
-			$TGraph arc insert $u $v [list $u $v]
-			$TGraph arc setweight [list $u $v] [$G arc getweight $e]
-		}
-		if { !$doubledArcs } {
-			if { ![$TGraph arc exists [list $v $u]] } {
-				$TGraph arc insert $v $u [list $v $u]
-				$TGraph arc setweight [list $v $u] [$G arc getweight $e]
-			}
-		}
+	if { !$doubledArcs } {
+	    if { ![$TGraph arc exists [list $v $u]] } {
+		$TGraph arc insert $v $u [list $v $u]
+		$TGraph arc setweight [list $v $u] [$G arc getweight $e]
+	    }
 	}
-	
-	return $TGraph
+    }
+
+    return $TGraph
 }
 
 #Subprocedure for some algorithms, e.g. TSP algorithms.
@@ -754,24 +754,24 @@ proc ::struct::graph::op::createTGraph {G Edges doubledArcs} {
 
 proc ::struct::graph::op::createCompleteGraph {G originalEdges} {
 
-	upvar $originalEdges st
-	set st {}
-	foreach e [$G arcs] {
-		set v [$G arc source $e]
-		set u [$G arc target $e]
-		
-		lappend st [list $v $u]
+    upvar $originalEdges st
+    set st {}
+    foreach e [$G arcs] {
+	set v [$G arc source $e]
+	set u [$G arc target $e]
+
+	lappend st [list $v $u]
+    }
+
+    foreach v [$G nodes] {
+	foreach u [$G nodes] {
+	    if { ($u != $v) && ([list $v $u] ni $st) && ([list $u $v] ni $st) && ![$G arc exists [list $u $v]] } {
+		$G arc insert $v $u [list $v $u]
+		$G arc setweight [list $v $u] Inf
+	    }
 	}
-	
-	foreach v [$G nodes] {
-		foreach u [$G nodes] {
-			if { ($u != $v) && ([list $v $u] ni $st) && ([list $u $v] ni $st) && ![$G arc exists [list $u $v]] } {
-				$G arc insert $v $u [list $v $u]
-				$G arc setweight [list $v $u] Inf
-			}
-		}
-	}
-	return $G
+    }
+    return $G
 }
 
 
@@ -781,7 +781,7 @@ proc ::struct::graph::op::createCompleteGraph {G originalEdges} {
 #other words, we divide set of nodes for graph G into such 2 sets of nodes U and V,
 #that the amount of edges connecting U and V is as high as possible.
 #
-#Algorithm is a 2-approximation, so for ALG ( solution returned by Algorithm) and 
+#Algorithm is a 2-approximation, so for ALG ( solution returned by Algorithm) and
 #OPT ( optimal solution), such inequality is true: OPT <= 2 * ALG.
 #
 #Input:
@@ -797,72 +797,72 @@ proc ::struct::graph::op::createCompleteGraph {G originalEdges} {
 
 proc ::struct::graph::op::MaxCut {G U V} {
 
-	upvar $U _U
-	upvar $V _V
-	
-	set _U {}
-	set _V {}
-	set counter 0
-	
-	foreach {u v} [lsort -dict [$G nodes]] {
-               lappend _U $u
-               if {$v eq ""} continue
-               lappend _V $v
+    upvar $U _U
+    upvar $V _V
+
+    set _U {}
+    set _V {}
+    set counter 0
+
+    foreach {u v} [lsort -dict [$G nodes]] {
+	lappend _U $u
+	if {$v eq ""} continue
+	lappend _V $v
     }
-	
-	set val 1
-	set ALG [countEdges $G $_U $_V]
-	while {$val>0} {
-		set val [cut $G _U _V $ALG]
-		if { $val > $ALG } {
-			set ALG $val
-		}
+
+    set val 1
+    set ALG [countEdges $G $_U $_V]
+    while {$val>0} {
+	set val [cut $G _U _V $ALG]
+	if { $val > $ALG } {
+	    set ALG $val
 	}
-	return $ALG
+    }
+    return $ALG
 }
 
 #procedure replaces nodes between sets and checks if that change is profitable
 proc ::struct::graph::op::cut {G Uvar Vvar param} {
-	
-	upvar $Uvar U
-	upvar $Vvar V
-	set _V {}
-	set _U {}
-	set value 0
-	
-	set maxValue $param
-	set _U $U
-	set _V $V
-		
-	foreach v [$G nodes] {
-		
-		if { $v ni $_U } {
-			lappend _U $v
-			lremove _V $v
-			set value [countEdges $G $_U $_V]
-		} else {
-			lappend _V $v
-			lremove _U $v
-			set value [countEdges $G $_U $_V]
-		}
-		
-		if { $value > $maxValue } {
-			set U $_U
-			set V $_V
-			set maxValue $value
-		} else {
-			set _V $V 
-			set _U $U
-		}
+
+    upvar $Uvar U
+    upvar $Vvar V
+    set _V {}
+    set _U {}
+    set value 0
+
+    set maxValue $param
+    set _U $U
+    set _V $V
+
+    foreach v [$G nodes] {
+
+	if { $v ni $_U } {
+	    lappend _U $v
+	    lremove _V $v
+	    set value [countEdges $G $_U $_V]
+	} else {
+	    lappend _V $v
+	    lremove _U $v
+	    set value [countEdges $G $_U $_V]
 	}
 
-	set value $maxValue
-	
-	if { $value > $param } {
-		return $value
+	if { $value > $maxValue } {
+	    set U $_U
+	    set V $_V
+	    set maxValue $value
 	} else {
-		return 0
+	    set _V $V
+	    set _U $U
 	}
+    }
+
+    set value $maxValue
+
+    if { $value > $param } {
+	return $value
+    } else {
+	return 0
+    }
 }
 
 #Removing element from the list - auxiliary procedure
@@ -874,10 +874,10 @@ proc ::struct::graph::op::lremove {listVariable value} {
 
 #procedure counts edges that link two sets of nodes
 proc ::struct::graph::op::countEdges {G U V} {
-	
-	set value 0
-	
-	foreach u $U {
+
+    set value 0
+
+    foreach u $U {
         foreach e [$G arcs -out $u] {
             set v [$G arc target $e]
             if {$v ni $V} continue
@@ -891,8 +891,8 @@ proc ::struct::graph::op::countEdges {G U V} {
             incr value
         }
     }
-		
-	return $value
+
+    return $value
 }
 
 #K-Center Problem - 2 approximation algorithm
@@ -915,55 +915,55 @@ proc ::struct::graph::op::countEdges {G U V} {
 #
 
 proc ::struct::graph::op::UnweightedKCenter {G k} {
-	
-	#checking if all weights for edges in graph G are set well
-	VerifyWeightsAreOk $G
-	
-	#checking if proper value of k is given at input
-	if { $k <= 0 } {
-		return -code error "The \"k\" value must be an positive integer."
-	}
-	
-	set j [ expr {$k+1} ]
-	
-	#variable for holding the graph G(i) in each iteration
-	set Gi [struct::graph]
-	#two squared graph G
-	set GiSQ [struct::graph]
-	#sorted set of edges for graph G
-	set arcs [sortEdges $G]
-	
-	#initializing both graph variables
-	foreach v [$G nodes] {
-		$Gi node insert $v
-		$GiSQ node insert $v
-	}
-	
-	#index i for each iteration
-	
-	#we seek for final solution, as long as the max independent
-	#set Mi (found in particular iterations), such that |Mi| <= k, is found.
-	for {set index 0} {$j > $k} {incr index} {
-		#source node of an edge we add in current iteration
-		set u [$G arc source [lindex $arcs $index]]
-		#target node of an edge we add in current iteration
-		set v [$G arc target [lindex $arcs $index]]
-		
-		#adding edge Ei to graph G(i)
-		$Gi arc insert $u $v [list $u $v]
-		#extending G(i-1)**2 to G(i)**2 using G(i)
-		set GiSQ [extendTwoSquaredGraph $GiSQ $Gi $u $v]
-	
-		#finding maximal independent set for G(i)**2
-		set Mi [GreedyMaxIndependentSet $GiSQ]
-		
-		#number of nodes in maximal independent set that was found
-		set j [llength $Mi]
-	}
-	
-	$Gi destroy
-	$GiSQ destroy
-	return $Mi
+
+    #checking if all weights for edges in graph G are set well
+    VerifyWeightsAreOk $G
+
+    #checking if proper value of k is given at input
+    if { $k <= 0 } {
+	return -code error "The \"k\" value must be an positive integer."
+    }
+
+    set j [ expr {$k+1} ]
+
+    #variable for holding the graph G(i) in each iteration
+    set Gi [struct::graph]
+    #two squared graph G
+    set GiSQ [struct::graph]
+    #sorted set of edges for graph G
+    set arcs [sortEdges $G]
+
+    #initializing both graph variables
+    foreach v [$G nodes] {
+	$Gi node insert $v
+	$GiSQ node insert $v
+    }
+
+    #index i for each iteration
+
+    #we seek for final solution, as long as the max independent
+    #set Mi (found in particular iterations), such that |Mi| <= k, is found.
+    for {set index 0} {$j > $k} {incr index} {
+	#source node of an edge we add in current iteration
+	set u [$G arc source [lindex $arcs $index]]
+	#target node of an edge we add in current iteration
+	set v [$G arc target [lindex $arcs $index]]
+
+	#adding edge Ei to graph G(i)
+	$Gi arc insert $u $v [list $u $v]
+	#extending G(i-1)**2 to G(i)**2 using G(i)
+	set GiSQ [extendTwoSquaredGraph $GiSQ $Gi $u $v]
+
+	#finding maximal independent set for G(i)**2
+	set Mi [GreedyMaxIndependentSet $GiSQ]
+
+	#number of nodes in maximal independent set that was found
+	set j [llength $Mi]
+    }
+
+    $Gi destroy
+    $GiSQ destroy
+    return $Mi
 }
 
 #Weighted K-Center - 3 approximation algorithm
@@ -975,104 +975,104 @@ proc ::struct::graph::op::UnweightedKCenter {G k} {
 #total weight is not greater than W and also function: max_v { min_u { cost(u,v) }}
 #has the smallest possible worth ( v is a node in V and u is a node in S ).
 #
-#Note: 
+#Note:
 #For more information about K-Center problem check Unweighted K-Center algorithm
 #description.
 
 proc ::struct::graph::op::WeightedKCenter {G nodeWeights W} {
-	
-	#checking if all weights for edges in graph G are set well
-	VerifyWeightsAreOk $G
-	
-	#checking if proper value of k is given at input
-	if { $W <= 0 } {
-		return -code error "The \"W\" value must be an positive integer."
-	}
-	#initilization
-	set j [ expr {$W+1} ]
-	
-	#graphs G(i) and G(i)**2
-	set Gi [struct::graph]
-	set GiSQ [struct::graph]
-	#the set of arcs for graph G sorted with their weights (increasing)
-	set arcs [sortEdges $G]
-	
-	#initialization of graphs G(i) and G(i)**2
-	foreach v [$G nodes] {
-		$Gi node insert $v
-		$GiSQ node insert $v
-	}
-	
-	#the main loop - iteration over all G(i)'s and G(i)**2's,
-	#extended with each iteration till the solution is found
-	foreach arc $arcs {
-		#initilization of the set of nodes, which are cheapest neighbours
-		#for particular nodes in maximal independent set
-		set Si {}
-		
-		set u [$G arc source $arc]
-		set v [$G arc target $arc]
-		
-		#extending graph G(i)
-		$Gi arc insert $u $v [list $u $v]
-		
-		#extending graph G(i)**2 from G(i-1)**2 using G(i)
-		set GiSQ [extendTwoSquaredGraph $GiSQ $Gi $u $v]
-		
-		#finding maximal independent set (Mi) for graph G(i)**2 found in the
-		#previous step. Mi is found using greedy algorithm that also considers
-		#weights on vertices.
-		set Mi [GreedyWeightedMaxIndependentSet $GiSQ $nodeWeights]
-		
-		
-		#for each node u in Maximal Independent set found in previous step,
-		#we search for its cheapest ( considering costs at vertices ) neighbour.
-		#Note that node u is considered as it is a neighbour for itself.
-		foreach u $Mi {
-			
-			set minWeightOfSi Inf
-			
-			#the neighbours of u
-			set neighbours [$Gi nodes -adj $u]
-			set smallestNeighbour 0
-			#u is a neighbour for itself
-			lappend neighbours $u	
-			
-			#finding neighbour with minimal cost
-			foreach w [lsort -index 1 $nodeWeights] {
-				lassign $w node weight
-				if {[struct::set contains $neighbours $node]} {
+
+    #checking if all weights for edges in graph G are set well
+    VerifyWeightsAreOk $G
+
+    #checking if proper value of k is given at input
+    if { $W <= 0 } {
+	return -code error "The \"W\" value must be an positive integer."
+    }
+    #initilization
+    set j [ expr {$W+1} ]
+
+    #graphs G(i) and G(i)**2
+    set Gi [struct::graph]
+    set GiSQ [struct::graph]
+    #the set of arcs for graph G sorted with their weights (increasing)
+    set arcs [sortEdges $G]
+
+    #initialization of graphs G(i) and G(i)**2
+    foreach v [$G nodes] {
+	$Gi node insert $v
+	$GiSQ node insert $v
+    }
+
+    #the main loop - iteration over all G(i)'s and G(i)**2's,
+    #extended with each iteration till the solution is found
+    foreach arc $arcs {
+	#initilization of the set of nodes, which are cheapest neighbours
+	#for particular nodes in maximal independent set
+	set Si {}
+
+	set u [$G arc source $arc]
+	set v [$G arc target $arc]
+
+	#extending graph G(i)
+	$Gi arc insert $u $v [list $u $v]
+
+	#extending graph G(i)**2 from G(i-1)**2 using G(i)
+	set GiSQ [extendTwoSquaredGraph $GiSQ $Gi $u $v]
+
+	#finding maximal independent set (Mi) for graph G(i)**2 found in the
+	#previous step. Mi is found using greedy algorithm that also considers
+	#weights on vertices.
+	set Mi [GreedyWeightedMaxIndependentSet $GiSQ $nodeWeights]
+
+
+	#for each node u in Maximal Independent set found in previous step,
+	#we search for its cheapest ( considering costs at vertices ) neighbour.
+	#Note that node u is considered as it is a neighbour for itself.
+	foreach u $Mi {
+
+	    set minWeightOfSi Inf
+
+	    #the neighbours of u
+	    set neighbours [$Gi nodes -adj $u]
+	    set smallestNeighbour 0
+	    #u is a neighbour for itself
+	    lappend neighbours $u
+
+	    #finding neighbour with minimal cost
+	    foreach w [lsort -index 1 $nodeWeights] {
+		lassign $w node weight
+		if {[struct::set contains $neighbours $node]} {
                     set minWeightOfSi $weight
-					set smallestNeighbour $node
+		    set smallestNeighbour $node
                     break
-				}
-			}
-			
-			lappend Si [list $smallestNeighbour $minWeightOfSi]
 		}
-				
-		set totalSiWeight 0
-		set possibleSolution {}
-				
-		foreach s $Si {
-			#counting the total weight of the set of nodes - Si
-			set totalSiWeight [ expr { $totalSiWeight + [lindex $s 1] } ]
-			
-			#it's final solution, if weight found in previous step is
-			#not greater than W
-			lappend possibleSolution [lindex $s 0]
-		}
-		
-		#checking if final solution is found
-		if { $totalSiWeight <= $W } {
-			$Gi destroy
-			$GiSQ destroy
-			return $possibleSolution
-		}
+	    }
+
+	    lappend Si [list $smallestNeighbour $minWeightOfSi]
 	}
-	
-	#no solution found - error returned
-	return -code error "No k-center found for restriction W = $W"
+
+	set totalSiWeight 0
+	set possibleSolution {}
+
+	foreach s $Si {
+	    #counting the total weight of the set of nodes - Si
+	    set totalSiWeight [ expr { $totalSiWeight + [lindex $s 1] } ]
+
+	    #it's final solution, if weight found in previous step is
+	    #not greater than W
+	    lappend possibleSolution [lindex $s 0]
+	}
+
+	#checking if final solution is found
+	if { $totalSiWeight <= $W } {
+	    $Gi destroy
+	    $GiSQ destroy
+	    return $possibleSolution
+	}
+    }
+
+    #no solution found - error returned
+    return -code error "No k-center found for restriction W = $W"
 
 }
 
@@ -1089,21 +1089,21 @@ proc ::struct::graph::op::WeightedKCenter {G nodeWeights W} {
 #Reference: http://en.wikipedia.org/wiki/Maximal_independent_set
 
 proc ::struct::graph::op::GreedyMaxIndependentSet {G} {
-	
-	set result {}
-	set nodes [$G nodes]
-	
-	foreach v $nodes {
-		if { [struct::set contains $nodes $v] } {
-			lappend result $v
-		
-			foreach neighbour [$G nodes -adj $v] {
-				struct::set exclude nodes $neighbour
-			}
-		}
+
+    set result {}
+    set nodes [$G nodes]
+
+    foreach v $nodes {
+	if { [struct::set contains $nodes $v] } {
+	    lappend result $v
+
+	    foreach neighbour [$G nodes -adj $v] {
+		struct::set exclude nodes $neighbour
+	    }
 	}
-	
-	return $result
+    }
+
+    return $result
 }
 
 #Weighted Maximal Independent Set - 2 approximation greedy algorithm
@@ -1118,27 +1118,27 @@ proc ::struct::graph::op::GreedyMaxIndependentSet {G} {
 #Reference: http://en.wikipedia.org/wiki/Maximal_independent_set
 
 proc ::struct::graph::op::GreedyWeightedMaxIndependentSet {G nodeWeights} {
-	
-	set result {}
-	set nodes {}
-	foreach v [lsort -index 1 $nodeWeights]	{
-		lappend nodes [lindex $v 0]
+
+    set result {}
+    set nodes {}
+    foreach v [lsort -index 1 $nodeWeights]	{
+	lappend nodes [lindex $v 0]
+    }
+
+    foreach v $nodes {
+
+	if { [struct::set contains $nodes $v] } {
+	    lappend result $v
+
+	    set neighbours [$G nodes -adj $v]
+
+	    foreach neighbour [$G nodes -adj $v] {
+		struct::set exclude nodes $neighbour
+	    }
 	}
-	
-	foreach v $nodes {
-		
-		if { [struct::set contains $nodes $v] } {
-			lappend result $v
-			
-			set neighbours [$G nodes -adj $v]
-			
-			foreach neighbour [$G nodes -adj $v] {
-				struct::set exclude nodes $neighbour
-			}
-		}
-	}
-	
-	return $result
+    }
+
+    return $result
 }
 
 #subprocedure creating from graph G two squared graph
@@ -1148,66 +1148,66 @@ proc ::struct::graph::op::GreedyWeightedMaxIndependentSet {G nodeWeights} {
 
 proc ::struct::graph::op::createSquaredGraph {G} {
 
-	set H [struct::graph]
-	foreach v [$G nodes] {
-		$H node insert $v
-	}
-	
-	foreach v [$G nodes] {
-		foreach u [$G nodes -adj $v] {
-			if { ($v != $u) && ![$H arc exists [list $v $u]] && ![$H arc exists [list $u $v]] } {
-				$H arc insert $u $v [list $u $v]
-			}
-			foreach z [$G nodes -adj $u] {
-				if { ($v != $z) && ![$H arc exists [list $v $z]] && ![$H arc exists [list $z $v]] } {
-					$H arc insert $v $z [list $v $z]
-				}
-			}
+    set H [struct::graph]
+    foreach v [$G nodes] {
+	$H node insert $v
+    }
+
+    foreach v [$G nodes] {
+	foreach u [$G nodes -adj $v] {
+	    if { ($v != $u) && ![$H arc exists [list $v $u]] && ![$H arc exists [list $u $v]] } {
+		$H arc insert $u $v [list $u $v]
+	    }
+	    foreach z [$G nodes -adj $u] {
+		if { ($v != $z) && ![$H arc exists [list $v $z]] && ![$H arc exists [list $z $v]] } {
+		    $H arc insert $v $z [list $v $z]
 		}
+	    }
 	}
-	
-	return $H
+    }
+
+    return $H
 }
 
 #subprocedure for Metric K-Center problem
 #
 #Input:
-#previousGsq - graph G(i-1)**2 
-#currentGi - graph G(i) 
+#previousGsq - graph G(i-1)**2
+#currentGi - graph G(i)
 #u and v - source and target of an edge added in this iteration
 #
 #Output:
 #Graph G(i)**2 used by next steps of K-Center algorithm
 
 proc ::struct::graph::op::extendTwoSquaredGraph {previousGsq currentGi u v} {
-	
-	#adding new edge
-	if { ![$previousGsq arc exists [list $v $u]] && ![$previousGsq arc exists [list $u $v]]} {
-		$previousGsq arc insert $u $v [list $u $v]
-	}	
-	
-	#adding new edges to solution graph:
-	#here edges, where source is a $u node and targets are neighbours of node $u except for $v
-	foreach x [$currentGi nodes -adj $u] {
-		if { ( $x != $v) && ![$previousGsq arc exists [list $v $x]] && ![$previousGsq arc exists [list $x $v]] } {
-			$previousGsq arc insert $v $x [list $v $x]
-		}
+
+    #adding new edge
+    if { ![$previousGsq arc exists [list $v $u]] && ![$previousGsq arc exists [list $u $v]]} {
+	$previousGsq arc insert $u $v [list $u $v]
+    }
+
+    #adding new edges to solution graph:
+    #here edges, where source is a $u node and targets are neighbours of node $u except for $v
+    foreach x [$currentGi nodes -adj $u] {
+	if { ( $x != $v) && ![$previousGsq arc exists [list $v $x]] && ![$previousGsq arc exists [list $x $v]] } {
+	    $previousGsq arc insert $v $x [list $v $x]
 	}
-	#here edges, where source is a $v node and targets are neighbours of node $v except for $u
-	foreach x [$currentGi nodes -adj $v] {
-		if { ( $x != $u ) && ![$previousGsq arc exists [list $u $x]] && ![$previousGsq arc exists [list $x $u]] } {
-			$previousGsq arc insert $u $x [list $u $x]
-		}
+    }
+    #here edges, where source is a $v node and targets are neighbours of node $v except for $u
+    foreach x [$currentGi nodes -adj $v] {
+	if { ( $x != $u ) && ![$previousGsq arc exists [list $u $x]] && ![$previousGsq arc exists [list $x $u]] } {
+	    $previousGsq arc insert $u $x [list $u $x]
 	}
-		
-	return $previousGsq
+    }
+
+    return $previousGsq
 }
 
 #Vertices Cover - 2 approximation algorithm
 #-------------------------------------------------------------------------------------
 #Vertices cover is a set o vertices such that each edge of the graph is incident to
 #at least one vertex of the set. This 2-approximation algorithm searches for minimum
-#vertices cover, which is a classical optimization problem in computer science and 
+#vertices cover, which is a classical optimization problem in computer science and
 #is a typical example of an NP-hard optimization problem that has an approximation
 #algorithm.
 #
@@ -1215,56 +1215,56 @@ proc ::struct::graph::op::extendTwoSquaredGraph {previousGsq currentGi u v} {
 #
 
 proc ::struct::graph::op::VerticesCover {G} {
-	#variable containing final solution
-	set vc {}
-	#variable containing sorted (with degree) set of arcs for graph G
-	set arcs {}
-	
-	#setting the dictionary with degrees for each node
-	foreach v [$G nodes] {
-		dict set degrees $v [$G node degree $v]
+    #variable containing final solution
+    set vc {}
+    #variable containing sorted (with degree) set of arcs for graph G
+    set arcs {}
+
+    #setting the dictionary with degrees for each node
+    foreach v [$G nodes] {
+	dict set degrees $v [$G node degree $v]
+    }
+
+    #creating a list containing the sum of degrees for source and
+    #target nodes for each edge in graph G
+    foreach e [$G arcs] {
+	set v [$G arc source $e]
+	set u [$G arc target $e]
+
+	lappend values [list [expr {[dict get $degrees $v]+[dict get $degrees $u]}] $e]
+    }
+    #sorting the list of source and target degrees
+    set values [lsort -integer -decreasing -index 0 $values]
+
+    #setting the set of edges in a right sequence
+    foreach e $values {
+	lappend arcs [lindex $e 1]
+    }
+
+    #for each node in graph G, we add it to the final solution and
+    #erase all arcs adjacent to it, so they cannot be
+    #added to solution in next iterations
+    foreach e $arcs {
+
+	if { [struct::set contains $arcs $e] } {
+	    set v [$G arc source $e]
+	    set u [$G arc target $e]
+	    lappend vc $v $u
+
+	    foreach n [$G arcs -adj $v $u] {
+		struct::set exclude arcs $n
+	    }
 	}
-	
-	#creating a list containing the sum of degrees for source and
-	#target nodes for each edge in graph G
-	foreach e [$G arcs] {
-		set v [$G arc source $e]
-		set u [$G arc target $e]
-		
-		lappend values [list [expr {[dict get $degrees $v]+[dict get $degrees $u]}] $e]
-	}
-	#sorting the list of source and target degrees
-	set values [lsort -integer -decreasing -index 0 $values]
-	
-	#setting the set of edges in a right sequence
-	foreach e $values {
-		lappend arcs [lindex $e 1]
-	}
-	
-	#for each node in graph G, we add it to the final solution and
-	#erase all arcs adjacent to it, so they cannot be
-	#added to solution in next iterations
-	foreach e $arcs {
-		
-		if { [struct::set contains $arcs $e] } {
-			set v [$G arc source $e]
-			set u [$G arc target $e]
-			lappend vc $v $u
-				
-			foreach n [$G arcs -adj $v $u] {
-				struct::set exclude arcs $n
-			}
-		}
-	}
-	
-	return $vc
+    }
+
+    return $vc
 }
 
 
 #Ford's Fulkerson algorithm - computing maximum flow in a flow network
 #-------------------------------------------------------------------------------------
 #
-#The general idea of algorithm is finding augumenting paths in graph G, as long 
+#The general idea of algorithm is finding augumenting paths in graph G, as long
 #as they exist, and for each path updating the edge's weights along that path,
 #with maximum possible throughput. The final (maximum) flow is found
 #when there is no other augumenting path from source to sink.
@@ -1286,168 +1286,168 @@ proc ::struct::graph::op::VerticesCover {G} {
 
 proc ::struct::graph::op::FordFulkerson {G s t} {
 
-	#checking if nodes s and t are in graph G
-	if { !([$G node exists $s] && [$G node exists $t]) } {
-		return -code error "Nodes \"$s\" and \"$t\" should be contained in graph's G set of nodes"
+    #checking if nodes s and t are in graph G
+    if { !([$G node exists $s] && [$G node exists $t]) } {
+	return -code error "Nodes \"$s\" and \"$t\" should be contained in graph's G set of nodes"
+    }
+
+    #checking if all attributes for input network are set well ( costs and throughputs )
+    foreach e [$G arcs] {
+	if { ![$G arc keyexists $e throughput] } {
+	    return -code error "The input network doesn't have all attributes set correctly... Please, check again attributes: \"throughput\" for input graph."
 	}
-	
-	#checking if all attributes for input network are set well ( costs and throughputs )
-	foreach e [$G arcs] {
-		if { ![$G arc keyexists $e throughput] } {
-			return -code error "The input network doesn't have all attributes set correctly... Please, check again attributes: \"throughput\" for input graph."
-		}
+    }
+
+    #initilization
+    foreach e [$G arcs] {
+	set u [$G arc source $e]
+	set v [$G arc target $e]
+	dict set f [list $u $v] 0
+	dict set f [list $v $u] 0
+    }
+
+    #setting the residual graph for the first iteration
+    set residualG [createResidualGraph $G $f]
+
+    #deleting the arcs that are 0-weighted
+    foreach e [$residualG arcs] {
+	if { [$residualG arc set $e throughput] == 0 } {
+	    $residualG arc delete $e
 	}
-	
-	#initilization
-	foreach e [$G arcs] {
-		set u [$G arc source $e]
-		set v [$G arc target $e]
-		dict set f [list $u $v] 0
+    }
+
+    #the main loop - works till the path between source and the sink can be found
+    while {1} {
+	set paths [ShortestsPathsByBFS $residualG $s paths]
+
+	if { ($paths == {}) || (![dict exists $paths $t]) } break
+
+	set path [dict get $paths $t]
+	#setting the path from source to sink
+
+	#adding sink to path
+	lappend path $t
+
+	#finding the throughput of path p - the smallest value of c(f) among
+	#edges that are contained in the path
+	set maxThroughput Inf
+
+	foreach u [lrange $path 0 end-1] v [lrange $path 1 end] {
+	    set pathEdgeFlow [$residualG arc set [list $u $v] throughput]
+	    if { $maxThroughput > $pathEdgeFlow } {
+		set maxThroughput $pathEdgeFlow
+	    }
+	}
+
+	#increase of throughput using the path p, with value equal to maxThroughput
+	foreach u [lrange $path 0 end-1] v [lrange $path 1 end] {
+
+	    #if maximum throughput that was found for the path p (maxThroughput) is bigger than current throughput
+	    #at the edge not contained in the path p (for current pair of nodes u and v), then we add to the edge
+	    #which is contained into path p the maxThroughput value decreased by the value of throughput at
+	    #the second edge (not contained in path). That second edge's throughtput value is set to 0.
+
+	    set f_uv [dict get $f [list $u $v]]
+	    set f_vu [dict get $f [list $v $u]]
+	    if { $maxThroughput >= $f_vu } {
+		dict set f [list $u $v] [ expr { $f_uv + $maxThroughput - $f_vu } ]
 		dict set f [list $v $u] 0
-	}
-	
-	#setting the residual graph for the first iteration
-	set residualG [createResidualGraph $G $f]
-	
-	#deleting the arcs that are 0-weighted
-	foreach e [$residualG arcs] {
-		if { [$residualG arc set $e throughput] == 0 } {
-			$residualG arc delete $e
-		}
-	}
-	
-	#the main loop - works till the path between source and the sink can be found
-	while {1} {
-		set paths [ShortestsPathsByBFS $residualG $s paths]
-		
-		if { ($paths == {}) || (![dict exists $paths $t]) } break
-				
-		set path [dict get $paths $t]
-		#setting the path from source to sink
-			
-		#adding sink to path
-		lappend path $t
-		
-		#finding the throughput of path p - the smallest value of c(f) among
-		#edges that are contained in the path
-		set maxThroughput Inf
-	
-		foreach u [lrange $path 0 end-1] v [lrange $path 1 end] {
-			set pathEdgeFlow [$residualG arc set [list $u $v] throughput]   
-			if { $maxThroughput > $pathEdgeFlow } {
-				set maxThroughput $pathEdgeFlow
-			}
-		}
-	
-		#increase of throughput using the path p, with value equal to maxThroughput	
-		foreach u [lrange $path 0 end-1] v [lrange $path 1 end] {
-			
-			#if maximum throughput that was found for the path p (maxThroughput) is bigger than current throughput
-			#at the edge not contained in the path p (for current pair of nodes u and v), then we add to the edge
-			#which is contained into path p the maxThroughput value decreased by the value of throughput at
-			#the second edge (not contained in path). That second edge's throughtput value is set to 0.
-			
-			set f_uv [dict get $f [list $u $v]]
-			set f_vu [dict get $f [list $v $u]]
-			if { $maxThroughput >= $f_vu } {
-				dict set f [list $u $v] [ expr { $f_uv + $maxThroughput - $f_vu } ]
-				dict set f [list $v $u] 0
-			} else {
-			
-			#if maxThroughput is not greater than current throughput at the edge not contained in path p (here - v->u),
-			#we add a difference between those values to edge contained in the path p (here u->v) and substract that
-			#difference from edge not contained in the path p.
-				set difference [ expr { $f_vu - $maxThroughput } ]
-				dict set f [list $u $v] [ expr { $f_uv + $difference } ]
-				dict set f [list $v $u] $maxThroughput
-			}
-		}
-	
-		#when the current throughput for the graph is updated, we generate new residual graph 
-		#for new values of throughput
-	        $residualG destroy
-		set residualG [createResidualGraph $G $f]
-	
-		foreach e [$residualG arcs] {
-			if { [$residualG arc set $e throughput] == 0 } {
-				$residualG arc delete $e
-			}
-		}
+	    } else {
+
+		#if maxThroughput is not greater than current throughput at the edge not contained in path p (here - v->u),
+		#we add a difference between those values to edge contained in the path p (here u->v) and substract that
+		#difference from edge not contained in the path p.
+		set difference [ expr { $f_vu - $maxThroughput } ]
+		dict set f [list $u $v] [ expr { $f_uv + $difference } ]
+		dict set f [list $v $u] $maxThroughput
+	    }
 	}
 
+	#when the current throughput for the graph is updated, we generate new residual graph
+	#for new values of throughput
 	$residualG destroy
+	set residualG [createResidualGraph $G $f]
 
-	#removing 0-weighted edges from solution
-	foreach e [dict keys $f] {
-		if { [dict get $f $e] == 0 } {
-			set f [dict remove $f $e]
-		}
+	foreach e [$residualG arcs] {
+	    if { [$residualG arc set $e throughput] == 0 } {
+		$residualG arc delete $e
+	    }
 	}
-	
-	return $f
+    }
+
+    $residualG destroy
+
+    #removing 0-weighted edges from solution
+    foreach e [dict keys $f] {
+	if { [dict get $f $e] == 0 } {
+	    set f [dict remove $f $e]
+	}
+    }
+
+    return $f
 }
 
 #subprocedure for FordFulkerson's algorithm, which creates
-#for input graph G and given throughput f residual graph 
+#for input graph G and given throughput f residual graph
 #for further operations to find maximum flow in flow network
 
 proc ::struct::graph::op::createResidualGraph {G f} {
-	
-	#initialization
-	set residualG [struct::graph]
-	
-	foreach v [$G nodes] {
-		$residualG node insert $v
+
+    #initialization
+    set residualG [struct::graph]
+
+    foreach v [$G nodes] {
+	$residualG node insert $v
+    }
+
+    foreach e [$G arcs] {
+	set u [$G arc source $e]
+	set v [$G arc target $e]
+	dict set GF [list $u $v] [$G arc set $e throughput]
+    }
+
+    foreach e [dict keys $GF] {
+
+	lassign $e u v
+
+	set c_uv [dict get $GF $e]
+	set flow_uv [dict get $f $e]
+	set flow_vu [dict get $f [list $v $u]]
+
+	if { ![$residualG arc exists $e] } {
+	    $residualG arc insert $u $v $e
 	}
-	
-	foreach e [$G arcs] {
-		set u [$G arc source $e]
-		set v [$G arc target $e]
-		dict set GF [list $u $v] [$G arc set $e throughput]
+
+	if { ![$residualG arc exists [list $v $u]] } {
+	    $residualG arc insert $v $u [list $v $u]
 	}
-		
-	foreach e [dict keys $GF] {	
-		
-		lassign $e u v
-		
-		set c_uv [dict get $GF $e]
-		set flow_uv [dict get $f $e]
-		set flow_vu [dict get $f [list $v $u]]
-		
-		if { ![$residualG arc exists $e] } {
-			$residualG arc insert $u $v $e
-		}
-		
-		if { ![$residualG arc exists [list $v $u]] } {
-			$residualG arc insert $v $u [list $v $u]
-		}
-				
-		#new value of c_f(u,v) for residual Graph is a max flow value for this edge
-		#minus current flow on that edge
-		if { ![$residualG arc keyexists $e throughput] } {
-			if { [dict exists $GF [list $v $u]] } { 
-				$residualG arc set [list $u $v] throughput [ expr { $c_uv - $flow_uv + $flow_vu } ]
-			} else {
-				$residualG arc set $e throughput [ expr { $c_uv - $flow_uv } ]
-			}
-		}
-				
-		if { [dict exists $GF [list $v $u]] } { 
-			#when double arcs in graph G (u->v , v->u)
-			#so, x/y i w/z    y-x+w
-			set c_vu [dict get $GF [list $v $u]]
-			if { ![$residualG arc keyexists [list $v $u] throughput] } {
-				$residualG arc set [list $v $u] throughput [ expr { $c_vu - $flow_vu + $flow_uv} ]
-			}
-		} else {
-				$residualG arc set [list $v $u] throughput $flow_uv
-		}
-	}	
-	
-	#setting all weights at edges to 1 for proper usage of shortest paths finding procedures
-	$residualG arc setunweighted 1
-	
-	return $residualG
+
+	#new value of c_f(u,v) for residual Graph is a max flow value for this edge
+	#minus current flow on that edge
+	if { ![$residualG arc keyexists $e throughput] } {
+	    if { [dict exists $GF [list $v $u]] } {
+		$residualG arc set [list $u $v] throughput [ expr { $c_uv - $flow_uv + $flow_vu } ]
+	    } else {
+		$residualG arc set $e throughput [ expr { $c_uv - $flow_uv } ]
+	    }
+	}
+
+	if { [dict exists $GF [list $v $u]] } {
+	    #when double arcs in graph G (u->v , v->u)
+	    #so, x/y i w/z    y-x+w
+	    set c_vu [dict get $GF [list $v $u]]
+	    if { ![$residualG arc keyexists [list $v $u] throughput] } {
+		$residualG arc set [list $v $u] throughput [ expr { $c_vu - $flow_vu + $flow_uv} ]
+	    }
+	} else {
+	    $residualG arc set [list $v $u] throughput $flow_uv
+	}
+    }
+
+    #setting all weights at edges to 1 for proper usage of shortest paths finding procedures
+    $residualG arc setunweighted 1
+
+    return $residualG
 }
 
 #Subprocedure for Busacker Gowen algorithm
@@ -1472,69 +1472,69 @@ proc ::struct::graph::op::createResidualGraph {G f} {
 
 proc ::struct::graph::op::createAugmentingNetwork {G f path} {
 
-	set Gf [struct::graph]
-		
-	#setting the Gf graph
-	foreach v [$G nodes] {
-		$Gf node insert $v
+    set Gf [struct::graph]
+
+    #setting the Gf graph
+    foreach v [$G nodes] {
+	$Gf node insert $v
+    }
+
+    foreach e [$G arcs] {
+	set u [$G arc source $e]
+	set v [$G arc target $e]
+
+	$Gf arc insert $u $v [list $u $v]
+
+	$Gf arc set [list $u $v] throughput [$G arc set $e throughput]
+	$Gf arc set [list $u $v] cost [$G arc set $e cost]
+    }
+
+    #we set new values for each edge contained in the path from input
+    foreach u [lrange $path 0 end-1] v [lrange $path 1 end] {
+
+	set f_uv [dict get $f [list $u $v]]
+	set f_vu [dict get $f [list $v $u]]
+	set c_uv [$G arc get [list $u $v] throughput]
+	set d_uv [$G arc get [list $u $v] cost]
+
+	#adding apparent arcs
+	if { ![$Gf arc exists [list $v $u]] } {
+	    $Gf arc insert $v $u [list $v $u]
+	    #1.
+	    $Gf arc set [list $v $u] throughput $f_uv
+	    #2.
+	    $Gf arc set [list $v $u] cost [ expr { -1 * $d_uv } ]
+	} else {
+	    #1.
+	    $Gf arc set [list $v $u] throughput $f_uv
+	    #2.
+	    $Gf arc set [list $v $u] cost [ expr { -1 * $d_uv } ]
+	    $Gf arc set [list $u $v] cost Inf
+	    $Gf arc set [list $u $v] throughput 0
 	}
-	
-	foreach e [$G arcs] {
-		set u [$G arc source $e]
-		set v [$G arc target $e]
-		
-		$Gf arc insert $u $v [list $u $v]
-	
-		$Gf arc set [list $u $v] throughput [$G arc set $e throughput]
-		$Gf arc set [list $u $v] cost [$G arc set $e cost]
-	}	
-	
-	#we set new values for each edge contained in the path from input
-	foreach u [lrange $path 0 end-1] v [lrange $path 1 end] {
-	
-		set f_uv [dict get $f [list $u $v]]
-		set f_vu [dict get $f [list $v $u]]
-		set c_uv [$G arc get [list $u $v] throughput]
-		set d_uv [$G arc get [list $u $v] cost]
-		
-		#adding apparent arcs
-		if { ![$Gf arc exists [list $v $u]] } {
-			$Gf arc insert $v $u [list $v $u]
-			#1.
-			$Gf arc set [list $v $u] throughput $f_uv
-			#2.
-			$Gf arc set [list $v $u] cost [ expr { -1 * $d_uv } ]
-		} else {
-			#1.
-			$Gf arc set [list $v $u] throughput $f_uv
-			#2.
-			$Gf arc set [list $v $u] cost [ expr { -1 * $d_uv } ]
-			$Gf arc set [list $u $v] cost Inf
-			$Gf arc set [list $u $v] throughput 0
-		}
-		
-		if { ($f_vu == 0 ) && ( $c_uv > $f_uv ) } {
-			#3.
-			$Gf arc set [list $u $v] throughput [ expr { $c_uv - $f_uv } ]
-			#4.
-			$Gf arc set [list $u $v] cost $d_uv
-		}
-		
-		if { ($f_vu == 0 ) && ( $c_uv == $f_uv) } {
-			#5.
-			$Gf arc set [list $u $v] throughput 0
-			#6.
-			$Gf arc set [list $u $v] cost Inf
-		}
+
+	if { ($f_vu == 0 ) && ( $c_uv > $f_uv ) } {
+	    #3.
+	    $Gf arc set [list $u $v] throughput [ expr { $c_uv - $f_uv } ]
+	    #4.
+	    $Gf arc set [list $u $v] cost $d_uv
 	}
-	
-	return $Gf
+
+	if { ($f_vu == 0 ) && ( $c_uv == $f_uv) } {
+	    #5.
+	    $Gf arc set [list $u $v] throughput 0
+	    #6.
+	    $Gf arc set [list $u $v] cost Inf
+	}
+    }
+
+    return $Gf
 }
 
 #Busacker Gowen's algorithm - computing minimum cost maximum flow in a flow network
 #-------------------------------------------------------------------------------------
 #
-#The goal is to find a flow, whose max value can be d, from source node to  
+#The goal is to find a flow, whose max value can be d, from source node to
 #sink node in given flow network. That network except throughputs at edges has
 #also defined a non-negative cost on each edge - cost of using that edge when
 #directing flow with that edge ( it can illustrate e.g. fuel usage, time or
@@ -1547,7 +1547,7 @@ proc ::struct::graph::op::createAugmentingNetwork {G f path} {
 #node s - the source node for graph G
 #node t - the sink node for graph G
 #
-#Output: 
+#Output:
 #f - dictionary containing values of used throughputs for each edge ( key )
 #found by algorithm.
 #
@@ -1556,284 +1556,283 @@ proc ::struct::graph::op::createAugmentingNetwork {G f path} {
 
 proc ::struct::graph::op::BusackerGowen {G desiredFlow s t} {
 
-	#checking if nodes s and t are in graph G
-	if { !([$G node exists $s] && [$G node exists $t]) } {
-		return -code error "Nodes \"$s\" and \"$t\" should be contained in graph's G set of nodes"
+    #checking if nodes s and t are in graph G
+    if { !([$G node exists $s] && [$G node exists $t]) } {
+	return -code error "Nodes \"$s\" and \"$t\" should be contained in graph's G set of nodes"
+    }
+
+    if { $desiredFlow <= 0 } {
+	return -code error "The \"desiredFlow\" value must be an positive integer."
+    }
+
+    #checking if all attributes for input network are set well ( costs and throughputs )
+    foreach e [$G arcs] {
+	if { !([$G arc keyexists $e throughput] && [$G arc keyexists $e cost]) } {
+	    return -code error "The input network doesn't have all attributes set correctly... Please, check again attributes: \"throughput\" and \"cost\" for input graph."
 	}
-	
-	if { $desiredFlow <= 0 } {
-		return -code error "The \"desiredFlow\" value must be an positive integer."
+    }
+
+    set Gf [struct::graph]
+
+    #initialization of Augmenting Network
+    foreach v [$G nodes] {
+	$Gf node insert $v
+    }
+
+    foreach e [$G arcs] {
+	set u [$G arc source $e]
+	set v [$G arc target $e]
+	$Gf arc insert $u $v [list $u $v]
+
+	$Gf arc set [list $u $v] throughput [$G arc set $e throughput]
+	$Gf arc set [list $u $v] cost [$G arc set $e cost]
+    }
+
+    #initialization of f
+    foreach e [$G arcs] {
+	set u [$G arc source $e]
+	set v [$G arc target $e]
+	dict set f [list $u $v] 0
+	dict set f [list $v $u] 0
+    }
+
+    set currentFlow 0
+
+    #main loop - it ends when we reach desired flow value or there is no path in Gf
+    #leading from source node s to sink t
+
+    while { $currentFlow < $desiredFlow } {
+
+	#preparing correct values for pathfinding
+	foreach edge [$Gf arcs] {
+	    $Gf arc setweight $edge [$Gf arc get $edge cost]
 	}
-	
-	#checking if all attributes for input network are set well ( costs and throughputs )
-	foreach e [$G arcs] {
-		if { !([$G arc keyexists $e throughput] && [$G arc keyexists $e cost]) } {
-			return -code error "The input network doesn't have all attributes set correctly... Please, check again attributes: \"throughput\" and \"cost\" for input graph."
-		}
+
+	#setting the path 'p' from 's' to 't'
+	set paths [ShortestsPathsByBFS $Gf $s paths]
+
+	#if there are no more paths, the search has ended
+	if { ($paths == {}) || (![dict exists $paths $t]) } break
+
+	set path [dict get $paths $t]
+	lappend path $t
+
+	#counting max throughput that is availiable to send
+	#using path 'p'
+	set maxThroughput Inf
+	foreach u [lrange $path 0 end-1] v [lrange $path 1 end] {
+	    set uv_throughput [$Gf arc set [list $u $v] throughput]
+	    if { $maxThroughput > $uv_throughput } {
+		set maxThroughput $uv_throughput
+	    }
 	}
-	
-	set Gf [struct::graph]
-	
-	#initialization of Augmenting Network
-	foreach v [$G nodes] {
-		$Gf node insert $v 
+
+	#if max throughput that was found will cause exceeding the desired
+	#flow, send as much as it's possible
+	if { ( $currentFlow + $maxThroughput ) <= $desiredFlow } {
+	    set fAdd $maxThroughput
+	    set currentFlow [ expr { $currentFlow + $fAdd } ]
+	} else {
+	    set fAdd [ expr { $desiredFlow - $currentFlow } ]
+	    set currentFlow $desiredFlow
 	}
-	
-	foreach e [$G arcs] {
-		set u [$G arc source $e]
-		set v [$G arc target $e]
-		$Gf arc insert $u $v [list $u $v]
-		
-		$Gf arc set [list $u $v] throughput [$G arc set $e throughput]
-		$Gf arc set [list $u $v] cost [$G arc set $e cost]
-	}
-	
-	#initialization of f
-	foreach e [$G arcs] {
-		set u [$G arc source $e]
-		set v [$G arc target $e]
+
+	#update the throuputs on edges
+	foreach v [lrange $path 0 end-1] u [lrange $path 1 end] {
+	    if { [dict get $f [list $u $v]] >= $fAdd } {
+		dict set f [list $u $v] [ expr { [dict get $f [list $u $v]] - $fAdd } ]
+	    }
+
+	    if { ( [dict get $f [list $u $v]] < $fAdd ) && ( [dict get $f [list $u $v]] > 0 ) } {
+		dict set f [list $v $u] [ expr { $fAdd - [dict get $f [list $u $v]] } ]
 		dict set f [list $u $v] 0
-		dict set f [list $v $u] 0
+	    }
+
+	    if { [dict get $f [list $u $v]] == 0 } {
+		dict set f [list $v $u] [ expr { [dict get $f [list $v $u]] + $fAdd } ]
+	    }
 	}
-	
-	set currentFlow 0
-		
-	#main loop - it ends when we reach desired flow value or there is no path in Gf
-	#leading from source node s to sink t
-	
-	while { $currentFlow < $desiredFlow } {
-	
-		#preparing correct values for pathfinding
-		foreach edge [$Gf arcs] {
-			$Gf arc setweight $edge [$Gf arc get $edge cost]
-		}
-		
-		#setting the path 'p' from 's' to 't'
-		set paths [ShortestsPathsByBFS $Gf $s paths]
-		
-		#if there are no more paths, the search has ended
-		if { ($paths == {}) || (![dict exists $paths $t]) } break
-				
-		set path [dict get $paths $t]
-		lappend path $t
-		
-		#counting max throughput that is availiable to send
-		#using path 'p'
-		set maxThroughput Inf
-		foreach u [lrange $path 0 end-1] v [lrange $path 1 end] {
-			set uv_throughput [$Gf arc set [list $u $v] throughput]
-			if { $maxThroughput > $uv_throughput } {   
-				set maxThroughput $uv_throughput
-			}
-		}
-		
-		#if max throughput that was found will cause exceeding the desired
-		#flow, send as much as it's possible
-		if { ( $currentFlow + $maxThroughput ) <= $desiredFlow } {
-			set fAdd $maxThroughput
-			set currentFlow [ expr { $currentFlow + $fAdd } ]
-		} else {
-			set fAdd [ expr { $desiredFlow - $currentFlow } ]
-			set currentFlow $desiredFlow
-		}
-			
-		#update the throuputs on edges
-		foreach v [lrange $path 0 end-1] u [lrange $path 1 end] {	
-			if { [dict get $f [list $u $v]] >= $fAdd } {
-				dict set f [list $u $v] [ expr { [dict get $f [list $u $v]] - $fAdd } ]
-			}
-			
-			if { ( [dict get $f [list $u $v]] < $fAdd ) && ( [dict get $f [list $u $v]] > 0 ) } {
-				dict set f [list $v $u] [ expr { $fAdd - [dict get $f [list $u $v]] } ]
-				dict set f [list $u $v] 0
-			}
-			
-			if { [dict get $f [list $u $v]] == 0 } {
-				dict set f [list $v $u] [ expr { [dict get $f [list $v $u]] + $fAdd } ]
-			}
-		}
-		
-		#create new Augemnting Network
-				
-		set Gfnew [createAugmentingNetwork $Gf $f $path]
+
+	#create new Augemnting Network
+
+	set Gfnew [createAugmentingNetwork $Gf $f $path]
         $Gf destroy
         set Gf $Gfnew
-	}
-	
-	set f [dict filter $f script {flow flowvalue} {expr {$flowvalue != 0}}]
-	
-	$Gf destroy
-	return $f
+    }
+
+    set f [dict filter $f script {flow flowvalue} {expr {$flowvalue != 0}}]
+
+    $Gf destroy
+    return $f
 }
 
 #
 proc ::struct::graph::op::ShortestsPathsByBFS {G s outputFormat} {
-	
-	switch -exact -- $outputFormat {
-		distances {
-			set outputMode distances
-		}
-		paths {
-			set outputMode paths
-		}
-		default {
-			return -code error "Unknown output format \"$outputFormat\", expected distances, or paths."
-		}
+
+    switch -exact -- $outputFormat {
+	distances {
+	    set outputMode distances
 	}
-	
-	set queue [list $s]
-	set result {}
-	
-	#initialization of marked nodes, distances and predecessors
-	foreach v [$G nodes] {
-		dict set marked $v 0
-		dict set distances $v Inf
-		dict set pred $v -1
+	paths {
+	    set outputMode paths
 	}
-	
-	#the s node is initially marked and has 0 distance to itself
-	dict set marked $s 1
-	dict set distances $s 0
-		
-	#the main loop
-	while { [llength $queue] != 0 } {
-	
-		#removing top element from the queue
-		set v [lindex $queue 0]
-		lremove queue $v
-		
-		#for each arc that begins in v
-		foreach arc [$G arcs -out $v] {
-			
-			set u [$G arc target $arc]
-			set newlabel [ expr { [dict get $distances $v] + [$G arc getweight $arc] } ]
-			
-			if { $newlabel < [dict get $distances $u] } {
-				
-				dict set distances $u $newlabel
-				dict set pred $u $v
-				
-				#case when current node wasn't placed in a queue yet -
-				#we set u at the end of the queue
-				if { [dict get $marked $u] == 0 } {
-					lappend queue $u
-					dict set marked $u 1
-				} else {
-				
-				#case when current node u was in queue before but it is not in it now - 
-				#we set u at the beginning of the queue
-					if { [lsearch $queue $u] < 0 } {
-						set queue [linsert $queue 0 $u]
-					}
-				}				
-			}
-		}
+	default {
+	    return -code error "Unknown output format \"$outputFormat\", expected distances, or paths."
 	}
-	
-	#if the outputformat is paths, we travel back to find shorests paths
-	#to return sets of nodes for each node, which are their paths between
-	#s and particular node
-	dict set paths nopaths 1
-	if { $outputMode eq "paths" } {
-		foreach node [$G nodes] {	
-			
-			set path {}
-			set lastNode $node
-		
-			while { $lastNode != -1 } {
-				set currentNode [dict get $pred $lastNode]
-				if { $currentNode != -1 } {
-					lappend path $currentNode
-				}
-				set lastNode $currentNode
-			}
-			
-			set path [lreverse $path]
-			
-			if { [llength $path] != 0 } {
-				dict set paths $node $path
-				dict unset paths nopaths
-			}
-		}
-		
-		if { ![dict exists $paths nopaths] } {
-			return $paths
+    }
+
+    set queue [list $s]
+    set result {}
+
+    #initialization of marked nodes, distances and predecessors
+    foreach v [$G nodes] {
+	dict set marked $v 0
+	dict set distances $v Inf
+	dict set pred $v -1
+    }
+
+    #the s node is initially marked and has 0 distance to itself
+    dict set marked $s 1
+    dict set distances $s 0
+
+    #the main loop
+    while { [llength $queue] != 0 } {
+
+	#removing top element from the queue
+	set v [lindex $queue 0]
+	lremove queue $v
+
+	#for each arc that begins in v
+	foreach arc [$G arcs -out $v] {
+
+	    set u [$G arc target $arc]
+	    set newlabel [ expr { [dict get $distances $v] + [$G arc getweight $arc] } ]
+
+	    if { $newlabel < [dict get $distances $u] } {
+
+		dict set distances $u $newlabel
+		dict set pred $u $v
+
+		#case when current node wasn't placed in a queue yet -
+		#we set u at the end of the queue
+		if { [dict get $marked $u] == 0 } {
+		    lappend queue $u
+		    dict set marked $u 1
 		} else {
-			return {}
+
+		    #case when current node u was in queue before but it is not in it now -
+		    #we set u at the beginning of the queue
+		    if { [lsearch $queue $u] < 0 } {
+			set queue [linsert $queue 0 $u]
+		    }
 		}
-		
-	#returning dictionary containing distance from start node to each other node (key)
-	} else {
-		return $distances
+	    }
 	}
+    }
+
+    #if the outputformat is paths, we travel back to find shorests paths
+    #to return sets of nodes for each node, which are their paths between
+    #s and particular node
+    dict set paths nopaths 1
+    if { $outputMode eq "paths" } {
+	foreach node [$G nodes] {
+
+	    set path {}
+	    set lastNode $node
+
+	    while { $lastNode != -1 } {
+		set currentNode [dict get $pred $lastNode]
+		if { $currentNode != -1 } {
+		    lappend path $currentNode
+		}
+		set lastNode $currentNode
+	    }
+
+	    set path [lreverse $path]
+
+	    if { [llength $path] != 0 } {
+		dict set paths $node $path
+		dict unset paths nopaths
+	    }
+	}
+
+	if { ![dict exists $paths nopaths] } {
+	    return $paths
+	} else {
+	    return {}
+	}
+
+	#returning dictionary containing distance from start node to each other node (key)
+    } else {
+	return $distances
+    }
 
 }
 
 #
 proc ::struct::graph::op::BFS {G s outputFormat} {
-	
-	set queue [list $s]
-		
-	switch -exact -- $outputFormat {
-		graph {
-			set outputMode graph
-		}
-		tree {
-			set outputMode tree
-		}
-		default {
-			return -code error "Unknown output format \"$outputFormat\", expected graph, or tree."
-		}
+
+    set queue [list $s]
+
+    switch -exact -- $outputFormat {
+	graph {
+	    set outputMode graph
 	}
-	
-	if { $outputMode eq "graph" } {
+	tree {
+	    set outputMode tree
+	}
+	default {
+	    return -code error "Unknown output format \"$outputFormat\", expected graph, or tree."
+	}
+    }
+
+    if { $outputMode eq "graph" } {
 	#graph initializing
-		set BFSGraph [struct::graph]
-		foreach v [$G nodes] {
-			$BFSGraph node insert $v
-		}
-	} else {
-	#tree initializing
-		set BFSTree [struct::tree]
-		$BFSTree set root name $s
-		$BFSTree rename root $s
-	}
-	
-	#initilization of marked nodes
+	set BFSGraph [struct::graph]
 	foreach v [$G nodes] {
-		dict set marked $v 0
+	    $BFSGraph node insert $v
 	}
-	
-	#start node is marked from the beginning
-	dict set marked $s 1
-	
-	#the main loop
-	while { [llength $queue] != 0 } {
-		#removing top element from the queue
-		
-		set v [lindex $queue 0]
-		lremove queue $v
-		
-		foreach x [$G nodes -adj $v] {
-			if { ![dict get $marked $x] } {
-				dict set marked $x 1
-				lappend queue $x
-				
-				if { $outputMode eq "graph" } {				
-					$BFSGraph arc insert $v $x [list $v $x]
-				} else {
-					$BFSTree insert $v end $x
-				}				
-			}
+    } else {
+	#tree initializing
+	set BFSTree [struct::tree]
+	$BFSTree set root name $s
+	$BFSTree rename root $s
+    }
+
+    #initilization of marked nodes
+    foreach v [$G nodes] {
+	dict set marked $v 0
+    }
+
+    #start node is marked from the beginning
+    dict set marked $s 1
+
+    #the main loop
+    while { [llength $queue] != 0 } {
+	#removing top element from the queue
+
+	set v [lindex $queue 0]
+	lremove queue $v
+
+	foreach x [$G nodes -adj $v] {
+	    if { ![dict get $marked $x] } {
+		dict set marked $x 1
+		lappend queue $x
+
+		if { $outputMode eq "graph" } {
+		    $BFSGraph arc insert $v $x [list $v $x]
+		} else {
+		    $BFSTree insert $v end $x
 		}
+	    }
 	}
-	
-	
-	if { $outputMode eq "graph" } {
-		return $BFSGraph
-	} else {
-		return $BFSTree
-	}
+    }
+
+    if { $outputMode eq "graph" } {
+	return $BFSGraph
+    } else {
+	return $BFSTree
+    }
 }
 
 #Minimum Diameter Spanning Tree - MDST
@@ -1857,119 +1856,119 @@ proc ::struct::graph::op::BFS {G s outputFormat} {
 
 proc ::struct::graph::op::MinimumDiameterSpanningTree {G} {
 
-	set min_diameter Inf
-	set best_Tree [struct::graph]
-	
-	foreach v [$G nodes] {
-	
-		#BFS Tree
-		set T [BFS $G $v tree]		
-		#BFS Graph
-		set TGraph [BFS $G $v graph]
-			
-		#Setting all arcs to 1 for diameter procedure
-		$TGraph arc setunweighted 1
-		
-		#setting values for current Tree
-		set diam [diameter $TGraph]
-		set subtreeHeight [ expr { $diam / 2 - 1} ]
-			
-		##############################################
-		#case when diameter found for tree found by BFS is even:
-		#it's possible to decrease the diameter by one.
-		if { ( $diam % 2 ) == 0 } {
-			
-			#for each child u that current root node v has, we search
-			#for the greatest subtree(subtrees) with the root in child u.
-			#
-			foreach u [$TGraph nodes -adj $v] {
-				set u_depth 1 ;#[$T depth $u]
-				set d_depth 0
-				
-				set descendants [$T descendants $u]
-				
-				foreach d $descendants {
-					if { $d_depth < [$T depth $d] } {
-						set d_depth [$T depth $d]
-					}
-				}
-				
-				#depth of the current subtree
-				set depth [ expr { $d_depth - $u_depth } ]
-							
-				#proceed if found subtree is the greatest one
-				if { $depth >= $subtreeHeight } {
-					
-					#temporary Graph for holding potential better values
-					set tempGraph [struct::graph]
-					
-					foreach node [$TGraph nodes] {
-						$tempGraph node insert $node
-					}
-					
-					#zmienic nazwy zmiennych zeby sie nie mylily
-					foreach arc [$TGraph arcs] {
-						set _u [$TGraph arc source $arc]
-						set _v [$TGraph arc target $arc]
-						$tempGraph arc insert $_u $_v [list $_u $_v]
-					}
-		
-					if { [$tempGraph arc exists [list $u $v]] } {
-						$tempGraph arc delete [list $u $v]
-					} else {
-						$tempGraph arc delete [list $v $u]
-					}
-					
-					#for nodes u and v, we add a node between them
-					#to again start BFS with root in new node to check
-					#if it's possible to decrease the diameter in solution
-					set node [$tempGraph node insert]
-					$tempGraph arc insert $node $v [list $node $v]
-					$tempGraph arc insert $node $u [list $node $u]
-				
-					set tempGraph [BFS $tempGraph $node graph]
-							
-					$tempGraph node delete $node
-					$tempGraph arc insert $u $v [list $u $v]
-					$tempGraph arc setunweighted 1
-					
-					set tempDiam [diameter $tempGraph]
-					
-					#if better tree is found (that any that were already found)
-					#replace it
-					if { $min_diameter > $tempDiam } {
-						set $min_diameter [diameter $tempGraph ]
-						$best_Tree destroy
-						set best_Tree $tempGraph
-					} else {
-						$tempGraph destroy
-					}
-				}
-				
-			}
+    set min_diameter Inf
+    set best_Tree [struct::graph]
+
+    foreach v [$G nodes] {
+
+	#BFS Tree
+	set T [BFS $G $v tree]
+	#BFS Graph
+	set TGraph [BFS $G $v graph]
+
+	#Setting all arcs to 1 for diameter procedure
+	$TGraph arc setunweighted 1
+
+	#setting values for current Tree
+	set diam [diameter $TGraph]
+	set subtreeHeight [ expr { $diam / 2 - 1} ]
+
+	##############################################
+	#case when diameter found for tree found by BFS is even:
+	#it's possible to decrease the diameter by one.
+	if { ( $diam % 2 ) == 0 } {
+
+	    #for each child u that current root node v has, we search
+	    #for the greatest subtree(subtrees) with the root in child u.
+	    #
+	    foreach u [$TGraph nodes -adj $v] {
+		set u_depth 1 ;#[$T depth $u]
+		set d_depth 0
+
+		set descendants [$T descendants $u]
+
+		foreach d $descendants {
+		    if { $d_depth < [$T depth $d] } {
+			set d_depth [$T depth $d]
+		    }
 		}
-		################################################################
-		
-		set currentTreeDiameter $diam
-		
-		if { $min_diameter > $currentTreeDiameter } {
-			set min_diameter $currentTreeDiameter
-			set best_Tree $TGraph
-		} else {
-			$TGraph destroy
+
+		#depth of the current subtree
+		set depth [ expr { $d_depth - $u_depth } ]
+
+		#proceed if found subtree is the greatest one
+		if { $depth >= $subtreeHeight } {
+
+		    #temporary Graph for holding potential better values
+		    set tempGraph [struct::graph]
+
+		    foreach node [$TGraph nodes] {
+			$tempGraph node insert $node
+		    }
+
+		    #zmienic nazwy zmiennych zeby sie nie mylily
+		    foreach arc [$TGraph arcs] {
+			set _u [$TGraph arc source $arc]
+			set _v [$TGraph arc target $arc]
+			$tempGraph arc insert $_u $_v [list $_u $_v]
+		    }
+
+		    if { [$tempGraph arc exists [list $u $v]] } {
+			$tempGraph arc delete [list $u $v]
+		    } else {
+			$tempGraph arc delete [list $v $u]
+		    }
+
+		    #for nodes u and v, we add a node between them
+		    #to again start BFS with root in new node to check
+		    #if it's possible to decrease the diameter in solution
+		    set node [$tempGraph node insert]
+		    $tempGraph arc insert $node $v [list $node $v]
+		    $tempGraph arc insert $node $u [list $node $u]
+
+		    set tempGraph [BFS $tempGraph $node graph]
+
+		    $tempGraph node delete $node
+		    $tempGraph arc insert $u $v [list $u $v]
+		    $tempGraph arc setunweighted 1
+
+		    set tempDiam [diameter $tempGraph]
+
+		    #if better tree is found (that any that were already found)
+		    #replace it
+		    if { $min_diameter > $tempDiam } {
+			set $min_diameter [diameter $tempGraph ]
+			$best_Tree destroy
+			set best_Tree $tempGraph
+		    } else {
+			$tempGraph destroy
+		    }
 		}
-		
-		$T destroy
+
+	    }
 	}
-	
-	return $best_Tree
+	################################################################
+
+	set currentTreeDiameter $diam
+
+	if { $min_diameter > $currentTreeDiameter } {
+	    set min_diameter $currentTreeDiameter
+	    set best_Tree $TGraph
+	} else {
+	    $TGraph destroy
+	}
+
+	$T destroy
+    }
+
+    return $best_Tree
 }
 
 #Minimum Degree Spanning Tree
 #-------------------------------------------------------------------------------------
 #
 #In graph theory, minimum degree spanning tree (or degree-constrained spanning tree)
-#is a spanning tree where the maximum vertex degree is as small as possible (or is 
+#is a spanning tree where the maximum vertex degree is as small as possible (or is
 #limited to a certain constant k). The minimum degree spanning tree problem is to
 #determine whether a particular graph has such a spanning tree for a particular k.
 #
@@ -1981,66 +1980,66 @@ proc ::struct::graph::op::MinimumDiameterSpanningTree {G} {
 
 proc ::struct::graph::op::MinimumDegreeSpanningTree {G} {
 
-	#initialization of spanning tree for G
-	set MST [struct::graph]
-	
-	foreach v [$G nodes] {
-		$MST node insert $v
-	}
-	
-	#forcing all arcs to be 1-weighted
-	foreach e [$G arcs] {
-		$G arc setweight $e 1
-	}	
-	
-	foreach e [kruskal $G] {
-		set u [$G arc source $e]
-		set v [$G arc target $e]
-		
-		$MST arc insert $u $v [list $u $v]
-	}
-	
-	#main loop	
-	foreach e [$G arcs] {
-		
-		set u [$G arc source $e]
-		set v [$G arc target $e]
-		
-		#if nodes u and v are neighbours, proceed to next iteration
-		if { ![$MST arc exists [list $u $v]] && ![$MST arc exists [list $v $u]] } {
-		
-			$MST arc setunweighted 1
-		
-			#setting the path between nodes u and v in Spanning Tree MST
-			set path [dict get [dijkstra $MST $u] $v]
-			lappend path $v
-		
-			#search for the node in the path, such that its degree is greater than degree of any of nodes
-			#u or v increased by one
-			foreach node $path {
-				if { [$MST node degree $node] > ([Max [$MST node degree $u] [$MST node degree $v]] + 1) } {
-					
-					#if such node is found add the arc between nodes u and v
-					$MST arc insert $u $v [list $u $v]
-					
-					#then to hold MST being a spanning tree, delete any arc that is in the path
-					#that is adjacent to found node
-					foreach n [$MST nodes -adj $node] {
-						if { $n in $path } {
-							if { [$MST arc exists [list $node $n]] } {
-								$MST arc delete [list $node $n]
-							} else {
-								$MST arc delete [list $n $node]
-							}
-							break						
-						}
-					}
-				}
+    #initialization of spanning tree for G
+    set MST [struct::graph]
+
+    foreach v [$G nodes] {
+	$MST node insert $v
+    }
+
+    #forcing all arcs to be 1-weighted
+    foreach e [$G arcs] {
+	$G arc setweight $e 1
+    }
+
+    foreach e [kruskal $G] {
+	set u [$G arc source $e]
+	set v [$G arc target $e]
+
+	$MST arc insert $u $v [list $u $v]
+    }
+
+    #main loop
+    foreach e [$G arcs] {
+
+	set u [$G arc source $e]
+	set v [$G arc target $e]
+
+	#if nodes u and v are neighbours, proceed to next iteration
+	if { ![$MST arc exists [list $u $v]] && ![$MST arc exists [list $v $u]] } {
+
+	    $MST arc setunweighted 1
+
+	    #setting the path between nodes u and v in Spanning Tree MST
+	    set path [dict get [dijkstra $MST $u] $v]
+	    lappend path $v
+
+	    #search for the node in the path, such that its degree is greater than degree of any of nodes
+	    #u or v increased by one
+	    foreach node $path {
+		if { [$MST node degree $node] > ([Max [$MST node degree $u] [$MST node degree $v]] + 1) } {
+
+		    #if such node is found add the arc between nodes u and v
+		    $MST arc insert $u $v [list $u $v]
+
+		    #then to hold MST being a spanning tree, delete any arc that is in the path
+		    #that is adjacent to found node
+		    foreach n [$MST nodes -adj $node] {
+			if { $n in $path } {
+			    if { [$MST arc exists [list $node $n]] } {
+				$MST arc delete [list $node $n]
+			    } else {
+				$MST arc delete [list $n $node]
+			    }
+			    break
 			}
+		    }
 		}
+	    }
 	}
-	
-	return $MST
+    }
+
+    return $MST
 }
 
 #Dinic algorithm for finding maximum flow in flow network
@@ -2049,37 +2048,37 @@ proc ::struct::graph::op::MinimumDegreeSpanningTree {G} {
 #Reference: http://en.wikipedia.org/wiki/Dinic's_algorithm
 #
 proc ::struct::graph::op::MaximumFlowByDinic {G s t blockingFlowAlg} {
-	
-	if { !($blockingFlowAlg eq "dinic" || $blockingFlowAlg eq "mkm") } {
-		return -code error "Uncorrect name of blocking flow algorithm. Choose \"mkm\" for Malhotra, Kumar and Maheshwari algorithm and \"dinic\" for Dinic algorithm."
+
+    if { !($blockingFlowAlg eq "dinic" || $blockingFlowAlg eq "mkm") } {
+	return -code error "Uncorrect name of blocking flow algorithm. Choose \"mkm\" for Malhotra, Kumar and Maheshwari algorithm and \"dinic\" for Dinic algorithm."
+    }
+
+    foreach arc [$G arcs] {
+	set u [$G arc source $arc]
+	set v [$G arc target $arc]
+
+	dict set f [list $u $v] 0
+	dict set f [list $v $u] 0
+    }
+
+    while {1} {
+	set residualG [createResidualGraph $G $f]
+	if { $blockingFlowAlg == "mkm" } {
+	    set blockingFlow [BlockingFlowByMKM $residualG $s $t]
+	} else {
+	    set blockingFlow [BlockingFlowByDinic $residualG $s $t]
 	}
-	
-	foreach arc [$G arcs] {
-		set u [$G arc source $arc]
-		set v [$G arc target $arc]
-		
-		dict set f [list $u $v] 0
-		dict set f [list $v $u] 0
+
+	if { $blockingFlow == {} } break
+
+	foreach key [dict keys $blockingFlow] {
+	    dict set f $key [ expr { [dict get $f $key] + [dict get $blockingFlow $key] } ]
 	}
-	
-	while {1} {
-		set residualG [createResidualGraph $G $f]
-		if { $blockingFlowAlg == "mkm" } {
-			set blockingFlow [BlockingFlowByMKM $residualG $s $t]
-		} else {
-			set blockingFlow [BlockingFlowByDinic $residualG $s $t]
-		}
-		
-		if { $blockingFlow == {} } break
-		
-		foreach key [dict keys $blockingFlow] {
-			dict set f $key [ expr { [dict get $f $key] + [dict get $blockingFlow $key] } ]
-		}
-	}
-	
-	set f [dict filter $f script {flow flowvalue} {expr {$flowvalue != 0}}]
-	
-	return $f
+    }
+
+    set f [dict filter $f script {flow flowvalue} {expr {$flowvalue != 0}}]
+
+    return $f
 }
 
 #Dinic algorithm for finding blocking flow
@@ -2097,73 +2096,73 @@ proc ::struct::graph::op::MaximumFlowByDinic {G s t blockingFlowAlg} {
 #6. return the dictionary containing the blocking flow
 
 proc ::struct::graph::op::BlockingFlowByDinic {G s t} {
-	
-	#initializing blocking flow dictionary
-	foreach edge [$G arcs] {
-		set u [$G arc source $edge]
-		set v [$G arc target $edge]
-		
-		dict set b [list $u $v] 0
+
+    #initializing blocking flow dictionary
+    foreach edge [$G arcs] {
+	set u [$G arc source $edge]
+	set v [$G arc target $edge]
+
+	dict set b [list $u $v] 0
+    }
+
+    #1.
+    set LevelGraph [createLevelGraph $G $s]
+
+    #2. the main loop
+    while { [llength [$LevelGraph arcs]] > 0 } {
+
+	if { ![$LevelGraph node exists $s] || ![$LevelGraph node exists $t] } break
+
+	#3.
+	set paths [ShortestsPathsByBFS $LevelGraph $s paths]
+
+	if { $paths == {} } break
+	if { ![dict exists $paths $t] } break
+
+	set path [dict get $paths $t]
+	lappend path $t
+
+	#setting the max throughput to go with the path found one step before
+	set maxThroughput Inf
+	foreach u [lrange $path 0 end-1] v [lrange $path 1 end] {
+
+	    set uv_throughput [$LevelGraph arc get [list $u $v] throughput]
+
+	    if { $maxThroughput > $uv_throughput } {
+		set maxThroughput $uv_throughput
+	    }
 	}
 
-	#1.
-	set LevelGraph [createLevelGraph $G $s]
-	
-	#2. the main loop
-	while { [llength [$LevelGraph arcs]] > 0 } {
-	
-		if { ![$LevelGraph node exists $s] || ![$LevelGraph node exists $t] } break
-	
-		#3.
-		set paths [ShortestsPathsByBFS $LevelGraph $s paths]
-	
-		if { $paths == {} } break
-		if { ![dict exists $paths $t] } break
-		
-		set path [dict get $paths $t]
-		lappend path $t
-	
-		#setting the max throughput to go with the path found one step before
-		set maxThroughput Inf
-		foreach u [lrange $path 0 end-1] v [lrange $path 1 end] {
-		
-			set uv_throughput [$LevelGraph arc get [list $u $v] throughput]
-			
-			if { $maxThroughput > $uv_throughput } {
-				set maxThroughput $uv_throughput
-			}
-		}
-	
-		#4. updating throughputs and blocking flow
-		foreach u [lrange $path 0 end-1] v [lrange $path 1 end] {
-	
-			set uv_throughput [$LevelGraph arc get [list $u $v] throughput]
-			#decreasing the throughputs contained in the path by max flow value
-			$LevelGraph arc set [list $u $v] throughput [ expr { $uv_throughput - $maxThroughput } ]
-		
-			#updating blocking flows
-			dict set b [list $u $v] [ expr { [dict get $b [list $u $v]] + $maxThroughput } ]
-			#dict set b [list $v $u] [ expr { -1 * [dict get $b [list $u $v]] } ]
-		
-			#5. deleting the arcs, whose throughput is completely used
-			if { [$LevelGraph arc get [list $u $v] throughput] == 0 } {
-				$LevelGraph arc delete [list $u $v]
-			}
-		
-			#deleting the node, if it hasn't any outgoing arcs
-			if { ($u != $s) && ( ![llength [$LevelGraph nodes -out $u]] || ![llength [$LevelGraph nodes -in $u]] ) } {
-				$LevelGraph node delete $u
-			}
-		}
-		
+	#4. updating throughputs and blocking flow
+	foreach u [lrange $path 0 end-1] v [lrange $path 1 end] {
+
+	    set uv_throughput [$LevelGraph arc get [list $u $v] throughput]
+	    #decreasing the throughputs contained in the path by max flow value
+	    $LevelGraph arc set [list $u $v] throughput [ expr { $uv_throughput - $maxThroughput } ]
+
+	    #updating blocking flows
+	    dict set b [list $u $v] [ expr { [dict get $b [list $u $v]] + $maxThroughput } ]
+	    #dict set b [list $v $u] [ expr { -1 * [dict get $b [list $u $v]] } ]
+
+	    #5. deleting the arcs, whose throughput is completely used
+	    if { [$LevelGraph arc get [list $u $v] throughput] == 0 } {
+		$LevelGraph arc delete [list $u $v]
+	    }
+
+	    #deleting the node, if it hasn't any outgoing arcs
+	    if { ($u != $s) && ( ![llength [$LevelGraph nodes -out $u]] || ![llength [$LevelGraph nodes -in $u]] ) } {
+		$LevelGraph node delete $u
+	    }
 	}
-	
-	set b [dict filter $b script {flow flowvalue} {expr {$flowvalue != 0}}]
-	
-	$LevelGraph destroy
-	
-	#6.
-	return $b
+
+    }
+
+    set b [dict filter $b script {flow flowvalue} {expr {$flowvalue != 0}}]
+
+    $LevelGraph destroy
+
+    #6.
+    return $b
 }
 
 #Malhotra, Kumar and Maheshwari Algorithm for finding blocking flow
@@ -2184,7 +2183,7 @@ proc ::struct::graph::op::BlockingFlowByDinic {G s t} {
 #	6. 4 and 5 steps can cause excess or deficiency of throughputs at nodes, so we
 #	send exceeds forward choosing arcs greedily and...
 #	7. ...the same with deficiencies but we send those backward.
-#	8. delete the v node from level graph 
+#	8. delete the v node from level graph
 #	9. upgrade the c values for all nodes
 #
 #10. if no other edges left in level graph, return b - found blocking flow
@@ -2192,172 +2191,172 @@ proc ::struct::graph::op::BlockingFlowByDinic {G s t} {
 
 proc ::struct::graph::op::BlockingFlowByMKM {G s t} {
 
-	#initializing blocking flow dictionary
-	foreach edge [$G arcs] {
-		set u [$G arc source $edge]
-		set v [$G arc target $edge]
-		
-		dict set b [list $u $v] 0
+    #initializing blocking flow dictionary
+    foreach edge [$G arcs] {
+	set u [$G arc source $edge]
+	set v [$G arc target $edge]
+
+	dict set b [list $u $v] 0
+    }
+
+    #1. setting the level graph
+    set LevelGraph [createLevelGraph $G $s]
+
+    #setting the in/out throughputs for each node
+    set c [countThroughputsAtNodes $LevelGraph $s $t]
+
+    #2. the main loop
+    while { [llength [$LevelGraph nodes]] > 2 } {
+
+	#if there is no path between s and t nodes, end the procedure and
+	#return current blocking flow
+	set distances [ShortestsPathsByBFS $LevelGraph $s distances]
+	if { [dict get $distances $t] == "Inf" } {
+	    set b [dict filter $b script {flow flowvalue} {expr {$flowvalue != 0}}]
+	    return $b
 	}
-	
-	#1. setting the level graph
-	set LevelGraph [createLevelGraph $G $s]
-	
-	#setting the in/out throughputs for each node
+
+	#3. finding the node with minimum value of c(v)
+	set min_cv Inf
+
+	dict for {node cv} $c {
+	    if { $min_cv > $cv } {
+		set min_cv $cv
+		set minCv_node $node
+	    }
+	}
+
+	#4. sending c(v) by all incoming arcs of node with minimum c(v)
+	set _min_cv $min_cv
+	foreach arc [$LevelGraph arcs -in $minCv_node] {
+
+	    set t_arc [$LevelGraph arc get $arc throughput]
+	    set u [$LevelGraph arc source $arc]
+	    set v [$LevelGraph arc target $arc]
+	    set b_uv [dict get $b [list $u $v]]
+
+	    if { $t_arc >= $min_cv } {
+		$LevelGraph arc set $arc throughput [ expr { $t_arc - $min_cv } ]
+		dict set b [list $u $v] [ expr { $b_uv + $min_cv } ]
+		break
+	    } else {
+		set difference [ expr { $min_cv - $t_arc } ]
+		set min_cv $difference
+		dict set b [list $u $v] [ expr { $b_uv + $difference } ]
+		$LevelGraph arc set $arc throughput 0
+	    }
+	}
+
+	#5. sending c(v) by all outcoming arcs of node with minimum c(v)
+	foreach arc [$LevelGraph arcs -out $minCv_node] {
+
+	    set t_arc [$LevelGraph arc get $arc throughput]
+	    set u [$LevelGraph arc source $arc]
+	    set v [$LevelGraph arc target $arc]
+	    set b_uv [dict get $b [list $u $v]]
+
+	    if { $t_arc >= $min_cv } {
+		$LevelGraph arc set $arc throughput [ expr { $t_arc - $_min_cv } ]
+		dict set b [list $u $v] [ expr { $b_uv + $_min_cv } ]
+		break
+	    } else {
+		set difference [ expr { $_min_cv - $t_arc } ]
+		set _min_cv $difference
+		dict set b [list $u $v] [ expr { $b_uv + $difference } ]
+		$LevelGraph arc set $arc throughput 0
+	    }
+	}
+
+	#find exceeds and if any, send them forward or backwards
+	set distances [ShortestsPathsByBFS $LevelGraph $s distances]
+
+	#6.
+	for {set i [ expr {[dict get $distances $minCv_node] + 1}] } { $i < [llength [$G nodes]] } { incr i } {
+	    foreach w [$LevelGraph nodes] {
+		if { [dict get $distances $w] == $i } {
+		    set excess [findExcess $LevelGraph $w $b]
+		    if { $excess > 0 } {
+			set b [sendForward $LevelGraph $w $b $excess]
+		    }
+		}
+	    }
+	}
+
+	#7.
+	for { set i [ expr { [dict get $distances $minCv_node] - 1} ] } { $i > 0 } { incr i -1 } {
+	    foreach w [$LevelGraph nodes] {
+		if { [dict get $distances $w] == $i } {
+		    set excess [findExcess $LevelGraph $w $b]
+		    if { $excess < 0 } {
+			set b [sendBack $LevelGraph $w $b [ expr { (-1) * $excess } ]]
+		    }
+		}
+	    }
+	}
+
+	#8. delete current node from the network
+	$LevelGraph node delete $minCv_node
+
+	#9. correctingg the in/out throughputs for each node after
+	#deleting one of the nodes in network
 	set c [countThroughputsAtNodes $LevelGraph $s $t]
-	
-	#2. the main loop
-	while { [llength [$LevelGraph nodes]] > 2 } {
-	
-		#if there is no path between s and t nodes, end the procedure and 
-		#return current blocking flow
-		set distances [ShortestsPathsByBFS $LevelGraph $s distances]
-		if { [dict get $distances $t] == "Inf" } {
-			set b [dict filter $b script {flow flowvalue} {expr {$flowvalue != 0}}]
-			return $b
-		}
-		
-		#3. finding the node with minimum value of c(v)
-		set min_cv Inf
-		
-		dict for {node cv} $c {
-			if { $min_cv > $cv } {
-				set min_cv $cv
-				set minCv_node $node
-			}
-		}
-	
-		#4. sending c(v) by all incoming arcs of node with minimum c(v)
-		set _min_cv $min_cv
-		foreach arc [$LevelGraph arcs -in $minCv_node] {
-	
-			set t_arc [$LevelGraph arc get $arc throughput]
-			set u [$LevelGraph arc source $arc]
-			set v [$LevelGraph arc target $arc]
-			set b_uv [dict get $b [list $u $v]]
-		
-			if { $t_arc >= $min_cv } {
-				$LevelGraph arc set $arc throughput [ expr { $t_arc - $min_cv } ]
-				dict set b [list $u $v] [ expr { $b_uv + $min_cv } ]
-				break
-			} else {
-				set difference [ expr { $min_cv - $t_arc } ]
-				set min_cv $difference
-				dict set b [list $u $v] [ expr { $b_uv + $difference } ]
-				$LevelGraph arc set $arc throughput 0
-			}
-		}
-	
-		#5. sending c(v) by all outcoming arcs of node with minimum c(v)
-		foreach arc [$LevelGraph arcs -out $minCv_node] {
-	
-			set t_arc [$LevelGraph arc get $arc throughput]
-			set u [$LevelGraph arc source $arc]
-			set v [$LevelGraph arc target $arc]
-			set b_uv [dict get $b [list $u $v]]
-		
-			if { $t_arc >= $min_cv } {
-				$LevelGraph arc set $arc throughput [ expr { $t_arc - $_min_cv } ]
-				dict set b [list $u $v] [ expr { $b_uv + $_min_cv } ]
-				break
-			} else {
-				set difference [ expr { $_min_cv - $t_arc } ]
-				set _min_cv $difference
-				dict set b [list $u $v] [ expr { $b_uv + $difference } ]
-				$LevelGraph arc set $arc throughput 0
-			}
-		}
-	
-		#find exceeds and if any, send them forward or backwards   
-		set distances [ShortestsPathsByBFS $LevelGraph $s distances]
-	
-		#6.
-		for {set i [ expr {[dict get $distances $minCv_node] + 1}] } { $i < [llength [$G nodes]] } { incr i } {
-			foreach w [$LevelGraph nodes] {
-				if { [dict get $distances $w] == $i } {
-					set excess [findExcess $LevelGraph $w $b]
-					if { $excess > 0 } {
-						set b [sendForward $LevelGraph $w $b $excess]
-					}	
-				}
-			}
-		}
-	
-		#7.
-		for { set i [ expr { [dict get $distances $minCv_node] - 1} ] } { $i > 0 } { incr i -1 } {
-			foreach w [$LevelGraph nodes] {
-				if { [dict get $distances $w] == $i } {
-					set excess [findExcess $LevelGraph $w $b]
-					if { $excess < 0 } {
-						set b [sendBack $LevelGraph $w $b [ expr { (-1) * $excess } ]]
-					}
-				}
-			}
-		}
-		
-		#8. delete current node from the network
-		$LevelGraph node delete $minCv_node
-	
-		#9. correctingg the in/out throughputs for each node after
-		#deleting one of the nodes in network
-		set c [countThroughputsAtNodes $LevelGraph $s $t]
-			
-		#if node has no availiable outcoming or incoming throughput
-		#delete that node from the graph
-		dict for {key val} $c {
-			if { $val == 0 } {
-				$LevelGraph node delete $key
-				dict unset c $key
-			}
-		}
+
+	#if node has no availiable outcoming or incoming throughput
+	#delete that node from the graph
+	dict for {key val} $c {
+	    if { $val == 0 } {
+		$LevelGraph node delete $key
+		dict unset c $key
+	    }
 	}
-	
-	set b [dict filter $b script {flow flowvalue} {expr {$flowvalue != 0}}]
-	
-	$LevelGraph destroy
-	#10.
-	return $b
+    }
+
+    set b [dict filter $b script {flow flowvalue} {expr {$flowvalue != 0}}]
+
+    $LevelGraph destroy
+    #10.
+    return $b
 }
 
 #Subprocedure for algorithms that find blocking-flows.
 #It's creating a level graph from the residual network.
 proc ::struct::graph::op::createLevelGraph {Gf s} {
 
-	set LevelGraph [struct::graph]
-	
-	$Gf arc setunweighted 1
-	
-	#deleting arcs with 0 throughputs for proper pathfinding
-	foreach arc [$Gf arcs] {
-		if { [$Gf arc get $arc throughput] == 0 } {
-			$Gf arc delete $arc
-		}
+    set LevelGraph [struct::graph]
+
+    $Gf arc setunweighted 1
+
+    #deleting arcs with 0 throughputs for proper pathfinding
+    foreach arc [$Gf arcs] {
+	if { [$Gf arc get $arc throughput] == 0 } {
+	    $Gf arc delete $arc
 	}
-	
-	set distances [ShortestsPathsByBFS $Gf $s distances]
-	
-	foreach v [$Gf nodes] {
-		$LevelGraph node insert $v
-		$LevelGraph node set $v distance [dict get $distances $v]
+    }
+
+    set distances [ShortestsPathsByBFS $Gf $s distances]
+
+    foreach v [$Gf nodes] {
+	$LevelGraph node insert $v
+	$LevelGraph node set $v distance [dict get $distances $v]
+    }
+
+    foreach e [$Gf arcs] {
+	set u [$Gf arc source $e]
+	set v [$Gf arc target $e]
+
+	if { ([$LevelGraph node get $u distance] + 1) == [$LevelGraph node get $v distance]} {
+	    $LevelGraph arc insert $u $v [list $u $v]
+	    $LevelGraph arc set [list $u $v] throughput [$Gf arc get $e throughput]
 	}
-	
-	foreach e [$Gf arcs] {
-		set u [$Gf arc source $e]
-		set v [$Gf arc target $e]
-		
-		if { ([$LevelGraph node get $u distance] + 1) == [$LevelGraph node get $v distance]} {
-			$LevelGraph arc insert $u $v [list $u $v]
-			$LevelGraph arc set [list $u $v] throughput [$Gf arc get $e throughput]
-		}
-	}
-	
-	$LevelGraph arc setunweighted 1
-	return $LevelGraph
+    }
+
+    $LevelGraph arc setunweighted 1
+    return $LevelGraph
 }
 
 #Subprocedure for blocking flow finding by MKM algorithm
 #
-#It computes for graph G and each of his nodes the throughput value - 
+#It computes for graph G and each of his nodes the throughput value -
 #for node v: from the sum of availiable throughputs from incoming arcs and
 #the sum of availiable throughputs from outcoming arcs chooses lesser and sets
 #as the throughput of the node.
@@ -2366,34 +2365,34 @@ proc ::struct::graph::op::createLevelGraph {Gf s} {
 #
 proc ::struct::graph::op::countThroughputsAtNodes {G s t} {
 
-	set c {}
-	foreach v [$G nodes] {
-		
-		if { ($v eq $t) || ($v eq $s) } continue
-		
-		set outcoming [$G arcs -out $v]
-		set incoming [$G arcs -in $v]
-		
-		set outsum 0
-		set insum 0
-		
-		foreach o $outcoming i $incoming {
-					
-			if { [llength $o] > 0 } {
-				set outsum [ expr { $outsum + [$G arc get $o throughput] } ]
-			}
-			
-			if { [llength $i] > 0 } {
-				set insum [ expr { $insum + [$G arc get $i throughput] } ]
-			}
-			
-			set value [Min $outsum $insum]
-		}
-		
-		dict set c $v $value
+    set c {}
+    foreach v [$G nodes] {
+
+	if { ($v eq $t) || ($v eq $s) } continue
+
+	set outcoming [$G arcs -out $v]
+	set incoming [$G arcs -in $v]
+
+	set outsum 0
+	set insum 0
+
+	foreach o $outcoming i $incoming {
+
+	    if { [llength $o] > 0 } {
+		set outsum [ expr { $outsum + [$G arc get $o throughput] } ]
+	    }
+
+	    if { [llength $i] > 0 } {
+		set insum [ expr { $insum + [$G arc get $i throughput] } ]
+	    }
+
+	    set value [Min $outsum $insum]
 	}
-		
-	return $c
+
+	dict set c $v $value
+    }
+
+    return $c
 }
 
 #Subprocedure for blocking-flow finding algorithm by MKM
@@ -2402,23 +2401,23 @@ proc ::struct::graph::op::countThroughputsAtNodes {G s t} {
 #has to be send back by that subprocedure.
 proc ::struct::graph::op::sendBack {G node b value} {
 
-	foreach arc [$G arcs -in $node] {
-		set u [$G arc source $arc]
-		set v [$G arc target $arc]
-		
-		if { $value > [$G arc get $arc throughput] } {
-			set value [ expr { $value - [$G arc get $arc throughput] } ]
-			dict set b [list $u $v] [ expr { [dict get $b [list $u $v]] + [$G arc get $arc throughput] } ]
-			$G arc set $arc throughput 0
-		} else {
-			$G arc set $arc throughput [ expr { [$G arc get $arc throughput] - $value } ]
-			dict set b [list $u $v] [ expr { [dict get $b [list $u $v]] + $value } ]
-			set value 0
-			break
-		}
+    foreach arc [$G arcs -in $node] {
+	set u [$G arc source $arc]
+	set v [$G arc target $arc]
+
+	if { $value > [$G arc get $arc throughput] } {
+	    set value [ expr { $value - [$G arc get $arc throughput] } ]
+	    dict set b [list $u $v] [ expr { [dict get $b [list $u $v]] + [$G arc get $arc throughput] } ]
+	    $G arc set $arc throughput 0
+	} else {
+	    $G arc set $arc throughput [ expr { [$G arc get $arc throughput] - $value } ]
+	    dict set b [list $u $v] [ expr { [dict get $b [list $u $v]] + $value } ]
+	    set value 0
+	    break
 	}
-	
-	return $b
+    }
+
+    return $b
 }
 
 #Subprocedure for blocking-flow finding algorithm by MKM
@@ -2426,26 +2425,26 @@ proc ::struct::graph::op::sendBack {G node b value} {
 #If for a given input node, incoming flow is bigger than outcoming, then that exceed
 #has to be send forward by that sub procedure.
 proc ::struct::graph::op::sendForward {G node b value} {
-	
-	foreach arc [$G arcs -out $node] {
-		
-		set u [$G arc source $arc]
-		set v [$G arc target $arc]
-		
-		if { $value > [$G arc get $arc throughput] } {
-			set value [ expr { $value - [$G arc get $arc throughput] } ]
-			dict set b [list $u $v] [ expr { [dict get $b [list $u $v]] + [$G arc get $arc throughput] } ]
-			$G arc set $arc throughput 0
-		} else {
-			$G arc set $arc throughput [ expr { [$G arc get $arc throughput] - $value } ]
-			dict set b [list $u $v] [ expr { [dict get $b [list $u $v]] + $value } ]
-			
-			set value 0
-			break
-		}
+
+    foreach arc [$G arcs -out $node] {
+
+	set u [$G arc source $arc]
+	set v [$G arc target $arc]
+
+	if { $value > [$G arc get $arc throughput] } {
+	    set value [ expr { $value - [$G arc get $arc throughput] } ]
+	    dict set b [list $u $v] [ expr { [dict get $b [list $u $v]] + [$G arc get $arc throughput] } ]
+	    $G arc set $arc throughput 0
+	} else {
+	    $G arc set $arc throughput [ expr { [$G arc get $arc throughput] - $value } ]
+	    dict set b [list $u $v] [ expr { [dict get $b [list $u $v]] + $value } ]
+
+	    set value 0
+	    break
 	}
-	
-	return $b
+    }
+
+    return $b
 }
 
 #Subprocedure for blocking-flow finding algorithm by MKM
@@ -2459,21 +2458,21 @@ proc ::struct::graph::op::sendForward {G node b value} {
 #
 proc ::struct::graph::op::findExcess {G node b} {
 
-	set incoming 0
-	set outcoming 0
-	
-	foreach key [dict keys $b] {
-		
-		lassign $key u v
-		if { $u eq $node } {
-			set outcoming [ expr { $outcoming + [dict get $b $key] } ]
-		}
-		if { $v eq $node } {
-			set incoming [ expr { $incoming + [dict get $b $key] } ]
-		}		
+    set incoming 0
+    set outcoming 0
+
+    foreach key [dict keys $b] {
+
+	lassign $key u v
+	if { $u eq $node } {
+	    set outcoming [ expr { $outcoming + [dict get $b $key] } ]
 	}
-	
-	return [ expr { $incoming - $outcoming } ]
+	if { $v eq $node } {
+	    set incoming [ expr { $incoming + [dict get $b $key] } ]
+	}
+    }
+
+    return [ expr { $incoming - $outcoming } ]
 }
 
 #Travelling Salesman Problem - Heuristic of local searching
@@ -2482,203 +2481,203 @@ proc ::struct::graph::op::findExcess {G node b} {
 #
 
 proc ::struct::graph::op::TSPLocalSearching {G C} {
-	
-	foreach arc $C {
-		if { ![$G arc exists $arc] } {
-			return -code error "Given cycle has arcs not included in graph G."
+
+    foreach arc $C {
+	if { ![$G arc exists $arc] } {
+	    return -code error "Given cycle has arcs not included in graph G."
+	}
+    }
+
+    #initialization
+    set CGraph [struct::graph]
+    set GCopy [struct::graph]
+    set w 0
+
+    foreach node [$G nodes] {
+	$CGraph node insert $node
+	$GCopy node insert $node
+    }
+
+    foreach arc [$G arcs] {
+	set u [$G arc source $arc]
+	set v [$G arc target $arc]
+	$GCopy arc insert $u $v [list $u $v]
+	$GCopy arc set [list $u $v] weight [$G arc get $arc weight]
+    }
+
+    foreach arc $C {
+
+	set u [$G arc source $arc]
+	set v [$G arc target $arc]
+	set arcWeight [$G arc get $arc weight]
+
+	$CGraph arc insert $u $v [list $u $v]
+	$CGraph arc set [list $u $v] weight $arcWeight
+
+	set w [ expr { $w + $arcWeight } ]
+    }
+
+    set reductionDone 1
+
+    while { $reductionDone } {
+
+	set queue {}
+	set reductionDone 0
+
+	#double foreach loop goes through all pairs of arcs
+	foreach i [$CGraph arcs] {
+
+	    #source and target nodes of first arc
+	    set iu [$CGraph arc source $i]
+	    set iv [$CGraph arc target $i]
+
+	    #second arc
+	    foreach j [$CGraph arcs] {
+
+		#if pair of arcs already was considered, continue with next pair of arcs
+		if { [list $j $i] ni $queue } {
+
+		    #add current arc to queue to mark that it was used
+		    lappend queue [list $i $j]
+
+		    set ju [$CGraph arc source $j]
+		    set jv [$CGraph arc target $j]
+
+		    #we consider only arcs that are not adjacent
+		    if { !($iu eq $ju) && !($iu eq $jv) && !($iv eq $ju) && !($iv eq $jv) } {
+
+			#set the current cycle
+			set CPrim [copyGraph $CGraph]
+
+			#transform the current cycle:
+			#1.
+			$CPrim arc delete $i
+			$CPrim arc delete $j
+
+
+			set param 0
+
+			#adding new edges instead of erased ones
+			if { !([$CPrim arc exists [list $iu $ju]] || [$CPrim arc exists [list $iv $jv]] || [$CPrim arc exists [list $ju $iu]] || [$CPrim arc exists [list $jv $iv]] ) } {
+
+			    $CPrim arc insert $iu $ju [list $iu $ju]
+			    $CPrim arc insert $iv $jv [list $iv $jv]
+
+			    if { [$GCopy arc exists [list $iu $ju]] } {
+				$CPrim arc set [list $iu $ju] weight [$GCopy arc get [list $iu $ju] weight]
+			    } else {
+				$CPrim arc set [list $iu $ju] weight [$GCopy arc get [list $ju $iu] weight]
+			    }
+
+			    if { [$GCopy arc exists [list $iv $jv]] } {
+				$CPrim arc set [list $iv $jv] weight [$GCopy arc get [list $iv $jv] weight]
+			    } else {
+				$CPrim arc set [list $iv $jv] weight [$GCopy arc get [list $jv $iv] weight]
+			    }
+			} else {
+			    set param 1
+			}
+
+			$CPrim arc setunweighted 1
+
+			#check if it's still a cycle or if any arcs were added instead those erased
+			if { !([struct::graph::op::distance $CPrim $iu $ju] > 0 ) || $param } {
+
+			    #deleting new edges if they were added before in current iteration
+			    if { !$param } {
+				$CPrim arc delete [list $iu $ju]
+			    }
+
+			    if { !$param } {
+				$CPrim arc delete [list $iv $jv]
+			    }
+
+			    #adding new ones that will assure the graph is still a cycle
+			    $CPrim arc insert $iu $jv [list $iu $jv]
+			    $CPrim arc insert $iv $ju [list $iv $ju]
+
+			    if { [$GCopy arc exists [list $iu $jv]] } {
+				$CPrim arc set [list $iu $jv] weight [$GCopy arc get [list $iu $jv] weight]
+			    } else {
+				$CPrim arc set [list $iu $jv] weight [$GCopy arc get [list $jv $iu] weight]
+			    }
+
+			    if { [$GCopy arc exists [list $iv $ju]] } {
+				$CPrim arc set [list $iv $ju] weight [$GCopy arc get [list $iv $ju] weight]
+			    } else {
+				$CPrim arc set [list $iv $ju] weight [$GCopy arc get [list $ju $iv] weight]
+			    }
+			}
+
+			#count current value of cycle
+			set cycleWeight [countCycleWeight $CPrim]
+
+			#if we found cycle with lesser sum of weights, we set is as a result and
+			#marked that reduction was successful
+			if { $w > $cycleWeight } {
+			    set w $cycleWeight
+			    set reductionDone 1
+			    set C [$CPrim arcs]
+			}
+
+			$CPrim destroy
+		    }
 		}
+	    }
 	}
-	
-	#initialization
-	set CGraph [struct::graph]
-	set GCopy [struct::graph]
-	set w 0
-	
-	foreach node [$G nodes] {
-		$CGraph node insert $node
-		$GCopy node insert $node
-	}
-	
-	foreach arc [$G arcs] {
-		set u [$G arc source $arc]
-		set v [$G arc target $arc]
-		$GCopy arc insert $u $v [list $u $v]
-		$GCopy arc set [list $u $v] weight [$G arc get $arc weight]
-	}
-	
-	foreach arc $C {
-	
-		set u [$G arc source $arc]
-		set v [$G arc target $arc]
-		set arcWeight [$G arc get $arc weight]
-		
-		$CGraph arc insert $u $v [list $u $v]
-		$CGraph arc set [list $u $v] weight $arcWeight
-			
-		set w [ expr { $w + $arcWeight } ]
-	}
-	
-	set reductionDone 1
-		
-	while { $reductionDone } {
-	
-		set queue {}
-		set reductionDone 0
-		
-		#double foreach loop goes through all pairs of arcs
-		foreach i [$CGraph arcs] {
-	
-			#source and target nodes of first arc
-			set iu [$CGraph arc source $i]
-			set iv [$CGraph arc target $i]
-		
-			#second arc
-			foreach j [$CGraph arcs] {
-			
-				#if pair of arcs already was considered, continue with next pair of arcs
-				if { [list $j $i] ni $queue } {
-			
-					#add current arc to queue to mark that it was used
-					lappend queue [list $i $j]
-			
-					set ju [$CGraph arc source $j]
-					set jv [$CGraph arc target $j]
-				
-					#we consider only arcs that are not adjacent
-					if { !($iu eq $ju) && !($iu eq $jv) && !($iv eq $ju) && !($iv eq $jv) } {
-				
-						#set the current cycle
-						set CPrim [copyGraph $CGraph]
-					
-						#transform the current cycle:
-						#1.
-						$CPrim arc delete $i
-						$CPrim arc delete $j
-					
-					
-						set param 0
-					
-						#adding new edges instead of erased ones
-						if { !([$CPrim arc exists [list $iu $ju]] || [$CPrim arc exists [list $iv $jv]] || [$CPrim arc exists [list $ju $iu]] || [$CPrim arc exists [list $jv $iv]] ) } { 
-					
-							$CPrim arc insert $iu $ju [list $iu $ju]
-							$CPrim arc insert $iv $jv [list $iv $jv]
-						
-							if { [$GCopy arc exists [list $iu $ju]] } {
-								$CPrim arc set [list $iu $ju] weight [$GCopy arc get [list $iu $ju] weight]
-							} else {
-								$CPrim arc set [list $iu $ju] weight [$GCopy arc get [list $ju $iu] weight]
-							}
-						
-							if { [$GCopy arc exists [list $iv $jv]] } {
-								$CPrim arc set [list $iv $jv] weight [$GCopy arc get [list $iv $jv] weight]
-							} else {
-								$CPrim arc set [list $iv $jv] weight [$GCopy arc get [list $jv $iv] weight]
-							}
-						} else {
-							set param 1
-						}
-					
-						$CPrim arc setunweighted 1
-					
-						#check if it's still a cycle or if any arcs were added instead those erased
-						if { !([struct::graph::op::distance $CPrim $iu $ju] > 0 ) || $param } {
-					
-							#deleting new edges if they were added before in current iteration
-							if { !$param } {
-								$CPrim arc delete [list $iu $ju]
-							}						
-						
-							if { !$param } {
-								$CPrim arc delete [list $iv $jv]
-							}
-						
-							#adding new ones that will assure the graph is still a cycle
-							$CPrim arc insert $iu $jv [list $iu $jv]
-							$CPrim arc insert $iv $ju [list $iv $ju]
-					
-							if { [$GCopy arc exists [list $iu $jv]] } {
-								$CPrim arc set [list $iu $jv] weight [$GCopy arc get [list $iu $jv] weight]
-							} else {
-								$CPrim arc set [list $iu $jv] weight [$GCopy arc get [list $jv $iu] weight]
-							}
-					
-							if { [$GCopy arc exists [list $iv $ju]] } {
-								$CPrim arc set [list $iv $ju] weight [$GCopy arc get [list $iv $ju] weight]
-							} else {
-								$CPrim arc set [list $iv $ju] weight [$GCopy arc get [list $ju $iv] weight]
-							}
-						}
-					
-						#count current value of cycle
-						set cycleWeight [countCycleWeight $CPrim]
-					
-						#if we found cycle with lesser sum of weights, we set is as a result and
-						#marked that reduction was successful
-						if { $w > $cycleWeight } {
-							set w $cycleWeight
-							set reductionDone 1
-							set C [$CPrim arcs]
-						}
-					
-						$CPrim destroy
-					}
-				}
-			}
+
+	#setting the new current cycle if the reduction was successful
+	if { $reductionDone } {
+	    foreach arc [$CGraph arcs] {
+		$CGraph arc delete $arc
+	    }
+	    for {set i 0} { $i < [llength $C] } { incr i } {
+		lset C $i [lsort [lindex $C $i]]
+	    }
+
+	    foreach arc [$GCopy arcs] {
+		if { [lsort $arc] in $C } {
+		    set u [$GCopy arc source $arc]
+		    set v [$GCopy arc target $arc]
+		    $CGraph arc insert $u $v [list $u $v]
+		    $CGraph arc set $arc weight [$GCopy arc get $arc weight]
 		}
-		
-		#setting the new current cycle if the reduction was successful	
-		if { $reductionDone } {
-			foreach arc [$CGraph arcs] {
-				$CGraph arc delete $arc
-			}
-			for {set i 0} { $i < [llength $C] } { incr i } {
-				lset C $i [lsort [lindex $C $i]]
-			}
-		
-			foreach arc [$GCopy arcs] {
-				if { [lsort $arc] in $C } {
-					set u [$GCopy arc source $arc]
-					set v [$GCopy arc target $arc]
-					$CGraph arc insert $u $v [list $u $v]
-					$CGraph arc set $arc weight [$GCopy arc get $arc weight]
-				}
-			}
-		}
+	    }
 	}
-	
-	$GCopy destroy
-	$CGraph destroy
-	
-	return $C
+    }
+
+    $GCopy destroy
+    $CGraph destroy
+
+    return $C
 }
 
 proc ::struct::graph::op::copyGraph {G} {
-	
-	set newGraph [struct::graph]
-	
-	foreach node [$G nodes] {
-		$newGraph node insert $node
-	}
-	foreach arc [$G arcs] {
-		set u [$G arc source $arc]
-		set v [$G arc target $arc]
-		$newGraph arc insert $u $v $arc
-		$newGraph arc set $arc weight [$G arc get $arc weight]
-	}
-	
-	return $newGraph
+
+    set newGraph [struct::graph]
+
+    foreach node [$G nodes] {
+	$newGraph node insert $node
+    }
+    foreach arc [$G arcs] {
+	set u [$G arc source $arc]
+	set v [$G arc target $arc]
+	$newGraph arc insert $u $v $arc
+	$newGraph arc set $arc weight [$G arc get $arc weight]
+    }
+
+    return $newGraph
 }
 
 proc ::struct::graph::op::countCycleWeight {G} {
-	
-	set result 0 
-	
-	foreach arc [$G arcs] {
-		set result [ expr { $result + [$G arc get $arc weight] } ]
-	}
-	
-	return $result
+
+    set result 0
+
+    foreach arc [$G arcs] {
+	set result [ expr { $result + [$G arc get $arc weight] } ]
+    }
+
+    return $result
 }
 
 # ### ### ### ######### ######### #########
@@ -2790,11 +2789,11 @@ proc ::struct::graph::op::prim {g} {
 
     # More data structures, the result arrays.
     array set weightmap {} ; # maps nodes to min arc weight seen so
-			     # far. This is the threshold other arcs
-			     # on this node will have to beat to be
-			     # added to the MST.
+    # far. This is the threshold other arcs
+    # on this node will have to beat to be
+    # added to the MST.
     array set arcmap    {} ; # maps arcs to nothing, these are the
-			     # arcs in the MST.
+    # arcs in the MST.
 
     while {[array size unvisited]} {
 	# Choose a 'random' node as the starting point for the inner
@@ -2917,7 +2916,7 @@ proc ::struct::graph::op::isBipartite? {g {bipartitionvar {}}} {
 	# Flip the color, then travel the component and check for
 	# conflicts with the neighbours.
 
-	set color($node) 1 
+	set color($node) 1
 
 	$pending put $node
 	while {[$pending size]} {
@@ -2963,7 +2962,7 @@ proc ::struct::graph::op::isBipartite? {g {bipartitionvar {}}} {
 	set bipartitions [list $X $Y]
     }
 
-    return 1 
+    return 1
 }
 
 # ### ### ### ######### ######### #########
@@ -2975,9 +2974,9 @@ proc ::struct::graph::op::isBipartite? {g {bipartitionvar {}}} {
 # bi-partite. Use the command 'isBipartite?' to check for this
 # property, and to obtain the bi-partition.
 if 0 {
-proc ::struct::graph::op::maxMatching {g X Y} {
-    return -code error "not implemented yet"
-}}
+    proc ::struct::graph::op::maxMatching {g X Y} {
+	return -code error "not implemented yet"
+    }}
 
 # ### ### ### ######### ######### #########
 ##
@@ -3123,7 +3122,7 @@ proc ::struct::graph::op::connectedComponentOf {g n} {
     return [ComponentOf $g $n]
 }
 
-# Internal helper for finding connected components. 
+# Internal helper for finding connected components.
 
 proc ::struct::graph::op::ComponentOf {g start} {
     set pending [::struct::queue pending]
@@ -3344,7 +3343,7 @@ proc ::struct::graph::op::isSemiEulerian? {g {eulervar {}}} {
 
 proc ::struct::graph::op::Fleury {g start eulervar} {
     upvar 1 $eulervar path
-	
+
     # We start at the chosen node.
 
     set copy  [struct::graph FleuryCopy = $g]
@@ -3378,13 +3377,13 @@ proc ::struct::graph::op::Fleury {g start eulervar} {
 		return -code error {Internal error}
 	    }
 	}
-	
+
 	set start [$copy node opposite $start $arc]
 	$copy arc delete $arc
 	struct::set exclude arcs $arc
 	lappend path $arc
     }
-	
+
     $copy destroy
     return
 }
@@ -3428,7 +3427,7 @@ proc ::struct::graph::op::dijkstra {g node args} {
 		    }
 		}
 	    }
-	    default {		
+	    default {
 		return -code error "Bad option \"$option\", expected one of \"-arcmode\" or \"-outputformat\""
 	    }
 	}
@@ -3548,7 +3547,7 @@ proc ::struct::graph::op::distance {g origin destination args} {
 		    }
 		}
 	    }
-	    default {		
+	    default {
 		return -code error "Bad option \"$option\", expected \"-arcmode\""
 	    }
 	}
@@ -3592,7 +3591,7 @@ proc ::struct::graph::op::eccentricity {g node args} {
 		    }
 		}
 	    }
-	    default {		
+	    default {
 		return -code error "Bad option \"$option\", expected \"-arcmode\""
 	    }
 	}
@@ -3642,7 +3641,7 @@ proc ::struct::graph::op::RD {g options} {
 		    }
 		}
 	    }
-	    default {		
+	    default {
 		return -code error "Bad option \"$option\", expected \"-arcmode\""
 	    }
 	}
