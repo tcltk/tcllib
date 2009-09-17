@@ -88,7 +88,7 @@ by the caller, but this is optional. The default is '"'.
 
 [para]
 
-If the option [option -alternate] is spcified a slightly different
+If the option [option -alternate] is specified a slightly different
 syntax is used to parse the input. This syntax is explained below, in
 the section [sectref FORMAT].
 
@@ -175,7 +175,7 @@ i.e. that the value was not quoted.
 [para]
 
 An alternate format definition mainly used by MS products specifies
-that the output string "" is an representatation of the empty
+that the output string "" is a representation of the empty
 string. In other words, it is assumed that the output was generated
 out of the empty string by quoting it (i.e. rule 2), and not through
 rule 3. This is the only difference between the regular and the
