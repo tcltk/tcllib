@@ -232,7 +232,7 @@ qum_PEEK (Q* q, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv, int get)
 	    if (get) {
 		/* XXX AK : Should maintain max size info, and proper index, for discard. */
 		Tcl_ListObjReplace (interp, q->unget, j, i, 0, NULL);
-		// XXX CHECK index calcs.
+		/* XXX CHECK index calcs. */
 	    }
 	}
 	if (i < n) {

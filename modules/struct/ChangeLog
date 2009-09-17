@@ -1,3 +1,9 @@
+2009-09-17  Andreas Kupries  <andreask@activestate.com>
+
+	* queue/m.c (qum_PEEK): Convert C99/C++ comment to C89
+	  comment. Some unix compilers, like AIX are strict C89 and fail
+	  on this.
+
 2009-09-16  Andreas Kupries  <andreask@activestate.com>
 
 	* graph/tests/XOpsControl: Added testsuite for maxcut.
