@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: graphops.tcl,v 1.14 2009/09/16 18:51:16 andreas_kupries Exp $
+# RCS: @(#) $Id: graphops.tcl,v 1.15 2009/09/21 23:48:02 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -461,6 +461,8 @@ proc ::struct::graph::op::MetricTravellingSalesman { G } {
     #checking if all weights are set
     VerifyWeightsAreOk $G
 
+    # Extend graph to make it complete.
+    # NOTE: The graph is modified in place.
     createCompleteGraph $G originalEdges
 
     #create minimum spanning tree for graph G
@@ -474,7 +476,52 @@ proc ::struct::graph::op::MetricTravellingSalesman { G } {
     set result [findHamiltonCycle $TGraph $originalEdges $G]
 
     $TGraph destroy
+
+    # Note: Fleury, which is the algorithm used to find our the cycle
+    # (inside of isEulerian?) is inherently directionless, i.e. it
+    # doesn't care about arc direction. This does not matter if our
+    # input is a symmetric graph, i.e. u->v and v->u have the same
+    # weight for all nodes u, v in G, u != v. But for an asymmetric
+    # graph as our input we really have to check the two possible
+    # directions of the returned tour for the one with the smaller
+    # weight. See test case MetricTravellingSalesman-1.1 for an
+    # exmaple.
+
+    set w {}
+    foreach a [$G arcs] {
+	set u [$G arc source $a]
+	set v [$G arc target $a]
+	set uv [list $u $v]
+	# uv = <$G arc nodes $arc>
+	dict set w $uv [$G arc getweight $a]
+    }
+    foreach k [dict keys $w] {
+	lassign $k u v
+	set vu [list $v $u]
+	if {[dict exists $w $vu]} continue
+	dict set w $vu [dict get $w $k]
+    }
+
+    set reversed [lreverse $result]
+
+    if {[TourWeight $w $result] > [TourWeight $w $reversed]} {
+	return $reversed
+    }
     return $result
+}
+
+proc ::struct::graph::op::TourWeight {w tour} {
+    set total 0
+    foreach \
+	u [lrange $tour 0 end-1] \
+	v [lrange $tour 1 end] {
+	    set uv [list $u $v]
+	    set total [expr {
+			     $total +
+			     [dict get $w $uv]
+			 }]
+	}
+    return $total
 }
 
 #Christofides Algorithm - for Metric Travelling Salesman Problem (TSP)
@@ -516,7 +563,6 @@ proc ::struct::graph::op::Christofides { G } {
 
     set oddTGraph [struct::graph]
 
-    set oddNodes {}
     foreach v [$TGraph nodes] {
 	if { [$TGraph node degree $v] % 2 == 1 } {
 	    $oddTGraph node insert $v
@@ -526,7 +572,7 @@ proc ::struct::graph::op::Christofides { G } {
     #create complete graph
     foreach v [$oddTGraph nodes] {
 	foreach u [$oddTGraph nodes] {
-	    if { ($u != $v) && ![$oddTGraph arc exists [list $u $v]] } {
+	    if { ($u ne $v) && ![$oddTGraph arc exists [list $u $v]] } {
 		$oddTGraph arc insert $v $u [list $v $u]
 		$oddTGraph arc setweight [list $v $u] [distance $G $v $u]
 	    }
@@ -547,10 +593,21 @@ proc ::struct::graph::op::Christofides { G } {
 
     #operation: M + T
     foreach e [$oddTGraph arcs] {
-	set v [$oddTGraph arc source $e]
-	set u [$oddTGraph arc target $e]
-	$TGraph arc insert $u $v [list $u $v]
-	$TGraph arc setweight [list $u $v] [$oddTGraph arc getweight $e]
+	set u [$oddTGraph arc source $e]
+	set v [$oddTGraph arc target $e]
+	set uv [list $u $v]
+
+	# Check if the arc in max-matching is parallel or not, to make
+	# sure that we always insert an anti-parallel arc.
+
+	if {[$TGraph arc exists $uv]} {
+	    set vu [list $v $u]
+	    $TGraph arc insert $v $u $vu
+	    $TGraph arc setweight $vu [$oddTGraph arc getweight $e]
+	} else {
+	    $TGraph arc insert $u $v $uv
+	    $TGraph arc setweight $uv [$oddTGraph arc getweight $e]
+	}
     }
 
     #finding Hamilton Cycle
@@ -654,13 +711,24 @@ proc ::struct::graph::op::sortGraph {G sortMode} {
 
 proc ::struct::graph::op::findHamiltonCycle {G originalEdges originalGraph} {
 
-    isEulerian? $G tourvar
-    lappend result [$G arc source [lindex $tourvar 0]]
+    isEulerian? $G tourvar tourstart
 
+    # Note: The start node is not necessarily the source node of the
+    # first arc in the tour. The Fleury in isEulerian? may have walked
+    # the arcs against! their direction. See also the note in our
+    # caller (MetricTravellingSalesman).
+
+    # Instead of reconstructing the start node by intersecting the
+    # node-set for first and last arc, we are taking the easy and get
+    # it directly from isEulerian?, as that command knows which node
+    # it had chosen for this.
+
+    lappend result $tourstart
     lappend tourvar [lindex $tourvar 0]
 
+    set v $tourstart
     foreach i $tourvar {
-	set u [$G arc target $i]
+	set u [$G node opposite $v $i]
 
 	if { $u ni $result } {
 	    set va [lindex $result end]
@@ -682,6 +750,7 @@ proc ::struct::graph::op::findHamiltonCycle {G originalEdges originalGraph} {
 		lappend result $vb
 	    }
 	}
+	set v $u
     }
 
     set path [dict get [dijkstra $originalGraph [lindex $result 0]] [lindex $result end]]
@@ -692,7 +761,8 @@ proc ::struct::graph::op::findHamiltonCycle {G originalEdges originalGraph} {
     if { [llength $path] } {
 	lappend result {*}$path
     }
-    lappend result [$G arc source [lindex $tourvar 0]]
+
+    lappend result $tourstart
     return $result
 }
 
@@ -710,8 +780,6 @@ proc ::struct::graph::op::findHamiltonCycle {G originalEdges originalGraph} {
 #
 
 proc ::struct::graph::op::createTGraph {G Edges doubledArcs} {
-    set TGraph [struct::graph]
-
     #checking if given set of edges is proper (all edges are in graph G)
     foreach e $Edges {
 	if { ![$G arc exists $e] } {
@@ -719,7 +787,7 @@ proc ::struct::graph::op::createTGraph {G Edges doubledArcs} {
 	}
     }
 
-    #checking if
+    set TGraph [struct::graph]
 
     #fill TGraph with nodes
     foreach v [$G nodes] {
@@ -3248,7 +3316,7 @@ proc ::struct::graph::op::isConnected? {g} {
 # nodes have an odd degree the graph is not even semi-eulerian (cannot
 # even have an euler path).
 
-proc ::struct::graph::op::isEulerian? {g {eulervar {}}} {
+proc ::struct::graph::op::isEulerian? {g {eulervar {}} {tourstart {}}} {
     set nodes [$g nodes]
     if {![llength $nodes] || ![llength [$g arcs]]} {
 	# Quick bailout for special cases. No nodes, or no arcs imply
@@ -3274,15 +3342,19 @@ proc ::struct::graph::op::isEulerian? {g {eulervar {}}} {
     # tour. If the user doesn't request it we do not waste the time to
     # actually compute one.
 
+    if {$tourstart ne ""} {
+	upvar 1 $tourstart start
+    }
+
+    # We start the tour at an arbitrary node.
+    set start [lindex $nodes 0]
+
     if {$eulervar eq ""} {
 	return 1
     }
 
     upvar 1 $eulervar tour
-
-    # We start the tour at an arbitrary node.
-
-    Fleury $g [lindex $nodes 0] tour
+    Fleury $g $start tour
     return 1
 }
 
@@ -3700,4 +3772,4 @@ namespace eval ::struct::graph::op {
     #namespace export ...
 }
 
-package provide struct::graph::op 0.10
+package provide struct::graph::op 0.11
