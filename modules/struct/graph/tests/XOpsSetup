@@ -4,7 +4,7 @@
 # Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: XOpsSetup,v 1.9 2009/09/15 19:24:12 andreas_kupries Exp $
+# RCS: @(#) $Id: XOpsSetup,v 1.10 2009/09/21 23:48:03 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -1359,7 +1359,7 @@ proc SETUP_CREATETGRAPH_3 {E} {
 	mygraph arc insert node4 node1 edge41
 	mygraph arc setweight edge41 4
 	
-	set edges "edge14 edge41 edge13"
+	set edges {edge14 edge41 edge13}
 	return
 	
 }
@@ -2735,7 +2735,7 @@ proc SETUP_TSPHEURISTIC_1 {C} {
 	mygraph arc insert d e de
 	mygraph arc set de weight 21
 
-	lappend _C ab bc cd de ae
+	set _C {ab bc cd de ae}
 	
 	return
 }

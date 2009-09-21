@@ -1,3 +1,43 @@
+2009-09-21  Andreas Kupries  <andreask@activestate.com>
+
+	* graph/tests/XOpsControl: Added the testsuites for metrictsp,
+	  christofides and tspheuristics.
+	* graph/tests/ops/metrictsp.test: Testsuite for metrictsp.
+	* graph/tests/ops/christofides.test: Testsuite for christofides.
+	* graph/tests/ops/tspheuristics.test: Testsuite for tspheuristics.
+	  Changes compared to GSoC result:
+	  - Test names extended with 'treeimpl'.
+	  - Indentation, line-endings
+	  - Conversion to v2 syntax, and cleanup of resource handling.
+	  - Updated results for different implementations, sorting.
+
+	* graph/tests/XOpsSetup (SETUP_TSPHEURISTIC_1): Fixed growing
+	  cycle list throwing of repeated execution of the same test.
+
+	* graph/tests/Xsupport: Added helper commands for the test cases
+	  of the various metric tsp commands (canonical tours, ...).
+
+	* graph/tests/Xsetup (tmSE): Added result selection based on
+	  implementation of struct::set.
+
+	* graphops.tcl (::struct::graph::op::MetricTravellingSalesman):
+	  Fixed problem in algorithm for asymmetric TSP, selecting the
+	  tour in the wrong (higher-weight) direction. The Fleury
+	  underneath does not care about arc direction.
+	  (::struct::graph::op::Christofides): Dropped superfluous
+	  variable and fixed M+T operation. The matching does not care
+	  about arc direction, and we have insert anti-parallel arcs to
+	  avoid any existing.
+	  (::struct::graph::op::isEulerian?): Extended API to return
+	  tour start. Computable from the arcs, but not easy. Better to get
+	  it from the algorithm which knows by definition.
+	  (::struct::graph::op::findHamiltonCycle): Get tour start from
+	  isEulerian, and drop bogus computation from the tour arcs.
+	  (::struct::graph::op::createTGraph): Moved graph creation after
+	  error check to avoid a leak when the check fails.
+	* graphops.man: Bumped version to 0.11
+	* pkgIndex.tcl: (isEulerian API extension, plus bugfixes).
+
 2009-09-17  Andreas Kupries  <andreask@activestate.com>
 
 	* queue/m.c (qum_PEEK): Convert C99/C++ comment to C89
