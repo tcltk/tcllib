@@ -1,3 +1,15 @@
+2009-09-22  Andreas Kupries  <andreask@activestate.com>
+
+	* graph/tests/XOpsControl: Added testsuite for vertex cover.
+	* graph/tests/ops/verticescover.test: Testsuite for vertex cover.
+	  Changes compared to GSoC result:
+	  - Test names extended with 'treeimpl'.
+	  - Indentation, line-endings
+	  - Several tests demonstrates how the result is influenced by
+	    node ordering. Extended to accept the variations.
+	  This passes the testsuite for both tcl and critcl
+	  implementations of struct::graph.
+
 2009-09-21  Andreas Kupries  <andreask@activestate.com>
 
 	* graph/tests/XOpsControl: Added the testsuites for metrictsp,
