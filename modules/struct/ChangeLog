@@ -1,5 +1,22 @@
 2009-09-22  Andreas Kupries  <andreask@activestate.com>
 
+	* graph/tests/XOpsControl: Added testsuite for k-center.
+	* graph/tests/ops/kcenter.test: Testsuite for k-center.
+	  Changes compared to GSoC result:
+	  - Test names extended with 'treeimpl'.
+	  - Indentation, line-endings
+	  - Several tests demonstrates how the result is influenced by
+	    node ordering. Extended to accept the variations.
+	  - Custom matcher/verifier for max-independent-set.
+	  Note: SETUP_KCENTER_1 is not creating a complete graph,
+	  violating the pre-conditions of the algorithm. This affects test
+	  cases 1.3 - 1.6, it is not clear if their results are correct in
+	  general.	
+	  This passes the testsuite for both tcl and critcl
+	  implementations of struct::graph.
+	* graph/tests/XOpsSetup: Re-indented, some notes added, loop
+	  conditions tweaked.
+
 	* graph/tests/XOpsControl: Added testsuite for vertex cover.
 	* graph/tests/ops/verticescover.test: Testsuite for vertex cover.
 	  Changes compared to GSoC result:
