@@ -4,7 +4,7 @@
 # Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: XOpsControl,v 1.15 2009/09/21 23:48:03 andreas_kupries Exp $
+# RCS: @(#) $Id: XOpsControl,v 1.16 2009/09/22 17:57:10 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -40,14 +40,15 @@ source ${SELF}/ops/adjlist.test      ; # Adjacency lists
 source ${SELF}/ops/bellmanford.test  ; # Distances by Bellman-Ford
 source ${SELF}/ops/bfs.test          ; # Breadth-First Searching.
 source ${SELF}/ops/busackergowen.test; # Minimum-Cost Maximum-Flow by Busacker-Gowen
-source ${SELF}/ops/christofides.test ; # mTSP by Christofides, 3/2 approximation algorithm
+source ${SELF}/ops/christofides.test ; # mTSP by Christofides, 3/2-approximation algorithm
 source ${SELF}/ops/edmondskarp.test  ; # Maximum-Flow by Edmonds-Karp
 source ${SELF}/ops/floydwarshall.test; # Distances by Floyd-Warshall
 source ${SELF}/ops/johnsons.test     ; # Distances by Johnsons
 source ${SELF}/ops/maxcut.test       ; # Maximum Cut, 2-approximation algorithm
 source ${SELF}/ops/metrictsp.test    ; # Metric Travelling Salesman Problem (mTSP)
-#                                      # 2 approximation algorithm.
+#                                      # 2-approximation algorithm.
 source ${SELF}/ops/tspheuristics.test; # Heuristics of local searching for TSP
-                                       # 2 and 3 approximation algorithms
+                                       # 2- and 3-approximation algorithms
+source ${SELF}/ops/verticescover.test; # Vertex Cover, 2-approximation algorithm
 
 # -------------------------------------------------------------------------
