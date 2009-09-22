@@ -1,5 +1,16 @@
 2009-09-22  Andreas Kupries  <andreask@activestate.com>
 
+	* graph/tests/XOpsControl: Added testsuite for Dinic Blocking Flow.
+	* graph/tests/ops/dinicblockingflow.test: Testsuite for Dinic
+	  Blocking Flow. Changes compared to GSoC result:
+	  - Test names extended with 'treeimpl'.
+	  - Indentation, line-endings
+	  - Added dictsort to force a canonical ordering on the
+	    results.
+	  - Results updated to be in the canonical ordering.
+	  This passes the testsuite for both tcl and critcl
+	  implementations of struct::graph.
+
 	* graph/tests/XOpsControl: Added testsuite for k-center.
 	* graph/tests/ops/kcenter.test: Testsuite for k-center.
 	  Changes compared to GSoC result:
