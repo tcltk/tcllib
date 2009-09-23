@@ -1,3 +1,21 @@
+2009-09-23  Andreas Kupries  <andreask@activestate.com>
+
+	* graphops.tcl (::struct::graph::op::BlockingFlowByMKM): Fixed
+	* graphops.man: object leak. Added the missing release of the
+	* pkgIndex.tcl: LevelGraph on exceptional return (No path between
+	  nodes s and t). Bumped version to 0.11.1.
+
+	* graph/tests/XOpsControl: Added testsuite for MKM Blocking Flow.
+	* graph/tests/ops/mkmblockingflow.test: Testsuite for MKM
+	  Blocking Flow. Changes compared to GSoC result:
+	  - Test names extended with 'treeimpl'.
+	  - Indentation, line-endings
+	  - Added dictsort to force a canonical ordering on the
+	    results.
+	  - Results updated to be in the canonical ordering.
+	  This passes the testsuite for both tcl and critcl
+	  implementations of struct::graph.
+
 2009-09-22  Andreas Kupries  <andreask@activestate.com>
 
 	* graph/tests/XOpsControl: Added testsuite for Dinic Blocking Flow.

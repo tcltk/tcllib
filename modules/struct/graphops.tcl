@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: graphops.tcl,v 1.15 2009/09/21 23:48:02 andreas_kupries Exp $
+# RCS: @(#) $Id: graphops.tcl,v 1.16 2009/09/23 18:36:21 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -2280,6 +2280,7 @@ proc ::struct::graph::op::BlockingFlowByMKM {G s t} {
 	#return current blocking flow
 	set distances [ShortestsPathsByBFS $LevelGraph $s distances]
 	if { [dict get $distances $t] == "Inf" } {
+	    $LevelGraph destroy
 	    set b [dict filter $b script {flow flowvalue} {expr {$flowvalue != 0}}]
 	    return $b
 	}
@@ -3772,4 +3773,4 @@ namespace eval ::struct::graph::op {
     #namespace export ...
 }
 
-package provide struct::graph::op 0.11
+package provide struct::graph::op 0.11.1

@@ -4,7 +4,7 @@
 # Copyright (c) 2008-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: XOpsControl,v 1.18 2009/09/22 22:52:33 andreas_kupries Exp $
+# RCS: @(#) $Id: XOpsControl,v 1.19 2009/09/23 18:36:21 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -49,6 +49,7 @@ source ${SELF}/ops/kcenter.test      ; # Metric K-Center, 2-approximation algori
 source ${SELF}/ops/maxcut.test       ; # Maximum Cut, 2-approximation algorithm
 source ${SELF}/ops/metrictsp.test    ; # Metric Travelling Salesman Problem (mTSP)
 #                                      # 2-approximation algorithm.
+source ${SELF}/ops/mkmblockingflow.test ; # Blocking Flow by Malhotra, Kumar and Maheshwari
 source ${SELF}/ops/tspheuristics.test; # Heuristics of local searching for TSP
 #                                      # 2- and 3-approximation algorithms
 source ${SELF}/ops/verticescover.test; # Vertex Cover, 2-approximation algorithm
