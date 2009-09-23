@@ -20,4 +20,4 @@ package ifneeded struct::matrix    1.2.1 [list source [file join $dir matrix1.tc
 
 if {![package vsatisfies [package provide Tcl] 8.4]} {return}
 package ifneeded struct::graph     2.3.1 [list source [file join $dir graph.tcl]]
-package ifneeded struct::graph::op 0.11  [list source [file join $dir graphops.tcl]]
+package ifneeded struct::graph::op 0.11.1 [list source [file join $dir graphops.tcl]]
