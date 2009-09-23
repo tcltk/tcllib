@@ -1,5 +1,23 @@
 2009-09-23  Andreas Kupries  <andreask@activestate.com>
 
+	* graphops.tcl (::struct::graph::op::MinimumDegreeSpanningTree):
+	  Stop search+insertion loop after it has added the candidate
+	  arc. (::struct::graph::op::MinimumDiameterSpanningTree): Fix two
+	  object leaks.
+
+	* graph/tests/XOpsControl: Added testsuite for Min D Spanning Trees.
+	* graph/tests/ops/mdst.test: Testsuite for MDST.
+	  Blocking Flow. Changes compared to GSoC result:
+	  - Test names extended with 'treeimpl'.
+	  - Indentation, line-endings
+	  - Added undirected to force a canonical ordering on the
+	    results.
+	  - Results updated to be in the canonical ordering.
+	  - Several tests demonstrates how the result is influenced by
+	    node ordering. Extended to accept the variations.
+	  This passes the testsuite for both tcl and critcl
+	  implementations of struct::graph.
+
 	* graphops.tcl (::struct::graph::op::BlockingFlowByMKM): Fixed
 	* graphops.man: object leak. Added the missing release of the
 	* pkgIndex.tcl: LevelGraph on exceptional return (No path between

@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: graphops.tcl,v 1.16 2009/09/23 18:36:21 andreas_kupries Exp $
+# RCS: @(#) $Id: graphops.tcl,v 1.17 2009/09/23 20:56:25 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -1994,7 +1994,9 @@ proc ::struct::graph::op::MinimumDiameterSpanningTree {G} {
 		    $tempGraph arc insert $node $v [list $node $v]
 		    $tempGraph arc insert $node $u [list $node $u]
 
-		    set tempGraph [BFS $tempGraph $node graph]
+		    set newtempGraph [BFS $tempGraph $node graph]
+		    $tempGraph destroy
+		    set tempGraph $newtempGraph
 
 		    $tempGraph node delete $node
 		    $tempGraph arc insert $u $v [list $u $v]
@@ -2021,6 +2023,7 @@ proc ::struct::graph::op::MinimumDiameterSpanningTree {G} {
 
 	if { $min_diameter > $currentTreeDiameter } {
 	    set min_diameter $currentTreeDiameter
+	    $best_Tree destroy
 	    set best_Tree $TGraph
 	} else {
 	    $TGraph destroy
@@ -2088,7 +2091,7 @@ proc ::struct::graph::op::MinimumDegreeSpanningTree {G} {
 		if { [$MST node degree $node] > ([Max [$MST node degree $u] [$MST node degree $v]] + 1) } {
 
 		    #if such node is found add the arc between nodes u and v
-		    $MST arc insert $u $v [list $u $v]
+                    $MST arc insert $u $v [list $u $v]
 
 		    #then to hold MST being a spanning tree, delete any arc that is in the path
 		    #that is adjacent to found node
@@ -2102,6 +2105,9 @@ proc ::struct::graph::op::MinimumDegreeSpanningTree {G} {
 			    break
 			}
 		    }
+
+		    # Node found, stop processing the path
+		    break
 		}
 	    }
 	}
