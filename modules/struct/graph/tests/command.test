@@ -2,7 +2,7 @@
 # Graph tests - graph command basics
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: command.test,v 1.4 2008/10/17 05:09:43 andreas_kupries Exp $
+# RCS: @(#) $Id: command.test,v 1.5 2009/09/24 16:23:47 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Wrong # args: Missing, Too many
@@ -149,7 +149,7 @@ test graph-${impl}-${setimpl}-instance-2.1 {graph arc command, bad method} {
     catch {mygraph arc foo} msg
     mygraph destroy
     set msg
-} {bad option "foo": must be append, attr, delete, exists, flip, get, getall, getunweighted, getweight, hasweight, insert, keyexists, keys, lappend, move, move-source, move-target, rename, set, setunweighted, setweight, source, target, unset, unsetweight, or weights}
+} {bad option "foo": must be append, attr, delete, exists, flip, get, getall, getunweighted, getweight, hasweight, insert, keyexists, keys, lappend, move, move-source, move-target, nodes, rename, set, setunweighted, setweight, source, target, unset, unsetweight, or weights}
 
 test graph-${impl}-${setimpl}-instance-2.2 {graph node command, bad method} {
     SETUP
