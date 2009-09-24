@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: graphops.tcl,v 1.18 2009/09/24 18:03:03 andreas_kupries Exp $
+# RCS: @(#) $Id: graphops.tcl,v 1.19 2009/09/24 19:30:10 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -652,6 +652,8 @@ proc ::struct::graph::op::GreedyMaxMatching {G} {
 proc ::struct::graph::op::sortEdges {G} {
     set weights [$G arc weights]
 
+    # NOTE: Look at possible rewrite, simplification.
+
     set sortedEdges {}
 
     foreach val [lsort [dict values $weights]] {
@@ -1060,19 +1062,20 @@ proc ::struct::graph::op::WeightedKCenter {G nodeWeights W} {
     set j [ expr {$W+1} ]
 
     #graphs G(i) and G(i)**2
-    set Gi [struct::graph]
+    set Gi   [struct::graph]
     set GiSQ [struct::graph]
     #the set of arcs for graph G sorted with their weights (increasing)
     set arcs [sortEdges $G]
 
     #initialization of graphs G(i) and G(i)**2
     foreach v [$G nodes] {
-	$Gi node insert $v
+	$Gi   node insert $v
 	$GiSQ node insert $v
     }
 
     #the main loop - iteration over all G(i)'s and G(i)**2's,
     #extended with each iteration till the solution is found
+
     foreach arc $arcs {
 	#initilization of the set of nodes, which are cheapest neighbours
 	#for particular nodes in maximal independent set
@@ -1091,7 +1094,6 @@ proc ::struct::graph::op::WeightedKCenter {G nodeWeights W} {
 	#previous step. Mi is found using greedy algorithm that also considers
 	#weights on vertices.
 	set Mi [GreedyWeightedMaxIndependentSet $GiSQ $nodeWeights]
-
 
 	#for each node u in Maximal Independent set found in previous step,
 	#we search for its cheapest ( considering costs at vertices ) neighbour.
@@ -1138,6 +1140,9 @@ proc ::struct::graph::op::WeightedKCenter {G nodeWeights W} {
 	    return $possibleSolution
 	}
     }
+
+    $Gi destroy
+    $GiSQ destroy
 
     #no solution found - error returned
     return -code error "No k-center found for restriction W = $W"
@@ -1189,12 +1194,11 @@ proc ::struct::graph::op::GreedyWeightedMaxIndependentSet {G nodeWeights} {
 
     set result {}
     set nodes {}
-    foreach v [lsort -index 1 $nodeWeights]	{
+    foreach v [lsort -index 1 $nodeWeights] {
 	lappend nodes [lindex $v 0]
     }
 
     foreach v $nodes {
-
 	if { [struct::set contains $nodes $v] } {
 	    lappend result $v
 
@@ -3780,4 +3784,4 @@ namespace eval ::struct::graph::op {
     #namespace export ...
 }
 
-package provide struct::graph::op 0.11.2
+package provide struct::graph::op 0.11.3

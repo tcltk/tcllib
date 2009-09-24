@@ -1,5 +1,24 @@
 2009-09-24  Andreas Kupries  <andreask@activestate.com>
 
+	* graphops.tcl (::struct::graph::op::WeightedKCenter): Fixed
+	* graphops.man: object leak. Added the missing release of the
+	* pkgIndex.tcl: Gi(SQ) in error case (no solution). Bumped
+	* graphops.test: version to 0.11.3. Tweaked comment in testsuite
+	  regarding repetition.
+
+	* graph/tests/XOpsControl: Added testsuite for weighted k-center.
+	* graph/tests/ops/weightedkcenter.test: Testsuite for weighted k-center.
+	  Changes compared to GSoC result:
+	  - Test names extended with 'treeimpl'.
+	  - Indentation, line-endings
+	  - Several tests demonstrates how the result is influenced by
+	    node/arc ordering. Extended to accept the variations.
+	  This passes the testsuite for both tcl and critcl
+	  implementations of struct::graph.
+	* graph/tests/ops/kcenter.test: Moved the custom matcher/verifier for
+	* graph/tests/XOpsSupport: max-independent-set to shared file.
+	* graph/tests/XOpsSetup: Simplified some setup procedures a bit.
+
 	* graphops.tcl (::struct::graph::op::MaximumFlowByDinic): Fixed
 	* graphops.man: object leak. Added the missing release of the
 	* pkgIndex.tcl: residual graph generated in each iteration. Bumped
