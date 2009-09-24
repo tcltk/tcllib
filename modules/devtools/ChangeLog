@@ -1,3 +1,7 @@
+2009-09-24  Andreas Kupries  <andreask@activestate.com>
+
+	* testutilities.tcl: Added constraint for 8.6+.
+
 2009-04-13  Andreas Kupries  <andreask@activestate.com>
 
 	* dialog.tcl: Extended to allow dialog over a socket secured by
