@@ -1,5 +1,21 @@
 2009-09-24  Andreas Kupries  <andreask@activestate.com>
 
+	* graphops.tcl (::struct::graph::op::MaximumFlowByDinic): Fixed
+	* graphops.man: object leak. Added the missing release of the
+	* pkgIndex.tcl: residual graph generated in each iteration. Bumped
+	  version to 0.11.2.
+
+	* graph/tests/XOpsControl: Added testsuite for Dinic Maximum Flow.
+	* graph/tests/ops/dinicmaximumflow.test: Testsuite for Dinic Maximum
+	  Flow. Changes compared to GSoC result:
+	  - Test names extended with 'treeimpl'.
+	  - Indentation, line-endings
+	  - Added dictsort to force a canonical ordering on the
+	    results.
+	  - Results updated to be in the canonical ordering.
+	  This passes the testsuite for both tcl and critcl
+	  implementations of struct::graph.
+
 	* graphops.man: [Bug 2800387]: Updated descriptions of Kruskal and
 	  Prim with time complexity information, tweaked terminology a bit
 	  (minimum _weight_ spanning tree), and noted the exceptional
