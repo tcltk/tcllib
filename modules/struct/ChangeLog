@@ -1,5 +1,11 @@
 2009-09-24  Andreas Kupries  <andreask@activestate.com>
 
+	* graphops.man: [Bug 2800387]: Updated descriptions of Kruskal and
+	  Prim with time complexity information, tweaked terminology a bit
+	  (minimum _weight_ spanning tree), and noted the exceptional
+	  handling of 1-vertex components (they are not shown in the
+	  results).
+
 	* graph.man: Added method 'arc nodes' to the Tcl and C
 	* graph.tcl: implementations. Extended testsuite and
 	* graph_tcl.tcl: documentation. Bumped package to
