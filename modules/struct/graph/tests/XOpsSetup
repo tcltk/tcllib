@@ -4,7 +4,7 @@
 # Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: XOpsSetup,v 1.11 2009/09/22 20:30:53 andreas_kupries Exp $
+# RCS: @(#) $Id: XOpsSetup,v 1.12 2009/09/24 19:30:11 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -1735,8 +1735,7 @@ proc SETUP_WEIGHTEDKCENTER_1 {nodeWeights} {
     mygraph arc insert node4 node8
     mygraph arc setunweighted 1.5
     
-    set nW {}
-    lappend nW {node1 2} {node2 2} {node3 2} {node4 1} {node5 Inf} {node6 Inf} {node7 Inf} {node8 Inf}
+    set nW {{node1 2} {node2 2} {node3 2} {node4 1} {node5 Inf} {node6 Inf} {node7 Inf} {node8 Inf}}
     
     return
 }
@@ -1762,16 +1761,13 @@ proc SETUP_WEIGHTEDKCENTER_2 {nodeWeights} {
     mygraph arc insert node2 node5
     mygraph arc insert node3 node5
     mygraph arc setunweighted 1
-    
-    
+        
     mygraph arc insert node4 node5
     mygraph arc setunweighted 3
     mygraph arc insert node4 node6
     mygraph arc setunweighted 2
     
-    
-    set nW {}
-    lappend nW {node1 2} {node2 2} {node3 2} {node4 3} {node5 2} {node6 1}
+    set nW {{node1 2} {node2 2} {node3 2} {node4 3} {node5 2} {node6 1}}
     
     return
 }
@@ -1787,8 +1783,7 @@ proc SETUP_WEIGHTEDKCENTER_3 {nodeWeights} {
     
     upvar 1 nodeWeights nW
     
-    set nW {}
-    lappend nW {node1 1} {node2 1} {node3 1} {node4 1} {node5 1} {node6 3}
+    set nW {{node1 1} {node2 1} {node3 1} {node4 1} {node5 1} {node6 3}}
     
     return
 }
@@ -1808,35 +1803,35 @@ proc SETUP_FORDFULKERSON_1 {} {
     
     mygraph node insert s v1 v2 v3 v4 t
     
-    mygraph arc insert s v1 [list s v1]
-    mygraph arc set [list s v1] throughput 16
+    mygraph arc insert s v1 {s v1}
+    mygraph arc set {s v1} throughput 16
     
-    mygraph arc insert s v2 [list s v2]
-    mygraph arc set [list s v2] throughput 13
+    mygraph arc insert s v2 {s v2}
+    mygraph arc set {s v2} throughput 13
     
-    mygraph arc insert v1 v2 [list v1 v2]
-    mygraph arc set [list v1 v2] throughput 10
+    mygraph arc insert v1 v2 {v1 v2}
+    mygraph arc set {v1 v2} throughput 10
     
-    mygraph arc insert v2 v1 [list v2 v1]
-    mygraph arc set [list v2 v1] throughput 4
+    mygraph arc insert v2 v1 {v2 v1}
+    mygraph arc set {v2 v1} throughput 4
     
-    mygraph arc insert v1 v3 [list v1 v3]
-    mygraph arc set [list v1 v3] throughput 12
+    mygraph arc insert v1 v3 {v1 v3}
+    mygraph arc set {v1 v3} throughput 12
     
-    mygraph arc insert v2 v4 [list v2 v4]
-    mygraph arc set [list v2 v4] throughput 14
+    mygraph arc insert v2 v4 {v2 v4}
+    mygraph arc set {v2 v4} throughput 14
     
-    mygraph arc insert v3 v2 [list v3 v2]
-    mygraph arc set [list v3 v2] throughput 9
+    mygraph arc insert v3 v2 {v3 v2}
+    mygraph arc set {v3 v2} throughput 9
     
-    mygraph arc insert v3 t [list v3 t]
-    mygraph arc set [list v3 t] throughput 20
+    mygraph arc insert v3 t {v3 t}
+    mygraph arc set {v3 t} throughput 20
     
-    mygraph arc insert v4 v3 [list v4 v3]
-    mygraph arc set [list v4 v3] throughput 7
+    mygraph arc insert v4 v3 {v4 v3}
+    mygraph arc set {v4 v3} throughput 7
     
-    mygraph arc insert v4 t [list v4 t]
-    mygraph arc set [list v4 t] throughput 4
+    mygraph arc insert v4 t {v4 t}
+    mygraph arc set {v4 t} throughput 4
 
     return
     

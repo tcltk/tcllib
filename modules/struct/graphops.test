@@ -4,7 +4,7 @@
 # Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: graphops.test,v 1.3 2009/09/15 19:24:12 andreas_kupries Exp $
+# RCS: @(#) $Id: graphops.test,v 1.4 2009/09/24 19:30:11 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -43,7 +43,7 @@ testing {
 
 # The global variable 'impl' is part of the public API the testsuite
 # (in graphops.testsuite) is expecting from the environment. This code
-# runs the testsuite at most eight times, covering all possible
+# runs the testsuite 32 (2^5) times, covering all possible
 # combinations of tcl/c implementations.
 
 TestAccelDo struct::tree treeimpl {
