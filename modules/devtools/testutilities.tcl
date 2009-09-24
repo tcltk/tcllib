@@ -184,6 +184,9 @@ if {![package vsatisfies [package provide tcltest] 2.0]} {
 ::tcltest::testConstraint tcl8.5plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.5]}]
 
+::tcltest::testConstraint tcl8.6plus \
+	[expr {[package vsatisfies [package provide Tcl] 8.6]}]
+
 # ### ### ### ######### ######### #########
 ## Cross-version code for the generation of the error messages created
 ## by Tcl procedures when called with the wrong number of arguments,
