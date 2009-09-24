@@ -1,5 +1,11 @@
 2009-09-24  Andreas Kupries  <andreask@activestate.com>
 
+	* The integration of Michal Antoniewski's (<antoniewsli@gmail.com>)
+	  work on graph operations for GSoC 2009 is now complete, with all
+	  testsuites integrated and fixed up to handle both Tcl and C
+	  implementations of struct::graph, tree, set, etc., and some bugs
+	  uncovered by this work fixed as well.
+	
 	* graphops.tcl (::struct::graph::op::WeightedKCenter): Fixed
 	* graphops.man: object leak. Added the missing release of the
 	* pkgIndex.tcl: Gi(SQ) in error case (no solution). Bumped
