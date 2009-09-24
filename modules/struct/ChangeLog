@@ -1,3 +1,16 @@
+2009-09-24  Andreas Kupries  <andreask@activestate.com>
+
+	* graph.man: Added method 'arc nodes' to the Tcl and C
+	* graph.tcl: implementations. Extended testsuite and
+	* graph_tcl.tcl: documentation. Bumped package to
+	* graph/methods.c: version 2.4. Bumped the tcllibc
+	* graph/objcmd.c: umbrella package to version 0.3.6.
+	* graph/tests/arc/nodes.test:
+	* graph/tests/command.test:
+	* graph/tests/Xcontrol:
+	* pkgIndex.tcl:
+	* ../tcllibc.tcl:
+
 2009-09-23  Andreas Kupries  <andreask@activestate.com>
 
 	* graphops.tcl (::struct::graph::op::MinimumDegreeSpanningTree):
