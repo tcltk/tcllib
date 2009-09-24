@@ -93,9 +93,14 @@ is thrown if that is not the case.
 [call [cmd struct::graph:op::kruskal] [arg g]]
 
 This command takes the graph [arg g] and returns a list containing the
-names of the arcs in [arg g] which span up a minimum spanning tree
-(MST), or, in the case of an un-connected graph, a minimum spanning
-forest. Kruskal's algorithm is used to compute the tree or forest.
+names of the arcs in [arg g] which span up a minimum weight spanning tree
+(MST), or, in the case of an un-connected graph, a minimum weight spanning
+forest (except for the 1-vertex components). Kruskal's algorithm is used
+to compute the tree or forest.
+
+This algorithm has a time complexity of [term {O(E*log E)}] or [term {O(E* log V)}],
+where [term V] is the number of vertices and [term E] is the number of edges
+in graph [arg g].
 
 [para]
 
@@ -113,9 +118,15 @@ provided in the arcs already.
 [call [cmd struct::graph:op::prim] [arg g]]
 
 This command takes the graph [arg g] and returns a list containing the
-names of the arcs in [arg g] which span up a minimum spanning tree
-(MST), or, in the case of an un-connected graph, a minimum spanning
-forest. Prim's algorithm is used to compute the tree or forest.
+names of the arcs in [arg g] which span up a minimum weight spanning tree
+(MST), or, in the case of an un-connected graph, a minimum weight spanning
+forest (except for the 1-vertex components). Prim's algorithm is used to
+compute the tree or forest.
+
+This algorithm has a time complexity between [term {O(E+V*log V)}] and [term {O(V*V)}],
+depending on the implementation (Fibonacci heap + Adjacency list versus
+Adjacency Matrix).  As usual [term V] is the number of vertices and
+[term E] the number of edges in graph [arg g].
 
 [para]
 
