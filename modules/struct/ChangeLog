@@ -1,5 +1,16 @@
 2009-09-24  Andreas Kupries  <andreask@activestate.com>
 
+	* list.test: [Bug 2557046]: Updated the testsuite to for changes
+	  to lassign and lrepeat in 8.6 (do nothing gracefully, and
+	  changes to error messages). Affected tests are either skipped or
+	  get conditional results.
+
+	* tree.testsuite (tree-*-1.8): Pattern match the name, do not
+	  expect a particular id number (Depends on which previous tests
+	  have run, especially in graphops).
+
+2009-09-24  Andreas Kupries  <andreask@activestate.com>
+
 	* The integration of Michal Antoniewski's (<antoniewsli@gmail.com>)
 	  work on graph operations for GSoC 2009 is now complete, with all
 	  testsuites integrated and fixed up to handle both Tcl and C

@@ -8,7 +8,7 @@
 # Copyright (c) 2000-2008 by Andreas Kupries
 # All rights reserved.
 #
-# RCS: @(#) $Id: tree.testsuite,v 1.8 2009/06/22 18:21:59 andreas_kupries Exp $
+# RCS: @(#) $Id: tree.testsuite,v 1.9 2009/09/24 22:22:28 andreas_kupries Exp $
 
 ::tcltest::testConstraint tree_critcl [string equal $impl critcl]
 
@@ -63,10 +63,12 @@ test tree-${impl}-1.7 {create} {
 } 1
 test tree-${impl}-1.8 {create} {
     set name [tree]
-    set result [list $name [string equal [info commands $name] "$name"]]
+    set result [list \
+		    [regexp {^::tree\d+$} $name] \
+		    [string equal [info commands $name] "$name"]]
     $name destroy
     set result
-} {::tree1 1}
+} {1 1}
 
 test tree-${impl}-1.9 {destroy} {
     tree mytree
