@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: graphops.tcl,v 1.17 2009/09/23 20:56:25 andreas_kupries Exp $
+# RCS: @(#) $Id: graphops.tcl,v 1.18 2009/09/24 18:03:03 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -2142,6 +2142,7 @@ proc ::struct::graph::op::MaximumFlowByDinic {G s t blockingFlowAlg} {
 	} else {
 	    set blockingFlow [BlockingFlowByDinic $residualG $s $t]
 	}
+	$residualG destroy
 
 	if { $blockingFlow == {} } break
 
@@ -3779,4 +3780,4 @@ namespace eval ::struct::graph::op {
     #namespace export ...
 }
 
-package provide struct::graph::op 0.11.1
+package provide struct::graph::op 0.11.2
