@@ -14,7 +14,7 @@
 
 # -------------------------------------------------------------------------
 
-set regular 0
+set regular 1
 
 if {$regular==1} then {
     source [file join \
@@ -39,7 +39,7 @@ if {$regular==1} then {
     namespace import tcltest::customMatch
     set basedir [file normalize [file dirname [info script]]]
     set ::auto_path [linsert $::auto_path 0 $basedir]
-    package require -exact math::linearalgebra 1.1.2
+    package require -exact math::linearalgebra 1.1.3
 }
 # -------------------------------------------------------------------------
 
