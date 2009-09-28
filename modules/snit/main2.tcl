@@ -350,9 +350,9 @@ proc ::snit::Comp.Init {} {
 
         # Initialize the interpreter
 	$compiler eval {
-	    close stdout
-	    close stderr
-	    close stdin
+	    catch {close stdout}
+	    catch {close stderr}
+	    catch {close stdin}
 
             # Load package information
             # TBD: see if this can be moved outside.
