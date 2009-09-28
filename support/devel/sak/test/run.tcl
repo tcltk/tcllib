@@ -83,11 +83,13 @@ proc ::sak::test::run::Do {cv modules} {
     }
 
     if {$alog} {
-	variable logext [open $config(stem).log      w]
-	variable logsum [open $config(stem).summary  w]
-	variable logfai [open $config(stem).failures w]
-	variable logski [open $config(stem).skipped  w]
-	variable lognon [open $config(stem).none     w]
+	variable logext [open $config(stem).log         w]
+	variable logsum [open $config(stem).summary     w]
+	variable logfai [open $config(stem).failures    w]
+	variable logski [open $config(stem).skipped     w]
+	variable lognon [open $config(stem).none        w]
+	variable logerd [open $config(stem).errdetails  w]
+	variable logfad [open $config(stem).faildetails w]
     } else {
 	variable logext stdout
     }
@@ -247,11 +249,12 @@ proc ::sak::test::run::Process {pipe} {
 	if {[eof  $pipe]} break
 	if {[gets $pipe line] < 0} break
 	if {$alog || $araw} {puts $logext $line ; flush $logext}
+	set rline $line
 	set line [string trim $line]
 	if {[string equal $line ""]} continue
 	Host;	Platform
 	Cwd;	Shell
-	Tcl;	Match||Skip||Sourced
+	Tcl
 	Start;	End
 	Module;	Testsuite
 	NoTestsuite
@@ -273,6 +276,7 @@ proc ::sak::test::run::Process {pipe} {
 	Aborted
 	AbortCause
 
+	Match||Skip||Sourced
 	# Unknown lines are printed
 	if {!$araw} {puts !$line}
     }
@@ -548,7 +552,7 @@ proc ::sak::test::run::CaptureFailureSync {} {
 proc ::sak::test::run::CaptureFailureCollectBody {} {
     variable xcollect
     if {$xcollect != 2} return
-    upvar 1 line line
+    upvar 1 rline line
     variable xbody
     if {![string match {---- Result was*} $line]} {
 	variable xbody
@@ -562,7 +566,7 @@ proc ::sak::test::run::CaptureFailureCollectBody {} {
 proc ::sak::test::run::CaptureFailureCollectActual {} {
     variable xcollect
     if {$xcollect != 3} return
-    upvar 1 line line
+    upvar 1 rline line
     if {![string match {---- Result should*} $line]} {
 	variable xactual
 	append   xactual $line \n
@@ -575,11 +579,32 @@ proc ::sak::test::run::CaptureFailureCollectActual {} {
 proc ::sak::test::run::CaptureFailureCollectExpected {} {
     variable xcollect
     if {$xcollect != 4} return
-    upvar 1 line line
+    upvar 1 rline line
     if {![string match {==== *} $line]} {
 	variable xexpected
 	append   xexpected $line \n
     } else {
+	variable alog
+	if {$alog} {
+	    variable logfad
+	    variable xtest
+	    variable xbody
+	    variable xactual
+	    variable xexpected
+
+	    puts  $logfad "==== [lrange $xtest end-1 end] FAILED ========="
+	    puts  $logfad "==== Contents of test case:\n"
+	    puts  $logfad $xbody
+
+	    puts  $logfad "---- Result was:"
+	    puts  $logfad [string range $xactual 0 end-1]
+
+	    puts  $logfad "---- Result should have been:"
+	    puts  $logfad [string range $xexpected 0 end-1]
+
+	    puts  $logfad "==== [lrange $xtest end-1 end] ====\n\n"
+	    flush $logfad
+	}
 	set xcollect 0
 	#sak::registry::local set $xtest Body     $xbody
 	#sak::registry::local set $xtest Actual   $xactual
@@ -635,6 +660,12 @@ proc ::sak::test::run::CaptureStack {} {
 	set xstackcollect 0
 	variable xfile
 	#sak::registry::local set $xfile Stacktrace $xstack
+	if {$alog} {
+	    variable logerd
+	    puts  $logerd "$xfile StackTrace"
+	    puts  $logerd $xstack
+	    flush $logerd
+	}
     }
     return -code continue
 }
