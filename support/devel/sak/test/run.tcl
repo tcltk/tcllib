@@ -260,17 +260,17 @@ proc ::sak::test::run::Process {pipe} {
 	NoTestsuite
 	Support;Testing;Other
 	Summary
-
-	TestStart
-	TestSkipped
-	TestPassed
-	TestFailed
 	CaptureFailureSync
 	CaptureFailureCollectBody
 	CaptureFailureCollectActual
 	CaptureFailureCollectExpected
 	CaptureStackStart
 	CaptureStack
+
+	TestStart
+	TestSkipped
+	TestPassed
+	TestFailed
 
 	SetupError
 	Aborted
