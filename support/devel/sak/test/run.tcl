@@ -659,11 +659,14 @@ proc ::sak::test::run::CaptureStack {} {
     } else {
 	set xstackcollect 0
 	variable xfile
+	variable alog
 	#sak::registry::local set $xfile Stacktrace $xstack
 	if {$alog} {
 	    variable logerd
-	    puts  $logerd "$xfile StackTrace"
+	    puts  $logerd "[lindex $xfile end] StackTrace"
+	    puts  $logerd "========================================"
 	    puts  $logerd $xstack
+	    puts  $logerd "========================================\n\n"
 	    flush $logerd
 	}
     }
