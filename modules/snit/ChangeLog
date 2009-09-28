@@ -1,10 +1,20 @@
+2009-09-28  Andreas Kupries  <andreask@activestate.com>
+
+	* snit.man: Commit a long-standing fix to the last entry.
+	* snit.tcl: Wrap the close commands into catch to handle
+	* snit2.tcl: the possibility of the std channels not
+	* pkgIndex.tcl: existing. Bumped versions to 1.3.4 and
+	* main1_83.tcl 2.2.4.
+	* main1.tcl:
+	* main2.tcl:
+
 2009-06-22  Andreas Kupries  <andreask@activestate.com>
 
 	* main1.tcl: Fix handling of hierarchical typemethods for missing
 	* main1_83.tcl: subcommands. If a toplevel hmethod is not found
 	* main2.tcl: we can assume it to be an instance name and do an
 	* pkgIndex.tcl: implicit 'create' of it. If the toplevel hmethod
-	* snit.tcl: hass already been accepted however a missing submethod
+	* snit.tcl: has already been accepted however a missing submethod
 	* snit2.tcl: has to error out, an implicit create is not possible
 	* snit.test: any longer. Extended the testsuite to cover this
 	  case. Bumped the package versions to 2.2.3, and 1.3.3.
