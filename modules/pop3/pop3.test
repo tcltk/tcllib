@@ -8,7 +8,7 @@
 # Copyright (c) 2002-2006 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3.test,v 1.26 2009/04/13 22:03:37 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.test,v 1.27 2009/09/28 20:44:17 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -581,12 +581,10 @@ test pop3-6.1 {uidl} {
     set msg
 } {POP3 UIDL ERROR:  unknown command 'UIDL'}
 
-
-
-dialog::shutdown
-dialog::setup server {Pop3 Fake Server} 1
-
 test pop3-7.0 {open pop3 channel secured via package tls} hastls {
+    dialog::shutdown
+    dialog::setup server {Pop3 Fake Server} 1
+
     tls::init \
 	-keyfile  [tcllibPath devtools/receiver.key] \
 	-certfile [tcllibPath devtools/receiver.crt] \
