@@ -1,10 +1,19 @@
+2009-09-28  Andreas Kupries  <andreask@activestate.com>
+
+	* linalg.test: Switched the test setup back to 'regular' and also
+	  fixed the version information in the non-regular branch of the
+	  setup.
+
 2009-08-21  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* statistics.tcl: Remove a local variable from interval-mean-stdev
 
 2009-08-12  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* statistics.tcl: Solve bug 2835712 regarding interval-mean-stdev
 
 2009-07-13  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* statistics.tcl: Implement more robust computation of basic statistics
 	      Fixes bug 2812832; simplified the code (as indicated by akupries)
 	* statistics.test: Added test for this more robust computation
