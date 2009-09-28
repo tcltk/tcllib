@@ -1,5 +1,9 @@
 2009-09-28  Andreas Kupries  <andreask@activestate.com>
 
+	* support/devel/sak/test/run.tcl (::sak::test::run::CaptureStack):
+	  Fix missing variable declaration, and tweak generated output a
+	  bit.
+
 	* support/devel/sak/test/run.tcl (Do): Reworked a bit to save
 	  captured error stacks and failed tests (body, actual, expected)
 	  into separate log files for quick access.
