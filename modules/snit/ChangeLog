@@ -1,3 +1,8 @@
+2009-09-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* snit.test: Updated to handle changes in command error messages
+	  done in Tcl 8.6+.
+
 2009-09-28  Andreas Kupries  <andreask@activestate.com>
 
 	* snit.man: Commit a long-standing fix to the last entry.
