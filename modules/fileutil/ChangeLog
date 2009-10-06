@@ -1,3 +1,9 @@
+2009-10-06  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.test: Added fixes to test cleanups, to prevents errors
+	* inplace.test: when the testsuite is only run partially.
+	* test.test: 
+
 2009-09-14  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.tcl: Renamed the internal command 'LexNormalize' to
