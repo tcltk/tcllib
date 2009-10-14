@@ -116,12 +116,14 @@ proc ::rest::create_interface {name} {
             set config [dict merge $in([dict get $config copy]) $config]
         }
         if {[dict exists $config unset]} {
-            set config [dict unset $config [dict get $config unset]]
+            set config [eval [list dict remove $config] [dict get $config unset]]
+        }
+        if {[dict exists $config content-type]} {
+            dict set config headers content-type [dict get $config content-type]
         }
         
         lappend proc "set config \{$config\}"
         lappend proc "set headers \{\}"
-        lappend proc "set url [dict get $config url]"
 
         # invocation option processing
         _addopts [dict get $config url] config
@@ -139,12 +141,19 @@ proc ::rest::create_interface {name} {
         lappend proc "set parsed \[::rest::parse_opts \$static $opts \$args]"
         lappend proc {set query [lindex $parsed 0]}
         lappend proc {set body [lindex $parsed 1]}
-        lappend proc {set url [::rest::substitute $url query]}
+        lappend proc {set url [::rest::substitute [dict get $config url] query]}
         if {[dict exists $config body]} {
             if {[string match req* [dict get $config body]]} {
-                lappend proc {if {$body == ""} { return -code error "a request body is required" }}
+                lappend proc {if {$body == ""} { return -code error "wrong # args: should be \"[lindex [info level 0] 0] ?options? string\"" }}
             } elseif {[string match no* [dict get $config body]]} {
                 lappend proc {if {$body != ""} { return -code error "extra arguments after options" }}
+            } elseif {[string match arg* [lindex [dict get $config body] 0]]} {
+                lappend proc {if {$body == ""} { return -code error "wrong # args: should be \"[lindex [info level 0] 0] ?options? string\"" }}
+                lappend proc "lappend query [lindex [dict get $config body] 1] \$body" {set body ""}
+            } elseif {[string match mime_multi* [lindex [dict get $config body] 0]]} {
+                lappend proc {if {$body == ""} { return -code error "wrong # args: should be \"[lindex [info level 0] 0] ?options? string\"" }}
+                lappend proc {set b [::rest::mime_multipart body $body]}
+                lappend proc {dict set config headers content-type "multipart/related; boundary=$b"}
             }
         }
         # end option processing
@@ -168,7 +177,7 @@ proc ::rest::create_interface {name} {
         if {[dict exists $config cookie]} {
             lappend proc {lappend headers Cookie [join [dict get $config cookie] \;]}
         }
-        _transform $name $call $config proc input_transform
+        _transform $name $call $config proc input_transform query
         if {[dict exists $config auth] && [lindex [dict get $config auth] 0] == "sign"} {
             lappend proc "set query \[::${name}::[lindex [dict get $config auth] 1] \$query]"
         }
@@ -190,7 +199,7 @@ proc ::rest::create_interface {name} {
         }
         
         # process results
-        _transform $name $call $config proc pre_transform
+        _transform $name $call $config proc pre_transform result
         if {[dict exists $config result]} {
             lappend proc "set result \[::rest::format_[dict get $config result] \$result]"
         } elseif {[dict exists $config format]} {
@@ -198,7 +207,7 @@ proc ::rest::create_interface {name} {
         } else {
             lappend proc "set result \[::rest::format_auto \$result]"
         }
-        _transform $name $call $config proc post_transform
+        _transform $name $call $config proc post_transform result
         if {[dict exists $config check_result]} {
             lappend proc "::rest::_check_result \$result [dict get $config check_result]"
         }
@@ -233,6 +242,37 @@ proc ::rest::create_interface {name} {
     return $name
 }
 
+# mime_multipart --
+#
+# creates a mime mulipart message
+#
+# ARGS:
+#       var        name of variable in which the mime body is stored
+#       body       a list of key/value pairs which represent mime part
+#                  headers and bodies. the header is itself a list of
+#                  value pairs which define header fields
+#
+# EFFECTS:
+#       replaces $var with a mime body
+#
+# RETURNS:
+#       the mime boundary string
+#
+proc ::rest::mime_multipart {var body} {
+    upvar $var out
+    set out {}
+    set boundary _000-MIME_SEPERATOR
+    foreach {head data} $body {
+        append out \n--$boundary\n
+        foreach {k v} $head {
+            append out "$k: $v\n"
+        }
+        append out \n$data\n
+    }
+    append out \n--$boundary--\n
+    return $boundary
+}
+
 # _transform --
 #
 # called by create_interface to handle the creation of user defined procedures
@@ -250,15 +290,15 @@ proc ::rest::create_interface {name} {
 # RETURNS:
 #       nothing
 #
-proc ::rest::_transform {ns call config proc name} {
+proc ::rest::_transform {ns call config proc name var} {
     upvar $proc p
     if {[dict exists $config $name]} {
         set t [dict get $config $name]
         if {[llength [split $t]] == 1 && [info commands $t] != ""} {
-            lappend p "set result \[$t \$result]"
+            lappend p "set $var \[$t \$$var]"
         } else {
-            lappend p "set result \[::${ns}::_${name}_$call \$result]"
-            proc ::${ns}::_${name}_$call result $t
+            lappend p "set $var \[::${ns}::_${name}_$call \$$var]"
+            proc ::${ns}::_${name}_$call $var $t
         }
     }
 }
@@ -348,6 +388,7 @@ proc ::rest::parameters {url args} {
 #       the data from the http reply, or an http token if the request was async
 #
 proc ::rest::_call {callback headers url query body} {
+    #puts "_call [list $callback $headers $url $query $body]"
     # get the settings from the calling proc
     upvar config config
     
@@ -364,13 +405,14 @@ proc ::rest::_call {callback headers url query body} {
         set body $query
         set query {}
     }
-    set url $url?$query
+    if {$query != ""} { append url ?$query }
 
     # configure options to the geturl command
     set opts [list]
     lappend opts -method $method
-    if {[dict exists $config content-type]} {
-        lappend opts -type [dict get $config content-type]
+    if {[dict exists $headers content-type]} {
+        lappend opts -type [dict get $headers content-type]
+        set headers [dict remove $headers content-type]
     }
     if {$body != ""} {
         lappend opts -query $body
@@ -495,6 +537,10 @@ proc ::rest::parse_opts {static required optional options} {
     while {[llength $args] > 0} {
         set opt [lindex $args 0]
         if {![string match -* $opt]} break
+        if {$opt == "--"} {
+            set args [lreplace $args 0 0]
+            break
+        }
         set opt [string range $opt 1 end]
         
         if {[set i [lsearch $optional $opt:*]] > -1} {
@@ -508,7 +554,7 @@ proc ::rest::parse_opts {static required optional options} {
         } else {
             set opts {}
             foreach x [concat $required $optional] { lappend opts -[string trimright $x :] }
-            if {[length $opts] > 0} {
+            if {[llength $opts] > 0} {
                 return -code error "bad option \"$opt\": Must be [join $opts ", "]"
             }
             return -code error "bad option \"$opt\""
