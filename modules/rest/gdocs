@@ -8,7 +8,8 @@ package require tls
 set gdocs(auth) {
     url https://www.google.com/accounts/ClientLogin
     method post
-    req_args { Email: Passwd: source: }
+    req_args { Email: Passwd: }
+    opt_args { source:tclrest }
     static_args { service writely }
     post_transform {
         regexp {Auth=(.*)\n} $result -> result
@@ -16,13 +17,16 @@ set gdocs(auth) {
     }
 }
 
-set gdocs(list) {
+set gdocs(doclist) {
     url http://docs.google.com/feeds/default/private/full
     headers {
         GData-Version 3.0
         Authorization {GoogleLogin auth=%token%}
     }
-    format raw
+    format tdom
+    post_transform {
+        return [list $result [$result getElementsByTagName entry]]
+    }
 }
 
 set gdocs(upload) {
@@ -42,7 +46,7 @@ set gdocs(export) {
         GData-Version 3.0
         Authorization {GoogleLogin auth=%token%}
     }
-    req_args { docID: }
+    body { arg docID }
     opt_args { exportFormat: }
     format raw
 }
@@ -65,4 +69,19 @@ proc ::gdocs::create_doc_metadata {args} {
     return [join $xml \n]
 }
 
+
+# Example usage
+#source gdocs
+#set auth [gdocs::auth -Email me@gmail.com -Passwd passwd]
+#gdocs::set_static_args -token $auth
+#
+#set file IMG_0848.jpg
+#set meta [gdocs::create_doc_metadata -title [file rootname $file]]
+#
+#set fh [open $file]
+#fconfigure $fh -encoding binary -translation lf
+#set filedata [read $fh]
+#close $fh
+#
+#gdocs::upload -ocr true -- [list {Content-Type application/atom+xml} $meta] [list {Content-Type image/jpeg} $filedata]
 
