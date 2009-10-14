@@ -1,3 +1,11 @@
+# rest.tcl --
+#
+# A framework for RESTful web services
+#
+# Copyright (c) 2009 Aaron Faupell
+#
+# RCS: @(#) $Id: rest.tcl,v 1.7 2009/10/14 16:28:18 afaupell Exp $
+
 package require Tcl 8.5
 package require http 2.7
 package require json
