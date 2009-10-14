@@ -97,7 +97,31 @@ description
     a string which describes the call. used only for [call describe]
 body
     indicates if arguments are required for the request body or not. should
-    be one of none, optional, or required. default is optional.
+    be one of none, optional, required, argument or mime_multipart. default is optional.
+    if [const argument] is used then the option is parsed as a list where the second value is the name
+    of a option. the body will then be used as the value for that option.
+    if the value is [const mime_multipart] then the body is required and interpreted as each argument
+    representing one part of a mime multipart document. each argument should be a 2 item list with the first being
+    a list of header keys and values, and the second being the mime part body.
+
+[example {
+set ygeo(parse) {
+    url http://wherein.yahooapis.com/v1/document
+    method post
+    body { arg documentContent }
+}
+ygeo::parse "san jose ca"
+# "san jose ca" will be interpreted as if it were specified as the -documentContent option
+}]
+
+[example {
+set gdocs(upload) {
+    url http://docs.google.com/feeds/default/private/full
+    body mime_multipart
+}
+gdocs::upload [list {Content-Type application/atom+xml} $xml] [list {Content-Type image/jpeg} $filedata]
+}]
+
 method
     The HTTP method to call on the url. The default is GET.
 copy
