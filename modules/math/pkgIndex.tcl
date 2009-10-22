@@ -17,7 +17,7 @@ if {![package vsatisfies [package provide Tcl] 8.4]} {return}
 package ifneeded math::statistics        0.6.2 [list source [file join $dir statistics.tcl]]
 package ifneeded math::optimize          1.0   [list source [file join $dir optimize.tcl]]
 package ifneeded math::calculus          0.7.1 [list source [file join $dir calculus.tcl]]
-package ifneeded math::interpolate       1.0.2 [list source [file join $dir interpolate.tcl]]
+package ifneeded math::interpolate       1.0.3 [list source [file join $dir interpolate.tcl]]
 package ifneeded math::linearalgebra     1.1.3 [list source [file join $dir linalg.tcl]]
 package ifneeded math::bignum            3.1.1 [list source [file join $dir bignum.tcl]]
 package ifneeded math::bigfloat          1.2.2 [list source [file join $dir bigfloat.tcl]]
