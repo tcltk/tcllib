@@ -1,3 +1,6 @@
+2009-10-22  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* interpolate.tcl: Fix bug #2881739 in cubic interpolation
+
 2009-09-28  Andreas Kupries  <andreask@activestate.com>
 
 	* linalg.test: Switched the test setup back to 'regular' and also
