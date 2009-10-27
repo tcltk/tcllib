@@ -5,10 +5,10 @@
 
 2009-09-28  Andreas Kupries  <andreask@activestate.com>
 
-	* snit.man: Commit a long-standing fix to the last entry.
-	* snit.tcl: Wrap the close commands into catch to handle
-	* snit2.tcl: the possibility of the std channels not
-	* pkgIndex.tcl: existing. Bumped versions to 1.3.4 and
+	* snit.man: Committed a long-standing fix to a bug in the
+	* snit.tcl: last entry. Wrap the close commands into catch
+	* snit2.tcl: to handle the possibility of the std channels
+	* pkgIndex.tcl: not existing. Bumped versions to 1.3.4 and
 	* main1_83.tcl 2.2.4.
 	* main1.tcl:
 	* main2.tcl:
