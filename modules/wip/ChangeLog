@@ -1,3 +1,8 @@
+2009-10-27  Andreas Kupries  <andreask@activestate.com>
+
+	* wip.tcl: Made sure that wip classes are in the global
+	* wip2.tcl: namespace.
+
 2009-03-02  Andreas Kupries  <andreask@activestate.com>
 
 	* wip.man: Made the use of 'wip' class in the snit macro
