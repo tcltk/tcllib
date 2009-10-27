@@ -7,7 +7,7 @@
 # See the file license.terms.
 
 package require Tcl 8
-package provide log 1.2.1
+package provide log 1.3
 
 # ### ### ### ######### ######### #########
 
@@ -842,7 +842,8 @@ proc ::log::Puts {level text} {
 	return
     }
 
-    puts $chan "$level$fill($level) $text"
+    puts  $chan "$level$fill($level) $text"
+    flush $chan
     return
 }
 
