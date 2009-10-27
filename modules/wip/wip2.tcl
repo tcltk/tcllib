@@ -36,12 +36,12 @@ package require struct::set
 # ### ### ### ######### ######### #########
 ## API & Implementation
 
-snit::type wip {
+snit::type ::wip {
 
     # ### ### ### ######### ######### #########
     ## API
 
-    constructor           {e}       {} ; # create processor
+    constructor           {e args}       {} ; # create processor
 
     # Defining commands and where they dispatch to.
     method def            {name {cp {}}} {} ; # Define a DSL command.
