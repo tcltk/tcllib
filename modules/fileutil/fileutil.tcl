@@ -9,11 +9,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.74 2009/09/14 17:10:07 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.75 2009/10/27 19:16:34 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.14
+package provide fileutil 1.14.1
 
 namespace eval ::fileutil {
     namespace export \
@@ -523,14 +523,14 @@ if {[string equal $tcl_platform(platform) windows]} {
 	# paths, for easy comparison, and also one which is easy to modify
 	# using list commands.
 
-	if {[string equal -nocase $prefix $path]} {
-	    return "."
-	}
-
 	set prefix [file split $prefix]
 	set npath  [file split $path]
 
-	if {[string match -nocase ${prefix}* $npath]} {
+	if {[string equal -nocase $prefix $npath]} {
+	    return "."
+	}
+
+	if {[string match -nocase "${prefix} *" $npath]} {
 	    set path [eval [linsert [lrange $npath [llength $prefix] end] 0 file join ]]
 	}
 	return $path
@@ -541,14 +541,14 @@ if {[string equal $tcl_platform(platform) windows]} {
 	# paths, for easy comparison, and also one which is easy to modify
 	# using list commands.
 
-	if {[string equal $prefix $path]} {
-	    return "."
-	}
-
 	set prefix [file split $prefix]
 	set npath  [file split $path]
 
-	if {[string match ${prefix}* $npath]} {
+	if {[string equal $prefix $npath]} {
+	    return "."
+	}
+
+	if {[string match "${prefix} *" $npath]} {
 	    set path [eval [linsert [lrange $npath [llength $prefix] end] 0 file join ]]
 	}
 	return $path
