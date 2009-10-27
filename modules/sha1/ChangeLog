@@ -1,3 +1,9 @@
+2009-10-27  Andreas Kupries  <andreask@activestate.com>
+
+	* sha256.h: Made the uint*_t typedef's conditional to prevent
+	  their use on hpux-ia64. There they are in conflict with the
+	  definitions in the system header _inttypes.h.
+
 2009-05-07  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* sha1c.tcl:   Fixed object leak in the critcl implementation.
