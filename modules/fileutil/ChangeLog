@@ -1,3 +1,15 @@
+2009-10-27  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.tcl (::fileutil::stripPath): [Bug 2872536]. Fixed both
+	* fileutil.man: issues. Compare the canonical list representations
+	* pkgIndex.tcl: for the \\bar problem, and separate $prefix from
+	* strip.test: '*' by a space to prevent matching on a partial path
+	  segment. Thanks to Ashok P. Nadkarni
+	  <apnadkarni@users.sourceforge.net> for the report. Bumped the
+	  version to 1.14.1. Extended the testsuite.
+
+	* pathops.test: Cleaned up some win vs unix issues in the tests.
+
 2009-10-06  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.test: Added fixes to test cleanups, to prevents errors
