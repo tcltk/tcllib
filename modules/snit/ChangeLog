@@ -1,3 +1,9 @@
+2009-10-31  Will Duquette  <will@wjduquette.com>
+        * validate.tcl: Updated all Snit validation types to return the
+	* snit.tcl: validated value, and to throw -errorcode INVALID
+	            on error.
+	* snit.man: Relevant changes.
+
 2009-09-29  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* snit.test: Updated to handle changes in command error messages
