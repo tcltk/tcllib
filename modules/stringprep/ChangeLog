@@ -1,3 +1,10 @@
+2009-11-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* stringprep.tcl: Applied patch from Sergei Golovan to fix
+	* stringprep.test: the failing tests.
+	* stringprep_data.tcl:
+	* tools/gen_stringprep_data.tcl:
+
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
