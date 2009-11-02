@@ -1,3 +1,8 @@
+2009-11-02  Andreas Kupries  <andreask@activestate.com>
+
+	* stringprep.man: Updated version numbers in the documentation
+	* stringprep_data.man: as well.
+
 2009-11-02  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* stringprep.tcl: Applied patch from Sergei Golovan to fix
