@@ -1,4 +1,12 @@
+2009-11-02  Andreas Kupries  <andreask@activestate.com>
+
+	* snit.tcl: Bumped versions of v1 and v2 to 1.4 and 2.3
+	* snit2.tcl: respectively, taking the backward compatible
+	* snit.man: API changes to validation types into account.
+	* pkgIndex.tcl:
+
 2009-10-31  Will Duquette  <will@wjduquette.com>
+
         * validate.tcl: Updated all Snit validation types to return the
 	* snit.tcl: validated value, and to throw -errorcode INVALID
 	            on error.
