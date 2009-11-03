@@ -5,7 +5,7 @@
 	* graph/tests/Xsupport: namespace in the testsuite, and updated
 	* graph/tests/arcs.test: all users. This prevents the masking
 	* graph/tests/command.test: of scope errors in the graph::op
-	  package when its testsuite is run.
+	* graph1.test: package when its testsuite is run.
 
 2009-09-24  Andreas Kupries  <andreask@activestate.com>
 
