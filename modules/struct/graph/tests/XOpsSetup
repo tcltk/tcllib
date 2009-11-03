@@ -4,7 +4,7 @@
 # Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: XOpsSetup,v 1.12 2009/09/24 19:30:11 andreas_kupries Exp $
+# RCS: @(#) $Id: XOpsSetup,v 1.13 2009/11/03 17:38:30 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -14,7 +14,7 @@
 proc SETUP_A {} {
     # Used by kruskal, prim tests
 
-    graph mygraph
+    struct::graph mygraph
     mygraph node insert 'node0'
     mygraph node insert 'node1'
     mygraph node insert 'node2'
@@ -86,7 +86,7 @@ proc SETUP_B {} {
     # Author: Alejandro Eduardo Cruz Paz
     # 28 August 2008
 
-    graph mygraph
+    struct::graph mygraph
     # Graph's nodes definition
     mygraph node insert S
     mygraph node insert A
@@ -119,7 +119,7 @@ proc SETUP_B {} {
 }
 
 proc SETUP_B2 {} {
-    graph mygraph
+    struct::graph mygraph
 
     mygraph node insert A B C D E F G
 
@@ -147,7 +147,7 @@ proc SETUP_C {} {
     # Author: Alejandro Eduardo Cruz Paz
     # 28 August 2008
 
-    graph mygraph
+    struct::graph mygraph
     mygraph node insert A
     mygraph node insert B
     mygraph node insert C
@@ -179,7 +179,7 @@ proc SETUP_D {} {
     # Author: Alejandro Eduardo Cruz Paz
     # 28 August 2008
 
-    graph mygraph
+    struct::graph mygraph
     mygraph node insert a
     mygraph node insert b
     mygraph node insert c
@@ -215,7 +215,7 @@ proc SETUP_E {} {
     # Author: Alejandro Eduardo Cruz Paz
     # 28 August 2008
 
-    graph mygraph	
+    struct::graph mygraph	
     mygraph node insert 1w
     mygraph node insert 1b
     mygraph node insert 2w
@@ -269,7 +269,7 @@ proc SETUP_F {} {
     #  - maxMatching
     # Author: Alejandro Eduardo Cruz Paz
     # 28 August 2008
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert 1w
     mygraph node insert 1b
@@ -305,7 +305,7 @@ proc SETUP_G {} {
     # Author: Alejandro Eduardo Cruz Paz
     # 28 August 2008
 
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert 1w
     mygraph node insert 1b
@@ -341,7 +341,7 @@ proc SETUP_H {} {
     # Author: Alejandro Eduardo Cruz Paz
     # 28 August 2008
 
-    graph mygraph
+    struct::graph mygraph
     mygraph node insert A
     mygraph node insert B
     mygraph node insert C
@@ -367,7 +367,7 @@ proc SETUP_I {} {
     # Author: Alejandro Eduardo Cruz Paz
     # 28 August 2008
 
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert N1 
     mygraph node insert N2
@@ -390,7 +390,7 @@ proc SETUP_J {} {
     # Author: Alejandro Eduardo Cruz Paz
     # 28 August 2008
 
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert 1
     mygraph node insert 2
@@ -415,7 +415,7 @@ proc SETUP_K {} {
     # Author: Alejandro Eduardo Cruz Paz
     # 28 August 2008
 
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert No1
     mygraph node insert No2
@@ -444,7 +444,7 @@ proc SETUP_K2 {} {
 proc SETUP_L {} {
     # Koenigsberg.
 
-    graph mygraph
+    struct::graph mygraph
     mygraph node insert a b c d
     mygraph arc  insert a c
     mygraph arc  insert a d
@@ -461,7 +461,7 @@ proc SETUP_L {} {
 proc SETUP_M {} {
     # penta-hex-something
 
-    graph mygraph
+    struct::graph mygraph
     mygraph node insert 1 2 3 4 5 6
     mygraph arc  insert 1 2
     mygraph arc  insert 2 3
@@ -485,7 +485,7 @@ proc SETUP_N {} {
     # Author: Alejandro Eduardo Cruz Paz
     # 28 August 2008
 
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert 0 1 2 a b c d e f
     mygraph arc insert 0 1
@@ -515,7 +515,7 @@ proc SETUP_BELLMANFORD_1 {} {
     #Floyd-Warshall's
     #Basic test
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4
     mygraph arc insert node1 node2 edge12
@@ -538,7 +538,7 @@ proc SETUP_BELLMANFORD_2 {} {
     #Shortest Pathfinding by BFS algorithm
     #BFS Algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4 node5 node6
     
@@ -579,7 +579,7 @@ proc SETUP_NEGATIVECYCLE_1 {} {
     #Johnson's Algorithm
     #Floyd-Warshall's Algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3
     mygraph arc insert node1 node2 edge12
@@ -601,7 +601,7 @@ proc SETUP_NEGATIVECYCLE_2 {} {
     #Johnson's Algorithm
     #Floyd-Warshall's Algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4 node5 node6
     mygraph arc insert node1 node6
@@ -627,7 +627,7 @@ proc SETUP_NEGATIVECYCLE_3 {} {
     #Johnson's Algorithm
     #Floyd-Warshall's Algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4 node5
     mygraph arc insert node1 node2 edge12
@@ -661,7 +661,7 @@ proc SETUP_K4 {} {
     #For distance searches: Johnson's and Bellman-Ford's
     #Vertices Cover
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4
 
@@ -704,7 +704,7 @@ proc SETUP_PARTIALLYCONNECTED_1 {} {
     #Johnson's Algorithm (Causes appearing of Inf values as a result)
     #Metric Travelling Salesman 2-approximation algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4 node5
     
@@ -727,7 +727,7 @@ proc SETUP_JOHNSONS_1 {} {
     #Floyd-Warshall's Algorithm
     #
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4 node5
     
@@ -765,7 +765,7 @@ proc SETUP_JOHNSONS_2 {} {
     #Johnson's Algorithm
     #Floyd-Warshall's Algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4 node5 node6
     
@@ -804,7 +804,7 @@ proc SETUP_UNWEIGHTED_K4 {} {
     #Weighted k-center 3-approximation algorithm
     #Greedy Weighted Maximum Independent Set algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4
     
@@ -832,7 +832,7 @@ proc SETUP_UNDIRECTED_K4 {} {
     #Metric Travelling Salesman 2-approximation algorithm
     #Vertices Cover
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4
     
@@ -873,7 +873,7 @@ proc SETUP_NOEDGES_1 {} {
     #Christofides Algorithm
     #Max Cut 2-approximation algorithm
     
-    graph mygraph 
+    struct::graph mygraph 
     
     mygraph node insert node1 node2 node3 node4
     
@@ -934,7 +934,7 @@ proc SETUP_PARTIALLYZEROWEIGHTED_K4 {} {
 proc SETUP_ADJACENCYLIST_K4 {} {
     #special undirected K4 case where we have two arcs between two nodes
     #with different sources and targets
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4
     
@@ -974,7 +974,7 @@ proc SETUP_ADJACENCYLIST_K4_WEIGHTED_DIRECTED {} {
 
 proc SETUP_ADJACENCYLIST_1 {} {
     #undirected and unweighted graph for Adjacency List Testing
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4 node5 node6
     mygraph arc insert node1 node2
@@ -995,7 +995,7 @@ proc SETUP_TSP_1 {} {
     #Used by:
     #Metric Travelling Salesman 2-approximation algorithm
     
-    graph mygraph
+    struct::graph mygraph
 
     mygraph node insert node1 node2 node3 node4 node5 node6
     mygraph arc insert node1 node2 
@@ -1027,7 +1027,7 @@ proc SETUP_TSP_2 {} {
     #Used by:
     #Metric Travelling Salesman 2-approximation algorithm
     
-    graph mygraph 
+    struct::graph mygraph 
     
     mygraph node insert node1 node2 node3 node4 node5
     mygraph arc insert node1 node2
@@ -1054,7 +1054,7 @@ proc SETUP_TSP_3 {} {
     #Used by:
     #Metric Travelling Salesman 2-approximation algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4
     mygraph arc insert node1 node2 
@@ -1086,7 +1086,7 @@ proc SETUP_MAXCUT_1 {} {
     #Used by:
     #Max Cut 2-approximation algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4
     mygraph arc insert node1 node2 edge12
@@ -1105,7 +1105,7 @@ proc SETUP_MAXCUT_2 {} {
     #Used by:
     #Max Cut 2-approximation algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4
     mygraph arc insert node1 node3 edge13
@@ -1123,7 +1123,7 @@ proc SETUP_MAXCUT_3 {} {
     #Used by:
     #Max Cut 2-approximation algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4 node5 node6
     mygraph arc insert node1 node3
@@ -1144,7 +1144,7 @@ proc SETUP_MAXCUT_4 {} {
     #Used by:
     #Max Cut 2-approximation algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4 node5 node6
     mygraph arc insert node1 node2 edge12
@@ -1167,7 +1167,7 @@ proc SETUP_MAXCUT_5 {} {
     #Used by:
     #Max Cut 2-approximation algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4 node5 node6
     mygraph arc insert node1 node2 
@@ -1191,7 +1191,7 @@ proc SETUP_COUNTEDGES_1 {U V} {
     #Max Cut 2-approximation algorithm (subprocedure)
     
     upvar 1 U varU V varV
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4
     mygraph arc insert node1 node3
@@ -1212,7 +1212,7 @@ proc SETUP_COUNTEDGES_2 {U V} {
     #Max Cut 2-approximation algorithm (subprocedure)
     
     upvar 1 U varU V varV
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4
     mygraph arc insert node1 node3
@@ -1235,7 +1235,7 @@ proc SETUP_COUNTEDGES_3 {U V} {
     #Max Cut 2-approximation algorithm (subprocedure)
     
     upvar 1 U varU V varV
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4
     mygraph arc insert node1 node1
@@ -1306,7 +1306,7 @@ proc SETUP_CREATETGRAPH_1 {E} {
     #Metric Travelling Salesman 2-approximation algorithm
     
     upvar 1 E edges
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4
     mygraph arc insert node1 node2 edge12
@@ -1347,7 +1347,7 @@ proc SETUP_CREATETGRAPH_3 {E} {
     #Metric Travelling Salesman 2-approximation algorithm
     
     upvar 1 E edges
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4
     mygraph arc insert node1 node2 edge12
@@ -1371,7 +1371,7 @@ proc SETUP_CHRISTO_1 {} {
     #Used by:
     #Christofides Algorithm (Tight Example)
 
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4 node5 node6 node7
     mygraph arc insert node1 node2 edge12
@@ -1399,7 +1399,7 @@ proc SETUP_VC_1 {} {
     #Used by:
     #Vertices Cover
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4 node5 node6
     mygraph arc insert node1 node2 edge12
@@ -1454,7 +1454,7 @@ proc SETUP_VC_2 {} {
     #Used by:
     #Vertices Cover
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4 node5 node6
     mygraph arc insert node1 node2 edge12
@@ -1478,7 +1478,7 @@ proc SETUP_C5 {} {
     #Greedy Weighted Maximum Independent Set algorithm
     #Vertices Cover
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4 node5
     mygraph arc insert node1 node2
@@ -1500,7 +1500,7 @@ proc SETUP_INDEPENDENTSET_1 {} {
     #Greedy Maximum Independent Set algorithm
     #Greedy Weighted Maximum Independent Set algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     #adding 24 nodes: node1 - node24
     for {set i 1} {$i<=24} {incr i} {
@@ -1557,7 +1557,7 @@ proc SETUP_KCENTER_1 {} {
     #Unweighted k-center 2-approximation algorithm
     #Weighted k-center 3-approximation algorithm
     
-    graph mygraph
+    struct::graph mygraph
     mygraph node insert node1 node2 node3 node4 node5 node6 node7
     mygraph arc insert node1 node7 [list node1 node7]
     mygraph arc insert node2 node7 [list node2 node7]
@@ -1596,7 +1596,7 @@ proc SETUP_KCENTER_2 {} {
     #Used by:
     #Unweighted k-center 2-approximation algorithm
     
-    graph mygraph 
+    struct::graph mygraph 
     
     mygraph node insert node1 node2 node3 node4 node5 node6 node7 node8
     
@@ -1634,7 +1634,7 @@ proc SETUP_TWOSQUARED_1 {} {
     #createSquaredGraph procedure
     #Unweighted k-center 2-approximation algorithm (subprocedure that extends two-squared graphs)
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4 node5 node6 node7 node8
     mygraph arc insert node1 node2 "node1 node2"
@@ -1657,7 +1657,7 @@ proc SETUP_TWOSQUARED_2 {} {
     #createSquaredGraph procedure
     #Unweighted k-center 2-approximation algorithm (subprocedure that extends two-squared graphs)
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4 node5
     mygraph arc insert node1 node2 "node1 node2"
@@ -1675,7 +1675,7 @@ proc SETUP_TWOSQUARED_3 {} {
     #Used by:
     #Unweighted k-center 2-approximation algorithm (subprocedure that extends two-squared graphs)
     
-    graph mygraph2
+    struct::graph mygraph2
     
     mygraph2 node insert node1 node2 node3 node4 node5
     mygraph2 arc insert node1 node2 "node1 node2"
@@ -1694,7 +1694,7 @@ proc SETUP_TWOSQUARED_4 {} {
     #Used by:
     #Unweighted k-center 2-approximation algorithm (subprocedure that extends two-squared graphs)
     
-    graph mygraph2
+    struct::graph mygraph2
     
     mygraph2 node insert node1 node2 node3 node4 node5 node6 node7 node8
     
@@ -1722,7 +1722,7 @@ proc SETUP_WEIGHTEDKCENTER_1 {nodeWeights} {
     #Weighted k-center 3-approximation algorithm
     
     upvar 1 nodeWeights nW
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4 node5 node6 node7 node8
     mygraph arc insert node1 node2
@@ -1749,7 +1749,7 @@ proc SETUP_WEIGHTEDKCENTER_2 {nodeWeights} {
     
     upvar 1 nodeWeights nW
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert node1 node2 node3 node4 node5 node6
     mygraph arc insert node1 node6
@@ -1799,7 +1799,7 @@ proc SETUP_FORDFULKERSON_1 {} {
     #Dinic's Algorithm for maximum flow computation
     #Subprocedures of above: MKM and Dinic's algorithms for blocking flow finding
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert s v1 v2 v3 v4 t
     
@@ -1847,7 +1847,7 @@ proc SETUP_FORDFULKERSON_2 {} {
     #Dinic's Algorithm for maximum flow computation
     #Subprocedures of above: MKM and Dinic's algorithms for blocking flow finding
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert a b c d
     
@@ -1876,7 +1876,7 @@ proc SETUP_FORDFULKERSON_3 {} {
     #Dinic's Algorithm for maximum flow computation
     #Subprocedures of above: MKM and Dinic's algorithms for blocking flow finding
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert s v1 v2 v3 t
     
@@ -2069,7 +2069,7 @@ proc SETUP_AUGMENTINGNETWORK_1 {_f _path} {
     
     upvar 1 $_f f $_path path
     
-    graph mygraph 
+    struct::graph mygraph 
     
     mygraph node insert s a b c t
     
@@ -2207,7 +2207,7 @@ proc SETUP_BUSACKERGOWEN_1 {} {
     #Used by:
     #Busacker Gowen Algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert s a b c t
     
@@ -2258,7 +2258,7 @@ proc SETUP_BUSACKERGOWEN_2 {} {
     #Busacker Gowen Algorithm
     #Edmond's Karp Algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert s v1 v2 t
     mygraph arc insert v1 s v1s
@@ -2280,7 +2280,7 @@ proc SETUP_SOURCESINKNOPATHS {} {
     #sink node t doesn't exist
     #Used by Busacker - Gowen
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert s v1 v2 t
     mygraph arc insert v1 s v1s
@@ -2307,7 +2307,7 @@ proc SETUP_MDST_1 {} {
     #Minimum Diameter Spanning Tree Algorithm
     #BFS algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert a b c d e f g h i j
 
@@ -2333,7 +2333,7 @@ proc SETUP_MDST_2 {} {
     #Used by:
     #Minimum Degree Spanning Tree Tests
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert v1 v2 v3 v4 v5 v6 v7 v8
     mygraph arc insert v1 v2 12
@@ -2357,7 +2357,7 @@ proc SETUP_MDST_3 {} {
     #Used by:
     #Minimum Diameter Spanning Tree Algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert a b c d e
     mygraph arc insert a b ab
@@ -2392,7 +2392,7 @@ proc SETUP_MDST_5 {} {
     #Used by:
     #Minimum Diameter Spanning Tree Algorithm
     
-    graph mygraph
+    struct::graph mygraph
     mygraph node insert a b c d e
     mygraph arc insert a b ab
     mygraph arc insert b c bc
@@ -2412,7 +2412,7 @@ proc SETUP_MDST_6 {} {
     #Used by:
     #Minimum Degree Spanning Tree Tests
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert a b c d e f g
     mygraph arc insert a b ab
@@ -2438,7 +2438,7 @@ proc SETUP_MDST_7 {} {
     #Used by:
     #Minimum Degree Spanning Tree Tests
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert a b c d e f
     mygraph arc insert a b ab
@@ -2466,7 +2466,7 @@ proc SETUP_BLOCKINGFLOW_1 {} {
     #Dinic's Blocking Flow Algorithm
     #MKM (3 Hindu) Blocking Flow Algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert s v1 v2 v3 v4 v5 v6 v7 t
 
@@ -2517,7 +2517,7 @@ proc SETUP_BLOCKINGFLOW_2 {} {
     #Dinic's Blocking Flow Algorithm
     #MKM (3 Hindu) Blocking Flow Algorithm
     
-    graph mygraph 
+    struct::graph mygraph 
     
     mygraph node insert s v1 v2 v3 v4 t
     
@@ -2560,7 +2560,7 @@ proc SETUP_BLOCKINGFLOW_3 {} {
     #Dinic's Blocking Flow Algorithm
     #MKM (3 Hindu) Blocking Flow Algorithm
     
-    graph mygraph 
+    struct::graph mygraph 
     
     mygraph node insert s v1 v2 v3 v4 t
     
@@ -2602,7 +2602,7 @@ proc SETUP_MAXIMUMFLOW_1 {} {
     #Dinic's Blocking Flow Algorithm
     #MKM (3 Hindu) Blocking Flow Algorithm
     
-    graph mygraph
+    struct::graph mygraph
     
     mygraph node insert s v1 v2 v3 v4 t
 
@@ -2636,7 +2636,7 @@ proc SETUP_BFS_1 {} {
     #BFS algorithm
     #Shortest Pathfinding by BFS algorithm
     
-    graph mygraph
+    struct::graph mygraph
     mygraph node insert s a b c d x
 
     mygraph arc insert s a sa
@@ -2665,7 +2665,7 @@ proc SETUP_BFS_2 {} {
     #BFS algorithm
     #Shortest Pathfinding by BFS algorithm
     
-    graph mygraph
+    struct::graph mygraph
     mygraph node insert s a b c d t
     
     mygraph arc insert s d sd
@@ -2704,7 +2704,7 @@ proc SETUP_TSPHEURISTIC_1 {C} {
     #TSP heuristics of local searching - 2 approximation algorithm
     upvar $C _C
     
-    graph mygraph
+    struct::graph mygraph
     mygraph node insert a b c d e
 
     mygraph arc insert a b ab

@@ -6,7 +6,7 @@
 #
 # All rights reserved.
 #
-# RCS: @(#) $Id: Xsupport,v 1.3 2009/09/21 23:48:03 andreas_kupries Exp $
+# RCS: @(#) $Id: Xsupport,v 1.4 2009/11/03 17:38:30 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -144,7 +144,7 @@ proc validate_serial {g serial {nodes {}}} {
 
 proc SETUP {{g mygraph}} {
     catch {$g destroy}
-    graph $g
+    struct::graph $g
 }
 
 #----------------------------------------------------------------------

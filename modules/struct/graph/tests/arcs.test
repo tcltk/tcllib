@@ -2,7 +2,7 @@
 # Graph tests - arcs
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: arcs.test,v 1.3 2009/09/15 04:00:52 andreas_kupries Exp $
+# RCS: @(#) $Id: arcs.test,v 1.4 2009/11/03 17:38:30 andreas_kupries Exp $
 
 # Syntax: graph arcs
 # (1)     graph arcs -key KEY
@@ -313,7 +313,7 @@ foreach {switch nodes expected} {
 }
 
 test graph-${impl}-${setimpl}-arcs-adj-1.0 {arcs -adj, border case C code failure} -setup {
-    graph mygraph
+    struct::graph mygraph
     mygraph node insert E
     mygraph node insert F
     mygraph arc  insert E F E_F
