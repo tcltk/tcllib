@@ -1,4 +1,4 @@
-[manpage_begin comm n 4.6]
+[manpage_begin comm n 4.6.1]
 [copyright {1995-1998 The Open Group. All Rights Reserved.}]
 [copyright {2003-2004 ActiveState Corporation.}]
 [copyright {2006-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
@@ -9,7 +9,7 @@
 [keywords  socket {remote execution} {remote communication} send]
 [keywords  communication ipc message rpc comm ssl tls secure]
 [require Tcl 8.3]
-[require comm [opt 4.6]]
+[require comm [opt 4.6.1]]
 [description]
 
 [para]
@@ -879,6 +879,20 @@ Note that requiring no version (or a specific version) can also be done.
 The revision history of [package comm] includes these releases:
 
 [list_begin definitions]
+
+[def 4.6.1]
+
+Changed the implementation of [cmd comm::commCollect] to emulate
+lindex's pre-Tcl 8 behaviour, i.e. it was given the ability to parse
+out the first word of a list, even if the whole buffer is not a
+well-formed list. Without this change the first word could only be
+extracted if the whole buffer was a well-formed list (ever since Tcl
+8), and in a ver-high-load situation, i.e. a server sending lots
+and/or large commands very fast, this may never happen, eventually
+crashing the receiver when it runs out of memory. With the change the
+receiver is always able to process the first word when it becomes
+well-formed, regardless of the structure of the remainder of the
+buffer.
 
 [def 4.6]
 
