@@ -1,0 +1,6 @@
+2009-11-10  Andreas Kupries  <andreask@activestate.com>
+
+	* New module 'coroutine' providing to coroutine utility packages
+	  for easier use of channel operations. These packages are for Tcl
+	  8.6+.
+
