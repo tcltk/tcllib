@@ -1,5 +1,13 @@
 2009-11-10  Andreas Kupries  <andreask@activestate.com>
 
+	* support/devel/sak/validate/cmd.tcl: Extended argument processing
+	* support/devel/sak/validate/manpages.tcl: of the validation command
+	* support/devel/sak/validate/syntax.tcl: to enable a user to specify
+	* support/devel/sak/validate/testsuites.tcl: which version of Tcl
+	* support/devel/sak/validate/validate.tcl: to check against. Plus
+	* support/devel/sak/validate/versions.tcl: fix to handle modules
+	  without manpages.
+
 	* modules/coroutine: New module 'coroutine' providing to coroutine
 	  utility packages for easier use of channel operations. These
 	  packages are for Tcl 8.6+.
