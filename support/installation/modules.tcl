@@ -48,6 +48,7 @@ Module  calendar     _tci _man  _null
 Module  cmdline     _tcl  _man  _null
 Module  comm        _tcl  _man  _null
 Module  control      _tci _man  _null
+Module  coroutine   _tcl _null  _null
 Module  counter     _tcl  _man  _null
 Module  crc         _tcl  _man  _null
 Module  csv         _tcl  _man _exa
@@ -55,6 +56,9 @@ Module  des         _tcl  _man  _null
 Module  dns          _msg _man _exa
 Module  docstrip    _tcl  _man  _null
 Module  doctools     _doc _man _exa
+Module  doctools2base _tcl _man _null
+Module  doctools2idx  _tcl _man _null
+Module  doctools2toc  _tcl _man _null
 Module  exif        _tcl  _man  _null
 Module  fileutil    _tcl  _man  _null
 Module  ftp         _tcl  _man _exa
@@ -98,6 +102,7 @@ Module  profiler    _tcl  _man  _null
 Module  rc4         _tcl  _man  _null
 Module  rcs         _tcl  _man  _null
 Module  report      _tcl  _man  _null
+Module  rest        _tcl  _man  _null
 Module  ripemd      _tcl  _man  _null
 Module  sasl        _tcl  _man  _exa
 Module  sha1        _tcl  _man  _null
