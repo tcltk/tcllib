@@ -13,9 +13,9 @@ exec tclsh "$0" ${1+"$@"}
 # Meta description  configurable as its big brother dtp.
 # Meta category     Processing doctools documents
 # Meta subject      doctools doctoc docidx
-# Meta require      doctools
-# Meta require      doctools::idx
-# Meta require      doctools::toc
+# Meta require      {doctools 1}
+# Meta require      {doctools::idx 1}
+# Meta require      {doctools::toc 1}
 # Meta require      fileutil
 # Meta require      textutil::repeat
 # Meta author       Andreas Kupries
@@ -120,9 +120,9 @@ package provide dtplite 1.0.1
 # documentation without getting overly complex in both implementation
 # and use.
 
-package require doctools
-package require doctools::idx
-package require doctools::toc
+package require doctools      1
+package require doctools::idx 1
+package require doctools::toc 1
 package require fileutil
 package require textutil::repeat
 

@@ -1,3 +1,8 @@
+2009-11-11  Andreas Kupries  <andreask@activestate.com>
+
+	* apps/dtplite: Updated the requirements to force use of doctools
+	  v1, this app is not doctools v2 ready yet.
+
 2009-11-10  Andreas Kupries  <andreask@activestate.com>
 
 	* support/devel/sak/validate/cmd.tcl: Extended argument processing
