@@ -7,12 +7,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: container.tcl,v 1.1 2009/04/18 21:14:17 andreas_kupries Exp $
+# RCS: @(#) $Id: container.tcl,v 1.2 2009/11/15 05:50:03 andreas_kupries Exp $
 
-# Each object manages one index, with methods to add and remove keys
-# and references, singly, or in bulk. The bulk methods accept various
-# forms of textual serializations, among them text using the doctoc
-# markup language.
+# Each object manages one table of contents, with methods to add and
+# remove entries and divisions, singly, or in bulk. The bulk methods
+# accept various forms of textual serializations, among them text
+# using the doctoc markup language.
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -317,7 +317,7 @@ snit::type ::doctools::toc {
     ## Public methods. Bulk loading and merging.
 
     method {deserialize =} {data {format {}}} {
-	# Default format is the regular index serialization
+	# Default format is the regular toc serialization
 	if {$format eq {}} {
 	    set format serial
 	}
@@ -333,7 +333,7 @@ snit::type ::doctools::toc {
     }
 
     method {deserialize +=} {data {format {}}} {
-	# Default format is the regular index serialization
+	# Default format is the regular toc serialization
 	if {$format eq {}} {
 	    set format serial
 	}
@@ -355,14 +355,13 @@ snit::type ::doctools::toc {
     # ### ### ### ######### ######### #########
 
     method serialize {{format {}}} {
-	# Default format is the regular index serialization
+	# Default format is the regular toc serialization
 	if {$format eq {}} {
 	    set format serial
 	}
 
 	# First check the cache for a remebered representation of the
-	# index for the chosen format, and return it, if such is
-	# known.
+	# toc for the chosen format, and return it, if such is known.
 
 	if {[info exists mytoc($format)]} {
 	    return $mytoc($format)
@@ -519,11 +518,11 @@ snit::type ::doctools::toc {
     ## State
 
     # References to export/import managers extending the
-    # (de)serialization abilities of the index.
+    # (de)serialization abilities of the table of contents.
     variable myexporter {}
     variable myimporter {}
 
-    # Internal representation of the index.
+    # Internal representation of the table of contents.
 
     variable mytitle           {} ; # 
     variable mylabel           {} ; # 
@@ -531,7 +530,7 @@ snit::type ::doctools::toc {
     variable myroot            {} ; # Name of the tree root node.
 
     # Array serving as cache holding alternative representations of
-    # the index generated via 'serialize', i.e. data export.
+    # the toc generated via 'serialize', i.e. data export.
 
     variable mytoc -array {}
 

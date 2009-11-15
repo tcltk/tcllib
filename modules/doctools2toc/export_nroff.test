@@ -4,7 +4,7 @@
 # Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: export_nroff.test,v 1.2 2009/04/29 02:10:57 andreas_kupries Exp $
+# RCS: @(#) $Id: export_nroff.test,v 1.3 2009/11/15 05:50:03 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -49,7 +49,7 @@ test doctools-toc-export-nroff-1.2 {export, wrong#args} -body {
 
 # -------------------------------------------------------------------------
 
-# Testing the generation of nroff output, from index serialization,
+# Testing the generation of nroff output, from toc serialization,
 # for all possible plugin configurations.
 
 foreach {k inline section} {

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: export_doctoc.tcl,v 1.2 2009/08/07 18:52:13 andreas_kupries Exp $
+# RCS: @(#) $Id: export_doctoc.tcl,v 1.3 2009/11/15 05:50:03 andreas_kupries Exp $
 
 # This package is a plugin for the doctools::toc v2 system.  It takes
 # the list serialization of a table of contens and produces text in
@@ -49,7 +49,7 @@ proc export {serial configuration} {
     #   - map    = maps symbolic document ids to actual file path or url. Optional.
     # * doctoc specific entries
     #   - newlines = boolean. tags separated by eol markers
-    #   - indented = boolean. tags indented per the index structure.
+    #   - indented = boolean. tags indented per the toc structure.
     #   - aligned  = boolean. reference information tabular aligned within keys.
     #
     # Notes

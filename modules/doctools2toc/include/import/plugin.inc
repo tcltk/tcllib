@@ -7,7 +7,7 @@
 [require Tcl 8.4]
 [require doctools::toc::import::[vset PACKAGE] [opt 0.1]]
 [include format/[vset REQUIRE].inc]
-[keywords doctools index deserialization import [vset NAME]]
+[keywords doctools toc {table of contents} deserialization import [vset NAME]]
 [description]
 
 This package implements the doctools table of contents import plugin

@@ -8,11 +8,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: import_json.tcl,v 1.2 2009/08/07 18:52:13 andreas_kupries Exp $
+# RCS: @(#) $Id: import_json.tcl,v 1.3 2009/11/15 05:50:03 andreas_kupries Exp $
 
 # This package is a plugin for the the doctools::toc v2 system.  It
 # takes text in json format and produces the list serialization of a
-# keyword index.
+# table of contents.
 
 # ### ### ### ######### ######### #########
 ## Requisites
