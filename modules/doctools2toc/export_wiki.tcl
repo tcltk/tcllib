@@ -1,18 +1,18 @@
 # text.tcl --
 #
 #	The wiki export plugin. Generation of plain text, ready for
-#	use by the Tcler' Wiki
+#	use by the Tcler's Wiki
 #
 # Copyright (c) 2009 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: export_wiki.tcl,v 1.2 2009/08/07 18:52:13 andreas_kupries Exp $
+# RCS: @(#) $Id: export_wiki.tcl,v 1.3 2009/11/15 05:50:03 andreas_kupries Exp $
 
 # This package is a plugin for the the doctools::toc v2 system.  It
-# takes the list serialization of a keyword index and produces text in
-# text format.
+# takes the list serialization of a table of contents and produces
+# text in wiki format.
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -37,7 +37,7 @@ doctools::text::import ;# -> ::text
 
 proc export {serial configuration} {
 
-    # Phase I. Check that we got a canonical index serialization. That
+    # Phase I. Check that we got a canonical toc serialization. That
     #          makes the unpacking easier, as we can mix it with the
     #          generation of the output, knowing that everything is
     #          already sorted as it should be.
@@ -49,7 +49,7 @@ proc export {serial configuration} {
     # * Standard entries
     #   - user   = person running the application doing the formatting
     #   - format = name of this format
-    #   - file   = name of the file the index came from. Optional.
+    #   - file   = name of the file the toc came from. Optional.
     #   - map    = maps symbolic references to actual file path. Optional.
 
     # //possible parameters to influence the output.
