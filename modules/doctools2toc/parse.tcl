@@ -507,7 +507,7 @@ snit::type            ::doctools::toc::parse {
 	set error 0
 	set root [$t rootname]
 
-	# Root delivers index label and title.
+	# Root delivers toc label and title.
 	struct::list assign [$t get $root argv] label title
 
 	set prefix ....

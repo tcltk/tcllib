@@ -17,7 +17,7 @@ snit::type ::doctools::toc::structure {
     # # ## ### ##### ######## #############
     ## Public API
 
-    # Check that the proposed serialization of a keyword index is
+    # Check that the proposed serialization of a table of contents is
     # indeed such.
 
     typemethod verify {serial {canonvar {}}} {
@@ -105,7 +105,7 @@ snit::type ::doctools::toc::structure {
 	$type verify $seriala
 	$type verify $serialb
 
-	# Merge using title and label of the second index, and the new
+	# Merge using title and label of the second toc, and the new
 	# elements come after the existing.
 
 	# Unpack the definitions...
@@ -124,7 +124,7 @@ snit::type ::doctools::toc::structure {
 	return $serial
     }
 
-    # Converts an index serialization into a human readable string for
+    # Converts a toc serialization into a human readable string for
     # test results. It assumes that the serialization is at least
     # structurally sound.
 

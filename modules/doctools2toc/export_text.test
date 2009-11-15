@@ -4,7 +4,7 @@
 # Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: export_text.test,v 1.1 2009/04/18 21:14:18 andreas_kupries Exp $
+# RCS: @(#) $Id: export_text.test,v 1.2 2009/11/15 05:50:03 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ test doctools-toc-export-text-1.2 {export, wrong#args} -body {
 
 # -------------------------------------------------------------------------
 
-# Testing the generation of text output, from index serialization,
+# Testing the generation of text output, from toc serialization,
 # for all possible plugin configurations.
 
 TestFilesProcess $mytestdir ok serial text -> n label input data expected {
