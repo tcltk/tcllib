@@ -1,3 +1,32 @@
+2009-11-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* container.test: Fixed up typos in comments refering to keyword
+	* export.tcl: indices, while the packages are all about tables of
+	* export_doctoc.tcl: contents. Unchanged functionality, version
+	* export_doctoc.test: left unchanged.
+	* export_html.tcl:
+	* export_html.test:
+	* export_json.tcl:
+	* export_json.test:
+	* export_nroff.tcl:
+	* export_nroff.test:
+	* export_text.tcl:
+	* export_text.test:
+	* export_wiki.tcl:
+	* export_wiki.test:
+	* import.tcl:
+	* import_doctoc.tcl:
+	* import_json.tcl:
+	* include/export/config/doctoc.inc:
+	* include/export/config/html.inc:
+	* include/export/config/nroff.inc:
+	* include/export/plugin.inc:
+	* include/import/plugin.inc:
+	* parse.tcl:
+	* tests/container:
+	* tests/export:
+	* tests/import:
+
 2009-08-07  Andreas Kupries  <andreask@activestate.com>
 
 	* export_doctoc.tcl: Added missing '@mdgen NODEP' hints for the

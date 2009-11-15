@@ -1,10 +1,10 @@
 # -*- tcl -*-
-# toc_export.testsuite: Tests for the managed of index export plugins.
+# toc_export.testsuite: Tests for the management of toc export plugins.
 #
 # Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: export,v 1.1 2009/04/18 21:14:21 andreas_kupries Exp $
+# RCS: @(#) $Id: export,v 1.2 2009/11/15 05:50:03 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 

@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: import.tcl,v 1.1 2009/04/18 21:14:18 andreas_kupries Exp $
+# RCS: @(#) $Id: import.tcl,v 1.2 2009/11/15 05:50:03 andreas_kupries Exp $
 
 # Each object manages a set of plugins for the conversion of keyword
 # indices into some textual representation. I.e. this object manages
@@ -51,7 +51,7 @@ snit::type ::doctools::toc::import {
     }
 
     # ### ### ### ######### ######### #########
-    ## Convert from other formats to the Tcl index serialization
+    ## Convert from other formats to the Tcl toc serialization
 
     method {import object text} {obj text {format {}}} {
 	$obj deserialize [$self import text $text $format]

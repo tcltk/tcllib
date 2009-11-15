@@ -15,8 +15,8 @@ beginning of the generated document.
 [arg_def string file]
 
 This standard configuration variable contains the name of the file the
-index came from. This variable may not be set or contain the empty
-string.
+table of contents came from. This variable may not be set or contain
+the empty string.
 
 The plugin puts this information, if defined, i.e. set and not the
 empty string, into the provenance comment at the beginning of the

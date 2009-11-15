@@ -8,11 +8,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: import_doctoc.tcl,v 1.2 2009/08/07 18:52:13 andreas_kupries Exp $
+# RCS: @(#) $Id: import_doctoc.tcl,v 1.3 2009/11/15 05:50:03 andreas_kupries Exp $
 
 # This package is a plugin for the the doctools::toc v2 system.  It
 # takes text in docidx format and produces the list serialization of a
-# keyword index.
+# table of contents.
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -57,7 +57,7 @@ if {[llength [info commands include]]} {
 }
 
 # ### ### ### ######### ######### #########
-## API :: Convert text to canonical index serialization.
+## API :: Convert text to canonical toc serialization.
 
 proc import {text configuration} {
     global errorInfo errorCode
