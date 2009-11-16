@@ -336,6 +336,12 @@ test typedestruction-1.4 {type proc is destroyed on error} -body {
     list [namespace exists ::dog] [info command ::dog]
 } -result {0 {}}
 
+test typedestruction-1.5 {unrelated namespaces are deleted, bug 2898640} -body {
+    type dog {}
+    namespace eval dog::unrelated {}
+    dog destroy
+} -result {}
+
 #-----------------------------------------------------------------------
 # type and typemethods
 
@@ -3135,7 +3141,6 @@ test destroy-1.3 {user-defined destructors are called} -body {
     dog destroy
 } -result {{created ::spot} {destroyed ::spot}}
 
-
 #-----------------------------------------------------------------------
 # delegate: general syntax tests
 
@@ -5813,6 +5818,16 @@ test tinfo-3.4 {type info instances with pattern} -body {
     dog create fido
 
     dog info instances "*f*"
+} -cleanup {
+    dog destroy
+} -result {::fido}
+
+test tinfo-3.5 {type info instances with unrelated child namespace, bug 2898640} -body {
+    type dog { }
+    namespace eval dog::unrelated {}
+    dog create fido
+
+    dog info instances
 } -cleanup {
     dog destroy
 } -result {::fido}

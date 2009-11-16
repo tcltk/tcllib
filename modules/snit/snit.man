@@ -5,7 +5,7 @@
 [titledesc  {Snit's Not Incr Tcl}]
 [category  {Programming tools}]
 [require Tcl 8.5]
-[require snit [opt 2.3]]
+[require snit [opt 2.3.1]]
 [description]
 [para]
 
