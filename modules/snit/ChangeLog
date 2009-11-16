@@ -1,3 +1,14 @@
+2009-11-16  Andreas Kupries  <andreask@activestate.com>
+
+	* main2.tcl (::snit::RT.typemethod.destroy) 
+	(::snit::RT.typemethod.info.instances): 
+	* main1.tcl (::snit::RT.typemethod.info.instances) 
+	(::snit::RT.typemethod.destroy): [Bug 2898640]. Fixed handling of
+	* snit.tcl: unrelated namespaces by restricting the set of
+	* snit2.tcl: children to look at. Bumped versions of v1 and v2 to
+	* pkgIndex.tcl: 1.4.1 and 2.3.1 respectively.
+	* snit.man:
+
 2009-11-02  Andreas Kupries  <andreask@activestate.com>
 
 	* snit.tcl: Bumped versions of v1 and v2 to 1.4 and 2.3
