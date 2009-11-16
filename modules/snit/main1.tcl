@@ -3137,7 +3137,7 @@ proc ::snit::RT.typemethod.destroy {type} {
     variable ${type}::Snit_info
 
     # FIRST, destroy all instances
-    foreach selfns [namespace children $type] {
+    foreach selfns [namespace children $type "${type}::Snit_inst*"] {
         if {![namespace exists $selfns]} {
             continue
         }
@@ -3699,7 +3699,7 @@ proc ::snit::RT.typemethod.info.default {type method aname dvar} {
 proc ::snit::RT.typemethod.info.instances {type {pattern *}} {
     set result {}
 
-    foreach selfns [namespace children $type] {
+    foreach selfns [namespace children $type "${type}::Snit_inst*"] {
         upvar ${selfns}::Snit_instance instance
 
         if {[string match $pattern $instance]} {
