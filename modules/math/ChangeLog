@@ -1,3 +1,7 @@
+2009-11-17  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* pdf_stat.tcl: Fix bug #2897419 - very small numbers with beta
+	  distribution
+
 2009-10-22  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* interpolate.tcl: Fix bug #2881739 in cubic interpolation
 
