@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: geometry.tcl,v 1.8 2005/10/04 17:31:23 andreas_kupries Exp $
+# RCS: @(#) $Id: geometry.tcl,v 1.9 2009/11/17 11:30:51 arjenmarkus Exp $
 
 namespace eval ::math::geometry {
 }
@@ -916,9 +916,29 @@ proc ::math::geometry::bbox {polyline} {
     return [list $minX $minY $maxX $maxY]
 }
 
+# ::math::geometry::ClosedPolygon
+#
+#       Return a closed polygon - used internally
+#
+# Arguments:
+#       polygon       a polygon
+#
+# Results:
+#       closedpolygon a polygon whose first and last vertices
+#                     coincide
+#
+proc ::math::geometry::ClosedPolygon {polygon} {
 
+    if { [lindex $polygon 0] != [lindex $polygon end-1] ||
+         [lindex $polygon 1] != [lindex $polygon end]     } {
 
+        return [concat $polygon [lrange $polygon 0 1]]
 
+    } else {
+
+        return $polygon
+    }
+}
 
 
 # ::math::geometry::pointInsidePolygon
@@ -944,7 +964,8 @@ proc ::math::geometry::bbox {polyline} {
 proc ::math::geometry::pointInsidePolygon {P polygon} {
     # check if P is on one of the polygon's sides (if so, P is not
     # inside the polygon)
-    set closedPolygon [concat $polygon [lrange $polygon 0 1]]
+    set closedPolygon [ClosedPolygon $polygon]
+
     foreach {x1 y1} [lrange $closedPolygon 0 end-2] {x2 y2} [lrange $closedPolygon 2 end] {
 	if {[calculateDistanceToLineSegment $P [list $x1 $y1 $x2 $y2]]<0.0000001} {
 	    return 0
@@ -970,19 +991,22 @@ proc ::math::geometry::pointInsidePolygon {P polygon} {
 
     # get point far away and define the line
     set polygonBbox [bbox $polygon]
-    set pointFarAway [list [expr {[lindex $polygonBbox 0]-1}] [expr {[lindex $polygonBbox 1]-1}]]
+
+    set pointFarAway [list \
+        [expr {[lindex $polygonBbox 0]-[lindex $polygonBbox 2]}] \
+        [expr {[lindex $polygonBbox 1]-0.1*[lindex $polygonBbox 3]}]]
+
     set infinityLine [concat $pointFarAway $P]
     # calculate number of intersections
     set noOfIntersections 0
     #   1. count intersections between the line and the polygon's sides
-    set closedPolygon [concat $polygon [lrange $polygon 0 1]]
     foreach {x1 y1} [lrange $closedPolygon 0 end-2] {x2 y2} [lrange $closedPolygon 2 end] {
 	if {[lineSegmentsIntersect $infinityLine [list $x1 $y1 $x2 $y2]]} {
 	    incr noOfIntersections
 	}
     }
     #   2. count intersections between the line and the polygon's points
-    foreach {x1 y1} $polygon {
+    foreach {x1 y1} $closedPolygon {
 	if {[calculateDistanceToLineSegment [list $x1 $y1] $infinityLine]<0.0000001} {
 	    incr noOfIntersections
 	}
@@ -1045,7 +1069,7 @@ proc ::math::geometry::rectangleInsidePolygon {P1 P2 polygon} {
     # 2. if one of the line segments of the polygon intersect with the
     # rectangle, then the rectangle cannot be inside the polygon
     set rectanglePolyline [list $bx1 $by1 $bx2 $by1 $bx2 $by2 $bx1 $by2 $bx1 $by1]
-    set closedPolygon [concat $polygon [lrange $polygon 0 1]]
+    set closedPolygon [ClosedPolygon $polygon]
     if {[polylinesIntersect $closedPolygon $rectanglePolyline]} {
 	return 0
     }
@@ -1090,4 +1114,4 @@ proc ::math::geometry::areaPolygon {polygon} {
     expr {0.5*abs($area)}
 }
 
-package provide math::geometry 1.0.3
+package provide math::geometry 1.0.4
