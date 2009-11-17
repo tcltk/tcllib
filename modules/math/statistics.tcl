@@ -15,7 +15,7 @@
 # version 0.6:   added pdf and cdf procedures for various distributions
 #                (provided by Eric Kemp-Benedict)
 
-package provide math::statistics 0.6.2
+package provide math::statistics 0.6.3
 package require math
 
 # ::math::statistics --
