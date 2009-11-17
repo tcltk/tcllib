@@ -1,6 +1,6 @@
 if {![package vsatisfies [package provide Tcl] 8.2]} {return}
 package ifneeded math                    1.2.4 [list source [file join $dir math.tcl]]
-package ifneeded math::geometry          1.0.3 [list source [file join $dir geometry.tcl]]
+package ifneeded math::geometry          1.0.4 [list source [file join $dir geometry.tcl]]
 package ifneeded math::fuzzy             0.2   [list source [file join $dir fuzzy.tcl]]
 package ifneeded math::complexnumbers    1.0.2 [list source [file join $dir qcomplex.tcl]]
 package ifneeded math::special           0.2.2 [list source [file join $dir special.tcl]]
