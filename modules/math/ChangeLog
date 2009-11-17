@@ -1,6 +1,8 @@
 2009-11-17  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* statistics.tcl: Bumped version to 0.6.3
-	* pkgIndex.tcl: Ditto
+	* geometry.tcl: Solved bug #1623653 - corner case in pointInsidePolygon
+        * geometry.test: Added two tests for the corner case
+	* pkgIndex.tcl: Updated version numbers
 
 2009-11-16  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* pdf_stat.tcl: Fix bug #2897419 - very small numbers with beta

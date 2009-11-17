@@ -4,7 +4,7 @@
 # Copyright (c) 2001 by Ideogramic ApS and other parties.
 # All rights reserved.
 #
-# RCS: @(#) $Id: geometry.test,v 1.10 2006/10/09 21:41:41 andreas_kupries Exp $
+# RCS: @(#) $Id: geometry.test,v 1.11 2009/11/17 11:30:51 arjenmarkus Exp $
 
 # -------------------------------------------------------------------------
 
@@ -386,6 +386,12 @@ test geometry-15.9 {geometry::pointInsidePolygon, hour-glass with point on right
 } 0
 test geometry-15.10 {geometry::pointInsidePolygon, infinityLine crosses point instead of line segment} {
     math::geometry::pointInsidePolygon {5 5} {4 4 4 7 7 7 7 4}
+} 1
+test geometry-15.11 {geometry::pointInsidePolygon, polygon already closed} {
+    math::geometry::pointInsidePolygon {5 5} {4 4 4 6 6 6 6 4 4 4}
+} 1
+test geometry-15.12 {geometry::pointInsidePolygon, polygon with zero-length side} {
+    math::geometry::pointInsidePolygon {5 5} {4 4 4 6 6 6 6 6 6 4}
 } 1
 
 
