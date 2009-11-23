@@ -1,3 +1,8 @@
+2009-11-23  Andreas Kupries  <andreask@activestate.com>
+
+	* import_json.tcl: Added pragma to tell sak.tcl that the 'package
+	  provide dict' is a fake.
+
 2009-08-07  Andreas Kupries  <andreask@activestate.com>
 
 	* export_docidx.tcl: Added missing '@mdgen NODEP' hints for the
