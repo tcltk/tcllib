@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: import_json.tcl,v 1.3 2009/08/07 18:53:11 andreas_kupries Exp $
+# RCS: @(#) $Id: import_json.tcl,v 1.4 2009/11/23 23:04:25 andreas_kupries Exp $
 
 # This package is a plugin for the the doctools::idx v2 system.  It
 # takes text in json format and produces the list serialization of a
@@ -17,6 +17,7 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
+# @sak notprovided dict
 # @mdgen NODEP: doctools::idx::import::plugin
 
 package require Tcl 8.4
