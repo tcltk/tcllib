@@ -386,4 +386,4 @@ proc ::transfer::copy::Configure {chan settings} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide transfer::copy 0.2
+package provide transfer::copy 0.3
