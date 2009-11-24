@@ -9,11 +9,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.75 2009/10/27 19:16:34 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.76 2009/11/24 21:27:59 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.14.1
+package provide fileutil 1.14.2
 
 namespace eval ::fileutil {
     namespace export \
@@ -1532,11 +1532,17 @@ proc ::fileutil::fileType {filename} {
 
     if { [ regexp {^\#\!\s*(\S+)} $test -> terp ] } {
         lappend type script $terp
-    } elseif {[regexp "\\\[manpage_begin " $test]} {
+    } elseif {([regexp "\\\[manpage_begin " $test] &&
+	       ![regexp -- {--- !doctools ---} $test]) ||
+              [regexp -- {--- doctools ---} $test]} {
 	lappend type doctools
-    } elseif {[regexp "\\\[toc_begin " $test]} {
+    } elseif {([regexp "\\\[toc_begin " $test] &&
+	       ![regexp -- {--- !doctoc ---} $test]) ||
+              [regexp -- {--- doctoc ---} $test]} {
 	lappend type doctoc
-    } elseif {[regexp "\\\[index_begin " $test]} {
+    } elseif {([regexp "\\\[index_begin " $test] &&
+	       ![regexp -- {--- !docidx ---} $test]) ||
+              [regexp -- {--- docidx ---} $test]} {
 	lappend type docidx
     } elseif { $binary && [ regexp {^[\x7F]ELF} $test ] } {
         lappend type executable elf

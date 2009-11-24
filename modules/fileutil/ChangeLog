@@ -1,3 +1,13 @@
+2009-11-24  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.tcl: Extended the doctools/toc/idx detector with
+	* fileutil.man: checks for inclusion and exclusion markers
+	* pkgIndex.tcl: allowing the user to force acceptance or rejection
+	of files for complex situations (like an include file looking like
+	a doctools main file but not bein so, and the converse, a main
+	file lacking the regular marker, which is hidden in an included
+	file). Bumped to version 1.14.2.
+
 2009-10-27  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.tcl (::fileutil::stripPath): [Bug 2872536]. Fixed both
