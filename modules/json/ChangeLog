@@ -1,3 +1,8 @@
+2009-11-23  Andreas Kupries  <akupries@shaw.ca>
+
+	* json.tcl: Bumped package to version 1.0.1 due to the bugfix made
+	* pkgIndex.tcl: on 2009-04-18.
+
 2009-05-26  KATO Kanryu  <kanryu6@users.sourceforge.net>
 
 	* json.test: improved to compare dicts
