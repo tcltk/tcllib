@@ -1,3 +1,16 @@
+2009-11-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* support/devel/sak/note/cmd.tcl: New sak commands 'note' and 'readme'
+	* support/devel/sak/note/help.txt: for semi-automatic generation of
+	* support/devel/sak/note/note.tcl: the release README.txt from
+	* support/devel/sak/note/pkgIndex.tcl: current and last package
+	* support/devel/sak/note/topic.txt: versions, and note'd hints.
+	* support/devel/sak/readme/cmd.tcl:
+	* support/devel/sak/readme/help.txt:
+	* support/devel/sak/readme/pkgIndex.tcl:
+	* support/devel/sak/readme/readme.tcl:
+	* support/devel/sak/readme/topic.txt:
+
 2009-11-11  Andreas Kupries  <andreask@activestate.com>
 
 	* apps/dtplite: Updated the requirements to force use of doctools
