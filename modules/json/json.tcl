@@ -5,14 +5,14 @@
 #
 #   Copyright 2006 ActiveState Software Inc.
 #
-#   $Id: json.tcl,v 1.3 2009/04/17 23:20:54 kanryu6 Exp $
+#   $Id: json.tcl,v 1.4 2009/11/24 04:53:46 andreas_kupries Exp $
 #
 
 if {$::tcl_version < 8.5} {
     package require dict
 }
 
-package provide json 1.0
+package provide json 1.0.1
 
 namespace eval json {}
 

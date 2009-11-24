@@ -37,7 +37,7 @@
 	  the stream type methods.
 
 	* copyops.tcl: Made transfer properly chunked for channels.
-	* copyops.man: Bumped to version 0.2.
+	* copyops.man: Bumped to version 0.3.
 	* pkgIndex.tcl:
 
 	* ddest.tcl: Cleanup of older snit constructs. Added -progress
