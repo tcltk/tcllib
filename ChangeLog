@@ -1,5 +1,12 @@
 2009-11-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* support/installation/modules.tcl: Fix issue with examples for logger,
+	* support/installation/actions.tcl: which did not fit the
+	  expectations of action _exa, which assumed the module name,
+	  which is 'log'. Instead of wrestling CVS into renaming the
+	  directory a new action is made which takes the actual name as
+	  argument.
+
 	* support/devel/sak/note/cmd.tcl: New sak commands 'note' and 'readme'
 	* support/devel/sak/note/help.txt: for semi-automatic generation of
 	* support/devel/sak/note/note.tcl: the release README.txt from
