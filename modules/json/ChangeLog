@@ -1,4 +1,12 @@
-2009-11-23  Andreas Kupries  <akupries@shaw.ca>
+2009-11-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* json_write.tcl: New package 'json::write', supporting the
+	* json_write.test: generation of text in JSON format.
+	* json_write.man: Package version 1.
+	* json_write.pcx:
+	* pkgIndex.tcl: 
+
+2009-11-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* json.tcl: Bumped package to version 1.0.1 due to the bugfix made
 	* pkgIndex.tcl: on 2009-04-18.
