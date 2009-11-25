@@ -1,3 +1,7 @@
+2009-11-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* New package 'json::write' in existing module 'json'.
+
 2009-11-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* support/installation/modules.tcl: Fix issue with examples for logger,
