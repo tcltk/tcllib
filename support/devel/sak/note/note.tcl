@@ -30,6 +30,20 @@ proc ::sak::note::run {m p tags} {
     return
 }
 
+proc ::sak::note::show {} {
+    variable notes
+    LoadNotes
+
+    getpackage struct::matrix   struct/matrix.tcl
+
+    struct::matrix M ; M add columns 3
+    foreach k [lsort -dict [array names notes]] {
+	M add row [linsert $k end $notes($k)]
+    }
+    puts "    [join [split [M format 2string] \n] "\n    "]\n"
+    return
+}
+
 proc ::sak::note::LoadNotes {} {
     global distribution
     variable  notes
