@@ -2,6 +2,10 @@
 
 	* New package 'json::write' in existing module 'json'.
 
+	* support/devel/sak/note/cmd.tcl: Extended note command to show
+	* support/devel/sak/note/note.tcl: saved hints when called without
+	  arguments.
+
 2009-11-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* support/installation/modules.tcl: Fix issue with examples for logger,

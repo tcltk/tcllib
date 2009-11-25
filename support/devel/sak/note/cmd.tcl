@@ -15,6 +15,10 @@ set log  0
 set stem {}
 set tclv {}
 
+if {![llength $argv]} {
+    sak::note::show
+    return
+}
 if {[llength $argv] < 3} {
     sak::note::usage
 }
