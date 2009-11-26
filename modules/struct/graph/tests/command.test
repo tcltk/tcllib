@@ -2,7 +2,7 @@
 # Graph tests - graph command basics
 # Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: command.test,v 1.6 2009/11/03 17:38:30 andreas_kupries Exp $
+# RCS: @(#) $Id: command.test,v 1.7 2009/11/26 04:42:16 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 # Wrong # args: Missing, Too many
@@ -15,19 +15,19 @@ test graph-${impl}-${setimpl}-create-1.1 {graph create, copy, wrong#args, missin
     catch {mygraph destroy}
     catch {struct::graph mygraph =} result
     set result
-} {wrong # args: should be "graph ?name ?=|:=|as|deserialize source??"}
+} {wrong # args: should be "struct::graph ?name ?=|:=|as|deserialize source??"}
 
 test graph-${impl}-${setimpl}-create-1.2 {graph create, copy, wrong#args, too many} {
     catch {mygraph destroy}
     catch {struct::graph mygraph = a b} result
     set result
-} {wrong # args: should be "graph ?name ?=|:=|as|deserialize source??"}
+} {wrong # args: should be "struct::graph ?name ?=|:=|as|deserialize source??"}
 
 test graph-${impl}-${setimpl}-create-1.3 {graph create, copy, unknown operator} {
     catch {mygraph destroy}
     catch {struct::graph mygraph foo a} result
     set result
-} {wrong # args: should be "graph ?name ?=|:=|as|deserialize source??"}
+} {wrong # args: should be "struct::graph ?name ?=|:=|as|deserialize source??"}
 
 # -------------------------------------------------------------------------
 # Logical arguments checks and failures
