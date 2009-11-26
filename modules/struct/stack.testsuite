@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: stack.testsuite,v 1.1 2008/06/19 23:03:35 andreas_kupries Exp $
+# RCS: @(#) $Id: stack.testsuite,v 1.2 2009/11/26 04:42:16 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -33,7 +33,7 @@ test stack-${impl}-0.3 {stack errors} {
     catch {mystack foo} msg
     mystack destroy
     set msg
-} "bad option \"foo\": must be clear, destroy, peek, pop, push, rotate, or size"
+} "bad option \"foo\": must be clear, destroy, get, peek, pop, push, rotate, size, or trim"
 test stack-${impl}-0.4 {stack errors} {
     catch {stack set} msg
     set msg
@@ -229,7 +229,7 @@ test stack-${impl}-8.1 {rotate operation} {
     stack mystack
     mystack push a b c d e f g h
     mystack rotate 3 1
-    set result [mystack peek [mystack size]]
+    set result [mystack get]
     mystack destroy
     set result
 } [list g f h e d c b a]
@@ -237,7 +237,7 @@ test stack-${impl}-8.2 {rotate operation} {
     stack mystack
     mystack push a b c d e f g h
     mystack rotate 3 2
-    set result [mystack peek [mystack size]]
+    set result [mystack get]
     mystack destroy
     set result
 } [list f h g e d c b a]
@@ -245,7 +245,7 @@ test stack-${impl}-8.3 {rotate operation} {
     stack mystack
     mystack push a b c d e f g h
     mystack rotate 3 5
-    set result [mystack peek [mystack size]]
+    set result [mystack get]
     mystack destroy
     set result
 } [list f h g e d c b a]
@@ -253,7 +253,7 @@ test stack-${impl}-8.4 {rotate operation} {
     stack mystack
     mystack push a b c d e f g h
     mystack rotate 8 1
-    set result [mystack peek [mystack size]]
+    set result [mystack get]
     mystack destroy
     set result
 } [list g f e d c b a h]
@@ -261,7 +261,7 @@ test stack-${impl}-8.5 {rotate operation} {
     stack mystack
     mystack push a b c d e f g h
     mystack rotate 8 -1
-    set result [mystack peek [mystack size]]
+    set result [mystack get]
     mystack destroy
     set result
 } [list a h g f e d c b]
@@ -278,3 +278,106 @@ test stack-${impl}-8.7 {rotate operation} {
     mystack destroy
     set msg
 } {insufficient items on stack to fill request}
+
+test stack-${impl}-9.0 {get operation, wrong args, too many} {
+    stack mystack
+    catch {mystack get X} msg
+    mystack destroy
+    set msg
+} [tmTooMany get {}]
+
+test stack-${impl}-9.1 {get operation, empty stack} {
+    stack mystack
+    set result [mystack get]
+    mystack destroy
+    set result
+} {}
+
+test stack-${impl}-9.2 {get operation} {
+    stack mystack
+    mystack push a b c d
+    set result [mystack get]
+    mystack destroy
+    set result
+} {d c b a}
+
+test stack-${impl}-9.3 {get operation} {
+    stack mystack
+    mystack push a
+    mystack push b
+    mystack push c
+    mystack push d
+    set result [mystack get]
+    mystack destroy
+    set result
+} {d c b a}
+
+test stack-${impl}-10.0 {trim operation, wrong args, not enough} {
+    stack mystack
+    catch {mystack trim} msg
+    mystack destroy
+    set msg
+} [tmWrong trim {newsize} 0]
+
+test stack-${impl}-10.1 {trim operation, wrong args, too many} {
+    stack mystack
+    catch {mystack trim X Y} msg
+    mystack destroy
+    set msg
+} [tmTooMany trim {newsize}]
+
+test stack-${impl}-10.2 {trim operation, bad argument} {
+    stack mystack
+    catch {mystack trim X} msg
+    mystack destroy
+    set msg
+} {expected integer but got "X"}
+
+test stack-${impl}-10.3 {trim operation, bad argument} {
+    stack mystack
+    catch {mystack trim -4} msg
+    mystack destroy
+    set msg
+} {invalid size -4}
+
+test stack-${impl}-10.4 {trim operation, empty stack} {
+    stack mystack
+    set     result [mystack size]
+    lappend result [mystack trim 1]
+    lappend result [mystack size]
+    mystack destroy
+    set result
+} {0 {} 0}
+
+test stack-${impl}-10.5 {trim operation} {
+    stack mystack
+    mystack push a b c d
+    set     result [mystack size]
+    lappend result [mystack trim 1]
+    lappend result [mystack size]
+    mystack destroy
+    set result
+} {4 {d c b} 1}
+
+test stack-${impl}-10.6 {trim operation} {
+    stack mystack
+    mystack push a
+    mystack push b
+    mystack push c
+    mystack push d
+    set     result [mystack size]
+    lappend result [mystack trim 1]
+    lappend result [mystack size]
+    mystack destroy
+    set result
+} {4 {d c b} 1}
+
+test stack-${impl}-10.7 {trim operation} {
+    stack mystack
+    mystack push a b c d
+    set     result [mystack size]
+    lappend result [mystack trim 5]
+    lappend result [mystack size]
+    mystack destroy
+    set result
+} {4 {} 4}
