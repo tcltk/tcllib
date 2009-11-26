@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: stack_tcl.tcl,v 1.1 2008/06/19 23:03:35 andreas_kupries Exp $
+# RCS: @(#) $Id: stack_tcl.tcl,v 1.2 2009/11/26 04:42:16 andreas_kupries Exp $
 
 namespace eval ::struct {}
 
@@ -146,6 +146,30 @@ proc ::struct::stack::_destroy {name} {
     return
 }
 
+# ::struct::stack::_get --
+#
+#	Retrieve the whole contents of the stack.
+#
+# Arguments:
+#	name	name of the stack object.
+#
+# Results:
+#	items	list of all items in the stack.
+
+proc ::struct::stack::_get {name} {
+    variable stacks
+    upvar 0  stacks($name) mystack
+
+    set n [llength $mystack]
+    if {$n == 1} {
+	return [list [_peek $name $n]]
+    } elseif {$n > 0} {
+	return [_peek $name $n]
+    } else {
+	return {}
+    }
+}
+
 # ::struct::stack::_peek --
 #
 #	Retrieve the value of an item on the stack without popping it.
@@ -177,6 +201,43 @@ proc ::struct::stack::_peek {name {count 1}} {
     # Otherwise, return a list of items
     incr count -1
     return [lreverse [lrange $mystack end-$count end]]
+}
+
+# ::struct::stack::_trim --
+#
+#	Pop items off a stack until a maximum size is reached.
+#
+# Arguments:
+#	name	name of the stack object.
+#	count	requested size of the stack.
+#
+# Results:
+#	item	List of items trimmed, may be empty.
+
+proc ::struct::stack::_trim {name newsize} {
+    variable stacks
+    upvar 0  stacks($name) mystack
+
+    if { ![string is integer -strict $newsize]} {
+	return -code error "expected integer but got \"$newsize\""
+    } elseif { $newsize < 0 } {
+	return -code error "invalid size $newsize"
+    } elseif { $newsize >= [llength $mystack] } {
+	# Stack is smaller than requested, do nothing.
+	return {}
+    }
+
+    # newsize < [llength $mystack]
+    # pop '[llength $mystack]' - newsize elements.
+
+    set n [expr {[llength $mystack] - $newsize}]
+    if {$n == 1} {
+	return [list [_pop $name $n]]
+    } elseif {$n > 1} {
+	return [_pop $name $n]
+    } else {
+	return {}
+    }
 }
 
 # ::struct::stack::_pop --

@@ -14,6 +14,8 @@ int stm_PEEK    (S* sd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv, int 
 int stm_PUSH    (S* sd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
 int stm_ROTATE  (S* sd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
 int stm_SIZE    (S* sd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
+int stm_GET     (S* sd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
+int stm_TRIM    (S* sd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
 
 #endif /* _M_H */
 
