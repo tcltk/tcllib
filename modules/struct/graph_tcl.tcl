@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: graph_tcl.tcl,v 1.4 2009/09/24 16:23:46 andreas_kupries Exp $
+# RCS: @(#) $Id: graph_tcl.tcl,v 1.5 2009/11/26 04:42:16 andreas_kupries Exp $
 
 package require Tcl 8.4
 package require struct::list
@@ -79,14 +79,14 @@ proc ::struct::graph::graph_tcl {args} {
 		}
 		default {
 		    return -code error \
-			    "wrong # args: should be \"graph ?name ?=|:=|as|deserialize source??\""
+			    "wrong # args: should be \"struct::graph ?name ?=|:=|as|deserialize source??\""
 		}
 	    }
 	}
 	default {
 	    # Error.
 	    return -code error \
-		    "wrong # args: should be \"graph ?name ?=|:=|as|deserialize source??\""
+		    "wrong # args: should be \"struct::graph ?name ?=|:=|as|deserialize source??\""
 	}
     }
 

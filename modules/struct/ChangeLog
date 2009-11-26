@@ -1,3 +1,20 @@
+2009-11-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph_tcl.tcl: Fixed mismatches due to the 2009-11-03 change.
+	* graph/tests/command.test:
+
+	* pkgIndex.tcl: Extended struct::stack with convenience methods
+	* stack.man: 'get' and 'trim', to get whole stack, and alternate
+	* stack.tcl: argument specification of 'pop'. Bumped version to
+	* stack_tcl.tcl: 1.4.
+	* stack.testsuite: 
+	* stack/m.c: version
+	* stack/m.h:
+	* stack/ms.c:
+	* stack/ms.h:
+	* stack/s.c:
+	* stack/s.h:
+
 2009-11-03  Andreas Kupries  <andreask@activestate.com>
 
 	* graph/tests/XOpsSetup: [Bug 2811747]: Removed the import of
