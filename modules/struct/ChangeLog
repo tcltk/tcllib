@@ -6,8 +6,8 @@
 	* pkgIndex.tcl: Extended struct::stack with convenience methods
 	* stack.man: 'get' and 'trim', to get whole stack, and alternate
 	* stack.tcl: argument specification of 'pop'. Bumped version to
-	* stack_tcl.tcl: 1.4.
-	* stack.testsuite: 
+	* stack_tcl.tcl: 1.4. Bumped the tcllibc umbrella package to
+	* stack.testsuite: version 0.3.7.
 	* stack/m.c: version
 	* stack/m.h:
 	* stack/ms.c:
