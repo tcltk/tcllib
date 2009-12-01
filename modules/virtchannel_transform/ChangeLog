@@ -1,0 +1,4 @@
+2009-12-01  Andreas Kupries  <andreask@activestate.com>
+
+	* New module 'virtchannel_transform, providing classes implementing
+	  various channel transformation. TclOO based.

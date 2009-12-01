@@ -124,6 +124,9 @@ Module  uev         _tcl  _man  _null
 Module  units       _tcl  _man  _null
 Module  uri         _tcl  _man  _null
 Module  uuid        _tcl  _man  _null
+Module  virtchannel_base       _tcl _null  _null
+Module  virtchannel_core       _tcl _null  _null
+Module  virtchannel_transform  _tcl _null  _null
 Module  wip         _tcl  _man  _null
 Module  yaml        _tcl  _man  _null
 
