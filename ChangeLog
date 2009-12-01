@@ -1,3 +1,14 @@
+2009-12-01  Andreas Kupries  <andreask@activestate.com>
+
+	* New modules 'virtchannel_{core,base,transform}' with packages
+	  providing core services to reflected channels and
+	  transformations, and basic reflected channels, and
+	  transforms. This is in essence the example code for the paper I
+	  presented at Tcl'2009 in Portland (Reflected and Transformed
+	  Channels).
+
+	* support/installation/modules.tcl: New modules 'virtchannel_*'.
+
 2009-11-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* New package 'json::write' in existing module 'json'.
