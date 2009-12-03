@@ -189,7 +189,7 @@ proc ::sak::readme::run {} {
     Header Overview
     puts ""
     if {[CNT rows] > 0} {
-	puts [Indent "    " [CNT format 2string]]
+	puts [Indent "    " [Detrail [CNT format 2string]]]
     }
     puts ""
 
@@ -197,7 +197,7 @@ proc ::sak::readme::run {} {
 	Header "New in $package_name $package_version"
 	puts ""
 	Sep NEW - [Clean NEW 1 0]
-	puts [Indent "    " [NEW format 2string]]
+	puts [Indent "    " [Detrail [NEW format 2string]]]
 	puts ""
     }
 
@@ -205,7 +205,7 @@ proc ::sak::readme::run {} {
 	Header "Changes from $package_name $old_version to $package_version"
 	puts ""
 	Sep CHG - [Clean CHG 2 0]
-	puts [Indent "    " [CHG format 2string]]
+	puts [Indent "    " [Detrail [CHG format 2string]]]
 	puts ""
     }
 
@@ -213,7 +213,7 @@ proc ::sak::readme::run {} {
 	Header "Invisible changes (documentation, testsuites)"
 	puts ""
 	Sep ICH - [Clean ICH 2 0]
-	puts [Indent "    " [ICH format 2string]]
+	puts [Indent "    " [Detrail [ICH format 2string]]]
 	puts ""
     }
 
@@ -317,6 +317,14 @@ proc ::sak::readme::Sep {m char marks} {
 
 proc ::sak::readme::Indent {pfx text} {
     return ${pfx}[join [split $text \n] \n$pfx]
+}
+
+proc ::sak::readme::Detrail {text} {
+    set res {}
+    foreach line [split $text \n] {
+	lappend res [string trimright $line]
+    }
+    return [join $res \n]
 }
 
 proc ::sak::readme::Note {m p} {

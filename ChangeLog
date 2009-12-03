@@ -1,3 +1,8 @@
+2009-12-03  Andreas Kupries  <andreask@activestate.com>
+
+	* support/devel/sak/readme/readme.tcl: Strip trailing whitespace
+	  from the table formatted parts of the generated readme.
+
 2009-12-01  Andreas Kupries  <andreask@activestate.com>
 
 	* New modules 'virtchannel_{core,base,transform}' with packages
