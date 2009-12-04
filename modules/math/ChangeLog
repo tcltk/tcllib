@@ -1,3 +1,10 @@
+2009-12-04  Andreas Kupries  <andreask@activestate.com>
+
+	* math.man: [Bug 1998628]. Accepted fix by Arjen Markus, with
+	* math.tcl: modifications. Extended testsuite. Bumped version
+	* math.test: to 1.2.5.
+	* pkgIndex.tcl:
+
 2009-11-17  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* statistics.tcl: Bumped version to 0.6.3
 	* geometry.tcl: Solved bug #1623653 - corner case in pointInsidePolygon
