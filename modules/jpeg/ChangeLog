@@ -1,3 +1,9 @@
+2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.12 ========================
+	* 
+
 2009-06-05  Andreas Kupries  <andreask@activestate.com>
 
 	* jpeg.tcl (::jpeg::exif): Accepted (with slight changes) and

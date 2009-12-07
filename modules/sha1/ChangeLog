@@ -1,3 +1,9 @@
+2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.12 ========================
+	* 
+
 2009-10-27  Andreas Kupries  <andreask@activestate.com>
 
 	* sha256.h: Made the uint*_t typedef's conditional to prevent
