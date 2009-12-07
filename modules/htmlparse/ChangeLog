@@ -1,3 +1,9 @@
+2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.12 ========================
+	* 
+
 2009-02-10  Andreas Kupries  <andreask@activestate.com>
 
 	* htmlparse.tcl (::htmlparse::parse): Replaced the backslashed

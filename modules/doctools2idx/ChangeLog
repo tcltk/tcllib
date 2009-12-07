@@ -1,3 +1,9 @@
+2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.12 ========================
+	* 
+
 2009-11-23  Andreas Kupries  <andreask@activestate.com>
 
 	* import_json.tcl: Added pragma to tell sak.tcl that the 'package
