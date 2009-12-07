@@ -1,3 +1,9 @@
+2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.12 ========================
+	* 
+
 2009-09-28  Andreas Kupries  <andreask@activestate.com>
 
 	* pop3.test: Moved the dialog setup for test pop3-7.0 into the

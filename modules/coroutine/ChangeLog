@@ -1,3 +1,9 @@
+2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.12 ========================
+	* 
+
 2009-11-10  Andreas Kupries  <andreask@activestate.com>
 
 	* New module 'coroutine' providing to coroutine utility packages

@@ -1,3 +1,9 @@
+2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.12 ========================
+	* 
+
 2009-11-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph_tcl.tcl: Fixed mismatches due to the 2009-11-03 change.
