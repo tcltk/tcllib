@@ -283,17 +283,18 @@ proc ::sak::test::run::Process {pipe} {
 	NoTestsuite
 	Support;Testing;Other
 	Summary
-	CaptureFailureSync
-	CaptureFailureCollectBody
-	CaptureFailureCollectActual
-	CaptureFailureCollectExpected
+	CaptureFailureSync            ; # xcollect 1 => 2
+	CaptureFailureCollectBody     ; # xcollect 2 => 3 => 5
+	CaptureFailureCollectActual   ; # xcollect 3 => 4
+	CaptureFailureCollectExpected ; # xcollect 4 => 0
+	CaptureFailureCollectError    ; # xcollect 5 => 0
 	CaptureStackStart
 	CaptureStack
 
 	TestStart
 	TestSkipped
 	TestPassed
-	TestFailed
+	TestFailed                    ; # xcollect => 1
 
 	SetupError
 	Aborted
@@ -620,12 +621,16 @@ proc ::sak::test::run::CaptureFailureCollectBody {} {
     if {$xcollect != 2} return
     upvar 1 rline line
     variable xbody
-    if {![string match {---- Result was*} $line]} {
-	variable xbody
-	append   xbody $line \n
-    } else {
+    if {[string match {---- Result was*} $line]} {
 	set xcollect 3
+	return -code continue
+    } elseif {[string match {---- Test generated error*} $line]} {
+	set xcollect 5
+	return -code continue
     }
+
+    variable xbody
+    append   xbody $line \n
     return -code continue
 }
 
@@ -677,6 +682,21 @@ proc ::sak::test::run::CaptureFailureCollectExpected {} {
 	#sak::registry::local set $xtest Expected $xexpected
 	set xtest {}
     }
+    return -code continue
+}
+
+proc ::sak::test::run::CaptureFailureCollectError {} {
+    variable xcollect
+    if {$xcollect != 5} return
+    upvar 1 rline line
+    variable xbody
+    if {[string match {---- errorCode*} $line]} {
+	set xcollect 4
+	return -code continue
+    }
+
+    variable xactual
+    append   xactual $line \n
     return -code continue
 }
 
