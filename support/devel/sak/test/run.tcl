@@ -11,6 +11,7 @@ package require  sak::color
 
 getpackage textutil::repeat textutil/repeat.tcl
 getpackage fileutil         fileutil/fileutil.tcl
+getpackage struct::matrix   struct/matrix.tcl
 
 namespace eval ::sak::test::run {
     namespace import ::textutil::repeat::blank
@@ -90,6 +91,7 @@ proc ::sak::test::run::Do {cv modules} {
 	variable lognon [open $config(stem).none        w]
 	variable logerd [open $config(stem).errdetails  w]
 	variable logfad [open $config(stem).faildetails w]
+	variable logtim [open $config(stem).timings     w]
     } else {
 	variable logext stdout
     }
@@ -154,6 +156,27 @@ proc ::sak::test::run::Do {cv modules} {
 	puts $logext "#Errors [mag][format %6d $err][rst]"
     } else {
 	puts $logext "#Errors [format %6d $err]"
+    }
+
+    if {$alog} {
+	variable xtimes
+	array set times $xtimes
+
+	struct::matrix M
+	M add columns 6
+	foreach k [lsort -dict [array names times]] {
+	    #foreach {shell module testfile} $k break
+	    foreach {testnum delta score} $times($k) break
+	    M add row [linsert $k end $testnum $delta $score]
+	}
+	M sort rows -decreasing 5
+
+	M insert row 0 {Shell Module Testsuite Tests Seconds uSec/Test}
+	M insert row 1 {===== ====== ========= ===== ======= =========}
+	M add    row   {===== ====== ========= ===== ======= =========}
+
+	puts $logsum \nTimings...
+	puts $logsum [M format 2string]
     }
 
     exit [expr {($err || $fail) ? 1 : 0}]
@@ -255,7 +278,7 @@ proc ::sak::test::run::Process {pipe} {
 	Host;	Platform
 	Cwd;	Shell
 	Tcl
-	Start;	End
+	Start;	End ; StartFile ; EndFile
 	Module;	Testsuite
 	NoTestsuite
 	Support;Testing;Other
@@ -362,6 +385,47 @@ proc ::sak::test::run::End {} {
     upvar 1 line line
     if {![regexp "^@@ End (.*)$" $line -> end]} return
     variable xshell
+    #sak::registry::local set $xshell End $end
+    return -code continue
+}
+
+proc ::sak::test::run::StartFile {} {
+    upvar 1 line line
+    if {![regexp "^@@ StartFile (.*)$" $line -> start]} return
+    variable xstartfile $start
+    variable xtestnum 0
+    #sak::registry::local set $xshell Start $start
+    return -code continue
+}
+
+proc ::sak::test::run::EndFile {} {
+    upvar 1 line line
+    if {![regexp "^@@ EndFile (.*)$" $line -> end]} return
+    variable xfile
+    variable xstartfile
+    variable xtimes
+    variable xtestnum
+
+    set k [lreplace $xfile 0 3]
+    set k [lreplace $k 2 2 [file tail [lindex $k 2]]]
+    set delta [expr {$end - $xstartfile}]
+
+    if {$xtestnum == 0} {
+	set score $delta
+    } else {
+	# average number of microseconds per test.
+	set score [expr {int(($delta/double($xtestnum))*1000000)}]
+	#set score [expr {$delta/double($xtestnum)}]
+    }
+
+    lappend xtimes $k [list $xtestnum $delta $score]
+
+    variable alog
+    if {$alog} {
+	variable logtim
+	puts $logtim [linsert [linsert $k end $xtestnum $delta $score] 0 TIME]
+    }
+
     #sak::registry::local set $xshell End $end
     return -code continue
 }
@@ -481,6 +545,8 @@ proc ::sak::test::run::TestStart {} {
     = "---- $testname"
     variable xfile
     variable xtest [linsert $xfile end $testname]
+    variable xtestnum
+    incr     xtestnum
     return -code continue
 }
 
@@ -745,6 +811,8 @@ namespace eval ::sak::test::run {
     variable xmodule   {}
     variable xfile     {}
     variable xtest     {}
+    variable xstartfile {}
+    variable xtimes     {}
 
     variable xstatus ok
 
