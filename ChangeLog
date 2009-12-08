@@ -1,3 +1,11 @@
+2009-12-08  Andreas Kupries  <andreask@activestate.com>
+
+	* support/devel/sak/test/run.tcl: Extended the test framework to
+	* support/devel/all.tcl: record time per .test file, count of
+	  tests per file, enabling it to compute a speed (microseconds per
+	  test), as a rough and crude benchmark of where we may have
+	  performance problems with either packages or tests.
+
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
