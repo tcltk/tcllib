@@ -1,5 +1,12 @@
 2009-12-08  Andreas Kupries  <andreask@activestate.com>
 
+	* support/devel/sak/test/run.tcl (CaptureFailureCollectBody,
+	  CaptureFailureCollectError): Fixed issue with test result
+	  capture on failure. We failed on the capture of failure due to
+	  unexpected return codes, because the output syntax is different
+	  for that compared to failure due to result differences. Code has
+	  been added to recognize and capture this other syntax.
+
 	* support/devel/sak/test/run.tcl: Extended the test framework to
 	* support/devel/all.tcl: record time per .test file, count of
 	  tests per file, enabling it to compute a speed (microseconds per
