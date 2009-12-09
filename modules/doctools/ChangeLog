@@ -1,3 +1,29 @@
+2009-12-09  Andreas Kupries  <andreask@activestate.com>
+
+	* doctools.tcl: Bumped version to 1.4.4.
+	* doctools.man: 
+	* pkgIndex.tcl:
+
+	* mpformats/fmt.html: Extended to support the engine variable
+	* doctools.test: 'raw' (boolean flag). The default is off, causing
+	  the engine to generate the full html, as usual. If set, the
+	  engine will generate only the HTML normally between the <body>
+	  and </body> tags, excluding these two tags. This allows for
+	  easier embedding of the result in other HTML. Thanks to Jos
+	  DeCoster for the idea. Extended the testsuite to cover raw mode
+	  results.
+
+	* mpformats/fmt.wiki: Thanks to Jos DeCoster for updating the Wiki
+	* tests/wiki/00: formatter to generate text making better use of
+	* tests/wiki/01: Wikit's new features, and also fixing bugs in the
+	* tests/wiki/02: use of the older features. Updated test results.
+	* tests/wiki/03:
+	* tests/wiki/04:
+	* tests/wiki/05:
+	* tests/wiki/06:
+	* tests/wiki/07:
+	* tests/wiki/08:
+
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
