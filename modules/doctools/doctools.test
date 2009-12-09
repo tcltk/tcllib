@@ -8,7 +8,7 @@
 # Copyright (c) 2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: doctools.test,v 1.25 2009/01/30 04:56:47 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.test,v 1.26 2009/12/09 18:31:10 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -316,7 +316,7 @@ test doctools-9.0 {manpage syntax} {
 # -------------------------------------------------------------------------
 ## Series of tests for all available backends, check their formatting.
 
-set k 10
+set k 11
 foreach format {
     html  tmml
     nroff latex
@@ -338,7 +338,7 @@ foreach format {
 	    set expected [string map $map [fileutil::cat $dst]]
 	}]} { set expected **missing** }
 
-	test doctools-${k}.$n "doctools backends, $format/[file tail $src]" {
+	test doctools-${format}-${k}.$n "doctools backends, $format/[file tail $src]" {
 	    new mydoctools
 	    mydoctools configure \
 		-format    $format \
@@ -361,6 +361,52 @@ foreach format {
     incr k
 }
 
+
+# -------------------------------------------------------------------------
+## Test of special 'raw' mode available to the HTML backend.
+
+set n 0
+foreach src [TestFilesGlob tests/man/*] {
+    if {[file tail $src] == "CVS"} continue
+
+    # Get the expected result
+    set dst [localPath [file join tests html [file tail $src]]]
+    set map @ID@   ; lappend map \$Id\$ ; lappend map @USR@ $tcl_platform(user)
+    set rem \$Id\$ ; lappend rem @ID@   ; lappend $tcl_platform(user) @USR@
+
+    if {[catch {
+	set expected [string map $map [fileutil::cat $dst]]
+    }]} { set expected **missing** }
+
+    # Transform regular output to contents of body/, i.e. raw output.
+    regsub {</body>.*} $expected {} expected
+    regsub {.*<body>}  $expected {} expected
+    append expected \n
+    if {$n == 5 || $n == 8} { set expected \n$expected }
+
+    # Run the test ...
+    test doctools-html-raw-11.$n "doctools backends, html-raw/[file tail $src]" {
+	new mydoctools
+	mydoctools configure \
+	    -format    html \
+	    -module    .MODULE. \
+	    -file      .FILE. \
+	    -copyright .COPYRIGHT.
+	mydoctools setparam raw 1
+	if {[catch {
+	    set res [mydoctools format [fileutil::cat $src]]
+	}]} {
+	    set res $::errorInfo
+	}
+	mydoctools destroy
+	#fileutil::writeFile ${dst}.actual [string map $rem $res]
+	set res
+    } $expected
+
+    #fileutil::writeFile ${dst}.expected $expected
+    incr n
+}
+
 # -------------------------------------------------------------------------
 ## Series of tests for the frontend, cover all possible syntax errors.
 
@@ -369,7 +415,7 @@ foreach src [TestFilesGlob tests/syntax/e_*] {
     set dst      [file join [file dirname $src] r_[string range [file tail ${src}] 2 end]]
     set expected [string trim [fileutil::cat $dst]]
 
-    test doctools-11.$n "doctools frontend, syntax error, [file tail $src]" {
+    test doctools-syntax-error-10.$n "doctools frontend, syntax error, [file tail $src]" {
 	new mydoctools
 	mydoctools configure    \
 	    -format    null     \
