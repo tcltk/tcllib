@@ -1,3 +1,11 @@
+2009-12-10  Andreas Kupries  <andreask@activestate.com>
+
+	* json.tcl: [Patch 2909962]: Accepted rewrite of the json parser
+	* json.man: internals by Thomas Maeder
+	* pkgIndex.tcl: <thomasmaeder@users.sourceforge.net>. The new
+	  (regex-based) parser is considerably faster than the previous
+	  implementation. Bumped version to 1.1.
+
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
