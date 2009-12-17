@@ -177,6 +177,7 @@ test huddle-3.2 "test of huddle jsondump" -body {
   "t"
 ]}
 
+if { [package vcompare [package provide Tcl] 8.5] > 0 } {
 test huddle-3.3 "test of huddle jsondump" -body {
     set huddle1 {HUDDLE {D {dd {D {bb {D {a {s baa} c {s {d
 a}}}} cc {D {g {s h}}}}} ee {D {i {s j} k {s 1} j {s { m\a}}}}}}}
@@ -200,7 +201,7 @@ a}}}} cc {D {g {s h}}}}} ee {D {i {s j} k {s 1} j {s { m\a}}}}}}}
     set data [huddle compile {dict dd {dict * dict} ee dict} $data]
     huddle equal $huddle1 $data
 } -result {1}
-
+}
 
 # ... Tests of addStrings ...
 #     (Requires introspection of parser state)
