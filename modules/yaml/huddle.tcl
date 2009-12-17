@@ -1,6 +1,6 @@
 # huddle.tcl (working title)
 #
-# huddle.tcl 0.1.4 2009-04-16 21:44:12 KATO Kanryu(kanryu6@users.sourceforge.net)
+# huddle.tcl __HUDDLE_TCL_VERSION__ __HUDDLE_TCL_DATETIME__ KATO Kanryu(kanryu6@users.sourceforge.net)
 #
 #   It is published with the terms of tcllib's BSD-style license.
 #   See the file named license.terms.
@@ -8,11 +8,11 @@
 # This library provide functions to differentinate string/list/dict in multi-ranks.
 #
 
-if {$::tcl_version < 8.5} {
+if { [package vcompare [package provide Tcl] 8.5] < 0 } {
     package require dict
 }
 
-package provide huddle 0.1.4
+# package provide huddle __HUDDLE_TCL_VERSION__
 
 namespace eval ::huddle {
     namespace export huddle
@@ -564,4 +564,5 @@ namespace eval ::huddle {
 }
 
 
+source entry.tcl
 
