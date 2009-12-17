@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin huddle n 0.1.4]
+[manpage_begin huddle n __HUDDLE_TCL_VERSION__]
 [copyright {2008 KATO Kanryu <kanryu6@users.sourceforge.net>}]
 [moddesc   {HUDDLE}]
 [titledesc {Create and manipulate huddle object}]
 [require Tcl 8.4]
-[require huddle [opt 0.1.4]]
+[require huddle [opt __HUDDLE_TCL_VERSION__]]
 [description]
 [para]
 Huddle provides a generic Tcl-based serialization/intermediary format.
@@ -33,6 +33,11 @@ confirmed:
 limitation:
   - cannot discribe aliases from a node to other node.
 }]
+
+[para]
+The [package huddle] package returns
+data as a Tcl [cmd dict].  Either the [package dict] package or Tcl 8.5 is
+required for use.
 
 [section COMMANDS]
 
@@ -336,81 +341,7 @@ removes a sub-node from the tagged-content, and returns self.
 [example {
 # callback sample for my-dict
 proc my_dict_setting {command args} {
-    switch -- $command {
-        setting { ; # type definition
-            return {
-                type dict
-                method {create keys}
-                tag {d child D parent}
-                constructor create
-                str s
-            }
-            # type:   the type-name
-            # method: add methods to huddle's subcommand.
-            #          "get_sub/strip/set/remove/equal/append" called by huddle module.
-            #          "strip" must be defined at all types.
-            #          "get_sub" must be defined at container types.
-            #          "set/remove/equal/append" shuould be defined, if you call them.
-            # tag:    tag definition("child/parent" word is maybe obsoleted)
-        }
-        get_sub { ; # get a sub-node specified by "key" from the tagged-content
-            foreach {src key} $args break
-            return [dict get $src $key]
-        }
-        strip { ; # strip from the tagged-content
-            foreach {src nop} $args break
-            foreach {key val} $src {
-                lappend result $key [huddle strip $val]
-            }
-            return $result
-        }
-        set { ; # set a sub-node from the tagged-content
-            foreach {src key value} $args break
-            dict set src $key $value
-            return $src
-        }
-        remove { ; # remove a sub-node from the tagged-content
-            foreach {src key value} $args break
-            return [dict remove $src $key]
-        }
-        equal { ; # check equal for each node
-            foreach {src1 src2} $args break
-            if {[llength $src1] != [llength $src2]} {return 0}
-            foreach {key1 val1} $src1 {
-                if {![dict exists $src2 $key1]} {return 0}
-                if {![huddle _equal_subs $val1 [dict get $src2 $key1]]} {return 0}
-            }
-            return 1
-        }
-        append { ; # append nodes
-            foreach {str src list} $args break
-            if {[llength $list] % 2} {error {wrong # args: should be "huddle append objvar ?key value ...?"}}
-            set resultL $src
-            foreach {key value} $list {
-                if {$str ne ""} {
-                    lappend resultL $key [huddle to_node $value $str]
-                } else {
-                    lappend resultL $key $value
-                }
-            }
-            return [eval dict create $resultL]
-        }
-        create { ; # $args: all arguments after "huddle create"
-            if {[llength $args] % 2} {error {wrong # args: should be "huddle create ?key value ...?"}}
-            set resultL {}
-            foreach {key value} $args {
-                lappend resultL $key [huddle to_node $value]
-            }
-            return [huddle wrap D $resultL]
-        }
-        keys {
-            foreach {src nop} $args break
-            return [dict keys [lindex [lindex $src 1] 1]]
-        }
-        default {
-            error "$command is not callback for dict"
-        }
-    }
+__TRANSCRIBE__
 }
 }]
 [example {
