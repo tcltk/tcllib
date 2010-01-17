@@ -1,8 +1,13 @@
+2010-01-17  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* fuzzy.tcl: [Bug 2933130]. Fixed procedure tlt
+	* fuzzy.test: [Bug 2933130]. Added test for this bug
+	* pkgIndex.tcl: Version increased to 0.2.1
+
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.12 ========================
-	* 
+	*
 
 2009-12-04  Andreas Kupries  <andreask@activestate.com>
 
