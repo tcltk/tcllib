@@ -1,3 +1,11 @@
+2010-01-19  Andreas Kupries  <andreask@activestate.com>
+
+	* csv.tcl (::csv::read2queue): [Bug 2926387]: Fix use of wrong
+	* csv.test: variable when handling multi-line fields reported by
+	* csv.man: Jeff Rogers <dvrsn@users.sourceforge.net>. Extended
+	* pkgIndex.tcl: testsuite. Bumped version to 0.7.2.
+	* 2926387.csv: <New file>, for the new tests.
+
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
