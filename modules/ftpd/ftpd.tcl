@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.29 2010/01/20 18:15:25 andreas_kupries Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.30 2010/01/20 18:22:42 andreas_kupries Exp $
 #
 
 # Define the ftpd package version 1.2.5
@@ -1325,6 +1325,7 @@ proc ::ftpd::command::RNFR {sock filename} {
 #       The specified file is renamed.
 
 proc ::ftpd::command::RNTO {sock filename} {
+    upvar #0 ::ftpd::$sock data
 
     if {$filename == ""} {
         puts $sock "500 'RNTO': command not understood."
