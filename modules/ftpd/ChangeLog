@@ -1,5 +1,9 @@
 2010-01-20  Andreas Kupries  <andreask@activestate.com>
 
+	* ftpd.tcl (::ftpd::command::RNTO): [Bug 2928355]: Fixed the
+	  missing import of the server's state array, reported by Martin
+	  <martinao@users.sourceforge.net>.
+
 	* ftpd.tcl (::ftpd::config): [Bug 2935339] [Patch 2935347]:
 	* ftpd.man: Applied the patch by Keith Vetter
 	* pkgIndex.tcl: <keithv@users.sourceforge.net>, fixing the
