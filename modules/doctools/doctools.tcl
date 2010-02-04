@@ -2,12 +2,12 @@
 #
 #	Implementation of doctools objects for Tcl.
 #
-# Copyright (c) 2003-2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2010 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.36 2009/12/09 18:31:10 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.37 2010/02/04 20:05:29 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -339,8 +339,10 @@ proc ::doctools::_configure {name args} {
 	foreach {option value} $args {
 	    switch -exact -- $option {
 		-file {
-		    upvar #0 ::doctools::doctools${name}::file file
-		    set file $value
+		    upvar #0 ::doctools::doctools${name}::file     file
+		    upvar #0 ::doctools::doctools${name}::mainfile mfile
+		    set file  $value
+		    set mfile $value
 		}
 		-module {
 		    upvar #0 ::doctools::doctools${name}::module module
@@ -713,6 +715,7 @@ proc ::doctools::SetupFormatter {name format} {
     # Now link engine API into it.
 
     interp alias $mpip dt_file      {} ::doctools::GetFile      $name
+    interp alias $mpip dt_mainfile  {} ::doctools::GetMainFile  $name
     interp alias $mpip dt_fileid    {} ::doctools::GetFileId    $name
     interp alias $mpip dt_module    {} ::doctools::GetModule    $name
     interp alias $mpip dt_copyright {} ::doctools::GetCopyright $name
@@ -1009,6 +1012,16 @@ proc ::doctools::GetFile {name} {
     return $file
 }
 
+proc ::doctools::GetMainFile {name} {
+
+    #puts stderr "GetMainFile $name"
+
+    upvar #0 ::doctools::doctools${name}::mainfile mfile
+
+    #puts stderr "ok $mfile"
+    return $mfile
+}
+
 # ::doctools::GetFileId --
 #
 #	API for formatter. Returns file information (truncated to stem of filename)
@@ -1206,4 +1219,4 @@ namespace eval ::doctools {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools 1.4.4
+package provide doctools 1.4.5
