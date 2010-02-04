@@ -1,3 +1,16 @@
+2010-02-04  Andreas Kupries  <andreask@activestate.com>
+
+	* doctools.tcl: Extended with new plugin API command
+	* doctools.man: [dt_mainfile], which always returns 
+	* doctools_plugin_apiref.man: the toplevel file currently
+	* pkgIndex.tcl: processed, in contrast to [dt_file] which
+	  returns the currently processed file, which may be included.
+	  Bumped version to 1.4.5.
+
+	* mpformats/fmt.html: Fixed bug in inter-document link generation
+	  caused by computing links relative to the active (include) file,
+	  instead of the toplevel.
+
 2009-12-09  Andreas Kupries  <andreask@activestate.com>
 
 	* doctools.tcl: Bumped version to 1.4.4.

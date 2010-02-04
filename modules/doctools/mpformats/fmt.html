@@ -650,7 +650,7 @@ proc XrefLink {dest label} {
 
     #puts_stderr "XrefLink $dest $label"
 
-    set here [file split [dt_fmap [dt_file]]]
+    set here [file split [dt_fmap [dt_mainfile]]]
     set dest [file split $dest]
 
     #puts_stderr "XrefLink < $here"
