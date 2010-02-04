@@ -1,6 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin doctools_plugin_apiref n 1.0]
-[copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[manpage_begin doctools_plugin_apiref n 1.1]
+[copyright {2007-2010 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {doctools plugin API reference}]
 [category  {Documentation tools}]
@@ -100,7 +100,12 @@ option is [option -copyright]).
 [call [cmd dt_file]]
 
 Query command. It returns the full path of the file containing the
-input currently processed by the engine.
+input currently processed by the engine. This may be an included file.
+
+[call [cmd dt_mainfile]]
+
+Query command. It returns the full path of the toplevel file containing
+the input currently processed by the engine.
 
 [call [cmd dt_fileid]]
 
