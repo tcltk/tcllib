@@ -1,3 +1,11 @@
+2010-02-05  Andreas Kupries  <andreask@activestate.com>
+
+	* checker.tcl: Gave the checking layer access to dt_file,
+	* doctools.tcl: and extended it to provide the file name
+	* doctools.man: as part of the location information in
+	* doctools.test: errors and warnings. Bumped version to
+	* pkgIndex.tcl: 1.4.6.
+
 2010-02-04  Andreas Kupries  <andreask@activestate.com>
 
 	* doctools.tcl: Extended with new plugin API command
