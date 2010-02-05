@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.37 2010/02/04 20:05:29 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.38 2010/02/05 22:29:34 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -771,6 +771,7 @@ proc ::doctools::SetupChecker {name} {
 	dt_error      FmtError
 	dt_warning    FmtWarning
 	dt_where      Where
+	dt_file       GetFile
     } {
 	interp alias $chk_ip $cmd {} ::doctools::$ckcmd $name
     }
@@ -1219,4 +1220,4 @@ namespace eval ::doctools {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools 1.4.5
+package provide doctools 1.4.6

@@ -4,7 +4,7 @@
 # Code used inside of a checker interpreter to ensure correct usage of
 # doctools formatting commands.
 #
-# Copyright (c) 2003-2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2010 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 # L10N
 
@@ -115,7 +115,7 @@ proc Warn {code args} {
     set msg [::msgcat::mc $code]
     foreach {off line col} [dt_where] break
     set msg [eval [linsert $args 0 format $msg]]
-    set msg "In macro at line $line, column $col:\n$msg"
+    set msg "In macro at line $line, column $col of file [dt_file]:\n$msg"
     set msg [split $msg \n]
     set prefix "DocTools Warning ($code): "
     dt_warning "$prefix[join $msg "\n$prefix"]"
@@ -126,7 +126,7 @@ proc WarnX {code args} {
     set msg [::msgcat::mc $code]
     foreach {off line col} [dt_where] break
     set msg [eval [linsert $args 0 format $msg]]
-    set msg "In macro at line $line, column $col:\n$msg"
+    set msg "In macro at line $line, column $col of file [dt_file]:\n$msg"
     set msg [split $msg \n]
     set prefix "DocTools Warning ($code): "
     dt_warning "$prefix[join $msg "\n$prefix"]"
