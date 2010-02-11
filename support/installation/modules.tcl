@@ -114,6 +114,7 @@ Module  stooop      _tcl  _man  _null
 Module  stringprep  _tcl  _man  _null
 Module  struct      _tcl  _man _exa
 Module  tar         _tcl  _man  _null
+Module  tepam       _tcl  _man  _exa
 Module  term         _tcr _man _exa
 Module  textutil     _tex _man  _null
 Module  tie         _tcl  _man  _exa
