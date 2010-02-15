@@ -3,7 +3,7 @@
 [proc {********} {args} {set s [string trim [string trim $args *] " "]; puts $s; subsection $s}]
 
 [manpage_begin tepam::argument_dialogbox n 0.1.0]
-[copyright {2008/2009, Andreas Drollinger}]
+[copyright {2009/2010, Andreas Drollinger}]
 [moddesc   {Tcl’s Enhanced Procedure and Argument Manager}]
 [titledesc {TEPAM argument_dialogbox, reference manual}]
 [category  {Argument entry form, mega widget}]
