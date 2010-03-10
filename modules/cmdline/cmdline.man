@@ -15,7 +15,7 @@ This package provides commands to parse command lines and options.
 [call [cmd ::cmdline::getopt] [arg argvVar] [arg optstring] [arg optVar] [arg valVar]]
 
 This command works in a fashion like the standard C based [cmd getopt]
-function.  Given an option string and a pointer to an array or args
+function.  Given an option string and a pointer to an array of args
 this command will process the first argument and return info on how to
 proceed. The command returns 1 if an option was found, 0 if no more
 options were found, and -1 if an error occurred.
