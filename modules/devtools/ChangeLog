@@ -1,3 +1,7 @@
+2010-03-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* testutilities.tcl: Added constraint for 8.4-.
+
 2009-09-24  Andreas Kupries  <andreask@activestate.com>
 
 	* testutilities.tcl: Added constraint for 8.6+.
