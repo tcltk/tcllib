@@ -187,6 +187,9 @@ if {![package vsatisfies [package provide tcltest] 2.0]} {
 ::tcltest::testConstraint tcl8.6plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.6]}]
 
+::tcltest::testConstraint tcl8.4minus \
+	[expr {![package vsatisfies [package provide Tcl] 8.5]}]
+
 # ### ### ### ######### ######### #########
 ## Cross-version code for the generation of the error messages created
 ## by Tcl procedures when called with the wrong number of arguments,
@@ -295,12 +298,12 @@ proc snitErrors {} {
     } else {
 	proc snitWrongNumArgs {obj method arglist missingIndex} {
 	    incr missingIndex 4
-	    tcltest::wrongNumArgs $method [linsert $arglist 0 \
+	    tcltest::wrongNumArgs "$obj $method" [linsert $arglist 0 \
 		    type selfns win self] $missingIndex
 	}
 
 	proc snitTooManyArgs {obj method arglist} {
-	    tcltest::tooManyArgs $method [linsert $arglist 0 \
+	    tcltest::tooManyArgs "$obj $method" [linsert $arglist 0 \
 		    type selfns win self]
 	}
     }
