@@ -8,11 +8,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stack.tcl,v 1.16 2009/11/26 04:42:16 andreas_kupries Exp $
+# RCS: @(#) $Id: stack.tcl,v 1.17 2010/03/15 17:17:38 andreas_kupries Exp $
 
 # @mdgen EXCLUDE: stack_c.tcl
 
-package require Tcl 8.2
+package require Tcl 8.4
 namespace eval ::struct::stack {}
 
 # ### ### ### ######### ######### #########
@@ -177,4 +177,4 @@ namespace eval ::struct {
     namespace export stack
 }
 
-package provide struct::stack 1.4
+package provide struct::stack 1.5
