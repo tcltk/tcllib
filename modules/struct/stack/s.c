@@ -30,7 +30,7 @@ st_delete (S* s)
 }
 
 int
-st_peek (S* s, Tcl_Interp* interp, int n, int pop, int listall)
+st_peek (S* s, Tcl_Interp* interp, int n, int pop, int listall, int revers, int ret)
 {
 
     int       listc = 0;
@@ -47,33 +47,41 @@ st_peek (S* s, Tcl_Interp* interp, int n, int pop, int listall)
 	return TCL_ERROR;
     }
 
-    if ((n == 1) && !listall) {
-	r = listv [listc-1];
-    } else {
-	/* Grab range at the top of the stack, and revert order */
+    if (ret) {
+	if ((n == 1) && !listall) {
+	    r = listv [listc-1];
+	} else {
+	    /* Grab range at the top of the stack, and revert order */
 
-	ASSERT_BOUNDS (listc-n,listc);
+	    ASSERT_BOUNDS (listc-n,listc);
 
-	r = Tcl_NewListObj (n, listv + (listc - n));
+	    r = Tcl_NewListObj (n, listv + (listc - n));
 
-	if (n > 1) {
-	    Tcl_ListObjGetElements (interp, r, &listc, &listv);
-	    for (i = 0, j = listc-1;
-		 i < j;
-		 i++, j--) {
-		Tcl_Obj* tmp;
+	    /*
+	     * Note the double negation here. To get the normal order of the
+	     * result, the list has to be reversed. To get the reverted order
+	     * result, nothing is to be done. So we revers on !revers
+	     */
 
-		ASSERT_BOUNDS (i,listc);
-		ASSERT_BOUNDS (j,listc);
+	    if ((n > 1) && !revers) {
+		Tcl_ListObjGetElements (interp, r, &listc, &listv);
+		for (i = 0, j = listc-1;
+		     i < j;
+		     i++, j--) {
+		    Tcl_Obj* tmp;
 
-		tmp = listv[i];
-		listv[i] = listv[j];
-		listv[j] = tmp;
+		    ASSERT_BOUNDS (i,listc);
+		    ASSERT_BOUNDS (j,listc);
+
+		    tmp = listv[i];
+		    listv[i] = listv[j];
+		    listv[j] = tmp;
+		}
 	    }
 	}
-    }
 
-    Tcl_SetObjResult (interp, r);
+	Tcl_SetObjResult (interp, r);
+    }
 
     if (pop) {
 	Tcl_ListObjGetElements (interp, s->stack, &listc, &listv);

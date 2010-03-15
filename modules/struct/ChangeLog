@@ -1,5 +1,27 @@
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* stack.man: struct::stack bumped to version 1.5. API extensions:
+	* stack.tcl: New methods getr, peekr, trim*. The first two return
+	* stack.test: their results in reversed order. For use in places
+	* stack.testsuite: which need the reverted order. As the regular
+	* stack/m.c: order requires an internal [lreverse], to be undone
+	* stack/m.h: by the caller it is better to simply avoid both
+	* stack/ms.c: [lreverse]s. Similarly, trim* does the trim, without
+	* stack/s.c: returning the trimmed items, for use where they are
+	* stack/s.h: thrown away anyway. ... Further, inlined the peek/pop
+	* stack_tcl.tcl: calls internal to get and trim, allowing
+	* pkgIndex.tcl: simplification of the resulting code, like
+	  avoidance of additional argument checks. ... At last, now using
+	  8.5 features when detecting Tcl 8.5+ as our runtime ... I.e.
+	  ensembles for the method dispatch instead of doing everything on
+	  our own, with eval and uplevel. Result: The speed of the Tcl
+	  implementation roughly doubles.
+
+	* stack.bench: Updated to use the ability to switch between the
+	  various implementations.
+
+2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
 	*
 	* Released and tagged Tcllib 1.12 ========================
 	* 

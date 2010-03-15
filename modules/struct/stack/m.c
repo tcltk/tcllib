@@ -102,7 +102,7 @@ stm_DESTROY (S* s, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-stm_GET (S* s, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+stm_GET (S* s, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv, int revers)
 {
     /* Syntax: stack get
      *	       [0]  [1]
@@ -118,7 +118,8 @@ stm_GET (S* s, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
     Tcl_ListObjLength (interp, s->stack, &n);
 
     if (n) {
-	return st_peek (s, interp, n, 0, 1);
+	return st_peek (s, interp, n, 0, 1, revers, 1
+			/* no pop, list all, <revers>, return result */);
     } else {
 	Tcl_SetObjResult (interp, Tcl_NewListObj (0,NULL));
 	return TCL_OK;
@@ -143,7 +144,7 @@ stm_GET (S* s, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-stm_TRIM (S* s, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+stm_TRIM (S* s, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv, int ret)
 {
     /* Syntax: stack trim N
      *	       [0]  [1]   [2]
@@ -168,7 +169,8 @@ stm_TRIM (S* s, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
     Tcl_ListObjLength (interp, s->stack, &len);
 
     if (len > n) {
-	return st_peek (s, interp, len-n, 1, 1);
+	return st_peek (s, interp, len-n, 1, 1, 0, ret
+			/* pop, list all, normal order, <ret> */);
     } else {
 	Tcl_SetObjResult (interp, Tcl_NewListObj (0,NULL));
 	return TCL_OK;
@@ -193,7 +195,7 @@ stm_TRIM (S* s, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
  */
 
 int
-stm_PEEK (S* s, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv, int pop)
+stm_PEEK (S* s, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv, int pop, int revers)
 {
     /* Syntax: stack peek|pop ?n?
      *	       [0]  [1]       [2]
@@ -221,7 +223,8 @@ stm_PEEK (S* s, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv, int pop)
 	}
     }
 
-    return st_peek (s, interp, n, pop, 0);
+    return st_peek (s, interp, n, pop, 0, revers, 1
+		    /* <pop>, single, <revers>, return result */);
 }
 
 /*
