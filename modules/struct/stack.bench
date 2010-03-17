@@ -35,6 +35,7 @@ if 1 {
     }
 }
 
+source [file join $mod  cmdline cmdline.tcl]
 source [file join $self list.tcl]
 source [file join $self stack.tcl]
 
