@@ -8,20 +8,28 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: stack.testsuite,v 1.3 2010/03/15 17:17:38 andreas_kupries Exp $
+# RCS: @(#) $Id: stack.testsuite,v 1.4 2010/03/17 22:11:45 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
 ::tcltest::testConstraint stack_critcl [string equal $impl critcl]
+::tcltest::testConstraint stack_oo     [expr {![catch {package present TclOO}] && [string equal $impl tcl]}]
 
 #----------------------------------------------------------------------
 
-test stack-${impl}-0.1 {stack errors} {
+test stack-${impl}-0.1.0 {stack errors} !stack_oo {
     stack mystack
     catch {stack mystack} msg
     mystack destroy
     set msg
-} "command \"::mystack\" already exists, unable to create stack"
+} {command "::mystack" already exists, unable to create stack}
+
+test stack-${impl}-0.1.1 {stack errors} stack_oo {
+    stack mystack
+    catch {stack mystack} msg
+    mystack destroy
+    set msg
+} {can't create object "mystack": command already exists with that name}
 
 test stack-${impl}-0.2 {stack errors} {badTest} {
     stack mystack
@@ -37,7 +45,7 @@ test stack-${impl}-0.3.0 {stack errors} tcl8.4minus {
     set msg
 } "bad option \"foo\": must be clear, destroy, get, getr, peek, peekr, pop, push, rotate, size, trim, or trim*"
 
-test stack-${impl}-0.3.1 {stack errors} tcl8.5plus {
+test stack-${impl}-0.3.1.0 {stack errors} {tcl8.5plus !stack_oo} {
     stack mystack
     catch {mystack foo} msg
     mystack destroy
@@ -47,10 +55,25 @@ test stack-${impl}-0.3.1 {stack errors} tcl8.5plus {
        "bad option \"foo\": must be clear, destroy, get, getr, peek, peekr, pop, push, rotate, size, trim, or trim*" \
    ]
 
-test stack-${impl}-0.4 {stack errors} {
+test stack-${impl}-0.3.1.1 {stack errors} {tcl8.5plus stack_oo} {
+    stack mystack
+    catch {mystack foo} msg
+    mystack destroy
+    set msg
+} [tmTake \
+       "unknown method \"foo\": must be clear, destroy, get, getr, peek, peekr, pop, push, rotate, size, trim or trim*" \
+       "bad option \"foo\": must be clear, destroy, get, getr, peek, peekr, pop, push, rotate, size, trim, or trim*" \
+   ]
+
+test stack-${impl}-0.4.0 {stack errors} !stack_oo {
     catch {stack set} msg
     set msg
-} "command \"::set\" already exists, unable to create stack"
+} {command "::set" already exists, unable to create stack}
+
+test stack-${impl}-0.4.1 {stack errors} stack_oo {
+    catch {stack set} msg
+    set msg
+} {can't create object "set": command already exists with that name}
 
 #----------------------------------------------------------------------
 
@@ -62,13 +85,21 @@ test stack-${impl}-1.1 {stack creation} {
     list $foo $cmd $size
 } {::mystack ::mystack 0}
 
-test stack-${impl}-1.2 {stack creation} {
+test stack-${impl}-1.2.0 {stack creation} !stack_oo {
     set foo [stack]
     set cmd [info commands ::$foo]
     set size [$foo size]
     $foo destroy
     list $foo $cmd $size
 } {::stack1 ::stack1 0}
+
+test stack-${impl}-1.2.1 {stack creation} stack_oo {
+    set foo [stack]
+    set cmd [info commands ::$foo]
+    set size [$foo size]
+    $foo destroy
+    string match [list ::oo::Obj* ::oo::Obj* 0] [list $foo $cmd $size]
+} 1
 
 #----------------------------------------------------------------------
 
