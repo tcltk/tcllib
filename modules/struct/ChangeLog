@@ -1,3 +1,13 @@
+2010-03-17  Andreas Kupries  <aku@bluepeak.andreas.kupries.org>
+
+	* stack_oo.tcl: Tcl implementation of struct::stack based
+	* stack.tcl: on TclOO. Available in 8.5+TclOO, and 8.6+.
+	* stack.bench: Fixed missing dependency in benchmarks.
+	* stack.test: Updated tests (different error messages).
+	* stack.testsuite: Bumped version to 1.5.1.
+	* stack.man:
+	* pkgIndex.tcl:
+
 2010-03-16  Andreas Kupries  <andreask@activestate.com>
 
 	* pkgIndex.tcl: Fix version mismatch for struct::stack.

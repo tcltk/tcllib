@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: stack.test,v 1.18 2010/03/15 17:17:38 andreas_kupries Exp $
+# RCS: @(#) $Id: stack.test,v 1.19 2010/03/17 22:11:45 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -50,17 +50,34 @@ TestAccelDo struct::stack impl {
 	    set MY ::mystack
 
 	    if {[package vsatisfies [package provide Tcl] 8.5]} {
-		proc tmWrong {m loarg n {xarg {}}} {
-		    if {$xarg == {}} {set xarg $loarg}
-		    if {$xarg != {}} {set xarg " $xarg"}
-		    incr n
-		    return [tcltest::wrongNumArgs "I $m" "name$xarg" $n]
-		}
+		if {[catch {package present TclOO}]} {
+		    # Without TclOO
+		    proc tmWrong {m loarg n {xarg {}}} {
+			if {$xarg == {}} {set xarg $loarg}
+			if {$xarg != {}} {set xarg " $xarg"}
+			incr n
+			return [tcltest::wrongNumArgs "I $m" "name$xarg" $n]
+		    }
 
-		proc tmTooMany {m loarg {xarg {}}} {
-		    if {$xarg == {}} {set xarg $loarg}
-		    if {$xarg != {}} {set xarg " $xarg"}
-		    return [tcltest::tooManyArgs "I $m" "name$xarg"]
+		    proc tmTooMany {m loarg {xarg {}}} {
+			if {$xarg == {}} {set xarg $loarg}
+			if {$xarg != {}} {set xarg " $xarg"}
+			return [tcltest::tooManyArgs "I $m" "name$xarg"]
+		    }
+		} else {
+		    # OO implementation.
+		    proc tmWrong {m loarg n {xarg {}}} {
+			if {$xarg == {}} {set xarg $loarg}
+			if {$xarg != {}} {set xarg " $xarg"}
+			incr n
+			return [tcltest::wrongNumArgs "mystack $m" "$loarg" $n]
+		    }
+
+		    proc tmTooMany {m loarg {xarg {}}} {
+			if {$xarg == {}} {set xarg $loarg}
+			if {$xarg != {}} {set xarg " $xarg"}
+			return [tcltest::tooManyArgs "mystack $m" "$loarg"]
+		    }
 		}
 	    } else {
 		proc tmWrong {m loarg n {xarg {}}} {
