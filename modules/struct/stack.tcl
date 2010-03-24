@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: stack.tcl,v 1.18 2010/03/17 22:11:45 andreas_kupries Exp $
+# RCS: @(#) $Id: stack.tcl,v 1.19 2010/03/24 06:13:00 andreas_kupries Exp $
 
 # @mdgen EXCLUDE: stack_c.tcl
 
@@ -42,9 +42,8 @@ proc ::struct::stack::LoadAccelerator {key} {
 	tcl {
 	    variable selfdir
 	    if {
-		([package vsatisfies [package provide Tcl] 8.6]) ||
-		([package vsatisfies [package provide Tcl] 8.5] &&
-		 ![catch {package require TclOO}])
+		[package vsatisfies [package provide Tcl] 8.5] &&
+		![catch {package require TclOO}]
 	    } {
 		source [file join $selfdir stack_oo.tcl]
 	    } else {
