@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: stack.testsuite,v 1.4 2010/03/17 22:11:45 andreas_kupries Exp $
+# RCS: @(#) $Id: stack.testsuite,v 1.5 2010/03/24 06:13:00 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -31,19 +31,19 @@ test stack-${impl}-0.1.1 {stack errors} stack_oo {
     set msg
 } {can't create object "mystack": command already exists with that name}
 
-test stack-${impl}-0.2 {stack errors} {badTest} {
+test stack-${impl}-0.2 {stack errors} badTest {
     stack mystack
     catch {mystack} msg
     mystack destroy
     set msg
-} "wrong # args: should be \"::mystack option ?arg arg ...?\""
+} {wrong # args: should be "::mystack option ?arg arg ...?"}
 
 test stack-${impl}-0.3.0 {stack errors} tcl8.4minus {
     stack mystack
     catch {mystack foo} msg
     mystack destroy
     set msg
-} "bad option \"foo\": must be clear, destroy, get, getr, peek, peekr, pop, push, rotate, size, trim, or trim*"
+} {bad option "foo": must be clear, destroy, get, getr, peek, peekr, pop, push, rotate, size, trim, or trim*}
 
 test stack-${impl}-0.3.1.0 {stack errors} {tcl8.5plus !stack_oo} {
     stack mystack
@@ -51,9 +51,9 @@ test stack-${impl}-0.3.1.0 {stack errors} {tcl8.5plus !stack_oo} {
     mystack destroy
     set msg
 } [tmTake \
-       "unknown or ambiguous subcommand \"foo\": must be clear, destroy, get, getr, peek, peekr, pop, push, rotate, size, trim, or trim*" \
-       "bad option \"foo\": must be clear, destroy, get, getr, peek, peekr, pop, push, rotate, size, trim, or trim*" \
-   ]
+       {unknown or ambiguous subcommand "foo": must be clear, destroy, get, getr, peek, peekr, pop, push, rotate, size, trim, or trim*} \
+       {bad option "foo": must be clear, destroy, get, getr, peek, peekr, pop, push, rotate, size, trim, or trim*} \
+      ]
 
 test stack-${impl}-0.3.1.1 {stack errors} {tcl8.5plus stack_oo} {
     stack mystack
@@ -61,9 +61,9 @@ test stack-${impl}-0.3.1.1 {stack errors} {tcl8.5plus stack_oo} {
     mystack destroy
     set msg
 } [tmTake \
-       "unknown method \"foo\": must be clear, destroy, get, getr, peek, peekr, pop, push, rotate, size, trim or trim*" \
-       "bad option \"foo\": must be clear, destroy, get, getr, peek, peekr, pop, push, rotate, size, trim, or trim*" \
-   ]
+       {unknown method "foo": must be clear, destroy, get, getr, peek, peekr, pop, push, rotate, size, trim or trim*} \
+       {bad option "foo": must be clear, destroy, get, getr, peek, peekr, pop, push, rotate, size, trim, or trim*} \
+      ]
 
 test stack-${impl}-0.4.0 {stack errors} !stack_oo {
     catch {stack set} msg
@@ -155,7 +155,7 @@ test stack-${impl}-4.2 {push operation, singleton items} {
     set result [list [mystack pop] [mystack pop] [mystack pop]]
     mystack destroy
     set result
-} "c b a"
+} {c b a}
 
 test stack-${impl}-4.3 {push operation, multiple items} {
     stack mystack
@@ -163,7 +163,7 @@ test stack-${impl}-4.3 {push operation, multiple items} {
     set result [list [mystack pop] [mystack pop] [mystack pop]]
     mystack destroy
     set result
-} "c b a"
+} {c b a}
 
 test stack-${impl}-4.4 {push operation, spaces in items} {
     stack mystack
@@ -171,7 +171,7 @@ test stack-${impl}-4.4 {push operation, spaces in items} {
     set result [list [mystack pop] [mystack pop] [mystack pop]]
     mystack destroy
     set result
-} [list "foo bar" b a]
+} {{foo bar} b a}
 
 test stack-${impl}-4.5 {push operation, bad chars in items} {
     stack mystack
@@ -191,7 +191,7 @@ test stack-${impl}-5.1 {pop operation} {
     set result [list [mystack pop] [mystack pop] [mystack pop]]
     mystack destroy
     set result
-} [list c b a]
+} {c b a}
 
 test stack-${impl}-5.2 {pop operation, multiple items} {
     stack mystack
@@ -201,7 +201,7 @@ test stack-${impl}-5.2 {pop operation, multiple items} {
     set result [mystack pop 3]
     mystack destroy
     set result
-} [list c b a]
+} {c b a}
 
 #----------------------------------------------------------------------
 
@@ -265,7 +265,7 @@ test stack-${impl}-6.6 {pop operation, multiple items} {
     set result [list [mystack peek 3] [mystack pop 3]]
     mystack destroy
     set result
-} [list [list c b a] [list c b a]]
+} {{c b a} {c b a}}
 
 test stack-${impl}-6.7 {pop operation} {
     stack mystack
@@ -308,7 +308,7 @@ test stack-${impl}-7.1 {clear operation} {
     lappend result [mystack size]
     mystack destroy
     set result
-} [list [list c b a] 0]
+} {{c b a} 0}
 
 #----------------------------------------------------------------------
 
@@ -319,7 +319,7 @@ test stack-${impl}-8.1 {rotate operation} {
     set result [mystack get]
     mystack destroy
     set result
-} [list g f h e d c b a]
+} {g f h e d c b a}
 
 test stack-${impl}-8.2 {rotate operation} {
     stack mystack
@@ -328,7 +328,7 @@ test stack-${impl}-8.2 {rotate operation} {
     set result [mystack get]
     mystack destroy
     set result
-} [list f h g e d c b a]
+} {f h g e d c b a}
 
 test stack-${impl}-8.3 {rotate operation} {
     stack mystack
@@ -337,7 +337,7 @@ test stack-${impl}-8.3 {rotate operation} {
     set result [mystack get]
     mystack destroy
     set result
-} [list f h g e d c b a]
+} {f h g e d c b a}
 
 test stack-${impl}-8.4 {rotate operation} {
     stack mystack
@@ -346,7 +346,7 @@ test stack-${impl}-8.4 {rotate operation} {
     set result [mystack get]
     mystack destroy
     set result
-} [list g f e d c b a h]
+} {g f e d c b a h}
 
 test stack-${impl}-8.5 {rotate operation} {
     stack mystack
@@ -355,7 +355,7 @@ test stack-${impl}-8.5 {rotate operation} {
     set result [mystack get]
     mystack destroy
     set result
-} [list a h g f e d c b]
+} {a h g f e d c b}
 
 test stack-${impl}-8.6 {rotate operation} {
     stack mystack
