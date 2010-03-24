@@ -1,4 +1,4 @@
-2010-03-17  Andreas Kupries  <aku@bluepeak.andreas.kupries.org>
+2010-03-23  Andreas Kupries  <aku@bluepeak.andreas.kupries.org>
 
 	* stack_oo.tcl: Tcl implementation of struct::stack based
 	* stack.tcl: on TclOO. Available in 8.5+TclOO, and 8.6+.
@@ -7,6 +7,16 @@
 	* stack.testsuite: Bumped version to 1.5.1.
 	* stack.man:
 	* pkgIndex.tcl:
+
+	* queue_oo.tcl: Tcl implementation of struct::queue based
+	* queue.tcl: on TclOO. Available in 8.5+TclOO, and 8.6+.
+	* queue.bench: Updated and fixed benchmarks, and tests
+	* queue.test: (different error messages). Bumped version
+	* queue.testsuite: to 1.4.2.
+	* queue.man:
+	* pkgIndex.tcl:
+
+	* sets.bench: Updated to allow switching of implementations.
 
 2010-03-16  Andreas Kupries  <andreask@activestate.com>
 
