@@ -4,6 +4,7 @@
  *    Implementations for all tree methods.
  */
 
+#include <string.h>
 #include <arc.h>
 #include <graph.h>
 #include <methods.h>
@@ -240,7 +241,7 @@ gm_arc_GETUNWEIGH (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     rv = NALLOC (g->arcs.n, Tcl_Obj*);
     rc = 0;
 
-    for (a = (GA*) g->arcs.first; a ; a = a->base.next) {
+    for (a = (GA*) g->arcs.first; a ; a = (GA*) a->base.next) {
 	if (a->weight) continue;
 
 	ASSERT_BOUNDS (rc, g->arcs.n);
@@ -337,7 +338,7 @@ gm_arc_SETUNWEIGH (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
 	weight = Tcl_NewIntObj (0);
     }
 
-    for (a = (GA*) g->arcs.first; a ; a = a->base.next) {
+    for (a = (GA*) g->arcs.first; a ; a = (GA*) a->base.next) {
 	if (a->weight) continue;
 
 	a->weight = weight;
@@ -509,7 +510,7 @@ gm_arc_WEIGHTS (G* g, Tcl_Interp* interp, int objc, Tcl_Obj* const* objv)
     rv = NALLOC (rcmax, Tcl_Obj*);
     rc = 0;
 
-    for (a = (GA*) g->arcs.first; a ; a = a->base.next) {
+    for (a = (GA*) g->arcs.first; a ; a = (GA*) a->base.next) {
 	if (!a->weight) continue;
 
 	ASSERT_BOUNDS (rc,   rcmax);
