@@ -1,3 +1,8 @@
+2010-03-25  Andreas Kupries  <aku@bluepeak.andreas.kupries.org>
+
+	* stack_oo.tcl: Remove superfluous 'package require'. Handled by
+	  stack.tcl.
+
 2010-03-23  Andreas Kupries  <aku@bluepeak.andreas.kupries.org>
 
 	* stack_oo.tcl: Tcl implementation of struct::stack based
