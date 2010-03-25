@@ -1,9 +1,17 @@
-2010-03-25  Andreas Kupries  <aku@bluepeak.andreas.kupries.org>
+2010-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* graph/arcshimmer.c: Squash a number of warnings in the C
+	* graph/methods.c: implementations of graph, sets, and trees,
+	* graph/nodeshimmer.c: using casts, and including missing
+	* sets/s.c: headers.
+	* tree/m.c:
+	* tree/shimmer.c:
+	* tree/walk.c:
 
 	* stack_oo.tcl: Remove superfluous 'package require'. Handled by
 	  stack.tcl.
 
-2010-03-23  Andreas Kupries  <aku@bluepeak.andreas.kupries.org>
+2010-03-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* stack_oo.tcl: Tcl implementation of struct::stack based
 	* stack.tcl: on TclOO. Available in 8.5+TclOO, and 8.6+.
