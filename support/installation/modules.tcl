@@ -99,6 +99,7 @@ Module  png         _tcl  _man  _null
 Module  pop3        _tcl  _man  _null
 Module  pop3d       _tcl  _man  _null
 Module  profiler    _tcl  _man  _null
+Module  pt          _tcl  _man  _null
 Module  rc4         _tcl  _man  _null
 Module  rcs         _tcl  _man  _null
 Module  report      _tcl  _man  _null

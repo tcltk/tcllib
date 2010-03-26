@@ -1,3 +1,8 @@
+2010-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* New module 'pt', for ParserTools. Requires Tcl 8.5. Supercedes
+	  grammar_peg, grammar_me, and page.
+
 2009-12-08  Andreas Kupries  <andreask@activestate.com>
 
 	* support/devel/sak/test/run.tcl (CaptureFailureCollectBody,
