@@ -1,0 +1,9 @@
+[example {
+                       + --- C ---> critcl, c
+                       |
+    + --- specialized -+
+    |                  |
+ ---+                  + --- Tcl -> snit, oo
+    |
+    + --- interpreted (Tcl) ------> container
+}]
