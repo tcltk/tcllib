@@ -4,7 +4,7 @@
 # Copyright (c) 2001 by Ideogramic ApS and other parties.
 # All rights reserved.
 #
-# RCS: @(#) $Id: geometry.test,v 1.11 2009/11/17 11:30:51 arjenmarkus Exp $
+# RCS: @(#) $Id: geometry.test,v 1.12 2010/04/05 22:39:57 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -427,7 +427,65 @@ test geometry-16.9 {geometry::rectangleInsidePolygon, infinityLine crosses point
     math::geometry::rectangleInsidePolygon {5 5} {6 6} {4 4 4 7 7 7 7 4}
 } 1
 
+###
+###
+
+test geometry-17.0 {point constructor} {
+    math::geometry::p 1 4
+} {1 4}
+
+test geometry-17.1 {vector addition} {
+    math::geometry::+ {1 4} {5 3}
+} {6 7}
+
+test geometry-17.2 {vector difference} {
+    math::geometry::- {6 7} {5 3}
+} {1 4}
+
+test geometry-17.3 {vector distance} {
+    withFourDecimals [math::geometry::distance {6 7} {5 3}]
+} 4.1231
+
+test geometry-17.4 {vector length} {
+    withFourDecimals [math::geometry::length {1 1}]
+} 1.4142
+
+test geometry-17.5 {vector scale} {
+    math::geometry::s* 5 {1 1}
+} {5 5}
+
+test geometry-17.6 {vector direction} {
+    eval withFourDecimals [math::geometry::direction 0]
+} {1.0 0.0}
+
+test geometry-17.7 {vector direction} {
+    eval withFourDecimals [math::geometry::direction 90]
+} {0.0 -1.0}
+
+test geometry-17.8 {vector vertical} {
+    math::geometry::v 90
+} {0 90}
+
+test geometry-17.9 {vector horizontal} {
+    math::geometry::h 90
+} {90 0}
+
+test geometry-17.10 {point between} {
+    math::geometry::between {0 0} {4 4} 0
+} {0 0}
+
+test geometry-17.11 {point between} {
+    math::geometry::between {0 0} {4 4} 1
+} {4 4}
+
+test geometry-17.12 {point between} {
+    math::geometry::between {0 0} {4 4} 0.5
+} {2.0 2.0}
+
+test geometry-17.13 {octant} {
+    math::geometry::octant {-10 -12}
+} northwest
 
 
-
+###
 testsuiteCleanup
