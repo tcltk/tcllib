@@ -3,14 +3,15 @@
 #	Collection of geometry functions.
 #
 # Copyright (c) 2001 by Ideogramic ApS and other parties.
+# Copyright (c) 2004 Arjen Markus
+# Copyright (c) 2010 Andreas Kupries
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: geometry.tcl,v 1.9 2009/11/17 11:30:51 arjenmarkus Exp $
+# RCS: @(#) $Id: geometry.tcl,v 1.10 2010/04/05 22:39:57 andreas_kupries Exp $
 
-namespace eval ::math::geometry {
-}
+namespace eval ::math::geometry {}
 
 package require math
 
@@ -51,7 +52,113 @@ package require math
 #
 ###
 
+# Point constructor
+proc ::math::geometry::p {x y} {
+    return [list $x $y]
+}
 
+# Vector addition
+proc ::math::geometry::+ {pa pb} {
+    foreach {ax ay} $pa break
+    foreach {bx by} $pb break
+    return [list [expr {$ax + $bx}] [expr {$ay + $by}]]
+}
+
+# Vector difference
+proc ::math::geometry::- {pa pb} {
+    foreach {ax ay} $pa break
+    foreach {bx by} $pb break
+    return [list [expr {$ax - $bx}] [expr {$ay - $by}]]
+}
+
+# Distance between 2 points
+proc ::math::geometry::distance {pa pb} {
+    foreach {ax ay} $pa break
+    foreach {bx by} $pb break
+    return [expr {hypot($bx-$ax,$by-$ay)}]
+}
+
+# Length of a vector
+proc ::math::geometry::length {v} {
+    foreach {x y} $v break
+    return [expr {hypot($x,$y)}]
+}
+
+# Scaling a vector by a factor
+proc ::math::geometry::s* {factor p} {
+    foreach {x y} $p break
+    return [list [expr {$x * $factor}] [expr {$y * $factor}]]
+}
+
+# Unit vector into specific direction given by angle (degrees)
+proc ::math::geometry::direction {angle} {
+    variable torad
+    set x [expr {  cos($angle * $torad)}]
+    set y [expr {- sin($angle * $torad)}]
+    return [list $x $y]
+}
+
+# Vertical vector of specified length.
+proc ::math::geometry::v {h} {
+    return [list 0 $h]
+}
+
+# Horizontal vector of specified length.
+proc ::math::geometry::h {w} {
+    return [list $w 0]
+}
+
+# Find point on a line between 2 points at a distance
+# distance 0 => a, distance 1 => b
+proc ::math::geometry::between {pa pb s} {
+    return [+ $pa [s* $s [- $pb $pa]]]
+}
+
+# Find direction octant the point (vector) lies in.
+proc ::math::geometry::octant {p} {
+    variable todeg
+    foreach {x y} $p break
+
+    set a [expr {(atan2(-$y,$x)*$todeg)}]
+    while {$a >  360} {set a [expr {$a - 360}]}
+    while {$a < -360} {set a [expr {$a + 360}]}
+    if {$a < 0} {set a [expr {360 + $a}]}
+
+    #puts "p ($x, $y) @ angle $a | [expr {atan2($y,$x)}] | [expr {atan2($y,$x)*$todeg}]"
+    # XXX : Add outer conditions to make a log2 tree of checks.
+
+    if {$a <= 157.5} {
+	if {$a <= 67.5} {
+	    if {$a <= 22.5} { return east }
+	    return northeast
+	}
+	if {$a <=  112.5} { return north }
+	return northwest
+    } else {
+	if {$a <=  247.5} {
+	    if {$a <=  202.5} { return west }
+	    return southwest
+	}
+	if {$a <=  337.5} {
+	    if {$a <=  292.5} { return south }
+	    return southeast
+	}
+	return east ; # a <= 360.0
+    }
+}
+
+# Return the NW and SE corners of the rectangle.
+proc ::math::geometry::nwse {rect} {
+    foreach {xnw ynw xse yse} $rect break
+    list [p $xnw $ynw] [p $xse $yse]
+}
+
+# Construct rectangle from NW and SE corners.
+proc ::math::geometry::rect {pa pb} {
+    foreach {ax ay} $pa break
+    foreach {bx by} $pb break
+    list $ax $ay $bx $by
+}
 
 # ::math::geometry::calculateDistanceToLine
 #
@@ -1114,4 +1221,17 @@ proc ::math::geometry::areaPolygon {polygon} {
     expr {0.5*abs($area)}
 }
 
-package provide math::geometry 1.0.4
+# # ## ### ##### #############
+
+namespace eval ::math::geometry {
+    variable pi    [expr { 4 * atan(1) }]
+    variable torad [expr { (4 * atan(1)) / 180.0 }]
+    variable todeg [expr { 180.0 / (4 * atan(1)) }]
+
+    namespace export \
+	+ - s* direction v h p between distance length \
+	nwse rect octant findLineSegmentIntersection \
+	findLineIntersection
+}
+
+package provide math::geometry 1.1
