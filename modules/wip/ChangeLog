@@ -1,3 +1,11 @@
+2010-04-05  Andreas Kupries  <andreask@activestate.com>
+
+	* wip2.tcl (run_next_if, run_nextifnot): Extended API, two
+	* wip.tcl (run_next_if, run_nextifnot): more run_next_
+	* wip.man: commands to run a single following command instead
+	* pkgIndex.tcl: of all acceptable. Updated documentation. Bumped
+	  versions to 1.1.3 and 2.1.3.
+
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

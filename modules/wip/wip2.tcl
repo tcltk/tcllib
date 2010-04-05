@@ -1,6 +1,6 @@
 # ### ### ### ######### ######### #########
 ##
-# (c) 2008-2009 Andreas Kupries.
+# (c) 2008-2010 Andreas Kupries.
 
 # WIP = Word Interpreter (Also a Work In Progress :). Especially while
 # it is running :P
@@ -59,6 +59,8 @@ snit::type ::wip {
     method run_next       {}        {} ; # run the next command in the input.
     method run_next_while {accept}  {} ; # s.a., while acceptable command
     method run_next_until {reject}  {} ; # s.a., until rejectable command
+    method run_next_if    {accept}  {} ; # s.a., if acceptable command
+    method run_next_ifnot {reject}  {} ; # s.a., if not rejectable command
 
     # Manipulation of the input word list.
     method peek           {}        {} ; # peek at next word in input
@@ -232,6 +234,22 @@ snit::type ::wip {
 	return $r
     }
 
+    method run_next_if {accept} {
+	set r {}
+	if {[struct::set contains $accept [$self peek]]} {
+	    set r [$self run_next]
+	}
+	return $r
+    }
+
+    method run_next_ifnot {reject} {
+	set r {}
+	if {![struct::set contains $reject [$self peek]]} {
+	    set r [$self run_next]
+	}
+	return $r
+    }
+
     method run_next {} {
 	# The first word in the list is the current command. Determine
 	# the number of its fixed arguments. This also checks command
@@ -388,6 +406,7 @@ snit::macro wip::dsl {{suffix {}}} {
 	push	pushl	run	runl
 	next	peek	peekall	run_next
 	run_next_until	run_next_while
+	run_next_ifnot	run_next_if
     } {
 	wip::methodasproc mywip$suffix $p $suffix
     }
@@ -397,4 +416,4 @@ snit::macro wip::dsl {{suffix {}}} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide wip 2.1.2
+package provide wip 2.1.3
