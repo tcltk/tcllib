@@ -1,13 +1,14 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::geometry n 1.1]
+[manpage_begin math::geometry n 1.1.1]
 [copyright {2001 by Ideogramic ApS and other parties}]
 [copyright {2004 by Arjen Markus}]
 [copyright {2010 by Andreas Kupries}]
+[copyright {2010 by Kevin Kenny}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Geometrical computations}]
 [category  Mathematics]
 [require Tcl [opt 8.3]]
-[require math::geometry [opt 1.1]]
+[require math::geometry [opt 1.1.1]]
 
 [description]
 [para]
@@ -312,6 +313,8 @@ have no points in common (in two dimensions only).
 [arg_def list line2] Second line
 [list_end]
 
+See section [sectref References] for details on the algorithm and math behind it.
+
 [para]
 
 [call [cmd ::math::geometry::polylinesIntersect] [arg polyline1] [arg polyline2]]
@@ -421,6 +424,14 @@ Calculate the area of a polygon.
 [arg_def list polygon] The polygon in question
 [list_end]
 
+[list_end]
+
+[section References]
+
+[list_begin enumerated]
+[enum] [uri http:/wiki.tcl.tk/12070 {Polygon Intersection}]
+[enum] [uri http://en.wikipedia.org/wiki/Line-line_intersection]
+[enum] [uri http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline2d/]
 [list_end]
 
 [section {BUGS, IDEAS, FEEDBACK}]

@@ -5,11 +5,12 @@
 # Copyright (c) 2001 by Ideogramic ApS and other parties.
 # Copyright (c) 2004 Arjen Markus
 # Copyright (c) 2010 Andreas Kupries
+# Copyright (c) 2010 Kevin Kenny
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: geometry.tcl,v 1.10 2010/04/05 22:39:57 andreas_kupries Exp $
+# RCS: @(#) $Id: geometry.tcl,v 1.11 2010/04/06 17:02:25 andreas_kupries Exp $
 
 namespace eval ::math::geometry {}
 
@@ -681,70 +682,38 @@ proc ::math::geometry::findLineSegmentIntersection {linesegment1 linesegment2} {
 #       Result: none
 #
 proc ::math::geometry::findLineIntersection {line1 line2} {
+
+    # References:
+    # http://wiki.tcl.tk/12070 (Kevin Kenny)
+    # http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline2d/
+
     set l1x1 [lindex $line1 0]
     set l1y1 [lindex $line1 1]
     set l1x2 [lindex $line1 2]
     set l1y2 [lindex $line1 3]
+
     set l2x1 [lindex $line2 0]
     set l2y1 [lindex $line2 1]
     set l2x2 [lindex $line2 2]
     set l2y2 [lindex $line2 3]
 
-    # Is one of the lines vertical?
-    if {$l1x1==$l1x2 || $l2x1==$l2x2} {
-	# One of the lines is vertical
-	if {$l1x1==$l1x2 && $l2x1==$l2x2} {
-	    # both lines are vertical
-	    if {$l1x1==$l2x1} {
-		return "coincident"
-	    } else {
-		return "none"
-	    }
-	}
+    set d [expr {($l2y2 - $l2y1) * ($l1x2 - $l1x1) -
+		 ($l2x2 - $l2x1) * ($l1y2 - $l1y1)}]
+    set na [expr {($l2x2 - $l2x1) * ($l1y1 - $l2y1) -
+		  ($l2y2 - $l2y1) * ($l1x1 - $l2x1)}]
 
-	# make sure line1 is a vertical line
-	if {$l1x1!=$l1x2} {
-	    # interchange line 1 and 2
-	    set l1x1 [lindex $line2 0]
-	    set l1y1 [lindex $line2 1]
-	    set l1x2 [lindex $line2 2]
-	    set l1y2 [lindex $line2 3]
-	    set l2x1 [lindex $line1 0]
-	    set l2y1 [lindex $line1 1]
-	    set l2x2 [lindex $line1 2]
-	    set l2y2 [lindex $line1 3]
-	}
-
-	# get equation of line 2 (y=a*x+b)
-	set a [expr {1.0*($l2y2-$l2y1)/($l2x2-$l2x1)}]
-	set b [expr {$l2y1-$a*$l2x1}]
-
-	# Calculate intersection
-	set y [expr {$a*$l1x1+$b}]
-	return [list $l1x1 $y]
-    } else {
-	# None of the lines are vertical
-	# - get equation of line 1 (y=a1*x+b1)
-	set a1 [expr {(1.0*$l1y2-$l1y1)/($l1x2-$l1x1)}]
-	set b1 [expr {$l1y1-$a1*$l1x1}]
-	# - get equation of line 2 (y=a2*x+b2)
-	set a2 [expr {(1.0*$l2y2-$l2y1)/($l2x2-$l2x1)}]
-	set b2 [expr {$l2y1-$a2*$l2x1}]
-	
-	if {abs($a2-$a1) > 0.0001} {
-	    # the lines are not parallel
-	    set x [expr {($b2-$b1)/($a1-$a2)}]
-	    set y [expr {$a1*$x+$b1}]
-	    return [list $x $y]
+    # http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline2d/
+    if {$d == 0} {
+	if {$na == 0} {
+	    return "coincident"
 	} else {
-	    # the lines are parallel
-	    if {abs($b1-$b2) < 0.00001} {
-		return "coincident"
-	    } else {
-		return "none"
-	    }
+	    return "none"
 	}
     }
+    set r [list \
+               [expr {$l1x1 + $na * ($l1x2 - $l1x1) / $d}] \
+               [expr {$l1y1 + $na * ($l1y2 - $l1y1) / $d}]]
+    return $r 
 }
 
 
@@ -1234,4 +1203,4 @@ namespace eval ::math::geometry {
 	findLineIntersection
 }
 
-package provide math::geometry 1.1
+package provide math::geometry 1.1.1
