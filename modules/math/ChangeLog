@@ -1,3 +1,11 @@
+2010-04-06  Andreas Kupries  <andreask@activestate.com>
+
+	* geometry.tcl (findLineIntersection): Fixed numerical 
+	* geometry.man: instability in the algorithm by replacing
+	* geometry.test: it with Kevin's parametric code. Updated
+	* pkgIndex.tcl: documentation, testsuite. Bumped to
+	  version 1.1.1.
+
 2010-04-05  Andreas Kupries  <andreask@activestate.com>
 
 	* geometry.tcl: Extended API with a number of basic point
