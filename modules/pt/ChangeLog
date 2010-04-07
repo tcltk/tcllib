@@ -1,3 +1,33 @@
+2010-04-07  Andreas Kupries  <andreask@activestate.com>
+
+	* pt_peg_to_cparam.tcl (::pt::peg::to::cparam::convert): Changed
+	* pt_peg_to_cparam.man: definition of string table from 'const
+	* pkgIndex.tcl: char const*' to 'char const*'. The older
+	* tests/data/ok/peg_cparam-critcl/6_optional: definition choked
+	* tests/data/ok/peg_cparam-critcl/8_pkleene: the HPUX cc on IA64.
+	* tests/data/ok/peg_cparam-critcl/1_functions: Bumped version to
+	* tests/data/ok/peg_cparam-critcl/3_peg_itself: 1.0.1. Updated
+	* tests/data/ok/peg_cparam-critcl/10_notahead: the testsuite.
+	* tests/data/ok/peg_cparam-critcl/7_kleene:
+	* tests/data/ok/peg_cparam-critcl/5_sequence:
+	* tests/data/ok/peg_cparam-critcl/4_choice:
+	* tests/data/ok/peg_cparam-critcl/9_ahead:
+	* tests/data/ok/peg_cparam-critcl/0_basic_arithmetic:
+	* tests/data/ok/peg_cparam-critcl/2_fun_arithmetic:
+	* tests/data/ok/peg_cparam/6_optional:
+	* tests/data/ok/peg_cparam/8_pkleene:
+	* tests/data/ok/peg_cparam/1_functions:
+	* tests/data/ok/peg_cparam/3_peg_itself:
+	* tests/data/ok/peg_cparam/10_notahead:
+	* tests/data/ok/peg_cparam/7_kleene:
+	* tests/data/ok/peg_cparam/5_sequence:
+	* tests/data/ok/peg_cparam/4_choice:
+	* tests/data/ok/peg_cparam/9_ahead:
+	* tests/data/ok/peg_cparam/0_basic_arithmetic:
+	* tests/data/ok/peg_cparam/2_fun_arithmetic:
+
+	* pt_parse_peg_c.tcl: See above, updated the generated code.
+
 2010-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* New module, 'pt' for ParserTools. Requires Tcl 8.5. Supercedes

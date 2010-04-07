@@ -32,7 +32,7 @@
  * Precomputed table of strings (symbols, error messages, etc.).
  */
 
-static const char const* <<string-table>> [21] = {
+static char const* <<string-table>> [21] = {
     /*        0 = */   "cl '-+'",
     /*        1 = */   "n AddOp",
     /*        2 = */   "AddOp",

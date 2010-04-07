@@ -1712,7 +1712,7 @@ namespace eval ::PARSER {
          * Precomputed table of strings (symbols, error messages, etc.).
          */
         
-        static const char const* p_string [26] = {
+        static char const* p_string [26] = {
             /*        0 = */   "cl '-+'",
             /*        1 = */   "n AddOp",
             /*        2 = */   "AddOp",

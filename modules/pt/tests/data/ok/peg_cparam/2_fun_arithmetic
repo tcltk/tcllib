@@ -35,7 +35,7 @@
  * Precomputed table of strings (symbols, error messages, etc.).
  */
 
-static const char const* <<string-table>> [26] = {
+static char const* <<string-table>> [26] = {
     /*        0 = */   "cl '-+'",
     /*        1 = */   "n AddOp",
     /*        2 = */   "AddOp",

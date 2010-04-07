@@ -1841,7 +1841,7 @@ namespace eval ::pt::parse {
          * Precomputed table of strings (symbols, error messages, etc.).
          */
         
-        static const char const* p_string [170] = {
+        static char const* p_string [170] = {
             /*        0 = */   "str '<alnum>'",
             /*        1 = */   "n ALNUM",
             /*        2 = */   "ALNUM",
