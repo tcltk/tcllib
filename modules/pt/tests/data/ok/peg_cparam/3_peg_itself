@@ -164,7 +164,7 @@
  * Precomputed table of strings (symbols, error messages, etc.).
  */
 
-static const char const* <<string-table>> [170] = {
+static char const* <<string-table>> [170] = {
     /*        0 = */   "str '<alnum>'",
     /*        1 = */   "n ALNUM",
     /*        2 = */   "ALNUM",
