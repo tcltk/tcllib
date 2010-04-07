@@ -36,7 +36,7 @@ package ifneeded pt::peg::import::json      1 [list source [file join $dir pt_pe
 
 # Export core functionality: Conversion from PEG to a specific format.
 package ifneeded pt::peg::to::container 1 [list source [file join $dir pt_peg_to_container.tcl]]
-package ifneeded pt::peg::to::cparam    1 [list source [file join $dir pt_peg_to_cparam.tcl]]
+package ifneeded pt::peg::to::cparam    1.0.1 [list source [file join $dir pt_peg_to_cparam.tcl]]
 package ifneeded pt::peg::to::json      1 [list source [file join $dir pt_peg_to_json.tcl]]
 package ifneeded pt::peg::to::param     1 [list source [file join $dir pt_peg_to_param.tcl]]
 package ifneeded pt::peg::to::peg       1 [list source [file join $dir pt_peg_to_peg.tcl]]

@@ -13,7 +13,7 @@
  * Precomputed table of strings (symbols, error messages, etc.).
  */
 
-static const char const* <<string-table>> [1] = {
+static char const* <<string-table>> [1] = {
     /*        0 = */   "str 'abc'"
 };
 
