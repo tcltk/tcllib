@@ -16,7 +16,7 @@
  * Precomputed table of strings (symbols, error messages, etc.).
  */
 
-static const char const* <<string-table>> [3] = {
+static char const* <<string-table>> [3] = {
     /*        0 = */   "t a",
     /*        1 = */   "n TEST",
     /*        2 = */   "TEST"

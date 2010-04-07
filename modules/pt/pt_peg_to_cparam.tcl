@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pt_peg_to_cparam.tcl,v 1.1 2010/03/26 05:07:24 andreas_kupries Exp $
+# RCS: @(#) $Id: pt_peg_to_cparam.tcl,v 1.2 2010/04/07 19:40:54 andreas_kupries Exp $
 
 # This package takes the canonical serialization of a parsing
 # expression grammar and produces text in PARAM assembler, i.e.
@@ -200,7 +200,7 @@ proc ::pt::peg::to::cparam::convert {serial} {
     Op::Asm::Header {Precomputed table of strings (symbols, error messages, etc.).}
     text::write /line
     set n [llength $cache(_strings)]
-    text::write field static const char const* @strings@ \[$n\] = \{
+    text::write field static char const* @strings@ \[$n\] = \{
     text::write /line
     foreach s [lrange $cache(_strings) 0 end-1] {
 	text::write field "   " ${s},
@@ -1571,5 +1571,5 @@ namespace eval ::pt::peg::to::cparam {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::to::cparam 1
+package provide pt::peg::to::cparam 1.0.1
 return

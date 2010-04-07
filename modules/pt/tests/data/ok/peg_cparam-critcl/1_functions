@@ -1694,7 +1694,7 @@ namespace eval ::PARSER {
          * Precomputed table of strings (symbols, error messages, etc.).
          */
         
-        static const char const* p_string [8] = {
+        static char const* p_string [8] = {
             /*        0 = */   "n Expression",
             /*        1 = */   "Expression",
             /*        2 = */   "n Function",
