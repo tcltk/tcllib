@@ -1,3 +1,11 @@
+2010-04-07  Andreas Kupries  <andreask@activestate.com>
+
+	* wip2.tcl (run_next_*): Fixed the run_next_ commands to stop
+	* wip.tcl: when detecting the end of the program. New feature,
+	* wip.man: a callback to handle unknown command words, defaults
+	* pkgIndex.tcl: to throwing an error. Updated documentation.
+	  Bumped versions to 1.2 and 2.2.
+
 2010-04-05  Andreas Kupries  <andreask@activestate.com>
 
 	* wip2.tcl (run_next_if, run_nextifnot): Extended API, two

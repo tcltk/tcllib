@@ -45,6 +45,7 @@ snit::type ::wip {
 
     # Defining commands and where they dispatch to.
     method def            {name {cp {}}} {} ; # Define a DSL command.
+    method def/           {name arity {cp {}}} {} ; # Ditto, with explicit arity.
     method defl           {names}        {} ; # Def many, simple names (cp = name)
     method defd           {dict}         {} ; # s.a. name/cp dict
     method deflva         {args}         {} ; # s.a. defl, var arg form
@@ -68,6 +69,9 @@ snit::type ::wip {
     method insert         {at args} {} ; # insert words back into the input
     method push           {args}    {} ; # ditto, at == 0
 
+    # Set callback for unknown command words.
+    method unknown {commandprefix} {}
+
     # ### ### ### ######### ######### #########
     ## Processor construction.
 
@@ -76,6 +80,7 @@ snit::type ::wip {
 	    return -code error "No engine specified"
 	}
 	set engine $e
+	$self unknown [mymethod ErrorForUnknown]
 	$self Definitions $args
 	return
     }
@@ -129,6 +134,8 @@ snit::type ::wip {
     ## Handle of the object incoming commands are dispatched to.
     ## The currently active DSL code, i.e. word list.
 
+    variable unknown {}      ; # command prefix invoked when
+			       # encountering unknown command words.
     variable engine  {}      ; # command
     variable program {}      ; # list (string)
     variable arity -array {} ; # array (command name -> command arity)
@@ -140,7 +147,7 @@ snit::type ::wip {
     ## DSL words map to method-prefixes, i.e. method names + fixed
     ## arguments. We store them with the engine already added in front
     ## to make them regular command prefixes. No 'mymethod' however,
-    ## that works only in engine code itself, not form the outside.
+    ## that works only in engine code itself, not from the outside.
 
     method def {name {mp {}}} {
 	if {$mp eq {}} {
@@ -163,12 +170,37 @@ snit::type ::wip {
 	    return -code error "Unable to handle Tcl varargs"
 	}
 
-	# The arity of the command is number of required arguments,
-	# with compensation for those already covered by the
-	# method-prefix.
+	# The arity of the command is the number of required
+	# arguments, with compensation for those already covered by
+	# the method-prefix.
 
 	set cmd($name)   [linsert $mp 0 $engine]
 	set arity($name) [expr {[llength $a] - $n}]
+	return
+    }
+
+    method def/ {name ay {mp {}}} {
+	# Like def, except that the arity is specified
+	# explicitly. This is for methods with a variable number of
+	# arguments in their definition, possibly dependent on the
+	# fixed parts of the prefix.
+
+	if {$mp eq {}} {
+	    # Derive method-prefix from DSL word.
+	    set mp [list $name]
+	    set m  $name
+
+	} else {
+	    # No need to check for an empty method-prefix. That cannot
+	    # happen, as it is diverted, see above.
+
+	    set m [lindex $mp 0]
+	}
+
+	# The arity of the command is specified by the caller.
+
+	set cmd($name)   [linsert $mp 0 $engine]
+	set arity($name) $ay
 	return
     }
 
@@ -220,7 +252,7 @@ snit::type ::wip {
 
     method run_next_while {accept} {
 	set r {}
-	while {[struct::set contains $accept [$self peek]]} {
+	while {[llength $program] && [struct::set contains $accept [$self peek]]} {
 	    set r [$self run_next]
 	}
 	return $r
@@ -228,7 +260,7 @@ snit::type ::wip {
 
     method run_next_until {reject} {
 	set r {}
-	while {![struct::set contains $reject [$self peek]]} {
+	while {[llength $program] && ![struct::set contains $reject [$self peek]]} {
 	    set r [$self run_next]
 	}
 	return $r
@@ -236,7 +268,7 @@ snit::type ::wip {
 
     method run_next_if {accept} {
 	set r {}
-	if {[struct::set contains $accept [$self peek]]} {
+	if {[llength $program] && [struct::set contains $accept [$self peek]]} {
 	    set r [$self run_next]
 	}
 	return $r
@@ -244,7 +276,7 @@ snit::type ::wip {
 
     method run_next_ifnot {reject} {
 	set r {}
-	if {![struct::set contains $reject [$self peek]]} {
+	if {[llength $program] && ![struct::set contains $reject [$self peek]]} {
 	    set r [$self run_next]
 	}
 	return $r
@@ -257,8 +289,9 @@ snit::type ::wip {
 
 	set c [lindex $program 0]
 	if {![info exists arity($c)]} {
-	    return -code error -errorcode WIP \
-		"Unknown command \"$c\""
+	    # Invoke the unknown handler
+	    set program [lrange $program 1 end]
+	    return [uplevel #0 [list {*}$unknown $c]]
 	}
 
 	set n $arity($c)
@@ -351,6 +384,18 @@ snit::type ::wip {
 	return
     }
 
+    # ### ### ### ######### ######### #########
+
+    method unknown {cmdprefix} {
+	set unknown $cmdprefix
+	return
+    }
+
+    method ErrorForUnknown {word} {
+	return -code error -errorcode WIP \
+	    "Unknown command \"$word\""
+    }
+
     ##
     # ### ### ### ######### ######### #########
 }
@@ -401,7 +446,7 @@ snit::macro wip::dsl {{suffix {}}} {
 
     foreach {p} {
 	add	addl	def     undefva undefl
-	defd	defdva	defl	deflva
+	defd	defdva	defl	deflva  def/
 	insert	insertl	replace	replacel
 	push	pushl	run	runl
 	next	peek	peekall	run_next
@@ -416,4 +461,4 @@ snit::macro wip::dsl {{suffix {}}} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide wip 2.1.3
+package provide wip 2.2
