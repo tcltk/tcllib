@@ -283,7 +283,7 @@ snit::type ::wip {
 	set c [lindex $program 0]
 	if {![info exists arity($c)]} {
 	    # Invoke the unknown handler
-	    return [uplevel #0 [list {*}$unknown $c]]
+	    return [uplevel #0 [linsert $unknown end $c]]
 	}
 
 	set n $arity($c)
