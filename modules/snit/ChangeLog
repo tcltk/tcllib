@@ -1,3 +1,8 @@
+2010-04-30  Andreas Kupries  <andreask@activestate.com>
+
+	* snitfaq.man: Fixed typo in 'package require' commands, reported
+	  by sigzero@gmail.com.
+
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
