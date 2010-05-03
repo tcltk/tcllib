@@ -1,3 +1,10 @@
+2010-05-03  Andreas Kupries  <andreask@activestate.com>
+
+	* ascii85.man: [FR 2993200]: Added new package ascii85,
+	* ascii85.tcl: provided by Emiliano
+	* ascii85.test: <egavilan@users.sourceforge.net>
+	* pkgIndex.tcl: 
+
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
