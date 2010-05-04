@@ -1,3 +1,7 @@
+2010-05-04  Andreas Kupries  <andreask@activestate.com>
+
+	* base64.man:: Fix small typo, default for -maxlen changed to 76.
+
 2010-05-03  Andreas Kupries  <andreask@activestate.com>
 
 	* ascii85.man: [FR 2993200]: Added new package ascii85,
