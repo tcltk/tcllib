@@ -1,7 +1,3 @@
-[proc {*} {args} {}]
-[proc {***************************} {args} {set s [string trim [string trim $args *] " "]; section $s}]
-[proc {********} {args} {set s [string trim [string trim $args *] " "]; subsection $s}]
-
 [manpage_begin tepam::argument_dialogbox n 0.1.0]
 [copyright {2009/2010, Andreas Drollinger}]
 [moddesc   {Tcl’s Enhanced Procedure and Argument Manager}]
@@ -11,11 +7,10 @@
 [require Tk 8.3]
 [require tepam [opt 0.1]]
 
-[* ************************** DESCRIPTION ***************************]
 [description]
 
 
-[*************************** ARGUMENT DIALOGBOX CALL ***************************]
+[section "ARGUMENT DIALOGBOX CALL"]
 
 TEPAM's [cmd argument_dialogbox] is a flexible and easily usable entry form generator. Each entry element of a form is defined via a [emph {data entry item}] that can be provided to [cmd argument_dialogbox] in two formats:
 
@@ -66,7 +61,7 @@ set DialogResult [lb][cmd argument_dialogbox] \
 
 The following subsections explain the different items that are accepted by the [cmd argument_dialogbox], classified into three groups. The first data entry item definition format will be used in the remaining document, knowing that this format can always be transformed into the second format by putting all arguments into a single list that is then provided to [cmd argument_dialogbox].
 
-[******** Context Definition Items ********]
+[subsection "Context Definition Items"]
 
 The first item group allows specifying some context aspects of an argument dialog box. These items are taking a simple character string as item data:
 
@@ -104,7 +99,7 @@ The dialog box's state, e.g. the entered data as well as the window size and pos
 
 [list_end]
 
-[******** Formatting items ********]
+[subsection "Formatting items"]
 
 Especially for big, complex forms it becomes important that the different data entry widgets are graphically well organized and commented to provide an immediate and clear overview to the user. A couple of items allow structuring and commenting the dialog boxes.
 [para]
@@ -159,7 +154,7 @@ Comments and descriptions can be added with the [arg -text] attribute of the [ar
 
 [list_end]
 
-[******** Data Entry Widget Items ********]
+[subsection "Data Entry Widget Items"]
 
 Data entry widgets are created with the widget items. These items require as the formatting items an attribute definition list as item data:
 
@@ -317,7 +312,7 @@ If no default font is provided via the [arg -default] attribute, the font of the
 
 [list_end]
 
-[******** Entry Widget Item Attributes ********]
+[subsection "Entry Widget Item Attributes"]
 
 All the entry widget items are accepting the following attributes:
 
@@ -445,7 +440,7 @@ If the no height has been explicitly specified the height of the widget will be 
 [list_end]
 
 
-[*************************** APPLICATION SPECIFIC ENTRY WIDGETS ***************************]
+[section "APPLICATION SPECIFIC ENTRY WIDGETS"]
 
 An application specific entry widget can be made available to the argument dialog box by adding a dedicated procedure to the [namespace tepam] namespace. This procedure has three arguments; the first one is the widget path, the second one a subcommand and the third argument has various purposes:
 
@@ -509,7 +504,7 @@ It is also possible to relay on an existing entry widget procedure to create a n
 
 Please consult the TEPAM package source file to find additional and more complex examples of entry widget procedures.
 
-[*************************** VARIABLES ***************************]
+[section "VARIABLES"]
 
 The [cmd argument_dialogbox] is using two variables inside the [namespace ::tepam] namespace:
 
