@@ -1,6 +1,6 @@
 [proc {*} {args} {}]
-[proc {***************************} {args} {set s [string trim [string trim $args *] " "]; puts $s; section $s}]
-[proc {********} {args} {set s [string trim [string trim $args *] " "]; puts $s; subsection $s}]
+[proc {***************************} {args} {set s [string trim [string trim $args *] " "]; section $s}]
+[proc {********} {args} {set s [string trim [string trim $args *] " "]; subsection $s}]
 
 [manpage_begin tepam::argument_dialogbox n 0.1.0]
 [copyright {2009/2010, Andreas Drollinger}]
