@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::geometry n 1.1.1]
+[manpage_begin math::geometry n 1.1.2]
 [copyright {2001 by Ideogramic ApS and other parties}]
 [copyright {2004 by Arjen Markus}]
 [copyright {2010 by Andreas Kupries}]
@@ -8,7 +8,7 @@
 [titledesc {Geometrical computations}]
 [category  Mathematics]
 [require Tcl [opt 8.3]]
-[require math::geometry [opt 1.1.1]]
+[require math::geometry [opt 1.1.2]]
 
 [description]
 [para]
