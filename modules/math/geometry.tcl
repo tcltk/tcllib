@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: geometry.tcl,v 1.11 2010/04/06 17:02:25 andreas_kupries Exp $
+# RCS: @(#) $Id: geometry.tcl,v 1.12 2010/05/24 21:44:16 andreas_kupries Exp $
 
 namespace eval ::math::geometry {}
 
@@ -151,14 +151,34 @@ proc ::math::geometry::octant {p} {
 # Return the NW and SE corners of the rectangle.
 proc ::math::geometry::nwse {rect} {
     foreach {xnw ynw xse yse} $rect break
-    list [p $xnw $ynw] [p $xse $yse]
+    return [list [p $xnw $ynw] [p $xse $yse]]
 }
 
 # Construct rectangle from NW and SE corners.
 proc ::math::geometry::rect {pa pb} {
     foreach {ax ay} $pa break
     foreach {bx by} $pb break
-    list $ax $ay $bx $by
+    return [list $ax $ay $bx $by]
+}
+
+proc ::math::geometry::conjx {p} {
+    foreach {x y} $p break
+    return [list [expr {- $x}] $y]
+}
+
+proc ::math::geometry::conjy {p} {
+    foreach {x y} $p break
+    return [list $x [expr {- $y}]]
+}
+
+proc ::math::geometry::x {p} {
+    foreach {x y} $p break
+    return $x
+}
+
+proc ::math::geometry::y {p} {
+    foreach {x y} $p break
+    return $y
 }
 
 # ::math::geometry::calculateDistanceToLine
@@ -1200,7 +1220,7 @@ namespace eval ::math::geometry {
     namespace export \
 	+ - s* direction v h p between distance length \
 	nwse rect octant findLineSegmentIntersection \
-	findLineIntersection
+	findLineIntersection bbox x y conjx conjy
 }
 
-package provide math::geometry 1.1.1
+package provide math::geometry 1.1.2

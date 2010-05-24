@@ -1,3 +1,9 @@
+2010-05-24  Andreas Kupries  <andreask@activestate.com>
+
+	* geometry.man: A bit more commands, bumped to version 1.1.2.
+	* geometry.tcl:
+	* pkgIndex.tcl:
+
 2010-04-06  Andreas Kupries  <andreask@activestate.com>
 
 	* geometry.tcl (findLineIntersection): Fixed numerical 
