@@ -8,7 +8,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: queue.testsuite,v 1.2 2010/03/24 06:13:00 andreas_kupries Exp $
+# RCS: @(#) $Id: queue.testsuite,v 1.3 2010/05/25 19:26:18 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -320,7 +320,7 @@ test queue-${impl}-8.3 {unget, empty queue} {
     set res
 } {foo}
 
-test queue-${impl}-8.4 {unget, nonempty queue} {
+test queue-${impl}-8.4 {unget, nonempty queue, at beginning of queue} {
     queue myqueue
     myqueue put a b c
     myqueue unget foo
@@ -328,5 +328,15 @@ test queue-${impl}-8.4 {unget, nonempty queue} {
     myqueue destroy
     set res
 } {foo a b c}
+
+test queue-${impl}-8.5 {unget, nonempty queue, middle of queue} {
+    queue myqueue
+    myqueue put a b c d e f
+    myqueue get 3
+    myqueue unget foo
+    set res [myqueue peek [myqueue size]]
+    myqueue destroy
+    set res
+} {foo d e f}
 
 #----------------------------------------------------------------------
