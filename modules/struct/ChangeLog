@@ -1,3 +1,10 @@
+2010-05-25  Andreas Kupries  <andreask@activestate.com>
+
+	* queue.testsuite: Fixed bug in C implementation of 'unget'.
+	* queue/m.c: Used bogus variable in assert, hit only when trying
+	* ../tcllibc.tcl: to reuse a list Tcl_Obj for the unget
+	  buffer. Tcllibc version bumped to 0.3.9. Testsuite extended.
+
 2010-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* graph/arcshimmer.c: Squash a number of warnings in the C
