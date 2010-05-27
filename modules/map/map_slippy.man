@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin map::slippy n 0.2]
+[manpage_begin map::slippy n 0.3]
 [moddesc   {Mapping utilities}]
 [titledesc {Common code for slippy based map packages}]
 [require Tcl 8.4]
 [require Tk 8.4]
-[require map::slippy [opt 0.2]]
+[require map::slippy [opt 0.3]]
 [description]
 
 This package provides a number of methods doing things needed by all
