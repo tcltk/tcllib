@@ -1,0 +1,6 @@
+2010-05-28  Andreas Kupries  <andreask@activestate.com>
+
+	* namespacex.test: New module and package holding a number of
+	* namespacex.tcl: utility commands for working with namespaces.
+	* namespacex.man: 
+	* pkgIndex.tcl: 
