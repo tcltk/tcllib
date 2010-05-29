@@ -109,9 +109,9 @@ proc ::namespacex::hook::on {args} {
 	([llength $args] > 3)} {
 	return -code error "wrong\#args, should be \"?namespace? guard action\""
     } elseif {[llength $args] == 3} {
-	lassign $args namespace arguments body
+	lassign $args namespace guard action
     } else { # [llength $args] == 2
-	lassign $args arguments body
+	lassign $args guard action
 	set namespace [uplevel 1 { namespace current }]
     }
 
@@ -121,7 +121,7 @@ proc ::namespacex::hook::on {args} {
 	    next
 	}
 	return [{*}$action {*}$args]
-    } [namespace current]]]
+    } [namespace current]] $guard $action]
     return
 }
 
@@ -251,4 +251,4 @@ proc ::namespacex::state::set {ns state} {
 # # ## ### ##### ######## ############# ######################
 ## Ready
 
-package provide namespacex 0
+package provide namespacex 0.1
