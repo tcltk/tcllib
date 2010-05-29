@@ -1,13 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin canvas::snap n 1.0.1]
+[manpage_begin namespacex 0.1]
 [copyright {200? Neil Madden (http://wiki.tcl.tk/12790)}]
 [copyright {200? Various (http://wiki.tcl.tk/1489)}]
 [copyright {2010 Documentation, Andreas Kupries}]
 [moddesc   {Namespace utility commands}]
 [titledesc {Namespace utility commands}]
 [require Tcl 8.5]
-[require Tk 8.5]
-[require namespacex [opt 0]]
+[require namespacex [opt 0.1]]
 [description]
 
 This package provides a number of utility commands for working with
