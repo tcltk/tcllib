@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin namespacex 0.1]
+[manpage_begin namespacex n 0.1]
 [copyright {200? Neil Madden (http://wiki.tcl.tk/12790)}]
 [copyright {200? Various (http://wiki.tcl.tk/1489)}]
 [copyright {2010 Documentation, Andreas Kupries}]
