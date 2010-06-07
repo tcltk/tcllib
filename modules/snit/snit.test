@@ -8385,6 +8385,13 @@ test double-4.3 {double subtype: less than min, with max} -body {
     subtype destroy
 } -result {INVALID invalid value "-1", expected double in range 0.5, 5.5}
 
+test double-4.4 {double subtype: greater than max, no min} -body {
+    snit::double subtype -max 0.5
+    codecatch {subtype validate 1}
+} -cleanup {
+    subtype destroy
+} -result {INVALID invalid value "1", expected double no greater than 0.5}
+
 #-----------------------------------------------------------------------
 # snit::enum
 

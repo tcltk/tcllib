@@ -113,6 +113,8 @@ snit::type ::snit::double {
     #-------------------------------------------------------------------
     # Public Methods
 
+    # Fixed method for the snit::double type.
+    # WHD, 6/7/2010.
     method validate {value} {
         $type validate $value
 
@@ -125,6 +127,8 @@ snit::type ::snit::double {
                 append msg " in range $options(-min), $options(-max)"
             } elseif {"" != $options(-min)} {
                 append msg " no less than $options(-min)"
+            } elseif {"" != $options(-max)} {
+                append msg " no greater than $options(-max)"
             }
         
             return -code error -errorcode INVALID $msg
@@ -714,4 +718,3 @@ snit::type ::snit::window {
         $type validate $value
     }
 }
-
