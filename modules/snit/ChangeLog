@@ -1,3 +1,12 @@
+2010-06-07  Andreas Kupries  <andreask@activestate.com>
+
+	* validate.tcl (snit::double, validate): Applied patch by Will
+	* pkgIndex.tcl: fixing the error message for max-limited
+	* snit.man: double types. Bumped versions to 2.3.2 and 1.4.2.
+	* snit.tcl: Extended testsuite.
+	* snit2.tcl:
+	* snit.test:
+
 2010-04-30  Andreas Kupries  <andreask@activestate.com>
 
 	* snitfaq.man: Fixed typo in 'package require' commands, reported
