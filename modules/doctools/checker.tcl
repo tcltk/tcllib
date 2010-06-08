@@ -683,6 +683,18 @@ proc uri {text {label {}}} {
 	fmt_uri $text $label
     }
 }
+proc image {text {label {}}} {
+    if {[Is done]} {Error nodonecmd}
+    # The label argument is left out when undefined so that we can
+    # control old formatters as well, if the input is not using uri
+    # labels.
+
+    if {$label == {}} {
+	fmt_image $text
+    } else {
+	fmt_image $text $label
+    }
+}
 proc manpage {text} {
     if {[Is done]} {Error nodonecmd}
     # The label argument is left out when undefined so that we can

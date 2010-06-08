@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.38 2010/02/05 22:29:34 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.39 2010/06/08 19:56:22 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -429,6 +429,29 @@ proc ::doctools::_map {name sfname afname} {
     return
 }
 
+# ::doctools::_img --
+#
+
+#	Add a mapping from symbolic to the actual image filenames to
+#	the object. Two actual paths! The path the image is found at
+#	in the input, and the path for where image is to be placed in
+#	the output.
+#
+# Arguments:
+#	name	Name of the doctools object to use
+#	sfname	Symbolic filename to map
+#	afnameo	Actual filename, origin
+#	afnamed	Actual filename, destination
+#
+# Results:
+#	None.
+
+proc ::doctools::_img {name sfname afnameo afnamed} {
+    upvar #0 ::doctools::doctools${name}::imap imap
+    set imap($sfname) [list $afnameo $afnamed]
+    return
+}
+
 # ::doctools::_format --
 #
 #	Convert some text in doctools format
@@ -723,6 +746,8 @@ proc ::doctools::SetupFormatter {name format} {
     interp alias $mpip dt_user      {} ::doctools::GetUser      $name
     interp alias $mpip dt_lnesting  {} ::doctools::ListLevel    $name
     interp alias $mpip dt_fmap      {} ::doctools::MapFile      $name
+    interp alias $mpip dt_imgsrc    {} ::doctools::ImgSrc       $name
+    interp alias $mpip dt_imgdst    {} ::doctools::ImgDst       $name
     interp alias $mpip file         {} ::doctools::FileCmd
 
     foreach cmd {cappend cget cis cname cpop cpush ctopandclear cset lb rb} {
@@ -794,7 +819,7 @@ proc ::doctools::SetupChecker {name} {
 	keywords nl arg cmd opt comment sectref syscmd method option
 	widget fun type package class var file uri usage term const
 	arg_def cmd_def opt_def tkoption_def emph strong plain_text
-	namespace subsection category
+	namespace subsection category image
     } {
 	interp alias $chk_ip fmt_$cmd $format_ip fmt_$cmd
     }
@@ -1139,6 +1164,56 @@ proc ::doctools::MapFile {name fname} {
     return $fname
 }
 
+# ::doctools::Img{Src,Dst} --
+#
+#	API for formatter. Maps symbolic to actual image in a doctools
+#	item. Returns nothing if no mapping is found.
+#
+# Arguments:
+#	name		Name of the doctools object to query.
+#	iname		Symbolic name of the image file.
+#	extensions	List of acceptable file extensions.
+#
+# Results:
+#	Actual name of the file.
+
+proc ::doctools::ImgSrc {name iname extensions} {
+
+    # The system searches for the image relative to the current input
+    # file, and the current main file
+
+    upvar #0 ::doctools::doctools${name}::imap imap
+
+    #parray imap
+
+    foreach e $extensions {
+	if {[info exists imap($iname.$e)]} {
+	    foreach {origin dest} $imap($iname.$e) break
+	    return $origin
+	}
+    }
+    return {}
+}
+
+proc ::doctools::ImgDst {name iname extensions} {
+    # The system searches for the image relative to the current input
+    # file, and the current main file
+
+    upvar #0 ::doctools::doctools${name}::imap imap
+
+    #parray imap
+
+    foreach e $extensions {
+	if {[info exists imap($iname.$e)]} {
+	    foreach {origin dest} $imap($iname.$e) break
+	    file mkdir [file dirname $dest]
+	    file copy -force $origin $dest
+	    return $dest
+	}
+    }
+    return {}
+}
+
 # ::doctools::Source --
 #
 #	API for formatter. Used by engine to ask for
@@ -1191,7 +1266,6 @@ proc ::doctools::FileOp {ip args} {
     return [eval [linsert $args 0 file]]
 }
 
-
 proc ::doctools::Package {ip pkg} {
     #puts stderr "$ip package require $pkg"
 
@@ -1220,4 +1294,4 @@ namespace eval ::doctools {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools 1.4.6
+package provide doctools 1.4.7
