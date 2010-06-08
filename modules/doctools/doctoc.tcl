@@ -2,12 +2,12 @@
 #
 #	Implementation of doctoc objects for Tcl.
 #
-# Copyright (c) 2003-2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2010 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctoc.tcl,v 1.21 2009/07/23 17:03:51 andreas_kupries Exp $
+# RCS: @(#) $Id: doctoc.tcl,v 1.22 2010/06/08 19:13:53 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -563,6 +563,8 @@ proc ::doctools::toc::SetupFormatter {name format} {
     #$mpip eval [list source [file join $here api_toc.tcl]]
     interp alias $mpip dt_source   {} ::doctools::toc::Source  $mpip [file dirname $format]
     interp alias $mpip dt_read     {} ::doctools::toc::Read    $mpip [file dirname $format]
+    interp alias $mpip dt_package  {} ::doctools::toc::Package $mpip
+    interp alias $mpip file        {} ::doctools::toc::FileOp  $mpip
     interp alias $mpip puts_stderr {} ::puts stderr
     $mpip invokehidden source $format
     #$mpip eval [list source $format]
@@ -906,6 +908,47 @@ proc ::doctools::toc::Read {ip path file} {
     return [read [set f [open [file join $path [file tail $file]]]]][close $f]
 }
 
+proc ::doctools::toc::FileOp {ip args} {
+    #puts stderr "$ip (file $args)"
+    # -- FUTURE -- disallow unsafe operations --
+
+    return [eval [linsert $args 0 file]]
+}
+
+proc ::doctools::toc::Package {ip pkg} {
+    #puts stderr "$ip package require $pkg"
+
+    set indexScript [Locate $pkg]
+
+    $ip expose source
+    $ip expose load
+    $ip eval		$indexScript
+    $ip hide   source
+    $ip hide   load
+    #$ip eval [list source [file join $path [file tail $file]]]
+    return
+}
+
+proc ::doctools::toc::Locate {p} {
+    # @mdgen NODEP: doctools::__undefined__
+    catch {package require doctools::__undefined__}
+
+    #puts stderr "auto_path = [join $::auto_path \n]"
+
+    # Check if requested package is in the list of loadable packages.
+    # Then get the highest possible version, and then the index script
+
+    if {[lsearch -exact [package names] $p] < 0} {
+	return -code error "Unknown package $p"
+    }
+
+    set v  [lindex [lsort -increasing [package versions $p]] end]
+
+    #puts stderr "Package $p = $v"
+
+    return [package ifneeded $p $v]
+}
+
 #------------------------------------
 # Module initialization
 
@@ -920,4 +963,4 @@ namespace eval ::doctools::toc {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools::toc 1.1.2
+package provide doctools::toc 1.1.3
