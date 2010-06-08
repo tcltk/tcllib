@@ -1,5 +1,7 @@
 2010-06-08  Andreas Kupries  <andreask@activestate.com>
 
+	* ../../apps/dtplite: Fix the min version requirements.
+
 	* checker.tcl: Added 'image' command to doctools, and the
 	* doctools.man: various backends. Bumped to version 1.4.7.
 	* doctools_lang_cmdref.man: Images are specified through
