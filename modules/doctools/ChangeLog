@@ -7,7 +7,7 @@
 	* pkgIndex.tcl: 
 
 	* mpformats/toc.text: Fixed command names using various textutil
-	  functionality.
+	* mpformats/idx.text: functionality.
 
 2010-02-05  Andreas Kupries  <andreask@activestate.com>
 
