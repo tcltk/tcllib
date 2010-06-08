@@ -295,6 +295,11 @@ namespace eval ::dtplite {
 
     variable  data
     array set data {}
+
+    # Database of image files for use by dt_imap.
+
+    variable  imap
+    array set imap {}
 }
 
 # ### ### ### ######### ######### #########
@@ -543,7 +548,7 @@ proc ::dtplite::Output {f} {
 
 proc ::dtplite::At {f} {
     variable output
-    set of     [file join $output $f]
+    set of     [file normalize [file join $output $f]]
     file mkdir [file dirname $of]
     return $of
 }
@@ -696,6 +701,7 @@ proc ::dtplite::Do.Directory {} {
     # Phase III. Convert each file, using index, toc and meta
     # .......... information.
 
+    MapImages
     set files [LocateManpages $input]
     if {![llength $files]} {
 	ArgError "Module \"$module\" has no files to process."	
@@ -711,12 +717,13 @@ proc ::dtplite::Do.Directory {} {
     XrefGet
     XrefSetup   dt
     FooterSetup dt
+    MapSetup    dt
 
     foreach f [lsort -dict $files] {
 	puts stdout \t$f
 
 	set o $out($f)
-	dt configure -file $o
+	dt configure -file [At $o]
 
 	NavbuttonPush {Keyword Index}     [Output index] $o
 	NavbuttonPush {Table Of Contents} [Output toc]   $o
@@ -757,6 +764,7 @@ proc ::dtplite::Do.Directory.Merge {} {
     # Phase III. Process each file, using cross references, and links
     # .......... to boths tocs and the index.
 
+    MapImages
     set files [LocateManpages $input]
     if {![llength $files]} {
 	ArgError "Module \"$module\" has no files to process."	
@@ -774,6 +782,7 @@ proc ::dtplite::Do.Directory.Merge {} {
     XrefGetSaved
     XrefSetup   dt
     FooterSetup dt
+    MapSetup    dt
 
     foreach f [lsort -dict $files] {
 	puts stdout \t$f
@@ -807,9 +816,11 @@ proc ::dtplite::SinglePrep {} {
     variable input
     variable module
 
+    MapImages
     StyleSetup  dt
     HeaderSetup dt
     FooterSetup dt
+    MapSetup    dt
 
     dt configure -module $module -file $input
     return
@@ -841,7 +852,8 @@ proc ::dtplite::MetadataGet {files {floc {}}} {
     doctools::new meta -format list -deprecated 1
     foreach f $files {
 	meta configure -file $f
-	set out($f)  [set o [Output [file join $floc files $f]]]
+	set o [Output [file join $floc files $f]]
+	set out($f)  $o
 	set meta($o) [lindex [string trim [meta format [Get [Pick $f]]]] 1]
     }
     meta destroy
@@ -1158,6 +1170,70 @@ proc ::dtplite::Tag+ {n args} {
 proc ::dtplite::TagsBegin {} {
     upvar 1 lines lines
     set lines {}
+    return
+}
+
+# ### ### ### ######### ######### #########
+## Collect all files for possible use as image
+
+proc ::dtplite::MapImages {} {
+    variable input
+    variable output
+    variable single
+    variable stdout
+
+    # Ignore images when writing results to a pipe.
+    if {$stdout} return
+
+    set out  [file normalize $output]
+    set path [file normalize $input]
+    set res  {}
+
+    if {$single} {
+	# output is file, image directory is sibling to it.
+	set imgbase [file join [file dirname $output] image]
+	# input to search is director the input file is in, and below
+	set path    [file dirname $path]
+    } else {
+	# output is directory, image directory is inside.
+	set imgbase [file join $out image]
+    }
+
+    set n [llength [file split $path]]
+
+    foreach f [::fileutil::find $path] {
+	MapImage \
+	    [::fileutil::stripN $f $n] \
+	    $f [file join $imgbase [file tail $f]]
+    }
+    return
+}
+
+proc ::dtplite::MapImage {path orig dest} {
+    # A file a/b/x.y is stored under
+    # a/b/x.y, b/x.y, and x.y
+
+    variable imap
+    set plist [file split $path]
+    while {[llength $plist]} {
+	set imap([join $plist /]) [list $orig $dest]
+	set plist [lrange $plist 1 end]
+    }
+    return
+}
+
+proc ::dtplite::MapSetup {dt} {
+    # imap :: map (symbolicfile -> list (originpath,destpath)))
+    variable imap
+    # Skip if no data available
+
+    #puts MIS|[array size imap]|
+    if {![array size imap]} return
+
+    foreach sf [array names imap] {
+	foreach {origin destination} $imap($sf) break
+	$dt img $sf $origin $destination
+    }
     return
 }
 
