@@ -120,9 +120,9 @@ package provide dtplite 1.0.1
 # documentation without getting overly complex in both implementation
 # and use.
 
-package require doctools      1
-package require doctools::idx 1
-package require doctools::toc 1
+package require doctools      1.4.7 ; # 'image' support 
+package require doctools::idx 1.0.4 ;
+package require doctools::toc 1.1.3 ;
 package require fileutil
 package require textutil::repeat
 
