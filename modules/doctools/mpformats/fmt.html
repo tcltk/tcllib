@@ -388,6 +388,29 @@ proc fmt_uri     {text {label {}}} {
     if {$label == {}} {set label $text}
     return [link $label $text]
 }
+
+proc fmt_image {text {label {}}} {
+    # text = symbolic name of the image.
+
+    set img [dt_imgdst $text {png gif jpg}]
+
+    if {$label eq {}} {
+	set label $text
+    }
+
+    if {$img eq {}} {
+	return [strong "Image: $label"]
+    } else {
+
+	#puts_stderr here:\t[LinkHere]
+	#puts_stderr dest:\t$img
+	#puts_stderr rela:\t[LinkTo $img [LinkHere]]
+	#puts_stderr
+
+	return [imagelink $label [LinkTo $img [LinkHere]]]
+    }
+}
+
 proc fmt_term    {text} {italic [XrefMatch $text kw sa] term}
 proc fmt_const   {text} {bold $text const}
 
@@ -643,14 +666,18 @@ proc XrefList {list {ext {}}} {
     return $res
 }
 
-proc XrefLink {dest label} {
+proc LinkHere {} {
+    return [dt_fmap [dt_mainfile]]
+}
+
+proc LinkTo {dest here} {
     # Ensure that the link is properly done relative to this file!
 
     set save $dest
 
     #puts_stderr "XrefLink $dest $label"
 
-    set here [file split [dt_fmap [dt_mainfile]]]
+    set here [file split $here]
     set dest [file split $dest]
 
     #puts_stderr "XrefLink < $here"
@@ -675,7 +702,16 @@ proc XrefLink {dest label} {
     }
 
     #puts_stderr "XrefLink --> $dest"
-    if {[string equal $dest [lindex [file split [dt_fmap [dt_file]]] end]]} {
+    return $dest
+}
+
+proc XrefLink {dest label} {
+    # Ensure that the link is properly done relative to this file!
+
+    set here [LinkHere]
+    set dest [LinkTo $dest $here]
+
+    if {[string equal $dest [lindex [file split $here] end]]} {
 	# Suppress self-referential links, i.e. links made from the
 	# current file to itself. Note that links to specific parts of
 	# the current file are not suppressed, only exact links.
