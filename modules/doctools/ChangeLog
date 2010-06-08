@@ -1,3 +1,14 @@
+2010-06-08  Andreas Kupries  <andreask@activestate.com>
+
+	* docidx.man: Added missing dt_package and restricted 'file'
+	* docidx.tcl: support to doctool::toc and doctools::idx. Versions
+	* doctoc.man: bumped to 1.1.3 and 1.0.4.
+	* doctoc.tcl: 
+	* pkgIndex.tcl: 
+
+	* mpformats/toc.text: Fixed command names using various textutil
+	  functionality.
+
 2010-02-05  Andreas Kupries  <andreask@activestate.com>
 
 	* checker.tcl: Gave the checking layer access to dt_file,
