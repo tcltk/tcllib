@@ -1,5 +1,19 @@
 2010-06-08  Andreas Kupries  <andreask@activestate.com>
 
+	* checker.tcl: Added 'image' command to doctools, and the
+	* doctools.man: various backends. Bumped to version 1.4.7.
+	* doctools_lang_cmdref.man: Images are specified through
+	* doctools.tcl: symbolic name. Tools like dtp(lite) specify
+	* pkgIndex.tcl: possible mappings, and the backends select
+	* mpformats/fmt.html: a proper variant (png, jpeg, text, ...)
+	* mpformats/fmt.latex: or fallback to a 'here should be this
+	* mpformats/fmt.nroff: image' markup, if no proper variant
+	* mpformats/fmt.null: for them was found.
+	* mpformats/fmt.wiki:
+	* mpformats/fmt.text: Future/Todo - Recognize uris as symbolic
+	* mpformats/_html.tcl: name and treat as external reference.
+	* ../../apps/dtplite:
+
 	* docidx.man: Added missing dt_package and restricted 'file'
 	* docidx.tcl: support to doctool::toc and doctools::idx. Versions
 	* doctoc.man: bumped to 1.1.3 and 1.0.4.
