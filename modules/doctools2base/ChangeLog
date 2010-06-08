@@ -1,3 +1,8 @@
+2010-06-08  Andreas Kupries  <andreask@activestate.com>
+
+	* msgcat.man: [Bug 3012669]: Renamed this manpage, conflicted with
+	* tcllib_msgcat.man: the manpage for package msgcat in the core.
+
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
