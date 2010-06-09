@@ -9,11 +9,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.76 2009/11/24 21:27:59 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.77 2010/06/09 17:16:12 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.14.2
+package provide fileutil 1.14.3
 
 namespace eval ::fileutil {
     namespace export \
@@ -1544,6 +1544,20 @@ proc ::fileutil::fileType {filename} {
 	       ![regexp -- {--- !docidx ---} $test]) ||
               [regexp -- {--- docidx ---} $test]} {
 	lappend type docidx
+    } elseif {([regexp "\\\[manpage_begin " $test] &&
+	       ![regexp -- "!tcl\.tk//DSL doctools//EN//" $test]) ||
+              [regexp -- "tcl\.tk//DSL doctools//EN//" $test]} {
+	lappend type doctools
+    } elseif {([regexp "\\\[toc_begin " $test] &&
+	       ![regexp -- "!tcl\.tk//DSL doctoc//EN//" $test]) ||
+              [regexp -- "tcl\.tk//DSL doctoc//EN//" $test]} {
+	lappend type doctoc
+    } elseif {([regexp "\\\[index_begin " $test] &&
+	       ![regexp -- "!tcl\.tk//DSL docidx//EN//" $test]) ||
+              [regexp -- "tcl\.tk//DSL docidx//EN//" $test]} {
+	lappend type docidx
+    } elseif {[regexp -- "tcl\\.tk//DSL diagram//EN//" $test]} {
+	lappend type tkdiagram
     } elseif { $binary && [ regexp {^[\x7F]ELF} $test ] } {
         lappend type executable elf
     } elseif { $binary && [string match "MZ*" $test] } {

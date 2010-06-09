@@ -1,3 +1,10 @@
+2010-06-09  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.tcl (::fileutil::fileType): Extended to recognize tklib
+	* fileutil.man: diagram files, and extended the doctools/toc/idx
+	* pkgIndex.tcl: detector to accept markers in the same style as
+	  for tklib diagrams. Bumped to version 1.14.3.
+
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
