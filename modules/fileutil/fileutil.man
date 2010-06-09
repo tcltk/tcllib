@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin fileutil n 1.14.2]
+[manpage_begin fileutil n 1.14.3]
 [moddesc   {file utilities}]
 [titledesc {Procedures implementing some file utilities}]
 [category  {Programming tools}]
 [require Tcl 8]
-[require fileutil [opt 1.14.2]]
+[require fileutil [opt 1.14.3]]
 [description]
 [keywords {file utilities} touch grep type {temp file} test cat]
 [para]
@@ -206,7 +206,8 @@ jpeg, graphic png, graphic tiff, graphic bitmap, html, xml (with doctype
 if available), message pgp, binary pdf, text ps, text eps, binary
 gravity_wave_data_frame, compressed bzip, compressed gzip, compressed
 zip, compressed tar, audio wave, audio mpeg, and link. It further
-detects doctools, doctoc, and docidx documentation files.
+detects doctools, doctoc, and docidx documentation files, and
+tklib diagrams.
 
 
 [call [cmd ::fileutil::find] [opt "[arg basedir] [opt [arg filtercmd]]"]]
