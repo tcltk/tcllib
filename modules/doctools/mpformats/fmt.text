@@ -454,7 +454,7 @@ proc fmt_uri     {text {label {}}} {
 proc fmt_image {text {label {}}} {
     # text = symbolic name of the image.
 
-    set img [dt_imgsrc $text {txt}]
+    set img [dt_imgdata $text {txt}]
     if {$img eq {}} {
 	if {$label eq {}} {
 	    set label $text
@@ -462,9 +462,6 @@ proc fmt_image {text {label {}}} {
 	return "IMAGE: $label"
     }
 
-    set f   [open $img r]
-    set img [read $f]
-    close   $f
     return $img
 }
 proc fmt_term    {text} {em     $text}
