@@ -22,7 +22,7 @@ exec tclsh "$0" ${1+"$@"}
 # Meta license      BSD
 # @@ Meta End
 
-package provide dtplite 1.0.1
+package provide dtplite 1.0.2
 
 # dtp lite - Lightweight DocTools Processor
 # ======== = ==============================
