@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.39 2010/06/08 19:56:22 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.40 2010/06/11 06:54:58 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -748,6 +748,7 @@ proc ::doctools::SetupFormatter {name format} {
     interp alias $mpip dt_fmap      {} ::doctools::MapFile      $name
     interp alias $mpip dt_imgsrc    {} ::doctools::ImgSrc       $name
     interp alias $mpip dt_imgdst    {} ::doctools::ImgDst       $name
+    interp alias $mpip dt_imgdata   {} ::doctools::ImgData      $name
     interp alias $mpip file         {} ::doctools::FileCmd
 
     foreach cmd {cappend cget cis cname cpop cpush ctopandclear cset lb rb} {
@@ -1177,6 +1178,29 @@ proc ::doctools::MapFile {name fname} {
 # Results:
 #	Actual name of the file.
 
+proc ::doctools::ImgData {name iname extensions} {
+
+    # The system searches for the image relative to the current input
+    # file, and the current main file
+
+    upvar #0 ::doctools::doctools${name}::imap imap
+
+    #parray imap
+
+    foreach e $extensions {
+	if {[info exists imap($iname.$e)]} {
+	    foreach {origin dest} $imap($iname.$e) break
+
+	    set f   [open $origin r]
+	    set img [read $f]
+	    close   $f
+
+	    return $img
+	}
+    }
+    return {}
+}
+
 proc ::doctools::ImgSrc {name iname extensions} {
 
     # The system searches for the image relative to the current input
@@ -1294,4 +1318,4 @@ namespace eval ::doctools {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools 1.4.7
+package provide doctools 1.4.8

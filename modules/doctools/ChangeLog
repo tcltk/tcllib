@@ -1,5 +1,16 @@
 2010-06-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* doctools.tcl: Extended the plugin API to the image map to
+	* mpformats/fmt.nroff: allow querying the image data instead of
+	* mpformats/fmt.wiki: its paths. Fixed the nroff, wiki, and text
+	* mpformats/fmt.text: plugins to use this new command, as they
+	* doctools_plugin_apiref.man: are in a restricted environment
+	* doctools.man: which does not allow them to 'open' files on their
+	* pkgIndex.tcl: own. Documented the command now. nroff further
+	  extended to accept .txt images as well as .pic, and do a bit of
+	  formatting of their own to make them fit (.nf/.fi). Version
+	  bumped to 1.4.8.
+
 	* ../../apps/dtplite: Fixes for problems with the handling of
 	  relative paths. Version bumped to 1.0.2.
 
