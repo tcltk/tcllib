@@ -98,3 +98,7 @@ then a parser should deliver the abstract syntax tree below (except for whitespa
 [para]
 [include ../example/expr_ast.inc]
 [para]
+
+Or, more graphical
+
+[para][image expr_ast][para]
