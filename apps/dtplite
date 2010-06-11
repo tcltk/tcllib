@@ -495,7 +495,7 @@ proc ::dtplite::processCmdline {} {
 	set mode Directory
     }
 
-    set module [file rootname [file tail $input]]
+    set module [file rootname [file tail [file normalize $input]]]
     return
 }
 
@@ -1371,6 +1371,8 @@ proc ::dtplite::XrefSetup {o} {
 	set xrefl {}
 	foreach k [array names xref] {
 	    lappend xrefl [linsert $xref($k) 0 $k]
+	    set f [lindex $xref($k) 0]
+	    dt map $f [At $f]
 	}
     }
     $o setparam xref $xrefl
