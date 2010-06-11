@@ -129,6 +129,27 @@ of the documentation for the package [package doctools].
 Query command. It returns the name of the format associated with the
 doctools formatting engine.
 
+[call [cmd dt_imgdata] [arg key] [arg extensions]]
+
+Query command. Access to the image map. Looks for an image recorded
+under the [arg key] and having on the specified [arg extension]. If a
+matching image is found its data is returned as the result of the
+command. Otherwise an empty string is returned.
+
+[call [cmd dt_imgdst]  [arg key] [arg extensions]]
+
+Query command. Access to the image map. Looks for an image recorded
+under the [arg key] and having on the specified [arg extension]. If a
+matching image is found its destination path in the output is returned
+as the result of the command. Otherwise an empty string is returned.
+
+[call [cmd dt_imgsrc]  [arg key] [arg extensions]]
+
+Query command. Access to the image map. Looks for an image recorded
+under the [arg key] and having on the specified [arg extension]. If a
+matching image is found its origin path is returned as the result of
+the command. Otherwise an empty string is returned.
+
 [call [cmd dt_lnesting]]
 
 Query command. It returns the number of lists currently open.
