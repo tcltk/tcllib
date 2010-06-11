@@ -1,3 +1,16 @@
+2010-06-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* include/serial/ast.inc: Added image for the AST.
+	* include/example/expr_ast.dia: New. tklib diagram for the AST.
+	* include/example/expr_ast.png: New. PNG image of the above.
+	* include/example/expr_ast.txt: New. Text variant of the above.
+	* include/example/expr_ast.pic: New. *roff variant of the above.
+	* include/gen_options.inc: Replaced example with diagram via image.
+	* include/gen_options.dia: New. tklib diagram.
+	* include/gen_options.png: New. PNG image derived from diagram.
+	* include/gen_options.txt: New. Text variant of the above.
+	* include/gen_options.pic: New. *roff variant of the above.
+
 2010-04-07  Andreas Kupries  <andreask@activestate.com>
 
 	* pt_peg_to_cparam.tcl (::pt::peg::to::cparam::convert): Changed

@@ -1,9 +1,1 @@
-[example {
-                       + --- C ---> critcl, c
-                       |
-    + --- specialized -+
-    |                  |
- ---+                  + --- Tcl -> snit, oo
-    |
-    + --- interpreted (Tcl) ------> container
-}]
+[para][image gen_options][para]
