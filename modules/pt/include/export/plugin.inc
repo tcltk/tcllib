@@ -18,6 +18,8 @@ is intended to be used by [package pt::peg::export], the export
 manager, sitting between it and the corresponding core conversion
 functionality provided by [package pt::peg::to::[vset PACKAGE]].
 
+[para][image arch_core_eplugins][para]
+
 [para]
 
 While the direct use of this package with a regular interpreter is

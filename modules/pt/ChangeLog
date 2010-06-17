@@ -1,15 +1,71 @@
-2010-06-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+2010-06-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* include/arch_core.dia: Navigational diagrams and images
+	* include/arch_core.png:
+	* include/arch_core_container.dia:
+	* include/arch_core_container.png:
+	* include/arch_core_eplugins.dia:
+	* include/arch_core_eplugins.png:
+	* include/arch_core_export.dia:
+	* include/arch_core_export.png:
+	* include/arch_core_import.dia:
+	* include/arch_core_import.png:
+	* include/arch_core_iplugins.dia:
+	* include/arch_core_iplugins.png:
+	* include/arch_core_support.dia:
+	* include/arch_core_support.png:
+	* include/arch_core_transform.dia:
+	* include/arch_core_transform.png:
+	* include/arch_support.dia:
+	* include/arch_support.png:
+	* include/arch_user_app.dia:
+	* include/arch_user_app.png:
+	* include/arch_user_pkg.dia:
+	* include/arch_user_pkg.png:
+	* include/architecture.dia: Foundation for the variant diagrams above.
+	* include/architecture.png:
+
+	* include/example/expr_ptgenb.inc: Text blocks for the full examples
+	* include/example/flow.dia: shown in the pt and pt::pgen documentation.
+	* include/example/flow.png:
+	* include/example/full.inc:
+	* include/example/full_app.inc:
+	* include/example/full_pkg.inc:
+	* include/example/parser_use.inc:
 
 	* include/serial/ast.inc: Added image for the AST.
 	* include/example/expr_ast.dia: New. tklib diagram for the AST.
 	* include/example/expr_ast.png: New. PNG image of the above.
 	* include/example/expr_ast.txt: New. Text variant of the above.
 	* include/example/expr_ast.pic: New. *roff variant of the above.
+
 	* include/gen_options.inc: Replaced example with diagram via image.
 	* include/gen_options.dia: New. tklib diagram.
 	* include/gen_options.png: New. PNG image derived from diagram.
 	* include/gen_options.txt: New. Text variant of the above.
 	* include/gen_options.pic: New. *roff variant of the above.
+
+	* pt.man: Addition of larger examples to pt and pt::pgen manpages,
+	* pt_astree.man: plus addition of navigational images to all manpages
+	* pt_cparam_config_critcl.man: for packages and APIs.
+	* pt_from_api.man:
+	* pt_introduction.man:
+	* pt_parser_api.man:
+	* pt_peg_container.man:
+	* pt_peg_export.man:
+	* pt_peg_import.man:
+	* pt_peg_interp.man:
+	* pt_pegrammar.man:
+	* pt_pexpression.man:
+	* pt_pgen.man:
+	* pt_rdengine.man:
+	* pt_tclparam_config_snit.man:
+	* pt_tclparam_config_tcloo.man:
+	* pt_to_api.man:
+	* include/export/plugin.inc:
+	* include/export/to.inc:
+	* include/import/from.inc:
+	* include/import/plugin.inc:
 
 2010-04-07  Andreas Kupries  <andreask@activestate.com>
 

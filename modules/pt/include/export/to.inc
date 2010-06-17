@@ -21,6 +21,8 @@ environments and done through the corresponding export plugin
 [package pt::peg::export::[vset PACKAGE]] sitting between converter
 and export manager.
 
+[para][image arch_core_eplugins][para]
+
 
 [section API]
 

@@ -15,6 +15,7 @@ package [package pt::peg::to::tclparam] to generate
 [para]
 
 It is a supporting package in the Core Layer of Parser Tools.
+[para][image arch_core_support][para]
 
 [section API]
 
