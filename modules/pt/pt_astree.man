@@ -13,6 +13,7 @@ section [sectref {AST serialization format}].
 [para]
 
 This is a supporting package in the Core Layer of Parser Tools.
+[para][image arch_core_support][para]
 
 [section API]
 

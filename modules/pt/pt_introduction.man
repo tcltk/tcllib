@@ -16,7 +16,8 @@ What are your goals which drove you here ?
 Do you simply wish to create a parser for some language ?
 
 [para]
-In that case have a look at our parser generator package,
+In that case have a look at our parser generator application,
+[cmd pt], or, for a slightly deeper access, the package underneath it,
 [package pt::pgen].
 
 [enum]
@@ -37,21 +38,24 @@ See the [manpage {Introduction to Parsing Expression Grammars}].
 
 [section {Parser Tools Architecture}]
 
-The system can be split into roughly three layers, which are, from
-high to low:
+The system can be split into roughly three layers, as seen in the
+figure below
+
+[para][image architecture][para]
+
+These layers are, from high to low:
 
 [list_begin enumerated]
 [enum]
 
-At the top we have the packages using the packages of the layer below
-to implement common usecases. One example is the aforementioned
-[package pt::pgen] which provides a parser generator.
+At the top we have the application and the packages using the packages
+of the layer below to implement common usecases. One example is the
+aforementioned [package pt::pgen] which provides a parser generator.
 
 [para]
 
 The list of packages belonging to this layer can be found in section
 [sectref {User Packages}]
-
 
 [enum]
 
@@ -66,7 +70,6 @@ to cover the most important use cases.
 The list of packages belonging to this layer can be found in section
 [sectref {Core Packages}]
 
-
 [enum]
 
 Last, but not least is the layer containing support packages providing
@@ -79,7 +82,6 @@ The list of packages belonging to this layer can be found in section
 
 [list_end]
 
-
 [subsection {User Packages}]
 [list_begin definitions]
 [def [package pt::pgen]]
@@ -88,9 +90,9 @@ The list of packages belonging to this layer can be found in section
 
 [subsection {Core Packages}]
 
-The layer itself is further split into six sections handling the
-storage, import, export, transformation, and execution of grammars,
-plus grammar specific support packages.
+This layer is further split into six sections handling the storage,
+import, export, transformation, and execution of grammars, plus
+grammar specific support packages.
 
 [list_begin definitions]
 [def Storage]
