@@ -1,3 +1,14 @@
+2010-06-17  Andreas Kupries  <andreask@activestate.com>
+
+	* mpformats/fmt.html: Tweaked formatting of images when no
+	* mpformats/fmt.latex: data was found. Especially for HTML
+	* mpformats/fmt.text: accept http and ftp uris and format
+	* mpformats/fmt.wiki: them as links, allowing the embedding
+	* mpformats/fmt.nroff: of images without requiring a local
+	* doctools.man: file. Bumped version to 1.4.9
+	* pkgIndex.tcl:
+	* doctools.tcl:
+
 2010-06-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* doctools.tcl: Extended the plugin API to the image map to
