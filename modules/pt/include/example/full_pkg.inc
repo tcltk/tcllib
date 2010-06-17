@@ -1,6 +1,6 @@
 using the script [file gen]
 
-[include include/example/expr_ptgenb.inc]
+[include expr_ptgenb.inc]
 
 calling it like
 
