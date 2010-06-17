@@ -21,6 +21,7 @@ environments and done through the corresponding import plugin
 [package pt::peg::import::[vset PACKAGE]] sitting between converter
 and import manager.
 
+[para][image arch_core_iplugins][para]
 
 [section API]
 

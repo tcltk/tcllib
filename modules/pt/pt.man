@@ -13,7 +13,8 @@ application's [sectref {Internals}] for the basic references.
 
 [para]
 
-It resides in the User Layer of Parser Tools.
+It resides in the User Application Layer of Parser Tools.
+[para][image arch_user_app][para]
 
 [section {Command Line}]
 
@@ -224,6 +225,11 @@ This result-format supports the following options:
 This result-format supports the following options:
 
 [include include/format/options_container.inc]
+
+
+[section Example]
+[vset MODE app][include include/example/full.inc]
+
 
 
 [section Internals]

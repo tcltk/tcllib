@@ -18,6 +18,7 @@ PARAM.
 
 Like the supporting runtime this package resides in the Execution
 section of the Core Layer of Parser Tools.
+[para][image arch_core_transform][para]
 
 [para]
 

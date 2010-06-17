@@ -15,7 +15,11 @@ user to manipulate and query its definition.
 
 It resides in the Storage section of the Core Layer of Parser Tools,
 and is one of the three pillars the management of parsing expression
-grammars resides on. The other two pillars are
+grammars resides on.
+
+[para][image arch_core_container][para]
+
+The other two pillars are, as shown above
 
 [list_begin enum]
 [enum] [manpage {PEG Import}], and
@@ -27,13 +31,13 @@ grammars resides on. The other two pillars are
 Packages related to this are:
 
 [list_begin definitions]
-[def [package pt::peg::rde]]
+[def [package pt::rde]]
 
 This package provides an implementation of PARAM, a virtual machine
 for the parsing of a channel, geared towards the needs of handling
 PEGs.
 
-[def [package pt::peg::interpreter]]
+[def [package pt::peg::interp]]
 
 This package implements an interpreter for PEGs on top of the virtual
 machine provided by [package pt::peg::rde]
