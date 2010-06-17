@@ -263,9 +263,10 @@ proc fmt_image {text {label {}}} {
     set img [dt_imgdata $text {txt}]
     if {$img eq {}} {
 	if {$label eq {}} {
-	    set label $text
+	    return "IMAGE: $text"
+	} else {
+	    return "IMAGE: $text $label"
 	}
-	return "IMAGE: $label"
     }
 
     return \n======\n$img\n======\n

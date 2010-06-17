@@ -351,9 +351,10 @@ proc fmt_image {text {label {}}} {
     set img [dt_imgsrc $text {eps ps}]
     if {$img eq {}} {
 	if {$label eq {}} {
-	    set label $text
+	    return [Underline "IMAGE: $text"]
+	} else {
+	    return [Underline "IMAGE: $text $label"]
 	}
-	return [Underline "IMAGE: $label"]
     }
 
     set _has_images 1
