@@ -18,6 +18,7 @@ is intended to be used by [package pt::peg::import], the import
 manager, sitting between it and the corresponding core conversion
 functionality provided by [package pt::peg::from::[vset PACKAGE]].
 
+[para][image arch_core_iplugins][para]
 [para]
 
 While the direct use of this package with a regular interpreter is

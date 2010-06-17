@@ -19,6 +19,7 @@ their or some other converter.
 [para]
 
 It resides in the Export section of the Core Layer of Parser Tools.
+[para][image arch_core_export][para]
 
 [section {Converter API}]
 

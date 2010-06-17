@@ -20,6 +20,7 @@ or application.
 [para]
 
 It resides in the User Layer of Parser Tools.
+[para][image arch_user_pkg][para]
 
 [section {Class API}]
 
@@ -71,6 +72,8 @@ When using a grammar interpreter for parsing some differences creep in
     $parser use $grammar
 
     set ast [$parser parse $channel]
+    $parser destroy
+
     ... process the abstract syntax tree ...
 }]
 

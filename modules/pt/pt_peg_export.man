@@ -19,7 +19,11 @@ other formats, i.e. their conversion to, for example [term nroff],
 
 It resides in the Export section of the Core Layer of Parser Tools,
 and is one of the three pillars the management of parsing expression
-grammars resides on. The other two pillars are
+grammars resides on.
+
+[para][image arch_core_export][para]
+
+The other two pillars are, as shown above
 
 [list_begin enum]
 [enum] [manpage {PEG Import}], and

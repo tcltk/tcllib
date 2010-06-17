@@ -22,6 +22,11 @@ modify and/or extend this part of [cmd pt]'s functionality. Users of
 [cmd pt] on the other hand are hereby refered to the applications'
 manpage, i.e. [manpage {Parser Tools Application}].
 
+[para]
+
+It resides in the User Package Layer of Parser Tools.
+[para][image arch_user_pkg][para]
+
 [section API]
 
 [list_begin definitions]
@@ -72,6 +77,9 @@ The options supported by each of these formats are documented
 with their respective packages.
 
 [list_end]
+
+[section Example]
+[vset MODE pkg][include include/example/full.inc]
 
 [include include/feedback.inc]
 [manpage_end]

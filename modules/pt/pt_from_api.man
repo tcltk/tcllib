@@ -19,6 +19,7 @@ some other converter.
 [para]
 
 It resides in the Import section of the Core Layer of Parser Tools.
+[para][image arch_core_import][para]
 
 [section {Converter API}]
 
