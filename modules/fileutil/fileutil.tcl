@@ -9,11 +9,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: fileutil.tcl,v 1.77 2010/06/09 17:16:12 andreas_kupries Exp $
+# RCS: @(#) $Id: fileutil.tcl,v 1.78 2010/06/17 04:46:19 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.14.3
+package provide fileutil 1.14.4
 
 namespace eval ::fileutil {
     namespace export \
@@ -1533,28 +1533,16 @@ proc ::fileutil::fileType {filename} {
     if { [ regexp {^\#\!\s*(\S+)} $test -> terp ] } {
         lappend type script $terp
     } elseif {([regexp "\\\[manpage_begin " $test] &&
-	       ![regexp -- {--- !doctools ---} $test]) ||
-              [regexp -- {--- doctools ---} $test]} {
+	       !([regexp -- {--- !doctools ---} $test] || [regexp -- "!tcl\.tk//DSL doctools//EN//" $test])) ||
+                ([regexp -- {--- doctools ---} $test]  || [regexp -- "tcl\.tk//DSL doctools//EN//" $test])} {
 	lappend type doctools
     } elseif {([regexp "\\\[toc_begin " $test] &&
-	       ![regexp -- {--- !doctoc ---} $test]) ||
-              [regexp -- {--- doctoc ---} $test]} {
+	       !([regexp -- {--- !doctoc ---} $test] || [regexp -- "!tcl\.tk//DSL doctoc//EN//" $test])) ||
+                ([regexp -- {--- doctoc ---} $test]  || [regexp -- "tcl\.tk//DSL doctoc//EN//" $test])} {
 	lappend type doctoc
     } elseif {([regexp "\\\[index_begin " $test] &&
-	       ![regexp -- {--- !docidx ---} $test]) ||
-              [regexp -- {--- docidx ---} $test]} {
-	lappend type docidx
-    } elseif {([regexp "\\\[manpage_begin " $test] &&
-	       ![regexp -- "!tcl\.tk//DSL doctools//EN//" $test]) ||
-              [regexp -- "tcl\.tk//DSL doctools//EN//" $test]} {
-	lappend type doctools
-    } elseif {([regexp "\\\[toc_begin " $test] &&
-	       ![regexp -- "!tcl\.tk//DSL doctoc//EN//" $test]) ||
-              [regexp -- "tcl\.tk//DSL doctoc//EN//" $test]} {
-	lappend type doctoc
-    } elseif {([regexp "\\\[index_begin " $test] &&
-	       ![regexp -- "!tcl\.tk//DSL docidx//EN//" $test]) ||
-              [regexp -- "tcl\.tk//DSL docidx//EN//" $test]} {
+	       !([regexp -- {--- !docidx ---} $test] || [regexp -- "!tcl\.tk//DSL docidx//EN//" $test])) ||
+              ([regexp -- {--- docidx ---} $test] || [regexp -- "tcl\.tk//DSL docidx//EN//" $test])} {
 	lappend type docidx
     } elseif {[regexp -- "tcl\\.tk//DSL diagram//EN//" $test]} {
 	lappend type tkdiagram
