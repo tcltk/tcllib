@@ -8,7 +8,7 @@ input, following the outline shown in the figure below:
 Our grammar, assumed to the stored in the file [file calculator.peg]
 is
 
-[include include/example/expr_peg.inc]
+[include expr_peg.inc]
 
 From this we create a snit-based parser
 
