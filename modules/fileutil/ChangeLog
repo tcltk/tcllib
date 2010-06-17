@@ -1,3 +1,10 @@
+2010-06-16  Andreas Kupries  <akupries@shaw.ca>
+
+	* fileutil.tcl (::fileutil::fileType): Fumbled the extension of
+	* fileutil.man: the doctools/toc/idx detector in the last change.
+	* pkgIndex.tcl: Fixed the bogosity, merging the separate checks.
+	  Bumped to version 1.14.4.
+
 2010-06-09  Andreas Kupries  <andreask@activestate.com>
 
 	* fileutil.tcl (::fileutil::fileType): Extended to recognize tklib
