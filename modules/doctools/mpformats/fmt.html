@@ -398,17 +398,21 @@ proc fmt_image {text {label {}}} {
 	set label $text
     }
 
-    if {$img eq {}} {
-	return [strong "Image: $label"]
-    } else {
-
-	#puts_stderr here:\t[LinkHere]
-	#puts_stderr dest:\t$img
-	#puts_stderr rela:\t[LinkTo $img [LinkHere]]
-	#puts_stderr
-
+    if {$img ne {}} {
 	return [imagelink $label [LinkTo $img [LinkHere]]]
     }
+
+    if {[regexp -- {^http://} $text] ||
+	[regexp -- {^ftp://}  $text]} {
+	return [imagelink $label $text]
+    }
+
+    #puts_stderr here:\t[LinkHere]
+    #puts_stderr dest:\t$img
+    #puts_stderr rela:\t[LinkTo $img [LinkHere]]
+    #puts_stderr
+
+    return [strong "Image: $label"]
 }
 
 proc fmt_term    {text} {italic [XrefMatch $text kw sa] term}
