@@ -61,7 +61,8 @@ commas.
 
 [def [option -header]]
 
-A list of keywords and their values (may occur zero or more times).
+A list containing two elements, an smtp header and its associated
+value (the -header option may occur zero or more times). 
 
 [def [option -usetls]]
 
