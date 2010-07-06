@@ -1,0 +1,4 @@
+2010-07-06  Andreas Kupries  <andreask@activestate.com>
+
+	* imap.tcl: Updated to Gerhard Reithofer's re-implementation.
+	* imap.man: Added Gerhard Reithofer's package documentation.
