@@ -717,4 +717,13 @@ proc term {text} {
     fmt_term $text
 }
 
+proc mdash {} {
+    if {[Is done]} {Error nodonecmd}
+    fmt_mdash $text
+}
+proc ndash {} {
+    if {[Is done]} {Error nodonecmd}
+    fmt_ndash $text
+}
+
 # -------------------------------------------------------------
