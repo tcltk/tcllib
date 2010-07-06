@@ -363,7 +363,8 @@ proc fmt_image {text {label {}}} {
 }
 proc fmt_term    {text} {Italic $text}
 proc fmt_const   {text} {Bold $text}
-
+proc fmt_mdash {} { return " --- " }
+proc fmt_ndash {} { return " -- " }
 
 ################################################################
 # latex specific commands
