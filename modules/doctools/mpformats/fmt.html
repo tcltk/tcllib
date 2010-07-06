@@ -418,6 +418,9 @@ proc fmt_image {text {label {}}} {
 proc fmt_term    {text} {italic [XrefMatch $text kw sa] term}
 proc fmt_const   {text} {bold $text const}
 
+proc fmt_mdash {} { return "[markup &]mdash;" }
+proc fmt_ndash {} { return "[markup &]ndash;" }
+
 ################################################################
 
 global sec_is_open

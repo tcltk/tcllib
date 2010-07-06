@@ -1,3 +1,17 @@
+2010-07-06  Andreas Kupries  <andreask@activestate.com>
+
+	* checker.tcl: [RFE 2915921] Accepted the RFE, adding
+	* mpformats/fmt.wiki: commands to portably write em- and
+	* mpformats/fmt.text: en-dashes. Bumped version to 1.4.10.
+	* mpformats/fmt.latex:
+	* mpformats/fmt.tmml:
+	* mpformats/fmt.html:
+	* mpformats/fmt.nroff:
+	* mpformats/fmt.null:
+	* doctools.man: 
+	* pkgIndex.tcl:
+	* doctools.tcl:
+
 2010-06-17  Andreas Kupries  <andreask@activestate.com>
 
 	* mpformats/fmt.html: Tweaked formatting of images when no
