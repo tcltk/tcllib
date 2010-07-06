@@ -37,8 +37,8 @@ Exclude exif
 Module  aes         _tcl  _man  _null
 Module  amazon-s3   _tcl  _man  _null
 Module  asn         _tcl  _man  _null
-Module  base64      _tcl  _man  _null
 Module  base32      _tcl  _man  _null
+Module  base64      _tcl  _man  _null
 Module  bee         _tcl  _man  _null
 Module  bench       _tcl _null  _null
 Module  bibtex      _tcl  _man  _exa
@@ -71,6 +71,7 @@ Module  html        _tcl  _man  _null
 Module  htmlparse   _tcl  _man  _exa
 Module  http        _tcl  _man  _null
 Module  ident       _tcl  _man  _null
+Module  imap        _tcl  _man  _null
 Module  inifile     _tcl  _man  _null
 Module  interp      _tcl  _man  _null
 Module  irc         _tcl  _man _exa
@@ -90,8 +91,8 @@ Module  multiplexer _tcl  _man  _null
 Module  namespacex  _tcl  _man  _null
 Module  ncgi        _tcl  _man  _null
 Module  nmea        _tcl  _man  _null
-Module  nntp        _tcl  _man _exa
 Module  nns         _tcl  _man  _null
+Module  nntp        _tcl  _man _exa
 Module  ntp         _tcl  _man _exa
 Module  otp         _tcl  _man  _null
 Module  page         _tcr _man  _null

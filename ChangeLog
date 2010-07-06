@@ -1,3 +1,7 @@
+2010-07-06  Andreas Kupries  <andreask@activestate.com>
+
+	* support/installation/modules.tcl: Module 'imap4' activated.
+
 2010-03-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* New module 'pt', for ParserTools. Requires Tcl 8.5. Supercedes
