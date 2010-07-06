@@ -467,5 +467,7 @@ proc fmt_image {text {label {}}} {
 }
 proc fmt_term    {text} {em     $text}
 proc fmt_const   {text} {strong $text}
+proc fmt_mdash {} { return " --- " }
+proc fmt_ndash {} { return " -- " }
 
 ################################################################

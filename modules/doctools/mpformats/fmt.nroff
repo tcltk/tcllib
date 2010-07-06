@@ -256,4 +256,7 @@ proc fmt_image {text {label {}}} {
 proc fmt_term    {text} {underline $text}
 proc fmt_const   {text} {bold $text}
 
+proc fmt_mdash {} { return " \1\\(em\n" }
+proc fmt_ndash {} { return " \1\\(en\n" }
+
 ################################################################
