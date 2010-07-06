@@ -1,3 +1,10 @@
+2010-07-06  Andreas Kupries  <andreask@activestate.com>
+
+	* base64.tcl (::base64::decode): [Bug 2976290]: Throw a proper
+	* base64.man: error when trying to decode padding with not enough
+	* base64.test: data in front of it. Extended testsuite. Bumped to
+	* pkgIndex.tcl: version 2.4.2.
+
 2010-05-04  Andreas Kupries  <andreask@activestate.com>
 
 	* base64.man:: Fix small typo, default for -maxlen changed to 76.
