@@ -46,7 +46,7 @@
 #             implementation of LIST command
 #
 
-package require 8.5
+package require Tcl 8.5
 package provide imap4 0.1
 
 namespace eval imap4 {
@@ -1138,7 +1138,7 @@ namespace eval imap4 {
             }
             if {$line eq {help}} {
                 foreach l $welcometext {
-                    if {$l eq ""} continue
+                    if {$l eq ""} break
                     puts $l
                 }
                 continue
