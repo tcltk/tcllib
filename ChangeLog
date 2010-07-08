@@ -1,3 +1,8 @@
+2010-07-08  Andreas Kupries  <andreask@activestate.com>
+
+	* modules/gpx: New module 'gpx'.
+	* support/installation/modules.tcl:
+
 2010-07-06  Andreas Kupries  <andreask@activestate.com>
 
 	* support/installation/modules.tcl: Module 'imap4' activated.
