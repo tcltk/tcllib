@@ -1,0 +1,5 @@
+2010-07-08  Andreas Kupries  <andreask@activestate.com>
+
+	* gpx.tcl: New module and package for the parsing of GPS eXChange
+	* pkgIndex.tcl: files, by Keith Vetter.
+	* gpx.test: Beginnings of a testsuite.
