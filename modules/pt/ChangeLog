@@ -1,3 +1,9 @@
+2010-07-09  Andreas Kupries  <andreask@activestate.com>
+
+	* include/example/expr_json.inc: Fixed various typos in the JSON
+	  example, i.e. missing closing double-quote, missing commas,
+	  missing backslash quoting of forward slashes in strings.
+
 2010-06-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* include/arch_core.dia: Navigational diagrams and images
