@@ -184,10 +184,8 @@ proc ::gpx::GetTrackMetadata {token whichTrack} {
 #   returns: list of trackpoints for given track
 #
 proc ::gpx::GetTrackPoints {token whichTrack} {
-    set trkNode [$::gpx::gpx(dom,$token) selectNodes \
-                     /gpx:gpx/gpx:trk\[$whichTrack\]]
-    #set segs [$trk selectNodes //gpx:trkseg]
-    set trkpts [$trkNode selectNodes //gpx:trkpt]
+    set trkpts [$::gpx::gpx(dom,$token) selectNodes \
+                    /gpx:gpx/gpx:trk\[$whichTrack\]//gpx:trkpt]
     set result {}
     foreach trkpt $trkpts {
         set lat [$trkpt getAttribute "lat" ?]
@@ -229,9 +227,8 @@ proc ::gpx::GetRouteMetadata {token whichRoute} {
 #   returns: list of routepoints for given route
 #
 proc ::gpx::GetRoutePoints {token whichRoute} {
-    set rteNode [$::gpx::gpx(dom,$token) selectNodes \
-                     /gpx:gpx/gpx:rte\[$whichRoute\]]
-    set rtepts [$rteNode selectNodes //gpx:rtept]
+    set rtepts [$::gpx::gpx(dom,$token) selectNodes \
+                    /gpx:gpx/gpx:rte\[$whichRoute\]//gpx:rtept]
     set result {}
     foreach rtept $rtepts {
         set lat [$rtept getAttribute "lat" ?]
