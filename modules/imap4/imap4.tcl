@@ -44,10 +44,12 @@
 #             option -inline for ::imap4::fetch, in order to return data as a Tcl list
 #             isableto without arguments returns the capability list
 #             implementation of LIST command
+#   20100709: Adding suppport for SSL connections, namespace variable
+#             use_ssl must be set to 1 and package TLS must be loaded
 #
 
 package require Tcl 8.5
-package provide imap4 0.1
+package provide imap4 0.2
 
 namespace eval imap4 {
     variable debugmode 0     ;# inside debug mode? usually not.
@@ -56,13 +58,16 @@ namespace eval imap4 {
     variable msginfo
     variable info
 
+    # if set to 1 tls::socket must be loaded
+    variable use_ssl 0
+    
     # Debug mode? Don't use it for production! It will print debugging
     # information to standard output and run a special IMAP debug mode shell
     # on protocol error.
     variable debug 0
 
     # Version
-    variable version "2010-06-23"
+    variable version "2010-07-09"
 
     # This is where we take state of all the IMAP connections.
     # The following arrays are indexed with the connection channel
@@ -89,9 +94,28 @@ namespace eval imap4 {
     }
 
     # Open a new IMAP connection and initalize the handler.
-    proc open {hostname {port 143}} {
+    proc open {hostname {port 0}} {
         variable info
-        set chan [socket $hostname $port]
+        variable debug
+        variable use_ssl 
+        if {$debug} {
+            puts "I: open $hostname $port (SSL=$use_ssl)"
+        }
+        
+        if {$use_ssl} {
+            if {[info procs ::tls::socket] eq ""} {
+                error "Package TLS must be loaded for secure connections."
+            }
+            if {!$port} {
+                set port 993
+            }
+            set chan [::tls::socket $hostname $port]
+        } else {
+            if {!$port} {
+                set port 143
+            }
+            set chan [socket $hostname $port]
+        }
         fconfigure $chan -encoding binary -translation binary
         # Intialize the connection state array
         initinfo $chan
@@ -895,7 +919,7 @@ namespace eval imap4 {
 
     # List of folders
     proc folders {chan {opt ""} {ref ""} {mbox "*"}} {
-        puts "folders $chan $ref $mbox $opt"
+        # puts "folders $chan $ref $mbox $opt"
         variable folderinfo
         array unset folderinfo $chan,*
 
@@ -906,7 +930,7 @@ namespace eval imap4 {
             set mbox $ref
             set inline 0
         }
-        puts "ref=$ref mbox=$mbox opt=$opt"
+        # puts "ref=$ref mbox=$mbox opt=$opt"
 
         set folderinfo($chan,match) [list $ref $mbox]
         # parray folderinfo
@@ -1197,8 +1221,9 @@ namespace eval imap4 {
 if {[info script] eq $argv0} {
     # set imap4::debug 0
     set FOLDER INBOX
+    set port 0
     if {[llength $argv] < 3} {
-        puts "Usage: imap4.tcl <servername> <username> <password> ?foldername? ?-debugmode?"
+        puts "Usage: imap4.tcl <server> <user> <pass> ?folder? ?-secure? ?-debug?"
         exit
     }
 
@@ -1206,10 +1231,17 @@ if {[info script] eq $argv0} {
     if {$argc > 3} {
         for {set i 3} {$i<$argc} {incr i} {
             set opt [lindex $argv $i]
-            if {$opt eq "-debugmode"} {
-                set imap4::debug 1
-            } else {
-                set FOLDER $opt
+            switch -- $opt {
+                "-debug" {
+                    set imap4::debug 1
+                }
+                "-secure" {
+                    set imap4::use_ssl 1
+                    puts "Package TLS [package require tls] loaded"
+                }
+                default {
+                    set FOLDER $opt
+                }
             }
         }
     }
@@ -1226,22 +1258,21 @@ if {[info script] eq $argv0} {
     set num_mails [imap4::mboxinfo $imap exists]
     if {!$num_mails} {
         puts "No mail in folder '$FOLDER'"
-        imap4::cleanup $imap
-        exit 0
-    }
-    set fields {from: to: subject: size}
-    # fetch 3 records (at most)) inline
-    set max [expr {$num_mails<=3?$num_mails:3}]
-    foreach rec [imap4::fetch $imap :$max -inline {*}$fields] {
-        puts -nonewline "#[incr idx])"
-        for {set j 0} {$j<[llength $fields]} {incr j} {
-            puts "\t[lindex $fields $j] [lindex $rec $j]"
+    } else {      
+        set fields {from: to: subject: size}
+        # fetch 3 records (at most)) inline
+        set max [expr {$num_mails<=3?$num_mails:3}]
+        foreach rec [imap4::fetch $imap :$max -inline {*}$fields] {
+            puts -nonewline "#[incr idx])"
+            for {set j 0} {$j<[llength $fields]} {incr j} {
+                puts "\t[lindex $fields $j] [lindex $rec $j]"
+            }
         }
+    
+        # Show all the information available about the message ID 1
+        puts "Available info about message 1 => [imap4::msginfo $imap 1]"
     }
-
-    # Show all the information available about the message ID 1
-    puts "Available info about message 1 => [imap4::msginfo $imap 1]"
-
+    
     # Use the capability stuff
     puts "Capabilities: [imap4::isableto $imap]"
     puts "Is able to imap4rev1? [imap4::isableto $imap imap4rev1]"
@@ -1251,5 +1282,4 @@ if {[info script] eq $argv0} {
 
     # Cleanup
     imap4::cleanup $imap
-
 }
