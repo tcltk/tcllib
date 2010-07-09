@@ -1,15 +1,16 @@
-[manpage_begin imap4 n 0.1]
+[manpage_begin imap4 n 0.2]
 [moddesc   "imap client"]
 
 [titledesc "imap client-side tcl implementation of imap protocol"]
 
 [require Tcl 8.5]
-[require imap4 [opt 0.1]]
+[require imap4 [opt 0.2]]
 
 [description]
 [para]
 The [package imap4] library package provides the client side of the
-[strong "Internet Message Access Protocol"] (IMAP).
+[strong "Internet Message Access Protocol"] (IMAP) using standard
+sockets or secure connection via TLS/SSL.
 The package is fully implemented in Tcl.
 
 [para]
@@ -23,7 +24,18 @@ This package defines the following public procedures:
 [para]Open a new IMAP connection and initalize the handler,
 the imap communication channel (handler) is returned.
 [para][arg hostname] - mail server 
-[para][arg port] - connection port, defaults to 143.
+[para][arg port] - connection port, defaults to 143 
+[para]The namespace variable [option ::imap4::use_ssl]
+can be used to establish to a secure connection
+via TSL/SSL if set to true. In this case default connection port
+defaults to 993.
+[para][emph Note:]
+For connecting via SSL the Tcl module [emph tls] must be already
+loaded otherwise an error is raised.
+[example {
+    package require tls              ; # must be loaded for TLS/SSL   
+    set ::imap4::use_ssl 1           ; # request a secure connection
+    set chan [::imap4::open $server] ; # default port is now 993 }]
 
 [call [cmd ::imap4::login] [arg chan] [arg user] [arg pass]]
 [para]Login using the IMAP LOGIN command, 0 is returned on successful login.
@@ -33,7 +45,7 @@ the imap communication channel (handler) is returned.
 
 [call [cmd ::imap4::folders] [arg chan] [opt [arg "-inline"]] [opt [arg mboxref]] [opt [arg mboxname]]]
 [para]Get list of matching folders, 0 is returned on success.
-Wildcards '*' as '%' are allowed for [arg mboxref] and [arg mboxname],
+[para]Wildcards '*' as '%' are allowed for [arg mboxref] and [arg mboxname],
 command [cmd ::imap4::folderinfo] can be used to retrieve folder information.
 [para][arg chan] - imap channel
 [para][arg mboxref] - mailbox reference, defaults to ""
@@ -88,13 +100,13 @@ of information available for the mailbox is returned.
 the command returns true if the information is available, or
 false if it is not.
 [para][arg chan] - imap channel
-[para][arg opt] - folderlist option to retrieve
+[para][arg info] - folderlist options to retrieve
 [para]
 Currently supported options:
 [strong delim] - hierarchy delimiter,
 [strong match] - ref and mbox search patterns,
-[strong names] - list of folder names,
-[strong flags] - list of folder names with flags in format [emph {name {flags} ...}]
+[strong names] - list of folder names only,
+[strong flags] - list of folder names with flags in format [emph {{name {flags} ...}}]
 
 [call [cmd ::imap4::msginfo] [arg chan] [arg msgid] [opt [arg info]] [opt [arg defval]]]
 [para]Get information (from previously collected using fetch) from a given
@@ -263,8 +275,8 @@ RFC 3501, March 2003, [uri http://www.rfc-editor.org/rfc/rfc3501.txt]
 [section "KNOWN BUGS"]
 Only a small part of rfc3501 implemented.
 
-[see_also imap ftp http mime pop3]
+[see_also imap ftp http mime pop3 tls]
 
-[keywords imap email internet mail net imap rfc3501]
+[keywords imap email internet mail net imap rfc3501 [uri http://www.openssl.org/ OpenSSL]]
 
 [manpage_end]
