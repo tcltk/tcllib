@@ -3,33 +3,33 @@
     "pt::grammar::peg" : {
         "rules" : {
             "AddOp"     : {
-                "is"   : "/ {t -} {t +}",
+                "is"   : "\/ {t -} {t +}",
                 "mode" : "value"
-            }
+            },
             "Digit"     : {
-                "is"   : "/ {t 0} {t 1} {t 2} {t 3} {t 4} {t 5} {t 6} {t 7} {t 8} {t 9}",
+                "is"   : "\/ {t 0} {t 1} {t 2} {t 3} {t 4} {t 5} {t 6} {t 7} {t 8} {t 9}",
                 "mode" : "value"
-            }
-            "Expression : {
-                "is"   : "/ {x {t (} {n Expression} {t )}} {x {n Factor} {* {x {n MulOp} {n Factor}}}}",
+            },
+            "Expression" : {
+                "is"   : "\/ {x {t (} {n Expression} {t )}} {x {n Factor} {* {x {n MulOp} {n Factor}}}}",
                 "mode" : "value"
-            }
+            },
             "Factor"    : {
                 "is"   : "x {n Term} {* {x {n AddOp} {n Term}}}",
                 "mode" : "value"
-            }
+            },
             "MulOp"     : {
-                "is"   : "/ {t *} {t /}",
+                "is"   : "\/ {t *} {t \/}",
                 "mode" : "value"
-            }
+            },
             "Number"    : {
                 "is"   : "x {? {n Sign}} {+ {n Digit}}",
                 "mode" : "value"
-            }
+            },
             "Sign"      : {
-                "is"   : "/ {t -} {t +}",
+                "is"   : "\/ {t -} {t +}",
                 "mode" : "value"
-            }
+            },
             "Term"      : {
                 "is"   : "n Number",
                 "mode" : "value"
