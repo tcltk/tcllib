@@ -1,9 +1,16 @@
-2010-07-06  Andreas Kupries  <andreask@activestate.com>
+2010-07-09  Andreas Kupries  <andreask@activestate.com>
 
-	* imap.tcl: Updated to Gerhard Reithofer's re-implementation.
-	* imap.man: Added Gerhard Reithofer's package documentation.
+	* pkgIndex.tcl: Added the missing package index. Oops.
+
+	* imap4.man: Added feedback section, moved openssl uri to
+	  references.
 
 2010-07-09 Gerhard Reithofer <gerhard.rithofer@tech-edv.co.at>
 
-	* imap.tcl: Addining support for TLS/SSL, small cleanups.
-        * imap.man: Updated man pages for package version 0.2
+	* imap4.tcl: Adding support for TLS/SSL, small cleanups.
+	* imap4.man: Updated man pages for package version 0.2.
+
+2010-07-06  Andreas Kupries  <andreask@activestate.com>
+
+	* imap4.tcl: Updated to Gerhard Reithofer's re-implementation.
+	* imap4.man: Added Gerhard Reithofer's package documentation.
