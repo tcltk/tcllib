@@ -1,3 +1,9 @@
+2010-07-09  Andreas Kupries  <andreask@activestate.com>
+
+	* support/installation/modules.tcl: [Bug 3027371]. Fixed typo
+	  'imap' -> 'imap4'. Thanks to Larry Virden <lvirden@users.sf.net>
+	  for reporting.
+
 2010-07-08  Andreas Kupries  <andreask@activestate.com>
 
 	* modules/gpx: New module 'gpx'.

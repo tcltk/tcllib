@@ -72,7 +72,7 @@ Module  html        _tcl  _man  _null
 Module  htmlparse   _tcl  _man  _exa
 Module  http        _tcl  _man  _null
 Module  ident       _tcl  _man  _null
-Module  imap        _tcl  _man  _null
+Module  imap4       _tcl  _man  _null
 Module  inifile     _tcl  _man  _null
 Module  interp      _tcl  _man  _null
 Module  irc         _tcl  _man _exa
