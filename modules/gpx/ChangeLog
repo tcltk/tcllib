@@ -1,3 +1,7 @@
+2010-07-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* gpx.man: Added documentation, written by Keith.
+
 2010-07-09  Andreas Kupries  <andreask@activestate.com>
 
 	* gpx.tcl (::gpx::GetTrackPoints, ::gpx::GetRoutePoints): Fixed
