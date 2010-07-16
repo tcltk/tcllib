@@ -1,14 +1,20 @@
+
+2010-07-16 Gerhard Reithofer <gerhard.rithofer@tech-edv.co.at>
+
+	* imap4.tcl: Bug in parsing FLAGS in FETCH command repaired.
+        * imap4.man: Updated man pages for package version 0.3
+          removed section "KNOWN BUGS".
+
 2010-07-09  Andreas Kupries  <andreask@activestate.com>
 
 	* pkgIndex.tcl: Added the missing package index. Oops.
-
 	* imap4.man: Added feedback section, moved openssl uri to
 	  references.
 
 2010-07-09 Gerhard Reithofer <gerhard.rithofer@tech-edv.co.at>
 
-	* imap4.tcl: Adding support for TLS/SSL, small cleanups.
-	* imap4.man: Updated man pages for package version 0.2.
+	* imap4.tcl: Addining support for TLS/SSL, small cleanups.
+        * imap4.man: Updated man pages for package version 0.2
 
 2010-07-06  Andreas Kupries  <andreask@activestate.com>
 
