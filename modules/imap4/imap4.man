@@ -1,8 +1,9 @@
-[manpage_begin imap4 n 0.2]
+[manpage_begin imap4 n 0.3]
 [moddesc   {imap client}]
 [titledesc {imap client-side tcl implementation of imap protocol}]
+
 [require Tcl 8.5]
-[require imap4 [opt 0.2]]
+[require imap4 [opt 0.3]]
 
 [description]
 
@@ -49,11 +50,10 @@ command [cmd ::imap4::folderinfo] can be used to retrieve folder information.
 [para][arg mboxref] - mailbox reference, defaults to ""
 [para][arg mboxname] - mailbox name, defaults to "*"
 [para]If [option "-inline"] is specified a compact folderlist is
-returned instead of the result code.
-The format is similar as described in [cmd ::imap4::folderinfo] command
-when option [const flags] is used, but all flags are converted
-to lowercase and the leading backslashes are removed.
+returned instead of the result code. All flags are converted to
+lowercase and leading special characters are removed.
 [example {{{Arc08 noselect} {Arc08/Private {noinferiors unmarked}} {INBOX noinferiors}}}]
+
 [call [cmd ::imap4::select] [arg chan] [opt [arg mailbox]]]
 [para]Select a mailbox, 0 is returned on success.
 [para][arg chan] - imap channel
@@ -87,7 +87,7 @@ Send NOOP command to server. May get information as untagged data.
 [para][arg chan] - imap channel
 
 [call [cmd ::imap4::check] [arg chan]]
-Send CHECK command to server. Flush to disk..
+Send CHECK command to server. Flush to disk.
 [para][arg chan] - imap channel
 
 [call [cmd ::imap4::folderinfo] [arg chan] [opt [arg info]]]
@@ -101,11 +101,15 @@ false if it is not.
 [para][arg info] - folderlist options to retrieve
 [para]
 Currently supported options:
-[strong delim] - hierarchy delimiter,
-[strong match] - ref and mbox search patterns,
+[strong delim] - hierarchy delimiter only,
+[strong match] - ref and mbox search patterns (see [cmd ::imap4::folders]),
 [strong names] - list of folder names only,
-[strong flags] - list of folder names with flags in format [emph {{name {flags} ...}}]
-
+[strong flags] - list of folder names with flags in format
+[emph "{ {name {flags}} ... }"] (see also compact format in function
+[cmd ::imap4::folders]).
+[example {
+{{Arc08 {{\NoSelect}}} {Arc08/Private {{\NoInferiors} {\UnMarked}}} {INBOX {\NoInferiors}}}
+}]
 [call [cmd ::imap4::msginfo] [arg chan] [arg msgid] [opt [arg info]] [opt [arg defval]]]
 [para]Get information (from previously collected using fetch) from a given
 [emph msgid]. If the 'info' argument is omitted or a null string,
@@ -237,7 +241,11 @@ with a slash.
 [section EXAMPLES]
 
 [example_begin]
+    set user myusername
+    set pass xtremescrt
+    set server imap.test.tld 
     set FOLDER INBOX
+    # Connect to server
     set imap [lb]::imap4::open $server[rb]
     ::imap4::login $imap $user $pass
     ::imap4::select $imap $FOLDER
@@ -272,21 +280,18 @@ RFC 3501, March 2003, [uri http://www.rfc-editor.org/rfc/rfc3501.txt]
 [para]
 OpenSSL, [uri http://www.openssl.org/]
 
-[section "KNOWN BUGS"]
-Only a small part of rfc3501 implemented.
-
-
 [section {BUGS, IDEAS, FEEDBACK}]
-
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 
+Only a small part of rfc3501 implemented.
+
+[para]
 Please report such in the category [emph imap4] of the
 [uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
 
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.
-
 
 [see_also imap ftp http mime pop3 tls]
 [keywords imap email internet mail net imap rfc3501 ssl tls]
