@@ -46,10 +46,12 @@
 #             implementation of LIST command
 #   20100709: Adding suppport for SSL connections, namespace variable
 #             use_ssl must be set to 1 and package TLS must be loaded
+#   20100716: Bug in parsing special leading FLAGS characters in FETCH
+#             command repaired, documentation cleanup.
 #
 
 package require Tcl 8.5
-package provide imap4 0.2
+package provide imap4 0.3
 
 namespace eval imap4 {
     variable debugmode 0     ;# inside debug mode? usually not.
@@ -67,7 +69,7 @@ namespace eval imap4 {
     variable debug 0
 
     # Version
-    variable version "2010-07-09"
+    variable version "2010-07-16"
 
     # This is where we take state of all the IMAP connections.
     # The following arrays are indexed with the connection channel
@@ -347,7 +349,6 @@ namespace eval imap4 {
     # Process untagged FETCH lines.
     proc processfetchline {chan line literals} {
         variable msginfo
-
         regexp -nocase {([0-9]+)\s+FETCH\s+(\(.*\))} $line => msgnum items
         foreach {name val} [imaptotcl items literals] {
             set attribname [switch -glob -- [string toupper $name] {
@@ -368,6 +369,7 @@ namespace eval imap4 {
                     protoerror $chan "IMAP: Unknown FETCH item '$name'. Upgrade the software"
                 }
             }]
+
             switch -- $attribname {
                 fields {
                     set last_fieldname __garbage__
@@ -391,7 +393,7 @@ namespace eval imap4 {
                     }
                 }
                 default {
-                        set msginfo($chan,$msgnum,$attribname) $val
+                    set msginfo($chan,$msgnum,$attribname) $val
                 }
             }
             #puts "$attribname -> [string range $val 0 20]"
@@ -454,7 +456,10 @@ namespace eval imap4 {
     # like that.
     proc imaptotcl_symbol {datavar} {
         upvar 1 $datavar data
-        if {![regexp {([\w\.]+\[[^\[]+\]|[\w\.]+)} $data => match]} {
+        # matching patterns: "BODY[HEAEDER.FIELD",
+        # "HEAEDER.FIELD", "\Answered", "$Forwarded"
+        set pattern {([\w\.]+\[[^\[]+\]|[\w\.]+|[\\\$]\w+)}
+        if {![regexp $pattern $data => match]} {
             protoerror $chan "IMAP data format error: '$data'"
         }
         set data [string range $data [string length $match] end]
@@ -919,7 +924,6 @@ namespace eval imap4 {
 
     # List of folders
     proc folders {chan {opt ""} {ref ""} {mbox "*"}} {
-        # puts "folders $chan $ref $mbox $opt"
         variable folderinfo
         array unset folderinfo $chan,*
 
@@ -930,7 +934,6 @@ namespace eval imap4 {
             set mbox $ref
             set inline 0
         }
-        # puts "ref=$ref mbox=$mbox opt=$opt"
 
         set folderinfo($chan,match) [list $ref $mbox]
         # parray folderinfo
@@ -940,7 +943,11 @@ namespace eval imap4 {
             foreach f [folderinfo $chan flags] {
                 set lflags {}
                 foreach {fl} [lindex $f 1] {
-                    lappend lflags [string tolower [string range $fl 1 end]]
+                    if {[string is alnum [string index $fl 0]]} {
+                        lappend lflags [string tolower $fl]]
+                    } else {
+                        lappend lflags [string tolower [string range $fl 1 end]]
+                    }
                 }
                 lappend rv [list [lindex $f 0] $lflags]
             }
@@ -957,11 +964,9 @@ namespace eval imap4 {
 
         set req "$command"
         foreach arg $args {
-            # puts "arg='$arg'"
             append req " $arg"
         }
 
-        # puts "req='$req'"
         request $chan $req
         if {[getresponse $chan]} {
             return 1
