@@ -1,10 +1,10 @@
 # -*- tcl -*-
-# pt_astree.test:  tests for the pt::rde package.
+# pt_rdeengine.test:  tests for the pt::rde package.
 #
 # Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pt_rdengine.test,v 1.1 2010/03/26 05:07:24 andreas_kupries Exp $
+# RCS: @(#) $Id: pt_rdengine.test,v 1.2 2010/07/27 22:53:53 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 

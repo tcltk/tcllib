@@ -1,3 +1,26 @@
+2010-07-27  Andreas Kupries  <andreask@activestate.com>
+
+	* pt_peg_interp.test: New files. Additional testsuites.
+	* pt_runtime.test: Demonstrate the problem with X* and X?
+	* tests/pt_peg_interp.tests: alone in a symbol, for modes
+	* tests/pt_runtime.tests: leaf and value.
+
+	* pt_peg_interp.tcl: Fixed two typos in comments.
+	* pt_rdengine.test:
+
+	* pt_astree.tcl: New constructor new0 for zero-length
+	* pt_astree.man: nodes. Bumped version to 1.1
+	
+	* pt_rdengine_tcl.tcl: Use of the new constructor to handle
+	* pt_rdengine.tcl: symbols whose RHS uses * or ? as toplevel
+	* pt_rdengine.man: operator and did not match anything at runtime,
+	  which is allowed. Bumped version to 1.0.1
+
+	* pt_peg_interp.tcl: Some tweaks to the debug helper code (tracing
+	* pt_rdengine_tcl.tcl: expressions and instructions).
+
+	* pkgIndex.tcl: Bumped versions.
+
 2010-07-09  Andreas Kupries  <andreask@activestate.com>
 
 	* include/example/expr_json.inc: Fixed various typos in the JSON
@@ -2356,4 +2379,3 @@ Fossil 2009-11-12 04:43:12  Andreas Kupries  <andreas_kupries@users.sourceforge.
 Fossil 2009-11-12 04:37:03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
     initial empty check-in
-

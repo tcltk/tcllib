@@ -17,7 +17,7 @@ namespace eval ::pt::ast {
     namespace export \
 	verify verify-as-canonical canonicalize \
 	equal bottomup topdown \
-	print new
+	print new new0
 
     namespace ensemble create
 }
@@ -194,6 +194,24 @@ proc ::pt::ast::new {sym start end args} {
     return [list $sym $start $end {*}$args]
 }
 
+proc ::pt::ast::new0 {sym start args} {
+    variable ourbadstart
+
+    if {![string is integer -strict $start] || ($start < 0)} {
+	return -code error [format $ourbadstart $start]
+    }
+
+    # The end of the range is placed one position before the start,
+    # making it zero-length (length = end-start+1), i.e. empty. Such
+    # nodes are possible for symbols whose RHS uses * or ? as their
+    # top-level operator.
+
+    set  end $start
+    incr end -1
+
+    return [list $sym $start $end {*}$args]
+}
+
 namespace eval ::pt::ast {
     # # ## ### ##### ######## #############
     ## Strings for error messages.
@@ -212,5 +230,5 @@ namespace eval ::pt::ast {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::ast 1
+package provide pt::ast 1.1
 return

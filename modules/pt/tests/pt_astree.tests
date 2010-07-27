@@ -2,6 +2,8 @@
 # Testsuite for pt::ast.
 # Called by the ../pt_ast.test driver file.
 
+# TODO :: new, new0
+
 test pt-ast-1.0 {verify, wrong#args} -body {
     pt::ast verify
 } -returnCodes error -result {wrong # args: should be "pt::ast verify serial ?canonvar?"}
