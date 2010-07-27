@@ -8,7 +8,7 @@ package ifneeded json::write   1 [list source [file join $dir json_write.tcl]]
 package ifneeded text::write   1 [list source [file join $dir text_write.tcl]]
 
 # AST support
-package ifneeded pt::ast       1 [list source [file join $dir pt_astree.tcl]]
+package ifneeded pt::ast     1.1 [list source [file join $dir pt_astree.tcl]]
 
 # Parsing Expression support
 package ifneeded pt::pe        1 [list source [file join $dir pt_pexpression.tcl]]
@@ -47,7 +47,7 @@ package ifneeded pt::peg::from::json      1 [list source [file join $dir pt_peg_
 package ifneeded pt::peg::from::peg       1 [list source [file join $dir pt_peg_from_peg.tcl]]
 
 # PARAM runtime.
-package ifneeded pt::rde      1 [list source [file join $dir pt_rdengine.tcl]]
+package ifneeded pt::rde      1.0.1 [list source [file join $dir pt_rdengine.tcl]]
 
 # PEG grammar specification, as CONTAINER
 package ifneeded pt::peg::container::peg 1 [list source [file join $dir pt_peg_container_peg.tcl]]

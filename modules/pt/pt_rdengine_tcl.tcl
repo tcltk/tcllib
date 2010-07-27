@@ -1102,7 +1102,15 @@ snit::type ::pt::rde_tcl {
 		set mysvalue [$mystackast peekr $newa]     ; # SaveToMark
 	    }
 
-	    set mysvalue [pt::ast new $symbol $pos $myloc {*}$mysvalue] ; # Reduce $symbol
+	    if {$at == $myloc} {
+		# The symbol did not process any input. As this is
+		# signaled to be ok (*) we create a node covering an
+		# empty range. (Ad *): Can happen for a RHS using
+		# toplevel operators * or ?.
+		set mysvalue [pt::ast new0 $symbol $pos {*}$mysvalue]
+	    } else {
+		set mysvalue [pt::ast new $symbol $pos $myloc {*}$mysvalue] ; # Reduce $symbol
+	    }
 	}
 
 	set k  [list $at $symbol]
@@ -1137,7 +1145,15 @@ snit::type ::pt::rde_tcl {
 	if {$myok} {
 	    set  pos $at
 	    incr pos
-	    set mysvalue [pt::ast new $symbol $pos $myloc]
+	    if {$at == $myloc} {
+		# The symbol did not process any input. As this is
+		# signaled to be ok (*) we create a node covering an
+		# empty range. (Ad *): Can happen for a RHS using
+		# toplevel operators * or ?.
+		set mysvalue [pt::ast new0 $symbol $pos]
+	    } else {
+		set mysvalue [pt::ast new $symbol $pos $myloc]
+	    }
 	}
 
 	set k  [list $at $symbol]
@@ -1172,7 +1188,15 @@ snit::type ::pt::rde_tcl {
 	if {$myok} {
 	    set  pos $at
 	    incr pos
-	    set mysvalue [pt::ast new $symbol $pos $myloc]
+	    if {$at == $myloc} {
+		# The symbol did not process any input. As this is
+		# signaled to be ok (*) we create a node covering an
+		# empty range. (Ad *): Can happen for a RHS using
+		# toplevel operators * or ?.
+		set mysvalue [pt::ast new0 $symbol $pos]
+	    } else {
+		set mysvalue [pt::ast new $symbol $pos $myloc]
+	    }
 	}
 
 	set k  [list $at $symbol]
@@ -1339,7 +1363,7 @@ snit::type ::pt::rde_tcl {
     # # ## ### ##### ######## ############# #####################
     ##  API - Instructions - Basic input handling and tracking
 
-    method i_loc_pop_rewind/discard {} { ; #TRACE puts "[format %8d [incr count]] RDE i_loc_pop_rewind/discard"
+    method i_loc_pop_rewind/discard {} { ; #TRACE puts "[format %8d [incr count]] RDE i_loc_pop_rewind/discard (ok $myok ([expr {$myok ? "keep $myloc drop" : "back@"}] [$mystackloc peek]))"
 	#$myparser i:fail_loc_pop_rewind
 	#$myparser i:ok_loc_pop_discard
 	#return
@@ -1371,7 +1395,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_loc_push {} { ; #TRACE puts "[format %8d [incr count]] RDE i_loc_push"
+    method i_loc_push {} { ; #TRACE puts "[format %8d [incr count]] RDE i_loc_push (saving @$myloc)"
 	$mystackloc push $myloc
 	return
     }
@@ -1451,7 +1475,7 @@ snit::type ::pt::rde_tcl {
     # # ## ### ##### ######## ############# #####################
     ## API - Instructions - Nonterminal cache
 
-    method i_symbol_restore {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_symbol_restore"
+    method i_symbol_restore {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_symbol_restore ($symbol)"
 	# Satisfy from cache if possible.
 	set k [list $myloc $symbol]
 	if {![info exists mysymbol($k)]} { return 0 }
@@ -1460,7 +1484,7 @@ snit::type ::pt::rde_tcl {
 	return 1
     }
 
-    method i_symbol_save {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_symbol_save"
+    method i_symbol_save {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_symbol_save ($symbol)"
 	# Store not only the value, but also how far
 	# the match went (if it was a match).
 	set at [$mystackloc peek]
@@ -1477,7 +1501,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_value_clear/leaf {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_value_clear/leaf"
+    method i_value_clear/leaf {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_value_clear/leaf (ok $myok ([expr {[$mystackloc peek]+1}])-@$myloc)"
 	# not quite value_lead (guarded, and clear on fail)
 	# Inlined clear, reduce, and optimized.
 	# Clear ; if {$ok} {Reduce $symbol}
@@ -1485,7 +1509,16 @@ snit::type ::pt::rde_tcl {
 	if {!$myok} return
 	set  pos [$mystackloc peek]
 	incr pos
-	set mysvalue [pt::ast new $symbol $pos $myloc]
+
+	if {($pos - 1) == $myloc} {
+	    # The symbol did not process any input. As this is
+	    # signaled to be ok (*) we create a node covering an empty
+	    # range. (Ad *): Can happen for a RHS using toplevel
+	    # operators * or ?.
+	    set mysvalue [pt::ast new0 $symbol $pos]
+	} else {
+	    set mysvalue [pt::ast new $symbol $pos $myloc]
+	}
 	return
     }
 
@@ -1509,7 +1542,15 @@ snit::type ::pt::rde_tcl {
 	    set mysvalue [$mystackast peekr $newa]     ; # SaveToMark
 	}
 
-	set mysvalue [pt::ast new $symbol $pos $myloc {*}$mysvalue] ; # Reduce $symbol
+	if {($pos - 1) == $myloc} {
+	    # The symbol did not process any input. As this is
+	    # signaled to be ok (*) we create a node covering an empty
+	    # range. (Ad *): Can happen for a RHS using toplevel
+	    # operators * or ?.
+	    set mysvalue [pt::ast new0 $symbol $pos {*}$mysvalue]
+	} else {
+	    set mysvalue [pt::ast new $symbol $pos $myloc {*}$mysvalue] ; # Reduce $symbol
+	}
 	return
     }
 
@@ -1536,7 +1577,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_test_char {tok} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_char"
+    method i_test_char {tok} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_char (ok [expr {$tok eq $mycurrent}], [expr {$tok eq $mycurrent ? "@$myloc" : "back@[expr {$myloc-1}]"}])"
 	set myok [expr {$tok eq $mycurrent}]
 	if {$myok} {
 	    set myerror {}
@@ -1636,6 +1677,15 @@ snit::type ::pt::rde_tcl {
     method i_test_xdigit {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_xdigit"
 	set myok [string is xdigit -strict $mycurrent]
 	OkFail xdigit
+	return
+    }
+
+    # # ## ### ##### ######## ############# #####################
+    ## Debugging helper. To activate
+    ## string map {{; #TRACE} {; TRACE}}
+
+    proc TRACE {args} {
+	uplevel 1 $args
 	return
     }
 
