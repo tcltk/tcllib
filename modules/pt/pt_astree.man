@@ -1,8 +1,8 @@
 [comment {-*- text -*- doctools manpage}]
-[manpage_begin pt::ast n 1]
+[manpage_begin pt::ast n 1.1]
 [include include/module.inc]
 [titledesc {Abstract Syntax Tree Serialization}]
-[require pt::ast [opt 1]]
+[require pt::ast [opt 1.1]]
 [description]
 [include include/ref_intro.inc]
 

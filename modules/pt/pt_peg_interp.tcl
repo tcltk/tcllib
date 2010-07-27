@@ -8,7 +8,7 @@
 # ### ### ### ######### ######### #########
 ## Package description
 
-## The instances of this class parse a text provided thorugh a channel
+## The instances of this class parse a text provided through a channel
 ## based on a parsing expression grammar provided by a peg container
 ## object. The parsing process is interpretative, i.e. the parsing
 ## expressions are decoded and checked on the fly and possibly
@@ -364,6 +364,17 @@ snit::type ::pt::peg::interp {
     variable mystart  epsilon    ; # The parsing expression to start
 				   # the parse process with.
     variable mycurrentmode value ; # The currently active semantic mode.
+
+    # ### ### ### ######### ######### #########
+    ## Debugging helper. To activate
+    ## string map {{self {*}} {self TRACE {*}}}
+
+    method TRACE {args} {
+	puts |$args|enter
+	set res [$self {*}$args]
+	puts |$args|return
+	return $res
+    }
 
     ##
     # ### ### ### ######### ######### #########
