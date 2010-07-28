@@ -1,3 +1,9 @@
+2010-07-28  Andreas Kupries  <andreask@activestate.com>
+
+	* core.man: New files, documentation for the packages in
+	* events.man: this module.
+	* transformcore.man:
+
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
