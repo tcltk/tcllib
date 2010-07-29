@@ -1,3 +1,18 @@
+2010-07-29  Andreas Kupries  <andreask@activestate.com>
+
+	* fifo.man: New files, documentation for the packages in
+	* fifo2.man: this module.
+	* halfpipe.man:
+	* memchan.man:
+	* null.man:
+	* nullzero.man:
+	* random.man:
+	* randseed.man:
+	* string.man:
+	* textwindow.man:
+	* variable.man:
+	* zero.man:
+
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
