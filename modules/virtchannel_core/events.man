@@ -14,7 +14,7 @@
 The [package tcl::chan::events] package provides a [package TclOO]
 class implementing common behaviour needed by virtually every
 reflected or virtual channel supporting event driven IO. It is a
-superclass of [package tcl::chan::core], inheriting all of its behaviour.
+sub-class of [package tcl::chan::core], inheriting all of its behaviour.
 
 [para] This class expects to be used as either superclass of a concrete
 channel class, or to be mixed into such a class.
