@@ -14,7 +14,7 @@
 # Meta description Implementation of a base64
 # Meta description transformation (RFC 4648). Based on Tcl
 # Meta description 8.6's transformation reflection support
-# Meta description (TIP 23) and binary en/decode (TIP 317).
+# Meta description (TIP 230) and binary en/decode (TIP 317).
 # Meta description Exports a single command adding a new
 # Meta description transformation of this type to a channel.
 # Meta description One argument, the channel to extend. No
