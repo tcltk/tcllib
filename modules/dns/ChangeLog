@@ -1,3 +1,10 @@
+2010-08-16  Andreas Kupries  <andreask@activestate.com>
+
+	* ip.tcl: Added new commands 'collapse' and 'subtract' for
+	* ip.test: more 'arithmetic' on network ranges. Extended
+	* pkgIndex.tcl: documentation and testsuite. Version bumped
+	* tcllib_ip.man: to 1.2. Base code by Roy Keene, with thanks.
+
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
