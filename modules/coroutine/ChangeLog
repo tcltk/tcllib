@@ -1,3 +1,8 @@
+2010-08-17  Andreas Kupries  <andreask@activestate.com>
+
+	* coroutine.man: Added package documentation. 
+	* coro_auto.man:
+
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
