@@ -1730,7 +1730,21 @@ proc ::math::linearalgebra::determineSVD { A {epsilon 2.3e-16} } {
             setcol A $j $newcol
         }
     } ;# j
-    return [list $A $S $V]
+
+    #
+    # Prepare the output
+    #
+    set U $A
+
+    if { $m < $n } {
+        set U {}
+        incr m -1
+        foreach row $A {
+            lappend U [lrange $row 0 $m]
+        }
+        puts $U
+    }
+    return [list $U $S $V]
 }
 
 # eigenvectorsSVD --
@@ -2196,7 +2210,7 @@ proc ::math::linearalgebra::from_LA { mv } {
 #
 # Announce the package's presence
 #
-package provide math::linearalgebra 1.1.3
+package provide math::linearalgebra 1.1.4
 
 if { 0 } {
 Te doen:
