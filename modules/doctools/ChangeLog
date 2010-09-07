@@ -1,3 +1,9 @@
+2010-09-07  Andreas Kupries  <andreask@activestate.com>
+
+	* mpformats/fmt.nroff: [Bug 3058654]: Added code compacting
+	whitespace in various strings used for nroff comments and NAME
+	section.
+
 2010-07-06  Andreas Kupries  <andreask@activestate.com>
 
 	* checker.tcl: [RFE 2915921] Accepted the RFE, adding
