@@ -34,6 +34,8 @@ proc nr_include {file}      {return "\n.so $file"}
 proc nr_bolds   {}          {return \n.BS}
 proc nr_bolde   {}          {return \n.BE}
 proc nr_read    {fn}        {return [nroffMarkup [dt_read $fn]]}
+proc nr_cs      {}          {return \n.CS}
+proc nr_ce      {}          {return \n.CE}
 
 proc nr_section {name} {
     if {![regexp {[ 	]} $name]} {
