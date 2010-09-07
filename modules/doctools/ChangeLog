@@ -1,5 +1,10 @@
 2010-09-07  Andreas Kupries  <andreask@activestate.com>
 
+	* mpformats/fmt.nroff: [Bug 3058654]: Changed formatting of
+	* mpformats/_nroff.tcl: examples to .CS/.CE.
+
+2010-09-07  Andreas Kupries  <andreask@activestate.com>
+
 	* mpformats/fmt.nroff: [Bug 3058654]: Added code compacting
 	whitespace in various strings used for nroff comments and NAME
 	section.
