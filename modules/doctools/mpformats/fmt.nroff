@@ -183,14 +183,14 @@ proc fmt_tkoption_def {name dbname dbclass} {
 
 ################################################################
 
-proc fmt_example_begin {} { return "\n[nr_nofill]\n" }
-proc fmt_example_end   {} { nr_fill }
+proc fmt_example_begin {} { return "\n[nr_cs]\n" }
+proc fmt_example_end   {} { nr_ce }
 proc fmt_example {code} { 
-    set lines [list "" [nr_nofill]]
+    set lines [list "" [nr_cs]]
     foreach line [split $code "\n"] {
     	lappend lines [fmt_plain_text $line]
     }
-    lappend lines [nr_fill] ""
+    lappend lines [nr_ce] ""
     return [join $lines "\n"]
 }
 
