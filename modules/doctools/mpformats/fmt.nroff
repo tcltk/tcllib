@@ -2,7 +2,7 @@
 #
 # -- doctools NROFF formatting engine.
 #
-# Copyright (c) 2001-2005 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2001-2010 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # [expand] definitions to convert a tcl based manpage definition into
 # a manpage based upon *roff markup. Additional definition files allow
@@ -26,6 +26,13 @@ c_pass 2 fmt_manpage_begin {title section version} {
     set shortdesc   [c_get_module]
     set description [c_get_title]
     set copyright   [c_get_copyright]
+
+    # compact whitespace
+    foreach v {module shortdesc description copyright} {
+	upvar 0 $v text
+	regsub -all {[ \t]+} $text { } text
+	set text [string trim $text]
+    }
 
     c_holdBuffers hdr
 
