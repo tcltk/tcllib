@@ -1,3 +1,9 @@
+2010-09-08  Andreas Kupries  <andreask@activestate.com>
+
+	* csv.man: [Bug 3061815]: Fixed a mixup in the examples which
+	matched regular output to alternate format and vice versa. Thanks
+	to Harald Oehlmann <oehhar@users.sourceforge.net>.
+
 2010-01-19  Andreas Kupries  <andreask@activestate.com>
 
 	* csv.tcl (::csv::read2queue): [Bug 2926387]: Fix use of wrong
