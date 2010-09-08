@@ -11,10 +11,10 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.26 2008/07/09 18:02:59 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.27 2010/09/08 20:24:29 andreas_kupries Exp $
 
 package require Tcl 8.2
-package provide cmdline 1.3.1
+package provide cmdline 1.3.2
 
 namespace eval ::cmdline {
     namespace export getArgv0 getopt getKnownOpt getfiles getoptions \
@@ -325,7 +325,7 @@ proc ::cmdline::GetOptionDefaults {optlist defaultArrayVar} {
 proc ::cmdline::usage {optlist {usage {options:}}} {
     set str "[getArgv0] $usage\n"
     foreach opt [concat $optlist \
-	    {{help "Print this message"} {? "Print this message"}}] {
+	     {{- "Forcibly stop option processing"} {help "Print this message"} {? "Print this message"}}] {
 	set name [lindex $opt 0]
 	if {[regsub -- .secret$ $name {} name] == 1} {
 	    # Hidden option
@@ -433,7 +433,7 @@ proc ::cmdline::getArgv0 {} {
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.26 2008/07/09 18:02:59 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.27 2010/09/08 20:24:29 andreas_kupries Exp $
 
 namespace eval ::cmdline {
     namespace export typedGetopt typedGetoptions typedUsage
@@ -705,7 +705,7 @@ proc ::cmdline::typedGetopt {argvVar optstring optVar argVar} {
 #			argument of typedGetopt. Default is for optionally
 #			specifying a default value. Comment is for optionally
 #			specifying a comment for the usage display. The
-#			options "-help" and "-?" are automatically included
+#			options "--", "-help", and "-?" are automatically included
 #			in optlist.
 #
 # Argument syntax miscellany:
