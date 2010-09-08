@@ -203,7 +203,7 @@ is parsed into the items
 a) 123
 b) 123,521.2
 c) Mary says "Hello, I am Mary"
-d) (the empty string)
+d) "
 }]
 [para]
 
@@ -214,7 +214,7 @@ Using the alternate format the result is
 a) 123
 b) 123,521.2
 c) Mary says "Hello, I am Mary"
-d) "
+d) (the empty string)
 }]
 
 instead. As can be seen only item (d) is different, now a " instead of
