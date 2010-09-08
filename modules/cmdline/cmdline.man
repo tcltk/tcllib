@@ -1,11 +1,11 @@
-[manpage_begin cmdline n 1.3.1]
+[manpage_begin cmdline n 1.3.2]
 [moddesc   {Command line and option processing}]
 [titledesc {Procedures to process command lines and options.}]
 [category  {Programming tools}]
 [keywords  {cmdline processing} {argument processing} argv argv0]
 [keywords  {command line processing}]
 [require Tcl 8.2]
-[require cmdline [opt 1.3.1]]
+[require cmdline [opt 1.3.2]]
 [description]
 
 This package provides commands to parse command lines and options.
@@ -63,10 +63,12 @@ specified option into upon success or an error message in the case of
 failure. The stored value comes from the command line for .arg
 options, otherwise the value is 1.
 
+
 [call [cmd ::cmdline::getKnownOpt] [arg argvVar] [arg optstring] [arg optVar] [arg valVar]]
 
 Like [cmd ::cmdline::getopt], but ignores any unknown options in the
 input.
+
 
 [call [cmd ::cmdline::getoptions] [arg arglistVar] [arg optlist] [opt [arg usage]]]
 
@@ -89,6 +91,20 @@ line. Otherwise it is a boolean and appears in the result if present
 on the command line. If [arg flag] ends in ".secret", it will not be
 displayed in the usage.
 
+[para]
+
+The options [option -?], [option -help], and [option --] are
+implicitly understood. The first two abort option processing and force
+the generation of the usage message, whereas the the last aborts
+option processing without an error, leaving all arguments coming after
+for regular processing, even if starting with a dash.
+
+
+[para]
+
+The result of the command is a dictionary mapping all options to their
+values, be they user-specified or defaults.
+
 
 [call [cmd ::cmdline::getKnownOptions] [arg arglistVar] [arg optlist] [opt [arg usage]]]
 
@@ -104,6 +120,7 @@ flags. [arg optlist] is defined as for
 contains a string to include in front of the generated message. If not
 present it defaults to "options:".
 
+
 [call [cmd ::cmdline::getfiles] [arg patterns] [arg quiet]]
 
 Given a list of file [arg patterns] this command computes the set of
@@ -118,6 +135,7 @@ This code also uses the full path for each file.  If not given it
 prepends the current working directory to the filename. This ensures
 that these files will never conflict with files in a wrapped zip
 file. The last sentence refers to the pro-tools.
+
 
 [call [cmd ::cmdline::getArgv0]]
 
