@@ -1,23 +1,21 @@
 # -*- tcl -*-
 # Graph ops tests - Adjacency Matrix.
-# Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2008-2010 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
-# RCS: @(#) $Id: adjmatrix.test,v 1.4 2009/09/15 19:24:12 andreas_kupries Exp $
+# RCS: @(#) $Id: adjmatrix.test,v 1.5 2010/09/09 21:48:27 andreas_kupries Exp $
 
 # Syntax: struct::graph::op::toAdjacencyMatrix G
 
 # -------------------------------------------------------------------------
 # Wrong # args: Missing, Too many
 
-test graphop-t${treeimpl}-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-toAdjacencyMatrix-1.0 {toAdjacencyMatrix, wrong args, missing} {
-    catch {struct::graph::op::toAdjacencyMatrix} msg
-    set msg
-} [tcltest::wrongNumArgs struct::graph::op::toAdjacencyMatrix {g} 0]
+test graphop-t${treeimpl}-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-toAdjacencyMatrix-1.0 {toAdjacencyMatrix, wrong args, missing} -body {
+    struct::graph::op::toAdjacencyMatrix
+} -returnCodes error -result [tcltest::wrongNumArgs struct::graph::op::toAdjacencyMatrix {g} 0]
 
-test graphop-t${treeimpl}-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-toAdjacencyMatrix-1.1 {toAdjacencyMatrix, wrong args, too many} {
-    catch {struct::graph::op::toAdjacencyMatrix g x} msg
-    set msg
-} [tcltest::tooManyArgs struct::graph::op::toAdjacencyMatrix {g}]
+test graphop-t${treeimpl}-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-toAdjacencyMatrix-1.1 {toAdjacencyMatrix, wrong args, too many} -body {
+    struct::graph::op::toAdjacencyMatrix g x
+} -returnCodes error -result [tcltest::tooManyArgs struct::graph::op::toAdjacencyMatrix {g}]
 
 # -------------------------------------------------------------------------
 # Logical arguments checks and failures
@@ -25,33 +23,36 @@ test graphop-t${treeimpl}-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-toAdjace
 # -------------------------------------------------------------------------
 # Ok arguments.
 
-test graphop-t${treeimpl}-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-toAdjacencyMatrix-2.0 {toAdjacencyMatrix, empty graph} {
+test graphop-t${treeimpl}-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-toAdjacencyMatrix-2.0 {toAdjacencyMatrix, empty graph} -setup {
     SETUP
-    set result [struct::graph::op::toAdjacencyMatrix mygraph]
+} -body {
+    struct::graph::op::toAdjacencyMatrix mygraph
+} -cleanup {
     mygraph destroy
-    set result
-} {{{}}}
+} -result {{{}}}
 
-test graphop-t${treeimpl}-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-toAdjacencyMatrix-2.1 {toAdjacencyMatrix, nodes, no arcs} {
+test graphop-t${treeimpl}-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-toAdjacencyMatrix-2.1 {toAdjacencyMatrix, nodes, no arcs} -setup {
     SETUP
     mygraph node insert 0 1 2 3 4 5
-    set result [struct::graph::op::toAdjacencyMatrix mygraph]
+} -body {
+    struct::graph::op::toAdjacencyMatrix mygraph
+} -cleanup {
     mygraph destroy
-    set result
-} {{{} 0 1 2 3 4 5} {0 0 0 0 0 0 0} {1 0 0 0 0 0 0} {2 0 0 0 0 0 0} {3 0 0 0 0 0 0} {4 0 0 0 0 0 0} {5 0 0 0 0 0 0}}
+} -result {{{} 0 1 2 3 4 5} {0 0 0 0 0 0 0} {1 0 0 0 0 0 0} {2 0 0 0 0 0 0} {3 0 0 0 0 0 0} {4 0 0 0 0 0 0} {5 0 0 0 0 0 0}}
 
-test graphop-t${treeimpl}-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-toAdjacencyMatrix-2.2 {toAdjacencyMatrix, nodes, arcs} {
+test graphop-t${treeimpl}-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-toAdjacencyMatrix-2.2 {toAdjacencyMatrix, nodes, arcs} -setup {
     SETUP
     mygraph node insert 0 1 2 3 4 5
     mygraph arc  insert 0 1 a
     mygraph arc  insert 2 3 b
     mygraph arc  insert 4 5 c
-    set result [struct::graph::op::toAdjacencyMatrix mygraph]
+} -body {
+    struct::graph::op::toAdjacencyMatrix mygraph
+} -cleanup {
     mygraph destroy
-    set result
-} {{{} 0 1 2 3 4 5} {0 0 1 0 0 0 0} {1 1 0 0 0 0 0} {2 0 0 0 1 0 0} {3 0 0 1 0 0 0} {4 0 0 0 0 0 1} {5 0 0 0 0 1 0}}
+} -result {{{} 0 1 2 3 4 5} {0 0 1 0 0 0 0} {1 1 0 0 0 0 0} {2 0 0 0 1 0 0} {3 0 0 1 0 0 0} {4 0 0 0 0 0 1} {5 0 0 0 0 1 0}}
 
-test graphop-t${treeimpl}-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-toAdjacencyMatrix-2.3 {toAdjacencyMatrix, nodes, parallel arcs, loops} {
+test graphop-t${treeimpl}-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-toAdjacencyMatrix-2.3 {toAdjacencyMatrix, nodes, parallel arcs, loops} -setup {
     SETUP
     mygraph node insert 0 1 2 3 4 5
     mygraph arc  insert 0 1 a
@@ -59,11 +60,10 @@ test graphop-t${treeimpl}-g${impl}-s${setimpl}-st${stkimpl}-q${queimpl}-toAdjace
     mygraph arc  insert 2 3 c
     mygraph arc  insert 3 2 d
     mygraph arc  insert 4 4 e
-    set result [struct::graph::op::toAdjacencyMatrix mygraph]
+} -body {
+    struct::graph::op::toAdjacencyMatrix mygraph
+} -cleanup {
     mygraph destroy
-    set result
-} {{{} 0 1 2 3 4 5} {0 0 1 0 0 0 0} {1 1 0 0 0 0 0} {2 0 0 0 1 0 0} {3 0 0 1 0 0 0} {4 0 0 0 0 1 0} {5 0 0 0 0 0 0}}
-
-# ---------------------------------------------------
+} -result {{{} 0 1 2 3 4 5} {0 0 1 0 0 0 0} {1 1 0 0 0 0 0} {2 0 0 0 1 0 0} {3 0 0 1 0 0 0} {4 0 0 0 0 1 0} {5 0 0 0 0 0 0}}
 
 # ---------------------------------------------------

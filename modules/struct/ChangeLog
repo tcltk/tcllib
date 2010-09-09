@@ -1,3 +1,13 @@
+2010-09-09  Andreas Kupries  <andreask@activestate.com>
+
+	* graph/tests/ops/adjmatrix.test: Converted to tcltest v2 for
+	* graph/tests/ops/components.test: proper independence of the
+	* graph/tests/ops/componentof.test: tests. Preparation for
+	* graph/tests/ops/bipartite.test: the investigation of Bug
+	* graph/tests/ops/kruskal.test: 3062782.
+	* graph/tests/ops/prim.test:
+	* graph/tests/ops/tarjan.test:
+
 2010-05-25  Andreas Kupries  <andreask@activestate.com>
 
 	* queue.testsuite: Fixed bug in C implementation of 'unget'.
