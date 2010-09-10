@@ -8,8 +8,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: queue_oo.tcl,v 1.1 2010/03/24 06:13:00 andreas_kupries Exp $
+# RCS: @(#) $Id: queue_oo.tcl,v 1.2 2010/09/10 17:31:04 andreas_kupries Exp $
 
+package require TclOO 0.6.1
 
 # Cleanup first
 catch {namespace delete ::struct::queue::queue_oo}

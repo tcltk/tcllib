@@ -1,3 +1,9 @@
+2010-09-10  Andreas Kupries  <andreask@activestate.com>
+
+	* queue_oo.tcl: Established minimum requirements for TclOO
+	* stack_oo.tcl: to support the two classes. Bug 3062782 was
+	  a very old TclOO (0.3) interfering in the test.
+
 2010-09-09  Andreas Kupries  <andreask@activestate.com>
 
 	* graph/tests/ops/adjmatrix.test: Converted to tcltest v2 for
