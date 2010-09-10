@@ -7,7 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: stack_oo.tcl,v 1.3 2010/03/25 13:56:30 andreas_kupries Exp $
+# RCS: @(#) $Id: stack_oo.tcl,v 1.4 2010/09/10 17:31:04 andreas_kupries Exp $
+
+package require TclOO 0.6.1
 
 # Cleanup first
 catch {namespace delete ::struct::stack::stack_oo}
