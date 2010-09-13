@@ -5,7 +5,7 @@
 ## 
 ## The original source files were:
 ## 
-## tcldocstrip.dtx  (with options: `utiltest')
+## tcldocstrip.dtx  (with options: `utiltest tcllibtest')
 ## 
 ## In other words:
 ## **************************************
@@ -13,12 +13,14 @@
 ## **************************************
 ## the true source is the file from which this one was generated.
 ##
-source [file join [file dirname [file dirname [file join [pwd] [info script]]]] devtools testutilities.tcl]
+source [file join\
+  [file dirname [file dirname [file join [pwd] [info script]]]]\
+  devtools testutilities.tcl]
 testsNeedTcl     8.4
-testsNeedTcltest 1.0
+testsNeedTcltest 2
 testing {useLocal docstrip.tcl docstrip}
-set docstrip_sources_dir [localPath {}]
 testing {useLocal docstrip_util.tcl docstrip::util}
+variable docstrip_sources_dir [localPath {}]
 tcltest::testConstraint docstripSourcesAvailable [expr {[
    file exists [file join $docstrip_sources_dir docstrip.tcl]
 ] && [
@@ -46,7 +48,7 @@ tcltest::test docstrip::util::thefile-1.1 {thefile without args}\
    {%<*bar>}
    {puts B}
    {%<*foo>}
-   {puts [info exists baz]} ""
+   {puts [info exists baz]}
 } \n]
 tcltest::test docstrip::util::thefile-1.2 {thefile with wrong no. args}\
   -setup {
