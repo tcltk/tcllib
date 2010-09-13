@@ -6,6 +6,38 @@
   \description
   \def\makelabel##1{\hspace\labelsep\normalfont\ttfamily ##1}%
 }{\enddescription}
+\newcommand{\Tcllib}{\textsf{tcllib}}
+
+% The following is a hack, to get around some complications that 
+% arise when one tries to use the doc package on two levels 
+% simultaneously. Basically, I need to define my own macrocode 
+% environment, since at one place I'm going to need it for a block 
+% of code that contains the end-of-macrocode string
+% "%    \end{macrocode}" (note exactly four spaces).
+\makeatletter
+\newenvironment{Macrocode}{%
+   \macro@code\frenchspacing\@vobeyspaces\xMacro@code
+}{\endmacrocode}
+% The following piece of code uses the trick of having a macro grab 
+% some piece of material and thus ensure that it is tokenized under 
+% the expand-time catcodes, even though a different set of catcodes 
+% will be in force when that material is actually used. This saves 
+% from having to introduce an extra character of \catcode 0, and 
+% means only those characters which actually need it (i.e., those 
+% inside the final bracket group) are tokenized with unconventional 
+% catcodes.
+\@firstofone{\bgroup
+   \def\@tempa#1{\egroup\def\xMacro@code##1#1{##1\end{Macrocode}}}
+   \catcode`\[=1\catcode`\]=2%
+   \catcode`\{=12\catcode`\}=12\catcode`\%=12%
+   \catcode`\\=13\catcode`\ =13\relax
+\@tempa}[%    \end{Macrocode}]
+\makeatother
+% An easier way around it would be to use a different number of 
+% spaces in that particular line, since hardly anyone would notice, 
+% but I want the details to be [emph correct].
+
+
 \begin{document}
 \DocInput{tcldocstrip.dtx}
 \end{document}
@@ -23,6 +55,15 @@
 %   \textsc{docstrip} program. In particular, there is a command 
 %   using which one can |source| \Tcllogo\ code from within a 
 %   \texttt{.dtx} file.
+%   
+%   The \textsf{docstrip::util} package provides related 
+%   functionality, which is more of interest at installation or 
+%   development time than runtime. The main functionality areas are: 
+%   (i)~hooks into the \Tcllogo\ package mechanisms, using which one 
+%   can avoid depending on the \textsc{docstrip} program for 
+%   \Tcllogo\ scripts; (ii)~statistical introspection into source 
+%   files; (iii)~alternatives to \LaTeX\ as markup language; 
+%   (iv)~patching of source files.
 % \end{abstract}
 % 
 % \changes{1.0}{2004/09/17}{Changing namespace to \texttt{docstrip} and 
@@ -63,10 +104,10 @@
 % A more advanced usage (making use of the ability to |fconfigure| the 
 % source file before reading it) is
 % \begin{quote}
-%   |docstrip::sourcefrom ruslish.dtx pkg -encoding koi8-r|
+%   |docstrip::sourcefrom ruslish.dtx pkg -encoding utf-8|
 % \end{quote}
 % which ensures that the file is interpreted as being 
-% \texttt{koi8-r} encoded.
+% \texttt{utf-8} encoded.
 % 
 % \iffalse
 % (Files which require an encoding specification can actually be tricky 
@@ -89,15 +130,18 @@
 %   } [list $dir]]
 %\end{verbatim}
 % where |format| is used to embed the package directory into the 
-% |package ifneeded| scripts. |list| provides the right amount of 
-% quoting of the directory string.
+% |package ifneeded| scripts; |list| provides the right amount of 
+% quoting of the directory string. Alternatively, one may use 
+% |docstrip::util::index_from_catalogue| (see below) to generate such 
+% scripts automatically.
 % 
 % The semantics of |sourcefrom| closely follows those of |source|: The 
 % code is evaluated in the local context of the caller, a |return| will 
 % abort the sourcing early, and |info script| will return the 
 % \word{filename} for the duration of the |sourcefrom|. A difference is 
 % that |sourcefrom| does not stop at |\u001a| characters (control-Z, 
-% end of file). Also note that the entire file is ``docstripped'' 
+% end of file) unless told to by an explicit |-eofchar| option. Also 
+% note that the entire file is ``docstripped'' 
 % before any of the code in it gets evaluated, so e.g. module nesting 
 % errors at the end of the file cannot be hidden by an early |return| 
 % in it.
@@ -125,25 +169,194 @@
 %   |-trimlines| \word{boolean}
 % \end{quote}
 % These control some fine details of the extraction process. See 
-% Section~\ref{Sec:Extract} for further information.
+% Subsection~\ref{Ssec:Extract} for further information.
 % 
 % The |extract| command does not as the \textsc{docstrip} program 
 % wrap the extracted code up with a preamble and postamble; it just 
 % handles the basic extraction, not the higher level operation of 
-% complete file generation.
+% complete file generation. The 
+% |docstrip::util::modules_from_catalogue| command generates 
+% preambles and postambles, however.
 % 
 % 
 % \subsection{\textsf{docstrip::util} package}
 % 
 % The \textsf{docstrip::util} package is meant for collecting various 
 % utility procedures that may be useful for developers who make use of 
-% the \textsf{docstrip} package in some projects. It is separate from 
-% the main package to avoid overhead for end-users.
+% the \textsf{docstrip} package in some projects, either during 
+% development or during installation. It is separate from 
+% the main package to avoid overhead when |docstrip| is used in 
+% |package ifneeded| scripts.
 % 
-% The first command in this package is the |ddt2man| command. 
-% It provides an alternative to \LaTeX\ markup for programmers who 
-% think \LaTeX\ is too heavy (e.g.\ installation-wise) and prefer a 
-% pure-\Tcllogo\ documentation setup, namely to use 
+% 
+% \subsubsection{Source file introspection}
+% 
+% \describestring[proc][docstrip::util]{guards}
+% The |guards| command collects information about the docstrip guards 
+% occurring in a file. It has the subcommands |names|, |counts|, 
+% |expressions|, |exprcounts|, and |exprmods| which return 
+% information about correct guards in various degrees of detail. The 
+% |exprerr| subcommand lists syntactically incorrect guard expressions, 
+% and the |rotten| subcommand lists the malformed guard lines.
+% 
+% \describestring[proc][docstrip::util]{thefile}
+% The |thefile| command is a conveniency for reading the contents of 
+% a file, since most other \texttt{docstrip::util} commands expect to 
+% be handed the text of \texttt{.dtx} or \texttt{.ddt} files as 
+% strings (or some other in-memory data structure). It takes as 
+% primary argument the name of the file to read, and will like 
+% |docstrip::sourcefrom| accept additional option--value pairs for 
+% configuring the file channel before reading from it. A final 
+% newline is dropped, so that the result can directly be |split| into 
+% a list of lines.
+% 
+% 
+% \subsubsection{Package indexing with built-in catalogue}
+% 
+% \changes{1.3}{2010/04/18}{Renamed the `directory' to `catalogue', 
+%   to avoid overloading this term. Should be OK since so far only 
+%   one project has contained a directory. (LH)}
+% The basic method of installing a \Tcllogo\ package kept in a 
+% \texttt{.dtx} file is to run the corresponding \texttt{.ins} file 
+% to have \textsc{docstrip} (the program) generate one or several 
+% \texttt{.tcl} files, and then use the |pkg_mkIndex| to regenerate 
+% the package index file. This introduces a dependency on having 
+% \LaTeX\ available when installing however, so one might want to 
+% have a pure-\Tcllogo\ alternative. The \textsf{docstrip::util} 
+% package provides two: the |index_from_catalogue| and 
+% |modules_from_catalogue| commands.
+% 
+% Parsing \texttt{.ins} files using \Tcllogo\ would be difficult, so 
+% the corresponding information about which docstrip modules make up 
+% a package is better put somewhere else. It turns out that it can 
+% easily be embedded into the \texttt{.dtx} file itself! By 
+% convention, the name of this module should be 
+% `|docstrip.tcl::catalogue|'---hinting both at who is expected to make 
+% use of this information and what it is. The contents of this module 
+% make up the \emph{catalogue} of the source file in question.
+% 
+% \describestring[command]{pkgProvide}
+% The main command to use in a catalogue is
+% \begin{quote}
+%   |pkgProvide| \word{name} \word{version} \word{terminal-list}
+% \end{quote}
+% which means the module in this file which is selected by the 
+% terminals in \word{terminal-list} contains version \word{version} 
+% of the package named \word{name}. That module should not contain a 
+% |package provide| command, as one will be provided in the 
+% |package ifneeded| script.
+% 
+% \describestring[command]{pkgIndex}
+% An older alternative command for identifying package from within 
+% a catalogue is
+% \begin{quote}
+%   |pkgIndex| \word{terminal}\regstar
+% \end{quote}
+% which means there is a module in the file which should be 
+% \emph{indexed} as a package; the package name and version is taken 
+% from the |package provide| command(s) found. The module is as usual 
+% defined by that the listed \word{terminal}s are true.
+% 
+% \describestring[command]{fileoptions}
+% A configuration command is
+% \begin{quote}
+%   |fileoptions| \begin{regblock}[\regstar]\word{option}
+%   \word{value}\end{regblock}
+% \end{quote}
+% which sets the |fconfigure| options that will be used when reading 
+% the source file. Since the whole file was read into memory just to 
+% extract the catalogue, this command works by causing the file to be 
+% read again using a new set of options, and it thus has effect for 
+% the |pkgProvide| etc.\@ commands following it. (Even if it is 
+% perfectly legal, it would be rather strange to use |fileoptions| 
+% more than once in a file.)
+% 
+% A catalogue for this file could be
+% \begin{tcl}
+%<*docstrip.tcl::catalogue>
+pkgIndex pkg
+pkgIndex utilpkg
+%</docstrip.tcl::catalogue>
+% \end{tcl}
+% since the two packages include |package provide| commands.
+% 
+% The |pkgProvide|, |pkgIndex|, and |fileoptions| commands are only 
+% available in catalogues. Unknown commands encountered in 
+% catalogues are silently ignored.\footnote{
+%   This allows for future extensions of the catalogue, with commands 
+%   that encode other kinds of entities. One application could be to 
+%   list the files of a virtual file system, where the contents of 
+%   the individual files are to be extracted from the source file. 
+%   Another, perhaps more likely application would be to encode 
+%   packages that span several source files.
+% }
+% 
+% \medskip
+% 
+% \describestring[proc][docstrip::util]{modules_from_catalogue}
+% The commands which look at the catalogue of a file are 
+% |index_from_catalogue| and |modules_from_catalogue|. The former 
+% appends |package ifneeded| commands (which make use of 
+% |docstrip::sourcefrom| rather than |source|) to a traditional 
+% \texttt{pkgIndex.tcl} file. The latter generates \texttt{.tm} files 
+% for the packages (overwriting previous files with the target 
+% names). It has the syntax
+% \begin{quote}
+%   |docstrip::util::modules_from_catalogue| \word{target root} 
+%   \word{source file} \begin{regblock}[\regstar] \word{option} 
+%   \word{value} \end{regblock}
+% \end{quote}
+% where the \word{target root} is the directory used as starting 
+% point for the paths builts from package names, and 
+% \word{source file} is the file to process. The most common
+% \word{option}s are:
+% \begin{ttdescription}
+%   \item[-preamble]
+%     Message to put at the top of the generated file. Defaults to 
+%     a space (which ends up contributing an empty line).
+%   \item[-postamble]
+%     Message to put at the bottom of the generated file. Defaults to 
+%     being empty.
+%   \item[-options]
+%     \textsf{Docstrip} expressions terminals in addition to 
+%     the basic \texttt{docstrip.tcl::catalogue} to use when 
+%     extracting the catalogue. A sort of meta-configuration 
+%     facility.
+% \end{ttdescription}
+% Traditionally, the |-preamble| would be used for a copyright 
+% message, but such messages can alternatively be embedded as 
+% ``metacomment lines''.
+% 
+% \describestring[proc][docstrip::util]{index_from_catalogue}
+% The syntax of |index_from_catalogue| is
+% \begin{quote}
+%   |docstrip::util::index_from_catalogue| \word{directory} 
+%   \word{pattern} \begin{regblock}[\regstar]\word{option} 
+%   \word{value}\end{regblock}
+% \end{quote}
+% where \word{directory} is the directory whose \texttt{pkgIndex.tcl} 
+% file should be amended and \word{pattern} is a |glob|-pattern for 
+% files whose \texttt{docstrip.tcl::catalogue}s should be read. The most 
+% common \word{option}s are:
+% \begin{ttdescription}
+%   \item[-recursein]
+%     If nonempty, then the operation will be repeated in each 
+%     subdirectory matching the pattern specified as \word{value}. 
+%     |-recursein *| causes the entire subtree rooted at |-root| to 
+%     be processed.
+%   \item[-options]
+%     \textsf{Docstrip} expression terminals in addition to 
+%     the basic \texttt{docstrip.tcl:\nolinebreak[1]:catalogue} to use 
+%     when extracting the catalogue; a sort of metaconfiguration 
+%     facility.
+% \end{ttdescription}
+% 
+% 
+% \subsubsection{Alternative markup languages}
+% 
+% The |ddt2man| command provides an alternative to \LaTeX\ markup for 
+% programmers who think \LaTeX\ is too heavy (e.g.\ installation-wise) 
+% and prefer a pure-\Tcllogo\ documentation setup, namely to use 
 % \textsf{doctools}~\cite{doctools_fmt} man page markup. This is 
 % nowhere near as powerful as \LaTeX, but may well suffice in cases 
 % with less sophisticated typographical requirements.
@@ -164,22 +377,19 @@
 % should use the suffix \texttt{.ddt} to distinguish them from 
 % \texttt{.dtx} files which have \LaTeX\ markup in the comments.
 % 
-% \describestring[proc][docstrip::util]{guards}
-% The |guards| commands compiles information about the docstrip guards 
-% occurring in a file. It has the subcommands |names|, |counts|, 
-% |expressions|, |exprcounts|, and |exprmods| which returns 
-% information about correct guards in various degrees of detail. The 
-% |exprerr| subcommand lists syntactically incorrect guard expressions, 
-% and the |rotten| subcommand lists the malformed guard lines.
+% A typical usage might be
+%\begin{verbatim}
+%package require docstrip::util
+%package require doctools
+%doctools::new man2html -format html
+%set ddt [docstrip::util::thefile somefile.ddt]
+%set man [docstrip::util::ddt2man $ddt]
+%set html [man2html format $man]
+%\end{verbatim}
+% after which the |html| variable contains ordinary HTML code.
+%
 % 
-% \describestring[proc][docstrip::util]{thefile}
-% The |thefile| command is a conveniency for reading the contents of 
-% a file, since all other \texttt{docstrip::util} commands expect to 
-% be handed the text of \texttt{.dtx} or \texttt{.ddt} files as 
-% strings (or some other in-memory data structure). It takes as 
-% primary argument the name of the file to read, and does like 
-% |docstrip::sourcefrom| accept additional option--value pairs for 
-% configuring the file channel before reading from it.
+% \subsubsection{Patching sources}
 % 
 % \describestring[proc][docstrip::util]{patch}
 % The |patch| command is a still slightly experimental utility for 
@@ -194,49 +404,132 @@
 % |import_unidiff| that translates patches to the format understood by 
 % the |patch| command.
 % 
+% An example of using these commands would be
+%\begin{verbatim}
+%set sourceL [split [docstrip::util::thefile somefile.dtx] \n]
+%set generated [docstrip::util::thefile foobar.tcl]
+%set diff [docstrip::util::thefile foobar.patch]
+%set conflicts [docstrip::util::patch sourceL {foo bar} $generated\
+%  [docstrip::util::import_unidiff $diff]]
+%\end{verbatim}
+% after which one in principle can overwrite \texttt{somefile.dtx} 
+% with the result of |join $sourceL \n|, but more often one should 
+% rather send these patched contents to a text editor for further 
+% review. For one thing, there may be conflicts. For another, it is 
+% often necessary to also update the comment lines around modified 
+% sections.
+% 
 % 
 % \section{Headers}
 % 
-% The package headers are nothing unusual, although the code below also 
-% contains code for a \texttt{pkgIndex.tcl} file. \Tcllogo~8.4 is 
-% required because |info script| with an argument is used by the 
-% |sourcefrom| command, and there are also some uses of the |eq| 
-% operator in |if| expressions.
+% The guiding principle for the various file headers has been to 
+% collect all occurrencies of a version number in the same place. 
+% This is not entirely possible, since the |manpage_begin| and 
+% |require| manpage commands both contain the package version 
+% numbers, but at least it is possible to collect |require|s, 
+% |package require|s, and |package provide|s together.
+% \changes{1.3}{2010/04/30}{File headers interleaved, to simplify 
+%   changing version numbers. (LH)}
+% 
+% Since this leaves |manpage_begin| of the \textsf{doctools} manpages 
+% the odd man out, we'd better begin with that.
+% \begin{tcl}
+%<*man,utilman>
+%<man>[manpage_begin docstrip n 1.2]
+%<utilman>[manpage_begin docstrip_util n 1.3]
+[copyright "2003\u20132010 Lars Hellstr\u00F6m\
+  <Lars dot Hellstrom at residenset dot net>"]
+[moddesc {Literate programming tool}]
+%<man>[titledesc {Docstrip style source code extraction}]
+%<utilman>[titledesc {Docstrip-related utilities}]
+[category  {Documentation tools}]
+%</man,utilman>
+% \end{tcl}
+% The other files involved in this great interleaving are the actual 
+% packages (\Module{pkg} and \Module{utilpkg}) and a hardcoded index 
+% file (\Module{idx}).
 % \changes{1.1}{2005/02/26}{Added \texttt{pkgIndex.tcl} source. 
 %   (LH, after suggestion by AK)}
-% The public commands in both packages are exported. This is 
-% meaningful mostly for the \textsf{docstrip::util} package, which 
-% imports |extract| from \textsf{docstrip}.
-% \changes{1.2}{2005/06/20}{Added namespace export code. (LH)}
 % 
+% \Tcllogo~8.4 is required because |info script| with an argument 
+% is used by the |sourcefrom| command, and there are also some uses 
+% of the |eq| operator in |if| expressions.
 % \begin{tcl}
+%<pkg,utilpkg>package require Tcl 8.4
+%<man,utilman>[require Tcl 8.4]
 %<idx>if {![package vsatisfies [package provide Tcl] 8.4]} {return}
-%<pkg>package require Tcl 8.4
+% \end{tcl}
+% That version number check is the only part of the 
+% \texttt{pkgIndex.tcl} file that would not be done the same way by 
+% the standard |pkg_mkIndex| command.
+% 
+% Next comes the \textsf{docstrip} package version.
+% \begin{tcl}
 %<pkg>package provide docstrip 1.2
 %<idx>package ifneeded docstrip 1.2\
 %<idx>  [list source [file join $dir docstrip.tcl]]
+%<man,utilman>[require docstrip [opt 1.2]]
+%<utilpkg>package require docstrip 1.2
+% \end{tcl}
+% The \textsf{docstrip::util} package has a dependency on the 
+% \textsf{docstrip} package, but not the other way around. Hence the 
+% next block is slightly shorter.
+% \begin{tcl}
+%<utilpkg>package provide docstrip::util 1.3
+%<idx>package ifneeded docstrip::util 1.3\
+%<idx>  [list source [file join $dir docstrip_util.tcl]]
+%<utilman>[require docstrip::util [opt 1.3]]
+% \end{tcl}
+% This ends the interleaved parts of the headers.
+% 
+% The following is a trick to use non-ASCII characters in manpages 
+% without having to put them as such in the source: when an emdash 
+% (U+2014) is needed, just write |[vset emdash]|.
+% \begin{tcl}
+%<*man,utilman>
+%<-ASCII>[vset emdash \u2014]
+%<+ASCII>[vset emdash --]
+[description]
+%</man,utilman>
+% \end{tcl}
+% The \Module{ASCII} guard here makes it possible to fall back to 
+% simpler encodings, on platforms which require it, but the default 
+% is the proper emdash.
+% 
+% The public commands in both packages are exported. This is 
+% meaningful mostly for the \textsf{docstrip::util} package, which 
+% imports |extract| from \textsf{docstrip}. The corresponding 
+% |namespace import| will however occur further down, to ensure that 
+% a combined file extracted with |pkg,utilpkg| works too.
+% \changes{1.2}{2005/06/20}{Added namespace export code. (LH)}
+% \begin{tcl}
 %<*pkg>
 namespace eval docstrip {
    namespace export extract sourcefrom
 }
 %</pkg>
-%<utilpkg>package require Tcl 8.4
-%<utilpkg>package require docstrip 1.2
-%<utilpkg>package provide docstrip::util 1.2
-%<idx>package ifneeded docstrip::util 1.2\
-%<idx>  [list source [file join $dir docstrip_util.tcl]]
 %<*utilpkg>
 namespace eval docstrip::util {
-   namespace import [namespace parent]::extract
-   namespace export ddt2man guard patch thefile 
+   namespace export ddt2man guard patch thefile\
+     packages_provided index_from_catalogue modules_from_catalogue\
+     classical_preamble classical_postamble
 }
 %</utilpkg>
 % \end{tcl}
-% \setnamespace{docstrip}
 % 
-% The test initialisation is nothing strange either. The route is taken 
-% to explicitly |source| the \texttt{docstrip.tcl} file in the same 
-% directory as the \texttt{docstrip.test} being run.
+% \subsection{Test headers}
+% 
+% What now remains to initialise are only the tests, but that is a 
+% slightly complicated affair, since it means interacting with the 
+% \Tcllib\ test harness. Originally the code didn't do that, 
+% so there is a \Module{tcllibtest} terminal which can be used to 
+% select whether to try it or not.
+% 
+% The original route was to use the \textsf{tcltest} package provided 
+% by the \Tcllogo\ package mechanism, but explicitly |source| the 
+% \texttt{docstrip.tcl} file in the same directory as the 
+% \texttt{docstrip.test} being run. That meant you could have one 
+% \textsf{docstrip} version installed and run tests on another.
 % \changes{1.2}{2005/09/18}{Introduced the 
 %    \texttt{docstrip\_sources\_dir} variable as the directory in 
 %    which to search for \texttt{docstrip.tcl}, 
@@ -244,14 +537,38 @@ namespace eval docstrip::util {
 %    Using \texttt{file normalize} to compute it. (LH)}
 % \begin{tcl}
 %<*test,utiltest>
-source [file join [file dirname [file dirname [file join [pwd] [info script]]]] devtools testutilities.tcl]
-testsNeedTcl     8.4
-testsNeedTcltest 1.0
-testing {useLocal docstrip.tcl docstrip}
-set docstrip_sources_dir [localPath {}]
+%<*!tcllibtest>
+package require tcltest 2
+variable docstrip_sources_dir\
+  [file dirname [file normalize [info script]]]
+source [file join $docstrip_sources_dir docstrip.tcl]
+puts "** Has Tcl docstrip package (v [package provide docstrip]) **"
 %<*utiltest>
-testing {useLocal docstrip_util.tcl docstrip::util}
+source [file join $docstrip_sources_dir docstrip_util.tcl]
+puts "** Has Tcl docstrip::util package\
+  (v [package provide docstrip::util]) **"
 %</utiltest>
+%</!tcllibtest>
+% \end{tcl}
+% 
+% The \Tcllib\ set-up instead begins with |source|ing 
+% \texttt{..\slash devtools\slash testutilities.tcl}, which 
+% (in that directory structure) will be a file that causes 
+% \textsf{tcltest} to be loaded. The other commands below are also 
+% provided by that file.
+% \changes{1.2.1}{2006/09/13}{Modified the setup of the testsuite 
+%   to match the other modules and packages in \Tcllib. (AK)}
+% \begin{tcl}
+%<*tcllibtest>
+source [file join\
+  [file dirname [file dirname [file join [pwd] [info script]]]]\
+  devtools testutilities.tcl]
+testsNeedTcl     8.4
+testsNeedTcltest 2
+testing {useLocal docstrip.tcl docstrip}
+%<utiltest>testing {useLocal docstrip_util.tcl docstrip::util}
+variable docstrip_sources_dir [localPath {}]
+%</tcllibtest>
 % \end{tcl}
 % One of the tests require that \texttt{tcldocstrip.dtx} (this file) and 
 % \texttt{docstrip.tcl} are both present. A \textsf{tcltest} constraint 
@@ -265,26 +582,10 @@ tcltest::testConstraint docstripSourcesAvailable [expr {[
 %</test,utiltest>
 % \end{tcl}
 % 
-% Finally the header for the \textsf{doctools} manpages.
-% \begin{tcl}
-%<*man,utilman>
-%<man>[manpage_begin docstrip n 1.2]
-%<utilman>[manpage_begin docstrip_util n 1.2]
-[copyright "2003-2005 Lars Hellstr\u00F6m\
-  <Lars dot Hellstrom at residenset dot net>"]
-[moddesc {Literate programming tool}]
-%<man>[titledesc {Docstrip style source code extraction}]
-%<utilman>[titledesc {Docstrip-related utilities}]
-[category  {Documentation tools}]
-[require Tcl 8.4]
-%<man>[require docstrip [opt 1.2]]
-%<utilman>[require docstrip::util [opt 1.2]]
-[description]
-%</man,utilman>
-% \end{tcl}
 % 
+% \part{The docstrip package}
 % 
-% \section{The docstrip package}
+% \setnamespace{docstrip}
 % 
 % Here follows the source both for the actual package and its manpage, 
 % the latter of which is in four sections: introduction, 
@@ -295,7 +596,7 @@ tcltest::testConstraint docstripSourcesAvailable [expr {[
 % file, a big batch of manpage source has to appear first.
 % 
 % 
-% \subsection{Manpage introduction}
+% \section{Manpage}
 % 
 % The introduction is indended for \Tcllogo\ programmers who have not
 % previously encountered \textsc{docstrip}---hence it is probably a 
@@ -354,13 +655,13 @@ want to know more about it may consult the following sources.
 [list_begin enumerated]
 [enum]
   [emph {The tclldoc package and class}],
-  [uri {http://tug.org/tex-archive/macros/latex/contrib/tclldoc/}].
+  [uri {http://ctan.org/tex-archive/macros/latex/contrib/tclldoc/}].
 [enum]
   [emph {The DocStrip utility}],
-  [uri {http://tug.org/tex-archive/macros/latex/base/docstrip.dtx}].
+  [uri {http://ctan.org/tex-archive/macros/latex/base/docstrip.dtx}].
 [enum]
   [emph {The doc and shortvrb Packages}],
-  [uri {http://tug.org/tex-archive/macros/latex/base/doc.dtx}].
+  [uri {http://ctan.org/tex-archive/macros/latex/base/doc.dtx}].
 [enum]
   Chapter 14 of
   [emph {The LaTeX Companion}] (second edition),
@@ -456,7 +757,7 @@ The syntax of an ordinary guard line is one of
 where
 [example {
     STARSLASH  ::=  '*' | '/'
-    PLUSMINUS  ::=  '+' | '-' |
+    PLUSMINUS  ::=  | '+' | '-'
     EXPRESSION ::= SECONDARY | SECONDARY ',' EXPRESSION
                  | SECONDARY '|' EXPRESSION
     SECONDARY  ::= PRIMARY | PRIMARY '&' SECONDARY
@@ -671,15 +972,17 @@ The package defines two commands.
 [list_begin definitions]
 %    \end{macrocode}
 % 
+% \section{Command implementations}
 % 
 % \subsection{Code extraction}
-% \label{Sec:Extract}
+% \label{Ssec:Extract}
 % 
 % \begin{proc}{extract}
 %   The |extract| procedure implements the core functionality of the 
 %   \textsc{docstrip} program: copying the some lines of code as 
 %   directed by relevant guard linnes. The main difference is that this 
-%   takes the input as a string and returns output as a string.
+%   takes the input as a string and returns output as a string. Each 
+%   line in the return value ends with a newline.
 %   
 %   The syntax is
 %   \begin{quote}
@@ -788,7 +1091,7 @@ The package defines two commands.
       Write an error message to [const stderr], then continue 
       processing.
     [def [const throw]]
-      Throw an error. [var ::errorCode] is set to a list whose 
+      Throw an error. The [option -errorcode] is set to a list whose 
       first element is [const DOCSTRIP], second element is the 
       type of error, and third element is the line number where 
       the error is detected. This is the default.
@@ -1227,7 +1530,7 @@ tcltest::test docstrip-2.2 {soucefrom} -setup {
 % 
 % 
 % 
-% \subsection{Manpage section on document structure}
+% \section{Manpage section on document structure}
 % 
 % This completes the package code, but there are more things which
 % should be said on the manpage.
@@ -1272,10 +1575,10 @@ or some variation thereof. The trick is that the file gets read twice.
 With normal LaTeX reading rules, the first two lines are comments and 
 therefore ignored. The third line is the document preamble, the fourth
 line begins the document body, and the sixth line ends the document, 
-so LaTeX stops there -- non-comments below that point in the file are 
-never subjected to the normal LaTeX reading rules. Before that, 
-however, the \DocInput command on the fifth line is processed, and 
-that does two things: it changes the interpretation of '%' from 
+so LaTeX stops there [vset emdash] non-comments below that point in 
+the file are never subjected to the normal LaTeX reading rules. Before 
+that, however, the \DocInput command on the fifth line is processed, 
+and that does two things: it changes the interpretation of '%' from 
 "comment" to "ignored", and it inputs the file specified in the 
 argument (which is normally the name of the file the command is in). 
 It is this second time that the file is being read that the comments 
@@ -1300,19 +1603,1214 @@ found in the references above.
 %</man>
 %    \end{macrocode}
 % 
-% \section{The docstrip utilities package}
 % 
+% \part{The docstrip utilities package}
+% 
+% The |extract| command is used by several \textsf{docstrip::util} 
+% commands, so it is imported.
+% \begin{tcl}
+%<*utilpkg>
+namespace eval docstrip::util {
+   namespace import [namespace parent]::extract
+}
+%</utilpkg>
+% \end{tcl}
 % \setnamespace{docstrip::util}
+% 
+%    \begin{macrocode}
+%<*utilman>
+The [package docstrip::util] package is meant for collecting various 
+utility procedures that are mainly useful at installation or 
+development time. It is separate from the base package to avoid 
+overhead when the latter is used to [cmd source] code.
+[para]
+%</utilman>
+%    \end{macrocode}
+% 
+% \section{Package indexing and generation}
+% 
+% Manually writing \texttt{pkgIndex.tcl} files for 
+% \textsf{docstrip}-encoded packages gets boring after a while 
+% (especially since they will have to be updated after every version 
+% increment), so one would like to automate this task. The following 
+% implements a mechanism for this that parallels the standard 
+% |pkg_mkIndex| command.
+% 
+% 
+% \subsection{The catalogue}
+% 
+% The main difference between a \textsf{docstrip} file and an 
+% ordinary \texttt{.tcl} file is that it is not clear to the casual 
+% reader what modules in a file should be combined to make a directly 
+% sourceable file. This information can however be encoded as a 
+% separate module into the source file itself.
+% 
+% The special module holding catalogue information will be
+% \begin{quote}
+%   \Module{docstrip.tcl::catalogue}
+% \end{quote}
+% The \texttt{docstrip.tcl} prefix here is intended as a clear 
+% indication of who is meant to read this information. The contents 
+% of this module will be \Tcllogo\ code that causes some embedded 
+% file to be stripped, sourced, and indexed.
+% The catalogue code will be evaluated in a separate safe interpreter, 
+% so that a somewhat controlled set of commands can be made available.
+% 
+% \begin{variable}{thefile}
+% \begin{variable}{filename}
+%   The variables |thefile| and |filename| are used by 
+%   \textsf{docstrip} catalogue commands as sources of information 
+%   about the current file. |thefile| is the actual file contents, 
+%   whereas |filename| is the name of the file (including a path, if 
+%   one is needed).
+% \end{variable}\end{variable}
+% 
+% \begin{variable}{fileoptions}
+%   This variable holds the list of |fconfigure|-options for 
+%   configuring a file before reading it. This information must be 
+%   remembered, because it needs to be recorded in generated 
+%   |package ifneeded| scripts.
+% \end{variable}
+% 
+% \begin{proc}{fileoptions}
+%   This command may be used in \textsf{docstrip} directories to 
+%   change the set of options for files. The call syntax is
+%   \begin{quote}
+%     |fileoptions| \begin{regblock}[\regstar]\word{option}
+%     \word{value}\end{regblock}
+%   \end{quote}
+%   and the current set of options is set to precisely those 
+%   specified (old options are forgotten). There is no particular 
+%   return value, but the |thefile| variable contents are updated to 
+%   reflect the new |fileoptions|.
+%   
+%   \begin{tcl}
+%<*utilpkg>
+proc docstrip::util::fileoptions {args} {
+   variable filename
+   variable thefile [eval [list thefile $filename] $args]
+   variable fileoptions $args
+}
+%</utilpkg>
+%   \end{tcl}
+% \end{proc}
+% 
+%    \begin{macrocode}
+%<*utilman>
+[section {Package indexing commands}]
+
+Like raw [file .tcl] files, code lines in docstrip source files can 
+be searched for package declarations and corresponding indices 
+constructed. A complication is however that one cannot tell from the 
+code blocks themselves which will fit together to make a working 
+package; normally that information would be found in an accompanying 
+[file .ins] file, but parsing one of those is not an easy task. 
+Therefore [package docstrip::util] introduces an alternative encoding 
+of such information, in the form of a declarative Tcl script: the 
+[term catalogue] (of the contents in a source file).
+[para]
+
+The special commands which are available inside a catalogue are:
+[list_begin definitions]
+[call [cmd pkgProvide] [arg name] [arg version] [arg terminals]]
+  Declares that the code for a package with name [arg name] and 
+  version [arg version] is made up from those modules in the source 
+  file which are selected by the [arg terminals] list of guard 
+  expression terminals. This code should preferably not contain a 
+  [cmd {package}] [method {provide}] command for the package, as one 
+  will be provided by the package loading mechanisms.
+[call [cmd pkgIndex] [opt "[arg terminal] ..."]]
+  Declares that the code for a package is made up from those modules 
+  in the source file which are selected by the listed guard 
+  expression [arg terminal]s. The name and version of this package is 
+  determined from [cmd {package}] [method {provide}] command(s) found 
+  in that code (hence there must be such a command in there).
+[call [cmd fileoptions] [opt "[arg option] [arg value] ..."]]
+  Declares the [cmd fconfigure] options that should be in force when 
+  reading the source; this can usually be ignored for pure ASCII 
+  files, but if the file needs to be interpreted according to some 
+  other [option -encoding] then this is how to specify it. The 
+  command should normally appear first in the catalogue, as it takes 
+  effect only for commands following it.
+[list_end]
+Other Tcl commands are supported too [vset emdash] a catalogue is 
+parsed by being evaluated in a safe interpreter [vset emdash] but they 
+are rarely needed. To allow for future extensions, unknown commands 
+in the catalogue are silently ignored.
+[para]
+
+To simplify distribution of catalogues together with their source 
+files, the catalogue is stored [emph {in the source file itself}] as 
+a module selected by the terminal '[const docstrip.tcl::catalogue]'. 
+This supports both the style of collecting all catalogue lines in one 
+place and the style of putting each catalogue line in close proximity 
+of the code that it declares.
+[para]
+
+%    \end{macrocode}
+%    \DontCheckModules
+%    \begin{Macrocode}
+Putting catalogue entries next to the code they declare may look as 
+follows
+[example {
+%<<verbatim
+%    First there's the catalogue entry
+%    \begin{tcl}
+%<docstrip.tcl::catalogue>pkgProvide foo::bar 1.0 {foobar load}
+%    \end{tcl}
+%    second a metacomment used to include a copyright message
+%    \begin{macrocode}
+%<*foobar>
+%% This file is placed in the public domain.
+%    \end{macrocode}
+%    third the package implementation
+%    \begin{tcl}
+namespace eval foo::bar {
+   # ... some clever piece of Tcl code elided ...
+%    \end{tcl}
+%    which at some point may have variant code to make use of a 
+%    |load|able extension
+%    \begin{tcl}
+%<*load>
+   load [file rootname [info script]][info sharedlibextension]
+%</load>
+%<*!load>
+   # ... even more clever scripted counterpart of the extension
+   # also elided ...
+%</!load>
+}
+%</foobar>
+%    \end{tcl}
+%    and that's it!
+%verbatim
+}]
+The corresponding set-up with [cmd pkgIndex] would be
+[example {
+%<<verbatim
+%    First there's the catalogue entry
+%    \begin{tcl}
+%<docstrip.tcl::catalogue>pkgIndex foobar load
+%    \end{tcl}
+%    second a metacomment used to include a copyright message
+%    \begin{tcl}
+%<*foobar>
+%% This file is placed in the public domain.
+%    \end{tcl}
+%    third the package implementation
+%    \begin{tcl}
+package provide foo::bar 1.0
+namespace eval foo::bar {
+   # ... some clever piece of Tcl code elided ...
+%    \end{tcl}
+%    which at some point may have variant code to make use of a 
+%    |load|able extension
+%    \begin{tcl}
+%<*load>
+   load [file rootname [info script]][info sharedlibextension]
+%</load>
+%<*!load>
+   # ... even more clever scripted counterpart of the extension
+   # also elided ...
+%</!load>
+}
+%</foobar>
+%    \end{tcl}
+%    and that's it!
+%verbatim
+%    \end{Macrocode}
+%    \CheckModules
+%    \begin{macrocode}
+}]
+%</utilman>
+%    \end{macrocode}
+% 
+% \begin{variable}{Report}
+%   Since commands in the catalogue will often be implemented as 
+%   doing something, there is a need for giving them a way of 
+%   reporting back what they did, as the basic ``report in return 
+%   value'' idiom doesn't work for scripts. Hence there is a variable 
+%   |Report| where information can be gathered. The value of this 
+%   list is a list to which new items can be appended, although in 
+%   the end they will typically be |join|ed with a newline as 
+%   separator (thus blurring the distinction between a multiline item 
+%   and multiple one-line items).
+% \end{variable}
+% 
+% \begin{proc}{Report}
+%   Normally, items are contributed to the report using the call
+%   \begin{quote}
+%     |Report| \word{item}
+%   \end{quote}
+%   where the \word{item} is some human-readable string.
+%   \begin{variable}{Report_store}
+%   \begin{variable}{Report_cmd}
+%     A complication is that one sometimes wants reports to be 
+%     returned by the top level command, but other times one wants 
+%     them to be written to the controlling terminal immediately 
+%     (e.g. to give feedback of progress). The |Report| mechanism 
+%     aims to support both by having the action of the |Report| 
+%     command controlled by one boolean variables |Report_store| and 
+%     one command prefix |Report_cmd|. If the former is true, then 
+%     the \word{item} is appended to the |Report| list. Moreover 
+%     the latter is evaluated with the \word{item} as an extra 
+%     argument. To have the latter ``do nothing'', use |list|.
+%   \end{variable}\end{variable}
+%   \begin{tcl}
+%<*utilpkg>
+proc docstrip::util::Report {item} {
+   variable Report_store
+   if {$Report_store} then {
+      variable Report
+      lappend Report $item
+   }
+   variable Report_cmd
+   eval [linsert $Report_cmd end $item]
+}
+%</utilpkg>
+%   \end{tcl}
+% \end{proc}
+% 
+% 
+% \subsection{Index entry generation}
+% 
+% \begin{proc}{index_from_catalogue}
+%   The |index_from_catalogue| command generates package index data 
+%   by reading catalogue modules in master source files and appends 
+%   these entries to the relevant \texttt{pkgIndex.tcl} file. The 
+%   call syntax is
+%   \changes{1.3}{2010/04/20}{Promoted the directory to being 
+%     a mandatory argument, for symmetry with 
+%     \texttt{pkg\PrintChar{95}mkIndex}. (LH)}
+%   \begin{quote}
+%     |docstrip::util::index_from_catalogue| \word{directory} 
+%     \word{pattern} \begin{regblock}[\regstar]\word{option} 
+%     \word{value}\end{regblock}
+%   \end{quote}
+%   where \word{directory} is the directory whose 
+%   \texttt{pkgIndex.tcl} should be updated and \word{pattern} is a 
+%   |glob|-pattern for files to read catalogues in. Currently the 
+%   following \word{option}s are implemented:
+%   \begin{ttdescription}
+%     \item[-recursein]
+%       If nonempty, then the operation will be repeated in each 
+%       subdirectory matching the pattern specified as \word{value}. 
+%       |-recursein *| causes the entire subtree rooted at the 
+%       \word{directory} to be processed.
+%     \item[-options]
+%       \textsf{Docstrip} expressions terminals in addition to 
+%       the basic \texttt{docstrip.tcl::catalogue} to use when 
+%       extracting the catalogue; a sort of meta-configuration 
+%       facility.
+%     \item[-sourceconf]
+%       |fconfigure| options applied to the source file, before 
+%       reading. |fileoptions| commands in the catalogue will 
+%       override this setting (completely replacing the set of 
+%       options); this will primarily control what is used when 
+%       extracting the catalogue. Defaults to empty.
+%     \item[-report]
+%       Takes a boolean value. If true, the report will be the return 
+%       value of |index_from_catalogue|. Defaults to false, in which 
+%       case there is no particular return value.
+%     \item[-reportcmd]
+%       Takes a command prefix as value, which will be called as
+%       \begin{quote}
+%         \meta{prefix} \word{item}
+%       \end{quote}
+%       for every \word{item} being reported. Defaults to 
+%       |puts stdout|; use |list| to effectively disable this feature. 
+%       The return value from the prefix is ignored.
+%     \item[-RecursionDepth]
+%       An internal option used when making a recursive call to 
+%       signal the distance to the top invokation. A positive value 
+%       means ``don't bother about initialising the |Report| system.''
+%   \end{ttdescription}
+%   
+%    \begin{macrocode}
+%<*utilman>
+[list_begin definitions]
+[call [cmd docstrip::util::index_from_catalogue] [arg dir]\
+  [arg pattern] [opt "[arg option] [arg value] ..."]]
+  This command is a sibling of the standard [cmd pkg_mkIndex] 
+  command, in that it adds package entries to [file pkgIndex.tcl] 
+  files. The difference is that it indexes [syscmd docstrip]-style 
+  source files rather than raw [file .tcl] or loadable library files. 
+  Only packages listed in the catalogue of a file are considered.
+  [para]
+  
+  The [arg dir] argument is the directory in which to look for files 
+  (and whose [file pkgIndex.tcl] file should be amended).
+  The [arg pattern] argument is a [cmd glob] pattern of files to look 
+  into; a typical value would be [const *.dtx] or 
+  [const *.{dtx,ddt}]. Remaining arguments are option-value pairs, 
+  where the supported options are:
+  [list_begin options]
+  [opt_def -recursein [arg dirpattern]]
+    If this option is given, then the [cmd index_from_catalogue] 
+    operation will be repeated in each subdirectory whose name 
+    matches the [arg dirpattern]. [option -recursein] [const *] will 
+    cause the entire subtree rooted at [arg dir] to be indexed.
+  [opt_def -sourceconf [arg dictionary]]
+    Specify [cmd fileoptions] to use when reading the catalogues of 
+    files (and also for reading the packages if the catalogue does 
+    not contain a [cmd fileoptions] command). Defaults to being 
+    empty. Primarily useful if your system encoding is very different 
+    from that of the source file (e.g., one is a two-byte encoding 
+    and the other is a one-byte encoding). [const ascii] and 
+    [const utf-8] are not very different in that sense.
+  [opt_def -options [arg terminals]]
+    The [arg terminals] is a list of terminals in addition to 
+    [const docstrip.tcl::catalogue] that should be held as true when 
+    extracting the catalogue. Defaults to being empty. This makes it 
+    possible to make use of "variant sections" in the catalogue 
+    itself, e.g. gaurd some entries with an extra "experimental" and 
+    thus prevent them from appearing in the index unless that is 
+    generated with "experimental" among the [option -options].
+  [opt_def -report [arg boolean]]
+    If the [arg boolean] is true then the return value will be a 
+    textual, probably multiline, report on what was done. Defaults 
+    to false, in which case there is no particular return value.
+  [opt_def -reportcmd [arg commandPrefix]]
+    Every item in the report is handed as an extra argument to the 
+    command prefix. Since [cmd index_from_catalogue] would typically 
+    be used at a rather high level in installation scripts and the 
+    like, the [arg commandPrefix] defaults to 
+    "[cmd puts] [const stdout]". 
+    Use [cmd list] to effectively disable this feature. The return 
+    values from the prefix are ignored.
+  [list_end]
+  
+  The [cmd {package ifneeded}] scripts that are generated contain 
+  one [cmd {package require docstrip}] command and one 
+  [cmd docstrip::sourcefrom] command. If the catalogue entry was 
+  of the [cmd pkgProvide] kind then the [cmd {package ifneeded}] 
+  script also contains the [cmd {package provide}] command.
+  [para]
+  
+  Note that [cmd index_from_catalogue] never removes anything from an 
+  existing [file pkgIndex.tcl] file. Hence you may need to delete it 
+  (or have [cmd pkg_mkIndex] recreate it from scratch) before running 
+  [cmd index_from_catalogue] to update some piece of information, such 
+  as a package version number.
+  [para]
+%</utilman>
+%    \end{macrocode}
+%   
+%   \begin{tcl}
+%<*utilpkg>
+proc docstrip::util::index_from_catalogue {dir pattern args} {
+   array set O {
+      -options "" 
+      -sourceconf "" 
+      -report 0
+      -reportcmd {puts stdout}
+      -RecursionDepth 0
+   }
+   array set O $args
+   if {$O(-RecursionDepth)==0} then {
+      variable Report {}  Report_store $O(-report) \
+        Report_cmd $O(-reportcmd)
+   }
+%   \end{tcl}
+%   The first step is to make sure that there is a 
+%   \texttt{pkgIndex.tcl} file to append to.
+%   \begin{tcl}
+   set targetFn [file join $dir pkgIndex.tcl]
+   Report "Entries will go to: $targetFn"
+   if {![file exists $targetFn]} then {
+      Report "Generating empty index file."
+      set F [open $targetFn w]
+      puts $F {# Tcl package index file, version 1.1}
+      puts $F {# This file is generated by the "pkg_mkIndex" command}
+      puts $F {# and sourced either when an application starts up or}
+      puts $F {# by a "package unknown" script.  It invokes the}
+      puts $F {# "package ifneeded" command to set up package-related}
+      puts $F {# information so that packages will be loaded automatically}
+      puts $F {# in response to "package require" commands.  When this}
+      puts $F {# script is sourced, the variable $dir must contain the}
+      puts $F {# full path name of this file's directory.}
+      close $F
+   }
+%   \end{tcl}
+%   The second step is to gather the |package ifneeded| scripts for 
+%   the directory in question. This involves creating a temporary helper 
+%   interpreter for parsing the \Module{docstrip.tcl::catalogue}.
+%   \begin{tcl}
+   set c [interp create -safe]
+   $c eval {
+      proc unknown args {}
+   }
+   $c alias pkgProvide [namespace which PkgProvide]
+   $c alias pkgIndex [namespace which PkgIndex]
+   $c alias fileoptions [namespace which fileoptions]
+   variable PkgIndex ""
+   foreach fn [glob -nocomplain -directory $dir -tails $pattern] {
+      Report "Processing file: $fn"
+      variable filename [file join $dir $fn]
+      variable fileoptions $O(-sourceconf)
+      variable thefile [eval [list thefile $filename] $fileoptions]
+      set catalogue [extract $thefile\
+        [linsert $O(-options) 0 docstrip.tcl::catalogue]\
+        -metaprefix {#} -onerror puts]
+      $c eval $catalogue
+   }
+   interp delete $c
+%   \end{tcl}
+%   The third step is easy: append the gathered material to the file. 
+%   A header is inserted that records the |-options| and 
+%   |-sourceconf| settings that were used.
+%   \begin{tcl}
+   if {$PkgIndex ne ""} then {
+      set F [open $targetFn {WRONLY APPEND}]
+      set cmd [list docstrip::util::index_from_catalogue $dir $pattern]
+      if {$O(-options) ne ""} then {
+         lappend cmd -options $O(-options)
+      }
+      if {$O(-sourceconf) ne ""} then {
+         lappend cmd -sourceconf $O(-sourceconf)
+      }
+      puts $F "\n## Appendix generated by:\n##  $cmd$PkgIndex"
+      close $F
+   }
+%   \end{tcl}
+%   Finally, the procedure may recurse into subdirectories and do the 
+%   same things there.
+%   \begin{tcl}
+   if {[info exists O(-recursein)]} then {
+      incr O(-RecursionDepth)
+      foreach fn [
+         glob -nocomplain -tails -types d -directory $dir\
+           $O(-recursein)
+      ] {
+         eval [list index_from_catalogue [file join $dir $fn] $pattern]\
+           [array get O]
+      }
+   }
+   if {$O(-RecursionDepth)==0 && $O(-report)} then {
+      return [join $Report \n]
+   }
+}
+%   \end{tcl}
+% \end{proc}
+% 
+% \begin{variable}{PkgIndex}
+%   The |PkgIndex| variable stores material that should be written 
+%   to the \texttt{pkgIndex.tcl} file. The |PkgIndex| procedure 
+%   appends suitable |package ifneeded| commands to it. Each command 
+%   must have a newline in front of it.
+% \end{variable}
+% 
+% \begin{proc}{PkgProvide}
+%   The |PkgProvide| procedure is an implementation of the |pkgProvide| 
+%   command in \textsf{docstrip} directories. It generates 
+%   |package ifneeded| commands and appends them to the |PkgIndex| 
+%   variable. The call syntax is
+%   \begin{quote}
+%     |pkgProvide| \word{pkg-name} \word{version} \word{terminal-list}
+%   \end{quote}
+%   where the \word{terminal}s are the true terminals in guard 
+%   expressions. There is no particular return value.
+%   
+%   The |package ifneeded| scripts generated have the form
+%   \begin{quote}
+%     |package provide |\word{pkg-name} \word{version}\\
+%     |package require docstrip|\\
+%     |docstrip::sourcefrom |\word{filename} \word{terminal-list}
+%     \meta{fileoptions}
+%   \end{quote}
+%   (except that semicolons rather than newlines are used as command 
+%   separators). That the |package provide| command gets embedded in 
+%   the script like may seem unintuitive, but the same thing is done 
+%   in the |package ifneeded| scripts generated for \texttt{.tm} 
+%   files. Also note that the \word{filename} must be constructed 
+%   when the index file is |source|d; this mix of static and dynamic 
+%   data leads to a certain amount of Quoting Hell.
+%   
+%   First, better check that the \word{version} is valid.
+%   \begin{tcl}
+proc docstrip::util::PkgProvide {pkg ver terminals} {
+   if {[catch {package vcompare 0 $ver}]} then {
+      Report "Malformed version number $ver given for package $pkg."
+      return
+   }
+   variable PkgIndex
+   variable filename
+   variable fileoptions
+%   \end{tcl}
+%   Since command substitution will have to happen inside the script 
+%   argument of |package ifneeded|, that word is quote-delimited. The 
+%   previous words are straightforwardly handled by |list|-quoting.
+%   \begin{tcl}
+   append PkgIndex \n [list package ifneeded $pkg $ver] { "}
+%   \end{tcl}
+%   The |package provide| command is fixed and can thus be handled by 
+%   a |list|-quoting here and now, but since that |list|-quoted 
+%   string is then embedded into a quote-delimited word, any 
+%   characters in it that trigger substitutions or terminate the word 
+%   must be escaped. However, there will only be such characters 
+%   around for very bizarre choices of package name.
+%   \begin{tcl}
+   append PkgIndex [string map {\\ {\\} \$ {\$} \[ {\[} \" {\"}}\
+     [list package provide $pkg $ver]] {; }
+%   \end{tcl}
+%   The |package require docstrip| command is at least harmless.
+%   \begin{tcl}
+   append PkgIndex {package require docstrip} {; }
+%   \end{tcl}
+%   But for the |docstrip::sourcefrom| command, a different technique 
+%   is used. Here, there will be a quoting |list| command present in 
+%   the \texttt{pkgIndex.tcl} file, to be evaluated when that is 
+%   |source|d, and therefore the quote-delimited nature of the 
+%   enclosing word becomes irrelevant; a simple |list|-quoting of 
+%   data to be embedded as command arguments is again sufficient.
+%   \begin{tcl}
+   append PkgIndex {[list docstrip::sourcefrom }\
+     {[file join $dir } [list [file tail $filename]] {] }\
+     [linsert $fileoptions 0 $terminals] {]"}
+}
+%   \end{tcl}
+% \end{proc}
+% 
+% \begin{proc}{PkgIndex}
+%   The |PkgIndex| procedure is an implementation of the |pkgIndex| 
+%   command in \textsf{docstrip} directories. It generates 
+%   |package ifneeded| commands and appends them to the |PkgIndex| 
+%   variable. The call syntax is
+%   \begin{quote}
+%     |pkgIndex| \word{terminal}\regstar
+%   \end{quote}
+%   where the \word{terminal}s are the true terminals in guard 
+%   expressions. There is no particular return value.
+%   
+%   \begin{tcl}
+proc docstrip::util::PkgIndex {args} {
+   variable thefile
+   if {[catch {
+      packages_provided [extract $thefile $args -metaprefix {#}]
+   } res]} then {
+      if {[lindex $::errorCode 0] eq "DOCSTRIP"} then {
+         Report "Stripping error \"$res\"\nwhile indexing module\
+           <[join $args ,]>."
+      } else {
+         Report "Code evaluation error:\n  $res\nwhile indexing\
+           module <[join $args ,]>."
+      }
+   } else {
+      variable filename
+      variable PkgIndex
+      variable fileoptions
+      foreach {pkg ver} $res {
+         append PkgIndex \n [list package ifneeded $pkg $ver] { "}
+         append PkgIndex {package require docstrip} {; }
+         append PkgIndex {[list docstrip::sourcefrom }\
+           {[file join $dir } [list [file tail $filename]] {] }\
+           [linsert $fileoptions 0 $args] {]"}
+      }
+   }
+}
+%</utilpkg>
+%   \end{tcl}
+% \end{proc}
+% 
+% 
+% 
+% \subsection{Module generation}
+% 
+% An alternative to package indices is to create \Tcllogo\ 
+% Module~(\texttt{.tm}) files.
+% 
+% \begin{proc}{modules_from_catalogue}
+%   This procedure scans the \Module{docstrip.tcl::catalogue} of a 
+%   \texttt{.dtx} file and writes out \Tcllogo\ module files for the 
+%   packages it finds. The call syntax is
+%   \begin{quote}
+%     |modules_from_catalogue| \word{target root} \word{source file}
+%     \begin{regblock}[\regstar] \word{option} \word{value} 
+%     \end{regblock}
+%   \end{quote}
+%   where the \word{target root} is the directory used as starting 
+%   point for the paths builts from package names are generated, and 
+%   \word{source file} is the file to process. The supported 
+%   \word{option}s are:
+%   \begin{ttdescription}
+%     \item[-formatpostamble]
+%       Command prefix used to format postamble messages. The call 
+%       syntax is
+%       \begin{quote}
+%         \meta{prefix} \word{message} \word{target filename} 
+%         \word{source filename} \word{terminal-list} 
+%       \end{quote}
+%       and the return value is the formatted message. Defaults to 
+%       |classical_postamble {##}|.
+%     \item[-formatpreamble]
+%       Command prefix used to format preamble messages. The call 
+%       syntax is
+%       \begin{quote}
+%         \meta{prefix} \word{message} \word{target filename} 
+%         \word{source filename} \word{terminal-list} 
+%       \end{quote}
+%       and the return value is the formatted message. Defaults to 
+%       |classical_preamble {##}|.
+%     \item[-options]
+%       \textsf{Docstrip} expressions terminals in addition to 
+%       the basic \texttt{docstrip.tcl::catalogue} to use when 
+%       extracting the catalogue. A sort of meta-configuration 
+%       facility.
+%     \item[-postamble]
+%       Message to put at the top of the generated file. Defaults to 
+%       being empty. See also |-formatpostamble|.
+%     \item[-preamble]
+%       Message to put at the top of the generated file. Defaults to 
+%       a space (which ends up contributing an empty line). See also 
+%       |-formatpreamble|.
+%     \item[-report]
+%       Takes a boolean value. If true, the report will be the return 
+%       value of |modules_from_catalogue|. If false, there is no 
+%       particular return value. The default is true.
+%     \item[-reportcmd]
+%       Takes a command prefix as value, which will be called as
+%       \begin{quote}
+%         \meta{prefix} \word{item}
+%       \end{quote}
+%       for every \word{item} being reported. Defaults to |list|, 
+%       which effectively disables this feature. 
+%       The return value from the prefix is ignored.
+%     \item[-sourceconf]
+%       |fconfigure| options applied to the source file, before 
+%       reading.
+%   \end{ttdescription}
+%   
+%    \begin{macrocode}
+%<*utilman>
+[call [cmd docstrip::util::modules_from_catalogue] [arg target]\
+  [arg source] [opt "[arg option] [arg value] ..."]]
+  This command is an alternative to [cmd index_from_catalogue] which 
+  creates Tcl Module ([file .tm]) files rather than 
+  [file pkgIndex.tcl] entries. Since this action is more similar to 
+  what [syscmd docstrip] classically does, it has features for 
+  putting pre- and postambles on the generated files.
+  [para]
+  
+  The [arg source] argument is the name of the source file to 
+  generate [file .tm] files from. The [arg target] argument is the 
+  directory which should count as a module path, i.e., this is what 
+  the relative paths derived from package names are joined to. The 
+  supported options are:
+  [list_begin options]
+  [opt_def -preamble [arg message]]
+    A message to put in the preamble (initial block of comments) of 
+    generated files. Defaults to a space. May be several lines, which 
+    are then separated by newlines. Traditionally used for copyright 
+    notices or the like, but metacomment lines provide an alternative 
+    to that. 
+  [opt_def -postamble [arg message]]
+    Like [option -preamble], but the message is put at the end of the 
+    file instead of the beginning. Defaults to being empty.
+  [opt_def -sourceconf [arg dictionary]]
+    Specify [cmd fileoptions] to use when reading the catalogue of 
+    the [arg source] (and also for reading the packages if the 
+    catalogue does not contain a [cmd fileoptions] command). Defaults 
+    to being empty. Primarily useful if your system encoding is very 
+    different from that of the source file (e.g., one is a two-byte 
+    encoding and the other is a one-byte encoding). [const ascii] and 
+    [const utf-8] are not very different in that sense.
+  [opt_def -options [arg terminals]]
+    The [arg terminals] is a list of terminals in addition to 
+    [const docstrip.tcl::catalogue] that should be held as true when 
+    extracting the catalogue. Defaults to being empty. This makes it 
+    possible to make use of "variant sections" in the catalogue 
+    itself, e.g. gaurd some entries with an extra "experimental" guard 
+    and thus prevent them from contributing packages unless those are 
+    generated with "experimental" among the [option -options].
+  [opt_def -formatpreamble [arg commandPrefix]]
+    Command prefix used to actually format the preamble. Takes four 
+    additional arguments [arg message], [arg targetFilename], 
+    [arg sourceFilename], and [arg terminalList] and returns a fully 
+    formatted preamble. Defaults to using [cmd classical_preamble] 
+    with a [arg metaprefix] of '##'.
+  [opt_def -formatpostamble [arg commandPrefix]]
+    Command prefix used to actually format the postamble. Takes four 
+    additional arguments [arg message], [arg targetFilename], 
+    [arg sourceFilename], and [arg terminalList] and returns a fully 
+    formatted postamble. Defaults to using [cmd classical_postamble] 
+    with a [arg metaprefix] of '##'.
+  [opt_def -report [arg boolean]]
+    If the [arg boolean] is true (which is the default) then the return 
+    value will be a textual, probably multiline, report on what was 
+    done. If it is false then there is no particular return value.
+  [opt_def -reportcmd [arg commandPrefix]]
+    Every item in the report is handed as an extra argument to this 
+    command prefix. Defaults to [cmd list], which effectively disables 
+    this feature. The return values from the prefix are ignored. Use 
+    for example "[cmd puts] [const stdout]" to get report items 
+    written immediately to the terminal.
+  [list_end]
+  An existing file of the same name as one to be created will be 
+  overwritten.
+%</utilman>
+%    \end{macrocode}
+%   
+%   Most of the actual work is done by the |GenerateNamedPkg| 
+%   and\slash or |GeneratePkg| procedures.
+%   \begin{tcl}
+%<*utilpkg>
+proc docstrip::util::modules_from_catalogue {target source args} {
+   array set Opt {
+      -formatpostamble {classical_postamble {##}}
+      -formatpreamble  {classical_preamble {##}}
+      -options         {}
+      -postamble       {}
+      -preamble        { }
+      -sourceconf      {}
+      -report          1
+      -reportcmd       list
+   }
+   array set Opt $args
+   variable filename $source
+   variable fileoptions $Opt(-sourceconf)
+   variable thefile [eval [list thefile $source] $fileoptions]
+   variable Report {}  Report_store $O(-report) \
+     Report_cmd $O(-reportcmd)
+   set catalogue [extract $thefile\
+     [linsert $Opt(-options) 0 docstrip.tcl::catalogue]\
+     -metaprefix {#} -onerror puts]
+   set c [interp create -safe]
+   $c eval {
+      proc unknown args {}
+   }
+   $c alias pkgProvide\
+     [namespace which GenerateNamedPkg] $target\
+     [linsert $Opt(-formatpreamble) end $Opt(-preamble)]\
+     [linsert $Opt(-formatpostamble) end $Opt(-postamble)]
+   $c alias pkgIndex\
+     [namespace which GeneratePkg] $target\
+     [linsert $Opt(-formatpreamble) end $Opt(-preamble)]\
+     [linsert $Opt(-formatpostamble) end $Opt(-postamble)]
+   $c alias fileoptions [namespace which fileoptions]
+   $c eval $catalogue
+   interp delete $c
+   if {$O(-report)} then {return [join $Report \n]}
+}
+%   \end{tcl}
+% \end{proc}
+% 
+% \begin{proc}{GenerateNamedPkg}
+%   This procedure is an implementation of the |pkgProvide| catalogue 
+%   command. The call syntax is
+%   \begin{quote}
+%     |GenerateNamedPkg| \word{target} \word{preamble-prefix} 
+%     \word{postamble-prefix} \word{pkg-name} \word{version} 
+%     \word{terminal-list}
+%   \end{quote}
+%   i.e., the alias should provide the first three arguments. 
+%   \word{target} is the same as the \word{target} argument of 
+%   |modules_from_catalogue|. The \word{preamble-prefix} and 
+%   \word{postamble-prefix} arguments are command prefixes with the 
+%   syntax
+%   \begin{quote}
+%     \meta{prefix} \word{target filename} \word{source filename} 
+%     \word{terminal-list} 
+%   \end{quote}
+%   which will return the preamble and postamble texts respectively 
+%   for the generated module file.
+%   
+%   The first part is extracting and handling extraction errors.
+%   \begin{tcl}
+proc docstrip::util::GenerateNamedPkg\
+  {target preamblecmd postamblecmd name version terminals} {
+   variable thefile
+   if {[catch {
+      extract $thefile $terminals -metaprefix {#}
+   } text]} then {
+      Report "Stripping error \"$text\"\nwhile indexing module\
+        <[join $terminals ,]>."
+   } else {
+%   \end{tcl}
+%   but after that it's all about generating the \texttt{.tm} file. 
+%   Mapping |::| directly to |/| is a bit coarse, but it is what 
+%   |::tcl::tm::UnknownHandler| does. Trimming away extra slashes 
+%   protects against someone picking a package name beginning with 
+%   |::|.
+%   \begin{tcl}
+      variable filename
+      set module [format {%s-%s.tm}\
+        [string trim [string map {:: /} $name] /] $version]
+      set modL [file split $module]
+      file mkdir [file join $target [file dirname $module]]
+      set F [open [file join $target $module] w]
+      fconfigure $F -encoding utf-8
+      puts $F [eval $preamblecmd [list $module $filename $terminals]]
+      puts -nonewline $F $text
+      puts $F [eval $postamblecmd [list $module $filename $terminals]]
+      close $F
+      Report "Wrote $module"
+   }
+}
+%   \end{tcl}
+% \end{proc}
+% 
+% 
+% \begin{proc}{GeneratePkg}
+%   This procedure is an implementation of the |pkgIndex| catalogue 
+%   command. It is basically the same as |GenerateNamedPkg|, but it 
+%   must also (i)~index the extracted code to find out the package 
+%   name and version, and (ii)~handle the case that the code declares 
+%   several packages, by generating redirection files. 
+%   The call syntax is
+%   \begin{quote}
+%     |GeneratePkg| \word{target} \word{preamble-prefix} 
+%     \word{postamble-prefix} \word{terminal}\regstar
+%   \end{quote}
+%   i.e., the alias should provide the first three arguments. 
+%   \word{target} is the same as the \word{target} argument of 
+%   |modules_from_catalogue|. The \word{preamble-prefix} and 
+%   \word{postamble-prefix} arguments are command prefixes with the 
+%   syntax
+%   \begin{quote}
+%     \meta{prefix} \word{target filename} \word{source filename} 
+%     \word{terminal-list} 
+%   \end{quote}
+%   which will return the preamble and postamble texts respectively 
+%   for the generated module file.
+%   
+%   The first part is extracting and looking for package 
+%   declarations, including the handling of errors during these 
+%   operations.
+%   \begin{tcl}
+proc docstrip::util::GeneratePkg {target preamblecmd postamblecmd args} {
+   variable thefile
+   if {[catch {
+      set text [extract $thefile $args -metaprefix {#}]
+      packages_provided $text
+   } res]} then {
+      if {[lindex $::errorCode 0] eq "DOCSTRIP"} then {
+         Report "Stripping error \"$res\"\nwhile indexing module\
+           <[join $args ,]>."
+      } else {
+         Report "Code evaluation error:\n  $res\nwhile indexing\
+           module <[join $args ,]>."
+      }
+%   \end{tcl}
+%   There's also the corner case of not fining any package 
+%   declaration,
+%   \begin{tcl}
+   } elseif {![llength $res]} then {
+      Report "Found no package in module <[join $args ,]>."
+   } else {
+%   \end{tcl}
+%   but after that it's all about generating \texttt{.tm} files. 
+%   Mapping |::| directly to |/| is a bit coarse, but it is what 
+%   |::tcl::tm::UnknownHandler| does. Trimming away extra slashes 
+%   protects against someone picking a package name beginning with 
+%   |::|.
+%   \begin{tcl}
+      variable filename
+      set module [format {%s-%s.tm}\
+        [string trim [string map {:: /} [lindex $res 0]] /]\
+        [lindex $res 1]]
+      set modL [file split $module]
+      file mkdir [file join $target [file dirname $module]]
+      set F [open [file join $target $module] w]
+      fconfigure $F -encoding utf-8
+      puts $F [eval $preamblecmd [list $module $filename $args]]
+      puts -nonewline $F $text
+      puts $F [eval $postamblecmd [list $module $filename $args]]
+      close $F
+      Report "Wrote $module"
+%   \end{tcl}
+%   Now, it might happen that a module provides more than package, 
+%   and what should then be done for the extra packages? A reasonable 
+%   solution seems to be to generate \texttt{.tm} files for all of 
+%   them, but make the extra files consist of a single |source| 
+%   command for the first file. Starting from the runtime 
+%   |info script| value it is possible to compute the expected location 
+%   of that file, but constructing the code to do it is a bit of work.
+%   \begin{tcl}
+      foreach {pkg ver} [lreplace $res 0 1] {
+         set mod2 [format {%s-%s.tm}\
+           [string trim [string map {:: /} $pkg] /] $ver]
+         set mod2L [file split $mod2]
+         file mkdir [file join $target [file dirname $mod2]]
+         set common 0
+         foreach d1 $modL d2 $mod2L {
+            if {$d1 eq $d2} then {incr common} else {break}
+         }
+         set tail [lrange $modL $common end]
+         set script {[::info script]}
+         foreach d2 $mod2L {
+            if {[incr common -1] < 0} then {
+               set script "\[::file dirname $script\]"
+            }
+         }
+         set F [open [file join $target $mod2] w]
+         fconfigure $F -encoding utf-8
+         puts $F "::source -encoding utf-8 \[::file join $script $tail\]"
+         close $F
+         Report "Wrote redirect $mod2"
+      }
+   }
+}
+%   \end{tcl}
+% \end{proc}
+% 
+% \begin{proc}{classical_preamble}
+%   This procedure generates preambles in the style of the \LaTeX\ 
+%   \textsf{docstrip} utility. It has the call syntax
+%   \begin{quote}
+%     |docstrip::util::classical_preamble| \word{metaprefix}
+%     \word{message} \word{target filename} 
+%     \begin{regblock}[\regstar] \word{source filename} 
+%     \word{terminal-list} \end{regblock}
+%   \end{quote}
+%   and returns the generated preamble.
+%   
+%   In comparison with \textsf{docstrip}, the \word{target filename} 
+%   is |\outFileName|, the pairs of \word{source filename} and 
+%   \word{terminal-list} are going to contribute to 
+%   |\ReferenceLines|, and \word{message} is what gets added at the 
+%   end.
+%   \begin{tcl}
+proc docstrip::util::classical_preamble {metaprefix message target args} {
+   set res {""}
+   lappend res " This is `$target',"
+   lappend res { generated by the docstrip::util package.}
+   lappend res {} { The original source files were:} {}
+   foreach {source terminals} $args {
+      set line " [file tail $source]"
+      if {[llength $terminals]} then {
+         append line { (with options: `} [join $terminals ,] {')}
+      }
+      lappend res $line
+   }
+   foreach line [split $message \n] {lappend res " $line"}
+   return $metaprefix[join $res "\n$metaprefix"]
+}
+%</utilpkg>
+%   \end{tcl}
+%    \begin{macrocode}
+%<*utilman>
+[call [cmd docstrip::util::classical_preamble] [arg metaprefix]\
+  [arg message] [arg target] [opt "[arg source] [arg terminals] ..."]]
+  This command returns a preamble in the classical 
+  [syscmd docstrip] style
+[example {
+##
+## This is `TARGET',
+## generated by the docstrip::util package.
+##
+## The original source files were:
+##
+## SOURCE (with options: `foo,bar')
+## 
+## Some message line 1
+## line2
+## line3
+}]
+  if called as
+[example_begin]
+docstrip::util::classical_preamble {##}\
+  "\nSome message line 1\nline2\nline3" TARGET SOURCE {foo bar}
+[example_end]
+  The command supports preambles for files generated from multiple 
+  sources, even though [cmd modules_from_catalogue] at present does 
+  not need that.
+%</utilman>
+%    \end{macrocode}
+% \end{proc}
+% 
+% \begin{proc}{classical_postamble}
+%   This procedure generates postambles in the style of the \LaTeX\ 
+%   \textsf{docstrip} utility. It has the call syntax
+%   \begin{quote}
+%     |docstrip::util::classical_postamble| \word{metaprefix}
+%     \word{message} \word{target filename} 
+%     \begin{regblock}[\regstar] \word{source filename} 
+%     \word{terminal-list} \end{regblock}
+%   \end{quote}
+%   and returns the generated postamble.
+%   
+%   \begin{tcl}
+%<*utilpkg>
+proc docstrip::util::classical_postamble {metaprefix message target args} {
+   set res {}
+   foreach line [split $message \n] {lappend res " $line"}
+   lappend res {} " End of file `$target'."
+   return $metaprefix[join $res "\n$metaprefix"]
+}
+%</utilpkg>
+%   \end{tcl}
+%    \begin{macrocode}
+%<*utilman>
+[call [cmd docstrip::util::classical_postamble] [arg metaprefix]\
+  [arg message] [arg target] [opt "[arg source] [arg terminals] ..."]]
+  This command returns a postamble in the classical 
+  [syscmd docstrip] style
+[example {
+## Some message line 1
+## line2
+## line3
+##
+## End of file `TARGET'.
+}]
+  if called as
+[example_begin]
+docstrip::util::classical_postamble {##}\
+  "Some message line 1\nline2\nline3" TARGET SOURCE {foo bar}
+[example_end]
+  In other words, the [arg source] and [arg terminals] arguments are 
+  ignored, but supported for symmetry with [cmd classical_preamble].
+%</utilman>
+%    \end{macrocode}
+% \end{proc}
+% 
+% 
+% \subsection{Scanning for declarations}
+% 
+% One task that must be performed is finding out which package(s) are 
+% provided by a particular script (which will typically constitute 
+% the contents of a module).
+% 
+%    \begin{macrocode}
+%<*utilman>
+[call [cmd docstrip::util::packages_provided] [arg text]\
+  [opt [arg setup-script]]]
+  This command returns a list where every even index element is the 
+  name of a package [cmd provide]d by [arg text] when that is 
+  evaluated as a Tcl script, and the following odd index element is 
+  the corresponding version. It is used to do package indexing of 
+  extracted pieces of code, in the manner of [cmd pkg_mkIndex].
+  [para]
+  
+  One difference to [cmd pkg_mkIndex] is that the [arg text] gets 
+  evaluated in a safe interpreter. [cmd {package require}] commands 
+  are silently ignored, as are unknown commands (which includes 
+  [cmd source] and [cmd load]). Other errors cause 
+  processing of the [arg text] to stop, in which case only those 
+  package declarations that had been encountered before the error 
+  will be included in the return value.
+  [para]
+  
+  The [arg setup-script] argument can be used to customise the 
+  evaluation environment, if the code in [arg text] has some very 
+  special needs. The [arg setup-script] is evaluated in the local 
+  context of the [cmd packages_provided] procedure just before the 
+  [arg text] is processed. At that time, the name of the slave 
+  command for the safe interpreter that will do this processing is 
+  kept in the local variable [var c]. To for example copy the 
+  contents of the [var ::env] array to the safe interpreter, one 
+  might use a [arg setup-script] of
+  [example {  $c eval [list array set env [array get ::env]]}]
+%</utilman>
+%    \end{macrocode}
+% \begin{proc}{packages_provided}
+%   This procedure looks for package declarations inside a script. It 
+%   is derived from |pkg_mkIndex|, but simplified as it does not load 
+%   binary libraries or invoke autoloading. The call syntax is
+%   \begin{quote}
+%     |packages_provided| \word{text} \word{setup-script}\regopt
+%   \end{quote}
+%   where \word{text} is the text to scan. The result is a list
+%   \begin{quote}
+%     \begin{regblock}[\regstar]\word{package} 
+%     \word{version}\end{regblock}
+%   \end{quote}
+%   of packages that were declared.
+%   
+%   The \word{setup-script} is meant as a hook useful when indexing 
+%   packages that have some special need. This argument is a script 
+%   that gets evaluated (in the |packages_provided| procedure) 
+%   \emph{after} the test interpreter used for loading packages in 
+%   has been set up, but \emph{before} the text to index is evaluated 
+%   in it. The local |c| variable holds the name of the interpreter 
+%   command.
+%   \changes{1.3}{2006/05/24}{Command added. (LH)}
+%   \begin{tcl}
+%<*utilpkg>
+proc docstrip::util::packages_provided {text {setup ""}} {
+%   \end{tcl}
+%   First create the test interpreter and prepare it for use. Unlike 
+%   the case in standard package indexing, this interpreter is safe 
+%   (since safe interpreters are faster to create). Use the 
+%   \word{setup-script} if you need to expose some unsafe feature.
+%   \changes{1.3}{2010/03/28}{Using safe interpreter for package
+%     indexing. (LH)}
+%   \begin{tcl}
+   set c [interp create -safe]
+   $c eval {
+      proc tclPkgUnknown args {}
+      package unknown tclPkgUnknown
+      proc unknown {args} {}
+      proc auto_import {args} {}
+   }
+   $c hide package
+   $c alias package [namespace which packages_provided,package] $c 
+   eval $setup
+%   \end{tcl}
+%   Now evaluate the \word{text}. Errors are cheerfully ignored. Data 
+%   for the return value is collected in the \describestring[local 
+%   var.]{package_list}|package_list| local variable, which 
+%   |packages_provided,package| uses |uplevel| to access.
+%   \begin{tcl}
+   set package_list {}
+   catch {$c eval $text}
+%   \end{tcl}
+%   Cleanup and return the result.
+%   \begin{tcl}
+   interp delete $c
+   return $package_list
+}
+%   \end{tcl}
+% \end{proc}
+% 
+% \begin{proc}{packages_provided,package}
+%   Calls to |package| in the test interpreter will be routed through 
+%   this procedure, so that |provide|s can be seen and |request|s can 
+%   be ignored. This is different from the mechanism in 
+%   |pkg_mkIndex|, but I think this approach is more correct. The 
+%   call syntax is
+%   \begin{quote}
+%     |packages_provided,package| \word{interp}
+%     \word{subcommand} \word{argument}\regstar
+%   \end{quote}
+%   where \word{interp} is the slave interpreter command to use when 
+%   actually carrying out the command. Remaining arguments are as for 
+%   the core command |package|, which is assumed to be hidden in 
+%   \word{interp}.
+%   \begin{tcl}
+proc docstrip::util::packages_provided,package {interp subcmd args} {
+   switch -- $subcmd {
+      r - re - req - requ - requi - requir - require {
+         return 
+      }
+      pro - prov - provi - provid - provide {
+         if {[llength $args] == 2} then {
+            uplevel 1 [list lappend package_list] $args
+         }
+      }
+   }
+   eval [list $interp invokehidden package $subcmd] $args
+}
+%</utilpkg>
+%   \end{tcl}
+% \end{proc}
+% 
+%    \begin{macrocode}
+%<*utilman>
+[list_end]
+%</utilman>
+%    \end{macrocode}
+% 
+% 
+% \section{Operations on source file text}
+% 
 %    \begin{macrocode}
 %<*utilman>
 
-The [package docstrip::util] package is meant for collecting various 
-utility procedures that may be useful for developers who make use of 
-the [package docstrip] package in some projects. It is separate from 
-the main package to avoid overhead for end-users.
+[section {Source processing commands}]
 
-
-[section Commands]
+Unlike the previous group of commands, which would use 
+[cmd docstrip::extract] to extract some code lines and then process 
+those further, the following commands operate on text consisting of 
+all types of lines.
 
 [list_begin definitions]
 %</utilman>
@@ -1320,7 +2818,7 @@ the main package to avoid overhead for end-users.
 % 
 % 
 % 
-% \subsection{Doctools support}
+% \subsection{Supporting doctools as markup language}
 % 
 % In the interest of making \textsf{docstrip} useful also for 
 % programmers who do not want to write \LaTeX\ markup, some support is 
@@ -1381,41 +2879,42 @@ the main package to avoid overhead for end-users.
 [example {
 %</utilman>
 %<*utilman,gcdexample>
-   % [manpage_begin gcd n 1.0]
-   % [moddesc {Greatest Common Divisor}]
-   % [require gcd [opt 1.0]]
-   % [description]
-   % 
-   % [list_begin definitions]
-   % [call [cmd gcd] [arg a] [arg b]]
-   %   The [cmd gcd] procedure takes two arguments [arg a] and [arg b] which 
-   %   must be integers and returns their greatest common divisor.
-   proc gcd {a b} {
-   %   The first step is to take the absolute values of the arguments.
-   %   This relieves us of having to worry about how signs will be treated 
-   %   by the remainder operation.
-      set a [expr {abs($a)}]
-      set b [expr {abs($b)}]
-   %   The next line does all of Euclid's algorithm! We can make do 
-   %   without a temporary variable, since $a is substituted before the 
-   %   [lb]set a $b[rb] and thus continues to hold a reference to the 
-   %   "old" value of [var a].
-      while {$b>0} { set b [expr { $a % [set a $b] }] }
-   %   In Tcl 8.3 we might want to use [cmd set] instead of [cmd return]
-   %   to get the slight advantage of byte-compilation.
-   %<tcl83>  set a
-   %<!tcl83>   return $a
-   }
-   % [list_end]
-   %
-   % [manpage_end]
+%<<verbatim
+% [manpage_begin gcd n 1.0]
+% [moddesc {Greatest Common Divisor}]
+% [require gcd [opt 1.0]]
+% [description]
+% 
+% [list_begin definitions]
+% [call [cmd gcd] [arg a] [arg b]]
+%   The [cmd gcd] procedure takes two arguments [arg a] and [arg b] which 
+%   must be integers and returns their greatest common divisor.
+proc gcd {a b} {
+%   The first step is to take the absolute values of the arguments.
+%   This relieves us of having to worry about how signs will be treated 
+%   by the remainder operation.
+   set a [expr {abs($a)}]
+   set b [expr {abs($b)}]
+%   The next line does all of Euclid's algorithm! We can make do 
+%   without a temporary variable, since $a is substituted before the 
+%   [lb]set a $b[rb] and thus continues to hold a reference to the 
+%   "old" value of [var a].
+   while {$b>0} { set b [expr { $a % [set a $b] }] }
+%   In Tcl 8.3 we might want to use [cmd set] instead of [cmd return]
+%   to get the slight advantage of byte-compilation.
+%<tcl83>  set a
+%<!tcl83>   return $a
+}
+% [list_end]
+%
+% [manpage_end]
+%verbatim
 %</utilman,gcdexample>
 %<*utilman>
 }]
-  If the above text is (suitably unindented and) fed through 
-  [cmd docstrip::util::ddt2man] then the result will be a syntactically 
-  correct [package doctools] manpage, even though its purpose is a 
-  bit different.
+  If the above text is fed through [cmd docstrip::util::ddt2man] then 
+  the result will be a syntactically correct [package doctools] 
+  manpage, even though its purpose is a bit different.
   [para]
   
   It is suggested that master source code files with [package doctools] 
@@ -1496,8 +2995,8 @@ proc docstrip::util::ddt2man {text} {
 %</utilpkg>
 %   \end{tcl}
 %   There is no test of this procedure, since it is rather 
-%   experimental. There is however an example below which one might 
-%   develop into a test, if the need seems significant.
+%   experimental. One could however develop the example above into a 
+%   test, if the need seems significant.
 % \end{proc}
 % 
 % 
@@ -1551,22 +3050,22 @@ proc docstrip::util::ddt2man {text} {
   in the [arg text]. The [arg subcmd] selects what is returned.
   
   [list_begin definitions]
-  [def counts]
+  [def [method counts]]
     List the guard expression terminals with counts. The format of 
     the return value is a dictionary which maps the terminal name to 
     the number of occurencies of it in the file.
-  [def exprcount]
+  [def [method exprcount]]
     List the guard expressions with counts. The format of the return 
     value is a dictionary which maps the expression to the number of 
     occurencies of it in the file.
-  [def exprerr]
+  [def [method exprerr]]
     List the syntactically incorrect guard expressions (e.g. 
     parentheses do not match, or a terminal is missing). The return 
     value is a list, with the elements in no particular order.
-  [def expressions]
+  [def [method expressions]]
     List the guard expressions. The return value is a list, with the 
     elements in no particular order.
-  [def exprmods]
+  [def [method exprmods]]
     List the guard expressions with modifiers. The format of the return 
     value is a dictionary where each index is a guard expression and 
     each entry is a string with one character for every guard line that 
@@ -1574,10 +3073,10 @@ proc docstrip::util::ddt2man {text} {
     modifier was used in that line: +, -, *, /, or (for guard without 
     modifier:) space. This is the most primitive form of the 
     information gathered by [cmd guards].
-  [def names]
+  [def [method names]]
     List the guard expression terminals. The return value is a list, 
     with the elements in no particular order.
-  [def rotten]
+  [def [method rotten]]
     List the malformed guard lines (this does not include lines where 
     only the expression is malformed, though). The format of the return 
     value is a dictionary which maps line numbers to their contents.
@@ -1723,7 +3222,7 @@ proc docstrip::util::guards {subcmd text} {
 %   \end{ttdescription}
 %   
 %   The \word{diff} is a list of ``parsed differences'', the format of 
-%   which is explained in Section~\ref{Sec:Tcldiff}.
+%   which is explained in Subsection~\ref{Ssec:Tcldiff}.
 %   
 %   The way this procedure operates is that it first establishes a 
 %   correspondence between lines in the source and lines in the 
@@ -2005,12 +3504,107 @@ proc docstrip::util::patch {sourcevar termL fromtext diff args} {
 }
 %</utilpkg>
 %   \end{tcl}
+%   
+%    \begin{macrocode}
+%<*utilman>
+[call [cmd docstrip::util::patch] [arg source-var] [arg terminals]\
+  [arg fromtext] [arg diff] [opt "[arg option] [arg value] ..."]]
+  This command tries to apply a [syscmd diff] file (for example a 
+  contributed patch) that was computed for a generated file to the 
+  [syscmd docstrip] source. This can be useful if someone has 
+  edited a generated file, thus mistaking it for being the source. 
+  This command makes no presumptions which are specific for the case 
+  that the generated file is a Tcl script.
+  [para]
+  
+  [cmd patch] requires that the source file to patch is kept as a 
+  list of lines in a variable, and the name of that variable in the 
+  calling context is what goes into the [arg source-var] argument. 
+  The [arg terminals] is the list of terminals used to extract the 
+  file that has been patched. The [arg diff] is the actual diff to 
+  apply (in a format as explained below) and the [arg fromtext] is 
+  the contents of the file which served as "from" when the diff was 
+  computed. Options can be used to further control the process.
+  [para]
+  
+  The process works by "lifting" the hunks in the [arg diff] from 
+  generated to source file, and then applying them to the elements of 
+  the [arg source-var]. In order to do this lifting, it is necessary 
+  to determine how lines in the [arg fromtext] correspond to elements 
+  of the [arg source-var], and that is where the [arg terminals] come 
+  in; the source is first [cmd extract]ed under the given 
+  [arg terminals], and the result of that is then matched against 
+  the [arg fromtext]. This produces a map which translates line 
+  numbers stated in the [arg diff] to element numbers in 
+  [arg source-var], which is what is needed to lift the hunks.
+  [para]
+  
+  The reason that both the [arg terminals] and the [arg fromtext] 
+  must be given is twofold. First, it is very difficult to keep track 
+  of how many lines of preamble are supplied some other way than by 
+  copying lines from source files. Second, a generated file might 
+  contain material from several source files. Both make it impossible 
+  to predict what line number an extracted file would have in the 
+  generated file, so instead the algorithm for computing the line 
+  number map looks for a block of lines in the [arg fromtext] which 
+  matches what can be extracted from the source. This matching is 
+  affected by the following options: 
+  [list_begin options]
+  [opt_def -matching [arg mode]]
+    How equal must two lines be in order to match? The supported 
+    [arg mode]s are:
+    [list_begin definitions]
+    [def [const exact]]
+      Lines must be equal as strings. This is the default.
+    [def [const anyspace]]
+      All sequences of whitespace characters are converted to single 
+      spaces before comparing.
+    [def [const nonspace]]
+      Only non-whitespace characters are considered when comparing.
+    [def [const none]]
+      Any two lines are considered to be equal.
+    [list_end]
+  [opt_def -metaprefix [arg string]]
+    The [option -metaprefix] value to use when extracting. Defaults 
+    to "%%", but for Tcl code it is more likely that "#" or "##" had 
+    been used for the generated file.
+  [opt_def -trimlines [arg boolean]]
+    The [option -trimlines] value to use when extracting. Defaults to 
+    true.
+  [list_end]
+  
+  The return value is in the form of a unified diff, containing only 
+  those hunks which were not applied or were only partially applied; 
+  a comment in the header of each hunk specifies which case is at 
+  hand. It is normally necessary to manually review both the return 
+  value from [cmd patch] and the patched text itself, as this command 
+  cannot adjust comment lines to match new content.
+  [para]
+  
+  An example use would look like
+[example_begin]
+set sourceL [lb]split [lb]docstrip::util::thefile from.dtx[rb] \n[rb]
+set terminals {foo bar baz}
+set fromtext [lb]docstrip::util::thefile from.tcl[rb]
+set difftext [lb]exec diff --unified from.tcl to.tcl[rb]
+set leftover [lb]docstrip::util::patch sourceL $terminals $fromtext\
+  [lb]docstrip::util::import_unidiff $difftext[rb] -metaprefix {#}[rb]
+set F [lb]open to.dtx w[rb]; puts $F [lb]join $sourceL \n[rb]; close $F
+return $leftover
+[example_end]
+  Here, [file from.dtx] was used as source for [file from.tcl], which 
+  someone modified into [file to.tcl]. We're trying to construct a 
+  [file to.dtx] which can be used as source for [file to.tcl].
+%</utilman>
+%    \end{macrocode}
 % \end{proc}
 % 
 % 
 % 
 % 
-% \subsection{Reading files}
+% \section{Reading files}
+% 
+% \subsection{Raw file contents}
 % 
 % \begin{proc}{thefile}
 %   When experimenting with docstripping, it is often convenient to have 
@@ -2026,6 +3620,7 @@ proc docstrip::util::patch {sourcevar termL fromtext diff args} {
 %   where the \word{option} \word{value} pairs are handed to |fconfigure| 
 %   to configure the file before reading it.
 %   \changes{1.2}{2005/09/07}{Added error handling. (LH)}
+%   \changes{1.3}{2010/04/12}{Added \texttt{-nonewline} switch. (LH)}
 %   \begin{tcl}
 %<*utilpkg>
 proc docstrip::util::thefile {fname args} {
@@ -2039,7 +3634,7 @@ proc docstrip::util::thefile {fname args} {
            $::errorCode
       }
    }
-   catch {read $F} res
+   catch {read -nonewline $F} res
    close $F
    return $res
 }
@@ -2053,7 +3648,8 @@ proc docstrip::util::thefile {fname args} {
   opt "[arg option] [arg value] ..."
 ]]
   The [cmd thefile] command opens the file [arg filename], reads it to 
-  end, closes it, and returns the contents. The option-value pairs are 
+  end, closes it, and returns the contents (dropping a final newline 
+  if there is one). The option-value pairs are 
   passed on to [cmd fconfigure] to configure the open file channel 
   before anything is read from it.
 %</utilman>
@@ -2085,7 +3681,7 @@ tcltest::test docstrip::util::thefile-1.1 {thefile without args}\
    {%<*bar>}
    {puts B}
    {%<*foo>}
-   {puts [info exists baz]} ""
+   {puts [info exists baz]}
 } \n]
 % \end{tcl}
 % This one tests that an error in the number of arguments is caught 
@@ -2125,13 +3721,9 @@ tcltest::test docstrip::util::thefile-1.3 {thefile with args} -setup {
 %</utiltest>
 % \end{tcl}
 % 
-% \begin{tcl}
-%<utilman>[list_end]
-% \end{tcl}
 % 
-% 
-% \section{The diff format}
-% \label{Sec:Tcldiff}
+% \subsection{The diff format}
+% \label{Ssec:Tcldiff}
 % 
 % The difference format used by |docstrip::util::patch| is a 
 % \Tcllogo-list format into which the common diff formats can be parsed. 
@@ -2253,6 +3845,33 @@ proc docstrip::util::import_unidiff {text {warnvar ""}} {
 }
 %</utilpkg>
 %   \end{tcl}
+%   
+%    \begin{macrocode}
+%<*utilman>
+[call [cmd docstrip::util::import_unidiff] [arg diff-text]\
+  [opt [arg warning-var]]]
+  This command parses a unified ([syscmd diff] flags [option -U] and 
+  [option --unified]) format diff into the list-of-hunks format 
+  expected by [cmd docstrip::util::patch]. The [arg diff-text] 
+  argument is the text to parse and the [arg warning-var] is, if 
+  specified, the name in the calling context of a variable to which 
+  any warnings about parsing problems will be [cmd append]ed.
+  [para]
+  
+  The return value is a list of [term hunks]. Each hunk is a list of 
+  five elements "[arg start1] [arg end1] [arg start2] [arg end2] 
+  [arg lines]". [arg start1] and [arg end1] are line numbers in the 
+  "from" file of the first and last respectively lines of the hunk. 
+  [arg start2] and [arg end2] are the corresponding line numbers in 
+  the "to" file. Line numbers start at 1. The [arg lines] is a list 
+  with two elements for each line in the hunk; the first specifies the 
+  type of a line and the second is the actual line contents. The type 
+  is [const -] for lines only in the "from" file, [const +] for lines 
+  that are only in the "to" file, and [const 0] for lines that are 
+  in both.
+[list_end]
+%</utilman>
+%    \end{macrocode}
 % \end{proc}
 % 
 % 
@@ -2263,7 +3882,10 @@ proc docstrip::util::import_unidiff {text {warnvar ""}} {
 % explicit cleanup.
 % 
 % \begin{tcl}
-%<test,utiltest>testsuiteCleanup
+%<*test,utiltest>
+%<!tcllibtest>tcltest::cleanupTests
+%<tcllibtest>testsuiteCleanup
+%</test,utiltest>
 % \end{tcl}
 % 
 % The manpages require an explicit ending, and can do with some 
@@ -2276,7 +3898,10 @@ proc docstrip::util::import_unidiff {text {warnvar ""}} {
 
 [keywords documentation source {literate programming} docstrip]
 %<man>[keywords LaTeX .dtx]
-%<utilman>[keywords doctools .ddt]
+%<*utilman>
+[keywords doctools .ddt diff patch]
+[keywords {package indexing} {Tcl module} module catalogue]
+%</utilman>
 [manpage_end]
 %</man,utilman>
 %    \end{macrocode}
@@ -2285,10 +3910,10 @@ proc docstrip::util::import_unidiff {text {warnvar ""}} {
 % 
 % \section{Development tools}
 % 
-% I have found the following code snippet useful for formatting 
+% I have found the following code snippets useful for formatting 
 % \texttt{docstrip.man}.
 % \begin{tcl}
-%<*devtest>
+%<*devmantest>
 package require doctools
 doctools::new man2html -format html
 proc makehtml {{from docstrip.man} {to docstrip.html}} {
@@ -2298,7 +3923,14 @@ proc makehtml {{from docstrip.man} {to docstrip.html}} {
    replaceText -w $to [minPos] [maxPos -w $to]\
      [string map {\n \r} $html]
 }
-%</devtest>
+proc dtx2html {terminals {to docstrip_util.html} {from tcldocstrip.dtx}} {
+   set text [string map {\r \n}\
+     [getText -w $from [minPos] [maxPos -w $from]]]
+   set html [man2html format [docstrip::extract $text $terminals]]
+   replaceText -w $to [minPos] [maxPos -w $to]\
+     [string map {\n \r} $html]
+}
+%</devmantest>
 % \end{tcl}
 % It is included here so that I know where to find it, but it is
 % normally no extracted.
