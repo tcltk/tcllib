@@ -1,11 +1,12 @@
 [manpage_begin docstrip n 1.2]
-[copyright "2003-2005 Lars Hellstr\u00F6m\
+[copyright "2003\u20132010 Lars Hellstr\u00F6m\
   <Lars dot Hellstrom at residenset dot net>"]
 [moddesc {Literate programming tool}]
 [titledesc {Docstrip style source code extraction}]
 [category  {Documentation tools}]
 [require Tcl 8.4]
 [require docstrip [opt 1.2]]
+[vset emdash \u2014]
 [description]
 
 [syscmd Docstrip] is a tool created to support a brand of Literate
@@ -59,13 +60,13 @@ want to know more about it may consult the following sources.
 [list_begin enumerated]
 [enum]
   [emph {The tclldoc package and class}],
-  [uri {http://tug.org/tex-archive/macros/latex/contrib/tclldoc/}].
+  [uri {http://ctan.org/tex-archive/macros/latex/contrib/tclldoc/}].
 [enum]
   [emph {The DocStrip utility}],
-  [uri {http://tug.org/tex-archive/macros/latex/base/docstrip.dtx}].
+  [uri {http://ctan.org/tex-archive/macros/latex/base/docstrip.dtx}].
 [enum]
   [emph {The doc and shortvrb Packages}],
-  [uri {http://tug.org/tex-archive/macros/latex/base/doc.dtx}].
+  [uri {http://ctan.org/tex-archive/macros/latex/base/doc.dtx}].
 [enum]
   Chapter 14 of
   [emph {The LaTeX Companion}] (second edition),
@@ -133,7 +134,7 @@ The syntax of an ordinary guard line is one of
 where
 [example {
     STARSLASH  ::=  '*' | '/'
-    PLUSMINUS  ::=  '+' | '-' |
+    PLUSMINUS  ::=  | '+' | '-'
     EXPRESSION ::= SECONDARY | SECONDARY ',' EXPRESSION
                  | SECONDARY '|' EXPRESSION
     SECONDARY  ::= PRIMARY | PRIMARY '&' SECONDARY
@@ -338,7 +339,7 @@ The package defines two commands.
       Write an error message to [const stderr], then continue
       processing.
     [def [const throw]]
-      Throw an error. [var ::errorCode] is set to a list whose
+      Throw an error. The [option -errorcode] is set to a list whose
       first element is [const DOCSTRIP], second element is the
       type of error, and third element is the line number where
       the error is detected. This is the default.
@@ -402,10 +403,10 @@ or some variation thereof. The trick is that the file gets read twice.
 With normal LaTeX reading rules, the first two lines are comments and
 therefore ignored. The third line is the document preamble, the fourth
 line begins the document body, and the sixth line ends the document,
-so LaTeX stops there -- non-comments below that point in the file are
-never subjected to the normal LaTeX reading rules. Before that,
-however, the \DocInput command on the fifth line is processed, and
-that does two things: it changes the interpretation of '%' from
+so LaTeX stops there [vset emdash] non-comments below that point in
+the file are never subjected to the normal LaTeX reading rules. Before
+that, however, the \DocInput command on the fifth line is processed,
+and that does two things: it changes the interpretation of '%' from
 "comment" to "ignored", and it inputs the file specified in the
 argument (which is normally the name of the file the command is in).
 It is this second time that the file is being read that the comments
