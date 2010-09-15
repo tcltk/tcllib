@@ -1,3 +1,10 @@
+2010-09-15  Andreas Kupries  <andreask@activestate.com>
+
+	* testutilities.tcl: [Bug 3066026]: Moved the tcltest
+	compatibility initialization into a procedure (InitializeTcltest)
+	which is called by testNeedsTcltest and a few other places to be
+	done only after we are sure that the tcltest package is present.
+
 2010-03-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl: Added constraint for 8.4-.
