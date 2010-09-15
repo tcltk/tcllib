@@ -87,12 +87,12 @@ DESCRIPTION ::\fBOption\fR::
 .TP
 TYPE \fINAME\fR (MODE)
 DESCRIPTION ::?Optional?::
-.nf
+.CS
 
     THE ARGUMENT IS USED IN THIS
     AND/OR THAT MANNER
 
-.fi
+.CE
 .RE
 .TP
 CMDNAME ...
