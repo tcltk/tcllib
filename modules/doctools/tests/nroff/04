@@ -9,19 +9,19 @@
 TEST \-
 .SH DESCRIPTION
 BEGINNE HIER
-.nf
+.CS
 
 	 Example Block  More Lines
 
-.fi
+.CE
 .PP
 .PP
-.nf
+.CS
 
 Inlined Example \\
 Next Line
 
-.fi
+.CE
 FERTIG
 .SH COPYRIGHT
 .nf
