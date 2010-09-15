@@ -1,3 +1,8 @@
+2010-09-15  Andreas Kupries  <andreask@activestate.com>
+
+	* tests/nroff/04: [Bug 3058654] and last entry. Updated
+	* tests/nroff/08: the affected testcases.
+
 2010-09-07  Andreas Kupries  <andreask@activestate.com>
 
 	* mpformats/fmt.nroff: [Bug 3058654]: Changed formatting of
