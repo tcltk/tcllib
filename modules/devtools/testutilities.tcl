@@ -55,9 +55,11 @@ proc testsNeedTcltest {version} {
 	    package require tcltest $version
 	}]} {
 	    namespace import -force ::tcltest::*
+	    InitializeTclTest
 	    return
 	}
     } elseif {[package vcompare [package present tcltest] $version] >= 0} {
+	InitializeTclTest
 	return
     }
 
@@ -142,141 +144,206 @@ proc array_unset {a {pattern *}} {
 # ### ### ### ######### ######### #########
 ## Easy definition and initialization of test constraints.
 
-if {![package vsatisfies [package provide tcltest] 2.0]} {
-    # Tcltest 2.0+ provides a documented public API to define and
-    # initialize a test constraint. For earlier versions of the
-    # package the user has to directly set a non-public undocumented
-    # variable in the package's namespace. We create a command doing
-    # this and emulating the public API.
+proc InitializeTclTest {} {
+    global tcltestinit
+    if {[info exists tcltestinit] && $tcltestinit} return
+    set tcltestinit 1
 
-    proc ::tcltest::testConstraint {c args} {
-	variable testConstraints
-        if {[llength $args] < 1} {
-            if {[info exists testConstraints($c)]} {
-                return $testConstraints($c)
-            } else {
-                return {}
-            }
-        } else {
-            set testConstraints($c) [lindex $args 0]
-        }
-	return
+    if {![package vsatisfies [package provide tcltest] 2.0]} {
+	# Tcltest 2.0+ provides a documented public API to define and
+	# initialize a test constraint. For earlier versions of the
+	# package the user has to directly set a non-public undocumented
+	# variable in the package's namespace. We create a command doing
+	# this and emulating the public API.
+
+	proc ::tcltest::testConstraint {c args} {
+	    variable testConstraints
+	    if {[llength $args] < 1} {
+		if {[info exists testConstraints($c)]} {
+		    return $testConstraints($c)
+		} else {
+		    return {}
+		}
+	    } else {
+		set testConstraints($c) [lindex $args 0]
+	    }
+	    return
+	}
+
+	namespace eval ::tcltest {
+	    namespace export testConstraint
+	}
+	uplevel \#0 {namespace import -force ::tcltest::*}
     }
 
-    namespace eval ::tcltest {
-	namespace export testConstraint
-    }
-    namespace import -force ::tcltest::*
-}
+    # ### ### ### ######### ######### #########
+    ## Define a set of standard constraints
 
-# ### ### ### ######### ######### #########
-## Define a set of standard constraints
-
-::tcltest::testConstraint tcl8.3only \
+    ::tcltest::testConstraint tcl8.3only \
 	[expr {![package vsatisfies [package provide Tcl] 8.4]}]
 
-::tcltest::testConstraint tcl8.3plus \
+    ::tcltest::testConstraint tcl8.3plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.3]}]
 
-::tcltest::testConstraint tcl8.4plus \
+    ::tcltest::testConstraint tcl8.4plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.4]}]
 
-::tcltest::testConstraint tcl8.5plus \
+    ::tcltest::testConstraint tcl8.5plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.5]}]
 
-::tcltest::testConstraint tcl8.6plus \
+    ::tcltest::testConstraint tcl8.6plus \
 	[expr {[package vsatisfies [package provide Tcl] 8.6]}]
 
-::tcltest::testConstraint tcl8.4minus \
+    ::tcltest::testConstraint tcl8.4minus \
 	[expr {![package vsatisfies [package provide Tcl] 8.5]}]
 
-# ### ### ### ######### ######### #########
-## Cross-version code for the generation of the error messages created
-## by Tcl procedures when called with the wrong number of arguments,
-## either too many, or not enough.
+    # ### ### ### ######### ######### #########
+    ## Cross-version code for the generation of the error messages created
+    ## by Tcl procedures when called with the wrong number of arguments,
+    ## either too many, or not enough.
 
-if {[package vsatisfies [package provide Tcl] 8.6]} {
-    # 8.6+
-    proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
-	if {[string match args [lindex $argList end]]} {
-	    set argList [lreplace $argList end end ?arg ...?]
-	}
-	if {$argList != {}} {set argList " $argList"}
-	set msg "wrong # args: should be \"$functionName$argList\""
-	return $msg
-    }
-
-    proc ::tcltest::tooManyArgs {functionName argList} {
-	# create a different message for functions with no args
-	if {[llength $argList]} {
+    if {[package vsatisfies [package provide Tcl] 8.6]} {
+	# 8.6+
+	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
 	    if {[string match args [lindex $argList end]]} {
 		set argList [lreplace $argList end end ?arg ...?]
 	    }
-	    set msg "wrong # args: should be \"$functionName $argList\""
-	} else {
-	    set msg "wrong # args: should be \"$functionName\""
+	    if {$argList != {}} {set argList " $argList"}
+	    set msg "wrong # args: should be \"$functionName$argList\""
+	    return $msg
 	}
-	return $msg
-    }
-} elseif {[package vsatisfies [package provide Tcl] 8.5]} {
-    # 8.5
-    proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
-	if {[string match args [lindex $argList end]]} {
-	    set argList [lreplace $argList end end ...]
-	}
-	if {$argList != {}} {set argList " $argList"}
-	set msg "wrong # args: should be \"$functionName$argList\""
-	return $msg
-    }
 
-    proc ::tcltest::tooManyArgs {functionName argList} {
-	# create a different message for functions with no args
-	if {[llength $argList]} {
+	proc ::tcltest::tooManyArgs {functionName argList} {
+	    # create a different message for functions with no args
+	    if {[llength $argList]} {
+		if {[string match args [lindex $argList end]]} {
+		    set argList [lreplace $argList end end ?arg ...?]
+		}
+		set msg "wrong # args: should be \"$functionName $argList\""
+	    } else {
+		set msg "wrong # args: should be \"$functionName\""
+	    }
+	    return $msg
+	}
+    } elseif {[package vsatisfies [package provide Tcl] 8.5]} {
+	# 8.5
+	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
 	    if {[string match args [lindex $argList end]]} {
 		set argList [lreplace $argList end end ...]
 	    }
-	    set msg "wrong # args: should be \"$functionName $argList\""
-	} else {
-	    set msg "wrong # args: should be \"$functionName\""
+	    if {$argList != {}} {set argList " $argList"}
+	    set msg "wrong # args: should be \"$functionName$argList\""
+	    return $msg
 	}
-	return $msg
-    }
-} elseif {[package vsatisfies [package provide Tcl] 8.4]} {
-    # 8.4+
-    proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
-	if {$argList != {}} {set argList " $argList"}
-	set msg "wrong # args: should be \"$functionName$argList\""
-	return $msg
-    }
 
-    proc ::tcltest::tooManyArgs {functionName argList} {
-	# create a different message for functions with no args
-	if {[llength $argList]} {
-	    set msg "wrong # args: should be \"$functionName $argList\""
-	} else {
-	    set msg "wrong # args: should be \"$functionName\""
+	proc ::tcltest::tooManyArgs {functionName argList} {
+	    # create a different message for functions with no args
+	    if {[llength $argList]} {
+		if {[string match args [lindex $argList end]]} {
+		    set argList [lreplace $argList end end ...]
+		}
+		set msg "wrong # args: should be \"$functionName $argList\""
+	    } else {
+		set msg "wrong # args: should be \"$functionName\""
+	    }
+	    return $msg
 	}
-	return $msg
-    }
-} else {
-    # 8.2+
-    proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
-	set msg "no value given for parameter "
-	append msg "\"[lindex $argList $missingIndex]\" to "
-	append msg "\"$functionName\""
-	return $msg
+    } elseif {[package vsatisfies [package provide Tcl] 8.4]} {
+	# 8.4+
+	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
+	    if {$argList != {}} {set argList " $argList"}
+	    set msg "wrong # args: should be \"$functionName$argList\""
+	    return $msg
+	}
+
+	proc ::tcltest::tooManyArgs {functionName argList} {
+	    # create a different message for functions with no args
+	    if {[llength $argList]} {
+		set msg "wrong # args: should be \"$functionName $argList\""
+	    } else {
+		set msg "wrong # args: should be \"$functionName\""
+	    }
+	    return $msg
+	}
+    } else {
+	# 8.2+
+	proc ::tcltest::wrongNumArgs {functionName argList missingIndex} {
+	    set msg "no value given for parameter "
+	    append msg "\"[lindex $argList $missingIndex]\" to "
+	    append msg "\"$functionName\""
+	    return $msg
+	}
+
+	proc ::tcltest::tooManyArgs {functionName argList} {
+	    set msg "called \"$functionName\" with too many arguments"
+	    return $msg
+	}
     }
 
-    proc ::tcltest::tooManyArgs {functionName argList} {
-	set msg "called \"$functionName\" with too many arguments"
-	return $msg
-    }
-}
+    # ### ### ### ######### ######### #########
+    ## tclTest::makeFile result API changed for 2.0
 
-namespace eval ::tcltest {
-    namespace export wrongNumArgs tooManyArgs
+    if {![package vsatisfies [package provide tcltest] 2.0]} {
+
+	# The 'makeFile' in Tcltest 1.0 returns a list of all the
+	# paths generated so far, whereas the 'makeFile' in 2.0+
+	# returns only the path of the newly generated file. We
+	# standardize on the more useful behaviour of 2.0+. If 1.x is
+	# present we have to create an emulation layer to get the
+	# wanted result.
+
+	# 1.0 is not fully correctly described. If the file was
+	# created before no list is returned at all. We force things
+	# by adding a line to the old procedure which makes the result
+	# unconditional (the name of the file/dir created).
+
+	# The same change applies to 'makeDirectory'
+
+	if {![llength [info commands ::tcltest::makeFile_1]]} {
+	    # Marker first.
+	    proc ::tcltest::makeFile_1 {args} {}
+
+	    # Extend procedures with command to return the required
+	    # full name.
+	    proc ::tcltest::makeFile {contents name} \
+		[info body ::tcltest::makeFile]\n[list set fullName]
+
+	    proc ::tcltest::makeDirectory {name} \
+		[info body ::tcltest::makeDirectory]\n[list set fullName]
+
+	    # Re-export
+	    namespace eval ::tcltest {
+		namespace export makeFile makeDirectory
+	    }
+	    uplevel \#0 {namespace import -force ::tcltest::*}
+	}
+    }
+
+    # ### ### ### ######### ######### #########
+    ## Extended functionality, creation of binary temp. files.
+    ## Also creation of paths for temp. files
+
+    proc ::tcltest::makeBinaryFile {data f} {
+	set path [makeFile {} $f]
+	set ch   [open $path w]
+	fconfigure $ch -translation binary
+	puts -nonewline $ch $data
+	close $ch
+	return $path
+    }
+
+    proc ::tcltest::tempPath {path} {
+	variable temporaryDirectory
+	return [file join $temporaryDirectory $path]
+    }
+
+    namespace eval ::tcltest {
+	namespace export wrongNumArgs tooManyArgs
+	namespace export makeBinaryFile tempPath
+    }
+    uplevel \#0 {namespace import -force ::tcltest::*}
+    return
 }
-namespace import -force ::tcltest::*
 
 # ### ### ### ######### ######### #########
 ## Command to construct wrong/args messages for Snit methods.
@@ -308,67 +375,6 @@ proc snitErrors {} {
 	}
     }
 }
-
-# ### ### ### ######### ######### #########
-## tclTest::makeFile result API changed for 2.0
-
-if {![package vsatisfies [package provide tcltest] 2.0]} {
-
-    # The 'makeFile' in Tcltest 1.0 returns a list of all the paths
-    # generated so far, whereas the 'makeFile' in 2.0+ returns only
-    # the path of the newly generated file. We standardize on the more
-    # useful behaviour of 2.0+. If 1.x is present we have to create an
-    # emulation layer to get the wanted result.
-
-    # 1.0 is not fully correctly described. If the file was created
-    # before no list is returned at all. We force things by adding a
-    # line to the old procedure which makes the result unconditional
-    # (the name of the file/dir created).
-
-    # The same change applies to 'makeDirectory'
-
-    if {![llength [info commands ::tcltest::makeFile_1]]} {
-	# Marker first.
-	proc ::tcltest::makeFile_1 {args} {}
-
-	# Extend procedures with command to return the required full
-	# name.
-	proc ::tcltest::makeFile {contents name} \
-		[info body ::tcltest::makeFile]\n[list set fullName]
-
-	proc ::tcltest::makeDirectory {name} \
-		[info body ::tcltest::makeDirectory]\n[list set fullName]
-
-	# Re-export
-	namespace eval ::tcltest {
-	    namespace export makeFile makeDirectory
-	}
-	namespace import -force ::tcltest::*
-    }
-}
-
-# ### ### ### ######### ######### #########
-## Extended functionality, creation of binary temp. files.
-## Also creation of paths for temp. files
-
-proc ::tcltest::makeBinaryFile {data f} {
-    set path [makeFile {} $f]
-    set ch   [open $path w]
-    fconfigure $ch -translation binary
-    puts -nonewline $ch $data
-    close $ch
-    return $path
-}
-
-proc ::tcltest::tempPath {path} {
-    variable temporaryDirectory
-    return [file join $temporaryDirectory $path]
-}
-
-namespace eval ::tcltest {
-    namespace export makeBinaryFile tempPath
-}
-namespace import -force ::tcltest::*
 
 # ### ### ### ######### ######### #########
 ## Commands to load files from various locations within the local
@@ -489,6 +495,7 @@ proc useAccel {acc fname pname args} {
 }
 
 proc support {script} {
+    InitializeTclTest
     set ::tcllib::testutils::tag "-"
     if {[catch {
 	uplevel 1 $script
@@ -502,6 +509,7 @@ proc support {script} {
 }
 
 proc testing {script} {
+    InitializeTclTest
     set ::tcllib::testutils::tag "*"
     if {[catch {
 	uplevel 1 $script
