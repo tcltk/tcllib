@@ -1,4 +1,4 @@
-[manpage_begin comm n 4.6.1]
+[manpage_begin comm n 4.6.2]
 [copyright {1995-1998 The Open Group. All Rights Reserved.}]
 [copyright {2003-2004 ActiveState Corporation.}]
 [copyright {2006-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
@@ -9,7 +9,7 @@
 [keywords  socket {remote execution} {remote communication} send]
 [keywords  communication ipc message rpc comm ssl tls secure]
 [require Tcl 8.3]
-[require comm [opt 4.6.1]]
+[require comm [opt 4.6.2]]
 [description]
 
 [para]
@@ -879,6 +879,12 @@ Note that requiring no version (or a specific version) can also be done.
 The revision history of [package comm] includes these releases:
 
 [list_begin definitions]
+
+[def 4.6.2]
+
+Fixed bugs 2972571 and 3066872, the first a misdetection of quoted
+brace after double backslash, the other a blocking gets making for an
+obvious (hinsight) DoS attack on comm channels.
 
 [def 4.6.1]
 
