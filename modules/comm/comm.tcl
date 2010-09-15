@@ -22,7 +22,7 @@
 #
 #	See the manual page comm.n for further details on this package.
 #
-# RCS: @(#) $Id: comm.tcl,v 1.33 2009/11/04 17:51:53 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.tcl,v 1.34 2010/09/15 19:48:33 andreas_kupries Exp $
 
 package require Tcl 8.3
 package require snit ; # comm::future objects.
@@ -914,10 +914,33 @@ proc ::comm::commIncoming {chan fid addr remport} {
 	error $err $ei
     }
 
+    # Wait for offered version, without blocking the entire system.
+    # Bug 3066872. For a Tcl 8.6 implementation consider use of
+    # coroutines to hide the CSP and properly handle everything
+    # event based.
+
+    fconfigure $fid -blocking 0
+    fileevent  $fid readable [list ::comm::commIncomingOffered $chan $fid $addr $remport]
+    return
+}
+
+proc ::comm::commIncomingOffered {chan fid addr remport} {
+    variable comm
+
+    # Check if we have a complete line.
+    if {[gets $fid protoline] < 0} {
+	return
+    }
+
+    # Protocol version line has been received, disable event handling
+    # again.
+    fileevent $fid readable {}
+    fconfigure $fid -blocking 1
+
     # a list of offered proto versions is the first word of first line
     # remote id is the second word of first line
     # rest of first line is ignored
-    set protoline   [gets $fid]
+
     set offeredvers [lindex $protoline 0]
     set remid       [lindex $protoline 1]
 
@@ -1212,19 +1235,31 @@ proc ::comm::Word0 {dv} {
 	    # opening or closing brace in the string. If none is found
 	    # then the word is not complete, and we abort our search.
 
-	    if {![regexp -indices -start $e {(([{}])|(\\[{}]))} $data -> any regular quoted]} {
-		#                            ^^      ^
-		#                            |regular \quoted
+	    # Bug 2972571: To avoid the bogus detection of
+	    # backslash-quoted braces we look for double-backslashes
+	    # as well and skip them. Without this a string like '{puts
+	    # \\}' will incorrectly find a \} at the end, missing the
+	    # end of the word.
+
+	    if {![regexp -indices -start $e {((\\\\)|([{}])|(\\[{}]))} $data -> any dbs regular quoted]} {
+		#                            ^^      ^      ^
+		#                            |\\     regular \quoted
 		#                            any
 		return -code error "no complete word found/1"
 	    }
 
-	    foreach {qs qe} $quoted break
+	    foreach {ds de} $dbs     break
+	    foreach {qs qe} $quoted  break
 	    foreach {rs re} $regular break
 
-	    if {$qs >= 0} {
+	    if {$ds >= 0} {
+		# Skip double-backslashes ...
+		set  e $de
+		incr e
+		continue
+	    } elseif {$qs >= 0} {
 		# Skip quoted braces ...
-		set e $qe
+		set  e $qe
 		incr e
 		continue
 	    } elseif {$rs >= 0} {
@@ -1773,4 +1808,4 @@ if {![info exists ::comm::comm(comm,port)]} {
 }
 
 #eof
-package provide comm 4.6.1
+package provide comm 4.6.2

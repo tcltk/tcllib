@@ -7,7 +7,7 @@
 # Copyright (c) 2001 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: comm.test,v 1.13 2009/04/10 23:46:55 andreas_kupries Exp $
+# RCS: @(#) $Id: comm.test,v 1.14 2010/09/15 19:48:33 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -242,6 +242,17 @@ test comm-4.2 {async generation/reception of results in parallel} {
     set res
     # B returned before A, A was sent before B
 } {{-result {delayed B}} {-result {delayed A}}}
+
+
+test comm-4.3 {bug 2972571, handling of \\ by Word0} {
+    ::comm::comm send [slave] {
+	proc foo {args} {
+	    return nothing
+	}
+    }
+    ::comm::comm send [slave] {foo \\}
+} {nothing}
+
 
 # ------------------------------------------------------------------------
 
