@@ -1,3 +1,12 @@
+2010-09-20  Lars Hellstr\"om  <lars_h@users.sourceforge.net>
+
+	* numtheory.dtx:    New package math::numtheory (v1.0)
+	* numtheory.man:    with command math::numtheory::isprime.
+	* numtheory.stitch: See numtheory.dtx for all the gory
+	* numtheory.tcl:    details of the implementation of
+	* numtheory.test:   package and tests.
+	* pkgIndex.tcl:     
+
 2010-08-22  Andreas Kupries  <andreask@activestate.com>
 	* linalg.tcl: Corrected bug #3036124 (shape of U matrix)
 	  - should probably include an extra command for
