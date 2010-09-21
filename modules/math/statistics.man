@@ -960,6 +960,41 @@ sublists of the "list" argument for which the expression is true.
 
 [call [cmd ::math::statistics::subdivide]]
 Routine [emph PM] - not implemented yet
+[para]
+
+
+[call [cmd ::math::statistics::test-Kruskal-Wallis] [arg confidence] [arg args]]
+Check if the population medians of two or more groups are equal with a
+given confidence level, using the Kruskal-Wallis test.
+
+[list_begin arguments]
+[arg_def float confidence] - Confidence level to be used (0-1)
+[arg_def list args] - Two or more lists of data
+[list_end]
+[para]
+
+
+[call [cmd ::math::statistics::analyse-Kruskal-Wallis] [arg args]]
+Compute the statistical parameters for the Kruskal-Wallis test.
+Returns the Kruskal-Wallis statistic and the probability that that
+value would occur assuming the medians of the populations are
+equal.
+
+[list_begin arguments]
+[arg_def list args] - Two or more lists of data
+[list_end]
+[para]
+
+
+[call [cmd ::math::statistics::group-rank] [arg args]]
+Rank the groups of data with respect to the complete set.
+Returns a list consisting of the group ID, the value and the rank
+(possibly a rational number, in case of ties) for each data item.
+
+[list_begin arguments]
+[arg_def list args] - Two or more lists of data
+[list_end]
+
 
 [list_end]
 

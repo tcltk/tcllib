@@ -14,8 +14,9 @@
 #                as suggested by Dimitrios Zachariadis
 # version 0.6:   added pdf and cdf procedures for various distributions
 #                (provided by Eric Kemp-Benedict)
+# version 0.7:   added Kruskal-Wallis test (by Torsten Berg)
 
-package provide math::statistics 0.6.3
+package provide math::statistics 0.7.0
 package require math
 
 # ::math::statistics --
@@ -31,7 +32,8 @@ namespace eval ::math::statistics {
 	    test-normal lillieforsFit \
 	    autocorr crosscorr filter map samplescount median \
 	    test-2x2 print-2x2 control-xbar test_xbar \
-	    control-Rchart test-Rchart
+	    control-Rchart test-Rchart \
+	    test-Kruskal-Wallis analyse-Kruskal-Wallis group-rank
     #
     # Error messages
     #
@@ -1285,6 +1287,8 @@ proc ::math::statistics::test-Rchart { control data } {
 
 
 
+
+
 #
 # Load the auxiliary scripts
 #
@@ -1292,6 +1296,7 @@ source [file join [file dirname [info script]] pdf_stat.tcl]
 source [file join [file dirname [info script]] plotstat.tcl]
 source [file join [file dirname [info script]] liststat.tcl]
 source [file join [file dirname [info script]] mvlinreg.tcl]
+source [file join [file dirname [info script]] kruskal.tcl]
 
 #
 # Define the tables

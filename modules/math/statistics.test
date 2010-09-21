@@ -562,5 +562,13 @@ test "beta-distribution-1.1" "Test cdf-beta" -match tolerant -body {
            0.999999999996 0.000125237075575121 8.23161135486914e-20 0.464369443974288
            0.5 1.0 0.8208}
 
+test "kruskal-wallis-1.0" "Test analysis Kruskal-Wallis" -match tolerant -body {
+    analyse-Kruskal-Wallis {6.4 6.8 7.2 8.3 8.4 9.1 9.4 9.7} {2.5 3.7 4.9 5.4 5.9 8.1 8.2} {1.3 4.1 4.9 5.2 5.5 8.2}
+} -result {9.83627087199 0.00731275323967}
+test "kruskal-wallis-1.1" "Test test Kruskal-Wallis" -match tolerant -body {
+    test-Kruskal-Wallis 0.95 {6.4 6.8 7.2 8.3 8.4 9.1 9.4 9.7} {2.5 3.7 4.9 5.4 5.9 8.1 8.2} {1.3 4.1 4.9 5.2 5.5 8.2}
+} -result 1
+
+
 # End of test cases
 testsuiteCleanup
