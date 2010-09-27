@@ -1,3 +1,6 @@
+2010-09-22  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* kruskal.tcl:      Added header to the file
+
 2010-09-21  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* kruskal.tcl:      One-sided test according to Kruskal-Wallis
 	* statistics.tcl:   Added test Kruskal-Wallis
