@@ -1,3 +1,7 @@
+# kruskal.tcl --
+#     Procedures related to ranking and the Kruskal-Wallis test
+#
+
 # test-Kruskal-Wallis --
 #     Perform a one-way analysis of variance according
 #     to Kruskal-Wallis
