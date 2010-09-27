@@ -867,7 +867,7 @@ test isprime-2.0 "PRNG tweak" -setup {
       }
    }
 } -body {
-   ::math::numtheory::Miller--Rabin 127 -randommr 500
+   ::math::numtheory::isprime 118670087467 -randommr 500
 } -result on -cleanup {
    namespace eval ::math::numtheory {
       rename Miller--Rabin ""
