@@ -1,13 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: struct_list.man,v 1.23 2009/01/29 06:16:20 andreas_kupries Exp $}]
+[comment {$Id: struct_list.man,v 1.24 2010/10/05 21:47:25 andreas_kupries Exp $}]
 [manpage_begin struct::list n 1.7]
 [copyright {2003-2005 by Kevin B. Kenny. All rights reserved}]
-[copyright {2003-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2003-2010 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc {Tcl Data Structures}]
 [titledesc {Procedures for manipulating lists}]
 [category  {Data structures}]
-[require Tcl 8.0]
-[require struct::list [opt 1.7]]
+[require Tcl 8.4]
+[require struct::list [opt 1.8]]
 [description]
 
 [para]
@@ -214,6 +214,15 @@ expects the indices for the two sequences in two separate lists.
 The subcommand takes a single [arg sequence] as argument and returns a new
 sequence containing the elements of the input sequence in reverse
 order.
+
+
+[call [cmd ::struct::list] [method shuffle] [arg list]]
+[keywords shuffle reshuffle Fisher-Yates]
+
+The subcommand takes a [arg list] and returns a copy of that list
+with the elements it contains in random order. Every possible
+ordering of elements is equally likely to be generated. The
+Fisher-Yates shuffling algorithm is used internally. 
 
 
 [call [cmd ::struct::list] [method assign] [arg sequence] [arg varname] [opt [arg varname]]...]

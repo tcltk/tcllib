@@ -9,11 +9,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.25 2008/07/11 22:34:25 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.26 2010/10/05 21:47:25 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
-package require Tcl 8.0
+package require Tcl 8.4
 package require cmdline
 
 namespace eval ::struct { namespace eval list {} }
@@ -50,6 +50,7 @@ namespace eval ::struct::list {
 	namespace export Lreverse
 	namespace export Lshift
 	namespace export Lswap
+	namespace export Lshuffle
     }
 }
 
@@ -87,18 +88,8 @@ proc ::struct::list::list {cmd args} {
 
 ##########################
 # Private functions follow
-#
-# Do a compatibility version of [lset] for pre-8.4 versions of Tcl.
-# This version does not do multi-arg [lset]!
 
 proc ::struct::list::K { x y } { set x }
-
-if { [package vcompare [package provide Tcl] 8.4] < 0 } {
-    proc ::struct::list::lset { var index arg } {
-	upvar 1 $var list
-	set list [::lreplace [K $list [set list {}]] $index $index $arg]
-    }
-}
 
 ##########################
 # Implementations of the functionality.
@@ -1803,6 +1794,17 @@ proc ::struct::list::Lforeachperm {var list body} {
     return
 }
 
+proc ::struct::list::Lshuffle {list} {
+    for {set i [llength $list]} {$i > 1} {lset list $j $t} {
+	set j [expr {int(rand() * $i)}]
+	set t [lindex $list [incr i -1]]
+	lset list $i [lindex $list $j]
+    }
+    return $list
+}
+
+# ### ### ### ######### ######### #########
+
 proc ::struct::list::ErrorInfoAsCaller {find replace} {
     set info $::errorInfo
     set i [string last "\n    (\"$find" $info]
@@ -1823,4 +1825,4 @@ namespace eval ::struct {
     namespace import -force list::list
     namespace export list
 }
-package provide struct::list 1.7
+package provide struct::list 1.8
