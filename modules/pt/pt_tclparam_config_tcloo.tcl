@@ -4,6 +4,10 @@
 # Canned configuration for the converter to Tcl/PARAM representation,
 # causing generation of a proper TclOO class.
 
+# The requirements of the embedded template are not our requirements.
+# @mdgen NODEP: TclOO
+# @mdgen NODEP: pt::rde::oo
+
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
@@ -113,5 +117,5 @@ namespace eval ::pt::tclparam::configuration::tcloo {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::tclparam::configuration::tcloo 1
+package provide pt::tclparam::configuration::tcloo 1.0.1
 return
