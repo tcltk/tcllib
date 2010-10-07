@@ -82,14 +82,17 @@ snit::type ::pt::peg::interp {
 
     method parse {channel} {
 	$myparser reset $channel
-	$self {*}$mystart
+	$self TRACE {*}$mystart
 	return [$myparser complete]
     }
 
     method parset {text} {
+
+puts "TEXT=($text)"
+
 	$myparser reset
 	$myparser data $text
-	$self {*}$mystart
+	$self TRACE {*}$mystart
 	return [$myparser complete]
     }
 
@@ -170,7 +173,7 @@ snit::type ::pt::peg::interp {
 	$myparser i_ast_push ; # (1)
 
 	# Run the right hand side.
-	$self {*}$myrhs($symbol)
+	$self TRACE {*}$myrhs($symbol)
 
 	# Generate a semantic value, based on the currently active
 	# semantic mode.
@@ -199,7 +202,7 @@ snit::type ::pt::peg::interp {
     method & {expression} {
 	$myparser i_loc_push
 
-	    $self {*}$expression
+	    $self TRACE {*}$expression
 
 	$myparser i_loc_pop_rewind
 	return
@@ -213,7 +216,7 @@ snit::type ::pt::peg::interp {
 	$myparser i_loc_push
 	$myparser i_ast_push
 
-	$self {*}$expression
+	$self TRACE {*}$expression
 
 	$myparser i_ast_pop_discard/rewind ;# -- fail/ok
 	$myparser i_loc_pop_rewind
@@ -230,7 +233,7 @@ snit::type ::pt::peg::interp {
 	$myparser i_loc_push
 	$myparser i_error_push
 
-	$self {*}$expression
+	$self TRACE {*}$expression
 
 	$myparser i_error_pop_merge
 	$myparser i_loc_pop_rewind/discard ;# -- fail/ok
@@ -249,7 +252,7 @@ snit::type ::pt::peg::interp {
 	    $myparser i_loc_push
 	    $myparser i_error_push
 
-	    $self {*}$expression
+	    $self TRACE {*}$expression
 
 	    $myparser i_error_pop_merge
 	    $myparser i_loc_pop_rewind/discard ;# -- fail/ok
@@ -269,7 +272,7 @@ snit::type ::pt::peg::interp {
     method + {expression} {
 	$myparser i_loc_push
 
-	$self {*}$expression
+	$self TRACE {*}$expression
 
 	$myparser i_loc_pop_rewind/discard ;# -- fail/ok
 	$myparser i:fail_return
@@ -290,7 +293,7 @@ snit::type ::pt::peg::interp {
 	foreach expression $args {
 	    $myparser i_error_push
 
-	    $self {*}$expression
+	    $self TRACE {*}$expression
 
 	    $myparser i_error_pop_merge
 	    # Branch failed, track back and report to caller.
@@ -318,7 +321,7 @@ snit::type ::pt::peg::interp {
 	    $myparser i_ast_push
 	    $myparser i_error_push
 
-	    $self {*}$expression
+	    $self TRACE {*}$expression
 
 	    $myparser i_error_pop_merge
 	    $myparser i_ast_pop_rewind/discard
@@ -367,12 +370,12 @@ snit::type ::pt::peg::interp {
 
     # ### ### ### ######### ######### #########
     ## Debugging helper. To activate
-    ## string map {{self {*}} {self TRACE {*}}}
+    ## string map {{self TRACE {*}} {self TRACE {*}}}
 
     method TRACE {args} {
 	puts |$args|enter
 	set res [$self {*}$args]
-	puts |$args|return
+	puts |$args|return|[expr {[$myparser ok]?"ok":"fail"}]
 	return $res
     }
 
