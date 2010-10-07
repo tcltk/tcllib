@@ -1577,7 +1577,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_test_char {tok} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_char (ok [expr {$tok eq $mycurrent}], [expr {$tok eq $mycurrent ? "@$myloc" : "back@[expr {$myloc-1}]"}])"
+    method i_test_char {tok} { ; TRACE puts "[format %8d [incr count]] RDE i_test_char '$tok'/'$mycurrent' (ok [expr {$tok eq $mycurrent}], [expr {$tok eq $mycurrent ? "@$myloc" : "back@[expr {$myloc-1}]"}])"
 	set myok [expr {$tok eq $mycurrent}]
 	if {$myok} {
 	    set myerror {}

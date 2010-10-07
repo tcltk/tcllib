@@ -4,6 +4,10 @@
 # Canned configuration for the converter to Tcl/PARAM representation,
 # causing generation of a proper snit class.
 
+# The requirements of the embedded template are not our requirements.
+# @mdgen NODEP: snit
+# @mdgen NODEP: pt::rde
+
 # # ## ### ##### ######## ############# #####################
 ## Requirements
 
@@ -133,5 +137,5 @@ namespace eval ::pt::tclparam::configuration::snit {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::tclparam::configuration::snit 1
+package provide pt::tclparam::configuration::snit 1.0.1
 return
