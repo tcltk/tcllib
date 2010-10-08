@@ -1,3 +1,8 @@
+2010-10-08  Andreas Kupries  <andreask@activestate.com>
+
+	* modules/pki: New module, public key infrastructure.
+	* support/installation/modules.tcl:
+
 2010-07-09  Andreas Kupries  <andreask@activestate.com>
 
 	* support/installation/modules.tcl: [Bug 3027371]. Fixed typo
