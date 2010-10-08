@@ -34,6 +34,7 @@ Exclude calendar
 Exclude exif
 
 #       name         pkg   doc   example
+Module  pki         _tcl  _man  _null
 Module  aes         _tcl  _man  _null
 Module  amazon-s3   _tcl  _man  _null
 Module  asn         _tcl  _man  _null
