@@ -1,0 +1,9 @@
+2010-10-18  Kevin B, Kenny  <kennykb@acm.org>
+
+	* aycock-build.tcl:
+	* aycock-debug.tcl:
+	* aycock-runtime.tcl:
+	* aycock.man:
+	* aycock.test:
+	* pkgIndex.tcl:		1.0 release of an Aycock-Earley-Horspool
+				parser generator for Tcl.
