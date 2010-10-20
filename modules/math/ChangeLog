@@ -1,3 +1,9 @@
+2010-10-19  Kevin B. Kenny  <kennykb@acm.org>
+	* symdiff.man:
+	* symdiff.tcl:      Added a math::calculus::symdiff package that
+	* symdiff.test:     performs symbolic differentiation of Tcl math 
+	* pkgIndex.tcl:	    exprs.
+	
 2010-09-27  Lars Hellstr\"om  <lars_h@users.sourceforge.net>
         * numtheory.test,numtheory.dtx: Fixed bug #3076576.
 
@@ -29,7 +35,7 @@
 
 	* geometry.man: A bit more commands, bumped to version 1.1.2.
 	* geometry.tcl:
-	* pkgIndex.tcl:
+	* pkgIndex.tcl: 
 
 2010-04-06  Andreas Kupries  <andreask@activestate.com>
 
