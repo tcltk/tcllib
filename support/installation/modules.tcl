@@ -66,6 +66,7 @@ Module  ftp         _tcl  _man _exa
 Module  ftpd        _tcl  _man _exa
 Module  fumagic     _tcl  _man  _null
 Module  gpx         _tcl _null  _null
+Module  grammar_aycock _tcl _man _null
 Module  grammar_fa  _tcl  _man  _null
 Module  grammar_me  _tcl  _man  _null
 Module  grammar_peg _tcl  _man  _null
