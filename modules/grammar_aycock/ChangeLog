@@ -1,3 +1,9 @@
+2010-10-22  Kevin B. Kenny  <kennykb@acm.org>
+
+	* aycock.man:		Added a missing [list_begin] [list_end]
+				pair bracketing the list of methods for
+				the parser.
+
 2010-10-18  Kevin B, Kenny  <kennykb@acm.org>
 
 	* aycock-build.tcl:

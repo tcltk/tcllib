@@ -33,6 +33,7 @@ The returned parser is an object that accepts commands as shown in
 
 [section "OBJECT COMMAND"]
 
+[list_begin definitions]
 [call [arg parserName] [method parse] [arg symList] [arg valList] [opt [arg clientData]]]
 
 Invokes a parser returned from [cmd ::aycock::parser]. [arg symList] is
@@ -62,6 +63,8 @@ The reconstructed parser depends on a set of commands in the
 package [package grammar::aycock::runtime],
 which is also automatically loaded
 when the [package grammar::aycock] package is loaded.
+
+[list_end]
 
 [section "DESCRIPTION"]
 
