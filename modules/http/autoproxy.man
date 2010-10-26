@@ -44,7 +44,7 @@ this means we look for environment variables. Under windows we look
 for the same environment variables but also look at the registry
 settings used by Internet Explorer.
 
-[call [cmd ::autoproxy::cget] [arg "-optionname"]]
+[call [cmd ::autoproxy::cget] [arg "-option"]]
 
 Retrieve individual package configuration options. See [sectref OPTIONS].
 
@@ -91,30 +91,30 @@ when not registering with the http package.
 
 [list_begin options]
 
-[opt_def "host" "hostname"]
-[opt_def "proxy_host" "hostname"]
+[opt_def -host hostname]
+[opt_def -proxy_host hostname]
 Set the proxy hostname. This is normally set up by [cmd init] but may
 be configured here as well.
 
-[opt_def "port" "number"]
-[opt_def "proxy_port" "number"]
+[opt_def -port number]
+[opt_def -proxy_port number]
 Set the proxy port number. This is normally set up by [cmd init].
 e.g. [cmd configure] [option -port] [arg 3128]
 
-[opt_def "no_proxy" "list"]
+[opt_def -no_proxy list]
 You may manipulate the [option no_proxy] list that was setup by 
 [cmd init]. The value of this option is a tcl list of
 strings that are matched against the http request host using the tcl
 [cmd "string match"] command. Therefore glob patterns are permitted.
 For instance, [cmd configure] [option -no_proxy] [arg "*.localdomain"]
 
-[opt_def "authProc" "procedure"]
+[opt_def -authProc procedure]
 This option may be used to set an application defined procedure to be
 called when [cmd configure] [option -basic] is called with either no or
 insufficient authentication details. This can be used to present a
 dialog to the user to request the additional information.
 
-[opt_def "-basic" {}]
+[opt_def -basic]
 Following options are for configuring the Basic authentication
 scheme parameters. See [sectref "Basic Authentication"].
 
