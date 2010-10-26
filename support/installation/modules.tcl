@@ -138,8 +138,11 @@ Module  wip         _tcl  _man  _null
 Module  yaml        _tcl  _man  _null
 
 Application  dtplite
-Application  tcldocstrip
+Application  nns
+Application  nnsd
+Application  nnslog
 Application  page
+Application  tcldocstrip
 
 # @@ Registration END
 # --------------------------------------------------------------

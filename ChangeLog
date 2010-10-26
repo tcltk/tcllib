@@ -1,12 +1,17 @@
+2010-10-26  Andreas Kupries  <andreask@activestate.com>
+
+	* support/installation/modules.tcl: [Bug 3085417]: Added the nano
+	  nameservice applications to the installation.
+
 2010-10-22  Kevin Kenny  <kennykb@acm.org>
 
 	* support/installation/modules.tcl: Corrected installation
-	of grammar::aycock.
+	  of grammar::aycock.
 	
 2010-10-18  Kevin Kenny  <kennykb@acm.org>
 
 	* modules/grammar_aycock: New module, Aycock-Earley-Horspool
-	parser generator.
+	  parser generator.
 	
 2010-10-08  Andreas Kupries  <andreask@activestate.com>
 
