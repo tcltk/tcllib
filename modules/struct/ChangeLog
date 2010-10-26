@@ -1,3 +1,7 @@
+2010-10-26  Andreas Kupries  <andreask@activestate.com>
+
+	* graphops.man: [Bug 3090738]: Fixed typo in command names.
+
 2010-10-05  Andreas Kupries  <andreask@activestate.com>
 
 	* list.tcl (::struct::list::Lshuffle): New command, shuffling a
