@@ -31,7 +31,7 @@ through [package struct::graph].
 
 [list_begin definitions]
 
-[call [cmd struct::graph:op::toAdjacencyMatrix] [arg g]]
+[call [cmd struct::graph::op::toAdjacencyMatrix] [arg g]]
 
 This command takes the graph [arg g] and returns a nested list
 containing the adjacency matrix of [arg g].
@@ -53,7 +53,7 @@ unable to represent parallel arcs in [arg g].
 
 
 
-[call [cmd struct::graph:op::toAdjacencyList] [arg G] [opt [arg options]...]]
+[call [cmd struct::graph::op::toAdjacencyList] [arg G] [opt [arg options]...]]
 
 Procedure creates for input graph [arg G], it's representation as [term "Adjacency List"].
 It handles both directed and undirected graphs (default is undirected).
@@ -90,7 +90,7 @@ is thrown if that is not the case.
 
 
 
-[call [cmd struct::graph:op::kruskal] [arg g]]
+[call [cmd struct::graph::op::kruskal] [arg g]]
 
 This command takes the graph [arg g] and returns a list containing the
 names of the arcs in [arg g] which span up a minimum weight spanning tree
@@ -115,7 +115,7 @@ provided in the arcs already.
 
 
 
-[call [cmd struct::graph:op::prim] [arg g]]
+[call [cmd struct::graph::op::prim] [arg g]]
 
 This command takes the graph [arg g] and returns a list containing the
 names of the arcs in [arg g] which span up a minimum weight spanning tree
@@ -141,7 +141,7 @@ provided in the arcs already.
 
 
 
-[call [cmd struct::graph:op::isBipartite?] [arg g] [opt [arg bipartvar]]]
+[call [cmd struct::graph::op::isBipartite?] [arg g] [opt [arg bipartvar]]]
 
 This command takes the graph [arg g] and returns a boolean value
 indicating whether it is bipartite ([const true]) or not
@@ -151,7 +151,7 @@ is bipartit. If it is not the variable, if specified, is not touched.
 
 
 
-[call [cmd struct::graph:op::tarjan] [arg g]]
+[call [cmd struct::graph::op::tarjan] [arg g]]
 
 This command computes the set of [emph {strongly connected}]
 components (SCCs) of the graph [arg g]. The result of the command is a
@@ -168,7 +168,7 @@ if the result contains only a single SCC containing all nodes of
 
 
 
-[call [cmd struct::graph:op::connectedComponents] [arg g]]
+[call [cmd struct::graph::op::connectedComponents] [arg g]]
 
 This command computes the set of [emph connected] components (CCs) of
 the graph [arg g]. The result of the command is a list of sets, each
@@ -182,7 +182,7 @@ The graph [arg g] is [term connected] if the result contains only a
 single SCC containing all nodes of [arg g].
 
 
-[call [cmd struct::graph:op::connectedComponentOf] [arg g] [arg n]]
+[call [cmd struct::graph::op::connectedComponentOf] [arg g] [arg n]]
 
 This command computes the [emph connected] component (CC) of the graph
 [arg g] containing the node [arg n]. The result of the command is a
@@ -195,7 +195,7 @@ The command will throw an error if [arg n] is not a node of the graph
 
 
 
-[call [cmd struct::graph:op::isConnected?] [arg g]]
+[call [cmd struct::graph::op::isConnected?] [arg g]]
 
 This is a convenience command determining whether the graph [arg g] is
 [term connected] or not.  The result is a boolean value, [const true]
@@ -203,7 +203,7 @@ if the graph is connected, and [const false] otherwise.
 
 
 
-[call [cmd struct::graph:op::isCutVertex?] [arg g] [arg n]]
+[call [cmd struct::graph::op::isCutVertex?] [arg g] [arg n]]
 
 This command determines whether the node [arg n] in the graph [arg g]
 is a [term {cut vertex}] (aka [term {articulation point}]). The result
@@ -216,7 +216,7 @@ The command will throw an error if [arg n] is not a node of the graph
 [arg g].
 
 
-[call [cmd struct::graph:op::isBridge?] [arg g] [arg a]]
+[call [cmd struct::graph::op::isBridge?] [arg g] [arg a]]
 
 This command determines whether the arc [arg a] in the graph [arg g]
 is a [term bridge] (aka [term {cut edge}], or [term isthmus]). The
@@ -229,7 +229,7 @@ The command will throw an error if [arg a] is not an arc of the graph
 [arg g].
 
 
-[call [cmd struct::graph:op::isEulerian?] [arg g] [opt [arg tourvar]]]
+[call [cmd struct::graph::op::isEulerian?] [arg g] [opt [arg tourvar]]]
 
 This command determines whether the graph [arg g] is [term eulerian]
 or not.  The result is a boolean value, [const true] if the graph is
@@ -242,7 +242,7 @@ tour is computed as well and stored in the named variable. The tour is
 represented by the list of arcs traversed, in the order of traversal.
 
 
-[call [cmd struct::graph:op::isSemiEulerian?] [arg g] [opt [arg pathvar]]]
+[call [cmd struct::graph::op::isSemiEulerian?] [arg g] [opt [arg pathvar]]]
 
 This command determines whether the graph [arg g] is
 [term semi-eulerian] or not.  The result is a boolean value, [const true]
@@ -256,7 +256,7 @@ path is represented by the list of arcs traversed, in the order of
 traversal.
 
 
-[call [cmd struct::graph:op::dijkstra] [arg g] [arg start] [opt [arg options]...]]
+[call [cmd struct::graph::op::dijkstra] [arg g] [arg start] [opt [arg options]...]]
 
 This command determines distances in the weighted [arg g] from the
 node [arg start] to all other nodes in the graph. The options specify
@@ -286,18 +286,18 @@ from the node to [arg start], excluding the node itself, but including
 [list_end]
 
 
-[call [cmd struct::graph:op::distance] [arg g] [arg origin] [arg destination] [opt [arg options]...]]
+[call [cmd struct::graph::op::distance] [arg g] [arg origin] [arg destination] [opt [arg options]...]]
 
 This command determines the (un)directed distance between the two
 nodes [arg origin] and [arg destination] in the graph [arg g]. It
-accepts the option [option -arcmode] of [cmd struct::graph:op::dijkstra].
+accepts the option [option -arcmode] of [cmd struct::graph::op::dijkstra].
 
 
-[call [cmd struct::graph:op::eccentricity] [arg g] [arg n] [opt [arg options]...]]
+[call [cmd struct::graph::op::eccentricity] [arg g] [arg n] [opt [arg options]...]]
 
 This command determines the (un)directed [term eccentricity] of the
 node [arg n] in the graph [arg g]. It accepts the option
-[option -arcmode] of [cmd struct::graph:op::dijkstra].
+[option -arcmode] of [cmd struct::graph::op::dijkstra].
 
 [para]
 
@@ -306,10 +306,10 @@ The (un)directed [term eccentricity] of a node is the maximal
 graph.
 
 
-[call [cmd struct::graph:op::radius] [arg g] [opt [arg options]...]]
+[call [cmd struct::graph::op::radius] [arg g] [opt [arg options]...]]
 
 This command determines the (un)directed [term radius] of the graph
-[arg g]. It accepts the option [option -arcmode] of [cmd struct::graph:op::dijkstra].
+[arg g]. It accepts the option [option -arcmode] of [cmd struct::graph::op::dijkstra].
 
 [para]
 
@@ -317,10 +317,10 @@ The (un)directed [term radius] of a graph is the minimal (un)directed
 [term eccentricity] of all nodes in the graph.
 
 
-[call [cmd struct::graph:op::diameter] [arg g] [opt [arg options]...]]
+[call [cmd struct::graph::op::diameter] [arg g] [opt [arg options]...]]
 
 This command determines the (un)directed [term diameter] of the graph
-[arg g]. It accepts the option [option -arcmode] of [cmd struct::graph:op::dijkstra].
+[arg g]. It accepts the option [option -arcmode] of [cmd struct::graph::op::dijkstra].
 
 [para]
 
