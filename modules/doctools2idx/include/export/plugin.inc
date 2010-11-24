@@ -1,4 +1,4 @@
-[comment {-*- tcl -*- doctools manpage}]
+[comment {-*- tcl -*- --- !doctools ---}]
 [manpage_begin doctools::idx::export::[vset PACKAGE] n [vset VERSION]]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]

@@ -1,3 +1,4 @@
+[comment {-*- tcl -*- --- doctools ---}]
 [vset PACKAGE html]
 [vset NAME    HTML]
 [vset REQUIRE html]
