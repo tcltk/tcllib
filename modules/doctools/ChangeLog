@@ -1,3 +1,12 @@
+2010-11-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* doctools.man: Bumped to version 1.4.11, fixing issues with
+	* doctools.tcl: resolution of relative include paths. -file had
+	* pkgIndex.tcl: overloaded semantics, used for both source paths
+	  (include resolution) and destination paths (HTML relative
+	  links). Added new option -ibase as primary for include
+	  resolution, using -file only as fallback anymore.
+
 2010-09-15  Andreas Kupries  <andreask@activestate.com>
 
 	* tests/nroff/04: [Bug 3058654] and last entry. Updated
