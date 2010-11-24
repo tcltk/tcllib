@@ -1,4 +1,4 @@
-[comment {-*- tcl -*- doctools manpage}]
+[comment {-*- tcl -*- --- !doctools ---}]
 [manpage_begin doctools::msgcat::toc::[vset PACKAGE] n 0.1]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
