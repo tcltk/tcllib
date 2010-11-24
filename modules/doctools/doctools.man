@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin doctools n 1.4.10]
+[manpage_begin doctools n 1.4.11]
 [copyright {2003-2010 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {doctools - Processing documents}]
 [category  {Documentation tools}]
 [require Tcl 8.2]
-[require doctools [opt 1.4.10]]
+[require doctools [opt 1.4.11]]
 [description]
 
 This package provides a class for the creation of objects able to
@@ -236,6 +236,26 @@ The default value of this option is the empty string.
 
 The configured formatting engine should interpret the value as the
 name of the file containing the document which is currently processed.
+
+
+[opt_def -ibase [arg file]]
+
+The argument of this option is stored in the object and used as the
+base path for resolution of relative include paths. If this option is
+not set (empty string) the value of [option -file] is used instead.
+
+[para]
+
+Note that [option -file] and [option -ibase], while similar looking,
+are actually very different. The value of [option -file] is used by
+some engines for the generation of proper relative references between
+output documents (HTML). As such this is a [term destination]
+path. The [option -ibase] on the other hand is used to resolve
+relative include paths, and as such deals with [term source] paths.
+
+[para]
+
+The default value of this option is the empty string.
 
 
 [opt_def -module [arg text]]
