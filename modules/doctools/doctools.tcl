@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.42 2010/07/06 18:49:15 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.43 2010/11/24 04:14:43 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -186,6 +186,8 @@ proc ::doctools::new {name args} {
 	variable formatfile ""
 	variable deprecated 0
 	variable file       ""
+	variable mainfile   ""
+	variable ibase      ""
 	variable module     ""
 	variable copyright  ""
 	variable format_ip  ""
@@ -286,6 +288,7 @@ proc ::doctools::_configure {name args} {
 	# Retrieve the current configuration.
 
 	upvar #0 ::doctools::doctools${name}::file       file
+	upvar #0 ::doctools::doctools${name}::ibase      ibase
 	upvar #0 ::doctools::doctools${name}::module     module
 	upvar #0 ::doctools::doctools${name}::format     format
 	upvar #0 ::doctools::doctools${name}::copyright  copyright
@@ -293,6 +296,7 @@ proc ::doctools::_configure {name args} {
 
 	set     res [list]
 	lappend res -file       $file
+	lappend res -ibase      $ibase
 	lappend res -module     $module
 	lappend res -format     $format
 	lappend res -copyright  $copyright
@@ -306,6 +310,10 @@ proc ::doctools::_configure {name args} {
 	    -file {
 		upvar #0 ::doctools::doctools${name}::file file
 		return $file
+	    }
+	    -ibase {
+		upvar #0 ::doctools::doctools${name}::ibase ibase
+		return $ibase
 	    }
 	    -module {
 		upvar #0 ::doctools::doctools${name}::module module
@@ -326,7 +334,7 @@ proc ::doctools::_configure {name args} {
 	    default {
 		return -code error \
 			"doctools::_configure: Unknown option \"[lindex $args 0]\", expected\
-			-copyright, -file, -module, -format, or -deprecated"
+			-copyright, -file, -ibase, -module, -format, or -deprecated"
 	    }
 	}
     } else {
@@ -343,6 +351,10 @@ proc ::doctools::_configure {name args} {
 		    upvar #0 ::doctools::doctools${name}::mainfile mfile
 		    set file  $value
 		    set mfile $value
+		}
+		-ibase {
+		    upvar #0 ::doctools::doctools${name}::ibase    ibase
+		    set ibase $value
 		}
 		-module {
 		    upvar #0 ::doctools::doctools${name}::module module
@@ -373,7 +385,7 @@ proc ::doctools::_configure {name args} {
 		default {
 		    return -code error \
 			    "doctools::_configure: Unknown option \"$option\", expected\
-			    -copyright, -file, -module, -format, or -deprecated"
+			    -copyright, -file, -ibase, -module, -format, or -deprecated"
 		}
 	    }
 	}
@@ -980,9 +992,15 @@ proc ::doctools::Eval {name macro} {
 
 proc ::doctools::ExpandInclude {name path} {
     upvar #0 ::doctools::doctools${name}::file file
+    upvar #0 ::doctools::doctools${name}::ibase ibase
 
-    set ipath [file normalize [file join [file dirname $file] $path]]
+    set savedi $ibase
+    set savedf $file
 
+    set base $ibase
+    if {$base eq {}} { set base $file }
+
+    set ipath [file normalize [file join [file dirname $base] $path]]
     if {![file exists $ipath]} {
 	set ipath $path
 	if {![file exists $ipath]} {
@@ -996,10 +1014,11 @@ proc ::doctools::ExpandInclude {name path} {
 
     upvar #0 ::doctools::doctools${name}::expander  expander
 
-    set saved $file
-    set file $ipath
+    set ibase $ipath
     set res [$expander expand $text]
-    set file $saved
+
+    set ibase $savedi
+    set file  $savedf
 
     return $res
 }
@@ -1318,4 +1337,4 @@ namespace eval ::doctools {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools 1.4.10
+package provide doctools 1.4.11
