@@ -158,6 +158,14 @@ two were described already, in section [sectref {COMMAND LINE}].
 
 [para]
 [list_begin options]
+[opt_def -exclude string]
+
+This option specifies an exclude (glob) pattern. Any files identified
+as manpages to process which match the exclude pattern are
+ignored. The option can be provided multiple times, each usage adding
+an additional pattern to the list of exclusions.
+
+
 [opt_def -ext string]
 
 If the name of an output file has to be derived from the name of an
