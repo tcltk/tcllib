@@ -1,3 +1,4 @@
+[comment {-*- tcl -*- --- doctools ---}]
 [vset PACKAGE json]
 [vset NAME    JSON]
 [vset REQUIRE json]

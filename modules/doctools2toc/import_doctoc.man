@@ -1,3 +1,4 @@
+[comment {-*- tcl -*- --- doctools ---}]
 [vset PACKAGE doctoc]
 [vset NAME    doctoc]
 [vset REQUIRE doctoc]
