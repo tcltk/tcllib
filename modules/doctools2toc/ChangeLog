@@ -1,3 +1,21 @@
+2010-11-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* export_doctoc.man: Added headers to properly mark files as manpages
+	* export_html.man: even if not containing having manpage_begin, and
+	* export_json.man: vice versa, preventing recognition of subordinate
+	* export_nroff.man: include files as manpages.
+	* export_text.man:
+	* export_wiki.man:
+	* import_doctoc.man:
+	* import_json.man:
+	* include/export/plugin.inc:
+	* include/import/plugin.inc:
+	* include/msgcat.inc:
+	* msgcat_c.man:
+	* msgcat_de.man:
+	* msgcat_en.man:
+	* msgcat_fr.man:
+
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
