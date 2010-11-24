@@ -1,3 +1,4 @@
+[comment {-*- tcl -*- --- doctools ---}]
 [vset PACKAGE nroff]
 [vset NAME    nroff]
 [vset REQUIRE nroff]
