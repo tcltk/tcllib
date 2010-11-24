@@ -1,3 +1,4 @@
+[comment {-*- tcl -*- --- doctools ---}]
 [vset PACKAGE  fr]
 [vset NAME     FR]
 [vset LONGNAME {FR (french)}]

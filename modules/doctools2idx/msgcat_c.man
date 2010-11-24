@@ -1,3 +1,4 @@
+[comment {-*- tcl -*- --- doctools ---}]
 [vset PACKAGE  c]
 [vset NAME     C]
 [vset LONGNAME C]
