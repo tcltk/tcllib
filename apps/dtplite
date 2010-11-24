@@ -3,7 +3,7 @@
 exec tclsh "$0" ${1+"$@"}
 
 # @@ Meta Begin
-# Application dtplite 1.0
+# Application dtplite 1.0.3
 # Meta platform     tcl
 # Meta summary      Lightweight DocTools Processor
 # Meta description  This application is a simple processor
@@ -22,7 +22,7 @@ exec tclsh "$0" ${1+"$@"}
 # Meta license      BSD
 # @@ Meta End
 
-package provide dtplite 1.0.2
+package provide dtplite 1.0.3
 
 # dtp lite - Lightweight DocTools Processor
 # ======== = ==============================
@@ -120,7 +120,7 @@ package provide dtplite 1.0.2
 # documentation without getting overly complex in both implementation
 # and use.
 
-package require doctools      1.4.7 ; # 'image' support 
+package require doctools      1.4.11 ; # 'image' support, -ibase support
 package require doctools::idx 1.0.4 ;
 package require doctools::toc 1.1.3 ;
 package require fileutil
@@ -300,6 +300,12 @@ namespace eval ::dtplite {
 
     variable  imap
     array set imap {}
+
+    # Database of exclusion patterns. Files matching these are not
+    # manpages. For example, test files for doctools itself may full
+    # under this.
+
+    variable excl {}
 }
 
 # ### ### ### ######### ######### #########
@@ -352,7 +358,7 @@ proc ::dtplite::processCmdline {} {
     variable format ; variable header ; variable single
     variable input  ; variable footer ; variable mode
     variable ext    ; variable nav    ; variable merge  
-    variable module
+    variable module ; variable excl
 
     # Process the options, perform basic validation.
 
@@ -370,6 +376,10 @@ proc ::dtplite::processCmdline {} {
 	} elseif {[string equal $opt "-ext"]} {
 	    if {[llength $argv] < 2} Usage
 	    set ext  [lindex $argv 1]
+	    set argv [lrange $argv 2 end]
+	} elseif {[string equal $opt "-exclude"]} {
+	    if {[llength $argv] < 2} Usage
+	    lappend excl [lindex $argv 1]
 	    set argv [lrange $argv 2 end]
 	} elseif {[string equal $opt "-style"]} {
 	    if {[llength $argv] < 2} Usage
@@ -723,7 +733,7 @@ proc ::dtplite::Do.Directory {} {
 	puts stdout \t$f
 
 	set o $out($f)
-	dt configure -file [At $o]
+	dt configure -file [At $o] -ibase $input/$f
 
 	NavbuttonPush {Keyword Index}     [Output index] $o
 	NavbuttonPush {Table Of Contents} [Output toc]   $o
@@ -788,7 +798,7 @@ proc ::dtplite::Do.Directory.Merge {} {
 	puts stdout \t$f
 
 	set o $out($f)
-	dt configure -file $o
+	dt configure -file [At $o]
 
 	NavbuttonPush {Keyword Index}          [Output index]       $o
 	NavbuttonPush {Table Of Contents}      [Output $module/toc] $o
@@ -846,12 +856,12 @@ proc ::dtplite::MetadataGet {files {floc {}}} {
     # title     :: string           'manpage file name intended'
     # version   :: string           'file/package version'
     variable meta
-
+    variable input
     variable out
 
     doctools::new meta -format list -deprecated 1
     foreach f $files {
-	meta configure -file $f
+	meta configure -file $input/$f
 	set o [Output [file join $floc files $f]]
 	set out($f)  $o
 	set meta($o) [lindex [string trim [meta format [Get [Pick $f]]]] 1]
@@ -1251,9 +1261,17 @@ proc ::dtplite::LocateManpages {path} {
 }
 
 proc ::dtplite::IsDoctools {f} {
-    set res [in [::fileutil::fileType $f] doctools]
-    #puts ...$f\t$res\t[fileutil::fileType $f]
+    set res [expr {[in [::fileutil::fileType $f] doctools] && ![Excluded [file normalize $f]]}]
+    #puts ...$f\t$res\t|[fileutil::fileType $f]|\texcluded=[Excluded [file normalize $f]]\tin.[pwd]
     return $res
+}
+
+proc ::dtplite::Excluded {f} {
+    variable excl
+    foreach p $excl {
+	if {[string match $p $f]} {return 1}
+    }
+    return 0
 }
 
 # ### ### ### ######### ######### #########

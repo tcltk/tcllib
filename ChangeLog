@@ -1,3 +1,12 @@
+2010-11-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* apps/dtplite.man: Extended with new option -exclude to specify
+	* apps/dtplite: exclusion patterns (glob matching). Further fixed
+	  issues with file paths causing resolution of include file paths
+	  to break. This uses the new option -ibase of doctools 1.4.11 to
+	  keep include resolution and HTML cross-link generation apart
+	  from each other. Bumped version to 1.0.3.
+
 2010-10-26  Andreas Kupries  <andreask@activestate.com>
 
 	* support/installation/modules.tcl: [Bug 3085417]: Added the nano
