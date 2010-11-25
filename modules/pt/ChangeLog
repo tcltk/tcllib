@@ -1,3 +1,10 @@
+2010-11-25  Andreas Kupries  <andreask@activestate.com>
+
+	* pt_cparam_config_critcl.man: Added pragmas for meta-data
+	* pt_cparam_config_critcl.tcl: scanning to prevent the
+	  requirements of the embedded code template to be taken as the
+	  requirements of the package itself. Bumped version to 1.0.1.
+
 2010-10-07  Andreas Kupries  <andreask@activestate.com>
 
 	* pt_tclparam_config_snit.man: Added pragmas for meta-data
