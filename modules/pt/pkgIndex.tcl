@@ -53,7 +53,7 @@ package ifneeded pt::rde      1.0.1 [list source [file join $dir pt_rdengine.tcl
 package ifneeded pt::peg::container::peg 1 [list source [file join $dir pt_peg_container_peg.tcl]]
 
 # */PARAM support (canned configurations).
-package ifneeded pt::cparam::configuration::critcl  1 [list source [file join $dir pt_cparam_config_critcl.tcl]]
+package ifneeded pt::cparam::configuration::critcl  1.0.1 [list source [file join $dir pt_cparam_config_critcl.tcl]]
 package ifneeded pt::tclparam::configuration::snit  1.0.1 [list source [file join $dir pt_tclparam_config_snit.tcl]]
 package ifneeded pt::tclparam::configuration::tcloo 1.0.1 [list source [file join $dir pt_tclparam_config_tcloo.tcl]]
 
