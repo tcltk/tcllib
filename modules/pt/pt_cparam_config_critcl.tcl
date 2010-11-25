@@ -1,8 +1,11 @@
 # -*- tcl -*-
-# Copyright (c) 2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2010 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 # Canned configuration for the converter to C/PARAM representation,
 # causing generation of a proper critcl-based parser.
+
+# The requirements of the embedded template are not our requirements.
+# @mdgen NODEP: critcl
 
 # # ## ### ##### ######## ############# #####################
 ## Requirements
@@ -474,5 +477,5 @@ namespace eval ::pt::cparam::configuration::critcl {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::cparam::configuration::critcl 1
+package provide pt::cparam::configuration::critcl 1.0.1
 return
