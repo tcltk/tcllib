@@ -1,16 +1,27 @@
+2010-05-24  Andreas Kupries  <andreask@activestate.com>
+
+	* geometry.man: [Bug 3110860]: Renamed this file to avoid the
+	* math_geometry.man: conflict with Tcl 8.6's new geometry
+	  manpage. Thanks to Reinhard  Max for reporting.
+
 2010-10-19  Kevin B. Kenny  <kennykb@acm.org>
+
 	* symdiff.man:
 	* symdiff.tcl:      Added a math::calculus::symdiff package that
 	* symdiff.test:     performs symbolic differentiation of Tcl math 
 	* pkgIndex.tcl:	    exprs.
 	
 2010-09-27  Lars Hellstr\"om  <lars_h@users.sourceforge.net>
-        * numtheory.test,numtheory.dtx: Fixed bug #3076576.
+
+        * numtheory.test: Fixed bug #3076576.
+        * numtheory.dtx:
 
 2010-09-22  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* kruskal.tcl:      Added header to the file
 
 2010-09-21  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* kruskal.tcl:      One-sided test according to Kruskal-Wallis
 	* statistics.tcl:   Added test Kruskal-Wallis
 	* statistics.man:   Describe Kruskal-Wallis
@@ -27,6 +38,7 @@
 	* pkgIndex.tcl:
 
 2010-08-22  Andreas Kupries  <andreask@activestate.com>
+
 	* linalg.tcl: Corrected bug #3036124 (shape of U matrix)
 	  - should probably include an extra command for
 	  truncated output of S and V
@@ -72,16 +84,19 @@
 	* pkgIndex.tcl:
 
 2009-11-17  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* statistics.tcl: Bumped version to 0.6.3
 	* geometry.tcl: Solved bug #1623653 - corner case in pointInsidePolygon
         * geometry.test: Added two tests for the corner case
 	* pkgIndex.tcl: Updated version numbers
 
 2009-11-16  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* pdf_stat.tcl: Fix bug #2897419 - very small numbers with beta
 	  distribution
 
 2009-10-22  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* interpolate.tcl: Fix bug #2881739 in cubic interpolation
 
 2009-09-28  Andreas Kupries  <andreask@activestate.com>
@@ -109,14 +124,17 @@
 	* pkgIndex.tcl: Updated version numbers
 
 2009-03-20  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* linalg.tcl: Solving bugs with test matrices (bugs #2695513, 2695564, 2695618)
 	* linalg.test: Added test cases for border matrix and Wilkinson W- and W+
 	* pkgIndex.tcl: Version of linear algebra package increased to 1.1.1
 
 2009-02-18  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* machineparameters.man: Replaced deprecated markup (bug #2597454)
 
 2009-02-06  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* pkgIndex.tcl: Added machineparameters package
 	* machineparameters.tcl: New package by Michael Baudin
 	* machineparameters.test: Test for the new package
