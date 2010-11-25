@@ -1,3 +1,7 @@
+#! /bin/sh
+# the next line restarts with tclsh \
+exec tclsh "$0" ${1+"$@"}
+
 # maildemo.tcl - Copyright (C) 2005 Pat Thoyts <patthoyts@users.sf.net>
 # 
 # This program illustrates the steps required to compose a MIME message and 
@@ -7,7 +11,7 @@
 # server (if it presents this option) and we will use SSL communications
 # if available.
 #
-# $Id: maildemo.tcl,v 1.2 2005/10/07 00:30:13 patthoyts Exp $
+# $Id: maildemo.tcl,v 1.3 2010/11/25 17:19:45 andreas_kupries Exp $
 
 package require mime
 package require smtp
