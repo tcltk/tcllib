@@ -1,3 +1,8 @@
+2010-11-25  Andreas Kupries  <andreask@activestate.com>
+
+	* examples/mime/maildemo.tcl: [Patch 3117246]: Added the standard
+	  script prologue. Thanks to Stuart Cassoff.
+
 2010-11-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* apps/dtplite.man: Extended with new option -exclude to specify
