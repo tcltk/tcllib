@@ -100,8 +100,6 @@ proc ::units::convert { args } {
     switch [llength $args] {
 	2 {
 	    set value [lindex $args 0]
-	    # make sure it isn't octal (bug 758702)
-	    set value [string trimleft $value "0"]
 	    set targetUnits [lindex $args 1]
 	}
 	default {
@@ -229,7 +227,9 @@ proc ::units::reduce { args } {
     if { "$scaleFactor" == "" } {
 	set scaleFactor 1.0
     } else {
-	set scaleFactor [expr {double($scaleFactor)}]
+	# convert to floating point, forcing leading
+	# zeros to NOT mean octal. (bug 758702)
+	scan $scaleFactor "%f" scaleFactor
     }
 
     #  replace all separators with spaces.
