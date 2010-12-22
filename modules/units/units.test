@@ -13,7 +13,7 @@
 #  October 30, 2000
 #  Robert W. Techentin
 #
-#  "$Id: units.test,v 1.8 2010/12/22 14:56:35 techentin Exp $"
+#  "$Id: units.test,v 1.9 2010/12/22 15:15:00 techentin Exp $"
 #
 #----------------------------------------------------------------
 
@@ -228,7 +228,7 @@ test units-4.10 {convert integer zero value} {
     units::convert 0seconds second
 } {0.0}
 
-test units-4.10 {convert floating point zero value} {
+test units-4.11 {convert floating point zero value} {
     units::convert 0.0seconds second
 } {0.0}
 
