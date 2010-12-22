@@ -13,7 +13,7 @@
 #  October 30, 2000
 #  Robert W. Techentin
 #
-#  "$Id: units.test,v 1.7 2006/10/09 21:41:42 andreas_kupries Exp $"
+#  "$Id: units.test,v 1.8 2010/12/22 14:56:35 techentin Exp $"
 #
 #----------------------------------------------------------------
 
@@ -223,6 +223,14 @@ test units-4.8 {convert value to prefixed target units} {
 test units-4.9 {convert value to prefixed denominator target units} {
     units::convert 1.0meter/second meter/kilosecond
 } {1000.0}
+
+test units-4.10 {convert integer zero value} {
+    units::convert 0seconds second
+} {0.0}
+
+test units-4.10 {convert floating point zero value} {
+    units::convert 0.0seconds second
+} {0.0}
 
 
 #-----------------------------------------------------------

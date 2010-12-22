@@ -1,3 +1,9 @@
+2010-12-22  Bob Techentin <techentin@users.sourceforge.net>
+
+	* units.tcl, units.test:
+	Fixed bug converting integer 0 values (such as 0cm).
+	See patches tracker item 3141584.
+
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
