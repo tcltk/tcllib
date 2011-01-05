@@ -1,3 +1,11 @@
+2011-01-05  Michael Schlenker <mic42@users.sourceforge.net>
+
+        * asn.tcl  : Fixed wrong asnGetBigInteger code 
+          asn.man  : Tcllib SF [3039090], added tests.
+          asn.test : Patchlevel now 0.8.4.
+          asn.bench: Thank to Roy Keene for the patch.
+	  asn.pcx  :
+
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
