@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------------
 #   Copyright (C) 1999-2004 Jochen C. Loewer (loewerj@web.de)
-#   Copyright (C) 2004-2007 Michael Schlenker (mic42@users.sourceforge.net)
+#   Copyright (C) 2004-2011 Michael Schlenker (mic42@users.sourceforge.net)
 #-----------------------------------------------------------------------------
 #   
 #   A partial ASN decoder/encoder implementation in plain Tcl. 
@@ -38,7 +38,7 @@
 #   written by Jochen Loewer
 #   3 June, 1999
 #
-#   $Id: asn.tcl,v 1.19 2008/03/09 21:00:22 mic42 Exp $
+#   $Id: asn.tcl,v 1.20 2011/01/05 22:33:33 mic42 Exp $
 #
 #-----------------------------------------------------------------------------
 
@@ -991,7 +991,7 @@ proc ::asn::asnGetBigLength {data_var biglength_var} {
     # If we encounter this, we are doomed to fail anyway, 
     # (there would be an Exabyte inside the data_var, )
     #
-    # So i implement it just for completness.
+    # So i implement it just for completeness.
     # 
     package require math::bignum
     
@@ -1080,36 +1080,42 @@ proc ::asn::asnGetInteger {data_var int_var} {
 #-----------------------------------------------------------------------------
 
 proc ::asn::asnGetBigInteger {data_var bignum_var} {
-    # require math::bignum only if it is used
-    package require math::bignum
+	# require math::bignum only if it is used
+	package require math::bignum
 
-    # Tag is 0x02. We expect that the length of the integer is coded with
-    # maximal efficiency, i.e. without a prefix 0x81 prefix. If a prefix
-    # is used this decoder will fail.
+	# Tag is 0x02. We expect that the length of the integer is coded with
+	# maximal efficiency, i.e. without a prefix 0x81 prefix. If a prefix
+	# is used this decoder will fail.
 
-    upvar 1 $data_var data $bignum_var bignum
+	upvar $data_var data $bignum_var bignum
 
-    asnGetByte   data tag
+	asnGetByte   data tag
 
-    if {$tag != 0x02} {
-        return -code error \
-            [format "Expected Integer (0x02), but got %02x" $tag]
-    }
+	if {$tag != 0x02} {
+		return -code error \
+			[format "Expected Integer (0x02), but got %02x" $tag]
+	}
 
-    asnGetLength data len
-    asnGetBytes  data $len integerBytes
-    
-    binary scan $integerBytes H* hex
-    set bignum [math::bignum::fromstr $hex 16]
-    set bits [math::bignum::bits $bignum]
-    set exp [math::bignum::pow \
-		[math::bignum::fromstr 2] \
-		[math::bignum::fromstr $bits]]
-    set big [math::bignum::sub $bignum $exp]
-    set bignum $big
-    
-    return    
+	asnGetLength data len
+	asnGetBytes  data $len integerBytes
+
+	binary scan [string index $integerBytes 0] H* hex_head
+	set head [expr 0x$hex_head]
+	set replacement_head [expr {$head & 0x7f}]
+	set integerBytes [string replace $integerBytes 0 0 [format %c $replacement_head]]
+
+	binary scan $integerBytes H* hex
+
+	set bignum [math::bignum::fromstr $hex 16]
+
+	if {($head >> 7) && 1} {
+		set bigsub [math::bignum::pow [::math::bignum::fromstr 2] [::math::bignum::fromstr [expr {($len * 8) - 1}]]]
+		set bignum [math::bignum::sub $bignum $bigsub]
+	}
+
+	return $bignum
 }
+
 
 
 
@@ -1570,5 +1576,5 @@ proc ::asn::asnString {string} {
 }
 
 #-----------------------------------------------------------------------------
-package provide asn 0.8.3
+package provide asn 0.8.4
 
