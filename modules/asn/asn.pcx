@@ -9,7 +9,7 @@
 
 package require pcx
 pcx::register asn
-pcx::tcldep   0.8.3 needs tcl 8.4
+pcx::tcldep   0.8.4 needs tcl 8.4
 
 namespace eval ::asn {}
 
