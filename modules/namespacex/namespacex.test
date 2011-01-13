@@ -1,5 +1,5 @@
 # namespacex.test - Copyright (c) 2010 Andreas Kupries
-# $Id: namespacex.test,v 1.1 2010/05/28 22:32:36 andreas_kupries Exp $
+# $Id: namespacex.test,v 1.2 2011/01/13 02:39:26 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -7,7 +7,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.2
+testsNeedTcl     8.5
 testsNeedTcltest 2.0
 
 testing {
