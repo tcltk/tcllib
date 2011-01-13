@@ -5,10 +5,10 @@
 # built-in commands.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# Copyright (c) 2003 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2003-2010 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: doctools.test,v 1.27 2010/02/05 22:29:34 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.test,v 1.28 2011/01/13 02:41:44 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -125,7 +125,7 @@ test doctools-5.2 {cget errors} {
     catch {mydoctools cget -foo} result
     mydoctools destroy
     set result
-} {doctools::_configure: Unknown option "-foo", expected -copyright, -file, -module, -format, or -deprecated}
+} {doctools::_configure: Unknown option "-foo", expected -copyright, -file, -ibase, -module, -format, or -deprecated}
 
 foreach {na nb option default newvalue} {
     3  4 -deprecated 0 1
@@ -165,14 +165,14 @@ test doctools-6.1 {configure errors} {
     catch {mydoctools configure -foo} result
     mydoctools destroy
     set result
-} {doctools::_configure: Unknown option "-foo", expected -copyright, -file, -module, -format, or -deprecated}
+} {doctools::_configure: Unknown option "-foo", expected -copyright, -file, -ibase, -module, -format, or -deprecated}
 
 test doctools-6.2 {configure retrieval} {
     new mydoctools
     catch {mydoctools configure} result
     mydoctools destroy
     set result
-} {-file {} -module {} -format {} -copyright {} -deprecated 0}
+} {-file {} -ibase {} -module {} -format {} -copyright {} -deprecated 0}
 
 foreach {n option illegalvalue result} {
     3 -deprecated foo  {doctools::_configure: -deprecated expected a boolean, got "foo"}
@@ -214,7 +214,7 @@ test doctools-6.15 {configure full retrieval} {
     catch {mydoctools configure} result
     mydoctools destroy
     set result
-} {-file foo -module bar -format latex -copyright gnarf -deprecated 1}
+} {-file foo -ibase {} -module bar -format latex -copyright gnarf -deprecated 1}
 
 # search ..................................................................
 
