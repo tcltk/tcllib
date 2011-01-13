@@ -1,4 +1,4 @@
-2011-01-12  Andreas Kupries  <akupries@shaw.ca>
+2011-01-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl (snitTooManyArgs): Fixed error messages for
 	  snit 1.x series.
