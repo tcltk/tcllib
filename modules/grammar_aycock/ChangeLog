@@ -1,3 +1,16 @@
+2011-01-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl: Fixed guard condition, requiring 8.5+.
+
+	* aycock.test: Fixed test setup, i.e. added the standard
+	  boilerplate.
+
+	* aycock-build.tcl: Made proc names fully qualified.
+	* aycock-debug.tcl:
+	* aycock-runtime.tcl:
+
+	All files changed from Windows to Unix line endings.
+
 2010-10-22  Kevin B. Kenny  <kennykb@acm.org>
 
 	* aycock.man:		Added a missing [list_begin] [list_end]
