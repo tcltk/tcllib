@@ -365,12 +365,12 @@ proc snitErrors {} {
     } else {
 	proc snitWrongNumArgs {obj method arglist missingIndex} {
 	    incr missingIndex 4
-	    tcltest::wrongNumArgs "$obj $method" [linsert $arglist 0 \
+	    tcltest::wrongNumArgs "$method" [linsert $arglist 0 \
 		    type selfns win self] $missingIndex
 	}
 
 	proc snitTooManyArgs {obj method arglist} {
-	    tcltest::tooManyArgs "$obj $method" [linsert $arglist 0 \
+	    tcltest::tooManyArgs "$method" [linsert $arglist 0 \
 		    type selfns win self]
 	}
     }
