@@ -9,4 +9,4 @@
 # full path name of this file's directory.
 
 package ifneeded yaml 0.3.5 [list source [file join $dir yaml.tcl]]
-package ifneeded huddle 0.1.4 [list source [file join $dir huddle.tcl]]
+package ifneeded huddle 0.1.5 [list source [file join $dir huddle.tcl]]

@@ -1,6 +1,6 @@
 # huddle.tcl (working title)
 #
-# huddle.tcl __HUDDLE_TCL_VERSION__ __HUDDLE_TCL_DATETIME__ KATO Kanryu(kanryu6@users.sourceforge.net)
+# huddle.tcl 0.1.5 __HUDDLE_TCL_DATETIME__ KATO Kanryu(kanryu6@users.sourceforge.net)
 #
 #   It is published with the terms of tcllib's BSD-style license.
 #   See the file named license.terms.
@@ -12,7 +12,7 @@ if { [package vcompare [package provide Tcl] 8.5] < 0 } {
     package require dict
 }
 
-# package provide huddle __HUDDLE_TCL_VERSION__
+package provide huddle 0.1.5
 
 namespace eval ::huddle {
     namespace export huddle
@@ -564,5 +564,5 @@ namespace eval ::huddle {
 }
 
 
-source entry.tcl
+#source entry.tcl
 
