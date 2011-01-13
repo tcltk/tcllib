@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: aycock-build.tcl,v 1.1 2010/10/19 03:19:12 kennykb Exp $
+# RCS: @(#) $Id: aycock-build.tcl,v 1.2 2011/01/13 02:47:47 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -55,7 +55,7 @@ namespace eval grammar::aycock {
 # length as rhs giving the semantic values of each symbol on the
 # right-hand side.
 
-proc grammar::aycock::parser {rules {dump {}}} {
+proc ::grammar::aycock::parser {rules {dump {}}} {
     set name [MakeParser]
     ProcessRules $name $rules
     ComputeNullable $name
@@ -96,7 +96,7 @@ proc grammar::aycock::parser {rules {dump {}}} {
 #	save -- Returns a command to recreate the parser without needing
 #		to analyze the rule set.
 
-proc grammar::aycock::MakeParser {} {
+proc ::grammar::aycock::MakeParser {} {
     variable parserCount
     set name [namespace current]::parser[incr parserCount]
     namespace eval $name {
@@ -139,7 +139,7 @@ proc grammar::aycock::MakeParser {} {
 #	of action procedures.  A set of Action procedures is constructed
 #	for the reduction actions.
 
-proc grammar::aycock::ProcessRules {parser rules} {
+proc ::grammar::aycock::ProcessRules {parser rules} {
     namespace upvar $parser \
 	RuleSet RuleSet \
 	ActionProcs ActionProcs \
@@ -205,7 +205,7 @@ proc grammar::aycock::ProcessRules {parser rules} {
 #	"_", containing the semantic values of the symbols on the right-hand
 #	side.
 
-proc grammar::aycock::MakeAction {parser {body {lindex $_ 0}}} {
+proc ::grammar::aycock::MakeAction {parser {body {lindex $_ 0}}} {
     namespace upvar $parser \
 	ActionProcs ActionProcs \
 	APCount APCount
@@ -235,7 +235,7 @@ proc grammar::aycock::MakeAction {parser {body {lindex $_ 0}}} {
 #	Sets 'Nullable' to a dictionary whose keys are nonterminal symbol
 #	names and whose values are 1 if the symbol is nullable and 0 otherwise.
 
-proc grammar::aycock::ComputeNullable {parser} {
+proc ::grammar::aycock::ComputeNullable {parser} {
     namespace upvar $parser \
 	RuleSet RuleSet \
 	Nullable Nullable
@@ -297,7 +297,7 @@ proc grammar::aycock::ComputeNullable {parser} {
 #	rules.  The nullable rules are distinguished by having
 #	"{\u00d8}" appended to their names.
 
-proc grammar::aycock::RewriteGrammar {parser} {
+proc ::grammar::aycock::RewriteGrammar {parser} {
     namespace upvar $parser \
 	RuleSet RuleSet \
 	Nullable Nullable
@@ -362,7 +362,7 @@ proc grammar::aycock::RewriteGrammar {parser} {
 # Side effects:
 #	Displays the rule set on the given channel.
 
-proc grammar::aycock::DumpRuleSet {parser chan} {
+proc ::grammar::aycock::DumpRuleSet {parser chan} {
     namespace upvar $parser RuleSet RuleSet
     dict for {lhs rules} $RuleSet {
 	dict for {rhs action} $rules {
@@ -396,7 +396,7 @@ proc grammar::aycock::DumpRuleSet {parser chan} {
 #	for a given state and symbol.
 #	Cores is a work dictionary used to avoid state duplication.
 
-proc grammar::aycock::MakeState0 {parser} {
+proc ::grammar::aycock::MakeState0 {parser} {
     namespace upvar $parser \
 	RuleSet RuleSet \
 	Completions Completions \
@@ -432,7 +432,7 @@ proc grammar::aycock::MakeState0 {parser} {
 #	Constructs a new state if necessary, updating Completions, Items
 #	Cores and Edges to reflect it.
 
-proc grammar::aycock::MakeState {parser stateIdx sym} {
+proc ::grammar::aycock::MakeState {parser stateIdx sym} {
     namespace upvar $parser \
 	RuleSet RuleSet \
 	Completions Completions \
@@ -598,7 +598,7 @@ proc grammar::aycock::MakeState {parser stateIdx sym} {
 #	which will be the fictitious symbol beyond the end of the right-hand
 #	side if no non-nullable symbols remain.
 
-proc grammar::aycock::SkipOver {rhs {pos 0}} {
+proc ::grammar::aycock::SkipOver {rhs {pos 0}} {
     set n [llength $rhs]
     while {$pos < $n} {
 	if {[string range [lindex $rhs $pos] end-2 end] ne "\{\u00d8\}"} {
@@ -624,7 +624,7 @@ proc grammar::aycock::SkipOver {rhs {pos 0}} {
 # that the state can transition on, add goto(state,symbol) to the
 # state set; iterate until convergence.
 
-proc grammar::aycock::CompleteAutomaton {parser} {
+proc ::grammar::aycock::CompleteAutomaton {parser} {
     namespace upvar $parser \
 	RuleSet RuleSet \
 	Items Items \
@@ -670,7 +670,7 @@ proc grammar::aycock::CompleteAutomaton {parser} {
 # Side effects:
 #	Constructs a new state if needed.
 
-proc grammar::aycock::GoTo {parser state sym} {
+proc ::grammar::aycock::GoTo {parser state sym} {
     namespace upvar $parser Edges Edges
     if {![dict exists $Edges $state] || ![dict exists $Edges $state $sym]} {
 	return {}
@@ -702,7 +702,7 @@ proc grammar::aycock::GoTo {parser state sym} {
 #	state, the completion list for the state, and the GOTO function
 #	for the state.
     
-proc grammar::aycock::DumpAutomaton {parser chan} {
+proc ::grammar::aycock::DumpAutomaton {parser chan} {
     namespace upvar $parser \
 	Completions Completions \
 	Items Items \

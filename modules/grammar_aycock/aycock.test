@@ -7,10 +7,24 @@
 # at this point; they walk through only basic functionality and surely do not
 # explore corner cases.
 
-package require tcltest 2.0
-package require grammar::aycock 1.0
+# -------------------------------------------------------------------------
 
-namespace import tcltest::test
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+support {
+    useLocal     aycock-runtime.tcl grammar::aycock::runtime grammar::aycock
+    useLocalKeep aycock-debug.tcl   grammar::aycock::debug   grammar::aycock
+}
+testing {
+    useLocalKeep aycock-build.tcl   grammar::aycock          grammar::aycock
+}
+
+# -------------------------------------------------------------------------
 
 proc parser1 {} {
     grammar::aycock::parser {
@@ -176,6 +190,7 @@ test aycock-5.1 {desk calculator skeleton} {
     -result {10 14}
 }
 
-tcltest::cleanupTests
+# -------------------------------------------------------------------------
 
-return   
+tcltest::cleanupTests
+return
