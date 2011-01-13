@@ -1,3 +1,8 @@
+2011-01-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* modules/hook: New module 'hook'.
+	* support/installation/modules.tcl:
+
 2010-11-25  Andreas Kupries  <andreask@activestate.com>
 
 	* examples/mime/maildemo.tcl: [Patch 3117246]: Added the standard
