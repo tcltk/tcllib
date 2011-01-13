@@ -12,7 +12,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: symdiff.tcl,v 1.1 2010/10/20 01:24:38 kennykb Exp $
+# RCS: @(#) $Id: symdiff.tcl,v 1.2 2011/01/13 02:49:53 andreas_kupries Exp $
 
 
 # This package requires the 'tclparser' from http://tclpro.sf.net/
