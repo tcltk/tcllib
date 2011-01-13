@@ -1,3 +1,8 @@
+2011-01-12  Andreas Kupries  <akupries@shaw.ca>
+
+	* testutilities.tcl (snitTooManyArgs): Fixed error messages for
+	  snit 1.x series.
+
 2010-09-15  Andreas Kupries  <andreask@activestate.com>
 
 	* testutilities.tcl: [Bug 3066026]: Moved the tcltest
