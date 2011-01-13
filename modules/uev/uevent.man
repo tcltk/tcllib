@@ -6,7 +6,8 @@
 [require Tcl 8.4]
 [require uevent [opt 0.2]]
 [require logger]
-[keywords event bind unbind {generate event}]
+[keywords event bind unbind {generate event} hook]
+[see_also hook(n)]
 [description]
 
 This package provides a general facility for the handling of user
