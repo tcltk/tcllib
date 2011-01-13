@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: aycock-runtime.tcl,v 1.1 2010/10/19 03:19:12 kennykb Exp $
+# RCS: @(#) $Id: aycock-runtime.tcl,v 1.2 2011/01/13 02:47:47 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -38,7 +38,7 @@ namespace eval grammar::aycock {
 # Side effects:
 #	Reconstructs the parser
 
-proc grammar::aycock::Restore {rules automaton args} {
+proc ::grammar::aycock::Restore {rules automaton args} {
     set name [MakeParser]
     variable ${name}::RuleSet
     variable ${name}::Completions
@@ -76,7 +76,7 @@ proc grammar::aycock::Restore {rules automaton args} {
 #	save -- Returns a command to recreate the parser without needing
 #		to analyze the rule set.
 
-proc grammar::aycock::MakeParser {} {
+proc ::grammar::aycock::MakeParser {} {
     variable parserCount
     set name [namespace current]::parser[incr parserCount]
     namespace eval $name {
@@ -125,7 +125,7 @@ proc grammar::aycock::MakeParser {} {
 # the LRE(0) parser state of the symbol being reduced - see Aycock's
 # paper for the details on how these are interpreted.
 
-proc grammar::aycock::MakeSet {parser setsVar sym} {
+proc ::grammar::aycock::MakeSet {parser setsVar sym} {
     upvar 1 $setsVar sets
     namespace upvar $parser \
 	Completions Completions \
@@ -223,7 +223,7 @@ proc grammar::aycock::MakeSet {parser setsVar sym} {
 #	Returns whatever the semantic action in the top-level reduction
 #	of the parse returns.
 
-proc grammar::aycock::Parse {parser symlist vallist {clientData {}}} {
+proc ::grammar::aycock::Parse {parser symlist vallist {clientData {}}} {
     namespace upvar $parser \
 	RuleSet RuleSet \
 	Edges Edges
@@ -267,7 +267,7 @@ proc grammar::aycock::Parse {parser symlist vallist {clientData {}}} {
 # Results:
 #	Returns the semantic value of the left-hand side of the reduction
 
-proc grammar::aycock::Reconstruct {parser nt state parent vallist sets k clientData} {
+proc ::grammar::aycock::Reconstruct {parser nt state parent vallist sets k clientData} {
     namespace upvar $parser \
 	RuleSet RuleSet \
 	Completions Completions \
@@ -361,7 +361,7 @@ proc grammar::aycock::Reconstruct {parser nt state parent vallist sets k clientD
 # YACC-style ambiguous expression grammar with precedence and associativity;
 # that sort of processing would need additional investigation.
 
-proc grammar::aycock::ChooseReduction {parser lritems} {
+proc ::grammar::aycock::ChooseReduction {parser lritems} {
 #     if {[llength $lritems] != 3} {
 # 	puts "Need to choose which item to reduce:"
 # 	DumpItemSet $parser $lritems
@@ -394,7 +394,7 @@ proc grammar::aycock::ChooseReduction {parser lritems} {
 # Results:
 #	Returns the semantic value of the given symbol
 
-proc grammar::aycock::DeriveEpsilon {parser sym clientData} {
+proc ::grammar::aycock::DeriveEpsilon {parser sym clientData} {
     # need to find the rule that derives the null string, and
     # expand it out.
     namespace upvar $parser RuleSet RuleSet

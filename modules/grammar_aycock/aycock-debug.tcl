@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: aycock-debug.tcl,v 1.1 2010/10/19 03:19:12 kennykb Exp $
+# RCS: @(#) $Id: aycock-debug.tcl,v 1.2 2011/01/13 02:47:47 andreas_kupries Exp $
 #
 #----------------------------------------------------------------------
 
@@ -30,7 +30,7 @@ package require grammar::aycock::runtime 1.0
 # Results:
 #	Returns a list of the terminal symbols
 
-proc grammar::aycock::Terminals {parser} {
+proc ::grammar::aycock::Terminals {parser} {
     namespace upvar $parser RuleSet RuleSet
     set t [dict create]
     dict for {lhs rules} $RuleSet {
@@ -57,7 +57,7 @@ proc grammar::aycock::Terminals {parser} {
 # Results:
 #	Returns a list of the nonterminal symbols
 
-proc grammar::aycock::Nonterminals {parser} {
+proc ::grammar::aycock::Nonterminals {parser} {
     namespace upvar $parser RuleSet RuleSet
     set t [dict create]
     dict for {lhs rules} $RuleSet {
@@ -84,7 +84,7 @@ proc grammar::aycock::Nonterminals {parser} {
 # Results:
 #	Return a list of the left-hand sides of rules never reduced.
 
-proc grammar::aycock::NeverReduced {parser} {
+proc ::grammar::aycock::NeverReduced {parser} {
     namespace upvar $parser RuleSet RuleSet
     set t [dict create]
     foreach {lhs rules} $RuleSet {
@@ -97,7 +97,6 @@ proc grammar::aycock::NeverReduced {parser} {
     return [lsort [dict keys $t]]
 }
 
-
 # grammar::aycock::Save --
 #
 #	Produces a script that will load an Aycock-Earley parser without
@@ -109,7 +108,7 @@ proc grammar::aycock::NeverReduced {parser} {
 # Results:
 #	Returns a script that when evaluated will reload the parser.
 
-proc grammar::aycock::Save {parser} {
+proc ::grammar::aycock::Save {parser} {
     namespace upvar $parser \
 	RuleSet RuleSet \
 	Completions Completions \
@@ -157,7 +156,7 @@ proc grammar::aycock::Save {parser} {
 # Side effects:
 #	Writes the LRE(0) item set on the given channel
 
-proc grammar::aycock::DumpItemSet {parser s {chan stdout}} {
+proc ::grammar::aycock::DumpItemSet {parser s {chan stdout}} {
     foreach {lhs prodIndex pos} $s {
 	DumpItem $parser $lhs $prodIndex $pos $chan
     }
@@ -182,7 +181,7 @@ proc grammar::aycock::DumpItemSet {parser s {chan stdout}} {
 # Side effects:
 #	Writes the LRE(0) item on the given channel
 
-proc grammar::aycock::DumpItem {parser lhs prodIndex pos {chan stdout}} {
+proc ::grammar::aycock::DumpItem {parser lhs prodIndex pos {chan stdout}} {
     namespace upvar $parser RuleSet RuleSet
     set rhs [lindex [dict get $RuleSet $lhs] $prodIndex]
     puts $chan "        $lhs ::= [linsert $rhs $pos \u00b7]"
