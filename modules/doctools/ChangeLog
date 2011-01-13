@@ -1,3 +1,7 @@
+2011-01-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* doctools.test: Updated for the changes made per the entry below.
+
 2010-11-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* doctools.man: Bumped to version 1.4.11, fixing issues with
