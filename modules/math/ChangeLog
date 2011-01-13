@@ -1,3 +1,9 @@
+2011-01-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* symdiff.test: Fixed setup (added std boilerplate).
+	* pkgIndex.tcl: Moved symdiff to correct section, requires 8.5,
+	not 8.4.
+
 2010-05-24  Andreas Kupries  <andreask@activestate.com>
 
 	* geometry.man: [Bug 3110860]: Renamed this file to avoid the
