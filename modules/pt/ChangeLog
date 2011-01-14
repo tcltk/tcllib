@@ -1,3 +1,9 @@
+2011-01-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pt_peg_to_json.test: Dropped the local json::write package,
+	* pkgIndex.tcl: replaced with use of the common json::write
+	* json_write.tcl: derived from it.
+
 2010-11-25  Andreas Kupries  <andreask@activestate.com>
 
 	* pt_cparam_config_critcl.man: Added pragmas for meta-data

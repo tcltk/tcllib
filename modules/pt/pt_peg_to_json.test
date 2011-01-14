@@ -4,7 +4,7 @@
 # Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pt_peg_to_json.test,v 1.1 2010/03/26 05:07:24 andreas_kupries Exp $
+# RCS: @(#) $Id: pt_peg_to_json.test,v 1.2 2011/01/14 03:49:54 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -18,10 +18,10 @@ testsNeedTcltest 2
 support {
     use      fileutil/fileutil.tcl  fileutil      ;# tests/common
     use      textutil/adjust.tcl    textutil::adjust
+    use      json/json_write.tcl    json::write
 
     useLocal pt_pexpression.tcl     pt::pe
     useLocal pt_pegrammar.tcl       pt::peg
-    useLocal json_write.tcl         json::write
 
     source [localPath tests/common]
 }
