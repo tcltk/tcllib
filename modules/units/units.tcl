@@ -11,7 +11,7 @@
 #  Copyright (C) Mayo Foundation.  All Rights Reserved.
 #
 #-----------------------------------------------------------------
-package provide units 2.1
+package provide units 2.1.1
 
 package require Tcl 8.1
 

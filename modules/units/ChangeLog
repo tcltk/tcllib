@@ -1,3 +1,8 @@
+2011-01-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* units.tcl: Bumped version to 2.1.1 for the bugfix below.
+	* pkgIndex.tcl:
+
 2010-12-22  Bob Techentin <techentin@users.sourceforge.net>
 
 	* units.tcl, units.test:
