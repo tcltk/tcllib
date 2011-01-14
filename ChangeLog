@@ -1,3 +1,9 @@
+2011-01-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* sak.tcl: Trim dross of extracted version numbers.
+	* support/devel/sak/note/cmd.tcl: Extended 'sak note' to accept
+	* support/devel/sak/note/help.txt: a file of note data.
+
 2011-01-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* modules/hook: New module 'hook'.
