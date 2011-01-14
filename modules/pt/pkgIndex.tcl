@@ -4,7 +4,6 @@ if {![package vsatisfies [package provide Tcl] 8.5]} return
 package ifneeded char          1 [list source [file join $dir char.tcl]]
 package ifneeded configuration 1 [list source [file join $dir configuration.tcl]]
 package ifneeded paths         1 [list source [file join $dir paths.tcl]]
-package ifneeded json::write   1 [list source [file join $dir json_write.tcl]]
 package ifneeded text::write   1 [list source [file join $dir text_write.tcl]]
 
 # AST support
