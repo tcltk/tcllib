@@ -178,6 +178,7 @@ proc ipackages {args} {
 	    regsub {([0-9]) \[.*$}  $line {\1} line
 
 	    foreach {n v} $line break
+	    set v [string trimright $v \\]
 
 	    if {![info exists p($n)]} {
 		set p($n) [list $v $m]
