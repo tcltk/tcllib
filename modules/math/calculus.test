@@ -9,7 +9,7 @@
 # Copyright (c) 2004 by Kevin B. Kenny
 # All rights reserved.
 #
-# RCS: @(#) $Id: calculus.test,v 1.17 2008/06/26 20:04:23 arjenmarkus Exp $
+# RCS: @(#) $Id: calculus.test,v 1.18 2011/01/18 07:49:53 arjenmarkus Exp $
 
 # -------------------------------------------------------------------------
 
@@ -41,7 +41,11 @@ namespace import ::tcltest::test
 namespace import ::math::calculus::*
 
 set prec $::tcl_precision
-set ::tcl_precision 17
+if {![package vsatisfies [package provide Tcl] 8.5]} {
+    set ::tcl_precision 17
+} else {
+    set ::tcl_precision 0
+}
 
 proc matchNumbers {expected actual} {
     set match 1

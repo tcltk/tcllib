@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: optimize.test,v 1.16 2006/10/09 21:41:41 andreas_kupries Exp $
+# $Id: optimize.test,v 1.17 2011/01/18 07:49:53 arjenmarkus Exp $
 #
 # Copyright (c) 2004 by Arjen Markus
 # Copyright (c) 2004, 2005 by Kevin B. Kenny
@@ -38,9 +38,11 @@ namespace eval optimizetest {
 
 namespace import ::math::optimize::*
 
+set old_precision $::tcl_precision
 if {![package vsatisfies [package present Tcl] 8.5]} {
-    set old_precision $::tcl_precision
     set ::tcl_precision 17
+} else {
+    set ::tcl_precision 0
 }
 
 #
@@ -580,9 +582,7 @@ test nelderMead-2.4 "Nelder-Mead - simplex contracts about the minimum" \
 testsuiteCleanup
 
 #  Restore precision
-if {![package vsatisfies [package present Tcl] 8.5]} {
-    set ::tcl_precision $old_precision
-}
+set ::tcl_precision $old_precision
 
 # Local Variables:
 # mode: tcl

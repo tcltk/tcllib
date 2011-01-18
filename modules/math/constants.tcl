@@ -5,8 +5,8 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: constants.tcl,v 1.8 2005/10/06 05:16:37 andreas_kupries Exp $
+#
+# RCS: @(#) $Id: constants.tcl,v 1.9 2011/01/18 07:49:53 arjenmarkus Exp $
 #
 #----------------------------------------------------------------------
 
@@ -170,7 +170,7 @@ namespace eval ::math::constants {
     }
     unset value
     unset const
-    unset descr 
+    unset descr
 
     rename find_eps  {}
     rename find_tiny {}
@@ -182,7 +182,12 @@ namespace eval ::math::constants {
 if { [info exists ::argv0]
      && [string equal $::argv0 [info script]] } {
     ::math::constants::constants pi e ln10 onethird eps
-    set tcl_precision 17
+    set prec $::tcl_precision
+    if {![package vsatisfies [package provide Tcl] 8.5]} {
+        set ::tcl_precision 17
+    } else {
+        set ::tcl_precision 0
+    }
     puts "$pi - [expr {1.0/$pi}]"
     puts $e
     puts $ln10
@@ -190,10 +195,11 @@ if { [info exists ::argv0]
     ::math::constants::print-constants onethird pi e
     puts "All defined constants:"
     ::math::constants::print-constants
-    
+
     if { 1.0+$eps == 1.0 } {
         puts "Something went wrong with eps!"
     } else {
         puts "Difference: [set ee [expr {1.0+$eps}]] - 1.0 = [expr {$ee-1.0}]"
     }
+    set ::tcl_precision $prec
 }
