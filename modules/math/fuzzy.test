@@ -176,8 +176,12 @@ test math-fuzzy-ManyCompares-1.1 {Compare fails due to missing braces} {
    #
    # Force Tcl8.4 or earlier behaviour in expanding numbers
    #
-   set org_tcl_precision $tcl_precision
-   set tcl_precision 12
+   set prec $::tcl_precision
+   if {![package vsatisfies [package provide Tcl] 8.5]} {
+       set ::tcl_precision 17
+   } else {
+       set ::tcl_precision 0
+   }
 
    for { set i -1000 } { $i <= 1000 } { incr i } {
       if { $i == 0 } continue
@@ -203,7 +207,7 @@ test math-fuzzy-ManyCompares-1.1 {Compare fails due to missing braces} {
          set equal 0
       }
    }
-   set tcl_precision $org_tcl_precision
+   set tcl_precision $prec
    set equal
 } 0
 

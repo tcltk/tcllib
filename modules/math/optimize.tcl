@@ -11,7 +11,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: optimize.tcl,v 1.11 2005/09/28 04:51:22 andreas_kupries Exp $
+# RCS: @(#) $Id: optimize.tcl,v 1.12 2011/01/18 07:49:53 arjenmarkus Exp $
 #
 #----------------------------------------------------------------------
 
@@ -659,7 +659,7 @@ proc ::math::optimize::nelderMead { f startx args } {
         }
         set params($key) $value
     }
-    
+
     # Construct the initial simplex
 
     set vertices [list $startx]
@@ -783,7 +783,7 @@ proc ::math::optimize::nelderMead { f startx args } {
 	set cmd $f
 	foreach xx $trial {
 	    lappend cmd $xx
-	} 
+	}
 	set yTrial [uplevel 1 $cmd]
 	if { $params(-trace) } {
 	    puts "nelderMead: trying reflection: x=[list $trial] y=$yTrial"
@@ -1298,10 +1298,16 @@ proc g {a b} {
     return $x4
 }
 
-if { ![package vsatisfies [package provide Tcl] 8.5] } {
-    set tcl_precision 17
+set prec $::tcl_precision
+if {![package vsatisfies [package provide Tcl] 8.5]} {
+    set ::tcl_precision 17
+} else {
+    set ::tcl_precision 0
 }
+
 puts "f"
 puts [math::optimize::nelderMead f {1. 0.} -scale {0.1 0.01} -trace 1]
 puts "g"
 puts [math::optimize::nelderMead g {0. 0.} -scale {1. 1.} -trace 1]
+
+set ::tcl_precision $prec
