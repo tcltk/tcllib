@@ -305,7 +305,13 @@ package provide math::rationalfunctions 1.0.1
 # some tests --
 #
 if { 0 } {
-set tcl_precision 17
+set prec $::tcl_precision
+if {![package vsatisfies [package provide Tcl] 8.5]} {
+    set ::tcl_precision 17
+} else {
+    set ::tcl_precision 0
+}
+
 
 set f1    [::math::rationalfunctions::rationalFunction {1 2 3} {1 4}]
 set f2    [::math::rationalfunctions::rationalFunction {1 2 3 0} {1 4}]
@@ -353,4 +359,6 @@ set f3 [::math::rationalfunctions::divRatio $f2 $f1]
 set coeffs [::math::rationalfunctions::coeffsNumerator $f3]
 puts "Coefficients: $coeffs"
 puts "Eval null function: [::math::rationalfunctions::evalRatio $f2 1]"
+
+set ::tcl_precision $prec
 }

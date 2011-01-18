@@ -45,8 +45,12 @@ if {$regular==1} then {
 
 namespace import -force ::math::linearalgebra::*
 
-set old_precision $::tcl_precision
-set ::tcl_precision 17
+set prec $::tcl_precision
+if {![package vsatisfies [package provide Tcl] 8.5]} {
+    set ::tcl_precision 17
+} else {
+    set ::tcl_precision 0
+}
 
 #
 # Returns 1 if the expected value is close to the actual value,
@@ -825,7 +829,7 @@ test largesteigen-3 "power method" -body {
 # Additional tests: procedures by Federico Ferri
 #source ferri/ferri.test
 
-set ::tcl_precision $old_precision
+set ::tcl_precision $prec
 
 if {$regular==1} then {
     testsuiteCleanup

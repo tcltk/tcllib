@@ -165,7 +165,12 @@ proc ::math::special::hermite {n} {
 # some tests --
 #
 if { 0 } {
-set tcl_precision 17
+set prec $::tcl_precision
+if {![package vsatisfies [package provide Tcl] 8.5]} {
+    set ::tcl_precision 17
+} else {
+    set ::tcl_precision 0
+}
 
 puts "Legendre:"
 foreach n {0 1 2 3 4} {
@@ -190,4 +195,6 @@ puts "Hermite:"
 foreach n {0 1 2 3 4} {
     puts [::math::special::hermite $n]
 }
+
+set ::tcl_precision $prec
 }

@@ -175,7 +175,13 @@ proc ::math::special::I_n {n x} {
 # some tests --
 #
 if { 0 } {
-set tcl_precision 17
+set prec $::tcl_precision
+if {![package vsatisfies [package provide Tcl] 8.5]} {
+    set ::tcl_precision 17
+} else {
+    set ::tcl_precision 0
+}
+
 foreach x {0.0 2.0 4.4 6.0 10.0 11.0 12.0 13.0 14.0} {
     puts "J0($x) = [::math::special::J0 $x] - J1($x) = [::math::special::J1 $x] \
 - J1/2($x) = [::math::special::J1/2 $x]"
@@ -183,4 +189,6 @@ foreach x {0.0 2.0 4.4 6.0 10.0 11.0 12.0 13.0 14.0} {
 foreach n {0 1 2 3 4 5} {
     puts [::math::special::I_n $n 1.0]
 }
+
+set ::tcl_precision $prec
 }
