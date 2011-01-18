@@ -496,7 +496,12 @@ package provide math::polynomials 1.0.1
 # some tests --
 #
 if { 0 } {
-set tcl_precision 17
+set prec $::tcl_precision
+if {![package vsatisfies [package provide Tcl] 8.5]} {
+    set ::tcl_precision 17
+} else {
+    set ::tcl_precision 0
+}
 
 set f1    [::math::polynomials::polynomial {1 2 3}]
 set f2    [::math::polynomials::polynomial {1 2 3 0}]
@@ -550,4 +555,6 @@ set f2 [::math::polynomials::polynomial {0}]
 set f3 [::math::polynomials::divPolyn $f2 $f1]
 set coeffs [::math::polynomials::allCoeffsPolyn $f3]
 puts "Coefficients: $coeffs"
+
+set ::tcl_precision $prec
 }
