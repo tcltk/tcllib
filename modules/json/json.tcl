@@ -6,14 +6,14 @@
 #   Total rework of the code published with version number 1.0 by
 #   Thomas Maeder, Glue Software Engineering AG
 #
-#   $Id: json.tcl,v 1.5 2009/12/10 17:48:12 andreas_kupries Exp $
+#   $Id: json.tcl,v 1.6 2011/01/20 15:11:55 andreas_kupries Exp $
 #
 
 if {![package vsatisfies [package provide Tcl] 8.5]} {
     package require dict
 }
 
-package provide json 1.1
+package provide json 1.1.1
 
 namespace eval json {
     # Regular expression for tokenizing a JSON text (cf. http://json.org/)
@@ -264,7 +264,7 @@ proc json::parseValue {tokens nrTokens tokenCursorName} {
         incr tokenCursor
 
         set leadingChar [string index $token 0]
-        switch -exact $leadingChar {
+        switch -exact -- $leadingChar {
             "\{" {
                 return [parseObject $tokens $nrTokens tokenCursor]
             }
