@@ -1,3 +1,9 @@
+2011-01-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* json.tcl (json::parseValue): Fixed a missing -- older 8.4 seems
+	* json.man: to require to handle a dash in $leadingChar. Bumped
+	* pkgIndex.tcl: version to 1.1.1
+
 2009-12-10  Andreas Kupries  <andreask@activestate.com>
 
 	* json.tcl: [Patch 2909962]: Accepted rewrite of the json parser
