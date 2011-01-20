@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin tar n 0.6]
+[manpage_begin tar n 0.7]
 [moddesc   {Tar file handling}]
 [titledesc {Tar file creation, extraction & manipulation}]
 [category  {File formats}]
 [require Tcl 8.4]
-[require tar [opt 0.6]]
+[require tar [opt 0.7]]
 [description]
 
 
@@ -12,23 +12,32 @@
 
 [list_begin definitions]
 
-[call [cmd ::tar::contents] [arg tarball]]
+[call [cmd ::tar::contents] [arg tarball] [opt [option -chan]]]
 
 Returns a list of the files contained in [arg tarball]. The order is not sorted and depends on the order
 files were stored in the archive.
 [para]
 
-[call [cmd ::tar::stat] [arg tarball] [opt file]]
+If the option [option -chan] is present [arg tarball] is interpreted as an open channel.
+It is assumed that the channel was opened for reading, and configured for binary input.
+The command will [emph not] close the channel.
+
+[call [cmd ::tar::stat] [arg tarball] [opt file] [opt [option -chan]]]
 
 Returns a nested dict containing information on the named [opt file] in [arg tarball],
 or all files if none is specified. The top level are pairs of filename and info. The info is a dict with the keys
 "[const mode] [const uid] [const gid] [const size] [const mtime] [const type] [const linkname] [const uname] [const gname]
- [const devmajor] [const devminor]
+ [const devmajor] [const devminor]"
 
 [example {
 % ::tar::stat tarball.tar
 foo.jpg {mode 0644 uid 1000 gid 0 size 7580 mtime 811903867 type file linkname {} uname user gname wheel devmajor 0 devminor 0}
 }]
+
+[para]
+If the option [option -chan] is present [arg tarball] is interpreted as an open channel.
+It is assumed that the channel was opened for reading, and configured for binary input.
+The command will [emph not] close the channel.
 
 
 [call [cmd ::tar::untar] [arg tarball] [arg args]]
@@ -54,6 +63,12 @@ Dont overwrite files that already exist
 Leave the file modification time as the current time instead of setting it to the value in the archive.
 [opt_def -noperms]
 In Unix, leave the file permissions as the current umask instead of setting them to the values in the archive.
+
+[opt_def -chan]
+If this option is present [arg tarball] is interpreted as an open channel.
+It is assumed that the channel was opened for reading, and configured for binary input.
+The command will [emph not] close the channel.
+
 [list_end]
 [para]
 
@@ -63,7 +78,7 @@ puts "Extracted $file ($size bytes)"
 }
 }]
 
-[call [cmd ::tar::get] [arg tarball] [arg fileName]]
+[call [cmd ::tar::get] [arg tarball] [arg fileName] [opt [option -chan]]]
 
 Returns the contents of [arg fileName] from the [arg tarball]
 [para]
@@ -73,6 +88,12 @@ Returns the contents of [arg fileName] from the [arg tarball]
 % puts $readme
 }
 }]
+
+[para]
+If the option [option -chan] is present [arg tarball] is interpreted as an open channel.
+It is assumed that the channel was opened for reading, and configured for binary input.
+The command will [emph not] close the channel.
+
 
 [call [cmd ::tar::create] [arg tarball] [arg files] [arg args]]
 
@@ -84,6 +105,12 @@ as a single argument which is a proper list of filenames.
 Normally [cmd create] will store links as an actual link pointing at a file that may
 or may not exist in the archive. Specifying this option will cause the actual file point to
  by the link to be stored instead.
+
+[opt_def -chan]
+If this option is present [arg tarball] is interpreted as an open channel.
+It is assumed that the channel was opened for writing, and configured for binary output.
+The command will [emph not] close the channel.
+
 [list_end]
 [para]
 

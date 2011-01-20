@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tar.tcl,v 1.15 2009/12/03 19:59:32 andreas_kupries Exp $
+# RCS: @(#) $Id: tar.tcl,v 1.16 2011/01/20 19:45:25 andreas_kupries Exp $
 
-package provide tar 0.6
+package provide tar 0.7
 
 namespace eval ::tar {}
 
@@ -39,6 +39,31 @@ proc ::tar::pad {size} {
     set pad [expr {512 - ($size % 512)}]
     if {$pad == 512} {return 0}
     return $pad
+}
+
+proc ::tar::seekorskip {ch off wh} {
+    if {![catch {seek $ch $off $wh} res]} {
+	return
+    }
+    if {![regexp {invalid.argument$} $res]} {
+	error $res
+    }
+    if {$wh!="current"} {
+	error "WHENCE=$wh not supported on non-seekable channel $ch"
+    }
+    skip $ch $off
+    return
+}
+
+proc ::tar::skip {ch len} {
+    while {$len>0} {
+	set buf $len
+	if {$buf>65536} {set buf 65536}
+	set n [read $ch $buf]
+	if {$n<$buf} break
+	incr len -$buf
+    }
+    return
 }
 
 proc ::tar::readHeader {data} {
@@ -89,26 +114,42 @@ proc ::tar::readHeader {data} {
                  devminor $devminor prefix $prefix]
 }
 
-proc ::tar::contents {file} {
-    set fh [::open $file]
+proc ::tar::contents {file args} {
+    set chan 0
+    parseOpts {chan 0} $args
+    if {$chan} {
+	set fh $file
+    } else {
+	set fh [::open $file]
+	fconfigure $fh -encoding binary -translation lf -eofchar {}
+    }
     set ret {}
     while {![eof $fh]} {
         array set header [readHeader [read $fh 512]]
         if {$header(name) == ""} break
         lappend ret $header(prefix)$header(name)
-        seek $fh [expr {$header(size) + [pad $header(size)]}] current
+        seekorskip $fh [expr {$header(size) + [pad $header(size)]}] current
     }
-    close $fh
+    if {!$chan} {
+	close $fh
+    }
     return $ret
 }
 
-proc ::tar::stat {tar {file {}}} {
-    set fh [::open $tar]
+proc ::tar::stat {tar {file {}} args} {
+    set chan 0
+    parseOpts {chan 0} $args
+    if {$chan} {
+	set fh $tar
+    } else {
+	set fh [::open $tar]
+	fconfigure $fh -encoding binary -translation lf -eofchar {}
+    }
     set ret {}
     while {![eof $fh]} {
         array set header [readHeader [read $fh 512]]
         if {$header(name) == ""} break
-        seek $fh [expr {$header(size) + [pad $header(size)]}] current
+        seekorskip $fh [expr {$header(size) + [pad $header(size)]}] current
         if {$file != "" && "$header(prefix)$header(name)" != $file} {continue}
         set header(type) [string map {0 file 5 directory 3 characterSpecial 4 blockSpecial 6 fifo 2 link} $header(type)]
         set header(mode) [string range $header(mode) 2 end]
@@ -116,25 +157,37 @@ proc ::tar::stat {tar {file {}}} {
                     size $header(size) mtime $header(mtime) type $header(type) linkname $header(linkname) \
                     uname $header(uname) gname $header(gname) devmajor $header(devmajor) devminor $header(devminor)]
     }
-    close $fh
+    if {!$chan} {
+	close $fh
+    }
     return $ret
 }
 
-proc ::tar::get {tar file} {
-    set fh [::open $tar]
-    fconfigure $fh -encoding binary -translation lf -eofchar {}
+proc ::tar::get {tar file args} {
+    set chan 0
+    parseOpts {chan 0} $args
+    if {$chan} {
+	set fh $tar
+    } else {
+	set fh [::open $tar]
+	fconfigure $fh -encoding binary -translation lf -eofchar {}
+    }
     while {![eof $fh]} {
         array set header [readHeader [read $fh 512]]
         if {$header(name) == ""} break
         set name [string trimleft $header(prefix)$header(name) /]
         if {$name == $file} {
             set file [read $fh $header(size)]
-            close $fh
+            if {!$chan} {
+		close $fh
+	    }
             return $file
         }
-        seek $fh [expr {$header(size) + [pad $header(size)]}] current
+        seekorskip $fh [expr {$header(size) + [pad $header(size)]}] current
     }
-    close $fh
+    if {!$chan} {
+	close $fh
+    }
     return {}
 }
 
@@ -143,7 +196,8 @@ proc ::tar::untar {tar args} {
     set data 0
     set nomtime 0
     set noperms 0
-    parseOpts {dir 1 file 1 glob 1 nooverwrite 0 nomtime 0 noperms 0} $args
+    set chan 0
+    parseOpts {dir 1 file 1 glob 1 nooverwrite 0 nomtime 0 noperms 0 chan 0} $args
     if {![info exists dir]} {set dir [pwd]}
     set pattern *
     if {[info exists file]} {
@@ -153,14 +207,18 @@ proc ::tar::untar {tar args} {
     }
 
     set ret {}
-    set fh [::open $tar]
-    fconfigure $fh -encoding binary -translation lf -eofchar {}
+    if {$chan} {
+	set fh $tar
+    } else {
+	set fh [::open $tar]
+	fconfigure $fh -encoding binary -translation lf -eofchar {}
+    }
     while {![eof $fh]} {
         array set header [readHeader [read $fh 512]]
         if {$header(name) == ""} break
         set name [string trimleft $header(prefix)$header(name) /]
         if {![string match $pattern $name] || ($nooverwrite && [file exists $name])} {
-            seek $fh [expr {$header(size) + [pad $header(size)]}] current
+            seekorskip $fh [expr {$header(size) + [pad $header(size)]}] current
             continue
         }
 
@@ -188,7 +246,7 @@ proc ::tar::untar {tar args} {
                 lappend ret $name {}
             }
         }
-        seek $fh [pad $header(size)] current
+        seekorskip $fh [pad $header(size)] current
         if {![file exists $name]} continue
 
         if {$::tcl_platform(platform) == "unix"} {
@@ -202,7 +260,9 @@ proc ::tar::untar {tar args} {
             file mtime $name $header(mtime)
         }
     }
-    close $fh
+    if {!$chan} {
+	close $fh
+    }
     return $ret
 }
 
@@ -342,16 +402,23 @@ proc ::tar::writefile {in out followlinks name} {
 
 proc ::tar::create {tar files args} {
     set dereference 0
-    parseOpts {dereference 0} $args
-    
-    set fh [::open $tar w+]
-    fconfigure $fh -encoding binary -translation lf -eofchar {}
+    set chan 0
+    parseOpts {dereference 0 chan 0} $args
+
+    if {$chan} {
+	set fh $tar
+    } else {
+	set fh [::open $tar w+]
+	fconfigure $fh -encoding binary -translation lf -eofchar {}
+    }
     foreach x [recurseDirs $files $dereference] {
         writefile $x $fh $dereference $x
     }
     puts -nonewline $fh [string repeat \x00 1024]
 
-    close $fh
+    if {!$chan} {
+	close $fh
+    }
     return $tar
 }
 
