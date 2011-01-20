@@ -90,6 +90,11 @@ tried in turn until we are either authorized or we run out of
 methods. Note that if the server permits a TLS connection, then the
 authorization will occur after we begin using the secure channel.
 
+[para]
+Please also read the section on [sectref Authentication], it details
+the necessary prequisites, i.e. packages needed to support these
+options and authentication.
+
 [list_end]
 [para]
 
@@ -113,6 +118,20 @@ intended recipients, a non-empty list may still indicate that the
 message was accepted by the server.
 
 [list_end]
+
+[section Authentication]
+
+Beware. SMTP authentication uses [package SASL]. I.e. if the user
+has to authenticate a connection, i.e. use the options [option -user]
+and [option -password] (see above) it is necessary to have the
+[package sasl] package available so that [package smtp] can load it.
+
+[para]
+
+This is a soft dependency because not everybody requires authentication,
+and [package sasl] depends on a lot of the cryptographic (secure) hashes,
+i.e. all of [package md5], [package otp], [package md4], [package sha1],
+and [package ripemd160].
 
 [section EXAMPLE]
 
