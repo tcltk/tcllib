@@ -1,3 +1,10 @@
+2011-01-20  Andreas Kupries  <andreask@activestate.com>
+
+	* tar.tcl: [Bug 3162548]: Applied patch by Alexandre Ferrieux,
+	* tar.man: extending various tar commands to be able to use
+	* pkgIndex.tcl: the -chan option, and channels instead of files.
+	  Version bumped to 0.7
+
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
