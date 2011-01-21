@@ -524,7 +524,18 @@ proc testing {script} {
 
 proc useTcllibC {} {
     set index [tcllibPath tcllibc/pkgIndex.tcl]
-    if {![file exists $index]} {return 0}
+    if {![file exists $index]} {
+	# Might have an external tcllibc
+	if {![catch {
+	    package require tcllibc
+	}]} {
+	    puts "$::tcllib::testutils::tag tcllibc [package present tcllibc]"
+	    puts "$::tcllib::testutils::tag tcllibc = [package ifneeded tcllibc [package present tcllibc]]"
+	    return 1
+	}
+
+	return 0
+    }
 
     set ::dir [file dirname $index]
     uplevel #0 [list source $index]
