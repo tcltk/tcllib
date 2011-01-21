@@ -1,4 +1,4 @@
-[manpage_begin tepam n 0.1]
+[manpage_begin tepam n 0.2.0]
 [copyright {2009/2010, Andreas Drollinger}]
 [moddesc {Tcl's Enhanced Procedure and Argument Manager}]
 [titledesc {An introduction into TEPAM, Tcl's Enhanced Procedure and Argument Manager}]
@@ -7,7 +7,7 @@
 [description]
 [para]
 
-This document is an informal introduction into version 0.1 of TEPAM, the Tcl's Enhanced Procedure and Argument Manager. Detailed information to the TEPAM package is provided in the [emph tepam::procedure] and [emph tepam::argument_dialogbox] reference manuals.
+This document is an informal introduction into version 0.2 of TEPAM, the Tcl's Enhanced Procedure and Argument Manager. Detailed information to the TEPAM package is provided in the [emph tepam::procedure] and [emph tepam::argument_dialogbox] reference manuals.
 
 [section "OVERVIEW"]
 
@@ -77,8 +77,8 @@ The following example declares the subcommand [cmd message] of the procedure [cm
       {-log_file -type file -optional -description "Optional message log file"}
       {text -type string -multiple -description "Multiple text lines to display"}
    }
-} {[emph {
-   puts "display message:"
+} {
+[emph {   puts "display message:"
    foreach var {mtype font level fg bg no_border log_file text} {
       if {[info exists $var]} {
          puts  "  $var=[set $var]"
@@ -296,7 +296,7 @@ The validation status is in this case stored inside the [var Result] variable. I
    Color: 'red'
    Font: 'Courier 12 italic'}][example_end]
 
-[see_also tepam_argument_dialogbox(n) tepam_procedure(n)]
+[see_also tepam::argument_dialogbox(n) tepam::procedure(n)]
 
 [keywords procedure arguments {argument validation} {argument integrity} subcommand {entry mask} {parameter entry form}]
 [manpage_end]
