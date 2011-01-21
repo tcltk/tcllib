@@ -6,7 +6,7 @@
 #
 # Copyright (C) 2009, 2010 Andreas Drollinger
 # 
-# RCS: @(#) $Id: 1b_procedure_interactive_widgets.demo,v 1.1 2010/02/11 21:54:38 droll Exp $
+# RCS: @(#) $Id: 1b_procedure_interactive_widgets.demo,v 1.2 2011/01/21 16:00:49 droll Exp $
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -50,7 +50,7 @@ DemoControl(IsExecutable) {1}
 
 # The interactive entry form provides checkboxes for the arguments that meet the
 # following criterias:
-# 1) A tiny choise list is provided (with less or equal than 4 elements)
+# 1) A tiny choice list is provided (with less or equal than 4 elements)
 # 2) No multiple selections are allowed
 
    procedure checkbox_example {
@@ -71,7 +71,7 @@ DemoControl(IsExecutable) {1}
 
 # The interactive entry form provides radioboxes for the arguments that meet the
 # following criterias:
-# 1) A tiny choise list is provided (with less or equal than 4 elements)
+# 1) A tiny choice list is provided (with less or equal than 4 elements)
 # 2) Multiple selections are allowed
 
    procedure radiobox_example {
@@ -110,7 +110,7 @@ DemoControl(IsExecutable) {1}
 
 # The interactive entry form provides listboxes for the arguments that meet the
 # following criterias:
-# 1) A large choise list is provided (with more than 4 elements)
+# 1) A large choice list is provided (with more than 4 elements)
 # 2) No multiple selections are allowed
 
    procedure listbox_example {
@@ -131,7 +131,7 @@ DemoControl(IsExecutable) {1}
 
 # The interactive entry form provides disjoint listboxes for the arguments that meet the
 # following criterias:
-# 1) A large choise list is provided (with more than 4 elements)
+# 1) A large choice list is provided (with more than 4 elements)
 # 2) Multiple selections are allowed
 
    procedure listbox_example {
@@ -230,9 +230,12 @@ DemoControl(IsExecutable) {1}
 
 ##########################################################################
 # $RCSfile: 1b_procedure_interactive_widgets.demo,v $ - ($Name:  $)
-# $Id: 1b_procedure_interactive_widgets.demo,v 1.1 2010/02/11 21:54:38 droll Exp $
+# $Id: 1b_procedure_interactive_widgets.demo,v 1.2 2011/01/21 16:00:49 droll Exp $
 # Modifications:
 # $Log: 1b_procedure_interactive_widgets.demo,v $
+# Revision 1.2  2011/01/21 16:00:49  droll
+# * TEPAM version 0.2.0
+#
 # Revision 1.1  2010/02/11 21:54:38  droll
 # TEPAM module checkin
 #
