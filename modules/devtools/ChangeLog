@@ -1,3 +1,9 @@
+2011-01-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* testutilities.tcl (useTcllibC): Account for the possibility of
+	  the environment providing a tcllibc, instead of a Tcllib local
+	  one.
+
 2011-01-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl (snitTooManyArgs): Fixed error messages for
