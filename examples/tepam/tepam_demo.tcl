@@ -11,7 +11,7 @@ exec `which wish` "$0" "$@"
 #
 # Copyright (C) 2009, 2010 Andreas Drollinger
 # 
-# RCS: @(#) $Id: tepam_demo.tcl,v 1.1 2010/02/11 21:54:38 droll Exp $
+# RCS: @(#) $Id: tepam_demo.tcl,v 1.2 2011/01/21 16:00:49 droll Exp $
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -80,7 +80,7 @@ proc SelectExample {example} {
 
    catch {unset ExampleScript}
    .rightside.code delete 0.0 end
-   .rightside.code configure -background white -relief flat
+   # .rightside.code configure -background white
    foreach tag [.rightside.code tag names] {
       if {[regexp -- {^(step)|(title)\d$} $tag]} {
          .rightside.code tag delete $tag
@@ -89,11 +89,11 @@ proc SelectExample {example} {
 
    .rightside.code insert end "This demo example uses the following styles and colors: " Introduction
    .rightside.code insert end "<<descriptions and comments>>" "Introduction Comment" ", " Introduction
-   .rightside.code insert end "<<not executed program code>>" "Introduction Code" ", " Introduction
+   .rightside.code insert end "<<program code ready to be executed>>" "Introduction Code" ", " Introduction
    .rightside.code insert end "<<already executed, or not yet executable program code>>" "Introduction Code Executed" ", " Introduction
    .rightside.code insert end "<<r: command return value>>" "Introduction Result_r" ", " Introduction
    .rightside.code insert end "<<e: command return error>>" "Introduction Result_e" ", " Introduction
-   .rightside.code insert end "<<s: standard output (stsd) print>>" "Introduction Result_s" ".\n" Introduction
+   .rightside.code insert end "<<s: standard output print (stdout)>>" "Introduction Result_s" ".\n" Introduction
    .rightside.code insert end "Click now on each demo example section, one after " Introduction
    .rightside.code insert end "the other. This will execute the program code of the " Introduction
    .rightside.code insert end "section and insert the results and outputs into the " Introduction
@@ -160,8 +160,14 @@ proc OpenConsole {} {
          set OPT(exec) ""
          set OPT(slaveexit) "close"
       }
+      # Search inside the *n.x envirement for TkCon ...
       catch {set TkConPath [exec csh -f -c {which tkcon.tcl}]}
-      catch {package require registry; set TkConPath [registry get {HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\tclsh.exe} Path]/tkcon.tcl; regsub -all {\\} $TkConPath {/} TkConPath}
+      # Search inide the Windows envirement for TkCon ...
+      catch {
+      	package require registry
+      	set TkConPath [registry get {HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\App Paths\tclsh.exe} Path]/tkcon.tcl
+      	regsub -all {\\} $TkConPath {/} TkConPat
+      }
       if {$TkConPath!=""} {
          # hide the standard console (only windows)
          catch {console hide}
@@ -202,7 +208,7 @@ pack [frame .leftside] -side left -fill y
    set NbrExamples 0
    foreach example [lsort -dictionary [glob $RegTestDir/*.demo]] {
       set example [file tail $example]
-      pack [button .leftside.start$NbrExamples -command "SelectExample $example" -text $example] -fill x
+      pack [button .leftside.start$NbrExamples -command "SelectExample $example" -text $example -anchor w] -fill x
       incr NbrExamples
    }
    pack [button .leftside.exit -command exit -text "Exit"] -side bottom -fill x
@@ -211,9 +217,9 @@ pack [frame .leftside] -side left -fill y
 pack [frame .rightside] -side left -expand yes -fill both
    grid [label .rightside.step2 -text "(2) Execute the selected demo.\n\n" -anchor w] -row 0 -column 0 -sticky ew
    
-   grid [text .rightside.code -height 1 -padx 3 -wrap none -font {Courier 9} -background white \
+   grid [text .rightside.code -height 1 -wrap none -font {Courier 9} -background white -relief sunken -border 2 \
               -yscrollcommand ".rightside.scrolly set" \
-              -xscrollcommand ".rightside.scrollx set" ] -row 1 -column 0 -sticky news
+              -xscrollcommand ".rightside.scrollx set" ] -row 1 -column 0 -sticky news -padx 2 -pady 2
       .rightside.code tag configure Introduction -foreground blue -font {Courier 9} -wrap word
       .rightside.code tag configure Comment -foreground blue -font {Courier 9}
       .rightside.code tag configure Code -foreground black -font {Courier 9 bold}
@@ -226,6 +232,10 @@ pack [frame .rightside] -side left -expand yes -fill both
    grid [scrollbar .rightside.scrolly -command ".rightside.code yview" -orient vertical] -row 1 -column 1 -sticky ns
    grid [scrollbar .rightside.scrollx -command ".rightside.code xview" -orient horizontal] -row 2 -column 0 -sticky new
 
+	bind . <MouseWheel> "if {%D>0} {.rightside.code yview scroll -1 units} elseif {%D<0} {.rightside.code yview scroll 1 units}"
+	bind . <Button-4> ".rightside.code yview scroll -1 units"
+	bind . <Button-5> ".rightside.code yview scroll 1 units"
+
    grid rowconfigure .rightside 1 -weight 70
 #  grid rowconfigure .rightside 1 -weight 0
 #  grid rowconfigure .rightside 2 -weight 30
@@ -236,10 +246,12 @@ wm title . "TEPAM Demo"
 
 ##########################################################################
 # $RCSfile: tepam_demo.tcl,v $ - ($Name:  $)
-# $Id: tepam_demo.tcl,v 1.1 2010/02/11 21:54:38 droll Exp $
+# $Id: tepam_demo.tcl,v 1.2 2011/01/21 16:00:49 droll Exp $
 # Modifications:
 # $Log: tepam_demo.tcl,v $
+# Revision 1.2  2011/01/21 16:00:49  droll
+# * TEPAM version 0.2.0
+#
 # Revision 1.1  2010/02/11 21:54:38  droll
 # TEPAM module checkin
-#
 ##########################################################################
