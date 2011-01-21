@@ -1,11 +1,11 @@
-[manpage_begin tepam::argument_dialogbox n 0.1.0]
+[manpage_begin tepam::argument_dialogbox n 0.2.0]
 [copyright {2009/2010, Andreas Drollinger}]
-[moddesc   {Tcl’s Enhanced Procedure and Argument Manager}]
+[moddesc   {Tcl's Enhanced Procedure and Argument Manager}]
 [titledesc {TEPAM argument_dialogbox, reference manual}]
 [category  {Argument entry form, mega widget}]
 [require Tcl 8.3]
 [require Tk 8.3]
-[require tepam [opt 0.1]]
+[require tepam [opt 0.2]]
 
 [description]
 
@@ -99,7 +99,7 @@ The dialog box's state, e.g. the entered data as well as the window size and pos
 
 [list_end]
 
-[subsection "Formatting items"]
+[subsection "Formatting and Display Options"]
 
 Especially for big, complex forms it becomes important that the different data entry widgets are graphically well organized and commented to provide an immediate and clear overview to the user. A couple of items allow structuring and commenting the dialog boxes.
 [para]
@@ -132,7 +132,7 @@ Example:
    [cmd -frame] {[arg {-label "Destination address"}]}
    ...[example_end]
 
-To close an open frame without opening a new one, an empty list has to be provided to the -frame statement.
+To close an open frame without opening a new one, an empty list has to be provided to the [arg -frame] statement.
 [example_begin]tepam::argument_dialogbox \
    ...
    [cmd -frame] {}
@@ -150,6 +150,13 @@ Comments and descriptions can be added with the [arg -text] attribute of the [ar
 [example_begin]tepam::argument_dialogbox \
    ...
    [cmd -comment] {[arg {-text "Specify bellow the destination address"}]}
+   ...[example_end]
+
+[def "-yscroll [const 0]|[const 1]|[const auto]"]
+This attribute allows controlling an eventual vertical scrollbar .
+[example_begin]tepam::argument_dialogbox \
+   ...
+   [cmd -yscroll] [const auto]
    ...[example_end]
 
 [list_end]
@@ -519,7 +526,7 @@ To reuse the saved parameters not just in the actual application session but als
 
 [list_end]
 
-[see_also tepam_introduction(n) tepam_procedure(n)]
+[see_also tepam(n) tepam::procedure(n)]
 [keywords {entry mask} {parameter entry form}]
 [manpage_end]
 

@@ -8,9 +8,9 @@
 # enhanced argument handling features like automatically generated, 
 # graphical entry forms and checkers for the procedure arguments.
 #
-# Copyright (C) 2009/2010 Andreas Drollinger
+# Copyright (C) 2009/2010/2011 Andreas Drollinger
 # 
-# RCS: @(#) $Id: tepam.tcl,v 1.1 2010/02/11 21:50:55 droll Exp $
+# RCS: @(#) $Id: tepam.tcl,v 1.2 2011/01/21 15:56:20 droll Exp $
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -21,7 +21,7 @@ package require Tcl 8.3
 namespace eval tepam {
 
    # This is the following TEPAM version:
-   variable version 0.1.0
+   variable version 0.2.0
    
    # Exports the major commands from this package:
    namespace export procedure argument_dialogbox
@@ -236,7 +236,7 @@ namespace eval tepam {
          #  ProcDef($ProcName,NbrNamedVars)
          #  ProcDef($ProcName,NbrUnnamedVars)
 
-         # The following array members be defined optionally in the argument parsing section:
+         # The following array members are defined optionally in the argument parsing section:
          #  ProcDef($ProcName,$AttributeName)
          #                    | AttributeName = {-category -return -short_description 
          #                    |                  -description -example}
@@ -260,7 +260,7 @@ namespace eval tepam {
       #### Parse all procedure attributes ####
 
          set UnnamedHasToBeOptional 0; # Variable that will be set to '1' if an unnamed argument is optional.
-         set UnnamedWasMultiple 0;    # Variable that will be set to '1' if an unnamed argument has the -multiple option
+         set UnnamedWasMultiple 0;     # Variable that will be set to '1' if an unnamed argument has the -multiple option
       
          # Loop through the argument definition list:
          foreach {AttributeName AttributeValue} $ProcedureAttributes {
@@ -482,7 +482,8 @@ namespace eval tepam {
                -auxargs -
                -description -
                -choices -
-               -choicelabels {
+               -choicelabels -
+               -widget {
                   # Also these attributes have just to be stored for future usage:
                   set ProcDef($ProcName,Arg,$Var,$ArgOption) $ArgOptionValue
                   incr a
@@ -729,8 +730,12 @@ namespace eval tepam {
                # Select the adequate widget for the argument:
                lappend ArgAttributes -label "$Label:" -variable Variable__$Var
 
+               # A specific entry widget is explicitly specified:
+               if {[info exists ProcDef($ProcName,Arg,$Var,-widget)]} {
+                  lappend DialogBoxArguments -$ProcDef($ProcName,Arg,$Var,-widget) $ArgAttributes
+
                # A type specific widget exists, so use this one:
-               if {[info procs ad_form($ProcDef($ProcName,Arg,$Var,-type))]!=""} {
+               } elseif {[info procs ad_form($ProcDef($ProcName,Arg,$Var,-type))]!=""} {
                   lappend DialogBoxArguments -$ProcDef($ProcName,Arg,$Var,-type) $ArgAttributes
 
                # Use a simple checkbutton for flags:
@@ -1143,7 +1148,7 @@ namespace eval tepam {
       }
    }
 
-   # GetChoiceHelpText returns a help test for the choice options. The returned string corresponds
+   # GetChoiceHelpText returns a help text for the choice options. The returned string corresponds
    # to the comma separated choice list in case no choice labels are defined. Otherwise, the 
    # choice labels are added behind the choice options in paranthesis.
    
@@ -1461,6 +1466,7 @@ namespace eval tepam {
          set WParent .
          set Wtop .dialog
          set Title "Dialog"
+         set YScroll "auto"; # Scroll is enabled in function of the windows and screen size
          
          # Apply the global parameters by looping through all arguments to select the relevant 
          # ones:
@@ -1471,6 +1477,7 @@ namespace eval tepam {
                -context {set Context $ArgValue}
                -title {set Title $ArgValue}
                -help {puts $ArgumentDialogboxHelp; return}
+               -yscroll {set YScroll $ArgValue}
             }
          }
 
@@ -1482,6 +1489,11 @@ namespace eval tepam {
          wm title $Wtop $Title
          wm transient $Wtop $WParent
 
+         grid [frame $Wtop.sf] -row 0 -column 0 -sticky news
+         grid columnconfigure $Wtop 0 -weight 1
+         grid rowconfigure $Wtop 0 -weight 1
+         frame $Wtop.sf.f
+         
          # Delete eventually variables defined by a previous call of the argument dialog box:
          catch {array unset argument_dialogbox $Wtop,*}
          catch {array unset argument_dialogbox $Wtop.*}
@@ -1491,7 +1503,7 @@ namespace eval tepam {
          # Loop through all arguments and build the dialog box:
          set ArgNbr -1
          set Framed 0
-         set W $Wtop
+         set W $Wtop.sf.f
          foreach {ArgName ArgValue} $args {
             incr ArgNbr
             
@@ -1501,7 +1513,7 @@ namespace eval tepam {
             }
 
             # Skip the items that have already been processed
-            if {[lsearch -exact {-window -parent -context -title -help} $ArgName]>=0} continue
+            if {[lsearch -exact {-window -parent -context -title -help -yscroll} $ArgName]>=0} continue
             
             # Define the widget path for the new argument:
             set WChild($ArgNbr) $W.child_$ArgNbr
@@ -1619,16 +1631,37 @@ namespace eval tepam {
 
       #### Dialog box finalization ####
 
-         # Finalize the dialog box - Add the OK and cancel buttons, restore eventually saved
-         # geometry data and deiconify finally the form:
-         pack [frame $Wtop.buttons] -fill x -expand no
+         # Add the OK and cancel buttons, restore eventually saved geometry data and deiconify finally 
+         # the form:
+         grid [frame $Wtop.buttons] -row 1 -column 0 -columnspan 2 -sticky ew
          button $Wtop.buttons.ok -text OK -command "set ::tepam::argument_dialogbox($Wtop,status) ok"
          button $Wtop.buttons.cancel -text Cancel -command "set ::tepam::argument_dialogbox($Wtop,status) cancel"
          pack $Wtop.buttons.ok $Wtop.buttons.cancel -side left -fill x -expand yes
+
+         update
+         if {$YScroll==1 || ($YScroll=="auto" && 
+                [winfo reqheight $Wtop.sf.f]+[winfo reqheight $Wtop]>[winfo screenheight $Wtop]*2/3)} {
+            place $Wtop.sf.f -x 0 -y 0 -relwidth 1; # -relheight 1
+            grid [scrollbar $Wtop.scale -orient v -command "tepam::argument_dialogbox_scroll $Wtop"] -row 0 -column 1 -sticky ns
+
+            bind $Wtop.sf <Configure> "tepam::argument_dialogbox_scroll $Wtop config %W %w %h"
+            bind $Wtop <MouseWheel> "if {%D>0} {tepam::argument_dialogbox_scroll $Wtop scroll -1 units} elseif {%D<0} {tepam::argument_dialogbox_scroll $Wtop scroll 1 units}"
+            bind $Wtop <Button-4> "tepam::argument_dialogbox_scroll $Wtop scroll -1 units"
+            bind $Wtop <Button-5> "tepam::argument_dialogbox_scroll $Wtop scroll 1 units"
+
+            wm geometry $Wtop [winfo reqwidth $Wtop.sf.f]x[expr [winfo screenheight $Wtop.sf.f]*2/3]
+            update
+            tepam::argument_dialogbox_scroll $Wtop init
+         } else {
+            pack $Wtop.sf.f -expand yes -fill both
+         }
+
          if {[info exists Context] && [info exists last_parameters($Context,-geometry)]} {
             wm geometry $Wtop $last_parameters($Context,-geometry)
          }
+
          wm protocol $Wtop WM_DELETE_WINDOW "set ::tepam::argument_dialogbox($Wtop,status) cancel"
+
          wm deiconify $Wtop
 
       #### Wait until the dialog box's entries are approved or discarded #
@@ -1759,6 +1792,57 @@ namespace eval tepam {
          destroy $Wtop
          array unset argument_dialogbox $Wtop,*
          return $status
+   }
+
+   # The procedure 'argument_dialogbox_scroll' is used by the argument dialogbox' y-scrollbar to
+   # execute the scroll commands. It implements the Tk typical scroll commands like 'moveto', 
+   # 'scroll x pages/units'. In addition to this it implements also an initialization (used to
+   # initialize the scrolled frame) and a configuragion command that can be executed when a 
+   # configuration event happens.
+   proc argument_dialogbox_scroll {Wtop Command args} {
+      set FrameHeight [winfo reqheight $Wtop.sf.f]
+      set VisibleHeight [expr 1.0*[winfo height $Wtop.sf]/$FrameHeight]
+      set ActualPositionY [lindex [$Wtop.scale get] 0]
+
+      switch -- $Command {
+         init {
+            set ::tepam::argument_dialogbox($Wtop,wsize) ""
+         }
+         config {
+            if {[lindex $args 0]!="$Wtop.sf" || $args==$::tepam::argument_dialogbox($Wtop,wsize)} return
+            set ::tepam::argument_dialogbox($Wtop,wsize) $args
+            argument_dialogbox_scroll $Wtop moveto 0
+         }
+         moveto {
+            # Get the desired scroll position, and keep it within the valid scroll range
+            set NewPositionY [lindex $args 0]
+            if {$NewPositionY<0} {set NewPositionY 0}
+            if {$NewPositionY>1.0-$VisibleHeight} {set NewPositionY [expr 1.0-$VisibleHeight]}
+
+            # Adjust the scrollable frame location
+            place configure $Wtop.sf.f -y [expr -1.0*$NewPositionY*$FrameHeight]
+
+            # Adjust the scrollbar status
+            $Wtop.scale set $NewPositionY [expr $NewPositionY+$VisibleHeight]
+         }
+         scroll {
+            set StepH [expr 30.0/$FrameHeight]; # This defines the scroll unit
+            switch -- $args {
+               "-1 pages" {
+                  argument_dialogbox_scroll $Wtop moveto [expr $ActualPositionY-$VisibleHeight]
+               }
+               "1 pages" {
+                  argument_dialogbox_scroll $Wtop moveto [expr $ActualPositionY+$VisibleHeight]
+               }
+               "-1 units" {
+                  argument_dialogbox_scroll $Wtop moveto [expr $ActualPositionY-$StepH]
+               }
+               "1 units" {
+                  argument_dialogbox_scroll $Wtop moveto [expr $ActualPositionY+$StepH]
+               }
+            }
+         }
+      }
    }
 
    # Create the necessary resources when the argument dialog box is called the first time:
@@ -2054,18 +2138,22 @@ namespace eval tepam {
    proc disjointlistbox_move {W Move} {
       switch $Move {
          "add" {
+            $W.listbox2 selection clear 0 end
             foreach o [lsort -integer -increasing [$W.listbox1 curselection]] {
+               if {[$W.listbox1 itemcget $o -foreground]=="grey"} continue
                $W.listbox2 insert end [$W.listbox1 get $o]
+               $W.listbox2 selection set end
+               $W.listbox1 itemconfigure $o -foreground grey
             }
-            foreach o [lsort -integer -decreasing [$W.listbox1 curselection]] {
-               $W.listbox1 delete $o
-            }
+            $W.listbox1 selection clear 0 end
          }
          "delete" {
-            foreach o [lsort -integer -increasing [$W.listbox2 curselection]] {
-               $W.listbox1 insert end [$W.listbox2 get $o]
-            }
             foreach o [lsort -integer -decreasing [$W.listbox2 curselection]] {
+               for {set o1 0} {$o1<[$W.listbox1 index end]} {incr o1} {
+                  if {[$W.listbox2 get $o]==[$W.listbox1 get $o1]} {
+                     $W.listbox1 itemconfigure $o1 -foreground ""
+                  }
+               }
                $W.listbox2 delete $o
             }
          }
@@ -2090,7 +2178,7 @@ namespace eval tepam {
 
    proc ad_form(disjointlistbox) {W Command {Par ""}} {
       # puts "ad_form(listbox) $W $Command $Par"
-      upvar Option option
+      upvar Option Option
       switch $Command {
          "create" {
             ad_form(make_expandable) $W
@@ -2125,12 +2213,12 @@ namespace eval tepam {
             disjointlistbox_move $W delete
             
             foreach o $Par {
-               $W.listbox2 insert end $o
                set p [lsearch -exact [$W.listbox1 get 0 end] $o]
                if {$p>=0} { # Delete the selected item from the available items
-                  $W.listbox1 delete $p
+                  $W.listbox1 selection set $p
                }
             }
+            disjointlistbox_move $W add
          }
          "get" {
             return [$W.listbox2 get 0 end]
@@ -2175,12 +2263,17 @@ namespace eval tepam {
             return $Result
          }
          "set_choice" {
-            set ChoiceNumber -1
+            set ChoiceNumber 0
+            set PackSide left
+            if {[info exists Option(-direction)] && $Option(-direction)=="vertical"} {
+               set PackSide top
+            }
             foreach v $Par {
                set label $v
                catch {set label [lindex $Option(-choicelabels) $ChoiceNumber]}
-               pack [checkbutton $W.choice_[incr ChoiceNumber] -text $label -variable ::tepam::argument_dialogbox($W,values,$ChoiceNumber) -onvalue [lindex $v 0] -offvalue ""] -side left
+               pack [checkbutton $W.choice_$ChoiceNumber -text $label -variable ::tepam::argument_dialogbox($W,values,$ChoiceNumber) -onvalue $v -offvalue ""] -side $PackSide -anchor w
                lappend argument_dialogbox($W,ButtonsW) $W.choice_$ChoiceNumber
+               incr ChoiceNumber
             }
          }
       }
@@ -2189,6 +2282,7 @@ namespace eval tepam {
    #### Radiobox ####
 
    proc ad_form(radiobox) {W Command {Par ""}} {
+      upvar Option Option
       variable argument_dialogbox
       switch $Command {
          "create" {
@@ -2202,11 +2296,16 @@ namespace eval tepam {
          }
          "set_choice" {
             set argument_dialogbox($W,values) [lindex [lindex $Par 0] 0]
-            set ChoiceNumber -1
+            set ChoiceNumber 0
+            set PackSide left
+            if {[info exists Option(-direction)] && $Option(-direction)=="vertical"} {
+               set PackSide top
+            }
             foreach v $Par {
                set label $v
                catch {set label [lindex $Option(-choicelabels) $ChoiceNumber]}
-               pack [radiobutton $W.choice_[incr ChoiceNumber] -text $label -variable ::tepam::argument_dialogbox($W,values) -value [lindex $v 0]] -side left
+               pack [radiobutton $W.choice_$ChoiceNumber -text $label -variable ::tepam::argument_dialogbox($W,values) -value $v] -side $PackSide -anchor w
+               incr ChoiceNumber
             }
          }
       }
@@ -2432,3 +2531,16 @@ namespace eval tepam {
 # Specify the TEPAM version that is provided by this file:
 package provide tepam $::tepam::version
 
+##################################################
+# Modifications:
+# $Log: tepam.tcl,v $
+# Revision 1.2  2011/01/21 15:56:20  droll
+# * Add the -widget option to the procedure arguments.
+# * Add the -yscroll option to the argument dialog box.
+# * Bug fixes for the following argument dialog box widgets:
+# . - disjointlistbox: Keep always the same element order
+# . - checkbox, radiobox: Handle correctly default values
+#
+# Revision 1.1  2010/2/11 21:50:55
+# * TEPAM version: 0.1.0 - module checkin
+##################################################

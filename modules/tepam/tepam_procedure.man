@@ -1,14 +1,10 @@
-[proc {*} {args} {}]
-[proc {***************************} {args} {set s [string trim [string trim $args *] " "]; section $s}]
-[proc {********} {args} {set s [string trim [string trim $args *] " "]; subsection $s}]
-
-[manpage_begin tepam::procedure n 0.1.0]
+[manpage_begin tepam::procedure n 0.2.0]
 [copyright {2009/2010, Andreas Drollinger}]
 [moddesc {Tcl's Enhanced Procedure and Argument Manager}]
 [titledesc {TEPAM procedure, reference manual}]
 [category {Procedures, arguments, parameters, options}]
 [require Tcl 8.3]
-[require tepam [opt 0.1]]
+[require tepam [opt 0.2]]
 
 [description]
 This package provides an alternative way to declare Tcl procedures and to manage its arguments. There is a lot of benefit to declare a procedure with TEPAM rather than with the Tcl standard command [fun proc]: TEPAM allows specifying inside the procedure declaration in a natural syntax all information that is required to generate comprehensive documentations and help support.  The information is also used by an automatically invoked argument checker that is validating the provided procedure arguments before the procedure body is executed. Finally, a procedure can be called interactively which will open a form into which the arguments can be entered interactively.
@@ -379,6 +375,10 @@ An example of a validation command declaration is:
             [cmd {-validatecommand "IllegalWordDetector %P"}]}
 } {
 }[example_end]
+
+[def "-widget [arg string]"]
+The widgets that allow defining the different arguments in case of an interactive procedure call are normally selected automatically in function of the argument type. The [arg -widget] attribute allows specifying explicitly a certain widget type for an argument.
+[para]
 
 [def "-auxargs [arg list]"]
 In case a procedure is called interactively, additional argument attributes can be provided to the interactive argument definition form via the [emph -auxargs] attribute that is itself a list of attribute name/attribute data pairs:
@@ -819,7 +819,7 @@ It may be necessary sometimes that the procedure body is able to access the enti
 display_message -mtype Warning "It is 7:00"
 [emph {-> args: -mtype Warning {It is 7:00}}][example_end]
 
-[see_also tepam_introduction(n) tepam_procedure(n)]
+[see_also tepam(n) tepam::argument_dialogbox(n)]
 [keywords procedure arguments {argument validation} {argument integrity} subcommand]
 [manpage_end]
 
