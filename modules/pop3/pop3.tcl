@@ -10,12 +10,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.35 2009/04/13 22:33:51 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.36 2011/01/23 01:23:20 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
 package require log
-package provide pop3 1.7
+package provide pop3 1.8
 
 namespace eval ::pop3 {
 
@@ -226,7 +226,7 @@ proc ::pop3::list {chan {msg ""}} {
 
 proc ::pop3::open {args} {
     variable state
-    array set cstate {socketcmd ::socket msex 0 retr_mode retr limit {}}
+    array set cstate {socketcmd ::socket msex 0 retr_mode retr limit {} stls 0 tls-callback {}}
 
     log::log debug "pop3::open | [join $args]"
 
@@ -234,6 +234,8 @@ proc ::pop3::open {args} {
 	msex.arg
 	retr-mode.arg
 	socketcmd.arg
+        stls.arg
+        tls-callback.arg
     } opt arg]]} {
 	if {$err < 0} {
 	    return -code error "::pop3::open : $arg"
@@ -260,6 +262,16 @@ proc ::pop3::open {args} {
 	    socketcmd {
 		set cstate(socketcmd) $arg
 	    }
+            stls {
+		if {![string is boolean $arg]} {
+		    return -code error \
+			    ":pop3::open : Argument to -tls has to be boolean"
+		}
+		set cstate(stls) $arg                
+            }
+            tls-callback {
+		set cstate(tls-callback) $arg                                
+            }
 	    default {
 		# Can't happen
 	    }
@@ -302,8 +314,8 @@ proc ::pop3::open {args} {
     log::log debug "pop3::open | wait for greeting"
 
     if {[catch {::pop3::send $chan {}} errorStr]} {
-	::close $chan
-	error "POP3 CONNECT ERROR: $errorStr"
+	close $chan
+	return -code error "POP3 CONNECT ERROR: $errorStr"
     }
 
     if {0} {
@@ -314,6 +326,65 @@ proc ::pop3::open {args} {
 	fconfigure $chan -translation binary
     }
 
+    if {$cstate(stls)} {
+        log::log debug "pop3::open | negotiating TLS on $chan"
+        if {[catch {
+            set capa [::pop3::capa $chan]
+            log::log debug "pop3::open | Server $chan can $capa"
+        } errorStr]} {
+            close $chan
+            return -code error "POP3 CONNECT/STLS ERROR: $errorStr"
+        }
+
+        if { [lsearch -exact $capa STLS] == -1} {
+            log::log debug "pop3::open | Server $chan can't STLS"
+            close $chan
+            return -code error "POP CONNECT ERROR: STLS requested but not supported by server"
+        }
+        log::log debug "pop3::open | server can TLS on $chan"
+
+        if {[catch {
+            ::pop3::send $chan "STLS"
+        } errorStr]} {
+            close $chan
+            return -code error "POP3 STLS ERROR: $errorStr"
+        }        
+        
+        package require tls
+        
+        log::log debug "pop3::open | tls::import $chan"
+        # Explicitly disable ssl2 and only allow ssl3 and tlsv1. Although the defaults
+        # will work with most servers, ssl2 is really, really old and is deprecated.
+        if {$cstate(tls-callback) ne ""} {
+            set newchan [tls::import $chan -ssl2 0 -ssl3 1 -tls1 1 -cipher SSLv3,TLSv1 -command $cstate(tls-callback)]            
+        } else {
+            set newchan [tls::import $chan -ssl2 0 -ssl3 1 -tls1 1 -cipher SSLv3,TLSv1]            
+        }
+        
+        if {[catch {
+            log::log debug "pop3::open | tls::handshake $chan"
+            tls::handshake $chan
+        } errorStr]} {
+            close $chan
+            return -code error "POP3 CONNECT/TLS HANDSHAKE ERROR: $errorStr"
+        }
+        
+        array set security [tls::status $chan]
+        set sbits 0
+        if { [info exists security(sbits)] } {
+            set sbits $security(sbits)
+        }
+        if { $sbits == 0 } {
+            close $chan
+            return -code error "POP3 CONNECT/TLS: TLS Requested but not available"
+        } elseif { $sbits < 128 } {            
+            close $chan
+            return -code error "POP3 CONNECT/TLS: TLS Requested but insufficient (<128bits): $sbits"
+        }
+        
+        log::log debug "pop3::open | $chan now in $sbits bit TLS mode ($security(cipher))"
+    }
+
     log::log debug "pop3::open | authenticate $user (*password not shown*)"
 
     if {[catch {
@@ -321,7 +392,7 @@ proc ::pop3::open {args} {
 	::pop3::send $chan "PASS $password"
     } errorStr]} {
 	::close $chan
-	error "POP3 LOGIN ERROR: $errorStr"
+	return -code error "POP3 LOGIN ERROR: $errorStr"
     }
 
     # [ 833486 ] Can't delete messages one at a time ...
@@ -730,3 +801,27 @@ proc ::pop3::uidl {chan {msg ""}} {
 
     return $msgBuffer
 }
+
+# ::pop3::capa --
+#
+#	Returns "capabilities" of the server. 
+#
+# Arguments:
+#	chan        The channel open to the POP3 server.
+#
+# Results:
+#	A Tcl list with the capabilities of the server.
+#       UIDL, TOP, STLS are typical capabilities.
+
+
+proc ::pop3::capa {chan} {
+    global PopErrorNm PopErrorStr debug
+ 
+    if {[catch {::pop3::send $chan "CAPA"} errorStr]} {
+        error "POP3 CAPA ERROR: $errorStr"
+    }
+    set msgBuffer [string map {\r {}} [RetrSlow $chan]]
+    
+    return [split $msgBuffer \n]
+}
+
