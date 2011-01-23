@@ -165,7 +165,7 @@ test math-fuzzy-ManyCompares-1.0 {Compare results of calculations} {
    set result [list $tol_eq $tol_ne $tol_ge $tol_gt $tol_le $tol_lt]
 } {2000 0 2000 0 2000 0}
 
-test math-fuzzy-ManyCompares-1.1 {Compare fails due to missing braces} {
+test math-fuzzy-ManyCompares-1.1 {Compare fails due to missing braces at reduced precision} {
    set tol_eq 0
    set tol_ne 0
    set tol_ge 0
@@ -175,6 +175,49 @@ test math-fuzzy-ManyCompares-1.1 {Compare fails due to missing braces} {
 
    #
    # Force Tcl8.4 or earlier behaviour in expanding numbers
+   # Requires tcl_precision of 12!
+   #
+   set prec $::tcl_precision
+   set ::tcl_precision 12
+
+   for { set i -1000 } { $i <= 1000 } { incr i } {
+      if { $i == 0 } continue
+
+      #
+      # NOTE: The braces in the assignment for y are missing on purpose!
+      #
+      set x [expr {1.01/double($i)}]
+      set y [expr (2.1*$x)*(double($i)/2.1)]
+
+      if { [teq $y 1.01] } { incr tol_eq }
+      if { [tne $y 1.01] } { incr tol_ne }
+      if { [tge $y 1.01] } { incr tol_ge }
+      if { [tgt $y 1.01] } { incr tol_gt }
+      if { [tle $y 1.01] } { incr tol_le }
+      if { [tlt $y 1.01] } { incr tol_lt }
+   }
+   set result [list $tol_eq $tol_ne $tol_ge $tol_gt $tol_le $tol_lt]
+   set intended {2000 0 2000 0 2000 0}
+   set equal 1
+   foreach r $result i $intended {
+      if { $r != $i } {
+         set equal 0
+      }
+   }
+   set tcl_precision $prec
+   set equal
+} 0
+
+test math-fuzzy-ManyCompares-1.2 {Compare does not fail even with missing braces because of sufficient precision} {
+   set tol_eq 0
+   set tol_ne 0
+   set tol_ge 0
+   set tol_gt 0
+   set tol_le 0
+   set tol_lt 0
+
+   #
+   # Force sufficient precision if Tcl8.4 or earlier
    #
    set prec $::tcl_precision
    if {![package vsatisfies [package provide Tcl] 8.5]} {
@@ -209,9 +252,9 @@ test math-fuzzy-ManyCompares-1.1 {Compare fails due to missing braces} {
    }
    set tcl_precision $prec
    set equal
-} 0
+} 1
 
-test math-fuzzy-ManyCompares-1.2 {Compare fails due to naive comparison} {
+test math-fuzzy-ManyCompares-1.3 {Compare fails due to naive comparison} {
    set naiv_eq 0
    set naiv_ne 0
    set naiv_ge 0
