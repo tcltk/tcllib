@@ -26,6 +26,8 @@ command.
 	[opt "[option -msex] 0|1"] \
 	[opt "[option -retr-mode] retr|list|slow"] \
 	[opt "[option -socketcmd] cmdprefix"] \
+	[opt "[option -stls] 0|1"] \
+	[opt "[option -tls-callback] stls-callback-command"] \
 	[arg {host username password}] [opt [arg port]]]
 
 Open a socket connection to the server specified by [arg host],
@@ -63,6 +65,20 @@ main use is the securing of the new connection via SSL, through the
 specification of the command [cmd tls::socket]. This command is
 specially recognized as well, changing the default port of the
 connection to [const 995].
+
+[opt_def -stls boolean]
+
+Setting this option tells the package to secure the connection using
+SSL or TLS. It performs STARTTLS as described in IETF RFC 2595, it
+first opens a normal, unencrypted connection and then negotiates a
+SSLv3 or TLSv1 connection. If the connection cannot be secured, the
+connection will be closed and an error will be returned
+
+[opt_def -tls-callback stls-callback-command]
+
+This option allows the user to overide the [cmd tls::callback] used during
+the [const -stls] SSL/TLS handshake. See the TLS manual for details on how
+to implement this callback. 
 
 [list_end]
 
@@ -194,6 +210,15 @@ Optional POP3 command, not all servers may support this.
 parameter [arg msg] is specified, then the listing only for that
 message is returned.
 
+[call [cmd ::pop3::capa] [arg chan]]
+
+Optional POP3 command, not all servers may support this. 
+
+[cmd ::pop3::capa] returns a list of the capabilities of the server.
+TOP, SASL, UIDL, LOGIN-DELAY and STLS are typical capabilities.
+
+See IETF RFC 2449.
+
 [call [cmd ::pop3::close] [arg chan]]
 
 Gracefully close the connect after sending a POP3 QUIT command down
@@ -205,9 +230,13 @@ the socket.
 [section {Secure mail transfer}]
 
 A pop3 connection can be secured with SSL/TLS by requiring the package
-[package TLS] and then using the option [option -socketcmd] of the
-command [cmd pop3::open] to force the use of the [cmd tls::socket]
-command when opening the connection.
+[package TLS] and then using either the option [option -socketcmd] or
+the option [option -stls] of the command [cmd pop3::open].
+
+The first method, option [option -socketcmd], will force the use
+of the [cmd tls::socket] command when opening the connection. This is
+suitable for POP3 servers which expect SSL connections only. These will
+generally be listening on port 995.
 
 [example {
 	package require tls
@@ -219,6 +248,24 @@ command when opening the connection.
 
 	...
 }]
+
+The second method, option [option -stls], will connect to the standard POP3
+port and then perform an STARTTLS handshake. This will only work for POP3
+servers which have this capability. The package will confirm that the
+server supports STARTTLS and the handshake was performed correctly before
+proceeding with authentication.
+
+[example {
+	package require tls
+	tls::init -cafile /path/to/ca/cert -keyfile ...
+
+	# Create secured pop3 channel
+	pop3::open -stls 1 \\
+		$thehost $theuser $thepassword
+
+	...
+}]
+
 
 [vset CATEGORY pop3]
 [include ../doctools2base/include/feedback.inc]
