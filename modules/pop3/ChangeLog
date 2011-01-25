@@ -1,3 +1,10 @@
+2011-01-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3.test: Fixed tests results to list the new options.
+	* pop3.tcl: Fixed issue with closing during open introduced by the
+	  patch. When a connect error occurs we cannot send a QUIT any
+	  longer, and have to close the socket directly.
+
 2011-01-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3.tcl: Extended package with STARTTLS support provided by
