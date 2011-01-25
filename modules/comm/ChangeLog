@@ -1,3 +1,9 @@
+2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.13 ========================
+	* 
+
 2010-09-15  Andreas Kupries  <andreask@activestate.com>
 
 	* comm.tcl (::comm::commIncoming): [Bug 3066872]: Replaced

@@ -1,3 +1,9 @@
+2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.13 ========================
+	* 
+
 2009-12-11  Andreas Kupries  <andreask@activestate.com>
 
 	* random.man: [Bug 2912295]: Renamed to simulation_random.man, to

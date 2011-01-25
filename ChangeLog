@@ -1,3 +1,9 @@
+2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.13 ========================
+	* 
+
 2011-01-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* sak.tcl: Trim dross of extracted version numbers.
