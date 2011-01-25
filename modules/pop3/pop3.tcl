@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.36 2011/01/23 01:23:20 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.37 2011/01/25 02:23:30 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require cmdline
@@ -69,6 +69,7 @@ proc ::pop3::close {chan} {
     catch {::pop3::send $chan "QUIT"}
     unset state($chan)
     ::close $chan
+    return
 }
 
 # ::pop3::delete --
@@ -314,7 +315,7 @@ proc ::pop3::open {args} {
     log::log debug "pop3::open | wait for greeting"
 
     if {[catch {::pop3::send $chan {}} errorStr]} {
-	close $chan
+	::close $chan
 	return -code error "POP3 CONNECT ERROR: $errorStr"
     }
 
