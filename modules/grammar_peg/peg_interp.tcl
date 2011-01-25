@@ -113,7 +113,7 @@ proc ::grammar::peg::interp::MatchExpr {e} {
             ict_advance     "Expected $ch (got EOF)"
             if {!$ok} return
 
-            ict_match_token "Expected $ch"
+            ict_match_token $ch "Expected $ch"
             if {$ok && ($mode eq "value")} {isv_terminal}
         }
         .. {
@@ -347,4 +347,4 @@ namespace eval ::grammar::peg::interp {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide grammar::peg::interp 0.1
+package provide grammar::peg::interp 0.1.1
