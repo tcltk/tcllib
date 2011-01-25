@@ -1,3 +1,9 @@
+2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.13 ========================
+	* 
+
 2010-01-20  Andreas Kupries  <andreask@activestate.com>
 
 	* ftpd.tcl (::ftpd::command::RNTO): [Bug 2928355]: Fixed the

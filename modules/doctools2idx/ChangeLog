@@ -1,3 +1,9 @@
+2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.13 ========================
+	* 
+
 2010-11-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* export_docidx.man: Added headers to properly mark files as manpages

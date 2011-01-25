@@ -1,3 +1,9 @@
+2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.13 ========================
+	* 
+
 2010-05-27  Andreas Kupries  <andreask@activestate.com>
 
 	* map_slippy.man: [Bug 2999022]: Fixed bogus use of integer

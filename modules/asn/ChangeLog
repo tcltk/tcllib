@@ -1,3 +1,9 @@
+2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.13 ========================
+	* 
+
 2011-01-05  Michael Schlenker <mic42@users.sourceforge.net>
 
         * asn.tcl  : Fixed wrong asnGetBigInteger code 

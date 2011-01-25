@@ -1,3 +1,9 @@
+2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.13 ========================
+	* 
+
 2010-09-08  Andreas Kupries  <andreask@activestate.com>
 
 	* csv.man: [Bug 3061815]: Fixed a mixup in the examples which
