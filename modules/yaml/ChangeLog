@@ -1,3 +1,9 @@
+2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.13 ========================
+	* 
+
 2011-01-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* huddle.tcl: Fixed package setup (version), and included files.

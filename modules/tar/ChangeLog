@@ -1,3 +1,9 @@
+2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.13 ========================
+	* 
+
 2011-01-20  Andreas Kupries  <andreask@activestate.com>
 
 	* tar.tcl: [Bug 3162548]: Applied patch by Alexandre Ferrieux,

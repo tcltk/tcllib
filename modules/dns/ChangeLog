@@ -1,3 +1,9 @@
+2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.13 ========================
+	* 
+
 2010-08-16  Andreas Kupries  <andreask@activestate.com>
 
 	* ip.tcl: Added new commands 'collapse' and 'subtract' for
