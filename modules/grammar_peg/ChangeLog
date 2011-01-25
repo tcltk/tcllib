@@ -1,3 +1,10 @@
+2011-01-24  Andreas Kupries  <akupries@shaw.ca>
+
+	* peg_interp.tcl (::grammar::peg::interp::MatchExpr):
+	* peg_interp.man: [Bug 3163541] Fixed broken call to
+	* pkgIndex.tcl: ict_match_token, missing the token. Bumped to
+	  version 0.1.1.
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
