@@ -1,3 +1,9 @@
+2011-01-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* include/example/expr_ptgenb.inc: Fixed a typo in the example,
+	* include/example/full_app.inc: and dropped continuation lines
+	  to prevent missformatting in the formatted docs.
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
