@@ -86,6 +86,7 @@ proc ::pt::pgen::Write::param {args} {
 proc ::pt::pgen::Write::snit {args} {
     # args = (option value)... grammar
     pt::peg::to::tclparam configure {*}[Package [Class [lrange $args 0 end-1]]]
+    ClassPackageDefaults
 
     pt::tclparam::configuration::snit def \
 	$class $package \
@@ -97,6 +98,7 @@ proc ::pt::pgen::Write::snit {args} {
 proc ::pt::pgen::Write::oo {args} {
     # args = (option value)... grammar
     pt::peg::to::tclparam configure {*}[Package [Class [lrange $args 0 end-1]]]
+    ClassPackageDefaults
 
     pt::tclparam::configuration::tcloo def \
 	$class $package \
@@ -127,9 +129,27 @@ proc ::pt::pgen::Write::c {args} {
 # ### ### ### ######### ######### #########
 ## Internals: Special option handling handling.
 
+proc ::pt::pgen::Write::ClassPackageDefaults {} {
+    upvar 1 class class
+    upvar 1 package package
+
+    # Initialize undefined class and package names from each other,
+    # i.e. from whichever of the two was specified, or fallback to
+    # hardwired defaults if neither was specified.
+
+    if {[info exists class] && ![info exists package]} {
+	set package $class
+    } elseif {[info exists package] && ![info exists class]} {
+	set class $package
+    } elseif {![info exists package] && ![info exists class]} {
+	set class   CLASS
+	set package PACKAGE
+    }
+    return
+}
+
 proc ::pt::pgen::Write::Class {optiondict} {
     upvar 1 class class
-    set class CLASS
     set res {}
     foreach {option value} $optiondict {
 	if {$option eq "-class"} {
@@ -143,7 +163,6 @@ proc ::pt::pgen::Write::Class {optiondict} {
 
 proc ::pt::pgen::Write::Package {optiondict} {
     upvar 1 package package
-    set package PACKAGE
     set res {}
     foreach {option value} $optiondict {
 	if {$option eq "-package"} {
@@ -158,4 +177,4 @@ proc ::pt::pgen::Write::Package {optiondict} {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide pt::pgen 1
+package provide pt::pgen 1.0.1
