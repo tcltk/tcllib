@@ -1,3 +1,11 @@
+2011-02-16  Andreas Kupries  <andreask@activestate.com>
+
+	* include/format/options_tclparam_oo.inc: Documented option -package, and
+	* include/format/options_tclparam_snit.inc: the new cross -class/-package
+	* pkgIndex.tcl: resolution. Implemented resolution of missing -package
+	* pt_pgen.tcl: and -class through each other. Bumped version to 1.0.1.
+	* pt_pgen.man:
+
 2011-01-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* include/example/expr_ptgenb.inc: Fixed a typo in the example,

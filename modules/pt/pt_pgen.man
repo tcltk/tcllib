@@ -1,8 +1,8 @@
 [comment {-*- text -*- doctools manpage}]
-[manpage_begin pt::pgen n 1]
+[manpage_begin pt::pgen n 1.0.1]
 [include include/module.inc]
 [titledesc {Parser Generator}]
-[require pt::pgen [opt 1]]
+[require pt::pgen [opt 1.0.1]]
 [description]
 [include include/ref_intro.inc]
 
