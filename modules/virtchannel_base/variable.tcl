@@ -170,5 +170,5 @@ oo::class create ::tcl::chan::variable::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::variable 1
+package provide tcl::chan::variable 1.0.1
 return
