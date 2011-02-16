@@ -43,6 +43,7 @@ oo::class create ::tcl::chan::string::implementation {
     constructor {thecontent} {
 	set content $thecontent
 	set at 0
+	next
     }
 
     method initialize {args} {
@@ -118,5 +119,5 @@ oo::class create ::tcl::chan::string::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::string 1
+package provide tcl::chan::string 1.0.1
 return
