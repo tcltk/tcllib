@@ -49,6 +49,7 @@ oo::class create ::tcl::chan::memchan::implementation {
 
     constructor {} {
 	set at 0
+	next
     }
 
     method initialize {args} {
@@ -161,5 +162,5 @@ oo::class create ::tcl::chan::memchan::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::memchan 1
+package provide tcl::chan::memchan 1.0.1
 return

@@ -1,3 +1,10 @@
+2011-02-16  Andreas Kupries  <andreask@activestate.com>
+
+	* memchan.tcl: Fixed constructor chaining, added the missing
+	* pkgIndex.tcl: 'next'. The bug prevented proper initialization
+	* string.tcl: of the event core. All versions bumped to 1.0.1
+	* variable.tcl:
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
