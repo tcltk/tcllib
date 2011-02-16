@@ -57,4 +57,4 @@ package ifneeded pt::tclparam::configuration::snit  1.0.1 [list source [file joi
 package ifneeded pt::tclparam::configuration::tcloo 1.0.1 [list source [file join $dir pt_tclparam_config_tcloo.tcl]]
 
 # Parser generator core.
-package ifneeded pt::pgen 1 [list source [file join $dir pt_pgen.tcl]]
+package ifneeded pt::pgen 1.0.1 [list source [file join $dir pt_pgen.tcl]]
