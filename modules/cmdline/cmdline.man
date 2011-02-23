@@ -1,11 +1,11 @@
-[manpage_begin cmdline n 1.3.2]
+[manpage_begin cmdline n 1.3.3]
 [moddesc   {Command line and option processing}]
 [titledesc {Procedures to process command lines and options.}]
 [category  {Programming tools}]
 [keywords  {cmdline processing} {argument processing} argv argv0]
 [keywords  {command line processing}]
 [require Tcl 8.2]
-[require cmdline [opt 1.3.2]]
+[require cmdline [opt 1.3.3]]
 [description]
 
 This package provides commands to parse command lines and options.
