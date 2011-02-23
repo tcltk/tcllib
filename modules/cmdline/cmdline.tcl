@@ -6,15 +6,15 @@
 #	application name for use in command line errors.
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
-# Copyright (c) 2001-2006 by Andreas Kupries <andreas_kupries@users.sf.net>.
+# Copyright (c) 2001-2011 by Andreas Kupries <andreas_kupries@users.sf.net>.
 # Copyright (c) 2003      by David N. Welton  <davidw@dedasys.com>
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.27 2010/09/08 20:24:29 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.28 2011/02/23 17:41:52 andreas_kupries Exp $
 
 package require Tcl 8.2
-package provide cmdline 1.3.2
+package provide cmdline 1.3.3
 
 namespace eval ::cmdline {
     namespace export getArgv0 getopt getKnownOpt getfiles getoptions \
@@ -292,11 +292,11 @@ proc ::cmdline::GetOptionDefaults {optlist defaultArrayVar} {
     set opts {? help}
     foreach opt $optlist {
 	set name [lindex $opt 0]
-	if {[regsub -- .secret$ $name {} name] == 1} {
+	if {[regsub -- {\.secret$} $name {} name] == 1} {
 	    # Need to hide this from the usage display and getopt
 	}   
 	lappend opts $name
-	if {[regsub -- .arg$ $name {} name] == 1} {
+	if {[regsub -- {\.arg$} $name {} name] == 1} {
 
 	    # Set defaults for those that take values.
 
@@ -327,11 +327,11 @@ proc ::cmdline::usage {optlist {usage {options:}}} {
     foreach opt [concat $optlist \
 	     {{- "Forcibly stop option processing"} {help "Print this message"} {? "Print this message"}}] {
 	set name [lindex $opt 0]
-	if {[regsub -- .secret$ $name {} name] == 1} {
+	if {[regsub -- {\.secret$} $name {} name] == 1} {
 	    # Hidden option
 	    continue
 	}
-	if {[regsub -- .arg$ $name {} name] == 1} {
+	if {[regsub -- {\.arg$} $name {} name] == 1} {
 	    set default [lindex $opt 1]
 	    set comment [lindex $opt 2]
 	    append str [format " %-20s %s <%s>\n" "-$name value" \
@@ -433,7 +433,7 @@ proc ::cmdline::getArgv0 {} {
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: cmdline.tcl,v 1.27 2010/09/08 20:24:29 andreas_kupries Exp $
+# RCS: @(#) $Id: cmdline.tcl,v 1.28 2011/02/23 17:41:52 andreas_kupries Exp $
 
 namespace eval ::cmdline {
     namespace export typedGetopt typedGetoptions typedUsage

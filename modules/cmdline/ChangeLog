@@ -1,3 +1,11 @@
+2011-02-23  Andreas Kupries  <andreask@activestate.com>
+
+	* cmdline.man: [Bug 3189786]: Fixed mishandling of suffixes .arg
+	* cmdline.tcl: and .secret. The '.'s were not properly quoted,
+	* cmdline.test: allowing any character, thus mishandling options
+	* pkgIndex.tcl: like 'myarg' or 'mysecret'. Extended the testsuite.
+	  Bumped version to 1.3.3.
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
