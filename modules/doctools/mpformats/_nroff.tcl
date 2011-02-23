@@ -16,6 +16,7 @@
 proc nr_lp      {}          {return \n.LP}
 proc nr_ta      {{text {}}} {return ".ta$text"}
 proc nr_bld     {}          {return \1\\fB}
+proc nr_bldt    {t}         {return "\n.B $t\n"}
 proc nr_ul      {}          {return \1\\fI}
 proc nr_rst     {}          {return \1\\fR}
 proc nr_p       {}          {return \n.PP\n}
@@ -34,8 +35,8 @@ proc nr_include {file}      {return "\n.so $file"}
 proc nr_bolds   {}          {return \n.BS}
 proc nr_bolde   {}          {return \n.BE}
 proc nr_read    {fn}        {return [nroffMarkup [dt_read $fn]]}
-proc nr_cs      {}          {return \n.CS}
-proc nr_ce      {}          {return \n.CE}
+proc nr_cs      {}          {return \n.CS\n}
+proc nr_ce      {}          {return \n.CE\n}
 
 proc nr_section {name} {
     if {![regexp {[ 	]} $name]} {
@@ -152,7 +153,18 @@ proc nroff_postprocess {nroff} {
 	}
 	lappend lines $line
     }
+
+    set lines [join $lines "\n"]
+
+    # Remove superfluous .IP commands (empty paragraph). The first
+    # identity mapping is there to avoid smashing a man macro
+    # definition.
+    set lines [string map [list \
+	       \n.IP\n..\n  \n.IP\n..\n \
+	       \n.IP\n.     \n.] \
+	   $lines]
+
     # Return the modified result buffer
-    return [string map $finalMap [join $lines "\n"]]
+    return [string map $finalMap $lines]
 }
 

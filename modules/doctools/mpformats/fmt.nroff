@@ -103,18 +103,21 @@ proc fmt_postprocess {nroff} {return [nroff_postprocess $nroff]}
 
 proc fmt_section    {name {id {}}} {return [nr_section    $name]}
 proc fmt_subsection {name {id {}}} {return [nr_subsection $name]}
-proc fmt_para {} {nr_p}
+proc fmt_para {} {
+    if {[dt_lnesting]} { return [nr_item] }
+    nr_p
+}
 
 c_pass 2 fmt_require {pkg {version {}}} NOP
 c_pass 1 fmt_require {pkg {version {}}} {
     if {$version != {}} {set version " $version"}
-    c_hold synopsis "package require [nr_bld]$pkg $version[nr_rst]\n[fmt_nl]"
+    c_hold synopsis "package require [nr_bld]$pkg $version[nr_rst]\n[nr_vspace]"
 }
 
-c_pass 1 fmt_usage {cmd args} {c_hold synopsis "$cmd [join $args " "]\n[fmt_nl]"}
+c_pass 1 fmt_usage {cmd args} {c_hold synopsis "$cmd [join $args " "]\n[nr_vspace]"}
 c_pass 2 fmt_usage {cmd args} NOP
 
-c_pass 1 fmt_call  {cmd args} {c_hold synopsis       "$cmd [join $args " "]\n[fmt_nl]"}
+c_pass 1 fmt_call  {cmd args} {c_hold synopsis       "$cmd [join $args " "]\n[nr_vspace]"}
 c_pass 2 fmt_call  {cmd args} {return "[fmt_lst_item "$cmd [join $args " "]"]"}
 
 c_pass 1 fmt_description {id} NOP
@@ -136,16 +139,14 @@ array set list_state {level -1}
 
 proc fmt_list_begin {what {hint {}}} {
     c_cinit
-    if {[dt_lnesting] > 1} {
-	return [nr_in]
-    }
+    if {[dt_lnesting]} { return [nr_in] }
     return {}
 }
 
 proc fmt_list_end {} {
     c_creset
-    if {[dt_lnesting] > 0} {
-	return [nr_out]
+    if {[dt_lnesting]} {
+	return [nr_out][nr_item]
     } else {
 	return [nr_p]
     }
@@ -183,8 +184,15 @@ proc fmt_tkoption_def {name dbname dbclass} {
 
 ################################################################
 
-proc fmt_example_begin {} { return "\n[nr_cs]\n" }
-proc fmt_example_end   {} { nr_ce }
+proc fmt_example_begin {} {
+    return [nr_cs]\n
+}
+proc fmt_example_end   {} {
+    if {[dt_lnesting]} {
+	return [nr_ce][nr_item]
+    }
+    nr_ce
+}
 proc fmt_example {code} { 
     set lines [list "" [nr_cs]]
     foreach line [split $code "\n"] {
@@ -200,8 +208,17 @@ proc fmt_cmd    {text} {bold      $text}
 proc fmt_emph   {text} {underline $text}
 proc fmt_opt    {text} {return   ?$text?}
 
-proc bold      {text} {return [nr_bld]$text[nr_rst]}
-proc underline {text} {return [nr_ul]$text[nr_rst]}
+proc bold {text} {
+    # .B don't work in .TP (nr_blt)
+    if {1||[string match *\n* $text]} {
+	return [nr_bld]$text[nr_rst]
+    } else {
+	return [nr_bldt $text]
+    }
+}
+proc underline {text} {
+    return [nr_ul]$text[nr_rst]
+}
 
 proc fmt_comment {text} {
     set res [list]

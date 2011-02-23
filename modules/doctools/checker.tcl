@@ -387,8 +387,9 @@ proc list_begin {what {hint {}}} {
     if {[LOpen] && ![LItem]} {Error nolisthdr}
     set what [LMap $what]
     if {![LValid $what]}     {Error invalidlist $what}
+    set res [fmt_list_begin $what $hint]
     LPush        $what
-    fmt_list_begin $what $hint
+    return $res
 }
 proc list_end {} {
     Enter list_end
