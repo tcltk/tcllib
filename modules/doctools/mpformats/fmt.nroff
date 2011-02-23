@@ -2,7 +2,7 @@
 #
 # -- doctools NROFF formatting engine.
 #
-# Copyright (c) 2001-2010 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2001-2011 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # [expand] definitions to convert a tcl based manpage definition into
 # a manpage based upon *roff markup. Additional definition files allow
