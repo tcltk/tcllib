@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin doctools n 1.4.11]
-[copyright {2003-2010 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[manpage_begin doctools n 1.4.12]
+[copyright {2003-2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {doctools - Processing documents}]
 [category  {Documentation tools}]
 [require Tcl 8.2]
-[require doctools [opt 1.4.11]]
+[require doctools [opt 1.4.12]]
 [description]
 
 This package provides a class for the creation of objects able to

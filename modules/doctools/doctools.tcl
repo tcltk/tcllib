@@ -2,12 +2,12 @@
 #
 #	Implementation of doctools objects for Tcl.
 #
-# Copyright (c) 2003-2010 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2011 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: doctools.tcl,v 1.43 2010/11/24 04:14:43 andreas_kupries Exp $
+# RCS: @(#) $Id: doctools.tcl,v 1.44 2011/02/23 18:12:10 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -1337,4 +1337,4 @@ namespace eval ::doctools {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools 1.4.11
+package provide doctools 1.4.12
