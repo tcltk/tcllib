@@ -1,5 +1,21 @@
 2011-02-23  Andreas Kupries  <andreask@activestate.com>
 
+	* mpformats/fmt.nroff: Moved the handling of the list nesting
+	* mpformats/_nroff.tcl: level a bit around to be consistent at
+	* checker.tcl: both begin and end.  Fixed the long-standing
+	  indentation bug where the rendered text got unindented after a
+	  nested list or example. We simply had to start indented
+	  paragraphs, via .IP after them, and for each paragraph in a list
+	  element. This needed the consistent nesting level to correctly
+	  know when to emit the commands. And while this may generate
+	  empty paragraphs, these can be removed easily in the
+	  post-processing.
+	* doctools.tcl: Bumped version to 1.4.13.
+	* doctools.man:
+	* pkgIndex.tcl:
+
+2011-02-23  Andreas Kupries  <andreask@activestate.com>
+
 	* mpformats/_nroff.tcl (nr_ce): [Bug 3167244]: Added \n after .CE
 	  to prevent misformatting when examples are used in a sentence
 	  without placement on a separate line of input.
