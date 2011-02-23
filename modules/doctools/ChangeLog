@@ -1,3 +1,12 @@
+2011-02-23  Andreas Kupries  <andreask@activestate.com>
+
+	* mpformats/_nroff.tcl (nr_ce): [Bug 3167244]: Added \n after .CE
+	  to prevent misformatting when examples are used in a sentence
+	  without placement on a separate line of input.
+	* doctools.tcl: Bumped version to 1.4.12.
+	* doctools.man:
+	* pkgIndex.tcl:
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
