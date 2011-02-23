@@ -155,8 +155,17 @@ observer name effectively becomes a unique binding ID.
 [para] It is possible to call [cmd {hook bind}] to create or delete a
 binding to a [arg subject] and [arg hook] while in an observer binding
 for that same [arg subject] and [arg hook]. The following rules
-determine what happens when [example {hook bind $s $h $o $binding}] is
-called during the execution of [example {hook call $s $h}]:
+determine what happens when
+
+[example {
+    hook bind $s $h $o $binding
+}]
+
+is called during the execution of
+
+[example {
+    hook call $s $h
+}]
 
 [list_begin enumerated]
 [enum]
@@ -178,22 +187,35 @@ In particular:
 [list_begin enumerated]
 [enum]
 
-If [var \$o]'s binding to [var \$s] and [var \$h] is deleted, and
-[var \$o]'s binding has not yet been called during this execution of
-[example {hook call $s $h}], it will not be called. (Note that it
-might already have been called; and in all likelihood, it is probably
-deleting itself.)
+If [var \$o]s binding to [var \$s] and [var \$h] is deleted, and
+[var \$o]s binding has not yet been called during this execution of
+
+[example {
+    hook call $s $h
+}]
+
+it will not be called. (Note that it might already have been called;
+and in all likelihood, it is probably deleting itself.)
 
 [enum]
 If [var \$o] changes the command prefix that's bound to [var \$s] and
-[var \$h], and if [var \$o]'s binding has not yet been called during
-this execution of [example {hook call $s $h}], the new binding will
-be called when the time comes. (But again, it is probably [var \$o]'s
-binding that is is making the change.)
+[var \$h], and if [var \$o]s binding has not yet been called during
+this execution of
+
+[example {
+    hook call $s $h
+}]
+
+the new binding will be called when the time comes. (But again, it is
+probably [var \$o]s binding that is is making the change.)
 
 [enum]
 If a new observer is bound to [var \$s] and [var \$h], its binding will
-not be called until the next invocation of [example {hook call $s $h}].
+not be called until the next invocation of
+
+[example {
+    hook call $s $h
+}]
 
 [list_end]
 
@@ -259,9 +281,11 @@ will [emph not] be called subsequently.
 
 [enum]
 If a subject [var \$s] is forgotten during a call to
-[example {hook call $s $h}], then [cmd {hook call}] will return as
-soon as the current binding returns.  No further bindings will be
-called.
+
+[example {hook call $s $h}]
+
+then [cmd {hook call}] will return as soon as the current binding
+returns.  No further bindings will be called.
 
 [list_end]
 
@@ -328,7 +352,7 @@ know about model updates. Consequently, it subscribes to the ::model's
      hook bind ::model <Update> .view [list .view ModelUpdate]
 }]
 
-When the [cmd ::model] calls the hook, the [widget .view]'s
+When the [cmd ::model] calls the hook, the [widget .view]s
 ModelUpdate subcommand will be called.
 
 [para]
