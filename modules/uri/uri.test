@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2000 by Zveno Pty Ltd.
 #
-# RCS: @(#) $Id: uri.test,v 1.24 2007/01/11 19:35:23 andreas_kupries Exp $
+# RCS: @(#) $Id: uri.test,v 1.25 2011/03/23 04:39:54 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -26,23 +26,23 @@ testing {
 
 test uri-1.0 {uri::split - http w/- nested query} {
     dictsort [uri::split http://test.net/path/path2?query=url?otherquery]
-} {host test.net path path/path2 port {} pwd {} query query=url?otherquery scheme http user {}}
+} {fragment {} host test.net path path/path2 port {} pwd {} query query=url?otherquery scheme http user {}}
 
 test uri-1.1 {uri::split - http w/- query} {
     dictsort [uri::split http://test.net/path/path2?query]
-} {host test.net path path/path2 port {} pwd {} query query scheme http user {}}
+} {fragment {} host test.net path path/path2 port {} pwd {} query query scheme http user {}}
 
 test uri-1.2 {uri::split - https w/- query} {
     dictsort [uri::split https://test.net/path/path2?query]
-} {host test.net path path/path2 port {} pwd {} query query scheme https user {}}
+} {fragment {} host test.net path path/path2 port {} pwd {} query query scheme https user {}}
 
 test uri-1.3 {uri::split - http w/- port} {
     dictsort [uri::split http://test.net:8080]
-} {host test.net path {} port 8080 pwd {} query {} scheme http user {}}
+} {fragment {} host test.net path {} port 8080 pwd {} query {} scheme http user {}}
 
 test uri-1.4 {uri::split - https w/- port} {
     dictsort [uri::split https://test.net:8888]
-} {host test.net path {} port 8888 pwd {} query {} scheme https user {}}
+} {fragment {} host test.net path {} port 8888 pwd {} query {} scheme https user {}}
 
 test uri-1.5 {uri::split - ftp} {
     dictsort [uri::split ftp://ftp.test.net/path/to/resource]
@@ -460,7 +460,17 @@ test uri-8.0 {uri::split bug #676976, ill. char in scheme} {
 
 test uri-9.0 {uri::split bug #936064, user information} {
     dictsort [uri::split http://foo:bar@baz.com:80/bla/]
-} {host baz.com path bla/ port 80 pwd bar query {} scheme http user foo}
+} {fragment {} host baz.com path bla/ port 80 pwd bar query {} scheme http user foo}
+
+# -------------------------------------------------------------------------
+
+test uri-10.0 {uri::split bug #3235340, fragments after queries} {
+    dictsort [uri::split  http://baz.com/foo?bar=baz#quux]
+} {fragment quux host baz.com path foo port {} pwd {} query bar=baz scheme http user {}}
+
+test uri-10.1 {uri::join bug #3235340, fragments after queries} {
+    uri::join fragment quux host baz.com path foo port {} pwd {} query bar=baz scheme http user {}
+} {http://baz.com/foo?bar=baz#quux}
 
 # -------------------------------------------------------------------------
 
