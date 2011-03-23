@@ -11,7 +11,7 @@
 # TODO:
 #	Handle www-url-encoding details
 #
-# CVS: $Id: uri.tcl,v 1.35 2007/01/11 19:35:23 andreas_kupries Exp $
+# CVS: $Id: uri.tcl,v 1.36 2011/03/23 04:39:54 andreas_kupries Exp $
 
 package require Tcl 8.2
 
@@ -288,10 +288,25 @@ proc ::uri::SplitHttp {url} {
     upvar #0 [namespace current]::http::search  search
     upvar #0 [namespace current]::http::segment segment
 
-    array set parts {host {} port {} path {} query {}}
+    array set parts {host {} port {} path {} query {} fragment {}}
 
     set searchPattern   "\\?(${search})\$"
     set fragmentPattern "#(${segment})\$"
+
+    # slash off possible fragment.
+
+    # NOTE: This must be done before the query, because a fragment can
+    # follow a query, and slashing off the query first will take the
+    # fragment with it. Bug #3235340.
+
+    if {[regexp -indices -- $fragmentPattern $url match fragment]} {
+	set from [lindex $fragment 0]
+	set to   [lindex $fragment 1]
+
+	set parts(fragment) [string range $url $from $to]
+
+	set url [string replace $url [lindex $match 0] end]
+    }
 
     # slash off possible query. the 'search' regexp, while official,
     # is not good enough. We have apparently lots of urls in the wild
@@ -304,17 +319,6 @@ proc ::uri::SplitHttp {url} {
 	set parts(query) [string range   $url $pos end]
 	incr pos -1
 	set url          [string replace $url $pos end]
-    }
-
-    # slash off possible fragment
-
-    if {[regexp -indices -- $fragmentPattern $url match fragment]} {
-	set from [lindex $fragment 0]
-	set to   [lindex $fragment 1]
-
-	set parts(fragment) [string range $url $from $to]
-
-	set url [string replace $url [lindex $match 0] end]
     }
 
     if {[string match "//*" $url]} {
@@ -337,7 +341,7 @@ proc ::uri::JoinHttps {args} {
 }
 
 proc ::uri::JoinHttpInner {scheme defport args} {
-    array set components {host {} path {} query {}}
+    array set components {host {} path {} query {} fragment {}}
     set       components(port) $defport
     array set components $args
 
@@ -353,13 +357,13 @@ proc ::uri::JoinHttpInner {scheme defport args} {
 
     regsub -- {^/} $components(path) {} components(path)
 
-    if { [info exists components(fragment)] && $components(fragment) != "" } {
+    if { $components(fragment) != "" } {
 	set components(fragment) "#$components(fragment)"
     } else {
 	set components(fragment) ""
     }
 
-    return $scheme://$components(host)$port/$components(path)$components(fragment)$query
+    return $scheme://$components(host)$port/$components(path)$query$components(fragment)
 }
 
 proc ::uri::SplitFile {url} {
@@ -1031,4 +1035,4 @@ uri::register ldap {
     variable	url		"ldap:$schemepart"
 }
 
-package provide uri 1.2.1
+package provide uri 1.2.2
