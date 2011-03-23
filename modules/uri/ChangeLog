@@ -1,3 +1,10 @@
+2011-03-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pkgIndex.tcl: [Bug #3235340]: Provide empty string as default
+	* uri.man: value for the fragment in an http url. Ensure that
+	* uri.tcl: a fragment after a query is properly split off, and
+	* uri.test: joined. Extended testsuite. Bumped to version 1.2.2.
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
