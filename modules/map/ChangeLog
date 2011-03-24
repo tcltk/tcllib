@@ -1,3 +1,11 @@
+2011-03-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* map_slippy.man: Documented the three coordinate systems used.
+	* map_slippy.tcl: Extended the testsuite to cover all coordinate
+	* map_slippy.test: conversions. Fixed a number of problems (wrong
+	* pkgIndex.tcl: scaling, bad rounding) uncovered by this. Bumped
+	  package version to 0.4.
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
