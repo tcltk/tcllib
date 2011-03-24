@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin map::slippy n 0.3]
+[manpage_begin map::slippy n 0.4]
 [moddesc   {Mapping utilities}]
 [titledesc {Common code for slippy based map packages}]
 [require Tcl 8.4]
 [require Tk 8.4]
-[require map::slippy [opt 0.3]]
+[require map::slippy [opt 0.4]]
 [description]
 
 This package provides a number of methods doing things needed by all
@@ -61,7 +61,18 @@ within the boundaries for the zoom level, i.e. 0 ...
 Converts a geographical location at a zoom level ([arg geo], a list
 containing zoom level, latitude, and longitude, in this order) to a
 tile identifier (list containing zoom level, row, and column) at that
-level.
+level. The tile identifier uses pure integer numbers for the tile
+coordinates, for all geographic coordinates mapping to that tile.
+
+
+[call [cmd ::map::slippy] [method {geo 2tile.float}] [arg geo]]
+
+Converts a geographical location at a zoom level ([arg geo], a list
+containing zoom level, latitude, and longitude, in this order) to a
+tile identifier (list containing zoom level, row, and column) at that
+level. The tile identifier uses floating point numbers for the tile
+coordinates, representing not only the tile the geographic coordinates
+map to, but also the fractional location inside of that tile.
 
 
 [call [cmd ::map::slippy] [method {geo 2point}] [arg geo]]
@@ -101,6 +112,69 @@ containing zoom level, y, and x, in this order) to a tile identifier
 (list containing zoom level, row, and column) at that level.
 
 [list_end]
+
+
+[section {Coordinate systems}]
+
+The commands of this package operate on three distinct coordinate
+systems, which are explained below.
+
+[subsection Geographic]
+
+[term Geographic]al coordinates are represented by [term Latitude] and
+[term Longitude], each of which is measured in degrees, as they are
+essentially angles.
+
+[para] [const Zero] longitude is the [term {Greenwich meridian}], with
+positive values going [term east], and negative values going
+[term west], for a total range of +/- 180 degrees. Note that +180 and
+-180 longitude are the same [term meridian], opposite to greenwich.
+
+[para] [const zero] latitude the [term Equator], with positive values
+going [term north] and negative values going [term south]. While the
+true range is +/- 90 degrees the projection used by the package
+requires us to cap the range at +/- 85.05112877983284 degrees. This
+means that north and south pole are not representable and not part of
+any map.
+
+
+[subsection Tiles]
+
+While [sectref Geographic]al coordinates of the previous section are
+independent of zoom level the [term {tile coordinates}] are not.
+
+[para] Generally the integer part of tile coordinates represent the
+row and column number of the tile in question, wheras the fractional
+parts signal how far inside the tile the location in question is, with
+pure integer coordinates (no fractional part) representing the upper
+left corner of the tile.
+
+[para] The zero point of the map is at the upper left corner,
+regardless of zoom level, with larger coordinates going right (east)
+and down (south), and smaller coordinates going left (west) and up
+(north). Again regardless of zxoom level.
+
+[para] Negative tile coordinates are not allowed.
+
+[para] At zoom level 0 the whole map is represented by a single,
+putting the geographic zero at 1/2, 1/2 of tile coordinates, and the
+range of tile coordinates as [lb]0...1[rb].
+
+[para] To go from a zoom level N to the next deeper level N+1 each
+tile of level N is split into its four quadrants, which then are the
+tiles of level N+1.
+
+[para] This means that at zoom level N the map is sliced (horizontally
+and vertically) into 2^N stripes, for a total of 4^N tiles, with tile
+coordinates ranging from 0 to 2^N+1.
+
+
+[subsection Pixels/Points]
+
+[term {pixel coordinates}], also called [term {point coordinates}] are
+in essence [sectref Tiles {tile coordinates}] scaled by the size of
+the image representing a tile. This tile size currently has a fixed
+value, [const 256].
 
 
 [section References]

@@ -87,6 +87,19 @@ snit::type map::slippy {
 	return [list $zoom $row $col]
     }
 
+    typemethod {geo 2tile.float} {geo} {
+	::variable degtorad
+	::variable pi
+	foreach {zoom lat lon} $geo break 
+	# lat, lon are in degrees.
+	# The missing sec() function is computed using the 1/cos equivalency.
+	set tiles  [tiles $zoom]
+	set latrad [expr {$degtorad * $lat}]
+	set row    [expr {(1 - (log(tan($latrad) + 1.0/cos($latrad)) / $pi)) / 2 * $tiles}]
+	set col    [expr {(($lon + 180.0) / 360.0) * $tiles}]
+	return [list $zoom $row $col]
+    }
+
     typemethod {geo 2point} {geo} {
 	::variable degtorad
 	::variable pi
@@ -118,9 +131,9 @@ snit::type map::slippy {
 	#       upper left corner of the tile. To get the pixel
 	#       location of the center simply add 0.5 to the row/col
 	#       values.
-	set tiles [tiles $zoom]
-	set y     [expr {$tiles * $row}]
-	set x     [expr {$tiles * $col}]
+	#set tiles [tiles $zoom]
+	set y     [expr {$ourtilesize * $row}]
+	set x     [expr {$ourtilesize * $col}]
 	return [list $zoom $y $x]
     }
 
@@ -129,17 +142,17 @@ snit::type map::slippy {
 	::variable pi
 	foreach {zoom y x} $point break
 	set length [expr {$ourtilesize * [tiles $zoom]}]
-	set lat    [expr {$radtodeg * (atan(sinh($pi * (1 - 2 * $y / $length))))}]
-	set lon    [expr {$x / $length * 360.0 - 180.0}]
+	set lat    [expr {$radtodeg * (atan(sinh($pi * (1 - 2 * double($y) / $length))))}]
+	set lon    [expr {double($x) / $length * 360.0 - 180.0}]
 	return [list $zoom $lat $lon]
     }
 
     typemethod {point 2tile} {point} {
 	foreach {zoom y x} $point break
-	set tiles [tiles $zoom]
-	set row   [expr {$y / $tiles}]
-	set col   [expr {$x / $tiles}]
-	return [list $zoom $y $x]
+	#set tiles [tiles $zoom]
+	set row   [expr {double($y) / $ourtilesize}]
+	set col   [expr {double($x) / $ourtilesize}]
+	return [list $zoom $row $col]
     }
 
     proc tiles {level} {
@@ -160,4 +173,4 @@ snit::type map::slippy {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide map::slippy 0.3
+package provide map::slippy 0.4
