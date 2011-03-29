@@ -1,3 +1,7 @@
+2011-03-29  Andreas Kupries  <andreask@activestate.com>
+
+	* linalg.man: Documentation tweak, added keyword 'matrix'.
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
