@@ -8,7 +8,8 @@
 [category  Mathematics]
 [require Tcl [opt 8.4]]
 [require math::linearalgebra [opt 1.1]]
-
+[keywords math {linear algebra} vectors matrices {least squares}]
+[keywords matrix {linear equations}]
 [description]
 [para]
 This package offers both low-level procedures and high-level algorithms
@@ -980,7 +981,4 @@ Please report such in the category [emph {math :: linearalgebra}] of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.
 
-
-
-[keywords math "linear algebra" vectors matrices "least squares" "linear equations"]
 [manpage_end]
