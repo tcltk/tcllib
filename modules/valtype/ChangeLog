@@ -1,0 +1,6 @@
+2011-04-06  Andreas Kupries  <andreask@activestate.com>
+
+	* New module: Validation types. snit validation types for various
+	  classes of numbers (ISBN, EAN, ...) and general check-digit
+	  algorithms (luhn(5), verhoeff, ...).
+

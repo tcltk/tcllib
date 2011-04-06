@@ -34,7 +34,6 @@ Exclude calendar
 Exclude exif
 
 #       name         pkg   doc   example
-Module  pki         _tcl  _man  _null
 Module  aes         _tcl  _man  _null
 Module  amazon-s3   _tcl  _man  _null
 Module  asn         _tcl  _man  _null
@@ -100,6 +99,7 @@ Module  nntp        _tcl  _man _exa
 Module  ntp         _tcl  _man _exa
 Module  otp         _tcl  _man  _null
 Module  page         _tcr _man  _null
+Module  pki         _tcl  _man  _null
 Module  pluginmgr   _tcl  _man  _null
 Module  png         _tcl  _man  _null
 Module  pop3        _tcl  _man  _null
@@ -132,6 +132,7 @@ Module  uev         _tcl  _man  _null
 Module  units       _tcl  _man  _null
 Module  uri         _tcl  _man  _null
 Module  uuid        _tcl  _man  _null
+Module  valtype     _tcl _null  _null
 Module  virtchannel_base       _tcl _null  _null
 Module  virtchannel_core       _tcl _null  _null
 Module  virtchannel_transform  _tcl _null  _null
