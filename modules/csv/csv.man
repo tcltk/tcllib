@@ -217,8 +217,8 @@ c) Mary says "Hello, I am Mary"
 d) (the empty string)
 }]
 
-instead. As can be seen only item (d) is different, now a " instead of
-the empty string.
+instead. As can be seen only item (d) is different, now the empty string
+instead of a ".
 
 
 [section {BUGS, IDEAS, FEEDBACK}]
