@@ -1,3 +1,9 @@
+2011-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* csv.man: [Bug 3281791]: Followup to fix for [Bug 3061815], fixed
+	  forgotten change in the text after the examples. Thanks to
+	  <guardus@users.sourceforge.net>.
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
