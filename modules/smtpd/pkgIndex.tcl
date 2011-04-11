@@ -9,4 +9,4 @@
 # full path name of this file's directory.
 
 if {![package vsatisfies [package provide Tcl] 8.3]} {return}
-package ifneeded smtpd 1.4.0 [list source [file join $dir smtpd.tcl]]
+package ifneeded smtpd 1.5 [list source [file join $dir smtpd.tcl]]
