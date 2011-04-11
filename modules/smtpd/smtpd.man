@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin smtpd n 1.4]
+[manpage_begin smtpd n 1.5]
 [copyright {Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc   {Tcl SMTP Server Package}]
 [titledesc {Tcl SMTP server implementation}]
 [category  Networking]
 [require Tcl 8.3]
-[require smtpd [opt 1.4]]
+[require smtpd [opt 1.5]]
 [description]
 [para]
 
@@ -109,6 +109,12 @@ SMTP protocol. See the [sectref CALLBACKS] section for details of the
 procedures.
 
 [list_begin definitions]
+
+[def "[option -banner] [arg text]"]
+
+Text of a custom banner message. The default banner is "tcllib smtpd 1.5".
+Note that changing the banner does not affect the bracketing text
+in the full greeting, printing status 220, server-address, and timestamp.
 
 [def "[option -validate_host] [arg proc]"]
 
