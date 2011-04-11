@@ -1,3 +1,9 @@
+2011-04-11  Andreas Kupries  <andreask@activestate.com>
+
+	* smtpd.man: [RFE 3247765]: Added option to configure the
+	* smtpd.tcl: smtpd greeting/banner. Bumped to version 1.5
+	* pkgIndex.tcl
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
