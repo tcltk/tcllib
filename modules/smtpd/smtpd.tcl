@@ -18,8 +18,8 @@ package require mime;                   # tcllib
 # @mdgen EXCLUDE: clients/mail-test.tcl
 
 namespace eval ::smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.20 2005/12/09 18:27:17 andreas_kupries Exp $}
-    variable version 1.4.0
+    variable rcsid {$Id: smtpd.tcl,v 1.21 2011/04/11 21:52:47 andreas_kupries Exp $}
+    variable version 1.5.0
     variable stopped
 
     namespace export start stop configure
@@ -50,6 +50,7 @@ namespace eval ::smtpd {
             usetls             0
             tlsopts            {}
         }
+        set options(banner) "tcllib smtpd $version"
     }
     variable tlsopts {-cadir -cafile -certfile -cipher 
         -command -keyfile -password -request -require -ssl2 -ssl3 -tls1}
@@ -141,6 +142,7 @@ proc ::smtpd::configure {args} {
             -validate_host      {set options(validate_host) [Pop args 1]}
             -validate_sender    {set options(validate_sender) [Pop args 1]}
             -validate_recipient {set options(validate_recipient) [Pop args 1]}
+            -banner             {set options(banner) [Pop args 1]}
             -usetls             {
                 set usetls [Pop args 1]
                 if {$usetls && ![catch {package require tls}]} {
@@ -251,7 +253,7 @@ proc ::smtpd::accept {channel client_addr client_port} {
     if {$accepted} {
         # Accept the connection
         Log notice "connect from $client_addr:$client_port on $channel"
-        Puts $channel "220 $options(serveraddr) tcllib smtpd $version; [timestamp]"
+        Puts $channel "220 $options(serveraddr) $options(banner); [timestamp]"
     }
     
     return
