@@ -1,3 +1,15 @@
+2011-04-18  Andreas Kupries  <andreask@activestate.com>
+
+	* coroutine.tcl: [Bug 3252952]: Fixed clash between ::coroutine
+	* coroutine.man: builtin of Tcl 8.6, and the same-named ensemble
+	  of the package. Moved package command ::coroutine to
+	  ::coroutine::util. Bumped version to 1.1.
+
+	* coro_auto.tcl: [Bug 3252952]: Updated user of package coroutine
+	* coro_auto.man: to the new command name. Bumped version to 1.1.
+
+	* pkgIndex.tcl: Updated version numbers.
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

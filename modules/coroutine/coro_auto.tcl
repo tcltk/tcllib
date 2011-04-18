@@ -2,10 +2,10 @@
 # # ## ### ##### ######## #############
 
 # @@ Meta Begin
-# Package coroutine::auto 1
+# Package coroutine::auto 1.1
 # Meta platform        tcl
 # Meta require         {Tcl 8.6}
-# Meta require         coroutine
+# Meta require         {coroutine 1.1}
 # Meta license         BSD
 # Meta as::author      {Andreas Kupries}
 # Meta summary         Coroutine Event and Channel Support
@@ -17,9 +17,9 @@
 # Meta description     without changes.
 # @@ Meta End
 
-# Copyright (c) 2009 Andreas Kupries
+# Copyright (c) 2009-2011 Andreas Kupries
 
-## $Id: coro_auto.tcl,v 1.1 2009/11/10 21:04:39 andreas_kupries Exp $
+## $Id: coro_auto.tcl,v 1.2 2011/04/18 20:23:58 andreas_kupries Exp $
 # # ## ### ##### ######## #############
 ## Requisites, and ensemble setup.
 
@@ -27,41 +27,6 @@ package require Tcl 8.6
 package require coroutine
 
 namespace eval ::coroutine::auto {}
-
-# # ## ### ##### ######## #############
-## Internal. Setup.
-
-proc ::coroutine::auto::Init {} {
-
-    # Replaces the builtin commands with coroutine-aware
-    # counterparts. We cannot use the coroutine commands
-    # directly, because the replacements have to use the saved builtin
-    # commands when called outside of a coroutine. And some (read,
-    # gets, update) even need full re-implementations, as they use the
-    # builtin command they replace themselves to implement their
-    # functionality.
-
-    foreach cmd {
-	global
-	exit
-	after
-	vwait
-	update
-    } {
-	rename ::$cmd [namespace current]::core_$cmd
-	rename [namespace current]::wrap_$cmd ::$cmd
-    }
-
-    foreach cmd {
-	gets
-	read
-    } {
-	rename ::tcl::chan::$cmd [namespace current]::core_$cmd
-	rename [namespace current]::wrap_$cmd ::tcl::chan::$cmd
-    }
-
-    return
-}
 
 # # ## ### ##### ######## #############
 ## API implementations. Uses the coroutine commands where
@@ -72,7 +37,7 @@ proc ::coroutine::auto::wrap_global {args} {
 	tailcall [namespace current]::core_global {*}$args
     }
 
-    tailcall ::coroutine::global {*}$args
+    tailcall ::coroutine::util::global {*}$args
 }
 
 # - -- --- ----- -------- -------------
@@ -89,7 +54,7 @@ proc ::coroutine::auto::wrap_after {delay args} {
     }
 
     # Inside of coroutine, and synchronous delay (args == "").
-    tailcall ::coroutine::after $delay
+    tailcall ::coroutine::util::after $delay
 }
 
 # - -- --- ----- -------- -------------
@@ -99,7 +64,7 @@ proc ::coroutine::auto::wrap_exit {{status 0}} {
 	tailcall [namespace current]::core_exit $status
     }
 
-    tailcall ::coroutine::exit $status
+    tailcall ::coroutine::util::exit $status
 }
 
 # - -- --- ----- -------- -------------
@@ -109,7 +74,7 @@ proc ::coroutine::auto::wrap_vwait {varname} {
 	tailcall [namespace current]::core_vwait $varname
     }
 
-    tailcall ::coroutine::vwait $varname
+    tailcall ::coroutine::util::vwait $varname
 }
 
 # - -- --- ----- -------- -------------
@@ -308,7 +273,41 @@ proc ::coroutine::auto::wrap_read {args} {
 }
 
 # # ## ### ##### ######## #############
+## Internal. Setup.
+
+::apply {{} {
+    # Replaces the builtin commands with coroutine-aware
+    # counterparts. We cannot use the coroutine commands directly,
+    # because the replacements have to use the saved builtin commands
+    # when called outside of a coroutine. And some (read, gets,
+    # update) even need full re-implementations, as they use the
+    # builtin command they replace themselves to implement their
+    # functionality.
+
+    foreach cmd {
+	global
+	exit
+	after
+	vwait
+	update
+    } {
+	rename ::$cmd [namespace current]::core_$cmd
+	rename [namespace current]::wrap_$cmd ::$cmd
+    }
+
+    foreach cmd {
+	gets
+	read
+    } {
+	rename ::tcl::chan::$cmd [namespace current]::core_$cmd
+	rename [namespace current]::wrap_$cmd ::tcl::chan::$cmd
+    }
+
+    return
+} ::coroutine::auto}
+
+# # ## ### ##### ######## #############
 ## Ready
-::coroutine::auto::Init
+
 package provide coroutine::auto 1
 return

@@ -1,13 +1,14 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin coroutine n 1]
-[copyright {2010 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2010-2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Coroutine utilities}]
 [category  Coroutine]
 [titledesc {}]
 [require Tcl 8.6]
-[require coroutine 1]
+[require coroutine 1.1]
 [description]
-[keywords coroutine chanel events]
+[keywords coroutine channel events threads {green threads}]
+[keywords global exit after vwait update gets read]
 
 The [package coroutine] package provides coroutine-aware
 implementations of various event- and channel related commands. It can
@@ -41,40 +42,40 @@ is available. The overall eventloop is not blocked however.
 
 [list_begin definitions]
 
-[call [cmd {coroutine after}] [arg delay]]
+[call [cmd {coroutine::util after}] [arg delay]]
 
 This command delays the coroutine invoking it by [arg delay]
 milliseconds.
 
 
-[call [cmd {coroutine await}] [arg varname]...]
+[call [cmd {coroutine::util await}] [arg varname]...]
 
-This command is an extension form of the [cmd {coroutine vwait}]
+This command is an extension form of the [cmd {coroutine::util vwait}]
 command (see below) which waits on a write to one of many named
 namespace variables.
 
 
-[call [cmd {coroutine create}] [arg arg]...]
+[call [cmd {coroutine::util create}] [arg arg]...]
 
 This command creates a new coroutine with an automatically assigned
 name and causes it to run the code specified by the arguments.
 
 
-[call [cmd {coroutine exit}] [opt [arg status]]]
+[call [cmd {coroutine::util exit}] [opt [arg status]]]
 
 This command exits the current coroutine, causing it to return
 [arg status]. If no status was specified the default [arg 0] is
 returned.
 
 
-[call [cmd {coroutine gets}] [arg chan] [opt [arg varname]]]
+[call [cmd {coroutine::util gets}] [arg chan] [opt [arg varname]]]
 
 This command reads a line from the channel [arg chan] and returns it
 either as its result, or, if a [arg varname] was specified, writes it
 to the named variable and returns the number of characters read.
 
 
-[call [cmd {coroutine global}] [arg varname]...]
+[call [cmd {coroutine::util global}] [arg varname]...]
 
 This command imports the named global variables of the coroutine into
 the current scope. From the technical point of view these variables
@@ -83,20 +84,20 @@ regular global variable in to the global namespace, and each coroutine
 can have their own set, independent of all others.
 
 
-[call [cmd {coroutine read}] [option -nonewline] [arg chan] [opt [arg n]]]
+[call [cmd {coroutine::util read}] [option -nonewline] [arg chan] [opt [arg n]]]
 
 This command reads [arg n] characters from the channel [arg chan] and
 returns them as its result. If [arg n] is not specified the command
 will read the channel until EOF is reached.
 
 
-[call [cmd {coroutine update}] [opt [const idletasks]]]
+[call [cmd {coroutine::util update}] [opt [const idletasks]]]
 
 This command causes the coroutine invoking it to run pending events or
 idle handlers before proceeding.
 
 
-[call [cmd {coroutine vwait}] [arg varname]]
+[call [cmd {coroutine::util vwait}] [arg varname]]
 
 This command causes the coroutine calling it to wait for a write to
 the named namespace variable [arg varname].
