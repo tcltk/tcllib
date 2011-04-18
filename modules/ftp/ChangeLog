@@ -1,3 +1,18 @@
+2011-04-18  Andreas Kupries  <andreask@activestate.com>
+
+	* ftp.tcl (::ftp::__ftp_ls): [Bug 3288793]: Fixed ftp::List
+	  variant used by Tkcon, to not only print the result, but
+	  continue returning it as well, for non-interactive use. Thanks
+	  to Pedro <proteco@users.sourceforge.net>
+
+	* ftp.tcl (::ftp::StateHandler): [Bug 3288977]: Fixed handling of
+	  multi-line replies which are not strictly RFC 959. Thanks to
+	  Shaun Zinck <szinck@users.sourceforge.net>. This partially fixes
+	  [Bug 2813069].
+
+	* pkgIndex.tcl: Bumped version to 2.4.10.
+	* ftp.man:
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
