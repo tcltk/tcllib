@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.47 2008/08/05 20:34:32 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.48 2011/04/18 19:27:14 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -274,6 +274,14 @@ proc ::ftp::StateHandler {s {sock ""}} {
 			# multi_line is not set if the bufline does not match the regexp,
 			# I.e. this keeps the '-' which started this around until the
 			# closing line does match and sets it to space.
+		    } elseif {$number == -1 && [eof $sock]} {
+			# The reply indicated a multi-line reply, but the
+			# socket was closed and there were no more lines.
+			# In that case, keep the current return values.
+
+			# This means the server isn't speaking strict rfc959.
+			# see section on multi-line replies
+			break
 		    }
 		}
 
@@ -2992,9 +3000,11 @@ if { [string equal [uplevel "#0" {info commands tkcon}] "tkcon"] } {
 
     # new ftp::List proc makes the output more readable
     proc ::ftp::__ftp_ls {args} {
-        foreach i [eval ::ftp::List_org $args] {
+	set rc [eval [linsert $args 0 ::ftp::List_org]]
+        foreach i $rc {
             puts $i
         }
+	return $rc
     }
 
     # rename the original ftp::List procedure
@@ -3010,4 +3020,4 @@ if { [string equal [uplevel "#0" {info commands tkcon}] "tkcon"] } {
 # ==================================================================
 # At last, everything is fine, we can provide the package.
 
-package provide ftp [lindex {Revision: 2.4.9} 1]
+package provide ftp [lindex {Revision: 2.4.10} 1]
