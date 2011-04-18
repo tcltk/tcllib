@@ -42,13 +42,13 @@
 # Copyright (c) 2009 Neil Madden
 # Copyright (c) 2009 Peter Spjuth
 
-## $Id: coroutine.tcl,v 1.1 2009/11/10 21:04:39 andreas_kupries Exp $
+## $Id: coroutine.tcl,v 1.2 2011/04/18 20:23:58 andreas_kupries Exp $
 # # ## ### ##### ######## #############
 ## Requisites, and ensemble setup.
 
 package require Tcl 8.6
 
-namespace eval ::coroutine {
+namespace eval ::coroutine::util {
 
     namespace export \
 	create global after exit vwait update gets read await
@@ -60,7 +60,7 @@ namespace eval ::coroutine {
 ## API. Spawn coroutines, automatic naming
 ##      (like thread::create).
 
-proc ::coroutine::create {args} {
+proc ::coroutine::util::create {args} {
     ::coroutine [ID] {*}$args
 }
 
@@ -80,7 +80,7 @@ proc ::coroutine::create {args} {
 
 # - -- --- ----- -------- -------------
 
-proc ::coroutine::global {args} {
+proc ::coroutine::util::global {args} {
     # Frame #1 is the coroutine-specific stack frame at its
     # bottom. Variables there are out of view of the main code, and
     # can be made visible in the entire coroutine underneath.
@@ -94,7 +94,7 @@ proc ::coroutine::global {args} {
 
 # - -- --- ----- -------- -------------
 
-proc ::coroutine::after {delay} {
+proc ::coroutine::util::after {delay} {
     ::after $delay [info coroutine]
     yield
     return
@@ -102,13 +102,13 @@ proc ::coroutine::after {delay} {
 
 # - -- --- ----- -------- -------------
 
-proc ::coroutine::exit {{status 0}} {
+proc ::coroutine::util::exit {{status 0}} {
     return -level [info level] $status
 }
 
 # - -- --- ----- -------- -------------
 
-proc ::coroutine::vwait {varname} {
+proc ::coroutine::util::vwait {varname} {
     upvar 1 $varname var
     set callback [list [namespace current]::VWaitTrace [info coroutine]]
 
@@ -131,14 +131,14 @@ proc ::coroutine::vwait {varname} {
     return
 }
 
-proc ::coroutine::VWaitTrace {coroutine args} {
+proc ::coroutine::util::VWaitTrace {coroutine args} {
     $coroutine
     return
 }
 
 # - -- --- ----- -------- -------------
 
-proc ::coroutine::update {{what {}}} {
+proc ::coroutine::util::update {{what {}}} {
     if {$what eq "idletasks"} {
         ::after idle [info coroutine]
     } elseif {$what ne {}} {
@@ -153,7 +153,7 @@ proc ::coroutine::update {{what {}}} {
 
 # - -- --- ----- -------- -------------
 
-proc ::coroutine::gets {args} {
+proc ::coroutine::util::gets {args} {
     # Process arguments.
     # Acceptable syntax:
     # * gets CHAN ?VARNAME?
@@ -202,7 +202,7 @@ proc ::coroutine::gets {args} {
 
 # - -- --- ----- -------- -------------
 
-proc ::coroutine::read {args} {
+proc ::coroutine::util::read {args} {
     # Process arguments.
     # Acceptable syntax:
     # * read ?-nonewline ? CHAN
@@ -312,7 +312,7 @@ proc ::coroutine::read {args} {
 ## result is the name of the variable which was written.
 ## This code mainly by Neil Madden.
 
-proc ::coroutine::await args {
+proc ::coroutine::util::await args {
     set callback [list [namespace current]::AWaitSignal [info coroutine]]
 
     # Step 1. Wait for a write to any of the variable, using a trace
@@ -345,7 +345,7 @@ proc ::coroutine::await args {
     return $choice
 }
 
-proc ::coroutine::AWaitSignal {coroutine var index op} {
+proc ::coroutine::util::AWaitSignal {coroutine var index op} {
     if {$op ne "write"} { return }
     set fullvar $var
     if {$index ne ""} { append fullvar ($index) }
@@ -355,7 +355,7 @@ proc ::coroutine::AWaitSignal {coroutine var index op} {
 # # ## ### ##### ######## #############
 ## Internal (package specific) commands
 
-proc ::coroutine::ID {} {
+proc ::coroutine::util::ID {} {
     variable counter
     return [namespace current]::C[incr counter]
 }
@@ -363,12 +363,12 @@ proc ::coroutine::ID {} {
 # # ## ### ##### ######## #############
 ## Internal (package specific) state
 
-namespace eval ::coroutine {
+namespace eval ::coroutine::util {
     #checker exclude warnShadowVar
     variable counter 0
 }
 
 # # ## ### ##### ######## #############
 ## Ready
-package provide coroutine 1
+package provide coroutine 1.1
 return

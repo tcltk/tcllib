@@ -1,14 +1,15 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin coroutine::auto n 1]
-[copyright {2010 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2010-2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Coroutine utilities}]
 [category  Coroutine]
 [titledesc {}]
 [require Tcl 8.6]
-[require coroutine::auto 1]
-[require coroutine 1]
+[require coroutine::auto 1.1]
+[require coroutine 1.1]
 [description]
 [keywords coroutine global exit after vwait update gets read]
+[keywords channel threads {green threads} events]
 
 The [package coroutine::auto] package provides no commands or other
 directly visible functionality.
