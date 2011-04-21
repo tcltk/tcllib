@@ -94,8 +94,8 @@ proc ::pt::cparam::configuration::critcl::def {class pkg cmd} {
 	    ## Supporting code for the main command.
 
 	    catch {
-		critcl::cheaders -g
-		critcl::debug memory symbols
+		#critcl::cheaders -g
+		#critcl::debug memory symbols
 	    }
 
 	    # # ## ### ###### ######## #############

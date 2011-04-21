@@ -1724,8 +1724,15 @@ proc __critcl {} {
         # -debug and -clean only work with critcl >= v04
         switch -exact -- $option {
             -keep  { append flags " -keep" }
-            -debug { append flags " -debug" }
+            -debug {
+		append flags " -debug [lindex $argv 1]"
+		set argv [lreplace $argv 0 0]
+	    }
             -clean { append flags " -clean" }
+            -target {
+		append flags " -target [lindex $argv 1]"
+		set argv [lreplace $argv 0 0]
+	    }
             -- { set argv [lreplace $argv 0 0]; break }
             default { break }
         }
