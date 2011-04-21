@@ -1,3 +1,17 @@
+2011-04-21  Andreas Kupries  <andreask@activestate.com>
+
+	* modules/struct/queue_c.tcl: Disabled the critcl debug settings used
+	* modules/pt/pt_rdengine_c.tcl: to work around bugs in critcl v2's
+	* modules/pt/pt_parse_peg_c.tcl: handling of C companion files.
+	* modules/pt/pt_cparam_config_critcl.tcl:
+
+	* sak.tcl (__critcl): Fixed processing of -debug, added the
+	  forgotten handling of its argument. Plus added handling of
+	  option -target.
+
+	* ./modules/sha1/sha256.h: Fixed the conditional definition of
+	  uint64_t and uint32_t for aix and hpux machines.
+
 2011-04-06  Andreas Kupries  <andreask@activestate.com>
 
 	* modules/valtype: New module: Validation types. snit validation
