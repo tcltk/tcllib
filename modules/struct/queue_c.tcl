@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: queue_c.tcl,v 1.1 2008/07/02 23:35:07 andreas_kupries Exp $
+# RCS: @(#) $Id: queue_c.tcl,v 1.2 2011/04/21 17:51:55 andreas_kupries Exp $
 
 package require critcl
 # @sak notprovided struct_queuec
@@ -18,11 +18,6 @@ package require Tcl 8.4
 
 namespace eval ::struct {
     # Supporting code for the main command.
-
-    catch {
-	critcl::cheaders -g
-	critcl::debug memory symbols
-    }
 
     critcl::cheaders queue/*.h
     critcl::csources queue/*.c

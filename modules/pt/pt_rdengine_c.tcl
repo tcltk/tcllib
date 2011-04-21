@@ -29,8 +29,8 @@ namespace eval ::pt {
     ## Supporting code for the main command.
 
     catch {
-	critcl::cheaders -g
-	critcl::debug memory symbols
+	#critcl::cheaders -g
+	#critcl::debug memory symbols
     }
 
     critcl::cheaders rde_critcl/*.h
