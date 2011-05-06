@@ -1,3 +1,11 @@
+2011-05-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* jpeg.tcl: Refactored the getExif function into two parts with
+	* pkgIndex.tcl: one that operates on a previously opened
+	* jpeg.man:  channel. This means it can be used with other channel
+	* jpeg.test: implementations such as memchan or embedded
+	streams. Updated the documentation and version.
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

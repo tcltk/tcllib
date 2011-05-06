@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: jpeg.tcl,v 1.18 2009/06/05 19:58:26 andreas_kupries Exp $
+# RCS: @(#) $Id: jpeg.tcl,v 1.19 2011/05/06 13:39:27 patthoyts Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -362,50 +362,54 @@ proc ::jpeg::exifKeys {} {
 
 proc ::jpeg::getExif {file {type main}} {
     set fh [openJFIF $file]
+    set r [catch {getExifFromChannel $fh $type} err]
+    close $fh
+    return -code $r $err
+}
+
+proc ::jpeg::getExifFromChannel {chan {type main}} {
     # foreach because file may have multiple e1 markers
-    foreach app1 [lsearch -inline -all [markers $fh] "e1 *"] {
-        seek $fh [lindex $app1 1] start
+    foreach app1 [lsearch -inline -all [markers $chan] "e1 *"] {
+        seek $chan [lindex $app1 1] start
         # check that this e1 is really an Exif segment
-        if {[read $fh 6] != "Exif\x00\x00"} continue
+        if {[read $chan 6] != "Exif\x00\x00"} continue
         # save offset because exif offsets are relative to this
-        set start [tell $fh]
+        set start [tell $chan]
         # next 2 bytes determine byte order
-        binary scan [read $fh 2] H4 byteOrder
+        binary scan [read $chan 2] H4 byteOrder
         if {$byteOrder == "4d4d"} {
             set byteOrder big
         } elseif {$byteOrder == "4949"} {
             set byteOrder little
         } else {
-            close $fh
-            return
+            return -code error "invalid byte order magic"
         }
         # the answer is 42, if we have our byte order correct
-        _scan $byteOrder [read $fh 6] si magic next
-        if {$magic != 42} { close $fh; return }
+        _scan $byteOrder [read $chan 6] si magic next
+        if {$magic != 42} { return -code error "invalid byte order"}
 
-        seek $fh [expr {$start + $next}] start
+        seek $chan [expr {$start + $next}] start
         if {$type != "thumbnail"} {
 	    if {$type != "main"} {
 		return -code error "Bad type \"$type\", expected one of \"main\", or \"thumbnail\""
 	    }
-            set data [_exif $fh $byteOrder $start]
+            set data [_exif $chan $byteOrder $start]
         } else {
             # number of entries in this exif block
-            _scan $byteOrder [read $fh 2] s num
+            _scan $byteOrder [read $chan 2] s num
             # each entry is 12 bytes
-            seek $fh [expr {$num * 12}] current
+            seek $chan [expr {$num * 12}] current
             # offset of next exif block (for thumbnail)
-            _scan $byteOrder [read $fh 4] i next
-            if {$next <= 0} { close $fh; return }
+            _scan $byteOrder [read $chan 4] i next
+            if {$next <= 0} { close $chan; return }
             # but its relative to start
-            seek $fh [expr {$start + $next}] start
-            set data [_exif $fh $byteOrder $start]
+            seek $chan [expr {$start + $next}] start
+            set data [_exif $chan $byteOrder $start]
         }
-        close $fh
         lappend data ExifOffset $start ExifByteOrder $byteOrder
         return $data
     }
-    close $fh
+    return
 }
 
 proc ::jpeg::removeExif {file} {
@@ -1117,4 +1121,4 @@ if {![llength [info commands lassign]]} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide jpeg 0.3.5
+package provide jpeg 0.4.0
