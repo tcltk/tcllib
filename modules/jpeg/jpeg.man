@@ -1,12 +1,13 @@
-[manpage_begin jpeg n 0.3.5]
+[manpage_begin jpeg n 0.4.0]
 [copyright {2004-2005, Code: Aaron Faupell <afaupell@users.sourceforge.net>}]
 [copyright {2007, Code:  Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {2004-2009, Doc:  Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2011, Code: Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc   {JPEG image manipulation}]
 [titledesc {JPEG querying and manipulation of meta data}]
 [category  {File formats}]
 [require Tcl 8.2]
-[require jpeg [opt 0.3.5]]
+[require jpeg [opt 0.4.0]]
 [description]
 [para]
 
@@ -77,6 +78,18 @@ For example:
 }]
 
 Throws an error if [arg file] is not a JPEG image.
+
+[call [cmd ::jpeg::getExifFromChannel] [arg channel] [opt [arg section]]]
+
+This command is as per [cmd ::jpeg::getExif] except that it uses a
+previously opened channel.  [arg channel] should be a seekable channel
+and [arg section] is as described in the documentation of 
+[cmd ::jpeg::getExif]
+
+Note: the jpeg parser expects that the start of the channel is the
+start of the image data. If working with an image embedded in a
+container file format it may be necessary to read the jpeg data into
+a temporary container: either a temporary file or a memory channel.
 
 [call [cmd ::jpeg::formatExif] [arg keys]]
 
