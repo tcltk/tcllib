@@ -4,7 +4,7 @@
 # Copyright (c) 2008 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# JPEG: @(#) $Id: jpeg.test,v 1.1 2008/03/24 00:21:09 andreas_kupries Exp $
+# JPEG: @(#) $Id: jpeg.test,v 1.2 2011/05/06 13:39:27 patthoyts Exp $
 
 # -------------------------------------------------------------------------
 
@@ -334,6 +334,23 @@ test jpeg-29.1 {getExif error, wrong#args, too many} {
 
 test jpeg-29.2 {getExif error, bad section type} {
     catch {::jpeg::getExif [localPath testimages/IMG_7950.JPG] fufara} msg
+    set msg
+} {Bad type "fufara", expected one of "main", or "thumbnail"}
+
+test jpeg-29.3 {getExifFromChannel error, wrong#args, not enough} {
+    catch {::jpeg::getExifFromChannel} msg
+    set msg
+} [tcltest::wrongNumArgs {::jpeg::getExifFromChannel} {chan ?type?} 0]
+
+test jpeg-29.4 {getExifFromChannel error, wrong#args, too many} {
+    catch {::jpeg::getExifFromChannel foo bar barf} msg
+    set msg
+} [tcltest::tooManyArgs {::jpeg::getExifFromChannel} {chan ?type?}]
+
+test jpeg-29.5 {getExifFromChannel error, bad section type} {
+    set fd [::jpeg::openJFIF [localPath testimages/IMG_7950.JPG] r]
+    catch {::jpeg::getExifFromChannel $fd fufara} msg
+    close $fd
     set msg
 } {Bad type "fufara", expected one of "main", or "thumbnail"}
 
