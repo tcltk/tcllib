@@ -1,5 +1,5 @@
 package require Tcl 8.5
-package provide Decimal 1.0.2
+package provide math::decimal 1.0.2
 #
 # Copyright 2011 Mark Alston. All rights reserved.
 #
