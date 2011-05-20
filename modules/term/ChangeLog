@@ -1,3 +1,9 @@
+2011-05-20  Andreas Kupries  <andreask@activestate.com>
+
+	* ansi/ctrlunix.tcl (::term::ansi::ctrl::unix::INIT): Modified to
+	  explictly avoid Solaris' /usr/ucb/stty. Its command line syntax
+	  does not fit our expecations. Bumped version to 0.1.1
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

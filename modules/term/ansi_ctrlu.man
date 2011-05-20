@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin term::ansi::ctrl::unix n 0.1]
-[copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[manpage_begin term::ansi::ctrl::unix n 0.1.1]
+[copyright {2006-2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Terminal control}]
 [titledesc {Control operations and queries}]
 [category  {Terminal control}]
 [require Tcl 8.4]
-[require term::ansi::ctrl::unix [opt 0.1]]
+[require term::ansi::ctrl::unix [opt 0.1.1]]
 [description]
 
 [emph {WARNING}]: This package is unix-specific and depends on the
