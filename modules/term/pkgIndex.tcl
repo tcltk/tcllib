@@ -4,7 +4,7 @@ package ifneeded term::ansi::code         0.1 [list source [file join $dir ansi/
 package ifneeded term::ansi::code::attr   0.1 [list source [file join $dir ansi/code/attr.tcl]]
 package ifneeded term::ansi::code::ctrl   0.1.1 [list source [file join $dir ansi/code/ctrl.tcl]]
 package ifneeded term::ansi::code::macros 0.1 [list source [file join $dir ansi/code/macros.tcl]]
-package ifneeded term::ansi::ctrl::unix   0.1 [list source [file join $dir ansi/ctrlunix.tcl]]
+package ifneeded term::ansi::ctrl::unix   0.1.1 [list source [file join $dir ansi/ctrlunix.tcl]]
 package ifneeded term::ansi::send         0.1 [list source [file join $dir ansi/send.tcl]]
 package ifneeded term::interact::menu     0.1 [list source [file join $dir imenu.tcl]]
 package ifneeded term::interact::pager    0.1 [list source [file join $dir ipager.tcl]]
