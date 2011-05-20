@@ -40,7 +40,7 @@ package provide math::decimal 1.0.2
 #
 #       add subtract divide multiply abs compare  -- basic operations
 #       max min plus minus copynegate copysign is-zero is-signed
-#       is-NaN is-infinite is-finite divideint remainder
+#       is-NaN is-infinite is-finite
 #
 #       round_half_even round_half_up round_half_down   -- rounding methods
 #       round_down round_up round_floor round_ceiling
@@ -75,6 +75,7 @@ namespace eval ::math::decimal {
     variable precision 20
     variable maxExponent 999
     variable minExponent -998
+    variable tinyExponent [expr {$minExponent - ($precision - 1)}]
     variable rounding half_up
     variable extended 1
 
@@ -85,7 +86,16 @@ namespace eval ::math::decimal {
     variable onehundred [list 0 1 2]
     variable minusone [list 1 1 0]
 
-    namespace export + - / * tostr fromstr setScale
+    namespace export tostr fromstr setVariable getVariable\
+	             add + subtract - divide / multiply * \
+                     divide-int  remainder \
+                     fma fused-multiply-add \
+                     plus minus copynegate negate copysign \
+                     abs compare max min \
+                     is-zero is-signed is-NaN is-infinite is-finite \
+                     round_half_even round_half_up round_half_down \
+                     round_down round_up round_floor round_ceiling round_05up
+
 }
 
 # setVariable
@@ -103,14 +113,44 @@ proc ::math::decimal::setVariable {variable setting} {
     variable extended
     variable maxExponent
     variable minExponent
+    variable tinyExponent
+
+    switch -nocase -- $variable {
+	rounding {set rounding $setting}
+	precision {set precision $setting}
+	extended {set extended $setting}
+	maxExponent {set maxExponent $setting}
+	minExponent {
+	    set minExponent $setting
+	    set tinyExponent [expr {$minExponent - ($precision - 1)}]
+	}
+	default {}
+    }
+}
+
+# setVariable
+#     Set the desired variable
+#
+# Arguments:
+#     variable setting
+#
+# Result:
+#     None
+#
+proc ::math::decimal::getVariable {variable} {
+    variable rounding
+    variable precision
+    variable extended
+    variable maxExponent
+    variable minExponent
 
     switch -- $variable {
-        rounding {set rounding $setting}
-        precision {set precision $setting}
-        extended {set extended $setting}
-        maxExponent {set maxExponent $setting}
-        minExponent {set minExponent $setting}
-        default {}
+	rounding {return $rounding}
+	precision {return $precision}
+	extended {return $extended}
+	maxExponent {return $maxExponent}
+	minExponent {return $minExponent}
+	default {}
     }
 }
 
@@ -135,30 +175,30 @@ proc ::math::decimal::+ {a b {rescale 1}} {
     foreach {sb mb eb} $b {break}
 
     if {!$extended} {
-        if {$ma == 0 } {
-            return $b
-        }
-        if {$mb == 0 } {
-            return $a
-        }
+	if {$ma == 0 } {
+	    return $b
+	}
+	if {$mb == 0 } {
+	    return $a
+	}
     }
 
     if { $ma eq "NaN" || $mb eq "NaN" } {
-        return [list 0 "NaN" 0]
+	return [list 0 "NaN" 0]
     }
 
     if { $ma eq "Inf" || $mb eq "Inf" } {
-        if { $ma ne "Inf" } {
-            return $b
-        } elseif { $mb ne "Inf" } {
-            return $a
-        } elseif { $sb != $sa } {
-            return [list 0 "NaN" 0]
-        } else {
-            return $a
-        }
+	if { $ma ne "Inf" } {
+	    return $b
+	} elseif { $mb ne "Inf" } {
+	    return $a
+	} elseif { $sb != $sa } {
+	    return [list 0 "NaN" 0]
+	} else {
+	    return $a
+	}
     }
-
+	
     if { $ea > $eb } {
         set ma [expr {$ma * 10 ** ($ea-$eb)}]
         set er $eb
@@ -167,40 +207,41 @@ proc ::math::decimal::+ {a b {rescale 1}} {
         set er $ea
     }
     if { $sa == $sb } {
-        # Both are either postive or negative
-        # Sign remains the same.
-        set mr [expr {$ma + $mb}]
-        set sr $sa
+	# Both are either postive or negative
+	# Sign remains the same.
+	set mr [expr {$ma + $mb}]
+	set sr $sa
     } else {
-        # one is negative and one is positive.
-        # Set sign to the same as the larger number
-        # and subract the smaller from the larger.
-        if { $ma > $mb } {
-            set sr $sa
-            set mr [expr {$ma - $mb}]
-        } elseif { $mb > $ma } {
-            set sr $sb
-            set mr [expr {$mb - $ma}]
-        } else {
-            if { $rounding == "floor" } {
-                set sr 1
-            } else {
-                set sr 0
-            }
-            set mr 0
-        }
+	# one is negative and one is positive.
+	# Set sign to the same as the larger number
+	# and subract the smaller from the larger.
+	if { $ma > $mb } {
+	    set sr $sa
+	    set mr [expr {$ma - $mb}]
+	} elseif { $mb > $ma } {
+	    set sr $sb
+	    set mr [expr {$mb - $ma}]
+	} else {
+	    if { $rounding == "floor" } {
+		set sr 1
+	    } else {
+		set sr 0
+	    }
+	    set mr 0
+	}
     }
     if { $rescale } {
-        return [Rescale $sr $mr $er]
+	return [Rescale [list $sr $mr $er]]
     } else {
-        return [list $sr $mr $er]
+	return [list $sr $mr $er]
     }
 }
 
 # copynegate --
 #     Takes one operand and returns a copy with the sign inverted.
 #     In this implementation it works nearly the same as minus
-#     but is probably much faster
+#     but is probably much faster. The main difference is that no
+#     rescaling is done.
 #
 #
 # Arguments:
@@ -285,15 +326,15 @@ proc ::math::decimal::- {a {b {}} {rescale 1}} {
     variable extended
 
     if {!$extended} {
-        foreach {sa ma ea} $a {break}
-        foreach {sb mb eb} $b {break}
-        if {$ma == 0 } {
-            lset b 0 [expr {![lindex $b 0]}]
-            return $b
-        }
-        if {$mb == 0 } {
-            return $a
-        }
+	foreach {sa ma ea} $a {break}
+	foreach {sb mb eb} $b {break}
+	if {$ma == 0 } {
+	    lset b 0 [expr {![lindex $b 0]}]
+	    return $b
+	}
+	if {$mb == 0 } {
+	    return $a
+	}
     }
 
     if { $b == {} } {
@@ -323,34 +364,34 @@ proc ::math::decimal::compare {a b} {
     foreach {sb mb eb} $b {break}
 
     if { $sa != $sb } {
-        if {$ma != 0 } {
-            set ma 1
-            set ea 0
-        } elseif { $mb != 0 } {
-            set mb 1
-            set eb 0
-        } else {
-            return 0
-        }
+	if {$ma != 0 } {
+	    set ma 1
+	    set ea 0
+	} elseif { $mb != 0 } {
+	    set mb 1
+	    set eb 0
+	} else {
+	    return 0
+	}
     }
     if { $ma eq "Inf" && $mb eq "Inf" } {
-        if { $sa == $sb } {
-            return 0
-        } elseif { $sa > $sb } {
-            return -1
-        } else {
-            return 1
-        }
+	if { $sa == $sb } {
+	    return 0
+	} elseif { $sa > $sb } {
+	    return -1
+	} else {
+	    return 1
+	}
     }
 
-    set comparison [- [list $sa $ma $ea] [list $sb $mb $eb]]
+    set comparison [- [list $sa $ma $ea] [list $sb $mb $eb] 0]
 
     if { [lindex $comparison 0] && [lindex $comparison 1] != 0 } {
-        return -1
+	return -1
     } elseif { [lindex $comparison 1] == 0 } {
-        return 0
+	return 0
     } else {
-        return 1
+	return 1
     }
 }
 
@@ -369,42 +410,45 @@ proc ::math::decimal::min {a b} {
     foreach {sb mb eb} $b {break}
 
     if { $sa != $sb } {
-        if {$ma != 0 } {
-            set ma 1
-            set ea 0
-        } elseif { $mb != 0 } {
-            set mb 1
-            set eb 0
-        } else {
-            return [list 1 0 0]
-        }
+	if {$ma != 0 } {
+	    set ma 1
+	    set ea 0
+	} elseif { $mb != 0 } {
+	    set mb 1
+	    set eb 0
+	}
     }
     if { $ma eq "Inf" && $mb eq "Inf" } {
-        if { $sa == $sb } {
-            return [list $sa "Inf" 0]
-        } else {
-            return [list 1 "Inf" 0]
-        }
+	if { $sa == $sb } {
+	    return [list $sa "Inf" 0]
+	} else {
+	    return [list 1 "Inf" 0]
+	}
     }
 
-    set comparison [- [list $sa $ma $ea] [list $sb $mb $eb]]
+    set comparison [compare [list $sa $ma $ea] [list $sb $mb $eb]]
 
-    if { [lindex $comparison 0] && [lindex $comparison 1] != 0 } {
-        return $a
-    } elseif { [lindex $comparison 1] == 0 } {
-        if { $sa == $sb } {
-            if { $ea < $eb } {
-                return $a
-            } else {
-                return $b
-            }
-        } elseif { $sa < $sb } {
-            return $b
-        } else {
-            return $a
-        }
+    if { $comparison == 1 } {
+	return [Rescale $b]
+    } elseif { $comparison == -1 } {
+	return [Rescale $a]
+    } elseif { $sb != $sa } {
+	if { $sa } {
+	    return [Rescale $a]
+	} else {
+	    return [Rescale $b]
+	}
+    } elseif { $sb && $eb > $ea } {
+	# Both are negative and the same numerically. So return the one with the largest exponent.
+	return [Rescale $b]
+    } elseif { $sb }  {
+	# Negative with $eb < $ea now.
+	return [Rescale $a]
+    } elseif { $ea > $eb } {
+	# Both are positive so return the one with the smaller
+	return [Rescale $b]
     } else {
-        return $b
+	return [Rescale $a]
     }
 }
 
@@ -423,42 +467,45 @@ proc ::math::decimal::max {a b} {
     foreach {sb mb eb} $b {break}
 
     if { $sa != $sb } {
-        if {$ma != 0 } {
-            set ma 1
-            set ea 0
-        } elseif { $mb != 0 } {
-            set mb 1
-            set eb 0
-        } else {
-            return [list 0 0 0]
-        }
+	if {$ma != 0 } {
+	    set ma 1
+	    set ea 0
+	} elseif { $mb != 0 } {
+	    set mb 1
+	    set eb 0
+	}
     }
     if { $ma eq "Inf" && $mb eq "Inf" } {
-        if { $sa == $sb } {
-            return [list $sa "Inf" 0]
-        } else {
-            return [list 0 "Inf" 0]
-        }
+	if { $sa == $sb } {
+	    return [list $sa "Inf" 0]
+	} else {
+	    return [list 0 "Inf" 0]
+	}
     }
 
-    set comparison [- [list $sa $ma $ea] [list $sb $mb $eb]]
+    set comparison [compare [list $sa $ma $ea] [list $sb $mb $eb]]
 
-    if { [lindex $comparison 0] && [lindex $comparison 1] != 0 } {
-        return $b
-    } elseif { [lindex $comparison 1] == 0 } {
-        if { $sa == $sb } {
-            if { $ea < $eb } {
-                return $b
-            } else {
-                return $a
-            }
-        } elseif { $sa < $sb } {
-            return $a
-        } else {
-            return $b
-        }
+    if { $comparison == 1 } {
+	return [Rescale $a]
+    } elseif { $comparison == -1 } {
+	return [Rescale $b]
+    } elseif { $sb != $sa } {
+	if { $sa } {
+	    return [Rescale $b]
+	} else {
+	    return [Rescale $a]
+	}
+    } elseif { $sb && $eb > $ea } {
+	# Both are negative and the same numerically. So return the one with the smallest exponent.
+	return [Rescale $a]
+    } elseif { $sb }  {
+	# Negative with $eb < $ea now.
+	return [Rescale $b]
+    } elseif { $ea > $eb } {
+	# Both are positive so return the one with the larger exponent
+	return [Rescale $a]
     } else {
-        return $a
+	return [Rescale $b]
     }
 }
 
@@ -478,25 +525,36 @@ proc ::math::decimal::maxmag {a b} {
 
 
     if { $ma eq "Inf" && $mb eq "Inf" } {
-        if { $sa == 0 || $sb == 0 } {
-            return [list 0 "Inf" 0]
-        } else {
-            return [list 1 "Inf" 0]
-        }
+	if { $sa == 0 || $sb == 0 } {
+	    return [list 0 "Inf" 0]
+	} else {
+	    return [list 1 "Inf" 0]
+	}
     }
 
     set comparison [compare [list 0 $ma $ea] [list 0 $mb $eb]]
 
     if { $comparison == 1 } {
-        return $a
+	return [Rescale $a]
     } elseif { $comparison == -1 } {
-        return $b
+	return [Rescale $b]
+    } elseif { $sb != $sa } {
+	if { $sa } {
+	    return [Rescale $b]
+	} else {
+	    return [Rescale $a]
+	}
+    } elseif { $sb && $eb > $ea } {
+	# Both are negative and the same numerically. So return the one with the smallest exponent.
+	return [Rescale $a]
+    } elseif { $sb }  {
+	# Negative with $eb < $ea now.
+	return [Rescale $b]
+    } elseif { $ea > $eb } {
+	# Both are positive so return the one with the larger exponent
+	return [Rescale $a]
     } else {
-        if { $sa > $sb } {
-            return $b
-        } else {
-            return $a
-        }
+	return [Rescale $b]
     }
 }
 
@@ -515,25 +573,36 @@ proc ::math::decimal::minmag {a b} {
     foreach {sb mb eb} $b {break}
 
     if { $ma eq "Inf" && $mb eq "Inf" } {
-        if { $sa == 1 || $sb == 1 } {
-            return [list 1 "Inf" 0]
-        } else {
-            return [list 0 "Inf" 0]
-        }
+	if { $sa == 1 || $sb == 1 } {
+	    return [list 1 "Inf" 0]
+	} else {
+	    return [list 0 "Inf" 0]
+	}
     }
 
     set comparison [compare [list 0 $ma $ea] [list 0 $mb $eb]]
 
     if { $comparison == 1 } {
-        return $b
+	return [Rescale $b]
     } elseif { $comparison == -1 } {
-        return $a
+	return [Rescale $a]
     } else {
-        if { $sa > $sb } {
-            return $a
-        } else {
-            return $b
-        }
+	# They compared the same so now we use a normal comparison including the signs. This is per the specs.
+	if { $sa > $sb } {
+	    return [Rescale $a]
+	} elseif { $sb > $sa } {
+	    return [Rescale $b]
+	} elseif { $sb && $eb > $ea } {
+	    # Both are negative and the same numerically. So return the one with the largest exponent.
+	    return [Rescale $b]
+	} elseif { $sb }  {
+	    # Negative with $eb < $ea now.
+	    return [Rescale $a]
+	} elseif { $ea > $eb } {
+	    return [Rescale $b]
+	} else {
+	    return [Rescale $a]
+	}
     }
 }
 
@@ -550,8 +619,12 @@ proc ::math::decimal::minmag {a b} {
 # Result:
 #     (a*b)+c
 #
+proc ::math::decimal::fused-multiply-add {a b c} {
+    return [fma $a $b $c]
+}
+
 proc ::math::decimal::fma {a b c} {
-    return [+ $c [::math::decimal::* $a $b 0]]
+    return [+ $c [* $a $b 0]]
 }
 
 # multiply or *
@@ -565,7 +638,7 @@ proc ::math::decimal::fma {a b c} {
 #     Product of both (rescaled)
 #
 proc ::math::decimal::multiply {a b {rescale 1}} {
-    return [::math::decimal::* $a $b $rescale]
+    return [* $a $b $rescale]
 }
 
 proc ::math::decimal::* {a b {rescale 1}} {
@@ -573,17 +646,17 @@ proc ::math::decimal::* {a b {rescale 1}} {
     foreach {sb mb eb} $b {break}
 
     if { $ma eq "NaN" || $mb eq "NaN" } {
-        return [list 0 "NaN" 0]
+	return [list 0 "NaN" 0]
     }
 
     set sr [expr {$sa^$sb}]
 
     if { $ma eq "Inf" || $mb eq "Inf" } {
-        if { $ma == 0 || $mb == 0 } {
-            return [list 0 "NaN" 0]
-        } else {
-            return [list $sr "Inf" 0]
-        }
+	if { $ma == 0 || $mb == 0 } {
+	    return [list 0 "NaN" 0]
+	} else {
+	    return [list $sr "Inf" 0]
+	}
     }
 
     set mr [expr {$ma * $mb}]
@@ -591,9 +664,9 @@ proc ::math::decimal::* {a b {rescale 1}} {
 
 
     if { $rescale } {
-        return [Rescale $sr $mr $er]
+	return [Rescale [list $sr $mr $er]]
     } else {
-        return [list $sr $mr $er]
+	return [list $sr $mr $er]
     }
 }
 
@@ -618,74 +691,74 @@ proc ::math::decimal::/ {a b {rescale 1}} {
     foreach {sb mb eb} $b {break}
 
     if { $ma eq "NaN" || $mb eq "NaN" } {
-        return [list 0 "NaN" 0]
+	return [list 0 "NaN" 0]
     }
 
     set sr [expr {$sa^$sb}]
 
     if { $ma eq "Inf" } {
-        if { $mb ne "Inf"} {
-            return [list $sr "Inf" 0]
-        } else {
-            return [list 0 "NaN" 0]
-        }
+	if { $mb ne "Inf"} {
+	    return [list $sr "Inf" 0]
+	} else {
+	    return [list 0 "NaN" 0]
+	}
     }
 
     if { $mb eq "Inf" } {
-        if { $ma ne "Inf"} {
-            return [list $sr 0 0]
-        } else {
-            return [list 0 "NaN" 0]
-        }
+	if { $ma ne "Inf"} {
+	    return [list $sr 0 0]
+	} else {
+	    return [list 0 "NaN" 0]
+	}
     }
 
     if { $mb == 0 } {
-        if { $ma == 0 } {
-            return [list 0 "NaN" 0]
-        } else {
-            return [list $sr "Inf" 0]
-        }
+	if { $ma == 0 } {
+	    return [list 0 "NaN" 0]
+	} else {
+	    return [list $sr "Inf" 0]
+	}
     }
     set adjust 0
     set mr 0
 
 
     if { $ma == 0 } {
-        set er [expr {$ea - $eb}]
-        return [list $sr 0 $er]
+	set er [expr {$ea - $eb}]
+	return [list $sr 0 $er]
     }
     if { $ma < $mb } {
-        while { $ma < $mb } {
-            set ma [expr {$ma * 10}]
-            incr adjust
-        }
-    } elseif { $ma >= [expr {$mb * 10}] } {
-        while { $ma >= [expr {$mb * 10}] } {
-            set mb [expr {$mb * 10}]
-            incr adjust -1
-        }
+	while { $ma < $mb } {
+	    set ma [expr {$ma * 10}]
+	    incr adjust
+	}
+    } elseif { $ma >= $mb * 10 } {
+	while { $ma >= [expr {$mb * 10}] } {
+	    set mb [expr {$mb * 10}]
+	    incr adjust -1
+	}
     }
 
     while { 1 } {
-        while { $mb <= $ma } {
-            set ma [expr {$ma - $mb}]
-            incr mr
-        }
-        if { ( $ma == 0 && $adjust >= 0 ) || [string length $mr] > [expr {$precision + 1}]} {
-            break
-        } else {
-            set ma [expr {$ma * 10}]
-            set mr [expr {$mr * 10}]
-            incr adjust
-        }
+	while { $mb <= $ma } {
+	    set ma [expr {$ma - $mb}]
+	    incr mr
+	}
+	if { ( $ma == 0 && $adjust >= 0 ) || [string length $mr] > $precision + 1 } {
+	    break
+	} else {
+	    set ma [expr {$ma * 10}]
+	    set mr [expr {$mr * 10}]
+	    incr adjust
+	}
     }
 
     set er [expr {$ea - ($eb + $adjust)}]
 
     if { $rescale } {
-        return [Rescale $sr $mr $er]
+	return [Rescale [list $sr $mr $er]]
     } else {
-        return [list $sr $mr $er]
+	return [list $sr $mr $er]
     }
 }
 
@@ -707,43 +780,43 @@ proc ::math::decimal::divideint { a b } {
     set sr [expr {$sa^$sb}]
 
 
-
+	
     if { $sr == 1 } {
-        set sign_string "-"
+	set sign_string "-"
     } else {
-        set sign_string ""
+	set sign_string ""
     }
 
     if { ($ma eq "NaN" || $mb eq "NaN") || ($ma == 0 && $mb == 0 ) } {
-        return "NaN"
+	return "NaN"
     }
 
     if { $ma eq "Inf" || $mb eq "Inf" } {
-        if { $ma eq $mb } {
-            return "NaN"
-        } elseif { $mb eq "Inf" } {
-            return "${sign_string}0"
-        } else {
-            return "${sign_string}Inf"
-        }
+	if { $ma eq $mb } {
+	    return "NaN"
+	} elseif { $mb eq "Inf" } {
+	    return "${sign_string}0"
+	} else {
+	    return "${sign_string}Inf"
+	}
     }
 
     if { $mb == 0 } {
-        return "${sign_string}Inf"
+	return "${sign_string}Inf"
     }
     if { $mb == "Inf" } {
-        return "${sign_string}0"
+	return "${sign_string}0"
     }
     set adjust [expr {abs($ea - $eb)}]
     if { $ea < $eb } {
-        set a_adjust 0
-        set b_adjust $adjust
+	set a_adjust 0
+	set b_adjust $adjust
     } elseif { $ea > $eb } {
-        set b_adjust 0
-        set a_adjust $adjust
+	set b_adjust 0
+	set a_adjust $adjust
     } else {
-        set a_adjust 0
-        set b_adjust 0
+	set a_adjust 0
+	set b_adjust 0
     }
 
     set integer [expr {($ma*10**$a_adjust)/($mb*10**$b_adjust)}]
@@ -767,64 +840,64 @@ proc ::math::decimal::remainder { a b } {
     foreach {sb mb eb} $b {break}
 
     if { $sa == 1 } {
-        set sign_string "-"
+	set sign_string "-"
     } else {
-        set sign_string ""
+	set sign_string ""
     }
 
     if { ($ma eq "NaN" || $mb eq "NaN") || ($ma == 0 && $mb == 0 ) } {
-        if { $mb eq "NaN" && $mb ne $ma } {
-            if { $sb == 1 } {
-                set sign_string "-"
-            } else {
-                set sign_string ""
-            }
-            return "${sign_string}NaN"
-        } elseif { $ma eq "NaN" } {
-            return "${sign_string}NaN"
-        } else {
-            return "NaN"
-        }
+	if { $mb eq "NaN" && $mb ne $ma } {
+	    if { $sb == 1 } {
+		set sign_string "-"
+	    } else {
+		set sign_string ""
+	    }
+	    return "${sign_string}NaN"
+	} elseif { $ma eq "NaN" } {
+	    return "${sign_string}NaN"
+	} else {
+	    return "NaN"
+	}
     } elseif { $mb == 0 } {
-        return "NaN"
+	return "NaN"
     }
 
     if { $ma eq "Inf" || $mb eq "Inf" } {
-        if { $ma eq $mb } {
-            return "NaN"
-        } elseif { $mb eq "Inf" } {
-            return [tostr $a]
-        } else {
-            return "NaN"
-        }
+	if { $ma eq $mb } {
+	    return "NaN"
+	} elseif { $mb eq "Inf" } {
+	    return [tostr $a]
+	} else {
+	    return "NaN"
+	}
     }
 
     if { $mb == 0 } {
-        return "${sign_string}Inf"
+	return "${sign_string}Inf"
     }
     if { $mb == "Inf" } {
-        return "${sign_string}0"
+	return "${sign_string}0"
     }
 
     lset a 0 0
     lset b 0 0
     if { $mb == 0 } {
-        return "${sign_string}Inf"
+	return "${sign_string}Inf"
     }
     if { $mb == "Inf" } {
-        return "${sign_string}0"
+	return "${sign_string}0"
     }
 
     set adjust [expr {abs($ea - $eb)}]
     if { $ea < $eb } {
-        set a_adjust 0
-        set b_adjust $adjust
+	set a_adjust 0
+	set b_adjust $adjust
     } elseif { $ea > $eb } {
-        set b_adjust 0
-        set a_adjust $adjust
+	set b_adjust 0
+	set a_adjust $adjust
     } else {
-        set a_adjust 0
-        set b_adjust 0
+	set a_adjust 0
+	set b_adjust 0
     }
 
     set integer [expr {($ma*10**$a_adjust)/($mb*10**$b_adjust)}]
@@ -845,7 +918,7 @@ proc ::math::decimal::remainder { a b } {
 #
  proc ::math::decimal::abs {a} {
      lset a 0 0
-     return $a
+     return [Rescale $a]
  }
 
 
@@ -853,30 +926,58 @@ proc ::math::decimal::remainder { a b } {
 #     Rescale the number (using proper rounding)
 #
 # Arguments:
-#     mantisse   Mantisse of the number
-#     exponent   Exponent of the number
+#     a Number in decimal format
 #
 # Result:
-#     Rescaled number (as a list)
+#     Rescaled number
 #
-proc ::math::decimal::Rescale {sign mantisse exponent} {
+proc ::math::decimal::Rescale { a } {
+
+
+
     variable precision
     variable rounding
     variable maxExponent
     variable minExponent
+    variable tinyExponent
 
+    foreach {sign mantisse exponent} $a {break}
 
     set man_length [string length $mantisse]
 
-    set adjusted_exponent [expr {$exponent + $man_length}]
+    set adjusted_exponent [expr {$exponent + ($man_length -1)}]
 
-#    puts "FAILED adjusted: $adjusted_exponent"
-#    puts "FAILED min: $minExponent"
-#    puts "FAILED max: $maxExponent"
-    if { $adjusted_exponent < $minExponent } {
-        return [list $sign 0 $minExponent]
+    if { $adjusted_exponent < $tinyExponent } {
+	set mantisse [lindex [round_$rounding [list $sign $mantisse [expr {abs($tinyExponent) - abs($adjusted_exponent)}]] 0] 1]
+	return [list $sign $mantisse $tinyExponent]
     } elseif { $adjusted_exponent > $maxExponent } {
-        return [list $sign "Inf" 0]
+	if { $mantisse  == 0 } {
+	    return [list $sign 0 $maxExponent]
+	} else {
+	    switch -- $rounding {
+		half_even -
+		half_up { return [list $sign "Inf" 0] }
+		down -
+		05up {
+		    return [list $sign [string repeat 9 $precision] $maxExponent]
+		}
+		ceiling {
+		    if { $sign } {
+			return [list $sign [string repeat 9 $precision] $maxExponent]
+		    } else {
+			return [list 0 "Inf" 0]
+		    }
+		}
+		floor {
+		    if { !$sign } {
+			return [list $sign [string repeat 9 $precision] $maxExponent]
+		    } else {
+			return [list 1 "Inf" 0]
+		    }
+		}
+		default { }
+	    }
+	}
     }
 
     if { $man_length <= $precision } {
@@ -894,10 +995,36 @@ proc ::math::decimal::Rescale {sign mantisse exponent} {
 
     set man_length_now [string length $mantisse]
     if { $man_length_now > $precision } {
-        set mantisse [string range $mantisse 0 end-1]
-        incr exponent
+	set mantisse [string range $mantisse 0 end-1]
+	incr exponent
+	# Check again to see if we have overflowed
+        # we change our test to >= because we have incremented exponent.
+	if { $adjusted_exponent >= $maxExponent } {
+	    switch -- $rounding {
+		half_even -
+		half_up { return [list $sign "Inf" 0] }
+		down -
+		05up {
+		    return [list $sign [string repeat 9 $precision] $maxExponent]
+		}
+		ceiling {
+		    if { $sign } {
+			return [list $sign [string repeat 9 $precision] $maxExponent]
+		    } else {
+			return [list 0 "Inf" 0]
+		    }
+		}
+		floor {
+		    if { !$sign } {
+			return [list $sign [string repeat 9 $precision] $maxExponent]
+		    } else {
+			return [list 1 "Inf" 0]
+		    }
+		}
+		default { }
+	    }
+	}
     }
-
     return [list $sign $mantisse $exponent]
 }
 
@@ -914,8 +1041,8 @@ proc ::math::decimal::Rescale {sign mantisse exponent} {
 proc ::math::decimal::tostr { number } {
     variable extended
     switch -- $extended {
-        0 { return [tostr_numeric $number] }
-        1 { return [tostr_scientific $number] }
+	0 { return [tostr_numeric $number] }
+	1 { return [tostr_scientific $number] }
     }
 }
 
@@ -933,53 +1060,55 @@ proc ::math::decimal::tostr_scientific {number} {
     foreach {sign mantisse exponent} $number {break}
 
     if { $sign } {
-        set sign_string "-"
+	set sign_string "-"
     } else {
-        set sign_string ""
+	set sign_string ""
     }
 
     if { $mantisse eq "NaN" } {
-        return "NaN"
+	return "NaN"
     }
     if { $mantisse eq "Inf" } {
-        return ${sign_string}${mantisse}
+	return ${sign_string}${mantisse}
     }
 
 
     set digits [string length $mantisse]
     set adjusted_exponent [expr {$exponent + $digits - 1}]
 
+    # Why -6? Go read the specs on the website mentioned in the header.
+    # They choose it, I'm using it. They actually list some good reasons though.
     if { $exponent <= 0 && $adjusted_exponent >= -6 } {
-        if { $exponent == 0 } {
-            set string $mantisse
-        } else {
-            set exponent [expr {abs($exponent)}]
-            if { $digits > $exponent } {
-                set string [string range $mantisse 0 [expr {$digits-$exponent-1}]].[string range $mantisse [expr {$digits-$exponent}] end]
-                set exponent [expr {-$exponent}]
-            } else {
-                set string 0.[string repeat 0 [expr {$exponent-$digits}]]$mantisse
-            }
-        }
+	if { $exponent == 0 } {
+	    set string $mantisse
+	} else {
+	    set exponent [expr {abs($exponent)}]
+	    if { $digits > $exponent } {
+		set string [string range $mantisse 0 [expr {$digits-$exponent-1}]].[string range $mantisse [expr {$digits-$exponent}] end]	
+		set exponent [expr {-$exponent}]	
+	    } else {
+		set string 0.[string repeat 0 [expr {$exponent-$digits}]]$mantisse
+	    }
+	}
     } elseif { $exponent <= 0 && $adjusted_exponent < -6 } {
-        if { $digits > 1 } {
+	if { $digits > 1 } {
 
-            set string [string range $mantisse 0 0].[string range $mantisse 1 end]
+	    set string [string range $mantisse 0 0].[string range $mantisse 1 end]	
 
-            set exponent [expr {$exponent + $digits - 1}]
-            set string "${string}E${exponent}"
-        }  else {
-            set string "${mantisse}E${exponent}"
-        }
+	    set exponent [expr {$exponent + $digits - 1}]	
+	    set string "${string}E${exponent}"
+	}  else {
+	    set string "${mantisse}E${exponent}"
+	}
     } else {
-        if { $adjusted_exponent >= 0 } {
-            set adjusted_exponent "+$adjusted_exponent"
-        }
-        if { $digits > 1 } {
-            set string "[string range $mantisse 0 0].[string range $mantisse 1 end]E$adjusted_exponent"
-        } else {
-            set string "${mantisse}E$adjusted_exponent"
-        }
+	if { $adjusted_exponent >= 0 } {
+	    set adjusted_exponent "+$adjusted_exponent"
+	}
+	if { $digits > 1 } {
+	    set string "[string range $mantisse 0 0].[string range $mantisse 1 end]E$adjusted_exponent"
+	} else {
+	    set string "${mantisse}E$adjusted_exponent"
+	}
     }
     return $sign_string$string
 }
@@ -999,57 +1128,57 @@ proc ::math::decimal::tostr_numeric {number} {
     foreach {sign mantisse exponent} $number {break}
 
     if { $sign } {
-        set sign_string "-"
+	set sign_string "-"
     } else {
-        set sign_string ""
+	set sign_string ""
     }
 
     if { $mantisse eq "NaN" } {
-        return "NaN"
+	return "NaN"
     }
     if { $mantisse eq "Inf" } {
-        return ${sign_string}${mantisse}
+	return ${sign_string}${mantisse}
     }
 
     set digits [string length $mantisse]
     set adjusted_exponent [expr {$exponent + $digits - 1}]
 
     if { $mantisse == 0 } {
-        set string 0
-        set sign_string ""
+	set string 0
+	set sign_string ""
     } elseif { $exponent <= 0 && $adjusted_exponent >= -6 } {
-        if { $exponent == 0 } {
-            set string $mantisse
-        } else {
-            set exponent [expr {abs($exponent)}]
-            if { $digits > $exponent } {
-                set string [string range $mantisse 0 [expr {$digits-$exponent-1}]]
-                set decimal_part [string range $mantisse [expr {$digits-$exponent}] end]
-                set string ${string}.${decimal_part}
-                set exponent [expr {-$exponent}]
-            } else {
-                set string 0.[string repeat 0 [expr {$exponent-$digits}]]$mantisse
-            }
-        }
+	if { $exponent == 0 } {
+	    set string $mantisse
+	} else {
+	    set exponent [expr {abs($exponent)}]
+	    if { $digits > $exponent } {
+		set string [string range $mantisse 0 [expr {$digits-$exponent-1}]]
+		set decimal_part [string range $mantisse [expr {$digits-$exponent}] end]
+		set string ${string}.${decimal_part}
+		set exponent [expr {-$exponent}]	
+	    } else {
+		set string 0.[string repeat 0 [expr {$exponent-$digits}]]$mantisse
+	    }
+	}
     } elseif { $exponent <= 0 && $adjusted_exponent < -6 } {
-        if { $digits > 1 } {
-            set string [string range $mantisse 0 0].[string range $mantisse 1 end]
-            set exponent [expr {$exponent + $digits - 1}]
-            set string "${string}E${exponent}"
-        }  else {
-            set string "${mantisse}E${exponent}"
-        }
+	if { $digits > 1 } {
+	    set string [string range $mantisse 0 0].[string range $mantisse 1 end]	
+	    set exponent [expr {$exponent + $digits - 1}]	
+	    set string "${string}E${exponent}"
+	}  else {
+	    set string "${mantisse}E${exponent}"
+	}
     } else {
-        if { $adjusted_exponent >= 0 } {
-            set adjusted_exponent "+$adjusted_exponent"
-        }
-        if { $digits > 1 && $adjusted_exponent >= $precision } {
-            set string "[string range $mantisse 0 0].[string range $mantisse 1 end]E$adjusted_exponent"
-        } elseif { [expr {$digits + $exponent}] <= $precision } {
-            set string ${mantisse}[string repeat 0 [expr {$exponent}]]
-        } else {
-            set string "${mantisse}E$adjusted_exponent"
-        }
+	if { $adjusted_exponent >= 0 } {
+	    set adjusted_exponent "+$adjusted_exponent"
+	}
+	if { $digits > 1 && $adjusted_exponent >= $precision } {
+	    set string "[string range $mantisse 0 0].[string range $mantisse 1 end]E$adjusted_exponent"
+	} elseif { $digits + $exponent <= $precision } {
+	    set string ${mantisse}[string repeat 0 [expr {$exponent}]]
+	} else {
+	    set string "${mantisse}E$adjusted_exponent"
+	}
     }
     return $sign_string$string
 }
@@ -1065,67 +1194,71 @@ proc ::math::decimal::tostr_numeric {number} {
 #
 proc ::math::decimal::fromstr {string} {
     variable extended
-    set string [string trim $string "'"]
-    set string [string trim $string '\"']
+
+    set string [string trim $string "'\""]
 
     if { [string range $string 0 0] == "-" } {
-        set sign 1
-        set string [string trimleft $string -]
-        incr pos -1
+	set sign 1
+	set string [string trimleft $string -]
+	incr pos -1
     } else  {
-        set sign 0
+	set sign 0
     }
 
     if { $string eq "Inf" || $string eq "NaN" } {
-        if {!$extended} {
-            # we don't allow these strings in the subset arithmetic.
-            # throw error.
-            error "Infinities and NaN's not allowed in simplified decimal arithmetic"
-        } else {
-            return [list $sign $string 0]
-        }
+	if {!$extended} {
+	    # we don't allow these strings in the subset arithmetic.
+	    # throw error.
+	    error "Infinities and NaN's not allowed in simplified decimal arithmetic"
+	} else {
+	    return [list $sign $string 0]
+	}
     }
 
     set string [string trimleft $string "+-"]
     set echeck [string first "E" [string toupper $string]]
     set epart 0
     if { $echeck >= 0 } {
-        set epart [string range $string [expr {$echeck+1}] end]
-        set string [string range $string 0 [expr {$echeck -1}]]
+	set epart [string range $string [expr {$echeck+1}] end]
+	set string [string range $string 0 [expr {$echeck -1}]]
     }
 
     set pos [string first . $string]
 
     if { $pos < 0 } {
-        if { $string == 0 } {
-            set mantisse 0
-            if { !$extended } {
-                set sign 0
-            }
-        } else {
-            set mantisse $string
-        }
+	if { $string == 0 } {
+	    set mantisse 0
+	    if { !$extended } {
+		set sign 0
+	    }
+	} else {
+	    set mantisse $string
+	}
         set exponent 0
     } else {
-        if { $string == "" } {
-            return [list 0 0 0]
-        } else {
-            set mantisse [string trimleft [string map {. ""} $string] 0]
-            if { $mantisse == "" } {
-                set mantisse 0
-                if {!$extended} {
-                    set sign 0
-                }
-            }
-            set fraction [string range $string [expr {$pos+1}] end]
-            set exponent [expr {-[string length $fraction]}]
-        }
+	if { $string == "" } {
+	    return [list 0 0 0]
+	} else {
+	    #stripping the leading zeros here is required to avoid some octal issues.
+	    #However, it causes us to fail some tests with numbers like 0.00 and 0.0
+	    #which test differently but we can't deal with now.
+	    set mantisse [string trimleft [string map {. ""} $string] 0]
+	    if { $mantisse == "" } {
+		set mantisse 0
+		if {!$extended} {
+		    set sign 0
+		}
+	    }
+	    set fraction [string range $string [expr {$pos+1}] end]
+	    set exponent [expr {-[string length $fraction]}]
+	}
     }
     set exponent [expr {$exponent + $epart}]
+
     if { $extended } {
-        return [list $sign $mantisse $exponent]
+	return [list $sign $mantisse $exponent]
     } else {
-        return [Rescale $sign $mantisse $exponent]
+	return [Rescale [list $sign $mantisse $exponent]]
     }
 }
 
@@ -1144,29 +1277,29 @@ proc ::math::decimal::ipart { a } {
     foreach {sa ma ea} $a {break}
 
     if { $ea == 0 } {
-        if { $sa } {
-            return -$ma
-        } else {
-            return $ma
-        }
+	if { $sa } {
+	    return -$ma
+	} else {
+	    return $ma
+	}
     } elseif { $ea > 0 } {
-        if { $sa } {
-            return [expr {-1 * $ma * 10**$ea}]
-        } else {
-            return [expr {$ma * 10**$ea}]
-        }
+	if { $sa } {
+	    return [expr {-1 * $ma * 10**$ea}]
+	} else {
+	    return [expr {$ma * 10**$ea}]
+	}
     } else {
-        if { [string length $ma] <= [expr {abs($ea)}] } {
-            return 0
-        } else {
-            if { $sa } {
-                set string_sign "-"
-            } else {
-                set string_sign ""
-            }
-            set ea [expr {abs($ea)}]
-            return "${string_sign}[string range $ma 0 end-$ea]"
-        }
+	if { [string length $ma] <= abs($ea) } {
+	    return 0
+	} else {
+	    if { $sa } {
+		set string_sign "-"
+	    } else {
+		set string_sign ""
+	    }
+	    set ea [expr {abs($ea)}]
+	    return "${string_sign}[string range $ma 0 end-$ea]"
+	}
     }
 }
 
@@ -1189,31 +1322,31 @@ proc ::math::decimal::round_05up {a digits} {
     foreach {sa ma ea} $a {break}
 
     if { -$ea== $digits } {
-        return $a
-    } elseif { [expr {$digits + $ea}] > 0 } {
-        set mantissa [expr { $ma * 10**($digits+$ea) }]
+	return $a
+    } elseif { $digits + $ea > 0 } {
+	set mantissa [expr { $ma * 10**($digits+$ea) }]
     } else {
-        set round_exponent [expr {$digits + $ea}]
-        if { [string length $ma] <= $round_exponent } {
-            if { $ma != 0 } {
-                set mantissa 1
-            } else {
-                set mantissa 0
-            }
-            set exponent 0
-        } else {
-            set integer_part [ipart [list 0 $ma $round_exponent]]
+	set round_exponent [expr {$digits + $ea}]
+	if { [string length $ma] <= $round_exponent } {
+	    if { $ma != 0 } {
+		set mantissa 1
+	    } else {
+		set mantissa 0
+	    }
+	    set exponent 0
+	} else {
+	    set integer_part [ipart [list 0 $ma $round_exponent]]
 
-            if { [compare [list 0 $ma $round_exponent] [list 0 ${integer_part}0 -1]] == 0 } {
-                # We are rounding something with fractional part .0
-                set mantissa  $integer_part
-            } elseif { [string index $integer_part end] eq 0 || [string index $integer_part end] eq 5 } {
-                set mantissa [expr {$integer_part + 1}]
-            } else {
-                set mantissa  $integer_part
-            }
-            set exponent [expr {-1 * $digits}]
-        }
+	    if { [compare [list 0 $ma $round_exponent] [list 0 ${integer_part}0 -1]] == 0 } {
+		# We are rounding something with fractional part .0
+		set mantissa  $integer_part
+	    } elseif { [string index $integer_part end] eq 0 || [string index $integer_part end] eq 5 } {
+		set mantissa [expr {$integer_part + 1}]
+	    } else {
+		set mantissa  $integer_part
+	    }
+	    set exponent [expr {-1 * $digits}]
+	}
     }
     return [list $sa $mantissa $exponent]
 }
@@ -1235,27 +1368,27 @@ proc ::math::decimal::round_05up {a digits} {
 proc ::math::decimal::round_half_up {a digits} {
     foreach {sa ma ea} $a {break}
 
-    if {[expr {$digits + $ea}] == 0 } {
-        return $a
-    } elseif { [expr {$digits + $ea}] > 0 } {
-        set mantissa [expr {$ma *10 **($digits+$ea)}]
+    if { $digits + $ea == 0 } {
+	return $a
+    } elseif { $digits + $ea > 0 } {
+	set mantissa [expr {$ma *10 **($digits+$ea)}]
     } else {
-        set round_exponent [expr {$digits + $ea}]
-        set integer_part [ipart [list 0 $ma $round_exponent]]
+	set round_exponent [expr {$digits + $ea}]
+	set integer_part [ipart [list 0 $ma $round_exponent]]
 
-        switch -- [compare [list 0 $ma $round_exponent] [list 0 ${integer_part}5 -1]] {
-            0 {
-                # We are rounding something with fractional part .5
-                set mantissa [expr {$integer_part + 1}]
-            }
-            -1 {
-                set mantissa $integer_part
-            }
-            1 {
-                set mantissa [expr {$integer_part + 1}]
-            }
-
-        }
+	switch -- [compare [list 0 $ma $round_exponent] [list 0 ${integer_part}5 -1]] {
+	    0 {
+		# We are rounding something with fractional part .5
+		set mantissa [expr {$integer_part + 1}]
+	    }
+	    -1 {
+		set mantissa $integer_part
+	    }
+	    1 {
+		set mantissa [expr {$integer_part + 1}]
+	    }
+	
+	}
     }
     set exponent [expr {-1 * $digits}]
     return [list $sa $mantissa $exponent]
@@ -1276,32 +1409,32 @@ proc ::math::decimal::round_half_even {a digits} {
 
     foreach {sa ma ea} $a {break}
 
-    if {[expr {$digits + $ea}] == 0 } {
-        return $a
-    } elseif { [expr {$digits + $ea}] > 0 } {
-        set mantissa [expr {$ma * 10**($digits+$ea)}]
+    if { $digits + $ea == 0 } {
+	return $a
+    } elseif { $digits + $ea > 0 } {
+	set mantissa [expr {$ma * 10**($digits+$ea)}]
     } else {
-        set round_exponent [expr {$digits + $ea}]
-        set integer_part [ipart [list 0 $ma $round_exponent]]
+	set round_exponent [expr {$digits + $ea}]
+	set integer_part [ipart [list 0 $ma $round_exponent]]
 
-        switch -- [compare [list 0 $ma $round_exponent] [list 0 ${integer_part}5 -1]] {
-            0 {
-                # We are rounding something with fractional part .5
-                if { [expr {$integer_part % 2}] } {
-                    # We are odd so round up
-                    set mantissa [expr {$integer_part + 1}]
-                } else {
-                    # We are even so round down
-                    set mantissa $integer_part
-                }
-            }
-            -1 {
-                set mantissa $integer_part
-            }
-            1 {
-                set mantissa [expr {$integer_part + 1}]
-            }
-        }
+	switch -- [compare [list 0 $ma $round_exponent] [list 0 ${integer_part}5 -1]] {
+	    0 {
+		# We are rounding something with fractional part .5
+		if { $integer_part % 2 } {
+		    # We are odd so round up
+		    set mantissa [expr {$integer_part + 1}]
+		} else {
+		    # We are even so round down
+		    set mantissa $integer_part
+		}
+	    }
+	    -1 {
+		set mantissa $integer_part
+	    }
+	    1 {
+		set mantissa [expr {$integer_part + 1}]
+	    }
+	}
     }
     set exponent [expr {-1 * $digits}]
     return [list $sa $mantissa $exponent]
@@ -1323,26 +1456,26 @@ proc ::math::decimal::round_half_even {a digits} {
 proc ::math::decimal::round_half_down {a digits} {
     foreach {sa ma ea} $a {break}
 
-    if {[expr {$digits + $ea}] == 0 } {
-        return $a
-    } elseif { [expr {$digits + $ea}] > 0 } {
-        set mantissa [expr {$ma * 10**($digits+$ea)}]
+    if { $digits + $ea == 0 } {
+	return $a
+    } elseif { $digits + $ea > 0 } {
+	set mantissa [expr {$ma * 10**($digits+$ea)}]
     } else {
-        set round_exponent [expr {$digits + $ea}]
-        set integer_part [ipart [list 0 $ma $round_exponent]]
-        switch -- [compare [list 0 $ma $round_exponent] [list 0 ${integer_part}5 -1]] {
-            0 {
-                # We are rounding something with fractional part .5
-                # The rule is to round half down.
-                set mantissa $integer_part
-            }
-            -1 {
-                set mantissa $integer_part
-            }
-            1 {
-                set mantissa [expr {$integer_part + 1}]
-            }
-        }
+	set round_exponent [expr {$digits + $ea}]
+	set integer_part [ipart [list 0 $ma $round_exponent]]
+	switch -- [compare [list 0 $ma $round_exponent] [list 0 ${integer_part}5 -1]] {
+	    0 {
+		# We are rounding something with fractional part .5
+		# The rule is to round half down.
+		set mantissa $integer_part
+	    }
+	    -1 {
+		set mantissa $integer_part
+	    }
+	    1 {
+		set mantissa [expr {$integer_part + 1}]
+	    }
+	}
     }
     set exponent [expr {-1 * $digits}]
     return [list $sa $mantissa $exponent]
@@ -1366,12 +1499,12 @@ proc ::math::decimal::round_down {a digits} {
 
 
     if { -$ea== $digits } {
-        return $a
-    } elseif { [expr {$digits + $ea}] > 0 } {
-        set mantissa [expr { $ma * 10**($digits+$ea) }]
+	return $a
+    } elseif { $digits + $ea > 0 } {
+	set mantissa [expr { $ma * 10**($digits+$ea) }]
     } else {
-        set round_exponent [expr {$digits + $ea}]
-        set mantissa [ipart [list 0 $ma $round_exponent]]
+	set round_exponent [expr {$digits + $ea}]
+	set mantissa [ipart [list 0 $ma $round_exponent]]
     }
 
     set exponent [expr {-1 * $digits}]
@@ -1395,20 +1528,22 @@ proc ::math::decimal::round_floor {a digits} {
     foreach {sa ma ea} $a {break}
 
     if { -$ea== $digits } {
-        return $a
-    } elseif { [expr {$digits + $ea}] > 0 } {
-        set mantissa [expr { $ma * 10**($digits+$ea) }]
+	return $a
+    } elseif { $digits + $ea > 0 } {
+	set mantissa [expr { $ma * 10**($digits+$ea) }]
     } else {
-        set round_exponent [expr {$digits + $ea}]
-        if { !$sa } {
-            set mantissa [ipart [list 0 $ma $round_exponent]]
-        } else {
-            set mantissa [expr {[ipart [list 0 $ma $round_exponent]] + 1}]
-        }
+	set round_exponent [expr {$digits + $ea}]
+	if { $ma == 0 } {
+	    set mantissa 0
+	} elseif { !$sa } {
+	    set mantissa [ipart [list 0 $ma $round_exponent]]
+	} else {
+	    set mantissa [expr {[ipart [list 0 $ma $round_exponent]] + 1}]
+	}
     }
     set exponent [expr {-1 * $digits}]
     return [list $sa $mantissa $exponent]
-}
+}	
 
 # round_up --
 #
@@ -1428,31 +1563,31 @@ proc ::math::decimal::round_up {a digits} {
 
 
     if { -$ea== $digits } {
-        return $a
-    } elseif { [expr {$digits + $ea}] > 0 } {
-        set mantissa [expr { $ma * 10**($digits+$ea) }]
+	return $a
+    } elseif { $digits + $ea > 0 } {
+	set mantissa [expr { $ma * 10**($digits+$ea) }]
     } else {
-        set round_exponent [expr {$digits + $ea}]
-        if { [string length $ma] <= $round_exponent } {
-            if { $ma != 0 } {
-                set mantissa 1
-            } else {
-                set mantissa 0
-            }
-            set exponent 0
-        } else {
-            set integer_part [ipart [list 0 $ma $round_exponent]]
-            switch -- [compare [list 0 $ma $round_exponent] [list 0 ${integer_part}0 -1]] {
-                0 {
-                    # We are rounding something with fractional part .0
-                    set mantissa $integer_part
-                }
-                default {
-                    set mantissa [expr {$integer_part + 1}]
-                }
-            }
-            set exponent [expr {-1 * $digits}]
-        }
+	set round_exponent [expr {$digits + $ea}]
+	if { [string length $ma] <= $round_exponent } {
+	    if { $ma != 0 } {
+		set mantissa 1
+	    } else {
+		set mantissa 0
+	    }
+	    set exponent 0
+	} else {
+	    set integer_part [ipart [list 0 $ma $round_exponent]]
+	    switch -- [compare [list 0 $ma $round_exponent] [list 0 ${integer_part}0 -1]] {
+		0 {
+		    # We are rounding something with fractional part .0
+		    set mantissa $integer_part
+		}
+		default {
+		    set mantissa [expr {$integer_part + 1}]
+		}
+	    }
+	    set exponent [expr {-1 * $digits}]
+	}
     }
     return [list $sa $mantissa $exponent]
 }
@@ -1473,38 +1608,38 @@ proc ::math::decimal::round_up {a digits} {
 proc ::math::decimal::round_ceiling {a digits} {
     foreach {sa ma ea} $a {break}
     if { -$ea== $digits } {
-        return $a
-    } elseif { [expr {$digits + $ea}] > 0 } {
-        set mantissa [expr { $ma * 10**($digits+$ea) }]
+	return $a
+    } elseif { $digits + $ea > 0 } {
+	set mantissa [expr { $ma * 10**($digits+$ea) }]
     } else {
-        set round_exponent [expr {$digits + $ea}]
-        if { [string length $ma] <= $round_exponent } {
-            if { $ma != 0 } {
-                set mantissa 1
-            } else {
-                set mantissa 0
-            }
-            set exponent 0
-        } else {
-            set integer_part [ipart [list 0 $ma $round_exponent]]
-            switch -- [compare [list 0 $ma $round_exponent] [list 0 ${integer_part}0 -1]] {
-                0 {
-                    # We are rounding something with fractional part .0
-                    set mantissa $integer_part
-                }
-                default {
-                    if { $sa } {
-                        set mantissa [expr {$integer_part}]
-                    } else {
-                        set mantissa [expr {$integer_part + 1}]
-                    }
-                }
-            }
-            set exponent [expr {-1 * $digits}]
-        }
+	set round_exponent [expr {$digits + $ea}]
+	if { [string length $ma] <= $round_exponent } {
+	    if { $ma != 0 } {
+		set mantissa 1
+	    } else {
+		set mantissa 0
+	    }
+	    set exponent 0
+	} else {
+	    set integer_part [ipart [list 0 $ma $round_exponent]]
+	    switch -- [compare [list 0 $ma $round_exponent] [list 0 ${integer_part}0 -1]] {
+		0 {
+		    # We are rounding something with fractional part .0
+		    set mantissa $integer_part
+		}
+		default {
+		    if { $sa } {
+			set mantissa [expr {$integer_part}]
+		    } else {
+			set mantissa [expr {$integer_part + 1}]
+		    }
+		}
+	    }
+	    set exponent [expr {-1 * $digits}]
+	}
     }
     return [list $sa $mantissa $exponent]
-}
+}	
 
 # is-finite
 #
@@ -1516,12 +1651,12 @@ proc ::math::decimal::round_ceiling {a digits} {
 #
 # Returns:
 #
-proc is-finite { a } {
+proc ::math::decimal::is-finite { a } {
     set mantissa [lindex $a 1]
     if { $mantissa == "Inf" || $mantissa == "NaN" } {
-        return 0
+	return 0
     } else {
-        return 1
+	return 1
     }
 }
 
@@ -1535,12 +1670,12 @@ proc is-finite { a } {
 #
 # Returns:
 #
-proc is-infinite { a } {
+proc ::math::decimal::is-infinite { a } {
     set mantissa [lindex $a 1]
     if { $mantissa == "Inf" } {
-        return 1
+	return 1
     } else {
-        return 0
+	return 0
     }
 }
 
@@ -1554,12 +1689,12 @@ proc is-infinite { a } {
 #
 # Returns:
 #
-proc is-NaN { a } {
+proc ::math::decimal::is-NaN { a } {
     set mantissa [lindex $a 1]
     if { $mantissa == "NaN" } {
-        return 1
+	return 1
     } else {
-        return 0
+	return 0
     }
 }
 
@@ -1573,12 +1708,12 @@ proc is-NaN { a } {
 #
 # Returns:
 #
-proc is-signed { a } {
+proc ::math::decimal::is-signed { a } {
     set sign [lindex $a 0]
     if { $sign } {
-        return 1
+	return 1
     } else {
-        return 0
+	return 0
     }
 }
 
@@ -1592,11 +1727,11 @@ proc is-signed { a } {
 #
 # Returns:
 #
-proc is-zero { a } {
+proc ::math::decimal::is-zero { a } {
     set mantisse [lindex $a 1]
     if { $mantisse == 0 } {
-        return 1
+	return 1
     } else {
-        return 0
+	return 0
     }
 }
