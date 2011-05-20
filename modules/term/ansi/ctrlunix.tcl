@@ -59,6 +59,11 @@ proc ::term::ansi::ctrl::unix::INIT {} {
     variable tput [auto_execok tput]
     variable stty [auto_execok stty]
 
+    if {($stty eq "/usr/ucb/stty") &&
+	($::tcl_platform(os) eq "SunOS")} {
+	set stty /usr/bin/stty
+    }
+
     if {($tput eq "") || ($stty eq "")} {
 	return -code error \
 		"The external requirements for the \
@@ -80,7 +85,7 @@ namespace eval ::term::ansi::ctrl::unix {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide term::ansi::ctrl::unix 0.1
+package provide term::ansi::ctrl::unix 0.1.1
 
 ##
 # ### ### ### ######### ######### #########
