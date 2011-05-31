@@ -81,6 +81,7 @@ Module  irc         _tcl  _man _exa
 Module  javascript  _tcl  _man  _null
 Module  jpeg        _tcl  _man  _null
 Module  json        _tcl  _man  _null
+Module  lambda      _tcl  _man  _null
 Module  ldap        _tcl  _man _exa
 Module  log          _msg _man  {_exax logger}
 Module  map         _tcl  _man  _null
@@ -128,6 +129,7 @@ Module  tie         _tcl  _man  _exa
 Module  tiff        _tcl  _man  _null
 Module  transfer    _tcl  _man  _null
 Module  treeql      _tcl  _man  _null
+Module  try         _tcl  _man  _null
 Module  uev         _tcl  _man  _null
 Module  units       _tcl  _man  _null
 Module  uri         _tcl  _man  _null
