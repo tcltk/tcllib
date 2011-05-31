@@ -1,0 +1,50 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin oo::util n 1]
+[copyright {2011 Andreas Kupries, BSD licensed}]
+[moddesc {Utility commands for TclOO}]
+[titledesc {Utility commands for TclOO}]
+[category  Utility]
+[require Tcl 8.5]
+[require TclOO]
+[require oo::util [opt 1]]
+[keywords TclOO callback {my method} {command prefix} currying {method reference}]
+[see_also snit(n)]
+[description]
+[para]
+
+This package provides a convenience command for the easy specification
+of instance methods as callback commands, like timers, file events, Tk
+bindings, etc.
+
+[section {COMMANDS}]
+
+[list_begin definitions]
+[comment {- - -- --- ----- -------- ------------- ---------------------}]
+[call [cmd mymethod] [arg method] [opt [arg arg]...]]
+
+This command is available within instance methods. It takes a method
+name and, possibly, arguments for the method and returns a command
+prefix which, when executed, will invoke the named method of the
+object we are in, with the provided arguments, and any others supplied
+at the time of actual invokation.
+
+[para] Note: The command is equivalent to and named after the command
+provided by the OO package [package snit] for the same purpose.
+
+[list_end]
+
+[section AUTHORS]
+Donal Fellows, Andreas Kupries
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph oo::util] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
+[manpage_end]

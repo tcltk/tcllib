@@ -98,6 +98,7 @@ Module  nmea        _tcl  _man  _null
 Module  nns         _tcl  _man  _null
 Module  nntp        _tcl  _man _exa
 Module  ntp         _tcl  _man _exa
+Module  ooutil      _tcl  _man  _null
 Module  otp         _tcl  _man  _null
 Module  page         _tcr _man  _null
 Module  pki         _tcl  _man  _null
