@@ -1,0 +1,4 @@
+2011-05-31  Andreas Kupries  <andreask@activestate.com>
+
+	* New module and package: oo::util. Right now only easy
+	  referencing of instance methods for callbacks.
