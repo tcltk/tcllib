@@ -1,3 +1,13 @@
+2011-05-31  Andreas Kupries  <andreask@activestate.com>
+
+	* cat.man: New base channels. Concatenation of channels,
+	* cat.tcl: standard channel combining stdin and stdout,
+	* facade.man: and a facade for wrapping around other
+	* facade.tcl: channels.
+	* std.man:
+	* std.tcl:
+	* pkgIndex.tcl:
+
 2011-02-21  Andreas Kupries  <andreask@activestate.com>
 
 	* pkgIndex.tcl: Removed the superfluous [list] command in the

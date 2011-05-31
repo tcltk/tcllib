@@ -1,0 +1,49 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin tcl::chan::std n 1]
+[copyright {2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[moddesc   {Reflected/virtual channel support}]
+[category  Channels]
+[titledesc {Standard I/O, unification of stdin and stdout}]
+[require Tcl 8.5]
+[require TclOO]
+[require tcl::chan::core [opt 1]]
+[require tcl::chan::std [opt 1]]
+[description]
+[para]
+
+The [package tcl::chan::std] package provides a command creating
+a standard channel which unifies stdin and stdout into a single
+read- and writable channel. The result is not seek-able, like
+the original standard channels.
+
+[para] The internal [package TclOO] class implementing the channel
+handler is a sub-class of the [package tcl::chan::core] framework.
+
+[section API]
+
+[list_begin definitions]
+
+[call [cmd ::tcl::chan::std]]
+
+This command creates the std channel and returns its handle.
+
+[para] The channel is created only once, on the first call, and all
+future calls simply return this handle.
+
+[list_end]
+
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph virtchannel] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
+
+[keywords {virtual channel} {reflected channel} stdin stdout {standard io} {tip 219}]
+[manpage_end]
