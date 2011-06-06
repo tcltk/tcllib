@@ -62,7 +62,7 @@ proc ::pt::tclparam::configuration::tcloo::def {class pkg cmd} {
 	## Requirements
 
 	package require Tcl 8.5
-	package require OO
+	package require TclOO
 	package require pt::rde::oo ; # OO-based implementation of the
 				      # PARAM virtual machine
 				      # underlying the Tcl/PARAM code
@@ -117,5 +117,5 @@ namespace eval ::pt::tclparam::configuration::tcloo {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::tclparam::configuration::tcloo 1.0.1
+package provide pt::tclparam::configuration::tcloo 1.0.2
 return

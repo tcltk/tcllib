@@ -1,3 +1,8 @@
+2011-06-06  Andreas Kupries  <andreask@activestate.com>
+
+	* pt_tclparam_config_tcloo.tcl: Fixed typo, OO is TclOO.
+	* pkgIndex.tcl: Bumped version to 1.0.2.
+
 2011-02-16  Andreas Kupries  <andreask@activestate.com>
 
 	* include/format/options_tclparam_oo.inc: Documented option -package, and
