@@ -1,8 +1,16 @@
+2011-06-15  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+	* simulation_random.man: [Bug 3316476]: Documentation of prng_Block was wrong wrt the result
+	* random.tcl: [Bug 3316478]: prng_Rectangle was overwritten by implementation of prng_Block
+	                             because the name was wrong
+	* random.tcl: [Bug 3316505]: fix in prng_chSquared
+	                             (all three reported by Andreas Kupries)
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.13 ========================
-	* 
+	*
 
 2009-12-11  Andreas Kupries  <andreask@activestate.com>
 
@@ -13,19 +21,19 @@
 
 	*
 	* Released and tagged Tcllib 1.12 ========================
-	* 
+	*
 
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.11.1 ========================
-	* 
+	*
 
 2008-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.11 ========================
-	* 
+	*
 
 2008-03-14  Andreas Kupries <andreask@activestate.com>
 

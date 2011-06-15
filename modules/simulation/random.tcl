@@ -18,7 +18,7 @@
 #     Several formulae and algorithms come from "Monte Carlo Simulation"
 #     by C. Mooney (Sage Publications, 1997)
 #
-# RCS: @(#) $Id: random.tcl,v 1.1 2008/01/24 05:45:46 arjenmarkus Exp $
+# RCS: @(#) $Id: random.tcl,v 1.2 2011/06/15 07:05:21 arjenmarkus Exp $
 #------------------------------------------------------------------------------
 
 package require Tcl 8.4
@@ -270,7 +270,7 @@ proc ::simulation::random::prng_chiSquared {df} {
             set rad [expr {sqrt(-log(rand()))}]
             set phi [expr {2.0*$pi*rand()}]
             set r   [expr {$rad*cos($phi)}]
-            set y   [expr {$r*$r}]
+            set y   [expr {$y+$r*$r}]
         }
         return [expr {($y-DF)/sqrt(2.0*DF)}]
     }]
@@ -414,7 +414,7 @@ proc ::simulation::random::prng_Rectangle {length width} {
 #     Name of a procedure that returns the x-, y- and z-coordinates of
 #     such a random point
 #
-proc ::simulation::random::prng_Rectangle {length width depth} {
+proc ::simulation::random::prng_Blocke {length width depth} {
     variable count
 
     incr count
