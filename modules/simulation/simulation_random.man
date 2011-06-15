@@ -201,7 +201,7 @@ uniformly spread over a rectangle.
 
 [call [cmd ::simulation::random::prng_Block] [arg length] [arg width] [arg depth]]
 
-Create a command (PRNG) that generates (x,y)-coordinates for points
+Create a command (PRNG) that generates (x,y,z)-coordinates for points
 uniformly spread over a block
 
 [list_begin arguments]
