@@ -18,7 +18,7 @@
 #     Several formulae and algorithms come from "Monte Carlo Simulation"
 #     by C. Mooney (Sage Publications, 1997)
 #
-# RCS: @(#) $Id: random.tcl,v 1.2 2011/06/15 07:05:21 arjenmarkus Exp $
+# RCS: @(#) $Id: random.tcl,v 1.3 2011/06/16 13:17:59 arjenmarkus Exp $
 #------------------------------------------------------------------------------
 
 package require Tcl 8.4
@@ -298,7 +298,7 @@ proc ::simulation::random::prng_Disk {rad} {
     proc $name {} [string map [list RAD $rad] \
     {
         variable pi
-        set rad [expr {RAD*sqrt((rand())}]
+        set rad [expr {RAD*sqrt(rand())}]
         set phi [expr {2.0*$pi*rand()}]
         set x   [expr {$rad*cos($phi)}]
         set y   [expr {$rad*sin($phi)}]
@@ -414,7 +414,7 @@ proc ::simulation::random::prng_Rectangle {length width} {
 #     Name of a procedure that returns the x-, y- and z-coordinates of
 #     such a random point
 #
-proc ::simulation::random::prng_Blocke {length width depth} {
+proc ::simulation::random::prng_Block {length width depth} {
     variable count
 
     incr count
@@ -434,7 +434,7 @@ proc ::simulation::random::prng_Blocke {length width depth} {
 
 # Announce the package
 #
-package provide simulation::random 0.1
+package provide simulation::random 0.2
 
 
 # main --
