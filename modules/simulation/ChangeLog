@@ -1,3 +1,9 @@
+2011-06-16  Arjen Markus  <arjenmarkus@users.sourceforge.net>
+
+	* random.tcl: [Bug 3316478]: prng_Block was renamed to prng_Blocke - typo fixed; superfluous parenthesis removed
+	* pkgIndex.tcl: bumped version to 0.2 for "random"
+
+
 2011-06-15  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 
 	* simulation_random.man: [Bug 3316476]: Documentation of prng_Block was wrong wrt the result
