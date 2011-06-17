@@ -18,7 +18,7 @@
 #     Several formulae and algorithms come from "Monte Carlo Simulation"
 #     by C. Mooney (Sage Publications, 1997)
 #
-# RCS: @(#) $Id: random.tcl,v 1.3 2011/06/16 13:17:59 arjenmarkus Exp $
+# RCS: @(#) $Id: random.tcl,v 1.4 2011/06/17 06:40:14 arjenmarkus Exp $
 #------------------------------------------------------------------------------
 
 package require Tcl 8.4
@@ -239,7 +239,7 @@ proc ::simulation::random::prng_Gumbel {min f} {
 
     proc $name {} [string map [list MIN $min F $f] \
     {
-        return [expr {MIN + log( -log(1.0-rand() ) / F}]
+        return [expr {MIN + log( -log(1.0-rand()) ) / F}]
     }]
 
     return $name
@@ -328,7 +328,7 @@ proc ::simulation::random::prng_Ball {rad} {
     proc $name {} [string map [list RAD $rad] \
     {
         variable pi
-        set rad   [expr {RAD*pow((rand(),0.333333333333)}]
+        set rad   [expr {RAD*pow(rand(),0.333333333333)}]
         set phi   [expr {2.0*$pi*rand()}]
         set theta [expr {acos(2.0*rand()-1.0)}]
         set x     [expr {$rad*cos($phi)*cos($theta)}]
@@ -434,7 +434,7 @@ proc ::simulation::random::prng_Block {length width depth} {
 
 # Announce the package
 #
-package provide simulation::random 0.2
+package provide simulation::random 0.3
 
 
 # main --
