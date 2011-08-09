@@ -1,3 +1,11 @@
+2011-08-09  Andreas Kupries  <andreask@activestate.com>
+
+	* ftpd.tcl: [Bug 3357765]: Accepted patch by Roy Keene
+	  <rkeene@users.sourceforge.net> fixing issues with the handling
+	  of passive connections by the server, with modifications (Moved
+	  the replicated checking code into a procedure shared by the
+	  modified commands).
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
