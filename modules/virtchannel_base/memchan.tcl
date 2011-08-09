@@ -48,6 +48,7 @@ oo::class create ::tcl::chan::memchan::implementation {
     superclass ::tcl::chan::events ; # -> initialize, finalize, watch
 
     constructor {} {
+	set content {}
 	set at 0
 	next
     }

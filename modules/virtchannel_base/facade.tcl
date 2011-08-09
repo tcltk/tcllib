@@ -36,6 +36,7 @@
 
 package require Tcl 8.5
 package require TclOO
+package require logger
 package require tcl::chan::core
 
 # # ## ### ##### ######## #############
@@ -77,7 +78,7 @@ oo::class create ::tcl::chan::facade::implementation {
 	}
 
 	set blocking [::chan configure $chan -blocking]
-	next
+	return
     }
 
     destructor {
