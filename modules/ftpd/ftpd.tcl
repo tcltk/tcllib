@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.30 2010/01/20 18:22:42 andreas_kupries Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.31 2011/08/09 20:17:52 andreas_kupries Exp $
 #
 
 # Define the ftpd package version 1.2.5
@@ -755,6 +755,7 @@ proc ::ftpd::command::APPE {sock filename} {
     #
     if {![catch {::ftpd::Fs append $path $data(mode)} f]} {
 	puts $sock "150 Copy Started ($data(mode))"
+	::ftpd::PasvCheckAndWait $sock
 	fcopy $data(sock2) $f -command [list ::ftpd::GetDone $sock $data(sock2) $f ""]
     } else {
 	puts $sock "500 Copy Failed: $path $f"
@@ -1229,6 +1230,7 @@ proc ::ftpd::command::RETR {sock filename} {
     #
     if {![catch {::ftpd::Fs retr $path $data(mode)} f]} {
 	puts $sock "150 Copy Started ($data(mode))"
+	::ftpd::PasvCheckAndWait $sock
 	fcopy $f $data(sock2) -command [list ::ftpd::GetDone $sock $data(sock2) $f ""]
     } else {
 	puts $sock "500 Copy Failed: $path $f"
@@ -1418,6 +1420,7 @@ proc ::ftpd::command::STOR {sock filename} {
     #
     if {![catch {::ftpd::Fs store $path $data(mode)} f]} {
 	puts $sock "150 Copy Started ($data(mode))"
+	::ftpd::PasvCheckAndWait $sock
 	fcopy $data(sock2) $f -command [list ::ftpd::GetDone $sock $data(sock2) $f ""]
     } else {
 	puts $sock "500 Copy Failed: $path $f"
@@ -1468,6 +1471,7 @@ proc ::ftpd::command::STOU {sock filename} {
     #
     if {![catch {::ftpd::Fs store $file $data(mode)} f]} {
 	puts $sock "150 Copy Started ($data(mode))"
+	::ftpd::PasvCheckAndWait $sock
 	fcopy $data(sock2) $f -command [list ::ftpd::GetDone $sock $data(sock2) $f $file]
     } else {
 	puts $sock "500 Copy Failed: $path $f"
@@ -1636,6 +1640,7 @@ proc ::ftpd::List {sock filename style} {
 
     set path [file join $data(cwd) $filename]
 
+    PasvCheckAndWait $sock
     Fs dlist $path $style $data(sock2)
 
     FinishData $sock
@@ -2009,6 +2014,7 @@ proc ::ftpd::command::PASV {sock argument} {
     lappend ans [expr {($port >> 8) & 0xff}] [expr {$port & 0xff}]
     set ans [join $ans {,}]
     puts $sock "227 Entering Passive Mode ($ans)."
+    set data(sock2) ""
     return
 }
 
@@ -2029,11 +2035,21 @@ proc ::ftpd::PasvAccept {sock sock2 ip port} {
     }
     ::ftpd::FinishData $sock
 
-    set data(sock2) $sock2
+    set data(sock2) $sock2 ; # (*), see ::ftpd::PasvCheckAndWait
     fconfigure $data(sock2) -translation $data(mode)
     close $data(sock2a)
     set data(sock2a) ""
     return
 }
 
+proc ::ftpd::PasvCheckAndWait {sock} {
+    upvar #0 ::ftpd::$sock data
 
+    # Check if we are in passive mode, with the data connection not
+    # yet established. If so, wait for the data connection to be
+    # made. This vwait is unlocked by (*) in ::ftpd::PasvAccept above.
+
+    if {$data(sock2) != ""} return
+    vwait ::ftpd::${sock}(sock2)
+    return
+}
