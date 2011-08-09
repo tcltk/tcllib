@@ -13,7 +13,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftp.tcl,v 1.48 2011/04/18 19:27:14 andreas_kupries Exp $
+# RCS: @(#) $Id: ftp.tcl,v 1.49 2011/08/09 20:04:45 andreas_kupries Exp $
 #
 #   core ftp support: 	ftp::Open <server> <user> <passwd> <?options?>
 #			ftp::Close <s>
@@ -2872,6 +2872,12 @@ proc ::ftp::OpenActiveConn {s } {
         return 0
     }
 
+    # prepare local ip address for PORT command (convert pointed format
+    # to comma format)
+
+    set ftp(LocalAddr) [lindex [fconfigure $ftp(CtrlSock) -sockname] 0]
+    set ftp(LocalAddr) [string map {. ,} $ftp(LocalAddr)]
+
     # get a new local port address for data transfer and convert it to a format
     # which is useable by the PORT command
 
@@ -2957,17 +2963,10 @@ proc ::ftp::OpenControlConn {s {block 1}} {
     fconfigure $ftp(CtrlSock) -buffering line -blocking $block -translation {auto crlf}
     fileevent $ftp(CtrlSock) readable [list [namespace current]::StateHandler $s $ftp(CtrlSock)]
 	
-    # prepare local ip address for PORT command (convert pointed format
-    # to comma format)
-
-    set ftp(LocalAddr) [lindex [fconfigure $ftp(CtrlSock) -sockname] 0]
-    set ftp(LocalAddr) [string map {. ,} $ftp(LocalAddr)]
-
     # report ready message
 
-    set peer [fconfigure $ftp(CtrlSock) -peername]
     if { $VERBOSE } {
-        DisplayMsg $s "C: Connection from [lindex $peer 0]:[lindex $peer 2]" control
+        DisplayMsg $s "C: Connection to $ftp(RemoteHost):$ftp(Port)" control
     }
 	
     return 1

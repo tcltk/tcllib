@@ -1,3 +1,10 @@
+2011-08-09  Andreas Kupries  <andreask@activestate.com>
+
+	* ftp.tcl (::ftp::OpenActiveConn, ::ftp::OpenControlConn):
+	  [Bug 3325112]: Accepted patch by Alexandre Ferrieux
+	  <ferrieux@users.sourceforge.net> reducing the number of reverse
+	  DNS lookups.
+
 2011-04-18  Andreas Kupries  <andreask@activestate.com>
 
 	* ftp.tcl (::ftp::__ftp_ls): [Bug 3288793]: Fixed ftp::List
