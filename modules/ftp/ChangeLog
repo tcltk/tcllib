@@ -1,5 +1,9 @@
 2011-08-09  Andreas Kupries  <andreask@activestate.com>
 
+	* ftp.man: Bumped version to 2.4.11.
+	* ftp.tcl:
+	* pkgIndex.tcl:
+
 	* ftp.tcl (::ftp::OpenActiveConn, ::ftp::OpenControlConn):
 	  [Bug 3325112]: Accepted patch by Alexandre Ferrieux
 	  <ferrieux@users.sourceforge.net> reducing the number of reverse
