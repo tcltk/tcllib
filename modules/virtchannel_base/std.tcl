@@ -34,7 +34,7 @@ package require tcl::chan::core
 namespace eval ::tcl::chan {}
 
 proc ::tcl::chan::std {} {
-    variable std
+    ::variable std
     if {$std eq {}} {
 	set std [::chan create {read write} [std::implementation new]]
     }
@@ -53,7 +53,7 @@ oo::class create ::tcl::chan::std::implementation {
 	# This will happen in our generic layer instead.
 	fconfigure stdin  -translation binary
 	fconfigure stdout -translation binary
-	next
+	return
     }
 
     method watch {c requestmask} {
@@ -89,7 +89,7 @@ oo::class create ::tcl::chan::std::implementation {
 # # ## ### ##### ######## #############
 
 namespace eval ::tcl::chan {
-    variable std {}
+    ::variable std {}
 }
 
 # # ## ### ##### ######## #############
