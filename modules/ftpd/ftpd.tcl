@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.31 2011/08/09 20:17:52 andreas_kupries Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.32 2011/08/09 20:39:17 andreas_kupries Exp $
 #
 
 # Define the ftpd package version 1.2.5
@@ -1293,7 +1293,7 @@ proc ::ftpd::command::RNFR {sock filename} {
 
     set path [file join $data(cwd) [string trimleft $filename /]]
 
-    if {[file exists $path]} {
+    if {[::ftpd::Fs exists $path]} {
         if {[::ftpd::hasCallback authFileCmd]} {
             set cmd $::ftpd::cfg(authFileCmd)
             lappend cmd $data(user) $path write
@@ -1350,7 +1350,7 @@ proc ::ftpd::command::RNTO {sock filename} {
     }
 
 
-    if {![catch {::ftpd::Fs rename $data(renameFrom) $path} msg]} {
+    if {![catch {::ftpd::Fs rename $data(renameFrom) $path $sock} msg]} {
         unset data(renameFrom)
     } else {
         unset data(renameFrom)
@@ -1898,7 +1898,7 @@ proc ::ftpd::fsFile::fs {command path args} {
 	        puts $outchan "550 rename: No such file or directory."
             }
             file rename $path $newname
-            puts $sock "250 RNTO command successful."
+            puts $outchan "250 RNTO command successful."
 	}
         rmdir {
 	    foreach {outchan} $args break
