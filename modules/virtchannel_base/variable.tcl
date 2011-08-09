@@ -46,6 +46,12 @@ oo::class create ::tcl::chan::variable::implementation {
     constructor {thevarname} {
 	set varname $thevarname
 	set at 0
+
+	upvar #0 $varname content
+	if {![info exists content]} {
+	    set content {}
+	}
+	next
     }
 
     method initialize {args} {
@@ -161,6 +167,8 @@ oo::class create ::tcl::chan::variable::implementation {
     }
 
     method Events {} {
+	upvar #0 $varname content
+
 	if {$at >= [string length $content]} {
 	    my disallow read
 	} else {
