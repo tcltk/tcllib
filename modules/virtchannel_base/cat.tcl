@@ -51,7 +51,7 @@ oo::class create ::tcl::chan::cat::implementation {
 	}
 	set delay 10
 	set watching 0
-	next
+	return
     }
 
     destructor {
