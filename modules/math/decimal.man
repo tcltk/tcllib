@@ -65,6 +65,7 @@ this man page for information about individual procedures.
     puts [expr {8.2 + .2}] ; # => will output 8.399999999999999
     puts [expr {8.2 - .2}] ; # => will output 7.999999999999999
     # See http://speleotrove.com/decimal to learn more about why this happens.
+[example_end]
 
 
 [section "API"]
@@ -73,12 +74,12 @@ this man page for information about individual procedures.
 [call [cmd ::Decimal::fromstr] [arg string]]
 Convert [emph string] into a decimal. 
 
-[call [cmd ::Decimal::tostr] [arg decimal]
+[call [cmd ::Decimal::tostr] [arg decimal]]
 Convert [emph decimal] into a string representing the number in base 10.
 
 [call [cmd ::Decimal::setVariable] [arg variable] [arg setting]]
 Sets the [emph variable] to [emph setting]. Valid variables are:
-[list]
+[list_begin itemized]
 [item][arg rounding] - Method of rounding to use during rescale. Valid
 	methods are round_half_even, round_half_up, round_half_down,
 	round_down, round_up, round_floor, round_ceiling.
@@ -132,10 +133,10 @@ Compare the two decimals a and b, and return [emph a] if [emph {a <= b}], and [e
 Compare the two decimals a and b while ignoring their signs, and return [emph a] if [emph {abs(a) <= abs(b)}], and [emph b] if [emph {abs(a) > abs(b)}].
 
 [call [cmd ::Decimal::plus] [arg a]]
-Return the result from [emph ::Decimal::+ 0 $a].
+Return the result from [emph {::Decimal::+ 0 $a}].
 
 [call [cmd ::Decimal::minus] [arg a]]
-Return the result from [emph ::Decimal::- 0 $a].
+Return the result from [emph {::Decimal::- 0 $a}].
 
 [call [cmd ::Decimal::copynegate] [arg a]]
 Returns [emph a] with the sign flipped. 
