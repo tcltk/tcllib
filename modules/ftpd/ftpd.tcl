@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ftpd.tcl,v 1.32 2011/08/09 20:39:17 andreas_kupries Exp $
+# RCS: @(#) $Id: ftpd.tcl,v 1.33 2011/08/09 20:50:51 andreas_kupries Exp $
 #
 
 # Define the ftpd package version 1.2.5
@@ -815,7 +815,14 @@ proc ::ftpd::command::CWD {sock relativepath} {
 	return
     }
 
-    set data(cwd) [file join $data(cwd) $relativepath]
+    set path [file join $data(cwd) $relativepath]
+
+    if {[::ftpd::Fs exists $path]} {
+        puts $sock "550 not a directory"
+        return
+    }
+
+    set data(cwd) $path
     puts $sock "250 CWD command successful."
     return
 }
