@@ -1,5 +1,9 @@
 2011-08-09  Andreas Kupries  <andreask@activestate.com>
 
+	* ftpd.tcl (::ftpd::command::RNTO, ::ftpd::command::RNFR):
+	  [Bug 3312880]: Fixed issues with the rename command found by Roy
+	  Keene.
+
 	* ftpd.tcl: [Bug 3357765]: Accepted patch by Roy Keene
 	  <rkeene@users.sourceforge.net> fixing issues with the handling
 	  of passive connections by the server, with modifications (Moved
