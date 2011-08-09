@@ -1,5 +1,9 @@
 2011-08-09  Andreas Kupries  <andreask@activestate.com>
 
+	* ftpd.man: Bumped version to 1.2.6.
+	* ftpd.tcl:
+	* pkgIndex.tcl:
+
 	* ftpd.tcl (::ftpd::command::CWD): [Bug 3312900]: Accepted patch
 	  by Roy Keene, adding basic checks to the CWD command.
 
