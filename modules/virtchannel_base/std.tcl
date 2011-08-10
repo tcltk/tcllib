@@ -9,7 +9,7 @@
 # ever created.
 
 # @@ Meta Begin
-# Package tcl::chan::std 1
+# Package tcl::chan::std 1.0.1
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2011
 # Meta as::license BSD
@@ -93,5 +93,5 @@ namespace eval ::tcl::chan {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::std 1
+package provide tcl::chan::std 1.0.1
 return

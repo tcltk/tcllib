@@ -7,7 +7,7 @@
 # bytes.
 
 # @@ Meta Begin
-# Package tcl::chan::memchan 1
+# Package tcl::chan::memchan 1.0.2
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009
 # Meta as::license BSD
@@ -163,5 +163,5 @@ oo::class create ::tcl::chan::memchan::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::memchan 1.0.1
+package provide tcl::chan::memchan 1.0.2
 return
