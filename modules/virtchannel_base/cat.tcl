@@ -7,7 +7,7 @@
 # when closed itself.
 
 # @@ Meta Begin
-# Package tcl::chan::cat 1
+# Package tcl::chan::cat 1.0.1
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2011
 # Meta as::license BSD
@@ -133,5 +133,5 @@ oo::class create ::tcl::chan::cat::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::cat 1
+package provide tcl::chan::cat 1.0.1
 return
