@@ -3,7 +3,7 @@
 # (C) 2009 Andreas Kupries
 
 # @@ Meta Begin
-# Package tcl::chan::variable 1
+# Package tcl::chan::variable 1.0.2
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009
 # Meta as::license BSD
@@ -178,5 +178,5 @@ oo::class create ::tcl::chan::variable::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::variable 1.0.1
+package provide tcl::chan::variable 1.0.2
 return

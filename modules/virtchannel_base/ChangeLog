@@ -1,21 +1,21 @@
 2011-08-09  Andreas Kupries  <andreask@activestate.com>
 
 	* memchan.tcl: Fixed missing initialization of 'content' instance
-	  variable.
+	  variable. Bumped to version 1.0.2.
 
 	* variable.tcl: Fixed missing invokation of superclass
 	  constructor. Fixed missing initialization of linked 'content'
 	  variable, if not existing. Fixed missing import of linked
-	  variable into the event handling.
+	  variable into the event handling. Bumped to version 1.0.2.
 
 	* cat.tcl: Removed bogus invokation of superclass constructor,
-	  there is no such.
+	  there is no such. Bumped to version 1.0.1.
 
 	* facade.tcl: Added missing logger requirements, dropped bogus
-	  call to superclass constructor.
+	  call to superclass constructor. Bumped to version 1.0.1.
 
 	* std.tcl: Fixed command scoping issues, and dropped bogus call to
-	  superclass constructor.
+	  superclass constructor. Bumped to version 1.0.1.
 
 2011-05-31  Andreas Kupries  <andreask@activestate.com>
 
