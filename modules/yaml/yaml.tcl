@@ -3,7 +3,7 @@
 #
 #   See http://www.yaml.org/spec/1.1/
 #
-#   yaml.tcl,v 0.3.5 2009-05-24 11:52:34 KATO Kanryu(kanryu6@users.sourceforge.net)
+#   yaml.tcl,v 0.3.6 2011-08-23 15:06:25 KATO Kanryu(kanryu6@users.sourceforge.net)
 #
 #   It is published with the terms of tcllib's BSD-style license.
 #   See the file named license.terms.
@@ -16,7 +16,7 @@ if {$::tcl_version < 8.5} {
     package require dict
 }
 
-package provide yaml 0.3.5
+package provide yaml 0.3.6
 package require cmdline
 package require huddle
 
@@ -253,8 +253,10 @@ proc ::yaml::_composeBinary {value} {
 }
 
 proc ::yaml::_composePlain {value} {
-    if {[huddle type $value] ne "plain"} {return $value}
-    set value [huddle strip $value]
+    if {$value ne ""} {
+        if {[huddle type $value] ne "plain"} {return $value}
+        set value [huddle strip $value]
+    }
     set pair [_toType $value]
     return  [eval huddle wrap $pair]
 }
