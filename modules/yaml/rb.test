@@ -11,7 +11,6 @@ if {[lsearch [namespace children] ::tcltest] == -1} {
     namespace import ::tcltest::*
     puts [source huddle.tcl]
     puts [source yaml.tcl]
-
 } else {
     # all.tcl
     source [file join \

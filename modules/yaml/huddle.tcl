@@ -1,6 +1,6 @@
 # huddle.tcl (working title)
 #
-# huddle.tcl 0.1.5 __HUDDLE_TCL_DATETIME__ KATO Kanryu(kanryu6@users.sourceforge.net)
+# huddle.tcl 0.1.5 2011-08-23 14:46:47 KATO Kanryu(kanryu6@users.sourceforge.net)
 #
 #   It is published with the terms of tcllib's BSD-style license.
 #   See the file named license.terms.
@@ -363,6 +363,7 @@ proc ::huddle::_list_setting {command args} {
         }
         strip {
             foreach {src nop} $args break
+            set result {}
             foreach {val} $src {
                 lappend result [strip $val]
             }
@@ -564,5 +565,4 @@ namespace eval ::huddle {
 }
 
 
-#source entry.tcl
 
