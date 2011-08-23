@@ -9,10 +9,12 @@
 if {[lsearch [namespace children] ::tcltest] == -1} {
     # single test
     set selfrun 1
+#    lappend auto_path [pwd]
+    set auto_path [linsert $auto_path 0 [pwd]]
     package require tcltest
     namespace import ::tcltest::*
-    puts [source huddle.tcl]
-    puts [source yaml.tcl]
+    puts [package require yaml]
+
 } else {
     # all.tcl
     source [file join \
@@ -506,6 +508,22 @@ test yaml-6.5 "block mapping, noheader" -body {
 }
     dictsort2 [yaml::yaml2dict $maps] {d d}
 } -result [dictsort2 {bar {sport baseball name steve fruit apple}} {d d}]
+
+test yaml-6.6 "block mapping, with empty" -body {
+    set maps {foo:
+some: value
+}
+    dictsort2 [yaml::yaml2dict $maps] {d}
+} -result [dictsort2 {foo {} some value} {d}]
+
+test yaml-6.7 "block mapping, with empty sequence" -body {
+    set maps {foo: []
+some: value
+}
+    dictsort2 [yaml::yaml2dict $maps] {d}
+} -result [dictsort2 {foo {} some value} {d}]
+
+
 
 
 
