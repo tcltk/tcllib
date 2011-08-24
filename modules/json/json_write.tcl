@@ -2,12 +2,12 @@
 #
 #	Commands for the generation of JSON (Java Script Object Notation).
 #
-# Copyright (c) 2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2011 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: json_write.tcl,v 1.1 2009/11/25 04:41:01 andreas_kupries Exp $
+# RCS: @(#) $Id: json_write.tcl,v 1.2 2011/08/24 20:09:44 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requisites
@@ -27,7 +27,7 @@ namespace eval ::json::write {
 proc ::json::write::indented {{bool {}}} {
     variable indented
 
-    if {[llength [info level]] > 2} {
+    if {[llength [info level 0]] > 2} {
 	return -code error {wrong # args: should be "json::write indented ?bool?"}
     } elseif {[llength [info level 0]] == 2} {
 	if {![::string is boolean -strict $bool]} {
@@ -45,7 +45,7 @@ proc ::json::write::indented {{bool {}}} {
 proc ::json::write::aligned {{bool {}}} {
     variable aligned
 
-    if {[llength [info level]] > 2} {
+    if {[llength [info level 0]] > 2} {
 	return -code error {wrong # args: should be "json::write aligned ?bool?"}
     } elseif {[llength [info level 0]] == 2} {
 	if {![::string is boolean -strict $bool]} {
@@ -181,5 +181,5 @@ namespace eval ::json::write {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide json::write 1
+package provide json::write 1.0.1
 return
