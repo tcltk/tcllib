@@ -1,4 +1,3 @@
 [example {
-    Expression <- '(' Expression ')'
-                / Factor (MulOp Factor)*
+    Expression <- Term (AddOp Term)*
 }]
