@@ -9,7 +9,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: list.tcl,v 1.26 2010/10/05 21:47:25 andreas_kupries Exp $
+# RCS: @(#) $Id: list.tcl,v 1.27 2011/09/17 14:35:36 mic42 Exp $
 #
 #----------------------------------------------------------------------
 
@@ -942,7 +942,7 @@ proc ::struct::list::Lequal {a b} {
     # Author of this command is "Richard Suchenwirth"
 
     if {[::llength $a] != [::llength $b]} {return 0}
-    if {[::lindex $a 0] == $a} {return [string equal $a $b]}
+    if {[::lindex $a 0] == $a && [::lindex $b 0] == $b} {return [string equal $a $b]}
     foreach i $a j $b {if {![Lequal $i $j]} {return 0}}
     return 1
 }
@@ -1825,4 +1825,4 @@ namespace eval ::struct {
     namespace import -force list::list
     namespace export list
 }
-package provide struct::list 1.8
+package provide struct::list 1.8.1

@@ -6,7 +6,7 @@
 #
 # Copyright (c) 2003 by Kevin B. Kenny. All rights reserved.
 #
-# RCS: @(#) $Id: list.test,v 1.31 2010/10/05 21:47:25 andreas_kupries Exp $
+# RCS: @(#) $Id: list.test,v 1.32 2011/09/17 14:35:36 mic42 Exp $
 
 # -------------------------------------------------------------------------
 
@@ -715,6 +715,32 @@ test equal-4.3 {equal command} {
 
 test equal-4.4 {equal command} {
     equal {{0 2 3} 1} {{0 2 3} 1}
+} 1
+
+test equal-4.5 {equal command} {
+    equal [list [list a]] {{a}}
+} 1
+
+test equal-4.6 {equal command} {
+    equal {{a}} [list [list a]]
+} 1
+
+test equal-4.7 {equal command} {
+    set a {{a}}
+    set b [list [list a]]
+    expr {[equal $a $b] == [equal $b $a]}
+} 1
+
+test equal-4.8 {equal command} {
+    set a {{a b}}
+    set b [list [list a b]]
+    expr {[equal $a $b] == [equal $b $a]}
+} 1
+
+test equal-4.9 {equal command} {
+    set a {{a} {b}}
+    set b [list [list a] [list b]]
+    expr {[equal $a $b] == [equal $b $a]}
 } 1
 
 #----------------------------------------------------------------------
