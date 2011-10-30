@@ -94,7 +94,7 @@ channel handle [arg chan] as a serialized array.
 Query the server for the status of the mail spool.  The status is
 returned as a list containing two elements, the first is the number of
 email messages on the server and the second is the size (in octets, 8
-byte blocks) of the entire mail spool.
+bit blocks) of the entire mail spool.
 
 [call [cmd ::pop3::last] [arg chan]]
 
