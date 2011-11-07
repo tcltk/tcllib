@@ -2,6 +2,8 @@
 
 	* sak.tcl (xcopy): Fixed bug a preventing the detection of files
 	  in subdirectories; copied from the installer.
+	* sak.tcl (ipackages): Fixed bug (reuse of varname) which placed
+	  packages into the wrong module.
 
 2011-05-31  Andreas Kupries  <andreask@activestate.com>
 
