@@ -1,3 +1,8 @@
+2011-11-07  Andreas Kupries  <andreask@activestate.com>
+
+	* sak.tcl (xcopy): Fixed bug a preventing the detection of files
+	  in subdirectories; copied from the installer.
+
 2011-05-31  Andreas Kupries  <andreask@activestate.com>
 
 	* New module and package: oo::util. Right now only easy
