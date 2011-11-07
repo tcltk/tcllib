@@ -186,9 +186,9 @@ proc ipackages {args} {
 		# We have multiple versions of the same package. We
 		# remember all versions.
 
-		foreach {vlist m} $p($n) break
+		foreach {vlist mx} $p($n) break
 		lappend vlist $v
-		set p($n) [list [lsort -uniq -dict $vlist] $m]
+		set p($n) [list [lsort -uniq -dict $vlist] $mx]
 	    }
 	}
 	close $f
@@ -1192,7 +1192,7 @@ proc modified-modules {} {
 	# Look for 'Released and tagged' within
 	# the first four lines of the file. If
 	# not present assume that the line is
-	# deeper down, indicatating that the module
+	# deeper down, indicating that the module
 	# has been modified since the last release.
 
 	set f [open $cl r]
@@ -1210,7 +1210,6 @@ proc modified-modules {} {
 	}
 	close $f
     }
-
     return $modified
 }
 
