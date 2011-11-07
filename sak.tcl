@@ -481,20 +481,35 @@ proc xcopyfile {src dest} {
 }
 
 proc xcopy {src dest recurse {pattern *}} {
-    foreach file [glob [file join $src $pattern]] {
-        set base [file tail $file]
-	set sub  [file join $dest $base]
-	if {0 == [string compare CVS $base]} {continue}
-        if {[file isdirectory $file]} then {
-	    if {$recurse} {
-		xcopy $file $sub $recurse $pattern
+    if {[string equal $pattern *] || !$recurse} {
+	foreach file [glob [file join $src $pattern]] {
+	    set base [file tail $file]
+	    set sub  [file join $dest $base]
+	    if {0 == [string compare CVS $base]} {continue}
+	    if {[file isdirectory $file]} then {
+		if {$recurse} {
+		    xcopy $file $sub $recurse $pattern
+		}
+	    } else {
+		xcopyfile $file $sub
 	    }
-        } else {
-            xcopyfile $file $sub
-        }
+	}
+    } else {
+	foreach file [glob [file join $src *]] {
+	    set base [file tail $file]
+	    set sub  [file join $dest $base]
+	    if {[string equal CVS $base]} {continue}
+	    if {[file isdirectory $file]} then {
+		if {$recurse} {
+		    xcopy $file $sub $recurse $pattern
+		}
+	    } else {
+		if {![string match $pattern $base]} {continue}
+		xcopyfile $file $sub
+	    }
+	}
     }
 }
-
 
 proc xxcopy {src dest recurse {pattern *}} {
     global package_name
