@@ -1,3 +1,10 @@
+2011-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3.test (pop3-0.8): Modified the test case matching a bit to
+	  handle the fact that under 8.6 a socket channel handle may
+	  contain hex data after the general prefix, instead of just
+	  digits.
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
