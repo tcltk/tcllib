@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: interp.tcl,v 1.4 2011/11/08 02:29:06 andreas_kupries Exp $
+# RCS: @(#) $Id: interp.tcl,v 1.5 2011/11/08 02:40:31 andreas_kupries Exp $
 
 package require Tcl 8.3
 
@@ -84,4 +84,4 @@ proc ::interp::snitDictLink {path methoddict} {
 # ### ### ### ######### ######### #########
 ## Ready to go
 
-package provide interp 0.1.1
+package provide interp 0.1.2
