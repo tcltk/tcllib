@@ -9,55 +9,16 @@
 ## Requisites
 
 package require Tcl 8.5
-package require asn
-package require base64
+
+## Versions of asn lower than 0.8.4 are known to have defects
+package require asn 0.8.4
+
+## Further dependencies
 package require des
 package require math::bignum
 package require md5 2
 package require sha1
 package require sha256
-
-# # ## ### ##### ######## #############
-##
-# Workaround bug# 3039090
-# <https://sourceforge.net/tracker/?func=detail&aid=3039090&group_id=12883&atid=112883>
-
-proc ::asn::asnGetBigInteger {data_var bignum_var} {
-	# require math::bignum only if it is used
-	package require math::bignum
-
-	# Tag is 0x02. We expect that the length of the integer is coded with
-	# maximal efficiency, i.e. without a prefix 0x81 prefix. If a prefix
-	# is used this decoder will fail.
-
-	upvar $data_var data $bignum_var bignum
-
-	asnGetByte   data tag
-
-	if {$tag != 0x02} {
-		return -code error \
-			[format "Expected Integer (0x02), but got %02x" $tag]
-	}
-
-	asnGetLength data len
-	asnGetBytes  data $len integerBytes
-
-	binary scan [string index $integerBytes 0] H* hex_head
-	set head [expr 0x$hex_head]
-	set replacement_head [expr {$head & 0x7f}]
-	set integerBytes [string replace $integerBytes 0 0 [format %c $replacement_head]]
-
-	binary scan $integerBytes H* hex
-
-	set bignum [math::bignum::fromstr $hex 16]
-
-	if {($head >> 7) && 1} {
-		set bigsub [math::bignum::pow [::math::bignum::fromstr 2] [::math::bignum::fromstr [expr {($len * 8) - 1}]]]
-		set bignum [math::bignum::sub $bignum $bigsub]
-	}
-
-	return $bignum
-}
 
 # # ## ### ##### ######## #############
 ## Requisites
@@ -219,6 +180,7 @@ namespace eval ::pki {
 		2.5.29.19                      id-ce-basicConstraints
 		2.5.29.20                      id-ce-cRLNumber
 		2.5.29.32                      id-ce-certificatePolicies
+		2.5.29.33                      id-ce-cRLDistributionPoints
 		2.5.29.35                      id-ce-authorityKeyIdentifier
 	}
 
@@ -411,6 +373,12 @@ proc ::pki::rsa::encrypt {mode input keylist} {
 
 	set exponent $key($exponent_ent)
 	set mod $key(n)
+
+	## RSA requires that the input be no larger than the key
+	set input_len_bits [expr {[string length $input] * 8}]
+	if {$key(l) < $input_len_bits} {
+		return -code error "Message length exceeds key length"
+	}
 
 	binary scan $input H* input_num
 
@@ -638,7 +606,7 @@ proc ::pki::sign {input keylist {algo "sha1"}} {
 		}
 		"raw" {
 			set header ""
-			binary scan $input H* hash
+			set hash $input
 		}
 		default {
 			return -code error "Invalid algorithm selected, must be one of: md5, sha1, sha256, raw"
@@ -651,7 +619,7 @@ proc ::pki::sign {input keylist {algo "sha1"}} {
 
 	set padded [::pki::_pad_pkcs $plaintext $key(l) 1]
 
-	return [::pki::encrypt -binary -nopad -priv $padded $keylist]
+	return [::pki::encrypt -binary -nopad -priv -- $padded $keylist]
 }
 
 # Verify known-plaintext with signature
@@ -659,7 +627,7 @@ proc ::pki::verify {signedmessage checkmessage keylist {algo default}} {
 	package require asn
 
 	if {[catch {
-		set plaintext [::pki::decrypt -binary -unpad -pub $signedmessage $keylist]
+		set plaintext [::pki::decrypt -binary -unpad -pub -- $signedmessage $keylist]
 	}]} {
 		return false
 	}
@@ -774,8 +742,6 @@ proc ::pki::_encode_pem {data begin end} {
 }
 
 proc ::pki::_parse_pem {pem begin end {password ""}} {
-	::pki::_parse_init
-
 	# Unencode a PEM-encoded object
 	set testpem [split $pem \n]
 	set pem_startidx [lsearch -exact $testpem $begin]
@@ -874,8 +840,6 @@ proc ::pki::_parse_pem {pem begin end {password ""}} {
 }
 
 proc ::pki::pkcs::parse_key {key {password ""}} {
-	::pki::_parse_init
-
 	array set parsed_key [::pki::_parse_pem $key "-----BEGIN RSA PRIVATE KEY-----" "-----END RSA PRIVATE KEY-----" $password]
 
 	set key_seq $parsed_key(data)
@@ -902,7 +866,7 @@ proc ::pki::x509::_dn_to_list {dn} {
 		::asn::asnGetSet dn dn_parts
 		::asn::asnGetSequence dn_parts curr_part
 		::asn::asnGetObjectIdentifier curr_part label
-		::asn::asnGetPrintableString curr_part value
+		::asn::asnGetString curr_part value
 
 		set label [::pki::_oid_number_to_name $label]
 		lappend ret $label $value
@@ -964,16 +928,14 @@ proc ::pki::x509::_dn_to_cn {dn} {
 }
 
 proc ::pki::x509::_utctime_to_native {utctime} {
-	return [clock scan $utctime -format {%y%m%d%H%M%SZ} -gmt 1]
+	return [clock scan $utctime -format {%y%m%d%H%M%SZ} -gmt true]
 }
 
 proc ::pki::x509::_native_to_utctime {time} {
-	return [clock format $time -format {%y%m%d%H%M%SZ} -gmt 1]
+	return [clock format $time -format {%y%m%d%H%M%SZ} -gmt true]
 }
 
 proc ::pki::x509::parse_cert {cert} {
-	::pki::_parse_init
-
 	array set parsed_cert [::pki::_parse_pem $cert "-----BEGIN CERTIFICATE-----" "-----END CERTIFICATE-----"]
 	set cert_seq $parsed_cert(data)
 
@@ -1044,7 +1006,12 @@ proc ::pki::x509::parse_cert {cert} {
 					switch -- $ext_oid {
 						id-ce-basicConstraints {
 							::asn::asnGetSequence ext_value_seq ext_value_bin
-							::asn::asnGetBoolean ext_value_bin allowCA
+
+							if {$ext_value_bin != ""} {
+								::asn::asnGetBoolean ext_value_bin allowCA
+							} else {
+								set allowCA "false"
+							}
 
 							if {$ext_value_bin != ""} {
 								::asn::asnGetInteger ext_value_bin caDepth
@@ -1657,8 +1624,6 @@ proc ::pki::rsa::_generate_private {p q e bitlength} {
 
 proc ::pki::rsa::generate {bitlength {exponent 0x10001}} {
 	set e $exponent
-	set retkey(e) $exponent
-	set retkey(l) $bitlength
 
 	# Step 1. Pick 2 numbers that when multiplied together will give a number with the appropriate length
 	set componentbitlen [expr {$bitlength / 2}]
@@ -1696,7 +1661,20 @@ proc ::pki::rsa::generate {bitlength {exponent 0x10001}} {
 	set p [expr {$p & $bitmask}]
 	set q [expr {$q & $bitmask}]
 
-	# Step 2. Convert the numbers into prime numbers
+	# Step 2. Verify that "p" and "q" are useful
+	## Step 2.a. Verify that they are not too close
+	### Where "too close" is defined as 2*n^(1/4)
+	set quadroot_of_n [expr {isqrt(isqrt($p * $q))}]
+	set min_distance [expr {2 * $quadroot_of_n}]
+	set distance [expr {abs($p - $q)}]
+
+	if {$distance < $min_distance} {
+		#### Try again.
+
+		return [::pki::rsa::generate $bitlength $exponent]
+	}
+
+	# Step 3. Convert the numbers into prime numbers
 	if {$p % 2 == 0} {
 		incr p -1
 	}
@@ -1711,24 +1689,37 @@ proc ::pki::rsa::generate {bitlength {exponent 0x10001}} {
 		incr q -2
 	}
 
-	# Step 3. Compute N by multiplying P and Q
+	# Step 4. Compute N by multiplying P and Q
 	set n [expr {$p * $q}]
 	set retkey(n) $n
 
-	# Step 4. Compute D ...
-	set retkey(d) [::pki::rsa::_generate_private $p $q $e $bitlength]
+	# Step 5. Compute D ...
+	## Step 5.a. Generate D
+	set d [::pki::rsa::_generate_private $p $q $e $bitlength]
+	set retkey(d) $d
 
-	# puts "P = [format 0x%llx $p] [::pki::_bits $p]"
-	# puts "Q = [format 0x%llx $q] [::pki::_bits $q]"
-	# puts "N = [format 0x%llx $n] [::pki::_bits $n]"
-	# puts "D = [format 0x%llx $d] [::pki::_bits $d]"
+	## Step 5.b. Verify D is large enough
+	### Verify that D is greater than (1/3)*n^(1/4) 
+	set quadroot_of_n [expr {isqrt(isqrt($n))}]
+	set min_d [expr {$quadroot_of_n / 3}]
+	if {$d < $min_d} {
+		#### Try again.
 
+		return [::pki::rsa::generate $bitlength $exponent]
+	}
+
+	# Step 6. Encode key information
 	set retkey(type) rsa
+	set retkey(e) $e
+	set retkey(l) $bitlength
 
 	return [array get retkey]
 }
 
+## Initialize parsing routines, which may load additional packages (base64)
+::pki::_parse_init
+
 # # ## ### ##### ######## #############
 ## Ready
 
-package provide pki 0.1
+package provide pki 0.2
