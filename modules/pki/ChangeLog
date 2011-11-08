@@ -1,3 +1,11 @@
+2011-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* MD5SUMS: Updated to version 0.2, by Roy Keene.
+	* pkgIndex.tcl:
+	* pki.man:
+	* pki.tcl:
+	* pki.test:
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

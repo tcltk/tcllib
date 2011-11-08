@@ -1,9 +1,9 @@
 4f1b843679fdc1316db17880abb59bda  CA.crt
 938f67435bc706bde16fd13546e383ba  CA.key
-0997fcc06ef94771d2d9fd354e41ba16  pkgIndex.tcl
-9753d571f301dc23dd298a7cc5375524  pki.man
-a8387c9ba77575cdeaae969205d8f6fe  pki.tcl
-fb7a6fda37f5b91aad320f445f284971  pki.test
+fdd6e52cb00a6bae4bf33e7e24bfe6de  pkgIndex.tcl
+29590d4308759fef77cdd6daa9ace484  pki.man
+57dff2c55025e71d0ea245ca69eeec1d  pki.tcl
+b6a0f671c1626e4a09cf00667a3d5f44  pki.test
 ae95f5bd52e5d5626f45ce7881052127  test-v1.crt
 3d51a1162f0f194ee33da9a9cc360468  test-v3.crt
 2c6ed2add32955a8c1c3aa4927ca1aa9  test.csr
