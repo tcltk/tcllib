@@ -1,3 +1,9 @@
+2011-11-07  Andreas Kupries  <aku@hephaistos>
+
+	* interp.tcl (::interp::createEmpty): Fixed problem with 8.6,
+	  where the removal of the ::tcl namespace also kills the
+	  'namespace' command, as it is ensemblified.
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
