@@ -1,3 +1,10 @@
+2011-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* decimal.test: Fixed the testsuite to be at least properly
+	  executable, i.e. bad file names and broken Tcl syntax. The
+	  single test still but that sahall be a problem for the actual
+	  maintainer.
+
 2011-08-09  Andreas Kupries  <andreask@activestate.com>
 
 	* decimal.man: [Bug 3383039]: Fixed syntax errors in the
@@ -12,7 +19,7 @@
 
 	*
 	* Released and tagged Tcllib 1.13 ========================
-	* 
+	*
 
 2011-01-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
