@@ -28,10 +28,12 @@ barf
 roo
 gork
 .RE
+.IP
 bb
 .IP [3]
 a
 .RE
+.IP
 22
 .IP \(bu
 3
