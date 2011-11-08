@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: decimal.test,v 1.1 2011/05/11 07:53:21 arjenmarkus Exp $
+# $Id: decimal.test,v 1.2 2011/11/08 02:26:14 andreas_kupries Exp $
 #
 # Copyright (c) 2011 by Mark Alston
 # All rights reserved.
@@ -17,25 +17,30 @@ source [file join \
         [file dirname [file dirname [file join [pwd] [info script]]]] \
         devtools testutilities.tcl]
 
-testsNeedTcl     8.4
+testsNeedTcl     8.5
 testsNeedTcltest 2.1
 
 support {
     useLocal math.tcl math
 }
 testing {
-    useLocal optimize.tcl math::decimal
+    useLocal decimal.tcl math::decimal
 }
 
 # -------------------------------------------------------------------------
 
 namespace eval decimaltest {
+    namespace import ::math::decimal::*
 
-namespace import ::math::decimal::*
+    #
+    # Simple tests
+    #
+    test decimal-plus-1.1 "Sum of two numbers" {
+	set result [+ 1.0 1.00]
+    } 2.00
+}
 
-#
-# Simple tests
-#
-test decimal-plus-1.1 "Sum of two numbers" {
-    set result [+ 1.0 1.00]
-} 2.00
+# -------------------------------------------------------------------------
+
+# End of test cases
+testsuiteCleanup
