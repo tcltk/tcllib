@@ -8,7 +8,7 @@
 # Copyright (c) 2002-2006 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3.test,v 1.28 2011/01/25 02:23:30 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.test,v 1.29 2011/11/08 04:02:28 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -288,12 +288,12 @@ test pop3-0.8 {open pop3 channel} {
     set psock [pop3::open localhost ak smash [dialog::listener]]
     close $psock
     dialog::waitdone
-    regsub -all {[0-9]} $psock {} msg
+    set msg [string match sock* $psock]
     # status data is retained if the connection is not closed through
     # the prescribed api command.
     lappend msg [peek $psock]
     set msg
-} {sock {limit 11 msex 0 retr_mode retr socketcmd ::socket stls 0 tls-callback {}}}
+} {1 {limit 11 msex 0 retr_mode retr socketcmd ::socket stls 0 tls-callback {}}}
 
 test pop3-0.9 {outside close} {
     dialog::dialog_set loginStatusOk
