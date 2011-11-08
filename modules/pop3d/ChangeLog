@@ -1,3 +1,7 @@
+2011-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3d.test: Updated the tests to handle Tcl 8.6+ IPv6 changes.
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

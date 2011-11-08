@@ -8,7 +8,7 @@
 # Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3d.test,v 1.22 2009/09/29 07:07:15 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3d.test,v 1.23 2011/11/08 04:45:23 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -341,7 +341,7 @@ proc delfsrv {} {
 
 # ----------------------------------------------------------------------
 
-test pop3-srv-4.0 {connection introspection} {
+test pop3-srv-4.0.0 {connection introspection} tcl8.5minus {
     newsrv
     dialog::dialog_set {
 	dialog::crlf.      ; # Network EOL setting
@@ -354,6 +354,18 @@ test pop3-srv-4.0 {connection introspection} {
     string match {deleted {} id <==@%%> logon {} msg 0 name {} remotehost 127.*.*.* remoteport {} server 1 size 0 state auth storage {}} $res
 } 1
 
+test pop3-srv-4.0.1 {connection introspection} tcl8.6plus {
+    newsrv
+    dialog::dialog_set {
+	dialog::crlf.      ; # Network EOL setting
+	dialog::receive.   ; # Greeting
+	dialog::halt.keep. ; # Stop execution, keep socket open
+    }
+
+    set res [talk resonly]
+    delsrv
+    string match {deleted {} id <==@%%> logon {} msg 0 name {} remotehost ::1 remoteport {} server 1 size 0 state auth storage {}} $res
+} 1
 
 test pop3-srv-5.0 {initial contact, greeting} {
     newsrv
@@ -389,15 +401,30 @@ test pop3-srv-6.0 {unknown command} {
 # ----------------------------------------------------------------------
 # Database of possible responses and server states.
 
-array set cstate {
-    0 {deleted {} id <==@%%> logon user msg 0 name foo remotehost 127.*.*.* remoteport {} server 1 size 0 state auth storage {}}
-    1 {deleted {} id <==@%%> logon {} msg 0 name {} remotehost 127.*.*.* remoteport {} server 1 size 0 state auth storage {}}
-    2 {}
-    3 {deleted {} id <==@%%> logon {} msg 0 name foo remotehost 127.*.*.* remoteport {} server 1 size 0 state auth storage {}}
-    4 {deleted {} id <==@%%> logon {} msg 3 name ak remotehost 127.*.*.* remoteport {} server 1 size 3 state trans storage usr0}
-    5 {deleted {} id <==@%%> logon {} msg 0 name ak remotehost 127.*.*.* remoteport {} server 1 size 0 state auth storage {}}
-    6 {deleted 1 id <==@%%> logon {} msg 3 name ak remotehost 127.*.*.* remoteport {} server 1 size 3 state trans storage usr0}
+if {[package vsatisfies [package provide Tcl] 8.6]} {
+    # 8.6+. IPv6 localhost
+    array set cstate {
+	0 {deleted {} id <==@%%> logon user msg 0 name foo remotehost ::1 remoteport {} server 1 size 0 state auth storage {}}
+	1 {deleted {} id <==@%%> logon {} msg 0 name {} remotehost ::1 remoteport {} server 1 size 0 state auth storage {}}
+	2 {}
+	3 {deleted {} id <==@%%> logon {} msg 0 name foo remotehost ::1 remoteport {} server 1 size 0 state auth storage {}}
+	4 {deleted {} id <==@%%> logon {} msg 3 name ak remotehost ::1 remoteport {} server 1 size 3 state trans storage usr0}
+	5 {deleted {} id <==@%%> logon {} msg 0 name ak remotehost ::1 remoteport {} server 1 size 0 state auth storage {}}
+	6 {deleted 1 id <==@%%> logon {} msg 3 name ak remotehost ::1 remoteport {} server 1 size 3 state trans storage usr0}
+    }
+} else {
+    # 8.5-. IPv4 localhost
+    array set cstate {
+	0 {deleted {} id <==@%%> logon user msg 0 name foo remotehost 127.*.*.* remoteport {} server 1 size 0 state auth storage {}}
+	1 {deleted {} id <==@%%> logon {} msg 0 name {} remotehost 127.*.*.* remoteport {} server 1 size 0 state auth storage {}}
+	2 {}
+	3 {deleted {} id <==@%%> logon {} msg 0 name foo remotehost 127.*.*.* remoteport {} server 1 size 0 state auth storage {}}
+	4 {deleted {} id <==@%%> logon {} msg 3 name ak remotehost 127.*.*.* remoteport {} server 1 size 3 state trans storage usr0}
+	5 {deleted {} id <==@%%> logon {} msg 0 name ak remotehost 127.*.*.* remoteport {} server 1 size 0 state auth storage {}}
+	6 {deleted 1 id <==@%%> logon {} msg 3 name ak remotehost 127.*.*.* remoteport {} server 1 size 3 state trans storage usr0}
+    }
 }
+
 array set log {
     0  {+OK please send PASS command}
     1  {+OK %% tcllib/pop3d-* shutting down}
