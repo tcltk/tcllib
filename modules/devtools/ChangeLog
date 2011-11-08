@@ -1,3 +1,8 @@
+2011-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* testutilities.tcl: Added new constraint to identify core version
+	  upto Tcl 8.5, but not higher.
+
 2011-01-20  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl (useTcllibC): Account for the possibility of
