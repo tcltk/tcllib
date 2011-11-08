@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin pki n 0.1]
+[manpage_begin pki n 0.2]
 [copyright {2010, Roy Keene}]
 [moddesc {RSA public key encryption}]
 [titledesc {Implementation of the RSA public key cipher}]
 [category  {Hashes, checksums, and encryption}]
 [require Tcl 8.5]
-[require pki [opt 0.1]]
+[require pki [opt 0.2]]
 [description]
 [para]
 
@@ -223,7 +223,7 @@ pairs to encoding as the requested distinguished name in the CSR.
 
 The [arg encodePem] option specifies whether or not the result should
 be PEM encoded or DER encoded.  A "true" value results in the result
-being PEM encoded, while any other value results in the the result
+being PEM encoded, while any other value 9results in the the result
 being DER encoded.  DER encoding is the default.
 
 The [arg algo] argument specifies the hashing algorithm we should use

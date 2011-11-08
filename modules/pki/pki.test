@@ -3,7 +3,7 @@
 # the test-values are taken from:
 #    ??
 #
-# $Id: pki.test,v 1.1 2010/10/08 19:25:33 andreas_kupries Exp $
+# $Id: pki.test,v 1.2 2011/11/08 03:27:06 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -318,8 +318,8 @@ test rsa-crypt-roundtrip-1.0 {encrypt, decrypt} -setup {
     set keylist   [array get key]
     unset password privkey pubkey key
 } -body {
-    set ciphertext [::pki::encrypt -binary -pub  $data       $keylist]
-    set plaintext  [::pki::decrypt -binary -priv $ciphertext $keylist]
+    set ciphertext [::pki::encrypt -binary -pub  -- $data       $keylist]
+    set plaintext  [::pki::decrypt -binary -priv -- $ciphertext $keylist]
 } -cleanup {
     unset -nocomplain data ciphertext plaintext
 } -result {This is a test}
@@ -341,8 +341,8 @@ test rsa-sign-verify-1.0 {sign, verify} -setup {
     set keylist   [array get key]
     unset password privkey pubkey key
 } -body {
-    set ciphertext [::pki::encrypt -binary -priv $data       $keylist]
-    set plaintext  [::pki::decrypt -binary -pub  $ciphertext $keylist]
+    set ciphertext [::pki::encrypt -binary -priv -- $data       $keylist]
+    set plaintext  [::pki::decrypt -binary -pub  -- $ciphertext $keylist]
 } -cleanup {
     unset -nocomplain data ciphertext plaintext
 } -result {This is a test}
@@ -357,8 +357,8 @@ foreach keylen {256 512 1024 2048} {
 
     test rsa-crypt-roundtrip-2.0.$keylen "encrypt, decrypt pub/priv for keylen $keylen" -body {
         set plain    "Pub/priv test"
-        set cipher   [::pki::encrypt -binary -pub  $plain  $key]
-        set uncipher [::pki::decrypt -binary -priv $cipher $key]
+        set cipher   [::pki::encrypt -binary -pub --  $plain  $key]
+        set uncipher [::pki::decrypt -binary -priv -- $cipher $key]
 
         string equal $plain $uncipher
     } -cleanup {
@@ -367,8 +367,8 @@ foreach keylen {256 512 1024 2048} {
 
     test rsa-crypt-roundtrip-2.1.$keylen "encrypt, decrypt priv/pub for keylen $keylen" -body {
         set plain    "Priv/pub test"
-        set cipher   [::pki::encrypt -binary -priv $plain  $key]
-        set uncipher [::pki::decrypt -binary -pub  $cipher $key]
+        set cipher   [::pki::encrypt -binary -priv -- $plain  $key]
+        set uncipher [::pki::decrypt -binary -pub  -- $cipher $key]
 
         string equal $plain $uncipher
     } -cleanup {
