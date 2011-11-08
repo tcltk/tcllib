@@ -1,3 +1,9 @@
+2011-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tests/nroff/04: Updated the test outputs to match the changes
+	* tests/nroff/07: introduced by the last two commits, below.
+	* tests/nroff/08:
+
 2011-02-23  Andreas Kupries  <andreask@activestate.com>
 
 	* mpformats/fmt.nroff: Moved the handling of the list nesting
