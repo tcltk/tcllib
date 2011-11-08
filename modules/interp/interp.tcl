@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: interp.tcl,v 1.3 2007/08/20 21:06:33 andreas_kupries Exp $
+# RCS: @(#) $Id: interp.tcl,v 1.4 2011/11/08 02:29:06 andreas_kupries Exp $
 
 package require Tcl 8.3
 
@@ -50,7 +50,12 @@ proc ::interp::createEmpty {args} {
     }
 
     interp eval $i [list ::namespace delete ::tcl]
-    interp eval $i [list ::rename namespace {}]
+    catch {
+	# In 8.6 the removal of the ::tcl namespace killed the
+	# ensemblified namespace command already, so a deletion will
+	# fail. Easier to catch than being conditional.
+	interp eval $i [list ::rename namespace {}]
+    }
     interp eval $i [list ::rename rename    {}]
 
     # Done. Result is ready.
