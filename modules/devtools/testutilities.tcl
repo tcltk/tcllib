@@ -197,6 +197,9 @@ proc InitializeTclTest {} {
     ::tcltest::testConstraint tcl8.4minus \
 	[expr {![package vsatisfies [package provide Tcl] 8.5]}]
 
+    ::tcltest::testConstraint tcl8.5minus \
+	[expr {![package vsatisfies [package provide Tcl] 8.6]}]
+
     # ### ### ### ######### ######### #########
     ## Cross-version code for the generation of the error messages created
     ## by Tcl procedures when called with the wrong number of arguments,
