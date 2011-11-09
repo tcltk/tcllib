@@ -7,7 +7,7 @@
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # All rights reserved.
 #
-# RCS: @(#) $Id: base64.test,v 1.16 2010/07/06 19:15:40 andreas_kupries Exp $
+# RCS: @(#) $Id: base64.test,v 1.17 2011/11/09 04:31:24 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -26,8 +26,10 @@ testing {
 
 if {[catch {package present Trf}]} {
     puts "> pure Tcl"
+    tcltest::testConstraint trf 0
 } else {
     puts "> Trf based"
+    tcltest::testConstraint trf 1
 }
 
 # -------------------------------------------------------------------------
@@ -149,7 +151,8 @@ test base64-3.2 {base64 identity test} {
     string compare $x $y
 } 0
 
-test base64-4.0 {base64 -- sf bug 2976290} {
+# For trf a known bug.
+test base64-4.0 {base64 -- sf bug 2976290} {!trf} {
     list [catch {
 	::base64::decode s=GQMRAk5WXhsABh0NEx4RXBocBVgBHQMXHRgEFltMQENQXEFOExJVQ0RAQERUQ0dAEhYEExVIRRVVFENWKxMKABsPGBI6LRoYLhsEFhsXGFkXEwZXGQMIHg==
     } msg] $msg
