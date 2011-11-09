@@ -5,7 +5,7 @@
 # procedures.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# $Id: decimal.test,v 1.2 2011/11/08 02:26:14 andreas_kupries Exp $
+# $Id: decimal.test,v 1.3 2011/11/09 18:33:22 andreas_kupries Exp $
 #
 # Copyright (c) 2011 by Mark Alston
 # All rights reserved.
@@ -29,16 +29,15 @@ testing {
 
 # -------------------------------------------------------------------------
 
-namespace eval decimaltest {
-    namespace import ::math::decimal::*
-
-    #
-    # Simple tests
-    #
-    test decimal-plus-1.1 "Sum of two numbers" {
-	set result [+ 1.0 1.00]
-    } 2.00
-}
+#
+# Simple tests
+#
+test decimal-plus-1.1 "Sum of two numbers" {
+    math::decimal::tostr \
+	[math::decimal::+ \
+	     [math::decimal::fromstr 1.0] \
+	     [math::decimal::fromstr 1.00]]
+} 2.00
 
 # -------------------------------------------------------------------------
 

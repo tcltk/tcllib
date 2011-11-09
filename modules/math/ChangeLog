@@ -1,3 +1,9 @@
+2011-11-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* decimal.test: More fixes, now the test succeeds as
+	  well. 'Simply' required the proper conversions for arguments and
+	  results as most commands do not take regular numbers.
+
 2011-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* decimal.test: Fixed the testsuite to be at least properly
