@@ -1,5 +1,8 @@
 2011-11-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* examples/tepam/tepam_demo.tcl [Bug 3425269]: Applied bug fixes
+	  for the demo script supplied by Stuart Cassoff.
+
 	* adbox_all.test: [Bug 3422990]: Fixed these test files to
 	* adbox_widgets.test: properly register their need for Tk
 	* proc_interactive.test: and not execute without it.
