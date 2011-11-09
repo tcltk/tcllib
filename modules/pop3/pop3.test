@@ -8,7 +8,7 @@
 # Copyright (c) 2002-2006 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3.test,v 1.29 2011/11/08 04:02:28 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.test,v 1.30 2011/11/09 05:27:10 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -598,12 +598,12 @@ test pop3-7.0 {open pop3 channel secured via package tls} hastls {
     set psock [pop3::open -socketcmd tls::socket localhost ak smash [dialog::listener]]
     close $psock
     dialog::waitdone
-    regsub -all {[0-9]} $psock {} msg
+    set msg [string match sock* $psock]
     # status data is retained if the connection is not closed through
     # the prescribed api command.
     lappend msg [peek $psock]
     set msg
-} {sock {limit 11 msex 0 retr_mode retr socketcmd tls::socket}}
+} {1 {limit 11 msex 0 retr_mode retr socketcmd tls::socket stls 0 tls-callback {}}}
 
 # ----------------------------------------------------------------------
 # ----------------------------------------------------------------------
