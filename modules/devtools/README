@@ -14,9 +14,8 @@ listed in the main makefile, nor do they have a package index file. So
 even if the module and its code gets installed it won't be useable
 without jumping through some hoops.
 
-The code is used in some of the tcllib testsuites. Well, one actually,
-currently, "pop3".
-
+The code is used in some of the tcllib testsuites.
+Currently: "comm", and "pop3".
 
 These certificates have been created with SimpleCA,
 see http://wiki.tcl.tk/11419
