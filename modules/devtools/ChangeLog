@@ -1,5 +1,8 @@
 2011-11-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
+	* testutilities.tcl: Fixed 'testsNeed' command to require the
+	  needed package and abort properly when it is not found.
+
 	* transmitter.crt: [Bug 3433470] Regenerated the certificates.
 	* transmitter.key: Expiry is Nov 2012. SimpleCA doesn't seem
 	* receiver.crt: to allow me to specify a longer period. :(

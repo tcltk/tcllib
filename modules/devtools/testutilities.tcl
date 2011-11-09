@@ -77,7 +77,16 @@ proc testsNeed {name version} {
     # testsuite calling the command. The command has to be called
     # immediately after loading the utilities.
 
-    if {[package vsatisfies [package provide $name] $version]} return
+    if {[catch {
+	package $name $version
+    }]} {
+	puts "    Aborting the tests found in \"[file tail [info script]]\""
+	puts "    Requiring at least $name $version, package not found."
+
+	return -code return
+    }
+
+    if {[package vsatisfies [package present $name] $version]} return
 
     puts "    Aborting the tests found in \"[file tail [info script]]\""
     puts "    Requiring at least $name $version, have [package present $name]."
