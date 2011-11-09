@@ -45,7 +45,7 @@ proc testsNeedTcltest {version} {
     # testsuite. If the minimum is not met by the loaded package we
     # forcibly bail out of the testsuite calling the command. The
     # command has to be called after loading the utilities. The only
-    # command allowed to come before it is 'textNeedTcl' above.
+    # command allowed to come before it is 'testNeedTcl' above.
 
     # Note that this command will try to load a suitable version of
     # Tcltest if the package has not been loaded yet.
@@ -78,7 +78,7 @@ proc testsNeed {name version} {
     # immediately after loading the utilities.
 
     if {[catch {
-	package $name $version
+	package require $name $version
     }]} {
 	puts "    Aborting the tests found in \"[file tail [info script]]\""
 	puts "    Requiring at least $name $version, package not found."

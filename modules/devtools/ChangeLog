@@ -1,3 +1,7 @@
+2011-11-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* testutilities.tcl: Fixed typos, one still breaking 'testsNeed'.
+
 2011-11-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl: Fixed 'testsNeed' command to require the
