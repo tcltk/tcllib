@@ -1,6 +1,6 @@
-#!/bin/sh
-# Evaluating the wish origin \
-exec `which wish` "$0" "$@"
+#! /bin/sh
+# the next line restarts with tclsh \
+exec tclsh "$0" ${1+"$@"}
 ##########################################################################
 # TEPAM - Tcl's Enhanced Procedure and Argument Manager
 ##########################################################################
@@ -11,7 +11,7 @@ exec `which wish` "$0" "$@"
 #
 # Copyright (C) 2009, 2010 Andreas Drollinger
 # 
-# RCS: @(#) $Id: tepam_demo.tcl,v 1.2 2011/01/21 16:00:49 droll Exp $
+# RCS: @(#) $Id: tepam_demo.tcl,v 1.3 2011/11/09 05:57:47 andreas_kupries Exp $
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -161,6 +161,7 @@ proc OpenConsole {} {
          set OPT(slaveexit) "close"
       }
       # Search inside the *n.x envirement for TkCon ...
+      set TkConPath ""
       catch {set TkConPath [exec csh -f -c {which tkcon.tcl}]}
       # Search inide the Windows envirement for TkCon ...
       catch {
@@ -183,7 +184,7 @@ proc OpenConsole {} {
          }
          tkcon show
       } else {
-         if {$tcl_platform(platform)=={windows}} {
+         if {$::tcl_platform(platform)=={windows}} {
             console show
          } else {
             error "Cannot source tkcon.tcl."
@@ -191,7 +192,7 @@ proc OpenConsole {} {
       }
    } else {
       if {[catch {wm deiconify $::tkcon::PRIV(root)}]} {
-         if {$tcl_platform(platform)=={windows}} {
+         if {$::tcl_platform(platform)=={windows}} {
             console show
          } else {
             error "Cannot deiconify tkcon!"
@@ -246,9 +247,14 @@ wm title . "TEPAM Demo"
 
 ##########################################################################
 # $RCSfile: tepam_demo.tcl,v $ - ($Name:  $)
-# $Id: tepam_demo.tcl,v 1.2 2011/01/21 16:00:49 droll Exp $
+# $Id: tepam_demo.tcl,v 1.3 2011/11/09 05:57:47 andreas_kupries Exp $
 # Modifications:
 # $Log: tepam_demo.tcl,v $
+# Revision 1.3  2011/11/09 05:57:47  andreas_kupries
+#
+# 	* examples/tepam/tepam_demo.tcl [Bug 3425269]: Applied bug fixes
+# 	  for the demo script supplied by Stuart Cassoff.
+#
 # Revision 1.2  2011/01/21 16:00:49  droll
 # * TEPAM version 0.2.0
 #
