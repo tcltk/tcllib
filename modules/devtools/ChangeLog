@@ -1,3 +1,13 @@
+2011-11-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* transmitter.crt: [Bug 3433470] Regenerated the certificates.
+	* transmitter.key: Expiry is Nov 2012. SimpleCA doesn't seem
+	* receiver.crt: to allow me to specify a longer period. :(
+	* receiver.key: Updated README.
+	* ca.crt:
+	* ca.key:
+	* README:
+
 2011-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl: Added new constraint to identify core version
