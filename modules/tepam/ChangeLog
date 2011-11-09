@@ -1,0 +1,5 @@
+2011-11-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* adbox_all.test: [Bug 3422990]: Fixed these test files to
+	* adbox_widgets.test: properly register their need for Tk
+	* proc_interactive.test: and not execute without it.
