@@ -1,3 +1,4 @@
+# -*- tcl -*-
 ##########################################################################
 # TEPAM - Tcl's Enhanced Procedure and Argument Manager
 ##########################################################################
@@ -8,7 +9,7 @@
 #
 # Copyright (C) 2009, 2010 Andreas Drollinger
 # 
-# RCS: @(#) $Id: adbox_widgets.test,v 1.1 2010/02/11 21:50:55 droll Exp $
+# RCS: @(#) $Id: adbox_widgets.test,v 1.2 2011/11/09 05:43:30 andreas_kupries Exp $
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -20,13 +21,13 @@ source [file join \
 
 testsNeedTcl     8.3
 testsNeedTcltest 1.0
+testsNeed     Tk 8.3
 
 catch {namespace delete ::tepam}
 testing {
    useLocal tepam.tcl tepam
 }
 
-package require Tk
 tepam::GuiEnvironmentInit
 
 ######## Entry ########
@@ -407,9 +408,15 @@ return
 
 ##########################################################################
 # $RCSfile: adbox_widgets.test,v $ - ($Name:  $)
-# $Id: adbox_widgets.test,v 1.1 2010/02/11 21:50:55 droll Exp $
+# $Id: adbox_widgets.test,v 1.2 2011/11/09 05:43:30 andreas_kupries Exp $
 # Modifications:
 # $Log: adbox_widgets.test,v $
+# Revision 1.2  2011/11/09 05:43:30  andreas_kupries
+#
+# 	* adbox_all.test: [Bug 3422990]: Fixed these test files to
+# 	* adbox_widgets.test: properly register their need for Tk
+# 	* proc_interactive.test: and not execute without it.
+#
 # Revision 1.1  2010/02/11 21:50:55  droll
 # TEPAM module checkin
 #
