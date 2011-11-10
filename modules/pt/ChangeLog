@@ -9,6 +9,18 @@
 	* pt_rdengine.man:
 	* pkgIndex.tcl
 
+	* tests/data/ok/peg_param-critcl/0_basic_arithmetic: Updated the
+	* tests/data/ok/peg_param-critcl/10_notahead: test data to match
+	* tests/data/ok/peg_param-critcl/1_functions: the code change
+	* tests/data/ok/peg_param-critcl/2_fun_arithmetic: (in param.c)
+	* tests/data/ok/peg_param-critcl/3_peg_itself: above.
+	* tests/data/ok/peg_param-critcl/4_choice:
+	* tests/data/ok/peg_param-critcl/5_sequence:
+	* tests/data/ok/peg_param-critcl/6_optional:
+	* tests/data/ok/peg_param-critcl/7_kleene:
+	* tests/data/ok/peg_param-critcl/8_pkleene:
+	* tests/data/ok/peg_param-critcl/9_ahead:
+
 2011-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tests/data/ok/peg_tclparam-tcloo/0_basic_arithmetic: Updated the
