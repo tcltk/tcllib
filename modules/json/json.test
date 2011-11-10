@@ -6,7 +6,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# RCS: @(#) $Id: json.test,v 1.7 2009/05/26 11:45:59 kanryu6 Exp $
+# RCS: @(#) $Id: json.test,v 1.8 2011/11/10 21:05:58 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -15,7 +15,7 @@ source [file join \
 	devtools testutilities.tcl]
 
 testsNeedTcl     [expr {[catch {package require dict}] ? "8.5" : "8.4"}]
-testsNeedTcltest 1.0
+testsNeedTcltest 2.0
 
 testing {
     useLocal json.tcl json
@@ -186,15 +186,27 @@ set TCL(emptyList4) {{}}
 
 set i 0
 foreach name [array names JSON] {
-    test json-1.[incr i] "test JSON $name" {
+    test json-1.[incr i] "test JSON $name" -body {
         set res [json::json2dict $JSON($name)]
         if {[info exists DICTSORT($name)]} {
             return [string equal [dictsort3 $DICTSORT($name) $res] [dictsort3 $DICTSORT($name) $TCL($name)]]
         } else {
             return [string equal $res $TCL($name)]
         }
-    } 1
+    } -result 1
 }
+
+# -------------------------------------------------------------------------
+# More Tests
+# -------------------------------------------------------------------------
+
+test json-2.0 {list2json} -body {
+    json::list2json {{"a"} {"b"} {"c"}}
+} -result {["a","b","c"]}
+
+test json-2.1 {string2json} -body {
+    json::string2json a
+} -result {"a"}
 
 # -------------------------------------------------------------------------
 catch {unset JSON}
