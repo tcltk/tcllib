@@ -68,6 +68,16 @@ proc _tci {module libdir} {
     return
 }
 
+proc _trt {module libdir} {
+    global distribution
+
+    _tcr $module $libdir
+    xcopy \
+	    [file join $distribution modules $module] \
+	    [file join $libdir $module] \
+	    0 *.template
+    return
+}
 
 proc _manfile {f format ext docdir} {
     global distribution argv argc argv0 config

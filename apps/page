@@ -24,13 +24,14 @@ exec tclsh "$0" ${1+"$@"}
 
 package provide page 1.0
 
+lappend auto_path [file join [lindex $tcl_pkgPath end] page]
 lappend auto_path [file join [file dirname [file dirname [file normalize [info script]]]] modules]
 
 #lappend auto_path [file join [file dirname [info script]] .. modules]
 #source [file join [file dirname [info script]] .. modules struct tree.tcl]
 
 # /=
-#  $Id: page,v 1.2 2007/03/28 17:49:44 andreas_kupries Exp $
+#  $Id: page,v 1.3 2011/11/10 21:16:02 andreas_kupries Exp $
 # \=
 #
 # PAGE - PArser GEnerator | GTT - General Text Transformation
@@ -402,7 +403,7 @@ proc ::page::Usage {} {
 }
 
 proc ::page::Version {} {
-    puts stderr {$Id: page,v 1.2 2007/03/28 17:49:44 andreas_kupries Exp $}
+    puts stderr {$Id: page,v 1.3 2011/11/10 21:16:02 andreas_kupries Exp $}
     exit 1
 }
 

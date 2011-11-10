@@ -1,3 +1,11 @@
+2011-11-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* support/installation/modules.tcl: [Bug 3425271], reported
+	* support/installation/actions.tcl: by Stuart Cassoff. Extended
+	* apps/page: the installer to install the .template files as
+	  well. Extended auto_path in the application to find the standard
+	  plugins in the installation.
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
