@@ -1,3 +1,10 @@
+2011-11-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* json.tcl: [Bug 3426178]: Fixed bug in "list2json",
+	* json.test: reported by <a11426@users.sourceforge.net>.
+	* json.man: Updated testsuite. Bumped version to 1.1.2.
+	* pkgIndex.tcl:
+
 2011-08-24  Andreas Kupries  <andreask@activestate.com>
 
 	* json_write.man:
