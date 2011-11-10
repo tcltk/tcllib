@@ -184,4 +184,4 @@ namespace eval ::pt {
     namespace export rde
 }
 
-package provide pt::rde 1.0.1
+package provide pt::rde 1.0.2
