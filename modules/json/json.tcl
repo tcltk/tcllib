@@ -6,14 +6,14 @@
 #   Total rework of the code published with version number 1.0 by
 #   Thomas Maeder, Glue Software Engineering AG
 #
-#   $Id: json.tcl,v 1.6 2011/01/20 15:11:55 andreas_kupries Exp $
+#   $Id: json.tcl,v 1.7 2011/11/10 21:05:58 andreas_kupries Exp $
 #
 
 if {![package vsatisfies [package provide Tcl] 8.5]} {
     package require dict
 }
 
-package provide json 1.1.1
+package provide json 1.1.2
 
 namespace eval json {
     # Regular expression for tokenizing a JSON text (cf. http://json.org/)
@@ -312,7 +312,7 @@ proc json::dict2json {dictVal} {
 }
 
 proc json::list2json {listVal} {
-    return "\[$[join $listVal ,]\]"
+    return "\[[join $listVal ,]\]"
 }
 
 proc json::string2json {str} {
