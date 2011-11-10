@@ -1,3 +1,14 @@
+2011-11-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* rde_critcl/util.c: Fix build warning, get a strlen declaration.
+	* rde_critcl/param.c: Fix bug in TRACE output.
+	* rde_critcl/p.c: Tweaked TRACE output for clarity.
+	* rde_critcl/ot.c: Fix the actual issue, a missing string rep for
+	  a Tcl_Obj literal getting interned.
+	* pt_rdengine.tcl: Bumped package version to 1.0.2
+	* pt_rdengine.man:
+	* pkgIndex.tcl
+
 2011-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tests/data/ok/peg_tclparam-tcloo/0_basic_arithmetic: Updated the

@@ -3,6 +3,7 @@
  * == pt::rde (critcl) - Data Structures - PARAM architectural state.
  */
 
+#include <string.h>
 #include <util.h>  /* Allocation utilities */
 
 /*

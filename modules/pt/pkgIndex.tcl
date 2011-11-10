@@ -46,7 +46,7 @@ package ifneeded pt::peg::from::json      1 [list source [file join $dir pt_peg_
 package ifneeded pt::peg::from::peg       1 [list source [file join $dir pt_peg_from_peg.tcl]]
 
 # PARAM runtime.
-package ifneeded pt::rde      1.0.1 [list source [file join $dir pt_rdengine.tcl]]
+package ifneeded pt::rde      1.0.2 [list source [file join $dir pt_rdengine.tcl]]
 
 # PEG grammar specification, as CONTAINER
 package ifneeded pt::peg::container::peg 1 [list source [file join $dir pt_peg_container_peg.tcl]]
