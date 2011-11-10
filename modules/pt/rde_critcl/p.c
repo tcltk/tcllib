@@ -122,7 +122,7 @@ param_intern (RDE_STATE p, char* literal)
     hPtr = Tcl_FindHashEntry (&p->str, literal);
     if (hPtr) {
 	res = (int) Tcl_GetHashValue (hPtr);
-	RETURN("%d",res);
+	RETURN("CACHED %d",res);
     }
 
     hPtr = Tcl_CreateHashEntry(&p->str, literal, &isnew);
@@ -152,7 +152,7 @@ param_intern (RDE_STATE p, char* literal)
     TRACE (("UPDATE ENGINE"));
     rde_param_update_strings (p->p, p->numstr, p->string);
 
-    RETURN("%d",res);
+    RETURN("NEW %d",res);
 }
 /* .................................................. */
 

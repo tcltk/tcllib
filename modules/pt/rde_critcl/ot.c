@@ -52,9 +52,13 @@ rde_ot_intern (Tcl_Obj* obj, RDE_STATE p, char* pfx, char* sfx)
     TRACE (("INTERNALIZE"));
 
     /*
-     * Drop any previous internal rep.
+     * Drop any previous internal rep. But generate the string rep first, if
+     * it is missing.
      */
 
+    if (!obj->bytes) {
+	Tcl_GetString (obj);
+    }
     if (obj->typePtr != NULL && obj->typePtr->freeIntRepProc != NULL) {
 	obj->typePtr->freeIntRepProc(obj);
     }

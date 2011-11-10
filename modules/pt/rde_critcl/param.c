@@ -515,7 +515,7 @@ rde_param_i_ast_value_push (RDE_PARAM p)
     TRACE (("RDE_PARAM %p",p));
 
     ASSERT(p->SV,"Unable to push undefined semantic value");
-    TRACE (("rde_param_i_ast_value_push %p => (%p)/%d", p, p->SV, ));
+    TRACE (("rde_param_i_ast_value_push %p => (%p)", p, p->SV));
     TRACE (("SV = (%p rc%d '%s')", p->SV, p->SV->refCount, Tcl_GetString (p->SV)));
 
     rde_stack_push (p->ast, p->SV);
