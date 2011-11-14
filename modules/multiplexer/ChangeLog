@@ -1,3 +1,9 @@
+2011-11-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* multiplexer.test: Re-merged the split test, and modified to
+	  accept both possible results. 8.6 can return an ipv4 address
+	  as well, depending on the OS configuration.
+
 2011-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* multiplexer.test: Split a test with core version dependent

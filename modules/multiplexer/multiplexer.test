@@ -7,7 +7,7 @@
 #
 # Copyright (c) 2003 by David N. Welton <davidw@dedasys.com>.
 #
-# $Id: multiplexer.test,v 1.10 2011/11/08 02:34:20 andreas_kupries Exp $
+# $Id: multiplexer.test,v 1.11 2011/11/14 18:49:27 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -166,7 +166,7 @@ proc TestAccessFilter {chan clientaddress clientport} {
     return 0
 }
 
-test multiplexer-5.1.0 {add access filter} tcl8.5minus {
+test multiplexer-5.1 {add access filter} {
     set ::forever {}
     set mp [multiplexer::create]
     ${mp}::Init 37465
@@ -178,23 +178,12 @@ test multiplexer-5.1.0 {add access filter} tcl8.5minus {
     vwait ::forever
     vwait ::forever
     ${mp}::destroy
-    string match {127.*.*.* 127.*.*.*} $::forever
+
+    expr {
+	  [string match {127.*.*.* 127.*.*.*} $::forever] ||
+	  [string equal {::1 ::1}             $::forever]
+      }
 } 1
-
-test multiplexer-5.1.1 {add access filter} tcl8.6plus {
-    set ::forever {}
-    set mp [multiplexer::create]
-    ${mp}::Init 37465
-    ${mp}::AddAccessFilter TestAccessFilter
-    update
-    set sk1 [socket localhost 37465]
-    set sk2 [socket localhost 37465]
-
-    vwait ::forever
-    vwait ::forever
-    ${mp}::destroy
-    set ::forever
-} {::1 ::1}
 
 proc DenyAccessFilter {chan clientaddress clientport} {
     return -1
