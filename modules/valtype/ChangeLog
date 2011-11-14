@@ -1,3 +1,15 @@
+2011-11-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* iban.man: New package, validation type for International Bank
+	* iban.tcl: Account Numbers (IBAN).
+	* include/k_iban.inc:
+	* pkgIndex.tcl:
+
+	* include/k_amex.inc: Extended keywords.
+	* include/k_discover.inc:
+	* include/k_mastercard.inc:
+	* include/k_visa.inc:
+
 2011-04-06  Andreas Kupries  <andreask@activestate.com>
 
 	* New module: Validation types. snit validation types for various
