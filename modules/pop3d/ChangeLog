@@ -1,3 +1,9 @@
+2011-11-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3d.test: Another update to accept both 127.x.x.x and ::1 as
+	  possible result. The OS configuration may cause return of the
+	  former even for 8.6+.
+
 2011-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pop3d.test: Updated the tests to handle Tcl 8.6+ IPv6 changes.
