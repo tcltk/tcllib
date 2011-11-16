@@ -1,6 +1,9 @@
 # # ## ### ##### ######## ############# ######################
 ## Validation of IBAN numbers.
 #
+# Reference:
+#    http://en.wikipedia.org/wiki/International_Bank_Account_Number
+#
 # # ## ### ##### ######## ############# ######################
 
 # The code below implements the interface of a snit validation type,
@@ -25,31 +28,48 @@ snit::type ::valtype::iban {
     #-------------------------------------------------------------------
     # Type Methods
 
-    typemethod validate {value} {
+    typevariable cclen -array {
+	AL 28 AD 24 AT 20 BH 22 BE 16 BA 20 BG 22 CR 21 HR 21 CY 28 CZ 24 DK 18 FO 18 GL 18 DO 28 EE 20 FI 18
+	FR 27 GF 27 GP 27 MQ 27 RE 27 PF 27 TF 27 YT 27 NC 27 PM 27 WF 27 GE 22 DE 22 GI 23 GR 27 HU 28
+	IS 26 IE 22 IL 23 IT 27 KZ 20 KW 30 LV 21 LB 28 LI 21 LT 20 LU 20 MK 19 MT 31 MR 27 MU 30 MC 27
+	ME 22 NL 18 NO 15 PL 28 PT 25 RO 24 SM 27 SA 24 RS 22 SK 24 SI 19 ES 24 SE 24 CH 21 TN 24 TR 26
+	AE 23 GB 22
+    }
 
-	if {![regexp {^[A-Z]{2}[0-9]{26}$} $value]} {
-	    badchar IBAN "IBAN number, expected only country code with 26 digits"
+    typevariable charmap {
+	A 10 B 11 C 12 D 13 E 14 F 15 G 16 H 17 I 18 J 19 K 20 L 21 M 22
+	N 23 O 24 P 25 Q 26 R 27 S 28 T 29 U 30 V 31 W 32 X 33 Y 34 Z 35
+    }
+
+    typemethod cclen {cc} {
+	return $cclen($cc)
+    }
+
+    typemethod validate {value} {
+        set value [string toupper $value]
+
+	if {![regexp {^[A-Z]{2}[0-9A-Z]+$} $value]} {
+	    badchar IBAN "IBAN number, expected country code followed by alphanumerics"
 	}
 
-	scan $value "%2s%2s%24s" country_symbol ctrl number
+	set country [string range $value 0 1]
 
-	set country_code [string map {
-	    A 10 B 11 C 12 D 13 E 14 F 15 G 16 H 17 I 18 J 19 K 20 L 21 M 22
-	    N 23 O 24 P 25 Q 26 R 27 S 28 T 29 U 30 V 31 W 32 X 33 Y 34 Z 35
-	} $country_symbol]
+	if {![info exists cclen($country)]} {
+	    badprefix IBAN "" "IBAN number, unknown country code"
+	}
+	if {[string length $value] != $cclen($country)} {
+	    badlength IBAN $cclen($country) "IBAN number"
+	}
 
-	set pe [split ${number}${country_code}${ctrl} {}]
-	set wa [list 57 93 19 31 71 75 56 25 51 73 17 89 38 62 45 53 15 50 5 49 34 81 76 27 90 9 30 3 10 1]
+	set number [string range $value 4 end][string range $value 0 3]
+	set number [string map $charmap $number]
+	set number [string trimleft $number 0]
 
-	set sum 0
-	foreach d $pe w $wa {incr sum [expr {$d * $w}]}
-
-	if {($sum % 97) != 1} {
+	if {($number % 97) != 1} {
 	    badcheck IBAN "IBAN number"
 	}
 
 	return $value
-
     }
 
     #-------------------------------------------------------------------

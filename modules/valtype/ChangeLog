@@ -1,3 +1,8 @@
+2011-11-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* iban.tcl: Extended checks to be country specific, added
+	* iban.test: reference @ wikipedia, added testsuite.
+
 2011-11-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* iban.man: New package, validation type for International Bank
