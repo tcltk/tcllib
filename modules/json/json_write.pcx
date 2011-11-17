@@ -35,7 +35,7 @@ pcx::check 1.0 std ::json::write {checkSimpleArgs 1 -1 {
 	    checkWord
 	}}}}
     } {}}
-}}
+}
 
 # Initialization via pcx::init.
 # Use a ::json::write::init procedure for non-standard initialization.

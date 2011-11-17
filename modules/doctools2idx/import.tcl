@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: import.tcl,v 1.1 2009/04/01 04:28:37 andreas_kupries Exp $
+# RCS: @(#) $Id: import.tcl,v 1.2 2011/11/17 08:00:45 andreas_kupries Exp $
 
 # Each object manages a set of plugins for the conversion of keyword
 # indices into some textual representation. I.e. this object manages
@@ -187,5 +187,5 @@ snit::type ::doctools::idx::import {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::idx::import 0
+package provide doctools::idx::import 0.1
 return

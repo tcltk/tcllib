@@ -19,7 +19,7 @@
 
 # Copyright (c) 2009-2011 Andreas Kupries
 
-## $Id: coro_auto.tcl,v 1.2 2011/04/18 20:23:58 andreas_kupries Exp $
+## $Id: coro_auto.tcl,v 1.3 2011/11/17 08:00:45 andreas_kupries Exp $
 # # ## ### ##### ######## #############
 ## Requisites, and ensemble setup.
 
@@ -309,5 +309,5 @@ proc ::coroutine::auto::wrap_read {args} {
 # # ## ### ##### ######## #############
 ## Ready
 
-package provide coroutine::auto 1
+package provide coroutine::auto 1.1
 return

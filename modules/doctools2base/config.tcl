@@ -8,7 +8,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: config.tcl,v 1.1 2009/04/01 04:27:47 andreas_kupries Exp $
+# RCS: @(#) $Id: config.tcl,v 1.2 2011/11/17 08:00:45 andreas_kupries Exp $
 
 # Each object manages a set of configuration variables.
 
@@ -77,5 +77,5 @@ snit::type ::doctools::config {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide doctools::config 0
+package provide doctools::config 0.1
 return
