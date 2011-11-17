@@ -18,8 +18,8 @@ package require mime;                   # tcllib
 # @mdgen EXCLUDE: clients/mail-test.tcl
 
 namespace eval ::smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.21 2011/04/11 21:52:47 andreas_kupries Exp $}
-    variable version 1.5.0
+    variable rcsid {$Id: smtpd.tcl,v 1.22 2011/11/17 08:00:45 andreas_kupries Exp $}
+    variable version 1.5
     variable stopped
 
     namespace export start stop configure
