@@ -1,3 +1,10 @@
+2011-11-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* csv.tcl: [Bug 1724818]: Applied the patch supplied by Jeremy
+	* csv.man:  Cowgar <jeremy@cowgar.com> fixing the issue. Bumped
+	* csv.test: version to 0.7.3. Extended testsuite.
+	* pkgIndex.tcl:
+
 2011-04-11  Andreas Kupries  <andreask@activestate.com>
 
 	* csv.man: [Bug 3281791]: Followup to fix for [Bug 3061815], fixed
