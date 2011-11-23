@@ -3,15 +3,15 @@
 #	Tcl implementations of CSV reader and writer
 #
 # Copyright (c) 2001      by Jeffrey Hobbs
-# Copyright (c) 2001-2008 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2001-2011 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: csv.tcl,v 1.27 2010/01/19 20:21:57 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.tcl,v 1.28 2011/11/23 02:22:10 andreas_kupries Exp $
 
 package require Tcl 8.3
-package provide csv 0.7.2
+package provide csv 0.7.3
 
 namespace eval ::csv {
     namespace export join joinlist read2matrix read2queue report 
@@ -33,7 +33,7 @@ proc ::csv::join {values {sepChar ,} {delChar \"}} {
     set out ""
     set sep {}
     foreach val $values {
-	if {[string match "*\[${delChar}$sepChar\]*" $val]} {
+	if {[string match "*\[${delChar}$sepChar\r\n\]*" $val]} {
 	    append out $sep${delChar}[string map [list $delChar ${delChar}${delChar}] $val]${delChar}
 	} else {
 	    append out $sep${val}

@@ -4,10 +4,10 @@
 # Sourcing this file into Tcl runs the tests and generates output for errors.
 # No output means no errors were found.
 #
-# Copyright (c) 2001-2008 by Andreas Kupries <a.kupries@westend.com>
+# Copyright (c) 2001-2011 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: csv.test,v 1.22 2010/01/19 20:21:57 andreas_kupries Exp $
+# RCS: @(#) $Id: csv.test,v 1.23 2011/11/23 02:22:10 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -274,6 +274,9 @@ test csv-2.12 {join, custom delimiter} {
     csv::join {123 123,521.2 {Mary says "Hello, I am Mary"}} , =
 } $str6_
 
+test csv-2.13-sf-1724818 {join, newlines in string, sf bug 1724818} {
+    csv::join {123 {John Doe} "123 Main St.\nSmalltown, OH 44444"}
+} "123,John Doe,\"123 Main St.\nSmalltown, OH 44444\""
 
 # Malformed inputs
 
