@@ -3,13 +3,14 @@
 #       Querying and modifying old-style windows configuration files (.ini)
 #
 # Copyright (c) 2003-2007    Aaron Faupell <afaupell@users.sourceforge.net>
+# Copyright (c) 2008-2011    Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ini.tcl,v 1.15 2008/05/11 00:53:58 andreas_kupries Exp $
+# RCS: @(#) $Id: ini.tcl,v 1.16 2011/12/02 22:22:19 andreas_kupries Exp $
 
-package provide inifile 0.2.3
+package provide inifile 0.2.4
 
 namespace eval ini {
     variable nexthandle  0
@@ -20,7 +21,7 @@ proc ::ini::open {ini {mode r+}} {
     variable nexthandle
 
     if { ![regexp {^(w|r)\+?$} $mode] } {
-        error "$mode is not a valid access mode"
+        return -code error "$mode is not a valid access mode"
     }
 
     ::set fh ini$nexthandle
@@ -48,40 +49,48 @@ proc ::ini::open {ini {mode r+}} {
 
 proc ::ini::close {fh} {
     _valid_ns $fh
-    ::close [::set ::ini::${fh}::channel]
+    variable ::ini::${fh}::channel
+    ::close $channel
     namespace delete ::ini::$fh
+    return
 }
 
 # write all changes to disk
 
 proc ::ini::commit {fh} {
     _valid_ns $fh
-    namespace eval ::ini::$fh {
-        if { $mode == "r" } {
-            error "cannot write to read-only file"
-        }
-        ::close $channel
-        ::set channel [::open $file w]
-        ::set char $::ini::commentchar
-        #seek $channel 0 start
-        foreach sec [array names sections] {
-            if { [info exists comments($sec)] } {
-                puts $channel "$char [join $comments($sec) "\n$char "]\n"
-            }
-            puts $channel "\[$sec\]"
-            foreach key [lsort -dictionary [array names data [::ini::_globescape $sec]\000*]] {
-                ::set key [lindex [split $key \000] 1]
-                if {[info exists comments($sec\000$key)]} {
-                    puts $channel "$char [join $comments($sec\000$key) "\n$char "]"
-                }
-                puts $channel "$key=$data($sec\000$key)"
-            }
-            puts $channel ""
-        }
-        catch { unset char sec key }
-        close $channel
-        ::set channel [::open $file r+]
+
+    variable ::ini::${fh}::data
+    variable ::ini::${fh}::comments
+    variable ::ini::${fh}::sections
+    variable ::ini::${fh}::channel
+    variable ::ini::${fh}::file
+    variable ::ini::${fh}::mode
+    variable commentchar
+
+    if { $mode == "r" } {
+	return -code error "cannot write to read-only file"
     }
+    ::close $channel
+    ::set channel [::open $file w]
+    ::set char $commentchar
+    #seek $channel 0 start
+    foreach sec [array names sections] {
+	if { [info exists comments($sec)] } {
+	    puts $channel "$char [join $comments($sec) "\n$char "]\n"
+	}
+	puts $channel "\[$sec\]"
+	foreach key [lsort -dictionary [array names data [_globescape $sec]\000*]] {
+	    ::set key [lindex [split $key \000] 1]
+	    if {[info exists comments($sec\000$key)]} {
+		puts $channel "$char [join $comments($sec\000$key) "\n$char "]"
+	    }
+	    puts $channel "$key=$data($sec\000$key)"
+	}
+	puts $channel ""
+    }
+    close $channel
+    ::set channel [::open $file r+]
     return
 }
 
@@ -89,42 +98,48 @@ proc ::ini::commit {fh} {
 # see open and revert for public commands
 
 proc ::ini::_loadfile {fh} {
-    namespace eval ::ini::$fh {
-        ::set cur {}
-        ::set com {}
-        set char $::ini::commentchar
-        seek $channel 0 start
+    variable ::ini::${fh}::data
+    variable ::ini::${fh}::comments
+    variable ::ini::${fh}::sections
+    variable ::ini::${fh}::channel
+    variable ::ini::${fh}::file
+    variable ::ini::${fh}::mode
+    variable commentchar
 
-        foreach line [split [read $channel] "\n"] {
-            if { [string match "$char*" $line] } {
-                lappend com [string trim [string range $line [string length $char] end]]
-            } elseif { [string match {\[*\]} $line] } {
-                ::set cur [string range $line 1 end-1]
-                if { $cur == "" } { continue }
-                ::set sections($cur) 1
-                if { $com != "" } {
-                    ::set comments($cur) $com
-                    ::set com {}
-                }
-            } elseif { [string match {*=*} $line] } {
-                ::set line [split $line =]
-                ::set key [string trim [lindex $line 0]]
-                if { $key == "" || $cur == "" } { continue }
-                ::set value [string trim [join [lrange $line 1 end] =]]
-                if { [regexp "^(\".*\")\s+${char}(.*)$" $value -> 1 2] } {
-                    set value $1
-                    lappend com $2
-                }
-                ::set data($cur\000$key) $value
-                if { $com != "" } {
-                    ::set comments($cur\000$key) $com
-                    ::set com {}
-                }
-            }
-        }
-        unset char cur com
-        catch { unset line key value 1 2 }
+    ::set cur {}
+    ::set com {}
+
+    ::set char $commentchar
+    seek $channel 0 start
+
+    foreach line [split [read $channel] "\n"] {
+	if { [string match "$char*" $line] } {
+	    lappend com [string trim [string range $line [string length $char] end]]
+	} elseif { [string match {\[*\]} $line] } {
+	    ::set cur [string range $line 1 end-1]
+	    if { $cur == "" } { continue }
+	    ::set sections($cur) 1
+	    if { $com != "" } {
+		::set comments($cur) $com
+		::set com {}
+	    }
+	} elseif { [string match {*=*} $line] } {
+	    ::set line [split $line =]
+	    ::set key [string trim [lindex $line 0]]
+	    if { $key == "" || $cur == "" } { continue }
+	    ::set value [string trim [join [lrange $line 1 end] =]]
+	    if { [regexp "^(\".*\")\s+${char}(.*)$" $value -> 1 2] } {
+		::set value $1
+		lappend com $2
+	    }
+	    ::set data($cur\000$key) $value
+	    if { $com != "" } {
+		::set comments($cur\000$key) $com
+		::set com {}
+	    }
+	}
     }
+    return
 }
 
 # internal command to escape glob special characters
@@ -136,15 +151,19 @@ proc ::ini::_globescape {string} {
 # internal command to check if a section or key is nonexistant
 
 proc ::ini::_exists {fh sec args} {
-    if { ![info exists ::ini::${fh}::sections($sec)] } {
-        error "no such section \"$sec\""
+    variable ::ini::${fh}::sections
+    variable ::ini::${fh}::data
+
+    if { ![info exists sections($sec)] } {
+        return -code error "no such section \"$sec\""
     }
     if { [llength $args] > 0 } {
         ::set key [lindex $args 0]
-        if { ![info exists ::ini::${fh}::data($sec\000$key)] } {
-            error "can't read key \"$key\""
+        if { ![info exists data($sec\000$key)] } {
+            return -code error "can't read key \"$key\""
         }
     }
+    return
 }
 
 # internal command to check validity of a handle
@@ -156,7 +175,7 @@ if { [package vcompare [package provide Tcl] 8.4] < 0 } {
     proc ::ini::_valid_ns {name} {
 	variable ::ini::${name}::data
 	if { ![info exists data] } {
-	    error "$name is not an open INI file"
+	    return -code error "$name is not an open INI file"
 	}
     }
 } else {
@@ -165,7 +184,7 @@ if { [package vcompare [package provide Tcl] 8.4] < 0 } {
     }
     proc ::ini::_valid_ns {name} {
 	if { ![namespace exists ::ini::$name] } {
-	    error "$name is not an open INI file"
+	    return -code error "$name is not an open INI file"
 	}
     }
 }
@@ -187,17 +206,21 @@ proc ::ini::commentchar { {new {}} } {
 
 proc ::ini::sections {fh} {
     _valid_ns $fh
-    return [array names ::ini::${fh}::sections]
+    variable ::ini::${fh}::sections
+    return [array names sections]
 }
 
 # return boolean indicating existance of section or key in section
 
 proc ::ini::exists {fh sec {key {}}} {
     _valid_ns $fh
+    variable ::ini::${fh}::sections
+    variable ::ini::${fh}::data
+
     if { $key == "" } {
-        return [info exists ::ini::${fh}::sections($sec)]
+        return [info exists sections($sec)]
     }
-    return [info exists ::ini::${fh}::data($sec\000$key)]
+    return [info exists data($sec\000$key)]
 }
 
 # return all key names of section
@@ -206,8 +229,10 @@ proc ::ini::exists {fh sec {key {}}} {
 proc ::ini::keys {fh sec} {
     _valid_ns $fh
     _exists $fh $sec
+    variable ::ini::${fh}::data
+
     ::set keys {}
-    foreach x [array names ::ini::${fh}::data [_globescape $sec]\000*] {
+    foreach x [array names data [_globescape $sec]\000*] {
         lappend keys [lindex [split $x \000] 1]
     }
     return $keys
@@ -219,7 +244,8 @@ proc ::ini::keys {fh sec} {
 proc ::ini::get {fh sec} {
     _valid_ns $fh
     _exists $fh $sec
-    upvar 0 ::ini::${fh}::data data
+    variable ::ini::${fh}::data
+
     ::set r {}
     foreach x [array names data [_globescape $sec]\000*] {
         lappend r [lindex [split $x \000] 1] $data($x)
@@ -232,11 +258,13 @@ proc ::ini::get {fh sec} {
 
 proc ::ini::value {fh sec key {default {}}} {
     _valid_ns $fh
-    if {$default != "" && ![info exists ::ini::${fh}::data($sec\000$key)]} {
+    variable ::ini::${fh}::data
+
+    if {$default != "" && ![info exists data($sec\000$key)]} {
         return $default
     }
     _exists $fh $sec $key
-    return [::set ::ini::${fh}::data($sec\000$key)]
+    return [::set data($sec\000$key)]
 }
 
 # set the value of a key
@@ -244,13 +272,16 @@ proc ::ini::value {fh sec key {default {}}} {
 
 proc ::ini::set {fh sec key value} {
     _valid_ns $fh
+    variable ::ini::${fh}::sections
+    variable ::ini::${fh}::data
+
     ::set sec [string trim $sec]
     ::set key [string trim $key]
     if { $sec == "" || $key == "" } {
         error "section or key may not be empty"
     }
-    ::set ::ini::${fh}::data($sec\000$key) $value
-    ::set ::ini::${fh}::sections($sec) 1
+    ::set data($sec\000$key) $value
+    ::set sections($sec) 1
     return $value
 }
 
@@ -259,11 +290,14 @@ proc ::ini::set {fh sec key value} {
 
 proc ::ini::delete {fh sec {key {}}} {
     _valid_ns $fh
+    variable ::ini::${fh}::sections
+    variable ::ini::${fh}::data
+
     if { $key == "" } {
-        array unset ::ini::${fh}::data [_globescape $sec]\000*
-        array unset ::ini::${fh}::sections [_globescape $sec]
+        array unset data     [_globescape $sec]\000*
+        array unset sections [_globescape $sec]
     }
-    catch {unset ::ini::${fh}::data($sec\000$key)}
+    catch {unset data($sec\000$key)}
 }
 
 # read and set comments for sections and keys
@@ -271,7 +305,8 @@ proc ::ini::delete {fh sec {key {}}} {
 
 proc ::ini::comment {fh sec key args} {
     _valid_ns $fh
-    upvar 0 ::ini::${fh}::comments comments
+    variable ::ini::${fh}::comments
+
     ::set r $sec
     if { $key != "" } { append r \000$key }
     if { [llength $args] == 0 } {
@@ -293,7 +328,8 @@ proc ::ini::comment {fh sec key args} {
 
 proc ::ini::filename {fh} {
     _valid_ns $fh
-    return [::set ::ini::${fh}::file]
+    variable ::ini::${fh}::file
+    return $file
 }
 
 # reload the file from disk losing all changes since the last commit

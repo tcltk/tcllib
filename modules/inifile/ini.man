@@ -1,10 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin inifile n 0.2.3]
+[manpage_begin inifile n 0.2.4]
 [moddesc   {Parsing of Windows INI files}]
 [titledesc {Parsing of Windows INI files}]
 [category  {Text processing}]
 [require Tcl 8.2]
-[require inifile [opt 0.2.3]]
+[require inifile [opt 0.2.4]]
 [description]
 
 This package provides an interface for easy manipulation of Windows INI files.
