@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: traverse.tcl,v 1.7 2009/02/10 18:11:07 andreas_kupries Exp $
+# RCS: @(#) $Id: traverse.tcl,v 1.8 2011/12/02 22:30:34 andreas_kupries Exp $
 
 package require Tcl 8.3
 
@@ -208,9 +208,9 @@ snit::type ::fileutil::traverse {
 
 		set norm [fileutil::fullnormalize $f]
 		if {[info exists _known($norm)]} continue
-		set _known($norm) .
 
 		if {[Recurse $f]} {
+		    set _known($norm) .
 		    lappend _pending $f
 		}
 	    }
@@ -415,4 +415,4 @@ if {[package vsatisfies [package present Tcl] 8.4]} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::traverse 0.4.1
+package provide fileutil::traverse 0.4.2

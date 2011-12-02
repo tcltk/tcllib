@@ -1,3 +1,12 @@
+2011-12-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* traverse.tcl: Mark directories as 'known' only if we decided
+	* traverse.man: to recurse into them. Otherwise a link to a
+	* pkgIndex.tcl: directory we choose to not follow may non-
+	  deterministically prevent us from recursing into the original
+	  directory, depending on the order we encounter them in. Bumped
+	  package version to 0.4.2.
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
