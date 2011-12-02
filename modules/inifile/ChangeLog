@@ -1,3 +1,11 @@
+2011-12-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ini.tcl: [Bug 3419727]: Fixed the creative writing issue
+	* ini.man: with what should be local variables of _loadfile
+	* pkgIndex.tcl: and _commit. Generally reworked to use the
+	  'variable' command to bring object state into scope.
+	  Bumped version to 0.2.4
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
