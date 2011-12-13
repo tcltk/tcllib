@@ -1,3 +1,9 @@
+2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.14 ========================
+	* 
+
 2011-05-06  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* jpeg.tcl: Refactored the getExif function into two parts with
