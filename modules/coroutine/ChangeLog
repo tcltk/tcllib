@@ -1,3 +1,9 @@
+2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.14 ========================
+	* 
+
 2011-04-18  Andreas Kupries  <andreask@activestate.com>
 
 	* coroutine.tcl: [Bug 3252952]: Fixed clash between ::coroutine
