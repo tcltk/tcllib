@@ -1,9 +1,9 @@
-[manpage_begin textutil::adjust n 0.7]
+[manpage_begin textutil::adjust n 0.7.1]
 [moddesc   {Text and string utilities, macro processing}]
 [titledesc {Procedures to adjust, indent, and undent paragraphs}]
 [category  {Text processing}]
 [require Tcl 8.2]
-[require textutil::adjust [opt 0.7]]
+[require textutil::adjust [opt 0.7.1]]
 [description]
 
 The package [package textutil::adjust] provides commands that manipulate
