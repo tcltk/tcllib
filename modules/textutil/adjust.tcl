@@ -10,7 +10,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# RCS: @(#) $Id: adjust.tcl,v 1.15 2006/04/21 04:42:27 andreas_kupries Exp $
+# RCS: @(#) $Id: adjust.tcl,v 1.16 2011/12/13 18:12:56 andreas_kupries Exp $
 
 # ### ### ### ######### ######### #########
 ## Requirements
@@ -719,7 +719,7 @@ proc ::textutil::adjust::undent {text} {
 
     if {[string length $lcp] == 0} {return $text}
 
-    regexp {^([         ]*)} $lcp -> lcp
+    regexp "^(\[\t \]*)" $lcp -> lcp
 
     if {[string length $lcp] == 0} {return $text}
 
@@ -755,4 +755,4 @@ namespace eval ::textutil::adjust {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil::adjust 0.7
+package provide textutil::adjust 0.7.1

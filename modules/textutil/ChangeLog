@@ -1,3 +1,9 @@
+2011-12-13  Andreas Kupries  <aku@hephaistos>
+
+	* adjust.tcl (::textutil::adjust::undent): Fixed whitespace regexp
+	* adjust.man: which lost the tab character. Rewritten to make it
+	* pkgIndex.tcl: less likely to happen again. Bumped to 0.7.1.
+
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
