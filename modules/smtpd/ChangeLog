@@ -1,3 +1,9 @@
+2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.14 ========================
+	* 
+
 2011-04-11  Andreas Kupries  <andreask@activestate.com>
 
 	* smtpd.man: [RFE 3247765]: Added option to configure the

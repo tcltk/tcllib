@@ -1,3 +1,9 @@
+2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.14 ========================
+	* 
+
 2011-02-23  Andreas Kupries  <andreask@activestate.com>
 
 	* cmdline.man: [Bug 3189786]: Fixed mishandling of suffixes .arg

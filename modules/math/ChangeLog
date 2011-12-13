@@ -1,3 +1,9 @@
+2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.14 ========================
+	* 
+
 2011-11-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* decimal.test: More fixes, now the test succeeds as

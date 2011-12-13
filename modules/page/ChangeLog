@@ -1,3 +1,9 @@
+2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.14 ========================
+	* 
+
 2011-11-10  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* support/installation/modules.tcl: [Bug 3425271], reported

@@ -1,3 +1,9 @@
+2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.14 ========================
+	* 
+
 2011-06-17  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 	* random.tcl: [Bug 3316478]: solve a few more bugs in the PRNG procedures
 	* random.test: added to get at least (very) basic confidence in the PRNG procedures
