@@ -1,3 +1,9 @@
+2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.14 ========================
+	* 
+
 2011-01-24  Andreas Kupries  <akupries@shaw.ca>
 
 	* peg_interp.tcl (::grammar::peg::interp::MatchExpr):

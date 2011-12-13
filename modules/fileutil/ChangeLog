@@ -1,3 +1,9 @@
+2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.14 ========================
+	* 
+
 2011-12-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* traverse.tcl: Mark directories as 'known' only if we decided
