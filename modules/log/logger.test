@@ -7,7 +7,7 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004,2005 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.31 2011/12/20 20:52:02 mic42 Exp $
+# $Id: logger.test,v 1.32 2011/12/20 20:54:57 mic42 Exp $
 
 # -------------------------------------------------------------------------
 
@@ -66,6 +66,16 @@ test logger-1.4 {check default loglevel} {
 
 test logger-1.5 {init with empty name} {
     catch { logger::init {} } err
+    set err
+} {Service name invalid. May not consist only of : or be empty}
+
+test logger-1.6 {init with empty name} {
+    catch { logger::init : } err
+    set err
+} {Service name invalid. May not consist only of : or be empty}
+
+test logger-1.7 {init with empty name} {
+    catch { logger::init ::: } err
     set err
 } {Service name invalid. May not consist only of : or be empty}
 
