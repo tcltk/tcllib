@@ -3,7 +3,7 @@
 #   Tcl implementation of a general logging facility.
 #
 # Copyright (c) 2003      by David N. Welton <davidw@dedasys.com>
-# Copyright (c) 2004-2008 by Michael Schlenker <mic42@users.sourceforge.net>
+# Copyright (c) 2004-2011 by Michael Schlenker <mic42@users.sourceforge.net>
 # Copyright (c) 2006      by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file license.terms.
@@ -14,7 +14,7 @@
 
 
 package require Tcl 8.2
-package provide logger 0.9
+package provide logger 0.9.1
 
 namespace eval ::logger {
     namespace eval tree {}
@@ -109,6 +109,11 @@ proc ::logger::init {service} {
     variable services
     variable enabled
         
+    if {[string length [string trim $service {:}]] == 0} {
+        return -code error \
+               -errorCode [list LOGGER EMPTY_SERVICENAME] \
+               [::logger::mc "Service name invalid. May not consist only of : or be empty"] 
+    }
     # We create a 'tree' namespace to house all the services, so
     # they are in a 'safe' namespace sandbox, and won't overwrite
     # any commands.
