@@ -1,3 +1,10 @@
+2011-12-20  Michael Schlenker <mic42@users.sourceforge.net>
+
+        * logger.man: Fix for [Bug 3462341].
+	* logger.tcl: The use of empty servicenames is not allowed.
+	* logger.test: The use of a name of only : is also forbidden.
+	* pkgIndex.tcl:
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
