@@ -1,6 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[comment {$Id: logger.man,v 1.24 2009/05/19 18:05:42 eee Exp $}]
-[manpage_begin logger n 0.8]
+[comment {$Id: logger.man,v 1.25 2011/12/20 20:52:02 mic42 Exp $}]
+[manpage_begin logger n 0.9]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
 [category  {Programming tools}]
@@ -41,6 +41,7 @@ happen:
 
 Initializes the service [arg service] for logging.  The service names
 are actually Tcl namespace names, so they are separated with '::'.
+The service name may not be the empty string or only ':'s.
 
 When a logger service is initialized, it "inherits" properties from its
 parents.  For instance, if there were a service [term foo], and
