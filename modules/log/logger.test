@@ -7,7 +7,7 @@
 # Copyright (c) 2002 by David N. Welton <davidw@dedasys.com>.
 # Copyright (c) 2004,2005 by Michael Schlenker <mic42@users.sourceforge.net>.
 #
-# $Id: logger.test,v 1.32 2011/12/20 20:54:57 mic42 Exp $
+# $Id: logger.test,v 1.33 2011/12/21 21:28:50 mic42 Exp $
 
 # -------------------------------------------------------------------------
 
@@ -322,11 +322,29 @@ test logger-5.5 {global setlevel with wrong level} {
     set msg
 } {Invalid level 'badargs' - levels are debug info notice warn error critical alert emergency}
 
+test logger-5.6 {global setlevel before logger::init, see log} {
+    logger::setlevel error
+    set log1 [logger::init global]
+    set ::called 0
+    proc logp {txt} {
+         set ::called 1
+    }
+    ${log1}::logproc warn logp
+    set pname [${log1}::logproc warn]
+    ${log1}::warn $pname
+    ${log1}::delete
+    logger::setlevel debug
+    set result $::called
+    unset -nocomplain ::called
+    set result
+} {0}
+
 test logger-6.0 {levels command} {
     logger::levels 
 } {debug info notice warn error critical alert emergency}
 
 test logger-7.0 {currentloglevel} {
+    set result [list]
     set log [logger::init global]
     foreach lvl [logger::levels] {
         ${log}::setlevel $lvl
