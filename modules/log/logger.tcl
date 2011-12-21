@@ -14,7 +14,7 @@
 
 
 package require Tcl 8.2
-package provide logger 0.9.1
+package provide logger 0.9.2
 
 namespace eval ::logger {
     namespace eval tree {}
@@ -675,6 +675,7 @@ proc ::logger::init {service} {
 
             set lvlcmds($lvl) [namespace current]::${lvl}cmd
         }
+        setlevel $::logger::enabled 
     }
     }
     
