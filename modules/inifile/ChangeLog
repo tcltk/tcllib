@@ -1,3 +1,9 @@
+2012-01-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* ini.tcl: [Bug 3469006]: Followup to [Bug 3419727]. Fixed
+	* ini.man: the unscoped 'close' command left in the code.
+	* pkgIndex.tcl: Bumped version to 0.2.5
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
