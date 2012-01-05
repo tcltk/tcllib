@@ -3,14 +3,14 @@
 #       Querying and modifying old-style windows configuration files (.ini)
 #
 # Copyright (c) 2003-2007    Aaron Faupell <afaupell@users.sourceforge.net>
-# Copyright (c) 2008-2011    Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2008-2012    Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: ini.tcl,v 1.16 2011/12/02 22:22:19 andreas_kupries Exp $
+# RCS: @(#) $Id: ini.tcl,v 1.17 2012/01/05 21:04:55 andreas_kupries Exp $
 
-package provide inifile 0.2.4
+package provide inifile 0.2.5
 
 namespace eval ini {
     variable nexthandle  0
@@ -89,7 +89,7 @@ proc ::ini::commit {fh} {
 	}
 	puts $channel ""
     }
-    close $channel
+    ::close $channel
     ::set channel [::open $file r+]
     return
 }
