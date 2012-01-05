@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin inifile n 0.2.4]
+[manpage_begin inifile n 0.2.5]
 [moddesc   {Parsing of Windows INI files}]
 [titledesc {Parsing of Windows INI files}]
 [category  {Text processing}]
