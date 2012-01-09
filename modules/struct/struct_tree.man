@@ -1,6 +1,6 @@
 [comment {-*- tcl -*-}]
 [manpage_begin struct::tree n 2.1.1]
-[copyright {2002-2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2002-2004,2012 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate tree objects}]
 [category  {Data structures}]
@@ -299,7 +299,7 @@ of the [arg node], at the index at which [arg node] was located.
 
 [call [arg treeName] [method delete] [arg node] [opt "[arg node] ..."]]
 
-Remove the specified nodes from the tree.  All of the nodes' children
+Removes the specified nodes from the tree.  All of the nodes' children
 will be removed as well to prevent orphaned nodes.
 
 
@@ -337,7 +337,7 @@ Destroy the tree, including its storage space and associated command.
 
 [call [arg treeName] [method exists] [arg node]]
 
-Remove true if the specified node exists in the tree.
+Returns true if the specified node exists in the tree.
 
 
 [call [arg treeName] [method get] [arg node] [arg key]]
@@ -595,7 +595,7 @@ Swap the position of [arg node1] and [arg node2] in the tree.
 
 [call [arg treeName] [method unset] [arg node] [arg key]]
 
-Remove a keyed value from the node [arg node]. The method will do
+Removes a keyed value from the node [arg node]. The method will do
 nothing if the [arg key] does not exist.
 
 
