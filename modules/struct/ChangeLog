@@ -1,3 +1,8 @@
+2012-01-08  Andreas Kupries  <andreask@activestate.com>
+
+	* struct_tree.man: [Bug 3471182] Fixed typo.
+	* struct_tree1.man:
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

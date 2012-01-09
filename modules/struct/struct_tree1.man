@@ -80,7 +80,7 @@ of the [arg node], at the index at which [arg node] was located.
 
 [call [arg treeName] [method delete] [arg node] [opt "[arg node] ..."]]
 
-Remove the specified nodes from the tree.  All of the nodes' children
+Removes the specified nodes from the tree.  All of the nodes' children
 will be removed as well to prevent orphaned nodes.
 
 
@@ -96,7 +96,7 @@ Destroy the tree, including its storage space and associated command.
 
 [call [arg treeName] [method exists] [arg node]]
 
-Remove true if the specified node exists in the tree.
+Returns true if the specified node exists in the tree.
 
 
 [call [arg treeName] [method get] [arg node] [opt "[option -key] [arg key]"]]
@@ -246,7 +246,7 @@ Swap the position of [arg node1] and [arg node2] in the tree.
 
 [call [arg treeName] [method unset] [arg node] [opt "[option -key] [arg key]"]]
 
-Remove a keyed value from the node [arg node].  If no key is
+Removes a keyed value from the node [arg node].  If no key is
 specified, the key [const data] is assumed.
 
 
