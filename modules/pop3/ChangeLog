@@ -1,5 +1,7 @@
 2012-01-10  Andreas Kupries  <andreask@activestate.com>
 
+	* pop3.test: Requiring Tcl 8.4 here as well.
+
 	* pop3.tcl: [Bug 3471474]: Fixed bug where the socketcmd was not
 	* pop3.man: treated as cmdprefix as documented, but as command
 	* pkgIndex.tcl: name. Dropped supported for 8.2 and moved forward

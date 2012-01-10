@@ -8,7 +8,7 @@
 # Copyright (c) 2002-2006 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: pop3.test,v 1.30 2011/11/09 05:27:10 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.test,v 1.31 2012/01/10 20:06:52 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -16,7 +16,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.3 ; # for snit below
+testsNeedTcl     8.4
 testsNeedTcltest 1.0
 
 tcltest::testConstraint hastls [expr {![catch {package require tls}]}]
