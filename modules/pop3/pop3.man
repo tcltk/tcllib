@@ -1,11 +1,11 @@
-[manpage_begin pop3 n 1.7]
+[manpage_begin pop3 n 1.9]
 [comment {-*- tcl -*- doctools manpage}]
 [moddesc   {Tcl POP3 Client Library}]
 [titledesc {Tcl client for POP3 email protocol}]
 [keywords mail email pop pop3 {rfc 1939} ssl tls secure]
 [category  Networking]
-[require Tcl  8.2]
-[require pop3 [opt 1.7]]
+[require Tcl  8.4]
+[require pop3 [opt 1.9]]
 [description]
 
 The [package pop3] package provides a simple Tcl-only client library

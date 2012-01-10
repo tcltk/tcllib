@@ -1,3 +1,11 @@
+2012-01-10  Andreas Kupries  <andreask@activestate.com>
+
+	* pop3.tcl: [Bug 3471474]: Fixed bug where the socketcmd was not
+	* pop3.man: treated as cmdprefix as documented, but as command
+	* pkgIndex.tcl: name. Dropped supported for 8.2 and moved forward
+	  to require Tcl 8.4. Keep the 8.4-ism of 'eq'. Bumped the version
+	  to 1.9.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

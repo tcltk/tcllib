@@ -6,16 +6,17 @@
 #
 # Copyright (c) 2000 by Ajuba Solutions.
 # portions Copyright (c) 2000 by Scott Beasley
+# portions Copyright (c) 2010-2012 Andreas Kupries
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: pop3.tcl,v 1.37 2011/01/25 02:23:30 andreas_kupries Exp $
+# RCS: @(#) $Id: pop3.tcl,v 1.38 2012/01/10 20:02:22 andreas_kupries Exp $
 
-package require Tcl 8.2
+package require Tcl 8.4
 package require cmdline
 package require log
-package provide pop3 1.8
+package provide pop3 1.9
 
 namespace eval ::pop3 {
 
@@ -287,7 +288,8 @@ proc ::pop3::open {args} {
     }
     foreach {host user password port} $args break
     if {$port == {}} {
-	if {($cstate(socketcmd) eq "tls::socket") || ($cstate(socketcmd) eq "::tls::socket")} {
+	if {([lindex $cstate(socketcmd) 0] eq "tls::socket") ||
+	    ([lindex $cstate(socketcmd) 0] eq "::tls::socket")} {
 	    # Standard port for SSL-based pop3 connections.
 	    set port 995
 	} else {
@@ -300,7 +302,7 @@ proc ::pop3::open {args} {
 
     # Argument processing is finally complete, now open the channel
 
-    set chan [$cstate(socketcmd) $host $port]
+    set chan [eval [linsert $cstate(socketcmd) end $host $port]]
     fconfigure $chan -buffering none
 
     log::log debug "pop3::open | connect on $chan"
