@@ -1,10 +1,10 @@
-[manpage_begin crc16 n 1.1.1]
+[manpage_begin crc16 n 1.1.2]
 [copyright {2002, Pat Thoyts}]
 [moddesc   {Cyclic Redundancy Checks}]
 [titledesc {Perform a 16bit Cyclic Redundancy Check}]
 [category  {Hashes, checksums, and encryption}]
 [require Tcl 8.2]
-[require crc16 [opt 1.1.1]]
+[require crc16 [opt 1.1.2]]
 [description]
 [para]
 
@@ -90,6 +90,10 @@ The package provides some implementations of standard CRC polynomials
 for the XMODEM, CCITT and the usual CRC-16 checksum. For convenience,
 additional commands have been provided that make use of these
 implementations.
+
+[def "--"]
+
+Terminate option processing.
 
 [list_end]
 

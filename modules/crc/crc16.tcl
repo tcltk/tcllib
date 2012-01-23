@@ -8,7 +8,7 @@
 # and Kermit).
 #
 # [1] http://www.microconsultants.com/tips/crc/crc.txt for the reference
-#     implementation 
+#     implementation
 # [2] http://www.embedded.com/internet/0001/0001connect.htm
 #     for another good discussion of why things are the way they are.
 # [3] "Numerical Recipes in C", Press WH et al. Chapter 20.
@@ -39,23 +39,23 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc16.tcl,v 1.15 2006/04/20 10:19:51 patthoyts Exp $
+# $Id: crc16.tcl,v 1.16 2012/01/23 20:28:11 patthoyts Exp $
 
 # @mdgen EXCLUDE: crcc.tcl
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::crc {
-    
+
     namespace export crc16 crc-ccitt crc-32
 
-    variable crc16_version 1.1.1
+    variable crc16_version 1.1.2
 
     # Standard CRC generator polynomials.
     variable polynomial
     set polynomial(crc16) [expr {(1<<16) | (1<<15) | (1<<2) | 1}]
     set polynomial(ccitt) [expr {(1<<16) | (1<<12) | (1<<5) | 1}]
-    set polynomial(crc32) [expr {(1<<32) | (1<<26) | (1<<23) | (1<<22) 
+    set polynomial(crc32) [expr {(1<<32) | (1<<26) | (1<<23) | (1<<22)
                                  | (1<<16) | (1<<12) | (1<<11) | (1<<10)
                                  | (1<<8) | (1<<7) | (1<<5) | (1<<4)
                                  | (1<<2) | (1<<1) | 1}]
@@ -67,7 +67,7 @@ namespace eval ::crc {
     # calculate the sign bit for the current platform.
     variable signbit
     if {![info exists signbit]} {
-	variable v
+        variable v
         for {set v 1} {int($v) != 0} {set signbit $v; set v [expr {$v<<1}]} {}
         unset v
     }
@@ -225,7 +225,7 @@ proc ::crc::crc {args} {
     array set opts [list filename {} channel {} chunksize 4096 \
                         format %u  seed 0 \
                         impl [namespace origin CRC16]]
-    
+
     while {[string match -* [set option [lindex $args 0]]]} {
         switch -glob -- $option {
             -fi*  { set opts(filename) [Pop args 1] }
@@ -234,8 +234,9 @@ proc ::crc::crc {args} {
             -fo*  { set opts(format) [Pop args 1] }
             -i*   { set opts(impl) [uplevel 1 namespace origin [Pop args 1]] }
             -s*   { set opts(seed) [Pop args 1] }
-            --    { Pop args ; break }
             default {
+                if {[llength $args] == 1} { break }
+                if {[string compare $option "--"] == 0} { Pop args; break }
                 set options [join [lsort [array names opts]] ", -"]
                 return -code error "bad option $option:\
                        must be one of -$options"
