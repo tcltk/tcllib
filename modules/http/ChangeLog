@@ -1,3 +1,8 @@
+2012-02-08  Pat Thoyts  <patthoyts@users.sourceforge.net>
+
+	* autoproxy.tcl: Applied suggested fix from bug #3313923 to fix
+	handling of the -authProc option.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
