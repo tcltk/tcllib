@@ -7,7 +7,7 @@
 # On Windows we can retrieve the Internet Settings values from the registry
 # to obtain pretty much the same information.
 #
-# With this information we can setup a suitable filter procedure for the 
+# With this information we can setup a suitable filter procedure for the
 # Tcl http package and arrange for automatic use of the proxy.
 #
 # Example:
@@ -20,15 +20,15 @@
 #   package require tls
 #   http::register https 443 ::autoproxy::tls_socket
 #
-# @(#)$Id: autoproxy.tcl,v 1.13 2008/03/01 00:41:35 andreas_kupries Exp $
+# @(#)$Id: autoproxy.tcl,v 1.14 2012/02/08 00:26:30 patthoyts Exp $
 
 package require http;                   # tcl
 package require uri;                    # tcllib
 package require base64;                 # tcllib
 
 namespace eval ::autoproxy {
-    variable rcsid {$Id: autoproxy.tcl,v 1.13 2008/03/01 00:41:35 andreas_kupries Exp $}
-    variable version 1.5.1
+    variable rcsid {$Id: autoproxy.tcl,v 1.14 2012/02/08 00:26:30 patthoyts Exp $}
+    variable version 1.5.2
     variable options
 
     if {! [info exists options]} {
@@ -36,7 +36,7 @@ namespace eval ::autoproxy {
             proxy_host ""
             proxy_port 80
             no_proxy   {}
-            basic      {} 
+            basic      {}
             authProc   {}
         }
     }
@@ -97,13 +97,13 @@ proc ::autoproxy::configure {args} {
 
     while {[string match "-*" [set option [lindex $args 0]]]} {
         switch -glob -- $option {
-            -host - 
+            -host -
             -proxy_h* { set options(proxy_host) [Pop args 1]}
-            -port - 
+            -port -
             -proxy_p* { set options(proxy_port) [Pop args 1]}
             -no*      { set options(no_proxy) [Pop args 1] }
             -basic    { Pop args; configure:basic $args ; break }
-            -authProc { set options(authProc) [Pop args] }
+            -authProc { set options(authProc) [Pop args 1] }
             --        { Pop args; break }
             default {
                 set opts [join [lsort [array names options]] ", -"]
