@@ -188,6 +188,8 @@ namespace eval ::pki {
 	array set handlers {
 		rsa                            {::pki::rsa::encrypt ::pki::rsa::decrypt ::pki::rsa::generate}
 	}
+
+	variable INT_MAX [expr {[format "%u" -1] / 2}]
 }
 
 namespace eval ::pki::rsa {}
@@ -878,10 +880,16 @@ proc ::pki::x509::_dn_to_list {dn} {
 proc ::pki::x509::_list_to_dn {name} {
 	set ret ""
 	foreach {oid_name value} $name {
+		if {![regexp {[^ A-Za-z0-9'()+,.:/?=-]} $value]} {
+			set asnValue [::asn::asnPrintableString $value]
+		} else {
+			set asnValue [::asn::asnUTF8String $value]
+		}
+
 		append ret [::asn::asnSet \
 			[::asn::asnSequence \
 				[::asn::asnObjectIdentifier [::pki::_oid_name_to_number $oid_name]] \
-				[::asn::asnPrintableString $value] \
+				$asnValue \
 			] \
 		] \
 	}
@@ -1321,7 +1329,7 @@ proc ::pki::pkcs::parse_csr {csr} {
 
 			set key(n) [::math::bignum::tostr $key(n)]
 			set key(e) [::math::bignum::tostr $key(e)]
-			set key(l) [expr {int([::pki::_bits $key(n)] / 8) * 8}]
+			set key(l) [expr {2**int(ceil(log([::pki::_bits $key(n)])/log(2)))}]
 			set key(type) rsa
 		}
 		default {
@@ -1561,7 +1569,17 @@ proc ::pki::_isprime {n} {
 	
 	while {$k > 0} {
 		incr k -1
-		set a [expr {2 + int(rand() * ($n - 4))}]
+		set rand_1 [expr {int(rand() * $::pki::INT_MAX)}]
+		set rand_2 [expr {int(rand() * $::pki::INT_MAX)}]
+		if {$rand_1 < $rand_2} {
+			set rand_num $rand_1
+			set rand_den $rand_2
+		} else {
+			set rand_num $rand_2
+			set rand_den $rand_1
+		}
+
+		set a [expr {2 + (($n - 4) * $rand_num / $rand_den)}]
 
 		set x [_powm $a $d $n]
 		if {$x == 1 || $x == $n - 1} {
@@ -1722,4 +1740,4 @@ proc ::pki::rsa::generate {bitlength {exponent 0x10001}} {
 # # ## ### ##### ######## #############
 ## Ready
 
-package provide pki 0.2
+package provide pki 0.3
