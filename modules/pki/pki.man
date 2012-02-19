@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin pki n 0.2]
+[manpage_begin pki n 0.3]
 [copyright {2010, Roy Keene}]
 [moddesc {RSA public key encryption}]
 [titledesc {Implementation of the RSA public key cipher}]
 [category  {Hashes, checksums, and encryption}]
 [require Tcl 8.5]
-[require pki [opt 0.2]]
+[require pki [opt 0.3]]
 [description]
 [para]
 
