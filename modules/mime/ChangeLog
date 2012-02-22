@@ -1,3 +1,10 @@
+2012-02-22  Andreas Kupries  <andreask@activestate.com>
+
+	* mime.tcl: [Bug 3483716]: Accepted patch by Christian Nassau
+	* pkgIndex.tcl: <cnassau@users.sourceforge.net> to handle (decode)
+	  the content transfer encodings base64 and quoted-printable. Bumped
+	  version to 1.5.5.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
