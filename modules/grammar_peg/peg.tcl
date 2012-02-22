@@ -320,7 +320,7 @@ snit::type ::grammar::peg {
     }
 
     method NtDelete {nts} {
-	set references $re($nt)
+	set references $re($nts)
 
 	# We are gone. We are not using anything anymore.
 	unset    nt($nts)
@@ -538,4 +538,4 @@ snit::type ::grammar::peg {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide grammar::peg 0.1
+package provide grammar::peg 0.2

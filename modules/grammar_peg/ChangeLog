@@ -1,3 +1,8 @@
+2012-02-22  Andreas Kupries  <andreask@activestate.com>
+
+	* peg.tcl: [Bug 3490008]: Fixed variable name typo reported by
+	* pkgIndex.tcl: glastonbridge2. Bumped version to 0.2.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
