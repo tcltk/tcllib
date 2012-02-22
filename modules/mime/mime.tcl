@@ -22,7 +22,7 @@
 # new string features and inline scan are used, requiring 8.3.
 package require Tcl 8.3
 
-package provide mime 1.5.4
+package provide mime 1.5.5
 
 if {[catch {package require Trf 2.0}]} {
 
@@ -798,9 +798,22 @@ proc ::mime::parsepart {token} {
                     -file $state(file) -root $state(root) \
                     -offset $state(offset) -count $state(count)
             } else {
-		mime::initializeaux $child \
-		    -lineslist [lrange $state(lines) \
-				    $state(lines.current) end] 
+ 		if {[info exists state(encoding)]} {
+ 		    set strng [join [lrange $state(lines) \
+ 					 $state(lines.current) end] "\n"]
+ 		    switch -- $state(encoding) {
+ 			base64 -
+ 			quoted-printable {
+ 			    set strng [$state(encoding) -mode decode -- $strng]
+ 			}
+ 			default {}
+ 		    }
+ 		    mime::initializeaux $child -string $strng
+ 		} else {
+		    mime::initializeaux $child \
+			-lineslist [lrange $state(lines) \
+					$state(lines.current) end] 
+		}
             }
         }
 
