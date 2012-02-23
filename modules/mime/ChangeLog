@@ -1,3 +1,8 @@
+2012-02-23  Andreas Kupries  <andreask@activestate.com>
+
+	* mime.test: [Bug 3483716]: Added testcase, supplied by Christian
+	  Nassau. Thank you.
+
 2012-02-22  Andreas Kupries  <andreask@activestate.com>
 
 	* mime.tcl: [Bug 3483716]: Accepted patch by Christian Nassau
