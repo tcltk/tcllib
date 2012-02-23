@@ -7,7 +7,7 @@
 # Copyright (c) 2000 by Ajuba Solutions
 # All rights reserved.
 #
-# RCS: @(#) $Id: mime.test,v 1.30 2008/05/21 19:41:55 andreas_kupries Exp $
+# RCS: @(#) $Id: mime.test,v 1.31 2012/02/23 17:35:17 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -585,6 +585,23 @@ Content-Type: application/octet-stream;
 BGRzcwEAAQABAAAAYQAAAAAAAAAAAAAAAAAAACQAAAD+//7/+/8wNzA2MTYwODE1MjQwNzA2
 AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAZ}
 
+# -------------------------------------------------------------------------
+
+test mime-12.0 {Bug 3483716} {
+    set token [mime::initialize -string {Content-Type: message/delivery-status; name="deliverystatus.txt"
+Content-Disposition: attachment; filename="deliverystatus.txt"; size=138;
+creation-date="Thu, 02 Feb 2012 13:50:05 GMT";
+modification-date="Thu, 02 Feb 2012 13:50:05 GMT"
+Content-Description: deliverystatus.txt
+Content-Transfer-Encoding: base64
+
+T3JpZ2luYWwtUmVjaXBpZW50OiA8L2ZheD1ibHViYkBndW1taS5ib290PgpBY3Rpb246IGZhaWxl
+ZApEaWFnbm9zdGljLUNvZGU6IHNtdHA7IDU1MCAjNS4xLjAgQWRkcmVzcyByZWplY3RlZC4KUmVt
+b3RlLU1UQTogNTMuMjQuMjgyLjE1MA==
+}]
+    set parts [mime::getproperty $token parts]
+    mime::getheader [lindex $parts end] Remote-MTA
+} 53.24.282.150
 
 # -------------------------------------------------------------------------
 
