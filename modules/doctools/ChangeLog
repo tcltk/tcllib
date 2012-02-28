@@ -1,3 +1,9 @@
+2012-02-27  Andreas Kupries  <aku@hephaistos>
+
+	* tests/text/04: Update the expected the result to match the new
+	  actual result. See the 2011-12-13 last-second bugfix in
+	  textutil::adjust::undent for the cause.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
