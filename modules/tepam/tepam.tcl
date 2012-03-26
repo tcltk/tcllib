@@ -10,7 +10,7 @@
 #
 # Copyright (C) 2009/2010/2011 Andreas Drollinger
 # 
-# RCS: @(#) $Id: tepam.tcl,v 1.2 2011/01/21 15:56:20 droll Exp $
+# RCS: @(#) $Id: tepam.tcl,v 1.3 2012/03/26 20:44:10 droll Exp $
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -21,7 +21,7 @@ package require Tcl 8.3
 namespace eval tepam {
 
    # This is the following TEPAM version:
-   variable version 0.2.0
+   variable version 0.3.0
    
    # Exports the major commands from this package:
    namespace export procedure argument_dialogbox
@@ -39,6 +39,12 @@ namespace eval tepam {
    # Setting the following variable to 0 will disable the automatic argument name
    # extension feature.
    set auto_argument_name_completion 1
+
+   # Set the following variable prior to the procedure definition to:
+   #   - 0 (false): to disable command logging
+   #   - 1 (true): to log all commands anytime
+   #   - "interactive": to log only interactively called commands
+   set command_log "interactive"
    
    # Set the following variable to "short" to generate small interactive dialog boxes.
    set interactive_display_format "extended"
@@ -78,11 +84,12 @@ namespace eval tepam {
          [-return <Return_Type>]
          [-example <Example>]
          [-named_arguments_first 0|1]
+         [-command_log 0|1|"interactive"]
          [-auto_argument_name_completion 0|1]
          [-interactive_display_format]
          [-args <ArgumentDeclarationList>]
       }
-         
+
       <ArgumentDeclarationList> = {<ArgumentDeclaration> [ArgumentDeclaration ...]}
 
       <ArgumentDeclaration> = {
@@ -128,8 +135,8 @@ namespace eval tepam {
    #    proc my_proc {args} {
    #       ::tepam::ProcedureArgumentEvaluation;
    #       if {$ProcedureArgumentEvaluationResult!=""} {
-   #         if {$ProcedureArgumentEvaluationResult=="cancel"} return;
-   #         return -code error $ProcedureArgumentEvaluationResult;
+   #          if {$ProcedureArgumentEvaluationResult=="cancel"} return;
+   #          return -code error $ProcedureArgumentEvaluationResult;
    #       }
    #       if {$SubProcedure!=""} {return [$SubProcedure]};
    #
@@ -181,6 +188,7 @@ namespace eval tepam {
       variable ProcDef
       variable ProcedureHelp
       variable named_arguments_first
+      variable command_log
       variable auto_argument_name_completion
       variable interactive_display_format
       variable ProcedureList
@@ -224,6 +232,7 @@ namespace eval tepam {
          # the actual configured procedure modes:
          catch {array unset ProcDef $ProcName,*}
          set ProcDef($ProcName,-named_arguments_first) $named_arguments_first
+         set ProcDef($ProcName,-command_log) $command_log
          set ProcDef($ProcName,-auto_argument_name_completion) $auto_argument_name_completion
          set ProcDef($ProcName,-interactive_display_format) $interactive_display_format
 
@@ -275,6 +284,7 @@ namespace eval tepam {
                -short_description -
                -description -
                -named_arguments_first -
+               -command_log -
                -auto_argument_name_completion -
                -example -
                -interactive_display_format {
@@ -345,6 +355,7 @@ namespace eval tepam {
       variable ProcDef
       variable ProcedureHelp
       variable named_arguments_first
+      variable command_log
       variable auto_argument_name_completion
       variable interactive_display_format
       variable ProcedureList
@@ -630,7 +641,6 @@ namespace eval tepam {
          }
 
       #### Call an argument_dialogbox if the procedure has been called with'-interactive' ####
-
          set NewArgs {}
          if {$InteractiveCall} {
             # Start creating the argument_dialogbox's argument list with the title attribute:
@@ -1047,6 +1057,30 @@ namespace eval tepam {
                }
             }
          }
+
+      #### Log the procedure call ####
+      
+         variable ProcedureCallLogList
+
+         if {$InteractiveCall && $ProcDef($ProcName,-command_log)=="interactive"} {
+            append ProcedureCallLogList $ProcName
+            foreach NamedUnnamed {Named Unnamed} {
+               foreach Var $ProcDef($ProcName,${NamedUnnamed}VarList) {
+                  if {![info exists Variable__$Var]} continue; # Skip optional arguments that haven't been defined
+                  if {$ProcDef($ProcName,Arg,$Var,-type)!="none"} { # Non flag arguments
+                     if {$ProcDef($ProcName,Arg,$Var,IsNamed)} {
+                        append ProcedureCallLogList " -$Var"
+                     }
+                     append ProcedureCallLogList " \{[set Variable__$Var]\}"
+                  } elseif {[set Variable__$Var]} { # Flags that are set
+                     append ProcedureCallLogList " -$Var"
+                  }
+               }
+            }
+            append ProcedureCallLogList "; \# interactive call\n"
+         } elseif {$ProcDef($ProcName,-command_log)=="1"} {
+            append ProcedureCallLogList "$ProcedureCallLine\n"
+         }
       
       ProcedureArgumentEvaluationReturn ""
    }
@@ -1062,9 +1096,9 @@ namespace eval tepam {
    proc Validate()         {v} {return 1}
    proc Validate(none)     {v} {return 1}
    proc Validate(string)   {v} {return 1}
-   proc Validate(boolean)  {v} {expr [string length $v]>0 && [string is boolean $v]}
-   proc Validate(double)   {v} {expr [string length $v]>0 && [string is double $v]}
-   proc Validate(integer)  {v} {expr [string length $v]>0 && [string is integer $v]}
+   proc Validate(boolean)  {v} {string is boolean -strict $v}
+   proc Validate(double)   {v} {string is double -strict $v}
+   proc Validate(integer)  {v} {string is integer -strict $v}
    proc Validate(alnum)    {v} {string is alnum $v}
    proc Validate(alpha)    {v} {string is alpha $v}
    proc Validate(ascii)    {v} {string is ascii $v}
@@ -1257,7 +1291,7 @@ namespace eval tepam {
                      append HelpLine "type: $ProcDef($ProcName,Arg,$Var,-type), "
                   }
                   if {[info exists ProcDef($ProcName,Arg,$Var,-default)]} {
-                     if {[lsearch -exact {"" "string"} $ProcDef($ProcName,Arg,$Var,-type)]>=0} {
+                     if {[lsearch -exact {"" "string"} $ProcDef($ProcName,Arg,$Var,-type)]>=0 || $ProcDef($ProcName,Arg,$Var,-default)==""} {
                         append HelpLine "default: \"$ProcDef($ProcName,Arg,$Var,-default)\", "
                      } else {
                         append HelpLine "default: $ProcDef($ProcName,Arg,$Var,-default), "
@@ -1332,8 +1366,8 @@ namespace eval tepam {
    
    # Special elements of this array variable can be specified for testing purposes:
    #
-   # Set to following variable to 0 to "emulate" an acknowledge of the dialog box and to 3 to 
-   # "emulate" an activation of the Cancel button:
+   # Set to following variable to "ok" to simulate an acknowledge of the dialog box and to 
+   # "cancel" to simulate an activation of the Cancel button:
    set argument_dialogbox(test,status) ""
 
    # The following variable can contain a script that is executed for test purposes, before
@@ -1657,7 +1691,7 @@ namespace eval tepam {
          }
 
          if {[info exists Context] && [info exists last_parameters($Context,-geometry)]} {
-            wm geometry $Wtop $last_parameters($Context,-geometry)
+            ConfigureWindowsGeometry $Wtop $last_parameters($Context,-geometry)
          }
 
          wm protocol $Wtop WM_DELETE_WINDOW "set ::tepam::argument_dialogbox($Wtop,status) cancel"
@@ -1682,6 +1716,7 @@ namespace eval tepam {
             } else { # Emulate the button activation for test purposes
                set status $argument_dialogbox(test,status)
             }
+
             # Cancel has been pressed - exit the wait loop:
             if {$status=="cancel"} break
 
@@ -1852,6 +1887,31 @@ namespace eval tepam {
          #define down_height 8
          static unsigned char down_bits[] = {
             0x00 0x00 0xff 0x7e 0x3c 0x18 0x00 0x00 }; }
+   }
+
+   # The following procedure defines the geometry (WxH+-X+-Y) of a window. The geometry is provided as
+   # second parameter. The position (X/Y) are verified and corrected if necessary to make the window
+   # entirly visible on the screen.
+   # This position correction is particularly interesting if an application runs within the same user 
+   # environment, but with different screen configurations.
+   proc ConfigureWindowsGeometry {W Geometry} {
+      set Width 200
+      set Height 150
+      regexp {^(\d+)x(\d+)} $Geometry {} Width Height
+
+      set X ""
+      set Y ""
+      if {[regexp {([+-]+\d+)([+-]+\d+)$} $Geometry {} X Y]} {
+         if {$X<0} {set X +0}
+         # if {$X>[winfo screenwidth .]-[winfo reqwidth $W]} {set X +[expr [winfo screenwidth .]-[winfo reqwidth $W]]}
+         if {$X>[winfo screenwidth .]-$Width} {set X +[expr [winfo screenwidth .]-$Width]}
+
+         if {$Y<0} {set Y +0}
+         # if {$Y>[winfo screenheight .]-[winfo reqheight $W]} {set Y +[expr [winfo screenheight .]-[winfo reqheight $W]]}
+         if {$Y>[winfo screenheight .]-$Height} {set Y +[expr [winfo screenheight .]-$Height]}
+      }
+      
+      wm geometry $W ${Width}x${Height}${X}${Y}
    }
 
    ######## Standard entry forms for the argument_dialogbox ########
@@ -2070,7 +2130,7 @@ namespace eval tepam {
             }
          }
          "open_selection" {
-            wm geometry $W.selection [expr [winfo width $W.entry]+[winfo width $W.button]]x100+[winfo rootx $W.entry]+[expr [winfo rooty $W.entry]+[winfo height $W.entry]]
+            ConfigureWindowsGeometry $W.selection [expr [winfo width $W.entry]+[winfo width $W.button]]x100+[winfo rootx $W.entry]+[expr [winfo rooty $W.entry]+[winfo height $W.entry]]
 
             catch {$W.selection.listbox selection clear 0 end}
             catch {$W.selection.listbox selection set [lsearch -exact [$W.selection.listbox get 0 end] [$W.entry get]]}
@@ -2216,9 +2276,9 @@ namespace eval tepam {
                set p [lsearch -exact [$W.listbox1 get 0 end] $o]
                if {$p>=0} { # Delete the selected item from the available items
                   $W.listbox1 selection set $p
+                  disjointlistbox_move $W add
                }
             }
-            disjointlistbox_move $W add
          }
          "get" {
             return [$W.listbox2 get 0 end]
@@ -2436,7 +2496,7 @@ namespace eval tepam {
       }
 
       wm protocol $W WM_DELETE_WINDOW "set ::tepam::ChooseFont($W,status) 3"
-      wm geometry $W "+[expr [winfo rootx $parent]+[winfo width $parent]+10]+[expr [winfo rooty $parent]+0]"
+      ConfigureWindowsGeometry $W "+[expr [winfo rootx $parent]+[winfo width $parent]+10]+[expr [winfo rooty $parent]+0]"
       wm deiconify $W
 
       # Wait until the OK or cancel button is pressed:
@@ -2531,16 +2591,29 @@ namespace eval tepam {
 # Specify the TEPAM version that is provided by this file:
 package provide tepam $::tepam::version
 
-##################################################
+##########################################################################
+# $RCSfile: tepam.tcl,v $ - ($Name:  $)
+# $Id: tepam.tcl,v 1.3 2012/03/26 20:44:10 droll Exp $
 # Modifications:
 # $Log: tepam.tcl,v $
+# Revision 1.3  2012/03/26 20:44:10  droll
+# * TEPAM version 0.3.0
+# * Add support to log the called procedures inside an array variable.
+# * Simplify the value validation procedures using the 'string is'
+#   procedure's -strict option.
+# * Keep the original value list in the right list of the 'disjointlistbox'.
+# * Add the procedure 'ConfigureWindowsGeometry' to handle window sizes
+#   and positions.
+#
+#
 # Revision 1.2  2011/01/21 15:56:20  droll
+# * TEPAM version 0.2.0
 # * Add the -widget option to the procedure arguments.
 # * Add the -yscroll option to the argument dialog box.
 # * Bug fixes for the following argument dialog box widgets:
 # . - disjointlistbox: Keep always the same element order
 # . - checkbox, radiobox: Handle correctly default values
 #
-# Revision 1.1  2010/2/11 21:50:55
-# * TEPAM version: 0.1.0 - module checkin
-##################################################
+# Revision 1.1  2010/02/11 21:50:55  droll
+# * TEPAM module checkin
+##########################################################################
