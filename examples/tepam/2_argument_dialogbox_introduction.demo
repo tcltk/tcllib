@@ -6,7 +6,7 @@
 #
 # Copyright (C) 2009, 2010 Andreas Drollinger
 # 
-# RCS: @(#) $Id: 2_argument_dialogbox_introduction.demo,v 1.1 2010/02/11 21:54:38 droll Exp $
+# RCS: @(#) $Id: 2_argument_dialogbox_introduction.demo,v 1.2 2012/03/26 20:58:15 droll Exp $
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -94,19 +94,19 @@ DemoControl(IsExecutable) {1}
       -frame {-label "Listbox & combobox"} \
          -listbox {-label "Listbox, single selection" -variable Listbox1 \
                    -choices {1 2 3 4 5 6 7 8} -default 1 -height 3} \
-         -listbox {-label "Listbox, multiple selection" -variable Listbox2 
-                   -choicevariable ChoiceList -default {"Choice 2" "Choice 3"} 
+         -listbox {-label "Listbox, multiple selection" -variable Listbox2 \
+                   -choicevariable ChoiceList -default {"Choice 2" "Choice 3"} \
                    -multiple_selection 1 -height 3} \
-         -disjointlistbox {-label "Disjoined listbox" -variable DisJntListbox 
+         -disjointlistbox {-label "Disjoined listbox" -variable DisJntListbox \
                            -choicevariable ChoiceList \
                            -default {"Choice 3" "Choice 5"} -height 3} \
          -combobox {-label "Combobox" -variable Combobox \
                     -choices {1 2 3 4 5 6 7 8} -default 3} \
       -frame {-label "Checkbox, radiobox and checkbutton"} \
-         -checkbox {-label Checkbox -variable Checkbox 
+         -checkbox {-label Checkbox -variable Checkbox \
                     -choices {bold italic underline} -choicelabels {Bold Italic Underline} \
                     -default italic} \
-         -radiobox {-label Radiobox -variable Radiobox 
+         -radiobox {-label Radiobox -variable Radiobox \
                     -choices {bold italic underline} -choicelabels {Bold Italic Underline} \
                     -default underline} \
          -checkbutton {-label CheckButton -variable Checkbutton -default 1} \
@@ -138,9 +138,12 @@ DemoControl(IsExecutable) {1}
 
 ##########################################################################
 # $RCSfile: 2_argument_dialogbox_introduction.demo,v $ - ($Name:  $)
-# $Id: 2_argument_dialogbox_introduction.demo,v 1.1 2010/02/11 21:54:38 droll Exp $
+# $Id: 2_argument_dialogbox_introduction.demo,v 1.2 2012/03/26 20:58:15 droll Exp $
 # Modifications:
 # $Log: 2_argument_dialogbox_introduction.demo,v $
+# Revision 1.2  2012/03/26 20:58:15  droll
+# no message
+#
 # Revision 1.1  2010/02/11 21:54:38  droll
 # TEPAM module checkin
 #
