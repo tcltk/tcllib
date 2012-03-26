@@ -1,17 +1,17 @@
-[manpage_begin tepam::procedure n 0.2.0]
+[manpage_begin tepam::procedure n 0.3.0]
 [copyright {2009/2010, Andreas Drollinger}]
 [moddesc {Tcl's Enhanced Procedure and Argument Manager}]
 [titledesc {TEPAM procedure, reference manual}]
 [category {Procedures, arguments, parameters, options}]
 [require Tcl 8.3]
-[require tepam [opt 0.2]]
+[require tepam [opt 0.3]]
 
 [description]
-This package provides an alternative way to declare Tcl procedures and to manage its arguments. There is a lot of benefit to declare a procedure with TEPAM rather than with the Tcl standard command [fun proc]: TEPAM allows specifying inside the procedure declaration in a natural syntax all information that is required to generate comprehensive documentations and help support.  The information is also used by an automatically invoked argument checker that is validating the provided procedure arguments before the procedure body is executed. Finally, a procedure can be called interactively which will open a form into which the arguments can be entered interactively.
+This package provides an alternative way to declare Tcl procedures and to manage its arguments. There is a lot of benefit to declare a procedure with TEPAM rather than with the Tcl standard command [fun proc]: TEPAM allows specifying inside the procedure declaration all information that is required to generate comprehensive documentations and help support.  The information is also used by an automatically invoked argument checker that validates the provided procedure arguments before the procedure body is executed. Finally, a procedure can be called interactively which will open a graphical form that allows specifying the procedure arguments.
 [para]
-TEPAM simplifies also the handling of the different types of argument, like the [emph {named arguments}] (often also called [emph options]) and the [emph {unnamed arguments}]. TEPAM supports the [emph {named first, unnamed later}] style (used by many Tcl commands) as well as also the [emph {unnamed first, named later}] style (used by many Tk commands). TEPAM reduces the effort to use default values, optional arguments, multiple applicable arguments, etc. to a simply definition of an argument attributes.
+TEPAM simplifies also the handling of the different types of argument, like the [emph {named arguments}] (often also called [emph options]) and the [emph {unnamed arguments}]. TEPAM supports the [emph {named first, unnamed later}] style (typical Tcl command style) as well as also the [emph {unnamed first, named later}] style (typical Tk command style). TEPAM takes care about default values for arguments, optional arguments, multiple applicable arguments, etc. and eliminates the need to check the validity of the argument inside the procedure bodies.
 [para]
-An informal overview of all the TEPAM procedure declaration and calling features as well as an informal introduction into TEPAM is provided by [emph {tepam(n)}].
+An informal overview of all the TEPAM procedure declaration and calling features as well as a short introduction into TEPAM is provided by [emph {tepam(n)}].
 
 [section "TERMINOLOGY"]
 
@@ -40,7 +40,7 @@ TEPAM provides a framework that allows implementing easily such subcommands in f
 
 [def [emph "Procedure attribute"]]
 
-TEPAM allows attaching to a declared procedure many kind of attributes. Some of these attributes are [emph just] used for documentation purposes, but other attributes specify the way how the procedure has to be called. Also the procedure arguments are defined in form of a procedure attribute.
+TEPAM allows attaching to a declared procedure different kind of attributes. Some of these attributes are [emph just] used for documentation purposes, but other attributes specify the way how the procedure has to be called. Also the procedure arguments are defined in form of a procedure attribute.
 
 [def [emph "Argument"]]
 
@@ -70,7 +70,7 @@ For the other parameters, e.g. the ones for which the argument name has not to b
 
 [def [emph "Argument attribute"]]
 
-TEPAM allows describing the purpose of each procedure argument with [emph {argument attributes}]. While some of them are just documenting the attributes, most attributes are used by an argument manager to control and validate the arguments that are provided during a procedure call. Argument attributes are used to specify default values, parameter classes (integer, xdigit, font, ...), valid choices, value ranges, etc.
+TEPAM allows describing the purpose of each procedure argument with [emph {argument attributes}]. While some of them are just documenting the attributes, most attributes are used by an argument manager to control and validate the arguments that are provided during a procedure call. Argument attributes are used to specify default values, parameter classes (integer, xdigit, font, ...), choice validation lists, value ranges, etc.
 
 [def [emph "Named arguments first, unnamed arguments later"]]
 
@@ -90,7 +90,7 @@ This style is referred in the TEPAM documentation as [emph {unnamed arguments fi
 
 [section "PROCEDURE DECLARATION"]
 
-TEPAM allows declaring new Tcl procedures with the command [fun tepam::procedure] that similar to the standard Tcl command [fun proc] also 3 arguments:
+TEPAM allows declaring new Tcl procedures with the command [fun tepam::procedure] that has similar to the standard Tcl command [fun proc] also 3 arguments:
 
 [list_begin definitions]
 [call [cmd "tepam::procedure"] \
@@ -129,7 +129,7 @@ The 3 arguments of [fun procedure] are:
 
 [def "[arg name]"]
 
-The procedure name can be used in very flexible ways. Not only that namespaces are fully supported. By providing a two element name list as procedure name, a subcommand of a procedure will be declared. It is even possible to declare sub-sub-commands of a procedure by providing name lists with three elements.
+The procedure name can be used in very flexible ways. Procedure names can have namespace qualifiers. By providing a two element name list as procedure name, a subcommand of a procedure will be declared. It is even possible to declare sub-sub-commands of a procedure by providing name lists with three elements.
 [para]
 Here are some valid procedure declarations using different procedure names (the attribute and body arguments are empty for simplicity):
 
@@ -147,9 +147,9 @@ tepam::procedure [fun "{display message}"] {} {}[example_end]
 
 [def "[arg attributes]"]
 
-All procedure attributes are provided in form of an option list that contains pairs of option names and option data. The example above has as procedure attribute a short and a normal description, but also the procedure arguments are defined in form of a procedure attribute.
+All procedure attributes are provided in form of an option list that contains pairs of option names and option values. The example above has as procedure attribute a short and a normal description, but also the procedure arguments are defined in form of a procedure attribute.
 [para]
-Most procedure attributes are providing information for documentation purposes. But some of them affect also the way how the procedure can be called. The section [sectref {Procedure Attributes}] discuses in detail the available procedure attributes.
+Most procedure attributes are providing information for documentation purposes. But some of them affect also the way how the procedure can be called. The section [sectref {Procedure Attributes}] discusses in detail the available procedure attributes.
 [para]
 The procedure arguments are defined in form of a special procedure attribute. Most of the information provided in the argument definition is not just used for documentation purposes. This information is in fact used by the TEPAM argument manager to handle and validate the various forms of arguments that are provided during the procedure calls. The section [sectref {Argument Declaration}] discusses in detail all the argument definition attributes.
 
@@ -193,7 +193,7 @@ in the NAME section of a generated procedure manual page.
 The (full) description assigned to a procedure is used to create user manual and help pages.
 
 [def "-return [arg string]"]
-The [emph -return] attribute allows defining the expected return value of a procedure (user for documentation purposes).
+The [emph -return] attribute allows defining the expected return value of a procedure (used for documentation purposes).
 
 [def "-example [arg string]"]
 A help text or manual page of a procedure can be enriched with eventual examples, using the [emph -example] attribute.
@@ -203,24 +203,36 @@ The following attributes are not relevant for the documentation and help text ge
  
 [list_begin definitions]
 [def "-named_arguments_first [const 0]|[const 1]"]
-This attribute defines the calling style of a procedure. TEPAM uses by default the [emph "named arguments first, unnamed arguments later"] style (Tcl). This default behavior can globally be changed by setting the variable [var tepam::named_arguments_first] to [const 0]. This global calling style can be changed individually for a procedure with the [arg -named_arguments_first] attribute.
+This attribute defines the calling style of a procedure. TEPAM uses by default the [emph "named arguments first, unnamed arguments later"] style (Tcl). This default behavior can globally be changed by setting the variable [var tepam::named_arguments_first] to [const 0]. This global calling style can be changed individually for a procedure with the procedure's [arg -named_arguments_first] attribute.
 
 [def "-auto_argument_name_completion [const 0]|[const 1]"]
-The declared procedures will by default automatically try to match eventually abbreviated argument names to the defined arguments names. This default behavior can globally be changed by setting the variable [var tepam::auto_argument_name_completion] to [const 0]. This global setting of the automatic argument name completion can be changed individually for a procedure with the [arg -auto_argument_name_completion] attribute.
+The declared procedures will by default automatically try to match eventually abbreviated argument names to the defined arguments names. This default behavior can globally be changed by setting the variable [var tepam::auto_argument_name_completion] to [const 0]. This global setting of the automatic argument name completion can be changed individually for a procedure with the [arg -auto_argument_name_completion] procedure attribute.
 
 [def "-interactive_display_format [const extended]|[const short]"]
-A procedure declared with the TEPAM [fun procedure] command can always be called with the [var -interactive] option. By doing so, a graphical form will be generated that allows entering interactively all procedure arguments. There are two display modes for these interactive forms. While the [emph extended] mode is more adapted for small procedure argument sets, the [const short] form is more adequate for huge procedure argument sets.
+A procedure declared with the TEPAM [fun procedure] command can always be called with the [var -interactive] option. By doing so, a graphical form will be generated that allows specifying all procedure argument values. There are two display modes for these interactive forms. While the [emph extended] mode is more adapted for small procedure argument sets, the [const short] form is more adequate for huge procedure argument sets.
 [para]
-The choice to use short or extended forms can globally be configured via the variable [var tepam::interactive_display_format]. This global setting can then be changed individually for a procedure with the [arg -interactive_display_format] attribute.
+The choice to use short or extended forms can be globally configured via the variable [var tepam::interactive_display_format]. This global setting can then be changed individually for a procedure with the [arg -interactive_display_format] procedure attribute.
 
 [def "-args [arg list]"]
 The procedure's arguments are declared via the [arg -args] attribute. An argument is defined via a list having as first element the argument name, followed by eventual argument attributes. All these argument definition lists are packaged themselves into a global list that is assigned to the procedure's [arg -args] attribute.
 [para]
-The next sub section describes in detail the argument definition syntax.
+The argument definition syntax will be described more in detail in the following sub section.
+
+[list_end]
+
+The following attribute allows controlling the logging settings for an individual procedure:
+ 
+[list_begin definitions]
+
+[def "-command_log [const 0]|[const 1]|[const \"interactive\"]"]
+This argument configures the logging of the procedure calls into the list variable [var tepam::ProcedureCallLogList]. The default configuration defined by the variable [var tepam::command_log] will be used if this argument is not defined in a procedure declaration.
+[para]
+Setting this argument to [const 0] will disable any procedure call loggings, setting it to [const 1] will log any procedure calls and setting it to [const "interactive"] will log just the procedures that are called interactively (procedures called with the [const -interactive] flag).
+
 [list_end]
 
 [subsection "Argument Declaration"]
-The following example highlights the structure that is used for the argument definitions in the context of a procedure declaration:
+The following example shows the structure that is used for the argument definitions in the context of a procedure declaration:
 
 [example_begin]tepam::procedure {display_message} {
    -args [cmd {{
@@ -234,14 +246,14 @@ The following example highlights the structure that is used for the argument def
 } {
 }[example_end]
 
-So, each of the procedure arguments is declared with a list that has as first element the argument name, followed by eventual attributes. The argument definition syntax can be formalized in the following way:
+Each of the procedure arguments is declared with a list that has as first element the argument name, followed by eventual attributes. The argument definition syntax can be formalized in the following way:
 
 [example_begin]tepam::procedure <name> {
    -args [cmd {{
-      {<argument_name_1> <arg_attr_name_1a> <arg_attr_data_1a> \ 
-                         <arg_attr_name_1b> <arg_attr_data_1b> ...}
-      {<argument_name_2> <arg_attr_name_2a> <arg_attr_data_2a> \ 
-                         <arg_attr_name_2b> <arg_attr_data_2b> ...}
+      {<argument_name_1> <arg_attr_name_1a> <arg_attr_value_1a> \ 
+                         <arg_attr_name_1b> <arg_attr_value_1b> ...}
+      {<argument_name_2> <arg_attr_name_2a> <arg_attr_value_2a> \ 
+                         <arg_attr_name_2b> <arg_attr_value_2b> ...}
       ...
    }}]
 } <body>[example_end]
@@ -250,12 +262,12 @@ The argument names and attributes have to be used in the following way:
 
 [list_begin definitions]
 [def "Argument name ([emph <argument_name_<n>>])"]
-The provided argument name specifies if the argument is an [emph "unnamed argument"] or a [emph "named argument/option"]. In addition to this, an argument name can also be blank to indicate an argument comment, or it can start with # to indicate a section comment.
+The provided argument name specifies whether the argument is an [emph "unnamed argument"] or a [emph "named argument"]. In addition to this, an argument name can also be blank to indicate an argument comment, or it can start with # to indicate a section comment.
 
 [list_begin definitions]
 
 [def [arg "\"<Name>\""]]
-This is the simplest form of an argument name: An argument whose name is not starting with '-' is an unnamed argument. The parameter provided during a procedure call will be assigned to a variable with the name [emph <Name>].
+This is the simplest form of an argument name: An argument whose name is not starting with '-' is an [emph "unnamed argument"]. The parameter provided during a procedure call will be assigned to a variable with the name [emph <Name>].
 
 [example_begin]tepam::procedure {print_string} {
    -args {
@@ -269,7 +281,7 @@ print_string [cmd {"Hello"}]
 [emph { -> Hello}][example_end]
 
 [def [arg "\"-<Name>\""]]
-An argument whose name starts with '-' is a named argument (also called [emph option]). The parameter provided during a procedure call will be assigned to a variable with the name [emph <Name>] (not [emph -<Name>]).
+An argument whose name starts with '-' is a [emph "named argument"] (also called [emph option]). The parameter provided during a procedure call will be assigned to a variable with the name [emph <Name>] (not [emph -<Name>]).
 
 [example_begin]tepam::procedure {print_string} {
    -args {
@@ -283,13 +295,14 @@ print_string [cmd {-text "Hello"}]
 [emph { -> Hello}][example_end]
 
 [def [arg "\"--\""]]
-This flag allows clearly specifying the end of the named arguments and the begin of the unnamed arguments, in case the [emph {named arguments first, unnamed arguments later style (Tcl)}] has been selected.
+This flag allows clearly specifying the end of the named arguments and the beginning of the unnamed arguments, in case the [emph {named arguments first, unnamed arguments later style (Tcl)}] has been selected.
 [para]
-If the [emph {unnamed arguments first, named arguments later style (Tk)}] style is selected, this flag is ignored when the unnamed arguments have already been parsed. Otherwise it will be assigned to the corresponding unnamed argument.
+If the [emph {unnamed arguments first, named arguments later style (Tk)}] style is selected, this flag is ignored if the unnamed arguments have already been parsed. Otherwise it will be assigned to the corresponding unnamed argument.
 
 [def "[arg \"-\"] or [arg \"\"]"]
-A blank argument name (either '-' or [emph '']) indicates an argument comment. All remaining characters of the argument definition list will be considered as a comment that will be attributed to the following attribute.
+A blank argument name (either '-' or [emph '']) starts a comment for the following arguments.
 [example_begin]tepam::procedure {print_time} {
+   -interactive_display_format short
    -args {
       {hours -type integer -description "Hour"}
       {minutes -type integer -description "Minute"}
@@ -301,7 +314,7 @@ A blank argument name (either '-' or [emph '']) indicates an argument comment. A
 } {
    puts "${hour}h${minutes}:[lb]expr $seconds+0.001*$milliseconds[rb]"
 }[example_end]
-Argument comments are basically used in the interactive argument definition forms, when a procedure is called interactively.
+Argument comments are basically used in the graphical argument definition forms that are created if a procedure is called interactively.
 
 [def [arg "\"#*\""]]
 An argument definition list that starts with '#' is considered as a section comment. The argument definition list will be trimmed from the '#' characters and the remaining string will be used as section comment.
@@ -325,20 +338,20 @@ Section comments can be used to structure visually the argument definition code.
 
 [list_end]
 
-[def "Argument attributes ([emph {<arg_attr_name_<mn>> <arg_attr_data_<mn>>}])"]
+[def "Argument attributes ([emph {<arg_attr_name_<mn>> <arg_attr_value_<mn>>}])"]
 The following argument attributes are supported:
 
 [list_begin definitions]
 
 [def "-description [arg string]"]
-The description argument attribute is used for documentation purpose. Interactive argument definition forms use this attribute to provide comprehensible explanations for an argument. 
+The description argument attribute is used for documentation purpose. Interactive argument definition forms use this attribute to provide explanations for an argument. 
 
 [def "-type [arg type]"]
-The type argument attribute allows assigning the argument either to a predefined data type, or to a application specific data type. The argument data that are provided during a procedure call are automatically checked for consistency with the defined argument type.
+The type argument attribute allows assigning the argument either to a predefined data type, or to an application specific data type. The argument values that are provided during a procedure call are automatically checked with respect to the defined argument type.
 [para]
-Section [sectref {ARGUMENT TYPES}] provides a list of predefined data types and explains how application specific types can be specified.
+The section [sectref {ARGUMENT TYPES}] provides a list of predefined data types and explains how application specific types can be specified.
 [para]
-The argument type [emph none] has a special meaning. An argument that has the type [emph none] is handled as a [arg flag]. A flag is always optional and its related variable contains the logical value [const 0] if the flag has been used during the procedure call, or otherwise [const 1].
+The argument type [emph none] has a special meaning. An argument that has the type [emph none] is handled as a [arg flag]. A flag is always optional and its related variable contains the logical value [const 1] if the flag has been defined during the procedure call, or otherwise [const 0].
 
 [def "-default [arg value]"]
 Eventual default values can be defined with the -default argument attribute. Arguments with default values are automatically optional arguments.
@@ -350,16 +363,16 @@ In case an optional argument is not defined during a procedure call, the corresp
 The flag [arg -mandatory] is the opposite to [arg -optional]. This flag exists only for completion reason, since an argument is anyway mandatory by default.
 
 [def "-multiple"]
-Arguments that have the [arg -multiple] attribute can be defined multiple times during a procedure call. The data that are provided during a procedure call for such an argument are stored in a list. This is even the case if such an argument is only defined once during a procedure call.
+Arguments that have the [arg -multiple] attribute can be defined multiple times during a procedure call. The values that are provided during a procedure call for such an argument are stored in a list variable. This is even the case if such an argument is only defined once during a procedure call.
 [para]
-The [arg -multiple] attribute can be attributed to unnamed arguments and to named arguments. The pair of argument name/argument data has to be repeated for each provided data value in case of a named argument.
+The [arg -multiple] attribute can be attributed to unnamed arguments and to named arguments. The pair of argument name/argument value has to be repeated for each provided value in case of a named argument.
 In case the argument with the [arg -multiple] attribute is an unnamed argument, this one has to be the absolute last one of all unnamed arguments.
 
 [def "-choices [arg list]"]
-A possible set of valid argument values can be attributed to an argument via the [arg -choices] attribute. The argument data provided during a procedure call will be checked against the provided choice values.
+A possible set of valid argument values can be attributed to an argument via the [arg -choices] attribute. The argument value provided during a procedure call will be checked against the provided choice values.
 
 [def "-choicelabels [arg list]"]
-An evanutal short description can be attributed to each choice option with the [arg -choicelabels] attribute. These descriptions will be used in the generated help texts and as radio and check box labels for the interactive calls.
+An eventual short description can be attributed to each choice option with the [arg -choicelabels] attribute. These descriptions will be used in the generated help texts and as radio and check box labels for the interactive calls.
 [para]
 The [arg -choicelabels] attribute is optional, but if it is defined, its list needs to have the identical size as the [arg -choices] argument list.
 
@@ -367,7 +380,7 @@ The [arg -choicelabels] attribute is optional, but if it is defined, its list ne
 Another argument constraint can be defined with the [arg -range] attribute. The valid range is defined with a list containing the minimum valid value and a maximum valid value. The [arg -range] attribute has to be used only for numerical arguments, like integers and doubles.
 
 [def "-validatecommand [arg script]"]
-Eventual more complex argument data validations can be performed via specific validation commands that are assigned to the [arg validatecommand] attribute. The provided validation command can be a complete script in which the pattern [emph %P] is replaced by the argument data that has to be validated.
+Eventual more complex argument value validations can be performed via specific validation commands that are assigned to the [arg -validatecommand] attribute. The provided validation command can be a complete script in which the pattern [emph %P] is replaced by the argument value that has to be validated.
 An example of a validation command declaration is:
 [example_begin]tepam::procedure {display_message} {
    -args {
@@ -381,9 +394,9 @@ The widgets that allow defining the different arguments in case of an interactiv
 [para]
 
 [def "-auxargs [arg list]"]
-In case a procedure is called interactively, additional argument attributes can be provided to the interactive argument definition form via the [emph -auxargs] attribute that is itself a list of attribute name/attribute data pairs:
-[example_begin]-auxargs {-<arg_attr_name_1a> <arg_attr_data_1a> \ 
-          -<arg_attr_name_1b> <arg_attr_data_1b>
+In case a procedure is called interactively, additional argument attributes can be provided to the interactive argument definition form via the [emph -auxargs] attribute that is itself a list of attribute name/attribute value pairs:
+[example_begin]-auxargs {-<arg_attr_name_1a> <arg_attr_value_1a> \ 
+          -<arg_attr_name_1b> <arg_attr_value_1b>
           ...
 }[example_end]
 For example, if a procedure takes as argument a file name it may be beneficial to specify the required file type for the interactive argument definition form. This information can be provided via the [emph -auxargs] attribute to the argument definition form:
@@ -396,7 +409,7 @@ For example, if a procedure takes as argument a file name it may be beneficial t
 }[example_end]
 
 [def "-auxargs_commands [arg script]"]
-If the auxiliary argument attributes are not static but have to be dynamically adaptable, the [emph -auxargs_commands] allows defining them via commands that are executed during a procedure call. A list of pairs of auxiliary attribute names and commands have to be provided to the [emph -auxargs_commands] attribute. The provided commands are executed in the context of the calling procedure.
+If the auxiliary argument attributes are not static but have to be dynamically adaptable, the [emph -auxargs_commands] allows defining them via commands that are executed during a procedure call. A list of pairs of auxiliary attribute names and commands has to be provided to the [emph -auxargs_commands] attribute. The provided commands are executed in the context of the calling procedure.
 [example_begin]-auxargs_commands {-<arg_attr_name_1a> <arg_attr_command_1a> \ 
                    -<arg_attr_name_1b> <arg_attr_command_1b>
                    ...
@@ -408,43 +421,53 @@ If the auxiliary argument attributes are not static but have to be dynamically a
 
 [section "VARIABLES"]
 
-Several variables defined inside the [namespace ::tepam] namespace are impacting the procedures and the way how they have to be called.
+Several variables defined inside the [namespace ::tepam] namespace are impacting the mode of operation of the procedures that have been declared with TEPAM' [fun procedure] command.
 
 [list_begin definitions]
 [def "[var named_arguments_first]"]
-This variable defines the general calling style of the procedures. It is by default set to [const 1] which selects the [emph "named arguments first, unnamed arguments later"] style (Tcl).
+This variable defines the general calling style of the procedures. It is by default set to [const 1] which selects the [emph "named arguments first, unnamed arguments later"] style (Tcl style).
 [para]
-By setting this variable to [const 0], the [emph "named arguments first, unnamed arguments later"] style (Tk) is globally selected:
+By setting this variable to [const 0], the [emph "named arguments first, unnamed arguments later"] style is globally selected (Tk style):
 [example {set tepam::named_arguments_first 0}]
 [para]
-While this variable defines globally the calling style, the procedure attribute [arg -named_arguments_first] can adapt this style individually for each procedure.
+While this variable defines the general calling style, the procedure attribute [arg -named_arguments_first] can adapt this style individually for each declared procedure.
 
 [def "[var auto_argument_name_completion]"]
-This variable controls globally the automatic argument name matching mode. By default it is set to [const 1], meaning that the called procedures are trying to match eventually abbreviated argument names with the declared argument names.
+This variable controls the general automatic argument name matching mode. By default it is set to [const 1], meaning that the called procedures are trying to match eventually abbreviated argument names with the declared argument names.
 [para]
 By setting this variable to [const 0] the automatic argument name matching mode is disabled:
 [example {set tepam::auto_argument_name_completion 0}]
 [para]
-While this variable defines globally the matching mode, the procedure attribute [arg -auto_argument_name_completion] can adapt this mode individually for each procedure.
+While this variable defines the general matching mode, the procedure attribute [arg -auto_argument_name_completion] can adapt this mode individually for each declared procedure.
 
 [def "[var interactive_display_format]"]
 A procedure declared via the TEPAM [fun procedure] command can always be called with the [var -interactive] switch. By doing so, a graphical form will be generated that allows entering interactively all procedure arguments.
 [para]
-There are two display modes for these interactive forms. The [emph extended] mode which is the default mode is more adapted for small procedure argument sets, while the [const short] form is more adequate for huge procedure argument sets:
+There are two display modes for these interactive forms. The [emph extended] mode which is the default mode is more adapted for small procedure argument sets. The [const short] form is more adequate for huge procedure argument sets:
 [example {set tepam::interactive_display_format "short"}]
 [para]
-The choice to use short or extended forms can globally be configured via this variable [var interactive_display_format].
+The choice to use short or extended forms can be globally configured via the variable [var interactive_display_format].
 This global setting can be changed individually for a procedure with the procedure attribute [arg -interactive_display_format].
 
 [def "[var help_line_length]"]
 The maximum line length used by the procedure help text generator can be specified with this variable. The default length which is set to 80 (characters) can easily be adapted to the need of an application:
 [example {set tepam::help_line_length 120}]
 Since this variable is applied directly during the help text generation, its value can continuously be adapted to the current need.
+
+[def "[var command_log]"]
+Procedure calls can be logged inside the list variable [var tepam::ProcedureCallLogList]. The variable [var tepam::command_log] controls the default logging settings for any procedures. The following configurations are supported:
+[list_begin itemized]
+[item] [emph 0]: Disables any procedure call loggings
+[item] [emph 1]: Enables any procedure call loggings[para]
+[item] [emph \"interactive\"]: Will log any procedures called interactively (e.g. procedures called with the -interactive flag). This is the default configuration.
+[list_end]
+This default logging configuration can be changed individually for each procedure with the [arg -command_log] attribute.
+
 [list_end]
 
 [section "ARGUMENT TYPES"]
 
-Many argument types are predefined by TEPAM that can be used in the procedure argument definition section as argument type. In case a special application specific type is missing, it is easy to add the necessary support for such a type.
+A comprehensive set of procedure argument types that is already predefined by TEPAM can easily be completed with additional types that are required for a specific application.
 
 [subsection "Predefined Argument Types"]
 
@@ -465,7 +488,7 @@ There are some [emph {special purpose types}] that are building the first catego
 
 [list_begin itemized]
 [item] [type none][para]
-[emph Flags], also called [emph switches], are defined by specifying a named argument with the type [type none]. Flags are always optional and the default value of the assigned variable is set to [const 0]. In contrast to the (normal) named arguments no argument data has to be provided to a flag.
+A [emph flag], also called [emph switch], is defined as a named argument that has the type [type none]. Flags are always optional and the default value of the assigned variable is set to [const 0]. In contrast to the (normal) named arguments, no argument value has to be provided to a flag.
 [example_begin]tepam::procedure flag_test {
    -args {
       [cmd {{-flag -type none -description "This is a flag"}}]
@@ -480,19 +503,19 @@ flag_test
 flag_test -flag
 [emph {-> 1}][example_end]
 [para]
-Since no argument data has to be provided to a flag, also no data checks are performed for this argument type.
+Since no argument value has to be provided to a flag, also no data check is performed for this argument type.
 
 [item] [type string][para]
 [type String] is a generic argument data type. Any data string can be provided to a string type argument and no data type checks are therefore performed.
 
 [item] [type "{}"][para]
-A [type blank] argument type signifies an undefined argument type. This is the default argument type that is used when no type has been explicitly specified. An argument that has a [type blank] type behaves identically than an argument that has a [type string] type, e.g. no argument data checks are performed. The only difference is that the data type [type string] is mentioned in the generated help documentation, while this is not the case for [type blank] type.
+A [type blank] argument type signifies an undefined argument type. This is the default argument type that will be used if no type has been explicitly specified. An argument that has a [type blank] type behaves identically than an argument that has a [type string] type, e.g. no argument data checks are performed. The only difference is that the data type [type string] is mentioned in the generated help documentation, while this is not the case for [type blank] type.
 
 [list_end]
 [para]
 
-Several [emph {numerical types}] are defined by TEPAM. The type validation procedures are not using only the [cmd {string is <type>}] commands to check the validity of the provided arguments, but they assure also that no empty strings are provided as argument data (the [cmd {string is <type>}] commands are considering an empty string as a valid numerical parameter). The common type validation expression is therefore:
-[example_begin]expr [lb]string length [arg {<argument_data>}][rb]>0 && [lb]string is [type {<type_to_check>}] [arg {<argument_data>}][rb][example_end]
+Several [emph {numerical types}] are defined by TEPAM. The type validation procedures are using the [cmd {string is <type> -strict}] commands to check the validity of the provided arguments, which assures that no empty strings are accepted as argument value. The type validation expression for the numerical types and the argument types to which this expression is applied are:
+[example_begin]string is [type {<type_to_check>}] -strict [arg {<argument_value>}][example_end]
 
 [list_begin itemized]
 [item] [emph boolean][para]
@@ -500,9 +523,9 @@ Several [emph {numerical types}] are defined by TEPAM. The type validation proce
 [item] [emph double][para]
 [list_end]
 
-The verification of all [emph {alpha numeric types}] is directly performed with the standard Tcl string type verification command:
-[example_begin]string is [emph {<type_to_check>}] [arg {<argument_data>}][example_end]
-The following types are verified in this way:
+Empty strings are accepted as argument value for all the alpha numeric argument types. The argument types that are falling into this category and validation expression used for them are:
+[example_begin]string is [emph {<type_to_check>}] [arg {<argument_value>}][example_end]
+
 [list_begin itemized]
 [item] [emph alnum][para]
 [item] [emph alpha][para]
@@ -524,42 +547,42 @@ In addition to the data types checked with the [cmd {string is <type>}] commands
 [list_begin itemized]
 [item] [emph char][para]
 Each string that has a length of 1 character meets the [emph character] type. The type check is made with the following expression:
-[example_begin]expr [lb]string length [arg {<argument_data>}][rb]==1[example_end]
+[example_begin]expr [lb]string length [arg {<argument_value>}][rb]==1[example_end]
 
 [item] [emph color][para]
-Any character strings that are accepted by Tk as a color are considered as valid color argument. Please note that the Tk package has to be loaded to use the [emph color] type. TEPAM is using the following command to validate the color type:
-[example_begin]expr ![lb]catch {winfo rgb . [arg {<argument_data>}]}[rb][example_end]
+Any character strings that are accepted by Tk as a color are considered as valid color argument. Please note that the Tk package has to be loaded to use the type [emph color]. TEPAM is using the following command to validate the color type:
+[example_begin]expr ![lb]catch {winfo rgb . [arg {<argument_value>}]}[rb][example_end]
 
 [item] [emph font][para]
-Any character strings that are accepted by Tk as a font are considered as valid font argument. Please note that the Tk package uas to be loaded to use the [emph font] type. TEPAM is using the following command to validate the color type:
-[example_begin]expr ![lb]catch {font measure <argument_data> ""}[rb][example_end]
+Any character strings that are accepted by Tk as a font are considered as valid font argument. Please note that the Tk package has to be loaded to use the [emph font] type. TEPAM is using the following command to validate the color type:
+[example_begin]expr ![lb]catch {font measure <argument_value> ""}[rb][example_end]
 
 [item] [emph file][para]
-Any strings that are not containing one of the following characters are considered as valid file name: * ? " < >. It is not necessary that the file or its containing directory is existing. Zero-length strings are not considered as valid file names.
+Any strings that are not containing one of the following characters are considered as valid file names: * ? " < >. It is not necessary that the file and its containing directory exist. Zero-length strings are not considered as valid file names.
 [para]
 The following expression is used to validate the file names:
-[example_begin]expr [lb]string length <argument_data>[rb]>0 && ![lb]regexp {[lb]\"*?<>:[rb]} <argument_data>[rb][example_end]
+[example_begin]expr [lb]string length <argument_value>[rb]>0 && ![lb]regexp {[lb]\"*?<>:[rb]} <argument_value>[rb][example_end]
 
 [item] [emph existingfile][para]
 The argument is valid if it matches with an existing file. The following check is performed to validate the arguments of this type:
-[example_begin]file exists <argument_data>[example_end]
+[example_begin]file exists <argument_value>[example_end]
 
 [item] [emph directory][para]
 The directory argument is validated exactly in the same way as the file arguments.
 
 [item] [emph existingdirectory][para]
 The argument is valid if it matches with an existing directory. The following check is performed to validate the arguments of this type:
-[example_begin]file isdirectory <argument_data>[example_end]
+[example_begin]file isdirectory <argument_value>[example_end]
 
 [list_end]
 
 [subsection "Defining Application Specific Argument Types"]
 
-Nothing is easier than adding support for a new application specific argument type. It is just necessary to add into the namespace [namespace tepam] a validation function [fun Validation(<type>)] that has one argument and that returns [const 1] if the provided argument matches with the relevant data type. The function has to return otherwise [const 0].
+To add support for a new application specific argument type it is just necessary to add into the namespace [namespace tepam] a validation function [fun Validation(<type>)]. This function requires one argument. It has to returns [const 1] if the provided argument matches with the relevant data type. The function has to return otherwise [const 0].
 [para]
 The validation command section of the [file tepam.tcl] package provides sufficient examples of validation functions, since it implements the ones for the standard TEPAM types.
 [para]
-The following additional code snippet shows the validation function for a custom argument type that has to correspond to a character string with a length of 2:
+The following additional code snippet shows the validation function for a custom argument type that requires values that have a character string length of exactly 2:
 [example_begin]proc tepam::Validate(two_char) {v} {expr [lb]string length $v[rb]==2}[example_end]
 
 [section "PROCEDURE CALLS"]
@@ -645,7 +668,7 @@ The nice thing is that unnamed arguments can also be called as named arguments, 
 
 [subsection "Named Arguments"]
 
-Named arguments have to be provided to a procedure in form of a parameter pairs composed by the argument names and the argument data. The order how they are provided during a procedure call is irrelevant and has not to match with the argument specification order.
+Named arguments have to be provided to a procedure in form of a parameter pairs composed by the argument names and the argument values. The order how they are provided during a procedure call is irrelevant and has not to match with the argument specification order.
 [para]
 The following declared procedure ...
 
@@ -703,7 +726,7 @@ The argument parser considers the first argument that doesn't start with the '-'
 [example_begin]my_proc [cmd {U1 U2}]
 [emph {-> n1:'', n2:'', u1:'U1', u2:'U2'}][example_end]
 
-Named arguments can be defined multiple times. If the named argument has the [emph -multiply] attribute, all argument data will be collected in a list. Otherwise, only the last provided attribute data will be retained:
+Named arguments can be defined multiple times. If the named argument has the [emph -multiply] attribute, all argument values will be collected in a list. Otherwise, only the last provided attribute value will be retained:
 
 [example_begin]my_proc [cmd {-n1 N1 -n2 N2 -n1 M1 U1 U2}]
 [emph {-> n1:'M1', n2:'N2', u1:'U1', u2:'U2'}][example_end]
@@ -728,7 +751,7 @@ my_proc [cmd {-n1 N1 -n2 N2 -- $U1 U2}]
 
 [subsection "Named Arguments First, Unnamed Arguments Later (Tcl Style)"]
 
-The Tk calling style is selected when a procedure is defined while the variable [var tepam::named_arguments_first] is set to 0, or when the procedure attribute [arg -named_arguments_first] has been set to 0. The following procedure will be used in this section to illustrate this calling style:
+The Tk calling style will be chosen if a procedure is defined while the variable [var tepam::named_arguments_first] is set to 0, or if the procedure attribute [arg -named_arguments_first] has been set to 0. The following procedure will be used in this section to illustrate this calling style:
 
 [example_begin][cmd {set tepam::named_arguments_first 0}]
 tepam::procedure my_proc {
@@ -747,13 +770,13 @@ The unnamed arguments have to be provided first in this case. The named argument
 [example_begin]my_proc [cmd {U1 U2 -n1 N1 -n2 N2}]
 [emph {-> n1:'N1', n1:'N1', u1:'U1', u2:'U2'}][example_end]
 
-The argument parser will assign to each defined unnamed argument an argument data before it switches to read the named arguments. This default behavior changes a bit if there are unnamed arguments that are optional or that can take multiple values.
+The argument parser will assign to each defined unnamed argument a value before it switches to read the named arguments. This default behavior changes a bit if there are unnamed arguments that are optional or that can take multiple values.
 [para]
-An argument data will only be assigned to an unnamed argument that is optional (that has either the [arg -optional] attribute or that has a default value), when the data is not beginning with the '-' character or when no named arguments are defined. The data that starts with '-' is otherwise considered as the name of a named argument.
+An argument value will only be assigned to an unnamed argument that is optional (that has either the [arg -optional] attribute or that has a default value), if the value is not beginning with the '-' character or if no named arguments are defined. The value that starts with '-' is otherwise considered as the name of a named argument.
 [para]
-Argument data are assigned to an argument that has the [arg -multiple] attribute as long as the parameter value doesn't starts with the '-' character. 
+Argument values are assigned to an argument that has the [arg -multiple] attribute as long as the parameter value doesn't starts with the '-' character. 
 [para]
-This constraint that parameter values that start with the '-' character cannot be assigned to optional unnamed arguments makes the Tcl procedure calling style not suitable for all situations. The Tk style may be preferable in some cases, since it allows separating unambiguously the named arguments from the unnamed ones with the '--' flag.
+Values that start with the '-' character can therefore not be assigned to optional unnamed arguments, which restricts the usage of the Tcl procedure calling style. The Tk style may be preferable in some cases, since it allows separating unambiguously the named arguments from the unnamed ones with the '--' flag.
 [para]
 Let's explore in a bit less theoretically the ways how the previously defined procedure can be called: The first example calls the procedure without any parameters, which leads to an error since [arg u1] is a mandatory argument:
 
@@ -765,12 +788,12 @@ The procedure call is valid if one parameter is provided for [arg u1]:
 [example_begin]my_proc [cmd {U1}]
 [emph {-> n1:'', n2:'', u1:'U1', u2:''}][example_end]
 
-When more parameters are provided that are not starting with the '-' character, then they will be attributed to the unnamed arguments. [arg U2] will receive 3 of these parameters, since it accepts multiple values:
+If more parameters are provided that are not starting with the '-' character, they will be attributed to the unnamed arguments. [arg U2] will receive 3 of these parameters, since it accepts multiple values:
 
 [example_begin]my_proc [cmd {U1 U2 U3 U4}]
 [emph {-> n1:'', n2:'', u1:'U1', u2:'U2 U3 U4'}][example_end]
 
-As soon as one parameter starts with '-' and all unnamed arguments have been served, the argument manager tries to interpret the parameter as name of a named argument. The procedure call will fail if the intend was to attribute the parameter beginning with '-' to an unnamed argument:
+As soon as one parameter starts with '-' and all unnamed arguments have been assigned, the argument manager tries to interpret the parameter as name of a named argument. The procedure call will fail if a value beginning with '-' is assigned to an unnamed argument:
 
 [example_begin]my_proc [cmd {U1 U2 U3 U4 -U5}]
 [emph {-> my_proc: Argument '-U5' not known}][example_end]
@@ -780,7 +803,7 @@ The attribution of a parameter to a named argument will fail if there are undefi
 [example_begin]my_proc [cmd {-n1 N1}]
 [emph {-> n1:'', n2:'', u1:'-n1', u2:'N1'}][example_end]
 
-The situation is completely different if values have already been attributed to all mandatory unnamed arguments. A parameter beginning with the '-' character will in this case be considered as a name identifier for a named argument:
+The situation is completely different if values have already been assigned to all mandatory unnamed arguments. A parameter beginning with the '-' character will in this case be considered as a name identifier for a named argument:
 
 [example_begin]my_proc [cmd {U1 -n1 N1}]
 [emph {-> n1:'N1', n2:'', u1:'U1', u2:''}][example_end]
@@ -805,7 +828,7 @@ my_proc [cmd {U1 -n1 N1 -- -n2 N2}]
 
 [subsection "Raw Argument List"]
 
-It may be necessary sometimes that the procedure body is able to access the entire list of arguments provided during a procedure call. This can happen via the [var args] variable that contains always to unprocessed argument list:
+It may be necessary sometimes that the procedure body is able to access the entire list of arguments provided during a procedure call. This can happen via the [var args] variable that contains always the unprocessed argument list:
 
 [example_begin]tepam::procedure {display_message} {
    -args {
@@ -822,4 +845,3 @@ display_message -mtype Warning "It is 7:00"
 [see_also tepam(n) tepam::argument_dialogbox(n)]
 [keywords procedure arguments {argument validation} {argument integrity} subcommand]
 [manpage_end]
-
