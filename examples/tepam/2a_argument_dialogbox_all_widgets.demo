@@ -6,7 +6,7 @@
 #
 # Copyright (C) 2009, 2010 Andreas Drollinger
 # 
-# RCS: @(#) $Id: 2a_argument_dialogbox_all_widgets.demo,v 1.2 2011/01/21 16:00:49 droll Exp $
+# RCS: @(#) $Id: 2a_argument_dialogbox_all_widgets.demo,v 1.3 2012/03/26 20:58:15 droll Exp $
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -150,7 +150,7 @@ DemoControl(IsExecutable) {1}
 
 if {[tepam::argument_dialogbox \
    -disjointlistbox {-label "Preferred scripting languages" -variable Languages \
-             -comment "Please select your preferred languanges in the order" \
+             -comment "Please select your preferred languages in the order" \
              -choices {JavaScript Lisp Lua Octave PHP Perl Python Ruby Scheme Tcl} \
              -default {Tcl Perl Python}}]=="ok"} {
    puts "Languages: $Languages"
@@ -270,9 +270,12 @@ if {[tepam::argument_dialogbox \
 
 ##########################################################################
 # $RCSfile: 2a_argument_dialogbox_all_widgets.demo,v $ - ($Name:  $)
-# $Id: 2a_argument_dialogbox_all_widgets.demo,v 1.2 2011/01/21 16:00:49 droll Exp $
+# $Id: 2a_argument_dialogbox_all_widgets.demo,v 1.3 2012/03/26 20:58:15 droll Exp $
 # Modifications:
 # $Log: 2a_argument_dialogbox_all_widgets.demo,v $
+# Revision 1.3  2012/03/26 20:58:15  droll
+# no message
+#
 # Revision 1.2  2011/01/21 16:00:49  droll
 # * TEPAM version 0.2.0
 #
