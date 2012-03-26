@@ -1,14 +1,42 @@
+2012/03/26  Andreas Drollinger  <droll@users.sourceforge.net>
+ 
+	* TEPAM version 0.3.0
+	* tepam.tcl: Add support to log the called procedures inside an array variable.
+	* tepam.tcl: Simplify the value validation procedures using the 'string is'
+	  procedure's -strict option.
+	* tepam.tcl: Keep the original value list in the right list of the 
+	  'disjointlistbox'.
+	* tepam.tcl: Add the procedure 'ConfigureWindowsGeometry' to handle window 
+	  sizes and positions.
+	* Cleanup the manuals.
+	* tepam_demo.tcl: TEPAM version 0.3.0
+	* tepam_demo.tcl: Replaces the control buttons by a menu.
+	* tepam_demo.tcl: Create an exit procedure to catch an eventual call of the exit command 
+	  inside the console.
+	* tepam_demo.tcl: Adjust the colors and rewrite the explanations.
+	* tepam_demo.tcl: Display eventual errors with message boxes.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	*
 	* Released and tagged Tcllib 1.14 ========================
-	* 
 
 2011-11-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* examples/tepam/tepam_demo.tcl [Bug 3425269]: Applied bug fixes
 	  for the demo script supplied by Stuart Cassoff.
-
 	* adbox_all.test: [Bug 3422990]: Fixed these test files to
 	* adbox_widgets.test: properly register their need for Tk
 	* proc_interactive.test: and not execute without it.
+
+2011/01/21  Andreas Drollinger  <droll@users.sourceforge.net>
+
+	* TEPAM version 0.2.0
+	* Add the -widget option to the procedure arguments.
+	* Add the -yscroll option to the argument dialog box.
+	* Bug fixes for the following argument dialog box widgets:
+	  - disjointlistbox: Keep always the same element order
+	- checkbox, radiobox: Handle correctly default values
+
+2010/02/11  Andreas Drollinger  <droll@users.sourceforge.net>
+
+	* TEPAM module checkin
