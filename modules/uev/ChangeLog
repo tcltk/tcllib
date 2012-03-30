@@ -1,3 +1,17 @@
+2012-03-30  Andreas Kupries  <andreask@activestate.com>
+
+	* uevent.man: New feature. Version bumped to 0.3.
+	* uevent.pcx: Get events when tag and/or tag/event combination
+	* uevent.tcl: begins to be observed, and when observation ends.
+	* uevent.test: This allows a caller of uevent::generate to
+	* pkgIndex.tcl: optimize its own behaviour, i.e. initialize
+	  whatever resources are needed only when the tags/events it
+	  generates are actually observed by somebody. Updated all of
+	  documentation, testsuite, and checker definitions.
+
+	  Refactored the internals a bit. When run under Tcl 8.5 or higher
+	  the API ensemblifies itself.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

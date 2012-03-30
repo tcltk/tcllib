@@ -10,6 +10,7 @@
 package require pcx
 pcx::register uevent
 pcx::tcldep   0.1.3 needs tcl 8.4
+pcx::tcldep   0.3   needs tcl 8.4
 
 namespace eval ::uevent {}
 
@@ -29,6 +30,25 @@ pcx::check 0.1.3 std ::uevent::generate \
 	checkWord
     }}
 pcx::check 0.1.3 std ::uevent::unbind \
+    {checkSimpleArgs 1 1 {
+	checkWord
+    }}
+pcx::check 0.3 std ::uevent::watch::tag::add \
+    {checkSimpleArgs 2 2 {
+	checkWord
+	checkWord
+    }}
+pcx::check 0.3 std ::uevent::watch::tag::remove \
+    {checkSimpleArgs 1 1 {
+	checkWord
+    }}
+pcx::check 0.3 std ::uevent::watch::event::add \
+    {checkSimpleArgs 3 3 {
+	checkWord
+	checkWord
+	checkWord
+    }}
+pcx::check 0.3 std ::uevent::watch::event::remove \
     {checkSimpleArgs 1 1 {
 	checkWord
     }}
