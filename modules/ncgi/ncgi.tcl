@@ -27,7 +27,7 @@
 package require Tcl 8.2
 package require fileutil ; # Required by importFile.
 
-package provide ncgi 1.3.2
+package provide ncgi 1.3.3
 
 namespace eval ::ncgi {
 
@@ -349,7 +349,7 @@ proc ::ncgi::nvlist {} {
 		        if { $len>1 } { 
                             # ... and there is something to the right ...
 		            set varname anonymous
-		            set val [string range $x 1 end]]
+		            set val [string range $x 1 end]
 		        } else { 
                             # ... otherwise, all we have is an =
 		            set varname anonymous
