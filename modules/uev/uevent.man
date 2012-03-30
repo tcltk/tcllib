@@ -1,10 +1,10 @@
-[manpage_begin uevent n 0.2]
-[copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[manpage_begin uevent n 0.3]
+[copyright {2007-2012 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {User events}]
 [titledesc {User events}]
 [category  {Programming tools}]
 [require Tcl 8.4]
-[require uevent [opt 0.2]]
+[require uevent [opt 0.3]]
 [require logger]
 [keywords event bind unbind {generate event} hook]
 [see_also hook(n)]
@@ -49,10 +49,12 @@ after it.
 
 [section API]
 
-The package exports three commands, as specified below:
+The package exports eight commands, as specified below. Note that when
+the package is used from within Tcl 8.5+ all the higher commands are
+ensembles, i.e. the :: separators can be replaceed by spaces.
 
 [list_begin definitions]
-
+[comment ============================================================]
 [call [cmd ::uevent::bind] [arg tag] [arg event] [arg command]]
 
 Using this command registers the [arg command] prefix to be triggered
@@ -75,14 +77,14 @@ contents are event specific and have to be agreed upon between actual
 event generator and consumer. This package simply transfers the
 information and does not perform any processing beyond that.
 
-
+[comment ============================================================]
 [call [cmd ::uevent::unbind] [arg token]]
 
 This command releases the event binding represented by the
 [arg token]. The token has to be the result of a call to
 [cmd ::uevent::bind]. The result of the command is the empty string.
 
-
+[comment ============================================================]
 [call [cmd ::uevent::generate] [arg tag] [arg event] [opt [arg details]]]
 
 This command generates an [arg event] for the [arg tag], triggering
@@ -106,13 +108,13 @@ Generating an event for an unknown tag, or for a
 <[arg tag],[arg event]> combination which has no commands bound to it
 is allowed, such calls will be ignored.
 
-
+[comment ============================================================]
 [call [cmd ::uevent::list]]
 
 In this form the command returns a list containing the names of all
 tags which have events with commands bound to them.
 
-
+[comment ============================================================]
 [call [cmd ::uevent::list] [arg tag]]
 
 In this format the command returns a list containing the names of all
@@ -120,13 +122,69 @@ events for the [arg tag] with commands bound to them. Specifying an
 unknown tag, i.e. a tag without event and commands, will cause the
 command to throw an error.
 
-
+[comment ============================================================]
 [call [cmd ::uevent::list] [arg tag] [arg event]]
 
 In this format the command returns a list containing all commands
 bound to the [arg event] for the [arg tag]. Specifying an unknown tag
 or unknown event, will cause the command to throw an error.
 
+[comment ============================================================]
+[call [cmd ::uevent::watch::tag::add] [arg pattern] [arg command]]
+
+This command sets up a sort of reverse events. Events generated,
+i.e. the [arg command] prefix invoked, when observers bind to and
+unbind from specific tags.
+
+[para] Note that the command prefix is only invoked twice per tag,
+first when the first command is bound to any event of the tag, and
+second when the last command bound to the tag is removed.
+
+[para] The signature of the [arg command] prefix is
+
+[list_begin definitions]
+[call [cmd "{*}command"] [const bound]   [arg tag]]
+[call [cmd "{*}command"] [const unbound] [arg tag]]
+[list_end]
+
+[para] The result of the command is a token representing the watcher.
+
+[comment ============================================================]
+[call [cmd ::uevent::watch::tag::remove] [arg token]]
+
+This command removes a watcher for (un)bind events on tags.
+
+[para] The result of the command is the empty string.
+
+[comment ============================================================]
+[call [cmd ::uevent::watch::event::add] [arg tag_pattern] [arg event_pattern] [arg command]]
+
+This command sets up a sort of reverse events. Events generated,
+i.e. the [arg command] prefix invoked, when observers bind to and
+unbind from specific combinations of tags and events.
+
+[para] Note that the command prefix is only invoked twice per
+tag/event combination, first when the first command is bound to it,
+and second when the last command bound to the it is removed.
+
+[para] The signature of the [arg command] prefix is
+
+[list_begin definitions]
+[call [cmd "{*}command"] [const bound]   [arg tag] [arg event]]
+[call [cmd "{*}command"] [const unbound] [arg tag] [arg event]]
+[list_end]
+
+[para] The result of the command is a token representing the watcher.
+
+[comment ============================================================]
+[call [cmd ::uevent::watch::event::remove] [arg token]]
+
+This command removes a watcher for (un)bind events on tag/event
+combinations.
+
+[para] The result of the command is the empty string.
+
+[comment ============================================================]
 [list_end]
 
 [section {BUGS, IDEAS, FEEDBACK}]
