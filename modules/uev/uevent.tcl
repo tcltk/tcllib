@@ -290,8 +290,8 @@ proc ::uevent::watch::event::Invoke {action tag event} {
 
     foreach key [array names db] {
 	foreach {tpattern epattern} $key break
-	if {![string match $tpattern $tag]} return
-	if {![string match $epattern $event]} return
+	if {![string match $tpattern $tag]} continue
+	if {![string match $epattern $event]} continue
 
 	foreach token $db($key) {
 	    set cmd [lindex $tk($token) end]
