@@ -232,7 +232,7 @@ proc ::uevent::watch::tag::Invoke {action tag} {
     variable tk
 
     foreach pattern [array names db] {
-	if {![string match $pattern $tag]} return
+	if {![string match $pattern $tag]} continue
 
 	foreach token $db($pattern) {
 	    set cmd [lindex $tk($token) end]
