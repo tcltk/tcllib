@@ -422,7 +422,7 @@ proc ::uevent::token::Remove {token} {
 }
 
 namespace eval ::uevent::token {
-    variable counter 0
+    variable tcounter 0
     namespace export NewToken Place Remove
 }
 
@@ -464,7 +464,7 @@ if {[package vsatisfies [package present Tcl] 8.5]} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide uevent 0.3
+package provide uevent 0.3.1
 
 ##
 # ### ### ### ######### ######### #########
