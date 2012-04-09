@@ -1,3 +1,9 @@
+2012-04-09  Andreas Kupries  <andreask@activestate.com>
+
+	* uevent.man: Fixed typo in variable name (counter / tcounter).
+	* uevent.tcl: Bumped version to 0.3.1. Updated documentation.
+	* pkgIndex.tcl:
+
 2012-03-30  Andreas Kupries  <andreask@activestate.com>
 
 	* uevent.man: New feature. Version bumped to 0.3.
