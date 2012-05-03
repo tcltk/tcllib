@@ -3,6 +3,7 @@
 # Basic support for CGI programs
 #
 # Copyright (c) 2000 Ajuba Solutions.
+# Copyright (c) 2012 Richard Hipp, Andreas Kupries
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -24,10 +25,10 @@
 # of decoding them.
 
 # We use newer string routines
-package require Tcl 8.2
+package require Tcl 8.4
 package require fileutil ; # Required by importFile.
 
-package provide ncgi 1.3.3
+package provide ncgi 1.4
 
 namespace eval ::ncgi {
 
@@ -250,16 +251,32 @@ proc ::ncgi::type {} {
 # Results:
 #	The decoded value
 
-proc ::ncgi::decode {str} {
+if {[package vsatisfies [package present Tcl] 8.6]} {
+    # 8.6+, use 'binary decode hex'
+    proc DecodeHex {hex} {
+	return [binary decode hex $hex]
+    }
+} else {
+    # 8.4+. More complex way of handling the hex conversion.
+    proc DecodeHex {hex} {
+	return [binary format H* $hex]
+    }
+}
+
+proc ncgi::decode {str} {
     # rewrite "+" back to space
     # protect \ from quoting another '\'
-    set str [string map [list + { } "\\" "\\\\"] $str]
+    set str [string map [list + { } "\\" "\\\\" \[ \\\[ \] \\\]] $str]
 
     # prepare to process all %-escapes
-    regsub -all -- {%([A-Fa-f0-9][A-Fa-f0-9])} $str {\\u00\1} str
+    regsub -all -- {%([A-Fa-f][A-Fa-f0-9])%([A-Fa-f][A-Fa-f0-9])%([A-Fa-f][A-Fa-f0-9])} \
+	$str {[encoding convertfrom utf-8 [DecodeHex \1\2\3]]} str
+    regsub -all -- {%([A-Fa-f][A-Fa-f0-9])%([A-Fa-f][A-Fa-f0-9])} \
+	$str {[encoding convertfrom utf-8 [DecodeHex \1\2]]} str
+    regsub -all -- {%([0-7][A-Fa-f0-9])} $str {\\u00\1} str
 
     # process \u unicode mapped chars
-    return [subst -novar -nocommand $str]
+    return [subst -novar $str]
 }
 
 # ::ncgi::encode

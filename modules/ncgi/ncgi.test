@@ -7,7 +7,7 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions
 #
-# RCS: @(#) $Id: ncgi.test,v 1.27 2006/10/09 15:23:06 andreas_kupries Exp $
+# RCS: @(#) $Id: ncgi.test,v 1.28 2012/05/03 17:56:07 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -15,8 +15,8 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.2
-testsNeedTcltest 1.0
+testsNeedTcl     8.4
+testsNeedTcltest 2
 
 testing {
     useLocal ncgi.tcl ncgi
@@ -119,6 +119,14 @@ test ncgi-3.3 {ncgi::decode} {
 test ncgi-3.4 {ncgi::decode} {
     ncgi::decode {hello+world}
 } {hello world}
+
+test ncgi-3.5 {ncgi::decode} {
+    ncgi::decode {aik%C5%ABloa}
+} "aik\u016Bloa" ; # u+macron
+
+test ncgi-3.6 {ncgi::decode} {
+    ncgi::decode {paran%C3%A1}
+} "paran\u00E1" ; # a+acute
 
 test ncgi-4.1 {ncgi::encode} {
     ncgi::encode abcdef0123
