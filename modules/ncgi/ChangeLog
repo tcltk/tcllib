@@ -1,3 +1,11 @@
+2012-05-03  Andreas Kupries  <andreask@activestate.com>
+
+	* ncgi.tcl: Applied Richard Hipp's patch to extend handling of
+	* pkgIndex.tcl: utf characters in [decode]. Extended testsuite.
+	* ncgi.man: Used the opportunity to bump the minimum required
+	* ncgi.test: Tcl runtime up to 8.4. Bumped package version up
+	  to 1.4 to reflect this latter change.
+
 2012-03-30  Andreas Kupries  <andreask@activestate.com>
 
 	* ncgi.tcl: [Bug 3513149]: Removed superfluous closing

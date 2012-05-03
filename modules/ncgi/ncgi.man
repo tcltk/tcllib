@@ -1,10 +1,10 @@
-[manpage_begin ncgi n 1.3.3]
+[manpage_begin ncgi n 1.4]
 [comment {-*- tcl -*- doctools manpage}]
 [moddesc   {CGI Support}]
 [titledesc {Procedures to manipulate CGI values.}]
 [category  {CGI programming}]
 [require Tcl 8.2]
-[require ncgi [opt 1.3.3]]
+[require ncgi [opt 1.4]]
 [description]
 [para]
 
