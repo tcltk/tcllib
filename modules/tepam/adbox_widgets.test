@@ -9,7 +9,7 @@
 #
 # Copyright (C) 2009, 2010 Andreas Drollinger
 # 
-# RCS: @(#) $Id: adbox_widgets.test,v 1.2 2011/11/09 05:43:30 andreas_kupries Exp $
+# RCS: @(#) $Id: adbox_widgets.test,v 1.3 2012/05/07 20:26:02 droll Exp $
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -41,7 +41,7 @@ tepam::GuiEnvironmentInit
       -match glob
 
    set tn 0
-   foreach Data { "This is a text entry" "This is another text" } {
+   foreach Data { "This is a basic entry" "This is another entry" } {
       incr tn
 
       test tepam-adbox.widg.ent$tn.st "argument_dialogbox, all widgets: entry $tn - set" \
@@ -51,6 +51,36 @@ tepam::GuiEnvironmentInit
 
       test tepam-adbox.widg.ent$tn.gt "argument_dialogbox, all widgets: entry $tn - get" \
          -body {tepam::ad_form(entry) .f get} \
+         -result $Data \
+         -match exact
+   }
+
+   destroy .f
+   array unset Option
+
+######## Text ########
+
+   frame .f
+   frame .f.f
+   array set Option {}
+   set Framed 0
+
+   test tepam-adbox.widg.txt.cr "argument_dialogbox, all widgets: text - create" \
+      -body {tepam::ad_form(text) .f.f create} \
+      -result "*" \
+      -match glob
+
+   set tn 0
+   foreach Data { "This is a text entry" "This is another text" } {
+      incr tn
+
+      test tepam-adbox.widg.txt$tn.st "argument_dialogbox, all widgets: text $tn - set" \
+         -body "tepam::ad_form(text) .f.f set \"$Data\"" \
+         -result "*" \
+         -match glob
+
+      test tepam-adbox.widg.txt$tn.gt "argument_dialogbox, all widgets: text $tn - get" \
+         -body {tepam::ad_form(text) .f.f get} \
          -result $Data \
          -match exact
    }
@@ -408,9 +438,14 @@ return
 
 ##########################################################################
 # $RCSfile: adbox_widgets.test,v $ - ($Name:  $)
-# $Id: adbox_widgets.test,v 1.2 2011/11/09 05:43:30 andreas_kupries Exp $
+# $Id: adbox_widgets.test,v 1.3 2012/05/07 20:26:02 droll Exp $
 # Modifications:
 # $Log: adbox_widgets.test,v $
+# Revision 1.3  2012/05/07 20:26:02  droll
+# * TEPAM version 0.4.0
+# * Add the new text procedure argument type and the text multi line data
+#   entry widget.
+#
 # Revision 1.2  2011/11/09 05:43:30  andreas_kupries
 #
 # 	* adbox_all.test: [Bug 3422990]: Fixed these test files to
