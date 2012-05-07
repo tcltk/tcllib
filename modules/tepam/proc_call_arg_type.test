@@ -8,7 +8,7 @@
 #
 # Copyright (C) 2009, 2010 Andreas Drollinger
 # 
-# RCS: @(#) $Id: proc_call_arg_type.test,v 1.1 2010/02/11 21:50:55 droll Exp $
+# RCS: @(#) $Id: proc_call_arg_type.test,v 1.2 2012/05/07 20:26:02 droll Exp $
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -57,6 +57,7 @@ proc tests {name description args} {
          {-untyped -optional}
          {-untyped2 -type "" -optional}
          {-string -type string -optional}
+         {-text -type text -optional}
          {-integer -type integer -optional}
          {-alnum -type alnum -optional}
          {-alpha -type alpha -optional}
@@ -79,9 +80,13 @@ proc tests {name description args} {
    } {
    }
    
-      tests tepam-procargtype.sting "tepam, Procedure argument type check - String " \
+      tests tepam-procargtype.string "tepam, Procedure argument type check - String " \
                -variations {0 12 3456789 a abcdefxyz ABCDXYZ .lkajs 98237().{} ==} \
                -body "AllTypeProcedure -string   \"%1\"" \
+               -result "" -output ""
+      tests tepam-procargtype.text "tepam, Procedure argument type check - Text " \
+               -variations {0 12 3456789 a abcdefxyz ABCDXYZ .lkajs 98237().{} ==} \
+               -body "AllTypeProcedure -text   \"%1\"" \
                -result "" -output ""
       tests tepam-procargtype.int1 "tepam, Procedure argument type check - Integer 1" \
                -variations { 0 1 2 9 10 11 01 0010 100 0x10 0xFF} \
@@ -167,6 +172,7 @@ proc tests {name description args} {
          {-untyped -optional -multiple}
          {-untyped2 -type "" -optional}
          {-string -type string -optional -multiple}
+         {-text -type text -optional -multiple}
          {-integer -type integer -optional -multiple}
          {-alnum -type alnum -optional -multiple}
          {-alpha -type alpha -optional -multiple}
@@ -192,6 +198,10 @@ proc tests {name description args} {
       tests tepam-procargtype.string "tepam, Procedure argument type check - String" \
                -variations { 0 12 3456789 a abcdefxyz ABCDXYZ .lkajs 98237().{} ==} \
                -body "AllTypeProcedure_Multiple -string   \"%1\" -string \"%1\"" \
+               -result "" -output ""
+      tests tepam-procargtype.text "tepam, Procedure argument type check - Text" \
+               -variations { 0 12 3456789 a abcdefxyz ABCDXYZ .lkajs 98237().{} ==} \
+               -body "AllTypeProcedure_Multiple -text   \"%1\" -text \"%1\"" \
                -result "" -output ""
       tests tepam-procargtype.int1 "tepam, Procedure argument type check - Integer 1" \
                -variations { 0 1 2 9 10 11 01 0010 100 0x10 0xFF} \
@@ -289,9 +299,14 @@ return
 
 ##########################################################################
 # $RCSfile: proc_call_arg_type.test,v $ - ($Name:  $)
-# $Id: proc_call_arg_type.test,v 1.1 2010/02/11 21:50:55 droll Exp $
+# $Id: proc_call_arg_type.test,v 1.2 2012/05/07 20:26:02 droll Exp $
 # Modifications:
 # $Log: proc_call_arg_type.test,v $
+# Revision 1.2  2012/05/07 20:26:02  droll
+# * TEPAM version 0.4.0
+# * Add the new text procedure argument type and the text multi line data
+#   entry widget.
+#
 # Revision 1.1  2010/02/11 21:50:55  droll
 # TEPAM module checkin
 #

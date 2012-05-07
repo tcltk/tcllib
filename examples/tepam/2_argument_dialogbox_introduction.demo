@@ -6,7 +6,7 @@
 #
 # Copyright (C) 2009, 2010 Andreas Drollinger
 # 
-# RCS: @(#) $Id: 2_argument_dialogbox_introduction.demo,v 1.2 2012/03/26 20:58:15 droll Exp $
+# RCS: @(#) $Id: 2_argument_dialogbox_introduction.demo,v 1.3 2012/05/07 20:27:26 droll Exp $
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -88,9 +88,10 @@ DemoControl(IsExecutable) {1}
    set Result [tepam::argument_dialogbox \
       -title "System configuration" \
       -context test_1 \
-      -frame {-label "Entries"} \
+      -frame {-label "Text entries"} \
          -entry {-label Entry1 -variable Entry1} \
          -entry {-label Entry2 -variable Entry2 -default "my default"} \
+         -text {-label Text1 -variable Text1 -height 3 -wrap none -default "Start here: "} \
       -frame {-label "Listbox & combobox"} \
          -listbox {-label "Listbox, single selection" -variable Listbox1 \
                    -choices {1 2 3 4 5 6 7 8} -default 1 -height 3} \
@@ -138,9 +139,14 @@ DemoControl(IsExecutable) {1}
 
 ##########################################################################
 # $RCSfile: 2_argument_dialogbox_introduction.demo,v $ - ($Name:  $)
-# $Id: 2_argument_dialogbox_introduction.demo,v 1.2 2012/03/26 20:58:15 droll Exp $
+# $Id: 2_argument_dialogbox_introduction.demo,v 1.3 2012/05/07 20:27:26 droll Exp $
 # Modifications:
 # $Log: 2_argument_dialogbox_introduction.demo,v $
+# Revision 1.3  2012/05/07 20:27:26  droll
+# * TEPAM version 0.4.0
+# * Add the new text procedure argument type and the text multi line data
+#   entry widget.
+#
 # Revision 1.2  2012/03/26 20:58:15  droll
 # no message
 #

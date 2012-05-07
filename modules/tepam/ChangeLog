@@ -1,3 +1,12 @@
+2012/05/07  Andreas Drollinger  <droll@users.sourceforge.net>
+ 
+	* TEPAM version 0.4.0
+	* Add the new text procedure argument type and the text multi line data 
+	  entry widget. Add test and documentation support for these new features:
+	  - tepam.tcl
+	  - adbox_all.test, adbox_widgets.test, proc_call_arg_type.test
+	  - tepam_argument_dialogbox.man, tepam_introductin.man, tepam_procedure.man 
+
 2012/03/26  Andreas Drollinger  <droll@users.sourceforge.net>
  
 	* TEPAM version 0.3.0
@@ -35,7 +44,7 @@
 	* Add the -yscroll option to the argument dialog box.
 	* Bug fixes for the following argument dialog box widgets:
 	  - disjointlistbox: Keep always the same element order
-	- checkbox, radiobox: Handle correctly default values
+	  - checkbox, radiobox: Handle correctly default values
 
 2010/02/11  Andreas Drollinger  <droll@users.sourceforge.net>
 

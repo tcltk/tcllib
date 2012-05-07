@@ -1,10 +1,10 @@
-[manpage_begin tepam::procedure n 0.3.0]
+[manpage_begin tepam::procedure n 0.4.0]
 [copyright {2009/2010, Andreas Drollinger}]
 [moddesc {Tcl's Enhanced Procedure and Argument Manager}]
 [titledesc {TEPAM procedure, reference manual}]
 [category {Procedures, arguments, parameters, options}]
 [require Tcl 8.3]
-[require tepam [opt 0.3]]
+[require tepam [opt 0.4]]
 
 [description]
 This package provides an alternative way to declare Tcl procedures and to manage its arguments. There is a lot of benefit to declare a procedure with TEPAM rather than with the Tcl standard command [fun proc]: TEPAM allows specifying inside the procedure declaration all information that is required to generate comprehensive documentations and help support.  The information is also used by an automatically invoked argument checker that validates the provided procedure arguments before the procedure body is executed. Finally, a procedure can be called interactively which will open a graphical form that allows specifying the procedure arguments.
@@ -506,7 +506,10 @@ flag_test -flag
 Since no argument value has to be provided to a flag, also no data check is performed for this argument type.
 
 [item] [type string][para]
-[type String] is a generic argument data type. Any data string can be provided to a string type argument and no data type checks are therefore performed.
+[type String] is a generic argument data type. Any data string can be provided to a string type argument and no data type checks are therefore performed. The string type allows defining single line strings during the interactive procedure calls.
+
+[item] [type text][para]
+[type Text] is identical to [type string] with the exception that it allows entering multi line strings during interactive procedure calls.
 
 [item] [type "{}"][para]
 A [type blank] argument type signifies an undefined argument type. This is the default argument type that will be used if no type has been explicitly specified. An argument that has a [type blank] type behaves identically than an argument that has a [type string] type, e.g. no argument data checks are performed. The only difference is that the data type [type string] is mentioned in the generated help documentation, while this is not the case for [type blank] type.

@@ -1,11 +1,11 @@
-[manpage_begin tepam::argument_dialogbox n 0.3.0]
+[manpage_begin tepam::argument_dialogbox n 0.4.0]
 [copyright {2009/2010, Andreas Drollinger}]
 [moddesc   {Tcl's Enhanced Procedure and Argument Manager}]
 [titledesc {TEPAM argument_dialogbox, reference manual}]
 [category  {Argument entry form, mega widget}]
 [require Tcl 8.3]
 [require Tk 8.3]
-[require tepam [opt 0.3]]
+[require tepam [opt 0.4]]
 
 [description]
 
@@ -182,9 +182,14 @@ TEPAM defines a rich set of entry widgets. If necessary, this set can be extende
 [list_begin definitions]
 
 [def "-entry [arg list]"]
-The [arg -entry] item generates the simplest but most universal data entry widget. It allows entering any kind of data.
+The [arg -entry] item generates the simplest but most universal data entry widget. It allows entering any kind of data in form of single line strings.
 [example_begin]tepam::argument_dialogbox \
    [cmd -entry] {-label Name -variable Entry}[example_end]
+
+[def "-text [arg list]"]
+The [arg -text] item generates a multi line text entry widget. The widget's height can be selected with the [arg -height] attribute.
+[example_begin]tepam::argument_dialogbox \
+   [cmd -text] {-label Name -variable Text -height 5}[example_end]
 
 [def "-checkbox [arg list]"]
 A group of check boxes is created with the [arg -checkbox] item. The number of check boxes and their option values are specified with a list assigned to the [arg -choices] attribute or via a variable declared with the [arg -choicevariable] attribute:
@@ -440,7 +445,7 @@ Finally, there is a last attribute supported by some widgets:
 [list_begin definitions]
 
 [def "-height [arg string]"]
-All widgets containing a selection list ([cmd -listbox], [cmd -disjointlistbox], [cmd -font]) are accepting the [arg -height] attribute that defines the number of displayed rows of the selection lists.
+All widgets containing a selection list ([cmd -listbox], [cmd -disjointlistbox], [cmd -font]) as well as the multi line [cmd -text] widget are accepting the [arg -height] attribute that defines the number of displayed rows of the selection lists.
 [example_begin]tepam::argument_dialogbox \
    -listbox {-label "Text size" -variable Size \
              -choices {8 9 10 12 15 18} -default 12 [cmd {-height 3}]}[example_end]
