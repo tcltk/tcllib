@@ -6,7 +6,7 @@
 #
 # Copyright (C) 2009, 2010 Andreas Drollinger
 # 
-# RCS: @(#) $Id: 2a_argument_dialogbox_all_widgets.demo,v 1.3 2012/03/26 20:58:15 droll Exp $
+# RCS: @(#) $Id: 2a_argument_dialogbox_all_widgets.demo,v 1.4 2012/05/07 20:27:26 droll Exp $
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -33,6 +33,22 @@ DemoControl(IsExecutable) {1}
 if {[tepam::argument_dialogbox \
         -entry {-label Name -variable Entry}]=="ok"} {
    puts "Entry: $Entry"
+} else {
+   puts "(Cancel)"
+}
+
+#### Text (multi line) ####
+
+DemoControl(IsExecutable) {1}
+
+# The -text item generates a multi line text entry widget. The default text wrapping at the 
+# word limit can be disabled via -wrap none.
+
+if {[tepam::argument_dialogbox \
+        -text {-label "Wrapped text" -variable WText -height 6 -default "Your text: "} \
+        -text {-label "Non wrapped text" -variable NWText -wrap none}]=="ok"} {
+   puts "WText: $WText"
+   puts "NWText: $NWText"
 } else {
    puts "(Cancel)"
 }
@@ -270,9 +286,14 @@ if {[tepam::argument_dialogbox \
 
 ##########################################################################
 # $RCSfile: 2a_argument_dialogbox_all_widgets.demo,v $ - ($Name:  $)
-# $Id: 2a_argument_dialogbox_all_widgets.demo,v 1.3 2012/03/26 20:58:15 droll Exp $
+# $Id: 2a_argument_dialogbox_all_widgets.demo,v 1.4 2012/05/07 20:27:26 droll Exp $
 # Modifications:
 # $Log: 2a_argument_dialogbox_all_widgets.demo,v $
+# Revision 1.4  2012/05/07 20:27:26  droll
+# * TEPAM version 0.4.0
+# * Add the new text procedure argument type and the text multi line data
+#   entry widget.
+#
 # Revision 1.3  2012/03/26 20:58:15  droll
 # no message
 #

@@ -10,7 +10,7 @@
 #
 # Copyright (C) 2009/2010/2011 Andreas Drollinger
 # 
-# RCS: @(#) $Id: tepam.tcl,v 1.3 2012/03/26 20:44:10 droll Exp $
+# RCS: @(#) $Id: tepam.tcl,v 1.4 2012/05/07 20:24:58 droll Exp $
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -21,7 +21,7 @@ package require Tcl 8.3
 namespace eval tepam {
 
    # This is the following TEPAM version:
-   variable version 0.3.0
+   variable version 0.4.0
    
    # Exports the major commands from this package:
    namespace export procedure argument_dialogbox
@@ -1096,6 +1096,7 @@ namespace eval tepam {
    proc Validate()         {v} {return 1}
    proc Validate(none)     {v} {return 1}
    proc Validate(string)   {v} {return 1}
+   proc Validate(text)     {v} {return 1}
    proc Validate(boolean)  {v} {string is boolean -strict $v}
    proc Validate(double)   {v} {string is double -strict $v}
    proc Validate(integer)  {v} {string is integer -strict $v}
@@ -1578,7 +1579,7 @@ namespace eval tepam {
                      # Create a labeled frame (for Tk 8.3 that doesn't contain a label frame)
                      set FontSize 10
                      pack [frame $WChild($ArgNbr) -bd 0] \
-                        -pady [expr $FontSize/2] -fill both -expand no
+                        -pady [expr $FontSize/2] -padx 2 -fill both -expand no
                      pack [frame $WChild($ArgNbr).f -bd 2 -relief groove] \
                         -pady [expr $FontSize/2] -fill both -expand no
                      place [label $WChild($ArgNbr).label -text $Option(-label)] \
@@ -1678,14 +1679,15 @@ namespace eval tepam {
             place $Wtop.sf.f -x 0 -y 0 -relwidth 1; # -relheight 1
             grid [scrollbar $Wtop.scale -orient v -command "tepam::argument_dialogbox_scroll $Wtop"] -row 0 -column 1 -sticky ns
 
+            wm geometry $Wtop [winfo reqwidth $Wtop.sf.f]x[expr [winfo screenheight $Wtop.sf.f]*2/3]
+            update
+            tepam::argument_dialogbox_scroll $Wtop init
+
+            # Add the bindings
             bind $Wtop.sf <Configure> "tepam::argument_dialogbox_scroll $Wtop config %W %w %h"
             bind $Wtop <MouseWheel> "if {%D>0} {tepam::argument_dialogbox_scroll $Wtop scroll -1 units} elseif {%D<0} {tepam::argument_dialogbox_scroll $Wtop scroll 1 units}"
             bind $Wtop <Button-4> "tepam::argument_dialogbox_scroll $Wtop scroll -1 units"
             bind $Wtop <Button-5> "tepam::argument_dialogbox_scroll $Wtop scroll 1 units"
-
-            wm geometry $Wtop [winfo reqwidth $Wtop.sf.f]x[expr [winfo screenheight $Wtop.sf.f]*2/3]
-            update
-            tepam::argument_dialogbox_scroll $Wtop init
          } else {
             pack $Wtop.sf.f -expand yes -fill both
          }
@@ -1989,6 +1991,43 @@ namespace eval tepam {
       }
    }
 
+   #### Text (multi line text) ####
+
+   proc ad_form(text) {W Command {Par ""}} {
+      # puts "ad_form(text) $W $Command $Par"
+      upvar Option Option
+      switch $Command {
+         "create" {
+            ad_form(make_expandable) $W
+            grid [text $W.text -yscrollcommand "$W.yscrollbar set"] -column 0 -row 0 -pady 2 -sticky news
+            grid [scrollbar $W.yscrollbar -command "$W.text yview"] -column 1 -row 0 -pady 2 -sticky ns
+
+            # Add a horizontal scroll bar if wrapping is disabled
+            if {[info exists Option(-wrap)] && $Option(-wrap)=="none"} {
+               grid [scrollbar $W.xscrollbar -command "$W.text xview" -orient horizontal] -column 0 -row 1 -sticky ew
+               $W.text config -xscrollcommand "$W.xscrollbar set"
+            }
+            grid columnconfigure $W 0 -weight 1
+            grid rowconfigure $W 0 -weight 1
+            
+            # Apply the text widget parameters
+            $W.text config -wrap word -height 4; # Default parameters
+            foreach Par {-height -wrap} {
+               if {[info exists Option($Par)]} {
+                  $W.text config $Par $Option($Par)
+               }
+            }
+         }
+         "set" {
+            $W.text delete 0.0 end; # Clear the existing selection in case the 'set' command is called multiple times
+            $W.text insert 0.0 $Par
+         }
+         "get" {
+            return [$W.text get 0.0 "end - 1 chars"]
+         }
+      }
+   }
+
    #### Color entry ####
 
    # Select_color sets the text and color of the color entry to a new color: 
@@ -2251,11 +2290,11 @@ namespace eval tepam {
             grid [listbox $W.listbox2 -yscrollcommand "$W.scrollbar2 set" -exportselection 0 -selectmode extended] -column 3 -row 1 -rowspan 2 -sticky news
             grid [scrollbar $W.scrollbar2 -command "$W.listbox2 yview"] -column 4 -row 1 -rowspan 2 -sticky ns
 
-            grid [button $W.up -text "^" -command "::tepam::disjointlistbox_move $W up"] -column 5 -row 1 -sticky ns
-            grid [button $W.down -text "v" -command "::tepam::disjointlistbox_move $W down"] -column 5 -row 2 -sticky ns
+            grid [button $W.up -text "^" -command "::tepam::disjointlistbox_move $W up"] -column 5 -row 1 -sticky news
+            grid [button $W.down -text "v" -command "::tepam::disjointlistbox_move $W down"] -column 5 -row 2 -sticky news
 
-            grid [button $W.add -text ">" -command "::tepam::disjointlistbox_move $W add"] -column 1 -row 3 -columnspan 2 -sticky ew
-            grid [button $W.remove -text "<" -command "::tepam::disjointlistbox_move $W delete"] -column 3 -row 3 -columnspan 2 -sticky ew
+            grid [button $W.add -text ">" -command "::tepam::disjointlistbox_move $W add"] -column 1 -row 3 -columnspan 2 -sticky news
+            grid [button $W.remove -text "<" -command "::tepam::disjointlistbox_move $W delete"] -column 3 -row 3 -columnspan 2 -sticky news
 
             foreach {Col Weight} {0 0  1 1   2 0   3 1   4 0   5 0} {
                grid columnconfigure $W $Col -weight $Weight
@@ -2593,9 +2632,14 @@ package provide tepam $::tepam::version
 
 ##########################################################################
 # $RCSfile: tepam.tcl,v $ - ($Name:  $)
-# $Id: tepam.tcl,v 1.3 2012/03/26 20:44:10 droll Exp $
+# $Id: tepam.tcl,v 1.4 2012/05/07 20:24:58 droll Exp $
 # Modifications:
 # $Log: tepam.tcl,v $
+# Revision 1.4  2012/05/07 20:24:58  droll
+# * TEPAM version 0.4.0
+# * Add the new text procedure argument type and the text multi line data
+#   entry widget.
+#
 # Revision 1.3  2012/03/26 20:44:10  droll
 # * TEPAM version 0.3.0
 # * Add support to log the called procedures inside an array variable.
@@ -2604,7 +2648,6 @@ package provide tepam $::tepam::version
 # * Keep the original value list in the right list of the 'disjointlistbox'.
 # * Add the procedure 'ConfigureWindowsGeometry' to handle window sizes
 #   and positions.
-#
 #
 # Revision 1.2  2011/01/21 15:56:20  droll
 # * TEPAM version 0.2.0
