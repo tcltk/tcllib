@@ -1,3 +1,9 @@
+2012-05-11  Andreas Kupries  <andreask@activestate.com>
+
+	* map_geocode_nominatim.man: Added new package to resolve
+	* map_geocode_nominatim.tcl: geographical names via the
+	  nominatim service, contributed by <tomasz@tuxteam.de>.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
