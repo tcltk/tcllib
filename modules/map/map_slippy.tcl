@@ -155,6 +155,51 @@ snit::type map::slippy {
 	return [list $zoom $row $col]
     }
 
+    typemethod {fit geobox} {canvdim geobox zmin zmax} {
+        foreach {canvw canvh} $canvdim break
+        foreach {lat0 lat1 lon0 lon1} $geobox break
+
+        # NOTE we assume ourtilesize == [map::slippy length 0].
+        #      Further, we assume that each zoom step "grows" the
+        #      linear resolution by 2 (that's the log(2) down there)
+        set canvw [expr {abs($canvw)}]
+        set canvh [expr {abs($canvh)}]
+        set z [expr {int(log(min( \
+                    ($canvh/$ourtilesize) / (abs($lat1 - $lat0)/180), \
+                    ($canvw/$ourtilesize) / (abs($lon1 - $lon0)/360))) \
+                 / log(2))}]
+        # clamp $z
+        set z [expr {($z<$zmin) ? $zmin : (($z>$zmax) ? $zmax : $z)}]
+        # Now $zoom is an approximation, since the scale factor isn't uniform
+        # across the map (the vertical dimension depends on latitude). So we have
+        # to refine iteratively (I expect it to take just one step):
+        while {1} {
+            # Now we can run "uphill", then there's z0 = z - 1 and "downhill",
+            # then there's z1 = z + 1 (from the last iteration)
+            #puts "try zoom $z"
+            foreach {_ y0 x0} [map::slippy geo 2point [list $z $lat0 $lon0]] break
+            foreach {_ y1 x1} [map::slippy geo 2point [list $z $lat1 $lon1]] break
+            set w [expr {abs($x1 - $x0)}]
+            set h [expr {abs($y1 - $y0)}]
+            if { $w > $canvw ||  $h > $canvh } {
+                # too big: shrink
+                #puts "too big: shrink..."
+                if { [info exists z0] } break; # but not if we come "from below"
+                if {$z <= $zmin} break; # can't be < $zmin
+                set z1 $z
+                incr z -1
+            } else {
+                # fits: grow
+                #puts "fits: grow..."
+                if { [info exists z1] } break; # but not if we come "from above"
+                set z0 $z
+                incr z
+            }
+        }
+        if { [info exists z0] } { return $z0 }
+        return $z
+    }
+
     proc tiles {level} {
 	return [expr {1 << $level}]
     }
@@ -173,4 +218,4 @@ snit::type map::slippy {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide map::slippy 0.4
+package provide map::slippy 0.5
