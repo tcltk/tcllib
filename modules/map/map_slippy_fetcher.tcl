@@ -61,7 +61,8 @@ snit::type map::slippy::fetcher {
 	# that large for todays RAM sizes (Seen 124K max so far).
 
 	if {[catch {
-	    set token [http::geturl $url -binary 1 -command [mymethod Done]]	    
+	    set token [http::geturl $url -binary 1 -command [mymethod Done] \
+                          -timeout 60000]	    
 	}]} {
 	    puts $::errorInfo
 	    # Some errors, like invalid urls, raise errors synchro-
@@ -169,4 +170,4 @@ snit::type map::slippy::fetcher {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide map::slippy::fetcher 0.2
+package provide map::slippy::fetcher 0.3
