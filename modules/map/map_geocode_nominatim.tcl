@@ -56,7 +56,7 @@ snit::type map::geocode::nominatim {
     method search {query} {
         set query [http::formatQuery q $query format json]
         http::geturl [uri::join {*}[uri::split $options(-baseurl)] query $query] \
-            -command [mymethod Done]
+            -command [mymethod Done] -timeout 60000
     }
 
     method Error {context err} {
