@@ -1,8 +1,18 @@
 2012-05-11  Andreas Kupries  <andreask@activestate.com>
 
+	* map_slippy_fetcher.tcl: Added timeouts to the http queries issued
+	* map_geocode_nominatim.tcl: by the fetcher and geo-name
+	  resolver. Fetcher bumped to version 0.3.
+
+	* map_slippy.tcl: Integrated code contributed by <tomasz@tuxteam.de>
+	* map_slippy.man: providing a command to compute a zoom level which
+	* pkgIndex.tcl: fits around a rectangular geographic area described
+	  by the limiting lati- and longitudes. Version bumped to 0.5.
+
 	* map_geocode_nominatim.man: Added new package to resolve
 	* map_geocode_nominatim.tcl: geographical names via the
-	  nominatim service, contributed by <tomasz@tuxteam.de>.
+	* pkgIndex.tcl: nominatim service, contributed by
+	  <tomasz@tuxteam.de>.
 
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
