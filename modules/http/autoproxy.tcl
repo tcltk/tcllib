@@ -20,15 +20,15 @@
 #   package require tls
 #   http::register https 443 ::autoproxy::tls_socket
 #
-# @(#)$Id: autoproxy.tcl,v 1.14 2012/02/08 00:26:30 patthoyts Exp $
+# @(#)$Id: autoproxy.tcl,v 1.15 2012/05/28 20:30:32 andreas_kupries Exp $
 
 package require http;                   # tcl
 package require uri;                    # tcllib
 package require base64;                 # tcllib
 
 namespace eval ::autoproxy {
-    variable rcsid {$Id: autoproxy.tcl,v 1.14 2012/02/08 00:26:30 patthoyts Exp $}
-    variable version 1.5.2
+    variable rcsid {$Id: autoproxy.tcl,v 1.15 2012/05/28 20:30:32 andreas_kupries Exp $}
+    variable version 1.5.3
     variable options
 
     if {! [info exists options]} {
@@ -134,7 +134,7 @@ proc ::autoproxy::init {{httpproxy {}} {no_proxy {}}} {
 
     # Look for standard environment variables.
     if {[string length $httpproxy] > 0} {
-        
+
         # nothing to do
 
     } elseif {[info exists env(http_proxy)]} {
@@ -157,7 +157,7 @@ proc ::autoproxy::init {{httpproxy {}} {no_proxy {}}} {
                         set v [registry get $winregkey "ProxyEnable"]
                         binary scan $v i reg(ProxyEnable)
                     }
-                    default { 
+                    default {
                         return -code error "unexpected type found for\
                                ProxyEnable registry item"
                     }
@@ -174,14 +174,14 @@ proc ::autoproxy::init {{httpproxy {}} {no_proxy {}}} {
             }
         }
     }
-    
+
     # If we found something ...
     if {[string length $httpproxy] > 0} {
         # The http_proxy is supposed to be a URL - lets make sure.
         if {![regexp {\w://.*} $httpproxy]} {
             set httpproxy "http://$httpproxy"
         }
-        
+
         # decompose the string.
         array set proxy [uri::split $httpproxy]
 
@@ -213,10 +213,10 @@ proc ::autoproxy::init {{httpproxy {}} {no_proxy {}}} {
     return $httpproxy
 }
 
-# autoproxy::GetWin32Proxy -- 
+# autoproxy::GetWin32Proxy --
 #
 #	Parse the Windows Internet Settings registry key and return the
-#	protocol proxy requested. If the same proxy is in use for all 
+#	protocol proxy requested. If the same proxy is in use for all
 #	protocols, then that will be returned. Otherwise the string is
 #	parsed. Example:
 #	 ftp=proxy:80;http=proxy:80;https=proxy:80
@@ -252,8 +252,8 @@ proc ::autoproxy::Pop {varname {nth 0}} {
 # Description
 #   An example user authentication procedure.
 # Returns:
-#   A two element list consisting of the users authentication id and 
-#   password. 
+#   A two element list consisting of the users authentication id and
+#   password.
 proc ::autoproxy::defAuthProc {{user {}} {passwd {}} {realm {}}} {
     if {[string length $realm] > 0} {
         set title "Realm: $realm"
@@ -268,7 +268,7 @@ proc ::autoproxy::defAuthProc {{user {}} {passwd {}} {realm {}}} {
     #         -title $title -logintext $user -passwdtext $passwd]
     #
     # if you just have Tk and no BWidgets --
-    
+
     set dlg [toplevel .autoproxy_defAuthProc -class Dialog]
     wm title $dlg $title
     wm withdraw $dlg
@@ -353,13 +353,13 @@ proc ::autoproxy::filter {host} {
     if {$options(proxy_host) == {}} {
         return {}
     }
-    
+
     foreach domain $options(no_proxy) {
         if {[string match $domain $host]} {
             return {}
         }
     }
-    
+
     # Add authorisation header to the request (by Anders Ramdahl)
     catch {
         upvar state State
@@ -374,7 +374,7 @@ proc ::autoproxy::filter {host} {
 # autoproxy::tls_connect --
 #
 #	Create a connection to a remote machine through a proxy
-#	if necessary. This is used by the tls_socket command for 
+#	if necessary. This is used by the tls_socket command for
 #	use with the http package but can also be used more generally
 #	provided your proxy will permit CONNECT attempts to ports
 #	other than port 443 (many will not).
@@ -400,7 +400,7 @@ proc ::autoproxy::tls_connect {args} {
 # autoproxy::tunnel_connect --
 #
 #	Create a connection to a remote machine through a proxy
-#	if necessary. This is used by the tls_socket command for 
+#	if necessary. This is used by the tls_socket command for
 #	use with the http package but can also be used more generally
 #	provided your proxy will permit CONNECT attempts to ports
 #	other than port 443 (many will not).
@@ -411,23 +411,39 @@ proc ::autoproxy::tunnel_connect {args} {
     variable options
     variable uid
     set code ok
-    if {[string length $options(proxy_host)] > 0} {
+
+    # args = ... host port
+    # and the host/port is the actual endpoint we want to talk to,
+    # regardless of any proxying. See our caller tls_connect for
+    # ensuring this by peeking into the http package internals.
+
+    # To handle proxying properly we have to run through 'filter'
+    # (again), to ensure that proxy exceptions are correctly taken
+    # into account.
+
+    set proxy [filter [lindex $args end-1]]
+
+    if {[llength $proxy]} {
+        foreach {proxy_host proxy_port} $proxy break
+
         set token [namespace current]::[incr uid]
         upvar #0 $token state
         set state(endpoint) [lrange $args end-1 end]
         set state(state) connect
         set state(data) ""
         set state(useragent) [http::config -useragent]
-        set state(sock) [::socket $options(proxy_host) $options(proxy_port)]
+        set state(sock) [::socket $proxy_host $proxy_port]
         fileevent $state(sock) writable [namespace code [list tunnel_write $token]]
         vwait [set token](state)
-        
+
         if {[string length $state(error)] > 0} {
             set result $state(error)
             close $state(sock)
             unset state
             set code error
-        } elseif {$state(code) >= 300 || $state(code) < 200} {
+        } elseif {[info exists state(code)] &&
+                  (($state(code) >= 300) ||
+                   ($state(code) < 200))} {
             set result [lindex $state(headers) 0]
             regexp {HTTP/\d.\d\s+\d+\s+(.*)} $result -> result
             close $state(sock)
@@ -470,7 +486,7 @@ proc ::autoproxy::tunnel_write {token} {
     fileevent $state(sock) readable [namespace code [list tunnel_read $token]]
     return
 }
-    
+
 proc ::autoproxy::tunnel_read {token} {
     upvar #0 $token state
     set len [gets $state(sock) line]
