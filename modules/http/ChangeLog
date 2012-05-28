@@ -1,3 +1,12 @@
+2012-05-28  Andreas Kupries  <andreask@activestate.com>
+
+	* autoproxy.tcl: Fixed bug where https proxying was attempted
+	* autoproxy.man: in the face of a domain exception. The TLS
+	* pkgIndex.tcl: setup code has to 'filter' properly. Further
+	  check for existence of state(code), it may not exist (Server
+	  accepts initial connection, then eof's during the TLS
+	  handshake). Bumped version number to 1.5.3.
+
 2012-02-08  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* autoproxy.tcl: Applied suggested fix from bug #3313923 to fix
