@@ -1,3 +1,10 @@
+2012-06-06  Andreas Kupries  <andreask@activestate.com>
+
+	* iban.tcl: [Patch 3532308]: Applied patch by Max Jarek to
+	* iban.test: update the code to the IBAN Registry version 35.
+	* iban.man: Bumped package version to 1.1.
+	* pkgIndex.tcl:
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
