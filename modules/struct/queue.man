@@ -53,7 +53,7 @@ the queue.  If [arg count] is not specified, it defaults to 1.  If
 [arg count] is 1, the result is a simple string; otherwise, it is a
 list.  If specified, [arg count] must be greater than or equal to 1.
 
-If there are not enoughs items in the queue to fulfull the request,
+If there are not enough items in the queue to fulfull the request,
 this command will throw an error.
 
 
@@ -64,7 +64,7 @@ from the queue.  If [arg count] is not specified, it defaults to 1.
 If [arg count] is 1, the result is a simple string; otherwise, it is a
 list.  If specified, [arg count] must be greater than or equal to 1.
 
-If there are not enoughs items in the queue to fulfull the request,
+If there are not enough items in the queue to fulfull the request,
 this command will throw an error.
 
 
