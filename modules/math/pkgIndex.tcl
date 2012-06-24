@@ -14,7 +14,7 @@ package ifneeded math::roman             1.0   [list source [file join $dir roma
 
 if {![package vsatisfies [package provide Tcl] 8.4]} {return}
 # statistics depends on linearalgebra (for multi-variate linear regression).
-package ifneeded math::statistics        0.7.0 [list source [file join $dir statistics.tcl]]
+package ifneeded math::statistics        0.8.0 [list source [file join $dir statistics.tcl]]
 package ifneeded math::optimize          1.0   [list source [file join $dir optimize.tcl]]
 package ifneeded math::calculus          0.7.1 [list source [file join $dir calculus.tcl]]
 package ifneeded math::interpolate       1.0.3 [list source [file join $dir interpolate.tcl]]
