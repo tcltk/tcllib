@@ -1,9 +1,9 @@
-[manpage_begin math::statistics n 0.5]
+[manpage_begin math::statistics n 0.8]
 [moddesc {Tcl Math Library}]
 [titledesc {Basic statistical functions and procedures}]
 [category  Mathematics]
-[require Tcl 8]
-[require math::statistics 0.5]
+[require Tcl 8.4]
+[require math::statistics 0.8]
 [description]
 [para]
 
@@ -994,7 +994,42 @@ Returns a list consisting of the group ID, the value and the rank
 [list_begin arguments]
 [arg_def list args] - Two or more lists of data
 [list_end]
+[para]
 
+
+[call [cmd ::math::statistics::test-Wilcoxon] [arg sample_a] [arg sample_b]]
+Compute the Wilcoxon test statistic to determine if two samples have the
+same median or not. (The statistic can be regarded as standard normal, if the
+sample sizes are both larger than 10. Returns the value of this statistic.
+
+[list_begin arguments]
+[arg_def list sample_a] - List of data comprising the first sample
+[arg_def list sample_b] - List of data comprising the second sample
+[list_end]
+[para]
+
+
+[call [cmd ::math::statistics::spearman-rank] [arg sample_a] [arg sample_b]]
+Return the Spearman rank correlation as an alternative to the ordinary (Pearson's) correlation
+coefficient. The two samples should have the same number of data.
+
+[list_begin arguments]
+[arg_def list sample_a] - First list of data
+[arg_def list sample_b] - Second list of data
+[list_end]
+[para]
+
+
+[call [cmd ::math::statistics::spearman-rank-extended] [arg sample_a] [arg sample_b]]
+Return the Spearman rank correlation as an alternative to the ordinary (Pearson's) correlation
+coefficient as well as additional data. The two samples should have the same number of data.
+The procedure returns the correlation coefficient, the number of data pairs used and the
+z-score, an approximately standard normal statistic, indicating the significance of the correlation.
+
+[list_begin arguments]
+[arg_def list sample_a] - First list of data
+[arg_def list sample_b] - Second list of data
+[list_end]
 
 [list_end]
 

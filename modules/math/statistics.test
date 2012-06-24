@@ -569,6 +569,23 @@ test "kruskal-wallis-1.1" "Test test Kruskal-Wallis" -match tolerant -body {
     ::math::statistics::test-Kruskal-Wallis 0.95 {6.4 6.8 7.2 8.3 8.4 9.1 9.4 9.7} {2.5 3.7 4.9 5.4 5.9 8.1 8.2} {1.3 4.1 4.9 5.2 5.5 8.2}
 } -result 1
 
+# Data from Statistical methods in Engineering and Quality Assurance by Peter W.M. John
+test "wilcoxon-1.0" "Test test Wilcoxon" -match tolerant -body {
+    ::math::statistics::test-Wilcoxon {71.1 68.3 74.8 72.1 71.2 70.4 73.6 66.3 72.7 74.1 70.1 68.5} \
+                                      {73.3 70.9 74.6 72.1 72.8 74.2 74.7 69.2 75.5 75.8 70.0 72.1}
+} -result -1.67431578065
+
+# Data from the Wikipedia page on Spearman's rank correlation coefficient
+test "spearman-rank-1.0" "Test Spearman rank correlation" -match tolerant -body {
+    ::math::statistics::spearman-rank {106  86 100 101  99 103  97 113 112 110} \
+                                      {  7   0  27  50  28  29  20  12   6  17}
+} -result -0.175757575758
+
+test "spearman-rank-extended-1.0" "Test extended Spearman rank correlation procedure" -match tolerant -body {
+    ::math::statistics::spearman-rank-extended {106  86 100 101  99 103  97 113 112 110} \
+                                               {  7   0  27  50  28  29  20  12   6  17}
+} -result {-0.175757575758 10 -0.456397284}
+
 
 # End of test cases
 testsuiteCleanup

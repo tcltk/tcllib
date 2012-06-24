@@ -1,8 +1,16 @@
+2012-06-24  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* decimal.man:     Correct documentation (namespace) for decimal package
+	* statistics.tcl:  Add Wilcoxon test and Spearman rank correlation
+	  Bumped version to 0.8
+	* statistics.test: Add test cases for Wilcoxon test and Spearman rank correlation
+	* statistics.man:  Describe procs for Wilcoxon test and Spearman rank correlation
+	* wilcoxon.tcl:    Added this file - contains implementation of the new procs
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.14 ========================
-	* 
+	*
 
 2011-11-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -49,7 +57,7 @@
 
 	* symdiff.man:
 	* symdiff.tcl:      Added a math::calculus::symdiff package that
-	* symdiff.test:     performs symbolic differentiation of Tcl math 
+	* symdiff.test:     performs symbolic differentiation of Tcl math
 	* pkgIndex.tcl:	    exprs.
 	
 2010-09-27  Lars Hellstr\"om  <lars_h@users.sourceforge.net>
@@ -88,7 +96,7 @@
 
 	* geometry.man: A bit more commands, bumped to version 1.1.2.
 	* geometry.tcl:
-	* pkgIndex.tcl: 
+	* pkgIndex.tcl:
 
 2010-04-06  Andreas Kupries  <andreask@activestate.com>
 
