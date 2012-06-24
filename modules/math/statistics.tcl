@@ -15,8 +15,9 @@
 # version 0.6:   added pdf and cdf procedures for various distributions
 #                (provided by Eric Kemp-Benedict)
 # version 0.7:   added Kruskal-Wallis test (by Torsten Berg)
+# version 0.8:   added Wilcoxon test and Spearman rank correlation
 
-package provide math::statistics 0.7.0
+package provide math::statistics 0.8.0
 package require math
 
 # ::math::statistics --
@@ -1297,6 +1298,7 @@ source [file join [file dirname [info script]] plotstat.tcl]
 source [file join [file dirname [info script]] liststat.tcl]
 source [file join [file dirname [info script]] mvlinreg.tcl]
 source [file join [file dirname [info script]] kruskal.tcl]
+source [file join [file dirname [info script]] wilcoxon.tcl]
 
 #
 # Define the tables
