@@ -1,3 +1,7 @@
+2012-06-25  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* statistics.tcl:  Add procedures for Wilcoxon test and Spearman rank correlation
+	  to the export list
+
 2012-06-24  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* decimal.man:     Correct documentation (namespace) for decimal package
 	* statistics.tcl:  Add Wilcoxon test and Spearman rank correlation
