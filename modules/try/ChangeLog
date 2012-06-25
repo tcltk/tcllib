@@ -1,3 +1,9 @@
+2012-06-25  Andreas Kupries  <andreask@activestate.com>
+
+	* try.man: Renamed to tcllib_try.man to prevent clash with Tcl
+	  core manpage. Effectively removed.
+	* tcllib_try.man: Effectively added, new name of try.man.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
