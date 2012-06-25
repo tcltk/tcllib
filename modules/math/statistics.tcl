@@ -34,7 +34,8 @@ namespace eval ::math::statistics {
 	    autocorr crosscorr filter map samplescount median \
 	    test-2x2 print-2x2 control-xbar test_xbar \
 	    control-Rchart test-Rchart \
-	    test-Kruskal-Wallis analyse-Kruskal-Wallis group-rank
+	    test-Kruskal-Wallis analyse-Kruskal-Wallis group-rank \
+	    test-Wilcoxon spearman-rank spearman-rank-extended
     #
     # Error messages
     #
