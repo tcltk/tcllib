@@ -127,6 +127,15 @@ conform to the PNG specification. [arg keyword2] is the translated
 [arg keyword], in the language specified by the language identifier
 [arg lang].
 
+[call [cmd ::png::image] [arg file]]
+
+Given a PNG file returns the image in the list of scanlines format used by Tk_GetColor.
+
+[call [cmd ::png::write] [arg file] [arg data]]
+
+Takes a list of scanlines in the Tk_GetColor format and writes the represented image
+to [arg file].
+
 [list_end]
 
 [section {BUGS, IDEAS, FEEDBACK}]
