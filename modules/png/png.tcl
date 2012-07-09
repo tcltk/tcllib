@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: png.tcl,v 1.10 2007/08/20 22:06:58 andreas_kupries Exp $
+# RCS: @(#) $Id: png.tcl,v 1.11 2012/07/09 16:35:04 afaupell Exp $
 
 package provide png 0.1.2
 
@@ -18,6 +18,16 @@ proc ::png::_openPNG {file {mode r}} {
     fconfigure $fh -encoding binary -translation binary -eofchar {}
     if {[read $fh 8] != "\x89PNG\r\n\x1a\n"} { close $fh; return -code error "not a png file" }
     return $fh
+}
+
+proc ::png::_chunks {fh} {
+    set out [list]
+    while {[set r [read $fh 8]] != ""} {
+        binary scan $r Ia4 len type
+        lappend out [list $type [tell $fh] $len]
+        seek $fh [expr {$len + 4}] current
+    }
+    return $out
 }
 
 proc ::png::isPNG {file} {
@@ -60,7 +70,7 @@ proc ::png::imageInfo {file} {
         binary scan $r IIccccc width height depth color compression filter interlace
 	binary scan [read $fh 4] I check
 	if {$check < 0} {set check [format %u [expr {$check & 0xffffffff}]]}
-	if {[::crc::crc32 IHDR$r] != $check} {
+	if {![catch {package present crc32}] && [::crc::crc32 IHDR$r] != $check} {
 	    return -code error "header checksum failed"
 	}
         close $fh
@@ -200,3 +210,80 @@ proc ::png::addComment {file keyword arg1 args} {
     return -code error "no data chunk found"
 }
 
+proc ::png::image {file} {
+    set fh [_openPNG $file]
+    set chunks [_chunks $fh]
+    set cdata {}
+
+    set h [lsearch -exact -index 0 -inline $chunks IHDR]
+    seek $fh [lindex $h 1] start
+    binary scan [read $fh [lindex $h 2]] IIccccc width height depth color compression filter interlace
+
+    if {$color != 2 || $compression != 0 || $depth != 8} {
+        return -code error "unsupported image format"
+    }
+
+    foreach c [lsearch -exact -index 0 -all -inline $chunks IDAT] {
+        seek $fh [lindex $c 1] start
+        append cdata [read $fh [lindex $c 2]]
+    }
+    set data [zlib decompress $cdata]
+
+    set len [string length $data]
+    set col 1
+    set offset 1
+    set row [list]
+    set out [list]
+    while {$offset < $len} {
+        binary scan $data @${offset}H2H2H2 r g b
+        lappend row "#$r$g$b"
+        incr offset 3
+        if {$col == $width} {
+            set col 1
+            incr offset
+            lappend out $row
+            set row [list]
+            continue
+        }
+        incr col
+    }
+    return $out
+}
+
+proc ::png::write {file in} {
+    set blocksize 65524
+    set chunks [list]
+    set data ""
+    lappend chunks [list IHDR [binary format IIccccc [llength [lindex $in 0]] [llength $in] 8 2 0 0 0]]
+
+    foreach row $in {
+        append data \x00
+        foreach pixel $row {
+            set pixel [string trimleft $pixel "#"]
+            append data [binary format H2H2H2 [string range $pixel 0 1] [string range $pixel 2 3] [string range $pixel 4 5]]
+        }
+    }
+    set cdata [zlib compress $data]
+    set offset 0
+    while {$offset < ([string length $cdata] + $blocksize)} {
+        lappend chunks [list IDAT [string range $cdata $offset [expr {$offset+$blocksize-1}]]]
+        incr offset $blocksize
+    }
+    #lappend chunks [list tIME [eval binary format Sccccc [clock format [clock seconds] -format "%Y %m %d %H %M %S"]]]
+    lappend chunks [list IEND ""]
+    _write $file $chunks
+}
+
+proc ::png::_write {file chunks} {
+    package require crc32
+    set fh [open $file w+]
+    fconfigure $fh -encoding binary -translation binary
+    puts -nonewline $fh "\x89PNG\r\n\x1a\n"
+    foreach chunk $chunks {
+        puts -nonewline $fh [binary format Ia4 [string length [lindex $chunk 1]] [lindex $chunk 0]]
+        puts -nonewline $fh [lindex $chunk 1]
+        puts -nonewline $fh [binary format I [::crc::crc32 [join $chunk ""]]]
+    }
+    close $fh
+    return $file
+}
