@@ -251,7 +251,7 @@ tm_ATTR (T* t, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
     int		listc = 0;
     Tcl_Obj**	listv = NULL;
 
-    CONST char* types [] = {
+    static CONST char* types [] = {
 	"-glob", "-nodes","-regexp", NULL
     };
     enum types {
