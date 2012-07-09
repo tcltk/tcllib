@@ -1,3 +1,9 @@
+2012-07-09  Andreas Kupries  <andreask@activestate.com>
+
+	* tree/m.c (tm_ATTR): Fixed non-static string array used in call
+	  of Tcl_GetIndexFromObj(). Memory smash waiting to happen. Thanks
+	  to Brian Griffin for alerting us all to the problem.
+
 2012-06-22  Andreas Kupries  <andreask@activestate.com>
 
 	* queue.man: [Bug 3537006] Fixed typos.
