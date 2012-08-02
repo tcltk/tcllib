@@ -1,3 +1,8 @@
+2012-08-02  Andreas Kupries  <andreask@activestate.com>
+
+	* mime.man: [Bug 3354014]: Fixed typo in option name. -parts is
+	  correct. (Note the trailing 's').
+
 2012-02-23  Andreas Kupries  <andreask@activestate.com>
 
 	* mime.test: [Bug 3483716]: Added testcase, supplied by Christian

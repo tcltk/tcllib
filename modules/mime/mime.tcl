@@ -364,7 +364,7 @@ namespace eval ::mime {
 #
 #       If the -canonical option is present, then the body is in
 #       canonical (raw) form and is found by consulting either the -file,
-#       -string, or -part option. 
+#       -string, or -parts option. 
 #
 #       In addition, both the -param and -header options may occur zero
 #       or more times to specify "Content-Type" parameters (e.g.,
