@@ -15,7 +15,7 @@ manipulate MIME body parts.
 [list_begin definitions]
 
 
-[call [cmd ::mime::initialize] [opt "[option -canonical] [arg type/subtype] [opt "[option -param] \{[arg {key value}]\}..."] [opt "[option -encoding] [arg value]"] [opt "[option -header] \{[arg {key value}]\}..."]"] "([option -file] [arg name] | [option -string] [arg value] | [option -part] \{[arg token1] ... [arg tokenN]\})"]
+[call [cmd ::mime::initialize] [opt "[option -canonical] [arg type/subtype] [opt "[option -param] \{[arg {key value}]\}..."] [opt "[option -encoding] [arg value]"] [opt "[option -header] \{[arg {key value}]\}..."]"] "([option -file] [arg name] | [option -string] [arg value] | [option -parts] \{[arg token1] ... [arg tokenN]\})"]
 
 This command creates a MIME part and returns a token representing it.
 
@@ -26,7 +26,7 @@ This command creates a MIME part and returns a token representing it.
 If the [option -canonical] option is present, then the body is in
 canonical (raw) form and is found by consulting either the
 
-[option -file], [option -string], or [option -part] option.
+[option -file], [option -string], or [option -parts] option.
 
 [para]
 
