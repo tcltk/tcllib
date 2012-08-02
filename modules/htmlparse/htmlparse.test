@@ -7,7 +7,7 @@
 # Copyright (c) 2001-2005 by ActiveState Tool Corp.
 # All rights reserved.
 #
-# RCS: @(#) $Id: htmlparse.test,v 1.26 2009/02/10 20:37:22 andreas_kupries Exp $
+# RCS: @(#) $Id: htmlparse.test,v 1.27 2012/08/02 22:21:54 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -503,6 +503,40 @@ test htmlparse-9.3 {handle empty tags, text coming before} {
     [list a     /  {} {}] \
     [list b     /  {} {}] \
     [list html  /  {} {}] ]
+
+test htmlparse-10.0 {bad html, raising error} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html "<a<a/>>"
+    set tags
+}  [list \
+     [list html {} {} {}] \
+     [list a<a  {} {} {}] \
+     [list a<a  /  {} {>}] \
+     [list html /  {} {}] ]
+
+test htmlparse-10.1 {bad html, varying argument counts} {
+    set tags [list]
+    htmlparse::parse -cmd cb -vroot html {<a b="<a"/><a>}
+    set tags
+}  [list \
+     [list html {} {} {}] \
+     [list a    {} {b="<a"} {}] \
+     [list a    /  {} {}] \
+     [list a    {} {} {}] \
+     [list html /  {} {}] ]
+
+
+set extraarg {a & b \1 \0 \\1 \\0 \} $ [ ] }
+test htmlparse-11.0 {metachar callback} {
+    set tags [list]
+    htmlparse::parse -cmd [list cb $extraarg] -vroot html {<a b="a">x</a>}
+    set tags
+}  [list \
+     [list $extraarg html {} {} {}] \
+     [list $extraarg a    {} {b="a"} {x}] \
+     [list $extraarg a    /  {} {}] \
+     [list $extraarg html /  {} {}] ]
+
 
 # -------------------------------------------------------------------------
 # In this section we run all the tests depending on a struct::tree,
