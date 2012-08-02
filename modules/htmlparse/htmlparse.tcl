@@ -285,7 +285,9 @@ proc ::htmlparse::parse {args} {
 		}
 		set split $arg
 	    }
-	    default {# Can't happen}
+	    default {
+		# Cannot happen
+	    }
 	}
     }
 
@@ -329,13 +331,24 @@ proc ::htmlparse::parse {args} {
 	set incomplete ""
     }
 
-    # Convert the HTML string into a script.
+    # Convert the HTML string into a script. First look for tag
+    # patterns and convert them into command invokations. The command
+    # is actually a placeholder ((LF) NUL SOH @ NUL). See step 2 for
+    # the explanation.
 
-    set sub "\}\n$cmd {\\1} {} {\\2} \{\}\n$cmd {\\1} {/} {} \{"
-    regsub -all -- {<([^\s>]+)\s*([^>]*)/>} $html $sub html
+    regsub -all -- {<([^\s>]+)\s*([^>]*)/>} $html {<\1 \2></\1>} html
 
-    set sub "\}\n$cmd {\\2} {\\1} {\\3} \{"
+    #set sub "\}\n\0\1@\0 {\\1} {} {\\2} \{\}\n\0\1@\0 {\\1} {/} {} \{"
+    #regsub -all -- {<([^\s>]+)\s*([^>]*)/>} $html $sub html
+
+    set sub "\}\n\0\1@\0 {\\2} {\\1} {\\3} \{"
     regsub -all -- {<(/?)([^\s>]+)\s*([^>]*)>} $html $sub html
+
+    # Step 2, replace the command placeholder with the command
+    # itself. This way any characters in the command prefix which are
+    # special to regsub are kept from the regsub.
+
+    set html [string map [list \n\0\1@\0 \n$cmd] $html]
 
     # The value of queue now determines wether we process the HTML by
     # ourselves (queue is empty) or if we generate a list of  scripts
@@ -896,4 +909,4 @@ proc ::htmlparse::Reorder {tree node} {
 
 # ### ######### ###########################
 
-package provide htmlparse 1.2
+package provide htmlparse 1.2.1
