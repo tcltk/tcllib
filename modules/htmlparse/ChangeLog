@@ -1,3 +1,18 @@
+2012-08-02  Andreas Kupries  <andreask@activestate.com>
+
+	* htmlparse.tcl: [Bug 3553350]: Fixed bad handling of characters
+	  special to regsub in the callback. Bumped version to 1.2.1.	
+	* htmlparse.test: New test case for the above.
+	* htmlparse.man: Bumped version number.
+	* pkgIndex.tcl:  Bumped version number.
+	  Thanks to Jeff Rogers <dvrsn@users.sourceforge.net> for the
+	  report.
+
+	* htmlparse.tcl: [Bug 2941841]: Fixed bad handling of broken html.
+	* htmlparse.test: New test cases for the above.
+	  Thanks to Jeff Rogers <dvrsn@users.sourceforge.net> for the
+	  report and fix.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
