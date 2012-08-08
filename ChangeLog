@@ -1,3 +1,9 @@
+2012-08-07  Andreas Kupries  <andreask@activestate.com>
+
+	* modules/generator: Generators (via the coroutines of
+	  Tcl 8.6). Provided by Neil Madden.
+	* support/installation/modules.tcl:
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
