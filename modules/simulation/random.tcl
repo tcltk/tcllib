@@ -18,7 +18,7 @@
 #     Several formulae and algorithms come from "Monte Carlo Simulation"
 #     by C. Mooney (Sage Publications, 1997)
 #
-# RCS: @(#) $Id: random.tcl,v 1.4 2011/06/17 06:40:14 arjenmarkus Exp $
+# RCS: @(#) $Id: random.tcl,v 1.5 2012/08/15 04:38:48 arjenmarkus Exp $
 #------------------------------------------------------------------------------
 
 package require Tcl 8.4
@@ -180,7 +180,7 @@ proc ::simulation::random::prng_Normal {mean stdev} {
     proc $name {} [string map [list MEAN $mean STDEV $stdev] \
     {
         variable pi
-        set rad [expr {sqrt(-log(rand()))}]
+        set rad [expr {sqrt(-2.0*log(rand()))}]
         set phi [expr {2.0*$pi*rand()}]
         set r   [expr {$rad*cos($phi)}]
         return [expr {MEAN + STDEV*$r}]
@@ -434,7 +434,7 @@ proc ::simulation::random::prng_Block {length width depth} {
 
 # Announce the package
 #
-package provide simulation::random 0.3
+package provide simulation::random 0.3.1
 
 
 # main --
@@ -560,4 +560,18 @@ for { set i 0 } { $i < 1000000 } { incr i } {
 }
 puts "Left-right:\t$count_left\t$count_right"
 puts "Up-down:   \t$count_up\t$count_down"
+}
+
+#
+# Check normal distribution
+#
+if { 0 } {
+    package require math::statistics
+    set normal [::simulation::random::prng_Normal 0 1]
+
+    for { set i 0} {$i < 1000} {incr i} {
+        lappend numbers [$normal]
+    }
+    puts "Mean:  [::math::statistics::mean  $numbers]"
+    puts "Stdev: [::math::statistics::stdev $numbers]"
 }
