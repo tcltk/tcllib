@@ -7,7 +7,7 @@
 # Copyright (c) 2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: traverse.test,v 1.2 2007/10/24 19:28:36 andreas_kupries Exp $
+# RCS: @(#) $Id: traverse.test,v 1.3 2012/08/29 20:42:19 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -132,6 +132,22 @@ test traverse-1.0.5 {Traverse result, broken links, windows, 8.4+} -setup {
 	       [tempPath {find 1/file [1]}] \
 	       [tempPath {find 1/find 2}] \
 	       [tempPath {find 1/find 2/file 3}]]
+
+
+test traverse-1.0.6 {Traverse result, circular links to base, unix} -setup {
+    f_setupcircle2
+    set t [fileutil::traverse %AUTO% [tempPath {find 1}]]
+} -constraints unix -body {
+    lsort [$t files]
+} -cleanup {
+    $t destroy
+    f_cleanup
+} -result [list \
+	       [tempPath {find 1}] \
+	       [tempPath {find 1/file [1]}] \
+	       [tempPath {find 1/find 2}] \
+	       [tempPath {find 1/find 2/file 3}] \
+	       [tempPath {find 1/find 2/file* 2}]]
 
 # -------------------------------------------------------------------------
 
