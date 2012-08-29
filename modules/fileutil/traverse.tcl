@@ -7,7 +7,7 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: traverse.tcl,v 1.8 2011/12/02 22:30:34 andreas_kupries Exp $
+# RCS: @(#) $Id: traverse.tcl,v 1.9 2012/08/29 20:42:19 andreas_kupries Exp $
 
 package require Tcl 8.3
 
@@ -218,7 +218,7 @@ snit::type ::fileutil::traverse {
 	    # Stop expanding if we have paths to return.
 
 	    if {[llength $_results]} {
-		set top    [lindex   $_results end]
+		set top      [lindex   $_results end]
 		set _results [lreplace $_results end end]
 		set currentfile $top
 		return 1
@@ -253,6 +253,8 @@ snit::type ::fileutil::traverse {
     ## Internal helpers.
 
     method Init {} {
+	array unset _known *
+
 	# Path ok as result?
 	if {[Valid $_base]} {
 	    lappend _results $_base
@@ -260,10 +262,10 @@ snit::type ::fileutil::traverse {
 
 	# Expansion allowed by prefilter?
 	if {[file isdirectory $_base] && [Recurse $_base]} {
+	    set norm [fileutil::fullnormalize $_base]
+	    set _known($norm) .
 	    lappend _pending $_base
 	}
-
-	array unset _known *
 
 	# System is set up now.
 	set _init 1
@@ -415,4 +417,4 @@ if {[package vsatisfies [package present Tcl] 8.4]} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::traverse 0.4.2
+package provide fileutil::traverse 0.4.3
