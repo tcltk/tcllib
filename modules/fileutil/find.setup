@@ -4,7 +4,7 @@
 # Copyright (c) 2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
-# RCS: @(#) $Id: find.setup,v 1.2 2007/10/24 19:28:36 andreas_kupries Exp $
+# RCS: @(#) $Id: find.setup,v 1.3 2012/08/29 20:42:19 andreas_kupries Exp $
 
 # -------------------------------------------------------------------------
 
@@ -63,6 +63,61 @@ proc f_setupcircle {} {
     # links.
 
     set target [file join .. {find 2}]
+
+    if {
+	[string equal $::tcl_platform(platform) windows] &&
+	[package vsatisfies [package require Tcl] 8.4]
+    } {
+	if {[string equal $::tcl_platform(platform) windows]} {
+	    # Windows doesn't like the .. in the target, it needs an
+	    # absolute path.
+
+	    # NOTE/BUG Even so the 'fullnormalize' in the traverser
+	    # returns bogus results for the link, whereas use of file
+	    # normalize and fullnormalize in a simple tclsh,
+	    # i.e. outside of the testing is ok.
+
+	    # It seems if the 'file join' in fullnormalize is replaced
+	    # by a plain / then the results are ok again => The
+	    # handling of paths on Windows by the Tcl core is bogus in
+	    # some way which breaks the core 'normalize'.
+
+	    set here [pwd]
+	    cd [file dirname [tempPath $fthree]]
+	    file link [file tail $fthree] [file normalize $target]
+	    cd $here
+	} else {
+	    file link [tempPath $fthree] $target
+	}
+	return
+    }
+
+    exec ln -s $target [tempPath $fthree]
+    return
+}
+
+# Change previous sample tree so that its circular symbolic
+# link points to the base directory. Unix-only.
+#
+#	dir                    
+#	+--{find 1}             <----------+
+#          +--{find 2}                     |
+#          |  +--{file* 2}		   |
+#          |  +--{file 3} --> ../../find 1 +
+#          +--{file [1]}
+
+proc f_setupcircle2 {} {
+    f_setup
+
+    set fthree [file join {find 1} {find 2} {file 3}]
+    set path   [makeFile "" $fthree]
+    removeFile $fthree
+
+    # Added use of 'file link' for Tcl 8.4+, on windows, to have a
+    # modicum of x-platform testing regarding the handling of symbolic
+    # links.
+
+    set target [file join .. .. {find 1}]
 
     if {
 	[string equal $::tcl_platform(platform) windows] &&
