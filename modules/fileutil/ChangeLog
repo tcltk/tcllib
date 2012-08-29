@@ -1,3 +1,12 @@
+2012-08-29  Andreas Kupries <andreask@activestate.com>
+
+	* traverse.tcl (Init): Fixed a bug where a symlink to the
+	* traverse.man: base directory was not handled correctly.
+	* traverse.test: It got expanded and should not have been.
+	* pkgIndex.tcl: Cause was missing initialization of the _known set
+	* find.setup: with the normalized base path. Added test for this.
+	  Bumped version to 0.4.3.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
