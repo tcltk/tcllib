@@ -7,9 +7,9 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
-# RCS: @(#) $Id: tar.tcl,v 1.16 2011/01/20 19:45:25 andreas_kupries Exp $
+# RCS: @(#) $Id: tar.tcl,v 1.17 2012/09/11 17:22:24 andreas_kupries Exp $
 
-package provide tar 0.7
+package provide tar 0.7.1
 
 namespace eval ::tar {}
 
@@ -42,16 +42,14 @@ proc ::tar::pad {size} {
 }
 
 proc ::tar::seekorskip {ch off wh} {
-    if {![catch {seek $ch $off $wh} res]} {
+    if {[tell $ch] < 0} {
+	if {$wh!="current"} {
+	    error "WHENCE=$wh not supported on non-seekable channel $ch"
+	}
+	skip $ch $off
 	return
     }
-    if {![regexp {invalid.argument$} $res]} {
-	error $res
-    }
-    if {$wh!="current"} {
-	error "WHENCE=$wh not supported on non-seekable channel $ch"
-    }
-    skip $ch $off
+    seek $ch $off $wh
     return
 }
 
