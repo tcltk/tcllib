@@ -1,3 +1,13 @@
+2012-09-11  Andreas Kupries  <andreask@activestate.com>
+
+	* tar.tcl (seekorskip): Fixed seekorskip which prevented its use
+	* pkgIndex.tcl: from a non-seekable channel, like stdin. The issue
+	  was that the original attempt to seek before skipping not just
+	  failed, but apparently still moved the read pointer in some way
+	  which skipped over irreplacable input, breaking the next call of
+	  readHeader. Using [tell] to check seekability does not break in
+	  this manner. Bumped version to 0.7.1.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
