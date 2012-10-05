@@ -97,10 +97,12 @@ oo::class create ::tcl::chan::cat::implementation {
 	}
 
 	set buf {}
-	while {([string length buf] < $n) &&
+	while {([string length $buf] < $n) &&
 	       [llength $channels]} {
-	    set in [lindex $channels 0]
-	    append buf [::read $in $n]
+
+	    set in     [lindex $channels 0]
+	    set toread [expr {$n - [string length $buf]}]
+	    append buf [::read $in $toread]
 
 	    if {[eof $in]} {
 		close $in
@@ -133,5 +135,5 @@ oo::class create ::tcl::chan::cat::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::cat 1.0.1
+package provide tcl::chan::cat 1.0.2
 return
