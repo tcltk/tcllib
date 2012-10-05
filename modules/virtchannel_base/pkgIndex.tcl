@@ -1,6 +1,6 @@
 if {![package vsatisfies [package provide Tcl] 8.5]} {return}
 
-package ifneeded tcl::chan::cat 1.0.1      [list source [file join $dir cat.tcl]]
+package ifneeded tcl::chan::cat 1.0.2      [list source [file join $dir cat.tcl]]
 package ifneeded tcl::chan::facade 1.0.1   [list source [file join $dir facade.tcl]]
 package ifneeded tcl::chan::fifo 1         [list source [file join $dir fifo.tcl]]
 package ifneeded tcl::chan::fifo2 1        [list source [file join $dir fifo2.tcl]]
