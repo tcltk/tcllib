@@ -12,7 +12,7 @@
 #        uuid::uuid equal $idA $idB
 
 namespace eval uuid {
-    variable version 1.0.1
+    variable version 1.0.2
     variable accel
     array set accel {critcl 0}
 
@@ -31,6 +31,38 @@ namespace eval uuid {
     proc K {a b} {set a}
 }
 
+###
+# Optimization
+# Caches machine info after the first pass
+###
+
+proc ::uuid::generate_tcl_machinfo {} {
+  variable machinfo
+  if {[info exists machinfo]} {
+    return $machinfo
+  }
+  # More spatial information -- better than hostname.
+  # bug 1150714: opening a server socket may raise a warning messagebox
+  #   with WinXP firewall, using ipconfig will return all IP addresses
+  #   including ipv6 ones if available. ipconfig is OK on win98+
+  if {[string equal $::tcl_platform(platform) "windows"]} {
+    catch {exec ipconfig} config
+    lappend machinfo $config
+  } else {
+    catch {
+        set s [socket -server void -myaddr [info hostname] 0]
+        K [fconfigure $s -sockname] [close $s]
+    } r
+    lappend machinfo $r
+  }
+
+  if {[package provide Tk] != {}} {
+    lappend machinfo [winfo pointerxy .]
+    lappend machinfo [winfo id .]
+  }  
+  return $machinfo
+}
+
 # Generates a binary UUID as per the draft spec. We generate a pseudo-random
 # type uuid (type 4). See section 3.4
 #
@@ -46,26 +78,9 @@ proc ::uuid::generate_tcl {} {
     md5::MD5Update $tok [pid];           # additional entropy
     md5::MD5Update $tok [array get ::tcl_platform]
     
-    # More spatial information -- better than hostname.
-    # bug 1150714: opening a server socket may raise a warning messagebox
-    #   with WinXP firewall, using ipconfig will return all IP addresses
-    #   including ipv6 ones if available. ipconfig is OK on win98+
-    if {[string equal $::tcl_platform(platform) "windows"]} {
-        catch {exec ipconfig} config
-        md5::MD5Update $tok $config
-    } else {
-        catch {
-            set s [socket -server void -myaddr [info hostname] 0]
-            K [fconfigure $s -sockname] [close $s]
-        } r
-        md5::MD5Update $tok $r
+    foreach string [generate_tcl_machinfo] {
+      md5::MD5Update $tok $string
     }
-
-    if {[package provide Tk] != {}} {
-        md5::MD5Update $tok [winfo pointerxy .]
-        md5::MD5Update $tok [winfo id .]
-    }
-
     set r [md5::MD5Final $tok]
     binary scan $r c* r
     

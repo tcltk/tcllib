@@ -1,10 +1,10 @@
-[manpage_begin uuid n 1.0.1]
+[manpage_begin uuid n 1.0.2]
 [moddesc {uuid}]
 [copyright {2004, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {UUID generation and comparison}]
 [category  {Hashes, checksums, and encryption}]
 [require Tcl 8.2]
-[require uuid [opt 1.0.1]]
+[require uuid [opt 1.0.2]]
 [description]
 [para]
 
