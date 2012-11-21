@@ -2,8 +2,8 @@ if {![package vsatisfies [package provide Tcl] 8.2]} {return}
 package ifneeded struct            2.1   [list source [file join $dir struct.tcl]]
 package ifneeded struct            1.4   [list source [file join $dir struct1.tcl]]
 
-package ifneeded struct::queue     1.4.2 [list source [file join $dir queue.tcl]]
-package ifneeded struct::stack     1.5.1 [list source [file join $dir stack.tcl]]
+package ifneeded struct::queue     1.4.3 [list source [file join $dir queue.tcl]]
+package ifneeded struct::stack     1.5.2 [list source [file join $dir stack.tcl]]
 package ifneeded struct::tree      2.1.2 [list source [file join $dir tree.tcl]]
 package ifneeded struct::matrix    2.0.2 [list source [file join $dir matrix.tcl]]
 package ifneeded struct::pool      1.2.1 [list source [file join $dir pool.tcl]]
