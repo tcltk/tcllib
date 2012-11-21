@@ -1,3 +1,11 @@
+2012-11-21  Andreas Kupries  <andreask@activestate.com>
+
+	* pkgIndex.tcl: Fixed package require mismatch for use of TclOO.
+	* queue.man: Load check accepts anything, code restricts to 0.6.1.
+	* queue.tcl: Now both restrict to 0.6.1+. Versions bumped to
+	* stack.man: 1.4.3 and 1.5.2 respectively.
+	* stack.tcl: 
+
 2012-07-09  Andreas Kupries  <andreask@activestate.com>
 
 	* tree/m.c (tm_ATTR): Fixed non-static string array used in call
