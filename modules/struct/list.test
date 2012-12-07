@@ -787,7 +787,7 @@ test delete-1.6 {delete command} {
     set l
 } {a b}
 
-unset l
+catch { unset l }
 #----------------------------------------------------------------------
 
 interp alias {} dbjoin  {} ::struct::list::list dbJoin
@@ -1244,6 +1244,10 @@ foreach k [array names ps] {
 	set res
     } [lrange $allp 0 end] ; # {}
 }
+
+test nextperm-2.0 {bug 3593689, busyloop} {
+    nextperm {1 10 9 8 7 6 5 4 3 2}
+} {1 2 10 3 4 5 6 7 8 9}
 
 #----------------------------------------------------------------------
 
