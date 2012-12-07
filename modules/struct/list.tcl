@@ -1653,7 +1653,7 @@ proc ::struct::list::Lnextperm {perm} {
     # following aj. Let its index be l, and interchange aj and al.
 
     set l $len
-    while { $aj >= [set al [lindex $perm $l]] } {
+    while { [string compare $aj [set al [lindex $perm $l]]] >= 0 } {
 	incr l -1
     }
     lset perm $j $al
@@ -1825,4 +1825,4 @@ namespace eval ::struct {
     namespace import -force list::list
     namespace export list
 }
-package provide struct::list 1.8.1
+package provide struct::list 1.8.2
