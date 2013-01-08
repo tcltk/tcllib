@@ -1881,4 +1881,4 @@ proc ::pki::rsa::generate {bitlength {exponent 0x10001}} {
 # # ## ### ##### ######## #############
 ## Ready
 
-package provide pki 0.5
+package provide pki 0.6

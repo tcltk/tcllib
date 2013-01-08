@@ -1,11 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin pki n 0.5]
+[manpage_begin pki n 0.6]
 [copyright {2010, 2011, 2012, 2013, Roy Keene, Andreas Kupries}]
 [moddesc {public key encryption}]
 [titledesc {Implementation of the public key cipher}]
 [category  {Hashes, checksums, and encryption}]
 [require Tcl 8.5]
-[require pki [opt 0.5]]
+[require pki [opt 0.6]]
 [description]
 [para]
 
