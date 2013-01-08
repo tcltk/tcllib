@@ -20,6 +20,9 @@ result. Inserts the character [arg wrapchar] every [arg maxlen]
 characters of output. [arg wrapchar] defaults to newline. [arg maxlen]
 defaults to [const 76].
 
+[para] [emph Note] that if [arg maxlen] is set to [const 0], the
+output will not be wrapped at all.
+
 [para]
 
 [emph {Note well}]: If your string is not simple ascii you should fix
