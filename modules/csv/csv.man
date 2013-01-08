@@ -1,11 +1,11 @@
 [comment {-*- tcl -*-}]
-[manpage_begin csv n 0.7.3]
-[copyright {2002-2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[manpage_begin csv n 0.8]
+[copyright {2002-2013 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {CSV processing}]
 [titledesc {Procedures to handle CSV data.}]
 [category  {Text processing}]
-[require Tcl 8.3]
-[require csv [opt 0.7.3]]
+[require Tcl 8.4]
+[require csv [opt 0.8]]
 [description]
 
 [para]
@@ -26,31 +26,46 @@ A predicate checking if the argument [arg data] is a complete csv
 record. The result is a boolean flag indicating the completeness of
 the data. The result is true if the data is complete.
 
-[call [cmd ::csv::join] [arg values] "{[arg sepChar] ,}" "{[arg delChar] \"}"]
+[call [cmd ::csv::join] [arg values] [opt [arg sepChar]] [opt [arg delChar]] [opt [arg delMode]]]
 
 Takes a list of values and returns a string in CSV format containing
 these values. The separator character can be defined by the caller,
-but this is optional. The default is ",". The quoting character can
+but this is optional. The default is ",". The quoting aka delimiting character can
 be defined by the caller, but this is optional. The default is '"'.
 
-[call [cmd ::csv::joinlist] [arg values] "{[arg sepChar] ,}" "{[arg delChar] \"}"]
+By default the quoting mode [arg delMode] is "auto", surrounding
+values with [arg delChar] only when needed. When set to "always"
+however, values are always surrounded by the [arg delChar] instead.
+
+[call [cmd ::csv::joinlist] [arg values] [opt [arg sepChar]] [opt [arg delChar]] [opt [arg delMode]]]
 
 Takes a list of lists of values and returns a string in CSV format
 containing these values. The separator character can be defined by the
 caller, but this is optional. The default is ",". The quoting character
 can be defined by the caller, but this is optional. The default is '"'.
+
+By default the quoting mode [arg delMode] is "auto", surrounding
+values with [arg delChar] only when needed. When set to "always"
+however, values are always surrounded by the [arg delChar] instead.
+
 Each element of the outer list is considered a record, these are
 separated by newlines in the result. The elements of each record are
 formatted as usual (via [cmd ::csv::join]).
 
-[call [cmd ::csv::joinmatrix] [arg matrix] "{[arg sepChar] ,}" "{[arg delChar] \"}"]
+[call [cmd ::csv::joinmatrix] [arg matrix] [opt [arg sepChar]] [opt [arg delChar]] [opt [arg delMode]]]
 
 Takes a [arg matrix] object following the API specified for the
 struct::matrix package and returns a string in CSV format containing
 these values. The separator character can be defined by the caller,
 but this is optional. The default is ",". The quoting character
 can be defined by the caller, but this is optional. The default is
-'"'. Each row of the matrix is considered a record, these are
+'"'.
+
+By default the quoting mode [arg delMode] is "auto", surrounding
+values with [arg delChar] only when needed. When set to "always"
+however, values are always surrounded by the [arg delChar] instead.
+
+Each row of the matrix is considered a record, these are
 separated by newlines in the result. The elements of each record are
 formatted as usual (via [cmd ::csv::join]).
 
@@ -78,7 +93,7 @@ expected to be either [method printmatrix] or
 [method printmatrix2channel]. The channel argument, [arg chan], has
 to be present for the latter and must not be present for the first.
 
-[call [cmd ::csv::split] [opt [option -alternate]] [arg line] "{[arg sepChar] ,}" "{[arg delChar] \"}"]
+[call [cmd ::csv::split] [opt [option -alternate]] [arg line] [opt [arg sepChar]] [opt [arg delChar]]]
 
 converts a [arg line] in CSV format into a list of the values
 contained in the line. The character used to separate the values from
@@ -132,12 +147,12 @@ all columns of the longest line encountered so far.
 The same as [cmd ::csv::split], but appending the resulting list as a
 single item to the queue [arg q], using the method [cmd put].
 
-[call [cmd ::csv::writematrix] [arg "m chan"] "{[arg sepChar] ,}" "{[arg delChar] \"}"]
+[call [cmd ::csv::writematrix] [arg "m chan"] [opt [arg sepChar]] [opt [arg delChar]]]
 
 A wrapper around [cmd ::csv::join] taking all rows in the matrix
 [arg m] and writing them CSV formatted into the channel [arg chan].
 
-[call [cmd ::csv::writequeue] [arg "q chan"] "{[arg sepChar] ,}" "{[arg delChar] \"}"]
+[call [cmd ::csv::writequeue] [arg "q chan"] [opt [arg sepChar]] [opt [arg delChar]]]
 
 A wrapper around [cmd ::csv::join] taking all items in the queue
 [arg q] (assumes that they are lists) and writing them CSV formatted
