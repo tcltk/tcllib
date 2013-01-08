@@ -22,7 +22,7 @@
 package require Tcl 8.2
 
 namespace eval ::aes {
-    variable version 1.0.2
+    variable version 1.1
     variable rcsid {$Id: aes.tcl,v 1.7 2010/07/06 19:39:00 andreas_kupries Exp $}
     variable uid ; if {![info exists uid]} { set uid 0 }
 
@@ -519,7 +519,7 @@ proc ::aes::aes {args} {
     set opts(-iv) [string repeat \0 16]
     set modes {ecb cbc}
     set dirs {encrypt decrypt}
-    while {[string match -* [set option [lindex $args 0]]]} {
+    while {([llength $args] > 1) && [string match -* [set option [lindex $args 0]]]} {
         switch -exact -- $option {
             -mode      { set opts(-mode) [SetOneOf $modes [Pop args 1]] }
             -dir       { set opts(-dir) [SetOneOf $dirs [Pop args 1]] }
