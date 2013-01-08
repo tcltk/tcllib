@@ -2,7 +2,7 @@
 # -*- tcl -*-
 # RSA
 #
-# (c) 2010 Roy Keene.
+# (c) 2010, 2011, 2012, 2013 Roy Keene.
 #	 BSD Licensed.
 
 # # ## ### ##### ######## #############
@@ -14,6 +14,7 @@ package require Tcl 8.5
 package require asn 0.8.4
 
 ## Further dependencies
+package require aes
 package require des
 package require math::bignum
 package require md5 2
@@ -186,7 +187,7 @@ namespace eval ::pki {
 
 	variable handlers
 	array set handlers {
-		rsa                            {::pki::rsa::encrypt ::pki::rsa::decrypt ::pki::rsa::generate}
+		rsa                            {::pki::rsa::encrypt ::pki::rsa::decrypt ::pki::rsa::generate ::pki::rsa::serialize_key}
 	}
 
 	variable INT_MAX [expr {[format "%u" -1] / 2}]
@@ -240,6 +241,12 @@ proc ::pki::_powm {x y m} {
 	}
 
 	return $retval
+}
+
+## **NOTE** Requires that "m" be prime
+### a^-1 === a^(m-2)    (all mod m)
+proc ::pki::_modi {a m} {
+	return [_powm $a [expr {$m - 2}] $m]
 }
 
 proc ::pki::_oid_number_to_name {oid} {
@@ -419,6 +426,42 @@ proc ::pki::rsa::decrypt {mode input keylist} {
 	return $retval
 }
 
+proc ::pki::rsa::serialize_key {keylist} {
+	array set key $keylist
+
+	foreach entry [list n e d p q] {
+		if {![info exists key($entry)]} {
+			return -code error "Key does not contain an element $entry"
+		}
+	}
+
+	# Exponent 1
+	## d (mod p-1)
+	set e1 [expr {$key(d) % ($key(p) - 1)}]
+
+	# Exponent 2
+	#set e2 [expr d mod (q-1)]
+	set e2 [expr {$key(d) % ($key(q) - 1)}]
+
+	# Coefficient
+	## Modular multiplicative inverse of q mod p
+	set c [::pki::_modi $key(q) $key(p)]
+
+	set ret [::asn::asnSequence \
+			[::asn::asnBigInteger [::math::bignum::fromstr 0]] \
+			[::asn::asnBigInteger [::math::bignum::fromstr $key(n)]] \
+			[::asn::asnBigInteger [::math::bignum::fromstr $key(e)]] \
+			[::asn::asnBigInteger [::math::bignum::fromstr $key(d)]] \
+			[::asn::asnBigInteger [::math::bignum::fromstr $key(p)]] \
+			[::asn::asnBigInteger [::math::bignum::fromstr $key(q)]] \
+			[::asn::asnBigInteger [::math::bignum::fromstr $e1]] \
+			[::asn::asnBigInteger [::math::bignum::fromstr $e2]] \
+			[::asn::asnBigInteger [::math::bignum::fromstr $c]] \
+	]
+
+	return [list data $ret begin "-----BEGIN RSA PRIVATE KEY-----" end "-----END RSA PRIVATE KEY-----"]
+}
+
 proc ::pki::_lookup_command {action keylist} {
 	array set key $keylist
 
@@ -433,6 +476,9 @@ proc ::pki::_lookup_command {action keylist} {
 		}
 		"generate" {
 			set idx 2
+		}
+		"serialize_key" {
+			set idx 3
 		}
 	}
 
@@ -673,6 +719,30 @@ proc ::pki::verify {signedmessage checkmessage keylist {algo default}} {
 	return true
 }
 
+proc ::pki::key {keylist {password ""} {encodePem 1}} {
+	set serialize_key [::pki::_lookup_command serialize_key $keylist]
+
+	if {$serialize_key eq ""} {
+		array set key $keylist
+
+		return -code error "Do not know how to serialize an $key(type) key"
+	}
+
+	array set retval_parts [$serialize_key $keylist]
+
+	if {$encodePem} {
+		set retval [::pki::_encode_pem $retval_parts(data) $retval_parts(begin) $retval_parts(end) $password]
+	} else {
+		if {$password != ""} {
+			return -code error "DER encoded keys may not be password protected"
+		}
+
+		set retval $retval_parts(data)
+	}
+
+	return $retval
+}
+
 proc ::pki::_parse_init {} {
 	if {[info exists ::pki::_parse_init_done]} {
 		return
@@ -728,10 +798,54 @@ proc ::pki::_getopensslkey {password salt bytes} {
 	return $ret
 }
 
-proc ::pki::_encode_pem {data begin end} {
+proc ::pki::_encode_pem {data begin end {password ""} {algo "aes-256-cbc"}} {
 	set ret ""
 
 	append ret "${begin}\n"
+	if {$password != ""} {
+		switch -glob -- $algo {
+			"aes-*" {
+				set algostr [string toupper $algo]
+				set work [split $algo "-"]
+				set algo "aes"
+				set keysize [lindex $work 1]
+				set mode [lindex $work 2]
+				set blocksize 16
+				set ivsize [expr {$blocksize * 8}]
+			}
+			default {
+				return -code error "Only AES is currently supported"
+			}
+		}
+
+		set keybytesize [expr {$keysize / 8}]
+		set ivbytesize [expr {$ivsize / 8}]
+
+		set iv ""
+		while {[string length $iv] < $ivbytesize} {
+			append iv [::pki::_random -binary]
+		}
+		set iv [string range $iv 0 [expr {$ivbytesize - 1}]]
+
+		set password_key [::pki::_getopensslkey $password $iv $keybytesize]
+
+		set pad [expr {$blocksize - ([string length $data] % $blocksize)}]
+		append data [string repeat "\x09" $pad]
+
+		switch -- $algo {
+			"aes" {
+				set data [aes::aes -dir encrypt -mode $mode -iv $iv -key $password_key -- $data]
+			}
+		}
+
+		binary scan $iv H* iv
+		set iv [string toupper $iv]
+
+		append ret "Proc-Type: 4,ENCRYPTED\n"
+		append ret "DEK-Info: $algostr,$iv\n"
+		append ret "\n"
+	}
+
 	if {$::pki::rsa::base64_binary} {
 		append ret [binary encode base64 -maxlen 64 $data]
 	} else {
@@ -810,7 +924,7 @@ proc ::pki::_parse_pem {pem begin end {password ""}} {
 					set iv [binary format H* $iv]
 					set password_key [::pki::_getopensslkey $password $iv 24]
 
-					set pem [DES::des -dir decrypt -mode $mode -iv $iv -key $password_key $pem]
+					set pem [DES::des -dir decrypt -mode $mode -iv $iv -key $password_key -- $pem]
 				}
 				"AES-*" {
 					package require aes
@@ -830,7 +944,7 @@ proc ::pki::_parse_pem {pem begin end {password ""}} {
 					set iv [binary format H* $iv]
 					set password_key [::pki::_getopensslkey $password $iv [expr $keysize / 8]]
 
-					set pem [aes::aes -dir decrypt -mode $mode -iv $iv -key $password_key $pem]
+					set pem [aes::aes -dir decrypt -mode $mode -iv $iv -key $password_key -- $pem]
 				}
 			}
 		}
@@ -851,11 +965,15 @@ proc ::pki::pkcs::parse_key {key {password ""}} {
 	::asn::asnGetBigInteger key ret(n)
 	::asn::asnGetBigInteger key ret(e)
 	::asn::asnGetBigInteger key ret(d)
+	::asn::asnGetBigInteger key ret(p)
+	::asn::asnGetBigInteger key ret(q)
 
 	set ret(n) [::math::bignum::tostr $ret(n)]
 	set ret(e) [::math::bignum::tostr $ret(e)]
 	set ret(d) [::math::bignum::tostr $ret(d)]
-	set ret(l) [expr {int([::pki::_bits $ret(n)] / 8) * 8}]
+	set ret(p) [::math::bignum::tostr $ret(p)]
+	set ret(q) [::math::bignum::tostr $ret(q)]
+	set ret(l) [expr {int([::pki::_bits $ret(n)] / 8.0000 + 0.5) * 8}]
 	set ret(type) rsa
 
 	return [array get ret]
@@ -1070,7 +1188,7 @@ proc ::pki::x509::parse_cert {cert} {
 
 			set ret(n) [::math::bignum::tostr $ret(n)]
 			set ret(e) [::math::bignum::tostr $ret(e)]
-			set ret(l) [expr {int([::pki::_bits $ret(n)] / 8) * 8}]
+			set ret(l) [expr {int([::pki::_bits $ret(n)] / 8.0000 + 0.5) * 8}]
 			set ret(type) rsa
 		}
 	}
@@ -1510,7 +1628,13 @@ proc ::pki::_bits {num} {
 	return $ret
 }
 
-proc ::pki::_random {} {
+proc ::pki::_random args {
+	if {[lindex $args 0] == "-binary"} {
+		set outputmode binary
+	} else {
+		set outputmode numeric
+	}
+
 	if {![info exists ::pki::_random_dev]} {
 		foreach trydev [list /dev/urandom /dev/random __RAND__] {
 			if {$trydev != "__RAND__"} {
@@ -1542,6 +1666,15 @@ proc ::pki::_random {} {
 
 			binary scan $data H* ret
 			set ret [expr 0x$ret]
+		}
+	}
+
+	switch -- $outputmode {
+		"numeric" {
+			# Do nothing, results are already numeric
+		}
+		"binary" {
+			set ret [binary format H* [format %02llx $ret]]
 		}
 	}
 
@@ -1645,12 +1778,26 @@ proc ::pki::rsa::generate {bitlength {exponent 0x10001}} {
 
 	# Step 1. Pick 2 numbers that when multiplied together will give a number with the appropriate length
 	set componentbitlen [expr {$bitlength / 2}]
+	set bitmask [expr {(1 << $componentbitlen) - 1}]
 
 	set p 0
 	set q 0
 	while 1 {
 		set plen [::pki::_bits $p]
 		set qlen [::pki::_bits $q]
+
+		if {$plen >= $componentbitlen} {
+			set p [expr {$p & $bitmask}]
+
+			set plen [::pki::_bits $p]
+		}
+
+		if {$qlen >= $componentbitlen} {
+			set q [expr {$q & $bitmask}]
+
+			set qlen [::pki::_bits $q]
+		}
+
 		if {$plen >= $componentbitlen && $qlen >= $componentbitlen} {
 			break
 		}
@@ -1664,20 +1811,10 @@ proc ::pki::rsa::generate {bitlength {exponent 0x10001}} {
 		set xmask [expr {(1 << $xlen) - 1}]
 		set ymask [expr {(1 << $ylen) - 1}]
 
-		set plen [::pki::_bits $p]
-		set qlen [::pki::_bits $q]
-
-		if {$plen < $componentbitlen} {
-			set p [expr {($p << $xlen) + ($x & $xmask)}]
-		}
-		if {$qlen < $componentbitlen} {
-			set q [expr {($q << $ylen) + ($y & $ymask)}]
-		}
+		set p [expr {($p << $xlen) + ($x & $xmask)}]
+		set q [expr {($q << $ylen) + ($y & $ymask)}]
 	}
 
-	set bitmask [expr {(1 << $componentbitlen) - 1}]
-	set p [expr {$p & $bitmask}]
-	set q [expr {$q & $bitmask}]
 
 	# Step 2. Verify that "p" and "q" are useful
 	## Step 2.a. Verify that they are not too close
@@ -1731,6 +1868,10 @@ proc ::pki::rsa::generate {bitlength {exponent 0x10001}} {
 	set retkey(e) $e
 	set retkey(l) $bitlength
 
+	# Step 7. Record additional information that will be needed to write out a PKCS#1 compliant key
+	set retkey(p) $p
+	set retkey(q) $q
+
 	return [array get retkey]
 }
 
@@ -1740,4 +1881,4 @@ proc ::pki::rsa::generate {bitlength {exponent 0x10001}} {
 # # ## ### ##### ######## #############
 ## Ready
 
-package provide pki 0.3
+package provide pki 0.5
