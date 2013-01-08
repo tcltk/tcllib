@@ -510,7 +510,7 @@ test mevmtcl-ict_match_tokclass-1.1 {Call with too many arguments} \
     } -result {wrong # args: should be "grammar::me::tcl::ict_match_tokclass code msg"}
 
 test mevmtcl-ict_match_tokclass-1.2a {Call with bad code} \
-    -constraints tcl8.5plus \
+    -constraints {tcl8.5plus tcl8.5minus} \
     -returnCodes error \
     -setup {
 	grammar::me::tcl::init fake
@@ -527,6 +527,14 @@ test mevmtcl-ict_match_tokclass-1.2b {Call with bad code} \
 	grammar::me::tcl::ict_match_tokclass gargle foo
     } -result {bad class "gargle": must be alnum, alpha, ascii, control, boolean, digit, double, false, graph, integer, lower, print, punct, space, true, upper, wordchar, or xdigit}
 
+test mevmtcl-ict_match_tokclass-1.2c {Call with bad code} \
+    -constraints tcl8.6plus \
+    -returnCodes error \
+    -setup {
+	grammar::me::tcl::init fake
+    } -body {
+	grammar::me::tcl::ict_match_tokclass gargle foo
+    } -result {bad class "gargle": must be alnum, alpha, ascii, control, boolean, digit, double, entier, false, graph, integer, list, lower, print, punct, space, true, upper, wideinteger, wordchar, or xdigit}
 
 test mevmtcl-ict_match_tokclass-2.0 {Token is matching} \
     -setup {
