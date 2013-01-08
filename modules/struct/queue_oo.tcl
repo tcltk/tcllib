@@ -10,7 +10,9 @@
 # 
 # RCS: @(#) $Id: queue_oo.tcl,v 1.2 2010/09/10 17:31:04 andreas_kupries Exp $
 
-package require TclOO 0.6.1
+if {[catch {package require TclOO 0.6.1}]} {
+    package require TclOO 1
+}
 
 # Cleanup first
 catch {namespace delete ::struct::queue::queue_oo}

@@ -1,9 +1,9 @@
-[manpage_begin struct::stack n 1.5.2]
+[manpage_begin struct::stack n 1.5.3]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate stack objects}]
 [category  {Data structures}]
 [require Tcl 8.4]
-[require struct::stack [opt 1.5.2]]
+[require struct::stack [opt 1.5.3]]
 [description]
 
 The [namespace ::struct] namespace contains a commands for processing
