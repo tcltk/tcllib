@@ -1,8 +1,14 @@
+2013-01-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* typedCmdline.test: Fixed test results of typed-cmdline-6.14 for
+	  Tcl 8.6 and higher. Rewritten to use constraints properly
+	  instead of via conditional execution.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.14 ========================
-	* 
+	*
 
 2011-02-23  Andreas Kupries  <andreask@activestate.com>
 
@@ -16,7 +22,7 @@
 
 	*
 	* Released and tagged Tcllib 1.13 ========================
-	* 
+	*
 
 2010-09-08  Andreas Kupries  <andreask@activestate.com>
 
@@ -39,19 +45,19 @@
 
 	*
 	* Released and tagged Tcllib 1.12 ========================
-	* 
+	*
 
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.11.1 ========================
-	* 
+	*
 
 2008-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.11 ========================
-	* 
+	*
 
 2008-07-09  Andreas Kupries  <andreask@activestate.com>
 
@@ -75,7 +81,7 @@
 
 	*
 	* Released and tagged Tcllib 1.10 ========================
-	* 
+	*
 
 2007-08-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -95,7 +101,7 @@
 
 	*
 	* Released and tagged Tcllib 1.9 ========================
-	* 
+	*
 
 2006-09-27  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -144,7 +150,7 @@
 
 	*
 	* Released and tagged Tcllib 1.8 ========================
-	* 
+	*
 
 2004-11-08  Andreas Kupries <andreask@activestate.com>
 
@@ -158,7 +164,7 @@
 
 	*
 	* Released and tagged Tcllib 1.7 ========================
-	* 
+	*
 
 2004-08-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -176,13 +182,13 @@
 
 	*
 	* Released and tagged Tcllib 1.6.1 ========================
-	* 
+	*
 
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.6 ========================
-	* 
+	*
 
 2004-02-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -219,7 +225,7 @@
 
 	*
 	* Released and tagged Tcllib 1.4 ========================
-	* 
+	*
 
 2003-04-11  Andreas Kupries  <andreask@activestate.com>
 
@@ -251,7 +257,7 @@
 	  <melissachawla@yahoo.com> and Don Porter
 	  <dgp@users.sourceforge.net>.
 
-	  * cmdline.test: 
+	  * cmdline.test:
 	  * cmdline.tcl: Added getKnownOpt and getKnownOptions procedures
 	    to the API.  The procedures offer a way for arguments that are
 	    not in the optionList to be ignored.  This way, you can have
