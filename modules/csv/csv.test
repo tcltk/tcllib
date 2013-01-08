@@ -50,6 +50,8 @@ set str6_ {123,=123,521.2=,=Mary says "Hello, I am Mary"=}
 set str1a_ {123,===a===,,hello}
 set str3a_ {1,= o, ==,== ,b =, 3}
 
+set str7 {=1=,=====a=====,=b=}
+
 # -------------------------------------------------------------------------
 
 test csv-1.1 {split} {
@@ -277,6 +279,10 @@ test csv-2.12 {join, custom delimiter} {
 test csv-2.13-sf-1724818 {join, newlines in string, sf bug 1724818} {
     csv::join {123 {John Doe} "123 Main St.\nSmalltown, OH 44444"}
 } "123,John Doe,\"123 Main St.\nSmalltown, OH 44444\""
+
+test csv-2.14 {join, custom delimiter, always} {
+    csv::join {1 ==a== b} , = always
+} $str7
 
 # Malformed inputs
 

@@ -10,6 +10,7 @@
 package require pcx
 pcx::register csv
 pcx::tcldep   0.7 needs tcl 8.3
+pcx::tcldep   0.8 needs tcl 8.4
 
 namespace eval ::csv {}
 
@@ -26,17 +27,38 @@ pcx::check 0.7 std ::csv::join \
 	checkWord
 	checkWord
     }}
+pcx::check 0.8 std ::csv::join \
+    {checkSimpleArgs 1 4 {
+	checkList
+	checkWord
+	checkWord
+	{checkKeyword 1 {auto always}}
+    }}
 pcx::check 0.7 std ::csv::joinlist \
     {checkSimpleArgs 1 3 {
 	checkList
 	checkWord
 	checkWord
     }}
+pcx::check 0.8 std ::csv::joinlist \
+    {checkSimpleArgs 1 4 {
+	checkList
+	checkWord
+	checkWord
+	{checkKeyword 1 {auto always}}
+    }}
 pcx::check 0.7 std ::csv::joinmatrix \
     {checkSimpleArgs 1 3 {
 	checkWord
 	checkWord
 	checkWord
+    }}
+pcx::check 0.8 std ::csv::joinmatrix \
+    {checkSimpleArgs 1 4 {
+	checkWord
+	checkWord
+	checkWord
+	{checkKeyword 1 {auto always}}
     }}
 pcx::check 0.7 std ::csv::read2matrix \
     {checkSimpleArgs 2 -1 {

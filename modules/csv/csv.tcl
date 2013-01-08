@@ -3,15 +3,15 @@
 #	Tcl implementations of CSV reader and writer
 #
 # Copyright (c) 2001      by Jeffrey Hobbs
-# Copyright (c) 2001-2011 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2001-2013 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
 # RCS: @(#) $Id: csv.tcl,v 1.28 2011/11/23 02:22:10 andreas_kupries Exp $
 
-package require Tcl 8.3
-package provide csv 0.7.3
+package require Tcl 8.4
+package provide csv 0.8
 
 namespace eval ::csv {
     namespace export join joinlist read2matrix read2queue report 
@@ -25,15 +25,17 @@ namespace eval ::csv {
 # Arguments:
 #	values		A list of the values to join
 #	sepChar		The separator character, defaults to comma
+#	delChar		The delimiter character, defaults to quote
+#	forceDel	If set, values are always surrounded by delChar
 #
 # Results:
 #	A string containing the values in CSV format.
 
-proc ::csv::join {values {sepChar ,} {delChar \"}} {
+proc ::csv::join {values {sepChar ,} {delChar \"} {delMode auto}} {
     set out ""
     set sep {}
     foreach val $values {
-	if {[string match "*\[${delChar}$sepChar\r\n\]*" $val]} {
+	if {($delMode eq "always") || [string match "*\[${delChar}$sepChar\r\n\]*" $val]} {
 	    append out $sep${delChar}[string map [list $delChar ${delChar}${delChar}] $val]${delChar}
 	} else {
 	    append out $sep${val}
@@ -53,16 +55,18 @@ proc ::csv::join {values {sepChar ,} {delChar \"}} {
 # Arguments:
 #	values		A list of the lists of the values to join
 #	sepChar		The separator character, defaults to comma
+#	delChar		The delimiter character, defaults to quote
+#	forceDel	If set, values are always surrounded by delChar
 #
 # Results:
 #	A string containing the values in CSV format, the records
 #	separated by newlines.
 
-proc ::csv::joinlist {values {sepChar ,} {delChar \"}} {
+proc ::csv::joinlist {values {sepChar ,} {delChar \"} {delMode auto}} {
     set out ""
     foreach record $values {
 	# note that this is ::csv::join
-	append out "[join $record $sepChar $delChar]\n"
+	append out "[join $record $sepChar $delChar $delMode]\n"
     }
     return $out
 }
@@ -77,13 +81,15 @@ proc ::csv::joinlist {values {sepChar ,} {delChar \"}} {
 # Arguments:
 #	matrix		Matrix object command.
 #	sepChar		The separator character, defaults to comma
+#	delChar		The delimiter character, defaults to quote
+#	forceDel	If set, values are always surrounded by delChar
 #
 # Results:
 #	A string containing the values in CSV format, the records
 #	separated by newlines.
 
-proc ::csv::joinmatrix {matrix {sepChar ,} {delChar \"}} {
-    return [joinlist [$matrix get rect 0 0 end end] $sepChar $delChar]
+proc ::csv::joinmatrix {matrix {sepChar ,} {delChar \"} {delMode auto}} {
+    return [joinlist [$matrix get rect 0 0 end end] $sepChar $delChar $delMode]
 }
 
 # ::csv::iscomplete --
