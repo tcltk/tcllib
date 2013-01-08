@@ -1,11 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin aes n 1.0.2]
+[manpage_begin aes n 1.1]
 [copyright {2005, Pat Thoyts <patthoyts@users.sourceforge.net>}]
+[copyright {2012, Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc {Advanced Encryption Standard (AES)}]
 [titledesc {Implementation of the AES block cipher}]
 [category  {Hashes, checksums, and encryption}]
 [require Tcl 8.2]
-[require aes [opt 1.0.2]]
+[require aes [opt 1.1]]
 [description]
 [para]
 
@@ -28,7 +29,7 @@ CBC modes.
         [opt [arg "-out channel"]] \
         [opt [arg "-chunksize size"]] \
         [lb] [arg "-in channel"] | \
-        [arg "data"] [rb]]
+        [opt [option --]] [arg "data"] [rb]]
 
 Perform the [package aes] algorithm on either the data provided
 by the argument or on the data read from the [arg "-in"] channel. If

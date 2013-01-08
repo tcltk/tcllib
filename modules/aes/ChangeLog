@@ -1,3 +1,11 @@
+2013-01-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* aes.man: [Bug 3574004]: Documented the -- option stopping
+	* aes.tcl: option processing to protect data starting with
+	* aes.test: a dash. Additionally auto-stop if only one argument
+	* pkgIndex.tcl: is left, treating it as data. Bumped to
+	  version 1.1.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
