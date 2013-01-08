@@ -1,32 +1,37 @@
+2013-01-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* me_tcl.test: (mevmtcl-ict_match_tokclass-1.2*): Fixed test
+	  results for Tcl 8.6 and higher.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.14 ========================
-	* 
+	*
 
 2011-01-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.13 ========================
-	* 
+	*
 
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.12 ========================
-	* 
+	*
 
 2008-12-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.11.1 ========================
-	* 
+	*
 
 2008-10-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.11 ========================
-	* 
+	*
 
 2008-05-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -42,7 +47,7 @@
 
 	*
 	* Released and tagged Tcllib 1.10 ========================
-	* 
+	*
 
 2007-08-01  Andreas Kupries  <andreask@activestate.com>
 
@@ -69,7 +74,7 @@
 
 	*
 	* Released and tagged Tcllib 1.9 ========================
-	* 
+	*
 
 2006-09-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -91,7 +96,7 @@
 	* grammar_me/me_cpucore.test: uncovered by the last tests.
 
 	* grammar_me/me_cpu.man: Lifted all changes to the cpucore into
-	* grammar_me/me_cpu.tcl: the cpu object (extended acessors, 
+	* grammar_me/me_cpu.tcl: the cpu object (extended acessors,
 	* grammar_me/me_cpu.test: documentation, etc.). Created testsuite
 	* grammar_me/me_cpu.testsuite: using the core testsuite as
 	  template, and sharing the instruction descriptions with it.
@@ -147,7 +152,7 @@
 
 	*
 	* Released and tagged Tcllib 1.8 ========================
-	* 
+	*
 
 2005-10-03  Andreas Kupries <andreask@activestate.com>
 
