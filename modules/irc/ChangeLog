@@ -1,3 +1,7 @@
+2013-01-09  Andreas Kupries  <andreask@activestate.com>
+
+	* irc.man: Documented the callback for EOF as required.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
