@@ -15,9 +15,11 @@ SC_PROG_TCLSH
 
 # ### ######### ###########################
 
-PACKAGE=`$TCLSH_PROG ${srcdir}/sak.tcl name`
-MAJOR_VERSION=`$TCLSH_PROG ${srcdir}/sak.tcl major`
-MINOR_VERSION=`$TCLSH_PROG ${srcdir}/sak.tcl minor`
+SAK=`$CYGPATH ${srcdir}/sak.tcl`
+
+PACKAGE=`$TCLSH_PROG "${SAK}" name`
+MAJOR_VERSION=`$TCLSH_PROG "${SAK}" major`
+MINOR_VERSION=`$TCLSH_PROG "${SAK}" minor`
 PATCHLEVEL=""
 
 VERSION=${MAJOR_VERSION}.${MINOR_VERSION}${PATCHLEVEL}
