@@ -1,3 +1,9 @@
+2013-01-09  Andreas Kupries  <andreask@activestate.com>
+
+	* mime.tcl (::mime::buildmessage): [Bug 3565267]: Handle
+	* mime.man: possibility of 'errorCode' not set. Version
+	* pkgIndex.tcl: bumped to 1.5.6.
+
 2012-08-02  Andreas Kupries  <andreask@activestate.com>
 
 	* mime.man: [Bug 3354014]: Fixed typo in option name. -parts is

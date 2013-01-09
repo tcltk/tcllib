@@ -22,7 +22,7 @@
 # new string features and inline scan are used, requiring 8.3.
 package require Tcl 8.3
 
-package provide mime 1.5.5
+package provide mime 1.5.6
 
 if {[catch {package require Trf 2.0}]} {
 
@@ -2014,7 +2014,11 @@ proc ::mime::buildmessage {token} {
     set openP [info exists state(fd)]
 
     set code [catch { mime::buildmessageaux $token } result]
-    set ecode $errorCode
+    if {![info exists errorCode]} {
+	set ecode ""
+    } else {
+	set ecode $errorCode
+    }
     set einfo $errorInfo
 
     if {(!$openP) && ([info exists state(fd)])} {
