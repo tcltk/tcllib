@@ -23,10 +23,10 @@ namespace eval ::csv {
 #	Takes a list of values and generates a string in CSV format.
 #
 # Arguments:
-#	values		A list of the values to join
-#	sepChar		The separator character, defaults to comma
-#	delChar		The delimiter character, defaults to quote
-#	forceDel	If set, values are always surrounded by delChar
+#	values	A list of the values to join
+#	sepChar	The separator character, defaults to comma
+#	delChar	The delimiter character, defaults to quote
+#	delMode	If set to 'always', values are always surrounded by delChar
 #
 # Results:
 #	A string containing the values in CSV format.
@@ -53,10 +53,10 @@ proc ::csv::join {values {sepChar ,} {delChar \"} {delMode auto}} {
 #	separated by newlines.
 #
 # Arguments:
-#	values		A list of the lists of the values to join
-#	sepChar		The separator character, defaults to comma
-#	delChar		The delimiter character, defaults to quote
-#	forceDel	If set, values are always surrounded by delChar
+#	values	A list of the lists of the values to join
+#	sepChar	The separator character, defaults to comma
+#	delChar	The delimiter character, defaults to quote
+#	delMode	If set to 'always', values are always surrounded by delChar
 #
 # Results:
 #	A string containing the values in CSV format, the records
@@ -79,10 +79,10 @@ proc ::csv::joinlist {values {sepChar ,} {delChar \"} {delMode auto}} {
 #	records being separated by newlines.
 #
 # Arguments:
-#	matrix		Matrix object command.
-#	sepChar		The separator character, defaults to comma
-#	delChar		The delimiter character, defaults to quote
-#	forceDel	If set, values are always surrounded by delChar
+#	matrix	Matrix object command.
+#	sepChar	The separator character, defaults to comma
+#	delChar	The delimiter character, defaults to quote
+#	delMode	If set to 'always', values are always surrounded by delChar
 #
 # Results:
 #	A string containing the values in CSV format, the records
