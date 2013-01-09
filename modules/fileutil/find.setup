@@ -222,7 +222,7 @@ proc f_cleanupdot {} {
 }
 
 proc f_setupnostat {} {
-    # Finding inaccessible directories. Uunix only, as I do not know
+    # Finding inaccessible directories. Unix only, as I do not know
     # how to make the directory inaccessible on Windows, and then
     # reaccessible again.
 
@@ -243,6 +243,31 @@ proc f_cleanupnostat {} {
     return
 }
 
+proc f_setupnoread {} {
+    # Finding unreadable directories.
+
+    makeDirectory find3
+    makeDirectory find3/find4
+    makeFile {}   find3/find4/file5
+
+    if {[string equal $::tcl_platform(platform) windows]} {
+	file attributes -readonly 1 [tempPath find3/find4]
+    } else {
+	exec chmod -r [tempPath find3/find4]
+    }
+    return
+}
+
+proc f_cleanupnoread {} {
+    if {[string equal $::tcl_platform(platform) windows]} {
+	file attributes -readonly 0 [tempPath find3/find4]
+    } else {
+	exec chmod +r [tempPath find3/find4]
+    }
+    removeDirectory find3
+    return
+}
+
 proc f_cleanall {} {
     rename f_setup          {}
     rename f_cleanup        {}
@@ -251,6 +276,8 @@ proc f_cleanall {} {
     rename f_cleanupdot     {}
     rename f_setupnostat    {}
     rename f_cleanupnostat  {}
+    rename f_setupnoread    {}
+    rename f_cleanupnoread  {}
     rename f_cleanall       {}
     rename fileIsBiggerThan {}
     catch {unset ::res}

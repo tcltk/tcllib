@@ -195,6 +195,22 @@ test find-3.1 {inaccessible directory} {unix notRoot} {
 
 # -------------------------------------------------------------------------
 
+test find-sf-3147481-0 {unreadable directory} {notRoot} {
+    f_setupnoread
+    set res [lsort [fileutil::find [tempPath find3]]]
+    f_cleanupnoread
+    set res
+} [list [tempPath find3/find4]]
+
+test find-sf-3147481-1 {unreadable directory} {notRoot} {
+    f_setupnoread
+    set res [lsort [fileutil::find [tempPath find3/find4]]]
+    f_cleanupnoread
+    set res
+} {}
+
+# -------------------------------------------------------------------------
+
 proc rec {f} {
     # Documented filter API:
     # f   = unqualified filename,

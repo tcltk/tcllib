@@ -4,7 +4,7 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # Copyright (c) 2002      by Phil Ehrens <phil@slug.org> (fileType)
-# Copyright (c) 2005-2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2005-2013 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -13,7 +13,7 @@
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.14.4
+package provide fileutil 1.14.5
 
 namespace eval ::fileutil {
     namespace export \
@@ -212,7 +212,54 @@ proc ::fileutil::FADD {filename} {
 #    directory (stat might return enough information too (mode), but
 #    possibly also not portable).
 
-if {[package vsatisfies [package present Tcl] 8.4]} {
+if {[package vsatisfies [package present Tcl] 8.5]} {
+    # Tcl 8.5+.
+    # We have to check readability of "current" on our own, glob
+    # changed to error out instead of returning nothing.
+
+    proc ::fileutil::ACCESS {args} {}
+
+    proc ::fileutil::GLOBF {current} {
+	if {![file readable $current]} {
+	    return {}
+	}
+	if {([file type $current] eq "link") &&
+	    !([file exists   [file readlink $current]] &&
+	      [file readable [file readlink $current]])} {
+	    return {}
+	}
+
+	set res [concat \
+		     [glob -nocomplain -directory $current -types f          -- *] \
+		     [glob -nocomplain -directory $current -types {hidden f} -- *]]
+
+	# Look for broken links (They are reported as neither file nor directory).
+	foreach l [concat \
+		       [glob -nocomplain -directory $current -types l          -- *] \
+		       [glob -nocomplain -directory $current -types {hidden l} -- *] ] {
+	    if {[file isfile      $l]} continue
+	    if {[file isdirectory $l]} continue
+	    lappend res $l
+	}
+	return $res
+    }
+
+    proc ::fileutil::GLOBD {current} {
+	if {![file readable $current]} {
+	    return {}
+	}
+	if {([file type $current] eq "link") &&
+	    !([file exists   [file readlink $current]] &&
+	      [file readable [file readlink $current]])} {
+	    return {}
+	}
+
+	concat \
+	    [glob -nocomplain -directory $current -types d          -- *] \
+	    [glob -nocomplain -directory $current -types {hidden d} -- *]
+    }
+
+} elseif {[package vsatisfies [package present Tcl] 8.4]} {
     # Tcl 8.4+.
     # (Ad 1) We have -directory, and -types,
     # (Ad 2) Links are returned for -types f/d if they refer to files/dirs.
