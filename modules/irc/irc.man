@@ -64,7 +64,7 @@ In addition, there are several other events defined.
 [const defaultcmd] adds a command that is called if no other callback
 is present.  [const EOF] is called if the connection signals an End of
 File condition. The events [const defaultcmd], [const defaultnumeric],
-and [const defaultevent] are required.
+[const defaultevent], and [const EOF] are required.
 
 [arg script] is executed in the connection namespace, which can take
 advantage of several commands (see [sectref {Callback Commands}]
