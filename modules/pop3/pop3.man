@@ -48,7 +48,7 @@ Setting this option tells the package that the server we are talking
 to is an MS Exchange server (which has some oddities we have to work
 around). The default is [const False].
 
-[opt_def -retr-mode retr|list|slow].
+[opt_def -retr-mode retr|list|slow]
 
 The retrieval mode determines how exactly messages are read from the
 server.
