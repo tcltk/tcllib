@@ -76,7 +76,7 @@ proc c_get_copyright {}     {
     if {$cc == {}} {return {}}
 
     set stmts {}
-    set re {^Copyright +(?:\(c\)|\\\(co|&copy;) *(.+)$}
+    set re {^Copyright +(?:\(c\)|\\\(co|&copy;)? *(.+)$}
     foreach stmt $cc {
 	if { [string equal -nocase "public domain" [string trim $stmt]] } {
             lappend stmts "Public domain"
