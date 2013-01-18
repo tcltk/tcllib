@@ -75,7 +75,19 @@ proc c_get_copyright {}     {
     if {$cc == {}} {set cc [dt_copyright]}
     if {$cc == {}} {return {}}
 
-    return "Copyright [c_copyrightsymbol] [join $cc "\nCopyright [c_copyrightsymbol] "]"
+    set stmts {}
+    set re {^Copyright +(?:\(c\)|\\\(co|&copy;) *(.+)$}
+    foreach stmt $cc {
+	if { [string equal -nocase "public domain" [string trim $stmt]] } {
+            lappend stmts "Public domain"
+	} elseif { [regexp -nocase -- $re $stmt -> stmt] } {
+            lappend stmts $stmt
+	} else {
+            lappend stmts "Copyright [c_copyrightsymbol] $stmt"
+	}
+    }
+
+    return [join $stmts \n]
 }
 
 proc c_provenance {} {
