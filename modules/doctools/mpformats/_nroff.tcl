@@ -131,10 +131,14 @@ proc nroff_postprocess {nroff} {
 		# irregularity. Note that the regexp has to look for
 		# the special 0x01 character as well to be sure that
 		# the sequence in question truly is formatting.
+		# [bug-3601370] Only lift & attach if last line is not
+		# a directive
 
 		set last  [lindex   $lines end]
-		set lines [lreplace $lines end end]
-		set line "$last $line"
+		if { ! [string match "\1.*" $last] } {
+		    set lines [lreplace $lines end end]
+		    set line "$last $line"
+		}
 	    } elseif {[string match {['.]*} $line]} {
 		# Apostrophes or periods at the beginning of a line have to
 		# quoted to prevent misinterpretation as comments or directives.
