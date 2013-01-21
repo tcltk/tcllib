@@ -1,3 +1,10 @@
+2013-01-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* queue.tcl: Rewritten, simplified. The 8.5 requisite means
+	* queue_oo.tcl: that we have extended requirement syntax allowing
+	* stack.tcl: us to jump the major version barrier without fuss.
+	* stack_oo.tcl:
+
 2013-01-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pkgIndex.tcl: Fixed package require mismatch for use of TclOO

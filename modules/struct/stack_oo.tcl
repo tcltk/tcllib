@@ -9,9 +9,8 @@
 # 
 # RCS: @(#) $Id: stack_oo.tcl,v 1.4 2010/09/10 17:31:04 andreas_kupries Exp $
 
-if {[catch {package require TclOO 0.6.1}]} {
-    package require TclOO 1
-}
+package require Tcl   8.5
+package require TclOO 0.6.1- ; # This includes 1 and higher.
 
 # Cleanup first
 catch {namespace delete ::struct::stack::stack_oo}
