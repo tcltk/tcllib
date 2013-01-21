@@ -6,6 +6,7 @@ mcset de end/open/list    "Dokument zu Ende, nicht alle Listen wurden geschlosse
 mcset de end/open/example "Dokument zu Ende, das letzte Beispiel wurde nicht abgeschlossen"
 mcset de end/open/mp	  "Dokument zu Ende, es fehlt der Abschlussbefehl \[manpage_end\]"
 mcset de mpbegin          "Erwartete diesen Befehl als ersten in der Manpage"
+mcset de mptitle          "Der Manpage Titel darf keine Leerzeichen enthalten"
 mcset de hdrcmd           "Dieser Befehl ist ausserhalb des Headers nicht erlaubt"
 mcset de bodycmd          "Dieser Befehl darf nicht ausserhalb des Hauptteils der Manpage auftreten"
 mcset de body             "Text darf nicht ausserhalb des Hauptteils der Manpage auftreten"

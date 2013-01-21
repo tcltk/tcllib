@@ -271,6 +271,7 @@ proc vset {var args} {
 proc manpage_begin {title section version} {
     Enter manpage_begin
     if {[IsNot manpage_begin]} {Error mpbegin}
+    if {[string match {* *} $title]} {Error mptitle}
     Go header
     fmt_manpage_begin $title $section $version
 }

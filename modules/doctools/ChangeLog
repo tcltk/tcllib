@@ -1,3 +1,11 @@
+2013-01-21  Andreas Kupries  <andreask@activestate.com>
+
+	* checker.tcl: Added check to manpage_begin, reject spaces in title.
+	* mpformats/c.msg: Message catalogs extended with new warning
+	* mpformats/de.msg: 'mptitle' for spaces in the manpage title.
+	* mpformats/en.msg: The french catalog contains the english
+	* mpformats/fr.msg: text, and needs a translation.
+
 2012-02-27  Andreas Kupries  <aku@hephaistos>
 
 	* tests/text/04: Update the expected the result to match the new
