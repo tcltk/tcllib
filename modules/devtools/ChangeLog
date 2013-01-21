@@ -1,3 +1,12 @@
+2013-01-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* transmitter.crt: [Bug 3433470] Regenerated the certificates,
+	* transmitter.key: again. Expiry is Jan 2023 (10 years).
+	* receiver.crt: While SimpleCA doesn't seem to allow me to
+	* receiver.key: specify a longer period in the GUI it was possible
+	* ca.crt: to get, update and run the Tcl code, unwrapped.
+	* ca.key: Further changed to 4096-bit certs.
+
 2011-11-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* testutilities.tcl: Fixed typos, one still breaking 'testsNeed'.
