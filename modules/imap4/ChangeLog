@@ -1,3 +1,9 @@
+2013-01-22  Andreas Kupries  <andreask@activestate.com>
+
+	* imap4.tcl: Applied contribution by Nicola Hall.
+	* imap4.man: Additional commands. Bumped version
+	* pkgIndex.tcl: to 0.4.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
