@@ -2,14 +2,14 @@
 #
 #       Querying and modifying PNG image files.
 #
-# Copyright (c) 2004    Aaron Faupell <afaupell@users.sourceforge.net>
+# Copyright (c) 2004-2012 Aaron Faupell <afaupell@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
 # RCS: @(#) $Id: png.tcl,v 1.11 2012/07/09 16:35:04 afaupell Exp $
 
-package provide png 0.1.2
+package provide png 0.2
 
 namespace eval ::png {}
 
