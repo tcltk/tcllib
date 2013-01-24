@@ -2,6 +2,7 @@
 # # ## ### ##### ######## ############# #####################
 ## Copyright (c) 2004 Kevin Kenny
 ## Origin http://wiki.tcl.tk/13094
+## Modified for Tcl 8.5 only (eval -> {*}).
 
 # # ## ### ##### ######## ############# #####################
 ## Requisites
@@ -28,8 +29,7 @@ package provide clock::iso8601 0.1
     variable DatePatterns
     foreach { regex interpretation } $DatePatterns {
 	if { [regexp "^$regex\$" $string] } {
-	    return [eval [linsert $args 0 \
-			      clock scan $string -format $interpretation]]
+	    return [clock scan $string -format $interpretation {*}$args]
 	}
     }
     return -code error "not an iso8601 date string"
@@ -69,7 +69,8 @@ package provide clock::iso8601 0.1
     if { $field(%Z) ne {} } {
 	append pattern %Z
     }
-    return [eval [linsert $args 0 clock scan $timeString -format $pattern]]
+
+    return [clock scan $timeString -format $pattern {*}$args]
 }
 
 # # ## ### ##### ######## ############# #####################
