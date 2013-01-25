@@ -1,14 +1,14 @@
-[manpage_begin imap4 n 0.3]
+[manpage_begin imap4 n 0.4]
 [moddesc   {imap client}]
 [titledesc {imap client-side tcl implementation of imap protocol}]
 
 [require Tcl 8.5]
-[require imap4 [opt 0.3]]
+[require imap4 [opt 0.4]]
 
 [description]
 
 The [package imap4] library package provides the client side of the
-[strong "Internet Message Access Protocol"] (IMAP) using standard
+[emph "Internet Message Access Protocol"] (IMAP) using standard
 sockets or secure connection via TLS/SSL.
 The package is fully implemented in Tcl.
 
@@ -57,14 +57,14 @@ lowercase and leading special characters are removed.
 [call [cmd ::imap4::select] [arg chan] [opt [arg mailbox]]]
 [para]Select a mailbox, 0 is returned on success.
 [para][arg chan] - imap channel
-[para][arg mailbox] - Path of the mailbox,  defaults to [strong INBOX]
+[para][arg mailbox] - Path of the mailbox,  defaults to [emph INBOX]
 [para]Prior to examine/select an open mailbox must be closed - see: [cmd ::imap4::close].
 
 [call [cmd ::imap4::examine] [arg chan] [opt [arg mailbox]]]
 [para]"Examines" a mailbox, read-only equivalent of [cmd ::imap4::select].
 [para][arg chan] - imap channel
 [para][arg mailbox] - mailbox name or path to mailbox,
-defaults to [strong INBOX]
+defaults to [emph INBOX]
 [para]Prior to examine/select an open mailbox must be closed - see: [cmd ::imap4::close].
 
 [call [cmd ::imap4::fetch] [arg chan] [arg range] [opt [arg -inline]] [opt [arg "attr ..."]]]
@@ -101,10 +101,10 @@ false if it is not.
 [para][arg info] - folderlist options to retrieve
 [para]
 Currently supported options:
-[strong delim] - hierarchy delimiter only,
-[strong match] - ref and mbox search patterns (see [cmd ::imap4::folders]),
-[strong names] - list of folder names only,
-[strong flags] - list of folder names with flags in format
+[emph delim] - hierarchy delimiter only,
+[emph match] - ref and mbox search patterns (see [cmd ::imap4::folders]),
+[emph names] - list of folder names only,
+[emph flags] - list of folder names with flags in format
 [emph "{ {name {flags}} ... }"] (see also compact format in function
 [cmd ::imap4::folders]).
 [example {
@@ -138,13 +138,13 @@ false if it is not.
 [para][arg opt] - mailbox option to retrieve
 [para]
 Currently supported options:
-[strong EXISTS] (noof msgs), 
-[strong RECENT] (noof 'recent' flagged msgs), 
-[strong FLAGS]
+[emph EXISTS] (noof msgs), 
+[emph RECENT] (noof 'recent' flagged msgs), 
+[emph FLAGS]
 [para]In conjunction with OK:
-[strong PERMFLAGS], [strong UIDNEXT], [strong UIDVAL], [strong UNSEEN]
+[emph PERMFLAGS], [emph UIDNEXT], [emph UIDVAL], [emph UNSEEN]
 [para]Div. states:
-[strong CURRENT], [strong FOUND], [strong PERM].
+[emph CURRENT], [emph FOUND], [emph PERM].
 
 [example {
     ::imap4::select $chan INBOX
@@ -236,6 +236,55 @@ The ::imap4::debug variable is automatically set to '1' on enter.
 with a slash.
 [para][arg chan] - imap channel
 [para][arg errormsg] - optional error message to display
+
+[call [cmd ::imap4::store] [arg chan] [arg range] [arg data] [arg flaglist]]
+
+[para] Alters data associated with a message in the selected
+mailbox.
+
+[para][arg chan] - imap channel
+[para][arg range] - message index in format [emph FROM]:[emph TO]
+[para][arg flaglist] - Flags the [arg data] operates on.
+[para][arg data] - The currently defined [arg data] items that can be
+stored are shown below. [emph Note] that all of these data types may
+also be suffixed with ".SILENT" to suppress the untagged FETCH
+response.
+
+[list_begin definitions]
+[def FLAGS]
+Replace the flags for the message (other than \Recent) with the
+[arg flaglist].
+[def "+FLAGS"]
+Add the flags in [arg flaglist] to the existing flags for the message.
+[def "-FLAGS"]
+Remove the flags in [arg flaglist] to the existing flags for the
+message.
+[list_end]
+
+For example:
+[example {
+	::imap4::store $chan $start_msgid:$end_msgid +FLAGS "Deleted"
+}]
+
+[call [cmd ::imap4::expunge] [arg chan]]
+
+[para] Permanently removes all messages that have the \Deleted flag
+set from the currently selected mailbox, without the need to close the
+connection.
+
+[para][arg chan] - imap channel
+
+[call [cmd ::imap4::logout] [arg chan]]
+
+[para] Informs the server that the client is done with the connection
+and closes the network connection. Permanently removes \Deleted
+messages.
+
+[para] A new connection will need to be established to login once
+more.
+
+[para][arg chan] - imap channel
+
 [list_end]
 
 [section EXAMPLES]

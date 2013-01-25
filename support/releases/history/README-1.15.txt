@@ -2,9 +2,9 @@ Overview
 ========
 
     2   new packages                in 2   modules
-    29  changed packages            in 25  modules
+    30  changed packages            in 26  modules
     11  internally changed packages in 7   modules
-    347 unchanged packages          in 92  modules
+    346 unchanged packages          in 91  modules
     395 packages, total             in 108 modules, total
 
 New in tcllib 1.15
@@ -32,6 +32,7 @@ Changes from tcllib 1.14 to 1.15
     grammar_peg        grammar::peg             0.1           0.2           B
     htmlparse          htmlparse                1.2           1.2.1         B
     http               autoproxy                1.5.1         1.5.3         B
+    imap4              imap4                    0.3           0.4           EF
     inifile            inifile                  0.2.4         0.2.5         B
     log                logger                   0.9           0.9.3         B
     ------------------ ------------------------ ------------- ------------- ----------
@@ -118,7 +119,7 @@ Unchanged
     grammar::aycock, grammar::aycock::debug,
     grammar::aycock::runtime, grammar::fa, grammar::fa::dacceptor,
     grammar::fa::dexec, grammar::fa::op, grammar::peg::interp, hook,
-    html, huddle, ident, imap4, interp, interp::delegate::method,
+    html, huddle, ident, interp, interp::delegate::method,
     interp::delegate::proc, ip, javascript, jpeg, json, json::write,
     lambda, ldap, ldapx, log, logger::appender, logger::utils,
     map::slippy::cache, mapproj, math, math::bigfloat, math::bignum,
