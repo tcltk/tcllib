@@ -49,8 +49,7 @@
 #             use_ssl must be set to 1 and package TLS must be loaded
 #   20100716: Bug in parsing special leading FLAGS characters in FETCH
 #             command repaired, documentation cleanup.
-#
-#	10121221: Added basic scope function
+#   20121221: Added basic scope, expunge and logout function
 
 package require Tcl 8.5
 package provide imap4 0.4
@@ -1252,9 +1251,20 @@ namespace eval imap4 {
 
     # Logout
     proc logout {chan} {
-        if {[simplecmd $chan LOGOUT AUTH {}]} {
-            return 1
-        }
+	if {[simplecmd $chan LOGOUT SELECT {}]} {
+	    # clean out info arrays
+	    variable info
+	    variable folderinfo
+	    variable mboxinfo
+	    variable msginfo
+
+	    array unset folderinfo $chan,*
+	    array unset mboxinfo $chan,*
+	    array unset msginfo $chan,*
+	    array unset info $chan,*
+
+	    return 1
+	}
         return 0
     }
 

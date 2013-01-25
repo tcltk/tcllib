@@ -1,3 +1,8 @@
+2013-01-25  Andreas Kupries  <andreask@activestate.com>
+
+	* imap4.man: Updated documentation with text contributed by Nicola
+	  Hall, explaining the new commands.
+
 2013-01-22  Andreas Kupries  <andreask@activestate.com>
 
 	* imap4.tcl: Applied contribution by Nicola Hall.
