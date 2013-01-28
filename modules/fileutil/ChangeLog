@@ -1,3 +1,8 @@
+2013-01-28  Andreas Kupries <andreask@activestate.com>
+
+	* decode.tcl: New. Simple package to support writing decoders
+	* pkgIndex.tcl: for binary files.
+
 2013-01-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* fileutil.man: [Bug 3147481], [Bug 3141568]. Fixed issues with
