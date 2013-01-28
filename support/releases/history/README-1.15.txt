@@ -1,19 +1,23 @@
 Overview
 ========
 
-    2   new packages                in 2   modules
+    5   new packages                in 4   modules
     30  changed packages            in 26  modules
     11  internally changed packages in 7   modules
     346 unchanged packages          in 91  modules
-    395 packages, total             in 108 modules, total
+    398 packages, total             in 109 modules, total
 
 New in tcllib 1.15
 ==================
 
     Module      Package                   New Version   Comments
     ----------- ------------------------- ------------- ----------
+    fileutil    fileutil::decode          0.1
     generator   generator                 0.1
     map         map::geocode::nominatim   0.1
+    ----------- ------------------------- ------------- ----------
+    zip         zipfile::decode           0.2
+                zipfile::encode           0.1
     ----------- ------------------------- ------------- ----------
 
 Changes from tcllib 1.14 to 1.15
