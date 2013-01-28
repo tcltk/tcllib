@@ -1,0 +1,5 @@
+2013-01-28  Andreas Kupries <andreask@activestate.com>
+
+	* decode.tcl: New module and packages. De- and
+	* encode.tcl: encoding zipfiles.
+	* pkgIndex.tcl: 
