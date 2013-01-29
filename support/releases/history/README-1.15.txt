@@ -2,8 +2,8 @@ Overview
 ========
 
     5   new packages                in 4   modules
-    30  changed packages            in 26  modules
-    11  internally changed packages in 7   modules
+    31  changed packages            in 27  modules
+    10  internally changed packages in 6   modules
     346 unchanged packages          in 91  modules
     398 packages, total             in 109 modules, total
 
@@ -29,6 +29,7 @@ Changes from tcllib 1.14 to 1.15
     aes                aes                      1.0.2         1.1           D EF
     crc                crc16                    1.1.1         1.1.2         B
     csv                csv                      0.7.3         0.8           EF
+    doctools           doctools                 1.4.13        1.4.14        T B
     ------------------ ------------------------ ------------- ------------- ----------
     fileutil           fileutil                 1.14.4        1.14.5        B
                        fileutil::traverse       0.4.2         0.4.3         B
@@ -72,7 +73,6 @@ Invisible changes (documentation, testsuites)
     ------------ ------------------------ ------------- ------------- ----------
     base64       base64                   2.4.2         2.4.2         D
     cmdline      cmdline                  1.3.3         1.3.3         T
-    doctools     doctools                 1.4.13        1.4.13        T
     ------------ ------------------------ ------------- ------------- ----------
     grammar_me   grammar::me::cpu         0.2           0.2           T
                  grammar::me::cpu::core   0.2           0.2           T
