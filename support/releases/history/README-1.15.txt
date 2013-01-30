@@ -46,7 +46,7 @@ Changes from tcllib 1.14 to 1.15
     ------------------ ------------------------ ------------- ------------- ----------
     math               math::statistics         0.7.0         0.8.0         EF
     mime               mime                     1.5.4         1.5.6         B
-    ncgi               ncgi                     1.3.2         1.4           EF
+    ncgi               ncgi                     1.3.2         1.4.1         EF B T D
     pki                pki                      0.2           0.6           EF
     png                png                      0.1.2         0.2           EF
     pop3               pop3                     1.8           1.9           B T
