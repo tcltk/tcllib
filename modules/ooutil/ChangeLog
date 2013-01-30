@@ -1,3 +1,9 @@
+2013-01-30  Andreas Kupries  <andreask@activestate.com>
+
+	* ooutil.man: Added more utilities to support class variables,
+	* ooutil.tcl: class methods, and singleton classes. Packed version
+	* pkgIndex.tcl: bumped to 1.1 for all these new features.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
