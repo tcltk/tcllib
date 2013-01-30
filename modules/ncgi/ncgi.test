@@ -128,6 +128,22 @@ test ncgi-3.6 {ncgi::decode} {
     ncgi::decode {paran%C3%A1}
 } "paran\u00E1" ; # a+acute
 
+test ncgi-3.7 {ncgi::decode, bug 3601995} {
+    ncgi::decode {%C4%85}
+} "\u0105" ; # a+ogonek
+
+test ncgi-3.8 {ncgi::decode, bug 3601995} {
+    ncgi::decode {%E2%80%A0}
+} "\u2020" ; # dagger
+
+test ncgi-3.9 {ncgi::decode, bug 3601995} {
+    ncgi::decode {%E2%A0%90}
+} "\u2810" ; # a braille pattern
+
+test ncgi-3.10 {ncgi::decode, bug 3601995} {
+    ncgi::decode {%E2%B1}
+} "%E2%B1" ; # missing byte trailing %A0, do not accept/decode, pass through.
+
 test ncgi-4.1 {ncgi::encode} {
     ncgi::encode abcdef0123
 } abcdef0123
