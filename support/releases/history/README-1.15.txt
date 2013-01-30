@@ -2,9 +2,9 @@ Overview
 ========
 
     5   new packages                in 4   modules
-    31  changed packages            in 27  modules
+    32  changed packages            in 28  modules
     10  internally changed packages in 6   modules
-    346 unchanged packages          in 91  modules
+    345 unchanged packages          in 90  modules
     398 packages, total             in 109 modules, total
 
 New in tcllib 1.15
@@ -47,6 +47,7 @@ Changes from tcllib 1.14 to 1.15
     math               math::statistics         0.7.0         0.8.0         EF
     mime               mime                     1.5.4         1.5.6         B
     ncgi               ncgi                     1.3.2         1.4.1         EF B T D
+    ooutil             oo::util                 1             1.1           EF
     pki                pki                      0.2           0.6           EF
     png                png                      0.1.2         0.2           EF
     pop3               pop3                     1.8           1.9           B T
@@ -134,7 +135,7 @@ Unchanged
     math::polynomials, math::rationalfunctions, math::roman,
     math::special, md4, md5, md5crypt, multiplexer, nameserv,
     nameserv::auto, nameserv::common, nameserv::server, namespacex,
-    nmea, nntp, oo::util, otp, page::analysis::peg::emodes,
+    nmea, nntp, otp, page::analysis::peg::emodes,
     page::analysis::peg::minimize, page::analysis::peg::reachable,
     page::analysis::peg::realizable, page::compiler::peg::mecpu,
     page::config::peg, page::gen::peg::canon, page::gen::peg::cpkg,
