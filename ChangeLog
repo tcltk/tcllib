@@ -4,6 +4,11 @@
 	* modules/zip: New module 'zip', with packages 'zipfile::encode'
 	  and 'zipfile::decode'
 
+2013-01-24  Andreas Kupries  <andreask@activestate.com>
+
+	* New module and packages: clock (rfc2822, iso8601).
+	  Tcl 8.5 only.
+
 2013-01-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* configure.in: [Bug 3593146]: Extended with CYGPATH usage to

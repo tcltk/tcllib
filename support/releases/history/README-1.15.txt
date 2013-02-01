@@ -1,16 +1,19 @@
 Overview
 ========
 
-    5   new packages                in 4   modules
+    7   new packages                in 5   modules
     33  changed packages            in 29  modules
     10  internally changed packages in 6   modules
     344 unchanged packages          in 90  modules
-    398 packages, total             in 109 modules, total
+    400 packages, total             in 110 modules, total
 
 New in tcllib 1.15
 ==================
 
     Module      Package                   New Version   Comments
+    ----------- ------------------------- ------------- ----------
+    clock       clock::iso8601            0.1
+                clock::rfc2822            0.1
     ----------- ------------------------- ------------- ----------
     fileutil    fileutil::decode          0.1
     generator   generator                 0.1
