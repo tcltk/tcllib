@@ -111,15 +111,15 @@ test json-write-3.0 {indented, aligned} -body {
     "grammar" : {
         "rules" : {
             "A" : {
-                "is"   : "\/ {t +} {t -}",
+                "is"   : "/ {t +} {t -}",
                 "mode" : "value"
             },
             "D" : {
-                "is"   : "\/ {t 0} {t 1} ",
+                "is"   : "/ {t 0} {t 1} ",
                 "mode" : "value"
             },
             "E" : {
-                "is"   : "\/ {x {t (} {n E} {t )}} {x {n F} {* {x {n M} {n F}}}}",
+                "is"   : "/ {x {t (} {n E} {t )}} {x {n F} {* {x {n M} {n F}}}}",
                 "mode" : "value"
             },
             "F" : {
@@ -127,7 +127,7 @@ test json-write-3.0 {indented, aligned} -body {
                 "mode" : "value"
             },
             "M" : {
-                "is"   : "\/ {t *} {t \/}",
+                "is"   : "/ {t *} {t /}",
                 "mode" : "value"
             },
             "N" : {
@@ -135,7 +135,7 @@ test json-write-3.0 {indented, aligned} -body {
                 "mode" : "value"
             },
             "S" : {
-                "is"   : "\/ {t +} {t -}",
+                "is"   : "/ {t +} {t -}",
                 "mode" : "value"
             },
             "T" : {
@@ -155,15 +155,15 @@ test json-write-3.1 {indented, !aligned} -body {
     "grammar" : {
         "rules" : {
             "A" : {
-                "is" : "\/ {t +} {t -}",
+                "is" : "/ {t +} {t -}",
                 "mode" : "value"
             },
             "D" : {
-                "is" : "\/ {t 0} {t 1} ",
+                "is" : "/ {t 0} {t 1} ",
                 "mode" : "value"
             },
             "E" : {
-                "is" : "\/ {x {t (} {n E} {t )}} {x {n F} {* {x {n M} {n F}}}}",
+                "is" : "/ {x {t (} {n E} {t )}} {x {n F} {* {x {n M} {n F}}}}",
                 "mode" : "value"
             },
             "F" : {
@@ -171,7 +171,7 @@ test json-write-3.1 {indented, !aligned} -body {
                 "mode" : "value"
             },
             "M" : {
-                "is" : "\/ {t *} {t \/}",
+                "is" : "/ {t *} {t /}",
                 "mode" : "value"
             },
             "N" : {
@@ -179,7 +179,7 @@ test json-write-3.1 {indented, !aligned} -body {
                 "mode" : "value"
             },
             "S" : {
-                "is" : "\/ {t +} {t -}",
+                "is" : "/ {t +} {t -}",
                 "mode" : "value"
             },
             "T" : {
@@ -195,7 +195,7 @@ test json-write-3.1 {!indented, !aligned} -body {
     json::write indented 0
     json::write aligned  0
     gen $data
-} -result {{"grammar":{"rules":{"A":{"is":"\/ {t +} {t -}","mode":"value"},"D":{"is":"\/ {t 0} {t 1} ","mode":"value"},"E":{"is":"\/ {x {t (} {n E} {t )}} {x {n F} {* {x {n M} {n F}}}}","mode":"value"},"F":{"is":"x {n T} {* {x {n A} {n T}}}","mode":"value"},"M":{"is":"\/ {t *} {t \/}","mode":"value"},"N":{"is":"x {? {n S}} {+ {n D}}","mode":"value"},"S":{"is":"\/ {t +} {t -}","mode":"value"},"T":{"is":"n N","mode":"value"}},"start":"n Expression"}}}
+} -result {{"grammar":{"rules":{"A":{"is":"/ {t +} {t -}","mode":"value"},"D":{"is":"/ {t 0} {t 1} ","mode":"value"},"E":{"is":"/ {x {t (} {n E} {t )}} {x {n F} {* {x {n M} {n F}}}}","mode":"value"},"F":{"is":"x {n T} {* {x {n A} {n T}}}","mode":"value"},"M":{"is":"/ {t *} {t /}","mode":"value"},"N":{"is":"x {? {n S}} {+ {n D}}","mode":"value"},"S":{"is":"/ {t +} {t -}","mode":"value"},"T":{"is":"n N","mode":"value"}},"start":"n Expression"}}}
 
 # -------------------------------------------------------------------------
 unset data
