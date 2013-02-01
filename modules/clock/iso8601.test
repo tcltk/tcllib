@@ -1,0 +1,54 @@
+# -------------------------------------------------------------------------
+# iso8601.test -*- tcl -*-
+# (C) 2012 Andreas Kupries. BSD licensed.
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2.0
+
+testing {
+    useLocal iso8601.tcl clock::iso8601
+}
+
+# -------------------------------------------------------------------------
+
+test clock-iso8601-1.0.0 {parse_date wrong\#args} -constraints {tcl8.5plus tcl8.5minus} -body {
+    clock::iso8601 parse_date
+} -returnCodes error -result {wrong # args: should be "clock::iso8601 parse_date string ..."}
+
+test clock-iso8601-1.0.1 {parse_date wrong\#args} -constraints {tcl8.6plus} -body {
+    clock::iso8601 parse_date
+} -returnCodes error -result {wrong # args: should be "clock::iso8601 parse_date string ?arg ...?"}
+
+test clock-iso8601-1.1 {parse_date, bad option} -body {
+       clock::iso8601 parse_date A -foo x
+} -returnCodes error -result {not an iso8601 date string}
+
+# -------------------------------------------------------------------------
+
+# -------------------------------------------------------------------------
+
+test clock-iso8601-5.0.0 {parse_time wrong\#args} -constraints {tcl8.5plus tcl8.5minus} -body {
+    clock::iso8601 parse_time
+} -returnCodes error -result {wrong # args: should be "clock::iso8601 parse_time string ..."}
+
+test clock-iso8601-5.0.1 {parse_time wrong\#args} -constraints {tcl8.6plus} -body {
+    clock::iso8601 parse_time
+} -returnCodes error -result {wrong # args: should be "clock::iso8601 parse_time string ?arg ...?"}
+
+test clock-iso8601-6.1 {parse_time, bad option} -body {
+       clock::iso8601 parse_time A -foo x
+} -returnCodes error -result {not an iso8601 time string}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
+return
+
+# Local Variables:
+#  mode: tcl
+#  indent-tabs-mode: nil
+# End:

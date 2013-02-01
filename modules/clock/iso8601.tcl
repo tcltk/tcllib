@@ -9,6 +9,7 @@
 
 package require Tcl 8.5
 package provide clock::iso8601 0.1
+namespace eval ::clock::iso8601 {}
 
 # # ## ### ##### ######## ############# #####################
 ## API
@@ -25,7 +26,7 @@ package provide clock::iso8601 0.1
 # Results:
 #       Returns the given date in seconds from the Posix epoch.
 
-::clock::iso8601::parse_date { string args } {
+proc ::clock::iso8601::parse_date { string args } {
     variable DatePatterns
     foreach { regex interpretation } $DatePatterns {
 	if { [regexp "^$regex\$" $string] } {
@@ -47,9 +48,12 @@ package provide clock::iso8601 0.1
 # Results:
 #       Returns the given time in seconds from the Posix epoch.
 
-::clock::iso8601::parse_time { timeString args } {
+proc ::clock::iso8601::parse_time { string args } {
     variable DatePatterns
-    MatchTime $timeString field
+    if {![MatchTime $string field]} {
+	return -code error "not an iso8601 time string"
+    }
+
     set pattern {}
     foreach {regex interpretation} $DatePatterns {
 	if { $field($interpretation) ne {} } {
@@ -70,7 +74,7 @@ package provide clock::iso8601 0.1
 	append pattern %Z
     }
 
-    return [clock scan $timeString -format $pattern {*}$args]
+    return [clock scan $string -format $pattern {*}$args]
 }
 
 # # ## ### ##### ######## ############# #####################
