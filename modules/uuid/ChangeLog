@@ -1,3 +1,9 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
 2012-11-19  Andreas Kupries  <andreask@activestate.com>
 
 	* uuid.tcl (::uuid::generate_tcl): Accepted patch by Sean Woods
