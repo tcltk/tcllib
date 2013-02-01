@@ -175,11 +175,11 @@ namespace eval ::json::write {
     variable aligned  1
 
     variable quotes \
-	[list "\"" "\\\"" / \\/ \\ \\\\ \b \\b \f \\f \n \\n \r \\r \t \\t]
+	[list "\"" "\\\"" \\ \\\\ \b \\b \f \\f \n \\n \r \\r \t \\t]
 }
 
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide json::write 1.0.1
+package provide json::write 1.0.2
 return
