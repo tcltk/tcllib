@@ -1,3 +1,9 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
 2012-08-15  Arjen Markus  <arjenmarkus@users.sourceforge.net>
 	* random.tcl: Correct the normal random number generator (missing factor 2 - reported by Jochem Snuverink)
 	* pkgIndex.tcl: bumped version to 0.3.1 for "random"

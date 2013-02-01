@@ -1,3 +1,9 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
 2012-05-11  Andreas Kupries  <andreask@activestate.com>
 
 	* map_slippy_fetcher.tcl: Added timeouts to the http queries issued
