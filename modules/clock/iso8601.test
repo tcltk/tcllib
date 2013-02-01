@@ -1,6 +1,6 @@
 # -------------------------------------------------------------------------
 # iso8601.test -*- tcl -*-
-# (C) 2012 Andreas Kupries. BSD licensed.
+# (C) 2013 Andreas Kupries. BSD licensed.
 # -------------------------------------------------------------------------
 
 source [file join \
@@ -25,10 +25,24 @@ test clock-iso8601-1.0.1 {parse_date wrong\#args} -constraints {tcl8.6plus} -bod
 } -returnCodes error -result {wrong # args: should be "clock::iso8601 parse_date string ?arg ...?"}
 
 test clock-iso8601-1.1 {parse_date, bad option} -body {
-       clock::iso8601 parse_date A -foo x
-} -returnCodes error -result {not an iso8601 date string}
+    clock::iso8601 parse_date 1994-11-05 -foo x
+} -returnCodes error -result {bad switch "-foo", must be -base, -format, -gmt, -locale or -timezone}
+
+# NOTE: While listed as legal, -format is NOT. This is because the
+# command simply hands off to clock scan, and we are seeing its error
+# message.  Either we do our own argument check first, or we capture
+# and rewrite the error.
 
 # -------------------------------------------------------------------------
+
+test clock-iso8601-2.0 {parse_date, bad input} -body {
+    clock::iso8601 parse_date A
+} -returnCodes error -result {not an iso8601 date string}
+
+test clock-iso8601-2.1 {parse_date} -body {
+    clock::iso8601 parse_date 1994-11-05
+    # It is unclear if this is influenced by TZ.
+} -result 784022400
 
 # -------------------------------------------------------------------------
 
@@ -43,6 +57,19 @@ test clock-iso8601-5.0.1 {parse_time wrong\#args} -constraints {tcl8.6plus} -bod
 test clock-iso8601-6.1 {parse_time, bad option} -body {
        clock::iso8601 parse_time A -foo x
 } -returnCodes error -result {not an iso8601 time string}
+
+# -------------------------------------------------------------------------
+
+test clock-iso8601-7.0 {parse_time, bad input} -body {
+       clock::iso8601 parse_time A
+} -returnCodes error -result {not an iso8601 time string}
+
+test clock-iso8601-7.1 {parse_time} -body {
+    # The difference to midnight is constant.
+    # The day part is not, and there is TZ.
+    expr {[clock::iso8601 parse_time 08:15:30] -
+          [clock::iso8601 parse_time 00:00:00]}
+} -result 29730
 
 # -------------------------------------------------------------------------
 testsuiteCleanup
