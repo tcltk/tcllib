@@ -1,3 +1,9 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
 2013-01-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* csv.tcl: [Bug 3575707]: Actually a feature change, the commands

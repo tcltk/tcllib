@@ -1,3 +1,9 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
 2012-10-05  Andreas Kupries <andreask@activestate.com>
 
 	* cat.tcl (read): Fixed bugs in the reader. Bad check of buffer

@@ -1,3 +1,9 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
 2013-01-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* queue.tcl: Rewritten, simplified. The 8.5 requisite means

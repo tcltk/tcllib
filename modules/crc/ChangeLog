@@ -1,3 +1,9 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
 2012-01-23  Pat Thoyts  <patthoyts@users.sourceforge.net>
 
 	* crc16: bug #3477684: handle data with leading hyphen.

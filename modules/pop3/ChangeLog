@@ -1,3 +1,9 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
 2012-01-10  Andreas Kupries  <andreask@activestate.com>
 
 	* pop3.test: Requiring Tcl 8.4 here as well.
