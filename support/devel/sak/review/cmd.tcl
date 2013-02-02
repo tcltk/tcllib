@@ -1,5 +1,5 @@
 # -*- tcl -*-
-# Implementation of 'readme'.
+# Implementation of 'review'.
 
 # Available variables
 # * argv  - Cmdline arguments
@@ -8,20 +8,20 @@
 # * sbase - Location of all files supporting the SAK.
 
 package require sak::util
-package require sak::readme
+package require sak::review
+package require sak::note
 
 set raw  0
 set log  0
 set stem {}
 set tclv {}
 
-if {[llength $argv] > 1} {
-    sak::readme::usage
-} elseif {[llength $argv]} {
-    sak::readme::review [lindex $argv 0]
+if {[llength $argv] != 2} {
+    sak::review::usage
 }
 
-sak::readme::run
+foreach {module package} $argv break
+sak::review::run $module $package
 
 ##
 # ###
