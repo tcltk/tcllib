@@ -7,6 +7,11 @@ namespace eval ::sak::readme {}
 
 # ###
 
+proc ::sak::readme::review {path} {
+    variable review $path
+    return
+}
+
 proc ::sak::readme::usage {} {
     package require sak::help
     puts stdout \n[sak::help::on readme]
@@ -14,6 +19,7 @@ proc ::sak::readme::usage {} {
 }
 
 proc ::sak::readme::run {} {
+    variable review
     global package_name package_version
 
     getpackage struct::set      struct/sets.tcl
@@ -24,6 +30,16 @@ proc ::sak::readme::run {} {
     set old_version    [loadoldv [location_PACKAGES]]
     array set releasep [loadpkglist [location_PACKAGES]]
     array set currentp [ipackages]
+
+    # Initialize generation of review script, eiter saving it, or diverting into nothingness.
+    if {$review ne {}} {
+	set review [open $review w]
+    } else {
+	switch -exact -- $::tcl_platform(platform) {
+            windows { set review [open NUL w] }
+            unix    { set review [open /dev/null w] }
+        }
+    }
 
     # Determine which packages are potentially changed, from the set
     # of modules touched since the last release, as per their
@@ -128,8 +144,10 @@ proc ::sak::readme::run {} {
 
 		if {$note eq {}} {
 		    set note "\t=== Classify changes."
+		    puts $review [list $::argv0 review $m $name]
 		}
 		Enter $m $name $note
+
 		lappend chgm $m
 		lappend chgp $name
 		continue
@@ -150,6 +168,8 @@ proc ::sak::readme::run {} {
 		} else {
 		    set note "\t<<< MISMATCH. ChangeLog ==, Version ++"
 		}
+
+		puts $review [list $::argv0 review $m $name]
 	    }
 
 	    Enter $m $name $note
@@ -400,6 +420,8 @@ Legend  Change  Details Comments
         None    T  :    Testsuite changes.
                 D  :    Documentation updates.
     }
+
+    variable review {}
 }
 
 package provide sak::readme 1.0
