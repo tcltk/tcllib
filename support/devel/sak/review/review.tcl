@@ -200,7 +200,7 @@ proc ::sak::review::RefreshDisplay {} {
     term::ansi::send::clear
     puts "Reviewing [=cya $mod] // [=cya $pkg]"
     puts "\[[expr {1+$at}]/[llength $entries]\]"
-    puts [term::ansi::code::macros::frame $entry]
+    puts " | [join [split $entry \n] "\n | "]"
     puts "Tags: [join $tags ,]"
     return
 }
