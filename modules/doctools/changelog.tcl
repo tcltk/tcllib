@@ -22,7 +22,29 @@ package require textutil
 
 namespace eval ::doctools {}
 namespace eval ::doctools::changelog {
-    namespace export scan toDoctools
+    namespace export scan flatten merge toDoctools
+}
+
+proc ::doctools::changelog::flatten {entries} {
+    # Reformat the entries into a simpler structure.
+
+    set result {}
+    foreach entry $entries {
+	foreach {date user sections} $entry break
+	set f {}
+	set t {}
+	foreach sec $sections {
+	    foreach {files text} $sec break
+	    foreach file $files { lappend f $file }
+	    append t \n $text
+	}
+
+	set t [textutil::adjust::indent [textutil::adjust $t] "        "]
+	lappend result \
+	    "$date $user\n    [join $f ", "]:\n$t"
+    }
+
+    return $result
 }
 
 # ::doctools::changelog::scan --
@@ -34,7 +56,6 @@ namespace eval ::doctools::changelog {
 #	are date, author, and commentary. The commentary is a list of
 #	sections. Each section is a list of two elements, a list of
 #	files, and the associated text.
-
 
 proc ::doctools::changelog::scan {text} {
     set text [split $text \n]
@@ -257,4 +278,4 @@ proc ::doctools::changelog::toDoctools {title module version entries} {
 #------------------------------------
 # Module initialization
 
-package provide doctools::changelog 1
+package provide doctools::changelog 1.1
