@@ -28,7 +28,7 @@
 package require Tcl 8.4
 package require fileutil ; # Required by importFile.
 
-package provide ncgi 1.4
+package provide ncgi 1.4.1
 
 namespace eval ::ncgi {
 
@@ -269,9 +269,9 @@ proc ncgi::decode {str} {
     set str [string map [list + { } "\\" "\\\\" \[ \\\[ \] \\\]] $str]
 
     # prepare to process all %-escapes
-    regsub -all -- {%([A-Fa-f][A-Fa-f0-9])%([A-Fa-f][A-Fa-f0-9])%([A-Fa-f][A-Fa-f0-9])} \
+    regsub -all -- {%([Ee][A-Fa-f0-9])%([89ABab][A-Fa-f0-9])%([89ABab][A-Fa-f0-9])} \
 	$str {[encoding convertfrom utf-8 [DecodeHex \1\2\3]]} str
-    regsub -all -- {%([A-Fa-f][A-Fa-f0-9])%([A-Fa-f][A-Fa-f0-9])} \
+    regsub -all -- {%([CDcd][A-Fa-f0-9])%([89ABab][A-Fa-f0-9])}                     \
 	$str {[encoding convertfrom utf-8 [DecodeHex \1\2]]} str
     regsub -all -- {%([0-7][A-Fa-f0-9])} $str {\\u00\1} str
 

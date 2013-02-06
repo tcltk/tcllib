@@ -7,7 +7,7 @@ exec tclsh "$0" ${1+"$@"}
 # SAK = Swiss Army Knife.
 
 set distribution   [file dirname [info script]]
-lappend auto_path  [file join $distribution modules]
+set auto_path      [linsert $auto_path 0 [file join $distribution modules]]
 
 set critcldefault {}
 set critclnotes   {}

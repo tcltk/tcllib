@@ -1,3 +1,9 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
 2013-01-09  Andreas Kupries  <andreask@activestate.com>
 
 	* mime.tcl (::mime::buildmessage): [Bug 3565267]: Handle

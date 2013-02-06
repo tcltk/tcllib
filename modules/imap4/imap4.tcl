@@ -3,6 +3,7 @@
 # COPYRIGHT AND PERMISSION NOTICE
 #
 # Copyright (C) 2004 Salvatore Sanfilippo <antirez@invece.org>.
+# Copyright (C) 2013 Nicola Hall <nicci.hall@gmail.com>
 #
 # All rights reserved.
 #
@@ -48,10 +49,10 @@
 #             use_ssl must be set to 1 and package TLS must be loaded
 #   20100716: Bug in parsing special leading FLAGS characters in FETCH
 #             command repaired, documentation cleanup.
-#
+#   20121221: Added basic scope, expunge and logout function
 
 package require Tcl 8.5
-package provide imap4 0.3
+package provide imap4 0.4
 
 namespace eval imap4 {
     variable debugmode 0     ;# inside debug mode? usually not.
@@ -225,7 +226,7 @@ namespace eval imap4 {
         if {$tag eq {+}} {return +}
 
         # Extract the error code, if it's a tagged line
-        if {$tag ne {*}} {
+        if {$tag ne "*"} {
             set idx [string first { } $line]
             if {$idx <= 0} {
                 protoerror $chan "IMAP: malformed response '$line'"
@@ -256,7 +257,7 @@ namespace eval imap4 {
                 set delim [string range $line [expr {$p2+2}] [expr {$p3-1}]]
                 set fname [string range $line [expr {$p3+1}] end]
                 if {$fname eq ""} {
-                    set folderinfo($chan,delim) [string trim $delim {"}]
+                    set folderinfo($chan,delim) [string trim $delim "\""]
                 } else {
                     set fflag {}
                     foreach f [split $flags] {
@@ -265,7 +266,7 @@ namespace eval imap4 {
                     lappend folderinfo($chan,names) $fname
                     lappend folderinfo($chan,flags) [list $fname $fflag]
                     if {$delim ne "NIL"} {
-                        set folderinfo($chan,delim) [string trim $delim {"}]
+                        set folderinfo($chan,delim) [string trim $delim "\""]
                     }
                 }
                 incr dirty
@@ -525,7 +526,7 @@ namespace eval imap4 {
         variable debug
         variable info
 
-        set t "[tag $chan] $request"
+        set t "[tag $chan] [string trim $request]"
         if {$debug} {
             puts "C: $t"
         }
@@ -942,9 +943,9 @@ namespace eval imap4 {
             set rv {}
             foreach f [folderinfo $chan flags] {
                 set lflags {}
-                foreach {fl} [lindex $f 1] {
+                foreach fl [lindex $f 1] {
                     if {[string is alnum [string index $fl 0]]} {
-                        lappend lflags [string tolower $fl]]
+                        lappend lflags [string tolower $fl]
                     } else {
                         lappend lflags [string tolower [string range $fl 1 end]]
                     }
@@ -1218,6 +1219,63 @@ namespace eval imap4 {
     # proc ::imap4::securestauth user pass
     # proc ::imap4::store
     # proc ::imap4::logout (need to clean both msg and mailbox info arrays)
+
+    # Amend the flags of a message to be updated once CLOSE/EXPUNGE is initiated
+    proc store {chan range key values} {
+	set valid_keys {
+	    FLAGS
+	    FLAGS.SILENT
+	    +FLAGS
+	    +FLAGS.SILENT
+	    -FLAGS
+	    -FLAGS.SILENT
+	}
+	if {$key ni $valid_keys} {
+	    error "Invalid data item: $key. Must be one of [join $valid_keys ,]"
+	}
+        parserange $chan $range start end
+	set newflags {}
+	foreach val $values {
+	    if {[regexp {^\\+(.*?)$} $val]} {
+		lappend newflags $values
+	    } else {
+		lappend newflags "\\$val"
+	    }
+	}
+        request $chan "STORE $start:$end $key ([join $newflags])"
+	if {[getresponse $chan]} {
+	    return 1
+	}
+	return 0
+    }
+
+    # Logout
+    proc logout {chan} {
+	if {[simplecmd $chan LOGOUT SELECT {}]} {
+	    # clean out info arrays
+	    variable info
+	    variable folderinfo
+	    variable mboxinfo
+	    variable msginfo
+
+	    array unset folderinfo $chan,*
+	    array unset mboxinfo $chan,*
+	    array unset msginfo $chan,*
+	    array unset info $chan,*
+
+	    return 1
+	}
+        return 0
+    }
+
+    # Expunge : force removal of any messages with the 
+    # flag \Deleted
+    proc expunge {chan} {
+        if {[simplecmd $chan EXPUNGE SELECT {}]} {
+            return 1
+        }
+        return 0
+    }
 }
 
 ################################################################################
