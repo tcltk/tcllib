@@ -1,3 +1,9 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
 2012-02-22  Andreas Kupries  <andreask@activestate.com>
 
 	* peg.tcl: [Bug 3490008]: Fixed variable name typo reported by

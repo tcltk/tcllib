@@ -1,3 +1,20 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
+2013-01-25  Andreas Kupries  <andreask@activestate.com>
+
+	* imap4.man: Updated documentation with text contributed by Nicola
+	  Hall, explaining the new commands.
+
+2013-01-22  Andreas Kupries  <andreask@activestate.com>
+
+	* imap4.tcl: Applied contribution by Nicola Hall.
+	* imap4.man: Additional commands. Bumped version
+	* pkgIndex.tcl: to 0.4.
+
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

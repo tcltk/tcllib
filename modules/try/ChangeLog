@@ -1,3 +1,9 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
 2012-06-25  Andreas Kupries  <andreask@activestate.com>
 
 	* try.man: Renamed to tcllib_try.man to prevent clash with Tcl
