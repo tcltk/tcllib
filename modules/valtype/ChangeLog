@@ -1,3 +1,9 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
 2012-06-06  Andreas Kupries  <andreask@activestate.com>
 
 	* iban.tcl: [Patch 3532308]: Applied patch by Max Jarek to

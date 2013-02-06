@@ -6,6 +6,7 @@ mcset fr end/open/list    "Fin de la page de manuel atteinte, \[list_end\] manqu
 mcset fr end/open/example "Fin de la page de manuel atteinte, \[example_end\] manquant"
 mcset fr end/open/mp	  "Fin de la page de manuel atteinte, \[manpage_end\] manquant"
 mcset fr mpbegin          "Cette commande doit \xEAtre la premi\xE8re de la page de manuel"
+mcset fr mptitle          "TODO: TRANSLATE: Spaces not allowed in manpage title"
 mcset fr hdrcmd           "Commande interdite \xE0 l'ext\xE9rieur de l'en-t\xEAte"
 mcset fr bodycmd          "Commande interdite \xE0 l'ext\xE9rieur du corps de la page de manuel"
 mcset fr body             "Le texte est interdit \xE0 l'ext\xE9rieur du corps de la page de manuel"
