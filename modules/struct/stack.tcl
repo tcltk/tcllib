@@ -43,8 +43,7 @@ proc ::struct::stack::LoadAccelerator {key} {
 	    variable selfdir
 	    if {
 		[package vsatisfies [package provide Tcl] 8.5] &&
-		(![catch {package require TclOO 0.6.1}] ||
-		 ![catch {package require TclOO 1}])
+		![catch {package require TclOO 0.6.1-} mx]
 	    } {
 		source [file join $selfdir stack_oo.tcl]
 	    } else {

@@ -1,8 +1,19 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
 2013-01-28  Andreas Kupries  <andreask@activestate.com>
 
 	* modules/fileutil: New package 'fileutil::decode'.
 	* modules/zip: New module 'zip', with packages 'zipfile::encode'
 	  and 'zipfile::decode'
+
+2013-01-24  Andreas Kupries  <andreask@activestate.com>
+
+	* New module and packages: clock (rfc2822, iso8601).
+	  Tcl 8.5 only.
 
 2013-01-08  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
