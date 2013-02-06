@@ -1,3 +1,9 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
 2012-07-09  Aaron Faupell <afaupell@users.sourceforge.net>
 
 	* png.tcl: add capability to read and write images from color lists

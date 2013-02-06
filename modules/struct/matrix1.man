@@ -1,5 +1,5 @@
 [comment {-*- tcl -*-}]
-[manpage_begin {struct::matrix v1} n 1.2.1]
+[manpage_begin {struct::matrix_v1} n 1.2.1]
 [copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate matrix objects}]

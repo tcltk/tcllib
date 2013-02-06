@@ -1,3 +1,17 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
+2013-01-30  Andreas Kupries  <andreask@activestate.com>
+
+	* ncgi.man: [Bug 3601995]: Accepted [decode] changes by
+	* ncgi.tcl: <quantifier@users.sourceforge.net>. Fixed both missing
+	* ncgi.test: acceptance of various ut-8 sequences, and missing
+	* pkgIndex.tcl: rejection of bad sequences. Test cases
+	  added. Bumped to version 1.4.1.
+
 2012-05-03  Andreas Kupries  <andreask@activestate.com>
 
 	* ncgi.tcl: Applied Richard Hipp's patch to extend handling of

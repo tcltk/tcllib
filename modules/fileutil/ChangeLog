@@ -1,3 +1,9 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
 2013-01-28  Andreas Kupries <andreask@activestate.com>
 
 	* decode.tcl: New. Simple package to support writing decoders
@@ -8,7 +14,7 @@
 	* fileutil.man: [Bug 3147481], [Bug 3141568]. Fixed issues with
 	* fileutil.tcl: changes to [glob]'s behaviour in 8.5+, reported
 	* find.setup: by guardus@users.sourceforge.net. Plus [Bug 3599839]
-	* find.test: reminding us of these, and Win 7. Bunped version to
+	* find.test: reminding us of these, and Win 7. Bumped version to
 	* pkgIndex.tcl: 1.14.5. Extended testsuite, can be repro'd under
 	  Unix also.
 
