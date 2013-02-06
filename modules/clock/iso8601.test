@@ -96,6 +96,47 @@ test clock-iso8601-2.5.1 {parse_date, format: 1997-, using -timezone :UTC} -body
 
 # -------------------------------------------------------------------------
 
+foreach {n iso week} {
+    00 01/01/2005 2004-W53-6 	
+    01 01/02/2005 2004-W53-7
+    02 12/31/2005 2005-W52-6
+    03 01/01/2007 2007-W01-1
+    04 12/30/2007 2007-W52-7 	
+    05 12/31/2007 2008-W01-1
+    06 01/01/2008 2008-W01-2
+    07 12/28/2008 2008-W52-7
+    08 12/29/2008 2009-W01-1
+    09 12/30/2008 2009-W01-2
+    10 12/31/2008 2009-W01-3
+    11 01/01/2009 2009-W01-4
+    12 12/31/2009 2009-W53-4
+    13 01/01/2010 2009-W53-5
+    14 01/02/2010 2009-W53-6
+    15 01/03/2010 2009-W53-7
+} {
+    test clock-iso8601-2.6.$n {parse_date, format: YYYY-Www-D into %D} -body {
+        clock format [clock::iso8601 parse_date $week] -format {%D}
+    } -result $iso
+
+    test clock-iso8601-2.7.$n {parse_date, format: YYYYWwwD into %D} -body {
+        clock format [clock::iso8601 parse_date [string map {- {}} $week]] -format {%D}
+    } -result $iso
+}
+
+foreach {n iso week} {
+    00 01/01/2007 2007-W01
+    01 12/31/2007 2008-W01
+    02 12/29/2008 2009-W01
+} {
+    test clock-iso8601-2.8.$n {parse_date, format: YYYY-Www into %D} -body {
+        clock format [clock::iso8601 parse_date $week] -format {%D}
+    } -result $iso
+
+    test clock-iso8601-2.9.$n {parse_date, format: YYYYWww into %D} -body {
+        clock format [clock::iso8601 parse_date [string map {- {}} $week]] -format {%D}
+    } -result $iso
+}
+
 # -------------------------------------------------------------------------
 
 test clock-iso8601-5.0.0 {parse_time wrong\#args} -constraints {tcl8.5plus tcl8.5minus} -body {
