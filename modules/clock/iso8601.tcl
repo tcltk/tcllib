@@ -31,7 +31,6 @@ proc ::clock::iso8601::parse_date { string args } {
     variable Repattern
     foreach { regex interpretation } $DatePatterns {
 	if { [regexp "^$regex\$" $string] } {
-
 	    #puts A|$string|\t|$regex|\t|$interpretation|
 
 	    # For incomplete dates (month and/or day missing), we have
@@ -187,6 +186,8 @@ namespace eval ::clock::iso8601 {
 	{\d\d\d\dW\d\d\d}               {%GW%V%u}
 	{\d\d-W\d\d-\d}                 {%g-W%V-%u}
 	{\d\dW\d\d\d}                   {%gW%V%u}
+	{\d\d\d\d-W\d\d}                {%G-W%V}
+	{\d\d\d\dW\d\d}                 {%GW%V}
 	{-W\d\d-\d}                     {-W%V-%u}
 	{-W\d\d\d}                      {-W%V%u}
 	{-W-\d}                         {%u}
@@ -196,8 +197,10 @@ namespace eval ::clock::iso8601 {
     # Dictionary of the patterns requiring modifications to the input
     # for proper month and/or day defaults.
     variable Repattern {
-	%Y-%m {%Y-%m-%d 3 {Insert string 7 -01}}
-	%Y    {%Y-%m-%d 5 {Insert string 4 -01-01}}
+	%Y-%m  {%Y-%m-%d  3 {Insert string 7 -01}}
+	%Y     {%Y-%m-%d  5 {Insert string 4 -01-01}}
+	%G-W%V {%G-W%V-%u 1 {Insert string 8 -1}}
+	%GW%V  {%GW%V%u   1 {Insert string 6 1}}
     }
 }
 
