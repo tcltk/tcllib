@@ -221,7 +221,7 @@ end of the search.
 [call [cmd ::ldap::searchEnd] [arg handle]]
 
 This command terminates a LDAP search initiated
-by [call ::ldap::searchInit]. It also cleans up
+by [cmd ::ldap::searchInit]. It also cleans up
 the internal state so a new search can be initiated.
 
 If the client has not yet received all results, the client
