@@ -1,3 +1,9 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
 2012-05-28  Andreas Kupries  <andreask@activestate.com>
 
 	* autoproxy.tcl: Fixed bug where https proxying was attempted

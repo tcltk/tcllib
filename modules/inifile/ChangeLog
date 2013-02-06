@@ -1,3 +1,9 @@
+2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	*
+	* Released and tagged Tcllib 1.15 ========================
+	* 
+
 2012-01-05  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* ini.tcl: [Bug 3469006]: Followup to [Bug 3419727]. Fixed
