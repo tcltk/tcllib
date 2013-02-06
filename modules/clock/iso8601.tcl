@@ -28,8 +28,23 @@ namespace eval ::clock::iso8601 {}
 
 proc ::clock::iso8601::parse_date { string args } {
     variable DatePatterns
+    variable Repattern
     foreach { regex interpretation } $DatePatterns {
 	if { [regexp "^$regex\$" $string] } {
+	    #puts A|$string|\t|$regex|\t|$interpretation|
+
+	    # For incomplete dates (month and/or day missing), we have
+	    # to set our own default values to overcome clock scan's
+	    # settings. We do this by switching to a different pattern
+	    # and extending the input properly for that pattern.
+
+	    if {[dict exists $Repattern $interpretation]} {
+		lassign [dict get $Repattern $interpretation] interpretation adjust modifier
+		{*}$modifier
+		# adjust irrelevant here, see parse_time for use.
+	    }
+
+	    #puts B|$string|\t|$regex|\t|$interpretation|
 	    return [clock scan $string -format $interpretation {*}$args]
 	}
     }
@@ -50,31 +65,95 @@ proc ::clock::iso8601::parse_date { string args } {
 
 proc ::clock::iso8601::parse_time { string args } {
     variable DatePatterns
+    variable Repattern
     if {![MatchTime $string field]} {
 	return -code error "not an iso8601 time string"
     }
 
+    #parray field
+    #puts A|$string|
+
     set pattern {}
     foreach {regex interpretation} $DatePatterns {
-	if { $field($interpretation) ne {} } {
+	if {[Has $interpretation tstart]} {
 	    append pattern $interpretation
 	}
     }
-    append pattern $field(T)
-    if { $field(%H) ne {} } {
-	append pattern %H $field(Hcolon)
-	if { $field(%M) ne {} } {
-	    append pattern %M $field(Mcolon)
-	    if { $field(%S) ne {} } {
-		append pattern %S
-	    }
-	}
+
+    if {[dict exists $Repattern $pattern]} {
+	lassign [dict get $Repattern $pattern] interpretation adjust modifier
+	{*}$modifier
+	incr tstart $adjust
     }
-    if { $field(%Z) ne {} } {
+
+    append pattern [Get T len]
+    incr tstart $len
+
+    if {[Has %H tstart]} {
+	append pattern %H [Get Hcolon len]
+	incr tstart $len
+
+	if {[Has %M tstart]} {
+	    append pattern %M [Get Mcolon len]
+	    incr tstart $len
+
+	    if {[Has %S tstart]} {
+		append pattern %S
+	    } else {
+		# No seconds, default to start of minute.
+		append pattern %S
+		Insert string $tstart 00
+	    }
+	} else {
+	    # No minutes, nor seconds, default to start of hour.
+	    append pattern %M%S
+	    Insert string $tstart 0000
+	}
+    } else {
+	# No time information, default to midnight.
+	append pattern %H%M%S
+	Insert string $tstart 000000
+    }
+    if {[Has %Z _]} {
 	append pattern %Z
     }
 
+    #puts B|$string|\t|$pattern|
     return [clock scan $string -format $pattern {*}$args]
+}
+
+# # ## ### ##### ######## ############# #####################
+
+proc ::clock::iso8601::Get {x lv} {
+    upvar 1 field field string string $lv len
+    lassign $field($x) s e
+    if {($s >= 0) && ($e >= 0)} {
+	set len [expr {$e - $s + 1}]
+	return [string range $string $s $e]
+    }
+    set len 0
+    return ""
+
+}
+
+proc ::clock::iso8601::Has {x nv} {
+    upvar 1 field field string string $nv next
+    lassign $field($x) s e
+    if {($s >= 0) && ($e >= 0)} {
+	set  next $e
+	incr next
+	return 1
+    }
+    return 0
+}
+
+proc ::clock::iso8601::Insert {sv index str} {
+    upvar 1 $sv string
+    append r [string range $string 0 ${index}-1]
+    append r $str
+    append r [string range $string $index end]
+    set string $r
+    return
 }
 
 # # ## ### ##### ######## ############# #####################
@@ -95,6 +174,7 @@ namespace eval ::clock::iso8601 {
 	{\d\d\d\d-\d\d\d}               {%Y-%j}
 	{\d\d\d\d\d\d\d}                {%Y%j}
 	{\d\d-\d\d-\d\d}                {%y-%m-%d}
+	{\d\d\d\d-\d\d}                 {%Y-%m}
 	{\d\d\d\d\d\d}                  {%y%m%d}
 	{\d\d-\d\d\d}                   {%y-%j}
 	{\d\d\d\d\d}                    {%y%j}
@@ -106,9 +186,21 @@ namespace eval ::clock::iso8601 {
 	{\d\d\d\dW\d\d\d}               {%GW%V%u}
 	{\d\d-W\d\d-\d}                 {%g-W%V-%u}
 	{\d\dW\d\d\d}                   {%gW%V%u}
+	{\d\d\d\d-W\d\d}                {%G-W%V}
+	{\d\d\d\dW\d\d}                 {%GW%V}
 	{-W\d\d-\d}                     {-W%V-%u}
 	{-W\d\d\d}                      {-W%V%u}
 	{-W-\d}                         {%u}
+	{\d\d\d\d}                      {%Y}
+    }
+
+    # Dictionary of the patterns requiring modifications to the input
+    # for proper month and/or day defaults.
+    variable Repattern {
+	%Y-%m  {%Y-%m-%d  3 {Insert string 7 -01}}
+	%Y     {%Y-%m-%d  5 {Insert string 4 -01-01}}
+	%G-W%V {%G-W%V-%u 1 {Insert string 8 -1}}
+	%GW%V  {%GW%V%u   1 {Insert string 6 1}}
     }
 }
 
@@ -141,7 +233,7 @@ apply {{} {
 
     variable DatePatterns
 
-    set cmd {regexp -expanded -nocase -- {PATTERN} $timeString ->}
+    set cmd {regexp -indices -expanded -nocase -- {PATTERN} $timeString ->}
     set re \(?:\(?:
     set sep {}
     foreach {regex interpretation} $DatePatterns {
@@ -151,10 +243,9 @@ apply {{} {
     }
     append re \) {(T|[[:space:]]+)} \)?
     append cmd { field(T)}
-    append re {(\d\d)(?:(:?)(\d\d)(?:(:?)(\d\d)))}
-    append cmd { field(%H) field(Hcolon) } \
-	{field(%M) field(Mcolon) field(%S)}
-    append re {[[:space:]]*(Z|[-+]\d\d\d\d)?}
+    append re {(\d\d)(?:(:?)(\d\d)(?:(:?)(\d\d)?))?}
+    append cmd { field(%H) field(Hcolon) } {field(%M) field(Mcolon) field(%S)}
+    append re {[[:space:]]*(Z|[-+]\d\d:?\d\d)?}
     append cmd { field(%Z)}
     set cmd [string map [list {{PATTERN}} [list $re]] \
 		 $cmd]
@@ -163,6 +254,9 @@ apply {{} {
              upvar 1 \$fieldArray field
              $cmd
          "
+
+    #puts [info body MatchTime]
+
 } ::clock::iso8601}
 
 # # ## ### ##### ######## ############# #####################
