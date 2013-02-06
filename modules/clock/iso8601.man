@@ -17,8 +17,8 @@ ISO 8601 format.
 [call [cmd {::clock::iso8601 parse_date}] \
      [arg date] [arg options...]]
 
-This command parses an ISO8601 date/time string in an unknown
-variant and returns the given date/time in seconds since epoch.
+This command parses an ISO8601 date string in an unknown variant and
+returns the given date/time in seconds since epoch.
 
 [para] The acceptable options are
 [option -base],
@@ -30,8 +30,8 @@ of the builtin command [cmd {clock scan}].
 [call [cmd {::clock::iso8601 parse_time}] \
      [arg time] [arg options...]]
 
-This command parses an ISO8601 timestamp string in an unknown
-variant and returns the given timee in seconds since epoch.
+This command parses a full ISO8601 timestamp string (date and time) in
+an unknown variant and returns the given time in seconds since epoch.
 
 [para] The acceptable options are
 [option -base],
