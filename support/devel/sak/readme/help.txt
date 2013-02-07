@@ -9,4 +9,6 @@
     	the relevant changes (new modules/packages, package version
     	changes, unchanged packages).
 
+	The generated README is written to stdout.
+
 	This is a support command for the release manager.
