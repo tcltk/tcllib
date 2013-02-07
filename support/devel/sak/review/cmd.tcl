@@ -16,12 +16,11 @@ set log  0
 set stem {}
 set tclv {}
 
-if {[llength $argv] != 2} {
+if {[llength $argv]} {
     sak::review::usage
 }
 
-foreach {module package} $argv break
-sak::review::run $module $package
+sak::review::run
 
 ##
 # ###
