@@ -9,7 +9,6 @@
 
 package require sak::util
 package require sak::review
-package require sak::note
 
 set raw  0
 set log  0
