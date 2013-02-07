@@ -3,7 +3,11 @@
 ##
 # ###
 
-namespace eval ::sak::readme {}
+package require sak::color
+
+namespace eval ::sak::readme {
+    namespace import ::sak::color::*
+}
 
 # ###
 
@@ -19,6 +23,8 @@ proc ::sak::readme::run {} {
     getpackage struct::set      struct/sets.tcl
     getpackage struct::matrix   struct/matrix.tcl
     getpackage textutil::adjust textutil/adjust.tcl
+
+    set issues {}
 
     # package -> list(version)
     set old_version    [loadoldv [location_PACKAGES]]
@@ -128,8 +134,10 @@ proc ::sak::readme::run {} {
 
 		if {$note eq {}} {
 		    set note "\t=== Classify changes."
+		    lappend issues [list $m $name "Classify changes"]
 		}
 		Enter $m $name $note
+
 		lappend chgm $m
 		lappend chgp $name
 		continue
@@ -150,6 +158,8 @@ proc ::sak::readme::run {} {
 		} else {
 		    set note "\t<<< MISMATCH. ChangeLog ==, Version ++"
 		}
+
+		lappend issues [list $m $name [string range $note 5 end]]
 	    }
 
 	    Enter $m $name $note
@@ -226,6 +236,27 @@ proc ::sak::readme::run {} {
 
     variable legend
     puts $legend
+
+    if {![llength $issues]} return
+
+    puts stderr [=red "Issues found ([llength $issues])"]
+    puts stderr "  Please run \"./sak.tcl review\" to resolve,"
+    puts stderr "  then run \"./sak.tcl readme\" again."
+    puts stderr Details:
+
+    struct::matrix ISS ; ISS add columns 3
+    foreach issue $issues {
+	foreach {m p w} $issue break
+	set m "  $m"
+	ISS add row [list $m $p $w]
+    }
+
+    puts stderr [ISS format 2string]
+
+
+    puts stderr [=red "Issues found ([llength $issues])"]
+    puts stderr "  Please run \"./sak.tcl review\" to resolve,"
+    puts stderr "  then run \"./sak.tcl readme\" again."
     return
 }
 
@@ -400,6 +431,8 @@ Legend  Change  Details Comments
         None    T  :    Testsuite changes.
                 D  :    Documentation updates.
     }
+
+    variable review {}
 }
 
 package provide sak::readme 1.0
