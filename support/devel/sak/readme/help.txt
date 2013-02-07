@@ -1,7 +1,7 @@
 
     readme -- Generate a readme listing changes to modules and packages.
 
-    sak readme ?review?
+    sak readme
 
     	This command compares the current state of the modules and
     	packages and against information from the last release
@@ -10,11 +10,5 @@
     	changes, unchanged packages).
 
 	The generated README is written to stdout.
-
-	If a 'review' argument is given it will be treated as a path
-	and the specified file is written too as well. This file will
-	contain a simple script afterwards, which, when run, guides
-	the user through the review of the changelogs and packages the
-	command here found itself in trouble with.
 
 	This is a support command for the release manager.

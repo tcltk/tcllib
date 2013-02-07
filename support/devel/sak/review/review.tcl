@@ -307,11 +307,11 @@ proc ::sak::review::Review {} {
 
     # Map module name --> module/package index
     # If not preempted by package mapping.
-    set im 0
+    set im -1
     foreach m $modules {
+	incr im
 	if {[info exists map(@$m)]} continue
 	set map(@$m) [list $im 0]
-	incr im
     }
 
     # Map command prefix -> full command.
@@ -342,7 +342,7 @@ proc ::sak::review::Review {} {
     set navcommands [lsort -dict [array names map]]
 
     # Enter the REPL
-    Goto {0 0}
+    Goto {0 0} 1
     linenoise::cmdloop \
 	-history   1 \
 	-exit      ::sak::review::Exit \
@@ -362,7 +362,7 @@ proc ::sak::review::RefreshDisplay {} {
     variable clog
     variable what
 
-    Banner "\[$im/$nm\] [string totitle $what] $m"
+    Banner "\[$im/$nm\] [=blue [string totitle $what]] [=green $m]"
     puts "| [join [split $clog \n] \n|]\n"
     return
 }
@@ -426,7 +426,7 @@ proc ::sak::review::Dispatch {line} {
     eval C_$line
 }
 
-proc ::sak::review::Goto {loc} {
+proc ::sak::review::Goto {loc {skip 0}} {
     variable review
     variable modules
     variable packages
@@ -461,28 +461,26 @@ proc ::sak::review::Goto {loc} {
     set im [expr {1+$current}]
     set ip [expr {1+$currentp}]
 
-    RefreshDisplay
+    if {$skip && ([llength $tags] ||
+		  ($tags == "---"))} {
+	C_next
+    } else {
+	RefreshDisplay
+    }
     return
 }
 
 proc ::sak::review::C_exit {} { variable stop 1 }
 proc ::sak::review::C_quit {} { variable stop 1 }
-proc ::sak::review::C_done {} { variable stop 1 }
 
-proc ::sak::review::C_?a {} { C_helpa }
-proc ::sak::review::C_helpa {} {
-    variable allcommands
-    return [join $allcommands {, }]
-}
-
-proc ::sak::review::C_?c {} { C_helpc }
-proc ::sak::review::C_helpc {} {
+proc ::sak::review::C_? {} { C_help }
+proc ::sak::review::C_help {} {
     variable commands
     return [join $commands {, }]
 }
 
-proc ::sak::review::C_?p {} { C_helpp }
-proc ::sak::review::C_helpp {} {
+proc ::sak::review::C_@? {} { C_@help }
+proc ::sak::review::C_@help {} {
     variable navcommands
     return [join $navcommands {, }]
 }
@@ -492,6 +490,24 @@ proc ::sak::review::C_@0     {} { Goto {0 0} }
 proc ::sak::review::C_@end   {} { variable end ; Goto $end() }
 
 proc ::sak::review::C_next {} {
+    variable tags
+    variable current
+    variable currentp
+
+    C_step 0
+
+    set stop @$current/$currentp
+    while {[llength $tags] ||
+	   ($tags == "---")} {
+	C_step 0
+	if {"@$current/$currentp" == "$stop"} break
+    }
+
+    RefreshDisplay
+    return
+}
+
+proc ::sak::review::C_step {{refresh 1}} {
     variable nm
     variable np
     variable current
@@ -557,11 +573,14 @@ proc ::sak::review::C_-impl    {} { -T I }
 
 proc ::sak::review::C_---   {} { =T --- }
 proc ::sak::review::C_clear {} { =T --- }
-proc ::sak::review::C_cn {} { C_clear ; C_next }
+#proc ::sak::review::C_cn {} { C_clear ; C_next }
 
 proc ::sak::review::+T {tag} {
     variable tags
-    if {[lsearch -exact $tags $tag] >= 0} return
+    if {[lsearch -exact $tags $tag] >= 0} {
+	RefreshDisplay
+	return
+    }
     =T [linsert $tags end $tag]
     return
 }
@@ -569,7 +588,10 @@ proc ::sak::review::+T {tag} {
 proc ::sak::review::-T {tag} {
     variable tags
     set pos [lsearch -exact $tags $tag]
-    if {$pos < 0} return
+    if {$pos < 0} {
+	RefreshDisplay
+	return
+    }
     =T [lreplace $tags $pos $pos]
     return
 }

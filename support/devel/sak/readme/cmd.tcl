@@ -15,10 +15,8 @@ set log  0
 set stem {}
 set tclv {}
 
-if {[llength $argv] > 1} {
+if {[llength $argv]} {
     sak::readme::usage
-} elseif {[llength $argv]} {
-    sak::readme::review [lindex $argv 0]
 }
 
 sak::readme::run

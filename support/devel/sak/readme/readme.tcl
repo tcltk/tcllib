@@ -3,14 +3,13 @@
 ##
 # ###
 
-namespace eval ::sak::readme {}
+package require sak::color
+
+namespace eval ::sak::readme {
+    namespace import ::sak::color::*
+}
 
 # ###
-
-proc ::sak::readme::review {path} {
-    variable review $path
-    return
-}
 
 proc ::sak::readme::usage {} {
     package require sak::help
@@ -19,27 +18,18 @@ proc ::sak::readme::usage {} {
 }
 
 proc ::sak::readme::run {} {
-    variable review
     global package_name package_version
 
     getpackage struct::set      struct/sets.tcl
     getpackage struct::matrix   struct/matrix.tcl
     getpackage textutil::adjust textutil/adjust.tcl
 
+    set issues {}
+
     # package -> list(version)
     set old_version    [loadoldv [location_PACKAGES]]
     array set releasep [loadpkglist [location_PACKAGES]]
     array set currentp [ipackages]
-
-    # Initialize generation of review script, eiter saving it, or diverting into nothingness.
-    if {$review ne {}} {
-	set review [open $review w]
-    } else {
-	switch -exact -- $::tcl_platform(platform) {
-            windows { set review [open NUL w] }
-            unix    { set review [open /dev/null w] }
-        }
-    }
 
     # Determine which packages are potentially changed, from the set
     # of modules touched since the last release, as per their
@@ -144,7 +134,7 @@ proc ::sak::readme::run {} {
 
 		if {$note eq {}} {
 		    set note "\t=== Classify changes."
-		    puts $review [list $::argv0 review $m $name]
+		    lappend issues [list $m $name "Classify changes"]
 		}
 		Enter $m $name $note
 
@@ -169,7 +159,7 @@ proc ::sak::readme::run {} {
 		    set note "\t<<< MISMATCH. ChangeLog ==, Version ++"
 		}
 
-		puts $review [list $::argv0 review $m $name]
+		lappend issues [list $m $name [string range $note 5 end]]
 	    }
 
 	    Enter $m $name $note
@@ -246,6 +236,27 @@ proc ::sak::readme::run {} {
 
     variable legend
     puts $legend
+
+    if {![llength $issues]} return
+
+    puts stderr [=red "Issues found ([llength $issues])"]
+    puts stderr "  Please run \"./sak.tcl review\" to resolve,"
+    puts stderr "  then run \"./sak.tcl readme\" again."
+    puts stderr Details:
+
+    struct::matrix ISS ; ISS add columns 3
+    foreach issue $issues {
+	foreach {m p w} $issue break
+	set m "  $m"
+	ISS add row [list $m $p $w]
+    }
+
+    puts stderr [ISS format 2string]
+
+
+    puts stderr [=red "Issues found ([llength $issues])"]
+    puts stderr "  Please run \"./sak.tcl review\" to resolve,"
+    puts stderr "  then run \"./sak.tcl readme\" again."
     return
 }
 
