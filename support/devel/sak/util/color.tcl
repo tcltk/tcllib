@@ -11,7 +11,7 @@ if {$::tcl_platform(platform) == "windows"} {
     # No ansi colorization on windows
     namespace eval ::sak::color {
 	variable n
-	foreach n {cya yel whi mag red rst} {
+	foreach n {cya yel whi mag red green rst} {
 	    proc $n {} {return ""}
 	    namespace export $n
 
@@ -35,6 +35,7 @@ if {$::tcl_platform(platform) == "windows"} {
 	    sda_bgwhite   whi
 	    sda_bgmagenta mag
 	    sda_bgred     red
+	    sda_bggreen   green
 	    sda_reset     rst
 	} {
 	    rename $s $n

@@ -22,11 +22,9 @@
         packages         - Return indexed packages in the bundle, plus versions,
                            one package per line. Extracted from the
                            package indices found in the modules.
+
         provided         - Return list and versions of provided packages
                            (in contrast to indexed).
-        vcompare pkglist - Compare package list of previous 'packages'
-                           call with current packages. Marks all new
-                           and unchanged packages for higher attention.
 
         critcl ?module?  - Build a critcl module [default is @@].
 
@@ -102,11 +100,3 @@
                  - Marks the current state of all files as a new
                    release. This updates all ChangeLog's, and
                    regenerates the contents of PACKAGES
-
-        rstatus  - Determines the status of the code base with regard
-                   to the last release.
-
-        approve pkg - Suppress named package in rstatus output.
-                      I.e. mark the packages which are done while going
-                      over all of them for a release.
-
