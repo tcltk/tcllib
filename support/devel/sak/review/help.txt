@@ -1,11 +1,10 @@
 
-    review -- Review the specified module and package.
+    review -- Interactively review changed modules and packages
 
-    sak review module package
+    sak review
 
-    	This command shows the content of the ChangeLog for the
-    	specified module since the last release and then allows the
-    	user to interactively enter the annotations needed by the
-    	'readme' command, for the given package.
+    	This command scans the system for changes and then enters
+	a sub-shell where the caller can interactively review and
+	tag these changes.
 
 	This is a support command for the release manager.
