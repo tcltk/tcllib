@@ -53,7 +53,10 @@ proc ::sak::localdoc::run {} {
     # Note: Might be better to run them separately.
     # Note @: Or we shuffle the results a bit more in the post processing stage.
 
-    set toc [string map {.man .html} [fileutil::cat support/devel/sak/doc/toc.txt]]
+    set toc [string map {
+	.man     .html
+	modules/ tcllib/files/modules/
+    } [fileutil::cat support/devel/sak/doc/toc.txt]]
 
     puts "Generating HTML... Pass 1, draft..."
     exec 2>@ stderr >@ stdout $noe apps/dtplite \
