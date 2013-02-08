@@ -2,6 +2,7 @@
 # sak::doc - Documentation facilities
 
 package require sak::util
+package require sak::doc
 
 namespace eval ::sak::localdoc {}
 
@@ -24,6 +25,10 @@ proc ::sak::localdoc::run {} {
     file mkdir embedded/man
     file mkdir embedded/www
 
+    puts "Reindex the documentation..."
+    sak::doc::imake __dummy__
+    sak::doc::index __dummy__
+
     puts "Generating manpages..."
     exec 2>@ stderr >@ stdout $noe apps/dtplite \
 	-exclude {*/doctools/tests/*} \
@@ -37,6 +42,7 @@ proc ::sak::localdoc::run {} {
 
     puts "Generating HTML... Pass 1, draft..."
     exec 2>@ stderr >@ stdout $noe apps/dtplite \
+	-toc support/devel/sak/doc/toc.txt \
 	-nav Home /home \
 	-exclude {*/doctools/tests/*} \
 	-exclude {*/support/*} \
@@ -46,6 +52,7 @@ proc ::sak::localdoc::run {} {
 
     puts "Generating HTML... Pass 2, resolving cross-references..."
     exec 2>@ stderr >@ stdout $noe apps/dtplite \
+	-toc support/devel/sak/doc/toc.txt \
 	-nav Home /home \
 	-exclude {*/doctools/tests/*} \
 	-exclude {*/support/*} \
