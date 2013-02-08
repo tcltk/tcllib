@@ -25,16 +25,33 @@ proc ::sak::localdoc::run {} {
     file mkdir embedded/www
 
     puts "Generating manpages..."
-    exec 2>@ stderr >@ stdout $noe apps/dtplite -ext n -o embedded/man nroff .
+    exec 2>@ stderr >@ stdout $noe apps/dtplite \
+	-exclude {*/doctools/tests/*} \
+	-exclude {*/support/*} \
+	-ext n \
+	-o embedded/man \
+	nroff .
 
     # Note: Might be better to run them separately.
     # Note @: Or we shuffle the results a bit more in the post processing stage.
 
     puts "Generating HTML... Pass 1, draft..."
-    exec 2>@ stderr >@ stdout $noe apps/dtplite -merge -o embedded/www html .
+    exec 2>@ stderr >@ stdout $noe apps/dtplite \
+	-nav Home /home \
+	-exclude {*/doctools/tests/*} \
+	-exclude {*/support/*} \
+	-merge \
+	-o embedded/www \
+	html .
 
     puts "Generating HTML... Pass 2, resolving cross-references..."
-    exec 2>@ stderr >@ stdout $noe apps/dtplite -merge -o embedded/www html .
+    exec 2>@ stderr >@ stdout $noe apps/dtplite \
+	-nav Home /home \
+	-exclude {*/doctools/tests/*} \
+	-exclude {*/support/*} \
+	-merge \
+	-o embedded/www \
+	html .
 
     return
 }
