@@ -75,7 +75,7 @@
 [key arc]
 [manpage modules/struct/graph.man    struct::graph]
 [manpage modules/struct/graphops.man struct::graph::op]
-[key arcfour,]
+[key arcfour]
 [manpage modules/rc4/rc4.man rc4]
 [key archive]
 [manpage modules/tar/tar.man tar]
