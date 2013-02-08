@@ -120,5 +120,5 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.
 
 
-[keywords rc4 arcfour, {stream cipher} security encryption {data integrity}]
+[keywords rc4 arcfour {stream cipher} security encryption {data integrity}]
 [manpage_end]
