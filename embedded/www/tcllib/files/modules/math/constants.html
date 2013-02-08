@@ -1,0 +1,212 @@
+
+<html><head>
+<title>math::constants - Tcl Math Library</title>
+<style type="text/css"><!--
+    HTML {
+	background: 	#FFFFFF;
+	color: 		black;
+    }
+    BODY {
+	background: 	#FFFFFF;
+	color:	 	black;
+    }
+    DIV.doctools {
+	margin-left:	10%;
+	margin-right:	10%;
+    }
+    DIV.doctools H1,DIV.doctools H2 {
+	margin-left:	-5%;
+    }
+    H1, H2, H3, H4 {
+	margin-top: 	1em;
+	font-family:	sans-serif;
+	font-size:	large;
+	color:		#005A9C;
+	background: 	transparent;
+	text-align:		left;
+    }
+    H1.title {
+	text-align: center;
+    }
+    UL,OL {
+	margin-right: 0em;
+	margin-top: 3pt;
+	margin-bottom: 3pt;
+    }
+    UL LI {
+	list-style: disc;
+    }
+    OL LI {
+	list-style: decimal;
+    }
+    DT {
+	padding-top: 	1ex;
+    }
+    UL.toc,UL.toc UL, UL.toc UL UL {
+	font:		normal 12pt/14pt sans-serif;
+	list-style:	none;
+    }
+    LI.section, LI.subsection {
+	list-style: 	none;
+	margin-left: 	0em;
+	text-indent:	0em;
+	padding: 	0em;
+    }
+    PRE {
+	display: 	block;
+	font-family:	monospace;
+	white-space:	pre;
+	margin:		0%;
+	padding-top:	0.5ex;
+	padding-bottom:	0.5ex;
+	padding-left:	1ex;
+	padding-right:	1ex;
+	width:		100%;
+    }
+    PRE.example {
+	color: 		black;
+	background: 	#f5dcb3;
+	border:		1px solid black;
+    }
+    UL.requirements LI, UL.syntax LI {
+	list-style: 	none;
+	margin-left: 	0em;
+	text-indent:	0em;
+	padding:	0em;
+    }
+    DIV.synopsis {
+	color: 		black;
+	background: 	#80ffff;
+	border:		1px solid black;
+	font-family:	serif;
+	margin-top: 	1em;
+	margin-bottom: 	1em;
+    }
+    UL.syntax {
+	margin-top: 	1em;
+	border-top:	1px solid black;
+    }
+    UL.requirements {
+	margin-bottom: 	1em;
+	border-bottom:	1px solid black;
+    }
+--></style>
+</head>
+<! -- Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/www/tcllib/files/modules/math/constants.html' by tcllib/doctools with format 'html'
+   -->
+<! -- Copyright &copy; 2004 Arjen Markus &lt;arjenmarkus@users.sourceforge.net&gt;
+   -->
+<! -- CVS: $Id$ math::constants.n
+   -->
+<body><div class="doctools">
+<hr> [
+  <a href="../../../../toc.html">Main Table Of Contents</a>
+| <a href="../../../toc.html">Table Of Contents</a>
+| <a href="../../../../index.html">Keyword Index</a>
+| <a href="/home">Home</a>
+] <hr>
+<h1 class="title">math::constants(n) 1.0.1 tcllib &quot;Tcl Math Library&quot;</h1>
+<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<p>math::constants - Mathematical and numerical constants</p>
+</div>
+<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="toc">
+<li class="section"><a href="#toc">Table Of Contents</a></li>
+<li class="section"><a href="#synopsis">Synopsis</a></li>
+<li class="section"><a href="#section1">Description</a></li>
+<li class="section"><a href="#section2">PROCEDURES</a></li>
+<li class="section"><a href="#section3">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#keywords">Keywords</a></li>
+<li class="section"><a href="#category">Category</a></li>
+<li class="section"><a href="#copyright">Copyright</a></li>
+</ul>
+</div>
+<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="synopsis">
+<ul class="requirements">
+<li>package require <b class="pkgname">Tcl <span class="opt">?8.3?</span></b></li>
+<li>package require <b class="pkgname">math::constants <span class="opt">?1.0.1?</span></b></li>
+</ul>
+<ul class="syntax">
+<li><a href="#1"><b class="cmd">::math::constants::constants</b> <i class="arg">args</i></a></li>
+<li><a href="#2"><b class="cmd">::math::constants::print-constants</b> <i class="arg">args</i></a></li>
+</ul>
+</div>
+</div>
+<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<p>This package defines some common mathematical and numerical constants.
+By using the package you get consistent values for numbers like pi and
+ln(10).</p>
+<p>It defines two commands:</p>
+<ul class="itemized">
+<li><p>One for importing the constants</p></li>
+<li><p>One for reporting which constants are defined and what values they
+actually have.</p></li>
+</ul>
+<p>The motivation for this package is that quite often, with
+(mathematical) computations, you need a good approximation to, say,
+the ratio of degrees to radians. You can, of course, define this
+like:</p>
+<pre class="example">
+    variable radtodeg [expr {180.0/(4.0*atan(1.0))}]
+</pre>
+<p>and use the variable radtodeg whenever you need the conversion.</p>
+<p>This has two drawbacks:</p>
+<ul class="itemized">
+<li><p>You need to remember the proper formula or value and that is
+error-prone.</p></li>
+<li><p>Especially with the use of mathematical functions like <em>atan</em>
+you assume that they have been accurately implemented. This is seldom or
+never the case and for each platform you can get subtle differences.</p></li>
+</ul>
+<p>Here is the way you can do it with the <em>math::constants</em> package:</p>
+<pre class="example">
+    package require math::constants
+    ::math::constants::constants radtodeg degtorad
+</pre>
+<p>which creates two variables, radtodeg and (its reciprocal) degtorad
+in the calling namespace.</p>
+<p>Constants that have been defined (their values are mostly taken
+from mathematical tables with more precision than usually can be
+handled) include:</p>
+<ul class="itemized">
+<li><p>basic constants like pi, e, gamma (Euler's constant)</p></li>
+<li><p>derived values like ln(10) and sqrt(2)</p></li>
+<li><p>purely numerical values such as 1/3 that are included for convenience
+and for the fact that certain seemingly trivial computations like:</p>
+<pre class="example">
+    set value [expr {3.0*$onethird}]
+</pre>
+<p>give <em>exactly</em> the value you expect (if IEEE arithmetic is
+available).</p></li>
+</ul>
+</div>
+<div id="section2" class="section"><h2><a name="section2">PROCEDURES</a></h2>
+<p>The package defines the following public procedures:</p>
+<dl class="definitions">
+<dt><a name="1"><b class="cmd">::math::constants::constants</b> <i class="arg">args</i></a></dt>
+<dd><p>Import the constants whose names are given as arguments</p></dd>
+<dt><a name="2"><b class="cmd">::math::constants::print-constants</b> <i class="arg">args</i></a></dt>
+<dd><p>Print the constants whose names are given as arguments on the screen
+(name, value and description) or, if no arguments are given, print all
+defined constants. This is mainly a convenience procedure.</p></dd>
+</dl>
+</div>
+<div id="section3" class="section"><h2><a name="section3">BUGS, IDEAS, FEEDBACK</a></h2>
+<p>This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+Please report such in the category <em>math :: constants</em> of the
+<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.</p>
+</div>
+<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key560">constants</a>, <a href="../../../../index.html#key746">degrees</a>, <a href="../../../../index.html#key744">e</a>, <a href="../../../../index.html#key67">math</a>, <a href="../../../../index.html#key745">pi</a>, <a href="../../../../index.html#key561">radians</a></p>
+</div>
+<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<p>Mathematics</p>
+</div>
+<div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
+<p>Copyright &copy; 2004 Arjen Markus &lt;arjenmarkus@users.sourceforge.net&gt;</p>
+</div>
+</div></body></html>
