@@ -3,7 +3,7 @@
 [copyright {2010, Keith Vetter <kvetter@gmail.com>}]
 [moddesc {GPS eXchange Format (GPX)}]
 [titledesc {Extracts waypoints, tracks and routes from GPX files}]
-[category  {gpx, gpx}]
+[category  {File formats}]
 [require Tcl 8.5]
 [require gpx [opt 0.9]]
 [description]
