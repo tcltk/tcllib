@@ -1,3 +1,7 @@
+2013-02-08  Andreas Kupries  <andreask@activestate.com>
+
+	* iso8601.test: [Bug 3603702]: Fixed TZ-dependent test case.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
