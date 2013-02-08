@@ -1,5 +1,6 @@
 [manpage_begin xsxp n 1.0]
-[moddesc {eXtremely Simple Xml Parser}]
+[moddesc {Amazon S3 Web Service Utilities}]
+[titledesc {eXtremely Simple Xml Parser}]
 [copyright {Copyright 2006 Darren New. All Rights Reserved.}]
 [category  {Text processing}]
 [require Tcl 8.4]

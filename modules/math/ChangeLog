@@ -1,3 +1,7 @@
+2013-02-08  Andreas Kupries  <andreask@activestate.com>
+
+	* symdiff.man: Fixed missing short package title.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
