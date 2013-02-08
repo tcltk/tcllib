@@ -3,7 +3,7 @@
 exec tclsh "$0" ${1+"$@"}
 
 # @@ Meta Begin
-# Application dtplite 1.0.3
+# Application dtplite 1.0.4
 # Meta platform     tcl
 # Meta summary      Lightweight DocTools Processor
 # Meta description  This application is a simple processor
@@ -22,34 +22,34 @@ exec tclsh "$0" ${1+"$@"}
 # Meta license      BSD
 # @@ Meta End
 
-package provide dtplite 1.0.3
+package provide dtplite 1.0.4
 
 # dtp lite - Lightweight DocTools Processor
 # ======== = ==============================
 #
 # Use cases
 # ---------
-# 
+#
 # (1)	Validation of a single manpage, i.e. checking that it is valid
 #	doctools format.
-# 
+#
 # (1a)	Getting a preliminary version of the formatted output, for
 #	display in a browser, nroff, etc., proofreading the
 #	formatting.
-# 
+#
 # (2)	Generate documentation for a single package, i.e. all the
 #	manpages, plus index and table of contents.
-# 
+#
 # (3)	Generation of unified documentation for several
 #	packages. Especially unified keyword index and table of
 #	contents. This may additionally generate per-package TOCs
 #	as well (Per-package indices don't make sense IMHO).
-# 
+#
 # Command syntax
 # --------------
-# 
+#
 # Ad 1)	dtplite -o output format file
-# 
+#
 #	The option -o specifies where to write the output to. Using
 #	the string "-" as name of the output file causes the tool to
 #	write the generated data to stdout. If $output is a directory
@@ -60,34 +60,34 @@ package provide dtplite 1.0.3
 #
 #	The "validate" format does not generate output at all, only
 #	syntax checking is performed.
-# 
+#
 # Ad 2)	dtplite -o output format directory
-# 
+#
 #	I.e. we distinguish (2) from (1) by the type of the input,
 #	file, or directory. In this situation output has to be a
 #	directory. Use the path "." to place the results into the
 #	current directory.
-# 
+#
 #	We locate _all_ files under directory, i.e. all subdirectories
 #	are scanned as well. We replicate the found directory
 #	structure in the output (See example below). The index and
 #	table of contents are written to the toplevel directory in the
 #	output. The names are hardwired to "toc.$format" and
 #	"index.$format".
-# 
+#
 # Ad 3)	dtplite -merge -o output format directory
-# 
+#
 #	This can be treated as special case of (2). The -merge option
 #	tells it that the output is nested one level deeper, to keep a
 #	global toc and index in the toplevel and to merge the package
 #	toc and index into them.
-# 
+#
 #	This way the global documents are built up incrementally. This
 #	can help us in a future extended installer as well!, extending
 #	a global documentation tree of all installed packages.
-# 
+#
 # Additional features.
-# 
+#
 # *	As described above the format name is used as the extension
 #	for the generated files. Does it make sense to introduce an
 #	option with which we can overide this, or should we simply
@@ -96,26 +96,40 @@ package provide dtplite 1.0.3
 #	links between the files, and renaming from the outside just
 #	breaks the links. This option is '-ext'. It is ignored if the
 #	output is a single file (fully specified via -o), or stdout.
-# 
+#
 #	-ext extension
-# 
+#
 # *	Most of the formats don't need much/none of customizability.
 #	I.e. text, nroff, wiki, tmml, ...  For HTML however some
 #	degree of customizability is required for good output.  What
 #	should we given to the user ?
-# 
+#
 #	- Allow setting of a stylesheet.
 #	- Allow integration of custom body header and footer html.
 #	- Allow additional links for the navigation bar.
-# 
+#
 #	Note: The tool generates standard navigation bars to link the
 #	all tocs, indices, and pages together.
-# 
+#
 #	-style file
 #	-header file
 #	-footer file
 #	-nav label url
-# 
+#
+# *	The application may mis-detect files as doctools input.
+#	And we cannot always mark them as non-doctools because
+#	they may be such. Test cases, for example. To exclude
+#	these we have the option '-exclude' taking a glob pattern.
+#	Multiple uses of the option accumulate.
+#
+#	-exclude glob
+#
+# *	For tcllib itself we have external tools generating a nicer
+#	TOC. Use option -toc to specify the doctoc file to use instead
+#	of generating our own.
+#
+#	-toc path
+#
 # That should be enough to allow the creation of good looking formatted
 # documentation without getting overly complex in both implementation
 # and use.
@@ -302,10 +316,14 @@ namespace eval ::dtplite {
     array set imap {}
 
     # Database of exclusion patterns. Files matching these are not
-    # manpages. For example, test files for doctools itself may full
+    # manpages. For example, test files for doctools itself may fall
     # under this.
 
     variable excl {}
+
+    # Path of a user specified table of contents (doctoc format).
+
+    variable utoc {}
 }
 
 # ### ### ### ######### ######### #########
@@ -348,6 +366,8 @@ namespace eval ::dtplite {
 #		?-header file?	\
 #		?-footer file?	\
 #		?-nav label url?... \
+#		?-exclude glob?... \
+#		?-toc path? \
 #		format inputpath
 ##
 
@@ -357,8 +377,8 @@ proc ::dtplite::processCmdline {} {
     variable output ; variable style  ; variable stdout
     variable format ; variable header ; variable single
     variable input  ; variable footer ; variable mode
-    variable ext    ; variable nav    ; variable merge  
-    variable module ; variable excl
+    variable ext    ; variable nav    ; variable merge
+    variable module ; variable excl   ; variable utoc
 
     # Process the options, perform basic validation.
 
@@ -376,6 +396,10 @@ proc ::dtplite::processCmdline {} {
 	} elseif {[string equal $opt "-ext"]} {
 	    if {[llength $argv] < 2} Usage
 	    set ext  [lindex $argv 1]
+	    set argv [lrange $argv 2 end]
+	} elseif {[string equal $opt "-toc"]} {
+	    if {[llength $argv] < 2} Usage
+	    set utoc [lindex $argv 1]
 	    set argv [lrange $argv 2 end]
 	} elseif {[string equal $opt "-exclude"]} {
 	    if {[llength $argv] < 2} Usage
@@ -701,6 +725,7 @@ proc ::dtplite::Do.Directory {} {
     variable module
     variable meta
     variable format
+    variable utoc
 
     # Phase 0. Find the documents to convert.
     # Phase I. Collect meta data, and compute the map from input to
@@ -714,13 +739,20 @@ proc ::dtplite::Do.Directory {} {
     MapImages
     set files [LocateManpages $input]
     if {![llength $files]} {
-	ArgError "Module \"$module\" has no files to process."	
+	ArgError "Module \"$module\" has no files to process."
     }
 
     MetadataGet $files
     StyleMakeLocal
 
-    TocWrite toc index [TocGenerate [TocGet $module toc]]
+    if {$utoc ne {}} {
+	if {[file exists $utoc]} {
+	    set utoc [Get $utoc]
+	}
+	TocWrite toc index $utoc
+    } else {
+	TocWrite toc index [TocGenerate [TocGet $module toc]]
+    }
     IdxWrite index toc [IdxGenerate $module [IdxGet]]
 
     dt configure -module $module
@@ -762,6 +794,7 @@ proc ::dtplite::Do.Directory.Merge {} {
     variable meta
     variable output
     variable format
+    variable utoc
 
     # Phase 0. Find the documents to process.
     # Phase I. Collect meta data, and compute the map from input to
@@ -777,7 +810,7 @@ proc ::dtplite::Do.Directory.Merge {} {
     MapImages
     set files [LocateManpages $input]
     if {![llength $files]} {
-	ArgError "Module \"$module\" has no files to process."	
+	ArgError "Module \"$module\" has no files to process."
     }
 
     MetadataGet $files $module
@@ -785,8 +818,15 @@ proc ::dtplite::Do.Directory.Merge {} {
 
     set localtoc [TocGet $module $module/toc]
     TocWrite $module/toc index [TocGenerate $localtoc] [TocMap $localtoc]
-    TocWrite toc         index [TocGenerate [TocMergeSaved $localtoc]]
-    IdxWrite index       toc   [IdxGenerate {} [IdxGetSaved index]]
+    if {$utoc ne {}} {
+	if {[file exists $utoc]} {
+	    set utoc [Get $utoc]
+	}
+	TocWrite toc index $utoc
+    } else {
+	TocWrite toc index [TocGenerate [TocMergeSaved $localtoc]]
+    }
+    IdxWrite index toc [IdxGenerate {} [IdxGetSaved index]]
 
     dt configure -module $module
     XrefGetSaved
@@ -798,7 +838,7 @@ proc ::dtplite::Do.Directory.Merge {} {
 	puts stdout \t$f
 
 	set o $out($f)
-	dt configure -file [At $o]
+	dt configure -file [At $o] -ibase $input/$f
 
 	NavbuttonPush {Keyword Index}          [Output index]       $o
 	NavbuttonPush {Table Of Contents}      [Output $module/toc] $o
@@ -934,7 +974,7 @@ proc ::dtplite::TocGenerate {data} {
     # single div => div is full toc
     # multi div  => place divs into the toc in alpha order.
     #
-    # Sort toc (each division) by label.
+    # Sort toc (each division) by label (index 1).
     # Write as doctoc.
 
     array set toc $data
@@ -949,7 +989,7 @@ proc ::dtplite::TocGenerate {data} {
 	TocAlign mxf mxl $data
 
 	Tag+ toc_begin [list {Table Of Contents} $desc]
-	foreach item [lsort -dict -index 2 $data] {
+	foreach item [lsort -dict -index 1 $data] {
 	    foreach {symfile label desc} $item break
 	    Tag+ item \
 		    [FmtR mxf $symfile] \
@@ -963,7 +1003,7 @@ proc ::dtplite::TocGenerate {data} {
 	    TocAlign mxf mxl $div
 
 	    Tag+ division_start [list $desc [Output $ref]]
-	    foreach item [lsort -dict -index 2 $div] {
+	    foreach item [lsort -dict -index 1 $div] {
 		foreach {symfile label desc} $item break
 		Tag+ item \
 			[FmtR mxf $symfile] \
@@ -1100,7 +1140,7 @@ proc ::dtplite::IdxGenerate {desc data} {
 	IdxAlign mxf $keys($k)
 
 	Tag+ key [list $k]
-	foreach v [lsort -dict -index 0 $keys($k)] {
+	foreach v [lsort -dict -index 1 $keys($k)] {
 	    foreach {file label} $v break
 	    Tag+ manpage [FmtR mxf $file] [list $label]
 	}

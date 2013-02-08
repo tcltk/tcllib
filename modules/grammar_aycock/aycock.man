@@ -1,9 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin aycock n 1.0]
+[manpage_begin grammar::aycock n 1.0]
 [copyright "2006 by Kevin B. Kenny <kennykb@acm.org>
 Redistribution permitted under the terms of the Open\
 Publication License <http://www.opencontent.org/openpub/>"]
 [moddesc "Aycock-Horspool-Earley parser generator for Tcl"]
+[titledesc "Aycock-Horspool-Earley parser generator for Tcl"]
 [category "Grammars and finite automata"]
 [require Tcl 8.5]
 [require grammar::aycock [opt 1.0]]
