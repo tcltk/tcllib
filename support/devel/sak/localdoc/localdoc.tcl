@@ -24,7 +24,14 @@ proc ::sak::localdoc::run {} {
     # repository and website as child of a larger website. Absolute
     # adressing may not point to our root, but the outer site.
     #set nav /home
-    set nav ../../../../../home
+
+    # NOTE: This may not work for the deeper nested manpages.
+    # doc/tip/embedded/www/tcoc.html
+    #set nav ../../../../../home
+
+    # Indeed, not working for the nested pages.
+    # Use absolute, for main location.
+    set nav /tcllib
 
     puts "Removing old documentation..."
     file delete -force embedded
@@ -46,9 +53,11 @@ proc ::sak::localdoc::run {} {
     # Note: Might be better to run them separately.
     # Note @: Or we shuffle the results a bit more in the post processing stage.
 
+    set toc [string map {.man .html} [fileutil::cat support/devel/sak/doc/toc.txt]]
+
     puts "Generating HTML... Pass 1, draft..."
     exec 2>@ stderr >@ stdout $noe apps/dtplite \
-	-toc support/devel/sak/doc/toc.txt \
+	-toc $toc \
 	-nav Home $nav \
 	-exclude {*/doctools/tests/*} \
 	-exclude {*/support/*} \
@@ -58,7 +67,7 @@ proc ::sak::localdoc::run {} {
 
     puts "Generating HTML... Pass 2, resolving cross-references..."
     exec 2>@ stderr >@ stdout $noe apps/dtplite \
-	-toc support/devel/sak/doc/toc.txt \
+	-toc $toc \
 	-nav Home $nav \
 	-exclude {*/doctools/tests/*} \
 	-exclude {*/support/*} \
