@@ -396,7 +396,7 @@ package and/or documentation.
 .SH KEYWORDS
 gps, gpx
 .SH CATEGORY
-gpx, gpx
+File formats
 .SH COPYRIGHT
 .nf
 Copyright (c) 2010, Keith Vetter <kvetter@gmail.com>

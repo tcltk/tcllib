@@ -344,7 +344,7 @@ package and/or documentation.
 .SH "SEE ALSO"
 aes(n), blowfish(n), des(n)
 .SH KEYWORDS
-arcfour,, data integrity, encryption, rc4, security, stream cipher
+arcfour, data integrity, encryption, rc4, security, stream cipher
 .SH CATEGORY
 Hashes, checksums, and encryption
 .SH COPYRIGHT

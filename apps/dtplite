@@ -29,27 +29,27 @@ package provide dtplite 1.0.4
 #
 # Use cases
 # ---------
-# 
+#
 # (1)	Validation of a single manpage, i.e. checking that it is valid
 #	doctools format.
-# 
+#
 # (1a)	Getting a preliminary version of the formatted output, for
 #	display in a browser, nroff, etc., proofreading the
 #	formatting.
-# 
+#
 # (2)	Generate documentation for a single package, i.e. all the
 #	manpages, plus index and table of contents.
-# 
+#
 # (3)	Generation of unified documentation for several
 #	packages. Especially unified keyword index and table of
 #	contents. This may additionally generate per-package TOCs
 #	as well (Per-package indices don't make sense IMHO).
-# 
+#
 # Command syntax
 # --------------
-# 
+#
 # Ad 1)	dtplite -o output format file
-# 
+#
 #	The option -o specifies where to write the output to. Using
 #	the string "-" as name of the output file causes the tool to
 #	write the generated data to stdout. If $output is a directory
@@ -60,34 +60,34 @@ package provide dtplite 1.0.4
 #
 #	The "validate" format does not generate output at all, only
 #	syntax checking is performed.
-# 
+#
 # Ad 2)	dtplite -o output format directory
-# 
+#
 #	I.e. we distinguish (2) from (1) by the type of the input,
 #	file, or directory. In this situation output has to be a
 #	directory. Use the path "." to place the results into the
 #	current directory.
-# 
+#
 #	We locate _all_ files under directory, i.e. all subdirectories
 #	are scanned as well. We replicate the found directory
 #	structure in the output (See example below). The index and
 #	table of contents are written to the toplevel directory in the
 #	output. The names are hardwired to "toc.$format" and
 #	"index.$format".
-# 
+#
 # Ad 3)	dtplite -merge -o output format directory
-# 
+#
 #	This can be treated as special case of (2). The -merge option
 #	tells it that the output is nested one level deeper, to keep a
 #	global toc and index in the toplevel and to merge the package
 #	toc and index into them.
-# 
+#
 #	This way the global documents are built up incrementally. This
 #	can help us in a future extended installer as well!, extending
 #	a global documentation tree of all installed packages.
-# 
+#
 # Additional features.
-# 
+#
 # *	As described above the format name is used as the extension
 #	for the generated files. Does it make sense to introduce an
 #	option with which we can overide this, or should we simply
@@ -96,21 +96,21 @@ package provide dtplite 1.0.4
 #	links between the files, and renaming from the outside just
 #	breaks the links. This option is '-ext'. It is ignored if the
 #	output is a single file (fully specified via -o), or stdout.
-# 
+#
 #	-ext extension
-# 
+#
 # *	Most of the formats don't need much/none of customizability.
 #	I.e. text, nroff, wiki, tmml, ...  For HTML however some
 #	degree of customizability is required for good output.  What
 #	should we given to the user ?
-# 
+#
 #	- Allow setting of a stylesheet.
 #	- Allow integration of custom body header and footer html.
 #	- Allow additional links for the navigation bar.
-# 
+#
 #	Note: The tool generates standard navigation bars to link the
 #	all tocs, indices, and pages together.
-# 
+#
 #	-style file
 #	-header file
 #	-footer file
@@ -129,7 +129,7 @@ package provide dtplite 1.0.4
 #	of generating our own.
 #
 #	-toc path
-# 
+#
 # That should be enough to allow the creation of good looking formatted
 # documentation without getting overly complex in both implementation
 # and use.
@@ -377,7 +377,7 @@ proc ::dtplite::processCmdline {} {
     variable output ; variable style  ; variable stdout
     variable format ; variable header ; variable single
     variable input  ; variable footer ; variable mode
-    variable ext    ; variable nav    ; variable merge  
+    variable ext    ; variable nav    ; variable merge
     variable module ; variable excl   ; variable utoc
 
     # Process the options, perform basic validation.
@@ -739,14 +739,17 @@ proc ::dtplite::Do.Directory {} {
     MapImages
     set files [LocateManpages $input]
     if {![llength $files]} {
-	ArgError "Module \"$module\" has no files to process."	
+	ArgError "Module \"$module\" has no files to process."
     }
 
     MetadataGet $files
     StyleMakeLocal
 
     if {$utoc ne {}} {
-	TocWrite toc index [Get $utoc]
+	if {[file exists $utoc]} {
+	    set utoc [Get $utoc]
+	}
+	TocWrite toc index $utoc
     } else {
 	TocWrite toc index [TocGenerate [TocGet $module toc]]
     }
@@ -807,7 +810,7 @@ proc ::dtplite::Do.Directory.Merge {} {
     MapImages
     set files [LocateManpages $input]
     if {![llength $files]} {
-	ArgError "Module \"$module\" has no files to process."	
+	ArgError "Module \"$module\" has no files to process."
     }
 
     MetadataGet $files $module
@@ -816,7 +819,10 @@ proc ::dtplite::Do.Directory.Merge {} {
     set localtoc [TocGet $module $module/toc]
     TocWrite $module/toc index [TocGenerate $localtoc] [TocMap $localtoc]
     if {$utoc ne {}} {
-	TocWrite toc index [Get $utoc]
+	if {[file exists $utoc]} {
+	    set utoc [Get $utoc]
+	}
+	TocWrite toc index $utoc
     } else {
 	TocWrite toc index [TocGenerate [TocMergeSaved $localtoc]]
     }
