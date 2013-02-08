@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin ::math::decimal n 1.0.2]
+[manpage_begin math::decimal n 1.0.2]
 [copyright {2011 Mark Alston <mark at beernut dot com>}]
 [moddesc   {Tcl Decimal Arithmetic Library}]
 [titledesc {General decimal arithmetic}]
