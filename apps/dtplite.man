@@ -229,6 +229,16 @@ specified.
 When used multiple times only the last definition is relevant.
 
 
+[opt_def -toc path]
+
+This option specifies a doctoc file to use for the table of contents
+instead of generating our own.
+
+[para]
+
+When used multiple times only the last definition is relevant.
+
+
 [opt_def -nav "label url"]
 
 Use this option to specify a navigation button with [arg label] to

@@ -78,8 +78,9 @@ proc ::sak::doc::index {modules} {
 }
 
 proc ::sak::doc::imake {modules} {
+    global base
     # The argument (= set of modules) is irrelevant to this command.
-    auto::saveManpages [auto::findManpages]
+    auto::saveManpages [auto::findManpages $base]
     return
 }
 

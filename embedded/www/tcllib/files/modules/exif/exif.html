@@ -1,0 +1,194 @@
+<html><head>
+<title>exif - EXIF parsing</title>
+<style type="text/css"><!--
+    HTML {
+	background: 	#FFFFFF;
+	color: 		black;
+    }
+    BODY {
+	background: 	#FFFFFF;
+	color:	 	black;
+    }
+    DIV.doctools {
+	margin-left:	10%;
+	margin-right:	10%;
+    }
+    DIV.doctools H1,DIV.doctools H2 {
+	margin-left:	-5%;
+    }
+    H1, H2, H3, H4 {
+	margin-top: 	1em;
+	font-family:	sans-serif;
+	font-size:	large;
+	color:		#005A9C;
+	background: 	transparent;
+	text-align:		left;
+    }
+    H1.title {
+	text-align: center;
+    }
+    UL,OL {
+	margin-right: 0em;
+	margin-top: 3pt;
+	margin-bottom: 3pt;
+    }
+    UL LI {
+	list-style: disc;
+    }
+    OL LI {
+	list-style: decimal;
+    }
+    DT {
+	padding-top: 	1ex;
+    }
+    UL.toc,UL.toc UL, UL.toc UL UL {
+	font:		normal 12pt/14pt sans-serif;
+	list-style:	none;
+    }
+    LI.section, LI.subsection {
+	list-style: 	none;
+	margin-left: 	0em;
+	text-indent:	0em;
+	padding: 	0em;
+    }
+    PRE {
+	display: 	block;
+	font-family:	monospace;
+	white-space:	pre;
+	margin:		0%;
+	padding-top:	0.5ex;
+	padding-bottom:	0.5ex;
+	padding-left:	1ex;
+	padding-right:	1ex;
+	width:		100%;
+    }
+    PRE.example {
+	color: 		black;
+	background: 	#f5dcb3;
+	border:		1px solid black;
+    }
+    UL.requirements LI, UL.syntax LI {
+	list-style: 	none;
+	margin-left: 	0em;
+	text-indent:	0em;
+	padding:	0em;
+    }
+    DIV.synopsis {
+	color: 		black;
+	background: 	#80ffff;
+	border:		1px solid black;
+	font-family:	serif;
+	margin-top: 	1em;
+	margin-bottom: 	1em;
+    }
+    UL.syntax {
+	margin-top: 	1em;
+	border-top:	1px solid black;
+    }
+    UL.requirements {
+	margin-bottom: 	1em;
+	border-bottom:	1px solid black;
+    }
+--></style>
+</head>
+<! -- Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/www/tcllib/files/modules/exif/exif.html' by tcllib/doctools with format 'html'
+   -->
+<! -- CVS: $Id$ exif.n
+   -->
+<body><div class="doctools">
+<hr> [
+  <a href="../../../../toc.html">Main Table Of Contents</a>
+| <a href="../../../toc.html">Table Of Contents</a>
+| <a href="../../../../index.html">Keyword Index</a>
+| <a href="/tcllib">Home</a>
+] <hr>
+<h1 class="title">exif(n) 1.1.2 tcllib &quot;EXIF parsing&quot;</h1>
+<div id="name" class="section"><h2><a name="name">Name</a></h2>
+<p>exif - Tcl EXIF extracts and parses EXIF fields from digital images</p>
+</div>
+<div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
+<ul class="toc">
+<li class="section"><a href="#toc">Table Of Contents</a></li>
+<li class="section"><a href="#synopsis">Synopsis</a></li>
+<li class="section"><a href="#section1">Description</a></li>
+<li class="section"><a href="#section2">COMMANDS</a></li>
+<li class="section"><a href="#section3">COPYRIGHTS</a></li>
+<li class="section"><a href="#section4">ACKNOWLEDGEMENTS</a></li>
+<li class="section"><a href="#section5">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#keywords">Keywords</a></li>
+<li class="section"><a href="#category">Category</a></li>
+</ul>
+</div>
+<div id="synopsis" class="section"><h2><a name="synopsis">Synopsis</a></h2>
+<div class="synopsis">
+<ul class="requirements">
+<li>package require <b class="pkgname">Tcl 8.2</b></li>
+<li>package require <b class="pkgname">exif <span class="opt">?1.1.2?</span></b></li>
+</ul>
+<ul class="syntax">
+<li><a href="#1"><b class="cmd">exif::analyze</b> <i class="arg">channel</i> <span class="opt">?<i class="arg">thumbnail</i>?</span></a></li>
+<li><a href="#2"><b class="cmd">exif::analyzeFile</b> <i class="arg">filename</i> <span class="opt">?<i class="arg">thumbnail</i>?</span></a></li>
+<li><a href="#3"><b class="cmd">exif::fieldnames</b></a></li>
+</ul>
+</div>
+</div>
+<div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<p>The EXIF package is a recoding of Chris Breeze's Perl package to do
+the same thing.  This version accepts a channel as input and returns a
+serialized array with all the recognised fields parsed out.</p>
+<p>There is also a function to obtain a list of all possible field names
+that might be present, which is useful in building GUIs that present
+such information.</p>
+</div>
+<div id="section2" class="section"><h2><a name="section2">COMMANDS</a></h2>
+<dl class="definitions">
+<dt><a name="1"><b class="cmd">exif::analyze</b> <i class="arg">channel</i> <span class="opt">?<i class="arg">thumbnail</i>?</span></a></dt>
+<dd><p><i class="arg">channel</i> should be an open file handle rewound to the start.  It
+does not need to be seekable.  <i class="arg">channel</i> will be set to binary
+mode and is left wherever it happens to stop being parsed, usually at
+the end of the file or the start of the image data.  You must open and
+close the stream yourself.  If no error is thrown, the return value is
+a serialized array with informative English text about what was found
+in the EXIF block.  Failure during parsing or I/O throw errors.</p>
+<p>If <i class="arg">thumbnail</i> is present and not the empty string it will be
+interpreted as the name of a file, and the thumbnail image contained
+in the exif data will be written into it.</p></dd>
+<dt><a name="2"><b class="cmd">exif::analyzeFile</b> <i class="arg">filename</i> <span class="opt">?<i class="arg">thumbnail</i>?</span></a></dt>
+<dd><p>This is a file-based wrapper around <b class="cmd">exif::analyze</b>. Instead of
+taking a stream it takes a <i class="arg">filename</i> and analyzes the contents of
+the specified file.</p></dd>
+<dt><a name="3"><b class="cmd">exif::fieldnames</b></a></dt>
+<dd><p>This returns a list of all possible field names.  That is, the array
+returned by <b class="cmd">exif::analyze</b> will not contain keys that are not
+listed in the return from <b class="cmd">exif::fieldnames</b>.  Of course, if
+information is missing in the image file, <b class="cmd">exif::analyze</b> may not
+return all the fields listed in the return from exif::fieldnames.
+This function is expected to be primarily useful for building GUIs to
+display results.</p>
+<p>N.B.: Read the implementation of <b class="cmd">exif::fieldnames</b> before
+modifying the implementation of <b class="cmd">exif::analyze</b>.</p></dd>
+</dl>
+</div>
+<div id="section3" class="section"><h2><a name="section3">COPYRIGHTS</a></h2>
+<p>(c) 2002 Darren New
+Hold harmless the author, and any lawful use is allowed.</p>
+</div>
+<div id="section4" class="section"><h2><a name="section4">ACKNOWLEDGEMENTS</a></h2>
+<p>This code is a direct translation of version 1.3 of exif.pl by Chris
+Breeze.  See the source for full headers, references, etc.</p>
+</div>
+<div id="section5" class="section"><h2><a name="section5">BUGS, IDEAS, FEEDBACK</a></h2>
+<p>This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+Please report such in the category <em>exif</em> of the
+<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.</p>
+</div>
+<div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
+<p><a href="../../../../index.html#key143">exif</a>, <a href="../../../../index.html#key144">jpeg</a>, <a href="../../../../index.html#key772">maker note</a>, <a href="../../../../index.html#key134">tiff</a></p>
+</div>
+<div id="category" class="section"><h2><a name="category">Category</a></h2>
+<p>File formats</p>
+</div>
+</div></body></html>
