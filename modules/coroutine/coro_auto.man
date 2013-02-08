@@ -3,7 +3,7 @@
 [copyright {2010-2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Coroutine utilities}]
 [category  Coroutine]
-[titledesc {}]
+[titledesc {Automatic event and IO coroutine awareness}]
 [require Tcl 8.6]
 [require coroutine::auto 1.1]
 [require coroutine 1.1]

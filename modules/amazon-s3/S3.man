@@ -1,5 +1,6 @@
 [manpage_begin S3 n 1.0.0]
-[moddesc {Amazon S3 Web Service Interface}]
+[moddesc {Amazon S3 Web Service Utilities}]
+[titledesc {Amazon S3 Web Service Interface}]
 [category  Networking]
 [copyright {Copyright 2006,2008 Darren New. All Rights Reserved. See LICENSE.TXT for terms.}]
 [require Tcl 8.5]
