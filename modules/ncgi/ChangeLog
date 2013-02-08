@@ -1,3 +1,9 @@
+2013-02-08  Andreas Kupries  <andreask@activestate.com>
+
+	* ncgi.tcl (::ncgi::DecodeHex): [Bug 3603593]: Fixed bad scoping
+	* ncgi.man: of DecodeHex, now in the ncgi namespace instead of
+	* pkgIndex.tcl: polluting the global. Bumped version to 1.4.2.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
