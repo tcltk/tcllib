@@ -60,6 +60,7 @@ proc ::sak::doc::auto::scanManpages {manpages} {
     puts Scanning...
     foreach page $manpages {
 	puts ...$page
+	dt configure -ibase $page
 	lappend data $page [lindex [dt format [fileutil::cat $page]] 1]
     }
 
