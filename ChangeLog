@@ -1,3 +1,11 @@
+2013-02-08  Andreas Kupries <andreask@activestate.com>
+
+	* apps/dtplite: Fixed missing -ibase option in direcotry
+	* apps/dtplite.man: processing with -merge. Fixed sorting in
+	  generated toc and indices. Plus new feature: -toc for external
+	  toc to place in the output. Bumped to 1.0.4. Updated
+	  documentation.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
