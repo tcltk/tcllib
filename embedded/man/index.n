@@ -457,7 +457,7 @@ struct::graph
 \fBfiles/modules/struct/graphops.n\fR
 struct::graph::op
 .RE
-arcfour,
+arcfour
 .RS
 .TP
 \fBfiles/modules/rc4/rc4.n\fR
