@@ -26,6 +26,8 @@ modules/bench/bench_wtext.man
 modules/bibtex/bibtex.man
 modules/blowfish/blowfish.man
 modules/cache/async.man
+modules/clock/iso8601.man
+modules/clock/rfc2822.man
 modules/cmdline/cmdline.man
 modules/comm/comm.man
 modules/comm/comm_wire.man
