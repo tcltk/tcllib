@@ -4,6 +4,7 @@
 #
 # Copyright (c) 2000 Ajuba Solutions.
 # Copyright (c) 2012 Richard Hipp, Andreas Kupries
+# Copyright (c) 2013 Andreas Kupries
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -28,7 +29,7 @@
 package require Tcl 8.4
 package require fileutil ; # Required by importFile.
 
-package provide ncgi 1.4.1
+package provide ncgi 1.4.2
 
 namespace eval ::ncgi {
 
@@ -253,17 +254,17 @@ proc ::ncgi::type {} {
 
 if {[package vsatisfies [package present Tcl] 8.6]} {
     # 8.6+, use 'binary decode hex'
-    proc DecodeHex {hex} {
+    proc ::ncgi::DecodeHex {hex} {
 	return [binary decode hex $hex]
     }
 } else {
     # 8.4+. More complex way of handling the hex conversion.
-    proc DecodeHex {hex} {
+    proc ::ncgi::DecodeHex {hex} {
 	return [binary format H* $hex]
     }
 }
 
-proc ncgi::decode {str} {
+proc ::ncgi::decode {str} {
     # rewrite "+" back to space
     # protect \ from quoting another '\'
     set str [string map [list + { } "\\" "\\\\" \[ \\\[ \] \\\]] $str]
