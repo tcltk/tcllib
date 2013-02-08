@@ -3,7 +3,7 @@
 exec tclsh "$0" ${1+"$@"}
 
 # @@ Meta Begin
-# Application dtplite 1.0.3
+# Application dtplite 1.0.4
 # Meta platform     tcl
 # Meta summary      Lightweight DocTools Processor
 # Meta description  This application is a simple processor
@@ -22,7 +22,7 @@ exec tclsh "$0" ${1+"$@"}
 # Meta license      BSD
 # @@ Meta End
 
-package provide dtplite 1.0.3
+package provide dtplite 1.0.4
 
 # dtp lite - Lightweight DocTools Processor
 # ======== = ==============================
@@ -121,6 +121,14 @@ package provide dtplite 1.0.3
 #	they may be such. Test cases, for example. To exclude
 #	these we have the option '-exclude' taking a glob pattern.
 #	Multiple uses of the option accumulate.
+#
+#	-exclude glob
+#
+# *	For tcllib itself we have external tools generating a nicer
+#	TOC. Use option -toc to specify the doctoc file to use instead
+#	of generating our own.
+#
+#	-toc path
 # 
 # That should be enough to allow the creation of good looking formatted
 # documentation without getting overly complex in both implementation
@@ -312,6 +320,10 @@ namespace eval ::dtplite {
     # under this.
 
     variable excl {}
+
+    # Path of a user specified table of contents (doctoc format).
+
+    variable utoc {}
 }
 
 # ### ### ### ######### ######### #########
@@ -355,6 +367,7 @@ namespace eval ::dtplite {
 #		?-footer file?	\
 #		?-nav label url?... \
 #		?-exclude glob?... \
+#		?-toc path? \
 #		format inputpath
 ##
 
@@ -365,7 +378,7 @@ proc ::dtplite::processCmdline {} {
     variable format ; variable header ; variable single
     variable input  ; variable footer ; variable mode
     variable ext    ; variable nav    ; variable merge  
-    variable module ; variable excl
+    variable module ; variable excl   ; variable utoc
 
     # Process the options, perform basic validation.
 
@@ -383,6 +396,10 @@ proc ::dtplite::processCmdline {} {
 	} elseif {[string equal $opt "-ext"]} {
 	    if {[llength $argv] < 2} Usage
 	    set ext  [lindex $argv 1]
+	    set argv [lrange $argv 2 end]
+	} elseif {[string equal $opt "-toc"]} {
+	    if {[llength $argv] < 2} Usage
+	    set utoc [lindex $argv 1]
 	    set argv [lrange $argv 2 end]
 	} elseif {[string equal $opt "-exclude"]} {
 	    if {[llength $argv] < 2} Usage
@@ -708,6 +725,7 @@ proc ::dtplite::Do.Directory {} {
     variable module
     variable meta
     variable format
+    variable utoc
 
     # Phase 0. Find the documents to convert.
     # Phase I. Collect meta data, and compute the map from input to
@@ -727,7 +745,11 @@ proc ::dtplite::Do.Directory {} {
     MetadataGet $files
     StyleMakeLocal
 
-    TocWrite toc index [TocGenerate [TocGet $module toc]]
+    if {$utoc ne {}} {
+	TocWrite toc index [Get $utoc]
+    } else {
+	TocWrite toc index [TocGenerate [TocGet $module toc]]
+    }
     IdxWrite index toc [IdxGenerate $module [IdxGet]]
 
     dt configure -module $module
@@ -769,6 +791,7 @@ proc ::dtplite::Do.Directory.Merge {} {
     variable meta
     variable output
     variable format
+    variable utoc
 
     # Phase 0. Find the documents to process.
     # Phase I. Collect meta data, and compute the map from input to
@@ -792,8 +815,12 @@ proc ::dtplite::Do.Directory.Merge {} {
 
     set localtoc [TocGet $module $module/toc]
     TocWrite $module/toc index [TocGenerate $localtoc] [TocMap $localtoc]
-    TocWrite toc         index [TocGenerate [TocMergeSaved $localtoc]]
-    IdxWrite index       toc   [IdxGenerate {} [IdxGetSaved index]]
+    if {$utoc ne {}} {
+	TocWrite toc index [Get $utoc]
+    } else {
+	TocWrite toc index [TocGenerate [TocMergeSaved $localtoc]]
+    }
+    IdxWrite index toc [IdxGenerate {} [IdxGetSaved index]]
 
     dt configure -module $module
     XrefGetSaved
@@ -805,7 +832,7 @@ proc ::dtplite::Do.Directory.Merge {} {
 	puts stdout \t$f
 
 	set o $out($f)
-	dt configure -file [At $o]
+	dt configure -file [At $o] -ibase $input/$f
 
 	NavbuttonPush {Keyword Index}          [Output index]       $o
 	NavbuttonPush {Table Of Contents}      [Output $module/toc] $o
@@ -941,7 +968,7 @@ proc ::dtplite::TocGenerate {data} {
     # single div => div is full toc
     # multi div  => place divs into the toc in alpha order.
     #
-    # Sort toc (each division) by label.
+    # Sort toc (each division) by label (index 1).
     # Write as doctoc.
 
     array set toc $data
@@ -956,7 +983,7 @@ proc ::dtplite::TocGenerate {data} {
 	TocAlign mxf mxl $data
 
 	Tag+ toc_begin [list {Table Of Contents} $desc]
-	foreach item [lsort -dict -index 2 $data] {
+	foreach item [lsort -dict -index 1 $data] {
 	    foreach {symfile label desc} $item break
 	    Tag+ item \
 		    [FmtR mxf $symfile] \
@@ -970,7 +997,7 @@ proc ::dtplite::TocGenerate {data} {
 	    TocAlign mxf mxl $div
 
 	    Tag+ division_start [list $desc [Output $ref]]
-	    foreach item [lsort -dict -index 2 $div] {
+	    foreach item [lsort -dict -index 1 $div] {
 		foreach {symfile label desc} $item break
 		Tag+ item \
 			[FmtR mxf $symfile] \
@@ -1107,7 +1134,7 @@ proc ::dtplite::IdxGenerate {desc data} {
 	IdxAlign mxf $keys($k)
 
 	Tag+ key [list $k]
-	foreach v [lsort -dict -index 0 $keys($k)] {
+	foreach v [lsort -dict -index 1 $keys($k)] {
 	    foreach {file label} $v break
 	    Tag+ manpage [FmtR mxf $file] [list $label]
 	}
