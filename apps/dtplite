@@ -115,6 +115,12 @@ package provide dtplite 1.0.3
 #	-header file
 #	-footer file
 #	-nav label url
+#
+# *	The application may mis-detect files as doctools input.
+#	And we cannot always mark them as non-doctools because
+#	they may be such. Test cases, for example. To exclude
+#	these we have the option '-exclude' taking a glob pattern.
+#	Multiple uses of the option accumulate.
 # 
 # That should be enough to allow the creation of good looking formatted
 # documentation without getting overly complex in both implementation
@@ -302,7 +308,7 @@ namespace eval ::dtplite {
     array set imap {}
 
     # Database of exclusion patterns. Files matching these are not
-    # manpages. For example, test files for doctools itself may full
+    # manpages. For example, test files for doctools itself may fall
     # under this.
 
     variable excl {}
@@ -348,6 +354,7 @@ namespace eval ::dtplite {
 #		?-header file?	\
 #		?-footer file?	\
 #		?-nav label url?... \
+#		?-exclude glob?... \
 #		format inputpath
 ##
 
