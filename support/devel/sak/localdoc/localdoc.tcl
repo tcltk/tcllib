@@ -20,6 +20,12 @@ proc ::sak::localdoc::usage {} {
 proc ::sak::localdoc::run {} {
     set noe [info nameofexecutable]
 
+    # Relative path is necessary to handle possibility of fossil
+    # repository and website as child of a larger website. Absolute
+    # adressing may not point to our root, but the outer site.
+    #set nav /home
+    set nav ../../../../../home
+
     puts "Removing old documentation..."
     file delete -force embedded
     file mkdir embedded/man
@@ -43,7 +49,7 @@ proc ::sak::localdoc::run {} {
     puts "Generating HTML... Pass 1, draft..."
     exec 2>@ stderr >@ stdout $noe apps/dtplite \
 	-toc support/devel/sak/doc/toc.txt \
-	-nav Home /home \
+	-nav Home $nav \
 	-exclude {*/doctools/tests/*} \
 	-exclude {*/support/*} \
 	-merge \
@@ -53,7 +59,7 @@ proc ::sak::localdoc::run {} {
     puts "Generating HTML... Pass 2, resolving cross-references..."
     exec 2>@ stderr >@ stdout $noe apps/dtplite \
 	-toc support/devel/sak/doc/toc.txt \
-	-nav Home /home \
+	-nav Home $nav \
 	-exclude {*/doctools/tests/*} \
 	-exclude {*/support/*} \
 	-merge \
