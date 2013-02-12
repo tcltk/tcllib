@@ -1,3 +1,9 @@
+2013-02-11  Andreas Kupries  <andreask@activestate.com>
+
+	* imap4.tcl: [Bug 3604129] Applied contribution
+	* imap4.man: by Magnatune. Additional command (copy).
+	* pkgIndex.tcl: Bumped version to 0.5.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
