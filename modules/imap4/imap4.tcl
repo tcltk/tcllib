@@ -4,6 +4,7 @@
 #
 # Copyright (C) 2004 Salvatore Sanfilippo <antirez@invece.org>.
 # Copyright (C) 2013 Nicola Hall <nicci.hall@gmail.com>
+# Copyright (C) 2013 Magnatune <magnatune@users.sourceforge.net>
 #
 # All rights reserved.
 #
@@ -50,9 +51,10 @@
 #   20100716: Bug in parsing special leading FLAGS characters in FETCH
 #             command repaired, documentation cleanup.
 #   20121221: Added basic scope, expunge and logout function
+#   20130212: Added basic copy function
 
 package require Tcl 8.5
-package provide imap4 0.4
+package provide imap4 0.5
 
 namespace eval imap4 {
     variable debugmode 0     ;# inside debug mode? usually not.
@@ -1275,6 +1277,14 @@ namespace eval imap4 {
             return 1
         }
         return 0
+    }
+
+    # copy : copy a message to a destination mailbox
+    proc copy {chan msgid mailbox} {
+	if {[simplecmd $chan COPY SELECT [list $msgid $mailbox]]} {
+	    return 1
+	}
+	return 0
     }
 }
 

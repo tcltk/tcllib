@@ -1,4 +1,4 @@
-[manpage_begin imap4 n 0.4]
+[manpage_begin imap4 n 0.5]
 [moddesc   {imap client}]
 [titledesc {imap client-side tcl implementation of imap protocol}]
 
@@ -273,6 +273,16 @@ set from the currently selected mailbox, without the need to close the
 connection.
 
 [para][arg chan] - imap channel
+
+[call [cmd ::imap4::copy] [arg chan] [arg msgid] [arg mailbox]]
+
+[para] Copies the specified message (identified by its message number)
+to the named mailbox, i.e. imap folder.
+
+[para][arg chan] - imap channel
+[para][arg msgid] - message number
+[para][arg mailbox] - mailbox name
+
 
 [call [cmd ::imap4::logout] [arg chan]]
 
