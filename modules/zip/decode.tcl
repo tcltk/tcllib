@@ -9,7 +9,7 @@
 
 package require Tcl 8.4
 package require fileutil::magic::mimetype ; # Tcllib. File type determination via magic constants
-package require fileutil::decode          ; # Framework for easy decoding of files.
+package require fileutil::decode 0.2      ; # Framework for easy decoding of files.
 package require Trf                       ; # Wrapper to zlib
 package require zlibtcl                   ; # Zlib usage. No commands, access through Trf
 
@@ -660,5 +660,5 @@ proc ::zipfile::decode::LocateEnd {path} {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::decode 0.2
+package provide zipfile::decode 0.3
 return
