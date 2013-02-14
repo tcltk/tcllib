@@ -1,3 +1,10 @@
+2013-02-14  Andreas Kupries  <andreask@activestate.com>
+
+	* decode.tcl: Bumped fileutil::decode to 0.2 to distinguish
+	* pkgIndex.tcl: properly from the 0.1.xxx version which existed in
+	  AS/perforce before it moved to tcllib/fossil. That should have
+	  been done as part of the move, and was forgotten.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
