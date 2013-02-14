@@ -1,9 +1,9 @@
-[manpage_begin imap4 n 0.5]
+[manpage_begin imap4 n 0.5.1]
 [moddesc   {imap client}]
 [titledesc {imap client-side tcl implementation of imap protocol}]
 
 [require Tcl 8.5]
-[require imap4 [opt 0.4]]
+[require imap4 [opt 0.5.1]]
 
 [description]
 
