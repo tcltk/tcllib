@@ -1,3 +1,9 @@
+2013-02-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* imap4.tcl: [Bug 3604129] Accepted patch by Gerhard Reithofer.
+	* imap4.man: Missing chan parameter added to all imaptotcl*
+	* pkgIndex.tcl: procs. Bumped version to 0.5.1.
+
 2013-02-11  Andreas Kupries  <andreask@activestate.com>
 
 	* imap4.tcl: [Bug 3604129] Applied contribution

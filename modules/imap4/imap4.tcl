@@ -52,9 +52,10 @@
 #             command repaired, documentation cleanup.
 #   20121221: Added basic scope, expunge and logout function
 #   20130212: Added basic copy function
+#   20130212: Missing chan parameter added to all imaptotcl* procs -ger
 
 package require Tcl 8.5
-package provide imap4 0.5
+package provide imap4 0.5.1
 
 namespace eval imap4 {
     variable debugmode 0     ;# inside debug mode? usually not.
@@ -72,7 +73,7 @@ namespace eval imap4 {
     variable debug 0
 
     # Version
-    variable version "2010-07-16"
+    variable version "2013-02-12"
 
     # This is where we take state of all the IMAP connections.
     # The following arrays are indexed with the connection channel
@@ -353,7 +354,7 @@ namespace eval imap4 {
     proc processfetchline {chan line literals} {
         variable msginfo
         regexp -nocase {([0-9]+)\s+FETCH\s+(\(.*\))} $line => msgnum items
-        foreach {name val} [imaptotcl items literals] {
+        foreach {name val} [imaptotcl $chan items literals] {
             set attribname [switch -glob -- [string toupper $name] {
                 INTERNALDATE {format internaldate}
                 BODYSTRUCTURE {format bodystructure}
@@ -408,21 +409,21 @@ namespace eval imap4 {
     # string converted.
     # 'literals' is a list with all the literals extracted
     # from the original line, in the same order they appeared.
-    proc imaptotcl {datavar literalsvar} {
+    proc imaptotcl {chan datavar literalsvar} {
         upvar 1 $datavar data $literalsvar literals
         set data [string trim $data]
         switch -- [string index $data 0] {
-            \{ {imaptotcl_literal data literals}
-            "(" {imaptotcl_list data literals}
-            "\"" {imaptotcl_quoted data}
-            0 - 1 - 2 - 3 - 4 - 5 - 6 - 7 - 8 - 9 {imaptotcl_number data}
-            \) {imaptotcl_endlist data;# that's a trick to parse lists}
-            default {imaptotcl_symbol data}
+            \{ {imaptotcl_literal $chan data literals}
+            "(" {imaptotcl_list $chan data literals}
+            "\"" {imaptotcl_quoted $chan data}
+            0 - 1 - 2 - 3 - 4 - 5 - 6 - 7 - 8 - 9 {imaptotcl_number $chan data}
+            \) {imaptotcl_endlist $chan data;# that's a trick to parse lists}
+            default {imaptotcl_symbol $chan data}
         }
     }
 
     # Extract a literal
-    proc imaptotcl_literal {datavar literalsvar} {
+    proc imaptotcl_literal {chan datavar literalsvar} {
         upvar 1 $datavar data $literalsvar literals
         if {![regexp {{.*?}} $data match]} {
             protoerror $chan "IMAP data format error: '$data'"
@@ -434,7 +435,7 @@ namespace eval imap4 {
     }
 
     # Extract a quoted string
-    proc imaptotcl_quoted {datavar} {
+    proc imaptotcl_quoted {chan datavar} {
         upvar 1 $datavar data
         if {![regexp "\\s*?(\".*?\[^\\\\\]\"|\"\")\\s*?" $data => match]} {
             protoerror $chan "IMAP data format error: '$data'"
@@ -444,7 +445,7 @@ namespace eval imap4 {
     }
 
     # Extract a number
-    proc imaptotcl_number {datavar} {
+    proc imaptotcl_number {chan datavar} {
         upvar 1 $datavar data
         if {![regexp {^[0-9]+} $data match]} {
             protoerror $chan "IMAP data format error: '$data'"
@@ -457,7 +458,7 @@ namespace eval imap4 {
     # are named items, and this names have a strange unquoted
     # syntax like BODY[HEAEDER.FIELD (From To)] and other stuff
     # like that.
-    proc imaptotcl_symbol {datavar} {
+    proc imaptotcl_symbol {chan datavar} {
         upvar 1 $datavar data
         # matching patterns: "BODY[HEAEDER.FIELD",
         # "HEAEDER.FIELD", "\Answered", "$Forwarded"
@@ -470,7 +471,7 @@ namespace eval imap4 {
     }
 
     # Extract an IMAP list.
-    proc imaptotcl_list {datavar literalsvar} {
+    proc imaptotcl_list {chan datavar literalsvar} {
         upvar 1 $datavar data $literalsvar literals
         set list {}
         # Remove the first '(' char
@@ -478,7 +479,7 @@ namespace eval imap4 {
         # Get all the elements of the list. May indirectly recurse called
         # by [imaptotcl].
         while {[string length $data]} {
-            set ele [imaptotcl data literals]
+            set ele [imaptotcl $chan data literals]
             if {$ele eq {)}} {
                 break
             }
@@ -489,7 +490,7 @@ namespace eval imap4 {
 
     # Just extracts the ")" character alone.
     # This is actually part of the list extraction work.
-    proc imaptotcl_endlist {datavar} {
+    proc imaptotcl_endlist {chan datavar} {
         upvar 1 $datavar data
         set data [string range $data 1 end]
         return ")"
@@ -1286,6 +1287,7 @@ namespace eval imap4 {
 	}
 	return 0
     }
+
 }
 
 ################################################################################
