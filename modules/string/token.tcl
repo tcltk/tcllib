@@ -43,7 +43,20 @@ proc ::string::token::text {map text} {
 
     set start  0
     set result {}
-    while {[chomp $map start $text result]} continue
+
+    # status values:
+    #  0: no token found, abort
+    #  1: token found, continue
+    #  2: no token found, end of string reached, stop, ok.
+    set status 1
+    while {$status == 1} {
+	set status [chomp $map start $text result]
+    }
+    if {$status == 0} {
+	return -code error \
+	    -errorcode {STRING TOKEN BAD CHARACTER} \
+	    "Unexpected character '[string index $text $start]' at offset $start"
+    }
     return $result
 }
 
@@ -53,9 +66,9 @@ proc ::string::token::text {map text} {
 proc ::string::token::chomp {map sv text rv} {
     upvar 1 $sv start $rv result
 
-    # Stop on empty or eof.
-    if {$text eq {}} {return 0}
-    if {$start >= [string length $text]} {return 0}
+    # Stop when trying to match after the end of the string.
+    if {$text eq {}} {return 2}
+    if {$start >= [string length $text]} {return 2}
 
     #puts |$start||[string range $text $start end]||$result|
 
