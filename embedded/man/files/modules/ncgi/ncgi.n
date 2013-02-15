@@ -237,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "ncgi" n 1.4.1 tcllib "CGI Support"
+.TH "ncgi" n 1.4.2 tcllib "CGI Support"
 .BS
 .SH NAME
 ncgi \- Procedures to manipulate CGI values.
 .SH SYNOPSIS
 package require \fBTcl  8.4\fR
 .sp
-package require \fBncgi  ?1.4.1?\fR
+package require \fBncgi  ?1.4.2?\fR
 .sp
 \fB::ncgi::cookie\fR \fIcookie\fR
 .sp

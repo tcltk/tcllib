@@ -279,6 +279,8 @@ modules/snit/snit.man
 modules/snit/snitfaq.man
 modules/soundex/soundex.man
 modules/stooop/stooop.man
+modules/string/token.man
+modules/string/token_shell.man
 modules/stringprep/stringprep.man
 modules/stringprep/stringprep_data.man
 modules/stringprep/unicode.man
