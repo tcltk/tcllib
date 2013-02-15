@@ -1067,6 +1067,12 @@ tcllib
 \fBstooop\fR
 \fIfiles/modules/stooop/stooop.n\fR: Object oriented extension.
 .TP
+\fBstring::token\fR
+\fIfiles/modules/string/token.n\fR: Regex based iterative lexing
+.TP
+\fBstring::token::shell\fR
+\fIfiles/modules/string/token_shell.n\fR: Parsing of shell command line
+.TP
 \fBstringprep\fR
 \fIfiles/modules/stringprep/stringprep.n\fR: Implementation of stringprep
 .TP

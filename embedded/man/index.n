@@ -649,6 +649,12 @@ base64
 \fBfiles/modules/virtchannel_transform/base64.n\fR
 tcl::transform::base64
 .RE
+bash
+.RS
+.TP
+\fBfiles/modules/string/token_shell.n\fR
+string::token::shell
+.RE
 bee
 .RS
 .TP
@@ -4618,6 +4624,15 @@ doctools::idx::parse
 \fBfiles/modules/doctools2toc/parse.n\fR
 doctools::toc::parse
 .RE
+lexing
+.RS
+.TP
+\fBfiles/modules/string/token.n\fR
+string::token
+.TP
+\fBfiles/modules/string/token_shell.n\fR
+string::token::shell
+.RE
 limitsize
 .RS
 .TP
@@ -6241,6 +6256,9 @@ htmlparse
 \fBfiles/modules/yaml/huddle.n\fR
 huddle
 .TP
+\fBfiles/modules/string/token_shell.n\fR
+string::token::shell
+.TP
 \fBfiles/modules/yaml/yaml.n\fR
 yaml
 .RE
@@ -7471,6 +7489,12 @@ tcl::transform::spacer
 \fBfiles/modules/virtchannel_transform/zlib.n\fR
 tcl::transform::zlib
 .RE
+regex
+.RS
+.TP
+\fBfiles/modules/string/token.n\fR
+string::token
+.RE
 regular expression
 .RS
 .TP
@@ -8260,6 +8284,12 @@ sha256
 \fBfiles/modules/sha1/sha256.n\fR
 sha256
 .RE
+shell
+.RS
+.TP
+\fBfiles/modules/string/token_shell.n\fR
+string::token::shell
+.RE
 shortest path
 .RS
 .TP
@@ -8655,6 +8685,12 @@ tcl::transform::observe
 .RE
 string
 .RS
+.TP
+\fBfiles/modules/string/token.n\fR
+string::token
+.TP
+\fBfiles/modules/string/token_shell.n\fR
+string::token::shell
 .TP
 \fBfiles/modules/textutil/textutil.n\fR
 textutil
@@ -9531,6 +9567,15 @@ toc formatter
 .TP
 \fBfiles/modules/doctools/doctoc_plugin_apiref.n\fR
 doctoc_plugin_apiref
+.RE
+tokenization
+.RS
+.TP
+\fBfiles/modules/string/token.n\fR
+string::token
+.TP
+\fBfiles/modules/string/token_shell.n\fR
+string::token::shell
 .RE
 top-down parsing languages
 .RS
