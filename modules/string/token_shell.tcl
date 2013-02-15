@@ -21,11 +21,13 @@ proc ::string::token::shell {text} {
 
     set space    \\s
     set     lexer {}
-    lappend lexer ${space}+                 WSPACE
-    lappend lexer {'[^']*'}                 S:QUOTED
-    lappend lexer "\"(\[^\"\]|(\\\\\"))*\"" D:QUOTED
-    lappend lexer "\[^ $space'\"\]+"        PLAIN
-    lappend lexer {.*}                      ERROR
+    lappend lexer ${space}+                                  WSPACE
+    lappend lexer {'[^']*'}                                  S:QUOTED
+    lappend lexer "\"(\[^\"\]|(\\\\\")|(\\\\\\\\))*\""       D:QUOTED
+    lappend lexer "((\[^ $space'\"\])|(\\\\\")|(\\\\\\\\))+" PLAIN
+    lappend lexer {.*}                                       ERROR
+
+    set dequote [list \\" \" \\\\ \\ ] ; #"
 
     set result {}
 
@@ -46,15 +48,21 @@ proc ::string::token::shell {text} {
 
 	switch -glob -- ${type}/$state {
 	    ERROR/* {
-		return -code error "Unexpected character '[string index $text $start]' at offset $start"
+		return -code error \
+		    -errorcode {STRING TOKEN SHELL BAD SYNTAX CHAR} \
+		    "Unexpected character '[string index $text $start]' at offset $start"
 	    }
 	    WSPACE/WORD {
 		# Impossible
-		return -code error "Expected start of word, got whitespace at offset $start."
+		return -code error \
+		    -errorcode {STRING TOKEN SHELL BAD SYNTAX WHITESPACE} \
+		    "Expected start of word, got whitespace at offset $start."
 	    }
 	    PLAIN/WS -
 	    *:QUOTED*/WS {
-		return -code error "Expected whitespace, got start of word at offset $start"
+		return -code error \
+		    -errorcode {STRING TOKEN SHELL BAD SYNTAX WORD} \
+		    "Expected whitespace, got start of word at offset $start"
 	    }
             WSPACE/WS* {
 		# Ignore leading, inter-word, and trailing whitespace
@@ -71,21 +79,24 @@ proc ::string::token::shell {text} {
 	    }
 	    D:QUOTED/*WORD {
 		# Quoted word, double, extract it, ignore delimiters.
-		# Have to check for and reduce escaped double quotes.
+		# Have to check for and reduce escaped double quotes and backslashes.
 		# Must be followed by whitespace.
 		incr start
 		incr end -1
-		lappend result [string map [list \\" \"] [string range $text $start $end]]
+		lappend result [string map $dequote [string range $text $start $end]]
 		set state WS
 	    }
 	    PLAIN/*WORD {
 		# Unquoted word. extract.
+		# Have to check for and reduce escaped double quotes and backslashes.
 		# Must be followed by whitespace.
-		lappend result [string range $text $start $end]
+		lappend result [string map $dequote [string range $text $start $end]]
 		set state WS
 	    }
 	    * {
-		return -code error "Illegal token/state combination $type/$state"
+		return -code error \
+		    -errorcode {STRING TOKEN SHELL INTERNAL} \
+		    "Illegal token/state combination $type/$state"
 	    }
         }
     }
