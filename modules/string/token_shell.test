@@ -25,34 +25,53 @@ testing {
 
 test string-token-shell-1.0 {string token shell, wrong#args} -body {
     string token shell
-} -returnCodes error -result {wrong # args: should be ""}
+} -returnCodes error -result {wrong # args: should be "string token shell text"}
 
 test string-token-shell-1.1 {string token shell, wrong#args} -body {
     string token shell T X
-} -returnCodes error -result {wrong # args: should be ""}
+} -returnCodes error -result {wrong # args: should be "string token shell text"}
 
 # -------------------------------------------------------------------------
 
 foreach {n label line tokens} {
-    0 empty               {}        {}
-    1 leading-whitespace  {  }      {}
-    2 plain-words         {a}       {a}
-    3 plain-words         {a b}     {a b}
-    4 trailing-whitespace {a b c  } {a b c}
-    5 inter-whitespace    {a   b}   {a b}
-    6 single-quoted-words {'a' b}   {a b}
-    7 single-quoted-words {a 'b'}   {a b}
-    8 single-quoted-words {a 'b' c} {a b c}
-    9 single-quoted-words {a '' c}  {a {} c}
-    10  double-quoted-words {"a" b}   {a b}
+    0  empty               {}        {}
+    1  leading-whitespace  {  }      {}
+    2  plain-words         {a}       {a}
+    3  plain-words         {a b}     {a b}
+    4  trailing-whitespace {a b c  } {a b c}
+    5  inter-whitespace    {a   b}   {a b}
+    6  single-quoted-words {'a' b}   {a b}
+    7  single-quoted-words {a 'b'}   {a b}
+    8  single-quoted-words {a 'b' c} {a b c}
+    9  single-quoted-words {a '' c}  {a {} c}
+    10 double-quoted-words {"a" b}   {a b}
     11 double-quoted-words {a "b"}   {a b}
     12 double-quoted-words {a "b" c} {a b c}
-    13 double-quoted-words {a "\"" c} {a b c}
-    14 double-quoted-words {a "" c}  {a {} c}
+    13 double-quoted-words {a "\"" c} {a {"} c}
+    14 mixed-quoted-words  {a "\"" ''} {a {"} {}}
+    15 double-quoted-words {a "" c}  {a {} c}
+    16 mixed               {a 'b' "c" d "e\"\"f" } {a b c d e\"\"f}
 } {
     test string-token-shell-2.$n "string token shell, $label" -body {
 	string token shell $line
     } -result $tokens
+}
+
+foreach {n label line tokens} {
+    0 words-without-whitespace {'a'"b"} {Expected whitespace, got start of word at offset 3}
+    1 words-without-whitespace {"a"'b'} {Expected whitespace, got start of word at offset 3}
+    2 words-without-whitespace {'a''b'} {Expected whitespace, got start of word at offset 3}
+    3 words-without-whitespace {"a""b"} {Expected whitespace, got start of word at offset 3}
+    4 words-without-whitespace {a"b"}   {Expected whitespace, got start of word at offset 1}
+    5 words-without-whitespace {a'b'}   {Expected whitespace, got start of word at offset 1}
+    6 incomplete-word-at-end   {a '}    {Unexpected character ''' at offset 2}
+    7 incomplete-word-at-end   {a "}    {Unexpected character '"' at offset 2}
+    8 incomplete-word-at-end   {a'}     {Unexpected character ''' at offset 1}
+    9 incomplete-word-at-end   {a"}     {Unexpected character '"' at offset 1}
+} {
+    test string-token-shell-3.$n "string token shell, $label" -body {
+	string token shell $line
+    } -returnCodes error -result $tokens
 }
 
 #----------------------------------------------------------------------
