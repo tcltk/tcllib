@@ -19,15 +19,19 @@ namespace eval ::string::token {
 proc ::string::token::shell {text} {
     # result = list (word)
 
+    set space    \\s
     set     lexer {}
-    lappend lexer {[ \t\n\f\v]+}        WSPACE
-    lappend lexer {'[^']*'}             QUOTED
-    lappend lexer "\"(\[^\"\]|\\\")*\"" QUOTED
-    lappend lexer "\[^ \t\n\f\v'\"\]+"  PLAIN
-    lappend lexer {.*}                  ERROR
+    lappend lexer ${space}+                 WSPACE
+    lappend lexer {'[^']*'}                 S:QUOTED
+    lappend lexer "\"(\[^\"\]|(\\\\\"))*\"" D:QUOTED
+    lappend lexer "\[^ $space'\"\]+"        PLAIN
+    lappend lexer {.*}                      ERROR
 
     set result {}
 
+    # Parsing of a shell line is a simple grammar, RE-equivalent
+    # actually, thus tractable with a plain finite state machine.
+    #
     # States:
     # - WS-WORD : Expected whitespace or word.
     # - WS      : Expected whitespace
@@ -35,38 +39,48 @@ proc ::string::token::shell {text} {
 
     # We may have leading whitespace.
     set state WS-WORD
-
     foreach token [text $lexer $text] {
-	#puts "$state + $token"
-
 	lassign $token type start end
+
+	#puts "[format %7s $state] + ($token) = <<[string range $text $start $end]>>"
 
 	switch -glob -- ${type}/$state {
 	    ERROR/* {
-		return -code error "Unexpected character '[string index $text $start' at $start"
+		return -code error "Unexpected character '[string index $text $start]' at offset $start"
 	    }
 	    WSPACE/WORD {
-		return -code error "Expected start of word, got whitespace at $start."
+		# Impossible
+		return -code error "Expected start of word, got whitespace at offset $start."
 	    }
-	    WORD*/WS {
-		return -code error "Expected whitespace, got start of word at $start"
+	    PLAIN/WS -
+	    *:QUOTED*/WS {
+		return -code error "Expected whitespace, got start of word at offset $start"
 	    }
             WSPACE/WS* {
-		# ignore leading, inter-word and trailing whitespace
-		# must be followed by a word
+		# Ignore leading, inter-word, and trailing whitespace
+		# Must be followed by a word
 		set state WORD
 	    }
-	    QUOTED/*WORD {
-		# quoted word, extract it, ignore delimiters.
-		# must be followed by whitespace.
+	    S:QUOTED/*WORD {
+		# Quoted word, single, extract it, ignore delimiters.
+		# Must be followed by whitespace.
 		incr start
 		incr end -1
 		lappend result [string range $text $start $end]
 		set state WS
 	    }
+	    D:QUOTED/*WORD {
+		# Quoted word, double, extract it, ignore delimiters.
+		# Have to check for and reduce escaped double quotes.
+		# Must be followed by whitespace.
+		incr start
+		incr end -1
+		lappend result [string map [list \\" \"] [string range $text $start $end]]
+		set state WS
+	    }
 	    PLAIN/*WORD {
-		# unquoted word. extract.
-		# must be followed by whitespace.
+		# Unquoted word. extract.
+		# Must be followed by whitespace.
 		lappend result [string range $text $start $end]
 		set state WS
 	    }
