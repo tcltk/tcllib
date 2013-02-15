@@ -102,7 +102,7 @@
 | <a href="../../../../index.html">Keyword Index</a>
 | <a href="/tcllib">Home</a>
 ] <hr>
-<h1 class="title">imap4(n) 0.4 tcllib &quot;imap client&quot;</h1>
+<h1 class="title">imap4(n) 0.5.1 tcllib &quot;imap client&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>imap4 - imap client-side tcl implementation of imap protocol</p>
 </div>
@@ -123,7 +123,7 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
-<li>package require <b class="pkgname">imap4 <span class="opt">?0.4?</span></b></li>
+<li>package require <b class="pkgname">imap4 <span class="opt">?0.5.1?</span></b></li>
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">::imap4::open</b> <i class="arg">hostname</i> <span class="opt">?<i class="arg">port</i>?</span></a></li>
@@ -149,7 +149,8 @@
 <li><a href="#21"><b class="cmd">::imap4::debugmode</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">errormsg</i>?</span></a></li>
 <li><a href="#22"><b class="cmd">::imap4::store</b> <i class="arg">chan</i> <i class="arg">range</i> <i class="arg">data</i> <i class="arg">flaglist</i></a></li>
 <li><a href="#23"><b class="cmd">::imap4::expunge</b> <i class="arg">chan</i></a></li>
-<li><a href="#24"><b class="cmd">::imap4::logout</b> <i class="arg">chan</i></a></li>
+<li><a href="#24"><b class="cmd">::imap4::copy</b> <i class="arg">chan</i> <i class="arg">msgid</i> <i class="arg">mailbox</i></a></li>
+<li><a href="#25"><b class="cmd">::imap4::logout</b> <i class="arg">chan</i></a></li>
 </ul>
 </div>
 </div>
@@ -387,7 +388,13 @@ message.</p></dd>
 set from the currently selected mailbox, without the need to close the
 connection.</p>
 <p><i class="arg">chan</i> - imap channel</p></dd>
-<dt><a name="24"><b class="cmd">::imap4::logout</b> <i class="arg">chan</i></a></dt>
+<dt><a name="24"><b class="cmd">::imap4::copy</b> <i class="arg">chan</i> <i class="arg">msgid</i> <i class="arg">mailbox</i></a></dt>
+<dd><p>Copies the specified message (identified by its message number)
+to the named mailbox, i.e. imap folder.</p>
+<p><i class="arg">chan</i> - imap channel</p>
+<p><i class="arg">msgid</i> - message number</p>
+<p><i class="arg">mailbox</i> - mailbox name</p></dd>
+<dt><a name="25"><b class="cmd">::imap4::logout</b> <i class="arg">chan</i></a></dt>
 <dd><p>Informs the server that the client is done with the connection
 and closes the network connection. Permanently removes \Deleted
 messages.</p>
@@ -445,9 +452,9 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
-<p><a href="../ftp/ftp.html">ftp</a>, <a href="../../../../index.html#key481">http</a>, <a href="../../../../index.html#key743">imap</a>, <a href="../mime/mime.html">mime</a>, <a href="../pop3/pop3.html">pop3</a>, <a href="../../../../index.html#key289">tls</a></p>
+<p><a href="../ftp/ftp.html">ftp</a>, <a href="../../../../index.html#key481">http</a>, <a href="../../../../index.html#key748">imap</a>, <a href="../mime/mime.html">mime</a>, <a href="../pop3/pop3.html">pop3</a>, <a href="../../../../index.html#key289">tls</a></p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key293">email</a>, <a href="../../../../index.html#key743">imap</a>, <a href="../../../../index.html#key122">internet</a>, <a href="../../../../index.html#key288">mail</a>, <a href="../../../../index.html#key250">net</a>, <a href="../../../../index.html#key742">rfc3501</a>, <a href="../../../../index.html#key318">ssl</a>, <a href="../../../../index.html#key289">tls</a></p>
+<p><a href="../../../../index.html#key293">email</a>, <a href="../../../../index.html#key748">imap</a>, <a href="../../../../index.html#key122">internet</a>, <a href="../../../../index.html#key288">mail</a>, <a href="../../../../index.html#key250">net</a>, <a href="../../../../index.html#key747">rfc3501</a>, <a href="../../../../index.html#key318">ssl</a>, <a href="../../../../index.html#key289">tls</a></p>
 </div>
 </div></body></html>
