@@ -51,6 +51,11 @@ foreach {n label line tokens} {
     14 mixed-quoted-words  {a "\"" ''} {a {"} {}}
     15 double-quoted-words {a "" c}  {a {} c}
     16 mixed               {a 'b' "c" d "e\"\"f" } {a b c d e\"\"f}
+    17 backslashes         {a "\\" c}   {a \\ c}
+    18 backslashes         {a "\"\\" c} {a \"\\ c}
+    19 escaping-plain      {a \\ c}     {a \\ c}
+    20 escaping-plain      {a \" c}     {a {"} c}
+    21 escaping-plain      {a \"b c}    {a {"b} c}
 } {
     test string-token-shell-2.$n "string token shell, $label" -body {
 	string token shell $line
