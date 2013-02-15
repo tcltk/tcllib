@@ -237,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "imap4" n 0.4 tcllib "imap client"
+.TH "imap4" n 0.5.1 tcllib "imap client"
 .BS
 .SH NAME
 imap4 \- imap client-side tcl implementation of imap protocol
 .SH SYNOPSIS
 package require \fBTcl  8.5\fR
 .sp
-package require \fBimap4  ?0.4?\fR
+package require \fBimap4  ?0.5.1?\fR
 .sp
 \fB::imap4::open\fR \fIhostname\fR ?\fIport\fR?
 .sp
@@ -291,6 +291,8 @@ package require \fBimap4  ?0.4?\fR
 \fB::imap4::store\fR \fIchan\fR \fIrange\fR \fIdata\fR \fIflaglist\fR
 .sp
 \fB::imap4::expunge\fR \fIchan\fR
+.sp
+\fB::imap4::copy\fR \fIchan\fR \fImsgid\fR \fImailbox\fR
 .sp
 \fB::imap4::logout\fR \fIchan\fR
 .sp
@@ -661,6 +663,17 @@ set from the currently selected mailbox, without the need to close the
 connection.
 .sp
 \fIchan\fR - imap channel
+.TP
+\fB::imap4::copy\fR \fIchan\fR \fImsgid\fR \fImailbox\fR
+.sp
+Copies the specified message (identified by its message number)
+to the named mailbox, i.e. imap folder.
+.sp
+\fIchan\fR - imap channel
+.sp
+\fImsgid\fR - message number
+.sp
+\fImailbox\fR - mailbox name
 .TP
 \fB::imap4::logout\fR \fIchan\fR
 .sp

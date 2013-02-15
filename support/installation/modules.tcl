@@ -122,6 +122,7 @@ Module  smtpd       _tcl  _man _exa
 Module  snit        _tcl  _man  _null
 Module  soundex     _tcl  _man  _null
 Module  stooop      _tcl  _man  _null
+Module  string      _tcl  _man  _null
 Module  stringprep  _tcl  _man  _null
 Module  struct      _tcl  _man _exa
 Module  tar         _tcl  _man  _null
