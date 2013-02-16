@@ -10,7 +10,7 @@ Release: 2
 Copyright: BSD
 Group: Development/Languages
 Source: %{name}-%{version}.tar.bz2
-URL: http://tcllib.sourceforge.net/
+URL: http://core.tcl.tk/tcllib/
 Packager: Jean-Luc Fontaine <jfontain@free.fr>
 BuildArchitectures: noarch
 Prefix: /usr
@@ -22,7 +22,7 @@ Buildroot: /var/tmp/%{name}-%{version}
 Tcllib, the Tcl Standard Library is a collection of Tcl packages
 that provide utility functions useful to a large collection of Tcl
 programmers.
-The home web site for this code is http://tcllib.sourceforge.net/.
+The home web site for this code is http://core.tcl.tk/tcllib/.
 At this web site, you will find mailing lists, web forums, databases
 for bug reports and feature requests, the CVS repository (browsable
 on the web, or read-only accessible via CVS ), and more.
