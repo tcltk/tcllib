@@ -258,7 +258,7 @@ proc ::irc::connection { args } {
 	    }
 	}
 
-	proc cmd-quit { {msg {tcllib irc module - http://tcllib.sourceforge.net/}} } {
+	proc cmd-quit { {msg {tcllib irc module - http://core.tcl.tk/tcllib/}} } {
 	    ircsend "QUIT :$msg"
 	}
 
