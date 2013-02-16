@@ -97,7 +97,7 @@ The lowest level simply takes arguments to be sent to the service,
 sends them, retrieves the result, and provides it to the caller.
 [emph Note:] This layer allows both synchronous and event-driven
 processing. It depends on the MD5 and SHA1 and base64 packages
-from Tcllib (available at [uri http://tcllib.sourceforge.net/]). 
+from Tcllib (available at [uri http://core.tcl.tk/tcllib/]). 
 Note that [cmd S3::Configure] is required for [cmd S3::REST] to 
 work due to the authentication portion, so we put that in the "lowest level."
 

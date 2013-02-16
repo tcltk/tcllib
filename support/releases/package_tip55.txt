@@ -5,5 +5,5 @@ Description: This package is intended to be a collection of
     large collection of Tcl programmers.
 Rights: BSD
 Version: @PACKAGE_VERSION@
-URL: http://tcllib.sourceforge.net/
+URL: http://core.tcl.tk/tcllib
 Architecture: tcl
