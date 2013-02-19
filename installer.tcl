@@ -239,8 +239,10 @@ proc doinstall {} {
 	gen_main_index $config(pkg,path) $package_name $package_version
     }
     if {$config(doc,nroff)} {
-	#xinstall doc nroff n    $config(doc,nroff,path)
-	xcopy $distribution/embedded/man $config(doc,nroff,path) 1
+	foreach dir [glob -directory $distribution/embedded/man/files/modules *] {
+	    xcopy $dir $config(doc,nroff,path) 1
+	}
+	xcopy $distribution/embedded/man/files/apps $config(doc,nroff,path) 1
     }
     if {$config(doc,html)}  {
 	#xinstall doc html  html $config(doc,html,path)
