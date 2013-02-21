@@ -144,6 +144,7 @@ package require textutil::repeat
 ## Internal data and status
 
 namespace eval ::dtplite {
+    variable print ::puts
 
     # Path to where the output goes to. This is a file in case of mode
     # 'file', irrelevant for mode 'file.stdout', and the directory for
@@ -371,9 +372,7 @@ namespace eval ::dtplite {
 #		format inputpath
 ##
 
-proc ::dtplite::processCmdline {} {
-    global argv
-
+proc ::dtplite::ProcessCmdline {argv} {
     variable output ; variable style  ; variable stdout
     variable format ; variable header ; variable single
     variable input  ; variable footer ; variable mode
@@ -545,18 +544,24 @@ proc ::dtplite::processCmdline {} {
 
 proc ::dtplite::Usage {} {
     global argv0
-    puts stderr "$argv0 wrong#args, expected:\
+    Print stderr "$argv0 wrong#args, expected:\
 	    -o outputpath ?-merge? ?-ext ext?\
 	    ?-style file? ?-header file?\
 	    ?-footer file? ?-nav label url?...\
 	    format inputpath"
-    exit 1
+    return -code error -errorcode STOP {}
 }
 
 proc ::dtplite::ArgError {text} {
     global argv0
-    puts stderr "$argv0: $text"
-    exit 1
+    Print stderr "$argv0: $text"
+    return -code error -errorcode STOP {}
+}
+
+proc ::dtplite::Print {args} {
+    variable printhook
+    set cmd $printhook
+    return [uplevel 1 [linsert $cmd end $args]]
 }
 
 proc in {list item} {
@@ -672,15 +677,13 @@ proc ::dtplite::Write {f data} {
 proc ::dtplite::Warnings {} {
     set warnings [dt warnings]
     if {[llength $warnings] > 0} {
-	puts stderr [join $warnings \n]
+	Print stderr [join $warnings \n]
     }
     return
 }
 
 # ### ### ### ######### ######### #########
 ## Configuation phase, validate command line.
-
-::dtplite::processCmdline
 
 # ### ### ### ######### ######### #########
 ## We can assume that we have from here on a command 'dt', which is a
@@ -762,7 +765,7 @@ proc ::dtplite::Do.Directory {} {
     MapSetup    dt
 
     foreach f [lsort -dict $files] {
-	puts stdout \t$f
+	Print stdout \t$f
 
 	set o $out($f)
 	dt configure -file [At $o] -ibase $input/$f
@@ -835,7 +838,7 @@ proc ::dtplite::Do.Directory.Merge {} {
     MapSetup    dt
 
     foreach f [lsort -dict $files] {
-	puts stdout \t$f
+	Print stdout \t$f
 
 	set o $out($f)
 	dt configure -file [At $o] -ibase $input/$f
@@ -1519,13 +1522,24 @@ proc ::dtplite::FooterSetup {o} {
 # ### ### ### ######### ######### #########
 ## Invoking the functionality.
 
-if {[catch {
-    set mode $::dtplite::mode
-    ::dtplite::Do.$mode
-} msg]} {
-    ## puts $::errorInfo
-    ::dtplite::ArgError $msg
+proc ::dtplite::do {arguments {printhook ::puts}} {
+    variable print $printhook
+    if {[catch {
+	ProcessCmdline $arguments
+    }]} {
+	return 1
+    }
+    if {[catch {
+	set mode $::dtplite::mode
+	Do.$mode
+    } msg]} {
+	## puts $::errorInfo
+	ArgError $msg
+	return 1
+    }
+    return 0
 }
 
 # ### ### ### ######### ######### #########
-exit
+return
+
