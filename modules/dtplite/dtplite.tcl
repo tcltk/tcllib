@@ -559,9 +559,9 @@ proc ::dtplite::ArgError {text} {
 }
 
 proc ::dtplite::Print {args} {
-    variable printhook
-    set cmd $printhook
-    return [uplevel 1 [linsert $cmd end $args]]
+    variable print
+    set cmd [concat $print $args]
+    return [uplevel 1 $cmd]
 }
 
 proc in {list item} {
@@ -1522,8 +1522,12 @@ proc ::dtplite::FooterSetup {o} {
 # ### ### ### ######### ######### #########
 ## Invoking the functionality.
 
-proc ::dtplite::do {arguments {printhook ::puts}} {
-    variable print $printhook
+proc ::dtplite::print-via {cmd} {
+    variable print $cmd
+    return
+}
+
+proc ::dtplite::do {arguments} {
     if {[catch {
 	ProcessCmdline $arguments
     }]} {
