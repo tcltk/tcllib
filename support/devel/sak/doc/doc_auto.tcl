@@ -223,6 +223,34 @@ proc ::sak::doc::auto::saveSimpleTableOfContents2 {tv nv dv fname} {
     return
 }
 
+proc ::sak::doc::auto::saveSimpleTableOfContents3 {tv nv cv fname} {
+    upvar 1 $tv title $nv name $cv cat
+    # title: file     -> description
+    # name:  file     -> label
+    # cat:   category -> list (file...)
+
+    TagsBegin
+    Tag+ toc_begin [list {Table Of Contents} {}]
+
+    Tag+ division_start [list {By Categories}]
+    foreach c [lsort -dict [array names cat]] {
+	Tag+ division_start [list $c]
+	foreach item [lsort -dict -index 0 [Sortable $cat($c) name maxf maxl]] {
+	    foreach {label file} $item break
+	    Tag+ item \
+		[FmtR maxf $file] \
+		[FmtR maxl $label] \
+		[list $title($file)]
+	}
+	Tag+ division_end
+    }
+    Tag+ division_end
+    Tag+ toc_end
+
+    fileutil::writeFile [toc $fname] [join $lines \n]
+    return
+}
+
 proc ::sak::doc::auto::Sortable {files nv mfv mnv} {
     upvar 1 $nv name $mfv maxf $mnv maxn
     # Generate a list of files sortable by name, and also find the
