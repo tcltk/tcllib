@@ -24,12 +24,12 @@ proc ::sak::doc::index {modules} {
     array set meta [auto::scanManpages $manpages]
 
     # Sort through the extracted data.
-    array set kwic  {}
-    array set title {}
-    array set cat   {}
-    array set name  {}
-    set       apps  {}
-    array set mods  {}
+    array set kwic  {} ; # map: keyword  -> list (file...)
+    array set title {} ; # map: file     -> description
+    array set cat   {} ; # map: category -> list (file...)
+    array set name  {} ; # map: file     -> label
+    set       apps  {} ; # list (file...) 
+    array set mods  {} ; # map: module   -> list(file...)
 
     foreach page [array names meta] {
 	unset -nocomplain m
@@ -72,8 +72,10 @@ proc ::sak::doc::index {modules} {
     #puts "apps = $apps"
     #parray mods
 
-    auto::saveKeywordIndex    kwic  name
-    auto::saveTableOfContents title name cat apps mods
+    auto::saveKeywordIndex           kwic  name
+    auto::saveTableOfContents        title name cat apps mods
+    auto::saveSimpleTableOfContents1 title name apps toc_apps.txt
+    auto::saveSimpleTableOfContents2 title name mods toc_mods.txt
     return
 }
 
