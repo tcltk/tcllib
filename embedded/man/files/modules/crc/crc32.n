@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -328,38 +327,26 @@ result is a 32 bit integer value.
 .SH EXAMPLES
 .PP
 .CS
-
-
 % crc::crc32 "Hello, World!"
 3964322768
-
 .CE
 .PP
 .CS
-
-
 % crc::crc32 -format 0x%X "Hello, World!"
 0xEC4AC3D0
-
 .CE
 .PP
 .CS
-
-
 % crc::crc32 -file crc32.tcl
 483919716
-
 .CE
 .PP
 .CS
-
-
 % set tok [crc::Crc32Init]
 % crc::Crc32Update $tok "Hello, "
 % crc::Crc32Update $tok "World!"
 % crc::Crc32Final $tok
 3964322768
-
 .CE
 .SH AUTHORS
 Pat Thoyts
@@ -379,5 +366,4 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002, Pat Thoyts
-
 .fi

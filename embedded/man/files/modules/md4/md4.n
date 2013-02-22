@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -337,22 +336,14 @@ These commands are identical to the MD4 equivalent commands.
 .PP
 .SH EXAMPLES
 .CS
-
-
 % md4::md4 -hex "Tcl does MD4"
 858da9b31f57648a032230447bd15f25
-
 .CE
 .CS
-
-
 % md4::hmac -hex -key Sekret "Tcl does MD4"
 c324088e5752872689caedf2a0464758
-
 .CE
 .CS
-
-
 % set tok [md4::MD4Init]
 ::md4::1
 % md4::MD4Update $tok "Tcl "
@@ -360,7 +351,6 @@ c324088e5752872689caedf2a0464758
 % md4::MD4Update $tok "MD4"
 % md4::Hex [md4::MD4Final $tok]
 858da9b31f57648a032230447bd15f25
-
 .CE
 .SH REFERENCES
 .IP [1]
@@ -395,5 +385,4 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2003, Pat Thoyts <patthoyts@users.sourceforge.net>
-
 .fi

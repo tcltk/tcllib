@@ -221,7 +221,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -331,20 +330,16 @@ specified number of decimals (Pro memorie).
 .PP
 Usage:
 .CS
-
-
 if { [teq $x $y] } { puts "x == y" }
 if { [tne $x $y] } { puts "x != y" }
 if { [tge $x $y] } { puts "x >= y" }
 if { [tgt $x $y] } { puts "x > y" }
 if { [tlt $x $y] } { puts "x < y" }
 if { [tle $x $y] } { puts "x <= y" }
-
 set fx      [tfloor $x]
 set fc      [tceil  $x]
 set rounded [tround $x]
 set roundn  [troundn $x $nodigits]
-
 .CE
 .SH "TEST CASES"
 The problems that can occur with floating-point numbers are illustrated

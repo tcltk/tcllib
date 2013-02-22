@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -489,50 +488,37 @@ of f(sin(u))*cos(u).
 We can make a function \fBg\fR that accepts an arbitrary function
 \fBf\fR and the parameter u, and computes this new integrand.
 .CS
-
-
 proc g { f u } {
-    set x [expr { sin($u) }]
-    set cmd $f; lappend cmd $x; set y [eval $cmd]
-    return [expr { $y / cos($u) }]
+set x [expr { sin($u) }]
+set cmd $f; lappend cmd $x; set y [eval $cmd]
+return [expr { $y / cos($u) }]
 }
-
 .CE
 Now integrating \fBf\fR from \fIa\fR to \fIb\fR is the same
 as integrating \fBg\fR from \fIasin(a)\fR to \fIasin(b)\fR.
 It's a little tricky to get \fBf\fR consistently evaluated in
 the caller's scope; the following procedure does it.
 .CS
-
-
 proc romberg_sine { f a b args } {
-    set f [lreplace $f 0 0 [uplevel 1 [list namespace which [lindex $f 0]]]]
-    set f [list g $f]
-    return [eval [linsert $args 0 romberg $f [expr { asin($a) }] [expr { asin($b) }]]]
+set f [lreplace $f 0 0 [uplevel 1 [list namespace which [lindex $f 0]]]]
+set f [list g $f]
+return [eval [linsert $args 0 romberg $f [expr { asin($a) }] [expr { asin($b) }]]]
 }
-
 .CE
 This \fBromberg_sine\fR procedure will do any function with
 sqrt(1-x*x) in the denominator. Our sample function is
 f(x)=exp(x)/sqrt(1-x*x):
 .CS
-
-
 proc f { x } {
-    expr { exp($x) / sqrt( 1. - $x*$x ) }
+expr { exp($x) / sqrt( 1. - $x*$x ) }
 }
-
 .CE
 Integrating it is a matter of applying \fBromberg_sine\fR
 as we would any of the other \fBromberg\fR procedures:
 .CS
-
-
 foreach { value error } [romberg_sine f -1.0 1.0] break
 puts [format "integral is %.6g +/- %.6g" $value $error]
-
 integral is 3.97746 +/- 2.3557e-010
-
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -548,5 +534,4 @@ Mathematics
 .SH COPYRIGHT
 .nf
 Copyright (c) 2004 Kevin B. Kenny <kennykb@acm.org>. All rights reserved. Redistribution permitted under the terms of the Open Publication License <http://www.opencontent.org/openpub/>
-
 .fi

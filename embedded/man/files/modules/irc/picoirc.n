@@ -221,7 +221,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -301,11 +300,8 @@ callback procedure.
 .SH CALLBACK
 The callback must look like:
 .CS
-
-
 proc Callback {context state args} {
 }
-
 .CE
 where context is the irc context variable name (in case you need to pass
 it back to a picoirc procedure). state is one of a number of states as

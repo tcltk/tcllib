@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -301,11 +300,8 @@ operation and state.
 To use the package just execute
 .PP
 .CS
-
-
-    package require log
-    log::log notice "Some message"
-
+package require log
+log::log notice "Some message"
 .CE
 .PP
 As can be seen above, each message given to the log facility is
@@ -316,12 +312,9 @@ message to. In the following example the logging of all message with
 level \fBdebug\fR is deactivated.
 .PP
 .CS
-
-
-    package require log
-    log::lvSuppress debug
-    log::log debug "Unseen message" ; # No output
-
+package require log
+log::lvSuppress debug
+log::log debug "Unseen message" ; # No output
 .CE
 .PP
 By default all messages associated with an error-level
@@ -332,12 +325,9 @@ the log module is reconfigured to write \fBdebug\fR messages to
 \fBstderr\fR too.
 .PP
 .CS
-
-
-    package require log
-    log::lvChannel debug stderr
-    log::log debug "Written to stderr"
-
+package require log
+log::lvChannel debug stderr
+log::log debug "Written to stderr"
 .CE
 .PP
 Each message level is also associated with a command to use when
@@ -350,12 +340,9 @@ for such messages, assuming that \fBtoText\fR does not use it by
 itself.
 .PP
 .CS
-
-
-    package require log
-    log::lvCmd notice toText
-    log::log notice "Handled by \\"toText\\""
-
+package require log
+log::lvCmd notice toText
+log::log notice "Handled by \\"toText\\""
 .CE
 .PP
 Another database maintained by this facility is a map from message
@@ -529,5 +516,4 @@ Programming tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2001-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

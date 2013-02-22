@@ -221,7 +221,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -463,10 +462,7 @@ Return a name and value pair, where the value is initialized from
 existing CGI data, if any.  The result has this form:
 .sp
 .CS
-
-
-  name="fred" value="freds value"
-
+name="fred" value="freds value"
 .CE
 .TP
 \fB::html::getFormInfo\fR \fIargs\fR

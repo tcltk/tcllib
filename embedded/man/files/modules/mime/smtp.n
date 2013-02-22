@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -354,23 +353,18 @@ i.e. all of \fBmd5\fR, \fBotp\fR, \fBmd4\fR, \fBsha1\fR,
 and \fBripemd160\fR.
 .SH EXAMPLE
 .CS
-
-
 proc send_simple_message {recipient email_server subject body} {
-    package require smtp
-    package require mime
-
-    set token [mime::initialize -canonical text/plain \\\\
-	-string $body]
-    mime::setheader $token Subject $subject
-    smtp::sendmessage $token \\\\
-	-recipients $recipient -servers $email_server
-    mime::finalize $token
+package require smtp
+package require mime
+set token [mime::initialize -canonical text/plain \\\\
+-string $body]
+mime::setheader $token Subject $subject
+smtp::sendmessage $token \\\\
+-recipients $recipient -servers $email_server
+mime::finalize $token
 }
-
 send_simple_message someone@somewhere.com localhost \\\\
-    "This is the subject." "This is the message."
-
+"This is the subject." "This is the message."
 .CE
 .SH REFERENCES
 .IP [1]
@@ -404,5 +398,4 @@ Networking
 .SH COPYRIGHT
 .nf
 Copyright (c) 1999-2000 Marshall T. Rose and others
-
 .fi

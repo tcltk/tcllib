@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -303,20 +302,14 @@ functions whereas several others convert to and from different
 representations:
 .PP
 .CS
-
-
-    set z [complex 0 1]
-    puts "z = [tostring $z]"
-    puts "z**2 = [* $z $z]
-
+set z [complex 0 1]
+puts "z = [tostring $z]"
+puts "z**2 = [* $z $z]
 .CE
 would result in:
 .CS
-
-
-    z = i
-    z**2 = -1
-
+z = i
+z**2 = -1
 .CE
 .SH "AVAILABLE PROCEDURES"
 The package implements all or most basic operations and elementary
@@ -533,5 +526,4 @@ Mathematics
 .SH COPYRIGHT
 .nf
 Copyright (c) 2004 Arjen Markus <arjenmarkus@users.sourceforge.net>
-
 .fi

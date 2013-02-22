@@ -1,6 +1,6 @@
 '\"
 '\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/amazon-s3/S3.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) Copyright 2006,2008 Darren New. All Rights Reserved. See LICENSE.TXT for terms.
+'\" 2006,2008 Darren New. All Rights Reserved. See LICENSE.TXT for terms.
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -369,7 +368,7 @@ The lowest level simply takes arguments to be sent to the service,
 sends them, retrieves the result, and provides it to the caller.
 \fINote:\fR This layer allows both synchronous and event-driven
 processing. It depends on the MD5 and SHA1 and base64 packages
-from Tcllib (available at \fIhttp://tcllib.sourceforge.net/\fR).
+from Tcllib (available at \fIhttp://core.tcl.tk/tcllib/\fR).
 Note that \fBS3::Configure\fR is required for \fBS3::REST\fR to
 work due to the authentication portion, so we put that in the "lowest level."
 .IP \(bu
@@ -1256,10 +1255,7 @@ That is, it is the remote equivalent of \fB-directory\fR.
 If it is not specified, the root of the bucket will be treated
 as the remote directory. An example may clarify.
 .CS
-
-
 S3::Push -bucket test -directory /tmp/xyz -prefix hello/world
-
 .CE
 .IP
 In this example, /tmp/xyz/pdq.html will be stored as
@@ -1541,25 +1537,19 @@ changed files is untested.
 .SH "USAGE SUGGESTIONS"
 To fetch a "directory" out of a bucket, make changes, and store it back:
 .CS
-
-
 file mkdir ./tempfiles
 S3::Pull -bucket sample -prefix of/interest -directory ./tempfiles \\
-  -timestamp aws
+-timestamp aws
 do_my_process ./tempfiles other arguments
 S3::Push -bucket sample -prefix of/interest -directory ./tempfiles \\
-  -compare newer -delete true
-
+-compare newer -delete true
 .CE
 .PP
 To delete files locally that were deleted off of S3 but not otherwise
 update files:
 .CS
-
-
 S3::Pull -bucket sample -prefix of/interest -directory ./myfiles \\
-  -compare never -delete true
-
+-compare never -delete true
 .CE
 .SH "FUTURE DEVELOPMENTS"
 The author intends to work on several additional projects related to
@@ -1593,6 +1583,5 @@ amazon, cloud, s3
 Networking
 .SH COPYRIGHT
 .nf
-Copyright (c) Copyright 2006,2008 Darren New. All Rights Reserved. See LICENSE.TXT for terms.
-
+2006,2008 Darren New. All Rights Reserved. See LICENSE.TXT for terms.
 .fi

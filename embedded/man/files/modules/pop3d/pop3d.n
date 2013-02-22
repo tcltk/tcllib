@@ -223,7 +223,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -460,15 +459,11 @@ the package to override how the server opens its listening socket.
 The envisioned main use is the specification of the \fBtls::socket\fR
 command, see package \fBtls\fR, to secure the communication.
 .CS
-
-
-	package require tls
-	tls::init \\\\
-		...
-
-	pop3d::new S -socket tls::socket
-	...
-
+package require tls
+tls::init \\\\
+\...
+pop3d::new S -socket tls::socket
+\...
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -485,5 +480,4 @@ Networking
 .nf
 Copyright (c) 2002-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 Copyright (c) 2005 Reinhard Max  <max@suse.de>
-
 .fi

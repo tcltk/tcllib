@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -285,20 +284,14 @@ The package defines the following public procedures:
 Return an (encoded) list that defines the rational function. A
 rational function
 .CS
-
-
-             1 + x^3
-   f(x) = ------------
-          1 + 2x + x^2
-
+1 + x^3
+f(x) = ------------
+1 + 2x + x^2
 .CE
 .IP
 can be defined via:
 .CS
-
-
-   set f [::math::rationalfunctions::rationalFunction [list 1 0 0 1]  [list 1 2 1]]
-
+set f [::math::rationalfunctions::rationalFunction [list 1 0 0 1]  [list 1 2 1]]
 .CE
 .RS
 .TP
@@ -443,5 +436,4 @@ Mathematics
 .SH COPYRIGHT
 .nf
 Copyright (c) 2005 Arjen Markus <arjenmarkus@users.sourceforge.net>
-
 .fi

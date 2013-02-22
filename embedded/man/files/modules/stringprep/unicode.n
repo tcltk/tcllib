@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -282,24 +281,18 @@ Normalizes Tcl string and returns normalized string.
 .PP
 .SH EXAMPLES
 .CS
-
-
 % ::unicode::fromstring "\\u0410\\u0411\\u0412\\u0413"
 1040 1041 1042 1043
 % ::unicode::tostring {49 50 51 52 53}
 12345
 %
-
 .CE
 .CS
-
-
 % ::unicode::normalize D {7692 775}
 68 803 775
 % ::unicode::normalizeS KD "\\u1d2c"
 A
 %
-
 .CE
 .SH REFERENCES
 .IP [1]
@@ -322,5 +315,4 @@ normalization, unicode
 .SH COPYRIGHT
 .nf
 Copyright (c) 2007, Sergei Golovan <sgolovan@nes.ru>
-
 .fi

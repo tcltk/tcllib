@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -375,18 +374,12 @@ binding to a \fIsubject\fR and \fIhook\fR while in an observer binding
 for that same \fIsubject\fR and \fIhook\fR. The following rules
 determine what happens when
 .CS
-
-
-    hook bind $s $h $o $binding
-
+hook bind $s $h $o $binding
 .CE
 .IP
 is called during the execution of
 .CS
-
-
-    hook call $s $h
-
+hook call $s $h
 .CE
 .RS
 .IP [1]
@@ -406,10 +399,7 @@ In particular:
 If \fB$o\fRs binding to \fB$s\fR and \fB$h\fR is deleted, and
 \fB$o\fRs binding has not yet been called during this execution of
 .CS
-
-
-    hook call $s $h
-
+hook call $s $h
 .CE
 .IP
 it will not be called. (Note that it might already have been called;
@@ -419,10 +409,7 @@ If \fB$o\fR changes the command prefix that's bound to \fB$s\fR and
 \fB$h\fR, and if \fB$o\fRs binding has not yet been called during
 this execution of
 .CS
-
-
-    hook call $s $h
-
+hook call $s $h
 .CE
 .IP
 the new binding will be called when the time comes. (But again, it is
@@ -431,10 +418,7 @@ probably \fB$o\fRs binding that is is making the change.)
 If a new observer is bound to \fB$s\fR and \fB$h\fR, its binding will
 not be called until the next invocation of
 .CS
-
-
-    hook call $s $h
-
+hook call $s $h
 .CE
 .RE
 .TP
@@ -488,7 +472,6 @@ will \fInot\fR be called subsequently.
 .IP [2]
 If a subject \fB$s\fR is forgotten during a call to
 .CS
-
 hook call $s $h
 .CE
 .IP
@@ -545,19 +528,13 @@ the application to trace hook execution for debugging purposes.
 The \fB::model\fR module calls the <Update> hook in response to
 commands that change the model's data:
 .CS
-
-
-     hook call ::model <Update>
-
+hook call ::model <Update>
 .CE
 The \fB.view\fR megawidget displays the model state, and needs to
 know about model updates. Consequently, it subscribes to the ::model's
 <Update> hook.
 .CS
-
-
-     hook bind ::model <Update> .view [list .view ModelUpdate]
-
+hook bind ::model <Update> .view [list .view ModelUpdate]
 .CE
 When the \fB::model\fR calls the hook, the \fB.view\fRs
 ModelUpdate subcommand will be called.
@@ -565,10 +542,7 @@ ModelUpdate subcommand will be called.
 Later the \fB.view\fR megawidget is destroyed. In its destructor,
 it tells the \fIhook\fR that it no longer exists:
 .CS
-
-
-     hook forget .view
-
+hook forget .view
 .CE
 All bindings involving \fB.view\fR are deleted.
 .SH CREDITS
@@ -589,5 +563,4 @@ Programming tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2010, by William H. Duquette
-
 .fi

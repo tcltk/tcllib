@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -461,16 +460,12 @@ require the package \fBtls\fR and then configure the option
 \fB-socketcmd\fR to force the use of command \fBtls::socket\fR to
 open the socket.
 .CS
-
-
-    # Load and initialize tls
-    package require tls
-    tls::init -cafile /path/to/ca/cert -keyfile ...
-
-    # Create a connector with secure socket setup,
-    transfer::receiver R -socketcmd tls::socket ...
-    ...
-
+# Load and initialize tls
+package require tls
+tls::init -cafile /path/to/ca/cert -keyfile ...
+# Create a connector with secure socket setup,
+transfer::receiver R -socketcmd tls::socket ...
+\...
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -486,5 +481,4 @@ Transfer module
 .SH COPYRIGHT
 .nf
 Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

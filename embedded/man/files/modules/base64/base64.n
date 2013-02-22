@@ -223,7 +223,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -278,31 +277,22 @@ The decoder ignores whitespace in the string.
 .PP
 .SH EXAMPLES
 .CS
-
-
 % base64::encode "Hello, world"
 SGVsbG8sIHdvcmxk
-
 .CE
 .CS
-
-
 % base64::encode [string repeat xyz 20]
 eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6
 eHl6eHl6eHl6
 % base64::encode -wrapchar "" [string repeat xyz 20]
 eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6eHl6
-
 .CE
 .CS
-
-
 # NOTE: base64 encodes BINARY strings.
 % set chemical [encoding convertto utf-8 "C\\u2088H\\u2081\\u2080N\\u2084O\\u2082"]
 % set encoded [base64::encode $chemical]
 Q+KCiEjigoHigoBO4oKET+KCgg==
 % set caffeine [encoding convertfrom utf-8 [base64::decode $encoded]]
-
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -319,5 +309,4 @@ Text processing
 .nf
 Copyright (c) 2000, Eric Melski
 Copyright (c) 2001, Miguel Sofer
-
 .fi

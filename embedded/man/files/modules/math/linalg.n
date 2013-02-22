@@ -224,7 +224,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -1267,10 +1266,7 @@ pivoting with row interchanges. Returns the permutation vector.
 .sp
 The factorization has the form
 .CS
-
-
-   P * A = L * U
-
+P * A = L * U
 .CE
 .IP
 where P is a permutation matrix, L is lower triangular with unit
@@ -1372,10 +1368,7 @@ in "B".
 .IP \(bu
 To set element (i,j) of matrix "B" use:
 .CS
-
-
-    setelem B $j [expr {$N+$i-1}] $value
-
+setelem B $j [expr {$N+$i-1}] $value
 .CE
 .PP
 (There is no convenience procedure for this yet)
@@ -1407,7 +1400,6 @@ certainlyPositive, diagonallyDominant
 If you load this package in a Tk-enabled shell like wish, then the
 command
 .CS
-
 namespace import ::math::linearalgebra
 .CE
 results in an error
@@ -1415,24 +1407,18 @@ message about "scale". This is due to the fact that Tk defines all
 its commands in the global namespace. The solution is to import
 the linear algebra commands in a namespace that is not the global one:
 .CS
-
-
 package require math::linearalgebra
 namespace eval compute {
-    namespace import ::math::linearalgebra::*
-    ... use the linear algebra version of scale ...
+namespace import ::math::linearalgebra::*
+\... use the linear algebra version of scale ...
 }
-
 .CE
 To use Tk's scale command in that same namespace you can rename it:
 .CS
-
-
 namespace eval compute {
-    rename ::scale scaleTk
-    scaleTk .scale ...
+rename ::scale scaleTk
+scaleTk .scale ...
 }
-
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -1450,5 +1436,4 @@ Mathematics
 Copyright (c) 2004-2008 Arjen Markus <arjenmarkus@users.sourceforge.net>
 Copyright (c) 2004 Ed Hume <http://www.hume.com/contact.us.htm>
 Copyright (c) 2008 Michael Buadin <relaxkmike@users.sourceforge.net>
-
 .fi
