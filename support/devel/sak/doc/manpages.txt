@@ -109,6 +109,7 @@ modules/doctools2toc/msgcat_en.man
 modules/doctools2toc/msgcat_fr.man
 modules/doctools2toc/parse.man
 modules/doctools2toc/structure.man
+modules/dtplite/dtplite.man
 modules/exif/exif.man
 modules/fileutil/fileutil.man
 modules/fileutil/multi.man
