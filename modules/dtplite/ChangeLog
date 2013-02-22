@@ -1,0 +1,4 @@
+2013-02-22  Andreas Kupries  <andreask@activestate.com>
+
+	* New module 'dtplite'. dtplite application-as-package.
+

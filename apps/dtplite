@@ -3,7 +3,7 @@
 exec tclsh "$0" ${1+"$@"}
 
 # @@ Meta Begin
-# Application dtplite 1.0.4
+# Application dtplite 1.0.5
 # Meta platform     tcl
 # Meta summary      Lightweight DocTools Processor
 # Meta description  This application is a simple processor
@@ -13,12 +13,12 @@ exec tclsh "$0" ${1+"$@"}
 # Meta description  configurable as its big brother dtp.
 # Meta category     Processing doctools documents
 # Meta subject      doctools doctoc docidx
-# Meta require      {dtplite 1.0.4}
+# Meta require      {dtplite 1.0.5}
 # Meta author       Andreas Kupries
 # Meta license      BSD
 # @@ Meta End
 
-package require dtplite 1.0.4
+package require dtplite 1.0.5
 
 # dtp lite - Lightweight DocTools Processor
 # ======== = ==============================
