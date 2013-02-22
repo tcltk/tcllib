@@ -223,7 +223,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -310,14 +309,11 @@ Command substitution, backslash substitution, and argument expansion are
 not accepted.
 .SH EXAMPLES
 .CS
-
-
 math::calculus::symdiff::symdiff {($a*$x+$b)*($c*$x+$d)} x
 ==> (($c * (($a * $x) + $b)) + ($a * (($c * $x) + $d)))
 math::calculus::symdiff::jacobian {x {$a * $x + $b * $y}
-                         y {$c * $x + $d * $y}}
+y {$c * $x + $d * $y}}
 ==> {{$a} {$b}} {{$c} {$d}}
-
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -332,5 +328,4 @@ math::calculus, math::interpolate
 .nf
 Copyright (c) 2010 by Kevin B. Kenny <kennykb@acm.org>
 Redistribution permitted under the terms of the Open Publication License <http://www.opencontent.org/openpub/>
-
 .fi

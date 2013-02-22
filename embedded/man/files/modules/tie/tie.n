@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -648,21 +647,18 @@ And here a small table comparing the \fIdata source\fR methods to
 the regular Tcl commands for accessing an array.
 .PP
 .CS
-
-
-        Regular Tcl             Data source
-        -----------             -----------
-        array names a           ds names
-        array size  a           ds size
-        array get   a           ds get
-        array set   a dict      ds set   dict
-        array unset a pattern   ds unset ?pattern?
-        -----------             -----------
-        set a($idx) $val        ds setv   idx val
-        unset a($idx)           ds unsetv idx
-        $a($idx)                ds getv   idx
-        -----------             -----------
-
+Regular Tcl             Data source
+-----------             -----------
+array names a           ds names
+array size  a           ds size
+array get   a           ds get
+array set   a dict      ds set   dict
+array unset a pattern   ds unset ?pattern?
+-----------             -----------
+set a($idx) $val        ds setv   idx val
+unset a($idx)           ds unsetv idx
+$a($idx)                ds getv   idx
+-----------             -----------
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -678,5 +674,4 @@ Programming tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2004-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

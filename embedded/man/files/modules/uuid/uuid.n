@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -270,11 +269,8 @@ Compares two uuids and returns true if both arguments are the same uuid.
 .PP
 .SH EXAMPLES
 .CS
-
-
 % uuid::uuid generate
 b12dc22c-5c36-41d2-57da-e29d0ef5839c
-
 .CE
 .SH REFERENCES
 .IP [1]
@@ -295,5 +291,4 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2004, Pat Thoyts <patthoyts@users.sourceforge.net>
-
 .fi

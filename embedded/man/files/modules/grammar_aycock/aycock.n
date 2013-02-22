@@ -223,7 +223,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -341,20 +340,17 @@ only \fB+\fR, \fB*\fR and parentheses as its operators.  It also
 shows the format in which the lexical analyzer is expected to present
 terminal symbols to the parser.
 .CS
-
-
 set p [aycock::parser {
-    start ::= E {}
-    E ::= E + T {expr {[lindex $_ 0] + [lindex $_ 2]}}
-    E ::= T {}
-    T ::= T * F {expr {[lindex $_ 0] * [lindex $_ 2]}}
-    T ::= F {}
-    F ::= NUMBER {}
-    F ::= ( E ) {lindex $_ 1}
+start ::= E {}
+E ::= E + T {expr {[lindex $_ 0] + [lindex $_ 2]}}
+E ::= T {}
+T ::= T * F {expr {[lindex $_ 0] * [lindex $_ 2]}}
+T ::= F {}
+F ::= NUMBER {}
+F ::= ( E ) {lindex $_ 1}
 }]
 puts [$p parse {(  NUMBER +  NUMBER )  *  ( NUMBER +  NUMBER ) }  {{} 2      {} 3      {} {} {} 7     {} 1      {}}]
 $p destroy
-
 .CE
 The example, when run, prints \fB40\fR.
 .SH KEYWORDS
@@ -367,5 +363,4 @@ Grammars and finite automata
 .nf
 Copyright (c) 2006 by Kevin B. Kenny <kennykb@acm.org>
 Redistribution permitted under the terms of the Open Publication License <http://www.opencontent.org/openpub/>
-
 .fi

@@ -98,11 +98,14 @@
    -->
 <body><div class="doctools">
 <hr> [
-  <a href="../../../../toc.html">Main Table Of Contents</a>
+   <a href="../../../../../../home">Tcllib Home</a>
+| <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
-| <a href="/tcllib">Home</a>
-] <hr>
+| <a href="../../../../toc0.html">Categories</a>
+| <a href="../../../../toc1.html">Modules</a>
+| <a href="../../../../toc2.html">Applications</a>
+ ] <hr>
 <h1 class="title">html(n) 1.4 tcllib &quot;HTML Generation&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>html - Procedures to generate HTML structures</p>
@@ -261,7 +264,7 @@ structure.  Rather than evaluating the body, it returns the subst'ed
 <i class="arg">body</i>. Each iteration of the loop causes another string to be
 concatenated to the result value.</p></dd>
 <dt><a name="15"><b class="cmd">::html::foreach</b> <i class="arg">varlist1 list1</i> <span class="opt">?<i class="arg">varlist2 list2 ...</i>?</span> <i class="arg">body</i></a></dt>
-<dd><p>This procedure is similar to the built-in Tcl <b class="cmd"><a href="../../../../index.html#key199">foreach</a></b> control
+<dd><p>This procedure is similar to the built-in Tcl <b class="cmd"><a href="../../../../index.html#key197">foreach</a></b> control
 structure.  Rather than evaluating the body, it returns the subst'ed
 <i class="arg">body</i>.  Each iteration of the loop causes another string to be
 concatenated to the result value.</p></dd>
@@ -364,11 +367,11 @@ list whose elements are formatted to be in the form
 the <i class="term">tr</i> tag. The value of <i class="arg">cparam</i> is passed to <b class="cmd">::html::cell</b>
 as parameter for the <i class="term">td</i> tags.</p></dd>
 <dt><a name="40"><b class="cmd">::html::passwordInput</b> <span class="opt">?<i class="arg">name</i>?</span></a></dt>
-<dd><p>Generate an <i class="term">input</i> tag of type <i class="term"><a href="../../../../index.html#key644">password</a></i>. The <i class="arg">name</i> defaults to
+<dd><p>Generate an <i class="term">input</i> tag of type <i class="term"><a href="../../../../index.html#key646">password</a></i>. The <i class="arg">name</i> defaults to
 &quot;password&quot;.</p></dd>
 <dt><a name="41"><b class="cmd">::html::passwordInputRow</b> <i class="arg">label</i> <span class="opt">?<i class="arg">name</i>?</span></a></dt>
 <dd><p>Format a table row containing a label and an <i class="term">input</i> tag of type
-<i class="term"><a href="../../../../index.html#key644">password</a></i>. The <i class="arg">name</i> defaults to &quot;password&quot;.</p></dd>
+<i class="term"><a href="../../../../index.html#key646">password</a></i>. The <i class="arg">name</i> defaults to &quot;password&quot;.</p></dd>
 <dt><a name="42"><b class="cmd">::html::quoteFormValue</b> <i class="arg">value</i></a></dt>
 <dd><p>Quote special characters in <i class="arg">value</i> by replacing them with HTML
 entities for quotes, ampersand, and angle brackets.</p></dd>
@@ -407,18 +410,18 @@ difference is that it must take two arguments.</p></dd>
 <dt><a name="50"><b class="cmd">::html::submit</b> <i class="arg">label</i> <span class="opt">?<i class="arg">name</i>?</span></a></dt>
 <dd><p>Generate an <i class="term">input</i> tag of type <i class="term">submit</i>. <i class="arg">name</i> defaults to &quot;submit&quot;.</p></dd>
 <dt><a name="51"><b class="cmd">::html::tableFromArray</b> <i class="arg">arrname</i> <span class="opt">?<i class="arg">param</i>?</span> <span class="opt">?<i class="arg">pat</i>?</span></a></dt>
-<dd><p>Generate a two-column <i class="term"><a href="../../../../index.html#key104">table</a></i> and nested rows to display a Tcl array. The
+<dd><p>Generate a two-column <i class="term"><a href="../../../../index.html#key101">table</a></i> and nested rows to display a Tcl array. The
 table gets a heading that matches the array name, and each generated row
 contains a name, value pair. The array names are sorted (<b class="cmd">lsort</b> without
-special options). The argument <i class="arg">param</i> is for the <i class="term"><a href="../../../../index.html#key104">table</a></i> tag and has
+special options). The argument <i class="arg">param</i> is for the <i class="term"><a href="../../../../index.html#key101">table</a></i> tag and has
 to contain a pre-formatted string. The <i class="arg">pat</i> is a <b class="cmd">string match</b>
 pattern used to select the array elements to show in the table. It defaults to
 <b class="const">*</b>, i.e. the whole array is shown.</p></dd>
 <dt><a name="52"><b class="cmd">::html::tableFromList</b> <i class="arg">querylist</i> <span class="opt">?<i class="arg">param</i>?</span></a></dt>
-<dd><p>Generate a two-column <i class="term"><a href="../../../../index.html#key104">table</a></i> and nested rows to display <i class="arg">querylist</i>,
+<dd><p>Generate a two-column <i class="term"><a href="../../../../index.html#key101">table</a></i> and nested rows to display <i class="arg">querylist</i>,
 which is a Tcl dictionary. Each generated row contains a name, value pair. The
 information is shown in the same order as specified in the dictionary. The
-argument <i class="arg">param</i> is for the <i class="term"><a href="../../../../index.html#key104">table</a></i> tag  and has to contain a
+argument <i class="arg">param</i> is for the <i class="term"><a href="../../../../index.html#key101">table</a></i> tag  and has to contain a
 pre-formatted string.</p></dd>
 <dt><a name="53"><b class="cmd">::html::textarea</b> <i class="arg">name</i> <span class="opt">?<i class="arg">param</i>?</span> <span class="opt">?<i class="arg">current</i>?</span></a></dt>
 <dd><p>Generate a <i class="term">textarea</i> tag wrapped around its current values.</p></dd>
@@ -452,7 +455,7 @@ package and/or documentation.</p>
 <p><a href="../htmlparse/htmlparse.html">htmlparse</a>, <a href="../ncgi/ncgi.html">ncgi</a></p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key570">checkbox</a>, <a href="../../../../index.html#key568">checkbutton</a>, <a href="../../../../index.html#key566">form</a>, <a href="../../../../index.html#key567">html</a>, <a href="../../../../index.html#key569">radiobutton</a>, <a href="../../../../index.html#key104">table</a></p>
+<p><a href="../../../../index.html#key570">checkbox</a>, <a href="../../../../index.html#key568">checkbutton</a>, <a href="../../../../index.html#key566">form</a>, <a href="../../../../index.html#key567">html</a>, <a href="../../../../index.html#key569">radiobutton</a>, <a href="../../../../index.html#key101">table</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>CGI programming</p>

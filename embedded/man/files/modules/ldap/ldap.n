@@ -224,7 +224,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -377,10 +376,7 @@ The valid \fIoptions\fR are identical to the options listed for \fB::ldap::searc
 An example of a search expression is
 .sp
 .CS
-
-
-    set filterString "|(cn=Linus*)(sn=Torvalds*)"
-
+set filterString "|(cn=Linus*)(sn=Torvalds*)"
 .CE
 .sp
 The return value of the command is a list of nested dictionaries. The
@@ -388,10 +384,7 @@ first level keys are object identifiers (DNs), second levels keys are
 attribute names. In other words, it is in the form
 .sp
 .CS
-
-
-    {dn1 {attr1 {val11 val12 ...} attr2 {val21...} ...}} {dn2 {a1 {v11 ...} ...}} ...
-
+{dn1 {attr1 {val11 val12 ...} attr2 {val21...} ...}} {dn2 {a1 {v11 ...} ...}} ...
 .CE
 .sp
 .TP
@@ -414,10 +407,7 @@ The parameter \fIoptions\fR specifies the options to be used in the search,
 and has the following format:
 .sp
 .CS
-
-
-    {-option1 value1 -option2 value2 ... }
-
+{-option1 value1 -option2 value2 ... }
 .CE
 .sp
 Following options are available:
@@ -463,10 +453,7 @@ two elements: the first is the DN of the entry, the second is the
 list of attributes and values, under the format:
 .sp
 .CS
-
-
-    dn {attr1 {val11 val12 ...} attr2 {val21...} ...}
-
+dn {attr1 {val11 val12 ...} attr2 {val21...} ...}
 .CE
 .sp
 The \fB::ldap::searchNext\fR command returns an empty list at the
@@ -518,10 +505,7 @@ deletes attributes, and adds new attributes with new values.
 All arguments are lists with the format:
 .sp
 .CS
-
-
-    attr1 {val11 val12 ...} attr2 {val21...} ...
-
+attr1 {val11 val12 ...} attr2 {val21...} ...
 .CE
 .sp
 where each value list may be empty for deleting all attributes.
@@ -626,104 +610,80 @@ A small example, extracted from the test application coming with this
 code.
 .PP
 .CS
-
-
-    package require ldap
-
-    # Connect, bind, add a new object, modify it in various ways
-
-    set handle [ldap::connect localhost 9009]
-
-    set dn "cn=Manager, o=University of Michigan, c=US"
-    set pw secret
-
-    ldap::bind $handle $dn $pw
-
-    set dn "cn=Test User,ou=People,o=University of Michigan,c=US"
-
-    ldap::add $handle $dn {
-	objectClass     OpenLDAPperson
-	cn              {Test User}
-	mail            test.user@google.com
-	uid             testuid
-	sn              User
-	telephoneNumber +31415926535
-	telephoneNumber +27182818285
-    }
-
-    set dn "cn=Another User,ou=People,o=University of Michigan,c=US"
-
-    ldap::addMulti $handle $dn {
-	objectClass     {OpenLDAPperson}
-	cn              {{Anotther User}}
-	mail            {test.user@google.com}
-	uid             {testuid}
-	sn              {User}
-	telephoneNumber {+31415926535 +27182818285}
-    }
-
-    # Replace all attributes
-    ldap::modify $handle $dn [list drink icetea uid JOLO]
-
-    # Add some more
-    ldap::modify $handle $dn {} {} [list drink water  drink orangeJuice pager "+1 313 555 7671"]
-
-    # Delete
-    ldap::modify $handle $dn {} [list drink water  pager ""]
-
-    # Move
-    ldap::modifyDN $handle $dn "cn=Tester"
-
-    # Kill the test object, and shut the connection down.
-    set dn "cn=Tester,ou=People,o=University of Michigan,c=US"
-    ldap::delete $handle $dn
-
-    ldap::unbind     $handle
-    ldap::disconnect $handle
-
+package require ldap
+# Connect, bind, add a new object, modify it in various ways
+set handle [ldap::connect localhost 9009]
+set dn "cn=Manager, o=University of Michigan, c=US"
+set pw secret
+ldap::bind $handle $dn $pw
+set dn "cn=Test User,ou=People,o=University of Michigan,c=US"
+ldap::add $handle $dn {
+objectClass     OpenLDAPperson
+cn              {Test User}
+mail            test.user@google.com
+uid             testuid
+sn              User
+telephoneNumber +31415926535
+telephoneNumber +27182818285
+}
+set dn "cn=Another User,ou=People,o=University of Michigan,c=US"
+ldap::addMulti $handle $dn {
+objectClass     {OpenLDAPperson}
+cn              {{Anotther User}}
+mail            {test.user@google.com}
+uid             {testuid}
+sn              {User}
+telephoneNumber {+31415926535 +27182818285}
+}
+# Replace all attributes
+ldap::modify $handle $dn [list drink icetea uid JOLO]
+# Add some more
+ldap::modify $handle $dn {} {} [list drink water  drink orangeJuice pager "+1 313 555 7671"]
+# Delete
+ldap::modify $handle $dn {} [list drink water  pager ""]
+# Move
+ldap::modifyDN $handle $dn "cn=Tester"
+# Kill the test object, and shut the connection down.
+set dn "cn=Tester,ou=People,o=University of Michigan,c=US"
+ldap::delete $handle $dn
+ldap::unbind     $handle
+ldap::disconnect $handle
 .CE
 .PP
 And a another example, a simple query, and processing the
 results.
 .PP
 .CS
-
-
-    package require ldap
-    set handle [ldap::connect ldap.acme.com 389]
-    ldap::bind $handle
-    set results [ldap::search $handle "o=acme,dc=com" "(uid=jdoe)" {}]
-    foreach result $results {
-	foreach {object attributes} $result break
-
-	# The processing here is similar to what 'parray' does.
-	# I.e. finding the longest attribute name and then
-	# generating properly aligned output listing all attributes
-	# and their values.
-
-	set width 0
-	set sortedAttribs {}
-	foreach {type values} $attributes {
-	    if {[string length $type] > $width} {
-		set width [string length $type]
-	    }
-	    lappend sortedAttribs [list $type $values]
-	}
-
-	puts "object='$object'"
-
-	foreach sortedAttrib  $sortedAttribs {
-	    foreach {type values} $sortedAttrib break
-	    foreach value $values {
-		regsub -all "\\[\\x01-\\x1f\\]" $value ? value
-		puts [format "  %-${width}s %s" $type $value]
-	    }
-	}
-	puts ""
-    }
-    ldap::unbind $handle
-    ldap::disconnect $handle
-
+package require ldap
+set handle [ldap::connect ldap.acme.com 389]
+ldap::bind $handle
+set results [ldap::search $handle "o=acme,dc=com" "(uid=jdoe)" {}]
+foreach result $results {
+foreach {object attributes} $result break
+# The processing here is similar to what 'parray' does.
+# I.e. finding the longest attribute name and then
+# generating properly aligned output listing all attributes
+# and their values.
+set width 0
+set sortedAttribs {}
+foreach {type values} $attributes {
+if {[string length $type] > $width} {
+set width [string length $type]
+}
+lappend sortedAttribs [list $type $values]
+}
+puts "object='$object'"
+foreach sortedAttrib  $sortedAttribs {
+foreach {type values} $sortedAttrib break
+foreach value $values {
+regsub -all "\\[\\x01-\\x1f\\]" $value ? value
+puts [format "  %-${width}s %s" $type $value]
+}
+}
+puts ""
+}
+ldap::unbind $handle
+ldap::disconnect $handle
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -743,5 +703,4 @@ Networking
 Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 Copyright (c) 2004 Jochen Loewer <loewerj@web.de>
 Copyright (c) 2006 Michael Schlenker <mic42@users.sourceforge.net>
-
 .fi

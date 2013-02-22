@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -281,15 +280,12 @@ and SHA-1 (5).
 .PP
 .SH EXAMPLES
 .CS
-
-
 % otp::otp-md5 -count 99 -seed host67821 "My Secret Pass Phrase"
 (binary gibberish)
 % otp::otp-md5 -words -count 99 -seed host67821 "My Secret Pass Phrase"
 SOON ARAB BURG LIMB FILE WAD
 % otp::otp-md5 -hex -count 99 -seed host67821 "My Secret Pass Phrase"
 e249b58257c80087
-
 .CE
 .SH REFERENCES
 .IP [1]
@@ -327,5 +323,4 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2006, Pat Thoyts <patthoyts@users.sourceforge.net>
-
 .fi

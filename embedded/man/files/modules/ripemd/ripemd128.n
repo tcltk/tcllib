@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -346,22 +345,14 @@ These commands are identical to the RIPEMD128 equivalent commands.
 .PP
 .SH EXAMPLES
 .CS
-
-
 % ripemd::ripemd128 -hex "Tcl does RIPEMD-128"
 3cab177bae65205d81e7978f63556c63
-
 .CE
 .CS
-
-
 % ripemd::hmac128 -hex -key Sekret "Tcl does RIPEMD-128"
 b359dc5971a05beea0be7b106b30e389
-
 .CE
 .CS
-
-
 % set tok [ripemd::RIPEMD128Init]
 ::ripemd::1
 % ripemd::RIPEMD128Update $tok "Tcl "
@@ -369,7 +360,6 @@ b359dc5971a05beea0be7b106b30e389
 % ripemd::RIPEMD128Update $tok "RIPEMD-128"
 % ripemd::Hex [ripemd::RIPEMD128Final $tok]
 3cab177bae65205d81e7978f63556c63
-
 .CE
 .SH REFERENCES
 .IP [1]
@@ -411,5 +401,4 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2004, Pat Thoyts <patthoyts@users.sourceforge.net>
-
 .fi

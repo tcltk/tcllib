@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -320,31 +319,25 @@ distinction is that between \fIcode lines\fR (which are copied and
 do not begin with a percent character) and \fIcomment lines\fR
 (which begin with a percent character and are not copied).
 .CS
-
-
-   docstrip::extract [join {
-     {% comment}
-     {% more comment !"#$%&/(}
-     {some command}
-     { % blah $blah "Not a comment."}
-     {% abc; this is comment}
-     {# def; this is code}
-     {ghi}
-     {% jkl}
-   } \\n] {}
-
+docstrip::extract [join {
+{% comment}
+{% more comment !"#$%&/(}
+{some command}
+{ % blah $blah "Not a comment."}
+{% abc; this is comment}
+{# def; this is code}
+{ghi}
+{% jkl}
+} \\n] {}
 .CE
 returns the same sequence of lines as
 .CS
-
-
-   join {
-     {some command}
-     { % blah $blah "Not a comment."}
-     {# def; this is code}
-     {ghi} ""
-   } \\n
-
+join {
+{some command}
+{ % blah $blah "Not a comment."}
+{# def; this is code}
+{ghi} ""
+} \\n
 .CE
 It does not matter to \fBdocstrip\fR what format is used for the
 documentation in the comment lines, but in order to do better than
@@ -367,24 +360,18 @@ guard by the value of a boolean expression; the guarded block of
 code lines will only be included if the expression evaluates to true.
 The syntax of an ordinary guard line is one of
 .CS
-
-
-    '%' '<' STARSLASH EXPRESSION '>'
-    '%' '<' PLUSMINUS EXPRESSION '>' CODE
-
+\'%' '<' STARSLASH EXPRESSION '>'
+\'%' '<' PLUSMINUS EXPRESSION '>' CODE
 .CE
 where
 .CS
-
-
-    STARSLASH  ::=  '*' | '/'
-    PLUSMINUS  ::=  | '+' | '-'
-    EXPRESSION ::= SECONDARY | SECONDARY ',' EXPRESSION
-                 | SECONDARY '|' EXPRESSION
-    SECONDARY  ::= PRIMARY | PRIMARY '&' SECONDARY
-    PRIMARY    ::= TERMINAL | '!' PRIMARY | '(' EXPRESSION ')'
-    CODE       ::= { any character except end-of-line }
-
+STARSLASH  ::=  '*' | '/'
+PLUSMINUS  ::=  | '+' | '-'
+EXPRESSION ::= SECONDARY | SECONDARY ',' EXPRESSION
+| SECONDARY '|' EXPRESSION
+SECONDARY  ::= PRIMARY | PRIMARY '&' SECONDARY
+PRIMARY    ::= TERMINAL | '!' PRIMARY | '(' EXPRESSION ')'
+CODE       ::= { any character except end-of-line }
 .CE
 Comma and vertical bar both denote 'or'. Ampersand denotes 'and'.
 Exclamation mark denotes 'not'. A TERMINAL can be any nonempty string
@@ -401,55 +388,49 @@ all lines up to the next '%</\fIEXPRESSION\fR>' guard with the same
 \fIEXPRESSION\fR (compared as strings). The blocks of code delimited
 by such '*' and '/' guard lines must be properly nested.
 .CS
-
-
-   set text [join {
-      {begin}
-      {%<*foo>}
-      {1}
-      {%<*bar>}
-      {2}
-      {%</bar>}
-      {%<*!bar>}
-      {3}
-      {%</!bar>}
-      {4}
-      {%</foo>}
-      {5}
-      {%<*bar>}
-      {6}
-      {%</bar>}
-      {end}
-   } \\n]
-   set res [docstrip::extract $text foo]
-   append res [docstrip::extract $text {foo bar}]
-   append res [docstrip::extract $text bar]
-
+set text [join {
+{begin}
+{%<*foo>}
+{1}
+{%<*bar>}
+{2}
+{%</bar>}
+{%<*!bar>}
+{3}
+{%</!bar>}
+{4}
+{%</foo>}
+{5}
+{%<*bar>}
+{6}
+{%</bar>}
+{end}
+} \\n]
+set res [docstrip::extract $text foo]
+append res [docstrip::extract $text {foo bar}]
+append res [docstrip::extract $text bar]
 .CE
 sets $res to the result of
 .CS
-
-
-   join {
-      {begin}
-      {1}
-      {3}
-      {4}
-      {5}
-      {end}
-      {begin}
-      {1}
-      {2}
-      {4}
-      {5}
-      {6}
-      {end}
-      {begin}
-      {5}
-      {6}
-      {end} ""
-   } \\n
-
+join {
+{begin}
+{1}
+{3}
+{4}
+{5}
+{end}
+{begin}
+{1}
+{2}
+{4}
+{5}
+{6}
+{end}
+{begin}
+{5}
+{6}
+{end} ""
+} \\n
 .CE
 In guard lines without a '*', '/', '+', or '-' modifier after the
 \'%<', the guard applies only to the CODE following the '>' on that
@@ -465,43 +446,37 @@ not kept, but substituted by the current \fB-metaprefix\fR, which
 is customarily set to some "comment until end of line" character (or
 character sequence) of the language of the code being extracted.
 .CS
-
-
-   set text [join {
-      {begin}
-      {%<foo> foo}
-      {%<+foo>plusfoo}
-      {%<-foo>minusfoo}
-      {middle}
-      {%% some metacomment}
-      {%<*foo>}
-      {%%another metacomment}
-      {%</foo>}
-      {end}
-   } \\n]
-   set res [docstrip::extract $text foo -metaprefix {# }]
-   append res [docstrip::extract $text bar -metaprefix {#}]
-
+set text [join {
+{begin}
+{%<foo> foo}
+{%<+foo>plusfoo}
+{%<-foo>minusfoo}
+{middle}
+{%% some metacomment}
+{%<*foo>}
+{%%another metacomment}
+{%</foo>}
+{end}
+} \\n]
+set res [docstrip::extract $text foo -metaprefix {# }]
+append res [docstrip::extract $text bar -metaprefix {#}]
 .CE
 sets $res to the result of
 .CS
-
-
-   join {
-      {begin}
-      { foo}
-      {plusfoo}
-      {middle}
-      {#  some metacomment}
-      {# another metacomment}
-      {end}
-      {begin}
-      {minusfoo}
-      {middle}
-      {# some metacomment}
-      {end} ""
-   } \\n
-
+join {
+{begin}
+{ foo}
+{plusfoo}
+{middle}
+{#  some metacomment}
+{# another metacomment}
+{end}
+{begin}
+{minusfoo}
+{middle}
+{# some metacomment}
+{end} ""
+} \\n
 .CE
 Verbatim guards can be used to force code line
 interpretation of a block of lines even if some of them happen to look
@@ -509,43 +484,37 @@ like any other type of lines to docstrip. A verbatim guard has the
 form '%<<\fIEND-TAG\fR' and the verbatim block is terminated by the
 first line that is exactly '%\fIEND-TAG\fR'.
 .CS
-
-
-   set text [join {
-      {begin}
-      {%<*myblock>}
-      {some stupid()}
-      {   #computer<program>}
-      {%<<QQQ-98765}
-      {% These three lines are copied verbatim (including percents}
-      {%% even if -metaprefix is something different than %%).}
-      {%</myblock>}
-      {%QQQ-98765}
-      {   using*strange@programming<language>}
-      {%</myblock>}
-      {end}
-   } \\n]
-   set res [docstrip::extract $text myblock -metaprefix {# }]
-   append res [docstrip::extract $text {}]
-
+set text [join {
+{begin}
+{%<*myblock>}
+{some stupid()}
+{   #computer<program>}
+{%<<QQQ-98765}
+{% These three lines are copied verbatim (including percents}
+{%% even if -metaprefix is something different than %%).}
+{%</myblock>}
+{%QQQ-98765}
+{   using*strange@programming<language>}
+{%</myblock>}
+{end}
+} \\n]
+set res [docstrip::extract $text myblock -metaprefix {# }]
+append res [docstrip::extract $text {}]
 .CE
 sets $res to the result of
 .CS
-
-
-   join {
-      {begin}
-      {some stupid()}
-      {   #computer<program>}
-      {% These three lines are copied verbatim (including percents}
-      {%% even if -metaprefix is something different than %%).}
-      {%</myblock>}
-      {   using*strange@programming<language>}
-      {end}
-      {begin}
-      {end} ""
-   } \\n
-
+join {
+{begin}
+{some stupid()}
+{   #computer<program>}
+{% These three lines are copied verbatim (including percents}
+{%% even if -metaprefix is something different than %%).}
+{%</myblock>}
+{   using*strange@programming<language>}
+{end}
+{begin}
+{end} ""
+} \\n
 .CE
 The processing of verbatim guards takes place also inside blocks of
 lines which due to some outer block guard will not be copied.
@@ -641,17 +610,14 @@ that they can be typeset directly by \fBlatex\fR without any
 support from other files. This is achieved by beginning the file
 with the lines
 .CS
-
-
-   % \\iffalse
-   %<*driver>
-   \\documentclass{tclldoc}
-   \\begin{document}
-   \\DocInput{\fIfilename.dtx\fR}
-   \\end{document}
-   %</driver>
-   % \\fi
-
+% \\iffalse
+%<*driver>
+\\documentclass{tclldoc}
+\\begin{document}
+\\DocInput{\fIfilename.dtx\fR}
+\\end{document}
+%</driver>
+% \\fi
 .CE
 or some variation thereof. The trick is that the file gets read twice.
 With normal LaTeX reading rules, the first two lines are comments and
@@ -682,11 +648,10 @@ found in the references above.
 .SH "SEE ALSO"
 docstrip_util
 .SH KEYWORDS
-.dtx, LaTeX, docstrip, documentation, literate programming, source
+\\.dtx, LaTeX, docstrip, documentation, literate programming, source
 .SH CATEGORY
 Documentation tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2003–2010 Lars Hellström <Lars dot Hellstrom at residenset dot net>
-
 .fi

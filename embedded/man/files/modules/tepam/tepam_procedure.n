@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -264,20 +263,18 @@ The usage of subcommands is heavily used in the Tcl language. Several commands a
 .sp
 The \fBstring\fR command is an example of such a command that implements for example subcommands to check a character string's length, to compare strings, to extract substrings, etc:
 .CS
-
 \fBstring length\fR \fIstring\fR
 \fBstring compare\fR \fIstring\fR \fIstring\fR
 \fBstring range\fR \fIstring\fR \fIfirst\fR \fIlast\fR
-...
+\...
 .CE
 .sp
 TEPAM provides a framework that allows implementing easily such subcommands in form of Tcl procedures. It allows not only defining a first level of subcommands, but also a higher level of subcommands. The \fBstring\fR command's class check could be implemented as independent sub-sub-commands of the \fBstring\fR command:
 .CS
-
 \fBstring is alnum\fR \fIstring\fR
 \fBstring is integer\fR \fIstring\fR
 \fBstring is double\fR \fIstring\fR
-...
+\...
 .CE
 .TP
 \fIProcedure attribute\fR
@@ -288,7 +285,6 @@ TEPAM uses the term \fIargument\fR for the parameters of a procedure.
 .sp
 The following example calls the subcommand \fBstring compare\fR with several arguments:
 .CS
-
 \fBstring compare\fR \fI-nocase -length 3 "emphasized" "emphasised"\fR
 .CE
 .IP
@@ -318,7 +314,6 @@ This is the usual Tcl style (exceptions exist) which is referred in the TEPAM do
 \fIUnnamed arguments first, named arguments later\fR
 In contrast to most Tcl commands, Tk uses generally (exceptions exist also here) a different calling style where the \fIunnamed arguments\fR have to be provided first, before the \fInamed arguments\fR have to be provided:
 .CS
-
 \fBpack\fR \fI.ent1 .ent2 -fill x -expand yes -side left\fR
 .CE
 .IP
@@ -331,27 +326,26 @@ TEPAM allows declaring new Tcl procedures with the command \fBtepam::procedure\f
 .PP
 The TEPAM procedure declaration syntax is demonstrated by the following example:
 .CS
-
 \fBtepam::procedure\fR {display message} {
-   -short_description
-      "Displays a simple message box"
-   -description
-      "This procedure allows displaying a configurable\\
-       message box. The default message type that is\\
-       created is a warning, but also errors and info can\\
-       be generated.
-       The procedure accepts multiple text lines."
-   -example
-      {display message -mtype Warning "Save first your job"}
-   -args {
-      {-mtype -choices {Info Warning Error} \\
-              -default Warning -description "Message type"}
-      {text   -type string -multiple \\
-              -description "Multiple text lines to display"}
-   }
+-short_description
+"Displays a simple message box"
+-description
+"This procedure allows displaying a configurable\\
+message box. The default message type that is\\
+created is a warning, but also errors and info can\\
+be generated.
+The procedure accepts multiple text lines."
+-example
+{display message -mtype Warning "Save first your job"}
+-args {
+{-mtype -choices {Info Warning Error} \\
+-default Warning -description "Message type"}
+{text   -type string -multiple \\
+-description "Multiple text lines to display"}
+}
 } {
-   puts "Message type: $mtype"
-   puts "Message: $text"
+puts "Message type: $mtype"
+puts "Message: $text"
 }
 .CE
 The 3 arguments of \fBprocedure\fR are:
@@ -361,7 +355,6 @@ The procedure name can be used in very flexible ways. Procedure names can have n
 .sp
 Here are some valid procedure declarations using different procedure names (the attribute and body arguments are empty for simplicity):
 .CS
-
 \fI# Simple procedure name:\fR
 tepam::procedure \fBdisplay_message\fR {} {}
 \fI\fR
@@ -387,26 +380,23 @@ This is the normal procedure body. The declared arguments will be available to t
 .sp
 The procedure body will only be executed if the provided set of arguments could be validated by the TEPAM argument manager.
 .CS
-
 tepam::procedure {display_message} {
-   -args {
-      {-\fBmtype\fR -default Warning -choices {Warning Error}}
-      {\fBtext\fR -type string}
-   }
+-args {
+{-\fBmtype\fR -default Warning -choices {Warning Error}}
+{\fBtext\fR -type string}
+}
 } {
-   puts "Message type: \fB$mtype\fR"
-   puts "Message: \fB$text\fR"
+puts "Message type: \fB$mtype\fR"
+puts "Message: \fB$text\fR"
 }
 .CE
 .PP
 The commands \fBprocedure\fR as well as \fBargument_dialogbox\fR are exported from the namespace \fBtepam\fR. To use these commands without the \fBtepam::\fR namespace prefix, it is sufficient to import them into the main namespace:
 .CS
-
 \fBnamespace import tepam::*\fR
-
 \fBprocedure\fR {display_message} {
-   -args {
-      ...
+-args {
+\...
 .CE
 .SS "PROCEDURE ATTRIBUTES"
 The first group of procedure attributes is not affecting the behavior of the declared procedure. These attributes are just used for the purpose of documentation and help text generation:
@@ -455,30 +445,28 @@ Setting this argument to \fB0\fR will disable any procedure call loggings, setti
 .SS "ARGUMENT DECLARATION"
 The following example shows the structure that is used for the argument definitions in the context of a procedure declaration:
 .CS
-
 tepam::procedure {display_message} {
-   -args \fB{
-      {-mtype -default Warning -choices {Info Warning Error} -description "Message type"}
-      {-font -type font -default {Arial 10 italic} -description "Message text font"}
-      {-level -type integer -optional -range {1 10} -description "Message level"}
-      {-fg -type color -optional -description "Message color"}
-      {-log_file -type file -optional -description "Optional message log file"}
-      {text -type string -multiple -description "Multiple text lines to display"}
-   }\fR
+-args \fB{
+{-mtype -default Warning -choices {Info Warning Error} -description "Message type"}
+{-font -type font -default {Arial 10 italic} -description "Message text font"}
+{-level -type integer -optional -range {1 10} -description "Message level"}
+{-fg -type color -optional -description "Message color"}
+{-log_file -type file -optional -description "Optional message log file"}
+{text -type string -multiple -description "Multiple text lines to display"}
+}\fR
 } {
 }
 .CE
 Each of the procedure arguments is declared with a list that has as first element the argument name, followed by eventual attributes. The argument definition syntax can be formalized in the following way:
 .CS
-
 tepam::procedure <name> {
-   -args \fB{
-      {<argument_name_1> <arg_attr_name_1a> <arg_attr_value_1a> \\
-                         <arg_attr_name_1b> <arg_attr_value_1b> ...}
-      {<argument_name_2> <arg_attr_name_2a> <arg_attr_value_2a> \\
-                         <arg_attr_name_2b> <arg_attr_value_2b> ...}
-      ...
-   }\fR
+-args \fB{
+{<argument_name_1> <arg_attr_name_1a> <arg_attr_value_1a> \\
+<arg_attr_name_1b> <arg_attr_value_1b> ...}
+{<argument_name_2> <arg_attr_name_2a> <arg_attr_value_2a> \\
+<arg_attr_name_2b> <arg_attr_value_2b> ...}
+\...
+}\fR
 } <body>
 .CE
 The argument names and attributes have to be used in the following way:
@@ -490,15 +478,13 @@ The provided argument name specifies whether the argument is an \fIunnamed argum
 \fI"<Name>"\fR
 This is the simplest form of an argument name: An argument whose name is not starting with '-' is an \fIunnamed argument\fR. The parameter provided during a procedure call will be assigned to a variable with the name \fI<Name>\fR.
 .CS
-
 tepam::procedure {print_string} {
-   -args {
-      {\fBtext\fR -type string -description "This is an unnamed argument"}
-   }
-} {
-   puts \fB$text\fR
+-args {
+{\fBtext\fR -type string -description "This is an unnamed argument"}
 }
-
+} {
+puts \fB$text\fR
+}
 print_string \fB"Hello"\fR
 \fI -> Hello\fR
 .CE
@@ -506,15 +492,13 @@ print_string \fB"Hello"\fR
 \fI"-<Name>"\fR
 An argument whose name starts with '-' is a \fInamed argument\fR (also called \fIoption\fR). The parameter provided during a procedure call will be assigned to a variable with the name \fI<Name>\fR (not \fI-<Name>\fR).
 .CS
-
 tepam::procedure {print_string} {
-   -args {
-      {\fB-text\fR -type string -description "This is a named argument"}
-   }
-} {
-   puts \fB$text\fR
+-args {
+{\fB-text\fR -type string -description "This is a named argument"}
 }
-
+} {
+puts \fB$text\fR
+}
 print_string \fB-text "Hello"\fR
 \fI -> Hello\fR
 .CE
@@ -527,19 +511,17 @@ If the \fIunnamed arguments first, named arguments later style (Tk)\fR style is 
 \fI"-"\fR or \fI""\fR
 A blank argument name (either '-' or \fI''\fR) starts a comment for the following arguments.
 .CS
-
 tepam::procedure {print_time} {
-   -interactive_display_format short
-   -args {
-      {hours -type integer -description "Hour"}
-      {minutes -type integer -description "Minute"}
-
-      \fB{- The following arguments are optional:}\fR
-      {seconds -type integer -default 0 -description "Seconds"}
-      {milliseconds -type integer -default 0 -description "Milliseconds"}
-   }
+-interactive_display_format short
+-args {
+{hours -type integer -description "Hour"}
+{minutes -type integer -description "Minute"}
+\fB{- The following arguments are optional:}\fR
+{seconds -type integer -default 0 -description "Seconds"}
+{milliseconds -type integer -default 0 -description "Milliseconds"}
+}
 } {
-   puts "${hour}h${minutes}:[expr $seconds+0.001*$milliseconds]"
+puts "${hour}h${minutes}:[expr $seconds+0.001*$milliseconds]"
 }
 .CE
 .IP
@@ -550,20 +532,18 @@ An argument definition list that starts with '#' is considered as a section comm
 .sp
 Section comments can be used to structure visually the argument definition code. Section comments are also used to structure the generated help texts and the interactive argument definition forms.
 .CS
-
 tepam::procedure {complex_multiply} {
-   -description "This function perform a complex multiplication"
-   -args {
-      \fB{#### First complex number ####}\fR
-      {-r0 -type double -description "First number's real part"}
-      {-i0 -type double -description "First number's imaginary part"}
-
-      \fB{#### Second complex number ####}\fR
-      {-r1 -type double -description "Second number's real part"}
-      {-i1 -type double -description "Second number's imaginary part"}
-   }
+-description "This function perform a complex multiplication"
+-args {
+\fB{#### First complex number ####}\fR
+{-r0 -type double -description "First number's real part"}
+{-i0 -type double -description "First number's imaginary part"}
+\fB{#### Second complex number ####}\fR
+{-r1 -type double -description "Second number's real part"}
+{-i1 -type double -description "Second number's imaginary part"}
+}
 } {
-   return [expr $r0*$r1 - $i0*$i1]
+return [expr $r0*$r1 - $i0*$i1]
 }
 .CE
 .RE
@@ -612,11 +592,10 @@ Another argument constraint can be defined with the \fI-range\fR attribute. The 
 Eventual more complex argument value validations can be performed via specific validation commands that are assigned to the \fI-validatecommand\fR attribute. The provided validation command can be a complete script in which the pattern \fI%P\fR is replaced by the argument value that has to be validated.
 An example of a validation command declaration is:
 .CS
-
 tepam::procedure {display_message} {
-   -args {
-      {text -type string -description "Message text" \\
-            \fB-validatecommand "IllegalWordDetector %P"\fR}
+-args {
+{text -type string -description "Message text" \\
+\fB-validatecommand "IllegalWordDetector %P"\fR}
 } {
 }
 .CE
@@ -628,21 +607,19 @@ The widgets that allow defining the different arguments in case of an interactiv
 -auxargs \fIlist\fR
 In case a procedure is called interactively, additional argument attributes can be provided to the interactive argument definition form via the \fI-auxargs\fR attribute that is itself a list of attribute name/attribute value pairs:
 .CS
-
 -auxargs {-<arg_attr_name_1a> <arg_attr_value_1a> \\
-          -<arg_attr_name_1b> <arg_attr_value_1b>
-          ...
+-<arg_attr_name_1b> <arg_attr_value_1b>
+\...
 }
 .CE
 .IP
 For example, if a procedure takes as argument a file name it may be beneficial to specify the required file type for the interactive argument definition form. This information can be provided via the \fI-auxargs\fR attribute to the argument definition form:
 .CS
-
 tepam::procedure LoadPicture {
-   -args {
-      {FileName -type existingfile -description "Picture file" \\
-                 \fB-auxargs {-filetypes {{"GIF" {*.gif}} {"JPG" {*.jpg}} }}\fR}
-   }
+-args {
+{FileName -type existingfile -description "Picture file" \\
+\fB-auxargs {-filetypes {{"GIF" {*.gif}} {"JPG" {*.jpg}} }}\fR}
+}
 } {
 }
 .CE
@@ -650,10 +627,9 @@ tepam::procedure LoadPicture {
 -auxargs_commands \fIscript\fR
 If the auxiliary argument attributes are not static but have to be dynamically adaptable, the \fI-auxargs_commands\fR allows defining them via commands that are executed during a procedure call. A list of pairs of auxiliary attribute names and commands has to be provided to the \fI-auxargs_commands\fR attribute. The provided commands are executed in the context of the calling procedure.
 .CS
-
 -auxargs_commands {-<arg_attr_name_1a> <arg_attr_command_1a> \\
-                   -<arg_attr_name_1b> <arg_attr_command_1b>
-                   ...
+-<arg_attr_name_1b> <arg_attr_command_1b>
+\...
 }
 .CE
 .RE
@@ -666,7 +642,6 @@ This variable defines the general calling style of the procedures. It is by defa
 .sp
 By setting this variable to \fB0\fR, the \fInamed arguments first, unnamed arguments later\fR style is globally selected (Tk style):
 .CS
-
 set tepam::named_arguments_first 0
 .CE
 .sp
@@ -677,7 +652,6 @@ This variable controls the general automatic argument name matching mode. By def
 .sp
 By setting this variable to \fB0\fR the automatic argument name matching mode is disabled:
 .CS
-
 set tepam::auto_argument_name_completion 0
 .CE
 .sp
@@ -688,7 +662,6 @@ A procedure declared via the TEPAM \fBprocedure\fR command can always be called 
 .sp
 There are two display modes for these interactive forms. The \fIextended\fR mode which is the default mode is more adapted for small procedure argument sets. The \fBshort\fR form is more adequate for huge procedure argument sets:
 .CS
-
 set tepam::interactive_display_format "short"
 .CE
 .sp
@@ -698,7 +671,6 @@ This global setting can be changed individually for a procedure with the procedu
 \fBhelp_line_length\fR
 The maximum line length used by the procedure help text generator can be specified with this variable. The default length which is set to 80 (characters) can easily be adapted to the need of an application:
 .CS
-
 set tepam::help_line_length 120
 .CE
 .IP
@@ -723,16 +695,15 @@ A comprehensive set of procedure argument types that is already predefined by TE
 .SS "PREDEFINED ARGUMENT TYPES"
 To remember, a type can be assigned to each specified procedure argument:
 .CS
-
 tepam::procedure {warning} {
-   -args {
-      {-font \fB-type font\fR -default {Arial 10 italic}}
-      {-severity_level \fB-type integer\fR -optional -range {1 10}}
-      {-fg \fB-type color\fR -optional -description "Message color"}
-      {text \fB-type string\fR -multiple -description "Multiple text lines to display"}
-   }
+-args {
+{-font \fB-type font\fR -default {Arial 10 italic}}
+{-severity_level \fB-type integer\fR -optional -range {1 10}}
+{-fg \fB-type color\fR -optional -description "Message color"}
+{text \fB-type string\fR -multiple -description "Multiple text lines to display"}
+}
 } {
-   ...
+\...
 }
 .CE
 There are some \fIspecial purpose types\fR that are building the first category of predefined argument types:
@@ -741,18 +712,15 @@ There are some \fIspecial purpose types\fR that are building the first category 
 .sp
 A \fIflag\fR, also called \fIswitch\fR, is defined as a named argument that has the type \fBnone\fR. Flags are always optional and the default value of the assigned variable is set to \fB0\fR. In contrast to the (normal) named arguments, no argument value has to be provided to a flag.
 .CS
-
 tepam::procedure flag_test {
-   -args {
-      \fB{-flag -type none -description "This is a flag"}\fR
-   }
-} {
-   puts \fB$flag\fR
+-args {
+\fB{-flag -type none -description "This is a flag"}\fR
 }
-
+} {
+puts \fB$flag\fR
+}
 flag_test
 \fI-> 0\fR
-
 flag_test -flag
 \fI-> 1\fR
 .CE
@@ -774,7 +742,6 @@ A \fBblank\fR argument type signifies an undefined argument type. This is the de
 .PP
 Several \fInumerical types\fR are defined by TEPAM. The type validation procedures are using the \fBstring is <type> -strict\fR commands to check the validity of the provided arguments, which assures that no empty strings are accepted as argument value. The type validation expression for the numerical types and the argument types to which this expression is applied are:
 .CS
-
 string is \fB<type_to_check>\fR -strict \fI<argument_value>\fR
 .CE
 .IP \(bu
@@ -789,7 +756,6 @@ string is \fB<type_to_check>\fR -strict \fI<argument_value>\fR
 .PP
 Empty strings are accepted as argument value for all the alpha numeric argument types. The argument types that are falling into this category and validation expression used for them are:
 .CS
-
 string is \fI<type_to_check>\fR \fI<argument_value>\fR
 .CE
 .IP \(bu
@@ -839,7 +805,6 @@ In addition to the data types checked with the \fBstring is <type>\fR commands, 
 .sp
 Each string that has a length of 1 character meets the \fIcharacter\fR type. The type check is made with the following expression:
 .CS
-
 expr [string length \fI<argument_value>\fR]==1
 .CE
 .IP \(bu
@@ -847,7 +812,6 @@ expr [string length \fI<argument_value>\fR]==1
 .sp
 Any character strings that are accepted by Tk as a color are considered as valid color argument. Please note that the Tk package has to be loaded to use the type \fIcolor\fR. TEPAM is using the following command to validate the color type:
 .CS
-
 expr ![catch {winfo rgb . \fI<argument_value>\fR}]
 .CE
 .IP \(bu
@@ -855,7 +819,6 @@ expr ![catch {winfo rgb . \fI<argument_value>\fR}]
 .sp
 Any character strings that are accepted by Tk as a font are considered as valid font argument. Please note that the Tk package has to be loaded to use the \fIfont\fR type. TEPAM is using the following command to validate the color type:
 .CS
-
 expr ![catch {font measure <argument_value> ""}]
 .CE
 .IP \(bu
@@ -865,7 +828,6 @@ Any strings that are not containing one of the following characters are consider
 .sp
 The following expression is used to validate the file names:
 .CS
-
 expr [string length <argument_value>]>0 && ![regexp {[\\"*?<>:]} <argument_value>]
 .CE
 .IP \(bu
@@ -873,7 +835,6 @@ expr [string length <argument_value>]>0 && ![regexp {[\\"*?<>:]} <argument_value
 .sp
 The argument is valid if it matches with an existing file. The following check is performed to validate the arguments of this type:
 .CS
-
 file exists <argument_value>
 .CE
 .IP \(bu
@@ -885,7 +846,6 @@ The directory argument is validated exactly in the same way as the file argument
 .sp
 The argument is valid if it matches with an existing directory. The following check is performed to validate the arguments of this type:
 .CS
-
 file isdirectory <argument_value>
 .CE
 .PP
@@ -896,7 +856,6 @@ The validation command section of the "\fItepam.tcl\fR" package provides suffici
 .PP
 The following additional code snippet shows the validation function for a custom argument type that requires values that have a character string length of exactly 2:
 .CS
-
 proc tepam::Validate(two_char) {v} {expr [string length $v]==2}
 .CE
 .SH "PROCEDURE CALLS"
@@ -905,33 +864,30 @@ Each procedure can be called with the \fI-help\fR flag. The procedure will then 
 .PP
 Taking the first procedure declared in \fBPROCEDURE CALLS\fR, the help request and the printed help text would be:
 .CS
-
 \fBdisplay message -help\fR
 \fI->
 NAME
-      display message - Displays a simple message box
+display message - Displays a simple message box
 SYNOPSIS
-      display message
-            [-mtype <mtype>]
-               Message type, default: "Warning", choices: {Info, Warning, Error}
-            <text>
-               Multiple text lines to display, type: string
+display message
+[-mtype <mtype>]
+Message type, default: "Warning", choices: {Info, Warning, Error}
+<text>
+Multiple text lines to display, type: string
 DESCRIPTION
-      This procedure allows displaying a configurable message box. The default
-      message type that is created is a warning, but also errors and info can
-      be generated.
-      The procedure accepts multiple text lines.
+This procedure allows displaying a configurable message box. The default
+message type that is created is a warning, but also errors and info can
+be generated.
+The procedure accepts multiple text lines.
 EXAMPLE
-      display message -mtype Warning "Save first your job"\fR
+display message -mtype Warning "Save first your job"\fR
 .CE
 The argument manager is checking if the last provided argument is \fI-help\fR and generates the requested help message if this is the case. So, also the following example will print the help message:
 .CS
-
 \fBdisplay message -mtype Info "It is 7:00" -help\fR
 .CE
 On the other hand, the following call will result in an error:
 .CS
-
 \fBdisplay message -help -mtype Info "It is 7:00"\fR
 \fI->
 display message: Argument '-help' not known\fR
@@ -939,49 +895,40 @@ display message: Argument '-help' not known\fR
 .SS "INTERACTIVE PROCEDURE CALL"
 Calling a procedure with the \fI-interactive\fR flag will open a graphical form that allows specifying interactively all procedure arguments. The Tk library has to be loaded to use the interactive call. The following example assures that the Tk library is loaded and shows the command line to call interactively the procedure declared in \fBPROCEDURE CALLS\fR:
 .CS
-
 package require Tk
 \fBdisplay message -interactive\fR
 .CE
 Also the \fI-interactive\fR flag has to be placed at the last argument position as this is also required for the \fI-help\fR flag. Arguments defined before the \fI-interactive\fR flag will be ignored. The following example is therefore also a valid interactive procedure call:
 .CS
-
 \fBdisplay message\fR -mtype Info "It is 7:00" \fB-interactive\fR
 .CE
 .SS "UNNAMED ARGUMENTS"
 Unnamed arguments are typically provided to the called procedure as simple parameters. This procedure calling form requires that the provided arguments are strictly following the order of the specified arguments. Several parameters can be assigned to the last argument if this one has the \fI-multiple\fR attribute. So, the following declared procedure ...
 .CS
-
 tepam::procedure {display_message} {
-   -args {
-      {mtype -choices {Info Warning Error}}
-      {text -type string -multiple}
-   }
+-args {
+{mtype -choices {Info Warning Error}}
+{text -type string -multiple}
+}
 } {
-   puts "$mtype: [join $text]"
+puts "$mtype: [join $text]"
 }
 .CE
-... can for example be called in the following ways:
+\... can for example be called in the following ways:
 .CS
-
 \fBdisplay_message Info "It is PM 7:00."\fR
 \fI-> Info: It is PM 7:00.\fR
-
 \fBdisplay_message Info "It is PM 7:00." "You should go home."\fR
 \fI-> Info: It is PM 7:00. You should go home.\fR
 .CE
 The nice thing is that unnamed arguments can also be called as named arguments, which can be handy, for example if the exact specified argument order is not known to a user:
 .CS
-
 \fBdisplay_message -mtype Info -text "It is PM 7:00."\fR
 \fI-> Info: It is PM 7:00.\fR
-
 \fBdisplay_message -text "It is PM 7:00." -mtype Info\fR
 \fI-> Info: It is PM 7:00.\fR
-
 \fBdisplay_message -mtype Info -text "It is PM 7:00." -text "You should go home."\fR
 \fI-> Info: It is PM 7:00. You should go home.\fR
-
 \fBdisplay_message -text "It is PM 7:00." -text "You should go home." -mtype Info\fR
 \fI-> Info: It is PM 7:00. You should go home.\fR
 .CE
@@ -990,87 +937,73 @@ Named arguments have to be provided to a procedure in form of a parameter pairs 
 .PP
 The following declared procedure ...
 .CS
-
 tepam::procedure {display_message} {
-   -args {
-      {-mtype -choices {Info Warning Error}}
-      {-text -type string -multiple}
-   }
+-args {
+{-mtype -choices {Info Warning Error}}
+{-text -type string -multiple}
+}
 } {
-   puts "$mtype: [join $text]"
+puts "$mtype: [join $text]"
 }
 .CE
-... can be called in the following ways:
+\... can be called in the following ways:
 .CS
-
 \fBdisplay_message -mtype Info -text "It is PM 7:00."\fR
 \fI-> Info: It is PM 7:00.\fR
-
 \fBdisplay_message -text "It is PM 7:00." -mtype Info\fR
 \fI-> Info: It is PM 7:00.\fR
-
 \fBdisplay_message -mtype Info -text "It is PM 7:00." -text "You should go home."\fR
 \fI-> Info: It is PM 7:00. You should go home.\fR
-
 \fBdisplay_message -text "It is PM 7:00." -text "You should go home." -mtype Info\fR
 \fI-> Info: It is PM 7:00. You should go home.\fR
 .CE
 Also named arguments that have not the \fI-multiple\fR attribute can be provided multiple times. Only the last provided argument will be retained in such a case:
 .CS
-
 \fBdisplay_message -mtype Info -text "It is PM 7:00." -mtype Warning\fR
 \fI-> Warning: It is PM 7:00.\fR
 .CE
 .SS "UNNAMED ARGUMENTS FIRST, NAMED ARGUMENTS LATER (TK STYLE)"
 A procedure that has been defined while the variable \fBtepam::named_arguments_first\fR was set to 1, or with the procedure attribute \fI-named_arguments_first\fR set to 1 has to be called in the Tcl style. The following procedure declaration will be used in this section to illustrate the meaning of this calling style:
 .CS
-
 \fBset tepam::named_arguments_first 1\fR
 tepam::procedure my_proc {
-   -args {
-      {-n1 -default ""}
-      {-n2 -default ""}
-      {u1 -default ""}
-      {u2 -default ""}
-   }
+-args {
+{-n1 -default ""}
+{-n2 -default ""}
+{u1 -default ""}
+{u2 -default ""}
+}
 } {
-   puts "n1:'$n1', n2:'$n2', u1:'$u1', u2:'$u2'"
+puts "n1:'$n1', n2:'$n2', u1:'$u1', u2:'$u2'"
 }
 .CE
 The unnamed arguments are placed at the end of procedure call, after the named arguments:
 .CS
-
 my_proc \fB-n1 N1 -n2 N2 U1 U2\fR
 \fI-> n1:'N1', n2:'N2', u1:'U1', u2:'U2'\fR
 .CE
 The argument parser considers the first argument that doesn't start with the '-' character as well as all following arguments as unnamed argument:
 .CS
-
 my_proc \fBU1 U2\fR
 \fI-> n1:'', n2:'', u1:'U1', u2:'U2'\fR
 .CE
 Named arguments can be defined multiple times. If the named argument has the \fI-multiply\fR attribute, all argument values will be collected in a list. Otherwise, only the last provided attribute value will be retained:
 .CS
-
 my_proc \fB-n1 N1 -n2 N2 -n1 M1 U1 U2\fR
 \fI-> n1:'M1', n2:'N2', u1:'U1', u2:'U2'\fR
 .CE
 The name of the first unnamed argument has therefore not to start with the '-' character. The unnamed argument is otherwise considered as name of another named argument. This is especially important if the first unnamed argument is given by a variable that can contain any character strings:
 .CS
-
 my_proc \fB-n1 N1 -n2 N2 "->" "<-"\fR
 \fI-> my_proc: Argument '->' not known\fR
-
 set U1 "->"
 my_proc -n1 N1 -n2 N2 $U1 U2}]
 my_proc: Argument '->' not known
 .CE
 The '--' flag allows separating unambiguously the unnamed arguments from the named arguments. All data after the '--' flag will be considered as unnamed argument:
 .CS
-
 my_proc \fB-n1 N1 -n2 N2 -- "->" "<-"\fR
 \fI-> n1:'N1', n2:'N2', u1:'->', u2:'<-'\fR
-
 set U1 "->"
 my_proc \fB-n1 N1 -n2 N2 -- $U1 U2\fR
 \fI-> n1:'N1', n2:'N2', u1:'->', u2:'<-'\fR
@@ -1078,22 +1011,20 @@ my_proc \fB-n1 N1 -n2 N2 -- $U1 U2\fR
 .SS "NAMED ARGUMENTS FIRST, UNNAMED ARGUMENTS LATER (TCL STYLE)"
 The Tk calling style will be chosen if a procedure is defined while the variable \fBtepam::named_arguments_first\fR is set to 0, or if the procedure attribute \fI-named_arguments_first\fR has been set to 0. The following procedure will be used in this section to illustrate this calling style:
 .CS
-
 \fBset tepam::named_arguments_first 0\fR
 tepam::procedure my_proc {
-   -args {
-      {-n1 -default ""}
-      {-n2 -default ""}
-      {u1}
-      {u2 -default "" -multiple}
-   }
+-args {
+{-n1 -default ""}
+{-n2 -default ""}
+{u1}
+{u2 -default "" -multiple}
+}
 } {
-   puts "n1:'$n1', n2:'$n2', u1:'$u1', u2:'$u2'"
+puts "n1:'$n1', n2:'$n2', u1:'$u1', u2:'$u2'"
 }
 .CE
 The unnamed arguments have to be provided first in this case. The named arguments are provided afterwards:
 .CS
-
 my_proc \fBU1 U2 -n1 N1 -n2 N2\fR
 \fI-> n1:'N1', n1:'N1', u1:'U1', u2:'U2'\fR
 .CE
@@ -1107,73 +1038,61 @@ Values that start with the '-' character can therefore not be assigned to option
 .PP
 Let's explore in a bit less theoretically the ways how the previously defined procedure can be called: The first example calls the procedure without any parameters, which leads to an error since \fIu1\fR is a mandatory argument:
 .CS
-
 my_proc
 \fI-> my_proc: Required argument is missing: u1\fR
 .CE
 The procedure call is valid if one parameter is provided for \fIu1\fR:
 .CS
-
 my_proc \fBU1\fR
 \fI-> n1:'', n2:'', u1:'U1', u2:''\fR
 .CE
 If more parameters are provided that are not starting with the '-' character, they will be attributed to the unnamed arguments. \fIU2\fR will receive 3 of these parameters, since it accepts multiple values:
 .CS
-
 my_proc \fBU1 U2 U3 U4\fR
 \fI-> n1:'', n2:'', u1:'U1', u2:'U2 U3 U4'\fR
 .CE
 As soon as one parameter starts with '-' and all unnamed arguments have been assigned, the argument manager tries to interpret the parameter as name of a named argument. The procedure call will fail if a value beginning with '-' is assigned to an unnamed argument:
 .CS
-
 my_proc \fBU1 U2 U3 U4 -U5\fR
 \fI-> my_proc: Argument '-U5' not known\fR
 .CE
 The attribution of a parameter to a named argument will fail if there are undefined unnamed (non optional) arguments. The name specification will in this case simply be considered as a parameter value that is attributed to the \fInext\fR unnamed argument. This was certainly not the intention in the following example:
 .CS
-
 my_proc \fB-n1 N1\fR
 \fI-> n1:'', n2:'', u1:'-n1', u2:'N1'\fR
 .CE
 The situation is completely different if values have already been assigned to all mandatory unnamed arguments. A parameter beginning with the '-' character will in this case be considered as a name identifier for a named argument:
 .CS
-
 my_proc \fBU1 -n1 N1\fR
 \fI-> n1:'N1', n2:'', u1:'U1', u2:''\fR
 .CE
 No unnamed arguments are allowed behind the named arguments:
 .CS
-
 my_proc \fBU1 -n1 N1 U2\fR
 \fI-> my_proc: Argument 'U2' is not an option\fR
 .CE
 The '--' flag has no special meaning if not all mandatory arguments have got assigned a value. This flag will simply be attributed to one of the unnamed arguments:
 .CS
-
 my_proc \fB-- -n1 N1\fR
 \fI-> n1:'N1', n2:'', u1:'--', u2:''\fR
 .CE
 But the '--' flag is simply ignored if the argument parser has started to handle the named arguments:
 .CS
-
 my_proc \fBU1 -- -n1 N1\fR
 \fI-> n1:'N1', n2:'', u1:'U1', u2:''\fR
-
 my_proc \fBU1 -n1 N1 -- -n2 N2\fR
 \fI-> n1:'N1', n2:'N2', u1:'U1', u2:''\fR
 .CE
 .SS "RAW ARGUMENT LIST"
 It may be necessary sometimes that the procedure body is able to access the entire list of arguments provided during a procedure call. This can happen via the \fBargs\fR variable that contains always the unprocessed argument list:
 .CS
-
 tepam::procedure {display_message} {
-   -args {
-      {-mtype -choices {Warning Error} -default Warning}
-      {text -type string -multiple}
-
-   }
+-args {
+{-mtype -choices {Warning Error} -default Warning}
+{text -type string -multiple}
+}
 } {
-   puts "args: \fB$args\fR"
+puts "args: \fB$args\fR"
 }
 display_message -mtype Warning "It is 7:00"
 \fI-> args: -mtype Warning {It is 7:00}\fR
@@ -1187,5 +1106,4 @@ Procedures, arguments, parameters, options
 .SH COPYRIGHT
 .nf
 Copyright (c) 2009/2010, Andreas Drollinger
-
 .fi

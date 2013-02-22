@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -289,15 +288,11 @@ instead of the node.
 The removal of nodes in the AST \fItree\fR can cause symbols to lose
 one or more users.
 .CS
-
-
-	A used by B and C,
-	B is reachable,
-	C is not,
-
-	so A now loses the node in the expression for C calling it,
-	or rather, not calling it anymore.
-
+A used by B and C,
+B is reachable,
+C is not,
+so A now loses the node in the expression for C calling it,
+or rather, not calling it anymore.
 .CE
 .IP
 This command updates the cross-references and which nonterminals are
@@ -350,5 +345,4 @@ Page Parser Generator
 .SH COPYRIGHT
 .nf
 Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi
