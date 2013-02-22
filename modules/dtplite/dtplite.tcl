@@ -212,18 +212,6 @@ namespace eval ::dtplite {
     variable  prenav  {}
     variable  postnav {}
 
-    # An array caching the result of merging header and navbar data,
-    # keyed by the navbar definition (list). This allows us to quickly
-    # access the complete header for a navbar, without having to
-    # generate it over and over again. Its usefulness is a bit limited
-    # by the fact that the navbar itself can be generated on a
-    # file-by-file basis (required to get the relative links
-    # correct. It helps only if the generated navbars are identical to
-    # each other.
-
-    variable  navcache
-    array set navcache {}
-
     # The name of the format to convert the doctools documents
     # into. Set via the next-to-last argument on the command
     # line. Used as extension for the generated files as well by the
@@ -359,6 +347,41 @@ namespace eval ::dtplite {
 #  prefixes, keywords with suffixces), values a list containing either
 #  the file to refer to to, or both file and an anchor in that
 #  file. The latter is for references into the index.
+
+proc ::dtplite::Init {} {
+    variable  data
+    variable  ext    ""
+    variable  footer ""
+    variable  format ""
+    variable  header ""
+    variable  imap
+    variable  input  ""
+    variable  kwid
+    variable  merge  0
+    variable  meta
+    variable  mode   ""
+    variable  module ""
+    variable  nav     {}
+    variable  out
+    variable  output ""
+    variable  postnav {}
+    variable  prenav  {}
+    variable  single 1
+    variable  stdout 0
+    variable  style  ""
+    variable  xref
+    variable excl {}
+    variable utoc {}
+
+    array unset data     *
+    array unset imap     *
+    array unset kwid     *
+    array unset meta     *
+    array unset out      *
+    array unset xref     *
+
+    return
+}
 
 # ### ### ### ######### ######### #########
 ## Option processing.
@@ -1052,7 +1075,7 @@ proc ::dtplite::TocWrite {ftoc findex text {map {}}} {
     doctools::toc::new toc -format $format -file $ft
 
     NavbuttonPush {Keyword Index} [Output $findex] $ftoc
-    HeaderSetup  toc {}
+    HeaderSetup  toc $ft
     NavbuttonPop
     FooterSetup  toc
     StyleSetup   toc $ftoc
@@ -1183,7 +1206,7 @@ proc ::dtplite::IdxWrite {findex ftoc text} {
     doctools::idx::new idx -format $format -file $fi
 
     NavbuttonPush {Table Of Contents} [Output $ftoc] $findex
-    HeaderSetup   idx {}
+    HeaderSetup   idx $findex
     NavbuttonPop
     FooterSetup   idx
     StyleSetup    idx $findex
@@ -1476,7 +1499,8 @@ proc ::dtplite::XrefSetupKwid {o} {
 proc ::dtplite::NavbuttonPush {label file ref} {
     # nav = list (list (label reference) ...)
     variable nav
-    set      nav [linsert $nav 0 [list $label [fileutil::relativeUrl $ref $file]]]
+    #set file [fileutil::relativeUrl $ref $file]]]
+    set      nav [linsert $nav 0 [list $label $file]]
     return
 }
 
@@ -1496,8 +1520,6 @@ proc ::dtplite::HeaderSetup {o ref} {
     variable header
     variable nav
 
-puts Header($ref)
-
     if {[string equal $header ""] && ![llength $nav]} return
     if {![in [$o parameters] header]}                 return
 
@@ -1506,20 +1528,9 @@ puts Header($ref)
 }
 
 proc ::dtplite::Navbar {nav ref} {
-    variable navbar
-    variable navcache
-
-    if {![info exists navcache($nav)]} {
-	NavbarGenerate $nav $ref
-    }
-    return $navcache($nav)
-}
-
-proc ::dtplite::NavbarGenerate {nav ref} {
     variable header
     variable prenav
     variable postnav
-    variable navcache
 
     set sep 0
     set hdr ""
@@ -1529,14 +1540,13 @@ proc ::dtplite::NavbarGenerate {nav ref} {
     }
 
     append hdr [NavbarSegment sep $prenav  $ref]
-    append hdr [NavbarSegment sep $nav     {}]
+    append hdr [NavbarSegment sep $nav     $ref]
     append hdr [NavbarSegment sep $postnav $ref]
 
     if {[string length $hdr]} {
 	set hdr "<hr> \[\n $hdr \] <hr>\n"
     }
 
-    set navcache($nav) $hdr
     return $hdr
 }
 
@@ -1585,6 +1595,8 @@ proc ::dtplite::print-via {cmd} {
 }
 
 proc ::dtplite::do {arguments} {
+    Init
+
     if {[catch {
 	ProcessCmdline $arguments
     }]} {
@@ -1595,9 +1607,11 @@ proc ::dtplite::do {arguments} {
 	Do.$mode
     } msg]} {
 	## puts $::errorInfo
+	dt destroy
 	ArgError $msg
 	return 1
     }
+    dt destroy
     return 0
 }
 
