@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -285,11 +284,8 @@ in this package. NMEA data consists of a sentence type, followed by a list of da
 \fB::nmea::input\fR \fIsentence\fR
 Processes and dispatches the supplied sentence. If \fIsentence\fR contains no commas it is treated as a Tcl list, otherwise it must be standard comma delimited NMEA data, with an optional checksum and leading \fB$\fR.
 .CS
-
-
 nmea::input {$GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1*39}
 nmea::input [list GPGSA A 3 04 05  09 12 "" "" 24 "" "" ""  2.5 1.3 2.1]
-
 .CE
 .TP
 \fB::nmea::open_port\fR \fIport\fR ?speed?
@@ -346,19 +342,14 @@ which is a list of the data values.
 The DEFAULT handler should have two arguments, the sentence type and the data values.
 The EOF handler has no arguments.
 .CS
-
-
 nmea::event gpgsa parse_sat_detail
 nmea::event default handle_unknown
-
 proc parse_sat_detail {data} {
-    puts [lindex $data 1]
+puts [lindex $data 1]
 }
-
 proc handle_unknown {name data} {
-    puts "unknown data type $name"
+puts "unknown data type $name"
 }
-
 .CE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
@@ -375,5 +366,4 @@ Networking
 .SH COPYRIGHT
 .nf
 Copyright (c) 2006-2009, Aaron Faupell <afaupell@users.sourceforge.net>
-
 .fi

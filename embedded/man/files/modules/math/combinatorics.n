@@ -221,7 +221,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -268,10 +267,7 @@ Returns the natural logarithm of the Gamma function for the argument
 The Gamma function is defined as the improper integral from zero to
 positive infinity of
 .CS
-
-
-  t**(x-1)*exp(-t) dt
-
+t**(x-1)*exp(-t) dt
 .CE
 .sp
 The approximation used in the Tcl Math Library is from Lanczos,
@@ -279,10 +275,7 @@ The approximation used in the Tcl Math Library is from Lanczos,
 For "\fBx\fR > 1", the absolute error of the result is claimed to be
 smaller than 5.5*10**-10 -- that is, the resulting value of Gamma when
 .CS
-
-
-  exp( ln_Gamma( x) )
-
+exp( ln_Gamma( x) )
 .CE
 .IP
 is computed is expected to be precise to better than nine significant
@@ -311,10 +304,7 @@ of \fIx\fR that is not numeric.
 \fB::math::choose\fR \fIn k\fR
 Returns the binomial coefficient \fIC(n, k)\fR
 .CS
-
-
-   C(n,k) = n! / k! (n-k)!
-
+C(n,k) = n! / k! (n-k)!
 .CE
 .IP
 If both parameters are integers and the result fits in 32 bits, the
@@ -326,10 +316,7 @@ results are precise to better than nine significant figures.
 \fB::math::Beta\fR \fIz w\fR
 Returns the Beta function of the parameters \fIz\fR and \fIw\fR.
 .CS
-
-
-   Beta(z,w) = Beta(w,z) = Gamma(z) * Gamma(w) / Gamma(z+w)
-
+Beta(z,w) = Beta(w,z) = Gamma(z) * Gamma(w) / Gamma(z+w)
 .CE
 .IP
 Results are returned as a floating point number precise to better than

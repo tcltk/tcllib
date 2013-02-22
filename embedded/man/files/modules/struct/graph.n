@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -454,39 +453,27 @@ serialized graph object and \fBdeserialize\fR will be executed.
 In other words
 .sp
 .CS
-
-
-    ::struct::graph mygraph = b
-
+::struct::graph mygraph = b
 .CE
 .sp
 is equivalent to
 .sp
 .CS
-
-
-    ::struct::graph mygraph
-    mygraph = b
-
+::struct::graph mygraph
+mygraph = b
 .CE
 .sp
 and
 .sp
 .CS
-
-
-    ::struct::graph mygraph deserialize $b
-
+::struct::graph mygraph deserialize $b
 .CE
 .sp
 is equivalent to
 .sp
 .CS
-
-
-    ::struct::graph mygraph
-    mygraph deserialize $b
-
+::struct::graph mygraph
+mygraph deserialize $b
 .CE
 .PP
 .PP
@@ -501,10 +488,7 @@ deleted by this operation.
 This operation is in effect equivalent to
 .sp
 .CS
-
-
-    \fIgraphName\fR \fBdeserialize\fR [\fIsourcegraph\fR \fBserialize\fR]
-
+\fIgraphName\fR \fBdeserialize\fR [\fIsourcegraph\fR \fBserialize\fR]
 .CE
 .sp
 The operation assumes that the \fIsourcegraph\fR provides the method
@@ -520,10 +504,7 @@ The old contents of \fIdestgraph\fR are deleted by this operation.
 This operation is in effect equivalent to
 .sp
 .CS
-
-
-    \fIdestgraph\fR \fBdeserialize\fR [\fIgraphName\fR \fBserialize\fR]
-
+\fIdestgraph\fR \fBdeserialize\fR [\fIgraphName\fR \fBserialize\fR]
 .CE
 .sp
 The operation assumes that the \fIdestgraph\fR provides the method
@@ -999,27 +980,24 @@ attributes, and the values are the values for each name.
 \fINote:\fR The order of the nodes in the serialization has no
 relevance, nor has the order of the arcs per node.
 .CS
-
-
-    # A possible serialization for the graph structure
-    #
-    #        d -----> %2
-    #       /         ^ \\\\
-    #      /         /   \\\\
-    #     /         b     \\\\
-    #    /         /       \\\\
-    #  %1 <- a - %0         e
-    #    ^         \\\\      /
-    #     \\\\        c     /
-    #      \\\\        \\\\  /
-    #       \\\\        v v
-    #        f ------ %3
-    # is
-    #
-    # %3 {} {{f 6 {}}} %0 {} {{a 6 {}} {b 9 {}} {c 0 {}}} %1 {} {{d 9 {}}} %2 {} {{e 0 {}}} {}
-    #
-    # This assumes that the graph has neither attribute data nor weighted arcs.
-
+# A possible serialization for the graph structure
+#
+#        d -----> %2
+#       /         ^ \\\\
+#      /         /   \\\\
+#     /         b     \\\\
+#    /         /       \\\\
+#  %1 <- a - %0         e
+#    ^         \\\\      /
+#     \\\\        c     /
+#      \\\\        \\\\  /
+#       \\\\        v v
+#        f ------ %3
+# is
+#
+# %3 {} {{f 6 {}}} %0 {} {{a 6 {}} {b 9 {}} {c 0 {}}} %1 {} {{d 9 {}}} %2 {} {{e 0 {}}} {}
+#
+# This assumes that the graph has neither attribute data nor weighted arcs.
 .CE
 .sp
 .TP
@@ -1126,5 +1104,4 @@ Data structures
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

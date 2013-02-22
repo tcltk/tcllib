@@ -25,9 +25,9 @@ proc ::sak::doc::auto::kwic {} {
     return [file join $here kwic.txt]
 }
 
-proc ::sak::doc::auto::toc {} {
+proc ::sak::doc::auto::toc {{name toc.txt}} {
     variable here
-    return [file join $here toc.txt]
+    return [file join $here $name]
 }
 
 ## ### ### ### ######### ######### #########
@@ -160,6 +160,94 @@ proc ::sak::doc::auto::saveTableOfContents {tv nv cv av mv} {
     Tag+ toc_end
 
     fileutil::writeFile [toc] [join $lines \n]
+    return
+}
+
+proc ::sak::doc::auto::saveSimpleTableOfContents1 {tv nv dv fname} {
+    upvar 1 $tv title $nv name $dv data
+    # title: file     -> description
+    # name:  file     -> label
+    # data:  list(file...)
+
+    TagsBegin
+    Tag+ toc_begin [list {Table Of Contents} {}]
+
+    # The man pages are sorted in several ways for the toc.
+    # Subsections are the modules or apps, whatever is in data.
+
+    # Not handled: 'no applications'
+    Tag+ division_start [list {Applications}]
+    foreach item [lsort -dict -index 0 [Sortable $data name maxf maxl]] {
+	foreach {label file} $item break
+	Tag+ item \
+	    [FmtR maxf $file] \
+	    [FmtR maxl $label] \
+	    [list $title($file)]
+    }
+    Tag+ division_end
+    Tag+ toc_end
+
+    fileutil::writeFile [toc $fname] [join $lines \n]
+    return
+}
+
+proc ::sak::doc::auto::saveSimpleTableOfContents2 {tv nv dv fname} {
+    upvar 1 $tv title $nv name $dv data
+    # title: file     -> description
+    # name:  file     -> label
+    # data:  module -> list (file...)
+
+    TagsBegin
+    Tag+ toc_begin [list {Table Of Contents} {}]
+
+    # The man pages are sorted in several ways for the toc.
+    # Subsections are the modules or apps, whatever is in data.
+
+    # Not handled: 'no modules'
+    Tag+ division_start [list {Modules}]
+    foreach m [lsort -dict [array names data]] {
+	Tag+ division_start [list $m]
+	foreach item [lsort -dict -index 0 [Sortable $data($m) name maxf maxl]] {
+	    foreach {label file} $item break
+	    Tag+ item \
+		[FmtR maxf $file] \
+		[FmtR maxl $label] \
+		[list $title($file)]
+	}
+	Tag+ division_end
+    }
+    Tag+ division_end
+    Tag+ toc_end
+
+    fileutil::writeFile [toc $fname] [join $lines \n]
+    return
+}
+
+proc ::sak::doc::auto::saveSimpleTableOfContents3 {tv nv cv fname} {
+    upvar 1 $tv title $nv name $cv cat
+    # title: file     -> description
+    # name:  file     -> label
+    # cat:   category -> list (file...)
+
+    TagsBegin
+    Tag+ toc_begin [list {Table Of Contents} {}]
+
+    Tag+ division_start [list {By Categories}]
+    foreach c [lsort -dict [array names cat]] {
+	Tag+ division_start [list $c]
+	foreach item [lsort -dict -index 0 [Sortable $cat($c) name maxf maxl]] {
+	    foreach {label file} $item break
+	    Tag+ item \
+		[FmtR maxf $file] \
+		[FmtR maxl $label] \
+		[list $title($file)]
+	}
+	Tag+ division_end
+    }
+    Tag+ division_end
+    Tag+ toc_end
+
+    fileutil::writeFile [toc $fname] [join $lines \n]
     return
 }
 

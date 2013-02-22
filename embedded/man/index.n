@@ -220,7 +220,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -241,13 +240,13 @@ Database Class:	\\fB\\$3\\fR
 .SH INDEX
 tcllib
 .RS
-.ddt
+\.ddt
 .RS
 .TP
 \fBfiles/modules/docstrip/docstrip_util.n\fR
 docstrip_util
 .RE
-.dtx
+\.dtx
 .RS
 .TP
 \fBfiles/modules/docstrip/docstrip.n\fR
@@ -1585,6 +1584,9 @@ doctools::toc::export
 \fBfiles/modules/doctools2toc/import.n\fR
 doctools::toc::import
 .TP
+\fBfiles/modules/dtplite/dtplite.n\fR
+dtplite
+.TP
 \fBfiles/apps/dtplite.n\fR
 dtplite
 .TP
@@ -2167,6 +2169,9 @@ doctools::msgcat::idx::en
 \fBfiles/modules/doctools2idx/msgcat_fr.n\fR
 doctools::msgcat::idx::fr
 .TP
+\fBfiles/modules/dtplite/dtplite.n\fR
+dtplite
+.TP
 \fBfiles/apps/dtplite.n\fR
 dtplite
 .RE
@@ -2280,6 +2285,9 @@ doctools::toc::parse
 .TP
 \fBfiles/modules/doctools2toc/structure.n\fR
 doctools::toc::structure
+.TP
+\fBfiles/modules/dtplite/dtplite.n\fR
+dtplite
 .TP
 \fBfiles/apps/dtplite.n\fR
 dtplite
@@ -2448,6 +2456,9 @@ doctools::toc::parse
 .TP
 \fBfiles/modules/doctools2toc/structure.n\fR
 doctools::toc::structure
+.TP
+\fBfiles/modules/dtplite/dtplite.n\fR
+dtplite
 .TP
 \fBfiles/apps/dtplite.n\fR
 dtplite
@@ -3907,6 +3918,9 @@ doctools::toc::export
 \fBfiles/modules/doctools2toc/export_html.n\fR
 doctools::toc::export::html
 .TP
+\fBfiles/modules/dtplite/dtplite.n\fR
+dtplite
+.TP
 \fBfiles/apps/dtplite.n\fR
 dtplite
 .TP
@@ -5002,6 +5016,9 @@ doctools::toc::import
 \fBfiles/modules/doctools/doctools_plugin_apiref.n\fR
 doctools_plugin_apiref
 .TP
+\fBfiles/modules/dtplite/dtplite.n\fR
+dtplite
+.TP
 \fBfiles/apps/dtplite.n\fR
 dtplite
 .TP
@@ -5121,6 +5138,9 @@ doctools_lang_syntax
 .TP
 \fBfiles/modules/doctools/doctools_plugin_apiref.n\fR
 doctools_plugin_apiref
+.TP
+\fBfiles/modules/dtplite/dtplite.n\fR
+dtplite
 .TP
 \fBfiles/apps/dtplite.n\fR
 dtplite
@@ -5859,6 +5879,9 @@ doctools::toc::export
 .TP
 \fBfiles/modules/doctools2toc/export_nroff.n\fR
 doctools::toc::export::nroff
+.TP
+\fBfiles/modules/dtplite/dtplite.n\fR
+dtplite
 .TP
 \fBfiles/apps/dtplite.n\fR
 dtplite
@@ -9519,6 +9542,9 @@ doctools::toc
 .TP
 \fBfiles/modules/doctools/doctoc.n\fR
 doctools::toc
+.TP
+\fBfiles/modules/dtplite/dtplite.n\fR
+dtplite
 .TP
 \fBfiles/apps/dtplite.n\fR
 dtplite

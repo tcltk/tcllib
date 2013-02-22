@@ -221,7 +221,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -381,25 +380,19 @@ This option is not used.
 .SH EXAMPLES
 .PP
 .CS
-
-
 package require autoproxy
 autoproxy::init
 autoproxy::configure -basic -username ME -password SEKRET
 set tok [http::geturl http://wiki.tcl.tk/]
 http::data $tok
-
 .CE
 .CS
-
-
 package require http
 package require tls
 package require autoproxy
 autoproxy::init
 http::register https 443 autoproxy::tls_socket
 set tok [http::geturl https://www.example.com/]
-
 .CE
 .SH REFERENCES
 .IP [1]

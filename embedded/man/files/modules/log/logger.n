@@ -221,7 +221,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -333,17 +332,12 @@ from different services, at priority levels, with different commands.
 To begin using the logger package, we do the following:
 .PP
 .CS
-
-
-    package require logger
-    set log [logger::init myservice]
-    ${log}::notice "Initialized myservice logging"
-
-    ... code ...
-
-    ${log}::notice "Ending myservice logging"
-    ${log}::delete
-
+package require logger
+set log [logger::init myservice]
+${log}::notice "Initialized myservice logging"
+\... code ...
+${log}::notice "Ending myservice logging"
+${log}::delete
 .CE
 .PP
 In the above code, after the package is loaded, the following things
@@ -448,13 +442,10 @@ If called without a command it returns the currently registered command. The com
 appended, the old and the new loglevel. The callback is invoked after all changes have been done.
 If child loggers are affected, their callbacks are called before their parents callback.
 .CS
-
-
- 	proc lvlcallback {old new} {
- 	    puts "Loglevel changed from $old to $new"
- 	}
- 	${log}::lvlchangeproc lvlcallback
-
+proc lvlcallback {old new} {
+puts "Loglevel changed from $old to $new"
+}
+${log}::lvlchangeproc lvlcallback
 .CE
 .TP
 \fB${log}::logproc\fR \fIlevel\fR
@@ -474,15 +465,11 @@ all log levels, but with \fBlogproc\fR it is possible to replace them
 with custom code.  This would let you send your logs over the network,
 to a database, or anything else.  For example:
 .CS
-
-
-    proc logtoserver {txt} {
-        variable socket
-        puts $socket "Notice: $txt"
-    }
-
-    ${log}::logproc notice logtoserver
-
+proc logtoserver {txt} {
+variable socket
+puts $socket "Notice: $txt"
+}
+${log}::logproc notice logtoserver
 .CE
 .IP
 Trace logs are slightly different: instead of a plain text argument,
@@ -530,10 +517,7 @@ Set the script to call when the log instance in question is deleted.
 If called without a command it returns the currently registered command.
 For example:
 .CS
-
-
-    ${log}::delproc [list closesock $logsock]
-
+${log}::delproc [list closesock $logsock]
 .CE
 .TP
 \fB${log}::delete\fR
@@ -547,31 +531,23 @@ specify procedures are to be traced.  Trace handlers are unregistered when
 tracing is disabled.  As a result, there is not performance impact to a
 library when tracing is disabled, just as with other log level commands.
 .CS
-
-
-  proc tracecmd { dict } {
-      puts $dict
-  }
-
-  set log [::logger::init example]
-  ${log}::logproc trace tracecmd
-
-  proc foo { args } {
-      puts "In foo"
-      bar 1
-      return "foo_result"
-  }
-
-  proc bar { x } {
-      puts "In bar"
-      return "bar_result"
-  }
-
-  ${log}::trace add foo bar
-  ${log}::trace on
-
-  foo
-
+proc tracecmd { dict } {
+puts $dict
+}
+set log [::logger::init example]
+${log}::logproc trace tracecmd
+proc foo { args } {
+puts "In foo"
+bar 1
+return "foo_result"
+}
+proc bar { x } {
+puts "In bar"
+return "bar_result"
+}
+${log}::trace add foo bar
+${log}::trace on
+foo
 # Output:
 enter {proc ::foo level 1 script {} caller {} procargs {args {}}}
 In foo
@@ -579,7 +555,6 @@ enter {proc ::bar level 2 script {} caller ::foo procargs {x 1}}
 In bar
 leave {proc ::bar level 2 script {} caller ::foo status ok result bar_result}
 leave {proc ::foo level 1 script {} caller {} status ok result foo_result}
-
 .CE
 .TP
 \fB${log}::trace\fR \fBon\fR
@@ -648,30 +623,26 @@ This enables logprocs to execute code in the callers scope by using uplevel or
 linking to local variables by using upvar. This may fire traces with all usual
 side effects.
 .CS
-
-
-     # Print caller and current vars in the calling proc
-     proc log_local_var {txt} {
-          set caller [info level -1]
-          set vars [uplevel 1 info vars]
-          foreach var [lsort $vars] {
-             if {[uplevel 1 [list array exists $var]] == 1} {
-             	lappend val $var <Array>
-             } else {
-             	lappend val $var [uplevel 1 [list set $var]]
-             }
-          }
-          puts "$txt"
-          puts "Caller: $caller"
-          puts "Variables in callers scope:"
-          foreach {var value} $val {
-          	puts "$var = $value"
-          }
-     }
-
-     # install as logproc
-     ${log}::logproc debug log_local_var
-
+# Print caller and current vars in the calling proc
+proc log_local_var {txt} {
+set caller [info level -1]
+set vars [uplevel 1 info vars]
+foreach var [lsort $vars] {
+if {[uplevel 1 [list array exists $var]] == 1} {
+lappend val $var <Array>
+} else {
+lappend val $var [uplevel 1 [list set $var]]
+}
+}
+puts "$txt"
+puts "Caller: $caller"
+puts "Variables in callers scope:"
+foreach {var value} $val {
+puts "$var = $value"
+}
+}
+# install as logproc
+${log}::logproc debug log_local_var
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain

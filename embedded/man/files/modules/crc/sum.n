@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -294,27 +293,18 @@ Return the checksum using an alternative format template.
 .SH EXAMPLES
 .PP
 .CS
-
-
 % crc::sum "Hello, World!"
 37287
-
 .CE
 .PP
 .CS
-
-
 % crc::sum -format 0x%X "Hello, World!"
 0x91A7
-
 .CE
 .PP
 .CS
-
-
 % crc::sum -file sum.tcl
 13392
-
 .CE
 .SH AUTHORS
 Pat Thoyts
@@ -334,5 +324,4 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002, Pat Thoyts <patthoyts@users.sourceforge.net>
-
 .fi

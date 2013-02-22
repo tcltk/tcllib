@@ -221,7 +221,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -395,10 +394,7 @@ one) and returns the msgid of that message.
 Returns a tcl list of valid newsgroups and associated information.  Each
 newsgroup is returned as an element in the tcl list with the following format:
 .CS
-
-
-      group last first p
-
+group last first p
 .CE
 .IP
 where <group> is the name of the newsgroup, <last> is the number of
@@ -427,10 +423,7 @@ time string that is understood by \fBclock scan\fR. The tcl list of newsgroups
 is returned in a similar form to the list of groups returned by the
 \fBnntpName list\fR command.  Each element of the list has the form:
 .CS
-
-
-      group last first p
-
+group last first p
 .CE
 .IP
 where <group> is the name of the newsgroup, <last> is the number of
@@ -485,10 +478,7 @@ the socket.
 \fInntpName\fR \fBxgtitle\fR ?\fIgroup_pattern\fR?
 Returns a tcl list where each element is of the form:
 .CS
-
-
 newsgroup description
-
 .CE
 .IP
 If a \fIgroup_pattern\fR is specified then only newsgroups that match
@@ -501,10 +491,7 @@ field in the header such as from, subject, date, etc.  If \fIrange\fR is
 not specified or is "" then the current message is queried.  The command
 returns a list of elements where each element has the form of:
 .CS
-
-
-    msgid value
-
+msgid value
 .CE
 .IP
 Where msgid is the number of the message and value is the value set for the
@@ -528,10 +515,7 @@ Returns header information for the current message or for a range of messages
 from the current group.  The information is returned in a tcl list
 where each element is of the form:
 .CS
-
-
-    msgid subject from date idstring bodysize headersize xref
-
+msgid subject from date idstring bodysize headersize xref
 .CE
 .IP
 If \fIrange\fR is not specified or is "" then the current message is queried.
@@ -557,10 +541,7 @@ pattern(s) given in the pattern_list.  \fIfield\fR is the title of a
 field in the header such as from, subject, date, etc.  The information is
 returned in a tcl list where each element is of the form:
 .CS
-
-
-    msgid value
-
+msgid value
 .CE
 .IP
 Where msgid is the number of the message and value is the value set for the
@@ -583,21 +564,17 @@ All messages between \fImsgid1\fR and \fImsgid2\fR
 A bigger example for posting a single article.
 .PP
 .CS
-
-
-    package require nntp
-    set n [nntp::nntp NNTP_SERVER]
-    $n post "From: USER@DOMAIN.EXT (USER_FULL)
-    Path: COMPUTERNAME!USERNAME
-    Newsgroups: alt.test
-    Subject: Tcl test post -ignore
-    Message-ID: <[pid][clock seconds]
-    @COMPUTERNAME>
-    Date: [clock format [clock seconds] -format "%a, %d %
-    b %y %H:%M:%S GMT" -gmt true]
-
-    Test message body"
-
+package require nntp
+set n [nntp::nntp NNTP_SERVER]
+$n post "From: USER@DOMAIN.EXT (USER_FULL)
+Path: COMPUTERNAME!USERNAME
+Newsgroups: alt.test
+Subject: Tcl test post -ignore
+Message-ID: <[pid][clock seconds]
+@COMPUTERNAME>
+Date: [clock format [clock seconds] -format "%a, %d %
+b %y %H:%M:%S GMT" -gmt true]
+Test message body"
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain

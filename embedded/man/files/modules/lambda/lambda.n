@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -258,40 +257,28 @@ This package provides two convenience commands to make the writing of
 anonymous procedures, i.e. lambdas more \fBproc\fR-like. Instead of,
 for example, to write
 .CS
-
-
-     set f {::apply {{x} {
-        ....
-     }}}
-
+set f {::apply {{x} {
+\....
+}}}
 .CE
 with its deep nesting of braces, or
 .CS
-
-
-     set f [list ::apply {{x y} {
-        ....
-     }} $value_for_x]
-
+set f [list ::apply {{x y} {
+\....
+}} $value_for_x]
 .CE
 with a list command to insert some of the arguments of a partial
 application, just write
 .CS
-
-
-     set f [lambda {x} {
-        ....
-     }]
-
+set f [lambda {x} {
+\....
+}]
 .CE
 and
 .CS
-
-
-     set f [lambda {x y} {
-        ....
-     } $value_for_x]
-
+set f [lambda {x y} {
+\....
+} $value_for_x]
 .CE
 .SH COMMANDS
 .TP
@@ -332,5 +319,4 @@ Utility
 .SH COPYRIGHT
 .nf
 Copyright (c) 2011 Andreas Kupries, BSD licensed
-
 .fi

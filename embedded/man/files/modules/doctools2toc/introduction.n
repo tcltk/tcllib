@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -334,40 +333,36 @@ the \fIDocTools - Keyword Indices\fR and
 the \fIDocTools - General\fR, respectively.
 .SH "PACKAGE OVERVIEW"
 .CS
-
-
-                                    ~~~~~~~~~~~ doctools::toc ~~~~~~~~~~~
-                                   ~~                   |               ~~
-                doctools::toc::export ~~~~~~~~~~~~~~~~~ | ~~~~~~~~~~~~~ doctools::toc::import
-                        |                               |                       |
-        +---------------+-------------------------+     |    +------------------+---------------+-----------------------+---------------+
-        |               |                         |     |    |                  |               |                       |               |
+~~~~~~~~~~~ doctools::toc ~~~~~~~~~~~
+~~                   |               ~~
+doctools::toc::export ~~~~~~~~~~~~~~~~~ | ~~~~~~~~~~~~~ doctools::toc::import
+|                               |                       |
++---------------+-------------------------+     |    +------------------+---------------+-----------------------+---------------+
+|               |                         |     |    |                  |               |                       |               |
 doctools::config        =                         |     |    |                  =       doctools::include       doctools::config doctools::paths
-                        |                         |     |    |                  |
-                doctools::toc::export::<*>        |     |    |          doctools::toc::import::<*>
-                        doctoc                    |     |    |                  doctoc, json
-                        json                      |     |    |                  |           \\\\
-                        html                      |     |    |          doctools::toc::parse \\\\
-                        nroff                     |     |    |                  |             \\\\
-                        wiki                      |     |    |  +---------------+              json
-                        text                      |     |    |  |               |
-                                                doctools::toc::structure        |
-                                                                                |
-                                                                        +-------+---------------+
-                                                                        |                       |
-          doctools::html  doctools::html::cssdefaults           doctools::tcl::parse    doctools::msgcat
-                |                                                                               |
-          doctools::text  doctools::nroff::man_macros                                           =
-                                                                                                |
-                                                                                        doctools::msgcat::toc::<*>
-                                                                                                c, en, de, fr
-                                                                                                (fr == en for now)
-        ~~      Interoperable objects, without actual package dependencies
-        --      Package dependency, higher requires lower package
-        =       Dynamic dependency through plugin system
-        <*>     Multiple packages following the given form of naming.
-
-
+|                         |     |    |                  |
+doctools::toc::export::<*>        |     |    |          doctools::toc::import::<*>
+doctoc                    |     |    |                  doctoc, json
+json                      |     |    |                  |           \\\\
+html                      |     |    |          doctools::toc::parse \\\\
+nroff                     |     |    |                  |             \\\\
+wiki                      |     |    |  +---------------+              json
+text                      |     |    |  |               |
+doctools::toc::structure        |
+|
++-------+---------------+
+|                       |
+doctools::html  doctools::html::cssdefaults           doctools::tcl::parse    doctools::msgcat
+|                                                                               |
+doctools::text  doctools::nroff::man_macros                                           =
+|
+doctools::msgcat::toc::<*>
+c, en, de, fr
+(fr == en for now)
+~~      Interoperable objects, without actual package dependencies
+--      Package dependency, higher requires lower package
+=       Dynamic dependency through plugin system
+<*>     Multiple packages following the given form of naming.
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -385,5 +380,4 @@ Documentation tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

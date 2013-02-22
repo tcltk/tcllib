@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -361,8 +360,6 @@ always be ele (elevation) and time metadata keys.
 .PP
 .SH EXAMPLE
 .CS
-
-
 % set token [::gpx::Create myGpxFile.gpx]
 % set version [dict get [::gpx::GetGPXMetadata $token] version]
 % set trackCnt [::gpx::GetTrackCount $token]
@@ -370,10 +367,9 @@ always be ele (elevation) and time metadata keys.
 % lassign $firstPoint lat lon ptMetadata
 % puts "first point in the first track is at $lat, $lon"
 % if {[dict exists $ptMetadata ele]} {
-     puts "at elevation [dict get $ptMetadata ele] meters"
-  }
+puts "at elevation [dict get $ptMetadata ele] meters"
+}
 % ::gpx::Cleanup $token
-
 .CE
 .SH REFERENCES
 .IP [1]
@@ -400,5 +396,4 @@ File formats
 .SH COPYRIGHT
 .nf
 Copyright (c) 2010, Keith Vetter <kvetter@gmail.com>
-
 .fi

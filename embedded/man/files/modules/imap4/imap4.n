@@ -221,7 +221,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -325,11 +324,9 @@ defaults to 993.
 For connecting via SSL the Tcl module \fItls\fR must be already
 loaded otherwise an error is raised.
 .CS
-
-
-    package require tls              ; # must be loaded for TLS/SSL
-    set ::imap4::use_ssl 1           ; # request a secure connection
-    set chan [::imap4::open $server] ; # default port is now 993
+package require tls              ; # must be loaded for TLS/SSL
+set ::imap4::use_ssl 1           ; # request a secure connection
+set chan [::imap4::open $server] ; # default port is now 993
 .CE
 .TP
 \fB::imap4::login\fR \fIchan\fR \fIuser\fR \fIpass\fR
@@ -359,7 +356,6 @@ If \fB-inline\fR is specified a compact folderlist is
 returned instead of the result code. All flags are converted to
 lowercase and leading special characters are removed.
 .CS
-
 {{Arc08 noselect} {Arc08/Private {noinferiors unmarked}} {INBOX noinferiors}}
 .CE
 .TP
@@ -437,10 +433,7 @@ Currently supported options:
 \fI{ {name {flags}} ... }\fR (see also compact format in function
 \fB::imap4::folders\fR).
 .CS
-
-
 {{Arc08 {{\\NoSelect}}} {Arc08/Private {{\\NoInferiors} {\\UnMarked}}} {INBOX {\\NoInferiors}}}
-
 .CE
 .TP
 \fB::imap4::msginfo\fR \fIchan\fR \fImsgid\fR ?\fIinfo\fR? ?\fIdefval\fR?
@@ -490,10 +483,8 @@ In conjunction with OK:
 Div. states:
 \fICURRENT\fR, \fIFOUND\fR, \fIPERM\fR.
 .CS
-
-
-    ::imap4::select $chan INBOX
-    puts "[::imap4::mboxinfo $chan exists] mails in INBOX"
+::imap4::select $chan INBOX
+puts "[::imap4::mboxinfo $chan exists] mails in INBOX"
 .CE
 .TP
 \fB::imap4::isableto\fR \fIchan\fR ?\fIcapability\fR?
@@ -583,7 +574,6 @@ UID (not implemented)
 \fILogical search conditions:\fR
 OR, NOT
 .CS
-
 ::imap4::search $chan larger 4000 seen
 puts "Found messages: [::imap4::mboxinfo $chan found]"
 Found messages: 1 3 6 7 8 9 13 14 15 19 20
@@ -650,10 +640,7 @@ message.
 .IP
 For example:
 .CS
-
-
-	::imap4::store $chan $start_msgid:$end_msgid +FLAGS "Deleted"
-
+::imap4::store $chan $start_msgid:$end_msgid +FLAGS "Deleted"
 .CE
 .TP
 \fB::imap4::expunge\fR \fIchan\fR
@@ -688,39 +675,33 @@ more.
 .PP
 .SH EXAMPLES
 .CS
-
-
-    set user myusername
-    set pass xtremescrt
-    set server imap.test.tld
-    set FOLDER INBOX
-    # Connect to server
-    set imap [::imap4::open $server]
-    ::imap4::login $imap $user $pass
-    ::imap4::select $imap $FOLDER
-    # Output all the information about that mailbox
-    foreach info [::imap4::mboxinfo $imap] {
-        puts "$info -> [::imap4::mboxinfo $imap $info]"
-    }
-    # fetch 3 records inline
-    set fields {from: to: subject: size}
-    foreach rec [::imap4::fetch $imap :3 -inline {*}$fields] {
-        puts -nonewline "#[incr idx])"
-        for {set j 0} {$j<[llength $fields]} {incr j} {
-            puts "\\t[lindex $fields $j] [lindex $rec $j]"
-        }
-    }
-
-    # Show all the information available about the message ID 1
-    puts "Available info about message 1: [::imap4::msginfo $imap 1]"
-
-    # Use the capability stuff
-    puts "Capabilities: [::imap4::isableto $imap]"
-    puts "Is able to imap4rev1? [::imap4::isableto $imap imap4rev1]"
-
-    # Cleanup
-    ::imap4::cleanup $imap
-
+set user myusername
+set pass xtremescrt
+set server imap.test.tld
+set FOLDER INBOX
+# Connect to server
+set imap [::imap4::open $server]
+::imap4::login $imap $user $pass
+::imap4::select $imap $FOLDER
+# Output all the information about that mailbox
+foreach info [::imap4::mboxinfo $imap] {
+puts "$info -> [::imap4::mboxinfo $imap $info]"
+}
+# fetch 3 records inline
+set fields {from: to: subject: size}
+foreach rec [::imap4::fetch $imap :3 -inline {*}$fields] {
+puts -nonewline "#[incr idx])"
+for {set j 0} {$j<[llength $fields]} {incr j} {
+puts "\\t[lindex $fields $j] [lindex $rec $j]"
+}
+}
+# Show all the information available about the message ID 1
+puts "Available info about message 1: [::imap4::msginfo $imap 1]"
+# Use the capability stuff
+puts "Capabilities: [::imap4::isableto $imap]"
+puts "Is able to imap4rev1? [::imap4::isableto $imap imap4rev1]"
+# Cleanup
+::imap4::cleanup $imap
 .CE
 .SH REFERENCES
 Mark R. Crispin, "INTERNET MESSAGE ACCESS PROTOCOL - VERSION 4rev1",

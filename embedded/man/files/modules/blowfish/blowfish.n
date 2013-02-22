@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -344,20 +343,14 @@ commonly used mode in software encryption.
 .PP
 .SH EXAMPLES
 .CS
-
-
 % blowfish::blowfish -hex -mode ecb -dir encrypt -key secret01 "hello, world!"
 d0d8f27e7a374b9e2dbd9938dd04195a
-
 .CE
 .CS
-
-
- set Key [blowfish::Init cbc $eight_bytes_key_data $eight_byte_iv]
- append ciphertext [blowfish::Encrypt $Key $plaintext]
- append ciphertext [blowfish::Encrypt $Key $additional_plaintext]
- blowfish::Final $Key
-
+set Key [blowfish::Init cbc $eight_bytes_key_data $eight_byte_iv]
+append ciphertext [blowfish::Encrypt $Key $plaintext]
+append ciphertext [blowfish::Encrypt $Key $additional_plaintext]
+blowfish::Final $Key
 .CE
 .SH REFERENCES
 .IP [1]
@@ -382,5 +375,4 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2003, Pat Thoyts <patthoyts@users.sourceforge.net>
-
 .fi

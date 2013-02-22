@@ -223,7 +223,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -358,30 +357,23 @@ occurred.
 .RE
 .sp
 .CS
-
-
-    # q is the query object.
-
-    q query root children get data
-
-    # The above query
-    # - Resets the node set to the root node - root
-    # - Adds the children of root to the set - children
-    # - Replaces the node set with the       - get data
-    #   values for the attribute 'data',
-    #   for all nodes in the set which
-    #   have such an attribute.
-    # - And returns this information.
-
-    # Below we can see the same query, but rewritten
-    # to show the structure as it is seen by the query
-    # interpreter.
-
-    q query \\\\
-	    root \\\\
-	    children \\\\
-	    get data
-
+# q is the query object.
+q query root children get data
+# The above query
+# - Resets the node set to the root node - root
+# - Adds the children of root to the set - children
+# - Replaces the node set with the       - get data
+#   values for the attribute 'data',
+#   for all nodes in the set which
+#   have such an attribute.
+# - And returns this information.
+# Below we can see the same query, but rewritten
+# to show the structure as it is seen by the query
+# interpreter.
+q query \\\\
+root \\\\
+children \\\\
+get data
 .CE
 .sp
 The operators of the TreeQL language available for this are explained
@@ -566,7 +558,6 @@ ignored.
 .sp
 This is equivalent to the operator sequence
 .CS
-
 next descendants
 .CE
 .TP
@@ -579,7 +570,6 @@ subtrees, in reverse tree order.
 .sp
 This is nearly equivalent to the operator sequence
 .CS
-
 prev descendants
 .CE
 .IP
@@ -591,7 +581,6 @@ subtrees, in tree order.
 .sp
 This is equivalent to the operator sequence
 .CS
-
 prev subtree
 .CE
 .PP
@@ -806,7 +795,6 @@ tree query, html tree editing, and so on.
 Returns the node type of nodes.
 Attribute string accessor. This is equivalent to
 .CS
-
 get @type
 .CE
 .TP
@@ -824,7 +812,7 @@ of types. The value of @type is used as a glob pattern, and letter
 case is relevant.
 .PP
 .SH EXAMPLES
-... TODO ...
+\... TODO ...
 .SH REFERENCES
 .IP [1]
 \fICOST\fR [http://wiki.tcl.tk/COST] on the Tcler's Wiki.
@@ -847,5 +835,4 @@ Data structures
 .nf
 Copyright (c) 2004 Colin McCormack <coldstore@users.sourceforge.net>
 Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi
