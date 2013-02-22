@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -293,25 +292,16 @@ If a password is being generated rather than checked from a password
 file then the \fBsalt\fR command may be used to generate a random salt.
 .SH EXAMPLES
 .CS
-
-
 % md5crypt::md5crypt password 01234567
 $1$01234567$b5lh2mHyD2PdJjFfALlEz1
-
 .CE
 .CS
-
-
 % md5crypt::aprcrypt password 01234567
 $apr1$01234567$IXBaQywhAhc0d75ZbaSDp/
-
 .CE
 .CS
-
-
 % md5crypt::md5crypt password [md5crypt::salt]
 $1$dFmvyRmO$T.V3OmzqeEf3hqJp2WFcb.
-
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -329,5 +319,4 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2003, Pat Thoyts <patthoyts@users.sourceforge.net>
-
 .fi

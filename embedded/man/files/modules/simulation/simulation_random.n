@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -288,10 +287,7 @@ coordinates of points uniformly spread inside a sphere or a rectangle
 .PP
 For example:
 .CS
-
-
-    set p [::simulation::random::prng_Normal -1.0 10.0]
-
+set p [::simulation::random::prng_Normal -1.0 10.0]
 .CE
 produces a new command (whose name is stored in the variable "p") that
 generates normally distributed numbers with a mean of -1.0 and a
@@ -388,10 +384,7 @@ Create a command (PRNG) that generates numbers distributed according to
 Gumbel with a given minimum value and a given scale factor. The
 probability density function is:
 .CS
-
-
-     P(v) = exp( -exp(f*(v-min)))
-
+P(v) = exp( -exp(f*(v-min)))
 .CE
 .RS
 .TP
@@ -480,5 +473,4 @@ Mathematics
 .SH COPYRIGHT
 .nf
 Copyright (c) 2004 Arjen Markus <arjenmarkus@users.sourceforge.net>
-
 .fi

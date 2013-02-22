@@ -223,7 +223,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -353,11 +352,8 @@ containing two elements, ipaddress and mask, in this order, in
 hexadecimal notation.
 .sp
 .CS
-
-
-   % ip::prefixToNative 1.1.1.0/24
-   0x01010100 0xffffff00
-
+% ip::prefixToNative 1.1.1.0/24
+0x01010100 0xffffff00
 .CE
 .TP
 \fB::ip::nativeToPrefix\fR \fInativeList\fR|\fInative\fR ?\fB-ipv4\fR?
@@ -379,11 +375,8 @@ called with a list of addresses. Otherwise a single address in dotted
 form is returned.
 .sp
 .CS
-
-
-   % ip::nativeToPrefix {0x01010100 0xffffff00} -ipv4
-   1.1.1.0/24
-
+% ip::nativeToPrefix {0x01010100 0xffffff00} -ipv4
+1.1.1.0/24
 .CE
 .TP
 \fB::ip::intToString\fR \fInumber\fR ?\fB-ipv4\fR?
@@ -391,33 +384,24 @@ This command converts from an ip address specified as integer number
 to dotted form.
 .sp
 .CS
-
-
-       ip::intToString 4294967295
-       255.255.255.255
-
+ip::intToString 4294967295
+255.255.255.255
 .CE
 .TP
 \fB::ip::toInteger\fR \fIipaddr\fR
 This command converts a dotted form ip into an integer number.
 .sp
 .CS
-
-
-   % ::ip::toInteger 1.1.1.0
-   16843008
-
+% ::ip::toInteger 1.1.1.0
+16843008
 .CE
 .TP
 \fB::ip::toHex\fR \fIipaddr\fR
 This command converts dotted form ip into a hexadecimal number.
 .sp
 .CS
-
-
-   % ::ip::toHex 1.1.1.0
-   0x01010100
-
+% ::ip::toHex 1.1.1.0
+0x01010100
 .CE
 .TP
 \fB::ip::maskToInt\fR \fIipmask\fR
@@ -425,11 +409,8 @@ This command convert an ipmask in either dotted (255.255.255.0) form
 or mask length form (24) into an integer number.
 .sp
 .CS
-
-
-   ::ip::maskToInt 24
-   4294967040
-
+::ip::maskToInt 24
+4294967040
 .CE
 .TP
 \fB::ip::broadcastAddress\fR \fIprefix\fR ?\fB-ipv4\fR?
@@ -438,14 +419,10 @@ route \fIprefix\fR, either in the form "addr/mask", or in native
 form. The result is in dotted form.
 .sp
 .CS
-
-
-   ::ip::broadcastAddress 1.1.1.0/24
-   1.1.1.255
-
-   ::ip::broadcastAddress {0x01010100 0xffffff00}
-   0x010101ff
-
+::ip::broadcastAddress 1.1.1.0/24
+1.1.1.255
+::ip::broadcastAddress {0x01010100 0xffffff00}
+0x010101ff
 .CE
 .TP
 \fB::ip::maskToLength\fR \fIdottedMask\fR|\fIintegerMask\fR|\fIhexMask\fR ?\fB-ipv4\fR?
@@ -453,14 +430,10 @@ This command converts the dotted or integer form of an ipmask to
 the mask length form.
 .sp
 .CS
-
-
-   ::ip::maskToLength 0xffffff00 -ipv4
-   24
-
-   % ::ip::maskToLength 255.255.255.0
-   24
-
+::ip::maskToLength 0xffffff00 -ipv4
+24
+% ::ip::maskToLength 255.255.255.0
+24
 .CE
 .TP
 \fB::ip::lengthToMask\fR \fImaskLength\fR ?\fB-ipv4\fR?
@@ -468,11 +441,8 @@ This command converts an ipmask in mask length form to its dotted
 form.
 .sp
 .CS
-
-
-   ::ip::lengthToMask 24
-   255.255.255.0
-
+::ip::lengthToMask 24
+255.255.255.0
 .CE
 .TP
 \fB::ip::nextNet\fR \fIipaddr\fR \fIipmask\fR ?\fIcount\fR? ?\fB-ipv4\fR?
@@ -493,14 +463,10 @@ are compared against the first prefix. The result is a boolean
 value. It is true if an overlap was found for any of the prefixes.
 .sp
 .CS
-
-
-  % ::ip::isOverlap 1.1.1.0/24 2.1.0.1/32
-  0
-
-  ::ip::isOverlap 1.1.1.0/24 2.1.0.1/32 1.1.1.1/32
-  1
-
+% ::ip::isOverlap 1.1.1.0/24 2.1.0.1/32
+0
+::ip::isOverlap 1.1.1.0/24 2.1.0.1/32 1.1.1.1/32
+1
 .CE
 .TP
 \fB::ip::isOverlapNative\fR ?\fB-all\fR? ?\fB-inline\fR? ?\fB-ipv4\fR? \fIhexipaddr\fR \fIhexipmask\fR \fIhexiplist\fR
@@ -531,14 +497,10 @@ if there are none.
 .RE
 .sp
 .CS
-
-
-  % ::ip::isOverlapNative 0x01010100 0xffffff00 {{0x02010001 0xffffffff}}
-  0
-
-  % ::ip::isOverlapNative 0x01010100 0xffffff00 {{0x02010001 0xffffffff} {0x01010101 0xffffffff}}
-  2
-
+% ::ip::isOverlapNative 0x01010100 0xffffff00 {{0x02010001 0xffffffff}}
+0
+% ::ip::isOverlapNative 0x01010100 0xffffff00 {{0x02010001 0xffffffff} {0x01010101 0xffffffff}}
+2
 .CE
 .TP
 \fB::ip::ipToLayer2Multicast\fR \fIipaddr\fR
@@ -546,11 +508,8 @@ This command an converts ipv4 address in dotted form into a layer 2
 multicast address, also in dotted form.
 .sp
 .CS
-
-
-  % ::ip::ipToLayer2Multicast 224.0.0.2
-  01.00.5e.00.00.02
-
+% ::ip::ipToLayer2Multicast 224.0.0.2
+01.00.5e.00.00.02
 .CE
 .TP
 \fB::ip::ipHostFromPrefix\fR \fIprefix\fR ?\fB-exclude\fR \fIprefixExcludeList\fR?
@@ -560,14 +519,10 @@ found in the \fIprefixExcludeList\fR.
 The result is an ip address in dotted form.
 .sp
 .CS
-
-
-  %::ip::ipHostFromPrefix  1.1.1.5/24
-  1.1.1.1
-
-  %::ip::ipHostFromPrefix  1.1.1.1/32
-  1.1.1.1
-
+%::ip::ipHostFromPrefix  1.1.1.5/24
+1.1.1.1
+%::ip::ipHostFromPrefix  1.1.1.1/32
+1.1.1.1
 .CE
 .TP
 \fB::ip::reduceToAggregates\fR \fIprefixlist\fR
@@ -577,11 +532,8 @@ The result is a list containing the non-overlapping ip prefixes from
 the input.
 .sp
 .CS
-
-
-  % ::ip::reduceToAggregates {1.1.1.0/24 1.1.0.0/8  2.1.1.0/24 1.1.1.1/32 }
-  1.0.0.0/8 2.1.1.0/24
-
+% ::ip::reduceToAggregates {1.1.1.0/24 1.1.0.0/8  2.1.1.0/24 1.1.1.1/32 }
+1.0.0.0/8 2.1.1.0/24
 .CE
 .TP
 \fB::ip::longestPrefixMatch\fR \fIipaddr\fR \fIprefixlist\fR ?\fB-ipv4\fR?
@@ -593,11 +545,8 @@ The result is the prefix which is the most specific match to the host
 address.
 .sp
 .CS
-
-
-  % ::ip::longestPrefixMatch 1.1.1.1 {1.1.1.0/24 1.0.0.0/8  2.1.1.0/24 1.1.1.0/28 }
-  1.1.1.0/28
-
+% ::ip::longestPrefixMatch 1.1.1.1 {1.1.1.0/24 1.0.0.0/8  2.1.1.0/24 1.1.1.0/28 }
+1.1.1.0/28
 .CE
 .TP
 \fB::ip::collapse\fR \fIprefixlist\fR
@@ -611,11 +560,8 @@ covered by other elements of the input whereas this command actively
 merges nets into larger ranges when they are adjacent to each other.
 .sp
 .CS
-
-
 % ::ip::collapse {1.2.2.0/24 1.2.3.0/24}
 1.2.2.0/23
-
 .CE
 .TP
 \fB::ip::subtract\fR \fIprefixlist\fR
@@ -629,17 +575,12 @@ ranges only as positives.
 .SH EXAMPLES
 .PP
 .CS
-
-
 % ip::version ::1
 6
 % ip::version 127.0.0.1
 4
-
 .CE
 .CS
-
-
 % ip::normalize 127/8
 127.0.0.0/8
 % ip::contract 192.168.0.0
@@ -649,16 +590,12 @@ ranges only as positives.
 fec0:0000:0000:0000:0000:0000:0000:0001
 % ip::contract fec0:0000:0000:0000:0000:0000:0000:0001
 fec0::1
-
 .CE
 .CS
-
-
 % ip::equal 192.168.0.4/16 192.168.0.0/16
 1
 % ip::equal fec0::1/10 fec0::fe01/10
 1
-
 .CE
 .SH REFERENCES
 .IP [1]
@@ -689,5 +626,4 @@ Networking
 .nf
 Copyright (c) 2004, Pat Thoyts
 Copyright (c) 2005 Aamer Akhter <aakhter@cisco.com>
-
 .fi

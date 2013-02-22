@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -690,8 +689,6 @@ The implementation of this machine in Parser Tools, i.e the package
 commands to provide it with control flow (instructions).
 .SH "INTERACTION OF THE INSTRUCTIONS WITH THE ARCHITECTURAL STATE"
 .CS
-
-
 Instruction		Inputs				Outputs
 ======================= =======================		====================
 ast_pop_discard		AS			->	AS
@@ -737,7 +734,6 @@ value_clear		-			->	SV
 value_leaf symbol	LS, CL			->	SV
 value_reduce symbol	ARS, LS, CL		->	SV
 ======================= =======================		====================
-
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -753,5 +749,4 @@ Parsing and Grammars
 .SH COPYRIGHT
 .nf
 Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

@@ -100,11 +100,14 @@
    -->
 <body><div class="doctools">
 <hr> [
-  <a href="../../../../toc.html">Main Table Of Contents</a>
+   <a href="../../../../../../home">Tcllib Home</a>
+| <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
-| <a href="/tcllib">Home</a>
-] <hr>
+| <a href="../../../../toc0.html">Categories</a>
+| <a href="../../../../toc1.html">Modules</a>
+| <a href="../../../../toc2.html">Applications</a>
+ ] <hr>
 <h1 class="title">grammar::peg(n) 0.1 tcllib &quot;Grammar operations and usage&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>grammar::peg - Create and manipulate parsing expression grammars</p>
@@ -521,7 +524,7 @@ description of the method <b class="method">serialize</b>.</p>
 <li><p>VN is a set of <i class="term">nonterminal symbols</i>,</p></li>
 <li><p>VT is a set of <i class="term">terminal symbols</i>,</p></li>
 <li><p>R is a finite set of rules, where each rule is a pair (A,e), A in VN,
-and <i class="term"><a href="../../../../index.html#key749">e</a></i> a <i class="term"><a href="../../../../index.html#key14">parsing expression</a></i>.</p></li>
+and <i class="term"><a href="../../../../index.html#key750">e</a></i> a <i class="term"><a href="../../../../index.html#key14">parsing expression</a></i>.</p></li>
 <li><p>eS is a parsing expression, the <i class="term">start expression</i>.</p></li>
 </ul>
 <p>Further constraints are</p>
@@ -539,15 +542,15 @@ is a function from nonterminal symbols to parsing expressions.</p></li>
 <i class="term">e1</i> and <i class="term">2</i>. This is called <i class="term">sequence</i>.</p></li>
 <li><p><i class="term">e1</i>/<i class="term">e2</i> is a parsing expression for parsing expressions
 <i class="term">e1</i> and <i class="term">2</i>. This is called <i class="term">ordered choice</i>.</p></li>
-<li><p><i class="term"><a href="../../../../index.html#key749">e</a></i>* is a parsing expression for parsing expression
-<i class="term"><a href="../../../../index.html#key749">e</a></i>. This is called <i class="term">zero-or-more repetitions</i>, also known
+<li><p><i class="term"><a href="../../../../index.html#key750">e</a></i>* is a parsing expression for parsing expression
+<i class="term"><a href="../../../../index.html#key750">e</a></i>. This is called <i class="term">zero-or-more repetitions</i>, also known
 as <i class="term">kleene closure</i>.</p></li>
-<li><p><i class="term"><a href="../../../../index.html#key749">e</a></i>+ is a parsing expression for parsing expression
-<i class="term"><a href="../../../../index.html#key749">e</a></i>. This is called <i class="term">one-or-more repetitions</i>, also known
+<li><p><i class="term"><a href="../../../../index.html#key750">e</a></i>+ is a parsing expression for parsing expression
+<i class="term"><a href="../../../../index.html#key750">e</a></i>. This is called <i class="term">one-or-more repetitions</i>, also known
 as <i class="term">positive kleene closure</i>.</p></li>
-<li><p>!<i class="term"><a href="../../../../index.html#key749">e</a></i> is a parsing expression for parsing expression
+<li><p>!<i class="term"><a href="../../../../index.html#key750">e</a></i> is a parsing expression for parsing expression
 <i class="term">e1</i>. This is called a <i class="term">not lookahead predicate</i>.</p></li>
-<li><p>&amp;<i class="term"><a href="../../../../index.html#key749">e</a></i> is a parsing expression for parsing expression
+<li><p>&amp;<i class="term"><a href="../../../../index.html#key750">e</a></i> is a parsing expression for parsing expression
 <i class="term">e1</i>. This is called an <i class="term">and lookahead predicate</i>.</p></li>
 </ul>
 <p>PEGs are used to define a grammatical structure for streams of symbols

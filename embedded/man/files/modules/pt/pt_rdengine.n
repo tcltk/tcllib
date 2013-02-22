@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -809,12 +808,9 @@ folded into the sequence.
 \fIobjectName\fR \fBsi:void_state_push\fR
 This method combines
 .CS
-
-
 i_loc_push
 i_error_clear
 i_error_push
-
 .CE
 .IP
 Parsers use it at the beginning of \fIvoid\fR sequences and choices
@@ -823,12 +819,9 @@ with a \fIvoid\fR initial branch.
 \fIobjectName\fR \fBsi:void2_state_push\fR
 This method combines
 .CS
-
-
 i_loc_push
 i_error_clear
 i_error_push
-
 .CE
 .IP
 Parsers use it at the beginning of optional and repeated expressions.
@@ -836,13 +829,10 @@ Parsers use it at the beginning of optional and repeated expressions.
 \fIobjectName\fR \fBsi:value_state_push\fR
 This method combines
 .CS
-
-
 i_ast_push
 i_loc_push
 i_error_clear
 i_error_push
-
 .CE
 .IP
 Parsers use it at the beginning of sequences generating an AST and
@@ -851,11 +841,8 @@ choices with an initial branch generating an AST.
 \fIobjectName\fR \fBsi:void_state_merge\fR
 This method combines
 .CS
-
-
 i_error_pop_merge
 i_loc_pop_rewind/discard
-
 .CE
 .IP
 Parsers use it at the end of void sequences and choices whose last
@@ -864,12 +851,9 @@ branch is void.
 \fIobjectName\fR \fBsi:void_state_merge_ok\fR
 This method combines
 .CS
-
-
 i_error_pop_merge
 i_loc_pop_rewind/discard
 i_status_ok
-
 .CE
 .IP
 Parsers use it at the end of optional expressions
@@ -877,12 +861,9 @@ Parsers use it at the end of optional expressions
 \fIobjectName\fR \fBsi:value_state_merge\fR
 This method combines
 .CS
-
-
 i_error_pop_merge
 i_ast_pop_rewind/discard
 i_loc_pop_rewind/discard
-
 .CE
 .IP
 Parsers use it at the end of sequences generating ASTs and choices
@@ -891,11 +872,8 @@ whose last branch generates an AST
 \fIobjectName\fR \fBsi:value_notahead_start\fR
 This method combines
 .CS
-
-
 i_loc_push
 i_ast_push
-
 .CE
 .IP
 Parsers use it at the beginning of negative lookahead predicates which
@@ -904,11 +882,8 @@ generate ASTs.
 \fIobjectName\fR \fBsi:void_notahead_exit\fR
 This method combines
 .CS
-
-
 i_loc_pop_rewind
 i_status_negate
-
 .CE
 .IP
 Parsers use it at the end of void negative lookahead predicates.
@@ -916,12 +891,9 @@ Parsers use it at the end of void negative lookahead predicates.
 \fIobjectName\fR \fBsi:value_notahead_exit\fR
 This method combines
 .CS
-
-
 i_ast_pop_discard/rewind
 i_loc_pop_rewind
 i_status_negate
-
 .CE
 .IP
 Parsers use it at the end of negative lookahead predicates which
@@ -930,11 +902,8 @@ generate ASTs.
 \fIobjectName\fR \fBsi:kleene_abort\fR
 This method combines
 .CS
-
-
 i_loc_pop_rewind/discard
 i:fail_return
-
 .CE
 .IP
 Parsers use it to stop a positive repetition when its first, required, expression fails.
@@ -942,13 +911,10 @@ Parsers use it to stop a positive repetition when its first, required, expressio
 \fIobjectName\fR \fBsi:kleene_close\fR
 This method combines
 .CS
-
-
 i_error_pop_merge
 i_loc_pop_rewind/discard
 i:fail_status_ok
 i:fail_return
-
 .CE
 .IP
 Parsers use it at the end of repetitions.
@@ -956,14 +922,11 @@ Parsers use it at the end of repetitions.
 \fIobjectName\fR \fBsi:voidvoid_branch\fR
 This method combines
 .CS
-
-
 i_error_pop_merge
 i:ok_loc_pop_discard
 i:ok_return
 i_loc_rewind
 i_error_push
-
 .CE
 .IP
 Parsers use it when transiting between branches of a choice when both are void.
@@ -971,15 +934,12 @@ Parsers use it when transiting between branches of a choice when both are void.
 \fIobjectName\fR \fBsi:voidvalue_branch\fR
 This method combines
 .CS
-
-
 i_error_pop_merge
 i:ok_loc_pop_discard
 i:ok_return
 i_ast_push
 i_loc_rewind
 i_error_push
-
 .CE
 .IP
 Parsers use it when transiting between branches of a choice when the
@@ -988,15 +948,12 @@ failing branch is void, and the next to test generates an AST.
 \fIobjectName\fR \fBsi:valuevoid_branch\fR
 This method combines
 .CS
-
-
 i_error_pop_merge
 i_ast_pop_rewind/discard
 i:ok_loc_pop_discard
 i:ok_return
 i_loc_rewind
 i_error_push
-
 .CE
 .IP
 Parsers use it when transiting between branches of a choice when the
@@ -1005,8 +962,6 @@ failing branch generates an AST, and the next to test is void.
 \fIobjectName\fR \fBsi:valuevalue_branch\fR
 This method combines
 .CS
-
-
 i_error_pop_merge
 i_ast_pop_discard
 i:ok_loc_pop_discard
@@ -1014,7 +969,6 @@ i:ok_return
 i_ast_rewind
 i_loc_rewind
 i_error_push
-
 .CE
 .IP
 Parsers use it when transiting between branches of a choice when both
@@ -1023,13 +977,10 @@ generate ASTs.
 \fIobjectName\fR \fBsi:voidvoid_part\fR
 This method combines
 .CS
-
-
 i_error_pop_merge
 i:fail_loc_pop_rewind
 i:fail_return
 i_error_push
-
 .CE
 .IP
 Parsers use it when transiting between parts of a sequence and both
@@ -1038,14 +989,11 @@ are void.
 \fIobjectName\fR \fBsi:voidvalue_part\fR
 This method combines
 .CS
-
-
 i_error_pop_merge
 i:fail_loc_pop_rewind
 i:fail_return
 i_ast_push
 i_error_push
-
 .CE
 .IP
 Parsers use it when transiting between parts of a sequence and the
@@ -1054,14 +1002,11 @@ sucessfully matched part is void, and after it an AST is generated.
 \fIobjectName\fR \fBsi:valuevalue_part\fR
 This method combines
 .CS
-
-
 i_error_pop_merge
 i:fail_ast_pop_rewind
 i:fail_loc_pop_rewind
 i:fail_return
 i_error_push
-
 .CE
 .IP
 Parsers use it when transiting between parts of a sequence and both
@@ -1070,14 +1015,11 @@ parts generate ASTs.
 \fIobjectName\fR \fBsi:value_symbol_start\fR \fIsymbol\fR
 This method combines
 .CS
-
-
 if/found? i_symbol_restore $symbol
 i:found:ok_ast_value_push
 i:found_return
 i_loc_push
 i_ast_push
-
 .CE
 .IP
 Parsers use it at the beginning of a nonterminal symbol generating an
@@ -1086,14 +1028,11 @@ AST, whose right-hand side may have generated an AST as well.
 \fIobjectName\fR \fBsi:value_void_symbol_start\fR \fIsymbol\fR
 This method combines
 .CS
-
-
 if/found? i_symbol_restore $symbol
 i:found:ok_ast_value_push
 i:found_return
 i_loc_push
 i_ast_push
-
 .CE
 .IP
 Parsers use it at the beginning of a void nonterminal symbol whose
@@ -1102,13 +1041,10 @@ right-hand side may generate an AST.
 \fIobjectName\fR \fBsi:void_symbol_start\fR \fIsymbol\fR
 This method combines
 .CS
-
-
 if/found? i_symbol_restore $symbol
 i:found_return
 i_loc_push
 i_ast_push
-
 .CE
 .IP
 Parsers use it at the beginning of a nonterminal symbol generating an
@@ -1117,12 +1053,9 @@ AST whose right-hand side is void.
 \fIobjectName\fR \fBsi:void_void_symbol_start\fR \fIsymbol\fR
 This method combines
 .CS
-
-
 if/found? i_symbol_restore $symbol
 i:found_return
 i_loc_push
-
 .CE
 .IP
 Parsers use it at  the beginning of a void nonterminal symbol whose
@@ -1131,15 +1064,12 @@ right-hand side is void as well.
 \fIobjectName\fR \fBsi:reduce_symbol_end\fR \fIsymbol\fR
 This method combines
 .CS
-
-
 i_value_clear/reduce $symbol
 i_symbol_save        $symbol
 i_error_nonterminal  $symbol
 i_ast_pop_rewind
 i_loc_pop_discard
 i:ok_ast_value_push
-
 .CE
 .IP
 Parsers use it at the end of a non-terminal symbol generating an AST
@@ -1148,14 +1078,11 @@ using the AST generated by the right-hand side as child.
 \fIobjectName\fR \fBsi:void_leaf_symbol_end\fR \fIsymbol\fR
 This method combines
 .CS
-
-
 i_value_clear/leaf  $symbol
 i_symbol_save       $symbol
 i_error_nonterminal $symbol
 i_loc_pop_discard
 i:ok_ast_value_push
-
 .CE
 .IP
 Parsers use it at the end of a non-terminal symbol generating an AST
@@ -1164,15 +1091,12 @@ whose right-hand side is void.
 \fIobjectName\fR \fBsi:value_leaf_symbol_end\fR \fIsymbol\fR
 This method combines
 .CS
-
-
 i_value_clear/leaf  $symbol
 i_symbol_save       $symbol
 i_error_nonterminal $symbol
 i_loc_pop_discard
 i_ast_pop_rewind
 i:ok_ast_value_push
-
 .CE
 .IP
 Parsers use it at the end of a non-terminal symbol generating an AST
@@ -1181,14 +1105,11 @@ discarding the AST generated by the right-hand side.
 \fIobjectName\fR \fBsi:value_clear_symbol_end\fR \fIsymbol\fR
 This method combines
 .CS
-
-
 i_value_clear
 i_symbol_save       $symbol
 i_error_nonterminal $symbol
 i_loc_pop_discard
 i_ast_pop_rewind
-
 .CE
 .IP
 Parsers use it at the end of a void non-terminal symbol, discarding
@@ -1197,13 +1118,10 @@ the AST generated by the right-hand side.
 \fIobjectName\fR \fBsi:void_clear_symbol_end\fR \fIsymbol\fR
 This method combines
 .CS
-
-
 i_value_clear
 i_symbol_save       $symbol
 i_error_nonterminal $symbol
 i_loc_pop_discard
-
 .CE
 .IP
 Parsers use it at the end of a void non-terminal symbol with a void
@@ -1240,11 +1158,8 @@ right-hand side.
 \fIobjectName\fR \fBsi:next_xdigit\fR
 These methods all combine
 .CS
-
-
 i_input_next $msg
 i:fail_return
-
 .CE
 .IP
 with the appropriate \fBi_test_xxx\fR instruction. Parsers use them for
@@ -1265,5 +1180,4 @@ Parsing and Grammars
 .SH COPYRIGHT
 .nf
 Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -290,23 +289,17 @@ The construct [ X ] stands for zero or one occurrence of X.
 .PP
 The syntax:
 .CS
-
-
 toc       = defs
-            TOC_BEGIN
-            contents
-            TOC_END
-            { <WHITE> }
-
+TOC_BEGIN
+contents
+TOC_END
+{ <WHITE> }
 defs      = { INCLUDE | VSET | <WHITE> }
 contents  = { defs entry } [ defs ]
-
 entry     = ITEM | division
-
 division  = DIVISION_START
-            contents
-            DIVISION_END
-
+contents
+DIVISION_END
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, will undoubtedly contain bugs and other problems.
@@ -322,5 +315,4 @@ Documentation tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2007-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

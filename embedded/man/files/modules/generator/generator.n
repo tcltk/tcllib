@@ -221,7 +221,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -365,15 +364,12 @@ For example, we can define a generator for looping through the integers
 in a particular range:
 .PP
 .CS
-
-
-    generator define range {n m} {
-        for {set i $n} {$i <= $m} {incr i} { generator yield $i }
-    }
-    generator foreach x [range 1 10] {
-        puts "x = $x"
-    }
-
+generator define range {n m} {
+for {set i $n} {$i <= $m} {incr i} { generator yield $i }
+}
+generator foreach x [range 1 10] {
+puts "x = $x"
+}
 .CE
 .PP
 The above example will print the numbers from 1 to 10 in sequence, as you would
@@ -386,15 +382,12 @@ series as a list. By using a generator we only have to generate those values
 which are actually used:
 .PP
 .CS
-
-
-    generator define nats {} {
-        while 1 { generator yield [incr nat] }
-    }
-    generator foreach n [nats] {
-        if {$n > 100} { break }
-    }
-
+generator define nats {} {
+while 1 { generator yield [incr nat] }
+}
+generator foreach n [nats] {
+if {$n > 100} { break }
+}
 .CE
 .SH COMMANDS
 .TP
@@ -469,22 +462,19 @@ we create a generator to iterate over the lines in a text file, we can use
 destroyed:
 .sp
 .CS
-
-
-    generator define lines file {
-        set in [open $file]
-        # Ensure file is always closed
-        generator finally close $in
-        while {[gets $in line] >= 0} {
-            generator yield $line
-        }
-    }
-    generator foreach line [lines /etc/passwd] {
-        puts "[incr count]: $line"
-        if {$count > 10} { break }
-    }
-    # File will be closed even on early exit
-
+generator define lines file {
+set in [open $file]
+# Ensure file is always closed
+generator finally close $in
+while {[gets $in line] >= 0} {
+generator yield $line
+}
+}
+generator foreach line [lines /etc/passwd] {
+puts "[incr count]: $line"
+if {$count > 10} { break }
+}
+# File will be closed even on early exit
 .CE
 .sp
 If you create a generator that consumes another generator (such as the standard
@@ -493,13 +483,10 @@ a \fBfinally\fR command to ensure that this generator is destroyed when its
 parent is. For example, the \fBmap\fR generator is defined as follows:
 .sp
 .CS
-
-
-    generator define map {f xs} {
-        generator finally generator destroy $xs
-        generator foreach x $xs { generator yield [{*}$f $x] }
-    }
-
+generator define map {f xs} {
+generator finally generator destroy $xs
+generator foreach x $xs { generator yield [{*}$f $x] }
+}
 .CE
 .TP
 \fBgenerator\fR \fBfrom\fR \fIformat\fR \fIvalue\fR
@@ -515,12 +502,8 @@ obey the following identity laws (where \fB=\fR is interpreted
 appropriately):
 .sp
 .CS
-
-
-    [generator to $fmt [generator from $fmt $value]] = $value
-    [generator from $fmt [generator to $fmt $gen]]   = $gen
-
-
+[generator to $fmt [generator from $fmt $value]] = $value
+[generator from $fmt [generator to $fmt $gen]]   = $gen
 .CE
 .PP
 .SH PRELUDE
@@ -539,14 +522,11 @@ applied to generators. For example, we can generate all the square numbers using
 the following code (where \fBnats\fR is defined as earlier):
 .sp
 .CS
-
-
-    proc square x { expr {$x * $x} }
-    generator foreach n [generator map square [nats]] {
-        puts "n = $n"
-        if {$n > 1000} { break }
-    }
-
+proc square x { expr {$x * $x} }
+generator foreach n [generator map square [nats]] {
+puts "n = $n"
+if {$n > 1000} { break }
+}
 .CE
 .TP
 \fBgenerator\fR \fBfilter\fR \fIpredicate\fR \fIgenerator\fR
@@ -558,11 +538,8 @@ those whose salaries are above 100,000 dollars (or whichever currency you prefer
 using a simple filter:
 .sp
 .CS
-
-
-    proc salary> {amount person} { expr {[dict get $person salary] > $amount} }
-    set fat-cats [generator filter {salary> 100000} $employees]
-
+proc salary> {amount person} { expr {[dict get $person salary] > $amount} }
+set fat-cats [generator filter {salary> 100000} $employees]
 .CE
 .TP
 \fBgenerator\fR \fBreduce\fR \fIfunction\fR \fIzero\fR \fIgenerator\fR
@@ -579,20 +556,17 @@ left-associative fashion. For example, the sum of a sequence of numbers can be
 calculated by folding a \fB+\fR operator between them, with 0 as the identity:
 .sp
 .CS
-
-
-    # sum xs          = reduce + 0 xs
-    # sum [range 1 5] = reduce + 0 [range 1 5]
-    #                 = reduce + [+ 0 1] [range 2 5]
-    #                 = reduce + [+ 1 2] [range 3 5]
-    #                 = ...
-    #                 = reduce + [+ 10 5] <empty>
-    #                 = ((((0+1)+2)+3)+4)+5
-    #                 = 15
-    proc + {a b} { expr {$a + $b} }
-    proc sum gen { generator reduce + 0 $gen }
-    puts [sum [range 1 10]]
-
+# sum xs          = reduce + 0 xs
+# sum [range 1 5] = reduce + 0 [range 1 5]
+#                 = reduce + [+ 0 1] [range 2 5]
+#                 = reduce + [+ 1 2] [range 3 5]
+#                 = ...
+#                 = reduce + [+ 10 5] <empty>
+#                 = ((((0+1)+2)+3)+4)+5
+#                 = 15
+proc + {a b} { expr {$a + $b} }
+proc sum gen { generator reduce + 0 $gen }
+puts [sum [range 1 10]]
 .CE
 .sp
 The \fBreduce\fR operation is an extremely useful one, and a great variety of
@@ -601,12 +575,9 @@ factorial function as the product of a range using generators. This definition
 is both very clear and also quite efficient (in both memory and running time):
 .sp
 .CS
-
-
-    proc * {x y} { expr {$x * $y} }
-    proc prod gen { generator reduce * 0 $gen }
-    proc fac n { prod [range 1 $n] }
-
+proc * {x y} { expr {$x * $y} }
+proc prod gen { generator reduce * 0 $gen }
+proc fac n { prod [range 1 $n] }
 .CE
 .sp
 However, while the \fBreduce\fR operation is efficient for finite generators,
@@ -614,10 +585,7 @@ care should be taken not to apply it to an infinite generator, as this will
 result in an infinite loop:
 .sp
 .CS
-
-
-    sum [nats]; # Never returns
-
+sum [nats]; # Never returns
 .CE
 .TP
 \fBgenerator\fR \fBfoldl\fR \fIfunction\fR \fIzero\fR \fIgenerator\fR
@@ -697,13 +665,10 @@ Returns an infinite generator formed by repeatedly applying the function to the
 initial argument. For example, the Fibonacci numbers can be defined as follows:
 .sp
 .CS
-
-
-    proc fst pair { lindex $pair 0 }
-    proc snd pair { lindex $pair 1 }
-    proc nextFib ab { list [snd $ab] [expr {[fst $ab] + [snd $ab]}] }
-    proc fibs {} { generator map fst [generator iterate nextFib {0 1}] }
-
+proc fst pair { lindex $pair 0 }
+proc snd pair { lindex $pair 1 }
+proc nextFib ab { list [snd $ab] [expr {[fst $ab] + [snd $ab]}] }
+proc fibs {} { generator map fst [generator iterate nextFib {0 1}] }
 .CE
 .TP
 \fBgenerator\fR \fBlast\fR \fIgenerator\fR
@@ -736,11 +701,8 @@ the delimiter predicate are discarded. For example, to split up a generator
 using the string "|" as a delimiter:
 .sp
 .CS
-
-
-    set xs [generator from list {a | b | c}]
-    generator split {string equal "|"} $xs ;# returns a then b then c
-
+set xs [generator from list {a | b | c}]
+generator split {string equal "|"} $xs ;# returns a then b then c
 .CE
 .TP
 \fBgenerator\fR \fBscanl\fR \fIfunction\fR \fIzero\fR \fIgenerator\fR

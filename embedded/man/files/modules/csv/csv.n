@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -424,34 +423,25 @@ The alternate format is activated through specification of the option
 Using the regular format the record
 .PP
 .CS
-
-
 123,"123,521.2","Mary says ""Hello, I am Mary""",""
-
 .CE
 .PP
 is parsed into the items
 .PP
 .CS
-
-
 a) 123
 b) 123,521.2
 c) Mary says "Hello, I am Mary"
 d) "
-
 .CE
 .PP
 Using the alternate format the result is
 .PP
 .CS
-
-
 a) 123
 b) 123,521.2
 c) Mary says "Hello, I am Mary"
 d) (the empty string)
-
 .CE
 instead. As can be seen only item (d) is different, now the empty string
 instead of a ".
@@ -471,5 +461,4 @@ Text processing
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002-2013 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

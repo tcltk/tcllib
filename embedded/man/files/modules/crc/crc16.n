@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -333,35 +332,23 @@ Terminate option processing.
 .SH EXAMPLES
 .PP
 .CS
-
-
 % crc::crc16 "Hello, World!"
 64077
-
 .CE
 .PP
 .CS
-
-
 % crc::crc-ccitt "Hello, World!"
 26586
-
 .CE
 .PP
 .CS
-
-
 % crc::crc16 -format 0x%X "Hello, World!"
 0xFA4D
-
 .CE
 .PP
 .CS
-
-
 % crc::crc16 -file crc16.tcl
 51675
-
 .CE
 .SH AUTHORS
 Pat Thoyts
@@ -381,5 +368,4 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002, Pat Thoyts
-
 .fi

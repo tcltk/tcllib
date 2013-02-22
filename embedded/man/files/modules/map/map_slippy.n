@@ -221,7 +221,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -283,10 +282,7 @@ This method returns the width/height of a slippy-based map at the
 specified zoom \fIlevel\fR, in pixels. This is, in essence, the result
 of
 .CS
-
-
-	expr { [tiles $level] * [tile size] }
-
+expr { [tiles $level] * [tile size] }
 .CE
 .TP
 \fB::map::slippy\fR \fBtiles\fR \fIlevel\fR

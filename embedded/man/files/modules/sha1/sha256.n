@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -362,22 +361,14 @@ These commands are identical to the SHA256 equivalent commands.
 .PP
 .SH EXAMPLES
 .CS
-
-
 % sha2::sha256 "Tcl does SHA256"
 0b91043ee484abd83c3e4b08d6034d71b937026379f0f59bda6e625e6e214789
-
 .CE
 .CS
-
-
 % sha2::hmac Sekret "Tcl does SHA256"
 4f9352c64d655e8a36abe73e6163a9d7a54039877c1c92ec90b07d48d4e854e0
-
 .CE
 .CS
-
-
 % set tok [sha2::SHA256Init]
 ::sha2::1
 % sha2::SHA256Update $tok "Tcl "
@@ -385,7 +376,6 @@ These commands are identical to the SHA256 equivalent commands.
 % sha2::SHA256Update $tok "SHA256"
 % sha2::Hex [sha2::SHA256Final $tok]
 0b91043ee484abd83c3e4b08d6034d71b937026379f0f59bda6e625e6e214789
-
 .CE
 .SH REFERENCES
 .IP [1]
@@ -416,5 +406,4 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2008, Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

@@ -221,7 +221,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -358,18 +357,12 @@ If \fIqual\fR is specified it is considered to be a mask and applied
 to the fetched value before it is stored and returned. It has to have
 the form of a partial Tcl bit-wise expression, i.e.
 .CS
-
-
-	& number
-
+& number
 .CE
 .IP
 For example:
 .CS
-
-
-	Nv lelong 0 &0x8080ffff
-
+Nv lelong 0 &0x8080ffff
 .CE
 .IP
 For the possible types see section \fBNUMERIC TYPES\fR.
@@ -383,10 +376,7 @@ comparison.
 The argument \fIcomp\fR has to contain one of Tcl's comparison
 operators, and the comparison made will be
 .CS
-
-
-	<val> <comp> <fetched-and-masked-value>
-
+<val> <comp> <fetched-and-masked-value>
 .CE
 .sp
 The special comparison operator \fBx\fR signals that no comparison

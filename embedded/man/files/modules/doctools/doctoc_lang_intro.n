@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -262,26 +261,17 @@ rules for a Tcl command apply with regard to word quotation, nested
 commands, continuation lines, etc. I.e.
 .PP
 .CS
-
-
-    ... [division_start {Appendix 1}] ...
-
+\... [division_start {Appendix 1}] ...
 .CE
 .CS
-
-
-  ... [item thefile \\\\
-          label {file description}] ...
-
+\... [item thefile \\\\
+label {file description}] ...
 .CE
 .SS "BASIC STRUCTURE"
 The most simple document which can be written in doctoc is
 .CS
-
-
-    [toc_begin GROUPTITLE TITLE]
-    [toc_end]
-
+[toc_begin GROUPTITLE TITLE]
+[toc_end]
 .CE
 This also shows us that all doctoc documents consist of only one
 part where we will list \fIitems\fR and \fIdivisions\fR.
@@ -307,8 +297,6 @@ mapping from symbolic to actual names given to the engine.
 .PP
 Here a made up example for a table of contents of this document:
 .CS
-
-
 [toc_begin Doctoc {Language Introduction}]
 [\fBitem 1 DESCRIPTION\fR]
 [\fBitem 1.1 {Basic structure}\fR]
@@ -316,7 +304,6 @@ Here a made up example for a table of contents of this document:
 [\fBitem 1.3 Divisions\fR]
 [\fBitem 2 {FURTHER READING}\fR]
 [toc_end]
-
 .CE
 .SS DIVISIONS
 One thing of notice in the last example in the previous section is
@@ -349,8 +336,6 @@ This command closes the last opened and not yet closed division.
 .PP
 Using this we can recast the last example like this
 .CS
-
-
 [toc_begin Doctoc {Language Introduction}]
 [\fBdivision_start DESCRIPTION\fR]
 [item 1 {Basic structure}]
@@ -360,13 +345,10 @@ Using this we can recast the last example like this
 [\fBdivision_start {FURTHER READING}\fR]
 [\fBdivision_end\fR]
 [toc_end]
-
 .CE
 .PP
 Or, to demonstrate deeper nesting
 .CS
-
-
 [toc_begin Doctoc {Language Introduction}]
 [\fBdivision_start DESCRIPTION\fR]
 [\fBdivision_start {Basic structure}\fR]
@@ -386,13 +368,10 @@ Or, to demonstrate deeper nesting
 [\fBdivision_start {FURTHER READING}\fR]
 [\fBdivision_end\fR]
 [toc_end]
-
 .CE
 And do not forget, it is possible to freely mix items and divisions,
 and to have empty divisions.
 .CS
-
-
 [toc_begin Doctoc {Language Introduction}]
 [item 1 Do]
 [\fBdivision_start DESCRIPTION\fR]
@@ -410,7 +389,6 @@ and to have empty divisions.
 [\fBdivision_start {FURTHER READING}\fR]
 [\fBdivision_end\fR]
 [toc_end]
-
 .CE
 .SS "ADVANCED STRUCTURE"
 In all previous examples we fudged a bit regarding the markup actually
@@ -422,27 +400,21 @@ and \fBvset\fR are also allowed, to enable the writer to either set
 and/or import configuration settings relevant to the table of
 contents. I.e. it is possible to write
 .CS
-
-
 [\fBinclude FILE\fR]
 [\fBvset VAR VALUE\fR]
 [toc_begin GROUPTITLE TITLE]
-...
+\...
 [toc_end]
-
 .CE
 Even more important, these two commands are allowed anywhere where a
 markup command is allowed, without regard for any other
 structure.
 .CS
-
-
 [toc_begin GROUPTITLE TITLE]
 [\fBinclude FILE\fR]
 [\fBvset VAR VALUE\fR]
-...
+\...
 [toc_end]
-
 .CE
 The only restriction \fBinclude\fR has to obey is that the contents of
 the included file must be valid at the place of the inclusion. I.e. a
@@ -460,14 +432,11 @@ impossible to directly use [ and ] within the text.
 Our example of their use are the sources of the last sentence in the
 previous paragraph, with some highlighting added.
 .CS
-
-
-  ...
-  These commands, [cmd lb] and [cmd lb] respectively, are required
-  because our use of [\fBlb\fR] and [\fBrb\fR] to bracket markup commands makes it
-  impossible to directly use [\fBlb\fR] and [\fBrb\fR] within the text.
-  ...
-
+\...
+These commands, [cmd lb] and [cmd lb] respectively, are required
+because our use of [\fBlb\fR] and [\fBrb\fR] to bracket markup commands makes it
+impossible to directly use [\fBlb\fR] and [\fBrb\fR] within the text.
+\...
 .CE
 .SH "FURTHER READING"
 Now that this document has been digested the reader, assumed to be a
@@ -501,5 +470,4 @@ Documentation tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

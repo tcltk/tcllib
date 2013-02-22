@@ -1,6 +1,6 @@
 '\"
 '\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/base32/base32core.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) Public domain
+'\" Public domain
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -308,6 +307,5 @@ base32
 Text processing
 .SH COPYRIGHT
 .nf
-Copyright (c) Public domain
-
+Public domain
 .fi

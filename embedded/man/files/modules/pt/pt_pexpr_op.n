@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -476,19 +475,13 @@ Assuming the parsing expression shown on the right-hand side of the
 rule
 .PP
 .CS
-
-
-    Expression <- Term (AddOp Term)*
-
+Expression <- Term (AddOp Term)*
 .CE
 .PP
 then its canonical serialization (except for whitespace) is
 .PP
 .CS
-
-
-    {x {n Term} {* {x {n AddOp} {n Term}}}}
-
+{x {n Term} {* {x {n AddOp} {n Term}}}}
 .CE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
@@ -505,5 +498,4 @@ Parsing and Grammars
 .SH COPYRIGHT
 .nf
 Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

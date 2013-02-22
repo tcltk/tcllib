@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -494,17 +493,13 @@ of every type method.
 .sp
 If the \fIname\fR consists of two or more tokens, Snit handles it specially:
 .CS
-
-    typemethod {a b} {arg} { puts "Got $arg" }
-
+typemethod {a b} {arg} { puts "Got $arg" }
 .CE
 .IP
 This statement implicitly defines a type method called \fBa\fR which
 has a subcommand \fBb\fR.  \fBb\fR is called like this:
 .CS
-
-    $type a b "Hello, world!"
-
+$type a b "Hello, world!"
 .CE
 .IP
 \fBa\fR may have any number of subcommands.  This makes it possible
@@ -521,10 +516,8 @@ it depends on \fBnamespace path\fR, a new command in Tcl 8.5.
 \fISnit 1.x Incompatibility:\fR In Snit 1.x, the following
 following two calls to this type method are equivalent:
 .CS
-
-    $type a b "Hello, world!"
-    $type {a b} "Hello, world!"
-
+$type a b "Hello, world!"
+$type {a b} "Hello, world!"
 .CE
 .IP
 In Snit 2.2, the second form is invalid.
@@ -579,26 +572,21 @@ locally defined options, the \fBoptions\fR array is also visible.
 .sp
 If the \fIname\fR consists of two or more tokens, Snit handles it specially:
 .CS
-
-    method {a b} {} { ... }
-
+method {a b} {} { ... }
 .CE
 .IP
 This statement implicitly defines a method called \fBa\fR which
 has a subcommand \fBb\fR.  \fBb\fR is called like this:
 .CS
-
-    $self a b "Hello, world!"
-
+$self a b "Hello, world!"
 .CE
 .IP
 \fBa\fR may have any number of subcommands.  This makes it possible
 to define a hierarchical command structure:
 .CS
-
 % snit::type dog {
-    method {tail wag}   {} {return "Wag, wag"}
-    method {tail droop} {} {return "Droop, droop"}
+method {tail wag}   {} {return "Wag, wag"}
+method {tail droop} {} {return "Droop, droop"}
 }
 ::dog
 % dog spot
@@ -608,7 +596,6 @@ Wag, wag
 % spot tail droop
 Droop, droop
 %
-
 .CE
 .IP
 What we've done is implicitly defined a "tail" method with subcommands
@@ -625,10 +612,8 @@ it depends on \fBnamespace path\fR, a new command in Tcl 8.5.
 \fISnit 1.x Incompatibility:\fR In Snit 1.x, the following
 following two calls to this method are equivalent:
 .CS
-
-    $self a b "Hello, world!"
-    $self {a b} "Hello, world!"
-
+$self a b "Hello, world!"
+$self {a b} "Hello, world!"
 .CE
 .IP
 In Snit 2.2, the second form is invalid.
@@ -645,9 +630,7 @@ An option defined in this way is said to be \fIlocally defined\fR.
 The \fInamespec\fR is a list defining the option's
 name, resource name, and class name, e.g.:
 .CS
-
-    option {-font font Font} {Courier 12}
-
+option {-font font Font} {Courier 12}
 .CE
 .IP
 The option name must begin with a hyphen, and must not contain any
@@ -657,9 +640,7 @@ the hyphen, and the class name defaults to the resource name with the
 first letter capitalized.  Thus, the following statement is equivalent
 to the previous example:
 .CS
-
-    option -font {Courier 12}
-
+option -font {Courier 12}
 .CE
 .IP
 See \fBThe Tk Option Database\fR for more information about
@@ -670,9 +651,7 @@ instance methods \fBconfigure\fR and \fBcget\fR; within instance code
 (method bodies, etc.), option values are available through the
 \fBoptions\fR array:
 .CS
-
-    set myfont $options(-font)
-
+set myfont $options(-font)
 .CE
 .IP
 If the type defines any option handlers (e.g., \fB-configuremethod\fR),
@@ -700,17 +679,13 @@ validation subtype
 For example, an option may declare that its value must be an integer
 by specifying \fBsnit::integer\fR as its validation type:
 .CS
-
-    option -number -type snit::integer
-
+option -number -type snit::integer
 .CE
 .IP
 It may also declare that its value is an integer between 1 and 10
 by specifying a validation subtype:
 .CS
-
-    option -number -type {snit::integer -min 1 -max 10}
-
+option -number -type {snit::integer -min 1 -max 10}
 .CE
 .IP
 If a validation type or subtype is defined for an option, then
@@ -736,12 +711,10 @@ The named method must take one argument, the option name.
 For example, this code is equivalent to (though slower than)
 Snit's default handling of \fBcget\fR:
 .CS
-
-    option -font -cgetmethod GetOption
-    method GetOption {option} {
-        return $options($option)
-    }
-
+option -font -cgetmethod GetOption
+method GetOption {option} {
+return $options($option)
+}
 .CE
 .IP
 Note that it's possible for any number of options to share a
@@ -759,12 +732,10 @@ The named method must take two arguments, the option name and
 its new value.  For example, this code is equivalent to
 (though slower than) Snit's default handling of \fBconfigure\fR:
 .CS
-
-    option -font -configuremethod SetOption
-    method SetOption {option value} {
-        set options($option) $value
-    }
-
+option -font -configuremethod SetOption
+method SetOption {option value} {
+set options($option) $value
+}
 .CE
 .IP
 Note that it's possible for any number of options to share a
@@ -782,14 +753,12 @@ The named method must take two arguments, the option name and
 its new value.  For example, this code verifies that
 \fB-flag\fR's value is a valid Boolean value:
 .CS
-
-    option -font -validatemethod CheckBoolean
-    method CheckBoolean {option value} {
-        if {![string is boolean -strict $value]} {
-            error "option $option must have a boolean value."
-        }
-    }
-
+option -font -validatemethod CheckBoolean
+method CheckBoolean {option value} {
+if {![string is boolean -strict $value]} {
+error "option $option must have a boolean value."
+}
+}
 .CE
 .IP
 Note that it's possible for any number of options to share a
@@ -811,11 +780,9 @@ Snit defines one implicitly.  If the type declares at least one option
 (whether locally or by delegation), the default constructor will
 be defined as follows:
 .CS
-
-    constructor {args} {
-        $self configurelist $args
-    }
-
+constructor {args} {
+$self configurelist $args
+}
 .CE
 .IP
 For standard Tk widget behavior, the argument list should be
@@ -824,9 +791,7 @@ the single name \fBargs\fR, as shown.
 If the \fIdefinition\fR defines neither a constructor nor
 any options, the default constructor is defined as follows:
 .CS
-
-    constructor {} {}
-
+constructor {} {}
 .CE
 .IP
 As with methods, the constructor can call commands from the namespace
@@ -879,18 +844,14 @@ method \fIname\fR is called on an instance of this type, the method
 and its arguments will be passed to the named component's command
 instead.  That is, the following statement
 .CS
-
-    delegate method wag to tail
-
+delegate method wag to tail
 .CE
 .IP
 is roughly equivalent to this explicitly defined method:
 .CS
-
-    method wag {args} {
-        uplevel $tail wag $args
-    }
-
+method wag {args} {
+uplevel $tail wag $args
+}
 .CE
 .IP
 As with methods, the \fIname\fR may have multiple tokens; in this
@@ -900,9 +861,7 @@ component's method.
 The optional \fBas\fR clause allows you to specify the delegated
 method name and possibly add some arguments:
 .CS
-
-    delegate method wagtail to tail as "wag briskly"
-
+delegate method wagtail to tail as "wag briskly"
 .CE
 .sp
 A method cannot be both locally defined and delegated.
@@ -922,10 +881,8 @@ any or all of the following substitution codes; these codes are
 substituted with the described value to build the delegated command
 prefix.  Note that the following two statements are equivalent:
 .CS
-
-    delegate method wag to tail
-    delegate method wag to tail using "%c %m"
-
+delegate method wag to tail
+delegate method wag to tail using "%c %m"
 .CE
 .IP
 Each element of the list becomes a single element of the delegated
@@ -979,9 +936,7 @@ In this form, the statement must contain the \fBto\fR clause, the
 In fact, the "*" can be a list of two or more tokens whose last
 element is "*", as in the following example:
 .CS
-
-    delegate method {tail *} to tail
-
+delegate method {tail *} to tail
 .CE
 .IP
 This implicitly defines the method \fBtail\fR whose subcommands will
@@ -1002,15 +957,12 @@ equivalent \fBconfigure\fR or \fBcget\fR command will be applied
 to the component as though the option was defined with the following
 \fB-configuremethod\fR and \fB-cgetmethod\fR:
 .CS
-
-    method ConfigureMethod {option value} {
-        $comp configure $option $value
-    }
-
-    method CgetMethod {option} {
-        return [$comp cget $option]
-    }
-
+method ConfigureMethod {option value} {
+$comp configure $option $value
+}
+method CgetMethod {option} {
+return [$comp cget $option]
+}
 .CE
 .IP
 Note that delegated options never appear in the \fBoptions\fR array.
@@ -1038,10 +990,8 @@ public by defining a \fImethod\fR whose subcommands are delegated
 to the component e.g., specifying \fB-public mycomp\fR is
 equivalent to the following:
 .CS
-
-    component mycomp
-    delegate method {mymethod *} to mycomp
-
+component mycomp
+delegate method {mymethod *} to mycomp
 .CE
 .IP
 If the \fB-inherit\fR option is specified, then \fIflag\fR must be a
@@ -1051,11 +1001,9 @@ implies that instances of this new type inherit, in a sense, the
 methods and options of the component. That is, \fB-inherit yes\fR is
 equivalent to:
 .CS
-
-    component mycomp
-    delegate option * to mycomp
-    delegate method * to mycomp
-
+component mycomp
+delegate option * to mycomp
+delegate method * to mycomp
 .CE
 .TP
 \fBdelegate\fR \fBtypemethod\fR \fIname\fR \fBto\fR \fIcomp\fR ?\fBas\fR \fItarget\fR?
@@ -1064,18 +1012,14 @@ type method \fIname\fR is called on this type, the type method
 and its arguments will be passed to the named type component's command
 instead.  That is, the following statement
 .CS
-
-    delegate typemethod lostdogs to pound
-
+delegate typemethod lostdogs to pound
 .CE
 .IP
 is roughly equivalent to this explicitly defined method:
 .CS
-
-    typemethod lostdogs {args} {
-        uplevel $pound lostdogs $args
-    }
-
+typemethod lostdogs {args} {
+uplevel $pound lostdogs $args
+}
 .CE
 .IP
 As with type methods, the \fIname\fR may have multiple tokens; in this
@@ -1085,9 +1029,7 @@ component's method.
 The optional \fBas\fR clause allows you to specify the delegated
 method name and possibly add some arguments:
 .CS
-
-    delegate typemethod lostdogs to pound as "get lostdogs"
-
+delegate typemethod lostdogs to pound as "get lostdogs"
 .CE
 .sp
 A type method cannot be both locally defined and delegated.
@@ -1104,10 +1046,8 @@ any or all of the following substitution codes; these codes are
 substituted with the described value to build the delegated command
 prefix.  Note that the following two statements are equivalent:
 .CS
-
-    delegate typemethod lostdogs to pound
-    delegate typemethod lostdogs to pound using "%c %m"
-
+delegate typemethod lostdogs to pound
+delegate typemethod lostdogs to pound using "%c %m"
 .CE
 .IP
 Each element of the list becomes a single element of the delegated
@@ -1158,9 +1098,7 @@ method must always be used explicitly.
 The "*" can be a list of two or more tokens whose last
 element is "*", as in the following example:
 .CS
-
-    delegate typemethod {tail *} to tail
-
+delegate typemethod {tail *} to tail
 .CE
 .IP
 This implicitly defines the type method \fBtail\fR whose subcommands will
@@ -1177,10 +1115,8 @@ public by defining a \fItypemethod\fR whose subcommands are delegated to
 the type component, e.g., specifying \fB-public mytypemethod\fR
 is equivalent to the following:
 .CS
-
-    typecomponent mycomp
-    delegate typemethod {mytypemethod *} to mycomp
-
+typecomponent mycomp
+delegate typemethod {mytypemethod *} to mycomp
 .CE
 .IP
 If the \fB-inherit\fR option is specified, then \fIflag\fR must be a
@@ -1190,10 +1126,8 @@ typemethod *", above.) The name \fB-inherit\fR
 implies that this type inherits, in a sense, the behavior of
 the type component. That is, \fB-inherit yes\fR is equivalent to:
 .CS
-
-    typecomponent mycomp
-    delegate typemethod * to mycomp
-
+typecomponent mycomp
+delegate typemethod * to mycomp
 .CE
 .TP
 \fBpragma\fR ?\fIoptions...\fR?
@@ -1281,22 +1215,18 @@ option instead.
 .sp
 As of version 0.95, the following definitions,
 .CS
-
-    option -myoption
-    onconfigure -myoption {value} {
-        # Code to save the option's value
-    }
-
+option -myoption
+onconfigure -myoption {value} {
+# Code to save the option's value
+}
 .CE
 .IP
 are implemented as follows:
 .CS
-
-    option -myoption -configuremethod _configure-myoption
-    method _configure-myoption {_option value} {
-        # Code to save the option's value
-    }
-
+option -myoption -configuremethod _configure-myoption
+method _configure-myoption {_option value} {
+# Code to save the option's value
+}
 .CE
 .TP
 \fBoncget\fR \fIname\fR \fIbody\fR
@@ -1305,22 +1235,18 @@ option instead.
 .sp
 As of version 0.95, the following definitions,
 .CS
-
-    option -myoption
-    oncget -myoption {
-        # Code to return the option's value
-    }
-
+option -myoption
+oncget -myoption {
+# Code to return the option's value
+}
 .CE
 .IP
 are implemented as follows:
 .CS
-
-    option -myoption -cgetmethod _cget-myoption
-    method _cget-myoption {_option} {
-        # Code to return the option's value
-    }
-
+option -myoption -cgetmethod _cget-myoption
+method _cget-myoption {_option} {
+# Code to return the option's value
+}
 .CE
 .RE
 .TP
@@ -1452,13 +1378,10 @@ automatically generated name.  In other words, provided that the
 \fB-hastypemethods\fR pragma is false and the type
 has instances, the following commands are equivalent:
 .CS
-
 snit::type dog { ... }
-
 set mydog [dog create %AUTO%]
 set mydog [dog %AUTO%]
 set mydog [dog]
-
 .CE
 .IP
 This doesn't work for Snit widgets, for obvious reasons.
@@ -1703,11 +1626,8 @@ course any arguments added by the caller.  In other words, both of the
 following commands will cause the object's
 \fBdosomething\fR method to be called when the \fB$button\fR is pressed:
 .CS
-
-    $button configure -command [list $self dosomething myargument]
-
-    $button configure -command [mymethod dosomething myargument]
-
+$button configure -command [list $self dosomething myargument]
+$button configure -command [mymethod dosomething myargument]
 .CE
 .IP
 The chief distinction between the two is that the latter form will not
@@ -1721,11 +1641,8 @@ course any arguments added by the caller.  In other words, both of the
 following commands will cause the object's \fBdosomething\fR type method
 to be called when \fB$button\fR is pressed:
 .CS
-
-    $button configure -command [list $type dosomething myargument]
-
-    $button configure -command [mytypemethod dosomething myargument]
-
+$button configure -command [list $type dosomething myargument]
+$button configure -command [mytypemethod dosomething myargument]
 .CE
 .IP
 Type commands cannot be renamed, so in practice there's little
@@ -1740,11 +1657,8 @@ course any arguments added by the caller.  In other words, both of the
 following commands will cause the object's \fBdosomething\fR proc
 to be called when \fB$button\fR is pressed:
 .CS
-
-    $button configure -command [list ${type}::dosomething myargument]
-
-    $button configure -command [myproc dosomething myargument]
-
+$button configure -command [list ${type}::dosomething myargument]
+$button configure -command [myproc dosomething myargument]
 .CE
 .TP
 \fBmyvar\fR \fIname\fR
@@ -1780,11 +1694,8 @@ command.
 If this is a \fBsnit::type\fR, then the following two commands are
 equivalent:
 .CS
-
-    install myComp using myObjType $self.myComp args...
-
-    set myComp [myObjType $self.myComp args...]
-
+install myComp using myObjType $self.myComp args...
+set myComp [myObjType $self.myComp args...]
 .CE
 .IP
 Note that whichever method is used, \fIcompName\fR must still be
@@ -1882,26 +1793,21 @@ In the following example, a \fBdog\fR object has a
 \fBtail\fR object:
 .PP
 .CS
-
-    snit::type dog {
-        component mytail
-
-        constructor {args} {
-            set mytail [tail %AUTO% -partof $self]
-            $self configurelist $args
-        }
-
-        method wag {} {
-            $mytail wag
-        }
-    }
-
-    snit::type tail {
-        option -length 5
-        option -partof
-        method wag {} { return "Wag, wag, wag."}
-    }
-
+snit::type dog {
+component mytail
+constructor {args} {
+set mytail [tail %AUTO% -partof $self]
+$self configurelist $args
+}
+method wag {} {
+$mytail wag
+}
+}
+snit::type tail {
+option -length 5
+option -partof
+method wag {} { return "Wag, wag, wag."}
+}
 .CE
 .PP
 Because the \fBtail\fR object's name is stored in an instance
@@ -1911,20 +1817,16 @@ The \fBinstall\fR command provides an alternate way
 to create and install the component:
 .PP
 .CS
-
-    snit::type dog {
-        component mytail
-
-        constructor {args} {
-            install mytail using tail %AUTO% -partof $self
-            $self configurelist $args
-        }
-
-        method wag {} {
-            $mytail wag
-        }
-    }
-
+snit::type dog {
+component mytail
+constructor {args} {
+install mytail using tail %AUTO% -partof $self
+$self configurelist $args
+}
+method wag {} {
+$mytail wag
+}
+}
 .CE
 .PP
 For \fBsnit::type\fRs, the two methods are equivalent; for
@@ -1938,16 +1840,13 @@ jargon, this is called delegation.  Snit provides an easier way to do
 this:
 .PP
 .CS
-
-    snit::type dog {
-        delegate method wag to mytail
-
-        constructor {args} {
-            install mytail using tail %AUTO% -partof $self
-            $self configurelist $args
-        }
-    }
-
+snit::type dog {
+delegate method wag to mytail
+constructor {args} {
+install mytail using tail %AUTO% -partof $self
+$self configurelist $args
+}
+}
 .CE
 .PP
 The \fBdelegate\fR statement in the type definition implicitly defines
@@ -1960,19 +1859,14 @@ If desired, all otherwise unknown methods can be delegated to a
 specific component:
 .PP
 .CS
-
-
-    snit::type dog {
-	delegate method * to mytail
-
-	constructor {args} {
-	    set mytail [tail %AUTO% -partof $self]
-	    $self configurelist $args
-	}
-
-	method bark { return "Bark, bark, bark!" }
-    }
-
+snit::type dog {
+delegate method * to mytail
+constructor {args} {
+set mytail [tail %AUTO% -partof $self]
+$self configurelist $args
+}
+method bark { return "Bark, bark, bark!" }
+}
 .CE
 .PP
 In this case, a \fBdog\fR object will handle its own \fBbark\fR
@@ -2039,8 +1933,7 @@ unqualified type name with the first letter capitalized.  For example,
 the widget class of
 .PP
 .CS
-
-    snit::widget ::mylibrary::scrolledText { ... }
+snit::widget ::mylibrary::scrolledText { ... }
 .CE
 .PP
 is "ScrolledText".  The widget class can also be set explicitly using
@@ -2073,12 +1966,10 @@ example, here are the option, resource, and class names for several
 \fBtext\fR widget options:
 .PP
 .CS
-
-    -background         background         Background
-    -borderwidth        borderWidth        BorderWidth
-    -insertborderwidth  insertBorderWidth  BorderWidth
-    -padx               padX               Pad
-
+-background         background         Background
+-borderwidth        borderWidth        BorderWidth
+-insertborderwidth  insertBorderWidth  BorderWidth
+-padx               padX               Pad
 .CE
 .PP
 As is easily seen, sometimes the resource and class names can be
@@ -2091,14 +1982,12 @@ name with an initial capital.  This is true for both locally-defined
 options and explicitly delegated options:
 .PP
 .CS
-
-    snit::widget mywidget {
-        option -background
-        delegate option -borderwidth to hull
-        delegate option * to text
-	# ...
-    }
-
+snit::widget mywidget {
+option -background
+delegate option -borderwidth to hull
+delegate option * to text
+# ...
+}
 .CE
 .PP
 In this case, the widget class name is "Mywidget".  The widget has the
@@ -2110,11 +1999,9 @@ a \fBtext\fR widget.  The option, resource, and class names are as
 follows:
 .PP
 .CS
-
-    -background  background  Background
-    -borderwidth borderwidth Borderwidth
-    -padx        padX        Pad
-
+-background  background  Background
+-borderwidth borderwidth Borderwidth
+-padx        padX        Pad
 .CE
 .PP
 Note that the locally defined option, \fB-background\fR, happens to have
@@ -2127,14 +2014,12 @@ class names than usual, because the internal word "width" isn't
 capitalized.  For consistency, it should be; this is done as follows:
 .PP
 .CS
-
-    snit::widget mywidget {
-	option -background
-	delegate option {-borderwidth borderWidth} to hull
-	delegate option * to text
-	# ...
-    }
-
+snit::widget mywidget {
+option -background
+delegate option {-borderwidth borderWidth} to hull
+delegate option * to text
+# ...
+}
 .CE
 .PP
 The class name will default to "BorderWidth", as expected.
@@ -2145,16 +2030,14 @@ Suppose, however, that \fBmywidget\fR also delegated
 class name must be specified explicitly:
 .PP
 .CS
-
-    snit::widget mywidget {
-	option -background
-	delegate option {-borderwidth borderWidth} to hull
-	delegate option {-padx padX Pad} to hull
-	delegate option {-pady padY Pad} to hull
-	delegate option * to text
-	# ...
-    }
-
+snit::widget mywidget {
+option -background
+delegate option {-borderwidth borderWidth} to hull
+delegate option {-padx padX Pad} to hull
+delegate option {-pady padY Pad} to hull
+delegate option * to text
+# ...
+}
 .CE
 .PP
 \fBQuerying the option database:\fR If you set your widgetclass and
@@ -2172,16 +2055,12 @@ hardcoded in the type definition is used.  In either case, the default
 can be overridden by the caller.  For example,
 .PP
 .CS
-
-    option add *Mywidget.texture pebbled
-
-    snit::widget mywidget {
-	option -texture smooth
-	# ...
-    }
-
-    mywidget .mywidget -texture greasy
-
+option add *Mywidget.texture pebbled
+snit::widget mywidget {
+option -texture smooth
+# ...
+}
+mywidget .mywidget -texture greasy
 .CE
 .PP
 Here, \fB-texture\fR would normally default to "smooth", but because of
@@ -2196,26 +2075,21 @@ only exception concerns options that are delegated to it with a
 different name.  Consider the following code:
 .PP
 .CS
-
-    option add *Mywidget.borderWidth 5
-    option add *Mywidget.relief sunken
-    option add *Mywidget.hullbackground red
-    option add *Mywidget.background green
-
-    snit::widget mywidget {
-	delegate option -borderwidth to hull
-	delegate option -hullbackground to hull as -background
-	delegate option * to hull
-	# ...
-    }
-
-    mywidget .mywidget
-
-    set A [.mywidget cget -relief]
-    set B [.mywidget cget -hullbackground]
-    set C [.mywidget cget -background]
-    set D [.mywidget cget -borderwidth]
-
+option add *Mywidget.borderWidth 5
+option add *Mywidget.relief sunken
+option add *Mywidget.hullbackground red
+option add *Mywidget.background green
+snit::widget mywidget {
+delegate option -borderwidth to hull
+delegate option -hullbackground to hull as -background
+delegate option * to hull
+# ...
+}
+mywidget .mywidget
+set A [.mywidget cget -relief]
+set B [.mywidget cget -hullbackground]
+set C [.mywidget cget -background]
+set D [.mywidget cget -borderwidth]
 .CE
 .PP
 The question is, what are the values of variables A, B, C and D?
@@ -2254,26 +2128,22 @@ must call \fBinstallhull\fR in its constructor.  The normal way to do
 this is as follows:
 .PP
 .CS
-
-    snit::widgetadaptor mywidget {
-	# ...
-	constructor {args} {
-	    # ...
-	    installhull using text -foreground white
-	    #
-	}
-	#...
-    }
-
+snit::widgetadaptor mywidget {
+# ...
+constructor {args} {
+# ...
+installhull using text -foreground white
+#
+}
+#...
+}
 .CE
 .PP
 In this case, the \fBinstallhull\fR command will create the hull using
 a command like this:
 .PP
 .CS
-
-    set hull [text $win -foreground white]
-
+set hull [text $win -foreground white]
 .CE
 .PP
 The hull is a \fBtext\fR widget, so its widget class is "Text".  Just
@@ -2295,15 +2165,12 @@ create a component was to simply create it in the constructor and
 assign its command name to the component variable:
 .PP
 .CS
-
-    snit::widget mywidget {
-	delegate option -background to myComp
-
-	constructor {args} {
-	    set myComp [text $win.text -foreground black]
-	}
-    }
-
+snit::widget mywidget {
+delegate option -background to myComp
+constructor {args} {
+set myComp [text $win.text -foreground black]
+}
+}
 .CE
 .PP
 The drawback of this method is that Snit has no opportunity to
@@ -2311,15 +2178,12 @@ initialize the component properly.  Hence, the following approach is
 now used:
 .PP
 .CS
-
-    snit::widget mywidget {
-	delegate option -background to myComp
-
-	constructor {args} {
-	    install myComp using text $win.text -foreground black
-	}
-    }
-
+snit::widget mywidget {
+delegate option -background to myComp
+constructor {args} {
+install myComp using text $win.text -foreground black
+}
+}
 .CE
 .PP
 The \fBinstall\fR command does the following:
@@ -2359,32 +2223,24 @@ meta-programming with Snit classes.  For example, suppose you like to
 define properties: instance variables that have set/get methods.  Your
 code might look like this:
 .CS
-
-    snit::type dog {
-        variable mood happy
-
-        method getmood {} {
-            return $mood
-        }
-
-        method setmood {newmood} {
-            set mood $newmood
-        }
-    }
-
+snit::type dog {
+variable mood happy
+method getmood {} {
+return $mood
+}
+method setmood {newmood} {
+set mood $newmood
+}
+}
 .CE
 That's nine lines of text per property.  Or, you could define the
 following \fBsnit::macro\fR:
 .CS
-
-    snit::macro property {name initValue} {
-        variable $name $initValue
-
-        method get$name {} "return $name"
-
-        method set$name {value} "set $name \\$value"
-    }
-
+snit::macro property {name initValue} {
+variable $name $initValue
+method get$name {} "return $name"
+method set$name {value} "set $name \\$value"
+}
 .CE
 Note that a \fBsnit::macro\fR is just a normal Tcl proc defined in
 the slave interpreter used to compile type and widget definitions; as
@@ -2393,11 +2249,9 @@ widgets.
 .PP
 Given this new macro, you can define a property in one line of code:
 .CS
-
-    snit::type dog {
-        property mood happy
-    }
-
+snit::type dog {
+property mood happy
+}
 .CE
 Within a macro, the commands \fBvariable\fR and \fBproc\fR refer to
 the Snit type-definition commands, not the standard Tcl commands.  To
@@ -2409,13 +2263,10 @@ name collisions.  If you're writing a reuseable package using Snit,
 and you use some \fBsnit::macro\fRs, define them in your package
 namespace:
 .CS
-
-    snit::macro mypkg::property {name initValue} { ... }
-
-    snit::type dog {
-        mypkg::property mood happy
-    }
-
+snit::macro mypkg::property {name initValue} { ... }
+snit::type dog {
+mypkg::property mood happy
+}
 .CE
 This leaves the global namespace open for application authors.
 .PP
@@ -2430,10 +2281,8 @@ do the validation. This method must take a single argument, the value
 to be validated; further, it must do nothing if the value is valid,
 but throw an error if the value is invalid:
 .CS
-
-    snit::integer validate 5     ;# Does nothing
-    snit::integer validate 5.0   ;# Throws an error (not an integer!)
-
+snit::integer validate 5     ;# Does nothing
+snit::integer validate 5.0   ;# Throws an error (not an integer!)
 .CE
 .PP
 The \fBvalidate\fR method will always return the validated value on success,
@@ -2445,36 +2294,28 @@ in addition, their instances serve as parameterized
 subtypes.  For example, a probability is a number between 0.0 and 1.0
 inclusive:
 .CS
-
-    snit::double probability -min 0.0 -max 1.0
-
+snit::double probability -min 0.0 -max 1.0
 .CE
 The example above creates an instance of \fBsnit::double\fR--a
 validation subtype--called
 \fBprobability\fR, which can be used to validate probability values:
 .CS
-
-    probability validate 0.5   ;# Does nothing
-    probability validate 7.9   ;# Throws an error
-
+probability validate 0.5   ;# Does nothing
+probability validate 7.9   ;# Throws an error
 .CE
 Validation subtypes can be defined explicitly, as in the above
 example; when a locally-defined option's \fB-type\fR is specified,
 they may also be created on the fly:
 .CS
-
-    snit::enum ::dog::breed -values {mutt retriever sheepdog}
-
-    snit::type dog {
-        # Define subtypes on the fly...
-        option -breed -type {
-            snit::enum -values {mutt retriever sheepdog}
-        }
-
-        # Or use predefined subtypes...
-        option -breed -type ::dog::breed
-    }
-
+snit::enum ::dog::breed -values {mutt retriever sheepdog}
+snit::type dog {
+# Define subtypes on the fly...
+option -breed -type {
+snit::enum -values {mutt retriever sheepdog}
+}
+# Or use predefined subtypes...
+option -breed -type ::dog::breed
+}
 .CE
 .PP
 Any object that has a \fBvalidate\fR method with the semantics
@@ -2579,30 +2420,23 @@ the name of a validation type or subtype.  In the
 following example, the value of \fB-numbers\fR must be a list
 of integers.
 .CS
-
-    option -numbers -type {snit::listtype -type snit::integer}
-
+option -numbers -type {snit::listtype -type snit::integer}
 .CE
 .IP
 Note that this option doesn't support defining new validation subtypes
 on the fly; that is, the following code will not work (yet, anyway):
 .CS
-
-    option -numbers -type {
-        snit::listtype -type {snit::integer -min 5}
-    }
-
+option -numbers -type {
+snit::listtype -type {snit::integer -min 5}
+}
 .CE
 .IP
 Instead, define the subtype explicitly:
 .CS
-
-    snit::integer gt4 -min 5
-
-    snit::type mytype {
-        option -numbers -type {snit::listtype -type gt4}
-    }
-
+snit::integer gt4 -min 5
+snit::type mytype {
+option -numbers -type {snit::listtype -type gt4}
+}
 .CE
 .RE
 .TP
@@ -2681,16 +2515,13 @@ value is invalid.  This can be done with a simple \fBproc\fR.  For
 example, the \fBsnit::boolean\fR validate type could have been
 implemented like this:
 .CS
-
-    proc ::snit::boolean {"validate" value} {
-        if {![string is boolean -strict $value]} {
-            return -code error -errorcode INVALID \\
-                "invalid boolean \\"$value\\", should be one of: 1, 0, ..."
-        }
-
-        return $value
-    }
-
+proc ::snit::boolean {"validate" value} {
+if {![string is boolean -strict $value]} {
+return -code error -errorcode INVALID \\
+"invalid boolean \\"$value\\", should be one of: 1, 0, ..."
+}
+return $value
+}
 .CE
 A validation type defined in this way cannot be subtyped, of course;
 but for many applications this will be sufficient.
@@ -2698,69 +2529,52 @@ but for many applications this will be sufficient.
 Finally, one can define a full-fledged, subtype-able validation type
 as a \fBsnit::type\fR.  Here's a skeleton to get you started:
 .CS
-
-    snit::type myinteger {
-        # First, define any options you'd like to use to define
-        # subtypes.  Give them defaults such that they won't take
-        # effect if they aren't used, and marked them "read-only".
-        # After all, you shouldn't be changing their values after
-        # a subtype is defined.
-        #
-        # For example:
-
-        option -min -default "" -readonly 1
-        option -max -default "" -readonly 1
-
-        # Next, define a "validate" type method which should do the
-        # validation in the basic case.  This will allow the
-        # type command to be used as a validation type.
-
-        typemethod validate {value} {
-            if {![string is integer -strict $value]} {
-                return -code error -errorcode INVALID \\
-                    "invalid value \\"$value\\", expected integer"
-            }
-
-            return $value
-        }
-
-        # Next, the constructor should validate the subtype options,
-        # if any.  Since they are all readonly, we don't need to worry
-        # about validating the options on change.
-
-        constructor {args} {
-            # FIRST, get the options
-            $self configurelist $args
-
-            # NEXT, validate them.
-
-            # I'll leave this to your imagination.
-        }
-
-        # Next, define a "validate" instance method; its job is to
-        # validate values for subtypes.
-
-        method validate {value} {
-            # First, call the type method to do the basic validation.
-            $type validate $value
-
-            # Now we know it's a valid integer.
-
-            if {("" != $options(-min) && $value < $options(-min))  ||
-                ("" != $options(-max) && $value > $options(-max))} {
-                # It's out of range; format a detailed message about
-                # the error, and throw it.
-
-                set msg "...."
-
-                return -code error -errorcode INVALID $msg
-            }
-
-            # Otherwise, if it's valid just return it.
-            return $valid
-        }
-    }
-
+snit::type myinteger {
+# First, define any options you'd like to use to define
+# subtypes.  Give them defaults such that they won't take
+# effect if they aren't used, and marked them "read-only".
+# After all, you shouldn't be changing their values after
+# a subtype is defined.
+#
+# For example:
+option -min -default "" -readonly 1
+option -max -default "" -readonly 1
+# Next, define a "validate" type method which should do the
+# validation in the basic case.  This will allow the
+# type command to be used as a validation type.
+typemethod validate {value} {
+if {![string is integer -strict $value]} {
+return -code error -errorcode INVALID \\
+"invalid value \\"$value\\", expected integer"
+}
+return $value
+}
+# Next, the constructor should validate the subtype options,
+# if any.  Since they are all readonly, we don't need to worry
+# about validating the options on change.
+constructor {args} {
+# FIRST, get the options
+$self configurelist $args
+# NEXT, validate them.
+# I'll leave this to your imagination.
+}
+# Next, define a "validate" instance method; its job is to
+# validate values for subtypes.
+method validate {value} {
+# First, call the type method to do the basic validation.
+$type validate $value
+# Now we know it's a valid integer.
+if {("" != $options(-min) && $value < $options(-min))  ||
+("" != $options(-max) && $value > $options(-max))} {
+# It's out of range; format a detailed message about
+# the error, and throw it.
+set msg "...."
+return -code error -errorcode INVALID $msg
+}
+# Otherwise, if it's valid just return it.
+return $valid
+}
+}
 .CE
 And now you have a type that can be subtyped.
 .PP
@@ -2845,5 +2659,4 @@ Programming tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2003-2009, by William H. Duquette
-
 .fi

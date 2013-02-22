@@ -221,7 +221,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -299,22 +298,19 @@ class are considered as equal.
 .PP
 Here is a pictorial representation of the concepts listed above:
 .CS
-
-
-	+-----------------+ The outer lines are the boundaries of the set S.
-	|           /     | The inner regions delineated by the skewed lines
-	|  *       /   *  | are the partitions P. The *'s denote the elements
-	|      *  / \\     | E in the set, each in a single partition, their
-	|*       /   \\    | equivalence class.
-	|       /  *  \\   |
-	|      / *   /    |
-	| *   /\\  * /     |
-	|    /  \\  /      |
-	|   /    \\/  *    |
-	|  / *    \\       |
-	| /     *  \\      |
-	+-----------------+
-
++-----------------+ The outer lines are the boundaries of the set S.
+|           /     | The inner regions delineated by the skewed lines
+|  *       /   *  | are the partitions P. The *'s denote the elements
+|      *  / \\     | E in the set, each in a single partition, their
+|*       /   \\    | equivalence class.
+|       /  *  \\   |
+|      / *   /    |
+| *   /\\  * /     |
+|    /  \\  /      |
+|   /    \\/  *    |
+|  / *    \\       |
+| /     *  \\      |
++-----------------+
 .CE
 .PP
 For more information see \fIhttp://en.wikipedia.org/wiki/Disjoint_set_data_structure\fR.

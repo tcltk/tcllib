@@ -99,11 +99,14 @@
    -->
 <body><div class="doctools">
 <hr> [
-  <a href="../../../../toc.html">Main Table Of Contents</a>
+   <a href="../../../../../../home">Tcllib Home</a>
+| <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
-| <a href="/tcllib">Home</a>
-] <hr>
+| <a href="../../../../toc0.html">Categories</a>
+| <a href="../../../../toc1.html">Modules</a>
+| <a href="../../../../toc2.html">Applications</a>
+ ] <hr>
 <h1 class="title">comm(n) 4.6.2 tcllib &quot;Remote communication&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>comm - A remote communication facility for Tcl (8.3 and later)</p>
@@ -249,7 +252,7 @@ same error.</p>
 <div id="subsection3" class="subsection"><h3><a name="subsection3">Multiple Channels</a></h3>
 <p>More than one <b class="cmd">comm</b> channel (or <em>listener</em>) can be created
 in each Tcl interpreter.  This allows flexibility to create full and
-restricted channels.  For instance, <i class="term"><a href="../../../../index.html#key632">hook</a></i> scripts are specific
+restricted channels.  For instance, <i class="term"><a href="../../../../index.html#key630">hook</a></i> scripts are specific
 to the channel they are defined against.</p>
 <dl class="definitions">
 <dt><a name="5"><b class="cmd">::comm::comm new</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">name value ...</i>?</span></a></dt>
@@ -633,7 +636,7 @@ is supported, allowing the user of a comm channel to specify which
 command to use when opening a socket. Anything which is API-compatible
 with the builtin <b class="cmd">::socket</b> (the default) can be used.</p>
 <p>The envisioned main use is the specification of the <b class="cmd">tls::socket</b>
-command, see package <b class="package"><a href="../../../../index.html#key289">tls</a></b>, to secure the communication.</p>
+command, see package <b class="package"><a href="../../../../index.html#key287">tls</a></b>, to secure the communication.</p>
 <pre class="example">
 	# Load and initialize tls
 	package require tls
@@ -787,7 +790,7 @@ buffer.</p></dd>
 <dt>4.6</dt>
 <dd><p>Added the option <b class="option">-socketcmd</b> enabling users to override how a
 socket is opened. The envisioned main use is the specification of the
-<b class="cmd">tls::socket</b> command, see package <b class="package"><a href="../../../../index.html#key289">tls</a></b>, to secure the
+<b class="cmd">tls::socket</b> command, see package <b class="package"><a href="../../../../index.html#key287">tls</a></b>, to secure the
 communication.</p></dd>
 <dt>4.5.7</dt>
 <dd><p>Changed handling of ports already in use to provide a proper error
@@ -998,7 +1001,7 @@ package and/or documentation.</p>
 <p>send(n)</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key38">comm</a>, <a href="../../../../index.html#key314">communication</a>, <a href="../../../../index.html#key319">ipc</a>, <a href="../../../../index.html#key320">message</a>, <a href="../../../../index.html#key317">remote communication</a>, <a href="../../../../index.html#key316">remote execution</a>, <a href="../../../../index.html#key313">rpc</a>, <a href="../../../../index.html#key315">secure</a>, <a href="../../../../index.html#key312">send</a>, <a href="../../../../index.html#key311">socket</a>, <a href="../../../../index.html#key318">ssl</a>, <a href="../../../../index.html#key289">tls</a></p>
+<p><a href="../../../../index.html#key38">comm</a>, <a href="../../../../index.html#key314">communication</a>, <a href="../../../../index.html#key319">ipc</a>, <a href="../../../../index.html#key320">message</a>, <a href="../../../../index.html#key317">remote communication</a>, <a href="../../../../index.html#key316">remote execution</a>, <a href="../../../../index.html#key313">rpc</a>, <a href="../../../../index.html#key315">secure</a>, <a href="../../../../index.html#key312">send</a>, <a href="../../../../index.html#key311">socket</a>, <a href="../../../../index.html#key318">ssl</a>, <a href="../../../../index.html#key287">tls</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>
