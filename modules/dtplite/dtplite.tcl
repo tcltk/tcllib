@@ -115,6 +115,8 @@ package provide dtplite 1.0.4
 #	-header file
 #	-footer file
 #	-nav label url
+#	-prenav label url
+#	-postnav label url
 #
 # *	The application may mis-detect files as doctools input.
 #	And we cannot always mark them as non-doctools because
@@ -199,13 +201,16 @@ namespace eval ::dtplite {
     # parameter 'header' (The navigation bar is merged with the
     # 'header' data, see above). Each element of the list is a
     # 2-element list, containing the button label and url, in this
-    # order. Initial data comes from the command line, via option
-    # '-nav'. The commands 'Navbutton(Push|Pop)' then allow the
-    # programmatic addition and removal of buttons at the left (stack
-    # like, top at index 0). This is used for the insertion of links
-    # to TOC and Index into each document, if applicable.
+    # order. Initial data comes from the command line, via options
+    # '-nav', '-prenav', and '-postnav'. The commands 'Navbutton(Push|Pop)'
+    # then allow the programmatic addition and removal of buttons at
+    # the left (stack like, top at end index). This is used for the
+    # insertion of links to TOC and Index into each document, if
+    # applicable.
 
-    variable  nav    {}
+    variable  nav     {}
+    variable  prenav  {}
+    variable  postnav {}
 
     # An array caching the result of merging header and navbar data,
     # keyed by the navbar definition (list). This allows us to quickly
@@ -367,6 +372,10 @@ namespace eval ::dtplite {
 #		?-header file?	\
 #		?-footer file?	\
 #		?-nav label url?... \
+#		?-prenav label url?... \
+#		?-postnav label url?... \
+#		?-prenav label url?... \
+#		?-postnav label url?... \
 #		?-exclude glob?... \
 #		?-toc path? \
 #		format inputpath
@@ -378,6 +387,7 @@ proc ::dtplite::ProcessCmdline {argv} {
     variable input  ; variable footer ; variable mode
     variable ext    ; variable nav    ; variable merge
     variable module ; variable excl   ; variable utoc
+    variable prenav ; variable postnav
 
     # Process the options, perform basic validation.
 
@@ -418,8 +428,16 @@ proc ::dtplite::ProcessCmdline {argv} {
 	    set argv   [lrange $argv 2 end]
 	} elseif {[string equal $opt "-nav"]} {
 	    if {[llength $argv] < 3} Usage
-	    lappend nav [lrange $argv 1 2]
-	    set argv    [lrange $argv 3 end]
+	    lappend prenav [lrange $argv 1 2]
+	    set argv       [lrange $argv 3 end]
+	} elseif {[string equal $opt "-postnav"]} {
+	    if {[llength $argv] < 3} Usage
+	    lappend postnav [lrange $argv 1 2]
+	    set argv        [lrange $argv 3 end]
+	} elseif {[string equal $opt "-prenav"]} {
+	    if {[llength $argv] < 3} Usage
+	    lappend prenav [lrange $argv 1 2]
+	    set argv       [lrange $argv 3 end]
 	} else {
 	    Usage
 	}
@@ -772,7 +790,7 @@ proc ::dtplite::Do.Directory {} {
 
 	NavbuttonPush {Keyword Index}     [Output index] $o
 	NavbuttonPush {Table Of Contents} [Output toc]   $o
-	HeaderSetup dt
+	HeaderSetup dt $o
 	NavbuttonPop
 	NavbuttonPop
 	StyleSetup dt $o
@@ -846,7 +864,7 @@ proc ::dtplite::Do.Directory.Merge {} {
 	NavbuttonPush {Keyword Index}          [Output index]       $o
 	NavbuttonPush {Table Of Contents}      [Output $module/toc] $o
 	NavbuttonPush {Main Table Of Contents} [Output toc]         $o
-	HeaderSetup dt
+	HeaderSetup dt $o
 	NavbuttonPop
 	NavbuttonPop
 	NavbuttonPop
@@ -871,7 +889,7 @@ proc ::dtplite::SinglePrep {} {
 
     MapImages
     StyleSetup  dt
-    HeaderSetup dt
+    HeaderSetup dt {}
     FooterSetup dt
     MapSetup    dt
 
@@ -1034,7 +1052,7 @@ proc ::dtplite::TocWrite {ftoc findex text {map {}}} {
     doctools::toc::new toc -format $format -file $ft
 
     NavbuttonPush {Keyword Index} [Output $findex] $ftoc
-    HeaderSetup  toc
+    HeaderSetup  toc {}
     NavbuttonPop
     FooterSetup  toc
     StyleSetup   toc $ftoc
@@ -1165,7 +1183,7 @@ proc ::dtplite::IdxWrite {findex ftoc text} {
     doctools::idx::new idx -format $format -file $fi
 
     NavbuttonPush {Table Of Contents} [Output $ftoc] $findex
-    HeaderSetup   idx
+    HeaderSetup   idx {}
     NavbuttonPop
     FooterSetup   idx
     StyleSetup    idx $findex
@@ -1474,41 +1492,80 @@ proc ::dtplite::NavbuttonPop {} {
 ## Header is merged from regular header, plus nav bar.
 ## Caching the merge result for quicker future access.
 
-proc ::dtplite::HeaderSetup {o} {
+proc ::dtplite::HeaderSetup {o ref} {
     variable header
     variable nav
-    variable navcache
+
+puts Header($ref)
 
     if {[string equal $header ""] && ![llength $nav]} return
     if {![in [$o parameters] header]}                 return
 
-    if {![info exists navcache($nav)]} {
-	set sep 0
-	set hdr ""
-	if {![string equal $header ""]} {
-	    append hdr $header
-	    set sep 1
-	}
-	if {[llength $nav]} {
-	    if {$sep} {append hdr <br>\n}
-	    append hdr <hr>\ \[\n
+    $o setparam header [Navbar $nav $ref]
+    return
+}
 
-	    set first 1
-	    foreach item $nav {
-		if {!$first} {append hdr "| "} else {append hdr "  "}
-		set first 0
-		foreach {label url} $item break
-		append hdr "<a href=\"" $url "\">" $label "</a>\n"
-	    }
-	    append hdr \]\ <hr>\n
-	}
-	set navcache($nav) $hdr
-    } else {
-	set hdr $navcache($nav)
+proc ::dtplite::Navbar {nav ref} {
+    variable navbar
+    variable navcache
+
+    if {![info exists navcache($nav)]} {
+	NavbarGenerate $nav $ref
+    }
+    return $navcache($nav)
+}
+
+proc ::dtplite::NavbarGenerate {nav ref} {
+    variable header
+    variable prenav
+    variable postnav
+    variable navcache
+
+    set sep 0
+    set hdr ""
+    if {![string equal $header ""]} {
+	append hdr $header
+	set sep 1
     }
 
-    $o setparam header $hdr
-    return
+    append hdr [NavbarSegment sep $prenav  $ref]
+    append hdr [NavbarSegment sep $nav     {}]
+    append hdr [NavbarSegment sep $postnav $ref]
+
+    if {[string length $hdr]} {
+	set hdr "<hr> \[\n $hdr \] <hr>\n"
+    }
+
+    set navcache($nav) $hdr
+    return $hdr
+}
+
+proc ::dtplite::NavbarSegment {sepv nav ref} {
+    if {![llength $nav]} { return {} }
+    upvar 1 $sepv sep
+
+    if {$sep} {append hdr <br>\n}
+    set sep 0
+
+    set first 1
+    foreach item $nav {
+	if {!$first} {append hdr "| "} else {append hdr "  "}
+	set first 0
+	foreach {label url} $item break
+
+	if {[string length $ref] &&
+	    ![string match *://* $url] &&
+	    ![string match /*    $url]} {
+	    # The specified url is a plain relative path and we have a
+	    # proper referent.  We assume that this path is relative
+	    # to the toplevel toc and index files we are generating,
+	    # and transform it here to be relative to the referent
+	    # instead.
+	    set url [fileutil::relativeUrl $ref $url]
+	}
+	append hdr "<a href=\"" $url "\">" $label "</a>\n"
+    }
+    return $hdr
 }
 
 proc ::dtplite::FooterSetup {o} {
