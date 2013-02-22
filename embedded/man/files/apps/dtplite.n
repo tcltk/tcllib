@@ -1,6 +1,6 @@
 '\"
 '\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/apps/dtplite.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Copyright (c) 2004-2013 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -237,7 +237,7 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "dtplite" n 1.0 tcllib "Documentation toolbox"
+.TH "dtplite" n 1.0.5 tcllib "Documentation toolbox"
 .BS
 .SH NAME
 dtplite \- Lightweight DocTools Markup Processor
@@ -415,7 +415,18 @@ instead of generating our own.
 .sp
 When used multiple times only the last definition is relevant.
 .TP
+\fB-pre+toc\fR label path|text
+.TP
+\fB-post+toc\fR label path|text
+This option specifies additional doctoc files (or texts) to use in
+the navigation bar.
+.sp
+Positioning and handling of multiple uses is like for options
+\fB-prenav\fR and \fB-postnav\fR, see below.
+.TP
 \fB-nav\fR label url
+.TP
+\fB-prenav\fR label url
 Use this option to specify a navigation button with \fIlabel\fR to
 display and the \fIurl\fR to link to. This option can be used if and
 only if the selected \fIformat\fR provides an engine parameter named
@@ -426,6 +437,26 @@ generated documents.
 When used multiple times all definitions are collected and a
 navigation bar is created, with the first definition shown at the left
 edge and the last definition to the right.
+.sp
+The url can be relative. In that case it is assumed to be relative
+to the main files (TOC and Keyword index), and will be transformed for
+all others to still link properly.
+.TP
+\fB-postnav\fR label url
+Use this option to specify a navigation button with \fIlabel\fR to
+display and the \fIurl\fR to link to. This option can be used if and
+only if the selected \fIformat\fR provides an engine parameter named
+"header". The HTML generated for this is appended to whatever data we
+got from option \fB-header\fR before it is inserted into the
+generated documents.
+.sp
+When used multiple times all definitions are collected and a
+navigation bar is created, with the last definition shown at the right
+edge and the first definition to the left.
+.sp
+The url can be relative. In that case it is assumed to be relative
+to the main files (TOC and Keyword index), and will be transformed for
+all others to still link properly.
 .PP
 .SS FORMATS
 At first the \fIformat\fR argument will be treated as a path to a tcl
@@ -550,5 +581,5 @@ HTML, TMML, conversion, docidx, doctoc, doctools, manpage, markup, nroff
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2004-2013 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 .fi
