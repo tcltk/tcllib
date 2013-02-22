@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -559,7 +558,6 @@ Program accessor method. The specified \fIwordlist\fR is added to the
 front of the remaining program. Equivalent to
 .sp
 .CS
-
 $wip insertl 0 $wordlist
 .CE
 .TP
@@ -568,7 +566,6 @@ Program accessor method. The specified \fIwordlist\fR is appended at
 the end of the remaining program. Equivalent to
 .sp
 .CS
-
 $wip insertl end $wordlist
 .CE
 .TP
@@ -604,5 +601,4 @@ Programming tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2007-2010 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

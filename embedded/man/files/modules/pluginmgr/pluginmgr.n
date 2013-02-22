@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -374,26 +373,20 @@ registry entries, and / for directories).
 Examples:
 .sp
 .CS
-
-
-    ::pluginmgr::paths ::obj docidx
-
-    => env  DOCIDX_PLUGINS
-       reg  HKEY_LOCAL_MACHINE\\SOFTWARE\\docidx\\PLUGINS
-       reg  HKEY_CURRENT_USER\\SOFTWARE\\docidx\\PLUGINS
-       path ~/.docidx/plugins
-
-    ::pluginmgr::paths ::obj doctools::idx
-
-    => env  DOCTOOLS_PLUGINS
-       env  DOCTOOLS_IDX_PLUGINS
-       reg  HKEY_LOCAL_MACHINE\\SOFTWARE\\doctools\\PLUGINS
-       reg  HKEY_LOCAL_MACHINE\\SOFTWARE\\doctools\\idx\\PLUGINS
-       reg  HKEY_CURRENT_USER\\SOFTWARE\\doctools\\PLUGINS
-       reg  HKEY_CURRENT_USER\\SOFTWARE\\doctools\\idx\\PLUGINS
-       path ~/.doctools/plugin
-       path ~/.doctools/idx/plugin
-
+::pluginmgr::paths ::obj docidx
+=> env  DOCIDX_PLUGINS
+reg  HKEY_LOCAL_MACHINE\\SOFTWARE\\docidx\\PLUGINS
+reg  HKEY_CURRENT_USER\\SOFTWARE\\docidx\\PLUGINS
+path ~/.docidx/plugins
+::pluginmgr::paths ::obj doctools::idx
+=> env  DOCTOOLS_PLUGINS
+env  DOCTOOLS_IDX_PLUGINS
+reg  HKEY_LOCAL_MACHINE\\SOFTWARE\\doctools\\PLUGINS
+reg  HKEY_LOCAL_MACHINE\\SOFTWARE\\doctools\\idx\\PLUGINS
+reg  HKEY_CURRENT_USER\\SOFTWARE\\doctools\\PLUGINS
+reg  HKEY_CURRENT_USER\\SOFTWARE\\doctools\\idx\\PLUGINS
+path ~/.doctools/plugin
+path ~/.doctools/idx/plugin
 .CE
 .PP
 .SS "OBJECT COMMAND"
@@ -595,5 +588,4 @@ Programming tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

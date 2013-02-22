@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -350,32 +349,24 @@ package and sticking with expr. Consult the API section of
 this man page for information about individual procedures.
 .PP
 .CS
-
-
-    package require decimal
-
-    # Various operations on two numbers.
-    # We first convert them to decimal format.
-    set a [::math::decimal::fromstr 8.2]
-    set b [::math::decimal::fromstr .2]
-
-    # Then we perform our operations. Here we multiply
-    set c [::math::decimal::* $a $b]
-
-    # Finally we convert back to string format for presentation to the user.
-    puts [::math::decimal::tostr $c] ; # => will output 8.4
-
-    # Other examples
-    #
-    # Subtraction
-    set c [::math::decimal::- $a $b]
-    puts [::math::decimal::tostr $c] ; # => will output 8.0
-
-    # Why bother using this instead of simply expr?
-    puts 8.399999999999999 ; # => will output 8.399999999999999
-    puts 7.999999999999999 ; # => will output 7.999999999999999
-    # See http://speleotrove.com/decimal to learn more about why this happens.
-
+package require decimal
+# Various operations on two numbers.
+# We first convert them to decimal format.
+set a [::math::decimal::fromstr 8.2]
+set b [::math::decimal::fromstr .2]
+# Then we perform our operations. Here we multiply
+set c [::math::decimal::* $a $b]
+# Finally we convert back to string format for presentation to the user.
+puts [::math::decimal::tostr $c] ; # => will output 8.4
+# Other examples
+#
+# Subtraction
+set c [::math::decimal::- $a $b]
+puts [::math::decimal::tostr $c] ; # => will output 8.0
+# Why bother using this instead of simply expr?
+puts 8.399999999999999 ; # => will output 8.399999999999999
+puts 7.999999999999999 ; # => will output 7.999999999999999
+# See http://speleotrove.com/decimal to learn more about why this happens.
 .CE
 .SH API
 .TP
@@ -521,5 +512,4 @@ Mathematics
 .SH COPYRIGHT
 .nf
 Copyright (c) 2011 Mark Alston <mark at beernut dot com>
-
 .fi

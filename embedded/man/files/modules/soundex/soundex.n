@@ -224,7 +224,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -267,11 +266,8 @@ command.
 .PP
 .SH EXAMPLES
 .CS
-
-
-    % ::soundex::knuth Knuth
-    K530
-
+% ::soundex::knuth Knuth
+K530
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -289,5 +285,4 @@ Hashes, checksums, and encryption
 Copyright (c) ????, Algorithm: Donald E. Knuth
 Copyright (c) 2003, Documentation: Andreas Kupries <andreas_kupries@users.sourceforge.net>
 Copyright (c) 1998, Tcl port: Evan Rempel <erempel@uvic.ca>
-
 .fi

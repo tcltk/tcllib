@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -316,15 +315,11 @@ and \fBHostComputer\fR. The values are the associated properties of
 the TIFF ?image? in \fIfile\fR. Values may be empty if the associated tag is not
 present in the file.
 .CS
-
-
-    puts [::tiff::imageInfo photo.tif]
-
-    ImageWidth 686 ImageLength 1024 BitsPerSample {8 8 8} Compression 1
-    PhotometricInterpretation 2 ImageDescription {} Orientation 1
-    XResolution 170.667 YResolution 170.667 ResolutionUnit 2 DateTime {2005:12:28 19:44:45}
-    Artist {} HostComputer {}
-
+puts [::tiff::imageInfo photo.tif]
+ImageWidth 686 ImageLength 1024 BitsPerSample {8 8 8} Compression 1
+PhotometricInterpretation 2 ImageDescription {} Orientation 1
+XResolution 170.667 YResolution 170.667 ResolutionUnit 2 DateTime {2005:12:28 19:44:45}
+Artist {} HostComputer {}
 .CE
 .IP
 There is nothing special about these tags, this is simply a convience procedure which calls
@@ -341,11 +336,8 @@ Returns the value of \fIentry\fR from image ?image? in the TIFF \fIfile\fR.
 \fIentry\fR may be a list of multiple entries. If an entry does not exist, an
 empty string is returned
 .CS
-
-
-    set data [::tiff::getEntry photo.tif {0131 0132}]
-    puts "file was written at [lindex $data 0] with software [lindex $data 1]"
-
+set data [::tiff::getEntry photo.tif {0131 0132}]
+puts "file was written at [lindex $data 0] with software [lindex $data 1]"
 .CE
 .IP
 Throws an error if \fIfile\fR is not a TIFF image.
@@ -355,10 +347,7 @@ Adds the specified entries to the image named by ?image? (default 0), or optiona
 \fIentry\fR must be a list where each element is a list of tag, type, and value. If a tag already
 exists, it is overwritten.
 .CS
-
-
-    ::tiff::addEntry photo.tif {{010e 2 "an example photo"} {013b 2 "Aaron F"}}
-
+::tiff::addEntry photo.tif {{010e 2 "an example photo"} {013b 2 "Aaron F"}}
 .CE
 .IP
 The data types are defined as follows
@@ -454,5 +443,4 @@ File formats
 .SH COPYRIGHT
 .nf
 Copyright (c) 2005-2006, Aaron Faupell <afaupell@users.sourceforge.net>
-
 .fi

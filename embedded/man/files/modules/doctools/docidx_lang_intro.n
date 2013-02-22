@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -262,26 +261,17 @@ rules for a Tcl command apply with regard to word quotation, nested
 commands, continuation lines, etc. I.e.
 .PP
 .CS
-
-
-    ... [key {markup language}] ...
-
+\... [key {markup language}] ...
 .CE
 .CS
-
-
-  ... [manpage thefile \\\\
-          {file description}] ...
-
+\... [manpage thefile \\\\
+{file description}] ...
 .CE
 .SS "BASIC STRUCTURE"
 The most simple document which can be written in docidx is
 .CS
-
-
-    [index_begin GROUPTITLE TITLE]
-    [index_end]
-
+[index_begin GROUPTITLE TITLE]
+[index_end]
 .CE
 .PP
 Not very useful, but valid. This also shows us that all docidx
@@ -291,8 +281,6 @@ their references.
 A more useful index will contain at least keywords, or short 'keys',
 i.e. the phrases which were indexed. So:
 .CS
-
-
 [index_begin GROUPTITLE TITLE]
 [\fBkey markup\fR]
 [\fBkey {semantic markup}]\fR]
@@ -300,7 +288,6 @@ i.e. the phrases which were indexed. So:
 [\fBkey {docidx language}\fR]
 [\fBkey {docidx commands}\fR]
 [index_end]
-
 .CE
 .PP
 In the above example the command \fBkey\fR is used to declare the
@@ -311,8 +298,6 @@ but will also contain references to documents associated with the
 keywords. Here is a made-up index for all the manpages in the module
 \fIbase64\fR:
 .CS
-
-
 [index_begin tcllib/base64 {De- & Encoding}]
 [key base64]
 [\fBmanpage base64\fR]
@@ -329,7 +314,6 @@ keywords. Here is a made-up index for all the manpages in the module
 [key yencode]
 [\fBmanpage yencode\fR]
 [index_end]
-
 .CE
 .PP
 In the above example the command \fBmanpage\fR is used to insert
@@ -351,27 +335,21 @@ and \fBvset\fR are also allowed, to enable the writer to either set
 and/or import configuration settings relevant to the table of
 contents. I.e. it is possible to write
 .CS
-
-
 [\fBinclude FILE\fR]
 [\fBvset VAR VALUE\fR]
 [index_begin GROUPTITLE TITLE]
-...
+\...
 [index_end]
-
 .CE
 Even more important, these two commands are allowed anywhere where a
 markup command is allowed, without regard for any other
 structure.
 .CS
-
-
 [index_begin GROUPTITLE TITLE]
 [\fBinclude FILE\fR]
 [\fBvset VAR VALUE\fR]
-...
+\...
 [index_end]
-
 .CE
 The only restriction \fBinclude\fR has to obey is that the contents of
 the included file must be valid at the place of the inclusion. I.e. a
@@ -389,14 +367,11 @@ impossible to directly use [ and ] within the text.
 Our example of their use are the sources of the last sentence in the
 previous paragraph, with some highlighting added.
 .CS
-
-
-  ...
-  These commands, [cmd lb] and [cmd lb] respectively, are required
-  because our use of [\fBlb\fR] and [\fBrb\fR] to bracket markup commands makes it
-  impossible to directly use [\fBlb\fR] and [\fBrb\fR] within the text.
-  ...
-
+\...
+These commands, [cmd lb] and [cmd lb] respectively, are required
+because our use of [\fBlb\fR] and [\fBrb\fR] to bracket markup commands makes it
+impossible to directly use [\fBlb\fR] and [\fBrb\fR] within the text.
+\...
 .CE
 .SH "FURTHER READING"
 Now that this document has been digested the reader, assumed to be a
@@ -430,5 +405,4 @@ Documentation tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2007-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -335,7 +334,6 @@ See \fB::logger::utils::createFormatCmd\fR for the
 format of the pattern. If this option is not provided
 the default pattern
 .CS
-
 [%d] [%c] [%M] [%p] %m
 .CE
 .IP
@@ -349,14 +347,11 @@ levels are assumed.
 Example of usage:
 .sp
 .CS
-
-
-   % set log [logger::init testLog]
-   ::logger::tree::testLog
-   % logger::utils::applyAppender -appender console -serviceCmd $log
-   % ${log}::error "this is an error"
-   [2005/08/22 10:14:13] [testLog] [global] [error] this is an error
-
+% set log [logger::init testLog]
+::logger::tree::testLog
+% logger::utils::applyAppender -appender console -serviceCmd $log
+% ${log}::error "this is an error"
+[2005/08/22 10:14:13] [testLog] [global] [error] this is an error
 .CE
 .TP
 \fB::logger::utils::autoApplyAppender\fR \fIcommand\fR \fIcommand-string\fR \fIlog\fR \fIop\fR \fIargs\fR...
@@ -369,12 +364,9 @@ It will return its argument \fIlog\fR.
 Example of usage:
 .sp
 .CS
-
-
-  logger::utils::applyAppender -appender console
-  set log [logger::init applyAppender-3]
-  ${log}::error "this is an error"
-
+logger::utils::applyAppender -appender console
+set log [logger::init applyAppender-3]
+${log}::error "this is an error"
 .CE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
@@ -391,5 +383,4 @@ Programming tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2005 Aamer Akhter <aakhter@cisco.com>
-
 .fi

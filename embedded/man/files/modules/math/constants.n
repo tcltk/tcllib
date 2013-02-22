@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -271,10 +270,7 @@ The motivation for this package is that quite often, with
 the ratio of degrees to radians. You can, of course, define this
 like:
 .CS
-
-
-    variable radtodeg [expr {180.0/(4.0*atan(1.0))}]
-
+variable radtodeg [expr {180.0/(4.0*atan(1.0))}]
 .CE
 and use the variable radtodeg whenever you need the conversion.
 .PP
@@ -289,11 +285,8 @@ never the case and for each platform you can get subtle differences.
 .PP
 Here is the way you can do it with the \fImath::constants\fR package:
 .CS
-
-
-    package require math::constants
-    ::math::constants::constants radtodeg degtorad
-
+package require math::constants
+::math::constants::constants radtodeg degtorad
 .CE
 which creates two variables, radtodeg and (its reciprocal) degtorad
 in the calling namespace.
@@ -309,10 +302,7 @@ derived values like ln(10) and sqrt(2)
 purely numerical values such as 1/3 that are included for convenience
 and for the fact that certain seemingly trivial computations like:
 .CS
-
-
-    set value [expr {3.0*$onethird}]
-
+set value [expr {3.0*$onethird}]
 .CE
 .IP
 give \fIexactly\fR the value you expect (if IEEE arithmetic is
@@ -344,5 +334,4 @@ Mathematics
 .SH COPYRIGHT
 .nf
 Copyright (c) 2004 Arjen Markus <arjenmarkus@users.sourceforge.net>
-
 .fi

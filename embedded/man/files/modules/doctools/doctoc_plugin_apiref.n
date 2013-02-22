@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -431,27 +430,23 @@ query and initialize engine parameters
 After the plugin has been loaded and the frontend commands are
 established the commands will be called in the following sequence:
 .CS
-
-
-    toc_numpasses -> n
-    toc_listvariables -> vars
-
-    toc_varset var1 value1
-    toc_varset var2 value2
-    ...
-    toc_varset varK valueK
-    toc_initialize
-    toc_setup 1
-    ...
-    toc_setup 2
-    ...
-    ...
-    toc_setup n
-    ...
-    toc_postprocess
-    toc_shutdown
-    ...
-
+toc_numpasses -> n
+toc_listvariables -> vars
+toc_varset var1 value1
+toc_varset var2 value2
+\...
+toc_varset varK valueK
+toc_initialize
+toc_setup 1
+\...
+toc_setup 2
+\...
+\...
+toc_setup n
+\...
+toc_postprocess
+toc_shutdown
+\...
 .CE
 I.e. first the number of passes and the set of available engine
 parameters is established, followed by calls setting the
@@ -612,5 +607,4 @@ Documentation tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

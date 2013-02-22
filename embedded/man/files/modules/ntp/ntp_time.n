@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -350,34 +349,25 @@ Wait for a query to complete and return the status upon completion.
 Remove all state variables associated with the request.
 .PP
 .CS
-
-
 % set tok [::time::gettime ntp2a.mcc.ac.uk]
 % set t [::time::unixtime $tok]
 % ::time::cleanup $tok
-
 .CE
 .CS
-
-
 % set tok [::time::getsntp pool.ntp.org]
 % set t [::time::unixtime $tok]
 % ::time::cleanup $tok
-
 .CE
 .CS
-
-
 proc on_time {token} {
-   if {[time::status $token] eq "ok"} {
-      puts [clock format [time::unixtime $token]]
-   } else {
-      puts [time::error $token]
-   }
-   time::cleanup $token
+if {[time::status $token] eq "ok"} {
+puts [clock format [time::unixtime $token]]
+} else {
+puts [time::error $token]
+}
+time::cleanup $token
 }
 time::getsntp -command on_time pool.ntp.org
-
 .CE
 .SH AUTHORS
 Pat Thoyts
@@ -397,5 +387,4 @@ Networking
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002, Pat Thoyts <patthoyts@users.sourceforge.net>
-
 .fi

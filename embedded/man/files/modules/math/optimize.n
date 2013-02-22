@@ -223,7 +223,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -487,26 +486,23 @@ inside the optimize routines. For the user this has only one
 consequence: the named procedure must be visible in the calling
 procedure. For instance:
 .CS
-
-
-    namespace eval ::mySpace {
-       namespace export calcfunc
-       proc calcfunc { x } { return $x }
-    }
-    #
-    # Use a fully-qualified name
-    #
-    namespace eval ::myCalc {
-       puts [min_bound_1d ::myCalc::calcfunc $begin $end]
-    }
-    #
-    # Import the name
-    #
-    namespace eval ::myCalc {
-       namespace import ::mySpace::calcfunc
-       puts [min_bound_1d calcfunc $begin $end]
-    }
-
+namespace eval ::mySpace {
+namespace export calcfunc
+proc calcfunc { x } { return $x }
+}
+#
+# Use a fully-qualified name
+#
+namespace eval ::myCalc {
+puts [min_bound_1d ::myCalc::calcfunc $begin $end]
+}
+#
+# Import the name
+#
+namespace eval ::myCalc {
+namespace import ::mySpace::calcfunc
+puts [min_bound_1d calcfunc $begin $end]
+}
 .CE
 The simple procedures \fIminimum\fR and \fImaximum\fR have been
 deprecated: the alternatives are much more flexible, robust and
@@ -517,11 +513,8 @@ Let us take a few simple examples:
 .PP
 Determine the maximum of f(x) = x^3 exp(-3x), on the interval (0,10):
 .CS
-
-
 proc efunc { x } { expr {$x*$x*$x * exp(-3.0*$x)} }
 puts "Maximum at: [::math::optimize::max_bound_1d efunc 0.0 10.0]"
-
 .CE
 .PP
 The maximum allowed error determines the number of steps taken (with
@@ -532,39 +525,25 @@ An example of a \fIlinear program\fR is:
 .PP
 Optimise the expression 3x+2y, where:
 .CS
-
-
-   x >= 0 and y >= 0 (implicit constraints, part of the
-                     definition of linear programs)
-
-   x + y   <= 1      (constraints specific to the problem)
-   2x + 5y <= 10
-
+x >= 0 and y >= 0 (implicit constraints, part of the
+definition of linear programs)
+x + y   <= 1      (constraints specific to the problem)
+2x + 5y <= 10
 .CE
 .PP
 This problem can be solved as follows:
 .CS
-
-
-
-   set solution [::math::optimize::solveLinearProgram  { 3.0   2.0 }  { { 1.0   1.0   1.0 }
-        { 2.0   5.0  10.0 } } ]
-
+set solution [::math::optimize::solveLinearProgram  { 3.0   2.0 }  { { 1.0   1.0   1.0 }
+{ 2.0   5.0  10.0 } } ]
 .CE
 .PP
 Note, that a constraint like:
 .CS
-
-
-   x + y >= 1
-
+x + y >= 1
 .CE
 can be turned into standard form using:
 .CS
-
-
-   -x  -y <= -1
-
+-x  -y <= -1
 .CE
 .PP
 The theory of linear programming is the subject of many a text book and
@@ -585,5 +564,4 @@ Mathematics
 .nf
 Copyright (c) 2004 Arjen Markus <arjenmarkus@users.sourceforge.net>
 Copyright (c) 2004,2005 Kevn B. Kenny <kennykb@users.sourceforge.net>
-
 .fi

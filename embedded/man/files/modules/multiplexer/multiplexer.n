@@ -221,7 +221,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -279,13 +278,11 @@ It is possible to have different multiplexers running concurrently.
 The \fBcreate\fR command creates a new multiplexer 'instance'.  For
 example:
 .CS
-
 set mp [::multiplexer::create]
 .CE
 .IP
 This instance can then be manipulated like so:
 .CS
-
 ${mp}::Init 35100
 .CE
 .TP

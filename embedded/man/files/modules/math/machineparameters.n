@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -268,17 +267,11 @@ is the Tcl equivalent of the DLAMCH LAPACK function.
 In floating point systems, a floating point number is represented
 by
 .CS
-
-
 x = +/- d1 d2 ... dt basis^e
-
 .CE
 where digits satisfy
 .CS
-
-
 0 <= di <= basis - 1, i = 1, t
-
 .CE
 with the convention :
 .IP \(bu
@@ -295,8 +288,6 @@ The \fBprint\fR method prints a report on standard output.
 In the following example, one compute the parameters of a desktop
 under Linux with the following Tcl 8.4.19 properties :
 .CS
-
-
 % parray tcl_platform
 tcl_platform(byteOrder) = littleEndian
 tcl_platform(machine)   = i686
@@ -307,62 +298,49 @@ tcl_platform(tip,268)   = 1
 tcl_platform(tip,280)   = 1
 tcl_platform(user)      = <username>
 tcl_platform(wordSize)  = 4
-
 .CE
 The following example creates a machineparameters object,
 computes the properties and displays it.
 .CS
-
-
-     set pp [machineparameters create %AUTO%]
-     $pp compute
-     $pp print
-     $pp destroy
-
+set pp [machineparameters create %AUTO%]
+$pp compute
+$pp print
+$pp destroy
 .CE
 This prints out :
 .CS
-
-
-     Machine parameters
-     Epsilon : 1.11022302463e-16
-     Beta : 2
-     Rounding : proper
-     Mantissa : 53
-     Maximum exponent : 1024
-     Minimum exponent : -1021
-     Overflow threshold : 8.98846567431e+307
-     Underflow threshold : 2.22507385851e-308
-
+Machine parameters
+Epsilon : 1.11022302463e-16
+Beta : 2
+Rounding : proper
+Mantissa : 53
+Maximum exponent : 1024
+Minimum exponent : -1021
+Overflow threshold : 8.98846567431e+307
+Underflow threshold : 2.22507385851e-308
 .CE
 That compares well with the results produced by Lapack 3.1.1 :
 .CS
-
-
-     Epsilon                      =   1.11022302462515654E-016
-     Safe minimum                 =   2.22507385850720138E-308
-     Base                         =    2.0000000000000000
-     Precision                    =   2.22044604925031308E-016
-     Number of digits in mantissa =    53.000000000000000
-     Rounding mode                =   1.00000000000000000
-     Minimum exponent             =   -1021.0000000000000
-     Underflow threshold          =   2.22507385850720138E-308
-     Largest exponent             =    1024.0000000000000
-     Overflow threshold           =   1.79769313486231571E+308
-     Reciprocal of safe minimum   =   4.49423283715578977E+307
-
+Epsilon                      =   1.11022302462515654E-016
+Safe minimum                 =   2.22507385850720138E-308
+Base                         =    2.0000000000000000
+Precision                    =   2.22044604925031308E-016
+Number of digits in mantissa =    53.000000000000000
+Rounding mode                =   1.00000000000000000
+Minimum exponent             =   -1021.0000000000000
+Underflow threshold          =   2.22507385850720138E-308
+Largest exponent             =    1024.0000000000000
+Overflow threshold           =   1.79769313486231571E+308
+Reciprocal of safe minimum   =   4.49423283715578977E+307
 .CE
 The following example creates a machineparameters object,
 computes the properties and gets the epsilon for
 the machine.
 .CS
-
-
-     set pp [machineparameters create %AUTO%]
-     $pp compute
-     set eps [$pp get -epsilon]
-     $pp destroy
-
+set pp [machineparameters create %AUTO%]
+$pp compute
+set eps [$pp get -epsilon]
+$pp destroy
 .CE
 .SH REFERENCES
 .IP \(bu
@@ -438,5 +416,4 @@ Print machine parameters on standard output.
 .SH COPYRIGHT
 .nf
 Copyright (c) 2008 Michael Baudin <michael.baudin@sourceforge.net>
-
 .fi

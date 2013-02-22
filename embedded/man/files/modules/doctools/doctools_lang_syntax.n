@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -294,48 +293,35 @@ The construct LIST_BEGIN<X> stands for the markup command
 .PP
 The syntax:
 .CS
-
-
 manpage = defs
-          MANPAGE_BEGIN
-          header
-          DESCRIPTION
-          body
-          MANPAGE_END
-          { <WHITE> }
-
+MANPAGE_BEGIN
+header
+DESCRIPTION
+body
+MANPAGE_END
+{ <WHITE> }
 defs    = { INCLUDE | VSET | <WHITE> }
-
 header  = { TITLEDESC | MODDESC | COPYRIGHT | REQUIRE | defs | xref }
-
 xref    = KEYWORDS | SEE_ALSO | CATEGORY
-
 body    = paras { SECTION    sbody  }
 sbody   = paras { SUBSECTION ssbody }
 ssbody  = paras
-
 paras   = tblock { (PARA | NL) tblock }
-
 tblock  = { <TEXT> | defs | markup | xref | an_example | a_list }
-
 markup  = ARG     | CLASS | CMD     | CONST     | EMPH   | FILE
-        | FUN     | LB    | METHOD  | NAMESPACE | OPT    | OPTION
-        | PACKAGE | RB    | SECTREF | STRONG    | SYSCMD | TERM
-        | TYPE    | URI   | USAGE   | VAR       | WIDGET
-
+| FUN     | LB    | METHOD  | NAMESPACE | OPT    | OPTION
+| PACKAGE | RB    | SECTREF | STRONG    | SYSCMD | TERM
+| TYPE    | URI   | USAGE   | VAR       | WIDGET
 example = EXAMPLE
-        | EXAMPLE_BEGIN extext EXAMPLE_END
-
+| EXAMPLE_BEGIN extext EXAMPLE_END
 extext  = { <TEXT> | defs | markup }
-
 a_list  = LIST_BEGIN<arguments>   argd_list   LIST_END
-        | LIST_BEGIN<commands>    cmdd_list   LIST_END
-        | LIST_BEGIN<definitions> def_list    LIST_END
-        | LIST_BEGIN<enumerated>  enum_list   LIST_END
-        | LIST_BEGIN<itemized>    item_list   LIST_END
-        | LIST_BEGIN<options>     optd_list   LIST_END
-        | LIST_BEGIN<tkoptions>   tkoptd_list LIST_END
-
+| LIST_BEGIN<commands>    cmdd_list   LIST_END
+| LIST_BEGIN<definitions> def_list    LIST_END
+| LIST_BEGIN<enumerated>  enum_list   LIST_END
+| LIST_BEGIN<itemized>    item_list   LIST_END
+| LIST_BEGIN<options>     optd_list   LIST_END
+| LIST_BEGIN<tkoptions>   tkoptd_list LIST_END
 argd_list   = [ <WHITE> ] { ARG_DEF      paras }
 cmdd_list   = [ <WHITE> ] { CMD_DEF      paras }
 def_list    = [ <WHITE> ] { (DEF|CALL)   paras }
@@ -343,7 +329,6 @@ enum_list   = [ <WHITE> ] { ENUM         paras }
 item_list   = [ <WHITE> ] { ITEM         paras }
 optd_list   = [ <WHITE> ] { OPT_DEF      paras }
 tkoptd_list = [ <WHITE> ] { TKOPTION_DEF paras }
-
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, will undoubtedly contain bugs and other problems.
@@ -359,5 +344,4 @@ Documentation tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

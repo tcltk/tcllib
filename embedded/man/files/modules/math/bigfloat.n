@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -359,8 +358,6 @@ an integer. Subsequently, no conversion is done at all.
 \fItrailingZeros\fR - the number of zeros to append at the end of the floating-point number
 to get more precision. It cannot be applied to an integer.
 .CS
-
-
 # x and y are BigFloats : the first string contained a dot, and the second an e sign
 set x [fromstr -1.000000]
 set y [fromstr 2000e30]
@@ -371,7 +368,6 @@ set m [fromstr 10000000000]
 # but we do not need fromstr for integers anymore
 set n -39
 # t, m and n are integers
-
 .CE
 .sp
 The \fInumber\fR's last digit is considered by the procedure to be true at +/-1,
@@ -384,12 +380,9 @@ To learn more about this subject, see \fBPRECISION\fR.
 .sp
 For example :
 .CS
-
-
 set x [fromstr 1.0000000000]
 # the next line does the same, but smarter
 set y [fromstr 1. 10]
-
 .CE
 .TP
 \fBtostr\fR ?\fB-nosci\fR? \fInumber\fR
@@ -400,12 +393,9 @@ if the uncertainty interval does not clearly show the true digits.
 With the \fB-nosci\fR option, the number returned is never shown in scientific
 notation, i.e. not like '3.4523e+5' but like '345230.'.
 .CS
-
-
 puts [tostr [fromstr 0.99999]] ;# 1.0000
 puts [tostr [fromstr 1.00001]] ;# 1.0000
 puts [tostr [fromstr 0.002]] ;# 0.e-2
-
 .CE
 .IP
 See \fBPRECISION\fR for that matter.
@@ -418,13 +408,10 @@ it behaves like \fBfromstr\fR.
 Here, the only important feature you might care of is the ability
 to create BigFloats with a fixed number of \fIdecimals\fR.
 .CS
-
-
 tostr [fromstr 1.111 4]
 # returns : 1.111000 (3 zeros)
 tostr [fromdouble 1.111 4]
 # returns : 1.111
-
 .CE
 .TP
 \fBtodouble\fR \fInumber\fR
@@ -442,14 +429,11 @@ Converts an integer to a BigFloat with \fIdecimals\fR trailing zeros.
 The default, and minimal, number of \fIdecimals\fR is 1.
 When converting back to string, one decimal is lost:
 .CS
-
-
 set n 10
 set x [int2float $n]; # like fromstr 10.0
 puts [tostr $x]; # prints "10."
 set x [int2float $n 3]; # like fromstr 10.000
 puts [tostr $x]; # prints "10.00"
-
 .CE
 .PP
 .SH ARITHMETICS
@@ -496,22 +480,17 @@ the integer 0.
 .IP
 See here how numbers that are close to zero are converted to strings:
 .CS
-
-
 tostr [fromstr 0.001] ; # -> 0.e-2
 tostr [fromstr 0.000000] ; # -> 0.e-5
 tostr [fromstr -0.000001] ; # -> 0.e-5
 tostr [fromstr 0.0] ; # -> 0.
 tostr [fromstr 0.002] ; # -> 0.e-2
-
 set a [fromstr 0.002] ; # uncertainty interval : 0.001, 0.003
 tostr  $a ; # 0.e-2
 iszero $a ; # false
-
 set a [fromstr 0.001] ; # uncertainty interval : 0.000, 0.002
 tostr  $a ; # 0.e-2
 iszero $a ; # true
-
 .CE
 .TP
 \fBequal\fR \fIx\fR \fIy\fR
@@ -605,72 +584,54 @@ after calling add, sub, mul or div?
 First you set a number from the string representation and,
 by the way, its uncertainty is set:
 .CS
-
-
 set a [fromstr 1.230]
 # $a belongs to [1.229, 1.231]
 set a [fromstr 1.000]
 # $a belongs to [0.999, 1.001]
 # $a has a relative uncertainty of 0.1% : 0.001(the uncertainty)/1.000(the medium value)
-
 .CE
 The uncertainty of the sum, or the difference, of two numbers, is the sum
 of their respective uncertainties.
 .CS
-
-
 set a [fromstr 1.230]
 set b [fromstr 2.340]
 set sum [add $a $b]]
 # the result is : [3.568, 3.572] (the last digit is known with an uncertainty of 2)
 tostr $sum ; # 3.57
-
 .CE
 But when, for example, we add or substract an integer to a BigFloat,
 the relative uncertainty of the result is unchanged. So it is desirable
 not to convert integers to BigFloats:
 .CS
-
-
 set a [fromstr 0.999999999]
 # now something dangerous
 set b [fromstr 2.000]
 # the result has only 3 digits
 tostr [add $a $b]
-
 # how to keep precision at its maximum
 puts [tostr [add $a 2]]
-
 .CE
 .PP
 For multiplication and division, the relative uncertainties of the product
 or the quotient, is the sum of the relative uncertainties of the operands.
 Take care of division by zero : check each divider with \fBiszero\fR.
 .CS
-
-
 set num [fromstr 4.00]
 set denom [fromstr 0.01]
-
 puts [iszero $denom];# true
 set quotient [div $num $denom];# error : divide by zero
-
 # opposites of our operands
 puts [compare $num [opp $num]]; # 1
 puts [compare $denom [opp $denom]]; # 0 !!!
 # No suprise ! 0 and its opposite are the same...
-
 .CE
 Effects of the precision of a number considered equal to zero
 to the cos function:
 .CS
-
-
 puts [tostr [cos [fromstr 0. 10]]]; # -> 1.000000000
 puts [tostr [cos [fromstr 0. 5]]]; # -> 1.0000
 puts [tostr [cos [fromstr 0e-10]]]; # -> 1.000000000
 puts [tostr [cos [fromstr 1e-10]]]; # -> 1.000000000
-
 .CE
 BigFloats with different internal representations may be converted
 to the same string.
@@ -681,12 +642,9 @@ It seems however that in many cases, the loss of precision in the result
 is of one or two digits.
 There are some exceptions : for example,
 .CS
-
-
 tostr [exp [fromstr 100.0 10]]
 # returns : 2.688117142e+43 which has only 10 digits of precision, although the entry
 # has 14 digits of precision.
-
 .CE
 .SH "WHAT ABOUT TCL 8.4 ?"
 If your setup do not provide Tcl 8.5 but supports 8.4, the package can still be loaded,
@@ -699,8 +657,6 @@ are expected to be in their internal representation.
 So even with integers, you will need to call \fBfromstr\fR
 and \fBtostr\fR in order to convert them between string and internal representations.
 .CS
-
-
 #
 # with Tcl 8.5
 # ============
@@ -717,46 +673,37 @@ set b [fromstr 10000000000]
 # round returns a bignum:
 # before printing it, we need to convert it with 'tostr'
 puts [tostr [round [mul $a $b]]]
-
 .CE
 .SH "NAMESPACES AND OTHER PACKAGES"
 We have not yet discussed about namespaces
 because we assumed that you had imported public commands into the global namespace,
 like this:
 .CS
-
-
 namespace import ::math::bigfloat::*
-
 .CE
 If you matter much about avoiding names conflicts,
 I considere it should be resolved by the following :
 .CS
-
-
 package require math::bigfloat
 # beware: namespace ensembles are not available in Tcl 8.4
 namespace eval ::math::bigfloat {namespace ensemble create -command ::bigfloat}
 # from now, the bigfloat command takes as subcommands all original math::bigfloat::* commands
 set a [bigfloat sub [bigfloat fromstr 2.000] [bigfloat fromstr 0.530]]
 puts [bigfloat tostr $a]
-
 .CE
 .SH EXAMPLES
 Guess what happens when you are doing some astronomy. Here is an example :
 .CS
-
-
 # convert acurrate angles with a millisecond-rated accuracy
 proc degree-angle {degrees minutes seconds milliseconds} {
-    set result 0
-    set div 1
-    foreach factor {1 1000 60 60} var [list $milliseconds $seconds $minutes $degrees] {
-        # we convert each entry var into milliseconds
-        set div [expr {$div*$factor}]
-        incr result [expr {$var*$div}]
-    }
-    return [div [int2float $result] $div]
+set result 0
+set div 1
+foreach factor {1 1000 60 60} var [list $milliseconds $seconds $minutes $degrees] {
+# we convert each entry var into milliseconds
+set div [expr {$div*$factor}]
+incr result [expr {$var*$div}]
+}
+return [div [int2float $result] $div]
 }
 # load the package
 package require math::bigfloat
@@ -769,7 +716,6 @@ set sinProduct [mul [sin $angle1] [sin $angle2]]
 set cosProduct [mul [cos $angle1] [cos $angle2]]
 set angle3 [asin [add [mul $sinProduct [cos $opposite3]] $cosProduct]]
 puts "angle3 : [tostr [rad2deg $angle3]]"
-
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -785,5 +731,4 @@ Mathematics
 .SH COPYRIGHT
 .nf
 Copyright (c) 2004-2008, by Stephane Arnold <stephanearnold at yahoo dot fr>
-
 .fi

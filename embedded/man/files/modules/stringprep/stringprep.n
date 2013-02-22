@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -313,19 +312,12 @@ profile \fIprofile\fR. The command returns 0 if prepared strings are equal,
 .SH EXAMPLES
 Nameprep profile definition (see RFC-3491):
 .CS
-
-
 ::stringprep::register nameprep  -mapping {B.1 B.2}  -normalization KC  -prohibited {A.1 C.1.2 C.2.2 C.3 C.4 C.5 C.6 C.7 C.8 C.9}  -prohibitedBidi 1
-
 .CE
 Nodeprep and resourceprep profile definitions (see RFC-3920):
 .CS
-
-
 ::stringprep::register nodeprep  -mapping {B.1 B.2}  -normalization KC  -prohibited {A.1 C.1.1 C.1.2 C.2.1 C.2.2 C.3 C.4 C.5 C.6 C.7 C.8 C.9}  -prohibitedList {0x22 0x26 0x27 0x2f 0x3a 0x3c 0x3e 0x40}  -prohibitedBidi 1
-
 ::stringprep::register resourceprep  -mapping {B.1}  -normalization KC  -prohibited {A.1 C.1.2 C.2.1 C.2.2 C.3 C.4 C.5 C.6 C.7 C.8 C.9}  -prohibitedBidi 1
-
 .CE
 .SH REFERENCES
 .IP [1]
@@ -354,5 +346,4 @@ stringprep, unicode
 .SH COPYRIGHT
 .nf
 Copyright (c) 2007-2009, Sergei Golovan <sgolovan@nes.ru>
-
 .fi

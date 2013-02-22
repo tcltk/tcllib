@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -285,20 +284,17 @@ provided by the OO package \fBsnit\fR for the same purpose.
 .sp
 Example
 .CS
-
-
 oo::class create ActiveRecord {
-    classmethod find args { puts "[self] called with arguments: $args" }
+classmethod find args { puts "[self] called with arguments: $args" }
 }
 oo::class create Table {
-    superclass ActiveRecord
+superclass ActiveRecord
 }
 puts [Table find foo bar]
 # ======
 # which will write
 # ======
 # ::Table called with arguments: foo bar
-
 .CE
 .TP
 \fBclassvariable\fR ?\fIarg\fR...?
@@ -315,13 +311,11 @@ definition itself.
 .sp
 Example:
 .CS
-
-
 % oo::class create Foo {
-    method bar {z} {
-        classvariable x y
-        return [incr x $z],[incr y]
-    }
+method bar {z} {
+classvariable x y
+return [incr x $z],[incr y]
+}
 }
 ::Foo
 % Foo create a
@@ -338,7 +332,6 @@ Example:
 11,4
 % a bar 0
 11,5
-
 .CE
 .TP
 \fBooutil::singleton\fR ?\fIarg\fR...?
@@ -350,18 +343,15 @@ Syntax and results are like for \fBoo::class\fR.
 .sp
 Example:
 .CS
-
-
 % oo::class create example {
-   self mixin singleton
-   method foo {} {self}
+self mixin singleton
+method foo {} {self}
 }
 ::example
 % [example new] foo
 ::oo::Obj22
 % [example new] foo
 ::oo::Obj22
-
 .CE
 .PP
 .SH AUTHORS
@@ -382,5 +372,4 @@ Utility
 .SH COPYRIGHT
 .nf
 Copyright (c) 2011-2013 Andreas Kupries, BSD licensed
-
 .fi

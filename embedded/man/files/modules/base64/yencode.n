@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -304,13 +303,10 @@ check value in the footer. Use this option to change the default from
 .PP
 .PP
 .CS
-
-
 % set d [yencode::yencode -file testfile.txt]
 =ybegin line=128 size=584 name=testfile.txt
- -o- data not shown -o-
+-o- data not shown -o-
 =yend size=584 crc32=ded29f4f
-
 .CE
 .SH REFERENCES
 .IP [1]
@@ -330,5 +326,4 @@ Text processing
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002, Pat Thoyts
-
 .fi

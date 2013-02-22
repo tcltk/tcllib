@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -433,55 +432,48 @@ of a pure Tcl list. I.e. it does not contain superfluous whitespace.
 Assuming the parsing expression grammar below
 .PP
 .CS
-
-
 PEG calculator (Expression)
-    Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
-    Sign       <- '-' / '+'                                     ;
-    Number     <- Sign? Digit+                                  ;
-    Expression <- Term (AddOp Term)*                            ;
-    MulOp      <- '*' / '/'                                     ;
-    Term       <- Factor (MulOp Factor)*                        ;
-    AddOp      <- '+'/'-'                                       ;
-    Factor     <- '(' Expression ')' / Number                   ;
+Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
+Sign       <- '-' / '+'                                     ;
+Number     <- Sign? Digit+                                  ;
+Expression <- Term (AddOp Term)*                            ;
+MulOp      <- '*' / '/'                                     ;
+Term       <- Factor (MulOp Factor)*                        ;
+AddOp      <- '+'/'-'                                       ;
+Factor     <- '(' Expression ')' / Number                   ;
 END;
-
 .CE
 .PP
 and the input string
 .CS
-
- 120+5
+120+5
 .CE
 then a parser should deliver the abstract syntax tree below (except for whitespace)
 .PP
 .CS
-
-
 set ast {Expression 0 4
-    {Factor 0 4
-        {Term 0 2
-            {Number 0 2
-                {Digit 0 0}
-                {Digit 1 1}
-                {Digit 2 2}
-            }
-        }
-        {AddOp 3 3}
-        {Term 4 4
-            {Number 4 4
-                {Digit 4 4}
-            }
-        }
-    }
+{Factor 0 4
+{Term 0 2
+{Number 0 2
+{Digit 0 0}
+{Digit 1 1}
+{Digit 2 2}
 }
-
+}
+{AddOp 3 3}
+{Term 4 4
+{Number 4 4
+{Digit 4 4}
+}
+}
+}
+}
 .CE
 .PP
 Or, more graphical
 .PP
-.PS
-.nf
+\.PS
+\.nf
                                                            +- Digit 0 0 | 1
                                                            |            |
                                +- Term 0 2 --- Number 0 2 -+- Digit 1 1 | 2
@@ -492,7 +484,7 @@ Expression 0 4 --- Factor 0 4 -+----------------------------- AddOp 3 3 | +
                                |                                        |
                                +- Term 4 4 --- Number 4 4 --- Digit 4 4 | 5
 .fi
-.PE
+\.PE
 .PP
 .SH "PE SERIALIZATION FORMAT"
 Here we specify the format used by the Parser Tools to serialize
@@ -646,19 +638,13 @@ Assuming the parsing expression shown on the right-hand side of the
 rule
 .PP
 .CS
-
-
-    Expression <- Term (AddOp Term)*
-
+Expression <- Term (AddOp Term)*
 .CE
 .PP
 then its canonical serialization (except for whitespace) is
 .PP
 .CS
-
-
-    {x {n Term} {* {x {n AddOp} {n Term}}}}
-
+{x {n Term} {* {x {n AddOp} {n Term}}}}
 .CE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
@@ -675,5 +661,4 @@ Parsing and Grammars
 .SH COPYRIGHT
 .nf
 Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

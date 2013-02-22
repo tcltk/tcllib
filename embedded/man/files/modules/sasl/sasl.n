@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -466,31 +465,27 @@ driven. Each time the \fBstep\fR command is called, the last server
 response should be provided as the command argument so that the SASL
 mechanism can take appropriate action.
 .CS
-
-
 proc ClientCallback {context command args} {
-    switch -exact -- $command {
-        login    { return "" }
-        username { return $::tcl_platform(user) }
-        password { return "SecRet" }
-        realm    { return "" }
-        hostname { return [info host] }
-        default  { return -code error unxpected }
-    }
+switch -exact -- $command {
+login    { return "" }
+username { return $::tcl_platform(user) }
+password { return "SecRet" }
+realm    { return "" }
+hostname { return [info host] }
+default  { return -code error unxpected }
 }
-
+}
 proc Demo {{mech PLAIN}} {
-    set ctx [SASL::new -mechanism $mech -callback ClientCallback]
-    set challenge ""
-    while {1} {
-        set more_steps [SASL::step $ctx challenge]
-        puts "Send '[SASL::response $ctx]'"
-        puts "Read server response into challenge var"
-        if {!$more_steps} {break}
-    }
-    SASL::cleanup $ctx
+set ctx [SASL::new -mechanism $mech -callback ClientCallback]
+set challenge ""
+while {1} {
+set more_steps [SASL::step $ctx challenge]
+puts "Send '[SASL::response $ctx]'"
+puts "Read server response into challenge var"
+if {!$more_steps} {break}
 }
-
+SASL::cleanup $ctx
+}
 .CE
 .SH REFERENCES
 .IP [1]
@@ -535,5 +530,4 @@ Networking
 .SH COPYRIGHT
 .nf
 Copyright (c) 2005-2006, Pat Thoyts <patthoyts@users.sourceforge.net>
-
 .fi
