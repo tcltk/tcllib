@@ -1,5 +1,5 @@
 package require Tcl 8.5
-package provide math::decimal 1.0.2
+package provide math::decimal 1.0.3
 #
 # Copyright 2011 Mark Alston. All rights reserved.
 #
@@ -1325,6 +1325,7 @@ proc ::math::decimal::round_05up {a digits} {
 	return $a
     } elseif { $digits + $ea > 0 } {
 	set mantissa [expr { $ma * 10**($digits+$ea) }]
+	set exponent [expr {-1 * $digits}]
     } else {
 	set round_exponent [expr {$digits + $ea}]
 	if { [string length $ma] <= $round_exponent } {
@@ -1566,6 +1567,7 @@ proc ::math::decimal::round_up {a digits} {
 	return $a
     } elseif { $digits + $ea > 0 } {
 	set mantissa [expr { $ma * 10**($digits+$ea) }]
+	set exponent [expr {-1 * $digits}]
     } else {
 	set round_exponent [expr {$digits + $ea}]
 	if { [string length $ma] <= $round_exponent } {
@@ -1611,6 +1613,7 @@ proc ::math::decimal::round_ceiling {a digits} {
 	return $a
     } elseif { $digits + $ea > 0 } {
 	set mantissa [expr { $ma * 10**($digits+$ea) }]
+	set exponent [expr {-1 * $digits}]
     } else {
 	set round_exponent [expr {$digits + $ea}]
 	if { [string length $ma] <= $round_exponent } {
@@ -1638,6 +1641,7 @@ proc ::math::decimal::round_ceiling {a digits} {
 	    set exponent [expr {-1 * $digits}]
 	}
     }
+
     return [list $sa $mantissa $exponent]
 }	
 
