@@ -76,6 +76,7 @@ proc ::sak::doc::index {modules} {
     auto::saveTableOfContents        title name cat apps mods
     auto::saveSimpleTableOfContents1 title name apps toc_apps.txt
     auto::saveSimpleTableOfContents2 title name mods toc_mods.txt
+    auto::saveSimpleTableOfContents3 title name cat  toc_cats.txt
     return
 }
 
