@@ -26,8 +26,7 @@ proc ::sak::localdoc::run {} {
     getpackage doctools::idx    doctools/docidx.tcl
     getpackage dtplite          dtplite/dtplite.tcl
 
-    set nav ../..
-    set nav ZZZZZ
+    set nav ../../home
 
     puts "Reindex the documentation..."
     sak::doc::imake __dummy__
@@ -50,16 +49,25 @@ proc ::sak::localdoc::run {} {
     # Note: Might be better to run them separately.
     # Note @: Or we shuffle the results a bit more in the post processing stage.
 
-    set toc [string map {
+    set map  {
 	.man     .html
 	modules/ tcllib/files/modules/
-    } [fileutil::cat support/devel/sak/doc/toc.txt]]
+	apps/    tcllib/files/apps/
+    }
+
+    set toc  [string map $map [fileutil::cat support/devel/sak/doc/toc.txt]]
+    set apps [string map $map [fileutil::cat support/devel/sak/doc/toc_apps.txt]]
+    set mods [string map $map [fileutil::cat support/devel/sak/doc/toc_mods.txt]]
+    set cats [string map $map [fileutil::cat support/devel/sak/doc/toc_cats.txt]]
 
     puts "Generating HTML... Pass 1, draft..."
     dtplite::do \
 	[list \
 	     -toc $toc \
 	     -nav {Tcllib Home} $nav \
+	     -post+toc Categories $cats \
+	     -post+toc Modules $mods \
+	     -post+toc Applications $apps \
 	     -exclude {*/doctools/tests/*} \
 	     -exclude {*/support/*} \
 	     -merge \
@@ -71,6 +79,9 @@ proc ::sak::localdoc::run {} {
 	[list \
 	     -toc $toc \
 	     -nav {Tcllib Home} $nav \
+	     -post+toc Categories $cats \
+	     -post+toc Modules $mods \
+	     -post+toc Applications $apps \
 	     -exclude {*/doctools/tests/*} \
 	     -exclude {*/support/*} \
 	     -merge \
