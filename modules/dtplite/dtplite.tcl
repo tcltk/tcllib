@@ -127,10 +127,14 @@ package provide dtplite 1.0.4
 #	-exclude glob
 #
 # *	For tcllib itself we have external tools generating a nicer
-#	TOC. Use option -toc to specify the doctoc file to use instead
-#	of generating our own.
+#	TOC. Use option -toc to specify the doctoc file to use
+#	_instead_ of generating our own. And using option -post+toc
+#	and -pre+toc to _add_ more special toc's to the main
+#	navbar. These latter mix with the -pre- and -postnav options.
 #
-#	-toc path
+#	-toc            path|text
+#	-post+toc label path|text
+#	-pre+toc label path|text
 #
 # That should be enough to allow the creation of good looking formatted
 # documentation without getting overly complex in both implementation
@@ -318,6 +322,12 @@ namespace eval ::dtplite {
     # Path of a user specified table of contents (doctoc format).
 
     variable utoc {}
+
+    # List of path|text of additional TOCs to put into the navigation
+    # bar. Label and ordering information is found in the pre- and
+    # postnav lists. See above.
+
+    variable mtoc {}
 }
 
 # ### ### ### ######### ######### #########
@@ -343,13 +353,14 @@ namespace eval ::dtplite {
 #
 ## .xrf
 ## Contains the current cross reference database, a dictionary. Keys
-#  are tags the formatter can search for (keywords, keywrds with
-#  prefixes, keywords with suffixces), values a list containing either
+#  are tags the formatter can search for (keywords, keywords with
+#  prefixes, keywords with suffices), values a list containing either
 #  the file to refer to to, or both file and an anchor in that
 #  file. The latter is for references into the index.
 
 proc ::dtplite::Init {} {
     variable  data
+    variable  excl {}
     variable  ext    ""
     variable  footer ""
     variable  format ""
@@ -361,6 +372,7 @@ proc ::dtplite::Init {} {
     variable  meta
     variable  mode   ""
     variable  module ""
+    variable  mtoc {}
     variable  nav     {}
     variable  out
     variable  output ""
@@ -369,9 +381,9 @@ proc ::dtplite::Init {} {
     variable  single 1
     variable  stdout 0
     variable  style  ""
+    variable  utoc {}
     variable  xref
-    variable excl {}
-    variable utoc {}
+    variable  xrefl
 
     array unset data     *
     array unset imap     *
@@ -379,6 +391,7 @@ proc ::dtplite::Init {} {
     array unset meta     *
     array unset out      *
     array unset xref     *
+    catch { unset xrefl }
 
     return
 }
@@ -397,10 +410,10 @@ proc ::dtplite::Init {} {
 #		?-nav label url?... \
 #		?-prenav label url?... \
 #		?-postnav label url?... \
-#		?-prenav label url?... \
-#		?-postnav label url?... \
 #		?-exclude glob?... \
-#		?-toc path? \
+#		?-toc path|text? \
+#		?-post+toc label path|text? \
+#		?-pre+toc label path|text? \
 #		format inputpath
 ##
 
@@ -410,9 +423,11 @@ proc ::dtplite::ProcessCmdline {argv} {
     variable input  ; variable footer ; variable mode
     variable ext    ; variable nav    ; variable merge
     variable module ; variable excl   ; variable utoc
-    variable prenav ; variable postnav
+    variable prenav ; variable postnav ; variable mtoc
 
     # Process the options, perform basic validation.
+
+    set fixup {}
 
     while {[llength $argv]} {
 	set opt [lindex $argv 0]
@@ -433,6 +448,36 @@ proc ::dtplite::ProcessCmdline {argv} {
 	    if {[llength $argv] < 2} Usage
 	    set utoc [lindex $argv 1]
 	    set argv [lrange $argv 2 end]
+	} elseif {[string equal $opt "-post+toc"]} {
+	    if {[llength $argv] < 3} Usage
+	    # Place toc data separate from the nav data, and identify
+	    # by counter (list length). The nav data gets the file
+	    # name (see Do.Directory* commands, marker (+TOC)). As
+	    # relative paths they will be transformed during navbar
+	    # generation to link properly.
+	    set n [llength $mtoc]
+	    set fname toc$n.$ext
+	    if {$ext == {}} {
+		lappend fixup postnav [llength $postnav]
+	    }
+	    lappend postnav [list [lindex $argv 1] $fname]
+	    lappend mtoc    [lindex $argv 2]
+	    set argv        [lrange $argv 3 end]
+	} elseif {[string equal $opt "-pre+toc"]} {
+	    if {[llength $argv] < 3} Usage
+	    # Place toc data separate from the nav data, and identify
+	    # by counter (list length). The nav data gets the file
+	    # name (see Do.Directory* commands, marker (+TOC)). As
+	    # relative paths they will be transformed during navbar
+	    # generation to link properly.
+	    set n [llength $mtoc]
+	    set fname toc$n.$ext
+	    if {$ext == {}} {
+		lappend fixup prenav [llength $prenav]
+	    }
+	    lappend prenav [list [lindex $argv 1] $fname]
+	    lappend mtoc   [lindex $argv 2]
+	    set argv       [lrange $argv 3 end]
 	} elseif {[string equal $opt "-exclude"]} {
 	    if {[llength $argv] < 2} Usage
 	    lappend excl [lindex $argv 1]
@@ -517,6 +562,12 @@ proc ::dtplite::ProcessCmdline {argv} {
 
     if {[string equal $ext ""]} {
 	set ext $format
+	foreach {v i} $fixup {
+	    upvar 0 $v navlist
+	    set item [lindex $navlist $i]
+	    set item [lreplace $item 1 1 [lindex $item 1]$ext]
+	    set navlist [lreplace $navlist $i $i $item]
+	}
     }
 
     CheckInput $input {Input path}
@@ -770,6 +821,7 @@ proc ::dtplite::Do.Directory {} {
     variable meta
     variable format
     variable utoc
+    variable mtoc
 
     # Phase 0. Find the documents to convert.
     # Phase I. Collect meta data, and compute the map from input to
@@ -790,12 +842,17 @@ proc ::dtplite::Do.Directory {} {
     StyleMakeLocal
 
     if {$utoc ne {}} {
-	if {[file exists $utoc]} {
-	    set utoc [Get $utoc]
-	}
+	if {[file exists $utoc]} { set utoc [Get $utoc] }
 	TocWrite toc index $utoc
     } else {
 	TocWrite toc index [TocGenerate [TocGet $module toc]]
+    }
+    # (+TOC)
+    set n 0
+    foreach item $mtoc {
+	if {[file exists $item]} { set item [Get $item] }
+	TocWrite toc$n index $item
+	incr n
     }
     IdxWrite index toc [IdxGenerate $module [IdxGet]]
 
@@ -839,6 +896,7 @@ proc ::dtplite::Do.Directory.Merge {} {
     variable output
     variable format
     variable utoc
+    variable mtoc
 
     # Phase 0. Find the documents to process.
     # Phase I. Collect meta data, and compute the map from input to
@@ -863,12 +921,17 @@ proc ::dtplite::Do.Directory.Merge {} {
     set localtoc [TocGet $module $module/toc]
     TocWrite $module/toc index [TocGenerate $localtoc] [TocMap $localtoc]
     if {$utoc ne {}} {
-	if {[file exists $utoc]} {
-	    set utoc [Get $utoc]
-	}
+	if {[file exists $utoc]} { set utoc [Get $utoc] }
 	TocWrite toc index $utoc
     } else {
 	TocWrite toc index [TocGenerate [TocMergeSaved $localtoc]]
+    }
+    # (+TOC)
+    set n 0
+    foreach item $mtoc {
+	if {[file exists $item]} { set item [Get $item] }
+	TocWrite toc$n index $item
+	incr n
     }
     IdxWrite index toc [IdxGenerate {} [IdxGetSaved index]]
 
@@ -1533,15 +1596,16 @@ proc ::dtplite::Navbar {nav ref} {
     variable postnav
 
     set sep 0
+    set first 1
     set hdr ""
     if {![string equal $header ""]} {
 	append hdr $header
 	set sep 1
     }
 
-    append hdr [NavbarSegment sep $prenav  $ref]
-    append hdr [NavbarSegment sep $nav     $ref]
-    append hdr [NavbarSegment sep $postnav $ref]
+    append hdr [NavbarSegment sep first $prenav  $ref]
+    append hdr [NavbarSegment sep first $nav     $ref]
+    append hdr [NavbarSegment sep first $postnav $ref]
 
     if {[string length $hdr]} {
 	set hdr "<hr> \[\n $hdr \] <hr>\n"
@@ -1550,14 +1614,13 @@ proc ::dtplite::Navbar {nav ref} {
     return $hdr
 }
 
-proc ::dtplite::NavbarSegment {sepv nav ref} {
+proc ::dtplite::NavbarSegment {sepv firstv nav ref} {
     if {![llength $nav]} { return {} }
-    upvar 1 $sepv sep
+    upvar 1 $sepv sep $firstv first
 
     if {$sep} {append hdr <br>\n}
     set sep 0
 
-    set first 1
     foreach item $nav {
 	if {!$first} {append hdr "| "} else {append hdr "  "}
 	set first 0
