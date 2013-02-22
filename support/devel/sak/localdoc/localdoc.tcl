@@ -26,7 +26,7 @@ proc ::sak::localdoc::run {} {
     getpackage doctools::idx    doctools/docidx.tcl
     getpackage dtplite          dtplite/dtplite.tcl
 
-    set nav ../../home
+    set nav ../../../../home
 
     puts "Reindex the documentation..."
     sak::doc::imake __dummy__
