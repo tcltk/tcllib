@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -396,39 +395,27 @@ object, and the assignment operator \fB=\fR will be executed. For
 In other words
 .sp
 .CS
-
-
-    ::struct::tree mytree = b
-
+::struct::tree mytree = b
 .CE
 .sp
 is equivalent to
 .sp
 .CS
-
-
-    ::struct::tree mytree
-    mytree = b
-
+::struct::tree mytree
+mytree = b
 .CE
 .sp
 and
 .sp
 .CS
-
-
-    ::struct::tree mytree deserialize $b
-
+::struct::tree mytree deserialize $b
 .CE
 .sp
 is equivalent to
 .sp
 .CS
-
-
-    ::struct::tree mytree
-    mytree deserialize $b
-
+::struct::tree mytree
+mytree deserialize $b
 .CE
 .TP
 \fB::struct::tree::prune\fR
@@ -468,10 +455,7 @@ operation.
 This operation is in effect equivalent to
 .sp
 .CS
-
-
-    \fItreeName\fR \fBdeserialize\fR [\fIsourcetree\fR \fBserialize\fR]
-
+\fItreeName\fR \fBdeserialize\fR [\fIsourcetree\fR \fBserialize\fR]
 .CE
 .TP
 \fItreeName\fR \fB-->\fR \fIdesttree\fR
@@ -483,10 +467,7 @@ operation.
 This operation is in effect equivalent to
 .sp
 .CS
-
-
-    \fIdesttree\fR \fBdeserialize\fR [\fItreeName\fR \fBserialize\fR]
-
+\fIdesttree\fR \fBdeserialize\fR [\fItreeName\fR \fBserialize\fR]
 .CE
 .TP
 \fItreeName\fR \fBancestors\fR \fInode\fR
@@ -548,36 +529,28 @@ to the caller.
 Some examples:
 .sp
 .CS
-
-
-    mytree insert root end 0 ; mytree set 0 volume 30
-    mytree insert root end 1
-    mytree insert root end 2
-    mytree insert 0    end 3
-    mytree insert 0    end 4
-    mytree insert 4    end 5 ; mytree set 5 volume 50
-    mytree insert 4    end 6
-
-    proc vol {t n} {
-	$t keyexists $n volume
-    }
-    proc vgt40 {t n} {
-	if {![$t keyexists $n volume]} {return 0}
-	expr {[$t get $n volume] > 40}
-    }
-
-    tclsh> lsort [mytree children -all root filter vol]
-    0 5
-
-    tclsh> lsort [mytree children -all root filter vgt40]
-    5
-
-    tclsh> lsort [mytree children root filter vol]
-    0
-
-    tclsh> puts ([lsort [mytree children root filter vgt40]])
-    ()
-
+mytree insert root end 0 ; mytree set 0 volume 30
+mytree insert root end 1
+mytree insert root end 2
+mytree insert 0    end 3
+mytree insert 0    end 4
+mytree insert 4    end 5 ; mytree set 5 volume 50
+mytree insert 4    end 6
+proc vol {t n} {
+$t keyexists $n volume
+}
+proc vgt40 {t n} {
+if {![$t keyexists $n volume]} {return 0}
+expr {[$t get $n volume] > 40}
+}
+tclsh> lsort [mytree children -all root filter vol]
+0 5
+tclsh> lsort [mytree children -all root filter vgt40]
+5
+tclsh> lsort [mytree children root filter vol]
+0
+tclsh> puts ([lsort [mytree children root filter vgt40]])
+()
 .CE
 .TP
 \fItreeName\fR \fBcut\fR \fInode\fR
@@ -749,20 +722,14 @@ their parent through the index in the list, and that children occur in
 the same order as in their parent.
 .sp
 .CS
-
-
- A possible serialization for the tree structure
-
-             +- d
-       +- a -+
- root -+- b  +- e
-       +- c
- is
-
- {root {} {} a 0 {} d 3 {} e 3 {} b 0 {} c 0 {}}
-
- The above assumes that none of the nodes have attributes.
-
+A possible serialization for the tree structure
++- d
++- a -+
+root -+- b  +- e
++- c
+is
+{root {} {} a 0 {} d 3 {} e 3 {} b 0 {} c 0 {}}
+The above assumes that none of the nodes have attributes.
 .CE
 .TP
 \fItreeName\fR \fBset\fR \fInode\fR \fIkey\fR ?\fIvalue\fR?
@@ -853,21 +820,18 @@ At last a small table showing the relationship between the various
 options and the possible actions.
 .sp
 .CS
-
-
- order       type    actions         notes
- -----       ----    -----           -----
- pre         dfs     enter           parent before children
- post        dfs     leave           parent after children
- in          dfs     visit           parent between first and second child.
- both        dfs     enter, leave    parent before and after children
- -----       ----    -----           -----
- pre         bfs     enter           parent before children
- post        bfs     leave           parent after children
- in          bfs             -- illegal --
- both        bfs     enter, leave    parent before and after children
- -----       ----    -----           -----
-
+order       type    actions         notes
+-----       ----    -----           -----
+pre         dfs     enter           parent before children
+post        dfs     leave           parent after children
+in          dfs     visit           parent between first and second child.
+both        dfs     enter, leave    parent before and after children
+-----       ----    -----           -----
+pre         bfs     enter           parent before children
+post        bfs     leave           parent after children
+in          bfs             -- illegal --
+both        bfs     enter, leave    parent before and after children
+-----       ----    -----           -----
 .CE
 .sp
 Note the command \fB::struct::tree::prune\fR. This command can be used
@@ -950,15 +914,12 @@ immediate children of the node, but the whole tree below it.
 .SH EXAMPLES
 The following example demonstrates the creation of new nodes:
 .CS
-
-
-    mytree insert root end 0   ; # Create node 0, as child of the root
-    mytree insert root end 1 2 ; # Ditto nodes 1 & 2
-    mytree insert 0    end 3   ; # Now create node 3 as child of node 0
-    mytree insert 0    end     ; # Create another child of 0, with a
-    #                              generated name. The name is returned
-    #                              as the result of the command.
-
+mytree insert root end 0   ; # Create node 0, as child of the root
+mytree insert root end 1 2 ; # Ditto nodes 1 & 2
+mytree insert 0    end 3   ; # Now create node 3 as child of node 0
+mytree insert 0    end     ; # Create another child of 0, with a
+#                              generated name. The name is returned
+#                              as the result of the command.
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -974,5 +935,4 @@ Data structures
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002-2004,2012 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

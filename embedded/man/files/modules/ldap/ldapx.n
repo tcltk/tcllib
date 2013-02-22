@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -549,70 +548,52 @@ change list.
 .PP
 .SS "ENTRY EXAMPLE"
 .CS
-
-
-    package require ldapx
-
-    #
-    # Create an entry and fill it as a standard entry with
-    # attributes and values
-    #
-    ::ldapx::entry create e
-    e dn "uid=joe,ou=people,o=mycomp"
-    e set1 "uid"             "joe"
-    e set  "objectClass"     {person anotherObjectClass}
-    e set1 "givenName"       "Joe"
-    e set1 "sn"              "User"
-    e set  "telephoneNumber" {+31415926535 +2182818}
-    e set1 "anotherAttr"     "This is a beautiful day, isn't it?"
-
-    puts stdout "e\\n[e print]"
-
-    #
-    # Create a second entry as a backup of the first, and
-    # make some changes on it.
-    # Entry is named automatically by snit.
-    #
-
-    set b [::ldapx::entry create %AUTO%]
-    e backup $b
-
-    puts stdout "$b\\n[$b print]"
-
-    $b del  "anotherAttr"
-    $b del1 "objectClass" "anotherObjectClass"
-
-    #
-    # Create a change entry, a compute differences between first
-    # and second entry.
-    #
-
-    ::ldapx::entry create c
-    c diff e $b
-
-    puts stdout "$c\\n[$c print]"
-
-    #
-    # Apply changes to first entry. It should be the same as the
-    # second entry, now.
-    #
-
-    e apply c
-
-    ::ldapx::entry create nc
-    nc diff e $b
-
-    puts stdout "nc\\n[nc print]"
-
-    #
-    # Clean-up
-    #
-
-    e destroy
-    $b destroy
-    c destroy
-    nc destroy
-
+package require ldapx
+#
+# Create an entry and fill it as a standard entry with
+# attributes and values
+#
+::ldapx::entry create e
+e dn "uid=joe,ou=people,o=mycomp"
+e set1 "uid"             "joe"
+e set  "objectClass"     {person anotherObjectClass}
+e set1 "givenName"       "Joe"
+e set1 "sn"              "User"
+e set  "telephoneNumber" {+31415926535 +2182818}
+e set1 "anotherAttr"     "This is a beautiful day, isn't it?"
+puts stdout "e\\n[e print]"
+#
+# Create a second entry as a backup of the first, and
+# make some changes on it.
+# Entry is named automatically by snit.
+#
+set b [::ldapx::entry create %AUTO%]
+e backup $b
+puts stdout "$b\\n[$b print]"
+$b del  "anotherAttr"
+$b del1 "objectClass" "anotherObjectClass"
+#
+# Create a change entry, a compute differences between first
+# and second entry.
+#
+::ldapx::entry create c
+c diff e $b
+puts stdout "$c\\n[$c print]"
+#
+# Apply changes to first entry. It should be the same as the
+# second entry, now.
+#
+e apply c
+::ldapx::entry create nc
+nc diff e $b
+puts stdout "nc\\n[nc print]"
+#
+# Clean-up
+#
+e destroy
+$b destroy
+c destroy
+nc destroy
 .CE
 .SH "LDAP CLASS"
 .SS "LDAP INSTANCE DATA"
@@ -750,58 +731,48 @@ transaction extension provided by OpenLDAP 2.3 and later.
 .PP
 .SS "LDAP EXAMPLE"
 .CS
-
-
-    package require ldapx
-
-    #
-    # Connects to the LDAP directory
-    #
-
-    ::ldapx::ldap create l
-    set url "ldap://server.mycomp.com"
-    if {! [l connect $url "cn=admin,o=mycomp" "mypasswd"]} then {
-	puts stderr "error: [l error]"
-	exit 1
-    }
-
-    #
-    # Search all entries matching some criterion
-    #
-
-    l configure -scope one
-    ::ldapx::ldap create e
-    set n 0
-    l traverse "ou=people,o=mycomp" "(sn=Joe*)" {sn givenName} e {
-	puts "dn: [e dn]"
-	puts "  sn:        [e get1 sn]"
-	puts "  givenName: [e get1 givenName]"
-	incr n
-    }
-    puts "$n entries found"
-    e destroy
-
-    #
-    # Add a telephone number to some entries
-    # Note this modification cannot be done in the "traverse" operation.
-    #
-
-    set lent [l search "ou=people,o=mycomp" "(sn=Joe*)" {}]
-    ::ldapx::ldap create c
-    foreach e $lent {
-	$e backup
-	$e add1 "telephoneNumber" "+31415926535"
-	c diff $e
-	if {! [l commit c]} then {
-	    puts stderr "error: [l error]"
-	    exit 1
-	}
-	$e destroy
-    }
-
-    l disconnect
-    l destroy
-
+package require ldapx
+#
+# Connects to the LDAP directory
+#
+::ldapx::ldap create l
+set url "ldap://server.mycomp.com"
+if {! [l connect $url "cn=admin,o=mycomp" "mypasswd"]} then {
+puts stderr "error: [l error]"
+exit 1
+}
+#
+# Search all entries matching some criterion
+#
+l configure -scope one
+::ldapx::ldap create e
+set n 0
+l traverse "ou=people,o=mycomp" "(sn=Joe*)" {sn givenName} e {
+puts "dn: [e dn]"
+puts "  sn:        [e get1 sn]"
+puts "  givenName: [e get1 givenName]"
+incr n
+}
+puts "$n entries found"
+e destroy
+#
+# Add a telephone number to some entries
+# Note this modification cannot be done in the "traverse" operation.
+#
+set lent [l search "ou=people,o=mycomp" "(sn=Joe*)" {}]
+::ldapx::ldap create c
+foreach e $lent {
+$e backup
+$e add1 "telephoneNumber" "+31415926535"
+c diff $e
+if {! [l commit c]} then {
+puts stderr "error: [l error]"
+exit 1
+}
+$e destroy
+}
+l disconnect
+l destroy
 .CE
 .SH "LDIF CLASS"
 .SS "LDIF INSTANCE DATA"
@@ -883,55 +854,43 @@ This method writes the entry given in the argument
 .PP
 .SS "LDIF EXAMPLE"
 .CS
-
-
-    package require ldapx
-
-    # This examples reads a LDIF file containing entries,
-    # compare them to a LDAP directory, and writes on standard
-    # output an LDIF file containing changes to apply to the
-    # LDAP directory to match exactly the LDIF file.
-
-    ::ldapx::ldif create liin
-    liin channel stdin
-
-    ::ldapx::ldif create liout
-    liout channel stdout
-
-    ::ldapx::ldap create la
-    if {! [la connect "ldap://server.mycomp.com"]} then {
-	puts stderr "error: [la error]"
-	exit 1
-    }
-    la configure -scope one
-
-    # Reads LDIF file
-
-    ::ldapx::entry create e1
-    ::ldapx::entry create e2
-    ::ldapx::entry create c
-
-    while {[liin read e1] != 0} {
-	set base [e1 superior]
-	set id [e1 rdn]
-	if {[la read $base "($id)" e2] == 0} then {
-	    e2 reset
-	}
-
-	c diff e1 e2
-	if {[llength [c change]] != 0} then {
-	    liout write c
-	}
-    }
-
-    la disconnect
-    la destroy
-    e1 destroy
-    e2 destroy
-    c destroy
-    liout destroy
-    liin destroy
-
+package require ldapx
+# This examples reads a LDIF file containing entries,
+# compare them to a LDAP directory, and writes on standard
+# output an LDIF file containing changes to apply to the
+# LDAP directory to match exactly the LDIF file.
+::ldapx::ldif create liin
+liin channel stdin
+::ldapx::ldif create liout
+liout channel stdout
+::ldapx::ldap create la
+if {! [la connect "ldap://server.mycomp.com"]} then {
+puts stderr "error: [la error]"
+exit 1
+}
+la configure -scope one
+# Reads LDIF file
+::ldapx::entry create e1
+::ldapx::entry create e2
+::ldapx::entry create c
+while {[liin read e1] != 0} {
+set base [e1 superior]
+set id [e1 rdn]
+if {[la read $base "($id)" e2] == 0} then {
+e2 reset
+}
+c diff e1 e2
+if {[llength [c change]] != 0} then {
+liout write c
+}
+}
+la disconnect
+la destroy
+e1 destroy
+e2 destroy
+c destroy
+liout destroy
+liin destroy
 .CE
 .SH REFERENCES
 .SH "BUGS, IDEAS, FEEDBACK"
@@ -948,5 +907,4 @@ Networking
 .SH COPYRIGHT
 .nf
 Copyright (c) 2006 Pierre David <pdav@users.sourceforge.net>
-
 .fi

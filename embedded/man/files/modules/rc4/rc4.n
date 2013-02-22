@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -305,32 +304,23 @@ This should be called to clean up resources associated with
 .PP
 .SH EXAMPLES
 .CS
-
-
 % set keydata [binary format H* 0123456789abcdef]
 % rc4::rc4 -hex -key $keydata HelloWorld
 3cf1ae8b7f1c670b612f
 % rc4::rc4 -hex -key $keydata [binary format H* 3cf1ae8b7f1c670b612f]
 HelloWorld
-
 .CE
 .CS
-
-
- set Key [rc4::RC4Init "key data"]
- append ciphertext [rc4::RC4 $Key $plaintext]
- append ciphertext [rc4::RC4 $Key $additional_plaintext]
- rc4::RC4Final $Key
-
+set Key [rc4::RC4Init "key data"]
+append ciphertext [rc4::RC4 $Key $plaintext]
+append ciphertext [rc4::RC4 $Key $additional_plaintext]
+rc4::RC4Final $Key
 .CE
 .CS
-
-
- proc ::Finish {myState data} {
-     DoStuffWith $myState $data
- }
- rc4::rc4 -in $socket -command [list ::Finish $ApplicationState]
-
+proc ::Finish {myState data} {
+DoStuffWith $myState $data
+}
+rc4::rc4 -in $socket -command [list ::Finish $ApplicationState]
 .CE
 .SH AUTHORS
 Pat Thoyts
@@ -350,5 +340,4 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2003, Pat Thoyts <patthoyts@users.sourceforge.net>
-
 .fi

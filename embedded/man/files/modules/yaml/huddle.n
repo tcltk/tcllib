@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -316,22 +315,19 @@ to select the proper huddle type.
 .PP
 In that manner huddle can serve as a common intermediary format.
 .CS
-
-
 huddle-format: >
-  {HUDDLE {huddle-node}}
+{HUDDLE {huddle-node}}
 huddle-node: >
-  {tag content}
+{tag content}
 each content of tag means:
-  s: (content is a) string
-  L: list, each sub node is a huddle-node
-  D: dict, each sub node is a huddle-node
+s: (content is a) string
+L: list, each sub node is a huddle-node
+D: dict, each sub node is a huddle-node
 confirmed:
-  - JSON
-  - YAML(generally, but cannot discribe YAML-tags)
+- JSON
+- YAML(generally, but cannot discribe YAML-tags)
 limitation:
-  - cannot discribe aliases from a node to other node.
-
+- cannot discribe aliases from a node to other node.
 .CE
 .PP
 The \fBhuddle\fR package returns
@@ -366,30 +362,24 @@ Remove a sub-object from the huddle object.
 \fBhuddle combine\fR \fIobject1\fR \fIobject2\fR ?\fIobject3 ...\fR?
 Merging huddle objects given.
 .CS
-
-
 % set aa [huddle create a b c d]
 HUDDLE {D {a {s b} c {s d}}}
 % set bb [huddle create a k l m]
 HUDDLE {D {a {s k} l {s m}}}
 % huddle combine $aa $bb
 HUDDLE {D {a {s k} c {s d} l {s m}}}
-
 .CE
 .TP
 \fBhuddle equal\fR \fIobject1\fR \fIobject2\fR
 Comparing two huddle objects recursively.
 When to equal, returns 1, otherwise 0.
 .CS
-
-
 % set aa [huddle create a b c d]
 HUDDLE {D {a {s b} c {s d}}}
 % set bb [huddle create c d a b]
 HUDDLE {D {c {s d} a {s b}}}
 % huddle equal $aa $bb
 1
-
 .CE
 .TP
 \fBhuddle append\fR \fIobjectVar\fR \fIkey\fR \fIvalue\fR ?\fIkey value ...\fR?
@@ -397,8 +387,6 @@ HUDDLE {D {c {s d} a {s b}}}
 \fBhuddle append\fR \fIobjectVar\fR \fIvalue\fR ?\fIvalue ...\fR?
 Appending child elements. When for dicts, giving key/value. When for lists, giving values.
 .CS
-
-
 % set aa [huddle create a b c d]
 HUDDLE {D {a {s b} c {s d}}}
 % huddle append aa a k l m
@@ -407,7 +395,6 @@ HUDDLE {D {a {s k} c {s d} l {s m}}}
 HUDDLE {L {{s i} {s j} {s k} {s l}}}
 % huddle append bb g h i
 HUDDLE {L {{s i} {s j} {s k} {s l} {s g} {s h} {s i}}}
-
 .CE
 .TP
 \fBhuddle keys\fR \fIobject\fR
@@ -432,15 +419,12 @@ the node is a dict.
 the node is a list.
 .RE
 .CS
-
-
 % huddle type {HUDDLE {s str}}
 string
 % huddle type {HUDDLE {L {{s a} {s b} {s c}}}}
 list
 % huddle type {HUDDLE {D {aa {s b} cc {s d}}}} cc
 string
-
 .CE
 .TP
 \fBhuddle strip\fR \fIobject\fR
@@ -455,29 +439,27 @@ dump a json-stream from the huddle-object.
 begin offset as spaces "  ".
 .RE
 .CS
-
 # normal output has some indents. some strings are escaped.
 % huddle jsondump {HUDDLE {L {{L {{s i} {s baa} {s \\\\k} {L {{s 1.0} {s true} {s /g} {s h}}} {L {{s g}}}}} {s t}}}}
 [
-  [
-    "i",
-    "baa",
-    "\\\\k",
-    [
-      1.0,
-      true,
-      "\\/g",
-      "h"
-    ],
-    ["g"]
-  ],
-  "t"
+[
+"i",
+"baa",
+"\\\\k",
+[
+1.0,
+true,
+"\\/g",
+"h"
+],
+["g"]
+],
+"t"
 ]
 # stripped output
 % huddle jsondump {HUDDLE {D {dd {D {bb {D {a {s baa} c {s {d
 a}}}} cc {D {g {s h}}}}} ee {D {i {s j} k {s 1} j {s { m\\a}}}}}}} "" ""
 {"dd": {"bb": {"a": "baa","c": "d\\na"},"cc": {"g": "h"}},"ee": {"i": "j","k": 1,"j": " m\\\\a"}}
-
 .CE
 .TP
 \fBhuddle compile\fR \fIspec\fR \fIdata\fR
@@ -508,12 +490,10 @@ data is a tcl dict of lists
 \fIdata\fR is plain old tcl values
 .RE
 .CS
-
 % huddle compile {dict * list} {a {1 2 3} b {4 5}}
 HUDDLE {D {a {L {{s 1} {s 2} {s 3}}} b {L {{s 4} {s 5}}}}}
 % huddle compile {dict * {list {dict d list}}} {a {{c 1} {d {2 2 2} e 3}} b {{f 4 g 5}}}
 HUDDLE {D {a {L {{D {c {s 1}}} {D {d {L {{s 2} {s 2} {s 2}}} e {s 3}}}}} b {L {{D {f {s 4} g {s 5}}}}}}}
-
 .CE
 .TP
 \fBhuddle isHuddle\fR \fIobject\fR
@@ -527,8 +507,6 @@ for type-callbacks.
 .sp
 if \fIobject\fR is a huddle, returns root-node. the other, returns \fB[list s $object]\fR.
 .CS
-
-
 % huddle to_node str
 s str
 % huddle to_node str !!str
@@ -537,7 +515,6 @@ s str
 s str
 % huddle to_node {HUDDLE {l {a b c}}}
 l {a b c}
-
 .CE
 .TP
 \fBhuddle wrap\fR \fItag\fR \fIsrc\fR
@@ -545,13 +522,10 @@ for type-callbacks.
 .sp
 Create a huddle object from \fIsrc\fR with specified \fItag\fR.
 .CS
-
-
 % huddle wrap "" str
 HUDDLE str
 % huddle wrap s str
 HUDDLE {s str}
-
 .CE
 .TP
 \fBhuddle call\fR \fItag\fR \fIcommand\fR \fIargs\fR
@@ -622,117 +596,111 @@ removes a sub-node from the tagged-content, and returns self.
 \fBget_sub\fR must be defined at container types.
 \fBset/remove\fR shuould be defined, if you call them.
 .CS
-
-
 # callback sample for my-dict
 proc my_dict_setting {command args} {
-    switch -- $command {
-        setting { ; # type definition
-            return {
-                type dict
-                method {create keys}
-                tag {d child D parent}
-                constructor create
-                str s
-            }
-            # type:   the type-name
-            # method: add methods to huddle's subcommand.
-            #          "get_sub/strip/set/remove/equal/append" called by huddle module.
-            #          "strip" must be defined at all types.
-            #          "get_sub" must be defined at container types.
-            #          "set/remove/equal/append" shuould be defined, if you call them.
-            # tag:    tag definition("child/parent" word is maybe obsoleted)
-        }
-        get_sub { ; # get a sub-node specified by "key" from the tagged-content
-            foreach {src key} $args break
-            return [dict get $src $key]
-        }
-        strip { ; # strip from the tagged-content
-            foreach {src nop} $args break
-            foreach {key val} $src {
-                lappend result $key [huddle strip $val]
-            }
-            return $result
-        }
-        set { ; # set a sub-node from the tagged-content
-            foreach {src key value} $args break
-            dict set src $key $value
-            return $src
-        }
-        remove { ; # remove a sub-node from the tagged-content
-            foreach {src key value} $args break
-            return [dict remove $src $key]
-        }
-        equal { ; # check equal for each node
-            foreach {src1 src2} $args break
-            if {[llength $src1] != [llength $src2]} {return 0}
-            foreach {key1 val1} $src1 {
-                if {![dict exists $src2 $key1]} {return 0}
-                if {![huddle _equal_subs $val1 [dict get $src2 $key1]]} {return 0}
-            }
-            return 1
-        }
-        append { ; # append nodes
-            foreach {str src list} $args break
-            if {[llength $list] % 2} {error {wrong # args: should be "huddle append objvar ?key value ...?"}}
-            set resultL $src
-            foreach {key value} $list {
-                if {$str ne ""} {
-                    lappend resultL $key [huddle to_node $value $str]
-                } else {
-                    lappend resultL $key $value
-                }
-            }
-            return [eval dict create $resultL]
-        }
-        create { ; # $args: all arguments after "huddle create"
-            if {[llength $args] % 2} {error {wrong # args: should be "huddle create ?key value ...?"}}
-            set resultL {}
-            foreach {key value} $args {
-                lappend resultL $key [huddle to_node $value]
-            }
-            return [huddle wrap D $resultL]
-        }
-        keys {
-            foreach {src nop} $args break
-            return [dict keys [lindex [lindex $src 1] 1]]
-        }
-        default {
-            error "$command is not callback for dict"
-        }
-    }
+switch -- $command {
+setting { ; # type definition
+return {
+type dict
+method {create keys}
+tag {d child D parent}
+constructor create
+str s
 }
-
+# type:   the type-name
+# method: add methods to huddle's subcommand.
+#          "get_sub/strip/set/remove/equal/append" called by huddle module.
+#          "strip" must be defined at all types.
+#          "get_sub" must be defined at container types.
+#          "set/remove/equal/append" shuould be defined, if you call them.
+# tag:    tag definition("child/parent" word is maybe obsoleted)
+}
+get_sub { ; # get a sub-node specified by "key" from the tagged-content
+foreach {src key} $args break
+return [dict get $src $key]
+}
+strip { ; # strip from the tagged-content
+foreach {src nop} $args break
+foreach {key val} $src {
+lappend result $key [huddle strip $val]
+}
+return $result
+}
+set { ; # set a sub-node from the tagged-content
+foreach {src key value} $args break
+dict set src $key $value
+return $src
+}
+remove { ; # remove a sub-node from the tagged-content
+foreach {src key value} $args break
+return [dict remove $src $key]
+}
+equal { ; # check equal for each node
+foreach {src1 src2} $args break
+if {[llength $src1] != [llength $src2]} {return 0}
+foreach {key1 val1} $src1 {
+if {![dict exists $src2 $key1]} {return 0}
+if {![huddle _equal_subs $val1 [dict get $src2 $key1]]} {return 0}
+}
+return 1
+}
+append { ; # append nodes
+foreach {str src list} $args break
+if {[llength $list] % 2} {error {wrong # args: should be "huddle append objvar ?key value ...?"}}
+set resultL $src
+foreach {key value} $list {
+if {$str ne ""} {
+lappend resultL $key [huddle to_node $value $str]
+} else {
+lappend resultL $key $value
+}
+}
+return [eval dict create $resultL]
+}
+create { ; # $args: all arguments after "huddle create"
+if {[llength $args] % 2} {error {wrong # args: should be "huddle create ?key value ...?"}}
+set resultL {}
+foreach {key value} $args {
+lappend resultL $key [huddle to_node $value]
+}
+return [huddle wrap D $resultL]
+}
+keys {
+foreach {src nop} $args break
+return [dict keys [lindex [lindex $src 1] 1]]
+}
+default {
+error "$command is not callback for dict"
+}
+}
+}
 .CE
 .CS
-
-
 # inheritance sample from default dict-callback
 proc ::yaml::_huddle_mapping {command args} {
-    switch -- $command {
-        setting { ; # type definition
-            return {
-                type dict
-                method {mapping}
-                tag {!!map parent}
-                constructor mapping
-                str !!str
-            }
-        }
-        mapping { ; # $args: all arguments after "huddle mapping"
-            if {[llength $args] % 2} {error {wrong # args: should be "huddle mapping ?key value ...?"}}
-            set resultL {}
-            foreach {key value} $args {
-                lappend resultL $key [huddle to_node $value !!str]
-            }
-            return [huddle wrap !!map $resultL]
-        }
-        default { ; # devolving to default dict-callback
-            return [huddle call D $command $args]
-        }
-    }
+switch -- $command {
+setting { ; # type definition
+return {
+type dict
+method {mapping}
+tag {!!map parent}
+constructor mapping
+str !!str
 }
-
+}
+mapping { ; # $args: all arguments after "huddle mapping"
+if {[llength $args] % 2} {error {wrong # args: should be "huddle mapping ?key value ...?"}}
+set resultL {}
+foreach {key value} $args {
+lappend resultL $key [huddle to_node $value !!str]
+}
+return [huddle wrap !!map $resultL]
+}
+default { ; # devolving to default dict-callback
+return [huddle call D $command $args]
+}
+}
+}
 .CE
 .SH "HOW TO ADD TYPE"
 .PP
@@ -742,19 +710,13 @@ The proc get argments as \fIcommand\fR and ?\fIargs\fR?. It has some switch-sect
 .PP
 And, addType subcommand will called.
 .CS
-
-
 huddle addType my_dict_setting
-
 .CE
 .SH "WORKING SAMPLE"
 .CS
-
-
 # create as a dict
 % set bb [huddle create a b c d]
 HUDDLE {D {a {s b} c {s d}}}
-
 # create as a list
 % set cc [huddle list e f g h]
 HUDDLE {L {{s e} {s f} {s g} {s h}}}
@@ -762,50 +724,44 @@ HUDDLE {L {{s e} {s f} {s g} {s h}}}
 HUDDLE {D {bb {D {a {s b} c {s d}}} cc {L {{s e} {s f} {s g} {s h}}}}}
 % set folding [huddle list $bbcc p [huddle list q r] s]
 HUDDLE {L {{D {bb {D {a {s b} c {s d}}} cc {L {{s e} {s f} {s g} {s h}}}}} {s p} {L {{s q} {s r}}} {s s}}}
-
 # normal Tcl's notation
 % huddle strip $folding
 {bb {a b c d} cc {e f g h}} p {q r} s
-
 # get a sub node
 % huddle get $folding 0 bb
 HUDDLE {D {a {s b} c {s d}}}
 % huddle gets $folding 0 bb
 a b c d
-
 # overwrite a node
 % huddle set folding 0 bb c kkk
 HUDDLE {L {{D {bb {D {a {s b} c {s kkk}}} cc {L {{s e} {s f} {s g} {s h}}}}} {s p} {L {{s q} {s r}}} {s s}}}
-
 # remove a node
 % huddle remove $folding 2 1
 HUDDLE {L {{D {bb {D {a {s b} c {s kkk}}} cc {L {{s e} {s f} {s g} {s h}}}}} {s p} {L {{s q}}} {s s}}}
 % huddle strip $folding
 {bb {a b c kkk} cc {e f g h}} p {q r} s
-
 # dump as a JSON stream
 % huddle jsondump $folding
 [
-  {
-    "bb": {
-      "a": "b",
-      "c": "kkk"
-    },
-    "cc": [
-      "e",
-      "f",
-      "g",
-      "h"
-    ]
-  },
-  "p",
-  [
-    "q",
-    "r"
-  ],
-  "s"
+{
+"bb": {
+"a": "b",
+"c": "kkk"
+},
+"cc": [
+"e",
+"f",
+"g",
+"h"
 ]
-
+},
+"p",
+[
+"q",
+"r"
+],
+"s"
+]
 .CE
 .SH LIMITATIONS
 .PP
@@ -824,5 +780,4 @@ data exchange, exchange format, huddle, json, parsing, text processing, yaml
 .SH COPYRIGHT
 .nf
 Copyright (c) 2008 KATO Kanryu <kanryu6@users.sourceforge.net>
-
 .fi

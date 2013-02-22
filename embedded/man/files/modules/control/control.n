@@ -221,7 +221,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -318,8 +317,6 @@ capability is useful so that debugging efforts can be independently
 controlled module by module.
 .sp
 .CS
-
-
 % package require control
 % control::control assert enabled 1
 % namespace eval one namespace import ::control::assert
@@ -328,7 +325,6 @@ controlled module by module.
 % one::assert {1 == 0}
 assertion failed: 1 == 0
 % two::assert {1 == 0}
-
 .CE
 .TP
 \fBcontrol::do\fR \fIbody\fR ?\fIoption test\fR?
@@ -360,8 +356,6 @@ to Tcl's built-in control flow commands (such as \fBif\fR,
 provided by packages coded in C.  An example of this difference:
 .PP
 .CS
-
-
 % package require control
 % proc a {} {while 1 {return -code error a}}
 % proc b {} {control::do {return -code error b} while 1}
@@ -369,7 +363,6 @@ provided by packages coded in C.  An example of this difference:
 1
 % catch b
 0
-
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain

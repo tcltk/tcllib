@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -289,8 +288,6 @@ compatible with the \fItargetUnits\fR.  If units are not specified
 for the \fIvalue\fR, then it will be scaled to the target units.  For
 example,
 .CS
-
-
 % ::units::convert "2.3 miles" km
 3.7014912
 % ::units::convert 300m/s miles/hour
@@ -299,7 +296,6 @@ example,
 1.0
 % ::units::convert 1.0 millimeter
 1000.0
-
 .CE
 .TP
 \fB::units::reduce\fR \fIunitString\fR
@@ -310,11 +306,8 @@ surrounding primitive subunits by spaces) indicating that the
 remaining subunits are in the denominator.  Generates an error if the
 \fIunitString\fR is invalid.
 .CS
-
-
 % ::units::reduce pascal
 1000.0 gram / meter second second
-
 .CE
 .TP
 \fB::units::new\fR \fIname\fR \fIbaseUnits\fR
@@ -329,13 +322,10 @@ kind of quantity which cannot be derived from other units.  But you
 probably would not do that unless you have discovered some kind of new
 universal property.
 .CS
-
-
 % ::units::new furlong "220 yards"
 % ::units::new fortnight "14 days"
 % ::units::convert 100m/s furlongs/fortnight
 601288.475303
-
 .CE
 .PP
 .SH "UNIT STRING FORMAT"
@@ -374,8 +364,6 @@ unit separator.)
 .PP
 .SS "EXAMPLE VALID UNIT STRINGS"
 .CS
-
-
 Unit String              Reduced Unit String
 ------------------------------------------------------------
 meter                    1.0 meter
@@ -389,7 +377,6 @@ kg-m/s^2                 1000.0 gram meter / second second
 30 second                30.0 second
 30 seconds               30.0 second
 200*meter/20.5*second    9.75609756098 meter / second
-
 .CE
 .SH "SI UNITS"
 .PP
@@ -400,8 +387,6 @@ included here for reference.  Each standard unit name and abbreviation
 are included in this package.
 .SS "SI BASE UNITS"
 .CS
-
-
 Quantity                Unit Name    Abbr.
 ---------------------------------------------
 Length                  meter        m
@@ -411,12 +396,9 @@ Current                 ampere       A
 Temperature             kelvin       K
 Amount                  mole         mol
 Luminous Intensity      candela      cd
-
 .CE
 .SS "SI DERIVED UNITS WITH SPECIAL NAMES"
 .CS
-
-
 Quantity                Unit Name    Abbr.   Units     Base Units
 --------------------------------------------------------------------
 plane angle             radian      rad     m/m       m/m
@@ -440,7 +422,6 @@ activity (of a
 radionuclide)           becquerel   Bq                /s
 absorbed dose           gray        Gy      J/kg      m^2/s^2
 dose equivalent         sievert     Sv      J/kg      m^2/s^2
-
 .CE
 .PP
 Note that the SI unit kilograms is actually implemented as grams
@@ -463,8 +444,6 @@ These prefixes are defined in Table 5 of \fISpecial Publication
 330\fR.
 .SS "SI PREFIXES"
 .CS
-
-
 Prefix Name     Abbr.   Factor
 ---------------------------------------
 yotta           Y       1e24
@@ -478,7 +457,6 @@ kilo            k       1e3
 hecto           h       1e2
 deka            da      1e1
 deca                    1e1
-
 deci            d       1e-1
 centi           c       1e-2
 milli           m       1e-3
@@ -489,7 +467,6 @@ femto           f       1e-15
 atto            a       1e-18
 zepto           z       1e-21
 yocto           y       1e-24
-
 .CE
 .PP
 Note that we define the same prefix with both the USA ("deka") and
@@ -508,8 +485,6 @@ command, but some well known and often used conversions are included
 in this package.
 .SS "NON-SI UNITS"
 .CS
-
-
 Unit Name            Abbr.    Base Units
 --------------------------------------------------
 angstrom                      1.0E-10 m
@@ -545,7 +520,6 @@ revolution                    6.283185 rad
 revolutionPerMinute  rpm      1.047198E-1 rad/s
 yard                 yd       9.144E-1 m
 year                          3.1536E7 s
-
 .CE
 .SS "QUANTITIES AND DERIVED UNITS WITH SPECIAL NAMES"
 This units conversion package is limited specifically to unit
@@ -604,5 +578,4 @@ angle, constants, conversion, distance, radians, unit
 .SH COPYRIGHT
 .nf
 Copyright (c) 2000-2005 Mayo Foundation
-
 .fi

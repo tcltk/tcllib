@@ -223,7 +223,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -399,18 +398,14 @@ in the range.
 .RE
 .sp
 .CS
-
-
-    sequence 1 = {a b r a c a d a b r a}
-    lcs 1      =   {1 2   4 5     8 9 10}
-    lcs 2      =   {0 1   3 4     5 6 7}
-    sequence 2 =   {b r i c a     b r a c}
-
-    Inversion  = {{deleted  {0  0} {-1 0}}
-                  {changed  {3  3}  {2 2}}
-                  {deleted  {6  7}  {4 5}}
-                  {added   {10 11}  {8 8}}}
-
+sequence 1 = {a b r a c a d a b r a}
+lcs 1      =   {1 2   4 5     8 9 10}
+lcs 2      =   {0 1   3 4     5 6 7}
+sequence 2 =   {b r i c a     b r a c}
+Inversion  = {{deleted  {0  0} {-1 0}}
+{changed  {3  3}  {2 2}}
+{deleted  {6  7}  {4 5}}
+{added   {10 11}  {8 8}}}
 .CE
 .IP
 \fINotes:\fR
@@ -440,21 +435,17 @@ both the changed and unchanged parts of the two sequences in one
 structure.
 .sp
 .CS
-
-
-    sequence 1 = {a b r a c a d a b r a}
-    lcs 1      =   {1 2   4 5     8 9 10}
-    lcs 2      =   {0 1   3 4     5 6 7}
-    sequence 2 =   {b r i c a     b r a c}
-
-    Inversion/Merge  = {{deleted   {0  0} {-1 0}}
-                        {unchanged {1  2}  {0 1}}
-                        {changed   {3  3}  {2 2}}
-                        {unchanged {4  5}  {3 4}}
-                        {deleted   {6  7}  {4 5}}
-                        {unchanged {8 10}  {5 7}}
-                        {added    {10 11}  {8 8}}}
-
+sequence 1 = {a b r a c a d a b r a}
+lcs 1      =   {1 2   4 5     8 9 10}
+lcs 2      =   {0 1   3 4     5 6 7}
+sequence 2 =   {b r i c a     b r a c}
+Inversion/Merge  = {{deleted   {0  0} {-1 0}}
+{unchanged {1  2}  {0 1}}
+{changed   {3  3}  {2 2}}
+{unchanged {4  5}  {3 4}}
+{deleted   {6  7}  {4 5}}
+{unchanged {8 10}  {5 7}}
+{added    {10 11}  {8 8}}}
 .CE
 .TP
 \fB::struct::list\fR \fBlcsInvertMerge2\fR \fIlcs1\fR \fIlcs2\fR \fIlen1\fR \fIlen2\fR
@@ -487,15 +478,12 @@ If there are more elements in the \fIsequence\fR than variable names
 specified the subcommand returns a list containing the unassigned
 elements. Else an empty list is returned.
 .CS
-
-
-    tclsh> ::struct::list assign {a b c d e} foo bar
-    c d e
-    tclsh> set foo
-    a
-    tclsh> set bar
-    b
-
+tclsh> ::struct::list assign {a b c d e} foo bar
+c d e
+tclsh> set foo
+a
+tclsh> set bar
+b
 .CE
 .TP
 \fB::struct::list\fR \fBflatten\fR ?\fB-full\fR? ?\fB--\fR? \fIsequence\fR
@@ -507,13 +495,10 @@ replaced by their elements.
 The subcommand will remove any nesting it finds if the option
 \fB-full\fR is specified.
 .CS
-
-
-    tclsh> ::struct::list flatten {1 2 3 {4 5} {6 7} {{8 9}} 10}
-    1 2 3 4 5 6 7 {8 9} 10
-    tclsh> ::struct::list flatten -full {1 2 3 {4 5} {6 7} {{8 9}} 10}
-    1 2 3 4 5 6 7 8 9 10
-
+tclsh> ::struct::list flatten {1 2 3 {4 5} {6 7} {{8 9}} 10}
+1 2 3 4 5 6 7 {8 9} 10
+tclsh> ::struct::list flatten -full {1 2 3 {4 5} {6 7} {{8 9}} 10}
+1 2 3 4 5 6 7 8 9 10
 .CE
 .TP
 \fB::struct::list\fR \fBmap\fR \fIsequence\fR \fIcmdprefix\fR
@@ -527,21 +512,15 @@ it. The evaluation takes place in the context of the caller of the
 subcommand.
 .sp
 .CS
-
-
-    tclsh> # squaring all elements in a list
-
-    tclsh> proc sqr {x} {expr {$x*$x}}
-    tclsh> ::struct::list map {1 2 3 4 5} sqr
-    1 4 9 16 25
-
-    tclsh> # Retrieving the second column from a matrix
-    tclsh> # given as list of lists.
-
-    tclsh> proc projection {n list} {::lindex $list $n}
-    tclsh> ::struct::list map {{a b c} {1 2 3} {d f g}} {projection 1}
-    b 2 f
-
+tclsh> # squaring all elements in a list
+tclsh> proc sqr {x} {expr {$x*$x}}
+tclsh> ::struct::list map {1 2 3 4 5} sqr
+1 4 9 16 25
+tclsh> # Retrieving the second column from a matrix
+tclsh> # given as list of lists.
+tclsh> proc projection {n list} {::lindex $list $n}
+tclsh> ::struct::list map {{a b c} {1 2 3} {d f g}} {projection 1}
+b 2 f
 .CE
 .TP
 \fB::struct::list\fR \fBmapfor\fR \fIvar\fR \fIsequence\fR \fIscript\fR
@@ -554,23 +533,17 @@ through the specified iteration variable \fIvar\fR. The evaluation takes place
 in the context of the caller of the subcommand.
 .sp
 .CS
-
-
-    tclsh> # squaring all elements in a list
-
-    tclsh> ::struct::list mapfor x {1 2 3 4 5} {
-	expr {$x * $x}
-    }
-    1 4 9 16 25
-
-    tclsh> # Retrieving the second column from a matrix
-    tclsh> # given as list of lists.
-
-    tclsh> ::struct::list mapfor x {{a b c} {1 2 3} {d f g}} {
-	lindex $x 1
-    }
-    b 2 f
-
+tclsh> # squaring all elements in a list
+tclsh> ::struct::list mapfor x {1 2 3 4 5} {
+expr {$x * $x}
+}
+1 4 9 16 25
+tclsh> # Retrieving the second column from a matrix
+tclsh> # given as list of lists.
+tclsh> ::struct::list mapfor x {{a b c} {1 2 3} {d f g}} {
+lindex $x 1
+}
+b 2 f
 .CE
 .TP
 \fB::struct::list\fR \fBfilter\fR \fIsequence\fR \fIcmdprefix\fR
@@ -588,14 +561,10 @@ it. The evaluation takes place in the context of the caller of the
 subcommand.
 .sp
 .CS
-
-
-    tclsh> # removing all odd numbers from the input
-
-    tclsh> proc even {x} {expr {($x % 2) == 0}}
-    tclsh> ::struct::list filter {1 2 3 4 5} even
-    2 4
-
+tclsh> # removing all odd numbers from the input
+tclsh> proc even {x} {expr {($x % 2) == 0}}
+tclsh> ::struct::list filter {1 2 3 4 5} even
+2 4
 .CE
 .sp
 \fINote:\fR The \fBfilter\fR is a specialized application of
@@ -616,13 +585,9 @@ element through the specified iteration variable \fIvar\fR. The evaluation
 takes place in the context of the caller of the subcommand.
 .sp
 .CS
-
-
-    tclsh> # removing all odd numbers from the input
-
-    tclsh> ::struct::list filterfor x {1 2 3 4 5} {($x % 2) == 0}
-    2 4
-
+tclsh> # removing all odd numbers from the input
+tclsh> ::struct::list filterfor x {1 2 3 4 5} {($x % 2) == 0}
+2 4
 .CE
 .TP
 \fB::struct::list\fR \fBsplit\fR \fIsequence\fR \fIcmdprefix\fR ?\fIpassVar\fR \fIfailVar\fR?
@@ -661,12 +626,14 @@ of the list.
 \fB2\fR
 Application of the command to the result of the last call and the
 second element of the list.
-.TP \fB...\fR
+.TP
+\fB...\fR
 .TP
 \fBi\fR
 Application of the command to the result of the last call and the
 \fBi\fR'th element of the list.
-.TP \fB...\fR
+.TP
+\fB...\fR
 .TP
 \fBend\fR
 Application of the command to the result of the last call and the last
@@ -675,13 +642,10 @@ of the subcommand.
 .RE
 .sp
 .CS
-
-
-    tclsh> # summing the elements in a list.
-    tclsh> proc + {a b} {expr {$a + $b}}
-    tclsh> ::struct::list fold {1 2 3 4 5} 0 +
-    15
-
+tclsh> # summing the elements in a list.
+tclsh> proc + {a b} {expr {$a + $b}}
+tclsh> ::struct::list fold {1 2 3 4 5} 0 +
+15
 .CE
 .TP
 \fB::struct::list\fR \fBshift\fR \fIlistvar\fR
@@ -723,17 +687,14 @@ with \fBrepeat\fR.
 \fIExamples:\fR
 .sp
 .CS
-
-
-    tclsh> ::struct::list repeat 3 a
-    a a a
-    tclsh> ::struct::list repeat 3 [::struct::list repeat 3 0]
-    {0 0 0} {0 0 0} {0 0 0}
-    tclsh> ::struct::list repeat 3 a b c
-    a b c a b c a b c
-    tclsh> ::struct::list repeat 3 [::struct::list repeat 2 a] b c
-    {a a} b c {a a} b c {a a} b c
-
+tclsh> ::struct::list repeat 3 a
+a a a
+tclsh> ::struct::list repeat 3 [::struct::list repeat 3 0]
+{0 0 0} {0 0 0} {0 0 0}
+tclsh> ::struct::list repeat 3 a b c
+a b c a b c a b c
+tclsh> ::struct::list repeat 3 [::struct::list repeat 2 a] b c
+{a a} b c {a a} b c {a a} b c
 .CE
 .TP
 \fB::struct::list\fR \fBrepeatn\fR \fIvalue\fR \fIsize\fR...
@@ -757,15 +718,12 @@ but with the last \fIsize\fR value removed.
 An empty list will be returned if no \fIsize\fR arguments are present.
 .sp
 .CS
-
-
-    tclsh> ::struct::list repeatn  0 3 4
-    {0 0 0} {0 0 0} {0 0 0} {0 0 0}
-    tclsh> ::struct::list repeatn  0 {3 4}
-    {0 0 0} {0 0 0} {0 0 0} {0 0 0}
-    tclsh> ::struct::list repeatn  0 {3 4 5}
-    {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}}
-
+tclsh> ::struct::list repeatn  0 3 4
+{0 0 0} {0 0 0} {0 0 0} {0 0 0}
+tclsh> ::struct::list repeatn  0 {3 4}
+{0 0 0} {0 0 0} {0 0 0} {0 0 0}
+tclsh> ::struct::list repeatn  0 {3 4 5}
+{{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}}
 .CE
 .TP
 \fB::struct::list\fR \fBdbJoin\fR ?\fB-inner\fR|\fB-left\fR|\fB-right\fR|\fB-full\fR? ?\fB-keys\fR \fIvarname\fR? {\fIkeycol\fR \fItable\fR}...
@@ -905,41 +863,28 @@ right outer join, combined.
 We extend all the joins from two to \fBn\fR tables (\fBn\fR > 2) by
 executing
 .CS
-
-
-    (...((table1 join table2) join table3) ...) join tableN
-
+(...((table1 join table2) join table3) ...) join tableN
 .CE
 .PP
 Examples for all the joins:
 .CS
-
-
-    Inner Join
-
-    {0 foo}              {0 bagel}    {0 foo   0 bagel}
-    {1 snarf} inner join {1 snatz}  = {1 snarf 1 snatz}
-    {2 blue}             {3 driver}
-
-    Left Outer Join
-
-    {0 foo}                   {0 bagel}    {0 foo   0 bagel}
-    {1 snarf} left outer join {1 snatz}  = {1 snarf 1 snatz}
-    {2 blue}                  {3 driver}   {2 blue  {} {}}
-
-    Right Outer Join
-
-    {0 foo}                    {0 bagel}    {0 foo   0 bagel}
-    {1 snarf} right outer join {1 snatz}  = {1 snarf 1 snatz}
-    {2 blue}                   {3 driver}   {{} {}   3 driver}
-
-    Full Outer Join
-
-    {0 foo}                   {0 bagel}    {0 foo   0 bagel}
-    {1 snarf} full outer join {1 snatz}  = {1 snarf 1 snatz}
-    {2 blue}                  {3 driver}   {2 blue  {} {}}
-                                           {{} {}   3 driver}
-
+Inner Join
+{0 foo}              {0 bagel}    {0 foo   0 bagel}
+{1 snarf} inner join {1 snatz}  = {1 snarf 1 snatz}
+{2 blue}             {3 driver}
+Left Outer Join
+{0 foo}                   {0 bagel}    {0 foo   0 bagel}
+{1 snarf} left outer join {1 snatz}  = {1 snarf 1 snatz}
+{2 blue}                  {3 driver}   {2 blue  {} {}}
+Right Outer Join
+{0 foo}                    {0 bagel}    {0 foo   0 bagel}
+{1 snarf} right outer join {1 snatz}  = {1 snarf 1 snatz}
+{2 blue}                   {3 driver}   {{} {}   3 driver}
+Full Outer Join
+{0 foo}                   {0 bagel}    {0 foo   0 bagel}
+{1 snarf} full outer join {1 snatz}  = {1 snarf 1 snatz}
+{2 blue}                  {3 driver}   {2 blue  {} {}}
+{{} {}   3 driver}
 .CE
 .SH REFERENCES
 .IP [1]
@@ -967,5 +912,4 @@ Data structures
 .nf
 Copyright (c) 2003-2005 by Kevin B. Kenny. All rights reserved
 Copyright (c) 2003-2012 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

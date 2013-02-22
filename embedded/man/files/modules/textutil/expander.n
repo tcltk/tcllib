@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -294,15 +293,12 @@ function calls, \fBsubst\fR will interpolate the variable and function
 values, returning the new string:
 .PP
 .CS
-
-
-    % set greeting "Howdy"
-    Howdy
-    % proc place {} {return "World"}
-    % subst {$greeting, [place]!}
-    Howdy, World!
-    %
-
+% set greeting "Howdy"
+Howdy
+% proc place {} {return "World"}
+% subst {$greeting, [place]!}
+Howdy, World!
+%
 .CE
 .PP
 By defining a suitable set of Tcl commands, \fBsubst\fR can be used to
@@ -343,10 +339,7 @@ invoke various operations on the graph. If the \fIexpanderName\fR is
 not fully qualified it is interpreted as relative to the current
 namespace.  The command has the following general form:
 .CS
-
-
 \fIexpanderName\fR option ?\fIarg arg ...\fR?
-
 .CE
 .IP
 \fIOption\fR and the \fIarg\fRs determine the exact behavior of the
@@ -482,14 +475,11 @@ current input string.
 To begin, create an expander object:
 .PP
 .CS
-
-
-    % package require expander
-    1.2
-    % ::expander::expander myexp
-    ::myexp
-    %
-
+% package require expander
+1.2
+% ::expander::expander myexp
+::myexp
+%
 .CE
 .PP
 The created \fB::myexp\fR object can be used to expand text strings
@@ -499,15 +489,12 @@ interpolate variables, since variables can be referenced by embedded
 commands:
 .PP
 .CS
-
-
-    % set greeting "Howdy"
-    Howdy
-    % proc place {} {return "World"}
-    % ::myexp expand {[set greeting], [place]!}
-    Howdy, World!
-    %
-
+% set greeting "Howdy"
+Howdy
+% proc place {} {return "World"}
+% ::myexp expand {[set greeting], [place]!}
+Howdy, World!
+%
 .CE
 .SS "EMBEDDING MACROS"
 An expander macro is simply a Tcl script embedded within a text
@@ -515,25 +502,21 @@ string.  Expander evaluates the script in the global context, and
 replaces it with its result string.  For example,
 .PP
 .CS
-
-
-    % set greetings {Howdy Hi "What's up"}
-    Howdy Hi "What's up"
-    % ::myexp expand {There are many ways to say "Hello, World!":
-    [set result {}
-    foreach greeting $greetings {
-	append result "$greeting, World!\\\\n"
-    }
-    set result]
-    And that's just a small sample!}
-    There are many ways to say "Hello, World!":
-    Howdy, World!
-    Hi, World!
-    What's up, World!
-
-    And that's just a small sample!
-    %
-
+% set greetings {Howdy Hi "What's up"}
+Howdy Hi "What's up"
+% ::myexp expand {There are many ways to say "Hello, World!":
+[set result {}
+foreach greeting $greetings {
+append result "$greeting, World!\\\\n"
+}
+set result]
+And that's just a small sample!}
+There are many ways to say "Hello, World!":
+Howdy, World!
+Hi, World!
+What's up, World!
+And that's just a small sample!
+%
 .CE
 .SS "WRITING MACRO COMMANDS"
 More typically, \fImacro commands\fR are used to create a markup
@@ -543,14 +526,11 @@ document markup language that can be retargeted to HTML or any other
 output format:
 .PP
 .CS
-
-
-    % proc bold {} {return "<b>"}
-    % proc /bold {} {return "</b>"}
-    % ::myexp expand {Some of this text is in [bold]boldface[/bold]}
-    Some of this text is in <b>boldface</b>
-    %
-
+% proc bold {} {return "<b>"}
+% proc /bold {} {return "</b>"}
+% ::myexp expand {Some of this text is in [bold]boldface[/bold]}
+Some of this text is in <b>boldface</b>
+%
 .CE
 .PP
 The above definitions of \fBbold\fR and \fB/bold\fR returns HTML, but
@@ -569,25 +549,19 @@ For example, you can write pseudo-html by change them to \fB<\fR
 and \fB>\fR:
 .PP
 .CS
-
-
-    % ::myexp setbrackets < >
-    % ::myexp expand {<bold>This is boldface</bold>}
-    <b>This is boldface</b>
-
+% ::myexp setbrackets < >
+% ::myexp expand {<bold>This is boldface</bold>}
+<b>This is boldface</b>
 .CE
 .PP
 Alternatively, you can change the expansion brackets temporarily by
 passing the desired brackets to the \fBexpand\fR command:
 .PP
 .CS
-
-
-    % ::myexp setbrackets "\\\\[" "\\\\]"
-    % ::myexp expand {<bold>This is boldface</bold>} {< >}
-    <b>This is boldface</b>
-    %
-
+% ::myexp setbrackets "\\\\[" "\\\\]"
+% ::myexp expand {<bold>This is boldface</bold>} {< >}
+<b>This is boldface</b>
+%
 .CE
 .SS "CUSTOMIZED MACRO EXPANSION"
 By default, macros are evaluated using the Tcl \fBuplevel #0\fR
@@ -602,11 +576,8 @@ For example, the following code "evaluates" each macro by returning
 the macro text itself.
 .PP
 .CS
-
-
-    proc identity {macro} {return $macro}
-    ::myexp evalcmd identity
-
+proc identity {macro} {return $macro}
+::myexp evalcmd identity
 .CE
 .SS "USING THE CONTEXT STACK"
 Often it's desirable to define a pair of macros which operate in some
@@ -615,11 +586,8 @@ adding footnotes to a web page: one could have implement something
 like this:
 .PP
 .CS
-
-
-    Dr. Pangloss, however, thinks that this is the best of all
-    possible worlds.[footnote "See Candide, by Voltaire"]
-
+Dr. Pangloss, however, thinks that this is the best of all
+possible worlds.[footnote "See Candide, by Voltaire"]
 .CE
 .PP
 The \fBfootnote\fR macro would, presumably, assign a number to this
@@ -628,12 +596,9 @@ solution is ugly if the footnote text is long or should contain
 additional markup.  Consider the following instead:
 .PP
 .CS
-
-
-    Dr. Pangloss, however, thinks that this is the best of all
-    possible worlds.[footnote]See [bookTitle "Candide"], by
-    [authorsName "Voltaire"], for more information.[/footnote]
-
+Dr. Pangloss, however, thinks that this is the best of all
+possible worlds.[footnote]See [bookTitle "Candide"], by
+[authorsName "Voltaire"], for more information.[/footnote]
 .CE
 .PP
 Here the footnote text is contained between \fBfootnote\fR and
@@ -649,19 +614,14 @@ Then, all expanded text gets placed in that new context.
 skeleton implementation of these two macros:
 .PP
 .CS
-
-
-    proc footnote {} {
-        ::myexp cpush footnote
-    }
-
-    proc /footnote {} {
-        set footnoteText [::myexp cpop footnote]
-
-        # Save the footnote text, and return an appropriate footnote
-        # number and link.
-    }
-
+proc footnote {} {
+::myexp cpush footnote
+}
+proc /footnote {} {
+set footnoteText [::myexp cpop footnote]
+# Save the footnote text, and return an appropriate footnote
+# number and link.
+}
 .CE
 .PP
 The \fBcpush\fR command pushes a new context onto the stack; the
@@ -679,22 +639,17 @@ calling \fBcpop\fR.  For example, suppose the document must specify
 the footnote number explicitly:
 .PP
 .CS
-
-
-    proc footnote {footnoteNumber} {
-        ::myexp cpush footnote
-        ::myexp csave num $footnoteNumber
-        # Return an appropriate link
-    }
-
-    proc /footnote {} {
-        set footnoteNumber [::myexp cget num]
-        set footnoteText [::myexp cpop footnote]
-
-        # Save the footnote text and its footnoteNumber for future
-        # output.
-    }
-
+proc footnote {footnoteNumber} {
+::myexp cpush footnote
+::myexp csave num $footnoteNumber
+# Return an appropriate link
+}
+proc /footnote {} {
+set footnoteNumber [::myexp cget num]
+set footnoteText [::myexp cpop footnote]
+# Save the footnote text and its footnoteNumber for future
+# output.
+}
 .CE
 .PP
 At times, it might be desirable to define macros that are valid only
@@ -720,5 +675,4 @@ Documentation tools
 .SH COPYRIGHT
 .nf
 Copyright (c) William H. Duquette, http://www.wjduquette.com/expand
-
 .fi

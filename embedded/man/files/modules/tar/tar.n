@@ -221,7 +221,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -278,11 +277,8 @@ or all files if none is specified. The top level are pairs of filename and info.
 "\fBmode\fR \fBuid\fR \fBgid\fR \fBsize\fR \fBmtime\fR \fBtype\fR \fBlinkname\fR \fBuname\fR \fBgname\fR
 \fBdevmajor\fR \fBdevminor\fR"
 .CS
-
-
 % ::tar::stat tarball.tar
 foo.jpg {mode 0644 uid 1000 gid 0 size 7580 mtime 811903867 type file linkname {} uname user gname wheel devmajor 0 devminor 0}
-
 .CE
 .sp
 If the option \fB-chan\fR is present \fItarball\fR is interpreted as an open channel.
@@ -324,24 +320,18 @@ The command will \fInot\fR close the channel.
 .RE
 .sp
 .CS
-
-
 % foreach {file size} [::tar::untar tarball.tar -glob *.jpg] {
 puts "Extracted $file ($size bytes)"
 }
-
 .CE
 .TP
 \fB::tar::get\fR \fItarball\fR \fIfileName\fR ?\fB-chan\fR?
 Returns the contents of \fIfileName\fR from the \fItarball\fR
 .sp
 .CS
-
-
 % set readme [::tar::get tarball.tar doc/README] {
 % puts $readme
 }
-
 .CE
 .sp
 If the option \fB-chan\fR is present \fItarball\fR is interpreted as an open channel.
@@ -365,12 +355,9 @@ The command will \fInot\fR close the channel.
 .RE
 .sp
 .CS
-
-
 % ::tar::create new.tar [glob -nocomplain file*]
 % ::tar::contents new.tar
 file1 file2 file3
-
 .CE
 .TP
 \fB::tar::add\fR \fItarball\fR \fIfiles\fR \fIargs\fR
@@ -402,12 +389,9 @@ Removes \fIfiles\fR from the \fItarball\fR. No error will result if the file doe
 tarball. Directory write permission and free disk space equivalent to at least the size of the tarball
 will be needed.
 .CS
-
-
 % ::tar::remove new.tar {file2 file3}
 % ::tar::contents new.tar
 file3
-
 .CE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"

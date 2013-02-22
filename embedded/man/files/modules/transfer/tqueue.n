@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -293,10 +292,7 @@ error message about the queue abort, and 0 bytes transfered.
 All transfer requests are of the form
 .PP
 .CS
-
-
-	{type data options...}
-
+{type data options...}
 .CE
 .PP
 where \fItype\fR is in {\fBchan\fR, \fBstring\fR}, and \fIdata\fR
@@ -394,5 +390,4 @@ Transfer module
 .SH COPYRIGHT
 .nf
 Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

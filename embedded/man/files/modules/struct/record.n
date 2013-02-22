@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -337,36 +336,26 @@ the with name of the record, and the name of the instance of that
 nested record. For example, it would look like this:
 .PP
 .CS
-
-
 # this is the nested record
 record define mynestedrecord {
-    nest1
-    nest2
+nest1
+nest2
 }
-
 # This is the main record
 record define myrecord {
-    mem1
-    mem2
-    {record mynestedrecord mem3}
+mem1
+mem2
+{record mynestedrecord mem3}
 }
-
-
 .CE
 You can also assign default or initial values to the members of a record,
 by enclosing the member entry in braces:
 .PP
 .CS
-
-
-
 record define myrecord {
-    mem1
-    {mem2 5}
+mem1
+{mem2 5}
 }
-
-
 .CE
 All instances created from this record definition, will initially have 5 as
 the value for \fImem2\fR. If no default is given, then the value will be the empty string.
@@ -423,8 +412,6 @@ Basically, for every member of every instance, an alias is created. This alias i
 member. An example will illustrate the point, using the above defined records:
 .PP
 .CS
-
-
 # Create an instance first
 % myrecord inst1
 ::inst1
@@ -452,8 +439,6 @@ member. An example will illustrate the point, using the above defined records:
 % inst1.mem3
 -nest1 10 -nest2 {}
 %
-
-
 .CE
 .SH "RECORD COMMAND"
 The following subcommands and corresponding arguments are available to any
@@ -503,34 +488,29 @@ records to define these. So, the first thing we do is define the nested
 records:
 .PP
 .CS
-
-
-
 ##
 ##  This is an interactive example, to see what is
 ##  returned by each command as well.
 ##
-
 % namespace import ::struct::record::*
-
 % # define a nested record. Notice that country has default 'USA'.
 % record define locations {
-    street
-    street2
-    city
-    state
-    zipcode
-    {country USA}
-    phone
+street
+street2
+city
+state
+zipcode
+{country USA}
+phone
 }
 ::locations
 % # Define the main record. Notice that it uses the location record twice.
 % record define contacts {
-    first
-    middle
-    last
-    {record locations home}
-    {record locations work}
+first
+middle
+last
+{record locations home}
+{record locations work}
 }
 ::contacts
 % # Create an instance for the contacts record.
@@ -559,7 +539,6 @@ first middle last {record locations home} {record locations work}
 % record show members contacts
 first middle last {record locations home} {record locations work}
 %
-
 .CE
 .PP
 \fIExample 1\fR
@@ -567,13 +546,10 @@ first middle last {record locations home} {record locations work}
 This next example just illustrates a simple linked list
 .PP
 .CS
-
-
-
 % # define a very simple record for linked list
 % record define llist {
-    value
-    next
+value
+next
 }
 ::llist
 % llist lstart
@@ -597,8 +573,6 @@ record delete instance $I
 }
 % record show instances llist
 %
-
-
 .CE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
@@ -615,5 +589,4 @@ Data structures
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002, Brett Schwarz <brett_schwarz@yahoo.com>
-
 .fi

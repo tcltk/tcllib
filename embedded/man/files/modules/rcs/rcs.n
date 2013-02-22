@@ -223,7 +223,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -357,7 +356,6 @@ multiple physical lines.
 The text
 .PP
 .CS
-
 Hello World,
 how are you ?
 Fine, and you ?
@@ -366,21 +364,18 @@ Fine, and you ?
 for example can be represented by
 .PP
 .CS
-
 {{1 {Hello World,}} {2 {how are you ?}} {3 {Fine, and you ?}}}
 .CE
 .PP
 or
 .PP
 .CS
-
 {{5 {Hello World,}} {8 {how are you ?}} {9 {Fine, and you ?}}}
 .CE
 .PP
 or
 .PP
 .CS
-
 {{-1 {Hello World,
 how are you ?}} {4 {Fine, and you ?}}}
 .CE
@@ -452,12 +447,10 @@ at the textual level, only at the functional level.
 And example of a RCS patch is
 .PP
 .CS
-
 d1 2
 d4 1
 a4 2
 The named is the mother of all things.
-
 a11 3
 They both may be called deep and profound.
 Deeper and more profound,
@@ -492,9 +485,7 @@ An example for a patch command is shown below, it represents the
 example RCS patch found in section \fBRCS PATCH FORMAT\fR.
 .PP
 .CS
-
 {{d 1 2} {d 4 1} {a 4 {The named is the mother of all things.
-
 }} {a 11 {They both may be called deep and profound.
 Deeper and more profound,
 The door of all subtleties!}}}
@@ -516,5 +507,4 @@ Text processing
 .nf
 Copyright (c) 2005, Andreas Kupries <andreas_kupries@users.sourceforge.net>
 Copyright (c) 2005, Colin McCormack <coldstore@users.sourceforge.net>
-
 .fi

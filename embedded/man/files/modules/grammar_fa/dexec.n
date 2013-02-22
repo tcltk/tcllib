@@ -223,7 +223,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -399,5 +398,4 @@ Grammars and finite automata
 .nf
 Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 Copyright (c) 2007 Bogdan <rftghost@users.sourceforge.net>
-
 .fi

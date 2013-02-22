@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -292,10 +291,7 @@ network interface. By default the server is bound to all network
 interfaces. For example:
 .sp
 .CS
-
-
-  set sock [::smtpd::start [info hostname] 0]
-
+set sock [::smtpd::start [info hostname] 0]
 .CE
 .sp
 will bind to the hosts internet interface on the first available port.
@@ -373,24 +369,18 @@ are processed. If you wish to deny access to a specific host then an
 error should be returned by this callback. For example:
 .sp
 .CS
-
-
- proc validate_host {ipnum} {
-    if {[string match "192.168.1.*" $ipnum]} {
-       error "go away!"
-    }
- }
-
+proc validate_host {ipnum} {
+if {[string match "192.168.1.*" $ipnum]} {
+error "go away!"
+}
+}
 .CE
 .sp
 If access is denied the client will receive a standard message that
 includes the text of your error, such as:
 .sp
 .CS
-
-
- 550 Access denied: I hate you.
-
+550 Access denied: I hate you.
 .CE
 .sp
 As per the SMTP protocol, the connection is not closed but we wait for
@@ -404,16 +394,13 @@ mail based upon the declared sender. To reject mail you should throw
 an error. For example, to reject mail from user "denied":
 .sp
 .CS
-
-
- proc validate_sender {address} {
-    eval array set addr [mime::parseaddress $address]
-    if {[string match "denied" $addr(local)]} {
-         error "mailbox $addr(local) denied"
-    }
-    return
- }
-
+proc validate_sender {address} {
+eval array set addr [mime::parseaddress $address]
+if {[string match "denied" $addr(local)]} {
+error "mailbox $addr(local) denied"
+}
+return
+}
 .CE
 .sp
 The content of any error message will not be passed back to the client.
@@ -433,16 +420,13 @@ this single argument. When the call returns, the mime token is cleaned
 up so if the user wishes to preserve the data she must make a copy.
 .sp
 .CS
-
-
- proc deliverMIME {token} {
-     set sender [lindex [mime::getheader $token From] 0]
-     set recipients [lindex [mime::getheader $token To] 0]
-     set mail "From $sender [clock format [clock seconds]]"
-     append mail "\\n" [mime::buildmessage $token]
-     puts $mail
- }
-
+proc deliverMIME {token} {
+set sender [lindex [mime::getheader $token From] 0]
+set recipients [lindex [mime::getheader $token To] 0]
+set mail "From $sender [clock format [clock seconds]]"
+append mail "\\n" [mime::buildmessage $token]
+puts $mail
+}
 .CE
 .TP
 \fBdeliver\fR callback
@@ -452,14 +436,11 @@ set. The procedure is called with the sender, a list of recipients and
 the text of the mail as a list of lines. For example:
 .sp
 .CS
-
-
- proc deliver {sender recipients data} {
-    set mail "From $sender  [clock format [clock seconds]]"
-    append mail "\\n" [join $data "\\n"]
-    puts "$mail"
- }
-
+proc deliver {sender recipients data} {
+set mail "From $sender  [clock format [clock seconds]]"
+append mail "\\n" [join $data "\\n"]
+puts "$mail"
+}
 .CE
 .sp
 Note that the DATA command will return an error if no sender or
@@ -492,5 +473,4 @@ Networking
 .SH COPYRIGHT
 .nf
 Copyright (c) Pat Thoyts <patthoyts@users.sourceforge.net>
-
 .fi

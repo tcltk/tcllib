@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -291,37 +290,32 @@ some stochastic element in it.
 The package \fIsimulation::montecarlo\fR offers a basic framework for
 such a modelling technique:
 .CS
-
-
 #
 # MC experiments:
 # Determine the mean and median of a set of points and compare them
 #
 ::simulation::montecarlo::singleExperiment -init {
-    package require math::statistics
-
-    set prng [::simulation::random::prng_Normal 0.0 1.0]
+package require math::statistics
+set prng [::simulation::random::prng_Normal 0.0 1.0]
 } -loop {
-    set numbers {}
-    for { set i 0 } { $i < [getOption samples] } { incr i } {
-        lappend numbers [$prng]
-    }
-    set mean   [::math::statistics::mean $numbers]
-    set median [::math::statistics::median $numbers] ;# ? Exists?
-    setTrialResult [list $mean $median]
+set numbers {}
+for { set i 0 } { $i < [getOption samples] } { incr i } {
+lappend numbers [$prng]
+}
+set mean   [::math::statistics::mean $numbers]
+set median [::math::statistics::median $numbers] ;# ? Exists?
+setTrialResult [list $mean $median]
 } -final {
-    set result [getTrialResults]
-    set means   {}
-    set medians {}
-    foreach r $result {
-        foreach {m M} $r break
-        lappend means   $m
-        lappend medians $M
-    }
-    puts [getOption reportfile] "Correlation: [::math::statistics::corr $means $medians]"
-
+set result [getTrialResults]
+set means   {}
+set medians {}
+foreach r $result {
+foreach {m M} $r break
+lappend means   $m
+lappend medians $M
+}
+puts [getOption reportfile] "Correlation: [::math::statistics::corr $means $medians]"
 } -trials 100 -samples 10 -verbose 1 -columns {Mean Median}
-
 .CE
 This example attemps to find out how well the median value and the mean
 value of a random set of numbers correlate. Sometimes a median value is
@@ -458,5 +452,4 @@ Mathematics
 .SH COPYRIGHT
 .nf
 Copyright (c) 2008 Arjen Markus <arjenmarkus@users.sourceforge.net>
-
 .fi

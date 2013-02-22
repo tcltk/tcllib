@@ -221,7 +221,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -311,14 +310,10 @@ the changed path as its result. Symbolic links in the path are \fInot\fR resolve
 .sp
 Examples:
 .CS
-
-
-    fileutil::lexnormalize /foo/./bar
-    => /foo/bar
-
-    fileutil::lexnormalize /foo/../bar
-    => /bar
-
+fileutil::lexnormalize /foo/./bar
+=> /foo/bar
+fileutil::lexnormalize /foo/../bar
+=> /bar
 .CE
 .TP
 \fB::fileutil::fullnormalize\fR \fIpath\fR
@@ -485,13 +480,10 @@ current file should be included in the list of interesting files.
 Example:
 .sp
 .CS
-
-
-    # find .tcl files
-    package require fileutil
-    proc is_tcl {name} {return [string match *.tcl $name]}
-    set tcl_files [fileutil::find . is_tcl]
-
+# find .tcl files
+package require fileutil
+proc is_tcl {name} {return [string match *.tcl $name]}
+set tcl_files [fileutil::find . is_tcl]
 .CE
 .TP
 \fB::fileutil::findByPattern\fR \fIbasedir\fR ?\fB-regexp\fR|\fB-glob\fR? ?\fB--\fR? \fIpatterns\fR

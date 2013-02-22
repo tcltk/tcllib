@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -530,5 +529,4 @@ Data structures
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

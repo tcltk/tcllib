@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -283,73 +282,67 @@ the \fBToC serialization format\fR, mapping Tcl dictionaries as
 JSON objects and Tcl lists as JSON arrays.
 For example, the Tcl serialization
 .CS
-
-
 doctools::toc {
-    items {
-        {reference {
-	    desc {DocTools - Tables of Contents}
-	     id introduction.man
-	     label doctools::toc::introduction
-	}}
-	{division {
-	     id processing.man
-	     items {
-	         {reference {
-		     desc {doctoc serialization utilities}
-		     id structure.man
-		     label doctools::toc::structure
-		 }}
-		 {reference {
-		     desc {Parsing text in doctoc format}
-		     id parse.man
-		     label doctools::toc::parse
-		 }}
-	     }
-             label Processing
-        }}
-    }
-    label {Table of Contents}
-    title TOC
+items {
+{reference {
+desc {DocTools - Tables of Contents}
+id introduction.man
+label doctools::toc::introduction
+}}
+{division {
+id processing.man
+items {
+{reference {
+desc {doctoc serialization utilities}
+id structure.man
+label doctools::toc::structure
+}}
+{reference {
+desc {Parsing text in doctoc format}
+id parse.man
+label doctools::toc::parse
+}}
 }
-
+label Processing
+}}
+}
+label {Table of Contents}
+title TOC
+}
 .CE
 is equivalent to the JSON string
 .CS
-
-
 {
-    "doctools::toc" : {
-        "items" : [{
-            "reference" : {
-                "desc"  : "DocTools - Tables of Contents",
-                "id"    : "introduction.man",
-                "label" : "doctools::toc::introduction"
-            }
-        },{
-            "division" : {
-                "id"    : "processing.man",
-                "items" : [{
-                    "reference" : {
-                        "desc"  : "doctoc serialization utilities",
-                        "id"    : "structure.man",
-                        "label" : "doctools::toc::structure"
-                    }
-                },{
-                    "reference" : {
-                        "desc"  : "Parsing text in doctoc format",
-                        "id"    : "parse.man",
-                        "label" : "doctools::toc::parse"
-                    }
-                }],
-                "label" : "Processing"
-            }
-        }],
-        "label" : "Table of Contents",
-        "title" : "TOC"
-    }
+"doctools::toc" : {
+"items" : [{
+"reference" : {
+"desc"  : "DocTools - Tables of Contents",
+"id"    : "introduction.man",
+"label" : "doctools::toc::introduction"
 }
-
+},{
+"division" : {
+"id"    : "processing.man",
+"items" : [{
+"reference" : {
+"desc"  : "doctoc serialization utilities",
+"id"    : "structure.man",
+"label" : "doctools::toc::structure"
+}
+},{
+"reference" : {
+"desc"  : "Parsing text in doctoc format",
+"id"    : "parse.man",
+"label" : "doctools::toc::parse"
+}
+}],
+"label" : "Processing"
+}
+}],
+"label" : "Table of Contents",
+"title" : "TOC"
+}
+}
 .CE
 .SH "TOC SERIALIZATION FORMAT"
 Here we specify the format used by the doctools v2 packages to
@@ -472,5 +465,4 @@ Text formatter plugin
 .SH COPYRIGHT
 .nf
 Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

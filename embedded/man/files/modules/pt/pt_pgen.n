@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -337,95 +336,77 @@ IMAGE: flow
 Our grammar, assumed to the stored in the file "\fIcalculator.peg\fR"
 is
 .CS
-
-
 PEG calculator (Expression)
-    Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
-    Sign       <- '-' / '+'                                     ;
-    Number     <- Sign? Digit+                                  ;
-    Expression <- Term (AddOp Term)*                            ;
-    MulOp      <- '*' / '/'                                     ;
-    Term       <- Factor (MulOp Factor)*                        ;
-    AddOp      <- '+'/'-'                                       ;
-    Factor     <- '(' Expression ')' / Number                   ;
+Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
+Sign       <- '-' / '+'                                     ;
+Number     <- Sign? Digit+                                  ;
+Expression <- Term (AddOp Term)*                            ;
+MulOp      <- '*' / '/'                                     ;
+Term       <- Factor (MulOp Factor)*                        ;
+AddOp      <- '+'/'-'                                       ;
+Factor     <- '(' Expression ')' / Number                   ;
 END;
-
 .CE
 From this we create a snit-based parser
 using the script "\fIgen\fR"
 .CS
-
-
 package require Tcl 8.5
 package require fileutil
 package require pt::pgen
-
 lassign $argv name
 set grammar [fileutil::cat $name.peg]
 set pclass  [pt::pgen peg $gr snit -class $name -file  $name.peg -name  $name]
 fileutil::writeFile $name.tcl $pclass
 exit 0
-
 .CE
 calling it like
 .CS
-
- tclsh8.5 gen calculator
+tclsh8.5 gen calculator
 .CE
 which leaves us with the parser package and class written to the file
 "\fIcalculator.tcl\fR".
 Assuming that this package is then properly installed in a place where
 Tcl can find it we can now use this class via a script like
 .CS
-
-
-    package require calculator
-
-    lassign $argv input
-    set channel [open $input r]
-
-    set parser [calculator]
-    set ast [$parser parse $channel]
-    $parser destroy
-    close $channel
-
-    ... now process the returned abstract syntax tree ...
-
+package require calculator
+lassign $argv input
+set channel [open $input r]
+set parser [calculator]
+set ast [$parser parse $channel]
+$parser destroy
+close $channel
+\... now process the returned abstract syntax tree ...
 .CE
 where the abstract syntax tree stored in the variable will look like
 .PP
 .CS
-
-
 set ast {Expression 0 4
-    {Factor 0 4
-        {Term 0 2
-            {Number 0 2
-                {Digit 0 0}
-                {Digit 1 1}
-                {Digit 2 2}
-            }
-        }
-        {AddOp 3 3}
-        {Term 4 4
-            {Number 4 4
-                {Digit 4 4}
-            }
-        }
-    }
+{Factor 0 4
+{Term 0 2
+{Number 0 2
+{Digit 0 0}
+{Digit 1 1}
+{Digit 2 2}
 }
-
+}
+{AddOp 3 3}
+{Term 4 4
+{Number 4 4
+{Digit 4 4}
+}
+}
+}
+}
 .CE
 .PP
 assuming that the input file and channel contained the text
 .CS
-
- 120+5
+120+5
 .CE
 A more graphical representation of the tree would be
 .PP
-.PS
-.nf
+\.PS
+\.nf
                                                            +- Digit 0 0 | 1
                                                            |            |
                                +- Term 0 2 --- Number 0 2 -+- Digit 1 1 | 2
@@ -436,7 +417,7 @@ Expression 0 4 --- Factor 0 4 -+----------------------------- AddOp 3 3 | +
                                |                                        |
                                +- Term 4 4 --- Number 4 4 --- Digit 4 4 | 5
 .fi
-.PE
+\.PE
 .PP
 Regardless, at this point it is the user's responsibility to work with
 the tree to reach whatever goal she desires. I.e. analyze it,
@@ -466,5 +447,4 @@ Parsing and Grammars
 .SH COPYRIGHT
 .nf
 Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

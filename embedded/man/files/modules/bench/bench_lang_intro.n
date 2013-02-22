@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -258,12 +257,9 @@ syntax.
 .SS BASICS
 One of the most simplest benchmarks which can be written in bench is
 .CS
-
-
 bench -desc LABEL -body {
-    set a b
+set a b
 }
-
 .CE
 This code declares a benchmark named \fBLABEL\fR which measures the
 time it takes to assign a value to a variable. The Tcl code doing this
@@ -280,16 +276,13 @@ In our example, directly drawn from the benchmark suite of Tcllib's
 key schedule used by the encryption command whose speed we measure,
 and the cleanup code releases any resources bound to that schedule.
 .CS
-
-
 bench -desc "AES-${len} ECB encryption core" \fB-pre\fR {
-    set key [aes::Init ecb $k $i]
+set key [aes::Init ecb $k $i]
 } -body {
-    aes::Encrypt $key $p
+aes::Encrypt $key $p
 } \fB-post\fR {
-    aes::Final $key
+aes::Final $key
 }
-
 .CE
 .SS "ADVANCED PRE- AND POSTPROCESSING"
 Our last example again deals with initialization and cleanup code. To
@@ -337,17 +330,14 @@ representation, which is shared) affecting the speed of the inclusion
 command, and the cleanup code releases the temporary variables created
 by this initialization.
 .CS
-
-
 bench -desc "set include, missing <SC> x$times $n" \fB-ipre\fR {
-    set A $sx($times,$n)
-    set B $A
+set A $sx($times,$n)
+set B $A
 } -body {
-    struct::set include A x
+struct::set include A x
 } \fB-ipost\fR {
-    unset A B
+unset A B
 }
-
 .CE
 .SH "FURTHER READING"
 Now that this document has been digested the reader, assumed to be a
@@ -370,5 +360,4 @@ Benchmark tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

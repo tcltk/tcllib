@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -507,83 +506,63 @@ car3 , etc ... and a separate database or array should hold the brand
 names associated with the car labels.
 .PP
 .CS
-
-
-     1. Load the package into an interpreter
-     % package require pool
-     0.1
-
-     2. Create a pool object called `CarPool' with a maximum size of 55 items (cars):
-     % pool CarPool 55
-     CarPool
-
-     4. Add items to the pool:
-     % CarPool add Toyota Trabant Chrysler1 Chrysler2 Volkswagen
-
-     5. Somebody crashed the Toyota. Remove it from the pool as follows:
-     % CarPool remove Toyota
-
-     6. Acquired a new car for the pool. Add it as follows:
-     % CarPool add Nissan
-
-     7. Check whether the pool was adjusted correctly:
-     % CarPool info allitems
-     Trabant Chrysler1 Chrysler2 Volkswagen Nissan
-
+1. Load the package into an interpreter
+% package require pool
+0.1
+2. Create a pool object called `CarPool' with a maximum size of 55 items (cars):
+% pool CarPool 55
+CarPool
+4. Add items to the pool:
+% CarPool add Toyota Trabant Chrysler1 Chrysler2 Volkswagen
+5. Somebody crashed the Toyota. Remove it from the pool as follows:
+% CarPool remove Toyota
+6. Acquired a new car for the pool. Add it as follows:
+% CarPool add Nissan
+7. Check whether the pool was adjusted correctly:
+% CarPool info allitems
+Trabant Chrysler1 Chrysler2 Volkswagen Nissan
 .CE
 .PP
 Suspend the interactive session temporarily, and show the programmatic
 use of the request subcommand:
 .PP
 .CS
-
-
-     # Mrs. Swift needs a car. She doesn't have a preference for a
-     # particular car. We'll issue a request on her behalf as follows:
-     if { [CarPool request car -allocID "Mrs. Swift"] }  {
-         # request was honoured, process the variable `car'
-         puts "$car has been allocated to [CarPool info allocID $car]."
-     } else {
-         # request was denied
-          puts "No car available."
-     }
-
+# Mrs. Swift needs a car. She doesn't have a preference for a
+# particular car. We'll issue a request on her behalf as follows:
+if { [CarPool request car -allocID "Mrs. Swift"] }  {
+# request was honoured, process the variable `car'
+puts "$car has been allocated to [CarPool info allocID $car]."
+} else {
+# request was denied
+puts "No car available."
+}
 .CE
 .PP
 Note how the \fBif\fR command uses the value returned by the
 \fBrequest\fR subcommand.
 .PP
 .CS
-
-
-     # Suppose Mr. Wiggly has a preference for the Trabant:
-     if { [CarPool request car -allocID "Mr. Wiggly" -prefer Trabant] }  {
-         # request was honoured, process the variable `car'
-         puts "$car has been allocated to [CarPool info allocID $car]."
-     } else {
-         # request was denied
-          puts "The Trabant was not available."
-     }
-
+# Suppose Mr. Wiggly has a preference for the Trabant:
+if { [CarPool request car -allocID "Mr. Wiggly" -prefer Trabant] }  {
+# request was honoured, process the variable `car'
+puts "$car has been allocated to [CarPool info allocID $car]."
+} else {
+# request was denied
+puts "The Trabant was not available."
+}
 .CE
 .PP
 Resume the interactive session:
 .PP
 .CS
-
-
-     8. When the car is returned then you can render it available by:
-     % CarPool release Trabant
-
-     9. When done, you delete the pool.
-     % CarPool destroy
-     Couldn't destroy `CarPool' because some items are still allocated.
-
-     Oops, forgot that Mrs. Swift still occupies a car.
-
-     10. We force the destruction of the pool as follows:
-     % CarPool destroy -force
-
+8. When the car is returned then you can render it available by:
+% CarPool release Trabant
+9. When done, you delete the pool.
+% CarPool destroy
+Couldn't destroy `CarPool' because some items are still allocated.
+Oops, forgot that Mrs. Swift still occupies a car.
+10. We force the destruction of the pool as follows:
+% CarPool destroy -force
 .CE
 .PP
 \fIExample 2\fR
@@ -599,29 +578,25 @@ back-end instances make up a pool of connections. A particular
 connection may be allocated to just one client request at a time.
 .PP
 .CS
-
-
-     # Create the pool of connections (pipes)
-     set maxpipes 10
-     pool Pipes $maxpipes
-     for {set i 0} {$i < $maxpipes} {incr i} {
-         set fd [open "|backendApplication" w+]
-         Pipes add $fd
-     }
-
-     # A client request comes in. The request is identified as `clientX'.
-     # Dispatch it onto an instance of a back-end application
-     if { [Pipes request fd -allocID clientX] } {
-         # a connection was allocated
-         # communicate to the back-end application via the variable `fd'
-         puts $fd "someInstruction"
-         # ...... etc.
-     } else {
-         # all connections are currently occupied
-         # store the client request in a queue for later processing,
-         # or return a 'Server busy' message to the client.
-     }
-
+# Create the pool of connections (pipes)
+set maxpipes 10
+pool Pipes $maxpipes
+for {set i 0} {$i < $maxpipes} {incr i} {
+set fd [open "|backendApplication" w+]
+Pipes add $fd
+}
+# A client request comes in. The request is identified as `clientX'.
+# Dispatch it onto an instance of a back-end application
+if { [Pipes request fd -allocID clientX] } {
+# a connection was allocated
+# communicate to the back-end application via the variable `fd'
+puts $fd "someInstruction"
+# ...... etc.
+} else {
+# all connections are currently occupied
+# store the client request in a queue for later processing,
+# or return a 'Server busy' message to the client.
+}
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -637,5 +612,4 @@ Data structures
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002, Erik Leunissen <e.leunissen@hccnet.nl>
-
 .fi
