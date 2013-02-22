@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -431,27 +430,23 @@ query and initialize engine parameters
 After the plugin has been loaded and the frontend commands are
 established the commands will be called in the following sequence:
 .CS
-
-
-    idx_numpasses -> n
-    idx_listvariables -> vars
-
-    idx_varset var1 value1
-    idx_varset var2 value2
-    ...
-    idx_varset varK valueK
-    idx_initialize
-    idx_setup 1
-    ...
-    idx_setup 2
-    ...
-    ...
-    idx_setup n
-    ...
-    idx_postprocess
-    idx_shutdown
-    ...
-
+idx_numpasses -> n
+idx_listvariables -> vars
+idx_varset var1 value1
+idx_varset var2 value2
+\...
+idx_varset varK valueK
+idx_initialize
+idx_setup 1
+\...
+idx_setup 2
+\...
+\...
+idx_setup n
+\...
+idx_postprocess
+idx_shutdown
+\...
 .CE
 I.e. first the number of passes and the set of available engine
 parameters is established, followed by calls setting the
@@ -612,5 +607,4 @@ Documentation tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

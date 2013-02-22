@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -359,16 +358,12 @@ two versions) you can use Snit 1.3 for Tcl 8.4 and Snit 2.2 for Tcl
 To always use Snit 1.3 (or a later version of Snit 1.x), invoke Snit
 as follows:
 .CS
-
 package require snit 1.3
-
 .CE
 To always use Snit 2.2 (or a later version of Snit 2.x), say this
 instead:
 .CS
-
 package require snit 2.2
-
 .CE
 Note that if you request Snit 2.2 explicitly, your application will
 halt with Tcl 8.4, since Snit 2.2 is unavailable for Tcl 8.4.
@@ -376,9 +371,7 @@ halt with Tcl 8.4, since Snit 2.2 is unavailable for Tcl 8.4.
 If you wish your application to always use the latest available
 version of Snit, don't specify a version number:
 .CS
-
 package require snit
-
 .CE
 Tcl will find and load the latest version that's available relative to
 the version of Tcl being used.  In this case, be careful to avoid
@@ -399,11 +392,9 @@ Snit 1.3 supports implicit naming of objects.  Suppose you define a
 new \fBsnit::type\fR called \fBdog\fR.  You can create instances of
 \fBdog\fR in three ways:
 .CS
-
 dog spot               ;# Explicit naming
 set obj1 [dog %AUTO%]  ;# Automatic naming
 set obj2 [dog]         ;# Implicit naming
-
 .CE
 .IP
 In Snit 2.2, type commands are defined using the \fBnamespace ensemble\fR
@@ -420,7 +411,6 @@ In short, you can have implicit naming if you're willing to do without
 type methods (including the standard type methods, like
 \fB$type info\fR).  To do so, use the \fB-hastypemethods\fR pragma:
 .CS
-
 pragma -hastypemethods 0
 .CE
 .IP \(bu
@@ -433,11 +423,8 @@ widget's \fBtag\fR command and its subcommands are examples of
 hierarchical methods.  You can implement such subcommands in Snit
 simply by including multiple words in the method names:
 .CS
-
 method {tag configure} {tag args} { ... }
-
 method {tag cget} {tag option} {...}
-
 .CE
 .IP
 Here we've implicitly defined a \fBtag\fR method which has two
@@ -445,10 +432,8 @@ subcommands, \fBconfigure\fR and \fBcget\fR.
 .sp
 In Snit 1.3, hierarchical methods could be called in two ways:
 .CS
-
 $obj tag cget -myoption      ;# The good way
 $obj {tag cget} -myoption    ;# The weird way
-
 .CE
 .IP
 In the second call, we see that a hierarchical method or type method
@@ -518,7 +503,6 @@ This feature depends on the new Tcl 8.5 \fBnamespace path\fR command,
 which is why it hasn't been implemented for V1.x.  V1.x code can
 achieve something similar by placing
 .CS
-
 namespace import [namespace parent]::*
 .CE
 .IP
@@ -563,11 +547,9 @@ text into a Tk text widget, you use the text widget's \fBinsert\fR
 subcommand:
 .PP
 .CS
-
-    # Create a text widget and insert some text in it.
-    text .mytext -width 80 -height 24
-    .mytext insert end "Howdy!"
-
+# Create a text widget and insert some text in it.
+text .mytext -width 80 -height 24
+\.mytext insert end "Howdy!"
 .CE
 .PP
 In this example, \fBtext\fR is the \fItype\fR command and \fB.mytext\fR is the \fIinstance\fR command.
@@ -591,13 +573,11 @@ command.  For example, if you were designing a kennel management
 system for a dog breeder, you'd need a dog type.
 .PP
 .CS
-
 % snit::type dog {
-    # ...
+# ...
 }
 ::dog
 %
-
 .CE
 .PP
 This definition defines a new command (\fB::dog\fR, in this case)
@@ -622,15 +602,13 @@ instance's name to the type's create method.  In the following
 example, we create a \fBdog\fR object called \fBspot\fR.
 .PP
 .CS
-
 % snit::type dog {
-    # ....
+# ....
 }
 ::dog
 % dog create spot
 ::spot
 %
-
 .CE
 .PP
 In general, the \fBcreate\fR method name can be omitted so long as
@@ -641,15 +619,13 @@ So the following example is identical to the
 previous example:
 .PP
 .CS
-
 % snit::type dog {
-    # ....
+# ....
 }
 ::dog
 % dog spot
 ::spot
 %
-
 .CE
 .PP
 This document generally uses the shorter form.
@@ -658,12 +634,10 @@ If the \fBdog\fR type defines \fBOPTIONS\fR, these can usually be
 given defaults at creation time:
 .PP
 .CS
-
 % snit::type dog {
-    option -breed mongrel
-    option -color brown
-
-    method bark {} { return "$self barks." }
+option -breed mongrel
+option -color brown
+method bark {} { return "$self barks." }
 }
 ::dog
 % dog create spot -breed dalmation -color spotted
@@ -673,7 +647,6 @@ dalmation
 % spot cget -color
 spotted
 %
-
 .CE
 .PP
 Once created, the instance name now names a new Tcl command that is used
@@ -681,11 +654,9 @@ to manipulate the object.  For example, the following code makes the
 dog bark:
 .PP
 .CS
-
 % spot bark
 ::spot barks.
 %
-
 .CE
 .PP
 .SS "HOW DO I REFER TO AN OBJECT INDIRECTLY?"
@@ -693,7 +664,6 @@ Some programmers prefer to save the object name in a variable, and
 reference it that way.  For example,
 .PP
 .CS
-
 % snit::type dog { ... }
 ::dog
 % set d [dog spot -breed dalmation -color spotted]
@@ -703,7 +673,6 @@ dalmation
 % $d bark
 ::spot barks.
 %
-
 .CE
 .PP
 If you prefer this style, you might prefer to have Snit
@@ -713,7 +682,6 @@ If you'd like Snit to generate an object name for you,
 use the \fB%AUTO%\fR keyword as the requested name:
 .PP
 .CS
-
 % snit::type dog { ... }
 ::dog
 % set d [dog %AUTO%]
@@ -721,19 +689,16 @@ use the \fB%AUTO%\fR keyword as the requested name:
 % $d bark
 ::dog2 barks.
 %
-
 .CE
 .PP
 The \fB%AUTO%\fR keyword can be embedded in a longer string:
 .PP
 .CS
-
 % set d [dog obj_%AUTO%]
 ::obj_dog4
 % $d bark
 ::obj_dog4 barks.
 %
-
 .CE
 .PP
 .SS "CAN TYPES BE RENAMED?"
@@ -763,10 +728,7 @@ Therefore, don't use \fB$self\fR for anything that will break if
 \fB$self\fR changes. For example, don't pass a callback command to
 another object like this:
 .CS
-
-
-    .btn configure -command [list $self ButtonPress]
-
+\.btn configure -command [list $self ButtonPress]
 .CE
 .IP
 You'll get an error if \fB.btn\fR calls your command after your object is
@@ -774,10 +736,7 @@ renamed.
 .IP \(bu
 Instead, your object should define its callback command like this:
 .CS
-
-
-    .btn configure -command [mymethod ButtonPress]
-
+\.btn configure -command [mymethod ButtonPress]
 .CE
 .IP
 The \fBmymethod\fR command returns code that will call the desired
@@ -811,7 +770,6 @@ ancestors in the window hierarchy.
 Every instance of a \fBsnit::type\fR has a \fBdestroy\fR method:
 .PP
 .CS
-
 % snit::type dog { ... }
 ::dog
 % dog spot
@@ -822,13 +780,11 @@ Every instance of a \fBsnit::type\fR has a \fBdestroy\fR method:
 % spot barks
 invalid command name "spot"
 %
-
 .CE
 .PP
 Finally, every Snit type has a type method called \fBdestroy\fR; calling it
 destroys the type and all of its instances:
 .CS
-
 % snit::type dog { ... }
 ::dog
 % dog spot
@@ -841,7 +797,6 @@ invalid command name "spot"
 % dog fido
 invalid command name "dog"
 %
-
 .CE
 .SH "INSTANCE METHODS"
 .SS "WHAT IS AN INSTANCE METHOD?"
@@ -855,19 +810,16 @@ the \fBmethod\fR statement.  Consider the following code that might be
 used to add dogs to a computer simulation:
 .PP
 .CS
-
 % snit::type dog {
-    method bark {} {
-        return "$self barks."
-    }
-
-    method chase {thing} {
-        return "$self chases $thing."
-    }
+method bark {} {
+return "$self barks."
+}
+method chase {thing} {
+return "$self chases $thing."
+}
 }
 ::dog
 %
-
 .CE
 .PP
 A dog can bark, and it can chase things.
@@ -882,7 +834,6 @@ The method name becomes a subcommand of the object.  For example,
 let's put a simulated dog through its paces:
 .PP
 .CS
-
 % dog spot
 ::spot
 % spot bark
@@ -890,7 +841,6 @@ let's put a simulated dog through its paces:
 % spot chase cat
 ::spot chases cat.
 %
-
 .CE
 .PP
 .SS "HOW DOES AN INSTANCE METHOD CALL ANOTHER INSTANCE METHOD?"
@@ -902,15 +852,13 @@ Suppose, for example, that our dogs never chase anything without
 barking at them:
 .PP
 .CS
-
 % snit::type dog {
-    method bark {} {
-        return "$self barks."
-    }
-
-    method chase {thing} {
-        return "$self chases $thing.  [$self bark]"
-    }
+method bark {} {
+return "$self barks."
+}
+method chase {thing} {
+return "$self chases $thing.  [$self bark]"
+}
 }
 ::dog
 % dog spot
@@ -920,7 +868,6 @@ barking at them:
 % spot chase cat
 ::spot chases cat.  ::spot barks.
 %
-
 .CE
 .PP
 .SS "ARE THERE ANY LIMITATIONS ON INSTANCE METHOD NAMES?"
@@ -941,13 +888,10 @@ define the hierarchy implicitly.  For example, the following code
 defines a \fBtag\fR method with subcommands \fBcget\fR and
 \fBconfigure\fR:
 .CS
-
 snit::widget mytext {
-    method {tag configure} {tag args} { ... }
-
-    method {tag cget} {tag option} {...}
+method {tag configure} {tag args} { ... }
+method {tag cget} {tag option} {...}
 }
-
 .CE
 Note that there is no explicit definition for the \fBtag\fR method;
 it is implicit in the definition of \fBtag configure\fR and
@@ -956,14 +900,12 @@ example, you'd get an error.
 .SS "HOW DO I CALL HIERARCHICAL METHODS?"
 As subcommands of subcommands.
 .CS
-
 % mytext .text
-.text
+\.text
 % .text tag configure redtext -foreground red -background black
 % .text tag cget redtext -foreground
 red
 %
-
 .CE
 .SS "HOW DO I MAKE AN INSTANCE METHOD PRIVATE?"
 It's often useful to define private methods, that is, instance methods
@@ -979,16 +921,14 @@ stimuli; they never bark just for fun.  So the \fBbark\fR method
 becomes \fBBark\fR to indicate that it is private:
 .PP
 .CS
-
 % snit::type dog {
-    # Private by convention: begins with uppercase letter.
-    method Bark {} {
-        return "$self barks."
-    }
-
-    method chase {thing} {
-        return "$self chases $thing. [$self Bark]"
-    }
+# Private by convention: begins with uppercase letter.
+method Bark {} {
+return "$self barks."
+}
+method chase {thing} {
+return "$self chases $thing. [$self Bark]"
+}
 }
 ::dog
 % dog fido
@@ -996,7 +936,6 @@ becomes \fBBark\fR to indicate that it is private:
 % fido chase cat
 ::fido chases cat. ::fido barks.
 %
-
 .CE
 .PP
 .SS "ARE THERE ANY LIMITATIONS ON INSTANCE METHOD ARGUMENTS?"
@@ -1015,11 +954,10 @@ The implicit argument \fBtype\fR contains the fully qualified name of
 the object's type:
 .PP
 .CS
-
 % snit::type thing {
-    method mytype {} {
-        return $type
-    }
+method mytype {} {
+return $type
+}
 }
 ::thing
 % thing something
@@ -1027,7 +965,6 @@ the object's type:
 % something mytype
 ::thing
 %
-
 .CE
 .PP
 .SS "WHAT IS $SELF?"
@@ -1040,11 +977,10 @@ match in subsequent calls.  Thus, your code should not assume that
 will never be renamed.
 .PP
 .CS
-
 % snit::type thing {
-    method myself {} {
-        return $self
-    }
+method myself {} {
+return $self
+}
 }
 ::thing
 % thing mutt
@@ -1055,7 +991,6 @@ will never be renamed.
 % jeff myself
 ::jeff
 %
-
 .CE
 .PP
 .SS "WHAT IS $SELFNS?"
@@ -1066,11 +1001,10 @@ is constant for the life of the object, even if the object's name
 changes:
 .PP
 .CS
-
 % snit::type thing {
-    method myNameSpace {} {
-        return $selfns
-    }
+method myNameSpace {} {
+return $selfns
+}
 }
 ::thing
 % thing jeff
@@ -1081,7 +1015,6 @@ changes:
 % mutt myNameSpace
 ::thing::Snit_inst3
 %
-
 .CE
 .PP
 The above example reveals how Snit names an instance's private
@@ -1112,9 +1045,7 @@ pressed.  In this case, I create the callback command in the usual
 way, using \fBlist\fR:
 .PP
 .CS
-
-    button .bark -text "Bark!" -command [list fido bark]
-
+button .bark -text "Bark!" -command [list fido bark]
 .CE
 .PP
 In typical Tcl style, we use a callback to hook two independent
@@ -1124,17 +1055,15 @@ the \fBdog\fR must pass one of its own instance methods to the
 button it owns.  The obvious thing to do is this:
 .PP
 .CS
-
 % snit::widget dog {
-    constructor {args} {
-        #...
-        button $win.barkbtn -text "Bark!" -command [list $self bark]
-        #...
-    }
+constructor {args} {
+#...
+button $win.barkbtn -text "Bark!" -command [list $self bark]
+#...
+}
 }
 ::dog
 %
-
 .CE
 .PP
 (Note that in this example, our \fBdog\fR
@@ -1153,17 +1082,15 @@ not do the right thing.
 There's a safer way to do it, and it looks like this:
 .PP
 .CS
-
 % snit::widget dog {
-    constructor {args} {
-        #...
-        button $win.barkbtn -text "Bark!" -command [mymethod bark]
-        #...
-    }
+constructor {args} {
+#...
+button $win.barkbtn -text "Bark!" -command [mymethod bark]
+#...
+}
 }
 ::dog
 %
-
 .CE
 .PP
 The command \fBmymethod\fR takes any number of arguments, and can be
@@ -1190,12 +1117,10 @@ Scalar instance variables are defined in the type definition using the
 initialize it with a value:
 .PP
 .CS
-
 snit::type mytype {
-    # Define variable "greeting" and initialize it with "Howdy!"
-    variable greeting "Howdy!"
+# Define variable "greeting" and initialize it with "Howdy!"
+variable greeting "Howdy!"
 }
-
 .CE
 .PP
 .SS "HOW IS AN ARRAY INSTANCE VARIABLE DEFINED?"
@@ -1204,15 +1129,13 @@ using the \fBvariable\fR command.  You can initialize them at the same
 time by specifying the \fB-array\fR option:
 .PP
 .CS
-
 snit::type mytype {
-    # Define array variable "greetings"
-    variable greetings -array {
-        formal "Good Evening"
-        casual "Howdy!"
-    }
+# Define array variable "greetings"
+variable greetings -array {
+formal "Good Evening"
+casual "Howdy!"
 }
-
+}
 .CE
 .PP
 .SS "WHAT HAPPENS IF I DON'T INITIALIZE AN INSTANCE VARIABLE?"
@@ -1258,27 +1181,20 @@ The second method is to declare your instance variables explicitly
 in your instance code, while \fInot\fR including them in the type
 definition:
 .CS
-
 snit::type dog {
-    constructor {} {
-        variable mood
-
-        set mood happy
-    }
-
-    method setmood {newMood} {
-        variable mood
-
-        set mood $newMood
-    }
-
-    method getmood {} {
-        variable mood
-
-        return $mood
-    }
+constructor {} {
+variable mood
+set mood happy
 }
-
+method setmood {newMood} {
+variable mood
+set mood $newMood
+}
+method getmood {} {
+variable mood
+return $mood
+}
+}
 .CE
 This allows you to ensure that only the required variables are
 included in each method, at the cost of longer code and run-time
@@ -1297,19 +1213,14 @@ variable name.  From within an instance method or a constructor, you
 can fully qualify the variable's name using the \fBmyvar\fR command:
 .PP
 .CS
-
 snit::widget mywidget {
-    variable labeltext ""
-
-    constructor {args} {
-        # ...
-
-        label $win.label -textvariable [myvar labeltext]
-
-        # ...
-    }
+variable labeltext ""
+constructor {args} {
+# ...
+label $win.label -textvariable [myvar labeltext]
+# ...
 }
-
+}
 .CE
 .PP
 .SS "HOW DO I MAKE AN INSTANCE VARIABLE PUBLIC?"
@@ -1334,14 +1245,12 @@ statement.  Consider the following type, to be used in an application
 that manages a list of dogs for a pet store:
 .PP
 .CS
-
 snit::type dog {
-    option -breed -default mongrel
-    option -color -default brown
-    option -akc   -default 0
-    option -shots -default 0
+option -breed -default mongrel
+option -color -default brown
+option -akc   -default 0
+option -shots -default 0
 }
-
 .CE
 .PP
 According to this, a dog has four notable properties: a
@@ -1354,14 +1263,12 @@ if \fB-default\fR is the only one, you can omit the word
 \fB-default\fR as follows:
 .PP
 .CS
-
 snit::type dog {
-    option -breed mongrel
-    option -color brown
-    option -akc   0
-    option -shots 0
+option -breed mongrel
+option -color brown
+option -akc   0
+option -shots 0
 }
-
 .CE
 .PP
 If no \fB-default\fR value is specified, the option's default value
@@ -1376,13 +1283,11 @@ be used to create individual dogs.  Any or all of the options may be
 set at creation time.
 .PP
 .CS
-
 % dog spot -breed beagle -color "mottled" -akc 1 -shots 1
 ::spot
 % dog fido -shots 1
 ::fido
 %
-
 .CE
 .PP
 So \fB::spot\fR is a pedigreed beagle; \fB::fido\fR is a typical mutt,
@@ -1395,13 +1300,11 @@ information.
 Retrieve option values using the \fBcget\fR method:
 .PP
 .CS
-
 % spot cget -color
 mottled
 % fido cget -breed
 mongrel
 %
-
 .CE
 .PP
 .SS "HOW CAN A CLIENT SET OPTIONS AFTER OBJECT CREATION?"
@@ -1411,20 +1314,17 @@ shows that ::fido is not a brown mongrel, but rather a rare Arctic Boar
 Hound of a lovely dun color:
 .PP
 .CS
-
 % fido configure -color dun -breed "Arctic Boar Hound"
 % fido cget -color
 dun
 % fido cget -breed
 Arctic Boar Hound
-
 .CE
 .PP
 Alternatively, the \fBconfigurelist\fR method takes a list of
 options and values; occasionally this is more convenient:
 .PP
 .CS
-
 % set features [list -color dun -breed "Arctic Boar Hound"]
 -color dun -breed {Arctic Boar Hound}
 % fido configurelist $features
@@ -1433,14 +1333,12 @@ dun
 % fido cget -breed
 Arctic Boar Hound
 %
-
 .CE
 .PP
 In Tcl 8.5, the \fB*\fR keyword can be used with
 \fBconfigure\fR in this case:
 .PP
 .CS
-
 % set features [list -color dun -breed "Arctic Boar Hound"]
 -color dun -breed {Arctic Boar Hound}
 % fido configure {*}$features
@@ -1449,7 +1347,6 @@ dun
 % fido cget -breed
 Arctic Boar Hound
 %
-
 .CE
 .PP
 The results are the same.
@@ -1459,15 +1356,13 @@ value.  One is to use the \fBconfigure\fR and \fBcget\fR
 methods, as shown below.
 .PP
 .CS
-
 % snit::type dog {
-    option -weight 10
-
-    method gainWeight {} {
-        set wt [$self cget -weight]
-        incr wt
-        $self configure -weight $wt
-    }
+option -weight 10
+method gainWeight {} {
+set wt [$self cget -weight]
+incr wt
+$self configure -weight $wt
+}
 }
 ::dog
 % dog fido
@@ -1478,7 +1373,6 @@ methods, as shown below.
 % fido cget -weight
 11
 %
-
 .CE
 .PP
 Alternatively, Snit provides a built-in array instance variable called
@@ -1487,12 +1381,9 @@ option values.  The method \fBgainWeight\fR can thus be rewritten as
 follows:
 .PP
 .CS
-
-
-    method gainWeight {} {
-        incr options(-weight)
-    }
-
+method gainWeight {} {
+incr options(-weight)
+}
 .CE
 .PP
 As you can see, using the \fBoptions\fR variable involves considerably
@@ -1515,10 +1406,9 @@ them at a later time.  \fB-breed\fR should be read-only, but
 \fB-shots\fR should not be.
 .PP
 .CS
-
 % snit::type dog {
-    option -breed -default mongrel -readonly yes
-    option -shots -default no
+option -breed -default mongrel -readonly yes
+option -shots -default no
 }
 ::dog
 % dog fido -breed retriever
@@ -1527,7 +1417,6 @@ them at a later time.  \fB-breed\fR should be read-only, but
 % fido configure -breed terrier
 option -breed can only be set at instance creation
 %
-
 .CE
 .PP
 .SS "HOW CAN I CATCH ACCESSES TO AN OPTION'S VALUE?"
@@ -1542,15 +1431,12 @@ Here's what the default behavior would look like if
 written using a \fB-cgetmethod\fR:
 .PP
 .CS
-
 snit::type dog {
-    option -color -default brown -cgetmethod GetOption
-
-    method GetOption {option} {
-        return $options($option)
-    }
+option -color -default brown -cgetmethod GetOption
+method GetOption {option} {
+return $options($option)
 }
-
+}
 .CE
 .PP
 Any instance method can be used, provided that it takes one argument,
@@ -1568,15 +1454,12 @@ Here's what the default configuration behavior would look like if
 written using a \fB-configuremethod\fR:
 .PP
 .CS
-
 snit::type dog {
-    option -color -default brown -configuremethod SetOption
-
-    method SetOption {option value} {
-        set options($option) $value
-    }
+option -color -default brown -configuremethod SetOption
+method SetOption {option value} {
+set options($option) $value
 }
-
+}
 .CE
 .PP
 Any instance method can be used, provided that it takes two arguments,
@@ -1598,15 +1481,13 @@ it's called before the \fB-configuremethod\fR, if any.
 For example, suppose an option always takes a Boolean value.  You can
 ensure that the value is in fact a valid Boolean like this:
 .CS
-
 % snit::type dog {
-    option -shots -default no -validatemethod BooleanOption
-
-    method BooleanOption {option value} {
-        if {![string is boolean -strict $value]} {
-            error "expected a boolean value, got \\"$value\\""
-        }
-    }
+option -shots -default no -validatemethod BooleanOption
+method BooleanOption {option value} {
+if {![string is boolean -strict $value]} {
+error "expected a boolean value, got \\"$value\\""
+}
+}
 }
 ::dog
 % dog fido
@@ -1614,7 +1495,6 @@ ensure that the value is in fact a valid Boolean like this:
 % fido configure -shots NotABooleanValue
 expected a boolean value, got "NotABooleanValue"
 %
-
 .CE
 Note that the same \fB-validatemethod\fR can be used to validate any number
 of boolean options.
@@ -1633,13 +1513,10 @@ Scalar type variables are defined in the type definition using the
 initialize it with a value:
 .PP
 .CS
-
-
 snit::type mytype {
-    # Define variable "greeting" and initialize it with "Howdy!"
-    typevariable greeting "Howdy!"
+# Define variable "greeting" and initialize it with "Howdy!"
+typevariable greeting "Howdy!"
 }
-
 .CE
 .PP
 Every object of type \fBmytype\fR now has access to a single variable
@@ -1650,15 +1527,13 @@ Array-valued type variables are also defined using the
 \fB-array\fR option:
 .PP
 .CS
-
 snit::type mytype {
-    # Define typearray variable "greetings"
-    typevariable greetings -array {
-        formal "Good Evening"
-        casual "Howdy!"
-    }
+# Define typearray variable "greetings"
+typevariable greetings -array {
+formal "Good Evening"
+casual "Howdy!"
 }
-
+}
 .CE
 .PP
 .SS "WHAT HAPPENS IF I DON'T INITIALIZE A TYPE VARIABLE?"
@@ -1692,19 +1567,14 @@ name.  From within an instance method or a constructor, you can fully
 qualify the type variable's name using the \fBmytypevar\fR command:
 .PP
 .CS
-
 snit::widget mywidget {
-    typevariable labeltext ""
-
-    constructor {args} {
-        # ...
-
-        label $win.label -textvariable [mytypevar labeltext]
-
-        # ...
-    }
+typevariable labeltext ""
+constructor {args} {
+# ...
+label $win.label -textvariable [mytypevar labeltext]
+# ...
 }
-
+}
 .CE
 .PP
 .SS "HOW DO I MAKE A TYPE VARIABLE PUBLIC?"
@@ -1717,13 +1587,10 @@ publicize the type variable's name in your
 documentation so that clients can access it directly.  For example,
 .PP
 .CS
-
 snit::type mytype {
-    typevariable myvariable
+typevariable myvariable
 }
-
 set ::mytype::myvariable "New Value"
-
 .CE
 .PP
 .SH "TYPE METHODS"
@@ -1736,16 +1603,13 @@ Type methods are defined in the type definition using the
 \fBtypemethod\fR statement:
 .PP
 .CS
-
 snit::type dog {
-    # List of pedigreed dogs
-    typevariable pedigreed
-
-    typemethod pedigreedDogs {} {
-        return $pedigreed
-    }
+# List of pedigreed dogs
+typevariable pedigreed
+typemethod pedigreedDogs {} {
+return $pedigreed
 }
-
+}
 .CE
 .PP
 Suppose the \fBdog\fR type maintains a list of the names of the dogs
@@ -1762,25 +1626,18 @@ example, assuming that the constructor adds each pedigreed dog to the
 list of \fBpedigreedDogs\fR,
 .PP
 .CS
-
 snit::type dog {
-    option -pedigreed 0
-
-    # List of pedigreed dogs
-    typevariable pedigreed
-
-    typemethod pedigreedDogs {} {
-        return $pedigreed
-    }
-
-    # ...
+option -pedigreed 0
+# List of pedigreed dogs
+typevariable pedigreed
+typemethod pedigreedDogs {} {
+return $pedigreed
 }
-
+# ...
+}
 dog spot -pedigreed 1
 dog fido
-
 foreach dog [dog pedigreedDogs] { ... }
-
 .CE
 .PP
 .SS "ARE THERE ANY LIMITATIONS ON TYPE METHOD NAMES?"
@@ -1812,16 +1669,12 @@ If an instance or type method needs to call a type method, it should
 use \fB$type\fR to do so:
 .PP
 .CS
-
 snit::type dog {
-
-    typemethod pedigreedDogs {} { ... }
-
-    typemethod printPedigrees {} {
-        foreach obj [$type pedigreedDogs] { ... }
-    }
+typemethod pedigreedDogs {} { ... }
+typemethod printPedigrees {} {
+foreach obj [$type pedigreedDogs] { ... }
 }
-
+}
 .CE
 .PP
 .SS "HOW DO I PASS A TYPE METHOD AS A CALLBACK?"
@@ -1832,11 +1685,8 @@ a type method, \fBtype\fR.  For example, suppose we want to print a
 list of pedigreed dogs when a Tk button is pushed:
 .PP
 .CS
-
-
 button .btn -text "Pedigrees" -command [list dog printPedigrees]
 pack .btn
-
 .CE
 Alternatively, from a method or type method you can use the
 \fBmytypemethod\fR command, just as you would use \fBmymethod\fR
@@ -1855,15 +1705,12 @@ Procs are defined by including a \fBproc\fR statement in the type
 definition:
 .PP
 .CS
-
 snit::type mytype {
-    # Pops and returns the first item from the list stored in the
-    # listvar, updating the listvar
-   proc pop {listvar} { ... }
-
-   # ...
+# Pops and returns the first item from the list stored in the
+# listvar, updating the listvar
+proc pop {listvar} { ... }
+# ...
 }
-
 .CE
 .PP
 .SS "ARE THERE ANY LIMITATIONS ON PROC NAMES?"
@@ -1880,20 +1727,16 @@ in the type's namespace it doesn't matter much either way.
 Just like it calls any Tcl command.  For example,
 .PP
 .CS
-
 snit::type mytype {
-    # Pops and returns the first item from the list stored in the
-    # listvar, updating the listvar
-    proc pop {listvar} { ... }
-
-    variable requestQueue {}
-
-    # Get one request from the queue and process it.
-    method processRequest {} {
-        set req [pop requestQueue]
-    }
+# Pops and returns the first item from the list stored in the
+# listvar, updating the listvar
+proc pop {listvar} { ... }
+variable requestQueue {}
+# Get one request from the queue and process it.
+method processRequest {} {
+set req [pop requestQueue]
 }
-
+}
 .CE
 .PP
 .SS "HOW CAN I PASS A PROC TO ANOTHER OBJECT AS A CALLBACK?"
@@ -1914,15 +1757,12 @@ an array-valued type variable as a look-up table, and the values in
 the array have to be computed at start-up.
 .PP
 .CS
-
 % snit::type mytype {
-    typevariable lookupTable
-
-    typeconstructor {
-        array set lookupTable {key value...}
-    }
+typevariable lookupTable
+typeconstructor {
+array set lookupTable {key value...}
 }
-
+}
 .CE
 .PP
 .SH CONSTRUCTORS
@@ -1945,23 +1785,18 @@ created, it can add itself to the list--provided that it's registered
 with the American Kennel Club.
 .PP
 .CS
-
 % snit::type dog {
-    option -akc 0
-
-    typevariable akcList {}
-
-    constructor {args} {
-        $self configurelist $args
-
-        if {$options(-akc)} {
-            lappend akcList $self
-        }
-    }
-
-    typemethod akclist {} {
-        return $akcList
-    }
+option -akc 0
+typevariable akcList {}
+constructor {args} {
+$self configurelist $args
+if {$options(-akc)} {
+lappend akcList $self
+}
+}
+typemethod akclist {} {
+return $akcList
+}
 }
 ::dog
 % dog spot -akc 1
@@ -1971,7 +1806,6 @@ with the American Kennel Club.
 % dog akclist
 ::spot
 %
-
 .CE
 .PP
 .SS "WHAT DOES THE DEFAULT CONSTRUCTOR DO?"
@@ -1980,13 +1814,11 @@ constructor, which is identical to the explicitly-defined
 constructor shown here:
 .PP
 .CS
-
 snit::type dog {
-    constructor {args} {
-        $self configurelist $args
-    }
+constructor {args} {
+$self configurelist $args
 }
-
+}
 .CE
 .PP
 When the constructor is called, \fBargs\fR will be set to the list of
@@ -2001,26 +1833,21 @@ breed was explicitly stated for every dog at creation time, and
 couldn't be changed thereafter.  One way to do that is as follows:
 .PP
 .CS
-
 % snit::type dog {
-    variable breed
-
-    option -color brown
-    option -akc 0
-
-    constructor {theBreed args} {
-        set breed $theBreed
-        $self configurelist $args
-    }
-
-    method breed {} { return $breed }
+variable breed
+option -color brown
+option -akc 0
+constructor {theBreed args} {
+set breed $theBreed
+$self configurelist $args
+}
+method breed {} { return $breed }
 }
 ::dog
 % dog spot dalmatian -color spotted -akc 1
 ::spot
 % spot breed
 dalmatian
-
 .CE
 .PP
 The drawback is that this syntax is non-standard, and may
@@ -2052,33 +1879,25 @@ Suppose we're maintaining a list of pedigreed dogs;
 then we'll want to remove dogs from it when they are destroyed.
 .PP
 .CS
-
 snit::type dog {
-    option -akc 0
-
-    typevariable akcList {}
-
-    constructor {args} {
-        $self configurelist $args
-
-        if {$options(-akc)} {
-            lappend akcList $self
-        }
-    }
-
-    destructor {
-        set ndx [lsearch $akcList $self]
-
-        if {$ndx != -1} {
-            set akcList [lreplace $akcList $ndx $ndx]
-        }
-    }
-
-    typemethod akclist {} {
-        return $akcList
-    }
+option -akc 0
+typevariable akcList {}
+constructor {args} {
+$self configurelist $args
+if {$options(-akc)} {
+lappend akcList $self
 }
-
+}
+destructor {
+set ndx [lsearch $akcList $self]
+if {$ndx != -1} {
+set akcList [lreplace $akcList $ndx $ndx]
+}
+}
+typemethod akclist {} {
+return $akcList
+}
+}
 .CE
 .PP
 .SS "ARE THERE ANY LIMITATIONS ON DESTRUCTOR ARGUMENTS?"
@@ -2113,21 +1932,16 @@ while processing the creation options--the destructor will be called,
 and there will be no \fBtail\fR to destroy.  The simplest solution is
 generally to catch and ignore any errors while destroying components.
 .CS
-
 snit::type dog {
-    component tail
-
-    constructor {args} {
-        $self configurelist $args
-
-        set tail [tail %AUTO%]
-    }
-
-    destructor {
-        catch {$tail destroy}
-    }
+component tail
+constructor {args} {
+$self configurelist $args
+set tail [tail %AUTO%]
 }
-
+destructor {
+catch {$tail destroy}
+}
+}
 .CE
 .SH COMPONENTS
 .SS "WHAT IS A COMPONENT?"
@@ -2151,21 +1965,17 @@ For example, suppose your \fBdog\fR object
 creates a \fBtail\fR object (the better to wag with, no doubt):
 .PP
 .CS
-
 snit::type dog {
-    component mytail
-
-    constructor {args} {
-        # Create and save the component's command
-        set mytail [tail %AUTO% -partof $self]
-        $self configurelist $args
-    }
-
-    method wag {} {
-        $mytail wag
-    }
+component mytail
+constructor {args} {
+# Create and save the component's command
+set mytail [tail %AUTO% -partof $self]
+$self configurelist $args
 }
-
+method wag {} {
+$mytail wag
+}
+}
 .CE
 .PP
 As shown here, it doesn't matter what the \fBtail\fR object's real
@@ -2203,44 +2013,34 @@ definition, our object will usually create its component objects,
 but not necessarily.  Consider the following: a dog object has a tail
 component; but tail knows that it's part of the dog:
 .CS
-
 snit::type dog {
-    component mytail
-
-    constructor {args} {
-        set mytail [tail %AUTO% -partof $self]
-        $self configurelist $args
-    }
-
-    destructor {
-        catch {$mytail destroy}
-    }
-
-    delegate method wagtail to mytail as wag
-
-    method bark {} {
-        return "$self barked."
-    }
+component mytail
+constructor {args} {
+set mytail [tail %AUTO% -partof $self]
+$self configurelist $args
 }
-
- snit::type tail {
-     component mydog
-     option -partof -readonly yes
-
-     constructor {args} {
-         $self configurelist $args
-         set mydog $options(-partof)
-     }
-
-     method wag {} {
-         return "Wag, wag."
-     }
-
-     method pull {} {
-         $mydog bark
-     }
- }
-
+destructor {
+catch {$mytail destroy}
+}
+delegate method wagtail to mytail as wag
+method bark {} {
+return "$self barked."
+}
+}
+snit::type tail {
+component mydog
+option -partof -readonly yes
+constructor {args} {
+$self configurelist $args
+set mydog $options(-partof)
+}
+method wag {} {
+return "Wag, wag."
+}
+method pull {} {
+$mydog bark
+}
+}
 .CE
 Thus, if you ask a dog to wag its tail, it tells its tail to wag;
 and if you pull the dog's tail, the tail tells the dog to bark.  In
@@ -2252,17 +2052,14 @@ The \fBinstall\fR command creates an owned component using a specified
 command, and assigns the result to the component's instance variable.
 For example:
 .CS
-
 snit::type dog {
-    component mytail
-
-    constructor {args} {
-        # set mytail [tail %AUTO% -partof $self]
-        install mytail using tail %AUTO% -partof $self
-        $self configurelist $args
-    }
+component mytail
+constructor {args} {
+# set mytail [tail %AUTO% -partof $self]
+install mytail using tail %AUTO% -partof $self
+$self configurelist $args
 }
-
+}
 .CE
 In a \fBsnit::type\fR's code, the \fBinstall\fR
 command shown above is equivalent to the \fBset mytail\fR command
@@ -2292,17 +2089,13 @@ must be unique.  This is no problem for widget components, since
 widget names are always unique; but consider the following code:
 .PP
 .CS
-
 snit::type tail { ... }
-
 snit::type dog {
-    delegate method wag to mytail
-
-    constructor {} {
-        install mytail using tail mytail
-    }
+delegate method wag to mytail
+constructor {} {
+install mytail using tail mytail
 }
-
+}
 .CE
 .PP
 This code uses the component name, \fBmytail\fR, as the component object
@@ -2321,20 +2114,14 @@ specify \fB%AUTO%\fR as its name, and be guaranteed to get a unique name.
 This is the safest thing to do:
 .PP
 .CS
-
-
-    install mytail using tail %AUTO%
-
+install mytail using tail %AUTO%
 .CE
 .PP
 If the component type isn't a \fBsnit::type\fR you can create
 the component in the object's instance namespace:
 .PP
 .CS
-
-
-    install mytail using tail ${selfns}::mytail
-
+install mytail using tail ${selfns}::mytail
 .CE
 .PP
 Make sure you pick a unique name within the instance namespace.
@@ -2371,18 +2158,14 @@ a listbox widget, and you want to make the listbox's entire interface
 public.  You can do it like this:
 .PP
 .CS
-
 snit::widget combobox {
-     component listbox -public listbox
-
-     constructor {args} {
-         install listbox using listbox $win.listbox ....
-     }
+component listbox -public listbox
+constructor {args} {
+install listbox using listbox $win.listbox ....
 }
-
+}
 combobox .mycombo
-.mycombo listbox configure -width 30
-
+\.mycombo listbox configure -width 30
 .CE
 .PP
 Your comobox widget, \fB.mycombo\fR, now has a \fBlistbox\fR method
@@ -2411,15 +2194,11 @@ the type component's object command.
 Suppose in your model you've got many dogs, but only one
 veterinarian.  You might make the veterinarian a type component.
 .CS
-
 snit::type veterinarian { ... }
-
 snit::type dog {
-    typecomponent vet
-
-    # ...
+typecomponent vet
+# ...
 }
-
 .CE
 .SS "HOW DO I INSTALL A TYPE COMPONENT?"
 Just use the \fBset\fR command to assign the component's object
@@ -2431,17 +2210,13 @@ not needed.
 You'll usually install type components in the type constructor, as
 shown here:
 .CS
-
 snit::type veterinarian { ... }
-
 snit::type dog {
-    typecomponent vet
-
-    typeconstructor {
-        set vet [veterinarian %AUTO%]
-    }
+typecomponent vet
+typeconstructor {
+set vet [veterinarian %AUTO%]
 }
-
+}
 .CE
 .SS "ARE THERE ANY LIMITATIONS ON TYPE COMPONENT NAMES?"
 Yes, the same as on \fBINSTANCE VARIABLES\fR,
@@ -2455,32 +2230,23 @@ which the \fBdog\fR object can delegate its \fBwag\fR method and its
 \fB-taillength\fR option to its \fBtail\fR component.
 .PP
 .CS
-
 snit::type dog {
-    variable mytail
-
-    option -taillength -configuremethod SetTailOption -cgetmethod GetTailOption
-
-
-    method SetTailOption {option value} {
-         $mytail configure $option $value
-    }
-
-    method GetTailOption {option} {
-         $mytail cget $option
-    }
-
-    method wag {} {
-        $mytail wag
-    }
-
-    constructor {args} {
-        install mytail using tail %AUTO% -partof $self
-        $self configurelist $args
-    }
-
+variable mytail
+option -taillength -configuremethod SetTailOption -cgetmethod GetTailOption
+method SetTailOption {option value} {
+$mytail configure $option $value
 }
-
+method GetTailOption {option} {
+$mytail cget $option
+}
+method wag {} {
+$mytail wag
+}
+constructor {args} {
+install mytail using tail %AUTO% -partof $self
+$self configurelist $args
+}
+}
 .CE
 .PP
 This is the hard way to do it, by it demonstrates what delegation is
@@ -2501,24 +2267,21 @@ For example, here's a much better way to delegate the \fBdog\fR
 object's \fBwag\fR method:
 .PP
 .CS
-
 % snit::type dog {
-    delegate method wag to mytail
-
-    constructor {} {
-        install mytail using tail %AUTO%
-    }
+delegate method wag to mytail
+constructor {} {
+install mytail using tail %AUTO%
+}
 }
 ::dog
 % snit::type tail {
-    method wag {} { return "Wag, wag, wag."}
+method wag {} { return "Wag, wag, wag."}
 }
 ::tail
 % dog spot
 ::spot
 % spot wag
 Wag, wag, wag.
-
 .CE
 .PP
 This code has the same effect as the code shown under the previous
@@ -2539,16 +2302,13 @@ the \fBtail\fR's \fBwag\fR method.  After all you wag the tail, not
 the dog.  It's easily done:
 .PP
 .CS
-
 snit::type dog {
-    delegate method wagtail to mytail as wag
-
-    constructor {args} {
-        install mytail using tail %AUTO% -partof $self
-        $self configurelist $args
-    }
+delegate method wagtail to mytail as wag
+constructor {args} {
+install mytail using tail %AUTO% -partof $self
+$self configurelist $args
 }
-
+}
 .CE
 .PP
 .SS "CAN I DELEGATE TO A METHOD WITH ADDITIONAL ARGUMENTS?"
@@ -2559,19 +2319,16 @@ method, specifying that the tail should be wagged exactly three times.
 This is easily done, too:
 .PP
 .CS
-
 snit::type dog {
-    delegate method wagtail to mytail as {wag 3}
-    # ...
+delegate method wagtail to mytail as {wag 3}
+# ...
 }
-
 snit::type tail {
-    method wag {count} {
-        return [string repeat "Wag " $count]
-    }
-    # ...
+method wag {count} {
+return [string repeat "Wag " $count]
 }
-
+# ...
+}
 .CE
 .PP
 .SS "CAN I DELEGATE A METHOD TO SOMETHING OTHER THAN AN OBJECT?"
@@ -2591,11 +2348,9 @@ saves a record.  If you let the record ID be the name of the dog
 object, you can delegate the dog's \fBsave\fR method to the
 \fBsaverec\fR command as follows:
 .CS
-
 snit::type dog {
-    delegate method save using {saverec %s}
+delegate method save using {saverec %s}
 }
-
 .CE
 The \fB%s\fR is replaced with the instance name when the
 \fBsave\fR method is called; any additional arguments are the
@@ -2629,26 +2384,23 @@ object has a \fB-length\fR option; we want to allow the creator of
 a \fBdog\fR object to set the tail's length.  We can do this:
 .PP
 .CS
-
 % snit::type dog {
-    delegate option -length to mytail
-
-    constructor {args} {
-        install mytail using tail %AUTO% -partof $self
-        $self configurelist $args
-    }
+delegate option -length to mytail
+constructor {args} {
+install mytail using tail %AUTO% -partof $self
+$self configurelist $args
+}
 }
 ::dog
 % snit::type tail {
-    option -partof
-    option -length 5
+option -partof
+option -length 5
 }
 ::tail
 % dog spot -length 7
 ::spot
 % spot cget -length
 7
-
 .CE
 .PP
 This produces nearly the same result as the \fB-configuremethod\fR and
@@ -2668,16 +2420,13 @@ we'd really like to do is give the \fBdog\fR a \fB-taillength\fR
 option, but delegate it to the \fBtail\fR's \fB-length\fR option:
 .PP
 .CS
-
 snit::type dog {
-    delegate option -taillength to mytail as -length
-
-    constructor {args} {
-        set mytail [tail %AUTO% -partof $self]
-        $self configurelist $args
-    }
+delegate option -taillength to mytail as -length
+constructor {args} {
+set mytail [tail %AUTO% -partof $self]
+$self configurelist $args
 }
-
+}
 .CE
 .PP
 .SS "HOW CAN I DELEGATE ANY UNRECOGNIZED METHOD OR OPTION TO A COMPONENT OBJECT?"
@@ -2694,23 +2443,18 @@ while delegating all other methods and options to its \fBanimal\fR
 component:
 .PP
 .CS
-
 snit::type dog {
-    delegate option * to animal
-    delegate method * to animal
-
-    option -akc 0
-
-    constructor {args} {
-        install animal using animal %AUTO% -name $self
-        $self configurelist $args
-    }
-
-    method wag {} {
-        return "$self wags its tail"
-    }
+delegate option * to animal
+delegate method * to animal
+option -akc 0
+constructor {args} {
+install animal using animal %AUTO% -name $self
+$self configurelist $args
 }
-
+method wag {} {
+return "$self wags its tail"
+}
+}
 .CE
 .PP
 That's it.  A \fBdog\fR is now an \fBanimal\fR that has a
@@ -2735,21 +2479,16 @@ and forgo the convenience of \fBdelegate method *\fR and
 options or methods, there's an easier way:
 .PP
 .CS
-
 snit::type dog {
-    delegate option * to animal except -numlegs
-    delegate method * to animal except {fly climb}
-
-    # ...
-
-    constructor {args} {
-        install animal using animal %AUTO% -name $self -numlegs 4
-        $self configurelist $args
-    }
-
-    # ...
+delegate option * to animal except -numlegs
+delegate method * to animal except {fly climb}
+# ...
+constructor {args} {
+install animal using animal %AUTO% -name $self -numlegs 4
+$self configurelist $args
 }
-
+# ...
+}
 .CE
 .PP
 Dogs have four legs, so we specify that explicitly when we create the
@@ -2761,27 +2500,20 @@ so we exclude those \fBanimal\fR methods as shown.
 Yes; just specify multiple words in the delegated method's name:
 .PP
 .CS
-
 snit::type tail {
-    method wag {} {return "Wag, wag"}
-    method droop {} {return "Droop, droop"}
+method wag {} {return "Wag, wag"}
+method droop {} {return "Droop, droop"}
 }
-
-
 snit::type dog {
-    delegate method {tail wag} to mytail
-    delegate method {tail droop} to mytail
-
-    # ...
-
-    constructor {args} {
-        install mytail using tail %AUTO%
-        $self configurelist $args
-    }
-
-    # ...
+delegate method {tail wag} to mytail
+delegate method {tail droop} to mytail
+# ...
+constructor {args} {
+install mytail using tail %AUTO%
+$self configurelist $args
 }
-
+# ...
+}
 .CE
 .PP
 Unrecognized hierarchical methods can also be delegated; the following
@@ -2789,13 +2521,10 @@ code delegates all subcommands of the "tail" method to the "mytail"
 component:
 .PP
 .CS
-
 snit::type dog {
-    delegate method {tail *} to mytail
-
-    # ...
+delegate method {tail *} to mytail
+# ...
 }
-
 .CE
 .PP
 .SH WIDGETS
@@ -2855,13 +2584,10 @@ explicitly choose the hull type you prefer by including the \fBhulltype\fR
 command in the widget definition:
 .PP
 .CS
-
 snit::widget mytoplevel {
-    hulltype toplevel
-
-    # ...
+hulltype toplevel
+# ...
 }
-
 .CE
 .PP
 If no \fBhulltype\fR command appears, the hull will be a \fBframe\fR.
@@ -2875,15 +2601,11 @@ provided the widget defines the \fB-class\fR option.  For example,
 suppose Tk gets a new widget type called a \fBprettyframe\fR:
 .PP
 .CS
-
 lappend snit::hulltypes prettyframe
-
 snit::widget mywidget {
-    hulltype prettyframe
-
-    # ...
+hulltype prettyframe
+# ...
 }
-
 .CE
 .PP
 .SS "HOW SHOULD I NAME WIDGETS WHICH ARE COMPONENTS OF A SNIT::WIDGET?"
@@ -2902,21 +2624,15 @@ number of buttons placed side-by-side.  It might look something like
 this:
 .PP
 .CS
-
 snit::widget toolbar {
-    delegate option * to hull
-
-    constructor {args} {
-        button $win.open -text Open -command [mymethod open]
-        button $win.save -text Save -command [mymethod save]
-
-        # ....
-
-        $self configurelist $args
-
-    }
+delegate option * to hull
+constructor {args} {
+button $win.open -text Open -command [mymethod open]
+button $win.save -text Save -command [mymethod save]
+# ....
+$self configurelist $args
 }
-
+}
 .CE
 .PP
 See also the question on renaming objects, toward the top of this
@@ -2946,33 +2662,26 @@ which get delegated to the hull component as \fBinsert\fR and
 behavior while still leaving it fundamentally a text widget.
 .PP
 .CS
-
 ::snit::widgetadaptor rotext {
-
-    constructor {args} {
-        # Create the text widget; turn off its insert cursor
-        installhull using text -insertwidth 0
-
-        # Apply any options passed at creation time.
-        $self configurelist $args
-    }
-
-    # Disable the text widget's insert and delete methods, to
-    # make this readonly.
-    method insert {args} {}
-    method delete {args} {}
-
-    # Enable ins and del as synonyms, so the program can insert and
-    # delete.
-    delegate method ins to hull as insert
-    delegate method del to hull as delete
-
-    # Pass all other methods and options to the real text widget, so
-    # that the remaining behavior is as expected.
-    delegate method * to hull
-    delegate option * to hull
+constructor {args} {
+# Create the text widget; turn off its insert cursor
+installhull using text -insertwidth 0
+# Apply any options passed at creation time.
+$self configurelist $args
 }
-
+# Disable the text widget's insert and delete methods, to
+# make this readonly.
+method insert {args} {}
+method delete {args} {}
+# Enable ins and del as synonyms, so the program can insert and
+# delete.
+delegate method ins to hull as insert
+delegate method del to hull as delete
+# Pass all other methods and options to the real text widget, so
+# that the remaining behavior is as expected.
+delegate method * to hull
+delegate option * to hull
+}
 .CE
 .PP
 The most important part is in the constructor.
@@ -3002,16 +2711,13 @@ In a case like this, the Tk widget will already exist when the
 of the \fBinstallhull\fR command for this purpose:
 .PP
 .CS
-
 snit::widgetadaptor pageadaptor {
-    constructor {args} {
-        # The widget already exists; just install it.
-        installhull $win
-
-        # ...
-    }
+constructor {args} {
+# The widget already exists; just install it.
+installhull $win
+# ...
 }
-
+}
 .CE
 .SS "CAN I ADAPT ANOTHER MEGAWIDGET?"
 Maybe. If the other megawidget is a \fBsnit::widget\fR or
@@ -3085,9 +2791,7 @@ unqualified type name with the first letter capitalized.  For example,
 the widget class of
 .PP
 .CS
-
 snit::widget ::mylibrary::scrolledText { ... }
-
 .CE
 .PP
 is \fBScrolledText\fR.
@@ -3096,13 +2800,10 @@ The widget class can also be set explicitly using the
 \fBwidgetclass\fR statement within the \fBsnit::widget\fR definition:
 .PP
 .CS
-
 snit::widget ::mylibrary::scrolledText {
-    widgetclass Text
-
-    # ...
+widgetclass Text
+# ...
 }
-
 .CE
 .PP
 The above definition says that a \fBscrolledText\fR megawidget has the
@@ -3137,12 +2838,10 @@ the option, resource, and class names for several Tk \fBtext\fR
 widget options:
 .PP
 .CS
-
-    -background         background         Background
-    -borderwidth        borderWidth        BorderWidth
-    -insertborderwidth  insertBorderWidth  BorderWidth
-    -padx               padX               Pad
-
+-background         background         Background
+-borderwidth        borderWidth        BorderWidth
+-insertborderwidth  insertBorderWidth  BorderWidth
+-padx               padX               Pad
 .CE
 .PP
 As is easily seen, sometimes the resource and class names can be
@@ -3155,24 +2854,20 @@ returns these names, along with the option's default and current
 values:
 .PP
 .CS
-
 % snit::widget mytext {
-    delegate option * to text
-
-    constructor {args} {
-        install text using text .text
-        # ...
-    }
-
-    # ...
+delegate option * to text
+constructor {args} {
+install text using text .text
+# ...
+}
+# ...
 }
 ::mytext
 % mytext .text
-.text
+\.text
 % .text configure -padx
 -padx padX Pad 1 1
 %
-
 .CE
 .PP
 For all other options (whether locally defined or explicitly
@@ -3184,29 +2879,24 @@ hyphen; the the class name is just the option name with an initial
 capital letter.  For example, suppose we explicitly delegate "-padx":
 .PP
 .CS
-
 % snit::widget mytext {
-    option -myvalue 5
-
-    delegate option -padx to text
-    delegate option * to text
-
-    constructor {args} {
-        install text using text .text
-        # ...
-    }
-
-    # ...
+option -myvalue 5
+delegate option -padx to text
+delegate option * to text
+constructor {args} {
+install text using text .text
+# ...
+}
+# ...
 }
 ::mytext
 % mytext .text
-.text
+\.text
 % .text configure -myvalue
 -myvalue myvalue Myvalue 5 5
 % .text configure -padx
 -padx padx Padx 1 1
 %
-
 .CE
 .PP
 Here the resource and class names are chosen using the default rules.
@@ -3215,19 +2905,16 @@ likely prefer that the option's resource and class names are the same
 as for the built-in Tk widgets.  This is easily done:
 .PP
 .CS
-
 % snit::widget mytext {
-    delegate option {-padx padX Pad} to text
-
-    # ...
+delegate option {-padx padX Pad} to text
+# ...
 }
 ::mytext
 % mytext .text
-.text
+\.text
 % .text configure -padx
 -padx padX Pad 1 1
 %
-
 .CE
 .SS "HOW DOES SNIT INITIALIZE MY MEGAWIDGET'S LOCALLY-DEFINED OPTIONS?"
 The option database is queried for each of the megawidget's
@@ -3237,16 +2924,12 @@ widget definition.  In either case, the default can be overridden by
 the caller.  For example,
 .PP
 .CS
-
 option add *Mywidget.texture pebbled
-
 snit::widget mywidget {
-    option -texture smooth
-    # ...
+option -texture smooth
+# ...
 }
-
 mywidget .mywidget -texture greasy
-
 .CE
 .PP
 Here, \fB-texture\fR would normally default to "smooth", but because of
@@ -3263,26 +2946,21 @@ only exception concerns options that are delegated to it with a
 different name.  Consider the following code:
 .PP
 .CS
-
 option add *Mywidget.borderWidth 5
 option add *Mywidget.relief sunken
 option add *Mywidget.hullbackground red
 option add *Mywidget.background green
-
 snit::widget mywidget {
-    delegate option -borderwidth to hull
-    delegate option -hullbackground to hull as -background
-    delegate option * to hull
-    # ...
+delegate option -borderwidth to hull
+delegate option -hullbackground to hull as -background
+delegate option * to hull
+# ...
 }
-
 mywidget .mywidget
-
 set A [.mywidget cget -relief]
 set B [.mywidget cget -hullbackground]
 set C [.mywidget cget -background]
 set D [.mywidget cget -borderwidth]
-
 .CE
 .PP
 The question is, what are the values of variables A, B, C and D?
@@ -3320,9 +2998,7 @@ about it any further.  To avoid confusion, the
 should have been delegated like this:
 .PP
 .CS
-
-    delegate option {-borderwidth borderWidth BorderWidth} to hull
-
+delegate option {-borderwidth borderWidth BorderWidth} to hull
 .CE
 .PP
 For \fBsnit::widgetadaptor\fRs, the case is somewhat altered.  Widget
@@ -3332,26 +3008,22 @@ must call \fBinstallhull\fR in its constructor.  The normal way
 to do this is as follows:
 .PP
 .CS
-
 snit::widgetadaptor mywidget {
-    # ...
-    constructor {args} {
-        # ...
-        installhull using text -foreground white
-        # ...
-    }
-    # ...
+# ...
+constructor {args} {
+# ...
+installhull using text -foreground white
+# ...
 }
-
+# ...
+}
 .CE
 .PP
 In this case, the \fBinstallhull\fR command will create the hull using
 a command like this:
 .PP
 .CS
-
-    set hull [text $win -foreground white]
-
+set hull [text $win -foreground white]
 .CE
 .PP
 The hull is a \fBtext\fR widget, so its widget class is \fBText\fR.  Just
@@ -3364,9 +3036,7 @@ In earlier versions of Snit, \fBsnit::widgetadaptor\fRs were expected
 to call \fBinstallhull\fR like this:
 .PP
 .CS
-
-    installhull [text $win -foreground white]
-
+installhull [text $win -foreground white]
 .CE
 .PP
 This form still works--but Snit will not query the option database as
@@ -3390,15 +3060,12 @@ create a component was to simply create it in the constructor and
 assign its command name to the component variable:
 .PP
 .CS
-
 snit::widget mywidget {
-    delegate option -background to myComp
-
-    constructor {args} {
-        set myComp [text $win.text -foreground black]
-    }
+delegate option -background to myComp
+constructor {args} {
+set myComp [text $win.text -foreground black]
 }
-
+}
 .CE
 .PP
 The drawback of this method is that Snit has no opportunity to
@@ -3406,15 +3073,12 @@ initialize the component properly.  Hence, the following approach is
 now used:
 .PP
 .CS
-
 snit::widget mywidget {
-    delegate option -background to myComp
-
-    constructor {args} {
-        install myComp using text $win.text -foreground black
-    }
+delegate option -background to myComp
+constructor {args} {
+install myComp using text $win.text -foreground black
 }
-
+}
 .CE
 .PP
 The \fBinstall\fR command does the following:
@@ -3469,17 +3133,13 @@ the desired name.
 For example, the following code uses \fBDELEGATION\fR to create
 a work-alike for the standard \fBstring\fR command:
 .CS
-
 snit::type ::mynamespace::mystringtype {
-    delegate method * to stringhandler
-
-    constructor {} {
-        set stringhandler string
-    }
+delegate method * to stringhandler
+constructor {} {
+set stringhandler string
 }
-
+}
 ::mynamespace::mystringtype mystring
-
 .CE
 We create the type in a namespace, so that the type command is hidden;
 then we create a single instance with the desired name--
@@ -3496,15 +3156,12 @@ of your ensemble command.
 For example, the following code uses \fBDELEGATION\fR to create
 a work-alike for the standard \fBstring\fR command:
 .CS
-
 snit::type mystring {
-    delegate typemethod * to stringhandler
-
-    typeconstructor {
-        set stringhandler string
-    }
+delegate typemethod * to stringhandler
+typeconstructor {
+set stringhandler string
 }
-
+}
 .CE
 Now the type command itself is your ensemble command.
 .PP
@@ -3519,19 +3176,15 @@ won't do what's wanted.  This is very bad.
 .PP
 The work around is to set some \fBPRAGMAS\fR, as shown here:
 .CS
-
 snit::type mystring {
-    pragma -hastypeinfo    no
-    pragma -hastypedestroy no
-    pragma -hasinstances   no
-
-    delegate typemethod * to stringhandler
-
-    typeconstructor {
-        set stringhandler string
-    }
+pragma -hastypeinfo    no
+pragma -hastypedestroy no
+pragma -hasinstances   no
+delegate typemethod * to stringhandler
+typeconstructor {
+set stringhandler string
 }
-
+}
 .CE
 Here we've used the \fBpragma\fR statement to tell Snit that we don't
 want the \fBinfo\fR typemethod or the \fBdestroy\fR typemethod,
@@ -3550,34 +3203,28 @@ more of them.
 .SS "HOW CAN I GET RID OF THE "INFO" TYPE METHOD?"
 Set the \fB-hastypeinfo\fR pragma to \fBno\fR:
 .CS
-
 snit::type dog {
-    pragma -hastypeinfo no
-    # ...
+pragma -hastypeinfo no
+# ...
 }
-
 .CE
 Snit will refrain from defining the \fBinfo\fR type method.
 .SS "HOW CAN I GET RID OF THE "DESTROY" TYPE METHOD?"
 Set the \fB-hastypedestroy\fR pragma to \fBno\fR:
 .CS
-
 snit::type dog {
-    pragma -hastypedestroy no
-    # ...
+pragma -hastypedestroy no
+# ...
 }
-
 .CE
 Snit will refrain from defining the \fBdestroy\fR type method.
 .SS "HOW CAN I GET RID OF THE "CREATE" TYPE METHOD?"
 Set the \fB-hasinstances\fR pragma to \fBno\fR:
 .CS
-
 snit::type dog {
-    pragma -hasinstances no
-    # ...
+pragma -hasinstances no
+# ...
 }
-
 .CE
 Snit will refrain from defining the \fBcreate\fR type method;
 if you call the type command with an unknown method name, you'll get
@@ -3594,18 +3241,14 @@ create widgets--in Snit terms, the type command calls the
 \fBcreate\fR type method directly.  To get the same behavior from
 Snit, set the \fB-hastypemethods\fR pragma to \fBno\fR:
 .CS
-
 snit::type dog {
-    pragma -hastypemethods no
-    #...
+pragma -hastypemethods no
+#...
 }
-
 # Creates ::spot
 dog spot
-
 # Tries to create an instance called ::create
 dog create spot
-
 .CE
 Pragmas \fB-hastypemethods\fR and \fB-hasinstances\fR cannot
 both be false (or there'd be nothing left).
@@ -3614,23 +3257,18 @@ Up until Snit 0.95, you could use any name for an instance of a
 \fBsnit::type\fR, even if the name was already in use by some other
 object or command.  You could do the following, for example:
 .CS
-
 snit::type dog { ... }
-
 dog proc
-
 .CE
 You now have a new dog named "proc", which is probably not something
 that you really wanted to do.  As a result, Snit now throws an error
 if your chosen instance name names an existing command.  To restore
 the old behavior, set the \fB-canreplace\fR pragma to \fByes\fR:
 .CS
-
 snit::type dog {
-    pragma -canreplace yes
-    # ...
+pragma -canreplace yes
+# ...
 }
-
 .CE
 .SS "HOW CAN I MAKE MY SIMPLE TYPE RUN FASTER?"
 In Snit 1.x, you can set the \fB-simpledispatch\fR pragma to \fByes\fR.
@@ -3670,76 +3308,60 @@ the fast C extension is available or not?
 It's easily done.  Outside of any type definition, define a macro that
 returns 1 if the extension is available, and 0 otherwise:
 .CS
-
 if {$gotFastExtension} {
-    snit::macro fastcode {} {return 1}
+snit::macro fastcode {} {return 1}
 } else {
-    snit::macro fastcode {} {return 0}
+snit::macro fastcode {} {return 0}
 }
-
 .CE
 Then, use your macro in your type definition:
 .CS
-
 snit::type dog {
-
-    if {[fastcode]} {
-        # Fast methods
-        method bark {} {...}
-        method wagtail {} {...}
-    } else {
-        # Slow methods
-        method bark {} {...}
-        method wagtail {} {...}
-    }
+if {[fastcode]} {
+# Fast methods
+method bark {} {...}
+method wagtail {} {...}
+} else {
+# Slow methods
+method bark {} {...}
+method wagtail {} {...}
 }
-
+}
 .CE
 .SS "HOW DO I DEFINE NEW TYPE DEFINITION SYNTAX?"
 Use a macro.  For example, your \fBsnit::widget\fR's
 \fB-background\fR option should be propagated to a number
 of component widgets.  You could implement that like this:
 .CS
-
 snit::widget mywidget {
-    option -background -default white -configuremethod PropagateBackground
-
-    method PropagateBackground {option value} {
-        $comp1 configure $option $value
-        $comp2 configure $option $value
-        $comp3 configure $option $value
-    }
+option -background -default white -configuremethod PropagateBackground
+method PropagateBackground {option value} {
+$comp1 configure $option $value
+$comp2 configure $option $value
+$comp3 configure $option $value
 }
-
+}
 .CE
 For one option, this is fine; if you've got a number of options, it
 becomes tedious and error prone.  So package it as a macro:
 .CS
-
 snit::macro propagate {option "to" components} {
-    option $option -configuremethod Propagate$option
-
-    set body "\\n"
-
-    foreach comp $components {
-        append body "\\$$comp configure $option \\$value\\n"
-    }
-
-    method Propagate$option {option value} $body
+option $option -configuremethod Propagate$option
+set body "\\n"
+foreach comp $components {
+append body "\\$$comp configure $option \\$value\\n"
 }
-
+method Propagate$option {option value} $body
+}
 .CE
 Then you can use it like this:
 .CS
-
 snit::widget mywidget {
-    option -background default -white
-    option -foreground default -black
-
-    propagate -background to {comp1 comp2 comp3}
-    propagate -foreground to {comp1 comp2 comp3}
+option -background default -white
+option -foreground default -black
+propagate -background to {comp1 comp2 comp3}
+propagate -foreground to {comp1 comp2 comp3}
 }
-
 .CE
 .SS "ARE THERE ARE RESTRICTIONS ON MACRO NAMES?"
 Yes, there are.  You can't redefine any standard Tcl commands or Snit
@@ -3756,17 +3378,13 @@ If my fancy \fBsnit::widget\fR is called \fB::mylib::mywidget\fR,
 for example, then I should define my \fBpropagate\fR macro as
 \fB::mylib::propagate\fR:
 .CS
-
 snit::macro mylib::propagate {option "to" components} { ... }
-
 snit::widget ::mylib::mywidget {
-    option -background default -white
-    option -foreground default -black
-
-    mylib::propagate -background to {comp1 comp2 comp3}
-    mylib::propagate -foreground to {comp1 comp2 comp3}
+option -background default -white
+option -foreground default -black
+mylib::propagate -background to {comp1 comp2 comp3}
+mylib::propagate -foreground to {comp1 comp2 comp3}
 }
-
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -3782,5 +3400,4 @@ Programming tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2003-2006, by William H. Duquette
-
 .fi

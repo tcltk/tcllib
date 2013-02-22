@@ -223,7 +223,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -343,21 +342,15 @@ of operation for this module.
 .PP
 .SH EXAMPLES
 .CS
-
-
 % set nil_block [string repeat \\\\0 16]
 % aes::aes -hex -mode cbc -dir encrypt -key $nil_block $nil_block
 66e94bd4ef8a2c3b884cfa59ca342b2e
-
 .CE
 .CS
-
-
 set Key [aes::Init cbc $sixteen_bytes_key_data $sixteen_byte_iv]
 append ciphertext [aes::Encrypt $Key $plaintext]
 append ciphertext [aes::Encrypt $Key $additional_plaintext]
 aes::Final $Key
-
 .CE
 .SH REFERENCES
 .IP [1]
@@ -384,5 +377,4 @@ Hashes, checksums, and encryption
 .nf
 Copyright (c) 2005, Pat Thoyts <patthoyts@users.sourceforge.net>
 Copyright (c) 2012, Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

@@ -1,6 +1,6 @@
 '\"
 '\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/base32/base32hex.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) Public domain
+'\" Public domain
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -296,18 +295,15 @@ encode it to the right. The important feature of the extended hex
 mapping is that the first 16 codes map to the digits and hex
 characters.
 .CS
-
-
-	0 0    9 9        18 I   27 R
-	1 1   10 A        19 J   28 S
-	2 2   11 B        20 K   29 T
-	3 3   12 C        21 L   30 U
-	4 4   13 D        22 M   31 V
-	5 5   14 E        23 N
-	6 6   15 F        24 O
-	7 7        16 G   25 P
-	8 8        17 H   26 Q
-
+0 0    9 9        18 I   27 R
+1 1   10 A        19 J   28 S
+2 2   11 B        20 K   29 T
+3 3   12 C        21 L   30 U
+4 4   13 D        22 M   31 V
+5 5   14 E        23 N
+6 6   15 F        24 O
+7 7        16 G   25 P
+8 8        17 H   26 Q
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -322,6 +318,5 @@ base32, hex, rfc3548
 Text processing
 .SH COPYRIGHT
 .nf
-Copyright (c) Public domain
-
+Public domain
 .fi

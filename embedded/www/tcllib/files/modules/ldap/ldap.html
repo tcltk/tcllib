@@ -100,11 +100,14 @@
    -->
 <body><div class="doctools">
 <hr> [
-  <a href="../../../../toc.html">Main Table Of Contents</a>
+   <a href="../../../../../../../../home">Tcllib Home</a>
+| <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
-| <a href="/tcllib">Home</a>
-] <hr>
+| <a href="../../../../toc0.html">Categories</a>
+| <a href="../../../../toc1.html">Modules</a>
+| <a href="../../../../toc2.html">Applications</a>
+ ] <hr>
 <h1 class="title">ldap(n) 1.6.9 tcllib &quot;LDAP client&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>ldap - LDAP client</p>
@@ -150,7 +153,7 @@
 <li><a href="#19"><b class="cmd">::ldap::info</b> <b class="cmd">bound</b> <i class="arg">handle</i></a></li>
 <li><a href="#20"><b class="cmd">::ldap::info</b> <b class="cmd">bounduser</b> <i class="arg">handle</i></a></li>
 <li><a href="#21"><b class="cmd">::ldap::info</b> <b class="cmd">connections</b></a></li>
-<li><a href="#22"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key289">tls</a></b> <i class="arg">handle</i></a></li>
+<li><a href="#22"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key287">tls</a></b> <i class="arg">handle</i></a></li>
 <li><a href="#23"><b class="cmd">::ldap::info</b> <b class="cmd">saslmechanisms</b> <i class="arg">handle</i></a></li>
 <li><a href="#24"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../control/control.html">control</a></b> <i class="arg">handle</i></a></li>
 <li><a href="#25"><b class="cmd">::ldap::info</b> <b class="cmd">extensions</b> <i class="arg">extensions</i></a></li>
@@ -179,8 +182,8 @@ establishment definitely failed.</p></dd>
 <dt><a name="2"><b class="cmd">::ldap::secure_connect</b> <i class="arg">host</i> <span class="opt">?<i class="arg">port</i>?</span></a></dt>
 <dd><p>Like <b class="cmd">::ldap::connect</b>, except that the created connection is
 secured by SSL. The port defaults to <b class="const">636</b>.  This command
-depends on the availability of the package <b class="package"><a href="../../../../index.html#key289">TLS</a></b>, which is a
-SSL binding for Tcl. If <b class="package"><a href="../../../../index.html#key289">TLS</a></b> is not available, then this
+depends on the availability of the package <b class="package"><a href="../../../../index.html#key287">TLS</a></b>, which is a
+SSL binding for Tcl. If <b class="package"><a href="../../../../index.html#key287">TLS</a></b> is not available, then this
 command will fail.</p>
 <p>The command blocks until the connection has been established, or
 establishment definitely failed.</p></dd>
@@ -390,7 +393,7 @@ If no bind was done or it failed, a 0 is returned.</p></dd>
 If no bound was done or it failed, an empty string is returned.</p></dd>
 <dt><a name="21"><b class="cmd">::ldap::info</b> <b class="cmd">connections</b></a></dt>
 <dd><p>This command returns all currently existing ldap connection handles.</p></dd>
-<dt><a name="22"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key289">tls</a></b> <i class="arg">handle</i></a></dt>
+<dt><a name="22"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key287">tls</a></b> <i class="arg">handle</i></a></dt>
 <dd><p>This command returns 1 if the ldap connection <i class="arg">handle</i> used TLS/SSL for
 connection via <b class="cmd">ldap::secure_connect</b> or completed <b class="cmd">ldap::starttls</b>, 0 otherwise.</p></dd>
 <dt><a name="23"><b class="cmd">::ldap::info</b> <b class="cmd">saslmechanisms</b> <i class="arg">handle</i></a></dt>
@@ -497,7 +500,7 @@ One know bug is the usage of <b class="cmd"><a href="../../../../index.html#key3
 it currently unsafe to use this code in code that also enters the event loop.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key127">directory access</a>, <a href="../../../../index.html#key122">internet</a>, <a href="../../../../index.html#key124">ldap</a>, <a href="../../../../index.html#key121">ldap client</a>, <a href="../../../../index.html#key125">protocol</a>, <a href="../../../../index.html#key123">rfc 2251</a>, <a href="../../../../index.html#key126">rfc 4511</a>, <a href="../../../../index.html#key128">x.500</a></p>
+<p><a href="../../../../index.html#key135">directory access</a>, <a href="../../../../index.html#key130">internet</a>, <a href="../../../../index.html#key132">ldap</a>, <a href="../../../../index.html#key129">ldap client</a>, <a href="../../../../index.html#key133">protocol</a>, <a href="../../../../index.html#key131">rfc 2251</a>, <a href="../../../../index.html#key134">rfc 4511</a>, <a href="../../../../index.html#key136">x.500</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>

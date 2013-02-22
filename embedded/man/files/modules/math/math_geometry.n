@@ -225,7 +225,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -374,10 +373,7 @@ result of the command.
 Compute the distance between the two points and return it as the
 result of the command. This is in essence the same as
 .CS
-
-
-    math::geometry::length [math::geomtry::- point1 point2]
-
+math::geometry::length [math::geomtry::- point1 point2]
 .CE
 .TP
 \fB::math::geometry::length\fR \fIpoint\fR
@@ -752,5 +748,4 @@ Copyright (c) 2001 by Ideogramic ApS and other parties
 Copyright (c) 2004 by Arjen Markus
 Copyright (c) 2010 by Andreas Kupries
 Copyright (c) 2010 by Kevin Kenny
-
 .fi

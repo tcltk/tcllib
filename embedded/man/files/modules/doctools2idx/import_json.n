@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -283,53 +282,47 @@ the \fBKeyword index serialization format\fR, mapping Tcl
 dictionaries as JSON objects and Tcl lists as JSON arrays.
 For example, the Tcl serialization
 .CS
-
-
 doctools::idx {
-	label {Keyword Index}
-	keywords {
-		changelog  {changelog.man cvs.man}
-		conversion {doctools.man docidx.man doctoc.man apps/dtplite.man mpexpand.man}
-		cvs        cvs.man
-	}
-	references {
-		apps/dtplite.man {manpage dtplite}
-		changelog.man    {manpage doctools::changelog}
-		cvs.man          {manpage doctools::cvs}
-		docidx.man       {manpage doctools::idx}
-		doctoc.man       {manpage doctools::toc}
-		doctools.man     {manpage doctools}
-		mpexpand.man     {manpage mpexpand}
-	}
-	title {}
+label {Keyword Index}
+keywords {
+changelog  {changelog.man cvs.man}
+conversion {doctools.man docidx.man doctoc.man apps/dtplite.man mpexpand.man}
+cvs        cvs.man
 }
-
+references {
+apps/dtplite.man {manpage dtplite}
+changelog.man    {manpage doctools::changelog}
+cvs.man          {manpage doctools::cvs}
+docidx.man       {manpage doctools::idx}
+doctoc.man       {manpage doctools::toc}
+doctools.man     {manpage doctools}
+mpexpand.man     {manpage mpexpand}
+}
+title {}
+}
 .CE
 is equivalent to the JSON string
 .CS
-
-
 {
-    "doctools::idx" : {
-        "label"      : "Keyword Index",
-        "keywords"   : {
-            "changelog"  : ["changelog.man","cvs.man"],
-            "conversion" : ["doctools.man","docidx.man","doctoc.man","apps\\/dtplite.man","mpexpand.man"],
-            "cvs"        : ["cvs.man"],
-        },
-        "references" : {
-            "apps\\/dtplite.man" : ["manpage","dtplite"],
-            "changelog.man"     : ["manpage","doctools::changelog"],
-            "cvs.man"           : ["manpage","doctools::cvs"],
-            "docidx.man"        : ["manpage","doctools::idx"],
-            "doctoc.man"        : ["manpage","doctools::toc"],
-            "doctools.man"      : ["manpage","doctools"],
-            "mpexpand.man"      : ["manpage","mpexpand"]
-        },
-        "title"      : ""
-    }
+"doctools::idx" : {
+"label"      : "Keyword Index",
+"keywords"   : {
+"changelog"  : ["changelog.man","cvs.man"],
+"conversion" : ["doctools.man","docidx.man","doctoc.man","apps\\/dtplite.man","mpexpand.man"],
+"cvs"        : ["cvs.man"],
+},
+"references" : {
+"apps\\/dtplite.man" : ["manpage","dtplite"],
+"changelog.man"     : ["manpage","doctools::changelog"],
+"cvs.man"           : ["manpage","doctools::cvs"],
+"docidx.man"        : ["manpage","doctools::idx"],
+"doctoc.man"        : ["manpage","doctools::toc"],
+"doctools.man"      : ["manpage","doctools"],
+"mpexpand.man"      : ["manpage","mpexpand"]
+},
+"title"      : ""
 }
-
+}
 .CE
 .SH "KEYWORD INDEX SERIALIZATION FORMAT"
 Here we specify the format used by the doctools v2 packages to
@@ -424,5 +417,4 @@ Text formatter plugin
 .SH COPYRIGHT
 .nf
 Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

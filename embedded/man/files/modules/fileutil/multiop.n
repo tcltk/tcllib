@@ -221,7 +221,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -603,60 +602,44 @@ Returns the current path type limiter.
 The following examples assume that the variable \fBF\fR contains a
 reference to a multi-file operation object.
 .CS
-
-
-    $F do copy                       \\\\
-	the  *.dll                    \\\\
-	from c:/TDK/PrivateOpenSSL/bin \\\\
-	to   [installdir_of tls]
-
+$F do copy                       \\\\
+the  *.dll                    \\\\
+from c:/TDK/PrivateOpenSSL/bin \\\\
+to   [installdir_of tls]
 .CE
 .CS
-
-
-    $F do move      \\\\
-	the  *       \\\\
-	from /sources \\\\
-	into /scratch  \\\\
-	but not *.html
-
-    # Alternatively use 'except for *.html'.
-
+$F do move      \\\\
+the  *       \\\\
+from /sources \\\\
+into /scratch  \\\\
+but not *.html
+# Alternatively use 'except for *.html'.
 .CE
 .CS
-
-
-    $F do           \\\\
-	move         \\\\
-	the  index    \\\\
-	from /sources  \\\\
-	into /scratch   \\\\
-	as   pkgIndex.tcl
-
+$F do           \\\\
+move         \\\\
+the  index    \\\\
+from /sources  \\\\
+into /scratch   \\\\
+as   pkgIndex.tcl
 .CE
 .CS
-
-
-    $F do         \\\\
-	remove     \\\\
-	the *.txt  \\\\
-	in /scratch
-
+$F do         \\\\
+remove     \\\\
+the *.txt  \\\\
+in /scratch
 .CE
 Note that the fact that most commands just modify the object state
 allows us to use more off forms as specifications instead of just
 nearly-natural language sentences.
 For example the second example in this section can re-arranged into:
 .CS
-
-
-    $F do            \\\\
-	from /sources \\\\
-	into /scratch  \\\\
-	but not *.html \\\\
-	move           \\\\
-	the  *
-
+$F do            \\\\
+from /sources \\\\
+into /scratch  \\\\
+but not *.html \\\\
+move           \\\\
+the  *
 .CE
 and the result is not only still a valid specification, but even stays
 relatively readable.
@@ -668,17 +651,14 @@ manner, allowing the user to avoid repetitions of unchanging
 information. For example the second and third examples of this section
 can be merged and rewritten into the equivalent:
 .CS
-
-
 $F do                   \\\\
-    move                 \\\\
-    the  *                \\\\
-    from /sources          \\\\
-    into /scratch           \\\\
-    but not *.html not index \\\\
-    the  index               \\\\
-    as   pkgIndex.tcl
-
+move                 \\\\
+the  *                \\\\
+from /sources          \\\\
+into /scratch           \\\\
+but not *.html not index \\\\
+the  index               \\\\
+as   pkgIndex.tcl
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain

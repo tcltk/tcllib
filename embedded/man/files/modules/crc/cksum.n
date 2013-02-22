@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -312,38 +311,26 @@ result is a 32 bit integer value.
 .SH EXAMPLES
 .PP
 .CS
-
-
 % crc::cksum "Hello, World!"
 2609532967
-
 .CE
 .PP
 .CS
-
-
 % crc::cksum -format 0x%X "Hello, World!"
 0x9B8A5027
-
 .CE
 .PP
 .CS
-
-
 % crc::cksum -file cksum.tcl
 1828321145
-
 .CE
 .PP
 .CS
-
-
 % set tok [crc::CksumInit]
 % crc::CksumUpdate $tok "Hello, "
 % crc::CksumUpdate $tok "World!"
 % crc::CksumFinal $tok
 2609532967
-
 .CE
 .SH AUTHORS
 Pat Thoyts
@@ -363,5 +350,4 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002, Pat Thoyts
-
 .fi

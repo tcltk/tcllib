@@ -220,7 +220,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -544,6 +543,9 @@ tcllib
 .TP
 \fBdoctools_plugin_apiref\fR
 \fIfiles/modules/doctools/doctools_plugin_apiref.n\fR: doctools plugin API reference
+.TP
+\fBdtplite\fR
+\fIfiles/modules/dtplite/dtplite.n\fR: Lightweight DocTools Markup Processor
 .TP
 \fBdtplite\fR
 \fIfiles/apps/dtplite.n\fR: Lightweight DocTools Markup Processor

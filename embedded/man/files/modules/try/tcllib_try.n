@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -320,31 +319,25 @@ the new exception's status dictionary under the \fB-during\fR key.
 Ensure that a file is closed no matter what:
 .PP
 .CS
-
-
 set f [open /some/file/name a]
 \fBtry\fR {
-    puts \\$f "some message"
-    # ...
+puts \\$f "some message"
+# ...
 } \fBfinally\fR {
-    close \\$f
+close \\$f
 }
-
 .CE
 .PP
 Handle different reasons for a file to not be openable for reading:
 .PP
 .CS
-
-
 \fBtry\fR {
-    set f [open /some/file/name]
+set f [open /some/file/name]
 } \fBtrap\fR {POSIX EISDIR} {} {
-    puts "failed to open /some/file/name: it's a directory"
+puts "failed to open /some/file/name: it's a directory"
 } \fBtrap\fR {POSIX ENOENT} {} {
-    puts "failed to open /some/file/name: it doesn't exist"
+puts "failed to open /some/file/name: it doesn't exist"
 }
-
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -362,5 +355,4 @@ Utility
 .SH COPYRIGHT
 .nf
 Copyright (c) 2008 Donal K. Fellows, BSD licensed
-
 .fi

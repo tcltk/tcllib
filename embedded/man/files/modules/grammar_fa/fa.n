@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -437,10 +436,7 @@ deleted by this operation.
 This operation is in effect equivalent to
 .sp
 .CS
-
-
-    \fIfaName\fR \fBdeserialize\fR [\fIsrcFA\fR \fBserialize\fR]
-
+\fIfaName\fR \fBdeserialize\fR [\fIsrcFA\fR \fBserialize\fR]
 .CE
 .TP
 \fIfaName\fR \fB-->\fR \fIdstFA\fR
@@ -452,10 +448,7 @@ The old contents of \fIdstFA\fR are deleted by this operation.
 This operation is in effect equivalent to
 .sp
 .CS
-
-
-    \fIdstFA\fR \fBdeserialize\fR [\fIfaName\fR \fBserialize\fR]
-
+\fIdstFA\fR \fBdeserialize\fR [\fIfaName\fR \fBserialize\fR]
 .CE
 .TP
 \fIfaName\fR \fBserialize\fR
@@ -506,25 +499,19 @@ Assuming the following FA (which describes the life of a truck driver
 in a very simple way :)
 .sp
 .CS
-
-
-    Drive -- yellow --> Brake -- red --> (Stop) -- red/yellow --> Attention -- green --> Drive
-    (...) is the start state.
-
+Drive -- yellow --> Brake -- red --> (Stop) -- red/yellow --> Attention -- green --> Drive
+(...) is the start state.
 .CE
 .sp
 a possible serialization is
 .sp
 .CS
-
-
-    grammar::fa \\\\
-    {yellow red green red/yellow} \\\\
-    {Drive     {0 0 {yellow     Brake}} \\\\
-     Brake     {0 0 {red        Stop}} \\\\
-     Stop      {1 0 {red/yellow Attention}} \\\\
-     Attention {0 0 {green      Drive}}}
-
+grammar::fa \\\\
+{yellow red green red/yellow} \\\\
+{Drive     {0 0 {yellow     Brake}} \\\\
+Brake     {0 0 {red        Stop}} \\\\
+Stop      {1 0 {red/yellow Attention}} \\\\
+Attention {0 0 {green      Drive}}}
 .CE
 .sp
 A possible one, because I did not care about creation order here
@@ -737,10 +724,7 @@ Returns the set of states which are not reachable from any start state
 by any number of transitions. This is
 .sp
 .CS
-
-
-	 [faName states] - [faName reachable_states]
-
+[faName states] - [faName reachable_states]
 .CE
 .TP
 \fIfaName\fR \fBreachable\fR \fIs\fR
@@ -758,10 +742,7 @@ Returns the set of states which are not able to reach a final state by
 any number of transitions. This is
 .sp
 .CS
-
-
-	 [faName states] - [faName useful_states]
-
+[faName states] - [faName useful_states]
 .CE
 .TP
 \fIfaName\fR \fBuseful\fR \fIs\fR
@@ -841,7 +822,7 @@ markers, i.e. they are attributes of the nodes.
 FA's are used to process streams of symbols over Sy.
 .PP
 A specific FA is said to \fIaccept\fR a finite stream sy_1 sy_2
-... sy_n if there is a path in the graph of the FA beginning at a
+\... sy_n if there is a path in the graph of the FA beginning at a
 state in St and ending at a state in Fi whose edges have the labels
 sy_1, sy_2, etc. to sy_n.
 The set of all strings accepted by the FA is the \fIlanguage\fR of
@@ -893,5 +874,4 @@ Grammars and finite automata
 .SH COPYRIGHT
 .nf
 Copyright (c) 2004-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

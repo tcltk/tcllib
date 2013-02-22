@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -290,20 +289,15 @@ The construct [ X ] stands for zero or one occurrence of X.
 .PP
 The syntax:
 .CS
-
-
 index     = defs
-            INDEX_BEGIN
-            [ contents ]
-            INDEX_END
-            { <WHITE> }
-
+INDEX_BEGIN
+[ contents ]
+INDEX_END
+{ <WHITE> }
 defs      = { INCLUDE | VSET | <WHITE> }
 contents  = keyword { keyword }
-
 keyword   = defs KEY ref { ref }
 ref       = MANPAGE | URL | defs
-
 .CE
 At last a rule we were unable to capture in the EBNF syntax, as it is
 about the arguments of the markup commands, something which is not
@@ -334,5 +328,4 @@ Documentation tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2007-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

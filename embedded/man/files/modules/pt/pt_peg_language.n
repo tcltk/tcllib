@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -270,12 +269,9 @@ not lend themselves too.
 .SS "BASIC STRUCTURE"
 The general outline of a textual PEG is
 .CS
-
-
 PEG <<name>> (<<start-expression>>)
-   <<rules>>
+<<rules>>
 END;
-
 .CE
 \fINote\fR: We are using text in double angle-brackets as
 place-holders for things not yet explained.
@@ -293,39 +289,27 @@ zero or more letters, digits, underscores, or colons.
 .PP
 Or, in formal textual notation:
 .CS
-
-
-    ([_:] / <alpha>) ([_:] / <alnum>)*
-
+([_:] / <alpha>) ([_:] / <alnum>)*
 .CE
 Examples of names:
 .CS
-
-
-    Hello
-    ::world
-    _:submarine55_
-
+Hello
+::world
+_:submarine55_
 .CE
 Examples of text which are \fInot\fR names:
 .CS
-
-
-    12
-    .bogus
-    0wrong
-    @location
-
+12
+\.bogus
+0wrong
+@location
 .CE
 .SS RULES
 The main body of the text of a grammar specification is taken up by
 the rules. Each rule defines the sentence structure of one nonterminal
 symbol. Their basic structure is
 .CS
-
-
-     <<name>>  <-  <<expression>> ;
-
+<<name>>  <-  <<expression>> ;
 .CE
 The <name> specifies the nonterminal symbol to be defined, the
 <expression> after the arrow (<-) then declares its structure.
@@ -352,46 +336,31 @@ simply placing the parts adjacent to each other.
 Here are the operators, from highest to lowest priority (i.e. strength
 of binding):
 .CS
-
-
-    # Binary operators.
-
-    <<expression-1>>     <<expression-2>>  # sequence. parse 1, then 2.
-    <<expression-1>>  /  <<expression-2>>  # alternative. try to parse 1, and parse 2 if 1 failed to parse.
-
-    # Prefix operators. Lookahead constraints. Same priority.
-
-    & <<expression>>  # Parse expression, ok on successful parse.
-    ! <<expression>>  # Ditto, except ok on failure to parse.
-
-    # Suffix operators. Repetition. Same priority.
-
-    <<expression>> ?  # Parse expression none, or once (repeat 0 or 1).
-    <<expression>> *  # Parse expression zero or more times.
-    <<expression>> +  # Parse expression one or more times.
-
-    # Expression nesting
-
-    ( <<expression>> ) # Put an expression in parens to change its priority.
-
+# Binary operators.
+<<expression-1>>     <<expression-2>>  # sequence. parse 1, then 2.
+<<expression-1>>  /  <<expression-2>>  # alternative. try to parse 1, and parse 2 if 1 failed to parse.
+# Prefix operators. Lookahead constraints. Same priority.
+& <<expression>>  # Parse expression, ok on successful parse.
+! <<expression>>  # Ditto, except ok on failure to parse.
+# Suffix operators. Repetition. Same priority.
+<<expression>> ?  # Parse expression none, or once (repeat 0 or 1).
+<<expression>> *  # Parse expression zero or more times.
+<<expression>> +  # Parse expression one or more times.
+# Expression nesting
+( <<expression>> ) # Put an expression in parens to change its priority.
 .CE
 With this we can now deconstruct the formal expression for names given
 in section \fBNames\fR:
 .CS
-
-
-    ([_:] / <alpha>) ([_:] / <alnum>)*
-
+([_:] / <alpha>) ([_:] / <alnum>)*
 .CE
 It is a sequence of two parts,
 .CS
-
-    [_:] / <alpha>
+[_:] / <alpha>
 .CE
 and
 .CS
-
-    ([_:] / <alnum>)*
+([_:] / <alnum>)*
 .CE
 The parentheses around the parts kept their inner alternatives bound
 together against the normally higher priority of the sequence. Each of
@@ -399,12 +368,9 @@ the two parts is an alternative, with the second part additionally
 repeated zero or more times, leaving us with the three atomic
 expressions
 .CS
-
-
-    [_:]
-    <alpha>
-    <alnum>
-
+[_:]
+<alpha>
+<alnum>
 .CE
 And \fIatomic expressions\fR are our next topic. They
 fall into three classes:
@@ -423,15 +389,12 @@ with) either a single or double-apostroph, and in between the
 delimiters we can have any character but the delimiter itself. They
 can be empty as well. Examples of strings are
 .CS
-
-
-    ''
-    ""
-    'hello'
-    "umbra"
-    "'"
-    '"'
-
+\''
+""
+\'hello'
+"umbra"
+"'"
+\'"'
 .CE
 The last two examples show how to place any of the delimiters into a
 string.
@@ -440,48 +403,36 @@ For the last, but not least of our atomic expressions, character
 classes, we have a number of predefined classes, shown below, and the
 ability to construct or own. The predefined classes are:
 .CS
-
-
-    <alnum>    # Any unicode alphabet or digit character (string is alnum).
-    <alpha>    # Any unicode alphabet character (string is alpha).
-    <ascii>    # Any unicode character below codepoint 0x80 (string is ascii).
-    <control>  # Any unicode control character (string is control).
-    <ddigit>   # The digit characters [0-9].
-    <digit>    # Any unicode digit character (string is digit).
-    <graph>    # Any unicode printing character, except space (string is graph).
-    <lower>    # Any unicode lower-case alphabet character (string is lower).
-    <print>    # Any unicode printing character, incl. space (string is print).
-    <punct>    # Any unicode punctuation character (string is punct).
-    <space>    # Any unicode space character (string is space).
-    <upper>    # Any unicode upper-case alphabet character (string is upper).
-    <wordchar> # Any unicode word character (string is wordchar).
-    <xdigit>   # The hexadecimal digit characters [0-9a-fA-F].
-    .          # Any character, except end of input.
-
+<alnum>    # Any unicode alphabet or digit character (string is alnum).
+<alpha>    # Any unicode alphabet character (string is alpha).
+<ascii>    # Any unicode character below codepoint 0x80 (string is ascii).
+<control>  # Any unicode control character (string is control).
+<ddigit>   # The digit characters [0-9].
+<digit>    # Any unicode digit character (string is digit).
+<graph>    # Any unicode printing character, except space (string is graph).
+<lower>    # Any unicode lower-case alphabet character (string is lower).
+<print>    # Any unicode printing character, incl. space (string is print).
+<punct>    # Any unicode punctuation character (string is punct).
+<space>    # Any unicode space character (string is space).
+<upper>    # Any unicode upper-case alphabet character (string is upper).
+<wordchar> # Any unicode word character (string is wordchar).
+<xdigit>   # The hexadecimal digit characters [0-9a-fA-F].
+\.          # Any character, except end of input.
 .CE
 And the syntax of custom-defined character classes is
 .CS
-
-
-    [ <<range>>* ]
-
+[ <<range>>* ]
 .CE
 where each range is either a single character, or of the form
 .CS
-
-
-   <<character>> - <character>>
-
+<<character>> - <character>>
 .CE
 Examples for character classes we have seen already in the course of
 this introduction are
 .CS
-
-
-    [_:]
-    [0-9]
-    [0-9a-fA-F]
-
+[_:]
+[0-9]
+[0-9a-fA-F]
 .CE
 We are nearly done with expressions. The only piece left is to tell
 how the characters in character classes and string literals are
@@ -497,13 +448,10 @@ unicode codepoint 0x5C). This is then followed by a series of octal
 digits, or 'u' and hexedecimal digits, or a regular character from a
 fixed set for various control characters. Some examples:
 .CS
-
-
-    \\n \\r \\t \\' \\" \\[ \\] \\\\ #
-    \\000 up to \\277         # octal escape, all ascii character, leading 0's can be removed.
-    \\u2CA7                  # hexadecimal escape, all unicode characters.
-    #                       # Here 2ca7 <=> Koptic Small Letter Tau
-
+\\n \\r \\t \\' \\" \\[ \\] \\\\ #
+\\000 up to \\277         # octal escape, all ascii character, leading 0's can be removed.
+\\u2CA7                  # hexadecimal escape, all unicode characters.
+#                       # Here 2ca7 <=> Koptic Small Letter Tau
 .CE
 .SS "WHITESPACE AND COMMENTS"
 One issue not touched upon so far is whitespace and comments.
@@ -521,19 +469,13 @@ etc.
 Lastly, a more advanced topic. In the section \fBRules\fR we gave
 the structure of a rule as
 .CS
-
-
-     <<name>>  <-  <<expression>> ;
-
+<<name>>  <-  <<expression>> ;
 .CE
 This is not quite true. It is possible to associate a semantic mode
 with the nonterminal in the rule, by writing it before the name,
 separated from it by a colon, i.e. writing
 .CS
-
-
-    <<mode>> : <<name>>  <-  <<expression>> ;
-
+<<mode>> : <<name>>  <-  <<expression>> ;
 .CE
 is also allowed. This mode is optional. The known modes and their
 meanings are:
@@ -573,56 +515,45 @@ itself. For a tutorial / introduction to the language please go and
 read the \fIPEG Language Tutorial\fR.
 .PP
 .CS
-
-
 PEG pe-grammar-for-peg (Grammar)
-
-	# --------------------------------------------------------------------
-        # Syntactical constructs
-
-        Grammar         <- WHITESPACE Header Definition* Final EOF ;
-
-        Header          <- PEG Identifier StartExpr ;
-        Definition      <- Attribute? Identifier IS Expression SEMICOLON ;
-        Attribute       <- (VOID / LEAF) COLON ;
-        Expression      <- Sequence (SLASH Sequence)* ;
-        Sequence        <- Prefix+ ;
-        Prefix          <- (AND / NOT)? Suffix ;
-        Suffix          <- Primary (QUESTION / STAR / PLUS)? ;
-        Primary         <- ALNUM / ALPHA / ASCII / CONTROL / DDIGIT / DIGIT
-                        /  GRAPH / LOWER / PRINTABLE / PUNCT / SPACE / UPPER
-                        /  WORDCHAR / XDIGIT
-                        / Identifier
-                        /  OPEN Expression CLOSE
-                        /  Literal
-                        /  Class
-                        /  DOT
-                        ;
-        Literal         <- APOSTROPH  (!APOSTROPH  Char)* APOSTROPH  WHITESPACE
-                        /  DAPOSTROPH (!DAPOSTROPH Char)* DAPOSTROPH WHITESPACE ;
-        Class           <- OPENB (!CLOSEB Range)* CLOSEB WHITESPACE ;
-        Range           <- Char TO Char / Char ;
-
-        StartExpr       <- OPEN Expression CLOSE ;
+# --------------------------------------------------------------------
+# Syntactical constructs
+Grammar         <- WHITESPACE Header Definition* Final EOF ;
+Header          <- PEG Identifier StartExpr ;
+Definition      <- Attribute? Identifier IS Expression SEMICOLON ;
+Attribute       <- (VOID / LEAF) COLON ;
+Expression      <- Sequence (SLASH Sequence)* ;
+Sequence        <- Prefix+ ;
+Prefix          <- (AND / NOT)? Suffix ;
+Suffix          <- Primary (QUESTION / STAR / PLUS)? ;
+Primary         <- ALNUM / ALPHA / ASCII / CONTROL / DDIGIT / DIGIT
+/  GRAPH / LOWER / PRINTABLE / PUNCT / SPACE / UPPER
+/  WORDCHAR / XDIGIT
+/ Identifier
+/  OPEN Expression CLOSE
+/  Literal
+/  Class
+/  DOT
+;
+Literal         <- APOSTROPH  (!APOSTROPH  Char)* APOSTROPH  WHITESPACE
+/  DAPOSTROPH (!DAPOSTROPH Char)* DAPOSTROPH WHITESPACE ;
+Class           <- OPENB (!CLOSEB Range)* CLOSEB WHITESPACE ;
+Range           <- Char TO Char / Char ;
+StartExpr       <- OPEN Expression CLOSE ;
 void:   Final           <- END SEMICOLON WHITESPACE ;
-
-        # --------------------------------------------------------------------
-        # Lexing constructs
-
-        Identifier      <- Ident WHITESPACE ;
+# --------------------------------------------------------------------
+# Lexing constructs
+Identifier      <- Ident WHITESPACE ;
 leaf:   Ident           <- ('_' / ':' / <alpha>) ('_' / ':' / <alnum>)* ;
-        Char            <- CharSpecial / CharOctalFull / CharOctalPart
-                        /  CharUnicode / CharUnescaped
-                        ;
-
+Char            <- CharSpecial / CharOctalFull / CharOctalPart
+/  CharUnicode / CharUnescaped
+;
 leaf:   CharSpecial     <- "\\\\" [nrt'"\\[\\]\\\\] ;
 leaf:   CharOctalFull   <- "\\\\" [0-2][0-7][0-7] ;
 leaf:   CharOctalPart   <- "\\\\" [0-7][0-7]? ;
 leaf:   CharUnicode     <- "\\\\" 'u' HexDigit (HexDigit (HexDigit HexDigit?)?)? ;
 leaf:   CharUnescaped   <- !"\\\\" . ;
-
 void:   HexDigit        <- [0-9a-fA-F] ;
-
 void:   TO              <- '-'           ;
 void:   OPENB           <- "["           ;
 void:   CLOSEB          <- "]"           ;
@@ -644,7 +575,6 @@ leaf:   PLUS            <- "+"     WHITESPACE ;
 void:   OPEN            <- "("     WHITESPACE ;
 void:   CLOSE           <- ")"     WHITESPACE ;
 leaf:   DOT             <- "."     WHITESPACE ;
-
 leaf:   ALNUM           <- "<alnum>"    WHITESPACE ;
 leaf:   ALPHA           <- "<alpha>"    WHITESPACE ;
 leaf:   ASCII           <- "<ascii>"    WHITESPACE ;
@@ -659,51 +589,42 @@ leaf:   SPACE           <- "<space>"    WHITESPACE ;
 leaf:   UPPER           <- "<upper>"    WHITESPACE ;
 leaf:   WORDCHAR        <- "<wordchar>" WHITESPACE ;
 leaf:   XDIGIT          <- "<xdigit>"   WHITESPACE ;
-
 void:   WHITESPACE      <- (" " / "\\t" / EOL / COMMENT)* ;
 void:   COMMENT         <- '#' (!EOL .)* EOL ;
 void:   EOL             <- "\\n\\r" / "\\n" / "\\r" ;
 void:   EOF             <- !. ;
-
-        # --------------------------------------------------------------------
+# --------------------------------------------------------------------
 END;
-
 .CE
 .SS EXAMPLE
 Our example specifies the grammar for a basic 4-operation calculator.
 .PP
 .CS
-
-
 PEG calculator (Expression)
-    Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
-    Sign       <- '-' / '+'                                     ;
-    Number     <- Sign? Digit+                                  ;
-    Expression <- Term (AddOp Term)*                            ;
-    MulOp      <- '*' / '/'                                     ;
-    Term       <- Factor (MulOp Factor)*                        ;
-    AddOp      <- '+'/'-'                                       ;
-    Factor     <- '(' Expression ')' / Number                   ;
+Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
+Sign       <- '-' / '+'                                     ;
+Number     <- Sign? Digit+                                  ;
+Expression <- Term (AddOp Term)*                            ;
+MulOp      <- '*' / '/'                                     ;
+Term       <- Factor (MulOp Factor)*                        ;
+AddOp      <- '+'/'-'                                       ;
+Factor     <- '(' Expression ')' / Number                   ;
 END;
-
 .CE
 .PP
 Using higher-level features of the notation, i.e. the character
 classes (predefined and custom), this example can be rewritten as
 .PP
 .CS
-
-
 PEG calculator (Expression)
-    Sign       <- [-+] 						;
-    Number     <- Sign? <ddigit>+				;
-    Expression <- '(' Expression ')' / (Factor (MulOp Factor)*)	;
-    MulOp      <- [*/]						;
-    Factor     <- Term (AddOp Term)*				;
-    AddOp      <- [-+]						;
-    Term       <- Number					;
+Sign       <- [-+] 						;
+Number     <- Sign? <ddigit>+				;
+Expression <- '(' Expression ')' / (Factor (MulOp Factor)*)	;
+MulOp      <- [*/]						;
+Factor     <- Term (AddOp Term)*				;
+AddOp      <- [-+]						;
+Term       <- Number					;
 END;
-
 .CE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
@@ -720,5 +641,4 @@ Parsing and Grammars
 .SH COPYRIGHT
 .nf
 Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

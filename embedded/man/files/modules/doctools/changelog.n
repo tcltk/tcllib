@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -277,23 +276,20 @@ elements, a list of file names, and a string containing the true
 comment associated with the files of the section.
 .sp
 .CS
-
-
-    {
-	{
-	    date
-	    author
-	    {
-		{
-		    {file ...}
-		    commenttext
-		}
-		...
-	    }
-	}
-	{...}
-    }
-
+{
+{
+date
+author
+{
+{
+{file ...}
+commenttext
+}
+\...
+}
+}
+{...}
+}
 .CE
 .TP
 \fB::doctools::changelog::flatten\fR \fIentries\fR
@@ -332,5 +328,4 @@ Documentation tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2003-2013 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -368,15 +367,10 @@ attack.
 .PP
 .SH EXAMPLES
 .CS
-
-
 % set ciphertext [DES::des -mode cbc -dir encrypt -key $secret $plaintext]
 % set plaintext [DES::des -mode cbc -dir decrypt -key $secret $ciphertext]
-
 .CE
 .CS
-
-
 set iv [string repeat \\\\0 8]
 set Key [DES::Init cbc \\\\0\\\\1\\\\2\\\\3\\\\4\\\\5\\\\6\\\\7 $iv]
 set ciphertext [DES::Encrypt $Key "somedata"]
@@ -384,7 +378,6 @@ append ciphertext [DES::Encrypt $Key "moredata"]
 DES::Reset $Key $iv
 set plaintext [DES::Decrypt $Key $ciphertext]
 DES::Final $Key
-
 .CE
 .SH REFERENCES
 .IP [1]
@@ -415,5 +408,4 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2005, Pat Thoyts <patthoyts@users.sourceforge.net>
-
 .fi
