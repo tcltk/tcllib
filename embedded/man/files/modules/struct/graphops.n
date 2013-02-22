@@ -224,7 +224,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -1473,5 +1472,4 @@ Data structures
 Copyright (c) 2008 Alejandro Paz <vidriloco@gmail.com>
 Copyright (c) 2008 (docs) Andreas Kupries <andreas_kupries@users.sourceforge.net>
 Copyright (c) 2009 Michal Antoniewski <antoniewski.m@gmail.com>
-
 .fi

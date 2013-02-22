@@ -221,7 +221,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -305,10 +304,7 @@ This is a member procedure of the class, as its first argument is
 named \fBthis\fR. It allows a simple access of member data for the
 object referenced by \fBthis\fR inside the procedure. For example:
 .CS
-
-
-   set ($this,data) 0
-
+set ($this,data) 0
 .CE
 .TP
 \fBproc\fR \fIname\fR {?\fIarg arg ...\fR?} \fIbody\fR
@@ -316,10 +312,7 @@ This is a static (as in C++) member procedure of the class, as its
 first argument is not named \fBthis\fR. Static (global) class data
 can be accessed as in:
 .CS
-
-
-   set (data) 0
-
+set (data) 0
 .CE
 .TP
 \fBproc\fR \fIclass\fR {\fBthis copy\fR} \fIbody\fR

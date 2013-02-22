@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -339,17 +338,12 @@ the process of deriving new expressions.
 An example
 .PP
 .CS
-
-
-    Rules
-      (1)  A <- a B c
-      (2a) B <- d B
-      (2b) B <- e
-
-    Some derivations, using starting expression A.
-
-      A -/1/-> a B c -/2a/-> a d B c -/2b/-> a d e c
-
+Rules
+(1)  A <- a B c
+(2a) B <- d B
+(2b) B <- e
+Some derivations, using starting expression A.
+A -/1/-> a B c -/2a/-> a d B c -/2b/-> a d e c
 .CE
 .PP
 A derived expression containing only terminal symbols is a
@@ -454,10 +448,7 @@ deleted by this operation.
 This operation is in effect equivalent to
 .sp
 .CS
-
-
-    \fIpegName\fR \fBdeserialize\fR [\fIsrcPEG\fR \fBserialize\fR]
-
+\fIpegName\fR \fBdeserialize\fR [\fIsrcPEG\fR \fBserialize\fR]
 .CE
 .TP
 \fIpegName\fR \fB-->\fR \fIdstPEG\fR
@@ -469,10 +460,7 @@ The old contents of \fIdstPEG\fR are deleted by this operation.
 This operation is in effect equivalent to
 .sp
 .CS
-
-
-    \fIdstPEG\fR \fBdeserialize\fR [\fIpegName\fR \fBserialize\fR]
-
+\fIdstPEG\fR \fBdeserialize\fR [\fIpegName\fR \fBserialize\fR]
 .CE
 .TP
 \fIpegName\fR \fBserialize\fR
@@ -509,41 +497,35 @@ of the grammar.
 Assuming the following PEG for simple mathematical expressions
 .sp
 .CS
-
-
-    Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'
-    Sign       <- '+' / '-'
-    Number     <- Sign? Digit+
-    Expression <- '(' Expression ')' / (Factor (MulOp Factor)*)
-    MulOp      <- '*' / '/'
-    Factor     <- Term (AddOp Term)*
-    AddOp      <- '+'/'-'
-    Term       <- Number
-
+Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'
+Sign       <- '+' / '-'
+Number     <- Sign? Digit+
+Expression <- '(' Expression ')' / (Factor (MulOp Factor)*)
+MulOp      <- '*' / '/'
+Factor     <- Term (AddOp Term)*
+AddOp      <- '+'/'-'
+Term       <- Number
 .CE
 .sp
 a possible serialization is
 .sp
 .CS
-
-
-    grammar::peg \\\\
-    {Expression {/ {x ( Expression )} {x Factor {* {x MulOp Factor}}}} \\\\
-     Factor     {x Term {* {x AddOp Term}}} \\\\
-     Term       Number \\\\
-     MulOp      {/ * /} \\\\
-     AddOp      {/ + -} \\\\
-     Number     {x {? Sign} {+ Digit}} \\\\
-     Sign       {/ + -} \\\\
-     Digit      {/ 0 1 2 3 4 5 6 7 8 9} \\\\
-    } \\\\
-    {Expression value     Factor     value \\\\
-     Term       value     MulOp      value \\\\
-     AddOp      value     Number     value \\\\
-     Sign       value     Digit      value \\\\
-    }
-    Expression
-
+grammar::peg \\\\
+{Expression {/ {x ( Expression )} {x Factor {* {x MulOp Factor}}}} \\\\
+Factor     {x Term {* {x AddOp Term}}} \\\\
+Term       Number \\\\
+MulOp      {/ * /} \\\\
+AddOp      {/ + -} \\\\
+Number     {x {? Sign} {+ Digit}} \\\\
+Sign       {/ + -} \\\\
+Digit      {/ 0 1 2 3 4 5 6 7 8 9} \\\\
+} \\\\
+{Expression value     Factor     value \\\\
+Term       value     MulOp      value \\\\
+AddOp      value     Number     value \\\\
+Sign       value     Digit      value \\\\
+}
+Expression
 .CE
 .sp
 A possible one, because the order of the nonterminals in the
@@ -815,5 +797,4 @@ Grammars and finite automata
 .SH COPYRIGHT
 .nf
 Copyright (c) 2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

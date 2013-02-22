@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -590,20 +589,14 @@ contains the contents of the row above it, rotated by one cell to the
 right.
 .PP
 .CS
-
-
- % M getrect 0 0 4 4
- {{1 2 3 4 5} {5 1 2 3 4} {4 5 1 2 3} {3 4 5 1 2} {2 3 4 5 1}}
-
+% M getrect 0 0 4 4
+{{1 2 3 4 5} {5 1 2 3 4} {4 5 1 2 3} {3 4 5 1 2} {2 3 4 5 1}}
 .CE
 .PP
 .CS
-
-
- % M setrect 1 1 {{0 0 0} {0 0 0} {0 0 0}}
- % M getrect 0 0 4 4
- {{1 2 3 4 5} {5 0 0 0 4} {4 0 0 0 3} {3 0 0 0 2} {2 3 4 5 1}}
-
+% M setrect 1 1 {{0 0 0} {0 0 0} {0 0 0}}
+% M getrect 0 0 4 4
+{{1 2 3 4 5} {5 0 0 0 4} {4 0 0 0 3} {3 0 0 0 2} {2 3 4 5 1}}
 .CE
 .PP
 Assuming that the style definitions in the example section of the
@@ -613,26 +606,23 @@ report. The code filling the matrix with data is not shown.  contains
 useful data.
 .PP
 .CS
-
-
-    % ::struct::matrix m
-    % # ... fill m with data, assume 5 columns
-    % ::report::report r 5 style captionedtable 1
-    % m format 2string r
-    +---+-------------------+-------+-------+--------+
-    |000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
-    +---+-------------------+-------+-------+--------+
-    |001|CATCH return ok    |7      |13     |53.85   |
-    |002|CATCH return error |68     |91     |74.73   |
-    |003|CATCH no catch used|7      |14     |50.00   |
-    |004|IF if true numeric |12     |33     |36.36   |
-    |005|IF elseif          |15     |47     |31.91   |
-    |   |true numeric       |       |       |        |
-    +---+-------------------+-------+-------+--------+
-    %
-    % # alternate way of doing the above
-    % r printmatrix m
-
+% ::struct::matrix m
+% # ... fill m with data, assume 5 columns
+% ::report::report r 5 style captionedtable 1
+% m format 2string r
++---+-------------------+-------+-------+--------+
+|000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
++---+-------------------+-------+-------+--------+
+|001|CATCH return ok    |7      |13     |53.85   |
+|002|CATCH return error |68     |91     |74.73   |
+|003|CATCH no catch used|7      |14     |50.00   |
+|004|IF if true numeric |12     |33     |36.36   |
+|005|IF elseif          |15     |47     |31.91   |
+|   |true numeric       |       |       |        |
++---+-------------------+-------+-------+--------+
+%
+% # alternate way of doing the above
+% r printmatrix m
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -648,5 +638,4 @@ Data structures
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

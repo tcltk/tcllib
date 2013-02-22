@@ -223,7 +223,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -413,13 +412,10 @@ inverse distance to interpolate in 2D and N-dimensional space
 .sp
 The list xyvalues is a list of lists:
 .CS
-
-
-    {   {x1 y1 z1 {v11 v12 v13 v14}}
-	{x2 y2 z2 {v21 v22 v23 v24}}
-	...
-    }
-
+{   {x1 y1 z1 {v11 v12 v13 v14}}
+{x2 y2 z2 {v21 v22 v23 v24}}
+\...
+}
 .CE
 .IP
 The last element of each inner list is either a single number or a list in itself.
@@ -466,30 +462,22 @@ Example of using the cubic splines:
 .PP
 Suppose the following values are given:
 .CS
-
-
-    x       y
-  0.1     1.0
-  0.3     2.1
-  0.4     2.2
-  0.8     4.11
-  1.0     4.12
-
+x       y
+0.1     1.0
+0.3     2.1
+0.4     2.2
+0.8     4.11
+1.0     4.12
 .CE
 Then to estimate the values at 0.1, 0.2, 0.3, ... 1.0, you can use:
 .CS
-
-
-   set coeffs [::math::interpolate::prepare-cubic-splines  {0.1 0.3 0.4 0.8  1.0}  {1.0 2.1 2.2 4.11 4.12}]
-   foreach x {0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0} {
-      puts "$x: [::math::interpolate::interp-cubic-splines $coeffs $x]"
-   }
-
+set coeffs [::math::interpolate::prepare-cubic-splines  {0.1 0.3 0.4 0.8  1.0}  {1.0 2.1 2.2 4.11 4.12}]
+foreach x {0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0} {
+puts "$x: [::math::interpolate::interp-cubic-splines $coeffs $x]"
+}
 .CE
 to get the following output:
 .CS
-
-
 0.1: 1.0
 0.2: 1.68044117647
 0.3: 2.1
@@ -500,7 +488,6 @@ to get the following output:
 0.8: 4.11
 0.9: 3.95675857843
 1.0: 4.12
-
 .CE
 As you can see, the values at the abscissae are reproduced perfectly.
 .SH "BUGS, IDEAS, FEEDBACK"
@@ -518,5 +505,4 @@ Mathematics
 .nf
 Copyright (c) 2004 Arjen Markus <arjenmarkus@users.sourceforge.net>
 Copyright (c) 2004 Kevn B. Kenny <kennykb@users.sourceforge.net>
-
 .fi

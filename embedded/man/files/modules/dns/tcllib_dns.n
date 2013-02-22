@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -422,8 +421,6 @@ be found then the loopback address (127.0.0.1) is used as a default.
 .SH EXAMPLES
 .PP
 .CS
-
-
 % set tok [dns::resolve www.tcl.tk]
 ::dns::1
 % dns::status $tok
@@ -433,28 +430,21 @@ ok
 % dns::name $tok
 www.tcl.tk
 % dns::cleanup $tok
-
 .CE
 .PP
 Using DNS URIs as queries:
 .CS
-
-
 % set tok [dns::resolve "dns:tcl.tk;type=MX"]
 % set tok [dns::resolve "dns://l.root-servers.net/www.tcl.tk"]
-
 .CE
 .PP
 Reverse address lookup:
 .CS
-
-
 % set tok [dns::resolve 127.0.0.1]
 ::dns::1
 % dns::name $tok
 localhost
 % dns::cleanup $tok
-
 .CE
 .SH REFERENCES
 .IP [1]
@@ -501,5 +491,4 @@ Networking
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002, Pat Thoyts
-
 .fi

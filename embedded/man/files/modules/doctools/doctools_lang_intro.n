@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -261,39 +260,24 @@ rules for a Tcl command apply with regard to word quotation, nested
 commands, continuation lines, etc. I.e.
 .PP
 .CS
-
-
-  ... [list_begin enumerated] ...
-
+\... [list_begin enumerated] ...
 .CE
 .CS
-
-
-  ... [call [cmd foo] \\\\
-          [arg bar]] ...
-
+\... [call [cmd foo] \\\\
+[arg bar]] ...
 .CE
 .CS
-
-
-  ... [term {complex concept}] ...
-
+\... [term {complex concept}] ...
 .CE
 .CS
-
-
-  ... [opt "[arg key] [arg value]"] ...
-
+\... [opt "[arg key] [arg value]"] ...
 .CE
 .SS "BASIC STRUCTURE"
 The most simple document which can be written in doctools is
 .CS
-
-
-    [manpage_begin NAME SECTION VERSION]
-    [description]
-    [manpage_end]
-
+[manpage_begin NAME SECTION VERSION]
+[description]
+[manpage_end]
 .CE
 This also shows us that all doctools documents are split into two
 parts, the \fIheader\fR and the \fIbody\fR. Everything coming before
@@ -330,8 +314,6 @@ in the given order. Regular text is not allowed within the header.
 .PP
 Given the above a less minimal example of a document is
 .CS
-
-
 [manpage_begin NAME SECTION VERSION]
 [\fBcopyright {YEAR AUTHOR}\fR]
 [\fBtitledesc TITLE\fR]
@@ -340,17 +322,13 @@ Given the above a less minimal example of a document is
 [\fBrequire   PACKAGE\fR]
 [description]
 [manpage_end]
-
 .CE
 Remember that the whitespace is optional. The document
 .CS
-
-
-    [manpage_begin NAME SECTION VERSION]
-    [copyright {YEAR AUTHOR}][titledesc TITLE][moddesc MODULE_TITLE]
-    [require PACKAGE VERSION][require PACKAGE][description]
-    [manpage_end]
-
+[manpage_begin NAME SECTION VERSION]
+[copyright {YEAR AUTHOR}][titledesc TITLE][moddesc MODULE_TITLE]
+[require PACKAGE VERSION][require PACKAGE][description]
+[manpage_end]
 .CE
 has the same meaning as the example before.
 .PP
@@ -360,8 +338,6 @@ horizontal and vertical tabs, carriage return, and newline, but it may
 contain comment markup as well, in the form of the \fBcomment\fR
 command.
 .CS
-
-
 [\fBcomment { ... }\fR]
 [manpage_begin NAME SECTION VERSION]
 [copyright {YEAR AUTHOR}]
@@ -372,7 +348,6 @@ command.
 [description]
 [manpage_end]
 [\fBcomment { ... }\fR]
-
 .CE
 .SS "ADVANCED STRUCTURE"
 In the simple examples of the last section we fudged a bit regarding
@@ -384,27 +359,21 @@ and \fBvset\fR are also allowed, to enable the writer to either set
 and/or import configuration settings relevant to the document. I.e. it
 is possible to write
 .CS
-
-
 [\fBinclude FILE\fR]
 [\fBvset VAR VALUE\fR]
 [manpage_begin NAME SECTION VERSION]
 [description]
 [manpage_end]
-
 .CE
 Even more important, these two commands are allowed anywhere where a
 markup command is allowed, without regard for any other
 structure. I.e. for example in the header as well.
 .CS
-
-
 [manpage_begin NAME SECTION VERSION]
 [\fBinclude FILE\fR]
 [\fBvset VAR VALUE\fR]
 [description]
 [manpage_end]
-
 .CE
 The only restriction \fBinclude\fR has to obey is that the contents of
 the included file must be valid at the place of the inclusion. I.e. a
@@ -427,17 +396,14 @@ the next. The first paragraph is automatically opened at the beginning
 of the body, by \fBdescription\fR. In the same manner the last
 paragraph automatically ends at \fBmanpage_end\fR.
 .CS
-
-
 [manpage_begin NAME SECTION VERSION]
 [description]
- ...
+\...
 [\fBpara\fR]
- ...
+\...
 [\fBpara\fR]
- ...
+\...
 [manpage_end]
-
 .CE
 Empty paragraphs are ignored.
 .PP
@@ -453,19 +419,16 @@ automatically ends at \fBmanpage_end\fR.
 Empty sections are \fInot\fR ignored. We are free to (not) use
 paragraphs within sections.
 .CS
-
-
 [manpage_begin NAME SECTION VERSION]
 [description]
- ...
+\...
 [\fBsection {Section A}\fR]
- ...
+\...
 [para]
- ...
+\...
 [\fBsection {Section B}\fR]
- ...
+\...
 [manpage_end]
-
 .CE
 Between sections and paragraphs we have subsections, to split sections.
 The command for doing so is \fBsubsection\fR. Each occurrence of this
@@ -478,23 +441,20 @@ automatically ends at \fBmanpage_end\fR.
 Empty subsections are \fInot\fR ignored. We are free to (not) use
 paragraphs within subsections.
 .CS
-
-
 [manpage_begin NAME SECTION VERSION]
 [description]
- ...
+\...
 [section {Section A}]
- ...
+\...
 [\fBsubsection {Sub 1}\fR]
- ...
+\...
 [para]
- ...
+\...
 [\fBsubsection {Sub 2}\fR]
- ...
+\...
 [section {Section B}]
- ...
+\...
 [manpage_end]
-
 .CE
 .SS "TEXT MARKUP"
 Having handled the overall structure a writer can impose on the
@@ -583,17 +543,13 @@ highlighting added.
 It shows their use within a block of text, as the arguments of a list
 item command (\fBcall\fR), and our ability to nest them.
 .CS
-
-
-  ...
-  [call [\fBcmd arg_def\fR] [\fBarg type\fR] [\fBarg name\fR]] [\fBopt\fR [\fBarg mode\fR]]]
-
-  Text structure. List element. Argument list. Automatically closes the
-  previous list element. Specifies the data-[\fBarg type\fR] of the described
-  argument of a command, its [\fBarg name\fR] and its i/o-[\fBarg mode\fR]. The
-  latter is optional.
-  ...
-
+\...
+[call [\fBcmd arg_def\fR] [\fBarg type\fR] [\fBarg name\fR]] [\fBopt\fR [\fBarg mode\fR]]]
+Text structure. List element. Argument list. Automatically closes the
+previous list element. Specifies the data-[\fBarg type\fR] of the described
+argument of a command, its [\fBarg name\fR] and its i/o-[\fBarg mode\fR]. The
+latter is optional.
+\...
 .CE
 .SS ESCAPES
 Beyond the 20 commands for simple markup shown in the previous section
@@ -608,14 +564,11 @@ impossible to directly use [ and ] within the text.
 Our example of their use are the sources of the last sentence in the
 previous paragraph, with some highlighting added.
 .CS
-
-
-  ...
-  These commands, [cmd lb] and [cmd lb] respectively, are required
-  because our use of [\fBlb\fR] and [\fBrb\fR] to bracket markup commands makes it
-  impossible to directly use [\fBlb\fR] and [\fBrb\fR] within the text.
-  ...
-
+\...
+These commands, [cmd lb] and [cmd lb] respectively, are required
+because our use of [\fBlb\fR] and [\fBrb\fR] to bracket markup commands makes it
+impossible to directly use [\fBlb\fR] and [\fBrb\fR] within the text.
+\...
 .CE
 .SS CROSS-REFERENCES
 The last two commands we have to discuss are for the declaration of
@@ -649,17 +602,14 @@ Our example shows the sources for the cross-references of this
 document, with some highlighting added. Incidentally they are found
 at the end of the body.
 .CS
-
-
-  ...
-  [\fBsee_also doctools_intro\fR]
-  [\fBsee_also doctools_lang_syntax\fR]
-  [\fBsee_also doctools_lang_cmdref\fR]
-  [\fBkeywords markup {semantic markup}\fR]
-  [\fBkeywords {doctools markup} {doctools language}\fR]
-  [\fBkeywords {doctools syntax} {doctools commands}\fR]
-  [manpage_end]
-
+\...
+[\fBsee_also doctools_intro\fR]
+[\fBsee_also doctools_lang_syntax\fR]
+[\fBsee_also doctools_lang_cmdref\fR]
+[\fBkeywords markup {semantic markup}\fR]
+[\fBkeywords {doctools markup} {doctools language}\fR]
+[\fBkeywords {doctools syntax} {doctools commands}\fR]
+[manpage_end]
 .CE
 .SS EXAMPLES
 Where ever we can write plain text we can write examples too. For
@@ -679,21 +629,15 @@ example blocks to read their contents from a file (Remember section
 The source for the very first example in this document (see section
 \fBFundamentals\fR), with some highlighting added, is
 .CS
-
-
-  [\fBexample\fR {
-    ... [list_begin enumerated] ...
-  }]
-
+[\fBexample\fR {
+\... [list_begin enumerated] ...
+}]
 .CE
 Using \fBexample_begin\fR / \fBexample_end\fR this would look like
 .CS
-
-
-  [\fBexample_begin\fR]
-    ... [list_begin enumerated] ...
-  [\fBexample_end\fR]
-
+[\fBexample_begin\fR]
+\... [list_begin enumerated] ...
+[\fBexample_end\fR]
 .CE
 .SS LISTS
 Where ever we can write plain text we can write lists too. The main
@@ -753,48 +697,36 @@ option for a widget, with its name and class in the option database.
 Our example is the source of the definition list in the previous
 paragraph, with most of the content in the middle removed.
 .CS
-
-
-  ...
-  [\fBlist_begin\fR definitions]
-  [\fBdef\fR [const arg]]
-
-  ([cmd arg_def]) This opens an argument (declaration) list. It is a
-  specialized form of a definition list where the term is an argument
-  name, with its type and i/o-mode.
-
-  [\fBdef\fR [const itemized]]
-
-  ([cmd item])
-  This opens a general itemized list.
-
-  ...
-  [\fBdef\fR [const tkoption]]
-
-  ([cmd tkoption_def]) This opens a widget option (declaration) list. It
-  is a specialized form of a definition list where the term is the name
-  of a configuration option for a widget, with its name and class in the
-  option database.
-
-  [\fBlist_end\fR]
-  ...
-
+\...
+[\fBlist_begin\fR definitions]
+[\fBdef\fR [const arg]]
+([cmd arg_def]) This opens an argument (declaration) list. It is a
+specialized form of a definition list where the term is an argument
+name, with its type and i/o-mode.
+[\fBdef\fR [const itemized]]
+([cmd item])
+This opens a general itemized list.
+\...
+[\fBdef\fR [const tkoption]]
+([cmd tkoption_def]) This opens a widget option (declaration) list. It
+is a specialized form of a definition list where the term is the name
+of a configuration option for a widget, with its name and class in the
+option database.
+[\fBlist_end\fR]
+\...
 .CE
 Note that a list cannot begin in one (sub)section and end in
 another. Differently said, (sub)section breaks are not allowed within
 lists and list items. An example of this \fIillegal\fR construct is
 .CS
-
-
-  ...
-  [list_begin itemized]
-  [item]
-  ...
-  [\fBsection {ILLEGAL WITHIN THE LIST}\fR]
-  ...
-  [list_end]
-  ...
-
+\...
+[list_begin itemized]
+[item]
+\...
+[\fBsection {ILLEGAL WITHIN THE LIST}\fR]
+\...
+[list_end]
+\...
 .CE
 .SH "FURTHER READING"
 Now that this document has been digested the reader, assumed to be a
@@ -824,5 +756,4 @@ Documentation tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

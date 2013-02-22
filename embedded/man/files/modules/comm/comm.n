@@ -224,7 +224,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -300,11 +299,8 @@ execution path.
 These commands work just like \fBsend\fR and \fBwinfo interps\fR :
 .PP
 .CS
-
-
-    ::comm::comm send ?-async? id cmd ?arg arg ...?
-    ::comm::comm interps
-
+::comm::comm send ?-async? id cmd ?arg arg ...?
+::comm::comm interps
 .CE
 .PP
 This is all that is really needed to know in order to use
@@ -368,13 +364,10 @@ error.  Note that the equivalent \fBsend\fR command also produces the
 same error.
 .PP
 .CS
-
-
-    % ::comm::comm send id llength {a b c}
-    wrong # args: should be "llength list"
-    % send name llength {a b c}
-    wrong # args: should be "llength list"
-
+% ::comm::comm send id llength {a b c}
+wrong # args: should be "llength list"
+% send name llength {a b c}
+wrong # args: should be "llength list"
 .CE
 .PP
 The \fBeval\fR hook (described below) can be used to change from
@@ -400,19 +393,13 @@ This lists all the channels allocated in this Tcl interpreter.
 The default configuration parameters for a new channel are:
 .PP
 .CS
-
-
-    "-port 0 -local 1 -listen 0 -silent 0"
-
+"-port 0 -local 1 -listen 0 -silent 0"
 .CE
 .PP
 The default channel \fB::comm::comm\fR is created with:
 .PP
 .CS
-
-
-    "::comm::comm new ::comm::comm -port 0 -local 1 -listen 1 -silent 0"
-
+"::comm::comm new ::comm::comm -port 0 -local 1 -listen 1 -silent 0"
 .CE
 .SS "CHANNEL CONFIGURATION"
 .PP
@@ -551,10 +538,7 @@ listening socket, preventing both incoming and outgoing commands on
 the channel.  This sequence reinitializes the default channel:
 .sp
 .CS
-
-
-    "::comm::comm destroy; ::comm::comm new ::comm::comm"
-
+"::comm::comm destroy; ::comm::comm new ::comm::comm"
 .CE
 .PP
 .PP
@@ -603,17 +587,14 @@ This hook is invoked before making a connection to the remote named in
 attempt with the error.  Example:
 .sp
 .CS
-
-
-    % ::comm::comm hook connecting {
-        if {[string match {*[02468]} $id]} {
-            error "Can't connect to even ids"
-        }
-    }
-    % ::comm::comm send 10000 puts ok
-    Connect to remote failed: Can't connect to even ids
-    %
-
+% ::comm::comm hook connecting {
+if {[string match {*[02468]} $id]} {
+error "Can't connect to even ids"
+}
+}
+% ::comm::comm send 10000 puts ok
+Connect to remote failed: Can't connect to even ids
+%
 .CE
 .TP
 \fBconnected\fR
@@ -639,14 +620,11 @@ peer is named by \fIremport\fR and \fIaddr\fR but that the remote
 \fIid\fR is still unknown.  Example:
 .sp
 .CS
-
-
-    ::comm::comm hook incoming {
-        if {[string match 127.0.0.1 $addr]} {
-            error "I don't talk to myself"
-        }
-    }
-
+::comm::comm hook incoming {
+if {[string match 127.0.0.1 $addr]} {
+error "I don't talk to myself"
+}
+}
 .CE
 .TP
 \fBeval\fR
@@ -677,85 +655,67 @@ Examples:
 augmenting a command
 .sp
 .CS
-
-
-    % ::comm::comm send [::comm::comm self] pid
-    5013
-    % ::comm::comm hook eval {puts "going to execute $buffer"}
-    % ::comm::comm send [::comm::comm self] pid
-    going to execute pid
-    5013
-
+% ::comm::comm send [::comm::comm self] pid
+5013
+% ::comm::comm hook eval {puts "going to execute $buffer"}
+% ::comm::comm send [::comm::comm self] pid
+going to execute pid
+5013
 .CE
 .IP [2]
 short circuiting a command
 .sp
 .CS
-
-
-    % ::comm::comm hook eval {puts "would have executed $buffer"; return 0}
-    % ::comm::comm send [::comm::comm self] pid
-    would have executed pid
-    0
-
+% ::comm::comm hook eval {puts "would have executed $buffer"; return 0}
+% ::comm::comm send [::comm::comm self] pid
+would have executed pid
+0
 .CE
 .IP [3]
 Replacing double eval semantics
 .sp
 .CS
-
-
-    % ::comm::comm send [::comm::comm self] llength {a b c}
-    wrong # args: should be "llength list"
-    % ::comm::comm hook eval {return [uplevel #0 $buffer]}
-    return [uplevel #0 $buffer]
-    % ::comm::comm send [::comm::comm self] llength {a b c}
-    3
-
+% ::comm::comm send [::comm::comm self] llength {a b c}
+wrong # args: should be "llength list"
+% ::comm::comm hook eval {return [uplevel #0 $buffer]}
+return [uplevel #0 $buffer]
+% ::comm::comm send [::comm::comm self] llength {a b c}
+3
 .CE
 .IP [4]
 Using a slave interpreter
 .sp
 .CS
-
-
-    % interp create foo
-    % ::comm::comm hook eval {return [foo eval $buffer]}
-    % ::comm::comm send [::comm::comm self] set myvar 123
-    123
-    % set myvar
-    can't read "myvar": no such variable
-    % foo eval set myvar
-    123
-
+% interp create foo
+% ::comm::comm hook eval {return [foo eval $buffer]}
+% ::comm::comm send [::comm::comm self] set myvar 123
+123
+% set myvar
+can't read "myvar": no such variable
+% foo eval set myvar
+123
 .CE
 .IP [5]
 Using a slave interpreter (double eval)
 .sp
 .CS
-
-
-    % ::comm::comm hook eval {return [eval foo eval $buffer]}
-
+% ::comm::comm hook eval {return [eval foo eval $buffer]}
 .CE
 .IP [6]
 Subverting the script to execute
 .sp
 .CS
-
-
-    % ::comm::comm hook eval {
-        switch -- $buffer {
-            a {return A-OK}
-            b {return B-OK}
-            default {error "$buffer is a no-no"}
-        }
-    }
-    % ::comm::comm send [::comm::comm self] pid
-    pid is a no-no
-    % ::comm::comm send [::comm::comm self] a
-    A-OK
-
+% ::comm::comm hook eval {
+switch -- $buffer {
+a {return A-OK}
+b {return B-OK}
+default {error "$buffer is a no-no"}
+}
+}
+% ::comm::comm send [::comm::comm self] pid
+pid is a no-no
+% ::comm::comm send [::comm::comm self] a
+A-OK
 .CE
 .RE
 .TP
@@ -806,16 +766,13 @@ value (or thrown error) is ignored.  \fIreason\fR is an explanatory
 string indicating why the connection was lost.  Example:
 .sp
 .CS
-
-
-    ::comm::comm hook lost {
-        global myvar
-        if {$myvar(id) == $id} {
-            myfunc
-            return
-        }
-    }
-
+::comm::comm hook lost {
+global myvar
+if {$myvar(id) == $id} {
+myfunc
+return
+}
+}
 .CE
 .PP
 .SS UNSUPPORTED
@@ -834,19 +791,16 @@ Invoking this procedure will substitute the Tk \fBsend\fR and
 \fB::comm::comm\fR.
 .sp
 .CS
-
-
-    proc send {args} {
-        eval ::comm::comm send $args
-    }
-    rename winfo tk_winfo
-    proc winfo {cmd args} {
-        if {![string match in* $cmd]} {
-            return [eval [list tk_winfo $cmd] $args]
-        }
-        return [::comm::comm interps]
-    }
-
+proc send {args} {
+eval ::comm::comm send $args
+}
+rename winfo tk_winfo
+proc winfo {cmd args} {
+if {![string match in* $cmd]} {
+return [eval [list tk_winfo $cmd] $args]
+}
+return [::comm::comm interps]
+}
 .CE
 .PP
 .SS SECURITY
@@ -859,16 +813,12 @@ The envisioned main use is the specification of the \fBtls::socket\fR
 command, see package \fBtls\fR, to secure the communication.
 .PP
 .CS
-
-
-	# Load and initialize tls
-	package require tls
-	tls::init  -cafile /path/to/ca/cert -keyfile ...
-
-	# Create secured comm channel
-	::comm::comm new SECURE -socketcmd tls::socket -listen 1
-	...
-
+# Load and initialize tls
+package require tls
+tls::init  -cafile /path/to/ca/cert -keyfile ...
+# Create secured comm channel
+::comm::comm new SECURE -socketcmd tls::socket -listen 1
+\...
 .CE
 .PP
 The sections \fBExecution Environment\fR and \fBCallbacks\fR
@@ -957,31 +907,22 @@ operation, should this be supported by it.
 .sp
 An example:
 .CS
-
-
 # Procedure invoked by remote clients to run database operations.
 proc select {sql} {
-    # Signal the async generation of the result
-
-    set future [::comm::comm return_async]
-
-    # Generate an async db operation and tell it where to deliver the result.
-
-    set query [db query -command [list $future return] $sql]
-
-    # Tell the database system which query to cancel if the connection
-    # goes away while it is running.
-
-    $future configure -command [list db cancel $query]
-
-    # Note: The above will work without problem only if the async
-    # query will nover run its completion callback immediately, but
-    # only from the eventloop. Because otherwise the future we wish to
-    # configure may already be gone. If that is possible use 'catch'
-    # to prevent the error from propagating.
-    return
+# Signal the async generation of the result
+set future [::comm::comm return_async]
+# Generate an async db operation and tell it where to deliver the result.
+set query [db query -command [list $future return] $sql]
+# Tell the database system which query to cancel if the connection
+# goes away while it is running.
+$future configure -command [list db cancel $query]
+# Note: The above will work without problem only if the async
+# query will nover run its completion callback immediately, but
+# only from the eventloop. Because otherwise the future we wish to
+# configure may already be gone. If that is possible use 'catch'
+# to prevent the error from propagating.
+return
 }
-
 .CE
 .sp
 The API of a future object is:
@@ -1012,10 +953,7 @@ protocol.  Minor bug fixes and changes will only affect the minor
 version.  To load \fBcomm\fR this command is usually used:
 .PP
 .CS
-
-
-    package require comm 3
-
+package require comm 3
 .CE
 .PP
 Note that requiring no version (or a specific version) can also be done.
@@ -1151,12 +1089,9 @@ the \fIerrorCode\fR variable.  This means that these commands return
 exactly as they would with \fBsend\fR:
 .sp
 .CS
-
-
-    comm send id break
-    catch {comm send id break}
-    comm send id expr 1 / 0
-
+comm send id break
+catch {comm send id break}
+comm send id expr 1 / 0
 .CE
 .sp
 Added a new hook for reply messages.  Reworked method invocation to
@@ -1261,10 +1196,7 @@ hang when EOF is reached on non-blocking sockets.  This can be
 triggered with a command such as this:
 .PP
 .CS
-
-
-    "comm send $other exit"
-
+"comm send $other exit"
 .CE
 .PP
 Always make sure the channel is quiescent before closing/exiting or
@@ -1305,5 +1237,4 @@ Programming tools
 Copyright (c) 1995-1998 The Open Group. All Rights Reserved.
 Copyright (c) 2003-2004 ActiveState Corporation.
 Copyright (c) 2006-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -301,7 +300,7 @@ If the argument is missing \fB-\fR is assumed.
 .RE
 .PP
 .SS OPERATION
-... reading ... transforming ... writing - plugins - pipeline ...
+\... reading ... transforming ... writing - plugins - pipeline ...
 .SS OPTIONS
 This section describes all the options available to the user of the
 application. Options are always processed in order. I.e. of both
@@ -323,7 +322,6 @@ contain any options at all. They will set the application up as a
 PEG-based parser generator. The exact list of options is
 .PP
 .CS
-
 -c peg
 .CE
 .PP
@@ -463,15 +461,12 @@ expression grammars and writing a packrat parser in Tcl. The actual
 arguments it specifies are:
 .sp
 .CS
-
-
-	--reset
-	--append
-	--reader    peg
-	--transform reach
-	--transform use
-	--writer    me
-
+--reset
+--append
+--reader    peg
+--transform reach
+--transform use
+--writer    me
 .CE
 .sp
 .RE
@@ -644,5 +639,4 @@ Page Parser Generator
 .SH COPYRIGHT
 .nf
 Copyright (c) 2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

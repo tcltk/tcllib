@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -347,22 +346,14 @@ These commands are identical to the MD5 equivalent commands.
 .PP
 .SH EXAMPLES
 .CS
-
-
 % md5::md5 -hex "Tcl does MD5"
 8AAC1EE01E20BB347104FABB90310433
-
 .CE
 .CS
-
-
 % md5::hmac -hex -key Sekret "Tcl does MD5"
 35BBA244FD56D3EDF5F3C47474DACB5D
-
 .CE
 .CS
-
-
 % set tok [md5::MD5Init]
 ::md5::1
 % md5::MD5Update $tok "Tcl "
@@ -370,7 +361,6 @@ These commands are identical to the MD5 equivalent commands.
 % md5::MD5Update $tok "MD5"
 % md5::Hex [md5::MD5Final $tok]
 8AAC1EE01E20BB347104FABB90310433
-
 .CE
 .SH REFERENCES
 .IP [1]
@@ -401,5 +391,4 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2003, Pat Thoyts <patthoyts@users.sourceforge.net>
-
 .fi

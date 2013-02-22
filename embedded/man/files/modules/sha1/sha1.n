@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -349,22 +348,14 @@ These commands are identical to the SHA1 equivalent commands.
 .PP
 .SH EXAMPLES
 .CS
-
-
 % sha1::sha1 "Tcl does SHA1"
 285a6a91c45a9066bf39fcf24425796ef0b2a8bf
-
 .CE
 .CS
-
-
 % sha1::hmac Sekret "Tcl does SHA1"
 ae6251fa51b95b18cba2be95eb031d07475ff03c
-
 .CE
 .CS
-
-
 % set tok [sha1::SHA1Init]
 ::sha1::1
 % sha1::SHA1Update $tok "Tcl "
@@ -372,7 +363,6 @@ ae6251fa51b95b18cba2be95eb031d07475ff03c
 % sha1::SHA1Update $tok "SHA1"
 % sha1::Hex [sha1::SHA1Final $tok]
 285a6a91c45a9066bf39fcf24425796ef0b2a8bf
-
 .CE
 .SH REFERENCES
 .IP [1]
@@ -403,5 +393,4 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2005, Pat Thoyts <patthoyts@users.sourceforge.net>
-
 .fi

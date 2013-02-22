@@ -100,11 +100,14 @@
    -->
 <body><div class="doctools">
 <hr> [
-  <a href="../../../../toc.html">Main Table Of Contents</a>
+   <a href="../../../../../../../../home">Tcllib Home</a>
+| <a href="../../../../toc.html">Main Table Of Contents</a>
 | <a href="../../../toc.html">Table Of Contents</a>
 | <a href="../../../../index.html">Keyword Index</a>
-| <a href="/tcllib">Home</a>
-] <hr>
+| <a href="../../../../toc0.html">Categories</a>
+| <a href="../../../../toc1.html">Modules</a>
+| <a href="../../../../toc2.html">Applications</a>
+ ] <hr>
 <h1 class="title">struct::graph::op(n) 0.11.3 tcllib &quot;Tcl Data Structures&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>struct::graph::op - Operation for (un)directed graph objects</p>
@@ -245,7 +248,7 @@ names of the arcs in <i class="arg">g</i> which span up a minimum weight spannin
 forest (except for the 1-vertex components). Kruskal's algorithm is used
 to compute the tree or forest.
 This algorithm has a time complexity of <i class="term">O(E*log E)</i> or <i class="term">O(E* log V)</i>,
-where <i class="term">V</i> is the number of vertices and <i class="term"><a href="../../../../index.html#key749">E</a></i> is the number of edges
+where <i class="term">V</i> is the number of vertices and <i class="term"><a href="../../../../index.html#key750">E</a></i> is the number of edges
 in graph <i class="arg">g</i>.</p>
 <p>The command will throw an error if one or more arcs in <i class="arg">g</i> have no
 weight associated with them.</p>
@@ -261,7 +264,7 @@ compute the tree or forest.
 This algorithm has a time complexity between <i class="term">O(E+V*log V)</i> and <i class="term">O(V*V)</i>,
 depending on the implementation (Fibonacci heap + Adjacency list versus
 Adjacency Matrix).  As usual <i class="term">V</i> is the number of vertices and
-<i class="term"><a href="../../../../index.html#key749">E</a></i> the number of edges in graph <i class="arg">g</i>.</p>
+<i class="term"><a href="../../../../index.html#key750">E</a></i> the number of edges in graph <i class="arg">g</i>.</p>
 <p>The command will throw an error if one or more arcs in <i class="arg">g</i> have no
 weight associated with them.</p>
 <p>A note regarding the result, the command refrains from explicitly
@@ -375,7 +378,7 @@ graph.</p></dd>
 on relaxation method. In comparison to <b class="cmd">struct::graph::op::dijkstra</b> it doesn't need assumption that all weights
 on edges in input graph <i class="arg">G</i> have to be positive.</p>
 <p>That generality sets the complexity of algorithm to - <i class="term">O(V*E)</i>, where <i class="term">V</i> is the number of vertices
-and <i class="term"><a href="../../../../index.html#key749">E</a></i> is number of edges in graph <i class="arg">G</i>.</p>
+and <i class="term"><a href="../../../../index.html#key750">E</a></i> is number of edges in graph <i class="arg">G</i>.</p>
 <dl class="definitions">
 <dt>Arguments:</dt>
 <dd><dl class="arguments">
@@ -563,7 +566,7 @@ between nodes connected by such edge).</p></dd>
 as they exist, and for each path updating the edge's weights along that path,
 with maximum possible throughput. The final (maximum) flow is found
 when there is no other augumenting path from source to sink.</p>
-<p><em>Note:</em> Algorithm complexity : <i class="term">O(V*E)</i>, where <i class="term">V</i> is the number of nodes and <i class="term"><a href="../../../../index.html#key749">E</a></i> is the number
+<p><em>Note:</em> Algorithm complexity : <i class="term">O(V*E)</i>, where <i class="term">V</i> is the number of nodes and <i class="term"><a href="../../../../index.html#key750">E</a></i> is the number
 of edges in graph <i class="term">G</i>.</p></dd>
 <dt><a name="32"><b class="cmd">struct::graph::op::BusackerGowen</b> <i class="arg">G</i> <i class="arg">desiredFlow</i> <i class="arg">s</i> <i class="arg">t</i></a></dt>
 <dd><p>Algorithm finds solution for a <span class="sectref"><a href="#subsection6">minimum cost flow problem</a></span>. So, the goal is to find a flow,
@@ -612,7 +615,7 @@ for each node <i class="term">v</i>, a list of nodes, which is a path between so
 </dl></dd>
 <dt><a name="34"><b class="cmd">struct::graph::op::BFS</b> <i class="arg">G</i> <i class="arg">s</i> <span class="opt">?<i class="arg">outputFormat</i>...?</span></a></dt>
 <dd><p>Breadth-First Search - algorithm creates the BFS Tree.
-Memory and time complexity: <i class="term">O(V + E)</i>, where <i class="term">V</i> is the number of nodes and <i class="term"><a href="../../../../index.html#key749">E</a></i>
+Memory and time complexity: <i class="term">O(V + E)</i>, where <i class="term">V</i> is the number of nodes and <i class="term"><a href="../../../../index.html#key750">E</a></i>
 is number of edges.</p>
 <dl class="definitions">
 <dt>Arguments:</dt>
@@ -716,7 +719,7 @@ flow</a></span>, which can be used to obtain a <i class="term"><a href="../../..
 and <i class="term">m</i> is the number of edges in flow network <i class="arg">G</i>.</p></dd>
 <dt><a name="39"><b class="cmd">struct::graph::op::BlockingFlowByMKM</b> <i class="arg">G</i> <i class="arg">s</i> <i class="arg">t</i></a></dt>
 <dd><p>Algorithm for given network <i class="arg">G</i> with source <i class="arg">s</i> and sink <i class="arg">t</i>, finds a <span class="sectref"><a href="#subsection6">blocking
-flow</a></span>, which can be used to obtain a <i class="term"><a href="../../../../index.html#key447">maximum flow</a></i> for that <i class="term"><a href="../../../../index.html#key624">network</a></i> <i class="arg">G</i>.</p>
+flow</a></span>, which can be used to obtain a <i class="term"><a href="../../../../index.html#key447">maximum flow</a></i> for that <i class="term"><a href="../../../../index.html#key623">network</a></i> <i class="arg">G</i>.</p>
 <dl class="definitions">
 <dt>Arguments:</dt>
 <dd><dl class="arguments">
@@ -826,7 +829,7 @@ variable <i class="arg">originalEdges</i> the set of arcs that graph <i class="a
 <div id="subsection1" class="subsection"><h3><a name="subsection1">Shortest Path Problem</a></h3>
 <dl class="definitions">
 <dt>Definition (<i class="term">single-pair shortest path problem</i>):</dt>
-<dd><p>Formally, given a weighted graph (let <i class="term">V</i> be the set of vertices, and <i class="term"><a href="../../../../index.html#key749">E</a></i> a set of edges),
+<dd><p>Formally, given a weighted graph (let <i class="term">V</i> be the set of vertices, and <i class="term"><a href="../../../../index.html#key750">E</a></i> a set of edges),
 and one vertice <i class="term">v</i> of <i class="term">V</i>, find a path <i class="term">P</i> from <i class="term">v</i> to a <i class="term">v'</i> of V so that
 the sum of weights on edges along the path is minimal among all paths connecting v to v'.</p></dd>
 <dt>Generalizations:</dt>
@@ -952,7 +955,7 @@ has the smallest possible worth ( <i class="term">v</i> is a node in <i class="t
 The <i class="term">maximum flow problem</i> can be seen as a special case of more complex network flow problems, such as the <i class="term">circulation problem</i>.
 The maximum value of an <i class="term">s-t flow</i> is equal to the minimum capacity of an <i class="term">s-t cut</i> in the network, as stated in the
 <i class="term">max-flow min-cut theorem</i>.</p>
-<p>More formally for flow network <i class="term">G = (V,E)</i>, where for each edge <i class="term">(u, v)</i> we have its throuhgput <i class="term">c(u,v)</i> defined. As <i class="term"><a href="../../../../index.html#key129">flow</a></i>
+<p>More formally for flow network <i class="term">G = (V,E)</i>, where for each edge <i class="term">(u, v)</i> we have its throuhgput <i class="term">c(u,v)</i> defined. As <i class="term"><a href="../../../../index.html#key124">flow</a></i>
 <i class="term">F</i> we define set of non-negative integer attributes <i class="term">f(u,v)</i> assigned to edges, satisfying such conditions:</p>
 <ol class="enumerated">
 <li><p>for each edge <i class="term">(u, v)</i> in <i class="term">G</i> such condition should be satisfied:      0 &lt;= f(u,v) &lt;= c(u,v)</p></li>

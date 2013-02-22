@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -383,39 +382,27 @@ matrix object and \fBdeserialize\fR will be executed.
 In other words
 .sp
 .CS
-
-
-    ::struct::matrix mymatrix = b
-
+::struct::matrix mymatrix = b
 .CE
 .sp
 is equivalent to
 .sp
 .CS
-
-
-    ::struct::matrix mymatrix
-    mymatrix = b
-
+::struct::matrix mymatrix
+mymatrix = b
 .CE
 .sp
 and
 .sp
 .CS
-
-
-    ::struct::matrix mymatrix deserialize $b
-
+::struct::matrix mymatrix deserialize $b
 .CE
 .sp
 is equivalent to
 .sp
 .CS
-
-
-    ::struct::matrix mymatrix
-    mymatrix deserialize $b
-
+::struct::matrix mymatrix
+mymatrix deserialize $b
 .CE
 .PP
 .PP
@@ -430,10 +417,7 @@ this operation.
 This operation is in effect equivalent to
 .sp
 .CS
-
-
-    \fImatrixName\fR \fBdeserialize\fR [\fIsourcematrix\fR \fBserialize\fR]
-
+\fImatrixName\fR \fBdeserialize\fR [\fIsourcematrix\fR \fBserialize\fR]
 .CE
 .TP
 \fImatrixName\fR \fB-->\fR \fIdestmatrix\fR
@@ -445,10 +429,7 @@ The old contents of \fIdestmatrix\fR are deleted by this operation.
 This operation is in effect equivalent to
 .sp
 .CS
-
-
-    \fIdestmatrix\fR \fBdeserialize\fR [\fImatrixName\fR \fBserialize\fR]
-
+\fIdestmatrix\fR \fBdeserialize\fR [\fImatrixName\fR \fBserialize\fR]
 .CE
 .TP
 \fImatrixName\fR \fBadd column\fR ?\fIvalues\fR?
@@ -666,18 +647,15 @@ the matrix can be left out of that value as the size information in
 the serialization allows the receiver the creation of a matrix with
 the proper size despite the missing values.
 .CS
-
-
-    # A possible serialization for the matrix structure
-    #
-    # | a b d g |
-    # | c e     |
-    # | f       |
-    #
-    # is
-    #
-    # 3 4 {{a b d g} {c e} {f}}
-
+# A possible serialization for the matrix structure
+#
+# | a b d g |
+# | c e     |
+# | f       |
+#
+# is
+#
+# 3 4 {{a b d g} {c e} {f}}
 .CE
 .sp
 .TP
@@ -750,20 +728,14 @@ contains the contents of the row above it, rotated by one cell to the
 right.
 .PP
 .CS
-
-
- % M getrect 0 0 4 4
- {{1 2 3 4 5} {5 1 2 3 4} {4 5 1 2 3} {3 4 5 1 2} {2 3 4 5 1}}
-
+% M getrect 0 0 4 4
+{{1 2 3 4 5} {5 1 2 3 4} {4 5 1 2 3} {3 4 5 1 2} {2 3 4 5 1}}
 .CE
 .PP
 .CS
-
-
- % M setrect 1 1 {{0 0 0} {0 0 0} {0 0 0}}
- % M getrect 0 0 4 4
- {{1 2 3 4 5} {5 0 0 0 4} {4 0 0 0 3} {3 0 0 0 2} {2 3 4 5 1}}
-
+% M setrect 1 1 {{0 0 0} {0 0 0} {0 0 0}}
+% M getrect 0 0 4 4
+{{1 2 3 4 5} {5 0 0 0 4} {4 0 0 0 3} {3 0 0 0 2} {2 3 4 5 1}}
 .CE
 .PP
 Assuming that the style definitions in the example section of the
@@ -773,26 +745,23 @@ report. The code filling the matrix with data is not shown.  contains
 useful data.
 .PP
 .CS
-
-
-    % ::struct::matrix m
-    % # ... fill m with data, assume 5 columns
-    % ::report::report r 5 style captionedtable 1
-    % m format 2string r
-    +---+-------------------+-------+-------+--------+
-    |000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
-    +---+-------------------+-------+-------+--------+
-    |001|CATCH return ok    |7      |13     |53.85   |
-    |002|CATCH return error |68     |91     |74.73   |
-    |003|CATCH no catch used|7      |14     |50.00   |
-    |004|IF if true numeric |12     |33     |36.36   |
-    |005|IF elseif          |15     |47     |31.91   |
-    |   |true numeric       |       |       |        |
-    +---+-------------------+-------+-------+--------+
-    %
-    % # alternate way of doing the above
-    % r printmatrix m
-
+% ::struct::matrix m
+% # ... fill m with data, assume 5 columns
+% ::report::report r 5 style captionedtable 1
+% m format 2string r
++---+-------------------+-------+-------+--------+
+|000|VERSIONS:          |2:8.4a3|1:8.4a3|1:8.4a3%|
++---+-------------------+-------+-------+--------+
+|001|CATCH return ok    |7      |13     |53.85   |
+|002|CATCH return error |68     |91     |74.73   |
+|003|CATCH no catch used|7      |14     |50.00   |
+|004|IF if true numeric |12     |33     |36.36   |
+|005|IF elseif          |15     |47     |31.91   |
+|   |true numeric       |       |       |        |
++---+-------------------+-------+-------+--------+
+%
+% # alternate way of doing the above
+% r printmatrix m
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -808,5 +777,4 @@ Data structures
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi

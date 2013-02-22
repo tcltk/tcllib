@@ -222,7 +222,6 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
-.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -486,46 +485,37 @@ set of input documents.  The file extension used is for output in
 HTML, but that is not relevant to the structure and was just used to
 have proper file names.
 .CS
-
-
-    output/
-        toc.html
-        index.html
-        files/
-            path/to/FOO.html
-
+output/
+toc.html
+index.html
+files/
+path/to/FOO.html
 .CE
 .IP
 The last line in the example shows the document
 generated for a file FOO located at
 .CS
-
-
-    inputdirectory/path/to/FOO
-
+inputdirectory/path/to/FOO
 .CE
 .TP
 [3]
 When merging many packages into a unified set of documents the
 generated directory structure is a bit deeper:
 .CS
-
-
-    output
-        .toc
-        .idx
-        .tocdoc
-        .idxdoc
-        .xrf
-        toc.html
-        index.html
-        FOO1/
-            ...
-        FOO2/
-            toc.html
-            files/
-                path/to/BAR.html
-
+output
+\.toc
+\.idx
+\.tocdoc
+\.idxdoc
+\.xrf
+toc.html
+index.html
+FOO1/
+\...
+FOO2/
+toc.html
+files/
+path/to/BAR.html
 .CE
 .IP
 Each of the directories FOO1, ... contains the documents generated for
@@ -561,5 +551,4 @@ Documentation tools
 .SH COPYRIGHT
 .nf
 Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-
 .fi
