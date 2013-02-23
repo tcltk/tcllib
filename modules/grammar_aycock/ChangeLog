@@ -1,3 +1,7 @@
+2013-02-22  Andreas Kupries  <andreask@activestate.com>
+
+	* aycock.man: Fixed outdated doctools markup.
+
 2013-02-08  Andreas Kupries  <andreask@activestate.com>
 
 	* aycock.man: Fixed missing short package title.

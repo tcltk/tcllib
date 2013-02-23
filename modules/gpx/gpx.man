@@ -39,7 +39,7 @@ memory leak could cause a performance hit...or worse.
 This procedure returns a dictionary of the metadata
 associated with the GPX data identified by [arg token].
 The format of the metadata dictionary is described
-below, but keys [strong version] and [strong creator]
+below, but keys [emph version] and [emph creator]
 will always be present.
 
 [call [cmd ::gpx::GetWaypointCount] [arg token]]
