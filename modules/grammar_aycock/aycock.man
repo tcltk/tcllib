@@ -15,7 +15,7 @@ Publication License <http://www.opencontent.org/openpub/>"]
 The [package grammar::aycock] package
 implements a parser generator for the class of parsers described
 in John Aycock and R. Nigel Horspool. Practical Earley Parsing. 
-[emph "The Computer Journal,"] [strong 45](6):620-630, 2002. 
+[emph "The Computer Journal,"] [emph 45](6):620-630, 2002. 
 [uri http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.12.4254]
 [section "PROCEDURES"]
 
@@ -74,16 +74,16 @@ a Tcl list.  The list must be structured as the concatenation of a set
 of [term rule]s. Each [term rule] comprises a variable number of
 elements in the list:
 
-[list_begin bullet]
+[list_begin itemized]
 
-[bullet]The name of the nonterminal symbol that the rule reduces.
+[item] The name of the nonterminal symbol that the rule reduces.
 
-[bullet]The literal string, [const "::="]
+[item] The literal string, [const "::="]
 
-[bullet]Zero or more names of terminal or nonterminal symbols that
+[item] Zero or more names of terminal or nonterminal symbols that
 comprise the right-hand-side of the rule.
 
-[bullet]Finally, a Tcl script to execute when the rule is reduced.
+[item] Finally, a Tcl script to execute when the rule is reduced.
 Within the given script, a variable called [var _] contains a list of
 the semantic values of the symbols on the right-hand side. The value
 returned by the script is expected to be the semantic value of the
