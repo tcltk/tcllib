@@ -1,9 +1,17 @@
 # -*- tcl -*-
-# (C) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# (C) 2006-2013 Andreas Kupries <andreas_kupries@users.sourceforge.net>
 ##
 # ###
 
-namespace eval ::sak::animate {}
+namespace eval ::sak::animate {
+    # EL (Erase Line)
+    #    Sequence: ESC [ n K
+    # ** Effect: if n is 0 or missing, clear from cursor to end of line
+    #    Effect: if n is 1, clear from beginning of line to cursor
+    #    Effect: if n is 2, clear entire line
+
+    variable eeol \033\[K
+}
 
 # ###
 
@@ -11,16 +19,15 @@ proc ::sak::animate::init {} {
     variable prefix
     variable n      0
     variable max    [llength $prefix]
-    variable extend 0
 }
 
 proc ::sak::animate::next {string} {
     variable prefix
     variable n
     variable max
-    Extend string
+    variable eeol
 
-    puts -nonewline stdout \r\[[lindex $prefix $n]\]\ $string
+    puts -nonewline stdout \r\[[lindex $prefix $n]\]\ $string$eeol
     flush           stdout
 
     incr n ; if {$n >= $max} {set n 0}
@@ -29,22 +36,9 @@ proc ::sak::animate::next {string} {
 
 proc ::sak::animate::last {string} {
     variable clear
-    Extend string
 
     puts  stdout \r\[$clear\]\ $string
     flush stdout
-    return
-}
-
-# ###
-
-proc ::sak::animate::Extend {sv} {
-    variable extend
-    upvar 1 $sv string
-
-    set l [string length $string]
-    while {[string length $string] < $extend} {append string " "}
-    if {$l > $extend} {set extend $l}
     return
 }
 
