@@ -1,8 +1,16 @@
+2013-02-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/_nroff.tcl (nroff_postprocess): Followup fixes to
+	* mpformats/fmt.nroff: bugs found in branch "bug-3601370-td",
+	* pkgIndex.tcl: Missing markup of several nroff directives as
+	* doctools.tcl: such. Version bumped to 1.4.15.
+	* doctools.man:
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.15 ========================
-	* 
+	*
 
 2013-01-29  Andreas Kupries  <andreask@activestate.com>
 
@@ -28,7 +36,7 @@
 
 	*
 	* Released and tagged Tcllib 1.14 ========================
-	* 
+	*
 
 2011-11-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -65,7 +73,7 @@
 
 	*
 	* Released and tagged Tcllib 1.13 ========================
-	* 
+	*
 
 2011-01-12  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -106,7 +114,7 @@
 	* mpformats/fmt.html:
 	* mpformats/fmt.nroff:
 	* mpformats/fmt.null:
-	* doctools.man: 
+	* doctools.man:
 	* pkgIndex.tcl:
 	* doctools.tcl:
 
@@ -158,8 +166,8 @@
 	* docidx.man: Added missing dt_package and restricted 'file'
 	* docidx.tcl: support to doctool::toc and doctools::idx. Versions
 	* doctoc.man: bumped to 1.1.3 and 1.0.4.
-	* doctoc.tcl: 
-	* pkgIndex.tcl: 
+	* doctoc.tcl:
+	* pkgIndex.tcl:
 
 	* mpformats/toc.text: Fixed command names using various textutil
 	* mpformats/idx.text: functionality.
@@ -175,7 +183,7 @@
 2010-02-04  Andreas Kupries  <andreask@activestate.com>
 
 	* doctools.tcl: Extended with new plugin API command
-	* doctools.man: [dt_mainfile], which always returns 
+	* doctools.man: [dt_mainfile], which always returns
 	* doctools_plugin_apiref.man: the toplevel file currently
 	* pkgIndex.tcl: processed, in contrast to [dt_file] which
 	  returns the currently processed file, which may be included.
@@ -188,7 +196,7 @@
 2009-12-09  Andreas Kupries  <andreask@activestate.com>
 
 	* doctools.tcl: Bumped version to 1.4.4.
-	* doctools.man: 
+	* doctools.man:
 	* pkgIndex.tcl:
 
 	* mpformats/fmt.html: Extended to support the engine variable
@@ -215,7 +223,7 @@
 
 	*
 	* Released and tagged Tcllib 1.12 ========================
-	* 
+	*
 
 2009-07-21  Andreas Kupries  <andreask@activestate.com>
 
@@ -279,7 +287,7 @@
 	* doctools_plugin_apiref.man: <stwo@users.sourceforge.net> did the
 	* mpformats/_nroff.tcl: work and provided the patches as part of
 	* mpformats/fmt.nroff: his effort on making a Tcllib OpenBSD port.
-	* mpformats/idx.nroff: 
+	* mpformats/idx.nroff:
 	* mpformats/toc.nroff:
 
 2009-01-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
@@ -318,13 +326,13 @@
 
 	*
 	* Released and tagged Tcllib 1.11.1 ========================
-	* 
+	*
 
 2008-12-01  Andreas Kupries  <andreask@activestate.com>
 
 	* doctools.tcl: New command in doctools language is extended API.
 	* doctools.man: Bumped minor version, to 1.4.
-	* pkgIndex.tcl: 
+	* pkgIndex.tcl:
 
 2008-11-26  Andreas Kupries  <andreask@activestate.com>
 
@@ -357,7 +365,7 @@
 
 	*
 	* Released and tagged Tcllib 1.11 ========================
-	* 
+	*
 
 2008-07-08  Andreas Kupries  <andreask@activestate.com>
 
@@ -388,7 +396,7 @@
 2008-05-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* doctools.tcl: Bumped version to 1.3.4.
-	* doctools.man: 
+	* doctools.man:
 	* pkgIndex.tcl:
 
 	* checker.tcl: Reworked the (sub)section handling, enabled the
@@ -413,7 +421,7 @@
 	* mpformats/fmt.html: Updated the backends for the changes in the
 	* mpformats/fmt.latex: frontend/backend API, and updated testsuite
 	* mpformats/fmt.nroff: results.
-	* mpformats/fmt.text: 
+	* mpformats/fmt.text:
 	* mpformats/fmt.tmml:
 	* mpformats/fmt.wiki:
 	* mpformats/_common.tcl:
@@ -523,12 +531,12 @@
 
 	* tests/man/02: Added see_also and keyword references to this
 	* tests/html/02: example. Updated all changed results.
-	* tests/latex/02: 
-	* tests/list/02: 
-	* tests/nroff/02: 
-	* tests/text/02: 
-	* tests/tmml/02: 
-	* tests/wiki/02: 
+	* tests/latex/02:
+	* tests/list/02:
+	* tests/nroff/02:
+	* tests/text/02:
+	* tests/tmml/02:
+	* tests/wiki/02:
 
 2008-04-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -713,7 +721,7 @@
 
 	* mpformats/fmt.nroff: Fixed argument swap in fmt_arg_def, fixing
 	  [SF Tcllib Bug 1800420].
-	
+
 	* mpformats/fmt.html: Handled [SF Tcllib Bug 1800408] and [SF
 	  Tcllib Bug 411], removing superfluous whitespace around link
 	  text and adding more class names to semantic markup.
@@ -732,7 +740,7 @@
 
 	*
 	* Released and tagged Tcllib 1.10 ========================
-	* 
+	*
 
 2007-08-20  Andreas Kupries  <andreask@activestate.com>
 
@@ -799,7 +807,7 @@
 	* checker_toc.tcl: Language change (doctoc, docidx). Comments in
 	* checker_idx.tcl: the input are now swallowed by the checker
 	  layer and not propagated to the backend anymore.
-	
+
 	* checker.tcl: Language changes.
 	  -- Comments are swallowed, backends do not see them anymore.
 	  -- 'require'ments an now go everywhere in the header, not only
@@ -826,7 +834,7 @@
 	  warnings. This means that the language after the changes is a
 	  proper superset of the language before it. Old documents can be
 	  processed just fine with the new code.
-	
+
 	* mpformats/fmt.html: Use the new list types for translation.
 	* mpformats/fmt.latex:
 	* mpformats/fmt.text:
@@ -853,7 +861,7 @@
 	  updated for the new functionality, and fixed all warnings due to
 	  use of deprecated commands and list types. Added a section on
 	  how to give feedback.
-	
+
 	* cvs.man: Fixed all warnings due to use of deprecated commands
 	* changelog.man: and list types, tweaked the titles, and added
 	  sections about how to give feedback.
@@ -905,7 +913,7 @@
 
 	*
 	* Released and tagged Tcllib 1.9 ========================
-	* 
+	*
 
 2006-10-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -916,7 +924,7 @@
 2006-09-19  Andreas Kupries  <andreask@activestate.com>
 
 	* doctools.man: Bumped version to 1.2.1
-	* doctools.tcl: 
+	* doctools.tcl:
 	* pkgIndex.tcl:
 
 2006-08-10  Andreas Kupries <andreask@activestate.com>
@@ -957,7 +965,7 @@
 
 	*
 	* Released and tagged Tcllib 1.8 ========================
-	* 
+	*
 
 2005-10-03  Andreas Kupries <andreask@activestate.com>
 
@@ -985,8 +993,8 @@
 	* doctoc.test:
 
 	* doctools.tcl: Typo police.
-	* docidx.tcl: 
-	* doctoc.tcl: 
+	* docidx.tcl:
+	* doctoc.tcl:
 
 2005-02-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -1023,7 +1031,7 @@
 
 	*
 	* Released and tagged Tcllib 1.7 ========================
-	* 
+	*
 
 2004-09-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -1065,13 +1073,13 @@
 2004-07-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* docidx_fmt.man: More overhaul.
-	* docidx_api.man: 
-	* doctoc_fmt.man: 
-	* doctoc_api.man: 
-	* doctoc.man: 
-	* doctools_fmt.man: 
-	* doctools_api.man: 
-	* doctools.man: 
+	* docidx_api.man:
+	* doctoc_fmt.man:
+	* doctoc_api.man:
+	* doctoc.man:
+	* doctools_fmt.man:
+	* doctools_api.man:
+	* doctools.man:
 	* changelog.man:
 	* cvs.man:
 
@@ -1084,7 +1092,7 @@
 	  ripped it out. Is not needed, the formatting engine does the
 	  necessary parts for us, if we feed it the correct -file
 	  options. This kills the outstanding bug with xref links.
-	
+
 	* ../../apps/dtplite: Bugfix. Added checks to prevent duplicate
 	  entries in the keyword index. Without these checks going through
 	  a set of packages twice for merging will create double links for
@@ -1093,8 +1101,8 @@
 	  duplicates around.
 
 	* docidx.man:    Overhaul of documentation.
-	* cvs.man: 
-	* changelog.man: 
+	* cvs.man:
+	* changelog.man:
 
 2004-07-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -1103,7 +1111,7 @@
 
 	* doctools.tcl: Changed processing of error messages so that
 	* doctoc.tcl:   we don't loose the location information.
-	* docidx.tcl: 
+	* docidx.tcl:
 
 2004-07-22  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -1166,11 +1174,11 @@
 
 	*
 	* Released and tagged Tcllib 1.6.1 ========================
-	* 
+	*
 
 2004-05-23  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* doctools.tcl: Rel. engineering. Updated version number 
+	* doctools.tcl: Rel. engineering. Updated version number
 	* doctools.man: of doctools to reflect its changes, to 1.0.2.
 	* pkgIndex.tcl:
 
@@ -1190,10 +1198,10 @@
 	* mpformats/fmt.html:    For HTML output subsections are added to
 	* mpformats/fmt.latex:   the TOC (See [SF Tcllib RFE 772491] below)
 	* mpformats/fmt.nroff:   as well.
-	* mpformats/fmt.null: 
-	* mpformats/fmt.text: 
-	* mpformats/fmt.tmml: 
-	* mpformats/fmt.wiki: 
+	* mpformats/fmt.null:
+	* mpformats/fmt.text:
+	* mpformats/fmt.tmml:
+	* mpformats/fmt.wiki:
 
 2004-05-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -1232,12 +1240,12 @@
 2004-04-22  Joe English  <jenglish@users.sourceforge.net>
 
 	* mpformats/fmt.xml: BUGFIX: "puts stderr" ==> "puts_stderr".
-	
+
 2004-02-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.6 ========================
-	* 
+	*
 
 2004-02-09  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -1271,7 +1279,7 @@
 
 	*
 	* Released and tagged Tcllib 1.4 ========================
-	* 
+	*
 
 2003-04-01  Andreas Kupries  <andreask@activestate.com>
 
@@ -1287,8 +1295,8 @@
 	  can use 'textutil' too.
 
 	* mpformats/_text.tcl:
-	* mpformats/fmt.text: 
-	* mpformats/toc.text: 
+	* mpformats/fmt.text:
+	* mpformats/toc.text:
 	* mpformats/idx.text: Bug fixes.
 
 2003-03-31  Andreas Kupries  <andreask@activestate.com>
@@ -1369,7 +1377,7 @@
 
 	* doctoc.tcl:   Bug fixes in three return statemments.
 	* docidx.tcl:   (return -code error string, not return -code string)
-	* doctools.tcl: 
+	* doctools.tcl:
 
 2003-03-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -1462,7 +1470,7 @@
 	* mpformats/_toc_common.tcl: generate output in various formats.
 	* mpformats/toc.html:        This required additional checker code
 	* mpformats/toc.nroff:       and more messages in the message
-	* mpformats/toc.null:        catalogs. 
+	* mpformats/toc.null:        catalogs.
 	* mpformats/toc.tmml:
 	* mpformats/toc.wiki:
 	* pkgIndex.tcl:
@@ -1515,11 +1523,11 @@
 	* mpformats/fmt.null:  mpexpand) renamed to -deprecated. Message
 	* mpformats/fmt.list:  'visualmarkup' removed from the catalogs,
 	* mpformats/c.msg:     and 'depr_strong' added instead.
-	* mpformats/en.msg: 
-	* mpformats/de.msg: 
-	* checker.tcl: 
-	* doctools.tcl: 
-	* mpexpand: 
+	* mpformats/en.msg:
+	* mpformats/de.msg:
+	* checker.tcl:
+	* doctools.tcl:
+	* mpexpand:
 
 	* doctools.man:    Updated, converted [strong] to better
 	* dtformat.man:    formatting commands. Ditto for all manpages
@@ -1536,13 +1544,13 @@
 	* mpformats/fmt.html:  Removed the phrase 'All rights reserved'
 	* mpformats/fmt.latex: from the code, on recommendation by
 	* mpformats/fmt.nroff: Joe English.
-	* mpformats/fmt.wiki: 
+	* mpformats/fmt.wiki:
 
 	(In the way to early morrow :)
 	* mpformats/fmt.html:  Changed to display copyright information in
 	* mpformats/fmt.latex: the conversion result itself and not only
 	* mpformats/fmt.nroff: embedded in comments.
-	* mpformats/fmt.wiki: 
+	* mpformats/fmt.wiki:
 
 2003-01-14  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
@@ -1559,9 +1567,9 @@
 	* mpformats/fmt.null:    to handle the new command. TMML done only
 	* mpformats/fmt.tmml:    partially, as I don't know where the copy-
 	* mpformats/fmt.wiki:    right has to go.
-	* mpformats/_common.tcl: 
-	* mpformats/_html.tcl:   
-	* mpformats/_nroff.tcl:  
+	* mpformats/_common.tcl:
+	* mpformats/_html.tcl:
+	* mpformats/_nroff.tcl:
 	* mpexpand:
 
 2003-01-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
@@ -1623,7 +1631,7 @@
 
 2002-06-06  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* mpformats/fmt.html: 
+	* mpformats/fmt.html:
 	* mpformats/_html.tcl: Added the missing handling of " (&quot;) to
 	  the format.
 
@@ -1634,7 +1642,7 @@
 	  trouble spot should tcl ever be more strict with 'args'.
 
 2002-05-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
-	
+
 	* mpformats/fmt.nroff: Accepted patch for bug #556509, both by Joe
 	  English <jenglish@users.sourceforge.net>.
 
@@ -1664,14 +1672,14 @@
 
 2002-04-24  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* mpformats/fmt.html: 
+	* mpformats/fmt.html:
 	* mpformats/_html.tcl: Changes analogous to TMML (see below) to
 	  differentiate internal markup and external special characters.
 
 2002-04-24  Joe English  <jenglish@users.sourceforge.net>
 
 	* mpformats/_xml.tcl
-	* mpformats/fmt.tmml: Correctly handles XML markup characters 
+	* mpformats/fmt.tmml: Correctly handles XML markup characters
 	  in macro arguments.  Also correctly escapes apostrophes
 	  in attribute values (previously-unnoticed bug).
 	* mpformats/fmt.tmml: TMML uses <url> instead of <uri>, and
@@ -1693,8 +1701,8 @@
 
 2002-04-02  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	* mpformats/en.msg: 
-	* mpformats/c.msg: 
+	* mpformats/en.msg:
+	* mpformats/c.msg:
 	* mpformats/de.msg: Added the messages required by the new code
 	  below.
 
@@ -1718,12 +1726,12 @@
 
 	* mpformats/fmt.html: Changed uri formatting to be a link.
 
-	* mpformats/fmt.tmml: 
-	* mpformats/fmt.html: 
-	* mpformats/fmt.nroff: 
-	* mpformats/fmt.latex: 
-	* mpformats/fmt.list: 
-	* mpformats/fmt.null: 
+	* mpformats/fmt.tmml:
+	* mpformats/fmt.html:
+	* mpformats/fmt.nroff:
+	* mpformats/fmt.latex:
+	* mpformats/fmt.list:
+	* mpformats/fmt.null:
 	* mpformats/_api.tcl: Added formatting commands "term" and "const"
 	  to allow the structural markup of non-specific terminology and
 	  of constant values.
@@ -1783,9 +1791,9 @@
 
 	* mpformats/fmt.null: Null format, does not produce any output.
 
-	* mpformats/fmt.tmml: 
-	* mpformats/fmt.nroff: 
-	* mpformats/fmt.latex: 
+	* mpformats/fmt.tmml:
+	* mpformats/fmt.nroff:
+	* mpformats/fmt.latex:
 	* mpformats/fmt.html:
 	* mpformats/fmt.list: Implementations of the new command.
 

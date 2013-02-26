@@ -1337,4 +1337,4 @@ namespace eval ::doctools {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools 1.4.14
+package provide doctools 1.4.15
