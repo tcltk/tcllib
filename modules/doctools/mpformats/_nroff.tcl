@@ -15,7 +15,7 @@
 
 
 proc nr_lp      {}          {return \n\1.LP}
-proc nr_ta      {{text {}}} {return ".ta$text"}
+proc nr_ta      {{text {}}} {return "\1.ta$text"}
 proc nr_bld     {}          {return \1\\fB}
 proc nr_bldt    {t}         {return "\n\1.B $t\n"}
 proc nr_ul      {}          {return \1\\fI}
@@ -103,12 +103,14 @@ proc nroff_postprocess {nroff} {
     # - Exceptions to the above: Keep empty lines and leading
     #   whitespace when in verbatim sections (no-fill-mode)
 
-    set nfMode   [list .nf .CS]	; # commands which start no-fill mode
-    set fiMode   [list .fi .CE]	; # commands which terminate no-fill mode
+    set nfMode   [list \1.nf \1.CS]	; # commands which start no-fill mode
+    set fiMode   [list \1.fi \1.CE]	; # commands which terminate no-fill mode
     set lines    [list]         ; # Result buffer
     set verbatim 0              ; # Automaton mode/state
 
     foreach line [split $nroff "\n"] {
+	#puts_stderr |[expr {$verbatim ? "VERB" : "    "}]|$line|
+
 	if {!$verbatim} {
 	    # Normal lines, not in no-fill mode.
 
@@ -136,16 +138,17 @@ proc nroff_postprocess {nroff} {
 
 		set last  [lindex   $lines end]
 		if { ! [string match "\1.*" $last] } {
+		    #puts_stderr \tLIFT
 		    set lines [lreplace $lines end end]
 		    set line "$last $line"
 		}
 	    } elseif {[string match {['.]*} $line]} {
-		# Apostrophes or periods at the beginning of a line have to
-		# quoted to prevent misinterpretation as comments or directives.
-		# The true comments and directive are quoted with \1
-		# already and will therefore not detected by the code
-		# here.
-
+		# Apostrophes or periods at the beginning of a line
+		# have to be quoted to prevent misinterpretation as
+		# comments or directives.  The true comments and
+		# directive are quoted with \1 already and will
+		# therefore not detected by the code here.
+		#puts_stderr \tQUOTE
 		set line \1\\$line
 	    }
 	} else {
@@ -166,10 +169,11 @@ proc nroff_postprocess {nroff} {
     # Remove superfluous .IP commands (empty paragraph). The first
     # identity mapping is there to avoid smashing a man macro
     # definition.
-    set lines [string map [list \
-	       \n\1.IP\n\1..\n  \n\1.IP\n\1..\n \
-	       \n\1.IP\n\1.     \n\1.] \
-	   $lines]
+
+    lappend map	\n\1.IP\n\1.\1.\n  \n\1.IP\n\1.\1.\n
+    lappend map \n\1.IP\n\1.       \n\1.
+
+    set lines [string map $map $lines]
 
     # Return the modified result buffer
     return [string map $finalMap $lines]
