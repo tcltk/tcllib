@@ -1,9 +1,9 @@
 '\"
-'\" Generated from file '.FILE.' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) .COPYRIGHT.
+'\" Generated from file '\&.FILE\&.' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) \&.COPYRIGHT\&.
 '\"
 .so man.macros
-.TH "TEST" z 3.14.15.926 .MODULE. ""
+.TH "TEST" z 3\&.14\&.15\&.926 \&.MODULE\&. ""
 .BS
 .SH NAME
 TEST \-
@@ -50,6 +50,6 @@ c
 .PP
 .SH COPYRIGHT
 .nf
-Copyright (c) .COPYRIGHT.
+Copyright (c) \&.COPYRIGHT\&.
 
 .fi

@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/pki/pki.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/pki/pki\&.n' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2010, 2011, 2012, 2013, Roy Keene, Andreas Kupries
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "pki" n 0.6 tcllib "public key encryption"
+.TH "pki" n 0\&.6 tcllib "public key encryption"
 .BS
 .SH NAME
 pki \- Implementation of the public key cipher
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
-package require \fBpki  ?0.6?\fR
+package require \fBpki  ?0\&.6?\fR
 .sp
 \fB::pki::encrypt\fR ?\fI-binary\fR? ?\fI-hex\fR? ?\fI-pad\fR? ?\fI-nopad\fR? ?\fI-priv\fR? ?\fI-pub\fR? ?\fI--\fR? \fIinput\fR \fIkey\fR
 .sp
@@ -278,24 +279,24 @@ package require \fBpki  ?0.6?\fR
 .SH COMMANDS
 .TP
 \fB::pki::encrypt\fR ?\fI-binary\fR? ?\fI-hex\fR? ?\fI-pad\fR? ?\fI-nopad\fR? ?\fI-priv\fR? ?\fI-pub\fR? ?\fI--\fR? \fIinput\fR \fIkey\fR
-Encrypt a message using PKI (probably RSA).
+Encrypt a message using PKI (probably RSA)\&.
 Requires the caller to specify either \fB-priv\fR to encrypt with
-the private key or \fB-pub\fR to encrypt with the public key.  The
-default option is to pad and return in hex.  One of \fB-pub\fR or
-\fB-priv\fR must be specified.
+the private key or \fB-pub\fR to encrypt with the public key\&.  The
+default option is to pad and return in hex\&.  One of \fB-pub\fR or
+\fB-priv\fR must be specified\&.
 The \fB-hex\fR option causes the data to be returned in encoded as
 a hexidecimal string, while the \fB-binary\fR option causes the data
-to be returned as a binary string.  If they are specified multiple
-times, the last one specified is used.
+to be returned as a binary string\&.  If they are specified multiple
+times, the last one specified is used\&.
 The \fB-pad\fR option causes the data to be padded per PKCS#1 prior
-to being encrypted.  The \fB-nopad\fR inhibits this behaviour.  If
-they are specified multiple times, the last one specified is used.
-The input to encrypt is specified as \fIinput\fR.
+to being encrypted\&.  The \fB-nopad\fR inhibits this behaviour\&.  If
+they are specified multiple times, the last one specified is used\&.
+The input to encrypt is specified as \fIinput\fR\&.
 The \fIkey\fR parameter, holding the key to use, is a return value
 from either
 \fB::pki::pkcs::parse_key\fR,
 \fB::pki::x509::parse_cert\fR, or
-\fB::pki::rsa::generate\fR.
+\fB::pki::rsa::generate\fR\&.
 .sp
 Mapping to OpenSSL's \fBopenssl\fR application:
 .RS
@@ -306,7 +307,7 @@ Mapping to OpenSSL's \fBopenssl\fR application:
 .RE
 .TP
 \fB::pki::decrypt\fR ?\fI-binary\fR? ?\fI-hex\fR? ?\fI-unpad\fR? ?\fI-nounpad\fR? ?\fI-priv\fR? ?\fI-pub\fR? ?\fI--\fR? \fIinput\fR \fIkey\fR
-Decrypt a message using PKI (probably RSA). See \fB::pki::encrypt\fR for option handling.
+Decrypt a message using PKI (probably RSA)\&. See \fB::pki::encrypt\fR for option handling\&.
 .sp
 Mapping to OpenSSL's \fBopenssl\fR application:
 .RS
@@ -317,35 +318,35 @@ Mapping to OpenSSL's \fBopenssl\fR application:
 .RE
 .TP
 \fB::pki::sign\fR \fIinput\fR \fIkey\fR ?\fIalgo\fR?
-Digitally sign message \fIinput\fR using the private \fIkey\fR.  If \fIalgo\fR
-is ommited "sha1" is assumed.  Possible values for \fIalgo\fR include
-"md5", "sha1", "sha256", and "raw".  Specifyin "raw" for \fIalgo\fR will
-inhibit the building of an ASN.1 structure to encode which hashing
-algorithm was chosen.
-The \fIinput\fR should be the plain text, hashing will be performed on it.
-The \fIkey\fR should include the private key.
+Digitally sign message \fIinput\fR using the private \fIkey\fR\&.  If \fIalgo\fR
+is ommited "sha1" is assumed\&.  Possible values for \fIalgo\fR include
+"md5", "sha1", "sha256", and "raw"\&.  Specifyin "raw" for \fIalgo\fR will
+inhibit the building of an ASN\&.1 structure to encode which hashing
+algorithm was chosen\&.
+The \fIinput\fR should be the plain text, hashing will be performed on it\&.
+The \fIkey\fR should include the private key\&.
 .TP
 \fB::pki::verify\fR \fIsignedmessage\fR \fIplaintext\fR \fIkey\fR ?\fIalgo\fR?
-Verify a digital signature using a public \fIkey\fR.  Returns true or false.
+Verify a digital signature using a public \fIkey\fR\&.  Returns true or false\&.
 .TP
 \fB::pki::key\fR \fIkey\fR ?\fIpassword\fR? ?\fIencodePem\fR?
-Convert a key structure into a serialized PEM (default) or DER encoded private key suitable for other applications.  For RSA keys this means PKCS#1.
+Convert a key structure into a serialized PEM (default) or DER encoded private key suitable for other applications\&.  For RSA keys this means PKCS#1\&.
 .TP
 \fB::pki::pkcs::parse_key\fR \fIkey\fR ?\fIpassword\fR?
-Convert a PKCS#1 private \fIkey\fR into a usable key, i.e. one which
+Convert a PKCS#1 private \fIkey\fR into a usable key, i\&.e\&. one which
 can be used as argument for
 \fB::pki::encrypt\fR,
 \fB::pki::decrypt\fR,
 \fB::pki::sign\fR, and
-\fB::pki::verify\fR.
+\fB::pki::verify\fR\&.
 .TP
 \fB::pki::x509::parse_cert\fR \fIcert\fR
-Convert an X.509 certificate to a usable (public) key, i.e. one which
+Convert an X\&.509 certificate to a usable (public) key, i\&.e\&. one which
 can be used as argument for
 \fB::pki:encrypt\fR,
 \fB::pki::decrypt\fR, and
-\fB::pki::verify\fR.
-The \fIcert\fR argument can be either PEM or DER encoded.
+\fB::pki::verify\fR\&.
+The \fIcert\fR argument can be either PEM or DER encoded\&.
 .TP
 \fB::pki::rsa::generate\fR \fIbitlength\fR ?\fIexponent\fR?
 Generate a new RSA key pair, the parts of which can be used as
@@ -353,86 +354,92 @@ argument for
 \fB::pki::encrypt\fR,
 \fB::pki::decrypt\fR,
 \fB::pki::sign\fR, and
-\fB::pki::verify\fR.
-The \fIbitlength\fR argument is the length of the public key modulus.
+\fB::pki::verify\fR\&.
+The \fIbitlength\fR argument is the length of the public key modulus\&.
 The \fIexponent\fR argument should generally not be specified unless
-you really know what you are doing.
+you really know what you are doing\&.
 .TP
 \fB::pki::x509::verify_cert\fR \fIcert\fR \fItrustedcerts\fR ?\fIintermediatecerts\fR?
 Verify that a trust can be found between the certificate specified in the
 \fIcert\fR argument and one of the certificates specified in the list
-of certificates in the \fItrustedcerts\fR argument.  (Eventually the
+of certificates in the \fItrustedcerts\fR argument\&.  (Eventually the
 chain can be through untrusted certificates listed in the \fIintermediatecerts\fR
-argument, but this is currently unimplemented).
+argument, but this is currently unimplemented)\&.
 The certificates specified in the \fIcert\fR and \fItrustedcerts\fR option
-should be parsed (from \fB::pki::x509::parse_cert\fR).
+should be parsed (from \fB::pki::x509::parse_cert\fR)\&.
 .TP
 \fB::pki::x509::validate_cert\fR \fIcert\fR ?\fB-sign_message\fR \fIdn_of_signer\fR? ?\fB-encrypt_message\fR \fIdn_of_signer\fR? ?\fB-sign_cert\fR \fIdn_to_be_signed\fR \fIca_depth\fR? ?\fB-ssl\fR \fIdn\fR?
-Validate that a certificate is valid to be used in some capacity.  If
+Validate that a certificate is valid to be used in some capacity\&.  If
 multiple options are specified they must all be met for this procedure
-to return "true".
-Currently, only the \fB-sign_cert\fR option is functional.
+to return "true"\&.
+Currently, only the \fB-sign_cert\fR option is functional\&.
 Arguments for the \fB-sign_cert\fR option are \fIdn_to_be_signed\fR
-and \fIca_depth\fR.  The \fIdn_to_be_signed\fR is the distinguished from
+and \fIca_depth\fR\&.  The \fIdn_to_be_signed\fR is the distinguished from
 the subject of a certificate to verify that the certificate specified in
-the \fIcert\fR argument can sign.  The \fIca_depth\fR argument is used to
-indicate at which depth the verification should be done at.  Some
+the \fIcert\fR argument can sign\&.  The \fIca_depth\fR argument is used to
+indicate at which depth the verification should be done at\&.  Some
 certificates are limited to how far down the chain they can be used to
-verify a given certificate.
+verify a given certificate\&.
 .TP
 \fB::pki::pkcs::create_csr\fR \fIkeylist\fR \fInamelist\fR ?\fIencodePem\fR? ?\fIalgo\fR?
 Generate a certificate signing request from a key pair specified in
-the \fIkeylist\fR argument.
+the \fIkeylist\fR argument\&.
 The \fInamelist\fR argument is a list of "name" followed by "value"
-pairs to encoding as the requested distinguished name in the CSR.
+pairs to encoding as the requested distinguished name in the CSR\&.
 The \fIencodePem\fR option specifies whether or not the result should
-be PEM encoded or DER encoded.  A "true" value results in the result
+be PEM encoded or DER encoded\&.  A "true" value results in the result
 being PEM encoded, while any other value 9results in the the result
-being DER encoded.  DER encoding is the default.
+being DER encoded\&.  DER encoding is the default\&.
 The \fIalgo\fR argument specifies the hashing algorithm we should use
-to sign this certificate signing request with.  The default is "sha1".
-Other possible values include "md5" and "sha256".
+to sign this certificate signing request with\&.  The default is "sha1"\&.
+Other possible values include "md5" and "sha256"\&.
 .TP
 \fB::pki::pkcs::parse_csr\fR \fIcsr\fR
-Parse a Certificate Signing Request.  The \fIcsr\fR argument can be
-either PEM or DER encoded.
+Parse a Certificate Signing Request\&.  The \fIcsr\fR argument can be
+either PEM or DER encoded\&.
 .TP
 \fB::pki::x509::create_cert\fR \fIsignreqlist\fR \fIcakeylist\fR \fIserial_number\fR \fInotBefore\fR \fInotAfter\fR \fIisCA\fR \fIextensions\fR ?\fIencodePem\fR? ?\fIalgo\fR?
 Sign a signing request (usually from \fB::pki::pkcs::create_csr\fR or
-\fB::pki::pkcs::parse_csr\fR) with a Certificate Authority (CA) certificate.
-The \fIsignreqlist\fR argument should be the parsed signing request.
-The \fIcakeylist\fR argument should be the parsed CA certificate.
+\fB::pki::pkcs::parse_csr\fR) with a Certificate Authority (CA) certificate\&.
+The \fIsignreqlist\fR argument should be the parsed signing request\&.
+The \fIcakeylist\fR argument should be the parsed CA certificate\&.
 The \fIserial_number\fR argument should be a serial number unique to
-this certificate from this certificate authority.
+this certificate from this certificate authority\&.
 The \fInotBefore\fR and \fInotAfter\fR arguments should contain the
 time before and after which (respectively) the certificate should
-be considered invalid.  The time should be encoded as something
-\fBclock format\fR will accept (i.e., the results of \fBclock seconds\fR
-and \fBclock add\fR).
+be considered invalid\&.  The time should be encoded as something
+\fBclock format\fR will accept (i\&.e\&., the results of \fBclock seconds\fR
+and \fBclock add\fR)\&.
 The \fIisCA\fR argument is a boolean argumen describing whether or not
-the signed certificate should be a a CA certificate.  If specified as
+the signed certificate should be a a CA certificate\&.  If specified as
 true the "id-ce-basicConstraints" extension is added with the arguments
 of "critical" being true, "allowCA" being true, and caDepth being
--1 (infinite).
+-1 (infinite)\&.
 The \fIextensions\fR argument is a list of extensions and their parameters
-that should be encoded into the created certificate.   Currently only one
-extension is understood ("id-ce-basicConstraints").  It accepts three
-arguments \fIcritical\fR \fIallowCA\fR \fIcaDepth\fR.  The \fIcritical\fR
+that should be encoded into the created certificate\&.   Currently only one
+extension is understood ("id-ce-basicConstraints")\&.  It accepts three
+arguments \fIcritical\fR \fIallowCA\fR \fIcaDepth\fR\&.  The \fIcritical\fR
 argument to this extension (and any extension) whether or not the
 validator should reject the certificate as invalid if it does not
 understand the extension (if set to "true") or should ignore the extension
-(if set to "false").  The \fIallowCA\fR argument is used to specify
+(if set to "false")\&.  The \fIallowCA\fR argument is used to specify
 as a boolean value whether or not we can be used a certificate
-authority (CA).  The \fIcaDepth\fR argument indicates how many children
-CAs can be children of this CA in a depth-wise fashion.  A value of "0"
+authority (CA)\&.  The \fIcaDepth\fR argument indicates how many children
+CAs can be children of this CA in a depth-wise fashion\&.  A value of "0"
 for the \fIcaDepth\fR argument means that this CA cannot sign a CA
-certificate and have the result be valid.  A value of "-1" indicates
-infinite depth.
+certificate and have the result be valid\&.  A value of "-1" indicates
+infinite depth\&.
 .PP
 .SH EXAMPLES
 .CS
+
+
+
 .CE
 .CS
+
+
+
 .CE
 .SH REFERENCES
 .IP [1]
@@ -441,11 +448,11 @@ infinite depth.
 Roy Keene
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIrsa\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 aes(n), blowfish(n), des(n), md5(n), sha1(n)
 .SH KEYWORDS
@@ -455,4 +462,5 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2010, 2011, 2012, 2013, Roy Keene, Andreas Kupries
+
 .fi

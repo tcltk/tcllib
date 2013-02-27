@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/math/roman.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2005 Kenneth Green <kenneth.green@gmail.com>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/roman\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2005 Kenneth Green <kenneth\&.green@gmail\&.com>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "math::roman"  1.0 tcllib "Tcl Math Library"
+.TH "math::roman"  1\&.0 tcllib "Tcl Math Library"
 .BS
 .SH NAME
 math::roman \- Tools for creating and manipulating roman numerals
 .SH SYNOPSIS
-package require \fBTcl  8.3\fR
+package require \fBTcl  8\&.3\fR
 .sp
-package require \fBmath::roman  ?1.0?\fR
+package require \fBmath::roman  ?1\&.0?\fR
 .sp
 \fB::math::roman::toroman\fR \fIi\fR
 .sp
@@ -258,47 +259,48 @@ package require \fBmath::roman  ?1.0?\fR
 .SH DESCRIPTION
 .PP
 \fB::math::roman\fR is a pure-Tcl library for converting between integers
-and roman numerals. It also provides utility functions for sorting and performing
-arithmetic on roman numerals.
+and roman numerals\&. It also provides utility functions for sorting and performing
+arithmetic on roman numerals\&.
 .PP
 This code was originally harvested from the Tcler's wiki at
-http://wiki.tcl.tk/1823 and as such is free for any use for
-any purpose. Many thanks to the ingeneous folk who devised
+http://wiki\&.tcl\&.tk/1823 and as such is free for any use for
+any purpose\&. Many thanks to the ingeneous folk who devised
 these clever routines and generously contributed them to the
-Tcl community.
+Tcl community\&.
 .PP
-While written and tested under Tcl 8.3, I expect this library
-will work under all 8.x versions of Tcl.
+While written and tested under Tcl 8\&.3, I expect this library
+will work under all 8\&.x versions of Tcl\&.
 .SH COMMANDS
 .TP
 \fB::math::roman::toroman\fR \fIi\fR
-Convert an integer to roman numerals. The result is always in
-upper case. The value zero is converted to an empty string.
+Convert an integer to roman numerals\&. The result is always in
+upper case\&. The value zero is converted to an empty string\&.
 .TP
 \fB::math::roman::tointeger\fR \fIr\fR
-Convert a roman numeral into an integer.
+Convert a roman numeral into an integer\&.
 .TP
 \fB::math::roman::sort\fR \fIlist\fR
-Sort a list of roman numerals from smallest to largest.
+Sort a list of roman numerals from smallest to largest\&.
 .TP
 \fB::math::roman::expr\fR \fIargs\fR
-Evaluate an expression where the operands are all roman numerals.
+Evaluate an expression where the operands are all roman numerals\&.
 .PP
 Of these commands both \fItoroman\fR and \fItointeger\fR are exported
-for easier use. The other two are not, as they could interfer or be
-confused with existing Tcl commands.
+for easier use\&. The other two are not, as they could interfer or be
+confused with existing Tcl commands\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fImath :: roman\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 conversion, integer, roman numeral
 .SH CATEGORY
 Mathematics
 .SH COPYRIGHT
 .nf
-Copyright (c) 2005 Kenneth Green <kenneth.green@gmail.com>
+Copyright (c) 2005 Kenneth Green <kenneth\&.green@gmail\&.com>
+
 .fi

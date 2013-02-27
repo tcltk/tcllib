@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/rc4/rc4.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2003, Pat Thoyts <patthoyts@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/rc4/rc4\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2003, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "rc4" n 1.1.0 tcllib "RC4 Stream Cipher"
+.TH "rc4" n 1\&.1\&.0 tcllib "RC4 Stream Cipher"
 .BS
 .SH NAME
 rc4 \- Implementation of the RC4 stream cipher
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBrc4  ?1.1.0?\fR
+package require \fBrc4  ?1\&.1\&.0?\fR
 .sp
 \fB::rc4::rc4\fR ?\fI-hex\fR? \fI-key keyvalue\fR ?\fI-command lst\fR? ?\fI-out channel\fR? [ \fI-in channel\fR | \fI-infile filename\fR | \fIstring\fR ]
 .sp
@@ -258,79 +259,88 @@ package require \fBrc4  ?1.1.0?\fR
 .SH DESCRIPTION
 .PP
 This package is an implementation in Tcl of the RC4 stream cipher
-developed by Ron Rivest of RSA Data Security Inc. The cipher was a
+developed by Ron Rivest of RSA Data Security Inc\&. The cipher was a
 trade secret of RSA but was reverse-engineered and published to the
-internet in 1994. It is used in a number of network protocols for
-securing communications. To evade trademark restrictions this cipher
-is sometimes known as ARCFOUR.
+internet in 1994\&. It is used in a number of network protocols for
+securing communications\&. To evade trademark restrictions this cipher
+is sometimes known as ARCFOUR\&.
 .SH COMMANDS
 .TP
 \fB::rc4::rc4\fR ?\fI-hex\fR? \fI-key keyvalue\fR ?\fI-command lst\fR? ?\fI-out channel\fR? [ \fI-in channel\fR | \fI-infile filename\fR | \fIstring\fR ]
 Perform the RC4 algorithm on either the data provided by the argument
-or on the data read from the \fI-in\fR channel. If an \fI-out\fR
-channel is given then the result will be written to this channel.
+or on the data read from the \fI-in\fR channel\&. If an \fI-out\fR
+channel is given then the result will be written to this channel\&.
 Giving the \fI-hex\fR option will return a hexadecimal encoded
-version of the result if not using an \fI-out\fR channel.
+version of the result if not using an \fI-out\fR channel\&.
 .sp
 The data to be processes can be specified either as a string argument to
-the rc4 command, or as a filename or a pre-opened channel. If the
+the rc4 command, or as a filename or a pre-opened channel\&. If the
 \fI-infile\fR argument is given then the file is opened, the data read
-and processed and the file is closed. If the \fI-in\fR argument is
-given then data is read from the channel until the end of file. The
-channel is not closed. If the \fI-out\fR argument is given then the
-processing result is written to this channel.
+and processed and the file is closed\&. If the \fI-in\fR argument is
+given then data is read from the channel until the end of file\&. The
+channel is not closed\&. If the \fI-out\fR argument is given then the
+processing result is written to this channel\&.
 .sp
 If \fI-command\fR is provided then the rc4 command does not return
-anything. Instead the command provided is called with the rc4 result data
-appended as the final parameter. This is most useful when reading from Tcl
+anything\&. Instead the command provided is called with the rc4 result data
+appended as the final parameter\&. This is most useful when reading from Tcl
 channels as a fileevent is setup on the channel and the data processed in
 chunks
 .sp
-Only one of \fI-infile\fR, \fI-in\fR or \fIstring\fR should be given.
+Only one of \fI-infile\fR, \fI-in\fR or \fIstring\fR should be given\&.
 .PP
 .SH "PROGRAMMING INTERFACE"
 .TP
 \fB::rc4::RC4Init\fR \fIkeydata\fR
-Initialize a new RC4 key. The \fIkeydata\fR is any amount of binary
-data and is used to initialize the cipher internal state.
+Initialize a new RC4 key\&. The \fIkeydata\fR is any amount of binary
+data and is used to initialize the cipher internal state\&.
 .TP
 \fB::rc4::RC4\fR \fIKey\fR \fIdata\fR
 Encrypt or decrypt the input data using the key obtained by calling
-\fBRC4Init\fR.
+\fBRC4Init\fR\&.
 .TP
 \fB::rc4::RC4Final\fR \fIKey\fR
 This should be called to clean up resources associated with
-\fIKey\fR. Once this function has been called the key is destroyed.
+\fIKey\fR\&. Once this function has been called the key is destroyed\&.
 .PP
 .SH EXAMPLES
 .CS
+
+
 % set keydata [binary format H* 0123456789abcdef]
 % rc4::rc4 -hex -key $keydata HelloWorld
 3cf1ae8b7f1c670b612f
 % rc4::rc4 -hex -key $keydata [binary format H* 3cf1ae8b7f1c670b612f]
 HelloWorld
+
 .CE
 .CS
-set Key [rc4::RC4Init "key data"]
-append ciphertext [rc4::RC4 $Key $plaintext]
-append ciphertext [rc4::RC4 $Key $additional_plaintext]
-rc4::RC4Final $Key
+
+
+ set Key [rc4::RC4Init "key data"]
+ append ciphertext [rc4::RC4 $Key $plaintext]
+ append ciphertext [rc4::RC4 $Key $additional_plaintext]
+ rc4::RC4Final $Key
+
 .CE
 .CS
-proc ::Finish {myState data} {
-DoStuffWith $myState $data
-}
-rc4::rc4 -in $socket -command [list ::Finish $ApplicationState]
+
+
+ proc ::Finish {myState data} {
+     DoStuffWith $myState $data
+ }
+ rc4::rc4 -in $socket -command [list ::Finish $ApplicationState]
+
 .CE
 .SH AUTHORS
 Pat Thoyts
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIrc4\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 aes(n), blowfish(n), des(n)
 .SH KEYWORDS
@@ -339,5 +349,6 @@ arcfour, data integrity, encryption, rc4, security, stream cipher
 Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
-Copyright (c) 2003, Pat Thoyts <patthoyts@users.sourceforge.net>
+Copyright (c) 2003, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
+
 .fi

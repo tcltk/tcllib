@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/crc/cksum.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/crc/cksum\&.n' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002, Pat Thoyts
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "cksum" n 1.1.3 tcllib "Cyclic Redundancy Checks"
+.TH "cksum" n 1\&.1\&.3 tcllib "Cyclic Redundancy Checks"
 .BS
 .SH NAME
 cksum \- Calculate a cksum(1) compatible checksum
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBcksum  ?1.1.3?\fR
+package require \fBcksum  ?1\&.1\&.3?\fR
 .sp
 \fB::crc::cksum\fR ?\fI-format format\fR? ?\fI-chunksize size\fR? [ \fI-channel chan\fR | \fI-filename file\fR | \fIstring\fR ]
 .sp
@@ -259,88 +260,100 @@ package require \fBcksum  ?1.1.3?\fR
 .PP
 This package provides a Tcl implementation of the cksum(1) algorithm
 based upon information provided at in the GNU implementation of this
-program as part of the GNU Textutils 2.0 package.
+program as part of the GNU Textutils 2\&.0 package\&.
 .SH COMMANDS
 .TP
 \fB::crc::cksum\fR ?\fI-format format\fR? ?\fI-chunksize size\fR? [ \fI-channel chan\fR | \fI-filename file\fR | \fIstring\fR ]
 The command takes string data or a channel or file name and returns a
-checksum value calculated using the \fBcksum(1)\fR algorithm. The
+checksum value calculated using the \fBcksum(1)\fR algorithm\&. The
 result is formatted using the \fIformat\fR(n) specifier provided or as
-an unsigned integer (%u) by default.
+an unsigned integer (%u) by default\&.
 .PP
 .SH OPTIONS
 .TP
 -channel \fIname\fR
-Return a checksum for the data read from a channel. The command will
-read data from the channel until the \fBeof\fR is true. If you need
+Return a checksum for the data read from a channel\&. The command will
+read data from the channel until the \fBeof\fR is true\&. If you need
 to be able to process events during this calculation see the
 \fBPROGRAMMING INTERFACE\fR section
 .TP
 -filename \fIname\fR
 This is a convenience option that opens the specified file, sets the
 encoding to binary and then acts as if the \fI-channel\fR option had
-been used. The file is closed on completion.
+been used\&. The file is closed on completion\&.
 .TP
 -format \fIstring\fR
-Return the checksum using an alternative format template.
+Return the checksum using an alternative format template\&.
 .PP
 .SH "PROGRAMMING INTERFACE"
 The cksum package implements the checksum using a context variable to
-which additional data can be added at any time. This is expecially
+which additional data can be added at any time\&. This is expecially
 useful in an event based environment such as a Tk application or a web
-server package. Data to be checksummed may be handled incrementally
-during a \fBfileevent\fR handler in discrete chunks. This can improve
+server package\&. Data to be checksummed may be handled incrementally
+during a \fBfileevent\fR handler in discrete chunks\&. This can improve
 the interactive nature of a GUI application and can help to avoid
-excessive memory consumption.
+excessive memory consumption\&.
 .TP
 \fB::crc::CksumInit\fR
-Begins a new cksum context. Returns a token ID that must be used for the
-remaining functions. An optional seed may be specified if required.
+Begins a new cksum context\&. Returns a token ID that must be used for the
+remaining functions\&. An optional seed may be specified if required\&.
 .TP
 \fB::crc::CksumUpdate\fR \fItoken\fR \fIdata\fR
-Add data to the checksum identified by token. Calling
+Add data to the checksum identified by token\&. Calling
 \fICksumUpdate $token "abcd"\fR is equivalent to calling
 \fICksumUpdate $token "ab"\fR followed by
-\fICksumUpdate $token "cb"\fR. See \fBEXAMPLES\fR.
+\fICksumUpdate $token "cb"\fR\&. See \fBEXAMPLES\fR\&.
 .TP
 \fB::crc::CksumFinal\fR \fItoken\fR
 Returns the checksum value and releases any resources held by this
-token. Once this command completes the token will be invalid. The
-result is a 32 bit integer value.
+token\&. Once this command completes the token will be invalid\&. The
+result is a 32 bit integer value\&.
 .PP
 .SH EXAMPLES
 .PP
 .CS
+
+
 % crc::cksum "Hello, World!"
 2609532967
+
 .CE
 .PP
 .CS
+
+
 % crc::cksum -format 0x%X "Hello, World!"
 0x9B8A5027
+
 .CE
 .PP
 .CS
-% crc::cksum -file cksum.tcl
+
+
+% crc::cksum -file cksum\&.tcl
 1828321145
+
 .CE
 .PP
 .CS
+
+
 % set tok [crc::CksumInit]
 % crc::CksumUpdate $tok "Hello, "
 % crc::CksumUpdate $tok "World!"
 % crc::CksumFinal $tok
 2609532967
+
 .CE
 .SH AUTHORS
 Pat Thoyts
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIcrc\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 crc32(n), sum(n)
 .SH KEYWORDS
@@ -350,4 +363,5 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002, Pat Thoyts
+
 .fi

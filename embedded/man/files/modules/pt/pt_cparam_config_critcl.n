@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/pt/pt_cparam_config_critcl.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/pt/pt_cparam_config_critcl\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "pt::cparam::configuration::critcl" n 1.0.1 tcllib "Parser Tools"
+.TH "pt::cparam::configuration::critcl" n 1\&.0\&.1 tcllib "Parser Tools"
 .BS
 .SH NAME
 pt::cparam::configuration::critcl \- C/PARAM, Canned configuration, Critcl
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
-package require \fBpt::cparam::configuration::critcl  ?1.0.1?\fR
+package require \fBpt::cparam::configuration::critcl  ?1\&.0\&.1?\fR
 .sp
 \fB::pt::cparam::configuration::critcl\fR \fBdef\fR \fIname\fR \fIcmdprefix\fR
 .sp
@@ -254,16 +255,16 @@ package require \fBpt::cparam::configuration::critcl  ?1.0.1?\fR
 Are you lost ?
 Do you have trouble understanding this document ?
 In that case please read the overview provided by the
-\fIIntroduction to Parser Tools\fR. This document is the
-entrypoint to the whole system the current package is a part of.
+\fIIntroduction to Parser Tools\fR\&. This document is the
+entrypoint to the whole system the current package is a part of\&.
 .PP
 This package is an adjunct to \fBpt::peg::to::cparam\fR, to make
 the use of this highly configurable package easier by providing a
-canned configuration. When applied this configuration causes the
+canned configuration\&. When applied this configuration causes the
 package \fBpt::peg::to::cparam\fR to generate
-\fBcritcl\fR-based parser packages.
+\fBcritcl\fR-based parser packages\&.
 .PP
-It is a supporting package in the Core Layer of Parser Tools.
+It is a supporting package in the Core Layer of Parser Tools\&.
 .PP
 IMAGE: arch_core_support
 .PP
@@ -272,29 +273,30 @@ IMAGE: arch_core_support
 \fB::pt::cparam::configuration::critcl\fR \fBdef\fR \fIname\fR \fIcmdprefix\fR
 The command applies the configuration provided by this package to the
 \fIcmdprefix\fR, causing the creation of \fBcritcl\fR-based parsers
-whose class is \fIname\fR.
+whose class is \fIname\fR\&.
 .sp
 The use of a command prefix as API allows application of the
 configuration to not only \fBpt::peg::to::cparam\fR
 (\fBpt::peg::to::cparam configure\fR), but also export manager
 instances and PEG containers (\fB$export configuration set\fR and
-\fB[$container exporter] configuration set\fR respectively).
+\fB[$container exporter] configuration set\fR respectively)\&.
 .sp
 Or anything other command prefix accepting two arguments, option and
-value.
+value\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIpt\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 EBNF, LL(k), PEG, TDPL, context-free languages, expression, grammar, matching, parser, parsing expression, parsing expression grammar, push down automaton, recursive descent, state, top-down parsing languages, transducer
 .SH CATEGORY
 Parsing and Grammars
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

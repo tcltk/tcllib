@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/pt/pt.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/pt/pt\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -242,9 +243,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt \- Parser Tools Application
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
-\fBpt\fR \fBgenerate\fR \fIresultformat\fR ?\fIoptions...\fR? \fIresultfile\fR \fIinputformat\fR \fIinputfile\fR
+\fBpt\fR \fBgenerate\fR \fIresultformat\fR ?\fIoptions\&.\&.\&.\fR? \fIresultfile\fR \fIinputformat\fR \fIinputfile\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -252,59 +253,59 @@ package require \fBTcl  8.5\fR
 Are you lost ?
 Do you have trouble understanding this document ?
 In that case please read the overview provided by the
-\fIIntroduction to Parser Tools\fR. This document is the
-entrypoint to the whole system the current package is a part of.
+\fIIntroduction to Parser Tools\fR\&. This document is the
+entrypoint to the whole system the current package is a part of\&.
 .PP
 This document describes \fBpt\fR, the main application of the module,
-a \fIparser generator\fR. Its intended audience are people who wish
-to create a parser for some language of theirs. Should you wish to
+a \fIparser generator\fR\&. Its intended audience are people who wish
+to create a parser for some language of theirs\&. Should you wish to
 modify the application instead, please see the section about the
-application's \fBInternals\fR for the basic references.
+application's \fBInternals\fR for the basic references\&.
 .PP
-It resides in the User Application Layer of Parser Tools.
+It resides in the User Application Layer of Parser Tools\&.
 .PP
 IMAGE: arch_user_app
 .PP
 .SH "COMMAND LINE"
 .TP
-\fBpt\fR \fBgenerate\fR \fIresultformat\fR ?\fIoptions...\fR? \fIresultfile\fR \fIinputformat\fR \fIinputfile\fR
+\fBpt\fR \fBgenerate\fR \fIresultformat\fR ?\fIoptions\&.\&.\&.\fR? \fIresultfile\fR \fIinputformat\fR \fIinputfile\fR
 This sub-command of the application reads the parsing expression
 grammar stored in the \fIinputfile\fR in the format \fIinputformat\fR,
 converts it to the \fIresultformat\fR under the direction of the
 (format-specific) set of options specified by the user and stores the
-result in the \fIresultfile\fR.
+result in the \fIresultfile\fR\&.
 .sp
 The \fIinputfile\fR has to exist, while the \fIresultfile\fR may be
-created, overwriting any pre-existing content of the file. Any missing
-directory in the path to the \fIresultfile\fR will be created as well.
+created, overwriting any pre-existing content of the file\&. Any missing
+directory in the path to the \fIresultfile\fR will be created as well\&.
 .sp
 The exact form of the result for, and the set of options supported by
 the known result-formats, are explained in the upcoming sections of
 this document, with the list below providing an index mapping between
-format name and its associated section. In alphabetical order:
+format name and its associated section\&. In alphabetical order:
 .sp
 .RS
 .TP
 \fBc\fR
-A \fIresultformat\fR. See section \fBC Parser\fR.
+A \fIresultformat\fR\&. See section \fBC Parser\fR\&.
 .TP
 \fBcontainer\fR
-A \fIresultformat\fR. See section \fBGrammar Container\fR.
+A \fIresultformat\fR\&. See section \fBGrammar Container\fR\&.
 .TP
 \fBcritcl\fR
-A \fIresultformat\fR. See section \fBC Parser Embedded In Tcl\fR.
+A \fIresultformat\fR\&. See section \fBC Parser Embedded In Tcl\fR\&.
 .TP
 \fBjson\fR
-A \fIinput\fR- and \fIresultformat\fR. See section \fBJSON Grammar Exchange\fR.
+A \fIinput\fR- and \fIresultformat\fR\&. See section \fBJSON Grammar Exchange\fR\&.
 .TP
 \fBoo\fR
-A \fIresultformat\fR. See section \fBTclOO Parser\fR.
+A \fIresultformat\fR\&. See section \fBTclOO Parser\fR\&.
 .TP
 \fBpeg\fR
-A \fIinput\fR- and \fIresultformat\fR. See section \fBPEG Specification Language\fR.
+A \fIinput\fR- and \fIresultformat\fR\&. See section \fBPEG Specification Language\fR\&.
 .TP
 \fBsnit\fR
-A \fIresultformat\fR. See section \fBSnit Parser\fR.
+A \fIresultformat\fR\&. See section \fBSnit Parser\fR\&.
 .RE
 .PP
 Of the seven possible results four are parsers outright (\fBc\fR,
@@ -312,474 +313,474 @@ Of the seven possible results four are parsers outright (\fBc\fR,
 provides code which can be used in conjunction with a generic parser
 (also known as a grammar interpreter), and the last two (\fBjson\fR
 and \fBpeg\fR) are doing double-duty as input formats, allowing the
-transformation of grammars for exchange, reformatting, and the like.
+transformation of grammars for exchange, reformatting, and the like\&.
 .PP
 The created parsers fall into three categories:
 .PP
-\.PS
-\.nf
-                       + --- C ---> critcl, c
-                       |
-    + --- specialized -+
-    |                  |
- ---+                  + --- Tcl -> snit, oo
-    |
-    + --- interpreted (Tcl) ------> container
-.fi
-\.PE
+.PS
+\&.nf
++ --- C ---> critcl, c
+|
++ --- specialized -+
+|                  |
+---+                  + --- Tcl -> snit, oo
+|
++ --- interpreted (Tcl) ------> container
+\&.fi
+.PE
 .PP
 .TP
 \fBSpecialized parsers implemented in C\fR
 The fastest parsers are created when using the result formats
-\fBc\fR and \fBcritcl\fR. The first returns the raw C code for the
+\fBc\fR and \fBcritcl\fR\&. The first returns the raw C code for the
 parser, while the latter wraps it into a Tcl package using
-\fICriTcl\fR.
+\fICriTcl\fR\&.
 .sp
-This makes the latter much easier to use than the former. On the other
+This makes the latter much easier to use than the former\&. On the other
 hand, the former can be adapted to the users' requirements through a
 multitude of options, allowing for things like usage of the parser
 outside of a Tcl environment, something the \fBcritcl\fR format
-doesn't support. As such the \fBc\fR format is meant for more
-advanced users, or users with special needs.
+doesn't support\&. As such the \fBc\fR format is meant for more
+advanced users, or users with special needs\&.
 .sp
 A disadvantage of all the parsers in this section is the need to run
-them through a C compiler to make them actually executable. This is
-not something everyone has the necessary tools for. The parsers in the
-next section are for people under such restrictions.
+them through a C compiler to make them actually executable\&. This is
+not something everyone has the necessary tools for\&. The parsers in the
+next section are for people under such restrictions\&.
 .TP
 \fBSpecialized parsers implemented in Tcl\fR
 As the parsers in this section are implemented in Tcl they are quite a
-bit slower than anything from the previous section. On the other hand
+bit slower than anything from the previous section\&. On the other hand
 this allows them to be used in pure-Tcl environments, or in
-environments which allow only a limited set of binary packages. In the
+environments which allow only a limited set of binary packages\&. In the
 latter case it will be advantageous to lobby for the inclusion of the
 C-based runtime support (notes below) into the environment to reduce
-the impact of Tcl's on the speed of these parsers.
+the impact of Tcl's on the speed of these parsers\&.
 .sp
-The relevant formats are \fBsnit\fR and \fBoo\fR. Both place their
+The relevant formats are \fBsnit\fR and \fBoo\fR\&. Both place their
 result into a Tcl package containing a \fBsnit::type\fR, or TclOO
-\fBclass\fR respectively.
+\fBclass\fR respectively\&.
 .sp
 Of the supporting runtime, which is the package \fBpt::rde\fR, the
 user has to know nothing but that it does exist and that the parsers
-are dependent on it. Knowledge of the API exported by the runtime for
-the parsers' consumption is \fInot\fR required by the parsers' users.
+are dependent on it\&. Knowledge of the API exported by the runtime for
+the parsers' consumption is \fInot\fR required by the parsers' users\&.
 .TP
 \fBInterpreted parsing implemented in Tcl\fR
-The last category, grammar interpretation. This means that an
+The last category, grammar interpretation\&. This means that an
 interpreter for parsing expression grammars takes the description of
-the grammar to parse input for, and uses it guide the parsing process.
+the grammar to parse input for, and uses it guide the parsing process\&.
 This is the slowest of the available options, as the interpreter has
 to continually run through the configured grammar, whereas the
 specialized parsers of the previous sections have the relevant
-knowledge about the grammar baked into them.
+knowledge about the grammar baked into them\&.
 .sp
 The only places where using interpretation make sense is where the
 grammar for some input may be changed interactively by the user, as
 the interpretation allows for quick turnaround after each change,
 whereas the previous methods require the generation of a whole new
-parser, which is not as fast.
+parser, which is not as fast\&.
 On the other hand, wherever the grammar to use is fixed, the previous
 methods are much more advantageous as the time to generate the parser
-is minuscule compared to the time the parser code is in use.
+is minuscule compared to the time the parser code is in use\&.
 .sp
-The relevant result format is \fBcontainer\fR.
+The relevant result format is \fBcontainer\fR\&.
 It (quickly) generates grammar descriptions (instead of a full parser)
-which match the API expected by ParserTools' grammar interpreter.
-The latter is provided by the package \fBpt::peg::interp\fR.
+which match the API expected by ParserTools' grammar interpreter\&.
+The latter is provided by the package \fBpt::peg::interp\fR\&.
 .PP
 All the parsers generated by \fBcritcl\fR, \fBsnit\fR, and
 \fBoo\fR, and the grammar interpreter share a common API for access
 to the actual parsing functionality, making them all
-plug-compatible.
-It is described in the \fIParser API\fR specification document.
+plug-compatible\&.
+It is described in the \fIParser API\fR specification document\&.
 .SH "PEG SPECIFICATION LANGUAGE"
 \fBpeg\fR, a language for the specification of parsing expression
 grammars is meant to be human readable, and writable as well, yet
-strict enough to allow its processing by machine. Like any computer
-language. It was defined to make writing the specification of a
+strict enough to allow its processing by machine\&. Like any computer
+language\&. It was defined to make writing the specification of a
 grammar easy, something the other formats found in the Parser Tools do
-not lend themselves too.
+not lend themselves too\&.
 .PP
 For either an introduction to or the formal specification of the
-language, please go and read the \fIPEG Language Tutorial\fR.
+language, please go and read the \fIPEG Language Tutorial\fR\&.
 .PP
 When used as a result-format this format supports the following
 options:
 .TP
 \fB-file\fR string
 The value of this option is the name of the file or other entity from
-which the grammar came, for which the command is run. The default
-value is \fBunknown\fR.
+which the grammar came, for which the command is run\&. The default
+value is \fBunknown\fR\&.
 .TP
 \fB-name\fR string
-The value of this option is the name of the grammar we are processing.
-The default value is \fBa_pe_grammar\fR.
+The value of this option is the name of the grammar we are processing\&.
+The default value is \fBa_pe_grammar\fR\&.
 .TP
 \fB-user\fR string
 The value of this option is the name of the user for which the command
-is run. The default value is \fBunknown\fR.
+is run\&. The default value is \fBunknown\fR\&.
 .TP
 \fB-template\fR string
 The value of this option is a string into which to put the generated
-text and the values of the other options. The various locations for
+text and the values of the other options\&. The various locations for
 user-data are expected to be specified with the placeholders listed
-below. The default value is "\fB@code@\fR".
+below\&. The default value is "\fB@code@\fR"\&.
 .RS
 .TP
 \fB@user@\fR
-To be replaced with the value of the option \fB-user\fR.
+To be replaced with the value of the option \fB-user\fR\&.
 .TP
 \fB@format@\fR
-To be replaced with the the constant \fBPEG\fR.
+To be replaced with the the constant \fBPEG\fR\&.
 .TP
 \fB@file@\fR
-To be replaced with the value of the option \fB-file\fR.
+To be replaced with the value of the option \fB-file\fR\&.
 .TP
 \fB@name@\fR
-To be replaced with the value of the option \fB-name\fR.
+To be replaced with the value of the option \fB-name\fR\&.
 .TP
 \fB@code@\fR
-To be replaced with the generated text.
+To be replaced with the generated text\&.
 .RE
 .PP
 .SH "JSON GRAMMAR EXCHANGE"
 The \fBjson\fR format for parsing expression grammars was written as
-a data exchange format not bound to Tcl. It was defined to allow the
+a data exchange format not bound to Tcl\&. It was defined to allow the
 exchange of grammars with PackRat/PEG based parser generators for
-other languages.
+other languages\&.
 .PP
 For the formal specification of the JSON grammar exchange format,
-please go and read \fIThe JSON Grammar Exchange Format\fR.
+please go and read \fIThe JSON Grammar Exchange Format\fR\&.
 .PP
 When used as a result-format this format supports the following
 options:
 .TP
 \fB-file\fR string
 The value of this option is the name of the file or other entity from
-which the grammar came, for which the command is run. The default
-value is \fBunknown\fR.
+which the grammar came, for which the command is run\&. The default
+value is \fBunknown\fR\&.
 .TP
 \fB-name\fR string
-The value of this option is the name of the grammar we are processing.
-The default value is \fBa_pe_grammar\fR.
+The value of this option is the name of the grammar we are processing\&.
+The default value is \fBa_pe_grammar\fR\&.
 .TP
 \fB-user\fR string
 The value of this option is the name of the user for which the command
-is run. The default value is \fBunknown\fR.
+is run\&. The default value is \fBunknown\fR\&.
 .TP
 \fB-indented\fR boolean
 If this option is set the system will break the generated JSON across
 lines and indent it according to its inner structure, with each key of
-a dictionary on a separate line.
+a dictionary on a separate line\&.
 .sp
 If the option is not set (the default), the whole JSON object will be
-written on a single line, with minimum spacing between all elements.
+written on a single line, with minimum spacing between all elements\&.
 .TP
 \fB-aligned\fR boolean
 If this option is set the system will ensure that the values for the
 keys in a dictionary are vertically aligned with each other, for a
-nice table effect.
-To make this work this also implies that \fB-indented\fR is set.
+nice table effect\&.
+To make this work this also implies that \fB-indented\fR is set\&.
 .sp
 If the option is not set (the default), the output is formatted as per
 the value of \fBindented\fR, without trying to align the values for
-dictionary keys.
+dictionary keys\&.
 .PP
 .SH "C PARSER EMBEDDED IN TCL"
 The \fBcritcl\fR format is executable code, a parser for the
-grammar. It is a Tcl package with the actual parser implementation
-written in C and embedded in Tcl via the \fBcritcl\fR package.
+grammar\&. It is a Tcl package with the actual parser implementation
+written in C and embedded in Tcl via the \fBcritcl\fR package\&.
 .PP
 This result-format supports the following options:
 .TP
 \fB-file\fR string
 The value of this option is the name of the file or other entity from
-which the grammar came, for which the command is run. The default
-value is \fBunknown\fR.
+which the grammar came, for which the command is run\&. The default
+value is \fBunknown\fR\&.
 .TP
 \fB-name\fR string
-The value of this option is the name of the grammar we are processing.
-The default value is \fBa_pe_grammar\fR.
+The value of this option is the name of the grammar we are processing\&.
+The default value is \fBa_pe_grammar\fR\&.
 .TP
 \fB-user\fR string
 The value of this option is the name of the user for which the command
-is run. The default value is \fBunknown\fR.
+is run\&. The default value is \fBunknown\fR\&.
 .TP
 \fB-class\fR string
 The value of this option is the name of the class to generate, without
-leading colons.
-The default value is \fBCLASS\fR.
+leading colons\&.
+The default value is \fBCLASS\fR\&.
 .sp
 For a simple value \fBX\fR without colons, like CLASS, the parser
-command will be \fBX\fR::\fBX\fR. Whereas for a namespaced value
-\fBX::Y\fR the parser command will be \fBX::Y\fR.
+command will be \fBX\fR::\fBX\fR\&. Whereas for a namespaced value
+\fBX::Y\fR the parser command will be \fBX::Y\fR\&.
 .TP
 \fB-package\fR string
-The value of this option is the name of the package to generate.
-The default value is \fBPACKAGE\fR.
+The value of this option is the name of the package to generate\&.
+The default value is \fBPACKAGE\fR\&.
 .PP
 .SH "C PARSER"
-The \fBc\fR format is executable code, a parser for the grammar. The
+The \fBc\fR format is executable code, a parser for the grammar\&. The
 parser implementation is written in C and can be tweaked to the users'
-needs through a multitude of options.
+needs through a multitude of options\&.
 .PP
 The \fBcritcl\fR format, for example, is implemented as a canned
-configuration of these options on top of the generator for \fBc\fR.
+configuration of these options on top of the generator for \fBc\fR\&.
 .PP
 This result-format supports the following options:
 .TP
 \fB-file\fR string
 The value of this option is the name of the file or other entity from
-which the grammar came, for which the command is run. The default
-value is \fBunknown\fR.
+which the grammar came, for which the command is run\&. The default
+value is \fBunknown\fR\&.
 .TP
 \fB-name\fR string
-The value of this option is the name of the grammar we are processing.
-The default value is \fBa_pe_grammar\fR.
+The value of this option is the name of the grammar we are processing\&.
+The default value is \fBa_pe_grammar\fR\&.
 .TP
 \fB-user\fR string
 The value of this option is the name of the user for which the command
-is run. The default value is \fBunknown\fR.
+is run\&. The default value is \fBunknown\fR\&.
 .TP
 \fB-template\fR string
 The value of this option is a string into which to put
-the generated text and the other configuration settings. The various
+the generated text and the other configuration settings\&. The various
 locations for user-data are expected to be specified with the
-placeholders listed below. The default value is "\fB@code@\fR".
+placeholders listed below\&. The default value is "\fB@code@\fR"\&.
 .RS
 .TP
 \fB@user@\fR
-To be replaced with the value of the option \fB-user\fR.
+To be replaced with the value of the option \fB-user\fR\&.
 .TP
 \fB@format@\fR
-To be replaced with the the constant \fBC/PARAM\fR.
+To be replaced with the the constant \fBC/PARAM\fR\&.
 .TP
 \fB@file@\fR
-To be replaced with the value of the option \fB-file\fR.
+To be replaced with the value of the option \fB-file\fR\&.
 .TP
 \fB@name@\fR
-To be replaced with the value of the option \fB-name\fR.
+To be replaced with the value of the option \fB-name\fR\&.
 .TP
 \fB@code@\fR
-To be replaced with the generated Tcl code.
+To be replaced with the generated Tcl code\&.
 .RE
 .IP
 The following options are special, in that they will
-occur within the generated code, and are replaced there as well.
+occur within the generated code, and are replaced there as well\&.
 .RS
 .TP
 \fB@statedecl@\fR
-To be replaced with the value of the option \fBstate-decl\fR.
+To be replaced with the value of the option \fBstate-decl\fR\&.
 .TP
 \fB@stateref@\fR
-To be replaced with the value of the option \fBstate-ref\fR.
+To be replaced with the value of the option \fBstate-ref\fR\&.
 .TP
 \fB@strings@\fR
-To be replaced with the value of the option \fBstring-varname\fR.
+To be replaced with the value of the option \fBstring-varname\fR\&.
 .TP
 \fB@self@\fR
-To be replaced with the value of the option \fBself-command\fR.
+To be replaced with the value of the option \fBself-command\fR\&.
 .TP
 \fB@def@\fR
-To be replaced with the value of the option \fBfun-qualifier\fR.
+To be replaced with the value of the option \fBfun-qualifier\fR\&.
 .TP
 \fB@ns@\fR
-To be replaced with the value of the option \fBnamespace\fR.
+To be replaced with the value of the option \fBnamespace\fR\&.
 .TP
 \fB@main@\fR
-To be replaced with the value of the option \fBmain\fR.
+To be replaced with the value of the option \fBmain\fR\&.
 .TP
 \fB@prelude@\fR
-To be replaced with the value of the option \fBprelude\fR.
+To be replaced with the value of the option \fBprelude\fR\&.
 .RE
 .TP
 \fB-state-decl\fR string
 A C string representing the argument declaration to use in the
-generated parsing functions to refer to the parsing state. In essence
-type and argument name.
-The default value is the string \fBRDE_PARAM p\fR.
+generated parsing functions to refer to the parsing state\&. In essence
+type and argument name\&.
+The default value is the string \fBRDE_PARAM p\fR\&.
 .TP
 \fB-state-ref\fR string
 A C string representing the argument named used in the generated
-parsing functions to refer to the parsing state.
-The default value is the string \fBp\fR.
+parsing functions to refer to the parsing state\&.
+The default value is the string \fBp\fR\&.
 .TP
 \fB-self-command\fR string
 A C string representing the reference needed to call the generated
-parser function (methods ...) from another parser fonction, per the
-chosen framework (template).
-The default value is the empty string.
+parser function (methods \&.\&.\&.) from another parser fonction, per the
+chosen framework (template)\&.
+The default value is the empty string\&.
 .TP
 \fB-fun-qualifier\fR string
 A C string containing the attributes to give to the generated
-functions (methods ...), per the chosen framework (template).
-The default value is \fBstatic\fR.
+functions (methods \&.\&.\&.), per the chosen framework (template)\&.
+The default value is \fBstatic\fR\&.
 .TP
 \fB-namespace\fR string
-The name of the C namespace the parser functions (methods, ...) shall
-reside in, or a general prefix to add to the function names.
-The default value is the empty string.
+The name of the C namespace the parser functions (methods, \&.\&.\&.) shall
+reside in, or a general prefix to add to the function names\&.
+The default value is the empty string\&.
 .TP
 \fB-main\fR string
-The name of the main function (method, ...) to be called by the chosen
-framework (template) to start parsing input.
-The default value is \fB__main\fR.
+The name of the main function (method, \&.\&.\&.) to be called by the chosen
+framework (template) to start parsing input\&.
+The default value is \fB__main\fR\&.
 .TP
 \fB-string-varname\fR string
 The name of the variable used for the table of strings used by the
-generated parser, i.e. error messages, symbol names, etc.
-The default value is \fBp_string\fR.
+generated parser, i\&.e\&. error messages, symbol names, etc\&.
+The default value is \fBp_string\fR\&.
 .TP
 \fB-prelude\fR string
 A snippet of code to be inserted at the head of each generated parsing
-function.
-The default value is the empty string.
+function\&.
+The default value is the empty string\&.
 .TP
 \fB-indent\fR integer
-The number of characters to indent each line of the generated code by.
-The default value is \fB0\fR.
+The number of characters to indent each line of the generated code by\&.
+The default value is \fB0\fR\&.
 .PP
 .SH "SNIT PARSER"
 The \fBsnit\fR format is executable code, a parser for the
-grammar. It is a Tcl package holding a \fBsnit::type\fR, i.e. a class,
-whose instances are parsers for the input grammar.
+grammar\&. It is a Tcl package holding a \fBsnit::type\fR, i\&.e\&. a class,
+whose instances are parsers for the input grammar\&.
 .PP
 This result-format supports the following options:
 .TP
 \fB-file\fR string
 The value of this option is the name of the file or other entity from
-which the grammar came, for which the command is run. The default
-value is \fBunknown\fR.
+which the grammar came, for which the command is run\&. The default
+value is \fBunknown\fR\&.
 .TP
 \fB-name\fR string
-The value of this option is the name of the grammar we are processing.
-The default value is \fBa_pe_grammar\fR.
+The value of this option is the name of the grammar we are processing\&.
+The default value is \fBa_pe_grammar\fR\&.
 .TP
 \fB-user\fR string
 The value of this option is the name of the user for which the command
-is run. The default value is \fBunknown\fR.
+is run\&. The default value is \fBunknown\fR\&.
 .TP
 \fB-class\fR string
 The value of this option is the name of the class to generate, without
-leading colons. Note, it serves double-duty as the name of the package
-to generate too, if option \fB-package\fR is not specified, see below.
+leading colons\&. Note, it serves double-duty as the name of the package
+to generate too, if option \fB-package\fR is not specified, see below\&.
 The default value is \fBCLASS\fR, applying if neither option
-\fB-class\fR nor \fB-package\fR were specified.
+\fB-class\fR nor \fB-package\fR were specified\&.
 .TP
 \fB-package\fR string
 The value of this option is the name of the package to generate, without
-leading colons. Note, it serves double-duty as the name of the class
-to generate too, if option \fB-class\fR is not specified, see above.
+leading colons\&. Note, it serves double-duty as the name of the class
+to generate too, if option \fB-class\fR is not specified, see above\&.
 The default value is \fBPACKAGE\fR, applying if neither option
-\fB-package\fR nor \fB-class\fR were specified.
+\fB-package\fR nor \fB-class\fR were specified\&.
 .PP
 .SH "TCLOO PARSER"
-The \fBoo\fR format is executable code, a parser for the grammar. It
+The \fBoo\fR format is executable code, a parser for the grammar\&. It
 is a Tcl package holding a \fBTclOO\fR class, whose instances are
-parsers for the input grammar.
+parsers for the input grammar\&.
 .PP
 This result-format supports the following options:
 .TP
 \fB-file\fR string
 The value of this option is the name of the file or other entity from
-which the grammar came, for which the command is run. The default
-value is \fBunknown\fR.
+which the grammar came, for which the command is run\&. The default
+value is \fBunknown\fR\&.
 .TP
 \fB-name\fR string
-The value of this option is the name of the grammar we are processing.
-The default value is \fBa_pe_grammar\fR.
+The value of this option is the name of the grammar we are processing\&.
+The default value is \fBa_pe_grammar\fR\&.
 .TP
 \fB-user\fR string
 The value of this option is the name of the user for which the command
-is run. The default value is \fBunknown\fR.
+is run\&. The default value is \fBunknown\fR\&.
 .TP
 \fB-class\fR string
 The value of this option is the name of the class to generate, without
-leading colons. Note, it serves double-duty as the name of the package
-to generate too, if option \fB-package\fR is not specified, see below.
+leading colons\&. Note, it serves double-duty as the name of the package
+to generate too, if option \fB-package\fR is not specified, see below\&.
 The default value is \fBCLASS\fR, applying if neither option
-\fB-class\fR nor \fB-package\fR were specified.
+\fB-class\fR nor \fB-package\fR were specified\&.
 .TP
 \fB-package\fR string
 The value of this option is the name of the package to generate, without
-leading colons. Note, it serves double-duty as the name of the class
-to generate too, if option \fB-class\fR is not specified, see above.
+leading colons\&. Note, it serves double-duty as the name of the class
+to generate too, if option \fB-class\fR is not specified, see above\&.
 The default value is \fBPACKAGE\fR, applying if neither option
-\fB-package\fR nor \fB-class\fR were specified.
+\fB-package\fR nor \fB-class\fR were specified\&.
 .PP
 .SH "GRAMMAR CONTAINER"
 The \fBcontainer\fR format is another form of describing parsing
-expression grammars. While data in this format is executable it does
-not constitute a parser for the grammar. It always has to be used in
+expression grammars\&. While data in this format is executable it does
+not constitute a parser for the grammar\&. It always has to be used in
 conjunction with the package \fBpt::peg::interp\fR, a grammar
-interpreter.
+interpreter\&.
 .PP
-The format represents grammars by a \fBsnit::type\fR, i.e. class,
+The format represents grammars by a \fBsnit::type\fR, i\&.e\&. class,
 whose instances are API-compatible to the instances of the
 \fBpt::peg::container\fR package, and which are preloaded with the
-grammar in question.
+grammar in question\&.
 .PP
 This result-format supports the following options:
 .TP
 \fB-file\fR string
 The value of this option is the name of the file or other entity from
-which the grammar came, for which the command is run. The default
-value is \fBunknown\fR.
+which the grammar came, for which the command is run\&. The default
+value is \fBunknown\fR\&.
 .TP
 \fB-name\fR string
-The value of this option is the name of the grammar we are processing.
-The default value is \fBa_pe_grammar\fR.
+The value of this option is the name of the grammar we are processing\&.
+The default value is \fBa_pe_grammar\fR\&.
 .TP
 \fB-user\fR string
 The value of this option is the name of the user for which the command
-is run. The default value is \fBunknown\fR.
+is run\&. The default value is \fBunknown\fR\&.
 .TP
 \fB-mode\fR \fBbulk\fR|\fBincremental\fR
 The value of this option controls which methods of
 \fBpt::peg::container\fR instances are used to specify the
-grammar, i.e. preload it into the container. There are two legal
-values, as listed below. The default is \fBbulk\fR.
+grammar, i\&.e\&. preload it into the container\&. There are two legal
+values, as listed below\&. The default is \fBbulk\fR\&.
 .RS
 .TP
 \fBbulk\fR
 In this mode the methods \fBstart\fR, \fBadd\fR, \fBmodes\fR,
 and \fBrules\fR are used to specify the grammar in a bulk manner,
-i.e. as a set of nonterminal symbols, and two dictionaries mapping
-from the symbols to their semantic modes and parsing expressions.
+i\&.e\&. as a set of nonterminal symbols, and two dictionaries mapping
+from the symbols to their semantic modes and parsing expressions\&.
 .sp
-This mode is the default.
+This mode is the default\&.
 .TP
 \fBincremental\fR
 In this mode the methods \fBstart\fR, \fBadd\fR, \fBmode\fR,
 and \fBrule\fR are used to specify the grammar piecemal, with each
-nonterminal having its own block of defining commands.
+nonterminal having its own block of defining commands\&.
 .RE
 .TP
 \fB-template\fR string
 The value of this option is a string into which to put the generated
-code and the other configuration settings. The various locations for
+code and the other configuration settings\&. The various locations for
 user-data are expected to be specified with the placeholders listed
-below. The default value is "\fB@code@\fR".
+below\&. The default value is "\fB@code@\fR"\&.
 .RS
 .TP
 \fB@user@\fR
-To be replaced with the value of the option \fB-user\fR.
+To be replaced with the value of the option \fB-user\fR\&.
 .TP
 \fB@format@\fR
-To be replaced with the the constant \fBCONTAINER\fR.
+To be replaced with the the constant \fBCONTAINER\fR\&.
 .TP
 \fB@file@\fR
-To be replaced with the value of the option \fB-file\fR.
+To be replaced with the value of the option \fB-file\fR\&.
 .TP
 \fB@name@\fR
-To be replaced with the value of the option \fB-name\fR.
+To be replaced with the value of the option \fB-name\fR\&.
 .TP
 \fB@mode@\fR
-To be replaced with the value of the option \fB-mode\fR.
+To be replaced with the value of the option \fB-mode\fR\&.
 .TP
 \fB@code@\fR
-To be replaced with the generated code.
+To be replaced with the generated code\&.
 .RE
 .PP
 .SH EXAMPLE
@@ -789,114 +790,131 @@ input, following the outline shown in the figure below:
 .PP
 IMAGE: flow
 .PP
-Our grammar, assumed to the stored in the file "\fIcalculator.peg\fR"
+Our grammar, assumed to the stored in the file "\fIcalculator\&.peg\fR"
 is
 .CS
+
+
 PEG calculator (Expression)
-Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
-Sign       <- '-' / '+'                                     ;
-Number     <- Sign? Digit+                                  ;
-Expression <- Term (AddOp Term)*                            ;
-MulOp      <- '*' / '/'                                     ;
-Term       <- Factor (MulOp Factor)*                        ;
-AddOp      <- '+'/'-'                                       ;
-Factor     <- '(' Expression ')' / Number                   ;
+    Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
+    Sign       <- '-' / '+'                                     ;
+    Number     <- Sign? Digit+                                  ;
+    Expression <- Term (AddOp Term)*                            ;
+    MulOp      <- '*' / '/'                                     ;
+    Term       <- Factor (MulOp Factor)*                        ;
+    AddOp      <- '+'/'-'                                       ;
+    Factor     <- '(' Expression ')' / Number                   ;
 END;
+
 .CE
 From this we create a snit-based parser
 via
 .CS
-pt generate snit calculator.tcl -class calculator -name calculator peg calculator.peg
+
+
+pt generate snit calculator\&.tcl -class calculator -name calculator peg calculator\&.peg
+
 .CE
 which leaves us with the parser package and class written to the file
-"\fIcalculator.tcl\fR".
+"\fIcalculator\&.tcl\fR"\&.
 Assuming that this package is then properly installed in a place where
 Tcl can find it we can now use this class via a script like
 .CS
-package require calculator
-lassign $argv input
-set channel [open $input r]
-set parser [calculator]
-set ast [$parser parse $channel]
-$parser destroy
-close $channel
-\... now process the returned abstract syntax tree ...
+
+
+    package require calculator
+
+    lassign $argv input
+    set channel [open $input r]
+
+    set parser [calculator]
+    set ast [$parser parse $channel]
+    $parser destroy
+    close $channel
+
+    \&.\&.\&. now process the returned abstract syntax tree \&.\&.\&.
+
 .CE
 where the abstract syntax tree stored in the variable will look like
 .PP
 .CS
+
+
 set ast {Expression 0 4
-{Factor 0 4
-{Term 0 2
-{Number 0 2
-{Digit 0 0}
-{Digit 1 1}
-{Digit 2 2}
+    {Factor 0 4
+        {Term 0 2
+            {Number 0 2
+                {Digit 0 0}
+                {Digit 1 1}
+                {Digit 2 2}
+            }
+        }
+        {AddOp 3 3}
+        {Term 4 4
+            {Number 4 4
+                {Digit 4 4}
+            }
+        }
+    }
 }
-}
-{AddOp 3 3}
-{Term 4 4
-{Number 4 4
-{Digit 4 4}
-}
-}
-}
-}
+
 .CE
 .PP
 assuming that the input file and channel contained the text
 .CS
-120+5
+
+ 120+5
 .CE
 A more graphical representation of the tree would be
 .PP
-\.PS
-\.nf
-                                                           +- Digit 0 0 | 1
-                                                           |            |
-                               +- Term 0 2 --- Number 0 2 -+- Digit 1 1 | 2
-                               |                           |            |
-                               |                           +- Digit 2 2 | 0
-                               |                                        |
+.PS
+\&.nf
++- Digit 0 0 | 1
+|            |
++- Term 0 2 --- Number 0 2 -+- Digit 1 1 | 2
+|                           |            |
+|                           +- Digit 2 2 | 0
+|                                        |
 Expression 0 4 --- Factor 0 4 -+----------------------------- AddOp 3 3 | +
-                               |                                        |
-                               +- Term 4 4 --- Number 4 4 --- Digit 4 4 | 5
-.fi
-\.PE
+|                                        |
++- Term 4 4 --- Number 4 4 --- Digit 4 4 | 5
+\&.fi
+.PE
 .PP
 Regardless, at this point it is the user's responsibility to work with
-the tree to reach whatever goal she desires. I.e. analyze it,
-transform it, etc. The package \fBpt::ast\fR should be of help
-here, providing commands to walk such ASTs structures in various ways.
+the tree to reach whatever goal she desires\&. I\&.e\&. analyze it,
+transform it, etc\&. The package \fBpt::ast\fR should be of help
+here, providing commands to walk such ASTs structures in various ways\&.
 .PP
 One important thing to note is that the parsers used here return a
 data structure representing the structure of the input per the grammar
-underlying the parser. There are \fIno\fR callbacks during the
-parsing process, i.e. no \fIparsing actions\fR, as most other
-parsers will have.
+underlying the parser\&. There are \fIno\fR callbacks during the
+parsing process, i\&.e\&. no \fIparsing actions\fR, as most other
+parsers will have\&.
 .PP
 Going back to the last snippet of code, the execution of the parser
 for some input, note how the parser instance follows the specified
-\fIParser API\fR.
+\fIParser API\fR\&.
 .SH INTERNALS
 This section is intended for users of the application which wish to
-modify or extend it. Users only interested in the generation of
-parsers can ignore it.
+modify or extend it\&. Users only interested in the generation of
+parsers can ignore it\&.
 .PP
 The main functionality of the application is encapsulated in the
-package \fBpt::pgen\fR. Please read it for more information.
+package \fBpt::pgen\fR\&. Please read it for more information\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIpt\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 EBNF, LL(k), PEG, TDPL, context-free languages, expression, grammar, matching, parser, parsing expression, parsing expression grammar, push down automaton, recursive descent, state, top-down parsing languages, transducer
 .SH CATEGORY
 Parsing and Grammars
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

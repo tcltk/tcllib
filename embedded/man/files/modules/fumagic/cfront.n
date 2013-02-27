@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/fumagic/cfront.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/fumagic/cfront\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,71 +237,71 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "fileutil::magic::cfront" n 1.0 tcllib "file utilities"
+.TH "fileutil::magic::cfront" n 1\&.0 tcllib "file utilities"
 .BS
 .SH NAME
 fileutil::magic::cfront \- Generator core for compiler of magic(5) files
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBfileutil::magic::cfront  ?1.0?\fR
+package require \fBfileutil::magic::cfront  ?1\&.0?\fR
 .sp
-package require \fBfileutil::magic::cgen  ?1.0?\fR
+package require \fBfileutil::magic::cgen  ?1\&.0?\fR
 .sp
-package require \fBfileutil::magic::rt  ?1.0?\fR
+package require \fBfileutil::magic::rt  ?1\&.0?\fR
 .sp
 package require \fBstruct::list \fR
 .sp
 package require \fBfileutil \fR
 .sp
-\fB::fileutil::magic::cfront::compile\fR \fIpath\fR...
+\fB::fileutil::magic::cfront::compile\fR \fIpath\fR\&.\&.\&.
 .sp
-\fB::fileutil::magic::cfront::procdef\fR \fIprocname\fR \fIpath\fR...
+\fB::fileutil::magic::cfront::procdef\fR \fIprocname\fR \fIpath\fR\&.\&.\&.
 .sp
-\fB::fileutil::magic::cfront::install\fR \fIpath\fR...
+\fB::fileutil::magic::cfront::install\fR \fIpath\fR\&.\&.\&.
 .sp
 .BE
 .SH DESCRIPTION
 .PP
 This package provides the frontend of a compiler of magic(5) files
 into recognizers based on the \fBfileutil::magic::rt\fR recognizer
-runtime package. For the generator backed used by this compiler see
-the package \fBfileutil::magic::cgen\fR.
+runtime package\&. For the generator backed used by this compiler see
+the package \fBfileutil::magic::cgen\fR\&.
 .SH COMMANDS
 .TP
-\fB::fileutil::magic::cfront::compile\fR \fIpath\fR...
+\fB::fileutil::magic::cfront::compile\fR \fIpath\fR\&.\&.\&.
 This command takes the paths of one or more files and directories and
 compiles all the files, and the files in all the directories into a
-single recognizer for all the file types specified in these files.
+single recognizer for all the file types specified in these files\&.
 .sp
-All the files have to be in the format specified by magic(5).
+All the files have to be in the format specified by magic(5)\&.
 .sp
 The result of the command is a Tcl script containing the generated
-recognizer.
+recognizer\&.
 .TP
-\fB::fileutil::magic::cfront::procdef\fR \fIprocname\fR \fIpath\fR...
+\fB::fileutil::magic::cfront::procdef\fR \fIprocname\fR \fIpath\fR\&.\&.\&.
 This command behaves like \fB::fileutil::magic::cfront::compile\fR
 with regard to the specified path arguments, then wraps the resulting
 recognizer script into a procedure named \fIprocname\fR, puts code
 setting up the namespace of \fIprocname\fR in front, and returns the
-resulting script.
+resulting script\&.
 .TP
-\fB::fileutil::magic::cfront::install\fR \fIpath\fR...
+\fB::fileutil::magic::cfront::install\fR \fIpath\fR\&.\&.\&.
 This command uses \fB::fileutil::magic::cfront::procdef\fR to compile
 each of the paths into a recognizer procedure and installs the result
-in the current interpreter.
+in the current interpreter\&.
 .sp
 The name of each new procedure is derived from the name of the
 file/directory used in its creation, with file/directory "\fIFOO\fR"
-causing the creation of procedure \fB::fileutil::magic::/FOO::run\fR.
+causing the creation of procedure \fB::fileutil::magic::/FOO::run\fR\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIfileutil :: magic\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 file(1), fileutil, magic(5)
 .SH KEYWORDS

@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/textutil/adjust.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/textutil/adjust\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,16 +237,16 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "textutil::adjust" n 0.7.1 tcllib "Text and string utilities, macro processing"
+.TH "textutil::adjust" n 0\&.7\&.1 tcllib "Text and string utilities, macro processing"
 .BS
 .SH NAME
 textutil::adjust \- Procedures to adjust, indent, and undent paragraphs
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBtextutil::adjust  ?0.7.1?\fR
+package require \fBtextutil::adjust  ?0\&.7\&.1?\fR
 .sp
-\fB::textutil::adjust::adjust\fR \fIstring\fR ?\fIoption value...\fR?
+\fB::textutil::adjust::adjust\fR \fIstring\fR ?\fIoption value\&.\&.\&.\fR?
 .sp
 \fB::textutil::adjust::readPatterns\fR \fIfilename\fR
 .sp
@@ -260,152 +261,152 @@ package require \fBtextutil::adjust  ?0.7.1?\fR
 .BE
 .SH DESCRIPTION
 The package \fBtextutil::adjust\fR provides commands that manipulate
-strings or texts (a.k.a. long strings or string with embedded newlines
-or paragraphs), adjusting, or indenting them.
+strings or texts (a\&.k\&.a\&. long strings or string with embedded newlines
+or paragraphs), adjusting, or indenting them\&.
 .PP
-The complete set of procedures is described below.
+The complete set of procedures is described below\&.
 .TP
-\fB::textutil::adjust::adjust\fR \fIstring\fR ?\fIoption value...\fR?
-Do a justification on the \fIstring\fR according to the options.  The
-string is taken as one big paragraph, ignoring any newlines.  Then the
+\fB::textutil::adjust::adjust\fR \fIstring\fR ?\fIoption value\&.\&.\&.\fR?
+Do a justification on the \fIstring\fR according to the options\&.  The
+string is taken as one big paragraph, ignoring any newlines\&.  Then the
 line is formatted according to the options used, and the command
 returns a new string with enough lines to contain all the printable
-chars in the input string. A line is a set of characters between the
+chars in the input string\&. A line is a set of characters between the
 beginning of the string and a newline, or between 2 newlines, or
-between a newline and the end of the string. If the input string is
-small enough, the returned string won't contain any newlines.
+between a newline and the end of the string\&. If the input string is
+small enough, the returned string won't contain any newlines\&.
 .sp
 Together with \fB::textutil::adjust::indent\fR it is possible to
-create properly wrapped paragraphs with arbitrary indentations.
+create properly wrapped paragraphs with arbitrary indentations\&.
 .sp
 By default, any occurrence of space or tabulation characters are
 replaced by a single space so that each word in a line is separated
 from the next one by exactly one space character, and this forms a
-\fIreal\fR line.
+\fIreal\fR line\&.
 Each \fIreal\fR line is placed in a \fIlogical\fR line, which has
-exactly a given length (see the option \fB-length\fR below).
-The \fIreal\fR line may be shorter. Again by default, trailing spaces
+exactly a given length (see the option \fB-length\fR below)\&.
+The \fIreal\fR line may be shorter\&. Again by default, trailing spaces
 are ignored before returning the string (see the option \fB-full\fR
-below).
+below)\&.
 .sp
 The following options may be used after the \fIstring\fR parameter,
 and change the way the command places a \fIreal\fR line in a
-\fIlogical\fR line.
+\fIlogical\fR line\&.
 .RS
 .TP
 \fB-full\fR \fIboolean\fR
 If set to \fBfalse\fR (default), trailing space characters are
-deleted before returning the string. If set to \fBtrue\fR, any
-trailing space characters are left in the string.
+deleted before returning the string\&. If set to \fBtrue\fR, any
+trailing space characters are left in the string\&.
 .TP
 \fB-hyphenate\fR \fIboolean\fR
-If set to \fBfalse\fR (default), no hyphenation will be done. If set
+If set to \fBfalse\fR (default), no hyphenation will be done\&. If set
 to \fBtrue\fR, the command will try to hyphenate the last word of a
-line. \fINote\fR: Hyphenation patterns must be loaded prior, using
-the command \fB::textutil::adjust::readPatterns\fR.
+line\&. \fINote\fR: Hyphenation patterns must be loaded prior, using
+the command \fB::textutil::adjust::readPatterns\fR\&.
 .TP
 \fB-justify\fR \fBcenter|left|plain|right\fR
 Sets the justification of the returned string to either \fBleft\fR
-(default), \fBcenter\fR, \fBplain\fR or \fBright\fR. The
+(default), \fBcenter\fR, \fBplain\fR or \fBright\fR\&. The
 justification means that any line in the returned string but the last
-one is build according to the value.
+one is build according to the value\&.
 If the justification is set to \fBplain\fR and the number of
 printable chars in the last line is less than 90% of the length of a
 line (see the option \fB-length\fR), then this line is justified
 with the \fBleft\fR value, avoiding the expansion of this line when
-it is too small. The meaning of each value is:
+it is too small\&. The meaning of each value is:
 .RS
 .TP
 \fBcenter\fR
-The real line is centered in the logical line. If needed, a set of
+The real line is centered in the logical line\&. If needed, a set of
 space characters are added at the beginning (half of the needed set)
 and at the end (half of the needed set) of the line if required (see
-the option \fB-full\fR).
+the option \fB-full\fR)\&.
 .TP
 \fBleft\fR
-The real line is set on the left of the logical line. It means that
-there are no space chars at the beginning of this line. If required,
+The real line is set on the left of the logical line\&. It means that
+there are no space chars at the beginning of this line\&. If required,
 all needed space chars are added at the end of the line (see the
-option \fB-full\fR).
+option \fB-full\fR)\&.
 .TP
 \fBplain\fR
-The real line is exactly set in the logical line. It means that there
-are no leading or trailing space chars. All the needed space chars are
-added in the \fIreal\fR line, between 2 (or more) words.
+The real line is exactly set in the logical line\&. It means that there
+are no leading or trailing space chars\&. All the needed space chars are
+added in the \fIreal\fR line, between 2 (or more) words\&.
 .TP
 \fBright\fR
-The real line is set on the right of the logical line. It means that
+The real line is set on the right of the logical line\&. It means that
 there are no space chars at the end of this line, and there may be
-some space chars at the beginning, despite of the \fB-full\fR option.
+some space chars at the beginning, despite of the \fB-full\fR option\&.
 .RE
 .TP
 \fB-length\fR \fIinteger\fR
 Set the length of the \fIlogical\fR line in the string to
-\fIinteger\fR.  \fIinteger\fR must be a positive integer
-value. Defaults to \fB72\fR.
+\fIinteger\fR\&.  \fIinteger\fR must be a positive integer
+value\&. Defaults to \fB72\fR\&.
 .TP
 \fB-strictlength\fR
 \fIboolean\fR]
 If set to \fBfalse\fR (default), a line can exceed the specified
-\fB-length\fR if a single word is longer than \fB-length\fR. If
+\fB-length\fR if a single word is longer than \fB-length\fR\&. If
 set to \fBtrue\fR, words that are longer than \fB-length\fR are
-split so that no line exceeds the specified \fB-length\fR.
+split so that no line exceeds the specified \fB-length\fR\&.
 .RE
 .TP
 \fB::textutil::adjust::readPatterns\fR \fIfilename\fR
 Loads the internal storage for hyphenation patterns with the contents
-of the file \fIfilename\fR. This has to be done prior to calling
+of the file \fIfilename\fR\&. This has to be done prior to calling
 command \fB::textutil::adjust::adjust\fR with "\fB-hyphenate\fR
-\fBtrue\fR", or the hyphenation process will not work correctly.
+\fBtrue\fR", or the hyphenation process will not work correctly\&.
 .sp
 The package comes with a number of predefined pattern files, and the
 command \fB::textutil::adjust::listPredefined\fR can be used to find
-out their names.
+out their names\&.
 .TP
 \fB::textutil::adjust::listPredefined\fR
 This command returns a list containing the names of the hyphenation
-files coming with this package.
+files coming with this package\&.
 .TP
 \fB::textutil::adjust::getPredefined\fR \fIfilename\fR
 Use this command to query the package for the full path name of the
-hyphenation file \fIfilename\fR coming with the package. Only the
+hyphenation file \fIfilename\fR coming with the package\&. Only the
 filenames found in the list returned by
 \fB::textutil::adjust::listPredefined\fR are legal arguments for this
-command.
+command\&.
 .TP
 \fB::textutil::adjust::indent\fR \fIstring\fR \fIprefix\fR ?\fIskip\fR?
 Each line in the \fIstring\fR is indented by adding the string
-\fIprefix\fR at its beginning. The modified string is returned
-as the result of the command.
+\fIprefix\fR at its beginning\&. The modified string is returned
+as the result of the command\&.
 .sp
 If \fIskip\fR is specified the first \fIskip\fR lines are left
-untouched. The default for \fIskip\fR is \fB0\fR, causing the
-modification of all lines. Negative values for \fIskip\fR are treated
-like \fB0\fR. In other words, \fIskip\fR > \fB0\fR creates a
-hanging indentation.
+untouched\&. The default for \fIskip\fR is \fB0\fR, causing the
+modification of all lines\&. Negative values for \fIskip\fR are treated
+like \fB0\fR\&. In other words, \fIskip\fR > \fB0\fR creates a
+hanging indentation\&.
 .sp
 Together with \fB::textutil::adjust::adjust\fR it is possible to
-create properly wrapped paragraphs with arbitrary indentations.
+create properly wrapped paragraphs with arbitrary indentations\&.
 .TP
 \fB::textutil::adjust::undent\fR \fIstring\fR
 The command computes the common prefix for all lines in \fIstring\fR
 consisting solely out of whitespace, removes this from each line and
-returns the modified string.
+returns the modified string\&.
 .sp
 Lines containing only whitespace are always reduced to completely
-empty lines. They and empty lines are also ignored when computing the
-prefix to remove.
+empty lines\&. They and empty lines are also ignored when computing the
+prefix to remove\&.
 .sp
 Together with \fB::textutil::adjust::adjust\fR it is possible to
-create properly wrapped paragraphs with arbitrary indentations.
+create properly wrapped paragraphs with arbitrary indentations\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fItextutil\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 regexp(n), split(n), string(n)
 .SH KEYWORDS

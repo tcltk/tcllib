@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/tie/tie_std.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/tie/tie_std\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,47 +238,48 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "tie" n 1.1 tcllib "Tcl Data Structures"
+.TH "tie" n 1\&.1 tcllib "Tcl Data Structures"
 .BS
 .SH NAME
 tie \- Array persistence, standard data sources
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBtie::std::log  ?1.1?\fR
+package require \fBtie::std::log  ?1\&.1?\fR
 .sp
-package require \fBtie::std::array  ?1.1?\fR
+package require \fBtie::std::array  ?1\&.1?\fR
 .sp
-package require \fBtie::std::rarray  ?1.1?\fR
+package require \fBtie::std::rarray  ?1\&.1?\fR
 .sp
-package require \fBtie::std::file  ?1.1?\fR
+package require \fBtie::std::file  ?1\&.1?\fR
 .sp
-package require \fBtie::std::growfile  ?1.1?\fR
+package require \fBtie::std::growfile  ?1\&.1?\fR
 .sp
-package require \fBtie::std::dsource  ?1.1?\fR
+package require \fBtie::std::dsource  ?1\&.1?\fR
 .sp
 .BE
 .SH DESCRIPTION
 The packages listed as requirements for this document are internal
 packages providing the standard data sources of package \fBtie\fR,
 as described in section \fISTANDARD DATA SOURCE TYPES\fR of
-\fBtie\fR's documentation.
+\fBtie\fR's documentation\&.
 .PP
 They are automatically loaded and registered by \fBtie\fR when it
 itself is requested, and as such there is no need to request them on
-their own, although it is possible to do so.
+their own, although it is possible to do so\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the packages it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fItie\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 array, database, file, metakit, persistence, tie, untie
 .SH CATEGORY
 Programming tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

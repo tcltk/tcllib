@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/math/bignum.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/bignum\&.n' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2004 Salvatore Sanfilippo <antirez at invece dot org>
 '\" Copyright (c) 2004 Arjen Markus <arjenmarkus at users dot sourceforge dot net>
 '\"
@@ -223,6 +223,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -238,14 +239,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "math::bignum" n 3.1 tcllib "Tcl Math Library"
+.TH "math::bignum" n 3\&.1 tcllib "Tcl Math Library"
 .BS
 .SH NAME
 math::bignum \- Arbitrary precision integer numbers
 .SH SYNOPSIS
-package require \fBTcl  ?8.4?\fR
+package require \fBTcl  ?8\&.4?\fR
 .sp
-package require \fBmath::bignum  ?3.1?\fR
+package require \fBmath::bignum  ?3\&.1?\fR
 .sp
 \fB::math::bignum::fromstr\fR \fIstring\fR ?\fIradix\fR?
 .sp
@@ -319,7 +320,7 @@ package require \fBmath::bignum  ?3.1?\fR
 .SH DESCRIPTION
 .PP
 The bignum package provides arbitrary precision integer math
-(also known as "big numbers") capabilities to the Tcl language.
+(also known as "big numbers") capabilities to the Tcl language\&.
 Big numbers are internally represented at Tcl lists: this
 package provides a set of procedures operating against
 the internal representation in order to:
@@ -327,199 +328,206 @@ the internal representation in order to:
 perform math operations
 .IP \(bu
 convert bignums from the internal representation to a string in
-the desired radix and vice versa.
+the desired radix and vice versa\&.
 .PP
 But the two constants "0" and "1" are automatically converted to
 the internal representation, in order to easily compare a number to zero,
-or increment a big number.
+or increment a big number\&.
 .PP
 The bignum interface is opaque, so
 operations on bignums that are not returned by procedures
-in this package (but created by hand) may lead to unspecified behaviours.
+in this package (but created by hand) may lead to unspecified behaviours\&.
 It's safe to treat bignums as pure values, so there is no need
-to free a bignum, or to duplicate it via a special operation.
+to free a bignum, or to duplicate it via a special operation\&.
 .SH EXAMPLES
-This section shows some simple example. This library being just
+This section shows some simple example\&. This library being just
 a way to perform math operations, examples may be the simplest way
-to learn how to work with it. Consult the API section of
-this man page for information about individual procedures.
+to learn how to work with it\&. Consult the API section of
+this man page for information about individual procedures\&.
 .PP
 .CS
-package require math::bignum
-# Multiplication of two bignums
-set a [::math::bignum::fromstr 88888881111111]
-set b [::math::bignum::fromstr 22222220000000]
-set c [::math::bignum::mul $a $b]
-puts [::math::bignum::tostr $c] ; # => will output 1975308271604953086420000000
-set c [::math::bignum::sqrt $c]
-puts [::math::bignum::tostr $c] ; # => will output 44444440277777
-# From/To string conversion in different radix
-set a [::math::bignum::fromstr 1100010101010111001001111010111 2]
-puts [::math::bignum::tostr $a 16] ; # => will output 62ab93d7
-# Factorial example
-proc fact n {
-# fromstr is not needed for 0 and 1
-set z 1
-for {set i 2} {$i <= $n} {incr i} {
-set z [::math::bignum::mul $z [::math::bignum::fromstr $i]]
-}
-return $z
-}
-puts [::math::bignum::tostr [fact 100]]
+
+
+    package require math::bignum
+
+    # Multiplication of two bignums
+    set a [::math::bignum::fromstr 88888881111111]
+    set b [::math::bignum::fromstr 22222220000000]
+    set c [::math::bignum::mul $a $b]
+    puts [::math::bignum::tostr $c] ; # => will output 1975308271604953086420000000
+    set c [::math::bignum::sqrt $c]
+    puts [::math::bignum::tostr $c] ; # => will output 44444440277777
+
+    # From/To string conversion in different radix
+    set a [::math::bignum::fromstr 1100010101010111001001111010111 2]
+    puts [::math::bignum::tostr $a 16] ; # => will output 62ab93d7
+
+    # Factorial example
+    proc fact n {
+        # fromstr is not needed for 0 and 1
+        set z 1
+        for {set i 2} {$i <= $n} {incr i} {
+            set z [::math::bignum::mul $z [::math::bignum::fromstr $i]]
+        }
+        return $z
+    }
+
+    puts [::math::bignum::tostr [fact 100]]
+
 .CE
 .SH API
 .TP
 \fB::math::bignum::fromstr\fR \fIstring\fR ?\fIradix\fR?
-Convert \fIstring\fR into a bignum. If \fIradix\fR is omitted or zero,
+Convert \fIstring\fR into a bignum\&. If \fIradix\fR is omitted or zero,
 the string is interpreted in hex if prefixed with
 \fI0x\fR, in octal if prefixed with \fIox\fR,
 in binary if it's pefixed with \fIbx\fR, as a number in
-radix 10 otherwise. If instead the \fIradix\fR argument
+radix 10 otherwise\&. If instead the \fIradix\fR argument
 is specified in the range 2-36, the \fIstring\fR is interpreted
-in the given radix. Please note that this conversion is
-not needed for two constants : \fI0\fR and \fI1\fR. (see the example)
+in the given radix\&. Please note that this conversion is
+not needed for two constants : \fI0\fR and \fI1\fR\&. (see the example)
 .TP
 \fB::math::bignum::tostr\fR \fIbignum\fR ?\fIradix\fR?
 Convert \fIbignum\fR into a string representing the number
-in the specified radix. If \fIradix\fR is omitted, the
-default is 10.
+in the specified radix\&. If \fIradix\fR is omitted, the
+default is 10\&.
 .TP
 \fB::math::bignum::sign\fR \fIbignum\fR
-Return the sign of the bignum.
-The procedure returns 0 if the number is positive, 1 if it's negative.
+Return the sign of the bignum\&.
+The procedure returns 0 if the number is positive, 1 if it's negative\&.
 .TP
 \fB::math::bignum::abs\fR \fIbignum\fR
-Return the absolute value of the bignum.
+Return the absolute value of the bignum\&.
 .TP
 \fB::math::bignum::cmp\fR \fIa\fR \fIb\fR
 Compare the two bignums a and b, returning \fI0\fR if \fIa == b\fR,
-\fI1\fR if \fIa > b\fR, and \fI-1\fR if \fIa < b\fR.
+\fI1\fR if \fIa > b\fR, and \fI-1\fR if \fIa < b\fR\&.
 .TP
 \fB::math::bignum::iszero\fR \fIbignum\fR
-Return true if \fIbignum\fR value is zero, otherwise false is returned.
+Return true if \fIbignum\fR value is zero, otherwise false is returned\&.
 .TP
 \fB::math::bignum::lt\fR \fIa\fR \fIb\fR
-Return true if \fIa < b\fR, otherwise false is returned.
+Return true if \fIa < b\fR, otherwise false is returned\&.
 .TP
 \fB::math::bignum::le\fR \fIa\fR \fIb\fR
-Return true if \fIa <= b\fR, otherwise false is returned.
+Return true if \fIa <= b\fR, otherwise false is returned\&.
 .TP
 \fB::math::bignum::gt\fR \fIa\fR \fIb\fR
-Return true if \fIa > b\fR, otherwise false is returned.
+Return true if \fIa > b\fR, otherwise false is returned\&.
 .TP
 \fB::math::bignum::ge\fR \fIa\fR \fIb\fR
-Return true if \fIa >= b\fR, otherwise false is returned.
+Return true if \fIa >= b\fR, otherwise false is returned\&.
 .TP
 \fB::math::bignum::eq\fR \fIa\fR \fIb\fR
-Return true if \fIa == b\fR, otherwise false is returned.
+Return true if \fIa == b\fR, otherwise false is returned\&.
 .TP
 \fB::math::bignum::ne\fR \fIa\fR \fIb\fR
-Return true if \fIa != b\fR, otherwise false is returned.
+Return true if \fIa != b\fR, otherwise false is returned\&.
 .TP
 \fB::math::bignum::isodd\fR \fIbignum\fR
-Return true if \fIbignum\fR is odd.
+Return true if \fIbignum\fR is odd\&.
 .TP
 \fB::math::bignum::iseven\fR \fIbignum\fR
-Return true if \fIbignum\fR is even.
+Return true if \fIbignum\fR is even\&.
 .TP
 \fB::math::bignum::add\fR \fIa\fR \fIb\fR
-Return the sum of the two bignums \fIa\fR and \fIb\fR.
+Return the sum of the two bignums \fIa\fR and \fIb\fR\&.
 .TP
 \fB::math::bignum::sub\fR \fIa\fR \fIb\fR
-Return the difference of the two bignums \fIa\fR and \fIb\fR.
+Return the difference of the two bignums \fIa\fR and \fIb\fR\&.
 .TP
 \fB::math::bignum::mul\fR \fIa\fR \fIb\fR
-Return the product of the two bignums \fIa\fR and \fIb\fR.
+Return the product of the two bignums \fIa\fR and \fIb\fR\&.
 The implementation uses Karatsuba multiplication if both
 the numbers are bigger than a given threshold, otherwise
-the direct algorith is used.
+the direct algorith is used\&.
 .TP
 \fB::math::bignum::divqr\fR \fIa\fR \fIb\fR
 Return a two-elements list containing as first element
 the quotient of the division between the two bignums
-\fIa\fR and \fIb\fR, and the remainder of the division as second element.
+\fIa\fR and \fIb\fR, and the remainder of the division as second element\&.
 .TP
 \fB::math::bignum::div\fR \fIa\fR \fIb\fR
 Return the quotient of the division between the two
-bignums \fIa\fR and \fIb\fR.
+bignums \fIa\fR and \fIb\fR\&.
 .TP
 \fB::math::bignum::rem\fR \fIa\fR \fIb\fR
 Return the remainder of the division between the two
-bignums \fIa\fR and \fIb\fR.
+bignums \fIa\fR and \fIb\fR\&.
 .TP
 \fB::math::bignum::mod\fR \fIn\fR \fIm\fR
-Return \fIn\fR modulo \fIm\fR. This operation is
-called modular reduction.
+Return \fIn\fR modulo \fIm\fR\&. This operation is
+called modular reduction\&.
 .TP
 \fB::math::bignum::pow\fR \fIbase\fR \fIexp\fR
-Return \fIbase\fR raised to the exponent \fIexp\fR.
+Return \fIbase\fR raised to the exponent \fIexp\fR\&.
 .TP
 \fB::math::bignum::powm\fR \fIbase\fR \fIexp\fR \fIm\fR
 Return \fIbase\fR raised to the exponent \fIexp\fR,
-modulo \fIm\fR. This function is often used in the field
-of cryptography.
+modulo \fIm\fR\&. This function is often used in the field
+of cryptography\&.
 .TP
 \fB::math::bignum::sqrt\fR \fIbignum\fR
 Return the integer part of the square root of \fIbignum\fR
 .TP
 \fB::math::bignum::rand\fR \fIbits\fR
-Return a random number of at most \fIbits\fR bits.
+Return a random number of at most \fIbits\fR bits\&.
 The returned number is internally generated using Tcl's \fIexpr rand()\fR
 function and is not suitable where an unguessable and cryptographically
-secure random number is needed.
+secure random number is needed\&.
 .TP
 \fB::math::bignum::lshift\fR \fIbignum\fR \fIbits\fR
 Return the result of left shifting \fIbignum\fR's binary
-representation of \fIbits\fR positions on the left.
-This is equivalent to multiplying by 2^\fIbits\fR but much faster.
+representation of \fIbits\fR positions on the left\&.
+This is equivalent to multiplying by 2^\fIbits\fR but much faster\&.
 .TP
 \fB::math::bignum::rshift\fR \fIbignum\fR \fIbits\fR
 Return the result of right shifting \fIbignum\fR's binary
-representation of \fIbits\fR positions on the right.
-This is equivalent to dividing by \fI2^bits\fR but much faster.
+representation of \fIbits\fR positions on the right\&.
+This is equivalent to dividing by \fI2^bits\fR but much faster\&.
 .TP
 \fB::math::bignum::bitand\fR \fIa\fR \fIb\fR
 Return the result of doing a bitwise AND operation on a
-and b. The operation is restricted to positive numbers,
-including zero. When negative numbers are provided as
-arguments the result is undefined.
+and b\&. The operation is restricted to positive numbers,
+including zero\&. When negative numbers are provided as
+arguments the result is undefined\&.
 .TP
 \fB::math::bignum::bitor\fR \fIa\fR \fIb\fR
 Return the result of doing a bitwise OR operation on a
-and b. The operation is restricted to positive numbers,
-including zero. When negative numbers are provided as
-arguments the result is undefined.
+and b\&. The operation is restricted to positive numbers,
+including zero\&. When negative numbers are provided as
+arguments the result is undefined\&.
 .TP
 \fB::math::bignum::bitxor\fR \fIa\fR \fIb\fR
 Return the result of doing a bitwise XOR operation on a
-and b. The operation is restricted to positive numbers,
-including zero. When negative numbers are provided as
-arguments the result is undefined.
+and b\&. The operation is restricted to positive numbers,
+including zero\&. When negative numbers are provided as
+arguments the result is undefined\&.
 .TP
 \fB::math::bignum::setbit\fR \fIbignumVar\fR \fIbit\fR
 Set the bit at \fIbit\fR position to 1 in the bignum stored
-in the variable \fIbignumVar\fR. Bit 0 is the least significant.
+in the variable \fIbignumVar\fR\&. Bit 0 is the least significant\&.
 .TP
 \fB::math::bignum::clearbit\fR \fIbignumVar\fR \fIbit\fR
 Set the bit at \fIbit\fR position to 0 in the bignum stored
-in the variable \fIbignumVar\fR. Bit 0 is the least significant.
+in the variable \fIbignumVar\fR\&. Bit 0 is the least significant\&.
 .TP
 \fB::math::bignum::testbit\fR \fIbignum\fR \fIbit\fR
 Return true if the bit at the \fIbit\fR position of \fIbignum\fR
-is on, otherwise false is returned. If \fIbit\fR is out of
-range, it is considered as set to zero.
+is on, otherwise false is returned\&. If \fIbit\fR is out of
+range, it is considered as set to zero\&.
 .TP
 \fB::math::bignum::bits\fR \fIbignum\fR
-Return the number of bits needed to represent bignum in radix 2.
+Return the number of bits needed to represent bignum in radix 2\&.
 .PP
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fImath :: bignum\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 bignums, math, multiprecision, tcl
 .SH CATEGORY
@@ -528,4 +536,5 @@ Mathematics
 .nf
 Copyright (c) 2004 Salvatore Sanfilippo <antirez at invece dot org>
 Copyright (c) 2004 Arjen Markus <arjenmarkus at users dot sourceforge dot net>
+
 .fi

@@ -1,7 +1,7 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/aes/aes.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2005, Pat Thoyts <patthoyts@users.sourceforge.net>
-'\" Copyright (c) 2012, Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/aes/aes\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2005, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
+'\" Copyright (c) 2012, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -223,6 +223,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -238,14 +239,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "aes" n 1.1 tcllib "Advanced Encryption Standard (AES)"
+.TH "aes" n 1\&.1 tcllib "Advanced Encryption Standard (AES)"
 .BS
 .SH NAME
 aes \- Implementation of the AES block cipher
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBaes  ?1.1?\fR
+package require \fBaes  ?1\&.1?\fR
 .sp
 \fB::aes::aes\fR ?\fI-mode [ecb|cbc]\fR? ?\fI-dir [encrypt|decrypt]\fR? \fI-key keydata\fR ?\fI-iv vector\fR? ?\fI-hex\fR? ?\fI-out channel\fR? ?\fI-chunksize size\fR? [ \fI-in channel\fR | ?\fB--\fR? \fIdata\fR ]
 .sp
@@ -263,110 +264,116 @@ package require \fBaes  ?1.1?\fR
 .SH DESCRIPTION
 .PP
 This is an implementation in Tcl of the Advanced Encryption Standard
-(AES) as published by the U.S. National Institute of Standards and
-Technology [1]. AES is a 128-bit block cipher with a variable
-key size of 128, 192 or 256 bits. This implementation supports ECB and
-CBC modes.
+(AES) as published by the U\&.S\&. National Institute of Standards and
+Technology [1]\&. AES is a 128-bit block cipher with a variable
+key size of 128, 192 or 256 bits\&. This implementation supports ECB and
+CBC modes\&.
 .SH COMMANDS
 .TP
 \fB::aes::aes\fR ?\fI-mode [ecb|cbc]\fR? ?\fI-dir [encrypt|decrypt]\fR? \fI-key keydata\fR ?\fI-iv vector\fR? ?\fI-hex\fR? ?\fI-out channel\fR? ?\fI-chunksize size\fR? [ \fI-in channel\fR | ?\fB--\fR? \fIdata\fR ]
 Perform the \fBaes\fR algorithm on either the data provided
-by the argument or on the data read from the \fI-in\fR channel. If
+by the argument or on the data read from the \fI-in\fR channel\&. If
 an \fI-out\fR channel is given then the result will be written to
-this channel.
+this channel\&.
 .sp
-The \fI-key\fR option must be given. This parameter takes a binary
+The \fI-key\fR option must be given\&. This parameter takes a binary
 string of either 16, 24 or 32 bytes in length and is used to generate the
-key schedule.
+key schedule\&.
 .sp
 The \fI-mode\fR and \fI-dir\fR options are optional and default to cbc
-mode and encrypt respectively. The initialization vector \fI-iv\fR
-takes a 16 byte binary argument which defaults to all zeros.
+mode and encrypt respectively\&. The initialization vector \fI-iv\fR
+takes a 16 byte binary argument which defaults to all zeros\&.
 See \fBMODES OF OPERATION\fR for more about available modes and
-their uses.
+their uses\&.
 .sp
-AES is a 128-bit block cipher. This means that the data must be
-provided in units that are a multiple of 16 bytes.
+AES is a 128-bit block cipher\&. This means that the data must be
+provided in units that are a multiple of 16 bytes\&.
 .PP
 .SH "PROGRAMMING INTERFACE"
 Internal state is maintained in an opaque structure that is returned
-from the \fBInit\fR function. In ECB mode the state is not affected by
+from the \fBInit\fR function\&. In ECB mode the state is not affected by
 the input but for CBC mode some input dependent state is maintained
 and may be reset by calling the \fBReset\fR function with a new
-initialization vector value.
+initialization vector value\&.
 .TP
 \fB::aes::Init\fR \fImode\fR \fIkeydata\fR \fIiv\fR
 Construct a new AES key schedule using the specified key data and the
-given initialization vector. The initialization vector is not used
-with ECB mode but is important for CBC mode.
-See \fBMODES OF OPERATION\fR for details about cipher modes.
+given initialization vector\&. The initialization vector is not used
+with ECB mode but is important for CBC mode\&.
+See \fBMODES OF OPERATION\fR for details about cipher modes\&.
 .TP
 \fB::aes::Encrypt\fR \fIKey\fR \fIdata\fR
 Use a prepared key acquired by calling \fBInit\fR to encrypt the
-provided data. The data argument should be a binary array that is a
-multiple of the AES block size of 16 bytes. The result is a binary
-array the same size as the input of encrypted data.
+provided data\&. The data argument should be a binary array that is a
+multiple of the AES block size of 16 bytes\&. The result is a binary
+array the same size as the input of encrypted data\&.
 .TP
 \fB::aes::Decrypt\fR \fIKey\fR \fIdata\fR
-Decipher data using the key. Note that the same key may be used to
+Decipher data using the key\&. Note that the same key may be used to
 encrypt and decrypt data provided that the initialization vector is
-reset appropriately for CBC mode.
+reset appropriately for CBC mode\&.
 .TP
 \fB::aes::Reset\fR \fIKey\fR \fIiv\fR
-Reset the initialization vector. This permits the programmer to re-use
+Reset the initialization vector\&. This permits the programmer to re-use
 a key and avoid the cost of re-generating the key schedule where the
-same key data is being used multiple times.
+same key data is being used multiple times\&.
 .TP
 \fB::aes::Final\fR \fIKey\fR
-This should be called to clean up resources associated with \fIKey\fR.
-Once this function has been called the key may not be used again.
+This should be called to clean up resources associated with \fIKey\fR\&.
+Once this function has been called the key may not be used again\&.
 .PP
 .SH "MODES OF OPERATION"
 .TP
 Electronic Code Book (ECB)
-ECB is the basic mode of all block ciphers. Each block is encrypted
+ECB is the basic mode of all block ciphers\&. Each block is encrypted
 independently and so identical plain text will produce identical
-output when encrypted with the same key. Any encryption errors will
+output when encrypted with the same key\&. Any encryption errors will
 only affect a single block however this is vulnerable to known
-plaintext attacks.
+plaintext attacks\&.
 .TP
 Cipher Block Chaining (CBC)
 CBC mode uses the output of the last block encryption to affect the
-current block. An initialization vector of the same size as the cipher
-block size is used to handle the first block. The initialization
+current block\&. An initialization vector of the same size as the cipher
+block size is used to handle the first block\&. The initialization
 vector should be chosen randomly and transmitted as the first block of
-the output. Errors in encryption affect the current block and the next
-block after which the cipher will correct itself. CBC is the most
-commonly used mode in software encryption. This is the default mode
-of operation for this module.
+the output\&. Errors in encryption affect the current block and the next
+block after which the cipher will correct itself\&. CBC is the most
+commonly used mode in software encryption\&. This is the default mode
+of operation for this module\&.
 .PP
 .SH EXAMPLES
 .CS
+
+
 % set nil_block [string repeat \\\\0 16]
 % aes::aes -hex -mode cbc -dir encrypt -key $nil_block $nil_block
 66e94bd4ef8a2c3b884cfa59ca342b2e
+
 .CE
 .CS
+
+
 set Key [aes::Init cbc $sixteen_bytes_key_data $sixteen_byte_iv]
 append ciphertext [aes::Encrypt $Key $plaintext]
 append ciphertext [aes::Encrypt $Key $additional_plaintext]
 aes::Final $Key
+
 .CE
 .SH REFERENCES
 .IP [1]
 "Advanced Encryption Standard",
 Federal Information Processing Standards Publication 197, 2001
-(\fIhttp://csrc.nist.gov/publications/fips/fips197/fips-197.pdf\fR)
+(\fIhttp://csrc\&.nist\&.gov/publications/fips/fips197/fips-197\&.pdf\fR)
 .PP
 .SH AUTHORS
 Thorsten Schloermann, Pat Thoyts
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIaes\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 blowfish(n), des(n), md5(n), sha1(n)
 .SH KEYWORDS
@@ -375,6 +382,7 @@ aes, block cipher, data integrity, encryption, security
 Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
-Copyright (c) 2005, Pat Thoyts <patthoyts@users.sourceforge.net>
-Copyright (c) 2012, Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2005, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
+Copyright (c) 2012, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

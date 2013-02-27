@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/term/term_send.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/term/term_send\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "term::send" n 0.1 tcllib "Terminal control"
+.TH "term::send" n 0\&.1 tcllib "Terminal control"
 .BS
 .SH NAME
 term::send \- General output to terminals
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBterm::send  ?0.1?\fR
+package require \fBterm::send  ?0\&.1?\fR
 .sp
 \fB::term::send::wrch\fR \fIchan\fR \fIstr\fR
 .sp
@@ -253,32 +254,33 @@ package require \fBterm::send  ?0.1?\fR
 .BE
 .SH DESCRIPTION
 This package provides the most primitive commands for sending characters
-to a terminal. They are in essence convenient wrappers around the
-builtin command \fBputs\fR.
+to a terminal\&. They are in essence convenient wrappers around the
+builtin command \fBputs\fR\&.
 .TP
 \fB::term::send::wrch\fR \fIchan\fR \fIstr\fR
-Send the text \fIstr\fR to the channel specified by the handle \fIchan\fR.
+Send the text \fIstr\fR to the channel specified by the handle \fIchan\fR\&.
 In contrast to the builtin command \fBputs\fR this command does not
-terminate the string with a line terminator. It also forces an  flush of
+terminate the string with a line terminator\&. It also forces an  flush of
 Tcl internal and OS buffers to ensure that the characters are processed
-immediately.
+immediately\&.
 .TP
 \fB::term::send::wr\fR \fIstr\fR
 This convenience command is like \fB::term::send::wrch\fR, except that the
-destination channel is fixed to \fIstdout\fR.
+destination channel is fixed to \fIstdout\fR\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIterm\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 character output, control, terminal
 .SH CATEGORY
 Terminal control
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

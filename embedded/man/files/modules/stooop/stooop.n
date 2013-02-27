@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/stooop/stooop.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/stooop/stooop\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,22 +237,22 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "stooop" n 4.4.1 tcllib "Simple Tcl Only Object Oriented Programming"
+.TH "stooop" n 4\&.4\&.1 tcllib "Simple Tcl Only Object Oriented Programming"
 .BS
 .SH NAME
-stooop \- Object oriented extension.
+stooop \- Object oriented extension\&.
 .SH SYNOPSIS
-package require \fBTcl  8.3\fR
+package require \fBTcl  8\&.3\fR
 .sp
-package require \fBstooop  ?4.4.1?\fR
+package require \fBstooop  ?4\&.4\&.1?\fR
 .sp
 \fB::stooop::class\fR \fIname body\fR
 .sp
-\fB::stooop::new\fR \fIclass\fR ?\fIarg arg ...\fR?
+\fB::stooop::new\fR \fIclass\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp
-\fB::stooop::delete\fR \fIobject\fR ?\fIobject ...\fR?
+\fB::stooop::delete\fR \fIobject\fR ?\fIobject \&.\&.\&.\fR?
 .sp
-\fB::stooop::virtual\fR \fBproc\fR \fIname\fR {\fBthis\fR ?\fIarg arg ...\fR?} ?\fIbody\fR?
+\fB::stooop::virtual\fR \fBproc\fR \fIname\fR {\fBthis\fR ?\fIarg arg \&.\&.\&.\fR?} ?\fIbody\fR?
 .sp
 \fB::stooop::classof\fR \fIobject\fR
 .sp
@@ -267,89 +268,95 @@ package require \fBstooop  ?4.4.1?\fR
 .SH DESCRIPTION
 .PP
 This package provides commands to extend Tcl in an object oriented
-manner, using a familiar C++ like syntax and behaviour. Stooop only
+manner, using a familiar C++ like syntax and behaviour\&. Stooop only
 introduces a few new commands: \fBclass\fR, \fBnew\fR, \fBdelete\fR,
-\fBvirtual\fR and \fBclassof\fR. Along with a few coding conventions,
-that is basically all you need to know to use stooop. Stooop is meant
-to be as simple to use as possible.
+\fBvirtual\fR and \fBclassof\fR\&. Along with a few coding conventions,
+that is basically all you need to know to use stooop\&. Stooop is meant
+to be as simple to use as possible\&.
 .PP
 This manual is very succinct and is to be used as a quick reminder for
-the programmer, who should have read the thorough \fIstooop_man.html\fR
-HTML documentation at this point.
+the programmer, who should have read the thorough \fIstooop_man\&.html\fR
+HTML documentation at this point\&.
 .TP
 \fB::stooop::class\fR \fIname body\fR
-This command creates a class. The body, similar in contents to a Tcl
+This command creates a class\&. The body, similar in contents to a Tcl
 namespace (which a class actually also is), contains member procedure
-definitions. Member procedures can also be defined outside the class
+definitions\&. Member procedures can also be defined outside the class
 body, by prefixing their name with \fBclass::\fR, as you would
-proceed with namespace procedures.
+proceed with namespace procedures\&.
 .RS
 .TP
-\fBproc\fR \fIclass\fR {\fBthis\fR ?\fIarg arg ...\fR?} ?\fIbase\fR {?\fIarg arg ...\fR?} ...? \fIbody\fR
-This is the constructor procedure for the class. It is invoked
-following a \fBnew\fR invocation on the class. It must have the same
-name as the class and a first argument named \fBthis\fR. Any number
+\fBproc\fR \fIclass\fR {\fBthis\fR ?\fIarg arg \&.\&.\&.\fR?} ?\fIbase\fR {?\fIarg arg \&.\&.\&.\fR?} \&.\&.\&.? \fIbody\fR
+This is the constructor procedure for the class\&. It is invoked
+following a \fBnew\fR invocation on the class\&. It must have the same
+name as the class and a first argument named \fBthis\fR\&. Any number
 of base classes specifications, including arguments to be passed to
 their constructor, are allowed before the actual body of the
-procedure.
+procedure\&.
 .TP
 \fBproc\fR ~\fIclass\fR {\fBthis\fR} \fIbody\fR
-This is the destructor procedure for the class. It is invoked
-following a \fBdelete\fR invocation. Its name must be the
+This is the destructor procedure for the class\&. It is invoked
+following a \fBdelete\fR invocation\&. Its name must be the
 concatenation of a single \fB~\fR character followed by the class
-name (as in C++). It must have a single argument named \fBthis\fR.
+name (as in C++)\&. It must have a single argument named \fBthis\fR\&.
 .TP
-\fBproc\fR \fIname\fR {\fBthis\fR ?\fIarg arg ...\fR?} \fIbody\fR
+\fBproc\fR \fIname\fR {\fBthis\fR ?\fIarg arg \&.\&.\&.\fR?} \fIbody\fR
 This is a member procedure of the class, as its first argument is
-named \fBthis\fR. It allows a simple access of member data for the
-object referenced by \fBthis\fR inside the procedure. For example:
+named \fBthis\fR\&. It allows a simple access of member data for the
+object referenced by \fBthis\fR inside the procedure\&. For example:
 .CS
-set ($this,data) 0
+
+
+   set ($this,data) 0
+
 .CE
 .TP
-\fBproc\fR \fIname\fR {?\fIarg arg ...\fR?} \fIbody\fR
+\fBproc\fR \fIname\fR {?\fIarg arg \&.\&.\&.\fR?} \fIbody\fR
 This is a static (as in C++) member procedure of the class, as its
-first argument is not named \fBthis\fR. Static (global) class data
+first argument is not named \fBthis\fR\&. Static (global) class data
 can be accessed as in:
 .CS
-set (data) 0
+
+
+   set (data) 0
+
 .CE
 .TP
 \fBproc\fR \fIclass\fR {\fBthis copy\fR} \fIbody\fR
-This is the optional copy procedure for the class. It must have the
+This is the optional copy procedure for the class\&. It must have the
 same name as the class and exactly 2 arguments named \fBthis\fR and
-\fBcopy\fR. It is invoked following a \fBnew\fR invocation on an
-existing object of the class.
+\fBcopy\fR\&. It is invoked following a \fBnew\fR invocation on an
+existing object of the class\&.
 .RE
 .TP
-\fB::stooop::new\fR \fIclass\fR ?\fIarg arg ...\fR?
-This command is used to create an object. The first argument is the
+\fB::stooop::new\fR \fIclass\fR ?\fIarg arg \&.\&.\&.\fR?
+This command is used to create an object\&. The first argument is the
 class name and is followed by the arguments needed by the
-corresponding class constructor. A unique identifier for the object
-just created is returned.
+corresponding class constructor\&. A unique identifier for the object
+just created is returned\&.
 .TP
-\fB::stooop::delete\fR \fIobject\fR ?\fIobject ...\fR?
-This command is used to delete one or several objects. It takes one or
-more object identifiers as argument(s).
+\fB::stooop::delete\fR \fIobject\fR ?\fIobject \&.\&.\&.\fR?
+This command is used to delete one or several objects\&. It takes one or
+more object identifiers as argument(s)\&.
 .TP
-\fB::stooop::virtual\fR \fBproc\fR \fIname\fR {\fBthis\fR ?\fIarg arg ...\fR?} ?\fIbody\fR?
+\fB::stooop::virtual\fR \fBproc\fR \fIname\fR {\fBthis\fR ?\fIarg arg \&.\&.\&.\fR?} ?\fIbody\fR?
 The \fBvirtual\fR specifier may be used on member procedures to
-achieve dynamic binding. A procedure in a base class can then be
-redefined (overloaded) in the derived class(es). If the base class
+achieve dynamic binding\&. A procedure in a base class can then be
+redefined (overloaded) in the derived class(es)\&. If the base class
 procedure is invoked on an object, it is actually the derived class
-procedure which is invoked, if it exists. If the base class procedure
+procedure which is invoked, if it exists\&. If the base class procedure
 has no body, then it is considered to be a pure virtual and the
-derived class procedure is always invoked.
+derived class procedure is always invoked\&.
 .TP
 \fB::stooop::classof\fR \fIobject\fR
 This command returns the class of the existing object passed as single
-parameter.
+parameter\&.
 .TP
 \fB::stooop::new\fR \fIobject\fR
 This command is used to create an object by copying an existing
-object. The copy constructor of the corresponding class is invoked if
+object\&. The copy constructor of the corresponding class is invoked if
 it exists, otherwise a simple copy of the copied object data members
-is performed.
+is performed\&.
 .PP
 .SH DEBUGGING
 .TP
@@ -358,82 +365,82 @@ Environment variables
 .TP
 \fBSTOOOPCHECKDATA\fR
 Setting this variable to any true value will cause stooop to check for
-invalid member or class data access.
+invalid member or class data access\&.
 .TP
 \fBSTOOOPCHECKPROCEDURES\fR
 Setting this variable to any true value will cause stooop to check for
 invalid member procedure arguments and pure interface classes
-instanciation.
+instanciation\&.
 .TP
 \fBSTOOOPCHECKALL\fR
 Setting this variable to any true value will cause stooop to activate
-both procedure and data member checking.
+both procedure and data member checking\&.
 .TP
 \fBSTOOOPCHECKOBJECTS\fR
 Setting this variable to any true value will cause stooop to activate
-object checking. The following stooop namespace procedures then become
+object checking\&. The following stooop namespace procedures then become
 available for debugging: \fBprintObjects\fR, \fBrecord\fR and
-\fBreport\fR.
+\fBreport\fR\&.
 .TP
 \fBSTOOOPTRACEPROCEDURES\fR
 Setting this environment variable to either \fBstdout\fR,
-\fBstderr\fR or a file name, activates procedure tracing. The
+\fBstderr\fR or a file name, activates procedure tracing\&. The
 stooop library will then output to the specified channel 1 line of
-informational text for each member procedure invocation.
+informational text for each member procedure invocation\&.
 .TP
 \fBSTOOOPTRACEPROCEDURESFORMAT\fR
-Defines the trace procedures output format. Defaults to
-\fB"class: %C, procedure: %p, object: %O, arguments: %a"\fR.
+Defines the trace procedures output format\&. Defaults to
+\fB"class: %C, procedure: %p, object: %O, arguments: %a"\fR\&.
 .TP
 \fBSTOOOPTRACEDATA\fR
 Setting this environment variable to either \fBstdout\fR,
-\fBstderr\fR or a file name, activates data tracing. The stooop
+\fBstderr\fR or a file name, activates data tracing\&. The stooop
 library will then output to the specified channel 1 line of
-informational text for each member data access.
+informational text for each member data access\&.
 .TP
 \fBSTOOOPTRACEDATAFORMAT\fR
-Defines the trace data output format. Defaults to
-\fB"class: %C, procedure: %p, array: %A, object: %O, member: %m, operation: %o, value: %v"\fR.
+Defines the trace data output format\&. Defaults to
+\fB"class: %C, procedure: %p, array: %A, object: %O, member: %m, operation: %o, value: %v"\fR\&.
 .TP
 \fBSTOOOPTRACEDATAOPERATIONS\fR
 When tracing data output, by default, all read, write and unsetting
 accesses are reported, but the user can set this variable to any
 combination of the letters \fBr\fR, \fBw\fR, and \fBu\fR for
 more specific tracing (please refer to the \fBtrace\fR Tcl manual page
-for more information).
+for more information)\&.
 .TP
 \fBSTOOOPTRACEALL\fR
 Setting this environment variable to either \fBstdout\fR,
 \fBstderr\fR or a file name, enables both procedure and data
-tracing.
+tracing\&.
 .RE
 .TP
 \fB::stooop::printObjects\fR ?\fIpattern\fR?
 Prints an ordered list of existing objects, in creation order, oldest
-first. Each output line contains the class name, object identifier and
-the procedure within which the creation occurred. The optional pattern
+first\&. Each output line contains the class name, object identifier and
+the procedure within which the creation occurred\&. The optional pattern
 argument (as in the Tcl \fBstring match\fR command) can be used to
-limit the output to matching class names.
+limit the output to matching class names\&.
 .TP
 \fB::stooop::record\fR
 When invoked, a snapshot of all existing stooop objects is
-taken. Reporting can then be used at a later time to see which objects
-were created or deleted in the interval.
+taken\&. Reporting can then be used at a later time to see which objects
+were created or deleted in the interval\&.
 .TP
 \fB::stooop::report\fR ?\fIpattern\fR?
 Prints the created and deleted objects since the \fB::stooop::record\fR
-procedure was invoked last. If present, the pattern argument limits
-the output to matching class names.
+procedure was invoked last\&. If present, the pattern argument limits
+the output to matching class names\&.
 .PP
 .SH EXAMPLES
-Please see the full HTML documentation in \fIstooop_man.html\fR.
+Please see the full HTML documentation in \fIstooop_man\&.html\fR\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIstooop\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 C++, class, object, object oriented
 .SH CATEGORY

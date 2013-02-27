@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/nns/nns_common.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/nns/nns_common\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,45 +238,45 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "nameserv::common" n 0.1 tcllib "Name service facility"
+.TH "nameserv::common" n 0\&.1 tcllib "Name service facility"
 .BS
 .SH NAME
 nameserv::common \- Name service facility, shared definitions
 .SH SYNOPSIS
 package require \fBTcl  8\fR
 .sp
-package require \fBnameserv::common  ?0.1?\fR
+package require \fBnameserv::common  ?0\&.1?\fR
 .sp
 \fB::nameserv::common::port\fR
 .sp
 .BE
 .SH DESCRIPTION
-Please read \fIName service facility, introduction\fR first.
+Please read \fIName service facility, introduction\fR first\&.
 .PP
-This package is internal and of no interest to users. It provides the
+This package is internal and of no interest to users\&. It provides the
 commands of the name service facility which are shared by the client
 and server implemented by the packages \fBnameserv::server\fR and
-\fBnameserv\fR (the client).
+\fBnameserv\fR (the client)\&.
 .PP
-This service is built in top of and for the package \fBcomm\fR.
-It has nothing to do with the Internet's Domain Name System. If the
+This service is built in top of and for the package \fBcomm\fR\&.
+It has nothing to do with the Internet's Domain Name System\&. If the
 reader is looking for a package dealing with that please see Tcllib's
-packages \fBdns\fR and \fBresolv\fR.
+packages \fBdns\fR and \fBresolv\fR\&.
 .SH API
 The package exports a single command, as specified below:
 .TP
 \fB::nameserv::common::port\fR
 The result returned by the command is the id of the default TCP/IP
 port a nameservice server will listen on, and a name service client
-will try to connect to.
+will try to connect to\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fInameserv\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 nameserv::client(n), nameserv::server(n)
 .SH KEYWORDS
@@ -284,5 +285,6 @@ client, name service, server
 Networking
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/term/ansi_cattr.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/term/ansi_cattr\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,20 +238,20 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "term::ansi::code::attr" n 0.1 tcllib "Terminal control"
+.TH "term::ansi::code::attr" n 0\&.1 tcllib "Terminal control"
 .BS
 .SH NAME
 term::ansi::code::attr \- ANSI attribute sequences
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBterm::ansi::code  ?0.1?\fR
+package require \fBterm::ansi::code  ?0\&.1?\fR
 .sp
-package require \fBterm::ansi::code::attr  ?0.1?\fR
+package require \fBterm::ansi::code::attr  ?0\&.1?\fR
 .sp
 \fB::term::ansi::code::attr::names\fR
 .sp
-\fB::term::ansi::code::attr::import\fR ?\fIns\fR? ?\fIarg\fR...?
+\fB::term::ansi::code::attr::import\fR ?\fIns\fR? ?\fIarg\fR\&.\&.\&.?
 .sp
 \fB::term::ansi::code::attr::fgblack\fR
 .sp
@@ -323,141 +324,142 @@ package require \fBterm::ansi::code::attr  ?0.1?\fR
 .BE
 .SH DESCRIPTION
 This package provides symbolic names for the ANSI attribute control
-codes. For each control code a single command is provided which
-returns this code as its result. None of the commands of this package
+codes\&. For each control code a single command is provided which
+returns this code as its result\&. None of the commands of this package
 write to a channel; that is handled by higher level packages, like
-\fBterm::ansi::send\fR.
+\fBterm::ansi::send\fR\&.
 .SH API
 .SS INTROSPECTION
 .TP
 \fB::term::ansi::code::attr::names\fR
-This command is for introspection. It returns as its result a list
-containing the names of all attribute commands.
+This command is for introspection\&. It returns as its result a list
+containing the names of all attribute commands\&.
 .TP
-\fB::term::ansi::code::attr::import\fR ?\fIns\fR? ?\fIarg\fR...?
+\fB::term::ansi::code::attr::import\fR ?\fIns\fR? ?\fIarg\fR\&.\&.\&.?
 This command imports some or all attribute commands into the namespace
-\fIns\fR. This is by default the namespace \fIattr\fR. Note that this
+\fIns\fR\&. This is by default the namespace \fIattr\fR\&. Note that this
 is relative namespace name, placing the imported command into a child
-of the current namespace. By default all commands are imported, this
+of the current namespace\&. By default all commands are imported, this
 can howver be restricted by listing the names of the wanted commands
-after the namespace argument.
+after the namespace argument\&.
 .PP
 .SS ATTRIBUTES
 .TP
 \fB::term::ansi::code::attr::fgblack\fR
-Set text color to \fIBlack\fR.
+Set text color to \fIBlack\fR\&.
 .TP
 \fB::term::ansi::code::attr::fgred\fR
-Set text color to \fIRed\fR.
+Set text color to \fIRed\fR\&.
 .TP
 \fB::term::ansi::code::attr::fggreen\fR
-Set text color to \fIGreen\fR.
+Set text color to \fIGreen\fR\&.
 .TP
 \fB::term::ansi::code::attr::fgyellow\fR
-Set text color to \fIYellow\fR.
+Set text color to \fIYellow\fR\&.
 .TP
 \fB::term::ansi::code::attr::fgblue\fR
-Set text color to \fIBlue\fR.
+Set text color to \fIBlue\fR\&.
 .TP
 \fB::term::ansi::code::attr::fgmagenta\fR
-Set text color to \fIMagenta\fR.
+Set text color to \fIMagenta\fR\&.
 .TP
 \fB::term::ansi::code::attr::fgcyan\fR
-Set text color to \fICyan\fR.
+Set text color to \fICyan\fR\&.
 .TP
 \fB::term::ansi::code::attr::fgwhite\fR
-Set text color to \fIWhite\fR.
+Set text color to \fIWhite\fR\&.
 .TP
 \fB::term::ansi::code::attr::fgdefault\fR
-Set default text color (\fIBlack\fR).
+Set default text color (\fIBlack\fR)\&.
 .TP
 \fB::term::ansi::code::attr::bgblack\fR
-Set background to \fIBlack\fR.
+Set background to \fIBlack\fR\&.
 .TP
 \fB::term::ansi::code::attr::bgred\fR
-Set background to \fIRed\fR.
+Set background to \fIRed\fR\&.
 .TP
 \fB::term::ansi::code::attr::bggreen\fR
-Set background to \fIGreen\fR.
+Set background to \fIGreen\fR\&.
 .TP
 \fB::term::ansi::code::attr::bgyellow\fR
-Set background to \fIYellow\fR.
+Set background to \fIYellow\fR\&.
 .TP
 \fB::term::ansi::code::attr::bgblue\fR
-Set background to \fIBlue\fR.
+Set background to \fIBlue\fR\&.
 .TP
 \fB::term::ansi::code::attr::bgmagenta\fR
-Set background to \fIMagenta\fR.
+Set background to \fIMagenta\fR\&.
 .TP
 \fB::term::ansi::code::attr::bgcyan\fR
-Set background to \fICyan\fR.
+Set background to \fICyan\fR\&.
 .TP
 \fB::term::ansi::code::attr::bgwhite\fR
-Set background to \fIWhite\fR.
+Set background to \fIWhite\fR\&.
 .TP
 \fB::term::ansi::code::attr::bgdefault\fR
-Set default background (Transparent).
+Set default background (Transparent)\&.
 .TP
 \fB::term::ansi::code::attr::bold\fR
-Bold on.
+Bold on\&.
 .TP
 \fB::term::ansi::code::attr::dim\fR
-Dim on.
+Dim on\&.
 .TP
 \fB::term::ansi::code::attr::italic\fR
-Italics on.
+Italics on\&.
 .TP
 \fB::term::ansi::code::attr::underline\fR
-Underscore on.
+Underscore on\&.
 .TP
 \fB::term::ansi::code::attr::blink\fR
-Blink on.
+Blink on\&.
 .TP
 \fB::term::ansi::code::attr::revers\fR
-Reverse on.
+Reverse on\&.
 .TP
 \fB::term::ansi::code::attr::hidden\fR
-Hidden on.
+Hidden on\&.
 .TP
 \fB::term::ansi::code::attr::strike\fR
-Strike-through on.
+Strike-through on\&.
 .TP
 \fB::term::ansi::code::attr::nobold\fR
-Bold off.
+Bold off\&.
 .TP
 \fB::term::ansi::code::attr::noitalic\fR
-Italics off.
+Italics off\&.
 .TP
 \fB::term::ansi::code::attr::nounderline\fR
-Underscore off.
+Underscore off\&.
 .TP
 \fB::term::ansi::code::attr::noblink\fR
-Blink off.
+Blink off\&.
 .TP
 \fB::term::ansi::code::attr::norevers\fR
-Reverse off.
+Reverse off\&.
 .TP
 \fB::term::ansi::code::attr::nohidden\fR
-Hidden off.
+Hidden off\&.
 .TP
 \fB::term::ansi::code::attr::nostrike\fR
-Strike-through off.
+Strike-through off\&.
 .TP
 \fB::term::ansi::code::attr::reset\fR
-Reset all attributes to their default values.
+Reset all attributes to their default values\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIterm\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 ansi, attribute control, color control, control, terminal
 .SH CATEGORY
 Terminal control
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

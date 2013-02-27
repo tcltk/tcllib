@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/math/decimal.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/decimal\&.n' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2011 Mark Alston <mark at beernut dot com>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,12 +238,12 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "math::decimal" n 1.0.2 tcllib "Tcl Decimal Arithmetic Library"
+.TH "math::decimal" n 1\&.0\&.2 tcllib "Tcl Decimal Arithmetic Library"
 .BS
 .SH NAME
 math::decimal \- General decimal arithmetic
 .SH SYNOPSIS
-package require \fBTcl  ?8.5?\fR
+package require \fBTcl  ?8\&.5?\fR
 .sp
 \fB::math::decimal::fromstr\fR \fIstring\fR
 .sp
@@ -322,97 +323,105 @@ package require \fBTcl  ?8.5?\fR
 .SH DESCRIPTION
 .PP
 The decimal package provides decimal arithmetic support for both limited
-precision floating point and arbitrary precision floating point.
-Additionally, integer arithmetic is supported.
+precision floating point and arbitrary precision floating point\&.
+Additionally, integer arithmetic is supported\&.
 .PP
 More information and the specifications on which this package depends can be
-found on the general decimal arithmetic page at http://speleotrove.com/decimal
+found on the general decimal arithmetic page at http://speleotrove\&.com/decimal
 This package provides for:
 .IP \(bu
 A new data type decimal which is represented as a list containing sign,
-mantissa and exponent.
+mantissa and exponent\&.
 .IP \(bu
 Arithmetic operations on those decimal numbers such as addition, subtraction,
-multiplication, etc...
+multiplication, etc\&.\&.\&.
 .PP
 .PP
-Numbers are converted to decimal format using the operation ::math::decimal::fromstr.
+Numbers are converted to decimal format using the operation ::math::decimal::fromstr\&.
 .PP
 Numbers are converted back to string format using the operation
-::math::decimal::tostr.
+::math::decimal::tostr\&.
 .PP
 .SH EXAMPLES
-This section shows some simple examples. Since the purpose of this library
+This section shows some simple examples\&. Since the purpose of this library
 is to perform decimal math operations, examples may be the simplest way
 to learn how to work with it and to see the difference between using this
-package and sticking with expr. Consult the API section of
-this man page for information about individual procedures.
+package and sticking with expr\&. Consult the API section of
+this man page for information about individual procedures\&.
 .PP
 .CS
-package require decimal
-# Various operations on two numbers.
-# We first convert them to decimal format.
-set a [::math::decimal::fromstr 8.2]
-set b [::math::decimal::fromstr .2]
-# Then we perform our operations. Here we multiply
-set c [::math::decimal::* $a $b]
-# Finally we convert back to string format for presentation to the user.
-puts [::math::decimal::tostr $c] ; # => will output 8.4
-# Other examples
-#
-# Subtraction
-set c [::math::decimal::- $a $b]
-puts [::math::decimal::tostr $c] ; # => will output 8.0
-# Why bother using this instead of simply expr?
-puts 8.399999999999999 ; # => will output 8.399999999999999
-puts 7.999999999999999 ; # => will output 7.999999999999999
-# See http://speleotrove.com/decimal to learn more about why this happens.
+
+
+    package require decimal
+
+    # Various operations on two numbers\&.
+    # We first convert them to decimal format\&.
+    set a [::math::decimal::fromstr 8\&.2]
+    set b [::math::decimal::fromstr \&.2]
+
+    # Then we perform our operations\&. Here we multiply
+    set c [::math::decimal::* $a $b]
+
+    # Finally we convert back to string format for presentation to the user\&.
+    puts [::math::decimal::tostr $c] ; # => will output 8\&.4
+
+    # Other examples
+    #
+    # Subtraction
+    set c [::math::decimal::- $a $b]
+    puts [::math::decimal::tostr $c] ; # => will output 8\&.0
+
+    # Why bother using this instead of simply expr?
+    puts 8\&.399999999999999 ; # => will output 8\&.399999999999999
+    puts 7\&.999999999999999 ; # => will output 7\&.999999999999999
+    # See http://speleotrove\&.com/decimal to learn more about why this happens\&.
+
 .CE
 .SH API
 .TP
 \fB::math::decimal::fromstr\fR \fIstring\fR
-Convert \fIstring\fR into a decimal.
+Convert \fIstring\fR into a decimal\&.
 .TP
 \fB::math::decimal::tostr\fR \fIdecimal\fR
-Convert \fIdecimal\fR into a string representing the number in base 10.
+Convert \fIdecimal\fR into a string representing the number in base 10\&.
 .TP
 \fB::math::decimal::setVariable\fR \fIvariable\fR \fIsetting\fR
-Sets the \fIvariable\fR to \fIsetting\fR. Valid variables are:
+Sets the \fIvariable\fR to \fIsetting\fR\&. Valid variables are:
 .RS
 .IP \(bu
-\fIrounding\fR - Method of rounding to use during rescale. Valid
+\fIrounding\fR - Method of rounding to use during rescale\&. Valid
 methods are round_half_even, round_half_up, round_half_down,
-round_down, round_up, round_floor, round_ceiling.
+round_down, round_up, round_floor, round_ceiling\&.
 .IP \(bu
-\fIprecision\fR - Maximum number of digits allowed in mantissa.
+\fIprecision\fR - Maximum number of digits allowed in mantissa\&.
 .IP \(bu
-\fIextended\fR - Set to 1 for extended mode. 0 for simplified mode.
+\fIextended\fR - Set to 1 for extended mode\&. 0 for simplified mode\&.
 .IP \(bu
-\fImaxExponent\fR - Maximum value for the exponent. Defaults to 999.
+\fImaxExponent\fR - Maximum value for the exponent\&. Defaults to 999\&.
 .IP \(bu
-\fIminExponent\fR - Minimum value for the exponent. Default to -998.
+\fIminExponent\fR - Minimum value for the exponent\&. Default to -998\&.
 .RE
 .TP
 \fB::math::decimal::add\fR \fIa\fR \fIb\fR
 .TP
 \fB::math::decimal::+\fR \fIa\fR \fIb\fR
-Return the sum of the two decimals \fIa\fR and \fIb\fR.
+Return the sum of the two decimals \fIa\fR and \fIb\fR\&.
 .TP
 \fB::math::decimal::subtract\fR \fIa\fR \fIb\fR
 .TP
 \fB::math::decimal::-\fR \fIa\fR \fIb\fR
-Return the differnece of the two decimals \fIa\fR and \fIb\fR.
+Return the differnece of the two decimals \fIa\fR and \fIb\fR\&.
 .TP
 \fB::math::decimal::multiply\fR \fIa\fR \fIb\fR
 .TP
 \fB::math::decimal::*\fR \fIa\fR \fIb\fR
-Return the product of the two decimals \fIa\fR and \fIb\fR.
+Return the product of the two decimals \fIa\fR and \fIb\fR\&.
 .TP
 \fB::math::decimal::divide\fR \fIa\fR \fIb\fR
 .TP
 \fB::math::decimal::/\fR \fIa\fR \fIb\fR
 Return the quotient of the division between the two
-decimals \fIa\fR and \fIb\fR.
+decimals \fIa\fR and \fIb\fR\&.
 .TP
 \fB::math::decimal::divideint\fR \fIa\fR \fIb\fR
 Return a the integer portion of the quotient of the division between
@@ -420,91 +429,91 @@ decimals \fIa\fR and \fIb\fR
 .TP
 \fB::math::decimal::remainder\fR \fIa\fR \fIb\fR
 Return the remainder of the division between the two
-decimals \fIa\fR and \fIb\fR.
+decimals \fIa\fR and \fIb\fR\&.
 .TP
 \fB::math::decimal::abs\fR \fIdecimal\fR
-Return the absolute value of the decimal.
+Return the absolute value of the decimal\&.
 .TP
 \fB::math::decimal::compare\fR \fIa\fR \fIb\fR
 Compare the two decimals a and b, returning \fI0\fR if \fIa == b\fR,
-\fI1\fR if \fIa > b\fR, and \fI-1\fR if \fIa < b\fR.
+\fI1\fR if \fIa > b\fR, and \fI-1\fR if \fIa < b\fR\&.
 .TP
 \fB::math::decimal::max\fR \fIa\fR \fIb\fR
-Compare the two decimals a and b, and return \fIa\fR if \fIa >= b\fR, and \fIb\fR if \fIa < b\fR.
+Compare the two decimals a and b, and return \fIa\fR if \fIa >= b\fR, and \fIb\fR if \fIa < b\fR\&.
 .TP
 \fB::math::decimal::maxmag\fR \fIa\fR \fIb\fR
-Compare the two decimals a and b while ignoring their signs, and return \fIa\fR if \fIabs(a) >= abs(b)\fR, and \fIb\fR if \fIabs(a) < abs(b)\fR.
+Compare the two decimals a and b while ignoring their signs, and return \fIa\fR if \fIabs(a) >= abs(b)\fR, and \fIb\fR if \fIabs(a) < abs(b)\fR\&.
 .TP
 \fB::math::decimal::min\fR \fIa\fR \fIb\fR
-Compare the two decimals a and b, and return \fIa\fR if \fIa <= b\fR, and \fIb\fR if \fIa > b\fR.
+Compare the two decimals a and b, and return \fIa\fR if \fIa <= b\fR, and \fIb\fR if \fIa > b\fR\&.
 .TP
 \fB::math::decimal::minmag\fR \fIa\fR \fIb\fR
-Compare the two decimals a and b while ignoring their signs, and return \fIa\fR if \fIabs(a) <= abs(b)\fR, and \fIb\fR if \fIabs(a) > abs(b)\fR.
+Compare the two decimals a and b while ignoring their signs, and return \fIa\fR if \fIabs(a) <= abs(b)\fR, and \fIb\fR if \fIabs(a) > abs(b)\fR\&.
 .TP
 \fB::math::decimal::plus\fR \fIa\fR
-Return the result from \fI::math::decimal::+ 0 $a\fR.
+Return the result from \fI::math::decimal::+ 0 $a\fR\&.
 .TP
 \fB::math::decimal::minus\fR \fIa\fR
-Return the result from \fI::math::decimal::- 0 $a\fR.
+Return the result from \fI::math::decimal::- 0 $a\fR\&.
 .TP
 \fB::math::decimal::copynegate\fR \fIa\fR
-Returns \fIa\fR with the sign flipped.
+Returns \fIa\fR with the sign flipped\&.
 .TP
 \fB::math::decimal::copysign\fR \fIa\fR \fIb\fR
-Returns \fIa\fR with the sign set to the sign of the \fIb\fR.
+Returns \fIa\fR with the sign set to the sign of the \fIb\fR\&.
 .TP
 \fB::math::decimal::is-signed\fR \fIdecimal\fR
-Return the sign of the decimal.
-The procedure returns 0 if the number is positive, 1 if it's negative.
+Return the sign of the decimal\&.
+The procedure returns 0 if the number is positive, 1 if it's negative\&.
 .TP
 \fB::math::decimal::is-zero\fR \fIdecimal\fR
-Return true if \fIdecimal\fR value is zero, otherwise false is returned.
+Return true if \fIdecimal\fR value is zero, otherwise false is returned\&.
 .TP
 \fB::math::decimal::is-NaN\fR \fIdecimal\fR
-Return true if \fIdecimal\fR value is NaN (not a number), otherwise false is returned.
+Return true if \fIdecimal\fR value is NaN (not a number), otherwise false is returned\&.
 .TP
 \fB::math::decimal::is-infinite\fR \fIdecimal\fR
-Return true if \fIdecimal\fR value is Infinite, otherwise false is returned.
+Return true if \fIdecimal\fR value is Infinite, otherwise false is returned\&.
 .TP
 \fB::math::decimal::is-finite\fR \fIdecimal\fR
-Return true if \fIdecimal\fR value is finite, otherwise false is returned.
+Return true if \fIdecimal\fR value is finite, otherwise false is returned\&.
 .TP
 \fB::math::decimal::fma\fR \fIa\fR \fIb\fR \fIc\fR
-Return the result from first multiplying \fIa\fR by \fIb\fR and then adding \fIc\fR. Rescaling only occurs after completion of all operations. In this way the result may vary from that returned by performing the operations individually.
+Return the result from first multiplying \fIa\fR by \fIb\fR and then adding \fIc\fR\&. Rescaling only occurs after completion of all operations\&. In this way the result may vary from that returned by performing the operations individually\&.
 .TP
 \fB::math::decimal::round_half_even\fR \fIdecimal\fR \fIdigits\fR
-Rounds \fIdecimal\fR to \fIdigits\fR number of decimal points with the following rules: Round to the nearest. If equidistant, round so the final digit is even.
+Rounds \fIdecimal\fR to \fIdigits\fR number of decimal points with the following rules: Round to the nearest\&. If equidistant, round so the final digit is even\&.
 .TP
 \fB::math::decimal::round_half_up\fR \fIdecimal\fR \fIdigits\fR
-Rounds \fIdecimal\fR to \fIdigits\fR number of decimal points with the following rules: Round to the nearest. If equidistant, round up.
+Rounds \fIdecimal\fR to \fIdigits\fR number of decimal points with the following rules: Round to the nearest\&. If equidistant, round up\&.
 .TP
 \fB::math::decimal::round_half_down\fR \fIdecimal\fR \fIdigits\fR
-Rounds \fIdecimal\fR to \fIdigits\fR number of decimal points with the following rules: Round to the nearest. If equidistant, round down.
+Rounds \fIdecimal\fR to \fIdigits\fR number of decimal points with the following rules: Round to the nearest\&. If equidistant, round down\&.
 .TP
 \fB::math::decimal::round_down\fR \fIdecimal\fR \fIdigits\fR
-Rounds \fIdecimal\fR to \fIdigits\fR number of decimal points with the following rules: Round toward 0.  (Truncate)
+Rounds \fIdecimal\fR to \fIdigits\fR number of decimal points with the following rules: Round toward 0\&.  (Truncate)
 .TP
 \fB::math::decimal::round_up\fR \fIdecimal\fR \fIdigits\fR
 Rounds \fIdecimal\fR to \fIdigits\fR number of decimal points with the following rules: Round away from 0
 .TP
 \fB::math::decimal::round_floor\fR \fIdecimal\fR \fIdigits\fR
-Rounds \fIdecimal\fR to \fIdigits\fR number of decimal points with the following rules: Round toward -Infinity.
+Rounds \fIdecimal\fR to \fIdigits\fR number of decimal points with the following rules: Round toward -Infinity\&.
 .TP
 \fB::math::decimal::round_ceiling\fR \fIdecimal\fR \fIdigits\fR
 Rounds \fIdecimal\fR to \fIdigits\fR number of decimal points with the following rules: Round toward Infinity
 .TP
 \fB::math::decimal::round_05up\fR \fIdecimal\fR \fIdigits\fR
-Rounds \fIdecimal\fR to \fIdigits\fR number of decimal points with the following rules: Round zero or five away from 0. The same as round-up, except that rounding up only occurs if the digit to be rounded up is 0 or 5, and after overflow
-the result is the same as for round-down.
+Rounds \fIdecimal\fR to \fIdigits\fR number of decimal points with the following rules: Round zero or five away from 0\&. The same as round-up, except that rounding up only occurs if the digit to be rounded up is 0 or 5, and after overflow
+the result is the same as for round-down\&.
 .PP
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIDecimal\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 decimal, math, tcl
 .SH CATEGORY
@@ -512,4 +521,5 @@ Mathematics
 .SH COPYRIGHT
 .nf
 Copyright (c) 2011 Mark Alston <mark at beernut dot com>
+
 .fi

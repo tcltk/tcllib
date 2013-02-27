@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/coroutine/coro_auto.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2010-2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/coroutine/coro_auto\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2010-2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -242,20 +243,20 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 coroutine::auto \- Automatic event and IO coroutine awareness
 .SH SYNOPSIS
-package require \fBTcl  8.6\fR
+package require \fBTcl  8\&.6\fR
 .sp
-package require \fBcoroutine::auto  1.1\fR
+package require \fBcoroutine::auto  1\&.1\fR
 .sp
-package require \fBcoroutine  1.1\fR
+package require \fBcoroutine  1\&.1\fR
 .sp
 .BE
 .SH DESCRIPTION
 The \fBcoroutine::auto\fR package provides no commands or other
-directly visible functionality.
+directly visible functionality\&.
 Built on top of the package \fBcoroutine\fR, it intercepts various
 builtin commands of the Tcl core to make any code using them
-coroutine-oblivious, i.e. able to run inside and outside of a
-coroutine without changes.
+coroutine-oblivious, i\&.e\&. able to run inside and outside of a
+coroutine without changes\&.
 .PP
 The commands so affected by this package are
 .TP
@@ -275,16 +276,17 @@ The commands so affected by this package are
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIcoroutine\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 after, channel, coroutine, events, exit, gets, global, green threads, read, threads, update, vwait
 .SH CATEGORY
 Coroutine
 .SH COPYRIGHT
 .nf
-Copyright (c) 2010-2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2010-2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

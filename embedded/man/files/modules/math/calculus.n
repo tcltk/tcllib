@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/math/calculus.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/calculus\&.n' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002,2003,2004 Arjen Markus
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "math::calculus" n 0.7.1 tcllib "Tcl Math Library"
+.TH "math::calculus" n 0\&.7\&.1 tcllib "Tcl Math Library"
 .BS
 .SH NAME
 math::calculus \- Integration and ordinary differential equations
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBmath::calculus  0.7.1\fR
+package require \fBmath::calculus  0\&.7\&.1\fR
 .sp
 \fB::math::calculus::integral\fR \fIbegin\fR \fIend\fR \fInosteps\fR \fIfunc\fR
 .sp
@@ -282,45 +283,45 @@ This package implements several simple mathematical algorithms:
 The integration of a function over an interval
 .IP \(bu
 The numerical integration of a system of ordinary differential
-equations.
+equations\&.
 .IP \(bu
-Estimating the root(s) of an equation of one variable.
+Estimating the root(s) of an equation of one variable\&.
 .PP
 .PP
-The package is fully implemented in Tcl. No particular attention has
-been paid to the accuracy of the calculations. Instead, well-known
-algorithms have been used in a straightforward manner.
+The package is fully implemented in Tcl\&. No particular attention has
+been paid to the accuracy of the calculations\&. Instead, well-known
+algorithms have been used in a straightforward manner\&.
 .PP
-This document describes the procedures and explains their usage.
+This document describes the procedures and explains their usage\&.
 .SH PROCEDURES
 This package defines the following public procedures:
 .TP
 \fB::math::calculus::integral\fR \fIbegin\fR \fIend\fR \fInosteps\fR \fIfunc\fR
 Determine the integral of the given function using the Simpson
-rule. The interval for the integration is [\fIbegin\fR, \fIend\fR].
+rule\&. The interval for the integration is [\fIbegin\fR, \fIend\fR]\&.
 The remaining arguments are:
 .RS
 .TP
 \fInosteps\fR
-Number of steps in which the interval is divided.
+Number of steps in which the interval is divided\&.
 .TP
 \fIfunc\fR
-Function to be integrated. It should take one single argument.
+Function to be integrated\&. It should take one single argument\&.
 .RE
 .sp
 .TP
 \fB::math::calculus::integralExpr\fR \fIbegin\fR \fIend\fR \fInosteps\fR \fIexpression\fR
 Similar to the previous proc, this one determines the integral of
-the given \fIexpression\fR using the Simpson rule.
-The interval for the integration is [\fIbegin\fR, \fIend\fR].
+the given \fIexpression\fR using the Simpson rule\&.
+The interval for the integration is [\fIbegin\fR, \fIend\fR]\&.
 The remaining arguments are:
 .RS
 .TP
 \fInosteps\fR
-Number of steps in which the interval is divided.
+Number of steps in which the interval is divided\&.
 .TP
 \fIexpression\fR
-Expression to be integrated. It should
+Expression to be integrated\&. It should
 use the variable "x" as the only variable (the "integrate")
 .RE
 .sp
@@ -331,148 +332,157 @@ use the variable "x" as the only variable (the "integrate")
 The commands \fBintegral2D\fR and \fBintegral2D_accurate\fR calculate the
 integral of a function of two variables over the rectangle given by the
 first two arguments, each a list of three items, the start and
-stop interval for the variable and the number of steps.
+stop interval for the variable and the number of steps\&.
 .sp
 The command \fBintegral2D\fR evaluates the function at the centre of
 each rectangle, whereas the command \fBintegral2D_accurate\fR uses a
-four-point quadrature formula. This results in an exact integration of
-polynomials of third degree or less.
+four-point quadrature formula\&. This results in an exact integration of
+polynomials of third degree or less\&.
 .sp
 The function must take two arguments and return the function
-value.
+value\&.
 .TP
 \fB::math::calculus::integral3D\fR \fIxinterval\fR \fIyinterval\fR \fIzinterval\fR \fIfunc\fR
 .TP
 \fB::math::calculus::integral3D_accurate\fR \fIxinterval\fR \fIyinterval\fR \fIzinterval\fR \fIfunc\fR
 The commands \fBintegral3D\fR and \fBintegral3D_accurate\fR are the
-three-dimensional equivalent of \fBintegral2D\fR and \fBintegral3D_accurate\fR.
+three-dimensional equivalent of \fBintegral2D\fR and \fBintegral3D_accurate\fR\&.
 The function \fIfunc\fR takes three arguments and is integrated over the block in
-3D space given by three intervals.
+3D space given by three intervals\&.
 .TP
 \fB::math::calculus::eulerStep\fR \fIt\fR \fItstep\fR \fIxvec\fR \fIfunc\fR
 Set a single step in the numerical integration of a system of
-differential equations. The method used is Euler's.
+differential equations\&. The method used is Euler's\&.
 .RS
 .TP
 \fIt\fR
 Value of the independent variable (typically time)
-at the beginning of the step.
+at the beginning of the step\&.
 .TP
 \fItstep\fR
-Step size for the independent variable.
+Step size for the independent variable\&.
 .TP
 \fIxvec\fR
 List (vector) of dependent values
 .TP
 \fIfunc\fR
 Function of t and the dependent values, returning
-a list of the derivatives of the dependent values. (The lengths of
-xvec and the return value of "func" must match).
+a list of the derivatives of the dependent values\&. (The lengths of
+xvec and the return value of "func" must match)\&.
 .RE
 .sp
 .TP
 \fB::math::calculus::heunStep\fR \fIt\fR \fItstep\fR \fIxvec\fR \fIfunc\fR
 Set a single step in the numerical integration of a system of
-differential equations. The method used is Heun's.
+differential equations\&. The method used is Heun's\&.
 .RS
 .TP
 \fIt\fR
 Value of the independent variable (typically time)
-at the beginning of the step.
+at the beginning of the step\&.
 .TP
 \fItstep\fR
-Step size for the independent variable.
+Step size for the independent variable\&.
 .TP
 \fIxvec\fR
 List (vector) of dependent values
 .TP
 \fIfunc\fR
 Function of t and the dependent values, returning
-a list of the derivatives of the dependent values. (The lengths of
-xvec and the return value of "func" must match).
+a list of the derivatives of the dependent values\&. (The lengths of
+xvec and the return value of "func" must match)\&.
 .RE
 .sp
 .TP
 \fB::math::calculus::rungeKuttaStep\fR \fIt\fR \fItstep\fR \fIxvec\fR \fIfunc\fR
 Set a single step in the numerical integration of a system of
-differential equations. The method used is Runge-Kutta 4th
-order.
+differential equations\&. The method used is Runge-Kutta 4th
+order\&.
 .RS
 .TP
 \fIt\fR
 Value of the independent variable (typically time)
-at the beginning of the step.
+at the beginning of the step\&.
 .TP
 \fItstep\fR
-Step size for the independent variable.
+Step size for the independent variable\&.
 .TP
 \fIxvec\fR
 List (vector) of dependent values
 .TP
 \fIfunc\fR
 Function of t and the dependent values, returning
-a list of the derivatives of the dependent values. (The lengths of
-xvec and the return value of "func" must match).
+a list of the derivatives of the dependent values\&. (The lengths of
+xvec and the return value of "func" must match)\&.
 .RE
 .sp
 .TP
 \fB::math::calculus::boundaryValueSecondOrder\fR \fIcoeff_func\fR \fIforce_func\fR \fIleftbnd\fR \fIrightbnd\fR \fInostep\fR
 Solve a second order linear differential equation with boundary
-values at two sides. The equation has to be of the form (the
+values at two sides\&. The equation has to be of the form (the
 "conservative" form):
 .CS
-d      dy     d
--- A(x)--  +  -- B(x)y + C(x)y  =  D(x)
-dx     dx     dx
+
+
+         d      dy     d
+         -- A(x)--  +  -- B(x)y + C(x)y  =  D(x)
+         dx     dx     dx
+
 .CE
 .IP
 Ordinarily, such an equation would be written as:
 .CS
-d2y        dy
-a(x)---  + b(x)-- + c(x) y  =  D(x)
-dx2        dx
+
+
+             d2y        dy
+         a(x)---  + b(x)-- + c(x) y  =  D(x)
+             dx2        dx
+
 .CE
 .IP
 The first form is easier to discretise (by integrating over a
-finite volume) than the second form. The relation between the two
+finite volume) than the second form\&. The relation between the two
 forms is fairly straightforward:
 .CS
-A(x)  =  a(x)
-B(x)  =  b(x) - a'(x)
-C(x)  =  c(x) - B'(x)  =  c(x) - b'(x) + a''(x)
+
+
+         A(x)  =  a(x)
+         B(x)  =  b(x) - a'(x)
+         C(x)  =  c(x) - B'(x)  =  c(x) - b'(x) + a''(x)
+
 .CE
 .IP
 Because of the differentiation, however, it is much easier to ask
-the user to provide the functions A, B and C directly.
+the user to provide the functions A, B and C directly\&.
 .RS
 .TP
 \fIcoeff_func\fR
 Procedure returning the three coefficients
-(A, B, C) of the equation, taking as its one argument the x-coordinate.
+(A, B, C) of the equation, taking as its one argument the x-coordinate\&.
 .TP
 \fIforce_func\fR
 Procedure returning the right-hand side
-(D) as a function of the x-coordinate.
+(D) as a function of the x-coordinate\&.
 .TP
 \fIleftbnd\fR
 A list of two values: the x-coordinate of the
-left boundary and the value at that boundary.
+left boundary and the value at that boundary\&.
 .TP
 \fIrightbnd\fR
 A list of two values: the x-coordinate of the
-right boundary and the value at that boundary.
+right boundary and the value at that boundary\&.
 .TP
 \fInostep\fR
 Number of steps by which to discretise the
-interval.
+interval\&.
 The procedure returns a list of x-coordinates and the approximated
-values of the solution.
+values of the solution\&.
 .RE
 .sp
 .TP
 \fB::math::calculus::solveTriDiagonal\fR \fIacoeff\fR \fIbcoeff\fR \fIccoeff\fR \fIdvalue\fR
 Solve a system of linear equations Ax = b with A a tridiagonal
-matrix. Returns the solution as a list.
+matrix\&. Returns the solution as a list\&.
 .RS
 .TP
 \fIacoeff\fR
@@ -492,10 +502,13 @@ List of values on the righthand-side
 \fB::math::calculus::newtonRaphson\fR \fIfunc\fR \fIderiv\fR \fIinitval\fR
 Determine the root of an equation given by
 .CS
-func(x) = 0
+
+
+    func(x) = 0
+
 .CE
 .IP
-using the method of Newton-Raphson. The procedure takes the following
+using the method of Newton-Raphson\&. The procedure takes the following
 arguments:
 .RS
 .TP
@@ -518,22 +531,22 @@ Set the numerical parameters for the Newton-Raphson method:
 Maximum number of iteration steps (defaults to 20)
 .TP
 \fItolerance\fR
-Relative precision (defaults to 0.001)
+Relative precision (defaults to 0\&.001)
 .RE
 .TP
 \fB::math::calculus::regula_falsi\fR \fIf\fR \fIxb\fR \fIxe\fR \fIeps\fR
 Return an estimate of the zero or one of the zeros of the function
-contained in the interval [xb,xe]. The error in this estimate is of the
-order of eps*abs(xe-xb), the actual error may be slightly larger.
+contained in the interval [xb,xe]\&. The error in this estimate is of the
+order of eps*abs(xe-xb), the actual error may be slightly larger\&.
 .sp
 The method used is the so-called \fIregula falsi\fR or
-\fIfalse position\fR method. It is a straightforward implementation.
+\fIfalse position\fR method\&. It is a straightforward implementation\&.
 The method is robust, but requires that the interval brackets a zero or
 at least an uneven number of zeros, so that the value of the function at
-the start has a different sign than the value at the end.
+the start has a different sign than the value at the end\&.
 .sp
 In contrast to Newton-Raphson there is no need for the computation of
-the function's derivative.
+the function's derivative\&.
 .RS
 .TP
 command \fIf\fR
@@ -548,40 +561,43 @@ float \fIxe\fR
 End of the interval
 .TP
 float \fIeps\fR
-Relative allowed error (defaults to 1.0e-4)
+Relative allowed error (defaults to 1\&.0e-4)
 .RE
 .PP
 .PP
 \fINotes:\fR
 .PP
 Several of the above procedures take the \fInames\fR of procedures as
-arguments. To avoid problems with the \fIvisibility\fR of these
+arguments\&. To avoid problems with the \fIvisibility\fR of these
 procedures, the fully-qualified name of these procedures is determined
-inside the calculus routines. For the user this has only one
+inside the calculus routines\&. For the user this has only one
 consequence: the named procedure must be visible in the calling
-procedure. For instance:
+procedure\&. For instance:
 .CS
-namespace eval ::mySpace {
-namespace export calcfunc
-proc calcfunc { x } { return $x }
-}
-#
-# Use a fully-qualified name
-#
-namespace eval ::myCalc {
-proc detIntegral { begin end } {
-return [integral $begin $end 100 ::mySpace::calcfunc]
-}
-}
-#
-# Import the name
-#
-namespace eval ::myCalc {
-namespace import ::mySpace::calcfunc
-proc detIntegral { begin end } {
-return [integral $begin $end 100 calcfunc]
-}
-}
+
+
+    namespace eval ::mySpace {
+       namespace export calcfunc
+       proc calcfunc { x } { return $x }
+    }
+    #
+    # Use a fully-qualified name
+    #
+    namespace eval ::myCalc {
+       proc detIntegral { begin end } {
+          return [integral $begin $end 100 ::mySpace::calcfunc]
+       }
+    }
+    #
+    # Import the name
+    #
+    namespace eval ::myCalc {
+       namespace import ::mySpace::calcfunc
+       proc detIntegral { begin end } {
+          return [integral $begin $end 100 calcfunc]
+       }
+    }
+
 .CE
 .PP
 Enhancements for the second-order boundary value problem:
@@ -589,83 +605,107 @@ Enhancements for the second-order boundary value problem:
 Other types of boundary conditions (zero gradient, zero flux)
 .IP \(bu
 Other schematisation of the first-order term (now central
-differences are used, but upstream differences might be useful too).
+differences are used, but upstream differences might be useful too)\&.
 .PP
 .SH EXAMPLES
 Let us take a few simple examples:
 .PP
 Integrate x over the interval [0,100] (20 steps):
 .CS
+
+
 proc linear_func { x } { return $x }
 puts "Integral: [::math::calculus::integral 0 100 20 linear_func]"
+
 .CE
 For simple functions, the alternative could be:
 .CS
+
+
 puts "Integral: [::math::calculus::integralExpr 0 100 20 {$x}]"
+
 .CE
 Do not forget the braces!
 .PP
 The differential equation for a dampened oscillator:
 .PP
 .CS
+
+
 x'' + rx' + wx = 0
+
 .CE
 .PP
 can be split into a system of first-order equations:
 .PP
 .CS
+
+
 x' = y
 y' = -ry - wx
+
 .CE
 .PP
 Then this system can be solved with code like this:
 .PP
 .CS
+
+
 proc dampened_oscillator { t xvec } {
-set x  [lindex $xvec 0]
-set x1 [lindex $xvec 1]
-return [list $x1 [expr {-$x1-$x}]]
+   set x  [lindex $xvec 0]
+   set x1 [lindex $xvec 1]
+   return [list $x1 [expr {-$x1-$x}]]
 }
-set xvec   { 1.0 0.0 }
-set t      0.0
-set tstep  0.1
+
+set xvec   { 1\&.0 0\&.0 }
+set t      0\&.0
+set tstep  0\&.1
 for { set i 0 } { $i < 20 } { incr i } {
-set result [::math::calculus::eulerStep $t $tstep $xvec dampened_oscillator]
-puts "Result ($t): $result"
-set t      [expr {$t+$tstep}]
-set xvec   $result
+   set result [::math::calculus::eulerStep $t $tstep $xvec dampened_oscillator]
+   puts "Result ($t): $result"
+   set t      [expr {$t+$tstep}]
+   set xvec   $result
 }
+
 .CE
 .PP
 Suppose we have the boundary value problem:
 .PP
 .CS
-Dy'' + ky = 0
-x = 0: y = 1
-x = L: y = 0
+
+
+    Dy'' + ky = 0
+    x = 0: y = 1
+    x = L: y = 0
+
 .CE
 .PP
 This boundary value problem could originate from the diffusion of a
-decaying substance.
+decaying substance\&.
 .PP
 It can be solved with the following fragment:
 .PP
 .CS
-proc coeffs { x } { return [list $::Diff 0.0 $::decay] }
-proc force  { x } { return 0.0 }
-set Diff   1.0e-2
-set decay  0.0001
-set length 100.0
-set y [::math::calculus::boundaryValueSecondOrder \\
-coeffs force {0.0 1.0} [list $length 0.0] 100]
+
+
+   proc coeffs { x } { return [list $::Diff 0\&.0 $::decay] }
+   proc force  { x } { return 0\&.0 }
+
+   set Diff   1\&.0e-2
+   set decay  0\&.0001
+   set length 100\&.0
+
+   set y [::math::calculus::boundaryValueSecondOrder \\
+      coeffs force {0\&.0 1\&.0} [list $length 0\&.0] 100]
+
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fImath :: calculus\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 romberg
 .SH KEYWORDS
@@ -675,4 +715,5 @@ Mathematics
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002,2003,2004 Arjen Markus
+
 .fi

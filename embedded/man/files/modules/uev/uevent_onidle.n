@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/uev/uevent_onidle.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/uev/uevent_onidle\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "uevent::onidle" n 0.1 tcllib "User events"
+.TH "uevent::onidle" n 0\&.1 tcllib "User events"
 .BS
 .SH NAME
 uevent::onidle \- Request merging and deferal to idle time
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBuevent::onidle  ?0.1?\fR
+package require \fBuevent::onidle  ?0\&.1?\fR
 .sp
 package require \fBlogger \fR
 .sp
@@ -256,20 +257,20 @@ package require \fBlogger \fR
 .SH DESCRIPTION
 This package provides objects which can merge multiple requestes for
 an action and execute the action the moment the system (event loop)
-becomes idle. The action to be run is configured during object
-construction.
+becomes idle\&. The action to be run is configured during object
+construction\&.
 .SH API
 The package exports a class, \fBuevent::onidle\fR, as specified
-below.
+below\&.
 .TP
 \fB::uevent::onidle\fR \fIobjectName\fR \fIcommandprefix\fR
 The command creates a new \fIonidle\fR object with an associated
-global Tcl command whose name is \fIobjectName\fR.  This command may
-be used to invoke various operations on the object.
+global Tcl command whose name is \fIobjectName\fR\&.  This command may
+be used to invoke various operations on the object\&.
 .sp
 The \fIcommandprefix\fR is the action to perform when the event loop
 is idle and the user asked for it using the method \fBrequest\fR
-(See below).
+(See below)\&.
 .PP
 The object commands created by the class commands above have
 the form:
@@ -277,23 +278,24 @@ the form:
 \fIobjectName\fR \fBrequest\fR
 This method requests the execution of the command prefix specified
 during the construction of \fIobjectName\fR the next time the event
-loop is idle. Multiple requests are merged and cause only one
-execution of the command prefix.
+loop is idle\&. Multiple requests are merged and cause only one
+execution of the command prefix\&.
 .PP
 .SH EXAMPLES
 Examples of this type of deferal are buried in the (C-level)
 implementations all the Tk widgets, defering geometry calculations and
-window redraw activity in this manner.
+window redraw activity in this manner\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIuevent\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 callback, deferal, event, idle, merge, on-idle
 .SH COPYRIGHT
 .nf
-Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

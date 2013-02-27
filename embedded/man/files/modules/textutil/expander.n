@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/textutil/expander.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) William H. Duquette, http://www.wjduquette.com/expand
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/textutil/expander\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) William H\&. Duquette, http://www\&.wjduquette\&.com/expand
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "textutil::expander" n 1.3.1 tcllib "Text and string utilities, macro processing"
+.TH "textutil::expander" n 1\&.3\&.1 tcllib "Text and string utilities, macro processing"
 .BS
 .SH NAME
-textutil::expander \- Procedures to process templates and expand text.
+textutil::expander \- Procedures to process templates and expand text\&.
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBtextutil::expander  ?1.3.1?\fR
+package require \fBtextutil::expander  ?1\&.3\&.1?\fR
 .sp
 \fB::textutil::expander\fR \fIexpanderName\fR
 .sp
@@ -288,391 +289,436 @@ package require \fBtextutil::expander  ?1.3.1?\fR
 .SH DESCRIPTION
 .PP
 The Tcl \fBsubst\fR command is often used to support a kind of
-template processing. Given a string with embedded variables or
+template processing\&. Given a string with embedded variables or
 function calls, \fBsubst\fR will interpolate the variable and function
 values, returning the new string:
 .PP
 .CS
-% set greeting "Howdy"
-Howdy
-% proc place {} {return "World"}
-% subst {$greeting, [place]!}
-Howdy, World!
-%
+
+
+    % set greeting "Howdy"
+    Howdy
+    % proc place {} {return "World"}
+    % subst {$greeting, [place]!}
+    Howdy, World!
+    %
+
 .CE
 .PP
 By defining a suitable set of Tcl commands, \fBsubst\fR can be used to
-implement a markup language similar to HTML.
+implement a markup language similar to HTML\&.
 .PP
 The \fBsubst\fR command is efficient, but it has three drawbacks for
 this kind of template processing:
 .IP \(bu
 There's no way to identify and process the plain text between two
 embedded Tcl commands; that makes it difficult to handle plain text in
-a context-sensitive way.
+a context-sensitive way\&.
 .IP \(bu
 Embedded commands are necessarily bracketed by \fB[\fR and
 \fB]\fR; it's convenient to be able to choose different brackets
-in special cases.  Someone producing web pages that include a large
+in special cases\&.  Someone producing web pages that include a large
 quantity of Tcl code examples might easily prefer to use \fB<<\fR
-and \fB>>\fR as the embedded code delimiters instead.
+and \fB>>\fR as the embedded code delimiters instead\&.
 .IP \(bu
 There's no easy way to handle incremental input, as one might wish to
-do when reading data from a socket.
+do when reading data from a socket\&.
 .PP
 .PP
 At present, expander solves the first two problems; eventually it will
-solve the third problem as well.
+solve the third problem as well\&.
 .PP
 The following section describes the command API to the expander; this
-is followed by the tutorial sections, see \fBTUTORIAL\fR.
+is followed by the tutorial sections, see \fBTUTORIAL\fR\&.
 .SH "EXPANDER API"
 .PP
 The \fBtextutil::expander\fR package provides only one command,
-described below. The rest of the section is taken by a description of
-the methods for the expander objects created by this command.
+described below\&. The rest of the section is taken by a description of
+the methods for the expander objects created by this command\&.
 .TP
 \fB::textutil::expander\fR \fIexpanderName\fR
 The command creates a new expander object with an associated Tcl
-command whose name is \fIexpanderName\fR. This command may be used to
-invoke various operations on the graph. If the \fIexpanderName\fR is
+command whose name is \fIexpanderName\fR\&. This command may be used to
+invoke various operations on the graph\&. If the \fIexpanderName\fR is
 not fully qualified it is interpreted as relative to the current
-namespace.  The command has the following general form:
+namespace\&.  The command has the following general form:
 .CS
-\fIexpanderName\fR option ?\fIarg arg ...\fR?
+
+
+\fIexpanderName\fR option ?\fIarg arg \&.\&.\&.\fR?
+
 .CE
 .IP
 \fIOption\fR and the \fIarg\fRs determine the exact behavior of the
-command.
+command\&.
 .PP
 .PP
 The following commands are possible for expander objects:
 .TP
 \fIexpanderName\fR \fBcappend\fR \fItext\fR
-Appends a string to the output in the current context.  This command
-should rarely be used by macros or application code.
+Appends a string to the output in the current context\&.  This command
+should rarely be used by macros or application code\&.
 .TP
 \fIexpanderName\fR \fBcget\fR \fIvarname\fR
 Retrieves the value of variable \fIvarname\fR, defined in the current
-context.
+context\&.
 .TP
 \fIexpanderName\fR \fBcis\fR \fIcname\fR
 Determines whether or not the name of the current context is
-\fIcname\fR.
+\fIcname\fR\&.
 .TP
 \fIexpanderName\fR \fBcname\fR
-Returns the name of the current context.
+Returns the name of the current context\&.
 .TP
 \fIexpanderName\fR \fBcpop\fR \fIcname\fR
 Pops a context from the context stack, returning all accumulated
-output in that context.  The context must be named \fIcname\fR, or an
-error results.
+output in that context\&.  The context must be named \fIcname\fR, or an
+error results\&.
 .TP
 \fIexpanderName\fR \fBctopandclear\fR
 Returns the output currently captured in the topmost context and
-clears that buffer. This is similar to a combination of \fBcpop\fR
+clears that buffer\&. This is similar to a combination of \fBcpop\fR
 followed by \fBcpush\fR, except that internal state (brackets) is
-preserved here.
+preserved here\&.
 .TP
 \fIexpanderName\fR \fBcpush\fR \fIcname\fR
-Pushes a context named \fIcname\fR onto the context stack.  The
+Pushes a context named \fIcname\fR onto the context stack\&.  The
 context must be popped by \fBcpop\fR before expansion ends or an
-error results.
+error results\&.
 .TP
 \fIexpanderName\fR \fBcset\fR \fIvarname\fR \fIvalue\fR
-Sets variable \fIvarname\fR to \fIvalue\fR in the current context.
+Sets variable \fIvarname\fR to \fIvalue\fR in the current context\&.
 .TP
 \fIexpanderName\fR \fBcvar\fR \fIvarname\fR
 Retrieves the internal variable name of context variable
 \fIvarname\fR; this allows the variable to be passed to commands like
-\fBlappend\fR.
+\fBlappend\fR\&.
 .TP
 \fIexpanderName\fR \fBerrmode\fR \fInewErrmode\fR
 Sets the macro expansion error mode to one of \fBnothing\fR,
 \fBmacro\fR, \fBerror\fR, or \fBfail\fR; the default value is
-\fBfail\fR.  The value determines what the expander does if an
-error is detected during expansion of a macro.
+\fBfail\fR\&.  The value determines what the expander does if an
+error is detected during expansion of a macro\&.
 .RS
 .TP
 \fBfail\fR
 The error propagates normally and can be caught or ignored by the
-application.
+application\&.
 .TP
 \fBerror\fR
 The macro expands into a detailed error message, and expansion
-continues.
+continues\&.
 .TP
 \fBmacro\fR
 The macro expands to itself; that is, it is passed along to the output
-unchanged.
+unchanged\&.
 .TP
 \fBnothing\fR
-The macro expands to the empty string, and is effectively ignored.
+The macro expands to the empty string, and is effectively ignored\&.
 .RE
 .sp
 .TP
 \fIexpanderName\fR \fBevalcmd\fR ?\fInewEvalCmd\fR?
 Returns the current evaluation command, which defaults to
-\fBuplevel #0\fR.  If specified, \fInewEvalCmd\fR will be saved for
+\fBuplevel #0\fR\&.  If specified, \fInewEvalCmd\fR will be saved for
 future use and then returned; it must be a Tcl command expecting one
-additional argument: the macro to evaluate.
+additional argument: the macro to evaluate\&.
 .TP
 \fIexpanderName\fR \fBexpand\fR \fIstring\fR ?\fIbrackets\fR?
 Expands the input string, replacing embedded macros with their
-expanded values, and returns the expanded string.
+expanded values, and returns the expanded string\&.
 .sp
 If \fIbrackets\fR is given, it must be a list of two strings; the
 items will be used as the left and right macro expansion bracket
-sequences for this expansion only.
+sequences for this expansion only\&.
 .TP
 \fIexpanderName\fR \fBlb\fR ?\fInewbracket\fR?
 Returns the current value of the left macro expansion bracket; this is
 for use as or within a macro, when the bracket needs to be included in
-the output text.  If \fInewbracket\fR is specified, it becomes the new
-bracket, and is returned.
+the output text\&.  If \fInewbracket\fR is specified, it becomes the new
+bracket, and is returned\&.
 .TP
 \fIexpanderName\fR \fBrb\fR ?\fInewbracket\fR?
 Returns the current value of the right macro expansion bracket; this
 is for use as or within a macro, when the bracket needs to be included
-in the output text.  If \fInewbracket\fR is specified, it becomes the
-new bracket, and is returned.
+in the output text\&.  If \fInewbracket\fR is specified, it becomes the
+new bracket, and is returned\&.
 .TP
 \fIexpanderName\fR \fBreset\fR
-Resets all expander settings to their initial values.  Unusual results
+Resets all expander settings to their initial values\&.  Unusual results
 are likely if this command is called from within a call to
-\fBexpand\fR.
+\fBexpand\fR\&.
 .TP
 \fIexpanderName\fR \fBsetbrackets\fR \fIlbrack rbrack\fR
-Sets the left and right macro expansion brackets.  This command is for
+Sets the left and right macro expansion brackets\&.  This command is for
 use as or within a macro, or to permanently change the bracket
-definitions.  By default, the brackets are \fB[\fR and
+definitions\&.  By default, the brackets are \fB[\fR and
 \fB]\fR, but any non-empty string can be used; for example,
 \fB<\fR and \fB>\fR or \fB(*\fR and \fB*)\fR or even
-\fBHello,\fR and \fBWorld!\fR.
+\fBHello,\fR and \fBWorld!\fR\&.
 .TP
 \fIexpanderName\fR \fBtextcmd\fR ?\fInewTextCmd\fR?
 Returns the current command for processing plain text, which defaults
-to the empty string, meaning \fIidentity\fR. If specified,
+to the empty string, meaning \fIidentity\fR\&. If specified,
 \fInewTextCmd\fR will be saved for future use and then returned; it
 must be a Tcl command expecting one additional argument: the text to
-process. The expander object will this command for all plain text it
+process\&. The expander object will this command for all plain text it
 encounters, giving the user of the object the ability to process all
-plain text in some standard way before writing it to the output. The
-object expects that the command returns the processed plain text.
+plain text in some standard way before writing it to the output\&. The
+object expects that the command returns the processed plain text\&.
 .sp
 \fINote\fR that the combination of "\fBtextcmd\fR \fIplaintext\fR"
-is run through the \fIevalcmd\fR for the actual evaluation. In other
+is run through the \fIevalcmd\fR for the actual evaluation\&. In other
 words, the \fItextcmd\fR is treated as a special macro implicitly
-surrounding all plain text in the template.
+surrounding all plain text in the template\&.
 .TP
 \fIexpanderName\fR \fBwhere\fR
 Returns a three-element list containing the current character
 position, line, and column the expander is at in the processing of the
-current input string.
+current input string\&.
 .PP
 .SH TUTORIAL
 .SS BASICS
 To begin, create an expander object:
 .PP
 .CS
-% package require expander
-1.2
-% ::expander::expander myexp
-::myexp
-%
+
+
+    % package require expander
+    1\&.2
+    % ::expander::expander myexp
+    ::myexp
+    %
+
 .CE
 .PP
 The created \fB::myexp\fR object can be used to expand text strings
-containing embedded Tcl commands.  By default, embedded commands are
-delimited by square brackets.  Note that expander doesn't attempt to
+containing embedded Tcl commands\&.  By default, embedded commands are
+delimited by square brackets\&.  Note that expander doesn't attempt to
 interpolate variables, since variables can be referenced by embedded
 commands:
 .PP
 .CS
-% set greeting "Howdy"
-Howdy
-% proc place {} {return "World"}
-% ::myexp expand {[set greeting], [place]!}
-Howdy, World!
-%
+
+
+    % set greeting "Howdy"
+    Howdy
+    % proc place {} {return "World"}
+    % ::myexp expand {[set greeting], [place]!}
+    Howdy, World!
+    %
+
 .CE
 .SS "EMBEDDING MACROS"
 An expander macro is simply a Tcl script embedded within a text
-string.  Expander evaluates the script in the global context, and
-replaces it with its result string.  For example,
+string\&.  Expander evaluates the script in the global context, and
+replaces it with its result string\&.  For example,
 .PP
 .CS
-% set greetings {Howdy Hi "What's up"}
-Howdy Hi "What's up"
-% ::myexp expand {There are many ways to say "Hello, World!":
-[set result {}
-foreach greeting $greetings {
-append result "$greeting, World!\\\\n"
-}
-set result]
-And that's just a small sample!}
-There are many ways to say "Hello, World!":
-Howdy, World!
-Hi, World!
-What's up, World!
-And that's just a small sample!
-%
+
+
+    % set greetings {Howdy Hi "What's up"}
+    Howdy Hi "What's up"
+    % ::myexp expand {There are many ways to say "Hello, World!":
+    [set result {}
+    foreach greeting $greetings {
+	append result "$greeting, World!\\\\n"
+    }
+    set result]
+    And that's just a small sample!}
+    There are many ways to say "Hello, World!":
+    Howdy, World!
+    Hi, World!
+    What's up, World!
+
+    And that's just a small sample!
+    %
+
 .CE
 .SS "WRITING MACRO COMMANDS"
 More typically, \fImacro commands\fR are used to create a markup
-language.  A macro command is just a Tcl command that returns an
-output string.  For example, expand can be used to implement a generic
+language\&.  A macro command is just a Tcl command that returns an
+output string\&.  For example, expand can be used to implement a generic
 document markup language that can be retargeted to HTML or any other
 output format:
 .PP
 .CS
-% proc bold {} {return "<b>"}
-% proc /bold {} {return "</b>"}
-% ::myexp expand {Some of this text is in [bold]boldface[/bold]}
-Some of this text is in <b>boldface</b>
-%
+
+
+    % proc bold {} {return "<b>"}
+    % proc /bold {} {return "</b>"}
+    % ::myexp expand {Some of this text is in [bold]boldface[/bold]}
+    Some of this text is in <b>boldface</b>
+    %
+
 .CE
 .PP
 The above definitions of \fBbold\fR and \fB/bold\fR returns HTML, but
 such commands can be as complicated as needed; they could, for
-example, decide what to return based on the desired output format.
+example, decide what to return based on the desired output format\&.
 .SS "CHANGING THE EXPANSION BRACKETS"
 By default, embedded macros are enclosed in square brackets,
-\fB[\fR and \fB]\fR.  If square brackets need to be
+\fB[\fR and \fB]\fR\&.  If square brackets need to be
 included in the output, the input can contain the \fBlb\fR and
-\fBrb\fR commands.  Alternatively, or if square brackets are
+\fBrb\fR commands\&.  Alternatively, or if square brackets are
 objectionable for some other reason, the macro expansion brackets can
-be changed to any pair of non-empty strings.
+be changed to any pair of non-empty strings\&.
 .PP
-The \fBsetbrackets\fR command changes the brackets permanently.
+The \fBsetbrackets\fR command changes the brackets permanently\&.
 For example, you can write pseudo-html by change them to \fB<\fR
 and \fB>\fR:
 .PP
 .CS
-% ::myexp setbrackets < >
-% ::myexp expand {<bold>This is boldface</bold>}
-<b>This is boldface</b>
+
+
+    % ::myexp setbrackets < >
+    % ::myexp expand {<bold>This is boldface</bold>}
+    <b>This is boldface</b>
+
 .CE
 .PP
 Alternatively, you can change the expansion brackets temporarily by
 passing the desired brackets to the \fBexpand\fR command:
 .PP
 .CS
-% ::myexp setbrackets "\\\\[" "\\\\]"
-% ::myexp expand {<bold>This is boldface</bold>} {< >}
-<b>This is boldface</b>
-%
+
+
+    % ::myexp setbrackets "\\\\[" "\\\\]"
+    % ::myexp expand {<bold>This is boldface</bold>} {< >}
+    <b>This is boldface</b>
+    %
+
 .CE
 .SS "CUSTOMIZED MACRO EXPANSION"
 By default, macros are evaluated using the Tcl \fBuplevel #0\fR
-command, so that the embedded code executes in the global context.
+command, so that the embedded code executes in the global context\&.
 The application can provide a different evaluation command using
 \fBevalcmd\fR; this allows the application to use a safe
 interpreter, for example, or even to evaluated something other than
-Tcl code.  There is one caveat: to be recognized as valid, a macro
-must return 1 when passed to Tcl's "info complete" command.
+Tcl code\&.  There is one caveat: to be recognized as valid, a macro
+must return 1 when passed to Tcl's "info complete" command\&.
 .PP
 For example, the following code "evaluates" each macro by returning
-the macro text itself.
+the macro text itself\&.
 .PP
 .CS
-proc identity {macro} {return $macro}
-::myexp evalcmd identity
+
+
+    proc identity {macro} {return $macro}
+    ::myexp evalcmd identity
+
 .CE
 .SS "USING THE CONTEXT STACK"
 Often it's desirable to define a pair of macros which operate in some
-way on the plain text between them.  Consider a set of macros for
+way on the plain text between them\&.  Consider a set of macros for
 adding footnotes to a web page: one could have implement something
 like this:
 .PP
 .CS
-Dr. Pangloss, however, thinks that this is the best of all
-possible worlds.[footnote "See Candide, by Voltaire"]
+
+
+    Dr\&. Pangloss, however, thinks that this is the best of all
+    possible worlds\&.[footnote "See Candide, by Voltaire"]
+
 .CE
 .PP
 The \fBfootnote\fR macro would, presumably, assign a number to this
-footnote and save the text to be formatted later on.  However, this
+footnote and save the text to be formatted later on\&.  However, this
 solution is ugly if the footnote text is long or should contain
-additional markup.  Consider the following instead:
+additional markup\&.  Consider the following instead:
 .PP
 .CS
-Dr. Pangloss, however, thinks that this is the best of all
-possible worlds.[footnote]See [bookTitle "Candide"], by
-[authorsName "Voltaire"], for more information.[/footnote]
+
+
+    Dr\&. Pangloss, however, thinks that this is the best of all
+    possible worlds\&.[footnote]See [bookTitle "Candide"], by
+    [authorsName "Voltaire"], for more information\&.[/footnote]
+
 .CE
 .PP
 Here the footnote text is contained between \fBfootnote\fR and
 \fB/footnote\fR macros, continues onto a second line, and contains
-several macros of its own.  This is both clearer and more flexible;
+several macros of its own\&.  This is both clearer and more flexible;
 however, with the features presented so far there's no easy way to do
-it.  That's the purpose of the context stack.
+it\&.  That's the purpose of the context stack\&.
 .PP
-All macro expansion takes place in a particular context.  Here, the
-\fBfootnote\fR macro pushes a new context onto the context stack.
-Then, all expanded text gets placed in that new context.
-\fB/footnote\fR retrieves it by popping the context.  Here's a
+All macro expansion takes place in a particular context\&.  Here, the
+\fBfootnote\fR macro pushes a new context onto the context stack\&.
+Then, all expanded text gets placed in that new context\&.
+\fB/footnote\fR retrieves it by popping the context\&.  Here's a
 skeleton implementation of these two macros:
 .PP
 .CS
-proc footnote {} {
-::myexp cpush footnote
-}
-proc /footnote {} {
-set footnoteText [::myexp cpop footnote]
-# Save the footnote text, and return an appropriate footnote
-# number and link.
-}
+
+
+    proc footnote {} {
+        ::myexp cpush footnote
+    }
+
+    proc /footnote {} {
+        set footnoteText [::myexp cpop footnote]
+
+        # Save the footnote text, and return an appropriate footnote
+        # number and link\&.
+    }
+
 .CE
 .PP
 The \fBcpush\fR command pushes a new context onto the stack; the
-argument is the context's name.  It can be any string, but would
-typically be the name of the macro itself.  Then, \fBcpop\fR
+argument is the context's name\&.  It can be any string, but would
+typically be the name of the macro itself\&.  Then, \fBcpop\fR
 verifies that the current context has the expected name, pops it off
-of the stack, and returns the accumulated text.
+of the stack, and returns the accumulated text\&.
 .PP
-Expand provides several other tools related to the context stack.
+Expand provides several other tools related to the context stack\&.
 Suppose the first macro in a context pair takes arguments or computes
-values which the second macro in the pair needs.  After calling
+values which the second macro in the pair needs\&.  After calling
 \fBcpush\fR, the first macro can define one or more context
 variables; the second macro can retrieve their values any time before
-calling \fBcpop\fR.  For example, suppose the document must specify
+calling \fBcpop\fR\&.  For example, suppose the document must specify
 the footnote number explicitly:
 .PP
 .CS
-proc footnote {footnoteNumber} {
-::myexp cpush footnote
-::myexp csave num $footnoteNumber
-# Return an appropriate link
-}
-proc /footnote {} {
-set footnoteNumber [::myexp cget num]
-set footnoteText [::myexp cpop footnote]
-# Save the footnote text and its footnoteNumber for future
-# output.
-}
+
+
+    proc footnote {footnoteNumber} {
+        ::myexp cpush footnote
+        ::myexp csave num $footnoteNumber
+        # Return an appropriate link
+    }
+
+    proc /footnote {} {
+        set footnoteNumber [::myexp cget num]
+        set footnoteText [::myexp cpop footnote]
+
+        # Save the footnote text and its footnoteNumber for future
+        # output\&.
+    }
+
 .CE
 .PP
 At times, it might be desirable to define macros that are valid only
 within a particular context pair; such macros should verify that they
 are only called within the correct context using either \fBcis\fR
-or \fBcname\fR.
+or \fBcname\fR\&.
 .SH HISTORY
-\fBexpander\fR was written by William H. Duquette; it is a repackaging
-of the central algorithm of the expand macro processing tool.
+\fBexpander\fR was written by William H\&. Duquette; it is a repackaging
+of the central algorithm of the expand macro processing tool\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fItextutil :: expander\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
-\fIhttp://www.wjduquette.com/expand\fR, regexp, split, string
+\fIhttp://www\&.wjduquette\&.com/expand\fR, regexp, split, string
 .SH KEYWORDS
 string, template processing, text expansion
 .SH CATEGORY
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) William H. Duquette, http://www.wjduquette.com/expand
+Copyright (c) William H\&. Duquette, http://www\&.wjduquette\&.com/expand
+
 .fi

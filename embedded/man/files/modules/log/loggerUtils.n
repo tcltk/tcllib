@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/log/loggerUtils.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2005 Aamer Akhter <aakhter@cisco.com>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/log/loggerUtils\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2005 Aamer Akhter <aakhter@cisco\&.com>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,30 +238,30 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "logger::utils" n 1.3 tcllib "Object Oriented logging facility"
+.TH "logger::utils" n 1\&.3 tcllib "Object Oriented logging facility"
 .BS
 .SH NAME
 logger::utils \- Utilities for logger
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBlogger::utils  ?1.3?\fR
+package require \fBlogger::utils  ?1\&.3?\fR
 .sp
 \fB::logger::utils::createFormatCmd\fR \fIformatString\fR
 .sp
-\fB::logger::utils::createLogProc\fR \fB-procName\fR \fIprocName\fR ?\fIoptions\fR...?
+\fB::logger::utils::createLogProc\fR \fB-procName\fR \fIprocName\fR ?\fIoptions\fR\&.\&.\&.?
 .sp
-\fB::logger::utils::applyAppender\fR \fB-appender\fR \fIappenderType\fR ?\fIoptions\fR...?
+\fB::logger::utils::applyAppender\fR \fB-appender\fR \fIappenderType\fR ?\fIoptions\fR\&.\&.\&.?
 .sp
-\fB::logger::utils::autoApplyAppender\fR \fIcommand\fR \fIcommand-string\fR \fIlog\fR \fIop\fR \fIargs\fR...
+\fB::logger::utils::autoApplyAppender\fR \fIcommand\fR \fIcommand-string\fR \fIlog\fR \fIop\fR \fIargs\fR\&.\&.\&.
 .sp
 .BE
 .SH DESCRIPTION
-This package adds template based \fIappenders\fR.
+This package adds template based \fIappenders\fR\&.
 .TP
 \fB::logger::utils::createFormatCmd\fR \fIformatString\fR
 This command translates \fIformatString\fR into an expandable command
-string.
+string\&.
 The following strings are the known substitutions (from log4perl)
 allowed to occur in the \fIformatString\fR:
 .RS
@@ -290,97 +291,105 @@ Priority of logging event
 Pid of current process
 .RE
 .TP
-\fB::logger::utils::createLogProc\fR \fB-procName\fR \fIprocName\fR ?\fIoptions\fR...?
-This command ...
+\fB::logger::utils::createLogProc\fR \fB-procName\fR \fIprocName\fR ?\fIoptions\fR\&.\&.\&.?
+This command \&.\&.\&.
 .RS
 .TP
 \fB-procName\fR procName
-The name of the procedure to create.
+The name of the procedure to create\&.
 .TP
 \fB-conversionPattern\fR pattern
 See \fB::logger::utils::createFormatCmd\fR for the substitutions
-allowed in the \fIpattern\fR.
+allowed in the \fIpattern\fR\&.
 .TP
 \fB-category\fR category
-The category (service).
+The category (service)\&.
 .TP
 \fB-priority\fR priority
-The priority (level).
+The priority (level)\&.
 .TP
 \fB-outputChannel\fR channel
 channel to output on (default stdout)
 .RE
 .TP
-\fB::logger::utils::applyAppender\fR \fB-appender\fR \fIappenderType\fR ?\fIoptions\fR...?
+\fB::logger::utils::applyAppender\fR \fB-appender\fR \fIappenderType\fR ?\fIoptions\fR\&.\&.\&.?
 This command will create an appender for the specified logger
-services. If no service is specified then the appender will be added
-as the default appender for the specified levels. If no levels are
-specified, then all levels are assumed.
+services\&. If no service is specified then the appender will be added
+as the default appender for the specified levels\&. If no levels are
+specified, then all levels are assumed\&.
 .sp
 .RS
 .TP
 \fB-service\fR loggerservices
 .TP
 \fB-serviceCmd\fR loggerserviceCmds
-Name of the logger instance to modify. \fB-serviceCmd\fR takes as
-input the return of \fBlogger::init\fR.
+Name of the logger instance to modify\&. \fB-serviceCmd\fR takes as
+input the return of \fBlogger::init\fR\&.
 .TP
 \fB-appender\fR appenderType
-Type of the appender to use.
-One of \fBconsole\fR, \fBcolorConsole\fR.
+Type of the appender to use\&.
+One of \fBconsole\fR, \fBcolorConsole\fR\&.
 .TP
 \fB-conversionPattern\fR pattern
 See \fB::logger::utils::createFormatCmd\fR for the
-format of the pattern. If this option is not provided
+format of the pattern\&. If this option is not provided
 the default pattern
 .CS
+
 [%d] [%c] [%M] [%p] %m
 .CE
 .IP
-is used.
+is used\&.
 .TP
 \fB-levels\fR levelList
-The list of levels to apply this appender to. If not specified all
-levels are assumed.
+The list of levels to apply this appender to\&. If not specified all
+levels are assumed\&.
 .RE
 .sp
 Example of usage:
 .sp
 .CS
-% set log [logger::init testLog]
-::logger::tree::testLog
-% logger::utils::applyAppender -appender console -serviceCmd $log
-% ${log}::error "this is an error"
-[2005/08/22 10:14:13] [testLog] [global] [error] this is an error
+
+
+   % set log [logger::init testLog]
+   ::logger::tree::testLog
+   % logger::utils::applyAppender -appender console -serviceCmd $log
+   % ${log}::error "this is an error"
+   [2005/08/22 10:14:13] [testLog] [global] [error] this is an error
+
 .CE
 .TP
-\fB::logger::utils::autoApplyAppender\fR \fIcommand\fR \fIcommand-string\fR \fIlog\fR \fIop\fR \fIargs\fR...
+\fB::logger::utils::autoApplyAppender\fR \fIcommand\fR \fIcommand-string\fR \fIlog\fR \fIop\fR \fIargs\fR\&.\&.\&.
 This command is designed to be added via \fBtrace leave\fR to calls
-of \fBlogger::init\fR. It will look at preconfigured state (via
+of \fBlogger::init\fR\&. It will look at preconfigured state (via
 \fB::logger::utils::applyAppender\fR) to autocreate appenders for
-newly created logger instances.
-It will return its argument \fIlog\fR.
+newly created logger instances\&.
+It will return its argument \fIlog\fR\&.
 .sp
 Example of usage:
 .sp
 .CS
-logger::utils::applyAppender -appender console
-set log [logger::init applyAppender-3]
-${log}::error "this is an error"
+
+
+  logger::utils::applyAppender -appender console
+  set log [logger::init applyAppender-3]
+  ${log}::error "this is an error"
+
 .CE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIlogger\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 appender, logger
 .SH CATEGORY
 Programming tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2005 Aamer Akhter <aakhter@cisco.com>
+Copyright (c) 2005 Aamer Akhter <aakhter@cisco\&.com>
+
 .fi

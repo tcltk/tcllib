@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/simulation/montecarlo.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2008 Arjen Markus <arjenmarkus@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/simulation/montecarlo\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2008 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "simulation::montecarlo" n 0.1 tcllib "Tcl Simulation Tools"
+.TH "simulation::montecarlo" n 0\&.1 tcllib "Tcl Simulation Tools"
 .BS
 .SH NAME
 simulation::montecarlo \- Monte Carlo simulations
 .SH SYNOPSIS
-package require \fBTcl  ?8.4?\fR
+package require \fBTcl  ?8\&.4?\fR
 .sp
-package require \fBsimulation::montecarlo  0.1\fR
+package require \fBsimulation::montecarlo  0\&.1\fR
 .sp
 package require \fBsimulation::random \fR
 .sp
@@ -266,7 +267,7 @@ package require \fBmath::statistics \fR
 .sp
 \fB::simulation::montecarlo::transposeData\fR \fIvalues\fR
 .sp
-\fB::simulation::montecarlo::integral2D\fR \fI...\fR
+\fB::simulation::montecarlo::integral2D\fR \fI\&.\&.\&.\fR
 .sp
 \fB::simulation::montecarlo::singleExperiment\fR \fIargs\fR
 .sp
@@ -275,57 +276,62 @@ package require \fBmath::statistics \fR
 .PP
 The technique of \fIMonte Carlo simulations\fR is basically simple:
 .IP \(bu
-generate random values for one or more parameters.
+generate random values for one or more parameters\&.
 .IP \(bu
 evaluate the model of some system you are interested in and record the
-interesting results for each realisation of these parameters.
+interesting results for each realisation of these parameters\&.
 .IP \(bu
 after a suitable number of such trials, deduce an overall characteristic
-of the model.
+of the model\&.
 .PP
 You can think of a model of a network of computers, an ecosystem of some
 kind or in fact anything that can be quantitatively described and has
-some stochastic element in it.
+some stochastic element in it\&.
 .PP
 The package \fIsimulation::montecarlo\fR offers a basic framework for
 such a modelling technique:
 .CS
+
+
 #
 # MC experiments:
 # Determine the mean and median of a set of points and compare them
 #
 ::simulation::montecarlo::singleExperiment -init {
-package require math::statistics
-set prng [::simulation::random::prng_Normal 0.0 1.0]
+    package require math::statistics
+
+    set prng [::simulation::random::prng_Normal 0\&.0 1\&.0]
 } -loop {
-set numbers {}
-for { set i 0 } { $i < [getOption samples] } { incr i } {
-lappend numbers [$prng]
-}
-set mean   [::math::statistics::mean $numbers]
-set median [::math::statistics::median $numbers] ;# ? Exists?
-setTrialResult [list $mean $median]
+    set numbers {}
+    for { set i 0 } { $i < [getOption samples] } { incr i } {
+        lappend numbers [$prng]
+    }
+    set mean   [::math::statistics::mean $numbers]
+    set median [::math::statistics::median $numbers] ;# ? Exists?
+    setTrialResult [list $mean $median]
 } -final {
-set result [getTrialResults]
-set means   {}
-set medians {}
-foreach r $result {
-foreach {m M} $r break
-lappend means   $m
-lappend medians $M
-}
-puts [getOption reportfile] "Correlation: [::math::statistics::corr $means $medians]"
+    set result [getTrialResults]
+    set means   {}
+    set medians {}
+    foreach r $result {
+        foreach {m M} $r break
+        lappend means   $m
+        lappend medians $M
+    }
+    puts [getOption reportfile] "Correlation: [::math::statistics::corr $means $medians]"
+
 } -trials 100 -samples 10 -verbose 1 -columns {Mean Median}
+
 .CE
 This example attemps to find out how well the median value and the mean
-value of a random set of numbers correlate. Sometimes a median value is
+value of a random set of numbers correlate\&. Sometimes a median value is
 a more robust characteristic than a mean value - especially if you have
-a statistical distribution with "fat" tails.
+a statistical distribution with "fat" tails\&.
 .SH PROCEDURES
 The package defines the following auxiliary procedures:
 .TP
 \fB::simulation::montecarlo::getOption\fR \fIkeyword\fR
-Get the value of an option given as part of the \fIsingeExperiment\fR command.
+Get the value of an option given as part of the \fIsingeExperiment\fR command\&.
 .RS
 .TP
 string \fIkeyword\fR
@@ -334,7 +340,7 @@ Given keyword (without leading minus)
 .sp
 .TP
 \fB::simulation::montecarlo::hasOption\fR \fIkeyword\fR
-Returns 1 if the option is available, 0 if not.
+Returns 1 if the option is available, 0 if not\&.
 .RS
 .TP
 string \fIkeyword\fR
@@ -343,7 +349,7 @@ Given keyword (without leading minus)
 .sp
 .TP
 \fB::simulation::montecarlo::setOption\fR \fIkeyword\fR \fIvalue\fR
-Set the value of the given option.
+Set the value of the given option\&.
 .RS
 .TP
 string \fIkeyword\fR
@@ -365,7 +371,7 @@ List of values to be stored
 .TP
 \fB::simulation::montecarlo::setExpResult\fR \fIvalues\fR
 Set the results of the entire experiment (typically used in the final
-phase).
+phase)\&.
 .RS
 .TP
 list \fIvalues\fR
@@ -375,40 +381,40 @@ List of values to be stored
 .TP
 \fB::simulation::montecarlo::getTrialResults\fR
 Get the results of all individual trials for analysis (typically used in
-the final phase or after completion of the command).
+the final phase or after completion of the command)\&.
 .sp
 .TP
 \fB::simulation::montecarlo::getExpResult\fR
 Get the results of the entire experiment (typically used in the final
-phase or even after completion of the \fIsingleExperiment\fR command).
+phase or even after completion of the \fIsingleExperiment\fR command)\&.
 .sp
 .TP
 \fB::simulation::montecarlo::transposeData\fR \fIvalues\fR
-Interchange columns and rows of a list of lists and return the result.
+Interchange columns and rows of a list of lists and return the result\&.
 .RS
 .TP
 list \fIvalues\fR
 List of lists of values
 .RE
 .PP
-There are two main procedures: \fIintegral2D\fR and \fIsingleExperiment\fR.
+There are two main procedures: \fIintegral2D\fR and \fIsingleExperiment\fR\&.
 .TP
-\fB::simulation::montecarlo::integral2D\fR \fI...\fR
+\fB::simulation::montecarlo::integral2D\fR \fI\&.\&.\&.\fR
 Integrate a function over a two-dimensional region using a Monte Carlo
-approach.
+approach\&.
 .sp
 Arguments PM
 .sp
 .TP
 \fB::simulation::montecarlo::singleExperiment\fR \fIargs\fR
-Iterate code over a number of trials and store the results. The
+Iterate code over a number of trials and store the results\&. The
 iteration is gouverned by parameters given via a list of
-keyword-value pairs.
+keyword-value pairs\&.
 .RS
 .TP
 int \fIn\fR
 List of keyword-value pairs, all of which are available
-during the execution via the \fIgetOption\fR command.
+during the execution via the \fIgetOption\fR command\&.
 .RE
 .PP
 The \fIsingleExperiment\fR command predefines the following
@@ -417,9 +423,9 @@ options:
 \fI-init code\fR: code to be run at start up
 .IP \(bu
 \fI-loop body\fR: body of code that defines the computation to
-be run time and again. The code should use \fIsetTrialResult\fR
+be run time and again\&. The code should use \fIsetTrialResult\fR
 to store the results of each trial (typically a list of numbers,
-but the interpretation is up to the implementation). Note: Required keyword.
+but the interpretation is up to the implementation)\&. Note: Required keyword\&.
 .IP \(bu
 \fI-final code\fR: code to be run at the end
 .IP \(bu
@@ -431,25 +437,26 @@ but the interpretation is up to the implementation). Note: Required keyword.
 .IP \(bu
 \fI-analysis proc\fR: either "none" (no automatic analysis), standard
 (basic statistics of the trial results and a correlation matrix) or the
-name of a procedure that will take care of the analysis.
+name of a procedure that will take care of the analysis\&.
 .IP \(bu
 \fI-columns list\fR: list of column names, useful for verbose output
 and the analysis
 .PP
 Any other options can be used via the getOption procedure
-in the body.
+in the body\&.
 .SH TIPS
 The procedure \fIsingleExperiment\fR works by constructing a
-temporary procedure that does the actual work. It loops for the given
-number of trials.
+temporary procedure that does the actual work\&. It loops for the given
+number of trials\&.
 .PP
 As it constructs a temporary procedure, local variables defined at the
-start continue to exist in the loop.
+start continue to exist in the loop\&.
 .SH KEYWORDS
 math, montecarlo simulation, stochastic modelling
 .SH CATEGORY
 Mathematics
 .SH COPYRIGHT
 .nf
-Copyright (c) 2008 Arjen Markus <arjenmarkus@users.sourceforge.net>
+Copyright (c) 2008 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
+
 .fi

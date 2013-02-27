@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/bench/bench_lang_spec.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/bench/bench_lang_spec\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,40 +238,40 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "bench_lang_spec" n 1.0 tcllib "Documentation tools"
+.TH "bench_lang_spec" n 1\&.0 tcllib "Documentation tools"
 .BS
 .SH NAME
 bench_lang_spec \- bench language specification
 .SH SYNOPSIS
-\fBbench_rm\fR \fIpath\fR...
+\fBbench_rm\fR \fIpath\fR\&.\&.\&.
 .sp
 \fBbench_tmpfile\fR
 .sp
-\fBbench\fR \fIoptions\fR...
+\fBbench\fR \fIoptions\fR\&.\&.\&.
 .sp
 .BE
 .SH DESCRIPTION
 .PP
 This document specifies both names and syntax of all the commands
-which together are the bench language, version 1.
+which together are the bench language, version 1\&.
 As this document is intended to be a reference the commands are listed
-in alphabetical order, and the descriptions are relatively short.
+in alphabetical order, and the descriptions are relatively short\&.
 A beginner should read the more informally written
-\fIbench language introduction\fR first.
+\fIbench language introduction\fR first\&.
 .SH COMMANDS
 .TP
-\fBbench_rm\fR \fIpath\fR...
+\fBbench_rm\fR \fIpath\fR\&.\&.\&.
 This command silently removes the files specified as its arguments and
-then returns the empty string as its result.
+then returns the empty string as its result\&.
 The command is \fItrusted\fR, there is no checking if the specified
 files are outside of whatever restricted area the benchmarks are run
-in.
+in\&.
 .TP
 \fBbench_tmpfile\fR
 This command returns the path to a bench specific unique temporary
-file. The uniqueness means that multiple calls will return different
-paths. While the path may exist from previous runs, the command itself
-does \fInot\fR create aynthing.
+file\&. The uniqueness means that multiple calls will return different
+paths\&. While the path may exist from previous runs, the command itself
+does \fInot\fR create aynthing\&.
 .sp
 The base location of the temporary files is platform dependent:
 .RS
@@ -282,74 +283,74 @@ Windows
 \fB$TEMP\fR
 .TP
 Anything else
-The current working directory.
+The current working directory\&.
 .RE
 .sp
 .TP
-\fBbench\fR \fIoptions\fR...
-This command declares a single benchmark. Its result is the empty
-string. All parts of the benchmark are declared via options, and their
-values. The options can occur in any order. The accepted options are:
+\fBbench\fR \fIoptions\fR\&.\&.\&.
+This command declares a single benchmark\&. Its result is the empty
+string\&. All parts of the benchmark are declared via options, and their
+values\&. The options can occur in any order\&. The accepted options are:
 .RS
 .TP
 \fB-body\fR script
 The argument of this option declares the body of the benchmark, the
-Tcl script whose performance we wish to measure. This option, and
-\fB-desc\fR, are the two required parts of each benchmark.
+Tcl script whose performance we wish to measure\&. This option, and
+\fB-desc\fR, are the two required parts of each benchmark\&.
 .TP
 \fB-desc\fR msg
-The argument of this option declares the name of the benchmark. It has
+The argument of this option declares the name of the benchmark\&. It has
 to be unique, or timing data from different benchmarks will be mixed
-together.
+together\&.
 .sp
 \fIBeware!\fR This requirement is not checked when benchmarks are
-executed, and the system will silently produce bogus data. This
+executed, and the system will silently produce bogus data\&. This
 option, and \fB-body\fR, are the two required parts of each
-benchmark.
+benchmark\&.
 .TP
 \fB-ipost\fR script
 The argument of this option declares a script which is run immediately
-\fIafter\fR each iteration of the body. Its responsibility is to
+\fIafter\fR each iteration of the body\&. Its responsibility is to
 release resources created by the body, or \fB-ipre\fR-bodym which
-we do not wish to live into the next iteration.
+we do not wish to live into the next iteration\&.
 .TP
 \fB-ipre\fR script
 The argument of this option declares a script which is run immediately
-\fIbefore\fR each iteration of the body. Its responsibility is to
+\fIbefore\fR each iteration of the body\&. Its responsibility is to
 create the state of the system expected by the body so that we measure
-the right thing.
+the right thing\&.
 .TP
 \fB-iterations\fR num
 The argument of this option declares the maximum number of times to
-run the \fB-body\fR of the benchmark. During execution this and the
+run the \fB-body\fR of the benchmark\&. During execution this and the
 global maximum number of iterations are compared and the smaller of
-the two values is used.
+the two values is used\&.
 .sp
 This option should be used only for benchmarks which are expected or
-known to take a long time per run. I.e. reduce the number of times
+known to take a long time per run\&. I\&.e\&. reduce the number of times
 they are run to keep the overall time for the execution of the whole
-benchmark within manageable limits.
+benchmark within manageable limits\&.
 .TP
 \fB-post\fR script
 The argument of this option declares a script which is run
-\fIafter\fR all iterations of the body have been run. Its
+\fIafter\fR all iterations of the body have been run\&. Its
 responsibility is to release resources created by the body,
-or \fB-pre\fR-body.
+or \fB-pre\fR-body\&.
 .TP
 \fB-pre\fR script
 The argument of this option declares a script which is run
-\fIbefore\fR any of the iterations of the body are run. Its
+\fIbefore\fR any of the iterations of the body are run\&. Its
 responsibility is to create whatever resources are needed by the body
-to run without failing.
+to run without failing\&.
 .RE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIbench\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 bench_intro, bench_lang_intro
 .SH KEYWORDS
@@ -358,5 +359,6 @@ bench language, benchmark, performance, specification, testing
 Benchmark tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

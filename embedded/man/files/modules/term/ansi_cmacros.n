@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/term/ansi_cmacros.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/term/ansi_cmacros\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,22 +238,22 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "term::ansi::code::macros" n 0.1 tcllib "Terminal control"
+.TH "term::ansi::code::macros" n 0\&.1 tcllib "Terminal control"
 .BS
 .SH NAME
 term::ansi::code::macros \- Macro sequences
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
 package require \fBtextutil::repeat \fR
 .sp
 package require \fBtextutil::tabify \fR
 .sp
-package require \fBterm::ansi::code::macros  ?0.1?\fR
+package require \fBterm::ansi::code::macros  ?0\&.1?\fR
 .sp
 \fB::term::ansi::code::macros::names\fR
 .sp
-\fB::term::ansi::code::macros::import\fR ?\fIns\fR? ?\fIarg\fR...?
+\fB::term::ansi::code::macros::import\fR ?\fIns\fR? ?\fIarg\fR\&.\&.\&.?
 .sp
 \fB::term::ansi::code::macros::menu\fR \fImenu\fR
 .sp
@@ -261,50 +262,51 @@ package require \fBterm::ansi::code::macros  ?0.1?\fR
 .BE
 .SH DESCRIPTION
 This package provides higher level control sequences for more complex
-shapes.
+shapes\&.
 .SH API
 .SS INTROSPECTION
 .TP
 \fB::term::ansi::code::macros::names\fR
-This command is for introspection. It returns as its result a list
-containing the names of all attribute commands.
+This command is for introspection\&. It returns as its result a list
+containing the names of all attribute commands\&.
 .TP
-\fB::term::ansi::code::macros::import\fR ?\fIns\fR? ?\fIarg\fR...?
+\fB::term::ansi::code::macros::import\fR ?\fIns\fR? ?\fIarg\fR\&.\&.\&.?
 This command imports some or all attribute commands into the namespace
-\fIns\fR. This is by default the namespace \fImacros\fR. Note that
+\fIns\fR\&. This is by default the namespace \fImacros\fR\&. Note that
 this is relative namespace name, placing the imported command into a
-child of the current namespace. By default all commands are imported,
+child of the current namespace\&. By default all commands are imported,
 this can howver be restricted by listing the names of the wanted
-commands after the namespace argument.
+commands after the namespace argument\&.
 .PP
 .SS SEQUENCES
 .TP
 \fB::term::ansi::code::macros::menu\fR \fImenu\fR
 The description of a menu is converted into a formatted rectangular
 block of text, with the menu command characters highlighted using bold
-red text.  The result is returned as the result of the command.
+red text\&.  The result is returned as the result of the command\&.
 .sp
 The description, \fImenu\fR, is a dictionary mapping from menu label
-to command character.
+to command character\&.
 .TP
 \fB::term::ansi::code::macros::frame\fR \fIstring\fR
 The paragraph of text contained in the string is padded with spaces at
 the right margin, after normalizing internal tabs, and then put into a
-frame made of box-graphics. The result is returned as the result of
-the command.
+frame made of box-graphics\&. The result is returned as the result of
+the command\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIterm\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 ansi, control, frame, menu, terminal
 .SH CATEGORY
 Terminal control
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

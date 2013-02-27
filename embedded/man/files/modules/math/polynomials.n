@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/math/polynomials.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2004 Arjen Markus <arjenmarkus@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/polynomials\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2004 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "math::polynomials" n 1.0.1 tcllib "Tcl Math Library"
+.TH "math::polynomials" n 1\&.0\&.1 tcllib "Tcl Math Library"
 .BS
 .SH NAME
 math::polynomials \- Polynomial functions
 .SH SYNOPSIS
-package require \fBTcl  ?8.3?\fR
+package require \fBTcl  ?8\&.3?\fR
 .sp
-package require \fBmath::polynomials  ?1.0.1?\fR
+package require \fBmath::polynomials  ?1\&.0\&.1?\fR
 .sp
 \fB::math::polynomials::polynomial\fR \fIcoeffs\fR
 .sp
@@ -287,14 +288,20 @@ evaluation through a general procedure or via specific procedures)
 The package defines the following public procedures:
 .TP
 \fB::math::polynomials::polynomial\fR \fIcoeffs\fR
-Return an (encoded) list that defines the polynomial. A polynomial
+Return an (encoded) list that defines the polynomial\&. A polynomial
 .CS
-f(x) = a + b.x + c.x**2 + d.x**3
+
+
+   f(x) = a + b\&.x + c\&.x**2 + d\&.x**3
+
 .CE
 .IP
 can be defined via:
 .CS
-set f [::math::polynomials::polynomial [list $a $b $c $d]
+
+
+   set f [::math::polynomials::polynomial [list $a $b $c $d]
+
 .CE
 .RS
 .TP
@@ -305,26 +312,26 @@ order)
 .sp
 .TP
 \fB::math::polynomials::polynCmd\fR \fIcoeffs\fR
-Create a new procedure that evaluates the polynomial. The name of the
-polynomial is automatically generated. Useful if you need to evualuate
+Create a new procedure that evaluates the polynomial\&. The name of the
+polynomial is automatically generated\&. Useful if you need to evualuate
 the polynomial many times, as the procedure consists of a single
-[expr] command.
+[expr] command\&.
 .RS
 .TP
 list \fIcoeffs\fR
 Coefficients of the polynomial (in ascending
 order) or the polynomial definition returned by the \fIpolynomial\fR
-command.
+command\&.
 .RE
 .sp
 .TP
 \fB::math::polynomials::evalPolyn\fR \fIpolynomial\fR \fIx\fR
-Evaluate the polynomial at x.
+Evaluate the polynomial at x\&.
 .RS
 .TP
 list \fIpolynomial\fR
 The polynomial's definition (as returned by
-the polynomial command).
+the polynomial command)\&.
 order)
 .TP
 float \fIx\fR
@@ -333,7 +340,7 @@ The coordinate at which to evaluate the polynomial
 .sp
 .TP
 \fB::math::polynomials::addPolyn\fR \fIpolyn1\fR \fIpolyn2\fR
-Return a new polynomial which is the sum of the two others.
+Return a new polynomial which is the sum of the two others\&.
 .RS
 .TP
 list \fIpolyn1\fR
@@ -345,7 +352,7 @@ The second polynomial operand
 .sp
 .TP
 \fB::math::polynomials::subPolyn\fR \fIpolyn1\fR \fIpolyn2\fR
-Return a new polynomial which is the difference of the two others.
+Return a new polynomial which is the difference of the two others\&.
 .RS
 .TP
 list \fIpolyn1\fR
@@ -357,9 +364,9 @@ The second polynomial operand
 .sp
 .TP
 \fB::math::polynomials::multPolyn\fR \fIpolyn1\fR \fIpolyn2\fR
-Return a new polynomial which is the product of the two others. If one
+Return a new polynomial which is the product of the two others\&. If one
 of the arguments is a scalar value, the other polynomial is simply
-scaled.
+scaled\&.
 .RS
 .TP
 list \fIpolyn1\fR
@@ -372,7 +379,7 @@ The second polynomial operand or a scalar
 .TP
 \fB::math::polynomials::divPolyn\fR \fIpolyn1\fR \fIpolyn2\fR
 Divide the first polynomial by the second polynomial and return the
-result. The remainder is dropped
+result\&. The remainder is dropped
 .RS
 .TP
 list \fIpolyn1\fR
@@ -385,7 +392,7 @@ The second polynomial operand
 .TP
 \fB::math::polynomials::remainderPolyn\fR \fIpolyn1\fR \fIpolyn2\fR
 Divide the first polynomial by the second polynomial and return the
-remainder.
+remainder\&.
 .RS
 .TP
 list \fIpolyn1\fR
@@ -397,7 +404,7 @@ The second polynomial operand
 .sp
 .TP
 \fB::math::polynomials::derivPolyn\fR \fIpolyn\fR
-Differentiate the polynomial and return the result.
+Differentiate the polynomial and return the result\&.
 .RS
 .TP
 list \fIpolyn\fR
@@ -406,8 +413,8 @@ The polynomial to be differentiated
 .sp
 .TP
 \fB::math::polynomials::primitivePolyn\fR \fIpolyn\fR
-Integrate the polynomial and return the result. The integration
-constant is set to zero.
+Integrate the polynomial and return the result\&. The integration
+constant is set to zero\&.
 .RS
 .TP
 list \fIpolyn\fR
@@ -416,7 +423,7 @@ The polynomial to be integrated
 .sp
 .TP
 \fB::math::polynomials::degreePolyn\fR \fIpolyn\fR
-Return the degree of the polynomial.
+Return the degree of the polynomial\&.
 .RS
 .TP
 list \fIpolyn\fR
@@ -426,7 +433,7 @@ The polynomial to be examined
 .TP
 \fB::math::polynomials::coeffPolyn\fR \fIpolyn\fR \fIindex\fR
 Return the coefficient of the term of the index'th degree of the
-polynomial.
+polynomial\&.
 .RS
 .TP
 list \fIpolyn\fR
@@ -438,7 +445,7 @@ The degree of the term
 .sp
 .TP
 \fB::math::polynomials::allCoeffsPolyn\fR \fIpolyn\fR
-Return the coefficients of the polynomial (in ascending order).
+Return the coefficients of the polynomial (in ascending order)\&.
 .RS
 .TP
 list \fIpolyn\fR
@@ -448,23 +455,24 @@ The polynomial in question
 .SH "REMARKS ON THE IMPLEMENTATION"
 The implementation for evaluating the polynomials at some point uses
 Horn's rule, which guarantees numerical stability and a minimum of
-arithmetic operations.
+arithmetic operations\&.
 To recognise that a polynomial definition is indeed a correct
 definition, it consists of a list of two elements: the keyword
-"POLYNOMIAL" and the list of coefficients in descending order. The
-latter makes it easier to implement Horner's rule.
+"POLYNOMIAL" and the list of coefficients in descending order\&. The
+latter makes it easier to implement Horner's rule\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fImath :: polynomials\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 math, polynomial functions
 .SH CATEGORY
 Mathematics
 .SH COPYRIGHT
 .nf
-Copyright (c) 2004 Arjen Markus <arjenmarkus@users.sourceforge.net>
+Copyright (c) 2004 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
+
 .fi

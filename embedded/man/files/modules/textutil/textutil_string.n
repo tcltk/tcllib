@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/textutil/textutil_string.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/textutil/textutil_string\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "textutil::string" n 0.7 tcllib "Text and string utilities, macro processing"
+.TH "textutil::string" n 0\&.7 tcllib "Text and string utilities, macro processing"
 .BS
 .SH NAME
-textutil::string \- Procedures to manipulate texts and strings.
+textutil::string \- Procedures to manipulate texts and strings\&.
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBtextutil::string  ?0.7?\fR
+package require \fBtextutil::string  ?0\&.7?\fR
 .sp
 \fB::textutil::string::chop\fR \fIstring\fR
 .sp
@@ -255,50 +256,50 @@ package require \fBtextutil::string  ?0.7?\fR
 .sp
 \fB::textutil::string::longestCommonPrefixList\fR \fIlist\fR
 .sp
-\fB::textutil::string::longestCommonPrefix\fR ?\fIstring\fR...?
+\fB::textutil::string::longestCommonPrefix\fR ?\fIstring\fR\&.\&.\&.?
 .sp
 .BE
 .SH DESCRIPTION
 The package \fBtextutil::string\fR provides miscellaneous string
-manipulation commands.
+manipulation commands\&.
 .PP
-The complete set of procedures is described below.
+The complete set of procedures is described below\&.
 .TP
 \fB::textutil::string::chop\fR \fIstring\fR
-A convenience command. Removes the last character of \fIstring\fR and
-returns the shortened string.
+A convenience command\&. Removes the last character of \fIstring\fR and
+returns the shortened string\&.
 .TP
 \fB::textutil::string::tail\fR \fIstring\fR
-A convenience command. Removes the first character of \fIstring\fR and
-returns the shortened string.
+A convenience command\&. Removes the first character of \fIstring\fR and
+returns the shortened string\&.
 .TP
 \fB::textutil::string::cap\fR \fIstring\fR
 Capitalizes the first character of \fIstring\fR and returns the
-modified string.
+modified string\&.
 .TP
 \fB::textutil::string::uncap\fR \fIstring\fR
-The complementary operation to \fB::textutil::string::cap\fR. Forces
+The complementary operation to \fB::textutil::string::cap\fR\&. Forces
 the first character of \fIstring\fR to lower case and returns the
-modified string.
+modified string\&.
 .TP
 \fB::textutil::string::longestCommonPrefixList\fR \fIlist\fR
 .TP
-\fB::textutil::string::longestCommonPrefix\fR ?\fIstring\fR...?
+\fB::textutil::string::longestCommonPrefix\fR ?\fIstring\fR\&.\&.\&.?
 Computes the longest common prefix for either the \fIstring\fRs given
 to the command, or the strings specified in the single \fIlist\fR, and
-returns it as the result of the command.
+returns it as the result of the command\&.
 .sp
-If no strings were specified the result is the empty string.  If only
+If no strings were specified the result is the empty string\&.  If only
 one string was specified, the string itself is returned, as it is its
-own longest common prefix.
+own longest common prefix\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fItextutil\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 regexp(n), split(n), string(n)
 .SH KEYWORDS

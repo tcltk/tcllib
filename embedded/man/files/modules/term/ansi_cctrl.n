@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/term/ansi_cctrl.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/term/ansi_cctrl\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,20 +238,20 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "term::ansi::code::ctrl" n 0.1 tcllib "Terminal control"
+.TH "term::ansi::code::ctrl" n 0\&.1 tcllib "Terminal control"
 .BS
 .SH NAME
 term::ansi::code::ctrl \- ANSI control sequences
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBterm::ansi::code  ?0.1?\fR
+package require \fBterm::ansi::code  ?0\&.1?\fR
 .sp
-package require \fBterm::ansi::code::ctrl  ?0.1.1?\fR
+package require \fBterm::ansi::code::ctrl  ?0\&.1\&.1?\fR
 .sp
 \fB::term::ansi::code::ctrl::names\fR
 .sp
-\fB::term::ansi::code::ctrl::import\fR ?\fIns\fR? ?\fIarg\fR...?
+\fB::term::ansi::code::ctrl::import\fR ?\fIns\fR? ?\fIarg\fR\&.\&.\&.?
 .sp
 \fB::term::ansi::code::ctrl::eeol\fR
 .sp
@@ -304,7 +305,7 @@ package require \fBterm::ansi::code::ctrl  ?0.1.1?\fR
 .sp
 \fB::term::ansi::code::ctrl::scs1\fR \fItag\fR
 .sp
-\fB::term::ansi::code::ctrl::sda\fR \fIarg\fR...
+\fB::term::ansi::code::ctrl::sda\fR \fIarg\fR\&.\&.\&.
 .sp
 \fB::term::ansi::code::ctrl::sda_fgblack\fR
 .sp
@@ -427,24 +428,24 @@ package require \fBterm::ansi::code::ctrl  ?0.1.1?\fR
 .BE
 .SH DESCRIPTION
 This package provides symbolic names for the ANSI control
-sequences. For each sequence a single command is provided which
-returns the sequence as its result. None of the commands of this
+sequences\&. For each sequence a single command is provided which
+returns the sequence as its result\&. None of the commands of this
 package write to a channel; that is handled by higher level packages,
-like \fBterm::ansi::send\fR.
+like \fBterm::ansi::send\fR\&.
 .SH API
 .SS INTROSPECTION
 .TP
 \fB::term::ansi::code::ctrl::names\fR
-This command is for introspection. It returns as its result a list
-containing the names of all attribute commands.
+This command is for introspection\&. It returns as its result a list
+containing the names of all attribute commands\&.
 .TP
-\fB::term::ansi::code::ctrl::import\fR ?\fIns\fR? ?\fIarg\fR...?
+\fB::term::ansi::code::ctrl::import\fR ?\fIns\fR? ?\fIarg\fR\&.\&.\&.?
 This command imports some or all attribute commands into the namespace
-\fIns\fR. This is by default the namespace \fIctrl\fR. Note that this
+\fIns\fR\&. This is by default the namespace \fIctrl\fR\&. Note that this
 is relative namespace name, placing the imported command into a child
-of the current namespace. By default all commands are imported, this
+of the current namespace\&. By default all commands are imported, this
 can howver be restricted by listing the names of the wanted commands
-after the namespace argument.
+after the namespace argument\&.
 .PP
 .SS SEQUENCES
 .TP
@@ -525,11 +526,11 @@ Set default character set
 .TP
 \fB::term::ansi::code::ctrl::scs1\fR \fItag\fR
 Set alternate character set
-Select Character Set.
+Select Character Set\&.
 .sp
 Choose which character set is used for either default (scs0) or
-alternate font (scs1). This does not change whether default or
-alternate font are used, only their definition.
+alternate font (scs1)\&. This does not change whether default or
+alternate font are used, only their definition\&.
 .sp
 The legal tags, and their meanings, are:
 .RS
@@ -550,205 +551,206 @@ Alternate Character ROM Standard Character Set
 Alternate Character ROM Special Graphics
 .RE
 .TP
-\fB::term::ansi::code::ctrl::sda\fR \fIarg\fR...
-Set Display Attributes. The arguments are the code sequences for the possible
-attributes, as provided by the package \fBterm::ansi::code::attr\fR. For
+\fB::term::ansi::code::ctrl::sda\fR \fIarg\fR\&.\&.\&.
+Set Display Attributes\&. The arguments are the code sequences for the possible
+attributes, as provided by the package \fBterm::ansi::code::attr\fR\&. For
 convenience this package also provides additional commands each setting a single
-specific attribute.
+specific attribute\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_fgblack\fR
-Set text color to \fIBlack\fR.
+Set text color to \fIBlack\fR\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_fgred\fR
-Set text color to \fIRed\fR.
+Set text color to \fIRed\fR\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_fggreen\fR
-Set text color to \fIGreen\fR.
+Set text color to \fIGreen\fR\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_fgyellow\fR
-Set text color to \fIYellow\fR.
+Set text color to \fIYellow\fR\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_fgblue\fR
-Set text color to \fIBlue\fR.
+Set text color to \fIBlue\fR\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_fgmagenta\fR
-Set text color to \fIMagenta\fR.
+Set text color to \fIMagenta\fR\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_fgcyan\fR
-Set text color to \fICyan\fR.
+Set text color to \fICyan\fR\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_fgwhite\fR
-Set text color to \fIWhite\fR.
+Set text color to \fIWhite\fR\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_fgdefault\fR
-Set default text color (\fIBlack\fR).
+Set default text color (\fIBlack\fR)\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_bgblack\fR
-Set background to \fIBlack\fR.
+Set background to \fIBlack\fR\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_bgred\fR
-Set background to \fIRed\fR.
+Set background to \fIRed\fR\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_bggreen\fR
-Set background to \fIGreen\fR.
+Set background to \fIGreen\fR\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_bgyellow\fR
-Set background to \fIYellow\fR.
+Set background to \fIYellow\fR\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_bgblue\fR
-Set background to \fIBlue\fR.
+Set background to \fIBlue\fR\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_bgmagenta\fR
-Set background to \fIMagenta\fR.
+Set background to \fIMagenta\fR\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_bgcyan\fR
-Set background to \fICyan\fR.
+Set background to \fICyan\fR\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_bgwhite\fR
-Set background to \fIWhite\fR.
+Set background to \fIWhite\fR\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_bgdefault\fR
-Set default background (Transparent).
+Set default background (Transparent)\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_bold\fR
-Bold on.
+Bold on\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_dim\fR
-Dim on.
+Dim on\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_italic\fR
-Italics on.
+Italics on\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_underline\fR
-Underscore on.
+Underscore on\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_blink\fR
-Blink on.
+Blink on\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_revers\fR
-Reverse on.
+Reverse on\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_hidden\fR
-Hidden on.
+Hidden on\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_strike\fR
-Strike-through on.
+Strike-through on\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_nobold\fR
-Bold off.
+Bold off\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_noitalic\fR
-Italics off.
+Italics off\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_nounderline\fR
-Underscore off.
+Underscore off\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_noblink\fR
-Blink off.
+Blink off\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_norevers\fR
-Reverse off.
+Reverse off\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_nohidden\fR
-Hidden off.
+Hidden off\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_nostrike\fR
-Strike-through off.
+Strike-through off\&.
 .TP
 \fB::term::ansi::code::ctrl::sda_reset\fR
-Reset all attributes to their default values.
+Reset all attributes to their default values\&.
 .TP
 \fB::term::ansi::send::fcp\fR \fIrow\fR \fIcol\fR
-Force Cursor Position (aka Go To).
+Force Cursor Position (aka Go To)\&.
 .TP
 \fB::term::ansi::code::ctrl::cu\fR ?\fIn\fR?
-Cursor Up. \fIn\fR defaults to 1.
+Cursor Up\&. \fIn\fR defaults to 1\&.
 .TP
 \fB::term::ansi::code::ctrl::cd\fR ?\fIn\fR?
-Cursor Down. \fIn\fR defaults to 1.
+Cursor Down\&. \fIn\fR defaults to 1\&.
 .TP
 \fB::term::ansi::code::ctrl::cf\fR ?\fIn\fR?
-Cursor Forward. \fIn\fR defaults to 1.
+Cursor Forward\&. \fIn\fR defaults to 1\&.
 .TP
 \fB::term::ansi::code::ctrl::cb\fR ?\fIn\fR?
-Cursor Backward. \fIn\fR defaults to 1.
+Cursor Backward\&. \fIn\fR defaults to 1\&.
 .TP
 \fB::term::ansi::code::ctrl::ss\fR ?\fIs\fR \fIe\fR?
-Scroll Screen (entire display, or between rows start end, inclusive).
+Scroll Screen (entire display, or between rows start end, inclusive)\&.
 .TP
 \fB::term::ansi::code::ctrl::skd\fR \fIcode\fR \fIstr\fR
-Set Key Definition.
+Set Key Definition\&.
 .TP
 \fB::term::ansi::code::ctrl::title\fR \fIstr\fR
-Set the terminal title.
+Set the terminal title\&.
 .TP
 \fB::term::ansi::code::ctrl::gron\fR
-Switch to character/box graphics. I.e. switch to the alternate font.
+Switch to character/box graphics\&. I\&.e\&. switch to the alternate font\&.
 .TP
 \fB::term::ansi::code::ctrl::groff\fR
-Switch to regular characters. I.e. switch to the default font.
+Switch to regular characters\&. I\&.e\&. switch to the default font\&.
 .TP
 \fB::term::ansi::code::ctrl::tlc\fR
-Character graphics, Top Left Corner.
+Character graphics, Top Left Corner\&.
 .TP
 \fB::term::ansi::code::ctrl::trc\fR
-Character graphics, Top Right Corner.
+Character graphics, Top Right Corner\&.
 .TP
 \fB::term::ansi::code::ctrl::brc\fR
-Character graphics, Bottom Right Corner.
+Character graphics, Bottom Right Corner\&.
 .TP
 \fB::term::ansi::code::ctrl::blc\fR
-Character graphics, Bottom Left Corner.
+Character graphics, Bottom Left Corner\&.
 .TP
 \fB::term::ansi::code::ctrl::ltj\fR
-Character graphics, Left T Junction.
+Character graphics, Left T Junction\&.
 .TP
 \fB::term::ansi::code::ctrl::ttj\fR
-Character graphics, Top T Junction.
+Character graphics, Top T Junction\&.
 .TP
 \fB::term::ansi::code::ctrl::rtj\fR
-Character graphics, Right T Junction.
+Character graphics, Right T Junction\&.
 .TP
 \fB::term::ansi::code::ctrl::btj\fR
-Character graphics, Bottom T Junction.
+Character graphics, Bottom T Junction\&.
 .TP
 \fB::term::ansi::code::ctrl::fwj\fR
-Character graphics, Four-Way Junction.
+Character graphics, Four-Way Junction\&.
 .TP
 \fB::term::ansi::code::ctrl::hl\fR
-Character graphics, Horizontal Line.
+Character graphics, Horizontal Line\&.
 .TP
 \fB::term::ansi::code::ctrl::vl\fR
-Character graphics, Vertical Line.
+Character graphics, Vertical Line\&.
 .TP
 \fB::term::ansi::code::ctrl::groptim\fR \fIstr\fR
-Optimize character graphics. The generator commands above create way to many
-superfluous commands shifting into and out of the graphics mode. This command
-removes all shifts which are not needed. To this end it also knows which
+Optimize character graphics\&. The generator commands above create way to many
+superfluous commands shifting into and out of the graphics mode\&. This command
+removes all shifts which are not needed\&. To this end it also knows which
 characters will look the same in both modes, to handle strings created outside
-of this package.
+of this package\&.
 .TP
 \fB::term::ansi::code::ctrl::clear\fR
-Clear screen. In essence a sequence of CursorHome + EraseDown.
+Clear screen\&. In essence a sequence of CursorHome + EraseDown\&.
 .TP
 \fB::term::ansi::code::ctrl::init\fR
-Initialize default and alternate fonts to ASCII and box graphics.
+Initialize default and alternate fonts to ASCII and box graphics\&.
 .TP
 \fB::term::ansi::code::ctrl::showat\fR \fIrow\fR \fIcol\fR \fItext\fR
-Format the block of text for display at the specified location.
+Format the block of text for display at the specified location\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIterm\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 ansi, attribute control, color control, control, terminal
 .SH CATEGORY
 Terminal control
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2006-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

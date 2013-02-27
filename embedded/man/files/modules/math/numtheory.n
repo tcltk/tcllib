@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/math/numtheory.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/numtheory\&.n' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2010 Lars Hellström <Lars dot Hellstrom at residenset dot net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,54 +238,54 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "math::numtheory" n 1.0 tcllib "Tcl Math Library"
+.TH "math::numtheory" n 1\&.0 tcllib "Tcl Math Library"
 .BS
 .SH NAME
 math::numtheory \- Number Theory
 .SH SYNOPSIS
-package require \fBTcl  ?8.5?\fR
+package require \fBTcl  ?8\&.5?\fR
 .sp
-package require \fBmath::numtheory  ?1.0?\fR
+package require \fBmath::numtheory  ?1\&.0?\fR
 .sp
-\fBmath::numtheory::isprime\fR \fIN\fR ?\fIoption\fR \fIvalue\fR ...?
+\fBmath::numtheory::isprime\fR \fIN\fR ?\fIoption\fR \fIvalue\fR \&.\&.\&.?
 .sp
 .BE
 .SH DESCRIPTION
 .PP
 This package is for collecting various number-theoretic operations,
 though at the moment it only provides that of testing whether an
-integer is a prime.
+integer is a prime\&.
 .TP
-\fBmath::numtheory::isprime\fR \fIN\fR ?\fIoption\fR \fIvalue\fR ...?
+\fBmath::numtheory::isprime\fR \fIN\fR ?\fIoption\fR \fIvalue\fR \&.\&.\&.?
 The \fBisprime\fR command tests whether the integer \fIN\fR is a
 prime, returning a boolean true value for prime \fIN\fR and a
-boolean false value for non-prime \fIN\fR. The formal definition of
+boolean false value for non-prime \fIN\fR\&. The formal definition of
 \'prime' used is the conventional, that the number being tested is
-greater than 1 and only has trivial divisors.
+greater than 1 and only has trivial divisors\&.
 .sp
 To be precise, the return value is one of \fB0\fR (if \fIN\fR is
 definitely not a prime), \fB1\fR (if \fIN\fR is definitely a
 prime), and \fBon\fR (if \fIN\fR is probably prime); the latter
-two are both boolean true values. The case that an integer may be
+two are both boolean true values\&. The case that an integer may be
 classified as "probably prime" arises because the Miller-Rabin
 algorithm used in the test implementation is basically probabilistic,
 and may if we are unlucky fail to detect that a number is in fact
-composite. Options may be used to select the risk of such
-"false positives" in the test. \fB1\fR is returned for "small"
+composite\&. Options may be used to select the risk of such
+"false positives" in the test\&. \fB1\fR is returned for "small"
 \fIN\fR (which currently means \fIN\fR < 118670087467), where it is
-known that no false positives are possible.
+known that no false positives are possible\&.
 .sp
 The only option currently defined is:
 .RS
 .TP
 \fB-randommr\fR \fIrepetitions\fR
 which controls how many times the Miller-Rabin test should be
-repeated with randomly chosen bases. Each repetition reduces the
-probability of a false positive by a factor at least 4. The
-default for \fIrepetitions\fR is 4.
+repeated with randomly chosen bases\&. Each repetition reduces the
+probability of a false positive by a factor at least 4\&. The
+default for \fIrepetitions\fR is 4\&.
 .RE
 .IP
-Unknown options are silently ignored.
+Unknown options are silently ignored\&.
 .PP
 .SH KEYWORDS
 number theory, prime
@@ -293,4 +294,5 @@ Mathematics
 .SH COPYRIGHT
 .nf
 Copyright (c) 2010 Lars Hellström <Lars dot Hellstrom at residenset dot net>
+
 .fi

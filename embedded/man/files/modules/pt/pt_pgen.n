@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/pt/pt_pgen.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/pt/pt_pgen\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,16 +238,16 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "pt::pgen" n 1.0.1 tcllib "Parser Tools"
+.TH "pt::pgen" n 1\&.0\&.1 tcllib "Parser Tools"
 .BS
 .SH NAME
 pt::pgen \- Parser Generator
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
-package require \fBpt::pgen  ?1.0.1?\fR
+package require \fBpt::pgen  ?1\&.0\&.1?\fR
 .sp
-\fB::pt::pgen\fR \fIinputformat\fR \fItext\fR \fIresultformat\fR ?\fIoptions...\fR?
+\fB::pt::pgen\fR \fIinputformat\fR \fItext\fR \fIresultformat\fR ?\fIoptions\&.\&.\&.\fR?
 .sp
 .BE
 .SH DESCRIPTION
@@ -254,36 +255,36 @@ package require \fBpt::pgen  ?1.0.1?\fR
 Are you lost ?
 Do you have trouble understanding this document ?
 In that case please read the overview provided by the
-\fIIntroduction to Parser Tools\fR. This document is the
-entrypoint to the whole system the current package is a part of.
+\fIIntroduction to Parser Tools\fR\&. This document is the
+entrypoint to the whole system the current package is a part of\&.
 .PP
 This package provides a command implementing a
 \fIparser generator\fR
-taking parsing expression grammars as input.
+taking parsing expression grammars as input\&.
 .PP
 It is the implementation of method \fBgenerate\fR of \fBpt\fR, the
-\fIParser Tools Application\fR.
+\fIParser Tools Application\fR\&.
 .PP
 As such the intended audience of this document are people wishing to
-modify and/or extend this part of \fBpt\fR's functionality. Users of
+modify and/or extend this part of \fBpt\fR's functionality\&. Users of
 \fBpt\fR on the other hand are hereby refered to the applications'
-manpage, i.e. \fIParser Tools Application\fR.
+manpage, i\&.e\&. \fIParser Tools Application\fR\&.
 .PP
-It resides in the User Package Layer of Parser Tools.
+It resides in the User Package Layer of Parser Tools\&.
 .PP
 IMAGE: arch_user_pkg
 .PP
 .SH API
 .TP
-\fB::pt::pgen\fR \fIinputformat\fR \fItext\fR \fIresultformat\fR ?\fIoptions...\fR?
+\fB::pt::pgen\fR \fIinputformat\fR \fItext\fR \fIresultformat\fR ?\fIoptions\&.\&.\&.\fR?
 This command takes the parsing expression grammar in \fItext\fR (in
 the format specified by \fIinputformat\fR), and returns the same
-grammar in the format \fIresultformat\fR as the result of the command.
+grammar in the format \fIresultformat\fR as the result of the command\&.
 .sp
-The two known input formats are \fBpeg\fR and \fBjson\fR.
+The two known input formats are \fBpeg\fR and \fBjson\fR\&.
 Introductions to them, including their formal specifications, can be
 found in the \fIPEG Language Tutorial\fR and
-\fIThe JSON Grammar Exchange Format\fR. The packages used to
+\fIThe JSON Grammar Exchange Format\fR\&. The packages used to
 parse these formats are
 .RS
 .TP
@@ -324,7 +325,7 @@ generate them are
 .RE
 .IP
 The options supported by each of these formats are documented
-with their respective packages.
+with their respective packages\&.
 .PP
 .SH EXAMPLE
 In this section we are working a complete example, starting with a PEG
@@ -333,118 +334,137 @@ input, following the outline shown in the figure below:
 .PP
 IMAGE: flow
 .PP
-Our grammar, assumed to the stored in the file "\fIcalculator.peg\fR"
+Our grammar, assumed to the stored in the file "\fIcalculator\&.peg\fR"
 is
 .CS
+
+
 PEG calculator (Expression)
-Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
-Sign       <- '-' / '+'                                     ;
-Number     <- Sign? Digit+                                  ;
-Expression <- Term (AddOp Term)*                            ;
-MulOp      <- '*' / '/'                                     ;
-Term       <- Factor (MulOp Factor)*                        ;
-AddOp      <- '+'/'-'                                       ;
-Factor     <- '(' Expression ')' / Number                   ;
+    Digit      <- '0'/'1'/'2'/'3'/'4'/'5'/'6'/'7'/'8'/'9'       ;
+    Sign       <- '-' / '+'                                     ;
+    Number     <- Sign? Digit+                                  ;
+    Expression <- Term (AddOp Term)*                            ;
+    MulOp      <- '*' / '/'                                     ;
+    Term       <- Factor (MulOp Factor)*                        ;
+    AddOp      <- '+'/'-'                                       ;
+    Factor     <- '(' Expression ')' / Number                   ;
 END;
+
 .CE
 From this we create a snit-based parser
 using the script "\fIgen\fR"
 .CS
-package require Tcl 8.5
+
+
+package require Tcl 8\&.5
 package require fileutil
 package require pt::pgen
+
 lassign $argv name
-set grammar [fileutil::cat $name.peg]
-set pclass  [pt::pgen peg $gr snit -class $name -file  $name.peg -name  $name]
-fileutil::writeFile $name.tcl $pclass
+set grammar [fileutil::cat $name\&.peg]
+set pclass  [pt::pgen peg $gr snit -class $name -file  $name\&.peg -name  $name]
+fileutil::writeFile $name\&.tcl $pclass
 exit 0
+
 .CE
 calling it like
 .CS
-tclsh8.5 gen calculator
+
+ tclsh8\&.5 gen calculator
 .CE
 which leaves us with the parser package and class written to the file
-"\fIcalculator.tcl\fR".
+"\fIcalculator\&.tcl\fR"\&.
 Assuming that this package is then properly installed in a place where
 Tcl can find it we can now use this class via a script like
 .CS
-package require calculator
-lassign $argv input
-set channel [open $input r]
-set parser [calculator]
-set ast [$parser parse $channel]
-$parser destroy
-close $channel
-\... now process the returned abstract syntax tree ...
+
+
+    package require calculator
+
+    lassign $argv input
+    set channel [open $input r]
+
+    set parser [calculator]
+    set ast [$parser parse $channel]
+    $parser destroy
+    close $channel
+
+    \&.\&.\&. now process the returned abstract syntax tree \&.\&.\&.
+
 .CE
 where the abstract syntax tree stored in the variable will look like
 .PP
 .CS
+
+
 set ast {Expression 0 4
-{Factor 0 4
-{Term 0 2
-{Number 0 2
-{Digit 0 0}
-{Digit 1 1}
-{Digit 2 2}
+    {Factor 0 4
+        {Term 0 2
+            {Number 0 2
+                {Digit 0 0}
+                {Digit 1 1}
+                {Digit 2 2}
+            }
+        }
+        {AddOp 3 3}
+        {Term 4 4
+            {Number 4 4
+                {Digit 4 4}
+            }
+        }
+    }
 }
-}
-{AddOp 3 3}
-{Term 4 4
-{Number 4 4
-{Digit 4 4}
-}
-}
-}
-}
+
 .CE
 .PP
 assuming that the input file and channel contained the text
 .CS
-120+5
+
+ 120+5
 .CE
 A more graphical representation of the tree would be
 .PP
-\.PS
-\.nf
-                                                           +- Digit 0 0 | 1
-                                                           |            |
-                               +- Term 0 2 --- Number 0 2 -+- Digit 1 1 | 2
-                               |                           |            |
-                               |                           +- Digit 2 2 | 0
-                               |                                        |
+.PS
+\&.nf
++- Digit 0 0 | 1
+|            |
++- Term 0 2 --- Number 0 2 -+- Digit 1 1 | 2
+|                           |            |
+|                           +- Digit 2 2 | 0
+|                                        |
 Expression 0 4 --- Factor 0 4 -+----------------------------- AddOp 3 3 | +
-                               |                                        |
-                               +- Term 4 4 --- Number 4 4 --- Digit 4 4 | 5
-.fi
-\.PE
+|                                        |
++- Term 4 4 --- Number 4 4 --- Digit 4 4 | 5
+\&.fi
+.PE
 .PP
 Regardless, at this point it is the user's responsibility to work with
-the tree to reach whatever goal she desires. I.e. analyze it,
-transform it, etc. The package \fBpt::ast\fR should be of help
-here, providing commands to walk such ASTs structures in various ways.
+the tree to reach whatever goal she desires\&. I\&.e\&. analyze it,
+transform it, etc\&. The package \fBpt::ast\fR should be of help
+here, providing commands to walk such ASTs structures in various ways\&.
 .PP
 One important thing to note is that the parsers used here return a
 data structure representing the structure of the input per the grammar
-underlying the parser. There are \fIno\fR callbacks during the
-parsing process, i.e. no \fIparsing actions\fR, as most other
-parsers will have.
+underlying the parser\&. There are \fIno\fR callbacks during the
+parsing process, i\&.e\&. no \fIparsing actions\fR, as most other
+parsers will have\&.
 .PP
 Going back to the last snippet of code, the execution of the parser
 for some input, note how the parser instance follows the specified
-\fIParser API\fR.
+\fIParser API\fR\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIpt\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 EBNF, LL(k), PEG, TDPL, context-free languages, expression, grammar, matching, parser, parsing expression, parsing expression grammar, push down automaton, recursive descent, state, top-down parsing languages, transducer
 .SH CATEGORY
 Parsing and Grammars
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

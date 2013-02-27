@@ -1,7 +1,7 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/grammar_aycock/aycock.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006 by Kevin B. Kenny <kennykb@acm.org>
-'\" Redistribution permitted under the terms of the Open Publication License <http://www.opencontent.org/openpub/>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/grammar_aycock/aycock\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006 by Kevin B\&. Kenny <kennykb@acm\&.org>
+'\" Redistribution permitted under the terms of the Open Publication License <http://www\&.opencontent\&.org/openpub/>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -223,6 +223,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -238,14 +239,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "grammar::aycock" n 1.0 tcllib "Aycock-Horspool-Earley parser generator for Tcl"
+.TH "grammar::aycock" n 1\&.0 tcllib "Aycock-Horspool-Earley parser generator for Tcl"
 .BS
 .SH NAME
 grammar::aycock \- Aycock-Horspool-Earley parser generator for Tcl
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
-package require \fBgrammar::aycock  ?1.0?\fR
+package require \fBgrammar::aycock  ?1\&.0?\fR
 .sp
 \fB::aycock::parser\fR \fIgrammar\fR ?\fB-verbose\fR?
 .sp
@@ -264,95 +265,98 @@ package require \fBgrammar::aycock  ?1.0?\fR
 .PP
 The \fBgrammar::aycock\fR package
 implements a parser generator for the class of parsers described
-in John Aycock and R. Nigel Horspool. Practical Earley Parsing.
-\fIThe Computer Journal,\fR \fI45\fR(6):620-630, 2002.
-\fIhttp://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.12.4254\fR
+in John Aycock and R\&. Nigel Horspool\&. Practical Earley Parsing\&.
+\fIThe Computer Journal,\fR \fI45\fR(6):620-630, 2002\&.
+\fIhttp://citeseerx\&.ist\&.psu\&.edu/viewdoc/summary?doi=10\&.1\&.1\&.12\&.4254\fR
 .SH PROCEDURES
 The \fBgrammar::aycock\fR package exports the single procedure:
 .TP
 \fB::aycock::parser\fR \fIgrammar\fR ?\fB-verbose\fR?
 Generates a parser for the given \fIgrammar\fR, and returns its
-name.  If the optional \fB-verbose\fR flag is given, dumps verbose
-information relating to the generated parser to the standard output.
+name\&.  If the optional \fB-verbose\fR flag is given, dumps verbose
+information relating to the generated parser to the standard output\&.
 The returned parser is an object that accepts commands as shown in
-\fBOBJECT COMMAND\fR below.
+\fBOBJECT COMMAND\fR below\&.
 .PP
 .SH "OBJECT COMMAND"
 .TP
 \fIparserName\fR \fBparse\fR \fIsymList\fR \fIvalList\fR ?\fIclientData\fR?
-Invokes a parser returned from \fB::aycock::parser\fR. \fIsymList\fR is
+Invokes a parser returned from \fB::aycock::parser\fR\&. \fIsymList\fR is
 a list of grammar symbols representing the terminals in an input
-string, and \fIvalList\fR is a list of their semantic values. The
-result is the semantic value of the entire string when parsed.
+string, and \fIvalList\fR is a list of their semantic values\&. The
+result is the semantic value of the entire string when parsed\&.
 .TP
 \fIparserName\fR \fBdestroy\fR
-Destroys a parser constructed by \fB::aycock::parser\fR.
+Destroys a parser constructed by \fB::aycock::parser\fR\&.
 .TP
 \fIparserName\fR \fBterminals\fR
 Returns a list of terminal symbols that may be presented in the
-\fIsymList\fR argument to the \fBparse\fR object command.
+\fIsymList\fR argument to the \fBparse\fR object command\&.
 .TP
 \fIparserName\fR \fBnonterminals\fR
 Returns a list of nonterminal symbols that were defined in the
-parser's grammar.
+parser's grammar\&.
 .TP
 \fIparserName\fR \fBsave\fR
 Returns a Tcl script that will reconstruct the parser without
-needing all the mechanism of the parser generator at run time.
+needing all the mechanism of the parser generator at run time\&.
 The reconstructed parser depends on a set of commands in the
 package \fBgrammar::aycock::runtime\fR,
 which is also automatically loaded
-when the \fBgrammar::aycock\fR package is loaded.
+when the \fBgrammar::aycock\fR package is loaded\&.
 .PP
 .SH DESCRIPTION
 The \fBgrammar::aycock::parser\fR command accepts a grammar expressed as
-a Tcl list.  The list must be structured as the concatenation of a set
-of \fIrule\fRs. Each \fIrule\fR comprises a variable number of
+a Tcl list\&.  The list must be structured as the concatenation of a set
+of \fIrule\fRs\&. Each \fIrule\fR comprises a variable number of
 elements in the list:
 .IP \(bu
-The name of the nonterminal symbol that the rule reduces.
+The name of the nonterminal symbol that the rule reduces\&.
 .IP \(bu
 The literal string, \fB::=\fR
 .IP \(bu
 Zero or more names of terminal or nonterminal symbols that
-comprise the right-hand-side of the rule.
+comprise the right-hand-side of the rule\&.
 .IP \(bu
-Finally, a Tcl script to execute when the rule is reduced.
+Finally, a Tcl script to execute when the rule is reduced\&.
 Within the given script, a variable called \fB_\fR contains a list of
-the semantic values of the symbols on the right-hand side. The value
+the semantic values of the symbols on the right-hand side\&. The value
 returned by the script is expected to be the semantic value of the
-left-hand side.  If the \fIclientData\fR parameter was passed to the
+left-hand side\&.  If the \fIclientData\fR parameter was passed to the
 \fBparse\fR method, it is available in a variable called
-\fBclientData\fR.  It is permissible for the script to be the empty
-string.  In this case, the semantic value of the rule will be the same
-as the semantic value of the first symbol on the right-hand side.  If
+\fBclientData\fR\&.  It is permissible for the script to be the empty
+string\&.  In this case, the semantic value of the rule will be the same
+as the semantic value of the first symbol on the right-hand side\&.  If
 the right-hand side is also empty, the semantic value will be the
-empty string.
+empty string\&.
 .PP
 Parsing is done with an Earley parser, which is not terribly efficient
 in speed or memory consumption, but which deals effectively with
-ambiguous grammars.  For this reason, the \fBgrammar::aycock\fR package is
+ambiguous grammars\&.  For this reason, the \fBgrammar::aycock\fR package is
 perhaps best adapted to natural-language processing or the parsing of
-extraordinarily complex languages in which ambiguity can be tolerated.
+extraordinarily complex languages in which ambiguity can be tolerated\&.
 .SH EXAMPLE
 The following code demonstrates a trivial desk calculator, admitting
-only \fB+\fR, \fB*\fR and parentheses as its operators.  It also
+only \fB+\fR, \fB*\fR and parentheses as its operators\&.  It also
 shows the format in which the lexical analyzer is expected to present
-terminal symbols to the parser.
+terminal symbols to the parser\&.
 .CS
+
+
 set p [aycock::parser {
-start ::= E {}
-E ::= E + T {expr {[lindex $_ 0] + [lindex $_ 2]}}
-E ::= T {}
-T ::= T * F {expr {[lindex $_ 0] * [lindex $_ 2]}}
-T ::= F {}
-F ::= NUMBER {}
-F ::= ( E ) {lindex $_ 1}
+    start ::= E {}
+    E ::= E + T {expr {[lindex $_ 0] + [lindex $_ 2]}}
+    E ::= T {}
+    T ::= T * F {expr {[lindex $_ 0] * [lindex $_ 2]}}
+    T ::= F {}
+    F ::= NUMBER {}
+    F ::= ( E ) {lindex $_ 1}
 }]
 puts [$p parse {(  NUMBER +  NUMBER )  *  ( NUMBER +  NUMBER ) }  {{} 2      {} 3      {} {} {} 7     {} 1      {}}]
 $p destroy
+
 .CE
-The example, when run, prints \fB40\fR.
+The example, when run, prints \fB40\fR\&.
 .SH KEYWORDS
 Aycock, Earley, Horspool, parser, compiler
 .SH KEYWORDS
@@ -361,6 +365,7 @@ ambiguous, aycock, earley, grammar, horspool, parser, parsing, transducer
 Grammars and finite automata
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006 by Kevin B. Kenny <kennykb@acm.org>
-Redistribution permitted under the terms of the Open Publication License <http://www.opencontent.org/openpub/>
+Copyright (c) 2006 by Kevin B\&. Kenny <kennykb@acm\&.org>
+Redistribution permitted under the terms of the Open Publication License <http://www\&.opencontent\&.org/openpub/>
+
 .fi

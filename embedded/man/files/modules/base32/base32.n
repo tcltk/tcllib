@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/base32/base32.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/base32/base32\&.n' by tcllib/doctools with format 'nroff'
 '\" Public domain
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,16 +238,16 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "base32" n 0.1 tcllib "Base32 encoding"
+.TH "base32" n 0\&.1 tcllib "Base32 encoding"
 .BS
 .SH NAME
 base32 \- base32 standard encoding
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBbase32::core  ?0.1?\fR
+package require \fBbase32::core  ?0\&.1?\fR
 .sp
-package require \fBbase32  ?0.1?\fR
+package require \fBbase32  ?0\&.1?\fR
 .sp
 \fB::base32::encode\fR \fIstring\fR
 .sp
@@ -256,22 +257,22 @@ package require \fBbase32  ?0.1?\fR
 .SH DESCRIPTION
 .PP
 This package provides commands for encoding and decoding of strings
-into and out of the standard base32 encoding as specified in RFC 3548.
+into and out of the standard base32 encoding as specified in RFC 3548\&.
 .SH API
 .TP
 \fB::base32::encode\fR \fIstring\fR
 This command encodes the given \fIstring\fR in base32 and returns the
-encoded string as its result. The result may be padded with the
+encoded string as its result\&. The result may be padded with the
 character \fB=\fR to signal a partial encoding at the end of the
-input string.
+input string\&.
 .TP
 \fB::base32::decode\fR \fIestring\fR
 This commands takes the \fIestring\fR and decodes it under the
-assumption that it is a valid base32 encoded string. The result of the
-decoding is returned as the result of the command.
+assumption that it is a valid base32 encoded string\&. The result of the
+decoding is returned as the result of the command\&.
 .sp
 Note that while the encoder will generate only uppercase characters
-this decoder accepts input in lowercase as well.
+this decoder accepts input in lowercase as well\&.
 .sp
 The command will always throw an error whenever encountering
 conditions which signal some type of bogus input, namely if
@@ -289,27 +290,30 @@ the padding has not of length six, four, three, or one characters,
 .SH "CODE MAP"
 The code map used to convert 5-bit sequences is shown below, with the
 numeric id of the bit sequences to the left and the character used to
-encode it to the right. It should be noted that the characters "0" and
-"1" are not used by the encoding. This is done as these characters can
-be easily confused with "O", "o" and "l" (L).
+encode it to the right\&. It should be noted that the characters "0" and
+"1" are not used by the encoding\&. This is done as these characters can
+be easily confused with "O", "o" and "l" (L)\&.
 .CS
-0 A    9 J   18 S   27 3
-1 B   10 K   19 T   28 4
-2 C   11 L   20 U   29 5
-3 D   12 M   21 V   30 6
-4 E   13 N   22 W   31 7
-5 F   14 O   23 X
-6 G   15 P   24 Y
-7 H   16 Q   25 Z
-8 I   17 R   26 2
+
+
+	0 A    9 J   18 S   27 3
+	1 B   10 K   19 T   28 4
+	2 C   11 L   20 U   29 5
+	3 D   12 M   21 V   30 6
+	4 E   13 N   22 W   31 7
+	5 F   14 O   23 X
+	6 G   15 P   24 Y
+	7 H   16 Q   25 Z
+	8 I   17 R   26 2
+
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIbase32\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 base32, rfc3548
 .SH CATEGORY
@@ -317,4 +321,5 @@ Text processing
 .SH COPYRIGHT
 .nf
 Public domain
+
 .fi

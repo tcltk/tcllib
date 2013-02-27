@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/virtchannel_base/string.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/virtchannel_base/string\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -242,7 +243,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tcl::chan::string \- Read-only in-memory channel
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
 package require \fBTclOO \fR
 .sp
@@ -256,35 +257,36 @@ package require \fBtcl::chan::string  ?1?\fR
 .SH DESCRIPTION
 .PP
 The \fBtcl::chan::string\fR package provides a command creating
-channels which live purely in memory. They provide random-access,
-i.e. are seekable.
+channels which live purely in memory\&. They provide random-access,
+i\&.e\&. are seekable\&.
 In contrast to the channels created by \fBtcl::chan::memchan\fR
 they are read-only however, their content is provided at the time of
-construction and immutable afterward.
+construction and immutable afterward\&.
 .PP
 Packages related to this are \fBtcl::chan::memchan\fR and
-\fBtcl::chan::variable\fR.
+\fBtcl::chan::variable\fR\&.
 .PP
 The internal \fBTclOO\fR class implementing the channel
-handler is a sub-class of the \fBtcl::chan::events\fR framework.
+handler is a sub-class of the \fBtcl::chan::events\fR framework\&.
 .SH API
 .TP
 \fB::tcl::chan::string\fR \fIcontent\fR
-This command creates a new string channel and returns its handle. The
-channel provides random read-only access to the \fIcontent\fR string.
+This command creates a new string channel and returns its handle\&. The
+channel provides random read-only access to the \fIcontent\fR string\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIvirtchannel\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 in-memory channel, reflected channel, tip 219, virtual channel
 .SH CATEGORY
 Channels
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

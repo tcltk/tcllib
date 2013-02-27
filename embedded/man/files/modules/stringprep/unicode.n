@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/stringprep/unicode.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007, Sergei Golovan <sgolovan@nes.ru>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/stringprep/unicode\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007, Sergei Golovan <sgolovan@nes\&.ru>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "unicode" n 1.0.0 tcllib "Unicode normalization"
+.TH "unicode" n 1\&.0\&.0 tcllib "Unicode normalization"
 .BS
 .SH NAME
 unicode \- Implementation of Unicode normalization
 .SH SYNOPSIS
-package require \fBTcl  8.3\fR
+package require \fBTcl  8\&.3\fR
 .sp
-package require \fBunicode  1.0\fR
+package require \fBunicode  1\&.0\fR
 .sp
 \fB::unicode::fromstring\fR \fIstring\fR
 .sp
@@ -257,62 +258,69 @@ package require \fBunicode  1.0\fR
 .BE
 .SH DESCRIPTION
 .PP
-This is an implementation in Tcl of the Unicode normalization forms.
+This is an implementation in Tcl of the Unicode normalization forms\&.
 .SH COMMANDS
 .TP
 \fB::unicode::fromstring\fR \fIstring\fR
 Converts \fIstring\fR to list of integer Unicode character codes which
-is used in \fBunicode\fR for internal string representation.
+is used in \fBunicode\fR for internal string representation\&.
 .TP
 \fB::unicode::tostring\fR \fIuclist\fR
-Converts list of integers \fIuclist\fR back to Tcl string.
+Converts list of integers \fIuclist\fR back to Tcl string\&.
 .TP
 \fB::unicode::normalize\fR \fIform\fR \fIuclist\fR
 Normalizes Unicode characters list \fIulist\fR according to \fIform\fR
-and returns the normalized list. Form \fIform\fR takes one of the following
+and returns the normalized list\&. Form \fIform\fR takes one of the following
 values: \fID\fR (canonical decomposition), \fIC\fR (canonical decomposition, followed
 by canonical composition), \fIKD\fR (compatibility decomposition), or \fIKC\fR
-(compatibility decomposition, followed by canonical composition).
+(compatibility decomposition, followed by canonical composition)\&.
 .TP
 \fB::unicode::normalizeS\fR \fIform\fR \fIstring\fR
 A shortcut to
-::unicode::tostring [unicode::normalize \\$form [::unicode::fromstring \\$string]].
-Normalizes Tcl string and returns normalized string.
+::unicode::tostring [unicode::normalize \\$form [::unicode::fromstring \\$string]]\&.
+Normalizes Tcl string and returns normalized string\&.
 .PP
 .SH EXAMPLES
 .CS
+
+
 % ::unicode::fromstring "\\u0410\\u0411\\u0412\\u0413"
 1040 1041 1042 1043
 % ::unicode::tostring {49 50 51 52 53}
 12345
 %
+
 .CE
 .CS
+
+
 % ::unicode::normalize D {7692 775}
 68 803 775
 % ::unicode::normalizeS KD "\\u1d2c"
 A
 %
+
 .CE
 .SH REFERENCES
 .IP [1]
 "Unicode Standard Annex #15: Unicode Normalization Forms",
-(\fIhttp://unicode.org/reports/tr15/\fR)
+(\fIhttp://unicode\&.org/reports/tr15/\fR)
 .PP
 .SH AUTHORS
 Sergei Golovan
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIstringprep\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 stringprep(n)
 .SH KEYWORDS
 normalization, unicode
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007, Sergei Golovan <sgolovan@nes.ru>
+Copyright (c) 2007, Sergei Golovan <sgolovan@nes\&.ru>
+
 .fi

@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/nns/nns_server.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/nns/nns_server\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "nameserv::server" n 0.3.2 tcllib "Name service facility"
+.TH "nameserv::server" n 0\&.3\&.2 tcllib "Name service facility"
 .BS
 .SH NAME
 nameserv::server \- Name service facility, Server
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBnameserv::server  ?0.3.2?\fR
+package require \fBnameserv::server  ?0\&.3\&.2?\fR
 .sp
 package require \fBcomm \fR
 .sp
@@ -264,110 +265,110 @@ package require \fBlogger \fR
 .sp
 \fB::nameserv::server::configure\fR \fB-option\fR
 .sp
-\fB::nameserv::server::configure\fR \fB-option\fR \fIvalue\fR...
+\fB::nameserv::server::configure\fR \fB-option\fR \fIvalue\fR\&.\&.\&.
 .sp
 .BE
 .SH DESCRIPTION
-Please read \fIName service facility, introduction\fR first.
+Please read \fIName service facility, introduction\fR first\&.
 .PP
 This package provides an implementation of the serviver side of the
 name service facility queried by the client provided by the package
-\fBnameserv\fR. All information required by the server will be
-held in memory. There is no persistent state.
+\fBnameserv\fR\&. All information required by the server will be
+held in memory\&. There is no persistent state\&.
 .PP
-This service is built in top of and for the package \fBcomm\fR.
-It has nothing to do with the Internet's Domain Name System. If the
+This service is built in top of and for the package \fBcomm\fR\&.
+It has nothing to do with the Internet's Domain Name System\&. If the
 reader is looking for a package dealing with that please see Tcllib's
-packages \fBdns\fR and \fBresolv\fR.
+packages \fBdns\fR and \fBresolv\fR\&.
 .PP
 This server supports the \fICore\fR protocol feature, and since
-version 0.3 the \fISearch/Continuous\fR feature as well.
+version 0\&.3 the \fISearch/Continuous\fR feature as well\&.
 .SH API
 The package exports five commands, as specified below:
 .TP
 \fB::nameserv::server::start\fR
 This command starts the server and causes it to listen on the
-configured port. From now on clients are able to connect and make
-requests. The result of the command is the empty string.
+configured port\&. From now on clients are able to connect and make
+requests\&. The result of the command is the empty string\&.
 .sp
 Note that any incoming requests will only be handled if the
 application the server is part of does enter an event loop after this
-command has been run.
+command has been run\&.
 .TP
 \fB::nameserv::server::stop\fR
 Invoking this command stops the server and releases all information it
-had. Existing connections are shut down, and no new connections will
-be accepted any longer. The result of the command is the empty string.
+had\&. Existing connections are shut down, and no new connections will
+be accepted any longer\&. The result of the command is the empty string\&.
 .TP
 \fB::nameserv::server::active?\fR
 This command returns a boolean value indicating the state of the
-server. The result will be \fBtrue\fR if the server is active,
-i.e. has been started, and \fBfalse\fR otherwise.
+server\&. The result will be \fBtrue\fR if the server is active,
+i\&.e\&. has been started, and \fBfalse\fR otherwise\&.
 .TP
 \fB::nameserv::server::cget\fR \fB-option\fR
 This command returns the currently configured value for the specified
-\fB-option\fR. The list of supported options and their meaning can
-be found in section \fBOPTIONS\fR.
+\fB-option\fR\&. The list of supported options and their meaning can
+be found in section \fBOPTIONS\fR\&.
 .TP
 \fB::nameserv::server::configure\fR
 In this form the command returns a dictionary of all supported
-options, and their current values. The list of supported options and
-their meaning can be found in section \fBOPTIONS\fR.
+options, and their current values\&. The list of supported options and
+their meaning can be found in section \fBOPTIONS\fR\&.
 .TP
 \fB::nameserv::server::configure\fR \fB-option\fR
 In this form the command is an alias for
-"\fB::nameserv::server::cget\fR \fB-option\fR]".
+"\fB::nameserv::server::cget\fR \fB-option\fR]"\&.
 The list of supported options and their meaning can be found in
-section \fBOPTIONS\fR.
+section \fBOPTIONS\fR\&.
 .TP
-\fB::nameserv::server::configure\fR \fB-option\fR \fIvalue\fR...
+\fB::nameserv::server::configure\fR \fB-option\fR \fIvalue\fR\&.\&.\&.
 In this form the command is used to configure one or more of the
-supported options. At least one option has to be specified, and each
-option is followed by its new value.
+supported options\&. At least one option has to be specified, and each
+option is followed by its new value\&.
 The list of supported options and their meaning can be found in
-section \fBOPTIONS\fR.
+section \fBOPTIONS\fR\&.
 .sp
-This form can be used only if the server is not active, i.e. has not
-been started yet, or has been stopped. While the server is active it
-cannot be reconfigured.
+This form can be used only if the server is not active, i\&.e\&. has not
+been started yet, or has been stopped\&. While the server is active it
+cannot be reconfigured\&.
 .PP
 .SH OPTIONS
 The options supported by the server are for the specification of the
 TCP port to listen on, and whether to accept non-local connections or
-not.
+not\&.
 They are:
 .TP
 \fB-localonly\fR \fIbool\fR
 This option specifies whether to accept only local connections
-(-localonly 1) or remote connections as well (-localonly 0). The
-default is to accept only local connections.
+(-localonly 1) or remote connections as well (-localonly 0)\&. The
+default is to accept only local connections\&.
 .TP
 \fB-port\fR \fInumber\fR
 This option specifies the port the name service will listen on after
-it has been started. It has to be a positive integer number (> 0) not
-greater than 65536 (unsigned short). The initial default is the number
+it has been started\&. It has to be a positive integer number (> 0) not
+greater than 65536 (unsigned short)\&. The initial default is the number
 returned by the command \fB::nameserv::server::common::port\fR, as
-provided by the package \fB::nameserv::server::common\fR.
+provided by the package \fB::nameserv::server::common\fR\&.
 .PP
 .SH HISTORY
 .TP
-0.3
+0\&.3
 Extended the server with the ability to perform asynchronous and
-continuous searches.
+continuous searches\&.
 .TP
-0.2
-Changed name of -local switch to -localonly.
+0\&.2
+Changed name of -local switch to -localonly\&.
 .TP
-0.1
-Initial implementation of the server.
+0\&.1
+Initial implementation of the server\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fInameserv\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 nameserv::client(n), nameserv::common(n)
 .SH KEYWORDS
@@ -376,5 +377,6 @@ name service, server
 Networking
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

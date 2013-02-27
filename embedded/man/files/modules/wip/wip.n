@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/wip/wip.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007-2010 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/wip/wip\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007-2010 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,26 +238,26 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "wip" n 2.2 tcllib "Word Interpreter"
+.TH "wip" n 2\&.2 tcllib "Word Interpreter"
 .BS
 .SH NAME
 wip \- Word Interpreter
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBwip  ?2.2?\fR
+package require \fBwip  ?2\&.2?\fR
 .sp
-package require \fBsnit  ?1.3?\fR
+package require \fBsnit  ?1\&.3?\fR
 .sp
 package require \fBstruct::set \fR
 .sp
-\fB::wip\fR \fIwipName\fR \fIengine\fR \fIarg\fR...
+\fB::wip\fR \fIwipName\fR \fIengine\fR \fIarg\fR\&.\&.\&.
 .sp
 \fBdef\fR \fIname\fR
 .sp
 \fBdef\fR \fIname\fR \fImethod_prefix\fR
 .sp
-\fBwipName\fR \fIoption\fR ?\fIarg arg ...\fR?
+\fBwipName\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp
 \fBwip::dsl\fR ?\fIsuffix\fR?
 .sp
@@ -266,19 +267,19 @@ package require \fBstruct::set \fR
 .sp
 \fIwipName\fR \fBdefd\fR \fIdict\fR
 .sp
-\fIwipName\fR \fBdeflva\fR \fIname\fR...
+\fIwipName\fR \fBdeflva\fR \fIname\fR\&.\&.\&.
 .sp
-\fIwipName\fR \fBdefdva\fR (\fIname\fR \fImethod_prefix\fR)...
+\fIwipName\fR \fBdefdva\fR (\fIname\fR \fImethod_prefix\fR)\&.\&.\&.
 .sp
 \fIwipName\fR \fBundefl\fR \fInames\fR
 .sp
-\fIwipName\fR \fBundefva\fR \fIname\fR...
+\fIwipName\fR \fBundefva\fR \fIname\fR\&.\&.\&.
 .sp
 \fIwipName\fR \fBunknown\fR \fIcmdprefix\fR
 .sp
 \fIwipName\fR \fBrunl\fR \fIwordlist\fR
 .sp
-\fIwipName\fR \fBrun\fR \fIword\fR...
+\fIwipName\fR \fBrun\fR \fIword\fR\&.\&.\&.
 .sp
 \fIwipName\fR \fBrun_next\fR
 .sp
@@ -304,301 +305,304 @@ package require \fBstruct::set \fR
 .sp
 \fIwipName\fR \fBaddl\fR \fIwordlist\fR
 .sp
-\fIwipName\fR \fBinsert\fR \fIat\fR \fIword\fR...
+\fIwipName\fR \fBinsert\fR \fIat\fR \fIword\fR\&.\&.\&.
 .sp
-\fIwipName\fR \fBreplace\fR \fIword\fR...
+\fIwipName\fR \fBreplace\fR \fIword\fR\&.\&.\&.
 .sp
-\fIwipName\fR \fBpush\fR \fIword\fR...
+\fIwipName\fR \fBpush\fR \fIword\fR\&.\&.\&.
 .sp
-\fIwipName\fR \fBadd\fR \fIword\fR...
+\fIwipName\fR \fBadd\fR \fIword\fR\&.\&.\&.
 .sp
 .BE
 .SH DESCRIPTION
 .PP
-This package provides a micro interpreter for lists of words. Domain
+This package provides a micro interpreter for lists of words\&. Domain
 specific languages based on this will have a bit of a Forth feel, with
 the input stream segmented into words and any other structuring left
-to whatever the language desired. Note that we have here in essence
+to whatever the language desired\&. Note that we have here in essence
 only the core dispatch loop, and no actual commands whatsoever, making
-this definitely only a Forth feel and not an actual Forth.
+this definitely only a Forth feel and not an actual Forth\&.
 .PP
 The idea is derived from Colin McCormack's \fBtreeql\fR processor,
 modified to require less boiler plate within the command
-implementations, at the expense of, likely, execution speed. In
+implementations, at the expense of, likely, execution speed\&. In
 addition the interface between processor core and commands is more
-complex too.
+complex too\&.
 .SH "GENERAL BEHAVIOUR"
 Word interpreters have a mappping from the names of the language
 commands they shall recognize to the methods in the engine to invoke
-for them, and possibly fixed arguments for these methods. This mapping
+for them, and possibly fixed arguments for these methods\&. This mapping
 is largely static, however it is possible to change it during the
-execution of a word list (= program).
+execution of a word list (= program)\&.
 .PP
 At the time a language command is defined the word interpreter will
 use \fBsnit\fR's introspection capabilities to determine the
 number of arguments expected by the method of the egnine, and together
 with the number of fixed arguments supplied in the method prefix of
 the mapping it then knows how many arguments the language command is
-expecting. This is the command's \fIarity\fR. Variable-argument
-methods (i.e. with the last argument named \fIargs\fR) are \fInot\fR
+expecting\&. This is the command's \fIarity\fR\&. Variable-argument
+methods (i\&.e\&. with the last argument named \fIargs\fR) are \fInot\fR
 allowed and will cause the word interpreter to throw an error at
-definition time.
+definition time\&.
 .PP
 Note that while I said \fBsnit\fR's abilities the engine object
 can be written in any way, as long as it understands the method
 \fBinfo args\fR, which takes a method name and returns the list
-of arguments for that method.
+of arguments for that method\&.
 .PP
 When executing a list of words (aka program) the first word is always
 taken as the name of a language command, and the next words as its
-arguments, per the \fIarity\fR of the command. Command and argument
+arguments, per the \fIarity\fR of the command\&. Command and argument
 words are removed from the list and then associated method of the
-engine is executed with the argument words. The process then repeats
-using the then-first word of the list.
+engine is executed with the argument words\&. The process then repeats
+using the then-first word of the list\&.
 .PP
 Note that the methods implementing the language commands may have full
 access to the list of words and are allowed to manipulate as they see
-fit.
+fit\&.
 .IP [1]
 This means, for example, that while we cannot specify
 variable-argument methods directly they can consume words after their
-fixed arguments before returning to the execution loop. This may be
-under the control of their fixed arguments.
+fixed arguments before returning to the execution loop\&. This may be
+under the control of their fixed arguments\&.
 .IP [2]
 Another possibility is the use of method \fBrun_next\fR and its
 variants to execute commands coming after the current command,
-changing the order of execution.
+changing the order of execution\&.
 .IP [3]
 Execution can be further changed by use of the program accessor
 methods which allow a command implementation to modify the remaining
 list of words (insert, replace, prepend, append words) without
-executing them immediately.
+executing them immediately\&.
 .IP [4]
 At last the basic \fBrun\fR methods save and restore an existing
 list of words when used, enabling recursive use from within command
-implementations.
+implementations\&.
 .PP
 .SH "CLASS API"
 The main command of the package is:
 .TP
-\fB::wip\fR \fIwipName\fR \fIengine\fR \fIarg\fR...
+\fB::wip\fR \fIwipName\fR \fIengine\fR \fIarg\fR\&.\&.\&.
 The command creates a new word interpreter object with an associated
-global Tcl command whose name is \fIwipName\fR. If however the string
+global Tcl command whose name is \fIwipName\fR\&. If however the string
 \fB%AUTO%\fR was used as object name the package will generate its
-own unique name for the object.
+own unique name for the object\&.
 .sp
 The \fIengine\fR is the object the word interpreter will dispatch all
 recognized commands to, and the \fIarg\fRuments are a word list which
-defines an initial mapping from language words to engine methods.
+defines an initial mapping from language words to engine methods\&.
 .sp
 The recognized language of this word list is
 .RS
 .TP
 \fBdef\fR \fIname\fR
 Defines \fIname\fR as command of the language, to be mapped to a
-method of the \fIengine\fR having the same name.
+method of the \fIengine\fR having the same name\&.
 .TP
 \fBdef\fR \fIname\fR \fImethod_prefix\fR
 Defines \fIname\fR as command of the language, to be mapped to the
-method of the \fIengine\fR named in the \fImethod_prefix\fR.
+method of the \fIengine\fR named in the \fImethod_prefix\fR\&.
 .RE
 .sp
 The returned command may be used to invoke various operations on the
-object.  It has the following general form:
+object\&.  It has the following general form:
 .RS
 .TP
-\fBwipName\fR \fIoption\fR ?\fIarg arg ...\fR?
+\fBwipName\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
 \fIOption\fR and the \fIarg\fRs determine the exact behavior of the
-command.
+command\&.
 .RE
 .PP
 The package additionally exports the command:
 .TP
 \fBwip::dsl\fR ?\fIsuffix\fR?
 This command is for use within snit types which wish to use one or
-more wip interpreters as a component. Use within the type definition
+more wip interpreters as a component\&. Use within the type definition
 installs most of the boilerplate needed to setup and use a word
-interpreter.
+interpreter\&.
 .sp
 It installs a component named \fIwip\fR, and a method
-\fBwip_setup\fR for initializing it. This method has to be called
-from within the constructor of the type using the word interpreter.
+\fBwip_setup\fR for initializing it\&. This method has to be called
+from within the constructor of the type using the word interpreter\&.
 If further installs a series of procedures which make the object API
 of the word interpreter directly available to the type's methods,
-without having to specify the component.
+without having to specify the component\&.
 .sp
 \fINote\fR that this does and cannot install the language to
-interpret, i.e. the mapping from words to engine methods.
+interpret, i\&.e\&. the mapping from words to engine methods\&.
 .sp
 It is possible to instantiate multiple word interpreter components
-within a type by using different suffices as arguments to the command.
+within a type by using different suffices as arguments to the command\&.
 In that case the name of the component changes to
 \'wip_\fB$suffix\fR', the setup command becomes
 \'wip_\fB$suffix\fR_setup' and all the procedures also get the suffix
-\'_\fB$suffix\fR'.
+\'_\fB$suffix\fR'\&.
 .PP
 .SH "OBJECT API"
 The following commands are possible for word interpreter objects:
 .TP
 \fIwipName\fR \fBdef\fR \fIname\fR ?\fImethod_prefix\fR?
 Defines a language command \fIname\fR and maps it to the method named
-in the engine's \fImethod_prefix\fR. If the \fImethod_prefix\fR name
-is not specified it is simply the name of the language command.
+in the engine's \fImethod_prefix\fR\&. If the \fImethod_prefix\fR name
+is not specified it is simply the name of the language command\&.
 .TP
 \fIwipName\fR \fBdefl\fR \fInames\fR
 Defines a series of language commands, specified through the list of
 \fInames\fR, all of which are mapped to engine methods of the same
-name.
+name\&.
 .TP
 \fIwipName\fR \fBdefd\fR \fIdict\fR
 Defines a series of language commands, specified through the
-dictionary \fIdict\fR of names and method prefixes.
+dictionary \fIdict\fR of names and method prefixes\&.
 .TP
-\fIwipName\fR \fBdeflva\fR \fIname\fR...
+\fIwipName\fR \fBdeflva\fR \fIname\fR\&.\&.\&.
 As method \fBdefl\fR, however the list of names is specified
-through multiple arguments.
+through multiple arguments\&.
 .TP
-\fIwipName\fR \fBdefdva\fR (\fIname\fR \fImethod_prefix\fR)...
+\fIwipName\fR \fBdefdva\fR (\fIname\fR \fImethod_prefix\fR)\&.\&.\&.
 As method \fBdefd\fR, however the dictionary of names and method
-prefixes is specified through multiple arguments.
+prefixes is specified through multiple arguments\&.
 .TP
 \fIwipName\fR \fBundefl\fR \fInames\fR
-Removes the named series of language commands from the mapping.
+Removes the named series of language commands from the mapping\&.
 .TP
-\fIwipName\fR \fBundefva\fR \fIname\fR...
+\fIwipName\fR \fBundefva\fR \fIname\fR\&.\&.\&.
 As method \fBundefl\fR, however the list of names is specified
-through multiple arguments.
+through multiple arguments\&.
 .TP
 \fIwipName\fR \fBunknown\fR \fIcmdprefix\fR
-Sets the handler for unknown words to \fIcmdprefix\fR. This command
+Sets the handler for unknown words to \fIcmdprefix\fR\&. This command
 prefix takes one argument, the current word, and either throws some
 error, or returns the result of executing the word, as defined by the
-handler. The default handler simply throws an error.
+handler\&. The default handler simply throws an error\&.
 .TP
 \fIwipName\fR \fBrunl\fR \fIwordlist\fR
 Treats the list of words in \fIwordlist\fR as a program and executes
-the contained command one by one. The result of the command executed
-last is returned as the result of this command.
+the contained command one by one\&. The result of the command executed
+last is returned as the result of this command\&.
 .sp
 The \fIwordlist\fR is stored in the object for access by the other
 \fIrun\fR-methods, and the general program accessor methods (see
-below). A previously stored wordlist is saved during the execution of
-this method and restored before it returns. This enables the recursive
-execution of word lists within word lists.
+below)\&. A previously stored wordlist is saved during the execution of
+this method and restored before it returns\&. This enables the recursive
+execution of word lists within word lists\&.
 .TP
-\fIwipName\fR \fBrun\fR \fIword\fR...
+\fIwipName\fR \fBrun\fR \fIword\fR\&.\&.\&.
 As method \fBrunl\fR, however the list of words to execute is
-specified through multiple arguments.
+specified through multiple arguments\&.
 .TP
 \fIwipName\fR \fBrun_next\fR
-Low-level method. Determines the next word in the list of words, and
-its arguments, and then executes it. The result of the executed word
-is the result of this method.
+Low-level method\&. Determines the next word in the list of words, and
+its arguments, and then executes it\&. The result of the executed word
+is the result of this method\&.
 .sp
-Exposed for use within command implementations.
+Exposed for use within command implementations\&.
 The methods \fBrun\fR and \fBrunl\fR use it to execute words
-until their word list is exhausted.
+until their word list is exhausted\&.
 .TP
 \fIwipName\fR \fBrun_next_while\fR \fIacceptable\fR
-Low-level method. Invokes the method \fBrun_next\fR as long as the
+Low-level method\&. Invokes the method \fBrun_next\fR as long as the
 next word is in the set of \fIacceptable\fR words, and the program is
-not empty. The result of the command executed last is returned as the
-result of this command.
+not empty\&. The result of the command executed last is returned as the
+result of this command\&.
 .sp
 Exposed for use within command implementations to change the order of
-execution.
+execution\&.
 .TP
 \fIwipName\fR \fBrun_next_until\fR \fIrejected\fR
-Low-level method. Invokes the method \fBrun_next\fR until the next
+Low-level method\&. Invokes the method \fBrun_next\fR until the next
 word is in the set of \fIrejected\fR words, and the program is not
-empty. The result of the command executed last is returned as the
-result of this command.
+empty\&. The result of the command executed last is returned as the
+result of this command\&.
 .sp
 Exposed for use within command implementations to change the order of
-execution.
+execution\&.
 .TP
 \fIwipName\fR \fBrun_next_if\fR \fIacceptable\fR
-Low-level method. Invokes the method \fBrun_next\fR if the next
+Low-level method\&. Invokes the method \fBrun_next\fR if the next
 word is in the set of \fIacceptable\fR words, and the program is not
-empty. The result of the command executed last is returned as the
-result of this command.
+empty\&. The result of the command executed last is returned as the
+result of this command\&.
 .sp
 Exposed for use within command implementations to change the order of
-execution.
+execution\&.
 .TP
 \fIwipName\fR \fBrun_next_ifnot\fR \fIrejected\fR
-Low-level method. Invokes the method \fBrun_next\fR if the next
+Low-level method\&. Invokes the method \fBrun_next\fR if the next
 word is not in the set of \fIrejected\fR words, and the program is not
-empty. The result of the command executed last is returned as the
-result of this command.
+empty\&. The result of the command executed last is returned as the
+result of this command\&.
 .sp
 Exposed for use within command implementations to change the order of
-execution.
+execution\&.
 .TP
 \fIwipName\fR \fBnext\fR
-Returns the next word in the programm. The word is also removed.
+Returns the next word in the programm\&. The word is also removed\&.
 .TP
 \fIwipName\fR \fBpeek\fR
 Returns the next word in the programm without removing it
 .TP
 \fIwipName\fR \fBpeekall\fR
-Returns the remaining programm in toto.
+Returns the remaining programm in toto\&.
 .TP
 \fIwipName\fR \fBinsertl\fR \fIat\fR \fIwordlist\fR
-Basic programm accessor method. Inserts the specified \fIwordlist\fR
-into the program, just before the word at position \fIat\fR. Positions
-are counted from \fBzero\fR.
+Basic programm accessor method\&. Inserts the specified \fIwordlist\fR
+into the program, just before the word at position \fIat\fR\&. Positions
+are counted from \fBzero\fR\&.
 .TP
 \fIwipName\fR \fBreplacel\fR \fIwordlist\fR
-Basic programm accessor method. Replaces the whole stored program with
-the specified \fIwordlist\fR.
+Basic programm accessor method\&. Replaces the whole stored program with
+the specified \fIwordlist\fR\&.
 .TP
 \fIwipName\fR \fBpushl\fR \fIwordlist\fR
-Program accessor method. The specified \fIwordlist\fR is added to the
-front of the remaining program. Equivalent to
+Program accessor method\&. The specified \fIwordlist\fR is added to the
+front of the remaining program\&. Equivalent to
 .sp
 .CS
+
 $wip insertl 0 $wordlist
 .CE
 .TP
 \fIwipName\fR \fBaddl\fR \fIwordlist\fR
-Program accessor method. The specified \fIwordlist\fR is appended at
-the end of the remaining program. Equivalent to
+Program accessor method\&. The specified \fIwordlist\fR is appended at
+the end of the remaining program\&. Equivalent to
 .sp
 .CS
+
 $wip insertl end $wordlist
 .CE
 .TP
-\fIwipName\fR \fBinsert\fR \fIat\fR \fIword\fR...
+\fIwipName\fR \fBinsert\fR \fIat\fR \fIword\fR\&.\&.\&.
 Like method \fBinsertl\fR, except the words are specified through
-multiple arguments.
+multiple arguments\&.
 .TP
-\fIwipName\fR \fBreplace\fR \fIword\fR...
+\fIwipName\fR \fBreplace\fR \fIword\fR\&.\&.\&.
 Like method \fBsetl\fR, except the words are specified through
-multiple arguments.
+multiple arguments\&.
 .TP
-\fIwipName\fR \fBpush\fR \fIword\fR...
+\fIwipName\fR \fBpush\fR \fIword\fR\&.\&.\&.
 Like method \fBpushl\fR, except the words are specified through
-multiple arguments.
+multiple arguments\&.
 .TP
-\fIwipName\fR \fBadd\fR \fIword\fR...
+\fIwipName\fR \fBadd\fR \fIword\fR\&.\&.\&.
 Like method \fBaddl\fR, except the words are specified through
-multiple arguments.
+multiple arguments\&.
 .PP
 .SH EXAMPLES
-No examples yet.
+No examples yet\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIwip\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 interpreter, list, word
 .SH CATEGORY
 Programming tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007-2010 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007-2010 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

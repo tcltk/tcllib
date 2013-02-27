@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/nns/nns_intro.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/nns/nns_intro\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,92 +238,92 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "nns_intro" n 1.0 tcllib "Name service facility"
+.TH "nns_intro" n 1\&.0 tcllib "Name service facility"
 .BS
 .SH NAME
 nns_intro \- Name service facility, introduction
 .SH DESCRIPTION
 .PP
 \fInns\fR (short for \fInano nameservice\fR) is a facility built
-for the package \fBcomm\fR, adding a simple name service to it.
+for the package \fBcomm\fR, adding a simple name service to it\&.
 It is also built on top of \fBcomm\fR, using it for the exchange
-of messages between the client and server parts.
+of messages between the client and server parts\&.
 .PP
 This name service facility has nothing to do with the Internet's
-\fIDomain Name System\fR, otherwise known as \fIDNS\fR. If the
+\fIDomain Name System\fR, otherwise known as \fIDNS\fR\&. If the
 reader is looking for a package dealing with that please see either of
 the packages \fBdns\fR and \fBresolv\fR, both found in Tcllib
-too.
+too\&.
 .PP
 Tcllib provides 2 applications and 4 packages which are working
-together and provide access to the facility at different levels.
+together and provide access to the facility at different levels\&.
 .SH APPLICATIONS
 The application \fBnnsd\fR provides a simple name server which can
-be run by anybody anywhere on their system, as they see fit.
+be run by anybody anywhere on their system, as they see fit\&.
 It is also an example on the use of the server-side package
-\fBnameserv::server\fR.
+\fBnameserv::server\fR\&.
 .PP
-Complementing this server is the \fBnns\fR client application.
+Complementing this server is the \fBnns\fR client application\&.
 A possible, but no very sensible use would be to enter name/port
-bindings into a server from a shell script. Not sensible, as shell
-scripts normally do not provide a \fBcomm\fR-based service.
+bindings into a server from a shell script\&. Not sensible, as shell
+scripts normally do not provide a \fBcomm\fR-based service\&.
 .PP
 The only case for this to make some sense would be in a shell script
 wrapped around a Tcl script FOO which is using comm, to register the
-listening port used by FOO.
+listening port used by FOO\&.
 However even there it would much more sensible to extend FOO to use
-the nameservice directly. And in regard on how to that \fBnns\fR
-can be used as both example and template.
+the nameservice directly\&. And in regard on how to that \fBnns\fR
+can be used as both example and template\&.
 Beyond that it may also be useful to perform nameservice queries from
-shell scripts.
+shell scripts\&.
 .PP
 The third application, \fBnnslog\fR is a stripped down form of the
-\fBnns\fR client application. It is reduced to perform a continuous
-search for all changes and logs all received events to stdout.
+\fBnns\fR client application\&. It is reduced to perform a continuous
+search for all changes and logs all received events to stdout\&.
 .PP
 Both clients use the \fBnameserv::auto\fR package to automatically
-hande the loss and restoration of the connection to the server.
+hande the loss and restoration of the connection to the server\&.
 .SH PACKAGES
 The two main packages implementing the service are \fBnameserv\fR
-and \fBnameserv::server\fR, i.e. client and server. The latter has
-not much of an API, just enough to start, stop, and configure it. See
-the application \fBnnsd\fR on how to use it.
+and \fBnameserv::server\fR, i\&.e\&. client and server\&. The latter has
+not much of an API, just enough to start, stop, and configure it\&. See
+the application \fBnnsd\fR on how to use it\&.
 .PP
 The basic client, in package \fBnameserv\fR, provides the main API
-to manipulate and query the service. An example of its use is the
-application \fBnns\fR.
+to manipulate and query the service\&. An example of its use is the
+application \fBnns\fR\&.
 .PP
 The second client package, \fBnameserv::auto\fR is API compatible
 to the basic client, but provides the additional functionality that it
 will automatically restore data like bound names when the connection
-to the name service was lost and then reestablished. I.e. it
+to the name service was lost and then reestablished\&. I\&.e\&. it
 automatically detects the loss of the server and re-enters the data
-when the server comes back.
+when the server comes back\&.
 .PP
-The package \fBnameserv::common\fR is of no interest to users. It
+The package \fBnameserv::common\fR is of no interest to users\&. It
 is an internal package containing code and definitions common to the
-packages \fBnameserv\fR and \fBnameserv::server\fR.
+packages \fBnameserv\fR and \fBnameserv::server\fR\&.
 .PP
 All packages use the \fBuevent\fR package for the reporting of
 special circumstances via events, and reserve the uevent-tag
-\fInameserv\fR for their exclusive use. All their events will be
-posted to that tag.
+\fInameserv\fR for their exclusive use\&. All their events will be
+posted to that tag\&.
 .SH INTERNALS
 The document \fIName service facility, client/server protocol\fR
 specifies the protocol used by the packages \fBnameserv\fR and
-\fBnameserv::server\fR to talk to each other. It is of no interest
-to users of either the packages or applications.
+\fBnameserv::server\fR to talk to each other\&. It is of no interest
+to users of either the packages or applications\&.
 .PP
 Developers wishing to modify and/or extend or to just understand the
 internals of the nameservice facility however are strongly advised to
-read it.
+read it\&.
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems.
+This document, will undoubtedly contain bugs and other problems\&.
 Please report such in the category \fInameserv\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-Please also report any ideas for enhancements you may have.
+package and/or documentation\&.
+Please also report any ideas for enhancements you may have\&.
 .SH "SEE ALSO"
 nameserv(n), nameserv::auto(n), nameserv::common(n), nameserv::protocol(n), nameserv::server(n), nnsd(n), nss(n)
 .SH KEYWORDS
@@ -331,5 +332,6 @@ client, name service, server
 Networking
 .SH COPYRIGHT
 .nf
-Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi
