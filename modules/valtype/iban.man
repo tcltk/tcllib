@@ -1,5 +1,5 @@
 [vset PACKAGE iban]
-[vset VERSION 1.1]
+[vset VERSION 1.2]
 [vset A an]
 [vset NAME IBAN]
 [vset NAMEX {International Bank Account Number}]
