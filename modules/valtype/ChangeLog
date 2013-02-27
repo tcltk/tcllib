@@ -1,8 +1,15 @@
+2013-02-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* iban.tcl: [Patch 3606105]: Applied patch by Max Jarek to
+	* iban.test: update the code to the IBAN Registry version 43.
+	* iban.man: Bumped package version to 1.2.
+	* pkgIndex.tcl:
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.15 ========================
-	* 
+	*
 
 2012-06-06  Andreas Kupries  <andreask@activestate.com>
 
@@ -15,7 +22,7 @@
 
 	*
 	* Released and tagged Tcllib 1.14 ========================
-	* 
+	*
 
 2011-11-16  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
