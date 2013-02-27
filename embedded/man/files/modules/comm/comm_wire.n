@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/comm/comm_wire.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2005 Docs. Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/comm/comm_wire\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2005 Docs\&. Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -249,140 +250,152 @@ package require \fBcomm \fR
 .PP
 The \fBcomm\fR command provides an inter-interpreter remote
 execution facility much like Tk's \fBsend(n)\fR, except that it uses
-sockets rather than the X server for the communication path.  As a
+sockets rather than the X server for the communication path\&.  As a
 result, \fBcomm\fR works with multiple interpreters, works on
 Windows and Macintosh systems, and provides control over the remote
-execution path.
+execution path\&.
 .PP
 This document contains a specification of the various versions of the
 wire protocol used by comm internally for the communication between
-its endpoints. It has no relevance to users of \fBcomm\fR, only to
+its endpoints\&. It has no relevance to users of \fBcomm\fR, only to
 developers who wish to modify the package, write a compatible facility
 in a different language, or some other facility based on the same
-protocol.
+protocol\&.
 .SH "WIRE PROTOCOL VERSION 3"
 .SS "BASIC LAYER"
-The basic encoding for \fIall\fR data is UTF-8. Because of this
+The basic encoding for \fIall\fR data is UTF-8\&. Because of this
 binary data, including the NULL character, can be sent over the wire
-as is, without the need for armoring it.
+as is, without the need for armoring it\&.
 .SS "BASIC MESSAGE LAYER"
 On top of the \fBBasic Layer\fR we have a
-\fImessage oriented\fR exchange of data.
+\fImessage oriented\fR exchange of data\&.
 The totality of all characters written to the channel is a Tcl list,
-with each element a separate \fImessage\fR, each itself a list. The
-messages in the overall list are separated by EOL. Note that EOL
-characters can occur within the list as well. They can be
+with each element a separate \fImessage\fR, each itself a list\&. The
+messages in the overall list are separated by EOL\&. Note that EOL
+characters can occur within the list as well\&. They can be
 distinguished from the message-separating EOL by the fact that the
-data from the beginning up to their location is not a valid Tcl list.
+data from the beginning up to their location is not a valid Tcl list\&.
 .PP
-EOL is signaled through the linefeed character, i.e \fBLF\fR, or,
-hex \fB0x0a\fR. This is following the unix convention for
-line-endings.
+EOL is signaled through the linefeed character, i\&.e \fBLF\fR, or,
+hex \fB0x0a\fR\&. This is following the unix convention for
+line-endings\&.
 .PP
-As a list each message is composed of \fIwords\fR. Their meaning
-depends on when the message was sent in the overall exchange. This is
-described in the upcoming sections.
+As a list each message is composed of \fIwords\fR\&. Their meaning
+depends on when the message was sent in the overall exchange\&. This is
+described in the upcoming sections\&.
 .SS "NEGOTIATION MESSAGES - INITIAL HANDSHAKE"
 The command protocol is defined like this:
 .IP \(bu
 The first message send by a client to a server, when opening the
-connection, contains two words. The first word is a list as well, and
+connection, contains two words\&. The first word is a list as well, and
 contains the versions of the wire protocol the client is willing to
-accept, with the most preferred version first. The second word is the
-TCP port the client is listening on for connections to itself. The
+accept, with the most preferred version first\&. The second word is the
+TCP port the client is listening on for connections to itself\&. The
 value \fB0\fR is used here to signal that the client will not listen
-for connections, i.e. that it is purely for sending commands, and not
-receiving them.
+for connections, i\&.e\&. that it is purely for sending commands, and not
+receiving them\&.
 .IP \(bu
 The first message sent by the server to the client, in response to the
-message above contains only one word. This word is a list, containing
+message above contains only one word\&. This word is a list, containing
 the string \fBvers\fR as its first element, and the version of the
 wire protocol the server has selected from the offered versions as the
-second.
+second\&.
 .PP
 .SS "SCRIPT/COMMAND MESSAGES"
 All messages coming after the \fBinitial handshake\fR
-consist of three words. These are an instruction, a transaction id,
-and the payload. The valid instructions are shown below. The
+consist of three words\&. These are an instruction, a transaction id,
+and the payload\&. The valid instructions are shown below\&. The
 transaction ids are used by the client to match any incoming replies
-to the command messages it sent. This means that a server has to copy
+to the command messages it sent\&. This means that a server has to copy
 the transaction id from a command message to the reply it sends for
-that message.
+that message\&.
 .TP
 \fBsend\fR
 .TP
 \fBasync\fR
 .TP
 \fBcommand\fR
-The payload is the Tcl script to execute on the server. It is actually
-a list containing the script fragments. These fragment are
+The payload is the Tcl script to execute on the server\&. It is actually
+a list containing the script fragments\&. These fragment are
 \fBconcat\fRenated together by the server to form the full script to
-execute on the server side.
-This emulates the Tcl "eval" semantics.
+execute on the server side\&.
+This emulates the Tcl "eval" semantics\&.
 In most cases it is best to have only one word in the list, a list
-containing the exact command.
+containing the exact command\&.
 .sp
 Examples:
 .sp
 .CS
-(a)     {send 1 {{array get tcl_platform}}}
-(b)     {send 1 {array get tcl_platform}}
-(c)     {send 1 {array {get tcl_platform}}}
-are all valid representations of the same command. They are
-generated via
-(a')    send {array get tcl_platform}
-(b')    send array get tcl_platform
-(c')    send array {get tcl_platform}
-respectively
+
+
+    (a)     {send 1 {{array get tcl_platform}}}
+    (b)     {send 1 {array get tcl_platform}}
+    (c)     {send 1 {array {get tcl_platform}}}
+
+    are all valid representations of the same command\&. They are
+    generated via
+
+    (a')    send {array get tcl_platform}
+    (b')    send array get tcl_platform
+    (c')    send array {get tcl_platform}
+
+    respectively
+
 .CE
 .sp
 Note that (a), generated by (a'), is the usual form, if only single
-commands are sent by the client.
+commands are sent by the client\&.
 For example constructed using \fBlist\fR, if the command contains
-variable arguments. Like
+variable arguments\&. Like
 .sp
 .CS
-send [list array get $the_variable]
+
+
+    send [list array get $the_variable]
+
 .CE
 .sp
 These three instructions all invoke the script on the server
-side. Their difference is in the treatment of result values, and thus
-determines if a reply is expected.
+side\&. Their difference is in the treatment of result values, and thus
+determines if a reply is expected\&.
 .RS
 .TP
 \fBsend\fR
-A reply is expected. The sender is waiting for the result.
+A reply is expected\&. The sender is waiting for the result\&.
 .TP
 \fBasync\fR
 No reply is expected, the sender has no interest in the result and is
-not waiting for any.
+not waiting for any\&.
 .TP
 \fBcommand\fR
-A reply is expected, but the sender is not waiting for it. It has
+A reply is expected, but the sender is not waiting for it\&. It has
 arranged to get a process-internal notification when the result
-arrives.
+arrives\&.
 .RE
 .TP
 \fBreply\fR
 Like the previous three command, however the tcl script in the payload
-is highly restricted.
-It has to be a syntactically valid Tcl \fBreturn\fR command. This
-contains result code, value, error code, and error info.
+is highly restricted\&.
+It has to be a syntactically valid Tcl \fBreturn\fR command\&. This
+contains result code, value, error code, and error info\&.
 .sp
 Examples:
 .sp
 .CS
-{reply 1 {return -code 0 {}}}
-{reply 1 {return -code 0 {osVersion 2.4.21-99-default byteOrder littleEndian machine i686 platform unix os Linux user andreask wordSize 4}}}
+
+
+    {reply 1 {return -code 0 {}}}
+    {reply 1 {return -code 0 {osVersion 2\&.4\&.21-99-default byteOrder littleEndian machine i686 platform unix os Linux user andreask wordSize 4}}}
+
 .CE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIcomm\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 comm
 .SH KEYWORDS
@@ -391,5 +404,6 @@ comm, communication, ipc, message, remote communication, remote execution, rpc, 
 Programming tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2005 Docs. Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2005 Docs\&. Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

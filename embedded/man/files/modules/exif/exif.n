@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/exif/exif.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/exif/exif\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "exif" n 1.1.2 tcllib "EXIF parsing"
+.TH "exif" n 1\&.1\&.2 tcllib "EXIF parsing"
 .BS
 .SH NAME
 exif \- Tcl EXIF extracts and parses EXIF fields from digital images
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBexif  ?1.1.2?\fR
+package require \fBexif  ?1\&.1\&.2?\fR
 .sp
 \fBexif::analyze\fR \fIchannel\fR ?\fIthumbnail\fR?
 .sp
@@ -255,57 +256,57 @@ package require \fBexif  ?1.1.2?\fR
 .SH DESCRIPTION
 .PP
 The EXIF package is a recoding of Chris Breeze's Perl package to do
-the same thing.  This version accepts a channel as input and returns a
-serialized array with all the recognised fields parsed out.
+the same thing\&.  This version accepts a channel as input and returns a
+serialized array with all the recognised fields parsed out\&.
 .PP
 There is also a function to obtain a list of all possible field names
 that might be present, which is useful in building GUIs that present
-such information.
+such information\&.
 .SH COMMANDS
 .TP
 \fBexif::analyze\fR \fIchannel\fR ?\fIthumbnail\fR?
-\fIchannel\fR should be an open file handle rewound to the start.  It
-does not need to be seekable.  \fIchannel\fR will be set to binary
+\fIchannel\fR should be an open file handle rewound to the start\&.  It
+does not need to be seekable\&.  \fIchannel\fR will be set to binary
 mode and is left wherever it happens to stop being parsed, usually at
-the end of the file or the start of the image data.  You must open and
-close the stream yourself.  If no error is thrown, the return value is
+the end of the file or the start of the image data\&.  You must open and
+close the stream yourself\&.  If no error is thrown, the return value is
 a serialized array with informative English text about what was found
-in the EXIF block.  Failure during parsing or I/O throw errors.
+in the EXIF block\&.  Failure during parsing or I/O throw errors\&.
 .sp
 If \fIthumbnail\fR is present and not the empty string it will be
 interpreted as the name of a file, and the thumbnail image contained
-in the exif data will be written into it.
+in the exif data will be written into it\&.
 .TP
 \fBexif::analyzeFile\fR \fIfilename\fR ?\fIthumbnail\fR?
-This is a file-based wrapper around \fBexif::analyze\fR. Instead of
+This is a file-based wrapper around \fBexif::analyze\fR\&. Instead of
 taking a stream it takes a \fIfilename\fR and analyzes the contents of
-the specified file.
+the specified file\&.
 .TP
 \fBexif::fieldnames\fR
-This returns a list of all possible field names.  That is, the array
+This returns a list of all possible field names\&.  That is, the array
 returned by \fBexif::analyze\fR will not contain keys that are not
-listed in the return from \fBexif::fieldnames\fR.  Of course, if
+listed in the return from \fBexif::fieldnames\fR\&.  Of course, if
 information is missing in the image file, \fBexif::analyze\fR may not
-return all the fields listed in the return from exif::fieldnames.
+return all the fields listed in the return from exif::fieldnames\&.
 This function is expected to be primarily useful for building GUIs to
-display results.
+display results\&.
 .sp
-N.B.: Read the implementation of \fBexif::fieldnames\fR before
-modifying the implementation of \fBexif::analyze\fR.
+N\&.B\&.: Read the implementation of \fBexif::fieldnames\fR before
+modifying the implementation of \fBexif::analyze\fR\&.
 .PP
 .SH COPYRIGHTS
 (c) 2002 Darren New
-Hold harmless the author, and any lawful use is allowed.
+Hold harmless the author, and any lawful use is allowed\&.
 .SH ACKNOWLEDGEMENTS
-This code is a direct translation of version 1.3 of exif.pl by Chris
-Breeze.  See the source for full headers, references, etc.
+This code is a direct translation of version 1\&.3 of exif\&.pl by Chris
+Breeze\&.  See the source for full headers, references, etc\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIexif\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 exif, jpeg, maker note, tiff
 .SH CATEGORY

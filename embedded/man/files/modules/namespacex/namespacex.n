@@ -1,7 +1,7 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/namespacex/namespacex.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 200? Neil Madden (http://wiki.tcl.tk/12790)
-'\" Copyright (c) 200? Various (http://wiki.tcl.tk/1489)
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/namespacex/namespacex\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 200? Neil Madden (http://wiki\&.tcl\&.tk/12790)
+'\" Copyright (c) 200? Various (http://wiki\&.tcl\&.tk/1489)
 '\" Copyright (c) 2010 Documentation, Andreas Kupries
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -224,6 +224,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -239,14 +240,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "namespacex" n 0.1 tcllib "Namespace utility commands"
+.TH "namespacex" n 0\&.1 tcllib "Namespace utility commands"
 .BS
 .SH NAME
 namespacex \- Namespace utility commands
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
-package require \fBnamespacex  ?0.1?\fR
+package require \fBnamespacex  ?0\&.1?\fR
 .sp
 \fB::namespacex hook add\fR ?\fInamespace\fR? \fIcmdprefix\fR
 .sp
@@ -254,7 +255,7 @@ package require \fBnamespacex  ?0.1?\fR
 .sp
 \fB::namespacex hook on\fR ?\fInamespace\fR? \fIguardcmdprefix\fR \fIactioncmdprefix\fR
 .sp
-\fB::namespacex hook next\fR \fIarg\fR...
+\fB::namespacex hook next\fR \fIarg\fR\&.\&.\&.
 .sp
 \fB::namespacex info allchildren\fR \fInamespace\fR
 .sp
@@ -271,7 +272,7 @@ package require \fBnamespacex  ?0.1?\fR
 .BE
 .SH DESCRIPTION
 This package provides a number of utility commands for working with
-namespaces.
+namespaces\&.
 .SH API
 .TP
 \fB::namespacex hook add\fR ?\fInamespace\fR? \fIcmdprefix\fR
@@ -280,45 +281,46 @@ namespaces.
 .TP
 \fB::namespacex hook on\fR ?\fInamespace\fR? \fIguardcmdprefix\fR \fIactioncmdprefix\fR
 .TP
-\fB::namespacex hook next\fR \fIarg\fR...
+\fB::namespacex hook next\fR \fIarg\fR\&.\&.\&.
 .TP
 \fB::namespacex info allchildren\fR \fInamespace\fR
 This command returns a list containing the names of all child
-namespaces in the specified \fInamespace\fR and its children. The
-names are all fully qualified.
+namespaces in the specified \fInamespace\fR and its children\&. The
+names are all fully qualified\&.
 .TP
 \fB::namespacex info allvars\fR \fInamespace\fR
 This command returns a list containing the names of all variables in
-the specified \fInamespace\fR and its children. The names are all
-relative to \fInamespace\fR, and \fInot\fR fully qualified.
+the specified \fInamespace\fR and its children\&. The names are all
+relative to \fInamespace\fR, and \fInot\fR fully qualified\&.
 .TP
 \fB::namespacex info vars\fR \fInamespace\fR ?\fIpattern\fR?
 This command returns a list containing the names of all variables in
-the specified \fInamespace\fR.
+the specified \fInamespace\fR\&.
 .TP
 \fB::namespacex state get\fR \fInamespace\fR
 This command returns a dictionary holding the names and values of all
-variables in the specified \fInamespace\fR and its child namespaces.
+variables in the specified \fInamespace\fR and its child namespaces\&.
 .sp
 Note that the names are all relative to \fInamespace\fR,
-and \fInot\fR fully qualified.
+and \fInot\fR fully qualified\&.
 .TP
 \fB::namespacex state set\fR \fInamespace\fR \fIdict\fR
 This command takes a dictionary holding the names and values for a set
 of variables and replaces the current state of the specified
-\fInamespace\fR and its child namespaces with this state.
-The result of the command is the empty string.
+\fInamespace\fR and its child namespaces with this state\&.
+The result of the command is the empty string\&.
 .TP
 \fB::namespacex state drop\fR \fInamespace\fR
 This command unsets all variables in the specified \fInamespace\fR and
-its child namespaces.
-The result of the command is the empty string.
+its child namespaces\&.
+The result of the command is the empty string\&.
 .PP
 .SH KEYWORDS
 extended namespace, info, namespace unknown, namespace utilities, state (de)serialization, unknown hooking, utilities
 .SH COPYRIGHT
 .nf
-Copyright (c) 200? Neil Madden (http://wiki.tcl.tk/12790)
-Copyright (c) 200? Various (http://wiki.tcl.tk/1489)
+Copyright (c) 200? Neil Madden (http://wiki\&.tcl\&.tk/12790)
+Copyright (c) 200? Various (http://wiki\&.tcl\&.tk/1489)
 Copyright (c) 2010 Documentation, Andreas Kupries
+
 .fi

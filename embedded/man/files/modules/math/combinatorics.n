@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/math/combinatorics.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/combinatorics\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "math::combinatorics" n 1.2.3 tcllib "Tcl Math Library"
+.TH "math::combinatorics" n 1\&.2\&.3 tcllib "Tcl Math Library"
 .BS
 .SH NAME
 math::combinatorics \- Combinatorial functions in the Tcl Math Library
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBmath  ?1.2.3?\fR
+package require \fBmath  ?1\&.2\&.3?\fR
 .sp
 \fB::math::ln_Gamma\fR \fIz\fR
 .sp
@@ -257,78 +258,90 @@ package require \fBmath  ?1.2.3?\fR
 .SH DESCRIPTION
 .PP
 The \fBmath\fR package contains implementations of several
-functions useful in combinatorial problems.
+functions useful in combinatorial problems\&.
 .SH COMMANDS
 .TP
 \fB::math::ln_Gamma\fR \fIz\fR
 Returns the natural logarithm of the Gamma function for the argument
-\fIz\fR.
+\fIz\fR\&.
 .sp
 The Gamma function is defined as the improper integral from zero to
 positive infinity of
 .CS
-t**(x-1)*exp(-t) dt
+
+
+  t**(x-1)*exp(-t) dt
+
 .CE
 .sp
 The approximation used in the Tcl Math Library is from Lanczos,
-\fIISIAM J. Numerical Analysis, series B,\fR volume 1, p. 86.
+\fIISIAM J\&. Numerical Analysis, series B,\fR volume 1, p\&. 86\&.
 For "\fBx\fR > 1", the absolute error of the result is claimed to be
-smaller than 5.5*10**-10 -- that is, the resulting value of Gamma when
+smaller than 5\&.5*10**-10 -- that is, the resulting value of Gamma when
 .CS
-exp( ln_Gamma( x) )
+
+
+  exp( ln_Gamma( x) )
+
 .CE
 .IP
 is computed is expected to be precise to better than nine significant
-figures.
+figures\&.
 .TP
 \fB::math::factorial\fR \fIx\fR
-Returns the factorial of the argument \fIx\fR.
+Returns the factorial of the argument \fIx\fR\&.
 .sp
 For integer \fIx\fR, 0 <= \fIx\fR <= 12, an exact integer result is
-returned.
+returned\&.
 .sp
 For integer \fIx\fR, 13 <= \fIx\fR <= 21, an exact floating-point
-result is returned on machines with IEEE floating point.
+result is returned on machines with IEEE floating point\&.
 .sp
 For integer \fIx\fR, 22 <= \fIx\fR <= 170, the result is exact to 1
-ULP.
+ULP\&.
 .sp
 For real \fIx\fR, \fIx\fR >= 0, the result is approximated by
 computing \fIGamma(x+1)\fR using the \fB::math::ln_Gamma\fR
 function, and the result is expected to be precise to better than nine
-significant figures.
+significant figures\&.
 .sp
 It is an error to present \fIx\fR <= -1 or \fIx\fR > 170, or a value
-of \fIx\fR that is not numeric.
+of \fIx\fR that is not numeric\&.
 .TP
 \fB::math::choose\fR \fIn k\fR
 Returns the binomial coefficient \fIC(n, k)\fR
 .CS
-C(n,k) = n! / k! (n-k)!
+
+
+   C(n,k) = n! / k! (n-k)!
+
 .CE
 .IP
 If both parameters are integers and the result fits in 32 bits, the
-result is rounded to an integer.
+result is rounded to an integer\&.
 .sp
-Integer results are exact up to at least \fIn\fR = 34.  Floating point
-results are precise to better than nine significant figures.
+Integer results are exact up to at least \fIn\fR = 34\&.  Floating point
+results are precise to better than nine significant figures\&.
 .TP
 \fB::math::Beta\fR \fIz w\fR
-Returns the Beta function of the parameters \fIz\fR and \fIw\fR.
+Returns the Beta function of the parameters \fIz\fR and \fIw\fR\&.
 .CS
-Beta(z,w) = Beta(w,z) = Gamma(z) * Gamma(w) / Gamma(z+w)
+
+
+   Beta(z,w) = Beta(w,z) = Gamma(z) * Gamma(w) / Gamma(z+w)
+
 .CE
 .IP
 Results are returned as a floating point number precise to better than
 nine significant digits provided that \fIw\fR and \fIz\fR are both at
-least 1.
+least 1\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fImath\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH CATEGORY
 Mathematics

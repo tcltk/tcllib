@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/interp/tcllib_interp.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/interp/tcllib_interp\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "interp" n 0.1.2 tcllib "Interpreter utilities"
+.TH "interp" n 0\&.1\&.2 tcllib "Interpreter utilities"
 .BS
 .SH NAME
 interp \- Interp creation and aliasing
 .SH SYNOPSIS
-package require \fBTcl  8.3\fR
+package require \fBTcl  8\&.3\fR
 .sp
-package require \fBinterp  ?0.1.2?\fR
+package require \fBinterp  ?0\&.1\&.2?\fR
 .sp
 \fB::interp::createEmpty\fR ?\fIpath\fR?
 .sp
@@ -256,54 +257,55 @@ package require \fBinterp  ?0.1.2?\fR
 .SH DESCRIPTION
 .PP
 This package provides a number of commands for the convenient creation
-of Tcl interpreters for highly restricted execution.
+of Tcl interpreters for highly restricted execution\&.
 .SH API
 .TP
 \fB::interp::createEmpty\fR ?\fIpath\fR?
 This commands creates an empty Tcl interpreter and returns it
-name. Empty means that the new interpreter has neither namespaces, nor
-any commands. It is useful only for the creation of aliases.
+name\&. Empty means that the new interpreter has neither namespaces, nor
+any commands\&. It is useful only for the creation of aliases\&.
 .sp
 If a \fIpath\fR is specified then it is taken as the name of the new
-interpreter.
+interpreter\&.
 .TP
 \fB::interp::snitLink\fR \fIpath\fR \fImethodlist\fR
 This command assumes that it was called from within a method of a snit
-object, and that the command \fBmymethod\fR is available.
+object, and that the command \fBmymethod\fR is available\&.
 .sp
 It extends the interpreter specified by \fIpath\fR with aliases for
 all methods found in the \fImethodlist\fR, with the alias directing
 execution to the same-named method of the snit object invoking this
-command.
+command\&.
 Each element of \fImethodlist\fR is actually interpreted as a command
 prefix, with the first word of each prefix the name of the method to
-link to.
+link to\&.
 .sp
-The result of the command is the empty string.
+The result of the command is the empty string\&.
 .TP
 \fB::interp::snitDictLink\fR \fIpath\fR \fImethoddict\fR
 This command behaves like \fB::interp::snitLink\fR, except that it
 takes a dictionary mapping from commands to methods as its input, and
-not a list of methods.
+not a list of methods\&.
 Like for \fB::interp::snitLink\fR the method references are actually
-command prefixes.
+command prefixes\&.
 This command allows the creation of more complex command-method
-mappings than \fB::interp::snitLink\fR.
+mappings than \fB::interp::snitLink\fR\&.
 .sp
-The result of the command is the empty string.
+The result of the command is the empty string\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIinterp\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 alias, empty interpreter, interpreter, method, snit
 .SH CATEGORY
 Programming tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

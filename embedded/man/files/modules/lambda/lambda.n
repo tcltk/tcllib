@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/lambda/lambda.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/lambda/lambda\&.n' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2011 Andreas Kupries, BSD licensed
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -242,74 +243,86 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 lambda \- Utility commands for anonymous procedures
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
 package require \fBlambda  ?1?\fR
 .sp
-\fB::lambda\fR \fIarguments\fR \fIbody\fR ?\fIarg\fR...?
+\fB::lambda\fR \fIarguments\fR \fIbody\fR ?\fIarg\fR\&.\&.\&.?
 .sp
-\fB::lambda@\fR \fInamespace\fR \fIarguments\fR \fIbody\fR ?\fIarg\fR...?
+\fB::lambda@\fR \fInamespace\fR \fIarguments\fR \fIbody\fR ?\fIarg\fR\&.\&.\&.?
 .sp
 .BE
 .SH DESCRIPTION
 .PP
 This package provides two convenience commands to make the writing of
-anonymous procedures, i.e. lambdas more \fBproc\fR-like. Instead of,
+anonymous procedures, i\&.e\&. lambdas more \fBproc\fR-like\&. Instead of,
 for example, to write
 .CS
-set f {::apply {{x} {
-\....
-}}}
+
+
+     set f {::apply {{x} {
+        \&.\&.\&.\&.
+     }}}
+
 .CE
 with its deep nesting of braces, or
 .CS
-set f [list ::apply {{x y} {
-\....
-}} $value_for_x]
+
+
+     set f [list ::apply {{x y} {
+        \&.\&.\&.\&.
+     }} $value_for_x]
+
 .CE
 with a list command to insert some of the arguments of a partial
 application, just write
 .CS
-set f [lambda {x} {
-\....
-}]
+
+
+     set f [lambda {x} {
+        \&.\&.\&.\&.
+     }]
+
 .CE
 and
 .CS
-set f [lambda {x y} {
-\....
-} $value_for_x]
+
+
+     set f [lambda {x y} {
+        \&.\&.\&.\&.
+     } $value_for_x]
+
 .CE
 .SH COMMANDS
 .TP
-\fB::lambda\fR \fIarguments\fR \fIbody\fR ?\fIarg\fR...?
+\fB::lambda\fR \fIarguments\fR \fIbody\fR ?\fIarg\fR\&.\&.\&.?
 The command constructs an anonymous procedure from the list of
 arguments, body script and (optional) predefined argument values and
-returns a command prefix representing this anonymous procedure.
+returns a command prefix representing this anonymous procedure\&.
 .sp
 When invoked the \fIbody\fR is run in a new procedure scope
 just underneath the global scope, with the arguments set to the values
-supplied at both construction and invokation time.
+supplied at both construction and invokation time\&.
 .TP
-\fB::lambda@\fR \fInamespace\fR \fIarguments\fR \fIbody\fR ?\fIarg\fR...?
+\fB::lambda@\fR \fInamespace\fR \fIarguments\fR \fIbody\fR ?\fIarg\fR\&.\&.\&.?
 The command constructs an anonymous procedure from the namespace name,
 list of arguments, body script and (optional) predefined argument
 values and returns a command prefix representing this anonymous
-procedure.
+procedure\&.
 .sp
 When invoked the \fIbody\fR is run in a new procedure scope in
 the \fInamespace\fR, with the arguments set to the values supplied at
-both construction and invokation time.
+both construction and invokation time\&.
 .PP
 .SH AUTHORS
 Andreas Kupries
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIlambda\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 apply(n), proc(n)
 .SH KEYWORDS
@@ -319,4 +332,5 @@ Utility
 .SH COPYRIGHT
 .nf
 Copyright (c) 2011 Andreas Kupries, BSD licensed
+
 .fi

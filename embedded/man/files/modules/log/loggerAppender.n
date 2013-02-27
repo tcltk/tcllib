@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/log/loggerAppender.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2005 Aamer Akhter <aakhter@cisco.com>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/log/loggerAppender\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2005 Aamer Akhter <aakhter@cisco\&.com>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,63 +238,64 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "logger::appender" n 1.2 tcllib "Object Oriented logging facility"
+.TH "logger::appender" n 1\&.2 tcllib "Object Oriented logging facility"
 .BS
 .SH NAME
 logger::appender \- Collection of predefined appenders for logger
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBlogger::appender  ?1.2?\fR
+package require \fBlogger::appender  ?1\&.2?\fR
 .sp
-\fB::logger::appender::console\fR \fB-level\fR \fIlevel\fR \fB-service\fR \fIservice\fR ?\fIoptions\fR...?
+\fB::logger::appender::console\fR \fB-level\fR \fIlevel\fR \fB-service\fR \fIservice\fR ?\fIoptions\fR\&.\&.\&.?
 .sp
-\fB::logger::appender::colorConsole\fR \fB-level\fR \fIlevel\fR \fB-service\fR \fIservice\fR ?\fIoptions\fR...?
+\fB::logger::appender::colorConsole\fR \fB-level\fR \fIlevel\fR \fB-service\fR \fIservice\fR ?\fIoptions\fR\&.\&.\&.?
 .sp
 .BE
 .SH DESCRIPTION
-This package provides a predefined set of logger templates.
+This package provides a predefined set of logger templates\&.
 .TP
-\fB::logger::appender::console\fR \fB-level\fR \fIlevel\fR \fB-service\fR \fIservice\fR ?\fIoptions\fR...?
+\fB::logger::appender::console\fR \fB-level\fR \fIlevel\fR \fB-service\fR \fIservice\fR ?\fIoptions\fR\&.\&.\&.?
 .RS
 .TP
 \fB-level\fR level
-Name of the level to fill in as "priority" in the log procedure.
+Name of the level to fill in as "priority" in the log procedure\&.
 .TP
 \fB-service\fR service
-Name of the service to fill in as "category" in the log procedure.
+Name of the service to fill in as "category" in the log procedure\&.
 .TP
 \fB-appenderArgs\fR appenderArgs
 Any additional arguments for the log procedure in list form
 .TP
 \fB-conversionPattern\fR conversionPattern
 The log pattern to use (see \fBlogger::utils::createLogProc\fR for the
-allowed substitutions).
+allowed substitutions)\&.
 .TP
 \fB-procName\fR procName
-Explicitly set the name of the created procedure.
+Explicitly set the name of the created procedure\&.
 .TP
 \fB-procNameVar\fR procNameVar
-Name of the variable to set in the calling context. This variable will
-contain the name of the procedure.
+Name of the variable to set in the calling context\&. This variable will
+contain the name of the procedure\&.
 .RE
 .TP
-\fB::logger::appender::colorConsole\fR \fB-level\fR \fIlevel\fR \fB-service\fR \fIservice\fR ?\fIoptions\fR...?
+\fB::logger::appender::colorConsole\fR \fB-level\fR \fIlevel\fR \fB-service\fR \fIservice\fR ?\fIoptions\fR\&.\&.\&.?
 See \fB::logger::appender::colorConsole\fR for a description of the
-applicable options.
+applicable options\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIlogger\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 appender, logger
 .SH CATEGORY
 Programming tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2005 Aamer Akhter <aakhter@cisco.com>
+Copyright (c) 2005 Aamer Akhter <aakhter@cisco\&.com>
+
 .fi

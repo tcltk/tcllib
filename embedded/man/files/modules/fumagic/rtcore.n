@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/fumagic/rtcore.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/fumagic/rtcore\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "fileutil::magic::rt" n 1.0 tcllib "file utilities"
+.TH "fileutil::magic::rt" n 1\&.0 tcllib "file utilities"
 .BS
 .SH NAME
 fileutil::magic::rt \- Runtime core for file type recognition engines written in pure Tcl
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBfileutil::magic::rt  ?1.0?\fR
+package require \fBfileutil::magic::rt  ?1\&.0?\fR
 .sp
 \fB::fileutil::magic::rt::open\fR \fIfilename\fR
 .sp
@@ -282,151 +283,160 @@ package require \fBfileutil::magic::rt  ?1.0?\fR
 .PP
 This package provides the runtime core for file type recognition
 engines written in pure Tcl and is thus used by all other packages in
-this module, i.e. the two frontend packages
+this module, i\&.e\&. the two frontend packages
 \fBfileutil::magic::mimetypes\fR and
 \fBfileutil::magic::filetypes\fR, and the two engine compiler
 packages \fBfileutil::magic::cgen\fR and
-\fBfileutil::magic::cfront\fR.
+\fBfileutil::magic::cfront\fR\&.
 .SH COMMANDS
 .TP
 \fB::fileutil::magic::rt::open\fR \fIfilename\fR
 This command initializes the runtime and prepares the file
-\fIfilename\fR for use by the system.
+\fIfilename\fR for use by the system\&.
 This command has to be invoked first, before any other command of this
-package.
+package\&.
 .sp
 The command returns the channel handle of the opened file as its
-result.
+result\&.
 .TP
 \fB::fileutil::magic::rt::close\fR
 This command closes the last file opened via
-\fB::fileutil::magic::rt::open\fR and shuts the runtime down.
+\fB::fileutil::magic::rt::open\fR and shuts the runtime down\&.
 This command has to be invoked last, after the file has been dealt
-with completely.
+with completely\&.
 Afterward another invokation of \fB::fileutil::magic::rt::open\fR  is
-required to process another file.
+required to process another file\&.
 .sp
-This command returns the empty string as its result.
+This command returns the empty string as its result\&.
 .TP
 \fB::fileutil::magic::rt::file_start\fR \fIname\fR
-This command marks the start of a magic file when debugging. It
-returns the empty string as its result.
+This command marks the start of a magic file when debugging\&. It
+returns the empty string as its result\&.
 .TP
 \fB::fileutil::magic::rt::result\fR ?\fImsg\fR?
-This command returns the current result and stops processing.
+This command returns the current result and stops processing\&.
 .sp
 If \fImsg\fR is specified its text is added to the result before it is
-returned. See \fB::fileutil::magic::rt::emit\fR for the allowed
-special character sequences.
+returned\&. See \fB::fileutil::magic::rt::emit\fR for the allowed
+special character sequences\&.
 .TP
 \fB::fileutil::magic::rt::resultv\fR ?\fImsg\fR?
-This command returns the current result.
+This command returns the current result\&.
 In contrast to \fB::fileutil::magic::rt::result\fR processing
-continues.
+continues\&.
 .sp
 If \fImsg\fR is specified its text is added to the result before it is
-returned. See \fB::fileutil::magic::rt::emit\fR for the allowed
-special character sequences.
+returned\&. See \fB::fileutil::magic::rt::emit\fR for the allowed
+special character sequences\&.
 .TP
 \fB::fileutil::magic::rt::emit\fR \fImsg\fR
-This command adds the text \fImsg\fR to the result buffer. The
-message may contain the following special character sequences. They
+This command adds the text \fImsg\fR to the result buffer\&. The
+message may contain the following special character sequences\&. They
 will be replaced with buffered values before the message is added to
-the result. The command returns the empty string as its result.
+the result\&. The command returns the empty string as its result\&.
 .RS
 .TP
 \fB\\b\fR
 This sequence is removed
 .TP
 \fB%s\fR
-Replaced with the last buffered string value.
+Replaced with the last buffered string value\&.
 .TP
 \fB%ld\fR
-Replaced with the last buffered numeric value.
+Replaced with the last buffered numeric value\&.
 .TP
 \fB%d\fR
-See above.
+See above\&.
 .RE
 .TP
 \fB::fileutil::magic::rt::Nv\fR \fItype\fR \fIoffset\fR ?\fIqual\fR?
 This command fetches the numeric value with \fItype\fR from the
-absolute location \fIoffset\fR and returns it as its result. The
-fetched value is further stored in the numeric buffer.
+absolute location \fIoffset\fR and returns it as its result\&. The
+fetched value is further stored in the numeric buffer\&.
 .sp
 If \fIqual\fR is specified it is considered to be a mask and applied
-to the fetched value before it is stored and returned. It has to have
-the form of a partial Tcl bit-wise expression, i.e.
+to the fetched value before it is stored and returned\&. It has to have
+the form of a partial Tcl bit-wise expression, i\&.e\&.
 .CS
-& number
+
+
+	& number
+
 .CE
 .IP
 For example:
 .CS
-Nv lelong 0 &0x8080ffff
+
+
+	Nv lelong 0 &0x8080ffff
+
 .CE
 .IP
-For the possible types see section \fBNUMERIC TYPES\fR.
+For the possible types see section \fBNUMERIC TYPES\fR\&.
 .TP
 \fB::fileutil::magic::rt::N\fR \fItype\fR \fIoffset\fR \fIcomp\fR \fIval\fR ?\fIqual\fR?
 This command behaves mostly like \fB::fileutil::magic::rt::Nv\fR,
 except that it compares the fetched and masked value against \fIval\fR
 as specified with \fIcomp\fR and returns the result of that
-comparison.
+comparison\&.
 .sp
 The argument \fIcomp\fR has to contain one of Tcl's comparison
 operators, and the comparison made will be
 .CS
-<val> <comp> <fetched-and-masked-value>
+
+
+	<val> <comp> <fetched-and-masked-value>
+
 .CE
 .sp
 The special comparison operator \fBx\fR signals that no comparison
 should be done, or, in other words, that the fetched value will always
-match \fIval\fR.
+match \fIval\fR\&.
 .TP
 \fB::fileutil::magic::rt::Nvx\fR \fIatlevel\fR \fItype\fR \fIoffset\fR ?\fIqual\fR?
 This command behaves like \fB::fileutil::magic::rt::Nv\fR, except that
 it additionally remembers the location in the file after the fetch in
 the calling context, for the level \fIatlevel\fR, for later use by
-\fB::fileutil::magic::rt::R\fR.
+\fB::fileutil::magic::rt::R\fR\&.
 .TP
 \fB::fileutil::magic::rt::Nx\fR \fIatlevel\fR \fItype\fR \fIoffset\fR \fIcomp\fR \fIval\fR ?\fIqual\fR?
 This command behaves like \fB::fileutil::magic::rt::N\fR, except that
 it additionally remembers the location in the file after the fetch in
 the calling context, for the level \fIatlevel\fR, for later use by
-\fB::fileutil::magic::rt::R\fR.
+\fB::fileutil::magic::rt::R\fR\&.
 .TP
 \fB::fileutil::magic::rt::S\fR \fIoffset\fR \fIcomp\fR \fIval\fR ?\fIqual\fR?
 This command behaves like \fB::fileutil::magic::rt::N\fR, except that
-it fetches and compares strings, not numeric data. The fetched value
+it fetches and compares strings, not numeric data\&. The fetched value
 is also stored in the internal string buffer instead of the numeric
-buffer.
+buffer\&.
 .TP
 \fB::fileutil::magic::rt::Sx\fR \fIatlevel\fR \fIoffset\fR \fIcomp\fR \fIval\fR ?\fIqual\fR?
 This command behaves like \fB::fileutil::magic::rt::S\fR, except that
 it additionally remembers the location in the file after the fetch in
 the calling context, for the level \fIatlevel\fR, for later use by
-\fB::fileutil::magic::rt::R\fR.
+\fB::fileutil::magic::rt::R\fR\&.
 .TP
 \fB::fileutil::magic::rt::L\fR \fInewlevel\fR
 This command sets the current level in the calling context to
-\fInewlevel\fR. The command returns the empty string as its result.
+\fInewlevel\fR\&. The command returns the empty string as its result\&.
 .TP
 \fB::fileutil::magic::rt::I\fR \fIbase\fR \fItype\fR \fIdelta\fR
 This command handles base locations specified indirectly through the
-contents of the inspected file. It returns the sum of \fIdelta\fR and
+contents of the inspected file\&. It returns the sum of \fIdelta\fR and
 the value of numeric \fItype\fR fetched from the absolute location
-\fIbase\fR.
+\fIbase\fR\&.
 .sp
-For the possible types see section \fBNUMERIC TYPES\fR.
+For the possible types see section \fBNUMERIC TYPES\fR\&.
 .TP
 \fB::fileutil::magic::rt::R\fR \fIoffset\fR
 This command handles base locations specified relative to the end of
-the last field one level above.
+the last field one level above\&.
 .sp
 In other words, the command computes an absolute location in the file
-based on the relative \fIoffset\fR and returns it as its result. The
+based on the relative \fIoffset\fR and returns it as its result\&. The
 base the offset is added to is the last location remembered for the
-level in the calling context.
+level in the calling context\&.
 .PP
 .SH "NUMERIC TYPES"
 .TP
@@ -451,8 +461,8 @@ see above, stored in big endian
 \fBlelong\fR
 see above, stored in small/little endian
 .PP
-All of the types above exit in an unsigned form as well. The type
-names are the same, with the character "u" added as prefix.
+All of the types above exit in an unsigned form as well\&. The type
+names are the same, with the character "u" added as prefix\&.
 .TP
 \fBdate\fR
 32-bit integer timestamp, stored in native endianess
@@ -474,11 +484,11 @@ see above, stored in small/little endian
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIfileutil :: magic\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 file(1), fileutil, magic(5)
 .SH KEYWORDS

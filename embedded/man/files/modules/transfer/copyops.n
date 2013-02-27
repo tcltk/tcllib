@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/transfer/copyops.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/transfer/copyops\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,20 +238,20 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "transfer::copy" n 0.2 tcllib "Data transfer facilities"
+.TH "transfer::copy" n 0\&.2 tcllib "Data transfer facilities"
 .BS
 .SH NAME
 transfer::copy \- Data transfer foundation
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBtransfer::copy  ?0.2?\fR
+package require \fBtransfer::copy  ?0\&.2?\fR
 .sp
-\fBtransfer::copy::do\fR \fBchan\fR|\fBstring\fR \fIdata\fR \fIoutchannel\fR ?\fIoptions\fR...?
+\fBtransfer::copy::do\fR \fBchan\fR|\fBstring\fR \fIdata\fR \fIoutchannel\fR ?\fIoptions\fR\&.\&.\&.?
 .sp
-\fBtransfer::copy::chan\fR \fIchannel\fR \fIoutchannel\fR ?\fIoptions\fR...?
+\fBtransfer::copy::chan\fR \fIchannel\fR \fIoutchannel\fR ?\fIoptions\fR\&.\&.\&.?
 .sp
-\fBtransfer::copy::string\fR \fIstring\fR \fIoutchannel\fR ?\fIoptions\fR...?
+\fBtransfer::copy::string\fR \fIstring\fR \fIoutchannel\fR ?\fIoptions\fR\&.\&.\&.?
 .sp
 \fBtransfer::copy::doChan\fR \fIchannel\fR \fIoutchannel\fR \fIoptvar\fR
 .sp
@@ -262,102 +263,102 @@ package require \fBtransfer::copy  ?0.2?\fR
 .SH DESCRIPTION
 .PP
 This package provides a number of commands for the asynchronous of
-information contained in either a string or channel. The main point of
+information contained in either a string or channel\&. The main point of
 this package is that the commands here provide a nicer callback API
 than the builtin command \fBfcopy\fR, making the use of these
-facilities simpler than the builtin.
+facilities simpler than the builtin\&.
 .SH API
 .TP
-\fBtransfer::copy::do\fR \fBchan\fR|\fBstring\fR \fIdata\fR \fIoutchannel\fR ?\fIoptions\fR...?
+\fBtransfer::copy::do\fR \fBchan\fR|\fBstring\fR \fIdata\fR \fIoutchannel\fR ?\fIoptions\fR\&.\&.\&.?
 This command transfers the information in \fIdata\fR to the
-\fIoutchannel\fR, according to the \fIoptions\fR. The type of the
-information in \fIdata\fR is determined by the first argument.
+\fIoutchannel\fR, according to the \fIoptions\fR\&. The type of the
+information in \fIdata\fR is determined by the first argument\&.
 .sp
 The options available to this command are the same as are available to
-the command \fBtransfer::copy::options\fR, and explained there.
+the command \fBtransfer::copy::options\fR, and explained there\&.
 .RS
 .TP
 \fBchan\fR
 The argument \fIdata\fR contains the handle of a channel and the
-actual infomration to transfer is read from that channel.
+actual infomration to transfer is read from that channel\&.
 .TP
 \fBstring\fR
 The argument \fIdata\fR contains a string and this is the information
-to be transfered.
+to be transfered\&.
 .RE
 .TP
-\fBtransfer::copy::chan\fR \fIchannel\fR \fIoutchannel\fR ?\fIoptions\fR...?
+\fBtransfer::copy::chan\fR \fIchannel\fR \fIoutchannel\fR ?\fIoptions\fR\&.\&.\&.?
 This command is a shorter and more direct form for the command
-\fBtransfer::copy::do chan\fR.
+\fBtransfer::copy::do chan\fR\&.
 .TP
-\fBtransfer::copy::string\fR \fIstring\fR \fIoutchannel\fR ?\fIoptions\fR...?
+\fBtransfer::copy::string\fR \fIstring\fR \fIoutchannel\fR ?\fIoptions\fR\&.\&.\&.?
 This command is a shorter and more direct form for the command
-\fBtransfer::copy::do string\fR.
+\fBtransfer::copy::do string\fR\&.
 .TP
 \fBtransfer::copy::doChan\fR \fIchannel\fR \fIoutchannel\fR \fIoptvar\fR
 This command is an alternate form of \fBtransfer::copy::chan\fR which
 reads its options out of the array variable named by \fIoptvar\fR
-instead of from a variable length argument list.
+instead of from a variable length argument list\&.
 .TP
 \fBtransfer::copy::doString\fR \fIstring\fR \fIoutchannel\fR \fIoptvar\fR
 This command is an alternate form of \fBtransfer::copy::string\fR which
 reads its options out of the array variable named by \fIoptvar\fR
-instead of from a variable length argument list.
+instead of from a variable length argument list\&.
 .TP
 \fBtransfer::copy::options\fR \fIoutchannel\fR \fIoptionlist\fR \fIoptvar\fR
 This command is the option processor used by all the commands above
-which read their options from a variable length argument list. It
+which read their options from a variable length argument list\&. It
 first reads default settings from the channel handle \fIoutchannel\fR,
 then processes the list of options in \fIoptionlist\fR, at last stores
-the results in the array variable named by \fIoptvar\fR. The contents
+the results in the array variable named by \fIoptvar\fR\&. The contents
 of that variable are in a format which is directly understood by all
-the commands above which read their options out of an array variable.
+the commands above which read their options out of an array variable\&.
 .sp
 The recognized options are:
 .RS
 .TP
 \fB-blocksize\fR \fIint\fR
 This option specifies the size of the chunks to transfer in one
-operation. It is optional and defaults to the value of
-\fB-buffersize\fR as configured for the output channel.
+operation\&. It is optional and defaults to the value of
+\fB-buffersize\fR as configured for the output channel\&.
 .sp
-If specified its value has to be an integer number greater than zero.
+If specified its value has to be an integer number greater than zero\&.
 .TP
 \fB-command\fR \fIcommandprefix\fR
-This option specifies the completion callback of the operation. This
-option has to be specified. An error will be thrown if it is not, or
-if the empty list was specified as argument to it.
+This option specifies the completion callback of the operation\&. This
+option has to be specified\&. An error will be thrown if it is not, or
+if the empty list was specified as argument to it\&.
 .sp
-Its value has to be a command prefix, i.e. a list whose first word is
+Its value has to be a command prefix, i\&.e\&. a list whose first word is
 the command to execute, followed by words containing fixed
-arguments. When the callback is invoked one or two additional
-arguments are appended to the prefix. The first argument is the number
-of bytes which were transfered. The optional second argument is an
+arguments\&. When the callback is invoked one or two additional
+arguments are appended to the prefix\&. The first argument is the number
+of bytes which were transfered\&. The optional second argument is an
 error message and added if and only if an error occured during the the
-transfer.
+transfer\&.
 .TP
 \fB-progress\fR \fIcommandprefix\fR
-This option specifies the progress callback of the operation. It is
-optional and defaults to the empty list. This last possibility signals
-that no feedback was asked for and disabled it.
+This option specifies the progress callback of the operation\&. It is
+optional and defaults to the empty list\&. This last possibility signals
+that no feedback was asked for and disabled it\&.
 .sp
 Its value has to be a command prefix, see above, \fB-command\fR for
-a more detailed explanation. When the callback is invoked a single
-additional arguments is appended to the prefix. This argument is the
-number of bytes which were transfered so far.
+a more detailed explanation\&. When the callback is invoked a single
+additional arguments is appended to the prefix\&. This argument is the
+number of bytes which were transfered so far\&.
 .TP
 \fB-size\fR \fIint\fR
 This option specifies the number of bytes to read from the input data
-and transfer. It is optional and defaults to "Transfer everything".
+and transfer\&. It is optional and defaults to "Transfer everything"\&.
 Its value has to be an integer number and any value less than zero has
-the same meaning, i.e. to transfer all available data. Any other value
-is the amount of bytes to transfer.
+the same meaning, i\&.e\&. to transfer all available data\&. Any other value
+is the amount of bytes to transfer\&.
 .sp
 All transfer commands will throw error an when their user tries to
-transfer more data than is available in the input. This happens
+transfer more data than is available in the input\&. This happens
 immediately, before the transfer is actually started, should the input
-be a string. Otherwise the, i.e. for a channel as input, the error is
-thrown the moment the underflow condition is actually detected.
+be a string\&. Otherwise the, i\&.e\&. for a channel as input, the error is
+thrown the moment the underflow condition is actually detected\&.
 .TP
 \fB-encoding\fR \fIencodingname\fR
 .TP
@@ -366,25 +367,26 @@ thrown the moment the underflow condition is actually detected.
 \fB-translation\fR \fItransspec\fR
 These options are the same as are recognized by the builtin command
 \fBfconfigure\fR and provide the settings for the output channel which
-are to be active during the transfer, and only then. I.e. the settings
+are to be active during the transfer, and only then\&. I\&.e\&. the settings
 of the output channel before the transfer are saved, and restored at
-the end of a transfer, regardless of its success or failure. None of
+the end of a transfer, regardless of its success or failure\&. None of
 these options are required, and they default to the settings of the
-output channel if not specified.
+output channel if not specified\&.
 .RE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fItransfer\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 channel, copy, transfer
 .SH CATEGORY
 Transfer module
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2006-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

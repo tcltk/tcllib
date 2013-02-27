@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/doctools2toc/msgcat_en.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/doctools2toc/msgcat_en\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,24 +238,24 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "doctools::msgcat::toc::en" n 0.1 tcllib "Documentation tools"
+.TH "doctools::msgcat::toc::en" n 0\&.1 tcllib "Documentation tools"
 .BS
 .SH NAME
 doctools::msgcat::toc::en \- Message catalog for the doctoc parser (EN)
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
 package require \fBmsgcat \fR
 .sp
-package require \fBdoctools::msgcat::toc::en  ?0.1?\fR
+package require \fBdoctools::msgcat::toc::en  ?0\&.1?\fR
 .sp
 .BE
 .SH DESCRIPTION
 The package \fBdoctools::msgcat::toc::en\fR is a
 support module providing the EN (english) language message catalog
-for the doctoc parser in the doctools system version 2. As such it is
+for the doctoc parser in the doctools system version 2\&. As such it is
 an internal package a regular user (developer) should not be in direct
-contact with.
+contact with\&.
 .PP
 If you are such please go the documentation of either
 .IP [1]
@@ -267,23 +268,24 @@ If you are such please go the documentation of either
 .PP
 Within the system architecture this package resides under the package
 \fBdoctools::msgcat\fR providing the general message catalog
-management within the system. \fINote\fR that there is \fIno\fR
-explicit dependency between the manager and catalog packages. The
-catalog is a plugin which is selected and loaded dynamically.
+management within the system\&. \fINote\fR that there is \fIno\fR
+explicit dependency between the manager and catalog packages\&. The
+catalog is a plugin which is selected and loaded dynamically\&.
 .SH API
-This package has no exported API.
+This package has no exported API\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 EN, catalog package, doctoc, doctools, i18n, internationalization, l10n, localization, message catalog, message package
 .SH CATEGORY
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

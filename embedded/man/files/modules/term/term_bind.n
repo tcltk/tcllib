@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/term/term_bind.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/term/term_bind\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "term::receive::bind" n 0.1 tcllib "Terminal control"
+.TH "term::receive::bind" n 0\&.1 tcllib "Terminal control"
 .BS
 .SH NAME
 term::receive::bind \- Keyboard dispatch from terminals
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBterm::receive::bind  ?0.1?\fR
+package require \fBterm::receive::bind  ?0\&.1?\fR
 .sp
 \fBterm::receive::bind\fR \fIobject\fR ?\fImap\fR?
 .sp
@@ -267,22 +268,22 @@ package require \fBterm::receive::bind  ?0.1?\fR
 .BE
 .SH DESCRIPTION
 This package provides a class for the creation of simple dispatchers
-from character sequences to actions. Internally each dispatcher is in
-essence a deterministic finite automaton with tree structure.
+from character sequences to actions\&. Internally each dispatcher is in
+essence a deterministic finite automaton with tree structure\&.
 .SH "CLASS API"
 The package exports a single command, the
 class command, enabling the creation of
-dispatcher instances. Its API
+dispatcher instances\&. Its API
 is:
 .TP
 \fBterm::receive::bind\fR \fIobject\fR ?\fImap\fR?
 This command creates a new dispatcher object with the name
 \fIobject\fR, initializes it, and returns the fully qualified name of
-the object command as its result.
+the object command as its result\&.
 .sp
-The argument is a dictionary mapping from strings, i.e. character
+The argument is a dictionary mapping from strings, i\&.e\&. character
 sequences to the command prefices to invoke when the sequence is found
-in the input stream.
+in the input stream\&.
 .PP
 .SH "OBJECT API"
 The objects created by the class command provide the methods listed
@@ -290,69 +291,70 @@ below:
 .TP
 \fIobject\fR \fBmap\fR \fIstr\fR \fIcmd\fR
 This method adds an additional mapping from the string \fIstr\fR to
-the action \fIcmd\fR. The mapping will take effect immediately
+the action \fIcmd\fR\&. The mapping will take effect immediately
 should the processor be in a prefix of \fIstr\fR, or at the next
-reset operation. The action is a command prefix and will be invoked
+reset operation\&. The action is a command prefix and will be invoked
 with one argument appended to it, the character sequence causing
-the invokation. It is executed in the global namespace.
+the invokation\&. It is executed in the global namespace\&.
 .TP
 \fIobject\fR \fBdefault\fR \fIcmd\fR
 This method defines a default action \fIcmd\fR which will be invoked
-whenever an unknown character sequence is encountered. The command
+whenever an unknown character sequence is encountered\&. The command
 prefix is handled in the same as the regular action defined via
-method \fBmap\fR.
+method \fBmap\fR\&.
 .TP
 \fIobject\fR \fBlisten\fR ?\fIchan\fR?
 This methods sets up a filevent listener for the channel with handle
 \fIchan\fR and invokes the dispatcher object whenever characters have
-been received, or EOF was reached.
+been received, or EOF was reached\&.
 .sp
-If not specified \fIchan\fR defaults to \fBstdin\fR.
+If not specified \fIchan\fR defaults to \fBstdin\fR\&.
 .TP
 \fIobject\fR \fBunlisten\fR ?\fIchan\fR?
 This methods removes the filevent listener for the channel with handle
-\fIchan\fR.
+\fIchan\fR\&.
 .sp
-If not specified \fIchan\fR defaults to \fBstdin\fR.
+If not specified \fIchan\fR defaults to \fBstdin\fR\&.
 .TP
 \fIobject\fR \fBreset\fR
 This method resets the character processor
-to the beginning of the tree.
+to the beginning of the tree\&.
 .TP
 \fIobject\fR \fBnext\fR \fIchar\fR
 This method causes the character processor to process the character
-\fIc\fR. This may simply advance the internal state, or invoke an
-associated action for a recognized sequence.
+\fIc\fR\&. This may simply advance the internal state, or invoke an
+associated action for a recognized sequence\&.
 .TP
 \fIobject\fR \fBprocess\fR \fIstr\fR
 This method causes the character processor to process the character
 sequence \fIstr\fR, advancing the internal state and invoking action
-as necessary. This is a callback for \fBlisten\fR.
+as necessary\&. This is a callback for \fBlisten\fR\&.
 .TP
 \fIobject\fR \fBeof\fR
 This method causes the character processor to handle EOF on the
-input. This is currently no-op.
-This is a callback for \fBlisten\fR.
+input\&. This is currently no-op\&.
+This is a callback for \fBlisten\fR\&.
 .PP
 .SH NOTES
 The simplicity of the DFA means that it is not possible to recognize a
 character sequence with has a another recognized character sequence as
-its prefix.
+its prefix\&.
 .PP
 In other words, the set of recognized strings has to form a
-\fIprefix code\fR.
+\fIprefix code\fR\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIterm\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 character input, control, dispatcher, listener, receiver, terminal
 .SH CATEGORY
 Terminal control
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

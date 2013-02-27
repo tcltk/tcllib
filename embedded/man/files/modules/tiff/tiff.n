@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/tiff/tiff.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2005-2006, Aaron Faupell <afaupell@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/tiff/tiff\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2005-2006, Aaron Faupell <afaupell@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "tiff" n 0.2.1 tcllib "TIFF image manipulation"
+.TH "tiff" n 0\&.2\&.1 tcllib "TIFF image manipulation"
 .BS
 .SH NAME
 tiff \- TIFF reading, writing, and querying and manipulation of meta data
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBtiff  ?0.2.1?\fR
+package require \fBtiff  ?0\&.2\&.1?\fR
 .sp
 \fB::tiff::isTIFF\fR \fIfile\fR
 .sp
@@ -277,77 +278,87 @@ package require \fBtiff  ?0.2.1?\fR
 .BE
 .SH DESCRIPTION
 .PP
-This package provides commands to query, modify, read, and write TIFF images.
+This package provides commands to query, modify, read, and write TIFF images\&.
 TIFF stands for \fITagged Image File Format\fR and is a standard
-for lossless storage of photographical images and associated metadata.
-It is specified at \fIhttp://partners.adobe.com/public/developer/tiff/index.html\fR.
+for lossless storage of photographical images and associated metadata\&.
+It is specified at \fIhttp://partners\&.adobe\&.com/public/developer/tiff/index\&.html\fR\&.
 .PP
-Multiple images may be stored in a single TIFF file. The ?image? options to the functions
-in this package are for accessing images other than the first. Data in a TIFF image is
+Multiple images may be stored in a single TIFF file\&. The ?image? options to the functions
+in this package are for accessing images other than the first\&. Data in a TIFF image is
 stored as a series of tags having a numerical value, which are represented in either a 4 digit
-hexadecimal format or a string name. For a reference on defined tags and their meanings see
-\fIhttp://www.awaresystems.be/imaging/tiff/tifftags.html\fR
+hexadecimal format or a string name\&. For a reference on defined tags and their meanings see
+\fIhttp://www\&.awaresystems\&.be/imaging/tiff/tifftags\&.html\fR
 .SH COMMANDS
 .TP
 \fB::tiff::isTIFF\fR \fIfile\fR
 Returns a boolean value indicating if \fIfile\fR is a
-TIFF image.
+TIFF image\&.
 .TP
 \fB::tiff::byteOrder\fR \fIfile\fR
-Returns either \fBbig\fR or \fBlittle\fR.
-Throws an error if \fIfile\fR is not a TIFF image.
+Returns either \fBbig\fR or \fBlittle\fR\&.
+Throws an error if \fIfile\fR is not a TIFF image\&.
 .TP
 \fB::tiff::numImages\fR \fIfile\fR
-Returns the number of images in \fIfile\fR.
-Throws an error if \fIfile\fR is not a TIFF image.
+Returns the number of images in \fIfile\fR\&.
+Throws an error if \fIfile\fR is not a TIFF image\&.
 .TP
 \fB::tiff::dimensions\fR \fIfile\fR ?image?
 Returns the dimensions of image number ?image? in \fIfile\fR as a list of the
-horizontal and vertical pixel count.
-Throws an error if \fIfile\fR is not a TIFF image.
+horizontal and vertical pixel count\&.
+Throws an error if \fIfile\fR is not a TIFF image\&.
 .TP
 \fB::tiff::imageInfo\fR \fIfile\fR ?image?
 Returns a dictionary with keys \fBImageWidth\fR, \fBImageLength\fR,
 \fBBitsPerSample\fR, \fBCompression\fR, \fBPhotometricInterpretation\fR,
 \fBImageDescription\fR, \fBOrientation\fR, \fBXResolution\fR,
 \fBYResolution\fR, \fBResolutionUnit\fR, \fBDateTime\fR, \fBArtist\fR,
-and \fBHostComputer\fR. The values are the associated properties of
-the TIFF ?image? in \fIfile\fR. Values may be empty if the associated tag is not
-present in the file.
+and \fBHostComputer\fR\&. The values are the associated properties of
+the TIFF ?image? in \fIfile\fR\&. Values may be empty if the associated tag is not
+present in the file\&.
 .CS
-puts [::tiff::imageInfo photo.tif]
-ImageWidth 686 ImageLength 1024 BitsPerSample {8 8 8} Compression 1
-PhotometricInterpretation 2 ImageDescription {} Orientation 1
-XResolution 170.667 YResolution 170.667 ResolutionUnit 2 DateTime {2005:12:28 19:44:45}
-Artist {} HostComputer {}
+
+
+    puts [::tiff::imageInfo photo\&.tif]
+
+    ImageWidth 686 ImageLength 1024 BitsPerSample {8 8 8} Compression 1
+    PhotometricInterpretation 2 ImageDescription {} Orientation 1
+    XResolution 170\&.667 YResolution 170\&.667 ResolutionUnit 2 DateTime {2005:12:28 19:44:45}
+    Artist {} HostComputer {}
+
 .CE
 .IP
 There is nothing special about these tags, this is simply a convience procedure which calls
-\fBgetEntry\fR with common entries.
-Throws an error if \fIfile\fR is not a TIFF image.
+\fBgetEntry\fR with common entries\&.
+Throws an error if \fIfile\fR is not a TIFF image\&.
 .TP
 \fB::tiff::entries\fR \fIfile\fR ?image?
 Returns a list of all entries in the given \fIfile\fR and ?image?
-in hexadecimal format.
-Throws an error if \fIfile\fR is not a TIFF image.
+in hexadecimal format\&.
+Throws an error if \fIfile\fR is not a TIFF image\&.
 .TP
 \fB::tiff::getEntry\fR \fIfile\fR \fIentry\fR ?image?
-Returns the value of \fIentry\fR from image ?image? in the TIFF \fIfile\fR.
-\fIentry\fR may be a list of multiple entries. If an entry does not exist, an
+Returns the value of \fIentry\fR from image ?image? in the TIFF \fIfile\fR\&.
+\fIentry\fR may be a list of multiple entries\&. If an entry does not exist, an
 empty string is returned
 .CS
-set data [::tiff::getEntry photo.tif {0131 0132}]
-puts "file was written at [lindex $data 0] with software [lindex $data 1]"
+
+
+    set data [::tiff::getEntry photo\&.tif {0131 0132}]
+    puts "file was written at [lindex $data 0] with software [lindex $data 1]"
+
 .CE
 .IP
-Throws an error if \fIfile\fR is not a TIFF image.
+Throws an error if \fIfile\fR is not a TIFF image\&.
 .TP
 \fB::tiff::addEntry\fR \fIfile\fR \fIentry\fR ?image?
-Adds the specified entries to the image named by ?image? (default 0), or optionally \fBall\fR.
-\fIentry\fR must be a list where each element is a list of tag, type, and value. If a tag already
-exists, it is overwritten.
+Adds the specified entries to the image named by ?image? (default 0), or optionally \fBall\fR\&.
+\fIentry\fR must be a list where each element is a list of tag, type, and value\&. If a tag already
+exists, it is overwritten\&.
 .CS
-::tiff::addEntry photo.tif {{010e 2 "an example photo"} {013b 2 "Aaron F"}}
+
+
+    ::tiff::addEntry photo\&.tif {{010e 2 "an example photo"} {013b 2 "Aaron F"}}
+
 .CE
 .IP
 The data types are defined as follows
@@ -390,37 +401,37 @@ FLOAT (32 bit floating point number)
 DOUBLE (64 bit floating point number)
 .RE
 .IP
-Throws an error if \fIfile\fR is not a TIFF image.
+Throws an error if \fIfile\fR is not a TIFF image\&.
 .TP
 \fB::tiff::deleteEntry\fR \fIfile\fR \fIentry\fR ?image?
-Deletes the specified entries from the image named by ?image? (default 0), or optionally \fBall\fR.
-Throws an error if \fIfile\fR is not a TIFF image.
+Deletes the specified entries from the image named by ?image? (default 0), or optionally \fBall\fR\&.
+Throws an error if \fIfile\fR is not a TIFF image\&.
 .TP
 \fB::tiff::getImage\fR \fIfile\fR ?image?
 Returns the name of a Tk image containing the image at index ?image? from \fIfile\fR
-Throws an error if \fIfile\fR is not a TIFF image, or if image is an unsupported format.
-Supported formats are uncompressed 24 bit RGB and uncompressed 8 bit palette.
+Throws an error if \fIfile\fR is not a TIFF image, or if image is an unsupported format\&.
+Supported formats are uncompressed 24 bit RGB and uncompressed 8 bit palette\&.
 .TP
 \fB::tiff::writeImage\fR \fIimage\fR \fIfile\fR ?entry?
-Writes the contents of the Tk image \fIimage\fR to a tiff file \fIfile\fR. Files are
-written in the 24 bit uncompressed format, with big endian byte order. Additional entries
+Writes the contents of the Tk image \fIimage\fR to a tiff file \fIfile\fR\&. Files are
+written in the 24 bit uncompressed format, with big endian byte order\&. Additional entries
 to be added to the image may be specified, in the same format as \fBtiff::addEntry\fR
 .TP
 \fB::tiff::nametotag\fR \fInames\fR
-Returns a list with \fInames\fR translated from string to 4 digit format. 4 digit names
-in the input are passed through unchanged. Strings without a defined tag name will throw
-an error.
+Returns a list with \fInames\fR translated from string to 4 digit format\&. 4 digit names
+in the input are passed through unchanged\&. Strings without a defined tag name will throw
+an error\&.
 .TP
 \fB::tiff::tagtoname\fR \fItags\fR
-Returns a list with \fItags\fR translated from 4 digit to string format. If a tag does
-not have a defined name it is passed through unchanged.
+Returns a list with \fItags\fR translated from 4 digit to string format\&. If a tag does
+not have a defined name it is passed through unchanged\&.
 .TP
 \fB::tiff::debug\fR \fIfile\fR
-Prints everything we know about the given file in a nice format.
+Prints everything we know about the given file in a nice format\&.
 .PP
 .SH VARIABLES
-The mapping of 4 digit tag names to string names uses the array ::tiff::tiff_tags. The reverse
-mapping uses the array ::tiff::tiff_sgat.
+The mapping of 4 digit tag names to string names uses the array ::tiff::tiff_tags\&. The reverse
+mapping uses the array ::tiff::tiff_sgat\&.
 .SH LIMITATIONS
 .IP [1]
 Cannot write exif ifd
@@ -431,16 +442,17 @@ Writing limited to uncompressed 8 bit rgb
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fItiff\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 image, tif, tiff
 .SH CATEGORY
 File formats
 .SH COPYRIGHT
 .nf
-Copyright (c) 2005-2006, Aaron Faupell <afaupell@users.sourceforge.net>
+Copyright (c) 2005-2006, Aaron Faupell <afaupell@users\&.sourceforge\&.net>
+
 .fi

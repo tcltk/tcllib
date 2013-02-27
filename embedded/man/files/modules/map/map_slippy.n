@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/map/map_slippy.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/map/map_slippy\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,16 +237,16 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "map::slippy" n 0.5 tcllib "Mapping utilities"
+.TH "map::slippy" n 0\&.5 tcllib "Mapping utilities"
 .BS
 .SH NAME
 map::slippy \- Common code for slippy based map packages
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBTk  8.4\fR
+package require \fBTk  8\&.4\fR
 .sp
-package require \fBmap::slippy  ?0.5?\fR
+package require \fBmap::slippy  ?0\&.5?\fR
 .sp
 \fB::map::slippy\fR \fBlength\fR \fIlevel\fR
 .sp
@@ -257,7 +258,7 @@ package require \fBmap::slippy  ?0.5?\fR
 .sp
 \fB::map::slippy\fR \fBgeo 2tile\fR \fIgeo\fR
 .sp
-\fB::map::slippy\fR \fBgeo 2tile.float\fR \fIgeo\fR
+\fB::map::slippy\fR \fBgeo 2tile\&.float\fR \fIgeo\fR
 .sp
 \fB::map::slippy\fR \fBgeo 2point\fR \fIgeo\fR
 .sp
@@ -274,80 +275,83 @@ package require \fBmap::slippy  ?0.5?\fR
 .BE
 .SH DESCRIPTION
 This package provides a number of methods doing things needed by all
-types of slippy-based map packages.
+types of slippy-based map packages\&.
 .SH API
 .TP
 \fB::map::slippy\fR \fBlength\fR \fIlevel\fR
 This method returns the width/height of a slippy-based map at the
-specified zoom \fIlevel\fR, in pixels. This is, in essence, the result
+specified zoom \fIlevel\fR, in pixels\&. This is, in essence, the result
 of
 .CS
-expr { [tiles $level] * [tile size] }
+
+
+	expr { [tiles $level] * [tile size] }
+
 .CE
 .TP
 \fB::map::slippy\fR \fBtiles\fR \fIlevel\fR
 This method returns the width/height of a slippy-based map at the
-specified zoom \fIlevel\fR, in \fItiles\fR.
+specified zoom \fIlevel\fR, in \fItiles\fR\&.
 .TP
 \fB::map::slippy\fR \fBtile size\fR
 This method returns the width/height of a tile in a slippy-based map,
-in pixels.
+in pixels\&.
 .TP
 \fB::map::slippy\fR \fBtile valid\fR \fItile\fR \fIlevels\fR ?\fImsgvar\fR?
 This method checks whether \fItile\fR described a valid tile in a
-slippy-based map containing that many zoom \fIlevels\fR. The result is
+slippy-based map containing that many zoom \fIlevels\fR\&. The result is
 a boolean value, \fBtrue\fR if the tile is valid, and \fBfalse\fR
-otherwise. For the latter a message is left in the variable named by
-\fImsgvar\fR, should it be specified.
+otherwise\&. For the latter a message is left in the variable named by
+\fImsgvar\fR, should it be specified\&.
 .sp
 A tile identifier as stored in \fItile\fR is a list containing zoom
-level, tile row, and tile column, in this order. The command
-essentially checks this, i.e. the syntax, that the zoom level is
+level, tile row, and tile column, in this order\&. The command
+essentially checks this, i\&.e\&. the syntax, that the zoom level is
 between 0 and "\fIlevels\fR-1", and that the row/col information is
-within the boundaries for the zoom level, i.e. 0 ...
-"[tiles $zoom]-1".
+within the boundaries for the zoom level, i\&.e\&. 0 \&.\&.\&.
+"[tiles $zoom]-1"\&.
 .TP
 \fB::map::slippy\fR \fBgeo 2tile\fR \fIgeo\fR
 Converts a geographical location at a zoom level (\fIgeo\fR, a list
 containing zoom level, latitude, and longitude, in this order) to a
 tile identifier (list containing zoom level, row, and column) at that
-level. The tile identifier uses pure integer numbers for the tile
-coordinates, for all geographic coordinates mapping to that tile.
+level\&. The tile identifier uses pure integer numbers for the tile
+coordinates, for all geographic coordinates mapping to that tile\&.
 .TP
-\fB::map::slippy\fR \fBgeo 2tile.float\fR \fIgeo\fR
+\fB::map::slippy\fR \fBgeo 2tile\&.float\fR \fIgeo\fR
 Converts a geographical location at a zoom level (\fIgeo\fR, a list
 containing zoom level, latitude, and longitude, in this order) to a
 tile identifier (list containing zoom level, row, and column) at that
-level. The tile identifier uses floating point numbers for the tile
+level\&. The tile identifier uses floating point numbers for the tile
 coordinates, representing not only the tile the geographic coordinates
-map to, but also the fractional location inside of that tile.
+map to, but also the fractional location inside of that tile\&.
 .TP
 \fB::map::slippy\fR \fBgeo 2point\fR \fIgeo\fR
 Converts a geographical location at a zoom level (\fIgeo\fR, a list
 containing zoom level, latitude, and longitude, in this order) to a
-pixel position (list containing zoom level, y, and x) at that level.
+pixel position (list containing zoom level, y, and x) at that level\&.
 .TP
 \fB::map::slippy\fR \fBtile 2geo\fR \fItile\fR
 Converts a tile identifier at a zoom level (\fItile\fR, list
 containing zoom level, row, and column) to a geographical location
 (list containing zoom level, latitude, and longitude, in this order)
-at that level.
+at that level\&.
 .TP
 \fB::map::slippy\fR \fBtile 2point\fR \fItile\fR
 Converts a tile identifier at a zoom level (\fItile\fR, a list
 containing zoom level, row, and column, in this order) to a pixel
-position (list containing zoom level, y, and x) at that level.
+position (list containing zoom level, y, and x) at that level\&.
 .TP
 \fB::map::slippy\fR \fBpoint 2geo\fR \fIpoint\fR
 Converts a pixel position at a zoom level (\fIpoint\fR, list
 containing zoom level, y, and x) to a geographical location (list
 containing zoom level, latitude, and longitude, in this order) at that
-level.
+level\&.
 .TP
 \fB::map::slippy\fR \fBpoint 2tile\fR \fIpoint\fR
 Converts a pixel position at a zoom level (\fIpoint\fR, a list
 containing zoom level, y, and x, in this order) to a tile identifier
-(list containing zoom level, row, and column) at that level.
+(list containing zoom level, row, and column) at that level\&.
 .TP
 \fB::map::slippy\fR \fBfit geobox\fR \fIcanvdim\fR \fIgeobox\fR \fIzmin\fR \fIzmax\fR
 Calculates the zoom level (whithin the bounds \fIzmin\fR and
@@ -355,63 +359,63 @@ Calculates the zoom level (whithin the bounds \fIzmin\fR and
 latitudes and longitudes lat0, lat1, lon0 and lon1 of a geo box,
 in this order) fits into a viewport given by \fIcanvdim\fR, a
 2-element list containing the width and height of the viewport, in
-this order.
+this order\&.
 .PP
 .SH "COORDINATE SYSTEMS"
 The commands of this package operate on three distinct coordinate
-systems, which are explained below.
+systems, which are explained below\&.
 .SS GEOGRAPHIC
 \fIGeographic\fRal coordinates are represented by \fILatitude\fR and
 \fILongitude\fR, each of which is measured in degrees, as they are
-essentially angles.
+essentially angles\&.
 .PP
 \fBZero\fR longitude is the \fIGreenwich meridian\fR, with
 positive values going \fIeast\fR, and negative values going
-\fIwest\fR, for a total range of +/- 180 degrees. Note that +180 and
--180 longitude are the same \fImeridian\fR, opposite to greenwich.
+\fIwest\fR, for a total range of +/- 180 degrees\&. Note that +180 and
+-180 longitude are the same \fImeridian\fR, opposite to greenwich\&.
 .PP
 \fBzero\fR latitude the \fIEquator\fR, with positive values
-going \fInorth\fR and negative values going \fIsouth\fR. While the
+going \fInorth\fR and negative values going \fIsouth\fR\&. While the
 true range is +/- 90 degrees the projection used by the package
-requires us to cap the range at +/- 85.05112877983284 degrees. This
+requires us to cap the range at +/- 85\&.05112877983284 degrees\&. This
 means that north and south pole are not representable and not part of
-any map.
+any map\&.
 .SS TILES
 While \fBGeographic\fRal coordinates of the previous section are
-independent of zoom level the \fItile coordinates\fR are not.
+independent of zoom level the \fItile coordinates\fR are not\&.
 .PP
 Generally the integer part of tile coordinates represent the
 row and column number of the tile in question, wheras the fractional
 parts signal how far inside the tile the location in question is, with
 pure integer coordinates (no fractional part) representing the upper
-left corner of the tile.
+left corner of the tile\&.
 .PP
 The zero point of the map is at the upper left corner,
 regardless of zoom level, with larger coordinates going right (east)
 and down (south), and smaller coordinates going left (west) and up
-(north). Again regardless of zxoom level.
+(north)\&. Again regardless of zxoom level\&.
 .PP
-Negative tile coordinates are not allowed.
+Negative tile coordinates are not allowed\&.
 .PP
 At zoom level 0 the whole map is represented by a single,
 putting the geographic zero at 1/2, 1/2 of tile coordinates, and the
-range of tile coordinates as [0...1].
+range of tile coordinates as [0\&.\&.\&.1]\&.
 .PP
 To go from a zoom level N to the next deeper level N+1 each
 tile of level N is split into its four quadrants, which then are the
-tiles of level N+1.
+tiles of level N+1\&.
 .PP
 This means that at zoom level N the map is sliced (horizontally
 and vertically) into 2^N stripes, for a total of 4^N tiles, with tile
-coordinates ranging from 0 to 2^N+1.
+coordinates ranging from 0 to 2^N+1\&.
 .SS PIXELS/POINTS
 \fIpixel coordinates\fR, also called \fIpoint coordinates\fR are
 in essence \fBtile coordinates\fR scaled by the size of
-the image representing a tile. This tile size currently has a fixed
-value, \fB256\fR.
+the image representing a tile\&. This tile size currently has a fixed
+value, \fB256\fR\&.
 .SH REFERENCES
 .IP [1]
-\fIhttp://wiki.openstreetmap.org/wiki/Main_Page\fR
+\fIhttp://wiki\&.openstreetmap\&.org/wiki/Main_Page\fR
 .PP
 .SH KEYWORDS
 geodesy, geography, latitute, location, longitude, map, slippy, zoom

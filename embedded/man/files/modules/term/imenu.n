@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/term/imenu.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/term/imenu\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,16 +238,16 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "term::interact::menu" n 0.1 tcllib "Terminal control"
+.TH "term::interact::menu" n 0\&.1 tcllib "Terminal control"
 .BS
 .SH NAME
 term::interact::menu \- Terminal widget, menu
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBterm::interact::menu  ?0.1?\fR
+package require \fBterm::interact::menu  ?0\&.1?\fR
 .sp
-\fBterm::interact::menu\fR \fIobject\fR \fIdict\fR ?\fIoptions\fR...?
+\fBterm::interact::menu\fR \fIobject\fR \fIdict\fR ?\fIoptions\fR\&.\&.\&.?
 .sp
 \fIobject\fR \fBinteract\fR
 .sp
@@ -258,27 +259,27 @@ package require \fBterm::interact::menu  ?0.1?\fR
 .sp
 \fIobject\fR \fBconfigure\fR \fIoption\fR
 .sp
-\fIobject\fR \fBconfigure\fR \fIoption\fR \fIvalue\fR...
+\fIobject\fR \fBconfigure\fR \fIoption\fR \fIvalue\fR\&.\&.\&.
 .sp
 \fIobject\fR \fBcget\fR \fIoption\fR
 .sp
 .BE
 .SH DESCRIPTION
 This package provides a class for the creation of a simple menu
-control.
+control\&.
 .SH "CLASS API"
 The package exports a single command, the class command, enabling the
-creation of menu instances. Its API is:
+creation of menu instances\&. Its API is:
 .TP
-\fBterm::interact::menu\fR \fIobject\fR \fIdict\fR ?\fIoptions\fR...?
+\fBterm::interact::menu\fR \fIobject\fR \fIdict\fR ?\fIoptions\fR\&.\&.\&.?
 This command creates a new menu object with the name \fIobject\fR,
 initializes it, and returns the fully qualified name of the object
-command as its result.
+command as its result\&.
 .sp
 The argument is the menu to show, possibly followed by configuration
-options and their values. The options are explained in the section
-\fBConfiguration\fR. The menu is a dictionary maping labels
-to symbolic action codes.
+options and their values\&. The options are explained in the section
+\fBConfiguration\fR\&. The menu is a dictionary maping labels
+to symbolic action codes\&.
 .PP
 .SH "OBJECT API"
 The objects created by the class command provide the methods listed
@@ -286,100 +287,101 @@ below:
 .TP
 \fIobject\fR \fBinteract\fR
 Shows the menu in the screen at the configured location and starts
-interacting with it. This opens its own event loop for the processing
-of incoming characters. The method returns when the interaction has
-completed. See section \fBInteraction\fR for a description of the
-possible interaction.
+interacting with it\&. This opens its own event loop for the processing
+of incoming characters\&. The method returns when the interaction has
+completed\&. See section \fBInteraction\fR for a description of the
+possible interaction\&.
 .sp
 The method returns the symbolic action of the menu item selected by
-the user at the end of the interaction.
+the user at the end of the interaction\&.
 .TP
 \fIobject\fR \fBdone\fR
 This method can be used by user supplied actions to terminate the
-interaction with the object.
+interaction with the object\&.
 .TP
 \fIobject\fR \fBclear\fR
 This method can be used by user supplied actions to remove the menu
-from the terminal.
+from the terminal\&.
 .TP
 \fIobject\fR \fBconfigure\fR
 .TP
 \fIobject\fR \fBconfigure\fR \fIoption\fR
 .TP
-\fIobject\fR \fBconfigure\fR \fIoption\fR \fIvalue\fR...
+\fIobject\fR \fBconfigure\fR \fIoption\fR \fIvalue\fR\&.\&.\&.
 .TP
 \fIobject\fR \fBcget\fR \fIoption\fR
-Standard methods to retrieve and configure the options of the menu.
+Standard methods to retrieve and configure the options of the menu\&.
 .PP
 .SH CONFIGURATION
 A menu instance recognizes the following options:
 .TP
 \fB-in\fR chan
-Specifies the channel to read character sequences from. Defaults to
-\fBstdin\fR.
+Specifies the channel to read character sequences from\&. Defaults to
+\fBstdin\fR\&.
 .TP
 \fB-out\fR chan
-Specifies the channel to write the menu contents to. Defaults to
-\fBstdout\fR.
+Specifies the channel to write the menu contents to\&. Defaults to
+\fBstdout\fR\&.
 .TP
 \fB-column\fR int
 Specifies the column of the terminal where the left margin of the
-menu display should appear. Defaults to 0, i.e. the left-most
-column.
+menu display should appear\&. Defaults to 0, i\&.e\&. the left-most
+column\&.
 .TP
 \fB-line\fR int
 Specifies the line of the terminal where the top margin of the menu
-display should appear. Defaults to 0, i.e. the top-most line.
+display should appear\&. Defaults to 0, i\&.e\&. the top-most line\&.
 .TP
 \fB-height\fR int
 Specifies the number of lines of text to show at most in the
-display. Defaults to 25.
+display\&. Defaults to 25\&.
 .TP
 \fB-actions\fR dict
 Specifies a dictionary containing additional actions, using character
-sequences as keys. Note that these sequences cannot override the
-hardwired sequences described in section \fBInteraction\fR.
+sequences as keys\&. Note that these sequences cannot override the
+hardwired sequences described in section \fBInteraction\fR\&.
 .TP
 \fB-hilitleft\fR int
 .TP
 \fB-hilitright\fR int
 By default the entire selected menu entry is highlighted in revers
-output. However, when present these two options restrict revers dispay
-to the specified sub-range of the entry.
+output\&. However, when present these two options restrict revers dispay
+to the specified sub-range of the entry\&.
 .TP
 \fB-framed\fR bool
 By default the menu is shown using only header and footer out of
-characters box graphics. If this flag is set the menu is fully
-enclosed in a box.
+characters box graphics\&. If this flag is set the menu is fully
+enclosed in a box\&.
 .PP
 .SH INTERACTION
 A menu object recognizes the control sequences listed below and acts
-as described. The user can supply more control sequences to act on via
-the configuration, but is not able to overide these defaults.
+as described\&. The user can supply more control sequences to act on via
+the configuration, but is not able to overide these defaults\&.
 .TP
 Cursor Up
 The selection is moved up one entry, except if the first entry of the
-menu is already selected.
+menu is already selected\&.
 .TP
 Cursor Down
 The selection is moved down one entry, except if the last entry of the
-menu is already selected.
+menu is already selected\&.
 .TP
 Enter/Return
-The interaction with the object is terminated.
+The interaction with the object is terminated\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIterm\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 control, menu, terminal, text display
 .SH CATEGORY
 Terminal control
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

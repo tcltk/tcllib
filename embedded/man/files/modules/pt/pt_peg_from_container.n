@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/pt/pt_peg_from_container.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/pt/pt_peg_from_container\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -240,9 +241,9 @@ Database Class:	\\fB\\$3\\fR
 .TH "pt::peg::from::container" n 0 tcllib "Parser Tools"
 .BS
 .SH NAME
-pt::peg::from::container \- PEG Conversion. From CONTAINER format
+pt::peg::from::container \- PEG Conversion\&. From CONTAINER format
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -250,28 +251,29 @@ package require \fBTcl  8.5\fR
 Are you lost ?
 Do you have trouble understanding this document ?
 In that case please read the overview provided by the
-\fIIntroduction to Parser Tools\fR. This document is the
-entrypoint to the whole system the current package is a part of.
+\fIIntroduction to Parser Tools\fR\&. This document is the
+entrypoint to the whole system the current package is a part of\&.
 .PP
-This package does not exist.
-There is no need for it.
+This package does not exist\&.
+There is no need for it\&.
 The CONTAINER format for parsing expression grammars is a piece of Tcl
 code which, then sourced, provides a class whose instances have the
-grammar we wish to import loaded.
+grammar we wish to import loaded\&.
 Another way of looking at this is, the CONTAINER output is its own
-import package.
+import package\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIpt\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 EBNF, LL(k), PEG, TDPL, context-free languages, expression, grammar, matching, parser, parsing expression, parsing expression grammar, push down automaton, recursive descent, state, top-down parsing languages, transducer
 .SH CATEGORY
 Parsing and Grammars
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

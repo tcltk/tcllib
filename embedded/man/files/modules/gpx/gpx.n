@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/gpx/gpx.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2010, Keith Vetter <kvetter@gmail.com>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/gpx/gpx\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2010, Keith Vetter <kvetter@gmail\&.com>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "gpx" n 0.9 tcllib "GPS eXchange Format (GPX)"
+.TH "gpx" n 0\&.9 tcllib "GPS eXchange Format (GPX)"
 .BS
 .SH NAME
 gpx \- Extracts waypoints, tracks and routes from GPX files
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
-package require \fBgpx  ?0.9?\fR
+package require \fBgpx  ?0\&.9?\fR
 .sp
 \fB::gpx::Create\fR \fIgpxFilename\fR ?\fIrawXML\fR?
 .sp
@@ -272,128 +273,132 @@ package require \fBgpx  ?0.9?\fR
 .SH DESCRIPTION
 .PP
 This module parses and extracts waypoints, tracks, routes and
-metadata from a GPX (GPS eXchange) file. Both GPX version 1.0
-and 1.1 are supported.
+metadata from a GPX (GPS eXchange) file\&. Both GPX version 1\&.0
+and 1\&.1 are supported\&.
 .SH COMMANDS
 .TP
 \fB::gpx::Create\fR \fIgpxFilename\fR ?\fIrawXML\fR?
 The \fB::gpx::Create\fR is the first command called to process GPX
-data. It takes the GPX data from either the \fIrawXML\fR
+data\&. It takes the GPX data from either the \fIrawXML\fR
 parameter if present or from the contents of \fIgpxFilename\fR,
-and parses it using \fItdom\fR. It returns a token value that is used
-by all the other commands.
+and parses it using \fItdom\fR\&. It returns a token value that is used
+by all the other commands\&.
 .TP
 \fB::gpx::Cleanup\fR \fItoken\fR
-This procedure cleans up resources associated with \fItoken\fR.
+This procedure cleans up resources associated with \fItoken\fR\&.
 It is \fIstrongly\fR recommended that you call this
-function after you are done with a given GPX file.
+function after you are done with a given GPX file\&.
 Not doing so will result in memory not being freed, and
 if your app calls \fB::gpx::Create\fR enough times, the
-memory leak could cause a performance hit...or worse.
+memory leak could cause a performance hit\&.\&.\&.or worse\&.
 .TP
 \fB::gpx::GetGPXMetadata\fR \fItoken\fR
 This procedure returns a dictionary of the metadata
-associated with the GPX data identified by \fItoken\fR.
+associated with the GPX data identified by \fItoken\fR\&.
 The format of the metadata dictionary is described
 below, but keys \fIversion\fR and \fIcreator\fR
-will always be present.
+will always be present\&.
 .TP
 \fB::gpx::GetWaypointCount\fR \fItoken\fR
 This procedure returns the number of waypoints defined in the GPX
-data identified by \fItoken\fR.
+data identified by \fItoken\fR\&.
 .TP
 \fB::gpx::GetAllWaypoints\fR \fItoken\fR
 This procedure returns the a list of waypoints defined in the GPX
-data identified by \fItoken\fR. The format of each waypoint item
-is described below.
+data identified by \fItoken\fR\&. The format of each waypoint item
+is described below\&.
 .TP
 \fB::gpx::GetTrackCount\fR \fItoken\fR
 This procedure returns the number of tracks defined in the GPX
-data identified by \fItoken\fR.
+data identified by \fItoken\fR\&.
 .TP
 \fB::gpx::GetTrackMetadata\fR \fItoken\fR \fIwhichTrack\fR
 This procedure returns a dictionary of the metadata
 associated track number \fIwhichTrack\fR (1 based) in
-the GPX data identified by \fItoken\fR.
-The format of the metadata dictionary is described below.
+the GPX data identified by \fItoken\fR\&.
+The format of the metadata dictionary is described below\&.
 .TP
 \fB::gpx::GetTrackPoints\fR \fItoken\fR \fIwhichTrack\fR
 The procedure returns a list of track points comprising track
 number \fIwhichTrack\fR (1 based) in the GPX data identified by
-\fItoken\fR. The format of the metadata dictionary is described below.
+\fItoken\fR\&. The format of the metadata dictionary is described below\&.
 .TP
 \fB::gpx::GetRouteCount\fR \fItoken\fR
 This procedure returns the number of routes defined in the GPX
-data identified by \fItoken\fR.
+data identified by \fItoken\fR\&.
 .TP
 \fB::gpx::GetRouteMetadata\fR \fItoken\fR \fIwhichRoute\fR
 This procedure returns a dictionary of the metadata
 associated route number \fIwhichRoute\fR (1 based) in
-the GPX data identified by \fItoken\fR.
-The format of the metadata dictionary is described below.
+the GPX data identified by \fItoken\fR\&.
+The format of the metadata dictionary is described below\&.
 .TP
 \fB::gpx::GetRoutePoints\fR \fItoken\fR \fIwhichRoute\fR
 The procedure returns a list of route points comprising route
 number \fIwhichRoute\fR (1 based) in the GPX data identified by
-\fItoken\fR. The format of the metadata dictionary is described below.
+\fItoken\fR\&. The format of the metadata dictionary is described below\&.
 .PP
 .SH "DATA STRUCTURES"
 .TP
 metadata dictionary
 The metadata associated with either the GPX document, a
 track, a route, a waypoint, a track point or route
-point is returned in a dictionary. The keys of that
+point is returned in a dictionary\&. The keys of that
 dictionary will be whatever optional GPX elements are
-present. The value for each key depends on the GPX schema
-for that element. For example, the value for a version
+present\&. The value for each key depends on the GPX schema
+for that element\&. For example, the value for a version
 key will be a string, while for a link key will be
 a sub-dictionary with keys \fIhref\fR and optionally
-\fItext\fR and \fItype\fR.
+\fItext\fR and \fItype\fR\&.
 .TP
 point item
 Each item in a track or route list of points consists of
 a list of three elements: \fIlatitude\fR, \fIlongitude\fR and
-\fImetadata dictionary\fR. \fILatitude\fR and \fIlongitude\fR
-are decimal numbers. The \fImetadata dictionary\fR format is
-described above. For points in a track, typically there will
-always be ele (elevation) and time metadata keys.
+\fImetadata dictionary\fR\&. \fILatitude\fR and \fIlongitude\fR
+are decimal numbers\&. The \fImetadata dictionary\fR format is
+described above\&. For points in a track, typically there will
+always be ele (elevation) and time metadata keys\&.
 .PP
 .SH EXAMPLE
 .CS
-% set token [::gpx::Create myGpxFile.gpx]
+
+
+% set token [::gpx::Create myGpxFile\&.gpx]
 % set version [dict get [::gpx::GetGPXMetadata $token] version]
 % set trackCnt [::gpx::GetTrackCount $token]
 % set firstPoint [lindex [::gpx::GetTrackPoints $token 1] 0]
 % lassign $firstPoint lat lon ptMetadata
 % puts "first point in the first track is at $lat, $lon"
 % if {[dict exists $ptMetadata ele]} {
-puts "at elevation [dict get $ptMetadata ele] meters"
-}
+     puts "at elevation [dict get $ptMetadata ele] meters"
+  }
 % ::gpx::Cleanup $token
+
 .CE
 .SH REFERENCES
 .IP [1]
 GPX: the GPS Exchange Format
-(\fIhttp://www.topografix.com/gpx.asp\fR)
+(\fIhttp://www\&.topografix\&.com/gpx\&.asp\fR)
 .IP [2]
-GPX 1.1 Schema Documentation (\fIhttp://www.topografix.com/GPX/1/1/\fR)
+GPX 1\&.1 Schema Documentation (\fIhttp://www\&.topografix\&.com/GPX/1/1/\fR)
 .IP [3]
-GPX 1.0 Developer's Manual (\fIhttp://www.topografix.com/gpx_manual.asp\fR)
+GPX 1\&.0 Developer's Manual (\fIhttp://www\&.topografix\&.com/gpx_manual\&.asp\fR)
 .PP
 .SH AUTHOR
 Keith Vetter
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIgpx\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 gps, gpx
 .SH CATEGORY
 File formats
 .SH COPYRIGHT
 .nf
-Copyright (c) 2010, Keith Vetter <kvetter@gmail.com>
+Copyright (c) 2010, Keith Vetter <kvetter@gmail\&.com>
+
 .fi

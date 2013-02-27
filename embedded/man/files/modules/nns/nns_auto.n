@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/nns/nns_auto.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/nns/nns_auto\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,96 +238,96 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "nameserv::auto" n 0.3 tcllib "Name service facility"
+.TH "nameserv::auto" n 0\&.3 tcllib "Name service facility"
 .BS
 .SH NAME
 nameserv::auto \- Name service facility, Client Extension
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBnameserv::auto  ?0.3?\fR
+package require \fBnameserv::auto  ?0\&.3?\fR
 .sp
 package require \fBnameserv \fR
 .sp
 .BE
 .SH DESCRIPTION
 Please read the document \fIName service facility, introduction\fR
-first.
+first\&.
 .PP
 This package provides the \fIexact\fR same API as is provided by
-package \fBnameserv\fR, i.e the regular name service client. It
+package \fBnameserv\fR, i\&.e the regular name service client\&. It
 differs from the former by taking measures to ensure that longer-lived
-data, i.e. bound names, continuous and unfulfilled async searches,
+data, i\&.e\&. bound names, continuous and unfulfilled async searches,
 survive the loss of the connection to the name server as much as is
-possible.
+possible\&.
 .PP
 This means that the bound names and continuous and unfulfilled async
 searches are remembered client-side and automatically re-entered into
-the server when the connection comes back after its loss. For bound
+the server when the connection comes back after its loss\&. For bound
 names there is one important limitation to such restoration: It is
 possible that a name of this client was bound by a different client
-while the connection was gone. Such names are fully lost, and the best
-the package can and will do is to inform the user of this.
+while the connection was gone\&. Such names are fully lost, and the best
+the package can and will do is to inform the user of this\&.
 .SH API
 The user-visible API is mainly identical the API of \fBnameserv\fR
-and is therefore not described here. Please read the documentation of
-\fBnameserv\fR.
+and is therefore not described here\&. Please read the documentation of
+\fBnameserv\fR\&.
 .PP
 The differences are explained in the sections \fBOPTIONS\fR and
-\fBEVENTS\fR.
+\fBEVENTS\fR\&.
 .SH OPTIONS
 This package supports all the option of package \fBnameserv\fR,
-and one more. The additional option allows the user to specifies the
-time interval between attempts to restore a lost connection.
+and one more\&. The additional option allows the user to specifies the
+time interval between attempts to restore a lost connection\&.
 .TP
 \fB-delay\fR \fImilliseconds\fR
 The value of this option is an integer value > 0 which specifies the
 interval to wait between attempts to restore a lost connection, in
-milliseconds. The default value is \fB1000\fR, i.e. one second.
+milliseconds\&. The default value is \fB1000\fR, i\&.e\&. one second\&.
 .PP
 .SH EVENTS
 This package generates all of the events of package \fBnameserv\fR,
-and two more. Both events are generated for the tag \fInameserv\fR.
+and two more\&. Both events are generated for the tag \fInameserv\fR\&.
 .TP
 \fIlost-name\fR
-This event is generated when a bound name is truly lost, i.e. could
+This event is generated when a bound name is truly lost, i\&.e\&. could
 not be restored after the temporary loss of the connection to the name
-server. It indicates that a different client took ownership of the
-name while this client was out of contact.
+server\&. It indicates that a different client took ownership of the
+name while this client was out of contact\&.
 .sp
 The detail information of the event will be a Tcl dictionary
-containing two keys, \fBname\fR, and \fBdata\fR. Their values hold
-all the information about the lost name.
+containing two keys, \fBname\fR, and \fBdata\fR\&. Their values hold
+all the information about the lost name\&.
 .TP
 \fIre-connection\fR
 This event is generated when the connection to the server is
-restored. The remembered data has been restored when the event is
-posted.
+restored\&. The remembered data has been restored when the event is
+posted\&.
 .sp
-The event has no detail information.
+The event has no detail information\&.
 .PP
 .SH DESIGN
 The package is implemented on top of the regular nameservice client,
-i.e.  package \fBnameserv\fR. It detects the loss of the
+i\&.e\&.  package \fBnameserv\fR\&. It detects the loss of the
 connection by listening for \fIlost-connection\fR events, on the tag
-\fInameserv\fR.
+\fInameserv\fR\&.
 .PP
 It reacts to such events by starting a periodic timer and trying to
-reconnect to the server whenver this timer triggers. On success the
+reconnect to the server whenver this timer triggers\&. On success the
 timer is canceled, a \fIre-connection\fR event generated, and the
 package proceeds to re-enter the remembered bound names and continous
-searches.
+searches\&.
 .PP
 Another loss of the connection, be it during or after re-entering the
 remembered information simply restarts the timer and subsequent
-reconnection attempts.
+reconnection attempts\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fInameserv\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 nameserv(n)
 .SH KEYWORDS
@@ -335,5 +336,6 @@ automatic, client, name service, reconnect, restore
 Networking
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

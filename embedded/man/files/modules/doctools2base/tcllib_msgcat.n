@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/doctools2base/tcllib_msgcat.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/doctools2base/tcllib_msgcat\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,16 +238,16 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "doctools::msgcat" n 0.1 tcllib "Documentation tools"
+.TH "doctools::msgcat" n 0\&.1 tcllib "Documentation tools"
 .BS
 .SH NAME
 doctools::msgcat \- Message catalog management for the various document parsers
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
 package require \fBmsgcat \fR
 .sp
-package require \fBdoctools::msgcat  ?0.1?\fR
+package require \fBdoctools::msgcat  ?0\&.1?\fR
 .sp
 \fB::doctools::msgcat::init\fR \fIprefix\fR
 .sp
@@ -254,9 +255,9 @@ package require \fBdoctools::msgcat  ?0.1?\fR
 .SH DESCRIPTION
 The package \fBdoctools::msgcat\fR is a support module handling
 the selection of message catalogs for the various document processing
-packages in the doctools system version 2. As such it is an internal
+packages in the doctools system version 2\&. As such it is an internal
 package a regular user (developer) should not be in direct contact
-with.
+with\&.
 .PP
 If you are such please go the documentation of either
 .IP [1]
@@ -268,34 +269,35 @@ If you are such please go the documentation of either
 .PP
 .PP
 Within the system architecture this package resides under the various
-parser packages, and is shared by them. Underneath it, but not
+parser packages, and is shared by them\&. Underneath it, but not
 explicit dependencies, are the packages providing the message catalogs
-for the various languages.
+for the various languages\&.
 .SH API
 .TP
 \fB::doctools::msgcat::init\fR \fIprefix\fR
 The command locates and loads the message catalogs for all the
 languages returned by \fBmsgcat::mcpreferences\fR, provided that they
-could be found. It returns an integer number describing how many
-packages were found and loaded.
+could be found\&. It returns an integer number describing how many
+packages were found and loaded\&.
 .sp
 The names of the packages the command will look for have the form
 "doctools::msgcat::\fIprefix\fR::\fBlangcode\fR", with \fIprefix\fR
 the argument to the command, and the \fBlangcode\fR supplied by the
-result of \fBmsgcat::mcpreferences\fR.
+result of \fBmsgcat::mcpreferences\fR\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 catalog package, docidx, doctoc, doctools, i18n, internationalization, l10n, localization, message catalog, message package
 .SH CATEGORY
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/page/page_intro.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/page/page_intro\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,7 +238,7 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "page_intro" n 1.0 tcllib "Parser generator tools"
+.TH "page_intro" n 1\&.0 tcllib "Parser generator tools"
 .BS
 .SH NAME
 page_intro \- page introduction
@@ -245,29 +246,30 @@ page_intro \- page introduction
 .PP
 \fIpage\fR (short for \fIparser generator\fR) stands for a set of
 related packages which help in the construction of parser generators,
-and other utilities doing text processing.
+and other utilities doing text processing\&.
 .PP
 They are mainly geared towards supporting the Tcllib application
 \fBpage\fR, with the package \fBpage::pluginmgr\fR in a central
-role as the plugin management for the application. The other packages
+role as the plugin management for the application\&. The other packages
 are performing low-level text processing and utility tasks geared
 towards parser generation and mainly accessed by \fBpage\fR through
-plugins.
+plugins\&.
 .PP
 The packages implementing the plugins are not documented as regular
 packages, as they cannot be loaded into a general interpreter, like
-tclsh, without extensive preparation of the interpreter. Preparation
-which is done for them by the plugin manager.
+tclsh, without extensive preparation of the interpreter\&. Preparation
+which is done for them by the plugin manager\&.
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems.
+This document, will undoubtedly contain bugs and other problems\&.
 Please report such in the category \fIpage\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
-Please also report any ideas for enhancements you may have.
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+Please also report any ideas for enhancements you may have\&.
 .SH KEYWORDS
 page, parser generator, text processing
 .SH CATEGORY
 Page Parser Generator
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/base64/ascii85.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/base64/ascii85\&.n' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2010, Emiliano Gavilán
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "ascii85" n 1.0 tcllib "Text encoding & decoding binary data"
+.TH "ascii85" n 1\&.0 tcllib "Text encoding & decoding binary data"
 .BS
 .SH NAME
 ascii85 \- ascii85-encode/decode binary data
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBascii85  ?1.0?\fR
+package require \fBascii85  ?1\&.0?\fR
 .sp
 \fB::ascii85::encode\fR ?\fB-maxlen\fR \fImaxlen\fR? ?\fB-wrapchar\fR \fIwrapchar\fR? \fIstring\fR
 .sp
@@ -253,58 +254,67 @@ package require \fBascii85  ?1.0?\fR
 .BE
 .SH DESCRIPTION
 .PP
-This package provides procedures to encode binary data into ascii85 and back.
+This package provides procedures to encode binary data into ascii85 and back\&.
 .TP
 \fB::ascii85::encode\fR ?\fB-maxlen\fR \fImaxlen\fR? ?\fB-wrapchar\fR \fIwrapchar\fR? \fIstring\fR
 Ascii85 encodes the given binary \fIstring\fR and returns the encoded
-result. Inserts the character \fIwrapchar\fR every \fImaxlen\fR
-characters of output. \fIwrapchar\fR defaults to newline. \fImaxlen\fR
-defaults to \fB76\fR.
+result\&. Inserts the character \fIwrapchar\fR every \fImaxlen\fR
+characters of output\&. \fIwrapchar\fR defaults to newline\&. \fImaxlen\fR
+defaults to \fB76\fR\&.
 .sp
 \fINote well\fR: If your string is not simple ascii you should fix
-the string encoding before doing ascii85 encoding. See the examples.
+the string encoding before doing ascii85 encoding\&. See the examples\&.
 .sp
 The command will throw an error for negative values of \fImaxlen\fR,
-or if \fImaxlen\fR is not an integer number.
+or if \fImaxlen\fR is not an integer number\&.
 .TP
 \fB::ascii85::decode\fR \fIstring\fR
-Ascii85 decodes the given \fIstring\fR and returns the binary data.
+Ascii85 decodes the given \fIstring\fR and returns the binary data\&.
 The decoder ignores whitespace in the string, as well as tabs and
-newlines.
+newlines\&.
 .PP
 .SH EXAMPLES
 .CS
+
+
 % ascii85::encode "Hello, world"
 87cURD_*#TDfTZ)
+
 .CE
 .CS
+
+
 % ascii85::encode [string repeat xyz 24]
 G^4U[H$X^\\H?a^]G^4U[H$X^\\H?a^]G^4U[H$X^\\H?a^]G^4U[H$X^\\H?a^]G^4U[H$X^\\H?a^]G
 ^4U[H$X^\\H?a^]
 % ascii85::encode -wrapchar "" [string repeat xyz 24]
 G^4U[H$X^\\H?a^]G^4U[H$X^\\H?a^]G^4U[H$X^\\H?a^]G^4U[H$X^\\H?a^]G^4U[H$X^\\H?a^]G^4U[H$X^\\H?a^]
+
 .CE
 .CS
-# NOTE: ascii85 encodes BINARY strings.
+
+
+# NOTE: ascii85 encodes BINARY strings\&.
 % set chemical [encoding convertto utf-8 "C\\u2088H\\u2081\\u2080N\\u2084O\\u2082"]
 % set encoded [ascii85::encode $chemical]
 6fN]R8E,5Pidu\\UiduhZidua
 % set caffeine [encoding convertfrom utf-8 [ascii85::decode $encoded]]
+
 .CE
 .SH REFERENCES
 .IP [1]
-\fIhttp://en.wikipedia.org/wiki/Ascii85\fR
+\fIhttp://en\&.wikipedia\&.org/wiki/Ascii85\fR
 .IP [2]
-Postscript Language Reference Manual, 3rd Edition, page 131.
-\fIhttp://www.adobe.com/devnet/postscript/pdfs/PLRM.pdf\fR
+Postscript Language Reference Manual, 3rd Edition, page 131\&.
+\fIhttp://www\&.adobe\&.com/devnet/postscript/pdfs/PLRM\&.pdf\fR
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIbase64\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 ascii85, encoding
 .SH CATEGORY
@@ -312,4 +322,5 @@ Text processing
 .SH COPYRIGHT
 .nf
 Copyright (c) 2010, Emiliano Gavilán
+
 .fi

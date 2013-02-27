@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/control/control.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/control/control\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,87 +237,89 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "control" n 0.1.3 tcllib "Tcl Control Flow Commands"
+.TH "control" n 0\&.1\&.3 tcllib "Tcl Control Flow Commands"
 .BS
 .SH NAME
-control \- Procedures for control flow structures.
+control \- Procedures for control flow structures\&.
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBcontrol  ?0.1.3?\fR
+package require \fBcontrol  ?0\&.1\&.3?\fR
 .sp
-\fBcontrol::control\fR \fIcommand\fR \fIoption\fR ?\fIarg arg ...\fR?
+\fBcontrol::control\fR \fIcommand\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp
-\fBcontrol::assert\fR \fIexpr\fR ?\fIarg arg ...\fR?
+\fBcontrol::assert\fR \fIexpr\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp
 \fBcontrol::do\fR \fIbody\fR ?\fIoption test\fR?
 .sp
-\fBcontrol::no-op\fR ?\fIarg arg ...\fR?
+\fBcontrol::no-op\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp
 .BE
 .SH DESCRIPTION
 .PP
 The \fBcontrol\fR package provides a variety of commands that provide
 additional flow of control structures beyond the built-in ones
-provided by Tcl.  These are commands that in many programming
+provided by Tcl\&.  These are commands that in many programming
 languages might be considered \fIkeywords\fR, or a part of the
-language itself.  In Tcl, control flow structures are just commands
-like everything else.
+language itself\&.  In Tcl, control flow structures are just commands
+like everything else\&.
 .SH COMMANDS
 .TP
-\fBcontrol::control\fR \fIcommand\fR \fIoption\fR ?\fIarg arg ...\fR?
+\fBcontrol::control\fR \fIcommand\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
 The \fBcontrol\fR command is used as a configuration command for
-customizing the other public commands of the control package.  The
-\fIcommand\fR argument names the command to be customized.  The set of
+customizing the other public commands of the control package\&.  The
+\fIcommand\fR argument names the command to be customized\&.  The set of
 valid \fIoption\fR and subsequent arguments are determined by the
-command being customized, and are documented with the command.
+command being customized, and are documented with the command\&.
 .TP
-\fBcontrol::assert\fR \fIexpr\fR ?\fIarg arg ...\fR?
+\fBcontrol::assert\fR \fIexpr\fR ?\fIarg arg \&.\&.\&.\fR?
 When disabled, the \fBassert\fR command behaves exactly like the
-\fBno-op\fR command.
+\fBno-op\fR command\&.
 .sp
 When enabled, the \fBassert\fR command evaluates \fIexpr\fR as an
-expression (in the same way that \fBexpr\fR evaluates its argument).
+expression (in the same way that \fBexpr\fR evaluates its argument)\&.
 If evaluation reveals that \fIexpr\fR is not a valid boolean
 expression (according to [\fBstring is boolean -strict\fR]),
-an error is raised.  If \fIexpr\fR evaluates to a true boolean value
+an error is raised\&.  If \fIexpr\fR evaluates to a true boolean value
 (as recognized by \fBif\fR), then \fBassert\fR returns an empty
-string.  Otherwise, the remaining arguments to \fBassert\fR are used
-to construct a message string.  If there are no arguments, the message
-string is "assertion failed: $expr".  If there are arguments, they are
-joined by \fBjoin\fR to form the message string.  The message string
+string\&.  Otherwise, the remaining arguments to \fBassert\fR are used
+to construct a message string\&.  If there are no arguments, the message
+string is "assertion failed: $expr"\&.  If there are arguments, they are
+joined by \fBjoin\fR to form the message string\&.  The message string
 is then appended as an argument to a callback command, and the
-completed callback command is evaluated in the global namespace.
+completed callback command is evaluated in the global namespace\&.
 .sp
 The \fBassert\fR command can be customized by the \fBcontrol\fR
 command in two ways:
 .sp
 [\fBcontrol::control assert enabled\fR ?\fIboolean\fR?]
-queries or sets whether \fBcontrol::assert\fR is enabled.  When called
+queries or sets whether \fBcontrol::assert\fR is enabled\&.  When called
 without a \fIboolean\fR argument, a boolean value is returned
-indicating whether the \fBcontrol::assert\fR command is enabled.  When
+indicating whether the \fBcontrol::assert\fR command is enabled\&.  When
 called with a valid boolean value as the \fIboolean\fR argument, the
 \fBcontrol::assert\fR command is enabled or disabled to match the
-argument, and an empty string is returned.
+argument, and an empty string is returned\&.
 .sp
 [\fBcontrol::control assert callback\fR ?\fIcommand\fR?]
 queries or sets the callback command that will be called by an enabled
-\fBassert\fR on assertion failure.  When called without a
-\fIcommand\fR argument, the current callback command is returned.
+\fBassert\fR on assertion failure\&.  When called without a
+\fIcommand\fR argument, the current callback command is returned\&.
 When called with a \fIcommand\fR argument, that argument becomes the
-new assertion failure callback command.  Note that an assertion
+new assertion failure callback command\&.  Note that an assertion
 failure callback command is always defined, even when \fBassert\fR
-is disabled.  The default callback command is
-[\fBreturn -code error\fR].
+is disabled\&.  The default callback command is
+[\fBreturn -code error\fR]\&.
 .sp
 Note that \fBcontrol::assert\fR has been written so that in
 combination with [\fBnamespace import\fR], it is possible to
 use enabled \fBassert\fR commands in some namespaces and disabled
-\fBassert\fR commands in other namespaces at the same time.  This
+\fBassert\fR commands in other namespaces at the same time\&.  This
 capability is useful so that debugging efforts can be independently
-controlled module by module.
+controlled module by module\&.
 .sp
 .CS
+
+
 % package require control
 % control::control assert enabled 1
 % namespace eval one namespace import ::control::assert
@@ -325,37 +328,40 @@ controlled module by module.
 % one::assert {1 == 0}
 assertion failed: 1 == 0
 % two::assert {1 == 0}
+
 .CE
 .TP
 \fBcontrol::do\fR \fIbody\fR ?\fIoption test\fR?
 The \fBdo\fR command evaluates the script \fIbody\fR repeatedly
 \fIuntil\fR the expression \fItest\fR becomes true or as long as
 (\fIwhile\fR) \fItest\fR is true, depending on the value of
-\fIoption\fR being \fBuntil\fR or \fBwhile\fR. If
+\fIoption\fR being \fBuntil\fR or \fBwhile\fR\&. If
 \fIoption\fR and \fItest\fR are omitted the body is evaluated exactly
-once. After normal completion, \fBdo\fR returns an empty string.
+once\&. After normal completion, \fBdo\fR returns an empty string\&.
 Exceptional return codes (\fBbreak\fR, \fBcontinue\fR, \fBerror\fR,
-etc.) during the evaluation of \fIbody\fR are handled in the same way
+etc\&.) during the evaluation of \fIbody\fR are handled in the same way
 the \fBwhile\fR command handles them, except as noted in
-\fBLIMITATIONS\fR, below.
+\fBLIMITATIONS\fR, below\&.
 .TP
-\fBcontrol::no-op\fR ?\fIarg arg ...\fR?
+\fBcontrol::no-op\fR ?\fIarg arg \&.\&.\&.\fR?
 The \fBno-op\fR command takes any number of arguments and does
-nothing.  It returns an empty string.
+nothing\&.  It returns an empty string\&.
 .PP
 .SH LIMITATIONS
 Several of the commands provided by the \fBcontrol\fR package accept
-arguments that are scripts to be evaluated.  Due to fundamental
+arguments that are scripts to be evaluated\&.  Due to fundamental
 limitations of Tcl's \fBcatch\fR and \fBreturn\fR commands, it is not
 possible for these commands to properly evaluate the command
 [\fBreturn -code $code\fR] within one of those script
-arguments for any value of \fI$code\fR other than \fIok\fR.  In this
+arguments for any value of \fI$code\fR other than \fIok\fR\&.  In this
 way, the commands of the \fBcontrol\fR package are limited as compared
 to Tcl's built-in control flow commands (such as \fBif\fR,
-\fBwhile\fR, etc.) and those control flow commands that can be
-provided by packages coded in C.  An example of this difference:
+\fBwhile\fR, etc\&.) and those control flow commands that can be
+provided by packages coded in C\&.  An example of this difference:
 .PP
 .CS
+
+
 % package require control
 % proc a {} {while 1 {return -code error a}}
 % proc b {} {control::do {return -code error b} while 1}
@@ -363,14 +369,15 @@ provided by packages coded in C.  An example of this difference:
 1
 % catch b
 0
+
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIcontrol\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 break, continue, expr, if, join, namespace, return, string, while
 .SH KEYWORDS

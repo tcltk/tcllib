@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/math/math.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/math\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,41 +237,41 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "math" n 1.2.5 tcllib "Tcl Math Library"
+.TH "math" n 1\&.2\&.5 tcllib "Tcl Math Library"
 .BS
 .SH NAME
 math \- Tcl Math Library
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBmath  ?1.2.5?\fR
+package require \fBmath  ?1\&.2\&.5?\fR
 .sp
-\fB::math::cov\fR \fIvalue\fR \fIvalue\fR ?\fIvalue ...\fR?
+\fB::math::cov\fR \fIvalue\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
 .sp
 \fB::math::integrate\fR \fIlist of xy value pairs\fR
 .sp
 \fB::math::fibonacci\fR \fIn\fR
 .sp
-\fB::math::max\fR \fIvalue\fR ?\fIvalue ...\fR?
+\fB::math::max\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
 .sp
-\fB::math::mean\fR \fIvalue\fR ?\fIvalue ...\fR?
+\fB::math::mean\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
 .sp
-\fB::math::min\fR \fIvalue\fR ?\fIvalue ...\fR?
+\fB::math::min\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
 .sp
-\fB::math::product\fR \fIvalue\fR ?\fIvalue ...\fR?
+\fB::math::product\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
 .sp
 \fB::math::random\fR ?\fIvalue1\fR? ?\fIvalue2\fR?
 .sp
-\fB::math::sigma\fR \fIvalue\fR \fIvalue\fR ?\fIvalue ...\fR?
+\fB::math::sigma\fR \fIvalue\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
 .sp
-\fB::math::stats\fR \fIvalue\fR \fIvalue\fR ?\fIvalue ...\fR?
+\fB::math::stats\fR \fIvalue\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
 .sp
-\fB::math::sum\fR \fIvalue\fR ?\fIvalue ...\fR?
+\fB::math::sum\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
 .sp
 .BE
 .SH DESCRIPTION
 .PP
-The \fBmath\fR package provides utility math functions.
+The \fBmath\fR package provides utility math functions\&.
 .PP
 Besides a set of basic commands, available via the package \fImath\fR,
 there are more specialised packages:
@@ -321,54 +322,54 @@ mathematical physics
 .PP
 .SH "BASIC COMMANDS"
 .TP
-\fB::math::cov\fR \fIvalue\fR \fIvalue\fR ?\fIvalue ...\fR?
+\fB::math::cov\fR \fIvalue\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
 Return the coefficient of variation expressed as percent of two or
-more numeric values.
+more numeric values\&.
 .TP
 \fB::math::integrate\fR \fIlist of xy value pairs\fR
 Return the area under a "curve" defined by a set of x,y pairs and the
-error bound as a list.
+error bound as a list\&.
 .TP
 \fB::math::fibonacci\fR \fIn\fR
-Return the \fIn\fR'th Fibonacci number.
+Return the \fIn\fR'th Fibonacci number\&.
 .TP
-\fB::math::max\fR \fIvalue\fR ?\fIvalue ...\fR?
-Return the maximum of one or more numeric values.
+\fB::math::max\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
+Return the maximum of one or more numeric values\&.
 .TP
-\fB::math::mean\fR \fIvalue\fR ?\fIvalue ...\fR?
-Return the mean, or "average" of one or more numeric values.
+\fB::math::mean\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
+Return the mean, or "average" of one or more numeric values\&.
 .TP
-\fB::math::min\fR \fIvalue\fR ?\fIvalue ...\fR?
-Return the minimum of one or more numeric values.
+\fB::math::min\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
+Return the minimum of one or more numeric values\&.
 .TP
-\fB::math::product\fR \fIvalue\fR ?\fIvalue ...\fR?
-Return the product of one or more numeric values.
+\fB::math::product\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
+Return the product of one or more numeric values\&.
 .TP
 \fB::math::random\fR ?\fIvalue1\fR? ?\fIvalue2\fR?
-Return a random number.  If no arguments are given, the number is a
-floating point value between 0 and 1.  If one argument is given, the
-number is an integer value between 0 and \fIvalue1\fR.  If two
+Return a random number\&.  If no arguments are given, the number is a
+floating point value between 0 and 1\&.  If one argument is given, the
+number is an integer value between 0 and \fIvalue1\fR\&.  If two
 arguments are given, the number is an integer value between
-\fIvalue1\fR and \fIvalue2\fR.
+\fIvalue1\fR and \fIvalue2\fR\&.
 .TP
-\fB::math::sigma\fR \fIvalue\fR \fIvalue\fR ?\fIvalue ...\fR?
+\fB::math::sigma\fR \fIvalue\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
 Return the population standard deviation of two or more numeric
-values.
+values\&.
 .TP
-\fB::math::stats\fR \fIvalue\fR \fIvalue\fR ?\fIvalue ...\fR?
+\fB::math::stats\fR \fIvalue\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
 Return the mean, standard deviation, and coefficient of variation (as
-percent) as a list.
+percent) as a list\&.
 .TP
-\fB::math::sum\fR \fIvalue\fR ?\fIvalue ...\fR?
-Return the sum of one or more numeric values.
+\fB::math::sum\fR \fIvalue\fR ?\fIvalue \&.\&.\&.\fR?
+Return the sum of one or more numeric values\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fImath\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 math, statistics
 .SH CATEGORY

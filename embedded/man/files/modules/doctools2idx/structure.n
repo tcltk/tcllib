@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/doctools2idx/structure.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/doctools2idx/structure\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "doctools::idx::structure" n 0.1 tcllib "Documentation tools"
+.TH "doctools::idx::structure" n 0\&.1 tcllib "Documentation tools"
 .BS
 .SH NAME
 doctools::idx::structure \- Docidx serialization utilities
 .SH SYNOPSIS
-package require \fBdoctools::idx::structure  ?0.1?\fR
+package require \fBdoctools::idx::structure  ?0\&.1?\fR
 .sp
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
 package require \fBlogger \fR
 .sp
@@ -264,127 +265,127 @@ package require \fBsnit \fR
 .SH DESCRIPTION
 This package provides commands to work with the serializations of
 keyword indices as managed by the doctools system v2, and specified in
-section \fBKeyword index serialization format\fR.
+section \fBKeyword index serialization format\fR\&.
 .PP
 This is an internal package of doctools, for use by the higher level
 packages handling keyword indices and their conversion into and out of
 various other formats, like documents written using \fIdocidx\fR
-markup.
+markup\&.
 .SH API
 .TP
 \fB::doctools::idx::structure\fR \fBverify\fR \fIserial\fR ?\fIcanonvar\fR?
 This command verifies that the content of \fIserial\fR is a valid
 \fIregular\fR serialization of a keyword index and will throw an
-error if that is not the case. The result of the command is the empty
-string.
+error if that is not the case\&. The result of the command is the empty
+string\&.
 .sp
 If the argument \fIcanonvar\fR is specified it is interpreted as the
-name of a variable in the calling context. This variable will be
+name of a variable in the calling context\&. This variable will be
 written to if and only if \fIserial\fR is a valid regular
-serialization. Its value will be a boolean, with \fBTrue\fR
+serialization\&. Its value will be a boolean, with \fBTrue\fR
 indicating that the serialization is not only valid, but also
-\fIcanonical\fR. \fBFalse\fR will be written for a valid, but
-non-canonical serialization.
+\fIcanonical\fR\&. \fBFalse\fR will be written for a valid, but
+non-canonical serialization\&.
 .sp
 For the specification of regular and canonical keyword index
 serializations see the section
-\fBKeyword index serialization format\fR.
+\fBKeyword index serialization format\fR\&.
 .TP
 \fB::doctools::idx::structure\fR \fBverify-as-canonical\fR \fIserial\fR
 This command verifies that the content of \fIserial\fR is a valid
 \fIcanonical\fR serialization of a keyword index and will throw an
-error if that is not the case. The result of the command is the empty
-string.
+error if that is not the case\&. The result of the command is the empty
+string\&.
 .sp
 For the specification of canonical keyword index serializations see
-the section \fBKeyword index serialization format\fR.
+the section \fBKeyword index serialization format\fR\&.
 .TP
 \fB::doctools::idx::structure\fR \fBcanonicalize\fR \fIserial\fR
 This command assumes that the content of \fIserial\fR is a valid
 \fIregular\fR serialization of a keyword index and will throw an
-error if that is not the case.
+error if that is not the case\&.
 .sp
 It will then convert the input into the \fIcanonical\fR serialization
-of the contained keyword index and return it as its result. If the
-input is already canonical it will be returned unchanged.
+of the contained keyword index and return it as its result\&. If the
+input is already canonical it will be returned unchanged\&.
 .sp
 For the specification of regular and canonical keyword index
 serializations see the section
-\fBKeyword index serialization format\fR.
+\fBKeyword index serialization format\fR\&.
 .TP
 \fB::doctools::idx::structure\fR \fBprint\fR \fIserial\fR
 This command assumes that the argument \fIserial\fR contains a valid
 regular serialization of a keyword index and returns a string
-containing that index in a human readable form.
+containing that index in a human readable form\&.
 .sp
 The exact format of this form is not specified and cannot be relied on
-for parsing or other machine-based activities.
+for parsing or other machine-based activities\&.
 .sp
 For the specification of regular keyword index serializations see the
-section \fBKeyword index serialization format\fR.
+section \fBKeyword index serialization format\fR\&.
 .TP
 \fB::doctools::idx::structure\fR \fBmerge\fR \fIseriala\fR \fIserialb\fR
 This command accepts the regular serializations of two keyword indices
-and uses them to create their union.  The result of the command is the
-canonical serialization of this unified keyword index.
+and uses them to create their union\&.  The result of the command is the
+canonical serialization of this unified keyword index\&.
 .sp
 Title and label of the resulting index are taken from the index
-contained in \fIserialb\fR. The set of keys, references and their
+contained in \fIserialb\fR\&. The set of keys, references and their
 connections is the union of the set of keys and references of the two
-inputs.
+inputs\&.
 .sp
 For the specification of regular and canonical keyword index
 serializations see the section
-\fBKeyword index serialization format\fR.
+\fBKeyword index serialization format\fR\&.
 .PP
 .SH "KEYWORD INDEX SERIALIZATION FORMAT"
 Here we specify the format used by the doctools v2 packages to
 serialize keyword indices as immutable values for transport,
-comparison, etc.
+comparison, etc\&.
 .PP
 We distinguish between \fIregular\fR and \fIcanonical\fR
-serializations. While a keyword index may have more than one regular
-serialization only exactly one of them will be \fIcanonical\fR.
+serializations\&. While a keyword index may have more than one regular
+serialization only exactly one of them will be \fIcanonical\fR\&.
 .PP
 .TP
 regular serialization
 .RS
 .IP [1]
-An index serialization is a nested Tcl dictionary.
+An index serialization is a nested Tcl dictionary\&.
 .IP [2]
 This dictionary holds a single key, \fBdoctools::idx\fR, and its
-value. This value holds the contents of the index.
+value\&. This value holds the contents of the index\&.
 .IP [3]
 The contents of the index are a Tcl dictionary holding the title of
-the index, a label, and the keywords and references. The relevant keys
+the index, a label, and the keywords and references\&. The relevant keys
 and their values are
 .RS
 .TP
 \fBtitle\fR
-The value is a string containing the title of the index.
+The value is a string containing the title of the index\&.
 .TP
 \fBlabel\fR
-The value is a string containing a label for the index.
+The value is a string containing a label for the index\&.
 .TP
 \fBkeywords\fR
 The value is a Tcl dictionary, using the keywords known to the index
-as keys. The associated values are lists containing the identifiers of
-the references associated with that particular keyword.
+as keys\&. The associated values are lists containing the identifiers of
+the references associated with that particular keyword\&.
 .sp
 Any reference identifier used in these lists has to exist as a key in
 the \fBreferences\fR dictionary, see the next item for its
-definition.
+definition\&.
 .TP
 \fBreferences\fR
 The value is a Tcl dictionary, using the identifiers for the
-references known to the index as keys. The associated values are
+references known to the index as keys\&. The associated values are
 2-element lists containing the type and label of the reference, in
-this order.
+this order\&.
 .sp
 Any key here has to be associated with at least one keyword,
-i.e. occur in at least one of the reference lists which are the values
+i\&.e\&. occur in at least one of the reference lists which are the values
 in the \fBkeywords\fR dictionary, see previous item for its
-definition.
+definition\&.
 .RE
 .IP [4]
 The \fItype\fR of a reference can be one of two values,
@@ -392,11 +393,11 @@ The \fItype\fR of a reference can be one of two values,
 .TP
 \fBmanpage\fR
 The identifier of the reference is interpreted as symbolic file name,
-refering to one of the documents the index was made for.
+refering to one of the documents the index was made for\&.
 .TP
 \fBurl\fR
 The identifier of the reference is interpreted as an url, refering to
-some external location, like a website, etc.
+some external location, like a website, etc\&.
 .RE
 .RE
 .TP
@@ -404,30 +405,31 @@ canonical serialization
 The canonical serialization of a keyword index has the format as
 specified in the previous item, and then additionally satisfies the
 constraints below, which make it unique among all the possible
-serializations of the keyword index.
+serializations of the keyword index\&.
 .RS
 .IP [1]
 The keys found in all the nested Tcl dictionaries are sorted in
 ascending dictionary order, as generated by Tcl's builtin command
-\fBlsort -increasing -dict\fR.
+\fBlsort -increasing -dict\fR\&.
 .IP [2]
 The references listed for each keyword of the index, if any, are
 listed in ascending dictionary order of their \fIlabels\fR, as
-generated by Tcl's builtin command \fBlsort -increasing -dict\fR.
+generated by Tcl's builtin command \fBlsort -increasing -dict\fR\&.
 .RE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 deserialization, docidx, doctools, serialization
 .SH CATEGORY
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

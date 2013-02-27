@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/textutil/textutil_split.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/textutil/textutil_split\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "textutil::split" n 0.7 tcllib "Text and string utilities, macro processing"
+.TH "textutil::split" n 0\&.7 tcllib "Text and string utilities, macro processing"
 .BS
 .SH NAME
 textutil::split \- Procedures to split texts
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBtextutil::split  ?0.7?\fR
+package require \fBtextutil::split  ?0\&.7?\fR
 .sp
 \fB::textutil::split::splitn\fR \fIstring\fR ?\fIlen\fR?
 .sp
@@ -252,38 +253,38 @@ package require \fBtextutil::split  ?0.7?\fR
 .BE
 .SH DESCRIPTION
 The package \fBtextutil::split\fR provides commands that split
-strings by size and arbitrary regular expressions.
+strings by size and arbitrary regular expressions\&.
 .PP
-The complete set of procedures is described below.
+The complete set of procedures is described below\&.
 .TP
 \fB::textutil::split::splitn\fR \fIstring\fR ?\fIlen\fR?
 This command splits the given \fIstring\fR into chunks of \fIlen\fR
-characters and returns a list containing these chunks. The argument
-\fIlen\fR defaults to \fB1\fR if none is specified. A negative
+characters and returns a list containing these chunks\&. The argument
+\fIlen\fR defaults to \fB1\fR if none is specified\&. A negative
 length is not allowed and will cause the command to throw an
-error. Providing an empty string as input is allowed, the command will
-then return an empty list. If the length of the \fIstring\fR is not an
+error\&. Providing an empty string as input is allowed, the command will
+then return an empty list\&. If the length of the \fIstring\fR is not an
 entire multiple of the chunk length, then the last chunk in the
-generated list will be shorter than \fIlen\fR.
+generated list will be shorter than \fIlen\fR\&.
 .TP
 \fB::textutil::split::splitx\fR \fIstring\fR ?\fIregexp\fR?
-This command splits the \fIstring\fR and return a list. The string is
+This command splits the \fIstring\fR and return a list\&. The string is
 split according to the regular expression \fIregexp\fR instead of a
-simple list of chars.
+simple list of chars\&.
 Note that if you parentheses are added into the \fIregexp\fR, the
 parentheses part of separator will be added into the result list as
-additional element. If the \fIstring\fR is empty the result is the
-empty list, like for \fBsplit\fR. If \fIregexp\fR is empty the
-\fIstring\fR is split at every character, like \fBsplit\fR does.
-The regular expression \fIregexp\fR defaults to "[\\\\t \\\\r\\\\n]+".
+additional element\&. If the \fIstring\fR is empty the result is the
+empty list, like for \fBsplit\fR\&. If \fIregexp\fR is empty the
+\fIstring\fR is split at every character, like \fBsplit\fR does\&.
+The regular expression \fIregexp\fR defaults to "[\\\\t \\\\r\\\\n]+"\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fItextutil\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 regexp(n), split(n), string(n)
 .SH KEYWORDS

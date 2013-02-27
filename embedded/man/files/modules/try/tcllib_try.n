@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/try/tcllib_try.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2008 Donal K. Fellows, BSD licensed
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/try/tcllib_try\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2008 Donal K\&. Fellows, BSD licensed
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -242,30 +243,30 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 try \- try - Trap and process errors and exceptions
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
 package require \fBtry  ?1?\fR
 .sp
-\fB::try\fR \fIbody\fR ?\fIhandler...\fR? ?\fBfinally\fR \fIscript\fR?
+\fB::try\fR \fIbody\fR ?\fIhandler\&.\&.\&.\fR? ?\fBfinally\fR \fIscript\fR?
 .sp
 .BE
 .SH DESCRIPTION
 .PP
 This package provides a forward-compatibility implementation of Tcl
-8.6's try/finally command (TIP 329), for Tcl 8.5. The code was
-directly pulled from Tcl 8.6 revision ?, when try/finally was
-implemented as Tcl procedure instead of in C.
+8\&.6's try/finally command (TIP 329), for Tcl 8\&.5\&. The code was
+directly pulled from Tcl 8\&.6 revision ?, when try/finally was
+implemented as Tcl procedure instead of in C\&.
 .TP
-\fB::try\fR \fIbody\fR ?\fIhandler...\fR? ?\fBfinally\fR \fIscript\fR?
+\fB::try\fR \fIbody\fR ?\fIhandler\&.\&.\&.\fR? ?\fBfinally\fR \fIscript\fR?
 This command executes the script \fIbody\fR and, depending on what the
 outcome of that script is (normal exit, error, or some other
-exceptional result), runs a handler script to deal with the case. Once
+exceptional result), runs a handler script to deal with the case\&. Once
 that has all happened, if the \fBfinally\fR clause is present, the
 \fIscript\fR it includes will be run and the result of the handler (or
 the \fIbody\fR if no handler matched) is allowed to continue to
-propagate. Note that the \fBfinally\fR clause is processed even if
+propagate\&. Note that the \fBfinally\fR clause is processed even if
 an error occurs and irrespective of which, if any, \fIhandler\fR is
-used.
+used\&.
 .sp
 The \fIhandler\fR clauses are each expressed as several words,
 and must have one of the following forms:
@@ -273,79 +274,85 @@ and must have one of the following forms:
 .TP
 \fBon\fR \fIcode variableList script\fR
 This clause matches if the evaluation of \fIbody\fR completed with the
-exception code \fIcode\fR. The \fIcode\fR may be expressed as an
+exception code \fIcode\fR\&. The \fIcode\fR may be expressed as an
 integer or one of the following literal words:
 \fBok\fR, \fBerror\fR, \fBreturn\fR, \fBbreak\fR, or
-\fBcontinue\fR. Those literals correspond to the integers 0 through
-4 respectively.
+\fBcontinue\fR\&. Those literals correspond to the integers 0 through
+4 respectively\&.
 .TP
 \fBtrap\fR \fIpattern variableList script\fR
 This clause matches if the evaluation of \fIbody\fR resulted in an
 error and the prefix of the \fB-errorcode\fR from the interpreter's
-status dictionary is equal to the \fIpattern\fR. The number of prefix
+status dictionary is equal to the \fIpattern\fR\&. The number of prefix
 words taken from the \fB-errorcode\fR is equal to the list-length
 of \fIpattern\fR, and inter-word spaces are normalized in both the
-\fB-errorcode\fR and \fIpattern\fR before comparison.
+\fB-errorcode\fR and \fIpattern\fR before comparison\&.
 .sp
 The \fIvariableList\fR word in each \fIhandler\fR is always
-interpreted as a list of variable names. If the first word of the list
+interpreted as a list of variable names\&. If the first word of the list
 is present and non-empty, it names a variable into which the result of
 the evaluation of \fIbody\fR (from the main \fBtry\fR) will be placed;
-this will contain the human-readable form of any errors. If the second
+this will contain the human-readable form of any errors\&. If the second
 word of the list is present and non-empty, it names a variable into
 which the options dictionary of the interpreter at the moment of
-completion of execution of \fIbody\fR will be placed.
+completion of execution of \fIbody\fR will be placed\&.
 .sp
 The \fIscript\fR word of each \fIhandler\fR is also always
 interpreted the same: as a Tcl script to evaluate if the clause is
-matched. If \fIscript\fR is a literal \fB-\fR and the \fIhandler\fR
+matched\&. If \fIscript\fR is a literal \fB-\fR and the \fIhandler\fR
 is not the last one, the \fIscript\fR of the following \fIhandler\fR
-is invoked instead (just like with the \fBswitch\fR command).
+is invoked instead (just like with the \fBswitch\fR command)\&.
 .sp
 Note that \fIhandler\fR clauses are matched against in order,
-and that the first matching one is always selected.
-At most one \fIhandler\fR clause will selected.
+and that the first matching one is always selected\&.
+At most one \fIhandler\fR clause will selected\&.
 As a consequence, an \fBon error\fR will mask any subsequent
-\fBtrap\fR in the \fBtry\fR. Also note that \fBon error\fR is
-equivalent to \fBtrap {}\fR.
+\fBtrap\fR in the \fBtry\fR\&. Also note that \fBon error\fR is
+equivalent to \fBtrap {}\fR\&.
 .sp
-If an exception (i.e. any non-\fBok\fR result) occurs during
+If an exception (i\&.e\&. any non-\fBok\fR result) occurs during
 the evaluation of either the \fIhandler\fR or the \fBfinally\fR
 clause, the original exception's status dictionary will be added to
-the new exception's status dictionary under the \fB-during\fR key.
+the new exception's status dictionary under the \fB-during\fR key\&.
 .RE
 .PP
 .SH EXAMPLES
 Ensure that a file is closed no matter what:
 .PP
 .CS
+
+
 set f [open /some/file/name a]
 \fBtry\fR {
-puts \\$f "some message"
-# ...
+    puts \\$f "some message"
+    # \&.\&.\&.
 } \fBfinally\fR {
-close \\$f
+    close \\$f
 }
+
 .CE
 .PP
 Handle different reasons for a file to not be openable for reading:
 .PP
 .CS
+
+
 \fBtry\fR {
-set f [open /some/file/name]
+    set f [open /some/file/name]
 } \fBtrap\fR {POSIX EISDIR} {} {
-puts "failed to open /some/file/name: it's a directory"
+    puts "failed to open /some/file/name: it's a directory"
 } \fBtrap\fR {POSIX ENOENT} {} {
-puts "failed to open /some/file/name: it doesn't exist"
+    puts "failed to open /some/file/name: it doesn't exist"
 }
+
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fItry\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 catch(n), error(n), return(n), throw(n)
 .SH KEYWORDS
@@ -354,5 +361,6 @@ cleanup, error, exception, final, resource management
 Utility
 .SH COPYRIGHT
 .nf
-Copyright (c) 2008 Donal K. Fellows, BSD licensed
+Copyright (c) 2008 Donal K\&. Fellows, BSD licensed
+
 .fi

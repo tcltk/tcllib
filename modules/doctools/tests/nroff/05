@@ -1,9 +1,9 @@
 '\"
-'\" Generated from file '.FILE.' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) .COPYRIGHT.
+'\" Generated from file '\&.FILE\&.' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) \&.COPYRIGHT\&.
 '\"
 .so man.macros
-.TH "BASIC" a 5 .MODULE. ""
+.TH "BASIC" a 5 \&.MODULE\&. ""
 .BS
 .SH NAME
 BASIC \-
@@ -91,6 +91,6 @@ caramel
 KO
 .SH COPYRIGHT
 .nf
-Copyright (c) .COPYRIGHT.
+Copyright (c) \&.COPYRIGHT\&.
 
 .fi

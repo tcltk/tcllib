@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/doctools/docidx.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2003-2010 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/doctools/docidx\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2003-2010 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,28 +238,28 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "doctools::idx" n 1.0.4 tcllib "Documentation tools"
+.TH "doctools::idx" n 1\&.0\&.4 tcllib "Documentation tools"
 .BS
 .SH NAME
 doctools::idx \- docidx - Processing indices
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBdoctools::idx  ?1.0.4?\fR
+package require \fBdoctools::idx  ?1\&.0\&.4?\fR
 .sp
-\fB::doctools::idx::new\fR \fIobjectName\fR ?\fB-option\fR \fIvalue\fR ...?
+\fB::doctools::idx::new\fR \fIobjectName\fR ?\fB-option\fR \fIvalue\fR \&.\&.\&.?
 .sp
 \fB::doctools::idx::help\fR
 .sp
 \fB::doctools::idx::search\fR \fIpath\fR
 .sp
-\fBobjectName\fR \fBmethod\fR ?\fIarg arg ...\fR?
+\fBobjectName\fR \fBmethod\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp
 \fIobjectName\fR \fBconfigure\fR
 .sp
 \fIobjectName\fR \fBconfigure\fR \fIoption\fR
 .sp
-\fIobjectName\fR \fBconfigure\fR \fB-option\fR \fIvalue\fR...
+\fIobjectName\fR \fBconfigure\fR \fB-option\fR \fIvalue\fR\&.\&.\&.
 .sp
 \fIobjectName\fR \fBcget\fR \fB-option\fR
 .sp
@@ -281,170 +282,170 @@ package require \fBdoctools::idx  ?1.0.4?\fR
 This package provides a class for the creation of objects able to
 process and convert text written in the \fIdocidx\fR markup language
 into any output format X for which a \fIformatting engine\fR is
-available.
+available\&.
 .PP
 A reader interested in the markup language itself should start with
 the \fIdocidx language introduction\fR and proceed from there to
-the formal specifications, i.e. the \fIdocidx language syntax\fR
-and the \fIdocidx language command reference\fR.
+the formal specifications, i\&.e\&. the \fIdocidx language syntax\fR
+and the \fIdocidx language command reference\fR\&.
 .PP
 If on the other hand the reader wishes to write her own formatting
-engine for some format, i.e. is a \fIplugin writer\fR then reading
+engine for some format, i\&.e\&. is a \fIplugin writer\fR then reading
 and understanding the \fIdocidx plugin API reference\fR is an
 absolute necessity, as that document specifies the interaction between
-this package and its plugins, i.e. the formatting engines, in detail.
+this package and its plugins, i\&.e\&. the formatting engines, in detail\&.
 .SH "PUBLIC API"
 .SS "PACKAGE COMMANDS"
 .TP
-\fB::doctools::idx::new\fR \fIobjectName\fR ?\fB-option\fR \fIvalue\fR ...?
+\fB::doctools::idx::new\fR \fIobjectName\fR ?\fB-option\fR \fIvalue\fR \&.\&.\&.?
 This command creates a new docidx object with an associated Tcl
-command whose name is \fIobjectName\fR. This \fIobject\fR command is
+command whose name is \fIobjectName\fR\&. This \fIobject\fR command is
 explained in full detail in the sections \fBOBJECT COMMAND\fR
-and \fBOBJECT METHODS\fR. The object command will be created
+and \fBOBJECT METHODS\fR\&. The object command will be created
 under the current namespace if the \fIobjectName\fR is not fully
-qualified, and in the specified namespace otherwise.
+qualified, and in the specified namespace otherwise\&.
 .sp
 The options and their values coming after the name of the object are
-used to set the initial configuration of the object.
+used to set the initial configuration of the object\&.
 .TP
 \fB::doctools::idx::help\fR
 This is a convenience command for applications wishing to provide
 their user with a short description of the available formatting
-commands and their meanings. It returns a string containing a standard
-help text.
+commands and their meanings\&. It returns a string containing a standard
+help text\&.
 .TP
 \fB::doctools::idx::search\fR \fIpath\fR
 Whenever an object created by this the package has to map the name of
 a format to the file containing the code for its formatting engine it
 will search for the file in a number of directories stored in a
-list. See section \fBFORMAT MAPPING\fR for more explanations.
+list\&. See section \fBFORMAT MAPPING\fR for more explanations\&.
 .sp
 This list not only contains three default directories which are
 declared by the package itself, but is also extensible user of the
-package.
-This command is the means to do so. When given a \fIpath\fR to an
+package\&.
+This command is the means to do so\&. When given a \fIpath\fR to an
 existing and readable directory it will prepend that directory to the
-list of directories to search. This means that the \fIpath\fR added
-last is later searched through first.
+list of directories to search\&. This means that the \fIpath\fR added
+last is later searched through first\&.
 .sp
 An error will be thrown if the \fIpath\fR either does not exist, is
-not a directory, or is not readable.
+not a directory, or is not readable\&.
 .PP
 .SS "OBJECT COMMAND"
 All commands created by \fB::doctools::idx::new\fR have the following
 general form and may be used to invoke various operations on their
-docidx converter object.
+docidx converter object\&.
 .TP
-\fBobjectName\fR \fBmethod\fR ?\fIarg arg ...\fR?
+\fBobjectName\fR \fBmethod\fR ?\fIarg arg \&.\&.\&.\fR?
 The method \fBmethod\fR and its \fIarg\fR'uments determine the exact
-behavior of the command. See section \fBOBJECT METHODS\fR for
-the detailed specifications.
+behavior of the command\&. See section \fBOBJECT METHODS\fR for
+the detailed specifications\&.
 .PP
 .SS "OBJECT METHODS"
 .TP
 \fIobjectName\fR \fBconfigure\fR
 The method returns a list of all known options and their current
-values when called without any arguments.
+values when called without any arguments\&.
 .TP
 \fIobjectName\fR \fBconfigure\fR \fIoption\fR
 The method behaves like the method \fBcget\fR when called with a
 single argument and returns the value of the option specified by said
-argument.
+argument\&.
 .TP
-\fIobjectName\fR \fBconfigure\fR \fB-option\fR \fIvalue\fR...
+\fIobjectName\fR \fBconfigure\fR \fB-option\fR \fIvalue\fR\&.\&.\&.
 The method reconfigures the specified \fBoption\fRs of the object,
 setting them to the associated \fIvalue\fRs, when called with an even
-number of arguments, at least two.
+number of arguments, at least two\&.
 .sp
 The legal options are described in the section
-\fBOBJECT CONFIGURATION\fR.
+\fBOBJECT CONFIGURATION\fR\&.
 .TP
 \fIobjectName\fR \fBcget\fR \fB-option\fR
 This method expects a legal configuration option as argument and will
 return the current value of that option for the object the method was
-invoked for.
+invoked for\&.
 .sp
 The legal configuration options are described in section
-\fBOBJECT CONFIGURATION\fR.
+\fBOBJECT CONFIGURATION\fR\&.
 .TP
 \fIobjectName\fR \fBdestroy\fR
-This method destroys the object it is invoked for.
+This method destroys the object it is invoked for\&.
 .TP
 \fIobjectName\fR \fBformat\fR \fItext\fR
 This method runs the \fItext\fR through the configured formatting
-engine and returns the generated string as its result. An error will
-be thrown if no \fB-format\fR was configured for the object.
+engine and returns the generated string as its result\&. An error will
+be thrown if no \fB-format\fR was configured for the object\&.
 .sp
 The method assumes that the \fItext\fR is in \fIdocidx\fR format as
-specified in the companion document \fIdocidx_fmt\fR. Errors will be
-thrown otherwise.
+specified in the companion document \fIdocidx_fmt\fR\&. Errors will be
+thrown otherwise\&.
 .TP
 \fIobjectName\fR \fBmap\fR \fIsymbolic\fR \fIactual\fR
 This methods add one entry to the per-object mapping from
-\fIsymbolic\fR filenames to the \fIactual\fR uris.
+\fIsymbolic\fR filenames to the \fIactual\fR uris\&.
 The object just stores this mapping and makes it available to the
-configured formatting engine through the command \fBdt_fmap\fR.
+configured formatting engine through the command \fBdt_fmap\fR\&.
 This command is described in more detail in the
 \fIdocidx plugin API reference\fR which specifies the interaction
 between the objects created by this package and index formatting
-engines.
+engines\&.
 .TP
 \fIobjectName\fR \fBparameters\fR
 This method returns a list containing the names of all engine
-parameters provided by the configured formatting engine. It will
+parameters provided by the configured formatting engine\&. It will
 return an empty list if the object is not yet configured for a
-specific format.
+specific format\&.
 .TP
 \fIobjectName\fR \fBsearch\fR \fIpath\fR
 This method extends the per-object list of paths searched for index
-formatting engines. See also the command \fB::doctools::idx::search\fR
-on how to extend the per-package list of paths. Note that the path
-entered last will be searched first.
-For more details see section \fBFORMAT MAPPING\fR.
+formatting engines\&. See also the command \fB::doctools::idx::search\fR
+on how to extend the per-package list of paths\&. Note that the path
+entered last will be searched first\&.
+For more details see section \fBFORMAT MAPPING\fR\&.
 .TP
 \fIobjectName\fR \fBsetparam\fR \fIname\fR \fIvalue\fR
 This method sets the \fIname\fRd engine parameter to the specified
-\fIvalue\fR.
+\fIvalue\fR\&.
 It will throw an error if the object is either not yet configured for
 a specific format, or if the formatting engine for the configured
-format does not provide a parameter with the given \fIname\fR.
+format does not provide a parameter with the given \fIname\fR\&.
 The list of parameters provided by the configured formatting engine
-can be retrieved through the method \fBparameters\fR.
+can be retrieved through the method \fBparameters\fR\&.
 .TP
 \fIobjectName\fR \fBwarnings\fR
 This method returns a list containing all the warnings which were
 generated by the configured formatting engine during the last
-invocation of the method \fBformat\fR.
+invocation of the method \fBformat\fR\&.
 .PP
 .SS "OBJECT CONFIGURATION"
 All docidx objects understand the following configuration options:
 .TP
 \fB-file\fR \fIfile\fR
 The argument of this option is stored in the object and made available
-to the configured formatting engine through the command \fBdt_file\fR.
+to the configured formatting engine through the command \fBdt_file\fR\&.
 This command is described in more detail in the companion document
 \fIdocidx_api\fR which specifies the API between the object and
-formatting engines.
+formatting engines\&.
 .sp
-The default value of this option is the empty string.
+The default value of this option is the empty string\&.
 .sp
 The configured formatting engine should interpret the value as the
-name of the file containing the document which is currently processed.
+name of the file containing the document which is currently processed\&.
 .TP
 \fB-format\fR \fItext\fR
 The argument of this option specifies the format to generate and by
 implication the formatting engine to use when converting text via the
-method \fBformat\fR. Its default value is the empty string. The
+method \fBformat\fR\&. Its default value is the empty string\&. The
 method \fBformat\fR cannot be used if this option is not set to a
-valid value at least once.
+valid value at least once\&.
 .sp
 The package will immediately try to map the given name to a file
-containing the code for a formatting engine generating that format. An
-error will be thrown if this mapping fails. In that case a previously
-configured format is left untouched.
+containing the code for a formatting engine generating that format\&. An
+error will be thrown if this mapping fails\&. In that case a previously
+configured format is left untouched\&.
 .sp
 The section \fBFORMAT MAPPING\fR explains in detail how the
-package and object will look for engine implementations.
+package and object will look for engine implementations\&.
 .PP
 .SS "FORMAT MAPPING"
 The package and object will perform the following algorithm when
@@ -452,107 +453,107 @@ trying to map a format name \fIfoo\fR to a file containing an
 implementation of a formatting engine for \fIfoo\fR:
 .IP [1]
 If \fIfoo\fR is the name of an existing file then this file is
-directly taken as the implementation.
+directly taken as the implementation\&.
 .IP [2]
-If not, the list of per-object search paths is searched. For each
+If not, the list of per-object search paths is searched\&. For each
 directory in the list the package checks if that directory contains a
-file "\fIidx.\fIfoo\fR\fR". If yes, then that file is taken as the
-implementation.
+file "\fIidx\&.\fIfoo\fR\fR"\&. If yes, then that file is taken as the
+implementation\&.
 .sp
 Note that this list of paths is initially empty and can be extended
-through the object method \fBsearch\fR.
+through the object method \fBsearch\fR\&.
 .IP [3]
-If not, the list of package paths is searched.
+If not, the list of package paths is searched\&.
 For each directory in the list the package checks if that directory
-contains a file "\fIidx.\fIfoo\fR\fR". If yes, then that file is taken
-as the implementation.
+contains a file "\fIidx\&.\fIfoo\fR\fR"\&. If yes, then that file is taken
+as the implementation\&.
 .sp
 This list of paths can be extended
-through the command \fB::doctools::idx::search\fR.
+through the command \fB::doctools::idx::search\fR\&.
 It contains initially one path, the subdirectory "\fImpformats\fR" of
-the directory the package itself is located in. In other words, if the
-package implementation "\fIdocidx.tcl\fR" is installed in the directory
+the directory the package itself is located in\&. In other words, if the
+package implementation "\fIdocidx\&.tcl\fR" is installed in the directory
 "\fI/usr/local/lib/tcllib/doctools\fR" then it will by default search
 the directory "\fI/usr/local/lib/tcllib/doctools/mpformats\fR" for
-format implementations.
+format implementations\&.
 .IP [4]
-The mapping fails.
+The mapping fails\&.
 .PP
 .SH "PREDEFINED ENGINES"
 The package provides predefined formatting engines for the following
-formats. Some of the formatting engines support engine
-parameters. These will be explicitly highlighted.
+formats\&. Some of the formatting engines support engine
+parameters\&. These will be explicitly highlighted\&.
 .TP
 html
 This engine generates HTML markup, for processing by web browsers and
-the like. This engine supports three parameters:
+the like\&. This engine supports three parameters:
 .RS
 .TP
 footer
 The value for this parameter has to be valid selfcontained HTML markup
-for the body section of a HTML document. The default value is the
-empty string. The value is inserted into the generated output just
+for the body section of a HTML document\&. The default value is the
+empty string\&. The value is inserted into the generated output just
 before the \fB</body>\fR tag, closing the body of the generated
-HTML.
+HTML\&.
 .sp
 This can be used to insert boilerplate footer markup into the
-generated document.
+generated document\&.
 .TP
 header
 The value for this parameter has to be valid selfcontained HTML markup
-for the body section of a HTML document. The default value is the
-empty string. The value is inserted into the generated output just
-after the \fB<body>\fR tag, starting the body of the generated HTML.
+for the body section of a HTML document\&. The default value is the
+empty string\&. The value is inserted into the generated output just
+after the \fB<body>\fR tag, starting the body of the generated HTML\&.
 .sp
 This can be used to insert boilerplate header markup into the
-generated document.
+generated document\&.
 .TP
 meta
 The value for this parameter has to be valid selfcontained HTML markup
-for the header section of a HTML document. The default value is the
-empty string. The value is inserted into the generated output just
+for the header section of a HTML document\&. The default value is the
+empty string\&. The value is inserted into the generated output just
 after the \fB<head>\fR tag, starting the header section of the
-generated HTML.
+generated HTML\&.
 .sp
 This can be used to insert boilerplate meta data markup into the
 generated document, like references to a stylesheet, standard meta
-keywords, etc.
+keywords, etc\&.
 .RE
 .sp
 .TP
 latex
 This engine generates output suitable for the \fBlatex\fR text
-processor coming out of the TeX world.
+processor coming out of the TeX world\&.
 .TP
 list
 This engine retrieves version, section and title of the manpage from
-the document. As such it can be used to generate a directory listing
-for a set of manpages.
+the document\&. As such it can be used to generate a directory listing
+for a set of manpages\&.
 .TP
 nroff
 This engine generates nroff output, for processing by \fBnroff\fR,
-or \fBgroff\fR. The result will be standard man pages as they are
-known in the unix world.
+or \fBgroff\fR\&. The result will be standard man pages as they are
+known in the unix world\&.
 .TP
 null
-This engine generates no outout at all. This can be used if one just
-wants to validate some input.
+This engine generates no outout at all\&. This can be used if one just
+wants to validate some input\&.
 .TP
 tmml
-This engine generates TMML markup as specified by Joe English. The Tcl
-Manpage Markup Language is a derivate of XML.
+This engine generates TMML markup as specified by Joe English\&. The Tcl
+Manpage Markup Language is a derivate of XML\&.
 .TP
 wiki
 This engine generates Wiki markup as understood by Jean Claude
-Wippler's \fBwikit\fR application.
+Wippler's \fBwikit\fR application\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 docidx_intro, docidx_lang_cmdref, docidx_lang_intro, docidx_lang_syntax, docidx_plugin_apiref
 .SH KEYWORDS
@@ -561,5 +562,6 @@ HTML, TMML, conversion, docidx, documentation, index, keyword index, latex, manp
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2003-2010 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2003-2010 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

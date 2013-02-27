@@ -1,7 +1,7 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/math/symdiff.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2010 by Kevin B. Kenny <kennykb@acm.org>
-'\" Redistribution permitted under the terms of the Open Publication License <http://www.opencontent.org/openpub/>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/symdiff\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2010 by Kevin B\&. Kenny <kennykb@acm\&.org>
+'\" Redistribution permitted under the terms of the Open Publication License <http://www\&.opencontent\&.org/openpub/>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -223,6 +223,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -238,16 +239,16 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "math::calculus::symdiff" n 1.0 tcllib "Symbolic differentiation for Tcl"
+.TH "math::calculus::symdiff" n 1\&.0 tcllib "Symbolic differentiation for Tcl"
 .BS
 .SH NAME
 math::calculus::symdiff \- Symbolic differentiation for Tcl
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
-package require \fBgrammar::aycock  1.0\fR
+package require \fBgrammar::aycock  1\&.0\fR
 .sp
-package require \fBmath::calculus::symdiff  1.0\fR
+package require \fBmath::calculus::symdiff  1\&.0\fR
 .sp
 \fBmath::calculus::symdiff::symdiff\fR \fIexpression\fR \fIvariable\fR
 .sp
@@ -257,75 +258,79 @@ package require \fBmath::calculus::symdiff  1.0\fR
 .SH DESCRIPTION
 .PP
 The \fBmath::calculus::symdiff\fR package provides a symbolic differentiation
-facility for Tcl math expressions. It is useful for providing derivatives
+facility for Tcl math expressions\&. It is useful for providing derivatives
 to packages that either require the Jacobian of a set of functions or else
-are more efficient or stable when the Jacobian is provided.
+are more efficient or stable when the Jacobian is provided\&.
 .SH PROCEDURES
 The \fBmath::calculus::symdiff\fR package exports the two procedures:
 .TP
 \fBmath::calculus::symdiff::symdiff\fR \fIexpression\fR \fIvariable\fR
 Differentiates the given \fIexpression\fR with respect to the specified
-\fIvariable\fR. (See \fBExpressions\fR below for a discussion of the
+\fIvariable\fR\&. (See \fBExpressions\fR below for a discussion of the
 subset of Tcl math expressions that are acceptable to
-\fBmath::calculus::symdiff\fR.)
-The result is a Tcl expression that evaluates the derivative. Returns an
+\fBmath::calculus::symdiff\fR\&.)
+The result is a Tcl expression that evaluates the derivative\&. Returns an
 error if \fIexpression\fR is not a well-formed expression or is not
-differentiable.
+differentiable\&.
 .TP
 \fBmath::calculus::jacobian\fR \fIvariableDict\fR
-Computes the Jacobian of a system of equations.
+Computes the Jacobian of a system of equations\&.
 The system is given by the dictionary \fIvariableDict\fR, whose keys
 are the names of variables in the system, and whose values are Tcl expressions
-giving the values of those variables. (See \fBExpressions\fR below
+giving the values of those variables\&. (See \fBExpressions\fR below
 for a discussion of the subset of Tcl math expressions that are acceptable
-to \fBmath::calculus::symdiff\fR. The result is a list of lists:
+to \fBmath::calculus::symdiff\fR\&. The result is a list of lists:
 the i'th element of the j'th sublist is the partial derivative of
-the i'th variable with respect to the j'th variable. Returns an error if
+the i'th variable with respect to the j'th variable\&. Returns an error if
 any of the expressions cannot be differentiated, or if \fIvariableDict\fR
-is not a well-formed dictionary.
+is not a well-formed dictionary\&.
 .PP
 .SH EXPRESSIONS
 The \fBmath::calculus::symdiff\fR package accepts only a small subset of the expressions
-that are acceptable to Tcl commands such as \fBexpr\fR or \fBif\fR.
+that are acceptable to Tcl commands such as \fBexpr\fR or \fBif\fR\&.
 Specifically, the only constructs accepted are:
 .IP \(bu
-Floating-point constants such as \fB5\fR or \fB3.14159e+00\fR.
+Floating-point constants such as \fB5\fR or \fB3\&.14159e+00\fR\&.
 .IP \(bu
-References to Tcl variable using $-substitution. The variable names
-must consist of alphanumerics and underscores: the \fB${...}\fR notation
-is not accepted.
+References to Tcl variable using $-substitution\&. The variable names
+must consist of alphanumerics and underscores: the \fB${\&.\&.\&.}\fR notation
+is not accepted\&.
 .IP \(bu
-Parentheses.
+Parentheses\&.
 .IP \(bu
-The \fB+\fR, \fB-\fR, \fB*\fR, \fB/\fR. and \fB**\fR
-operators.
+The \fB+\fR, \fB-\fR, \fB*\fR, \fB/\fR\&. and \fB**\fR
+operators\&.
 .IP \(bu
 Calls to the functions \fBacos\fR, \fBasin\fR, \fBatan\fR,
 \fBatan2\fR, \fBcos\fR, \fBcosh\fR, \fBexp\fR, \fBhypot\fR, \fBlog\fR,
-\fBlog10\fR, \fBpow\fR, \fBsin\fR, \fBsinh\fR. \fBsqrt\fR, \fBtan\fR,
-and \fBtanh\fR.
+\fBlog10\fR, \fBpow\fR, \fBsin\fR, \fBsinh\fR\&. \fBsqrt\fR, \fBtan\fR,
+and \fBtanh\fR\&.
 .PP
 Command substitution, backslash substitution, and argument expansion are
-not accepted.
+not accepted\&.
 .SH EXAMPLES
 .CS
+
+
 math::calculus::symdiff::symdiff {($a*$x+$b)*($c*$x+$d)} x
 ==> (($c * (($a * $x) + $b)) + ($a * (($c * $x) + $d)))
 math::calculus::symdiff::jacobian {x {$a * $x + $b * $y}
-y {$c * $x + $d * $y}}
+                         y {$c * $x + $d * $y}}
 ==> {{$a} {$b}} {{$c} {$d}}
+
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fImath :: calculus\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 math::calculus, math::interpolate
 .SH COPYRIGHT
 .nf
-Copyright (c) 2010 by Kevin B. Kenny <kennykb@acm.org>
-Redistribution permitted under the terms of the Open Publication License <http://www.opencontent.org/openpub/>
+Copyright (c) 2010 by Kevin B\&. Kenny <kennykb@acm\&.org>
+Redistribution permitted under the terms of the Open Publication License <http://www\&.opencontent\&.org/openpub/>
+
 .fi

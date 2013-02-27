@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/term/ansi_send.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/term/ansi_send\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,16 +238,16 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "term::ansi::send" n 0.1 tcllib "Terminal control"
+.TH "term::ansi::send" n 0\&.1 tcllib "Terminal control"
 .BS
 .SH NAME
 term::ansi::send \- Output of ANSI control sequences to terminals
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBterm::ansi::send  ?0.1?\fR
+package require \fBterm::ansi::send  ?0\&.1?\fR
 .sp
-\fB::term::ansi::send::import\fR ?\fIns\fR? \fI...\fR
+\fB::term::ansi::send::import\fR ?\fIns\fR? \fI\&.\&.\&.\fR
 .sp
 \fB::term::ansi::send::eeol\fR
 .sp
@@ -300,7 +301,7 @@ package require \fBterm::ansi::send  ?0.1?\fR
 .sp
 \fB::term::ansi::send::scs1\fR \fItag\fR
 .sp
-\fB::term::ansi::send::sda\fR \fIarg\fR...
+\fB::term::ansi::send::sda\fR \fIarg\fR\&.\&.\&.
 .sp
 \fB::term::ansi::send::sda_fgblack\fR
 .sp
@@ -423,105 +424,105 @@ package require \fBterm::ansi::send  ?0.1?\fR
 .BE
 .SH DESCRIPTION
 This package provides commands to send ANSI terminal control sequences to a
-terminal. All commands come in two variants, one for sending to any channel,
-the other for sending to \fIstdout\fR.
+terminal\&. All commands come in two variants, one for sending to any channel,
+the other for sending to \fIstdout\fR\&.
 .PP
 The commands are defined using the control sequences provided by the package
-\fBterm::ansi::code::ctrl\fR. They have the same arguments as the commands
-they are based on, with the exception of the variant for sending to any channel.
+\fBterm::ansi::code::ctrl\fR\&. They have the same arguments as the commands
+they are based on, with the exception of the variant for sending to any channel\&.
 Their first argument is always a channel handle, then followed by the original
-arguments. Below we will list only the variant sending to \fIstdout\fR.
+arguments\&. Below we will list only the variant sending to \fIstdout\fR\&.
 .TP
-\fB::term::ansi::send::import\fR ?\fIns\fR? \fI...\fR
-Imports the commands of this package into the namespace \fIns\fR. If not specified
-it defaults to \fIsend\fR. Note that this default is a relative namespace name,
-i.e. the actual namespace will be created under the current namespace.
+\fB::term::ansi::send::import\fR ?\fIns\fR? \fI\&.\&.\&.\fR
+Imports the commands of this package into the namespace \fIns\fR\&. If not specified
+it defaults to \fIsend\fR\&. Note that this default is a relative namespace name,
+i\&.e\&. the actual namespace will be created under the current namespace\&.
 .sp
 By default all commands will be imported, this can however be restricted to specific
-commands, by listing them after the namespace to import them into.
+commands, by listing them after the namespace to import them into\&.
 .TP
 \fB::term::ansi::send::eeol\fR
-Erase (to) End Of Line.
+Erase (to) End Of Line\&.
 .TP
 \fB::term::ansi::send::esol\fR
-Erase (to) Start Of Line.
+Erase (to) Start Of Line\&.
 .TP
 \fB::term::ansi::send::el\fR
-Erase (current) Line.
+Erase (current) Line\&.
 .TP
 \fB::term::ansi::send::ed\fR
-Erase Down (to bottom).
+Erase Down (to bottom)\&.
 .TP
 \fB::term::ansi::send::eu\fR
-Erase Up (to top).
+Erase Up (to top)\&.
 .TP
 \fB::term::ansi::send::es\fR
-Erase Screen.
+Erase Screen\&.
 .TP
 \fB::term::ansi::send::sd\fR
-Scroll Down.
+Scroll Down\&.
 .TP
 \fB::term::ansi::send::su\fR
-Scroll Up.
+Scroll Up\&.
 .TP
 \fB::term::ansi::send::ch\fR
-Cursor Home.
+Cursor Home\&.
 .TP
 \fB::term::ansi::send::sc\fR
-Save Cursor. Note: Only one saved position can be handled.
-This is no unlimited stack. Saving before restoring will
-overwrite the saved data.
+Save Cursor\&. Note: Only one saved position can be handled\&.
+This is no unlimited stack\&. Saving before restoring will
+overwrite the saved data\&.
 .TP
 \fB::term::ansi::send::rc\fR
-Restore Cursor (Unsave).
+Restore Cursor (Unsave)\&.
 .TP
 \fB::term::ansi::send::sca\fR
-Save Cursor + Attributes.
+Save Cursor + Attributes\&.
 .TP
 \fB::term::ansi::send::rca\fR
-Restore Cursor + Attributes.
+Restore Cursor + Attributes\&.
 .TP
 \fB::term::ansi::send::st\fR
-Set Tab (@ current position).
+Set Tab (@ current position)\&.
 .TP
 \fB::term::ansi::send::ct\fR
-Clear Tab (@ current position).
+Clear Tab (@ current position)\&.
 .TP
 \fB::term::ansi::send::cat\fR
-Clear All Tabs.
+Clear All Tabs\&.
 .TP
 \fB::term::ansi::send::qdc\fR
-Query Device Code.
+Query Device Code\&.
 .TP
 \fB::term::ansi::send::qds\fR
-Query Device Status.
+Query Device Status\&.
 .TP
 \fB::term::ansi::send::qcp\fR
-Query Cursor Position.
+Query Cursor Position\&.
 .TP
 \fB::term::ansi::send::rd\fR
-Reset Device.
+Reset Device\&.
 .TP
 \fB::term::ansi::send::elw\fR
-Enable Line Wrap.
+Enable Line Wrap\&.
 .TP
 \fB::term::ansi::send::dlw\fR
-Disable Line Wrap.
+Disable Line Wrap\&.
 .TP
 \fB::term::ansi::send::eg\fR
-Enter Graphics Mode.
+Enter Graphics Mode\&.
 .TP
 \fB::term::ansi::send::lg\fR
-Exit Graphics Mode.
+Exit Graphics Mode\&.
 .TP
 \fB::term::ansi::send::scs0\fR \fItag\fR
 .TP
 \fB::term::ansi::send::scs1\fR \fItag\fR
-Select Character Set.
+Select Character Set\&.
 .sp
-Choose which character set is used for default (scs0) and alternate font (scs1).
+Choose which character set is used for default (scs0) and alternate font (scs1)\&.
 This does not change whether default or alternate font are used, just their
-definitions.
+definitions\&.
 .sp
 The legal tags, and their meanings, are:
 .RS
@@ -542,205 +543,206 @@ Alternate Character ROM Standard Character Set
 Alternate Character ROM Special Graphics
 .RE
 .TP
-\fB::term::ansi::send::sda\fR \fIarg\fR...
-Set Display Attributes. The arguments are the code sequences for the possible
-attributes, as provided by the package \fBterm::ansi::code::attr\fR. For
+\fB::term::ansi::send::sda\fR \fIarg\fR\&.\&.\&.
+Set Display Attributes\&. The arguments are the code sequences for the possible
+attributes, as provided by the package \fBterm::ansi::code::attr\fR\&. For
 convenience this package also provides additional commands each setting a single
-specific attribute.
+specific attribute\&.
 .TP
 \fB::term::ansi::send::sda_fgblack\fR
-Set text color to \fIBlack\fR.
+Set text color to \fIBlack\fR\&.
 .TP
 \fB::term::ansi::send::sda_fgred\fR
-Set text color to \fIRed\fR.
+Set text color to \fIRed\fR\&.
 .TP
 \fB::term::ansi::send::sda_fggreen\fR
-Set text color to \fIGreen\fR.
+Set text color to \fIGreen\fR\&.
 .TP
 \fB::term::ansi::send::sda_fgyellow\fR
-Set text color to \fIYellow\fR.
+Set text color to \fIYellow\fR\&.
 .TP
 \fB::term::ansi::send::sda_fgblue\fR
-Set text color to \fIBlue\fR.
+Set text color to \fIBlue\fR\&.
 .TP
 \fB::term::ansi::send::sda_fgmagenta\fR
-Set text color to \fIMagenta\fR.
+Set text color to \fIMagenta\fR\&.
 .TP
 \fB::term::ansi::send::sda_fgcyan\fR
-Set text color to \fICyan\fR.
+Set text color to \fICyan\fR\&.
 .TP
 \fB::term::ansi::send::sda_fgwhite\fR
-Set text color to \fIWhite\fR.
+Set text color to \fIWhite\fR\&.
 .TP
 \fB::term::ansi::send::sda_fgdefault\fR
-Set default text color (\fIBlack\fR).
+Set default text color (\fIBlack\fR)\&.
 .TP
 \fB::term::ansi::send::sda_bgblack\fR
-Set background to \fIBlack\fR.
+Set background to \fIBlack\fR\&.
 .TP
 \fB::term::ansi::send::sda_bgred\fR
-Set background to \fIRed\fR.
+Set background to \fIRed\fR\&.
 .TP
 \fB::term::ansi::send::sda_bggreen\fR
-Set background to \fIGreen\fR.
+Set background to \fIGreen\fR\&.
 .TP
 \fB::term::ansi::send::sda_bgyellow\fR
-Set background to \fIYellow\fR.
+Set background to \fIYellow\fR\&.
 .TP
 \fB::term::ansi::send::sda_bgblue\fR
-Set background to \fIBlue\fR.
+Set background to \fIBlue\fR\&.
 .TP
 \fB::term::ansi::send::sda_bgmagenta\fR
-Set background to \fIMagenta\fR.
+Set background to \fIMagenta\fR\&.
 .TP
 \fB::term::ansi::send::sda_bgcyan\fR
-Set background to \fICyan\fR.
+Set background to \fICyan\fR\&.
 .TP
 \fB::term::ansi::send::sda_bgwhite\fR
-Set background to \fIWhite\fR.
+Set background to \fIWhite\fR\&.
 .TP
 \fB::term::ansi::send::sda_bgdefault\fR
-Set default background (Transparent).
+Set default background (Transparent)\&.
 .TP
 \fB::term::ansi::send::sda_bold\fR
-Bold on.
+Bold on\&.
 .TP
 \fB::term::ansi::send::sda_dim\fR
-Dim on.
+Dim on\&.
 .TP
 \fB::term::ansi::send::sda_italic\fR
-Italics on.
+Italics on\&.
 .TP
 \fB::term::ansi::send::sda_underline\fR
-Underscore on.
+Underscore on\&.
 .TP
 \fB::term::ansi::send::sda_blink\fR
-Blink on.
+Blink on\&.
 .TP
 \fB::term::ansi::send::sda_revers\fR
-Reverse on.
+Reverse on\&.
 .TP
 \fB::term::ansi::send::sda_hidden\fR
-Hidden on.
+Hidden on\&.
 .TP
 \fB::term::ansi::send::sda_strike\fR
-Strike-through on.
+Strike-through on\&.
 .TP
 \fB::term::ansi::send::sda_nobold\fR
-Bold off.
+Bold off\&.
 .TP
 \fB::term::ansi::send::sda_noitalic\fR
-Italics off.
+Italics off\&.
 .TP
 \fB::term::ansi::send::sda_nounderline\fR
-Underscore off.
+Underscore off\&.
 .TP
 \fB::term::ansi::send::sda_noblink\fR
-Blink off.
+Blink off\&.
 .TP
 \fB::term::ansi::send::sda_norevers\fR
-Reverse off.
+Reverse off\&.
 .TP
 \fB::term::ansi::send::sda_nohidden\fR
-Hidden off.
+Hidden off\&.
 .TP
 \fB::term::ansi::send::sda_nostrike\fR
-Strike-through off.
+Strike-through off\&.
 .TP
 \fB::term::ansi::send::sda_reset\fR
-Reset all attributes to their default values.
+Reset all attributes to their default values\&.
 .TP
 \fB::term::ansi::send::fcp\fR \fIrow\fR \fIcol\fR
-Force Cursor Position (aka Go To).
+Force Cursor Position (aka Go To)\&.
 .TP
 \fB::term::ansi::send::cu\fR ?\fIn\fR?
-Cursor Up. \fIn\fR defaults to 1.
+Cursor Up\&. \fIn\fR defaults to 1\&.
 .TP
 \fB::term::ansi::send::cd\fR ?\fIn\fR?
-Cursor Down. \fIn\fR defaults to 1.
+Cursor Down\&. \fIn\fR defaults to 1\&.
 .TP
 \fB::term::ansi::send::cf\fR ?\fIn\fR?
-Cursor Forward. \fIn\fR defaults to 1.
+Cursor Forward\&. \fIn\fR defaults to 1\&.
 .TP
 \fB::term::ansi::send::cb\fR ?\fIn\fR?
-Cursor Backward. \fIn\fR defaults to 1.
+Cursor Backward\&. \fIn\fR defaults to 1\&.
 .TP
 \fB::term::ansi::send::ss\fR ?\fIs\fR \fIe\fR?
-Scroll Screen (entire display, or between rows start end, inclusive).
+Scroll Screen (entire display, or between rows start end, inclusive)\&.
 .TP
 \fB::term::ansi::send::skd\fR \fIcode\fR \fIstr\fR
-Set Key Definition.
+Set Key Definition\&.
 .TP
 \fB::term::ansi::send::title\fR \fIstr\fR
-Set the terminal title.
+Set the terminal title\&.
 .TP
 \fB::term::ansi::send::gron\fR
-Switch to character/box graphics. I.e. switch to the alternate font.
+Switch to character/box graphics\&. I\&.e\&. switch to the alternate font\&.
 .TP
 \fB::term::ansi::send::groff\fR
-Switch to regular characters. I.e. switch to the default font.
+Switch to regular characters\&. I\&.e\&. switch to the default font\&.
 .TP
 \fB::term::ansi::send::tlc\fR
-Character graphics, Top Left Corner.
+Character graphics, Top Left Corner\&.
 .TP
 \fB::term::ansi::send::trc\fR
-Character graphics, Top Right Corner.
+Character graphics, Top Right Corner\&.
 .TP
 \fB::term::ansi::send::brc\fR
-Character graphics, Bottom Right Corner.
+Character graphics, Bottom Right Corner\&.
 .TP
 \fB::term::ansi::send::blc\fR
-Character graphics, Bottom Left Corner.
+Character graphics, Bottom Left Corner\&.
 .TP
 \fB::term::ansi::send::ltj\fR
-Character graphics, Left T Junction.
+Character graphics, Left T Junction\&.
 .TP
 \fB::term::ansi::send::ttj\fR
-Character graphics, Top T Junction.
+Character graphics, Top T Junction\&.
 .TP
 \fB::term::ansi::send::rtj\fR
-Character graphics, Right T Junction.
+Character graphics, Right T Junction\&.
 .TP
 \fB::term::ansi::send::btj\fR
-Character graphics, Bottom T Junction.
+Character graphics, Bottom T Junction\&.
 .TP
 \fB::term::ansi::send::fwj\fR
-Character graphics, Four-Way Junction.
+Character graphics, Four-Way Junction\&.
 .TP
 \fB::term::ansi::send::hl\fR
-Character graphics, Horizontal Line.
+Character graphics, Horizontal Line\&.
 .TP
 \fB::term::ansi::send::vl\fR
-Character graphics, Vertical Line.
+Character graphics, Vertical Line\&.
 .TP
 \fB::term::ansi::send::groptim\fR \fIstr\fR
-Optimize character graphics. The generator commands above create way to many
-superfluous commands shifting into and out of the graphics mode. This command
-removes all shifts which are not needed. To this end it also knows which
+Optimize character graphics\&. The generator commands above create way to many
+superfluous commands shifting into and out of the graphics mode\&. This command
+removes all shifts which are not needed\&. To this end it also knows which
 characters will look the same in both modes, to handle strings created outside
-of this package.
+of this package\&.
 .TP
 \fB::term::ansi::send::clear\fR
-Clear screen. In essence a sequence of CursorHome + EraseDown.
+Clear screen\&. In essence a sequence of CursorHome + EraseDown\&.
 .TP
 \fB::term::ansi::send::init\fR
-Initialize default and alternate fonts to ASCII and box graphics.
+Initialize default and alternate fonts to ASCII and box graphics\&.
 .TP
 \fB::term::ansi::send::showat\fR \fIrow\fR \fIcol\fR \fItext\fR
-Show the block of text at the specified location.
+Show the block of text at the specified location\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIterm\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 character output, control, terminal
 .SH CATEGORY
 Terminal control
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

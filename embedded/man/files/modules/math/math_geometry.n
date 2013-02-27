@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/math/math_geometry.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/math_geometry\&.n' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2001 by Ideogramic ApS and other parties
 '\" Copyright (c) 2004 by Arjen Markus
 '\" Copyright (c) 2010 by Andreas Kupries
@@ -225,6 +225,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -240,14 +241,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "math::geometry" n 1.1.2 tcllib "Tcl Math Library"
+.TH "math::geometry" n 1\&.1\&.2 tcllib "Tcl Math Library"
 .BS
 .SH NAME
 math::geometry \- Geometrical computations
 .SH SYNOPSIS
-package require \fBTcl  ?8.3?\fR
+package require \fBTcl  ?8\&.3?\fR
 .sp
-package require \fBmath::geometry  ?1.1.2?\fR
+package require \fBmath::geometry  ?1\&.1\&.2?\fR
 .sp
 \fB::math::geometry::+\fR \fIpoint1\fR \fIpoint2\fR
 .sp
@@ -320,92 +321,95 @@ package require \fBmath::geometry  ?1.1.2?\fR
 .PP
 The \fBmath::geometry\fR package is a collection of functions for
 computations and manipulations on two-dimensional geometrical objects,
-such as points, lines and polygons.
+such as points, lines and polygons\&.
 .PP
-The geometrical objects are implemented as plain lists of coordinates.
+The geometrical objects are implemented as plain lists of coordinates\&.
 For instance a line is defined by a list of four numbers, the x- and
 y-coordinate of a first point and the x- and y-coordinates of a second
-point on the line.
+point on the line\&.
 .PP
 The various types of object are recognised by the number of coordinate
 pairs and the context in which they are used: a list of four elements
 can be regarded as an infinite line, a finite line segment but also
-as a polyline of one segment and a point set of two points.
+as a polyline of one segment and a point set of two points\&.
 .PP
 Currently the following types of objects are distinguished:
 .IP \(bu
 \fIpoint\fR - a list of two coordinates representing the x- and
-y-coordinates respectively.
+y-coordinates respectively\&.
 .IP \(bu
 \fIline\fR - a list of four coordinates, interpreted as the x- and
-y-coordinates of two distinct points on the line.
+y-coordinates of two distinct points on the line\&.
 .IP \(bu
 \fIline segment\fR - a list of four coordinates, interpreted as the
 x- and y-coordinates of the first and the last points on the line
-segment.
+segment\&.
 .IP \(bu
 \fIpolyline\fR - a list of an even number of coordinates,
-interpreted as the x- and y-coordinates of an ordered set of points.
+interpreted as the x- and y-coordinates of an ordered set of points\&.
 .IP \(bu
 \fIpolygon\fR - like a polyline, but the implicit assumption is that
 the polyline is closed (if the first and last points do not coincide,
-the missing segment is automatically added).
+the missing segment is automatically added)\&.
 .IP \(bu
 \fIpoint set\fR - again a list of an even number of coordinates, but
-the points are regarded without any ordering.
+the points are regarded without any ordering\&.
 .PP
 .SH PROCEDURES
 The package defines the following public procedures:
 .TP
 \fB::math::geometry::+\fR \fIpoint1\fR \fIpoint2\fR
-Compute the sum of the two vectors given as points and return it.
-The result is a vector as well.
+Compute the sum of the two vectors given as points and return it\&.
+The result is a vector as well\&.
 .TP
 \fB::math::geometry::-\fR \fIpoint1\fR \fIpoint2\fR
 Compute the difference (point1 - point2) of the two vectors
-given as points and return it. The result is a vector as well.
+given as points and return it\&. The result is a vector as well\&.
 .TP
 \fB::math::geometry::p\fR \fIx\fR \fIy\fR
 Construct a point from its coordinates and return it as the
-result of the command.
+result of the command\&.
 .TP
 \fB::math::geometry::distance\fR \fIpoint1\fR \fIpoint2\fR
 Compute the distance between the two points and return it as the
-result of the command. This is in essence the same as
+result of the command\&. This is in essence the same as
 .CS
-math::geometry::length [math::geomtry::- point1 point2]
+
+
+    math::geometry::length [math::geomtry::- point1 point2]
+
 .CE
 .TP
 \fB::math::geometry::length\fR \fIpoint\fR
 Compute the length of the vector and return it as the
-result of the command.
+result of the command\&.
 .TP
 \fB::math::geometry::s*\fR \fIfactor\fR \fIpoint\fR
 Scale the vector by the factor and return it as the
-result of the command. This is a vector as well.
+result of the command\&. This is a vector as well\&.
 .TP
 \fB::math::geometry::direction\fR \fIangle\fR
 Given the angle in degrees this command computes and returns
-the unit vector pointing into this direction. The vector for
-angle == 0 points to the right (up), and for angle == 90 up (north).
+the unit vector pointing into this direction\&. The vector for
+angle == 0 points to the right (up), and for angle == 90 up (north)\&.
 .TP
 \fB::math::geometry::h\fR \fIlength\fR
-Returns a horizontal vector on the X-axis of the specified length.
-Positive lengths point to the right (east).
+Returns a horizontal vector on the X-axis of the specified length\&.
+Positive lengths point to the right (east)\&.
 .TP
 \fB::math::geometry::v\fR \fIlength\fR
-Returns a vertical vector on the Y-axis of the specified length.
-Positive lengths point down (south).
+Returns a vertical vector on the Y-axis of the specified length\&.
+Positive lengths point down (south)\&.
 .TP
 \fB::math::geometry::between\fR \fIpoint1\fR \fIpoint2\fR \fIs\fR
 Compute the point which is at relative distance \fIs\fR between the two
-points and return it as the result of the command. A relative distance of
-\fB0\fR returns \fIpoint1\fR, the distance \fB1\fR returns \fIpoint2\fR.
-Distances < 0 or > 1 extrapolate along the line between the two point.
+points and return it as the result of the command\&. A relative distance of
+\fB0\fR returns \fIpoint1\fR, the distance \fB1\fR returns \fIpoint2\fR\&.
+Distances < 0 or > 1 extrapolate along the line between the two point\&.
 .TP
 \fB::math::geometry::octant\fR \fIpoint\fR
 Compute the octant of the circle the point is in and return it as the result
-of the command. The possible results are
+of the command\&. The possible results are
 .RS
 .IP [1]
 east
@@ -425,21 +429,21 @@ south
 southeast
 .RE
 .IP
-Each octant is the arc of the circle +/- 22.5 degrees from the cardinal direction
-the octant is named for.
+Each octant is the arc of the circle +/- 22\&.5 degrees from the cardinal direction
+the octant is named for\&.
 .TP
 \fB::math::geometry::rect\fR \fInw\fR \fIse\fR
 Construct a rectangle from its northwest and southeast corners and return
-it as the result of the command.
+it as the result of the command\&.
 .TP
 \fB::math::geometry::nwse\fR \fIrect\fR
 Extract the northwest and southeast corners of the rectangle and return
 them as the result of the command (a 2-element list containing the
-points, in the named order).
+points, in the named order)\&.
 .TP
 \fB::math::geometry::angle\fR \fIline\fR
 Calculate the angle from the positive x-axis to a given line
-(in two dimensions only).
+(in two dimensions only)\&.
 .RS
 .TP
 list \fIline\fR
@@ -463,7 +467,7 @@ on the line
 .TP
 \fB::math::geometry::calculateDistanceToLineSegment\fR \fIP\fR \fIlinesegment\fR
 Calculate the distance of point P to the (finite) line segment and
-return the result.
+return the result\&.
 .RS
 .TP
 list \fIP\fR
@@ -478,7 +482,7 @@ first and last points of the line segment
 .TP
 \fB::math::geometry::calculateDistanceToPolyline\fR \fIP\fR \fIpolyline\fR
 Calculate the distance of point P to the polyline and
-return the result.
+return the result\&.
 .RS
 .TP
 list \fIP\fR
@@ -491,7 +495,7 @@ vertices of the polyline
 .sp
 .TP
 \fB::math::geometry::findClosestPointOnLine\fR \fIP\fR \fIline\fR
-Return the point on a line which is closest to a given point.
+Return the point on a line which is closest to a given point\&.
 .RS
 .TP
 list \fIP\fR
@@ -505,7 +509,7 @@ on the line
 .TP
 \fB::math::geometry::findClosestPointOnLineSegment\fR \fIP\fR \fIlinesegment\fR
 Return the point on a \fIline segment\fR which is closest to a given
-point.
+point\&.
 .RS
 .TP
 list \fIP\fR
@@ -519,7 +523,7 @@ points on the line segment
 .TP
 \fB::math::geometry::findClosestPointOnPolyline\fR \fIP\fR \fIpolyline\fR
 Return the point on a \fIpolyline\fR which is closest to a given
-point.
+point\&.
 .RS
 .TP
 list \fIP\fR
@@ -542,7 +546,7 @@ List of numbers, the vertices of the polyline
 .TP
 \fB::math::geometry::movePointInDirection\fR \fIP\fR \fIdirection\fR \fIdist\fR
 Move a point over a given distance in a given direction and return the
-new coordinates (in two dimensions only).
+new coordinates (in two dimensions only)\&.
 .RS
 .TP
 list \fIP\fR
@@ -558,8 +562,8 @@ Distance over which to move the point
 .sp
 .TP
 \fB::math::geometry::lineSegmentsIntersect\fR \fIlinesegment1\fR \fIlinesegment2\fR
-Check if two line segments intersect or coincide. Returns 1 if that is
-the case, 0 otherwise (in two dimensions only).
+Check if two line segments intersect or coincide\&. Returns 1 if that is
+the case, 0 otherwise (in two dimensions only)\&.
 .RS
 .TP
 list \fIlinesegment1\fR
@@ -571,9 +575,9 @@ Second line segment
 .sp
 .TP
 \fB::math::geometry::findLineSegmentIntersection\fR \fIlinesegment1\fR \fIlinesegment2\fR
-Find the intersection point of two line segments. Return the coordinates
+Find the intersection point of two line segments\&. Return the coordinates
 or the keywords "coincident" or "none" if the line segments coincide or
-have no points in common (in two dimensions only).
+have no points in common (in two dimensions only)\&.
 .RS
 .TP
 list \fIlinesegment1\fR
@@ -585,9 +589,9 @@ Second line segment
 .sp
 .TP
 \fB::math::geometry::findLineIntersection\fR \fIline1\fR \fIline2\fR
-Find the intersection point of two (infinite) lines. Return the coordinates
+Find the intersection point of two (infinite) lines\&. Return the coordinates
 or the keywords "coincident" or "none" if the lines coincide or
-have no points in common (in two dimensions only).
+have no points in common (in two dimensions only)\&.
 .RS
 .TP
 list \fIline1\fR
@@ -597,11 +601,11 @@ list \fIline2\fR
 Second line
 .RE
 .IP
-See section \fBReferences\fR for details on the algorithm and math behind it.
+See section \fBReferences\fR for details on the algorithm and math behind it\&.
 .sp
 .TP
 \fB::math::geometry::polylinesIntersect\fR \fIpolyline1\fR \fIpolyline2\fR
-Check if two polylines intersect or not (in two dimensions only).
+Check if two polylines intersect or not (in two dimensions only)\&.
 .RS
 .TP
 list \fIpolyline1\fR
@@ -614,15 +618,15 @@ Second polyline
 .TP
 \fB::math::geometry::polylinesBoundingIntersect\fR \fIpolyline1\fR \fIpolyline2\fR \fIgranularity\fR
 Check whether two polylines intersect, but reduce
-the correctness of the result to the given granularity.
-Use this for faster, but weaker, intersection checking.
+the correctness of the result to the given granularity\&.
+Use this for faster, but weaker, intersection checking\&.
 .sp
 How it works:
 .sp
 Each polyline is split into a number of smaller polylines,
-consisting of granularity points each. If a pair of those smaller
+consisting of granularity points each\&. If a pair of those smaller
 lines' bounding boxes intersect, then this procedure returns 1,
-otherwise it returns 0.
+otherwise it returns 0\&.
 .RS
 .TP
 list \fIpolyline1\fR
@@ -638,7 +642,7 @@ every edge)
 .sp
 .TP
 \fB::math::geometry::intervalsOverlap\fR \fIy1\fR \fIy2\fR \fIy3\fR \fIy4\fR \fIstrict\fR
-Check if two intervals overlap.
+Check if two intervals overlap\&.
 .RS
 .TP
 double \fIy1,y2\fR
@@ -653,7 +657,7 @@ Check for strict or non-strict overlap
 .sp
 .TP
 \fB::math::geometry::rectanglesOverlap\fR \fIP1\fR \fIP2\fR \fIQ1\fR \fIQ2\fR \fIstrict\fR
-Check if two rectangles overlap.
+Check if two rectangles overlap\&.
 .RS
 .TP
 list \fIP1\fR
@@ -674,8 +678,8 @@ choosing strict or non-strict interpretation
 .sp
 .TP
 \fB::math::geometry::bbox\fR \fIpolyline\fR
-Calculate the bounding box of a polyline. Returns a list of four
-coordinates: the upper-left and the lower-right corner of the box.
+Calculate the bounding box of a polyline\&. Returns a list of four
+coordinates: the upper-left and the lower-right corner of the box\&.
 .RS
 .TP
 list \fIpolyline\fR
@@ -684,9 +688,9 @@ The polyline to be examined
 .sp
 .TP
 \fB::math::geometry::pointInsidePolygon\fR \fIP\fR \fIpolyline\fR
-Determine if a point is completely inside a polygon. If the point
+Determine if a point is completely inside a polygon\&. If the point
 touches the polygon, then the point is not completely inside the
-polygon.
+polygon\&.
 .RS
 .TP
 list \fIP\fR
@@ -698,9 +702,9 @@ The polyline to be examined
 .sp
 .TP
 \fB::math::geometry::rectangleInsidePolygon\fR \fIP1\fR \fIP2\fR \fIpolyline\fR
-Determine if a rectangle is completely inside a polygon. If polygon
+Determine if a rectangle is completely inside a polygon\&. If polygon
 touches the rectangle, then the rectangle is not complete inside the
-polygon.
+polygon\&.
 .RS
 .TP
 list \fIP1\fR
@@ -716,7 +720,7 @@ The polygon in question
 .sp
 .TP
 \fB::math::geometry::areaPolygon\fR \fIpolygon\fR
-Calculate the area of a polygon.
+Calculate the area of a polygon\&.
 .RS
 .TP
 list \fIpolygon\fR
@@ -725,19 +729,19 @@ The polygon in question
 .PP
 .SH REFERENCES
 .IP [1]
-\fIPolygon Intersection\fR [http:/wiki.tcl.tk/12070]
+\fIPolygon Intersection\fR [http:/wiki\&.tcl\&.tk/12070]
 .IP [2]
-\fIhttp://en.wikipedia.org/wiki/Line-line_intersection\fR
+\fIhttp://en\&.wikipedia\&.org/wiki/Line-line_intersection\fR
 .IP [3]
-\fIhttp://local.wasp.uwa.edu.au/~pbourke/geometry/lineline2d/\fR
+\fIhttp://local\&.wasp\&.uwa\&.edu\&.au/~pbourke/geometry/lineline2d/\fR
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fImath :: geometry\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 angle, distance, line, math, plane geometry, point
 .SH CATEGORY
@@ -748,4 +752,5 @@ Copyright (c) 2001 by Ideogramic ApS and other parties
 Copyright (c) 2004 by Arjen Markus
 Copyright (c) 2010 by Andreas Kupries
 Copyright (c) 2010 by Kevin Kenny
+
 .fi

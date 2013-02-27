@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/ident/ident.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2004 Reinhard Max <max@tclers.tk>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/ident/ident\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2004 Reinhard Max <max@tclers\&.tk>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "ident" n 0.42 tcllib "Identification protocol client"
+.TH "ident" n 0\&.42 tcllib "Identification protocol client"
 .BS
 .SH NAME
 ident \- Ident protocol client
 .SH SYNOPSIS
-package require \fBTcl  8.3\fR
+package require \fBTcl  8\&.3\fR
 .sp
-package require \fBident  ?0.42?\fR
+package require \fBident  ?0\&.42?\fR
 .sp
 \fB::ident::query\fR \fIsocket\fR ?\fIcallback\fR?
 .sp
@@ -252,45 +253,46 @@ package require \fBident  ?0.42?\fR
 .SH DESCRIPTION
 The \fBident\fR package provides a client implementation of the ident
 protocol as defined in
-RFC 1413 (\fIhttp://www.rfc-editor.org/rfc/rfc1413.txt\fR).
+RFC 1413 (\fIhttp://www\&.rfc-editor\&.org/rfc/rfc1413\&.txt\fR)\&.
 .TP
 \fB::ident::query\fR \fIsocket\fR ?\fIcallback\fR?
 This command queries the ident daemon on the remote side of the given
-socket, and returns the result of the query as a dictionary.
+socket, and returns the result of the query as a dictionary\&.
 Interpreting the dictionary as list the first key will always be
 \fBresp-type\fR, and can have one of the values \fBUSERID\fR,
-\fBERROR\fR, and \fBFATAL\fR.  These \fIresponse types\fR have
+\fBERROR\fR, and \fBFATAL\fR\&.  These \fIresponse types\fR have
 the following meanings:
 .RS
 .TP
 USERID
-This indicates a successful response. Two more keys and associated
-values are returned, \fBopsys\fR, and \fBuser-id\fR.
+This indicates a successful response\&. Two more keys and associated
+values are returned, \fBopsys\fR, and \fBuser-id\fR\&.
 .TP
 ERROR
-This means the ident server has returned an error.  A second key named
+This means the ident server has returned an error\&.  A second key named
 \fBerror\fR is present whose value contains the \fBerror-type\fR
-field from the server response.
+field from the server response\&.
 .TP
 FATAL
 Fatal errors happen when no ident server is listening on the remote
 side, or when the ident server gives a response that does not conform
-to the RFC. A detailed error message is returned under the
-\fBerror\fR key.
+to the RFC\&. A detailed error message is returned under the
+\fBerror\fR key\&.
 .RE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIident\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 ident, identification, rfc 1413
 .SH CATEGORY
 Networking
 .SH COPYRIGHT
 .nf
-Copyright (c) 2004 Reinhard Max <max@tclers.tk>
+Copyright (c) 2004 Reinhard Max <max@tclers\&.tk>
+
 .fi

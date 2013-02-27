@@ -1,3 +1,20 @@
+2013-02-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* mpformats/_nroff.tcl: Modified the formatting of dots (".").
+	* pkgIndex.tcl: Always quote them with \& (zero-width escape).
+	* doctools.tcl: Updated test results. Version bumped to 1.4.16.
+	* doctools.man:
+	* modules/doctools/tests/nroff/00:
+	* modules/doctools/tests/nroff/01:
+	* modules/doctools/tests/nroff/02:
+	* modules/doctools/tests/nroff/03:
+	* modules/doctools/tests/nroff/04:
+	* modules/doctools/tests/nroff/05:
+	* modules/doctools/tests/nroff/06:
+	* modules/doctools/tests/nroff/07:
+	* modules/doctools/tests/nroff/08:
+
+
 2013-02-25  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/_nroff.tcl (nroff_postprocess): Followup fixes to

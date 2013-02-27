@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/csv/csv.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2002-2013 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/csv/csv\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2002-2013 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "csv" n 0.8 tcllib "CSV processing"
+.TH "csv" n 0\&.8 tcllib "CSV processing"
 .BS
 .SH NAME
-csv \- Procedures to handle CSV data.
+csv \- Procedures to handle CSV data\&.
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBcsv  ?0.8?\fR
+package require \fBcsv  ?0\&.8?\fR
 .sp
 \fB::csv::iscomplete\fR \fIdata\fR
 .sp
@@ -274,184 +275,193 @@ package require \fBcsv  ?0.8?\fR
 .SH DESCRIPTION
 .PP
 The \fBcsv\fR package provides commands to manipulate information
-in CSV \fBFORMAT\fR (CSV = Comma Separated Values).
+in CSV \fBFORMAT\fR (CSV = Comma Separated Values)\&.
 .SH COMMANDS
 .PP
 The following commands are available:
 .TP
 \fB::csv::iscomplete\fR \fIdata\fR
 A predicate checking if the argument \fIdata\fR is a complete csv
-record. The result is a boolean flag indicating the completeness of
-the data. The result is true if the data is complete.
+record\&. The result is a boolean flag indicating the completeness of
+the data\&. The result is true if the data is complete\&.
 .TP
 \fB::csv::join\fR \fIvalues\fR ?\fIsepChar\fR? ?\fIdelChar\fR? ?\fIdelMode\fR?
 Takes a list of values and returns a string in CSV format containing
-these values. The separator character can be defined by the caller,
-but this is optional. The default is ",". The quoting aka delimiting character can
-be defined by the caller, but this is optional. The default is '"'.
+these values\&. The separator character can be defined by the caller,
+but this is optional\&. The default is ","\&. The quoting aka delimiting character can
+be defined by the caller, but this is optional\&. The default is '"'\&.
 By default the quoting mode \fIdelMode\fR is "auto", surrounding
-values with \fIdelChar\fR only when needed. When set to "always"
-however, values are always surrounded by the \fIdelChar\fR instead.
+values with \fIdelChar\fR only when needed\&. When set to "always"
+however, values are always surrounded by the \fIdelChar\fR instead\&.
 .TP
 \fB::csv::joinlist\fR \fIvalues\fR ?\fIsepChar\fR? ?\fIdelChar\fR? ?\fIdelMode\fR?
 Takes a list of lists of values and returns a string in CSV format
-containing these values. The separator character can be defined by the
-caller, but this is optional. The default is ",". The quoting character
-can be defined by the caller, but this is optional. The default is '"'.
+containing these values\&. The separator character can be defined by the
+caller, but this is optional\&. The default is ","\&. The quoting character
+can be defined by the caller, but this is optional\&. The default is '"'\&.
 By default the quoting mode \fIdelMode\fR is "auto", surrounding
-values with \fIdelChar\fR only when needed. When set to "always"
-however, values are always surrounded by the \fIdelChar\fR instead.
+values with \fIdelChar\fR only when needed\&. When set to "always"
+however, values are always surrounded by the \fIdelChar\fR instead\&.
 Each element of the outer list is considered a record, these are
-separated by newlines in the result. The elements of each record are
-formatted as usual (via \fB::csv::join\fR).
+separated by newlines in the result\&. The elements of each record are
+formatted as usual (via \fB::csv::join\fR)\&.
 .TP
 \fB::csv::joinmatrix\fR \fImatrix\fR ?\fIsepChar\fR? ?\fIdelChar\fR? ?\fIdelMode\fR?
 Takes a \fImatrix\fR object following the API specified for the
 struct::matrix package and returns a string in CSV format containing
-these values. The separator character can be defined by the caller,
-but this is optional. The default is ",". The quoting character
-can be defined by the caller, but this is optional. The default is
-\'"'.
+these values\&. The separator character can be defined by the caller,
+but this is optional\&. The default is ","\&. The quoting character
+can be defined by the caller, but this is optional\&. The default is
+\'"'\&.
 By default the quoting mode \fIdelMode\fR is "auto", surrounding
-values with \fIdelChar\fR only when needed. When set to "always"
-however, values are always surrounded by the \fIdelChar\fR instead.
+values with \fIdelChar\fR only when needed\&. When set to "always"
+however, values are always surrounded by the \fIdelChar\fR instead\&.
 Each row of the matrix is considered a record, these are
-separated by newlines in the result. The elements of each record are
-formatted as usual (via \fB::csv::join\fR).
+separated by newlines in the result\&. The elements of each record are
+formatted as usual (via \fB::csv::join\fR)\&.
 .TP
 \fB::csv::read2matrix\fR ?\fB-alternate\fR? \fIchan m\fR {\fIsepChar\fR ,} {\fIexpand\fR none}
 A wrapper around \fB::csv::split2matrix\fR (see below) reading
 CSV-formatted lines from the specified channel (until EOF) and adding
-them to the given matrix. For an explanation of the \fIexpand\fR
-argument see \fB::csv::split2matrix\fR.
+them to the given matrix\&. For an explanation of the \fIexpand\fR
+argument see \fB::csv::split2matrix\fR\&.
 .TP
 \fB::csv::read2queue\fR ?\fB-alternate\fR? \fIchan q\fR {\fIsepChar\fR ,}
 A wrapper around \fB::csv::split2queue\fR (see below) reading
 CSV-formatted lines from the specified channel (until EOF) and adding
-them to the given queue.
+them to the given queue\&.
 .TP
 \fB::csv::report\fR \fIcmd matrix\fR ?\fIchan\fR?
 A report command which can be used by the matrix methods
-\fBformat 2string\fR and \fBformat 2chan\fR. For the latter this
-command delegates the work to \fB::csv::writematrix\fR. \fIcmd\fR is
+\fBformat 2string\fR and \fBformat 2chan\fR\&. For the latter this
+command delegates the work to \fB::csv::writematrix\fR\&. \fIcmd\fR is
 expected to be either \fBprintmatrix\fR or
-\fBprintmatrix2channel\fR. The channel argument, \fIchan\fR, has
-to be present for the latter and must not be present for the first.
+\fBprintmatrix2channel\fR\&. The channel argument, \fIchan\fR, has
+to be present for the latter and must not be present for the first\&.
 .TP
 \fB::csv::split\fR ?\fB-alternate\fR? \fIline\fR ?\fIsepChar\fR? ?\fIdelChar\fR?
 converts a \fIline\fR in CSV format into a list of the values
-contained in the line. The character used to separate the values from
+contained in the line\&. The character used to separate the values from
 each other can be defined by the caller, via \fIsepChar\fR, but this
-is optional. The default is ",". The quoting character can be defined
-by the caller, but this is optional. The default is '"'.
+is optional\&. The default is ","\&. The quoting character can be defined
+by the caller, but this is optional\&. The default is '"'\&.
 .sp
 If the option \fB-alternate\fR is specified a slightly different
-syntax is used to parse the input. This syntax is explained below, in
-the section \fBFORMAT\fR.
+syntax is used to parse the input\&. This syntax is explained below, in
+the section \fBFORMAT\fR\&.
 .TP
 \fB::csv::split2matrix\fR ?\fB-alternate\fR? \fIm line\fR {\fIsepChar\fR ,} {\fIexpand\fR none}
 The same as \fB::csv::split\fR, but appends the resulting list as a
-new row to the matrix \fIm\fR, using the method \fBadd row\fR. The
+new row to the matrix \fIm\fR, using the method \fBadd row\fR\&. The
 expansion mode specified via \fIexpand\fR determines how the command
-handles a matrix with less columns than contained in \fIline\fR. The
+handles a matrix with less columns than contained in \fIline\fR\&. The
 allowed modes are:
 .RS
 .TP
 \fBnone\fR
-This is the default mode. In this mode it is the responsibility of the
+This is the default mode\&. In this mode it is the responsibility of the
 caller to ensure that the matrix has enough columns to contain the
-full line. If there are not enough columns the list of values is
-silently truncated at the end to fit.
+full line\&. If there are not enough columns the list of values is
+silently truncated at the end to fit\&.
 .TP
 \fBempty\fR
 In this mode the command expands an empty matrix to hold all columns
-of the specified line, but goes no further. The overall effect is that
+of the specified line, but goes no further\&. The overall effect is that
 the first of a series of lines determines the number of columns in the
 matrix and all following lines are truncated to that size, as if mode
-\fBnone\fR was set.
+\fBnone\fR was set\&.
 .TP
 \fBauto\fR
 In this mode the command expands the matrix as needed to hold all
-columns contained in \fIline\fR. The overall effect is that after
+columns contained in \fIline\fR\&. The overall effect is that after
 adding a series of lines the matrix will have enough columns to hold
-all columns of the longest line encountered so far.
+all columns of the longest line encountered so far\&.
 .RE
 .TP
 \fB::csv::split2queue\fR ?\fB-alternate\fR? \fIq line\fR {\fIsepChar\fR ,}
 The same as \fB::csv::split\fR, but appending the resulting list as a
-single item to the queue \fIq\fR, using the method \fBput\fR.
+single item to the queue \fIq\fR, using the method \fBput\fR\&.
 .TP
 \fB::csv::writematrix\fR \fIm chan\fR ?\fIsepChar\fR? ?\fIdelChar\fR?
 A wrapper around \fB::csv::join\fR taking all rows in the matrix
-\fIm\fR and writing them CSV formatted into the channel \fIchan\fR.
+\fIm\fR and writing them CSV formatted into the channel \fIchan\fR\&.
 .TP
 \fB::csv::writequeue\fR \fIq chan\fR ?\fIsepChar\fR? ?\fIdelChar\fR?
 A wrapper around \fB::csv::join\fR taking all items in the queue
 \fIq\fR (assumes that they are lists) and writing them CSV formatted
-into the channel \fIchan\fR.
+into the channel \fIchan\fR\&.
 .PP
 .SH FORMAT
 .PP
 The format of regular CSV files is specified as
 .IP [1]
-Each record of a csv file (comma-separated values, as exported e.g. by
-Excel) is a set of ASCII values separated by ",". For other languages
+Each record of a csv file (comma-separated values, as exported e\&.g\&. by
+Excel) is a set of ASCII values separated by ","\&. For other languages
 it may be ";" however, although this is not important for this case as
-the functions provided here allow any separator character.
+the functions provided here allow any separator character\&.
 .IP [2]
 If and only if a value contains itself the separator ",", then it (the
-value) has to be put between "". If the value does not contain the
-separator character then quoting is optional.
+value) has to be put between ""\&. If the value does not contain the
+separator character then quoting is optional\&.
 .IP [3]
-If a value contains the character ", that character is represented by "".
+If a value contains the character ", that character is represented by ""\&.
 .IP [4]
-The output string "" represents the value ". In other words, it is
+The output string "" represents the value "\&. In other words, it is
 assumed that it was created through rule 3, and only this rule,
-i.e. that the value was not quoted.
+i\&.e\&. that the value was not quoted\&.
 .PP
 .PP
 An alternate format definition mainly used by MS products specifies
 that the output string "" is a representation of the empty
-string. In other words, it is assumed that the output was generated
-out of the empty string by quoting it (i.e. rule 2), and not through
-rule 3. This is the only difference between the regular and the
-alternate format.
+string\&. In other words, it is assumed that the output was generated
+out of the empty string by quoting it (i\&.e\&. rule 2), and not through
+rule 3\&. This is the only difference between the regular and the
+alternate format\&.
 .PP
 The alternate format is activated through specification of the option
-\fB-alternate\fR to the various split commands.
+\fB-alternate\fR to the various split commands\&.
 .SH EXAMPLE
 Using the regular format the record
 .PP
 .CS
-123,"123,521.2","Mary says ""Hello, I am Mary""",""
+
+
+123,"123,521\&.2","Mary says ""Hello, I am Mary""",""
+
 .CE
 .PP
 is parsed into the items
 .PP
 .CS
+
+
 a) 123
-b) 123,521.2
+b) 123,521\&.2
 c) Mary says "Hello, I am Mary"
 d) "
+
 .CE
 .PP
 Using the alternate format the result is
 .PP
 .CS
+
+
 a) 123
-b) 123,521.2
+b) 123,521\&.2
 c) Mary says "Hello, I am Mary"
 d) (the empty string)
+
 .CE
-instead. As can be seen only item (d) is different, now the empty string
-instead of a ".
+instead\&. As can be seen only item (d) is different, now the empty string
+instead of a "\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIcsv\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 matrix, queue
 .SH KEYWORDS
@@ -460,5 +470,6 @@ csv, matrix, package, queue, tcllib
 Text processing
 .SH COPYRIGHT
 .nf
-Copyright (c) 2002-2013 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2002-2013 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/virtchannel_transform/identity.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/virtchannel_transform/identity\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -242,7 +243,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tcl::transform::identity \- Identity transformation
 .SH SYNOPSIS
-package require \fBTcl  8.6\fR
+package require \fBTcl  8\&.6\fR
 .sp
 package require \fBtcl::transform::core  ?1?\fR
 .sp
@@ -255,39 +256,40 @@ package require \fBtcl::transform::identity  ?1?\fR
 .PP
 The \fBtcl::transform::identity\fR package provides a command
 creating an identity channel transformation, which does nothing but
-pass the read and written bytes through it unchanged. Not really
+pass the read and written bytes through it unchanged\&. Not really
 useful in an application, however as the prototypical observer
 transformation its code is a useful starting point for any other
-observers people may wish to write.
+observers people may wish to write\&.
 .PP
 The transformations in this module which derived from
 identity's code are
 \fBtcl::transform::adler32\fR,
 \fBtcl::transform::counter\fR,
 \fBtcl::transform::crc32\fR, and
-\fBtcl::transform::observe\fR.
+\fBtcl::transform::observe\fR\&.
 .PP
 The internal \fBTclOO\fR class implementing the transform
 handler is a sub-class of the \fBtcl::transform::core\fR
-framework.
+framework\&.
 .SH API
 .TP
 \fB::tcl::transform::identity\fR \fIchan\fR
 This command creates an identity transformation on top of the channel
-\fIchan\fR and returns its handle.
+\fIchan\fR and returns its handle\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIvirtchannel\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 channel transformation, identity, reflected channel, tip 230, transformation, virtual channel
 .SH CATEGORY
 Channels
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

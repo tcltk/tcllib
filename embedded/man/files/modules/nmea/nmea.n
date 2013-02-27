@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/nmea/nmea.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006-2009, Aaron Faupell <afaupell@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/nmea/nmea\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006-2009, Aaron Faupell <afaupell@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "nmea" n 1.0.0 tcllib "NMEA protocol implementation"
+.TH "nmea" n 1\&.0\&.0 tcllib "NMEA protocol implementation"
 .BS
 .SH NAME
 nmea \- Process NMEA data
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBnmea  ?1.0.0?\fR
+package require \fBnmea  ?1\&.0\&.0?\fR
 .sp
 \fB::nmea::input\fR \fIsentence\fR
 .sp
@@ -274,96 +275,105 @@ package require \fBnmea  ?1.0.0?\fR
 .SH DESCRIPTION
 .PP
 This package provides a standard interface for writing software which recieves
-NMEA standard input data. It allows for reading data from COM ports, files,
-or programmatic input. It also supports the checksumming and logging of incoming data.
-After parsing, input is dispatched to user defined handler commands for processing.
-To define a handler, see the \fBevent\fR command. There are no GPS specific functions
-in this package. NMEA data consists of a sentence type, followed by a list of data.
+NMEA standard input data\&. It allows for reading data from COM ports, files,
+or programmatic input\&. It also supports the checksumming and logging of incoming data\&.
+After parsing, input is dispatched to user defined handler commands for processing\&.
+To define a handler, see the \fBevent\fR command\&. There are no GPS specific functions
+in this package\&. NMEA data consists of a sentence type, followed by a list of data\&.
 .SH COMMANDS
 .TP
 \fB::nmea::input\fR \fIsentence\fR
-Processes and dispatches the supplied sentence. If \fIsentence\fR contains no commas it is treated as a Tcl list, otherwise it must be standard comma delimited NMEA data, with an optional checksum and leading \fB$\fR.
+Processes and dispatches the supplied sentence\&. If \fIsentence\fR contains no commas it is treated as a Tcl list, otherwise it must be standard comma delimited NMEA data, with an optional checksum and leading \fB$\fR\&.
 .CS
-nmea::input {$GPGSA,A,3,04,05,,09,12,,,24,,,,,2.5,1.3,2.1*39}
-nmea::input [list GPGSA A 3 04 05  09 12 "" "" 24 "" "" ""  2.5 1.3 2.1]
+
+
+nmea::input {$GPGSA,A,3,04,05,,09,12,,,24,,,,,2\&.5,1\&.3,2\&.1*39}
+nmea::input [list GPGSA A 3 04 05  09 12 "" "" 24 "" "" ""  2\&.5 1\&.3 2\&.1]
+
 .CE
 .TP
 \fB::nmea::open_port\fR \fIport\fR ?speed?
-Open the specified COM port and read NMEA sentences when available. Port speed is set to
-4800bps by default or to \fIspeed\fR.
+Open the specified COM port and read NMEA sentences when available\&. Port speed is set to
+4800bps by default or to \fIspeed\fR\&.
 .TP
 \fB::nmea::close_port\fR
-Close the com port connection if one is open.
+Close the com port connection if one is open\&.
 .TP
 \fB::nmea::configure_port\fR \fIsettings\fR
-Changes the current port settings. \fIsettings\fR has the same format as fconfigure -mode.
+Changes the current port settings\&. \fIsettings\fR has the same format as fconfigure -mode\&.
 .TP
 \fB::nmea::open_file\fR \fIfile\fR ?rate?
-Open file \fIfile\fR and read NMEA sentences, one per line, at the rate specified by ?rate? in milliseconds.
-The file format may omit the leading \fB$\fR and/or the checksum. If rate is <= 0 (the default) then lines
-will only be processed when a call to \fBdo_line\fR is made.
+Open file \fIfile\fR and read NMEA sentences, one per line, at the rate specified by ?rate? in milliseconds\&.
+The file format may omit the leading \fB$\fR and/or the checksum\&. If rate is <= 0 (the default) then lines
+will only be processed when a call to \fBdo_line\fR is made\&.
 .TP
 \fB::nmea::close_file\fR
-Close the open file if one exists.
+Close the open file if one exists\&.
 .TP
 \fB::nmea::do_line\fR
-If there is a currently open file, this command will read and process a single line from it.
-Returns the number of lines read.
+If there is a currently open file, this command will read and process a single line from it\&.
+Returns the number of lines read\&.
 .TP
 \fB::nmea::rate\fR
-Sets the rate at which lines are processed from the open file, in milliseconds. The rate remains
-consistant across files, there does not need to be a file currently open to use this command.
-Set to 0 to disable automatic line processing.
+Sets the rate at which lines are processed from the open file, in milliseconds\&. The rate remains
+consistant across files, there does not need to be a file currently open to use this command\&.
+Set to 0 to disable automatic line processing\&.
 .TP
 \fB::nmea::log\fR ?file?
-Starts or stops input logging. If a file name is specified then all NMEA data recieved on
-the open port will be logged to the ?file? in append mode. If file is an empty string then
-any logging will be stopped. If no file is specified then returns a boolean value indicating
-if logging is currently enabled. Data written to the port by \fBwrite\fR,
-data read from files, or input made using \fBinput\fR, is not logged.
+Starts or stops input logging\&. If a file name is specified then all NMEA data recieved on
+the open port will be logged to the ?file? in append mode\&. If file is an empty string then
+any logging will be stopped\&. If no file is specified then returns a boolean value indicating
+if logging is currently enabled\&. Data written to the port by \fBwrite\fR,
+data read from files, or input made using \fBinput\fR, is not logged\&.
 .TP
 \fB::nmea::checksum\fR \fIdata\fR
-Returns the checksum of the supplied data.
+Returns the checksum of the supplied data\&.
 .TP
 \fB::nmea::write\fR \fIsentence\fR \fIdata\fR
 If there is a currently open port, this command will write the specified sentence and data to the port
-in proper NMEA checksummed format.
+in proper NMEA checksummed format\&.
 .TP
 \fB::nmea::event\fR \fIsetence\fR ?command?
-Registers a handler proc for a given NMEA \fIsentence\fR. There may be at most one handler per
-sentence, any existing handler is replaced.
+Registers a handler proc for a given NMEA \fIsentence\fR\&. There may be at most one handler per
+sentence, any existing handler is replaced\&.
 If no command is specified, returns the name of the current handler for the given \fIsetence\fR
-or an empty string if none exists. In addition to the incoming sentences there are 2 builtin types,
-EOF and DEFAULT. The handler for the DEFAULT setence is invoked if there is not a specific handler
-for that sentence. The EOF handler is invoked when End Of File is reached on the open file or port.
+or an empty string if none exists\&. In addition to the incoming sentences there are 2 builtin types,
+EOF and DEFAULT\&. The handler for the DEFAULT setence is invoked if there is not a specific handler
+for that sentence\&. The EOF handler is invoked when End Of File is reached on the open file or port\&.
 .sp
 The handler procedures, with the exception of the builtin types,must take exactly one argument,
-which is a list of the data values.
-The DEFAULT handler should have two arguments, the sentence type and the data values.
-The EOF handler has no arguments.
+which is a list of the data values\&.
+The DEFAULT handler should have two arguments, the sentence type and the data values\&.
+The EOF handler has no arguments\&.
 .CS
+
+
 nmea::event gpgsa parse_sat_detail
 nmea::event default handle_unknown
+
 proc parse_sat_detail {data} {
-puts [lindex $data 1]
+    puts [lindex $data 1]
 }
+
 proc handle_unknown {name data} {
-puts "unknown data type $name"
+    puts "unknown data type $name"
 }
+
 .CE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fInmea\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 gps, nmea
 .SH CATEGORY
 Networking
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006-2009, Aaron Faupell <afaupell@users.sourceforge.net>
+Copyright (c) 2006-2009, Aaron Faupell <afaupell@users\&.sourceforge\&.net>
+
 .fi

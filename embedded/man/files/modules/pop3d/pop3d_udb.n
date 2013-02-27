@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/pop3d/pop3d_udb.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/pop3d/pop3d_udb\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2002 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,18 +238,18 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "pop3d::udb" n 1.0.1 tcllib "Tcl POP3 Server Package"
+.TH "pop3d::udb" n 1\&.0\&.1 tcllib "Tcl POP3 Server Package"
 .BS
 .SH NAME
 pop3d::udb \- Simple user database for pop3d
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBpop3d::udb  ?1.0.1?\fR
+package require \fBpop3d::udb  ?1\&.0\&.1?\fR
 .sp
 \fB::pop3d::udb::new\fR ?\fIdbName\fR?
 .sp
-\fBdbName\fR \fIoption\fR ?\fIarg arg ...\fR?
+\fBdbName\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp
 \fIdbName\fR \fBdestroy\fR
 .sp
@@ -273,83 +274,84 @@ package require \fBpop3d::udb  ?1.0.1?\fR
 .PP
 The package \fBpop3d::udb\fR provides simple in memory databases
 which can be used in conjunction with the pop3 server core provided by
-the package \fBpop3d\fR. The databases will use the names of users
-as keys and associates passwords and storage references with them.
+the package \fBpop3d\fR\&. The databases will use the names of users
+as keys and associates passwords and storage references with them\&.
 .PP
 Objects created by this package can be directly used in the
 authentication callback of pop3 servers following the same interface
-as servers created by the package \fBpop3d\fR.
+as servers created by the package \fBpop3d\fR\&.
 .PP
 .TP
 \fB::pop3d::udb::new\fR ?\fIdbName\fR?
 This command creates a new database object with an associated global
-Tcl command whose name is \fIdbName\fR.
+Tcl command whose name is \fIdbName\fR\&.
 .PP
 The command \fBdbName\fR may be used to invoke various operations on
-the database.  It has the following general form:
+the database\&.  It has the following general form:
 .TP
-\fBdbName\fR \fIoption\fR ?\fIarg arg ...\fR?
+\fBdbName\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
 \fIOption\fR and the \fIarg\fRs determine the exact behavior of the
-command.
+command\&.
 .PP
 .PP
 The following commands are possible for database objects:
 .TP
 \fIdbName\fR \fBdestroy\fR
-Destroys the database object.
+Destroys the database object\&.
 .TP
 \fIdbName\fR \fBadd\fR \fIuser pwd storage\fR
-Add a new user or changes the data of an existing user. Stores
-\fIpassword\fR and \fIstorage\fR reference for the given \fIuser\fR.
+Add a new user or changes the data of an existing user\&. Stores
+\fIpassword\fR and \fIstorage\fR reference for the given \fIuser\fR\&.
 .TP
 \fIdbName\fR \fBremove\fR \fIuser\fR
-Removes the specified \fIuser\fR from the database.
+Removes the specified \fIuser\fR from the database\&.
 .TP
 \fIdbName\fR \fBrename\fR \fIuser newName\fR
-Changes the name of the specified \fIuser\fR to \fInewName\fR.
+Changes the name of the specified \fIuser\fR to \fInewName\fR\&.
 .TP
 \fIdbName\fR \fBlookup\fR \fIuser\fR
 Searches the database for the specified \fIuser\fR and returns a
 two-element list containing the associated password and storage
-reference, in this order. Throws an error if the user could not be
-found. This is the interface as expected by the authentication
-callback of package \fBpop3d\fR.
+reference, in this order\&. Throws an error if the user could not be
+found\&. This is the interface as expected by the authentication
+callback of package \fBpop3d\fR\&.
 .TP
 \fIdbName\fR \fBexists\fR \fIuser\fR
 Returns true if the specified \fIuser\fR is known to the database,
-else false.
+else false\&.
 .TP
 \fIdbName\fR \fBwho\fR
-Returns a list of users known to the database.
+Returns a list of users known to the database\&.
 .TP
 \fIdbName\fR \fBsave\fR ?\fIfile\fR?
-Saves the contents of the database into the given \fIfile\fR. If the
+Saves the contents of the database into the given \fIfile\fR\&. If the
 file is not specified the system will use the path last used in a call
-to \fIdbName\fR \fBread\fR. The generated file can be read by the
-\fBread\fR method.
+to \fIdbName\fR \fBread\fR\&. The generated file can be read by the
+\fBread\fR method\&.
 .TP
 \fIdbName\fR \fBread\fR \fIfile\fR
 Reads the specified \fIfile\fR and adds the contained user definitions
-to the database. As the file is actually \fBsource\fR'd a safe
-interpreter is employed to safeguard against malicious code. This
+to the database\&. As the file is actually \fBsource\fR'd a safe
+interpreter is employed to safeguard against malicious code\&. This
 interpreter knows the \fBadd\fR command for adding users and their
-associated data to this database. This command has the same argument
-signature as the method \fBadd\fR. The path of the \fIfile\fR is
+associated data to this database\&. This command has the same argument
+signature as the method \fBadd\fR\&. The path of the \fIfile\fR is
 remembered internally so that it can be used in the next call of
-\fIdbName\fR \fBsave\fR without an argument.
+\fIdbName\fR \fBsave\fR without an argument\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIpop3d\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 internet, network, pop3, protocol
 .SH CATEGORY
 Networking
 .SH COPYRIGHT
 .nf
-Copyright (c) 2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2002 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

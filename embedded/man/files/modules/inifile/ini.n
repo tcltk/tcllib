@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/inifile/ini.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/inifile/ini\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "inifile" n 0.2.5 tcllib "Parsing of Windows INI files"
+.TH "inifile" n 0\&.2\&.5 tcllib "Parsing of Windows INI files"
 .BS
 .SH NAME
 inifile \- Parsing of Windows INI files
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBinifile  ?0.2.4?\fR
+package require \fBinifile  ?0\&.2\&.4?\fR
 .sp
 \fB::ini::open\fR \fIfile\fR ?\fIaccess\fR?
 .sp
@@ -275,77 +276,77 @@ package require \fBinifile  ?0.2.4?\fR
 .sp
 .BE
 .SH DESCRIPTION
-This package provides an interface for easy manipulation of Windows INI files.
+This package provides an interface for easy manipulation of Windows INI files\&.
 .PP
 .TP
 \fB::ini::open\fR \fIfile\fR ?\fIaccess\fR?
-Opens an INI file and returns a handle that is used by other commands.
+Opens an INI file and returns a handle that is used by other commands\&.
 \fIaccess\fR is the same as the first form (non POSIX) of the \fBopen\fR
-command, with the exception that mode \fBa\fR is not supported. The
-default mode is \fBr+\fR.
+command, with the exception that mode \fBa\fR is not supported\&. The
+default mode is \fBr+\fR\&.
 .TP
 \fB::ini::close\fR \fIini\fR
-Close the specified handle. If any changes were made and not written by
-\fBcommit\fR they are lost.
+Close the specified handle\&. If any changes were made and not written by
+\fBcommit\fR they are lost\&.
 .TP
 \fB::ini::commit\fR \fIini\fR
-Writes the file and all changes to disk. The sections are written in
-arbitrary order. The keys in a section are written in alphabetical
-order. If the ini was opened in read only mode an error will be thrown.
+Writes the file and all changes to disk\&. The sections are written in
+arbitrary order\&. The keys in a section are written in alphabetical
+order\&. If the ini was opened in read only mode an error will be thrown\&.
 .TP
 \fB::ini::revert\fR \fIini\fR
 Rolls all changes made to the inifile object back to the last
-committed state.
+committed state\&.
 .TP
 \fB::ini::filename\fR \fIini\fR
-Returns the name of the file the \fIini\fR object is associated with.
+Returns the name of the file the \fIini\fR object is associated with\&.
 .TP
 \fB::ini::sections\fR \fIini\fR
 Returns a list of all the names of the existing sections in the file handle
-specified.
+specified\&.
 .TP
 \fB::ini::keys\fR \fIini\fR \fIsection\fR
-Returns a list of all they key names in the section and file specified.
+Returns a list of all they key names in the section and file specified\&.
 .TP
 \fB::ini::get\fR \fIini\fR \fIsection\fR
-Returns a list of key value pairs that exist in the section and file specified.
+Returns a list of key value pairs that exist in the section and file specified\&.
 .TP
 \fB::ini::exists\fR \fIini\fR \fIsection\fR ?\fIkey\fR?
 Returns a boolean value indicating the existance of the specified section as a
-whole or the specified key within that section.
+whole or the specified key within that section\&.
 .TP
 \fB::ini::value\fR \fIini\fR \fIsection\fR \fIkey\fR ?\fIdefault\fR?
-Returns the value of the named key and section. If specified,
-the default value will be returned if the key does not exist. If the key does
-not exist and no default is specified an error will be thrown.
+Returns the value of the named key and section\&. If specified,
+the default value will be returned if the key does not exist\&. If the key does
+not exist and no default is specified an error will be thrown\&.
 .TP
 \fB::ini::set\fR \fIini\fR \fIsection\fR \fIkey\fR \fIvalue\fR
-Sets the value of the key in the specified section. If the section does not
-exist then a new one is created.
+Sets the value of the key in the specified section\&. If the section does not
+exist then a new one is created\&.
 .TP
 \fB::ini::delete\fR \fIini\fR \fIsection\fR ?\fIkey\fR?
-Removes the key or the entire section and all its keys. A section is not
-automatically deleted when it has no remaining keys.
+Removes the key or the entire section and all its keys\&. A section is not
+automatically deleted when it has no remaining keys\&.
 .TP
 \fB::ini::comment\fR \fIini\fR \fIsection\fR ?\fIkey\fR? ?\fItext\fR?
-Reads and modifies comments for sections and keys. To write a section comment use an
-empty string for the \fIkey\fR. To remove all comments use an empty string for \fItext\fR.
-\fItext\fR may consist of a list of lines or one single line. Any embedded newlines in
-\fItext\fR are properly handled.  Comments may be written to nonexistant
-sections or keys and will not return an error. Reading a comment from a nonexistant
-section or key will return an empty string.
+Reads and modifies comments for sections and keys\&. To write a section comment use an
+empty string for the \fIkey\fR\&. To remove all comments use an empty string for \fItext\fR\&.
+\fItext\fR may consist of a list of lines or one single line\&. Any embedded newlines in
+\fItext\fR are properly handled\&.  Comments may be written to nonexistant
+sections or keys and will not return an error\&. Reading a comment from a nonexistant
+section or key will return an empty string\&.
 .TP
 \fB::ini::commentchar\fR ?char?
-Reads and sets the comment character. Lines that begin with this character are treated as
-comments. When comments are written out each line is preceded by this character. The default
-is \fB;\fR.
+Reads and sets the comment character\&. Lines that begin with this character are treated as
+comments\&. When comments are written out each line is preceded by this character\&. The default
+is \fB;\fR\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIinifile\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH CATEGORY
 Text processing

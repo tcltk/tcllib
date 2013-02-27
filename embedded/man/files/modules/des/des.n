@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/des/des.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2005, Pat Thoyts <patthoyts@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/des/des\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2005, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "des" n 1.1 tcllib "Data Encryption Standard (DES)"
+.TH "des" n 1\&.1 tcllib "Data Encryption Standard (DES)"
 .BS
 .SH NAME
 des \- Implementation of the DES and triple-DES ciphers
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBdes  1.1\fR
+package require \fBdes  1\&.1\fR
 .sp
 \fB::DES::des\fR ?\fI-mode [ecb|cbc|cfb|ofb]\fR? ?\fI-dir [encrypt|decrypt]\fR? \fI-key keydata\fR ?\fI-iv vector\fR? ?\fI-hex\fR? ?\fI-weak\fR? ?\fI-out channel\fR? ?\fI-chunksize size\fR? [ \fI-in channel\fR | \fIdata\fR ]
 .sp
@@ -262,115 +263,120 @@ package require \fBdes  1.1\fR
 .SH DESCRIPTION
 .PP
 This is an implementation in Tcl of the Data Encryption Standard (DES)
-as published by the U.S. National Institute of Standards and
-Technology (NIST) [1]. This implementation also supports triple
-DES (3DES) extension to DES. DES is a 64-bit block cipher that uses a
-56-bit key. 3DES uses a 168-bit key. DES has now officially been
-superceeded by AES but is in common use in many protocols.
+as published by the U\&.S\&. National Institute of Standards and
+Technology (NIST) [1]\&. This implementation also supports triple
+DES (3DES) extension to DES\&. DES is a 64-bit block cipher that uses a
+56-bit key\&. 3DES uses a 168-bit key\&. DES has now officially been
+superceeded by AES but is in common use in many protocols\&.
 .PP
 The tcllib implementation of DES and 3DES uses an implementation by
-Mac Cody and is available as a separate download from [2]. For
+Mac Cody and is available as a separate download from [2]\&. For
 anyone concerned about the details of exporting this code please see
-the TclDES web pages. The tcllib specific code is a wrapper to the
+the TclDES web pages\&. The tcllib specific code is a wrapper to the
 TclDES API that presents same API for the DES cipher as for other
-ciphers in the library.
+ciphers in the library\&.
 .SH COMMANDS
 .TP
 \fB::DES::des\fR ?\fI-mode [ecb|cbc|cfb|ofb]\fR? ?\fI-dir [encrypt|decrypt]\fR? \fI-key keydata\fR ?\fI-iv vector\fR? ?\fI-hex\fR? ?\fI-weak\fR? ?\fI-out channel\fR? ?\fI-chunksize size\fR? [ \fI-in channel\fR | \fIdata\fR ]
 Perform the \fBDES\fR algorithm on either the data provided
-by the argument or on the data read from the \fI-in\fR channel. If
+by the argument or on the data read from the \fI-in\fR channel\&. If
 an \fI-out\fR channel is given then the result will be written to
-this channel.
+this channel\&.
 .sp
-The \fI-key\fR option must be given. This parameter takes a binary
-string of 8 bytes in length and is used to generate the key schedule.
-In DES only 56 bits of key data are used. The highest bit from each
-byte is discarded.
+The \fI-key\fR option must be given\&. This parameter takes a binary
+string of 8 bytes in length and is used to generate the key schedule\&.
+In DES only 56 bits of key data are used\&. The highest bit from each
+byte is discarded\&.
 .sp
 The \fI-mode\fR and \fI-dir\fR options are optional and default to cbc
-mode and encrypt respectively. The initialization vector \fI-iv\fR
-takes an 8 byte binary argument. This defaults to all zeros. See
+mode and encrypt respectively\&. The initialization vector \fI-iv\fR
+takes an 8 byte binary argument\&. This defaults to all zeros\&. See
 \fBMODES OF OPERATION\fR for more about \fI-mode\fR and the use
-of the initialization vector.
+of the initialization vector\&.
 .sp
-DES is a 64-bit block cipher. This means that the data must be
-provided in units that are a multiple of 8 bytes.
+DES is a 64-bit block cipher\&. This means that the data must be
+provided in units that are a multiple of 8 bytes\&.
 .PP
 .SH "PROGRAMMING INTERFACE"
 Internal state is maintained in an opaque structure that is returned
-from the \fBInit\fR function. In ECB mode the state is not affected by
+from the \fBInit\fR function\&. In ECB mode the state is not affected by
 the input but for other modes some input dependent state is maintained
 and may be reset by calling the \fBReset\fR function with a new
-initialization vector value.
+initialization vector value\&.
 .TP
 \fB::DES::Init\fR \fImode\fR \fIkeydata\fR \fIiv\fR ?\fIweak\fR?
 Construct a new DES key schedule using the specified key data and the
-given initialization vector. The initialization vector is not used
-with ECB mode but is important for other usage modes.
-See \fBMODES OF OPERATION\fR.
+given initialization vector\&. The initialization vector is not used
+with ECB mode but is important for other usage modes\&.
+See \fBMODES OF OPERATION\fR\&.
 .sp
 There are a small number of keys that are known to be weak when used
-with DES. By default if such a key is passed in then an error will be
-raised. If there is a need to accept such keys then the \fIweak\fR
-parameter can be set true to avoid the error being thrown.
+with DES\&. By default if such a key is passed in then an error will be
+raised\&. If there is a need to accept such keys then the \fIweak\fR
+parameter can be set true to avoid the error being thrown\&.
 .TP
 \fB::DES::Encrypt\fR \fIKey\fR \fIdata\fR
 Use a prepared key acquired by calling \fBInit\fR to encrypt the
-provided data. The data argument should be a binary array that is a
-multiple of the DES block size of 8 bytes. The result is a binary
-array the same size as the input of encrypted data.
+provided data\&. The data argument should be a binary array that is a
+multiple of the DES block size of 8 bytes\&. The result is a binary
+array the same size as the input of encrypted data\&.
 .TP
 \fB::DES::Decrypt\fR \fIKey\fR \fIdata\fR
-Decipher data using the key. Note that the same key may be used to
+Decipher data using the key\&. Note that the same key may be used to
 encrypt and decrypt data provided that the initialization vector is
-reset appropriately for CBC mode.
+reset appropriately for CBC mode\&.
 .TP
 \fB::DES::Reset\fR \fIKey\fR \fIiv\fR
-Reset the initialization vector. This permits the programmer to re-use
+Reset the initialization vector\&. This permits the programmer to re-use
 a key and avoid the cost of re-generating the key schedule where the
-same key data is being used multiple times.
+same key data is being used multiple times\&.
 .TP
 \fB::DES::Final\fR \fIKey\fR
-This should be called to clean up resources associated with \fIKey\fR.
-Once this function has been called the key may not be used again.
+This should be called to clean up resources associated with \fIKey\fR\&.
+Once this function has been called the key may not be used again\&.
 .PP
 .SH "MODES OF OPERATION"
 .TP
 Electronic Code Book (ECB)
-ECB is the basic mode of all block ciphers. Each block is encrypted
+ECB is the basic mode of all block ciphers\&. Each block is encrypted
 independently and so identical plain text will produce identical
-output when encrypted with the same key. Any encryption errors will
+output when encrypted with the same key\&. Any encryption errors will
 only affect a single block however this is vulnerable to known
-plaintext attacks.
+plaintext attacks\&.
 .TP
 Cipher Block Chaining (CBC)
 CBC mode uses the output of the last block encryption to affect the
-current block. An initialization vector of the same size as the cipher
-block size is used to handle the first block. The initialization
+current block\&. An initialization vector of the same size as the cipher
+block size is used to handle the first block\&. The initialization
 vector should be chosen randomly and transmitted as the first block of
-the output. Errors in encryption affect the current block and the next
-block after which the cipher will correct itself. CBC is the most
-commonly used mode in software encryption.
+the output\&. Errors in encryption affect the current block and the next
+block after which the cipher will correct itself\&. CBC is the most
+commonly used mode in software encryption\&.
 .TP
 Cipher Feedback (CFB)
-CFB mode can be used to convert block ciphers into stream ciphers. In
+CFB mode can be used to convert block ciphers into stream ciphers\&. In
 CFB mode the initialization vector is encrypted and the output is then
-xor'd with the plaintext stream. The result is then used as the
-initialization vector for the next round. Errors will affect the
-current block and the next block.
+xor'd with the plaintext stream\&. The result is then used as the
+initialization vector for the next round\&. Errors will affect the
+current block and the next block\&.
 .TP
 Output Feedback (OFB)
 OFB is similar to CFB except that the output of the cipher is fed back
-into the next round and not the xor'd plain text. This means that
+into the next round and not the xor'd plain text\&. This means that
 errors only affect a single block but the cipher is more vulnerable to
-attack.
+attack\&.
 .PP
 .SH EXAMPLES
 .CS
+
+
 % set ciphertext [DES::des -mode cbc -dir encrypt -key $secret $plaintext]
 % set plaintext [DES::des -mode cbc -dir decrypt -key $secret $ciphertext]
+
 .CE
 .CS
+
+
 set iv [string repeat \\\\0 8]
 set Key [DES::Init cbc \\\\0\\\\1\\\\2\\\\3\\\\4\\\\5\\\\6\\\\7 $iv]
 set ciphertext [DES::Encrypt $Key "somedata"]
@@ -378,15 +384,16 @@ append ciphertext [DES::Encrypt $Key "moredata"]
 DES::Reset $Key $iv
 set plaintext [DES::Decrypt $Key $ciphertext]
 DES::Final $Key
+
 .CE
 .SH REFERENCES
 .IP [1]
 "Data Encryption Standard",
 Federal Information Processing Standards Publication 46-3, 1999,
-(\fIhttp://csrc.nist.gov/publications/fips/fips46-3/fips46-3.pdf\fR)
+(\fIhttp://csrc\&.nist\&.gov/publications/fips/fips46-3/fips46-3\&.pdf\fR)
 .IP [2]
 "TclDES: munitions-grade Tcl scripting"
-\fIhttp://tcldes.sourceforge.net/\fR
+\fIhttp://tcldes\&.sourceforge\&.net/\fR
 .PP
 .SH AUTHORS
 Jochen C Loewer,
@@ -394,11 +401,11 @@ Mac Cody,
 Pat Thoyts
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIdes\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 aes(n), blowfish(n), md5(n), rc4(n), sha1(n)
 .SH KEYWORDS
@@ -407,5 +414,6 @@ aes(n), blowfish(n), md5(n), rc4(n), sha1(n)
 Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
-Copyright (c) 2005, Pat Thoyts <patthoyts@users.sourceforge.net>
+Copyright (c) 2005, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
+
 .fi

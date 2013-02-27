@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/textutil/tabify.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/textutil/tabify\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "textutil::tabify" n 0.7 tcllib "Text and string utilities, macro processing"
+.TH "textutil::tabify" n 0\&.7 tcllib "Text and string utilities, macro processing"
 .BS
 .SH NAME
 textutil::tabify \- Procedures to (un)tabify strings
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBtextutil::tabify  ?0.7?\fR
+package require \fBtextutil::tabify  ?0\&.7?\fR
 .sp
 \fB::textutil::tabify::tabify\fR \fIstring\fR ?\fInum\fR?
 .sp
@@ -256,52 +257,52 @@ package require \fBtextutil::tabify  ?0.7?\fR
 .BE
 .SH DESCRIPTION
 The package \fBtextutil::tabify\fR provides commands that convert
-between tabulation and ordinary whitespace in strings.
+between tabulation and ordinary whitespace in strings\&.
 .PP
-The complete set of procedures is described below.
+The complete set of procedures is described below\&.
 .TP
 \fB::textutil::tabify::tabify\fR \fIstring\fR ?\fInum\fR?
 Tabify the \fIstring\fR by replacing any substring of \fInum\fR space
-chars by a tabulation and return the result as a new string. \fInum\fR
-defaults to 8.
+chars by a tabulation and return the result as a new string\&. \fInum\fR
+defaults to 8\&.
 .TP
 \fB::textutil::tabify::tabify2\fR \fIstring\fR ?\fInum\fR?
 Similar to \fB::textutil::tabify\fR this command tabifies the
-\fIstring\fR and returns the result as a new string. A different
-algorithm is used however. Instead of replacing any substring of
-\fInum\fR spaces this command works more like an editor. \fInum\fR
-defaults to 8.
+\fIstring\fR and returns the result as a new string\&. A different
+algorithm is used however\&. Instead of replacing any substring of
+\fInum\fR spaces this command works more like an editor\&. \fInum\fR
+defaults to 8\&.
 .sp
 Each line of the text in \fIstring\fR is treated as if there are
-tabstops every \fInum\fR columns. Only sequences of space characters
+tabstops every \fInum\fR columns\&. Only sequences of space characters
 containing more than one space character and found immediately before
-a tabstop are replaced with tabs.
+a tabstop are replaced with tabs\&.
 .TP
 \fB::textutil::tabify::untabify\fR \fIstring\fR ?\fInum\fR?
 Untabify the \fIstring\fR by replacing any tabulation char by a
 substring of \fInum\fR space chars and return the result as a new
-string. \fInum\fR defaults to 8.
+string\&. \fInum\fR defaults to 8\&.
 .TP
 \fB::textutil::tabify::untabify2\fR \fIstring\fR ?\fInum\fR?
 Untabify the \fIstring\fR by replacing any tabulation char by a
 substring of at most \fInum\fR space chars and return the result as a
-new string. Unlike \fBtextutil::tabify::untabify\fR each tab is not
-replaced by a fixed number of space characters.  The command overlays
+new string\&. Unlike \fBtextutil::tabify::untabify\fR each tab is not
+replaced by a fixed number of space characters\&.  The command overlays
 each line in the \fIstring\fR with tabstops every \fInum\fR columns
 instead and replaces tabs with just enough space characters to reach
-the next tabstop. This is the complement of the actions taken by
-\fB::textutil::tabify::tabify2\fR. \fInum\fR defaults to 8.
+the next tabstop\&. This is the complement of the actions taken by
+\fB::textutil::tabify::tabify2\fR\&. \fInum\fR defaults to 8\&.
 .sp
 There is one asymmetry though: A tab can be replaced with a single
-space, but not the other way around.
+space, but not the other way around\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fItextutil\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 regexp(n), split(n), string(n)
 .SH KEYWORDS

@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/grammar_peg/peg_interp.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2005-2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/grammar_peg/peg_interp\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2005-2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,16 +238,16 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "grammar::peg::interp" n 0.1.1 tcllib "Grammar operations and usage"
+.TH "grammar::peg::interp" n 0\&.1\&.1 tcllib "Grammar operations and usage"
 .BS
 .SH NAME
 grammar::peg::interp \- Interpreter for parsing expression grammars
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBgrammar::mengine  ?0.1?\fR
+package require \fBgrammar::mengine  ?0\&.1?\fR
 .sp
-package require \fBgrammar::peg::interp  ?0.1.1?\fR
+package require \fBgrammar::peg::interp  ?0\&.1\&.1?\fR
 .sp
 \fB::grammar::peg::interp::setup\fR \fIpeg\fR
 .sp
@@ -257,81 +258,82 @@ package require \fBgrammar::peg::interp  ?0.1.1?\fR
 .PP
 This package provides commands for the controlled matching of a
 character stream via a parsing expression grammar and the creation
-of an abstract syntax tree for the stream and partials.
+of an abstract syntax tree for the stream and partials\&.
 .PP
 It is built on top of the virtual machine provided by the package
 \fBgrammar::me::tcl\fR and directly interprets the parsing
-expression grammar given to it.
-In other words, the grammar is \fInot\fR pre-compiled but used as is.
+expression grammar given to it\&.
+In other words, the grammar is \fInot\fR pre-compiled but used as is\&.
 .PP
 The grammar to be interpreted is taken from a container object
 following the interface specified by the package
-\fBgrammar::peg::container\fR. Only the relevant parts
-are copied into the state of this package.
+\fBgrammar::peg::container\fR\&. Only the relevant parts
+are copied into the state of this package\&.
 .PP
 It should be noted that the package provides exactly one instance
 of the interpreter, and interpreting a second grammar requires
 the user to either abort or complete a running interpretation, or
-to put them into different Tcl interpreters.
+to put them into different Tcl interpreters\&.
 .PP
 Also of note is that the implementation assumes a pull-type
-handling of the input. In other words, the interpreter pulls
-characters from the input stream as it needs them. For usage
-in a push environment, i.e. where the environment pushes new
+handling of the input\&. In other words, the interpreter pulls
+characters from the input stream as it needs them\&. For usage
+in a push environment, i\&.e\&. where the environment pushes new
 characters as they come we have to put the engine into its
-own thread.
+own thread\&.
 .SH "THE INTERPRETER API"
 The package exports the following API
 .TP
 \fB::grammar::peg::interp::setup\fR \fIpeg\fR
-This command (re)initializes the interpreter. It returns the
-empty string. This command has to be invoked first, before any
-matching run.
+This command (re)initializes the interpreter\&. It returns the
+empty string\&. This command has to be invoked first, before any
+matching run\&.
 .sp
 Its argument \fIpeg\fR is the handle of an object containing the
-parsing expression grammar to interpret. This grammar has to be
-valid, or an error will be thrown.
+parsing expression grammar to interpret\&. This grammar has to be
+valid, or an error will be thrown\&.
 .TP
 \fB::grammar::peg::interp::parse\fR \fInextcmd\fR \fIerrorvar\fR \fIastvar\fR
 This command interprets the loaded grammar and tries to match it
 against the stream of characters represented by the command prefix
-\fInextcmd\fR.
+\fInextcmd\fR\&.
 .sp
 The command prefix \fInextcmd\fR represents the input stream of
 characters and is invoked by the interpreter whenever the a new
-character from the stream is required.
+character from the stream is required\&.
 The callback has to return either the empty list, or a list of 4
 elements containing the token, its lexeme attribute, and its location
-as line number and column index, in this order.
+as line number and column index, in this order\&.
 The empty list is the signal that the end of the input stream has been
-reached. The lexeme attribute is stored in the terminal cache, but
-otherwise not used by the machine.
+reached\&. The lexeme attribute is stored in the terminal cache, but
+otherwise not used by the machine\&.
 .sp
 The result of the command is a boolean value indicating whether the
 matching process was successful (\fBtrue\fR), or not
-(\fBfalse\fR). In the case of a match failure error information will
-be stored into the variable referenced by \fIerrorvar\fR. The variable
+(\fBfalse\fR)\&. In the case of a match failure error information will
+be stored into the variable referenced by \fIerrorvar\fR\&. The variable
 referenced by \fIastvar\fR will always contain the generated abstract
 syntax tree, however in the case of an error it will be only partial
-and possibly malformed.
+and possibly malformed\&.
 .sp
 The abstract syntax tree is represented by a nested list, as
 described in section \fBAST VALUES\fR of
-document \fIgrammar::me_ast\fR.
+document \fIgrammar::me_ast\fR\&.
 .PP
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIgrammar_peg\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 LL(k), TDPL, context-free languages, expression, grammar, matching, parsing, parsing expression, parsing expression grammar, push down automaton, recursive descent, state, top-down parsing languages, transducer, virtual machine
 .SH CATEGORY
 Grammars and finite automata
 .SH COPYRIGHT
 .nf
-Copyright (c) 2005-2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2005-2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/base64/uuencode.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/base64/uuencode\&.n' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002, Pat Thoyts
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "uuencode" n 1.1.4 tcllib "Text encoding & decoding binary data"
+.TH "uuencode" n 1\&.1\&.4 tcllib "Text encoding & decoding binary data"
 .BS
 .SH NAME
 uuencode \- UU-encode/decode binary data
 .SH SYNOPSIS
 package require \fBTcl  8\fR
 .sp
-package require \fBuuencode  ?1.1.4?\fR
+package require \fBuuencode  ?1\&.1\&.4?\fR
 .sp
 \fB::uuencode::encode\fR \fIstring\fR
 .sp
@@ -258,75 +259,87 @@ package require \fBuuencode  ?1.1.4?\fR
 .SH DESCRIPTION
 .PP
 This package provides a Tcl-only implementation of the
-\fBuuencode(1)\fR and \fBuudecode(1)\fR commands. This encoding
-packs binary data into printable ASCII characters.
+\fBuuencode(1)\fR and \fBuudecode(1)\fR commands\&. This encoding
+packs binary data into printable ASCII characters\&.
 .TP
 \fB::uuencode::encode\fR \fIstring\fR
-returns the uuencoded data. This will encode all the data passed in
-even if this is longer than the uuencode maximum line length. If the
+returns the uuencoded data\&. This will encode all the data passed in
+even if this is longer than the uuencode maximum line length\&. If the
 number of input bytes is not a multiple of 3 then additional 0 bytes
-are added to pad the string.
+are added to pad the string\&.
 .TP
 \fB::uuencode::decode\fR \fIstring\fR
-Decodes the given encoded data. This will return any padding
+Decodes the given encoded data\&. This will return any padding
 characters as well and it is the callers responsibility to deal with
-handling the actual length of the encoded data. (see uuencode).
+handling the actual length of the encoded data\&. (see uuencode)\&.
 .TP
 \fB::uuencode::uuencode\fR ?\fB-name\fR \fIstring\fR? ?\fB-mode\fR \fIoctal\fR? (\fB-file\fR \fIfilename\fR | ?\fB--\fR? \fIstring\fR)
 .TP
 \fB::uuencode::uudecode\fR (\fB-file\fR \fIfilename\fR | ?\fB--\fR? \fIstring\fR)
-UUDecode a file or block of data. A file may contain more than one
+UUDecode a file or block of data\&. A file may contain more than one
 embedded file so the result is a list where each element is a three
-element list of filename, mode value and data.
+element list of filename, mode value and data\&.
 .PP
 .SH OPTIONS
 .TP
 -filename name
 Cause the uuencode or uudecode commands to read their data from the
-named file rather that taking a string parameter.
+named file rather that taking a string parameter\&.
 .TP
 -name string
 The uuencoded data header line contains the suggested file name to be
-used when unpacking the data. Use this option to change this from the
-default of "data.dat".
+used when unpacking the data\&. Use this option to change this from the
+default of "data\&.dat"\&.
 .TP
 -mode octal
 The uuencoded data header line contains a suggested permissions bit
-pattern expressed as an octal string. To change the default of 0644
-you can set this option. For instance, 0755 would be suitable for an
-executable. See \fBchmod(1)\fR.
+pattern expressed as an octal string\&. To change the default of 0644
+you can set this option\&. For instance, 0755 would be suitable for an
+executable\&. See \fBchmod(1)\fR\&.
 .PP
 .SH EXAMPLES
 .PP
 .CS
+
+
 % set d [uuencode::encode "Hello World!"]
 2&5L;&\\\\@5V]R;&0A
+
 .CE
 .PP
 .CS
+
+
 % uuencode::uudecode $d
 Hello World!
+
 .CE
 .PP
 .CS
-% set d [uuencode::uuencode -name hello.txt "Hello World"]
-begin 644 hello.txt
+
+
+% set d [uuencode::uuencode -name hello\&.txt "Hello World"]
+begin 644 hello\&.txt
 +2&5L;&\\@5V]R;&0`
 `
 end
+
 .CE
 .PP
 .CS
+
+
 % uuencode::uudecode $d
-{hello.txt 644 {Hello World}}
+{hello\&.txt 644 {Hello World}}
+
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIbase64\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 encoding, uuencode
 .SH CATEGORY
@@ -334,4 +347,5 @@ Text processing
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002, Pat Thoyts
+
 .fi

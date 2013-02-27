@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/nns/nns_client.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/nns/nns_client\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "nameserv" n 0.4.2 tcllib "Name service facility"
+.TH "nameserv" n 0\&.4\&.2 tcllib "Name service facility"
 .BS
 .SH NAME
 nameserv \- Name service facility, Client
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBnameserv  ?0.4.2?\fR
+package require \fBnameserv  ?0\&.4\&.2?\fR
 .sp
 package require \fBcomm \fR
 .sp
@@ -268,7 +269,7 @@ package require \fBlogger \fR
 .sp
 \fB::nameserv::configure\fR \fB-option\fR
 .sp
-\fB::nameserv::configure\fR \fB-option\fR \fIvalue\fR...
+\fB::nameserv::configure\fR \fB-option\fR \fIvalue\fR\&.\&.\&.
 .sp
 \fB$result\fR \fBdestroy\fR
 .sp
@@ -284,111 +285,111 @@ package require \fBlogger \fR
 .sp
 .BE
 .SH DESCRIPTION
-Please read \fIName service facility, introduction\fR first.
+Please read \fIName service facility, introduction\fR first\&.
 .PP
 This package provides a client for the name service facility
-implemented by the package \fBnameserv::server\fR.
+implemented by the package \fBnameserv::server\fR\&.
 .PP
-This service is built in top of and for the package \fBcomm\fR.
-It has nothing to do with the Internet's Domain Name System. If the
+This service is built in top of and for the package \fBcomm\fR\&.
+It has nothing to do with the Internet's Domain Name System\&. If the
 reader is looking for a package dealing with that please see Tcllib's
-packages \fBdns\fR and \fBresolv\fR.
+packages \fBdns\fR and \fBresolv\fR\&.
 .SH API
 The package exports eight commands, as specified below:
 .TP
 \fB::nameserv::bind\fR \fIname\fR \fIdata\fR
 The caller of this command registers the given \fIname\fR as its name
 in the configured name service, and additionally associates a piece of
-\fIdata\fR with it. The service does nothing with this information
-beyond storing it and delivering it as part of search results. The
-meaning is entirely up to the applications using the name service.
+\fIdata\fR with it\&. The service does nothing with this information
+beyond storing it and delivering it as part of search results\&. The
+meaning is entirely up to the applications using the name service\&.
 .sp
 A generally useful choice would for example be an identifier for a
-communication endpoint managed by the package \fBcomm\fR. Anybody
+communication endpoint managed by the package \fBcomm\fR\&. Anybody
 retrieving the name becomes immediately able to talk to this endpoint,
-i.e. the registering application.
+i\&.e\&. the registering application\&.
 .sp
 Of further importance is that a caller can register itself under more
-than one name, and each name can have its own piece of \fIdata\fR.
+than one name, and each name can have its own piece of \fIdata\fR\&.
 .sp
 Note that the name service, and thwerefore this command, will throw an
-error if the chosen name is already registered.
+error if the chosen name is already registered\&.
 .TP
 \fB::nameserv::release\fR
 Invoking this command releases all names (and their data) registered
-by all previous calls to \fB::nameserv::bind\fR of this client. Note
+by all previous calls to \fB::nameserv::bind\fR of this client\&. Note
 that the name service will run this command implicitly when it loses
-the connection to this client.
+the connection to this client\&.
 .TP
 \fB::nameserv::search\fR ?\fB-async\fR|\fB-continuous\fR? ?\fIpattern\fR?
 This command searches the name service for all registered names
-matching the specified glob-\fIpattern\fR. If not specified the
-pattern defaults to \fB*\fR, matching everything. The result of the
+matching the specified glob-\fIpattern\fR\&. If not specified the
+pattern defaults to \fB*\fR, matching everything\&. The result of the
 command is a dictionary mapping the matching names to the data
-associated with them at \fIbind\fR-time.
+associated with them at \fIbind\fR-time\&.
 .sp
 If either option \fB-async\fR or \fB-continuous\fR were
 specified the result of this command changes and becomes the Tcl
-command of an object holding the actual result.
+command of an object holding the actual result\&.
 These two options are supported if and only if the service the client
 is connected to supports the protocol feature
-\fISearch/Continuous\fR.
+\fISearch/Continuous\fR\&.
 .sp
 For \fB-async\fR the result object is asynchronously filled with
 the entries matching the pattern at the time of the search and then
-not modified any more.
+not modified any more\&.
 The option \fB-continuous\fR extends this behaviour by additionally
 continuously monitoring the service for the addition and removal of
 entries which match the pattern, and updating the object's contents
-appropriately.
+appropriately\&.
 .sp
 \fINote\fR that the caller is responsible for configuring the object
 with a callback for proper notification when the current result (or
-further changes) arrive.
+further changes) arrive\&.
 .sp
 For more information about this object see section
-\fBASYNCHRONOUS AND CONTINUOUS SEARCHES\fR.
+\fBASYNCHRONOUS AND CONTINUOUS SEARCHES\fR\&.
 .TP
 \fB::nameserv::protocol\fR
 This command returns the highest version of the name service protocol
-supported by the package.
+supported by the package\&.
 .TP
 \fB::nameserv::server_protocol\fR
 This command returns the highest version of the name service protocol
-supported by the name service the client is currently connected to.
+supported by the name service the client is currently connected to\&.
 .TP
 \fB::nameserv::server_features\fR
 This command returns a list containing the names of the features of
 the name service protocol which are supported by the name service the
-client is currently connected to.
+client is currently connected to\&.
 .TP
 \fB::nameserv::cget\fR \fB-option\fR
 This command returns the currently configured value for the specified
-\fB-option\fR. The list of supported options and their meaning can
-be found in section \fBOPTIONS\fR.
+\fB-option\fR\&. The list of supported options and their meaning can
+be found in section \fBOPTIONS\fR\&.
 .TP
 \fB::nameserv::configure\fR
 In this form the command returns a dictionary of all supported
-options, and their current values. The list of supported options and
-their meaning can be found in section \fBOPTIONS\fR.
+options, and their current values\&. The list of supported options and
+their meaning can be found in section \fBOPTIONS\fR\&.
 .TP
 \fB::nameserv::configure\fR \fB-option\fR
 In this form the command is an alias for
-"\fB::nameserv::cget\fR \fB-option\fR]".
+"\fB::nameserv::cget\fR \fB-option\fR]"\&.
 The list of supported options and their meaning can be found in
-section \fBOPTIONS\fR.
+section \fBOPTIONS\fR\&.
 .TP
-\fB::nameserv::configure\fR \fB-option\fR \fIvalue\fR...
+\fB::nameserv::configure\fR \fB-option\fR \fIvalue\fR\&.\&.\&.
 In this form the command is used to configure one or more of the
-supported options. At least one option has to be specified, and each
-option is followed by its new value.
+supported options\&. At least one option has to be specified, and each
+option is followed by its new value\&.
 The list of supported options and their meaning can be found in
-section \fBOPTIONS\fR.
+section \fBOPTIONS\fR\&.
 .sp
 This form can be used only as long as the client has not contacted the
-name service yet. After contact has been made reconfiguration is not
-possible anymore. This means that this form of the command is for the
-initalization of the client before it use.
+name service yet\&. After contact has been made reconfiguration is not
+possible anymore\&. This means that this form of the command is for the
+initalization of the client before it use\&.
 The command forcing a contact with the name service are
 .RS
 .TP
@@ -406,7 +407,7 @@ The command forcing a contact with the name service are
 .SH "CONNECTION HANDLING"
 The client automatically connects to the service when one of the
 commands below is run for the first time, or whenever one of the
-commands is run after the connection was lost, when it was lost.
+commands is run after the connection was lost, when it was lost\&.
 .PP
 .TP
 \fBbind\fR
@@ -420,49 +421,49 @@ commands is run after the connection was lost, when it was lost.
 \fBserver_features\fR
 .PP
 .PP
-Since version 0.2 of the client it will generate an event when the
+Since version 0\&.2 of the client it will generate an event when the
 connection is lost, allowing higher layers to perform additional
-actions. This is done via the support package \fBuevent\fR. This
+actions\&. This is done via the support package \fBuevent\fR\&. This
 and all other name service related packages hereby reserve the
-uevent-tag \fInameserv\fR. All their events will be posted to that
-tag.
+uevent-tag \fInameserv\fR\&. All their events will be posted to that
+tag\&.
 .SH EVENTS
-This package generates only one event, \fIlost-connection\fR. The
-detail information provided to that event is a Tcl dictionary. The
+This package generates only one event, \fIlost-connection\fR\&. The
+detail information provided to that event is a Tcl dictionary\&. The
 only key contained in the dictionnary is \fBreason\fR, and its value
-will be a string describing why the connection was lost.
+will be a string describing why the connection was lost\&.
 This string is supplied by the underlying communication package,
-i.e. \fBcomm\fR.
+i\&.e\&. \fBcomm\fR\&.
 .SH OPTIONS
 The options supported by the client are for the specification of which
-name service to contact, i.e. of the location of the name service.
+name service to contact, i\&.e\&. of the location of the name service\&.
 They are:
 .TP
 \fB-host\fR \fIname\fR|\fIipaddress\fR
 This option specifies the host name service to contact is running on,
-either by \fIname\fR, or by \fIipaddress\fR. The initial default is
-\fBlocalhost\fR, i.e. it is expected to contact a name service
-running on the same host as the application using this package.
+either by \fIname\fR, or by \fIipaddress\fR\&. The initial default is
+\fBlocalhost\fR, i\&.e\&. it is expected to contact a name service
+running on the same host as the application using this package\&.
 .TP
 \fB-port\fR \fInumber\fR
 This option specifies the port the name service to contact is
-listening on. It has to be a positive integer number (> 0) not greater
-than 65536 (unsigned short). The initial default is the number
+listening on\&. It has to be a positive integer number (> 0) not greater
+than 65536 (unsigned short)\&. The initial default is the number
 returned by the command \fB::nameserv::common::port\fR, as provided by
-the package \fB::nameserv::common\fR.
+the package \fB::nameserv::common\fR\&.
 .PP
 .SH "ASYNCHRONOUS AND CONTINUOUS SEARCHES"
 Asynchronous and continuous searches are invoked by using either
 option \fB-async\fR or \fB-continuous\fR as argument to the
-command \fB::nameserv::search\fR.
+command \fB::nameserv::search\fR\&.
 .PP
 \fINote\fR that these two options are supported if and only if the
 service the client is connected to supports the protocol feature
-\fISearch/Continuous\fR. The service provided by the package
-\fB::nameserv::server\fR does this since version 0.3.
+\fISearch/Continuous\fR\&. The service provided by the package
+\fB::nameserv::server\fR does this since version 0\&.3\&.
 .PP
 For such searches the result of the search command is the Tcl command
-of an object holding the actual result. The API provided by these
+of an object holding the actual result\&. The API provided by these
 objects is:
 .TP
 Options:
@@ -471,23 +472,23 @@ Options:
 \fB-command\fR \fIcommand_prefix\fR
 This option has to be set if a user of the result object wishes to get
 asynchronous notifications when the search result or changes to it
-arrive.
+arrive\&.
 .sp
 \fINote\fR that while it is possible to poll for the arrival of the
 initial search result via the method \fBfilled\fR, and for
 subsequent changes by comparing the output of method \fBgetall\fR
-against a saved copy, this is not the recommended behaviour. Setting
+against a saved copy, this is not the recommended behaviour\&. Setting
 the \fB-command\fR callback and processing the notifications as
-they arrive is much more efficient.
+they arrive is much more efficient\&.
 .sp
 The \fIcommand_prefix\fR is called with two arguments, the type of
-change, and the data of the change. The type is either \fBadd\fR or
-\fBremove\fR, indicating new data, or deleted data, respectively.
+change, and the data of the change\&. The type is either \fBadd\fR or
+\fBremove\fR, indicating new data, or deleted data, respectively\&.
 The data of the change is always a dictionary listing the
-added/removed names and their associated data.
+added/removed names and their associated data\&.
 .sp
 The first change reported for a search is always the set of matching
-entries at the time of the search.
+entries at the time of the search\&.
 .RE
 .TP
 Methods:
@@ -495,53 +496,53 @@ Methods:
 .TP
 \fB$result\fR \fBdestroy\fR
 Destroys the object and cancels any continuous monitoring of the
-service the object may have had active.
+service the object may have had active\&.
 .TP
 \fB$result\fR \fBfilled\fR
 The result is a boolean value indicating whether the search result has
-already arrived (\fBTrue\fR), or not (\fBFalse\fR).
+already arrived (\fBTrue\fR), or not (\fBFalse\fR)\&.
 .TP
 \fB$result\fR \fBget\fR \fIname\fR
 Returns the data associated with the given \fIname\fR at
-\fIbind\fR-time.
+\fIbind\fR-time\&.
 .TP
 \fB$result\fR \fBnames\fR
 Returns a list containing all names known to the object at the time of
-the invokation.
+the invokation\&.
 .TP
 \fB$result\fR \fBsize\fR
 Returns an integer value specifying the size of the result at the time
-of the invokation.
+of the invokation\&.
 .TP
 \fB$result\fR \fBgetall\fR ?\fIpattern\fR?
 Returns a dictionary containing the search result at the time of the
 invokation, mapping the matching names to the data associated with
-them at \fIbind\fR-time.
+them at \fIbind\fR-time\&.
 .RE
 .PP
 .SH HISTORY
 .TP
-0.3.1
-Fixed SF Bug 1954771.
+0\&.3\&.1
+Fixed SF Bug 1954771\&.
 .TP
-0.3
+0\&.3
 Extended the client with the ability to perform asynchronous and
-continuous searches.
+continuous searches\&.
 .TP
-0.2
+0\&.2
 Extended the client with the ability to generate events when it loses
-its connection to the name service. Based on package \fBuevent\fR.
+its connection to the name service\&. Based on package \fBuevent\fR\&.
 .TP
-0.1
-Initial implementation of the client.
+0\&.1
+Initial implementation of the client\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fInameserv\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 nameserv::common(n), nameserv::server(n)
 .SH KEYWORDS
@@ -550,5 +551,6 @@ client, name service
 Networking
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

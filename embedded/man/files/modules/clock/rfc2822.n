@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/clock/rfc2822.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/clock/rfc2822\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,34 +237,34 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "clock_rfc2822" n 0.1 tcllib "Date/Time Utilities"
+.TH "clock_rfc2822" n 0\&.1 tcllib "Date/Time Utilities"
 .BS
 .SH NAME
 clock_rfc2822 \- Parsing ISO 8601 dates/times
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
-package require \fBclock::rfc2822  ?0.1?\fR
+package require \fBclock::rfc2822  ?0\&.1?\fR
 .sp
 \fB::clock::rfc2822 parse_date\fR \fIdate\fR
 .sp
 .BE
 .SH DESCRIPTION
 This package provides functionality to parse dates in
-RFC 2822 format.
+RFC 2822 format\&.
 .PP
 .TP
 \fB::clock::rfc2822 parse_date\fR \fIdate\fR
 This command parses an RFC2822 date string and returns
-the given date in seconds since epoch. An error is thrown
-if the command is unable to parse the date.
+the given date in seconds since epoch\&. An error is thrown
+if the command is unable to parse the date\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIclock::rfc2822\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH CATEGORY
 Text processing

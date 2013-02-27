@@ -220,6 +220,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -242,1138 +243,1138 @@ tcllib
 .RS
 .TP
 \fBaes\fR
-\fIfiles/modules/aes/aes.n\fR: Implementation of the AES block cipher
+\fIfiles/modules/aes/aes\&.n\fR: Implementation of the AES block cipher
 .TP
 \fBascii85\fR
-\fIfiles/modules/base64/ascii85.n\fR: ascii85-encode/decode binary data
+\fIfiles/modules/base64/ascii85\&.n\fR: ascii85-encode/decode binary data
 .TP
 \fBasn\fR
-\fIfiles/modules/asn/asn.n\fR: ASN.1 BER encoder/decoder
+\fIfiles/modules/asn/asn\&.n\fR: ASN\&.1 BER encoder/decoder
 .TP
 \fBautoproxy\fR
-\fIfiles/modules/http/autoproxy.n\fR: Automatic HTTP proxy usage and authentication
+\fIfiles/modules/http/autoproxy\&.n\fR: Automatic HTTP proxy usage and authentication
 .TP
 \fBbase32\fR
-\fIfiles/modules/base32/base32.n\fR: base32 standard encoding
+\fIfiles/modules/base32/base32\&.n\fR: base32 standard encoding
 .TP
 \fBbase32::core\fR
-\fIfiles/modules/base32/base32core.n\fR: Expanding basic base32 maps
+\fIfiles/modules/base32/base32core\&.n\fR: Expanding basic base32 maps
 .TP
 \fBbase32::hex\fR
-\fIfiles/modules/base32/base32hex.n\fR: base32 extended hex encoding
+\fIfiles/modules/base32/base32hex\&.n\fR: base32 extended hex encoding
 .TP
 \fBbase64\fR
-\fIfiles/modules/base64/base64.n\fR: base64-encode/decode binary data
+\fIfiles/modules/base64/base64\&.n\fR: base64-encode/decode binary data
 .TP
 \fBbee\fR
-\fIfiles/modules/bee/bee.n\fR: BitTorrent Serialization Format Encoder/Decoder
+\fIfiles/modules/bee/bee\&.n\fR: BitTorrent Serialization Format Encoder/Decoder
 .TP
 \fBbench\fR
-\fIfiles/modules/bench/bench.n\fR: bench - Processing benchmark suites
+\fIfiles/modules/bench/bench\&.n\fR: bench - Processing benchmark suites
 .TP
 \fBbench::in\fR
-\fIfiles/modules/bench/bench_read.n\fR: bench::in - Reading benchmark results
+\fIfiles/modules/bench/bench_read\&.n\fR: bench::in - Reading benchmark results
 .TP
 \fBbench::out::csv\fR
-\fIfiles/modules/bench/bench_wcsv.n\fR: bench::out::csv - Formatting benchmark results as CSV
+\fIfiles/modules/bench/bench_wcsv\&.n\fR: bench::out::csv - Formatting benchmark results as CSV
 .TP
 \fBbench::out::text\fR
-\fIfiles/modules/bench/bench_wtext.n\fR: bench::out::text - Formatting benchmark results as human readable text
+\fIfiles/modules/bench/bench_wtext\&.n\fR: bench::out::text - Formatting benchmark results as human readable text
 .TP
 \fBbench_intro\fR
-\fIfiles/modules/bench/bench_intro.n\fR: bench introduction
+\fIfiles/modules/bench/bench_intro\&.n\fR: bench introduction
 .TP
 \fBbench_lang_intro\fR
-\fIfiles/modules/bench/bench_lang_intro.n\fR: bench language introduction
+\fIfiles/modules/bench/bench_lang_intro\&.n\fR: bench language introduction
 .TP
 \fBbench_lang_spec\fR
-\fIfiles/modules/bench/bench_lang_spec.n\fR: bench language specification
+\fIfiles/modules/bench/bench_lang_spec\&.n\fR: bench language specification
 .TP
 \fBbibtex\fR
-\fIfiles/modules/bibtex/bibtex.n\fR: Parse bibtex files
+\fIfiles/modules/bibtex/bibtex\&.n\fR: Parse bibtex files
 .TP
 \fBblowfish\fR
-\fIfiles/modules/blowfish/blowfish.n\fR: Implementation of the Blowfish block cipher
+\fIfiles/modules/blowfish/blowfish\&.n\fR: Implementation of the Blowfish block cipher
 .TP
 \fBcache::async\fR
-\fIfiles/modules/cache/async.n\fR: Asynchronous in-memory cache
+\fIfiles/modules/cache/async\&.n\fR: Asynchronous in-memory cache
 .TP
 \fBcksum\fR
-\fIfiles/modules/crc/cksum.n\fR: Calculate a cksum(1) compatible checksum
+\fIfiles/modules/crc/cksum\&.n\fR: Calculate a cksum(1) compatible checksum
 .TP
 \fBclock_iso8601\fR
-\fIfiles/modules/clock/iso8601.n\fR: Parsing ISO 8601 dates/times
+\fIfiles/modules/clock/iso8601\&.n\fR: Parsing ISO 8601 dates/times
 .TP
 \fBclock_rfc2822\fR
-\fIfiles/modules/clock/rfc2822.n\fR: Parsing ISO 8601 dates/times
+\fIfiles/modules/clock/rfc2822\&.n\fR: Parsing ISO 8601 dates/times
 .TP
 \fBcmdline\fR
-\fIfiles/modules/cmdline/cmdline.n\fR: Procedures to process command lines and options.
+\fIfiles/modules/cmdline/cmdline\&.n\fR: Procedures to process command lines and options\&.
 .TP
 \fBcomm\fR
-\fIfiles/modules/comm/comm.n\fR: A remote communication facility for Tcl (8.3 and later)
+\fIfiles/modules/comm/comm\&.n\fR: A remote communication facility for Tcl (8\&.3 and later)
 .TP
 \fBcomm_wire\fR
-\fIfiles/modules/comm/comm_wire.n\fR: The comm wire protocol
+\fIfiles/modules/comm/comm_wire\&.n\fR: The comm wire protocol
 .TP
 \fBcontrol\fR
-\fIfiles/modules/control/control.n\fR: Procedures for control flow structures.
+\fIfiles/modules/control/control\&.n\fR: Procedures for control flow structures\&.
 .TP
 \fBcoroutine\fR
-\fIfiles/modules/coroutine/coroutine.n\fR: Coroutine based event and IO handling
+\fIfiles/modules/coroutine/coroutine\&.n\fR: Coroutine based event and IO handling
 .TP
 \fBcoroutine::auto\fR
-\fIfiles/modules/coroutine/coro_auto.n\fR: Automatic event and IO coroutine awareness
+\fIfiles/modules/coroutine/coro_auto\&.n\fR: Automatic event and IO coroutine awareness
 .TP
 \fBcounter\fR
-\fIfiles/modules/counter/counter.n\fR: Procedures for counters and histograms
+\fIfiles/modules/counter/counter\&.n\fR: Procedures for counters and histograms
 .TP
 \fBcrc16\fR
-\fIfiles/modules/crc/crc16.n\fR: Perform a 16bit Cyclic Redundancy Check
+\fIfiles/modules/crc/crc16\&.n\fR: Perform a 16bit Cyclic Redundancy Check
 .TP
 \fBcrc32\fR
-\fIfiles/modules/crc/crc32.n\fR: Perform a 32bit Cyclic Redundancy Check
+\fIfiles/modules/crc/crc32\&.n\fR: Perform a 32bit Cyclic Redundancy Check
 .TP
 \fBcsv\fR
-\fIfiles/modules/csv/csv.n\fR: Procedures to handle CSV data.
+\fIfiles/modules/csv/csv\&.n\fR: Procedures to handle CSV data\&.
 .TP
 \fBdeleg_method\fR
-\fIfiles/modules/interp/deleg_method.n\fR: Creation of comm delegates (snit methods)
+\fIfiles/modules/interp/deleg_method\&.n\fR: Creation of comm delegates (snit methods)
 .TP
 \fBdeleg_proc\fR
-\fIfiles/modules/interp/deleg_proc.n\fR: Creation of comm delegates (procedures)
+\fIfiles/modules/interp/deleg_proc\&.n\fR: Creation of comm delegates (procedures)
 .TP
 \fBdes\fR
-\fIfiles/modules/des/des.n\fR: Implementation of the DES and triple-DES ciphers
+\fIfiles/modules/des/des\&.n\fR: Implementation of the DES and triple-DES ciphers
 .TP
 \fBdns\fR
-\fIfiles/modules/dns/tcllib_dns.n\fR: Tcl Domain Name Service Client
+\fIfiles/modules/dns/tcllib_dns\&.n\fR: Tcl Domain Name Service Client
 .TP
 \fBdocidx_intro\fR
-\fIfiles/modules/doctools/docidx_intro.n\fR: docidx introduction
+\fIfiles/modules/doctools/docidx_intro\&.n\fR: docidx introduction
 .TP
 \fBdocidx_lang_cmdref\fR
-\fIfiles/modules/doctools/docidx_lang_cmdref.n\fR: docidx language command reference
+\fIfiles/modules/doctools/docidx_lang_cmdref\&.n\fR: docidx language command reference
 .TP
 \fBdocidx_lang_faq\fR
-\fIfiles/modules/doctools/docidx_lang_faq.n\fR: docidx language faq
+\fIfiles/modules/doctools/docidx_lang_faq\&.n\fR: docidx language faq
 .TP
 \fBdocidx_lang_intro\fR
-\fIfiles/modules/doctools/docidx_lang_intro.n\fR: docidx language introduction
+\fIfiles/modules/doctools/docidx_lang_intro\&.n\fR: docidx language introduction
 .TP
 \fBdocidx_lang_syntax\fR
-\fIfiles/modules/doctools/docidx_lang_syntax.n\fR: docidx language syntax
+\fIfiles/modules/doctools/docidx_lang_syntax\&.n\fR: docidx language syntax
 .TP
 \fBdocidx_plugin_apiref\fR
-\fIfiles/modules/doctools/docidx_plugin_apiref.n\fR: docidx plugin API reference
+\fIfiles/modules/doctools/docidx_plugin_apiref\&.n\fR: docidx plugin API reference
 .TP
 \fBdocstrip\fR
-\fIfiles/modules/docstrip/docstrip.n\fR: Docstrip style source code extraction
+\fIfiles/modules/docstrip/docstrip\&.n\fR: Docstrip style source code extraction
 .TP
 \fBdocstrip_util\fR
-\fIfiles/modules/docstrip/docstrip_util.n\fR: Docstrip-related utilities
+\fIfiles/modules/docstrip/docstrip_util\&.n\fR: Docstrip-related utilities
 .TP
 \fBdoctoc_intro\fR
-\fIfiles/modules/doctools/doctoc_intro.n\fR: doctoc introduction
+\fIfiles/modules/doctools/doctoc_intro\&.n\fR: doctoc introduction
 .TP
 \fBdoctoc_lang_cmdref\fR
-\fIfiles/modules/doctools/doctoc_lang_cmdref.n\fR: doctoc language command reference
+\fIfiles/modules/doctools/doctoc_lang_cmdref\&.n\fR: doctoc language command reference
 .TP
 \fBdoctoc_lang_faq\fR
-\fIfiles/modules/doctools/doctoc_lang_faq.n\fR: doctoc language faq
+\fIfiles/modules/doctools/doctoc_lang_faq\&.n\fR: doctoc language faq
 .TP
 \fBdoctoc_lang_intro\fR
-\fIfiles/modules/doctools/doctoc_lang_intro.n\fR: doctoc language introduction
+\fIfiles/modules/doctools/doctoc_lang_intro\&.n\fR: doctoc language introduction
 .TP
 \fBdoctoc_lang_syntax\fR
-\fIfiles/modules/doctools/doctoc_lang_syntax.n\fR: doctoc language syntax
+\fIfiles/modules/doctools/doctoc_lang_syntax\&.n\fR: doctoc language syntax
 .TP
 \fBdoctoc_plugin_apiref\fR
-\fIfiles/modules/doctools/doctoc_plugin_apiref.n\fR: doctoc plugin API reference
+\fIfiles/modules/doctools/doctoc_plugin_apiref\&.n\fR: doctoc plugin API reference
 .TP
 \fBdoctools\fR
-\fIfiles/modules/doctools/doctools.n\fR: doctools - Processing documents
+\fIfiles/modules/doctools/doctools\&.n\fR: doctools - Processing documents
 .TP
 \fBdoctools2idx_introduction\fR
-\fIfiles/modules/doctools2idx/introduction.n\fR: DocTools - Keyword indices
+\fIfiles/modules/doctools2idx/introduction\&.n\fR: DocTools - Keyword indices
 .TP
 \fBdoctools2toc_introduction\fR
-\fIfiles/modules/doctools2toc/introduction.n\fR: DocTools - Tables of Contents
+\fIfiles/modules/doctools2toc/introduction\&.n\fR: DocTools - Tables of Contents
 .TP
 \fBdoctools::changelog\fR
-\fIfiles/modules/doctools/changelog.n\fR: Processing text in Emacs ChangeLog format
+\fIfiles/modules/doctools/changelog\&.n\fR: Processing text in Emacs ChangeLog format
 .TP
 \fBdoctools::cvs\fR
-\fIfiles/modules/doctools/cvs.n\fR: Processing text in 'cvs log' format
+\fIfiles/modules/doctools/cvs\&.n\fR: Processing text in 'cvs log' format
 .TP
 \fBdoctools::html::cssdefaults\fR
-\fIfiles/modules/doctools2base/html_cssdefaults.n\fR: Default CSS style for HTML export plugins
+\fIfiles/modules/doctools2base/html_cssdefaults\&.n\fR: Default CSS style for HTML export plugins
 .TP
 \fBdoctools::idx\fR
-\fIfiles/modules/doctools2idx/container.n\fR: Holding keyword indices
+\fIfiles/modules/doctools2idx/container\&.n\fR: Holding keyword indices
 .TP
 \fBdoctools::idx\fR
-\fIfiles/modules/doctools/docidx.n\fR: docidx - Processing indices
+\fIfiles/modules/doctools/docidx\&.n\fR: docidx - Processing indices
 .TP
 \fBdoctools::idx::export\fR
-\fIfiles/modules/doctools2idx/export.n\fR: Exporting keyword indices
+\fIfiles/modules/doctools2idx/export\&.n\fR: Exporting keyword indices
 .TP
 \fBdoctools::idx::export::docidx\fR
-\fIfiles/modules/doctools2idx/export_docidx.n\fR: docidx export plugin
+\fIfiles/modules/doctools2idx/export_docidx\&.n\fR: docidx export plugin
 .TP
 \fBdoctools::idx::export::html\fR
-\fIfiles/modules/doctools2idx/export_html.n\fR: HTML export plugin
+\fIfiles/modules/doctools2idx/export_html\&.n\fR: HTML export plugin
 .TP
 \fBdoctools::idx::export::json\fR
-\fIfiles/modules/doctools2idx/export_json.n\fR: JSON export plugin
+\fIfiles/modules/doctools2idx/export_json\&.n\fR: JSON export plugin
 .TP
 \fBdoctools::idx::export::nroff\fR
-\fIfiles/modules/doctools2idx/export_nroff.n\fR: nroff export plugin
+\fIfiles/modules/doctools2idx/export_nroff\&.n\fR: nroff export plugin
 .TP
 \fBdoctools::idx::export::text\fR
-\fIfiles/modules/doctools2idx/export_text.n\fR: plain text export plugin
+\fIfiles/modules/doctools2idx/export_text\&.n\fR: plain text export plugin
 .TP
 \fBdoctools::idx::export::wiki\fR
-\fIfiles/modules/doctools2idx/export_wiki.n\fR: wiki export plugin
+\fIfiles/modules/doctools2idx/export_wiki\&.n\fR: wiki export plugin
 .TP
 \fBdoctools::idx::import\fR
-\fIfiles/modules/doctools2idx/import.n\fR: Importing keyword indices
+\fIfiles/modules/doctools2idx/import\&.n\fR: Importing keyword indices
 .TP
 \fBdoctools::idx::import::docidx\fR
-\fIfiles/modules/doctools2idx/import_docidx.n\fR: docidx import plugin
+\fIfiles/modules/doctools2idx/import_docidx\&.n\fR: docidx import plugin
 .TP
 \fBdoctools::idx::import::json\fR
-\fIfiles/modules/doctools2idx/import_json.n\fR: JSON import plugin
+\fIfiles/modules/doctools2idx/import_json\&.n\fR: JSON import plugin
 .TP
 \fBdoctools::idx::parse\fR
-\fIfiles/modules/doctools2idx/parse.n\fR: Parsing text in docidx format
+\fIfiles/modules/doctools2idx/parse\&.n\fR: Parsing text in docidx format
 .TP
 \fBdoctools::idx::structure\fR
-\fIfiles/modules/doctools2idx/structure.n\fR: Docidx serialization utilities
+\fIfiles/modules/doctools2idx/structure\&.n\fR: Docidx serialization utilities
 .TP
 \fBdoctools::msgcat\fR
-\fIfiles/modules/doctools2base/tcllib_msgcat.n\fR: Message catalog management for the various document parsers
+\fIfiles/modules/doctools2base/tcllib_msgcat\&.n\fR: Message catalog management for the various document parsers
 .TP
 \fBdoctools::msgcat::idx::c\fR
-\fIfiles/modules/doctools2idx/msgcat_c.n\fR: Message catalog for the docidx parser (C)
+\fIfiles/modules/doctools2idx/msgcat_c\&.n\fR: Message catalog for the docidx parser (C)
 .TP
 \fBdoctools::msgcat::idx::de\fR
-\fIfiles/modules/doctools2idx/msgcat_de.n\fR: Message catalog for the docidx parser (DE)
+\fIfiles/modules/doctools2idx/msgcat_de\&.n\fR: Message catalog for the docidx parser (DE)
 .TP
 \fBdoctools::msgcat::idx::en\fR
-\fIfiles/modules/doctools2idx/msgcat_en.n\fR: Message catalog for the docidx parser (EN)
+\fIfiles/modules/doctools2idx/msgcat_en\&.n\fR: Message catalog for the docidx parser (EN)
 .TP
 \fBdoctools::msgcat::idx::fr\fR
-\fIfiles/modules/doctools2idx/msgcat_fr.n\fR: Message catalog for the docidx parser (FR)
+\fIfiles/modules/doctools2idx/msgcat_fr\&.n\fR: Message catalog for the docidx parser (FR)
 .TP
 \fBdoctools::msgcat::toc::c\fR
-\fIfiles/modules/doctools2toc/msgcat_c.n\fR: Message catalog for the doctoc parser (C)
+\fIfiles/modules/doctools2toc/msgcat_c\&.n\fR: Message catalog for the doctoc parser (C)
 .TP
 \fBdoctools::msgcat::toc::de\fR
-\fIfiles/modules/doctools2toc/msgcat_de.n\fR: Message catalog for the doctoc parser (DE)
+\fIfiles/modules/doctools2toc/msgcat_de\&.n\fR: Message catalog for the doctoc parser (DE)
 .TP
 \fBdoctools::msgcat::toc::en\fR
-\fIfiles/modules/doctools2toc/msgcat_en.n\fR: Message catalog for the doctoc parser (EN)
+\fIfiles/modules/doctools2toc/msgcat_en\&.n\fR: Message catalog for the doctoc parser (EN)
 .TP
 \fBdoctools::msgcat::toc::fr\fR
-\fIfiles/modules/doctools2toc/msgcat_fr.n\fR: Message catalog for the doctoc parser (FR)
+\fIfiles/modules/doctools2toc/msgcat_fr\&.n\fR: Message catalog for the doctoc parser (FR)
 .TP
 \fBdoctools::nroff::man_macros\fR
-\fIfiles/modules/doctools2base/nroff_manmacros.n\fR: Default CSS style for NROFF export plugins
+\fIfiles/modules/doctools2base/nroff_manmacros\&.n\fR: Default CSS style for NROFF export plugins
 .TP
 \fBdoctools::tcl::parse\fR
-\fIfiles/modules/doctools2base/tcl_parse.n\fR: Processing text in 'subst -novariables' format
+\fIfiles/modules/doctools2base/tcl_parse\&.n\fR: Processing text in 'subst -novariables' format
 .TP
 \fBdoctools::toc\fR
-\fIfiles/modules/doctools2toc/container.n\fR: Holding tables of contents
+\fIfiles/modules/doctools2toc/container\&.n\fR: Holding tables of contents
 .TP
 \fBdoctools::toc\fR
-\fIfiles/modules/doctools/doctoc.n\fR: doctoc - Processing tables of contents
+\fIfiles/modules/doctools/doctoc\&.n\fR: doctoc - Processing tables of contents
 .TP
 \fBdoctools::toc::export\fR
-\fIfiles/modules/doctools2toc/export.n\fR: Exporting tables of contents
+\fIfiles/modules/doctools2toc/export\&.n\fR: Exporting tables of contents
 .TP
 \fBdoctools::toc::export::doctoc\fR
-\fIfiles/modules/doctools2toc/export_doctoc.n\fR: doctoc export plugin
+\fIfiles/modules/doctools2toc/export_doctoc\&.n\fR: doctoc export plugin
 .TP
 \fBdoctools::toc::export::html\fR
-\fIfiles/modules/doctools2toc/export_html.n\fR: HTML export plugin
+\fIfiles/modules/doctools2toc/export_html\&.n\fR: HTML export plugin
 .TP
 \fBdoctools::toc::export::json\fR
-\fIfiles/modules/doctools2toc/export_json.n\fR: JSON export plugin
+\fIfiles/modules/doctools2toc/export_json\&.n\fR: JSON export plugin
 .TP
 \fBdoctools::toc::export::nroff\fR
-\fIfiles/modules/doctools2toc/export_nroff.n\fR: nroff export plugin
+\fIfiles/modules/doctools2toc/export_nroff\&.n\fR: nroff export plugin
 .TP
 \fBdoctools::toc::export::text\fR
-\fIfiles/modules/doctools2toc/export_text.n\fR: plain text export plugin
+\fIfiles/modules/doctools2toc/export_text\&.n\fR: plain text export plugin
 .TP
 \fBdoctools::toc::export::wiki\fR
-\fIfiles/modules/doctools2toc/export_wiki.n\fR: wiki export plugin
+\fIfiles/modules/doctools2toc/export_wiki\&.n\fR: wiki export plugin
 .TP
 \fBdoctools::toc::import\fR
-\fIfiles/modules/doctools2toc/import.n\fR: Importing keyword indices
+\fIfiles/modules/doctools2toc/import\&.n\fR: Importing keyword indices
 .TP
 \fBdoctools::toc::import::doctoc\fR
-\fIfiles/modules/doctools2toc/import_doctoc.n\fR: doctoc import plugin
+\fIfiles/modules/doctools2toc/import_doctoc\&.n\fR: doctoc import plugin
 .TP
 \fBdoctools::toc::import::json\fR
-\fIfiles/modules/doctools2toc/import_json.n\fR: JSON import plugin
+\fIfiles/modules/doctools2toc/import_json\&.n\fR: JSON import plugin
 .TP
 \fBdoctools::toc::parse\fR
-\fIfiles/modules/doctools2toc/parse.n\fR: Parsing text in doctoc format
+\fIfiles/modules/doctools2toc/parse\&.n\fR: Parsing text in doctoc format
 .TP
 \fBdoctools::toc::structure\fR
-\fIfiles/modules/doctools2toc/structure.n\fR: Doctoc serialization utilities
+\fIfiles/modules/doctools2toc/structure\&.n\fR: Doctoc serialization utilities
 .TP
 \fBdoctools_intro\fR
-\fIfiles/modules/doctools/doctools_intro.n\fR: doctools introduction
+\fIfiles/modules/doctools/doctools_intro\&.n\fR: doctools introduction
 .TP
 \fBdoctools_lang_cmdref\fR
-\fIfiles/modules/doctools/doctools_lang_cmdref.n\fR: doctools language command reference
+\fIfiles/modules/doctools/doctools_lang_cmdref\&.n\fR: doctools language command reference
 .TP
 \fBdoctools_lang_faq\fR
-\fIfiles/modules/doctools/doctools_lang_faq.n\fR: doctools language faq
+\fIfiles/modules/doctools/doctools_lang_faq\&.n\fR: doctools language faq
 .TP
 \fBdoctools_lang_intro\fR
-\fIfiles/modules/doctools/doctools_lang_intro.n\fR: doctools language introduction
+\fIfiles/modules/doctools/doctools_lang_intro\&.n\fR: doctools language introduction
 .TP
 \fBdoctools_lang_syntax\fR
-\fIfiles/modules/doctools/doctools_lang_syntax.n\fR: doctools language syntax
+\fIfiles/modules/doctools/doctools_lang_syntax\&.n\fR: doctools language syntax
 .TP
 \fBdoctools_plugin_apiref\fR
-\fIfiles/modules/doctools/doctools_plugin_apiref.n\fR: doctools plugin API reference
+\fIfiles/modules/doctools/doctools_plugin_apiref\&.n\fR: doctools plugin API reference
 .TP
 \fBdtplite\fR
-\fIfiles/modules/dtplite/dtplite.n\fR: Lightweight DocTools Markup Processor
+\fIfiles/modules/dtplite/dtplite\&.n\fR: Lightweight DocTools Markup Processor
 .TP
 \fBdtplite\fR
-\fIfiles/apps/dtplite.n\fR: Lightweight DocTools Markup Processor
+\fIfiles/apps/dtplite\&.n\fR: Lightweight DocTools Markup Processor
 .TP
 \fBexif\fR
-\fIfiles/modules/exif/exif.n\fR: Tcl EXIF extracts and parses EXIF fields from digital images
+\fIfiles/modules/exif/exif\&.n\fR: Tcl EXIF extracts and parses EXIF fields from digital images
 .TP
 \fBfileutil\fR
-\fIfiles/modules/fileutil/fileutil.n\fR: Procedures implementing some file utilities
+\fIfiles/modules/fileutil/fileutil\&.n\fR: Procedures implementing some file utilities
 .TP
 \fBfileutil::magic::cfront\fR
-\fIfiles/modules/fumagic/cfront.n\fR: Generator core for compiler of magic(5) files
+\fIfiles/modules/fumagic/cfront\&.n\fR: Generator core for compiler of magic(5) files
 .TP
 \fBfileutil::magic::cgen\fR
-\fIfiles/modules/fumagic/cgen.n\fR: Generator core for compiler of magic(5) files
+\fIfiles/modules/fumagic/cgen\&.n\fR: Generator core for compiler of magic(5) files
 .TP
 \fBfileutil::magic::filetype\fR
-\fIfiles/modules/fumagic/filetypes.n\fR: Procedures implementing file-type recognition
+\fIfiles/modules/fumagic/filetypes\&.n\fR: Procedures implementing file-type recognition
 .TP
 \fBfileutil::magic::mimetype\fR
-\fIfiles/modules/fumagic/mimetypes.n\fR: Procedures implementing mime-type recognition
+\fIfiles/modules/fumagic/mimetypes\&.n\fR: Procedures implementing mime-type recognition
 .TP
 \fBfileutil::magic::rt\fR
-\fIfiles/modules/fumagic/rtcore.n\fR: Runtime core for file type recognition engines written in pure Tcl
+\fIfiles/modules/fumagic/rtcore\&.n\fR: Runtime core for file type recognition engines written in pure Tcl
 .TP
 \fBfileutil::multi\fR
-\fIfiles/modules/fileutil/multi.n\fR: Multi-file operation, scatter/gather, standard object
+\fIfiles/modules/fileutil/multi\&.n\fR: Multi-file operation, scatter/gather, standard object
 .TP
 \fBfileutil::multi::op\fR
-\fIfiles/modules/fileutil/multiop.n\fR: Multi-file operation, scatter/gather
+\fIfiles/modules/fileutil/multiop\&.n\fR: Multi-file operation, scatter/gather
 .TP
 \fBfileutil_traverse\fR
-\fIfiles/modules/fileutil/traverse.n\fR: Iterative directory traversal
+\fIfiles/modules/fileutil/traverse\&.n\fR: Iterative directory traversal
 .TP
 \fBftp\fR
-\fIfiles/modules/ftp/ftp.n\fR: Client-side tcl implementation of the ftp protocol
+\fIfiles/modules/ftp/ftp\&.n\fR: Client-side tcl implementation of the ftp protocol
 .TP
 \fBftp::geturl\fR
-\fIfiles/modules/ftp/ftp_geturl.n\fR: Uri handler for ftp urls
+\fIfiles/modules/ftp/ftp_geturl\&.n\fR: Uri handler for ftp urls
 .TP
 \fBftpd\fR
-\fIfiles/modules/ftpd/ftpd.n\fR: Tcl FTP server implementation
+\fIfiles/modules/ftpd/ftpd\&.n\fR: Tcl FTP server implementation
 .TP
 \fBgenerator\fR
-\fIfiles/modules/generator/generator.n\fR: Procedures for creating and using generators.
+\fIfiles/modules/generator/generator\&.n\fR: Procedures for creating and using generators\&.
 .TP
 \fBgpx\fR
-\fIfiles/modules/gpx/gpx.n\fR: Extracts waypoints, tracks and routes from GPX files
+\fIfiles/modules/gpx/gpx\&.n\fR: Extracts waypoints, tracks and routes from GPX files
 .TP
 \fBgrammar::aycock\fR
-\fIfiles/modules/grammar_aycock/aycock.n\fR: Aycock-Horspool-Earley parser generator for Tcl
+\fIfiles/modules/grammar_aycock/aycock\&.n\fR: Aycock-Horspool-Earley parser generator for Tcl
 .TP
 \fBgrammar::fa\fR
-\fIfiles/modules/grammar_fa/fa.n\fR: Create and manipulate finite automatons
+\fIfiles/modules/grammar_fa/fa\&.n\fR: Create and manipulate finite automatons
 .TP
 \fBgrammar::fa::dacceptor\fR
-\fIfiles/modules/grammar_fa/dacceptor.n\fR: Create and use deterministic acceptors
+\fIfiles/modules/grammar_fa/dacceptor\&.n\fR: Create and use deterministic acceptors
 .TP
 \fBgrammar::fa::dexec\fR
-\fIfiles/modules/grammar_fa/dexec.n\fR: Execute deterministic finite automatons
+\fIfiles/modules/grammar_fa/dexec\&.n\fR: Execute deterministic finite automatons
 .TP
 \fBgrammar::fa::op\fR
-\fIfiles/modules/grammar_fa/faop.n\fR: Operations on finite automatons
+\fIfiles/modules/grammar_fa/faop\&.n\fR: Operations on finite automatons
 .TP
 \fBgrammar::me::cpu\fR
-\fIfiles/modules/grammar_me/me_cpu.n\fR: Virtual machine implementation II for parsing token streams
+\fIfiles/modules/grammar_me/me_cpu\&.n\fR: Virtual machine implementation II for parsing token streams
 .TP
 \fBgrammar::me::cpu::core\fR
-\fIfiles/modules/grammar_me/me_cpucore.n\fR: ME virtual machine state manipulation
+\fIfiles/modules/grammar_me/me_cpucore\&.n\fR: ME virtual machine state manipulation
 .TP
 \fBgrammar::me::cpu::gasm\fR
-\fIfiles/modules/grammar_me/gasm.n\fR: ME assembler
+\fIfiles/modules/grammar_me/gasm\&.n\fR: ME assembler
 .TP
 \fBgrammar::me::tcl\fR
-\fIfiles/modules/grammar_me/me_tcl.n\fR: Virtual machine implementation I for parsing token streams
+\fIfiles/modules/grammar_me/me_tcl\&.n\fR: Virtual machine implementation I for parsing token streams
 .TP
 \fBgrammar::me::util\fR
-\fIfiles/modules/grammar_me/me_util.n\fR: AST utilities
+\fIfiles/modules/grammar_me/me_util\&.n\fR: AST utilities
 .TP
 \fBgrammar::me_ast\fR
-\fIfiles/modules/grammar_me/me_ast.n\fR: Various representations of ASTs
+\fIfiles/modules/grammar_me/me_ast\&.n\fR: Various representations of ASTs
 .TP
 \fBgrammar::me_intro\fR
-\fIfiles/modules/grammar_me/me_intro.n\fR: Introduction to virtual machines for parsing token streams
+\fIfiles/modules/grammar_me/me_intro\&.n\fR: Introduction to virtual machines for parsing token streams
 .TP
 \fBgrammar::me_vm\fR
-\fIfiles/modules/grammar_me/me_vm.n\fR: Virtual machine for parsing token streams
+\fIfiles/modules/grammar_me/me_vm\&.n\fR: Virtual machine for parsing token streams
 .TP
 \fBgrammar::peg\fR
-\fIfiles/modules/grammar_peg/peg.n\fR: Create and manipulate parsing expression grammars
+\fIfiles/modules/grammar_peg/peg\&.n\fR: Create and manipulate parsing expression grammars
 .TP
 \fBgrammar::peg::interp\fR
-\fIfiles/modules/grammar_peg/peg_interp.n\fR: Interpreter for parsing expression grammars
+\fIfiles/modules/grammar_peg/peg_interp\&.n\fR: Interpreter for parsing expression grammars
 .TP
 \fBhook\fR
-\fIfiles/modules/hook/hook.n\fR: Hooks
+\fIfiles/modules/hook/hook\&.n\fR: Hooks
 .TP
 \fBhtml\fR
-\fIfiles/modules/html/html.n\fR: Procedures to generate HTML structures
+\fIfiles/modules/html/html\&.n\fR: Procedures to generate HTML structures
 .TP
 \fBhtmlparse\fR
-\fIfiles/modules/htmlparse/htmlparse.n\fR: Procedures to parse HTML strings
+\fIfiles/modules/htmlparse/htmlparse\&.n\fR: Procedures to parse HTML strings
 .TP
 \fBhuddle\fR
-\fIfiles/modules/yaml/huddle.n\fR: Create and manipulate huddle object
+\fIfiles/modules/yaml/huddle\&.n\fR: Create and manipulate huddle object
 .TP
 \fBident\fR
-\fIfiles/modules/ident/ident.n\fR: Ident protocol client
+\fIfiles/modules/ident/ident\&.n\fR: Ident protocol client
 .TP
 \fBimap4\fR
-\fIfiles/modules/imap4/imap4.n\fR: imap client-side tcl implementation of imap protocol
+\fIfiles/modules/imap4/imap4\&.n\fR: imap client-side tcl implementation of imap protocol
 .TP
 \fBinifile\fR
-\fIfiles/modules/inifile/ini.n\fR: Parsing of Windows INI files
+\fIfiles/modules/inifile/ini\&.n\fR: Parsing of Windows INI files
 .TP
 \fBinterp\fR
-\fIfiles/modules/interp/tcllib_interp.n\fR: Interp creation and aliasing
+\fIfiles/modules/interp/tcllib_interp\&.n\fR: Interp creation and aliasing
 .TP
 \fBirc\fR
-\fIfiles/modules/irc/irc.n\fR: Create IRC connection and interface.
+\fIfiles/modules/irc/irc\&.n\fR: Create IRC connection and interface\&.
 .TP
 \fBjavascript\fR
-\fIfiles/modules/javascript/javascript.n\fR: Procedures to generate HTML and Java Script structures.
+\fIfiles/modules/javascript/javascript\&.n\fR: Procedures to generate HTML and Java Script structures\&.
 .TP
 \fBjpeg\fR
-\fIfiles/modules/jpeg/jpeg.n\fR: JPEG querying and manipulation of meta data
+\fIfiles/modules/jpeg/jpeg\&.n\fR: JPEG querying and manipulation of meta data
 .TP
 \fBjson\fR
-\fIfiles/modules/json/json.n\fR: JSON parser
+\fIfiles/modules/json/json\&.n\fR: JSON parser
 .TP
 \fBjson::write\fR
-\fIfiles/modules/json/json_write.n\fR: JSON generation
+\fIfiles/modules/json/json_write\&.n\fR: JSON generation
 .TP
 \fBlambda\fR
-\fIfiles/modules/lambda/lambda.n\fR: Utility commands for anonymous procedures
+\fIfiles/modules/lambda/lambda\&.n\fR: Utility commands for anonymous procedures
 .TP
 \fBldap\fR
-\fIfiles/modules/ldap/ldap.n\fR: LDAP client
+\fIfiles/modules/ldap/ldap\&.n\fR: LDAP client
 .TP
 \fBldapx\fR
-\fIfiles/modules/ldap/ldapx.n\fR: LDAP extended object interface
+\fIfiles/modules/ldap/ldapx\&.n\fR: LDAP extended object interface
 .TP
 \fBlog\fR
-\fIfiles/modules/log/log.n\fR: Procedures to log messages of libraries and applications.
+\fIfiles/modules/log/log\&.n\fR: Procedures to log messages of libraries and applications\&.
 .TP
 \fBlogger\fR
-\fIfiles/modules/log/logger.n\fR: System to control logging of events.
+\fIfiles/modules/log/logger\&.n\fR: System to control logging of events\&.
 .TP
 \fBlogger::appender\fR
-\fIfiles/modules/log/loggerAppender.n\fR: Collection of predefined appenders for logger
+\fIfiles/modules/log/loggerAppender\&.n\fR: Collection of predefined appenders for logger
 .TP
 \fBlogger::utils\fR
-\fIfiles/modules/log/loggerUtils.n\fR: Utilities for logger
+\fIfiles/modules/log/loggerUtils\&.n\fR: Utilities for logger
 .TP
 \fBmap::geocode::nominatim\fR
-\fIfiles/modules/map/map_geocode_nominatim.n\fR: Resolving geographical names with a Nominatim service
+\fIfiles/modules/map/map_geocode_nominatim\&.n\fR: Resolving geographical names with a Nominatim service
 .TP
 \fBmap::slippy\fR
-\fIfiles/modules/map/map_slippy.n\fR: Common code for slippy based map packages
+\fIfiles/modules/map/map_slippy\&.n\fR: Common code for slippy based map packages
 .TP
 \fBmap::slippy::cache\fR
-\fIfiles/modules/map/map_slippy_cache.n\fR: Management of a tile cache in the local filesystem
+\fIfiles/modules/map/map_slippy_cache\&.n\fR: Management of a tile cache in the local filesystem
 .TP
 \fBmap::slippy::fetcher\fR
-\fIfiles/modules/map/map_slippy_fetcher.n\fR: Accessing a server providing tiles for slippy-based maps
+\fIfiles/modules/map/map_slippy_fetcher\&.n\fR: Accessing a server providing tiles for slippy-based maps
 .TP
 \fBmapproj\fR
-\fIfiles/modules/mapproj/mapproj.n\fR: Map projection routines
+\fIfiles/modules/mapproj/mapproj\&.n\fR: Map projection routines
 .TP
 \fBmath\fR
-\fIfiles/modules/math/math.n\fR: Tcl Math Library
+\fIfiles/modules/math/math\&.n\fR: Tcl Math Library
 .TP
 \fBmath::bigfloat\fR
-\fIfiles/modules/math/bigfloat.n\fR: Arbitrary precision floating-point numbers
+\fIfiles/modules/math/bigfloat\&.n\fR: Arbitrary precision floating-point numbers
 .TP
 \fBmath::bignum\fR
-\fIfiles/modules/math/bignum.n\fR: Arbitrary precision integer numbers
+\fIfiles/modules/math/bignum\&.n\fR: Arbitrary precision integer numbers
 .TP
 \fBmath::calculus\fR
-\fIfiles/modules/math/calculus.n\fR: Integration and ordinary differential equations
+\fIfiles/modules/math/calculus\&.n\fR: Integration and ordinary differential equations
 .TP
 \fBmath::calculus::romberg\fR
-\fIfiles/modules/math/romberg.n\fR: Romberg integration
+\fIfiles/modules/math/romberg\&.n\fR: Romberg integration
 .TP
 \fBmath::calculus::symdiff\fR
-\fIfiles/modules/math/symdiff.n\fR: Symbolic differentiation for Tcl
+\fIfiles/modules/math/symdiff\&.n\fR: Symbolic differentiation for Tcl
 .TP
 \fBmath::combinatorics\fR
-\fIfiles/modules/math/combinatorics.n\fR: Combinatorial functions in the Tcl Math Library
+\fIfiles/modules/math/combinatorics\&.n\fR: Combinatorial functions in the Tcl Math Library
 .TP
 \fBmath::complexnumbers\fR
-\fIfiles/modules/math/qcomplex.n\fR: Straightforward complex number package
+\fIfiles/modules/math/qcomplex\&.n\fR: Straightforward complex number package
 .TP
 \fBmath::constants\fR
-\fIfiles/modules/math/constants.n\fR: Mathematical and numerical constants
+\fIfiles/modules/math/constants\&.n\fR: Mathematical and numerical constants
 .TP
 \fBmath::decimal\fR
-\fIfiles/modules/math/decimal.n\fR: General decimal arithmetic
+\fIfiles/modules/math/decimal\&.n\fR: General decimal arithmetic
 .TP
 \fBmath::fourier\fR
-\fIfiles/modules/math/fourier.n\fR: Discrete and fast fourier transforms
+\fIfiles/modules/math/fourier\&.n\fR: Discrete and fast fourier transforms
 .TP
 \fBmath::fuzzy\fR
-\fIfiles/modules/math/fuzzy.n\fR: Fuzzy comparison of floating-point numbers
+\fIfiles/modules/math/fuzzy\&.n\fR: Fuzzy comparison of floating-point numbers
 .TP
 \fBmath::geometry\fR
-\fIfiles/modules/math/math_geometry.n\fR: Geometrical computations
+\fIfiles/modules/math/math_geometry\&.n\fR: Geometrical computations
 .TP
 \fBmath::interpolate\fR
-\fIfiles/modules/math/interpolate.n\fR: Interpolation routines
+\fIfiles/modules/math/interpolate\&.n\fR: Interpolation routines
 .TP
 \fBmath::linearalgebra\fR
-\fIfiles/modules/math/linalg.n\fR: Linear Algebra
+\fIfiles/modules/math/linalg\&.n\fR: Linear Algebra
 .TP
 \fBmath::numtheory\fR
-\fIfiles/modules/math/numtheory.n\fR: Number Theory
+\fIfiles/modules/math/numtheory\&.n\fR: Number Theory
 .TP
 \fBmath::optimize\fR
-\fIfiles/modules/math/optimize.n\fR: Optimisation routines
+\fIfiles/modules/math/optimize\&.n\fR: Optimisation routines
 .TP
 \fBmath::polynomials\fR
-\fIfiles/modules/math/polynomials.n\fR: Polynomial functions
+\fIfiles/modules/math/polynomials\&.n\fR: Polynomial functions
 .TP
 \fBmath::rationalfunctions\fR
-\fIfiles/modules/math/rational_funcs.n\fR: Polynomial functions
+\fIfiles/modules/math/rational_funcs\&.n\fR: Polynomial functions
 .TP
 \fBmath::roman\fR
-\fIfiles/modules/math/roman.n\fR: Tools for creating and manipulating roman numerals
+\fIfiles/modules/math/roman\&.n\fR: Tools for creating and manipulating roman numerals
 .TP
 \fBmath::special\fR
-\fIfiles/modules/math/special.n\fR: Special mathematical functions
+\fIfiles/modules/math/special\&.n\fR: Special mathematical functions
 .TP
 \fBmath::statistics\fR
-\fIfiles/modules/math/statistics.n\fR: Basic statistical functions and procedures
+\fIfiles/modules/math/statistics\&.n\fR: Basic statistical functions and procedures
 .TP
 \fBmd4\fR
-\fIfiles/modules/md4/md4.n\fR: MD4 Message-Digest Algorithm
+\fIfiles/modules/md4/md4\&.n\fR: MD4 Message-Digest Algorithm
 .TP
 \fBmd5\fR
-\fIfiles/modules/md5/md5.n\fR: MD5 Message-Digest Algorithm
+\fIfiles/modules/md5/md5\&.n\fR: MD5 Message-Digest Algorithm
 .TP
 \fBmd5crypt\fR
-\fIfiles/modules/md5crypt/md5crypt.n\fR: MD5-based password encryption
+\fIfiles/modules/md5crypt/md5crypt\&.n\fR: MD5-based password encryption
 .TP
 \fBmime\fR
-\fIfiles/modules/mime/mime.n\fR: Manipulation of MIME body parts
+\fIfiles/modules/mime/mime\&.n\fR: Manipulation of MIME body parts
 .TP
 \fBmpexpand\fR
-\fIfiles/modules/doctools/mpexpand.n\fR: Markup processor
+\fIfiles/modules/doctools/mpexpand\&.n\fR: Markup processor
 .TP
 \fBmultiplexer\fR
-\fIfiles/modules/multiplexer/multiplexer.n\fR: One-to-many communication with sockets.
+\fIfiles/modules/multiplexer/multiplexer\&.n\fR: One-to-many communication with sockets\&.
 .TP
 \fBnameserv\fR
-\fIfiles/modules/nns/nns_client.n\fR: Name service facility, Client
+\fIfiles/modules/nns/nns_client\&.n\fR: Name service facility, Client
 .TP
 \fBnameserv::auto\fR
-\fIfiles/modules/nns/nns_auto.n\fR: Name service facility, Client Extension
+\fIfiles/modules/nns/nns_auto\&.n\fR: Name service facility, Client Extension
 .TP
 \fBnameserv::common\fR
-\fIfiles/modules/nns/nns_common.n\fR: Name service facility, shared definitions
+\fIfiles/modules/nns/nns_common\&.n\fR: Name service facility, shared definitions
 .TP
 \fBnameserv::protocol\fR
-\fIfiles/modules/nns/nns_protocol.n\fR: Name service facility, client/server protocol
+\fIfiles/modules/nns/nns_protocol\&.n\fR: Name service facility, client/server protocol
 .TP
 \fBnameserv::server\fR
-\fIfiles/modules/nns/nns_server.n\fR: Name service facility, Server
+\fIfiles/modules/nns/nns_server\&.n\fR: Name service facility, Server
 .TP
 \fBnamespacex\fR
-\fIfiles/modules/namespacex/namespacex.n\fR: Namespace utility commands
+\fIfiles/modules/namespacex/namespacex\&.n\fR: Namespace utility commands
 .TP
 \fBncgi\fR
-\fIfiles/modules/ncgi/ncgi.n\fR: Procedures to manipulate CGI values.
+\fIfiles/modules/ncgi/ncgi\&.n\fR: Procedures to manipulate CGI values\&.
 .TP
 \fBnmea\fR
-\fIfiles/modules/nmea/nmea.n\fR: Process NMEA data
+\fIfiles/modules/nmea/nmea\&.n\fR: Process NMEA data
 .TP
 \fBnns\fR
-\fIfiles/apps/nns.n\fR: Name service facility, Commandline Client Application
+\fIfiles/apps/nns\&.n\fR: Name service facility, Commandline Client Application
 .TP
 \fBnns_intro\fR
-\fIfiles/modules/nns/nns_intro.n\fR: Name service facility, introduction
+\fIfiles/modules/nns/nns_intro\&.n\fR: Name service facility, introduction
 .TP
 \fBnnsd\fR
-\fIfiles/apps/nnsd.n\fR: Name service facility, Commandline Server Application
+\fIfiles/apps/nnsd\&.n\fR: Name service facility, Commandline Server Application
 .TP
 \fBnnslog\fR
-\fIfiles/apps/nnslog.n\fR: Name service facility, Commandline Logging Client Application
+\fIfiles/apps/nnslog\&.n\fR: Name service facility, Commandline Logging Client Application
 .TP
 \fBnntp\fR
-\fIfiles/modules/nntp/nntp.n\fR: Tcl client for the NNTP protocol
+\fIfiles/modules/nntp/nntp\&.n\fR: Tcl client for the NNTP protocol
 .TP
 \fBntp_time\fR
-\fIfiles/modules/ntp/ntp_time.n\fR: Tcl Time Service Client
+\fIfiles/modules/ntp/ntp_time\&.n\fR: Tcl Time Service Client
 .TP
 \fBoo::util\fR
-\fIfiles/modules/ooutil/ooutil.n\fR: Utility commands for TclOO
+\fIfiles/modules/ooutil/ooutil\&.n\fR: Utility commands for TclOO
 .TP
 \fBotp\fR
-\fIfiles/modules/otp/otp.n\fR: One-Time Passwords
+\fIfiles/modules/otp/otp\&.n\fR: One-Time Passwords
 .TP
 \fBpage\fR
-\fIfiles/apps/page.n\fR: Parser Generator
+\fIfiles/apps/page\&.n\fR: Parser Generator
 .TP
 \fBpage_intro\fR
-\fIfiles/modules/page/page_intro.n\fR: page introduction
+\fIfiles/modules/page/page_intro\&.n\fR: page introduction
 .TP
 \fBpage_pluginmgr\fR
-\fIfiles/modules/page/page_pluginmgr.n\fR: page plugin manager
+\fIfiles/modules/page/page_pluginmgr\&.n\fR: page plugin manager
 .TP
 \fBpage_util_flow\fR
-\fIfiles/modules/page/page_util_flow.n\fR: page dataflow/treewalker utility
+\fIfiles/modules/page/page_util_flow\&.n\fR: page dataflow/treewalker utility
 .TP
 \fBpage_util_norm_lemon\fR
-\fIfiles/modules/page/page_util_norm_lemon.n\fR: page AST normalization, LEMON
+\fIfiles/modules/page/page_util_norm_lemon\&.n\fR: page AST normalization, LEMON
 .TP
 \fBpage_util_norm_peg\fR
-\fIfiles/modules/page/page_util_norm_peg.n\fR: page AST normalization, PEG
+\fIfiles/modules/page/page_util_norm_peg\&.n\fR: page AST normalization, PEG
 .TP
 \fBpage_util_peg\fR
-\fIfiles/modules/page/page_util_peg.n\fR: page PEG transformation utilities
+\fIfiles/modules/page/page_util_peg\&.n\fR: page PEG transformation utilities
 .TP
 \fBpage_util_quote\fR
-\fIfiles/modules/page/page_util_quote.n\fR: page character quoting utilities
+\fIfiles/modules/page/page_util_quote\&.n\fR: page character quoting utilities
 .TP
 \fBpicoirc\fR
-\fIfiles/modules/irc/picoirc.n\fR: Small and simple embeddable IRC client.
+\fIfiles/modules/irc/picoirc\&.n\fR: Small and simple embeddable IRC client\&.
 .TP
 \fBpki\fR
-\fIfiles/modules/pki/pki.n\fR: Implementation of the public key cipher
+\fIfiles/modules/pki/pki\&.n\fR: Implementation of the public key cipher
 .TP
 \fBpluginmgr\fR
-\fIfiles/modules/pluginmgr/pluginmgr.n\fR: Manage a plugin
+\fIfiles/modules/pluginmgr/pluginmgr\&.n\fR: Manage a plugin
 .TP
 \fBpng\fR
-\fIfiles/modules/png/png.n\fR: PNG querying and manipulation of meta data
+\fIfiles/modules/png/png\&.n\fR: PNG querying and manipulation of meta data
 .TP
 \fBpop3\fR
-\fIfiles/modules/pop3/pop3.n\fR: Tcl client for POP3 email protocol
+\fIfiles/modules/pop3/pop3\&.n\fR: Tcl client for POP3 email protocol
 .TP
 \fBpop3d\fR
-\fIfiles/modules/pop3d/pop3d.n\fR: Tcl POP3 server implementation
+\fIfiles/modules/pop3d/pop3d\&.n\fR: Tcl POP3 server implementation
 .TP
 \fBpop3d::dbox\fR
-\fIfiles/modules/pop3d/pop3d_dbox.n\fR: Simple mailbox database for pop3d
+\fIfiles/modules/pop3d/pop3d_dbox\&.n\fR: Simple mailbox database for pop3d
 .TP
 \fBpop3d::udb\fR
-\fIfiles/modules/pop3d/pop3d_udb.n\fR: Simple user database for pop3d
+\fIfiles/modules/pop3d/pop3d_udb\&.n\fR: Simple user database for pop3d
 .TP
 \fBprofiler\fR
-\fIfiles/modules/profiler/profiler.n\fR: Tcl source code profiler
+\fIfiles/modules/profiler/profiler\&.n\fR: Tcl source code profiler
 .TP
 \fBpt\fR
-\fIfiles/modules/pt/pt.n\fR: Parser Tools Application
+\fIfiles/modules/pt/pt\&.n\fR: Parser Tools Application
 .TP
 \fBpt::ast\fR
-\fIfiles/modules/pt/pt_astree.n\fR: Abstract Syntax Tree Serialization
+\fIfiles/modules/pt/pt_astree\&.n\fR: Abstract Syntax Tree Serialization
 .TP
 \fBpt::cparam::configuration::critcl\fR
-\fIfiles/modules/pt/pt_cparam_config_critcl.n\fR: C/PARAM, Canned configuration, Critcl
+\fIfiles/modules/pt/pt_cparam_config_critcl\&.n\fR: C/PARAM, Canned configuration, Critcl
 .TP
 \fBpt::json_language\fR
-\fIfiles/modules/pt/pt_json_language.n\fR: The JSON Grammar Exchange Format
+\fIfiles/modules/pt/pt_json_language\&.n\fR: The JSON Grammar Exchange Format
 .TP
 \fBpt::param\fR
-\fIfiles/modules/pt/pt_param.n\fR: PackRat Machine Specification
+\fIfiles/modules/pt/pt_param\&.n\fR: PackRat Machine Specification
 .TP
 \fBpt::pe\fR
-\fIfiles/modules/pt/pt_pexpression.n\fR: Parsing Expression Serialization
+\fIfiles/modules/pt/pt_pexpression\&.n\fR: Parsing Expression Serialization
 .TP
 \fBpt::pe::op\fR
-\fIfiles/modules/pt/pt_pexpr_op.n\fR: Parsing Expression Utilities
+\fIfiles/modules/pt/pt_pexpr_op\&.n\fR: Parsing Expression Utilities
 .TP
 \fBpt::peg\fR
-\fIfiles/modules/pt/pt_pegrammar.n\fR: Parsing Expression Grammar Serialization
+\fIfiles/modules/pt/pt_pegrammar\&.n\fR: Parsing Expression Grammar Serialization
 .TP
 \fBpt::peg::container\fR
-\fIfiles/modules/pt/pt_peg_container.n\fR: PEG Storage
+\fIfiles/modules/pt/pt_peg_container\&.n\fR: PEG Storage
 .TP
 \fBpt::peg::container::peg\fR
-\fIfiles/modules/pt/pt_peg_container_peg.n\fR: PEG Storage. Canned PEG grammar specification
+\fIfiles/modules/pt/pt_peg_container_peg\&.n\fR: PEG Storage\&. Canned PEG grammar specification
 .TP
 \fBpt::peg::export\fR
-\fIfiles/modules/pt/pt_peg_export.n\fR: PEG Export
+\fIfiles/modules/pt/pt_peg_export\&.n\fR: PEG Export
 .TP
 \fBpt::peg::export::container\fR
-\fIfiles/modules/pt/pt_peg_export_container.n\fR: PEG Export Plugin. Write CONTAINER format
+\fIfiles/modules/pt/pt_peg_export_container\&.n\fR: PEG Export Plugin\&. Write CONTAINER format
 .TP
 \fBpt::peg::export::json\fR
-\fIfiles/modules/pt/pt_peg_export_json.n\fR: PEG Export Plugin. Write JSON format
+\fIfiles/modules/pt/pt_peg_export_json\&.n\fR: PEG Export Plugin\&. Write JSON format
 .TP
 \fBpt::peg::export::peg\fR
-\fIfiles/modules/pt/pt_peg_export_peg.n\fR: PEG Export Plugin. Write PEG format
+\fIfiles/modules/pt/pt_peg_export_peg\&.n\fR: PEG Export Plugin\&. Write PEG format
 .TP
 \fBpt::peg::from::container\fR
-\fIfiles/modules/pt/pt_peg_from_container.n\fR: PEG Conversion. From CONTAINER format
+\fIfiles/modules/pt/pt_peg_from_container\&.n\fR: PEG Conversion\&. From CONTAINER format
 .TP
 \fBpt::peg::from::json\fR
-\fIfiles/modules/pt/pt_peg_from_json.n\fR: PEG Conversion. Read JSON format
+\fIfiles/modules/pt/pt_peg_from_json\&.n\fR: PEG Conversion\&. Read JSON format
 .TP
 \fBpt::peg::from::peg\fR
-\fIfiles/modules/pt/pt_peg_from_peg.n\fR: PEG Conversion. Read PEG format
+\fIfiles/modules/pt/pt_peg_from_peg\&.n\fR: PEG Conversion\&. Read PEG format
 .TP
 \fBpt::peg::import\fR
-\fIfiles/modules/pt/pt_peg_import.n\fR: PEG Import
+\fIfiles/modules/pt/pt_peg_import\&.n\fR: PEG Import
 .TP
 \fBpt::peg::import::container\fR
-\fIfiles/modules/pt/pt_peg_import_container.n\fR: PEG Import Plugin. From CONTAINER format
+\fIfiles/modules/pt/pt_peg_import_container\&.n\fR: PEG Import Plugin\&. From CONTAINER format
 .TP
 \fBpt::peg::import::json\fR
-\fIfiles/modules/pt/pt_peg_import_json.n\fR: PEG Import Plugin. Read JSON format
+\fIfiles/modules/pt/pt_peg_import_json\&.n\fR: PEG Import Plugin\&. Read JSON format
 .TP
 \fBpt::peg::import::peg\fR
-\fIfiles/modules/pt/pt_peg_import_peg.n\fR: PEG Import Plugin. Read PEG format
+\fIfiles/modules/pt/pt_peg_import_peg\&.n\fR: PEG Import Plugin\&. Read PEG format
 .TP
 \fBpt::peg::interp\fR
-\fIfiles/modules/pt/pt_peg_interp.n\fR: Interpreter for parsing expression grammars
+\fIfiles/modules/pt/pt_peg_interp\&.n\fR: Interpreter for parsing expression grammars
 .TP
 \fBpt::peg::to::container\fR
-\fIfiles/modules/pt/pt_peg_to_container.n\fR: PEG Conversion. Write CONTAINER format
+\fIfiles/modules/pt/pt_peg_to_container\&.n\fR: PEG Conversion\&. Write CONTAINER format
 .TP
 \fBpt::peg::to::cparam\fR
-\fIfiles/modules/pt/pt_peg_to_cparam.n\fR: PEG Conversion. Write CPARAM format
+\fIfiles/modules/pt/pt_peg_to_cparam\&.n\fR: PEG Conversion\&. Write CPARAM format
 .TP
 \fBpt::peg::to::json\fR
-\fIfiles/modules/pt/pt_peg_to_json.n\fR: PEG Conversion. Write JSON format
+\fIfiles/modules/pt/pt_peg_to_json\&.n\fR: PEG Conversion\&. Write JSON format
 .TP
 \fBpt::peg::to::param\fR
-\fIfiles/modules/pt/pt_peg_to_param.n\fR: PEG Conversion. Write PARAM format
+\fIfiles/modules/pt/pt_peg_to_param\&.n\fR: PEG Conversion\&. Write PARAM format
 .TP
 \fBpt::peg::to::peg\fR
-\fIfiles/modules/pt/pt_peg_to_peg.n\fR: PEG Conversion. Write PEG format
+\fIfiles/modules/pt/pt_peg_to_peg\&.n\fR: PEG Conversion\&. Write PEG format
 .TP
 \fBpt::peg::to::tclparam\fR
-\fIfiles/modules/pt/pt_peg_to_tclparam.n\fR: PEG Conversion. Write TCLPARAM format
+\fIfiles/modules/pt/pt_peg_to_tclparam\&.n\fR: PEG Conversion\&. Write TCLPARAM format
 .TP
 \fBpt::peg_language\fR
-\fIfiles/modules/pt/pt_peg_language.n\fR: PEG Language Tutorial
+\fIfiles/modules/pt/pt_peg_language\&.n\fR: PEG Language Tutorial
 .TP
 \fBpt::pegrammar\fR
-\fIfiles/modules/pt/pt_peg_introduction.n\fR: Introduction to Parsing Expression Grammars
+\fIfiles/modules/pt/pt_peg_introduction\&.n\fR: Introduction to Parsing Expression Grammars
 .TP
 \fBpt::pgen\fR
-\fIfiles/modules/pt/pt_pgen.n\fR: Parser Generator
+\fIfiles/modules/pt/pt_pgen\&.n\fR: Parser Generator
 .TP
 \fBpt::rde\fR
-\fIfiles/modules/pt/pt_rdengine.n\fR: Parsing Runtime Support, PARAM based
+\fIfiles/modules/pt/pt_rdengine\&.n\fR: Parsing Runtime Support, PARAM based
 .TP
 \fBpt::tclparam::configuration::snit\fR
-\fIfiles/modules/pt/pt_tclparam_config_snit.n\fR: Tcl/PARAM, Canned configuration, Snit
+\fIfiles/modules/pt/pt_tclparam_config_snit\&.n\fR: Tcl/PARAM, Canned configuration, Snit
 .TP
 \fBpt::tclparam::configuration::tcloo\fR
-\fIfiles/modules/pt/pt_tclparam_config_tcloo.n\fR: Tcl/PARAM, Canned configuration, Tcloo
+\fIfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR: Tcl/PARAM, Canned configuration, Tcloo
 .TP
 \fBpt_export_api\fR
-\fIfiles/modules/pt/pt_to_api.n\fR: Parser Tools Export API
+\fIfiles/modules/pt/pt_to_api\&.n\fR: Parser Tools Export API
 .TP
 \fBpt_import_api\fR
-\fIfiles/modules/pt/pt_from_api.n\fR: Parser Tools Import API
+\fIfiles/modules/pt/pt_from_api\&.n\fR: Parser Tools Import API
 .TP
 \fBpt_introduction\fR
-\fIfiles/modules/pt/pt_introduction.n\fR: Introduction to Parser Tools
+\fIfiles/modules/pt/pt_introduction\&.n\fR: Introduction to Parser Tools
 .TP
 \fBpt_parser_api\fR
-\fIfiles/modules/pt/pt_parser_api.n\fR: Parser API
+\fIfiles/modules/pt/pt_parser_api\&.n\fR: Parser API
 .TP
 \fBrc4\fR
-\fIfiles/modules/rc4/rc4.n\fR: Implementation of the RC4 stream cipher
+\fIfiles/modules/rc4/rc4\&.n\fR: Implementation of the RC4 stream cipher
 .TP
 \fBrcs\fR
-\fIfiles/modules/rcs/rcs.n\fR: RCS low level utilities
+\fIfiles/modules/rcs/rcs\&.n\fR: RCS low level utilities
 .TP
 \fBreport\fR
-\fIfiles/modules/report/report.n\fR: Create and manipulate report objects
+\fIfiles/modules/report/report\&.n\fR: Create and manipulate report objects
 .TP
 \fBrest\fR
-\fIfiles/modules/rest/rest.n\fR: define REST web APIs and call them inline or asychronously
+\fIfiles/modules/rest/rest\&.n\fR: define REST web APIs and call them inline or asychronously
 .TP
 \fBripemd128\fR
-\fIfiles/modules/ripemd/ripemd128.n\fR: RIPEMD-128 Message-Digest Algorithm
+\fIfiles/modules/ripemd/ripemd128\&.n\fR: RIPEMD-128 Message-Digest Algorithm
 .TP
 \fBripemd160\fR
-\fIfiles/modules/ripemd/ripemd160.n\fR: RIPEMD-160 Message-Digest Algorithm
+\fIfiles/modules/ripemd/ripemd160\&.n\fR: RIPEMD-160 Message-Digest Algorithm
 .TP
 \fBS3\fR
-\fIfiles/modules/amazon-s3/S3.n\fR: Amazon S3 Web Service Interface
+\fIfiles/modules/amazon-s3/S3\&.n\fR: Amazon S3 Web Service Interface
 .TP
 \fBSASL\fR
-\fIfiles/modules/sasl/sasl.n\fR: Implementation of SASL mechanisms for Tcl
+\fIfiles/modules/sasl/sasl\&.n\fR: Implementation of SASL mechanisms for Tcl
 .TP
 \fBsha1\fR
-\fIfiles/modules/sha1/sha1.n\fR: SHA1 Message-Digest Algorithm
+\fIfiles/modules/sha1/sha1\&.n\fR: SHA1 Message-Digest Algorithm
 .TP
 \fBsha256\fR
-\fIfiles/modules/sha1/sha256.n\fR: SHA256 Message-Digest Algorithm
+\fIfiles/modules/sha1/sha256\&.n\fR: SHA256 Message-Digest Algorithm
 .TP
 \fBsimulation::annealing\fR
-\fIfiles/modules/simulation/annealing.n\fR: Simulated annealing
+\fIfiles/modules/simulation/annealing\&.n\fR: Simulated annealing
 .TP
 \fBsimulation::montecarlo\fR
-\fIfiles/modules/simulation/montecarlo.n\fR: Monte Carlo simulations
+\fIfiles/modules/simulation/montecarlo\&.n\fR: Monte Carlo simulations
 .TP
 \fBsimulation::random\fR
-\fIfiles/modules/simulation/simulation_random.n\fR: Pseudo-random number generators
+\fIfiles/modules/simulation/simulation_random\&.n\fR: Pseudo-random number generators
 .TP
 \fBsmtp\fR
-\fIfiles/modules/mime/smtp.n\fR: Client-side tcl implementation of the smtp protocol
+\fIfiles/modules/mime/smtp\&.n\fR: Client-side tcl implementation of the smtp protocol
 .TP
 \fBsmtpd\fR
-\fIfiles/modules/smtpd/smtpd.n\fR: Tcl SMTP server implementation
+\fIfiles/modules/smtpd/smtpd\&.n\fR: Tcl SMTP server implementation
 .TP
 \fBsnit\fR
-\fIfiles/modules/snit/snit.n\fR: Snit's Not Incr Tcl
+\fIfiles/modules/snit/snit\&.n\fR: Snit's Not Incr Tcl
 .TP
 \fBsnitfaq\fR
-\fIfiles/modules/snit/snitfaq.n\fR: Snit Frequently Asked Questions
+\fIfiles/modules/snit/snitfaq\&.n\fR: Snit Frequently Asked Questions
 .TP
 \fBsoundex\fR
-\fIfiles/modules/soundex/soundex.n\fR: Soundex
+\fIfiles/modules/soundex/soundex\&.n\fR: Soundex
 .TP
 \fBstooop\fR
-\fIfiles/modules/stooop/stooop.n\fR: Object oriented extension.
+\fIfiles/modules/stooop/stooop\&.n\fR: Object oriented extension\&.
 .TP
 \fBstring::token\fR
-\fIfiles/modules/string/token.n\fR: Regex based iterative lexing
+\fIfiles/modules/string/token\&.n\fR: Regex based iterative lexing
 .TP
 \fBstring::token::shell\fR
-\fIfiles/modules/string/token_shell.n\fR: Parsing of shell command line
+\fIfiles/modules/string/token_shell\&.n\fR: Parsing of shell command line
 .TP
 \fBstringprep\fR
-\fIfiles/modules/stringprep/stringprep.n\fR: Implementation of stringprep
+\fIfiles/modules/stringprep/stringprep\&.n\fR: Implementation of stringprep
 .TP
 \fBstringprep::data\fR
-\fIfiles/modules/stringprep/stringprep_data.n\fR: stringprep data tables, generated, internal
+\fIfiles/modules/stringprep/stringprep_data\&.n\fR: stringprep data tables, generated, internal
 .TP
 \fBstruct::disjointset\fR
-\fIfiles/modules/struct/disjointset.n\fR: Disjoint set data structure
+\fIfiles/modules/struct/disjointset\&.n\fR: Disjoint set data structure
 .TP
 \fBstruct::graph\fR
-\fIfiles/modules/struct/graph.n\fR: Create and manipulate directed graph objects
+\fIfiles/modules/struct/graph\&.n\fR: Create and manipulate directed graph objects
 .TP
 \fBstruct::graph::op\fR
-\fIfiles/modules/struct/graphops.n\fR: Operation for (un)directed graph objects
+\fIfiles/modules/struct/graphops\&.n\fR: Operation for (un)directed graph objects
 .TP
 \fBstruct::graph_v1\fR
-\fIfiles/modules/struct/graph1.n\fR: Create and manipulate directed graph objects
+\fIfiles/modules/struct/graph1\&.n\fR: Create and manipulate directed graph objects
 .TP
 \fBstruct::list\fR
-\fIfiles/modules/struct/struct_list.n\fR: Procedures for manipulating lists
+\fIfiles/modules/struct/struct_list\&.n\fR: Procedures for manipulating lists
 .TP
 \fBstruct::matrix\fR
-\fIfiles/modules/struct/matrix.n\fR: Create and manipulate matrix objects
+\fIfiles/modules/struct/matrix\&.n\fR: Create and manipulate matrix objects
 .TP
 \fBstruct::matrix_v1\fR
-\fIfiles/modules/struct/matrix1.n\fR: Create and manipulate matrix objects
+\fIfiles/modules/struct/matrix1\&.n\fR: Create and manipulate matrix objects
 .TP
 \fBstruct::pool\fR
-\fIfiles/modules/struct/pool.n\fR: Create and manipulate pool objects (of discrete items)
+\fIfiles/modules/struct/pool\&.n\fR: Create and manipulate pool objects (of discrete items)
 .TP
 \fBstruct::prioqueue\fR
-\fIfiles/modules/struct/prioqueue.n\fR: Create and manipulate prioqueue objects
+\fIfiles/modules/struct/prioqueue\&.n\fR: Create and manipulate prioqueue objects
 .TP
 \fBstruct::queue\fR
-\fIfiles/modules/struct/queue.n\fR: Create and manipulate queue objects
+\fIfiles/modules/struct/queue\&.n\fR: Create and manipulate queue objects
 .TP
 \fBstruct::record\fR
-\fIfiles/modules/struct/record.n\fR: Define and create records (similar to 'C' structures)
+\fIfiles/modules/struct/record\&.n\fR: Define and create records (similar to 'C' structures)
 .TP
 \fBstruct::set\fR
-\fIfiles/modules/struct/struct_set.n\fR: Procedures for manipulating sets
+\fIfiles/modules/struct/struct_set\&.n\fR: Procedures for manipulating sets
 .TP
 \fBstruct::skiplist\fR
-\fIfiles/modules/struct/skiplist.n\fR: Create and manipulate skiplists
+\fIfiles/modules/struct/skiplist\&.n\fR: Create and manipulate skiplists
 .TP
 \fBstruct::stack\fR
-\fIfiles/modules/struct/stack.n\fR: Create and manipulate stack objects
+\fIfiles/modules/struct/stack\&.n\fR: Create and manipulate stack objects
 .TP
 \fBstruct::tree\fR
-\fIfiles/modules/struct/struct_tree.n\fR: Create and manipulate tree objects
+\fIfiles/modules/struct/struct_tree\&.n\fR: Create and manipulate tree objects
 .TP
 \fBstruct::tree_v1\fR
-\fIfiles/modules/struct/struct_tree1.n\fR: Create and manipulate tree objects
+\fIfiles/modules/struct/struct_tree1\&.n\fR: Create and manipulate tree objects
 .TP
 \fBsum\fR
-\fIfiles/modules/crc/sum.n\fR: Calculate a sum(1) compatible checksum
+\fIfiles/modules/crc/sum\&.n\fR: Calculate a sum(1) compatible checksum
 .TP
 \fBtar\fR
-\fIfiles/modules/tar/tar.n\fR: Tar file creation, extraction & manipulation
+\fIfiles/modules/tar/tar\&.n\fR: Tar file creation, extraction & manipulation
 .TP
 \fBtcl::chan::cat\fR
-\fIfiles/modules/virtchannel_base/cat.n\fR: Concatenation channel
+\fIfiles/modules/virtchannel_base/cat\&.n\fR: Concatenation channel
 .TP
 \fBtcl::chan::core\fR
-\fIfiles/modules/virtchannel_core/core.n\fR: Basic reflected/virtual channel support
+\fIfiles/modules/virtchannel_core/core\&.n\fR: Basic reflected/virtual channel support
 .TP
 \fBtcl::chan::events\fR
-\fIfiles/modules/virtchannel_core/events.n\fR: Event support for reflected/virtual channels
+\fIfiles/modules/virtchannel_core/events\&.n\fR: Event support for reflected/virtual channels
 .TP
 \fBtcl::chan::facade\fR
-\fIfiles/modules/virtchannel_base/facade.n\fR: Facade channel
+\fIfiles/modules/virtchannel_base/facade\&.n\fR: Facade channel
 .TP
 \fBtcl::chan::fifo\fR
-\fIfiles/modules/virtchannel_base/fifo.n\fR: In-memory fifo channel
+\fIfiles/modules/virtchannel_base/fifo\&.n\fR: In-memory fifo channel
 .TP
 \fBtcl::chan::fifo2\fR
-\fIfiles/modules/virtchannel_base/fifo2.n\fR: In-memory interconnected fifo channels
+\fIfiles/modules/virtchannel_base/fifo2\&.n\fR: In-memory interconnected fifo channels
 .TP
 \fBtcl::chan::halfpipe\fR
-\fIfiles/modules/virtchannel_base/halfpipe.n\fR: In-memory channel, half of a fifo2
+\fIfiles/modules/virtchannel_base/halfpipe\&.n\fR: In-memory channel, half of a fifo2
 .TP
 \fBtcl::chan::memchan\fR
-\fIfiles/modules/virtchannel_base/memchan.n\fR: In-memory channel
+\fIfiles/modules/virtchannel_base/memchan\&.n\fR: In-memory channel
 .TP
 \fBtcl::chan::null\fR
-\fIfiles/modules/virtchannel_base/null.n\fR: Null channel
+\fIfiles/modules/virtchannel_base/null\&.n\fR: Null channel
 .TP
 \fBtcl::chan::nullzero\fR
-\fIfiles/modules/virtchannel_base/nullzero.n\fR: Null/Zero channel combination
+\fIfiles/modules/virtchannel_base/nullzero\&.n\fR: Null/Zero channel combination
 .TP
 \fBtcl::chan::random\fR
-\fIfiles/modules/virtchannel_base/random.n\fR: Random channel
+\fIfiles/modules/virtchannel_base/random\&.n\fR: Random channel
 .TP
 \fBtcl::chan::randseed\fR
-\fIfiles/modules/virtchannel_base/randseed.n\fR: Utilities for random channels
+\fIfiles/modules/virtchannel_base/randseed\&.n\fR: Utilities for random channels
 .TP
 \fBtcl::chan::std\fR
-\fIfiles/modules/virtchannel_base/std.n\fR: Standard I/O, unification of stdin and stdout
+\fIfiles/modules/virtchannel_base/std\&.n\fR: Standard I/O, unification of stdin and stdout
 .TP
 \fBtcl::chan::string\fR
-\fIfiles/modules/virtchannel_base/string.n\fR: Read-only in-memory channel
+\fIfiles/modules/virtchannel_base/string\&.n\fR: Read-only in-memory channel
 .TP
 \fBtcl::chan::textwindow\fR
-\fIfiles/modules/virtchannel_base/textwindow.n\fR: Textwindow channel
+\fIfiles/modules/virtchannel_base/textwindow\&.n\fR: Textwindow channel
 .TP
 \fBtcl::chan::variable\fR
-\fIfiles/modules/virtchannel_base/variable.n\fR: In-memory channel using variable for storage
+\fIfiles/modules/virtchannel_base/variable\&.n\fR: In-memory channel using variable for storage
 .TP
 \fBtcl::chan::zero\fR
-\fIfiles/modules/virtchannel_base/zero.n\fR: Zero channel
+\fIfiles/modules/virtchannel_base/zero\&.n\fR: Zero channel
 .TP
 \fBtcl::transform::adler32\fR
-\fIfiles/modules/virtchannel_transform/adler32.n\fR: Adler32 transformation
+\fIfiles/modules/virtchannel_transform/adler32\&.n\fR: Adler32 transformation
 .TP
 \fBtcl::transform::base64\fR
-\fIfiles/modules/virtchannel_transform/base64.n\fR: Base64 encoding transformation
+\fIfiles/modules/virtchannel_transform/base64\&.n\fR: Base64 encoding transformation
 .TP
 \fBtcl::transform::core\fR
-\fIfiles/modules/virtchannel_core/transformcore.n\fR: Basic reflected/virtual channel transform support
+\fIfiles/modules/virtchannel_core/transformcore\&.n\fR: Basic reflected/virtual channel transform support
 .TP
 \fBtcl::transform::counter\fR
-\fIfiles/modules/virtchannel_transform/counter.n\fR: Counter transformation
+\fIfiles/modules/virtchannel_transform/counter\&.n\fR: Counter transformation
 .TP
 \fBtcl::transform::crc32\fR
-\fIfiles/modules/virtchannel_transform/crc32.n\fR: Crc32 transformation
+\fIfiles/modules/virtchannel_transform/crc32\&.n\fR: Crc32 transformation
 .TP
 \fBtcl::transform::hex\fR
-\fIfiles/modules/virtchannel_transform/hex.n\fR: Hexadecimal encoding transformation
+\fIfiles/modules/virtchannel_transform/hex\&.n\fR: Hexadecimal encoding transformation
 .TP
 \fBtcl::transform::identity\fR
-\fIfiles/modules/virtchannel_transform/identity.n\fR: Identity transformation
+\fIfiles/modules/virtchannel_transform/identity\&.n\fR: Identity transformation
 .TP
 \fBtcl::transform::limitsize\fR
-\fIfiles/modules/virtchannel_transform/limitsize.n\fR: limiting input
+\fIfiles/modules/virtchannel_transform/limitsize\&.n\fR: limiting input
 .TP
 \fBtcl::transform::observe\fR
-\fIfiles/modules/virtchannel_transform/observe.n\fR: Observer transformation, stream copy
+\fIfiles/modules/virtchannel_transform/observe\&.n\fR: Observer transformation, stream copy
 .TP
 \fBtcl::transform::otp\fR
-\fIfiles/modules/virtchannel_transform/otp.n\fR: Encryption via one-time pad
+\fIfiles/modules/virtchannel_transform/otp\&.n\fR: Encryption via one-time pad
 .TP
 \fBtcl::transform::rot\fR
-\fIfiles/modules/virtchannel_transform/rot.n\fR: rot-encryption
+\fIfiles/modules/virtchannel_transform/rot\&.n\fR: rot-encryption
 .TP
 \fBtcl::transform::spacer\fR
-\fIfiles/modules/virtchannel_transform/spacer.n\fR: Space insertation and removal
+\fIfiles/modules/virtchannel_transform/spacer\&.n\fR: Space insertation and removal
 .TP
 \fBtcl::transform::zlib\fR
-\fIfiles/modules/virtchannel_transform/zlib.n\fR: zlib (de)compression
+\fIfiles/modules/virtchannel_transform/zlib\&.n\fR: zlib (de)compression
 .TP
 \fBtcldocstrip\fR
-\fIfiles/apps/tcldocstrip.n\fR: Tcl-based Docstrip Processor
+\fIfiles/apps/tcldocstrip\&.n\fR: Tcl-based Docstrip Processor
 .TP
 \fBtcllib_ip\fR
-\fIfiles/modules/dns/tcllib_ip.n\fR: IPv4 and IPv6 address manipulation
+\fIfiles/modules/dns/tcllib_ip\&.n\fR: IPv4 and IPv6 address manipulation
 .TP
 \fBtclrep/machineparameters\fR
-\fIfiles/modules/math/machineparameters.n\fR: Compute double precision machine parameters.
+\fIfiles/modules/math/machineparameters\&.n\fR: Compute double precision machine parameters\&.
 .TP
 \fBtepam\fR
-\fIfiles/modules/tepam/tepam_introduction.n\fR: An introduction into TEPAM, Tcl's Enhanced Procedure and Argument Manager
+\fIfiles/modules/tepam/tepam_introduction\&.n\fR: An introduction into TEPAM, Tcl's Enhanced Procedure and Argument Manager
 .TP
 \fBtepam::argument_dialogbox\fR
-\fIfiles/modules/tepam/tepam_argument_dialogbox.n\fR: TEPAM argument_dialogbox, reference manual
+\fIfiles/modules/tepam/tepam_argument_dialogbox\&.n\fR: TEPAM argument_dialogbox, reference manual
 .TP
 \fBtepam::procedure\fR
-\fIfiles/modules/tepam/tepam_procedure.n\fR: TEPAM procedure, reference manual
+\fIfiles/modules/tepam/tepam_procedure\&.n\fR: TEPAM procedure, reference manual
 .TP
 \fBterm\fR
-\fIfiles/modules/term/term.n\fR: General terminal control
+\fIfiles/modules/term/term\&.n\fR: General terminal control
 .TP
 \fBterm::ansi::code\fR
-\fIfiles/modules/term/ansi_code.n\fR: Helper for control sequences
+\fIfiles/modules/term/ansi_code\&.n\fR: Helper for control sequences
 .TP
 \fBterm::ansi::code::attr\fR
-\fIfiles/modules/term/ansi_cattr.n\fR: ANSI attribute sequences
+\fIfiles/modules/term/ansi_cattr\&.n\fR: ANSI attribute sequences
 .TP
 \fBterm::ansi::code::ctrl\fR
-\fIfiles/modules/term/ansi_cctrl.n\fR: ANSI control sequences
+\fIfiles/modules/term/ansi_cctrl\&.n\fR: ANSI control sequences
 .TP
 \fBterm::ansi::code::macros\fR
-\fIfiles/modules/term/ansi_cmacros.n\fR: Macro sequences
+\fIfiles/modules/term/ansi_cmacros\&.n\fR: Macro sequences
 .TP
 \fBterm::ansi::ctrl::unix\fR
-\fIfiles/modules/term/ansi_ctrlu.n\fR: Control operations and queries
+\fIfiles/modules/term/ansi_ctrlu\&.n\fR: Control operations and queries
 .TP
 \fBterm::ansi::send\fR
-\fIfiles/modules/term/ansi_send.n\fR: Output of ANSI control sequences to terminals
+\fIfiles/modules/term/ansi_send\&.n\fR: Output of ANSI control sequences to terminals
 .TP
 \fBterm::interact::menu\fR
-\fIfiles/modules/term/imenu.n\fR: Terminal widget, menu
+\fIfiles/modules/term/imenu\&.n\fR: Terminal widget, menu
 .TP
 \fBterm::interact::pager\fR
-\fIfiles/modules/term/ipager.n\fR: Terminal widget, paging
+\fIfiles/modules/term/ipager\&.n\fR: Terminal widget, paging
 .TP
 \fBterm::receive\fR
-\fIfiles/modules/term/receive.n\fR: General input from terminals
+\fIfiles/modules/term/receive\&.n\fR: General input from terminals
 .TP
 \fBterm::receive::bind\fR
-\fIfiles/modules/term/term_bind.n\fR: Keyboard dispatch from terminals
+\fIfiles/modules/term/term_bind\&.n\fR: Keyboard dispatch from terminals
 .TP
 \fBterm::send\fR
-\fIfiles/modules/term/term_send.n\fR: General output to terminals
+\fIfiles/modules/term/term_send\&.n\fR: General output to terminals
 .TP
 \fBtextutil\fR
-\fIfiles/modules/textutil/textutil.n\fR: Procedures to manipulate texts and strings.
+\fIfiles/modules/textutil/textutil\&.n\fR: Procedures to manipulate texts and strings\&.
 .TP
 \fBtextutil::adjust\fR
-\fIfiles/modules/textutil/adjust.n\fR: Procedures to adjust, indent, and undent paragraphs
+\fIfiles/modules/textutil/adjust\&.n\fR: Procedures to adjust, indent, and undent paragraphs
 .TP
 \fBtextutil::expander\fR
-\fIfiles/modules/textutil/expander.n\fR: Procedures to process templates and expand text.
+\fIfiles/modules/textutil/expander\&.n\fR: Procedures to process templates and expand text\&.
 .TP
 \fBtextutil::repeat\fR
-\fIfiles/modules/textutil/repeat.n\fR: Procedures to repeat strings.
+\fIfiles/modules/textutil/repeat\&.n\fR: Procedures to repeat strings\&.
 .TP
 \fBtextutil::split\fR
-\fIfiles/modules/textutil/textutil_split.n\fR: Procedures to split texts
+\fIfiles/modules/textutil/textutil_split\&.n\fR: Procedures to split texts
 .TP
 \fBtextutil::string\fR
-\fIfiles/modules/textutil/textutil_string.n\fR: Procedures to manipulate texts and strings.
+\fIfiles/modules/textutil/textutil_string\&.n\fR: Procedures to manipulate texts and strings\&.
 .TP
 \fBtextutil::tabify\fR
-\fIfiles/modules/textutil/tabify.n\fR: Procedures to (un)tabify strings
+\fIfiles/modules/textutil/tabify\&.n\fR: Procedures to (un)tabify strings
 .TP
 \fBtextutil::trim\fR
-\fIfiles/modules/textutil/trim.n\fR: Procedures to trim strings
+\fIfiles/modules/textutil/trim\&.n\fR: Procedures to trim strings
 .TP
 \fBtie\fR
-\fIfiles/modules/tie/tie.n\fR: Array persistence
+\fIfiles/modules/tie/tie\&.n\fR: Array persistence
 .TP
 \fBtie\fR
-\fIfiles/modules/tie/tie_std.n\fR: Array persistence, standard data sources
+\fIfiles/modules/tie/tie_std\&.n\fR: Array persistence, standard data sources
 .TP
 \fBtiff\fR
-\fIfiles/modules/tiff/tiff.n\fR: TIFF reading, writing, and querying and manipulation of meta data
+\fIfiles/modules/tiff/tiff\&.n\fR: TIFF reading, writing, and querying and manipulation of meta data
 .TP
 \fBtransfer::connect\fR
-\fIfiles/modules/transfer/connect.n\fR: Connection setup
+\fIfiles/modules/transfer/connect\&.n\fR: Connection setup
 .TP
 \fBtransfer::copy\fR
-\fIfiles/modules/transfer/copyops.n\fR: Data transfer foundation
+\fIfiles/modules/transfer/copyops\&.n\fR: Data transfer foundation
 .TP
 \fBtransfer::copy::queue\fR
-\fIfiles/modules/transfer/tqueue.n\fR: Queued transfers
+\fIfiles/modules/transfer/tqueue\&.n\fR: Queued transfers
 .TP
 \fBtransfer::data::destination\fR
-\fIfiles/modules/transfer/ddest.n\fR: Data destination
+\fIfiles/modules/transfer/ddest\&.n\fR: Data destination
 .TP
 \fBtransfer::data::source\fR
-\fIfiles/modules/transfer/dsource.n\fR: Data source
+\fIfiles/modules/transfer/dsource\&.n\fR: Data source
 .TP
 \fBtransfer::receiver\fR
-\fIfiles/modules/transfer/receiver.n\fR: Data source
+\fIfiles/modules/transfer/receiver\&.n\fR: Data source
 .TP
 \fBtransfer::transmitter\fR
-\fIfiles/modules/transfer/transmitter.n\fR: Data source
+\fIfiles/modules/transfer/transmitter\&.n\fR: Data source
 .TP
 \fBtreeql\fR
-\fIfiles/modules/treeql/treeql.n\fR: Query tree objects
+\fIfiles/modules/treeql/treeql\&.n\fR: Query tree objects
 .TP
 \fBtry\fR
-\fIfiles/modules/try/tcllib_try.n\fR: try - Trap and process errors and exceptions
+\fIfiles/modules/try/tcllib_try\&.n\fR: try - Trap and process errors and exceptions
 .TP
 \fBuevent\fR
-\fIfiles/modules/uev/uevent.n\fR: User events
+\fIfiles/modules/uev/uevent\&.n\fR: User events
 .TP
 \fBuevent::onidle\fR
-\fIfiles/modules/uev/uevent_onidle.n\fR: Request merging and deferal to idle time
+\fIfiles/modules/uev/uevent_onidle\&.n\fR: Request merging and deferal to idle time
 .TP
 \fBunicode\fR
-\fIfiles/modules/stringprep/unicode.n\fR: Implementation of Unicode normalization
+\fIfiles/modules/stringprep/unicode\&.n\fR: Implementation of Unicode normalization
 .TP
 \fBunicode::data\fR
-\fIfiles/modules/stringprep/unicode_data.n\fR: unicode data tables, generated, internal
+\fIfiles/modules/stringprep/unicode_data\&.n\fR: unicode data tables, generated, internal
 .TP
 \fBunits\fR
-\fIfiles/modules/units/units.n\fR: unit conversion
+\fIfiles/modules/units/units\&.n\fR: unit conversion
 .TP
 \fBuri\fR
-\fIfiles/modules/uri/uri.n\fR: URI utilities
+\fIfiles/modules/uri/uri\&.n\fR: URI utilities
 .TP
 \fBuri_urn\fR
-\fIfiles/modules/uri/urn-scheme.n\fR: URI utilities, URN scheme
+\fIfiles/modules/uri/urn-scheme\&.n\fR: URI utilities, URN scheme
 .TP
 \fBuuencode\fR
-\fIfiles/modules/base64/uuencode.n\fR: UU-encode/decode binary data
+\fIfiles/modules/base64/uuencode\&.n\fR: UU-encode/decode binary data
 .TP
 \fBuuid\fR
-\fIfiles/modules/uuid/uuid.n\fR: UUID generation and comparison
+\fIfiles/modules/uuid/uuid\&.n\fR: UUID generation and comparison
 .TP
 \fBwip\fR
-\fIfiles/modules/wip/wip.n\fR: Word Interpreter
+\fIfiles/modules/wip/wip\&.n\fR: Word Interpreter
 .TP
 \fBxsxp\fR
-\fIfiles/modules/amazon-s3/xsxp.n\fR: eXtremely Simple Xml Parser
+\fIfiles/modules/amazon-s3/xsxp\&.n\fR: eXtremely Simple Xml Parser
 .TP
 \fByaml\fR
-\fIfiles/modules/yaml/yaml.n\fR: YAML Format Encoder/Decoder
+\fIfiles/modules/yaml/yaml\&.n\fR: YAML Format Encoder/Decoder
 .TP
 \fByencode\fR
-\fIfiles/modules/base64/yencode.n\fR: Y-encode/decode binary data
+\fIfiles/modules/base64/yencode\&.n\fR: Y-encode/decode binary data
