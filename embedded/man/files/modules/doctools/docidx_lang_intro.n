@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/doctools/docidx_lang_intro.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/doctools/docidx_lang_intro\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,50 +238,61 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "docidx_lang_intro" n 1.0 tcllib "Documentation tools"
+.TH "docidx_lang_intro" n 1\&.0 tcllib "Documentation tools"
 .BS
 .SH NAME
 docidx_lang_intro \- docidx language introduction
 .SH DESCRIPTION
 .PP
 This document is an informal introduction to version 1 of the docidx
-markup language based on a multitude of examples. After reading this a
+markup language based on a multitude of examples\&. After reading this a
 writer should be ready to understand the two parts of the formal
-specification, i.e. the \fIdocidx language syntax\fR specification
-and the \fIdocidx language command reference\fR.
+specification, i\&.e\&. the \fIdocidx language syntax\fR specification
+and the \fIdocidx language command reference\fR\&.
 .SS FUNDAMENTALS
 While the \fIdocidx markup language\fR is quite similar to the
 \fIdoctools markup language\fR, in the broadest terms possible,
-there is one key difference. An index consists essentially only of
+there is one key difference\&. An index consists essentially only of
 markup commands, with no plain text interspersed between them, except
-for whitespace.
+for whitespace\&.
 .PP
 Each markup command is a Tcl command surrounded by a matching pair of
-\fB[\fR and \fB]\fR. Inside of these delimiters the usual
+\fB[\fR and \fB]\fR\&. Inside of these delimiters the usual
 rules for a Tcl command apply with regard to word quotation, nested
-commands, continuation lines, etc. I.e.
+commands, continuation lines, etc\&. I\&.e\&.
 .PP
 .CS
-\... [key {markup language}] ...
+
+
+    \&.\&.\&. [key {markup language}] \&.\&.\&.
+
 .CE
 .CS
-\... [manpage thefile \\\\
-{file description}] ...
+
+
+  \&.\&.\&. [manpage thefile \\\\
+          {file description}] \&.\&.\&.
+
 .CE
 .SS "BASIC STRUCTURE"
 The most simple document which can be written in docidx is
 .CS
-[index_begin GROUPTITLE TITLE]
-[index_end]
+
+
+    [index_begin GROUPTITLE TITLE]
+    [index_end]
+
 .CE
 .PP
-Not very useful, but valid. This also shows us that all docidx
+Not very useful, but valid\&. This also shows us that all docidx
 documents consist of only one part where we will list all keys and
-their references.
+their references\&.
 .PP
 A more useful index will contain at least keywords, or short 'keys',
-i.e. the phrases which were indexed. So:
+i\&.e\&. the phrases which were indexed\&. So:
 .CS
+
+
 [index_begin GROUPTITLE TITLE]
 [\fBkey markup\fR]
 [\fBkey {semantic markup}]\fR]
@@ -288,16 +300,19 @@ i.e. the phrases which were indexed. So:
 [\fBkey {docidx language}\fR]
 [\fBkey {docidx commands}\fR]
 [index_end]
+
 .CE
 .PP
 In the above example the command \fBkey\fR is used to declare the
-keyword phrases we wish to be part of the index.
+keyword phrases we wish to be part of the index\&.
 .PP
 However a truly useful index does not only list the keyword phrases,
 but will also contain references to documents associated with the
-keywords. Here is a made-up index for all the manpages in the module
+keywords\&. Here is a made-up index for all the manpages in the module
 \fIbase64\fR:
 .CS
+
+
 [index_begin tcllib/base64 {De- & Encoding}]
 [key base64]
 [\fBmanpage base64\fR]
@@ -314,88 +329,98 @@ keywords. Here is a made-up index for all the manpages in the module
 [key yencode]
 [\fBmanpage yencode\fR]
 [index_end]
+
 .CE
 .PP
 In the above example the command \fBmanpage\fR is used to insert
 references to documents, using symbolic file names, with each command
-belonging to the last \fBkey\fR command coming before it.
+belonging to the last \fBkey\fR command coming before it\&.
 .PP
-The other command to insert references is \fBurl\fR. In contrast to
+The other command to insert references is \fBurl\fR\&. In contrast to
 \fBmanpage\fR it uses explicit (possibly format-specific) urls to
-describe the location of the referenced document. As such this command
+describe the location of the referenced document\&. As such this command
 is intended for the creation of references to external documents which
-could not be handled in any other way.
+could not be handled in any other way\&.
 .SS "ADVANCED STRUCTURE"
 In all previous examples we fudged a bit regarding the markup actually
 allowed to be used before the \fBindex_begin\fR command opening the
-document.
+document\&.
 .PP
 Instead of only whitespace the two templating commands \fBinclude\fR
 and \fBvset\fR are also allowed, to enable the writer to either set
 and/or import configuration settings relevant to the table of
-contents. I.e. it is possible to write
+contents\&. I\&.e\&. it is possible to write
 .CS
+
+
 [\fBinclude FILE\fR]
 [\fBvset VAR VALUE\fR]
 [index_begin GROUPTITLE TITLE]
-\...
+\&.\&.\&.
 [index_end]
+
 .CE
 Even more important, these two commands are allowed anywhere where a
 markup command is allowed, without regard for any other
-structure.
+structure\&.
 .CS
+
+
 [index_begin GROUPTITLE TITLE]
 [\fBinclude FILE\fR]
 [\fBvset VAR VALUE\fR]
-\...
+\&.\&.\&.
 [index_end]
+
 .CE
 The only restriction \fBinclude\fR has to obey is that the contents of
-the included file must be valid at the place of the inclusion. I.e. a
+the included file must be valid at the place of the inclusion\&. I\&.e\&. a
 file included before \fBindex_begin\fR may contain only the templating
 commands \fBvset\fR and \fBinclude\fR, a file included after a key
-may contain only manape or url references, and other keys, etc.
+may contain only manape or url references, and other keys, etc\&.
 .SS ESCAPES
-Beyond the 6 commands shown so far we have two more available.
+Beyond the 6 commands shown so far we have two more available\&.
 However their function is not the marking up of index structure, but
-the insertion of characters, namely \fB[\fR and \fB]\fR.
+the insertion of characters, namely \fB[\fR and \fB]\fR\&.
 These commands, \fBlb\fR and \fBrb\fR respectively, are required
 because our use of [ and ] to bracket markup commands makes it
-impossible to directly use [ and ] within the text.
+impossible to directly use [ and ] within the text\&.
 .PP
 Our example of their use are the sources of the last sentence in the
-previous paragraph, with some highlighting added.
+previous paragraph, with some highlighting added\&.
 .CS
-\...
-These commands, [cmd lb] and [cmd lb] respectively, are required
-because our use of [\fBlb\fR] and [\fBrb\fR] to bracket markup commands makes it
-impossible to directly use [\fBlb\fR] and [\fBrb\fR] within the text.
-\...
+
+
+  \&.\&.\&.
+  These commands, [cmd lb] and [cmd lb] respectively, are required
+  because our use of [\fBlb\fR] and [\fBrb\fR] to bracket markup commands makes it
+  impossible to directly use [\fBlb\fR] and [\fBrb\fR] within the text\&.
+  \&.\&.\&.
+
 .CE
 .SH "FURTHER READING"
 Now that this document has been digested the reader, assumed to be a
 \fIwriter\fR of documentation should be fortified enough to be able
 to understand the formal \fIdocidx language syntax\fR
-specification as well. From here on out the
+specification as well\&. From here on out the
 \fIdocidx language command reference\fR will also serve as the
 detailed specification and cheat sheet for all available commands and
-their syntax.
+their syntax\&.
 .PP
 To be able to validate a document while writing it, it is also
 recommended to familiarize oneself with Tclapps' ultra-configurable
-\fBdtp\fR.
+\fBdtp\fR\&.
 .PP
 On the other hand, docidx is perfectly suited for the automatic
 generation from doctools documents, and this is the route Tcllib's
 easy and simple \fBdtplite\fR goes, creating an index for a set of
 documents behind the scenes, without the writer having to do so on
-their own.
+their own\&.
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems.
+This document, will undoubtedly contain bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
-Please also report any ideas for enhancements you may have.
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+Please also report any ideas for enhancements you may have\&.
 .SH "SEE ALSO"
 docidx_intro, docidx_lang_cmdref, docidx_lang_syntax
 .SH KEYWORDS
@@ -404,5 +429,6 @@ docidx commands, docidx language, docidx markup, docidx syntax, markup, semantic
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

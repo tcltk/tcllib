@@ -1,7 +1,7 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/grammar_fa/dexec.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-'\" Copyright (c) 2007 Bogdan <rftghost@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/grammar_fa/dexec\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2004 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2007 Bogdan <rftghost@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -223,6 +223,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -238,20 +239,20 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "grammar::fa::dexec" n 0.2 tcllib "Finite automaton operations and usage"
+.TH "grammar::fa::dexec" n 0\&.2 tcllib "Finite automaton operations and usage"
 .BS
 .SH NAME
 grammar::fa::dexec \- Execute deterministic finite automatons
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
 package require \fBsnit \fR
 .sp
-package require \fBgrammar::fa::dexec  ?0.2?\fR
+package require \fBgrammar::fa::dexec  ?0\&.2?\fR
 .sp
 \fB::grammar::fa::dexec\fR \fIdaName\fR \fIfa\fR ?\fB-any\fR \fIany\fR? ?\fB-command\fR \fIcmdprefix\fR?
 .sp
-\fBdaName\fR \fIoption\fR ?\fIarg arg ...\fR?
+\fBdaName\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp
 \fIdaName\fR \fBdestroy\fR
 .sp
@@ -273,50 +274,50 @@ package require \fBgrammar::fa::dexec  ?0.2?\fR
 .SH DESCRIPTION
 .PP
 This package provides a class for executors constructed from
-deterministic \fIfinite automatons\fR (DFA). Executors are objects
+deterministic \fIfinite automatons\fR (DFA)\&. Executors are objects
 which are given a string of symbols in a piecemal fashion, perform
 state transitions and report back when they enter a final state, or
-find an error in the input.
+find an error in the input\&.
 For the actual creation of the DFAs the executors are based on we have
-the packages \fBgrammar::fa\fR and \fBgrammar::fa::op\fR.
+the packages \fBgrammar::fa\fR and \fBgrammar::fa::op\fR\&.
 .PP
-The objects follow a push model. Symbols are pushed into the executor,
-and when something important happens, i.e. error occurs, a state transition,
+The objects follow a push model\&. Symbols are pushed into the executor,
+and when something important happens, i\&.e\&. error occurs, a state transition,
 or a final state is entered this will be reported via the callback
-specified via the option \fB-command\fR. Note that conversion of
+specified via the option \fB-command\fR\&. Note that conversion of
 this into a pull model where the environment retrieves messages from
 the object and the object uses a callback to ask for more symbols is
-a trivial thing.
+a trivial thing\&.
 .PP
 \fISide note\fR:
 The acceptor objects provided by \fBgrammar::fa::dacceptor\fR
 could have been implemented on top of the executors provided here, but
 were not, to get a bit more performance (we avoid a number of method
-calls and the time required for their dispatch).
+calls and the time required for their dispatch)\&.
 .PP
 .SH API
-The package exports the API described here.
+The package exports the API described here\&.
 .TP
 \fB::grammar::fa::dexec\fR \fIdaName\fR \fIfa\fR ?\fB-any\fR \fIany\fR? ?\fB-command\fR \fIcmdprefix\fR?
 Creates a new deterministic executor with an associated global Tcl
-command whose name is \fIdaName\fR. This command may be used to invoke
-various operations on the executor. It has the following general form:
+command whose name is \fIdaName\fR\&. This command may be used to invoke
+various operations on the executor\&. It has the following general form:
 .RS
 .TP
-\fBdaName\fR \fIoption\fR ?\fIarg arg ...\fR?
+\fBdaName\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
 \fIOption\fR and the \fIarg\fRs determine the exact behavior of the
-command. See section \fBEXECUTOR METHODS\fR for more
-explanations.
+command\&. See section \fBEXECUTOR METHODS\fR for more
+explanations\&.
 .sp
 The executor will be based on the deterministic finite automaton
-stored in the object \fIfa\fR. It will keep a copy of the relevant
+stored in the object \fIfa\fR\&. It will keep a copy of the relevant
 data of the FA in its own storage, in a form easy to use for its
-purposes. This also means that changes made to the \fIfa\fR after the
-construction of the executor \fIwill not\fR influence the executor.
+purposes\&. This also means that changes made to the \fIfa\fR after the
+construction of the executor \fIwill not\fR influence the executor\&.
 .sp
 If \fIany\fR has been specified, then the executor will convert all
 symbols in the input which are unknown to the base FA to that symbol
-before proceeding with the processing.
+before proceeding with the processing\&.
 .RE
 .PP
 .SH "EXECUTOR METHODS"
@@ -325,77 +326,78 @@ All executors provide the following methods for their manipulation:
 .TP
 \fIdaName\fR \fBdestroy\fR
 Destroys the automaton, including its storage space and associated
-command.
+command\&.
 .TP
 \fIdaName\fR \fBput\fR \fIsymbol\fR
 Takes the current state of the executor and the \fIsymbol\fR and
-performs the appropriate state transition. Reports any errors
+performs the appropriate state transition\&. Reports any errors
 encountered via the command callback, as well as entering a final
-state of the underlying FA.
+state of the underlying FA\&.
 .sp
 When an error is reported all further invokations of \fBput\fR will
 do nothing, until the error condition has been cleared via an
-invokation of method \fBreset\fR.
+invokation of method \fBreset\fR\&.
 .TP
 \fIdaName\fR \fBreset\fR
 Unconditionally sets the executor into the start state of the
-underlying FA. This also clears any error condition  \fBput\fR may
-have encountered.
+underlying FA\&. This also clears any error condition  \fBput\fR may
+have encountered\&.
 .TP
 \fIdaName\fR \fBstate\fR
-Returns the current state of the underlying FA. This allow for
-introspection without the need to pass data from the callback command.
+Returns the current state of the underlying FA\&. This allow for
+introspection without the need to pass data from the callback command\&.
 .PP
 .SH "EXECUTOR CALLBACK"
 The callback command \fIcmdprefix\fR given to an executor via the
 option \fB-command\fR will be executed by the object at the global
-level, using the syntax described below. Note that \fIcmdprefix\fR is
-not simply the name of a command, but a full command prefix. In other
+level, using the syntax described below\&. Note that \fIcmdprefix\fR is
+not simply the name of a command, but a full command prefix\&. In other
 words it may contain additional fixed argument words beyond the
-command word.
+command word\&.
 .TP
 \fIcmdprefix\fR \fBerror\fR \fIcode\fR \fImessage\fR
 The executor has encountered an error, and \fImessage\fR contains a
-human-readable text explaining the nature of the problem.
-The \fIcode\fR on the other hand is a fixed machine-readable text.
-The following error codes can be generated by executor objects.
+human-readable text explaining the nature of the problem\&.
+The \fIcode\fR on the other hand is a fixed machine-readable text\&.
+The following error codes can be generated by executor objects\&.
 .RS
 .TP
 \fBBADSYM\fR
-An unknown symbol was found in the input. This can happen if and only
-if no \fB-any\fR symbol was specified.
+An unknown symbol was found in the input\&. This can happen if and only
+if no \fB-any\fR symbol was specified\&.
 .TP
 \fBBADTRANS\fR
 The underlying FA has no transition for the current combination of
-input symbol and state. In other words, the executor was not able to
-compute a new state for this combination.
+input symbol and state\&. In other words, the executor was not able to
+compute a new state for this combination\&.
 .RE
 .TP
 \fIcmdprefix\fR \fBfinal\fR \fIstateid\fR
-The executor has entered the final state \fIstateid\fR.
+The executor has entered the final state \fIstateid\fR\&.
 .TP
 \fIcmdprefix\fR \fBreset\fR
-The executor was reset.
+The executor was reset\&.
 .TP
 \fIcmdprefix\fR \fBstate\fR \fIstateid\fR
-The FA changed state due to a transition. \fIstateid\fR is the new state.
+The FA changed state due to a transition\&. \fIstateid\fR is the new state\&.
 .PP
 .PP
 .SH EXAMPLES
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIgrammar_fa\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 automaton, execution, finite automaton, grammar, parsing, regular expression, regular grammar, regular languages, running, state, transducer
 .SH CATEGORY
 Grammars and finite automata
 .SH COPYRIGHT
 .nf
-Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
-Copyright (c) 2007 Bogdan <rftghost@users.sourceforge.net>
+Copyright (c) 2004 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2007 Bogdan <rftghost@users\&.sourceforge\&.net>
+
 .fi

@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/simulation/annealing.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2008 Arjen Markus <arjenmarkus@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/simulation/annealing\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2008 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "simulation::annealing" n 0.2 tcllib "Tcl Simulation Tools"
+.TH "simulation::annealing" n 0\&.2 tcllib "Tcl Simulation Tools"
 .BS
 .SH NAME
 simulation::annealing \- Simulated annealing
 .SH SYNOPSIS
-package require \fBTcl  ?8.4?\fR
+package require \fBTcl  ?8\&.4?\fR
 .sp
-package require \fBsimulation::annealing  0.2\fR
+package require \fBsimulation::annealing  0\&.2\fR
 .sp
 \fB::simulation::annealing::getOption\fR \fIkeyword\fR
 .sp
@@ -260,39 +261,45 @@ package require \fBsimulation::annealing  0.2\fR
 .SH DESCRIPTION
 .PP
 The technique of \fIsimulated annealing\fR provides methods to
-estimate the global optimum of a function. It is described in some
-detail on the Wiki \fIhttp://wiki.tcl.tk/...\fR. The idea is simple:
+estimate the global optimum of a function\&. It is described in some
+detail on the Wiki \fIhttp://wiki\&.tcl\&.tk/\&.\&.\&.\fR\&. The idea is simple:
 .IP \(bu
 randomly select points within a given search space
 .IP \(bu
 evaluate the function to be optimised for each of these
 points and select the point that has the lowest (or highest)
 function value or - sometimes - accept a point that has a less optimal
-value. The chance by which such a non-optimal point is accepted diminishes over
-time.
+value\&. The chance by which such a non-optimal point is accepted diminishes over
+time\&.
 .IP \(bu
 Accepting less optimal points means the method does not necessarily get
 stuck in a local optimum and theoretically it is capable of finding the
-global optimum within the search space.
+global optimum within the search space\&.
 .PP
-The method resembles the cooling of material, hence the name.
+The method resembles the cooling of material, hence the name\&.
 .PP
 The package \fIsimulation::annealing\fR offers the command \fIfindMinimum\fR:
 .CS
-puts [::simulation::annealing::findMinimum  -trials 300  -parameters {x -5.0 5.0 y -5.0 5.0}  -function {$x*$x+$y*$y+sin(10.0*$x)+4.0*cos(20.0*$y)}]
+
+
+    puts [::simulation::annealing::findMinimum  -trials 300  -parameters {x -5\&.0 5\&.0 y -5\&.0 5\&.0}  -function {$x*$x+$y*$y+sin(10\&.0*$x)+4\&.0*cos(20\&.0*$y)}]
+
 .CE
 prints the estimated minimum value of the function f(x,y) =
 \fIx**2+y**2+sin(10*x)+4*cos(20*y)\fR and the values of x and y where
 the minimum was attained:
 .CS
-result -4.9112922923 x -0.181647676593 y 0.155743646974
+
+
+result -4\&.9112922923 x -0\&.181647676593 y 0\&.155743646974
+
 .CE
 .SH PROCEDURES
 The package defines the following auxiliary procedures:
 .TP
 \fB::simulation::annealing::getOption\fR \fIkeyword\fR
 Get the value of an option given as part of the \fIfindMinimum\fR
-command.
+command\&.
 .RS
 .TP
 string \fIkeyword\fR
@@ -301,7 +308,7 @@ Given keyword (without leading minus)
 .sp
 .TP
 \fB::simulation::annealing::hasOption\fR \fIkeyword\fR
-Returns 1 if the option is available, 0 if not.
+Returns 1 if the option is available, 0 if not\&.
 .RS
 .TP
 string \fIkeyword\fR
@@ -310,7 +317,7 @@ Given keyword (without leading minus)
 .sp
 .TP
 \fB::simulation::annealing::setOption\fR \fIkeyword\fR \fIvalue\fR
-Set the value of the given option.
+Set the value of the given option\&.
 .RS
 .TP
 string \fIkeyword\fR
@@ -323,25 +330,25 @@ string \fIvalue\fR
 The main procedures are \fIfindMinimum\fR and \fIfindCombinatorialMinimum\fR:
 .TP
 \fB::simulation::annealing::findMinimum\fR \fIargs\fR
-Find the minimum of a function using simulated annealing. The function
+Find the minimum of a function using simulated annealing\&. The function
 and the method's parameters is given via a list of
-keyword-value pairs.
+keyword-value pairs\&.
 .RS
 .TP
 int \fIn\fR
 List of keyword-value pairs, all of which are available
-during the execution via the \fIgetOption\fR command.
+during the execution via the \fIgetOption\fR command\&.
 .RE
 .TP
 \fB::simulation::annealing::findCombinatorialMinimum\fR \fIargs\fR
 Find the minimum of a function of discrete variables using simulated
-annealing. The function and the method's parameters is given via a list of
-keyword-value pairs.
+annealing\&. The function and the method's parameters is given via a list of
+keyword-value pairs\&.
 .RS
 .TP
 int \fIn\fR
 List of keyword-value pairs, all of which are available
-during the execution via the \fIgetOption\fR command.
+during the execution via the \fIgetOption\fR command\&.
 .RE
 .PP
 The \fIfindMinimum\fR command predefines the following options:
@@ -351,7 +358,7 @@ The \fIfindMinimum\fR command predefines the following options:
 \fI-function expr\fR: expression defining the function
 .IP \(bu
 \fI-code body\fR: body of code to define the function (takes
-precedence over \fI-function\fR). The code should set the variable
+precedence over \fI-function\fR)\&. The code should set the variable
 "result"
 .IP \(bu
 \fI-init code\fR: code to be run at start up
@@ -367,91 +374,100 @@ report file (1) or not (0)
 \fI-reportfile file\fR: opened file to print to (defaults to stdout)
 .PP
 Any other options can be used via the getOption procedure
-in the body.
+in the body\&.
 The \fIfindCombinatorialMinimum\fR command predefines the following
 options:
 .IP \(bu
 \fI-number-params n\fR: number of binary parameters (the solution
-space consists of lists of 1s and 0s). This is a required option.
+space consists of lists of 1s and 0s)\&. This is a required option\&.
 .IP \(bu
 \fI-initial-values\fR: list of 1s and 0s constituting the start of
-the search.
+the search\&.
 .PP
-The other predefined options are identical to those of \fIfindMinimum\fR.
+The other predefined options are identical to those of \fIfindMinimum\fR\&.
 .SH TIPS
 The procedure \fIfindMinimum\fR works by constructing a temporary
-procedure that does the actual work. It loops until the point
+procedure that does the actual work\&. It loops until the point
 representing the estimated optimum does not change anymore within the
-given number of trials. As the temperature gets lower and lower the
+given number of trials\&. As the temperature gets lower and lower the
 chance of accepting a point with a higher value becomes lower too, so
-the procedure will in practice terminate.
+the procedure will in practice terminate\&.
 .PP
 It is possible to optimise over a non-rectangular region, but some care
 must be taken:
 .IP \(bu
 If the point is outside the region of interest, you can specify a very
-high value.
+high value\&.
 .IP \(bu
 This does mean that the automatic determination of a scale factor is
 out of the question - the high function values that force the point
-inside the region would distort the estimation.
+inside the region would distort the estimation\&.
 .PP
 Here is an example of finding an optimum inside a circle:
 .CS
-puts [::simulation::annealing::findMinimum  -trials 3000  -reduce 0.98  -parameters {x -5.0 5.0 y -5.0 5.0}  -code {
-if { hypot($x-5.0,$y-5.0) < 4.0 } {
-set result [expr {$x*$x+$y*$y+sin(10.0*$x)+4.0*cos(20.0*$y)}]
-} else {
-set result 1.0e100
-}
-}]
+
+
+    puts [::simulation::annealing::findMinimum  -trials 3000  -reduce 0\&.98  -parameters {x -5\&.0 5\&.0 y -5\&.0 5\&.0}  -code {
+            if { hypot($x-5\&.0,$y-5\&.0) < 4\&.0 } {
+                set result [expr {$x*$x+$y*$y+sin(10\&.0*$x)+4\&.0*cos(20\&.0*$y)}]
+            } else {
+                set result 1\&.0e100
+            }
+        }]
+
 .CE
 The method is theoretically capable of determining the global optimum,
 but often you need to use a large number of trials and a slow reduction
-of temperature to get reliable and repeatable estimates.
+of temperature to get reliable and repeatable estimates\&.
 .PP
 You can use the \fI-final\fR option to use a deterministic optimization
-method, once you are sure you are near the required optimum.
+method, once you are sure you are near the required optimum\&.
 .PP
 The \fIfindCombinatorialMinimum\fR procedure is suited for situations
 where the parameters have the values 0 or 1 (and there can be many of
-them). Here is an example:
+them)\&. Here is an example:
 .IP \(bu
 We have a function that attains an absolute minimum if the first ten
 numbers are 1 and the rest is 0:
 .CS
+
+
 proc cost {params} {
-set cost 0
-foreach p [lrange $params 0 9] {
-if { $p == 0 } {
-incr cost
+    set cost 0
+    foreach p [lrange $params 0 9] {
+        if { $p == 0 } {
+            incr cost
+        }
+    }
+    foreach p [lrange $params 10 end] {
+        if { $p == 1 } {
+            incr cost
+        }
+    }
+    return $cost
 }
-}
-foreach p [lrange $params 10 end] {
-if { $p == 1 } {
-incr cost
-}
-}
-return $cost
-}
+
 .CE
 .IP \(bu
 We want to find the solution that gives this minimum for various lengths
 of the solution vector \fIparams\fR:
 .CS
+
+
 foreach n {100 1000 10000} {
-break
-puts "Problem size: $n"
-puts [::simulation::annealing::findCombinatorialMinimum  -trials 300  -verbose 0  -number-params $n  -code {set result [cost $params]}]
+    break
+    puts "Problem size: $n"
+    puts [::simulation::annealing::findCombinatorialMinimum  -trials 300  -verbose 0  -number-params $n  -code {set result [cost $params]}]
 }
+
 .CE
 .IP \(bu
 As the vector grows, the computation time increases, but the procedure
-will stop if some kind of equilibrium is reached. To achieve a useful
+will stop if some kind of equilibrium is reached\&. To achieve a useful
 solution you may want to try different values of the trials parameter
-for instance. Also ensure that the function to be minimized depends on
+for instance\&. Also ensure that the function to be minimized depends on
 all or most parameters - see the source code for a counter example and
-run that.
+run that\&.
 .PP
 .SH KEYWORDS
 math, optimization, simulated annealing
@@ -459,5 +475,6 @@ math, optimization, simulated annealing
 Mathematics
 .SH COPYRIGHT
 .nf
-Copyright (c) 2008 Arjen Markus <arjenmarkus@users.sourceforge.net>
+Copyright (c) 2008 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
+
 .fi

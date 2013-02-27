@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/interp/deleg_proc.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/interp/deleg_proc\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "deleg_proc" n 0.2 tcllib "Interpreter utilities"
+.TH "deleg_proc" n 0\&.2 tcllib "Interpreter utilities"
 .BS
 .SH NAME
 deleg_proc \- Creation of comm delegates (procedures)
 .SH SYNOPSIS
-package require \fBTcl  8.3\fR
+package require \fBTcl  8\&.3\fR
 .sp
-package require \fBinterp::delegate::proc  ?0.2?\fR
+package require \fBinterp::delegate::proc  ?0\&.2?\fR
 .sp
 \fB::interp::delegate::proc\fR ?\fB-async\fR? \fIname\fR \fIarguments\fR \fIcomm\fR \fIid\fR
 .sp
@@ -253,36 +254,37 @@ package require \fBinterp::delegate::proc  ?0.2?\fR
 .PP
 This package provides a single command for the convenient creation of
 procedures which delegate the actual work to a remote location via a
-"channel" created by the package \fBcomm\fR.
+"channel" created by the package \fBcomm\fR\&.
 .SH API
 .TP
 \fB::interp::delegate::proc\fR ?\fB-async\fR? \fIname\fR \fIarguments\fR \fIcomm\fR \fIid\fR
 This commands creates a procedure which is named by \fIname\fR and
-returns its fully-qualified name. All invokations of this procedure
+returns its fully-qualified name\&. All invokations of this procedure
 will delegate the actual work to the remote location identified by the
-comm channel \fIcomm\fR and the endpoint \fIid\fR.
+comm channel \fIcomm\fR and the endpoint \fIid\fR\&.
 .sp
 The name of the remote procedure invoked by the delegator is
-[namespace tail \fIname\fR]. I.e., namespace information is
-stripped from the call.
+[namespace tail \fIname\fR]\&. I\&.e\&., namespace information is
+stripped from the call\&.
 .sp
 Normally the generated procedure marshalls the \fIarguments\fR, and
-returns the result from the remote procedure as its own result. If
+returns the result from the remote procedure as its own result\&. If
 however the option \fB-async\fR was specified then the generated
-procedure will not wait for a result and return immediately.
+procedure will not wait for a result and return immediately\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIinterp\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 comm, delegation, interpreter, procedure
 .SH CATEGORY
 Programming tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/profiler/profiler.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/profiler/profiler\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "profiler" n 0.3 tcllib "Tcl Profiler"
+.TH "profiler" n 0\&.3 tcllib "Tcl Profiler"
 .BS
 .SH NAME
 profiler \- Tcl source code profiler
 .SH SYNOPSIS
-package require \fBTcl  8.3\fR
+package require \fBTcl  8\&.3\fR
 .sp
-package require \fBprofiler  ?0.3?\fR
+package require \fBprofiler  ?0\&.3?\fR
 .sp
 \fB::profiler::init\fR
 .sp
@@ -263,92 +264,92 @@ package require \fBprofiler  ?0.3?\fR
 .SH DESCRIPTION
 .PP
 The \fBprofiler\fR package provides a simple Tcl source code
-profiler.  It is a function-level profiler; that is, it collects only
+profiler\&.  It is a function-level profiler; that is, it collects only
 function-level information, not the more detailed line-level
-information.  It operates by redefining the Tcl \fBproc\fR command.
-Profiling is initiated via the \fB::profiler::init\fR command.
+information\&.  It operates by redefining the Tcl \fBproc\fR command\&.
+Profiling is initiated via the \fB::profiler::init\fR command\&.
 .SH COMMANDS
 .TP
 \fB::profiler::init\fR
-Initiate profiling.  All procedures created after this command is
-called will be profiled.  To profile an entire application, this
-command must be called before any other commands.
+Initiate profiling\&.  All procedures created after this command is
+called will be profiled\&.  To profile an entire application, this
+command must be called before any other commands\&.
 .TP
 \fB::profiler::dump\fR \fIpattern\fR
 Dump profiling information for the all functions matching
-\fIpattern\fR.  If no pattern is specified, information for all
-functions will be returned.  The result is a list of key/value pairs
-that maps function names to information about that function.  The
-information about each function is in turn a list of key/value pairs.
+\fIpattern\fR\&.  If no pattern is specified, information for all
+functions will be returned\&.  The result is a list of key/value pairs
+that maps function names to information about that function\&.  The
+information about each function is in turn a list of key/value pairs\&.
 The keys used and their values are:
 .RS
 .TP
 \fBtotalCalls\fR
-The total number of times \fIfunctionName\fR was called.
+The total number of times \fIfunctionName\fR was called\&.
 .TP
 \fBcallerDist\fR
 A list of key/value pairs mapping each calling function that called
 \fIfunctionName\fR to the number of times it called
-\fIfunctionName\fR.
+\fIfunctionName\fR\&.
 .TP
 \fBcompileTime\fR
 The runtime, in clock clicks, of \fIfunctionName\fR the first time
-that it was called.
+that it was called\&.
 .TP
 \fBtotalRuntime\fR
-The sum of the runtimes of all calls of \fIfunctionName\fR.
+The sum of the runtimes of all calls of \fIfunctionName\fR\&.
 .TP
 \fBaverageRuntime\fR
-Average runtime of \fIfunctionName\fR.
+Average runtime of \fIfunctionName\fR\&.
 .TP
 \fBdescendantTime\fR
-Sum of the time spent in descendants of \fIfunctionName\fR.
+Sum of the time spent in descendants of \fIfunctionName\fR\&.
 .TP
 \fBaverageDescendantTime\fR
-Average time spent in descendants of \fIfunctionName\fR.
+Average time spent in descendants of \fIfunctionName\fR\&.
 .RE
 .TP
 \fB::profiler::print\fR ?\fIpattern\fR?
-Print profiling information for all functions matching \fIpattern\fR.
+Print profiling information for all functions matching \fIpattern\fR\&.
 If no pattern is specified, information about all functions will be
-displayed.  The return result is a human readable display of the
-profiling information.
+displayed\&.  The return result is a human readable display of the
+profiling information\&.
 .TP
 \fB::profiler::reset\fR ?\fIpattern\fR?
-Reset profiling information for all functions matching \fIpattern\fR.
+Reset profiling information for all functions matching \fIpattern\fR\&.
 If no pattern is specified, information will be reset for all
-functions.
+functions\&.
 .TP
 \fB::profiler::suspend\fR ?\fIpattern\fR?
-Suspend profiling for all functions matching \fIpattern\fR.  If no
+Suspend profiling for all functions matching \fIpattern\fR\&.  If no
 pattern is specified, profiling will be suspended for all
-functions. It stops gathering profiling information after this command
-is issued. However, it does not erase any profiling information that
-has been gathered previously.  Use resume command to re-enable
-profiling.
+functions\&. It stops gathering profiling information after this command
+is issued\&. However, it does not erase any profiling information that
+has been gathered previously\&.  Use resume command to re-enable
+profiling\&.
 .TP
 \fB::profiler::resume\fR ?\fIpattern\fR?
-Resume profiling for all functions matching \fIpattern\fR.  If no
-pattern is specified, profiling will be resumed for all functions.
+Resume profiling for all functions matching \fIpattern\fR\&.  If no
+pattern is specified, profiling will be resumed for all functions\&.
 This command should be invoked after suspending the profiler in the
-code.
+code\&.
 .TP
 \fB::profiler::sortFunctions\fR \fIkey\fR
-Return a list of functions sorted by a particular profiling statistic.
+Return a list of functions sorted by a particular profiling statistic\&.
 Supported values for \fIkey\fR are: \fBcalls\fR,
 \fBexclusiveTime\fR, \fBcompileTime\fR, \fBnonCompileTime\fR,
 \fBtotalRuntime\fR, \fBavgExclusiveTime\fR, and
-\fBavgRuntime\fR.  The return result is a list of lists, where each
+\fBavgRuntime\fR\&.  The return result is a list of lists, where each
 sublist consists of a function name and the value of \fIkey\fR for
-that function.
+that function\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIprofiler\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 performance, profile, speed
 .SH CATEGORY

@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/pop3/pop3.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/pop3/pop3\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "pop3" n 1.9 tcllib "Tcl POP3 Client Library"
+.TH "pop3" n 1\&.9 tcllib "Tcl POP3 Client Library"
 .BS
 .SH NAME
 pop3 \- Tcl client for POP3 email protocol
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBpop3  ?1.9?\fR
+package require \fBpop3  ?1\&.9?\fR
 .sp
 \fB::pop3::open\fR ?\fB-msex\fR 0|1? ?\fB-retr-mode\fR retr|list|slow? ?\fB-socketcmd\fR cmdprefix? ?\fB-stls\fR 0|1? ?\fB-tls-callback\fR stls-callback-command? \fIhost username password\fR ?\fIport\fR?
 .sp
@@ -271,20 +272,20 @@ package require \fBpop3  ?1.9?\fR
 .SH DESCRIPTION
 The \fBpop3\fR package provides a simple Tcl-only client library
 for the POP3 email protocol as specified in
-\fIRFC 1939\fR [http://www.rfc-editor.org/rfc/rfc1939.txt].
+\fIRFC 1939\fR [http://www\&.rfc-editor\&.org/rfc/rfc1939\&.txt]\&.
 It works by opening the standard POP3 socket on the server,
 transmitting the username and password, then providing a Tcl API to
-access the POP3 protocol commands.  All server errors are returned as
+access the POP3 protocol commands\&.  All server errors are returned as
 Tcl errors (thrown) which must be caught with the Tcl \fBcatch\fR
-command.
+command\&.
 .SH API
 .TP
 \fB::pop3::open\fR ?\fB-msex\fR 0|1? ?\fB-retr-mode\fR retr|list|slow? ?\fB-socketcmd\fR cmdprefix? ?\fB-stls\fR 0|1? ?\fB-tls-callback\fR stls-callback-command? \fIhost username password\fR ?\fIport\fR?
 Open a socket connection to the server specified by \fIhost\fR,
 transmit the \fIusername\fR and \fIpassword\fR as login information to
-the server.  The default port number is \fB110\fR, which can be
-overridden using the optional \fIport\fR argument.  The return value
-is a channel used by all of the other ::pop3 functions.
+the server\&.  The default port number is \fB110\fR, which can be
+overridden using the optional \fIport\fR argument\&.  The return value
+is a channel used by all of the other ::pop3 functions\&.
 .sp
 The command recognizes three options
 .RS
@@ -292,79 +293,79 @@ The command recognizes three options
 \fB-msex\fR boolean
 Setting this option tells the package that the server we are talking
 to is an MS Exchange server (which has some oddities we have to work
-around). The default is \fBFalse\fR.
+around)\&. The default is \fBFalse\fR\&.
 .TP
 \fB-retr-mode\fR retr|list|slow
 The retrieval mode determines how exactly messages are read from the
-server.
-The allowed values are \fBretr\fR, \fBlist\fR and \fBslow\fR.
-The default is \fBretr\fR. See \fB::pop3::retrieve\fR for more
-information.
+server\&.
+The allowed values are \fBretr\fR, \fBlist\fR and \fBslow\fR\&.
+The default is \fBretr\fR\&. See \fB::pop3::retrieve\fR for more
+information\&.
 .TP
 \fB-socketcmd\fR cmdprefix
 This option allows the user to overide the use of the builtin
-\fBsocket\fR command with any API-compatible command. The envisioned
+\fBsocket\fR command with any API-compatible command\&. The envisioned
 main use is the securing of the new connection via SSL, through the
-specification of the command \fBtls::socket\fR. This command is
+specification of the command \fBtls::socket\fR\&. This command is
 specially recognized as well, changing the default port of the
-connection to \fB995\fR.
+connection to \fB995\fR\&.
 .TP
 \fB-stls\fR boolean
 Setting this option tells the package to secure the connection using
-SSL or TLS. It performs STARTTLS as described in IETF RFC 2595, it
+SSL or TLS\&. It performs STARTTLS as described in IETF RFC 2595, it
 first opens a normal, unencrypted connection and then negotiates a
-SSLv3 or TLSv1 connection. If the connection cannot be secured, the
+SSLv3 or TLSv1 connection\&. If the connection cannot be secured, the
 connection will be closed and an error will be returned
 .TP
 \fB-tls-callback\fR stls-callback-command
 This option allows the user to overide the \fBtls::callback\fR used during
-the \fB-stls\fR SSL/TLS handshake. See the TLS manual for details on how
-to implement this callback.
+the \fB-stls\fR SSL/TLS handshake\&. See the TLS manual for details on how
+to implement this callback\&.
 .RE
 .TP
 \fB::pop3::config\fR \fIchan\fR
 Returns the configuration of the pop3 connection identified by the
-channel handle \fIchan\fR as a serialized array.
+channel handle \fIchan\fR as a serialized array\&.
 .TP
 \fB::pop3::status\fR \fIchan\fR
-Query the server for the status of the mail spool.  The status is
+Query the server for the status of the mail spool\&.  The status is
 returned as a list containing two elements, the first is the number of
 email messages on the server and the second is the size (in octets, 8
-bit blocks) of the entire mail spool.
+bit blocks) of the entire mail spool\&.
 .TP
 \fB::pop3::last\fR \fIchan\fR
-Query the server for the last email message read from the spool.  This
+Query the server for the last email message read from the spool\&.  This
 value includes all messages read from all clients connecting to the
-login account.  This command may not be supported by the email server,
-in which case the server may return 0 or an error.
+login account\&.  This command may not be supported by the email server,
+in which case the server may return 0 or an error\&.
 .TP
 \fB::pop3::retrieve\fR \fIchan startIndex\fR ?\fIendIndex\fR?
-Retrieve a range of messages from the server.  If the \fIendIndex\fR
-is not specified, only one message will be retrieved.  The return
-value is a list containing each message as a separate element.  See
-the \fIstartIndex\fR and \fIendIndex\fR descriptions below.
+Retrieve a range of messages from the server\&.  If the \fIendIndex\fR
+is not specified, only one message will be retrieved\&.  The return
+value is a list containing each message as a separate element\&.  See
+the \fIstartIndex\fR and \fIendIndex\fR descriptions below\&.
 .sp
 The retrieval mode determines how exactly messages are read from the
-server. The mode \fBretr\fR assumes that the RETR command delivers
+server\&. The mode \fBretr\fR assumes that the RETR command delivers
 the size of the message as part of the command status and uses this to
-read the message efficiently. In mode \fBlist\fR RETR does not
+read the message efficiently\&. In mode \fBlist\fR RETR does not
 deliver the size, but the LIST command does and we use this to
 retrieve the message size before the actual retrieval, which can then
-be done efficiently. In the last mode, \fBslow\fR, the system is
+be done efficiently\&. In the last mode, \fBslow\fR, the system is
 unable to obtain the size of the message to retrieve in any manner and
-falls back to reading the message from the server line by line.
+falls back to reading the message from the server line by line\&.
 .sp
 It should also be noted that the system checks upon the configured
 mode and falls back to the slower modes if the above assumptions are
-not true.
+not true\&.
 .TP
 \fB::pop3::delete\fR \fIchan startIndex\fR ?\fIendIndex\fR?
-Delete a range of messages from the server.  If the \fIendIndex\fR is
-not specified, only one message will be deleted.  Note, the indices
+Delete a range of messages from the server\&.  If the \fIendIndex\fR is
+not specified, only one message will be deleted\&.  Note, the indices
 are not reordered on the server, so if you delete message 1, then the
 first message in the queue is message 2 (message index 1 is no longer
-valid).  See the \fIstartIndex\fR and \fIendIndex\fR descriptions
-below.
+valid)\&.  See the \fIstartIndex\fR and \fIendIndex\fR descriptions
+below\&.
 .RS
 .TP
 \fIstartIndex\fR
@@ -374,96 +375,106 @@ with the index 1, or it have any of the following values:
 .TP
 \fBstart\fR
 This is a logical value for the first message in the spool, equivalent
-to the value 1.
+to the value 1\&.
 .TP
 \fBnext\fR
 The message immediately following the last message read, see
-\fB::pop3::last\fR.
+\fB::pop3::last\fR\&.
 .TP
 \fBend\fR
-The most recent message in the spool (the end of the spool).  This is
-useful to retrieve only the most recent message.
+The most recent message in the spool (the end of the spool)\&.  This is
+useful to retrieve only the most recent message\&.
 .RE
 .TP
 \fIendIndex\fR
 The \fIendIndex\fR is an optional parameter and defaults to the value
 "-1", which indicates to only retrieve the one message specified by
-\fIstartIndex\fR.  If specified, it may be an index of a specific
+\fIstartIndex\fR\&.  If specified, it may be an index of a specific
 message starting with the index "1", or it may have any of the
 following values:
 .RS
 .TP
 \fBlast\fR
 The message is the last message read by a POP3 client, see
-\fB::pop3::last\fR.
+\fB::pop3::last\fR\&.
 .TP
 \fBend\fR
-The most recent message in the spool (the end of the spool).
+The most recent message in the spool (the end of the spool)\&.
 .RE
 .RE
 .TP
 \fB::pop3::list\fR \fIchan\fR ?\fImsg\fR?
-Returns the scan listing of the mailbox. If parameter \fImsg\fR is
-given, then the listing only for that message is returned.
+Returns the scan listing of the mailbox\&. If parameter \fImsg\fR is
+given, then the listing only for that message is returned\&.
 .TP
 \fB::pop3::top\fR \fIchan\fR \fImsg\fR \fIn\fR
-Optional POP3 command, not all servers may support this.
+Optional POP3 command, not all servers may support this\&.
 \fB::pop3::top\fR retrieves headers of a message, specified by
 parameter \fImsg\fR, and number of \fIn\fR lines from the message
-body.
+body\&.
 .TP
 \fB::pop3::uidl\fR \fIchan\fR ?\fImsg\fR?
-Optional POP3 command, not all servers may support this.
-\fB::pop3::uidl\fR returns the uid listing of the mailbox. If the
+Optional POP3 command, not all servers may support this\&.
+\fB::pop3::uidl\fR returns the uid listing of the mailbox\&. If the
 parameter \fImsg\fR is specified, then the listing only for that
-message is returned.
+message is returned\&.
 .TP
 \fB::pop3::capa\fR \fIchan\fR
-Optional POP3 command, not all servers may support this.
-\fB::pop3::capa\fR returns a list of the capabilities of the server.
-TOP, SASL, UIDL, LOGIN-DELAY and STLS are typical capabilities.
-See IETF RFC 2449.
+Optional POP3 command, not all servers may support this\&.
+\fB::pop3::capa\fR returns a list of the capabilities of the server\&.
+TOP, SASL, UIDL, LOGIN-DELAY and STLS are typical capabilities\&.
+See IETF RFC 2449\&.
 .TP
 \fB::pop3::close\fR \fIchan\fR
 Gracefully close the connect after sending a POP3 QUIT command down
-the socket.
+the socket\&.
 .PP
 .SH "SECURE MAIL TRANSFER"
 A pop3 connection can be secured with SSL/TLS by requiring the package
 \fBTLS\fR and then using either the option \fB-socketcmd\fR or
-the option \fB-stls\fR of the command \fBpop3::open\fR.
+the option \fB-stls\fR of the command \fBpop3::open\fR\&.
 The first method, option \fB-socketcmd\fR, will force the use
-of the \fBtls::socket\fR command when opening the connection. This is
-suitable for POP3 servers which expect SSL connections only. These will
-generally be listening on port 995.
+of the \fBtls::socket\fR command when opening the connection\&. This is
+suitable for POP3 servers which expect SSL connections only\&. These will
+generally be listening on port 995\&.
 .CS
-package require tls
-tls::init -cafile /path/to/ca/cert -keyfile ...
-# Create secured pop3 channel
-pop3::open -socketcmd tls::socket \\\\
-$thehost $theuser $thepassword
-\...
+
+
+	package require tls
+	tls::init -cafile /path/to/ca/cert -keyfile \&.\&.\&.
+
+	# Create secured pop3 channel
+	pop3::open -socketcmd tls::socket \\\\
+		$thehost $theuser $thepassword
+
+	\&.\&.\&.
+
 .CE
 The second method, option \fB-stls\fR, will connect to the standard POP3
-port and then perform an STARTTLS handshake. This will only work for POP3
-servers which have this capability. The package will confirm that the
+port and then perform an STARTTLS handshake\&. This will only work for POP3
+servers which have this capability\&. The package will confirm that the
 server supports STARTTLS and the handshake was performed correctly before
-proceeding with authentication.
+proceeding with authentication\&.
 .CS
-package require tls
-tls::init -cafile /path/to/ca/cert -keyfile ...
-# Create secured pop3 channel
-pop3::open -stls 1 \\\\
-$thehost $theuser $thepassword
-\...
+
+
+	package require tls
+	tls::init -cafile /path/to/ca/cert -keyfile \&.\&.\&.
+
+	# Create secured pop3 channel
+	pop3::open -stls 1 \\\\
+		$thehost $theuser $thepassword
+
+	\&.\&.\&.
+
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIpop3\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 email, mail, pop, pop3, rfc 1939, secure, ssl, tls
 .SH CATEGORY

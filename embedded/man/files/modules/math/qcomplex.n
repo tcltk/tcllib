@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/math/qcomplex.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2004 Arjen Markus <arjenmarkus@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/qcomplex\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2004 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "math::complexnumbers" n 1.0.2 tcllib "Tcl Math Library"
+.TH "math::complexnumbers" n 1\&.0\&.2 tcllib "Tcl Math Library"
 .BS
 .SH NAME
 math::complexnumbers \- Straightforward complex number package
 .SH SYNOPSIS
-package require \fBTcl  8.3\fR
+package require \fBTcl  8\&.3\fR
 .sp
-package require \fBmath::complexnumbers  ?1.0.2?\fR
+package require \fBmath::complexnumbers  ?1\&.0\&.2?\fR
 .sp
 \fB::math::complexnumbers::+\fR \fIz1\fR \fIz2\fR
 .sp
@@ -286,34 +287,40 @@ package require \fBmath::complexnumbers  ?1.0.2?\fR
 .SH DESCRIPTION
 .PP
 The mathematical module \fIcomplexnumbers\fR provides a straightforward
-implementation of complex numbers in pure Tcl. The philosophy is that
+implementation of complex numbers in pure Tcl\&. The philosophy is that
 the user knows he or she is dealing with complex numbers in an abstract
 way and wants as high a performance as can be had within the limitations
-of an interpreted language.
+of an interpreted language\&.
 .PP
 Therefore the procedures defined in this package assume that the
 arguments are valid (representations of) "complex numbers", that is,
 lists of two numbers defining the real and imaginary part of a
 complex number (though this is a mere detail: rely on the
-\fIcomplex\fR command to construct a valid number.)
+\fIcomplex\fR command to construct a valid number\&.)
 .PP
 Most procedures implement the basic arithmetic operations or elementary
 functions whereas several others convert to and from different
 representations:
 .PP
 .CS
-set z [complex 0 1]
-puts "z = [tostring $z]"
-puts "z**2 = [* $z $z]
+
+
+    set z [complex 0 1]
+    puts "z = [tostring $z]"
+    puts "z**2 = [* $z $z]
+
 .CE
 would result in:
 .CS
-z = i
-z**2 = -1
+
+
+    z = i
+    z**2 = -1
+
 .CE
 .SH "AVAILABLE PROCEDURES"
 The package implements all or most basic operations and elementary
-functions.
+functions\&.
 .PP
 \fIThe arithmetic operations are:\fR
 .TP
@@ -331,8 +338,8 @@ Second argument in the summation
 .TP
 \fB::math::complexnumbers::-\fR \fIz1\fR \fIz2\fR
 Subtract the second argument from the first and return the
-resulting complex number. If there is only one argument, the
-opposite of z1 is returned (i.e. -z1)
+resulting complex number\&. If there is only one argument, the
+opposite of z1 is returned (i\&.e\&. -z1)
 .RS
 .TP
 complex \fIz1\fR (in)
@@ -514,16 +521,17 @@ The complex power to be used
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fImath :: complexnumbers\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 complex numbers, math
 .SH CATEGORY
 Mathematics
 .SH COPYRIGHT
 .nf
-Copyright (c) 2004 Arjen Markus <arjenmarkus@users.sourceforge.net>
+Copyright (c) 2004 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
+
 .fi

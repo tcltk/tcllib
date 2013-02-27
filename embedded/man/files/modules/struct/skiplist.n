@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/struct/skiplist.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/struct/skiplist\&.n' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2000 Keith Vetter
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,18 +238,18 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "struct::skiplist" n 1.3 tcllib "Tcl Data Structures"
+.TH "struct::skiplist" n 1\&.3 tcllib "Tcl Data Structures"
 .BS
 .SH NAME
 struct::skiplist \- Create and manipulate skiplists
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBstruct::skiplist  ?1.3?\fR
+package require \fBstruct::skiplist  ?1\&.3?\fR
 .sp
-\fBskiplistName\fR \fIoption\fR ?\fIarg arg ...\fR?
+\fBskiplistName\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp
-\fIskiplistName\fR \fBdelete\fR \fInode\fR ?\fInode\fR...?
+\fIskiplistName\fR \fBdelete\fR \fInode\fR ?\fInode\fR\&.\&.\&.?
 .sp
 \fIskiplistName\fR \fBdestroy\fR
 .sp
@@ -265,59 +266,59 @@ package require \fBstruct::skiplist  ?1.3?\fR
 .PP
 The \fB::struct::skiplist\fR command creates a new skiplist object
 with an associated global Tcl command whose name is
-\fIskiplistName\fR. This command may be used to invoke various
-operations on the skiplist. It has the following general form:
+\fIskiplistName\fR\&. This command may be used to invoke various
+operations on the skiplist\&. It has the following general form:
 .TP
-\fBskiplistName\fR \fIoption\fR ?\fIarg arg ...\fR?
+\fBskiplistName\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
 \fIOption\fR and the \fIarg\fRs determine the exact behavior of the
-command.
+command\&.
 .PP
 .PP
-Skip lists are an alternative data structure to binary trees. They can
+Skip lists are an alternative data structure to binary trees\&. They can
 be used to maintain ordered lists over any sequence of insertions and
-deletions. Skip lists use randomness to achieve probabilistic
+deletions\&. Skip lists use randomness to achieve probabilistic
 balancing, and as a result the algorithms for insertion and deletion
-in skip lists are much simpler and faster than those for binary trees.
+in skip lists are much simpler and faster than those for binary trees\&.
 .PP
-To read more about skip lists see Pugh, William.
+To read more about skip lists see Pugh, William\&.
 \fISkip lists: a probabilistic alternative to balanced trees\fR
-In: Communications of the ACM, June 1990, 33(6) 668-676.
+In: Communications of the ACM, June 1990, 33(6) 668-676\&.
 .PP
 Currently, the key can be either a number or a string, and comparisons
-are performed with the built in greater than operator.
+are performed with the built in greater than operator\&.
 The following commands are possible for skiplist objects:
 .TP
-\fIskiplistName\fR \fBdelete\fR \fInode\fR ?\fInode\fR...?
-Remove the specified nodes from the skiplist.
+\fIskiplistName\fR \fBdelete\fR \fInode\fR ?\fInode\fR\&.\&.\&.?
+Remove the specified nodes from the skiplist\&.
 .TP
 \fIskiplistName\fR \fBdestroy\fR
-Destroy the skiplist, including its storage space and associated command.
+Destroy the skiplist, including its storage space and associated command\&.
 .TP
 \fIskiplistName\fR \fBinsert\fR \fIkey value\fR
 Insert a node with the given \fIkey\fR and \fIvalue\fR into the
-skiplist. If a node with that key already exists, then the that node's
-value is updated and its node level is returned. Otherwise a new node
-is created and 0 is returned.
+skiplist\&. If a node with that key already exists, then the that node's
+value is updated and its node level is returned\&. Otherwise a new node
+is created and 0 is returned\&.
 .TP
 \fIskiplistName\fR \fBsearch\fR \fInode\fR ?\fB-key\fR \fIkey\fR?
-Search for a given key in a skiplist. If not found then 0 is returned.
-If found, then a two element list of 1 followed by the node's value is retuned.
+Search for a given key in a skiplist\&. If not found then 0 is returned\&.
+If found, then a two element list of 1 followed by the node's value is retuned\&.
 .TP
 \fIskiplistName\fR \fBsize\fR
-Return a count of the number of nodes in the skiplist.
+Return a count of the number of nodes in the skiplist\&.
 .TP
 \fIskiplistName\fR \fBwalk\fR \fIcmd\fR
-Walk the skiplist from the first node to the last. At each node, the
+Walk the skiplist from the first node to the last\&. At each node, the
 command \fIcmd\fR will be evaluated with the key and value of the
-current node appended.
+current node appended\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIstruct :: skiplist\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 skiplist
 .SH CATEGORY
@@ -325,4 +326,5 @@ Data structures
 .SH COPYRIGHT
 .nf
 Copyright (c) 2000 Keith Vetter
+
 .fi

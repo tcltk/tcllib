@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/cmdline/cmdline.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/cmdline/cmdline\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "cmdline" n 1.3.3 tcllib "Command line and option processing"
+.TH "cmdline" n 1\&.3\&.3 tcllib "Command line and option processing"
 .BS
 .SH NAME
-cmdline \- Procedures to process command lines and options.
+cmdline \- Procedures to process command lines and options\&.
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBcmdline  ?1.3.3?\fR
+package require \fBcmdline  ?1\&.3\&.3?\fR
 .sp
 \fB::cmdline::getopt\fR \fIargvVar\fR \fIoptstring\fR \fIoptVar\fR \fIvalVar\fR
 .sp
@@ -261,134 +262,138 @@ package require \fBcmdline  ?1.3.3?\fR
 .sp
 .BE
 .SH DESCRIPTION
-This package provides commands to parse command lines and options.
+This package provides commands to parse command lines and options\&.
 .SH "::ARGV HANDLING"
 One of the most common variables this package will be used with is
 \fB::argv\fR, which holds the command line of the current
-application. This variable has a companion \fB::argc\fR which is
+application\&. This variable has a companion \fB::argc\fR which is
 initialized to the number of elements in \fB::argv\fR at the beginning
-of the application.
+of the application\&.
 .PP
 The commands in this package will \fInot\fR modify the \fB::argc\fR
-companion when called with \fB::argv\fR. Keeping the value consistent,
-if such is desired or required, is the responsibility of the caller.
+companion when called with \fB::argv\fR\&. Keeping the value consistent,
+if such is desired or required, is the responsibility of the caller\&.
 .SH API
 .TP
 \fB::cmdline::getopt\fR \fIargvVar\fR \fIoptstring\fR \fIoptVar\fR \fIvalVar\fR
 This command works in a fashion like the standard C based \fBgetopt\fR
-function.  Given an option string and a pointer to an array of args
+function\&.  Given an option string and a pointer to an array of args
 this command will process the first argument and return info on how to
-proceed. The command returns 1 if an option was found, 0 if no more
-options were found, and -1 if an error occurred.
+proceed\&. The command returns 1 if an option was found, 0 if no more
+options were found, and -1 if an error occurred\&.
 .sp
 \fIargvVar\fR contains the name of the list of arguments to
-process. If options are found the list is modified and the processed
-arguments are removed from the start of the list.
+process\&. If options are found the list is modified and the processed
+arguments are removed from the start of the list\&.
 .sp
 \fIoptstring\fR contains a list of command options that the
-application will accept.  If the option ends in ".arg" the command
-will use the next argument as an argument to the option.  Otherwise
-the option is a boolean that is set to 1 if present.
+application will accept\&.  If the option ends in "\&.arg" the command
+will use the next argument as an argument to the option\&.  Otherwise
+the option is a boolean that is set to 1 if present\&.
 .sp
 \fIoptVar\fR refers to the variable the command will store the found
-option into (without the leading '-' and without the .arg extension).
+option into (without the leading '-' and without the \&.arg extension)\&.
 .sp
 \fIvalVar\fR refers to the variable to store either the value for the
 specified option into upon success or an error message in the case of
-failure. The stored value comes from the command line for .arg
-options, otherwise the value is 1.
+failure\&. The stored value comes from the command line for \&.arg
+options, otherwise the value is 1\&.
 .TP
 \fB::cmdline::getKnownOpt\fR \fIargvVar\fR \fIoptstring\fR \fIoptVar\fR \fIvalVar\fR
 Like \fB::cmdline::getopt\fR, but ignores any unknown options in the
-input.
+input\&.
 .TP
 \fB::cmdline::getoptions\fR \fIarglistVar\fR \fIoptlist\fR ?\fIusage\fR?
 Processes the set of command line options found in the list variable
 named by \fIarglistVar\fR and fills in defaults for those not
-specified.  This also generates an error message that lists the
-allowed flags if an incorrect flag is specified. The optional
+specified\&.  This also generates an error message that lists the
+allowed flags if an incorrect flag is specified\&. The optional
 \fIusage\fR-argument contains a string to include in front of the
-generated message. If not present it defaults to "options:".
+generated message\&. If not present it defaults to "options:"\&.
 .sp
 \fIoptlist\fR contains a list of lists where each element specifies an
-option in the form: \fIflag\fR \fIdefault\fR \fIcomment\fR.
+option in the form: \fIflag\fR \fIdefault\fR \fIcomment\fR\&.
 .sp
-If \fIflag\fR ends in ".arg" then the value is taken from the command
-line. Otherwise it is a boolean and appears in the result if present
-on the command line. If \fIflag\fR ends in ".secret", it will not be
-displayed in the usage.
+If \fIflag\fR ends in "\&.arg" then the value is taken from the command
+line\&. Otherwise it is a boolean and appears in the result if present
+on the command line\&. If \fIflag\fR ends in "\&.secret", it will not be
+displayed in the usage\&.
 .sp
 The options \fB-?\fR, \fB-help\fR, and \fB--\fR are
-implicitly understood. The first two abort option processing and force
+implicitly understood\&. The first two abort option processing and force
 the generation of the usage message, whereas the the last aborts
 option processing without an error, leaving all arguments coming after
-for regular processing, even if starting with a dash.
+for regular processing, even if starting with a dash\&.
 .sp
 The result of the command is a dictionary mapping all options to their
-values, be they user-specified or defaults.
+values, be they user-specified or defaults\&.
 .TP
 \fB::cmdline::getKnownOptions\fR \fIarglistVar\fR \fIoptlist\fR ?\fIusage\fR?
 Like \fB::cmdline::getoptions\fR, but ignores any unknown options in the
-input.
+input\&.
 .TP
 \fB::cmdline::usage\fR \fIoptlist\fR ?\fIusage\fR?
 Generates and returns an error message that lists the allowed
-flags. \fIoptlist\fR is defined as for
-\fB::cmdline::getoptions\fR. The optional \fIusage\fR-argument
-contains a string to include in front of the generated message. If not
-present it defaults to "options:".
+flags\&. \fIoptlist\fR is defined as for
+\fB::cmdline::getoptions\fR\&. The optional \fIusage\fR-argument
+contains a string to include in front of the generated message\&. If not
+present it defaults to "options:"\&.
 .TP
 \fB::cmdline::getfiles\fR \fIpatterns\fR \fIquiet\fR
 Given a list of file \fIpatterns\fR this command computes the set of
-valid files.  On windows, file globbing is performed on each argument.
-On Unix, only file existence is tested.  If a file argument produces
+valid files\&.  On windows, file globbing is performed on each argument\&.
+On Unix, only file existence is tested\&.  If a file argument produces
 no valid files, a warning is optionally generated (set \fIquiet\fR to
-true).
+true)\&.
 .sp
-This code also uses the full path for each file.  If not given it
-prepends the current working directory to the filename. This ensures
+This code also uses the full path for each file\&.  If not given it
+prepends the current working directory to the filename\&. This ensures
 that these files will never conflict with files in a wrapped zip
-file. The last sentence refers to the pro-tools.
+file\&. The last sentence refers to the pro-tools\&.
 .TP
 \fB::cmdline::getArgv0\fR
-This command returns the "sanitized" version of \fIargv0\fR.  It will
-strip off the leading path and removes the extension ".bin". The
+This command returns the "sanitized" version of \fIargv0\fR\&.  It will
+strip off the leading path and removes the extension "\&.bin"\&. The
 latter is used by the pro-apps because they must be wrapped by a shell
-script.
+script\&.
 .PP
 .SH EXAMPLES
 .CS
-set options {
-{a          "set the atime only"}
-{m          "set the mtime only"}
-{c          "do not create non-existent files"}
-{r.arg  ""  "use time from ref_file"}
-{t.arg  -1  "use specified time"}
-}
-set usage ": MyCommandName \\[options] filename ...\\noptions:"
-array set params [::cmdline::getoptions argv $options $usage]
-if {  $params(a) } { set set_atime "true" }
-set has_t [expr {$params(t) != -1}]
-set has_r [expr {[string length $params(r)] > 0}]
-if {$has_t && $has_r} {
-return -code error "Cannot specify both -r and -t"
-} elseif {$has_t} {
-\...
-}
+
+
+        set options {
+            {a          "set the atime only"}
+            {m          "set the mtime only"}
+            {c          "do not create non-existent files"}
+            {r\&.arg  ""  "use time from ref_file"}
+            {t\&.arg  -1  "use specified time"}
+        }
+        set usage ": MyCommandName \\[options] filename \&.\&.\&.\\noptions:"
+        array set params [::cmdline::getoptions argv $options $usage]
+
+        if {  $params(a) } { set set_atime "true" }
+        set has_t [expr {$params(t) != -1}]
+        set has_r [expr {[string length $params(r)] > 0}]
+        if {$has_t && $has_r} {
+            return -code error "Cannot specify both -r and -t"
+        } elseif {$has_t} {
+	    \&.\&.\&.
+        }
+
 .CE
 .PP
 This example, taken (and slightly modified) from the package
-\fBfileutil\fR, shows how to use cmdline.  First, a list of
+\fBfileutil\fR, shows how to use cmdline\&.  First, a list of
 options is created, then the 'args' list is passed to cmdline for
-processing.  Subsequently, different options are checked to see if
-they have been passed to the script, and what their value is.
+processing\&.  Subsequently, different options are checked to see if
+they have been passed to the script, and what their value is\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIcmdline\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 argument processing, argv, argv0, cmdline processing, command line processing
 .SH CATEGORY

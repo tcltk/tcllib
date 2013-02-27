@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/grammar_me/me_intro.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/grammar_me/me_intro\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2005 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,71 +238,72 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "grammar::me_intro" n 0.1 tcllib "Grammar operations and usage"
+.TH "grammar::me_intro" n 0\&.1 tcllib "Grammar operations and usage"
 .BS
 .SH NAME
 grammar::me_intro \- Introduction to virtual machines for parsing token streams
 .SH DESCRIPTION
 This document is an introduction to and overview of the basic
 facilities for the parsing and/or matching of \fItoken\fR
-streams. One possibility often used for the token domain are
-characters.
+streams\&. One possibility often used for the token domain are
+characters\&.
 .PP
 The packages themselves all provide variants of one
 \fIvirtual machine\fR, called a \fImatch engine\fR (short
 \fIME\fR), which has all the facilities needed for the matching and
 parsing of a stream, and which are either controlled directly, or are
-customized with a match program. The virtual machine is basically a
+customized with a match program\&. The virtual machine is basically a
 pushdown automaton, with additional elements for backtracking and/or
 handling of semantic data and construction of abstract syntax trees
-(\fIAST\fR).
+(\fIAST\fR)\&.
 .PP
 Because of the high degree of similarity in the actual implementations
 of the aforementioned virtual machine and the data structures they
 receive and generate these common parts are specified in a separate
 document which will be referenced by the documentation for packages
-actually implementing it.
+actually implementing it\&.
 .PP
 The relevant documents are:
 .PP
 .TP
 \fBgrammar::me_vm\fR
-Virtual machine specification.
+Virtual machine specification\&.
 .TP
 \fBgrammar::me_ast\fR
 Specification of various representations used for abstract syntax
-trees.
+trees\&.
 .TP
 \fBgrammar::me::util\fR
-Utility commands.
+Utility commands\&.
 .TP
 \fBgrammar::me::tcl\fR
 Singleton ME virtual machine implementation tied to Tcl for control
-flow and stacks. Hardwired for pull operation. Uninteruptible during
-processing.
+flow and stacks\&. Hardwired for pull operation\&. Uninteruptible during
+processing\&.
 .TP
 \fBgrammar::me::cpu\fR
 Object-based ME virtual machine implementation with explicit control
-flow, and stacks, using bytecodes. Suspend/Resumable. Push/pull
-operation.
+flow, and stacks, using bytecodes\&. Suspend/Resumable\&. Push/pull
+operation\&.
 .TP
 \fBgrammar::me::cpu::core\fR
 Core functionality for state manipulation and stepping used in the
-bytecode based implementation of ME virtual machines.
+bytecode based implementation of ME virtual machines\&.
 .PP
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIgrammar_me\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 CFG, CFL, LL(k), PEG, TPDL, context-free grammar, context-free languages, expression, grammar, matching, parsing, parsing expression grammar, push down automaton, recursive descent, top-down parsing languages, transducer, virtual machine
 .SH CATEGORY
 Grammars and finite automata
 .SH COPYRIGHT
 .nf
-Copyright (c) 2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2005 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/string/token.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/string/token\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -241,7 +242,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 string::token \- Regex based iterative lexing
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
 package require \fBstring::token  ?1?\fR
 .sp
@@ -256,86 +257,86 @@ package require \fBfileutil \fR
 .BE
 .SH DESCRIPTION
 This package provides commands for regular expression based lexing
-(tokenization) of strings.
+(tokenization) of strings\&.
 .PP
-The complete set of procedures is described below.
+The complete set of procedures is described below\&.
 .TP
 \fB::string token text\fR \fIlex\fR \fIstring\fR
 This command takes an ordered dictionary \fIlex\fR mapping regular
 expressions to labels, and tokenizes the \fIstring\fR according to
-this dictionary.
+this dictionary\&.
 .sp
 The result of the command is a list of tokens, where each token
-is a 3-element list of label, start- and end-index in the \fIstring\fR.
+is a 3-element list of label, start- and end-index in the \fIstring\fR\&.
 .sp
 The command will throw an error if it is not able to tokenize
-the whole string.
+the whole string\&.
 .TP
 \fB::string token file\fR \fIlex\fR \fIpath\fR
 This command is a convenience wrapper around
 \fB::string token text\fR above, and \fBfileutil::cat\fR, enabling
-the easy tokenization of whole files.
+the easy tokenization of whole files\&.
 \fINote\fR that this command loads the file wholly into memory before
-starting to process it.
+starting to process it\&.
 .sp
 If the file is too large for this mode of operation a command
 directly based on \fB::string token chomp\fR below will be
-necessary.
+necessary\&.
 .TP
 \fB::string token chomp\fR \fIlex\fR \fIstartvar\fR \fIstring\fR \fIresultvar\fR
 This command is the work horse underlying \fB::string token text\fR
-above. It is exposed to enable users to write their own lexers, which,
+above\&. It is exposed to enable users to write their own lexers, which,
 for example may apply different lexing dictionaries according to some
-internal state, etc.
+internal state, etc\&.
 .sp
 The command takes an ordered dictionary \fIlex\fR mapping
 regular expressions to labels, a variable \fIstartvar\fR which
 indicates where to start lexing in the input \fIstring\fR, and a
-result variable \fIresultvar\fR to extend.
+result variable \fIresultvar\fR to extend\&.
 .sp
 The result of the command is a tri-state numeric code
 indicating one of
 .RS
 .TP
 \fB0\fR
-No token found.
+No token found\&.
 .TP
 \fB1\fR
-Token found.
+Token found\&.
 .TP
 \fB2\fR
-End of string reached.
+End of string reached\&.
 .RE
 .IP
 Note that recognition of a token from \fIlex\fR is started at the
-character index in \fIstartvar\fR.
+character index in \fIstartvar\fR\&.
 .sp
 If a token was recognized (status \fB1\fR) the command will
 update the index in \fIstartvar\fR to point to the first character of
 the \fIstring\fR past the recognized token, and it will further extend
 the \fIresultvar\fR with a 3-element list containing the label
 associated with the regular expression of the token, and the start-
-and end-character-indices of the token in \fIstring\fR.
+and end-character-indices of the token in \fIstring\fR\&.
 .sp
 Neither \fIstartvar\fR nor \fIresultvar\fR will be updated if
-no token is recognized at all.
+no token is recognized at all\&.
 .sp
 Note that the regular expressions are applied (tested) in the
 order they are specified in \fIlex\fR, and the first matching pattern
-stops the process. Because of this it is recommended to specify the
-patterns to lex with from the most specific to the most general.
+stops the process\&. Because of this it is recommended to specify the
+patterns to lex with from the most specific to the most general\&.
 .sp
 Further note that all regex patterns are implicitly prefixed
 with the constraint escape \fBA\fR to ensure that a match starts
-exactly at the character index found in \fIstartvar\fR.
+exactly at the character index found in \fIstartvar\fR\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fItextutil\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 lexing, regex, string, tokenization
 .SH CATEGORY

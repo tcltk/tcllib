@@ -1,12 +1,12 @@
 '\"
-'\" Generated from file '.FILE.' by tcllib/doctools with format 'nroff'
+'\" Generated from file '\&.FILE\&.' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) **Copyright**
 '\"
 .so man.macros
-.TH "ALL" a 5 .MODULE. "..THE_MODULE.."
+.TH "ALL" a 5 \&.MODULE\&. "\&.\&.THE_MODULE\&.\&."
 .BS
 .SH NAME
-ALL \- ..THE_TITLE..
+ALL \- \&.\&.THE_TITLE\&.\&.
 .SH SYNOPSIS
 package require \fBAAA \fR
 .sp
@@ -14,11 +14,11 @@ package require \fBBBB  VVV\fR
 .sp
 package require \fBCCC  ?VVV?\fR
 .sp
-CMDNAME ...
+CMDNAME \&.\&.\&.
 .sp
-CMDNAME ...
+CMDNAME \&.\&.\&.
 .sp
-CMDNAME ...
+CMDNAME \&.\&.\&.
 .sp
 .BE
 .SH DESCRIPTION
@@ -75,7 +75,7 @@ DESCRIPTION ::\fBMethod\fR::
 TERM
 DESCRIPTION
 .TP
-CMDNAME ...
+CMDNAME \&.\&.\&.
 DESCRIPTION ::\fBNamespace\fR::
 .RS
 .TP
@@ -96,10 +96,10 @@ DESCRIPTION ::?Optional?::
 .CE
 .RE
 .TP
-CMDNAME ...
+CMDNAME \&.\&.\&.
 DESCRIPTION ::\fBPackage\fR::
 .TP
-CMDNAME ...
+CMDNAME \&.\&.\&.
 DESCRIPTION ::\fBSystemCommand\fR::
 .RS
 .TP

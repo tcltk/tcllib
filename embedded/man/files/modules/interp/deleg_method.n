@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/interp/deleg_method.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/interp/deleg_method\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,16 +238,16 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "deleg_method" n 0.2 tcllib "Interpreter utilities"
+.TH "deleg_method" n 0\&.2 tcllib "Interpreter utilities"
 .BS
 .SH NAME
 deleg_method \- Creation of comm delegates (snit methods)
 .SH SYNOPSIS
-package require \fBTcl  8.3\fR
+package require \fBTcl  8\&.3\fR
 .sp
-package require \fBsnit  ?1.1?\fR
+package require \fBsnit  ?1\&.1?\fR
 .sp
-package require \fBinterp::delegate::method  ?0.2?\fR
+package require \fBinterp::delegate::method  ?0\&.2?\fR
 .sp
 \fB::interp::delegate::method\fR ?\fB-async\fR? \fIname\fR \fIarguments\fR \fIcomm\fR \fIid\fR
 .sp
@@ -254,37 +255,38 @@ package require \fBinterp::delegate::method  ?0.2?\fR
 .SH DESCRIPTION
 .PP
 This package provides a single command for use within \fBsnit\fR
-type definition (i.e. actually a \fBsnit::macro\fR) for the convenient
+type definition (i\&.e\&. actually a \fBsnit::macro\fR) for the convenient
 creation of methods which delegate the actual work to a remote
-location via a "channel" created by the package \fBcomm\fR.
+location via a "channel" created by the package \fBcomm\fR\&.
 .SH API
 .TP
 \fB::interp::delegate::method\fR ?\fB-async\fR? \fIname\fR \fIarguments\fR \fIcomm\fR \fIid\fR
-This commands creates a method which is named by \fIname\fR. All
+This commands creates a method which is named by \fIname\fR\&. All
 invokations of this method will delegate the actual work to the remote
 location identified by the comm channel \fIcomm\fR and the endpoint
-\fIid\fR.
+\fIid\fR\&.
 .sp
 The name of the remote method invoked by the delegator is identical to
-the name of the method itself.
+the name of the method itself\&.
 .sp
 Normally the generated method marshalls the \fIarguments\fR, and
-returns the result from the remote method as its own result. If
+returns the result from the remote method as its own result\&. If
 however the option \fB-async\fR was specified then the generated
-method will not wait for a result and return immediately.
+method will not wait for a result and return immediately\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIinterp\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 comm, delegation, interpreter, method, snit
 .SH CATEGORY
 Programming tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

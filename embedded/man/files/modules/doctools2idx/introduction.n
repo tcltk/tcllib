@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/doctools2idx/introduction.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/doctools2idx/introduction\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,7 +238,7 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "doctools2idx_introduction" n 2.0 tcllib "Documentation tools"
+.TH "doctools2idx_introduction" n 2\&.0 tcllib "Documentation tools"
 .BS
 .SH NAME
 doctools2idx_introduction \- DocTools - Keyword indices
@@ -245,77 +246,77 @@ doctools2idx_introduction \- DocTools - Keyword indices
 \fIdocidx\fR (short for \fIdocumentation indices\fR) stands for a
 set of related, yet different, entities which are working together for
 the easy creation and transformation of keyword indices for
-documentation.
+documentation\&.
 .PP
 These are
 .IP [1]
-A tcl based language for the semantic markup of a keyword index.
-Markup is represented by Tcl commands.
+A tcl based language for the semantic markup of a keyword index\&.
+Markup is represented by Tcl commands\&.
 Beginners should start with the
-\fIdocidx language introduction\fR.
+\fIdocidx language introduction\fR\&.
 The formal specification is split over two documents, one dealing with
 the \fIdocidx language syntax\fR, the other a
-\fIdocidx language command reference\fR.
+\fIdocidx language command reference\fR\&.
 .IP [2]
 A set of packages for the programmatic manipulation of keyword indices
 in memory, and their conversion between various formats, reading and
-writing. The aforementioned markup language is one of the formats
-which can be both read from and written to.
+writing\&. The aforementioned markup language is one of the formats
+which can be both read from and written to\&.
 .IP [3]
 The system for the conversion of indices is based on a plugin
 mechanism, for this we have two APIs describing the interface between
-the packages above and the import/export plugins.
+the packages above and the import/export plugins\&.
 .PP
 .PP
 Which of the more detailed documents are relevant to the reader of
-this introduction depends on their role in the documentation process.
+this introduction depends on their role in the documentation process\&.
 .PP
 .IP [1]
 A \fIwriter\fR of documentation has to understand the markup language
-itself. A beginner to docidx should read the more informally written
-\fIdocidx language introduction\fR first. Having digested this
+itself\&. A beginner to docidx should read the more informally written
+\fIdocidx language introduction\fR first\&. Having digested this
 the formal \fIdocidx language syntax\fR specification should
-become understandable. A writer experienced with docidx may only
+become understandable\&. A writer experienced with docidx may only
 need the \fIdocidx language command reference\fR from time to
-time to refresh her memory.
+time to refresh her memory\&.
 .sp
 While a document is written the \fBdtp\fR application can be used
 to validate it, and after completion it also performs the conversion
 into the chosen system of visual markup, be it *roff, HTML, plain
-text, wiki, etc. The simpler \fBdtplite\fR application makes
+text, wiki, etc\&. The simpler \fBdtplite\fR application makes
 internal use of docidx when handling directories of documentation,
-automatically generating a proper keyword index for them.
+automatically generating a proper keyword index for them\&.
 .IP [2]
 A \fIprocessor\fR of documentation written in the \fIdocidx\fR
-markup language has to know which tools are available for use.
+markup language has to know which tools are available for use\&.
 .sp
 The main tool is the aforementioned \fBdtp\fR application provided
-by Tcllib. The simpler \fBdtplite\fR does not expose docidx to the
-user. At the bottom level, common to both applications, however we
+by Tcllib\&. The simpler \fBdtplite\fR does not expose docidx to the
+user\&. At the bottom level, common to both applications, however we
 find the three packages providing the basic facilities to handle
-keyword indices, i.e. import from textual formats, programmatic
-manipulation in memory, and export to textual formats. These are
+keyword indices, i\&.e\&. import from textual formats, programmatic
+manipulation in memory, and export to textual formats\&. These are
 .RS
 .TP
 \fBdoctools::idx\fR
-Programmatic manipulation of keyword indices in memory.
+Programmatic manipulation of keyword indices in memory\&.
 .TP
 \fBdoctools::idx::import\fR
-Import of keyword indices from various textual formats. The set of
-supported formats is extensible through plugin packages.
+Import of keyword indices from various textual formats\&. The set of
+supported formats is extensible through plugin packages\&.
 .TP
 \fBdoctools::idx::export\fR
-Export of keyword indices to various textual formats. The set of
-supported formats is extensible through plugin packages.
+Export of keyword indices to various textual formats\&. The set of
+supported formats is extensible through plugin packages\&.
 .RE
 .IP
 See also section \fBPackage Overview\fR for an overview of the
-dependencies between these and other, supporting packages.
+dependencies between these and other, supporting packages\&.
 .IP [3]
 At last, but not least, \fIplugin writers\fR have to understand the
-interaction between the import and export packages and their plugins.
+interaction between the import and export packages and their plugins\&.
 These APIs are described in the documentation for the two relevant
-packages, i.e.
+packages, i\&.e\&.
 .RS
 .IP \(bu
 \fBdoctools::idx::import\fR
@@ -324,53 +325,57 @@ packages, i.e.
 .RE
 .PP
 .SH "RELATED FORMATS"
-The docidx format does not stand alone, it has two companion formats.
+The docidx format does not stand alone, it has two companion formats\&.
 These are called \fIdoctoc\fR and \fIdoctools\fR, and they are
 intended for the markup of \fItables of contents\fR, and of general
-documentation, respectively.
+documentation, respectively\&.
 They are described in their own sets of documents, starting at
 the \fIDocTools - Tables Of Contents\fR and
-the \fIDocTools - General\fR, respectively.
+the \fIDocTools - General\fR, respectively\&.
 .SH "PACKAGE OVERVIEW"
 .CS
-~~~~~~~~~~~ doctools::idx ~~~~~~~~~~~
-~~                   |               ~~
-doctools::idx::export ~~~~~~~~~~~~~~~~~ | ~~~~~~~~~~~~~ doctools::idx::import
-|                               |                       |
-+---------------+-------------------------+     |    +------------------+---------------+-----------------------+---------------+
-|               |                         |     |    |                  |               |                       |               |
+
+
+                                    ~~~~~~~~~~~ doctools::idx ~~~~~~~~~~~
+                                   ~~                   |               ~~
+                doctools::idx::export ~~~~~~~~~~~~~~~~~ | ~~~~~~~~~~~~~ doctools::idx::import
+                        |                               |                       |
+        +---------------+-------------------------+     |    +------------------+---------------+-----------------------+---------------+
+        |               |                         |     |    |                  |               |                       |               |
 doctools::config        =                         |     |    |                  =       doctools::include       doctools::config doctools::paths
-|                         |     |    |                  |
-doctools::idx::export::<*>        |     |    |          doctools::idx::import::<*>
-docidx                    |     |    |                  docidx, json
-json                      |     |    |                  |           \\\\
-html                      |     |    |          doctools::idx::parse \\\\
-nroff                     |     |    |                  |             \\\\
-wiki                      |     |    |  +---------------+              json
-text                      |     |    |  |               |
-doctools::idx::structure        |
-|
-+-------+---------------+
-|                       |
-doctools::html  doctools::html::cssdefaults           doctools::tcl::parse    doctools::msgcat
-|                                                                               |
-doctools::text  doctools::nroff::man_macros                                           =
-|
-doctools::msgcat::idx::<*>
-c, en, de, fr
-(fr == en for now)
-~~      Interoperable objects, without actual package dependencies
---      Package dependency, higher requires lower package
-=       Dynamic dependency through plugin system
-<*>     Multiple packages following the given form of naming.
+                        |                         |     |    |                  |
+                doctools::idx::export::<*>        |     |    |          doctools::idx::import::<*>
+                        docidx                    |     |    |                  docidx, json
+                        json                      |     |    |                  |           \\\\
+                        html                      |     |    |          doctools::idx::parse \\\\
+                        nroff                     |     |    |                  |             \\\\
+                        wiki                      |     |    |  +---------------+              json
+                        text                      |     |    |  |               |
+                                                doctools::idx::structure        |
+                                                                                |
+                                                                        +-------+---------------+
+                                                                        |                       |
+          doctools::html  doctools::html::cssdefaults           doctools::tcl::parse    doctools::msgcat
+                |                                                                               |
+          doctools::text  doctools::nroff::man_macros                                           =
+                                                                                                |
+                                                                                        doctools::msgcat::idx::<*>
+                                                                                                c, en, de, fr
+                                                                                                (fr == en for now)
+        ~~      Interoperable objects, without actual package dependencies
+        --      Package dependency, higher requires lower package
+        =       Dynamic dependency through plugin system
+        <*>     Multiple packages following the given form of naming\&.
+
+
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 doctools2doc_introduction, doctools2toc_introduction
 .SH KEYWORDS
@@ -379,5 +384,6 @@ conversion, formatting, index, keyword index, markup, parsing, plugin, semantic 
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

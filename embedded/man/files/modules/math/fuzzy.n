@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/math/fuzzy.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/fuzzy\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "math::fuzzy" n 0.2 tcllib "Tcl Math Library"
+.TH "math::fuzzy" n 0\&.2 tcllib "Tcl Math Library"
 .BS
 .SH NAME
 math::fuzzy \- Fuzzy comparison of floating-point numbers
 .SH SYNOPSIS
-package require \fBTcl  ?8.3?\fR
+package require \fBTcl  ?8\&.3?\fR
 .sp
-package require \fBmath::fuzzy  ?0.2?\fR
+package require \fBmath::fuzzy  ?0\&.2?\fR
 .sp
 \fB::math::fuzzy::teq\fR \fIvalue1\fR \fIvalue2\fR
 .sp
@@ -272,111 +273,115 @@ The package Fuzzy is meant to solve common problems with floating-point
 numbers in a systematic way:
 .IP \(bu
 Comparing two numbers that are "supposed" to be identical, like
-1.0 and 2.1/(1.2+0.9) is not guaranteed to give the
-intuitive result.
+1\&.0 and 2\&.1/(1\&.2+0\&.9) is not guaranteed to give the
+intuitive result\&.
 .IP \(bu
 Rounding a number that is halfway two integer numbers can cause
-strange errors, like int(100.0*2.8) != 28 but 27
+strange errors, like int(100\&.0*2\&.8) != 28 but 27
 .PP
 .PP
 The Fuzzy package is meant to help sorting out this type of problems
-by defining "fuzzy" comparison procedures for floating-point numbers.
+by defining "fuzzy" comparison procedures for floating-point numbers\&.
 It does so by allowing for a small margin that is determined
 automatically - the margin is three times the "epsilon" value, that is
-three times the smallest number \fIeps\fR such that 1.0 and 1.0+$eps
-canbe distinguished. In Tcl, which uses double precision floating-point
-numbers, this is typically 1.1e-16.
+three times the smallest number \fIeps\fR such that 1\&.0 and 1\&.0+$eps
+canbe distinguished\&. In Tcl, which uses double precision floating-point
+numbers, this is typically 1\&.1e-16\&.
 .SH PROCEDURES
 Effectively the package provides the following procedures:
 .TP
 \fB::math::fuzzy::teq\fR \fIvalue1\fR \fIvalue2\fR
 Compares two floating-point numbers and returns 1 if their values
-fall within a small range. Otherwise it returns 0.
+fall within a small range\&. Otherwise it returns 0\&.
 .TP
 \fB::math::fuzzy::tne\fR \fIvalue1\fR \fIvalue2\fR
 Returns the negation, that is, if the difference is larger than
-the margin, it returns 1.
+the margin, it returns 1\&.
 .TP
 \fB::math::fuzzy::tge\fR \fIvalue1\fR \fIvalue2\fR
 Compares two floating-point numbers and returns 1 if their values
 either fall within a small range or if the first number is larger
-than the second. Otherwise it returns 0.
+than the second\&. Otherwise it returns 0\&.
 .TP
 \fB::math::fuzzy::tle\fR \fIvalue1\fR \fIvalue2\fR
 Returns 1 if the two numbers are equal according to
-[teq] or if the first is smaller than the second.
+[teq] or if the first is smaller than the second\&.
 .TP
 \fB::math::fuzzy::tlt\fR \fIvalue1\fR \fIvalue2\fR
-Returns the opposite of [tge].
+Returns the opposite of [tge]\&.
 .TP
 \fB::math::fuzzy::tgt\fR \fIvalue1\fR \fIvalue2\fR
-Returns the opposite of [tle].
+Returns the opposite of [tle]\&.
 .TP
 \fB::math::fuzzy::tfloor\fR \fIvalue\fR
 Returns the integer number that is lower or equal
 to the given floating-point number, within a well-defined
-tolerance.
+tolerance\&.
 .TP
 \fB::math::fuzzy::tceil\fR \fIvalue\fR
 Returns the integer number that is greater or equal to the given
-floating-point number, within a well-defined tolerance.
+floating-point number, within a well-defined tolerance\&.
 .TP
 \fB::math::fuzzy::tround\fR \fIvalue\fR
-Rounds the floating-point number off.
+Rounds the floating-point number off\&.
 .TP
 \fB::math::fuzzy::troundn\fR \fIvalue\fR \fIndigits\fR
 Rounds the floating-point number off to the
-specified number of decimals (Pro memorie).
+specified number of decimals (Pro memorie)\&.
 .PP
 Usage:
 .CS
+
+
 if { [teq $x $y] } { puts "x == y" }
 if { [tne $x $y] } { puts "x != y" }
 if { [tge $x $y] } { puts "x >= y" }
 if { [tgt $x $y] } { puts "x > y" }
 if { [tlt $x $y] } { puts "x < y" }
 if { [tle $x $y] } { puts "x <= y" }
+
 set fx      [tfloor $x]
 set fc      [tceil  $x]
 set rounded [tround $x]
 set roundn  [troundn $x $nodigits]
+
 .CE
 .SH "TEST CASES"
 The problems that can occur with floating-point numbers are illustrated
-by the test cases in the file "fuzzy.test":
+by the test cases in the file "fuzzy\&.test":
 .IP \(bu
 Several test case use the ordinary comparisons, and they
 fail invariably to produce understandable results
 .IP \(bu
-One test case uses [expr] without braces ({ and }). It too
-fails.
+One test case uses [expr] without braces ({ and })\&. It too
+fails\&.
 .PP
 The conclusion from this is that any expression should be surrounded by
 braces, because otherwise very awkward things can happen if you need
-accuracy. Furthermore, accuracy and understandable results are
-enhanced by using these "tolerant" or fuzzy comparisons.
+accuracy\&. Furthermore, accuracy and understandable results are
+enhanced by using these "tolerant" or fuzzy comparisons\&.
 .PP
-Note that besides the Tcl-only package, there is also a C-based version.
+Note that besides the Tcl-only package, there is also a C-based version\&.
 .SH REFERENCES
-Original implementation in Fortran by dr. H.D. Knoble (Penn State
-University).
+Original implementation in Fortran by dr\&. H\&.D\&. Knoble (Penn State
+University)\&.
 .PP
-P. E. Hagerty, "More on Fuzzy Floor and Ceiling,"
-APL QUOTE QUAD 8(4):20-24, June 1978. Note that TFLOOR=FL5 took five
-years of refereed evolution (publication).
+P\&. E\&. Hagerty, "More on Fuzzy Floor and Ceiling,"
+APL QUOTE QUAD 8(4):20-24, June 1978\&. Note that TFLOOR=FL5 took five
+years of refereed evolution (publication)\&.
 .PP
-L. M. Breed, "Definitions for Fuzzy Floor and Ceiling",
-APL QUOTE QUAD 8(3):16-23, March 1978.
+L\&. M\&. Breed, "Definitions for Fuzzy Floor and Ceiling",
+APL QUOTE QUAD 8(3):16-23, March 1978\&.
 .PP
-D. Knuth, Art of Computer Programming,
-Vol. 1, Problem 1.2.4-5.
+D\&. Knuth, Art of Computer Programming,
+Vol\&. 1, Problem 1\&.2\&.4-5\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fImath :: fuzzy\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 floating-point, math, rounding
 .SH CATEGORY

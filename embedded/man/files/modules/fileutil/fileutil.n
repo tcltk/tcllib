@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/fileutil/fileutil.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/fileutil/fileutil\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "fileutil" n 1.14.5 tcllib "file utilities"
+.TH "fileutil" n 1\&.14\&.5 tcllib "file utilities"
 .BS
 .SH NAME
 fileutil \- Procedures implementing some file utilities
 .SH SYNOPSIS
 package require \fBTcl  8\fR
 .sp
-package require \fBfileutil  ?1.14.5?\fR
+package require \fBfileutil  ?1\&.14\&.5?\fR
 .sp
 \fB::fileutil::lexnormalize\fR \fIpath\fR
 .sp
@@ -251,7 +252,7 @@ package require \fBfileutil  ?1.14.5?\fR
 .sp
 \fB::fileutil::test\fR \fIpath\fR \fIcodes\fR ?\fImsgvar\fR? ?\fIlabel\fR?
 .sp
-\fB::fileutil::cat\fR (?\fIoptions\fR? \fIfile\fR)...
+\fB::fileutil::cat\fR (?\fIoptions\fR? \fIfile\fR)\&.\&.\&.
 .sp
 \fB::fileutil::writeFile\fR ?\fIoptions\fR? \fIfile\fR \fIdata\fR
 .sp
@@ -285,7 +286,7 @@ package require \fBfileutil  ?1.14.5?\fR
 .sp
 \fB::fileutil::jail\fR \fIjail\fR \fIpath\fR
 .sp
-\fB::fileutil::touch\fR ?\fB-a\fR? ?\fB-c\fR? ?\fB-m\fR? ?\fB-r\fR \fIref_file\fR? ?\fB-t\fR \fItime\fR? \fIfilename\fR ?\fI...\fR?
+\fB::fileutil::touch\fR ?\fB-a\fR? ?\fB-c\fR? ?\fB-m\fR? ?\fB-r\fR \fIref_file\fR? ?\fB-t\fR \fItime\fR? \fIfilename\fR ?\fI\&.\&.\&.\fR?
 .sp
 \fB::fileutil::tempdir\fR
 .sp
@@ -302,42 +303,46 @@ package require \fBfileutil  ?1.14.5?\fR
 .BE
 .SH DESCRIPTION
 .PP
-This package provides implementations of standard unix utilities.
+This package provides implementations of standard unix utilities\&.
 .TP
 \fB::fileutil::lexnormalize\fR \fIpath\fR
 This command performs purely lexical normalization on the \fIpath\fR and returns
-the changed path as its result. Symbolic links in the path are \fInot\fR resolved.
+the changed path as its result\&. Symbolic links in the path are \fInot\fR resolved\&.
 .sp
 Examples:
 .CS
-fileutil::lexnormalize /foo/./bar
-=> /foo/bar
-fileutil::lexnormalize /foo/../bar
-=> /bar
+
+
+    fileutil::lexnormalize /foo/\&./bar
+    => /foo/bar
+
+    fileutil::lexnormalize /foo/\&.\&./bar
+    => /bar
+
 .CE
 .TP
 \fB::fileutil::fullnormalize\fR \fIpath\fR
 This command resolves all symbolic links in the \fIpath\fR and returns
-the changed path as its result.
+the changed path as its result\&.
 In contrast to the builtin \fBfile normalize\fR this command
-resolves a symbolic link in the last element of the path as well.
+resolves a symbolic link in the last element of the path as well\&.
 .TP
 \fB::fileutil::test\fR \fIpath\fR \fIcodes\fR ?\fImsgvar\fR? ?\fIlabel\fR?
-A command for the testing of several properties of a \fIpath\fR. The
+A command for the testing of several properties of a \fIpath\fR\&. The
 properties to test for are specified in \fIcodes\fR, either as a list
 of keywords describing the properties, or as a string where each
-letter is a shorthand for a property to test. The recognized keywords,
-shorthands, and associated properties are shown in the list below. The
-tests are executed in the order given to the command.
+letter is a shorthand for a property to test\&. The recognized keywords,
+shorthands, and associated properties are shown in the list below\&. The
+tests are executed in the order given to the command\&.
 .sp
-The result of the command is a boolean value. It will be true if and
-only if the \fIpath\fR passes all the specified tests.
+The result of the command is a boolean value\&. It will be true if and
+only if the \fIpath\fR passes all the specified tests\&.
 In the case of the \fIpath\fR not passing one or more test the first
 failing test will leave a message in the variable referenced by
-\fImsgvar\fR, if such is specified. The message will be prefixed with
-\fIlabel\fR, if it is specified.
+\fImsgvar\fR, if such is specified\&. The message will be prefixed with
+\fIlabel\fR, if it is specified\&.
 \fINote\fR that the variabled referenced by \fImsgvar\fR is not touched at
-all if all the tests pass.
+all if all the tests pass\&.
 .sp
 .RS
 .TP
@@ -360,312 +365,315 @@ e\fIx\fRec
 \fBfile isdirectory\fR
 .RE
 .TP
-\fB::fileutil::cat\fR (?\fIoptions\fR? \fIfile\fR)...
-A tcl implementation of the UNIX \fBcat\fR command.  Returns the
-contents of the specified file(s). The arguments are files to read,
-with interspersed options configuring the process. If there are
+\fB::fileutil::cat\fR (?\fIoptions\fR? \fIfile\fR)\&.\&.\&.
+A tcl implementation of the UNIX \fBcat\fR command\&.  Returns the
+contents of the specified file(s)\&. The arguments are files to read,
+with interspersed options configuring the process\&. If there are
 problems reading any of the files, an error will occur, and no data
-will be returned.
+will be returned\&.
 .sp
 The options accepted are \fB-encoding\fR, \fB-translation\fR,
-\fB-eofchar\fR, and \fB--\fR. With the exception of the last all
+\fB-eofchar\fR, and \fB--\fR\&. With the exception of the last all
 options take a single value as argument, as specified by the tcl
-builtin command \fBfconfigure\fR. The \fB--\fR has to be used to
+builtin command \fBfconfigure\fR\&. The \fB--\fR has to be used to
 terminate option processing before a file if that file's name begins
-with a dash.
+with a dash\&.
 .sp
 Each file can have its own set of options coming before it, and for
 anything not specified directly the defaults are inherited from the
-options of the previous file. The first file inherits the system
-default for unspecified options.
+options of the previous file\&. The first file inherits the system
+default for unspecified options\&.
 .TP
 \fB::fileutil::writeFile\fR ?\fIoptions\fR? \fIfile\fR \fIdata\fR
 The command replaces the current contents of the specified \fIfile\fR
-with \fIdata\fR, with the process configured by the options. The
-command accepts the same options as \fB::fileutil::cat\fR. The
+with \fIdata\fR, with the process configured by the options\&. The
+command accepts the same options as \fB::fileutil::cat\fR\&. The
 specification of a non-existent file is legal and causes the command
-to create the file (and all required but missing directories).
+to create the file (and all required but missing directories)\&.
 .TP
 \fB::fileutil::appendToFile\fR ?\fIoptions\fR? \fIfile\fR \fIdata\fR
 This command is like \fB::fileutil::writeFile\fR, except that the
-previous contents of \fIfile\fR are not replaced, but appended to. The
+previous contents of \fIfile\fR are not replaced, but appended to\&. The
 command accepts the same options as \fB::fileutil::cat\fR
 .TP
 \fB::fileutil::insertIntoFile\fR ?\fIoptions\fR? \fIfile\fR \fIat\fR \fIdata\fR
 This comment is similar to \fB::fileutil::appendToFile\fR, except that
 the new data is not appended at the end, but inserted at a specified
-location within the file. In further contrast this command has to be
-given the path to an existing file. It will not create a missing file,
-but throw an error instead.
+location within the file\&. In further contrast this command has to be
+given the path to an existing file\&. It will not create a missing file,
+but throw an error instead\&.
 .sp
 The specified location \fIat\fR has to be an integer number in the
-range \fB0\fR ... [file size \fIfile\fR]. \fB0\fR will cause
+range \fB0\fR \&.\&.\&. [file size \fIfile\fR]\&. \fB0\fR will cause
 insertion of the new data before the first character of the existing
 content, whereas [file size \fIfile\fR] causes insertion after
-the last character of the existing content, i.e. appending.
+the last character of the existing content, i\&.e\&. appending\&.
 .sp
-The command accepts the same options as \fB::fileutil::cat\fR.
+The command accepts the same options as \fB::fileutil::cat\fR\&.
 .TP
 \fB::fileutil::removeFromFile\fR ?\fIoptions\fR? \fIfile\fR \fIat\fR \fIn\fR
-This command is the complement to \fB::fileutil::insertIntoFile\fR, removing \fIn\fR characters from the \fIfile\fR, starting at location \fIat\fR.
+This command is the complement to \fB::fileutil::insertIntoFile\fR, removing \fIn\fR characters from the \fIfile\fR, starting at location \fIat\fR\&.
 The specified location \fIat\fR has to be an integer number in the
-range \fB0\fR ... [file size \fIfile\fR] - \fIn\fR. \fB0\fR
+range \fB0\fR \&.\&.\&. [file size \fIfile\fR] - \fIn\fR\&. \fB0\fR
 will cause the removal of the new data to start with the first
 character of the existing content,
 whereas [file size \fIfile\fR] - \fIn\fR causes the removal of
-the tail of the existing content, i.e. the truncation of the file.
+the tail of the existing content, i\&.e\&. the truncation of the file\&.
 .sp
-The command accepts the same options as \fB::fileutil::cat\fR.
+The command accepts the same options as \fB::fileutil::cat\fR\&.
 .TP
 \fB::fileutil::replaceInFile\fR ?\fIoptions\fR? \fIfile\fR \fIat\fR \fIn\fR \fIdata\fR
 This command is a combination of \fB::fileutil::removeFromFile\fR and
-\fB::fileutil::insertIntoFile\fR. It first removes the part of the
+\fB::fileutil::insertIntoFile\fR\&. It first removes the part of the
 contents specified by the arguments \fIat\fR and \fIn\fR, and then
 inserts \fIdata\fR at the given location, effectively replacing the
-removed by content with \fIdata\fR.
+removed by content with \fIdata\fR\&.
 All constraints imposed on \fIat\fR and \fIn\fR by
 \fB::fileutil::removeFromFile\fR and \fB::fileutil::insertIntoFile\fR
-are obeyed.
+are obeyed\&.
 .sp
-The command accepts the same options as \fB::fileutil::cat\fR.
+The command accepts the same options as \fB::fileutil::cat\fR\&.
 .TP
 \fB::fileutil::updateInPlace\fR ?\fIoptions\fR? \fIfile\fR \fIcmd\fR
 This command can be seen as the generic core functionality of
-\fB::fileutil::replaceInFile\fR.
+\fB::fileutil::replaceInFile\fR\&.
 It first reads the contents of the specified \fIfile\fR, then runs the
 command prefix \fIcmd\fR with that data appended to it, and at last
 writes the result of that invokation back as the new contents of the
-file.
+file\&.
 .sp
-If the executed command throws an error the \fIfile\fR is not changed.
+If the executed command throws an error the \fIfile\fR is not changed\&.
 .sp
-The command accepts the same options as \fB::fileutil::cat\fR.
+The command accepts the same options as \fB::fileutil::cat\fR\&.
 .TP
 \fB::fileutil::fileType\fR \fIfilename\fR
 An implementation of the UNIX \fBfile\fR command, which uses
-various heuristics to guess the type of a file.  Returns a list
+various heuristics to guess the type of a file\&.  Returns a list
 specifying as much type information as can be determined about the
 file, from most general (eg, "binary" or "text") to most specific (eg,
-"gif").  For example, the return value for a GIF file would be "binary
-graphic gif".  The command will detect the following types of files:
+"gif")\&.  For example, the return value for a GIF file would be "binary
+graphic gif"\&.  The command will detect the following types of files:
 directory, empty, binary, text, script (with interpreter), executable
 elf, executable dos, executable ne, executable pe, graphic gif, graphic
 jpeg, graphic png, graphic tiff, graphic bitmap, html, xml (with doctype
 if available), message pgp, binary pdf, text ps, text eps, binary
 gravity_wave_data_frame, compressed bzip, compressed gzip, compressed
-zip, compressed tar, audio wave, audio mpeg, and link. It further
+zip, compressed tar, audio wave, audio mpeg, and link\&. It further
 detects doctools, doctoc, and docidx documentation files, and
-tklib diagrams.
+tklib diagrams\&.
 .TP
 \fB::fileutil::find\fR ?\fIbasedir\fR ?\fIfiltercmd\fR??
-An implementation of the unix command \fBfind\fR. Adapted from the
-Tcler's Wiki. Takes at most two arguments, the path to the directory
+An implementation of the unix command \fBfind\fR\&. Adapted from the
+Tcler's Wiki\&. Takes at most two arguments, the path to the directory
 to start searching from and a command to use to evaluate interest in
-each file. The path defaults to "\fI.\fR", i.e. the current
-directory. The command defaults to the empty string, which means that
-all files are of interest. The command takes care \fInot\fR to
+each file\&. The path defaults to "\fI\&.\fR", i\&.e\&. the current
+directory\&. The command defaults to the empty string, which means that
+all files are of interest\&. The command takes care \fInot\fR to
 lose itself in infinite loops upon encountering circular link
-structures. The result of the command is a list containing the paths
-to the interesting files.
+structures\&. The result of the command is a list containing the paths
+to the interesting files\&.
 .sp
 The \fIfiltercmd\fR, if specified, is interpreted as a command prefix
 and one argument is added to it, the name of the file or directory
-find is currently looking at. Note that this name is \fInot\fR fully
-qualified. It has to be joined it with the result of \fBpwd\fR to get
-an absolute filename.
+find is currently looking at\&. Note that this name is \fInot\fR fully
+qualified\&. It has to be joined it with the result of \fBpwd\fR to get
+an absolute filename\&.
 .sp
 The result of \fIfiltercmd\fR is a boolean value that indicates if the
-current file should be included in the list of interesting files.
+current file should be included in the list of interesting files\&.
 .sp
 Example:
 .sp
 .CS
-# find .tcl files
-package require fileutil
-proc is_tcl {name} {return [string match *.tcl $name]}
-set tcl_files [fileutil::find . is_tcl]
+
+
+    # find \&.tcl files
+    package require fileutil
+    proc is_tcl {name} {return [string match *\&.tcl $name]}
+    set tcl_files [fileutil::find \&. is_tcl]
+
 .CE
 .TP
 \fB::fileutil::findByPattern\fR \fIbasedir\fR ?\fB-regexp\fR|\fB-glob\fR? ?\fB--\fR? \fIpatterns\fR
 This command is based upon the \fBTclX\fR command
 \fBrecursive_glob\fR, except that it doesn't allow recursion over more
-than one directory at a time. It uses \fB::fileutil::find\fR
+than one directory at a time\&. It uses \fB::fileutil::find\fR
 internally and is thus able to and does follow symbolic links,
-something the \fBTclX\fR command does not do. First argument is
+something the \fBTclX\fR command does not do\&. First argument is
 the directory to start the search in, second argument is a list of
-\fIpatterns\fR. The command returns a list of all files reachable
+\fIpatterns\fR\&. The command returns a list of all files reachable
 through \fIbasedir\fR whose names match at least one of the
-patterns. The options before the pattern-list determine the style of
-matching, either regexp or glob. glob-style matching is the default if
-no options are given. Usage of the option \fB--\fR stops option
-processing. This allows the use of a leading '-' in the patterns.
+patterns\&. The options before the pattern-list determine the style of
+matching, either regexp or glob\&. glob-style matching is the default if
+no options are given\&. Usage of the option \fB--\fR stops option
+processing\&. This allows the use of a leading '-' in the patterns\&.
 .TP
 \fB::fileutil::foreachLine\fR \fIvar filename cmd\fR
 The command reads the file \fIfilename\fR and executes the script
-\fIcmd\fR for every line in the file. During the execution of the
+\fIcmd\fR for every line in the file\&. During the execution of the
 script the variable \fIvar\fR is set to the contents of the current
-line. The return value of this command is the result of the last
+line\&. The return value of this command is the result of the last
 invocation of the script \fIcmd\fR or the empty string if the file was
-empty.
+empty\&.
 .TP
 \fB::fileutil::grep\fR \fIpattern\fR ?\fIfiles\fR?
-Implementation of \fBgrep\fR. Adapted from the Tcler's Wiki. The
-first argument defines the \fIpattern\fR to search for. This is
-followed by a list of \fIfiles\fR to search through. The list is
-optional and \fBstdin\fR will be used if it is missing. The result
-of the procedures is a list containing the matches. Each match is a
+Implementation of \fBgrep\fR\&. Adapted from the Tcler's Wiki\&. The
+first argument defines the \fIpattern\fR to search for\&. This is
+followed by a list of \fIfiles\fR to search through\&. The list is
+optional and \fBstdin\fR will be used if it is missing\&. The result
+of the procedures is a list containing the matches\&. Each match is a
 single element of the list and contains filename, number and contents
-of the matching line, separated by a colons.
+of the matching line, separated by a colons\&.
 .TP
 \fB::fileutil::install\fR ?\fB-m\fR \fImode\fR? \fIsource\fR \fIdestination\fR
 The \fBinstall\fR command is similar in functionality to the \fBinstall\fR
 command found on many unix systems, or the shell script
 distributed with many source distributions (unix/install-sh in the Tcl
-sources, for example).  It copies \fIsource\fR, which can be either a
+sources, for example)\&.  It copies \fIsource\fR, which can be either a
 file or directory to \fIdestination\fR, which should be a directory,
-unless \fIsource\fR is also a single file.  The ?-m? option lets
+unless \fIsource\fR is also a single file\&.  The ?-m? option lets
 the user specify a unix-style mode (either octal or symbolic - see
-\fBfile attributes\fR.
+\fBfile attributes\fR\&.
 .TP
 \fB::fileutil::stripN\fR \fIpath\fR \fIn\fR
 Removes the first \fIn\fR elements from the specified \fIpath\fR and
-returns the modified path. If \fIn\fR is greater than the number of
-components in \fIpath\fR an empty string is returned. The number of
+returns the modified path\&. If \fIn\fR is greater than the number of
+components in \fIpath\fR an empty string is returned\&. The number of
 components in a given path may be determined by performing
-\fBllength\fR on the list returned by \fBfile split\fR.
+\fBllength\fR on the list returned by \fBfile split\fR\&.
 .TP
 \fB::fileutil::stripPwd\fR \fIpath\fR
 If, and only if the \fIpath\fR is inside of the directory returned by
 [\fBpwd\fR] (or the current working directory itself) it is made
-relative to that directory. In other words, the current working
-directory is stripped from the \fIpath\fR.  The possibly modified path
-is returned as the result of the command. If the current working
+relative to that directory\&. In other words, the current working
+directory is stripped from the \fIpath\fR\&.  The possibly modified path
+is returned as the result of the command\&. If the current working
 directory itself was specified for \fIpath\fR the result is the string
-"\fB.\fR".
+"\fB\&.\fR"\&.
 .TP
 \fB::fileutil::stripPath\fR \fIprefix\fR \fIpath\fR
 If, and only of the \fIpath\fR is inside of the directory
 "\fIprefix\fR" (or the prefix directory itself) it is made relative to
-that directory. In other words, the prefix directory is stripped from
-the \fIpath\fR. The possibly modified path is returned as the result
-of the command.
+that directory\&. In other words, the prefix directory is stripped from
+the \fIpath\fR\&. The possibly modified path is returned as the result
+of the command\&.
 If the prefix directory itself was specified for \fIpath\fR the result
-is the string "\fB.\fR".
+is the string "\fB\&.\fR"\&.
 .TP
 \fB::fileutil::jail\fR \fIjail\fR \fIpath\fR
 This command ensures that the \fIpath\fR is not escaping the directory
-\fIjail\fR. It always returns an absolute path derived from \fIpath\fR
-which is within \fIjail\fR.
+\fIjail\fR\&. It always returns an absolute path derived from \fIpath\fR
+which is within \fIjail\fR\&.
 .sp
 If \fIpath\fR is an absolute path and already within \fIjail\fR it is
-returned unmodified.
+returned unmodified\&.
 .sp
 An absolute path outside of \fIjail\fR is stripped of its root element
-and then put into the \fIjail\fR by prefixing it with it. The same
+and then put into the \fIjail\fR by prefixing it with it\&. The same
 happens if \fIpath\fR is relative, except that nothing is stripped of
-it. Before adding the \fIjail\fR prefix the \fIpath\fR is lexically
-normalized to prevent the caller from using \fB..\fR segments in
-\fIpath\fR to escape the jail.
+it\&. Before adding the \fIjail\fR prefix the \fIpath\fR is lexically
+normalized to prevent the caller from using \fB\&.\&.\fR segments in
+\fIpath\fR to escape the jail\&.
 .TP
-\fB::fileutil::touch\fR ?\fB-a\fR? ?\fB-c\fR? ?\fB-m\fR? ?\fB-r\fR \fIref_file\fR? ?\fB-t\fR \fItime\fR? \fIfilename\fR ?\fI...\fR?
-Implementation of \fBtouch\fR. Alter the atime and mtime of the
-specified files. If \fB-c\fR, do not create files if they do not
-already exist. If \fB-r\fR, use the atime and mtime from
-\fIref_file\fR. If \fB-t\fR, use the integer clock value
-\fItime\fR. It is illegal to specify both \fB-r\fR and
-\fB-t\fR. If \fB-a\fR, only change the atime. If \fB-m\fR,
-only change the mtime.
+\fB::fileutil::touch\fR ?\fB-a\fR? ?\fB-c\fR? ?\fB-m\fR? ?\fB-r\fR \fIref_file\fR? ?\fB-t\fR \fItime\fR? \fIfilename\fR ?\fI\&.\&.\&.\fR?
+Implementation of \fBtouch\fR\&. Alter the atime and mtime of the
+specified files\&. If \fB-c\fR, do not create files if they do not
+already exist\&. If \fB-r\fR, use the atime and mtime from
+\fIref_file\fR\&. If \fB-t\fR, use the integer clock value
+\fItime\fR\&. It is illegal to specify both \fB-r\fR and
+\fB-t\fR\&. If \fB-a\fR, only change the atime\&. If \fB-m\fR,
+only change the mtime\&.
 .sp
-\fIThis command is not available for Tcl versions less than 8.3.\fR
+\fIThis command is not available for Tcl versions less than 8\&.3\&.\fR
 .TP
 \fB::fileutil::tempdir\fR
 The command returns the path of a directory where the caller can
-place temporary files, such as "\fI/tmp\fR" on Unix systems. The
+place temporary files, such as "\fI/tmp\fR" on Unix systems\&. The
 algorithm we use to find the correct directory is as follows:
 .RS
 .IP [1]
 The directory set by an invokation of \fB::fileutil::tempdir\fR with
-an argument. If this is present it is tried exclusively and none of
-the following item are tried.
+an argument\&. If this is present it is tried exclusively and none of
+the following item are tried\&.
 .IP [2]
-The directory named in the TMPDIR environment variable.
+The directory named in the TMPDIR environment variable\&.
 .IP [3]
-The directory named in the TEMP environment variable.
+The directory named in the TEMP environment variable\&.
 .IP [4]
-The directory named in the TMP environment variable.
+The directory named in the TMP environment variable\&.
 .IP [5]
 A platform specific location:
 .RS
 .TP
 Windows
 "\fIC:\\TEMP\fR", "\fIC:\\TMP\fR", "\fI\\TEMP\fR",
-and "\fI\\TMP\fR" are tried in that order.
+and "\fI\\TMP\fR" are tried in that order\&.
 .TP
 (classic) Macintosh
-The TRASH_FOLDER environment variable is used.  This is most likely
-not correct.
+The TRASH_FOLDER environment variable is used\&.  This is most likely
+not correct\&.
 .TP
 Unix
 The directories "\fI/tmp\fR", "\fI/var/tmp\fR", and "\fI/usr/tmp\fR" are
-tried in that order.
+tried in that order\&.
 .RE
 .RE
 .sp
 The algorithm utilized is mainly that used in the Python standard
-library. The exception is the first item, the ability to have the
-search overridden by a user-specified directory.
+library\&. The exception is the first item, the ability to have the
+search overridden by a user-specified directory\&.
 .TP
 \fB::fileutil::tempdir\fR \fIpath\fR
 In this mode the command sets the \fIpath\fR as the first and only
-directory to try as a temp. directory. See the previous item for the
-use of the set directory. The command returns the empty string.
+directory to try as a temp\&. directory\&. See the previous item for the
+use of the set directory\&. The command returns the empty string\&.
 .TP
 \fB::fileutil::tempdirReset\fR
 Invoking this command clears the information set by the
-last call of [\fB::fileutil::tempdir\fR \fIpath\fR].
-See the last item too.
+last call of [\fB::fileutil::tempdir\fR \fIpath\fR]\&.
+See the last item too\&.
 .TP
 \fB::fileutil::tempfile\fR ?\fIprefix\fR?
 The command generates a temporary file name suitable for writing to,
-and the associated file.  The file name will be unique, and the file
+and the associated file\&.  The file name will be unique, and the file
 will be writable and contained in the appropriate system specific temp
-directory. The name of the file will be returned as the result of the
-command.
+directory\&. The name of the file will be returned as the result of the
+command\&.
 .sp
-The code was taken from \fIhttp://wiki.tcl.tk/772\fR, attributed to
-Igor Volobouev and anon.
+The code was taken from \fIhttp://wiki\&.tcl\&.tk/772\fR, attributed to
+Igor Volobouev and anon\&.
 .TP
 \fB::fileutil::relative\fR \fIbase\fR \fIdst\fR
 This command takes two directory paths, both either absolute or relative
-and computes the path of \fIdst\fR relative to \fIbase\fR. This relative
-path is returned as the result of the command. As implied in the previous
+and computes the path of \fIdst\fR relative to \fIbase\fR\&. This relative
+path is returned as the result of the command\&. As implied in the previous
 sentence, the command is not able to compute this relationship between the
-arguments if one of the paths is absolute and the other relative.
+arguments if one of the paths is absolute and the other relative\&.
 .sp
-\fINote:\fR The processing done by this command is purely lexical.
-Symbolic links are \fInot\fR taken into account.
+\fINote:\fR The processing done by this command is purely lexical\&.
+Symbolic links are \fInot\fR taken into account\&.
 .TP
 \fB::fileutil::relativeUrl\fR \fIbase\fR \fIdst\fR
 This command takes two file paths, both either absolute or relative
 and computes the path of \fIdst\fR relative to \fIbase\fR, as seen
-from inside of the \fIbase\fR. This is the algorithm how a browser
-resolves a relative link found in the currently shown file.
+from inside of the \fIbase\fR\&. This is the algorithm how a browser
+resolves a relative link found in the currently shown file\&.
 .sp
-The computed relative path is returned as the result of the command.
+The computed relative path is returned as the result of the command\&.
 As implied in the previous sentence, the command is not able to compute
 this relationship between the arguments if one of the paths is absolute
-and the other relative.
+and the other relative\&.
 .sp
-\fINote:\fR The processing done by this command is purely lexical.
-Symbolic links are \fInot\fR taken into account.
+\fINote:\fR The processing done by this command is purely lexical\&.
+Symbolic links are \fInot\fR taken into account\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIfileutil\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 cat, file utilities, grep, temp file, test, touch, type
 .SH CATEGORY

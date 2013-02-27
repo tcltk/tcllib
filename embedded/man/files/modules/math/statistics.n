@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/math/statistics.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/statistics\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "math::statistics" n 0.8 tcllib "Tcl Math Library"
+.TH "math::statistics" n 0\&.8 tcllib "Tcl Math Library"
 .BS
 .SH NAME
 math::statistics \- Basic statistical functions and procedures
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBmath::statistics  0.8\fR
+package require \fBmath::statistics  0\&.8\fR
 .sp
 \fB::math::statistics::mean\fR \fIdata\fR
 .sp
@@ -410,24 +411,24 @@ Probability and cumulative density functions
 .PP
 It is meant to help in developing data analysis applications or doing
 ad hoc data analysis, it is not in itself a full application, nor is it
-intended to rival with full (non-)commercial statistical packages.
+intended to rival with full (non-)commercial statistical packages\&.
 .PP
 The purpose of this document is to describe the implemented procedures
-and provide some examples of their usage. As there is ample literature
+and provide some examples of their usage\&. As there is ample literature
 on the algorithms involved, we refer to relevant text books for more
-explanations.
-The package contains a fairly large number of public procedures. They
+explanations\&.
+The package contains a fairly large number of public procedures\&. They
 can be distinguished in three sets: general procedures, procedures
 that deal with specific statistical distributions, list procedures to
 select or transform data and simple plotting procedures (these require
-Tk).
+Tk)\&.
 \fINote:\fR The data that need to be analyzed are always contained in a
-simple list. Missing values are represented as empty list elements.
+simple list\&. Missing values are represented as empty list elements\&.
 .SH "GENERAL PROCEDURES"
 The general statistical procedures are:
 .TP
 \fB::math::statistics::mean\fR \fIdata\fR
-Determine the \fImean\fR value of the given list of data.
+Determine the \fImean\fR value of the given list of data\&.
 .RS
 .TP
 list \fIdata\fR
@@ -436,7 +437,7 @@ list \fIdata\fR
 .sp
 .TP
 \fB::math::statistics::min\fR \fIdata\fR
-Determine the \fIminimum\fR value of the given list of data.
+Determine the \fIminimum\fR value of the given list of data\&.
 .RS
 .TP
 list \fIdata\fR
@@ -445,7 +446,7 @@ list \fIdata\fR
 .sp
 .TP
 \fB::math::statistics::max\fR \fIdata\fR
-Determine the \fImaximum\fR value of the given list of data.
+Determine the \fImaximum\fR value of the given list of data\&.
 .RS
 .TP
 list \fIdata\fR
@@ -515,11 +516,11 @@ list \fIdata\fR
 \fB::math::statistics::basic-stats\fR \fIdata\fR
 Determine a list of all the descriptive parameters: mean, minimum,
 maximum, number of data, sample standard deviation, sample variance,
-population standard deviation and population variance.
+population standard deviation and population variance\&.
 .sp
 (This routine is called whenever either or all of the basic statistical
-parameters are required. Hence all calculations are done and the
-relevant values are returned.)
+parameters are required\&. Hence all calculations are done and the
+relevant values are returned\&.)
 .RS
 .TP
 list \fIdata\fR
@@ -528,16 +529,16 @@ list \fIdata\fR
 .sp
 .TP
 \fB::math::statistics::histogram\fR \fIlimits\fR \fIvalues\fR
-Determine histogram information for the given list of data. Returns a
-list consisting of the number of values that fall into each interval.
+Determine histogram information for the given list of data\&. Returns a
+list consisting of the number of values that fall into each interval\&.
 (The first interval consists of all values lower than the first limit,
-the last interval consists of all values greater than the last limit.
-There is one more interval than there are limits.)
+the last interval consists of all values greater than the last limit\&.
+There is one more interval than there are limits\&.)
 .RS
 .TP
 list \fIlimits\fR
 - List of upper limits (in ascending order) for the
-intervals of the histogram.
+intervals of the histogram\&.
 .TP
 list \fIvalues\fR
 - List of data
@@ -545,7 +546,7 @@ list \fIvalues\fR
 .sp
 .TP
 \fB::math::statistics::corr\fR \fIdata1\fR \fIdata2\fR
-Determine the correlation coefficient between two sets of data.
+Determine the correlation coefficient between two sets of data\&.
 .RS
 .TP
 list \fIdata1\fR
@@ -566,15 +567,15 @@ list \fIdata\fR
 - List of raw data values (small sample)
 .TP
 float \fIconfidence\fR
-- Confidence level (0.95 or 0.99 for instance)
+- Confidence level (0\&.95 or 0\&.99 for instance)
 .RE
 .sp
 .TP
 \fB::math::statistics::t-test-mean\fR \fIdata\fR \fIest_mean\fR \fIest_stdev\fR \fIconfidence\fR
 Test whether the mean value of a sample is in accordance with the
-estimated normal distribution with a certain level of confidence.
+estimated normal distribution with a certain level of confidence\&.
 Returns 1 if the test succeeds or 0 if the mean is unlikely to fit
-the given distribution.
+the given distribution\&.
 .RS
 .TP
 list \fIdata\fR
@@ -587,31 +588,31 @@ float \fIest_stdev\fR
 - Estimated stdev of the distribution
 .TP
 float \fIconfidence\fR
-- Confidence level (0.95 or 0.99 for instance)
+- Confidence level (0\&.95 or 0\&.99 for instance)
 .RE
 .sp
 .TP
 \fB::math::statistics::test-normal\fR \fIdata\fR \fIconfidence\fR
 Test whether the given data follow a normal distribution
-with a certain level of confidence.
+with a certain level of confidence\&.
 Returns 1 if the data are normally distributed within the level of
-confidence, returns 0 if not. The underlying test is the Lilliefors
-test.
+confidence, returns 0 if not\&. The underlying test is the Lilliefors
+test\&.
 .RS
 .TP
 list \fIdata\fR
 - List of raw data values
 .TP
 float \fIconfidence\fR
-- Confidence level (one of 0.80, 0.90, 0.95 or 0.99)
+- Confidence level (one of 0\&.80, 0\&.90, 0\&.95 or 0\&.99)
 .RE
 .sp
 .TP
 \fB::math::statistics::lillieforsFit\fR \fIdata\fR
 Returns the goodness of fit to a normal distribution according to
-Lilliefors. The higher the number, the more likely the data are indeed
-normally distributed. The test requires at least \fIfive\fR data
-points.
+Lilliefors\&. The higher the number, the more likely the data are indeed
+normally distributed\&. The test requires at least \fIfive\fR data
+points\&.
 .RS
 .TP
 list \fIdata\fR
@@ -629,7 +630,7 @@ list \fIdata\fR
 .sp
 .TP
 float \fIconfidence\fR
-- Confidence level (0.95 or 0.99 for instance)
+- Confidence level (0\&.95 or 0\&.99 for instance)
 .sp
 .RE
 .sp
@@ -646,7 +647,7 @@ list \fIcounts\fR
 - List of counts for for each interval in histogram
 .TP
 float \fIconfidence\fR
--  Confidence level (0.95 or 0.99 for instance)
+-  Confidence level (0\&.95 or 0\&.99 for instance)
 .RE
 .sp
 .TP
@@ -655,7 +656,7 @@ Return the autocorrelation function as a list of values (assuming
 equidistance between samples, about 1/2 of the number of raw data)
 .sp
 The correlation is determined in such a way that the first value is
-always 1 and all others are equal to or smaller than 1. The number of
+always 1 and all others are equal to or smaller than 1\&. The number of
 values involved will diminish as the "time" (the index in the list of
 returned values) increases
 .RS
@@ -670,8 +671,8 @@ Return the cross-correlation function as a list of values (assuming
 equidistance between samples, about 1/2 of the number of raw data)
 .sp
 The correlation is determined in such a way that the values can never
-exceed 1 in magnitude. The number of values involved will diminish
-as the "time" (the index in the list of returned values) increases.
+exceed 1 in magnitude\&. The number of values involved will diminish
+as the "time" (the index in the list of returned values) increases\&.
 .RS
 .TP
 list \fIdata1\fR
@@ -685,7 +686,7 @@ list \fIdata2\fR
 \fB::math::statistics::mean-histogram-limits\fR \fImean\fR \fIstdev\fR \fInumber\fR
 Determine reasonable limits based on mean and standard deviation
 for a histogram
-Convenience function - the result is suitable for the histogram function.
+Convenience function - the result is suitable for the histogram function\&.
 .RS
 .TP
 float \fImean\fR
@@ -702,7 +703,7 @@ int \fInumber\fR
 \fB::math::statistics::minmax-histogram-limits\fR \fImin\fR \fImax\fR \fInumber\fR
 Determine reasonable limits based on a minimum and maximum for a histogram
 .sp
-Convenience function - the result is suitable for the histogram function.
+Convenience function - the result is suitable for the histogram function\&.
 .RS
 .TP
 float \fImin\fR
@@ -718,7 +719,7 @@ int \fInumber\fR
 .TP
 \fB::math::statistics::linear-model\fR \fIxdata\fR \fIydata\fR \fIintercept\fR
 Determine the coefficients for a linear regression between
-two series of data (the model: Y = A + B*X). Returns a list of
+two series of data (the model: Y = A + B*X)\&. Returns a list of
 parameters describing the fit
 .RS
 .TP
@@ -758,10 +759,10 @@ Significance level of B
 .TP
 \fB::math::statistics::linear-residuals\fR \fIxdata\fR \fIydata\fR \fIintercept\fR
 Determine the difference between actual data and predicted from
-the linear model.
+the linear model\&.
 .sp
 Returns a list of the differences between the actual data and the
-predicted values.
+predicted values\&.
 .RS
 .TP
 list \fIxdata\fR
@@ -778,53 +779,53 @@ to a line through the origin (0)
 .TP
 \fB::math::statistics::test-2x2\fR \fIn11\fR \fIn21\fR \fIn12\fR \fIn22\fR
 Determine if two set of samples, each from a binomial distribution,
-differ significantly or not (implying a different parameter).
+differ significantly or not (implying a different parameter)\&.
 .sp
 Returns the "chi-square" value, which can be used to the determine the
-significance.
+significance\&.
 .RS
 .TP
 int \fIn11\fR
-- Number of outcomes with the first value from the first sample.
+- Number of outcomes with the first value from the first sample\&.
 .TP
 int \fIn21\fR
-- Number of outcomes with the first value from the second sample.
+- Number of outcomes with the first value from the second sample\&.
 .TP
 int \fIn12\fR
-- Number of outcomes with the second value from the first sample.
+- Number of outcomes with the second value from the first sample\&.
 .TP
 int \fIn22\fR
-- Number of outcomes with the second value from the second sample.
+- Number of outcomes with the second value from the second sample\&.
 .RE
 .sp
 .TP
 \fB::math::statistics::print-2x2\fR \fIn11\fR \fIn21\fR \fIn12\fR \fIn22\fR
 Determine if two set of samples, each from a binomial distribution,
-differ significantly or not (implying a different parameter).
+differ significantly or not (implying a different parameter)\&.
 .sp
-Returns a short report, useful in an interactive session.
+Returns a short report, useful in an interactive session\&.
 .RS
 .TP
 int \fIn11\fR
-- Number of outcomes with the first value from the first sample.
+- Number of outcomes with the first value from the first sample\&.
 .TP
 int \fIn21\fR
-- Number of outcomes with the first value from the second sample.
+- Number of outcomes with the first value from the second sample\&.
 .TP
 int \fIn12\fR
-- Number of outcomes with the second value from the first sample.
+- Number of outcomes with the second value from the first sample\&.
 .TP
 int \fIn22\fR
-- Number of outcomes with the second value from the second sample.
+- Number of outcomes with the second value from the second sample\&.
 .RE
 .sp
 .TP
 \fB::math::statistics::control-xbar\fR \fIdata\fR ?nsamples?
-Determine the control limits for an xbar chart. The number of data
-in each subsample defaults to 4. At least 20 subsamples are required.
+Determine the control limits for an xbar chart\&. The number of data
+in each subsample defaults to 4\&. At least 20 subsamples are required\&.
 .sp
 Returns the mean, the lower limit, the upper limit and the number of
-data per subsample.
+data per subsample\&.
 .RS
 .TP
 list \fIdata\fR
@@ -836,11 +837,11 @@ int \fInsamples\fR
 .sp
 .TP
 \fB::math::statistics::control-Rchart\fR \fIdata\fR ?nsamples?
-Determine the control limits for an R chart. The number of data
-in each subsample (nsamples) defaults to 4. At least 20 subsamples are required.
+Determine the control limits for an R chart\&. The number of data
+in each subsample (nsamples) defaults to 4\&. At least 20 subsamples are required\&.
 .sp
 Returns the mean range, the lower limit, the upper limit and the number
-of data per subsample.
+of data per subsample\&.
 .RS
 .TP
 list \fIdata\fR
@@ -852,10 +853,10 @@ int \fInsamples\fR
 .sp
 .TP
 \fB::math::statistics::test-xbar\fR \fIcontrol\fR \fIdata\fR
-Determine if the data exceed the control limits for the xbar chart.
+Determine if the data exceed the control limits for the xbar chart\&.
 .sp
 Returns a list of subsamples (their indices) that indeed violate the
-limits.
+limits\&.
 .RS
 .TP
 list \fIcontrol\fR
@@ -867,10 +868,10 @@ list \fIdata\fR
 .sp
 .TP
 \fB::math::statistics::test-Rchart\fR \fIcontrol\fR \fIdata\fR
-Determine if the data exceed the control limits for the R chart.
+Determine if the data exceed the control limits for the R chart\&.
 .sp
 Returns a list of subsamples (their indices) that indeed violate the
-limits.
+limits\&.
 .RS
 .TP
 list \fIcontrol\fR
@@ -885,60 +886,72 @@ list \fIdata\fR
 Besides the linear regression with a single independent variable, the
 statistics package provides two procedures for doing ordinary
 least squares (OLS) and weighted least squares (WLS) linear regression
-with several variables. They were written by Eric Kemp-Benedict.
+with several variables\&. They were written by Eric Kemp-Benedict\&.
 .PP
 In addition to these two, it provides a procedure (tstat)
 for calculating the value of the t-statistic for the specified number of
 degrees of freedom that is required to demonstrate a given level of
-significance.
+significance\&.
 .PP
-Note: These procedures depend on the math::linearalgebra package.
+Note: These procedures depend on the math::linearalgebra package\&.
 .PP
 \fIDescription of the procedures\fR
 .TP
 \fB::math::statistics::tstat\fR \fIdof\fR ?alpha?
 Returns the value of the t-distribution t* satisfying
 .CS
-P(t*)  =  1 - alpha/2
-P(-t*) =  alpha/2
+
+
+    P(t*)  =  1 - alpha/2
+    P(-t*) =  alpha/2
+
 .CE
 .IP
-for the number of degrees of freedom dof.
+for the number of degrees of freedom dof\&.
 .sp
 Given a sample of normally-distributed data x, with an
 estimate xbar for the mean and sbar for the standard deviation,
 the alpha confidence interval for the estimate of the mean can
 be calculated as
 .CS
-( xbar - t* sbar , xbar + t* sbar)
+
+
+      ( xbar - t* sbar , xbar + t* sbar)
+
 .CE
 .IP
 The return values from this procedure can be compared to
 an estimated t-statistic to determine whether the estimated
 value of a parameter is significantly different from zero at
-the given confidence level.
+the given confidence level\&.
 .RS
 .TP
 int \fIdof\fR
 Number of degrees of freedom
 .TP
 float \fIalpha\fR
-Confidence level of the t-distribution. Defaults to 0.05.
+Confidence level of the t-distribution\&. Defaults to 0\&.05\&.
 .RE
 .sp
 .TP
 \fB::math::statistics::mv-wls\fR \fIwt1\fR \fIweights_and_values\fR
 Carries out a weighted least squares linear regression for
-the data points provided, with weights assigned to each point.
+the data points provided, with weights assigned to each point\&.
 .sp
 The linear model is of the form
 .CS
-y = b0 + b1 * x1 + b2 * x2 ... + bN * xN + error
+
+
+    y = b0 + b1 * x1 + b2 * x2 \&.\&.\&. + bN * xN + error
+
 .CE
 .IP
 and each point satisfies
 .CS
-yi = b0 + b1 * xi1 + b2 * xi2 + ... + bN * xiN + Residual_i
+
+
+    yi = b0 + b1 * xi1 + b2 * xi2 + \&.\&.\&. + bN * xiN + Residual_i
+
 .CE
 .sp
 The procedure returns a list with the following elements:
@@ -948,8 +961,8 @@ The r-squared statistic
 .IP \(bu
 The adjusted r-squared statistic
 .IP \(bu
-A list containing the estimated coefficients b1, ... bN, b0
-(The constant b0 comes last in the list.)
+A list containing the estimated coefficients b1, \&.\&.\&. bN, b0
+(The constant b0 comes last in the list\&.)
 .IP \(bu
 A list containing the standard errors of the coefficients
 .IP \(bu
@@ -963,49 +976,55 @@ Arguments:
 list \fIweights_and_values\fR
 A list consisting of: the weight for the first observation, the data
 for the first observation (as a sublist), the weight for the second
-observation (as a sublist) and so on. The sublists of data are organised
+observation (as a sublist) and so on\&. The sublists of data are organised
 as lists of the value of the dependent variable y and the independent
-variables x1, x2 to xN.
+variables x1, x2 to xN\&.
 .RE
 .sp
 .TP
 \fB::math::statistics::mv-ols\fR \fIvalues\fR
 Carries out an ordinary least squares linear regression for
-the data points provided.
+the data points provided\&.
 .sp
 This procedure simply calls ::mvlinreg::wls with the weights
-set to 1.0, and returns the same information.
+set to 1\&.0, and returns the same information\&.
 .PP
 \fIExample of the use:\fR
 .CS
+
+
 # Store the value of the unicode value for the "+/-" character
 set pm "\\u00B1"
+
 # Provide some data
-set data {{  -.67  14.18  60.03 -7.5  }
-{ 36.97  15.52  34.24 14.61 }
-{-29.57  21.85  83.36 -7.   }
-{-16.9   11.79  51.67 -6.56 }
-{ 14.09  16.24  36.97 -12.84}
-{ 31.52  20.93  45.99 -25.4 }
-{ 24.05  20.69  50.27  17.27}
-{ 22.23  16.91  45.07  -4.3 }
-{ 40.79  20.49  38.92  -.73 }
-{-10.35  17.24  58.77  18.78}}
+set data {{  -\&.67  14\&.18  60\&.03 -7\&.5  }
+          { 36\&.97  15\&.52  34\&.24 14\&.61 }
+          {-29\&.57  21\&.85  83\&.36 -7\&.   }
+          {-16\&.9   11\&.79  51\&.67 -6\&.56 }
+          { 14\&.09  16\&.24  36\&.97 -12\&.84}
+          { 31\&.52  20\&.93  45\&.99 -25\&.4 }
+          { 24\&.05  20\&.69  50\&.27  17\&.27}
+          { 22\&.23  16\&.91  45\&.07  -4\&.3 }
+          { 40\&.79  20\&.49  38\&.92  -\&.73 }
+          {-10\&.35  17\&.24  58\&.77  18\&.78}}
+
 # Call the ols routine
 set results [::math::statistics::mv-ols $data]
+
 # Pretty-print the results
 puts "R-squared: [lindex $results 0]"
 puts "Adj R-squared: [lindex $results 1]"
-puts "Coefficients $pm s.e. -- \\[95% confidence interval\\]:"
+puts "Coefficients $pm s\&.e\&. -- \\[95% confidence interval\\]:"
 foreach val [lindex $results 2] se [lindex $results 3] bounds [lindex $results 4] {
-set lb [lindex $bounds 0]
-set ub [lindex $bounds 1]
-puts "   $val $pm $se -- \\[$lb to $ub\\]"
+    set lb [lindex $bounds 0]
+    set ub [lindex $bounds 1]
+    puts "   $val $pm $se -- \\[$lb to $ub\\]"
 }
+
 .CE
 .SH "STATISTICAL DISTRIBUTIONS"
 In the literature a large number of probability distributions can be
-found. The statistics package supports:
+found\&. The statistics package supports:
 .IP \(bu
 The normal or Gaussian distribution
 .IP \(bu
@@ -1013,7 +1032,7 @@ The uniform distribution - equal probability for all data within a given
 interval
 .IP \(bu
 The exponential distribution - useful as a model for certain
-extreme-value distributions.
+extreme-value distributions\&.
 .IP \(bu
 The gamma distribution - based on the incomplete Gamma integral
 .IP \(bu
@@ -1023,7 +1042,7 @@ The student's T distribution
 .IP \(bu
 The Poisson distribution
 .IP \(bu
-PM - binomial,F.
+PM - binomial,F\&.
 .PP
 In principle for each distribution one has procedures for:
 .IP \(bu
@@ -1041,7 +1060,7 @@ The following procedures have been implemented:
 .TP
 \fB::math::statistics::pdf-normal\fR \fImean\fR \fIstdev\fR \fIvalue\fR
 Return the probability of a given value for a normal distribution with
-given mean and standard deviation.
+given mean and standard deviation\&.
 .RS
 .TP
 float \fImean\fR
@@ -1057,7 +1076,7 @@ float \fIvalue\fR
 .TP
 \fB::math::statistics::pdf-exponential\fR \fImean\fR \fIvalue\fR
 Return the probability of a given value for an exponential
-distribution with given mean.
+distribution with given mean\&.
 .RS
 .TP
 float \fImean\fR
@@ -1070,7 +1089,7 @@ float \fIvalue\fR
 .TP
 \fB::math::statistics::pdf-uniform\fR \fIxmin\fR \fIxmax\fR \fIvalue\fR
 Return the probability of a given value for a uniform
-distribution with given extremes.
+distribution with given extremes\&.
 .RS
 .TP
 float \fIxmin\fR
@@ -1158,7 +1177,7 @@ float \fIvalue\fR
 \fB::math::statistics::cdf-normal\fR \fImean\fR \fIstdev\fR \fIvalue\fR
 Return the cumulative probability of a given value for a normal
 distribution with given mean and standard deviation, that is the
-probability for values up to the given one.
+probability for values up to the given one\&.
 .RS
 .TP
 float \fImean\fR
@@ -1174,7 +1193,7 @@ float \fIvalue\fR
 .TP
 \fB::math::statistics::cdf-exponential\fR \fImean\fR \fIvalue\fR
 Return the cumulative probability of a given value for an exponential
-distribution with given mean.
+distribution with given mean\&.
 .RS
 .TP
 float \fImean\fR
@@ -1187,7 +1206,7 @@ float \fIvalue\fR
 .TP
 \fB::math::statistics::cdf-uniform\fR \fIxmin\fR \fIxmax\fR \fIvalue\fR
 Return the cumulative probability of a given value for a uniform
-distribution with given extremes.
+distribution with given extremes\&.
 .RS
 .TP
 float \fIxmin\fR
@@ -1203,7 +1222,7 @@ float \fIvalue\fR
 .TP
 \fB::math::statistics::cdf-students-t\fR \fIdegrees\fR \fIvalue\fR
 Return the cumulative probability of a given value for a Student's t
-distribution with given number of degrees.
+distribution with given number of degrees\&.
 .RS
 .TP
 int \fIdegrees\fR
@@ -1261,7 +1280,7 @@ float \fIvalue\fR
 .TP
 \fB::math::statistics::random-normal\fR \fImean\fR \fIstdev\fR \fInumber\fR
 Return a list of "number" random values satisfying a normal
-distribution with given mean and standard deviation.
+distribution with given mean and standard deviation\&.
 .RS
 .TP
 float \fImean\fR
@@ -1277,7 +1296,7 @@ int \fInumber\fR
 .TP
 \fB::math::statistics::random-exponential\fR \fImean\fR \fInumber\fR
 Return a list of "number" random values satisfying an exponential
-distribution with given mean.
+distribution with given mean\&.
 .RS
 .TP
 float \fImean\fR
@@ -1290,7 +1309,7 @@ int \fInumber\fR
 .TP
 \fB::math::statistics::random-uniform\fR \fIxmin\fR \fIxmax\fR \fInumber\fR
 Return a list of "number" random values satisfying a uniform
-distribution with given extremes.
+distribution with given extremes\&.
 .RS
 .TP
 float \fIxmin\fR
@@ -1363,7 +1382,7 @@ int \fInumber\fR
 .sp
 .TP
 \fB::math::statistics::histogram-uniform\fR \fIxmin\fR \fIxmax\fR \fIlimits\fR \fInumber\fR
-Return the expected histogram for a uniform distribution.
+Return the expected histogram for a uniform distribution\&.
 .RS
 .TP
 float \fIxmin\fR
@@ -1383,9 +1402,12 @@ int \fInumber\fR
 \fB::math::statistics::incompleteGamma\fR \fIx\fR \fIp\fR ?tol?
 Evaluate the incomplete Gamma integral
 .CS
-1       / x               p-1
-P(p,x) =  --------   |   dt exp(-t) * t
-Gamma(p)  / 0
+
+
+                    1       / x               p-1
+      P(p,x) =  --------   |   dt exp(-t) * t
+                Gamma(p)  / 0
+
 .CE
 .RS
 .TP
@@ -1396,7 +1418,7 @@ float \fIp\fR
 - Value of p in the integrand
 .TP
 float \fItol\fR
-- Required tolerance (default: 1.0e-9)
+- Required tolerance (default: 1\&.0e-9)
 .RE
 .sp
 .TP
@@ -1414,7 +1436,7 @@ float \fIx\fR
 - Value of x (limit of the integral)
 .TP
 float \fItol\fR
-- Required tolerance (default: 1.0e-9)
+- Required tolerance (default: 1\&.0e-9)
 .RE
 .sp
 .PP
@@ -1424,7 +1446,7 @@ The data manipulation procedures act on lists or lists of lists:
 .TP
 \fB::math::statistics::filter\fR \fIvarname\fR \fIdata\fR \fIexpression\fR
 Return a list consisting of the data for which the logical
-expression is true (this command works analogously to the command \fBforeach\fR).
+expression is true (this command works analogously to the command \fBforeach\fR)\&.
 .RS
 .TP
 string \fIvarname\fR
@@ -1440,7 +1462,7 @@ string \fIexpression\fR
 .TP
 \fB::math::statistics::map\fR \fIvarname\fR \fIdata\fR \fIexpression\fR
 Return a list consisting of the data that are transformed via the
-expression.
+expression\&.
 .RS
 .TP
 string \fIvarname\fR
@@ -1456,7 +1478,7 @@ string \fIexpression\fR
 .TP
 \fB::math::statistics::samplescount\fR \fIvarname\fR \fIlist\fR \fIexpression\fR
 Return a list consisting of the \fIcounts\fR of all data in the
-sublists of the "list" argument for which the expression is true.
+sublists of the "list" argument for which the expression is true\&.
 .RS
 .TP
 string \fIvarname\fR
@@ -1467,7 +1489,7 @@ list \fIdata\fR
 .TP
 string \fIexpression\fR
 - Logical expression to test the data (defaults to
-"true").
+"true")\&.
 .RE
 .sp
 .TP
@@ -1477,7 +1499,7 @@ Routine \fIPM\fR - not implemented yet
 .TP
 \fB::math::statistics::test-Kruskal-Wallis\fR \fIconfidence\fR \fIargs\fR
 Check if the population medians of two or more groups are equal with a
-given confidence level, using the Kruskal-Wallis test.
+given confidence level, using the Kruskal-Wallis test\&.
 .RS
 .TP
 float \fIconfidence\fR
@@ -1489,10 +1511,10 @@ list \fIargs\fR
 .sp
 .TP
 \fB::math::statistics::analyse-Kruskal-Wallis\fR \fIargs\fR
-Compute the statistical parameters for the Kruskal-Wallis test.
+Compute the statistical parameters for the Kruskal-Wallis test\&.
 Returns the Kruskal-Wallis statistic and the probability that that
 value would occur assuming the medians of the populations are
-equal.
+equal\&.
 .RS
 .TP
 list \fIargs\fR
@@ -1501,9 +1523,9 @@ list \fIargs\fR
 .sp
 .TP
 \fB::math::statistics::group-rank\fR \fIargs\fR
-Rank the groups of data with respect to the complete set.
+Rank the groups of data with respect to the complete set\&.
 Returns a list consisting of the group ID, the value and the rank
-(possibly a rational number, in case of ties) for each data item.
+(possibly a rational number, in case of ties) for each data item\&.
 .RS
 .TP
 list \fIargs\fR
@@ -1513,8 +1535,8 @@ list \fIargs\fR
 .TP
 \fB::math::statistics::test-Wilcoxon\fR \fIsample_a\fR \fIsample_b\fR
 Compute the Wilcoxon test statistic to determine if two samples have the
-same median or not. (The statistic can be regarded as standard normal, if the
-sample sizes are both larger than 10. Returns the value of this statistic.
+same median or not\&. (The statistic can be regarded as standard normal, if the
+sample sizes are both larger than 10\&. Returns the value of this statistic\&.
 .RS
 .TP
 list \fIsample_a\fR
@@ -1527,7 +1549,7 @@ list \fIsample_b\fR
 .TP
 \fB::math::statistics::spearman-rank\fR \fIsample_a\fR \fIsample_b\fR
 Return the Spearman rank correlation as an alternative to the ordinary (Pearson's) correlation
-coefficient. The two samples should have the same number of data.
+coefficient\&. The two samples should have the same number of data\&.
 .RS
 .TP
 list \fIsample_a\fR
@@ -1540,9 +1562,9 @@ list \fIsample_b\fR
 .TP
 \fB::math::statistics::spearman-rank-extended\fR \fIsample_a\fR \fIsample_b\fR
 Return the Spearman rank correlation as an alternative to the ordinary (Pearson's) correlation
-coefficient as well as additional data. The two samples should have the same number of data.
+coefficient as well as additional data\&. The two samples should have the same number of data\&.
 The procedure returns the correlation coefficient, the number of data pairs used and the
-z-score, an approximately standard normal statistic, indicating the significance of the correlation.
+z-score, an approximately standard normal statistic, indicating the significance of the correlation\&.
 .RS
 .TP
 list \fIsample_a\fR
@@ -1556,9 +1578,9 @@ list \fIsample_b\fR
 The following simple plotting procedures are available:
 .TP
 \fB::math::statistics::plot-scale\fR \fIcanvas\fR \fIxmin\fR \fIxmax\fR \fIymin\fR \fIymax\fR
-Set the scale for a plot in the given canvas. All plot routines expect
-this function to be called first. There is no automatic scaling
-provided.
+Set the scale for a plot in the given canvas\&. All plot routines expect
+this function to be called first\&. There is no automatic scaling
+provided\&.
 .RS
 .TP
 widget \fIcanvas\fR
@@ -1580,8 +1602,8 @@ float \fIymax\fR
 .TP
 \fB::math::statistics::plot-xydata\fR \fIcanvas\fR \fIxdata\fR \fIydata\fR \fItag\fR
 Create a simple XY plot in the given canvas - the data are
-shown as a collection of dots. The tag can be used to manipulate the
-appearance.
+shown as a collection of dots\&. The tag can be used to manipulate the
+appearance\&.
 .RS
 .TP
 widget \fIcanvas\fR
@@ -1600,8 +1622,8 @@ string \fItag\fR
 .TP
 \fB::math::statistics::plot-xyline\fR \fIcanvas\fR \fIxdata\fR \fIydata\fR \fItag\fR
 Create a simple XY plot in the given canvas - the data are
-shown as a line through the data points. The tag can be used to
-manipulate the appearance.
+shown as a line through the data points\&. The tag can be used to
+manipulate the appearance\&.
 .RS
 .TP
 widget \fIcanvas\fR
@@ -1620,10 +1642,10 @@ string \fItag\fR
 .TP
 \fB::math::statistics::plot-tdata\fR \fIcanvas\fR \fItdata\fR \fItag\fR
 Create a simple XY plot in the given canvas - the data are
-shown as a collection of dots. The horizontal coordinate is equal to the
-index. The tag can be used to manipulate the appearance.
+shown as a collection of dots\&. The horizontal coordinate is equal to the
+index\&. The tag can be used to manipulate the appearance\&.
 This type of presentation is suitable for autocorrelation functions for
-instance or for inspecting the time-dependent behaviour.
+instance or for inspecting the time-dependent behaviour\&.
 .RS
 .TP
 widget \fIcanvas\fR
@@ -1639,7 +1661,7 @@ string \fItag\fR
 .TP
 \fB::math::statistics::plot-tline\fR \fIcanvas\fR \fItdata\fR \fItag\fR
 Create a simple XY plot in the given canvas - the data are
-shown as a line. See plot-tdata for an explanation.
+shown as a line\&. See plot-tdata for an explanation\&.
 .RS
 .TP
 widget \fIcanvas\fR
@@ -1705,116 +1727,136 @@ The code below is a small example of how you can examine a set of
 data:
 .PP
 .CS
+
+
+
 # Simple example:
 # - Generate data (as a cheap way of getting some)
 # - Perform statistical analysis to describe the data
 #
 package require math::statistics
+
 #
 # Two auxiliary procs
 #
 proc pause {time} {
-set wait 0
-after [expr {$time*1000}] {set ::wait 1}
-vwait wait
+   set wait 0
+   after [expr {$time*1000}] {set ::wait 1}
+   vwait wait
 }
+
 proc print-histogram {counts limits} {
-foreach count $counts limit $limits {
-if { $limit != {} } {
-puts [format "<%12.4g\\t%d" $limit $count]
-set prev_limit $limit
-} else {
-puts [format ">%12.4g\\t%d" $prev_limit $count]
+   foreach count $counts limit $limits {
+      if { $limit != {} } {
+         puts [format "<%12\&.4g\\t%d" $limit $count]
+         set prev_limit $limit
+      } else {
+         puts [format ">%12\&.4g\\t%d" $prev_limit $count]
+      }
+   }
 }
-}
-}
+
 #
 # Our source of arbitrary data
 #
 proc generateData { data1 data2 } {
-upvar 1 $data1 _data1
-upvar 1 $data2 _data2
-set d1 0.0
-set d2 0.0
-for { set i 0 } { $i < 100 } { incr i } {
-set d1 [expr {10.0-2.0*cos(2.0*3.1415926*$i/24.0)+3.5*rand()}]
-set d2 [expr {0.7*$d2+0.3*$d1+0.7*rand()}]
-lappend _data1 $d1
-lappend _data2 $d2
+   upvar 1 $data1 _data1
+   upvar 1 $data2 _data2
+
+   set d1 0\&.0
+   set d2 0\&.0
+   for { set i 0 } { $i < 100 } { incr i } {
+      set d1 [expr {10\&.0-2\&.0*cos(2\&.0*3\&.1415926*$i/24\&.0)+3\&.5*rand()}]
+      set d2 [expr {0\&.7*$d2+0\&.3*$d1+0\&.7*rand()}]
+      lappend _data1 $d1
+      lappend _data2 $d2
+   }
+   return {}
 }
-return {}
-}
+
 #
 # The analysis session
 #
 package require Tk
 console show
-canvas .plot1
-canvas .plot2
-pack   .plot1 .plot2 -fill both -side top
+canvas \&.plot1
+canvas \&.plot2
+pack   \&.plot1 \&.plot2 -fill both -side top
+
 generateData data1 data2
+
 puts "Basic statistics:"
 set b1 [::math::statistics::basic-stats $data1]
 set b2 [::math::statistics::basic-stats $data2]
 foreach label {mean min max number stdev var} v1 $b1 v2 $b2 {
-puts "$label\\t$v1\\t$v2"
+   puts "$label\\t$v1\\t$v2"
 }
 puts "Plot the data as function of \\"time\\" and against each other"
-::math::statistics::plot-scale .plot1  0 100  0 20
-::math::statistics::plot-scale .plot2  0 20   0 20
-::math::statistics::plot-tline .plot1 $data1
-::math::statistics::plot-tline .plot1 $data2
-::math::statistics::plot-xydata .plot2 $data1 $data2
+::math::statistics::plot-scale \&.plot1  0 100  0 20
+::math::statistics::plot-scale \&.plot2  0 20   0 20
+::math::statistics::plot-tline \&.plot1 $data1
+::math::statistics::plot-tline \&.plot1 $data2
+::math::statistics::plot-xydata \&.plot2 $data1 $data2
+
 puts "Correlation coefficient:"
 puts [::math::statistics::corr $data1 $data2]
+
 pause 2
 puts "Plot histograms"
-\.plot2 delete all
-::math::statistics::plot-scale .plot2  0 20 0 100
+\&.plot2 delete all
+::math::statistics::plot-scale \&.plot2  0 20 0 100
 set limits         [::math::statistics::minmax-histogram-limits 7 16]
 set histogram_data [::math::statistics::histogram $limits $data1]
-::math::statistics::plot-histogram .plot2 $histogram_data $limits
+::math::statistics::plot-histogram \&.plot2 $histogram_data $limits
+
 puts "First series:"
 print-histogram $histogram_data $limits
+
 pause 2
 set limits         [::math::statistics::minmax-histogram-limits 0 15 10]
 set histogram_data [::math::statistics::histogram $limits $data2]
-::math::statistics::plot-histogram .plot2 $histogram_data $limits d2
-\.plot2 itemconfigure d2 -fill red
+::math::statistics::plot-histogram \&.plot2 $histogram_data $limits d2
+\&.plot2 itemconfigure d2 -fill red
+
 puts "Second series:"
 print-histogram $histogram_data $limits
+
 puts "Autocorrelation function:"
 set  autoc [::math::statistics::autocorr $data1]
-puts [::math::statistics::map $autoc {[format "%.2f" $x]}]
+puts [::math::statistics::map $autoc {[format "%\&.2f" $x]}]
 puts "Cross-correlation function:"
 set  crossc [::math::statistics::crosscorr $data1 $data2]
-puts [::math::statistics::map $crossc {[format "%.2f" $x]}]
-::math::statistics::plot-scale .plot1  0 100 -1  4
-::math::statistics::plot-tline .plot1  $autoc "autoc"
-::math::statistics::plot-tline .plot1  $crossc "crossc"
-\.plot1 itemconfigure autoc  -fill green
-\.plot1 itemconfigure crossc -fill yellow
-puts "Quantiles: 0.1, 0.2, 0.5, 0.8, 0.9"
-puts "First:  [::math::statistics::quantiles $data1 {0.1 0.2 0.5 0.8 0.9}]"
-puts "Second: [::math::statistics::quantiles $data2 {0.1 0.2 0.5 0.8 0.9}]"
+puts [::math::statistics::map $crossc {[format "%\&.2f" $x]}]
+
+::math::statistics::plot-scale \&.plot1  0 100 -1  4
+::math::statistics::plot-tline \&.plot1  $autoc "autoc"
+::math::statistics::plot-tline \&.plot1  $crossc "crossc"
+\&.plot1 itemconfigure autoc  -fill green
+\&.plot1 itemconfigure crossc -fill yellow
+
+puts "Quantiles: 0\&.1, 0\&.2, 0\&.5, 0\&.8, 0\&.9"
+puts "First:  [::math::statistics::quantiles $data1 {0\&.1 0\&.2 0\&.5 0\&.8 0\&.9}]"
+puts "Second: [::math::statistics::quantiles $data2 {0\&.1 0\&.2 0\&.5 0\&.8 0\&.9}]"
+
+
 .CE
 If you run this example, then the following should be clear:
 .IP \(bu
 There is a strong correlation between two time series, as displayed by
-the raw data and especially by the correlation functions.
+the raw data and especially by the correlation functions\&.
 .IP \(bu
 Both time series show a significant periodic component
 .IP \(bu
 The histograms are not very useful in identifying the nature of the time
-series - they do not show the periodic nature.
+series - they do not show the periodic nature\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fImath :: statistics\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 data analysis, mathematics, statistics
 .SH CATEGORY

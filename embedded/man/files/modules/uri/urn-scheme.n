@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/uri/urn-scheme.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/uri/urn-scheme\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "uri_urn" n 1.1.2 tcllib "Tcl Uniform Resource Identifier Management"
+.TH "uri_urn" n 1\&.1\&.2 tcllib "Tcl Uniform Resource Identifier Management"
 .BS
 .SH NAME
 uri_urn \- URI utilities, URN scheme
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBuri::urn  ?1.1.2?\fR
+package require \fBuri::urn  ?1\&.1\&.2?\fR
 .sp
 \fBuri::urn::quote\fR \fIurl\fR
 .sp
@@ -256,26 +257,26 @@ characters for url using the \fIurn\fR scheme, registers the scheme
 with the package \fBuri\fR, and provides internal helpers which
 will be automatically used by the commands \fBuri::split\fR and
 \fBuri::join\fR of package \fBuri\fR to handle urls using the
-\fIurn\fR scheme.
+\fIurn\fR scheme\&.
 .SH COMMANDS
 .TP
 \fBuri::urn::quote\fR \fIurl\fR
 This command quotes the characters disallowed by the \fIurn\fR scheme
-(per RFC 2141 sec2.2) in the \fIurl\fR and returns the modified url as
-its result.
+(per RFC 2141 sec2\&.2) in the \fIurl\fR and returns the modified url as
+its result\&.
 .TP
 \fBuri::urn::unquote\fR \fIurl\fR
-This commands performs the reverse of \fB::uri::urn::quote\fR. It
+This commands performs the reverse of \fB::uri::urn::quote\fR\&. It
 takes an \fIurn\fR url, removes the quoting from all disallowed
-characters, and returns the modified urls as its result.
+characters, and returns the modified urls as its result\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIuri\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 rfc 2141, uri, url, urn
 .SH CATEGORY

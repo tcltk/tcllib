@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/bee/bee.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/bee/bee\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2004 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,24 +238,24 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "bee" n 0.1 tcllib "BitTorrent"
+.TH "bee" n 0\&.1 tcllib "BitTorrent"
 .BS
 .SH NAME
 bee \- BitTorrent Serialization Format Encoder/Decoder
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBbee  ?0.1?\fR
+package require \fBbee  ?0\&.1?\fR
 .sp
 \fB::bee::encodeString\fR \fIstring\fR
 .sp
 \fB::bee::encodeNumber\fR \fIinteger\fR
 .sp
-\fB::bee::encodeListArgs\fR \fIvalue\fR...
+\fB::bee::encodeListArgs\fR \fIvalue\fR\&.\&.\&.
 .sp
 \fB::bee::encodeList\fR \fIlist\fR
 .sp
-\fB::bee::encodeDictArgs\fR \fIkey\fR \fIvalue\fR...
+\fB::bee::encodeDictArgs\fR \fIkey\fR \fIvalue\fR\&.\&.\&.
 .sp
 \fB::bee::encodeDict\fR \fIdict\fR
 .sp
@@ -279,77 +280,77 @@ package require \fBbee  ?0.1?\fR
 .PP
 The \fBbee\fR package provides de- and encoder commands for data
 in bencoding (speak 'bee'), the serialization format for data and
-messages used by the BitTorrent application.
+messages used by the BitTorrent application\&.
 .PP
 .SH "PUBLIC API"
 .SS ENCODER
 The package provides one encoder command for each of the basic forms,
 and two commands per container, one taking a proper tcl data structure
 to encode in the container, the other taking the same information as
-several arguments.
+several arguments\&.
 .PP
 .TP
 \fB::bee::encodeString\fR \fIstring\fR
-Returns the bee-encoding of the \fIstring\fR.
+Returns the bee-encoding of the \fIstring\fR\&.
 .TP
 \fB::bee::encodeNumber\fR \fIinteger\fR
-Returns the bee-encoding of the \fIinteger\fR number.
+Returns the bee-encoding of the \fIinteger\fR number\&.
 .TP
-\fB::bee::encodeListArgs\fR \fIvalue\fR...
+\fB::bee::encodeListArgs\fR \fIvalue\fR\&.\&.\&.
 Takes zero or more bee-encoded values and returns the bee-encoding of
-their list.
+their list\&.
 .TP
 \fB::bee::encodeList\fR \fIlist\fR
 Takes a list of bee-encoded values and returns the bee-encoding of the
-list.
+list\&.
 .TP
-\fB::bee::encodeDictArgs\fR \fIkey\fR \fIvalue\fR...
+\fB::bee::encodeDictArgs\fR \fIkey\fR \fIvalue\fR\&.\&.\&.
 Takes zero or more pairs of keys and values and returns the
-bee-encoding of the dictionary they form. The values are expected to
-be already bee-encoded, but the keys must not be. Their encoding will
-be done by the command itself.
+bee-encoding of the dictionary they form\&. The values are expected to
+be already bee-encoded, but the keys must not be\&. Their encoding will
+be done by the command itself\&.
 .TP
 \fB::bee::encodeDict\fR \fIdict\fR
 Takes a dictionary list of string keys and bee-encoded values and
-returns the bee-encoding of the list. Note that the keys in the input
-must not be bee-encoded already. This will be done by the command
-itself.
+returns the bee-encoding of the list\&. Note that the keys in the input
+must not be bee-encoded already\&. This will be done by the command
+itself\&.
 .PP
 .PP
 .SS DECODER
 The package provides two main decoder commands, one for decoding a
 string expected to contain a complete data structure, the other for
-the incremental decoding of bee-values arriving on a channel. The
+the incremental decoding of bee-values arriving on a channel\&. The
 latter command is asynchronous and provides the completed decoded
-values to the user through a command callback.
+values to the user through a command callback\&.
 .PP
 .TP
 \fB::bee::decode\fR \fIstring\fR ?\fIendvar\fR? ?\fIstart\fR?
-Takes the bee-encoding in the string and returns one decoded value. In
+Takes the bee-encoding in the string and returns one decoded value\&. In
 the case of this being a container all contained values are decoded
 recursively as well and the result is a properly nested tcl list
-and/or dictionary.
+and/or dictionary\&.
 .sp
 If the optional \fIendvar\fR is set then it is the name of a variable
 to store the index of the first character \fIafter\fR the decoded
-value into. In other words, if the string contains more than one value
+value into\&. In other words, if the string contains more than one value
 then \fIendvar\fR can be used to obtain the position of the bee-value
-after the bee-value currently decoded. together with \fIstart\fR, see
+after the bee-value currently decoded\&. together with \fIstart\fR, see
 below, it is possible to iterate over the string to extract all
-contained values.
+contained values\&.
 .sp
-The optional \fIstart\fR index defaults to \fB0\fR, i.e. the
-beginning of the string. It is the index of the first character of the
-bee-encoded value to extract.
+The optional \fIstart\fR index defaults to \fB0\fR, i\&.e\&. the
+beginning of the string\&. It is the index of the first character of the
+bee-encoded value to extract\&.
 .TP
 \fB::bee::decodeIndices\fR \fIstring\fR ?\fIendvar\fR? ?\fIstart\fR?
 Takes the same arguments as \fB::bee::decode\fR and returns the same
-information in \fIendvar\fR. The result however is different. Instead
+information in \fIendvar\fR\&. The result however is different\&. Instead
 of the tcl value contained in the \fIstring\fR it returns a list
 describing the value with respect to type and location (indices for
-the first and last character of the bee-value). In case of a container
+the first and last character of the bee-value)\&. In case of a container
 the structure also contains the same information for all the embedded
-values.
+values\&.
 .sp
 Formally the results for the various types of bee-values are:
 .RS
@@ -358,150 +359,150 @@ string
 A list containing three elements:
 .RS
 .IP \(bu
-The constant string \fBstring\fR, denoting the type of the value.
+The constant string \fBstring\fR, denoting the type of the value\&.
 .IP \(bu
-An integer number greater than or equal to zero. This is the index of
-the first character of the bee-value in the input \fIstring\fR.
+An integer number greater than or equal to zero\&. This is the index of
+the first character of the bee-value in the input \fIstring\fR\&.
 .IP \(bu
-An integer number greater than or equal to zero. This is the index of
-the last character of the bee-value in the input \fIstring\fR.
+An integer number greater than or equal to zero\&. This is the index of
+the last character of the bee-value in the input \fIstring\fR\&.
 .RE
 .sp
 \fINote\fR that this information is present in the results for all
 four types of bee-values, with only the first element changing
-according to the type of the value.
+according to the type of the value\&.
 .TP
 integer
 The result is like for strings, except that the type element contains
-the constant string \fBinteger\fR.
+the constant string \fBinteger\fR\&.
 .TP
 list
 The result is like before, with two exceptions: One, the type element
-contains the constant string \fBlist\fR. And two, the result
-actually contains four elements. The last element is new, and contains
-the index data as described here for all elements of the bee-list.
+contains the constant string \fBlist\fR\&. And two, the result
+actually contains four elements\&. The last element is new, and contains
+the index data as described here for all elements of the bee-list\&.
 .TP
 dictionary
 The result is like for strings, except that the type element contains
-the constant string \fBdict\fR. A fourth element is present as well,
-with a slightly different structure than for lists. The element is a
+the constant string \fBdict\fR\&. A fourth element is present as well,
+with a slightly different structure than for lists\&. The element is a
 dictionary mapping from the strings keys of the bee-dictionary to a
-list containing two elements. The first of them is the index
+list containing two elements\&. The first of them is the index
 information for the key, and the second element is the index
-information for the value the key maps to. This structure is the only
+information for the value the key maps to\&. This structure is the only
 which contains not only index data, but actual values from the
-bee-string. While the index information of the keys is unique enough,
-i.e. serviceable as keys, they are not easy to navigate when trying to
-find particular element. Using the actual keys makes this much easier.
+bee-string\&. While the index information of the keys is unique enough,
+i\&.e\&. serviceable as keys, they are not easy to navigate when trying to
+find particular element\&. Using the actual keys makes this much easier\&.
 .RE
 .sp
 .TP
 \fB::bee::decodeChannel\fR \fIchan\fR \fB-command\fR \fIcmdprefix\fR ?\fB-exact\fR? ?\fB-prefix\fR \fIdata\fR?
 The command creates a decoder for a series of bee-values arriving on
-the channel \fIchan\fR and returns its handle. This handle can be used
-to remove the decoder again.
+the channel \fIchan\fR and returns its handle\&. This handle can be used
+to remove the decoder again\&.
 Setting up another bee decoder on \fIchan\fR while a bee decoder is
-still active will fail with an error message.
+still active will fail with an error message\&.
 .sp
 .RS
 .TP
 \fB-command\fR
 The command prefix \fIcmdprefix\fR specified by the \fIrequired\fR
 option \fB-command\fR is used to report extracted values and
-exceptional situations (error, and EOF on the channel).
+exceptional situations (error, and EOF on the channel)\&.
 The callback will be executed at the global level of the interpreter,
-with two or three arguments. The exact call signatures are
+with two or three arguments\&. The exact call signatures are
 .sp
 .RS
 .TP
 \fBcmdprefix\fR \fBeof\fR \fItoken\fR
-The decoder has reached eof on the channel \fIchan\fR. No further
-invocations of the callback will be made after this. The channel has
+The decoder has reached eof on the channel \fIchan\fR\&. No further
+invocations of the callback will be made after this\&. The channel has
 already been closed at the time of the call, and the \fItoken\fR is
-not valid anymore as well.
+not valid anymore as well\&.
 .TP
 \fBcmdprefix\fR \fBerror\fR \fItoken\fR \fImessage\fR
-The decoder encountered an error, which is not eof. For example a
-malformed bee-value. The \fImessage\fR provides details about the
-error. The decoder token is in the same state as for eof,
-i.e. invalid. The channel however is kept open.
+The decoder encountered an error, which is not eof\&. For example a
+malformed bee-value\&. The \fImessage\fR provides details about the
+error\&. The decoder token is in the same state as for eof,
+i\&.e\&. invalid\&. The channel however is kept open\&.
 .TP
 \fBcmdprefix\fR \fBvalue\fR \fItoken\fR \fIvalue\fR
-The decoder received and successfully decoded a bee-value.
+The decoder received and successfully decoded a bee-value\&.
 The format of the equivalent tcl \fIvalue\fR is the same as returned
-by \fB::bee::decode\fR. The channel is still open and the decoder
-token is valid. This means that the callback is able to remove the
-decoder.
+by \fB::bee::decode\fR\&. The channel is still open and the decoder
+token is valid\&. This means that the callback is able to remove the
+decoder\&.
 .RE
 .sp
 .TP
 \fB-exact\fR
 By default the decoder assumes that the remainder of the data in the
 channel consists only of bee-values, and reads as much as possible per
-event, without regard for boundaries between bee-values. This means
+event, without regard for boundaries between bee-values\&. This means
 that if the the input contains non-bee data after a series of
 bee-value the beginning of that data may be lost because it was
-already read by the decoder, but not processed.
+already read by the decoder, but not processed\&.
 .sp
-The \fB-exact\fR was made for this situation. When specified the
+The \fB-exact\fR was made for this situation\&. When specified the
 decoder will take care to not read any characters behind the currently
 processed bee-value, so that any non-bee data is kept in the channel
-for further processing after removal of the decoder.
+for further processing after removal of the decoder\&.
 .sp
 .TP
 \fB-prefix\fR
 If this option is specified its value is assumed to be the beginning
 of the bee-value and used to initialize the internal decoder
-buffer. This feature is required if the creator of the decoder used
+buffer\&. This feature is required if the creator of the decoder used
 data from the channel to determine if it should create the decoder or
-not. Without the option this data would be lost to the decoding.
+not\&. Without the option this data would be lost to the decoding\&.
 .RE
 .sp
 .TP
 \fB::bee::decodeCancel\fR \fItoken\fR
 This command cancels the decoder set up by \fB::bee::decodeChannel\fR
-and represented by the handle \fItoken\fR.
+and represented by the handle \fItoken\fR\&.
 .TP
 \fB::bee::decodePush\fR \fItoken\fR \fIstring\fR
 This command appends the \fIstring\fR to the internal decoder
-buffer. It is the runtime equivalent of the option \fB-prefix\fR of
-\fB::bee::decodeChannel\fR. Use it to push data back into the decoder
+buffer\&. It is the runtime equivalent of the option \fB-prefix\fR of
+\fB::bee::decodeChannel\fR\&. Use it to push data back into the decoder
 when the \fBvalue\fR callback used data from the channel to
-determine if it should decode another bee-value or not.
+determine if it should decode another bee-value or not\&.
 .PP
 .PP
 .SH "FORMAT DEFINITION"
 Data in the bee serialization format is constructed from two basic
-forms, and two container forms. The basic forms are strings and
-integer numbers, and the containers are lists and dictionaries.
+forms, and two container forms\&. The basic forms are strings and
+integer numbers, and the containers are lists and dictionaries\&.
 .PP
 .TP
 String \fIS\fR
 A string \fIS\fR of length \fIL\fR is encoded by the string
 "\fIL\fR\fB:\fR\fIS\fR", where the length is written out in textual
-form.
+form\&.
 .TP
 Integer \fIN\fR
 An integer number \fIN\fR is encoded by the string
-"\fBi\fR\fIN\fR\fBe\fR".
+"\fBi\fR\fIN\fR\fBe\fR"\&.
 .TP
-List \fIv1\fR ... \fIvn\fR
+List \fIv1\fR \&.\&.\&. \fIvn\fR
 A list of the values \fIv1\fR to \fIvn\fR is encoded by the string
-"\fBl\fR\fIBV1\fR...\fIBVn\fR\fBe\fR"
-where "BV\fBi\fR" is the bee-encoding of the value "v\fBi\fR".
+"\fBl\fR\fIBV1\fR\&.\&.\&.\fIBVn\fR\fBe\fR"
+where "BV\fBi\fR" is the bee-encoding of the value "v\fBi\fR"\&.
 .TP
-Dict \fIk1\fR -> \fIv1\fR ...
+Dict \fIk1\fR -> \fIv1\fR \&.\&.\&.
 A dictionary mapping the string key \fIk\fR\fBi\fR to the value
-\fIv\fR\fBi\fR, for \fBi\fR in \fB1\fR ... \fBn\fR
+\fIv\fR\fBi\fR, for \fBi\fR in \fB1\fR \&.\&.\&. \fBn\fR
 is encoded by the string
-"\fBd\fR\fIBK\fR\fBi\fR\fIBV\fR\fBi\fR...\fBe\fR"
-for i in \fB1\fR ... \fBn\fR, where "BK\fBi\fR" is the bee-encoding
-of the key string "k\fBi\fR".  and "BV\fBi\fR" is the bee-encoding of
-the value "v\fBi\fR".
+"\fBd\fR\fIBK\fR\fBi\fR\fIBV\fR\fBi\fR\&.\&.\&.\fBe\fR"
+for i in \fB1\fR \&.\&.\&. \fBn\fR, where "BK\fBi\fR" is the bee-encoding
+of the key string "k\fBi\fR"\&.  and "BV\fBi\fR" is the bee-encoding of
+the value "v\fBi\fR"\&.
 .sp
 \fINote\fR: The bee-encoding does not retain the order of the keys in
-the input, but stores in a sorted order. The sorting is done for the
-"raw strings".
+the input, but stores in a sorted order\&. The sorting is done for the
+"raw strings"\&.
 .PP
 .PP
 Note that the type of each encoded item can be determined immediately
@@ -509,34 +510,35 @@ from the first character of its representation:
 .PP
 .TP
 i
-Integer.
+Integer\&.
 .TP
 l
-List.
+List\&.
 .TP
 d
-Dictionary.
+Dictionary\&.
 .TP
 [0-9]
-String.
+String\&.
 .PP
 .PP
-By wrapping an integer number into \fBi\fR...\fBe\fR the format
+By wrapping an integer number into \fBi\fR\&.\&.\&.\fBe\fR the format
 makes sure that they are different from strings, which all begin with
-a digit.
+a digit\&.
 .SH EXAMPLES
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIbee\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 BitTorrent, bee, bittorrent, serialization, torrent
 .SH CATEGORY
 Networking
 .SH COPYRIGHT
 .nf
-Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2004 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

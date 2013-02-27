@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/dtplite/dtplite.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2004-2013 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/dtplite/dtplite\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2004-2013 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,7 +238,7 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "dtplite" n 1.0.5 tcllib "Documentation toolbox"
+.TH "dtplite" n 1\&.0\&.5 tcllib "Documentation toolbox"
 .BS
 .SH NAME
 dtplite \- Lightweight DocTools Markup Processor
@@ -254,325 +255,334 @@ dtplite \- Lightweight DocTools Markup Processor
 .SH DESCRIPTION
 .PP
 The application described by this document, \fBdtplite\fR, is the
-successor to the extremely simple \fBmpexpand\fR. Influenced in its
+successor to the extremely simple \fBmpexpand\fR\&. Influenced in its
 functionality by the \fBdtp\fR doctools processor it is much more
 powerful than \fBmpexpand\fR, yet still as easy to use; definitely
-easier than \fBdtp\fR with its myriad of subcommands and options.
+easier than \fBdtp\fR with its myriad of subcommands and options\&.
 .PP
 \fBdtplite\fR is based upon the package \fBdoctools\fR, like
-the other two processors.
+the other two processors\&.
 .SS "USE CASES"
 \fBdtplite\fR was written with the following three use cases in
-mind.
+mind\&.
 .PP
 .IP [1]
-Validation of a single document, i.e. checking that it was written in
-valid doctools format. This mode can also be used to get a preliminary
+Validation of a single document, i\&.e\&. checking that it was written in
+valid doctools format\&. This mode can also be used to get a preliminary
 version of the formatted output for a single document, for display in
-a browser, nroff, etc., allowing proofreading of the formatting.
+a browser, nroff, etc\&., allowing proofreading of the formatting\&.
 .IP [2]
 Generation of the formatted documentation for a single package,
-i.e. all the manpages, plus a table of contents and an index of
-keywords.
+i\&.e\&. all the manpages, plus a table of contents and an index of
+keywords\&.
 .IP [3]
 An extension of the previous mode of operation, a method for the easy
 generation of one documentation tree for several packages, and
-especially of a unified table of contents and keyword index.
+especially of a unified table of contents and keyword index\&.
 .PP
 .PP
 Beyond the above we also want to make use of the customization
-features provided by the HTML formatter. It is not the only format the
+features provided by the HTML formatter\&. It is not the only format the
 application should be able to generate, but we anticipiate it to be
 the most commonly used, and it is one of the few which do provide
-customization hooks.
+customization hooks\&.
 .PP
 We allow the caller to specify a header string, footer string, a
 stylesheet, and data for a bar of navigation links at the top of the
-generated document.
+generated document\&.
 While all can be set as long as the formatting engine provides an
 appropriate engine parameter (See section \fBOPTIONS\fR) the last
-two have internal processing which make them specific to HTML.
+two have internal processing which make them specific to HTML\&.
 .SS "COMMAND LINE"
 .TP
 \fBdtplite\fR \fB-o\fR \fIoutput\fR ?options? \fIformat\fR \fIinputfile\fR
-This is the form for use case [1]. The \fIoptions\fR will be
-explained later, in section \fBOPTIONS\fR.
+This is the form for use case [1]\&. The \fIoptions\fR will be
+explained later, in section \fBOPTIONS\fR\&.
 .RS
 .TP
 path \fIoutput\fR (in)
-This argument specifies where to write the generated document. It can
-be the path to a file or directory, or \fB-\fR.
+This argument specifies where to write the generated document\&. It can
+be the path to a file or directory, or \fB-\fR\&.
 The last value causes the application to write the generated
-documented to \fBstdout\fR.
+documented to \fBstdout\fR\&.
 .sp
 If the \fIoutput\fR does not exist then [file dirname $output]
-has to exist and must be a writable directory.
+has to exist and must be a writable directory\&.
 The generated document will be written to a file in that directory,
 and the name of that file will be derived from the \fIinputfile\fR,
 the \fIformat\fR, and the value given to option \fB-ext\fR (if
-present).
+present)\&.
 .TP
 (path|handle) \fIformat\fR (in)
 This argument specifies the formatting engine to use when processing
-the input, and thus the format of the generated document. See section
-\fBFORMATS\fR for the possibilities recognized by the application.
+the input, and thus the format of the generated document\&. See section
+\fBFORMATS\fR for the possibilities recognized by the application\&.
 .TP
 path \fIinputfile\fR (in)
-This argument specifies the path to the file to process. It has to
-exist, must be readable, and written in \fIdoctools\fR format.
+This argument specifies the path to the file to process\&. It has to
+exist, must be readable, and written in \fIdoctools\fR format\&.
 .RE
 .sp
 .TP
 \fBdtplite\fR \fBvalidate\fR \fIinputfile\fR
-This is a simpler form for use case [1]. The "validate" format
-generates no output at all, only syntax checks are performed. As such
+This is a simpler form for use case [1]\&. The "validate" format
+generates no output at all, only syntax checks are performed\&. As such
 the specification of an output file or other options is not necessary
-and left out.
+and left out\&.
 .TP
 \fBdtplite\fR \fB-o\fR \fIoutput\fR ?options? \fIformat\fR \fIinputdirectory\fR
-This is the form for use case [2]. It differs from the form for
+This is the form for use case [2]\&. It differs from the form for
 use case [1] by having the input documents specified through a
-directory instead of a file. The other arguments are identical, except
+directory instead of a file\&. The other arguments are identical, except
 for \fIoutput\fR, which now has to be the path to an existing and
-writable directory.
+writable directory\&.
 .sp
 The input documents are all files in \fIinputdirectory\fR or any of
 its subdirectories which were recognized by \fBfileutil::fileType\fR
-as containing text in \fIdoctools\fR format.
+as containing text in \fIdoctools\fR format\&.
 .TP
 \fBdtplite\fR \fB-merge\fR \fB-o\fR \fIoutput\fR ?options? \fIformat\fR \fIinputdirectory\fR
-This is the form for use case [3]. The only difference to the
-form for use case [2] is the additional option \fB-merge\fR.
+This is the form for use case [3]\&. The only difference to the
+form for use case [2] is the additional option \fB-merge\fR\&.
 .sp
 Each such call will merge the generated documents coming from
 processing the input documents under \fIinputdirectory\fR or any of
-its subdirectories to the files under \fIoutput\fR. In this manner it
+its subdirectories to the files under \fIoutput\fR\&. In this manner it
 is possible to incrementally build the unified documentation for any
-number of packages. Note that it is necessary to run through all the
+number of packages\&. Note that it is necessary to run through all the
 packages twice to get fully correct cross-references (for formats
-supporting them).
+supporting them)\&.
 .PP
 .SS OPTIONS
 This section describes all the options available to the user of the
 application, with
-the exception of the options \fB-o\fR and \fB-merge\fR. These
-two were described already, in section \fBCOMMAND LINE\fR.
+the exception of the options \fB-o\fR and \fB-merge\fR\&. These
+two were described already, in section \fBCOMMAND LINE\fR\&.
 .PP
 .TP
 \fB-exclude\fR string
-This option specifies an exclude (glob) pattern. Any files identified
+This option specifies an exclude (glob) pattern\&. Any files identified
 as manpages to process which match the exclude pattern are
-ignored. The option can be provided multiple times, each usage adding
-an additional pattern to the list of exclusions.
+ignored\&. The option can be provided multiple times, each usage adding
+an additional pattern to the list of exclusions\&.
 .TP
 \fB-ext\fR string
 If the name of an output file has to be derived from the name of an
 input file it will use the name of the \fIformat\fR as the extension
-by default. This option here will override this however, forcing it to
-use \fIstring\fR as the file extension. This option is ignored if the
-name of the output file is fully specified through option \fB-o\fR.
+by default\&. This option here will override this however, forcing it to
+use \fIstring\fR as the file extension\&. This option is ignored if the
+name of the output file is fully specified through option \fB-o\fR\&.
 .sp
-When used multiple times only the last definition is relevant.
+When used multiple times only the last definition is relevant\&.
 .TP
 \fB-header\fR file
 This option can be used if and only if the selected \fIformat\fR
-provides an engine parameter named "header". It takes the contents of
+provides an engine parameter named "header"\&. It takes the contents of
 the specified file and assign them to that parameter, for whatever use
-by the engine. The HTML engine will insert the text just after the tag
-\fB<body>\fR.
+by the engine\&. The HTML engine will insert the text just after the tag
+\fB<body>\fR\&.
 If navigation buttons are present (see option \fB-nav\fR below),
 then the HTML generated for them is appended to the header data
-originating here before the final assignment to the parameter.
+originating here before the final assignment to the parameter\&.
 .sp
-When used multiple times only the last definition is relevant.
+When used multiple times only the last definition is relevant\&.
 .TP
 \fB-footer\fR file
 Like \fB-header\fR, except that: Any navigation buttons are ignored,
 the corresponding required engine parameter is named "footer", and the
-data is inserted just before the tag \fB</body>\fR.
+data is inserted just before the tag \fB</body>\fR\&.
 .sp
-When used multiple times only the last definition is relevant.
+When used multiple times only the last definition is relevant\&.
 .TP
 \fB-style\fR file
 This option can be used if and only if the selected \fIformat\fR
-provides an engine parameter named "meta". When specified it will
+provides an engine parameter named "meta"\&. When specified it will
 generate a piece of HTML code declaring the \fIfile\fR as the
 stylesheet for the generated document and assign that to the
-parameter. The HTML engine will insert this inot the document, just
-after the tag \fB<head>\fR.
+parameter\&. The HTML engine will insert this inot the document, just
+after the tag \fB<head>\fR\&.
 .sp
 When processing an input directory the stylesheet file is copied into
 the output directory and the generated HTML will refer to the copy, to
-make the result more self-contained. When processing an input file we
+make the result more self-contained\&. When processing an input file we
 have no location to copy the stylesheet to and so just reference it as
-specified.
+specified\&.
 .sp
-When used multiple times only the last definition is relevant.
+When used multiple times only the last definition is relevant\&.
 .TP
 \fB-toc\fR path|text
 This option specifies a doctoc file (or text) to use for the table of contents
-instead of generating our own.
+instead of generating our own\&.
 .sp
-When used multiple times only the last definition is relevant.
+When used multiple times only the last definition is relevant\&.
 .TP
 \fB-pre+toc\fR label path|text
 .TP
 \fB-post+toc\fR label path|text
 This option specifies additional doctoc files (or texts) to use in
-the navigation bar.
+the navigation bar\&.
 .sp
 Positioning and handling of multiple uses is like for options
-\fB-prenav\fR and \fB-postnav\fR, see below.
+\fB-prenav\fR and \fB-postnav\fR, see below\&.
 .TP
 \fB-nav\fR label url
 .TP
 \fB-prenav\fR label url
 Use this option to specify a navigation button with \fIlabel\fR to
-display and the \fIurl\fR to link to. This option can be used if and
+display and the \fIurl\fR to link to\&. This option can be used if and
 only if the selected \fIformat\fR provides an engine parameter named
-"header". The HTML generated for this is appended to whatever data we
+"header"\&. The HTML generated for this is appended to whatever data we
 got from option \fB-header\fR before it is inserted into the
-generated documents.
+generated documents\&.
 .sp
 When used multiple times all definitions are collected and a
 navigation bar is created, with the first definition shown at the left
-edge and the last definition to the right.
+edge and the last definition to the right\&.
 .sp
-The url can be relative. In that case it is assumed to be relative
+The url can be relative\&. In that case it is assumed to be relative
 to the main files (TOC and Keyword index), and will be transformed for
-all others to still link properly.
+all others to still link properly\&.
 .TP
 \fB-postnav\fR label url
 Use this option to specify a navigation button with \fIlabel\fR to
-display and the \fIurl\fR to link to. This option can be used if and
+display and the \fIurl\fR to link to\&. This option can be used if and
 only if the selected \fIformat\fR provides an engine parameter named
-"header". The HTML generated for this is appended to whatever data we
+"header"\&. The HTML generated for this is appended to whatever data we
 got from option \fB-header\fR before it is inserted into the
-generated documents.
+generated documents\&.
 .sp
 When used multiple times all definitions are collected and a
 navigation bar is created, with the last definition shown at the right
-edge and the first definition to the left.
+edge and the first definition to the left\&.
 .sp
-The url can be relative. In that case it is assumed to be relative
+The url can be relative\&. In that case it is assumed to be relative
 to the main files (TOC and Keyword index), and will be transformed for
-all others to still link properly.
+all others to still link properly\&.
 .PP
 .SS FORMATS
 At first the \fIformat\fR argument will be treated as a path to a tcl
-file containing the code for the requested formatting engine. The
+file containing the code for the requested formatting engine\&. The
 argument will be treated as the name of one of the predefined formats
-listed below if and only if the path does not exist.
+listed below if and only if the path does not exist\&.
 .PP
 \fINote a limitation\fR: If treating the format as path to the tcl
 script implementing the engine was sucessful, then this script has to
-implement not only the engine API for doctools, i.e.
+implement not only the engine API for doctools, i\&.e\&.
 \fIdoctools_api\fR, but for \fIdoctoc_api\fR and \fIdocidx_api\fR
-as well. Otherwise the generation of a table of contents and of a
-keyword index will fail.
+as well\&. Otherwise the generation of a table of contents and of a
+keyword index will fail\&.
 .PP
-List of predefined formats, i.e. as provided by the
+List of predefined formats, i\&.e\&. as provided by the
 package \fBdoctools\fR:
 .PP
 .TP
 \fBnroff\fR
 The processor generates *roff output, the standard format for unix
-manpages.
+manpages\&.
 .TP
 \fBhtml\fR
 The processor generates HTML output, for usage in and display by web
-browsers. This engine is currently the only one providing the various
+browsers\&. This engine is currently the only one providing the various
 engine parameters required for the additional customaization of the
-output.
+output\&.
 .TP
 \fBtmml\fR
 The processor generates TMML output, the Tcl Manpage Markup Language,
-a derivative of XML.
+a derivative of XML\&.
 .TP
 \fBlatex\fR
-The processor generates LaTeX output.
+The processor generates LaTeX output\&.
 .TP
 \fBwiki\fR
-The processor generates Wiki markup as understood by \fBwikit\fR.
+The processor generates Wiki markup as understood by \fBwikit\fR\&.
 .TP
 \fBlist\fR
-The processor extracts the information provided by \fBmanpage_begin\fR.
+The processor extracts the information provided by \fBmanpage_begin\fR\&.
 This format is used internally to extract the meta data from which
-both table of contents and keyword index are derived from.
+both table of contents and keyword index are derived from\&.
 .TP
 \fBnull\fR
-The processor does not generate any output. This is equivalent to
-\fBvalidate\fR.
+The processor does not generate any output\&. This is equivalent to
+\fBvalidate\fR\&.
 .PP
 .SS "DIRECTORY STRUCTURES"
 In this section we describe the directory structures generated by the
 application under \fIoutput\fR when processing all documents in an
-\fIinputdirectory\fR. In other words, this is only relevant to the use
-cases [2] and [3].
+\fIinputdirectory\fR\&. In other words, this is only relevant to the use
+cases [2] and [3]\&.
 .TP
 [2]
 The following directory structure is created when processing a single
-set of input documents.  The file extension used is for output in
+set of input documents\&.  The file extension used is for output in
 HTML, but that is not relevant to the structure and was just used to
-have proper file names.
+have proper file names\&.
 .CS
-output/
-toc.html
-index.html
-files/
-path/to/FOO.html
+
+
+    output/
+        toc\&.html
+        index\&.html
+        files/
+            path/to/FOO\&.html
+
 .CE
 .IP
 The last line in the example shows the document
 generated for a file FOO located at
 .CS
-inputdirectory/path/to/FOO
+
+
+    inputdirectory/path/to/FOO
+
 .CE
 .TP
 [3]
 When merging many packages into a unified set of documents the
 generated directory structure is a bit deeper:
 .CS
-output
-\.toc
-\.idx
-\.tocdoc
-\.idxdoc
-\.xrf
-toc.html
-index.html
-FOO1/
-\...
-FOO2/
-toc.html
-files/
-path/to/BAR.html
+
+
+    output
+        \&.toc
+        \&.idx
+        \&.tocdoc
+        \&.idxdoc
+        \&.xrf
+        toc\&.html
+        index\&.html
+        FOO1/
+            \&.\&.\&.
+        FOO2/
+            toc\&.html
+            files/
+                path/to/BAR\&.html
+
 .CE
 .IP
-Each of the directories FOO1, ... contains the documents generated for
-the package FOO1, ... and follows the structure shown for use case
-[2]. The only exception is that there is no per-package index.
+Each of the directories FOO1, \&.\&.\&. contains the documents generated for
+the package FOO1, \&.\&.\&. and follows the structure shown for use case
+[2]\&. The only exception is that there is no per-package index\&.
 .sp
-The files "\fI.toc\fR", "\fI.idx\fR", and "\fI.xrf\fR" contain the
+The files "\fI\&.toc\fR", "\fI\&.idx\fR", and "\fI\&.xrf\fR" contain the
 internal status of the whole output and will be read and updated by
-the next invokation. Their contents will not be documented. Remove
+the next invokation\&. Their contents will not be documented\&. Remove
 these files when all packages wanted for the output have been
-processed, i.e. when the output is complete.
+processed, i\&.e\&. when the output is complete\&.
 .sp
-The files "\fI.tocdoc\fR", and "\fI.idxdoc\fR", are intermediate files
+The files "\fI\&.tocdoc\fR", and "\fI\&.idxdoc\fR", are intermediate files
 in doctoc and docidx markup, respectively, containing the main table
 of contents and keyword index for the set of documents before their
-conversion to the chosen output format.
-They are left in place, i.e. not deleted, to serve as demonstrations
-of doctoc and docidx markup.
+conversion to the chosen output format\&.
+They are left in place, i\&.e\&. not deleted, to serve as demonstrations
+of doctoc and docidx markup\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the application it describes, will undoubtedly
-contain bugs and other problems.
+contain bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-application and/or documentation.
+application and/or documentation\&.
 .SH "SEE ALSO"
 docidx introduction, doctoc introduction, doctools introduction
 .SH KEYWORDS
@@ -581,5 +591,6 @@ HTML, TMML, conversion, docidx, doctoc, doctools, manpage, markup, nroff
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2004-2013 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2004-2013 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/term/receive.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/term/receive\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "term::receive" n 0.1 tcllib "Terminal control"
+.TH "term::receive" n 0\&.1 tcllib "Terminal control"
 .BS
 .SH NAME
 term::receive \- General input from terminals
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBterm::receive  ?0.1?\fR
+package require \fBterm::receive  ?0\&.1?\fR
 .sp
 \fB::term::receive::getch\fR ?\fIchan\fR?
 .sp
@@ -259,56 +260,57 @@ package require \fBterm::receive  ?0.1?\fR
 .BE
 .SH DESCRIPTION
 This package provides the most primitive commands for receiving
-characters to a terminal. They are in essence convenient wrappers
-around the builtin commands \fBread\fR and \fBfileevent\fR.
+characters to a terminal\&. They are in essence convenient wrappers
+around the builtin commands \fBread\fR and \fBfileevent\fR\&.
 .TP
 \fB::term::receive::getch\fR ?\fIchan\fR?
 This command reads a single character from the channel with handle
-\fIchan\fR and returns it as the result of the command.
+\fIchan\fR and returns it as the result of the command\&.
 .sp
-If not specified \fIchan\fR defaults to \fBstdin\fR.
+If not specified \fIchan\fR defaults to \fBstdin\fR\&.
 .sp
 It is the responsibility of the caller to make sure that the channel
-can provide single characters. On unix this can be done, for example,
-by using the command of package \fBterm::ansi::ctrl::unix\fR.
+can provide single characters\&. On unix this can be done, for example,
+by using the command of package \fBterm::ansi::ctrl::unix\fR\&.
 .TP
 \fB::term::receive::listen\fR \fIcmd\fR ?\fIchan\fR?
 This command sets up a filevent listener for the channel with handle
 \fIchan\fR and invokes the command prefix \fIcmd\fR whenever
-characters have been received, or EOF was reached.
+characters have been received, or EOF was reached\&.
 .sp
-If not specified \fIchan\fR defaults to \fBstdin\fR.
+If not specified \fIchan\fR defaults to \fBstdin\fR\&.
 .sp
 The signature of the command prefix is
 .RS
 .TP
 \fIcmd\fR \fBprocess\fR \fIstring\fR
 This method is invoked when characters were received, and \fIstring\fR
-holds them for processing.
+holds them for processing\&.
 .TP
 \fIcmd\fR \fBeof\fR
 This method is invoked when EOF was reached on the channel we listen
-on.  It will be the last call to be received by the callback.
+on\&.  It will be the last call to be received by the callback\&.
 .RE
 .TP
 \fB::term::receive::unlisten\fR ?\fIchan\fR?
 This command disables the filevent listener for the channel with handle
-\fIchan\fR.
+\fIchan\fR\&.
 .sp
-If not specified \fIchan\fR defaults to \fBstdin\fR.
+If not specified \fIchan\fR defaults to \fBstdin\fR\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIterm\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 character input, control, get character, listener, receiver, terminal
 .SH CATEGORY
 Terminal control
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

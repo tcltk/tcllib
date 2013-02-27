@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/struct/stack.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/struct/stack\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,16 +237,16 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "struct::stack" n 1.5.3 tcllib "Tcl Data Structures"
+.TH "struct::stack" n 1\&.5\&.3 tcllib "Tcl Data Structures"
 .BS
 .SH NAME
 struct::stack \- Create and manipulate stack objects
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBstruct::stack  ?1.5.3?\fR
+package require \fBstruct::stack  ?1\&.5\&.3?\fR
 .sp
-\fIstackName\fR \fBoption\fR ?\fIarg arg ...\fR?
+\fIstackName\fR \fBoption\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp
 \fIstackName\fR \fBclear\fR
 .sp
@@ -265,88 +266,88 @@ package require \fBstruct::stack  ?1.5.3?\fR
 .sp
 \fIstackName\fR \fBpop\fR ?\fIcount\fR?
 .sp
-\fIstackName\fR \fBpush\fR \fIitem\fR ?\fIitem...\fR?
+\fIstackName\fR \fBpush\fR \fIitem\fR ?\fIitem\&.\&.\&.\fR?
 .sp
 \fIstackName\fR \fBsize\fR
 .sp
 .BE
 .SH DESCRIPTION
 The \fB::struct\fR namespace contains a commands for processing
-finite stacks.
+finite stacks\&.
 .PP
-It exports a single command, \fB::struct::stack\fR. All functionality
-provided here can be reached through a subcommand of this command.
+It exports a single command, \fB::struct::stack\fR\&. All functionality
+provided here can be reached through a subcommand of this command\&.
 .PP
-\fINote:\fR As of version 1.3.3 of this package a critcl based C
-implementation is available. This implementation however requires Tcl
-8.4 to run.
+\fINote:\fR As of version 1\&.3\&.3 of this package a critcl based C
+implementation is available\&. This implementation however requires Tcl
+8\&.4 to run\&.
 .PP
 The \fB::struct::stack\fR command creates a new stack object with an
-associated global Tcl command whose name is \fIstackName\fR.  This
-command may be used to invoke various operations on the stack.  It has
+associated global Tcl command whose name is \fIstackName\fR\&.  This
+command may be used to invoke various operations on the stack\&.  It has
 the following general form:
 .TP
-\fIstackName\fR \fBoption\fR ?\fIarg arg ...\fR?
+\fIstackName\fR \fBoption\fR ?\fIarg arg \&.\&.\&.\fR?
 \fIOption\fR and the \fIarg\fRs determine the exact behavior of the
-command.  The following commands are possible for stack objects:
+command\&.  The following commands are possible for stack objects:
 .TP
 \fIstackName\fR \fBclear\fR
-Remove all items from the stack.
+Remove all items from the stack\&.
 .TP
 \fIstackName\fR \fBdestroy\fR
-Destroy the stack, including its storage space and associated command.
+Destroy the stack, including its storage space and associated command\&.
 .TP
 \fIstackName\fR \fBget\fR
 Returns the whole contents of the stack as a list, without removing
-them from the stack.
+them from the stack\&.
 .TP
 \fIstackName\fR \fBgetr\fR
-A variant of \fBget\fR, which returns the contents in reversed order.
+A variant of \fBget\fR, which returns the contents in reversed order\&.
 .TP
 \fIstackName\fR \fBpeek\fR ?\fIcount\fR?
 Return the top \fIcount\fR items of the stack, without removing them from
-the stack.  If \fIcount\fR is not specified, it defaults to 1.  If
+the stack\&.  If \fIcount\fR is not specified, it defaults to 1\&.  If
 \fIcount\fR is 1, the result is a simple string; otherwise, it is a
-list.  If specified, \fIcount\fR must be greater than or equal to 1.
+list\&.  If specified, \fIcount\fR must be greater than or equal to 1\&.
 If there are not enoughs items on the stack to fulfull the request,
-this command will throw an error.
+this command will throw an error\&.
 .TP
 \fIstackName\fR \fBpeekr\fR ?\fIcount\fR?
-A variant of \fBpeek\fR, which returns the items in reversed order.
+A variant of \fBpeek\fR, which returns the items in reversed order\&.
 .TP
 \fIstackName\fR \fBtrim\fR ?\fInewsize\fR?
 Shrinks the stack to contain at most \fInewsize\fR elements and
-returns a list containing the elements which were removed. Nothing is
-done if the stack is already at the specified size, or smaller. In
-that case the result is the empty list.
+returns a list containing the elements which were removed\&. Nothing is
+done if the stack is already at the specified size, or smaller\&. In
+that case the result is the empty list\&.
 .TP
 \fIstackName\fR \fBtrim*\fR ?\fInewsize\fR?
 A variant of \fBtrim\fR which performs the shrinking, but does not
-return the removed elements.
+return the removed elements\&.
 .TP
 \fIstackName\fR \fBpop\fR ?\fIcount\fR?
 Return the top \fIcount\fR items of the stack, and remove them
-from the stack.  If \fIcount\fR is not specified, it defaults to 1.
+from the stack\&.  If \fIcount\fR is not specified, it defaults to 1\&.
 If \fIcount\fR is 1, the result is a simple string; otherwise, it is a
-list.  If specified, \fIcount\fR must be greater than or equal to 1.
+list\&.  If specified, \fIcount\fR must be greater than or equal to 1\&.
 If there are not enoughs items on the stack to fulfull the request,
-this command will throw an error.
+this command will throw an error\&.
 .TP
-\fIstackName\fR \fBpush\fR \fIitem\fR ?\fIitem...\fR?
-Push the \fIitem\fR or items specified onto the stack.  If more than
+\fIstackName\fR \fBpush\fR \fIitem\fR ?\fIitem\&.\&.\&.\fR?
+Push the \fIitem\fR or items specified onto the stack\&.  If more than
 one \fIitem\fR is given, they will be pushed in the order they are
-listed.
+listed\&.
 .TP
 \fIstackName\fR \fBsize\fR
-Return the number of items on the stack.
+Return the number of items on the stack\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIstruct :: stack\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 graph, matrix, queue, tree
 .SH CATEGORY

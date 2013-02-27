@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/map/map_geocode_nominatim.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/map/map_geocode_nominatim\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,12 +237,12 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "map::geocode::nominatim" n 0.1 tcllib "Mapping utilities"
+.TH "map::geocode::nominatim" n 0\&.1 tcllib "Mapping utilities"
 .BS
 .SH NAME
 map::geocode::nominatim \- Resolving geographical names with a Nominatim service
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
 package require \fBhttp \fR
 .sp
@@ -251,7 +252,7 @@ package require \fBuri \fR
 .sp
 package require \fBsnit \fR
 .sp
-package require \fBmap::geocode::nominatim  ?0.1?\fR
+package require \fBmap::geocode::nominatim  ?0\&.1?\fR
 .sp
 \fB::map::geocode::nominatim\fR \fIrequestor\fR ?\fB-baseurl\fR \fIurl\fR? ?\fB-callback\fR \fIcallback\fR? ?\fB-error\fR \fIerror callback\fR?
 .sp
@@ -269,29 +270,29 @@ the \fINominatim\fR interface (see \fBReferences\fR)
 .TP
 \fB::map::geocode::nominatim\fR \fIrequestor\fR ?\fB-baseurl\fR \fIurl\fR? ?\fB-callback\fR \fIcallback\fR? ?\fB-error\fR \fIerror callback\fR?
 Creates a geocoding request object \fIrequestor\fR, which will send its requests to
-the \fINominatim\fR server.
+the \fINominatim\fR server\&.
 .sp
-The result of the command is \fIname\fR.
+The result of the command is \fIname\fR\&.
 .PP
 .SS OPTIONS
 .TP
 \fB-baseurl\fR \fIurl\fR
-The base URL of the \fINominatim\fR service. Default value is \fIOpenStreetMap's\fR service at
-\fIhttp://nominatim.openstreetmap.org/search\fR A possible free alternative is at
-\fIhttp://open.mapquestapi.com//nominatim/v1/search\fR
+The base URL of the \fINominatim\fR service\&. Default value is \fIOpenStreetMap's\fR service at
+\fIhttp://nominatim\&.openstreetmap\&.org/search\fR A possible free alternative is at
+\fIhttp://open\&.mapquestapi\&.com//nominatim/v1/search\fR
 .TP
 \fB-callback\fR \fIcmdprefix\fR
-A command prefix to be invoked when search result become available.
+A command prefix to be invoked when search result become available\&.
 The default setting, active when nothing was specified on object creation, is to print
-the \fIresult\fR (see below) to \fIstdout\fR. The result of the command prefix is
-ignored. Errors thrown by the command prefix are caught and cause the invokation of
-the error callback (see option \fB-error\fR below), with the error message as argument.
+the \fIresult\fR (see below) to \fIstdout\fR\&. The result of the command prefix is
+ignored\&. Errors thrown by the command prefix are caught and cause the invokation of
+the error callback (see option \fB-error\fR below), with the error message as argument\&.
 .sp
 The signature of the command prefix is:
 .RS
 .TP
 \fB$cmdprefix\fR \fIresult\fR
-The \fIresult\fR is a list of dictionaries, containing one item per hit.
+The \fIresult\fR is a list of dictionaries, containing one item per hit\&.
 Each dictionary will have the following entries:
 .RS
 .TP
@@ -331,10 +332,10 @@ FIXME
 .RE
 .TP
 \fB-error\fR \fIcmdprefix\fR
-A command prefix to be invoked when encountering errors. Typically these are HTTP errors.
+A command prefix to be invoked when encountering errors\&. Typically these are HTTP errors\&.
 The default setting, active when nothing was specified on object creation, is to print
-the \fIerrorstring\fR (see below) to \fIstderr\fR. The result of the command prefix is
-ignored. Errors thrown by the command prefix are passed to higher levels.
+the \fIerrorstring\fR (see below) to \fIstderr\fR\&. The result of the command prefix is
+ignored\&. Errors thrown by the command prefix are passed to higher levels\&.
 .sp
 The signature of the command prefix is:
 .RS
@@ -345,13 +346,13 @@ The signature of the command prefix is:
 .SS METHODS
 .TP
 \fIrequestor\fR \fBsearch\fR \fIquery\fR
-This method returns a list of dictionaries, one item per hit for the specified \fIquery\fR.
+This method returns a list of dictionaries, one item per hit for the specified \fIquery\fR\&.
 .PP
 .SH REFERENCES
 .IP [1]
-\fIhttp://wiki.openstreetmap.org/wiki/Nominatim\fR
+\fIhttp://wiki\&.openstreetmap\&.org/wiki/Nominatim\fR
 .IP [2]
-\fIhttp://open.mapquestapi.com/nominatim/\fR
+\fIhttp://open\&.mapquestapi\&.com/nominatim/\fR
 .PP
 .SH KEYWORDS
 geocoding, http, location, map, nominatim, server, url

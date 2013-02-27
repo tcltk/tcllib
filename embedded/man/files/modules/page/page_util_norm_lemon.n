@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/page/page_util_norm_lemon.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/page/page_util_norm_lemon\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,12 +238,12 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "page_util_norm_lemon" n 1.0 tcllib "Parser generator tools"
+.TH "page_util_norm_lemon" n 1\&.0 tcllib "Parser generator tools"
 .BS
 .SH NAME
 page_util_norm_lemon \- page AST normalization, LEMON
 .SH SYNOPSIS
-package require \fBpage::util::norm_lemon  ?0.1?\fR
+package require \fBpage::util::norm_lemon  ?0\&.1?\fR
 .sp
 package require \fBsnit \fR
 .sp
@@ -252,30 +253,31 @@ package require \fBsnit \fR
 .SH DESCRIPTION
 .PP
 This package provides a single utility command which takes an AST for a
-lemon  grammar and normalizes it in various ways. The result
-is called a \fINormalized Lemon Grammar Tree\fR.
+lemon  grammar and normalizes it in various ways\&. The result
+is called a \fINormalized Lemon Grammar Tree\fR\&.
 .PP
 \fINote\fR that this package can only be used from within a plugin
-managed by the package \fBpage::pluginmgr\fR.
+managed by the package \fBpage::pluginmgr\fR\&.
 .SH API
 .TP
 \fB::page::util::norm::lemon\fR \fItree\fR
 This command assumes the \fItree\fR object contains for a lemon
-grammar. It normalizes this tree in place. The result is called a
-\fINormalized Lemon Grammar Tree\fR.
+grammar\&. It normalizes this tree in place\&. The result is called a
+\fINormalized Lemon Grammar Tree\fR\&.
 .sp
-The exact operations performed are left undocumented for the moment.
+The exact operations performed are left undocumented for the moment\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems.
+This document, will undoubtedly contain bugs and other problems\&.
 Please report such in the category \fIpage\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
-Please also report any ideas for enhancements you may have.
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+Please also report any ideas for enhancements you may have\&.
 .SH KEYWORDS
 graph walking, lemon, normalization, page, parser generator, text processing, tree walking
 .SH CATEGORY
 Page Parser Generator
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

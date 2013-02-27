@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/bench/bench_intro.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/bench/bench_intro\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,7 +238,7 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "bench_intro" n 1.0 tcllib "Benchmarking/Performance tools"
+.TH "bench_intro" n 1\&.0 tcllib "Benchmarking/Performance tools"
 .BS
 .SH NAME
 bench_intro \- bench introduction
@@ -246,42 +247,42 @@ bench_intro \- bench introduction
 The \fIbench\fR (short for \fIbenchmark tools\fR), is a set of
 related, yet different, entities which are working together for the
 easy creation and execution of performance test suites, also known as
-benchmarks. These are
+benchmarks\&. These are
 .IP [1]
-A tcl based language for the declaration of test cases. A test case is
+A tcl based language for the declaration of test cases\&. A test case is
 represented by a tcl command declaring the various parts needed to
-execute it, like setup, cleanup, the commands to test, etc.
+execute it, like setup, cleanup, the commands to test, etc\&.
 .IP [2]
 A package providing the ability to execute test cases written in that
-language.
+language\&.
 .PP
 .PP
 Which of the more detailed documents are relevant to the reader of
-this introduction depends on their role in the benchmarking process.
+this introduction depends on their role in the benchmarking process\&.
 .PP
 .IP [1]
 A \fIwriter\fR of benchmarks has to understand the bench language
-itself. A beginner to bench should read the more informally written
-\fIbench language introduction\fR first. Having digested this the
+itself\&. A beginner to bench should read the more informally written
+\fIbench language introduction\fR first\&. Having digested this the
 formal \fIbench language specification\fR should become
-understandable. A writer experienced with bench may only need this
-last document from time to time, to refresh her memory.
+understandable\&. A writer experienced with bench may only need this
+last document from time to time, to refresh her memory\&.
 .IP [2]
 A \fIuser\fR of benchmark suites written in the \fIbench\fR language
-has to know which tools are available for use.
+has to know which tools are available for use\&.
 At the bottom level sits the package \fBbench\fR, providing the
 basic facilities to read and execute files containing benchmarks
-written in the bench language, and to manipulate benchmark results.
+written in the bench language, and to manipulate benchmark results\&.
 .PP
 .SH "HISTORICAL NOTES"
 This module and package have been derived from Jeff Hobbs'
 \fBtclbench\fR application for the benchmarking of the Tcl core and
-its ancestor "\fIrunbench.tcl\fR".
+its ancestor "\fIrunbench\&.tcl\fR"\&.
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems.
+This document, will undoubtedly contain bugs and other problems\&.
 Please report such in the category \fIbench\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
-Please also report any ideas for enhancements you may have.
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+Please also report any ideas for enhancements you may have\&.
 .SH "SEE ALSO"
 bench, bench_lang_faq, bench_lang_intro, bench_lang_spec
 .SH KEYWORDS
@@ -290,5 +291,6 @@ bench language, benchmark, performance, testing
 Benchmark tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/uuid/uuid.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2004, Pat Thoyts <patthoyts@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/uuid/uuid\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2004, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "uuid" n 1.0.2 tcllib "uuid"
+.TH "uuid" n 1\&.0\&.2 tcllib "uuid"
 .BS
 .SH NAME
 uuid \- UUID generation and comparison
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBuuid  ?1.0.2?\fR
+package require \fBuuid  ?1\&.0\&.2?\fR
 .sp
 \fB::uuid::uuid generate\fR
 .sp
@@ -254,41 +255,45 @@ package require \fBuuid  ?1.0.2?\fR
 .SH DESCRIPTION
 .PP
 This package provides a generator of universally unique identifiers
-(UUID) also known as globally unique identifiers (GUID). This
+(UUID) also known as globally unique identifiers (GUID)\&. This
 implementation follows the draft specification from (1) although this
-is actually an expired draft document.
+is actually an expired draft document\&.
 .SH COMMANDS
 .TP
 \fB::uuid::uuid generate\fR
 Creates a type 4 uuid by MD5 hashing a number of bits of variant data
-including the time and hostname.
-Returns the string representation of the new uuid.
+including the time and hostname\&.
+Returns the string representation of the new uuid\&.
 .TP
 \fB::uuid::uuid equal\fR \fIid1\fR \fIid2\fR
-Compares two uuids and returns true if both arguments are the same uuid.
+Compares two uuids and returns true if both arguments are the same uuid\&.
 .PP
 .SH EXAMPLES
 .CS
+
+
 % uuid::uuid generate
 b12dc22c-5c36-41d2-57da-e29d0ef5839c
+
 .CE
 .SH REFERENCES
 .IP [1]
-Paul J. Leach, "UUIDs and GUIDs", February 1998.
-(\fIhttp://www.opengroup.org/dce/info/draft-leach-uuids-guids-01.txt\fR)
+Paul J\&. Leach, "UUIDs and GUIDs", February 1998\&.
+(\fIhttp://www\&.opengroup\&.org/dce/info/draft-leach-uuids-guids-01\&.txt\fR)
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIuuid\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 GUID, UUID
 .SH CATEGORY
 Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
-Copyright (c) 2004, Pat Thoyts <patthoyts@users.sourceforge.net>
+Copyright (c) 2004, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
+
 .fi

@@ -1,8 +1,8 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/math/linalg.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2004-2008 Arjen Markus <arjenmarkus@users.sourceforge.net>
-'\" Copyright (c) 2004 Ed Hume <http://www.hume.com/contact.us.htm>
-'\" Copyright (c) 2008 Michael Buadin <relaxkmike@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/linalg\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2004-2008 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
+'\" Copyright (c) 2004 Ed Hume <http://www\&.hume\&.com/contact\&.us\&.htm>
+'\" Copyright (c) 2008 Michael Buadin <relaxkmike@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -224,6 +224,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -239,14 +240,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "math::linearalgebra" n 1.1 tcllib "Tcl Math Library"
+.TH "math::linearalgebra" n 1\&.1 tcllib "Tcl Math Library"
 .BS
 .SH NAME
 math::linearalgebra \- Linear Algebra
 .SH SYNOPSIS
-package require \fBTcl  ?8.4?\fR
+package require \fBTcl  ?8\&.4?\fR
 .sp
-package require \fBmath::linearalgebra  ?1.1?\fR
+package require \fBmath::linearalgebra  ?1\&.1?\fR
 .sp
 \fB::math::linearalgebra::mkVector\fR \fIndim\fR \fIvalue\fR
 .sp
@@ -391,19 +392,19 @@ form
 matrices
 .PP
 It arose as a re-implementation of Hume's LA package and the desire to
-offer low-level procedures as found in the well-known BLAS library.
+offer low-level procedures as found in the well-known BLAS library\&.
 Matrices are implemented as lists of lists rather linear lists with
 reserved elements, as in the original LA package, as it was found that
-such an implementation is actually faster.
+such an implementation is actually faster\&.
 .PP
 It is advisable, however, to use the procedures that are offered, such
 as \fIsetrow\fR and \fIgetrow\fR, rather than rely on this
 representation explicitly: that way it is to switch to a possibly even
-faster compiled implementation that supports the same API.
+faster compiled implementation that supports the same API\&.
 .PP
 \fINote:\fR When using this package in combination with Tk, there may
 be a naming conflict, as both this package and Tk define a command
-\fIscale\fR. See the \fBNAMING CONFLICT\fR section below.
+\fIscale\fR\&. See the \fBNAMING CONFLICT\fR section below\&.
 .SH PROCEDURES
 The package defines the following public procedures (several exist as
 specialised procedures, see below):
@@ -411,33 +412,33 @@ specialised procedures, see below):
 \fIConstructing matrices and vectors\fR
 .TP
 \fB::math::linearalgebra::mkVector\fR \fIndim\fR \fIvalue\fR
-Create a vector with ndim elements, each with the value \fIvalue\fR.
+Create a vector with ndim elements, each with the value \fIvalue\fR\&.
 .RS
 .TP
 integer \fIndim\fR
 Dimension of the vector (number of components)
 .TP
 double \fIvalue\fR
-Uniform value to be used (default: 0.0)
+Uniform value to be used (default: 0\&.0)
 .RE
 .sp
 .TP
 \fB::math::linearalgebra::mkUnitVector\fR \fIndim\fR \fIndir\fR
 Create a unit vector in \fIndim\fR-dimensional space, along the
-\fIndir\fR-th direction.
+\fIndir\fR-th direction\&.
 .RS
 .TP
 integer \fIndim\fR
 Dimension of the vector (number of components)
 .TP
 integer \fIndir\fR
-Direction (0, ..., ndim-1)
+Direction (0, \&.\&.\&., ndim-1)
 .RE
 .sp
 .TP
 \fB::math::linearalgebra::mkMatrix\fR \fInrows\fR \fIncols\fR \fIvalue\fR
-Create a matrix with \fInrows\fR rows and \fIncols\fR columns. All
-elements have the value \fIvalue\fR.
+Create a matrix with \fInrows\fR rows and \fIncols\fR columns\&. All
+elements have the value \fIvalue\fR\&.
 .RS
 .TP
 integer \fInrows\fR
@@ -447,7 +448,7 @@ integer \fIncols\fR
 Number of columns
 .TP
 double \fIvalue\fR
-Uniform value to be used (default: 0.0)
+Uniform value to be used (default: 0\&.0)
 .RE
 .sp
 .TP
@@ -606,7 +607,7 @@ Maximum row index (default: nrows-1)
 \fIQuerying matrices and vectors\fR
 .TP
 \fB::math::linearalgebra::show\fR \fIobj\fR ?format? ?rowsep? ?colsep?
-Return a string representing the vector or matrix, for easy printing.
+Return a string representing the vector or matrix, for easy printing\&.
 (There is currently no way to print fixed sets of columns)
 .RS
 .TP
@@ -614,7 +615,7 @@ list \fIobj\fR
 Matrix or vector in question
 .TP
 string \fIformat\fR
-Format for printing the numbers (default: %6.4f)
+Format for printing the numbers (default: %6\&.4f)
 .TP
 string \fIrowsep\fR
 String to use for separating rows (default: newline)
@@ -648,7 +649,7 @@ Scalar, vector, or matrix
 \fB::math::linearalgebra::conforming\fR \fItype\fR \fIobj1\fR \fIobj2\fR
 Checks if two objects (vector or matrix) have conforming shapes, that is
 if they can be applied in an operation like addition or matrix
-multiplication.
+multiplication\&.
 .RS
 .TP
 string \fItype\fR
@@ -662,8 +663,8 @@ operations)
 b in a system of linear equations \fIAx = b\fR
 .IP \(bu
 "matmul" - the first object has the same number of columns as the number
-of rows of the second object. Useful for matrix-matrix or matrix-vector
-multiplication.
+of rows of the second object\&. Useful for matrix-matrix or matrix-vector
+multiplication\&.
 .RE
 .TP
 list \fIobj1\fR
@@ -675,8 +676,8 @@ Second vector or matrix (right operand)
 .sp
 .TP
 \fB::math::linearalgebra::symmetric\fR \fImatrix\fR ?eps?
-Checks if the given (square) matrix is symmetric. The argument eps
-is the tolerance.
+Checks if the given (square) matrix is symmetric\&. The argument eps
+is the tolerance\&.
 .RS
 .TP
 list \fImatrix\fR
@@ -684,16 +685,16 @@ Matrix to be inspected
 .TP
 float \fIeps\fR
 Tolerance for determining approximate equality
-(defaults to 1.0e-8)
+(defaults to 1\&.0e-8)
 .RE
 .PP
 .PP
 \fIBasic operations\fR
 .TP
 \fB::math::linearalgebra::norm\fR \fIvector\fR \fItype\fR
-Returns the norm of the given vector. The type argument can be: 1,
+Returns the norm of the given vector\&. The type argument can be: 1,
 2, inf or max, respectively the sum of absolute values, the ordinary
-Euclidean norm or the max norm.
+Euclidean norm or the max norm\&.
 .RS
 .TP
 list \fIvector\fR
@@ -729,15 +730,15 @@ Vector, list of coefficients
 .TP
 integer \fIindex\fR
 (optional) if non zero, returns a list made of the maximum
-value and the index where that maximum was found.
-if zero, returns the maximum value.
+value and the index where that maximum was found\&.
+if zero, returns the maximum value\&.
 .RE
 .sp
 .TP
 \fB::math::linearalgebra::normMatrix\fR \fImatrix\fR \fItype\fR
-Returns the norm of the given matrix. The type argument can be: 1,
+Returns the norm of the given matrix\&. The type argument can be: 1,
 2, inf or max, respectively the sum of absolute values, the ordinary
-Euclidean norm or the max norm.
+Euclidean norm or the max norm\&.
 .RS
 .TP
 list \fImatrix\fR
@@ -749,7 +750,7 @@ Type of norm (default: 2, the Euclidean norm)
 .sp
 .TP
 \fB::math::linearalgebra::dotproduct\fR \fIvect1\fR \fIvect2\fR
-Determine the inproduct or dot product of two vectors. These must have
+Determine the inproduct or dot product of two vectors\&. These must have
 the same shape (number of dimensions)
 .RS
 .TP
@@ -762,7 +763,7 @@ Second vector, list of coefficients
 .sp
 .TP
 \fB::math::linearalgebra::unitLengthVector\fR \fIvector\fR
-Return a vector in the same direction with length 1.
+Return a vector in the same direction with length 1\&.
 .RS
 .TP
 list \fIvector\fR
@@ -773,7 +774,7 @@ Vector to be normalized
 \fB::math::linearalgebra::normalizeStat\fR \fImv\fR
 Normalize the matrix or vector in a statistical sense: the mean of the
 elements of the columns of the result is zero and the standard deviation
-is 1.
+is 1\&.
 .RS
 .TP
 list \fImv\fR
@@ -784,7 +785,7 @@ Vector or matrix to be normalized in the above sense
 \fB::math::linearalgebra::axpy\fR \fIscale\fR \fImv1\fR \fImv2\fR
 Return a vector or matrix that results from a "daxpy" operation, that
 is: compute a*x+y (a a scalar and x and y both vectors or matrices of
-the same shape) and return the result.
+the same shape) and return the result\&.
 .sp
 Specialised variants are: axpy_vect and axpy_mat (slightly faster,
 but no check on the arguments)
@@ -833,7 +834,7 @@ Second vector or matrix (y)
 .sp
 .TP
 \fB::math::linearalgebra::scale\fR \fIscale\fR \fImv\fR
-Scale a vector or matrix and return the result, that is: compute a*x.
+Scale a vector or matrix and return the result, that is: compute a*x\&.
 .sp
 Specialised variants are: scale_vect and scale_mat (slightly faster,
 but no check on the arguments)
@@ -849,9 +850,9 @@ Vector or matrix (x)
 .TP
 \fB::math::linearalgebra::rotate\fR \fIc\fR \fIs\fR \fIvect1\fR \fIvect2\fR
 Apply a planar rotation to two vectors and return the result as a list
-of two vectors: c*x-s*y and s*x+c*y. In algorithms you can often easily
+of two vectors: c*x-s*y and s*x+c*y\&. In algorithms you can often easily
 determine the cosine and sine of the angle, so it is more efficient to
-pass that information directly.
+pass that information directly\&.
 .RS
 .TP
 double \fIc\fR
@@ -878,10 +879,10 @@ Matrix to be transposed
 .sp
 .TP
 \fB::math::linearalgebra::matmul\fR \fImv1\fR \fImv2\fR
-Multiply a vector/matrix with another vector/matrix. The result is
+Multiply a vector/matrix with another vector/matrix\&. The result is
 a matrix, if both x and y are matrices or both are vectors, in
-which case the "outer product" is computed. If one is a vector and the
-other is a matrix, then the result is a vector.
+which case the "outer product" is computed\&. If one is a vector and the
+other is a matrix, then the result is a vector\&.
 .RS
 .TP
 list \fImv1\fR
@@ -917,10 +918,10 @@ Second vector
 .sp
 .TP
 \fB::math::linearalgebra::matmul\fR \fImv1\fR \fImv2\fR
-Multiply a vector/matrix with another vector/matrix. The result is
+Multiply a vector/matrix with another vector/matrix\&. The result is
 a matrix, if both x and y are matrices or both are vectors, in
-which case the "outer product" is computed. If one is a vector and the
-other is a matrix, then the result is a vector.
+which case the "outer product" is computed\&. If one is a vector and the
+other is a matrix, then the result is a vector\&.
 .RS
 .TP
 list \fImv1\fR
@@ -934,7 +935,7 @@ Second vector/matrix (y)
 \fICommon matrices and test matrices\fR
 .TP
 \fB::math::linearalgebra::mkIdentity\fR \fIsize\fR
-Create an identity matrix of dimension \fIsize\fR.
+Create an identity matrix of dimension \fIsize\fR\&.
 .RS
 .TP
 integer \fIsize\fR
@@ -944,7 +945,7 @@ Dimension of the matrix
 .TP
 \fB::math::linearalgebra::mkDiagonal\fR \fIdiag\fR
 Create a diagonal matrix whose diagonal elements are the elements of the
-vector \fIdiag\fR.
+vector \fIdiag\fR\&.
 .RS
 .TP
 list \fIdiag\fR
@@ -954,7 +955,7 @@ Vector whose elements are used for the diagonal
 .TP
 \fB::math::linearalgebra::mkRandom\fR \fIsize\fR
 Create a square matrix whose elements are uniformly distributed random
-numbers between 0 and 1 of dimension \fIsize\fR.
+numbers between 0 and 1 of dimension \fIsize\fR\&.
 .RS
 .TP
 integer \fIsize\fR
@@ -964,7 +965,7 @@ Dimension of the matrix
 .TP
 \fB::math::linearalgebra::mkTriangular\fR \fIsize\fR ?uplo? ?value?
 Create a triangular matrix with non-zero elements in the upper or lower
-part, depending on argument \fIuplo\fR.
+part, depending on argument \fIuplo\fR\&.
 .RS
 .TP
 integer \fIsize\fR
@@ -979,11 +980,11 @@ Value to fill the matrix with
 .sp
 .TP
 \fB::math::linearalgebra::mkHilbert\fR \fIsize\fR
-Create a Hilbert matrix of dimension \fIsize\fR.
+Create a Hilbert matrix of dimension \fIsize\fR\&.
 Hilbert matrices are very ill-conditioned with respect to
-eigenvalue/eigenvector problems. Therefore they
+eigenvalue/eigenvector problems\&. Therefore they
 are good candidates for testing the accuracy
-of algorithms and implementations.
+of algorithms and implementations\&.
 .RS
 .TP
 integer \fIsize\fR
@@ -992,10 +993,10 @@ Dimension of the matrix
 .sp
 .TP
 \fB::math::linearalgebra::mkDingdong\fR \fIsize\fR
-Create a "dingdong" matrix of dimension \fIsize\fR.
+Create a "dingdong" matrix of dimension \fIsize\fR\&.
 Dingdong matrices are imprecisely represented,
 but have the property of being very stable in
-such algorithms as Gauss elimination.
+such algorithms as Gauss elimination\&.
 .RS
 .TP
 integer \fIsize\fR
@@ -1004,7 +1005,7 @@ Dimension of the matrix
 .sp
 .TP
 \fB::math::linearalgebra::mkOnes\fR \fIsize\fR
-Create a square matrix of dimension \fIsize\fR whose entries are all 1.
+Create a square matrix of dimension \fIsize\fR whose entries are all 1\&.
 .RS
 .TP
 integer \fIsize\fR
@@ -1013,10 +1014,10 @@ Dimension of the matrix
 .sp
 .TP
 \fB::math::linearalgebra::mkMoler\fR \fIsize\fR
-Create a Moler matrix of size \fIsize\fR. (Moler matrices have
-a very simple Choleski decomposition. It has one small eigenvalue
+Create a Moler matrix of size \fIsize\fR\&. (Moler matrices have
+a very simple Choleski decomposition\&. It has one small eigenvalue
 and it can easily upset elimination methods for systems of linear
-equations.)
+equations\&.)
 .RS
 .TP
 integer \fIsize\fR
@@ -1025,7 +1026,7 @@ Dimension of the matrix
 .sp
 .TP
 \fB::math::linearalgebra::mkFrank\fR \fIsize\fR
-Create a Frank matrix of size \fIsize\fR. (Frank matrices are
+Create a Frank matrix of size \fIsize\fR\&. (Frank matrices are
 fairly well-behaved matrices)
 .RS
 .TP
@@ -1035,8 +1036,8 @@ Dimension of the matrix
 .sp
 .TP
 \fB::math::linearalgebra::mkBorder\fR \fIsize\fR
-Create a bordered matrix of size \fIsize\fR. (Bordered matrices have
-a very low rank and can upset certain specialised algorithms.)
+Create a bordered matrix of size \fIsize\fR\&. (Bordered matrices have
+a very low rank and can upset certain specialised algorithms\&.)
 .RS
 .TP
 integer \fIsize\fR
@@ -1045,9 +1046,9 @@ Dimension of the matrix
 .sp
 .TP
 \fB::math::linearalgebra::mkWilkinsonW+\fR \fIsize\fR
-Create a Wilkinson W+ of size \fIsize\fR. This kind of matrix
-has pairs of eigenvalues that are very close together. Usually
-the order (size) is odd.
+Create a Wilkinson W+ of size \fIsize\fR\&. This kind of matrix
+has pairs of eigenvalues that are very close together\&. Usually
+the order (size) is odd\&.
 .RS
 .TP
 integer \fIsize\fR
@@ -1056,9 +1057,9 @@ Dimension of the matrix
 .sp
 .TP
 \fB::math::linearalgebra::mkWilkinsonW-\fR \fIsize\fR
-Create a Wilkinson W- of size \fIsize\fR. This kind of matrix
+Create a Wilkinson W- of size \fIsize\fR\&. This kind of matrix
 has pairs of eigenvalues with opposite signs, when the order (size)
-is odd.
+is odd\&.
 .RS
 .TP
 integer \fIsize\fR
@@ -1069,9 +1070,9 @@ Dimension of the matrix
 \fICommon algorithms\fR
 .TP
 \fB::math::linearalgebra::solveGauss\fR \fImatrix\fR \fIbvect\fR
-Solve a system of linear equations (Ax=b) using Gauss elimination.
+Solve a system of linear equations (Ax=b) using Gauss elimination\&.
 Returns the solution (x) as a vector or matrix of the same shape as
-bvect.
+bvect\&.
 .RS
 .TP
 list \fImatrix\fR
@@ -1084,8 +1085,8 @@ b-vectors
 .TP
 \fB::math::linearalgebra::solvePGauss\fR \fImatrix\fR \fIbvect\fR
 Solve a system of linear equations (Ax=b) using Gauss elimination with
-partial pivoting. Returns the solution (x) as a vector or matrix of the
-same shape as bvect.
+partial pivoting\&. Returns the solution (x) as a vector or matrix of the
+same shape as bvect\&.
 .RS
 .TP
 list \fImatrix\fR
@@ -1098,8 +1099,8 @@ b-vectors
 .sp
 .TP
 \fB::math::linearalgebra::solveTriangular\fR \fImatrix\fR \fIbvect\fR ?uplo?
-Solve a system of linear equations (Ax=b) by backward substitution. The
-matrix is supposed to be upper-triangular.
+Solve a system of linear equations (Ax=b) by backward substitution\&. The
+matrix is supposed to be upper-triangular\&.
 .RS
 .TP
 list \fImatrix\fR
@@ -1111,14 +1112,14 @@ b-vectors
 .TP
 string \fIuplo\fR
 Indicates whether the matrix is lower-triangular
-(L) or upper-triangular (U). Defaults to "U".
+(L) or upper-triangular (U)\&. Defaults to "U"\&.
 .RE
 .TP
 \fB::math::linearalgebra::solveGaussBand\fR \fImatrix\fR \fIbvect\fR
 Solve a system of linear equations (Ax=b) using Gauss elimination,
-where the matrix is stored as a band matrix (\fIcf.\fR \fBSTORAGE\fR).
+where the matrix is stored as a band matrix (\fIcf\&.\fR \fBSTORAGE\fR)\&.
 Returns the solution (x) as a vector or matrix of the same shape as
-bvect.
+bvect\&.
 .RS
 .TP
 list \fImatrix\fR
@@ -1131,8 +1132,8 @@ b-vectors
 .sp
 .TP
 \fB::math::linearalgebra::solveTriangularBand\fR \fImatrix\fR \fIbvect\fR
-Solve a system of linear equations (Ax=b) by backward substitution. The
-matrix is supposed to be upper-triangular and stored in band form.
+Solve a system of linear equations (Ax=b) by backward substitution\&. The
+matrix is supposed to be upper-triangular and stored in band form\&.
 .RS
 .TP
 list \fImatrix\fR
@@ -1145,40 +1146,40 @@ b-vectors
 .sp
 .TP
 \fB::math::linearalgebra::determineSVD\fR \fIA\fR \fIeps\fR
-Determines the Singular Value Decomposition of a matrix: A = U S Vtrans.
+Determines the Singular Value Decomposition of a matrix: A = U S Vtrans\&.
 Returns a list with the matrix U, the vector of singular values S and
-the matrix V.
+the matrix V\&.
 .RS
 .TP
 list \fIA\fR
 Matrix to be decomposed
 .TP
 float \fIeps\fR
-Tolerance (defaults to 2.3e-16)
+Tolerance (defaults to 2\&.3e-16)
 .RE
 .sp
 .TP
 \fB::math::linearalgebra::eigenvectorsSVD\fR \fIA\fR \fIeps\fR
 Determines the eigenvectors and eigenvalues of a real
-\fIsymmetric\fR matrix, using SVD. Returns a list with the matrix of
-normalized eigenvectors and their eigenvalues.
+\fIsymmetric\fR matrix, using SVD\&. Returns a list with the matrix of
+normalized eigenvectors and their eigenvalues\&.
 .RS
 .TP
 list \fIA\fR
 Matrix whose eigenvalues must be determined
 .TP
 float \fIeps\fR
-Tolerance (defaults to 2.3e-16)
+Tolerance (defaults to 2\&.3e-16)
 .RE
 .sp
 .TP
 \fB::math::linearalgebra::leastSquaresSVD\fR \fIA\fR \fIy\fR \fIqmin\fR \fIeps\fR
 Determines the solution to a least-sqaures problem Ax ~ y via singular
-value decomposition. The result is the vector x.
+value decomposition\&. The result is the vector x\&.
 .sp
 Note that if you add a column of 1s to the matrix, then this column will
-represent a constant like in: y = a*x1 + b*x2 + c. To force the
-intercept to be zero, simply leave it out.
+represent a constant like in: y = a*x1 + b*x2 + c\&. To force the
+intercept to be zero, simply leave it out\&.
 .RS
 .TP
 list \fIA\fR
@@ -1188,17 +1189,17 @@ list \fIy\fR
 List of observed values
 .TP
 float \fIqmin\fR
-Minimum singular value to be considered (defaults to 0.0)
+Minimum singular value to be considered (defaults to 0\&.0)
 .TP
 float \fIeps\fR
-Tolerance (defaults to 2.3e-16)
+Tolerance (defaults to 2\&.3e-16)
 .RE
 .sp
 .TP
 \fB::math::linearalgebra::choleski\fR \fImatrix\fR
 Determine the Choleski decomposition of a symmetric positive
-semidefinite matrix (this condition is not checked!). The result
-is the lower-triangular matrix L such that L Lt = matrix.
+semidefinite matrix (this condition is not checked!)\&. The result
+is the lower-triangular matrix L such that L Lt = matrix\&.
 .RS
 .TP
 list \fImatrix\fR
@@ -1208,7 +1209,7 @@ Matrix to be decomposed
 .TP
 \fB::math::linearalgebra::orthonormalizeColumns\fR \fImatrix\fR
 Use the modified Gram-Schmidt method to orthogonalize and normalize
-the \fIcolumns\fR of the given matrix and return the result.
+the \fIcolumns\fR of the given matrix and return the result\&.
 .RS
 .TP
 list \fImatrix\fR
@@ -1218,7 +1219,7 @@ Matrix whose columns must be orthonormalized
 .TP
 \fB::math::linearalgebra::orthonormalizeRows\fR \fImatrix\fR
 Use the modified Gram-Schmidt method to orthogonalize and normalize
-the \fIrows\fR of the given matrix and return the result.
+the \fIrows\fR of the given matrix and return the result\&.
 .RS
 .TP
 list \fImatrix\fR
@@ -1227,8 +1228,8 @@ Matrix whose rows must be orthonormalized
 .sp
 .TP
 \fB::math::linearalgebra::dger\fR \fImatrix\fR \fIalpha\fR \fIx\fR \fIy\fR ?scope?
-Perform the rank 1 operation A + alpha*x*y' inline (that is: the matrix A is adjusted).
-For convenience the new matrix is also returned as the result.
+Perform the rank 1 operation A + alpha*x*y' inline (that is: the matrix A is adjusted)\&.
+For convenience the new matrix is also returned as the result\&.
 .RS
 .TP
 list \fImatrix\fR
@@ -1262,67 +1263,70 @@ where:
 .TP
 \fB::math::linearalgebra::dgetrf\fR \fImatrix\fR
 Computes an LU factorization of a general matrix, using partial,
-pivoting with row interchanges. Returns the permutation vector.
+pivoting with row interchanges\&. Returns the permutation vector\&.
 .sp
 The factorization has the form
 .CS
-P * A = L * U
+
+
+   P * A = L * U
+
 .CE
 .IP
 where P is a permutation matrix, L is lower triangular with unit
-diagonal elements, and U is upper triangular.
-Returns the permutation vector, as a list of length n-1.
+diagonal elements, and U is upper triangular\&.
+Returns the permutation vector, as a list of length n-1\&.
 The last entry of the permutation is not stored, since it is
 implicitely known, with value n (the last row is not swapped
-with any other row).
+with any other row)\&.
 At index #i of the permutation is stored the index of the row #j
-which is swapped with row #i at step #i. That means that each
+which is swapped with row #i at step #i\&. That means that each
 index of the permutation gives the permutation at each step, not the
-cumulated permutation matrix, which is the product of permutations.
+cumulated permutation matrix, which is the product of permutations\&.
 .RS
 .TP
 list \fImatrix\fR
-On entry, the matrix to be factored.
+On entry, the matrix to be factored\&.
 On exit, the factors L and U from the factorization
-P*A = L*U; the unit diagonal elements of L are not stored.
+P*A = L*U; the unit diagonal elements of L are not stored\&.
 .RE
 .sp
 .TP
 \fB::math::linearalgebra::det\fR \fImatrix\fR
 Returns the determinant of the given matrix, based on PA=LU
-decomposition, i.e. Gauss partial pivotal.
+decomposition, i\&.e\&. Gauss partial pivotal\&.
 .RS
 .TP
 list \fImatrix\fR
 Square matrix (matrix A)
 .TP
 list \fIipiv\fR
-The pivots (optionnal).
+The pivots (optionnal)\&.
 If the pivots are not provided, a PA=LU decomposition
-is performed.
+is performed\&.
 If the pivots are provided, we assume that it
 contains the pivots and that the matrix A contains the
-L and U factors, as provided by dgterf.
+L and U factors, as provided by dgterf\&.
 b-vectors
 .RE
 .sp
 .TP
 \fB::math::linearalgebra::largesteigen\fR \fImatrix\fR \fItolerance\fR \fImaxiter\fR
 Returns a list made of the largest eigenvalue (in magnitude)
-and associated eigenvector.
-Uses iterative Power Method as provided as algorithm #7.3.3 of Golub & Van Loan.
+and associated eigenvector\&.
+Uses iterative Power Method as provided as algorithm #7\&.3\&.3 of Golub & Van Loan\&.
 This algorithm is used here for a dense matrix (but is usually
-used for sparse matrices).
+used for sparse matrices)\&.
 .RS
 .TP
 list \fImatrix\fR
 Square matrix (matrix A)
 .TP
 double \fItolerance\fR
-The relative tolerance of the eigenvalue (default:1.e-8).
+The relative tolerance of the eigenvalue (default:1\&.e-8)\&.
 .TP
 integer \fImaxiter\fR
-The maximum number of iterations (default:10).
+The maximum number of iterations (default:10)\&.
 .RE
 .PP
 .PP
@@ -1331,7 +1335,7 @@ Two procedures are provided for compatibility with Hume's LA package:
 .TP
 \fB::math::linearalgebra::to_LA\fR \fImv\fR
 Transforms a vector or matrix into the format used by the original LA
-package.
+package\&.
 .RS
 .TP
 list \fImv\fR
@@ -1340,7 +1344,7 @@ Matrix or vector
 .TP
 \fB::math::linearalgebra::from_LA\fR \fImv\fR
 Transforms a vector or matrix from the format used by the original LA
-package into the format used by the present implementation.
+package into the format used by the present implementation\&.
 .RS
 .TP
 list \fImv\fR
@@ -1351,44 +1355,47 @@ Matrix or vector as used by the LA package
 .SH STORAGE
 While most procedures assume that the matrices are given in full form,
 the procedures \fIsolveGaussBand\fR and \fIsolveTriangularBand\fR
-assume that the matrices are stored as \fIband matrices\fR. This
+assume that the matrices are stored as \fIband matrices\fR\&. This
 common type of "sparse" matrices is related to ordinary matrices as
 follows:
 .IP \(bu
-"A" is a full-size matrix with N rows and M columns.
+"A" is a full-size matrix with N rows and M columns\&.
 .IP \(bu
-"B" is a band matrix, with m upper and lower diagonals and n rows.
+"B" is a band matrix, with m upper and lower diagonals and n rows\&.
 .IP \(bu
 "B" can be stored in an ordinary matrix of (2m+1) columns (one for
-each off-diagonal and the main diagonal) and n rows.
+each off-diagonal and the main diagonal) and n rows\&.
 .IP \(bu
-Element i,j (i = -m,...,m; j =1,...,n) of "B" corresponds to element
+Element i,j (i = -m,\&.\&.\&.,m; j =1,\&.\&.\&.,n) of "B" corresponds to element
 k,j of "A" where k = M+i-1 and M is at least (!) n, the number of rows
-in "B".
+in "B"\&.
 .IP \(bu
 To set element (i,j) of matrix "B" use:
 .CS
-setelem B $j [expr {$N+$i-1}] $value
+
+
+    setelem B $j [expr {$N+$i-1}] $value
+
 .CE
 .PP
 (There is no convenience procedure for this yet)
 .SH "REMARKS ON THE IMPLEMENTATION"
 There is a difference between the original LA package by Hume and the
-current implementation. Whereas the LA package uses a linear list, the
-current package uses lists of lists to represent matrices. It turns out
+current implementation\&. Whereas the LA package uses a linear list, the
+current package uses lists of lists to represent matrices\&. It turns out
 that with this representation, the algorithms are faster and easier to
-implement.
+implement\&.
 .PP
 The LA package was used as a model and in fact the implementation of,
-for instance, the SVD algorithm was taken from that package. The set of
+for instance, the SVD algorithm was taken from that package\&. The set of
 procedures was expanded using ideas from the well-known BLAS library and
-some algorithms were updated from the second edition of J.C. Nash's
+some algorithms were updated from the second edition of J\&.C\&. Nash's
 book, Compact Numerical Methods for Computers, (Adam Hilger, 1990) that
-inspired the LA package.
+inspired the LA package\&.
 .PP
 Two procedures are provided to make the transition between the two
-implementations easier: \fIto_LA\fR and \fIfrom_LA\fR. They are
-described above.
+implementations easier: \fIto_LA\fR and \fIfrom_LA\fR\&. They are
+described above\&.
 .SH TODO
 Odds and ends: the following algorithms have not been implemented yet:
 .IP \(bu
@@ -1400,40 +1407,48 @@ certainlyPositive, diagonallyDominant
 If you load this package in a Tk-enabled shell like wish, then the
 command
 .CS
+
 namespace import ::math::linearalgebra
 .CE
 results in an error
-message about "scale". This is due to the fact that Tk defines all
-its commands in the global namespace. The solution is to import
+message about "scale"\&. This is due to the fact that Tk defines all
+its commands in the global namespace\&. The solution is to import
 the linear algebra commands in a namespace that is not the global one:
 .CS
+
+
 package require math::linearalgebra
 namespace eval compute {
-namespace import ::math::linearalgebra::*
-\... use the linear algebra version of scale ...
+    namespace import ::math::linearalgebra::*
+    \&.\&.\&. use the linear algebra version of scale \&.\&.\&.
 }
+
 .CE
 To use Tk's scale command in that same namespace you can rename it:
 .CS
+
+
 namespace eval compute {
-rename ::scale scaleTk
-scaleTk .scale ...
+    rename ::scale scaleTk
+    scaleTk \&.scale \&.\&.\&.
 }
+
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fImath :: linearalgebra\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 least squares, linear algebra, linear equations, math, matrices, matrix, vectors
 .SH CATEGORY
 Mathematics
 .SH COPYRIGHT
 .nf
-Copyright (c) 2004-2008 Arjen Markus <arjenmarkus@users.sourceforge.net>
-Copyright (c) 2004 Ed Hume <http://www.hume.com/contact.us.htm>
-Copyright (c) 2008 Michael Buadin <relaxkmike@users.sourceforge.net>
+Copyright (c) 2004-2008 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
+Copyright (c) 2004 Ed Hume <http://www\&.hume\&.com/contact\&.us\&.htm>
+Copyright (c) 2008 Michael Buadin <relaxkmike@users\&.sourceforge\&.net>
+
 .fi

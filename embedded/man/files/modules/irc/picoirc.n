@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/irc/picoirc.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/irc/picoirc\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "picoirc" n 0.5 tcllib "Simple embeddable IRC interface"
+.TH "picoirc" n 0\&.5 tcllib "Simple embeddable IRC interface"
 .BS
 .SH NAME
-picoirc \- Small and simple embeddable IRC client.
+picoirc \- Small and simple embeddable IRC client\&.
 .SH SYNOPSIS
 package require \fBTcl \fR
 .sp
-package require \fBpicoirc  ?0.5?\fR
+package require \fBpicoirc  ?0\&.5?\fR
 .sp
 \fB::picoirc::connect\fR \fIcallback\fR \fInick\fR \fIurl\fR
 .sp
@@ -256,56 +257,59 @@ package require \fBpicoirc  ?0.5?\fR
 .BE
 .SH DESCRIPTION
 This package provides a general purpose minimal IRC client suitable for
-embedding in other applications. All communication with the parent
-application is done via an application provided callback procedure.
+embedding in other applications\&. All communication with the parent
+application is done via an application provided callback procedure\&.
 Each connection has its own state so you can hook up multiple servers
-in a single application instance.
+in a single application instance\&.
 .PP
 To initiate an IRC connection you must call \fBpicoirc::connect\fR
 with a callback procedure, a nick-name to use on IRC and the IRC URL
-that describes the connection. This will return a variable name that
-is the irc connection context. See \fBCALLBACK\fR for details.
+that describes the connection\&. This will return a variable name that
+is the irc connection context\&. See \fBCALLBACK\fR for details\&.
 .PP
-This package is a fairly simple IRC client. If you need something with
-more capability investigate the \fBirc\fR package.
+This package is a fairly simple IRC client\&. If you need something with
+more capability investigate the \fBirc\fR package\&.
 .PP
 .SH COMMANDS
 .TP
 \fB::picoirc::connect\fR \fIcallback\fR \fInick\fR \fIurl\fR
 Create a new irc connection to the server specified by \fIurl\fR and
-login using the \fInick\fR as the username. The \fIcallback\fR must be
-as specified in \fBCALLBACK\fR. Returns a package-specific variable
-that is used when calling other commands in this package.
+login using the \fInick\fR as the username\&. The \fIcallback\fR must be
+as specified in \fBCALLBACK\fR\&. Returns a package-specific variable
+that is used when calling other commands in this package\&.
 .TP
 \fB::picoirc::post\fR \fIcontext\fR \fIchannel\fR \fImessage\fR
 This should be called to process user input and send it to the
-server. A number of commands are recognised when prefixed with a
-forward-slash (/). Such commands are converted to IRC command
-sequences and then sent.
+server\&. A number of commands are recognised when prefixed with a
+forward-slash (/)\&. Such commands are converted to IRC command
+sequences and then sent\&.
 .TP
 \fB::picoirc::splituri\fR \fIuri\fR
 Splits an IRC scheme uniform resource indicator into its component
-parts. Returns a list of server, port and channel. The default port is
-6667 and there is no default channel.
+parts\&. Returns a list of server, port and channel\&. The default port is
+6667 and there is no default channel\&.
 .TP
 \fB::picoirc::send\fR \fIcontext\fR \fIline\fR
-This command is where all raw output to the server is handled. The
-default action is to write the \fIline\fR to the irc socket. However,
-before this happens the callback is called with "debug write". This
+This command is where all raw output to the server is handled\&. The
+default action is to write the \fIline\fR to the irc socket\&. However,
+before this happens the callback is called with "debug write"\&. This
 permits the application author to inspect the raw IRC data and if
-desired to return a break error code to halt further processing. In
+desired to return a break error code to halt further processing\&. In
 this way the application can override the default send via the
-callback procedure.
+callback procedure\&.
 .PP
 .SH CALLBACK
 The callback must look like:
 .CS
+
+
 proc Callback {context state args} {
 }
+
 .CE
 where context is the irc context variable name (in case you need to pass
-it back to a picoirc procedure). state is one of a number of states as
-described below.
+it back to a picoirc procedure)\&. state is one of a number of states as
+described below\&.
 .TP
 \fBinit\fR
 called just before the socket is created
@@ -314,44 +318,44 @@ called just before the socket is created
 called once we have connected, before we join any channels
 .TP
 \fBclose\fR
-called when the socket gets closed, before the context is deleted. If
+called when the socket gets closed, before the context is deleted\&. If
 an error occurs before we get connected the only argument will be the
-socket error message.
+socket error message\&.
 .TP
 \fBuserlist\fR \fIchannel\fR \fInicklist\fR
-called to notify the application of an updated userlist. This is
-generated when the output of the NAMES irc command is seen. The
+called to notify the application of an updated userlist\&. This is
+generated when the output of the NAMES irc command is seen\&. The
 package collects the entire output which can span a number of output
 lines from the server and calls this callback when they have all been
-received.
+received\&.
 .TP
 \fBchat\fR \fItarget\fR \fInick\fR \fImessage\fR \fItype\fR
-called when a message arrives. \fItarget\fR is the identity that the
-message was targetted for. This can be the logged in nick or a channel
-name. \fInick\fR is the name of the sender of the message.
-\fImessage\fR is the message text. \fItype\fR is set to "ACTION" if the
+called when a message arrives\&. \fItarget\fR is the identity that the
+message was targetted for\&. This can be the logged in nick or a channel
+name\&. \fInick\fR is the name of the sender of the message\&.
+\fImessage\fR is the message text\&. \fItype\fR is set to "ACTION" if the
 message was sent as a CTCP ACTION
 .TP
 \fBsystem\fR \fIchannel\fR \fImessage\fR
 called when a system message is received
 .TP
 \fBtopic\fR \fIchannel\fR \fItopic\fR
-called when the channel topic string is seen. \fItopic\fR is the text
-of the channel topic.
+called when the channel topic string is seen\&. \fItopic\fR is the text
+of the channel topic\&.
 .TP
 \fBtraffic\fR \fIaction\fR \fIchannel\fR \fInick\fR ?\fInewnick\fR?
-called when users join, leave or change names.
+called when users join, leave or change names\&.
 \fIaction\fR is either entered, left or nickchange and \fInick\fR
-is the user doing the action. \fInewnick\fR is
-the new name if \fIaction\fR is nickchange.
+is the user doing the action\&. \fInewnick\fR is
+the new name if \fIaction\fR is nickchange\&.
 .sp
 \fINOTE\fR: \fIchannel\fR is often empty for these messages as nick
-activities are global for the irc server. You will have
-to manage the nick for all connected channels yourself.
+activities are global for the irc server\&. You will have
+to manage the nick for all connected channels yourself\&.
 .TP
 \fBversion\fR
 This is called to request a version string to use to
-override the internal version. If implemented, you should
+override the internal version\&. If implemented, you should
 return as colon delimited string as
 .sp
 Appname:Appversion:LibraryVersion
@@ -362,16 +366,16 @@ PicoIRC:[package provide picoirc]:Tcl [info patchlevel]
 .TP
 \fBdebug\fR \fItype\fR \fIraw\fR
 called when data is either being read or written to the network
-socket. \fItype\fR is set to \fBread\fR when reading data and
-\fBwrite\fR if the data is to be written. \fIraw\fR is the
-unprocessed IRC protocol data.
+socket\&. \fItype\fR is set to \fBread\fR when reading data and
+\fBwrite\fR if the data is to be written\&. \fIraw\fR is the
+unprocessed IRC protocol data\&.
 .sp
 In both cases the application can return a break error code to
-interrupt further processing of the raw data. If this is a
-\fBread\fR operation then the package will not handle this line. If
+interrupt further processing of the raw data\&. If this is a
+\fBread\fR operation then the package will not handle this line\&. If
 the operation is \fBwrite\fR then the package will not send the
-data. This callback is intended for debugging protocol issues but
-could be used to redirect all input and output if desired.
+data\&. This callback is intended for debugging protocol issues but
+could be used to redirect all input and output if desired\&.
 .PP
 .SH "SEE ALSO"
 rfc 1459

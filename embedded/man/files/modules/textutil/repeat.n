@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/textutil/repeat.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/textutil/repeat\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "textutil::repeat" n 0.7.1 tcllib "Text and string utilities, macro processing"
+.TH "textutil::repeat" n 0\&.7\&.1 tcllib "Text and string utilities, macro processing"
 .BS
 .SH NAME
-textutil::repeat \- Procedures to repeat strings.
+textutil::repeat \- Procedures to repeat strings\&.
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBtextutil::repeat  ?0.7?\fR
+package require \fBtextutil::repeat  ?0\&.7?\fR
 .sp
 \fB::textutil::repeat::strRepeat\fR \fItext\fR \fInum\fR
 .sp
@@ -252,31 +253,31 @@ package require \fBtextutil::repeat  ?0.7?\fR
 .BE
 .SH DESCRIPTION
 The package \fBtextutil::repeat\fR provides commands to generate
-long strings by repeating a shorter string many times.
+long strings by repeating a shorter string many times\&.
 .PP
-The complete set of procedures is described below.
+The complete set of procedures is described below\&.
 .TP
 \fB::textutil::repeat::strRepeat\fR \fItext\fR \fInum\fR
 This command returns a string containing the \fItext\fR repeated
-\fInum\fR times. The repetitions are joined without characters between
-them. A value of \fInum\fR <= 0 causes the command to return an empty
-string.
+\fInum\fR times\&. The repetitions are joined without characters between
+them\&. A value of \fInum\fR <= 0 causes the command to return an empty
+string\&.
 .sp
 \fINote\fR: If the Tcl core the package is loaded in provides the
 command \fBstring repeat\fR then this command will be implemented in
-its terms, for maximum possible speed. Otherwise a fast implementation
-in Tcl will be used.
+its terms, for maximum possible speed\&. Otherwise a fast implementation
+in Tcl will be used\&.
 .TP
 \fB::textutil::repeat::blank\fR \fInum\fR
-A convenience command. Returns a string of \fInum\fR spaces.
+A convenience command\&. Returns a string of \fInum\fR spaces\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fItextutil\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 regexp(n), split(n), string(n)
 .SH KEYWORDS

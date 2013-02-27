@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/transfer/tqueue.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/transfer/tqueue\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,24 +238,24 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "transfer::copy::queue" n 0.1 tcllib "Data transfer facilities"
+.TH "transfer::copy::queue" n 0\&.1 tcllib "Data transfer facilities"
 .BS
 .SH NAME
 transfer::copy::queue \- Queued transfers
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBsnit  ?1.0?\fR
+package require \fBsnit  ?1\&.0?\fR
 .sp
-package require \fBstruct::queue  ?1.4?\fR
+package require \fBstruct::queue  ?1\&.4?\fR
 .sp
-package require \fBtransfer::copy  ?0.2?\fR
+package require \fBtransfer::copy  ?0\&.2?\fR
 .sp
-package require \fBtransfer::copy::queue  ?0.1?\fR
+package require \fBtransfer::copy::queue  ?0\&.1?\fR
 .sp
-\fBtransfer::copy::queue\fR \fIobjectName\fR \fIoutchannel\fR ?\fIoptions\fR...?
+\fBtransfer::copy::queue\fR \fIobjectName\fR \fIoutchannel\fR ?\fIoptions\fR\&.\&.\&.?
 .sp
-\fIobjectName\fR \fBmethod\fR ?\fIarg arg ...\fR?
+\fIobjectName\fR \fBmethod\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp
 \fIobjectName\fR \fBdestroy\fR
 .sp
@@ -268,126 +269,130 @@ package require \fBtransfer::copy::queue  ?0.1?\fR
 .SH DESCRIPTION
 .PP
 This package provides objects which serialize transfer requests for a
-single channel by means of a fifo queue. Accumulated requests are
+single channel by means of a fifo queue\&. Accumulated requests are
 executed in order of entrance, with the first request reaching an idle
-object starting the execution in general. New requests can be added
+object starting the execution in general\&. New requests can be added
 while the object is active and are defered until all requests entered
-before them have been completed successfully.
+before them have been completed successfully\&.
 .PP
 When a request causes a transfer error execution stops and all
-requests coming after it are not served. Currently this means that
-their completion callbacks are never triggered at all.
+requests coming after it are not served\&. Currently this means that
+their completion callbacks are never triggered at all\&.
 .PP
 \fINOTE\fR:
 Not triggering the completion callbacks of the unserved
 requests after an error stops the queue object is something I
-am not fully sure that it makes sense. It forces the user of
+am not fully sure that it makes sense\&. It forces the user of
 the queue to remember the callbacks as well and run
-them. Because otherwise everything in the system which depends
+them\&. Because otherwise everything in the system which depends
 on getting a notification about the status of a request will
-hang in the air. I am slowly convincing myself that it is more
+hang in the air\&. I am slowly convincing myself that it is more
 sensible to trigger the relevant completion callbacks with an
-error message about the queue abort, and 0 bytes transfered.
+error message about the queue abort, and 0 bytes transfered\&.
 .PP
 All transfer requests are of the form
 .PP
 .CS
-{type data options...}
+
+
+	{type data options\&.\&.\&.}
+
 .CE
 .PP
 where \fItype\fR is in {\fBchan\fR, \fBstring\fR}, and \fIdata\fR
-specifies the information to transfer.
+specifies the information to transfer\&.
 For \fBchan\fR the data is the handle of the channel containing the
 actual information to transfer, whereas for \fBstring\fR \fIdata\fR
-contains directly the information to transfer.
+contains directly the information to transfer\&.
 The \fIoptions\fR are a list of them and their values, and are the
 same as are accepted by the low-level copy operations of the package
-\fBtransfer::copy\fR.
+\fBtransfer::copy\fR\&.
 Note how just prepending the request with \fBtransfer::copy::do\fR and
 inserting a channel handle in between \fIdata\fR and \fIoptions\fR
 easily transforms it from a pure data structure into a command whose
-evaluation will perform the request.
+evaluation will perform the request\&.
 .SH API
 .SS "PACKAGE COMMANDS"
 .TP
-\fBtransfer::copy::queue\fR \fIobjectName\fR \fIoutchannel\fR ?\fIoptions\fR...?
+\fBtransfer::copy::queue\fR \fIobjectName\fR \fIoutchannel\fR ?\fIoptions\fR\&.\&.\&.?
 This command creates a new queue object for the management of the
 channel \fIoutchannel\fR, with an associated Tcl command whose name is
-\fIobjectName\fR.
+\fIobjectName\fR\&.
 This \fIobject\fR command is explained in full detail in the sections
-\fBObject command\fR and \fBObject methods\fR. The set of
-supported \fIoptions\fR is explained in section \fBOptions\fR.
+\fBObject command\fR and \fBObject methods\fR\&. The set of
+supported \fIoptions\fR is explained in section \fBOptions\fR\&.
 .sp
 The object command will be created under the current namespace if the
 \fIobjectName\fR is not fully qualified, and in the specified
-namespace otherwise.
+namespace otherwise\&.
 The fully qualified name of the object command is returned as the
-result of the command.
+result of the command\&.
 .PP
 .SS "OBJECT COMMAND"
 All objects created by the \fB::transfer::copy::queue\fR command have
 the following general form:
 .TP
-\fIobjectName\fR \fBmethod\fR ?\fIarg arg ...\fR?
+\fIobjectName\fR \fBmethod\fR ?\fIarg arg \&.\&.\&.\fR?
 The method \fBmethod\fR and its \fIarg\fR'uments determine the
-exact behavior of the command.
+exact behavior of the command\&.
 See section \fBObject methods\fR for the detailed
-specifications.
+specifications\&.
 .PP
 .SS "OBJECT METHODS"
 .TP
 \fIobjectName\fR \fBdestroy\fR
-This method destroys the object. Doing so while the object is busy
+This method destroys the object\&. Doing so while the object is busy
 will cause errors later on, when the currently executed request
 completes and tries to access the now missing data structures of the
-destroyed object.
+destroyed object\&.
 .TP
 \fIobjectName\fR \fBbusy\fR
 This method returns a boolean value telling us if the object is
-currently serving a request (i.e. \fIbusy\fR, value \fBTrue\fR), or
-not (i.e. \fIidle\fR, value \fBFalse\fR).
+currently serving a request (i\&.e\&. \fIbusy\fR, value \fBTrue\fR), or
+not (i\&.e\&. \fIidle\fR, value \fBFalse\fR)\&.
 .TP
 \fIobjectName\fR \fBpending\fR
 This method returns the number of requests currently waiting in the
-queue for their execution. A request currently served is not counted
-as waiting.
+queue for their execution\&. A request currently served is not counted
+as waiting\&.
 .TP
 \fIobjectName\fR \fBput\fR \fIrequest\fR
 This method enters the transfer \fIrequest\fR into the object's queue
-of waiting requests.
+of waiting requests\&.
 If the object is \fIidle\fR it will become \fIbusy\fR, immediately
-servicing the request. Otherwise servicing the new request will be
-defered until all preceding requests have been served.
+servicing the request\&. Otherwise servicing the new request will be
+defered until all preceding requests have been served\&.
 .PP
 .SH OPTIONS
-The only option known is \fB-on-status-change\fR. It is optional
+The only option known is \fB-on-status-change\fR\&. It is optional
 and defaults to the empty list, disabling the reporting of status
-changes. Otherwise its argument is a command prefix which is invoked
-whenever the internal status of the object changed. The callback is
+changes\&. Otherwise its argument is a command prefix which is invoked
+whenever the internal status of the object changed\&. The callback is
 invoked with two additional arguments, the result of the methods
-\fBpending\fR and \fBbusy\fR, in this order. This allows any
+\fBpending\fR and \fBbusy\fR, in this order\&. This allows any
 user to easily know, for example, when the object has processed all
-outstanding requests.
+outstanding requests\&.
 .SH USE
-A possible application of this package and class is within a HTTP 1.1
-server, managing the results waiting for transfer to the client.
+A possible application of this package and class is within a HTTP 1\&.1
+server, managing the results waiting for transfer to the client\&.
 .PP
 It should be noted that in this application the system also needs an
 additional data structure which keeps track of outstanding results as
 they may come back in a different order than the requests from the
-client, and releases them to the actual queue in the proper order.
+client, and releases them to the actual queue in the proper order\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fItransfer\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 channel, copy, queue, transfer
 .SH CATEGORY
 Transfer module
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

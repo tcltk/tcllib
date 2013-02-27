@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/virtchannel_base/randseed.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/virtchannel_base/randseed\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -242,7 +243,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tcl::chan::randseed \- Utilities for random channels
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
 package require \fBTclOO \fR
 .sp
@@ -255,31 +256,32 @@ package require \fBtcl::chan::randseed  ?1?\fR
 .BE
 .SH DESCRIPTION
 .PP
-The \fBtcl::chan::randseed\fR package provides a a few utility commands to help with the seeding of \fBtcl::chan::random\fR channels.
+The \fBtcl::chan::randseed\fR package provides a a few utility commands to help with the seeding of \fBtcl::chan::random\fR channels\&.
 .SH API
 .TP
 \fB::tcl::randomseed\fR
 This command creates returns a list of seed integers suitable as seed
-argument for random channels. The numbers are derived from the process
-id, current time, and Tcl random number generator.
+argument for random channels\&. The numbers are derived from the process
+id, current time, and Tcl random number generator\&.
 .TP
 \fB::tcl::combine\fR \fIseed1\fR \fIseed2\fR
 This command takes to seed lists and combines them into a single list
-by XORing them elementwise, modulo 256. If the lists are not of equial
-length the shorter of the two is padded with 0s before merging.
+by XORing them elementwise, modulo 256\&. If the lists are not of equial
+length the shorter of the two is padded with 0s before merging\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIvirtchannel\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 /dev/random, merge, random, reflected channel, seed, tip 219, virtual channel
 .SH CATEGORY
 Channels
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

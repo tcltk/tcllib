@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/yaml/yaml.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2008 KATO Kanryu <kanryu6@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/yaml/yaml\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2008 KATO Kanryu <kanryu6@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "yaml" n 0.3.6 tcllib "YAML processing"
+.TH "yaml" n 0\&.3\&.6 tcllib "YAML processing"
 .BS
 .SH NAME
 yaml \- YAML Format Encoder/Decoder
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fByaml  ?0.3.6?\fR
+package require \fByaml  ?0\&.3\&.6?\fR
 .sp
 \fB::yaml::yaml2dict\fR ?\fIoptions\fR? \fItxt\fR
 .sp
@@ -262,168 +263,178 @@ package require \fByaml  ?0.3.6?\fR
 .SH DESCRIPTION
 .PP
 The \fByaml\fR package provides a simple Tcl-only library for parsing the
-YAML \fIhttp://www.yaml.org/\fR data exchange format as specified in
-\fIhttp://www.yaml.org/spec/1.1/\fR.
+YAML \fIhttp://www\&.yaml\&.org/\fR data exchange format as specified in
+\fIhttp://www\&.yaml\&.org/spec/1\&.1/\fR\&.
 .PP
 The \fByaml\fR package returns
-data as a Tcl \fBdict\fR.  Either the \fBdict\fR package or Tcl 8.5 is
-required for use.
+data as a Tcl \fBdict\fR\&.  Either the \fBdict\fR package or Tcl 8\&.5 is
+required for use\&.
 .SH COMMANDS
 .TP
 \fB::yaml::yaml2dict\fR ?\fIoptions\fR? \fItxt\fR
 .TP
 \fB::yaml::yaml2huddle\fR ?\fIoptions\fR? \fItxt\fR
-Parse yaml formatted text \fItxt\fR into a Tcl dict/huddle and return the value.
+Parse yaml formatted text \fItxt\fR into a Tcl dict/huddle and return the value\&.
 .RS
 .TP
 \fB\fB-file\fR\fR
-\fItxt\fR is a filename of YAML-stream.
+\fItxt\fR is a filename of YAML-stream\&.
 .TP
 \fB\fB-stream\fR\fR
-\fItxt\fR is just a YAML-stream.
+\fItxt\fR is just a YAML-stream\&.
 .TP
 \fB\fB-types\fR \fIlist\fR\fR
-The \fIlist\fR is a type list for the yaml-scalar types.(e.g. !!str !!timestamp !!integer !!true ...)
+The \fIlist\fR is a type list for the yaml-scalar types\&.(e\&.g\&. !!str !!timestamp !!integer !!true \&.\&.\&.)
 .CS
--types {timestamp integer null true false}
+
+ -types {timestamp integer null true false}
 .CE
 .IP
-In this case, if a string matched "timestamp", converted to the TCL internal timestamp.(e.g. "2001-12-15T02:59:43.1Z" => 1008385183)
+In this case, if a string matched "timestamp", converted to the TCL internal timestamp\&.(e\&.g\&. "2001-12-15T02:59:43\&.1Z" => 1008385183)
 .TP
 \fB\fB-m:true\fR \fIparam\fR\fR
-The \fIparam\fR is two elements of list for the value of true, and considered strings.
+The \fIparam\fR is two elements of list for the value of true, and considered strings\&.
 .CS
--m:true {1 {true on + yes y}}
+
+ -m:true {1 {true on + yes y}}
 .CE
 .IP
-In this case, the string "yes" found in YAML Stream, automatically converted 1.
+In this case, the string "yes" found in YAML Stream, automatically converted 1\&.
 .TP
 \fB\fB-m:false\fR \fIparam\fR\fR
-The \fIparam\fR is two elements of list for the value of false, and considered strings.
+The \fIparam\fR is two elements of list for the value of false, and considered strings\&.
 .CS
--m:false {0 {false off - no n}}
+
+ -m:false {0 {false off - no n}}
 .CE
 .TP
 \fB\fB-m:null\fR \fIparam\fR\fR
-The \fIparam\fR is two elements of list for the value of null, and considered strings.
+The \fIparam\fR is two elements of list for the value of null, and considered strings\&.
 .CS
--m:null {"" {null nil "" ~}}
+
+ -m:null {"" {null nil "" ~}}
 .CE
 .TP
 \fB\fB-validate\fR\fR
-Experiment,old: Output stream contains YAML's-tag, each node.
+Experiment,old: Output stream contains YAML's-tag, each node\&.
 .CS
+
 % puts [::yaml::load -validate {[aaa, bbb]}]
 =>
 !!seq {{!!str aaa} {!!str bbb}}
+
 .CE
 .RE
 .TP
 \fB::yaml::setOption\fR ?\fIoptions\fR?
-Change implicit options for the library.
-Now, the params are the same as \fB::yaml::yaml2dict\fR.
-Arguments of\fB::yaml::yaml2dict\fR is more priority than this setting.
+Change implicit options for the library\&.
+Now, the params are the same as \fB::yaml::yaml2dict\fR\&.
+Arguments of\fB::yaml::yaml2dict\fR is more priority than this setting\&.
 .TP
 \fB::yaml::dict2yaml\fR \fIdict\fR ?\fIindent\fR? ?\fIwordwrap\fR?
 .TP
 \fB::yaml::list2yaml\fR \fIlist\fR ?\fIindent\fR? ?\fIwordwrap\fR?
 .TP
 \fB::yaml::huddle2yaml\fR \fIhuddle\fR ?\fIindent\fR? ?\fIwordwrap\fR?
-Convert a dict/list/huddle object into YAML stream.
+Convert a dict/list/huddle object into YAML stream\&.
 .RS
 .TP
 indent
-spaces indent of each block node.
-currently default is 2.
+spaces indent of each block node\&.
+currently default is 2\&.
 .TP
 wordwrap
-word wrap for YAML stream.
-currently default is 40.
+word wrap for YAML stream\&.
+currently default is 40\&.
 .RE
 .PP
 .PP
 .SH EXAMPLES
 .PP
-An example of a yaml stream converted to Tcl.  A yaml stream is returned as a
-single item with multiple elements.
+An example of a yaml stream converted to Tcl\&.  A yaml stream is returned as a
+single item with multiple elements\&.
 .PP
 .CS
+
 {
---- !<tag:clarkevans.com,2002:invoice>
+--- !<tag:clarkevans\&.com,2002:invoice>
 invoice: 34843
 date   : 2001-01-23
 bill-to: &id001
-given  : Chris
-family : Dumars
-address:
-lines: |
-458 Walkman Dr.
-Suite #292
-city    : Royal Oak
-state   : MI
-postal  : 48046
+    given  : Chris
+    family : Dumars
+    address:
+        lines: |
+            458 Walkman Dr\&.
+            Suite #292
+        city    : Royal Oak
+        state   : MI
+        postal  : 48046
 ship-to: *id001
 product:
-- sku         : BL394D
-quantity    : 4
-description : Basketball
-price       : 450.00
-- sku         : BL4438H
-quantity    : 1
-description : Super Hoop
-price       : 2392.00
-tax  : 251.42
-total: 4443.52
+    - sku         : BL394D
+      quantity    : 4
+      description : Basketball
+      price       : 450\&.00
+    - sku         : BL4438H
+      quantity    : 1
+      description : Super Hoop
+      price       : 2392\&.00
+tax  : 251\&.42
+total: 4443\&.52
 comments:
-Late afternoon is best.
-Backup contact is Nancy
-Billsmer @ 338-4338.
+    Late afternoon is best\&.
+    Backup contact is Nancy
+    Billsmer @ 338-4338\&.
 }
 =>
-invoice 34843 date 2001-01-23 bill-to {given Chris family Dumars address {lines {458 Walkman Dr.
+invoice 34843 date 2001-01-23 bill-to {given Chris family Dumars address {lines {458 Walkman Dr\&.
 Suite #292
-} city {Royal Oak} state MI postal 48046}} ship-to {given Chris family Dumars address {lines {458 Walkman Dr.
+} city {Royal Oak} state MI postal 48046}} ship-to {given Chris family Dumars address {lines {458 Walkman Dr\&.
 Suite #292
-} city {Royal Oak} state MI postal 48046}} product {{sku BL394D quantity 4 description Basketball price 450.00} {sku BL4438H quantity 1 description {Super Hoop} price 2392.00}} tax 251.42 total 4443.52 comments {Late afternoon is best. Backup contact is Nancy Billsmer @ 338-4338.}
+} city {Royal Oak} state MI postal 48046}} product {{sku BL394D quantity 4 description Basketball price 450\&.00} {sku BL4438H quantity 1 description {Super Hoop} price 2392\&.00}} tax 251\&.42 total 4443\&.52 comments {Late afternoon is best\&. Backup contact is Nancy Billsmer @ 338-4338\&.}
 .CE
 .PP
-An example of a yaml object converted to Tcl.  A yaml object is returned as a
-multi-element list (a dict).
+An example of a yaml object converted to Tcl\&.  A yaml object is returned as a
+multi-element list (a dict)\&.
 .PP
 .CS
+
 {
 ---
 - [name        , hr, avg  ]
-- [Mark McGwire, 65, 0.278]
-- [Sammy Sosa  , 63, 0.288]
+- [Mark McGwire, 65, 0\&.278]
+- [Sammy Sosa  , 63, 0\&.288]
 -
-Mark McGwire: {hr: 65, avg: 0.278}
-Sammy Sosa: { hr: 63, avg: 0.288}
+  Mark McGwire: {hr: 65, avg: 0\&.278}
+  Sammy Sosa: { hr: 63, avg: 0\&.288}
 }
 =>
-{name hr avg} {{Mark McGwire} 65 0.278} {{Sammy Sosa} 63 0.288} {{Mark McGwire} {hr 65 avg 0.278} {Sammy Sosa} {hr 63 avg 0.288}}
+{name hr avg} {{Mark McGwire} 65 0\&.278} {{Sammy Sosa} 63 0\&.288} {{Mark McGwire} {hr 65 avg 0\&.278} {Sammy Sosa} {hr 63 avg 0\&.288}}
+
 .CE
 .SH LIMITATIONS
 .PP
-tag parser not implemented. currentry, tags are merely ignored.
+tag parser not implemented\&. currentry, tags are merely ignored\&.
 .PP
-Only Anchor => Aliases ordering. back alias-referring is not supported.
+Only Anchor => Aliases ordering\&. back alias-referring is not supported\&.
 .PP
-Too many braces, or too few braces.
+Too many braces, or too few braces\&.
 .PP
-Not enough character set of line feeds. Please use only "\\n" as line breaks.
+Not enough character set of line feeds\&. Please use only "\\n" as line breaks\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIyaml\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 base64, huddle, json
 .SH KEYWORDS
 data exchange, huddle, parsing, text processing, yaml
 .SH COPYRIGHT
 .nf
-Copyright (c) 2008 KATO Kanryu <kanryu6@users.sourceforge.net>
+Copyright (c) 2008 KATO Kanryu <kanryu6@users\&.sourceforge\&.net>
+
 .fi

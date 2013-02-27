@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/virtchannel_transform/crc32.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/virtchannel_transform/crc32\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -242,13 +243,13 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tcl::transform::crc32 \- Crc32 transformation
 .SH SYNOPSIS
-package require \fBTcl  8.6\fR
+package require \fBTcl  8\&.6\fR
 .sp
 package require \fBtcl::transform::core  ?1?\fR
 .sp
 package require \fBtcl::transform::crc32  ?1?\fR
 .sp
-\fB::tcl::transform::crc32\fR \fIchan\fR \fB-option\fR \fIvalue\fR...
+\fB::tcl::transform::crc32\fR \fIchan\fR \fB-option\fR \fIvalue\fR\&.\&.\&.
 .sp
 .BE
 .SH DESCRIPTION
@@ -258,53 +259,54 @@ creating a channel transformation which passes the read and written
 bytes through unchanged (like \fBtcl::transform::identity\fR), but
 additionally continuously computes the crc32 checksums of the data it
 has seen for each direction and stores them in Tcl variables specified
-at construction time. The checksum in question is zlib's crc32.
+at construction time\&. The checksum in question is zlib's crc32\&.
 .PP
 Related transformations in this module are
 \fBtcl::transform::adler32\fR,
 \fBtcl::transform::counter\fR,
 \fBtcl::transform::identity\fR, and
-\fBtcl::transform::observe\fR.
+\fBtcl::transform::observe\fR\&.
 .PP
 The internal \fBTclOO\fR class implementing the transform
 handler is a sub-class of the \fBtcl::transform::core\fR
-framework.
+framework\&.
 .SH API
 .TP
-\fB::tcl::transform::crc32\fR \fIchan\fR \fB-option\fR \fIvalue\fR...
+\fB::tcl::transform::crc32\fR \fIchan\fR \fB-option\fR \fIvalue\fR\&.\&.\&.
 This command creates a crc32 checksumming transformation on top of
-the channel \fIchan\fR and returns its handle. The accepted options are
+the channel \fIchan\fR and returns its handle\&. The accepted options are
 .RS
 .TP
 \fB-read-variable\fR varname
 The value of the option is the name of a global or namespaced
 variable, the location where the transformation has to store the
-crc32 checksum of the data read from the channel.
+crc32 checksum of the data read from the channel\&.
 .sp
 If not specified, or the empty string, the checksum of the read
-direction is not saved.
+direction is not saved\&.
 .TP
 \fB-write-variable\fR varname
 The value of the option is the name of a global or namespaced
 variable, the location where the transformation has to store the
-crc32 checksum of the data written to the channel.
+crc32 checksum of the data written to the channel\&.
 .sp
 If not specified, or the empty string, the checksum of the
-write direction is not saved.
+write direction is not saved\&.
 .RE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIvirtchannel\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 channel transformation, checksum, crc32, reflected channel, tip 230, transformation, virtual channel
 .SH CATEGORY
 Channels
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

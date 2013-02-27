@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/doctools/doctools_lang_syntax.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/doctools/doctools_lang_syntax\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,91 +238,104 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "doctools_lang_syntax" n 1.0 tcllib "Documentation tools"
+.TH "doctools_lang_syntax" n 1\&.0 tcllib "Documentation tools"
 .BS
 .SH NAME
 doctools_lang_syntax \- doctools language syntax
 .SH DESCRIPTION
 .PP
 This document contains the formal specification of the syntax of the
-doctools markup language, version 1 in Backus-Naur-Form. This document
+doctools markup language, version 1 in Backus-Naur-Form\&. This document
 is intended to be a reference, complementing the
-\fIdoctools language command reference\fR.
+\fIdoctools language command reference\fR\&.
 A beginner should read the much more informally written
 \fIdoctools language introduction\fR first before trying to
-understand either this document or the command reference.
+understand either this document or the command reference\&.
 .SH FUNDAMENTALS
 In the broadest terms possible the \fIdoctools markup language\fR
-is LaTeX-like, instead of like SGML and similar languages. A document
+is LaTeX-like, instead of like SGML and similar languages\&. A document
 written in this language consists primarily of text, with markup
-commands embedded into it.
+commands embedded into it\&.
 .PP
 Each markup command is a just Tcl command surrounded by a matching
-pair of \fB[\fR and \fB]\fR. Which commands are available,
-and their arguments, i.e. syntax is specified in the
-\fIdoctools language command reference\fR.
+pair of \fB[\fR and \fB]\fR\&. Which commands are available,
+and their arguments, i\&.e\&. syntax is specified in the
+\fIdoctools language command reference\fR\&.
 .PP
 In this document we specify first the lexeme, and then the syntax,
-i.e. how we can mix text and markup commands with each other.
+i\&.e\&. how we can mix text and markup commands with each other\&.
 .SH "LEXICAL DEFINITIONS"
 In the syntax rules listed in the next section
 .IP [1]
-<TEXT> stands for all text except markup commands.
+<TEXT> stands for all text except markup commands\&.
 .IP [2]
 Any XXX stands for the markup command [xxx] including its
-arguments. Each markup command is a Tcl command surrounded by a
-matching pair of \fB[\fR and \fB]\fR. Inside of these
+arguments\&. Each markup command is a Tcl command surrounded by a
+matching pair of \fB[\fR and \fB]\fR\&. Inside of these
 delimiters the usual rules for a Tcl command apply with regard to word
-quotation, nested commands, continuation lines, etc.
+quotation, nested commands, continuation lines, etc\&.
 .IP [3]
 <WHITE> stands for all text consisting only of spaces, newlines,
-tabulators and the \fBcomment\fR markup command.
+tabulators and the \fBcomment\fR markup command\&.
 .PP
 .SH SYNTAX
 The rules listed here specify only the syntax of doctools
-documents. The lexical level of the language was covered in the
-previous section.
+documents\&. The lexical level of the language was covered in the
+previous section\&.
 .PP
 Regarding the syntax of the (E)BNF itself
 .IP [1]
-The construct { X } stands for zero or more occurrences of X.
+The construct { X } stands for zero or more occurrences of X\&.
 .IP [2]
-The construct [ X ] stands for zero or one occurrence of X.
+The construct [ X ] stands for zero or one occurrence of X\&.
 .IP [3]
 The construct LIST_BEGIN<X> stands for the markup command
-\fBlist_begin\fR with \fBX\fR as its type argument.
+\fBlist_begin\fR with \fBX\fR as its type argument\&.
 .PP
 The syntax:
 .CS
+
+
 manpage = defs
-MANPAGE_BEGIN
-header
-DESCRIPTION
-body
-MANPAGE_END
-{ <WHITE> }
+          MANPAGE_BEGIN
+          header
+          DESCRIPTION
+          body
+          MANPAGE_END
+          { <WHITE> }
+
 defs    = { INCLUDE | VSET | <WHITE> }
+
 header  = { TITLEDESC | MODDESC | COPYRIGHT | REQUIRE | defs | xref }
+
 xref    = KEYWORDS | SEE_ALSO | CATEGORY
+
 body    = paras { SECTION    sbody  }
 sbody   = paras { SUBSECTION ssbody }
 ssbody  = paras
+
 paras   = tblock { (PARA | NL) tblock }
+
 tblock  = { <TEXT> | defs | markup | xref | an_example | a_list }
+
 markup  = ARG     | CLASS | CMD     | CONST     | EMPH   | FILE
-| FUN     | LB    | METHOD  | NAMESPACE | OPT    | OPTION
-| PACKAGE | RB    | SECTREF | STRONG    | SYSCMD | TERM
-| TYPE    | URI   | USAGE   | VAR       | WIDGET
+        | FUN     | LB    | METHOD  | NAMESPACE | OPT    | OPTION
+        | PACKAGE | RB    | SECTREF | STRONG    | SYSCMD | TERM
+        | TYPE    | URI   | USAGE   | VAR       | WIDGET
+
 example = EXAMPLE
-| EXAMPLE_BEGIN extext EXAMPLE_END
+        | EXAMPLE_BEGIN extext EXAMPLE_END
+
 extext  = { <TEXT> | defs | markup }
+
 a_list  = LIST_BEGIN<arguments>   argd_list   LIST_END
-| LIST_BEGIN<commands>    cmdd_list   LIST_END
-| LIST_BEGIN<definitions> def_list    LIST_END
-| LIST_BEGIN<enumerated>  enum_list   LIST_END
-| LIST_BEGIN<itemized>    item_list   LIST_END
-| LIST_BEGIN<options>     optd_list   LIST_END
-| LIST_BEGIN<tkoptions>   tkoptd_list LIST_END
+        | LIST_BEGIN<commands>    cmdd_list   LIST_END
+        | LIST_BEGIN<definitions> def_list    LIST_END
+        | LIST_BEGIN<enumerated>  enum_list   LIST_END
+        | LIST_BEGIN<itemized>    item_list   LIST_END
+        | LIST_BEGIN<options>     optd_list   LIST_END
+        | LIST_BEGIN<tkoptions>   tkoptd_list LIST_END
+
 argd_list   = [ <WHITE> ] { ARG_DEF      paras }
 cmdd_list   = [ <WHITE> ] { CMD_DEF      paras }
 def_list    = [ <WHITE> ] { (DEF|CALL)   paras }
@@ -329,12 +343,13 @@ enum_list   = [ <WHITE> ] { ENUM         paras }
 item_list   = [ <WHITE> ] { ITEM         paras }
 optd_list   = [ <WHITE> ] { OPT_DEF      paras }
 tkoptd_list = [ <WHITE> ] { TKOPTION_DEF paras }
+
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems.
+This document, will undoubtedly contain bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
-Please also report any ideas for enhancements you may have.
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+Please also report any ideas for enhancements you may have\&.
 .SH "SEE ALSO"
 doctools_intro, doctools_lang_cmdref, doctools_lang_faq, doctools_lang_intro
 .SH KEYWORDS
@@ -343,5 +358,6 @@ doctools commands, doctools language, doctools markup, doctools syntax, markup, 
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/map/map_slippy_cache.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/map/map_slippy_cache\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,20 +237,20 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "map::slippy::cache" n 0.2 tcllib "Mapping utilities"
+.TH "map::slippy::cache" n 0\&.2 tcllib "Mapping utilities"
 .BS
 .SH NAME
 map::slippy::cache \- Management of a tile cache in the local filesystem
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBTk  8.4\fR
+package require \fBTk  8\&.4\fR
 .sp
 package require \fBimg::png \fR
 .sp
 package require \fBmap::slippy \fR
 .sp
-package require \fBmap::slippy::cache  ?0.2?\fR
+package require \fBmap::slippy::cache  ?0\&.2?\fR
 .sp
 \fB::map::slippy::cache\fR \fIcacheName\fR \fIcachedir\fR \fIprovider\fR
 .sp
@@ -262,63 +263,63 @@ package require \fBmap::slippy::cache  ?0.2?\fR
 .BE
 .SH DESCRIPTION
 This package provides a class for managing a cache of tiles for
-slippy-based maps in the local filesystem.
+slippy-based maps in the local filesystem\&.
 .SH API
 .TP
 \fB::map::slippy::cache\fR \fIcacheName\fR \fIcachedir\fR \fIprovider\fR
 Creates the cache \fIcacheName\fR and configures it with both the path
 to the directory contaiing the locally cached tiles (\fIcachedir\fR),
 and the command prefix from which it will pull tiles asked for and not
-yet known to the cache itself (\fIprovider\fR).
+yet known to the cache itself (\fIprovider\fR)\&.
 .sp
-The result of the command is \fIcacheName\fR.
+The result of the command is \fIcacheName\fR\&.
 .PP
 .SS METHODS
 .TP
 \fIcacheName\fR \fBvalid\fR \fItile\fR ?\fImsgvar\fR?
-This method checks the validity of a the given \fItile\fR identifier.
+This method checks the validity of a the given \fItile\fR identifier\&.
 This is a convenience wrapper to \fB::map::slippy tile valid\fR and
-has the same interface.
+has the same interface\&.
 .TP
 \fIcacheName\fR \fBexists\fR \fItile\fR
 This methods tests whether the cache contains the specified \fItile\fR
-or not. The result is a boolean value, \fBtrue\fR if the tile is
-known, and \fBfalse\fR otherwise. The tile is identified by a list
+or not\&. The result is a boolean value, \fBtrue\fR if the tile is
+known, and \fBfalse\fR otherwise\&. The tile is identified by a list
 containing three elements, zoom level, row, and column number, in this
-order.
+order\&.
 .TP
 \fIcacheName\fR \fBget\fR \fItile\fR \fIdonecmd\fR
 This is the main method of the cache, retrieving the image for the
-specified \fItile\fR from the cache. The tile identifier is a list
+specified \fItile\fR from the cache\&. The tile identifier is a list
 containing three elements, the zoom level, row, and column number of
-the tile, in this order.
+the tile, in this order\&.
 .sp
 The command refix \fIdonecmd\fR will be invoked when the cache
-either knows the image for the tile or that no image will forthcoming.
-It will be invoked with either 2 or 3 arguments, i.e.
+either knows the image for the tile or that no image will forthcoming\&.
+It will be invoked with either 2 or 3 arguments, i\&.e\&.
 .RS
 .IP [1]
-The string \fBset\fR, the \fItile\fR, and the image.
+The string \fBset\fR, the \fItile\fR, and the image\&.
 .IP [2]
-The string \fBunset\fR, and the \fItile\fR.
+The string \fBunset\fR, and the \fItile\fR\&.
 .RE
 .IP
 These two possibilities are used to either signal the image for the
-\fItile\fR, or that the \fItile\fR has no image defined for it.
+\fItile\fR, or that the \fItile\fR has no image defined for it\&.
 .sp
 When the cache has no information about the tile it will invoke the
 \fIprovider\fR command prefix specified during its construction,
 adding three arguments: The string \fBget\fR, the \fItile\fR, and a
-callback into the cache. The latter will be invoked by the provider to
+callback into the cache\&. The latter will be invoked by the provider to
 either transfer the image to the cache, or signal that the tile has no
-image.
+image\&.
 .sp
 When multiple requests for the same tile are made only one request
-will be issued to the provider.
+will be issued to the provider\&.
 .PP
 .SH REFERENCES
 .IP [1]
-\fIhttp://wiki.openstreetmap.org/wiki/Main_Page\fR
+\fIhttp://wiki\&.openstreetmap\&.org/wiki/Main_Page\fR
 .PP
 .SH KEYWORDS
 cache, filesystem, location, map, slippy, tile, zoom

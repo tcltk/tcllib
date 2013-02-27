@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/struct/struct_set.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2004-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/struct/struct_set\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2004-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "struct::set" n 2.2.3 tcllib "Tcl Data Structures"
+.TH "struct::set" n 2\&.2\&.3 tcllib "Tcl Data Structures"
 .BS
 .SH NAME
 struct::set \- Procedures for manipulating sets
 .SH SYNOPSIS
-package require \fBTcl  8.0\fR
+package require \fBTcl  8\&.0\fR
 .sp
-package require \fBstruct::set  ?2.2.3?\fR
+package require \fBstruct::set  ?2\&.2\&.3?\fR
 .sp
 \fB::struct::set\fR \fBempty\fR \fIset\fR
 .sp
@@ -252,9 +253,9 @@ package require \fBstruct::set  ?2.2.3?\fR
 .sp
 \fB::struct::set\fR \fBcontains\fR \fIset\fR \fIitem\fR
 .sp
-\fB::struct::set\fR \fBunion\fR ?\fIset1\fR...?
+\fB::struct::set\fR \fBunion\fR ?\fIset1\fR\&.\&.\&.?
 .sp
-\fB::struct::set\fR \fBintersect\fR ?\fIset1\fR...?
+\fB::struct::set\fR \fBintersect\fR ?\fIset1\fR\&.\&.\&.?
 .sp
 \fB::struct::set\fR \fBdifference\fR \fIset1\fR \fIset2\fR
 .sp
@@ -278,103 +279,104 @@ package require \fBstruct::set  ?2.2.3?\fR
 .SH DESCRIPTION
 .PP
 The \fB::struct::set\fR namespace contains several useful commands for
-processing finite sets.
+processing finite sets\&.
 .PP
-It exports only a single command, \fBstruct::set\fR. All
+It exports only a single command, \fBstruct::set\fR\&. All
 functionality provided here can be reached through a subcommand of
-this command.
+this command\&.
 .PP
-\fINote:\fR As of version 2.2 of this package a critcl based C
-implementation is available. This implementation however requires Tcl
-8.4 to run.
+\fINote:\fR As of version 2\&.2 of this package a critcl based C
+implementation is available\&. This implementation however requires Tcl
+8\&.4 to run\&.
 .SH COMMANDS
 .TP
 \fB::struct::set\fR \fBempty\fR \fIset\fR
 Returns a boolean value indicating if the \fIset\fR is
-empty (\fBtrue\fR), or not (\fBfalse\fR).
+empty (\fBtrue\fR), or not (\fBfalse\fR)\&.
 .TP
 \fB::struct::set\fR \fBsize\fR \fIset\fR
-Returns an integer number greater than or equal to zero. This is the
-number of elements in the \fIset\fR. In other words, its cardinality.
+Returns an integer number greater than or equal to zero\&. This is the
+number of elements in the \fIset\fR\&. In other words, its cardinality\&.
 .TP
 \fB::struct::set\fR \fBcontains\fR \fIset\fR \fIitem\fR
 Returns a boolean value indicating if the \fIset\fR contains the
-element \fIitem\fR (\fBtrue\fR), or not (\fBfalse\fR).
+element \fIitem\fR (\fBtrue\fR), or not (\fBfalse\fR)\&.
 .TP
-\fB::struct::set\fR \fBunion\fR ?\fIset1\fR...?
+\fB::struct::set\fR \fBunion\fR ?\fIset1\fR\&.\&.\&.?
 Computes the set containing the union of \fIset1\fR, \fIset2\fR,
-etc., i.e. "\fIset1\fR + \fIset2\fR + ...", and returns this set
-as the result of the command.
+etc\&., i\&.e\&. "\fIset1\fR + \fIset2\fR + \&.\&.\&.", and returns this set
+as the result of the command\&.
 .TP
-\fB::struct::set\fR \fBintersect\fR ?\fIset1\fR...?
+\fB::struct::set\fR \fBintersect\fR ?\fIset1\fR\&.\&.\&.?
 Computes the set containing the intersection of \fIset1\fR,
-\fIset2\fR, etc., i.e. "\fIset1\fR * \fIset2\fR * ...", and
-returns this set as the result of the command.
+\fIset2\fR, etc\&., i\&.e\&. "\fIset1\fR * \fIset2\fR * \&.\&.\&.", and
+returns this set as the result of the command\&.
 .TP
 \fB::struct::set\fR \fBdifference\fR \fIset1\fR \fIset2\fR
 Computes the set containing the difference of \fIset1\fR and
-\fIset2\fR, i.e. ("\fIset1\fR - \fIset2\fR") and returns this
-set as the result of the command.
+\fIset2\fR, i\&.e\&. ("\fIset1\fR - \fIset2\fR") and returns this
+set as the result of the command\&.
 .TP
 \fB::struct::set\fR \fBsymdiff\fR \fIset1\fR \fIset2\fR
 Computes the set containing the symmetric difference of \fIset1\fR and
-\fIset2\fR, i.e. ("(\fIset1\fR - \fIset2\fR) + (\fIset2\fR - \fIset1\fR)")
-and returns this set as the result of the command.
+\fIset2\fR, i\&.e\&. ("(\fIset1\fR - \fIset2\fR) + (\fIset2\fR - \fIset1\fR)")
+and returns this set as the result of the command\&.
 .TP
 \fB::struct::set\fR \fBintersect3\fR \fIset1\fR \fIset2\fR
 This command is a combination of the methods \fBintersect\fR and
-\fBdifference\fR.
+\fBdifference\fR\&.
 It returns a three-element list containing "\fIset1\fR*\fIset2\fR",
 "\fIset1\fR-\fIset2\fR", and "\fIset2\fR-\fIset1\fR", in this
-order. In other words, the intersection of the two parameter sets, and
-their differences.
+order\&. In other words, the intersection of the two parameter sets, and
+their differences\&.
 .TP
 \fB::struct::set\fR \fBequal\fR \fIset1\fR \fIset2\fR
 Returns a boolean value indicating if the two sets are equal
-(\fBtrue\fR) or not (\fBfalse\fR).
+(\fBtrue\fR) or not (\fBfalse\fR)\&.
 .TP
 \fB::struct::set\fR \fBinclude\fR \fIsvar\fR \fIitem\fR
 The element \fIitem\fR is added to the set specified by the variable
-name in \fIsvar\fR. The return value of the command is empty. This is
-the equivalent of \fBlappend\fR for sets. If the variable named by
-\fIsvar\fR does not exist it will be created.
+name in \fIsvar\fR\&. The return value of the command is empty\&. This is
+the equivalent of \fBlappend\fR for sets\&. If the variable named by
+\fIsvar\fR does not exist it will be created\&.
 .TP
 \fB::struct::set\fR \fBexclude\fR \fIsvar\fR \fIitem\fR
 The element \fIitem\fR is removed from the set specified by the
-variable name in \fIsvar\fR. The return value of the command is
-empty. This is a near-equivalent of \fBlreplace\fR for sets.
+variable name in \fIsvar\fR\&. The return value of the command is
+empty\&. This is a near-equivalent of \fBlreplace\fR for sets\&.
 .TP
 \fB::struct::set\fR \fBadd\fR \fIsvar\fR \fIset\fR
 All the element of \fIset\fR are added to the set specified by the
-variable name in \fIsvar\fR. The return value of the command is
-empty. This is like the method \fBinclude\fR, but for the addition
-of a whole set. If the variable named by \fIsvar\fR does not exist it
-will be created.
+variable name in \fIsvar\fR\&. The return value of the command is
+empty\&. This is like the method \fBinclude\fR, but for the addition
+of a whole set\&. If the variable named by \fIsvar\fR does not exist it
+will be created\&.
 .TP
 \fB::struct::set\fR \fBsubtract\fR \fIsvar\fR \fIset\fR
 All the element of \fIset\fR are removed from the set specified by the
-variable name in \fIsvar\fR. The return value of the command is
-empty. This is like the method \fBexclude\fR, but for the removal
-of a whole set.
+variable name in \fIsvar\fR\&. The return value of the command is
+empty\&. This is like the method \fBexclude\fR, but for the removal
+of a whole set\&.
 .TP
 \fB::struct::set\fR \fBsubsetof\fR \fIA\fR \fIB\fR
 Returns a boolean value indicating if the set \fIA\fR is a true
 subset of or equal to the set \fIB\fR (\fBtrue\fR), or not
-(\fBfalse\fR).
+(\fBfalse\fR)\&.
 .PP
 .SH REFERENCES
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIstruct :: set\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 cardinality, difference, emptiness, exclusion, inclusion, intersection, membership, set, symmetric difference, union
 .SH CATEGORY
 Data structures
 .SH COPYRIGHT
 .nf
-Copyright (c) 2004-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2004-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

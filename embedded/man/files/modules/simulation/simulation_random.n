@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/simulation/simulation_random.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2004 Arjen Markus <arjenmarkus@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/simulation/simulation_random\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2004 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "simulation::random" n 0.1 tcllib "Tcl Simulation Tools"
+.TH "simulation::random" n 0\&.1 tcllib "Tcl Simulation Tools"
 .BS
 .SH NAME
 simulation::random \- Pseudo-random number generators
 .SH SYNOPSIS
-package require \fBTcl  ?8.4?\fR
+package require \fBTcl  ?8\&.4?\fR
 .sp
-package require \fBsimulation::random  0.1\fR
+package require \fBsimulation::random  0\&.1\fR
 .sp
 \fB::simulation::random::prng_Bernoulli\fR \fIp\fR
 .sp
@@ -278,7 +279,7 @@ package require \fBsimulation::random  0.1\fR
 .SH DESCRIPTION
 .PP
 This package consists of commands to generate pseudo-random number
-generators. These new commands deliver
+generators\&. These new commands deliver
 .IP \(bu
 numbers that are distributed normally, uniformly, according to a
 Pareto or Gumbel distribution and so on
@@ -287,11 +288,14 @@ coordinates of points uniformly spread inside a sphere or a rectangle
 .PP
 For example:
 .CS
-set p [::simulation::random::prng_Normal -1.0 10.0]
+
+
+    set p [::simulation::random::prng_Normal -1\&.0 10\&.0]
+
 .CE
 produces a new command (whose name is stored in the variable "p") that
-generates normally distributed numbers with a mean of -1.0 and a
-standard deviation of 10.0.
+generates normally distributed numbers with a mean of -1\&.0 and a
+standard deviation of 10\&.0\&.
 .SH PROCEDURES
 The package defines the following public procedures for \fIdiscrete\fR
 distributions:
@@ -308,7 +312,7 @@ Chance the outcome is 1
 .TP
 \fB::simulation::random::prng_Discrete\fR \fIn\fR
 Create a command (PRNG) that generates numbers 0 to n-1 with equal
-probability.
+probability\&.
 .RS
 .TP
 int \fIn\fR
@@ -318,7 +322,7 @@ Number of different values (ranging from 0 to n-1)
 .TP
 \fB::simulation::random::prng_Poisson\fR \fIlambda\fR
 Create a command (PRNG) that generates numbers according to the Poisson
-distribution.
+distribution\&.
 .RS
 .TP
 float \fIlambda\fR
@@ -329,7 +333,7 @@ The package defines the following public procedures for \fIcontinuous\fR distrib
 .TP
 \fB::simulation::random::prng_Uniform\fR \fImin\fR \fImax\fR
 Create a command (PRNG) that generates uniformly distributed numbers
-between "min" and "max".
+between "min" and "max"\&.
 .RS
 .TP
 float \fImin\fR
@@ -342,7 +346,7 @@ Maximum number that will be generated
 .TP
 \fB::simulation::random::prng_Exponential\fR \fImin\fR \fImean\fR
 Create a command (PRNG) that generates exponentially distributed numbers
-with a given minimum value and a given mean value.
+with a given minimum value and a given mean value\&.
 .RS
 .TP
 float \fImin\fR
@@ -355,7 +359,7 @@ Mean value for the numbers
 .TP
 \fB::simulation::random::prng_Normal\fR \fImean\fR \fIstdev\fR
 Create a command (PRNG) that generates normally distributed numbers
-with a given mean value and a given standard deviation.
+with a given mean value and a given standard deviation\&.
 .RS
 .TP
 float \fImean\fR
@@ -368,7 +372,7 @@ Standard deviation
 .TP
 \fB::simulation::random::prng_Pareto\fR \fImin\fR \fIsteep\fR
 Create a command (PRNG) that generates numbers distributed according to
-Pareto with a given minimum value and a given distribution steepness.
+Pareto with a given minimum value and a given distribution steepness\&.
 .RS
 .TP
 float \fImin\fR
@@ -381,10 +385,13 @@ Steepness of the distribution
 .TP
 \fB::simulation::random::prng_Gumbel\fR \fImin\fR \fIf\fR
 Create a command (PRNG) that generates numbers distributed according to
-Gumbel with a given minimum value and a given scale factor. The
+Gumbel with a given minimum value and a given scale factor\&. The
 probability density function is:
 .CS
-P(v) = exp( -exp(f*(v-min)))
+
+
+     P(v) = exp( -exp(f*(v-min)))
+
 .CE
 .RS
 .TP
@@ -398,8 +405,8 @@ Scale factor for the values
 .TP
 \fB::simulation::random::prng_chiSquared\fR \fIdf\fR
 Create a command (PRNG) that generates numbers distributed according to
-the chi-squared distribution with df degrees of freedom. The mean is 0
-and the standard deviation is 1.
+the chi-squared distribution with df degrees of freedom\&. The mean is 0
+and the standard deviation is 1\&.
 .RS
 .TP
 float \fIdf\fR
@@ -410,7 +417,7 @@ The package defines the following public procedures for random point sets:
 .TP
 \fB::simulation::random::prng_Disk\fR \fIrad\fR
 Create a command (PRNG) that generates (x,y)-coordinates for points
-uniformly spread over a disk of given radius.
+uniformly spread over a disk of given radius\&.
 .RS
 .TP
 float \fIrad\fR
@@ -420,7 +427,7 @@ Radius of the disk
 .TP
 \fB::simulation::random::prng_Sphere\fR \fIrad\fR
 Create a command (PRNG) that generates (x,y,z)-coordinates for points
-uniformly spread over the surface of a sphere of given radius.
+uniformly spread over the surface of a sphere of given radius\&.
 .RS
 .TP
 float \fIrad\fR
@@ -430,7 +437,7 @@ Radius of the disk
 .TP
 \fB::simulation::random::prng_Ball\fR \fIrad\fR
 Create a command (PRNG) that generates (x,y,z)-coordinates for points
-uniformly spread within a ball of given radius.
+uniformly spread within a ball of given radius\&.
 .RS
 .TP
 float \fIrad\fR
@@ -440,7 +447,7 @@ Radius of the ball
 .TP
 \fB::simulation::random::prng_Rectangle\fR \fIlength\fR \fIwidth\fR
 Create a command (PRNG) that generates (x,y)-coordinates for points
-uniformly spread over a rectangle.
+uniformly spread over a rectangle\&.
 .RS
 .TP
 float \fIlength\fR
@@ -472,5 +479,6 @@ math, random numbers, simulation, statistical distribution
 Mathematics
 .SH COPYRIGHT
 .nf
-Copyright (c) 2004 Arjen Markus <arjenmarkus@users.sourceforge.net>
+Copyright (c) 2004 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
+
 .fi

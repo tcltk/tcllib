@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/md5crypt/md5crypt.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2003, Pat Thoyts <patthoyts@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/md5crypt/md5crypt\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2003, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,16 +238,16 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "md5crypt" n 1.1.0 tcllib "MD5-based password encryption"
+.TH "md5crypt" n 1\&.1\&.0 tcllib "MD5-based password encryption"
 .BS
 .SH NAME
 md5crypt \- MD5-based password encryption
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBmd5  2.0\fR
+package require \fBmd5  2\&.0\fR
 .sp
-package require \fBmd5crypt  ?1.1.0?\fR
+package require \fBmd5crypt  ?1\&.1\&.0?\fR
 .sp
 \fB::md5crypt::md5crypt\fR \fIpassword\fR \fIsalt\fR
 .sp
@@ -260,56 +261,65 @@ package require \fBmd5crypt  ?1.1.0?\fR
 This package provides an implementation of the MD5-crypt password
 encryption algorithm as pioneered by FreeBSD and currently in use as a
 replacement for the unix crypt(3) function in many modern
-systems. An implementation of the closely related Apache MD5-crypt is
-also available.
+systems\&. An implementation of the closely related Apache MD5-crypt is
+also available\&.
 The output of these commands are compatible with the BSD and OpenSSL
-implementation of md5crypt and the Apache 2 htpasswd program.
+implementation of md5crypt and the Apache 2 htpasswd program\&.
 .SH COMMANDS
 .TP
 \fB::md5crypt::md5crypt\fR \fIpassword\fR \fIsalt\fR
 Generate a BSD compatible md5-encoded password hash from the plaintext
-password and a random salt (see SALT).
+password and a random salt (see SALT)\&.
 .TP
 \fB::md5crypt::aprcrypt\fR \fIpassword\fR \fIsalt\fR
 Generate an Apache compatible md5-encoded password hash from the plaintext
-password and a random salt (see SALT).
+password and a random salt (see SALT)\&.
 .TP
 \fB::md5crypt::salt\fR ?\fIlength\fR?
 Generate a random salt string suitable for use with the \fBmd5crypt\fR and
-\fBaprcrypt\fR commands.
+\fBaprcrypt\fR commands\&.
 .PP
 .SH SALT
 The salt passed to either of the encryption schemes implemented here
 is checked to see if it begins with the encryption scheme magic string
-(either "$1$" for MD5-crypt or "$apr1$" for Apache crypt). If so, this
-is removed. The remaining characters up to the next $ and up to a
-maximum of 8 characters are then used as the salt. The salt text
+(either "$1$" for MD5-crypt or "$apr1$" for Apache crypt)\&. If so, this
+is removed\&. The remaining characters up to the next $ and up to a
+maximum of 8 characters are then used as the salt\&. The salt text
 should probably be restricted the set of ASCII alphanumeric characters
-plus "./" (dot and forward-slash) - this is to preserve maximum
-compatability with the unix password file format.
+plus "\&./" (dot and forward-slash) - this is to preserve maximum
+compatability with the unix password file format\&.
 .PP
 If a password is being generated rather than checked from a password
-file then the \fBsalt\fR command may be used to generate a random salt.
+file then the \fBsalt\fR command may be used to generate a random salt\&.
 .SH EXAMPLES
 .CS
+
+
 % md5crypt::md5crypt password 01234567
 $1$01234567$b5lh2mHyD2PdJjFfALlEz1
+
 .CE
 .CS
+
+
 % md5crypt::aprcrypt password 01234567
 $apr1$01234567$IXBaQywhAhc0d75ZbaSDp/
+
 .CE
 .CS
+
+
 % md5crypt::md5crypt password [md5crypt::salt]
-$1$dFmvyRmO$T.V3OmzqeEf3hqJp2WFcb.
+$1$dFmvyRmO$T\&.V3OmzqeEf3hqJp2WFcb\&.
+
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fImd5crypt\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 md5
 .SH KEYWORDS
@@ -318,5 +328,6 @@ hashing, md5, md5crypt, message-digest, security
 Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
-Copyright (c) 2003, Pat Thoyts <patthoyts@users.sourceforge.net>
+Copyright (c) 2003, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
+
 .fi

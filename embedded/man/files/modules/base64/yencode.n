@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/base64/yencode.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/base64/yencode\&.n' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002, Pat Thoyts
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "yencode" n 1.1.2 tcllib "Text encoding & decoding binary data"
+.TH "yencode" n 1\&.1\&.2 tcllib "Text encoding & decoding binary data"
 .BS
 .SH NAME
 yencode \- Y-encode/decode binary data
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fByencode  ?1.1.2?\fR
+package require \fByencode  ?1\&.1\&.2?\fR
 .sp
 \fB::yencode::encode\fR \fIstring\fR
 .sp
@@ -258,67 +259,70 @@ package require \fByencode  ?1.1.2?\fR
 .SH DESCRIPTION
 .PP
 This package provides a Tcl-only implementation of the yEnc file
-encoding. This is a recently introduced method of encoding binary
-files for transmission through Usenet. This encoding packs binary data
+encoding\&. This is a recently introduced method of encoding binary
+files for transmission through Usenet\&. This encoding packs binary data
 into a format that requires an 8-bit clean transmission layer but that
-escapes characters special to the \fINNTP\fR posting protocols. See
-\fIhttp://www.yenc.org/\fR for details concerning the algorithm.
+escapes characters special to the \fINNTP\fR posting protocols\&. See
+\fIhttp://www\&.yenc\&.org/\fR for details concerning the algorithm\&.
 .TP
 \fB::yencode::encode\fR \fIstring\fR
-returns the yEnc encoded data.
+returns the yEnc encoded data\&.
 .TP
 \fB::yencode::decode\fR \fIstring\fR
-Decodes the given yEnc encoded data.
+Decodes the given yEnc encoded data\&.
 .TP
 \fB::yencode::yencode\fR ?\fB-name\fR \fIstring\fR? ?\fB-line\fR \fIinteger\fR? ?\fB-crc32\fR \fIboolean\fR? (\fB-file\fR \fIfilename\fR | ?\fB--\fR? \fIstring\fR)
-Encode a file or block of data.
+Encode a file or block of data\&.
 .TP
 \fB::yencode::ydecode\fR (\fB-file\fR \fIfilename\fR | ?\fB--\fR? \fIstring\fR)
-Decode a file or block of data. A file may contain more than one
+Decode a file or block of data\&. A file may contain more than one
 embedded file so the result is a list where each element is a three
-element list of filename, file size and data.
+element list of filename, file size and data\&.
 .PP
 .SH OPTIONS
 .TP
 -filename name
 Cause the yencode or ydecode commands to read their data from the
-named file rather that taking a string parameter.
+named file rather that taking a string parameter\&.
 .TP
 -name string
 The encoded data header line contains the suggested file name to be
-used when unpacking the data. Use this option to change this from the
-default of "data.dat".
+used when unpacking the data\&. Use this option to change this from the
+default of "data\&.dat"\&.
 .TP
 -line integer
 The yencoded data header line contains records the line length used
-during the encoding. Use this option to select a line length other
-that the default of 128. Note that NNTP imposes a 1000 character line
+during the encoding\&. Use this option to select a line length other
+that the default of 128\&. Note that NNTP imposes a 1000 character line
 length limit and some gateways may have trouble with more than 255
-characters per line.
+characters per line\&.
 .TP
 -crc32 boolean
 The yEnc specification recommends the inclusion of a cyclic redundancy
-check value in the footer. Use this option to change the default from
-\fItrue\fR to \fIfalse\fR.
+check value in the footer\&. Use this option to change the default from
+\fItrue\fR to \fIfalse\fR\&.
 .PP
 .PP
 .CS
-% set d [yencode::yencode -file testfile.txt]
-=ybegin line=128 size=584 name=testfile.txt
--o- data not shown -o-
+
+
+% set d [yencode::yencode -file testfile\&.txt]
+=ybegin line=128 size=584 name=testfile\&.txt
+ -o- data not shown -o-
 =yend size=584 crc32=ded29f4f
+
 .CE
 .SH REFERENCES
 .IP [1]
-\fIhttp://www.yenc.org/yenc-draft.1.3.txt\fR
+\fIhttp://www\&.yenc\&.org/yenc-draft\&.1\&.3\&.txt\fR
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIbase64\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 encoding, yEnc, ydecode, yencode
 .SH CATEGORY
@@ -326,4 +330,5 @@ Text processing
 .SH COPYRIGHT
 .nf
 Copyright (c) 2002, Pat Thoyts
+
 .fi
