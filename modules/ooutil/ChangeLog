@@ -1,3 +1,9 @@
+2013-02-27  Andreas Kupries  <andreask@activestate.com>
+
+	* ooutil.tcl (::oo::Helpers::link): New helper command.
+	* ooutil.man: Makes instance methods available without
+	* pkgIndex.tcl: 'my'. Bumped version to 1.2.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
