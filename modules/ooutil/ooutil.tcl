@@ -162,6 +162,24 @@ oo::class create ooutil::singleton {
 # ::oo::Obj22
 
 # # ## ### ##### ######## ############# ####################
+## Linking instance methods into instance namespace for access without 'my'
+## http://wiki.tcl.tk/27999, AK
+
+proc ::oo::Helpers::link {args} {
+    set ns [uplevel 1 {namespace current}]
+    foreach link $args {
+	if {[llength $link] == 2} {
+	    lassign $link src dst
+	} else {
+	    lassign $link src
+	    set dst $src
+	}
+	interp alias {} ${ns}::$src {} ${ns}::my $dst
+    }
+    return
+}
+
+# # ## ### ##### ######## ############# ####################
 ## Ready
 
-package provide oo::util 1.1
+package provide oo::util 1.2
