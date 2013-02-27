@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/page/page_util_quote.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/page/page_util_quote\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,12 +238,12 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "page_util_quote" n 1.0 tcllib "Parser generator tools"
+.TH "page_util_quote" n 1\&.0 tcllib "Parser generator tools"
 .BS
 .SH NAME
 page_util_quote \- page character quoting utilities
 .SH SYNOPSIS
-package require \fBpage::util::quote  ?0.1?\fR
+package require \fBpage::util::quote  ?0\&.1?\fR
 .sp
 package require \fBsnit \fR
 .sp
@@ -258,49 +259,50 @@ package require \fBsnit \fR
 .SH DESCRIPTION
 .PP
 This package provides a few utility commands to convert characters
-into various forms.
+into various forms\&.
 .SH API
 .TP
 \fB::page::util::quote::unquote\fR \fIchar\fR
 A character, as stored in an abstract syntax tree by a PEG processor
 (See the packages \fBgrammar::peg::interpreter\fR,
-\fBgrammar::me\fR, and their relations), i.e. in some quoted form,
-is converted into the equivalent Tcl character. The character is returned
-as the result of the command.
+\fBgrammar::me\fR, and their relations), i\&.e\&. in some quoted form,
+is converted into the equivalent Tcl character\&. The character is returned
+as the result of the command\&.
 .TP
 \fB::page::util::quote::quote'tcl\fR \fIchar\fR
 This command takes a Tcl character (internal representation) and
 converts it into a string which is accepted by the Tcl parser, will
-regenerate the character in question and is 7bit ASCII. The string is
-returned as the result of this command.
+regenerate the character in question and is 7bit ASCII\&. The string is
+returned as the result of this command\&.
 .TP
 \fB::page::util::quote::quote'tclstr\fR \fIchar\fR
 This command takes a Tcl character (internal representation) and
 converts it into a string which is accepted by the Tcl parser and will
-generate a human readable representation of the character in question.
-The string is returned as the result of this command.
+generate a human readable representation of the character in question\&.
+The string is returned as the result of this command\&.
 .sp
-The string does not use any unprintable characters. It may use
-backslash-quoting. High UTF characters are quoted to avoid problems
-with the still prevalent ascii terminals. It is assumed that the
-string will be used in a double-quoted environment.
+The string does not use any unprintable characters\&. It may use
+backslash-quoting\&. High UTF characters are quoted to avoid problems
+with the still prevalent ascii terminals\&. It is assumed that the
+string will be used in a double-quoted environment\&.
 .TP
 \fB::page::util::quote::quote'tclcom\fR \fIchar\fR
 This command takes a Tcl character (internal representation) and
 converts it into a string which is accepted by the Tcl parser when
-used within a Tcl comment. The string is returned as the result of
-this command.
+used within a Tcl comment\&. The string is returned as the result of
+this command\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems.
+This document, will undoubtedly contain bugs and other problems\&.
 Please report such in the category \fIpage\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
-Please also report any ideas for enhancements you may have.
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+Please also report any ideas for enhancements you may have\&.
 .SH KEYWORDS
 page, parser generator, quoting, text processing
 .SH CATEGORY
 Page Parser Generator
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

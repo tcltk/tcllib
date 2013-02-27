@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/mime/smtp.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 1999-2000 Marshall T. Rose and others
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/mime/smtp\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 1999-2000 Marshall T\&. Rose and others
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,158 +238,163 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "smtp" n 1.4.5 tcllib "smtp client"
+.TH "smtp" n 1\&.4\&.5 tcllib "smtp client"
 .BS
 .SH NAME
 smtp \- Client-side tcl implementation of the smtp protocol
 .SH SYNOPSIS
 package require \fBTcl \fR
 .sp
-package require \fBmime  ?1.5.4?\fR
+package require \fBmime  ?1\&.5\&.4?\fR
 .sp
-package require \fBsmtp  ?1.4.5?\fR
+package require \fBsmtp  ?1\&.4\&.5?\fR
 .sp
-\fB::smtp::sendmessage\fR \fItoken\fR \fIoption\fR...
+\fB::smtp::sendmessage\fR \fItoken\fR \fIoption\fR\&.\&.\&.
 .sp
 .BE
 .SH DESCRIPTION
 .PP
 The \fBsmtp\fR library package provides the client side of the
-Simple Mail Transfer Protocol (SMTP) (1) (2).
+Simple Mail Transfer Protocol (SMTP) (1) (2)\&.
 .TP
-\fB::smtp::sendmessage\fR \fItoken\fR \fIoption\fR...
+\fB::smtp::sendmessage\fR \fItoken\fR \fIoption\fR\&.\&.\&.
 This command sends the MIME part (see package \fBmime\fR)
-represented by \fItoken\fR to an SMTP server. \fIoptions\fR is a list
-of options and their associated values.  The recognized options are:
+represented by \fItoken\fR to an SMTP server\&. \fIoptions\fR is a list
+of options and their associated values\&.  The recognized options are:
 .RS
 .TP
 \fB-servers\fR
-A list of SMTP servers. The default is \fBlocalhost\fR.
+A list of SMTP servers\&. The default is \fBlocalhost\fR\&.
 .TP
 \fB-ports\fR
-A list of SMTP ports. The default is \fB25\fR.
+A list of SMTP ports\&. The default is \fB25\fR\&.
 .TP
 \fB-client\fR
-The name to use as our hostname when connecting to the server. By
+The name to use as our hostname when connecting to the server\&. By
 default this is either localhost if one of the servers is localhost,
-or is set to the string returned by \fBinfo hostname\fR.
+or is set to the string returned by \fBinfo hostname\fR\&.
 .TP
 \fB-queue\fR
 Indicates that the SMTP server should be asked to queue the message
-for later processing. A boolean value.
+for later processing\&. A boolean value\&.
 .TP
 \fB-atleastone\fR
 Indicates that the SMTP server must find at least one recipient
-acceptable for the message to be sent. A boolean value.
+acceptable for the message to be sent\&. A boolean value\&.
 .TP
 \fB-originator\fR
-A string containing an 822-style address specification. If present the
-header isn't examined for an originator address.
+A string containing an 822-style address specification\&. If present the
+header isn't examined for an originator address\&.
 .TP
 \fB-recipients\fR
-A string containing one or more 822-style address specifications. If
-present the header isn't examined for recipient addresses). If the
+A string containing one or more 822-style address specifications\&. If
+present the header isn't examined for recipient addresses)\&. If the
 string contains more than one address they will be separated by
-commas.
+commas\&.
 .TP
 \fB-header\fR
 A list containing two elements, an smtp header and its associated
-value (the -header option may occur zero or more times).
+value (the -header option may occur zero or more times)\&.
 .TP
 \fB-usetls\fR
 This package supports the RFC 3207 TLS extension (3) by default provided the
-tls package is available. You can turn this off with this boolean option.
+tls package is available\&. You can turn this off with this boolean option\&.
 .TP
 \fB-tlspolicy\fR
 This option lets you specify a command to be called if an error occurs
-during TLS setup. The command is called with the SMTP code and diagnostic
-message appended. The command should return 'secure' or 'insecure' where
-insecure will cause the package to continue on the unencrypted channel.
+during TLS setup\&. The command is called with the SMTP code and diagnostic
+message appended\&. The command should return 'secure' or 'insecure' where
+insecure will cause the package to continue on the unencrypted channel\&.
 Returning 'secure' will cause the socket to be closed and the next server
-in the \fB-servers\fR list to be tried.
+in the \fB-servers\fR list to be tried\&.
 .TP
 \fB-username\fR
 .TP
 \fB-password\fR
 If your SMTP server requires authentication (RFC 2554 (4)) before
 accepting mail you can use \fB-username\fR and \fB-password\fR
-to provide your authentication details to the server. Currently this
+to provide your authentication details to the server\&. Currently this
 package supports DIGEST-MD5, CRAM-MD5, LOGIN and PLAIN authentication
-methods. The most secure method will be tried first and each method
+methods\&. The most secure method will be tried first and each method
 tried in turn until we are either authorized or we run out of
-methods. Note that if the server permits a TLS connection, then the
-authorization will occur after we begin using the secure channel.
+methods\&. Note that if the server permits a TLS connection, then the
+authorization will occur after we begin using the secure channel\&.
 .sp
 Please also read the section on \fBAuthentication\fR, it details
-the necessary prequisites, i.e. packages needed to support these
-options and authentication.
+the necessary prequisites, i\&.e\&. packages needed to support these
+options and authentication\&.
 .RE
 .sp
 If the \fB-originator\fR option is not present, the originator
 address is taken from \fBFrom\fR (or \fBResent-From\fR);
 similarly, if the \fB-recipients\fR option is not present,
 recipient addresses are taken from \fBTo\fR, \fBcc\fR, and
-\fBBcc\fR (or \fBResent-To\fR, and so on). Note that the header
+\fBBcc\fR (or \fBResent-To\fR, and so on)\&. Note that the header
 key/values supplied by the \fB-header\fR option (not those present
-in the MIME part) are consulted. Regardless, header key/values are
+in the MIME part) are consulted\&. Regardless, header key/values are
 added to the outgoing message as necessary to ensure that a valid
-822-style message is sent.
+822-style message is sent\&.
 .sp
 The command returns a list indicating which recipients were
-unacceptable to the SMTP server. Each element of the list is another
+unacceptable to the SMTP server\&. Each element of the list is another
 list, containing the address, an SMTP error code, and a textual
-diagnostic. Depending on the \fB-atleastone\fR option and the
+diagnostic\&. Depending on the \fB-atleastone\fR option and the
 intended recipients, a non-empty list may still indicate that the
-message was accepted by the server.
+message was accepted by the server\&.
 .PP
 .SH AUTHENTICATION
-Beware. SMTP authentication uses \fBSASL\fR. I.e. if the user
-has to authenticate a connection, i.e. use the options \fB-user\fR
+Beware\&. SMTP authentication uses \fBSASL\fR\&. I\&.e\&. if the user
+has to authenticate a connection, i\&.e\&. use the options \fB-user\fR
 and \fB-password\fR (see above) it is necessary to have the
-\fBsasl\fR package available so that \fBsmtp\fR can load it.
+\fBsasl\fR package available so that \fBsmtp\fR can load it\&.
 .PP
 This is a soft dependency because not everybody requires authentication,
 and \fBsasl\fR depends on a lot of the cryptographic (secure) hashes,
-i.e. all of \fBmd5\fR, \fBotp\fR, \fBmd4\fR, \fBsha1\fR,
-and \fBripemd160\fR.
+i\&.e\&. all of \fBmd5\fR, \fBotp\fR, \fBmd4\fR, \fBsha1\fR,
+and \fBripemd160\fR\&.
 .SH EXAMPLE
 .CS
+
+
 proc send_simple_message {recipient email_server subject body} {
-package require smtp
-package require mime
-set token [mime::initialize -canonical text/plain \\\\
--string $body]
-mime::setheader $token Subject $subject
-smtp::sendmessage $token \\\\
--recipients $recipient -servers $email_server
-mime::finalize $token
+    package require smtp
+    package require mime
+
+    set token [mime::initialize -canonical text/plain \\\\
+	-string $body]
+    mime::setheader $token Subject $subject
+    smtp::sendmessage $token \\\\
+	-recipients $recipient -servers $email_server
+    mime::finalize $token
 }
-send_simple_message someone@somewhere.com localhost \\\\
-"This is the subject." "This is the message."
+
+send_simple_message someone@somewhere\&.com localhost \\\\
+    "This is the subject\&." "This is the message\&."
+
 .CE
 .SH REFERENCES
 .IP [1]
-Jonathan B. Postel, "SIMPLE MAIL TRANSFER PROTOCOL", RFC 821, August 1982.
-(\fIhttp://www.rfc-editor.org/rfc/rfc821.txt\fR)
+Jonathan B\&. Postel, "SIMPLE MAIL TRANSFER PROTOCOL", RFC 821, August 1982\&.
+(\fIhttp://www\&.rfc-editor\&.org/rfc/rfc821\&.txt\fR)
 .IP [2]
-J. Klensin, "Simple Mail Transfer Protocol", RFC 2821, April 2001.
-(\fIhttp://www.rfc-editor.org/rfc/rfc2821.txt\fR)
+J\&. Klensin, "Simple Mail Transfer Protocol", RFC 2821, April 2001\&.
+(\fIhttp://www\&.rfc-editor\&.org/rfc/rfc2821\&.txt\fR)
 .IP [3]
-P. Hoffman, "SMTP Service Extension for Secure SMTP over Transport
-Layer Security", RFC 3207, February 2002.
-(\fIhttp://www.rfc-editor.org/rfc/rfc3207.txt\fR)
+P\&. Hoffman, "SMTP Service Extension for Secure SMTP over Transport
+Layer Security", RFC 3207, February 2002\&.
+(\fIhttp://www\&.rfc-editor\&.org/rfc/rfc3207\&.txt\fR)
 .IP [4]
-J. Myers, "SMTP Service Extension for Authentication",
-RFC 2554, March 1999.
-(\fIhttp://www.rfc-editor.org/rfc/rfc2554.txt\fR)
+J\&. Myers, "SMTP Service Extension for Authentication",
+RFC 2554, March 1999\&.
+(\fIhttp://www\&.rfc-editor\&.org/rfc/rfc2554\&.txt\fR)
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIsmtp\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 ftp, http, mime, pop3
 .SH KEYWORDS
@@ -397,5 +403,6 @@ email, internet, mail, mime, net, rfc 2554, rfc 2821, rfc 3207, rfc 821, rfc 822
 Networking
 .SH COPYRIGHT
 .nf
-Copyright (c) 1999-2000 Marshall T. Rose and others
+Copyright (c) 1999-2000 Marshall T\&. Rose and others
+
 .fi

@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/units/units.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/units/units\&.n' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2000-2005 Mayo Foundation
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "units" n 1.2 tcllib "Convert and manipulate quantities with units"
+.TH "units" n 1\&.2 tcllib "Convert and manipulate quantities with units"
 .BS
 .SH NAME
 units \- unit conversion
 .SH SYNOPSIS
-package require \fBTcl  8.1\fR
+package require \fBTcl  8\&.1\fR
 .sp
-package require \fBunits  ?2.1?\fR
+package require \fBunits  ?2\&.1?\fR
 .sp
 \fB::units::convert\fR \fIvalue\fR \fItargetUnits\fR
 .sp
@@ -257,137 +258,151 @@ package require \fBunits  ?2.1?\fR
 .PP
 This library provides a conversion facility from a variety of
 scientific and engineering shorthand notations into floating point
-numbers.  This allows application developers to easily convert
-values with different units into uniformly scaled numbers.
+numbers\&.  This allows application developers to easily convert
+values with different units into uniformly scaled numbers\&.
 .PP
 The units conversion facility is also able to convert between
-compatible units.  If, for example, a application is expecting a value
+compatible units\&.  If, for example, a application is expecting a value
 in \fIohms\fR (Resistance), and the user specifies units of
 \fImilliwebers/femtocoulomb\fR, the conversion routine will
-handle it appropriately.  An error will be generated if an incorrect
-conversion is attempted.
+handle it appropriately\&.  An error will be generated if an incorrect
+conversion is attempted\&.
 .PP
 Values are scaled from one set of units to another by dimensional
-analysis.  Both the value units and the target units are reduced into
-primitive units and a scale factor.  Units are checked for
+analysis\&.  Both the value units and the target units are reduced into
+primitive units and a scale factor\&.  Units are checked for
 compatibility, and the scale factors are applied by multiplication and
-division.  This technique is extremely flexible and quite robust.
+division\&.  This technique is extremely flexible and quite robust\&.
 .PP
 New units and new unit abbreviations can be defined in terms of
-existing units and abbreviations.  It is also possible to define a new
-primitive unit, although that will probably be unnecessary.  New units
+existing units and abbreviations\&.  It is also possible to define a new
+primitive unit, although that will probably be unnecessary\&.  New units
 will most commonly be defined to accommodate non-SI measurement
-systems, such as defining the unit \fIinch\fR as \fI2.54 cm\fR.
+systems, such as defining the unit \fIinch\fR as \fI2\&.54 cm\fR\&.
 .SH COMMANDS
 .TP
 \fB::units::convert\fR \fIvalue\fR \fItargetUnits\fR
 Converts the \fIvalue\fR string into a floating point number, scaled to the
-specified \fItargetUnits\fR.  The \fIvalue\fR string may contain a
-number and units.  If units are specified, then they must be
-compatible with the \fItargetUnits\fR.  If units are not specified
-for the \fIvalue\fR, then it will be scaled to the target units.  For
+specified \fItargetUnits\fR\&.  The \fIvalue\fR string may contain a
+number and units\&.  If units are specified, then they must be
+compatible with the \fItargetUnits\fR\&.  If units are not specified
+for the \fIvalue\fR, then it will be scaled to the target units\&.  For
 example,
 .CS
-% ::units::convert "2.3 miles" km
-3.7014912
+
+
+% ::units::convert "2\&.3 miles" km
+3\&.7014912
 % ::units::convert 300m/s miles/hour
-671.080887616
-% ::units::convert "1.0 m kg/s^2" newton
-1.0
-% ::units::convert 1.0 millimeter
-1000.0
+671\&.080887616
+% ::units::convert "1\&.0 m kg/s^2" newton
+1\&.0
+% ::units::convert 1\&.0 millimeter
+1000\&.0
+
 .CE
 .TP
 \fB::units::reduce\fR \fIunitString\fR
 Returns a unit string consisting of a scale factor followed by a space
-separated list of sorted and reduced primitive units.  The reduced
+separated list of sorted and reduced primitive units\&.  The reduced
 unit string may include a forward-slash (separated from the
 surrounding primitive subunits by spaces) indicating that the
-remaining subunits are in the denominator.  Generates an error if the
-\fIunitString\fR is invalid.
+remaining subunits are in the denominator\&.  Generates an error if the
+\fIunitString\fR is invalid\&.
 .CS
+
+
 % ::units::reduce pascal
-1000.0 gram / meter second second
+1000\&.0 gram / meter second second
+
 .CE
 .TP
 \fB::units::new\fR \fIname\fR \fIbaseUnits\fR
-Creates a new unit conversion with the specified name.  The new unit
-\fIname\fR must be only alphabetic (upper or lower case) letters.
+Creates a new unit conversion with the specified name\&.  The new unit
+\fIname\fR must be only alphabetic (upper or lower case) letters\&.
 The \fIbaseUnits\fR string can consist of any valid units conversion
 string, including constant factors, numerator and denominator parts,
-units with prefixes, and exponents.  The baseUnits may contain any
-number of subunits, but it must reduce to primitive units.  BaseUnits
+units with prefixes, and exponents\&.  The baseUnits may contain any
+number of subunits, but it must reduce to primitive units\&.  BaseUnits
 could also be the string \fI-primitive\fR to represent a new
-kind of quantity which cannot be derived from other units.  But you
+kind of quantity which cannot be derived from other units\&.  But you
 probably would not do that unless you have discovered some kind of new
-universal property.
+universal property\&.
 .CS
+
+
 % ::units::new furlong "220 yards"
 % ::units::new fortnight "14 days"
 % ::units::convert 100m/s furlongs/fortnight
-601288.475303
+601288\&.475303
+
 .CE
 .PP
 .SH "UNIT STRING FORMAT"
-Value and unit string format is quite flexible.  It is possible to
-define virtually any combination of units, prefixes, and powers.
-Valid unit strings must conform to these rules.
+Value and unit string format is quite flexible\&.  It is possible to
+define virtually any combination of units, prefixes, and powers\&.
+Valid unit strings must conform to these rules\&.
 .IP \(bu
 A unit string consists of an optional scale factor followed by zero or
-more subunits.  The scale factor must be a valid floating point
-number, and may or may not be separated from the subunits.  The scale
-factor could be negative.
+more subunits\&.  The scale factor must be a valid floating point
+number, and may or may not be separated from the subunits\&.  The scale
+factor could be negative\&.
 .IP \(bu
 Subunits are separated form each other by one or more separator
 characters, which are space (" "), hyphen ("-"), asterisk ("*"), and
-forward-slash ("/").  Sure, go ahead and complain about using a minus
-sign ("-") to represent multiplication.  It just isn't sound
+forward-slash ("/")\&.  Sure, go ahead and complain about using a minus
+sign ("-") to represent multiplication\&.  It just isn't sound
 mathematics, and, by rights, we should require everyone to use the
-asterisk ("*") to separate all units.  But the bottom line is that
+asterisk ("*") to separate all units\&.  But the bottom line is that
 complex unit strings like \fIm-kg/s^2\fR are pleasantly
-readable.
+readable\&.
 .IP \(bu
 The forward-slash seperator ("/") indicates that following subunits are
-in the denominator.  There can be at most one forward-slash separator.
+in the denominator\&.  There can be at most one forward-slash separator\&.
 .IP \(bu
 Subunits can be floating point scale factors, but with the exception
 of the leading scale factor, they must be surrounded by valid
-separators.  Subunit scale factors cannot be negative. (Remember that
-the hyphen is a unit separator.)
+separators\&.  Subunit scale factors cannot be negative\&. (Remember that
+the hyphen is a unit separator\&.)
 .IP \(bu
-Subunits can be valid units or abbreviations.  They may include a
-prefix.  They may include a plural suffix "s" or "es".  They may also
+Subunits can be valid units or abbreviations\&.  They may include a
+prefix\&.  They may include a plural suffix "s" or "es"\&.  They may also
 include a power string denoted by a circumflex ("^"), followed by a
-integer, after the unit name (or plural suffix, if there is one).
-Negative exponents are not allowed.  (Remember that the hyphen is a
-unit separator.)
+integer, after the unit name (or plural suffix, if there is one)\&.
+Negative exponents are not allowed\&.  (Remember that the hyphen is a
+unit separator\&.)
 .PP
 .SS "EXAMPLE VALID UNIT STRINGS"
 .CS
+
+
 Unit String              Reduced Unit String
 ------------------------------------------------------------
-meter                    1.0 meter
-kilometer                1000.0 meter
-km                       1000.0 meter
-km/s                     1000.0 meter / second
-/microsecond             1000000.0 / second
-/us                      1000000.0 / second
-kg-m/s^2                 1000.0 gram meter / second second
-30second                 30.0 second
-30 second                30.0 second
-30 seconds               30.0 second
-200*meter/20.5*second    9.75609756098 meter / second
+meter                    1\&.0 meter
+kilometer                1000\&.0 meter
+km                       1000\&.0 meter
+km/s                     1000\&.0 meter / second
+/microsecond             1000000\&.0 / second
+/us                      1000000\&.0 / second
+kg-m/s^2                 1000\&.0 gram meter / second second
+30second                 30\&.0 second
+30 second                30\&.0 second
+30 seconds               30\&.0 second
+200*meter/20\&.5*second    9\&.75609756098 meter / second
+
 .CE
 .SH "SI UNITS"
 .PP
 The standard SI units are predefined according to \fINIST Special
-Publication 330\fR.  Standard units for both SI Base Units (Table
+Publication 330\fR\&.  Standard units for both SI Base Units (Table
 1) and SI Derived Units with Special Names (Tables 3a and 3b) are
-included here for reference.  Each standard unit name and abbreviation
-are included in this package.
+included here for reference\&.  Each standard unit name and abbreviation
+are included in this package\&.
 .SS "SI BASE UNITS"
 .CS
-Quantity                Unit Name    Abbr.
+
+
+Quantity                Unit Name    Abbr\&.
 ---------------------------------------------
 Length                  meter        m
 Mass                    kilogram     kg
@@ -396,10 +411,13 @@ Current                 ampere       A
 Temperature             kelvin       K
 Amount                  mole         mol
 Luminous Intensity      candela      cd
+
 .CE
 .SS "SI DERIVED UNITS WITH SPECIAL NAMES"
 .CS
-Quantity                Unit Name    Abbr.   Units     Base Units
+
+
+Quantity                Unit Name    Abbr\&.   Units     Base Units
 --------------------------------------------------------------------
 plane angle             radian      rad     m/m       m/m
 solid angle             steradian   sr      m^2/m^2   m^2/m^2
@@ -422,29 +440,32 @@ activity (of a
 radionuclide)           becquerel   Bq                /s
 absorbed dose           gray        Gy      J/kg      m^2/s^2
 dose equivalent         sievert     Sv      J/kg      m^2/s^2
+
 .CE
 .PP
 Note that the SI unit kilograms is actually implemented as grams
-because 1e-6 kilogram = 1 milligram, not 1 microkilogram.  The
+because 1e-6 kilogram = 1 milligram, not 1 microkilogram\&.  The
 abbreviation for Electric Resistance (ohms), which is the omega
-character, is not supported.
+character, is not supported\&.
 .PP
 Also note that there is no support for Celsius or Farenheit
-temperature.  The units conversion routines can only scale values
+temperature\&.  The units conversion routines can only scale values
 with multiplication and division, so it is not possible to convert
 from thermodynamic temperature (kelvins) to absolute degrees Celsius
-or Farenheit.  Conversion of thermodynamic quantities, such as
+or Farenheit\&.  Conversion of thermodynamic quantities, such as
 thermal expansion (per unit temperature), however, are easy to add
-to the units library.
+to the units library\&.
 .PP
-SI Units can have a multiple or sub-multiple prefix.  The prefix or its
-abbreviation should appear before the unit, without spaces.  Compound
-prefixes are not allowed, and a prefix should never be used alone.
+SI Units can have a multiple or sub-multiple prefix\&.  The prefix or its
+abbreviation should appear before the unit, without spaces\&.  Compound
+prefixes are not allowed, and a prefix should never be used alone\&.
 These prefixes are defined in Table 5 of \fISpecial Publication
-330\fR.
+330\fR\&.
 .SS "SI PREFIXES"
 .CS
-Prefix Name     Abbr.   Factor
+
+
+Prefix Name     Abbr\&.   Factor
 ---------------------------------------
 yotta           Y       1e24
 zetta           Z       1e21
@@ -457,6 +478,7 @@ kilo            k       1e3
 hecto           h       1e2
 deka            da      1e1
 deca                    1e1
+
 deci            d       1e-1
 centi           c       1e-2
 milli           m       1e-3
@@ -467,115 +489,120 @@ femto           f       1e-15
 atto            a       1e-18
 zepto           z       1e-21
 yocto           y       1e-24
+
 .CE
 .PP
 Note that we define the same prefix with both the USA ("deka") and
-non-USA ("deca") spellings.  Also note that we take the liberty of
+non-USA ("deca") spellings\&.  Also note that we take the liberty of
 allowing "micro" to be typed as a "u" instead of the Greek character
-mu.
+mu\&.
 .PP
-Many non-SI units are commonly used in applications.  Appendix B.8 of
+Many non-SI units are commonly used in applications\&.  Appendix B\&.8 of
 \fINIST Special Publication 811\fR lists many non-SI conversion
-factors.  It is not possible to include all possible unit definitions
-in this package.  In some cases, many different conversion factors
-exist for a given unit, depending on the context. (The appendix lists
+factors\&.  It is not possible to include all possible unit definitions
+in this package\&.  In some cases, many different conversion factors
+exist for a given unit, depending on the context\&. (The appendix lists
 over 40 conversions for British thermal units!)  Application specific
 conversions can always be added using the \fBnew\fR
 command, but some well known and often used conversions are included
-in this package.
+in this package\&.
 .SS "NON-SI UNITS"
 .CS
-Unit Name            Abbr.    Base Units
+
+
+Unit Name            Abbr\&.    Base Units
 --------------------------------------------------
-angstrom                      1.0E-10 m
-astronomicalUnit     AU       1.495979E11 m
-atmosphere                    1.01325E5 Pa
-bar                           1.0E5 Pa
-calorie                       4.1868 J
-curie                         3.7E10 Bq
-day                           8.64E4 s
-degree                        1.745329E-2 rad
-erg                           1.0E-7 J
-faraday                       9.648531 C
-fermi                         1.0E-15 m
-foot                 ft       3.048E-1 m
-gauss                         1.0E-4 T
-gilbert                       7.957747E-1 A
-grain                gr       6.479891E-5 kg
-hectare              ha       1.0E4 m^2
-hour                 h        3.6E3 s
-inch                 in       2.54E-2 m
-lightYear                     9.46073E15 m
-liter                L        1.0E-3 m^3
-maxwell              Mx       1.0E-8 Wb
-mho                           1.0 S
-micron                        1.0E-6 m
-mil                           2.54E-5 m
-mile                 mi       1.609344E3 m
-minute               min      6.0E1 s
-parsec               pc       3.085E16 m
-pica                          4.233333E-3 m
-pound                lb       4.535924E-1 kg
-revolution                    6.283185 rad
-revolutionPerMinute  rpm      1.047198E-1 rad/s
-yard                 yd       9.144E-1 m
-year                          3.1536E7 s
+angstrom                      1\&.0E-10 m
+astronomicalUnit     AU       1\&.495979E11 m
+atmosphere                    1\&.01325E5 Pa
+bar                           1\&.0E5 Pa
+calorie                       4\&.1868 J
+curie                         3\&.7E10 Bq
+day                           8\&.64E4 s
+degree                        1\&.745329E-2 rad
+erg                           1\&.0E-7 J
+faraday                       9\&.648531 C
+fermi                         1\&.0E-15 m
+foot                 ft       3\&.048E-1 m
+gauss                         1\&.0E-4 T
+gilbert                       7\&.957747E-1 A
+grain                gr       6\&.479891E-5 kg
+hectare              ha       1\&.0E4 m^2
+hour                 h        3\&.6E3 s
+inch                 in       2\&.54E-2 m
+lightYear                     9\&.46073E15 m
+liter                L        1\&.0E-3 m^3
+maxwell              Mx       1\&.0E-8 Wb
+mho                           1\&.0 S
+micron                        1\&.0E-6 m
+mil                           2\&.54E-5 m
+mile                 mi       1\&.609344E3 m
+minute               min      6\&.0E1 s
+parsec               pc       3\&.085E16 m
+pica                          4\&.233333E-3 m
+pound                lb       4\&.535924E-1 kg
+revolution                    6\&.283185 rad
+revolutionPerMinute  rpm      1\&.047198E-1 rad/s
+yard                 yd       9\&.144E-1 m
+year                          3\&.1536E7 s
+
 .CE
 .SS "QUANTITIES AND DERIVED UNITS WITH SPECIAL NAMES"
 This units conversion package is limited specifically to unit
-reduction, comparison, and scaling.  This package does not consider
-any of the quantity names for either base or derived units.  A similar
+reduction, comparison, and scaling\&.  This package does not consider
+any of the quantity names for either base or derived units\&.  A similar
 implementation or an extension in a typed or object-oriented language
-might introduce user defined types for the quantities.  Quantity type
+might introduce user defined types for the quantities\&.  Quantity type
 checking could be used, for example, to ensure that all
 \fIlength\fR values properly reduced to \fImeters\fR, or
 that all \fIvelocity\fR values properly reduced to
-\fImeters/second\fR.
+\fImeters/second\fR\&.
 .PP
 A C implementation of this package has been created to work in
 conjunction with the Simplified Wrapper Interface Generator
-(\fIhttp://www.swig.org/\fR).  That package (units.i) exploits SWIG's typemap
+(\fIhttp://www\&.swig\&.org/\fR)\&.  That package (units\&.i) exploits SWIG's typemap
 system to automatically convert script quantity strings into floating
-point quantities.  Function arguments are specified as quantity types
-(e.g., \fItypedef float Length\fR), and target units (expected
-by the C application code) are specified in an associative array.
+point quantities\&.  Function arguments are specified as quantity types
+(e\&.g\&., \fItypedef float Length\fR), and target units (expected
+by the C application code) are specified in an associative array\&.
 Default units are also defined for each quantity type, and are applied
-to any unit-less quantity strings.
+to any unit-less quantity strings\&.
 .PP
 A units system enhanced with quantity type checking might benefit from
 inclusion of other derived types which are expressed in terms of
 special units, as illustrated in Table 2 of \fINIST Publication
-330\fR.  The quantity \fIarea\fR, for example, could be
+330\fR\&.  The quantity \fIarea\fR, for example, could be
 defined as units properly reducing to \fImeter^2\fR, although
 the utility of defining a unit named \fIsquare meter\fR is
-arguable.
+arguable\&.
 .SH REFERENCES
 The unit names, abbreviations, and conversion values are derived from
 those published by the United States Department of Commerce Technology
 Administration, National Institute of Standards and Technology (NIST)
 in \fINIST Special Publication 330: The International System of
 Units (SI)\fR and \fINIST Special Publication 811: Guide for
-the Use of the International System of Units (SI)\fR.  Both of
+the Use of the International System of Units (SI)\fR\&.  Both of
 these publications are available (as of December 2000) from
-\fIhttp://physics.nist.gov/cuu/Reference/contents.html\fR
+\fIhttp://physics\&.nist\&.gov/cuu/Reference/contents\&.html\fR
 .PP
 The ideas behind implementation of this package is based in part on
 code written in 1993 by Adrian Mariano which performed dimensional
-analysis of unit strings using fixed size tables of C structs.  After
+analysis of unit strings using fixed size tables of C structs\&.  After
 going missing in the late 1990's, Adrian's code has reappeared in the
-GNU Units program at \fIhttp://www.gnu.org/software/units/\fR
+GNU Units program at \fIhttp://www\&.gnu\&.org/software/units/\fR
 .SH AUTHORS
-Robert W. Techentin
+Robert W\&. Techentin
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIunits\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 angle, constants, conversion, distance, radians, unit
 .SH COPYRIGHT
 .nf
 Copyright (c) 2000-2005 Mayo Foundation
+
 .fi

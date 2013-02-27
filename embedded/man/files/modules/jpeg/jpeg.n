@@ -1,9 +1,9 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/jpeg/jpeg.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2004-2005, Code: Aaron Faupell <afaupell@users.sourceforge.net>
-'\" Copyright (c) 2007, Code: Andreas Kupries <andreas_kupries@users.sourceforge.net>
-'\" Copyright (c) 2004-2009, Doc: Andreas Kupries <andreas_kupries@users.sourceforge.net>
-'\" Copyright (c) 2011, Code: Pat Thoyts <patthoyts@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/jpeg/jpeg\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2004-2005, Code: Aaron Faupell <afaupell@users\&.sourceforge\&.net>
+'\" Copyright (c) 2007, Code: Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2004-2009, Doc: Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2011, Code: Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -225,6 +225,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -240,14 +241,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "jpeg" n 0.4.0 tcllib "JPEG image manipulation"
+.TH "jpeg" n 0\&.4\&.0 tcllib "JPEG image manipulation"
 .BS
 .SH NAME
 jpeg \- JPEG querying and manipulation of meta data
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBjpeg  ?0.4.0?\fR
+package require \fBjpeg  ?0\&.4\&.0?\fR
 .sp
 \fB::jpeg::isJPEG\fR \fIfile\fR
 .sp
@@ -271,7 +272,7 @@ package require \fBjpeg  ?0.4.0?\fR
 .sp
 \fB::jpeg::getComments\fR \fIfile\fR
 .sp
-\fB::jpeg::addComment\fR \fIfile\fR \fItext\fR...
+\fB::jpeg::addComment\fR \fIfile\fR \fItext\fR\&.\&.\&.
 .sp
 \fB::jpeg::removeComments\fR \fIfile\fR
 .sp
@@ -284,133 +285,145 @@ package require \fBjpeg  ?0.4.0?\fR
 .BE
 .SH DESCRIPTION
 .PP
-This package provides commands to query and modify JPEG images. JPEG
+This package provides commands to query and modify JPEG images\&. JPEG
 stands for \fIJoint Photography Experts Group\fR and is a standard
-for the lossy compression of photographical images. It is specified at
-\fILINK_HERE\fR.
+for the lossy compression of photographical images\&. It is specified at
+\fILINK_HERE\fR\&.
 .SH COMMANDS
 .TP
 \fB::jpeg::isJPEG\fR \fIfile\fR
 Returns a boolean value indicating if \fIfile\fR is a
-JPEG image.
+JPEG image\&.
 .TP
 \fB::jpeg::imageInfo\fR \fIfile\fR
 Returns a dictionary with keys \fBversion\fR, \fBunits\fR,
 \fBxdensity\fR, \fBydensity\fR, \fBxthumb\fR, and
-\fBythumb\fR. The values are the associated properties of the JPEG
-image in \fIfile\fR.
-Throws an error if \fIfile\fR is not a JPEG image.
+\fBythumb\fR\&. The values are the associated properties of the JPEG
+image in \fIfile\fR\&.
+Throws an error if \fIfile\fR is not a JPEG image\&.
 .TP
 \fB::jpeg::dimensions\fR \fIfile\fR
 Returns the dimensions of the JPEG \fIfile\fR as a list of the
-horizontal and vertical pixel count.
-Throws an error if \fIfile\fR is not a JPEG image.
+horizontal and vertical pixel count\&.
+Throws an error if \fIfile\fR is not a JPEG image\&.
 .TP
 \fB::jpeg::getThumbnail\fR \fIfile\fR
 This procedure will return the binary thumbnail image data, if a JPEG
 thumbnail is included in \fIfile\fR, and the empty string
-otherwise. Note that it is possible to include thumbnails in formats
-other than JPEG although that is not common. The command finds
+otherwise\&. Note that it is possible to include thumbnails in formats
+other than JPEG although that is not common\&. The command finds
 thumbnails that are encoded in either the JFXX or EXIF segments of the
-JPEG information. If both are present the EXIF thumbnail will take precedence.
-Throws an error if \fIfile\fR is not a JPEG image.
+JPEG information\&. If both are present the EXIF thumbnail will take precedence\&.
+Throws an error if \fIfile\fR is not a JPEG image\&.
 .CS
-set fh [open thumbnail.jpg w+]
-fconfigure $fh -translation binary -encoding binary
-puts -nonewline $fh [::jpeg::getThumbnail photo.jpg]
-close $fh
+
+
+    set fh [open thumbnail\&.jpg w+]
+    fconfigure $fh -translation binary -encoding binary
+    puts -nonewline $fh [::jpeg::getThumbnail photo\&.jpg]
+    close $fh
+
 .CE
 .TP
 \fB::jpeg::getExif\fR \fIfile\fR ?\fIsection\fR?
-\fIsection\fR must be one of \fBmain\fR or \fBthumbnail\fR.
-The default is \fBmain\fR.
-Returns a dictionary containing the EXIF information for the specified section.
+\fIsection\fR must be one of \fBmain\fR or \fBthumbnail\fR\&.
+The default is \fBmain\fR\&.
+Returns a dictionary containing the EXIF information for the specified section\&.
 For example:
 .sp
 .CS
-set exif {
-Make     Canon
-Model    {Canon DIGITAL IXUS}
-DateTime {2001:06:09 15:17:32}
-}
+
+
+    set exif {
+	Make     Canon
+	Model    {Canon DIGITAL IXUS}
+	DateTime {2001:06:09 15:17:32}
+    }
+
 .CE
 .IP
-Throws an error if \fIfile\fR is not a JPEG image.
+Throws an error if \fIfile\fR is not a JPEG image\&.
 .TP
 \fB::jpeg::getExifFromChannel\fR \fIchannel\fR ?\fIsection\fR?
 This command is as per \fB::jpeg::getExif\fR except that it uses a
-previously opened channel.  \fIchannel\fR should be a seekable channel
+previously opened channel\&.  \fIchannel\fR should be a seekable channel
 and \fIsection\fR is as described in the documentation of
 \fB::jpeg::getExif\fR
 Note: the jpeg parser expects that the start of the channel is the
-start of the image data. If working with an image embedded in a
+start of the image data\&. If working with an image embedded in a
 container file format it may be necessary to read the jpeg data into
-a temporary container: either a temporary file or a memory channel.
+a temporary container: either a temporary file or a memory channel\&.
 .TP
 \fB::jpeg::formatExif\fR \fIkeys\fR
 Takes a list of key-value pairs as returned by \fBgetExif\fR and formats
-many of the values into a more human readable form. As few as one key-value
-may be passed in, the entire exif is not required.
+many of the values into a more human readable form\&. As few as one key-value
+may be passed in, the entire exif is not required\&.
 .CS
-foreach {key val} [::jpeg::formatExif [::jpeg::getExif photo.jpg]] {
-puts "$key: $val"
-}
+
+
+    foreach {key val} [::jpeg::formatExif [::jpeg::getExif photo\&.jpg]] {
+        puts "$key: $val"
+    }
+
 .CE
 .sp
 .CS
-array set exif [::jpeg::getExif photo.jpg]
-puts "max f-stop: [::jpeg::formatExif [list MaxAperture $exif(MaxAperture)]]
+
+
+    array set exif [::jpeg::getExif photo\&.jpg]
+    puts "max f-stop: [::jpeg::formatExif [list MaxAperture $exif(MaxAperture)]]
+
 .CE
 .TP
 \fB::jpeg::exifKeys\fR
-Returns a list of the EXIF keys which are currently understood.
-There may be keys present in \fBgetExif\fR data that are not understood.
-Those keys will appear in a 4 digit hexadecimal format.
+Returns a list of the EXIF keys which are currently understood\&.
+There may be keys present in \fBgetExif\fR data that are not understood\&.
+Those keys will appear in a 4 digit hexadecimal format\&.
 .TP
 \fB::jpeg::removeExif\fR \fIfile\fR
 Removes the Exif data segment from the specified file and replaces
-it with a standard JFIF segment.
-Throws an error if \fIfile\fR is not a JPEG image.
+it with a standard JFIF segment\&.
+Throws an error if \fIfile\fR is not a JPEG image\&.
 .TP
 \fB::jpeg::stripJPEG\fR \fIfile\fR
 Removes all metadata from the JPEG file leaving only
-the image. This includes comments, EXIF segments, JFXX
-segments, and application specific segments.
-Throws an error if \fIfile\fR is not a JPEG image.
+the image\&. This includes comments, EXIF segments, JFXX
+segments, and application specific segments\&.
+Throws an error if \fIfile\fR is not a JPEG image\&.
 .TP
 \fB::jpeg::getComments\fR \fIfile\fR
 Returns a list containing all the JPEG comments found in
-the \fIfile\fR.
-Throws an error if \fIfile\fR is not a valid JPEG image.
+the \fIfile\fR\&.
+Throws an error if \fIfile\fR is not a valid JPEG image\&.
 .TP
-\fB::jpeg::addComment\fR \fIfile\fR \fItext\fR...
+\fB::jpeg::addComment\fR \fIfile\fR \fItext\fR\&.\&.\&.
 Adds one or more plain \fItext\fR comments to the JPEG image
-in \fIfile\fR.
-Throws an error if \fIfile\fR is not a valid JPEG image.
+in \fIfile\fR\&.
+Throws an error if \fIfile\fR is not a valid JPEG image\&.
 .TP
 \fB::jpeg::removeComments\fR \fIfile\fR
-Removes all comments from the file specified.
-Throws an error if \fIfile\fR is not a valid JPEG image.
+Removes all comments from the file specified\&.
+Throws an error if \fIfile\fR is not a valid JPEG image\&.
 .TP
 \fB::jpeg::replaceComment\fR \fIfile\fR \fItext\fR
-Replaces the first comment in the file with the new \fItext\fR.
+Replaces the first comment in the file with the new \fItext\fR\&.
 This is merely a shortcut for \fB::jpeg::removeComments\fR
 and \fB::jpeg::addComment\fR
-Throws an error if \fIfile\fR is not a valid JPEG image.
+Throws an error if \fIfile\fR is not a valid JPEG image\&.
 .TP
 \fB::jpeg::debug\fR \fIfile\fR
-Prints everything we know about the given file in a nice format.
+Prints everything we know about the given file in a nice format\&.
 .TP
 \fB::jpeg::markers\fR \fIchannel\fR
 This is an internal helper command, we document it for use by advanced
-users of the package. The argument \fIchannel\fR is an open file
+users of the package\&. The argument \fIchannel\fR is an open file
 handle positioned at the start of the first marker (usually 2
-bytes). The command returns a list with one element for each JFIF
-marker found in the file. Each element consists of a list of the
-marker name, its offset in the file, and its length. The offset points
-to the beginning of the sections data, not the marker itself.  The
+bytes)\&. The command returns a list with one element for each JFIF
+marker found in the file\&. Each element consists of a list of the
+marker name, its offset in the file, and its length\&. The offset points
+to the beginning of the sections data, not the marker itself\&.  The
 length is the length of the data from the offset listed to the start
-of the next marker.
+of the next marker\&.
 .PP
 .SH LIMITATIONS
 can only work with files
@@ -419,19 +432,20 @@ gps exif data not parsed
 makernote data not yet implemented
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIjpeg\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 comment, exif, image, jfif, jpeg, thumbnail
 .SH CATEGORY
 File formats
 .SH COPYRIGHT
 .nf
-Copyright (c) 2004-2005, Code: Aaron Faupell <afaupell@users.sourceforge.net>
-Copyright (c) 2007, Code:  Andreas Kupries <andreas_kupries@users.sourceforge.net>
-Copyright (c) 2004-2009, Doc:  Andreas Kupries <andreas_kupries@users.sourceforge.net>
-Copyright (c) 2011, Code: Pat Thoyts <patthoyts@users.sourceforge.net>
+Copyright (c) 2004-2005, Code: Aaron Faupell <afaupell@users\&.sourceforge\&.net>
+Copyright (c) 2007, Code:  Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2004-2009, Doc:  Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2011, Code: Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
+
 .fi

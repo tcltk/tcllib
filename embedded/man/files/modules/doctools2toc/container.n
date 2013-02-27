@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/doctools2toc/container.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/doctools2toc/container\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -244,7 +245,7 @@ doctools::toc \- Holding tables of contents
 .SH SYNOPSIS
 package require \fBdoctools::toc  ?2?\fR
 .sp
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
 package require \fBdoctools::toc::structure \fR
 .sp
@@ -254,7 +255,7 @@ package require \fBsnit \fR
 .sp
 \fB::doctools::toc\fR \fIobjectName\fR
 .sp
-\fBobjectName\fR \fBmethod\fR ?\fIarg arg ...\fR?
+\fBobjectName\fR \fBmethod\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp
 \fIobjectName\fR \fBdestroy\fR
 .sp
@@ -270,9 +271,9 @@ package require \fBsnit \fR
 .sp
 \fIobjectName\fR \fBprev\fR \fIid\fR
 .sp
-\fIobjectName\fR \fBchild\fR \fIid\fR \fIlabel\fR ?\fI...\fR?
+\fIobjectName\fR \fBchild\fR \fIid\fR \fIlabel\fR ?\fI\&.\&.\&.\fR?
 .sp
-\fIobjectName\fR \fBelement\fR ?\fI...\fR?
+\fIobjectName\fR \fBelement\fR ?\fI\&.\&.\&.\fR?
 .sp
 \fIobjectName\fR \fBchildren\fR \fIid\fR
 .sp
@@ -311,10 +312,10 @@ package require \fBsnit \fR
 .BE
 .SH DESCRIPTION
 This package provides a class to contain and programmatically
-manipulate tables of contents.
+manipulate tables of contents\&.
 .PP
 This is one of the three public pillars the management of tables of
-contents resides on. The other two pillars are
+contents resides on\&. The other two pillars are
 .IP [1]
 \fIExporting tables of contents\fR, and
 .IP [2]
@@ -322,357 +323,357 @@ contents resides on. The other two pillars are
 .PP
 .PP
 For information about the \fBConcepts\fR of tables of contents, and
-their parts, see the same-named section.
+their parts, see the same-named section\&.
 For information about the data structure which is used to encode
 tables of contents as values see the section
-\fBToC serialization format\fR.
-This is the only format directly known to this class. Conversions from
+\fBToC serialization format\fR\&.
+This is the only format directly known to this class\&. Conversions from
 and to any other format are handled by export and import manager
-objects. These may be attached to a container, but do not have to be,
-it is merely a convenience.
+objects\&. These may be attached to a container, but do not have to be,
+it is merely a convenience\&.
 .SH CONCEPTS
 .IP [1]
 A \fItable of contents\fR consists of a (possibly empty) list of
-\fIelements\fR.
+\fIelements\fR\&.
 .IP [2]
-Each element in the list is identified by its label.
+Each element in the list is identified by its label\&.
 .IP [3]
-Each element is either a \fIreference\fR, or a \fIdivision\fR.
+Each element is either a \fIreference\fR, or a \fIdivision\fR\&.
 .IP [4]
 Each reference has an associated document, identified by a symbolic
-id, and a textual description.
+id, and a textual description\&.
 .IP [5]
 Each division may have an associated document, identified by a
-symbolic id.
+symbolic id\&.
 .IP [6]
 Each division consists consists of a (possibly empty) list of
 \fIelements\fR, with each element following the rules as specified in
-item 2 and above.
+item 2 and above\&.
 .PP
 A few notes
 .IP [1]
 The above rules span up a tree of elements, with references as the
 leaf nodes, and divisions as the inner nodes, and each element
-representing an entry in the whole table of contents.
+representing an entry in the whole table of contents\&.
 .IP [2]
 The identifying labels of any element E are unique within their
 division (or toc), and the full label of any element E is the list of
 labels for all nodes on the unique path from the root of the tree to
-E, including E.
+E, including E\&.
 .PP
 .SH API
 .SS "PACKAGE COMMANDS"
 .TP
 \fB::doctools::toc\fR \fIobjectName\fR
 This command creates a new container object with an associated Tcl
-command whose name is \fIobjectName\fR. This \fIobject\fR command is
+command whose name is \fIobjectName\fR\&. This \fIobject\fR command is
 explained in full detail in the sections \fBObject command\fR
-and \fBObject methods\fR. The object command will be created
+and \fBObject methods\fR\&. The object command will be created
 under the current namespace if the \fIobjectName\fR is not fully
-qualified, and in the specified namespace otherwise.
+qualified, and in the specified namespace otherwise\&.
 .PP
 .SS "OBJECT COMMAND"
 All objects created by the \fB::doctools::toc\fR command have the
 following general form:
 .TP
-\fBobjectName\fR \fBmethod\fR ?\fIarg arg ...\fR?
+\fBobjectName\fR \fBmethod\fR ?\fIarg arg \&.\&.\&.\fR?
 The method \fBmethod\fR and its \fIarg\fR'uments determine the
-exact behavior of the command.
+exact behavior of the command\&.
 See section \fBObject methods\fR for the detailed
-specifications.
+specifications\&.
 .PP
 .SS "OBJECT METHODS"
 .TP
 \fIobjectName\fR \fBdestroy\fR
-This method destroys the object it is invoked for.
+This method destroys the object it is invoked for\&.
 .TP
 \fIobjectName\fR \fB+ reference\fR \fIid\fR \fIlabel\fR \fIdocid\fR \fIdesc\fR
 This method adds a new reference element to the table of contents,
-under the element specified via its handle \fIid\fR. This parent
-element has to be a division element, or the root. An error is thrown
-otherwise.
+under the element specified via its handle \fIid\fR\&. This parent
+element has to be a division element, or the root\&. An error is thrown
+otherwise\&.
 The new element will be externally identified by its \fIlabel\fR,
-which has to be be unique within the parent element. An error is
-thrown otherwise.
+which has to be be unique within the parent element\&. An error is
+thrown otherwise\&.
 .sp
 As a reference element it will refer to a document identified by the
-symbolic \fIdocid\fR. This reference must not be the empty string, an
-error is thrown otherwise.
+symbolic \fIdocid\fR\&. This reference must not be the empty string, an
+error is thrown otherwise\&.
 Beyond the label the element also has a longer descriptive string,
-supplied via \fIdesc\fR.
+supplied via \fIdesc\fR\&.
 .sp
-The result of the method is the handle (id) of the new element.
+The result of the method is the handle (id) of the new element\&.
 .TP
 \fIobjectName\fR \fB+ division\fR \fIid\fR \fIlabel\fR ?\fIdocid\fR?
 This method adds a new division element to the table of contents,
-under the element specified via its handle \fIid\fR. This parent
-element has to be a division element, or the root. An error is thrown
-otherwise.
+under the element specified via its handle \fIid\fR\&. This parent
+element has to be a division element, or the root\&. An error is thrown
+otherwise\&.
 The new element will be externally identified by its \fIlabel\fR,
-which has to be be unique within the parent element. An error is
-thrown otherwise.
+which has to be be unique within the parent element\&. An error is
+thrown otherwise\&.
 .sp
 As a division element it is can refer to a document, identified by the
-symbolic \fIdocid\fR, but may choose not to.
+symbolic \fIdocid\fR, but may choose not to\&.
 .sp
-The result of the method is the handle (id) of the new element.
+The result of the method is the handle (id) of the new element\&.
 .TP
 \fIobjectName\fR \fBremove\fR \fIid\fR
 This method removes the element identified by the handle \fIid\fR from
-the table of contents.
+the table of contents\&.
 If the element is a division all of its children, if any, are removed
-as well. The root element/division of the table of contents cannot be
-removed however, only its children.
+as well\&. The root element/division of the table of contents cannot be
+removed however, only its children\&.
 .sp
-The result of the method is the empty string.
+The result of the method is the empty string\&.
 .TP
 \fIobjectName\fR \fBup\fR \fIid\fR
 This method returns the handle of the parent for the element
 identified by its handle \fIid\fR, or the empty string if \fIid\fR
-refered to the root element.
+refered to the root element\&.
 .TP
 \fIobjectName\fR \fBnext\fR \fIid\fR
 This method returns the handle of the right sibling for the element
 identified by its handle \fIid\fR, or the handle of the parent if the
 element has no right sibling, or the empty string if \fIid\fR refered
-to the root element.
+to the root element\&.
 .TP
 \fIobjectName\fR \fBprev\fR \fIid\fR
 This method returns the handle of the left sibling for the element
 identified by its handle \fIid\fR, or the handle of the parent if the
 element has no left sibling, or the empty string if \fIid\fR refered
-to the root element.
+to the root element\&.
 .TP
-\fIobjectName\fR \fBchild\fR \fIid\fR \fIlabel\fR ?\fI...\fR?
+\fIobjectName\fR \fBchild\fR \fIid\fR \fIlabel\fR ?\fI\&.\&.\&.\fR?
 This method returns the handle of a child of the element identified by
-its handle \fIid\fR. The child itself is identified by a series of
-labels.
+its handle \fIid\fR\&. The child itself is identified by a series of
+labels\&.
 .TP
-\fIobjectName\fR \fBelement\fR ?\fI...\fR?
+\fIobjectName\fR \fBelement\fR ?\fI\&.\&.\&.\fR?
 This method returns the handle of the element identified by a series
-of labels, starting from the root of the table of contents. The series
+of labels, starting from the root of the table of contents\&. The series
 of labels is allowed to be empty, in which case the handle of the root
-element is returned.
+element is returned\&.
 .TP
 \fIobjectName\fR \fBchildren\fR \fIid\fR
 This method returns a list containing the handles of all children of
 the element identified by the handle \fIid\fR, from first to last, in
-that order.
+that order\&.
 .TP
 \fIobjectName\fR \fBtype\fR \fIid\fR
 This method returns the type of the element, either \fBreference\fR,
-or \fBdivision\fR.
+or \fBdivision\fR\&.
 .TP
 \fIobjectName\fR \fBfull-label\fR \fIid\fR
 This method is the complement of the method \fBelement\fR,
 converting the handle \fIid\fR of an element into a list of labels
-full identifying the element within the whole table of contents.
+full identifying the element within the whole table of contents\&.
 .TP
 \fIobjectName\fR \fBelabel\fR \fIid\fR ?\fInewlabel\fR?
 This method queries and/or changes the label of the element identified
-by the handle \fIid\fR. If the argument \fInewlabel\fR is present then
-the label is changed to that value. Regardless of this, the result of
-the method is the current value of the label.
+by the handle \fIid\fR\&. If the argument \fInewlabel\fR is present then
+the label is changed to that value\&. Regardless of this, the result of
+the method is the current value of the label\&.
 .sp
 If the label is changed the new label has to be unique within the
-containing division, or an error is thrown.
+containing division, or an error is thrown\&.
 .sp
 Further, of the \fIid\fR refers to the root element of the table of
 contents, then using this method is equivalent to using the method
-\fIlabel\fR, i.e. it is accessing the global label for the whole
-table.
+\fIlabel\fR, i\&.e\&. it is accessing the global label for the whole
+table\&.
 .TP
 \fIobjectName\fR \fBdescription\fR \fIid\fR ?\fInewdesc\fR?
 This method queries and/or changes the description of the element
-identified by the handle \fIid\fR. If the argument \fInewdesc\fR is
-present then the description is changed to that value. Regardless of
-this, the result of the method is the current value of the description.
+identified by the handle \fIid\fR\&. If the argument \fInewdesc\fR is
+present then the description is changed to that value\&. Regardless of
+this, the result of the method is the current value of the description\&.
 .sp
 The element this method operates on has to be a reference element, or
-an error will be thrown.
+an error will be thrown\&.
 .TP
 \fIobjectName\fR \fBdocument\fR \fIid\fR ?\fInewdocid\fR?
 This method queries and/or changes the document reference of the
-element identified by the handle \fIid\fR.
+element identified by the handle \fIid\fR\&.
 If the argument \fInewdocid\fR is present then the description is
-changed to that value. Regardless of this, the result of the method is
-the current value of the document reference.
+changed to that value\&. Regardless of this, the result of the method is
+the current value of the document reference\&.
 .sp
 Setting the reference to the empty string means unsetting it, and is
-allowed only for division elements. Conversely, if the result is the
+allowed only for division elements\&. Conversely, if the result is the
 empty string then the element has no document reference, and this can
-happen only for division elements.
+happen only for division elements\&.
 .TP
 \fIobjectName\fR \fBtitle\fR
-Returns the currently defined title of the table of contents.
+Returns the currently defined title of the table of contents\&.
 .TP
 \fIobjectName\fR \fBtitle\fR \fItext\fR
 Sets the title of the table of contents to \fItext\fR, and returns it as
-the result of the command.
+the result of the command\&.
 .TP
 \fIobjectName\fR \fBlabel\fR
-Returns the currently defined label of the table of contents.
+Returns the currently defined label of the table of contents\&.
 .TP
 \fIobjectName\fR \fBlabel\fR \fItext\fR
 Sets the label of the table of contents to \fItext\fR, and returns it as
-the result of the command.
+the result of the command\&.
 .TP
 \fIobjectName\fR \fBimporter\fR
 Returns the import manager object currently attached to the container,
-if any.
+if any\&.
 .TP
 \fIobjectName\fR \fBimporter\fR \fIobject\fR
 Attaches the \fIobject\fR as import manager to the container, and
-returns it as the result of the command.
+returns it as the result of the command\&.
 Note that the \fIobject\fR is \fInot\fR put into ownership of the
-container. I.e., destruction of the container will \fInot\fR destroy
-the \fIobject\fR.
+container\&. I\&.e\&., destruction of the container will \fInot\fR destroy
+the \fIobject\fR\&.
 .sp
 It is expected that \fIobject\fR provides a method named
 \fBimport text\fR which takes a text and a format name, and
 returns the canonical serialization of the table of contents contained in
-the text, assuming the given format.
+the text, assuming the given format\&.
 .TP
 \fIobjectName\fR \fBexporter\fR
 Returns the export manager object currently attached to the container,
-if any.
+if any\&.
 .TP
 \fIobjectName\fR \fBexporter\fR \fIobject\fR
 Attaches the \fIobject\fR as export manager to the container, and
-returns it as the result of the command.
+returns it as the result of the command\&.
 Note that the \fIobject\fR is \fInot\fR put into ownership of the
-container. I.e., destruction of the container will \fInot\fR destroy
-the \fIobject\fR.
+container\&. I\&.e\&., destruction of the container will \fInot\fR destroy
+the \fIobject\fR\&.
 .sp
 It is expected that \fIobject\fR provides a method named
 \fBexport object\fR which takes the container and a format name,
 and returns a text encoding table of contents stored in the container, in
-the given format. It is further expected that the \fIobject\fR will
+the given format\&. It is further expected that the \fIobject\fR will
 use the container's method \fBserialize\fR to obtain the
-serialization of the table of contents from which to generate the text.
+serialization of the table of contents from which to generate the text\&.
 .TP
 \fIobjectName\fR \fBdeserialize =\fR \fIdata\fR ?\fIformat\fR?
 This method replaces the contents of the table object with the table
-contained in the \fIdata\fR. If no \fIformat\fR was specified it is
-assumed to be the regular serialization of a table of contents.
+contained in the \fIdata\fR\&. If no \fIformat\fR was specified it is
+assumed to be the regular serialization of a table of contents\&.
 .sp
 Otherwise the object will use the attached import manager to convert
-the data from the specified format to a serialization it can handle.
+the data from the specified format to a serialization it can handle\&.
 In that case an error will be thrown if the container has no import
-manager attached to it.
+manager attached to it\&.
 .sp
-The result of the method is the empty string.
+The result of the method is the empty string\&.
 .TP
 \fIobjectName\fR \fBdeserialize +=\fR \fIdata\fR ?\fIformat\fR?
 This method behaves like \fBdeserialize =\fR in its essentials,
 except that it merges the table of contents in the \fIdata\fR to its
-contents instead of replacing it.
-The method will throw an error if merging is not possible, i.e. would
-produce an invalid table. The existing content is left unchanged in
-that case.
+contents instead of replacing it\&.
+The method will throw an error if merging is not possible, i\&.e\&. would
+produce an invalid table\&. The existing content is left unchanged in
+that case\&.
 .sp
-The result of the method is the empty string.
+The result of the method is the empty string\&.
 .TP
 \fIobjectName\fR \fBserialize\fR ?\fIformat\fR?
-This method returns the table of contents contained in the object. If no
+This method returns the table of contents contained in the object\&. If no
 \fIformat\fR is not specified the returned result is the canonical
-serialization of its contents.
+serialization of its contents\&.
 .sp
 Otherwise the object will use the attached export manager to convert
-the data to the specified format.
+the data to the specified format\&.
 In that case an error will be thrown if the container has no export
-manager attached to it.
+manager attached to it\&.
 .PP
 .SH "TOC SERIALIZATION FORMAT"
 Here we specify the format used by the doctools v2 packages to
 serialize tables of contents as immutable values for transport,
-comparison, etc.
+comparison, etc\&.
 .PP
 We distinguish between \fIregular\fR and \fIcanonical\fR
-serializations.
+serializations\&.
 While a table of contents may have more than one regular serialization
-only exactly one of them will be \fIcanonical\fR.
+only exactly one of them will be \fIcanonical\fR\&.
 .PP
 .TP
 regular serialization
 .RS
 .IP [1]
-The serialization of any table of contents is a nested Tcl dictionary.
+The serialization of any table of contents is a nested Tcl dictionary\&.
 .IP [2]
 This dictionary holds a single key, \fBdoctools::toc\fR, and its
-value. This value holds the contents of the table of contents.
+value\&. This value holds the contents of the table of contents\&.
 .IP [3]
 The contents of the table of contents are a Tcl dictionary holding the
-title of the table of contents, a label, and its elements. The
+title of the table of contents, a label, and its elements\&. The
 relevant keys and their values are
 .RS
 .TP
 \fBtitle\fR
-The value is a string containing the title of the table of contents.
+The value is a string containing the title of the table of contents\&.
 .TP
 \fBlabel\fR
-The value is a string containing a label for the table of contents.
+The value is a string containing a label for the table of contents\&.
 .TP
 \fBitems\fR
 The value is a Tcl list holding the elements of the table, in the
-order they are to be shown.
+order they are to be shown\&.
 .sp
 Each element is a Tcl list holding the type of the item, and its
-description, in this order. An alternative description would be that
+description, in this order\&. An alternative description would be that
 it is a Tcl dictionary holding a single key, the item type, mapped to
-the item description.
+the item description\&.
 .sp
 The two legal item types and their descriptions are
 .RS
 .TP
 \fBreference\fR
 This item describes a single entry in the table of contents,
-referencing a single document.
+referencing a single document\&.
 To this end its value is a Tcl dictionary containing an id for the
 referenced document, a label, and a longer textual description which
-can be associated with the entry.
+can be associated with the entry\&.
 The relevant keys and their values are
 .RS
 .TP
 \fBid\fR
 The value is a string containing the id of the document associated
-with the entry.
+with the entry\&.
 .TP
 \fBlabel\fR
-The value is a string containing a label for this entry. This string
+The value is a string containing a label for this entry\&. This string
 also identifies the entry, and no two entries (references and
-divisions) in the containing list are allowed to have the same label.
+divisions) in the containing list are allowed to have the same label\&.
 .TP
 \fBdesc\fR
-The value is a string containing a longer description for this entry.
+The value is a string containing a longer description for this entry\&.
 .RE
 .TP
 \fBdivision\fR
 This item describes a group of entries in the table of contents,
-inducing a hierarchy of entries.
+inducing a hierarchy of entries\&.
 To this end its value is a Tcl dictionary containing a label for the
 group, an optional id to a document for the whole group, and the list
-of entries in the group.
+of entries in the group\&.
 The relevant keys and their values are
 .RS
 .TP
 \fBid\fR
 The value is a string containing the id of the document associated
-with the whole group. This key is optional.
+with the whole group\&. This key is optional\&.
 .TP
 \fBlabel\fR
-The value is a string containing a label for the group. This string
+The value is a string containing a label for the group\&. This string
 also identifies the entry, and no two entries (references and
-divisions) in the containing list are allowed to have the same label.
+divisions) in the containing list are allowed to have the same label\&.
 .TP
 \fBitems\fR
 The value is a Tcl list holding the elements of the group, in the
-order they are to be shown.
+order they are to be shown\&.
 This list has the same structure as the value for the keyword
 \fBitems\fR used to describe the whole table of contents, see
-above. This closes the recusrive definition of the structure, with
+above\&. This closes the recusrive definition of the structure, with
 divisions holding the same type of elements as the whole table of
-contents, including other divisions.
+contents, including other divisions\&.
 .RE
 .RE
 .RE
@@ -682,26 +683,27 @@ canonical serialization
 The canonical serialization of a table of contents has the format as
 specified in the previous item, and then additionally satisfies the
 constraints below, which make it unique among all the possible
-serializations of this table of contents.
+serializations of this table of contents\&.
 .RS
 .IP [1]
 The keys found in all the nested Tcl dictionaries are sorted in
 ascending dictionary order, as generated by Tcl's builtin command
-\fBlsort -increasing -dict\fR.
+\fBlsort -increasing -dict\fR\&.
 .RE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 HTML, TMML, conversion, doctoc markup, documentation, formatting, generation, json, latex, markup, nroff, parsing, plugin, reference, table, table of contents, tcler's wiki, text, wiki
 .SH CATEGORY
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

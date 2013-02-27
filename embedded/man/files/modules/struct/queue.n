@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/struct/queue.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/struct/queue\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,16 +237,16 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "struct::queue" n 1.4.4 tcllib "Tcl Data Structures"
+.TH "struct::queue" n 1\&.4\&.4 tcllib "Tcl Data Structures"
 .BS
 .SH NAME
 struct::queue \- Create and manipulate queue objects
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBstruct::queue  ?1.4.4?\fR
+package require \fBstruct::queue  ?1\&.4\&.4?\fR
 .sp
-\fIqueueName\fR \fBoption\fR ?\fIarg arg ...\fR?
+\fIqueueName\fR \fBoption\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp
 \fIqueueName\fR \fBclear\fR
 .sp
@@ -255,7 +256,7 @@ package require \fBstruct::queue  ?1.4.4?\fR
 .sp
 \fIqueueName\fR \fBpeek\fR ?\fIcount\fR?
 .sp
-\fIqueueName\fR \fBput\fR \fIitem\fR ?\fIitem ...\fR?
+\fIqueueName\fR \fBput\fR \fIitem\fR ?\fIitem \&.\&.\&.\fR?
 .sp
 \fIqueueName\fR \fBunget\fR \fIitem\fR
 .sp
@@ -264,66 +265,66 @@ package require \fBstruct::queue  ?1.4.4?\fR
 .BE
 .SH DESCRIPTION
 The \fB::struct\fR namespace contains a commands for processing
-finite queues.
+finite queues\&.
 .PP
-It exports a single command, \fB::struct::queue\fR. All functionality
-provided here can be reached through a subcommand of this command.
+It exports a single command, \fB::struct::queue\fR\&. All functionality
+provided here can be reached through a subcommand of this command\&.
 .PP
-\fINote:\fR As of version 1.4.1 of this package a critcl based C
-implementation is available. This implementation however requires Tcl
-8.4 to run.
+\fINote:\fR As of version 1\&.4\&.1 of this package a critcl based C
+implementation is available\&. This implementation however requires Tcl
+8\&.4 to run\&.
 .PP
 The \fB::struct::queue\fR command creates a new queue object with an
-associated global Tcl command whose name is \fIqueueName\fR.  This
-command may be used to invoke various operations on the queue.  It has
+associated global Tcl command whose name is \fIqueueName\fR\&.  This
+command may be used to invoke various operations on the queue\&.  It has
 the following general form:
 .TP
-\fIqueueName\fR \fBoption\fR ?\fIarg arg ...\fR?
+\fIqueueName\fR \fBoption\fR ?\fIarg arg \&.\&.\&.\fR?
 \fIOption\fR and the \fIarg\fRs determine the exact behavior of the
-command.  The following commands are possible for queue objects:
+command\&.  The following commands are possible for queue objects:
 .TP
 \fIqueueName\fR \fBclear\fR
-Remove all items from the queue.
+Remove all items from the queue\&.
 .TP
 \fIqueueName\fR \fBdestroy\fR
-Destroy the queue, including its storage space and associated command.
+Destroy the queue, including its storage space and associated command\&.
 .TP
 \fIqueueName\fR \fBget\fR ?\fIcount\fR?
 Return the front \fIcount\fR items of the queue and remove them from
-the queue.  If \fIcount\fR is not specified, it defaults to 1.  If
+the queue\&.  If \fIcount\fR is not specified, it defaults to 1\&.  If
 \fIcount\fR is 1, the result is a simple string; otherwise, it is a
-list.  If specified, \fIcount\fR must be greater than or equal to 1.
+list\&.  If specified, \fIcount\fR must be greater than or equal to 1\&.
 If there are not enough items in the queue to fulfull the request,
-this command will throw an error.
+this command will throw an error\&.
 .TP
 \fIqueueName\fR \fBpeek\fR ?\fIcount\fR?
 Return the front \fIcount\fR items of the queue, without removing them
-from the queue.  If \fIcount\fR is not specified, it defaults to 1.
+from the queue\&.  If \fIcount\fR is not specified, it defaults to 1\&.
 If \fIcount\fR is 1, the result is a simple string; otherwise, it is a
-list.  If specified, \fIcount\fR must be greater than or equal to 1.
+list\&.  If specified, \fIcount\fR must be greater than or equal to 1\&.
 If there are not enough items in the queue to fulfull the request,
-this command will throw an error.
+this command will throw an error\&.
 .TP
-\fIqueueName\fR \fBput\fR \fIitem\fR ?\fIitem ...\fR?
-Put the \fIitem\fR or items specified into the queue.  If more than
+\fIqueueName\fR \fBput\fR \fIitem\fR ?\fIitem \&.\&.\&.\fR?
+Put the \fIitem\fR or items specified into the queue\&.  If more than
 one \fIitem\fR is given, they will be added in the order they are
-listed.
+listed\&.
 .TP
 \fIqueueName\fR \fBunget\fR \fIitem\fR
-Put the \fIitem\fR into the queue, at the front, i.e. before any other
-items already in the queue. This makes this operation the complement
-to the method \fBget\fR.
+Put the \fIitem\fR into the queue, at the front, i\&.e\&. before any other
+items already in the queue\&. This makes this operation the complement
+to the method \fBget\fR\&.
 .TP
 \fIqueueName\fR \fBsize\fR
-Return the number of items in the queue.
+Return the number of items in the queue\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIstruct :: queue\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 graph, list, matrix, pool, prioqueue, record, set, skiplist, stack, tree
 .SH CATEGORY

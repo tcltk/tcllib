@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/term/ansi_code.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/term/ansi_code\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "term::ansi::code" n 0.1 tcllib "Terminal control"
+.TH "term::ansi::code" n 0\&.1 tcllib "Terminal control"
 .BS
 .SH NAME
 term::ansi::code \- Helper for control sequences
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBterm::ansi::code  ?0.1?\fR
+package require \fBterm::ansi::code  ?0\&.1?\fR
 .sp
 \fB::term::ansi::code::esc\fR \fIstr\fR
 .sp
@@ -257,38 +258,39 @@ package require \fBterm::ansi::code  ?0.1?\fR
 .BE
 .SH DESCRIPTION
 This package provides commands enabling the definition of control
-sequences in an easy manner.
+sequences in an easy manner\&.
 .PP
 .TP
 \fB::term::ansi::code::esc\fR \fIstr\fR
 This command returns the argument string, prefixed with the ANSI
-escape character, "\\033."
+escape character, "\\033\&."
 .TP
 \fB::term::ansi::code::escb\fR \fIstr\fR
 This command returns the argument string, prefixed with a common ANSI
-escape sequence, "\\033[".
+escape sequence, "\\033["\&.
 .TP
 \fB::term::ansi::code::define\fR \fIname\fR \fIescape\fR \fIcode\fR
 This command defines a procedure \fIname\fR which returns the control
 sequence \fIcode\fR, beginning with the specified escape sequence,
-either \fBesc\fR, or \fBescb\fR.
+either \fBesc\fR, or \fBescb\fR\&.
 .TP
 \fB::term::ansi::code::const\fR \fIname\fR \fIcode\fR
 This command defines a procedure \fIname\fR which returns the control
-sequence \fIcode\fR.
+sequence \fIcode\fR\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIterm\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 control, declare, define, terminal
 .SH CATEGORY
 Terminal control
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

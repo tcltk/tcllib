@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/virtchannel_base/null.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/virtchannel_base/null\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -242,7 +243,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tcl::chan::null \- Null channel
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
 package require \fBTclOO \fR
 .sp
@@ -256,35 +257,36 @@ package require \fBtcl::chan::null  ?1?\fR
 .SH DESCRIPTION
 .PP
 The \fBtcl::chan::null\fR package provides a command creating null
-channels, i.e. write-only channels which immediately forget whatever
-is written to them. This is equivalent to the null channels provided by
+channels, i\&.e\&. write-only channels which immediately forget whatever
+is written to them\&. This is equivalent to the null channels provided by
 the package \fBMemchan\fR, except that this is written in pure Tcl,
-not C. On the other hand, \fBMemchan\fR is usable with Tcl 8.4 and
-before, whereas this package requires Tcl 8.5 or higher, and
-\fBTclOO\fR.
+not C\&. On the other hand, \fBMemchan\fR is usable with Tcl 8\&.4 and
+before, whereas this package requires Tcl 8\&.5 or higher, and
+\fBTclOO\fR\&.
 .PP
 Packages related to this are \fBtcl::chan::zero\fR and
-\fBtcl::chan::nullzero\fR.
+\fBtcl::chan::nullzero\fR\&.
 .PP
 The internal \fBTclOO\fR class implementing the channel
-handler is a sub-class of the \fBtcl::chan::events\fR framework.
+handler is a sub-class of the \fBtcl::chan::events\fR framework\&.
 .SH API
 .TP
 \fB::tcl::chan::null\fR
-This command creates a new null channel and returns its handle.
+This command creates a new null channel and returns its handle\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIvirtchannel\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 /dev/null, null, reflected channel, tip 219, virtual channel
 .SH CATEGORY
 Channels
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

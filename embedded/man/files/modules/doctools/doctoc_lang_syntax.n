@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/doctools/doctoc_lang_syntax.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/doctools/doctoc_lang_syntax\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,75 +238,81 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "doctoc_lang_syntax" n 1.0 tcllib "Documentation tools"
+.TH "doctoc_lang_syntax" n 1\&.0 tcllib "Documentation tools"
 .BS
 .SH NAME
 doctoc_lang_syntax \- doctoc language syntax
 .SH DESCRIPTION
 .PP
 This document contains the formal specification of the syntax of the
-doctoc markup language, version 1.1 in Backus-Naur-Form. This document
+doctoc markup language, version 1\&.1 in Backus-Naur-Form\&. This document
 is intended to be a reference, complementing the
-\fIdoctoc language command reference\fR.
+\fIdoctoc language command reference\fR\&.
 A beginner should read the much more informally written
 \fIdoctoc language introduction\fR first before trying to
-understand either this document or the command reference.
+understand either this document or the command reference\&.
 .SH FUNDAMENTALS
 In the broadest terms possible the \fIdoctoc markup language\fR is
-like SGML and similar languages. A document written in this language
+like SGML and similar languages\&. A document written in this language
 consists primarily of markup commands, with text embedded into it at
-some places.
+some places\&.
 .PP
 Each markup command is a just Tcl command surrounded by a matching
-pair of \fB[\fR and \fB]\fR. Which commands are available,
-and their arguments, i.e. syntax is specified in the
-\fIdoctoc language command reference\fR.
+pair of \fB[\fR and \fB]\fR\&. Which commands are available,
+and their arguments, i\&.e\&. syntax is specified in the
+\fIdoctoc language command reference\fR\&.
 .PP
 In this document we specify first the lexeme, and then the syntax,
-i.e. how we can mix text and markup commands with each other.
+i\&.e\&. how we can mix text and markup commands with each other\&.
 .SH "LEXICAL DEFINITIONS"
 In the syntax rules listed in the next section
 .IP [1]
-<TEXT> stands for all text except markup commands.
+<TEXT> stands for all text except markup commands\&.
 .IP [2]
 Any XXX stands for the markup command [xxx] including its
-arguments. Each markup command is a Tcl command surrounded by a
-matching pair of \fB[\fR and \fB]\fR. Inside of these
+arguments\&. Each markup command is a Tcl command surrounded by a
+matching pair of \fB[\fR and \fB]\fR\&. Inside of these
 delimiters the usual rules for a Tcl command apply with regard to word
-quotation, nested commands, continuation lines, etc.
+quotation, nested commands, continuation lines, etc\&.
 .IP [3]
 <WHITE> stands for all text consisting only of spaces, newlines,
-tabulators and the \fBcomment\fR markup command.
+tabulators and the \fBcomment\fR markup command\&.
 .PP
 .SH SYNTAX
-The rules listed here specify only the syntax of doctoc documents. The
-lexical level of the language was covered in the previous section.
+The rules listed here specify only the syntax of doctoc documents\&. The
+lexical level of the language was covered in the previous section\&.
 .PP
 Regarding the syntax of the (E)BNF itself
 .IP [1]
-The construct { X } stands for zero or more occurrences of X.
+The construct { X } stands for zero or more occurrences of X\&.
 .IP [2]
-The construct [ X ] stands for zero or one occurrence of X.
+The construct [ X ] stands for zero or one occurrence of X\&.
 .PP
 The syntax:
 .CS
+
+
 toc       = defs
-TOC_BEGIN
-contents
-TOC_END
-{ <WHITE> }
+            TOC_BEGIN
+            contents
+            TOC_END
+            { <WHITE> }
+
 defs      = { INCLUDE | VSET | <WHITE> }
 contents  = { defs entry } [ defs ]
+
 entry     = ITEM | division
+
 division  = DIVISION_START
-contents
-DIVISION_END
+            contents
+            DIVISION_END
+
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems.
+This document, will undoubtedly contain bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
-Please also report any ideas for enhancements you may have.
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+Please also report any ideas for enhancements you may have\&.
 .SH "SEE ALSO"
 doctoc_intro, doctoc_lang_cmdref, doctoc_lang_faq, doctoc_lang_intro
 .SH KEYWORDS
@@ -314,5 +321,6 @@ doctoc commands, doctoc language, doctoc markup, doctoc syntax, markup, semantic
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

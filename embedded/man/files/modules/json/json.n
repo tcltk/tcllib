@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/json/json.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006 ActiveState Software Inc.
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/json/json\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006 ActiveState Software Inc\&.
 '\" Copyright (c) 2009 Thomas Maeder, Glue Software Engineering AG
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -223,6 +223,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -238,14 +239,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "json" n 1.1.2 tcllib "JSON"
+.TH "json" n 1\&.1\&.2 tcllib "JSON"
 .BS
 .SH NAME
 json \- JSON parser
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBjson  ?1.1.2?\fR
+package require \fBjson  ?1\&.1\&.2?\fR
 .sp
 \fB::json::json2dict\fR \fItxt\fR
 .sp
@@ -253,83 +254,88 @@ package require \fBjson  ?1.1.2?\fR
 .SH DESCRIPTION
 .PP
 The \fBjson\fR package provides a simple Tcl-only library for parsing the
-JSON \fIhttp://www.json.org/\fR data exchange format as specified in RFC 4627
-\fIhttp://www.ietf.org/rfc/rfc4627.txt\fR.
+JSON \fIhttp://www\&.json\&.org/\fR data exchange format as specified in RFC 4627
+\fIhttp://www\&.ietf\&.org/rfc/rfc4627\&.txt\fR\&.
 There is some ambiguity in parsing JSON because JSON has type information that
-is not maintained by the Tcl conversion.  The \fBjson\fR package returns
-data as a Tcl \fBdict\fR.  Either the \fBdict\fR package or Tcl 8.5 is
-required for use.
+is not maintained by the Tcl conversion\&.  The \fBjson\fR package returns
+data as a Tcl \fBdict\fR\&.  Either the \fBdict\fR package or Tcl 8\&.5 is
+required for use\&.
 .SH COMMANDS
 .TP
 \fB::json::json2dict\fR \fItxt\fR
-Parse JSON formatted text \fItxt\fR into a Tcl dict and return the value.
+Parse JSON formatted text \fItxt\fR into a Tcl dict and return the value\&.
 .PP
 .PP
 .SH EXAMPLES
 .PP
-An example of a JSON array converted to Tcl.  A JSON array is returned as a
-single item with multiple elements.
+An example of a JSON array converted to Tcl\&.  A JSON array is returned as a
+single item with multiple elements\&.
 .PP
 .CS
+
 [
-{
-"precision": "zip",
-"Latitude":  37.7668,
-"Longitude": -122.3959,
-"Address":   "",
-"City":      "SAN FRANCISCO",
-"State":     "CA",
-"Zip":       "94107",
-"Country":   "US"
-},
-{
-"precision": "zip",
-"Latitude":  37.371991,
-"Longitude": -122.026020,
-"Address":   "",
-"City":      "SUNNYVALE",
-"State":     "CA",
-"Zip":       "94085",
-"Country":   "US"
-}
+    {
+       "precision": "zip",
+       "Latitude":  37\&.7668,
+       "Longitude": -122\&.3959,
+       "Address":   "",
+       "City":      "SAN FRANCISCO",
+       "State":     "CA",
+       "Zip":       "94107",
+       "Country":   "US"
+    },
+    {
+       "precision": "zip",
+       "Latitude":  37\&.371991,
+       "Longitude": -122\&.026020,
+       "Address":   "",
+       "City":      "SUNNYVALE",
+       "State":     "CA",
+       "Zip":       "94085",
+       "Country":   "US"
+    }
 ]
 =>
-{Country US Latitude 37.7668 precision zip State CA City {SAN FRANCISCO} Address {} Zip 94107 Longitude -122.3959} {Country US Latitude 37.371991 precision zip State CA City SUNNYVALE Address {} Zip 94085 Longitude -122.026020}
+{Country US Latitude 37\&.7668 precision zip State CA City {SAN FRANCISCO} Address {} Zip 94107 Longitude -122\&.3959} {Country US Latitude 37\&.371991 precision zip State CA City SUNNYVALE Address {} Zip 94085 Longitude -122\&.026020}
+
 .CE
 .PP
-An example of a JSON object converted to Tcl.  A JSON object is returned as a
-multi-element list (a dict).
+An example of a JSON object converted to Tcl\&.  A JSON object is returned as a
+multi-element list (a dict)\&.
 .PP
 .CS
+
 {
-"Image": {
-"Width":  800,
-"Height": 600,
-"Title":  "View from 15th Floor",
-"Thumbnail": {
-"Url":    "http://www.example.com/image/481989943",
-"Height": 125,
-"Width":  "100"
-},
-"IDs": [116, 943, 234, 38793]
-}
+    "Image": {
+        "Width":  800,
+        "Height": 600,
+        "Title":  "View from 15th Floor",
+        "Thumbnail": {
+            "Url":    "http://www\&.example\&.com/image/481989943",
+            "Height": 125,
+            "Width":  "100"
+        },
+        "IDs": [116, 943, 234, 38793]
+    }
 }
 =>
-Image {IDs {116 943 234 38793} Thumbnail {Width 100 Height 125 Url http://www.example.com/image/481989943} Width 800 Height 600 Title {View from 15th Floor}}
+Image {IDs {116 943 234 38793} Thumbnail {Width 100 Height 125 Url http://www\&.example\&.com/image/481989943} Width 800 Height 600 Title {View from 15th Floor}}
+
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIjson\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 data exchange, exchange format, javascript, json
 .SH CATEGORY
 CGI programming
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006 ActiveState Software Inc.
+Copyright (c) 2006 ActiveState Software Inc\&.
 Copyright (c) 2009 Thomas Maeder, Glue Software Engineering AG
+
 .fi

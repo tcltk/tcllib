@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/pt/pt_pexpression.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/pt/pt_pexpression\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -242,7 +243,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::pe \- Parsing Expression Serialization
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
 package require \fBpt::pe  ?1?\fR
 .sp
@@ -302,9 +303,9 @@ package require \fBchar \fR
 .sp
 \fB::pt::pe\fR \fBnonterminal\fR \fInt\fR
 .sp
-\fB::pt::pe\fR \fBchoice\fR \fIpe\fR...
+\fB::pt::pe\fR \fBchoice\fR \fIpe\fR\&.\&.\&.
 .sp
-\fB::pt::pe\fR \fBsequence\fR \fIpe\fR...
+\fB::pt::pe\fR \fBsequence\fR \fIpe\fR\&.\&.\&.
 .sp
 \fB::pt::pe\fR \fBrepeat0\fR \fIpe\fR
 .sp
@@ -322,14 +323,14 @@ package require \fBchar \fR
 Are you lost ?
 Do you have trouble understanding this document ?
 In that case please read the overview provided by the
-\fIIntroduction to Parser Tools\fR. This document is the
-entrypoint to the whole system the current package is a part of.
+\fIIntroduction to Parser Tools\fR\&. This document is the
+entrypoint to the whole system the current package is a part of\&.
 .PP
 This package provides commands to work with the serializations of
 parsing expressions as managed by the Parser Tools, and specified in
-section \fBPE serialization format\fR.
+section \fBPE serialization format\fR\&.
 .PP
-This is a supporting package in the Core Layer of Parser Tools.
+This is a supporting package in the Core Layer of Parser Tools\&.
 .PP
 IMAGE: arch_core_support
 .PP
@@ -338,195 +339,195 @@ IMAGE: arch_core_support
 \fB::pt::pe\fR \fBverify\fR \fIserial\fR ?\fIcanonvar\fR?
 This command verifies that the content of \fIserial\fR is a valid
 serialization of a parsing expression and will throw an error if that
-is not the case. The result of the command is the empty string.
+is not the case\&. The result of the command is the empty string\&.
 .sp
 If the argument \fIcanonvar\fR is specified it is interpreted as the
-name of a variable in the calling context. This variable will be
+name of a variable in the calling context\&. This variable will be
 written to if and only if \fIserial\fR is a valid regular
-serialization. Its value will be a boolean, with \fBTrue\fR
+serialization\&. Its value will be a boolean, with \fBTrue\fR
 indicating that the serialization is not only valid, but also
-\fIcanonical\fR. \fBFalse\fR will be written for a valid, but
-non-canonical serialization.
+\fIcanonical\fR\&. \fBFalse\fR will be written for a valid, but
+non-canonical serialization\&.
 .sp
 For the specification of serializations see the section
-\fBPE serialization format\fR.
+\fBPE serialization format\fR\&.
 .TP
 \fB::pt::pe\fR \fBverify-as-canonical\fR \fIserial\fR
 This command verifies that the content of \fIserial\fR is a valid
 \fIcanonical\fR serialization of a parsing expression and will throw
-an error if that is not the case. The result of the command is the
-empty string.
+an error if that is not the case\&. The result of the command is the
+empty string\&.
 .sp
 For the specification of canonical serializations see the section
-\fBPE serialization format\fR.
+\fBPE serialization format\fR\&.
 .TP
 \fB::pt::pe\fR \fBcanonicalize\fR \fIserial\fR
 This command assumes that the content of \fIserial\fR is a valid
 \fIregular\fR serialization of a parsing expression and will throw an
-error if that is not the case.
+error if that is not the case\&.
 .sp
 It will then convert the input into the \fIcanonical\fR serialization
-of this parsing expression and return it as its result. If the input
-is already canonical it will be returned unchanged.
+of this parsing expression and return it as its result\&. If the input
+is already canonical it will be returned unchanged\&.
 .sp
 For the specification of regular and canonical serializations see the
-section \fBPE serialization format\fR.
+section \fBPE serialization format\fR\&.
 .TP
 \fB::pt::pe\fR \fBprint\fR \fIserial\fR
 This command assumes that the argument \fIserial\fR contains a valid
 serialization of a parsing expression and returns a string containing
-that PE in a human readable form.
+that PE in a human readable form\&.
 .sp
 The exact format of this form is not specified and cannot be relied on
-for parsing or other machine-based activities.
+for parsing or other machine-based activities\&.
 .sp
 For the specification of serializations see the section
-\fBPE serialization format\fR.
+\fBPE serialization format\fR\&.
 .TP
 \fB::pt::pe\fR \fBbottomup\fR \fIcmdprefix\fR \fIpe\fR
 This command walks the parsing expression \fIpe\fR from the bottom up
 to the root, invoking the command prefix \fIcmdprefix\fR for each
-partial expression. This implies that the children of a parsing
-expression PE are handled before PE.
+partial expression\&. This implies that the children of a parsing
+expression PE are handled before PE\&.
 .sp
 The command prefix has the signature
 .RS
 .TP
 \fBcmdprefix\fR \fIpe\fR \fIop\fR \fIarguments\fR
-I.e. it is invoked with the parsing expression \fIpe\fR the walk is
+I\&.e\&. it is invoked with the parsing expression \fIpe\fR the walk is
 currently at, the \fIop\fR'erator in the \fIpe\fR, and the operator's
-\fIarguments\fR.
+\fIarguments\fR\&.
 .sp
 The result returned by the command prefix replaces \fIpe\fR in the
 parsing expression it was a child of, allowing transformations of the
-expression tree.
+expression tree\&.
 .sp
 This also means that for all inner parsing expressions the contents of
 \fIarguments\fR are the results of the command prefix invoked for the
-children of this inner parsing expression.
+children of this inner parsing expression\&.
 .RE
 .TP
 \fB::pt::pe\fR \fBtopdown\fR \fIcmdprefix\fR \fIpe\fR
 This command walks the parsing expression \fIpe\fR from the root down
 to the leaves, invoking the command prefix \fIcmdprefix\fR for each
-partial expression. This implies that the children of a parsing
-expression PE are handled after PE.
+partial expression\&. This implies that the children of a parsing
+expression PE are handled after PE\&.
 .sp
 The command prefix has the same signature as for \fBbottomup\fR,
-see above.
+see above\&.
 .sp
-The result returned by the command prefix is \fIignored\fR.
+The result returned by the command prefix is \fIignored\fR\&.
 .TP
 \fB::pt::pe\fR \fBequal\fR \fIseriala\fR \fIserialb\fR
 This command tests the two parsing expressions \fIseriala\fR and
-\fIserialb\fR for structural equality. The result of the command is a
-boolean value. It will be set to \fBtrue\fR if the expressions are
-identical, and \fBfalse\fR otherwise.
+\fIserialb\fR for structural equality\&. The result of the command is a
+boolean value\&. It will be set to \fBtrue\fR if the expressions are
+identical, and \fBfalse\fR otherwise\&.
 .sp
 String equality is usable only if we can assume that the two parsing
-expressions are pure Tcl lists.
+expressions are pure Tcl lists\&.
 .TP
 \fB::pt::pe\fR \fBepsilon\fR
-This command constructs the atomic parsing expression for epsilon.
+This command constructs the atomic parsing expression for epsilon\&.
 .TP
 \fB::pt::pe\fR \fBdot\fR
-This command constructs the atomic parsing expression for dot.
+This command constructs the atomic parsing expression for dot\&.
 .TP
 \fB::pt::pe\fR \fBalnum\fR
-This command constructs the atomic parsing expression for alnum.
+This command constructs the atomic parsing expression for alnum\&.
 .TP
 \fB::pt::pe\fR \fBalpha\fR
-This command constructs the atomic parsing expression for alpha.
+This command constructs the atomic parsing expression for alpha\&.
 .TP
 \fB::pt::pe\fR \fBascii\fR
-This command constructs the atomic parsing expression for ascii.
+This command constructs the atomic parsing expression for ascii\&.
 .TP
 \fB::pt::pe\fR \fBcontrol\fR
-This command constructs the atomic parsing expression for control.
+This command constructs the atomic parsing expression for control\&.
 .TP
 \fB::pt::pe\fR \fBdigit\fR
-This command constructs the atomic parsing expression for digit.
+This command constructs the atomic parsing expression for digit\&.
 .TP
 \fB::pt::pe\fR \fBgraph\fR
-This command constructs the atomic parsing expression for graph.
+This command constructs the atomic parsing expression for graph\&.
 .TP
 \fB::pt::pe\fR \fBlower\fR
-This command constructs the atomic parsing expression for lower.
+This command constructs the atomic parsing expression for lower\&.
 .TP
 \fB::pt::pe\fR \fBprint\fR
-This command constructs the atomic parsing expression for print.
+This command constructs the atomic parsing expression for print\&.
 .TP
 \fB::pt::pe\fR \fBpunct\fR
-This command constructs the atomic parsing expression for punct.
+This command constructs the atomic parsing expression for punct\&.
 .TP
 \fB::pt::pe\fR \fBspace\fR
-This command constructs the atomic parsing expression for space.
+This command constructs the atomic parsing expression for space\&.
 .TP
 \fB::pt::pe\fR \fBupper\fR
-This command constructs the atomic parsing expression for upper.
+This command constructs the atomic parsing expression for upper\&.
 .TP
 \fB::pt::pe\fR \fBwordchar\fR
-This command constructs the atomic parsing expression for wordchar.
+This command constructs the atomic parsing expression for wordchar\&.
 .TP
 \fB::pt::pe\fR \fBxdigit\fR
-This command constructs the atomic parsing expression for xdigit.
+This command constructs the atomic parsing expression for xdigit\&.
 .TP
 \fB::pt::pe\fR \fBddigit\fR
-This command constructs the atomic parsing expression for ddigit.
+This command constructs the atomic parsing expression for ddigit\&.
 .TP
 \fB::pt::pe\fR \fBterminal\fR \fIt\fR
 This command constructs the atomic parsing expression for the terminal
-symbol \fIt\fR.
+symbol \fIt\fR\&.
 .TP
 \fB::pt::pe\fR \fBrange\fR \fIta\fR \fItb\fR
 This command constructs the atomic parsing expression for the range of
-terminal symbols \fIta\fR ... \fItb\fR.
+terminal symbols \fIta\fR \&.\&.\&. \fItb\fR\&.
 .TP
 \fB::pt::pe\fR \fBnonterminal\fR \fInt\fR
 This command constructs the atomic parsing expression for the
-nonterminal symbol \fInt\fR.
+nonterminal symbol \fInt\fR\&.
 .TP
-\fB::pt::pe\fR \fBchoice\fR \fIpe\fR...
+\fB::pt::pe\fR \fBchoice\fR \fIpe\fR\&.\&.\&.
 This command constructs the parsing expression representing the
 ordered or prioritized choice between the argument parsing
-expressions. The first argument has the highest priority.
+expressions\&. The first argument has the highest priority\&.
 .TP
-\fB::pt::pe\fR \fBsequence\fR \fIpe\fR...
+\fB::pt::pe\fR \fBsequence\fR \fIpe\fR\&.\&.\&.
 This command constructs the parsing expression representing the
-sequence of the argument parsing expression. The first argument is the
-first element of the sequence.
+sequence of the argument parsing expression\&. The first argument is the
+first element of the sequence\&.
 .TP
 \fB::pt::pe\fR \fBrepeat0\fR \fIpe\fR
 This command constructs the parsing expression representing the zero
 or more repetition of the argument parsing expression \fIpe\fR, also
-known as the kleene closure.
+known as the kleene closure\&.
 .TP
 \fB::pt::pe\fR \fBrepeat1\fR \fIpe\fR
 This command constructs the parsing expression representing the one or
 more repetition of the argument parsing expression \fIpe\fR, also
-known as the positive kleene closure.
+known as the positive kleene closure\&.
 .TP
 \fB::pt::pe\fR \fBoptional\fR \fIpe\fR
 This command constructs the parsing expression representing the
-optionality of the argument parsing expression \fIpe\fR.
+optionality of the argument parsing expression \fIpe\fR\&.
 .TP
 \fB::pt::pe\fR \fBahead\fR \fIpe\fR
 This command constructs the parsing expression representing the
-positive lookahead of the argument parsing expression \fIpe\fR.
+positive lookahead of the argument parsing expression \fIpe\fR\&.
 .TP
 \fB::pt::pe\fR \fBnotahead\fR \fIpe\fR
 This command constructs the parsing expression representing the
-negative lookahead of the argument parsing expression \fIpe\fR.
+negative lookahead of the argument parsing expression \fIpe\fR\&.
 .PP
 .SH "PE SERIALIZATION FORMAT"
 Here we specify the format used by the Parser Tools to serialize
 Parsing Expressions as immutable values for transport, comparison,
-etc.
+etc\&.
 .PP
 We distinguish between \fIregular\fR and \fIcanonical\fR
-serializations.
+serializations\&.
 While a parsing expression may have more than one regular
-serialization only exactly one of them will be \fIcanonical\fR.
+serialization only exactly one of them will be \fIcanonical\fR\&.
 .TP
 Regular serialization
 .RS
@@ -534,119 +535,119 @@ Regular serialization
 \fBAtomic Parsing Expressions\fR
 .RS
 .IP [1]
-The string \fBepsilon\fR is an atomic parsing expression. It matches
-the empty string.
+The string \fBepsilon\fR is an atomic parsing expression\&. It matches
+the empty string\&.
 .IP [2]
-The string \fBdot\fR is an atomic parsing expression. It matches
-any character.
+The string \fBdot\fR is an atomic parsing expression\&. It matches
+any character\&.
 .IP [3]
-The string \fBalnum\fR is an atomic parsing expression. It matches
-any Unicode alphabet or digit character. This is a custom extension of
-PEs based on Tcl's builtin command \fBstring is\fR.
+The string \fBalnum\fR is an atomic parsing expression\&. It matches
+any Unicode alphabet or digit character\&. This is a custom extension of
+PEs based on Tcl's builtin command \fBstring is\fR\&.
 .IP [4]
-The string \fBalpha\fR is an atomic parsing expression. It matches
-any Unicode alphabet character. This is a custom extension of PEs
-based on Tcl's builtin command \fBstring is\fR.
+The string \fBalpha\fR is an atomic parsing expression\&. It matches
+any Unicode alphabet character\&. This is a custom extension of PEs
+based on Tcl's builtin command \fBstring is\fR\&.
 .IP [5]
-The string \fBascii\fR is an atomic parsing expression. It matches
-any Unicode character below U0080. This is a custom extension of PEs
-based on Tcl's builtin command \fBstring is\fR.
+The string \fBascii\fR is an atomic parsing expression\&. It matches
+any Unicode character below U0080\&. This is a custom extension of PEs
+based on Tcl's builtin command \fBstring is\fR\&.
 .IP [6]
-The string \fBcontrol\fR is an atomic parsing expression. It matches
-any Unicode control character. This is a custom extension of PEs based
-on Tcl's builtin command \fBstring is\fR.
+The string \fBcontrol\fR is an atomic parsing expression\&. It matches
+any Unicode control character\&. This is a custom extension of PEs based
+on Tcl's builtin command \fBstring is\fR\&.
 .IP [7]
-The string \fBdigit\fR is an atomic parsing expression. It matches
-any Unicode digit character. Note that this includes characters
-outside of the [0..9] range. This is a custom extension of PEs
-based on Tcl's builtin command \fBstring is\fR.
+The string \fBdigit\fR is an atomic parsing expression\&. It matches
+any Unicode digit character\&. Note that this includes characters
+outside of the [0\&.\&.9] range\&. This is a custom extension of PEs
+based on Tcl's builtin command \fBstring is\fR\&.
 .IP [8]
-The string \fBgraph\fR is an atomic parsing expression. It matches
-any Unicode printing character, except for space. This is a custom
-extension of PEs based on Tcl's builtin command \fBstring is\fR.
+The string \fBgraph\fR is an atomic parsing expression\&. It matches
+any Unicode printing character, except for space\&. This is a custom
+extension of PEs based on Tcl's builtin command \fBstring is\fR\&.
 .IP [9]
-The string \fBlower\fR is an atomic parsing expression. It matches
-any Unicode lower-case alphabet character. This is a custom extension
-of PEs based on Tcl's builtin command \fBstring is\fR.
+The string \fBlower\fR is an atomic parsing expression\&. It matches
+any Unicode lower-case alphabet character\&. This is a custom extension
+of PEs based on Tcl's builtin command \fBstring is\fR\&.
 .IP [10]
-The string \fBprint\fR is an atomic parsing expression. It matches
-any Unicode printing character, including space. This is a custom
-extension of PEs based on Tcl's builtin command \fBstring is\fR.
+The string \fBprint\fR is an atomic parsing expression\&. It matches
+any Unicode printing character, including space\&. This is a custom
+extension of PEs based on Tcl's builtin command \fBstring is\fR\&.
 .IP [11]
-The string \fBpunct\fR is an atomic parsing expression. It matches
-any Unicode punctuation character. This is a custom extension of PEs
-based on Tcl's builtin command \fBstring is\fR.
+The string \fBpunct\fR is an atomic parsing expression\&. It matches
+any Unicode punctuation character\&. This is a custom extension of PEs
+based on Tcl's builtin command \fBstring is\fR\&.
 .IP [12]
-The string \fBspace\fR is an atomic parsing expression. It matches
-any Unicode space character. This is a custom extension of PEs based
-on Tcl's builtin command \fBstring is\fR.
+The string \fBspace\fR is an atomic parsing expression\&. It matches
+any Unicode space character\&. This is a custom extension of PEs based
+on Tcl's builtin command \fBstring is\fR\&.
 .IP [13]
-The string \fBupper\fR is an atomic parsing expression. It matches
-any Unicode upper-case alphabet character. This is a custom extension
-of PEs based on Tcl's builtin command \fBstring is\fR.
+The string \fBupper\fR is an atomic parsing expression\&. It matches
+any Unicode upper-case alphabet character\&. This is a custom extension
+of PEs based on Tcl's builtin command \fBstring is\fR\&.
 .IP [14]
-The string \fBwordchar\fR is an atomic parsing expression. It
-matches any Unicode word character. This is any alphanumeric character
-(see alnum), and any connector punctuation characters (e.g.
-underscore). This is a custom extension of PEs based on Tcl's builtin
-command \fBstring is\fR.
+The string \fBwordchar\fR is an atomic parsing expression\&. It
+matches any Unicode word character\&. This is any alphanumeric character
+(see alnum), and any connector punctuation characters (e\&.g\&.
+underscore)\&. This is a custom extension of PEs based on Tcl's builtin
+command \fBstring is\fR\&.
 .IP [15]
-The string \fBxdigit\fR is an atomic parsing expression. It matches
-any hexadecimal digit character. This is a custom extension of PEs
-based on Tcl's builtin command \fBstring is\fR.
+The string \fBxdigit\fR is an atomic parsing expression\&. It matches
+any hexadecimal digit character\&. This is a custom extension of PEs
+based on Tcl's builtin command \fBstring is\fR\&.
 .IP [16]
-The string \fBddigit\fR is an atomic parsing expression. It matches
-any decimal digit character. This is a custom extension of PEs based
-on Tcl's builtin command \fBregexp\fR.
+The string \fBddigit\fR is an atomic parsing expression\&. It matches
+any decimal digit character\&. This is a custom extension of PEs based
+on Tcl's builtin command \fBregexp\fR\&.
 .IP [17]
 The expression
 [list t \fBx\fR]
-is an atomic parsing expression. It matches the terminal string \fBx\fR.
+is an atomic parsing expression\&. It matches the terminal string \fBx\fR\&.
 .IP [18]
 The expression
 [list n \fBA\fR]
-is an atomic parsing expression. It matches the nonterminal \fBA\fR.
+is an atomic parsing expression\&. It matches the nonterminal \fBA\fR\&.
 .RE
 .TP
 \fBCombined Parsing Expressions\fR
 .RS
 .IP [1]
-For parsing expressions \fBe1\fR, \fBe2\fR, ... the result of
-[list / \fBe1\fR \fBe2\fR ... ]
-is a parsing expression as well.
-This is the \fIordered choice\fR, aka \fIprioritized choice\fR.
+For parsing expressions \fBe1\fR, \fBe2\fR, \&.\&.\&. the result of
+[list / \fBe1\fR \fBe2\fR \&.\&.\&. ]
+is a parsing expression as well\&.
+This is the \fIordered choice\fR, aka \fIprioritized choice\fR\&.
 .IP [2]
-For parsing expressions \fBe1\fR, \fBe2\fR, ... the result of
-[list x \fBe1\fR \fBe2\fR ... ]
-is a parsing expression as well.
-This is the \fIsequence\fR.
+For parsing expressions \fBe1\fR, \fBe2\fR, \&.\&.\&. the result of
+[list x \fBe1\fR \fBe2\fR \&.\&.\&. ]
+is a parsing expression as well\&.
+This is the \fIsequence\fR\&.
 .IP [3]
 For a parsing expression \fBe\fR the result of
 [list * \fBe\fR]
-is a parsing expression as well.
+is a parsing expression as well\&.
 This is the \fIkleene closure\fR, describing zero or more
-repetitions.
+repetitions\&.
 .IP [4]
 For a parsing expression \fBe\fR the result of
 [list + \fBe\fR]
-is a parsing expression as well.
+is a parsing expression as well\&.
 This is the \fIpositive kleene closure\fR, describing one or more
-repetitions.
+repetitions\&.
 .IP [5]
 For a parsing expression \fBe\fR the result of
 [list & \fBe\fR]
-is a parsing expression as well.
-This is the \fIand lookahead predicate\fR.
+is a parsing expression as well\&.
+This is the \fIand lookahead predicate\fR\&.
 .IP [6]
 For a parsing expression \fBe\fR the result of
 [list ! \fBe\fR]
-is a parsing expression as well.
-This is the \fInot lookahead predicate\fR.
+is a parsing expression as well\&.
+This is the \fInot lookahead predicate\fR\&.
 .IP [7]
 For a parsing expression \fBe\fR the result of
 [list ? \fBe\fR]
-is a parsing expression as well.
-This is the \fIoptional input\fR.
+is a parsing expression as well\&.
+This is the \fIoptional input\fR\&.
 .RE
 .RE
 .TP
@@ -654,14 +655,14 @@ Canonical serialization
 The canonical serialization of a parsing expression has the format as
 specified in the previous item, and then additionally satisfies the
 constraints below, which make it unique among all the possible
-serializations of this parsing expression.
+serializations of this parsing expression\&.
 .RS
 .IP [1]
 The string representation of the value is the canonical representation
-of a pure Tcl list. I.e. it does not contain superfluous whitespace.
+of a pure Tcl list\&. I\&.e\&. it does not contain superfluous whitespace\&.
 .IP [2]
 Terminals are \fInot\fR encoded as ranges (where start and end of the
-range are identical).
+range are identical)\&.
 .RE
 .PP
 .PP
@@ -670,27 +671,34 @@ Assuming the parsing expression shown on the right-hand side of the
 rule
 .PP
 .CS
-Expression <- Term (AddOp Term)*
+
+
+    Expression <- Term (AddOp Term)*
+
 .CE
 .PP
 then its canonical serialization (except for whitespace) is
 .PP
 .CS
-{x {n Term} {* {x {n AddOp} {n Term}}}}
+
+
+    {x {n Term} {* {x {n AddOp} {n Term}}}}
+
 .CE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIpt\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 EBNF, LL(k), PEG, TDPL, context-free languages, expression, grammar, matching, parser, parsing expression, parsing expression grammar, push down automaton, recursive descent, state, top-down parsing languages, transducer
 .SH CATEGORY
 Parsing and Grammars
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/virtchannel_transform/limitsize.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/virtchannel_transform/limitsize\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -242,7 +243,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tcl::transform::limitsize \- limiting input
 .SH SYNOPSIS
-package require \fBTcl  8.6\fR
+package require \fBTcl  8\&.6\fR
 .sp
 package require \fBtcl::transform::core  ?1?\fR
 .sp
@@ -255,34 +256,35 @@ package require \fBtcl::transform::limitsize  ?1?\fR
 .PP
 The \fBtcl::transform::limitsize\fR package provides a command
 creating a channel transformation which limits the number of
-characters which can be read from the channel. A generator for an
-artificial EOF.
+characters which can be read from the channel\&. A generator for an
+artificial EOF\&.
 .PP
 The internal \fBTclOO\fR class implementing the transform
 handler is a sub-class of the \fBtcl::transform::core\fR
-framework.
+framework\&.
 .SH API
 .TP
 \fB::tcl::transform::limitsize\fR \fIchan\fR \fImax\fR
 This command creates a size limiting transformation on top of the
-channel \fIchan\fR and returns its handle.
+channel \fIchan\fR and returns its handle\&.
 .sp
 \fImax\fR is the number of bytes which can be read from the
-channel before EOF is signaled by the transformation. Note that
-popping the transformation clears the EOF it generated as well.
+channel before EOF is signaled by the transformation\&. Note that
+popping the transformation clears the EOF it generated as well\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIvirtchannel\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 channel transformation, limitsize, reflected channel, size limit, tip 230, transformation, virtual channel
 .SH CATEGORY
 Channels
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

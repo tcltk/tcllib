@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/irc/irc.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/irc/irc\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "irc" n 0.6.1 tcllib "Low Level Tcl IRC Interface"
+.TH "irc" n 0\&.6\&.1 tcllib "Low Level Tcl IRC Interface"
 .BS
 .SH NAME
-irc \- Create IRC connection and interface.
+irc \- Create IRC connection and interface\&.
 .SH SYNOPSIS
 package require \fBTcl \fR
 .sp
-package require \fBirc  ?0.6.1?\fR
+package require \fBirc  ?0\&.6\&.1?\fR
 .sp
 \fB::irc::config\fR ?key? ?value?
 .sp
@@ -321,23 +322,23 @@ package require \fBirc  ?0.6.1?\fR
 .SH DESCRIPTION
 This package provides low-level commands to deal with the IRC protocol
 (Internet Relay Chat) for immediate and interactive multi-cast
-communication.
+communication\&.
 .PP
 .TP
 \fB::irc::config\fR ?key? ?value?
-Sets configuration ?key? to ?value?. The configuration keys
-currently defined are the boolean flags \fBlogger\fR and \fBdebug\fR.
+Sets configuration ?key? to ?value?\&. The configuration keys
+currently defined are the boolean flags \fBlogger\fR and \fBdebug\fR\&.
 \fBlogger\fR makes \fBirc\fR use the logger package for printing
-error. \fBdebug\fR requires \fBlogger\fR and prints extra debug output.
-If no ?key? or ?value? is given the current values are returned.
+error\&. \fBdebug\fR requires \fBlogger\fR and prints extra debug output\&.
+If no ?key? or ?value? is given the current values are returned\&.
 .TP
 \fB::irc::connection\fR
-The command creates a new object to deal with an IRC connection.
+The command creates a new object to deal with an IRC connection\&.
 Creating this IRC object does not automatically create the network
-connection.  It returns a new irc namespace command which can be used
-to interact with the new IRC connection.  NOTE: the old form of the
+connection\&.  It returns a new irc namespace command which can be used
+to interact with the new IRC connection\&.  NOTE: the old form of the
 connection command, which took a hostname and port as arguments, is
-deprecated.  Use \fBconnect\fR instead to specify this information.
+deprecated\&.  Use \fBconnect\fR instead to specify this information\&.
 .TP
 \fB::irc::connections\fR
 Returns a list of all the current connections that were created with
@@ -347,153 +348,153 @@ Returns a list of all the current connections that were created with
 .PP
 In the following list of available connection methods \fInet\fR
 represents a connection command as returned by
-\fB::irc::connection\fR.
+\fB::irc::connection\fR\&.
 .TP
 \fInet\fR \fBregisterevent\fR \fIevent\fR \fIscript\fR
-Registers a callback handler for the specific event.  Events available
+Registers a callback handler for the specific event\&.  Events available
 are those described in RFC 1459
-\fIhttp://www.rfc-editor.org/rfc/rfc1459.txt\fR.
-In addition, there are several other events defined.
+\fIhttp://www\&.rfc-editor\&.org/rfc/rfc1459\&.txt\fR\&.
+In addition, there are several other events defined\&.
 \fBdefaultcmd\fR adds a command that is called if no other callback
-is present.  \fBEOF\fR is called if the connection signals an End of
-File condition. The events \fBdefaultcmd\fR, \fBdefaultnumeric\fR,
-\fBdefaultevent\fR, and \fBEOF\fR are required.
+is present\&.  \fBEOF\fR is called if the connection signals an End of
+File condition\&. The events \fBdefaultcmd\fR, \fBdefaultnumeric\fR,
+\fBdefaultevent\fR, and \fBEOF\fR are required\&.
 \fIscript\fR is executed in the connection namespace, which can take
 advantage of several commands (see \fBCallback Commands\fR
-below) to aid in the parsing of data.
+below) to aid in the parsing of data\&.
 .TP
 \fInet\fR \fBgetevent\fR \fIevent\fR \fIscript\fR
-Returns the current handler for the event if one exists. Otherwise an
-empty string is returned.
+Returns the current handler for the event if one exists\&. Otherwise an
+empty string is returned\&.
 .TP
 \fInet\fR \fBeventexists\fR \fIevent\fR \fIscript\fR
-Returns a boolean value indicating the existence of the event handler.
+Returns a boolean value indicating the existence of the event handler\&.
 .TP
 \fInet\fR \fBconnect\fR \fIhostname\fR ?port?
-This causes the socket to be established.  \fB::irc::connection\fR
+This causes the socket to be established\&.  \fB::irc::connection\fR
 created the namespace and the commands to be used, but did not
-actually open the socket. This is done here.  NOTE: the older form of
+actually open the socket\&. This is done here\&.  NOTE: the older form of
 \'connect' did not require the user to specify a hostname and port,
-which were specified with 'connection'.  That form is deprecated.
+which were specified with 'connection'\&.  That form is deprecated\&.
 .TP
 \fInet\fR \fBconfig\fR ?key? ?value?
 The same as \fB::irc::config\fR but sets and gets options for the \fInet\fR
-connection only.
+connection only\&.
 .TP
 \fInet\fR \fBlog\fR \fIlevel\fR \fImessage\fR
 If logger is turned on by \fBconfig\fR this will write a log \fImessage\fR
-at \fIlevel\fR.
+at \fIlevel\fR\&.
 .TP
 \fInet\fR \fBlogname\fR
-Returns the name of the logger instance if logger is turned on.
+Returns the name of the logger instance if logger is turned on\&.
 .TP
 \fInet\fR \fBconnected\fR
-Returns a boolean value indicating if this connection is connected to a server.
+Returns a boolean value indicating if this connection is connected to a server\&.
 .TP
 \fInet\fR \fBsockname\fR
 Returns a 3 element list consisting of the ip address, the hostname, and the port
-of the local end of the connection, if currently connected.
+of the local end of the connection, if currently connected\&.
 .TP
 \fInet\fR \fBpeername\fR
 Returns a 3 element list consisting of the ip address, the hostname, and the port
-of the remote end of the connection, if currently connected.
+of the remote end of the connection, if currently connected\&.
 .TP
 \fInet\fR \fBsocket\fR
-Return the Tcl channel for the socket used by the connection.
+Return the Tcl channel for the socket used by the connection\&.
 .TP
 \fInet\fR \fBuser\fR \fIusername\fR \fIlocalhostname\fR \fIlocaldomainname\fR \fIuserinfo\fR
-Sends USER command to server.  \fIusername\fR is the username you want
-to appear.  \fIlocalhostname\fR is the host portion of your hostname, \fIlocaldomainname\fR
-is your domain name, and \fIuserinfo\fR is a short description of who you are. The 2nd and 3rd
-arguments are normally ignored by the IRC server.
+Sends USER command to server\&.  \fIusername\fR is the username you want
+to appear\&.  \fIlocalhostname\fR is the host portion of your hostname, \fIlocaldomainname\fR
+is your domain name, and \fIuserinfo\fR is a short description of who you are\&. The 2nd and 3rd
+arguments are normally ignored by the IRC server\&.
 .TP
 \fInet\fR \fBnick\fR \fInick\fR
-NICK command.  \fInick\fR is the nickname you wish to use for the
-particular connection.
+NICK command\&.  \fInick\fR is the nickname you wish to use for the
+particular connection\&.
 .TP
 \fInet\fR \fBping\fR \fItarget\fR
-Send a CTCP PING to \fItarget\fR.
+Send a CTCP PING to \fItarget\fR\&.
 .TP
 \fInet\fR \fBserverping\fR
-PING the server.
+PING the server\&.
 .TP
 \fInet\fR \fBjoin\fR \fIchannel\fR ?\fIkey\fR?
-\fIchannel\fR is the IRC channel to join.  IRC channels typically
-begin with a hashmark ("#") or ampersand ("&").
+\fIchannel\fR is the IRC channel to join\&.  IRC channels typically
+begin with a hashmark ("#") or ampersand ("&")\&.
 .TP
 \fInet\fR \fBpart\fR \fIchannel\fR ?\fImessage\fR?
-Makes the client leave \fIchannel\fR. Some networks may support the optional
+Makes the client leave \fIchannel\fR\&. Some networks may support the optional
 argument \fImessage\fR
 .TP
 \fInet\fR \fBquit\fR ?\fImessage\fR?
-Instructs the IRC server to close the current connection. The package
-will use a generic default if no \fImessage\fR was specified.
+Instructs the IRC server to close the current connection\&. The package
+will use a generic default if no \fImessage\fR was specified\&.
 .TP
 \fInet\fR \fBprivmsg\fR \fItarget\fR \fImessage\fR
 Sends \fImessage\fR to \fItarget\fR, which can be either a channel, or
-another user, in which case their nick is used.
+another user, in which case their nick is used\&.
 .TP
 \fInet\fR \fBnotice\fR \fItarget\fR \fImessage\fR
 Sends a \fBnotice\fR with message \fImessage\fR to \fItarget\fR,
-which can be either a channel, or another user, in which case their nick is used.
+which can be either a channel, or another user, in which case their nick is used\&.
 .TP
 \fInet\fR \fBctcp\fR \fItarget\fR \fImessage\fR
 Sends a CTCP of type \fImessage\fR to \fItarget\fR
 .TP
 \fInet\fR \fBkick\fR \fIchannel\fR \fItarget\fR ?\fImessage\fR?
-Kicks the user \fItarget\fR from the channel \fIchannel\fR with a \fImessage\fR.
-The latter can be left out.
+Kicks the user \fItarget\fR from the channel \fIchannel\fR with a \fImessage\fR\&.
+The latter can be left out\&.
 .TP
 \fInet\fR \fBmode\fR \fItarget\fR \fIargs\fR
-Sets the mode \fIargs\fR on the target \fItarget\fR. \fItarget\fR may be a channel,
-a channel user, or yourself.
+Sets the mode \fIargs\fR on the target \fItarget\fR\&. \fItarget\fR may be a channel,
+a channel user, or yourself\&.
 .TP
 \fInet\fR \fBtopic\fR \fIchannel\fR \fImessage\fR
 Sets the topic on \fIchannel\fR to \fImessage\fR specifying an empty string
-will remove the topic.
+will remove the topic\&.
 .TP
 \fInet\fR \fBinvite\fR \fIchannel\fR \fItarget\fR
 Invites \fItarget\fR to join the channel \fIchannel\fR
 .TP
 \fInet\fR \fBsend\fR \fItext\fR
-Sends \fItext\fR to the IRC server.
+Sends \fItext\fR to the IRC server\&.
 .TP
 \fInet\fR \fBdestroy\fR
-Deletes the connection and its associated namespace and information.
+Deletes the connection and its associated namespace and information\&.
 .PP
 .SH "CALLBACK COMMANDS"
 .PP
 These commands can be used within callbacks
 .TP
 \fBwho\fR ?\fBaddress\fR?
-Returns the nick of the user who performed a command.  The optional
+Returns the nick of the user who performed a command\&.  The optional
 keyword \fBaddress\fR causes the command to return the user in the
-format "username@address".
+format "username@address"\&.
 .TP
 \fBaction\fR
-Returns the action performed, such as KICK, PRIVMSG, MODE, etc...
-Normally not useful, as callbacks are bound to a particular event.
+Returns the action performed, such as KICK, PRIVMSG, MODE, etc\&.\&.\&.
+Normally not useful, as callbacks are bound to a particular event\&.
 .TP
 \fBtarget\fR
 Returns the target of a particular command, such as the channel or
-user to whom a PRIVMSG is sent.
+user to whom a PRIVMSG is sent\&.
 .TP
 \fBadditional\fR
-Returns a list of any additional arguments after the target.
+Returns a list of any additional arguments after the target\&.
 .TP
 \fBheader\fR
-Returns the entire event header (everything up to the :) as a proper list.
+Returns the entire event header (everything up to the :) as a proper list\&.
 .TP
 \fBmsg\fR
-Returns the message portion of the command (the part after the :).
+Returns the message portion of the command (the part after the :)\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIirc\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 rfc 1459
 .SH KEYWORDS

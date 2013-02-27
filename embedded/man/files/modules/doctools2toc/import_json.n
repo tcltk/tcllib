@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/doctools2toc/import_json.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/doctools2toc/import_json\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "doctools::toc::import::json" n 0.1 tcllib "Documentation tools"
+.TH "doctools::toc::import::json" n 0\&.1 tcllib "Documentation tools"
 .BS
 .SH NAME
 doctools::toc::import::json \- JSON import plugin
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBdoctools::toc::import::json  ?0.1?\fR
+package require \fBdoctools::toc::import::json  ?0\&.1?\fR
 .sp
 package require \fBdoctools::toc::structure \fR
 .sp
@@ -255,185 +256,191 @@ package require \fBjson \fR
 .BE
 .SH DESCRIPTION
 This package implements the doctools table of contents import plugin
-for the parsing of JSON markup.
+for the parsing of JSON markup\&.
 .PP
 This is an internal package of doctools, for use by the higher level
-management packages handling tables of contents, especially \fBdoctools::toc::import\fR, the import manager.
+management packages handling tables of contents, especially \fBdoctools::toc::import\fR, the import manager\&.
 .PP
 Using it from a regular interpreter is possible, however only with
-contortions, and is not recommended.
+contortions, and is not recommended\&.
 The proper way to use this functionality is through the package
 \fBdoctools::toc::import\fR and the import manager objects it
-provides.
+provides\&.
 .SH API
 The API provided by this package satisfies the specification of the
-doctoc import plugin API version 2.
+doctoc import plugin API version 2\&.
 .TP
 \fBimport\fR \fIstring\fR \fIconfiguration\fR
 This command takes the \fIstring\fR and parses it as JSON
 markup encoding a table of contents, in the context of the specified
-\fIconfiguration\fR (a dictionary). The result of the command is the
+\fIconfiguration\fR (a dictionary)\&. The result of the command is the
 canonical serialization of that table of contents, in the form
-specified in section \fBToC serialization format\fR.
+specified in section \fBToC serialization format\fR\&.
 .PP
 .SH "JSON NOTATION OF TABLES OF CONTENTS"
 The JSON format used for tables of contents is a direct translation of
 the \fBToC serialization format\fR, mapping Tcl dictionaries as
-JSON objects and Tcl lists as JSON arrays.
+JSON objects and Tcl lists as JSON arrays\&.
 For example, the Tcl serialization
 .CS
+
+
 doctools::toc {
-items {
-{reference {
-desc {DocTools - Tables of Contents}
-id introduction.man
-label doctools::toc::introduction
-}}
-{division {
-id processing.man
-items {
-{reference {
-desc {doctoc serialization utilities}
-id structure.man
-label doctools::toc::structure
-}}
-{reference {
-desc {Parsing text in doctoc format}
-id parse.man
-label doctools::toc::parse
-}}
+    items {
+        {reference {
+	    desc {DocTools - Tables of Contents}
+	     id introduction\&.man
+	     label doctools::toc::introduction
+	}}
+	{division {
+	     id processing\&.man
+	     items {
+	         {reference {
+		     desc {doctoc serialization utilities}
+		     id structure\&.man
+		     label doctools::toc::structure
+		 }}
+		 {reference {
+		     desc {Parsing text in doctoc format}
+		     id parse\&.man
+		     label doctools::toc::parse
+		 }}
+	     }
+             label Processing
+        }}
+    }
+    label {Table of Contents}
+    title TOC
 }
-label Processing
-}}
-}
-label {Table of Contents}
-title TOC
-}
+
 .CE
 is equivalent to the JSON string
 .CS
+
+
 {
-"doctools::toc" : {
-"items" : [{
-"reference" : {
-"desc"  : "DocTools - Tables of Contents",
-"id"    : "introduction.man",
-"label" : "doctools::toc::introduction"
+    "doctools::toc" : {
+        "items" : [{
+            "reference" : {
+                "desc"  : "DocTools - Tables of Contents",
+                "id"    : "introduction\&.man",
+                "label" : "doctools::toc::introduction"
+            }
+        },{
+            "division" : {
+                "id"    : "processing\&.man",
+                "items" : [{
+                    "reference" : {
+                        "desc"  : "doctoc serialization utilities",
+                        "id"    : "structure\&.man",
+                        "label" : "doctools::toc::structure"
+                    }
+                },{
+                    "reference" : {
+                        "desc"  : "Parsing text in doctoc format",
+                        "id"    : "parse\&.man",
+                        "label" : "doctools::toc::parse"
+                    }
+                }],
+                "label" : "Processing"
+            }
+        }],
+        "label" : "Table of Contents",
+        "title" : "TOC"
+    }
 }
-},{
-"division" : {
-"id"    : "processing.man",
-"items" : [{
-"reference" : {
-"desc"  : "doctoc serialization utilities",
-"id"    : "structure.man",
-"label" : "doctools::toc::structure"
-}
-},{
-"reference" : {
-"desc"  : "Parsing text in doctoc format",
-"id"    : "parse.man",
-"label" : "doctools::toc::parse"
-}
-}],
-"label" : "Processing"
-}
-}],
-"label" : "Table of Contents",
-"title" : "TOC"
-}
-}
+
 .CE
 .SH "TOC SERIALIZATION FORMAT"
 Here we specify the format used by the doctools v2 packages to
 serialize tables of contents as immutable values for transport,
-comparison, etc.
+comparison, etc\&.
 .PP
 We distinguish between \fIregular\fR and \fIcanonical\fR
-serializations.
+serializations\&.
 While a table of contents may have more than one regular serialization
-only exactly one of them will be \fIcanonical\fR.
+only exactly one of them will be \fIcanonical\fR\&.
 .PP
 .TP
 regular serialization
 .RS
 .IP [1]
-The serialization of any table of contents is a nested Tcl dictionary.
+The serialization of any table of contents is a nested Tcl dictionary\&.
 .IP [2]
 This dictionary holds a single key, \fBdoctools::toc\fR, and its
-value. This value holds the contents of the table of contents.
+value\&. This value holds the contents of the table of contents\&.
 .IP [3]
 The contents of the table of contents are a Tcl dictionary holding the
-title of the table of contents, a label, and its elements. The
+title of the table of contents, a label, and its elements\&. The
 relevant keys and their values are
 .RS
 .TP
 \fBtitle\fR
-The value is a string containing the title of the table of contents.
+The value is a string containing the title of the table of contents\&.
 .TP
 \fBlabel\fR
-The value is a string containing a label for the table of contents.
+The value is a string containing a label for the table of contents\&.
 .TP
 \fBitems\fR
 The value is a Tcl list holding the elements of the table, in the
-order they are to be shown.
+order they are to be shown\&.
 .sp
 Each element is a Tcl list holding the type of the item, and its
-description, in this order. An alternative description would be that
+description, in this order\&. An alternative description would be that
 it is a Tcl dictionary holding a single key, the item type, mapped to
-the item description.
+the item description\&.
 .sp
 The two legal item types and their descriptions are
 .RS
 .TP
 \fBreference\fR
 This item describes a single entry in the table of contents,
-referencing a single document.
+referencing a single document\&.
 To this end its value is a Tcl dictionary containing an id for the
 referenced document, a label, and a longer textual description which
-can be associated with the entry.
+can be associated with the entry\&.
 The relevant keys and their values are
 .RS
 .TP
 \fBid\fR
 The value is a string containing the id of the document associated
-with the entry.
+with the entry\&.
 .TP
 \fBlabel\fR
-The value is a string containing a label for this entry. This string
+The value is a string containing a label for this entry\&. This string
 also identifies the entry, and no two entries (references and
-divisions) in the containing list are allowed to have the same label.
+divisions) in the containing list are allowed to have the same label\&.
 .TP
 \fBdesc\fR
-The value is a string containing a longer description for this entry.
+The value is a string containing a longer description for this entry\&.
 .RE
 .TP
 \fBdivision\fR
 This item describes a group of entries in the table of contents,
-inducing a hierarchy of entries.
+inducing a hierarchy of entries\&.
 To this end its value is a Tcl dictionary containing a label for the
 group, an optional id to a document for the whole group, and the list
-of entries in the group.
+of entries in the group\&.
 The relevant keys and their values are
 .RS
 .TP
 \fBid\fR
 The value is a string containing the id of the document associated
-with the whole group. This key is optional.
+with the whole group\&. This key is optional\&.
 .TP
 \fBlabel\fR
-The value is a string containing a label for the group. This string
+The value is a string containing a label for the group\&. This string
 also identifies the entry, and no two entries (references and
-divisions) in the containing list are allowed to have the same label.
+divisions) in the containing list are allowed to have the same label\&.
 .TP
 \fBitems\fR
 The value is a Tcl list holding the elements of the group, in the
-order they are to be shown.
+order they are to be shown\&.
 This list has the same structure as the value for the keyword
 \fBitems\fR used to describe the whole table of contents, see
-above. This closes the recusrive definition of the structure, with
+above\&. This closes the recusrive definition of the structure, with
 divisions holding the same type of elements as the whole table of
-contents, including other divisions.
+contents, including other divisions\&.
 .RE
 .RE
 .RE
@@ -443,26 +450,27 @@ canonical serialization
 The canonical serialization of a table of contents has the format as
 specified in the previous item, and then additionally satisfies the
 constraints below, which make it unique among all the possible
-serializations of this table of contents.
+serializations of this table of contents\&.
 .RS
 .IP [1]
 The keys found in all the nested Tcl dictionaries are sorted in
 ascending dictionary order, as generated by Tcl's builtin command
-\fBlsort -increasing -dict\fR.
+\fBlsort -increasing -dict\fR\&.
 .RE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 JSON, deserialization, doctools, import, table of contents, toc
 .SH CATEGORY
 Text formatter plugin
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

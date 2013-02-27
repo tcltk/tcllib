@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/grammar_fa/dacceptor.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/grammar_fa/dacceptor\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2004 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,22 +238,22 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "grammar::fa::dacceptor" n 0.1.1 tcllib "Finite automaton operations and usage"
+.TH "grammar::fa::dacceptor" n 0\&.1\&.1 tcllib "Finite automaton operations and usage"
 .BS
 .SH NAME
 grammar::fa::dacceptor \- Create and use deterministic acceptors
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
 package require \fBsnit \fR
 .sp
 package require \fBstruct::set \fR
 .sp
-package require \fBgrammar::fa::dacceptor  ?0.1.1?\fR
+package require \fBgrammar::fa::dacceptor  ?0\&.1\&.1?\fR
 .sp
 \fB::grammar::fa::dacceptor\fR \fIdaName\fR \fIfa\fR ?\fB-any\fR \fIany\fR?
 .sp
-\fBdaName\fR \fIoption\fR ?\fIarg arg ...\fR?
+\fBdaName\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp
 \fIdaName\fR \fBdestroy\fR
 .sp
@@ -262,34 +263,34 @@ package require \fBgrammar::fa::dacceptor  ?0.1.1?\fR
 .SH DESCRIPTION
 .PP
 This package provides a class for acceptors constructed from
-deterministic \fIfinite automatons\fR (DFA). Acceptors are objects
+deterministic \fIfinite automatons\fR (DFA)\&. Acceptors are objects
 which can be given a string of symbols and tell if the DFA they are
-constructed from would \fIaccept\fR that string.
+constructed from would \fIaccept\fR that string\&.
 For the actual creation of the DFAs the acceptors are based on we have
-the packages \fBgrammar::fa\fR and \fBgrammar::fa::op\fR.
+the packages \fBgrammar::fa\fR and \fBgrammar::fa::op\fR\&.
 .PP
 .SH API
-The package exports the API described here.
+The package exports the API described here\&.
 .TP
 \fB::grammar::fa::dacceptor\fR \fIdaName\fR \fIfa\fR ?\fB-any\fR \fIany\fR?
 Creates a new deterministic acceptor with an associated global Tcl command
-whose name is \fIdaName\fR. This command may be used to invoke various
-operations on the acceptor. It has the following general form:
+whose name is \fIdaName\fR\&. This command may be used to invoke various
+operations on the acceptor\&. It has the following general form:
 .RS
 .TP
-\fBdaName\fR \fIoption\fR ?\fIarg arg ...\fR?
+\fBdaName\fR \fIoption\fR ?\fIarg arg \&.\&.\&.\fR?
 \fIOption\fR and the \fIarg\fRs determine the exact behavior of the
-command. See section \fBACCEPTOR METHODS\fR for more explanations.
+command\&. See section \fBACCEPTOR METHODS\fR for more explanations\&.
 .sp
 The acceptor will be based on the deterministic finite automaton
-stored in the object \fIfa\fR. It will keep a copy of the relevant
+stored in the object \fIfa\fR\&. It will keep a copy of the relevant
 data of the FA in its own storage, in a form easy to use for its
-purposes. This also means that changes made to the \fIfa\fR after the
-construction of the acceptor \fIwill not\fR influence the acceptor.
+purposes\&. This also means that changes made to the \fIfa\fR after the
+construction of the acceptor \fIwill not\fR influence the acceptor\&.
 .sp
 If \fIany\fR has been specified, then the acceptor will convert all
 symbols in the input which are unknown to the base FA to that symbol
-before proceeding with the processing.
+before proceeding with the processing\&.
 .RE
 .PP
 .SH "ACCEPTOR METHODS"
@@ -298,33 +299,34 @@ All acceptors provide the following methods for their manipulation:
 .TP
 \fIdaName\fR \fBdestroy\fR
 Destroys the automaton, including its storage space and associated
-command.
+command\&.
 .TP
 \fIdaName\fR \fBaccept?\fR \fIsymbols\fR
 Takes the list of \fIsymbols\fR and checks if the FA the acceptor is
-based on would accept it. The result is a boolean value. \fBTrue\fR
+based on would accept it\&. The result is a boolean value\&. \fBTrue\fR
 is returned if the symbols are accepted, and \fBFalse\fR
-otherwise. Note that bogus symbols in the input are either translated
+otherwise\&. Note that bogus symbols in the input are either translated
 to the \fIany\fR symbol (if specified), or cause the acceptance test
-to simply fail. No errors will be thrown. The method will process only
+to simply fail\&. No errors will be thrown\&. The method will process only
 just that prefix of the input which is enough to fully determine
-(non-)acceptance.
+(non-)acceptance\&.
 .PP
 .PP
 .SH EXAMPLES
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIgrammar_fa\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 acceptance, acceptor, automaton, finite automaton, grammar, parsing, regular expression, regular grammar, regular languages, state, transducer
 .SH CATEGORY
 Grammars and finite automata
 .SH COPYRIGHT
 .nf
-Copyright (c) 2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2004 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

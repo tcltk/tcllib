@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/math/rational_funcs.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2005 Arjen Markus <arjenmarkus@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/rational_funcs\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2005 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "math::rationalfunctions" n 1.0.1 tcllib "Math"
+.TH "math::rationalfunctions" n 1\&.0\&.1 tcllib "Math"
 .BS
 .SH NAME
 math::rationalfunctions \- Polynomial functions
 .SH SYNOPSIS
-package require \fBTcl  ?8.4?\fR
+package require \fBTcl  ?8\&.4?\fR
 .sp
-package require \fBmath::rationalfunctions  ?1.0.1?\fR
+package require \fBmath::rationalfunctions  ?1\&.0\&.1?\fR
 .sp
 \fB::math::rationalfunctions::rationalFunction\fR \fInum\fR \fIden\fR
 .sp
@@ -281,17 +282,23 @@ evaluation through a general procedure or via specific procedures)
 The package defines the following public procedures:
 .TP
 \fB::math::rationalfunctions::rationalFunction\fR \fInum\fR \fIden\fR
-Return an (encoded) list that defines the rational function. A
+Return an (encoded) list that defines the rational function\&. A
 rational function
 .CS
-1 + x^3
-f(x) = ------------
-1 + 2x + x^2
+
+
+             1 + x^3
+   f(x) = ------------
+          1 + 2x + x^2
+
 .CE
 .IP
 can be defined via:
 .CS
-set f [::math::rationalfunctions::rationalFunction [list 1 0 0 1]  [list 1 2 1]]
+
+
+   set f [::math::rationalfunctions::rationalFunction [list 1 0 0 1]  [list 1 2 1]]
+
 .CE
 .RS
 .TP
@@ -307,10 +314,10 @@ function (in ascending order)
 .sp
 .TP
 \fB::math::rationalfunctions::ratioCmd\fR \fInum\fR \fIden\fR
-Create a new procedure that evaluates the rational function. The name of the
-function is automatically generated. Useful if you need to evaluate
+Create a new procedure that evaluates the rational function\&. The name of the
+function is automatically generated\&. Useful if you need to evaluate
 the function many times, as the procedure consists of a single
-[expr] command.
+[expr] command\&.
 .RS
 .TP
 list \fInum\fR
@@ -325,12 +332,12 @@ function (in ascending order)
 .sp
 .TP
 \fB::math::rationalfunctions::evalRatio\fR \fIrational\fR \fIx\fR
-Evaluate the rational function at x.
+Evaluate the rational function at x\&.
 .RS
 .TP
 list \fIrational\fR
 The rational function's definition (as returned
-by the rationalFunction command).
+by the rationalFunction command)\&.
 order)
 .TP
 float \fIx\fR
@@ -339,7 +346,7 @@ The coordinate at which to evaluate the function
 .sp
 .TP
 \fB::math::rationalfunctions::addRatio\fR \fIratio1\fR \fIratio2\fR
-Return a new rational function which is the sum of the two others.
+Return a new rational function which is the sum of the two others\&.
 .RS
 .TP
 list \fIratio1\fR
@@ -352,7 +359,7 @@ The second rational function operand
 .TP
 \fB::math::rationalfunctions::subRatio\fR \fIratio1\fR \fIratio2\fR
 Return a new rational function which is the difference of the two
-others.
+others\&.
 .RS
 .TP
 list \fIratio1\fR
@@ -364,9 +371,9 @@ The second rational function operand
 .sp
 .TP
 \fB::math::rationalfunctions::multRatio\fR \fIratio1\fR \fIratio2\fR
-Return a new rational function which is the product of the two others.
+Return a new rational function which is the product of the two others\&.
 If one of the arguments is a scalar value, the other rational function is
-simply scaled.
+simply scaled\&.
 .RS
 .TP
 list \fIratio1\fR
@@ -379,7 +386,7 @@ The second rational function operand or a scalar
 .TP
 \fB::math::rationalfunctions::divRatio\fR \fIratio1\fR \fIratio2\fR
 Divide the first rational function by the second rational function and
-return the result. The remainder is dropped
+return the result\&. The remainder is dropped
 .RS
 .TP
 list \fIratio1\fR
@@ -391,7 +398,7 @@ The second rational function operand
 .sp
 .TP
 \fB::math::rationalfunctions::derivPolyn\fR \fIratio\fR
-Differentiate the rational function and return the result.
+Differentiate the rational function and return the result\&.
 .RS
 .TP
 list \fIratio\fR
@@ -400,7 +407,7 @@ The rational function to be differentiated
 .sp
 .TP
 \fB::math::rationalfunctions::coeffsNumerator\fR \fIratio\fR
-Return the coefficients of the numerator of the rational function.
+Return the coefficients of the numerator of the rational function\&.
 .RS
 .TP
 list \fIratio\fR
@@ -410,7 +417,7 @@ The rational function to be examined
 .TP
 \fB::math::rationalfunctions::coeffsDenominator\fR \fIratio\fR
 Return the coefficients of the denominator of the rational
-function.
+function\&.
 .RS
 .TP
 list \fIratio\fR
@@ -420,20 +427,21 @@ The rational function to be examined
 .PP
 .SH "REMARKS ON THE IMPLEMENTATION"
 The implementation of the rational functions relies on the
-math::polynomials package. For further remarks see the documentation on
-that package.
+math::polynomials package\&. For further remarks see the documentation on
+that package\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fImath :: rationalfunctions\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 math, rational functions
 .SH CATEGORY
 Mathematics
 .SH COPYRIGHT
 .nf
-Copyright (c) 2005 Arjen Markus <arjenmarkus@users.sourceforge.net>
+Copyright (c) 2005 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
+
 .fi

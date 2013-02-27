@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/transfer/ddest.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/transfer/ddest\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,20 +238,20 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "transfer::data::destination" n 0.2 tcllib "Data transfer facilities"
+.TH "transfer::data::destination" n 0\&.2 tcllib "Data transfer facilities"
 .BS
 .SH NAME
 transfer::data::destination \- Data destination
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBsnit  ?1.0?\fR
+package require \fBsnit  ?1\&.0?\fR
 .sp
-package require \fBtransfer::data::destination  ?0.2?\fR
+package require \fBtransfer::data::destination  ?0\&.2?\fR
 .sp
-\fBtransfer::data::destination\fR \fIobjectName\fR ?\fIoptions\fR...?
+\fBtransfer::data::destination\fR \fIobjectName\fR ?\fIoptions\fR\&.\&.\&.?
 .sp
-\fIobjectName\fR \fBmethod\fR ?\fIarg arg ...\fR?
+\fIobjectName\fR \fBmethod\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp
 \fIobjectName\fR \fBdestroy\fR
 .sp
@@ -266,108 +267,109 @@ package require \fBtransfer::data::destination  ?0.2?\fR
 .SH DESCRIPTION
 .PP
 This package provides objects mainly describing the destination of a
-data transfer. They are also able to initiate the reception of
-information from a channel into the described destination.
+data transfer\&. They are also able to initiate the reception of
+information from a channel into the described destination\&.
 .SH API
 .TP
-\fBtransfer::data::destination\fR \fIobjectName\fR ?\fIoptions\fR...?
+\fBtransfer::data::destination\fR \fIobjectName\fR ?\fIoptions\fR\&.\&.\&.?
 This command creates a new data destination object with an associated
-Tcl command whose name is \fIobjectName\fR.
+Tcl command whose name is \fIobjectName\fR\&.
 This \fIobject\fR command is explained in full detail in the sections
-\fBObject command\fR and \fBObject methods\fR. The set of
-supported \fIoptions\fR is explained in section \fBOptions\fR.
+\fBObject command\fR and \fBObject methods\fR\&. The set of
+supported \fIoptions\fR is explained in section \fBOptions\fR\&.
 .sp
 The object command will be created under the current namespace if the
 \fIobjectName\fR is not fully qualified, and in the specified
-namespace otherwise.
+namespace otherwise\&.
 The fully qualified name of the object command is returned as the
-result of the command.
+result of the command\&.
 .PP
 .SS "OBJECT COMMAND"
 All objects created by the \fB::transfer::data::destination\fR command
 have the following general form:
 .TP
-\fIobjectName\fR \fBmethod\fR ?\fIarg arg ...\fR?
+\fIobjectName\fR \fBmethod\fR ?\fIarg arg \&.\&.\&.\fR?
 The method \fBmethod\fR and its \fIarg\fR'uments determine the
-exact behavior of the command.
+exact behavior of the command\&.
 See section \fBObject methods\fR for the detailed
-specifications.
+specifications\&.
 .PP
 .SS "OBJECT METHODS"
 .TP
 \fIobjectName\fR \fBdestroy\fR
-This method destroys the object. Doing so while the object is busy
+This method destroys the object\&. Doing so while the object is busy
 with the reception of information from a channel will cause errors
 later on, when the reception completes and tries to access the now
-missing data structures of the destroyed object.
+missing data structures of the destroyed object\&.
 .TP
 \fIobjectName\fR \fBput\fR \fIchunk\fR
-The main receptor method. Saves the received \fIchunk\fR of data into
-the configured destination. It has to be called for each piece of data
-received.
+The main receptor method\&. Saves the received \fIchunk\fR of data into
+the configured destination\&. It has to be called for each piece of data
+received\&.
 .TP
 \fIobjectName\fR \fBdone\fR
-The secondary receptor method. Finalizes the receiver. It has to be
-called when the receiving channel signals EOF. Afterward neither
-itself nor method \fBput\fR can be called anymore.
+The secondary receptor method\&. Finalizes the receiver\&. It has to be
+called when the receiving channel signals EOF\&. Afterward neither
+itself nor method \fBput\fR can be called anymore\&.
 .TP
 \fIobjectName\fR \fBvalid\fR \fImsgvar\fR
-This method checks the configuration of the object for validity. It
+This method checks the configuration of the object for validity\&. It
 returns a boolean flag as result, whose value is \fBTrue\fR if the
-object is valid, and \fBFalse\fR otherwise. In the latter case the
+object is valid, and \fBFalse\fR otherwise\&. In the latter case the
 variable whose name is stored in \fImsgvar\fR is set to an error
-message describing the problem found with the configuration. Otherwise
-this variable is not touched.
+message describing the problem found with the configuration\&. Otherwise
+this variable is not touched\&.
 .TP
 \fIobjectName\fR \fBreceive\fR \fIchannel\fR \fIdone\fR
 This method initiates the reception of data from the specified
-\fIchannel\fR. The received data will be stored into the configured
-destination, via calls to the methods \fBput\fR and \fBdone\fR.
+\fIchannel\fR\&. The received data will be stored into the configured
+destination, via calls to the methods \fBput\fR and \fBdone\fR\&.
 When the reception completes the command prefix \fIdone\fR is invoked,
 with the number of received characters appended to it as the sole
-additional argument.
+additional argument\&.
 .PP
 .SS OPTIONS
-All data destinations support the options listed below. It should be
+All data destinations support the options listed below\&. It should be
 noted that all are semi-exclusive, each specifying a different type of
-destination and associated information. If these options are specified
+destination and associated information\&. If these options are specified
 more than once then the last option specified is used to actually
-configure the object.
+configure the object\&.
 .TP
 \fB-channel\fR \fIhandle\fR
 This option specifies that the destination of the data is a channel,
 and its associated argument is the handle of the channel to write the
-received data to.
+received data to\&.
 .TP
 \fB-file\fR \fIpath\fR
 This option specifies that the destination of the data is a file, and
 its associated argument is the path of the file to write the received
-data to.
+data to\&.
 .TP
 \fB-variable\fR \fIvarname\fR
 This option specifies that the destination of the data is a variable,
 and its associated argument contains the name of the variable to write
-the received data to. The variable is assumed to be global or
-namespaced, anchored at the global namespace.
+the received data to\&. The variable is assumed to be global or
+namespaced, anchored at the global namespace\&.
 .TP
 \fB-progress\fR \fIcommand\fR
 This option, if specified, defines a command to be invoked for each
 chunk of bytes received, allowing the user to monitor the progress of
-the reception of the data. The callback is always invoked with one
-additional argument, the number of bytes received so far.
+the reception of the data\&. The callback is always invoked with one
+additional argument, the number of bytes received so far\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fItransfer\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 channel, copy, data destination, transfer
 .SH CATEGORY
 Transfer module
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2006-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

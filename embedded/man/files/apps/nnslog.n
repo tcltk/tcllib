@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/apps/nnslog.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/apps/nnslog\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,7 +238,7 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "nnslog" n 1.0 tcllib "Name service facility"
+.TH "nnslog" n 1\&.0 tcllib "Name service facility"
 .BS
 .SH NAME
 nnslog \- Name service facility, Commandline Logging Client Application
@@ -247,28 +248,28 @@ nnslog \- Name service facility, Commandline Logging Client Application
 .BE
 .SH DESCRIPTION
 .PP
-Please read \fIName service facility, introduction\fR first.
+Please read \fIName service facility, introduction\fR first\&.
 .PP
 The application described by this document, \fBnnslog\fR, is a
 simple command line client for the nano name service facility provided
-by the Tcllib packages \fBnameserv\fR, and \fBnameserv::server\fR.
+by the Tcllib packages \fBnameserv\fR, and \fBnameserv::server\fR\&.
 .PP
 It essentially implements "\fBnns\fR search -continuous *", but
-uses a different output formatting. Instead of continuously showing
+uses a different output formatting\&. Instead of continuously showing
 the current contents of the server in the terminal it simply logs all
-received add/remove events to \fBstdout\fR.
+received add/remove events to \fBstdout\fR\&.
 .PP
 This name service facility has nothing to do with the Internet's
-\fIDomain Name System\fR, otherwise known as \fIDNS\fR. If the
+\fIDomain Name System\fR, otherwise known as \fIDNS\fR\&. If the
 reader is looking for a package dealing with that please see either of
 the packages \fBdns\fR and \fBresolv\fR, both found in Tcllib
-too.
+too\&.
 .SS "USE CASES"
-\fBnnslog\fR was written with the following main use case in mind.
+\fBnnslog\fR was written with the following main use case in mind\&.
 .PP
 .IP [1]
 Monitoring the name service for all changes and logging them in a text
-terminal.
+terminal\&.
 .PP
 .PP
 .SS "COMMAND LINE"
@@ -276,35 +277,35 @@ terminal.
 \fBnnslog\fR ?\fB-host\fR \fIhost\fR? ?\fB-port\fR \fIport\fR?
 The command connects to the specified name service, sets up a search
 for all changes and then prints all received events to stdout, with
-each events on its own line. The command will not exit until it is
-explicitly terminated by the user. It will especially survive the loss
+each events on its own line\&. The command will not exit until it is
+explicitly terminated by the user\&. It will especially survive the loss
 of the connection to the name service and reestablish the search and
-log when the connection is restored.
+log when the connection is restored\&.
 .sp
 The options to specify the name service will be explained later, in
-section \fBOPTIONS\fR.
+section \fBOPTIONS\fR\&.
 .PP
 .SS OPTIONS
 This section describes all the options available to the user of the
 application
 .TP
 \fB-host\fR name|ipaddress
-If this option is not specified it defaults to \fBlocalhost\fR. It
+If this option is not specified it defaults to \fBlocalhost\fR\&. It
 specifies the name or ip-address of the host the name service to talk
-to is running on.
+to is running on\&.
 .TP
 \fB-port\fR number
-If this option is not specified it defaults to \fB38573\fR. It
+If this option is not specified it defaults to \fB38573\fR\&. It
 specifies the TCP port the name service to talk to is listening on for
-requests.
+requests\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the application it describes, will undoubtedly
-contain bugs and other problems.
+contain bugs and other problems\&.
 Please report such in the category \fInameserv\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-application and/or documentation.
+application and/or documentation\&.
 .SH "SEE ALSO"
 nameserv(n), nameserv::common(n)
 .SH KEYWORDS
@@ -313,5 +314,6 @@ application, client, name service
 Networking
 .SH COPYRIGHT
 .nf
-Copyright (c) 2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/doctools2idx/import_json.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/doctools2idx/import_json\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "doctools::idx::import::json" n 0.1 tcllib "Documentation tools"
+.TH "doctools::idx::import::json" n 0\&.1 tcllib "Documentation tools"
 .BS
 .SH NAME
 doctools::idx::import::json \- JSON import plugin
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBdoctools::idx::import::json  ?0.1?\fR
+package require \fBdoctools::idx::import::json  ?0\&.1?\fR
 .sp
 package require \fBdoctools::idx::structure \fR
 .sp
@@ -255,123 +256,129 @@ package require \fBjson \fR
 .BE
 .SH DESCRIPTION
 This package implements the doctools keyword index import plugin for
-the parsing of JSON markup.
+the parsing of JSON markup\&.
 .PP
 This is an internal package of doctools, for use by the higher level
-management packages handling keyword indices, especially \fBdoctools::idx::import\fR, the import manager.
+management packages handling keyword indices, especially \fBdoctools::idx::import\fR, the import manager\&.
 .PP
 Using it from a regular interpreter is possible, however only with
-contortions, and is not recommended.
+contortions, and is not recommended\&.
 The proper way to use this functionality is through the package
 \fBdoctools::idx::import\fR and the import manager objects it
-provides.
+provides\&.
 .SH API
 The API provided by this package satisfies the specification of the
-docidx import plugin API version 2.
+docidx import plugin API version 2\&.
 .TP
 \fBimport\fR \fIstring\fR \fIconfiguration\fR
 This command takes the \fIstring\fR and parses it as JSON
 markup encoding a keyword index, in the context of the specified
-\fIconfiguration\fR (a dictionary). The result of the command is the
+\fIconfiguration\fR (a dictionary)\&. The result of the command is the
 canonical serialization of that keyword index, in the form specified
-in section \fBKeyword index serialization format\fR.
+in section \fBKeyword index serialization format\fR\&.
 .PP
 .SH "JSON NOTATION OF KEYWORD INDICES"
 The JSON format used for keyword indices is a direct translation of
 the \fBKeyword index serialization format\fR, mapping Tcl
-dictionaries as JSON objects and Tcl lists as JSON arrays.
+dictionaries as JSON objects and Tcl lists as JSON arrays\&.
 For example, the Tcl serialization
 .CS
+
+
 doctools::idx {
-label {Keyword Index}
-keywords {
-changelog  {changelog.man cvs.man}
-conversion {doctools.man docidx.man doctoc.man apps/dtplite.man mpexpand.man}
-cvs        cvs.man
+	label {Keyword Index}
+	keywords {
+		changelog  {changelog\&.man cvs\&.man}
+		conversion {doctools\&.man docidx\&.man doctoc\&.man apps/dtplite\&.man mpexpand\&.man}
+		cvs        cvs\&.man
+	}
+	references {
+		apps/dtplite\&.man {manpage dtplite}
+		changelog\&.man    {manpage doctools::changelog}
+		cvs\&.man          {manpage doctools::cvs}
+		docidx\&.man       {manpage doctools::idx}
+		doctoc\&.man       {manpage doctools::toc}
+		doctools\&.man     {manpage doctools}
+		mpexpand\&.man     {manpage mpexpand}
+	}
+	title {}
 }
-references {
-apps/dtplite.man {manpage dtplite}
-changelog.man    {manpage doctools::changelog}
-cvs.man          {manpage doctools::cvs}
-docidx.man       {manpage doctools::idx}
-doctoc.man       {manpage doctools::toc}
-doctools.man     {manpage doctools}
-mpexpand.man     {manpage mpexpand}
-}
-title {}
-}
+
 .CE
 is equivalent to the JSON string
 .CS
+
+
 {
-"doctools::idx" : {
-"label"      : "Keyword Index",
-"keywords"   : {
-"changelog"  : ["changelog.man","cvs.man"],
-"conversion" : ["doctools.man","docidx.man","doctoc.man","apps\\/dtplite.man","mpexpand.man"],
-"cvs"        : ["cvs.man"],
-},
-"references" : {
-"apps\\/dtplite.man" : ["manpage","dtplite"],
-"changelog.man"     : ["manpage","doctools::changelog"],
-"cvs.man"           : ["manpage","doctools::cvs"],
-"docidx.man"        : ["manpage","doctools::idx"],
-"doctoc.man"        : ["manpage","doctools::toc"],
-"doctools.man"      : ["manpage","doctools"],
-"mpexpand.man"      : ["manpage","mpexpand"]
-},
-"title"      : ""
+    "doctools::idx" : {
+        "label"      : "Keyword Index",
+        "keywords"   : {
+            "changelog"  : ["changelog\&.man","cvs\&.man"],
+            "conversion" : ["doctools\&.man","docidx\&.man","doctoc\&.man","apps\\/dtplite\&.man","mpexpand\&.man"],
+            "cvs"        : ["cvs\&.man"],
+        },
+        "references" : {
+            "apps\\/dtplite\&.man" : ["manpage","dtplite"],
+            "changelog\&.man"     : ["manpage","doctools::changelog"],
+            "cvs\&.man"           : ["manpage","doctools::cvs"],
+            "docidx\&.man"        : ["manpage","doctools::idx"],
+            "doctoc\&.man"        : ["manpage","doctools::toc"],
+            "doctools\&.man"      : ["manpage","doctools"],
+            "mpexpand\&.man"      : ["manpage","mpexpand"]
+        },
+        "title"      : ""
+    }
 }
-}
+
 .CE
 .SH "KEYWORD INDEX SERIALIZATION FORMAT"
 Here we specify the format used by the doctools v2 packages to
 serialize keyword indices as immutable values for transport,
-comparison, etc.
+comparison, etc\&.
 .PP
 We distinguish between \fIregular\fR and \fIcanonical\fR
-serializations. While a keyword index may have more than one regular
-serialization only exactly one of them will be \fIcanonical\fR.
+serializations\&. While a keyword index may have more than one regular
+serialization only exactly one of them will be \fIcanonical\fR\&.
 .PP
 .TP
 regular serialization
 .RS
 .IP [1]
-An index serialization is a nested Tcl dictionary.
+An index serialization is a nested Tcl dictionary\&.
 .IP [2]
 This dictionary holds a single key, \fBdoctools::idx\fR, and its
-value. This value holds the contents of the index.
+value\&. This value holds the contents of the index\&.
 .IP [3]
 The contents of the index are a Tcl dictionary holding the title of
-the index, a label, and the keywords and references. The relevant keys
+the index, a label, and the keywords and references\&. The relevant keys
 and their values are
 .RS
 .TP
 \fBtitle\fR
-The value is a string containing the title of the index.
+The value is a string containing the title of the index\&.
 .TP
 \fBlabel\fR
-The value is a string containing a label for the index.
+The value is a string containing a label for the index\&.
 .TP
 \fBkeywords\fR
 The value is a Tcl dictionary, using the keywords known to the index
-as keys. The associated values are lists containing the identifiers of
-the references associated with that particular keyword.
+as keys\&. The associated values are lists containing the identifiers of
+the references associated with that particular keyword\&.
 .sp
 Any reference identifier used in these lists has to exist as a key in
 the \fBreferences\fR dictionary, see the next item for its
-definition.
+definition\&.
 .TP
 \fBreferences\fR
 The value is a Tcl dictionary, using the identifiers for the
-references known to the index as keys. The associated values are
+references known to the index as keys\&. The associated values are
 2-element lists containing the type and label of the reference, in
-this order.
+this order\&.
 .sp
 Any key here has to be associated with at least one keyword,
-i.e. occur in at least one of the reference lists which are the values
+i\&.e\&. occur in at least one of the reference lists which are the values
 in the \fBkeywords\fR dictionary, see previous item for its
-definition.
+definition\&.
 .RE
 .IP [4]
 The \fItype\fR of a reference can be one of two values,
@@ -379,11 +386,11 @@ The \fItype\fR of a reference can be one of two values,
 .TP
 \fBmanpage\fR
 The identifier of the reference is interpreted as symbolic file name,
-refering to one of the documents the index was made for.
+refering to one of the documents the index was made for\&.
 .TP
 \fBurl\fR
 The identifier of the reference is interpreted as an url, refering to
-some external location, like a website, etc.
+some external location, like a website, etc\&.
 .RE
 .RE
 .TP
@@ -391,30 +398,31 @@ canonical serialization
 The canonical serialization of a keyword index has the format as
 specified in the previous item, and then additionally satisfies the
 constraints below, which make it unique among all the possible
-serializations of the keyword index.
+serializations of the keyword index\&.
 .RS
 .IP [1]
 The keys found in all the nested Tcl dictionaries are sorted in
 ascending dictionary order, as generated by Tcl's builtin command
-\fBlsort -increasing -dict\fR.
+\fBlsort -increasing -dict\fR\&.
 .IP [2]
 The references listed for each keyword of the index, if any, are
 listed in ascending dictionary order of their \fIlabels\fR, as
-generated by Tcl's builtin command \fBlsort -increasing -dict\fR.
+generated by Tcl's builtin command \fBlsort -increasing -dict\fR\&.
 .RE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 JSON, deserialization, doctools, import, index
 .SH CATEGORY
 Text formatter plugin
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/nntp/nntp.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/nntp/nntp\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,18 +237,18 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "nntp" n 1.5.1 tcllib "Tcl NNTP Client Library"
+.TH "nntp" n 1\&.5\&.1 tcllib "Tcl NNTP Client Library"
 .BS
 .SH NAME
 nntp \- Tcl client for the NNTP protocol
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBnntp  ?0.2.1?\fR
+package require \fBnntp  ?0\&.2\&.1?\fR
 .sp
 \fB::nntp::nntp\fR ?\fIhost\fR? ?\fIport\fR? ?\fInntpName\fR?
 .sp
-\fInntpName\fR \fBmethod\fR ?\fIarg arg ...\fR?
+\fInntpName\fR \fBmethod\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp
 \fInntpName\fR \fBarticle\fR ?\fImsgid\fR?
 .sp
@@ -259,7 +260,7 @@ package require \fBnntp  ?0.2.1?\fR
 .sp
 \fInntpName\fR \fBconfigure\fR \fIoption\fR
 .sp
-\fInntpName\fR \fBconfigure\fR \fIoption\fR \fIvalue\fR ...
+\fInntpName\fR \fBconfigure\fR \fIoption\fR \fIvalue\fR \&.\&.\&.
 .sp
 \fInntpName\fR \fBcget\fR \fIoption\fR
 .sp
@@ -308,281 +309,303 @@ package require \fBnntp  ?0.2.1?\fR
 .BE
 .SH DESCRIPTION
 The package \fBnntp\fR provides a simple Tcl-only client library
-for the NNTP protocol.  It works by opening the standard NNTP socket
+for the NNTP protocol\&.  It works by opening the standard NNTP socket
 on the server, and then providing a Tcl API to access the NNTP
-protocol commands.  All server errors are returned as Tcl errors
-(thrown) which must be caught with the Tcl \fBcatch\fR command.
+protocol commands\&.  All server errors are returned as Tcl errors
+(thrown) which must be caught with the Tcl \fBcatch\fR command\&.
 .SH COMMANDS
 .TP
 \fB::nntp::nntp\fR ?\fIhost\fR? ?\fIport\fR? ?\fInntpName\fR?
 The command opens a socket connection to the specified NNTP server and
 creates a new nntp object with an associated global Tcl command whose
-name is \fInntpName\fR. This command may be used to access the various
-NNTP protocol commands for the new connection. The default \fIport\fR
-number is "119" and the default \fIhost\fR is "news". These defaults
+name is \fInntpName\fR\&. This command may be used to access the various
+NNTP protocol commands for the new connection\&. The default \fIport\fR
+number is "119" and the default \fIhost\fR is "news"\&. These defaults
 can be overridden with the environment variables \fBNNTPPORT\fR and
-\fBNNTPHOST\fR respectively.
+\fBNNTPHOST\fR respectively\&.
 .sp
 Some of the commands supported by this package are not part of the
-nntp rfc 977 (\fIhttp://www.rfc-editor.org/rfc/rfc977.txt\fR) and will
-not be available (or implemented) on all nntp servers.
+nntp rfc 977 (\fIhttp://www\&.rfc-editor\&.org/rfc/rfc977\&.txt\fR) and will
+not be available (or implemented) on all nntp servers\&.
 .sp
 The access command \fInntpName\fR has the following general form:
 .RS
 .TP
-\fInntpName\fR \fBmethod\fR ?\fIarg arg ...\fR?
+\fInntpName\fR \fBmethod\fR ?\fIarg arg \&.\&.\&.\fR?
 \fIOption\fR and the \fIarg\fRs determine the exact behavior of the
-command.
+command\&.
 .RE
 .TP
 \fInntpName\fR \fBarticle\fR ?\fImsgid\fR?
-Query the server for article \fImsgid\fR from the current group.  The article
+Query the server for article \fImsgid\fR from the current group\&.  The article
 is returned as a valid tcl list which contains the headers, followed by
-a blank line, and then followed by the body of the article. Each element
-in the list is one line of the article.
+a blank line, and then followed by the body of the article\&. Each element
+in the list is one line of the article\&.
 .TP
 \fInntpName\fR \fBauthinfo\fR ?\fIuser\fR? ?\fIpass\fR?
-Send authentication information (username and password) to the server.
+Send authentication information (username and password) to the server\&.
 .TP
 \fInntpName\fR \fBbody\fR ?\fImsgid\fR?
 Query the server for the body of the article \fImsgid\fR from the current
-group.  The body of the article is returned as a valid tcl list. Each element
-in the list is one line of the body of the article.
+group\&.  The body of the article is returned as a valid tcl list\&. Each element
+in the list is one line of the body of the article\&.
 .TP
 \fInntpName\fR \fBconfigure\fR
 .TP
 \fInntpName\fR \fBconfigure\fR \fIoption\fR
 .TP
-\fInntpName\fR \fBconfigure\fR \fIoption\fR \fIvalue\fR ...
+\fInntpName\fR \fBconfigure\fR \fIoption\fR \fIvalue\fR \&.\&.\&.
 .TP
 \fInntpName\fR \fBcget\fR \fIoption\fR
-Query and configure options of the nntp connection object. Currently
-only one option is supported, \fB-binary\fR. When set articles are
-retrieved as binary data instead of text. The only methods affected by
-this are \fBarticle\fR and \fBbody\fR.
+Query and configure options of the nntp connection object\&. Currently
+only one option is supported, \fB-binary\fR\&. When set articles are
+retrieved as binary data instead of text\&. The only methods affected by
+this are \fBarticle\fR and \fBbody\fR\&.
 .sp
 One application of this option would be the download of articles
-containing yEnc encoded images. Although encoded the data is still
-mostly binary and retrieving it as text will corrupt the information.
+containing yEnc encoded images\&. Although encoded the data is still
+mostly binary and retrieving it as text will corrupt the information\&.
 .sp
-See package \fByencode\fR for both encoder and decoder of such data.
+See package \fByencode\fR for both encoder and decoder of such data\&.
 .TP
 \fInntpName\fR \fBdate\fR
-Query the server for the servers current date.  The date is returned in the
-format \fIYYYYMMDDHHMMSS\fR.
+Query the server for the servers current date\&.  The date is returned in the
+format \fIYYYYMMDDHHMMSS\fR\&.
 .TP
 \fInntpName\fR \fBgroup\fR ?\fIgroup\fR?
 Optionally set the current group, and retrieve information about the
-currently selected group.  Returns the estimated number of articles in
+currently selected group\&.  Returns the estimated number of articles in
 the group followed by the number of the first article in the group, followed
-by the last article in the group, followed by the name of the group.
+by the last article in the group, followed by the name of the group\&.
 .TP
 \fInntpName\fR \fBhead\fR ?\fImsgid\fR?
 Query the server for the headers of the article \fImsgid\fR from the current
-group.  The headers of the article are returned as a valid tcl list. Each element
-in the list is one line of the headers of the article.
+group\&.  The headers of the article are returned as a valid tcl list\&. Each element
+in the list is one line of the headers of the article\&.
 .TP
 \fInntpName\fR \fBhelp\fR
 Retrieves a list of the commands that are supported by the news server that
-is currently attached to.
+is currently attached to\&.
 .TP
 \fInntpName\fR \fBlast\fR
 Sets the current article pointer to point to the previous message (if there is
-one) and returns the msgid of that message.
+one) and returns the msgid of that message\&.
 .TP
 \fInntpName\fR \fBlist\fR
-Returns a tcl list of valid newsgroups and associated information.  Each
+Returns a tcl list of valid newsgroups and associated information\&.  Each
 newsgroup is returned as an element in the tcl list with the following format:
 .CS
-group last first p
+
+
+      group last first p
+
 .CE
 .IP
 where <group> is the name of the newsgroup, <last> is the number of
 the last known article currently in that newsgroup, <first> is the
 number of the first article currently in the newsgroup, and <p> is
 either 'y' or 'n' indicating whether posting to this newsgroup is
-allowed ('y') or prohibited ('n').
+allowed ('y') or prohibited ('n')\&.
 .sp
-The <first> and <last> fields will always be numeric.  They may have
-leading zeros.  If the <last> field evaluates to less than the
+The <first> and <last> fields will always be numeric\&.  They may have
+leading zeros\&.  If the <last> field evaluates to less than the
 <first> field, there are no articles currently on file in the
-newsgroup.
+newsgroup\&.
 .TP
 \fInntpName\fR \fBlistgroup\fR ?\fIgroup\fR?
 Query the server for a list of all the messages (message numbers) in the
 group specified by the argument \fIgroup\fR or by the current group if
-the \fIgroup\fR argument was not passed.
+the \fIgroup\fR argument was not passed\&.
 .TP
 \fInntpName\fR \fBmode_reader\fR
-Query the server for its nntp 'MODE READER' response string.
+Query the server for its nntp 'MODE READER' response string\&.
 .TP
 \fInntpName\fR \fBnewgroups\fR \fIsince\fR
 Query the server for a list of all the new newsgroups created since the time
-specified by the argument \fIsince\fR.  The argument \fIsince\fR can be any
-time string that is understood by \fBclock scan\fR. The tcl list of newsgroups
+specified by the argument \fIsince\fR\&.  The argument \fIsince\fR can be any
+time string that is understood by \fBclock scan\fR\&. The tcl list of newsgroups
 is returned in a similar form to the list of groups returned by the
-\fBnntpName list\fR command.  Each element of the list has the form:
+\fBnntpName list\fR command\&.  Each element of the list has the form:
 .CS
-group last first p
+
+
+      group last first p
+
 .CE
 .IP
 where <group> is the name of the newsgroup, <last> is the number of
 the last known article currently in that newsgroup, <first> is the
 number of the first article currently in the newsgroup, and <p> is
 either 'y' or 'n' indicating whether posting to this newsgroup is
-allowed ('y') or prohibited ('n').
+allowed ('y') or prohibited ('n')\&.
 .TP
 \fInntpName\fR \fBnewnews\fR
 Query the server for a list of new articles posted to the current group in the
-last day.
+last day\&.
 .TP
 \fInntpName\fR \fBnewnews\fR \fIsince\fR
 Query the server for a list of new articles posted to the current group since
-the time specified by the argument \fIsince\fR.  The argument \fIsince\fR can
-be any time string that is understood by \fBclock scan\fR.
+the time specified by the argument \fIsince\fR\&.  The argument \fIsince\fR can
+be any time string that is understood by \fBclock scan\fR\&.
 .TP
 \fInntpName\fR \fBnewnews\fR \fIgroup\fR ?\fIsince\fR?
 Query the server for a list of new articles posted to the group specified by
 the argument \fIgroup\fR since the time specified by the argument \fIsince\fR
-(or in the past day if no \fIsince\fR argument is passed.  The argument
-\fIsince\fR can be any time string that is understood by \fBclock scan\fR.
+(or in the past day if no \fIsince\fR argument is passed\&.  The argument
+\fIsince\fR can be any time string that is understood by \fBclock scan\fR\&.
 .TP
 \fInntpName\fR \fBnext\fR
 Sets the current article pointer to point to the next message (if there is
-one) and returns the msgid of that message.
+one) and returns the msgid of that message\&.
 .TP
 \fInntpName\fR \fBpost\fR \fIarticle\fR
 Posts an article of the form specified in
-RFC 1036 (\fIhttp://www.rfc-editor.org/rfc/rfc1036.txt\fR, successor
-to RFC 850) to the current news group.
+RFC 1036 (\fIhttp://www\&.rfc-editor\&.org/rfc/rfc1036\&.txt\fR, successor
+to RFC 850) to the current news group\&.
 .TP
 \fInntpName\fR \fBslave\fR
-Identifies a connection as being made from a slave nntp server. This might
+Identifies a connection as being made from a slave nntp server\&. This might
 be used to indicate that the connection is serving multiple people and should
-be given priority.  Actual use is entirely implementation dependent and may
-vary from server to server.
+be given priority\&.  Actual use is entirely implementation dependent and may
+vary from server to server\&.
 .TP
 \fInntpName\fR \fBstat\fR ?\fImsgid\fR?
 The stat command is similar to the article command except that no
-text is returned.  When selecting by message number within a group,
+text is returned\&.  When selecting by message number within a group,
 the stat command serves to set the current article pointer without
-sending text. The returned acknowledgment response will contain the
-message-id, which may be of some value.  Using the stat command to
+sending text\&. The returned acknowledgment response will contain the
+message-id, which may be of some value\&.  Using the stat command to
 select by message-id is valid but of questionable value, since a
 selection by message-id does NOT alter the "current article pointer"
 .TP
 \fInntpName\fR \fBquit\fR
 Gracefully close the connection after sending a NNTP QUIT command down
-the socket.
+the socket\&.
 .TP
 \fInntpName\fR \fBxgtitle\fR ?\fIgroup_pattern\fR?
 Returns a tcl list where each element is of the form:
 .CS
+
+
 newsgroup description
+
 .CE
 .IP
 If a \fIgroup_pattern\fR is specified then only newsgroups that match
-the pattern will have their name and description returned.
+the pattern will have their name and description returned\&.
 .TP
 \fInntpName\fR \fBxhdr\fR \fIfield\fR ?\fIrange\fR?
 Returns the specified header field value for the current message or for a
-list of messages from the current group.  \fIfield\fR is the title of a
-field in the header such as from, subject, date, etc.  If \fIrange\fR is
-not specified or is "" then the current message is queried.  The command
+list of messages from the current group\&.  \fIfield\fR is the title of a
+field in the header such as from, subject, date, etc\&.  If \fIrange\fR is
+not specified or is "" then the current message is queried\&.  The command
 returns a list of elements where each element has the form of:
 .CS
-msgid value
+
+
+    msgid value
+
 .CE
 .IP
 Where msgid is the number of the message and value is the value set for the
-queried field.  The \fIrange\fR argument can be in any of the following forms:
+queried field\&.  The \fIrange\fR argument can be in any of the following forms:
 .RS
 .TP
 \fB""\fR
-The current message is queried.
+The current message is queried\&.
 .TP
 \fImsgid1\fR-\fImsgid2\fR
 All messages between \fImsgid1\fR and \fImsgid2\fR
-(including \fImsgid1\fR and \fImsgid2\fR) are queried.
+(including \fImsgid1\fR and \fImsgid2\fR) are queried\&.
 .TP
 \fImsgid1\fR \fImsgid2\fR
 All messages between \fImsgid1\fR and \fImsgid2\fR
-(including \fImsgid1\fR and \fImsgid2\fR) are queried.
+(including \fImsgid1\fR and \fImsgid2\fR) are queried\&.
 .RE
 .TP
 \fInntpName\fR \fBxover\fR ?\fIrange\fR?
 Returns header information for the current message or for a range of messages
-from the current group.  The information is returned in a tcl list
+from the current group\&.  The information is returned in a tcl list
 where each element is of the form:
 .CS
-msgid subject from date idstring bodysize headersize xref
+
+
+    msgid subject from date idstring bodysize headersize xref
+
 .CE
 .IP
-If \fIrange\fR is not specified or is "" then the current message is queried.
+If \fIrange\fR is not specified or is "" then the current message is queried\&.
 The \fIrange\fR argument can be in any of the following forms:
 .RS
 .TP
 \fB""\fR
-The current message is queried.
+The current message is queried\&.
 .TP
 \fImsgid1\fR-\fImsgid2\fR
 All messages between \fImsgid1\fR and \fImsgid2\fR
-(including \fImsgid1\fR and \fImsgid2\fR) are queried.
+(including \fImsgid1\fR and \fImsgid2\fR) are queried\&.
 .TP
 \fImsgid1\fR \fImsgid2\fR
 All messages between \fImsgid1\fR and \fImsgid2\fR
-(including \fImsgid1\fR and \fImsgid2\fR) are queried.
+(including \fImsgid1\fR and \fImsgid2\fR) are queried\&.
 .RE
 .TP
 \fInntpName\fR \fBxpat\fR \fIfield\fR \fIrange\fR ?\fIpattern_list\fR?
 Returns the specified header field value for a specified message or for a
 list of messages from the current group where the messages match the
-pattern(s) given in the pattern_list.  \fIfield\fR is the title of a
-field in the header such as from, subject, date, etc.  The information is
+pattern(s) given in the pattern_list\&.  \fIfield\fR is the title of a
+field in the header such as from, subject, date, etc\&.  The information is
 returned in a tcl list where each element is of the form:
 .CS
-msgid value
+
+
+    msgid value
+
 .CE
 .IP
 Where msgid is the number of the message and value is the value set for the
-queried field.  The \fIrange\fR argument can be in any of the following forms:
+queried field\&.  The \fIrange\fR argument can be in any of the following forms:
 .RS
 .TP
 \fImsgid\fR
-The message specified by \fImsgid\fR is queried.
+The message specified by \fImsgid\fR is queried\&.
 .TP
 \fImsgid1\fR-\fImsgid2\fR
 All messages between \fImsgid1\fR and \fImsgid2\fR
-(including \fImsgid1\fR and \fImsgid2\fR) are queried.
+(including \fImsgid1\fR and \fImsgid2\fR) are queried\&.
 .TP
 \fImsgid1\fR \fImsgid2\fR
 All messages between \fImsgid1\fR and \fImsgid2\fR
-(including \fImsgid1\fR and \fImsgid2\fR) are queried.
+(including \fImsgid1\fR and \fImsgid2\fR) are queried\&.
 .RE
 .PP
 .SH EXAMPLE
-A bigger example for posting a single article.
+A bigger example for posting a single article\&.
 .PP
 .CS
-package require nntp
-set n [nntp::nntp NNTP_SERVER]
-$n post "From: USER@DOMAIN.EXT (USER_FULL)
-Path: COMPUTERNAME!USERNAME
-Newsgroups: alt.test
-Subject: Tcl test post -ignore
-Message-ID: <[pid][clock seconds]
-@COMPUTERNAME>
-Date: [clock format [clock seconds] -format "%a, %d %
-b %y %H:%M:%S GMT" -gmt true]
-Test message body"
+
+
+    package require nntp
+    set n [nntp::nntp NNTP_SERVER]
+    $n post "From: USER@DOMAIN\&.EXT (USER_FULL)
+    Path: COMPUTERNAME!USERNAME
+    Newsgroups: alt\&.test
+    Subject: Tcl test post -ignore
+    Message-ID: <[pid][clock seconds]
+    @COMPUTERNAME>
+    Date: [clock format [clock seconds] -format "%a, %d %
+    b %y %H:%M:%S GMT" -gmt true]
+
+    Test message body"
+
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fInntp\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 news, nntp, nntpclient, rfc 1036, rfc 977
 .SH CATEGORY

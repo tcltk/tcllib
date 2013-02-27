@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/grammar_me/me_util.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/grammar_me/me_util\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2005 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "grammar::me::util" n 0.1 tcllib "Grammar operations and usage"
+.TH "grammar::me::util" n 0\&.1 tcllib "Grammar operations and usage"
 .BS
 .SH NAME
 grammar::me::util \- AST utilities
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBgrammar::me::util  ?0.1?\fR
+package require \fBgrammar::me::util  ?0\&.1?\fR
 .sp
 \fB::grammar::me::util::ast2tree\fR \fIast\fR \fItree\fR ?\fIroot\fR?
 .sp
@@ -261,64 +262,65 @@ package require \fBgrammar::me::util  ?0.1?\fR
 .PP
 This package provides a number of utility command for the conversion
 between the various representations of abstract syntax trees as
-specified in the document \fBgrammar::me_ast\fR.
+specified in the document \fBgrammar::me_ast\fR\&.
 .TP
 \fB::grammar::me::util::ast2tree\fR \fIast\fR \fItree\fR ?\fIroot\fR?
 This command converts an \fIast\fR from value to object
-representation. All nodes in the \fIast\fR will be converted into
+representation\&. All nodes in the \fIast\fR will be converted into
 nodes of this \fItree\fR, with the root of the AST a child of the node
-\fIroot\fR. If this node is not explicitly specified the root of the
-tree is used. Existing content of tree is not touched, i.e.  neither
+\fIroot\fR\&. If this node is not explicitly specified the root of the
+tree is used\&. Existing content of tree is not touched, i\&.e\&.  neither
 removed nor changed, with the exception of the specified root node,
-which will gain a new child.
+which will gain a new child\&.
 .TP
 \fB::grammar::me::util::ast2etree\fR \fIast\fR \fImcmd\fR \fItree\fR ?\fIroot\fR?
 This command is like \fB::grammar::me::util::ast2tree\fR, except that
-the result is in the extended object representation of the input AST.
+the result is in the extended object representation of the input AST\&.
 The source of the extended information is the command prefix
-\fImcmd\fR.
+\fImcmd\fR\&.
 It has to understand two methods, \fBlc\fR, and \fBtok\fR, with
-the semantics specified below.
+the semantics specified below\&.
 .RS
 .TP
 \fBmcmd\fR \fBlc\fR \fIlocation\fR
 Takes the location of a token given as offset in the input stream and
 return a 2-element list containing the associated line number and
-column index, in this order.
+column index, in this order\&.
 .TP
 \fBmcmd\fR \fBtok\fR \fIfrom\fR ?\fIto\fR?
 Takes one or two locations \fIfrom\fR and \fIto\fR as offset in the
 input stream and returns a Tcl list containing the specified part of
-the input stream. Both location are inclusive. If \fIto\fR is not
-specified it will default to the value of \fIfrom\fR.
+the input stream\&. Both location are inclusive\&. If \fIto\fR is not
+specified it will default to the value of \fIfrom\fR\&.
 .sp
 Each element of the returned list is a list containing the token, its
-associated lexeme, the line number, and column index, in this order.
+associated lexeme, the line number, and column index, in this order\&.
 .RE
 .sp
 Both the ensemble command \fB::grammar::me::tcl\fR provided by the
 package \fBgrammar::me::tcl\fR and the objects command created by
-the package \fB::grammar::me::cpu\fR fit the above specification.
+the package \fB::grammar::me::cpu\fR fit the above specification\&.
 .TP
 \fB::grammar::me::util::tree2ast\fR \fItree\fR ?\fIroot\fR?
 This command converts an \fIast\fR in (extended) object representation
-into a value and returns it.
+into a value and returns it\&.
 If a \fIroot\fR node is specified the AST is generated from that node
-downward. Otherwise the root of the tree object is used as the
-starting point.
+downward\&. Otherwise the root of the tree object is used as the
+starting point\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIgrammar_me\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 abstract syntax tree, syntax tree, tree
 .SH CATEGORY
 Grammars and finite automata
 .SH COPYRIGHT
 .nf
-Copyright (c) 2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2005 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

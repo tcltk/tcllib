@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/otp/otp.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2006, Pat Thoyts <patthoyts@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/otp/otp\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2006, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "otp" n 1.0.0 tcllib "RFC 2289 A One-Time Password System"
+.TH "otp" n 1\&.0\&.0 tcllib "RFC 2289 A One-Time Password System"
 .BS
 .SH NAME
 otp \- One-Time Passwords
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBotp  ?1.0.0?\fR
+package require \fBotp  ?1\&.0\&.0?\fR
 .sp
 \fB::otp::otp-md4\fR ?\fI-hex\fR? ?\fI-words\fR? \fI-seed seed\fR \fI-count count\fR \fIdata\fR
 .sp
@@ -258,16 +259,16 @@ package require \fBotp  ?1.0.0?\fR
 .SH DESCRIPTION
 .PP
 This package is an implementation in Tcl of the One-Time Password
-system as described in RFC 2289 (1). This system uses message-digest
+system as described in RFC 2289 (1)\&. This system uses message-digest
 algorithms to sequentially hash a passphrase to create single-use
-passwords. The resulting data is then provided to the user as either
-hexadecimal digits or encoded using a dictionary of 2048 words. This
+passwords\&. The resulting data is then provided to the user as either
+hexadecimal digits or encoded using a dictionary of 2048 words\&. This
 system is used by OpenBSD for secure login and can be used as a SASL
-mechanism for authenticating users.
+mechanism for authenticating users\&.
 .PP
 In this implementation we provide support for four algorithms that are
 included in the tcllib distribution: MD5 (2), MD4 (3), RIPE-MD160 (4)
-and SHA-1 (5).
+and SHA-1 (5)\&.
 .SH COMMANDS
 .TP
 \fB::otp::otp-md4\fR ?\fI-hex\fR? ?\fI-words\fR? \fI-seed seed\fR \fI-count count\fR \fIdata\fR
@@ -280,40 +281,43 @@ and SHA-1 (5).
 .PP
 .SH EXAMPLES
 .CS
+
+
 % otp::otp-md5 -count 99 -seed host67821 "My Secret Pass Phrase"
 (binary gibberish)
 % otp::otp-md5 -words -count 99 -seed host67821 "My Secret Pass Phrase"
 SOON ARAB BURG LIMB FILE WAD
 % otp::otp-md5 -hex -count 99 -seed host67821 "My Secret Pass Phrase"
 e249b58257c80087
+
 .CE
 .SH REFERENCES
 .IP [1]
-Haller, N. et al., "A One-Time Password System", RFC 2289, February 1998.
-\fIhttp://www.rfc-editor.org/rfc/rfc2289.txt\fR
+Haller, N\&. et al\&., "A One-Time Password System", RFC 2289, February 1998\&.
+\fIhttp://www\&.rfc-editor\&.org/rfc/rfc2289\&.txt\fR
 .IP [2]
-Rivest, R., "The MD5 Message-Digest Algorithm", RFC 1321, MIT and
-RSA Data Security, Inc, April 1992.
-(\fIhttp://www.rfc-editor.org/rfc/rfc1321.txt\fR)
+Rivest, R\&., "The MD5 Message-Digest Algorithm", RFC 1321, MIT and
+RSA Data Security, Inc, April 1992\&.
+(\fIhttp://www\&.rfc-editor\&.org/rfc/rfc1321\&.txt\fR)
 .IP [3]
-Rivest, R., "The MD4 Message Digest Algorithm", RFC 1320, MIT,
-April 1992. (\fIhttp://www.rfc-editor.org/rfc/rfc1320.txt\fR)
+Rivest, R\&., "The MD4 Message Digest Algorithm", RFC 1320, MIT,
+April 1992\&. (\fIhttp://www\&.rfc-editor\&.org/rfc/rfc1320\&.txt\fR)
 .IP [4]
-H. Dobbertin, A. Bosselaers, B. Preneel,
+H\&. Dobbertin, A\&. Bosselaers, B\&. Preneel,
 "RIPEMD-160, a strengthened version of RIPEMD"
-\fIhttp://www.esat.kuleuven.ac.be/~cosicart/pdf/AB-9601/AB-9601.pdf\fR
+\fIhttp://www\&.esat\&.kuleuven\&.ac\&.be/~cosicart/pdf/AB-9601/AB-9601\&.pdf\fR
 .IP [5]
 "Secure Hash Standard", National Institute of Standards
-and Technology, U.S. Department Of Commerce, April 1995.
-(\fIhttp://www.itl.nist.gov/fipspubs/fip180-1.htm\fR)
+and Technology, U\&.S\&. Department Of Commerce, April 1995\&.
+(\fIhttp://www\&.itl\&.nist\&.gov/fipspubs/fip180-1\&.htm\fR)
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIotp\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 SASL, md4, md5, ripemd160, sha1
 .SH KEYWORDS
@@ -322,5 +326,6 @@ hashing, message-digest, password, rfc 2289, security
 Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
-Copyright (c) 2006, Pat Thoyts <patthoyts@users.sourceforge.net>
+Copyright (c) 2006, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
+
 .fi

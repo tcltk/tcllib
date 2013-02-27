@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/page/page_util_flow.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/page/page_util_flow\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,12 +238,12 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "page_util_flow" n 1.0 tcllib "Parser generator tools"
+.TH "page_util_flow" n 1\&.0 tcllib "Parser generator tools"
 .BS
 .SH NAME
 page_util_flow \- page dataflow/treewalker utility
 .SH SYNOPSIS
-package require \fBpage::util::flow  ?0.1?\fR
+package require \fBpage::util::flow  ?0\&.1?\fR
 .sp
 package require \fBsnit \fR
 .sp
@@ -252,74 +253,75 @@ package require \fBsnit \fR
 .sp
 \fIflow\fR \fBvisitl\fR \fInodelist\fR
 .sp
-\fIflow\fR \fBvisita\fR \fInode\fR...
+\fIflow\fR \fBvisita\fR \fInode\fR\&.\&.\&.
 .sp
 .BE
 .SH DESCRIPTION
 .PP
 This package provides a single utility command for easy dataflow based
 manipulation of arbitrary data structures, especially abstract syntax
-trees.
+trees\&.
 .SH API
 .TP
 \fB::page::util::flow\fR \fIstart\fR \fIflowvar\fR \fInodevar\fR \fIscript\fR
 This command contains the core logic to drive the walking of an
 arbitrary data structure which can partitioned into separate
-parts. Examples of such structures are trees and graphs.
+parts\&. Examples of such structures are trees and graphs\&.
 .sp
 The command makes no assumptions at all about the API of the structure
 to be walked, except that that its parts, here called \fInodes\fR,
-are identified by strings. These strings are taken as is, from the
+are identified by strings\&. These strings are taken as is, from the
 arguments, and the body, and handed back to the body, without
-modification.
+modification\&.
 .sp
 Access to the actual data structure, and all decisions regarding which
 nodes to visit in what order are delegated to the body of the loop,
-i.e. the \fIscript\fR.
+i\&.e\&. the \fIscript\fR\&.
 .sp
 The body is invoked first for the nodes in the start-set specified via
 \fIstart\fR), and from then on for the nodes the body has requested to
-be visited. The command stops when the set of nodes to visit becomes
-empty. Note that a node can be visited more than once. The body has
-complete control about this.
+be visited\&. The command stops when the set of nodes to visit becomes
+empty\&. Note that a node can be visited more than once\&. The body has
+complete control about this\&.
 .sp
-The body is invoked in the context of the caller. The variable named
+The body is invoked in the context of the caller\&. The variable named
 by \fInodevar\fR will be set to the current node, and the variable
 named by \fIflowvar\fR will be set to the command of the flow object
-through which the body can request the nodes to visit next. The API
+through which the body can request the nodes to visit next\&. The API
 provided by this object is described in the next section,
-\fBFLOW API\fR.
+\fBFLOW API\fR\&.
 .sp
 Note that the command makes no promises regarding the order in which
 nodes are visited, excpt that the nodes requested to be visited by the
-current iteration will be visited afterward, in some order.
+current iteration will be visited afterward, in some order\&.
 .PP
 .SH "FLOW API"
 This section describes the API provided by the flow object made
-accessible to the body script of \fB::page::util::flow\fR.
+accessible to the body script of \fB::page::util::flow\fR\&.
 .TP
 \fIflow\fR \fBvisit\fR \fInode\fR
 Invoking this method requests that the node \fIn\fR is visited after
-the current iteration.
+the current iteration\&.
 .TP
 \fIflow\fR \fBvisitl\fR \fInodelist\fR
 Invoking this method requests that all the nodes found in the list
-\fInodelist\fR are visited after the current iteration.
+\fInodelist\fR are visited after the current iteration\&.
 .TP
-\fIflow\fR \fBvisita\fR \fInode\fR...
+\fIflow\fR \fBvisita\fR \fInode\fR\&.\&.\&.
 This is the variadic arguments form of the method \fBvisitl\fR, see
-above.
+above\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems.
+This document, will undoubtedly contain bugs and other problems\&.
 Please report such in the category \fIpage\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
-Please also report any ideas for enhancements you may have.
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+Please also report any ideas for enhancements you may have\&.
 .SH KEYWORDS
 dataflow, graph walking, page, parser generator, text processing, tree walking
 .SH CATEGORY
 Page Parser Generator
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

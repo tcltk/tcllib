@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/grammar_fa/faop.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2004-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/grammar_fa/faop\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2004-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,12 +238,12 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "grammar::fa::op" n 0.4 tcllib "Finite automaton operations and usage"
+.TH "grammar::fa::op" n 0\&.4 tcllib "Finite automaton operations and usage"
 .BS
 .SH NAME
 grammar::fa::op \- Operations on finite automatons
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
 package require \fBsnit \fR
 .sp
@@ -250,7 +251,7 @@ package require \fBstruct::list \fR
 .sp
 package require \fBstruct::set \fR
 .sp
-package require \fBgrammar::fa::op  ?0.4.1?\fR
+package require \fBgrammar::fa::op  ?0\&.4\&.1?\fR
 .sp
 \fB::grammar::fa::op::constructor\fR \fIcmd\fR
 .sp
@@ -295,333 +296,333 @@ package require \fBgrammar::fa::op  ?0.4.1?\fR
 .PP
 This package provides a number of complex operations on finite
 automatons (Short: FA),
-as provided by the package \fBgrammar::fa\fR.
+as provided by the package \fBgrammar::fa\fR\&.
 The package does not provide the ability to create and/or manipulate
-such FAs, nor the ability to execute a FA for a stream of symbols.
+such FAs, nor the ability to execute a FA for a stream of symbols\&.
 Use the packages \fBgrammar::fa\fR
-and \fBgrammar::fa::interpreter\fR for that.
+and \fBgrammar::fa::interpreter\fR for that\&.
 Another package related to this is \fBgrammar::fa::compiler\fR
 which turns a FA into an executor class which has the definition of
-the FA hardwired into it.
+the FA hardwired into it\&.
 .PP
 For more information about what a finite automaton is see section
-\fIFINITE AUTOMATONS\fR in package \fBgrammar::fa\fR.
+\fIFINITE AUTOMATONS\fR in package \fBgrammar::fa\fR\&.
 .SH API
-The package exports the API described here.  All commands modify their
-first argument. I.e. whatever FA they compute is stored back into
-it. Some of the operations will construct an automaton whose states
+The package exports the API described here\&.  All commands modify their
+first argument\&. I\&.e\&. whatever FA they compute is stored back into
+it\&. Some of the operations will construct an automaton whose states
 are all new, but related to the states in the source
-automaton(s). These operations take variable names as optional
+automaton(s)\&. These operations take variable names as optional
 arguments where they will store mappings which describe the
-relationship(s).
+relationship(s)\&.
 The operations can be loosely partitioned into structural and language
-operations. The latter are defined in terms of the language the
+operations\&. The latter are defined in terms of the language the
 automaton(s) accept, whereas the former are defined in terms of the
-structural properties of the involved automaton(s). Some operations
-are both.
+structural properties of the involved automaton(s)\&. Some operations
+are both\&.
 \fIStructure operations\fR
 .TP
 \fB::grammar::fa::op::constructor\fR \fIcmd\fR
 This command has to be called by the user of the package before any other
 operations is performed, to establish a command which can be used to
-construct a FA container object. If this is not done several operations
+construct a FA container object\&. If this is not done several operations
 will fail as they are unable to construct internal and transient containers
-to hold state and/or partial results.
+to hold state and/or partial results\&.
 .sp
 Any container class using this package for complex operations should set
-its own class command as the constructor. See package \fBgrammar::fa\fR
-for an example.
+its own class command as the constructor\&. See package \fBgrammar::fa\fR
+for an example\&.
 .TP
 \fB::grammar::fa::op::reverse\fR \fIfa\fR
-Reverses the \fIfa\fR. This is done by reversing the direction of all
+Reverses the \fIfa\fR\&. This is done by reversing the direction of all
 transitions and swapping the sets of \fIstart\fR and \fIfinal\fR
-states. The language of \fIfa\fR changes unpredictably.
+states\&. The language of \fIfa\fR changes unpredictably\&.
 .TP
 \fB::grammar::fa::op::complete\fR \fIfa\fR ?\fIsink\fR?
 Completes the \fIfa\fR \fIcomplete\fR, but nothing is done if the
-\fIfa\fR is already \fIcomplete\fR. This implies that only the first
+\fIfa\fR is already \fIcomplete\fR\&. This implies that only the first
 in a series of multiple consecutive complete operations on \fIfa\fR
-will perform anything. The remainder will be null operations.
+will perform anything\&. The remainder will be null operations\&.
 .sp
-The language of \fIfa\fR is unchanged by this operation.
+The language of \fIfa\fR is unchanged by this operation\&.
 .sp
 This is done by adding a single new state, the \fIsink\fR, and
 transitions from all other states to that sink for all symbols they
-have no transitions for. The sink itself is made complete by adding
-loop transitions for all symbols.
+have no transitions for\&. The sink itself is made complete by adding
+loop transitions for all symbols\&.
 .sp
 Note: When a FA has epsilon-transitions transitions over a symbol for
-a state S can be indirect, i.e. not attached directly to S, but to a
-state in the epsilon-closure of S. The symbols for such indirect
-transitions count when computing completeness of a state. In other
-words, these indirectly reached symbols are \fInot\fR missing.
+a state S can be indirect, i\&.e\&. not attached directly to S, but to a
+state in the epsilon-closure of S\&. The symbols for such indirect
+transitions count when computing completeness of a state\&. In other
+words, these indirectly reached symbols are \fInot\fR missing\&.
 .sp
 The argument \fIsink\fR provides the name for the new state and most
-not be present in the \fIfa\fR if specified. If the name is not
+not be present in the \fIfa\fR if specified\&. If the name is not
 specified the command will name the state "sink\fBn\fR", where \fBn\fR
-is set so that there are no collisions with existing states.
+is set so that there are no collisions with existing states\&.
 .sp
-Note that the sink state is \fInot useful\fR by definition.  In
+Note that the sink state is \fInot useful\fR by definition\&.  In
 other words, while the FA becomes complete, it is also
 \fInot useful\fR in the strict sense as it has a state from which
-no final state can be reached.
+no final state can be reached\&.
 .TP
 \fB::grammar::fa::op::remove_eps\fR \fIfa\fR
 Removes all epsilon-transitions from the \fIfa\fR in such a manner the
-the language of \fIfa\fR is unchanged. However nothing is done if the
-\fIfa\fR is already \fIepsilon-free\fR.
+the language of \fIfa\fR is unchanged\&. However nothing is done if the
+\fIfa\fR is already \fIepsilon-free\fR\&.
 This implies that only the first in a series of multiple consecutive
-complete operations on \fIfa\fR will perform anything. The remainder
-will be null operations.
+complete operations on \fIfa\fR will perform anything\&. The remainder
+will be null operations\&.
 .sp
 \fINote:\fR This operation may cause states to become unreachable or
-not useful. These states are not removed by this operation.
-Use \fB::grammar::fa::op::trim\fR for that instead.
+not useful\&. These states are not removed by this operation\&.
+Use \fB::grammar::fa::op::trim\fR for that instead\&.
 .TP
 \fB::grammar::fa::op::trim\fR \fIfa\fR ?\fIwhat\fR?
-Removes unwanted baggage from \fIfa\fR.
-The legal values for \fIwhat\fR are listed below. The command defaults
-to \fB!reachable|!useful\fR if no specific argument was given.
+Removes unwanted baggage from \fIfa\fR\&.
+The legal values for \fIwhat\fR are listed below\&. The command defaults
+to \fB!reachable|!useful\fR if no specific argument was given\&.
 .RS
 .TP
 \fB!reachable\fR
-Removes all states which are not reachable from a start state.
+Removes all states which are not reachable from a start state\&.
 .TP
 \fB!useful\fR
-Removes all states which are unable to reach a final state.
+Removes all states which are unable to reach a final state\&.
 .TP
 \fB!reachable&!useful\fR
 .TP
 \fB!(reachable|useful)\fR
 Removes all states which are not reachable from a start state and are
-unable to reach a final state.
+unable to reach a final state\&.
 .TP
 \fB!reachable|!useful\fR
 .TP
 \fB!(reachable&useful)\fR
 Removes all states which are not reachable from a start state or are
-unable to reach a final state.
+unable to reach a final state\&.
 .RE
 .sp
 .TP
 \fB::grammar::fa::op::determinize\fR \fIfa\fR ?\fImapvar\fR?
 Makes the \fIfa\fR deterministic without changing the language
-accepted by the \fIfa\fR. However nothing is done if the \fIfa\fR is
-already \fIdeterministic\fR. This implies that only the first in a
+accepted by the \fIfa\fR\&. However nothing is done if the \fIfa\fR is
+already \fIdeterministic\fR\&. This implies that only the first in a
 series of multiple consecutive complete operations on \fIfa\fR will
-perform anything. The remainder will be null operations.
+perform anything\&. The remainder will be null operations\&.
 .sp
 The command will store a dictionary describing the relationship
 between the new states of the resulting dfa and the states of the
-input nfa in \fImapvar\fR, if it has been specified. Keys of the
+input nfa in \fImapvar\fR, if it has been specified\&. Keys of the
 dictionary are the handles for the states of the resulting dfa, values
-are sets of states from the input nfa.
+are sets of states from the input nfa\&.
 .sp
 \fINote\fR: An empty dictionary signals that the command was able to
 make the \fIfa\fR deterministic without performing a full subset
 construction, just by removing states and shuffling transitions around
-(As part of making the FA epsilon-free).
+(As part of making the FA epsilon-free)\&.
 .sp
 \fINote\fR: The algorithm fails to make the FA deterministic in the
 technical sense if the FA has no start state(s), because determinism
-requires the FA to have exactly one start states.
+requires the FA to have exactly one start states\&.
 In that situation we make a best effort; and the missing start state
 will be the only condition preventing the generated result from being
-\fIdeterministic\fR.
+\fIdeterministic\fR\&.
 It should also be noted that in this case the possibilities for
 trimming states from the FA are also severely reduced as we cannot
-declare states unreachable.
+declare states unreachable\&.
 .TP
 \fB::grammar::fa::op::minimize\fR \fIfa\fR ?\fImapvar\fR?
 Creates a FA which accepts the same language as \fIfa\fR, but has a
-minimal number of states. Uses Brzozowski's method to accomplish this.
+minimal number of states\&. Uses Brzozowski's method to accomplish this\&.
 .sp
 The command will store a dictionary describing the relationship
 between the new states of the resulting minimal fa and the states of
-the input fa in \fImapvar\fR, if it has been specified. Keys of the
+the input fa in \fImapvar\fR, if it has been specified\&. Keys of the
 dictionary are the handles for the states of the resulting minimal fa,
-values are sets of states from the input fa.
+values are sets of states from the input fa\&.
 .sp
 \fINote\fR: An empty dictionary signals that the command was able to
-minimize the \fIfa\fR without having to compute new states. This
-should happen if and only if the input FA was already minimal.
+minimize the \fIfa\fR without having to compute new states\&. This
+should happen if and only if the input FA was already minimal\&.
 .sp
 \fINote\fR: If the algorithm has no start or final states to work
 with then the result might be technically minimal, but have a very
-unexpected structure.
+unexpected structure\&.
 It should also be noted that in this case the possibilities for
 trimming states from the FA are also severely reduced as we cannot
-declare states unreachable.
+declare states unreachable\&.
 .PP
 \fILanguage operations\fR
 All operations in this section require that all input FAs have at
-least one start and at least one final state. Otherwise the language of
+least one start and at least one final state\&. Otherwise the language of
 the FAs will not be defined, making the operation senseless (as it
-operates on the languages of the FAs in a defined manner).
+operates on the languages of the FAs in a defined manner)\&.
 .TP
 \fB::grammar::fa::op::complement\fR \fIfa\fR
-Complements \fIfa\fR. This is possible if and only if \fIfa\fR is
-\fIcomplete\fR and \fIdeterministic\fR. The resulting FA accepts the
-complementary language of \fIfa\fR. In other words, all inputs not
-accepted by the input are accepted by the result, and vice versa.
+Complements \fIfa\fR\&. This is possible if and only if \fIfa\fR is
+\fIcomplete\fR and \fIdeterministic\fR\&. The resulting FA accepts the
+complementary language of \fIfa\fR\&. In other words, all inputs not
+accepted by the input are accepted by the result, and vice versa\&.
 .sp
 The result will have all states and transitions of the input, and
-different final states.
+different final states\&.
 .TP
 \fB::grammar::fa::op::kleene\fR \fIfa\fR
-Applies Kleene's closure to \fIfa\fR.
+Applies Kleene's closure to \fIfa\fR\&.
 The resulting FA accepts all strings \fBS\fR for which we can find a
-natural number \fBn\fR (0 inclusive) and strings \fBA1\fR ... \fBAn\fR
+natural number \fBn\fR (0 inclusive) and strings \fBA1\fR \&.\&.\&. \fBAn\fR
 in the language of \fIfa\fR such that \fBS\fR is the concatenation of
-\fBA1\fR ... \fBAn\fR.
+\fBA1\fR \&.\&.\&. \fBAn\fR\&.
 In other words, the language of the result is the infinite union over
-finite length concatenations over the language of \fIfa\fR.
+finite length concatenations over the language of \fIfa\fR\&.
 .sp
 The result will have all states and transitions of the input, and new
-start and final states.
+start and final states\&.
 .TP
 \fB::grammar::fa::op::optional\fR \fIfa\fR
-Makes the \fIfa\fR optional. In other words it computes the FA which
+Makes the \fIfa\fR optional\&. In other words it computes the FA which
 accepts the language of \fIfa\fR and the empty the word (epsilon) as
-well.
+well\&.
 .sp
 The result will have all states and transitions of the input, and new
-start and final states.
+start and final states\&.
 .TP
 \fB::grammar::fa::op::union\fR \fIfa\fR \fIfb\fR ?\fImapvar\fR?
 Combines the FAs \fIfa\fR and \fIfb\fR such that the resulting FA
-accepts the union of the languages of the two FAs.
+accepts the union of the languages of the two FAs\&.
 .sp
 The result will have all states and transitions of the two input FAs,
-and new start and final states. All states of \fIfb\fR which exist in
+and new start and final states\&. All states of \fIfb\fR which exist in
 \fIfa\fR as well will be renamed, and the \fImapvar\fR will contain a
-mapping from the old states of \fIfb\fR to the new ones, if present.
+mapping from the old states of \fIfb\fR to the new ones, if present\&.
 .sp
 It should be noted that the result will be non-deterministic, even if
-the inputs are deterministic.
+the inputs are deterministic\&.
 .TP
 \fB::grammar::fa::op::intersect\fR \fIfa\fR \fIfb\fR ?\fImapvar\fR?
 Combines the FAs \fIfa\fR and \fIfb\fR such that the resulting FA
-accepts the intersection of the languages of the two FAs. In other
+accepts the intersection of the languages of the two FAs\&. In other
 words, the result will accept a word if and only if the word is
-accepted by both \fIfa\fR and \fIfb\fR. The result will be useful, but
-not necessarily deterministic or minimal.
+accepted by both \fIfa\fR and \fIfb\fR\&. The result will be useful, but
+not necessarily deterministic or minimal\&.
 .sp
 The command will store a dictionary describing the relationship
 between the new states of the resulting fa and the pairs of states of
-the input FAs in \fImapvar\fR, if it has been specified. Keys of the
+the input FAs in \fImapvar\fR, if it has been specified\&. Keys of the
 dictionary are the handles for the states of the resulting fa, values
-are pairs of states from the input FAs. Pairs are represented by
-lists. The first element in each pair will be a state in \fIfa\fR, the
-second element will be drawn from \fIfb\fR.
+are pairs of states from the input FAs\&. Pairs are represented by
+lists\&. The first element in each pair will be a state in \fIfa\fR, the
+second element will be drawn from \fIfb\fR\&.
 .TP
 \fB::grammar::fa::op::difference\fR \fIfa\fR \fIfb\fR ?\fImapvar\fR?
 Combines the FAs \fIfa\fR and \fIfb\fR such that the resulting FA
-accepts the difference of the languages of the two FAs. In other
+accepts the difference of the languages of the two FAs\&. In other
 words, the result will accept a word if and only if the word is
-accepted by \fIfa\fR, but not by \fIfb\fR. This can also be expressed
-as the intersection of \fIfa\fR with the complement of \fIfb\fR. The
-result will be useful, but not necessarily deterministic or minimal.
+accepted by \fIfa\fR, but not by \fIfb\fR\&. This can also be expressed
+as the intersection of \fIfa\fR with the complement of \fIfb\fR\&. The
+result will be useful, but not necessarily deterministic or minimal\&.
 .sp
 The command will store a dictionary describing the relationship
 between the new states of the resulting fa and the pairs of states of
-the input FAs in \fImapvar\fR, if it has been specified. Keys of the
+the input FAs in \fImapvar\fR, if it has been specified\&. Keys of the
 dictionary are the handles for the states of the resulting fa, values
-are pairs of states from the input FAs. Pairs are represented by
-lists. The first element in each pair will be a state in \fIfa\fR, the
-second element will be drawn from \fIfb\fR.
+are pairs of states from the input FAs\&. Pairs are represented by
+lists\&. The first element in each pair will be a state in \fIfa\fR, the
+second element will be drawn from \fIfb\fR\&.
 .TP
 \fB::grammar::fa::op::concatenate\fR \fIfa\fR \fIfb\fR ?\fImapvar\fR?
 Combines the FAs \fIfa\fR and \fIfb\fR such that the resulting FA
-accepts the cross-product of the languages of the two FAs. I.e. a word
+accepts the cross-product of the languages of the two FAs\&. I\&.e\&. a word
 W will be accepted by the result if there are two words A and B
-accepted by \fIfa\fR, and \fIfb\fR resp. and W is the concatenation of
-A and B.
+accepted by \fIfa\fR, and \fIfb\fR resp\&. and W is the concatenation of
+A and B\&.
 .sp
-The result FA will be non-deterministic.
+The result FA will be non-deterministic\&.
 .TP
 \fB::grammar::fa::op::fromRegex\fR \fIfa\fR \fIregex\fR ?\fIover\fR?
 Generates a non-deterministic FA which accepts the same language as
-the regular expression \fIregex\fR. If the \fIover\fR is specified it
+the regular expression \fIregex\fR\&. If the \fIover\fR is specified it
 is treated as the set of symbols the regular expression and the
-automaton are defined over. The command will compute the set from the
+automaton are defined over\&. The command will compute the set from the
 "S" constructors in \fIregex\fR when \fIover\fR was not
-specified. This set is important if and only if the complement
+specified\&. This set is important if and only if the complement
 operator "!" is used in \fIregex\fR as the complementary language of
-an FA is quite different for different sets of symbols.
+an FA is quite different for different sets of symbols\&.
 .sp
 The regular expression is represented by a nested list, which forms
-a syntax tree. The following structures are legal:
+a syntax tree\&. The following structures are legal:
 .RS
 .TP
 {S x}
-Atomic regular expression. Everything else is constructed from
-these. Accepts the \fBS\fRymbol "x".
+Atomic regular expression\&. Everything else is constructed from
+these\&. Accepts the \fBS\fRymbol "x"\&.
 .TP
-{. A1 A2 ...}
-Concatenation operator. Accepts the concatenation of the regular
-expressions \fBA1\fR, \fBA2\fR, etc.
+{\&. A1 A2 \&.\&.\&.}
+Concatenation operator\&. Accepts the concatenation of the regular
+expressions \fBA1\fR, \fBA2\fR, etc\&.
 .sp
-\fINote\fR that this operator accepts zero or more arguments. With zero
-arguments the represented language is \fIepsilon\fR, the empty word.
+\fINote\fR that this operator accepts zero or more arguments\&. With zero
+arguments the represented language is \fIepsilon\fR, the empty word\&.
 .TP
-{| A1 A2 ...}
-Choice operator, also called "Alternative". Accepts all input accepted
-by at least one of the regular expressions \fBA1\fR, \fBA2\fR, etc. In
-other words, the union of \fBA1\fR, \fBA2\fR.
+{| A1 A2 \&.\&.\&.}
+Choice operator, also called "Alternative"\&. Accepts all input accepted
+by at least one of the regular expressions \fBA1\fR, \fBA2\fR, etc\&. In
+other words, the union of \fBA1\fR, \fBA2\fR\&.
 .sp
-\fINote\fR that this operator accepts zero or more arguments. With zero
+\fINote\fR that this operator accepts zero or more arguments\&. With zero
 arguments the represented language is the \fIempty\fR language,
-the language without words.
+the language without words\&.
 .TP
-{& A1 A2 ...}
-Intersection operator, logical and. Accepts all input accepted which
+{& A1 A2 \&.\&.\&.}
+Intersection operator, logical and\&. Accepts all input accepted which
 is accepted by all of the regular expressions \fBA1\fR, \fBA2\fR,
-etc. In other words, the intersection of \fBA1\fR, \fBA2\fR.
+etc\&. In other words, the intersection of \fBA1\fR, \fBA2\fR\&.
 .TP
 {? A}
-Optionality operator. Accepts the empty word and anything from the
-regular expression \fBA\fR.
+Optionality operator\&. Accepts the empty word and anything from the
+regular expression \fBA\fR\&.
 .TP
 {* A}
-Kleene closure. Accepts the empty word and any finite concatenation of
-words accepted by the regular expression \fBA\fR.
+Kleene closure\&. Accepts the empty word and any finite concatenation of
+words accepted by the regular expression \fBA\fR\&.
 .TP
 {+ A}
-Positive Kleene closure. Accepts any finite concatenation of words
-accepted by the regular expression \fBA\fR, but not the empty word.
+Positive Kleene closure\&. Accepts any finite concatenation of words
+accepted by the regular expression \fBA\fR, but not the empty word\&.
 .TP
 {! A}
-Complement operator. Accepts any word not accepted by the regular
-expression \fBA\fR. Note that the complement depends on the set of
-symbol the result should run over. See the discussion of the argument
-\fIover\fR before.
+Complement operator\&. Accepts any word not accepted by the regular
+expression \fBA\fR\&. Note that the complement depends on the set of
+symbol the result should run over\&. See the discussion of the argument
+\fIover\fR before\&.
 .RE
 .TP
 \fB::grammar::fa::op::toRegexp\fR \fIfa\fR
 This command generates and returns a regular expression which accepts
-the same language as the finite automaton \fIfa\fR. The regular
+the same language as the finite automaton \fIfa\fR\&. The regular
 expression is in the format as described above, for
-\fB::grammar::fa::op::fromRegex\fR.
+\fB::grammar::fa::op::fromRegex\fR\&.
 .TP
 \fB::grammar::fa::op::toRegexp2\fR \fIfa\fR
 This command has the same functionality as \fB::grammar::fa::op::toRegexp\fR,
-but uses a different algorithm to simplify the generated regular expressions.
+but uses a different algorithm to simplify the generated regular expressions\&.
 .TP
 \fB::grammar::fa::op::toTclRegexp\fR \fIregexp\fR \fIsymdict\fR
 This command generates and returns a regular expression in Tcl syntax for the
-regular expression \fIregexp\fR, if that is possible. \fIregexp\fR is in the
-same format as expected by \fB::grammar::fa::op::fromRegex\fR.
+regular expression \fIregexp\fR, if that is possible\&. \fIregexp\fR is in the
+same format as expected by \fB::grammar::fa::op::fromRegex\fR\&.
 .sp
 The command will fail and throw an error if \fIregexp\fR contains
-complementation and intersection operations.
+complementation and intersection operations\&.
 .sp
 The argument \fIsymdict\fR is a dictionary mapping symbol names to
-pairs of \fIsyntactic type\fR and Tcl-regexp. If a symbol
+pairs of \fIsyntactic type\fR and Tcl-regexp\&. If a symbol
 occurring in the \fIregexp\fR is not listed in this dictionary then
 single-character symbols are considered to designate themselves
 whereas multiple-character symbols are considered to be a character
-class name.
+class name\&.
 .TP
 \fB::grammar::fa::op::simplifyRegexp\fR \fIregexp\fR
 This command simplifies a regular expression by applying the following
@@ -629,14 +630,14 @@ algorithm first to the main expression and then recursively to all
 sub-expressions:
 .RS
 .IP [1]
-Convert the expression into a finite automaton.
+Convert the expression into a finite automaton\&.
 .IP [2]
-Minimize the automaton.
+Minimize the automaton\&.
 .IP [3]
-Convert the automaton back to a regular expression.
+Convert the automaton back to a regular expression\&.
 .IP [4]
 Choose the shorter of original expression and expression from
-the previous step.
+the previous step\&.
 .RE
 .PP
 .PP
@@ -644,16 +645,17 @@ the previous step.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIgrammar_fa\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 automaton, finite automaton, grammar, parsing, regular expression, regular grammar, regular languages, state, transducer
 .SH CATEGORY
 Grammars and finite automata
 .SH COPYRIGHT
 .nf
-Copyright (c) 2004-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2004-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

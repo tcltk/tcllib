@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/pt/pt_peg_introduction.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/pt/pt_peg_introduction\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -242,7 +243,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::pegrammar \- Introduction to Parsing Expression Grammars
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -250,67 +251,67 @@ package require \fBTcl  8.5\fR
 Are you lost ?
 Do you have trouble understanding this document ?
 In that case please read the overview provided by the
-\fIIntroduction to Parser Tools\fR. This document is the
-entrypoint to the whole system the current package is a part of.
+\fIIntroduction to Parser Tools\fR\&. This document is the
+entrypoint to the whole system the current package is a part of\&.
 .PP
 Welcome to the introduction to \fIParsing Expression Grammar\fRs
-(short: \fIPEG\fR), the formalism used by the Parser Tools.
+(short: \fIPEG\fR), the formalism used by the Parser Tools\&.
 It is assumed that the reader has a basic knowledge of parsing theory,
-i.e. \fIContext-Free Grammars\fR (short: \fICFG\fR),
+i\&.e\&. \fIContext-Free Grammars\fR (short: \fICFG\fR),
 \fIlanguages\fR, and associated terms like \fILL(k)\fR,
 \fILR(k)\fR, \fIterminal\fR and \fInonterminal\fR \fIsymbols\fR,
-etc.
+etc\&.
 We do not intend to recapitulate such basic definitions or terms like
 \fIuseful\fR, \fIreachable\fR, (left/right) \fIrecursive\fR,
-\fInullable\fR, first/last/follow sets, etc.
+\fInullable\fR, first/last/follow sets, etc\&.
 Please see the \fBReferences\fR at the end instead if you are in
-need of places and books which provide such background information.
+need of places and books which provide such background information\&.
 .PP
 PEGs are formally very similar to CFGs, with terminal and nonterminal
 symbols, start symbol, and rules defining the structure of each
-nonterminal symbol.
+nonterminal symbol\&.
 The main difference lies in the choice(sic!) of \fIchoice\fR
-operators. Where CFGs use an \fIunordered choice\fR to represent
-alternatives PEGs use \fIprioritized choice\fR. Which is fancy way
+operators\&. Where CFGs use an \fIunordered choice\fR to represent
+alternatives PEGs use \fIprioritized choice\fR\&. Which is fancy way
 of saying that a parser has to try the first alternative first and can
 try the other alternatives if only if it fails for the first, and so
-on.
+on\&.
 .PP
 On the CFG side this gives rise to LL(k) and LR(k) for making the
 choice \fIdeterministic\fR with a bounded \fIlookahead\fR of k
 terminal symbols, where LL is in essence \fItopdown\fR aka
 \fIrecursive descent\fR parsing, and LR \fIbottomup\fR aka
-\fIshift reduce\fR parsing.
+\fIshift reduce\fR parsing\&.
 .PP
 On the PEG side we can parse input with recursive descent and
 \fIbacktracking\fR of failed choices, the latter of which amounts to
-unlimited lookahead.
+unlimited lookahead\&.
 By additionally recording the success or failure of nonterminals at
 the specific locations they were tried at and reusing this information
 after backtracking we can avoid the exponential blowup of running time
-usually associated with backtracking and keep the parsing linear. The
+usually associated with backtracking and keep the parsing linear\&. The
 memory requirements are of course higher due to this cache, as we are
-trading space for time.
+trading space for time\&.
 .PP
-This is the basic concept behind \fIpackrat parsers\fR.
+This is the basic concept behind \fIpackrat parsers\fR\&.
 .PP
 A limitation pure PEGs share with LL(k) CFGs is that
 \fIleft-recursive\fR grammars cannot be parsed, with the associated
-recursive descent parser entering an infinite recursion.
+recursive descent parser entering an infinite recursion\&.
 This limitation is usually overcome by extending pure PEGs with
 explicit operators to specify repetition, zero or more, and one or
 more, or, formally spoken, for the \fIkleene closure\fR and
-\fIpositive kleene closure\fR.
-This is what the Parser Tools are doing.
+\fIpositive kleene closure\fR\&.
+This is what the Parser Tools are doing\&.
 .PP
 Another extension, specific to Parser Tools, is a set of operators
 which map more or less directly to various character classes built
-into Tcl, i.e. the classes reachable via \fBstring is\fR.
+into Tcl, i\&.e\&. the classes reachable via \fBstring is\fR\&.
 .PP
 The remainder of this document consists of the formal definition of
 PEGs for the mathematically inclined, and an appendix listing
 references to places with more information on PEGs specifically, and
-parsing in general.
+parsing in general\&.
 .SH "FORMAL DEFINITION"
 .PP
 For the mathematically inclined, a Parsing Expression Grammar is a
@@ -321,87 +322,88 @@ VN is a set of \fInonterminal symbols\fR,
 VT is a set of \fIterminal symbols\fR,
 .IP \(bu
 R is a finite set of rules, where each rule is a pair (A,e), A in VN,
-and \fIe\fR a \fIparsing expression\fR.
+and \fIe\fR a \fIparsing expression\fR\&.
 .IP \(bu
-eS is a parsing expression, the \fIstart expression\fR.
+eS is a parsing expression, the \fIstart expression\fR\&.
 .PP
 .PP
 Further constraints are
 .IP \(bu
-The intersection of VN and VT is empty.
+The intersection of VN and VT is empty\&.
 .IP \(bu
-For all A in VT exists exactly one pair (A,e) in R. In other words, R
-is a function from nonterminal symbols to parsing expressions.
+For all A in VT exists exactly one pair (A,e) in R\&. In other words, R
+is a function from nonterminal symbols to parsing expressions\&.
 .PP
 .PP
 Parsing expressions are inductively defined via
 .IP \(bu
-The empty string (epsilon) is a parsing expression.
+The empty string (epsilon) is a parsing expression\&.
 .IP \(bu
-A terminal symbol \fIa\fR is a parsing expression.
+A terminal symbol \fIa\fR is a parsing expression\&.
 .IP \(bu
-A nonterminal symbol \fIA\fR is a parsing expression.
+A nonterminal symbol \fIA\fR is a parsing expression\&.
 .IP \(bu
 \fIe1\fR\fIe2\fR is a parsing expression for parsing expressions
-\fIe1\fR and \fI2\fR. This is called \fIsequence\fR.
+\fIe1\fR and \fI2\fR\&. This is called \fIsequence\fR\&.
 .IP \(bu
 \fIe1\fR/\fIe2\fR is a parsing expression for parsing expressions
-\fIe1\fR and \fI2\fR. This is called \fIordered choice\fR.
+\fIe1\fR and \fI2\fR\&. This is called \fIordered choice\fR\&.
 .IP \(bu
 \fIe\fR* is a parsing expression for parsing expression
-\fIe\fR. This is called \fIzero-or-more repetitions\fR, also known
-as \fIkleene closure\fR.
+\fIe\fR\&. This is called \fIzero-or-more repetitions\fR, also known
+as \fIkleene closure\fR\&.
 .IP \(bu
 \fIe\fR+ is a parsing expression for parsing expression
-\fIe\fR. This is called \fIone-or-more repetitions\fR, also known
-as \fIpositive kleene closure\fR.
+\fIe\fR\&. This is called \fIone-or-more repetitions\fR, also known
+as \fIpositive kleene closure\fR\&.
 .IP \(bu
 !\fIe\fR is a parsing expression for parsing expression
-\fIe1\fR. This is called a \fInot lookahead predicate\fR.
+\fIe1\fR\&. This is called a \fInot lookahead predicate\fR\&.
 .IP \(bu
 &\fIe\fR is a parsing expression for parsing expression
-\fIe1\fR. This is called an \fIand lookahead predicate\fR.
+\fIe1\fR\&. This is called an \fIand lookahead predicate\fR\&.
 .PP
 .PP
 .PP
 PEGs are used to define a grammatical structure for streams of symbols
-over VT. They are a modern phrasing of older formalisms invented by
-Alexander Birham. These formalisms were called TS (TMG recognition
-scheme), and gTS (generalized TS). Later they were renamed to TPDL
-(Top-Down Parsing Languages) and gTPDL (generalized TPDL).
+over VT\&. They are a modern phrasing of older formalisms invented by
+Alexander Birham\&. These formalisms were called TS (TMG recognition
+scheme), and gTS (generalized TS)\&. Later they were renamed to TPDL
+(Top-Down Parsing Languages) and gTPDL (generalized TPDL)\&.
 .PP
 They can be easily implemented by recursive descent parsers with
-backtracking. This makes them relatives of LL(k) Context-Free
-Grammars.
+backtracking\&. This makes them relatives of LL(k) Context-Free
+Grammars\&.
 .SH REFERENCES
 .IP [1]
-\fIThe Packrat Parsing and Parsing Expression Grammars Page\fR [http://www.pdos.lcs.mit.edu/~baford/packrat/],
-by Bryan Ford, Massachusetts Institute of Technology. This is the main
-entry page to PEGs, and their realization through Packrat Parsers.
+\fIThe Packrat Parsing and Parsing Expression Grammars Page\fR [http://www\&.pdos\&.lcs\&.mit\&.edu/~baford/packrat/],
+by Bryan Ford, Massachusetts Institute of Technology\&. This is the main
+entry page to PEGs, and their realization through Packrat Parsers\&.
 .IP [2]
-\fIhttp://en.wikipedia.org/wiki/Parsing_expression_grammar\fR
-Wikipedia's entry about Parsing Expression Grammars.
+\fIhttp://en\&.wikipedia\&.org/wiki/Parsing_expression_grammar\fR
+Wikipedia's entry about Parsing Expression Grammars\&.
 .IP [3]
-\fIParsing Techniques - A Practical Guide \fR [http://www.cs.vu.nl/~dick/PTAPG.html], an online book
+\fIParsing Techniques - A Practical Guide \fR [http://www\&.cs\&.vu\&.nl/~dick/PTAPG\&.html], an online book
 offering a clear, accessible, and thorough discussion of many
 different parsing techniques with their interrelations and
-applicabilities, including error recovery techniques.
+applicabilities, including error recovery techniques\&.
 .IP [4]
-\fICompilers and Compiler Generators\fR [http://scifac.ru.ac.za/compilers/], an online book using
-CoCo/R, a generator for recursive descent parsers.
+\fICompilers and Compiler Generators\fR [http://scifac\&.ru\&.ac\&.za/compilers/], an online book using
+CoCo/R, a generator for recursive descent parsers\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIpt\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 EBNF, LL(k), PEG, TDPL, context-free languages, expression, grammar, matching, parser, parsing expression, parsing expression grammar, push down automaton, recursive descent, state, top-down parsing languages, transducer
 .SH CATEGORY
 Parsing and Grammars
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

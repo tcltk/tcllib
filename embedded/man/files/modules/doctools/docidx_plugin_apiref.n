@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/doctools/docidx_plugin_apiref.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/doctools/docidx_plugin_apiref\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,7 +238,7 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "docidx_plugin_apiref" n 1.0 tcllib "Documentation tools"
+.TH "docidx_plugin_apiref" n 1\&.0 tcllib "Documentation tools"
 .BS
 .SH NAME
 docidx_plugin_apiref \- docidx plugin API reference
@@ -287,132 +288,132 @@ docidx_plugin_apiref \- docidx plugin API reference
 .BE
 .SH DESCRIPTION
 .PP
-This document is intended for \fIplugin writers\fR, i.e. developers
+This document is intended for \fIplugin writers\fR, i\&.e\&. developers
 wishing to write an index \fIformatting engine\fR for some output
-format X.
+format X\&.
 .PP
 It specifies the interaction between the \fBdoctools::idx\fR
-package and its plugins, i.e. the interface any index formatting
-engine has to comply with.
+package and its plugins, i\&.e\&. the interface any index formatting
+engine has to comply with\&.
 .PP
-This document deals with version 1 of the interface.
+This document deals with version 1 of the interface\&.
 .PP
 A reader who is on the other hand more interested in the markup
 language itself should start with the
 \fIdocidx language introduction\fR and proceed from there to the
-formal specifications, i.e. the \fIdocidx language syntax\fR and
-the \fIdocidx language command reference\fR.
+formal specifications, i\&.e\&. the \fIdocidx language syntax\fR and
+the \fIdocidx language command reference\fR\&.
 .SH OVERVIEW
-The API for an index formatting engine consists of two major sections.
+The API for an index formatting engine consists of two major sections\&.
 .PP
 On the one side we have a set of commands through which the plugin is
-able to query the frontend. These commands are provided by the
-frontend and linked into the plugin interpreter. Please see section
-\fBFRONTEND COMMANDS\fR for their detailed specification.
+able to query the frontend\&. These commands are provided by the
+frontend and linked into the plugin interpreter\&. Please see section
+\fBFRONTEND COMMANDS\fR for their detailed specification\&.
 .PP
 And on the other side the plugin has to provide its own set of
 commands which will then be called by the frontend in a specific
-sequence while processing input. They, again, fall into two
-categories, management and formatting.
+sequence while processing input\&. They, again, fall into two
+categories, management and formatting\&.
 Please see section \fBPLUGIN COMMANDS\fR and its subsections for
-their detailed specification.
+their detailed specification\&.
 .SH "FRONTEND COMMANDS"
 This section specifies the set of commands through which a plugin,
 also known as an index formatting engine, is able to query the
-frontend. These commands are provided by the frontend and linked into
-the plugin interpreter.
+frontend\&. These commands are provided by the frontend and linked into
+the plugin interpreter\&.
 .PP
-I.e. an index formatting engine can assume that all of the following
+I\&.e\&. an index formatting engine can assume that all of the following
 commands are present when any of its own commands (as specified in
-section \fBPLUGIN COMMANDS\fR) are executed.
+section \fBPLUGIN COMMANDS\fR) are executed\&.
 .PP
 Beyond that it can also assume that it has full access to its own safe
 interpreter and thus is not able to damage the other parts of the
-processor, nor can it damage the filesystem.
+processor, nor can it damage the filesystem\&.
 It is however able to either kill or hang the whole process, by
-exiting, or running an infinite loop.
+exiting, or running an infinite loop\&.
 .PP
 Coming back to the imported commands, all the commands with prefix
 \fIdt_\fR provide limited access to specific parts of the frontend,
 whereas the commands with prefix \fIex_\fR provide access to the
 state of the \fBtextutil::expander\fR object which does the main
-parsing of the input within the frontend. These commands should not be
-except under very special circumstances.
+parsing of the input within the frontend\&. These commands should not be
+except under very special circumstances\&.
 .PP
 .TP
 \fBdt_fmap\fR \fIsymfname\fR
-Query command. It returns the actual pathname to use in the output in
-place of the symbolic filename \fIsymfname\fR. It will return the
-unchanged input if no mapping was established for \fIsymfname\fR.
+Query command\&. It returns the actual pathname to use in the output in
+place of the symbolic filename \fIsymfname\fR\&. It will return the
+unchanged input if no mapping was established for \fIsymfname\fR\&.
 .sp
 The required mappings are established with the method \fBmap\fR of
 a frontend, as explained in section \fBOBJECT METHODS\fR
-of the documentation for the package \fBdoctools::idx\fR.
+of the documentation for the package \fBdoctools::idx\fR\&.
 .TP
 \fBdt_format\fR
-Query command. It returns the name of the format associated with the
-index formatting engine.
+Query command\&. It returns the name of the format associated with the
+index formatting engine\&.
 .TP
 \fBdt_read\fR \fIfile\fR
-Controlled filesystem access. Returns contents of \fIfile\fR for
-whatever use desired by the plugin.
+Controlled filesystem access\&. Returns contents of \fIfile\fR for
+whatever use desired by the plugin\&.
 Only files which are either in the same directory as the file
-containing the engine, or below it, can be loaded. Trying to load a
-file outside of this directory causes an error.
+containing the engine, or below it, can be loaded\&. Trying to load a
+file outside of this directory causes an error\&.
 .TP
 \fBdt_source\fR \fIfile\fR
-Controlled filesystem access. This command allows the index formatting
-engine to load additional Tcl code it may need.
+Controlled filesystem access\&. This command allows the index formatting
+engine to load additional Tcl code it may need\&.
 Only files which are either in the same directory as the file
-containing the engine, or below it, can be loaded. Trying to load a
-file outside of this directory causes an error.
+containing the engine, or below it, can be loaded\&. Trying to load a
+file outside of this directory causes an error\&.
 .TP
 \fBex_cappend\fR \fItext\fR
-Appends a string to the output in the current context.  This command
-should rarely be used by macros or application code.
+Appends a string to the output in the current context\&.  This command
+should rarely be used by macros or application code\&.
 .TP
 \fBex_cget\fR \fIvarname\fR
 Retrieves the value of variable \fIvarname\fR, defined in the current
-context.
+context\&.
 .TP
 \fBex_cis\fR \fIcname\fR
 Determines whether or not the name of the current context is
-\fIcname\fR.
+\fIcname\fR\&.
 .TP
 \fBex_cname\fR
-Returns the name of the current context.
+Returns the name of the current context\&.
 .TP
 \fBex_cpop\fR \fIcname\fR
 Pops a context from the context stack, returning all accumulated
-output in that context.  The context must be named \fIcname\fR, or an
-error results.
+output in that context\&.  The context must be named \fIcname\fR, or an
+error results\&.
 .TP
 \fBex_cpush\fR \fIcname\fR
-Pushes a context named \fIcname\fR onto the context stack.  The
+Pushes a context named \fIcname\fR onto the context stack\&.  The
 context must be popped by \fBcpop\fR before expansion ends or an
-error results.
+error results\&.
 .TP
 \fBex_cset\fR \fIvarname\fR \fIvalue\fR
-Sets variable \fIvarname\fR to \fIvalue\fR in the current context.
+Sets variable \fIvarname\fR to \fIvalue\fR in the current context\&.
 .TP
 \fBex_lb\fR ?\fInewbracket\fR?
 Returns the current value of the left macro expansion bracket; this is
 for use as or within a macro, when the bracket needs to be included in
-the output text.  If \fInewbracket\fR is specified, it becomes the new
-bracket, and is returned.
+the output text\&.  If \fInewbracket\fR is specified, it becomes the new
+bracket, and is returned\&.
 .TP
 \fBex_rb\fR ?\fInewbracket\fR?
 Returns the current value of the right macro expansion bracket; this
 is for use as or within a macro, when the bracket needs to be included
-in the output text.  If \fInewbracket\fR is specified, it becomes the
-new bracket, and is returned.
+in the output text\&.  If \fInewbracket\fR is specified, it becomes the
+new bracket, and is returned\&.
 .PP
 .SH "PLUGIN COMMANDS"
 The plugin has to provide its own set of commands which will then be
 called by the frontend in a specific sequence while processing
-input. They fall into two categories, management and formatting. Their
+input\&. They fall into two categories, management and formatting\&. Their
 expected names, signatures, and responsibilities are specified in the
-following two subsections.
+following two subsections\&.
 .SS "MANAGEMENT COMMANDS"
 The management commands a plugin has to provide are used by the
 frontend to
@@ -430,174 +431,178 @@ query and initialize engine parameters
 After the plugin has been loaded and the frontend commands are
 established the commands will be called in the following sequence:
 .CS
-idx_numpasses -> n
-idx_listvariables -> vars
-idx_varset var1 value1
-idx_varset var2 value2
-\...
-idx_varset varK valueK
-idx_initialize
-idx_setup 1
-\...
-idx_setup 2
-\...
-\...
-idx_setup n
-\...
-idx_postprocess
-idx_shutdown
-\...
+
+
+    idx_numpasses -> n
+    idx_listvariables -> vars
+
+    idx_varset var1 value1
+    idx_varset var2 value2
+    \&.\&.\&.
+    idx_varset varK valueK
+    idx_initialize
+    idx_setup 1
+    \&.\&.\&.
+    idx_setup 2
+    \&.\&.\&.
+    \&.\&.\&.
+    idx_setup n
+    \&.\&.\&.
+    idx_postprocess
+    idx_shutdown
+    \&.\&.\&.
+
 .CE
-I.e. first the number of passes and the set of available engine
+I\&.e\&. first the number of passes and the set of available engine
 parameters is established, followed by calls setting the
-parameters. That second part is optional.
+parameters\&. That second part is optional\&.
 .PP
 After that the plugin is initialized, the specified number of passes
 executed, the final result run through a global post processing step
-and at last the plugin is shutdown again. This can be followed by more
-conversions, restarting the sequence at \fBidx_varset\fR.
+and at last the plugin is shutdown again\&. This can be followed by more
+conversions, restarting the sequence at \fBidx_varset\fR\&.
 .PP
-In each of the passes, i.e. after the calls of \fBidx_setup\fR the
+In each of the passes, i\&.e\&. after the calls of \fBidx_setup\fR the
 frontend will process the input and call the formatting commands as
-markup is encountered. This means that the sequence of formatting
+markup is encountered\&. This means that the sequence of formatting
 commands is determined by the grammar of the docidx markup language,
-as specified in the \fIdocidx language syntax\fR specification.
+as specified in the \fIdocidx language syntax\fR specification\&.
 .PP
 A different way of looking at the sequence is:
 .IP \(bu
-First some basic parameters are determined.
+First some basic parameters are determined\&.
 .IP \(bu
 Then everything starting at the first \fBidx_varset\fR to
 \fBidx_shutdown\fR forms a \fIrun\fR, the formatting of a
-single input. Each run can be followed by more.
+single input\&. Each run can be followed by more\&.
 .IP \(bu
 Embedded within each run we have one or more \fIpasses\fR,
 each starting with \fBidx_setup\fR and going until either the next
-\fBidx_setup\fR or \fBidx_postprocess\fR is reached.
+\fBidx_setup\fR or \fBidx_postprocess\fR is reached\&.
 .sp
 If more than one pass is required to perform the formatting only the
-output of the last pass is relevant. The output of all the previous,
-preparatory passes is ignored.
+output of the last pass is relevant\&. The output of all the previous,
+preparatory passes is ignored\&.
 .PP
 .PP
 The commands, their names, signatures, and responsibilities are, in
 detail:
 .TP
 \fBidx_initialize\fR
-\fIInitialization/Shutdown\fR.
+\fIInitialization/Shutdown\fR\&.
 This command is called at the beginning of every conversion run, as
-the first command of that run. Note that a run is not a pass, but may
-consist of multiple passes.
+the first command of that run\&. Note that a run is not a pass, but may
+consist of multiple passes\&.
 It has to initialize the general state of the plugin, beyond the
-initialization done during the load. No return value is expected, and
-any returned value is ignored.
+initialization done during the load\&. No return value is expected, and
+any returned value is ignored\&.
 .TP
 \fBidx_listvariables\fR
-\fIInitialization/Shutdown\fR and \fIEngine parameters\fR.
+\fIInitialization/Shutdown\fR and \fIEngine parameters\fR\&.
 Second command is called after the plugin code has been loaded,
-i.e. immediately after \fBidx_numpasses\fR.
+i\&.e\&. immediately after \fBidx_numpasses\fR\&.
 It has to return a list containing the names of the parameters the
-frontend can set to configure the engine. This list can be empty.
+frontend can set to configure the engine\&. This list can be empty\&.
 .TP
 \fBidx_numpasses\fR
-\fIInitialization/Shutdown\fR and \fIPass management\fR.
-First command called after the plugin code has been loaded. No other
-command of the engine will be called before it.
+\fIInitialization/Shutdown\fR and \fIPass management\fR\&.
+First command called after the plugin code has been loaded\&. No other
+command of the engine will be called before it\&.
 It has to return the number of passes this engine requires to fully
-process the input document. This value has to be an integer number
-greater or equal to one.
+process the input document\&. This value has to be an integer number
+greater or equal to one\&.
 .TP
 \fBidx_postprocess\fR \fItext\fR
-\fIInitialization/Shutdown\fR.
-This command is called immediately after the last pass in a run. Its
-argument is the result of the conversion generated by that pass. It is
+\fIInitialization/Shutdown\fR\&.
+This command is called immediately after the last pass in a run\&. Its
+argument is the result of the conversion generated by that pass\&. It is
 provided to allow the engine to perform any global modifications of
-the generated document. If no post-processing is required for a
-specific format the command has to just return the argument.
+the generated document\&. If no post-processing is required for a
+specific format the command has to just return the argument\&.
 .sp
-Expected to return a value, the final result of formatting the input.
+Expected to return a value, the final result of formatting the input\&.
 .TP
 \fBidx_setup\fR \fIn\fR
-\fIInitialization/Shutdown\fR and \fIPass management\fR.
+\fIInitialization/Shutdown\fR and \fIPass management\fR\&.
 This command is called at the beginning of each pass over the input in
-a run. Its argument is the number of the pass which has begun. Passes
-are counted from \fB1\fR upward.
+a run\&. Its argument is the number of the pass which has begun\&. Passes
+are counted from \fB1\fR upward\&.
 The command has to set up the internal state of the plugin for this
-particular pass. No return value is expected, and any returned value
-is ignored.
+particular pass\&. No return value is expected, and any returned value
+is ignored\&.
 .TP
 \fBidx_shutdown\fR
-\fIInitialization/Shutdown\fR.
-This command is called at the end of every conversion run. It is the
-last command called in a run. It has to clean up of all the
-run-specific state in the plugin.
+\fIInitialization/Shutdown\fR\&.
+This command is called at the end of every conversion run\&. It is the
+last command called in a run\&. It has to clean up of all the
+run-specific state in the plugin\&.
 After the call the engine has to be in a state which allows the
 initiation of another run without fear that information from the last
-run is leaked into this new run.
-No return value is expected, and any returned value is ignored.
+run is leaked into this new run\&.
+No return value is expected, and any returned value is ignored\&.
 .TP
 \fBidx_varset\fR \fIvarname\fR \fItext\fR
-\fIEngine parameters\fR.
+\fIEngine parameters\fR\&.
 This command is called by the frontend to set an engine parameter to a
-particular value.
+particular value\&.
 The parameter to change is specified by \fIvarname\fR, the value to
-set in \fItext\fR.
+set in \fItext\fR\&.
 .sp
 The command has to throw an error if an unknown \fIvarname\fR is
-used. Only the names returned by \fBidx_listvariables\fR have to be
-considered as known.
+used\&. Only the names returned by \fBidx_listvariables\fR have to be
+considered as known\&.
 .sp
 The values of all engine parameters have to persist between passes and
-runs.
+runs\&.
 .PP
 .SS "FORMATTING COMMANDS"
 The formatting commands have to implement the formatting for the
 output format, for all the markup commands of the docidx markup
 language, except \fBlb\fR, \fBrb\fR, \fBvset\fR, \fBinclude\fR, and
-\fBcomment\fR. These exceptions are processed by the frontend and are
-never seen by the plugin. In return a command for the formatting of
+\fBcomment\fR\&. These exceptions are processed by the frontend and are
+never seen by the plugin\&. In return a command for the formatting of
 plain text has to be provided, something which has no markup in the
-input at all.
+input at all\&.
 .PP
 This means, that each of the five markup commands specified in the
 \fIdocidx language command reference\fR and outside of the set of
 exceptions listed above has an equivalent formatting command which
 takes the same arguments as the markup command and whose name is the
-name of markup command with the prefix \fIfmt_\fR added to it.
+name of markup command with the prefix \fIfmt_\fR added to it\&.
 .PP
 All commands are expected to format their input in some way per the
 semantics specified in the command reference and to return whatever
 part of this that they deem necessary as their result, which will be
-added to the output.
+added to the output\&.
 .PP
 To avoid essentially duplicating the command reference we do not list
 any of the command here and simply refer the reader to the
 \fIdocidx language command reference\fR for their signature and
-description. The sole exception is the plain text formatter, which has
-no equivalent markup command.
+description\&. The sole exception is the plain text formatter, which has
+no equivalent markup command\&.
 .PP
 The calling sequence of formatting commands is not as rigid as for the
 management commands, but determined by the grammar of the docidx
 markup language, as specified in the \fIdocidx language syntax\fR
-specification.
+specification\&.
 .PP
 .TP
 \fBfmt_plain_text\fR \fItext\fR
-\fINo associated markup command\fR.
+\fINo associated markup command\fR\&.
 .sp
 Called by the frontend for any plain text encountered in the
-input. It has to perform any and all special processing required for
-plain text.
+input\&. It has to perform any and all special processing required for
+plain text\&.
 .sp
 The formatted text is expected as the result of the command,
-and added to the output. If no special processing is required it has
-to simply return its argument without change.
+and added to the output\&. If no special processing is required it has
+to simply return its argument without change\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems.
+This document, will undoubtedly contain bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
-Please also report any ideas for enhancements you may have.
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+Please also report any ideas for enhancements you may have\&.
 .SH "SEE ALSO"
 docidx_intro, docidx_lang_cmdref, docidx_lang_faq, docidx_lang_intro, docidx_lang_syntax, doctools::idx
 .SH KEYWORDS
@@ -606,5 +611,6 @@ formatting engine, index, index formatter, keywords, markup, plugin, semantic ma
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

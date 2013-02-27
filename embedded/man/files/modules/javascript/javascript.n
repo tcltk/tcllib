@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/javascript/javascript.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/javascript/javascript\&.n' by tcllib/doctools with format 'nroff'
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -221,6 +221,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -236,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "javascript" n 1.0.2 tcllib "HTML and Java Script Generation"
+.TH "javascript" n 1\&.0\&.2 tcllib "HTML and Java Script Generation"
 .BS
 .SH NAME
-javascript \- Procedures to generate HTML and Java Script structures.
+javascript \- Procedures to generate HTML and Java Script structures\&.
 .SH SYNOPSIS
 package require \fBTcl  8\fR
 .sp
-package require \fBjavascript  ?1.0.2?\fR
+package require \fBjavascript  ?1\&.0\&.2?\fR
 .sp
 \fB::javascript::makeSelectorWidget\fR \fIid leftLabel leftValueList rightLabel rightValueList rightNameList\fR ?\fIlength\fR? ?\fIminWidth\fR?
 .sp
@@ -261,75 +262,75 @@ package require \fBjavascript  ?1.0.2?\fR
 .SH DESCRIPTION
 .PP
 The \fB::javascript\fR package provides commands that generate
-HTML and Java Script code.  These commands typically return an HTML
-string as their result.  In particular, they do not output their
-result to \fBstdout\fR.
+HTML and Java Script code\&.  These commands typically return an HTML
+string as their result\&.  In particular, they do not output their
+result to \fBstdout\fR\&.
 .PP
 .TP
 \fB::javascript::makeSelectorWidget\fR \fIid leftLabel leftValueList rightLabel rightValueList rightNameList\fR ?\fIlength\fR? ?\fIminWidth\fR?
-Construct HTML code to create a dual-multi-selection megawidget.  This
+Construct HTML code to create a dual-multi-selection megawidget\&.  This
 megawidget consists of two side-by-side multi-selection boxes
-separated by a left arrow and a right arrow button.  The right arrow
-button moves all items selected in the left box to the right box.  The
+separated by a left arrow and a right arrow button\&.  The right arrow
+button moves all items selected in the left box to the right box\&.  The
 left arrow button moves all items selected in the right box to the
-left box.  The \fIid\fR argument is the suffix of all HTML objects in
-this megawidget.  The \fIleftLabel\fR argument is the text that
-appears above the left selection box.  The \fIleftValueList\fR
-argument is the values of items in the left selection box.  The
+left box\&.  The \fIid\fR argument is the suffix of all HTML objects in
+this megawidget\&.  The \fIleftLabel\fR argument is the text that
+appears above the left selection box\&.  The \fIleftValueList\fR
+argument is the values of items in the left selection box\&.  The
 \fIleftNameList\fR argument is the names to appear in the left
-selection box.  The \fIrightLabel\fR argument is the text that appears
-above the right selection box.  The \fIrightValueList\fR argument is
-the values of items in the right selection box.  The
+selection box\&.  The \fIrightLabel\fR argument is the text that appears
+above the right selection box\&.  The \fIrightValueList\fR argument is
+the values of items in the right selection box\&.  The
 \fIrightNameList\fR argument is the names to appear in the right
-selection box.  The \fIlength\fR argument (optional) determines the
+selection box\&.  The \fIlength\fR argument (optional) determines the
 number of elts to show before adding a vertical scrollbar; it defaults
-to 8.  The \fIminWidth\fR argument (optional) is the number of spaces
-to determine the minimum box width; it defaults to 32.
+to 8\&.  The \fIminWidth\fR argument (optional) is the number of spaces
+to determine the minimum box width; it defaults to 32\&.
 .TP
 \fB::javascript::makeSubmitButton\fR \fIname value\fR
 Create an HTML submit button that resets a hidden field for each
-registered multi-selection box.  The \fIname\fR argument is the name
-of the HTML button object to create.  The \fIvalue\fR argument is the
-label of the HTML button object to create.
+registered multi-selection box\&.  The \fIname\fR argument is the name
+of the HTML button object to create\&.  The \fIvalue\fR argument is the
+label of the HTML button object to create\&.
 .TP
 \fB::javascript::makeProtectedSubmitButton\fR \fIname value msg\fR
 Create an HTML submit button that prompts the user with a
-continue/cancel shutdown warning before the form is submitted.  The
-\fIname\fR argument is the name of the HTML button object to create.
+continue/cancel shutdown warning before the form is submitted\&.  The
+\fIname\fR argument is the name of the HTML button object to create\&.
 The \fIvalue\fR argument is the label of the HTML button object to
-create. The \fImsg\fR argument is the message to display when the
-button is pressed.
+create\&. The \fImsg\fR argument is the message to display when the
+button is pressed\&.
 .TP
 \fB::javascript::makeMasterButton\fR \fImaster value slavePattern boolean\fR
 Create an HTML button that sets its slave checkboxs to the boolean
-value.  The \fImaster\fR argument is the name of the child's parent
-html checkbox object.  The \fIvalue\fR argument is the value of the
-master.  The \fIslaves\fR argument is the name of child html checkbox
-object to create.  The \fIboolean\fR argument is the java script
+value\&.  The \fImaster\fR argument is the name of the child's parent
+html checkbox object\&.  The \fIvalue\fR argument is the value of the
+master\&.  The \fIslaves\fR argument is the name of child html checkbox
+object to create\&.  The \fIboolean\fR argument is the java script
 boolean value that will be given to all the slaves; it must be "true"
-or "false".
+or "false"\&.
 .TP
 \fB::javascript::makeParentCheckbox\fR \fIparentName childName\fR
 Create an HTML checkbox and tie its value to that of its child
-checkbox.  If the parent is unchecked, the child is automatically
-unchecked.  The \fIparentName\fR argument is the name of parent html
-checkbox object to create. The \fIchildName\fR argument is the name of
-the parent's child html checkbox object.
+checkbox\&.  If the parent is unchecked, the child is automatically
+unchecked\&.  The \fIparentName\fR argument is the name of parent html
+checkbox object to create\&. The \fIchildName\fR argument is the name of
+the parent's child html checkbox object\&.
 .TP
 \fB::javascript::makeChildCheckbox\fR \fIparentName childName\fR
 Create an HTML checkbox and tie its value to that of its parent
-checkbox.  If the child is checked, the parent is automatically
-checked.  The \fIparentName\fR argument is the name of the child's
-parent html checkbox object.  The \fIchildName\fR argument is the name
-of child html checkbox object to create.
+checkbox\&.  If the child is checked, the parent is automatically
+checked\&.  The \fIparentName\fR argument is the name of the child's
+parent html checkbox object\&.  The \fIchildName\fR argument is the name
+of child html checkbox object to create\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIjavascript\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 html, ncgi
 .SH KEYWORDS

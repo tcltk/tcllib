@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/uev/uevent.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007-2012 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/uev/uevent\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007-2012 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "uevent" n 0.3.1 tcllib "User events"
+.TH "uevent" n 0\&.3\&.1 tcllib "User events"
 .BS
 .SH NAME
 uevent \- User events
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBuevent  ?0.3.1?\fR
+package require \fBuevent  ?0\&.3\&.1?\fR
 .sp
 package require \fBlogger \fR
 .sp
@@ -281,41 +282,41 @@ package require \fBlogger \fR
 .BE
 .SH DESCRIPTION
 This package provides a general facility for the handling of user
-events. Allows the binding of arbitrary commands to arbitrary events
-on arbitrary tags, removal of bindings, and event generation.
+events\&. Allows the binding of arbitrary commands to arbitrary events
+on arbitrary tags, removal of bindings, and event generation\&.
 .PP
 The main difference to the event system built into the Tcl/Tk core is
 that the latter can generate only virtual events, and only for
-widgets. It is not possible to use the builtin facilities to bind to
+widgets\&. It is not possible to use the builtin facilities to bind to
 events on arbitrary (pseudo-)objects, nor is it able to generate
-events for such.
+events for such\&.
 .PP
 Here we can, by assuming that each object in question is represented
-by its own tag. Which is possible as we allow arbitrary tags.
+by its own tag\&. Which is possible as we allow arbitrary tags\&.
 .PP
 More differences:
 .IP [1]
 The package uses only a two-level hierarchy, tags and events, to
-handle everything, whereas the Tcl/Tk system uses three levels, i.e.
+handle everything, whereas the Tcl/Tk system uses three levels, i\&.e\&.
 objects, tags, and events, with a n:m relationship between objects and
-tags.
+tags\&.
 .IP [2]
 This package triggers all bound commands for a tag/event combination,
-and they are independent of each other. A bound command cannot force
+and they are independent of each other\&. A bound command cannot force
 the event processing core to abort the processing of command coming
-after it.
+after it\&.
 .PP
 .SH API
-The package exports eight commands, as specified below. Note that when
-the package is used from within Tcl 8.5+ all the higher commands are
-ensembles, i.e. the :: separators can be replaceed by spaces.
+The package exports eight commands, as specified below\&. Note that when
+the package is used from within Tcl 8\&.5+ all the higher commands are
+ensembles, i\&.e\&. the :: separators can be replaceed by spaces\&.
 .TP
 \fB::uevent::bind\fR \fItag\fR \fIevent\fR \fIcommand\fR
 Using this command registers the \fIcommand\fR prefix to be triggered
-when the \fIevent\fR occurs for the \fItag\fR. The result of the
-command is an opaque token representing the binding. Note that if the
+when the \fIevent\fR occurs for the \fItag\fR\&. The result of the
+command is an opaque token representing the binding\&. Note that if the
 same combination of <\fItag\fR,\fIevent\fR,\fIcommand\fR> is used
-multiple times the same token is returned by every call.
+multiple times the same token is returned by every call\&.
 .sp
 The signature of the \fIcommand\fR prefix is
 .RS
@@ -323,57 +324,57 @@ The signature of the \fIcommand\fR prefix is
 \fBcommand\fR \fItag\fR \fIevent\fR \fIdetails\fR
 .RE
 .sp
-where \fIdetails\fR contains the argument(s) of the event. Its
+where \fIdetails\fR contains the argument(s) of the event\&. Its
 contents are event specific and have to be agreed upon between actual
-event generator and consumer. This package simply transfers the
-information and does not perform any processing beyond that.
+event generator and consumer\&. This package simply transfers the
+information and does not perform any processing beyond that\&.
 .TP
 \fB::uevent::unbind\fR \fItoken\fR
 This command releases the event binding represented by the
-\fItoken\fR. The token has to be the result of a call to
-\fB::uevent::bind\fR. The result of the command is the empty string.
+\fItoken\fR\&. The token has to be the result of a call to
+\fB::uevent::bind\fR\&. The result of the command is the empty string\&.
 .TP
 \fB::uevent::generate\fR \fItag\fR \fIevent\fR ?\fIdetails\fR?
 This command generates an \fIevent\fR for the \fItag\fR, triggering
-all commands bound to that combination. The \fIdetails\fR argument is
-simply passed unchanged to all event handlers. It is the
+all commands bound to that combination\&. The \fIdetails\fR argument is
+simply passed unchanged to all event handlers\&. It is the
 responsibility of the code generating and consuming the event to have
 an agreement about the format and contents of the information carried
-therein. The result of the command is the empty string.
+therein\&. The result of the command is the empty string\&.
 .sp
 Note that all bound commands are triggered, independently of each
-other. The event handlers cannot assume a specific order. They are
+other\&. The event handlers cannot assume a specific order\&. They are
 also \fInot\fR called synchronously with the invokation of this
 command, but simply put into the event queue for processing when the
-system returns to the event loop.
+system returns to the event loop\&.
 .sp
 Generating an event for an unknown tag, or for a
 <\fItag\fR,\fIevent\fR> combination which has no commands bound to it
-is allowed, such calls will be ignored.
+is allowed, such calls will be ignored\&.
 .TP
 \fB::uevent::list\fR
 In this form the command returns a list containing the names of all
-tags which have events with commands bound to them.
+tags which have events with commands bound to them\&.
 .TP
 \fB::uevent::list\fR \fItag\fR
 In this format the command returns a list containing the names of all
-events for the \fItag\fR with commands bound to them. Specifying an
-unknown tag, i.e. a tag without event and commands, will cause the
-command to throw an error.
+events for the \fItag\fR with commands bound to them\&. Specifying an
+unknown tag, i\&.e\&. a tag without event and commands, will cause the
+command to throw an error\&.
 .TP
 \fB::uevent::list\fR \fItag\fR \fIevent\fR
 In this format the command returns a list containing all commands
-bound to the \fIevent\fR for the \fItag\fR. Specifying an unknown tag
-or unknown event, will cause the command to throw an error.
+bound to the \fIevent\fR for the \fItag\fR\&. Specifying an unknown tag
+or unknown event, will cause the command to throw an error\&.
 .TP
 \fB::uevent::watch::tag::add\fR \fIpattern\fR \fIcommand\fR
-This command sets up a sort of reverse events. Events generated,
-i.e. the \fIcommand\fR prefix invoked, when observers bind to and
-unbind from specific tags.
+This command sets up a sort of reverse events\&. Events generated,
+i\&.e\&. the \fIcommand\fR prefix invoked, when observers bind to and
+unbind from specific tags\&.
 .sp
 Note that the command prefix is only invoked twice per tag,
 first when the first command is bound to any event of the tag, and
-second when the last command bound to the tag is removed.
+second when the last command bound to the tag is removed\&.
 .sp
 The signature of the \fIcommand\fR prefix is
 .RS
@@ -383,21 +384,21 @@ The signature of the \fIcommand\fR prefix is
 \fB{*}command\fR \fBunbound\fR \fItag\fR
 .RE
 .sp
-The result of the command is a token representing the watcher.
+The result of the command is a token representing the watcher\&.
 .TP
 \fB::uevent::watch::tag::remove\fR \fItoken\fR
-This command removes a watcher for (un)bind events on tags.
+This command removes a watcher for (un)bind events on tags\&.
 .sp
-The result of the command is the empty string.
+The result of the command is the empty string\&.
 .TP
 \fB::uevent::watch::event::add\fR \fItag_pattern\fR \fIevent_pattern\fR \fIcommand\fR
-This command sets up a sort of reverse events. Events generated,
-i.e. the \fIcommand\fR prefix invoked, when observers bind to and
-unbind from specific combinations of tags and events.
+This command sets up a sort of reverse events\&. Events generated,
+i\&.e\&. the \fIcommand\fR prefix invoked, when observers bind to and
+unbind from specific combinations of tags and events\&.
 .sp
 Note that the command prefix is only invoked twice per
 tag/event combination, first when the first command is bound to it,
-and second when the last command bound to the it is removed.
+and second when the last command bound to the it is removed\&.
 .sp
 The signature of the \fIcommand\fR prefix is
 .RS
@@ -407,21 +408,21 @@ The signature of the \fIcommand\fR prefix is
 \fB{*}command\fR \fBunbound\fR \fItag\fR \fIevent\fR
 .RE
 .sp
-The result of the command is a token representing the watcher.
+The result of the command is a token representing the watcher\&.
 .TP
 \fB::uevent::watch::event::remove\fR \fItoken\fR
 This command removes a watcher for (un)bind events on tag/event
-combinations.
+combinations\&.
 .sp
-The result of the command is the empty string.
+The result of the command is the empty string\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIuevent\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 hook(n)
 .SH KEYWORDS
@@ -430,5 +431,6 @@ bind, event, generate event, hook, unbind
 Programming tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007-2012 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007-2012 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

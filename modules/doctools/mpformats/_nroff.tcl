@@ -75,6 +75,7 @@ set      finalMap [list \
 	"\1\\" "\\" \
 	"\1'"  "'" \
 	"\1."  "." \
+        "."    "\\&." \
 	"\\"   "\\\\"]
 global   textMap
 set      textMap [list "\\" "\\\\"]
@@ -142,15 +143,16 @@ proc nroff_postprocess {nroff} {
 		    set lines [lreplace $lines end end]
 		    set line "$last $line"
 		}
-	    } elseif {[string match {['.]*} $line]} {
-		# Apostrophes or periods at the beginning of a line
-		# have to be quoted to prevent misinterpretation as
-		# comments or directives.  The true comments and
-		# directive are quoted with \1 already and will
-		# therefore not detected by the code here.
-		#puts_stderr \tQUOTE
+	    } elseif {[string match {[']*} $line]} {
+		# Apostrophes at the beginning of a line have to be
+		# quoted to prevent misinterpretation as comments.
+		# The true comments and are quoted with \1 already and
+		# will therefore not detected by the code here.
+		# puts_stderr \tQUOTE
 		set line \1\\$line
-	    }
+	    } ; # We are not handling dots at the beginning of a line here.
+	    #   # We are handling them in the finalMap which will quote _all_
+	    #   # dots in a text with a zero-width escape (\&).
 	} else {
 	    # No-fill mode. We remove trailing whitespace, but keep
 	    # leading whitespace and empty lines.
@@ -166,8 +168,8 @@ proc nroff_postprocess {nroff} {
 
     set lines [join $lines "\n"]
 
-    # Remove superfluous .IP commands (empty paragraph). The first
-    # identity mapping is there to avoid smashing a man macro
+    # Now remove all superfluous .IP commands (empty paragraphs). The
+    # first identity mapping is present to avoid smashing a man macro
     # definition.
 
     lappend map	\n\1.IP\n\1.\1.\n  \n\1.IP\n\1.\1.\n

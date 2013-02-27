@@ -1,7 +1,7 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/png/png.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2004, Code: Aaron Faupell <afaupell@users.sourceforge.net>
-'\" Copyright (c) 2004, Doc: Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/png/png\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2004, Code: Aaron Faupell <afaupell@users\&.sourceforge\&.net>
+'\" Copyright (c) 2004, Doc: Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -223,6 +223,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -238,16 +239,16 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "png" n 0.1.2 tcllib "Image manipulation"
+.TH "png" n 0\&.1\&.2 tcllib "Image manipulation"
 .BS
 .SH NAME
 png \- PNG querying and manipulation of meta data
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
 package require \fBcrc32 \fR
 .sp
-package require \fBpng  ?0.1.2?\fR
+package require \fBpng  ?0\&.1\&.2?\fR
 .sp
 \fB::png::validate\fR \fIfile\fR
 .sp
@@ -274,126 +275,127 @@ package require \fBpng  ?0.1.2?\fR
 .BE
 .SH DESCRIPTION
 .PP
-This package provides commands to query and modify PNG images. PNG
+This package provides commands to query and modify PNG images\&. PNG
 stands for \fIPortable Network Graphics\fR and is specified at
-\fIhttp://www.libpng.org/pub/png/spec/1.2\fR.
+\fIhttp://www\&.libpng\&.org/pub/png/spec/1\&.2\fR\&.
 .SH COMMANDS
 .TP
 \fB::png::validate\fR \fIfile\fR
-Returns a value indicating if \fIfile\fR is a valid PNG file. The file
+Returns a value indicating if \fIfile\fR is a valid PNG file\&. The file
 is checked for PNG signature, each chunks checksum is verified,
 existence of a data chunk is verified, first chunk is checked for
-header, last chunk is checked for ending. Things \fInot\fR checked
+header, last chunk is checked for ending\&. Things \fInot\fR checked
 for are: validity of values within a chunk, multiple header chunks,
-noncontiguous data chunks, end chunk before actual eof. This procedure
-can take lots of time.
+noncontiguous data chunks, end chunk before actual eof\&. This procedure
+can take lots of time\&.
 .sp
 Possible return values:
 .RS
 .TP
 OK
-File is a valid PNG file.
+File is a valid PNG file\&.
 .TP
 SIG
-no/broken PNG signature.
+no/broken PNG signature\&.
 .TP
 BADLEN
-corrupt chunk length.
+corrupt chunk length\&.
 .TP
 EOF
-premature end of file.
+premature end of file\&.
 .TP
 NOHDR
-missing header chunk.
+missing header chunk\&.
 .TP
 CKSUM
-crc mismatch.
+crc mismatch\&.
 .TP
 NODATA
-missing data chunk(s).
+missing data chunk(s)\&.
 .TP
 NOEND
-missing end marker.
+missing end marker\&.
 .RE
 .TP
 \fB::png::isPNG\fR \fIfile\fR
 Returns a boolean value indicating if the file \fIfile\fR starts with
-a PNG signature. This is a much faster and less intensive check than
-\fB::png::validate\fR as it does not check if the PNG data is valid.
+a PNG signature\&. This is a much faster and less intensive check than
+\fB::png::validate\fR as it does not check if the PNG data is valid\&.
 .TP
 \fB::png::imageInfo\fR \fIfile\fR
 Returns a dictionary with keys \fBwidth\fR, \fBheight\fR,
 \fBdepth\fR, \fBcolor\fR, \fBcompression\fR, \fBfilter\fR, and
-\fBinterlace\fR. The values are the associated properties of the PNG
-image in \fIfile\fR.
+\fBinterlace\fR\&. The values are the associated properties of the PNG
+image in \fIfile\fR\&.
 Throws an error if file is not a PNG image, or if the checksum of the
-header is invalid. For information on interpreting the values for the
+header is invalid\&. For information on interpreting the values for the
 returned properties see
-\fIhttp://www.libpng.org/pub/png/spec/1.2/PNG-Chunks.html\fR.
+\fIhttp://www\&.libpng\&.org/pub/png/spec/1\&.2/PNG-Chunks\&.html\fR\&.
 .TP
 \fB::png::getTimestamp\fR \fIfile\fR
 Returns the epoch time if a timestamp chunk is found in the PNG image
-contained in the \fIfile\fR, otherwise returns the empty string. Does
-not attempt to verify the checksum of the timestamp chunk.
-Throws an error if the \fIfile\fR is not a valid PNG image.
+contained in the \fIfile\fR, otherwise returns the empty string\&. Does
+not attempt to verify the checksum of the timestamp chunk\&.
+Throws an error if the \fIfile\fR is not a valid PNG image\&.
 .TP
 \fB::png::setTimestamp\fR \fIfile\fR \fItime\fR
 Writes a new timestamp to the \fIfile\fR, either replacing the old
 timestamp, or adding one just before the data chunks if there was no
-previous timestamp. \fItime\fR is the new time in the gmt epoch
-format.
-Throws an error if \fIfile\fR is not a valid PNG image.
+previous timestamp\&. \fItime\fR is the new time in the gmt epoch
+format\&.
+Throws an error if \fIfile\fR is not a valid PNG image\&.
 .TP
 \fB::png::getComments\fR \fIfile\fR
-Currently supports only uncompressed comments. Does not attempt to
-verify the checksums of the comment chunks. Returns a list where each
-element is a comment. Each comment is itself a list. The list for a
+Currently supports only uncompressed comments\&. Does not attempt to
+verify the checksums of the comment chunks\&. Returns a list where each
+element is a comment\&. Each comment is itself a list\&. The list for a
 plain text comment consists of 2 elements: the human readable keyword,
-and the text data. A unicode (international) comment consists of 4
+and the text data\&. A unicode (international) comment consists of 4
 elements: the human readable keyword, the language identifier, the
-translated keyword, and the unicode text data.
-Throws an error if \fIfile\fR is not a valid PNG image.
+translated keyword, and the unicode text data\&.
+Throws an error if \fIfile\fR is not a valid PNG image\&.
 .TP
 \fB::png::removeComments\fR \fIfile\fR
-Removes all comments from the PNG image in \fIfile\fR. Beware - This
+Removes all comments from the PNG image in \fIfile\fR\&. Beware - This
 uses memory equal to the file size minus comments, to hold the
-intermediate result.
-Throws an error if \fIfile\fR is not a valid PNG image.
+intermediate result\&.
+Throws an error if \fIfile\fR is not a valid PNG image\&.
 .TP
 \fB::png::addComment\fR \fIfile\fR \fIkeyword\fR \fItext\fR
 Adds a plain \fItext\fR comment to the PNG image in \fIfile\fR, just
-before the first data chunk. Will throw an error if no data chunk is
-found. \fIkeyword\fR has to be less than 80 characters long to conform
-to the PNG specification.
+before the first data chunk\&. Will throw an error if no data chunk is
+found\&. \fIkeyword\fR has to be less than 80 characters long to conform
+to the PNG specification\&.
 .TP
 \fB::png::addComment\fR \fIfile\fR \fIkeyword\fR \fIlang\fR \fIkeyword2\fR \fItext\fR
 Adds a unicode (international) comment to the PNG image in \fIfile\fR,
-just before the first data chunk. Will throw an error if no data chunk
-is found. \fIkeyword\fR has to be less than 80 characters long to
-conform to the PNG specification. \fIkeyword2\fR is the translated
+just before the first data chunk\&. Will throw an error if no data chunk
+is found\&. \fIkeyword\fR has to be less than 80 characters long to
+conform to the PNG specification\&. \fIkeyword2\fR is the translated
 \fIkeyword\fR, in the language specified by the language identifier
-\fIlang\fR.
+\fIlang\fR\&.
 .TP
 \fB::png::image\fR \fIfile\fR
-Given a PNG file returns the image in the list of scanlines format used by Tk_GetColor.
+Given a PNG file returns the image in the list of scanlines format used by Tk_GetColor\&.
 .TP
 \fB::png::write\fR \fIfile\fR \fIdata\fR
 Takes a list of scanlines in the Tk_GetColor format and writes the represented image
-to \fIfile\fR.
+to \fIfile\fR\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIpng\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 comment, image, png, timestamp
 .SH CATEGORY
 File formats
 .SH COPYRIGHT
 .nf
-Copyright (c) 2004, Code: Aaron Faupell <afaupell@users.sourceforge.net>
-Copyright (c) 2004, Doc:  Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2004, Code: Aaron Faupell <afaupell@users\&.sourceforge\&.net>
+Copyright (c) 2004, Doc:  Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

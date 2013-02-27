@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/virtchannel_transform/rot.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/virtchannel_transform/rot\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -242,7 +243,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tcl::transform::rot \- rot-encryption
 .SH SYNOPSIS
-package require \fBTcl  8.6\fR
+package require \fBTcl  8\&.6\fR
 .sp
 package require \fBtcl::transform::core  ?1?\fR
 .sp
@@ -255,41 +256,42 @@ package require \fBtcl::transform::rot  ?1?\fR
 .PP
 The \fBtcl::transform::rot\fR package provides a command creating
 a channel transformation which performs primitive encryption (on
-writing) and decryption (on reading) on the alphabetic characters. The
-algorithm is the Caesar-cipher, a specific variant of which is rot13.
+writing) and decryption (on reading) on the alphabetic characters\&. The
+algorithm is the Caesar-cipher, a specific variant of which is rot13\&.
 .PP
 A related transformations in this module is
-\fBtcl::transform::otp\fR.
+\fBtcl::transform::otp\fR\&.
 .PP
 The internal \fBTclOO\fR class implementing the transform
 handler is a sub-class of the \fBtcl::transform::core\fR
-framework.
+framework\&.
 .SH API
 .TP
 \fB::tcl::transform::rot\fR \fIchan\fR \fIkey\fR
 This command creates a rot encryption transformation on top of the
-channel \fIchan\fR and returns its handle.
+channel \fIchan\fR and returns its handle\&.
 .sp
 The "\fIkey\fR" specifies how far characters are rotated in the
-alphabet, and is wrapped to the range "0...25".
+alphabet, and is wrapped to the range "0\&.\&.\&.25"\&.
 .sp
 Note that this transformation affects only bytes in the ranges
-ASCII 65...90, and 97...122, i.e. the upper- and lower-case alphabetic
-characters, i.e. "A...Z" and "a...z". All other bytes are passed
-through unchanged.
+ASCII 65\&.\&.\&.90, and 97\&.\&.\&.122, i\&.e\&. the upper- and lower-case alphabetic
+characters, i\&.e\&. "A\&.\&.\&.Z" and "a\&.\&.\&.z"\&. All other bytes are passed
+through unchanged\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIvirtchannel\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 caesar cipher, channel transformation, cipher, decryption, encryption, reflected channel, rot, rot13, tip 230, transformation, virtual channel
 .SH CATEGORY
 Channels
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

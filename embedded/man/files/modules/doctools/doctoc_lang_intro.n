@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/doctools/doctoc_lang_intro.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/doctools/doctoc_lang_intro\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,105 +238,119 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "doctoc_lang_intro" n 1.0 tcllib "Documentation tools"
+.TH "doctoc_lang_intro" n 1\&.0 tcllib "Documentation tools"
 .BS
 .SH NAME
 doctoc_lang_intro \- doctoc language introduction
 .SH DESCRIPTION
 .PP
-This document is an informal introduction to version 1.1 of the doctoc
-markup language based on a multitude of examples. After reading this a
+This document is an informal introduction to version 1\&.1 of the doctoc
+markup language based on a multitude of examples\&. After reading this a
 writer should be ready to understand the two parts of the formal
-specification, i.e. the \fIdoctoc language syntax\fR specification
-and the \fIdoctoc language command reference\fR.
+specification, i\&.e\&. the \fIdoctoc language syntax\fR specification
+and the \fIdoctoc language command reference\fR\&.
 .SS FUNDAMENTALS
 While the \fIdoctoc markup language\fR is quite similar to the
 \fIdoctools markup language\fR, in the broadest terms possible,
-there is one key difference. A table of contents consists essentially
+there is one key difference\&. A table of contents consists essentially
 only of markup commands, with no plain text interspersed between them,
-except for whitespace.
+except for whitespace\&.
 .PP
 Each markup command is a Tcl command surrounded by a matching pair of
-\fB[\fR and \fB]\fR. Inside of these delimiters the usual
+\fB[\fR and \fB]\fR\&. Inside of these delimiters the usual
 rules for a Tcl command apply with regard to word quotation, nested
-commands, continuation lines, etc. I.e.
+commands, continuation lines, etc\&. I\&.e\&.
 .PP
 .CS
-\... [division_start {Appendix 1}] ...
+
+
+    \&.\&.\&. [division_start {Appendix 1}] \&.\&.\&.
+
 .CE
 .CS
-\... [item thefile \\\\
-label {file description}] ...
+
+
+  \&.\&.\&. [item thefile \\\\
+          label {file description}] \&.\&.\&.
+
 .CE
 .SS "BASIC STRUCTURE"
 The most simple document which can be written in doctoc is
 .CS
-[toc_begin GROUPTITLE TITLE]
-[toc_end]
+
+
+    [toc_begin GROUPTITLE TITLE]
+    [toc_end]
+
 .CE
 This also shows us that all doctoc documents consist of only one
-part where we will list \fIitems\fR and \fIdivisions\fR.
+part where we will list \fIitems\fR and \fIdivisions\fR\&.
 .PP
-The user is free to mix these as she sees fit. This is a change from
+The user is free to mix these as she sees fit\&. This is a change from
 version 1 of the language, which did not allow this mixing, but only
-the use of either a series of items or a series of divisions.
+the use of either a series of items or a series of divisions\&.
 .PP
 We will discuss the commands for each of these two possibilities in
-the next sections.
+the next sections\&.
 .SS ITEMS
 Use the command \fBitem\fR to put an \fIitem\fR into a table of
-contents. This is essentially a reference to a section, subsection,
-etc. in the document, or set of documents, the table of contents is
-for. The command takes three arguments, a symbolic name for the file
+contents\&. This is essentially a reference to a section, subsection,
+etc\&. in the document, or set of documents, the table of contents is
+for\&. The command takes three arguments, a symbolic name for the file
 the item is for and two text to label the item and describe the
-referenced section.
+referenced section\&.
 .PP
 Symbolic names are used to preserve the convertibility of this format
-to any output format. The actual name of any file will be inserted by
+to any output format\&. The actual name of any file will be inserted by
 the chosen formatting engine when converting the input, based on a
-mapping from symbolic to actual names given to the engine.
+mapping from symbolic to actual names given to the engine\&.
 .PP
 Here a made up example for a table of contents of this document:
 .CS
+
+
 [toc_begin Doctoc {Language Introduction}]
 [\fBitem 1 DESCRIPTION\fR]
-[\fBitem 1.1 {Basic structure}\fR]
-[\fBitem 1.2 Items\fR]
-[\fBitem 1.3 Divisions\fR]
+[\fBitem 1\&.1 {Basic structure}\fR]
+[\fBitem 1\&.2 Items\fR]
+[\fBitem 1\&.3 Divisions\fR]
 [\fBitem 2 {FURTHER READING}\fR]
 [toc_end]
+
 .CE
 .SS DIVISIONS
 One thing of notice in the last example in the previous section is
 that the referenced sections actually had a nested structure,
 something which was expressed in the item labels, by using a common
-prefix for all the sections nested under section 1.
+prefix for all the sections nested under section 1\&.
 .PP
 This kind of structure can be made more explicit in the doctoc
-language by using divisions. Instead of using a series of plain items
+language by using divisions\&. Instead of using a series of plain items
 we use a series of divisions for the major references, and then place
-the nested items inside of these.
+the nested items inside of these\&.
 .PP
 Of course, instead of the nested items we can again use divisions and
-thus nest arbitrarily deep.
+thus nest arbitrarily deep\&.
 .PP
 A division is marked by two commands instead of one, one to start it,
-the other to close the last opened division. They are:
+the other to close the last opened division\&. They are:
 .TP
 \fBdivision_start\fR
-This command opens a new division. It takes one or two arguments, the
+This command opens a new division\&. It takes one or two arguments, the
 title of the division, and the symbolic name of the file it refers
-to. The latter is optional.
+to\&. The latter is optional\&.
 If the symbolic filename is present then the section title should link
 to the referenced document, if links are supported by the output
-format.
+format\&.
 .TP
 \fBdivision_end\fR
-This command closes the last opened and not yet closed division.
+This command closes the last opened and not yet closed division\&.
 .PP
 .PP
 Using this we can recast the last example like this
 .CS
+
+
 [toc_begin Doctoc {Language Introduction}]
 [\fBdivision_start DESCRIPTION\fR]
 [item 1 {Basic structure}]
@@ -345,10 +360,13 @@ Using this we can recast the last example like this
 [\fBdivision_start {FURTHER READING}\fR]
 [\fBdivision_end\fR]
 [toc_end]
+
 .CE
 .PP
 Or, to demonstrate deeper nesting
 .CS
+
+
 [toc_begin Doctoc {Language Introduction}]
 [\fBdivision_start DESCRIPTION\fR]
 [\fBdivision_start {Basic structure}\fR]
@@ -368,10 +386,13 @@ Or, to demonstrate deeper nesting
 [\fBdivision_start {FURTHER READING}\fR]
 [\fBdivision_end\fR]
 [toc_end]
+
 .CE
 And do not forget, it is possible to freely mix items and divisions,
-and to have empty divisions.
+and to have empty divisions\&.
 .CS
+
+
 [toc_begin Doctoc {Language Introduction}]
 [item 1 Do]
 [\fBdivision_start DESCRIPTION\fR]
@@ -389,78 +410,88 @@ and to have empty divisions.
 [\fBdivision_start {FURTHER READING}\fR]
 [\fBdivision_end\fR]
 [toc_end]
+
 .CE
 .SS "ADVANCED STRUCTURE"
 In all previous examples we fudged a bit regarding the markup actually
 allowed to be used before the \fBtoc_begin\fR command opening the
-document.
+document\&.
 .PP
 Instead of only whitespace the two templating commands \fBinclude\fR
 and \fBvset\fR are also allowed, to enable the writer to either set
 and/or import configuration settings relevant to the table of
-contents. I.e. it is possible to write
+contents\&. I\&.e\&. it is possible to write
 .CS
+
+
 [\fBinclude FILE\fR]
 [\fBvset VAR VALUE\fR]
 [toc_begin GROUPTITLE TITLE]
-\...
+\&.\&.\&.
 [toc_end]
+
 .CE
 Even more important, these two commands are allowed anywhere where a
 markup command is allowed, without regard for any other
-structure.
+structure\&.
 .CS
+
+
 [toc_begin GROUPTITLE TITLE]
 [\fBinclude FILE\fR]
 [\fBvset VAR VALUE\fR]
-\...
+\&.\&.\&.
 [toc_end]
+
 .CE
 The only restriction \fBinclude\fR has to obey is that the contents of
-the included file must be valid at the place of the inclusion. I.e. a
+the included file must be valid at the place of the inclusion\&. I\&.e\&. a
 file included before \fBtoc_begin\fR may contain only the templating
 commands \fBvset\fR and \fBinclude\fR, a file included in a division
-may contain only items or divisions commands, etc.
+may contain only items or divisions commands, etc\&.
 .SS ESCAPES
-Beyond the 6 commands shown so far we have two more available.
+Beyond the 6 commands shown so far we have two more available\&.
 However their function is not the marking up of toc structure, but the
-insertion of characters, namely \fB[\fR and \fB]\fR.
+insertion of characters, namely \fB[\fR and \fB]\fR\&.
 These commands, \fBlb\fR and \fBrb\fR respectively, are required
 because our use of [ and ] to bracket markup commands makes it
-impossible to directly use [ and ] within the text.
+impossible to directly use [ and ] within the text\&.
 .PP
 Our example of their use are the sources of the last sentence in the
-previous paragraph, with some highlighting added.
+previous paragraph, with some highlighting added\&.
 .CS
-\...
-These commands, [cmd lb] and [cmd lb] respectively, are required
-because our use of [\fBlb\fR] and [\fBrb\fR] to bracket markup commands makes it
-impossible to directly use [\fBlb\fR] and [\fBrb\fR] within the text.
-\...
+
+
+  \&.\&.\&.
+  These commands, [cmd lb] and [cmd lb] respectively, are required
+  because our use of [\fBlb\fR] and [\fBrb\fR] to bracket markup commands makes it
+  impossible to directly use [\fBlb\fR] and [\fBrb\fR] within the text\&.
+  \&.\&.\&.
+
 .CE
 .SH "FURTHER READING"
 Now that this document has been digested the reader, assumed to be a
 \fIwriter\fR of documentation should be fortified enough to be able
 to understand the formal \fIdoctoc language syntax\fR
-specification as well. From here on out the
+specification as well\&. From here on out the
 \fIdoctoc language command reference\fR will also serve as the
 detailed specification and cheat sheet for all available commands and
-their syntax.
+their syntax\&.
 .PP
 To be able to validate a document while writing it, it is also
 recommended to familiarize oneself with Tclapps' ultra-configurable
-\fBdtp\fR.
+\fBdtp\fR\&.
 .PP
 On the other hand, doctoc is perfectly suited for the automatic
 generation from doctools documents, and this is the route Tcllib's
 easy and simple \fBdtplite\fR goes, creating a table of contents
 for a set of documents behind the scenes, without the writer having to
-do so on their own.
+do so on their own\&.
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems.
+This document, will undoubtedly contain bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
-Please also report any ideas for enhancements you may have.
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+Please also report any ideas for enhancements you may have\&.
 .SH "SEE ALSO"
 doctoc_intro, doctoc_lang_cmdref, doctoc_lang_syntax
 .SH KEYWORDS
@@ -469,5 +500,6 @@ doctoc commands, doctoc language, doctoc markup, doctoc syntax, markup, semantic
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/doctools/docidx_lang_syntax.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/doctools/docidx_lang_syntax\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,88 +238,93 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "docidx_lang_syntax" n 1.0 tcllib "Documentation tools"
+.TH "docidx_lang_syntax" n 1\&.0 tcllib "Documentation tools"
 .BS
 .SH NAME
 docidx_lang_syntax \- docidx language syntax
 .SH DESCRIPTION
 .PP
 This document contains the formal specification of the syntax of the
-docidx markup language, version 1 in Backus-Naur-Form. This document
+docidx markup language, version 1 in Backus-Naur-Form\&. This document
 is intended to be a reference, complementing the
-\fIdocidx language command reference\fR.
+\fIdocidx language command reference\fR\&.
 A beginner should read the much more informally written
 \fIdocidx language introduction\fR first before trying to
-understand either this document or the command reference.
+understand either this document or the command reference\&.
 .SH FUNDAMENTALS
 In the broadest terms possible the \fIdocidx markup language\fR is
-like SGML and similar languages. A document written in this language
+like SGML and similar languages\&. A document written in this language
 consists primarily of markup commands, with text embedded into it at
-some places.
+some places\&.
 .PP
 Each markup command is a just Tcl command surrounded by a matching
-pair of \fB[\fR and \fB]\fR. Which commands are available,
-and their arguments, i.e. syntax is specified in the
-\fIdocidx language command reference\fR.
+pair of \fB[\fR and \fB]\fR\&. Which commands are available,
+and their arguments, i\&.e\&. syntax is specified in the
+\fIdocidx language command reference\fR\&.
 .PP
 In this document we specify first the lexeme, and then the syntax,
-i.e. how we can mix text and markup commands with each other.
+i\&.e\&. how we can mix text and markup commands with each other\&.
 .SH "LEXICAL DEFINITIONS"
 In the syntax rules listed in the next section
 .IP [1]
-<TEXT> stands for all text except markup commands.
+<TEXT> stands for all text except markup commands\&.
 .IP [2]
 Any XXX stands for the markup command [xxx] including its
-arguments. Each markup command is a Tcl command surrounded by a
-matching pair of \fB[\fR and \fB]\fR. Inside of these
+arguments\&. Each markup command is a Tcl command surrounded by a
+matching pair of \fB[\fR and \fB]\fR\&. Inside of these
 delimiters the usual rules for a Tcl command apply with regard to word
-quotation, nested commands, continuation lines, etc.
+quotation, nested commands, continuation lines, etc\&.
 .IP [3]
 <WHITE> stands for all text consisting only of spaces, newlines,
-tabulators and the \fBcomment\fR markup command.
+tabulators and the \fBcomment\fR markup command\&.
 .PP
 .SH SYNTAX
-The rules listed here specify only the syntax of docidx documents. The
-lexical level of the language was covered in the previous section.
+The rules listed here specify only the syntax of docidx documents\&. The
+lexical level of the language was covered in the previous section\&.
 .PP
 Regarding the syntax of the (E)BNF itself
 .IP [1]
-The construct { X } stands for zero or more occurrences of X.
+The construct { X } stands for zero or more occurrences of X\&.
 .IP [2]
-The construct [ X ] stands for zero or one occurrence of X.
+The construct [ X ] stands for zero or one occurrence of X\&.
 .PP
 The syntax:
 .CS
+
+
 index     = defs
-INDEX_BEGIN
-[ contents ]
-INDEX_END
-{ <WHITE> }
+            INDEX_BEGIN
+            [ contents ]
+            INDEX_END
+            { <WHITE> }
+
 defs      = { INCLUDE | VSET | <WHITE> }
 contents  = keyword { keyword }
+
 keyword   = defs KEY ref { ref }
 ref       = MANPAGE | URL | defs
+
 .CE
 At last a rule we were unable to capture in the EBNF syntax, as it is
 about the arguments of the markup commands, something which is not
-modeled here.
+modeled here\&.
 .IP [1]
 The arguments of all markup commands have to be plain text, and/or text
-markup commands, i.e. one of
+markup commands, i\&.e\&. one of
 .RS
 .IP [1]
 \fBlb\fR,
 .IP [2]
 \fBrb\fR, or
 .IP [3]
-\fBvset\fR (1-argument form).
+\fBvset\fR (1-argument form)\&.
 .RE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems.
+This document, will undoubtedly contain bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
-Please also report any ideas for enhancements you may have.
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+Please also report any ideas for enhancements you may have\&.
 .SH "SEE ALSO"
 docidx_intro, docidx_lang_cmdref, docidx_lang_faq, docidx_lang_intro
 .SH KEYWORDS
@@ -327,5 +333,6 @@ docidx commands, docidx language, docidx markup, docidx syntax, markup, semantic
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

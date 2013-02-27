@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/pt/pt_param.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/pt/pt_param\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -242,7 +243,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 pt::param \- PackRat Machine Specification
 .SH SYNOPSIS
-package require \fBTcl  8.5\fR
+package require \fBTcl  8\&.5\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -250,445 +251,447 @@ package require \fBTcl  8.5\fR
 Are you lost ?
 Do you have trouble understanding this document ?
 In that case please read the overview provided by the
-\fIIntroduction to Parser Tools\fR. This document is the
-entrypoint to the whole system the current package is a part of.
+\fIIntroduction to Parser Tools\fR\&. This document is the
+entrypoint to the whole system the current package is a part of\&.
 .PP
 Welcome to the PackRat Machine (short: \fIPARAM\fR), a virtual
 machine geared towards the support of recursive descent parsers,
-especially packrat parsers. Towards this end it has features like the
+especially packrat parsers\&. Towards this end it has features like the
 caching and reuse of partial results, the caching of the encountered
-input, and the ability to backtrack in both input and AST creation.
+input, and the ability to backtrack in both input and AST creation\&.
 .PP
 This document specifies the machine in terms of its architectural
-state and instruction set.
+state and instruction set\&.
 .SH "ARCHITECTURAL STATE"
 Any PARAM implementation has to manage at least the following state:
 .TP
 \fIInput\fR (IN)
-This is the channel the characters to process are read from.
+This is the channel the characters to process are read from\&.
 .sp
 This part of the machine's state is used and modified by the
-instructions defined in the section \fBInput Handling\fR.
+instructions defined in the section \fBInput Handling\fR\&.
 .TP
 \fICurrent Character\fR (CC)
 The character from the \fIinput\fR currently tested against its
-possible alternatives.
+possible alternatives\&.
 .sp
 This part of the machine's state is used and modified by the
-instructions defined in the section \fBCharacter Processing\fR.
+instructions defined in the section \fBCharacter Processing\fR\&.
 .TP
 \fICurrent Location\fR (CL)
 The location of the \fIcurrent character\fR in the \fIinput\fR, as
-offset relative to the beginning of the input. Character offsets are
-counted from \fB0\fR.
+offset relative to the beginning of the input\&. Character offsets are
+counted from \fB0\fR\&.
 .sp
 This part of the machine's state is used and modified by the
 instructions defined in the sections \fBCharacter Processing\fR,
-\fBLocation Handling\fR, and \fBNonterminal Execution\fR.
+\fBLocation Handling\fR, and \fBNonterminal Execution\fR\&.
 .TP
 \fILocation Stack\fR (LS)
 A stack of locations in the \fIinput\fR, saved for possible
-backtracking.
+backtracking\&.
 .sp
 This part of the machine's state is used and modified by the
 instructions defined in the sections \fBCharacter Processing\fR,
-\fBLocation Handling\fR, and \fBNonterminal Execution\fR.
+\fBLocation Handling\fR, and \fBNonterminal Execution\fR\&.
 .TP
 \fIStatus\fR (ST)
 The status of the last attempt of testing the \fIinput\fR, indicating
-either success or failure.
+either success or failure\&.
 .sp
 This part of the machine's state is used and modified by the
 instructions defined in the sections \fBStatus Control\fR,
-\fBCharacter Processing\fR, and \fBNonterminal Execution\fR.
+\fBCharacter Processing\fR, and \fBNonterminal Execution\fR\&.
 .TP
 \fISemantic Value\fR (SV)
 The current semantic value, either empty, or a node for AST
-constructed from the input.
+constructed from the input\&.
 .sp
 This part of the machine's state is used and modified by the
 instructions defined in the sections \fBValue Construction\fR, and
-\fBAST Construction\fR.
+\fBAST Construction\fR\&.
 .TP
 \fIAST Reduction Stack\fR (ARS)
 The stack of partial ASTs constructed during the processing of
-nonterminal symbols.
+nonterminal symbols\&.
 .sp
 This part of the machine's state is used and modified by the
 instructions defined in the sections \fBValue Construction\fR, and
-\fBAST Construction\fR.
+\fBAST Construction\fR\&.
 .TP
 \fIAST Stack\fR (AS)
-The stack of reduction stacks, saved for possible backtracking.
+The stack of reduction stacks, saved for possible backtracking\&.
 .sp
 This part of the machine's state is used and modified by the
 instructions defined in the sections \fBValue Construction\fR, and
-\fBAST Construction\fR.
+\fBAST Construction\fR\&.
 .TP
 \fIError Status\fR (ER)
-The machine's current knowledge of errors. This is either empty, or
+The machine's current knowledge of errors\&. This is either empty, or
 set to a pair of location in the input and the set of messages for
-that location.
+that location\&.
 .sp
 \fINote\fR that this part of the machine's state can be set even if
-the last test of the \fIcurrent character\fR was successful. For
+the last test of the \fIcurrent character\fR was successful\&. For
 example, the *-operator (matching a sub-expression zero or more times)
 in a PEG is always successful, even if it encounters a problem further
-in the input and has to backtrack. Such problems must not be forgotten
-when continuing the parsing.
+in the input and has to backtrack\&. Such problems must not be forgotten
+when continuing the parsing\&.
 .sp
 This part of the machine's state is used and modified by the
 instructions defined in the sections \fBError Handling\fR,
-\fBCharacter Processing\fR, and \fBNonterminal Execution\fR.
+\fBCharacter Processing\fR, and \fBNonterminal Execution\fR\&.
 .TP
 \fIError Stack\fR (ES)
-The stack of error stati, saved for backtracking. This enables the
+The stack of error stati, saved for backtracking\&. This enables the
 machine to merge current and older error stati when performing
-backtracking in choices after an failed match.
+backtracking in choices after an failed match\&.
 .sp
 This part of the machine's state is used and modified by the
 instructions defined in the sections \fBError Handling\fR,
-\fBCharacter Processing\fR, and \fBNonterminal Execution\fR.
+\fBCharacter Processing\fR, and \fBNonterminal Execution\fR\&.
 .TP
 \fINonterminal Cache\fR (NC)
 A cache of machine states keyed by pairs name of nonterminal symbol
-and location in the input. Each pair (N, L) is associated with a
+and location in the input\&. Each pair (N, L) is associated with a
 4-tuple holding the values to use for CL, ST, SV, and ER after the
-nonterminal N was parsed starting from the location L.
+nonterminal N was parsed starting from the location L\&.
 It is a performance aid for backtracking parsers, allowing them to
 avoid an expensive reparsing of complex nonterminal symbols if they
-have been encountered before at a given location.
+have been encountered before at a given location\&.
 .sp
 The key location is where machine started the attempt to match the
 named nonterminal symbol, and the location in the saved 4-tuple is
 where machine ended up after the attempt completed, independent of the
-success of the attempt.
+success of the attempt\&.
 .sp
 This part of the machine's state is used and modified by the
-instructions defined in the section \fBNonterminal Execution\fR.
+instructions defined in the section \fBNonterminal Execution\fR\&.
 .TP
 \fITerminal Cache\fR (TC)
 A cache of characters read from IN, with their location in IN as pair
 of line and column, keyed by the location in IN, this time as
-character offset from the beginning of IN.
+character offset from the beginning of IN\&.
 It is a performance aid for backtracking parsers, allowing them to
 avoid a possibly expensive rereading of characters from IN, or even
-enabling backtracking at, i.e. in the case of IN not randomly
-seekable.
+enabling backtracking at, i\&.e\&. in the case of IN not randomly
+seekable\&.
 .sp
 This part of the machine's state is used and modified by the
-instructions defined in the section \fBInput Handling\fR.
+instructions defined in the section \fBInput Handling\fR\&.
 .PP
 .SH "INSTRUCTION SET"
 With the machine's architectural state specified it is now possible to
 specify the instruction set operating on that state and to be
-implemented by any realization of the PARAM. The 37 instructions are
+implemented by any realization of the PARAM\&. The 37 instructions are
 grouped roughly by the state they influence and/or query during their
-execution.
+execution\&.
 .SS "INPUT HANDLING"
 The instructions in this section mainly access IN, pulling the
-characters to process into the machine.
+characters to process into the machine\&.
 .TP
 \fBinput_next\fR \fImsg\fR
-This method reads the next character, i.e. the character after CL,
-from IN. If successful this character becomes CC, CL is advanced by
-one, ES is cleared, and the operation is recorded as a success in ST.
+This method reads the next character, i\&.e\&. the character after CL,
+from IN\&. If successful this character becomes CC, CL is advanced by
+one, ES is cleared, and the operation is recorded as a success in ST\&.
 .sp
 The operation may read the character from IN if the next character
-is not yet known to TC. If successful the new character is stored in
+is not yet known to TC\&. If successful the new character is stored in
 TC, with its location (line, column), and the operation otherwise
-behaves as specified above. Future reads from the same location,
+behaves as specified above\&. Future reads from the same location,
 possible due to backtracking, will then be satisfied from TC instead
-of IN.
+of IN\&.
 .sp
 If, on the other hand, the end of IN was reached, the operation is
 recorded as failed in ST, CL is left unchanged, and the pair of CL and
-\fImsg\fR becomes the new ES.
+\fImsg\fR becomes the new ES\&.
 .PP
 .SS "CHARACTER PROCESSING"
 The instructions in this section mainly access CC, testing it against
-character classes, ranges, and individual characters.
+character classes, ranges, and individual characters\&.
 .TP
 \fBtest_alnum\fR
 This instruction implements the special PE operator "alnum", which
-checks if CC falls into the character class of the same name, or not.
+checks if CC falls into the character class of the same name, or not\&.
 .sp
-Success and failure of the test are both recorded directly in ST.
+Success and failure of the test are both recorded directly in ST\&.
 Success further clears ES, wheras failure sets the pair of CL and
 expected input (encoded as a leaf parsing expression) as the new ES
 and then rewinds CL by one character, preparing the machine for
-another parse attempt by a possible alternative.
+another parse attempt by a possible alternative\&.
 .TP
 \fBtest_alpha\fR
 This instruction implements the special PE operator "alpha", which
-checks if CC falls into the character class of the same name, or not.
+checks if CC falls into the character class of the same name, or not\&.
 .sp
-Success and failure of the test are both recorded directly in ST.
+Success and failure of the test are both recorded directly in ST\&.
 Success further clears ES, wheras failure sets the pair of CL and
 expected input (encoded as a leaf parsing expression) as the new ES
 and then rewinds CL by one character, preparing the machine for
-another parse attempt by a possible alternative.
+another parse attempt by a possible alternative\&.
 .TP
 \fBtest_ascii\fR
 This instruction implements the special PE operator "ascii", which
-checks if CC falls into the character class of the same name, or not.
+checks if CC falls into the character class of the same name, or not\&.
 .sp
-Success and failure of the test are both recorded directly in ST.
+Success and failure of the test are both recorded directly in ST\&.
 Success further clears ES, wheras failure sets the pair of CL and
 expected input (encoded as a leaf parsing expression) as the new ES
 and then rewinds CL by one character, preparing the machine for
-another parse attempt by a possible alternative.
+another parse attempt by a possible alternative\&.
 .TP
 \fBtest_char\fR \fIchar\fR
-This instruction implements the character matching operator, i.e. it
-checks if CC is \fIchar\fR.
+This instruction implements the character matching operator, i\&.e\&. it
+checks if CC is \fIchar\fR\&.
 .sp
-Success and failure of the test are both recorded directly in ST.
+Success and failure of the test are both recorded directly in ST\&.
 Success further clears ES, wheras failure sets the pair of CL and
 expected input (encoded as a leaf parsing expression) as the new ES
 and then rewinds CL by one character, preparing the machine for
-another parse attempt by a possible alternative.
+another parse attempt by a possible alternative\&.
 .TP
 \fBtest_ddigit\fR
 This instruction implements the special PE operator "ddigit", which
-checks if CC falls into the character class of the same name, or not.
+checks if CC falls into the character class of the same name, or not\&.
 .sp
-Success and failure of the test are both recorded directly in ST.
+Success and failure of the test are both recorded directly in ST\&.
 Success further clears ES, wheras failure sets the pair of CL and
 expected input (encoded as a leaf parsing expression) as the new ES
 and then rewinds CL by one character, preparing the machine for
-another parse attempt by a possible alternative.
+another parse attempt by a possible alternative\&.
 .TP
 \fBtest_digit\fR
 This instruction implements the special PE operator "digit", which
-checks if CC falls into the character class of the same name, or not.
+checks if CC falls into the character class of the same name, or not\&.
 .sp
-Success and failure of the test are both recorded directly in ST.
+Success and failure of the test are both recorded directly in ST\&.
 Success further clears ES, wheras failure sets the pair of CL and
 expected input (encoded as a leaf parsing expression) as the new ES
 and then rewinds CL by one character, preparing the machine for
-another parse attempt by a possible alternative.
+another parse attempt by a possible alternative\&.
 .TP
 \fBtest_graph\fR
 This instruction implements the special PE operator "graph", which
-checks if CC falls into the character class of the same name, or not.
+checks if CC falls into the character class of the same name, or not\&.
 .sp
-Success and failure of the test are both recorded directly in ST.
+Success and failure of the test are both recorded directly in ST\&.
 Success further clears ES, wheras failure sets the pair of CL and
 expected input (encoded as a leaf parsing expression) as the new ES
 and then rewinds CL by one character, preparing the machine for
-another parse attempt by a possible alternative.
+another parse attempt by a possible alternative\&.
 .TP
 \fBtest_lower\fR
 This instruction implements the special PE operator "lower", which
-checks if CC falls into the character class of the same name, or not.
+checks if CC falls into the character class of the same name, or not\&.
 .sp
-Success and failure of the test are both recorded directly in ST.
+Success and failure of the test are both recorded directly in ST\&.
 Success further clears ES, wheras failure sets the pair of CL and
 expected input (encoded as a leaf parsing expression) as the new ES
 and then rewinds CL by one character, preparing the machine for
-another parse attempt by a possible alternative.
+another parse attempt by a possible alternative\&.
 .TP
 \fBtest_print\fR
 This instruction implements the special PE operator "print", which
-checks if CC falls into the character class of the same name, or not.
+checks if CC falls into the character class of the same name, or not\&.
 .sp
-Success and failure of the test are both recorded directly in ST.
+Success and failure of the test are both recorded directly in ST\&.
 Success further clears ES, wheras failure sets the pair of CL and
 expected input (encoded as a leaf parsing expression) as the new ES
 and then rewinds CL by one character, preparing the machine for
-another parse attempt by a possible alternative.
+another parse attempt by a possible alternative\&.
 .TP
 \fBtest_punct\fR
 This instruction implements the special PE operator "punct", which
-checks if CC falls into the character class of the same name, or not.
+checks if CC falls into the character class of the same name, or not\&.
 .sp
-Success and failure of the test are both recorded directly in ST.
+Success and failure of the test are both recorded directly in ST\&.
 Success further clears ES, wheras failure sets the pair of CL and
 expected input (encoded as a leaf parsing expression) as the new ES
 and then rewinds CL by one character, preparing the machine for
-another parse attempt by a possible alternative.
+another parse attempt by a possible alternative\&.
 .TP
 \fBtest_range\fR \fIchars\fR \fIchare\fR
-This instruction implements the range matching operator, i.e. it
+This instruction implements the range matching operator, i\&.e\&. it
 checks if CC falls into the interval of characters spanned up by the
-two characters from \fIchars\fR to \fIchare\fR, both inclusive.
+two characters from \fIchars\fR to \fIchare\fR, both inclusive\&.
 .sp
-Success and failure of the test are both recorded directly in ST.
+Success and failure of the test are both recorded directly in ST\&.
 Success further clears ES, wheras failure sets the pair of CL and
 expected input (encoded as a leaf parsing expression) as the new ES
 and then rewinds CL by one character, preparing the machine for
-another parse attempt by a possible alternative.
+another parse attempt by a possible alternative\&.
 .TP
 \fBtest_space\fR
 This instruction implements the special PE operator "space", which
-checks if CC falls into the character class of the same name, or not.
+checks if CC falls into the character class of the same name, or not\&.
 .sp
-Success and failure of the test are both recorded directly in ST.
+Success and failure of the test are both recorded directly in ST\&.
 Success further clears ES, wheras failure sets the pair of CL and
 expected input (encoded as a leaf parsing expression) as the new ES
 and then rewinds CL by one character, preparing the machine for
-another parse attempt by a possible alternative.
+another parse attempt by a possible alternative\&.
 .TP
 \fBtest_upper\fR
 This instruction implements the special PE operator "upper", which
-checks if CC falls into the character class of the same name, or not.
+checks if CC falls into the character class of the same name, or not\&.
 .sp
-Success and failure of the test are both recorded directly in ST.
+Success and failure of the test are both recorded directly in ST\&.
 Success further clears ES, wheras failure sets the pair of CL and
 expected input (encoded as a leaf parsing expression) as the new ES
 and then rewinds CL by one character, preparing the machine for
-another parse attempt by a possible alternative.
+another parse attempt by a possible alternative\&.
 .TP
 \fBtest_wordchar\fR
 This instruction implements the special PE operator "wordchar", which
-checks if CC falls into the character class of the same name, or not.
+checks if CC falls into the character class of the same name, or not\&.
 .sp
-Success and failure of the test are both recorded directly in ST.
+Success and failure of the test are both recorded directly in ST\&.
 Success further clears ES, wheras failure sets the pair of CL and
 expected input (encoded as a leaf parsing expression) as the new ES
 and then rewinds CL by one character, preparing the machine for
-another parse attempt by a possible alternative.
+another parse attempt by a possible alternative\&.
 .TP
 \fBtest_xdigit\fR
 This instruction implements the special PE operator "xdigit", which
-checks if CC falls into the character class of the same name, or not.
+checks if CC falls into the character class of the same name, or not\&.
 .sp
-Success and failure of the test are both recorded directly in ST.
+Success and failure of the test are both recorded directly in ST\&.
 Success further clears ES, wheras failure sets the pair of CL and
 expected input (encoded as a leaf parsing expression) as the new ES
 and then rewinds CL by one character, preparing the machine for
-another parse attempt by a possible alternative.
+another parse attempt by a possible alternative\&.
 .PP
 .SS "ERROR HANDLING"
-The instructions in this section mainly access ER and ES.
+The instructions in this section mainly access ER and ES\&.
 .TP
 \fBerror_clear\fR
-This instruction clears ER.
+This instruction clears ER\&.
 .TP
 \fBerror_push\fR
-This instruction makes a copy of ER and pushes it on ES.
+This instruction makes a copy of ER and pushes it on ES\&.
 .TP
 \fBerror_pop_merge\fR
 This instruction takes the topmost entry of ES and merges the error
-status it contains with ES, making the result the new ES.
+status it contains with ES, making the result the new ES\&.
 .sp
 The merge is governed by four rules, with the merge result
 .RS
 .IP [1]
-Empty if both states are empty.
+Empty if both states are empty\&.
 .IP [2]
-The non-empty state if only one of the two states is non-empty.
+The non-empty state if only one of the two states is non-empty\&.
 .IP [3]
 The state with the larger location, if the two states specify
-different locations.
+different locations\&.
 .IP [4]
 The pair of the location shared by the two states, and the set-union
-of their messages for states at the same location.
+of their messages for states at the same location\&.
 .RE
 .TP
 \fBerror_nonterminal\fR \fIsymbol\fR
-This is a guarded instruction. It does nothing if either ES is empty,
+This is a guarded instruction\&. It does nothing if either ES is empty,
 or if the location in ES is not just past the last location saved in
-LS. Otherwise it sets the pair of that location and the nonterminal
-\fIsymbol\fR as the new ES.
+LS\&. Otherwise it sets the pair of that location and the nonterminal
+\fIsymbol\fR as the new ES\&.
 .sp
 \fINote\fR: In the above "just past" means "that location plus one",
-or also "the location of the next character after that location".
+or also "the location of the next character after that location"\&.
 .PP
 .SS "STATUS CONTROL"
-The instructions in this section directly manipulate ST.
+The instructions in this section directly manipulate ST\&.
 .TP
 \fBstatus_ok\fR
-This instruction sets ST to \fBtrue\fR, recording a success.
+This instruction sets ST to \fBtrue\fR, recording a success\&.
 .TP
 \fBstatus_fail\fR
-This instruction sets ST to \fBfalse\fR, recording a failure.
+This instruction sets ST to \fBfalse\fR, recording a failure\&.
 .TP
 \fBstatus_negate\fR
 This instruction negates ST, turning a failure into a success and vice
-versa.
+versa\&.
 .PP
 .SS "LOCATION HANDLING"
-The instructions in this section access CL and LS.
+The instructions in this section access CL and LS\&.
 .TP
 \fBloc_push\fR
-This instruction makes a copy of CL and pushes it on LS.
+This instruction makes a copy of CL and pushes it on LS\&.
 .TP
 \fBloc_pop_discard\fR
-This instructions pops the last saved location from LS.
+This instructions pops the last saved location from LS\&.
 .TP
 \fBloc_pop_rewind\fR
 This instruction pops the last saved location from LS and restores it
-as CL.
+as CL\&.
 .PP
 .SS "NONTERMINAL EXECUTION"
-The instructions in this section access and manipulate NC.
+The instructions in this section access and manipulate NC\&.
 .TP
 \fBsymbol_restore\fR \fIsymbol\fR
 This instruction checks if NC contains data for the nonterminal
-\fIsymbol\fR at CL, or not. The result of the instruction is a boolean
+\fIsymbol\fR at CL, or not\&. The result of the instruction is a boolean
 flag, with \fBTrue\fR indicating that data was found in the
-cache. In that case the instruction has further updated the
+cache\&. In that case the instruction has further updated the
 architectural state of the machine with the cached information, namely
-CL, ST, ER, and SV.
+CL, ST, ER, and SV\&.
 .sp
 The method with which the instruction's result is transformed into
 control flow is left undefined and the responsibility of the
-implementation.
+implementation\&.
 .TP
 \fBsymbol_save\fR \fIsymbol\fR
 This instructions saves the current settings of CL, ST, ER, and SV in
 NC, using the pair of nonterminal \fIsymbol\fR and the last location
-saved in LS as key.
+saved in LS as key\&.
 .PP
 .SS "VALUE CONSTRUCTION"
-The instructions in this section manipulate SV.
+The instructions in this section manipulate SV\&.
 .TP
 \fBvalue_clear\fR
-This instruction clears SV.
+This instruction clears SV\&.
 .TP
 \fBvalue_leaf\fR \fIsymbol\fR
 This instruction constructs an AST node for \fIsymbol\fR covering the
 range of IN from one character after the last location saved on LS to
-CL and stores it in SV. ...
+CL and stores it in SV\&. \&.\&.\&.
 .TP
 \fBvalue_reduce\fR \fIsymbol\fR
 This instruction generally behaves like \fBvalue_nonterminal_leaf\fR,
 except that it takes all AST nodes on ARS, if any, and makes them the
 children of the new node, with the last node saved on ARS becoming the
-right-most / last child. Note that ARS is not modfied by this
-operation.
+right-most / last child\&. Note that ARS is not modfied by this
+operation\&.
 .PP
 .SS "AST CONSTRUCTION"
-The instructions in this section manipulate ARS and AS.
+The instructions in this section manipulate ARS and AS\&.
 .TP
 \fBast_value_push\fR
-This instruction makes a copy of SV and pushes it on ARS.
+This instruction makes a copy of SV and pushes it on ARS\&.
 .TP
 \fBast_push\fR
 This instruction pushes the current state of ARS on AS and then clears
-ARS.
+ARS\&.
 .TP
 \fBast_pop_rewind\fR
 This instruction pops the last entry saved on AS and restores it as
-the new state of ARS.
+the new state of ARS\&.
 .TP
 \fBast_pop_discard\fR
-This instruction pops the last entry saved on AS.
+This instruction pops the last entry saved on AS\&.
 .PP
 .SS "CONTROL FLOW"
 Normally this section would contain the specifications of the control
-flow instructions of the PARAM, i.e. (un)conditional jumps and the
-like. However, this part of the PARAM is intentionally left
-unspecified. This allows the implementations to freely choose how to
-implement control flow.
+flow instructions of the PARAM, i\&.e\&. (un)conditional jumps and the
+like\&. However, this part of the PARAM is intentionally left
+unspecified\&. This allows the implementations to freely choose how to
+implement control flow\&.
 .PP
-The implementation of this machine in Parser Tools, i.e the package
+The implementation of this machine in Parser Tools, i\&.e the package
 \fBpt::rde\fR, is not only coded in Tcl, but also relies on Tcl
-commands to provide it with control flow (instructions).
+commands to provide it with control flow (instructions)\&.
 .SH "INTERACTION OF THE INSTRUCTIONS WITH THE ARCHITECTURAL STATE"
 .CS
+
+
 Instruction		Inputs				Outputs
 ======================= =======================		====================
 ast_pop_discard		AS			->	AS
@@ -734,19 +737,21 @@ value_clear		-			->	SV
 value_leaf symbol	LS, CL			->	SV
 value_reduce symbol	ARS, LS, CL		->	SV
 ======================= =======================		====================
+
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIpt\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 EBNF, LL(k), PEG, TDPL, context-free languages, expression, grammar, matching, parser, parsing expression, parsing expression grammar, push down automaton, recursive descent, state, top-down parsing languages, transducer, virtual machine
 .SH CATEGORY
 Parsing and Grammars
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

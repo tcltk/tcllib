@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/virtchannel_transform/otp.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/virtchannel_transform/otp\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -242,7 +243,7 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 tcl::transform::otp \- Encryption via one-time pad
 .SH SYNOPSIS
-package require \fBTcl  8.6\fR
+package require \fBTcl  8\&.6\fR
 .sp
 package require \fBtcl::transform::core  ?1?\fR
 .sp
@@ -255,37 +256,38 @@ package require \fBtcl::transform::otp  ?1?\fR
 .PP
 The \fBtcl::transform::otp\fR package provides a command creating
 a channel transformation which uses externally provided one-time pads
-to perform encryption (on writing) and decryption (on reading).
+to perform encryption (on writing) and decryption (on reading)\&.
 .PP
 A related transformations in this module is
-\fBtcl::transform::rot\fR.
+\fBtcl::transform::rot\fR\&.
 .PP
 The internal \fBTclOO\fR class implementing the transform
 handler is a sub-class of the \fBtcl::transform::core\fR
-framework.
+framework\&.
 .SH API
 .TP
 \fB::tcl::transform::otp\fR \fIchan\fR \fIkeychanw\fR \fIkeychanr\fR
 This command creates a one-time pad based encryption transformation on
-top of the channel \fIchan\fR and returns its handle.
+top of the channel \fIchan\fR and returns its handle\&.
 .sp
 The two channels \fIkeychanw\fR and \fIkeychanr\fR contain the
-one-time pads for the write and read directions, respectively. Their
+one-time pads for the write and read directions, respectively\&. Their
 contents are reads and xored with the bytes written to and read from
-the channel.
+the channel\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIvirtchannel\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 channel transformation, cipher, decryption, encryption, one time pad, otp, reflected channel, tip 230, transformation, virtual channel, xor
 .SH CATEGORY
 Channels
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/doctools2toc/export_nroff.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/doctools2toc/export_nroff\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "doctools::toc::export::nroff" n 0.2 tcllib "Documentation tools"
+.TH "doctools::toc::export::nroff" n 0\&.2 tcllib "Documentation tools"
 .BS
 .SH NAME
 doctools::toc::export::nroff \- nroff export plugin
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBdoctools::toc::export::nroff  ?0.2?\fR
+package require \fBdoctools::toc::export::nroff  ?0\&.2?\fR
 .sp
 package require \fBdoctools::text \fR
 .sp
@@ -255,145 +256,145 @@ package require \fBdoctools::nroff::man_macros \fR
 .BE
 .SH DESCRIPTION
 This package implements the doctools table of contents export plugin
-for the generation of nroff markup.
+for the generation of nroff markup\&.
 .PP
 This is an internal package of doctools, for use by the higher level
-management packages handling tables of contents, especially \fBdoctools::toc::export\fR, the export manager.
+management packages handling tables of contents, especially \fBdoctools::toc::export\fR, the export manager\&.
 .PP
 Using it from a regular interpreter is possible, however only with
-contortions, and is not recommended.
+contortions, and is not recommended\&.
 The proper way to use this functionality is through the package
 \fBdoctools::toc::export\fR and the export manager objects it
-provides.
+provides\&.
 .SH API
 The API provided by this package satisfies the specification of the
-doctoc export plugin API version 2.
+doctoc export plugin API version 2\&.
 .TP
 \fBexport\fR \fIserial\fR \fIconfiguration\fR
 This command takes the canonical serialization of a table of contents,
 as specified in section \fBToC serialization format\fR, and
 contained in \fIserial\fR, the \fIconfiguration\fR, a dictionary, and
-generates nroff markup encoding the table.
-The created string is then returned as the result of the command.
+generates nroff markup encoding the table\&.
+The created string is then returned as the result of the command\&.
 .PP
 .SH CONFIGURATION
 The nroff export plugin recognizes the following configuration
-variables and changes its behaviour as they specify.
+variables and changes its behaviour as they specify\&.
 .TP
 string \fIuser\fR
 This standard configuration variable contains the name of the user
-running the process which invoked the export plugin.
+running the process which invoked the export plugin\&.
 The plugin puts this information into the provenance comment at the
-beginning of the generated document.
+beginning of the generated document\&.
 .TP
 string \fIfile\fR
 This standard configuration variable contains the name of the file the
-table of contents came from. This variable may not be set or contain
-the empty string.
-The plugin puts this information, if defined, i.e. set and not the
+table of contents came from\&. This variable may not be set or contain
+the empty string\&.
+The plugin puts this information, if defined, i\&.e\&. set and not the
 empty string, into the provenance comment at the beginning of the
-generated document.
+generated document\&.
 .TP
 boolean \fIinline\fR
 If this flag is set (default) the plugin will place the definitions of
-the man macro set directly into the output.
+the man macro set directly into the output\&.
 .sp
 If this flag is not set, the plugin will place a reference to the
 definitions of the man macro set into the output, but not the macro
-definitions themselves.
+definitions themselves\&.
 .PP
 \fINote\fR that this plugin ignores the standard configuration
-variables \fBformat\fR, and \fBmap\fR, and their values.
+variables \fBformat\fR, and \fBmap\fR, and their values\&.
 .SH "TOC SERIALIZATION FORMAT"
 Here we specify the format used by the doctools v2 packages to
 serialize tables of contents as immutable values for transport,
-comparison, etc.
+comparison, etc\&.
 .PP
 We distinguish between \fIregular\fR and \fIcanonical\fR
-serializations.
+serializations\&.
 While a table of contents may have more than one regular serialization
-only exactly one of them will be \fIcanonical\fR.
+only exactly one of them will be \fIcanonical\fR\&.
 .PP
 .TP
 regular serialization
 .RS
 .IP [1]
-The serialization of any table of contents is a nested Tcl dictionary.
+The serialization of any table of contents is a nested Tcl dictionary\&.
 .IP [2]
 This dictionary holds a single key, \fBdoctools::toc\fR, and its
-value. This value holds the contents of the table of contents.
+value\&. This value holds the contents of the table of contents\&.
 .IP [3]
 The contents of the table of contents are a Tcl dictionary holding the
-title of the table of contents, a label, and its elements. The
+title of the table of contents, a label, and its elements\&. The
 relevant keys and their values are
 .RS
 .TP
 \fBtitle\fR
-The value is a string containing the title of the table of contents.
+The value is a string containing the title of the table of contents\&.
 .TP
 \fBlabel\fR
-The value is a string containing a label for the table of contents.
+The value is a string containing a label for the table of contents\&.
 .TP
 \fBitems\fR
 The value is a Tcl list holding the elements of the table, in the
-order they are to be shown.
+order they are to be shown\&.
 .sp
 Each element is a Tcl list holding the type of the item, and its
-description, in this order. An alternative description would be that
+description, in this order\&. An alternative description would be that
 it is a Tcl dictionary holding a single key, the item type, mapped to
-the item description.
+the item description\&.
 .sp
 The two legal item types and their descriptions are
 .RS
 .TP
 \fBreference\fR
 This item describes a single entry in the table of contents,
-referencing a single document.
+referencing a single document\&.
 To this end its value is a Tcl dictionary containing an id for the
 referenced document, a label, and a longer textual description which
-can be associated with the entry.
+can be associated with the entry\&.
 The relevant keys and their values are
 .RS
 .TP
 \fBid\fR
 The value is a string containing the id of the document associated
-with the entry.
+with the entry\&.
 .TP
 \fBlabel\fR
-The value is a string containing a label for this entry. This string
+The value is a string containing a label for this entry\&. This string
 also identifies the entry, and no two entries (references and
-divisions) in the containing list are allowed to have the same label.
+divisions) in the containing list are allowed to have the same label\&.
 .TP
 \fBdesc\fR
-The value is a string containing a longer description for this entry.
+The value is a string containing a longer description for this entry\&.
 .RE
 .TP
 \fBdivision\fR
 This item describes a group of entries in the table of contents,
-inducing a hierarchy of entries.
+inducing a hierarchy of entries\&.
 To this end its value is a Tcl dictionary containing a label for the
 group, an optional id to a document for the whole group, and the list
-of entries in the group.
+of entries in the group\&.
 The relevant keys and their values are
 .RS
 .TP
 \fBid\fR
 The value is a string containing the id of the document associated
-with the whole group. This key is optional.
+with the whole group\&. This key is optional\&.
 .TP
 \fBlabel\fR
-The value is a string containing a label for the group. This string
+The value is a string containing a label for the group\&. This string
 also identifies the entry, and no two entries (references and
-divisions) in the containing list are allowed to have the same label.
+divisions) in the containing list are allowed to have the same label\&.
 .TP
 \fBitems\fR
 The value is a Tcl list holding the elements of the group, in the
-order they are to be shown.
+order they are to be shown\&.
 This list has the same structure as the value for the keyword
 \fBitems\fR used to describe the whole table of contents, see
-above. This closes the recusrive definition of the structure, with
+above\&. This closes the recusrive definition of the structure, with
 divisions holding the same type of elements as the whole table of
-contents, including other divisions.
+contents, including other divisions\&.
 .RE
 .RE
 .RE
@@ -403,26 +404,27 @@ canonical serialization
 The canonical serialization of a table of contents has the format as
 specified in the previous item, and then additionally satisfies the
 constraints below, which make it unique among all the possible
-serializations of this table of contents.
+serializations of this table of contents\&.
 .RS
 .IP [1]
 The keys found in all the nested Tcl dictionaries are sorted in
 ascending dictionary order, as generated by Tcl's builtin command
-\fBlsort -increasing -dict\fR.
+\fBlsort -increasing -dict\fR\&.
 .RE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 doctools, export, nroff, serialization, table of contents, toc
 .SH CATEGORY
 Text formatter plugin
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

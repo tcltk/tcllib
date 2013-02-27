@@ -1,7 +1,7 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/math/interpolate.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2004 Arjen Markus <arjenmarkus@users.sourceforge.net>
-'\" Copyright (c) 2004 Kevn B. Kenny <kennykb@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/interpolate\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2004 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
+'\" Copyright (c) 2004 Kevn B\&. Kenny <kennykb@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -223,6 +223,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -238,16 +239,16 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "math::interpolate" n 1.0.2 tcllib "Tcl Math Library"
+.TH "math::interpolate" n 1\&.0\&.2 tcllib "Tcl Math Library"
 .BS
 .SH NAME
 math::interpolate \- Interpolation routines
 .SH SYNOPSIS
-package require \fBTcl  ?8.4?\fR
+package require \fBTcl  ?8\&.4?\fR
 .sp
 package require \fBstruct \fR
 .sp
-package require \fBmath::interpolate  ?1.0.2?\fR
+package require \fBmath::interpolate  ?1\&.0\&.2?\fR
 .sp
 \fB::math::interpolate::defineTable\fR \fIname\fR \fIcolnames\fR \fIvalues\fR
 .sp
@@ -275,33 +276,33 @@ package require \fBmath::interpolate  ?1.0.2?\fR
 This package implements several interpolation algorithms:
 .IP \(bu
 Interpolation into a table (one or two independent variables), this is useful
-for example, if the data are static, like with tables of statistical functions.
+for example, if the data are static, like with tables of statistical functions\&.
 .IP \(bu
-Linear interpolation into a given set of data (organised as (x,y) pairs).
+Linear interpolation into a given set of data (organised as (x,y) pairs)\&.
 .IP \(bu
-Lagrange interpolation. This is mainly of theoretical interest, because there is
-no guarantee about error bounds. One possible use: if you need a line or
+Lagrange interpolation\&. This is mainly of theoretical interest, because there is
+no guarantee about error bounds\&. One possible use: if you need a line or
 a parabola through given points (it will calculate the values, but not return
-the coefficients).
+the coefficients)\&.
 .sp
 A variation is Neville's method which has better behaviour and error
-bounds.
+bounds\&.
 .IP \(bu
-Spatial interpolation using a straightforward distance-weight method. This procedure
-allows any number of spatial dimensions and any number of dependent variables.
+Spatial interpolation using a straightforward distance-weight method\&. This procedure
+allows any number of spatial dimensions and any number of dependent variables\&.
 .IP \(bu
-Interpolation in one dimension using cubic splines.
+Interpolation in one dimension using cubic splines\&.
 .PP
 .PP
-This document describes the procedures and explains their usage.
+This document describes the procedures and explains their usage\&.
 .SH PROCEDURES
 The interpolation package defines the following public procedures:
 .TP
 \fB::math::interpolate::defineTable\fR \fIname\fR \fIcolnames\fR \fIvalues\fR
 Define a table with one or two independent variables (the distinction is implicit in
-the data). The procedure returns the name of the table - this name is used whenever you
-want to interpolate the values. \fINote:\fR this procedure is a convenient wrapper for the
-struct::matrix procedure. Therefore you can access the data at any location in your program.
+the data)\&. The procedure returns the name of the table - this name is used whenever you
+want to interpolate the values\&. \fINote:\fR this procedure is a convenient wrapper for the
+struct::matrix procedure\&. Therefore you can access the data at any location in your program\&.
 .RS
 .TP
 string \fIname\fR (in)
@@ -312,16 +313,16 @@ List of column names
 .TP
 list \fIvalues\fR (in)
 List of values (the number of elements should be a
-multiple of the number of columns. See \fBEXAMPLES\fR for more information on the
-interpretation of the data.
+multiple of the number of columns\&. See \fBEXAMPLES\fR for more information on the
+interpretation of the data\&.
 .sp
-The values must be sorted with respect to the independent variable(s).
+The values must be sorted with respect to the independent variable(s)\&.
 .RE
 .sp
 .TP
 \fB::math::interpolate::interp-1d-table\fR \fIname\fR \fIxval\fR
 Interpolate into the one-dimensional table "name" and return a list of values, one for
-each dependent column.
+each dependent column\&.
 .RS
 .TP
 string \fIname\fR (in)
@@ -333,7 +334,7 @@ Value of the independent \fIrow\fR variable
 .sp
 .TP
 \fB::math::interpolate::interp-table\fR \fIname\fR \fIxval\fR \fIyval\fR
-Interpolate into the two-dimensional table "name" and return the interpolated value.
+Interpolate into the two-dimensional table "name" and return the interpolated value\&.
 .RS
 .TP
 string \fIname\fR (in)
@@ -348,22 +349,22 @@ Value of the independent \fIcolumn\fR variable
 .sp
 .TP
 \fB::math::interpolate::interp-linear\fR \fIxyvalues\fR \fIxval\fR
-Interpolate linearly into the list of x,y pairs and return the interpolated value.
+Interpolate linearly into the list of x,y pairs and return the interpolated value\&.
 .RS
 .TP
 list \fIxyvalues\fR (in)
-List of pairs of (x,y) values, sorted to increasing x.
-They are used as the breakpoints of a piecewise linear function.
+List of pairs of (x,y) values, sorted to increasing x\&.
+They are used as the breakpoints of a piecewise linear function\&.
 .TP
 float \fIxval\fR (in)
 Value of the independent variable for which the value of y
-must be computed.
+must be computed\&.
 .RE
 .sp
 .TP
 \fB::math::interpolate::interp-lagrange\fR \fIxyvalues\fR \fIxval\fR
 Use the list of x,y pairs to construct the unique polynomial of lowest degree
-that passes through all points and return the interpolated value.
+that passes through all points and return the interpolated value\&.
 .RS
 .TP
 list \fIxyvalues\fR (in)
@@ -371,29 +372,29 @@ List of pairs of (x,y) values
 .TP
 float \fIxval\fR (in)
 Value of the independent variable for which the value of y
-must be computed.
+must be computed\&.
 .RE
 .sp
 .TP
 \fB::math::interpolate::prepare-cubic-splines\fR \fIxcoord\fR \fIycoord\fR
 Returns a list of coefficients for the second routine
-\fIinterp-cubic-splines\fR to actually interpolate.
+\fIinterp-cubic-splines\fR to actually interpolate\&.
 .RS
 .TP
 list \fIxcoord\fR
 List of x-coordinates for the value of the
-function to be interpolated is known. The coordinates must be strictly
-ascending. At least three points are required.
+function to be interpolated is known\&. The coordinates must be strictly
+ascending\&. At least three points are required\&.
 .TP
 list \fIycoord\fR
 List of y-coordinates (the values of the
-function at the given x-coordinates).
+function at the given x-coordinates)\&.
 .RE
 .sp
 .TP
 \fB::math::interpolate::interp-cubic-splines\fR \fIcoeffs\fR \fIx\fR
-Returns the interpolated value at coordinate x. The coefficients are
-computed by the procedure \fIprepare-cubic-splines\fR.
+Returns the interpolated value at coordinate x\&. The coefficients are
+computed by the procedure \fIprepare-cubic-splines\fR\&.
 .RS
 .TP
 list \fIcoeffs\fR
@@ -401,8 +402,8 @@ List of coefficients as returned by
 prepare-cubic-splines
 .TP
 float \fIx\fR
-x-coordinate at which to estimate the function. Must
-be between the first and last x-coordinate for which values were given.
+x-coordinate at which to estimate the function\&. Must
+be between the first and last x-coordinate for which values were given\&.
 .RE
 .sp
 .TP
@@ -412,21 +413,24 @@ inverse distance to interpolate in 2D and N-dimensional space
 .sp
 The list xyvalues is a list of lists:
 .CS
-{   {x1 y1 z1 {v11 v12 v13 v14}}
-{x2 y2 z2 {v21 v22 v23 v24}}
-\...
-}
+
+
+    {   {x1 y1 z1 {v11 v12 v13 v14}}
+	{x2 y2 z2 {v21 v22 v23 v24}}
+	\&.\&.\&.
+    }
+
 .CE
 .IP
-The last element of each inner list is either a single number or a list in itself.
-In the latter case the return value is a list with the same number of elements.
+The last element of each inner list is either a single number or a list in itself\&.
+In the latter case the return value is a list with the same number of elements\&.
 .sp
 The method is influenced by the search radius and the power of the inverse distance
 .RS
 .TP
 list \fIxyvalues\fR (in)
 List of lists, each sublist being a list of coordinates and
-of dependent values.
+of dependent values\&.
 .TP
 list \fIcoord\fR (in)
 List of coordinates for which the values must be calculated
@@ -448,13 +452,13 @@ Power for the distance (either 1 or 2; defaults to 2)
 Interpolates between the tabulated values of a function
 whose abscissae are \fIxlist\fR
 and whose ordinates are \fIylist\fR to produce an estimate for the value
-of the function at \fIx\fR.  The result is a two-element list; the first
+of the function at \fIx\fR\&.  The result is a two-element list; the first
 element is the function's estimated value, and the second is an estimate
-of the absolute error of the result.  Neville's algorithm for polynomial
-interpolation is used.  Note that a large table of values will use an
+of the absolute error of the result\&.  Neville's algorithm for polynomial
+interpolation is used\&.  Note that a large table of values will use an
 interpolating polynomial of high degree, which is likely to result in
 numerical instabilities; one is better off using only a few tabulated
-values near the desired abscissa.
+values near the desired abscissa\&.
 .PP
 .SH EXAMPLES
 \fITODO\fR
@@ -462,47 +466,57 @@ Example of using the cubic splines:
 .PP
 Suppose the following values are given:
 .CS
-x       y
-0.1     1.0
-0.3     2.1
-0.4     2.2
-0.8     4.11
-1.0     4.12
+
+
+    x       y
+  0\&.1     1\&.0
+  0\&.3     2\&.1
+  0\&.4     2\&.2
+  0\&.8     4\&.11
+  1\&.0     4\&.12
+
 .CE
-Then to estimate the values at 0.1, 0.2, 0.3, ... 1.0, you can use:
+Then to estimate the values at 0\&.1, 0\&.2, 0\&.3, \&.\&.\&. 1\&.0, you can use:
 .CS
-set coeffs [::math::interpolate::prepare-cubic-splines  {0.1 0.3 0.4 0.8  1.0}  {1.0 2.1 2.2 4.11 4.12}]
-foreach x {0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1.0} {
-puts "$x: [::math::interpolate::interp-cubic-splines $coeffs $x]"
-}
+
+
+   set coeffs [::math::interpolate::prepare-cubic-splines  {0\&.1 0\&.3 0\&.4 0\&.8  1\&.0}  {1\&.0 2\&.1 2\&.2 4\&.11 4\&.12}]
+   foreach x {0\&.1 0\&.2 0\&.3 0\&.4 0\&.5 0\&.6 0\&.7 0\&.8 0\&.9 1\&.0} {
+      puts "$x: [::math::interpolate::interp-cubic-splines $coeffs $x]"
+   }
+
 .CE
 to get the following output:
 .CS
-0.1: 1.0
-0.2: 1.68044117647
-0.3: 2.1
-0.4: 2.2
-0.5: 3.11221507353
-0.6: 4.25242647059
-0.7: 5.41804227941
-0.8: 4.11
-0.9: 3.95675857843
-1.0: 4.12
+
+
+0\&.1: 1\&.0
+0\&.2: 1\&.68044117647
+0\&.3: 2\&.1
+0\&.4: 2\&.2
+0\&.5: 3\&.11221507353
+0\&.6: 4\&.25242647059
+0\&.7: 5\&.41804227941
+0\&.8: 4\&.11
+0\&.9: 3\&.95675857843
+1\&.0: 4\&.12
+
 .CE
-As you can see, the values at the abscissae are reproduced perfectly.
+As you can see, the values at the abscissae are reproduced perfectly\&.
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fImath :: interpolate\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 interpolation, math, spatial interpolation
 .SH CATEGORY
 Mathematics
 .SH COPYRIGHT
 .nf
-Copyright (c) 2004 Arjen Markus <arjenmarkus@users.sourceforge.net>
-Copyright (c) 2004 Kevn B. Kenny <kennykb@users.sourceforge.net>
+Copyright (c) 2004 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
+Copyright (c) 2004 Kevn B\&. Kenny <kennykb@users\&.sourceforge\&.net>
+
 .fi

@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/base32/base32hex.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/base32/base32hex\&.n' by tcllib/doctools with format 'nroff'
 '\" Public domain
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,16 +238,16 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "base32::hex" n 0.1 tcllib "Base32 encoding"
+.TH "base32::hex" n 0\&.1 tcllib "Base32 encoding"
 .BS
 .SH NAME
 base32::hex \- base32 extended hex encoding
 .SH SYNOPSIS
-package require \fBTcl  8.4\fR
+package require \fBTcl  8\&.4\fR
 .sp
-package require \fBbase32::core  ?0.1?\fR
+package require \fBbase32::core  ?0\&.1?\fR
 .sp
-package require \fBbase32::hex  ?0.1?\fR
+package require \fBbase32::hex  ?0\&.1?\fR
 .sp
 \fB::base32::hex::encode\fR \fIstring\fR
 .sp
@@ -257,22 +258,22 @@ package require \fBbase32::hex  ?0.1?\fR
 .PP
 This package provides commands for encoding and decoding of strings
 into and out of the extended hex base32 encoding as specified in the
-RFC 3548bis draft.
+RFC 3548bis draft\&.
 .SH API
 .TP
 \fB::base32::hex::encode\fR \fIstring\fR
 This command encodes the given \fIstring\fR in extended hex base32 and
-returns the encoded string as its result. The result may be padded
+returns the encoded string as its result\&. The result may be padded
 with the character \fB=\fR to signal a partial encoding at the end
-of the input string.
+of the input string\&.
 .TP
 \fB::base32::hex::decode\fR \fIestring\fR
 This commands takes the \fIestring\fR and decodes it under the
-assumption that it is a valid extended hex base32 encoded string. The
-result of the decoding is returned as the result of the command.
+assumption that it is a valid extended hex base32 encoded string\&. The
+result of the decoding is returned as the result of the command\&.
 .sp
 Note that while the encoder will generate only uppercase characters
-this decoder accepts input in lowercase as well.
+this decoder accepts input in lowercase as well\&.
 .sp
 The command will always throw an error whenever encountering
 conditions which signal some type of bogus input, namely if
@@ -291,27 +292,30 @@ the padding has not of length six, four, three, or one characters,
 .SH "CODE MAP"
 The code map used to convert 5-bit sequences is shown below, with the
 numeric id of the bit sequences to the left and the character used to
-encode it to the right. The important feature of the extended hex
+encode it to the right\&. The important feature of the extended hex
 mapping is that the first 16 codes map to the digits and hex
-characters.
+characters\&.
 .CS
-0 0    9 9        18 I   27 R
-1 1   10 A        19 J   28 S
-2 2   11 B        20 K   29 T
-3 3   12 C        21 L   30 U
-4 4   13 D        22 M   31 V
-5 5   14 E        23 N
-6 6   15 F        24 O
-7 7        16 G   25 P
-8 8        17 H   26 Q
+
+
+	0 0    9 9        18 I   27 R
+	1 1   10 A        19 J   28 S
+	2 2   11 B        20 K   29 T
+	3 3   12 C        21 L   30 U
+	4 4   13 D        22 M   31 V
+	5 5   14 E        23 N
+	6 6   15 F        24 O
+	7 7        16 G   25 P
+	8 8        17 H   26 Q
+
 .CE
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIbase32\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 base32, hex, rfc3548
 .SH CATEGORY
@@ -319,4 +323,5 @@ Text processing
 .SH COPYRIGHT
 .nf
 Public domain
+
 .fi

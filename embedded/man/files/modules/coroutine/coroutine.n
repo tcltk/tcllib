@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/coroutine/coroutine.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2010-2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/coroutine/coroutine\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2010-2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -242,21 +243,21 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 coroutine \- Coroutine based event and IO handling
 .SH SYNOPSIS
-package require \fBTcl  8.6\fR
+package require \fBTcl  8\&.6\fR
 .sp
-package require \fBcoroutine  1.1\fR
+package require \fBcoroutine  1\&.1\fR
 .sp
 \fBcoroutine::util after\fR \fIdelay\fR
 .sp
-\fBcoroutine::util await\fR \fIvarname\fR...
+\fBcoroutine::util await\fR \fIvarname\fR\&.\&.\&.
 .sp
-\fBcoroutine::util create\fR \fIarg\fR...
+\fBcoroutine::util create\fR \fIarg\fR\&.\&.\&.
 .sp
 \fBcoroutine::util exit\fR ?\fIstatus\fR?
 .sp
 \fBcoroutine::util gets\fR \fIchan\fR ?\fIvarname\fR?
 .sp
-\fBcoroutine::util global\fR \fIvarname\fR...
+\fBcoroutine::util global\fR \fIvarname\fR\&.\&.\&.
 .sp
 \fBcoroutine::util read\fR \fB-nonewline\fR \fIchan\fR ?\fIn\fR?
 .sp
@@ -267,82 +268,83 @@ package require \fBcoroutine  1.1\fR
 .BE
 .SH DESCRIPTION
 The \fBcoroutine\fR package provides coroutine-aware
-implementations of various event- and channel related commands. It can
+implementations of various event- and channel related commands\&. It can
 be in multiple modes:
 .IP [1]
 Call the commands through their ensemble, in code which is
-explicitly written for use within coroutines.
+explicitly written for use within coroutines\&.
 .IP [2]
 Import the commands into a namespace, either directly, or
-through \fBnamespace path\fR. This allows the use from within code
+through \fBnamespace path\fR\&. This allows the use from within code
 which is not coroutine-aware per se and restricted to specific
-namespaces.
+namespaces\&.
 .PP
 A more agressive form of making code coroutine-oblivious than point 2
 above is available through the package \fBcoroutine::auto\fR,
 which intercepts the relevant builtin commands and changes their
-implementation dependending on the context they are run in, i.e.
-inside or outside of a coroutine.
+implementation dependending on the context they are run in, i\&.e\&.
+inside or outside of a coroutine\&.
 .SH API
 All the commands listed below are synchronous with respect to the
-coroutine invoking them, i.e. this coroutine blocks until the result
-is available. The overall eventloop is not blocked however.
+coroutine invoking them, i\&.e\&. this coroutine blocks until the result
+is available\&. The overall eventloop is not blocked however\&.
 .TP
 \fBcoroutine::util after\fR \fIdelay\fR
 This command delays the coroutine invoking it by \fIdelay\fR
-milliseconds.
+milliseconds\&.
 .TP
-\fBcoroutine::util await\fR \fIvarname\fR...
+\fBcoroutine::util await\fR \fIvarname\fR\&.\&.\&.
 This command is an extension form of the \fBcoroutine::util vwait\fR
 command (see below) which waits on a write to one of many named
-namespace variables.
+namespace variables\&.
 .TP
-\fBcoroutine::util create\fR \fIarg\fR...
+\fBcoroutine::util create\fR \fIarg\fR\&.\&.\&.
 This command creates a new coroutine with an automatically assigned
-name and causes it to run the code specified by the arguments.
+name and causes it to run the code specified by the arguments\&.
 .TP
 \fBcoroutine::util exit\fR ?\fIstatus\fR?
 This command exits the current coroutine, causing it to return
-\fIstatus\fR. If no status was specified the default \fI0\fR is
-returned.
+\fIstatus\fR\&. If no status was specified the default \fI0\fR is
+returned\&.
 .TP
 \fBcoroutine::util gets\fR \fIchan\fR ?\fIvarname\fR?
 This command reads a line from the channel \fIchan\fR and returns it
 either as its result, or, if a \fIvarname\fR was specified, writes it
-to the named variable and returns the number of characters read.
+to the named variable and returns the number of characters read\&.
 .TP
-\fBcoroutine::util global\fR \fIvarname\fR...
+\fBcoroutine::util global\fR \fIvarname\fR\&.\&.\&.
 This command imports the named global variables of the coroutine into
-the current scope. From the technical point of view these variables
-reside in level \fB#1\fR of the Tcl stack. I.e. these are not the
+the current scope\&. From the technical point of view these variables
+reside in level \fB#1\fR of the Tcl stack\&. I\&.e\&. these are not the
 regular global variable in to the global namespace, and each coroutine
-can have their own set, independent of all others.
+can have their own set, independent of all others\&.
 .TP
 \fBcoroutine::util read\fR \fB-nonewline\fR \fIchan\fR ?\fIn\fR?
 This command reads \fIn\fR characters from the channel \fIchan\fR and
-returns them as its result. If \fIn\fR is not specified the command
-will read the channel until EOF is reached.
+returns them as its result\&. If \fIn\fR is not specified the command
+will read the channel until EOF is reached\&.
 .TP
 \fBcoroutine::util update\fR ?\fBidletasks\fR?
 This command causes the coroutine invoking it to run pending events or
-idle handlers before proceeding.
+idle handlers before proceeding\&.
 .TP
 \fBcoroutine::util vwait\fR \fIvarname\fR
 This command causes the coroutine calling it to wait for a write to
-the named namespace variable \fIvarname\fR.
+the named namespace variable \fIvarname\fR\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIcoroutine\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH KEYWORDS
 after, channel, coroutine, events, exit, gets, global, green threads, read, threads, update, vwait
 .SH CATEGORY
 Coroutine
 .SH COPYRIGHT
 .nf
-Copyright (c) 2010-2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2010-2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

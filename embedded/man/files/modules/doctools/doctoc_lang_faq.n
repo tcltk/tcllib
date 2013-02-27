@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/doctools/doctoc_lang_faq.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/doctools/doctoc_lang_faq\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,7 +238,7 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "doctoc_lang_faq" n 1.0 tcllib "Documentation tools"
+.TH "doctoc_lang_faq" n 1\&.0 tcllib "Documentation tools"
 .BS
 .SH NAME
 doctoc_lang_faq \- doctoc language faq
@@ -247,36 +248,36 @@ doctoc_lang_faq \- doctoc language faq
 .SS "WHAT IS THIS DOCUMENT?"
 This document is currently mainly a placeholder, to be filled with
 commonly asked questions about the doctoc markup language and
-companions, and their answers.
+companions, and their answers\&.
 .PP
 Please report any questions (and, if possible, answers) we should
 consider for this document in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 .SH EXAMPLES
 .SS "WHERE DO I FIND DOCTOC EXAMPLES?"
 We have no direct examples of documents written using doctoc
-markup. However the doctools processor \fBdtplite\fR does generate
+markup\&. However the doctools processor \fBdtplite\fR does generate
 a table of contents when processing a set of documents written in
-doctools markup. The intermediate file for it uses doctoc markup and
-is not deleted when generation completes. Such files can therefore
-serve as examples.
+doctools markup\&. The intermediate file for it uses doctoc markup and
+is not deleted when generation completes\&. Such files can therefore
+serve as examples\&.
 .PP
 \fBdtplite\fR is distributed as part of Tcllib, so to get it you
 need one of
 .IP [1]
-A CVS snapshot of Tcllib. How to retrieve such a snapshot and the
+A CVS snapshot of Tcllib\&. How to retrieve such a snapshot and the
 tools required for this are described at
-\fIhttp://sourceforge.net/cvs/?group_id=12883\fR
+\fIhttp://sourceforge\&.net/cvs/?group_id=12883\fR
 .IP [2]
-A Tcllib release archive. They are available at
-\fIhttp://sourceforge.net/project/showfiles.php?group_id=12883\fR
+A Tcllib release archive\&. They are available at
+\fIhttp://sourceforge\&.net/project/showfiles\&.php?group_id=12883\fR
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems.
+This document, will undoubtedly contain bugs and other problems\&.
 Please report any such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-the package and/or the documentation.
+the package and/or the documentation\&.
 .SH "SEE ALSO"
 doctoc_lang_cmdref, doctoc_lang_intro, doctoc_lang_syntax
 .SH KEYWORDS
@@ -285,5 +286,6 @@ doctoc commands, doctoc language, doctoc markup, doctoc syntax, examples, faq, m
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+
 .fi

@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/net/nas/data/andreask/Dev/Tcllib/tcllib/embedded/man/files/modules/ripemd/ripemd160.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2004, Pat Thoyts <patthoyts@users.sourceforge.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/ripemd/ripemd160\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2004, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -222,6 +222,7 @@ Command-Line Name:	\\fB\\$1\\fR
 Database Name:	\\fB\\$2\\fR
 Database Class:	\\fB\\$3\\fR
 .fi
+.IP
 ..
 '\"	# CS - begin code excerpt
 .de CS
@@ -237,14 +238,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "ripemd160" n 1.0.3 tcllib "RIPEMD Message-Digest Algorithm"
+.TH "ripemd160" n 1\&.0\&.3 tcllib "RIPEMD Message-Digest Algorithm"
 .BS
 .SH NAME
 ripemd160 \- RIPEMD-160 Message-Digest Algorithm
 .SH SYNOPSIS
-package require \fBTcl  8.2\fR
+package require \fBTcl  8\&.2\fR
 .sp
-package require \fBripemd160  ?1.0.3?\fR
+package require \fBripemd160  ?1\&.0\&.3?\fR
 .sp
 \fB::ripemd::ripemd160\fR ?\fI-hex\fR? [ \fI-channel channel\fR | \fI-file filename\fR | \fIstring\fR ]
 .sp
@@ -266,84 +267,92 @@ package require \fBripemd160  ?1.0.3?\fR
 .SH DESCRIPTION
 .PP
 This package is an implementation in Tcl of the RIPEMD-160 message-digest
-algorithm (1). This algorithm takes an arbitrary quantity of data and
-generates a 160-bit message digest from the input. The RIPEMD-160
+algorithm (1)\&. This algorithm takes an arbitrary quantity of data and
+generates a 160-bit message digest from the input\&. The RIPEMD-160
 algorithm is based upon the MD4 algorithm (2, 4) but has been
 cryptographically strengthened against weaknesses that have been found
-in MD4 (4).
+in MD4 (4)\&.
 .PP
 This package will use \fBcryptkit\fR or \fBTrf\fR to
-accelerate the digest computation if either package is available. In
+accelerate the digest computation if either package is available\&. In
 the absence of an accelerator package the pure-Tcl implementation will
-be used.
+be used\&.
 .SH COMMANDS
 .TP
 \fB::ripemd::ripemd160\fR ?\fI-hex\fR? [ \fI-channel channel\fR | \fI-file filename\fR | \fIstring\fR ]
-Calculate the RIPEMD-160 digest of the data given in string. This is
-returned as a binary string by default. Giving the \fI-hex\fR option
-will return a hexadecimal encoded version of the digest.
+Calculate the RIPEMD-160 digest of the data given in string\&. This is
+returned as a binary string by default\&. Giving the \fI-hex\fR option
+will return a hexadecimal encoded version of the digest\&.
 .sp
 The data to be hashed can be specified either as a string argument to
-the ripemd160 command, or as a filename or a pre-opened channel. If the
+the ripemd160 command, or as a filename or a pre-opened channel\&. If the
 \fI-filename\fR argument is given then the file is opened, the data read
-and hashed and the file is closed. If the \fI-channel\fR argument is
-given then data is read from the channel until the end of file. The
-channel is not closed.
+and hashed and the file is closed\&. If the \fI-channel\fR argument is
+given then data is read from the channel until the end of file\&. The
+channel is not closed\&.
 .sp
-Only one of \fI-file\fR, \fI-channel\fR or \fIstring\fR should be given.
+Only one of \fI-file\fR, \fI-channel\fR or \fIstring\fR should be given\&.
 .TP
 \fB::ripemd::hmac160\fR ?\fI-hex\fR? \fI-key key\fR [ \fI-channel channel\fR | \fI-file filename\fR | \fIstring\fR ]
 Calculate an Hashed Message Authentication digest (HMAC) using the
-RIPEMD-160 digest algorithm. HMACs are described in RFC 2104 (5) and
-provide a RIPEMD-160 digest that includes a key. All options other
-than \fI-key\fR are as for the \fB::ripemd::ripemd160\fR command.
+RIPEMD-160 digest algorithm\&. HMACs are described in RFC 2104 (5) and
+provide a RIPEMD-160 digest that includes a key\&. All options other
+than \fI-key\fR are as for the \fB::ripemd::ripemd160\fR command\&.
 .PP
 .SH "PROGRAMMING INTERFACE"
 For the programmer, hash functions can be viewed as a bucket into which
-one pours data. When you have finished, you extract a value that is
-uniquely derived from the data that was poured into the bucket. The
+one pours data\&. When you have finished, you extract a value that is
+uniquely derived from the data that was poured into the bucket\&. The
 programming interface to the hash operates on a token (equivalent to the
-bucket). You call \fBRIPEMD160Init\fR to obtain a token and then call
-\fBRIPEMD160Update\fR as many times as required to add data to the hash. To
+bucket)\&. You call \fBRIPEMD160Init\fR to obtain a token and then call
+\fBRIPEMD160Update\fR as many times as required to add data to the hash\&. To
 release any resources and obtain the hash value, you then call
-\fBRIPEMD160Final\fR. An equivalent set of functions gives you a keyed
-digest (HMAC).
+\fBRIPEMD160Final\fR\&. An equivalent set of functions gives you a keyed
+digest (HMAC)\&.
 .TP
 \fB::ripemd::RIPEMD160Init\fR
-Begins a new RIPEMD-160 hash. Returns a token ID that must be used for the
-remaining functions.
+Begins a new RIPEMD-160 hash\&. Returns a token ID that must be used for the
+remaining functions\&.
 .TP
 \fB::ripemd::RIPEMD160Update\fR \fItoken\fR \fIdata\fR
-Add data to the hash identified by token. Calling
+Add data to the hash identified by token\&. Calling
 \fIRIPEMD160Update $token "abcd"\fR is equivalent to calling
 \fIRIPEMD160Update $token "ab"\fR followed by
-\fIRIPEMD160Update $token "cb"\fR. See \fBEXAMPLES\fR.
+\fIRIPEMD160Update $token "cb"\fR\&. See \fBEXAMPLES\fR\&.
 .TP
 \fB::ripemd::RIPEMD160Final\fR \fItoken\fR
 Returns the hash value and releases any resources held by this
-token. Once this command completes the token will be invalid. The
+token\&. Once this command completes the token will be invalid\&. The
 result is a binary string of 16 bytes representing the 160 bit
-RIPEMD-160 digest value.
+RIPEMD-160 digest value\&.
 .TP
 \fB::ripemd::RIPEHMAC160Init\fR \fIkey\fR
 This is equivalent to the \fB::ripemd::RIPEMD160Init\fR command
-except that it requires the key that will be included in the HMAC.
+except that it requires the key that will be included in the HMAC\&.
 .TP
 \fB::ripemd::RIPEHMAC160Update\fR \fItoken\fR \fIdata\fR
 .TP
 \fB::ripemd::RIPEHMAC160Final\fR \fItoken\fR
-These commands are identical to the RIPEMD160 equivalent commands.
+These commands are identical to the RIPEMD160 equivalent commands\&.
 .PP
 .SH EXAMPLES
 .CS
+
+
 % ripemd::ripemd160 -hex "Tcl does RIPEMD-160"
 0829dea75a1a7074c702896723fe37763481a0a7
+
 .CE
 .CS
+
+
 % ripemd::hmac160 -hex -key Sekret "Tcl does RIPEMD-160"
 bf0c927231733686731dddb470b64a9c23f7f53b
+
 .CE
 .CS
+
+
 % set tok [ripemd::RIPEMD160Init]
 ::ripemd::1
 % ripemd::RIPEMD160Update $tok "Tcl "
@@ -351,34 +360,35 @@ bf0c927231733686731dddb470b64a9c23f7f53b
 % ripemd::RIPEMD160Update $tok "RIPEMD-160"
 % ripemd::Hex [ripemd::RIPEMD160Final $tok]
 0829dea75a1a7074c702896723fe37763481a0a7
+
 .CE
 .SH REFERENCES
 .IP [1]
-H. Dobbertin, A. Bosselaers, B. Preneel,
+H\&. Dobbertin, A\&. Bosselaers, B\&. Preneel,
 "RIPEMD-160, a strengthened version of RIPEMD"
-\fIhttp://www.esat.kuleuven.ac.be/~cosicart/pdf/AB-9601/AB-9601.pdf\fR
+\fIhttp://www\&.esat\&.kuleuven\&.ac\&.be/~cosicart/pdf/AB-9601/AB-9601\&.pdf\fR
 .IP [2]
-Rivest, R., "The MD4 Message Digest Algorithm", RFC 1320, MIT,
-April 1992. (\fIhttp://www.rfc-editor.org/rfc/rfc1320.txt\fR)
+Rivest, R\&., "The MD4 Message Digest Algorithm", RFC 1320, MIT,
+April 1992\&. (\fIhttp://www\&.rfc-editor\&.org/rfc/rfc1320\&.txt\fR)
 .IP [3]
-Rivest, R., "The MD4 message digest algorithm", in A.J.  Menezes
-and S.A. Vanstone, editors, Advances in Cryptology - CRYPTO '90
-Proceedings, pages 303-311, Springer-Verlag, 1991.
+Rivest, R\&., "The MD4 message digest algorithm", in A\&.J\&.  Menezes
+and S\&.A\&. Vanstone, editors, Advances in Cryptology - CRYPTO '90
+Proceedings, pages 303-311, Springer-Verlag, 1991\&.
 .IP [4]
-Dobbertin, H., "Cryptanalysis of MD4", Journal of Cryptology
-vol 11 (4), pp. 253-271 (1998)
+Dobbertin, H\&., "Cryptanalysis of MD4", Journal of Cryptology
+vol 11 (4), pp\&. 253-271 (1998)
 .IP [5]
-Krawczyk, H., Bellare, M. and Canetti, R. "HMAC: Keyed-Hashing for
-Message Authentication", RFC 2104, February 1997.
-(\fIhttp://www.rfc-editor.org/rfc/rfc2104.txt\fR)
+Krawczyk, H\&., Bellare, M\&. and Canetti, R\&. "HMAC: Keyed-Hashing for
+Message Authentication", RFC 2104, February 1997\&.
+(\fIhttp://www\&.rfc-editor\&.org/rfc/rfc2104\&.txt\fR)
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+bugs and other problems\&.
 Please report such in the category \fIripemd\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge.net/tracker/?group_id=12883].
+\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+package and/or documentation\&.
 .SH "SEE ALSO"
 md4, md5, ripemd128, sha1
 .SH KEYWORDS
@@ -387,5 +397,6 @@ RIPEMD, hashing, md4, message-digest, rfc 1320, rfc 1321, rfc 2104, security
 Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
-Copyright (c) 2004, Pat Thoyts <patthoyts@users.sourceforge.net>
+Copyright (c) 2004, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
+
 .fi
