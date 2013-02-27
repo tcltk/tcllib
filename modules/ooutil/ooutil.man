@@ -98,6 +98,35 @@ definition itself.
 11,5
 }]
 
+[comment {- - -- --- ----- -------- ------------- ---------------------}]
+[call [cmd link] [arg method]...]
+[call [cmd link] "{[arg alias] [arg method]}..."]
+
+This command is available within instance methods. It takes a list of
+method names and/or pairs of alias- and method-name and makes the
+named methods available to all instance methods without requiring the
+[cmd my] command.
+
+[para] The alias name under which the method becomes available defaults
+to the method name, except where explicitly specified through an
+alias/method pair.
+
+[para] Examples:
+[example {
+    link foo
+    # The method foo is now directly accessible as foo instead of my foo.
+
+    link {bar foo}
+    # The method foo is now directly accessible as bar.
+
+    link a b c
+    # The methods a, b, and c all become directly acessible under their
+    # own names.
+}]
+
+The main use of this command is expected to be in instance constructors,
+for convenience, or to set up some methods for use in a mini DSL.
+
 
 [comment {- - -- --- ----- -------- ------------- ---------------------}]
 [call [cmd ooutil::singleton] [opt [arg arg]...]]
