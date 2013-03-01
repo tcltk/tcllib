@@ -1,3 +1,10 @@
+2013-03-01  Andreas Kupries  <andreask@activestate.com>
+
+	* support/devel/sak/validate/syntax.tcl (::sak::validate::syntax::Setup): 
+	* support/devel/sak/validate/testsuites.tcl (::sak::validate::testsuites::Setup):
+	  The namespace ::tcl contains parts necessary for the proper
+	  operation of the interpreter, since 8.6. Do not delete anymore.
+
 2013-02-15  Andreas Kupries  <andreask@activestate.com>
 
 	* New module 'string'. String/text utilities, 8.5+.
