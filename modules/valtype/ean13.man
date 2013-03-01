@@ -1,3 +1,4 @@
+[comment {-*- tcl -*- --- doctools ---}]
 [vset PACKAGE gs1::ean13]
 [vset VERSION 1]
 [vset A an]

@@ -1,4 +1,4 @@
-[comment {-*- tcl -*- --- !doctools ---}]
+[comment {-*- tcl -*- --- doctools ---}]
 [manpage_begin valtype::common n 1]
 [copyright {2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [titledesc "Validation, common code"]
