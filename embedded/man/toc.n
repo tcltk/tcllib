@@ -1367,6 +1367,45 @@ tcllib
 \fBuuid\fR
 \fIfiles/modules/uuid/uuid\&.n\fR: UUID generation and comparison
 .TP
+\fBvaltype::common\fR
+\fIfiles/modules/valtype/valtype_common\&.n\fR: Validation, common code
+.TP
+\fBvaltype::creditcard::amex\fR
+\fIfiles/modules/valtype/cc_amex\&.n\fR: Validation for AMEX creditcard number
+.TP
+\fBvaltype::creditcard::discover\fR
+\fIfiles/modules/valtype/cc_discover\&.n\fR: Validation for Discover creditcard number
+.TP
+\fBvaltype::creditcard::mastercard\fR
+\fIfiles/modules/valtype/cc_mastercard\&.n\fR: Validation for Mastercard creditcard number
+.TP
+\fBvaltype::creditcard::visa\fR
+\fIfiles/modules/valtype/cc_visa\&.n\fR: Validation for VISA creditcard number
+.TP
+\fBvaltype::gs1::ean13\fR
+\fIfiles/modules/valtype/ean13\&.n\fR: Validation for EAN13
+.TP
+\fBvaltype::iban\fR
+\fIfiles/modules/valtype/iban\&.n\fR: Validation for IBAN
+.TP
+\fBvaltype::imei\fR
+\fIfiles/modules/valtype/imei\&.n\fR: Validation for IMEI
+.TP
+\fBvaltype::isbn\fR
+\fIfiles/modules/valtype/isbn\&.n\fR: Validation for ISBN
+.TP
+\fBvaltype::luhn\fR
+\fIfiles/modules/valtype/luhn\&.n\fR: Validation for plain number with a LUHN checkdigit
+.TP
+\fBvaltype::luhn5\fR
+\fIfiles/modules/valtype/luhn5\&.n\fR: Validation for plain number with a LUHN5 checkdigit
+.TP
+\fBvaltype::usnpi\fR
+\fIfiles/modules/valtype/usnpi\&.n\fR: Validation for USNPI
+.TP
+\fBvaltype::verhoeff\fR
+\fIfiles/modules/valtype/verhoeff\&.n\fR: Validation for plain number with a VERHOEFF checkdigit
+.TP
 \fBwip\fR
 \fIfiles/modules/wip/wip\&.n\fR: Word Interpreter
 .TP

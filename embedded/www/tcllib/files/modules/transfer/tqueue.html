@@ -195,7 +195,7 @@ evaluation will perform the request.</p>
 <dd><p>This command creates a new queue object for the management of the
 channel <i class="arg">outchannel</i>, with an associated Tcl command whose name is
 <i class="arg">objectName</i>.
-This <i class="term"><a href="../../../../index.html#key221">object</a></i> command is explained in full detail in the sections
+This <i class="term"><a href="../../../../index.html#key233">object</a></i> command is explained in full detail in the sections
 <span class="sectref"><a href="#subsection2">Object command</a></span> and <span class="sectref"><a href="#subsection3">Object methods</a></span>. The set of
 supported <i class="arg">options</i> is explained in section <span class="sectref"><a href="#section3">Options</a></span>.</p>
 <p>The object command will be created under the current namespace if the
@@ -226,7 +226,7 @@ destroyed object.</p></dd>
 <dt><a name="4"><i class="arg">objectName</i> <b class="method">busy</b></a></dt>
 <dd><p>This method returns a boolean value telling us if the object is
 currently serving a request (i.e. <i class="term">busy</i>, value <b class="const">True</b>), or
-not (i.e. <i class="term"><a href="../../../../index.html#key495">idle</a></i>, value <b class="const">False</b>).</p></dd>
+not (i.e. <i class="term"><a href="../../../../index.html#key523">idle</a></i>, value <b class="const">False</b>).</p></dd>
 <dt><a name="5"><i class="arg">objectName</i> <b class="method">pending</b></a></dt>
 <dd><p>This method returns the number of requests currently waiting in the
 queue for their execution. A request currently served is not counted
@@ -234,7 +234,7 @@ as waiting.</p></dd>
 <dt><a name="6"><i class="arg">objectName</i> <b class="method">put</b> <i class="arg">request</i></a></dt>
 <dd><p>This method enters the transfer <i class="arg">request</i> into the object's queue
 of waiting requests.
-If the object is <i class="term"><a href="../../../../index.html#key495">idle</a></i> it will become <i class="term">busy</i>, immediately
+If the object is <i class="term"><a href="../../../../index.html#key523">idle</a></i> it will become <i class="term">busy</i>, immediately
 servicing the request. Otherwise servicing the new request will be
 defered until all preceding requests have been served.</p></dd>
 </dl>
@@ -267,7 +267,7 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key65">channel</a>, <a href="../../../../index.html#key67">copy</a>, <a href="../../../../index.html#key54">queue</a>, <a href="../../../../index.html#key66">transfer</a></p>
+<p><a href="../../../../index.html#key73">channel</a>, <a href="../../../../index.html#key75">copy</a>, <a href="../../../../index.html#key54">queue</a>, <a href="../../../../index.html#key74">transfer</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Transfer module</p>
