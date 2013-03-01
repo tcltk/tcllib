@@ -255,6 +255,10 @@ package require \fBoo::util  ?1\&.1?\fR
 .sp
 \fBclassvariable\fR ?\fIarg\fR\&.\&.\&.?
 .sp
+\fBlink\fR \fImethod\fR\&.\&.\&.
+.sp
+\fBlink\fR {\fIalias\fR \fImethod\fR}\&.\&.\&.
+.sp
 \fBooutil::singleton\fR ?\fIarg\fR\&.\&.\&.?
 .sp
 .BE
@@ -340,6 +344,37 @@ Example:
 11,5
 
 .CE
+.TP
+\fBlink\fR \fImethod\fR\&.\&.\&.
+.TP
+\fBlink\fR {\fIalias\fR \fImethod\fR}\&.\&.\&.
+This command is available within instance methods\&. It takes a list of
+method names and/or pairs of alias- and method-name and makes the
+named methods available to all instance methods without requiring the
+\fBmy\fR command\&.
+.sp
+The alias name under which the method becomes available defaults
+to the method name, except where explicitly specified through an
+alias/method pair\&.
+.sp
+Examples:
+.CS
+
+
+    link foo
+    # The method foo is now directly accessible as foo instead of my foo\&.
+
+    link {bar foo}
+    # The method foo is now directly accessible as bar\&.
+
+    link a b c
+    # The methods a, b, and c all become directly acessible under their
+    # own names\&.
+
+.CE
+.IP
+The main use of this command is expected to be in instance constructors,
+for convenience, or to set up some methods for use in a mini DSL\&.
 .TP
 \fBooutil::singleton\fR ?\fIarg\fR\&.\&.\&.?
 This command is a meta-class, i\&.e\&. a variant of the builtin
