@@ -137,7 +137,9 @@
 <li><a href="#1"><b class="cmd">mymethod</b> <i class="arg">method</i> <span class="opt">?<i class="arg">arg</i>...?</span></a></li>
 <li><a href="#2"><b class="cmd">classmethod</b> <i class="arg">name</i> <i class="arg">arguments</i> <i class="arg">body</i></a></li>
 <li><a href="#3"><b class="cmd">classvariable</b> <span class="opt">?<i class="arg">arg</i>...?</span></a></li>
-<li><a href="#4"><b class="cmd">ooutil::singleton</b> <span class="opt">?<i class="arg">arg</i>...?</span></a></li>
+<li><a href="#4"><b class="cmd">link</b> <i class="arg">method</i>...</a></li>
+<li><a href="#5"><b class="cmd">link</b> {<i class="arg">alias</i> <i class="arg">method</i>}...</a></li>
+<li><a href="#6"><b class="cmd">ooutil::singleton</b> <span class="opt">?<i class="arg">arg</i>...?</span></a></li>
 </ul>
 </div>
 </div>
@@ -212,7 +214,29 @@ definition itself.</p>
 11,5
 </pre>
 </dd>
-<dt><a name="4"><b class="cmd">ooutil::singleton</b> <span class="opt">?<i class="arg">arg</i>...?</span></a></dt>
+<dt><a name="4"><b class="cmd">link</b> <i class="arg">method</i>...</a></dt>
+<dd></dd>
+<dt><a name="5"><b class="cmd">link</b> {<i class="arg">alias</i> <i class="arg">method</i>}...</a></dt>
+<dd><p>This command is available within instance methods. It takes a list of
+method names and/or pairs of alias- and method-name and makes the
+named methods available to all instance methods without requiring the
+<b class="cmd">my</b> command.</p>
+<p>The alias name under which the method becomes available defaults
+to the method name, except where explicitly specified through an
+alias/method pair.</p>
+<p>Examples:</p>
+<pre class="example">
+    link foo
+    # The method foo is now directly accessible as foo instead of my foo.
+    link {bar foo}
+    # The method foo is now directly accessible as bar.
+    link a b c
+    # The methods a, b, and c all become directly acessible under their
+    # own names.
+</pre>
+<p>The main use of this command is expected to be in instance constructors,
+for convenience, or to set up some methods for use in a mini DSL.</p></dd>
+<dt><a name="6"><b class="cmd">ooutil::singleton</b> <span class="opt">?<i class="arg">arg</i>...?</span></a></dt>
 <dd><p>This command is a meta-class, i.e. a variant of the builtin
 <b class="cmd">oo::class</b> which ensures that it creates only a single
 instance of the classes defined with it.</p>
@@ -247,7 +271,7 @@ package and/or documentation.</p>
 <p><a href="../snit/snit.html">snit(n)</a></p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key711">TclOO</a>, <a href="../../../../index.html#key494">callback</a>, <a href="../../../../index.html#key712">class methods</a>, <a href="../../../../index.html#key714">class variables</a>, <a href="../../../../index.html#key545">command prefix</a>, <a href="../../../../index.html#key548">currying</a>, <a href="../../../../index.html#key710">method reference</a>, <a href="../../../../index.html#key715">my method</a>, <a href="../../../../index.html#key713">singleton</a></p>
+<p><a href="../../../../index.html#key742">TclOO</a>, <a href="../../../../index.html#key522">callback</a>, <a href="../../../../index.html#key743">class methods</a>, <a href="../../../../index.html#key745">class variables</a>, <a href="../../../../index.html#key573">command prefix</a>, <a href="../../../../index.html#key576">currying</a>, <a href="../../../../index.html#key741">method reference</a>, <a href="../../../../index.html#key746">my method</a>, <a href="../../../../index.html#key744">singleton</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Utility</p>
