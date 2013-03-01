@@ -1,3 +1,4 @@
+[comment {-*- tcl -*- --- doctools ---}]
 [vset PACKAGE creditcard::discover]
 [vset VERSION 1]
 [vset A a]
