@@ -1,3 +1,19 @@
+2013-02-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* cc_amex.man: Fixed type markers so that dtplite
+	* cc_discover.man: (sak localdoc) will recognize
+	* cc_mastercard.man: and process the manpages.
+	* cc_visa.man:
+	* ean13.man:
+	* iban.man:
+	* imei.man:
+	* isbn.man:
+	* luhn5.man:
+	* luhn.man:
+	* usnpi.man:
+	* valtype_common.man:
+	* verhoeff.man:
+
 2013-02-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* iban.tcl: [Patch 3606105]: Applied patch by Max Jarek to
