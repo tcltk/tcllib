@@ -169,10 +169,10 @@ mechanism is generic enough to also allow its usage for the
 distribution of the contents of Tcl arrays over multiple threads and
 processes, i.e. communication.</p>
 <p>This, persistence and communication, is accomplished by <i class="term">tying</i>)
-a Tcl array variable to a <i class="term"><a href="../../../../index.html#key355">data source</a></i>. Examples of data
+a Tcl array variable to a <i class="term"><a href="../../../../index.html#key351">data source</a></i>. Examples of data
 sources are other Tcl arrays and files.</p>
 <p>It should be noted that a single Tcl array variable can be tied to
-more than one <i class="term"><a href="../../../../index.html#key355">data source</a></i>. It is this feature which allows
+more than one <i class="term"><a href="../../../../index.html#key351">data source</a></i>. It is this feature which allows
 the framework to be used for communication as well. Just tie several
 Tcl arrays in many client processes to a Tcl array in a server and all
 changes to any of them will be distributed to all. Less centralized
@@ -188,9 +188,9 @@ sections about the various internal interfaces can be safely skipped.</p>
 <dt><a name="1"><b class="cmd">::tie::tie</b> <i class="arg">arrayvarname</i> <i class="arg">options</i>... <i class="arg">dstype</i> <i class="arg">dsname</i>...</a></dt>
 <dd><p>This command establishes a tie between the Tcl array whose name is
 provided by the argument <i class="arg">arrayvarname</i> and the
-<i class="term"><a href="../../../../index.html#key355">data source</a></i> identified by the <i class="arg">dstype</i> and its series of
+<i class="term"><a href="../../../../index.html#key351">data source</a></i> identified by the <i class="arg">dstype</i> and its series of
 <i class="arg">dsname</i> arguments. All changes made to the Tcl array after this
-command returns will be saved to the <i class="term"><a href="../../../../index.html#key355">data source</a></i> for
+command returns will be saved to the <i class="term"><a href="../../../../index.html#key351">data source</a></i> for
 safekeeping (or distribution).</p>
 <p>The result of the command is always a token which identifies the new
 tie. This token can be used later to destroy this specific tie.</p>
@@ -198,26 +198,26 @@ tie. This token can be used later to destroy this specific tie.</p>
 <dt>varname <i class="arg">arrayvarname</i> (in)</dt>
 <dd><p>The name of the Tcl array variable to connect the new tie to.</p></dd>
 <dt>name|command <i class="arg">dstype</i> (in)</dt>
-<dd><p>This argument specifies the type of the <i class="term"><a href="../../../../index.html#key355">data source</a></i> we wish
+<dd><p>This argument specifies the type of the <i class="term"><a href="../../../../index.html#key351">data source</a></i> we wish
 to access.
 The <i class="arg">dstype</i> can be one of <b class="const">log</b>, <b class="const">array</b>,
 <b class="const">remotearray</b>, <b class="const">file</b>, <b class="const">growfile</b>, or
 <b class="const">dsource</b>; in addition, the programmer can register additional
 data source types.
 Each <i class="arg">dstype</i> is followed by one or more arguments that identify
-the <i class="term"><a href="../../../../index.html#key355">data source</a></i> to which the array is to be tied.</p></dd>
+the <i class="term"><a href="../../../../index.html#key351">data source</a></i> to which the array is to be tied.</p></dd>
 <dt>string <i class="arg">dsname</i> (in)</dt>
 <dd><p>The series of <i class="arg">dsname</i> arguments coming after the <i class="arg">dstype</i>
-identifies the <i class="term"><a href="../../../../index.html#key355">data source</a></i> we wish to connect to, and has to
+identifies the <i class="term"><a href="../../../../index.html#key351">data source</a></i> we wish to connect to, and has to
 be appropriate for the chosen type.</p></dd>
 </dl>
 <p>The command understands a number of additional options which guide the
 process of setting up the connection between Tcl array and
-<i class="term"><a href="../../../../index.html#key355">data source</a></i>.</p>
+<i class="term"><a href="../../../../index.html#key351">data source</a></i>.</p>
 <dl class="options">
 <dt><b class="option">-open</b></dt>
 <dd><p>The Tcl array for the new tie is <i class="term">loaded</i> from the
-<i class="term"><a href="../../../../index.html#key355">data source</a></i>, and the previously existing contents of the Tcl
+<i class="term"><a href="../../../../index.html#key351">data source</a></i>, and the previously existing contents of the Tcl
 array are erased. Care is taken to <em>not</em> erase the previous
 contents should the creation of the tie fail.</p>
 <p>This option and the option <b class="option">-save</b> exclude each other. If
@@ -225,8 +225,8 @@ neither this nor option <b class="option">-save</b> are specified then this opti
 is assumed as default.</p></dd>
 <dt><b class="option">-save</b></dt>
 <dd><p>The Tcl array for the new tie is <i class="term">saved</i> to the
-<i class="term"><a href="../../../../index.html#key355">data source</a></i>, and the previously existing contents of the
-<i class="term"><a href="../../../../index.html#key355">data source</a></i> are erased.</p>
+<i class="term"><a href="../../../../index.html#key351">data source</a></i>, and the previously existing contents of the
+<i class="term"><a href="../../../../index.html#key351">data source</a></i> are erased.</p>
 <p>This option and the option <b class="option">-open</b> exclude each other. If
 neither this nor option <b class="option">-open</b> are specified then option
 <b class="option">-open</b> is assumed as default.</p></dd>
@@ -235,14 +235,14 @@ neither this nor option <b class="option">-open</b> are specified then option
 content and merges the data instead. It can be specified in
 conjunction with either <b class="option">-open</b> or <b class="option">-save</b>. They
 determine how data existing in both Tcl array and
-<i class="term"><a href="../../../../index.html#key355">data source</a></i>, i.e duplicates, are dealt with.</p>
-<p>When used with <b class="option">-open</b> data in the <i class="term"><a href="../../../../index.html#key355">data source</a></i> has
+<i class="term"><a href="../../../../index.html#key351">data source</a></i>, i.e duplicates, are dealt with.</p>
+<p>When used with <b class="option">-open</b> data in the <i class="term"><a href="../../../../index.html#key351">data source</a></i> has
 precedence.
-In other words, for duplicates the data in the <i class="term"><a href="../../../../index.html#key355">data source</a></i> is
+In other words, for duplicates the data in the <i class="term"><a href="../../../../index.html#key351">data source</a></i> is
 loaded into the Tcl array.</p>
 <p>When used with <b class="option">-save</b> data in the Tcl array has precedence. In
 other words, for duplicates the data in the Tcl array is saved into
-the <i class="term"><a href="../../../../index.html#key355">data source</a></i>.</p></dd>
+the <i class="term"><a href="../../../../index.html#key351">data source</a></i>.</p></dd>
 </dl></dd>
 <dt><a name="2"><b class="cmd">::tie::untie</b> <i class="arg">arrayvarname</i> <span class="opt">?<i class="arg">token</i>?</span></a></dt>
 <dd><p>This command dissolves one or more ties associated with the Tcl array
@@ -252,10 +252,10 @@ stands for is removed, if it is actually connected to the
 array. Trying to remove a specific tie not belonging to the provided
 array will cause an error.</p>
 <p>It should be noted that while severing a tie will destroy management
-information internal to the package the <i class="term"><a href="../../../../index.html#key355">data source</a></i> which was
+information internal to the package the <i class="term"><a href="../../../../index.html#key351">data source</a></i> which was
 handled by the tie will not be touched, only closed.</p>
 <p>After the command returns none of changes made to the array will be
-saved to the <i class="term"><a href="../../../../index.html#key355">data source</a></i> anymore.</p>
+saved to the <i class="term"><a href="../../../../index.html#key351">data source</a></i> anymore.</p>
 <p>The result of the command is an empty string.</p>
 <dl class="arguments">
 <dt>varname <i class="arg">arrayname</i> (in)</dt>
@@ -281,15 +281,15 @@ definitions ot its end.</p></dd>
 data sources.</p>
 <dl class="definitions">
 <dt><b class="const">log</b></dt>
-<dd><p>This <i class="term"><a href="../../../../index.html#key355">data source</a></i> does not maintain any actual data, nor
+<dd><p>This <i class="term"><a href="../../../../index.html#key351">data source</a></i> does not maintain any actual data, nor
 persistence. It does not accept any identifying arguments. All changes
 are simply logged to <b class="const">stdout</b>.</p></dd>
 <dt><b class="const">array</b></dt>
-<dd><p>This <i class="term"><a href="../../../../index.html#key355">data source</a></i> uses a regular Tcl array as the origin of
+<dd><p>This <i class="term"><a href="../../../../index.html#key351">data source</a></i> uses a regular Tcl array as the origin of
 the persistent data. It accepts a single identifying argument, the
 name of this Tcl array. All changes are mirrored to that array.</p></dd>
 <dt><b class="const">remotearray</b></dt>
-<dd><p>This <i class="term"><a href="../../../../index.html#key355">data source</a></i> is similar to <b class="const">array</b>. The difference
+<dd><p>This <i class="term"><a href="../../../../index.html#key351">data source</a></i> is similar to <b class="const">array</b>. The difference
 is that the Tcl array to which we are mirroring is not directly
 accessible, but through a <b class="cmd"><a href="../../../../index.html#key333">send</a></b>-like command.</p>
 <p>It accepts three identifying arguments, the name of the other Tcl
@@ -301,7 +301,7 @@ namespace.</p>
 <p><b class="cmd"><a href="../../../../index.html#key333">send</a></b>-like means that the command prefix has to have <b class="cmd"><a href="../../../../index.html#key333">send</a></b>
 syntax and semantics. I.e. it is a channel over which we can send
 arbitrary commands to some other entity.
-The remote array <i class="term"><a href="../../../../index.html#key355">data source</a></i> however uses only the commands
+The remote array <i class="term"><a href="../../../../index.html#key351">data source</a></i> however uses only the commands
 <b class="cmd"><a href="../../../../index.html#key274">set</a></b>, <b class="cmd">unset</b>, <b class="cmd">array exists</b>, <b class="cmd">array names</b>, <b class="cmd">array set</b>, and
 <b class="cmd">array get</b> to retrieve and set values in the remote array.</p>
 <p>The command prefix and the entity id are separate to allow the data
@@ -322,10 +322,10 @@ socket.</p></dd>
 process.</p></dd>
 </dl></dd>
 <dt><b class="const">file</b></dt>
-<dd><p>This <i class="term"><a href="../../../../index.html#key355">data source</a></i> uses a single file as origin of the
+<dd><p>This <i class="term"><a href="../../../../index.html#key351">data source</a></i> uses a single file as origin of the
 persistent data. It accepts a single identifying argument, the path to
 this file. The file has to be both readable and writable. It may not
-exist, the <i class="term"><a href="../../../../index.html#key355">data source</a></i> will create it in that case. This (and
+exist, the <i class="term"><a href="../../../../index.html#key351">data source</a></i> will create it in that case. This (and
 only this) situation will require that the directory for the file
 exists and is writable as well.</p>
 <p>All changes are saved in the file, as proper Tcl commands, one command
@@ -337,7 +337,7 @@ log stored in it contains either at least one operation clearing the
 whole array, or at least 1.5 times more operations than entries in the
 loaded array.</p></dd>
 <dt><b class="const">growfile</b></dt>
-<dd><p>This <i class="term"><a href="../../../../index.html#key355">data source</a></i> is like <b class="const">file</b> in terms of the storage
+<dd><p>This <i class="term"><a href="../../../../index.html#key351">data source</a></i> is like <b class="const">file</b> in terms of the storage
 medium for the array data, and how it is configured. In constrast to
 the former it however assumes and ensures that the tied array will
 never shrink. I.e. the creation of new array entries, and the
@@ -350,7 +350,7 @@ to a simple append, and no compaction step is necessary. The format of
 the contents is the string representation of a dictionary which can be
 incrementally extended forever at the end.</p></dd>
 <dt><b class="const">dsource</b></dt>
-<dd><p>This <i class="term"><a href="../../../../index.html#key355">data source</a></i> uses an explicitly specified
+<dd><p>This <i class="term"><a href="../../../../index.html#key351">data source</a></i> uses an explicitly specified
 <i class="term">data source object</i> as the source for the persistent
 data. It accepts a single identifying argument, the command prefix,
 i.e. object command.</p>
@@ -367,11 +367,11 @@ information provided herein.</p>
 <div id="subsection3" class="subsection"><h3><a name="subsection3">DATA SOURCE OBJECTS</a></h3>
 <p>All ties are represented internally by an in-memory object which
 mediates between the tie framework and the specific
-<i class="term"><a href="../../../../index.html#key355">data source</a></i>, like an array, file, etc.
+<i class="term"><a href="../../../../index.html#key351">data source</a></i>, like an array, file, etc.
 This is the <i class="term">data source object</i>.</p>
 <p>Its class, the <span class="sectref"><a href="#subsection5">data source class</a></span> is <em>not</em> generic,
-but specific to the type of the <i class="term"><a href="../../../../index.html#key355">data source</a></i>. Writing a new
-<i class="term"><a href="../../../../index.html#key355">data source</a></i> requires us to write such a class, and then
+but specific to the type of the <i class="term"><a href="../../../../index.html#key351">data source</a></i>. Writing a new
+<i class="term"><a href="../../../../index.html#key351">data source</a></i> requires us to write such a class, and then
 registering it with the framework as a new type.</p>
 <p>The following subsections describe the various APIs a
 <span class="sectref"><a href="#subsection5">data source class</a></span> and the objects it generates will have
@@ -379,7 +379,7 @@ to follow to be compatible with the tie framework.</p>
 <p>Data source objects are normally automatically created and destroyed
 by the framework when a tie is created, or removed. This management
 can be explicitly bypassed through the usage of the &quot;dsource&quot; type.
-The <i class="term"><a href="../../../../index.html#key355">data source</a></i> for this type is a
+The <i class="term"><a href="../../../../index.html#key351">data source</a></i> for this type is a
 <i class="term">data source object</i> itself, and this object is outside of the
 scope of the tie framework and not managed by it.
 In other words, this type allows the creation of ties which talk to
@@ -397,7 +397,7 @@ type name <i class="arg">dstype</i>.</p>
 <p>After the call the argument <i class="arg">dstype</i> of the basic user command
 <b class="cmd">::tie::tie</b> will accept <i class="arg">dstype</i> as a type name and translate
 it internally to the appropriate class command for the creation of
-<span class="sectref"><a href="#subsection3">data source objects</a></span> for the new <i class="term"><a href="../../../../index.html#key355">data source</a></i>.</p></dd>
+<span class="sectref"><a href="#subsection3">data source objects</a></span> for the new <i class="term"><a href="../../../../index.html#key351">data source</a></i>.</p></dd>
 </dl>
 </div>
 <div id="subsection5" class="subsection"><h3><a name="subsection5">DATA SOURCE CLASS</a></h3>
@@ -425,7 +425,7 @@ The interface this command has to follow is described in the section
 <div id="subsection6" class="subsection"><h3><a name="subsection6">DATA SOURCE OBJECT API</a></h3>
 <p>Please read the section <span class="sectref"><a href="#subsection5">DATA SOURCE CLASS</a></span> first, to know
 how to generate new <i class="term">object commands</i>.</p>
-<p>Each <i class="term">object command</i> for a <i class="term"><a href="../../../../index.html#key355">data source</a></i> object has to
+<p>Each <i class="term">object command</i> for a <i class="term"><a href="../../../../index.html#key351">data source</a></i> object has to
 provide at least the methods listed below for proper inter-operation
 with the tie framework. Note that the names of most of the methods
 match the subcommands of the builtin <b class="cmd"><a href="../../../../index.html#key41">array</a></b> command.</p>
@@ -436,41 +436,41 @@ has to release all its internal resources associated with the external
 data source.</p></dd>
 <dt><a name="9"><b class="cmd">ds</b> <b class="method">names</b></a></dt>
 <dd><p>This command has to return a list containing the names of all keys
-found in the <i class="term"><a href="../../../../index.html#key355">data source</a></i> the object talks to. This is
+found in the <i class="term"><a href="../../../../index.html#key351">data source</a></i> the object talks to. This is
 equivalent to <b class="cmd">array names</b>.</p></dd>
 <dt><a name="10"><b class="cmd">ds</b> <b class="method">size</b></a></dt>
 <dd><p>This command has to return an integer number specifying the number of
-keys found in the <i class="term"><a href="../../../../index.html#key355">data source</a></i> the object talks to. This is
+keys found in the <i class="term"><a href="../../../../index.html#key351">data source</a></i> the object talks to. This is
 equivalent to <b class="cmd">array size</b>.</p></dd>
 <dt><a name="11"><b class="cmd">ds</b> <b class="method">get</b></a></dt>
 <dd><p>This command has to return a dictionary containing the data found in
-the <i class="term"><a href="../../../../index.html#key355">data source</a></i> the object talks to. This is equivalent to
+the <i class="term"><a href="../../../../index.html#key351">data source</a></i> the object talks to. This is equivalent to
 <b class="cmd">array get</b>.</p></dd>
 <dt><a name="12"><b class="cmd">ds</b> <b class="method">set</b> <i class="arg">dict</i></a></dt>
 <dd><p>This command takes a dictionary and adds its contents to the data
 source the object talks to. This is equivalent to <b class="cmd">array set</b>.</p></dd>
 <dt><a name="13"><b class="cmd">ds</b> <b class="method">unset</b> <span class="opt">?<i class="arg">pattern</i>?</span></a></dt>
 <dd><p>This command takes a pattern and removes all elements whose keys
-matching it from the <i class="term"><a href="../../../../index.html#key355">data source</a></i>. If no pattern is specified
+matching it from the <i class="term"><a href="../../../../index.html#key351">data source</a></i>. If no pattern is specified
 it defaults to <b class="const">*</b>, causing the removal of all elements. This
 is nearly equivalent to <b class="cmd">array unset</b>.</p></dd>
 <dt><a name="14"><b class="cmd">ds</b> <b class="method">setv</b> <i class="arg">index</i> <i class="arg">value</i></a></dt>
-<dd><p>This command has to save the <i class="arg">value</i> in the <i class="term"><a href="../../../../index.html#key355">data source</a></i>
+<dd><p>This command has to save the <i class="arg">value</i> in the <i class="term"><a href="../../../../index.html#key351">data source</a></i>
 the object talks to, under the key <i class="arg">index</i>.</p>
 <p>The result of the command is ignored. If an error is thrown then this
 error will show up as error of the set operation which caused the
 method call.</p></dd>
 <dt><a name="15"><b class="cmd">ds</b> <b class="method">unsetv</b> <i class="arg">index</i></a></dt>
 <dd><p>This command has to remove the value under the key <i class="arg">index</i> from
-the <i class="term"><a href="../../../../index.html#key355">data source</a></i> the object talks to.</p>
+the <i class="term"><a href="../../../../index.html#key351">data source</a></i> the object talks to.</p>
 <p>The result of the command is ignored. If an error is thrown then this
 error will show up as error of the unset operation which caused the
 method call.</p></dd>
 <dt><a name="16"><b class="cmd">ds</b> <b class="method">getv</b> <i class="arg">index</i></a></dt>
 <dd><p>This command has to return the value for the key <i class="arg">index</i> in the
-<i class="term"><a href="../../../../index.html#key355">data source</a></i> the object talks to.</p></dd>
+<i class="term"><a href="../../../../index.html#key351">data source</a></i> the object talks to.</p></dd>
 </dl>
-<p>And here a small table comparing the <i class="term"><a href="../../../../index.html#key355">data source</a></i> methods to
+<p>And here a small table comparing the <i class="term"><a href="../../../../index.html#key351">data source</a></i> methods to
 the regular Tcl commands for accessing an array.</p>
 <pre class="example">
         Regular Tcl             Data source

@@ -218,7 +218,7 @@ of the respective row and column, and <b class="const">False</b> otherwise.</p>
 directionality of arcs, only their presence between nodes. It is also
 unable to represent parallel arcs in <i class="arg">g</i>.</p></dd>
 <dt><a name="2"><b class="cmd">struct::graph::op::toAdjacencyList</b> <i class="arg">G</i> <span class="opt">?<i class="arg">options</i>...?</span></a></dt>
-<dd><p>Procedure creates for input graph <i class="arg">G</i>, it's representation as <i class="term"><a href="../../../../index.html#key445">Adjacency List</a></i>.
+<dd><p>Procedure creates for input graph <i class="arg">G</i>, it's representation as <i class="term"><a href="../../../../index.html#key441">Adjacency List</a></i>.
 It handles both directed and undirected graphs (default is undirected).
 It returns dictionary that for each node (key) returns list of nodes adjacent
 to it. When considering weighted version, for each adjacent node there is also
@@ -227,7 +227,7 @@ weight of the edge included.</p>
 <dt>Arguments:</dt>
 <dd><dl class="arguments">
 <dt>Graph object <i class="arg">G</i> (input)</dt>
-<dd><p>A graph to convert into an <i class="term"><a href="../../../../index.html#key445">Adjacency List</a></i>.</p></dd>
+<dd><p>A graph to convert into an <i class="term"><a href="../../../../index.html#key441">Adjacency List</a></i>.</p></dd>
 </dl></dd>
 <dt>Options:</dt>
 <dd><dl class="options">
@@ -306,14 +306,14 @@ sets which contains the nodes for the CC of <i class="arg">n</i> in <i class="ar
 if the graph is connected, and <b class="const">false</b> otherwise.</p></dd>
 <dt><a name="10"><b class="cmd">struct::graph::op::isCutVertex?</b> <i class="arg">g</i> <i class="arg">n</i></a></dt>
 <dd><p>This command determines whether the node <i class="arg">n</i> in the graph <i class="arg">g</i>
-is a <i class="term"><a href="../../../../index.html#key463">cut vertex</a></i> (aka <i class="term"><a href="../../../../index.html#key460">articulation point</a></i>). The result
+is a <i class="term"><a href="../../../../index.html#key459">cut vertex</a></i> (aka <i class="term"><a href="../../../../index.html#key456">articulation point</a></i>). The result
 is a boolean value, <b class="const">true</b> if the node is a cut vertex, and
 <b class="const">false</b> otherwise.</p>
 <p>The command will throw an error if <i class="arg">n</i> is not a node of the graph
 <i class="arg">g</i>.</p></dd>
 <dt><a name="11"><b class="cmd">struct::graph::op::isBridge?</b> <i class="arg">g</i> <i class="arg">a</i></a></dt>
 <dd><p>This command determines whether the arc <i class="arg">a</i> in the graph <i class="arg">g</i>
-is a <i class="term"><a href="../../../../index.html#key444">bridge</a></i> (aka <i class="term"><a href="../../../../index.html#key461">cut edge</a></i>, or <i class="term"><a href="../../../../index.html#key468">isthmus</a></i>). The
+is a <i class="term"><a href="../../../../index.html#key440">bridge</a></i> (aka <i class="term"><a href="../../../../index.html#key457">cut edge</a></i>, or <i class="term"><a href="../../../../index.html#key464">isthmus</a></i>). The
 result is a boolean value, <b class="const">true</b> if the arc is a bridge, and
 <b class="const">false</b> otherwise.</p>
 <p>The command will throw an error if <i class="arg">a</i> is not an arc of the graph
@@ -357,22 +357,22 @@ from the node to <i class="arg">start</i>, excluding the node itself, but includ
 nodes <i class="arg">origin</i> and <i class="arg">destination</i> in the graph <i class="arg">g</i>. It
 accepts the option <b class="option">-arcmode</b> of <b class="cmd">struct::graph::op::dijkstra</b>.</p></dd>
 <dt><a name="16"><b class="cmd">struct::graph::op::eccentricity</b> <i class="arg">g</i> <i class="arg">n</i> <span class="opt">?<i class="arg">options</i>...?</span></a></dt>
-<dd><p>This command determines the (un)directed <i class="term"><a href="../../../../index.html#key478">eccentricity</a></i> of the
+<dd><p>This command determines the (un)directed <i class="term"><a href="../../../../index.html#key474">eccentricity</a></i> of the
 node <i class="arg">n</i> in the graph <i class="arg">g</i>. It accepts the option
 <b class="option">-arcmode</b> of <b class="cmd">struct::graph::op::dijkstra</b>.</p>
-<p>The (un)directed <i class="term"><a href="../../../../index.html#key478">eccentricity</a></i> of a node is the maximal
+<p>The (un)directed <i class="term"><a href="../../../../index.html#key474">eccentricity</a></i> of a node is the maximal
 (un)directed distance between the node and any other node in the
 graph.</p></dd>
 <dt><a name="17"><b class="cmd">struct::graph::op::radius</b> <i class="arg">g</i> <span class="opt">?<i class="arg">options</i>...?</span></a></dt>
-<dd><p>This command determines the (un)directed <i class="term"><a href="../../../../index.html#key446">radius</a></i> of the graph
+<dd><p>This command determines the (un)directed <i class="term"><a href="../../../../index.html#key442">radius</a></i> of the graph
 <i class="arg">g</i>. It accepts the option <b class="option">-arcmode</b> of <b class="cmd">struct::graph::op::dijkstra</b>.</p>
-<p>The (un)directed <i class="term"><a href="../../../../index.html#key446">radius</a></i> of a graph is the minimal (un)directed
-<i class="term"><a href="../../../../index.html#key478">eccentricity</a></i> of all nodes in the graph.</p></dd>
+<p>The (un)directed <i class="term"><a href="../../../../index.html#key442">radius</a></i> of a graph is the minimal (un)directed
+<i class="term"><a href="../../../../index.html#key474">eccentricity</a></i> of all nodes in the graph.</p></dd>
 <dt><a name="18"><b class="cmd">struct::graph::op::diameter</b> <i class="arg">g</i> <span class="opt">?<i class="arg">options</i>...?</span></a></dt>
-<dd><p>This command determines the (un)directed <i class="term"><a href="../../../../index.html#key435">diameter</a></i> of the graph
+<dd><p>This command determines the (un)directed <i class="term"><a href="../../../../index.html#key431">diameter</a></i> of the graph
 <i class="arg">g</i>. It accepts the option <b class="option">-arcmode</b> of <b class="cmd">struct::graph::op::dijkstra</b>.</p>
-<p>The (un)directed <i class="term"><a href="../../../../index.html#key435">diameter</a></i> of a graph is the maximal (un)directed
-<i class="term"><a href="../../../../index.html#key478">eccentricity</a></i> of all nodes in the graph.</p></dd>
+<p>The (un)directed <i class="term"><a href="../../../../index.html#key431">diameter</a></i> of a graph is the maximal (un)directed
+<i class="term"><a href="../../../../index.html#key474">eccentricity</a></i> of all nodes in the graph.</p></dd>
 <dt><a name="19"><b class="cmd">struct::graph::op::BellmanFord</b> <i class="arg">G</i> <i class="arg">startnode</i></a></dt>
 <dd><p>Searching for <span class="sectref"><a href="#subsection1">shortests paths</a></span> between chosen node and all other nodes in graph <i class="arg">G</i>. Based
 on relaxation method. In comparison to <b class="cmd">struct::graph::op::dijkstra</b> it doesn't need assumption that all weights
@@ -526,7 +526,7 @@ lowest cost.</p>
 </dl>
 <p><em>Note:</em><i class="term">WeightedKCenter</i> is a <span class="sectref"><a href="#subsection7">3-approximation algorithm.</a></span></p></dd>
 <dt><a name="28"><b class="cmd">struct::graph::op::GreedyMaxIndependentSet</b> <i class="arg">G</i></a></dt>
-<dd><p>A <i class="term">maximal independent set</i> is an <i class="term"><a href="../../../../index.html#key448">independent set</a></i> such that adding any other node
+<dd><p>A <i class="term">maximal independent set</i> is an <i class="term"><a href="../../../../index.html#key444">independent set</a></i> such that adding any other node
 to the set forces the set to contain an edge.</p>
 <p>Algorithm for input graph <i class="arg">G</i> returns set of nodes (list), which are contained in Max Independent
 Set found by algorithm.</p></dd>
@@ -637,16 +637,16 @@ which is equivalent to BFS tree found by algorithm.</p></dd>
 </dl></dd>
 <dt><a name="35"><b class="cmd">struct::graph::op::MinimumDiameterSpanningTree</b> <i class="arg">G</i></a></dt>
 <dd><p>The goal is to find for input graph <i class="arg">G</i>, the <i class="term">spanning tree</i> that
-has the minimum <i class="term"><a href="../../../../index.html#key435">diameter</a></i> value.</p>
-<p>General idea of algorithm is to run <i class="term"><a href="../../../../index.html#key443">BFS</a></i> over all vertices in graph
+has the minimum <i class="term"><a href="../../../../index.html#key431">diameter</a></i> value.</p>
+<p>General idea of algorithm is to run <i class="term"><a href="../../../../index.html#key439">BFS</a></i> over all vertices in graph
 <i class="arg">G</i>. If the diameter <i class="term">d</i> of the tree is odd, then we are sure that tree
-given by <i class="term"><a href="../../../../index.html#key443">BFS</a></i> is minimum (considering diameter value). When, diameter <i class="term">d</i>
-is even, then optimal tree can have minimum <i class="term"><a href="../../../../index.html#key435">diameter</a></i> equal to <i class="term">d</i> or
+given by <i class="term"><a href="../../../../index.html#key439">BFS</a></i> is minimum (considering diameter value). When, diameter <i class="term">d</i>
+is even, then optimal tree can have minimum <i class="term"><a href="../../../../index.html#key431">diameter</a></i> equal to <i class="term">d</i> or
 <i class="term">d-1</i>.</p>
-<p>In that case, what algorithm does is rebuilding the tree given by <i class="term"><a href="../../../../index.html#key443">BFS</a></i>, by
+<p>In that case, what algorithm does is rebuilding the tree given by <i class="term"><a href="../../../../index.html#key439">BFS</a></i>, by
 adding a vertice between root node and root's child node (nodes), such that
 subtree created with child node as root node is the greatest one (has the
-greatests height). In the next step for such rebuilded tree, we run again <i class="term"><a href="../../../../index.html#key443">BFS</a></i>
+greatests height). In the next step for such rebuilded tree, we run again <i class="term"><a href="../../../../index.html#key439">BFS</a></i>
 with new node as root node. If the height of the tree didn't changed, we have found
 a better solution.</p>
 <p>For input graph <i class="arg">G</i> algorithm returns the graph structure (<b class="cmd"><a href="graph.html">struct::graph</a></b>) that is
@@ -700,7 +700,7 @@ for blocking flow computation.</p></dd>
 and <i class="term">m</i> is the number of edges in flow network <i class="arg">G</i>.</p></dd>
 <dt><a name="38"><b class="cmd">struct::graph::op::BlockingFlowByDinic</b> <i class="arg">G</i> <i class="arg">s</i> <i class="arg">t</i></a></dt>
 <dd><p>Algorithm for given network <i class="arg">G</i> with source <i class="arg">s</i> and sink <i class="arg">t</i>, finds a <span class="sectref"><a href="#subsection6">blocking
-flow</a></span>, which can be used to obtain a <i class="term"><a href="../../../../index.html#key475">maximum flow</a></i> for that network <i class="arg">G</i>.</p>
+flow</a></span>, which can be used to obtain a <i class="term"><a href="../../../../index.html#key471">maximum flow</a></i> for that network <i class="arg">G</i>.</p>
 <dl class="definitions">
 <dt>Arguments:</dt>
 <dd><dl class="arguments">
@@ -719,7 +719,7 @@ flow</a></span>, which can be used to obtain a <i class="term"><a href="../../..
 and <i class="term">m</i> is the number of edges in flow network <i class="arg">G</i>.</p></dd>
 <dt><a name="39"><b class="cmd">struct::graph::op::BlockingFlowByMKM</b> <i class="arg">G</i> <i class="arg">s</i> <i class="arg">t</i></a></dt>
 <dd><p>Algorithm for given network <i class="arg">G</i> with source <i class="arg">s</i> and sink <i class="arg">t</i>, finds a <span class="sectref"><a href="#subsection6">blocking
-flow</a></span>, which can be used to obtain a <i class="term"><a href="../../../../index.html#key475">maximum flow</a></i> for that <i class="term"><a href="../../../../index.html#key652">network</a></i> <i class="arg">G</i>.</p>
+flow</a></span>, which can be used to obtain a <i class="term"><a href="../../../../index.html#key471">maximum flow</a></i> for that <i class="term"><a href="../../../../index.html#key652">network</a></i> <i class="arg">G</i>.</p>
 <dl class="definitions">
 <dt>Arguments:</dt>
 <dd><dl class="arguments">
@@ -736,7 +736,7 @@ flow</a></span>, which can be used to obtain a <i class="term"><a href="../../..
 </dl>
 <p><em>Note:</em> Algorithm's complexity is <i class="term">O(n^2)</i>, where <i class="term">n</i> is the number of nodes in flow network <i class="arg">G</i>.</p></dd>
 <dt><a name="40"><b class="cmd">struct::graph::op::createResidualGraph</b> <i class="arg">G</i> <i class="arg">f</i></a></dt>
-<dd><p>Procedure creates a <i class="term"><a href="../../../../index.html#key442">residual graph</a></i> (or <span class="sectref"><a href="#subsection6">residual network</a></span> ) for network <i class="arg">G</i> and given
+<dd><p>Procedure creates a <i class="term"><a href="../../../../index.html#key438">residual graph</a></i> (or <span class="sectref"><a href="#subsection6">residual network</a></span> ) for network <i class="arg">G</i> and given
 flow <i class="arg">f</i>.</p>
 <dl class="definitions">
 <dt>Arguments:</dt>
@@ -747,7 +747,7 @@ flow <i class="arg">f</i>.</p>
 <dd><p>Current flows in flow network <i class="arg">G</i>.</p></dd>
 </dl></dd>
 <dt>Result:</dt>
-<dd><p>Procedure returns graph structure that is a <i class="term"><a href="../../../../index.html#key442">residual graph</a></i> created from input flow
+<dd><p>Procedure returns graph structure that is a <i class="term"><a href="../../../../index.html#key438">residual graph</a></i> created from input flow
 network <i class="arg">G</i>.</p></dd>
 </dl></dd>
 <dt><a name="41"><b class="cmd">struct::graph::op::createAugmentingNetwork</b> <i class="arg">G</i> <i class="arg">f</i> <i class="arg">path</i></a></dt>
@@ -777,7 +777,7 @@ network <i class="arg">G</i>.</p></dd>
 <dd><p>The source node for the residual network <i class="arg">Gf</i>.</p></dd>
 </dl></dd>
 <dt>Result:</dt>
-<dd><p>Procedure returns a <i class="term"><a href="../../../../index.html#key464">level graph</a></i> created from input <i class="term">residual network</i>.</p></dd>
+<dd><p>Procedure returns a <i class="term"><a href="../../../../index.html#key460">level graph</a></i> created from input <i class="term">residual network</i>.</p></dd>
 </dl></dd>
 <dt><a name="43"><b class="cmd">struct::graph::op::TSPLocalSearching</b> <i class="arg">G</i> <i class="arg">C</i></a></dt>
 <dd><p>Algorithm is a <i class="term">heuristic of local searching</i> for <i class="term">Travelling Salesman Problem</i>. For some
@@ -821,7 +821,7 @@ has edge <i class="term">(u,v)</i>, if and only if, the distance between <i clas
 <p>Procedure for input graph <i class="arg">G</i>, returns its two-squared graph.</p>
 <p><em>Note:</em> Distances used in choosing new set of edges are considering the number of edges, not the sum of weights at edges.</p></dd>
 <dt><a name="46"><b class="cmd">struct::graph::op::createCompleteGraph</b> <i class="arg">G</i> <i class="arg">originalEdges</i></a></dt>
-<dd><p>For input graph <i class="arg">G</i> procedure adds missing arcs to make it a <i class="term"><a href="../../../../index.html#key466">complete graph</a></i>. It also holds in
+<dd><p>For input graph <i class="arg">G</i> procedure adds missing arcs to make it a <i class="term"><a href="../../../../index.html#key462">complete graph</a></i>. It also holds in
 variable <i class="arg">originalEdges</i> the set of arcs that graph <i class="arg">G</i> possessed before that operation.</p></dd>
 </dl>
 </div>
@@ -852,8 +852,8 @@ exactly once (<i class="term">Hamiltonian cycle</i>).</p></dd>
 <dt>Generalizations:</dt>
 <dd><ul class="itemized">
 <li><p><i class="term">Metric TSP</i> - A very natural restriction of the <i class="term">TSP</i> is to require that the distances between cities form a <i class="term">metric</i>, i.e.,
-they satisfy <i class="term">the triangle inequality</i>. That is, for any 3 cities <i class="term">A</i>, <i class="term">B</i> and <i class="term"><a href="../../../../index.html#key504">C</a></i>, the distance between <i class="term">A</i> and <i class="term"><a href="../../../../index.html#key504">C</a></i>
-must be at most the distance from <i class="term">A</i> to <i class="term">B</i> plus the distance from <i class="term">B</i> to <i class="term"><a href="../../../../index.html#key504">C</a></i>. Most natural instances of <i class="term">TSP</i> 
+they satisfy <i class="term">the triangle inequality</i>. That is, for any 3 cities <i class="term">A</i>, <i class="term">B</i> and <i class="term"><a href="../../../../index.html#key500">C</a></i>, the distance between <i class="term">A</i> and <i class="term"><a href="../../../../index.html#key500">C</a></i>
+must be at most the distance from <i class="term">A</i> to <i class="term">B</i> plus the distance from <i class="term">B</i> to <i class="term"><a href="../../../../index.html#key500">C</a></i>. Most natural instances of <i class="term">TSP</i> 
 satisfy this constraint.</p></li>
 <li><p><i class="term">Euclidean TSP</i> - Euclidean TSP, or <i class="term">planar TSP</i>, is the <i class="term">TSP</i> with the distance being the ordinary <i class="term">Euclidean distance</i>. 
 <i class="term">Euclidean TSP</i> is a particular case of <i class="term">TSP</i> with <i class="term">triangle inequality</i>, since distances in plane obey triangle inequality. However,
@@ -894,7 +894,7 @@ is also called <i class="term">factor-critical</i>.</p></li>
 <dd><ul class="itemized">
 <li><p><i class="term">Alternating path</i> - given a matching <i class="term">M</i>, an <i class="term">alternating path</i> is a path in which the edges belong alternatively
 to the matching and not to the matching.</p></li>
-<li><p><i class="term"><a href="../../../../index.html#key467">Augmenting path</a></i> - given a matching <i class="term">M</i>, an <i class="term"><a href="../../../../index.html#key467">augmenting path</a></i> is an <i class="term">alternating path</i> that starts from 
+<li><p><i class="term"><a href="../../../../index.html#key463">Augmenting path</a></i> - given a matching <i class="term">M</i>, an <i class="term"><a href="../../../../index.html#key463">augmenting path</a></i> is an <i class="term">alternating path</i> that starts from 
 and ends on free (unmatched) vertices.</p></li>
 </ul></dd>
 </dl>
@@ -907,14 +907,14 @@ set of edges whose end points are in different subsets of the partition. Edges a
 <p>Formally:</p>
 <ul class="itemized">
 <li><p>a <i class="term">cut</i> <i class="term">C = (S,T)</i> is a partition of <i class="term">V</i> of a graph <i class="term">G = (V, E)</i>.</p></li>
-<li><p>an <i class="term">s-t cut</i> <i class="term">C = (S,T)</i> of a <i class="term"><a href="../../../../index.html#key476">flow network</a></i> <i class="term">N = (V, E)</i> is a cut of <i class="term">N</i> such that <i class="term">s</i> is included in <i class="term">S</i>
-and <i class="term">t</i> is included in <i class="term">T</i>, where <i class="term">s</i> and <i class="term">t</i> are the <i class="term"><a href="../../../../index.html#key413">source</a></i> and the <i class="term">sink</i> of <i class="term">N</i> respectively.</p></li>
+<li><p>an <i class="term">s-t cut</i> <i class="term">C = (S,T)</i> of a <i class="term"><a href="../../../../index.html#key472">flow network</a></i> <i class="term">N = (V, E)</i> is a cut of <i class="term">N</i> such that <i class="term">s</i> is included in <i class="term">S</i>
+and <i class="term">t</i> is included in <i class="term">T</i>, where <i class="term">s</i> and <i class="term">t</i> are the <i class="term"><a href="../../../../index.html#key409">source</a></i> and the <i class="term">sink</i> of <i class="term">N</i> respectively.</p></li>
 <li><p>The <i class="term">cut-set</i> of a <i class="term">cut C = (S,T)</i> is such set of edges from graph <i class="term">G = (V, E)</i> that each edge <i class="term">(u, v)</i> satisfies
 condition that <i class="term">u</i> is included in <i class="term">S</i> and <i class="term">v</i> is included in <i class="term">T</i>.</p></li>
 </ul>
 <p>In an <i class="term">unweighted undirected</i> graph, the size or weight of a cut is the number of edges crossing the cut. In a <i class="term">weighted graph</i>,
 the same term is defined by the sum of the weights of the edges crossing the cut.</p>
-<p>In a <i class="term"><a href="../../../../index.html#key476">flow network</a></i>, an <i class="term">s-t cut</i> is a cut that requires the <i class="term"><a href="../../../../index.html#key413">source</a></i> and the <i class="term">sink</i> to be in different subsets,
+<p>In a <i class="term"><a href="../../../../index.html#key472">flow network</a></i>, an <i class="term">s-t cut</i> is a cut that requires the <i class="term"><a href="../../../../index.html#key409">source</a></i> and the <i class="term">sink</i> to be in different subsets,
 and its <i class="term">cut-set</i> only consists of edges going from the <i class="term">source's</i> side to the <i class="term">sink's</i> side. The capacity of an <i class="term">s-t cut</i>
 is defined by the sum of capacity of each edge in the <i class="term">cut-set</i>.</p>
 <p>The <i class="term">cut</i> of a graph can sometimes refer to its <i class="term">cut-set</i> instead of the partition.</p></dd>
@@ -961,21 +961,21 @@ The maximum value of an <i class="term">s-t flow</i> is equal to the minimum cap
 <li><p>for each edge <i class="term">(u, v)</i> in <i class="term">G</i> such condition should be satisfied:      0 &lt;= f(u,v) &lt;= c(u,v)</p></li>
 <li><p>Network <i class="term">G</i> has source node <i class="term">s</i> such that the flow <i class="term">F</i> is equal to the sum of outcoming flow decreased by the sum of incoming flow from that source node <i class="term">s</i>.</p></li>
 <li><p>Network <i class="term">G</i> has sink node <i class="term">t</i> such that the the <i class="term">-F</i> value is equal to the sum of the incoming flow decreased by the sum of outcoming flow from that sink node <i class="term">t</i>.</p></li>
-<li><p>For each node that is not a <i class="term"><a href="../../../../index.html#key413">source</a></i> or <i class="term">sink</i> the sum of incoming flow and sum of outcoming flow should be equal.</p></li>
+<li><p>For each node that is not a <i class="term"><a href="../../../../index.html#key409">source</a></i> or <i class="term">sink</i> the sum of incoming flow and sum of outcoming flow should be equal.</p></li>
 </ol>
 </li>
-<li><p><i class="term">the minimum cost flow problem</i> - the goal is finding the cheapest possible way of sending a certain amount of flow through a <i class="term"><a href="../../../../index.html#key476">flow network</a></i>.</p></li>
-<li><p><i class="term"><a href="../../../../index.html#key433">blocking flow</a></i> - a <i class="term"><a href="../../../../index.html#key433">blocking flow</a></i> for a <i class="term">residual network</i> <i class="term">Gf</i> we name such flow <i class="term">b</i> in <i class="term">Gf</i> that:</p>
+<li><p><i class="term">the minimum cost flow problem</i> - the goal is finding the cheapest possible way of sending a certain amount of flow through a <i class="term"><a href="../../../../index.html#key472">flow network</a></i>.</p></li>
+<li><p><i class="term"><a href="../../../../index.html#key429">blocking flow</a></i> - a <i class="term"><a href="../../../../index.html#key429">blocking flow</a></i> for a <i class="term">residual network</i> <i class="term">Gf</i> we name such flow <i class="term">b</i> in <i class="term">Gf</i> that:</p>
 <ol class="enumerated">
-<li><p>Each path from <i class="term">sink</i> to <i class="term"><a href="../../../../index.html#key413">source</a></i> is the shortest path in <i class="term">Gf</i>.</p></li>
+<li><p>Each path from <i class="term">sink</i> to <i class="term"><a href="../../../../index.html#key409">source</a></i> is the shortest path in <i class="term">Gf</i>.</p></li>
 <li><p>Each shortest path in <i class="term">Gf</i> contains an edge with fully used throughput in <i class="term">Gf+b</i>.</p></li>
 </ol>
 </li>
 <li><p><i class="term">residual network</i> - for a flow network <i class="term">G</i> and flow <i class="term">f</i> <i class="term">residual network</i> is built with those edges, which can
 send larger flow. It contains only those edges, which can send flow larger than 0.</p></li>
-<li><p><i class="term">level network</i> - it has the same set of nodes as <i class="term"><a href="../../../../index.html#key442">residual graph</a></i>, but has only those edges <i class="term">(u,v)</i> from <i class="arg">Gf</i>
+<li><p><i class="term">level network</i> - it has the same set of nodes as <i class="term"><a href="../../../../index.html#key438">residual graph</a></i>, but has only those edges <i class="term">(u,v)</i> from <i class="arg">Gf</i>
 for which such equality is satisfied: <i class="term">distance(s,u)+1 = distance(s,v)</i>.</p></li>
-<li><p><i class="term"><a href="../../../../index.html#key447">augmenting network</a></i> - it is a modification of <i class="term">residual network</i> considering the new
+<li><p><i class="term"><a href="../../../../index.html#key443">augmenting network</a></i> - it is a modification of <i class="term">residual network</i> considering the new
 flow values. Structure stays unchanged but values of throughputs and costs at edges
 are different.</p></li>
 </ul></dd>
@@ -1032,7 +1032,7 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key445">adjacency list</a>, <a href="../../../../index.html#key469">adjacency matrix</a>, <a href="../../../../index.html#key462">adjacent</a>, <a href="../../../../index.html#key471">approximation algorithm</a>, <a href="../../../../index.html#key450">arc</a>, <a href="../../../../index.html#key460">articulation point</a>, <a href="../../../../index.html#key447">augmenting network</a>, <a href="../../../../index.html#key467">augmenting path</a>, <a href="../../../../index.html#key443">bfs</a>, <a href="../../../../index.html#key473">bipartite</a>, <a href="../../../../index.html#key433">blocking flow</a>, <a href="../../../../index.html#key444">bridge</a>, <a href="../../../../index.html#key466">complete graph</a>, <a href="../../../../index.html#key458">connected component</a>, <a href="../../../../index.html#key461">cut edge</a>, <a href="../../../../index.html#key463">cut vertex</a>, <a href="../../../../index.html#key453">degree</a>, <a href="../../../../index.html#key452">degree constrained spanning tree</a>, <a href="../../../../index.html#key435">diameter</a>, <a href="../../../../index.html#key472">dijkstra</a>, <a href="../../../../index.html#key456">distance</a>, <a href="../../../../index.html#key478">eccentricity</a>, <a href="../../../../index.html#key437">edge</a>, <a href="../../../../index.html#key476">flow network</a>, <a href="../../../../index.html#key277">graph</a>, <a href="../../../../index.html#key451">heuristic</a>, <a href="../../../../index.html#key448">independent set</a>, <a href="../../../../index.html#key468">isthmus</a>, <a href="../../../../index.html#key464">level graph</a>, <a href="../../../../index.html#key459">local searching</a>, <a href="../../../../index.html#key434">loop</a>, <a href="../../../../index.html#key5">matching</a>, <a href="../../../../index.html#key455">max cut</a>, <a href="../../../../index.html#key475">maximum flow</a>, <a href="../../../../index.html#key438">minimal spanning tree</a>, <a href="../../../../index.html#key449">minimum cost flow</a>, <a href="../../../../index.html#key441">minimum degree spanning tree</a>, <a href="../../../../index.html#key477">minimum diameter spanning tree</a>, <a href="../../../../index.html#key465">neighbour</a>, <a href="../../../../index.html#key440">node</a>, <a href="../../../../index.html#key446">radius</a>, <a href="../../../../index.html#key442">residual graph</a>, <a href="../../../../index.html#key454">shortest path</a>, <a href="../../../../index.html#key470">squared graph</a>, <a href="../../../../index.html#key432">strongly connected component</a>, <a href="../../../../index.html#key457">subgraph</a>, <a href="../../../../index.html#key436">travelling salesman</a>, <a href="../../../../index.html#key439">vertex</a>, <a href="../../../../index.html#key474">vertex cover</a></p>
+<p><a href="../../../../index.html#key441">adjacency list</a>, <a href="../../../../index.html#key465">adjacency matrix</a>, <a href="../../../../index.html#key458">adjacent</a>, <a href="../../../../index.html#key467">approximation algorithm</a>, <a href="../../../../index.html#key446">arc</a>, <a href="../../../../index.html#key456">articulation point</a>, <a href="../../../../index.html#key443">augmenting network</a>, <a href="../../../../index.html#key463">augmenting path</a>, <a href="../../../../index.html#key439">bfs</a>, <a href="../../../../index.html#key469">bipartite</a>, <a href="../../../../index.html#key429">blocking flow</a>, <a href="../../../../index.html#key440">bridge</a>, <a href="../../../../index.html#key462">complete graph</a>, <a href="../../../../index.html#key454">connected component</a>, <a href="../../../../index.html#key457">cut edge</a>, <a href="../../../../index.html#key459">cut vertex</a>, <a href="../../../../index.html#key449">degree</a>, <a href="../../../../index.html#key448">degree constrained spanning tree</a>, <a href="../../../../index.html#key431">diameter</a>, <a href="../../../../index.html#key468">dijkstra</a>, <a href="../../../../index.html#key452">distance</a>, <a href="../../../../index.html#key474">eccentricity</a>, <a href="../../../../index.html#key433">edge</a>, <a href="../../../../index.html#key472">flow network</a>, <a href="../../../../index.html#key277">graph</a>, <a href="../../../../index.html#key447">heuristic</a>, <a href="../../../../index.html#key444">independent set</a>, <a href="../../../../index.html#key464">isthmus</a>, <a href="../../../../index.html#key460">level graph</a>, <a href="../../../../index.html#key455">local searching</a>, <a href="../../../../index.html#key430">loop</a>, <a href="../../../../index.html#key5">matching</a>, <a href="../../../../index.html#key451">max cut</a>, <a href="../../../../index.html#key471">maximum flow</a>, <a href="../../../../index.html#key434">minimal spanning tree</a>, <a href="../../../../index.html#key445">minimum cost flow</a>, <a href="../../../../index.html#key437">minimum degree spanning tree</a>, <a href="../../../../index.html#key473">minimum diameter spanning tree</a>, <a href="../../../../index.html#key461">neighbour</a>, <a href="../../../../index.html#key436">node</a>, <a href="../../../../index.html#key442">radius</a>, <a href="../../../../index.html#key438">residual graph</a>, <a href="../../../../index.html#key450">shortest path</a>, <a href="../../../../index.html#key466">squared graph</a>, <a href="../../../../index.html#key428">strongly connected component</a>, <a href="../../../../index.html#key453">subgraph</a>, <a href="../../../../index.html#key432">travelling salesman</a>, <a href="../../../../index.html#key435">vertex</a>, <a href="../../../../index.html#key470">vertex cover</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Data structures</p>

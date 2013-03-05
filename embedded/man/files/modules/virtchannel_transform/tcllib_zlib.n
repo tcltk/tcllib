@@ -1,6 +1,6 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/coroutine/coroutine\&.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2010-2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/virtchannel_transform/tcllib_zlib\&.n' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -238,113 +238,51 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "coroutine" n 1 tcllib "Coroutine utilities"
+.TH "tcl::transform::zlib" n 1 tcllib "Reflected/virtual channel support"
 .BS
 .SH NAME
-coroutine \- Coroutine based event and IO handling
+tcl::transform::zlib \- zlib (de)compression
 .SH SYNOPSIS
 package require \fBTcl  8\&.6\fR
 .sp
-package require \fBcoroutine  1\&.1\fR
+package require \fBtcl::transform::core  ?1?\fR
 .sp
-\fBcoroutine::util after\fR \fIdelay\fR
+package require \fBtcl::transform::zlib  ?1?\fR
 .sp
-\fBcoroutine::util await\fR \fIvarname\fR\&.\&.\&.
-.sp
-\fBcoroutine::util create\fR \fIarg\fR\&.\&.\&.
-.sp
-\fBcoroutine::util exit\fR ?\fIstatus\fR?
-.sp
-\fBcoroutine::util gets\fR \fIchan\fR ?\fIvarname\fR?
-.sp
-\fBcoroutine::util global\fR \fIvarname\fR\&.\&.\&.
-.sp
-\fBcoroutine::util read\fR \fB-nonewline\fR \fIchan\fR ?\fIn\fR?
-.sp
-\fBcoroutine::util update\fR ?\fBidletasks\fR?
-.sp
-\fBcoroutine::util vwait\fR \fIvarname\fR
+\fB::tcl::transform::zlib\fR \fIchan\fR ?\fIlevel\fR?
 .sp
 .BE
 .SH DESCRIPTION
-The \fBcoroutine\fR package provides coroutine-aware
-implementations of various event- and channel related commands\&. It can
-be in multiple modes:
-.IP [1]
-Call the commands through their ensemble, in code which is
-explicitly written for use within coroutines\&.
-.IP [2]
-Import the commands into a namespace, either directly, or
-through \fBnamespace path\fR\&. This allows the use from within code
-which is not coroutine-aware per se and restricted to specific
-namespaces\&.
 .PP
-A more agressive form of making code coroutine-oblivious than point 2
-above is available through the package \fBcoroutine::auto\fR,
-which intercepts the relevant builtin commands and changes their
-implementation dependending on the context they are run in, i\&.e\&.
-inside or outside of a coroutine\&.
+The \fBtcl::transform::zlib\fR package provides a command creating
+a channel transformation which zlib compresses the written data, and
+decompresses on reading\&.
+.PP
+The internal \fBTclOO\fR class implementing the transform
+handler is a sub-class of the \fBtcl::transform::core\fR
+framework\&.
 .SH API
-All the commands listed below are synchronous with respect to the
-coroutine invoking them, i\&.e\&. this coroutine blocks until the result
-is available\&. The overall eventloop is not blocked however\&.
 .TP
-\fBcoroutine::util after\fR \fIdelay\fR
-This command delays the coroutine invoking it by \fIdelay\fR
-milliseconds\&.
-.TP
-\fBcoroutine::util await\fR \fIvarname\fR\&.\&.\&.
-This command is an extension form of the \fBcoroutine::util vwait\fR
-command (see below) which waits on a write to one of many named
-namespace variables\&.
-.TP
-\fBcoroutine::util create\fR \fIarg\fR\&.\&.\&.
-This command creates a new coroutine with an automatically assigned
-name and causes it to run the code specified by the arguments\&.
-.TP
-\fBcoroutine::util exit\fR ?\fIstatus\fR?
-This command exits the current coroutine, causing it to return
-\fIstatus\fR\&. If no status was specified the default \fI0\fR is
-returned\&.
-.TP
-\fBcoroutine::util gets\fR \fIchan\fR ?\fIvarname\fR?
-This command reads a line from the channel \fIchan\fR and returns it
-either as its result, or, if a \fIvarname\fR was specified, writes it
-to the named variable and returns the number of characters read\&.
-.TP
-\fBcoroutine::util global\fR \fIvarname\fR\&.\&.\&.
-This command imports the named global variables of the coroutine into
-the current scope\&. From the technical point of view these variables
-reside in level \fB#1\fR of the Tcl stack\&. I\&.e\&. these are not the
-regular global variable in to the global namespace, and each coroutine
-can have their own set, independent of all others\&.
-.TP
-\fBcoroutine::util read\fR \fB-nonewline\fR \fIchan\fR ?\fIn\fR?
-This command reads \fIn\fR characters from the channel \fIchan\fR and
-returns them as its result\&. If \fIn\fR is not specified the command
-will read the channel until EOF is reached\&.
-.TP
-\fBcoroutine::util update\fR ?\fBidletasks\fR?
-This command causes the coroutine invoking it to run pending events or
-idle handlers before proceeding\&.
-.TP
-\fBcoroutine::util vwait\fR \fIvarname\fR
-This command causes the coroutine calling it to wait for a write to
-the named namespace variable \fIvarname\fR\&.
+\fB::tcl::transform::zlib\fR \fIchan\fR ?\fIlevel\fR?
+This command creates a zlib compressor transformation on top of the
+channel \fIchan\fR and returns its handle\&.
+.sp
+The \fIlevel\fR specifies how much effort is put into the
+compression, from \fB0\fR to \fB9\fR, and defaults to \fB4\fR\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
-Please report such in the category \fIcoroutine\fR of the
+Please report such in the category \fIvirtchannel\fR of the
 \fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH KEYWORDS
-after, channel, coroutine, events, exit, gets, global, green threads, read, threads, update, vwait
+channel transformation, compression, decompression, reflected channel, tip 230, tip 234, transformation, virtual channel, zlib
 .SH CATEGORY
-Coroutine
+Channels
 .SH COPYRIGHT
 .nf
-Copyright (c) 2010-2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi
