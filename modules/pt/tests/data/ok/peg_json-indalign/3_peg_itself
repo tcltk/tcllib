@@ -22,11 +22,11 @@
                 "mode" : "leaf"
             },
             "Attribute"     : {
-                "is"   : "x {\/ {n VOID} {n LEAF}} {n COLON}",
+                "is"   : "x {/ {n VOID} {n LEAF}} {n COLON}",
                 "mode" : "value"
             },
             "Char"          : {
-                "is"   : "\/ {n CharSpecial} {n CharOctalFull} {n CharOctalPart} {n CharUnicode} {n CharUnescaped}",
+                "is"   : "/ {n CharSpecial} {n CharOctalFull} {n CharOctalPart} {n CharUnicode} {n CharUnescaped}",
                 "mode" : "value"
             },
             "CharOctalFull" : {
@@ -38,7 +38,7 @@
                 "mode" : "leaf"
             },
             "CharSpecial"   : {
-                "is"   : "x {t \\\\} {\/ {t n} {t r} {t t} {t '} {t {\"}} {t {[}} {t \\]} {t \\\\}}",
+                "is"   : "x {t \\\\} {/ {t n} {t r} {t t} {t '} {t {\"}} {t {[}} {t \\]} {t \\\\}}",
                 "mode" : "leaf"
             },
             "CharUnescaped" : {
@@ -102,7 +102,7 @@
                 "mode" : "void"
             },
             "EOL"           : {
-                "is"   : "\/ {t {\n}} {t {\r}}",
+                "is"   : "/ {t {\n}} {t {\r}}",
                 "mode" : "void"
             },
             "Expression"    : {
@@ -126,7 +126,7 @@
                 "mode" : "value"
             },
             "Ident"         : {
-                "is"   : "x {\/ {t _} {t :} alpha} {* {\/ {t _} {t :} alnum}}",
+                "is"   : "x {/ {t _} {t :} alpha} {* {/ {t _} {t :} alnum}}",
                 "mode" : "leaf"
             },
             "Identifier"    : {
@@ -142,7 +142,7 @@
                 "mode" : "leaf"
             },
             "Literal"       : {
-                "is"   : "\/ {x {n APOSTROPH} {* {x {! {n APOSTROPH}} {n Char}}} {n APOSTROPH} {n WHITESPACE}} {x {n DAPOSTROPH} {* {x {! {n DAPOSTROPH}} {n Char}}} {n DAPOSTROPH} {n WHITESPACE}}",
+                "is"   : "/ {x {n APOSTROPH} {* {x {! {n APOSTROPH}} {n Char}}} {n APOSTROPH} {n WHITESPACE}} {x {n DAPOSTROPH} {* {x {! {n DAPOSTROPH}} {n Char}}} {n DAPOSTROPH} {n WHITESPACE}}",
                 "mode" : "value"
             },
             "LOWER"         : {
@@ -170,11 +170,11 @@
                 "mode" : "leaf"
             },
             "Prefix"        : {
-                "is"   : "x {? {\/ {n AND} {n NOT}}} {n Suffix}",
+                "is"   : "x {? {/ {n AND} {n NOT}}} {n Suffix}",
                 "mode" : "value"
             },
             "Primary"       : {
-                "is"   : "\/ {n ALNUM} {n ALPHA} {n ASCII} {n CONTROL} {n DDIGIT} {n DIGIT} {n GRAPH} {n LOWER} {n PRINTABLE} {n PUNCT} {n SPACE} {n UPPER} {n WORDCHAR} {n XDIGIT} {n Identifier} {x {n OPEN} {n Expression} {n CLOSE}} {n Literal} {n Class} {n DOT}",
+                "is"   : "/ {n ALNUM} {n ALPHA} {n ASCII} {n CONTROL} {n DDIGIT} {n DIGIT} {n GRAPH} {n LOWER} {n PRINTABLE} {n PUNCT} {n SPACE} {n UPPER} {n WORDCHAR} {n XDIGIT} {n Identifier} {x {n OPEN} {n Expression} {n CLOSE}} {n Literal} {n Class} {n DOT}",
                 "mode" : "value"
             },
             "PRINTABLE"     : {
@@ -190,7 +190,7 @@
                 "mode" : "leaf"
             },
             "Range"         : {
-                "is"   : "\/ {x {n Char} {n TO} {n Char}} {n Char}",
+                "is"   : "/ {x {n Char} {n TO} {n Char}} {n Char}",
                 "mode" : "value"
             },
             "SEMICOLON"     : {
@@ -202,7 +202,7 @@
                 "mode" : "value"
             },
             "SLASH"         : {
-                "is"   : "x {t \/} {n WHITESPACE}",
+                "is"   : "x {t /} {n WHITESPACE}",
                 "mode" : "void"
             },
             "SPACE"         : {
@@ -218,7 +218,7 @@
                 "mode" : "value"
             },
             "Suffix"        : {
-                "is"   : "x {n Primary} {? {\/ {n QUESTION} {n STAR} {n PLUS}}}",
+                "is"   : "x {n Primary} {? {/ {n QUESTION} {n STAR} {n PLUS}}}",
                 "mode" : "value"
             },
             "TO"            : {
@@ -234,7 +234,7 @@
                 "mode" : "leaf"
             },
             "WHITESPACE"    : {
-                "is"   : "* {\/ space {n COMMENT}}",
+                "is"   : "* {/ space {n COMMENT}}",
                 "mode" : "void"
             },
             "WORDCHAR"      : {
