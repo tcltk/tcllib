@@ -321,7 +321,7 @@ tcllib
 \fIfiles/modules/control/control\&.n\fR: Procedures for control flow structures\&.
 .TP
 \fBcoroutine\fR
-\fIfiles/modules/coroutine/coroutine\&.n\fR: Coroutine based event and IO handling
+\fIfiles/modules/coroutine/tcllib_coroutine\&.n\fR: Coroutine based event and IO handling
 .TP
 \fBcoroutine::auto\fR
 \fIfiles/modules/coroutine/coro_auto\&.n\fR: Automatic event and IO coroutine awareness
@@ -1176,13 +1176,13 @@ tcllib
 \fIfiles/modules/virtchannel_base/std\&.n\fR: Standard I/O, unification of stdin and stdout
 .TP
 \fBtcl::chan::string\fR
-\fIfiles/modules/virtchannel_base/string\&.n\fR: Read-only in-memory channel
+\fIfiles/modules/virtchannel_base/tcllib_string\&.n\fR: Read-only in-memory channel
 .TP
 \fBtcl::chan::textwindow\fR
 \fIfiles/modules/virtchannel_base/textwindow\&.n\fR: Textwindow channel
 .TP
 \fBtcl::chan::variable\fR
-\fIfiles/modules/virtchannel_base/variable\&.n\fR: In-memory channel using variable for storage
+\fIfiles/modules/virtchannel_base/tcllib_variable\&.n\fR: In-memory channel using variable for storage
 .TP
 \fBtcl::chan::zero\fR
 \fIfiles/modules/virtchannel_base/zero\&.n\fR: Zero channel
@@ -1224,7 +1224,7 @@ tcllib
 \fIfiles/modules/virtchannel_transform/spacer\&.n\fR: Space insertation and removal
 .TP
 \fBtcl::transform::zlib\fR
-\fIfiles/modules/virtchannel_transform/zlib\&.n\fR: zlib (de)compression
+\fIfiles/modules/virtchannel_transform/tcllib_zlib\&.n\fR: zlib (de)compression
 .TP
 \fBtcldocstrip\fR
 \fIfiles/apps/tcldocstrip\&.n\fR: Tcl-based Docstrip Processor

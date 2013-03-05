@@ -640,7 +640,7 @@ subcommand:</p>
     text .mytext -width 80 -height 24
     .mytext insert end &quot;Howdy!&quot;
 </pre>
-<p>In this example, <b class="cmd"><a href="../../../../index.html#key482">text</a></b> is the <i class="term"><a href="../../../../index.html#key121">type</a></i> command and
+<p>In this example, <b class="cmd"><a href="../../../../index.html#key478">text</a></b> is the <i class="term"><a href="../../../../index.html#key121">type</a></i> command and
 <b class="cmd">.mytext</b> is the <i class="term">instance</i> command.</p>
 <p>In Snit, object subcommands are generally called 
 <span class="sectref"><a href="#section5">INSTANCE METHODS</a></span>.</p>
@@ -863,7 +863,7 @@ so forth.</p>
 </div>
 <div id="subsection25" class="subsection"><h3><a name="subsection25">How do I define an instance method?</a></h3>
 <p>Instance methods are defined in the type definition using
-the <b class="cmd"><a href="../../../../index.html#key356">method</a></b> statement.  Consider the following code that might be
+the <b class="cmd"><a href="../../../../index.html#key352">method</a></b> statement.  Consider the following code that might be
 used to add dogs to a computer simulation:</p>
 <pre class="example">% snit::type dog {
     method bark {} {
@@ -877,7 +877,7 @@ used to add dogs to a computer simulation:</p>
 %
 </pre>
 <p>A dog can bark, and it can chase things.</p>
-<p>The <b class="cmd"><a href="../../../../index.html#key356">method</a></b> statement looks just like a normal Tcl <b class="cmd"><a href="../../../../index.html#key571">proc</a></b>,
+<p>The <b class="cmd"><a href="../../../../index.html#key352">method</a></b> statement looks just like a normal Tcl <b class="cmd"><a href="../../../../index.html#key571">proc</a></b>,
 except that it appears in a <b class="cmd">snit::type</b> definition.  Notice that
 every instance method gets an implicit argument called <b class="variable">self</b>;
 this argument contains the object's name.  (There's more on
@@ -931,7 +931,7 @@ Hierarchical methods allow an object's methods to have subcommands of
 their own; and these can in turn have subcommands, and so on.  This
 allows the programmer to define a tree-shaped command structure, such
 as is used by many of the Tk widgets--the subcommands of the 
-Tk <b class="cmd"><a href="../../../../index.html#key482">text</a></b> widget's <b class="cmd">tag</b> method are hierarchical methods.</p>
+Tk <b class="cmd"><a href="../../../../index.html#key478">text</a></b> widget's <b class="cmd">tag</b> method are hierarchical methods.</p>
 </div>
 <div id="subsection30" class="subsection"><h3><a name="subsection30">How do I define a hierarchical method?</a></h3>
 <p>Define methods whose names consist of multiple words.  These words
@@ -2209,7 +2209,7 @@ which the <b class="cmd">dog</b> object can delegate its <b class="cmd">wag</b> 
 <p>This is the hard way to do it, by it demonstrates what delegation is
 all about.  See the following answers for the easy way to do it.</p>
 <p>Note that the constructor calls the <b class="method">configurelist</b> method
-<b class="cmd"><a href="../../../../index.html#key393">after</a></b> it creates its <b class="cmd">tail</b>; otherwise,
+<b class="cmd"><a href="../../../../index.html#key389">after</a></b> it creates its <b class="cmd">tail</b>; otherwise,
 if <b class="option">-taillength</b> appeared in the list of <b class="variable">args</b> we'd get an
 error.</p>
 </div>
@@ -2244,7 +2244,7 @@ its arguments are passed along automatically to the <b class="cmd">tail</b> obje
 the component's instance variable is defined implicitly.  However,
 it's still good practice to declare it explicitly using the
 <b class="cmd">component</b> statement.</p>
-<p>Note also that you can define a method name using the <b class="cmd"><a href="../../../../index.html#key356">method</a></b>
+<p>Note also that you can define a method name using the <b class="cmd"><a href="../../../../index.html#key352">method</a></b>
 statement, or you can define it using <b class="cmd">delegate</b>; you can't do
 both.</p>
 </div>
@@ -2708,7 +2708,7 @@ the widget class of</p>
 }
 </pre>
 <p>The above definition says that a <b class="cmd">scrolledText</b> megawidget has the
-same widget class as an ordinary <b class="cmd"><a href="../../../../index.html#key482">text</a></b> widget.  This might or
+same widget class as an ordinary <b class="cmd"><a href="../../../../index.html#key478">text</a></b> widget.  This might or
 might not be a good idea, depending on how the rest of the megawidget
 is defined, and how its options are delegated.</p>
 </div>
@@ -2734,7 +2734,7 @@ The resource name is usually just the option
 name minus the hyphen, but may contain uppercase letters at word
 boundaries; the class name is usually just the resource
 name with an initial capital, but not always.  For example, here are
-the option, resource, and class names for several Tk <b class="cmd"><a href="../../../../index.html#key482">text</a></b>
+the option, resource, and class names for several Tk <b class="cmd"><a href="../../../../index.html#key478">text</a></b>
 widget options:</p>
 <pre class="example">    -background         background         Background 
     -borderwidth        borderWidth        BorderWidth 
@@ -2899,7 +2899,7 @@ to do this is as follows:</p>
 a command like this:</p>
 <pre class="example">    set hull [text $win -foreground white]
 </pre>
-<p>The hull is a <b class="cmd"><a href="../../../../index.html#key482">text</a></b> widget, so its widget class is <b class="const">Text</b>.  Just
+<p>The hull is a <b class="cmd"><a href="../../../../index.html#key478">text</a></b> widget, so its widget class is <b class="const">Text</b>.  Just
 as with <b class="cmd">snit::widget</b> hulls, Snit assumes that it will pick up
 all of its normal option values automatically, without help from Snit.
 Options delegated from a different name are initialized from the
@@ -2916,8 +2916,8 @@ described above.</p>
 automatically.  Non-hull components are somewhat more complicated, because
 they are matched against the option database twice.</p>
 <p>A component widget remains a widget still, and is therefore
-initialized from the option database in the usual way.  A <b class="cmd"><a href="../../../../index.html#key482">text</a></b>
-widget remains a <b class="cmd"><a href="../../../../index.html#key482">text</a></b> widget whether it is a component of a
+initialized from the option database in the usual way.  A <b class="cmd"><a href="../../../../index.html#key478">text</a></b>
+widget remains a <b class="cmd"><a href="../../../../index.html#key478">text</a></b> widget whether it is a component of a
 megawidget or not, and will be created as such.</p>
 <p>But then, the option database is queried for all options delegated to
 the component, and the component is initialized accordingly--provided
