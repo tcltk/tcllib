@@ -1,3 +1,8 @@
+2013-03-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* zlib.man: Renamed, clashes with Tcl core manpage.
+	* tcllib_zlib.man: New name.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

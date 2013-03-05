@@ -33,7 +33,7 @@ modules/comm/comm.man
 modules/comm/comm_wire.man
 modules/control/control.man
 modules/coroutine/coro_auto.man
-modules/coroutine/coroutine.man
+modules/coroutine/tcllib_coroutine.man
 modules/counter/counter.man
 modules/crc/cksum.man
 modules/crc/crc16.man
@@ -368,9 +368,9 @@ modules/virtchannel_base/nullzero.man
 modules/virtchannel_base/random.man
 modules/virtchannel_base/randseed.man
 modules/virtchannel_base/std.man
-modules/virtchannel_base/string.man
+modules/virtchannel_base/tcllib_string.man
+modules/virtchannel_base/tcllib_variable.man
 modules/virtchannel_base/textwindow.man
-modules/virtchannel_base/variable.man
 modules/virtchannel_base/zero.man
 modules/virtchannel_core/core.man
 modules/virtchannel_core/events.man
@@ -386,7 +386,7 @@ modules/virtchannel_transform/observe.man
 modules/virtchannel_transform/otp.man
 modules/virtchannel_transform/rot.man
 modules/virtchannel_transform/spacer.man
-modules/virtchannel_transform/zlib.man
+modules/virtchannel_transform/tcllib_zlib.man
 modules/wip/wip.man
 modules/yaml/huddle.man
 modules/yaml/yaml.man
