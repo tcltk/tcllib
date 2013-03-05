@@ -367,7 +367,7 @@ aes
 after
 .RS
 .TP
-\fBfiles/modules/coroutine/coroutine\&.n\fR
+\fBfiles/modules/coroutine/tcllib_coroutine\&.n\fR
 coroutine
 .TP
 \fBfiles/modules/coroutine/coro_auto\&.n\fR
@@ -1030,7 +1030,7 @@ doctools::cvs
 channel
 .RS
 .TP
-\fBfiles/modules/coroutine/coroutine\&.n\fR
+\fBfiles/modules/coroutine/tcllib_coroutine\&.n\fR
 coroutine
 .TP
 \fBfiles/modules/coroutine/coro_auto\&.n\fR
@@ -1093,7 +1093,7 @@ tcl::transform::rot
 \fBfiles/modules/virtchannel_transform/spacer\&.n\fR
 tcl::transform::spacer
 .TP
-\fBfiles/modules/virtchannel_transform/zlib\&.n\fR
+\fBfiles/modules/virtchannel_transform/tcllib_zlib\&.n\fR
 tcl::transform::zlib
 .RE
 character input
@@ -1408,7 +1408,7 @@ math::fourier
 compression
 .RS
 .TP
-\fBfiles/modules/virtchannel_transform/zlib\&.n\fR
+\fBfiles/modules/virtchannel_transform/tcllib_zlib\&.n\fR
 tcl::transform::zlib
 .RE
 computations
@@ -1768,7 +1768,7 @@ transfer::transmitter
 coroutine
 .RS
 .TP
-\fBfiles/modules/coroutine/coroutine\&.n\fR
+\fBfiles/modules/coroutine/tcllib_coroutine\&.n\fR
 coroutine
 .TP
 \fBfiles/modules/coroutine/coro_auto\&.n\fR
@@ -2050,7 +2050,7 @@ term::ansi::code
 decompression
 .RS
 .TP
-\fBfiles/modules/virtchannel_transform/zlib\&.n\fR
+\fBfiles/modules/virtchannel_transform/tcllib_zlib\&.n\fR
 tcl::transform::zlib
 .RE
 decryption
@@ -3016,7 +3016,7 @@ tcl::chan::events
 events
 .RS
 .TP
-\fBfiles/modules/coroutine/coroutine\&.n\fR
+\fBfiles/modules/coroutine/tcllib_coroutine\&.n\fR
 coroutine
 .TP
 \fBfiles/modules/coroutine/coro_auto\&.n\fR
@@ -3079,7 +3079,7 @@ jpeg
 exit
 .RS
 .TP
-\fBfiles/modules/coroutine/coroutine\&.n\fR
+\fBfiles/modules/coroutine/tcllib_coroutine\&.n\fR
 coroutine
 .TP
 \fBfiles/modules/coroutine/coro_auto\&.n\fR
@@ -3739,7 +3739,7 @@ term::receive
 gets
 .RS
 .TP
-\fBfiles/modules/coroutine/coroutine\&.n\fR
+\fBfiles/modules/coroutine/tcllib_coroutine\&.n\fR
 coroutine
 .TP
 \fBfiles/modules/coroutine/coro_auto\&.n\fR
@@ -3748,7 +3748,7 @@ coroutine::auto
 global
 .RS
 .TP
-\fBfiles/modules/coroutine/coroutine\&.n\fR
+\fBfiles/modules/coroutine/tcllib_coroutine\&.n\fR
 coroutine
 .TP
 \fBfiles/modules/coroutine/coro_auto\&.n\fR
@@ -3967,7 +3967,7 @@ page_util_norm_peg
 green threads
 .RS
 .TP
-\fBfiles/modules/coroutine/coroutine\&.n\fR
+\fBfiles/modules/coroutine/tcllib_coroutine\&.n\fR
 coroutine
 .TP
 \fBfiles/modules/coroutine/coro_auto\&.n\fR
@@ -4276,10 +4276,10 @@ tcl::chan::halfpipe
 \fBfiles/modules/virtchannel_base/memchan\&.n\fR
 tcl::chan::memchan
 .TP
-\fBfiles/modules/virtchannel_base/string\&.n\fR
+\fBfiles/modules/virtchannel_base/tcllib_string\&.n\fR
 tcl::chan::string
 .TP
-\fBfiles/modules/virtchannel_base/variable\&.n\fR
+\fBfiles/modules/virtchannel_base/tcllib_variable\&.n\fR
 tcl::chan::variable
 .RE
 in-order
@@ -7528,7 +7528,7 @@ rcs
 read
 .RS
 .TP
-\fBfiles/modules/coroutine/coroutine\&.n\fR
+\fBfiles/modules/coroutine/tcllib_coroutine\&.n\fR
 coroutine
 .TP
 \fBfiles/modules/coroutine/coro_auto\&.n\fR
@@ -7765,13 +7765,13 @@ tcl::chan::randseed
 \fBfiles/modules/virtchannel_base/std\&.n\fR
 tcl::chan::std
 .TP
-\fBfiles/modules/virtchannel_base/string\&.n\fR
+\fBfiles/modules/virtchannel_base/tcllib_string\&.n\fR
 tcl::chan::string
 .TP
 \fBfiles/modules/virtchannel_base/textwindow\&.n\fR
 tcl::chan::textwindow
 .TP
-\fBfiles/modules/virtchannel_base/variable\&.n\fR
+\fBfiles/modules/virtchannel_base/tcllib_variable\&.n\fR
 tcl::chan::variable
 .TP
 \fBfiles/modules/virtchannel_base/zero\&.n\fR
@@ -7813,7 +7813,7 @@ tcl::transform::rot
 \fBfiles/modules/virtchannel_transform/spacer\&.n\fR
 tcl::transform::spacer
 .TP
-\fBfiles/modules/virtchannel_transform/zlib\&.n\fR
+\fBfiles/modules/virtchannel_transform/tcllib_zlib\&.n\fR
 tcl::transform::zlib
 .RE
 regex
@@ -9673,7 +9673,7 @@ tcl::chan::textwindow
 threads
 .RS
 .TP
-\fBfiles/modules/coroutine/coroutine\&.n\fR
+\fBfiles/modules/coroutine/tcllib_coroutine\&.n\fR
 coroutine
 .TP
 \fBfiles/modules/coroutine/coro_auto\&.n\fR
@@ -9772,13 +9772,13 @@ tcl::chan::randseed
 \fBfiles/modules/virtchannel_base/std\&.n\fR
 tcl::chan::std
 .TP
-\fBfiles/modules/virtchannel_base/string\&.n\fR
+\fBfiles/modules/virtchannel_base/tcllib_string\&.n\fR
 tcl::chan::string
 .TP
 \fBfiles/modules/virtchannel_base/textwindow\&.n\fR
 tcl::chan::textwindow
 .TP
-\fBfiles/modules/virtchannel_base/variable\&.n\fR
+\fBfiles/modules/virtchannel_base/tcllib_variable\&.n\fR
 tcl::chan::variable
 .TP
 \fBfiles/modules/virtchannel_base/zero\&.n\fR
@@ -9823,13 +9823,13 @@ tcl::transform::rot
 \fBfiles/modules/virtchannel_transform/spacer\&.n\fR
 tcl::transform::spacer
 .TP
-\fBfiles/modules/virtchannel_transform/zlib\&.n\fR
+\fBfiles/modules/virtchannel_transform/tcllib_zlib\&.n\fR
 tcl::transform::zlib
 .RE
 tip 234
 .RS
 .TP
-\fBfiles/modules/virtchannel_transform/zlib\&.n\fR
+\fBfiles/modules/virtchannel_transform/tcllib_zlib\&.n\fR
 tcl::transform::zlib
 .RE
 tip 317
@@ -10297,7 +10297,7 @@ tcl::transform::rot
 \fBfiles/modules/virtchannel_transform/spacer\&.n\fR
 tcl::transform::spacer
 .TP
-\fBfiles/modules/virtchannel_transform/zlib\&.n\fR
+\fBfiles/modules/virtchannel_transform/tcllib_zlib\&.n\fR
 tcl::transform::zlib
 .RE
 transmitter
@@ -10516,7 +10516,7 @@ tie
 update
 .RS
 .TP
-\fBfiles/modules/coroutine/coroutine\&.n\fR
+\fBfiles/modules/coroutine/tcllib_coroutine\&.n\fR
 coroutine
 .TP
 \fBfiles/modules/coroutine/coro_auto\&.n\fR
@@ -10744,13 +10744,13 @@ tcl::chan::randseed
 \fBfiles/modules/virtchannel_base/std\&.n\fR
 tcl::chan::std
 .TP
-\fBfiles/modules/virtchannel_base/string\&.n\fR
+\fBfiles/modules/virtchannel_base/tcllib_string\&.n\fR
 tcl::chan::string
 .TP
 \fBfiles/modules/virtchannel_base/textwindow\&.n\fR
 tcl::chan::textwindow
 .TP
-\fBfiles/modules/virtchannel_base/variable\&.n\fR
+\fBfiles/modules/virtchannel_base/tcllib_variable\&.n\fR
 tcl::chan::variable
 .TP
 \fBfiles/modules/virtchannel_base/zero\&.n\fR
@@ -10792,7 +10792,7 @@ tcl::transform::rot
 \fBfiles/modules/virtchannel_transform/spacer\&.n\fR
 tcl::transform::spacer
 .TP
-\fBfiles/modules/virtchannel_transform/zlib\&.n\fR
+\fBfiles/modules/virtchannel_transform/tcllib_zlib\&.n\fR
 tcl::transform::zlib
 .RE
 virtual machine
@@ -10831,7 +10831,7 @@ valtype::creditcard::visa
 vwait
 .RS
 .TP
-\fBfiles/modules/coroutine/coroutine\&.n\fR
+\fBfiles/modules/coroutine/tcllib_coroutine\&.n\fR
 coroutine
 .TP
 \fBfiles/modules/coroutine/coro_auto\&.n\fR
@@ -10987,7 +10987,7 @@ tcl::chan::zero
 zlib
 .RS
 .TP
-\fBfiles/modules/virtchannel_transform/zlib\&.n\fR
+\fBfiles/modules/virtchannel_transform/tcllib_zlib\&.n\fR
 tcl::transform::zlib
 .RE
 zoom

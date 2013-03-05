@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/virtchannel_base/variable\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/virtchannel_base/tcllib_string\&.n' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -238,10 +238,10 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "tcl::chan::variable" n 1 tcllib "Reflected/virtual channel support"
+.TH "tcl::chan::string" n 1 tcllib "Reflected/virtual channel support"
 .BS
 .SH NAME
-tcl::chan::variable \- In-memory channel using variable for storage
+tcl::chan::string \- Read-only in-memory channel
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
@@ -249,31 +249,30 @@ package require \fBTclOO \fR
 .sp
 package require \fBtcl::chan::events  ?1?\fR
 .sp
-package require \fBtcl::chan::variable  ?1?\fR
+package require \fBtcl::chan::string  ?1?\fR
 .sp
-\fB::tcl::chan::variable\fR \fIvarname\fR
+\fB::tcl::chan::string\fR \fIcontent\fR
 .sp
 .BE
 .SH DESCRIPTION
 .PP
-The \fBtcl::chan::variable\fR package provides a command creating
+The \fBtcl::chan::string\fR package provides a command creating
 channels which live purely in memory\&. They provide random-access,
 i\&.e\&. are seekable\&.
 In contrast to the channels created by \fBtcl::chan::memchan\fR
-the data is not hidden in the channel however, but stored in an
-associated variable, specified at the time of construction\&.
+they are read-only however, their content is provided at the time of
+construction and immutable afterward\&.
 .PP
 Packages related to this are \fBtcl::chan::memchan\fR and
-\fBtcl::chan::string\fR\&.
+\fBtcl::chan::variable\fR\&.
 .PP
 The internal \fBTclOO\fR class implementing the channel
 handler is a sub-class of the \fBtcl::chan::events\fR framework\&.
 .SH API
 .TP
-\fB::tcl::chan::variable\fR \fIvarname\fR
-This command creates a new variable channel and returns its handle\&.
-The content of the channel is stored in the associated namespace
-variable \fIvarname\fR\&.
+\fB::tcl::chan::string\fR \fIcontent\fR
+This command creates a new string channel and returns its handle\&. The
+channel provides random read-only access to the \fIcontent\fR string\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
