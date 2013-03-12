@@ -152,6 +152,7 @@ Application  nns
 Application  nnsd
 Application  nnslog
 Application  page
+Application  pt
 Application  tcldocstrip
 
 # @@ Registration END

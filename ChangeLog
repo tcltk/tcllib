@@ -1,3 +1,9 @@
+2013-03-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* support/installation/modules.tcl: Added 'pt' (of modules/pt) to
+	  the set of distributed applications. Note that the application
+	  was moved to apps/ for this.
+
 2013-03-01  Andreas Kupries  <andreask@activestate.com>
 
 	* support/devel/sak/validate/syntax.tcl (::sak::validate::syntax::Setup): 

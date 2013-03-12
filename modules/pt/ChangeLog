@@ -1,3 +1,8 @@
+2013-03-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pt: Moved to the apps/ directory, with the other proper applications.
+	* pt.man:
+
 2013-03-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* tests/data/ok/peg_json-indalign/0_basic_arithmetic: Updated to match
