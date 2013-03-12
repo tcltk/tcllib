@@ -1,9 +1,9 @@
 [comment {-*- text -*- doctools manpage}]
 [manpage_begin pt n 1]
-[include include/module.inc]
+[include ../modules/pt/include/module.inc]
 [titledesc {Parser Tools Application}]
 [description]
-[include include/ref_intro.inc]
+[include ../modules/pt/include/ref_intro.inc]
 
 This document describes [cmd pt], the main application of the module,
 a [term {parser generator}]. Its intended audience are people who wish
@@ -65,7 +65,7 @@ transformation of grammars for exchange, reformatting, and the like.
 [para]
 
 The created parsers fall into three categories:
-[include include/gen_options.inc]
+[include ../modules/pt/include/gen_options.inc]
 
 [list_begin definitions]
 
@@ -159,7 +159,7 @@ It is described in the [manpage {Parser API}] specification document.
 
 
 [section {PEG Specification Language}]
-[include include/format/whatis_peg.inc]
+[include ../modules/pt/include/format/whatis_peg.inc]
 [para]
 
 For either an introduction to or the formal specification of the
@@ -170,10 +170,10 @@ language, please go and read the [manpage {PEG Language Tutorial}].
 When used as a result-format this format supports the following
 options:
 
-[include include/format/options_peg.inc]
+[include ../modules/pt/include/format/options_peg.inc]
 
 [section {JSON Grammar Exchange}]
-[include include/format/whatis_json.inc]
+[include ../modules/pt/include/format/whatis_json.inc]
 [para]
 
 For the formal specification of the JSON grammar exchange format,
@@ -184,51 +184,51 @@ please go and read [manpage {The JSON Grammar Exchange Format}].
 When used as a result-format this format supports the following
 options:
 
-[include include/format/options_json.inc]
+[include ../modules/pt/include/format/options_json.inc]
 
 [section {C Parser Embedded In Tcl}]
-[include include/format/whatis_cparam_critcl.inc]
+[include ../modules/pt/include/format/whatis_cparam_critcl.inc]
 [para]
 
 This result-format supports the following options:
 
-[include include/format/options_cparam_critcl.inc]
+[include ../modules/pt/include/format/options_cparam_critcl.inc]
 
 [section {C Parser}]
-[include include/format/whatis_cparam_rawc.inc]
+[include ../modules/pt/include/format/whatis_cparam_rawc.inc]
 [para]
 
 This result-format supports the following options:
 
-[include include/format/options_cparam_rawc.inc]
+[include ../modules/pt/include/format/options_cparam_rawc.inc]
 
 [section {Snit Parser}]
-[include include/format/whatis_tclparam_snit.inc]
+[include ../modules/pt/include/format/whatis_tclparam_snit.inc]
 [para]
 
 This result-format supports the following options:
 
-[include include/format/options_tclparam_snit.inc]
+[include ../modules/pt/include/format/options_tclparam_snit.inc]
 
 [section {TclOO Parser}]
-[include include/format/whatis_tclparam_oo.inc]
+[include ../modules/pt/include/format/whatis_tclparam_oo.inc]
 [para]
 
 This result-format supports the following options:
 
-[include include/format/options_tclparam_oo.inc]
+[include ../modules/pt/include/format/options_tclparam_oo.inc]
 
 [section {Grammar Container}]
-[include include/format/whatis_container.inc]
+[include ../modules/pt/include/format/whatis_container.inc]
 [para]
 
 This result-format supports the following options:
 
-[include include/format/options_container.inc]
+[include ../modules/pt/include/format/options_container.inc]
 
 
 [section Example]
-[vset MODE app][include include/example/full.inc]
+[vset MODE app][include ../modules/pt/include/example/full.inc]
 
 
 
@@ -243,5 +243,5 @@ parsers can ignore it.
 The main functionality of the application is encapsulated in the
 package [package pt::pgen]. Please read it for more information.
 
-[include include/feedback.inc]
+[include ../modules/pt/include/feedback.inc]
 [manpage_end]
