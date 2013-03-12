@@ -1,3 +1,8 @@
+2013-03-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* math.test (math-12.1): [Bug 3606620]: Disabled debug output
+	command lifting SafeBase error information into the test log.
+
 2013-03-05  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* decimal.tcl: Some rounding issues fixed (by Mark Alston)
 	* pkgIndex.tcl: Bumped version of decimal package to 1.0.3
