@@ -252,7 +252,7 @@
 [item modules/page/page_util_quote.man      page_util_quote      {page character quoting utilities}]
 [division_end]
 [division_start {Parsing and Grammars}]
-[item modules/pt/pt.man                       pt                                 {Parser Tools Application}]
+[item apps/pt.man                             pt                                 {Parser Tools Application}]
 [item modules/pt/pt_astree.man                pt::ast                            {Abstract Syntax Tree Serialization}]
 [item modules/pt/pt_cparam_config_critcl.man  pt::cparam::configuration::critcl  {C/PARAM, Canned configuration, Critcl}]
 [item modules/pt/pt_json_language.man         pt::json_language                  {The JSON Grammar Exchange Format}]
