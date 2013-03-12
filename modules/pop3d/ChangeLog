@@ -1,3 +1,9 @@
+2013-03-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* pop3d.man: Added references to the relevant RFCs 1939 and 2449.
+	* rfc1939.txt: Removed copies of RFC documents. Keep only links.
+	* rfc2449.txt:
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

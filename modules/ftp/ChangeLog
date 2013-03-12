@@ -1,3 +1,8 @@
+2013-03-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* rfc959.txt: Removed copies of RFC documents. Keep only links.
+	* std9.txt:
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
