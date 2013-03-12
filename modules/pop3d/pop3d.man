@@ -255,6 +255,13 @@ command, see package [package tls], to secure the communication.
 }]
 
 
+[section References]
+
+[list_begin enumerated]
+[enum] [uri http://www.rfc-editor.org/rfc/rfc1939.txt {RFC 1939}]
+[enum] [uri http://www.rfc-editor.org/rfc/rfc2449.txt {RFC 2449}]
+[list_end]
+
 [vset CATEGORY pop3d]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]
