@@ -372,7 +372,6 @@
 [item modules/profiler/profiler.man profiler {Tcl source code profiler}]
 [division_end]
 [division_start pt]
-[item modules/pt/pt.man                       pt                                 {Parser Tools Application}]
 [item modules/pt/pt_astree.man                pt::ast                            {Abstract Syntax Tree Serialization}]
 [item modules/pt/pt_cparam_config_critcl.man  pt::cparam::configuration::critcl  {C/PARAM, Canned configuration, Critcl}]
 [item modules/pt/pt_json_language.man         pt::json_language                  {The JSON Grammar Exchange Format}]
