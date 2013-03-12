@@ -1,10 +1,10 @@
-[manpage_begin string::token::shell n 1]
+[manpage_begin string::token::shell n 1.1]
 [moddesc   {Text and string utilities}]
 [titledesc {Parsing of shell command line}]
 [category  {Text processing}]
 [keywords string shell bash tokenization parsing lexing]
 [require Tcl 8.5]
-[require string::token::shell [opt 1]]
+[require string::token::shell [opt 1.1]]
 [require string::token [opt 1]]
 [require fileutil]
 [description]
@@ -18,7 +18,7 @@ The complete set of procedures is described below.
 
 [list_begin definitions]
 
-[call [cmd {::string token shell}] [arg string]]
+[call [cmd {::string token shell}] [opt [option -indices]] [opt [option -partial]] [arg string]]
 
 This command parses the input [arg string] under the assumption of it
 following basic [syscmd sh]-syntax.
@@ -26,6 +26,53 @@ following basic [syscmd sh]-syntax.
 The result of the command is a list of words in the [arg string].
 
 An error is thrown if the input does not follow the allowed syntax.
+
+The behaviour can be modified by specifying any of the two options
+[option -indices] and [option -partial].
+
+[list_begin options]
+[opt_def -indices]
+
+When specified the output is not a list of words, but a list of
+4-tuples describing the words. Each tuple contains the type of the
+word, its start- and end-indices in the input, and the actual text of
+the word.
+
+[para] Note that the length of the word as given by the indices can
+differ from the length of the word found in the last element of the
+tuple. The indices describe the words extent in the input, including
+delimiters, intra-word quoting, etc. whereas for the actual text of
+the word delimiters are stripped, intra-word quoting decoded, etc.
+
+[para] The possible token types are
+[list_begin definitions]
+[def [const PLAIN]]
+Plain word, not quoted.
+
+[def [const D:QUOTED]]
+Word is delimited by double-quotes.
+
+[def [const S:QUOTED]]
+Word is delimited by single-quotes.
+
+[def [const D:QUOTED:PART]]
+[def [const S:QUOTED:PART]]
+
+Like the previous types, but the word has no closing quote, i.e. is
+incomplete. These token types can occur if and only if the option
+[option -partial] was specified, and only for the last word of the
+result. If the option [option -partial] was not specified such
+incomplete words cause the command to thrown an error instead.
+
+[list_end]
+
+[opt_def -partial]
+
+When specified the parser will accept an incomplete quoted word
+(i.e. without closing quote) at the end of the line as valid instead
+of throwing an error.
+
+[list_end]
 
 [para] The basic shell syntax accepted here are unquoted, single- and
 double-quoted words, separated by whitespace. Leading and trailing
