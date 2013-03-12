@@ -23,6 +23,12 @@
 	* doctools.tcl: such. Version bumped to 1.4.15.
 	* doctools.man:
 
+2013-02-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* changelog.tcl: flatten method added. Extension of for 'sak
+	* changelog.man: review'. Simpler structured output. Bumped
+	  version to 1.1.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
