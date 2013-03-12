@@ -265,7 +265,7 @@ test math-11.1 {math::fibonacci} {
 
 test math-12.1 {Safe Interpreter} {
     ::safe::interpCreate safeInterp
-    interp alias safeInterp puts {} puts
+    #interp alias safeInterp puts {} puts
 
     set result [interp eval safeInterp {
 	package require math
