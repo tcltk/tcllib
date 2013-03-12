@@ -3,6 +3,7 @@ apps/nns.man
 apps/nnsd.man
 apps/nnslog.man
 apps/page.man
+apps/pt.man
 apps/tcldocstrip.man
 modules/aes/aes.man
 modules/amazon-s3/S3.man
@@ -225,7 +226,6 @@ modules/pop3d/pop3d.man
 modules/pop3d/pop3d_dbox.man
 modules/pop3d/pop3d_udb.man
 modules/profiler/profiler.man
-modules/pt/pt.man
 modules/pt/pt_astree.man
 modules/pt/pt_cparam_config_critcl.man
 modules/pt/pt_from_api.man
