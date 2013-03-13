@@ -105,7 +105,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">string::token::shell(n) 1 tcllib &quot;Text and string utilities&quot;</h1>
+<h1 class="title">string::token::shell(n) 1.1 tcllib &quot;Text and string utilities&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>string::token::shell - Parsing of shell command line</p>
 </div>
@@ -123,12 +123,12 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
-<li>package require <b class="pkgname">string::token::shell <span class="opt">?1?</span></b></li>
+<li>package require <b class="pkgname">string::token::shell <span class="opt">?1.1?</span></b></li>
 <li>package require <b class="pkgname">string::token <span class="opt">?1?</span></b></li>
 <li>package require <b class="pkgname">fileutil</b></li>
 </ul>
 <ul class="syntax">
-<li><a href="#1"><b class="cmd">::string token shell</b> <i class="arg">string</i></a></li>
+<li><a href="#1"><b class="cmd">::string token shell</b> <span class="opt">?<b class="option">-indices</b>?</span> <span class="opt">?<b class="option">-partial</b>?</span> <i class="arg">string</i></a></li>
 </ul>
 </div>
 </div>
@@ -137,11 +137,46 @@
 basic <b class="syscmd">sh</b>-syntax into a list of words.</p>
 <p>The complete set of procedures is described below.</p>
 <dl class="definitions">
-<dt><a name="1"><b class="cmd">::string token shell</b> <i class="arg">string</i></a></dt>
+<dt><a name="1"><b class="cmd">::string token shell</b> <span class="opt">?<b class="option">-indices</b>?</span> <span class="opt">?<b class="option">-partial</b>?</span> <i class="arg">string</i></a></dt>
 <dd><p>This command parses the input <i class="arg">string</i> under the assumption of it
 following basic <b class="syscmd">sh</b>-syntax.
 The result of the command is a list of words in the <i class="arg">string</i>.
-An error is thrown if the input does not follow the allowed syntax.</p>
+An error is thrown if the input does not follow the allowed syntax.
+The behaviour can be modified by specifying any of the two options
+<b class="option">-indices</b> and <b class="option">-partial</b>.</p>
+<dl class="options">
+<dt><b class="option">-indices</b></dt>
+<dd><p>When specified the output is not a list of words, but a list of
+4-tuples describing the words. Each tuple contains the type of the
+word, its start- and end-indices in the input, and the actual text of
+the word.</p>
+<p>Note that the length of the word as given by the indices can
+differ from the length of the word found in the last element of the
+tuple. The indices describe the words extent in the input, including
+delimiters, intra-word quoting, etc. whereas for the actual text of
+the word delimiters are stripped, intra-word quoting decoded, etc.</p>
+<p>The possible token types are</p>
+<dl class="definitions">
+<dt><b class="const">PLAIN</b></dt>
+<dd><p>Plain word, not quoted.</p></dd>
+<dt><b class="const">D:QUOTED</b></dt>
+<dd><p>Word is delimited by double-quotes.</p></dd>
+<dt><b class="const">S:QUOTED</b></dt>
+<dd><p>Word is delimited by single-quotes.</p></dd>
+<dt><b class="const">D:QUOTED:PART</b></dt>
+<dd></dd>
+<dt><b class="const">S:QUOTED:PART</b></dt>
+<dd><p>Like the previous types, but the word has no closing quote, i.e. is
+incomplete. These token types can occur if and only if the option
+<b class="option">-partial</b> was specified, and only for the last word of the
+result. If the option <b class="option">-partial</b> was not specified such
+incomplete words cause the command to thrown an error instead.</p></dd>
+</dl></dd>
+<dt><b class="option">-partial</b></dt>
+<dd><p>When specified the parser will accept an incomplete quoted word
+(i.e. without closing quote) at the end of the line as valid instead
+of throwing an error.</p></dd>
+</dl>
 <p>The basic shell syntax accepted here are unquoted, single- and
 double-quoted words, separated by whitespace. Leading and trailing
 whitespace are possible too, and stripped.

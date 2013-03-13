@@ -470,6 +470,12 @@ command, see package \fBtls\fR, to secure the communication\&.
 	\&.\&.\&.
 
 .CE
+.SH REFERENCES
+.IP [1]
+\fIRFC 1939\fR [http://www\&.rfc-editor\&.org/rfc/rfc1939\&.txt]
+.IP [2]
+\fIRFC 2449\fR [http://www\&.rfc-editor\&.org/rfc/rfc2449\&.txt]
+.PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
