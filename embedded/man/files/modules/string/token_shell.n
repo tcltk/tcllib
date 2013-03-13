@@ -237,20 +237,20 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "string::token::shell" n 1 tcllib "Text and string utilities"
+.TH "string::token::shell" n 1\&.1 tcllib "Text and string utilities"
 .BS
 .SH NAME
 string::token::shell \- Parsing of shell command line
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBstring::token::shell  ?1?\fR
+package require \fBstring::token::shell  ?1\&.1?\fR
 .sp
 package require \fBstring::token  ?1?\fR
 .sp
 package require \fBfileutil \fR
 .sp
-\fB::string token shell\fR \fIstring\fR
+\fB::string token shell\fR ?\fB-indices\fR? ?\fB-partial\fR? \fIstring\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -259,11 +259,54 @@ basic \fBsh\fR-syntax into a list of words\&.
 .PP
 The complete set of procedures is described below\&.
 .TP
-\fB::string token shell\fR \fIstring\fR
+\fB::string token shell\fR ?\fB-indices\fR? ?\fB-partial\fR? \fIstring\fR
 This command parses the input \fIstring\fR under the assumption of it
 following basic \fBsh\fR-syntax\&.
 The result of the command is a list of words in the \fIstring\fR\&.
 An error is thrown if the input does not follow the allowed syntax\&.
+The behaviour can be modified by specifying any of the two options
+\fB-indices\fR and \fB-partial\fR\&.
+.RS
+.TP
+\fB-indices\fR
+When specified the output is not a list of words, but a list of
+4-tuples describing the words\&. Each tuple contains the type of the
+word, its start- and end-indices in the input, and the actual text of
+the word\&.
+.sp
+Note that the length of the word as given by the indices can
+differ from the length of the word found in the last element of the
+tuple\&. The indices describe the words extent in the input, including
+delimiters, intra-word quoting, etc\&. whereas for the actual text of
+the word delimiters are stripped, intra-word quoting decoded, etc\&.
+.sp
+The possible token types are
+.RS
+.TP
+\fBPLAIN\fR
+Plain word, not quoted\&.
+.TP
+\fBD:QUOTED\fR
+Word is delimited by double-quotes\&.
+.TP
+\fBS:QUOTED\fR
+Word is delimited by single-quotes\&.
+.TP
+\fBD:QUOTED:PART\fR
+.TP
+\fBS:QUOTED:PART\fR
+Like the previous types, but the word has no closing quote, i\&.e\&. is
+incomplete\&. These token types can occur if and only if the option
+\fB-partial\fR was specified, and only for the last word of the
+result\&. If the option \fB-partial\fR was not specified such
+incomplete words cause the command to thrown an error instead\&.
+.RE
+.TP
+\fB-partial\fR
+When specified the parser will accept an incomplete quoted word
+(i\&.e\&. without closing quote) at the end of the line as valid instead
+of throwing an error\&.
+.RE
 .sp
 The basic shell syntax accepted here are unquoted, single- and
 double-quoted words, separated by whitespace\&. Leading and trailing
