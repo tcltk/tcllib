@@ -900,7 +900,7 @@ tcllib
 \fIfiles/modules/profiler/profiler\&.n\fR: Tcl source code profiler
 .TP
 \fBpt\fR
-\fIfiles/modules/pt/pt\&.n\fR: Parser Tools Application
+\fIfiles/apps/pt\&.n\fR: Parser Tools Application
 .TP
 \fBpt::ast\fR
 \fIfiles/modules/pt/pt_astree\&.n\fR: Abstract Syntax Tree Serialization

@@ -1486,7 +1486,7 @@ grammar::peg
 \fBfiles/modules/grammar_peg/peg_interp\&.n\fR
 grammar::peg::interp
 .TP
-\fBfiles/modules/pt/pt\&.n\fR
+\fBfiles/apps/pt\&.n\fR
 pt
 .TP
 \fBfiles/modules/pt/pt_astree\&.n\fR
@@ -2737,7 +2737,7 @@ grammar::aycock
 EBNF
 .RS
 .TP
-\fBfiles/modules/pt/pt\&.n\fR
+\fBfiles/apps/pt\&.n\fR
 pt
 .TP
 \fBfiles/modules/pt/pt_astree\&.n\fR
@@ -3157,7 +3157,7 @@ grammar::peg
 \fBfiles/modules/grammar_peg/peg_interp\&.n\fR
 grammar::peg::interp
 .TP
-\fBfiles/modules/pt/pt\&.n\fR
+\fBfiles/apps/pt\&.n\fR
 pt
 .TP
 \fBfiles/modules/pt/pt_astree\&.n\fR
@@ -3817,7 +3817,7 @@ grammar::peg
 \fBfiles/modules/grammar_peg/peg_interp\&.n\fR
 grammar::peg::interp
 .TP
-\fBfiles/modules/pt/pt\&.n\fR
+\fBfiles/apps/pt\&.n\fR
 pt
 .TP
 \fBfiles/modules/pt/pt_astree\&.n\fR
@@ -4981,7 +4981,7 @@ grammar::peg
 \fBfiles/modules/grammar_peg/peg_interp\&.n\fR
 grammar::peg::interp
 .TP
-\fBfiles/modules/pt/pt\&.n\fR
+\fBfiles/apps/pt\&.n\fR
 pt
 .TP
 \fBfiles/modules/pt/pt_astree\&.n\fR
@@ -5434,7 +5434,7 @@ grammar::me_intro
 \fBfiles/modules/grammar_peg/peg_interp\&.n\fR
 grammar::peg::interp
 .TP
-\fBfiles/modules/pt/pt\&.n\fR
+\fBfiles/apps/pt\&.n\fR
 pt
 .TP
 \fBfiles/modules/pt/pt_astree\&.n\fR
@@ -6361,7 +6361,7 @@ doctools::toc::parse
 \fBfiles/modules/grammar_aycock/aycock\&.n\fR
 grammar::aycock
 .TP
-\fBfiles/modules/pt/pt\&.n\fR
+\fBfiles/apps/pt\&.n\fR
 pt
 .TP
 \fBfiles/modules/pt/pt_astree\&.n\fR
@@ -6592,7 +6592,7 @@ grammar::peg
 \fBfiles/modules/grammar_peg/peg_interp\&.n\fR
 grammar::peg::interp
 .TP
-\fBfiles/modules/pt/pt\&.n\fR
+\fBfiles/apps/pt\&.n\fR
 pt
 .TP
 \fBfiles/modules/pt/pt_astree\&.n\fR
@@ -6721,7 +6721,7 @@ grammar::peg::interp
 \fBfiles/modules/page/page_util_peg\&.n\fR
 page_util_peg
 .TP
-\fBfiles/modules/pt/pt\&.n\fR
+\fBfiles/apps/pt\&.n\fR
 pt
 .TP
 \fBfiles/modules/pt/pt_astree\&.n\fR
@@ -6889,7 +6889,7 @@ page_util_norm_peg
 \fBfiles/modules/page/page_util_peg\&.n\fR
 page_util_peg
 .TP
-\fBfiles/modules/pt/pt\&.n\fR
+\fBfiles/apps/pt\&.n\fR
 pt
 .TP
 \fBfiles/modules/pt/pt_astree\&.n\fR
@@ -7324,7 +7324,7 @@ grammar::peg
 \fBfiles/modules/grammar_peg/peg_interp\&.n\fR
 grammar::peg::interp
 .TP
-\fBfiles/modules/pt/pt\&.n\fR
+\fBfiles/apps/pt\&.n\fR
 pt
 .TP
 \fBfiles/modules/pt/pt_astree\&.n\fR
@@ -7579,7 +7579,7 @@ grammar::peg
 \fBfiles/modules/grammar_peg/peg_interp\&.n\fR
 grammar::peg::interp
 .TP
-\fBfiles/modules/pt/pt\&.n\fR
+\fBfiles/apps/pt\&.n\fR
 pt
 .TP
 \fBfiles/modules/pt/pt_astree\&.n\fR
@@ -8842,7 +8842,7 @@ grammar::peg
 \fBfiles/modules/grammar_peg/peg_interp\&.n\fR
 grammar::peg::interp
 .TP
-\fBfiles/modules/pt/pt\&.n\fR
+\fBfiles/apps/pt\&.n\fR
 pt
 .TP
 \fBfiles/modules/pt/pt_astree\&.n\fR
@@ -9322,7 +9322,7 @@ grammar::peg
 \fBfiles/modules/grammar_peg/peg_interp\&.n\fR
 grammar::peg::interp
 .TP
-\fBfiles/modules/pt/pt\&.n\fR
+\fBfiles/apps/pt\&.n\fR
 pt
 .TP
 \fBfiles/modules/pt/pt_astree\&.n\fR
@@ -9961,7 +9961,7 @@ grammar::peg
 \fBfiles/modules/grammar_peg/peg_interp\&.n\fR
 grammar::peg::interp
 .TP
-\fBfiles/modules/pt/pt\&.n\fR
+\fBfiles/apps/pt\&.n\fR
 pt
 .TP
 \fBfiles/modules/pt/pt_astree\&.n\fR
@@ -10120,7 +10120,7 @@ grammar::peg
 \fBfiles/modules/grammar_peg/peg_interp\&.n\fR
 grammar::peg::interp
 .TP
-\fBfiles/modules/pt/pt\&.n\fR
+\fBfiles/apps/pt\&.n\fR
 pt
 .TP
 \fBfiles/modules/pt/pt_astree\&.n\fR
