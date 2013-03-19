@@ -184,4 +184,4 @@ namespace eval ::struct {
     namespace export queue
 }
 
-package provide struct::queue 1.4.4
+package provide struct::queue 1.4.5
