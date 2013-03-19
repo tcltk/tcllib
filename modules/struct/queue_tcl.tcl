@@ -221,9 +221,9 @@ proc ::struct::queue::I::get {name {count 1}} {
     # Otherwise, return a list of items
 
     if {$count > ([llength $RET] - $AT)} {
-	# Need all of RET and parts of ADD, maybe all.
+	# Need all of RET (from AT on) and parts of ADD, maybe all.
 	set max    [expr {$count - ([llength $RET] - $AT) - 1}]
-	set result [concat $RET [lrange $ADD 0 $max]]
+	set result [concat [lrange $RET $AT end] [lrange $ADD 0 $max]]
 	Shift $name
 	set AT $max
     } else {
@@ -273,9 +273,9 @@ proc ::struct::queue::I::peek {name {count 1}} {
     # Otherwise, return a list of items
 
     if {$count > [llength $RET] - $AT} {
-	# Need all of RET and parts of ADD, maybe all.
+	# Need all of RET (from AT on) and parts of ADD, maybe all.
 	set over [expr {$count - ([llength $RET] - $AT) - 1}]
-	return [concat $RET [lrange $ADD 0 $over]]
+	return [concat [lrange $RET $AT end] [lrange $ADD 0 $over]]
     } else {
 	# Request can be satisified from RET alone.
 	return [lrange $RET $AT [expr {$AT + $count - 1}]]

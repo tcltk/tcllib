@@ -78,9 +78,9 @@ oo::class create ::struct::queue::queue_oo {
 	# Otherwise, return a list of items
 
 	if {$count > ([llength $qret] - $qat)} {
-	    # Need all of qret and parts of qadd, maybe all.
+	    # Need all of qret (from qat on) and parts of qadd, maybe all.
 	    set max    [expr {$qat + $count - 1 - [llength $qret]}]
-	    set result [concat $qret [lrange $qadd 0 $max]]
+	    set result [concat [lrange $qret $qat end] [lrange $qadd 0 $max]]
 	    my Shift
 	    set qat $max
 	} else {
@@ -125,9 +125,9 @@ oo::class create ::struct::queue::queue_oo {
 	# Otherwise, return a list of items
 
 	if {$count > [llength $qret] - $qat} {
-	    # Need all of qret and parts of qadd, maybe all.
+	    # Need all of qret (from qat on) and parts of qadd, maybe all.
 	    set over [expr {$qat + $count - 1 - [llength $qret]}]
-	    return [concat $qret [lrange $qadd 0 $over]]
+	    return [concat [lrange $qret $qat end] [lrange $qadd 0 $over]]
 	} else {
 	    # Request can be satisified from qret alone.
 	    return [lrange $qret $qat [expr {$qat + $count - 1}]]
