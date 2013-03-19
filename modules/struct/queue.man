@@ -1,10 +1,10 @@
 [comment {-*- tcl -*-}]
-[manpage_begin struct::queue n 1.4.4]
+[manpage_begin struct::queue n 1.4.5]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate queue objects}]
 [category  {Data structures}]
 [require Tcl 8.4]
-[require struct::queue [opt 1.4.4]]
+[require struct::queue [opt 1.4.5]]
 [description]
 
 The [namespace ::struct] namespace contains a commands for processing
