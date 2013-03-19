@@ -340,3 +340,33 @@ test queue-${impl}-8.5 {unget, nonempty queue, middle of queue} {
 } {foo d e f}
 
 #----------------------------------------------------------------------
+
+test queue-${impl}-sf-3608240-a {} {
+    struct::queue qp
+    qp put 1 2 3
+    set r {}
+    lappend r [qp peek [qp size]]
+    lappend r [qp get]
+    lappend r [qp peek [qp size]]
+    qp put 4 5
+    lappend r [qp peek [qp size]]
+    qp destroy
+    set r
+} {{1 2 3} 1 {2 3} {2 3 4 5}}
+catch { unset r }
+
+test queue-${impl}-sf-3608240-b {} {
+    struct::queue qp
+    qp put 1 2 3
+    set r {}
+    lappend r [qp peek [qp size]]
+    lappend r [qp get]
+    lappend r [qp peek [qp size]]
+    qp put 4 5
+    lappend r [qp get [qp size]]
+    qp destroy
+    set r
+} {{1 2 3} 1 {2 3} {2 3 4 5}}
+catch { unset r }
+
+#----------------------------------------------------------------------
