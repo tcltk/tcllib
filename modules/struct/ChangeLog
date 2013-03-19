@@ -1,3 +1,10 @@
+2013-03-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* queue.testsuite: [Bug 3608240]: Fixed get/peek not taking
+	* queue_oo.tcl: the amount of already delivered elements
+	* queue_tcl.tcl: into account. Extended testsuite. Bumped version
+	  to 1.4.5
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
