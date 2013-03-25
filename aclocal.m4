@@ -27,7 +27,7 @@ AC_DEFUN(SC_SIMPLE_EXEEXT, [
     AC_MSG_CHECKING(executable extension based on host type)
 
     case "`uname -s`" in
-	*win32* | *WIN32* | *CYGWIN_NT* |*CYGWIN_98*|*CYGWIN_95*)
+	*win32* | *WIN32* | *CYGWIN_NT* |*CYGWIN_98*|*CYGWIN_95*|*MSYS*)
 	    EXEEXT=".exe"
 	;;
 	*)
