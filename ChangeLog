@@ -1,3 +1,9 @@
+2013-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* aclocal.m4: [Bug 3608581]: Extended check for executable
+	* configure: extension to recognize an MSYS environment as Windows
+	  and requiring a ".exe" suffix. Regenerated configure.
+
 2013-03-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* support/installation/modules.tcl: Added 'pt' (of modules/pt) to
