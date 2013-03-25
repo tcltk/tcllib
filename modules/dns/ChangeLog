@@ -1,3 +1,10 @@
+2013-03-25  Andreas Kupries  <andreask@activestate.com>
+
+	* ip.tcl: [Bug 3608943] Check ip::version for empty input and
+	* ip.test: react properly. Extended testsuite. Bumped version
+	* pkgIndex.tcl: to 1.2.1.
+	* tcllib_ip.man:
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
