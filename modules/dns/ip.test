@@ -46,6 +46,7 @@ set Data {
     -1                        -1
     1.2.3.4.example.com       -1
     bogus.1.2.3.4.example.com -1
+    {}                        -1
 }
 set n 0
 foreach {addr result} $Data {
