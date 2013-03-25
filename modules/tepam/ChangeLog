@@ -1,8 +1,18 @@
+2013/03/25  Andreas Drollinger  <droll>
+
+	* Correction of bug 3608952: Help text is incorrectly generated if procedures are 
+	  part of the non-default namespaces
+	* Correction of bug 3608951: Help text shows incorrect argument order if procedure 
+	  is defined in the "unnamed arguments first, named arguments later" calling style.
+	* Updated files:
+	  - tepam.tcl (bug fix implementation)
+	  - proc_namespaces.test (to add more tests related to procedures defined in namepsaces)
+	  - bug_fixes.test (new file to add specific tests related to bug fixes)
+	  - pkgIndex.tcl (to update the tepam revision to 0.4.1)
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
-	*
 	* Released and tagged Tcllib 1.15 ========================
-	* 
 
 2012/05/07  Andreas Drollinger  <droll@users.sourceforge.net>
  

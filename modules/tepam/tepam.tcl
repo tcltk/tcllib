@@ -1,16 +1,15 @@
 ##########################################################################
 # TEPAM - Tcl's Enhanced Procedure and Argument Manager
 ##########################################################################
-#
 # tepam.tcl - TEPAM's main Tcl package
 # 
 # TEPAM offers an alternative way to declare Tcl procedures. It provides 
-# enhanced argument handling features like automatically generated, 
+# enhanced argument handling features like automatically generatehd, 
 # graphical entry forms and checkers for the procedure arguments.
 #
 # Copyright (C) 2009/2010/2011 Andreas Drollinger
 # 
-# RCS: @(#) $Id: tepam.tcl,v 1.4 2012/05/07 20:24:58 droll Exp $
+# RCS: @(#) $Id: tepam.tcl,v 1.4 2013/03/25 droll Exp $
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -21,7 +20,7 @@ package require Tcl 8.3
 namespace eval tepam {
 
    # This is the following TEPAM version:
-   variable version 0.4.0
+   variable version 0.4.1
    
    # Exports the major commands from this package:
    namespace export procedure argument_dialogbox
@@ -128,7 +127,7 @@ namespace eval tepam {
    #    }
    #
    # Procedure creates in fact a TCL procedure with a patched procedure body. This body calls at 
-   # the beginning an argument parser (ProcedureArgumentEvaluation)that is reading and validating 
+   # the beginning an argument parser (ProcedureArgumentEvaluation) that is reading and validating 
    # the arguments that have been provided to the procedure. The previous lines are for example 
    # creating the following TCL procedure:
    #
@@ -601,13 +600,11 @@ namespace eval tepam {
          set ProcedureCallLine [info level -1]
          set ProcName [lindex $ProcedureCallLine 0]
 
-         # Check if the procedure name contains already the name space identification:
-         if {[string range $ProcName 0 1]!="::"} {
-            # The namespace is not part of the used procedure name call. Evaluate it explicitly:
-            set NameSpace [uplevel 1 {namespace current}]
-            if {$NameSpace!="::"} {append NameSpace "::"}
-            set ProcName ${NameSpace}${ProcName}
-         }
+         # Create the full qualified procedure name (procedure name including namespace)
+         regexp {([^:]*)$} $ProcName {} ProcName
+         set NameSpace [uplevel 1 {namespace current}]
+         if {$NameSpace!="::"} {append NameSpace "::"}
+         set ProcName ${NameSpace}${ProcName}
 
          # Evaluate the sub command names by checking if the first arguments are matching with
          # a specified sub command name:
@@ -1064,8 +1061,13 @@ namespace eval tepam {
 
          if {$InteractiveCall && $ProcDef($ProcName,-command_log)=="interactive"} {
             append ProcedureCallLogList $ProcName
-            foreach NamedUnnamed {Named Unnamed} {
-               foreach Var $ProcDef($ProcName,${NamedUnnamed}VarList) {
+            if {$ProcDef($ProcName,-named_arguments_first)} {
+               set ParClasses {Named Unnamed}
+            } else {
+               set ParClasses {Unnamed Named}
+            }
+            foreach ParClass $ParClasses {
+               foreach Var $ProcDef($ProcName,${ParClass}VarList) {
                   if {![info exists Variable__$Var]} continue; # Skip optional arguments that haven't been defined
                   if {$ProcDef($ProcName,Arg,$Var,-type)!="none"} { # Non flag arguments
                      if {$ProcDef($ProcName,Arg,$Var,IsNamed)} {
@@ -1226,7 +1228,7 @@ namespace eval tepam {
       # A procedure name has been provided, generate a detailed help text for this procedure, or
       # for all sub procedures if only the main procedure names has been provided:
       } else {
-         # Evaluate the complete main procedure name that contains the namespace identification:
+         # Create the full qualified procedure name (procedure name including namespace).
          # Check if the procedure name contains already the name space identification:
          if {[string range $ProcName 0 1]!="::"} {
             # The namespace is not part of the used procedure name call. Evaluate it explicitly:
@@ -1234,14 +1236,15 @@ namespace eval tepam {
             if {$NameSpace!="::"} {append NameSpace "::"}
             set ProcName ${NameSpace}${ProcName}
          }
+         set PureProcName [PureProcName]
 
          # Add the short description if it exists to the NAME help text section. Please note that
          # only the short description of a main procedure is used in case the procedure has also
          # sub procedures.
          if {[info exists ProcDef($ProcName,-short_description)]} {
-            ProcedureHelp_Append "      [PureProcName] - $ProcDef($ProcName,-short_description)"
+            ProcedureHelp_Append "      $PureProcName - $ProcDef($ProcName,-short_description)"
          } else {
-            ProcedureHelp_Append "      [PureProcName]"
+            ProcedureHelp_Append "      $PureProcName"
          }
 
          # Create the SYNOPSIS section which contains also the synopsis of eventual sub procedures:
@@ -1255,12 +1258,18 @@ namespace eval tepam {
             # Skip the (sub) procedure if it has not been explicitly declared. This may be the 
             # case for procedures that are not implemented themselves but which have sub procedures:
             if {![info exists ProcDef($ProcName,VarList)]} continue
+            set PureProcName [PureProcName]
 
             # Add to the help text first the procedure name, and then in the following lines its
             # arguments:
-            ProcedureHelp_Append "      [PureProcName]"
-            foreach NamedUnnamed {Named Unnamed} {
-               foreach Var $ProcDef($ProcName,${NamedUnnamed}VarList) {
+            ProcedureHelp_Append "      $PureProcName"
+            if {$ProcDef($ProcName,-named_arguments_first)} {
+               set ParClasses {Named Unnamed}
+            } else {
+               set ParClasses {Unnamed Named}
+            }
+            foreach ParClass $ParClasses {
+               foreach Var $ProcDef($ProcName,${ParClass}VarList) {
                   # Section comment: Create a clean separation of the arguments:
                   if {[info exists ProcDef($ProcName,Arg,$Var,SectionComment)]} {
                      ProcedureHelp_Append "         --- $ProcDef($ProcName,Arg,$Var,SectionComment) ---"
@@ -1322,7 +1331,7 @@ namespace eval tepam {
             foreach ProcName $ProcNames {
                if {[info exists ProcDef($ProcName,-description)]} {
                   if {[llength $ProcNames]>1} {
-                     ProcedureHelp_Append "      [PureProcName]"
+                     ProcedureHelp_Append "      $PureProcName"
                      ProcedureHelp_Append "         $ProcDef($ProcName,-description)"
                   } else {
                      ProcedureHelp_Append "      $ProcDef($ProcName,-description)"
@@ -1336,7 +1345,7 @@ namespace eval tepam {
             foreach ProcName $ProcNames {
                if {[info exists ProcDef($ProcName,-example)]} {
                   if {[llength $ProcNames]>1} {
-                     ProcedureHelp_Append "      [PureProcName]"
+                     ProcedureHelp_Append "      $PureProcName"
                      ProcedureHelp_Append "         $ProcDef($ProcName,-example)"
                   } else {
                      ProcedureHelp_Append "      $ProcDef($ProcName,-example)"
@@ -2632,16 +2641,21 @@ package provide tepam $::tepam::version
 
 ##########################################################################
 # $RCSfile: tepam.tcl,v $ - ($Name:  $)
-# $Id: tepam.tcl,v 1.4 2012/05/07 20:24:58 droll Exp $
+# $Id: tepam.tcl,v 1.4 2013/03/25 droll Exp $
 # Modifications:
-# $Log: tepam.tcl,v $
-# Revision 1.4  2012/05/07 20:24:58  droll
-# * TEPAM version 0.4.0
+#
+# TEPAM version 0.4.1 - 2013/03/25 droll
+# * Correction of bug 3608952: Help text is incorrectly generated if procedures 
+#   are part of the non-default namespaces
+# * Correction of bug 3608951: Help text shows incorrect argument order if 
+#   procedure is defined in the "unnamed arguments first, named arguments later" 
+#    calling style.
+#
+# TEPAM version 0.4.0 - 2012/05/07 20:24:58  droll
 # * Add the new text procedure argument type and the text multi line data
 #   entry widget.
 #
-# Revision 1.3  2012/03/26 20:44:10  droll
-# * TEPAM version 0.3.0
+# TEPAM version 0.3.0 - 2012/03/26 20:44:10  droll
 # * Add support to log the called procedures inside an array variable.
 # * Simplify the value validation procedures using the 'string is'
 #   procedure's -strict option.
@@ -2649,14 +2663,13 @@ package provide tepam $::tepam::version
 # * Add the procedure 'ConfigureWindowsGeometry' to handle window sizes
 #   and positions.
 #
-# Revision 1.2  2011/01/21 15:56:20  droll
-# * TEPAM version 0.2.0
+# TEPAM version 0.2.0 - 2011/01/21 15:56:20  droll
 # * Add the -widget option to the procedure arguments.
 # * Add the -yscroll option to the argument dialog box.
 # * Bug fixes for the following argument dialog box widgets:
-# . - disjointlistbox: Keep always the same element order
-# . - checkbox, radiobox: Handle correctly default values
+#   - disjointlistbox: Keep always the same element order
+#   - checkbox, radiobox: Handle correctly default values
 #
-# Revision 1.1  2010/02/11 21:50:55  droll
-# * TEPAM module checkin
+# TEPAM version 0.1.0 - 2010/02/11 21:50:55  droll
+# * First TEPAM revision
 ##########################################################################
