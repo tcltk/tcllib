@@ -1,4 +1,4 @@
-[manpage_begin tepam n 0.4.0]
+[manpage_begin tepam n 0.4.1]
 [copyright {2009/2010, Andreas Drollinger}]
 [moddesc {Tcl's Enhanced Procedure and Argument Manager}]
 [titledesc {An introduction into TEPAM, Tcl's Enhanced Procedure and Argument Manager}]
