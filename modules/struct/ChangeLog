@@ -1,3 +1,8 @@
+2013-03-26  Andreas Kupries  <andreask@activestate.com>
+
+	* pkgIndex.tcl: Fixed, was missing struct::queue version bump
+	  causing mismatch.
+
 2013-03-18  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* queue.testsuite: [Bug 3608240]: Fixed get/peek not taking
