@@ -131,7 +131,7 @@ oo::define oo::class self mixin oo::class.Delegate
 ## Singleton Metaclass
 ## http://wiki.tcl.tk/21595. v63, Donal Fellows
 
-oo::class create ooutil::singleton {
+oo::class create oo::util::singleton {
    superclass oo::class
    variable object
    method create {name args} {
