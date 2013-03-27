@@ -1,0 +1,58 @@
+# -*- tcl -*-
+# # ## ### ##### ######## ############# #####################
+
+## Tests for the oo utilities facility
+## Copyright (c) 2012 by ActiveState Tool Corp.
+## BSD licensed.
+
+# # ## ### ##### ######## ############# #####################
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+testing {
+    useLocal ooutil.tcl oo::util
+}
+
+# # ## ### ##### ######## ############# #####################
+
+test ooutil-singleton-3609183-1 {bug 3609183} -setup {
+    oo::class create example1 {
+	self mixin oo::util::singleton
+	method foo {} {self}
+    }
+} -body {
+    set a [[example1 new] foo]
+    set b [[example1 new] foo]
+puts $a
+puts $b
+    string equal $a $b
+} -cleanup {
+    unset a b
+    rename example1 {}
+    # This leaves behind an example1.Delegate thing ?!
+} -result 1
+
+test ooutil-singleton-3609183-2 {bug 3609183} -setup {
+    oo::util::singleton create example2 {
+	method foo {} {self}
+    }
+} -body {
+    set a [[example2 new] foo]
+    set b [[example2 new] foo]
+puts $a
+puts $b
+    string equal $a $b
+} -cleanup {
+    unset a b
+    rename example2 {}
+} -result 1
+
+# # ## ### ##### ######## ############# #####################
+
+testsuiteCleanup
+return
