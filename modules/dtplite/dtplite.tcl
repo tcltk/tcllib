@@ -838,6 +838,12 @@ proc ::dtplite::Do.Directory {} {
     MetadataGet $files
     StyleMakeLocal
 
+    # Attention, ordering! Ensure that 'kwid' is initialized before
+    # testing it with 'HaveKeywords' everywhere we configure the links
+    # showns in the navigation bar.
+
+    set idx [IdxGenerate $module [IdxGet]]
+
     if {$utoc ne {}} {
 	if {[file exists $utoc]} { set utoc [Get $utoc] }
 	TocWrite toc index $utoc
@@ -851,7 +857,7 @@ proc ::dtplite::Do.Directory {} {
 	TocWrite toc$n index $item
 	incr n
     }
-    IdxWrite index toc [IdxGenerate $module [IdxGet]]
+    IdxWrite index toc $idx
 
     dt configure -module $module
     XrefGet
@@ -865,11 +871,15 @@ proc ::dtplite::Do.Directory {} {
 	set o $out($f)
 	dt configure -file [At $o] -ibase $input/$f
 
-	NavbuttonPush {Keyword Index}     [Output index] $o
+        if {[HaveKeywords]} {
+            NavbuttonPush {Keyword Index} [Output index] $o
+        }
 	NavbuttonPush {Table Of Contents} [Output toc]   $o
 	HeaderSetup dt $o
 	NavbuttonPop
-	NavbuttonPop
+        if {[HaveKeywords]} {
+            NavbuttonPop
+        }
 	StyleSetup dt $o
 
 	if {[string equal $format null]} {
@@ -915,6 +925,12 @@ proc ::dtplite::Do.Directory.Merge {} {
     MetadataGet $files $module
     StyleMakeLocal     $module
 
+    # Attention, ordering! Ensure that 'kwid' is initialized before
+    # testing it with 'HaveKeywords' everywhere we configure the links
+    # showns in the navigation bar.
+
+    set idx [IdxGenerate {} [IdxGetSaved index]]
+
     set localtoc [TocGet $module $module/toc]
     TocWrite $module/toc index [TocGenerate $localtoc] [TocMap $localtoc]
     if {$utoc ne {}} {
@@ -930,7 +946,7 @@ proc ::dtplite::Do.Directory.Merge {} {
 	TocWrite toc$n index $item
 	incr n
     }
-    IdxWrite index toc [IdxGenerate {} [IdxGetSaved index]]
+    IdxWrite index toc $idx
 
     dt configure -module $module
     XrefGetSaved
@@ -943,14 +959,17 @@ proc ::dtplite::Do.Directory.Merge {} {
 
 	set o $out($f)
 	dt configure -file [At $o] -ibase $input/$f
-
-	NavbuttonPush {Keyword Index}          [Output index]       $o
+        if {[HaveKeywords]} {
+            NavbuttonPush {Keyword Index} [Output index] $o
+        }
 	NavbuttonPush {Table Of Contents}      [Output $module/toc] $o
 	NavbuttonPush {Main Table Of Contents} [Output toc]         $o
 	HeaderSetup dt $o
 	NavbuttonPop
 	NavbuttonPop
-	NavbuttonPop
+        if {[HaveKeywords]} {
+            NavbuttonPop
+        }
 	StyleSetup dt $o
 
 	if {[string equal $format null]} {
@@ -1133,10 +1152,13 @@ proc ::dtplite::TocWrite {ftoc findex text {map {}}} {
     set ft [Output $ftoc]
 
     doctools::toc::new toc -format $format -file $ft
-
-    NavbuttonPush {Keyword Index} [Output $findex] $ftoc
-    HeaderSetup  toc $ft
-    NavbuttonPop
+    if {[HaveKeywords]} {
+        NavbuttonPush {Keyword Index} [Output $findex] $ftoc
+    }
+    HeaderSetup toc $ft
+    if {[HaveKeywords]} {
+        NavbuttonPop
+    }
     FooterSetup  toc
     StyleSetup   toc $ftoc
 
@@ -1259,6 +1281,8 @@ proc ::dtplite::IdxWrite {findex ftoc text} {
     variable format
 
     if {[string equal $format null]} return
+    if {![HaveKeywords]} return
+
     Write [At .idxdoc] $text
 
     set fi [Output $findex]
@@ -1285,6 +1309,14 @@ proc ::dtplite::IdxAlign {v keys} {
 	Max mxf $symfile
     }
     return
+}
+
+# ### ### ### ######### ######### #########
+## Detect presence of keywords.
+
+proc ::dtplite::HaveKeywords {} {
+    variable   kwid
+    array size kwid
 }
 
 # ### ### ### ######### ######### #########
@@ -1579,9 +1611,19 @@ proc ::dtplite::NavbuttonPop {} {
 proc ::dtplite::HeaderSetup {o ref} {
     variable header
     variable nav
+    variable prenav
+    variable postnav
 
-    if {[string equal $header ""] && ![llength $nav]} return
-    if {![in [$o parameters] header]}                 return
+    # We cannot generate a navigation bar if the output format does
+    # not support a "header".
+    if {![in [$o parameters] header]} return
+
+    # Do not generate a navigation bar if no content was specified for
+    # it, at all.
+    if {![llength $prenav] &&
+	![llength $postnav] &&
+	![llength $nav] &&
+	[string equal $header ""]} return
 
     $o setparam header [Navbar $nav $ref]
     return
