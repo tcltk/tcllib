@@ -370,20 +370,20 @@ element which is not a known state.
 The result is a boolean value. It will be set to <b class="const">true</b> if a
 start state is present in <i class="arg">stateset</i>, and <b class="const">false</b> otherwise.</p></dd>
 <dt><a name="19"><i class="arg">faName</i> <b class="method">finalstates</b></a></dt>
-<dd><p>Returns the set of states which are marked as <i class="term"><a href="../../../../index.html#key165">final</a></i> states,
+<dd><p>Returns the set of states which are marked as <i class="term"><a href="../../../../index.html#key164">final</a></i> states,
 also known as <i class="term">accepting</i> states.
 See <span class="sectref"><a href="#section5">FINITE AUTOMATONS</a></span> for explanations what this means.</p></dd>
 <dt><a name="20"><i class="arg">faName</i> <b class="method">final</b> <b class="method">add</b> <i class="arg">s1</i> <span class="opt">?<i class="arg">s2</i> ...?</span></a></dt>
 <dd><p>Mark the states <i class="arg">s1</i>, <i class="arg">s2</i>, et cetera in the FA <i class="arg">faName</i>
-as <i class="term"><a href="../../../../index.html#key165">final</a></i> (aka <i class="term">accepting</i>).</p></dd>
+as <i class="term"><a href="../../../../index.html#key164">final</a></i> (aka <i class="term">accepting</i>).</p></dd>
 <dt><a name="21"><i class="arg">faName</i> <b class="method">final</b> <b class="method">remove</b> <i class="arg">s1</i> <span class="opt">?<i class="arg">s2</i> ...?</span></a></dt>
 <dd><p>Mark the states <i class="arg">s1</i>, <i class="arg">s2</i>, et cetera in the FA <i class="arg">faName</i>
 as <i class="term">not final</i> (aka <i class="term">not accepting</i>).</p></dd>
 <dt><a name="22"><i class="arg">faName</i> <b class="method">final?</b> <i class="arg">s</i></a></dt>
 <dd><p>A predicate. It tests if the state <i class="arg">s</i> in the FA <i class="arg">faName</i> is
-<i class="term"><a href="../../../../index.html#key165">final</a></i> or not.
+<i class="term"><a href="../../../../index.html#key164">final</a></i> or not.
 The result is a boolean value. It will be set to <b class="const">true</b> if the
-state <i class="arg">s</i> is <i class="term"><a href="../../../../index.html#key165">final</a></i>, and <b class="const">false</b> otherwise.</p></dd>
+state <i class="arg">s</i> is <i class="term"><a href="../../../../index.html#key164">final</a></i>, and <b class="const">false</b> otherwise.</p></dd>
 <dt><a name="23"><i class="arg">faName</i> <b class="method">final?set</b> <i class="arg">stateset</i></a></dt>
 <dd><p>A predicate. It tests if the set of states <i class="arg">stateset</i> contains at
 least one final state. They operation will fail if the set contains an
@@ -561,7 +561,7 @@ descriptions of what they do.</p></dd>
 <li><p>Sy a set of <i class="term">input symbols</i>,</p></li>
 <li><p>St is a subset of S, the set of <i class="term">start</i> states, also known as
 <i class="term">initial</i> states.</p></li>
-<li><p>Fi is a subset of S, the set of <i class="term"><a href="../../../../index.html#key165">final</a></i> states, also known as
+<li><p>Fi is a subset of S, the set of <i class="term"><a href="../../../../index.html#key164">final</a></i> states, also known as
 <i class="term">accepting</i>.</p></li>
 <li><p>T is a function from S x (Sy + epsilon) to {S}, the <i class="term">transition function</i>.
 Here <b class="const">epsilon</b> denotes the empty input symbol and is distinct
@@ -592,7 +592,7 @@ recognition, this is not so. For each non-deterministic FA we can
 construct a deterministic FA which accepts the same language (--&gt;
 Thompson's subset construction).</p>
 <p>While one of the premier applications of FAs is in <i class="term"><a href="../../../../index.html#key26">parsing</a></i>,
-especially in the <i class="term"><a href="../../../../index.html#key367">lexer</a></i> stage (where symbols == characters),
+especially in the <i class="term"><a href="../../../../index.html#key369">lexer</a></i> stage (where symbols == characters),
 this is not the only possibility by far.</p>
 <p>Quite a lot of processes can be modeled as a FA, albeit with a
 possibly large set of states. For these the notion of accepting states
