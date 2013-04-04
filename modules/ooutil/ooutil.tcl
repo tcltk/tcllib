@@ -135,13 +135,15 @@ oo::class create oo::util::singleton {
    superclass oo::class
    variable object
    method create {name args} {
-      if {![info exists object]} {
+       if {![info exists object] ||
+	   ![info object isa object $object]} {
          set object [next $name {*}$args]
       }
       return $object
    }
    method new args {
-      if {![info exists object]} {
+       if {![info exists object] ||
+	   ![info object isa object $object]} {
          set object [next {*}$args]
       }
       return $object
