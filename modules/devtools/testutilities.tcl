@@ -70,7 +70,7 @@ proc testsNeedTcltest {version} {
     return -code return
 }
 
-proc testsNeed {name version} {
+proc testsNeed {name args} {
     # This command ensures that a minimum version of package <name> is
     # used to run the tests in the calling testsuite. If the minimum
     # is not met by the active interpreter we forcibly bail out of the
@@ -78,18 +78,27 @@ proc testsNeed {name version} {
     # immediately after loading the utilities.
 
     if {[catch {
-	package require $name $version
+	package require $name
     }]} {
 	puts "    Aborting the tests found in \"[file tail [info script]]\""
-	puts "    Requiring at least $name $version, package not found."
+	puts "    Requiring package $name, not found."
 
 	return -code return
     }
 
-    if {[package vsatisfies [package present $name] $version]} return
+    foreach version $args {
+	if {[package vsatisfies [package present $name] $version]} {
+	    puts "$::tcllib::testutils::tag [list $name] [package present $name]"
+	    return
+	}
+    }
+
+    if {[llength $args] > 1} {
+	set args [linsert [join $args {, } end-1 or]
+    }
 
     puts "    Aborting the tests found in \"[file tail [info script]]\""
-    puts "    Requiring at least $name $version, have [package present $name]."
+    puts "    Requiring at least $name $args, have [package present $name]."
 
     # This causes a 'return' in the calling scope.
     return -code return
@@ -509,9 +518,10 @@ proc useAccel {acc fname pname args} {
 proc support {script} {
     InitializeTclTest
     set ::tcllib::testutils::tag "-"
-    if {[catch {
+    if {[set code [catch {
 	uplevel 1 $script
-    } msg]} {
+    } msg]]} {
+	if {$code == 2} { return -code return }
 	set prefix "SETUP Error (Support): "
 	puts $prefix[join [split $::errorInfo \n] "\n$prefix"]
 
