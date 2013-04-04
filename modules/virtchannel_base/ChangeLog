@@ -1,3 +1,12 @@
+2013-04-03  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tclib_fifo2.man: Renamed more manpages, clashing with the
+	* tclib_fifo.man: Memchan package. List are the new names,
+	* tclib_memchan.man: with prefix "tcllib_".
+	* tclib_null.man:
+	* tclib_random.man:
+	* tclib_zero.man:
+
 2013-03-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* string.man: Renamed, clashes with Tcl core manpage.
