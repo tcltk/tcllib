@@ -14,6 +14,11 @@ source [file join \
 testsNeedTcl     8.5
 testsNeedTcltest 2
 
+support {
+    testsNeed TclOO 0.6 1
+
+    puts [package ifneeded TclOO [package present TclOO]]
+}
 testing {
     useLocal ooutil.tcl oo::util
 }
@@ -21,35 +26,34 @@ testing {
 # # ## ### ##### ######## ############# #####################
 
 test ooutil-singleton-3609183-1 {bug 3609183} -setup {
-    oo::class create example1 {
+    oo::class create example {
 	self mixin oo::util::singleton
 	method foo {} {self}
     }
 } -body {
-    set a [[example1 new] foo]
-    set b [[example1 new] foo]
+    set a [[example new] foo]
+    set b [[example new] foo]
 puts $a
 puts $b
     string equal $a $b
 } -cleanup {
     unset a b
-    rename example1 {}
-    # This leaves behind an example1.Delegate thing ?!
+    example destroy
 } -result 1
 
 test ooutil-singleton-3609183-2 {bug 3609183} -setup {
-    oo::util::singleton create example2 {
+    oo::util::singleton create example {
 	method foo {} {self}
     }
 } -body {
-    set a [[example2 new] foo]
-    set b [[example2 new] foo]
+    set a [[example new] foo]
+    set b [[example new] foo]
 puts $a
 puts $b
     string equal $a $b
 } -cleanup {
     unset a b
-    rename example2 {}
+    example destroy
 } -result 1
 
 # # ## ### ##### ######## ############# #####################
