@@ -238,7 +238,7 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "tepam::argument_dialogbox" n 0\&.4\&.0 tcllib "Tcl's Enhanced Procedure and Argument Manager"
+.TH "tepam::argument_dialogbox" n 0\&.4\&.1 tcllib "Tcl's Enhanced Procedure and Argument Manager"
 .BS
 .SH NAME
 tepam::argument_dialogbox \- TEPAM argument_dialogbox, reference manual
