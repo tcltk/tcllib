@@ -1,0 +1,5 @@
+2013-04-04  Andreas Kupries  <aku@hephaistos>
+
+	* New module and packages for generating a debug
+	  narrative. Adapted from the Wub utility package
+	  Debug, by Colin McCormack.
