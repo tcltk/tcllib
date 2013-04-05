@@ -57,9 +57,9 @@ proc ::debug::debug {tag message {level 1}} {
     # Resolve variables references and command invokations embedded
     # into the message with plain text.
     set code [catch {
-	set result  [uplevel 1 [list ::subst -nobackslashes $themessage]]
-	set header  [uplevel 1 [list ::subst -nobackslashes $header]]
-	set trailer [uplevel 1 [list ::subst -nobackslashes $trailer]]
+	set smessage [uplevel 1 [list ::subst -nobackslashes $themessage]]
+	set sheader  [uplevel 1 [list ::subst -nobackslashes $header]]
+	set strailer [uplevel 1 [list ::subst -nobackslashes $trailer]]
     } __ eo]
 
     # And dump an internal error if that resolution failed.
@@ -79,14 +79,14 @@ proc ::debug::debug {tag message {level 1}} {
     # From here we have a good message to show. We only shorten it a
     # bit if its a bit excessive in size.
 
-    if {[string length $result] > 4096} {
-	set head  [string range $result 0 2048]
-	set trail [string range $result end-2048 end]
-	set result "${head}...(truncated)...$trail"
+    if {[string length $smessage] > 4096} {
+	set head [string range $smessage 0 2048]
+	set tail [string range $smessage end-2048 end]
+	set smessage "${head}...(truncated)...$tail"
     }
 
-    foreach line [split $result \n] {
-	puts $fd "$header$tag | $line$trailer"
+    foreach line [split $smessage \n] {
+	puts $fd "$sheader$tag | $line$strailer"
     }
     return
 }
