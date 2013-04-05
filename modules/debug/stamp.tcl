@@ -30,7 +30,7 @@ proc ::debug::timestamp {} {
 	set time "${now}mS "
     }
     set delta $now
-    return
+    return $time
 }
 
 # # ## ### ##### ######## ############# #####################
