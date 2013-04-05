@@ -8,6 +8,7 @@
 ## Requisites
 
 package require Tcl 8.5
+package require debug
 
 namespace eval ::debug {
     namespace export caller
