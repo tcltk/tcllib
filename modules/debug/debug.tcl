@@ -21,7 +21,8 @@ package require term::ansi::code::ctrl ; # ANSI terminal control codes
 
 namespace eval ::debug {
     namespace export -clear \
-	on off prefix suffix header trailer names 2array level setting parray
+	define on off prefix suffix header trailer \
+	names 2array level setting parray
     namespace ensemble create -subcommands {}
 }
 
@@ -129,6 +130,12 @@ proc ::debug::level {tag {level ""} {fd stderr}} {
 
 proc ::debug::header  {text} { variable header  $text }
 proc ::debug::trailer {text} { variable trailer $text }
+
+proc ::debug::define {tag} {
+    if {[interp alias {} debug.$tag] ne {}} return
+    off $tag
+    return
+}
 
 # Set a prefix/suffix to use for tag.
 # The global (tag-independent) prefix/suffix is adressed through tag '::'.
