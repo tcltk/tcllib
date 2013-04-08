@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin debug n 1]
+[manpage_begin debug::timestamp n 1]
 [copyright {200?, Colin McCormack, Wub Server Utilities}]
 [copyright {2012, Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc {debug narrative}]
