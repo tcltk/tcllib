@@ -132,19 +132,19 @@
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">debug.<b class="variable">tag</b></b> <i class="arg">message</i> <span class="opt">?<i class="arg">level</i>?</span></a></li>
-<li><a href="#2"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">2array</b></a></li>
-<li><a href="#3"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">define</b> <i class="arg">tag</i></a></li>
-<li><a href="#4"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">header</b> <i class="arg">text</i></a></li>
-<li><a href="#5"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">level</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">level</i>?</span> <span class="opt">?<i class="arg">fd</i>?</span></a></li>
-<li><a href="#6"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">names</b></a></li>
-<li><a href="#7"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">off</b> <i class="arg">tag</i></a></li>
-<li><a href="#8"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">on</b> <i class="arg">tag</i></a></li>
-<li><a href="#9"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">parray</b> <i class="arg">arrayvarname</i></a></li>
-<li><a href="#10"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">pdict</b> <i class="arg">dict</i></a></li>
-<li><a href="#11"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">prefix</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">text</i>?</span></a></li>
-<li><a href="#12"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">setting</b> (<i class="arg">tag</i> <i class="arg">level</i>) ... <span class="opt">?<i class="arg">fd</i>?</span></a></li>
-<li><a href="#13"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">suffix</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">text</i>?</span></a></li>
-<li><a href="#14"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">trailer</b> <i class="arg">text</i></a></li>
+<li><a href="#2"><b class="cmd">debug</b> <b class="method">2array</b></a></li>
+<li><a href="#3"><b class="cmd">debug</b> <b class="method">define</b> <i class="arg">tag</i></a></li>
+<li><a href="#4"><b class="cmd">debug</b> <b class="method">header</b> <i class="arg">text</i></a></li>
+<li><a href="#5"><b class="cmd">debug</b> <b class="method">level</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">level</i>?</span> <span class="opt">?<i class="arg">fd</i>?</span></a></li>
+<li><a href="#6"><b class="cmd">debug</b> <b class="method">names</b></a></li>
+<li><a href="#7"><b class="cmd">debug</b> <b class="method">off</b> <i class="arg">tag</i></a></li>
+<li><a href="#8"><b class="cmd">debug</b> <b class="method">on</b> <i class="arg">tag</i></a></li>
+<li><a href="#9"><b class="cmd">debug</b> <b class="method">parray</b> <i class="arg">arrayvarname</i></a></li>
+<li><a href="#10"><b class="cmd">debug</b> <b class="method">pdict</b> <i class="arg">dict</i></a></li>
+<li><a href="#11"><b class="cmd">debug</b> <b class="method">prefix</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">text</i>?</span></a></li>
+<li><a href="#12"><b class="cmd">debug</b> <b class="method">setting</b> (<i class="arg">tag</i> <i class="arg">level</i>) ... <span class="opt">?<i class="arg">fd</i>?</span></a></li>
+<li><a href="#13"><b class="cmd">debug</b> <b class="method">suffix</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">text</i>?</span></a></li>
+<li><a href="#14"><b class="cmd">debug</b> <b class="method">trailer</b> <i class="arg">text</i></a></li>
 </ul>
 </div>
 </div>
@@ -171,19 +171,19 @@ should they exist, with each line in the message having the specified
 headers and trailers.</p>
 <p>All these parts are <b class="cmd"><a href="../../../../index.html#key255">subst</a></b>ableTcl scripts, which are
 substituted once per message before assembly.</p></dd>
-<dt><a name="2"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">2array</b></a></dt>
+<dt><a name="2"><b class="cmd">debug</b> <b class="method">2array</b></a></dt>
 <dd><p>This method returns a dictionary mapping the names of all debug tags
 currently known to the package to their state and log level. The
 latter are encoded in a single numeric value, where a negative number
 indicates an inactive tag at the level given by the absolute value, and
 a positive number is an active tag at that level.</p>
 <p>See also method <b class="method">settings</b> below.</p></dd>
-<dt><a name="3"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">define</b> <i class="arg">tag</i></a></dt>
+<dt><a name="3"><b class="cmd">debug</b> <b class="method">define</b> <i class="arg">tag</i></a></dt>
 <dd><p>This method registers the named <i class="arg">tag</i> with the package.  If the
 tag was not known before it is placed in an inactive state. The state
 of an already known tag is left untouched.</p>
 <p>The result of the method is the empty string.</p></dd>
-<dt><a name="4"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">header</b> <i class="arg">text</i></a></dt>
+<dt><a name="4"><b class="cmd">debug</b> <b class="method">header</b> <i class="arg">text</i></a></dt>
 <dd><p>This method defines a global <b class="cmd"><a href="../../../../index.html#key255">subst</a></b>able Tcl script which provides
 a text printed before each line of output.</p>
 <p>Note how this is tag-independent.</p>
@@ -191,33 +191,33 @@ a text printed before each line of output.</p>
 actual printed message, i.e. all lines of the same message will have
 the same actual heading text.</p>
 <p>The result of the method is the specified text.</p></dd>
-<dt><a name="5"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">level</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">level</i>?</span> <span class="opt">?<i class="arg">fd</i>?</span></a></dt>
+<dt><a name="5"><b class="cmd">debug</b> <b class="method">level</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">level</i>?</span> <span class="opt">?<i class="arg">fd</i>?</span></a></dt>
 <dd><p>This method sets the detail-<i class="arg">level</i> for the <i class="arg">tag</i>, and the
 channel <i class="arg">fd</i> to write the tags narration into.
 The level is an integer value &gt;= 0 defaulting to <b class="const">1</b>.
 The channel defaults to <b class="const">stderr</b>.</p>
 <p>The result of the method is the new detail-level for the tag.</p></dd>
-<dt><a name="6"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">names</b></a></dt>
+<dt><a name="6"><b class="cmd">debug</b> <b class="method">names</b></a></dt>
 <dd><p>This method returns a list containing the names of all debug tags
 currently known to the package.</p></dd>
-<dt><a name="7"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">off</b> <i class="arg">tag</i></a></dt>
+<dt><a name="7"><b class="cmd">debug</b> <b class="method">off</b> <i class="arg">tag</i></a></dt>
 <dd><p>This method registers the named <i class="arg">tag</i> with the package and sets it
 inactive.</p>
 <p>The result of the method is the empty string.</p></dd>
-<dt><a name="8"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">on</b> <i class="arg">tag</i></a></dt>
+<dt><a name="8"><b class="cmd">debug</b> <b class="method">on</b> <i class="arg">tag</i></a></dt>
 <dd><p>This method registers the named <i class="arg">tag</i> with the package, as active.</p>
 <p>The result of the method is the empty string.</p></dd>
-<dt><a name="9"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">parray</b> <i class="arg">arrayvarname</i></a></dt>
+<dt><a name="9"><b class="cmd">debug</b> <b class="method">parray</b> <i class="arg">arrayvarname</i></a></dt>
 <dd><p>This is a convenience method formatting the named array like the
 builtin command <b class="cmd">parray</b>, except it returns the resulting string
 instead of writing it directly to <b class="const">stdout</b>.</p>
 <p>This makes it suitable for use in debug messages.</p></dd>
-<dt><a name="10"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">pdict</b> <i class="arg">dict</i></a></dt>
+<dt><a name="10"><b class="cmd">debug</b> <b class="method">pdict</b> <i class="arg">dict</i></a></dt>
 <dd><p>This is a convenience method formatting the dictionary similarly to
 how the builtin command <b class="cmd">parray</b> does for array, and returns the
 resulting string.</p>
 <p>This makes it suitable for use in debug messages.</p></dd>
-<dt><a name="11"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">prefix</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">text</i>?</span></a></dt>
+<dt><a name="11"><b class="cmd">debug</b> <b class="method">prefix</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">text</i>?</span></a></dt>
 <dd><p>This method is similar to the method <b class="method">header</b> above, in that it
 defines <b class="cmd"><a href="../../../../index.html#key255">subst</a></b>able Tcl script which provides more text for debug
 messages.</p>
@@ -235,7 +235,7 @@ actual printed message.</p>
 <p>The result of the method is the empty string.</p>
 <p>If the <i class="arg">tag</i> was not known at the time of the call it is
 registered, and set inactive.</p></dd>
-<dt><a name="12"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">setting</b> (<i class="arg">tag</i> <i class="arg">level</i>) ... <span class="opt">?<i class="arg">fd</i>?</span></a></dt>
+<dt><a name="12"><b class="cmd">debug</b> <b class="method">setting</b> (<i class="arg">tag</i> <i class="arg">level</i>) ... <span class="opt">?<i class="arg">fd</i>?</span></a></dt>
 <dd><p>This method is a multi-tag variant of method <b class="method">level</b> above,
 with the functionality of methods <b class="method">on</b>, and <b class="method">off</b> also
 folded in.</p>
@@ -246,7 +246,7 @@ activating it.</p>
 treated as tag name, but as the channel all the named tags should
 print their messages to.</p>
 <p>The result of the method is the empty string.</p></dd>
-<dt><a name="13"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">suffix</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">text</i>?</span></a></dt>
+<dt><a name="13"><b class="cmd">debug</b> <b class="method">suffix</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">text</i>?</span></a></dt>
 <dd><p>This method is similar to the method <b class="method">trailer</b> below, in that
 it defines <b class="cmd"><a href="../../../../index.html#key255">subst</a></b>able Tcl script which provides more text for
 debug messages.</p>
@@ -263,7 +263,7 @@ printed message.</p>
 <p>The result of the method is the empty string.</p>
 <p>If the <i class="arg">tag</i> was not known at the time of the call it is
 registered, and set inactive.</p></dd>
-<dt><a name="14"><b class="cmd"><a href="debug_heartbeat.html">debug</a></b> <b class="method">trailer</b> <i class="arg">text</i></a></dt>
+<dt><a name="14"><b class="cmd">debug</b> <b class="method">trailer</b> <i class="arg">text</i></a></dt>
 <dd><p>This method defines a global <b class="cmd"><a href="../../../../index.html#key255">subst</a></b>able Tcl script which provides
 a text printed after each line of output (before the EOL however).</p>
 <p>Note how this is tag-independent.</p>

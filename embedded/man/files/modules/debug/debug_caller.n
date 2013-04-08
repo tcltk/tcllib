@@ -238,10 +238,10 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "debug_caller" n 1 tcllib "debug narrative"
+.TH "debug::caller" n 1 tcllib "debug narrative"
 .BS
 .SH NAME
-debug_caller \- debug narrative - caller
+debug::caller \- debug narrative - caller
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
