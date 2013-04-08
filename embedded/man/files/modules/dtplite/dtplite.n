@@ -238,7 +238,7 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "dtplite" n 1\&.0\&.5 tcllib "Documentation toolbox"
+.TH "dtplite" n 1\&.1 tcllib "Documentation toolbox"
 .BS
 .SH NAME
 dtplite \- Lightweight DocTools Markup Processor
