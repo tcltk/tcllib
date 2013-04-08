@@ -41,6 +41,10 @@ modules/crc/crc16.man
 modules/crc/crc32.man
 modules/crc/sum.man
 modules/csv/csv.man
+modules/debug/debug.man
+modules/debug/debug_caller.man
+modules/debug/debug_heartbeat.man
+modules/debug/debug_timestamp.man
 modules/des/des.man
 modules/dns/tcllib_dns.man
 modules/dns/tcllib_ip.man

@@ -338,6 +338,18 @@ tcllib
 \fBcsv\fR
 \fIfiles/modules/csv/csv\&.n\fR: Procedures to handle CSV data\&.
 .TP
+\fBdebug\fR
+\fIfiles/modules/debug/debug_heartbeat\&.n\fR: debug narrative - heartbeat
+.TP
+\fBdebug\fR
+\fIfiles/modules/debug/debug_timestamp\&.n\fR: debug narrative - timestamping
+.TP
+\fBdebug\fR
+\fIfiles/modules/debug/debug\&.n\fR: debug narrative - core
+.TP
+\fBdebug_caller\fR
+\fIfiles/modules/debug/debug_caller\&.n\fR: debug narrative - caller
+.TP
 \fBdeleg_method\fR
 \fIfiles/modules/interp/deleg_method\&.n\fR: Creation of comm delegates (snit methods)
 .TP
