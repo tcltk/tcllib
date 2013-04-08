@@ -1,3 +1,10 @@
+2013-04-08  Andreas Kupries <andreask@activestate.com>
+
+	* debug.man: Added documentation.
+	* debug_caller.man:
+	* debug_heartbeat.man:
+	* debug_timestamp.man:
+
 2013-04-04  Andreas Kupries  <aku@hephaistos>
 
 	* New module and packages for generating a debug
