@@ -239,10 +239,10 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "debug" n 1 tcllib "debug narrative"
+.TH "debug::heartbeat" n 1 tcllib "debug narrative"
 .BS
 .SH NAME
-debug \- debug narrative - heartbeat
+debug::heartbeat \- debug narrative - heartbeat
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
