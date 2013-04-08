@@ -53,6 +53,7 @@ Module  coroutine   _tcl _null  _null
 Module  counter     _tcl  _man  _null
 Module  crc         _tcl  _man  _null
 Module  csv         _tcl  _man _exa
+Module  debug       _tcl _null  _null
 Module  des         _tcl  _man  _null
 Module  dns          _msg _man _exa
 Module  docstrip    _tcl  _man  _null
