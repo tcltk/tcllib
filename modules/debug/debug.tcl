@@ -17,7 +17,6 @@
 ## Requisites
 
 package require Tcl 8.5
-package require term::ansi::code::ctrl ; # ANSI terminal control codes
 
 namespace eval ::debug {
     namespace export -clear \
@@ -114,6 +113,7 @@ proc ::debug::2array {} {
 # level - set level and fd for tag
 proc ::debug::level {tag {level ""} {fd stderr}} {
     variable detail
+    # TODO: Force level >=0.
     if {$level ne ""} {
 	set detail($tag) $level
     }
@@ -206,8 +206,12 @@ proc ::debug::parray {a {pattern *}} {
     if {![array exists array]} {
 	error "\"$a\" isn't an array"
     }
+    pdict [array get array] $pattern
+}
+
+proc ::debug::pdict {dict {pattern *}} {
     set maxl 0
-    set names [lsort [array names array $pattern]]
+    set names [lsort -dict [dict keys $dict $pattern]]
     foreach name $names {
 	if {[string length $name] > $maxl} {
 	    set maxl [string length $name]
@@ -217,7 +221,9 @@ proc ::debug::parray {a {pattern *}} {
     set lines {}
     foreach name $names {
 	set nameString [format %s(%s) $a $name]
-	lappend lines [format "%-*s = %s" $maxl $nameString $array($name)]
+	lappend lines [format "%-*s = %s" \
+			   $maxl $nameString \
+			   [dict get $dict $name]]
     }
     return [join $lines \n]
 }

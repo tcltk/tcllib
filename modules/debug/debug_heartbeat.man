@@ -1,0 +1,46 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin debug n 1]
+[copyright {200?, Colin McCormack, Wub Server Utilities}]
+[copyright {2012, Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[moddesc {debug narrative}]
+[titledesc {debug narrative - heartbeat}]
+[category  {debugging, tracing, and logging}]
+[keywords debug trace log narrative heartbeat]
+[require Tcl 8.5]
+[require debug [opt 1]]
+[description]
+[para]
+
+[section API]
+
+[list_begin definitions]
+
+[call [cmd debug] [method heartbeat] [opt [arg delta]]]
+
+This method activates or disables a heartbeat with which to monitor
+the event loop of an event-based Tcl application.
+
+[para] It reserves the debug tag [const heartbeat] for its operation
+and writes a message every [arg delta] milliseconds.
+
+[para] A [arg delta]-value <= 0 disables the heartbeat.
+
+[para] The message produced by the heartbeat contains a sequence
+counter and the time in milliseconds since the last beat, thus
+providing insight into timing variationsn and deviations from the
+nominal [arg delta].
+
+[list_end]
+
+[section {BUGS, IDEAS, FEEDBACK}]
+
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
+
+Please report such in the category [emph debug] of the
+[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
+
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.
+
+[manpage_end]
