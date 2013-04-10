@@ -153,21 +153,21 @@ customizing the other public commands of the control package.  The
 valid <i class="arg">option</i> and subsequent arguments are determined by the
 command being customized, and are documented with the command.</p></dd>
 <dt><a name="2"><b class="cmd">control::assert</b> <i class="arg">expr</i> <span class="opt">?<i class="arg">arg arg ...</i>?</span></a></dt>
-<dd><p>When disabled, the <b class="cmd"><a href="../../../../index.html#key128">assert</a></b> command behaves exactly like the
-<b class="cmd"><a href="../../../../index.html#key126">no-op</a></b> command.</p>
-<p>When enabled, the <b class="cmd"><a href="../../../../index.html#key128">assert</a></b> command evaluates <i class="arg">expr</i> as an
+<dd><p>When disabled, the <b class="cmd"><a href="../../../../index.html#key130">assert</a></b> command behaves exactly like the
+<b class="cmd"><a href="../../../../index.html#key128">no-op</a></b> command.</p>
+<p>When enabled, the <b class="cmd"><a href="../../../../index.html#key130">assert</a></b> command evaluates <i class="arg">expr</i> as an
 expression (in the same way that <b class="cmd">expr</b> evaluates its argument).
 If evaluation reveals that <i class="arg">expr</i> is not a valid boolean
 expression (according to [<b class="cmd">string is boolean -strict</b>]),
 an error is raised.  If <i class="arg">expr</i> evaluates to a true boolean value
-(as recognized by <b class="cmd">if</b>), then <b class="cmd"><a href="../../../../index.html#key128">assert</a></b> returns an empty
-string.  Otherwise, the remaining arguments to <b class="cmd"><a href="../../../../index.html#key128">assert</a></b> are used
+(as recognized by <b class="cmd">if</b>), then <b class="cmd"><a href="../../../../index.html#key130">assert</a></b> returns an empty
+string.  Otherwise, the remaining arguments to <b class="cmd"><a href="../../../../index.html#key130">assert</a></b> are used
 to construct a message string.  If there are no arguments, the message
 string is &quot;assertion failed: $expr&quot;.  If there are arguments, they are
-joined by <b class="cmd"><a href="../../../../index.html#key542">join</a></b> to form the message string.  The message string
+joined by <b class="cmd"><a href="../../../../index.html#key539">join</a></b> to form the message string.  The message string
 is then appended as an argument to a callback command, and the
 completed callback command is evaluated in the global namespace.</p>
-<p>The <b class="cmd"><a href="../../../../index.html#key128">assert</a></b> command can be customized by the <b class="cmd">control</b>
+<p>The <b class="cmd"><a href="../../../../index.html#key130">assert</a></b> command can be customized by the <b class="cmd">control</b>
 command in two ways:</p>
 <p>[<b class="cmd">control::control assert enabled</b> <span class="opt">?<i class="arg">boolean</i>?</span>]
 queries or sets whether <b class="cmd">control::assert</b> is enabled.  When called
@@ -178,17 +178,17 @@ called with a valid boolean value as the <i class="arg">boolean</i> argument, th
 argument, and an empty string is returned.</p>
 <p>[<b class="cmd">control::control assert callback</b> <span class="opt">?<i class="arg">command</i>?</span>]
 queries or sets the callback command that will be called by an enabled
-<b class="cmd"><a href="../../../../index.html#key128">assert</a></b> on assertion failure.  When called without a
+<b class="cmd"><a href="../../../../index.html#key130">assert</a></b> on assertion failure.  When called without a
 <i class="arg">command</i> argument, the current callback command is returned.
 When called with a <i class="arg">command</i> argument, that argument becomes the
 new assertion failure callback command.  Note that an assertion
-failure callback command is always defined, even when <b class="cmd"><a href="../../../../index.html#key128">assert</a></b>
+failure callback command is always defined, even when <b class="cmd"><a href="../../../../index.html#key130">assert</a></b>
 is disabled.  The default callback command is
 [<b class="cmd">return -code error</b>].</p>
 <p>Note that <b class="cmd">control::assert</b> has been written so that in
 combination with [<b class="cmd">namespace import</b>], it is possible to
-use enabled <b class="cmd"><a href="../../../../index.html#key128">assert</a></b> commands in some namespaces and disabled
-<b class="cmd"><a href="../../../../index.html#key128">assert</a></b> commands in other namespaces at the same time.  This
+use enabled <b class="cmd"><a href="../../../../index.html#key130">assert</a></b> commands in some namespaces and disabled
+<b class="cmd"><a href="../../../../index.html#key130">assert</a></b> commands in other namespaces at the same time.  This
 capability is useful so that debugging efforts can be independently
 controlled module by module.</p>
 <pre class="example">
@@ -203,18 +203,18 @@ assertion failed: 1 == 0
 </pre>
 </dd>
 <dt><a name="3"><b class="cmd">control::do</b> <i class="arg">body</i> <span class="opt">?<i class="arg">option test</i>?</span></a></dt>
-<dd><p>The <b class="cmd"><a href="../../../../index.html#key129">do</a></b> command evaluates the script <i class="arg">body</i> repeatedly
+<dd><p>The <b class="cmd"><a href="../../../../index.html#key131">do</a></b> command evaluates the script <i class="arg">body</i> repeatedly
 <em>until</em> the expression <i class="arg">test</i> becomes true or as long as
 (<em>while</em>) <i class="arg">test</i> is true, depending on the value of
 <i class="arg">option</i> being <b class="const">until</b> or <b class="const">while</b>. If
 <i class="arg">option</i> and <i class="arg">test</i> are omitted the body is evaluated exactly
-once. After normal completion, <b class="cmd"><a href="../../../../index.html#key129">do</a></b> returns an empty string.
-Exceptional return codes (<b class="cmd">break</b>, <b class="cmd">continue</b>, <b class="cmd"><a href="../../../../index.html#key169">error</a></b>,
+once. After normal completion, <b class="cmd"><a href="../../../../index.html#key131">do</a></b> returns an empty string.
+Exceptional return codes (<b class="cmd">break</b>, <b class="cmd">continue</b>, <b class="cmd"><a href="../../../../index.html#key171">error</a></b>,
 etc.) during the evaluation of <i class="arg">body</i> are handled in the same way
 the <b class="cmd">while</b> command handles them, except as noted in
 <span class="sectref"><a href="#section3">LIMITATIONS</a></span>, below.</p></dd>
 <dt><a name="4"><b class="cmd">control::no-op</b> <span class="opt">?<i class="arg">arg arg ...</i>?</span></a></dt>
-<dd><p>The <b class="cmd"><a href="../../../../index.html#key126">no-op</a></b> command takes any number of arguments and does
+<dd><p>The <b class="cmd"><a href="../../../../index.html#key128">no-op</a></b> command takes any number of arguments and does
 nothing.  It returns an empty string.</p></dd>
 </dl>
 </div>
@@ -248,10 +248,10 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
-<p>break, continue, expr, if, <a href="../../../../index.html#key542">join</a>, namespace, return, <a href="../../../../index.html#key273">string</a>, while</p>
+<p>break, continue, expr, if, <a href="../../../../index.html#key539">join</a>, namespace, return, <a href="../../../../index.html#key272">string</a>, while</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key128">assert</a>, <a href="../../../../index.html#key108">control</a>, <a href="../../../../index.html#key129">do</a>, <a href="../../../../index.html#key125">flow</a>, <a href="../../../../index.html#key126">no-op</a>, <a href="../../../../index.html#key127">structure</a></p>
+<p><a href="../../../../index.html#key130">assert</a>, <a href="../../../../index.html#key108">control</a>, <a href="../../../../index.html#key131">do</a>, <a href="../../../../index.html#key127">flow</a>, <a href="../../../../index.html#key128">no-op</a>, <a href="../../../../index.html#key129">structure</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>

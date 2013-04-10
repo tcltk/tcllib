@@ -181,7 +181,7 @@ sockets rather than the X server for the communication path.  As a
 result, <b class="package">comm</b> works with multiple interpreters, works on
 Windows and Macintosh systems, and provides control over the remote
 execution path.</p>
-<p>These commands work just like <b class="cmd"><a href="../../../../index.html#key339">send</a></b> and <b class="cmd">winfo interps</b> :</p>
+<p>These commands work just like <b class="cmd"><a href="../../../../index.html#key336">send</a></b> and <b class="cmd">winfo interps</b> :</p>
 <pre class="example">
     ::comm::comm send ?-async? id cmd ?arg arg ...?
     ::comm::comm interps
@@ -232,13 +232,13 @@ sending a command.  After this, the remote <em>id</em> will appear in
 </div>
 <div id="subsection2" class="subsection"><h3><a name="subsection2">Eval Semantics</a></h3>
 <p>The evaluation semantics of <b class="cmd">::comm::comm send</b> are intended to
-match Tk's <b class="cmd"><a href="../../../../index.html#key339">send</a></b> <em>exactly</em>. This means that <b class="package">comm</b>
+match Tk's <b class="cmd"><a href="../../../../index.html#key336">send</a></b> <em>exactly</em>. This means that <b class="package">comm</b>
 evaluates arguments on the remote side.</p>
 <p>If you find that <b class="cmd">::comm::comm send</b> doesn't work for a
 particular command, try the same thing with Tk's send and see if the
 result is different.  If there is a problem, please report it.  For
 instance, there was had one report that this command produced an
-error.  Note that the equivalent <b class="cmd"><a href="../../../../index.html#key339">send</a></b> command also produces the
+error.  Note that the equivalent <b class="cmd"><a href="../../../../index.html#key336">send</a></b> command also produces the
 same error.</p>
 <pre class="example">
     % ::comm::comm send id llength {a b c}
@@ -247,7 +247,7 @@ same error.</p>
     wrong # args: should be &quot;llength list&quot;
 </pre>
 <p>The <b class="cmd">eval</b> hook (described below) can be used to change from
-<b class="cmd"><a href="../../../../index.html#key339">send</a></b>'s double eval semantics to single eval semantics.</p>
+<b class="cmd"><a href="../../../../index.html#key336">send</a></b>'s double eval semantics to single eval semantics.</p>
 </div>
 <div id="subsection3" class="subsection"><h3><a name="subsection3">Multiple Channels</a></h3>
 <p>More than one <b class="cmd">comm</b> channel (or <em>listener</em>) can be created
@@ -438,7 +438,7 @@ used decide how to further process after the hook.</p>
 <dd><p>Variables:
 <b class="variable">chan</b>, <b class="variable">id</b></p>
 <p>This hook is invoked before making a connection to the remote named in
-<i class="arg">id</i>.  An error return (via <b class="cmd"><a href="../../../../index.html#key169">error</a></b>) will abort the connection
+<i class="arg">id</i>.  An error return (via <b class="cmd"><a href="../../../../index.html#key171">error</a></b>) will abort the connection
 attempt with the error.  Example:</p>
 <pre class="example">
     % ::comm::comm hook connecting {
@@ -456,7 +456,7 @@ attempt with the error.  Example:</p>
 <b class="variable">chan</b>, <b class="variable">fid</b>, <b class="variable">id</b>, <b class="variable">host</b>, and <b class="variable">port</b>.</p>
 <p>This hook is invoked immediately after making a remote connection to
 <i class="arg">id</i>, allowing arbitrary authentication over the socket named by
-<i class="arg">fid</i>.  An error return (via <b class="cmd"><a href="../../../../index.html#key169">error</a></b> ) will close the
+<i class="arg">fid</i>.  An error return (via <b class="cmd"><a href="../../../../index.html#key171">error</a></b> ) will close the
 connection with the error.  <i class="arg">host</i> and <i class="arg">port</i> are merely
 extracted from the <i class="arg">id</i>; changing any of these will have no effect
 on the connection, however.  It is also possible to substitute and
@@ -466,7 +466,7 @@ replace <i class="arg">fid</i>.</p></dd>
 <b class="variable">chan</b>, <b class="variable">fid</b>, <b class="variable">addr</b>, and <b class="variable">remport</b>.</p>
 <p>Hook invoked when receiving an incoming connection, allowing arbitrary
 authentication over socket named by <i class="arg">fid</i>.  An error return (via
-<b class="cmd"><a href="../../../../index.html#key169">error</a></b>) will close the connection with the error.  Note that the
+<b class="cmd"><a href="../../../../index.html#key171">error</a></b>) will close the connection with the error.  Note that the
 peer is named by <i class="arg">remport</i> and <i class="arg">addr</i> but that the remote
 <em>id</em> is still unknown.  Example:</p>
 <pre class="example">
@@ -490,7 +490,7 @@ identical in value to <i class="arg">id</i>.</p>
 evaluated.  The hook can short circuit evaluation and cause a value to
 be immediately returned by using <b class="cmd">return</b> <i class="arg">result</i> (or, from
 within a procedure, <b class="cmd">return -code return</b> <i class="arg">result</i>).  An
-error return (via <b class="cmd"><a href="../../../../index.html#key169">error</a></b>) will return an error result, as is if
+error return (via <b class="cmd"><a href="../../../../index.html#key171">error</a></b>) will return an error result, as is if
 the script caused the error.  Any other return will evaluate the
 script in <i class="arg">buffer</i> as normal.  For compatibility with 3.2,
 <b class="cmd">break</b> and <b class="cmd">return -code break</b> <i class="arg">result</i> is supported,
@@ -612,7 +612,7 @@ executed on this channel.  If used by a proc being invoked remotely,
 it must be called before any events are processed.  Otherwise, another
 command may get invoked and change the value.</p></dd>
 <dt><a name="15"><b class="cmd">::comm::comm_send</b></a></dt>
-<dd><p>Invoking this procedure will substitute the Tk <b class="cmd"><a href="../../../../index.html#key339">send</a></b> and
+<dd><p>Invoking this procedure will substitute the Tk <b class="cmd"><a href="../../../../index.html#key336">send</a></b> and
 <b class="cmd">winfo interps</b> commands with these equivalents that use
 <b class="cmd">::comm::comm</b>.</p>
 <pre class="example">
@@ -636,7 +636,7 @@ is supported, allowing the user of a comm channel to specify which
 command to use when opening a socket. Anything which is API-compatible
 with the builtin <b class="cmd">::socket</b> (the default) can be used.</p>
 <p>The envisioned main use is the specification of the <b class="cmd">tls::socket</b>
-command, see package <b class="package"><a href="../../../../index.html#key312">tls</a></b>, to secure the communication.</p>
+command, see package <b class="package"><a href="../../../../index.html#key311">tls</a></b>, to secure the communication.</p>
 <pre class="example">
 	# Load and initialize tls
 	package require tls
@@ -652,26 +652,26 @@ authentication, and the like.</p>
 </div>
 <div id="subsection12" class="subsection"><h3><a name="subsection12">Blocking Semantics</a></h3>
 <p>There is one outstanding difference between <b class="package">comm</b> and
-<b class="cmd"><a href="../../../../index.html#key339">send</a></b>.  When blocking in a synchronous remote command, <b class="cmd"><a href="../../../../index.html#key339">send</a></b>
+<b class="cmd"><a href="../../../../index.html#key336">send</a></b>.  When blocking in a synchronous remote command, <b class="cmd"><a href="../../../../index.html#key336">send</a></b>
 uses an internal C hook (Tk_RestrictEvents) to the event loop to look
 ahead for send-related events and only process those without
 processing any other events.  In contrast, <b class="package">comm</b> uses the
-<b class="cmd"><a href="../../../../index.html#key396">vwait</a></b> command as a semaphore to indicate the return message has
-arrived.  The difference is that a synchronous <b class="cmd"><a href="../../../../index.html#key339">send</a></b> will block
+<b class="cmd"><a href="../../../../index.html#key393">vwait</a></b> command as a semaphore to indicate the return message has
+arrived.  The difference is that a synchronous <b class="cmd"><a href="../../../../index.html#key336">send</a></b> will block
 the application and prevent all events (including window related ones)
 from being processed, while a synchronous <b class="cmd">::comm::comm send</b>
 will block the application but still allow other events to get
 processed.  In particular, <b class="cmd">after idle</b> handlers will fire
 immediately when comm blocks.</p>
 <p>What can be done about this?  First, note that this behavior will come
-from any code using <b class="cmd"><a href="../../../../index.html#key396">vwait</a></b> to block and wait for an event to
+from any code using <b class="cmd"><a href="../../../../index.html#key393">vwait</a></b> to block and wait for an event to
 occur.  At the cost of multiple channel support, <b class="package">comm</b> could
 be changed to do blocking I/O on the socket, giving send-like blocking
 semantics.  However, multiple channel support is a very useful feature
 of comm that it is deemed too important to lose.  The remaining
 approaches involve a new loadable module written in C (which is
 somewhat against the philosophy of <b class="cmd">comm</b>) One way would be to
-create a modified version of the <b class="cmd"><a href="../../../../index.html#key396">vwait</a></b> command that allow the
+create a modified version of the <b class="cmd"><a href="../../../../index.html#key393">vwait</a></b> command that allow the
 event flags passed to Tcl_DoOneEvent to be specified.  For <b class="cmd">comm</b>,
 just the TCL_FILE_EVENTS would be processed.  Another way would be to
 implement a mechanism like Tk_RestrictEvents, but apply it to the Tcl
@@ -689,7 +689,7 @@ invoked on the server long-running commands, like database queries
 make this a problem. One command can prevent the processing requests
 of all other clients for an arbitrary period of time.</p>
 <p>Before version 4.5 of comm the only solution was to rewrite the server
-command to use the Tcl builtin command <b class="cmd"><a href="../../../../index.html#key396">vwait</a></b>, or one of its
+command to use the Tcl builtin command <b class="cmd"><a href="../../../../index.html#key393">vwait</a></b>, or one of its
 relatives like <b class="cmd">tkwait</b>, to open a new event loop which processes
 requests while the long-running operation is executed. This however
 has its own perils, as this makes it possible to both overflow the Tcl
@@ -790,13 +790,13 @@ buffer.</p></dd>
 <dt>4.6</dt>
 <dd><p>Added the option <b class="option">-socketcmd</b> enabling users to override how a
 socket is opened. The envisioned main use is the specification of the
-<b class="cmd">tls::socket</b> command, see package <b class="package"><a href="../../../../index.html#key312">tls</a></b>, to secure the
+<b class="cmd">tls::socket</b> command, see package <b class="package"><a href="../../../../index.html#key311">tls</a></b>, to secure the
 communication.</p></dd>
 <dt>4.5.7</dt>
 <dd><p>Changed handling of ports already in use to provide a proper error
 message.</p></dd>
 <dt>4.5.6</dt>
-<dd><p>Bugfix in the replacement for <b class="cmd"><a href="../../../../index.html#key396">vwait</a></b>, made robust against of
+<dd><p>Bugfix in the replacement for <b class="cmd"><a href="../../../../index.html#key393">vwait</a></b>, made robust against of
 variable names containing spaces.</p></dd>
 <dt>4.5.5</dt>
 <dd><p>Bugfix in the handling of hooks, typo in variable name.</p></dd>
@@ -806,17 +806,17 @@ method. Replaced an <em>after idle unset result</em> with an immediate
 <b class="cmd">unset</b>, with the information saved to a local variable.</p>
 <p>The <b class="cmd">after idle</b> can spill into a forked child process if there
 is no event loop between its setup and the fork. This may bork the
-child if the next event loop is the <b class="cmd"><a href="../../../../index.html#key396">vwait</a></b> of <b class="package">comm</b>'s
+child if the next event loop is the <b class="cmd"><a href="../../../../index.html#key393">vwait</a></b> of <b class="package">comm</b>'s
 <b class="method">send</b> a few lines above the <b class="cmd">after idle</b>, and the child
 used the same serial number for its next request. In that case the
 parent's <b class="cmd">after idle unset</b> will delete the very array element
-the child is waiting for, unlocking the <b class="cmd"><a href="../../../../index.html#key396">vwait</a></b>, causing it to
+the child is waiting for, unlocking the <b class="cmd"><a href="../../../../index.html#key393">vwait</a></b>, causing it to
 access a now missing array element, instead of the expected result.</p></dd>
 <dt>4.5.3</dt>
-<dd><p>Bugfixes in the wrappers for the builtin <b class="cmd"><a href="../../../../index.html#key397">update</a></b> and <b class="cmd"><a href="../../../../index.html#key396">vwait</a></b>
+<dd><p>Bugfixes in the wrappers for the builtin <b class="cmd"><a href="../../../../index.html#key394">update</a></b> and <b class="cmd"><a href="../../../../index.html#key393">vwait</a></b>
 commands.</p></dd>
 <dt>4.5.2</dt>
-<dd><p>Bugfix in the wrapper for the builtin <b class="cmd"><a href="../../../../index.html#key397">update</a></b> command.</p></dd>
+<dd><p>Bugfix in the wrapper for the builtin <b class="cmd"><a href="../../../../index.html#key394">update</a></b> command.</p></dd>
 <dt>4.5.1</dt>
 <dd><p>Bugfixes in the handling of -interp for regular scripts. The handling
 of the buffer was wrong for scripts which are a single statement as
@@ -857,7 +857,7 @@ invoked commands.</p></dd>
 be triggered when the connection was closed while several asynchronous
 sends were queued to be executed.</p></dd>
 <dt>3.5</dt>
-<dd><p>Internal change to how reply messages from a <b class="cmd"><a href="../../../../index.html#key339">send</a></b> are handled.
+<dd><p>Internal change to how reply messages from a <b class="cmd"><a href="../../../../index.html#key336">send</a></b> are handled.
 Reply messages are now decoded into the <i class="arg">value</i> to pass to
 <b class="cmd">return</b>; a new return statement is then cons'd up to with this
 value.  Previously, the return code was passed in from the remote as a
@@ -875,7 +875,7 @@ conditions were not being returned correctly from <b class="cmd">comm send</b>.
 This has been fixed by removing the extra level of indirection into
 the internal procedure <b class="cmd">commSend</b>.  Also added propagation of
 the <i class="arg">errorCode</i> variable.  This means that these commands return
-exactly as they would with <b class="cmd"><a href="../../../../index.html#key339">send</a></b>:</p>
+exactly as they would with <b class="cmd"><a href="../../../../index.html#key336">send</a></b>:</p>
 <pre class="example">
     comm send id break
     catch {comm send id break}
@@ -1001,7 +1001,7 @@ package and/or documentation.</p>
 <p>send(n)</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key31">comm</a>, <a href="../../../../index.html#key341">communication</a>, <a href="../../../../index.html#key346">ipc</a>, <a href="../../../../index.html#key347">message</a>, <a href="../../../../index.html#key344">remote communication</a>, <a href="../../../../index.html#key343">remote execution</a>, <a href="../../../../index.html#key340">rpc</a>, <a href="../../../../index.html#key342">secure</a>, <a href="../../../../index.html#key339">send</a>, <a href="../../../../index.html#key338">socket</a>, <a href="../../../../index.html#key345">ssl</a>, <a href="../../../../index.html#key312">tls</a></p>
+<p><a href="../../../../index.html#key31">comm</a>, <a href="../../../../index.html#key338">communication</a>, <a href="../../../../index.html#key343">ipc</a>, <a href="../../../../index.html#key344">message</a>, <a href="../../../../index.html#key341">remote communication</a>, <a href="../../../../index.html#key340">remote execution</a>, <a href="../../../../index.html#key337">rpc</a>, <a href="../../../../index.html#key339">secure</a>, <a href="../../../../index.html#key336">send</a>, <a href="../../../../index.html#key335">socket</a>, <a href="../../../../index.html#key342">ssl</a>, <a href="../../../../index.html#key311">tls</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>
