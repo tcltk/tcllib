@@ -264,7 +264,7 @@ structure.  Rather than evaluating the body, it returns the subst'ed
 <i class="arg">body</i>. Each iteration of the loop causes another string to be
 concatenated to the result value.</p></dd>
 <dt><a name="15"><b class="cmd">::html::foreach</b> <i class="arg">varlist1 list1</i> <span class="opt">?<i class="arg">varlist2 list2 ...</i>?</span> <i class="arg">body</i></a></dt>
-<dd><p>This procedure is similar to the built-in Tcl <b class="cmd"><a href="../../../../index.html#key210">foreach</a></b> control
+<dd><p>This procedure is similar to the built-in Tcl <b class="cmd"><a href="../../../../index.html#key209">foreach</a></b> control
 structure.  Rather than evaluating the body, it returns the subst'ed
 <i class="arg">body</i>.  Each iteration of the loop causes another string to be
 concatenated to the result value.</p></dd>
@@ -403,7 +403,7 @@ list is a Tcl-style name, value list.</p></dd>
 values used for the <i class="term">option</i> tags.  The label and the value for each
 <i class="term">option</i> are the same.</p></dd>
 <dt><a name="49"><b class="cmd">::html::set</b> <i class="arg">var val</i></a></dt>
-<dd><p>This procedure is similar to the built-in Tcl <b class="cmd"><a href="../../../../index.html#key280">set</a></b> command.  The
+<dd><p>This procedure is similar to the built-in Tcl <b class="cmd"><a href="../../../../index.html#key279">set</a></b> command.  The
 main difference is that it returns &quot;&quot; so it can be called from an HTML
 template file without appending unwanted results.  The other
 difference is that it must take two arguments.</p></dd>
@@ -426,11 +426,11 @@ pre-formatted string.</p></dd>
 <dt><a name="53"><b class="cmd">::html::textarea</b> <i class="arg">name</i> <span class="opt">?<i class="arg">param</i>?</span> <span class="opt">?<i class="arg">current</i>?</span></a></dt>
 <dd><p>Generate a <i class="term">textarea</i> tag wrapped around its current values.</p></dd>
 <dt><a name="54"><b class="cmd">::html::textInput</b> <i class="arg">name value args</i></a></dt>
-<dd><p>Generate an <i class="term">input</i> form tag with type <i class="term"><a href="../../../../index.html#key484">text</a></i>.  This uses
+<dd><p>Generate an <i class="term">input</i> form tag with type <i class="term"><a href="../../../../index.html#key481">text</a></i>.  This uses
 <b class="cmd">::html::formValue</b>.  The args is any additional tag attributes
 you want to put into the <i class="term">input</i> tag.</p></dd>
 <dt><a name="55"><b class="cmd">::html::textInputRow</b> <i class="arg">label name value args</i></a></dt>
-<dd><p>Generate an <i class="term">input</i> form tag with type <i class="term"><a href="../../../../index.html#key484">text</a></i> formatted into a table row
+<dd><p>Generate an <i class="term">input</i> form tag with type <i class="term"><a href="../../../../index.html#key481">text</a></i> formatted into a table row
 with an associated label.  The args is any additional tag attributes
 you want to put into the <i class="term">input</i> tag.</p></dd>
 <dt><a name="56"><b class="cmd">::html::varEmpty</b> <i class="arg">name</i></a></dt>
