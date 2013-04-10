@@ -1161,25 +1161,25 @@ tcllib
 \fIfiles/modules/virtchannel_base/facade\&.n\fR: Facade channel
 .TP
 \fBtcl::chan::fifo\fR
-\fIfiles/modules/virtchannel_base/tclib_fifo\&.n\fR: In-memory fifo channel
+\fIfiles/modules/virtchannel_base/tcllib_fifo\&.n\fR: In-memory fifo channel
 .TP
 \fBtcl::chan::fifo2\fR
-\fIfiles/modules/virtchannel_base/tclib_fifo2\&.n\fR: In-memory interconnected fifo channels
+\fIfiles/modules/virtchannel_base/tcllib_fifo2\&.n\fR: In-memory interconnected fifo channels
 .TP
 \fBtcl::chan::halfpipe\fR
 \fIfiles/modules/virtchannel_base/halfpipe\&.n\fR: In-memory channel, half of a fifo2
 .TP
 \fBtcl::chan::memchan\fR
-\fIfiles/modules/virtchannel_base/tclib_memchan\&.n\fR: In-memory channel
+\fIfiles/modules/virtchannel_base/tcllib_memchan\&.n\fR: In-memory channel
 .TP
 \fBtcl::chan::null\fR
-\fIfiles/modules/virtchannel_base/tclib_null\&.n\fR: Null channel
+\fIfiles/modules/virtchannel_base/tcllib_null\&.n\fR: Null channel
 .TP
 \fBtcl::chan::nullzero\fR
 \fIfiles/modules/virtchannel_base/nullzero\&.n\fR: Null/Zero channel combination
 .TP
 \fBtcl::chan::random\fR
-\fIfiles/modules/virtchannel_base/tclib_random\&.n\fR: Random channel
+\fIfiles/modules/virtchannel_base/tcllib_random\&.n\fR: Random channel
 .TP
 \fBtcl::chan::randseed\fR
 \fIfiles/modules/virtchannel_base/randseed\&.n\fR: Utilities for random channels
@@ -1197,7 +1197,7 @@ tcllib
 \fIfiles/modules/virtchannel_base/tcllib_variable\&.n\fR: In-memory channel using variable for storage
 .TP
 \fBtcl::chan::zero\fR
-\fIfiles/modules/virtchannel_base/tclib_zero\&.n\fR: Zero channel
+\fIfiles/modules/virtchannel_base/tcllib_zero\&.n\fR: Zero channel
 .TP
 \fBtcl::transform::adler32\fR
 \fIfiles/modules/virtchannel_transform/adler32\&.n\fR: Adler32 transformation

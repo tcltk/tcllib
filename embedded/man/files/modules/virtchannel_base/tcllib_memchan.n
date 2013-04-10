@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/virtchannel_base/tclib_fifo2\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/virtchannel_base/tcllib_memchan\&.n' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -238,10 +238,10 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "tcl::chan::fifo2" n 1 tcllib "Reflected/virtual channel support"
+.TH "tcl::chan::memchan" n 1 tcllib "Reflected/virtual channel support"
 .BS
 .SH NAME
-tcl::chan::fifo2 \- In-memory interconnected fifo channels
+tcl::chan::memchan \- In-memory channel
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
@@ -249,33 +249,30 @@ package require \fBTclOO \fR
 .sp
 package require \fBtcl::chan::events  ?1?\fR
 .sp
-package require \fBtcl::chan::halfpipe  ?1?\fR
+package require \fBtcl::chan::memchan  ?1?\fR
 .sp
-package require \fBtcl::chan::fifo2  ?1?\fR
-.sp
-\fB::tcl::chan::fifo2\fR
+\fB::tcl::chan::memchan\fR
 .sp
 .BE
 .SH DESCRIPTION
 .PP
-The \fBtcl::chan::fifo2\fR package provides a command creating
-pairs of channels which live purely in memory and are connected to
-each other in a fifo manner\&. What is written to one half of the pair
-can be read from the other half, in the same order\&. One particular
-application for this is communication between threads, with one half
-of the pair moved to the thread to talk to\&.
-This is equivalent to the fifo2 channels provided by the package
-\fBMmechan\fR, except that this is written in pure Tcl, not C\&. On
-the other hand, \fBMemchan\fR is usable with Tcl 8\&.4 and before,
-whereas this package requires Tcl 8\&.5 or higher, and \fBTclOO\fR\&.
+The \fBtcl::chan::memchan\fR package provides a command creating
+channels which live purely in memory\&. They provide random-access,
+i\&.e\&. are seekable\&. This is equivalent to the memchan channels provided by
+the package \fBMemchan\fR, except that this is written in pure Tcl,
+not C\&. On the other hand, \fBMemchan\fR is usable with Tcl 8\&.4 and
+before, whereas this package requires Tcl 8\&.5 or higher, and
+\fBTclOO\fR\&.
+.PP
+Packages related to this are \fBtcl::chan::string\fR and
+\fBtcl::chan::variable\fR\&.
 .PP
 The internal \fBTclOO\fR class implementing the channel
 handler is a sub-class of the \fBtcl::chan::events\fR framework\&.
 .SH API
 .TP
-\fB::tcl::chan::fifo2\fR
-This command creates a new connected pair of fifo channels and returns
-their handles, as a list containing two elements\&.
+\fB::tcl::chan::memchan\fR
+This command creates a new memchan channel and returns its handle\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
@@ -285,7 +282,7 @@ Please report such in the category \fIvirtchannel\fR of the
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH KEYWORDS
-connected fifos, fifo, in-memory channel, inter-thread communication, reflected channel, tip 219, virtual channel
+in-memory channel, reflected channel, tip 219, virtual channel
 .SH CATEGORY
 Channels
 .SH COPYRIGHT
