@@ -5,7 +5,7 @@
 [category  Coroutine]
 [titledesc {Automatic event and IO coroutine awareness}]
 [require Tcl 8.6]
-[require coroutine::auto 1.1]
+[require coroutine::auto 1.1.1]
 [require coroutine 1.1]
 [description]
 [keywords coroutine global exit after vwait update gets read]

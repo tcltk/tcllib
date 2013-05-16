@@ -1,3 +1,13 @@
+2013-05-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* coro_auto.tcl: Replaced uses of 'namespace current' in the wrap_
+	* coro_auto.man: commands with a hardwired namespace name. As the
+	  wrappers get renamed into different namespaces (:: and
+	  ::tcl::chan) the result of 'namespace current' points to the
+	  wrong namespace, causing the commands to miss the renamed
+	  builtins, and fail. Bumped version to 1.1.1
+	* pkgIndex.tcl: Updated version numbers.
+
 2013-03-04  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* coroutine.man: Renamed, clashes with Tcl core manpage.
@@ -12,13 +22,13 @@
 
 	*
 	* Released and tagged Tcllib 1.15 ========================
-	* 
+	*
 
 2011-12-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.14 ========================
-	* 
+	*
 
 2011-04-18  Andreas Kupries  <andreask@activestate.com>
 
@@ -36,18 +46,18 @@
 
 	*
 	* Released and tagged Tcllib 1.13 ========================
-	* 
+	*
 
 2010-08-17  Andreas Kupries  <andreask@activestate.com>
 
-	* coroutine.man: Added package documentation. 
+	* coroutine.man: Added package documentation.
 	* coro_auto.man:
 
 2009-12-07  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
 	* Released and tagged Tcllib 1.12 ========================
-	* 
+	*
 
 2009-11-10  Andreas Kupries  <andreask@activestate.com>
 
