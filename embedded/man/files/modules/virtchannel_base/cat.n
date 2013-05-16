@@ -259,7 +259,7 @@ package require \fBtcl::chan::cat  ?1?\fR
 The \fBtcl::chan::cat\fR package provides a command creating
 concatenation channels\&. These are non-seekable channels owning a list
 of subordinate channels whose contents they return in order, until all
-are exhausted\&. In this manner the cahnnel is the concatentation of the
+are exhausted\&. In this manner the channel is the concatentation of the
 contents of all the sub-ordinate channels\&.
 .PP
 Note that the created channels take ownership of the channels
