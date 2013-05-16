@@ -245,7 +245,7 @@ coroutine::auto \- Automatic event and IO coroutine awareness
 .SH SYNOPSIS
 package require \fBTcl  8\&.6\fR
 .sp
-package require \fBcoroutine::auto  1\&.1\fR
+package require \fBcoroutine::auto  1\&.1\&.1\fR
 .sp
 package require \fBcoroutine  1\&.1\fR
 .sp
