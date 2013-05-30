@@ -1,3 +1,9 @@
+2013-05-30  Andreas Kupries  <andreask@activestate.com>
+
+	* rest.tcl (::rest::_call): [Bug 3613726][Allura 1370]: Added
+	  status code 303 ("See Other") to the set of codes returning with
+	  a location error instead of a plain one.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
