@@ -2,6 +2,7 @@
 #
 # Copyright (c) 2005 Thorsten Schloermann
 # Copyright (c) 2005 Pat Thoyts <patthoyts@users.sourceforge.net>
+# Copyright (c) 2013 Andreas Kupries
 #
 # A Tcl implementation of the Advanced Encryption Standard (US FIPS PUB 197)
 #
@@ -22,7 +23,7 @@
 package require Tcl 8.2
 
 namespace eval ::aes {
-    variable version 1.1
+    variable version 1.1.1
     variable rcsid {$Id: aes.tcl,v 1.7 2010/07/06 19:39:00 andreas_kupries Exp $}
     variable uid ; if {![info exists uid]} { set uid 0 }
 
@@ -458,6 +459,8 @@ proc ::aes::Decrypt {Key data} {
 #
 proc ::aes::Chunk {Key in {out {}} {chunksize 4096}} {
     upvar #0 $Key state
+
+    #puts ||CHUNK.X||i=$in|o=$out|c=$chunksize|eof=[eof $in]
     
     if {[eof $in]} {
         fileevent $in readable {}
@@ -465,8 +468,18 @@ proc ::aes::Chunk {Key in {out {}} {chunksize 4096}} {
     }
 
     set data [read $in $chunksize]
-    # FIX ME: we should ony pad after eof
-    set data [Pad $data 16]
+
+    #puts ||CHUNK.R||i=$in|o=$out|c=$chunksize|eof=[eof $in]||[string length $data]||$data||
+
+    # Do nothing when data was read at all.
+    if {![string length $data]} return
+
+    if {[eof $in]} {
+        #puts CHUNK.Z
+        set data [Pad $data 16]
+    }
+
+    #puts ||CHUNK.P||i=$in|o=$out|c=$chunksize|eof=[eof $in]||[string length $data]||$data||
     
     if {$out == {}} {
         append state(output) [$state(cmd) $Key $data]
@@ -573,6 +586,11 @@ proc ::aes::aes {args} {
         }
 
         set Key [Init $opts(-mode) $opts(-key) $opts(-iv)]
+
+        set readcmd [list [namespace origin Chunk] \
+                         $Key $opts(-in) $opts(-out) \
+                         $opts(-chunksize)]
+
         upvar 1 $Key state
         set state(reading) 1
         if {[string equal $opts(-dir) "encrypt"]} {
@@ -581,9 +599,7 @@ proc ::aes::aes {args} {
             set state(cmd) Decrypt
         }
         set state(output) ""
-        fileevent $opts(-in) readable \
-            [list [namespace origin Chunk] \
-                 $Key $opts(-in) $opts(-out) $opts(-chunksize)]
+        fileevent $opts(-in) readable $readcmd
         if {[info commands ::tkwait] != {}} {
             tkwait variable [subst $Key](reading)
         } else {
@@ -593,7 +609,6 @@ proc ::aes::aes {args} {
             set r $state(output)
         }
         Final $Key
-
     }
 
     if {$opts(-hex)} {
