@@ -1,3 +1,11 @@
+2013-05-30  Andreas Kupries  <andreask@activestate.com>
+
+	* aes.tcl (::aes::Chunk): [Bug 3612645][Allura 1366]: Fix handling
+	* aes.test: of last block read, it may be empty. In that case we
+	* aes.man: must not pad, nor try to decrypt it into garbage.
+	* pkgIndex.tcl: Extended testsuite with cases for this. Version
+	  bumped to 1.1.1.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
