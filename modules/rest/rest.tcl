@@ -439,7 +439,7 @@ proc ::rest::_call {callback headers url query body} {
     if {$callback != ""} { return $t }
     if {![string match 2* [http::ncode $t]]} {
         #parray $t
-        if {[string match {30[12]} [http::ncode $t]]} {
+        if {[string match {30[123]} [http::ncode $t]]} {
             upvar #0 $t a
             return -code error [list HTTP [http::ncode $t] [dict get $a(meta) Location]]
         }
