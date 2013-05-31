@@ -28,13 +28,6 @@ packages, as they cannot be loaded into a general interpreter, like
 tclsh, without extensive preparation of the interpreter. Preparation
 which is done for them by the plugin manager.
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph page] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have.
-
+[vset CATEGORY page]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

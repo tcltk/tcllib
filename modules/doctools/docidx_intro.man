@@ -89,16 +89,6 @@ They are described in their own sets of documents, starting at the
 [term {doctoc introduction}] and the [term {doctools introduction}],
 respectively.
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph doctools] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have.
-
 [see_also docidx_lang_intro]
 [see_also docidx_lang_syntax]
 [see_also docidx_lang_cmdref]
@@ -109,4 +99,6 @@ Please also report any ideas for enhancements you may have.
 [see_also doctoc_intro]
 [keywords markup {semantic markup}]
 [keywords index {keyword index}]
+[vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

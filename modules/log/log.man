@@ -272,18 +272,7 @@ debug
 that) in most situations debugging output is not wanted. Most people wish to
 have such output only when actually debugging an application.
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph log] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
 [keywords log {log level} {message level} message]
+[vset CATEGORY log]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

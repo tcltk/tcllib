@@ -90,17 +90,7 @@ end
 {hello.txt 644 {Hello World}}
 }]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph base64] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
 [keywords encoding uuencode]
+[vset CATEGORY base64]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]
