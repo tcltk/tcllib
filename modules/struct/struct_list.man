@@ -824,18 +824,6 @@ volume 4". Available on the Web at the author's personal site:
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {struct :: list}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
 [keywords list diff differential comparison common subsequence]
 [keywords {longest common subsequence}]
 [keywords reverse]
@@ -846,4 +834,6 @@ package and/or documentation.
 [keywords equality equal repetition repeating]
 [keywords {inner join} {left outer join} {right outer join} {full outer join} {outer join} join]
 [keywords swapping permutation {first permutation} {next permutation} {generate permutations}]
+[vset CATEGORY {struct :: list}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -52,20 +52,9 @@ own longest common prefix.
 
 [list_end]
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph textutil] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
 [see_also regexp(n) split(n) string(n)]
 [keywords string capitalize formatting prefix uncapitalize]
 [keywords chop {common prefix}]
+[vset CATEGORY textutil]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

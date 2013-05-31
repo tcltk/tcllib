@@ -184,4 +184,6 @@ Print machine parameters on standard output.
 
 [list_end]
 
+[vset CATEGORY math]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

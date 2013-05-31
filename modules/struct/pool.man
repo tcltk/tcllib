@@ -441,17 +441,7 @@ connection may be allocated to just one client request at a time.
      }
 }]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {struct :: pool}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
 [keywords struct pool finite {discrete items}]
+[vset CATEGORY {struct :: pool}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

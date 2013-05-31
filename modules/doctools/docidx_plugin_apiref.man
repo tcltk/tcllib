@@ -419,17 +419,6 @@ to simply return its argument without change.
 
 [list_end]
 
-
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph doctools] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have.
-
 [see_also docidx_intro]
 [see_also docidx_lang_intro]
 [see_also docidx_lang_syntax]
@@ -438,4 +427,6 @@ Please also report any ideas for enhancements you may have.
 [see_also doctools::idx]
 [keywords markup {semantic markup} plugin keywords index]
 [keywords {formatting engine} {index formatter}]
+[vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

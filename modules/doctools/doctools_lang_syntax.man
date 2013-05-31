@@ -128,16 +128,6 @@ optd_list   = [ <WHITE> ] { OPT_DEF      paras }
 tkoptd_list = [ <WHITE> ] { TKOPTION_DEF paras }
 }]
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph doctools] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have.
-
 [see_also doctools_intro]
 [see_also doctools_lang_intro]
 [see_also doctools_lang_cmdref]
@@ -145,4 +135,6 @@ Please also report any ideas for enhancements you may have.
 [keywords markup {semantic markup}]
 [keywords {doctools markup} {doctools language}]
 [keywords {doctools syntax} {doctools commands}]
+[vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -434,17 +434,7 @@ Calculate the area of a polygon.
 [enum] [uri http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline2d/]
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {math :: geometry}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
 [keywords math "plane geometry" "point" "line" "distance" "angle"]
+[vset CATEGORY {math :: geometry}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

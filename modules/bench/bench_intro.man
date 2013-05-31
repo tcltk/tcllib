@@ -79,19 +79,11 @@ This module and package have been derived from Jeff Hobbs'
 [syscmd tclbench] application for the benchmarking of the Tcl core and
 its ancestor [file runbench.tcl].
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph bench] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have.
-
 [see_also bench_lang_intro]
 [see_also bench_lang_spec]
 [see_also bench_lang_faq]
 [see_also bench]
 [keywords testing performance benchmark {bench language}]
+[vset CATEGORY bench]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]
