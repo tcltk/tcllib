@@ -1,3 +1,9 @@
+2013-05-31  Andreas Kupries  <andreask@activestate.com>
+
+	* coroutine.tcl: Added Colin Macleod and http://wiki/21555
+	* coro_auto.tcl: to the set of acknowledged contributors
+	  and references for the module.
+
 2013-05-15  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* coro_auto.tcl: Replaced uses of 'namespace current' in the wrap_
