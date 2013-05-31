@@ -518,19 +518,8 @@ results.
     ldap::disconnect $handle
 }]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph ldap] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-One know bug is the usage of [cmd vwait] inside the dispatch mechanism, which makes
-it currently unsafe to use this code in code that also enters the event loop.
+[vset CATEGORY ldap]
+[include ../doctools2base/include/feedback.inc]
 
 [keywords ldap {rfc 2251} {rfc 4511} x.500 {ldap client} {directory access} internet protocol]
 [manpage_end]

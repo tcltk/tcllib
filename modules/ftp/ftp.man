@@ -427,17 +427,8 @@ An update command placed in the procedure [cmd ::ftp::DisplayMsg] may
 run into persistent errors or infinite loops. The solution to this
 problem is to use [cmd {update idletasks}] instead of [cmd update].
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph ftp] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY ftp]
+[include ../doctools2base/include/feedback.inc]
 
 [see_also ftpd smtp pop3 mime]
 [keywords ftp {rfc 959} internet net]

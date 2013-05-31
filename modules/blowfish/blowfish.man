@@ -154,17 +154,8 @@ d0d8f27e7a374b9e2dbd9938dd04195a
 [section AUTHORS]
 Frank Pilhofer, Pat Thoyts
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph blowfish] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY blowfish]
+[include ../doctools2base/include/feedback.inc]
 
 [keywords blowfish {block cipher} security encryption cryptography]
 [manpage_end]

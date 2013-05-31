@@ -495,17 +495,8 @@ Replaces the tag in front of the data in [arg data_var] with [arg newTag]. The n
 Examples for the usage of this package can be found in the
 implementation of package [package ldap].
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph asn] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY asn]
+[include ../doctools2base/include/feedback.inc]
 
 [keywords asn x.208 ber x.209 der cer internet protocol]
 [manpage_end]

@@ -339,18 +339,10 @@ RFC 3501, March 2003, [uri http://www.rfc-editor.org/rfc/rfc3501.txt]
 [para]
 OpenSSL, [uri http://www.openssl.org/]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
+[vset CATEGORY imap4]
+[include ../doctools2base/include/feedback.inc]
 
 Only a small part of rfc3501 implemented.
-
-[para]
-Please report such in the category [emph imap4] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
 
 [see_also imap ftp http mime pop3 tls]
 [keywords imap email internet mail net imap rfc3501 ssl tls]

@@ -63,16 +63,9 @@ math::calculus::symdiff::jacobian {x {$a * $x + $b * $y}
                          y {$c * $x + $d * $y}}
 ==> {{$a} {$b}} {{$c} {$d}}
 }]
-[section {Bugs, Ideas, Feedback}]
 
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
 
-Please report such in the category [emph {math :: calculus}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY {math :: calculus}]
+[include ../doctools2base/include/feedback.inc]
 [see_also math::calculus math::interpolate]
 [manpage_end]
