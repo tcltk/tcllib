@@ -37,17 +37,8 @@ command.
     K530
 }]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph soundex] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY soundex]
+[include ../doctools2base/include/feedback.inc]
 
 [keywords soundex knuth {text comparison} {text likeness}]
 [manpage_end]

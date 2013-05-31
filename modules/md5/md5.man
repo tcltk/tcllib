@@ -161,19 +161,9 @@ These commands are identical to the MD5 equivalent commands.
 
 [list_end]
 
+[vset CATEGORY md5]
+[include ../doctools2base/include/feedback.inc]
+
 [see_also md4 sha1]
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph md5] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
 [keywords md5 hashing message-digest security {rfc 1320} {rfc 1321} {rfc 2104}]
 [manpage_end]

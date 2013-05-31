@@ -122,17 +122,8 @@ time::getsntp -command on_time pool.ntp.org
 [section AUTHORS]
 Pat Thoyts
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph ntp] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY ntp]
+[include ../doctools2base/include/feedback.inc]
 
 [keywords time NTP {rfc 868} SNTP {rfc 2030}]
 [manpage_end]

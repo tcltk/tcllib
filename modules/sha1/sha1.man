@@ -160,19 +160,9 @@ ae6251fa51b95b18cba2be95eb031d07475ff03c
 
 [list_end]
 
+[vset CATEGORY sha1]
+[include ../doctools2base/include/feedback.inc]
+
 [see_also md4 md5 ripemd128 ripemd160]
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph sha1] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
 [keywords sha1 hashing security message-digest {FIPS 180-1} {rfc 2104}]
 [manpage_end]

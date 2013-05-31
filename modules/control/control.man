@@ -145,17 +145,8 @@ provided by packages coded in C.  An example of this difference:
 0
 }]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph control] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY control]
+[include ../doctools2base/include/feedback.inc]
 
 [see_also expr if join namespace return string while break continue]
 [keywords control flow structure no-op assert do]

@@ -23,17 +23,8 @@ They are automatically loaded and registered by [package tie] when it
 itself is requested, and as such there is no need to request them on
 their own, although it is possible to do so.
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the packages it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph tie] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY tie]
+[include ../doctools2base/include/feedback.inc]
 
 [keywords array tie untie persistence file database metakit]
 [manpage_end]
