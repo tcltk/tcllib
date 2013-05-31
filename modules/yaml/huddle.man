@@ -525,16 +525,8 @@ HUDDLE {L {{D {bb {D {a {s b} c {s kkk}}} cc {L {{s e} {s f} {s g} {s h}}}}} {s 
 [para]
 now printing.
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph huddle] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
+[vset CATEGORY huddle]
+[include ../doctools2base/include/feedback.inc]
 
 [see_also yaml]
 [keywords huddle yaml json {text processing} parsing {data exchange} {exchange format}]

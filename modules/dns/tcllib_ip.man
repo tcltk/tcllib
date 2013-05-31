@@ -433,17 +433,8 @@ fec0::1
 [section AUTHORS]
 Pat Thoyts
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph dns] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY dns]
+[include ../doctools2base/include/feedback.inc]
 
 [keywords {internet address} ip ipv4 ipv6 {rfc 3513}]
 [manpage_end]

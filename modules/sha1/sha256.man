@@ -170,19 +170,9 @@ These commands are identical to the SHA256 equivalent commands.
 
 [list_end]
 
+[vset CATEGORY sha1]
+[include ../doctools2base/include/feedback.inc]
+
 [see_also sha1 md4 md5 ripemd128 ripemd160]
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph sha1] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
 [keywords sha256 hashing security message-digest {FIPS 180-1} {rfc 2104}]
 [manpage_end]

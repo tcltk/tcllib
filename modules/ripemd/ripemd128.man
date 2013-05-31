@@ -174,17 +174,8 @@ b359dc5971a05beea0be7b106b30e389
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph ripemd] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY ripemd]
+[include ../doctools2base/include/feedback.inc]
 
 [see_also md4 md5 sha1 ripemd160]
 [keywords RIPEMD md4 hashing message-digest security {rfc 1320} {rfc 1321} {rfc 2104}]

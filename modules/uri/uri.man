@@ -184,17 +184,8 @@ Original code (regular expressions) by Andreas Kupries.
 Modularisation by Steve Ball, also the split/join/resolve
 functionality.
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph uri] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY uri]
+[include ../doctools2base/include/feedback.inc]
 
 [keywords uri url {fetching information} www http ftp mailto]
 [keywords news gopher wais ldap prospero file]
