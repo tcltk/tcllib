@@ -517,18 +517,8 @@ or [method cname].
 [cmd expander] was written by William H. Duquette; it is a repackaging
 of the central algorithm of the expand macro processing tool.
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {textutil :: expander}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
 [see_also regexp split string [uri http://www.wjduquette.com/expand]]
 [keywords string {template processing} {text expansion}]
+[vset CATEGORY textutil]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -64,18 +64,9 @@ This command queries the terminal connected to the standard input for
 the number of rows (aka lines) available for display.
 
 [list_end]
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph term] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
 
 [keywords ansi terminal control raw cooked]
 [keywords {input mode} lines rows columns]
+[vset CATEGORY term]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

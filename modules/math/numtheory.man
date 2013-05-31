@@ -50,4 +50,6 @@ integer is a prime.
 [list_end]
 
 [keywords {number theory} prime]
+[vset CATEGORY {math :: numtheory}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

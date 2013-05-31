@@ -32,19 +32,8 @@ compression, from [const 0] to [const 9], and defaults to [const 4].
 
 [list_end]
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph virtchannel] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
 [keywords compression decompression transformation {channel transformation}]
 [keywords zlib {tip 234} {virtual channel} {reflected channel} {tip 230}]
+[vset CATEGORY virtchannel]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]
