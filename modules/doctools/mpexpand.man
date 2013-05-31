@@ -86,4 +86,6 @@ Possible future formats are plain text, pdf and postscript.
 
 [see_also expander(n) format(n) formatter(n)]
 [keywords manpage TMML HTML nroff conversion markup]
+[vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

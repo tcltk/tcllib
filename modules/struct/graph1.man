@@ -398,17 +398,7 @@ a node [const enter]s it, the second visit [const leave]s it.
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {struct :: graph}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
 [keywords graph cgraph]
+[vset CATEGORY {struct :: graph}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

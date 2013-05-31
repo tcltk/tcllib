@@ -115,20 +115,6 @@ Developers wishing to modify and/or extend or to just understand the
 internals of the nameservice facility however are strongly advised to
 read it.
 
-
-[section {Bugs, Ideas, Feedback}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph nameserv] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-Please also report any ideas for enhancements you may have.
-
-
 [keywords {name service} client server]
 [see_also nnsd(n)]
 [see_also nss(n)]
@@ -137,4 +123,6 @@ Please also report any ideas for enhancements you may have.
 [see_also nameserv::common(n)]
 [see_also nameserv::auto(n)]
 [see_also nameserv::protocol(n)]
+[vset CATEGORY nameserv]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

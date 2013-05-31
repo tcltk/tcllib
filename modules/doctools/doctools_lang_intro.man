@@ -53,7 +53,9 @@ The most simple document which can be written in doctools is
 [example {
     [manpage_begin NAME SECTION VERSION]
     [description]
-    [manpage_end]
+    [vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
+[manpage_end]
 }]
 
 This also shows us that all doctools documents are split into two
@@ -114,7 +116,9 @@ Remember that the whitespace is optional. The document
     [manpage_begin NAME SECTION VERSION]
     [copyright {YEAR AUTHOR}][titledesc TITLE][moddesc MODULE_TITLE]
     [require PACKAGE VERSION][require PACKAGE][description]
-    [manpage_end]
+    [vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
+[manpage_end]
 }]
 
 has the same meaning as the example before.
@@ -597,16 +601,6 @@ the processing and conversion of doctools documents, i.e. either
 Tcllib's easy and simple [syscmd dtplite], or Tclapps'
 ultra-configurable [syscmd dtp].
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph doctools] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have.
-
 [see_also doctools_intro]
 [see_also doctools_lang_syntax]
 [see_also doctools_lang_cmdref]
@@ -614,4 +608,6 @@ Please also report any ideas for enhancements you may have.
 [keywords markup {semantic markup}]
 [keywords {doctools markup} {doctools language}]
 [keywords {doctools syntax} {doctools commands}]
+[vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

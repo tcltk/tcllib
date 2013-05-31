@@ -91,16 +91,6 @@ division  = DIVISION_START
             DIVISION_END
 }]
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph doctools] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have.
-
 [see_also doctoc_intro]
 [see_also doctoc_lang_intro]
 [see_also doctoc_lang_cmdref]
@@ -108,4 +98,6 @@ Please also report any ideas for enhancements you may have.
 [keywords markup {semantic markup}]
 [keywords {doctoc markup} {doctoc language}]
 [keywords {doctoc syntax} {doctoc commands}]
+[vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

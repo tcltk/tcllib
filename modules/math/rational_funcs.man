@@ -187,17 +187,7 @@ The implementation of the rational functions relies on the
 math::polynomials package. For further remarks see the documentation on
 that package.
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {math :: rationalfunctions}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
 [keywords math "rational functions"]
+[vset CATEGORY {math :: rationalfunctions}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]
