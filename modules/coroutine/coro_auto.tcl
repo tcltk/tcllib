@@ -8,6 +8,7 @@
 # Meta require         {coroutine 1.1}
 # Meta license         BSD
 # Meta as::author      {Andreas Kupries}
+# Meta as::origin      http://wiki.tcl.tk/21555
 # Meta summary         Coroutine Event and Channel Support
 # Meta description     Built on top of coroutine, this
 # Meta description     package intercepts various builtin

@@ -7,11 +7,13 @@
 # Meta require         {Tcl 8.6}
 # Meta license         BSD
 # Meta as::author      {Andreas Kupries}
+# Meta as::author      {Colin Macleod}
 # Meta as::author      {Colin McCormack}
 # Meta as::author      {Donal Fellows}
 # Meta as::author      {Kevin Kenny}
 # Meta as::author      {Neil Madden}
 # Meta as::author      {Peter Spjuth}
+# Meta as::origin      http://wiki.tcl.tk/21555
 # Meta summary         Coroutine Event and Channel Support
 # Meta description     This package provides coroutine-aware
 # Meta description     implementations of various event- and
@@ -36,6 +38,7 @@
 # @@ Meta End
 
 # Copyright (c) 2009 Andreas Kupries
+# Copyright (c) 2009 Colin Macleod
 # Copyright (c) 2009 Colin McCormack
 # Copyright (c) 2009 Donal Fellows
 # Copyright (c) 2009 Kevin Kenny
