@@ -398,18 +398,8 @@ GNU Units program at [uri http://www.gnu.org/software/units/]
 
 Robert W. Techentin
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph units] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY units]
+[include ../doctools2base/include/feedback.inc]
 
 [keywords unit conversion constants distance radians angle]
 [manpage_end]

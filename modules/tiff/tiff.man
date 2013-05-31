@@ -166,17 +166,8 @@ mapping uses the array ::tiff::tiff_sgat.
 [enum] Writing limited to uncompressed 8 bit rgb
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph tiff] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY tiff]
+[include ../doctools2base/include/feedback.inc]
 
 [keywords tiff tif image]
 [manpage_end]
