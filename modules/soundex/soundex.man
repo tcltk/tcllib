@@ -1,5 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin soundex n 1.0]
+[keyword knuth]
+[keyword soundex]
+[keyword {text comparison}]
+[keyword {text likeness}]
 [copyright {????, Algorithm: Donald E. Knuth}]
 [copyright {2003, Documentation: Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {1998, Tcl port: Evan Rempel <erempel@uvic.ca>}]
@@ -29,7 +33,6 @@ command.
 
 [list_end]
 
-
 [section EXAMPLES]
 
 [example {
@@ -39,6 +42,4 @@ command.
 
 [vset CATEGORY soundex]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords soundex knuth {text comparison} {text likeness}]
 [manpage_end]

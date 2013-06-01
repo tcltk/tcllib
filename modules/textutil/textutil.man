@@ -1,4 +1,15 @@
 [manpage_begin textutil n 0.7.1]
+[see_also regexp(n)]
+[see_also split(n)]
+[see_also string(n)]
+[keyword formatting]
+[keyword hyphenation]
+[keyword indenting]
+[keyword paragraph]
+[keyword {regular expression}]
+[keyword string]
+[keyword TeX]
+[keyword trimming]
 [moddesc   {Text and string utilities, macro processing}]
 [titledesc {Procedures to manipulate texts and strings.}]
 [category  {Text processing}]
@@ -67,7 +78,6 @@ trailing spaces are ignored before returning the string (see
 
 [emph real] line in a [emph logical] line.
 
-
 [list_begin definitions]
 
 [def "-full [arg boolean]"]
@@ -82,7 +92,6 @@ if set to [const false], no hyphenation will be done. If set to
 [const true], the last word of a line is tried to be hyphenated.
 Defaults to [const false]. Note: hyphenation patterns must be loaded
 prior, using the command [cmd ::textutil::adjust::readPatterns].
-
 
 [def "[option -justify] [const center|left|plain|right]"]
 
@@ -133,7 +142,6 @@ Set the length of the [emph logical] line in the string to
 [arg integer].  [arg integer] must be a positive integer
 value. Defaults to [const 72].
 
-
 [def "[option -strictlength] [arg boolean]"]
 
 If set to [const false], a line can exceed the specified
@@ -144,7 +152,6 @@ split so that no line exceeds the specified [option -length]. Defaults
 to [const false].
 
 [list_end]
-
 
 [call [cmd ::textutil::adjust::readPatterns] [arg filename]]
 
@@ -175,7 +182,6 @@ filenames found in the list returned by
 [cmd ::textutil::adjust::listPredefined] are legal arguments for this
 command.
 
-
 [call [cmd ::textutil::indent] [arg string] [arg prefix] [opt [arg skip]]]
 
 Each line in the [arg string] indented by adding the string
@@ -195,7 +201,6 @@ hanging indentation.
 Together with [cmd ::textutil::adjust] it is possible to create
 properly wrapped paragraphs with arbitrary indentations.
 
-
 [call [cmd ::textutil::undent] [arg string]]
 
 The command computes the common prefix for all
@@ -212,7 +217,6 @@ prefix to remove.
 
 Together with [cmd ::textutil::adjust] it is possible to create
 properly wrapped paragraphs with arbitrary indentations.
-
 
 [call [cmd ::textutil::splitn] [arg string] [opt [arg len]]]
 
@@ -238,13 +242,11 @@ empty list, like for [cmd split]. If [arg regexp] is empty the
 
 The regular expression [arg regexp] defaults to "[lb]\\t \\r\\n[rb]+".
 
-
 [call [cmd ::textutil::tabify] [arg string] [opt [arg num]]]
 
 Tabify the [arg string] by replacing any substring of [arg num] space
 chars by a tabulation and return the result as a new string. [arg num]
 defaults to 8.
-
 
 [call [cmd ::textutil::tabify2] [arg string] [opt [arg num]]]
 
@@ -263,7 +265,6 @@ tabstops every [arg num] columns. Only sequences of space characters
 containing more than one space character and found immediately before
 a tabstop are replaced with tabs.
 
-
 [call [cmd ::textutil::trim] [arg string] [opt [arg regexp]]]
 
 Remove in [arg string] any leading and trailing substring according to
@@ -275,7 +276,6 @@ or, if the string contain no newline, between the beginning and the
 end of the string.
 
 The regular expression [arg regexp] defaults to "[lb] \\t[rb]+".
-
 
 [call [cmd ::textutil::trimleft] [arg string] [opt [arg regexp]]]
 
@@ -299,13 +299,11 @@ contain no newline, between the beginning and the end of the string.
 
 The regular expression [arg regexp] defaults to "[lb] \\t[rb]+".
 
-
 [call [cmd ::textutil::trimPrefix] [arg string] [arg prefix]]
 
 Removes the [arg prefix] from the beginning of [arg string] and
 returns the result. The [arg string] is left unchanged if it doesn't
 have [arg prefix] at its beginning.
-
 
 [call [cmd ::textutil::trimEmptyHeading] [arg string]]
 
@@ -313,13 +311,11 @@ Looks for empty lines (including lines consisting of only whitespace)
 at the beginning of the [arg string] and removes it. The modified
 string is returned as the result of the command.
 
-
 [call [cmd ::textutil::untabify] [arg string] [opt [arg num]]]
 
 Untabify the [arg string] by replacing any tabulation char by a
 substring of [arg num] space chars and return the result as a new
 string. [arg num] defaults to 8.
-
 
 [call [cmd ::textutil::untabify2] [arg string] [opt [arg num]]]
 
@@ -338,7 +334,6 @@ tabstop. This is the complement of the actions taken by
 There is one asymmetry though: A tab can be replaced with a single
 space, but not the other way around.
 
-
 [call [cmd ::textutil::strRepeat] [arg "text num"]]
 
 The implementation depends on the core executing the package. Used
@@ -348,7 +343,6 @@ if it is not. Returns a string containing the [arg text] repeated
 [arg num] times. The repetitions are joined without characters between
 them. A value of [arg num] <= 0 causes the command to return an empty
 string.
-
 
 [call [cmd ::textutil::blank] [arg num]]
 
@@ -374,7 +368,6 @@ The complementary operation to [cmd ::textutil::cap]. Forces the first
 character of [arg string] to lower case and returns the modified
 string.
 
-
 [call [cmd ::textutil::longestCommonPrefixList] [arg list]]
 [call [cmd ::textutil::longestCommonPrefix] [opt [arg string]...]]
 
@@ -390,9 +383,6 @@ own longest common prefix.
 
 [list_end]
 
-[see_also regexp(n) split(n) string(n)]
-[keywords string {regular expression} formatting TeX hyphenation]
-[keywords indenting trimming paragraph]
 [vset CATEGORY textutil]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

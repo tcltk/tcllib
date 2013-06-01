@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin grammar::me::cpu::core n 0.2]
+[keyword grammar]
+[keyword parsing]
+[keyword {virtual machine}]
 [copyright {2005-2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Grammar operations and usage}]
 [titledesc {ME virtual machine state manipulation}]
@@ -7,7 +10,6 @@
 [require Tcl 8.4]
 [require grammar::me::cpu::core [opt 0.2]]
 [description]
-[keywords {virtual machine} parsing grammar]
 [para]
 
 This package provides an implementation of the ME virtual machine.
@@ -37,7 +39,6 @@ internal representation is not shimmered away.
 The actual structure used by all state values is described in section
 [sectref {CPU STATE}].
 
-
 [section API]
 
 The package directly provides only a single command, and all the
@@ -60,14 +61,12 @@ tokens unencoded. Token names are prefixed with their numeric id, if,
 and only if a tokmap is defined. The two components are separated by a
 colon.
 
-
 [call [cmd ::grammar::me::cpu::core] [method asm] [arg asm]]
 
 This method returns code in the format as specified in section
 [sectref {MATCH PROGRAM REPRESENTATION}] generated from ME assembly
 code [arg asm], which is in the format as returned by the method
 [method disasm].
-
 
 [call [cmd ::grammar::me::cpu::core] [method new] [arg asm]]
 
@@ -86,7 +85,6 @@ stream. Its format is specified in the section
 The [arg tokmap] argument taken by the implementation provided by the
 package [package grammar::me::tcl] is here hidden inside of the match
 instructions and therefore not needed.
-
 
 [call [cmd ::grammar::me::cpu::core] [method lc] [arg state] [arg location]]
 
@@ -110,7 +108,6 @@ the beginning of the stream.
 This utility allows higher levels to convert the location offsets
 found in the error status and the AST into more human readable data.
 
-
 [call [cmd ::grammar::me::cpu::core] [method tok] [arg state] [opt "[arg from] [opt [arg to]]"]]
 
 This method takes the state value of a ME virtual machine and returns
@@ -124,30 +121,25 @@ not specified either the whole input stream is returned.
 This method places the same restrictions on its location arguments as
 the method [method lc].
 
-
 [call [cmd ::grammar::me::cpu::core] [method pc] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the current value of the stored program counter.
-
 
 [call [cmd ::grammar::me::cpu::core] [method iseof] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the current value of the stored eof flag.
 
-
 [call [cmd ::grammar::me::cpu::core] [method at] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the current location in the input stream.
 
-
 [call [cmd ::grammar::me::cpu::core] [method cc] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the current token.
-
 
 [call [cmd ::grammar::me::cpu::core] [method sv] [arg state]]
 
@@ -157,54 +149,45 @@ the current semantic value stored in it.
 This is an abstract syntax tree as specified in the document
 [syscmd grammar::me_ast], section [sectref-external {AST VALUES}].
 
-
 [call [cmd ::grammar::me::cpu::core] [method ok] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the match status stored in it.
-
 
 [call [cmd ::grammar::me::cpu::core] [method error] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the current error status stored in it.
 
-
 [call [cmd ::grammar::me::cpu::core] [method lstk] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the location stack.
-
 
 [call [cmd ::grammar::me::cpu::core] [method astk] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the AST stack.
 
-
 [call [cmd ::grammar::me::cpu::core] [method mstk] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the AST marker stack.
-
 
 [call [cmd ::grammar::me::cpu::core] [method estk] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the error stack.
 
-
 [call [cmd ::grammar::me::cpu::core] [method rstk] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the subroutine return stack.
 
-
 [call [cmd ::grammar::me::cpu::core] [method nc] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the nonterminal match cache as a dictionary.
-
 
 [call [cmd ::grammar::me::cpu::core] [method ast] [arg state]]
 
@@ -215,19 +198,16 @@ in it.
 This is an abstract syntax tree as specified in the document
 [syscmd grammar::me_ast], section [sectref-external {AST VALUES}].
 
-
 [call [cmd ::grammar::me::cpu::core] [method halted] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the current halt status stored in it, i.e. if the machine has stopped
 or not.
 
-
 [call [cmd ::grammar::me::cpu::core] [method code] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the code stored in it, i.e. the instructions executed by the machine.
-
 
 [call [cmd ::grammar::me::cpu::core] [method eof] [arg statevar]]
 
@@ -236,7 +216,6 @@ the variable named by [arg statevar] and modifies it so that the eof
 flag inside is set. This signals to the machine that whatever token
 are in the input queue are the last to be processed. There will be no
 more.
-
 
 [call [cmd ::grammar::me::cpu::core] [method put] [arg statevar] [arg tok] [arg lex] [arg line] [arg col]]
 
@@ -249,7 +228,6 @@ lexeme data [arg lex] and [arg line]/[arg col]umn information.
 
 The operation will fail with an error if the eof flag of the machine
 has been set through the method [method eof].
-
 
 [call [cmd ::grammar::me::cpu::core] [method run] [arg statevar] [opt [arg n]]]
 
@@ -275,7 +253,6 @@ If no limit [arg n] was set only the last two conditions are checked
 for.
 
 [list_end]
-
 
 [subsection {MATCH PROGRAM REPRESENTATION}]
 
@@ -340,7 +317,6 @@ references into the [term pool] as well.
 [enum] "[cmd ias_mrewind]"
 [enum] "[cmd ias_mpop]"
 [list_end]
-
 
 [section {CPU STATE}]
 

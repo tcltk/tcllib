@@ -1,5 +1,7 @@
 [comment {-*- tcl -*-}]
 [manpage_begin {struct::graph_v1} n 1.2.1]
+[keyword cgraph]
+[keyword graph]
 [copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate directed graph objects}]
@@ -70,16 +72,13 @@ Appends a [arg value] to one of the keyed values associated with an
 [arg arc]. If no [arg key] is specified, the key [const data] is
 assumed.
 
-
 [call [arg graphName] [method {arc delete}] [arg arc] [opt "[arg arc] ..."]]
 
 Remove the specified arcs from the graph.
 
-
 [call [arg graphName] [method {arc exists}] [arg arc]]
 
 Return true if the specified [arg arc] exists in the graph.
-
 
 [call [arg graphName] [method {arc get}] [arg arc] [opt "-key [arg key]"]]
 
@@ -91,17 +90,14 @@ If no key is specified, the key [const data] is assumed.
 Returns a serialized list of key/value pairs (suitable for use with
 [lb][cmd {array set}][rb]) for the [arg arc].
 
-
 [call [arg graphName] [method {arc keys}] [arg arc]]
 
 Returns a list of keys for the [arg arc].
-
 
 [call [arg graphName] [method {arc keyexists}] [arg arc] [opt "-key [arg key]"]]
 
 Return true if the specified [arg key] exists for the [arg arc]. If no
 [arg key] is specified, the key [const data] is assumed.
-
 
 [call [arg graphName] [method {arc insert}] [arg start] [arg end] [opt [arg child]]]
 
@@ -110,13 +106,11 @@ Insert an arc named [arg child] into the graph beginning at the node
 arc is not specified the system will generate a unique name of the
 form [emph arc][arg x].
 
-
 [call [arg graphName] [method {arc lappend}] [arg arc] [opt "-key [arg key]"] [arg value]]
 
 Appends a [arg value] (as a list) to one of the keyed values
 associated with an [arg arc].  If no [arg key] is specified, the key
 [const data] is assumed.
-
 
 [call [arg graphName] [method {arc set}] [arg arc] [opt "-key [arg key]"] [opt [arg value]]]
 
@@ -129,22 +123,18 @@ values associated with it.  If [arg value] is not specified, this
 command returns the current value assigned to the key; if [arg value]
 is specified, this command assigns that value to the key.
 
-
 [call [arg graphName] [method {arc source}] [arg arc]]
 
 Return the node the given [arg arc] begins at.
-
 
 [call [arg graphName] [method {arc target}] [arg arc]]
 
 Return the node the given [arg arc] ends at.
 
-
 [call [arg graphName] [method {arc unset}] [arg arc] [opt "-key [arg key]"]]
 
 Remove a keyed value from the arc [arg arc].  If no key is specified,
 the key [const data] is assumed.
-
 
 [call [arg graphName] [method arcs] [opt "-key [arg key]"] [opt "-value [arg value]"] [opt "-in|-out|-adj|-inner|-embedding [arg nodelist]"]]
 
@@ -210,13 +200,11 @@ are applied.
 Specifying more than one [option -key] (and [option -value]) is
 illegal.
 
-
 [call [arg graphName] [method {node append}] [arg node] [opt "-key [arg key]"] [arg value]]
 
 Appends a [arg value] to one of the keyed values associated with an
 [arg node]. If no [arg key] is specified, the key [const data] is
 assumed.
-
 
 [call [arg graphName] [method {node degree}] [opt -in|-out] [arg node]]
 
@@ -224,17 +212,14 @@ Return the number of arcs adjacent to the specified [arg node]. If one
 of the restrictions [option -in] or [option -out] is given only the
 incoming resp. outgoing arcs are counted.
 
-
 [call [arg graphName] [method {node delete}] [arg node] [opt "[arg node] ..."]]
 
 Remove the specified nodes from the graph.  All of the nodes' arcs
 will be removed as well to prevent unconnected arcs.
 
-
 [call [arg graphName] [method {node exists}] [arg node]]
 
 Return true if the specified [arg node] exists in the graph.
-
 
 [call [arg graphName] [method {node get}] [arg node] [opt "-key [arg key]"]]
 
@@ -246,17 +231,14 @@ If no key is specified, the key [const data] is assumed.
 Returns a serialized list of key/value pairs (suitable for use with
 [lb][cmd {array set}][rb]) for the [arg node].
 
-
 [call [arg graphName] [method {node keys}] [arg node]]
 
 Returns a list of keys for the [arg node].
-
 
 [call [arg graphName] [method {node keyexists}] [arg node] [opt "-key [arg key]"]]
 
 Return true if the specified [arg key] exists for the [arg node]. If
 no [arg key] is specified, the key [const data] is assumed.
-
 
 [call [arg graphName] [method {node insert}] [opt [arg child]]]
 
@@ -270,12 +252,10 @@ Appends a [arg value] (as a list) to one of the keyed values
 associated with an [arg node]. If no [arg key] is specified, the key
 [const data] is assumed.
 
-
 [call [arg graphName] [method {node opposite}] [arg node] [arg arc]]
 
 Return the node at the other end of the specified [arg arc], which has
 to be adjacent to the given [arg node].
-
 
 [call [arg graphName] [method {node set}] [arg node] [opt "-key [arg key]"] [opt [arg value]]]
 
@@ -287,7 +267,6 @@ added to a graph has the empty string assigned to the key
 values associated with it.  If [arg value] is not specified, this
 command returns the current value assigned to the key; if [arg value]
 is specified, this command assigns that value to the key.
-
 
 [call [arg graphName] [method {node unset}] [arg node] [opt "-key [arg key]"]]
 
@@ -310,29 +289,24 @@ The possible restrictions are the same as for method
 all source and target nodes for all the arcs satisfying the
 restriction as defined for [method arcs].
 
-
 [call [arg graphName] [method get] [opt "-key [arg key]"]]
 
 Return the value associated with the key [arg key] for the graph. If
 no key is specified, the key [const data] is assumed.
-
 
 [call [arg graphName] [method getall]]
 
 Returns a serialized list of key/value pairs (suitable for use with
 [lb][cmd {array set}][rb]) for the whole graph.
 
-
 [call [arg graphName] [method keys]]
 
 Returns a list of keys for the whole graph.
-
 
 [call [arg graphName] [method keyexists] [opt "-key [arg key]"]]
 
 Return true if the specified [arg key] exists for the whole graph. If no
 [arg key] is specified, the key [const data] is assumed.
-
 
 [call [arg graphName] [method set] [opt "-key [arg key]"] [opt [arg value]]]
 
@@ -344,11 +318,9 @@ is not specified, this command returns the current value assigned to
 the key; if [arg value] is specified, this command assigns that value
 to the key.
 
-
 [call [arg graphName] [method swap] [arg node1] [arg node2]]
 
 Swap the position of [arg node1] and [arg node2] in the graph.
-
 
 [call [arg graphName] [method unset] [opt "-key [arg key]"]]
 
@@ -398,7 +370,6 @@ a node [const enter]s it, the second visit [const leave]s it.
 
 [list_end]
 
-[keywords graph cgraph]
 [vset CATEGORY {struct :: graph}]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

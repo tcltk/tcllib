@@ -41,7 +41,6 @@ non-canonical serialization.
 For the specification of serializations see the section
 [sectref {AST serialization format}].
 
-
 [call [cmd ::pt::ast] [method verify-as-canonical] \
 	[arg serial]]
 
@@ -54,7 +53,6 @@ the empty string.
 
 For the specification of canonical serializations see the section
 [sectref {AST serialization format}].
-
 
 [call [cmd ::pt::ast] [method canonicalize] [arg serial]]
 
@@ -73,7 +71,6 @@ already canonical it will be returned unchanged.
 For the specification of regular and canonical serializations see the
 section [sectref {AST serialization format}].
 
-
 [call [cmd ::pt::ast] [method print] [arg serial]]
 
 This command assumes that the argument [arg serial] contains a valid
@@ -89,7 +86,6 @@ for parsing or other machine-based activities.
 
 For the specification of serializations see the section
 [sectref {AST serialization format}].
-
 
 [call [cmd ::pt::ast] [method bottomup] [arg cmdprefix] [arg ast]]
 
@@ -119,7 +115,6 @@ children of this node.
 
 [list_end]
 
-
 [call [cmd ::pt::ast] [method topdown] [arg cmdprefix] [arg pe]]
 
 This command walks the abstract syntax tree [arg ast] from the root
@@ -136,7 +131,6 @@ see above.
 
 The result returned by the command prefix is [emph ignored].
 
-
 [call [cmd ::pt::ast] [method equal] \
 	[arg seriala] [arg serialb]]
 
@@ -150,13 +144,11 @@ identical, and [const false] otherwise.
 String equality is usable only if we can assume that the two trees are
 pure Tcl lists.
 
-
 [call [cmd ::pt::ast] [method terminal] [arg loc]]
 
 This command command constructs the ast for a terminal node refering
 to the position [arg loc] in the input, and returns it as the result
 of the command.
-
 
 [call [cmd ::pt::ast] [method nonterminal] [arg s] \
 	[arg start] [arg end] [opt [arg child]...]]
@@ -166,7 +158,6 @@ refering to the symbol [arg s] covering the range of positions
 [arg start] to [arg end] in the input, and the set of child nodes
 [arg child] ..., from left right. The latter may be empty. The
 constructed node is returned as the result of the command.
-
 
 [list_end]
 

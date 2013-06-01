@@ -1,5 +1,16 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin grammar::fa::dacceptor n 0.1.1]
+[keyword acceptance]
+[keyword acceptor]
+[keyword automaton]
+[keyword {finite automaton}]
+[keyword grammar]
+[keyword parsing]
+[keyword {regular expression}]
+[keyword {regular grammar}]
+[keyword {regular languages}]
+[keyword state]
+[keyword transducer]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Finite automaton operations and usage}]
 [titledesc {Create and use deterministic acceptors}]
@@ -9,9 +20,6 @@
 [require struct::set]
 [require grammar::fa::dacceptor [opt 0.1.1]]
 [description]
-[keywords acceptor acceptance grammar automaton {finite automaton}]
-[keywords state {regular expression} {regular grammar}]
-[keywords {regular languages} parsing transducer]
 [para]
 
 This package provides a class for acceptors constructed from
@@ -67,12 +75,10 @@ All acceptors provide the following methods for their manipulation:
 
 [list_begin definitions]
 
-
 [call [arg daName] [method destroy]]
 
 Destroys the automaton, including its storage space and associated
 command.
-
 
 [call [arg daName] [method accept?] [arg symbols]]
 

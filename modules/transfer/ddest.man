@@ -1,5 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin transfer::data::destination n 0.2]
+[keyword channel]
+[keyword copy]
+[keyword {data destination}]
+[keyword transfer]
 [copyright {2006-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Data transfer facilities}]
 [titledesc {Data destination}]
@@ -8,13 +12,11 @@
 [require snit                        [opt 1.0]]
 [require transfer::data::destination [opt 0.2]]
 [description]
-[keywords transfer copy channel {data destination}]
 [para]
 
 This package provides objects mainly describing the destination of a
 data transfer. They are also able to initiate the reception of
 information from a channel into the described destination.
-
 
 [section API]
 
@@ -42,7 +44,6 @@ result of the command.
 
 [list_end]
 
-
 [subsection {Object command}]
 
 All objects created by the [cmd ::transfer::data::destination] command
@@ -60,7 +61,6 @@ specifications.
 
 [list_end]
 
-
 [subsection {Object methods}]
 
 [list_begin definitions]
@@ -72,20 +72,17 @@ with the reception of information from a channel will cause errors
 later on, when the reception completes and tries to access the now
 missing data structures of the destroyed object.
 
-
 [call [arg objectName] [method put] [arg chunk]]
 
 The main receptor method. Saves the received [arg chunk] of data into
 the configured destination. It has to be called for each piece of data
 received.
 
-
 [call [arg objectName] [method done]]
 
 The secondary receptor method. Finalizes the receiver. It has to be
 called when the receiving channel signals EOF. Afterward neither
 itself nor method [method put] can be called anymore.
-
 
 [call [arg objectName] [method valid] [arg msgvar]]
 
@@ -108,7 +105,6 @@ additional argument.
 
 [list_end]
 
-
 [subsection Options]
 
 All data destinations support the options listed below. It should be
@@ -120,7 +116,6 @@ configure the object.
 [list_begin options]
 [include include/ddest_options.inc]
 [list_end]
-
 
 [vset CATEGORY transfer]
 [include ../doctools2base/include/feedback.inc]

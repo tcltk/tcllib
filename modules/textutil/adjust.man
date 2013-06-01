@@ -1,4 +1,16 @@
 [manpage_begin textutil::adjust n 0.7.1]
+[see_also regexp(n)]
+[see_also split(n)]
+[see_also string(n)]
+[keyword adjusting]
+[keyword formatting]
+[keyword hyphenation]
+[keyword indenting]
+[keyword justification]
+[keyword paragraph]
+[keyword string]
+[keyword TeX]
+[keyword undenting]
 [moddesc   {Text and string utilities, macro processing}]
 [titledesc {Procedures to adjust, indent, and undent paragraphs}]
 [category  {Text processing}]
@@ -52,7 +64,6 @@ The following options may be used after the [arg string] parameter,
 and change the way the command places a [emph real] line in a
 [emph logical] line.
 
-
 [list_begin options]
 
 [opt_def -full [arg boolean]]
@@ -67,7 +78,6 @@ If set to [const false] (default), no hyphenation will be done. If set
 to [const true], the command will try to hyphenate the last word of a
 line. [emph Note]: Hyphenation patterns must be loaded prior, using
 the command [cmd ::textutil::adjust::readPatterns].
-
 
 [opt_def -justify [const center|left|plain|right]]
 
@@ -118,7 +128,6 @@ Set the length of the [emph logical] line in the string to
 [arg integer].  [arg integer] must be a positive integer
 value. Defaults to [const 72].
 
-
 [opt_def -strictlength] [arg boolean]]
 
 If set to [const false] (default), a line can exceed the specified
@@ -127,7 +136,6 @@ set to [const true], words that are longer than [option -length] are
 split so that no line exceeds the specified [option -length].
 
 [list_end]
-
 
 [call [cmd ::textutil::adjust::readPatterns] [arg filename]]
 
@@ -156,7 +164,6 @@ filenames found in the list returned by
 [cmd ::textutil::adjust::listPredefined] are legal arguments for this
 command.
 
-
 [call [cmd ::textutil::adjust::indent] [arg string] [arg prefix] [opt [arg skip]]]
 
 Each line in the [arg string] is indented by adding the string
@@ -175,7 +182,6 @@ hanging indentation.
 
 Together with [cmd ::textutil::adjust::adjust] it is possible to
 create properly wrapped paragraphs with arbitrary indentations.
-
 
 [call [cmd ::textutil::adjust::undent] [arg string]]
 
@@ -196,9 +202,6 @@ create properly wrapped paragraphs with arbitrary indentations.
 
 [list_end]
 
-[see_also regexp(n) split(n) string(n)]
-[keywords string justification formatting TeX hyphenation]
-[keywords indenting undenting paragraph adjusting]
 [vset CATEGORY textutil]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

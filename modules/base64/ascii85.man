@@ -1,4 +1,6 @@
 [manpage_begin ascii85 n 1.0]
+[keyword ascii85]
+[keyword encoding]
 [copyright "2010, Emiliano Gavil\u00e1n"]
 [moddesc   {Text encoding & decoding binary data}]
 [titledesc {ascii85-encode/decode binary data}]
@@ -28,7 +30,6 @@ the string encoding before doing ascii85 encoding. See the examples.
 
 The command will throw an error for negative values of [arg maxlen],
 or if [arg maxlen] is not an integer number.
-
 
 [call [cmd ::ascii85::decode] [arg "string"]]
 
@@ -69,7 +70,6 @@ G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[H$X^\H?a^]G^4U[
        [uri http://www.adobe.com/devnet/postscript/pdfs/PLRM.pdf]
 [list_end]
 
-[keywords encoding ascii85]
 [vset CATEGORY base64]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

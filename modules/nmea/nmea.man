@@ -1,4 +1,6 @@
 [manpage_begin nmea n 1.0.0]
+[keyword gps]
+[keyword nmea]
 [copyright {2006-2009, Aaron Faupell <afaupell@users.sourceforge.net>}]
 [moddesc   {NMEA protocol implementation}]
 [titledesc {Process NMEA data}]
@@ -57,7 +59,7 @@ Set to 0 to disable automatic line processing.
 Starts or stops input logging. If a file name is specified then all NMEA data recieved on
 the open port will be logged to the [opt file] in append mode. If file is an empty string then
 any logging will be stopped. If no file is specified then returns a boolean value indicating
-if logging is currently enabled. Data written to the port by [cmd write], 
+if logging is currently enabled. Data written to the port by [cmd write],
  data read from files, or input made using [cmd input], is not logged.
 
 [call [cmd ::nmea::checksum] [arg data]]
@@ -69,7 +71,7 @@ in proper NMEA checksummed format.
 
 [call [cmd ::nmea::event] [arg setence] [opt command]]
 Registers a handler proc for a given NMEA [arg sentence]. There may be at most one handler per
-sentence, any existing handler is replaced.  
+sentence, any existing handler is replaced.
 If no command is specified, returns the name of the current handler for the given [arg setence]
 or an empty string if none exists. In addition to the incoming sentences there are 2 builtin types,
 EOF and DEFAULT. The handler for the DEFAULT setence is invoked if there is not a specific handler
@@ -97,6 +99,4 @@ proc handle_unknown {name data} {
 
 [vset CATEGORY nmea]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords nmea gps]
 [manpage_end]

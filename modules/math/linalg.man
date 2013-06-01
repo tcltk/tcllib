@@ -1,5 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin math::linearalgebra n 1.1]
+[keyword {least squares}]
+[keyword {linear algebra}]
+[keyword {linear equations}]
+[keyword math]
+[keyword matrices]
+[keyword matrix]
+[keyword vectors]
 [copyright {2004-2008 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [copyright {2004 Ed Hume <http://www.hume.com/contact.us.htm>}]
 [copyright {2008 Michael Buadin <relaxkmike@users.sourceforge.net>}]
@@ -8,8 +15,6 @@
 [category  Mathematics]
 [require Tcl [opt 8.4]]
 [require math::linearalgebra [opt 1.1]]
-[keywords math {linear algebra} vectors matrices {least squares}]
-[keywords matrix {linear equations}]
 [description]
 [para]
 This package offers both low-level procedures and high-level algorithms
@@ -49,8 +54,6 @@ be a naming conflict, as both this package and Tk define a command
 
 The package defines the following public procedures (several exist as
 specialised procedures, see below):
-
-
 
 [para]
 [emph "Constructing matrices and vectors"]
@@ -192,8 +195,6 @@ Swap two columns in a matrix completely or only a selected part
 
 [list_end]
 
-
-
 [para]
 [emph "Querying matrices and vectors"]
 
@@ -272,8 +273,6 @@ is the tolerance.
 [list_end]
 
 [list_end]
-
-
 
 [para]
 [emph "Basic operations"]
@@ -491,8 +490,6 @@ other is a matrix, then the result is a vector.
 
 [list_end]
 
-
-
 [para]
 [emph "Common matrices and test matrices"]
 
@@ -627,8 +624,6 @@ is odd.
 [list_end]
 
 [list_end]
-
-
 
 [para]
 [emph "Common algorithms"]
@@ -854,7 +849,6 @@ used for sparse matrices).
 
 [list_end]
 
-
 [para]
 [emph "Compability with the LA package"]
 
@@ -880,11 +874,9 @@ package into the format used by the present implementation.
 [arg_def list mv] Matrix or vector as used by the LA package
 [list_end]
 
-
 [list_end]
 
 [para]
-
 
 [section "STORAGE"]
 

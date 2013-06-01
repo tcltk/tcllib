@@ -1,5 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin bench::out::csv n 0.1.2]
+[see_also bench]
+[see_also bench::out::text]
+[keyword benchmark]
+[keyword csv]
+[keyword formatting]
+[keyword performance]
+[keyword testing]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Benchmarking/Performance tools}]
 [titledesc {bench::out::csv - Formatting benchmark results as CSV}]
@@ -10,7 +17,6 @@
 
 This package provides commands for fomatting of benchmark results into
 a CSV table importable by spread sheets.
-
 
 [para]
 
@@ -26,7 +32,6 @@ to the formal [term {bench language specification}].
 [para]
 
 [section {PUBLIC API}]
-
 
 [list_begin definitions]
 
@@ -44,9 +49,6 @@ results in raw form, or for human consumption, respectively.
 
 [list_end]
 
-[see_also bench]
-[see_also bench::out::text]
-[keywords testing performance benchmark formatting csv]
 [vset CATEGORY bench]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

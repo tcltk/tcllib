@@ -57,7 +57,6 @@ converting the input text.
 [list_end][comment {-- api command signatures --}]
 [list_end][comment {-- converter rules --}]
 
-
 [section {Plugin API}]
 
 Any (grammar) import plugin has to follow the rules set out below:
@@ -136,7 +135,6 @@ The result of the command will be a 5-element list containing
 [list_end][comment {-- result list elements --}]
 [list_end][comment {-- include-file signature --}]
 
-
 [enum]	A plugin has to provide a single command, in the global
 	namespace, with the signature shown below. Plugins are allowed
 	to provide more commands of their own, but not less, and they
@@ -171,7 +169,6 @@ found in the section [sectref {PEG serialization format}].
 	a state where another usage cycle can be run without problems.
 
 [list_end][comment {-- plugin rules --}]
-
 
 [section Usage]
 

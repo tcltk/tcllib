@@ -1,5 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin tcl::chan::null n 1]
+[keyword /dev/null]
+[keyword null]
+[keyword {reflected channel}]
+[keyword {tip 219}]
+[keyword {virtual channel}]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
@@ -35,7 +40,6 @@ This command creates a new null channel and returns its handle.
 
 [list_end]
 
-[keywords {virtual channel} {reflected channel} null /dev/null {tip 219}]
 [vset CATEGORY virtchannel]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

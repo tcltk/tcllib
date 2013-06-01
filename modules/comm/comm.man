@@ -1,13 +1,23 @@
 [manpage_begin comm n 4.6.2]
+[see_also send(n)]
+[keyword comm]
+[keyword communication]
+[keyword ipc]
+[keyword message]
+[keyword {remote communication}]
+[keyword {remote execution}]
+[keyword rpc]
+[keyword secure]
+[keyword send]
+[keyword socket]
+[keyword ssl]
+[keyword tls]
 [copyright {1995-1998 The Open Group. All Rights Reserved.}]
 [copyright {2003-2004 ActiveState Corporation.}]
 [copyright {2006-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Remote communication}]
 [titledesc {A remote communication facility for Tcl (8.3 and later)}]
 [category  {Programming tools}]
-[see_also  send(n)]
-[keywords  socket {remote execution} {remote communication} send]
-[keywords  communication ipc message rpc comm ssl tls secure]
 [require Tcl 8.3]
 [require comm [opt 4.6.2]]
 [description]
@@ -217,7 +227,6 @@ happens.
 Recycling the socket is done by invoking [cmd {::comm::comm abort}],
 which causes all active sends to terminate.
 
-
 [subsection {Id/port Assignments}]
 [para]
 
@@ -244,7 +253,6 @@ As a special case, if the channel is configured with
 will use an id of [const 0] for itself.  Such a channel is only good
 for outgoing connections (although once a connection is established,
 it can carry send traffic in both directions).
-
 
 As another special case, if the channel is configured with
 
@@ -295,7 +303,6 @@ a list of the events whose scripts should be executed in the declared
 interpreter as well. The contents of this option are ignored if the
 communication channel is configured to execute received scripts in the
 current interpreter.
-
 
 [subsection {Remote Interpreters}]
 [para]
@@ -413,7 +420,7 @@ attempt with the error.  Example:
 [example {
     % ::comm::comm hook connecting {
         if {[string match {*[02468]} $id]} {
-            error "Can't connect to even ids" 
+            error "Can't connect to even ids"
         }
     }
     % ::comm::comm send 10000 puts ok
@@ -455,7 +462,6 @@ peer is named by [arg remport] and [arg addr] but that the remote
         }
     }
 }]
-
 
 [def [const eval]]
 
@@ -564,7 +570,6 @@ Subverting the script to execute
 
 [list_end]
 
-
 [def [const reply]]
 
 Variables:
@@ -602,7 +607,6 @@ For safety reasons, this is decomposed.  The return result is in
 Any of these may be the empty string.  Modifying these four variables
 can change the return value, whereas modifying [arg buffer] has no
 effect.
-
 
 [def [const callback]]
 
@@ -694,15 +698,12 @@ command, see package [package tls], to secure the communication.
 	...
 }]
 
-
-
 [para]
 
 The sections [sectref {Execution Environment}] and [sectref Callbacks]
 are also relevant to the security of the system, providing means to
 restrict the execution to a specific environment, perform additional
 authentication, and the like.
-
 
 [subsection {Blocking Semantics}]
 
@@ -1048,7 +1049,6 @@ avoid the use of comm:* procedures; this also cut the invocation time
 down by 40%.  Documented [cmd {comm config}] (as this manual page
 still listed the defunct [cmd {comm init}]!)
 
-
 [def 3.3]
 
 Some minor bugs were corrected and the documentation was cleaned up.
@@ -1114,7 +1114,6 @@ John LoVerso, John@LoVerso.Southborough.MA.US
 
 [emph http://www.opengroup.org/~loverso/tcl-tk/#comm]
 
-
 [section  License]
 
 Please see the file [emph comm.LICENSE] that accompanied this source,
@@ -1125,7 +1124,6 @@ or
 
 This license for [package comm], new as of version 3.2, allows it to be
 used for free, without any licensing fee or royalty.
-
 
 [section Bugs]
 [list_begin itemized]
@@ -1180,7 +1178,6 @@ canonical hostnames.  This requires fixes to Tcl to resolve hostnames!
 [para]
 This man page is bigger than the source file.
 
-
 [section {On Using Old Versions Of Tcl}]
 
 [para]
@@ -1205,7 +1202,6 @@ at least Tcl7.6p2.
 Tcl8.0 on UNIX contains a socket bug that can crash Tcl.  It is recommended
 you use Tcl8.0p1 (or Tcl7.6p2).
 
-
 [section {Related Work}]
 [para]
 Tcl-DP provides an RPC-based remote execution interface, but is a
@@ -1220,7 +1216,6 @@ RPC interface using standard Tcl sockets, much like [package comm].
 Andreas Kupries <andreas_kupries@users.sourceforge.net> uses
 [package comm] and has built a simple nameserver as part of his Pool
 library.  See [uri http://www.purl.org/net/akupries/soft/pool/index.htm].
-
 
 [vset CATEGORY comm]
 [include ../doctools2base/include/feedback.inc]

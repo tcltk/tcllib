@@ -1,5 +1,17 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin dtplite n 1.0.5]
+[see_also {docidx introduction}]
+[see_also {doctoc introduction}]
+[see_also {doctools introduction}]
+[keyword conversion]
+[keyword docidx]
+[keyword doctoc]
+[keyword doctools]
+[keyword HTML]
+[keyword manpage]
+[keyword markup]
+[keyword nroff]
+[keyword TMML]
 [copyright {2004-2013 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [titledesc {Lightweight DocTools Markup Processor}]
 [moddesc   {Documentation toolbox}]
@@ -17,7 +29,6 @@ easier than [syscmd dtp] with its myriad of subcommands and options.
 
 [syscmd dtplite] is based upon the package [package doctools], like
 the other two processors.
-
 
 [subsection {USE CASES}]
 
@@ -91,13 +102,11 @@ and the name of that file will be derived from the [arg inputfile],
 the [arg format], and the value given to option [option -ext] (if
 present).
 
-
 [arg_def (path|handle) format in]
 
 This argument specifies the formatting engine to use when processing
 the input, and thus the format of the generated document. See section
 [sectref FORMATS] for the possibilities recognized by the application.
-
 
 [arg_def path inputfile in]
 
@@ -107,14 +116,12 @@ exist, must be readable, and written in [term doctools] format.
 [list_end]
 [para]
 
-
 [call [cmd dtplite] [const validate] [arg inputfile]]
 
 This is a simpler form for use case [lb]1[rb]. The "validate" format
 generates no output at all, only syntax checks are performed. As such
 the specification of an output file or other options is not necessary
 and left out.
-
 
 [call [cmd dtplite] [option -o] [arg output] [opt options] [arg format] [arg inputdirectory]]
 
@@ -129,7 +136,6 @@ writable directory.
 The input documents are all files in [arg inputdirectory] or any of
 its subdirectories which were recognized by [cmd fileutil::fileType]
 as containing text in [term doctools] format.
-
 
 [call [cmd dtplite] [option -merge] [option -o] [arg output] [opt options] [arg format] [arg inputdirectory]]
 
@@ -165,7 +171,6 @@ as manpages to process which match the exclude pattern are
 ignored. The option can be provided multiple times, each usage adding
 an additional pattern to the list of exclusions.
 
-
 [opt_def -ext string]
 
 If the name of an output file has to be derived from the name of an
@@ -177,7 +182,6 @@ name of the output file is fully specified through option [option -o].
 [para]
 
 When used multiple times only the last definition is relevant.
-
 
 [opt_def -header file]
 
@@ -195,7 +199,6 @@ originating here before the final assignment to the parameter.
 
 When used multiple times only the last definition is relevant.
 
-
 [opt_def -footer file]
 
 Like [option -header], except that: Any navigation buttons are ignored,
@@ -205,7 +208,6 @@ data is inserted just before the tag [const </body>].
 [para]
 
 When used multiple times only the last definition is relevant.
-
 
 [opt_def -style file]
 
@@ -228,7 +230,6 @@ specified.
 
 When used multiple times only the last definition is relevant.
 
-
 [opt_def -toc path]
 
 This option specifies a doctoc file to use for the table of contents
@@ -238,7 +239,6 @@ instead of generating our own.
 
 When used multiple times only the last definition is relevant.
 
-
 [opt_def -pre+toc "label path|text"]
 [opt_def -post+toc "label path|text"]
 
@@ -247,7 +247,6 @@ the navigation bar.
 
 [para] Positioning and handling of multiple uses is like for options
 [option -prenav] and [option -postnav], see below.
-
 
 [opt_def -nav "label url"]
 [opt_def -prenav "label url"]
@@ -269,7 +268,6 @@ edge and the last definition to the right.
 to the main files (TOC and Keyword index), and will be transformed for
 all others to still link properly.
 
-
 [opt_def -postnav "label url"]
 
 Use this option to specify a navigation button with [arg label] to
@@ -290,7 +288,6 @@ to the main files (TOC and Keyword index), and will be transformed for
 all others to still link properly.
 
 [list_end]
-
 
 [subsection FORMATS]
 
@@ -345,6 +342,18 @@ The processor generates Wiki markup as understood by [syscmd wikit].
 [def [const list]]
 
 The processor extracts the information provided by [cmd manpage_begin].
+[see_also {docidx introduction}]
+[see_also {doctoc introduction}]
+[see_also {doctools introduction}]
+[keyword conversion]
+[keyword docidx]
+[keyword doctoc]
+[keyword doctools]
+[keyword HTML]
+[keyword manpage]
+[keyword markup]
+[keyword nroff]
+[keyword TMML]
 
 This format is used internally to extract the meta data from which
 both table of contents and keyword index are derived from.
@@ -355,7 +364,6 @@ The processor does not generate any output. This is equivalent to
 [const validate].
 
 [list_end]
-
 
 [subsection {DIRECTORY STRUCTURES}]
 
@@ -387,7 +395,6 @@ generated for a file FOO located at
 [example {
     inputdirectory/path/to/FOO
 }]
-
 
 [def "[lb]3[rb]"]
 
@@ -435,11 +442,6 @@ of doctoc and docidx markup.
 
 [list_end]
 
-[see_also {doctools introduction}]
-[see_also {docidx introduction}]
-[see_also {doctoc introduction}]
-[keywords manpage TMML HTML nroff conversion markup]
-[keywords doctools docidx doctoc]
 [vset CATEGORY doctools]
 [include ../modules/doctools2base/include/feedback.inc]
 [manpage_end]

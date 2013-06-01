@@ -1,5 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin yaml n 0.3.6]
+[see_also base64]
+[see_also huddle]
+[see_also json]
+[keyword {data exchange}]
+[keyword huddle]
+[keyword parsing]
+[keyword {text processing}]
+[keyword yaml]
 [copyright {2008 KATO Kanryu <kanryu6@users.sourceforge.net>}]
 [moddesc   {YAML processing}]
 [titledesc {YAML Format Encoder/Decoder}]
@@ -9,7 +17,7 @@
 [para]
 
 The [package yaml] package provides a simple Tcl-only library for parsing the
-YAML [uri http://www.yaml.org/] data exchange format as specified in 
+YAML [uri http://www.yaml.org/] data exchange format as specified in
 [uri http://www.yaml.org/spec/1.1/].
 
 [para]
@@ -34,7 +42,6 @@ Parse yaml formatted text [arg txt] into a Tcl dict/huddle and return the value.
 [opt_def [const -stream]]
 
 [arg txt] is just a YAML-stream.
-
 
 [opt_def "[const -types] [arg list]"]
 
@@ -81,7 +88,6 @@ Change implicit options for the library.
 Now, the params are the same as [cmd ::yaml::yaml2dict].
 Arguments of[cmd ::yaml::yaml2dict] is more priority than this setting.
 
-
 [call [cmd ::yaml::dict2yaml] [arg dict] [opt [arg indent]] [opt [arg wordwrap]]]
 [call [cmd ::yaml::list2yaml] [arg list] [opt [arg indent]] [opt [arg wordwrap]]]
 [call [cmd ::yaml::huddle2yaml] [arg huddle] [opt [arg indent]] [opt [arg wordwrap]]]
@@ -96,7 +102,6 @@ currently default is 2.
 word wrap for YAML stream.
 currently default is 40.
 [list_end]
-
 
 [list_end]
 [para]
@@ -156,14 +161,13 @@ multi-element list (a dict).
 - [name        , hr, avg  ]
 - [Mark McGwire, 65, 0.278]
 - [Sammy Sosa  , 63, 0.288]
-- 
+-
   Mark McGwire: {hr: 65, avg: 0.278}
   Sammy Sosa: { hr: 63, avg: 0.288}
 }
 =>
 {name hr avg} {{Mark McGwire} 65 0.278} {{Sammy Sosa} 63 0.288} {{Mark McGwire} {hr 65 avg 0.278} {Sammy Sosa} {hr 63 avg 0.288}}
 }]
-
 
 [section LIMITATIONS]
 
@@ -181,7 +185,4 @@ Not enough character set of line feeds. Please use only "\n" as line breaks.
 
 [vset CATEGORY yaml]
 [include ../doctools2base/include/feedback.inc]
-
-[see_also json huddle base64]
-[keywords yaml {text processing} parsing {data exchange} huddle]
 [manpage_end]

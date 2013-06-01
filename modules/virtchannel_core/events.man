@@ -1,5 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin tcl::chan::events n 1]
+[keyword {event management}]
+[keyword {reflected channel}]
+[keyword {tip 219}]
+[keyword {virtual channel}]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
@@ -19,7 +23,6 @@ sub-class of [package tcl::chan::core], inheriting all of its behaviour.
 [para] This class expects to be used as either superclass of a concrete
 channel class, or to be mixed into such a class.
 
-
 [section {Class API}]
 
 [list_begin definitions]
@@ -33,7 +36,6 @@ the section for the [sectref {Instance API}].
 
 [list_end]
 
-
 [section {Instance API}]
 
 The API of channel event core instances provides only four methods, two
@@ -41,7 +43,6 @@ corresponding to channel handler commands (For reference see
 [uri http:/tip.tcl.tk/219 {TIP 219}]), and the other two for use by
 sub-classes to control event generation. They former expect to be called
 from whichever object instance the channel event core was made a part of.
-
 
 [list_begin definitions]
 
@@ -52,14 +53,12 @@ method of channel handlers. It overrides the behaviour inherited from
 [package tcl::chan::core] and additionally disables any and all event
 generation before destroying itself.
 
-
 [call [arg objectName] [method watch] [arg thechannel] [arg eventmask]]
 
 This method implements standard behaviour for the [method watch]
 method of channel handlers. Called by the IO system whenever the
 interest in event changes it updates the instance state to activate
 and/or suppress the generation of the events of (non-)interest.
-
 
 [call [arg objectName] [method allow] [arg eventname]...]
 [call [arg objectName] [method disallow] [arg eventname]...]
@@ -75,7 +74,6 @@ accordingly.
 
 [list_end]
 
-[keywords {virtual channel} {reflected channel} {event management} {tip 219}]
 [vset CATEGORY virtchannel]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

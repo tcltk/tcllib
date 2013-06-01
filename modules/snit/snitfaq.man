@@ -1,5 +1,15 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin snitfaq n 2.2]
+[keyword adaptors]
+[keyword BWidget]
+[keyword C++]
+[keyword class]
+[keyword {Incr Tcl}]
+[keyword {mega widget}]
+[keyword object]
+[keyword {object oriented}]
+[keyword widget]
+[keyword {widget adaptors}]
 [copyright {2003-2006, by William H. Duquette}]
 [moddesc {Snit's Not Incr Tcl, OO system}]
 [titledesc   {Snit Frequently Asked Questions}]
@@ -19,8 +29,8 @@ Snit, however; that information is in the [cmd snit] man page.
 [subsection {What is Snit?}]
 
 Snit is a framework for defining abstract data types and megawidgets
-in pure Tcl.  The name "Snit" stands for "Snit's Not Incr Tcl", 
-signifying that Snit takes a different approach to defining objects 
+in pure Tcl.  The name "Snit" stands for "Snit's Not Incr Tcl",
+signifying that Snit takes a different approach to defining objects
 than does Incr Tcl, the best known object framework for Tcl.  Had
 I realized that Snit would become at all popular, I'd probably have
 chosen something else.
@@ -37,7 +47,7 @@ easily build your application.
 Snit isn't about theoretical purity or minimalist design; it's about
 being able to do powerful things easily and consistently without
 having to think about them--so that you can concentrate on building
-your application. 
+your application.
 
 [para]
 
@@ -50,14 +60,14 @@ carefully-specified lightweight thingamajigs (e.g., think of the text
 widget and text tags, or the canvas widget and canvas objects).  Snit
 lets you hide the details of just how those thingamajigs are
 stored--so that you can ignore it, and concentrate on building your
-application. 
+application.
 
 [para]
 
 Snit isn't a way of life, a silver bullet, or the Fountain of
 Youth. It's just a way of managing complexity--and of managing some of
 the complexity of managing complexity--so that you can concentrate on
-building your application. 
+building your application.
 
 [subsection {What version of Tcl does Snit require?}]
 
@@ -121,7 +131,7 @@ a Tk widget, an Incr Tcl object, a BWidget or almost anything else.
 
 [para]
 
-Note that you can achieve the effect of inheritance using 
+Note that you can achieve the effect of inheritance using
 [sectref COMPONENTS] and [sectref "DELEGATION"]--and you can inherit
 from anything that looks like a Tcl object.
 
@@ -207,7 +217,7 @@ using any incompatible features.
 
 To the extent possible, Snit 2.2 is intended to be a drop-in
 replacement for Snit 1.3. Unfortunately, some incompatibilities were
-inevitable because Snit 2.2 uses Tcl 8.5's new 
+inevitable because Snit 2.2 uses Tcl 8.5's new
 [cmd "namespace ensemble"] mechanism to implement subcommand dispatch.
 This approach is much faster than the mechanism used in Snit 1.3, and
 also results in much better error messages; however, it also places
@@ -233,33 +243,33 @@ set obj2 [dog]         ;# Implicit naming
 
 In Snit 2.2, type commands are defined using the [cmd "namespace ensemble"]
 mechanism; and [cmd "namespace ensemble"] doesn't allow an ensemble command
-to be called without a subcommand.  In short, using 
+to be called without a subcommand.  In short, using
 [cmd "namespace ensemble"] there's no way to support implicit naming.
 
 [para]
 
 All is not lost, however.  If the type has no type methods, then the
-type command is a simple command rather than an ensemble, and 
+type command is a simple command rather than an ensemble, and
 [cmd "namespace ensemble"] is not used.  In this case, implicit naming
 is still possible.
 
 [para]
 
 In short, you can have implicit naming if you're willing to do without
-type methods (including the standard type methods, like 
+type methods (including the standard type methods, like
 [cmd "\$type info"]).  To do so, use the [const -hastypemethods] pragma:
 
 [example {pragma -hastypemethods 0}]
 
 [item]
 Hierarchical methods and type methods are implemented differently in
-Snit 2.2.  
+Snit 2.2.
 
 [para]
 
 A hierarchical method is an instance method which has
 subcommands; these subcommands are themselves methods.  The Tk text
-widget's [cmd tag] command and its subcommands are examples of 
+widget's [cmd tag] command and its subcommands are examples of
 hierarchical methods.  You can implement such subcommands in Snit
 simply by including multiple words in the method names:
 
@@ -291,7 +301,7 @@ hierarchical methods and type methods no longer works.
 The third incompatibility derives from the second.  In Snit 1.3,
 hierarchical methods were also simply methods whose name contains
 multiple words.  As a result, [cmd "\$obj info methods"] returned the
-full names of all hierarchical methods.  In the example above, 
+full names of all hierarchical methods.  In the example above,
 the list returned by [cmd "\$obj info methods"] would include
 [cmd "tag configure"] and [cmd "tag cget"] but not [cmd "tag"], since
 [cmd "tag"] is defined only implicitly.
@@ -304,14 +314,13 @@ name contains multiple words; in the above example, the list returned
 by [cmd "\$obj info methods"] would include [cmd "tag"] but not
 [cmd "tag configure"] or [cmd "tag cget"].
 
-
 [item]
 The fourth incompatibility is due to a new feature.  Snit 2.2 uses
-the new [cmd "namespace path"] command so that a type's code can 
+the new [cmd "namespace path"] command so that a type's code can
 call any command defined in the type's parent namespace without
-qualification or importation.  For example, suppose you have a 
+qualification or importation.  For example, suppose you have a
 package called [cmd "mypackage"] which defines a number of commands
-including a type, [cmd "::mypackage::mytype"].  Thanks to 
+including a type, [cmd "::mypackage::mytype"].  Thanks to
 [cmd "namespace path"], the type's code can call any of the other
 commands defined in [cmd "::mypackage::"].
 
@@ -324,7 +333,7 @@ This can lead to bugs.  For example, Tcllib includes a type called
 [cmd "::tie::std::file"].  This type's code calls the standard
 [cmd "file"] command.  When run with Snit 2.2, the code broke--
 the type's command, [cmd "::tie::std::file"], is itself a command
-in the type's parent namespace, and so instead of calling 
+in the type's parent namespace, and so instead of calling
 the standard [cmd "file"] command, the type found itself calling
 itself.
 
@@ -345,7 +354,7 @@ Many error messages and stack traces are cleaner.
 The [const -simpledispatch] pragma is obsolete, and ignored if
 present. In Snit 1.x, [const -simpledispatch] substitutes a faster
 mechanism for method dispatch, at the cost of losing certain features.
-Snit 2.2 method dispatch is faster still in all cases, so 
+Snit 2.2 method dispatch is faster still in all cases, so
 [const -simpledispatch] is no longer needed.
 
 [item]
@@ -376,7 +385,6 @@ namespace at the time the type is defined.
 
 [list_end]
 
-
 [section OBJECTS]
 
 [subsection {What is an object?}]
@@ -389,9 +397,9 @@ examples are the Tk widgets.
 
 [para]
 
-A Tk widget is an object; it is represented by a Tcl command.  
+A Tk widget is an object; it is represented by a Tcl command.
 The object's methods are subcommands of the Tcl command.  The object's
-properties are options accessed using the [method configure] and 
+properties are options accessed using the [method configure] and
 [method cget] methods.  Snit uses the same conventions as Tk widgets do.
 
 [subsection {What is an abstract data type?}]
@@ -402,9 +410,9 @@ binary tree, etc--that is to say, in modern terms, an object.  In systems
 that include some form of inheritance the word [term class] is
 usually used instead of [term {abstract data type}], but as Snit
 doesn't implement inheritance as it's ordinarily understood
-the older term seems more appropriate.  Sometimes this is called 
+the older term seems more appropriate.  Sometimes this is called
 [term {object-based}] programming as opposed to object-oriented
-programming.  Note that you can easily create the effect of 
+programming.  Note that you can easily create the effect of
 inheritance using [sectref COMPONENTS] and [sectref "DELEGATION"].
 
 [para]
@@ -435,7 +443,7 @@ In this example, [cmd text] is the [term type] command and
 
 [para]
 
-In Snit, object subcommands are generally called 
+In Snit, object subcommands are generally called
 [sectref "INSTANCE METHODS"].
 
 [subsection {What kinds of abstract data types does Snit provide?}]
@@ -455,7 +463,6 @@ Snit allows you to define three kinds of abstract data type:
 
 [cmd snit::widgetadaptor]
 [list_end]
-
 
 [subsection {What is a snit::type?}]
 
@@ -481,15 +488,13 @@ that can be used to define dog objects.
 An instance of a [cmd snit::type] can have [sectref {INSTANCE METHODS}],
 [sectref {INSTANCE VARIABLES}], [sectref OPTIONS], and [sectref COMPONENTS].
 The type itself can have [sectref {TYPE METHODS}],
-[sectref {TYPE VARIABLES}], [sectref {TYPE COMPONENTS}], and 
-[sectref PROCS]. 
-
+[sectref {TYPE VARIABLES}], [sectref {TYPE COMPONENTS}], and
+[sectref PROCS].
 
 [subsection {What is a snit::widget?, the short story}]
 
 A [cmd snit::widget] is a Tk megawidget built using Snit; it is very
 similar to a [cmd snit::type].  See [sectref WIDGETS].
-
 
 [subsection {What is a snit::widgetadaptor?, the short story}]
 
@@ -497,7 +502,6 @@ A [cmd snit::widgetadaptor] uses Snit to wrap an existing widget type
 (e.g., a Tk label), modifying its interface to a lesser or greater
 extent.  It is very similar to a [cmd snit::widget].
 See [sectref {WIDGET ADAPTORS}].
-
 
 [subsection {How do I create an instance of a snit::type?}]
 
@@ -517,7 +521,7 @@ example, we create a [cmd dog] object called [cmd spot].
 [para]
 
 In general, the [method create] method name can be omitted so long as
-the instance name doesn't conflict with any defined 
+the instance name doesn't conflict with any defined
 [sectref {TYPE METHODS}]. (See [sectref {TYPE COMPONENTS}] for the
 special case in which this doesn't work.)
 So the following example is identical to the
@@ -538,7 +542,7 @@ This document generally uses the shorter form.
 
 [para]
 
-If the [cmd dog] type defines [sectref OPTIONS], these can usually be 
+If the [cmd dog] type defines [sectref OPTIONS], these can usually be
 given defaults at creation time:
 
 [para]
@@ -618,7 +622,6 @@ The [const %AUTO%] keyword can be embedded in a longer string:
 }]
 [para]
 
-
 [subsection {Can types be renamed?}]
 
 Tcl's [cmd rename] command renames other commands.  It's a common
@@ -655,7 +658,7 @@ other instance methods using [var \$self].
 [item]
 
 If the object is renamed, however, then [var \$self]'s value will change.
-Therefore, don't use [var \$self] for anything that will break if 
+Therefore, don't use [var \$self] for anything that will break if
 [var \$self] changes. For example, don't pass a callback command to
 another object like this:
 
@@ -683,15 +686,15 @@ arguments to the end of the command as usual.
 Every object has a private namespace; the name of this namespace is
 available in method bodies, etc., as the value of the implicit
 argument [var selfns].  This value is constant for the life of the
-object.  Use [var \$selfns] instead of [var \$self] if you need a 
+object.  Use [var \$selfns] instead of [var \$self] if you need a
 unique token to identify the object.
 
 [item]
 
 When a [cmd snit::widget]'s instance command is renamed, its Tk window
 name remains the same -- and is still extremely
-important. Consequently, the Tk window name is available in 
-method bodies as the value of the implicit argument [var win].  
+important. Consequently, the Tk window name is available in
+method bodies as the value of the implicit argument [var win].
 This value is constant for the
 life of the object.  When creating child windows, it's best to use
 [var {$win.child}] rather than [var {$self.child}] as the name of the
@@ -838,7 +841,7 @@ barking at them:
 
 Not really, so long as you avoid the standard instance method names:
 [method configure], [method configurelist], [method cget],
-[method destroy], and [method info].  Also, method names consisting of 
+[method destroy], and [method info].  Also, method names consisting of
 multiple words define hierarchical methods.
 
 [subsection {What is a hierarchical method?}]
@@ -847,14 +850,14 @@ An object's methods are subcommands of the object's instance command.
 Hierarchical methods allow an object's methods to have subcommands of
 their own; and these can in turn have subcommands, and so on.  This
 allows the programmer to define a tree-shaped command structure, such
-as is used by many of the Tk widgets--the subcommands of the 
+as is used by many of the Tk widgets--the subcommands of the
 Tk [cmd text] widget's [cmd tag] method are hierarchical methods.
 
 [subsection {How do I define a hierarchical method?}]
 
 Define methods whose names consist of multiple words.  These words
 define the hierarchy implicitly.  For example, the following code
-defines a [cmd tag] method with subcommands [cmd cget] and 
+defines a [cmd tag] method with subcommands [cmd cget] and
 [cmd configure]:
 
 [example {snit::widget mytext {
@@ -1019,7 +1022,7 @@ specific naming convention, as it might change in future releases.
 [subsection {What is $win?}]
 
 The implicit argument [var win] is defined for all Snit methods,
-though it really makes sense only for those of 
+though it really makes sense only for those of
 [sectref WIDGETS] and [sectref {WIDGET ADAPTORS}].  [var \$win] is simply
 the original name of the object, whether it's been renamed or not.
 For widgets and widgetadaptors, it is also therefore the name of a Tk
@@ -1045,7 +1048,7 @@ It depends on the context.
 [para]
 
 Suppose in my application I have a [cmd dog] object named [cmd fido],
-and I want [cmd fido] to bark when a Tk button called [cmd .bark] is 
+and I want [cmd fido] to bark when a Tk button called [cmd .bark] is
 pressed.  In this case, I create the callback command in the usual
 way, using [cmd list]:
 
@@ -1109,15 +1112,15 @@ There's a safer way to do it, and it looks like this:
 
 The command [cmd mymethod] takes any number of arguments, and can be
 used like [cmd list] to build up a callback command; the only
-difference is that [cmd mymethod] returns a 
+difference is that [cmd mymethod] returns a
 form of the command that won't change even if the instance's name
 changes.
 
 [para]
 
-On the other hand, you might prefer to allow a widgetadaptor to 
+On the other hand, you might prefer to allow a widgetadaptor to
 override a method such that your renamed widget will call the
-widgetadaptor's method instead of its own.  In this case, 
+widgetadaptor's method instead of its own.  In this case,
 using [cmd "\[list \$self bark\]"] will do what you want...but
 this is a technique which should be used only in carefully controlled
 circumstances.
@@ -1128,12 +1131,10 @@ See [sectref DELEGATION].
 
 [section {INSTANCE VARIABLES}]
 
-
 [subsection {What is an instance variable?}]
 
 An instance variable is a private variable associated with some
 particular Snit object.  Instance variables can be scalars or arrays.
-
 
 [subsection {How is a scalar instance variable defined?}]
 
@@ -1168,7 +1169,7 @@ time by specifying the [const -array] option:
 
 [subsection {What happens if I don't initialize an instance variable?}]
 
-Variables do not really exist until they are given values.  If you 
+Variables do not really exist until they are given values.  If you
 do not initialize a variable when you define it, then you must be
 sure to assign a value to it (in the constructor, say, or in some
 method) before you reference it.
@@ -1192,7 +1193,6 @@ use by Snit internal code.
 Third, instance variable names containing the namespace delimiter
 ([const ::]) are likely to cause great confusion.
 
-
 [subsection {Do I need to declare my instance variables in my methods?}]
 
 No. Once you've defined an instance variable in the type definition,
@@ -1204,10 +1204,10 @@ need to be declared.
 [para]
 
 There is a speed penalty to having all instance variables implicitly
-available in all instance code.  Even though your code need not 
+available in all instance code.  Even though your code need not
 declare the variables explicitly, Snit must still declare them,
 and that takes time.  If you have ten instance variables, a method
-that uses none of them must still pay the declaration penalty for 
+that uses none of them must still pay the declaration penalty for
 all ten.  In most cases, the additional runtime cost is negligible.
 If extreme cases, you might wish to avoid it; there are two methods
 for doing so.
@@ -1268,7 +1268,7 @@ global variable.  Instead, you need to provide a fully-qualified
 variable name.  From within an instance method or a constructor, you
 can fully qualify the variable's name using the [cmd myvar] command:
 
-[para] 
+[para]
 [example {snit::widget mywidget {
     variable labeltext ""
 
@@ -1303,8 +1303,8 @@ an object.
 [para]
 
 Snit's implementation of options follows the Tk model fairly exactly,
-except that [cmd snit::type] objects usually don't interact with 
-[sectref "THE TK OPTION DATABASE"]; [cmd snit::widget] and 
+except that [cmd snit::type] objects usually don't interact with
+[sectref "THE TK OPTION DATABASE"]; [cmd snit::widget] and
 [cmd snit::widgetadaptor] objects, on the other hand, always do.
 
 [subsection {How do I define an option?}]
@@ -1323,7 +1323,6 @@ that manages a list of dogs for a pet store:
 }]
 [para]
 
-
 According to this, a dog has four notable properties: a
 breed, a color, a flag that says whether it's pedigreed with the
 American Kennel Club, and another flag that says whether it has had
@@ -1332,7 +1331,7 @@ its shots.  The default dog, evidently, is a brown mutt.
 [para]
 
 There are a number of options you can specify when defining an option;
-if [const -default] is the only one, you can omit the word 
+if [const -default] is the only one, you can omit the word
 [const -default] as follows:
 
 [para]
@@ -1396,7 +1395,7 @@ mongrel
 
 Any number of options may be set at one time using the
 [method configure] instance method.  Suppose that closer inspection
-shows that ::fido is not a brown mongrel, but rather a rare Arctic Boar 
+shows that ::fido is not a brown mongrel, but rather a rare Arctic Boar
 Hound of a lovely dun color:
 
 [para]
@@ -1423,7 +1422,7 @@ Arctic Boar Hound
 }]
 [para]
 
-In Tcl 8.5, the [cmd {*}] keyword can be used with 
+In Tcl 8.5, the [cmd {*}] keyword can be used with
 [method configure] in this case:
 
 [para]
@@ -1482,13 +1481,13 @@ follows:
 [para]
 
 As you can see, using the [var options] variable involves considerably
-less typing and is the usual way to do it.  But if you use 
+less typing and is the usual way to do it.  But if you use
 [const -configuremethod] or [const -cgetmethod] (described in the following
-answers), you might wish to use the [method configure] and 
+answers), you might wish to use the [method configure] and
 [method cget] methods anyway, just so that any special processing you've
 implemented is sure to get done.  Also, if the option is delegated to
 a component then [method configure] and [method cget] are the only way
-to access it without accessing the component directly.  See 
+to access it without accessing the component directly.  See
 [sectref "DELEGATION"] for more information.
 
 [subsection {How can I make an option read-only?}]
@@ -1526,7 +1525,7 @@ Define a [const -cgetmethod] for the option.
 [subsection {What is a -cgetmethod?}]
 
 A [const -cgetmethod] is a method that's called whenever the related
-option's value is queried via the 
+option's value is queried via the
 [method cget] instance method.  The handler can compute the option's
 value, retrieve it from a database, or do anything else you'd like it to do.
 
@@ -1557,7 +1556,7 @@ Define a [const -configuremethod] for the option.
 
 A [const -configuremethod] is a method that's called whenever the
 related option is given a new value via the [method configure] or
-[method configurelist] instance methods. The method can 
+[method configurelist] instance methods. The method can
 pass the value on to some other object, store it in a database, or do
 anything else you'd like it to do.
 
@@ -1629,7 +1628,6 @@ of boolean options.
 Any method can be a [const -validatemethod] provided that it takes
 two arguments, the option name and the new option value.
 
-
 [section {TYPE VARIABLES}]
 
 [subsection {What is a type variable?}]
@@ -1638,7 +1636,6 @@ A type variable is a private variable associated with a Snit type
 rather than with a particular instance of the type.  In C++ and Java,
 the term [term "static member variable"] is used for the same notion.
 Type variables can be scalars or arrays.
-
 
 [subsection {How is a scalar type variable defined?}]
 
@@ -1661,7 +1658,7 @@ called [var greeting].
 [subsection {How is an array-valued type variable defined?}]
 
 Array-valued type variables are also defined using the
-[cmd typevariable] command; to initialize them, include the 
+[cmd typevariable] command; to initialize them, include the
 [const -array] option:
 
 [para]
@@ -1677,14 +1674,14 @@ Array-valued type variables are also defined using the
 
 [subsection {What happens if I don't initialize a type variable?}]
 
-Variables do not really exist until they are given values.  If you 
+Variables do not really exist until they are given values.  If you
 do not initialize a variable when you define it, then you must be
 sure to assign a value to it (in the type constructor, say)
 before you reference it.
 
 [subsection {Are there any limitations on type variable names?}]
 
-Type variable names have the same restrictions as 
+Type variable names have the same restrictions as
 the names of [sectref {INSTANCE VARIABLES}] do.
 
 [subsection {Do I need to declare my type variables in my methods?}]
@@ -1698,7 +1695,7 @@ non-local variables in a proc need to be declared.
 
 Type variables are subject to the same speed/readability tradeoffs
 as instance variables; see
-[sectref {Do I need to declare my instance variables in my methods?}] 
+[sectref {Do I need to declare my instance variables in my methods?}]
 
 [subsection {How do I pass a type variable's name to another object?}]
 
@@ -1716,7 +1713,7 @@ variable.  Instead, you need to provide a fully-qualified variable
 name.  From within an instance method or a constructor, you can fully
 qualify the type variable's name using the [cmd mytypevar] command:
 
-[para] 
+[para]
 [example {snit::widget mywidget {
     typevariable labeltext ""
 
@@ -1821,7 +1818,6 @@ foreach dog [dog pedigreedDogs] { ... }
 Not really, so long as you avoid the standard type method names:
 [method create], [method destroy], and [method info].
 
-
 [subsection {How do I make a type method private?}]
 
 It's sometimes useful to define private type methods, that is, type
@@ -1839,7 +1835,6 @@ letter.
 
 Alternatively, a Snit [cmd proc] can be used as a private type method; see
 [sectref PROCS].
-
 
 [subsection {Are there any limitations on type method arguments?}]
 
@@ -1885,7 +1880,7 @@ button .btn -text "Pedigrees" -command [list dog printPedigrees]
 pack .btn
 }]
 
-Alternatively, from a method or type method you can use the 
+Alternatively, from a method or type method you can use the
 [cmd mytypemethod] command, just as you would use [cmd mymethod]
 to define a callback command for [sectref {INSTANCE METHODS}].
 
@@ -1901,7 +1896,7 @@ you can define hierarchical instance methods.  See
 
 A Snit [cmd proc] is really just a Tcl proc defined within the type's
 namespace.  You can use procs for private code that isn't related to
-any particular instance. 
+any particular instance.
 
 [subsection {How do I define a proc?}]
 
@@ -1956,7 +1951,7 @@ Just like it calls any Tcl command.  For example,
 
 [subsection {How can I pass a proc to another object as a callback?}]
 
-The [cmd myproc] command returns a callback command for the 
+The [cmd myproc] command returns a callback command for the
 [cmd proc], just as [cmd mymethod] does for a method.
 
 [section {TYPE CONSTRUCTORS}]
@@ -1971,7 +1966,6 @@ again.
 [para]
 
 A type can have at most one type constructor.
-
 
 [subsection {How do I define a type constructor?}]
 
@@ -1991,8 +1985,6 @@ the array have to be computed at start-up.
 }]
 [para]
 
-
-
 [section CONSTRUCTORS]
 
 [subsection {What is a constructor?}]
@@ -2009,17 +2001,16 @@ other objects, updating type and instance variables, and so forth.
 The constructor's return value is ignored (unless it's an
 error, of course).
 
-
 [subsection {How do I define a constructor?}]
 
 A constructor is defined by using the [cmd constructor] statement in
 the type definition.  Suppose that it's desired to keep a list of all
-pedigreed dogs.  The list can be maintained in a 
+pedigreed dogs.  The list can be maintained in a
 type variable and retrieved by a type method.  Whenever a dog is
 created, it can add itself to the list--provided that it's registered
 with the American Kennel Club.
 
-[para] 
+[para]
 [example {% snit::type dog {
     option -akc 0
 
@@ -2100,22 +2091,22 @@ dalmatian
 
 The drawback is that this syntax is non-standard, and may
 limit the compatibility of your new type with other people's code.
-For example, Snit assumes that it can create 
+For example, Snit assumes that it can create
 [sectref COMPONENTS] using the standard creation syntax.
 
 [subsection {Are there any limitations on constructor arguments?}]
 
 Constructor argument lists are subject to the same limitations
 as those on instance method argument lists.  It has the
-same implicit arguments, and can contain default values and the 
+same implicit arguments, and can contain default values and the
 [var args] argument.
 
 [subsection "Is there anything special about writing the constructor?"]
 
 Yes.  Writing the constructor can be tricky if you're delegating
 options to components, and there are specific issues relating to
-[cmd snit::widget]s and [cmd snit::widgetadaptor]s.  See 
-[sectref {DELEGATION}], [sectref {WIDGETS}], 
+[cmd snit::widget]s and [cmd snit::widgetadaptor]s.  See
+[sectref {DELEGATION}], [sectref {WIDGETS}],
 [sectref {WIDGET ADAPTORS}], and [sectref {THE TK OPTION DATABASE}].
 
 [section DESTRUCTORS]
@@ -2183,14 +2174,14 @@ Yes and no.
 
 Any Tk widgets created by a [cmd snit::widget] or
 [cmd snit::widgetadaptor] will be destroyed automatically by Tk
-when the megawidget is destroyed, in keeping with normal Tk behavior 
+when the megawidget is destroyed, in keeping with normal Tk behavior
 (destroying a parent widget destroys the whole tree).
 
 [para]
 
-Components of normal [cmd snit::types], on the other hand, 
-are never destroyed automatically, nor are non-widget components 
-of Snit megawidgets.  If your object creates them in its 
+Components of normal [cmd snit::types], on the other hand,
+are never destroyed automatically, nor are non-widget components
+of Snit megawidgets.  If your object creates them in its
 constructor, then it should generally destroy them in its destructor.
 
 [subsection {Is there any special about writing a destructor?}]
@@ -2200,7 +2191,7 @@ destructor will be called to clean up; this means that the object
 might not be completely constructed when the destructor is called.
 This can cause the destructor to throw its own error; the result
 is usually misleading, confusing, and unhelpful.  Consequently, it's
-important to write your destructor so that it's fail-safe.  
+important to write your destructor so that it's fail-safe.
 
 [para]
 
@@ -2225,7 +2216,6 @@ generally to catch and ignore any errors while destroying components.
 }
 }]
 
-
 [section COMPONENTS]
 
 [subsection {What is a component?}]
@@ -2237,7 +2227,7 @@ of them, so they are called components of the object.
 
 [para]
 
-But Snit also has a more precise meaning for 
+But Snit also has a more precise meaning for
 [sectref COMPONENTS COMPONENT].  The components of a Snit object are those
 objects to which methods or options can be delegated.
 (See [sectref DELEGATION] for more information about delegation.)
@@ -2292,7 +2282,7 @@ referred to as the component's object name.
 
 [para]
 
-In the example in the previous question, the component name is 
+In the example in the previous question, the component name is
 [const mytail]; the [const mytail] component's object name is chosen
 automatically by Snit since [const %AUTO%] was used when the component
 object was created.
@@ -2384,7 +2374,7 @@ For example:
 
 In a [cmd snit::type]'s code, the [cmd install]
 command shown above is equivalent to the [const {set mytail}] command
-that's commented out.  In a [cmd snit::widget]'s or 
+that's commented out.  In a [cmd snit::widget]'s or
 [cmd snit::widgetadaptor]'s, code, however, the
 [cmd install] command also queries [sectref {THE TK OPTION DATABASE}]
 and initializes the new component's options accordingly.  For consistency,
@@ -2415,7 +2405,7 @@ fully qualified names.
 
 [para]
 
-Next, the object names of components and owned by your object 
+Next, the object names of components and owned by your object
 must be unique.  This is no problem for widget components, since
 widget names are always unique; but consider the following code:
 
@@ -2498,18 +2488,17 @@ However, there are times when it's appropriate, not to mention
 simpler, just to make the entire component part of your type's public
 interface.
 
-
 [subsection {How do I expose a component's object command?}]
 
 When you declare the component, specify the [cmd component]
 statement's [const -public] option.  The value of this option is the
-name of a method which will be delegated to your component's object 
+name of a method which will be delegated to your component's object
 command.
 
 [para]
 
 For example, supposed you've written a combobox megawidget which owns
-a listbox widget, and you want to make the listbox's entire interface 
+a listbox widget, and you want to make the listbox's entire interface
 public.  You can do it like this:
 
 [para]
@@ -2542,7 +2531,7 @@ however, you can name it anything you like.
 A type component is a component that belongs to the type itself
 instead of to a particular instance of the type.  The relationship
 between components and type components is the same as the
-relationship between [sectref {INSTANCE VARIABLES}] and 
+relationship between [sectref {INSTANCE VARIABLES}] and
 [sectref {TYPE VARIABLES}].  Both [sectref {INSTANCE METHODS}] and
 [sectref {TYPE METHODS}] can be delegated to type components.
 
@@ -2575,7 +2564,7 @@ snit::type dog {
 [subsection {How do I install a type component?}]
 
 Just use the [cmd set] command to assign the component's object
-command to the type component.  Because types 
+command to the type component.  Because types
 (even [cmd snit::widget] types) are not widgets, and do not have
 options anyway, the extra features of the [cmd install] command are
 not needed.
@@ -2598,9 +2587,8 @@ snit::type dog {
 
 [subsection {Are there any limitations on type component names?}]
 
-Yes, the same as on [sectref {INSTANCE VARIABLES}], 
+Yes, the same as on [sectref {INSTANCE VARIABLES}],
 [sectref {TYPE VARIABLES}], and normal [sectref COMPONENTS].
-
 
 [section DELEGATION]
 
@@ -2612,12 +2600,11 @@ objects can do the same thing.  The following example shows one way in
 which the [cmd dog] object can delegate its [cmd wag] method and its
 [option -taillength] option to its [cmd tail] component.
 
-[para] 
+[para]
 [example {snit::type dog {
     variable mytail
 
     option -taillength -configuremethod SetTailOption -cgetmethod GetTailOption
-    
 
     method SetTailOption {option value} {
          $mytail configure $option $value
@@ -2653,7 +2640,7 @@ error.
 [subsection {How can I delegate a method to a component object?}]
 
 Delegation occurs frequently enough that Snit makes it easy. Any
-method can be delegated to any component or type component 
+method can be delegated to any component or type component
 by placing a single [cmd delegate] statement in the type definition.
 
 (See [sectref COMPONENTS] and [sectref {TYPE COMPONENTS}]
@@ -2719,7 +2706,6 @@ the dog.  It's easily done:
 }]
 [para]
 
-
 [subsection {Can I delegate to a method with additional arguments?}]
 
 Suppose the [cmd tail]'s [method wag] method takes as an argument the
@@ -2746,7 +2732,7 @@ snit::type tail {
 [subsection {Can I delegate a method to something other than an object?}]
 
 Normal method delegation assumes that you're delegating a method (a
-subcommand of an object command) to a method of another object (a 
+subcommand of an object command) to a method of another object (a
 subcommand of a different object command).  But not all Tcl objects
 follow Tk conventions, and not everything you'd to which you'd like
 to delegate a method is necessary an object.  Consequently, Snit makes
@@ -2760,7 +2746,7 @@ single record.  The database API you're using provides a number of
 commands to manage records; each takes the record ID (a string you
 choose) as its first argument.  For example, [cmd saverec]
 saves a record.  If you let the record ID be the name of the dog
-object, you can delegate the dog's [method save] method to the 
+object, you can delegate the dog's [method save] method to the
 [cmd saverec] command as follows:
 
 [example {snit::type dog {
@@ -2768,23 +2754,23 @@ object, you can delegate the dog's [method save] method to the
 }
 }]
 
-The [const %s] is replaced with the instance name when the 
+The [const %s] is replaced with the instance name when the
 [method save] method is called; any additional arguments are the
 appended to the resulting command.
 
 [para]
 
 The [const using] clause understands a number of other %-conversions;
-in addition to the instance name, you can substitute in the method 
-name ([const %m]), the type name ([const %t]), the instance 
+in addition to the instance name, you can substitute in the method
+name ([const %m]), the type name ([const %t]), the instance
 namespace ([const %n]), the Tk window name ([const %w]), and,
-if a component or typecomponent name was given in the 
-[cmd delegate] statement, the component's object command 
+if a component or typecomponent name was given in the
+[cmd delegate] statement, the component's object command
 ([const %c]).
 
 [subsection {How can I delegate a method to a type component object?}]
 
-Just exactly as you would to a component object.  The 
+Just exactly as you would to a component object.  The
 [cmd {delegate method}] statement accepts both component and type
 component names in its [const to] clause.
 
@@ -2792,8 +2778,8 @@ component names in its [const to] clause.
 
 Use the [cmd {delegate typemethod}] statement.  It works like
 [cmd {delegate method}], with these differences: first, it defines
-a type method instead of an instance method; second, the 
-[const using] clause ignores the [const {%s}], [const {%n}], 
+a type method instead of an instance method; second, the
+[const using] clause ignores the [const {%s}], [const {%n}],
 and [const {%w}] %-conversions.
 
 [para]
@@ -2946,7 +2932,7 @@ options or methods, there's an easier way:
 
 Dogs have four legs, so we specify that explicitly when we create the
 [var animal] component, and explicitly exclude [option -numlegs] from the
-set of delegated options.  Similarly, dogs can neither 
+set of delegated options.  Similarly, dogs can neither
 [method fly] nor [method climb],
 so we exclude those [cmd animal] methods as shown.
 
@@ -2959,7 +2945,6 @@ Yes; just specify multiple words in the delegated method's name:
     method wag {} {return "Wag, wag"}
     method droop {} {return "Droop, droop"}
 }
-
 
 snit::type dog {
     delegate method {tail wag} to mytail
@@ -2990,9 +2975,6 @@ component:
 }]
 [para]
 
-
-
-
 [section WIDGETS]
 
 [subsection {What is a snit::widget?}]
@@ -3007,7 +2989,6 @@ A [cmd snit::widget] is also a special kind of [cmd snit::type].  Just
 about everything in this FAQ list that relates to [cmd snit::types]
 also applies to [cmd snit::widgets].
 
-
 [subsection {How do I define a snit::widget?}]
 
 [cmd snit::widgets] are defined using the [cmd snit::widget] command,
@@ -3017,7 +2998,6 @@ just as [cmd snit::types] are defined by the [cmd snit::type] command.
 
 The body of the definition can contain all of the same kinds of
 statements, plus a couple of others which will be mentioned below.
-
 
 [subsection {How do snit::widgets differ from snit::types?}]
 
@@ -3030,14 +3010,12 @@ command name, in any namespace.
 The name of an instance of a [cmd snit::widget] must be a valid Tk
 widget name, and its parent widget must already exist.
 
-
 [item]
 
 An instance of a [cmd snit::type] can be destroyed by calling
 
 its [cmd destroy] method.  Instances of a [cmd snit::widget] have no
 destroy method; use the Tk [cmd destroy] command instead.
-
 
 [item]
 
@@ -3080,7 +3058,7 @@ that any kind of widget can be used as the hull component; see
 [subsection {How can I set the hull type for a snit::widget?}]
 
 A [cmd snit::widget]'s hull component will usually be a Tk [cmd frame]
-widget; however, it may be any Tk widget that defines the 
+widget; however, it may be any Tk widget that defines the
 [const -class] option.  You can
 explicitly choose the hull type you prefer by including the [cmd hulltype]
 command in the widget definition:
@@ -3116,8 +3094,6 @@ snit::widget mywidget {
 }
 }]
 [para]
-
-
 
 [subsection {How should I name widgets which are components of a snit::widget?}]
 
@@ -3173,7 +3149,6 @@ defined using some other package.
 It's called a [term {widget adaptor}] because it allows you to take an
 existing widget and customize its behavior.
 
-
 [subsection {How do I define a snit::widgetadaptor?}]
 
 Use the [cmd snit::widgetadaptor] command.  The definition for a
@@ -3212,7 +3187,7 @@ behavior while still leaving it fundamentally a text widget.
     # delete.
     delegate method ins to hull as insert
     delegate method del to hull as delete
-    
+
     # Pass all other methods and options to the real text widget, so
     # that the remaining behavior is as expected.
     delegate method * to hull
@@ -3271,7 +3246,7 @@ of the [cmd installhull] command for this purpose:
 Maybe. If the other megawidget is a [cmd snit::widget] or
 [cmd snit::widgetadaptor], then yes.  If it isn't then, again, maybe.
 You'll have to try it and see.  You're most likely to have trouble
-with widget destruction--you have to make sure that your 
+with widget destruction--you have to make sure that your
 megawidget code receives the [const <Destroy>] event before the
 megawidget you're adapting does.
 
@@ -3328,8 +3303,8 @@ components which are widgets.
 
 [item]
 
-Use the [cmd install] command to create and install 
-components which aren't widgets if you'd like them to 
+Use the [cmd install] command to create and install
+components which aren't widgets if you'd like them to
 receive option values from the option database.
 
 [list_end]
@@ -3338,7 +3313,6 @@ receive option values from the option database.
 The interaction of Tk widgets with the option database is a complex
 thing; the interaction of Snit with the option database is even more
 so, and repays attention to detail.
-
 
 [subsection {Do snit::types use the Tk option database?}]
 
@@ -3360,7 +3334,7 @@ want, so take care.
 Every Tk widget has a "widget class": a name that is used when adding
 option settings to the database.  For Tk widgets, the widget class is
 the same as the widget command name with an initial capital.  For
-example, the widget class of the Tk [cmd button] widget is 
+example, the widget class of the Tk [cmd button] widget is
 [const Button].
 
 [para]
@@ -3412,7 +3386,6 @@ Try to use [cmd snit::widgetadaptor]s only to make small modifications
 to another widget's behavior.  Then, it will usually not make sense to
 change the widget's widget class anyway.
 
-
 [subsection {What are option resource and class names?}]
 
 Every Tk widget option has three names: the option name, the resource
@@ -3434,16 +3407,15 @@ the option, resource, and class names for several Tk [cmd text]
 widget options:
 
 [para]
-[example {    -background         background         Background 
-    -borderwidth        borderWidth        BorderWidth 
-    -insertborderwidth  insertBorderWidth  BorderWidth 
-    -padx               padX               Pad 
+[example {    -background         background         Background
+    -borderwidth        borderWidth        BorderWidth
+    -insertborderwidth  insertBorderWidth  BorderWidth
+    -padx               padX               Pad
 }]
 [para]
 
 As is easily seen, sometimes the resource and class names can be
 inferred from the option name, but not always.
-
 
 [subsection {What are the resource and class names for my megawidget's options?}]
 
@@ -3527,7 +3499,6 @@ as for the built-in Tk widgets.  This is easily done:
 %
 }]
 
-
 [subsection {How does Snit initialize my megawidget's locally-defined options?}]
 
 The option database is queried for each of the megawidget's
@@ -3557,7 +3528,6 @@ new widget will be "greasy".
 
 That depends on whether the options are delegated to the hull, or to
 some other component.
-
 
 [subsection {How does Snit initialize options delegated to the hull?}]
 
@@ -3602,15 +3572,15 @@ implicitly delegated to the hull, Snit takes no action.
 The value of B is "red".  The hull will automatically pick up the
 value "green" for its [const -background] option, just as it picked up the
 [const -relief] value.  However, Snit knows that [const -hullbackground]
-is mapped to the hull's [const -background] option; hence, it queries 
-the option database for [const -hullbackground] and gets "red" and 
+is mapped to the hull's [const -background] option; hence, it queries
+the option database for [const -hullbackground] and gets "red" and
 updates the hull accordingly.
 
 [para]
 
 The value of C is also "red", because [const -background] is implicitly
 delegated to the hull; thus, retrieving it is the same as retrieving
-[const -hullbackground].  Note that this case is unusual; the 
+[const -hullbackground].  Note that this case is unusual; the
 [const -background] option should probably have been excluded using the delegate
 statement's [const except] clause, or (more likely) delegated to some other
 component.
@@ -3619,14 +3589,14 @@ component.
 
 The value of D is "5", but not for the reason you think.  Note that as
 it is defined above, the resource name for [const -borderwidth] defaults to
-[const borderwidth], whereas the option database entry is 
+[const borderwidth], whereas the option database entry is
 [const borderWidth], in
 accordance with the standard Tk naming for this option.  As with
 [const -relief], the hull picks up its own [const -borderwidth]
 option before Snit
 does anything.  Because the option is delegated under its own name,
 Snit assumes that the correct thing has happened, and doesn't worry
-about it any further.  To avoid confusion, the 
+about it any further.  To avoid confusion, the
 [const -borderwidth] option
 should have been delegated like this:
 
@@ -3751,7 +3721,7 @@ the named component.
 
 Creates the component using the specified command, after inserting
 into it a list of options and values read from the option database.
-Thus, the explicitly included options (like [const -foreground]) will 
+Thus, the explicitly included options (like [const -foreground]) will
 override anything read from the option database.
 
 [item]
@@ -3789,7 +3759,7 @@ syntax.  If it doesn't, don't use [cmd install].
 
 An ensemble command is a command with subcommands.  Snit objects are
 all ensemble commands; however, the term more usually refers to
-commands like the standard Tcl commands [cmd string], [cmd file], 
+commands like the standard Tcl commands [cmd string], [cmd file],
 and [cmd clock].  In a sense, these are singleton objects--there's
 only one instance of them.
 
@@ -3852,7 +3822,7 @@ Now the type command itself is your ensemble command.
 
 [para]
 
-This method has only one drawback, and though it's major, it's 
+This method has only one drawback, and though it's major, it's
 also surmountable.  Your new ensemble command will have
 [method create], [method info] and [method destroy] subcommands
 you don't want.  And worse yet, since the [method create] method
@@ -3866,8 +3836,8 @@ won't do what's wanted.  This is very bad.
 The work around is to set some [sectref {PRAGMAS}], as shown here:
 
 [example {snit::type mystring {
-    pragma -hastypeinfo    no 
-    pragma -hastypedestroy no 
+    pragma -hastypeinfo    no
+    pragma -hastypedestroy no
     pragma -hasinstances   no
 
     delegate typemethod * to stringhandler
@@ -3880,7 +3850,7 @@ The work around is to set some [sectref {PRAGMAS}], as shown here:
 
 Here we've used the [cmd pragma] statement to tell Snit that we don't
 want the [method info] typemethod or the [method destroy] typemethod,
-and that our type has no instances; this eliminates the 
+and that our type has no instances; this eliminates the
 [method create] typemethod and all related code.  As
 a result, our ensemble command will be well-behaved, with no
 unexpected subcommands.
@@ -3948,9 +3918,9 @@ both be false (or there'd be nothing left).
 
 [subsection {How can I get rid of type methods altogether?}]
 
-Normal Tk widget type commands don't have subcommands; all they do is 
-create widgets--in Snit terms, the type command calls the 
-[method create] type method directly.  To get the same behavior from 
+Normal Tk widget type commands don't have subcommands; all they do is
+create widgets--in Snit terms, the type command calls the
+[method create] type method directly.  To get the same behavior from
 Snit, set the [const -hastypemethods] pragma to [const no]:
 
 [example {snit::type dog {
@@ -3970,7 +3940,7 @@ both be false (or there'd be nothing left).
 
 [subsection {Why can't I create an object that replaces an old object with the same name?}]
 
-Up until Snit 0.95, you could use any name for an instance of a 
+Up until Snit 0.95, you could use any name for an instance of a
 [cmd snit::type], even if the name was already in use by some other
 object or command.  You could do the following, for example:
 
@@ -3997,7 +3967,7 @@ In Snit 1.x, you can set the [const -simpledispatch] pragma to [const yes].
 [para]
 
 Snit 1.x method dispatch is both flexible and fast, but the flexibility
-comes with a price.  If your type doesn't require the flexibility, the 
+comes with a price.  If your type doesn't require the flexibility, the
 [const -simpledispatch] pragma allows you to substitute a simpler
 dispatch mechanism that runs quite a bit faster.  The limitations
 are these:
@@ -4007,20 +3977,20 @@ are these:
 [item] Methods cannot be delegated.
 [item] [cmd uplevel] and [cmd upvar] do not work as expected: the
 caller's scope is two levels up rather than one.
-[item] The option-handling methods 
+[item] The option-handling methods
 ([cmd cget], [cmd configure], and [cmd configurelist]) are very
 slightly slower.
 [list_end]
 
 In Snit 2.2, the [const -simpledispatch] macro is obsolete, and
-ignored; all Snit 2.2 method dispatch is faster than Snit 1.x's 
+ignored; all Snit 2.2 method dispatch is faster than Snit 1.x's
 [const -simpledispatch].
 
 [section {MACROS}]
 
 [subsection {What is a macro?}]
 
-A Snit macro is nothing more than a Tcl proc that's defined in the 
+A Snit macro is nothing more than a Tcl proc that's defined in the
 Tcl interpreter used to compile Snit type definitions.
 
 [subsection {What are macros good for?}]
@@ -4066,7 +4036,7 @@ Then, use your macro in your type definition:
 
 [subsection {How do I define new type definition syntax?}]
 
-Use a macro.  For example, your [cmd snit::widget]'s 
+Use a macro.  For example, your [cmd snit::widget]'s
 [const -background] option should be propagated to a number
 of component widgets.  You could implement that like this:
 
@@ -4124,10 +4094,9 @@ they won't conflict with other people's macros.
 
 [para]
 
-If my fancy [cmd snit::widget] is called [cmd ::mylib::mywidget], 
+If my fancy [cmd snit::widget] is called [cmd ::mylib::mywidget],
 for example, then I should define my [cmd propagate] macro as
 [cmd ::mylib::propagate]:
-
 
 [example {snit::macro mylib::propagate {option "to" components} { ... }
 
@@ -4142,8 +4111,4 @@ snit::widget ::mylib::mywidget {
 
 [vset CATEGORY snit]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords class {object oriented} object C++]
-[keywords {Incr Tcl} BWidget]
-[keywords widget adaptors {widget adaptors} {mega widget}]
 [manpage_end]

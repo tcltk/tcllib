@@ -1,5 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin simulation::random n 0.1]
+[keyword math]
+[keyword {random numbers}]
+[keyword simulation]
+[keyword {statistical distribution}]
 [copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [moddesc   {Tcl Simulation Tools}]
 [titledesc {Pseudo-random number generators}]
@@ -67,7 +71,6 @@ distribution.
 [list_end]
 
 [list_end]
-
 
 The package defines the following public procedures for [emph continuous] distributions:
 
@@ -149,7 +152,6 @@ and the standard deviation is 1.
 
 [list_end]
 
-
 The package defines the following public procedures for random point sets:
 
 [list_begin definitions]
@@ -211,7 +213,4 @@ uniformly spread over a block
 [list_end]
 
 [list_end]
-
-
-[keywords math "statistical distribution" simulation "random numbers"]
 [manpage_end]

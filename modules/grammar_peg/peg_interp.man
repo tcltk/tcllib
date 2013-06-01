@@ -1,5 +1,20 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin grammar::peg::interp n 0.1.1]
+[keyword {context-free languages}]
+[keyword expression]
+[keyword grammar]
+[keyword LL(k)]
+[keyword matching]
+[keyword parsing]
+[keyword {parsing expression}]
+[keyword {parsing expression grammar}]
+[keyword {push down automaton}]
+[keyword {recursive descent}]
+[keyword state]
+[keyword TDPL]
+[keyword {top-down parsing languages}]
+[keyword transducer]
+[keyword {virtual machine}]
 [copyright {2005-2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Grammar operations and usage}]
 [titledesc {Interpreter for parsing expression grammars}]
@@ -8,11 +23,6 @@
 [require grammar::mengine     [opt 0.1]]
 [require grammar::peg::interp [opt 0.1.1]]
 [description]
-[keywords grammar expression {push down automaton}]
-[keywords state {parsing expression} {parsing expression grammar}]
-[keywords {context-free languages} parsing transducer LL(k)]
-[keywords TDPL {top-down parsing languages} {recursive descent}]
-[keywords {virtual machine} matching]
 [para]
 
 This package provides commands for the controlled matching of a
@@ -50,7 +60,6 @@ in a push environment, i.e. where the environment pushes new
 characters as they come we have to put the engine into its
 own thread.
 
-
 [section {THE INTERPRETER API}]
 
 The package exports the following API
@@ -68,7 +77,6 @@ matching run.
 Its argument [arg peg] is the handle of an object containing the
 parsing expression grammar to interpret. This grammar has to be
 valid, or an error will be thrown.
-
 
 [call [cmd ::grammar::peg::interp::parse] [arg nextcmd] [arg errorvar] [arg astvar]]
 

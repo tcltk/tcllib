@@ -1,5 +1,12 @@
 [comment {-*- tcl -*-}]
 [manpage_begin csv n 0.8]
+[see_also matrix]
+[see_also queue]
+[keyword csv]
+[keyword matrix]
+[keyword package]
+[keyword queue]
+[keyword tcllib]
 [copyright {2002-2013 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {CSV processing}]
 [titledesc {Procedures to handle CSV data.}]
@@ -107,7 +114,6 @@ If the option [option -alternate] is specified a slightly different
 syntax is used to parse the input. This syntax is explained below, in
 the section [sectref FORMAT].
 
-
 [call [cmd ::csv::split2matrix] [opt [option -alternate]] [arg "m line"] "{[arg sepChar] ,} {[arg expand] none}"]
 
 The same as [cmd ::csv::split], but appends the resulting list as a
@@ -163,7 +169,7 @@ into the channel [arg chan].
 [section FORMAT]
 [para]
 
-The format of regular CSV files is specified as 
+The format of regular CSV files is specified as
 
 [list_begin enumerated]
 
@@ -237,7 +243,4 @@ instead of a ".
 
 [vset CATEGORY csv]
 [include ../doctools2base/include/feedback.inc]
-
-[see_also matrix queue]
-[keywords csv matrix queue package tcllib]
 [manpage_end]

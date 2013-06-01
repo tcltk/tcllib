@@ -1,4 +1,11 @@
 [manpage_begin tepam::procedure n 0.4.1]
+[see_also tepam(n)]
+[see_also tepam::argument_dialogbox(n)]
+[keyword {argument integrity}]
+[keyword {argument validation}]
+[keyword arguments]
+[keyword procedure]
+[keyword subcommand]
 [copyright {2009/2010, Andreas Drollinger}]
 [moddesc {Tcl's Enhanced Procedure and Argument Manager}]
 [titledesc {TEPAM procedure, reference manual}]
@@ -99,7 +106,7 @@ TEPAM allows declaring new Tcl procedures with the command [fun tepam::procedure
         [arg body]]
 [list_end]
 
-The TEPAM procedure declaration syntax is demonstrated by the following example: 
+The TEPAM procedure declaration syntax is demonstrated by the following example:
 
 [example_begin][fun tepam::procedure] {display message} {
    -short_description
@@ -172,7 +179,7 @@ The procedure body will only be executed if the provided set of arguments could 
 
 The commands [cmd procedure] as well as [cmd argument_dialogbox] are exported from the namespace [namespace tepam]. To use these commands without the [namespace tepam::] namespace prefix, it is sufficient to import them into the main namespace:
 [example_begin][cmd {namespace import tepam::*}]
- 
+
 [cmd procedure] {display_message} {
    -args {
       ...[example_end]
@@ -200,7 +207,7 @@ A help text or manual page of a procedure can be enriched with eventual examples
 [list_end]
 
 The following attributes are not relevant for the documentation and help text generation, but they affect the behavior of the declared procedure:
- 
+
 [list_begin definitions]
 [def "-named_arguments_first [const 0]|[const 1]"]
 This attribute defines the calling style of a procedure. TEPAM uses by default the [emph "named arguments first, unnamed arguments later"] style (Tcl). This default behavior can globally be changed by setting the variable [var tepam::named_arguments_first] to [const 0]. This global calling style can be changed individually for a procedure with the procedure's [arg -named_arguments_first] attribute.
@@ -221,7 +228,7 @@ The argument definition syntax will be described more in detail in the following
 [list_end]
 
 The following attribute allows controlling the logging settings for an individual procedure:
- 
+
 [list_begin definitions]
 
 [def "-command_log [const 0]|[const 1]|[const \"interactive\"]"]
@@ -250,9 +257,9 @@ Each of the procedure arguments is declared with a list that has as first elemen
 
 [example_begin]tepam::procedure <name> {
    -args [cmd {{
-      {<argument_name_1> <arg_attr_name_1a> <arg_attr_value_1a> \ 
+      {<argument_name_1> <arg_attr_name_1a> <arg_attr_value_1a> \
                          <arg_attr_name_1b> <arg_attr_value_1b> ...}
-      {<argument_name_2> <arg_attr_name_2a> <arg_attr_value_2a> \ 
+      {<argument_name_2> <arg_attr_name_2a> <arg_attr_value_2a> \
                          <arg_attr_name_2b> <arg_attr_value_2b> ...}
       ...
    }}]
@@ -306,7 +313,7 @@ A blank argument name (either '-' or [emph '']) starts a comment for the followi
    -args {
       {hours -type integer -description "Hour"}
       {minutes -type integer -description "Minute"}
- 
+
       [cmd {{- The following arguments are optional:}}]
       {seconds -type integer -default 0 -description "Seconds"}
       {milliseconds -type integer -default 0 -description "Milliseconds"}
@@ -327,7 +334,7 @@ Section comments can be used to structure visually the argument definition code.
       [cmd {{#### First complex number ####}}]
       {-r0 -type double -description "First number's real part"}
       {-i0 -type double -description "First number's imaginary part"}
-      
+
       [cmd {{#### Second complex number ####}}]
       {-r1 -type double -description "Second number's real part"}
       {-i1 -type double -description "Second number's imaginary part"}
@@ -344,7 +351,7 @@ The following argument attributes are supported:
 [list_begin definitions]
 
 [def "-description [arg string]"]
-The description argument attribute is used for documentation purpose. Interactive argument definition forms use this attribute to provide explanations for an argument. 
+The description argument attribute is used for documentation purpose. Interactive argument definition forms use this attribute to provide explanations for an argument.
 
 [def "-type [arg type]"]
 The type argument attribute allows assigning the argument either to a predefined data type, or to an application specific data type. The argument values that are provided during a procedure call are automatically checked with respect to the defined argument type.
@@ -384,7 +391,7 @@ Eventual more complex argument value validations can be performed via specific v
 An example of a validation command declaration is:
 [example_begin]tepam::procedure {display_message} {
    -args {
-      {text -type string -description "Message text" \ 
+      {text -type string -description "Message text" \
             [cmd {-validatecommand "IllegalWordDetector %P"}]}
 } {
 }[example_end]
@@ -395,14 +402,14 @@ The widgets that allow defining the different arguments in case of an interactiv
 
 [def "-auxargs [arg list]"]
 In case a procedure is called interactively, additional argument attributes can be provided to the interactive argument definition form via the [emph -auxargs] attribute that is itself a list of attribute name/attribute value pairs:
-[example_begin]-auxargs {-<arg_attr_name_1a> <arg_attr_value_1a> \ 
+[example_begin]-auxargs {-<arg_attr_name_1a> <arg_attr_value_1a> \
           -<arg_attr_name_1b> <arg_attr_value_1b>
           ...
 }[example_end]
 For example, if a procedure takes as argument a file name it may be beneficial to specify the required file type for the interactive argument definition form. This information can be provided via the [emph -auxargs] attribute to the argument definition form:
 [example_begin]tepam::procedure LoadPicture {
    -args {
-      {FileName -type existingfile -description "Picture file" \ 
+      {FileName -type existingfile -description "Picture file" \
                  [cmd {-auxargs {-filetypes {{"GIF" {*.gif}} {"JPG" {*.jpg}} }}}]}
    }
 } {
@@ -410,7 +417,7 @@ For example, if a procedure takes as argument a file name it may be beneficial t
 
 [def "-auxargs_commands [arg script]"]
 If the auxiliary argument attributes are not static but have to be dynamically adaptable, the [emph -auxargs_commands] allows defining them via commands that are executed during a procedure call. A list of pairs of auxiliary attribute names and commands has to be provided to the [emph -auxargs_commands] attribute. The provided commands are executed in the context of the calling procedure.
-[example_begin]-auxargs_commands {-<arg_attr_name_1a> <arg_attr_command_1a> \ 
+[example_begin]-auxargs_commands {-<arg_attr_name_1a> <arg_attr_command_1a> \
                    -<arg_attr_name_1b> <arg_attr_command_1b>
                    ...
 }[example_end]
@@ -496,10 +503,10 @@ A [emph flag], also called [emph switch], is defined as a named argument that ha
 } {
    puts [cmd {$flag}]
 }
- 
+
 flag_test
 [emph {-> 0}]
- 
+
 flag_test -flag
 [emph {-> 1}][example_end]
 [para]
@@ -650,7 +657,7 @@ Unnamed arguments are typically provided to the called procedure as simple param
 
 [example_begin][cmd {display_message Info "It is PM 7:00."}]
 [emph {-> Info: It is PM 7:00.}]
- 
+
 [cmd {display_message Info "It is PM 7:00." "You should go home."}]
 [emph {-> Info: It is PM 7:00. You should go home.}][example_end]
 
@@ -658,16 +665,15 @@ The nice thing is that unnamed arguments can also be called as named arguments, 
 
 [example_begin][cmd {display_message -mtype Info -text "It is PM 7:00."}]
 [emph {-> Info: It is PM 7:00.}]
- 
+
 [cmd {display_message -text "It is PM 7:00." -mtype Info}]
 [emph {-> Info: It is PM 7:00.}]
- 
+
 [cmd {display_message -mtype Info -text "It is PM 7:00." -text "You should go home."}]
 [emph {-> Info: It is PM 7:00. You should go home.}]
- 
+
 [cmd {display_message -text "It is PM 7:00." -text "You should go home." -mtype Info}]
 [emph {-> Info: It is PM 7:00. You should go home.}][example_end]
-
 
 [subsection "Named Arguments"]
 
@@ -688,13 +694,13 @@ The following declared procedure ...
 
 [example_begin][cmd {display_message -mtype Info -text "It is PM 7:00."}]
 [emph {-> Info: It is PM 7:00.}]
- 
+
 [cmd {display_message -text "It is PM 7:00." -mtype Info}]
 [emph {-> Info: It is PM 7:00.}]
- 
+
 [cmd {display_message -mtype Info -text "It is PM 7:00." -text "You should go home."}]
 [emph {-> Info: It is PM 7:00. You should go home.}]
- 
+
 [cmd {display_message -text "It is PM 7:00." -text "You should go home." -mtype Info}]
 [emph {-> Info: It is PM 7:00. You should go home.}][example_end]
 
@@ -738,7 +744,7 @@ The name of the first unnamed argument has therefore not to start with the '-' c
 
 [example_begin]my_proc [cmd {-n1 N1 -n2 N2 "->" "<-"}]
 [emph {-> my_proc: Argument '->' not known}]
- 
+
 set U1 "->"
 my_proc -n1 N1 -n2 N2 $U1 U2}]
 my_proc: Argument '->' not known[example_end]
@@ -747,7 +753,7 @@ The '--' flag allows separating unambiguously the unnamed arguments from the nam
 
 [example_begin]my_proc [cmd {-n1 N1 -n2 N2 -- "->" "<-"}]
 [emph {-> n1:'N1', n2:'N2', u1:'->', u2:'<-'}]
- 
+
 set U1 "->"
 my_proc [cmd {-n1 N1 -n2 N2 -- $U1 U2}]
 [emph {-> n1:'N1', n2:'N2', u1:'->', u2:'<-'}][example_end]
@@ -777,7 +783,7 @@ The argument parser will assign to each defined unnamed argument a value before 
 [para]
 An argument value will only be assigned to an unnamed argument that is optional (that has either the [arg -optional] attribute or that has a default value), if the value is not beginning with the '-' character or if no named arguments are defined. The value that starts with '-' is otherwise considered as the name of a named argument.
 [para]
-Argument values are assigned to an argument that has the [arg -multiple] attribute as long as the parameter value doesn't starts with the '-' character. 
+Argument values are assigned to an argument that has the [arg -multiple] attribute as long as the parameter value doesn't starts with the '-' character.
 [para]
 Values that start with the '-' character can therefore not be assigned to optional unnamed arguments, which restricts the usage of the Tcl procedure calling style. The Tk style may be preferable in some cases, since it allows separating unambiguously the named arguments from the unnamed ones with the '--' flag.
 [para]
@@ -825,7 +831,7 @@ But the '--' flag is simply ignored if the argument parser has started to handle
 
 [example_begin]my_proc [cmd {U1 -- -n1 N1}]
 [emph {-> n1:'N1', n2:'', u1:'U1', u2:''}]
- 
+
 my_proc [cmd {U1 -n1 N1 -- -n2 N2}]
 [emph {-> n1:'N1', n2:'N2', u1:'U1', u2:''}][example_end]
 
@@ -844,7 +850,4 @@ It may be necessary sometimes that the procedure body is able to access the enti
 }
 display_message -mtype Warning "It is 7:00"
 [emph {-> args: -mtype Warning {It is 7:00}}][example_end]
-
-[see_also tepam(n) tepam::argument_dialogbox(n)]
-[keywords procedure arguments {argument validation} {argument integrity} subcommand]
 [manpage_end]

@@ -1,5 +1,14 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin rc4 n 1.1.0]
+[see_also aes(n)]
+[see_also blowfish(n)]
+[see_also des(n)]
+[keyword arcfour]
+[keyword {data integrity}]
+[keyword encryption]
+[keyword rc4]
+[keyword security]
+[keyword {stream cipher}]
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc   {RC4 Stream Cipher}]
 [titledesc {Implementation of the RC4 stream cipher}]
@@ -9,7 +18,7 @@
 [description]
 [para]
 
-This package is an implementation in Tcl of the RC4 stream cipher 
+This package is an implementation in Tcl of the RC4 stream cipher
 developed by Ron Rivest of RSA Data Security Inc. The cipher was a
 trade secret of RSA but was reverse-engineered and published to the
 internet in 1994. It is used in a number of network protocols for
@@ -37,7 +46,7 @@ version of the result if not using an [arg -out] channel.
 [para]
 
 The data to be processes can be specified either as a string argument to
-the rc4 command, or as a filename or a pre-opened channel. If the 
+the rc4 command, or as a filename or a pre-opened channel. If the
 [arg "-infile"] argument is given then the file is opened, the data read
 and processed and the file is closed. If the [arg "-in"] argument is
 given then data is read from the channel until the end of file. The
@@ -65,7 +74,7 @@ Only one of [arg "-infile"], [arg "-in"] or [arg "string"] should be given.
 [call [cmd "::rc4::RC4Init"] [arg "keydata"]]
 
 Initialize a new RC4 key. The [arg keydata] is any amount of binary
-data and is used to initialize the cipher internal state. 
+data and is used to initialize the cipher internal state.
 
 [call [cmd "::rc4::RC4"] [arg "Key"] [arg "data"]]
 
@@ -74,7 +83,7 @@ Encrypt or decrypt the input data using the key obtained by calling
 
 [call [cmd "::rc4::RC4Final"] [arg "Key"]]
 
-This should be called to clean up resources associated with 
+This should be called to clean up resources associated with
 [arg Key]. Once this function has been called the key is destroyed.
 
 [list_end]
@@ -103,13 +112,9 @@ HelloWorld
  rc4::rc4 -in $socket -command [list ::Finish $ApplicationState]
 }]
 
-[see_also des(n) aes(n) blowfish(n)]
-
 [section "AUTHORS"]
 Pat Thoyts
 
 [vset CATEGORY rc4]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords rc4 arcfour {stream cipher} security encryption {data integrity}]
 [manpage_end]

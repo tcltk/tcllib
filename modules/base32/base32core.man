@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin base32::core n 0.1]
+[keyword base32]
 [copyright {Public domain}]
 [moddesc   {Base32 encoding}]
 [titledesc {Expanding basic base32 maps}]
@@ -7,7 +8,6 @@
 [require Tcl 8.4]
 [require base32::core [opt 0.1]]
 [description]
-[keywords base32]
 [para]
 
 This package provides generic commands for the construction of full
@@ -22,7 +22,6 @@ This is in essence an internal package to be used by implementors of a
 base32 en- and decoder. A regular user has no need of this package at
 all.
 
-
 [section API]
 
 [list_begin definitions]
@@ -34,7 +33,6 @@ from the basic [arg map] and stores them in the variables named by
 [arg forwvar] and [arg backwvar] resp. It also constructs a regexp
 pattern for the detection of invalid characters in supposedly base32
 encoded input and stores it in the variable named by [arg ivar].
-
 
 [call [cmd ::base32::core::valid] [arg string] [arg pattern] [arg mvar]]
 

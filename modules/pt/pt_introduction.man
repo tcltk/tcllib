@@ -87,7 +87,6 @@ The list of packages belonging to this layer can be found in section
 [def [package pt::pgen]]
 [list_end]
 
-
 [subsection {Core Packages}]
 
 This layer is further split into six sections handling the storage,
@@ -142,7 +141,6 @@ grammar specific support packages.
 [def [package pt::peg]]
 [list_end][comment {------------------- core support ---}]
 [list_end]
-
 
 [subsection {Support Packages}]
 [list_begin definitions]

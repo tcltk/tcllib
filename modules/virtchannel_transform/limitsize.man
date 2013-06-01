@@ -1,5 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin tcl::transform::limitsize n 1]
+[keyword {channel transformation}]
+[keyword limitsize]
+[keyword {reflected channel}]
+[keyword {size limit}]
+[keyword {tip 230}]
+[keyword transformation]
+[keyword {virtual channel}]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
@@ -34,8 +41,6 @@ popping the transformation clears the EOF it generated as well.
 
 [list_end]
 
-[keywords {size limit} transformation {channel transformation}]
-[keywords limitsize {virtual channel} {reflected channel} {tip 230}]
 [vset CATEGORY virtchannel]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,4 +1,6 @@
 [manpage_begin uuencode n 1.1.4]
+[keyword encoding]
+[keyword uuencode]
 [copyright {2002, Pat Thoyts}]
 [moddesc   {Text encoding & decoding binary data}]
 [titledesc {UU-encode/decode binary data}]
@@ -90,7 +92,6 @@ end
 {hello.txt 644 {Hello World}}
 }]
 
-[keywords encoding uuencode]
 [vset CATEGORY base64]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin base32::hex n 0.1]
+[keyword base32]
+[keyword hex]
+[keyword rfc3548]
 [copyright {Public domain}]
 [moddesc   {Base32 encoding}]
 [titledesc {base32 extended hex encoding}]
@@ -8,7 +11,6 @@
 [require base32::core [opt 0.1]]
 [require base32::hex  [opt 0.1]]
 [description]
-[keywords base32 rfc3548 hex]
 [para]
 
 This package provides commands for encoding and decoding of strings
@@ -50,7 +52,6 @@ conditions which signal some type of bogus input, namely if
 [enum] the padding has not of length six, four, three, or one characters,
 [list_end]
 [list_end]
-
 
 [section {Code map}]
 

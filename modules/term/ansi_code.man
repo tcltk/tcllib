@@ -1,5 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin term::ansi::code n 0.1]
+[keyword control]
+[keyword declare]
+[keyword define]
+[keyword terminal]
 [copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Terminal control}]
 [titledesc {Helper for control sequences}]
@@ -37,7 +41,6 @@ sequence [arg code].
 
 [list_end]
 
-[keywords terminal control declare define]
 [vset CATEGORY term]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

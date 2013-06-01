@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin grammar::me::cpu n 0.2]
+[keyword grammar]
+[keyword parsing]
+[keyword {virtual machine}]
 [copyright {2005-2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Grammar operations and usage}]
 [titledesc {Virtual machine implementation II for parsing token streams}]
@@ -7,7 +10,6 @@
 [require Tcl 8.4]
 [require grammar::me::cpu [opt 0.2]]
 [description]
-[keywords {virtual machine} parsing grammar]
 [para]
 
 This package provides an implementation of the ME virtual machine.
@@ -27,7 +29,6 @@ Internally the package actually uses the value-based machine
 manipulation commands as provided by the package
 
 [package grammar::me::cpu::core] to perform its duties.
-
 
 [section API]
 [subsection {CLASS API}]
@@ -84,7 +85,6 @@ suspended and resumed at will and an arbitrary number of times, the
 quasi-parallel operation of several machines, and the operation as
 part of the event loop.
 
-
 [list_begin definitions]
 [call [arg meName] [method lc] [arg location]]
 
@@ -105,7 +105,6 @@ machine has read 7 tokens the command is able to convert the offsets
 it is not possible to convert offsets which refer to locations before
 the beginning of the stream.
 
-
 [call [arg meName] [method tok] [opt "[arg from] [opt [arg to]]"]]
 
 This method returns a Tcl list containing the part of the input stream
@@ -122,30 +121,25 @@ order.
 This command places the same restrictions on its location arguments as
 the method [method lc].
 
-
 [call [arg meName] [method pc] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the current value of the stored program counter.
-
 
 [call [arg meName] [method iseof] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the current value of the stored eof flag.
 
-
 [call [arg meName] [method at] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the current location in the input stream.
 
-
 [call [arg meName] [method cc] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the current token.
-
 
 [call [arg meName] [method sv]]
 
@@ -153,52 +147,43 @@ This command returns the current semantic value [term SV] stored in
 the machine. This is an abstract syntax tree as specified in the
 document [syscmd grammar::me_ast], section [sectref-external {AST VALUES}].
 
-
 [call [arg meName] [method ok]]
 
 This method returns the current match status [term OK].
 
-
 [call [arg meName] [method error]]
 
 This method returns the current error status [term ER].
-
 
 [call [arg meName] [method lstk] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the location stack.
 
-
 [call [arg meName] [method astk] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the AST stack.
-
 
 [call [arg meName] [method mstk] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the AST marker stack.
 
-
 [call [arg meName] [method estk] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the error stack.
-
 
 [call [arg meName] [method rstk] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the subroutine return stack.
 
-
 [call [arg meName] [method nc] [arg state]]
 
 This method takes the state value of a ME virtual machine and returns
 the nonterminal match cache as a dictionary.
-
 
 [call [arg meName] [method ast]]
 
@@ -206,7 +191,6 @@ This method returns the current top entry of the AST stack [term AS].
 
 This is an abstract syntax tree as specified in the document
 [syscmd grammar::me_ast], section [sectref-external {AST VALUES}].
-
 
 [call [arg meName] [method halted]]
 
@@ -216,12 +200,10 @@ matching is possible, and the information retrieved via the other
 method is final. Attempts to [method run] the engine will be ignored,
 until a [method reset] is made.
 
-
 [call [arg meName] [method code]]
 
 This method returns the [arg code] information used to construct the
 object. In other words, the match program executed by the machine.
-
 
 [call [arg meName] [method eof]]
 
@@ -229,7 +211,6 @@ This method adds an end of file marker to the end of the input stream.
 This signals the machine that the current contents of the input queue
 are the final parts of the input and nothing will come after. Attempts
 to put more characters into the queue will fail.
-
 
 [call [arg meName] [method put] [arg tok] [arg lex] [arg line] [arg col]]
 
@@ -244,7 +225,6 @@ token to the end of the input stream, from first to last. The lexemes
 will be empty and the line/col information is computed based on the
 characters encountered and the data in the variables [arg lvar] and
 [arg cvar].
-
 
 [call [arg meName] [method run] [opt [arg n]]]
 
@@ -262,7 +242,6 @@ process.
 
 If no limit [arg n] was set only the last two conditions are checked
 for.
-
 
 [call [arg meName] [method pull] [arg nextcmd]]
 
@@ -294,12 +273,10 @@ The end of the input stream for this method does not imply that method
 and still asking for an explicit call of the method it is possible to
 mix push- and pull-style operation during the lifetime of the machine.
 
-
 [call [arg meName] [method reset]]
 
 This method resets the machine to its initial state, discarding any
 state it may have.
-
 
 [call [arg meName] [method destroy]]
 

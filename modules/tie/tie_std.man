@@ -1,4 +1,11 @@
 [manpage_begin tie n 1.1]
+[keyword array]
+[keyword database]
+[keyword file]
+[keyword metakit]
+[keyword persistence]
+[keyword tie]
+[keyword untie]
 [copyright {2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Array persistence, standard data sources}]
@@ -25,6 +32,4 @@ their own, although it is possible to do so.
 
 [vset CATEGORY tie]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords array tie untie persistence file database metakit]
 [manpage_end]

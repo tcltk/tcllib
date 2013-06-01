@@ -1,5 +1,14 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin docidx_lang_intro n 1.0]
+[see_also docidx_intro]
+[see_also docidx_lang_cmdref]
+[see_also docidx_lang_syntax]
+[keyword {docidx commands}]
+[keyword {docidx language}]
+[keyword {docidx markup}]
+[keyword {docidx syntax}]
+[keyword markup]
+[keyword {semantic markup}]
 [copyright {2007-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {docidx language introduction}]
@@ -113,7 +122,6 @@ describe the location of the referenced document. As such this command
 is intended for the creation of references to external documents which
 could not be handled in any other way.
 
-
 [subsection {Advanced structure}]
 
 In all previous examples we fudged a bit regarding the markup actually
@@ -153,7 +161,6 @@ file included before [cmd index_begin] may contain only the templating
 commands [cmd vset] and [cmd include], a file included after a key
 may contain only manape or url references, and other keys, etc.
 
-
 [subsection Escapes]
 
 Beyond the 6 commands shown so far we have two more available.
@@ -177,7 +184,6 @@ previous paragraph, with some highlighting added.
   impossible to directly use [lb][cmd lb][rb] and [lb][cmd rb][rb] within the text.
   ...
 [example_end]
-
 
 [section {FURTHER READING}]
 
@@ -203,12 +209,6 @@ easy and simple [syscmd dtplite] goes, creating an index for a set of
 documents behind the scenes, without the writer having to do so on
 their own.
 
-[see_also docidx_intro]
-[see_also docidx_lang_syntax]
-[see_also docidx_lang_cmdref]
-[keywords markup {semantic markup}]
-[keywords {docidx markup} {docidx language}]
-[keywords {docidx syntax} {docidx commands}]
 [vset CATEGORY doctools]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]
