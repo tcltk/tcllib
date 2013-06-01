@@ -1,11 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin grammar::me_ast n 0.1]
+[keyword {abstract syntax tree}]
+[keyword AST]
 [copyright {2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Grammar operations and usage}]
 [titledesc {Various representations of ASTs}]
 [category  {Grammars and finite automata}]
 [description]
-[keywords AST {abstract syntax tree}]
 
 This document specifies various representations for the
 
@@ -49,7 +50,6 @@ offset 0 (zero).
 
 The root of an AS tree can be either a terminal or nonterminal node.
 
-
 [section {AST VALUES}]
 
 This representation of ASTs is a Tcl list. The main list represents
@@ -66,7 +66,6 @@ third elements are then the locations of the first and last tokens.
 Any additional elements after the third are then the representations
 of the children, with the leftmost child first, i.e. as the fourth
 element of the list representing the node.
-
 
 [section {AST OBJECTS}]
 
@@ -103,7 +102,6 @@ This attribute is present only for nonterminal nodes. It contains the
 name of the nonterminal symbol stored in the node.
 
 [list_end]
-
 
 [section {EXTENDED AST OBJECTS}]
 

@@ -1,7 +1,7 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin pt::param n 1]
+[keyword {virtual machine}]
 [include include/module.inc]
-[keywords {virtual machine}]
 [titledesc {PackRat Machine Specification}]
 [description]
 [include include/ref_intro.inc]
@@ -148,7 +148,6 @@ seekable.
 
 [list_end]
 
-
 [section {Instruction Set}]
 
 With the machine's architectural state specified it is now possible to
@@ -185,7 +184,6 @@ recorded as failed in ST, CL is left unchanged, and the pair of CL and
 [arg msg] becomes the new ES.
 
 [list_end]
-
 
 [subsection {Character Processing}]
 
@@ -248,7 +246,6 @@ two characters from [arg chars] to [arg chare], both inclusive.
 
 [list_end]
 
-
 [subsection {Error Handling}]
 
 The instructions in this section mainly access ER and ES.
@@ -302,7 +299,6 @@ or also "the location of the next character after that location".
 
 [list_end]
 
-
 [subsection {Status Control}]
 
 The instructions in this section directly manipulate ST.
@@ -323,7 +319,6 @@ This instruction negates ST, turning a failure into a success and vice
 versa.
 
 [list_end]
-
 
 [subsection {Location Handling}]
 
@@ -346,11 +341,9 @@ as CL.
 
 [list_end]
 
-
 [subsection {Nonterminal Execution}]
 
 The instructions in this section access and manipulate NC.
-
 
 [list_begin definitions]
 
@@ -377,7 +370,6 @@ saved in LS as key.
 
 [list_end]
 
-
 [subsection {Value Construction}]
 
 The instructions in this section manipulate SV.
@@ -403,11 +395,9 @@ operation.
 
 [list_end]
 
-
 [subsection {AST Construction}]
 
 The instructions in this section manipulate ARS and AS.
-
 
 [list_begin definitions]
 
@@ -431,7 +421,6 @@ This instruction pops the last entry saved on AS.
 
 [list_end]
 
-
 [subsection {Control Flow}]
 
 Normally this section would contain the specifications of the control
@@ -445,7 +434,6 @@ implement control flow.
 The implementation of this machine in Parser Tools, i.e the package
 [package pt::rde], is not only coded in Tcl, but also relies on Tcl
 commands to provide it with control flow (instructions).
-
 
 [section {Interaction of the Instructions with the Architectural State}]
 

@@ -1,4 +1,11 @@
 [manpage_begin struct::disjointset n 1.0]
+[keyword {disjoint set}]
+[keyword {equivalence class}]
+[keyword find]
+[keyword {merge find}]
+[keyword partition]
+[keyword {partitioned set}]
+[keyword union]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Disjoint set data structure}]
 [category  {Data structures}]
@@ -92,7 +99,6 @@ objects:
 
 [list_end]
 
-
 [call [arg disjointsetName] [method add-partition] [arg elements]]
 
 Creates a new partition in specified disjoint set, and fills it with
@@ -105,18 +111,15 @@ error otherwise.
 
 The result of the command is the empty string.
 
-
 [call [arg disjointsetName] [method partitions]]
 
 Returns the set of partitions the named disjoint set currently
 consists of.
 
-
 [call [arg disjointsetName] [method num-partitions]]
 
 Returns the number of partitions the named disjoint set currently
 consists of.
-
 
 [call [arg disjointsetName] [method equal] [arg a] [arg b]]
 
@@ -130,7 +133,6 @@ partition, and [const False] otherwise.
 An error will be thrown if either [arg a] or [arg b] are not elements
 of the disjoint set.
 
-
 [call [arg disjointsetName] [method merge] [arg a] [arg b]]
 
 Determines the partitions the elements [arg a] and [arg b] are
@@ -142,12 +144,10 @@ change.
 
 The result of the method is the empty string.
 
-
 [call [arg disjointsetName] [method find] [arg e]]
 
 Returns the partition of the disjoint set which contains the element
 [arg e].
-
 
 [call [arg disjointsetName] [method destroy]]
 
@@ -155,8 +155,6 @@ Destroys the disjoint set object and all associated memory.
 
 [list_end]
 
-[keywords {disjoint set}]
-[keywords {merge find} union find partition {partitioned set} {equivalence class}]
 [vset CATEGORY {struct :: disjointset}]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin tcl::transform::core n 1]
+[keyword {reflected channel}]
+[keyword {tip 219}]
+[keyword {virtual channel}]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
@@ -17,7 +20,6 @@ reflected or virtual channel transformation (initialization, finalization).
 [para] This class expects to be used as either superclass of a concrete
 channel class, or to be mixed into such a class.
 
-
 [section {Class API}]
 
 [list_begin definitions]
@@ -31,14 +33,12 @@ the section for the [sectref {Instance API}].
 
 [list_end]
 
-
 [section {Instance API}]
 
 The API of transform core instances provides only two methods, both
 corresponding to transform handler commands (For reference see
 [uri http:/tip.tcl.tk/230 {TIP 230}]). They expect to be called
 from whichever object instance the transform core was made a part of.
-
 
 [list_begin definitions]
 
@@ -53,12 +53,10 @@ Tcl core.
 [para] It further remembers the channel handle in an instance variable
 for access by sub-classes.
 
-
 [call [arg objectName] [method finalize] [arg thechannel]]
 
 This method implements standard behaviour for the [method finalize]
 method of channel handlers. It simply destroys itself.
-
 
 [call [arg objectName] [method destroy]]
 
@@ -69,7 +67,6 @@ the assumption that the channel and transform are being destroyed by Tcl.
 
 [list_end]
 
-[keywords {virtual channel} {reflected channel} {tip 219}]
 [vset CATEGORY virtchannel]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

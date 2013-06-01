@@ -1,4 +1,10 @@
 [manpage_begin textutil::repeat n 0.7.1]
+[see_also regexp(n)]
+[see_also split(n)]
+[see_also string(n)]
+[keyword blanks]
+[keyword repetition]
+[keyword string]
 [moddesc   {Text and string utilities, macro processing}]
 [titledesc {Procedures to repeat strings.}]
 [category  {Text processing}]
@@ -35,8 +41,6 @@ A convenience command. Returns a string of [arg num] spaces.
 
 [list_end]
 
-[see_also regexp(n) split(n) string(n)]
-[keywords string repetition blanks]
 [vset CATEGORY textutil]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

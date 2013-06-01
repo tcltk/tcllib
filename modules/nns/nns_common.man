@@ -1,13 +1,15 @@
 [manpage_begin nameserv::common n 0.1]
+[see_also nameserv::client(n)]
+[see_also nameserv::server(n)]
+[keyword client]
+[keyword {name service}]
+[keyword server]
 [copyright {2007-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Name service facility}]
 [titledesc {Name service facility, shared definitions}]
 [category  Networking]
 [require Tcl 8]
 [require nameserv::common [opt 0.1]]
-[keywords {name service} client server]
-[see_also nameserv::client(n)]
-[see_also nameserv::server(n)]
 [description]
 
 Please read [term {Name service facility, introduction}] first.

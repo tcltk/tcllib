@@ -1,6 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
 [comment {$Id: logger.man,v 1.26 2012/07/10 03:34:47 andreas_kupries Exp $}]
 [manpage_begin logger n 0.9.3]
+[keyword log]
+[keyword {log level}]
+[keyword logger]
+[keyword service]
 [moddesc {Object Oriented logging facility}]
 [titledesc {System to control logging of events.}]
 [category  {Programming tools}]
@@ -51,21 +55,21 @@ configuration of the [term foo] service, although it would of
 course, also be possible to then separately configure [term bar].
 
 If a logger service is initialized and the parent does not yet exist, the
-parent is also created. 
+parent is also created.
 
-The new logger service is initialized with the default loglevel set 
+The new logger service is initialized with the default loglevel set
 with [cmd logger::setlevel].
 
 [call [cmd logger::import] [opt [option -all] ] [opt [option -force]] [opt "[option -prefix] [arg prefix]" ] [opt "[option -namespace] [arg namespace]" ] [arg service] ]
 
 Import the logger service commands into the current namespace. Without the [option -all] option
-only the commands corresponding to the log levels are imported. If [option -all] is given, 
+only the commands corresponding to the log levels are imported. If [option -all] is given,
 all the [cmd \${log}::cmd] style commands are imported. If the import would overwrite a command
 an error is returned and no command is imported. Use the [option -force] option to force the import
 and overwrite existing commands without complaining.
 
 If the [option -prefix] option is given, the commands are imported with the given [arg prefix]
-prepended to their names. 
+prepended to their names.
 
 If the [option -namespace] option is given, the commands are imported into the given namespace. If the
 namespace does not exist, it is created. If a namespace without a leading :: is given, it is interpreted as
@@ -135,7 +139,7 @@ children, at and above the level specified.  Note that this does [emph not] disa
 [call [cmd \${log}::disable] [arg level]]
 
 Disable logging, in the service referenced by [var \${log}], and its
-children, at and below the level specified. Note that this does [emph not] enable logging above this level, 
+children, at and below the level specified. Note that this does [emph not] enable logging above this level,
 so you should probably use [cmd setlevel] instead.
 Disabling the loglevel [const emergency] switches logging off for the service and its children.
 
@@ -145,7 +149,7 @@ Disabling the loglevel [const emergency] switches logging off for the service an
 Set the script to call when the log instance in question changes its log level.
 If called without a command it returns the currently registered command. The command gets two arguments
 appended, the old and the new loglevel. The callback is invoked after all changes have been done.
-If child loggers are affected, their callbacks are called before their parents callback. 
+If child loggers are affected, their callbacks are called before their parents callback.
 
 [example {
  	proc lvlcallback {old new} {
@@ -159,7 +163,7 @@ If child loggers are affected, their callbacks are called before their parents c
 [call [cmd \${log}::logproc] [arg level] [arg argname] [arg body]]
 
 This command comes in three forms - the third, older one is deprecated
-and may be removed from future versions of the logger package.  
+and may be removed from future versions of the logger package.
 The current set version takes one argument, a command to be executed when the
 level is called.  The callback command takes on argument, the text to
 be logged. If called only with a valid level [cmd logproc] returns the name of the command
@@ -260,7 +264,7 @@ library when tracing is disabled, just as with other log level commands.
       bar 1
       return "foo_result"
   }
-    
+
   proc bar { x } {
       puts "In bar"
       return "bar_result"
@@ -380,13 +384,12 @@ side effects.
           	puts "$var = $value"
           }
      }
-     
+
      # install as logproc
      ${log}::logproc debug log_local_var
      }
 ]
 
-[keywords logger log service {log level}]
 [vset CATEGORY logger]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

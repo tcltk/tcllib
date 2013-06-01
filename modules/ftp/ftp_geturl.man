@@ -1,5 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin ftp::geturl n 0.2.1]
+[see_also ftpd]
+[see_also mime]
+[see_also pop3]
+[see_also smtp]
+[keyword ftp]
+[keyword internet]
+[keyword net]
+[keyword {rfc 959}]
 [moddesc   {ftp client}]
 [titledesc {Uri handler for ftp urls}]
 [category  Networking]
@@ -45,7 +53,4 @@ The attributes of the link, including the path it refers to.
 
 [vset CATEGORY ftp]
 [include ../doctools2base/include/feedback.inc]
-
-[see_also ftpd smtp pop3 mime]
-[keywords ftp {rfc 959} internet net]
 [manpage_end]

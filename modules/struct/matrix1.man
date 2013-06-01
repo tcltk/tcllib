@@ -1,5 +1,6 @@
 [comment {-*- tcl -*-}]
 [manpage_begin {struct::matrix_v1} n 1.2.1]
+[keyword matrix]
 [copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate matrix objects}]
@@ -206,12 +207,10 @@ key [arg row,column] will be used instead. It is possible to link the
 matrix to more than one array. Note that the link is bidirectional,
 i.e. changes to the array are mirrored in the matrix too.
 
-
 [call [arg matrixName] [method links]]
 
 Returns a list containing the names of all array variables the matrix
 was linked to through a call to method [method link].
-
 
 [call [arg matrixName] [method rowheight] [arg row]]
 
@@ -377,7 +376,6 @@ useful data.
     % r printmatrix m
 }]
 
-[keywords matrix]
 [vset CATEGORY {struct :: matrix}]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

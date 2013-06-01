@@ -1,4 +1,11 @@
 [manpage_begin docstrip n 1.2]
+[see_also docstrip_util]
+[keyword .dtx]
+[keyword docstrip]
+[keyword documentation]
+[keyword LaTeX]
+[keyword {literate programming}]
+[keyword source]
 [copyright "2003\u20132010 Lars Hellstr\u00F6m\
   <Lars dot Hellstrom at residenset dot net>"]
 [moddesc {Literate programming tool}]
@@ -72,7 +79,6 @@ want to know more about it may consult the following sources.
   [emph {The LaTeX Companion}] (second edition),
   Addison-Wesley, 2004; ISBN 0-201-36299-6.
 [list_end]
-
 
 [section {File format}]
 
@@ -298,7 +304,6 @@ avoid copying random whitespace at the end of a file. In the unlikely
 case that one wants such a code line, one can protect it with a
 verbatim guard.
 
-
 [section Commands]
 
 The package defines two commands.
@@ -353,7 +358,6 @@ The package defines two commands.
   "options" in the context of the [syscmd docstrip] program, since
   these specify which optional code fragments should be included.
 
-
 [call [cmd docstrip::sourcefrom] [arg filename] [arg terminals] [
    opt "[arg option] [arg value] ..."
 ]]
@@ -367,7 +371,6 @@ The package defines two commands.
   [option -metaprefix] is set to '#', all other [cmd extract]
   options have their default values.
 [list_end]
-
 
 [section {Document structure}]
 
@@ -427,10 +430,4 @@ It is not necessary to use the tclldoc document class, but that does
 provide a number of features that are convenient for [file .dtx]
 files containing Tcl code. More information on this matter can be
 found in the references above.
-
-
-[see_also docstrip_util]
-
-[keywords documentation source {literate programming} docstrip]
-[keywords LaTeX .dtx]
 [manpage_end]

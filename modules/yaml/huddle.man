@@ -1,5 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin huddle n 0.1.5]
+[see_also yaml]
+[keyword {data exchange}]
+[keyword {exchange format}]
+[keyword huddle]
+[keyword json]
+[keyword parsing]
+[keyword {text processing}]
+[keyword yaml]
 [copyright {2008 KATO Kanryu <kanryu6@users.sourceforge.net>}]
 [moddesc   {HUDDLE}]
 [titledesc {Create and manipulate huddle object}]
@@ -50,22 +58,18 @@ Create a huddle object as a dict. It can contain other huddle objects.
 [call [cmd "huddle list"] [opt [arg "value value ..."]]]
 Create a huddle object as a list. It can contain other huddle objects.
 
-
 [call [cmd "huddle get"] [arg object] [arg key]  [opt [arg "key ..."]]]
 Almost the same as [cmd "dict get"].
 Get a sub-object from the huddle object.
 [arg key] can be used to huddle-list's index.
 
-
 [call [cmd "huddle gets"] [arg object] [arg key]  [opt [arg "key ..."]]]
 Get a sub-object from the huddle object, stripped.
-
 
 [call [cmd "huddle set"] [arg objectVar] [arg key]  [opt [arg "key ..."]] [arg value]]
 Almost the same as [cmd "dict set"].
 Set a sub-object from the huddle object.
 [arg key] can be used to huddle-list's index.
-
 
 [call [cmd "huddle remove"] [arg object] [arg key]  [opt [arg "key ..."]]]
 Almost the same as [cmd "dict remove"].
@@ -112,14 +116,11 @@ HUDDLE {L {{s i} {s j} {s k} {s l}}}
 HUDDLE {L {{s i} {s j} {s k} {s l} {s g} {s h} {s i}}}
 }]
 
-
 [call [cmd "huddle keys"] [arg object]]
 The same as [cmd "dict keys"].
 
-
 [call [cmd "huddle llength"] [arg object]]
 The same as [cmd llength].
-
 
 [call [cmd "huddle type"] [arg object] [opt [arg "key key..."]]]
 Return the element type of specified by keys.
@@ -149,7 +150,6 @@ list
 % huddle type {HUDDLE {D {aa {s b} cc {s d}}}} cc
 string
 }]
-
 
 [call [cmd "huddle strip"] [arg object]]
 Stripped all tags. Converted to normal Tcl's list/dict.
@@ -193,7 +193,6 @@ a}}}} cc {D {g {s h}}}}} ee {D {i {s j} k {s 1} j {s { m\a}}}}}}} "" ""
 
 construct a huddle object from plain old tcl values.
 
-
 [arg spec] is defined as follows:
 [list_begin definitions]
 [def [const string]]
@@ -225,7 +224,6 @@ HUDDLE {D {a {L {{s 1} {s 2} {s 3}}} b {L {{s 4} {s 5}}}}}
 % huddle compile {dict * {list {dict d list}}} {a {{c 1} {d {2 2 2} e 3}} b {{f 4 g 5}}}
 HUDDLE {D {a {L {{D {c {s 1}}} {D {d {L {{s 2} {s 2} {s 2}}} e {s 3}}}}} b {L {{D {f {s 4} g {s 5}}}}}}}
 }]
-
 
 [call [cmd "huddle isHuddle"] [arg object]]
 if [arg object] is a huddle, returns 1. the other, returns 0.
@@ -446,7 +444,6 @@ proc ::yaml::_huddle_mapping {command args} {
 }
 }]
 
-
 [section "How to add type"]
 
 [para]
@@ -519,7 +516,6 @@ HUDDLE {L {{D {bb {D {a {s b} c {s kkk}}} cc {L {{s e} {s f} {s g} {s h}}}}} {s 
 ]
 }]
 
-
 [section LIMITATIONS]
 
 [para]
@@ -527,7 +523,4 @@ now printing.
 
 [vset CATEGORY huddle]
 [include ../doctools2base/include/feedback.inc]
-
-[see_also yaml]
-[keywords huddle yaml json {text processing} parsing {data exchange} {exchange format}]
 [manpage_end]

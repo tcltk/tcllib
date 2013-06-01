@@ -1,5 +1,26 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctools::idx n 2]
+[keyword conversion]
+[keyword {docidx markup}]
+[keyword documentation]
+[keyword formatting]
+[keyword generation]
+[keyword HTML]
+[keyword index]
+[keyword json]
+[keyword {keyword index}]
+[keyword latex]
+[keyword manpage]
+[keyword markup]
+[keyword nroff]
+[keyword parsing]
+[keyword plugin]
+[keyword reference]
+[keyword {tcler's wiki}]
+[keyword text]
+[keyword TMML]
+[keyword url]
+[keyword wiki]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {Holding keyword indices}]
@@ -8,10 +29,6 @@
 [require Tcl 8.4]
 [require doctools::idx::structure]
 [require snit]
-[keywords {keyword index} index reference documentation manpage url]
-[keywords {docidx markup} markup conversion formatting generation plugin]
-[keywords json text nroff wiki {tcler's wiki} latex TMML HTML]
-[keywords parsing]
 [description]
 
 This package provides a class to contain and programmatically
@@ -20,7 +37,7 @@ manipulate keyword indices
 [para]
 
 This is one of the three public pillars the management of keyword
-indices resides on. The other two pillars are 
+indices resides on. The other two pillars are
 
 [list_begin enum]
 [enum] [manpage {Exporting keyword indices}], and
@@ -41,9 +58,7 @@ and to any other format are handled by export and import manager
 objects. These may be attached to a container, but do not have to be,
 it is merely a convenience.
 
-
 [section Concepts] [include include/concept.inc]
-
 
 [section API]
 [subsection {Package commands}]
@@ -60,7 +75,6 @@ under the current namespace if the [arg objectName] is not fully
 qualified, and in the specified namespace otherwise.
 
 [list_end]
-
 
 [subsection {Object command}]
 
@@ -79,7 +93,6 @@ specifications.
 
 [list_end]
 
-
 [subsection {Object methods}]
 
 [list_begin definitions]
@@ -94,14 +107,12 @@ This method adds the keyword [arg name] to the index. If the keyword
 is already known nothing is done. The result of the method is the
 empty string.
 
-
 [call [arg objectName] [method {key remove}] [arg name]]
 
 This method removes the keyword [arg name] from the index. If the
 keyword is already gone nothing is done. Any references for whom this
 keyword was the last association are removed as well.  The result of
 the method is the empty string.
-
 
 [call [arg objectName] [method {key references}] [arg name]]
 
@@ -110,12 +121,10 @@ associated with the keyword [arg name]. An error is thrown in the
 keyword is not known to the index. The order of the references in the
 list is undefined.
 
-
 [call [arg objectName] [method keys]]
 
 This method returns a list containing the names of all keywords known
 to the index. The order of the keywords in the list is undefined.
-
 
 [call [arg objectName] [method {reference add}] [arg type] [arg key] [arg name] [arg label]]
 
@@ -142,19 +151,16 @@ empty string.
 
 The [arg type] argument has be to one of [const manpage] or [const url].
 
-
 [call [arg objectName] [method {reference remove}] [arg name]]
 
 The reference [arg name] is removed from the index. All associations
 with keywords are released and the relevant reference labels removed.
 The result of the method is the empty string.
 
-
 [call [arg objectName] [method {reference label}] [arg name]]
 
 This method returns the label associated with the reference
 [arg name]. An error is thrown if the reference is not known.
-
 
 [call [arg objectName] [method {reference keys}] [arg name]]
 
@@ -163,12 +169,10 @@ associated with the reference [arg name]. An error is thrown in the
 reference is not known to the index. The order of the keywords in the
 list is undefined.
 
-
 [call [arg objectName] [method {reference type}] [arg name]]
 
 This method returns the type of the reference [arg name]. An error is
 thrown in the reference is not known to the index.
-
 
 [call [arg objectName] [method references]]
 
@@ -176,34 +180,28 @@ This method returns a list containing the names of all references
 known to the index. The order of the references in the list is
 undefined.
 
-
 [call [arg objectName] [method title]]
 
 Returns the currently defined title of the keyword index.
-
 
 [call [arg objectName] [method title] [arg text]]
 
 Sets the title of the keyword index to [arg text], and returns it as
 the result of the command.
 
-
 [call [arg objectName] [method label]]
 
 Returns the currently defined label of the keyword index.
-
 
 [call [arg objectName] [method label] [arg text]]
 
 Sets the label of the keyword index to [arg text], and returns it as
 the result of the command.
 
-
 [call [arg objectName] [method importer]]
 
 Returns the import manager object currently attached to the container,
 if any.
-
 
 [call [arg objectName] [method importer] [arg object]]
 
@@ -221,12 +219,10 @@ It is expected that [arg object] provides a method named
 returns the canonical serialization of the keyword index contained in
 the text, assuming the given format.
 
-
 [call [arg objectName] [method exporter]]
 
 Returns the export manager object currently attached to the container,
 if any.
-
 
 [call [arg objectName] [method exporter] [arg object]]
 
@@ -246,7 +242,6 @@ the given format. It is further expected that the [arg object] will
 use the container's method [method serialize] to obtain the
 serialization of the keyword index from which to generate the text.
 
-
 [call [arg objectName] [method {deserialize =}] [arg data] [opt [arg format]]]
 
 This method replaces the contents of the index object with the index
@@ -265,12 +260,11 @@ manager attached to it.
 
 The result of the method is the empty string.
 
-
 [call [arg objectName] [method {deserialize +=}] [arg data] [opt [arg format]]]
 
 This method behaves like [method {deserialize =}] in its essentials,
 except that it merges the keyword index in the [arg data] to its
-contents instead of replacing it. 
+contents instead of replacing it.
 
 The method will throw an error if merging is not possible, i.e. would
 produce an invalid index. The existing content is left unchanged in
@@ -279,7 +273,6 @@ that case.
 [para]
 
 The result of the method is the empty string.
-
 
 [call [arg objectName] [method serialize] [opt [arg format]]]
 
@@ -295,9 +288,7 @@ the data to the specified format.
 In that case an error will be thrown if the container has no export
 manager attached to it.
 
-
 [list_end]
-
 
 [include include/serialization.inc]
 [vset CATEGORY doctools]

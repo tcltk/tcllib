@@ -1,4 +1,8 @@
 [manpage_begin autoproxy n 1.5.3]
+[see_also http(n)]
+[keyword authentication]
+[keyword http]
+[keyword proxy]
 [moddesc   {HTTP protocol helper modules}]
 [titledesc {Automatic HTTP proxy usage and authentication}]
 [category  Networking]
@@ -20,7 +24,7 @@ seems to be to use the environment variable http_proxy or ftp_proxy and
 no_proxy to list those domains to be excluded from proxying.
 On Windows we can retrieve the Internet Settings values from the registry
 to obtain pretty much the same information.
-With this information we can setup a suitable filter procedure for the 
+With this information we can setup a suitable filter procedure for the
 Tcl http package and arrange for automatic use of the proxy.
 
 [para]
@@ -51,7 +55,7 @@ Retrieve individual package configuration options. See [sectref OPTIONS].
 [call [cmd ::autoproxy::configure] [opt "-option [arg value]"]]
 
 Configure the autoproxy package. Calling [cmd configure] with no
-options will return a list of all option names and values. 
+options will return a list of all option names and values.
 See [sectref OPTIONS].
 
 [call [cmd ::autoproxy::tls_connect] [arg args]]
@@ -102,7 +106,7 @@ Set the proxy port number. This is normally set up by [cmd init].
 e.g. [cmd configure] [option -port] [arg 3128]
 
 [opt_def -no_proxy list]
-You may manipulate the [option no_proxy] list that was setup by 
+You may manipulate the [option no_proxy] list that was setup by
 [cmd init]. The value of this option is a tcl list of
 strings that are matched against the http request host using the tcl
 [cmd "string match"] command. Therefore glob patterns are permitted.
@@ -185,12 +189,9 @@ set tok [http::geturl https://www.example.com/]
 At this time only Basic authentication (1) (2) is supported. It is
 planned to add support for Digest (2) and NTLM in the future.
 
-[see_also http(n)]
 [section AUTHORS]
 Pat Thoyts
 
 [vset CATEGORY {http :: autoproxy}]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords http proxy authentication]
 [manpage_end]

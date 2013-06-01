@@ -1,6 +1,14 @@
 [comment {-*- tcl -*- doctools manpage}]
 [comment {$Id: ldapx.man,v 1.14 2009/01/29 06:16:19 andreas_kupries Exp $}]
 [manpage_begin ldapx n 0.2.5]
+[keyword {directory access}]
+[keyword internet]
+[keyword ldap]
+[keyword {ldap client}]
+[keyword ldif]
+[keyword protocol]
+[keyword {rfc 2251}]
+[keyword {rfc 2849}]
 [copyright {2006 Pierre David <pdav@users.sourceforge.net>}]
 [moddesc   {LDAP extended object interface}]
 [titledesc {LDAP extended object interface}]
@@ -20,7 +28,6 @@ LDAP access is compatible with RFC 2251
 ([uri http://www.rfc-editor.org/rfc/rfc2251.txt]).
 LDIF access is compatible with RFC 2849
 ([uri http://www.rfc-editor.org/rfc/rfc2849.txt]).
-
 
 [section OVERVIEW]
 
@@ -155,11 +162,9 @@ An instance of the [class entry] class keeps the following data:
 
 [list_end]
 
-
 [subsection {Entry Options}]
 
 No option is defined by this class.
-
 
 [subsection {Methods for all kinds of entries}]
 
@@ -231,7 +236,6 @@ In all methods, attribute names are converted in lower case.
 	This method adds a single value given by the parameter
 	[arg value] to the attribute [arg attr].
 
-
     [call [arg se] [method del] [arg attr] [opt [arg values]]]
 
 	If the optional list [arg values] is specified, this method
@@ -288,7 +292,6 @@ In all methods, attribute names are converted in lower case.
 
 [list_end]
 
-
 [subsection {Methods for change entries only}]
 
 [list_begin definitions]
@@ -313,7 +316,6 @@ In all methods, attribute names are converted in lower case.
 	change list.
 
 [list_end]
-
 
 [subsection {Entry Example}]
 
@@ -380,7 +382,6 @@ In all methods, attribute names are converted in lower case.
     c destroy
     nc destroy
 }]
-
 
 [section {LDAP CLASS}]
 
@@ -460,7 +461,6 @@ search operations (methods [method traverse], [method search] and
 The last option is used when getting entries or committing changes
 in the directory:
 
-
 [list_begin options]
 
     [opt_def -utf8 {pattern-yes pattern-no}]
@@ -482,7 +482,6 @@ in the directory:
 	without exception.
 
 [list_end]
-
 
 [subsection {Ldap Methods}]
 
@@ -556,7 +555,6 @@ in the directory:
 
 [list_end]
 
-
 [subsection {Ldap Example}]
 
 [example {
@@ -611,7 +609,6 @@ in the directory:
     l destroy
 }]
 
-
 [section {LDIF CLASS}]
 
 [subsection {Ldif Instance Data}]
@@ -651,11 +648,9 @@ An instance of the [class ldif] class keeps the following data:
 
 [list_end]
 
-
 [subsection {Ldif Options}]
 
 This class defines two options:
-
 
 [list_begin options]
 
@@ -689,8 +684,6 @@ This class defines two options:
 
 [list_end]
 
-
-
 [subsection {Ldif Methods}]
 
 [list_begin definitions]
@@ -719,9 +712,7 @@ This class defines two options:
 	This method writes the entry given in the argument
 	[arg entry] to the LDIF file.
 
-
 [list_end]
-
 
 [subsection {Ldif Example}]
 
@@ -774,11 +765,8 @@ This class defines two options:
     liin destroy
 }]
 
-
 [section References]
 
 [vset CATEGORY ldap]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords ldap ldif {rfc 2251} {rfc 2849} {ldap client} {directory access} internet protocol]
 [manpage_end]

@@ -1,5 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin tcl::chan::random n 1]
+[keyword /dev/random]
+[keyword random]
+[keyword {reflected channel}]
+[keyword {tip 219}]
+[keyword {virtual channel}]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
@@ -36,7 +41,6 @@ internal feedback shift register of the generator.
 
 [list_end]
 
-[keywords {virtual channel} {reflected channel} random /dev/random {tip 219}]
 [vset CATEGORY virtchannel]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

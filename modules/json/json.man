@@ -1,5 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin json n 1.1.2]
+[keyword {data exchange}]
+[keyword {exchange format}]
+[keyword javascript]
+[keyword json]
 [copyright {2006 ActiveState Software Inc.}]
 [copyright {2009 Thomas Maeder, Glue Software Engineering AG}]
 [moddesc   {JSON}]
@@ -7,7 +11,6 @@
 [category  {CGI programming}]
 [require Tcl 8.4]
 [require json [opt 1.1.2]]
-[keywords json javascript {data exchange} {exchange format}]
 [description]
 [para]
 

@@ -1,4 +1,8 @@
 [manpage_begin struct::stack n 1.5.3]
+[keyword graph]
+[keyword matrix]
+[keyword queue]
+[keyword tree]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate stack objects}]
 [category  {Data structures}]
@@ -34,16 +38,13 @@ the following general form:
 [arg Option] and the [arg arg]s determine the exact behavior of the
 command.  The following commands are possible for stack objects:
 
-
 [call [arg stackName] [method clear]]
 
 Remove all items from the stack.
 
-
 [call [arg stackName] [method destroy]]
 
 Destroy the stack, including its storage space and associated command.
-
 
 [call [arg stackName] [method get]]
 
@@ -90,13 +91,11 @@ list.  If specified, [arg count] must be greater than or equal to 1.
 If there are not enoughs items on the stack to fulfull the request,
 this command will throw an error.
 
-
 [call [arg stackName] [method push] [arg item] [opt [arg item...]]]
 
 Push the [arg item] or items specified onto the stack.  If more than
 one [arg item] is given, they will be pushed in the order they are
 listed.
-
 
 [call [arg stackName] [method size]]
 
@@ -104,7 +103,6 @@ Return the number of items on the stack.
 
 [list_end]
 
-[keywords queue matrix tree graph]
 [vset CATEGORY {struct :: stack}]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,5 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin fileutil::magic::cfront n 1.0]
+[see_also file(1)]
+[see_also fileutil]
+[see_also magic(5)]
+[keyword {file recognition}]
+[keyword {file type}]
+[keyword {file utilities}]
+[keyword mime]
+[keyword type]
 [moddesc   {file utilities}]
 [titledesc {Generator core for compiler of magic(5) files}]
 [category  {Programming tools}]
@@ -36,7 +44,6 @@ All the files have to be in the format specified by magic(5).
 The result of the command is a Tcl script containing the generated
 recognizer.
 
-
 [call [cmd ::fileutil::magic::cfront::procdef] [arg procname] [arg path]...]
 
 This command behaves like [cmd ::fileutil::magic::cfront::compile]
@@ -44,7 +51,6 @@ with regard to the specified path arguments, then wraps the resulting
 recognizer script into a procedure named [arg procname], puts code
 setting up the namespace of [arg procname] in front, and returns the
 resulting script.
-
 
 [call [cmd ::fileutil::magic::cfront::install] [arg path]...]
 
@@ -62,7 +68,4 @@ causing the creation of procedure [const ::fileutil::magic::/FOO::run].
 
 [vset CATEGORY {fileutil :: magic}]
 [include ../doctools2base/include/feedback.inc]
-
-[see_also fileutil file(1) magic(5)]
-[keywords type mime {file utilities} {file type} {file recognition}]
 [manpage_end]

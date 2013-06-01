@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin profiler n 0.3]
+[keyword performance]
+[keyword profile]
+[keyword speed]
 [moddesc   {Tcl Profiler}]
 [titledesc {Tcl source code profiler}]
 [category  {Programming tools}]
@@ -17,7 +20,6 @@ Profiling is initiated via the [cmd ::profiler::init] command.
 [section COMMANDS]
 
 [list_begin definitions]
-
 
 [call [cmd ::profiler::init]]
 
@@ -67,10 +69,9 @@ Sum of the time spent in descendants of [arg functionName].
 
 [def [const averageDescendantTime]]
 
-Average time spent in descendants of [arg functionName]. 
+Average time spent in descendants of [arg functionName].
 
 [list_end]
-
 
 [call [cmd ::profiler::print] [opt [arg pattern]]]
 
@@ -117,6 +118,4 @@ that function.
 
 [vset CATEGORY profiler]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords profile performance speed]
 [manpage_end]

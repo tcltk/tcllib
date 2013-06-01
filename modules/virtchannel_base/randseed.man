@@ -1,5 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin tcl::chan::randseed n 1]
+[keyword /dev/random]
+[keyword merge]
+[keyword random]
+[keyword {reflected channel}]
+[keyword seed]
+[keyword {tip 219}]
+[keyword {virtual channel}]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
@@ -30,8 +37,6 @@ length the shorter of the two is padded with 0s before merging.
 
 [list_end]
 
-[keywords seed merge]
-[keywords {virtual channel} {reflected channel} random /dev/random {tip 219}]
 [vset CATEGORY virtchannel]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

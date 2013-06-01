@@ -1,5 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin units n 1.2]
+[keyword angle]
+[keyword constants]
+[keyword conversion]
+[keyword distance]
+[keyword radians]
+[keyword unit]
 [copyright {2000-2005 Mayo Foundation}]
 [moddesc   {Convert and manipulate quantities with units}]
 [titledesc {unit conversion}]
@@ -61,7 +67,6 @@ example,
 1000.0
 [example_end]
 
-
 [call [cmd ::units::reduce] [arg unitString]]
 
 Returns a unit string consisting of a scale factor followed by a space
@@ -75,8 +80,6 @@ remaining subunits are in the denominator.  Generates an error if the
 % ::units::reduce pascal
 1000.0 gram / meter second second
 [example_end]
-
-
 
 [call [cmd ::units::new] [arg name] [arg baseUnits]]
 
@@ -100,14 +103,11 @@ universal property.
 
 [list_end]
 
-
-
 [section "UNIT STRING FORMAT"]
 
 Value and unit string format is quite flexible.  It is possible to
 define virtually any combination of units, prefixes, and powers.
 Valid unit strings must conform to these rules.
-
 
 [list_begin itemized]
 
@@ -165,10 +165,6 @@ kg-m/s^2                 1000.0 gram meter / second second
 200*meter/20.5*second    9.75609756098 meter / second
 [example_end]
 
-
-
-
-
 [section "SI UNITS"]
 
 [para]
@@ -178,7 +174,6 @@ Publication 330"].  Standard units for both SI Base Units (Table
 1) and SI Derived Units with Special Names (Tables 3a and 3b) are
 included here for reference.  Each standard unit name and abbreviation
 are included in this package.
-
 
 [subsection "SI Base Units"]
 
@@ -193,7 +188,6 @@ Temperature             kelvin       K
 Amount                  mole         mol
 Luminous Intensity      candela      cd
 [example_end]
-
 
 [subsection "SI Derived Units with Special Names"]
 
@@ -228,7 +222,7 @@ dose equivalent         sievert     Sv      J/kg      m^2/s^2
 Note that the SI unit kilograms is actually implemented as grams
 because 1e-6 kilogram = 1 milligram, not 1 microkilogram.  The
 abbreviation for Electric Resistance (ohms), which is the omega
-character, is not supported.  
+character, is not supported.
 
 [para]
 
@@ -247,7 +241,6 @@ abbreviation should appear before the unit, without spaces.  Compound
 prefixes are not allowed, and a prefix should never be used alone.
 These prefixes are defined in Table 5 of [emph "Special Publication
 330"].
-
 
 [subsection "SI Prefixes"]
 
@@ -297,7 +290,6 @@ conversions can always be added using the [cmd new]
 command, but some well known and often used conversions are included
 in this package.
 
-
 [subsection "Non-SI Units"]
 
 [example_begin]
@@ -338,7 +330,6 @@ yard                 yd       9.144E-1 m
 year                          3.1536E7 s
 [example_end]
 
-
 [subsection "Quantities and Derived Units with Special Names"]
 
 This units conversion package is limited specifically to unit
@@ -373,7 +364,6 @@ defined as units properly reducing to [emph "meter^2"], although
 the utility of defining a unit named [emph "square meter"] is
 arguable.
 
-
 [section "REFERENCES"]
 
 The unit names, abbreviations, and conversion values are derived from
@@ -393,13 +383,10 @@ analysis of unit strings using fixed size tables of C structs.  After
 going missing in the late 1990's, Adrian's code has reappeared in the
 GNU Units program at [uri http://www.gnu.org/software/units/]
 
-
 [section "AUTHORS"]
 
 Robert W. Techentin
 
 [vset CATEGORY units]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords unit conversion constants distance radians angle]
 [manpage_end]

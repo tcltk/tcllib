@@ -1,5 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin smtp n 1.4.5]
+[see_also ftp]
+[see_also http]
+[see_also mime]
+[see_also pop3]
 [copyright {1999-2000 Marshall T. Rose and others}]
 [moddesc   {smtp client}]
 [titledesc {Client-side tcl implementation of the smtp protocol}]
@@ -62,16 +66,16 @@ commas.
 [def [option -header]]
 
 A list containing two elements, an smtp header and its associated
-value (the -header option may occur zero or more times). 
+value (the -header option may occur zero or more times).
 
 [def [option -usetls]]
 
-This package supports the RFC 3207 TLS extension (3) by default provided the 
+This package supports the RFC 3207 TLS extension (3) by default provided the
 tls package is available. You can turn this off with this boolean option.
 
 [def [option -tlspolicy]]
 
-This option lets you specify a command to be called if an error occurs 
+This option lets you specify a command to be called if an error occurs
 during TLS setup. The command is called with the SMTP code and diagnostic
 message appended. The command should return 'secure' or 'insecure' where
 insecure will cause the package to continue on the unencrypted channel.
@@ -170,7 +174,7 @@ send_simple_message someone@somewhere.com localhost \\
     ([uri http://www.rfc-editor.org/rfc/rfc3207.txt])
 
 [enum]
-    J. Myers, "SMTP Service Extension for Authentication", 
+    J. Myers, "SMTP Service Extension for Authentication",
     RFC 2554, March 1999.
     ([uri http://www.rfc-editor.org/rfc/rfc2554.txt])
 
@@ -179,7 +183,6 @@ send_simple_message someone@somewhere.com localhost \\
 [vset CATEGORY smtp]
 [include ../doctools2base/include/feedback.inc]
 
-[see_also mime pop3 ftp http]
 [keywords mail mail email smtp mime tls \
      {rfc 821} {rfc 822} {rfc 2821} {rfc 3207} {rfc 2554} internet net]
 [manpage_end]

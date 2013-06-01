@@ -1,6 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [comment {$Id: loggerUtils.man,v 1.7 2009/01/29 06:16:19 andreas_kupries Exp $}]
 [manpage_begin logger::utils n 1.3]
+[keyword appender]
+[keyword logger]
 [copyright {2005 Aamer Akhter <aakhter@cisco.com>}]
 [moddesc {Object Oriented logging facility}]
 [titledesc {Utilities for logger}]
@@ -8,7 +10,6 @@
 [require Tcl 8.4]
 [require logger::utils [opt 1.3]]
 [description]
-[keywords logger appender]
 
 This package adds template based [term appenders].
 
@@ -32,7 +33,6 @@ allowed to occur in the [arg formatString]:
 [def %p] Priority of logging event
 [def %P] Pid of current process
 [list_end]
-
 
 [call [cmd ::logger::utils::createLogProc] \
 	[option -procName] [arg procName] \
@@ -64,7 +64,6 @@ The priority (level).
 channel to output on (default stdout)
 
 [list_end]
-
 
 [call [cmd ::logger::utils::applyAppender] \
 	[option -appender] [arg appenderType] \
@@ -118,8 +117,6 @@ Example of usage:
    % ${log}::error "this is an error"
    [2005/08/22 10:14:13] [testLog] [global] [error] this is an error
 }]
-
-
 
 [call [cmd ::logger::utils::autoApplyAppender] \
 	[arg command] [arg command-string] [arg log] [arg op] [arg args]... \

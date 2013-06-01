@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin unicode n 1.0.0]
+[see_also stringprep(n)]
+[keyword normalization]
+[keyword unicode]
 [copyright {2007, Sergei Golovan <sgolovan@nes.ru>}]
 [moddesc {Unicode normalization}]
 [titledesc {Implementation of Unicode normalization}]
@@ -72,12 +75,9 @@ A
 
 [list_end]
 
-[see_also stringprep(n) ]
-
 [section "AUTHORS"]
 Sergei Golovan
 
-[keywords unicode normalization]
 [vset CATEGORY stringprep]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

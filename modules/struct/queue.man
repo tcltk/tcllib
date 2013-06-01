@@ -1,5 +1,15 @@
 [comment {-*- tcl -*-}]
 [manpage_begin struct::queue n 1.4.5]
+[keyword graph]
+[keyword list]
+[keyword matrix]
+[keyword pool]
+[keyword prioqueue]
+[keyword record]
+[keyword set]
+[keyword skiplist]
+[keyword stack]
+[keyword tree]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate queue objects}]
 [category  {Data structures}]
@@ -35,16 +45,13 @@ the following general form:
 [arg Option] and the [arg arg]s determine the exact behavior of the
 command.  The following commands are possible for queue objects:
 
-
 [call [arg queueName] [cmd clear]]
 
 Remove all items from the queue.
 
-
 [call [arg queueName] [cmd destroy]]
 
 Destroy the queue, including its storage space and associated command.
-
 
 [call [arg queueName] [cmd get] [opt "[arg count]"]]
 
@@ -56,7 +63,6 @@ list.  If specified, [arg count] must be greater than or equal to 1.
 If there are not enough items in the queue to fulfull the request,
 this command will throw an error.
 
-
 [call [arg queueName] [cmd peek] [opt "[arg count]"]]
 
 Return the front [arg count] items of the queue, without removing them
@@ -67,13 +73,11 @@ list.  If specified, [arg count] must be greater than or equal to 1.
 If there are not enough items in the queue to fulfull the request,
 this command will throw an error.
 
-
 [call [arg queueName] [cmd put] [arg item] [opt "[arg "item ..."]"]]
 
 Put the [arg item] or items specified into the queue.  If more than
 one [arg item] is given, they will be added in the order they are
 listed.
-
 
 [call [arg queueName] [cmd unget] [arg item]]
 
@@ -81,16 +85,12 @@ Put the [arg item] into the queue, at the front, i.e. before any other
 items already in the queue. This makes this operation the complement
 to the method [method get].
 
-
 [call [arg queueName] [cmd size]]
 
 Return the number of items in the queue.
 
-
 [list_end]
 
-[keywords stack matrix tree graph set list prioqueue record skiplist]
-[keywords pool]
 [vset CATEGORY {struct :: queue}]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

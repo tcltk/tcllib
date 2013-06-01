@@ -1,10 +1,13 @@
 [manpage_begin cache::async n 0.3]
+[keyword asynchronous]
+[keyword cache]
+[keyword callback]
+[keyword synchronous]
 [copyright {2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {In-memory caches}]
 [titledesc {Asynchronous in-memory cache}]
 [require Tcl 8.4]
 [require cache::async [opt 0.3]]
-[keywords cache asynchronous synchronous callback]
 [description]
 
 This package provides objects which cache data in memory, and operate
@@ -94,7 +97,6 @@ issue only one data request to the provider, for the first of these,
 and suspend the others, and then notify all of them when the data
 becomes available.
 
-
 [call [arg objectName] [method set] [arg key] [arg value]]
 [call [arg objectName] [method unset] [arg key]]
 
@@ -122,13 +124,11 @@ This also means that these methods invoke the [arg donecmd] of all
 [method get]-requests waiting for information about the modified
 [arg key].
 
-
 [call [arg objectName] [method exists] [arg key]]
 
 This method queries the cache for knowledge about the [arg key] and
 returns a boolean value. The result is [const true] if the key is
 known, and [const false] otherwise.
-
 
 [call [arg objectName] [method clear] [opt [arg key]]]
 

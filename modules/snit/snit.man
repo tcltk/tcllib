@@ -1,5 +1,17 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin snit n 2.3.2]
+[keyword adaptors]
+[keyword BWidget]
+[keyword C++]
+[keyword class]
+[keyword {Incr Tcl}]
+[keyword {mega widget}]
+[keyword object]
+[keyword {object oriented}]
+[keyword Snit]
+[keyword type]
+[keyword widget]
+[keyword {widget adaptors}]
 [copyright {2003-2009, by William H. Duquette}]
 [moddesc {Snit's Not Incr Tcl, OO system}]
 [titledesc  {Snit's Not Incr Tcl}]
@@ -13,7 +25,7 @@ Snit is a pure Tcl object and megawidget system.  It's
 unique among Tcl object systems in that it's based not on inheritance
 but on delegation.  Object systems based on inheritance only allow you
 to inherit from classes defined using the same system, which is
-limiting.  In Tcl, an object is 
+limiting.  In Tcl, an object is
 anything that acts like an object; it shouldn't matter how the object
 was implemented.  Snit is intended to help you build applications out of
 the materials at hand; thus, Snit is designed to be able to
@@ -68,7 +80,7 @@ contain the following definitions:
 
 Defines a type variable with the specified [arg name], and optionally
 the specified [arg value].  Type variables are shared by all instances
-of the type.  If the [const -array] option is included, then 
+of the type.  If the [const -array] option is included, then
 [arg value] should be a dictionary; it will be
 assigned to the variable using [cmd "array set"].
 
@@ -85,7 +97,7 @@ contain the argument names [var type], [var self], [var selfns], or
 
 The variable [var type] is automatically defined in the [arg body] to
 the type's fully-qualified name.  In addition,
-type variables are automatically visible in the [arg body] 
+type variables are automatically visible in the [arg body]
 of every type method.
 
 [para]
@@ -102,15 +114,15 @@ has a subcommand [const b].  [const b] is called like this:
 }]
 
 [const a] may have any number of subcommands.  This makes it possible
-to define a hierarchical command structure; see [cmd method], below, 
+to define a hierarchical command structure; see [cmd method], below,
 for more examples.
 
 [para]
 
 Type methods can call commands from the namespace in which the type is
-defined without importing them, e.g., if the type name is 
+defined without importing them, e.g., if the type name is
 [cmd ::parentns::typename], then the type's type methods can call
-[cmd ::parentns::someproc] just as [cmd someproc].  
+[cmd ::parentns::someproc] just as [cmd someproc].
 [emph {Snit 1.x Incompatibility:}] This does not work in Snit 1.x, as
 it depends on [cmd "namespace path"], a new command in Tcl 8.5.
 
@@ -134,9 +146,9 @@ entries to [sectref {The Tk Option Database}].
 
 [para]
 
-The variable [var type] is automatically defined in the [arg body], 
+The variable [var type] is automatically defined in the [arg body],
 and contains the type's fully-qualified name.  In addition,
-type variables are automatically visible in the [arg body] of the type 
+type variables are automatically visible in the [arg body] of the type
 constructor.
 
 [para]
@@ -146,17 +158,17 @@ A type may define at most one type constructor.
 [para]
 
 The type constructor can call commands from the namespace in which the type is
-defined without importing them, e.g., if the type name is 
+defined without importing them, e.g., if the type name is
 [cmd ::parentns::typename], then the type constructor can call
-[cmd ::parentns::someproc] just as [cmd someproc].  
+[cmd ::parentns::someproc] just as [cmd someproc].
 [emph {Snit 1.x Incompatibility:}] This does not work in Snit 1.x, as
 it depends on [cmd "namespace path"], a new command in Tcl 8.5.
 
 [call [cmd variable] [arg name] [opt [const -array]] [opt [arg value]]]
 
 Defines an instance variable, a private variable associated with each
-instance of this type, and optionally its initial value.  
-If the [const -array] option is included, then 
+instance of this type, and optionally its initial value.
+If the [const -array] option is included, then
 [arg value] should be a dictionary; it will be
 assigned to the variable using [cmd "array set"].
 
@@ -165,7 +177,7 @@ assigned to the variable using [cmd "array set"].
 Defines an instance method, a subcommand of each instance of this
 type, with the specified name, argument list and body.
 The [arg arglist] is a normal Tcl argument list and may contain
-default arguments and the [var args] argument.  
+default arguments and the [var args] argument.
 
 [para]
 
@@ -227,9 +239,9 @@ explicitly.
 [para]
 
 Methods can call commands from the namespace in which the type is
-defined without importing them, e.g., if the type name is 
+defined without importing them, e.g., if the type name is
 [cmd ::parentns::typename], then the type's methods can call
-[cmd ::parentns::someproc] just as [cmd someproc].  
+[cmd ::parentns::someproc] just as [cmd someproc].
 [emph {Snit 1.x Incompatibility:}] This does not work in Snit 1.x, as
 it depends on [cmd "namespace path"], a new command in Tcl 8.5.
 
@@ -280,14 +292,14 @@ resource and class names.
 
 Options are normally set and retrieved using the standard
 instance methods [method configure] and [method cget]; within instance code
-(method bodies, etc.), option values are available through the 
+(method bodies, etc.), option values are available through the
 [var options] array:
 
 [example {    set myfont $options(-font)
 }]
 
-If the type defines any option handlers (e.g., [const -configuremethod]), 
-then it should probably use [method configure] and [method cget] to 
+If the type defines any option handlers (e.g., [const -configuremethod]),
+then it should probably use [method configure] and [method cget] to
 access its options to avoid subtle errors.
 
 [para]
@@ -297,14 +309,14 @@ The [cmd option] statement may include the following options:
 [list_begin definitions]
 [def "[const -default] [arg defvalue]"]
 
-Defines the option's default value; the option's default value 
+Defines the option's default value; the option's default value
 will be "" otherwise.
 
 [def "[const -readonly] [arg flag]"]
 
-The [arg flag] can be any Boolean value recognized by Tcl.  
+The [arg flag] can be any Boolean value recognized by Tcl.
 If [arg flag] is true, then the option is read-only--it can only
-be set using [method configure] or [method configurelist] 
+be set using [method configure] or [method configurelist]
 at creation time, i.e., in the type's constructor.
 
 [def "[const -type] [arg type]"]
@@ -329,7 +341,7 @@ by specifying a validation subtype:
 
 If a validation type or subtype is defined for an option, then
 it will be used to validate the option's value whenever it is
-changed by the object's [method configure] or 
+changed by the object's [method configure] or
 [method configurelist] methods.  In addition, all such options
 will have their values validated automatically immediately
 after the constructor executes.
@@ -347,7 +359,7 @@ to define your own.
 Every locally-defined option may define a [const -cgetmethod];
 it is called when the option's value is retrieved using the
 [method cget] method.  Whatever the method's [arg body] returns will
-be the return value of the call to [method cget].  
+be the return value of the call to [method cget].
 
 [para]
 
@@ -361,7 +373,7 @@ Snit's default handling of [cmd cget]:
     }
 }]
 
-Note that it's possible for any number of options to share a 
+Note that it's possible for any number of options to share a
 [const -cgetmethod].
 
 [def "[const -configuremethod] [arg methodName]"]
@@ -376,7 +388,7 @@ the method saves it there.
 [para]
 
 The named method must take two arguments, the option name and
-its new value.  For example, this code is equivalent to 
+its new value.  For example, this code is equivalent to
 (though slower than) Snit's default handling of [cmd configure]:
 
 [example {    option -font -configuremethod SetOption
@@ -385,7 +397,7 @@ its new value.  For example, this code is equivalent to
     }
 }]
 
-Note that it's possible for any number of options to share a 
+Note that it's possible for any number of options to share a
 single [const -configuremethod].
 
 [def "[const -validatemethod] [arg methodName]"]
@@ -400,7 +412,7 @@ and to throw an error if the value is invalid.
 [para]
 
 The named method must take two arguments, the option name and
-its new value.  For example, this code verifies that 
+its new value.  For example, this code verifies that
 [const -flag]'s value is a valid Boolean value:
 
 [example {    option -font -validatemethod CheckBoolean
@@ -411,7 +423,7 @@ its new value.  For example, this code verifies that
     }
 }]
 
-Note that it's possible for any number of options to share a 
+Note that it's possible for any number of options to share a
 single [const -validatemethod].
 
 [list_end]
@@ -419,21 +431,21 @@ single [const -validatemethod].
 [call [cmd constructor] [arg arglist] [arg body]]
 
 The constructor definition specifies a [arg body] of code to be
-executed when a new instance is created.  The [arg arglist] is a 
-normal Tcl argument list and may contain default arguments and 
+executed when a new instance is created.  The [arg arglist] is a
+normal Tcl argument list and may contain default arguments and
 the [var args] argument.
 
 [para]
 
-As with methods, the arguments [var type], [var self], [var selfns], 
-and [var win] are defined implicitly, and all type and instance 
+As with methods, the arguments [var type], [var self], [var selfns],
+and [var win] are defined implicitly, and all type and instance
 variables are automatically visible in its [arg body].
 
 [para]
 
 If the [arg definition] doesn't explicitly define the constructor,
 Snit defines one implicitly.  If the type declares at least one option
-(whether locally or by delegation), the default constructor will 
+(whether locally or by delegation), the default constructor will
 be defined as follows:
 
 [example {    constructor {args} {
@@ -441,7 +453,7 @@ be defined as follows:
     }
 }]
 
-For standard Tk widget behavior, the argument list should be 
+For standard Tk widget behavior, the argument list should be
 the single name [const args], as shown.
 
 [para]
@@ -454,9 +466,9 @@ any options, the default constructor is defined as follows:
 
 As with methods, the constructor can call commands from the namespace
 in which the type is
-defined without importing them, e.g., if the type name is 
+defined without importing them, e.g., if the type name is
 [cmd ::parentns::typename], then the constructor can call
-[cmd ::parentns::someproc] just as [cmd someproc].  
+[cmd ::parentns::someproc] just as [cmd someproc].
 [emph {Snit 1.x Incompatibility:}] This does not work in Snit 1.x, as
 it depends on [cmd "namespace path"], a new command in Tcl 8.5.
 
@@ -468,16 +480,16 @@ anything created in the constructor.
 
 [para]
 
-The destructor takes no explicit arguments; as with methods, the 
-arguments [var type], [var self], [var selfns], and [var win], are 
-defined implicitly, and all type and instance 
+The destructor takes no explicit arguments; as with methods, the
+arguments [var type], [var self], [var selfns], and [var win], are
+defined implicitly, and all type and instance
 variables are automatically visible in its [arg body].
 
 As with methods, the destructor can call commands from the namespace
 in which the type is
-defined without importing them, e.g., if the type name is 
+defined without importing them, e.g., if the type name is
 [cmd ::parentns::typename], then the destructor can call
-[cmd ::parentns::someproc] just as [cmd someproc].  
+[cmd ::parentns::someproc] just as [cmd someproc].
 [emph {Snit 1.x Incompatibility:}] This does not work in Snit 1.x, as
 it depends on [cmd "namespace path"], a new command in Tcl 8.5.
 
@@ -488,7 +500,7 @@ Defines a new Tcl procedure in the type's namespace.
 [para]
 
 The defined proc differs from a normal Tcl proc in that all type
-variables are automatically visible.  The proc can access 
+variables are automatically visible.  The proc can access
 instance variables as well, provided that it is passed
 [var selfns] (with precisely that name) as one of its arguments.
 
@@ -501,9 +513,9 @@ Although they are not implicitly defined for procs, the argument names
 
 As with methods and typemethods, procs can call commands from the namespace
 in which the type is
-defined without importing them, e.g., if the type name is 
+defined without importing them, e.g., if the type name is
 [cmd ::parentns::typename], then the proc can call
-[cmd ::parentns::someproc] just as [cmd someproc].  
+[cmd ::parentns::someproc] just as [cmd someproc].
 [emph {Snit 1.x Incompatibility:}] This does not work in Snit 1.x, as
 it depends on [cmd "namespace path"], a new command in Tcl 8.5.
 
@@ -548,14 +560,14 @@ both instance components and type components.
 [call [cmd delegate] [const method] [arg name] [opt "[const to] [arg comp]"] [const using] [arg pattern]]
 
 In this form of the [cmd delegate] statement, the [const using] clause
-is used to specify the precise form of the command to which method 
+is used to specify the precise form of the command to which method
 [arg name] name is delegated.  In this form, the [const "to"] clause is
 optional, since the chosen command might not involve any particular
 component.
 
 [para]
 
-The value of the [const using] clause is a list that may contain 
+The value of the [const using] clause is a list that may contain
 any or all of the following substitution codes; these codes are
 substituted with the described value to build the delegated command
 prefix.  Note that the following two statements are equivalent:
@@ -689,7 +701,7 @@ TBD: Continue from here.
      [opt "[const -inherit] [arg flag]"]]
 
 Explicitly declares a component called [arg comp], and automatically
-defines the component's instance variable.  
+defines the component's instance variable.
 
 [para]
 
@@ -750,14 +762,14 @@ A type method cannot be both locally defined and delegated.
 [call [cmd delegate] [const typemethod] [arg name] [opt "[const to] [arg comp]"] [const using] [arg pattern]]
 
 In this form of the [cmd delegate] statement, the [const using] clause
-is used to specify the precise form of the command to which type method 
+is used to specify the precise form of the command to which type method
 [arg name] name is delegated.  In this form, the [const "to"] clause is
 optional, since the chosen command might not involve any particular
 type component.
 
 [para]
 
-The value of the [const using] clause is a list that may contain 
+The value of the [const using] clause is a list that may contain
 any or all of the following substitution codes; these codes are
 substituted with the described value to build the delegated command
 prefix.  Note that the following two statements are equivalent:
@@ -819,7 +831,7 @@ In this form, the statement must contain the [const to] clause, the
 [const Note:] By default, Snit interprets [cmd "\$type foo"], where
 [const "foo"] is
 not a defined type method, as equivalent to [cmd "\$type create foo"], where
-[const "foo"] is the name of a new instance of the type.  If you 
+[const "foo"] is the name of a new instance of the type.  If you
 use [const "delegate typemethod *"], then the [method "create"] type
 method must always be used explicitly.
 
@@ -847,7 +859,7 @@ the command's name is stored in a type variable.
 
 If the [const -public] option is specified, then the type component is made
 public by defining a [arg typemethod] whose subcommands are delegated to
-the type component, e.g., specifying [const "-public mytypemethod"] 
+the type component, e.g., specifying [const "-public mytypemethod"]
 is equivalent to the following:
 
 [example {    typecomponent mycomp
@@ -869,7 +881,7 @@ the type component. That is, [const "-inherit yes"] is equivalent to:
 
 The [cmd pragma] statement provides control over how Snit generates a
 type.  It takes the following options; in each case, [arg flag] must
-be a Boolean value recognized by Tcl, e.g., [const 0], [const 1], 
+be a Boolean value recognized by Tcl, e.g., [const 0], [const 1],
 [const "yes"], [const "no"], and so
 on.
 
@@ -903,7 +915,7 @@ false, it will not.
 
 [def "[const -hastypemethods] [arg flag]"]
 
-If true (the default), the generated type's type command will have 
+If true (the default), the generated type's type command will have
 subcommands (type methods) as usual.  If false, the type command
 will serve only to create instances of the type; the first argument
 is the instance name.
@@ -914,10 +926,10 @@ This pragma and [const -hasinstances] cannot both be set false.
 
 [def "[const -hasinstances] [arg flag]"]
 
-If true (the default), the generated type will have a type method 
+If true (the default), the generated type will have a type method
 called [cmd create] that is used to create instances of the type,
 along with a variety of instance-related features.  If false, it will
-not. 
+not.
 
 [para]
 
@@ -925,8 +937,8 @@ This pragma and [const -hastypemethods] cannot both be set false.
 
 [def "[const -hasinfo] [arg flag]"]
 
-If true (the default), instances of the generated type will have 
-an instance method called [method info] that is used for 
+If true (the default), instances of the generated type will have
+an instance method called [method info] that is used for
 instance introspection; the [method info]
 method is documented below.  If false, it will not.
 
@@ -939,7 +951,7 @@ data types (e.g., stacks and queues) more efficient.
 
 If false (the default), instance methods are dispatched normally.  If
 true, a faster dispatching scheme is used instead.
-The speed comes at a price; with [const "-simpledispatch yes"] you 
+The speed comes at a price; with [const "-simpledispatch yes"] you
 get the following limitations:
 
 [list_begin itemized]
@@ -947,7 +959,7 @@ get the following limitations:
 [item] Methods cannot be delegated.
 [item] [cmd uplevel] and [cmd upvar] do not work as expected: the
 caller's scope is two levels up rather than one.
-[item] The option-handling methods 
+[item] The option-handling methods
 ([cmd cget], [cmd configure], and [cmd configurelist]) are very
 slightly slower.
 [list_end]
@@ -967,7 +979,7 @@ slightly slower.
 
 [call [cmd onconfigure] [arg name] [arg arglist] [arg body]]
 
-[const Deprecated.]  Define [cmd option]'s [const -configuremethod] 
+[const Deprecated.]  Define [cmd option]'s [const -configuremethod]
 option instead.
 
 [para]
@@ -990,7 +1002,7 @@ are implemented as follows:
 
 [call [cmd oncget] [arg name] [arg body]]
 
-[const Deprecated.]  Define [cmd option]'s [const -cgetmethod] 
+[const Deprecated.]  Define [cmd option]'s [const -cgetmethod]
 option instead.
 
 [para]
@@ -1012,7 +1024,6 @@ are implemented as follows:
 }]
 
 [list_end]
-
 
 [call [cmd snit::widget] [arg name] [arg definition]]
 
@@ -1060,16 +1071,16 @@ information.
 
 Determines the kind of widget used as the [cmd snit::widget]'s hull.
 The [arg type] may be [const frame] (the default), [const toplevel],
-[const labelframe]; the qualified equivalents of these, 
+[const labelframe]; the qualified equivalents of these,
 [const tk::frame], [const tk::toplevel], and [const tk::labelframe];
 or, if available, the equivalent Tile widgets:
-[const ttk::frame], [const ttk::toplevel], and 
+[const ttk::frame], [const ttk::toplevel], and
 [const ttk::labelframe].  In practice, any widget that supports the
-[const -class] option can be used as a hull widget by 
+[const -class] option can be used as a hull widget by
 [cmd lappend]'ing its name to the variable [var snit::hulltypes].
 
 [list_end]
-       
+
 [call [cmd snit::widgetadaptor] [arg name] [arg definition]]
 
 This command defines a Snit megawidget type with the specified name.
@@ -1111,15 +1122,15 @@ page.
 [para]
 
 A macro is simply a Tcl proc that is defined in the slave interpreter
-used to compile type and widget definitions.  Thus, macros have 
-access to all of the type and widget definition statements.  See 
+used to compile type and widget definitions.  Thus, macros have
+access to all of the type and widget definition statements.  See
 [sectref "Macros and Meta-programming"] for more details.
 
 [para]
 
-The macro [arg name] cannot be the same as any standard Tcl command, 
+The macro [arg name] cannot be the same as any standard Tcl command,
 or any Snit type or widget definition statement, e.g., you can't
-redefine the [cmd method] or [cmd delegate] statements, or the 
+redefine the [cmd method] or [cmd delegate] statements, or the
 standard [cmd set], [cmd list], or [cmd string] commands.
 
 [call [cmd snit::compile] [arg which] [arg type] [arg body]]
@@ -1131,7 +1142,7 @@ Tcl interpreter, which actually defines the new type.
 [para]
 
 This command exposes the "compiler".  Given a definition [arg body]
-for the named [arg type], where [arg which] is [const type], 
+for the named [arg type], where [arg which] is [const type],
 [const widget], or [const widgetadaptor], [cmd snit::compile] returns a list
 of two elements.  The first element is the fully qualified type name;
 the second element is the definition script.
@@ -1157,8 +1168,8 @@ create instances of the type.  The type command has this form:
 [list_begin definitions]
 [call [cmd {$type}] [arg typemethod] [arg args]...]
 
-The [arg typemethod] can be any of the 
-[sectref "Standard Type Methods"] (e.g., [method create]), 
+The [arg typemethod] can be any of the
+[sectref "Standard Type Methods"] (e.g., [method create]),
 or any type method defined in the type
 definition.
 
@@ -1167,10 +1178,10 @@ chosen.
 
 [para]
 
-The type command is most often used to create new instances of the 
+The type command is most often used to create new instances of the
 type; hence, the [method create] method is assumed if the first
 argument to the type command doesn't name a valid type method, unless
-the type definition includes [cmd "delegate typemethod *"] or the 
+the type definition includes [cmd "delegate typemethod *"] or the
 [const -hasinstances] pragma is set to false.
 
 [para]
@@ -1178,7 +1189,7 @@ the type definition includes [cmd "delegate typemethod *"] or the
 Furthermore, if the [const -hastypemethods] pragma is false, then
 Snit type commands can be called with no arguments at
 all; in this case, the type command creates an instance with an
-automatically generated name.  In other words, provided that the 
+automatically generated name.  In other words, provided that the
 [const -hastypemethods] pragma is false and the type
 has instances, the following commands are equivalent:
 
@@ -1228,7 +1239,7 @@ must be a valid widget name; the method returns the widget name.
 
 So long as [arg name] does not conflict with any defined type method
 name the [method create] keyword may be omitted, unless
-the type definition includes [cmd "delegate typemethod *"] or the 
+the type definition includes [cmd "delegate typemethod *"] or the
 [const -hasinstances] pragma is set to false.
 
 [para]
@@ -1251,7 +1262,6 @@ is the same as any existing command--note that this was always true
 for [cmd snit::widget]s and [cmd snit::widgetadaptor]s.  You can
 restore the previous behavior using the [const -canreplace] pragma.
 
-
 [call [cmd {$type}] [method {info typevars}] [opt [arg pattern]]]
 
 Returns a list of the type's type variables (excluding Snit internal
@@ -1262,11 +1272,10 @@ variables); all variable names are fully-qualified.
 If [arg pattern] is given, it's used as a [cmd {string match}]
 pattern; only names that match the pattern are returned.
 
-
 [call [cmd {$type}] [method {info typemethods}] [opt [arg pattern]]]
 
-Returns a list of the names of the  type's type methods.  
-If the type has hierarchical 
+Returns a list of the names of the  type's type methods.
+If the type has hierarchical
 type methods, whether locally-defined or delegated, only the first
 word of each will be included in the list.
 
@@ -1274,7 +1283,7 @@ word of each will be included in the list.
 
 If the type
 definition includes [cmd "delegate typemethod *"], the list will
-include only the names of those implicitly delegated type methods 
+include only the names of those implicitly delegated type methods
 that have been called at least once and are still in the type method cache.
 
 [para]
@@ -1282,19 +1291,16 @@ that have been called at least once and are still in the type method cache.
 If [arg pattern] is given, it's used as a [cmd {string match}]
 pattern; only names that match the pattern are returned.
 
-
 [call [cmd {$type}] [method {info args}] [arg method]]
 
 Returns a list containing the names of the arguments to the type's
 [arg method], in order. This method cannot be applied to delegated
 type methods.
 
-
 [call [cmd {$type}] [method {info body}] [arg method]]
 
 Returns the body of typemethod [arg method]. This method cannot be
 applied to delegated type methods.
-
 
 [call [cmd {$type}] [method {info default}] [arg method] [arg aname] [arg varname]]
 
@@ -1302,7 +1308,6 @@ Returns a boolean value indicating whether the argument [arg aname] of
 the type's [arg method] has a default value ([const true]) or not
 ([const false]). If the argument has a default its value is placed into
 the variable [arg varname].
-
 
 [call [cmd {$type}] [method {info instances}] [opt [arg pattern]]]
 
@@ -1339,8 +1344,8 @@ this form:
 [list_begin definitions]
 [call [cmd {$object}] [arg method] [arg args...]]
 
-The [arg method] can be any of the 
-[sectref "Standard Instance Methods"], or any instance method 
+The [arg method] can be any of the
+[sectref "Standard Instance Methods"], or any instance method
 defined in the type definition.
 
 The subsequent [arg args] depend on the specific [arg method] chosen.
@@ -1408,11 +1413,9 @@ The [method destroy] method isn't defined for [cmd snit::widget] or
 calling [package Tk]'s [cmd destroy] command, just as normal
 widgets are.
 
-
 [call [cmd {$object}] [method {info type}]]
 
 Returns the instance's type.
-
 
 [call [cmd {$object}] [method {info vars}] [opt [arg pattern]]]
 
@@ -1424,7 +1427,6 @@ internal variables).  The names are fully qualified.
 If [arg pattern] is given, it's used as a [cmd {string match}]
 pattern; only names that match the pattern are returned.
 
-
 [call [cmd {$object}] [method {info typevars}] [opt [arg pattern]]]
 
 Returns a list of the object's type's type variables (excluding Snit
@@ -1435,11 +1437,10 @@ internal variables).  The names are fully qualified.
 If [arg pattern] is given, it's used as a [cmd {string match}]
 pattern; only names that match the pattern are returned.
 
-
 [call [cmd {$object}] [method {info typemethods}] [opt [arg pattern]]]
 
-Returns a list of the names of the  type's type methods.  
-If the type has hierarchical 
+Returns a list of the names of the  type's type methods.
+If the type has hierarchical
 type methods, whether locally-defined or delegated, only the first
 word of each will be included in the list.
 
@@ -1447,7 +1448,7 @@ word of each will be included in the list.
 
 If the type
 definition includes [cmd "delegate typemethod *"], the list will
-include only the names of those implicitly delegated type methods 
+include only the names of those implicitly delegated type methods
 that have been called at least once and are still in the type method cache.
 
 [para]
@@ -1483,7 +1484,7 @@ to another.
 [call [cmd {$object}] [method {info methods}] [opt [arg pattern]]]
 
 Returns a list of the names of the instance's methods.
-If the type has hierarchical methods, whether locally-defined or 
+If the type has hierarchical methods, whether locally-defined or
 delegated, only the first word of each will be included in the list.
 
 [para]
@@ -1503,18 +1504,15 @@ pattern; only names that match the pattern are returned.
 [emph "Snit 1.x Incompatibility:"]  In Snit 1.x, the full multi-word
 names of hierarchical type methods are included in the return value.
 
-
 [call [cmd {$object}] [method {info args}] [arg method]]
 
 Returns a list containing the names of the arguments to the instance's
 [arg method], in order. This method cannot be applied to delegated methods.
 
-
 [call [cmd {$object}] [method {info body}] [arg method]]
 
 Returns the body of the instance's method [arg method]. This method
 cannot be applied to delegated methods.
-
 
 [call [cmd {$object}] [method {info default}] [arg method] [arg aname] [arg varname]]
 
@@ -1522,7 +1520,6 @@ Returns a boolean value indicating whether the argument [arg aname] of
 the instance's [arg method] has a default value ([const true]) or not
 ([const false]). If the argument has a default its value is placed into
 the variable [arg varname].
-
 
 [list_end]
 
@@ -1534,7 +1531,6 @@ destructors, onconfigure handlers, oncget handlers, and procs.
 They do not reside in the ::snit:: namespace; instead, they are
 created with the type, and can be used without qualification.
 
-
 [list_begin definitions]
 
 [call [cmd mymethod] [arg name] [opt [arg args...]]]
@@ -1543,11 +1539,11 @@ The [cmd mymethod] command is used for formatting callback commands to
 be passed to other objects.  It returns a command that when called
 will invoke method [arg name] with the specified arguments, plus of
 course any arguments added by the caller.  In other words, both of the
-following commands will cause the object's 
+following commands will cause the object's
 [method dosomething] method to be called when the [cmd {$button}] is pressed:
 
 [example {    $button configure -command [list $self dosomething myargument]
-       
+
     $button configure -command [mymethod dosomething myargument]
 }]
 
@@ -1564,7 +1560,7 @@ following commands will cause the object's [method dosomething] type method
 to be called when [cmd {$button}] is pressed:
 
 [example {    $button configure -command [list $type dosomething myargument]
-       
+
     $button configure -command [mytypemethod dosomething myargument]
 }]
 
@@ -1582,7 +1578,7 @@ following commands will cause the object's [method dosomething] proc
 to be called when [cmd {$button}] is pressed:
 
 [example {    $button configure -command [list ${type}::dosomething myargument]
-       
+
     $button configure -command [myproc dosomething myargument]
 }]
 
@@ -1619,7 +1615,7 @@ type definition will be returned instead.
 [call [cmd install] [arg compName] [const using] [arg objType] [arg objName] [arg args...]]
 
 Creates a new object of type [arg objType] called [arg objName]
-and installs it as component [arg compName], 
+and installs it as component [arg compName],
 as described in [sectref {Components and Delegation}].  Any additional
 [arg args...] are passed along with the name to the [arg objType]
 command.
@@ -1701,7 +1697,7 @@ definition, and omit declaring them in methods and so forth.
 
 [para]
 
-Note that this is an instance-specific version of the standard Tcl 
+Note that this is an instance-specific version of the standard Tcl
 [cmd ::variable] command.
 
 [call [cmd typevariable] [arg name]]
@@ -1709,7 +1705,7 @@ Note that this is an instance-specific version of the standard Tcl
 Normally, type variables are defined in the type definition, along
 with the instance variables; such type variables are automatically
 visible in all of the type's code.  However, type methods, instance
-methods and so forth can use [cmd typevariable] to declare type 
+methods and so forth can use [cmd typevariable] to declare type
 variables that don't appear in the type definition.
 
 [para]
@@ -1726,7 +1722,6 @@ definition, and omit declaring them in methods, type methods, etc.
 Given an instance variable name, returns the fully qualified name.
 Use this if you're passing the variable to some other object, e.g., as
 a [option -textvariable] to a Tk label widget.
-
 
 [call [cmd typevarname] [arg name]]
 
@@ -1754,24 +1749,24 @@ When an object includes other objects, as when a toolbar contains
 buttons or a GUI object contains an object that references a database,
 the included object is called a component.  The standard way to handle
 component objects owned by a Snit object is to declare them using
-[cmd component], which creates a component instance variable.  
+[cmd component], which creates a component instance variable.
 In the following example, a [cmd dog] object has a
 [cmd tail] object:
 
 [para]
 [example {    snit::type dog {
         component mytail
-    
+
         constructor {args} {
             set mytail [tail %AUTO% -partof $self]
             $self configurelist $args
         }
-    
+
         method wag {} {
             $mytail wag
         }
     }
-    
+
     snit::type tail {
         option -length 5
         option -partof
@@ -1819,7 +1814,7 @@ this:
 [para]
 [example {    snit::type dog {
         delegate method wag to mytail
-    
+
         constructor {args} {
             install mytail using tail %AUTO% -partof $self
             $self configurelist $args
@@ -1862,7 +1857,7 @@ will simply raise an error.
 [para]
 
 Option delegation is similar to method delegation, except for the
-interactions with the Tk option database; this is described in 
+interactions with the Tk option database; this is described in
 [sectref "The Tk Option Database"].
 
 [subsection {Type Components and Delegation}]
@@ -1878,7 +1873,7 @@ instance of the type.
 [para]
 
 Just as [cmd "delegate method"] can be used to delegate methods to
-instance components, as described in 
+instance components, as described in
 [sectref "Components and Delegation"], so [cmd "delegate typemethod"]
 can be used to delegate type methods to type components.
 
@@ -1987,10 +1982,10 @@ example, here are the option, resource, and class names for several
 [cmd text] widget options:
 
 [para]
-[example {    -background         background         Background 
-    -borderwidth        borderWidth        BorderWidth 
-    -insertborderwidth  insertBorderWidth  BorderWidth 
-    -padx               padX               Pad 
+[example {    -background         background         Background
+    -borderwidth        borderWidth        BorderWidth
+    -insertborderwidth  insertBorderWidth  BorderWidth
+    -padx               padX               Pad
 }]
 [para]
 
@@ -2054,7 +2049,7 @@ The class name will default to "BorderWidth", as expected.
 
 [para]
 
-Suppose, however, that [cmd mywidget] also delegated 
+Suppose, however, that [cmd mywidget] also delegated
 [option -padx] and
 [option -pady] to the hull.  In this case, both the resource name and the
 class name must be specified explicitly:
@@ -2147,10 +2142,10 @@ option is implicitly delegated to the hull, Snit takes no action.
 
 The value of B is "red".  The hull will automatically pick up the
 value "green" for its [option -background] option, just as it picked up the
-[option -relief] value.  However, Snit knows that 
+[option -relief] value.  However, Snit knows that
 [option -hullbackground] is mapped to
 the hull's [option -background] option; hence, it queries the option database
-for [option -hullbackground] and gets "red" and updates the hull 
+for [option -hullbackground] and gets "red" and updates the hull
 accordingly.
 
 [para]
@@ -2165,10 +2160,10 @@ component.
 
 The value of D is "5", but not for the reason you think.  Note that as
 it is defined above, the resource name for [option -borderwidth]
-defaults to "borderwidth", whereas the option database entry is 
-"borderWidth".  As with [option -relief], the hull picks up its 
+defaults to "borderwidth", whereas the option database entry is
+"borderWidth".  As with [option -relief], the hull picks up its
 own [option -borderwidth] option before Snit does anything.  Because the
-option is delegated under its own name, Snit assumes that the correct 
+option is delegated under its own name, Snit assumes that the correct
 thing has happened, and doesn't worry about it any further.
 
 [para]
@@ -2313,7 +2308,7 @@ code might look like this:
         }
     }
 }]
- 
+
 That's nine lines of text per property.  Or, you could define the
 following [cmd snit::macro]:
 
@@ -2366,7 +2361,7 @@ This leaves the global namespace open for application authors.
 [subsection "Validation Types"]
 
 A validation type is an object that can be used to validate
-Tcl values of a particular kind.  For example, 
+Tcl values of a particular kind.  For example,
 [cmd snit::integer] is used to validate that a Tcl value is
 an integer.
 
@@ -2418,14 +2413,14 @@ they may also be created on the fly:
         }
 
         # Or use predefined subtypes...
-        option -breed -type ::dog::breed 
+        option -breed -type ::dog::breed
     }
 }]
 
 [para]
 
 Any object that has a [method validate] method with the semantics
-described above can be used as a validation type; see 
+described above can be used as a validation type; see
 [sectref "Defining Validation Types"] for information on how to define
 new ones.
 
@@ -2493,13 +2488,13 @@ following options:
 [def "[const -min] [arg min]"]
 
 Specifies a minimum bound; a value is invalid if it is strictly
-less than [arg min].  The bound may be expressed in any of the 
+less than [arg min].  The bound may be expressed in any of the
 forms accepted by [cmd "winfo fpixels"].
 
 [def "[const -max] [arg max]"]
 
 Specifies a maximum bound; a value is invalid if it is strictly
-greater than [arg max].  The bound may be expressed in any of the 
+greater than [arg max].  The bound may be expressed in any of the
 forms accepted by [cmd "winfo fpixels"].
 
 [list_end]
@@ -2539,7 +2534,7 @@ fewer than [arg min] elements.  Defaults to 0.
 
 [def "[const -maxlen] [arg max]"]
 
-Specifies a maximum list length; the value is invalid if it 
+Specifies a maximum list length; the value is invalid if it
 more than [arg max] elements.
 
 [def "[const -type] [arg type]"]
@@ -2569,7 +2564,6 @@ Instead, define the subtype explicitly:
     }
 }]
 
-
 [list_end]
 
 [call [cmd snit::pixels] [const validate] [opt [arg value]]]
@@ -2584,17 +2578,16 @@ following options:
 [def "[const -min] [arg min]"]
 
 Specifies a minimum bound; a value is invalid if it is strictly
-less than [arg min].  The bound may be expressed in any of the 
+less than [arg min].  The bound may be expressed in any of the
 forms accepted by [cmd "winfo pixels"].
 
 [def "[const -max] [arg max]"]
 
 Specifies a maximum bound; a value is invalid if it is strictly
-greater than [arg max].  The bound may be expressed in any of the 
+greater than [arg max].  The bound may be expressed in any of the
 forms accepted by [cmd "winfo pixels"].
 
 [list_end]
-
 
 [call [cmd snit::stringtype] [const validate] [opt [arg value]]]
 [call [cmd snit::stringtype] [arg name] [opt "[arg option] [arg value]..."]]
@@ -2639,7 +2632,7 @@ case-sensitive.  If [const -nocase] is set to true, then both
 [emph "Tk programs only."]  Validates Tk window names.  The value must
 cause [cmd "winfo exists"] to return true; otherwise, the value is
 invalid.  It's possible to define subtypes--that is, instances--of
-[cmd snit::window], but as it has no options at present there's no 
+[cmd snit::window], but as it has no options at present there's no
 reason to do so.
 
 [list_end]
@@ -2656,7 +2649,7 @@ under [sectref "Validation Types"].
 
 [para]
 
-The next simplest way to create a new validation type is as a 
+The next simplest way to create a new validation type is as a
 validation type command.  A validation type is simply an
 object that has a [method validate] method; the [method validate]
 method must take one argument, a value, return the value if it is
@@ -2667,7 +2660,7 @@ implemented like this:
 
 [example {    proc ::snit::boolean {"validate" value} {
         if {![string is boolean -strict $value]} {
-            return -code error -errorcode INVALID \ 
+            return -code error -errorcode INVALID \
                 "invalid boolean \"$value\", should be one of: 1, 0, ..."
         }
 
@@ -2697,11 +2690,11 @@ as a [cmd snit::type].  Here's a skeleton to get you started:
 
         # Next, define a "validate" type method which should do the
         # validation in the basic case.  This will allow the
-        # type command to be used as a validation type.  
+        # type command to be used as a validation type.
 
         typemethod validate {value} {
             if {![string is integer -strict $value]} {
-                return -code error -errorcode INVALID \ 
+                return -code error -errorcode INVALID \
                     "invalid value \"$value\", expected integer"
             }
 
@@ -2736,7 +2729,7 @@ as a [cmd snit::type].  Here's a skeleton to get you started:
                 # the error, and throw it.
 
                 set msg "...."
-                
+
                 return -code error -errorcode INVALID $msg
             }
 
@@ -2751,7 +2744,7 @@ And now you have a type that can be subtyped.
 [para]
 
 The file "validate.tcl" in the Snit distribution defines all of Snit's
-validation types; you can find the complete implementation for 
+validation types; you can find the complete implementation for
 [cmd snit::integer] and the other types there, to use as examples for
 your own types.
 
@@ -2795,7 +2788,6 @@ Also see the SourceForge Trackers at
 
 [list_end]
 
-
 [section HISTORY]
 
 During the course of developing Notebook
@@ -2833,24 +2825,19 @@ Snit home page (see [uri http://www.wjduquette.com/snit]).
 
 [para]
 
-
 [section CREDITS]
 
 Snit has been designed and implemented from the very beginning by
 William H. Duquette.  However, much credit belongs to the following
 people for using Snit and providing me with valuable feedback: Rolf
 Ade, Colin McCormack, Jose Nazario, Jeff Godfrey, Maurice Diamanti,
-Egon Pasztor, David S. Cargo, Tom Krehbiel, Michael Cleverly, 
+Egon Pasztor, David S. Cargo, Tom Krehbiel, Michael Cleverly,
 Andreas Kupries, Marty Backe, Andy Goth, Jeff Hobbs, Brian
-Griffin, Donal Fellows, Miguel Sofer, Kenneth Green, 
-and Anton Kovalenko.  
-If I've forgotten anyone, my apologies; let me know and I'll add 
+Griffin, Donal Fellows, Miguel Sofer, Kenneth Green,
+and Anton Kovalenko.
+If I've forgotten anyone, my apologies; let me know and I'll add
 your name to the list.
 
 [vset CATEGORY snit]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords class {object oriented} object C++]
-[keywords Snit type {Incr Tcl} BWidget]
-[keywords widget adaptors {widget adaptors} {mega widget}]
 [manpage_end]

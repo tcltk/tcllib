@@ -1,5 +1,7 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin SASL n 1.3.0]
+[keyword authentication]
+[keyword SASL]
 [copyright {2005-2006, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc {Simple Authentication and Security Layer (SASL)}]
 [titledesc {Implementation of SASL mechanisms for Tcl}]
@@ -43,7 +45,7 @@ further details.
 
 [call [cmd "::SASL::step"] [arg "context"] [arg "challenge"] [opt [arg "..."]]]
 
-This is the core procedure for using the SASL framework. The 
+This is the core procedure for using the SASL framework. The
 [cmd step] procedure should be called until it returns 0. Each step takes a
 server challenge string and the response is calculated and stored in
 the context. Each mechanism may require one or more steps. For some
@@ -69,7 +71,7 @@ token may not be used again after this procedure has been called.
 
 Returns a list of all the available SASL mechanisms. The list is
 sorted by the mechanism preference value (see [cmd register]) with the
-preferred mechanisms and the head of the list. Any mechanism with a 
+preferred mechanisms and the head of the list. Any mechanism with a
 preference value less than the[arg minimum] (which defaults to 0) is removed
 from the returned list. This permits a security threshold to be set. Mechanisms
 with a preference less that 25 transmit authentication are particularly
@@ -78,8 +80,8 @@ channel is in use (eg: tls).
 [para]
 The [arg type] parameter
 may be one of [arg client] or [arg server] and defaults to [arg client].
-Only mechanisms that have an implementation matching the [arg type] are 
-returned (this permits servers to correctly declare support only for 
+Only mechanisms that have an implementation matching the [arg type] are
+returned (this permits servers to correctly declare support only for
 mechanisms that actually provide a server implementation).
 
 [call [cmd "::SASL::register"] [arg "mechanism"] [arg "preference"] \
@@ -93,8 +95,6 @@ indicate a preferred mechanism. If the mechanism is already registered
 then the recorded values are updated.
 
 [list_end]
-
-
 
 [section "OPTIONS"]
 
@@ -136,8 +136,6 @@ connection when in server mode.
 
 [list_end]
 
-
-
 [section "CALLBACK PROCEDURE"]
 
 When the SASL framework requires any user details it will call the
@@ -166,7 +164,7 @@ authorization and authentication identities within SASL.
 The callback procedure should return the password that matches the
 authentication identity as used within the current realm.
 [para]
-For server mechanisms the password callback should always be called with 
+For server mechanisms the password callback should always be called with
 the authentication identity and the realm as the first two parameters.
 
 [def "realm"]
@@ -180,8 +178,6 @@ domain or in the case of the NTLM mechanism it is the Windows NT domain name.
 Returns the client host name - typically [lb]info host[rb].
 
 [list_end]
-
-
 
 [section "MECHANISMS"]
 
@@ -227,8 +223,8 @@ transmitted across the network. Specified in [lb]3[rb].
 OTP is the One-Time Password system described in RFC 2289 [lb]6[rb].
 This mechanism is secure against replay attacks and also avoids storing
 password or password equivalents on the server. Only a digest of a seed
-and a passphrase is ever transmitted across the network. Requires the 
-[package otp] package from tcllib and one or more of the cryptographic 
+and a passphrase is ever transmitted across the network. Requires the
+[package otp] package from tcllib and one or more of the cryptographic
 digest packages (md5 or sha-1 are the most commonly used).
 
 [def "NTLM"]
@@ -239,22 +235,20 @@ environment. NTLM uses DES encryption and MD4 digests of the users
 password to authenticate a connection. Certain weaknesses have been
 found in NTLM and thus there are a number of versions of the protocol.
 As this mechanism has additional dependencies it is made available as
-a separate sub-package. To enable this mechanism your application must 
+a separate sub-package. To enable this mechanism your application must
 load the SASL::NTLM package.
 
 [def "X-GOOGLE-TOKEN"]
 
-This is a proprietary protocol developed by Google and used for 
+This is a proprietary protocol developed by Google and used for
 authenticating users for the Google Talk service. This mechanism makes
-a pair of HTTP requests over an SSL channel and so this mechanism 
+a pair of HTTP requests over an SSL channel and so this mechanism
 depends upon the availability of the tls and http packages. To enable
 this mechanism your application must load the SASL::XGoogleToken package.
-In addition you are recommended to make use of the autoproxy package to 
+In addition you are recommended to make use of the autoproxy package to
 handle HTTP proxies reasonably transparently.
 
 [list_end]
-
-
 
 [section "EXAMPLES"]
 
@@ -332,6 +326,4 @@ Pat Thoyts
 
 [vset CATEGORY sasl]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords SASL authentication]
 [manpage_end]

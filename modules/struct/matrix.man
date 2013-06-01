@@ -1,5 +1,6 @@
 [comment {-*- tcl -*-}]
 [manpage_begin struct::matrix n 2.0.1]
+[keyword matrix]
 [copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate matrix objects}]
@@ -31,7 +32,6 @@ array-view onto its contents. Such can be used by tkTable, for
 example, to link the matrix into the display.
 
 [para]
-
 
 The main command of the package is:
 
@@ -76,7 +76,7 @@ is equivalent to
     mymatrix = b
 }]
 [para]
-and 
+and
 [para]
 [example {
     ::struct::matrix mymatrix deserialize $b
@@ -88,7 +88,6 @@ is equivalent to
     ::struct::matrix mymatrix
     mymatrix deserialize $b
 }]
-
 
 [list_end]
 
@@ -113,7 +112,6 @@ This operation is in effect equivalent to
     [arg matrixName] [method deserialize] [lb][arg sourcematrix] [method serialize][rb]
 [example_end]
 
-
 [call [arg matrixName] [method -->] [arg destmatrix]]
 
 This is the reverse assignment operator for matrix objects. It copies
@@ -129,7 +127,6 @@ This operation is in effect equivalent to
 [example_begin]
     [arg destmatrix] [method deserialize] [lb][arg matrixName] [method serialize][rb]
 [example_end]
-
 
 [call [arg matrixName] [method {add column}] [opt [arg values]]]
 
@@ -187,7 +184,6 @@ computation.
 Deletes the specified column from the matrix and shifts all columns
 with higher indices one index down.
 
-
 [call [arg matrixName] [method {delete columns}] [arg n]]
 
 Deletes [arg n] columns from the right of the matrix. The value of
@@ -195,12 +191,10 @@ Deletes [arg n] columns from the right of the matrix. The value of
 
 "0 < [arg n] < [lb][cmd matrixName] [method columns][rb]"
 
-
 [call [arg matrixName] [method {delete row}] [arg row]]
 
 Deletes the specified row from the matrix and shifts all row with
 higher indices one index down.
-
 
 [call [arg matrixName] [method {delete rows}] [arg n]]
 
@@ -209,14 +203,12 @@ Deletes [arg n] rows from the bottom of the matrix. The value of
 
 "0 < [arg n] < [lb][cmd matrixName] [method rows][rb]"
 
-
 [call [arg matrixName] [method deserialize] [arg serialization]]
 
 This is the complement to [method serialize]. It replaces matrix data
 in [arg matrixName] with the matrix described by the [arg serialization]
 value. The old contents of [arg matrixName] are deleted by this
 operation.
-
 
 [call [arg matrixName] [method destroy]]
 
@@ -312,12 +304,10 @@ key [arg row,column] will be used instead. It is possible to link the
 matrix to more than one array. Note that the link is bidirectional,
 i.e. changes to the array are mirrored in the matrix too.
 
-
 [call [arg matrixName] [method links]]
 
 Returns a list containing the names of all array variables the matrix
 was linked to through a call to method [method link].
-
 
 [call [arg matrixName] [method rowheight] [arg row]]
 
@@ -363,7 +353,6 @@ specified row.
 
 Like [method {search all}], but the search is restricted to the
 specified rectangular area of the matrix.
-
 
 [call [arg matrixName] [method serialize] [opt [arg {column_tl row_tl column_br row_br}]]]
 
@@ -416,7 +405,6 @@ the proper size despite the missing values.
     # 3 4 {{a b d g} {c e} {f}}
 }]
 [para]
-
 
 [call [arg matrixName] [method {set cell}] [arg {column row value}]]
 
@@ -479,12 +467,10 @@ Swaps the contents of the two specified columns.
 
 Swaps the contents of the two specified rows.
 
-
 [call [arg matrixName] [method transpose]]
 
 Transposes the contents of the matrix, i.e. swaps rows for columns and
 vice versa.
-
 
 [call [arg matrixName] [method unlink] [arg arrayvar]]
 
@@ -544,7 +530,6 @@ useful data.
     % r printmatrix m
 }]
 
-[keywords matrix]
 [vset CATEGORY {struct :: matrix}]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,5 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin math::optimize n 1.0]
+[keyword {linear program}]
+[keyword math]
+[keyword maximum]
+[keyword minimum]
+[keyword optimization]
 [copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [copyright {2004,2005 Kevn B. Kenny <kennykb@users.sourceforge.net>}]
 [moddesc   {Tcl Math Library}]
@@ -167,7 +172,6 @@ solveLinearProgram procedure.
 [para]
 [arg result] - The result as returned by solveLinearProgram
 
-
 [call [cmd ::math::optimize::nelderMead] [arg objective] [arg xVector] [opt "[option -scale] [arg xScaleVector]"] [opt "[option -ftol] [arg epsilon]"] [opt "[option -maxiter] [arg count]"] [opt "[opt -trace] [arg flag]"]]
 
 Minimizes, in unconstrained fashion, a function of several variable over all
@@ -316,7 +320,6 @@ The theory of linear programming is the subject of many a text book and
 the Simplex algorithm that is implemented here is the best-known
 method to solve this type of problems, but it is not the only one.
 
-[keywords math optimization minimum maximum "linear program"]
 [vset CATEGORY {math :: optimize}]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

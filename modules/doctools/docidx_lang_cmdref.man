@@ -1,5 +1,14 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin docidx_lang_cmdref n 1.0]
+[see_also docidx_intro]
+[see_also docidx_lang_faq]
+[see_also docidx_lang_intro]
+[see_also docidx_lang_syntax]
+[keyword {docidx commands}]
+[keyword {docidx language}]
+[keyword {docidx markup}]
+[keyword markup]
+[keyword {semantic markup}]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {docidx language command reference}]
@@ -15,7 +24,6 @@ in alphabetical order, and the descriptions are relatively short.
 
 A beginner should read the much more informally written
 [term {docidx language introduction}] first.
-
 
 [section Commands]
 [list_begin definitions]
@@ -103,12 +111,6 @@ named document variable
 
 [list_end]
 
-[see_also docidx_intro]
-[see_also docidx_lang_intro]
-[see_also docidx_lang_syntax]
-[see_also docidx_lang_faq]
-[keywords markup {semantic markup}]
-[keywords {docidx markup} {docidx language} {docidx commands}]
 [vset CATEGORY doctools]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

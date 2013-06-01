@@ -1,5 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin namespacex n 0.1]
+[keyword {extended namespace}]
+[keyword info]
+[keyword {namespace unknown}]
+[keyword {namespace utilities}]
+[keyword {state (de)serialization}]
+[keyword {unknown hooking}]
+[keyword utilities]
 [copyright {200? Neil Madden (http://wiki.tcl.tk/12790)}]
 [copyright {200? Various (http://wiki.tcl.tk/1489)}]
 [copyright {2010 Documentation, Andreas Kupries}]
@@ -21,13 +28,11 @@ namespaces.
 [call [cmd {::namespacex hook on}]   [opt [arg namespace]] [arg guardcmdprefix] [arg actioncmdprefix]]
 [call [cmd {::namespacex hook next}] [arg arg]...]
 
-
 [call [cmd {::namespacex info allchildren}] [arg namespace]]
 
 This command returns a list containing the names of all child
 namespaces in the specified [arg namespace] and its children. The
 names are all fully qualified.
-
 
 [call [cmd {::namespacex info allvars}] [arg namespace]]
 
@@ -35,12 +40,10 @@ This command returns a list containing the names of all variables in
 the specified [arg namespace] and its children. The names are all
 relative to [arg namespace], and [emph not] fully qualified.
 
-
 [call [cmd {::namespacex info vars}] [arg namespace] [opt [arg pattern]]]
 
 This command returns a list containing the names of all variables in
 the specified [arg namespace].
-
 
 [call [cmd {::namespacex state get}] [arg namespace]]
 
@@ -51,7 +54,6 @@ variables in the specified [arg namespace] and its child namespaces.
 Note that the names are all relative to [arg namespace],
 and [emph not] fully qualified.
 
-
 [call [cmd {::namespacex state set}] [arg namespace] [arg dict]]
 
 This command takes a dictionary holding the names and values for a set
@@ -59,7 +61,6 @@ of variables and replaces the current state of the specified
 [arg namespace] and its child namespaces with this state.
 
 The result of the command is the empty string.
-
 
 [call [cmd {::namespacex state drop}] [arg namespace]]
 
@@ -69,8 +70,4 @@ its child namespaces.
 The result of the command is the empty string.
 
 [list_end]
-
-[keywords {extended namespace} {namespace utilities} utilities {namespace unknown}]
-[keywords {unknown hooking} {state (de)serialization} info]
 [manpage_end]
-

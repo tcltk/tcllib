@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin stringprep n 1.0.1]
+[see_also unicode(n)]
+[keyword stringprep]
+[keyword unicode]
 [copyright {2007-2009, Sergei Golovan <sgolovan@nes.ru>}]
 [moddesc {Preparation of Internationalized Strings}]
 [titledesc {Implementation of stringprep}]
@@ -140,12 +143,9 @@ Nodeprep and resourceprep profile definitions (see RFC-3920):
 
 [list_end]
 
-[see_also unicode(n) ]
-
 [section "AUTHORS"]
 Sergei Golovan
 
-[keywords stringprep unicode]
 [vset CATEGORY stringprep]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]
