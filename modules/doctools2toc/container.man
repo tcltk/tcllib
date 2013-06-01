@@ -1,5 +1,24 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctools::toc n 2]
+[keyword conversion]
+[keyword {doctoc markup}]
+[keyword documentation]
+[keyword formatting]
+[keyword generation]
+[keyword HTML]
+[keyword json]
+[keyword latex]
+[keyword markup]
+[keyword nroff]
+[keyword parsing]
+[keyword plugin]
+[keyword reference]
+[keyword table]
+[keyword {table of contents}]
+[keyword {tcler's wiki}]
+[keyword text]
+[keyword TMML]
+[keyword wiki]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {Holding tables of contents}]
@@ -9,10 +28,6 @@
 [require doctools::toc::structure]
 [require struct::tree]
 [require snit]
-[keywords {table of contents} table reference documentation]
-[keywords {doctoc markup} markup conversion formatting generation plugin]
-[keywords json text nroff wiki {tcler's wiki} latex TMML HTML]
-[keywords parsing]
 [description]
 
 This package provides a class to contain and programmatically
@@ -42,9 +57,7 @@ and to any other format are handled by export and import manager
 objects. These may be attached to a container, but do not have to be,
 it is merely a convenience.
 
-
 [section Concepts] [include include/concept.inc]
-
 
 [section API]
 [subsection {Package commands}]
@@ -62,7 +75,6 @@ qualified, and in the specified namespace otherwise.
 
 [list_end]
 
-
 [subsection {Object command}]
 
 All objects created by the [cmd ::doctools::toc] command have the
@@ -79,7 +91,6 @@ See section [sectref {Object methods}] for the detailed
 specifications.
 
 [list_end]
-
 
 [subsection {Object methods}]
 
@@ -113,7 +124,6 @@ supplied via [arg desc].
 
 The result of the method is the handle (id) of the new element.
 
-
 [call [arg objectName] [method {+ division}] [arg id] [arg label] [opt [arg docid]]]
 
 This method adds a new division element to the table of contents,
@@ -134,7 +144,6 @@ symbolic [arg docid], but may choose not to.
 
 The result of the method is the handle (id) of the new element.
 
-
 [call [arg objectName] [method remove] [arg id]]
 
 This method removes the element identified by the handle [arg id] from
@@ -148,13 +157,11 @@ removed however, only its children.
 
 The result of the method is the empty string.
 
-
 [call [arg objectName] [method up] [arg id]]
 
 This method returns the handle of the parent for the element
 identified by its handle [arg id], or the empty string if [arg id]
 refered to the root element.
-
 
 [call [arg objectName] [method next] [arg id]]
 
@@ -163,8 +170,6 @@ identified by its handle [arg id], or the handle of the parent if the
 element has no right sibling, or the empty string if [arg id] refered
 to the root element.
 
-
-
 [call [arg objectName] [method prev] [arg id]]
 
 This method returns the handle of the left sibling for the element
@@ -172,13 +177,11 @@ identified by its handle [arg id], or the handle of the parent if the
 element has no left sibling, or the empty string if [arg id] refered
 to the root element.
 
-
 [call [arg objectName] [method child] [arg id] [arg label] [opt [arg ...]]]
 
 This method returns the handle of a child of the element identified by
 its handle [arg id]. The child itself is identified by a series of
 labels.
-
 
 [call [arg objectName] [method element] [opt [arg ...]]]
 
@@ -187,26 +190,22 @@ of labels, starting from the root of the table of contents. The series
 of labels is allowed to be empty, in which case the handle of the root
 element is returned.
 
-
 [call [arg objectName] [method children] [arg id]]
 
 This method returns a list containing the handles of all children of
 the element identified by the handle [arg id], from first to last, in
 that order.
 
-
 [call [arg objectName] [method type] [arg id]]
 
 This method returns the type of the element, either [const reference],
 or [const division].
-
 
 [call [arg objectName] [method full-label] [arg id]]
 
 This method is the complement of the method [method element],
 converting the handle [arg id] of an element into a list of labels
 full identifying the element within the whole table of contents.
-
 
 [call [arg objectName] [method elabel] [arg id] [opt [arg newlabel]]]
 
@@ -227,7 +226,6 @@ contents, then using this method is equivalent to using the method
 [arg label], i.e. it is accessing the global label for the whole
 table.
 
-
 [call [arg objectName] [method description] [arg id] [opt [arg newdesc]]]
 
 This method queries and/or changes the description of the element
@@ -239,7 +237,6 @@ this, the result of the method is the current value of the description.
 
 The element this method operates on has to be a reference element, or
 an error will be thrown.
-
 
 [call [arg objectName] [method document] [arg id] [opt [arg newdocid]]]
 
@@ -257,34 +254,28 @@ allowed only for division elements. Conversely, if the result is the
 empty string then the element has no document reference, and this can
 happen only for division elements.
 
-
 [call [arg objectName] [method title]]
 
 Returns the currently defined title of the table of contents.
-
 
 [call [arg objectName] [method title] [arg text]]
 
 Sets the title of the table of contents to [arg text], and returns it as
 the result of the command.
 
-
 [call [arg objectName] [method label]]
 
 Returns the currently defined label of the table of contents.
-
 
 [call [arg objectName] [method label] [arg text]]
 
 Sets the label of the table of contents to [arg text], and returns it as
 the result of the command.
 
-
 [call [arg objectName] [method importer]]
 
 Returns the import manager object currently attached to the container,
 if any.
-
 
 [call [arg objectName] [method importer] [arg object]]
 
@@ -302,12 +293,10 @@ It is expected that [arg object] provides a method named
 returns the canonical serialization of the table of contents contained in
 the text, assuming the given format.
 
-
 [call [arg objectName] [method exporter]]
 
 Returns the export manager object currently attached to the container,
 if any.
-
 
 [call [arg objectName] [method exporter] [arg object]]
 
@@ -327,7 +316,6 @@ the given format. It is further expected that the [arg object] will
 use the container's method [method serialize] to obtain the
 serialization of the table of contents from which to generate the text.
 
-
 [call [arg objectName] [method {deserialize =}] [arg data] [opt [arg format]]]
 
 This method replaces the contents of the table object with the table
@@ -346,12 +334,11 @@ manager attached to it.
 
 The result of the method is the empty string.
 
-
 [call [arg objectName] [method {deserialize +=}] [arg data] [opt [arg format]]]
 
 This method behaves like [method {deserialize =}] in its essentials,
 except that it merges the table of contents in the [arg data] to its
-contents instead of replacing it. 
+contents instead of replacing it.
 
 The method will throw an error if merging is not possible, i.e. would
 produce an invalid table. The existing content is left unchanged in
@@ -360,7 +347,6 @@ that case.
 [para]
 
 The result of the method is the empty string.
-
 
 [call [arg objectName] [method serialize] [opt [arg format]]]
 
@@ -376,9 +362,7 @@ the data to the specified format.
 In that case an error will be thrown if the container has no export
 manager attached to it.
 
-
 [list_end]
-
 
 [include include/serialization.inc]
 [vset CATEGORY doctools]

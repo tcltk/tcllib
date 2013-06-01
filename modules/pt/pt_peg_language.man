@@ -120,7 +120,7 @@ of binding):
     <<expression-1>>     <<expression-2>>  # sequence. parse 1, then 2.
     <<expression-1>>  /  <<expression-2>>  # alternative. try to parse 1, and parse 2 if 1 failed to parse.
 
-    # Prefix operators. Lookahead constraints. Same priority. 
+    # Prefix operators. Lookahead constraints. Same priority.
 
     & <<expression>>  # Parse expression, ok on successful parse.
     ! <<expression>>  # Ditto, except ok on failure to parse.
@@ -255,12 +255,11 @@ digits, or 'u' and hexedecimal digits, or a regular character from a
 fixed set for various control characters. Some examples:
 
 [example {
-    \n \r \t \' \" \[ \] \\ # 
+    \n \r \t \' \" \[ \] \\ #
     \000 up to \277         # octal escape, all ascii character, leading 0's can be removed.
     \u2CA7                  # hexadecimal escape, all unicode characters.
     #                       # Here 2ca7 <=> Koptic Small Letter Tau
 }]
-
 
 [subsection {Whitespace and comments}]
 
@@ -311,7 +310,6 @@ absence of a mode before the nonterminal.
 Now, with all the above under our belt it should be possible to not
 only read, but understand the formal specification of the text
 representation shown in the next section, written in itself.
-
 
 [include include/format/peg.inc]
 [include include/feedback.inc]

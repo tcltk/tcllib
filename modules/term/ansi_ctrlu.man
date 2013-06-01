@@ -1,5 +1,14 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin term::ansi::ctrl::unix n 0.1.1]
+[keyword ansi]
+[keyword columns]
+[keyword control]
+[keyword cooked]
+[keyword {input mode}]
+[keyword lines]
+[keyword raw]
+[keyword rows]
+[keyword terminal]
 [copyright {2006-2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Terminal control}]
 [titledesc {Control operations and queries}]
@@ -65,8 +74,6 @@ the number of rows (aka lines) available for display.
 
 [list_end]
 
-[keywords ansi terminal control raw cooked]
-[keywords {input mode} lines rows columns]
 [vset CATEGORY term]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

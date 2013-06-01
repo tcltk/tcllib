@@ -1,5 +1,17 @@
 [comment {-*- tcl -*-}]
 [manpage_begin struct::graph n 2.4]
+[keyword adjacent]
+[keyword arc]
+[keyword cgraph]
+[keyword degree]
+[keyword edge]
+[keyword graph]
+[keyword loop]
+[keyword neighbour]
+[keyword node]
+[keyword serialization]
+[keyword subgraph]
+[keyword vertex]
 [copyright {2002-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate directed graph objects}]
@@ -10,7 +22,6 @@
 [require struct::set   [opt 2.2.3]]
 [description]
 [para]
-
 
 A directed graph is a structure containing two collections of
 elements, called [term nodes] and [term arcs] respectively, together
@@ -114,7 +125,7 @@ is equivalent to
     mygraph = b
 }]
 [para]
-and 
+and
 [para]
 [example {
     ::struct::graph mygraph deserialize $b
@@ -156,7 +167,6 @@ The operation assumes that the [arg sourcegraph] provides the method
 [method serialize] and that this method returns a valid graph
 serialization.
 
-
 [call [arg graphName] [method -->] [arg destgraph]]
 
 This is the [term {reverse assignment}] operator for graph objects. It
@@ -178,12 +188,10 @@ This operation is in effect equivalent to
 The operation assumes that the [arg destgraph] provides the method
 [method deserialize] and that this method takes a graph serialization.
 
-
 [call [arg graphName] [method append] [arg key] [arg value]]
 
 Appends a [arg value] to one of the keyed values associated with the graph.
 Returns the new value given to the attribute [arg key].
-
 
 [call [arg graphName] [method deserialize] [arg serialization]]
 
@@ -192,17 +200,14 @@ data in [arg graphName] with the graph described by the
 [arg serialization] value. The old contents of [arg graphName] are
 deleted by this operation.
 
-
 [call [arg graphName] [method destroy]]
 
 Destroys the graph, including its storage space and associated command.
-
 
 [call [arg graphName] [method {arc append}] [arg arc] [arg key] [arg value]]
 
 Appends a [arg value] to one of the keyed values associated with an
 [arg arc]. Returns the new value given to the attribute [arg key].
-
 
 [call [arg graphName] [method {arc attr}] [arg key]]
 [call [arg graphName] [method {arc attr}] [arg key] [option -arcs] [arg list]]
@@ -244,27 +249,22 @@ names match this pattern are searched for the attribute.
 [list_end]
 [para]
 
-
 [call [arg graphName] [method {arc delete}] [arg arc] [opt "[arg arc] ..."]]
 
 Remove the specified arcs from the graph.
 
-
 [call [arg graphName] [method {arc exists}] [arg arc]]
 
 Return true if the specified [arg arc] exists in the graph.
-
 
 [call [arg graphName] [method {arc flip}] [arg arc]]
 
 Reverses the direction of the named [arg arc], i.e. the source and
 target nodes of the arc are exchanged with each other.
 
-
 [call [arg graphName] [method {arc get}] [arg arc] [arg key]]
 
 Returns the value associated with the key [arg key] for the [arg arc].
-
 
 [call [arg graphName] [method {arc getall}] [arg arc] [opt [arg pattern]]]
 
@@ -275,18 +275,15 @@ If the [arg pattern] is specified only the attributes whose names
 match the pattern will be part of the returned dictionary. The pattern
 is a [cmd glob] pattern.
 
-
 [call [arg graphName] [method {arc getunweighted}]]
 
 Returns a list containing the names of all arcs in the graph which
 have no weight associated with them.
 
-
 [call [arg graphName] [method {arc getweight}] [arg arc]]
 
 Returns the weight associated with the [arg arc]. Throws an error if
 the arc has no weight associated with it.
-
 
 [call [arg graphName] [method {arc keys}] [arg arc] [opt [arg pattern]]]
 
@@ -296,11 +293,9 @@ If the [arg pattern] is specified only the attributes whose names
 match the pattern will be part of the returned list. The pattern is a
 [cmd glob] pattern.
 
-
 [call [arg graphName] [method {arc keyexists}] [arg arc] [arg key]]
 
 Return true if the specified [arg key] exists for the [arg arc].
-
 
 [call [arg graphName] [method {arc insert}] [arg start] [arg end] [opt [arg child]]]
 
@@ -309,13 +304,11 @@ Insert an arc named [arg child] into the graph beginning at the node
 arc is not specified the system will generate a unique name of the
 form [emph arc][arg x].
 
-
 [call [arg graphName] [method {arc lappend}] [arg arc] [arg key] [arg value]]
 
 Appends a [arg value] (as a list) to one of the keyed values
 associated with an [arg arc]. Returns the new value given to the
 attribute [arg key].
-
 
 [call [arg graphName] [method {arc rename}] [arg arc] [arg newname]]
 
@@ -323,16 +316,14 @@ Renames the arc [arg arc] to [arg newname]. An error is thrown if
 either the arc does not exist, or a arc with name [arg newname] does
 exist. The result of the command is the new name of the arc.
 
-
 [call [arg graphName] [method {arc set}] [arg arc] [arg key] [opt [arg value]]]
 
-Set or get one of the keyed values associated with an arc. 
+Set or get one of the keyed values associated with an arc.
 
-An arc may have any number of keyed values associated with it.  
-If [arg value] is not specified, this command returns the current value assigned to the key; 
+An arc may have any number of keyed values associated with it.
+If [arg value] is not specified, this command returns the current value assigned to the key;
 if [arg value] is specified, this command assigns that value to the key, and returns
 that value.
-
 
 [call [arg graphName] [method {arc setunweighted}] [opt [arg weight]]]
 
@@ -340,17 +331,14 @@ Sets the weight of all arcs without a weight to [arg weight]. Returns
 the empty string as its result. If not present [arg weight] defaults
 to [const 0].
 
-
 [call [arg graphName] [method {arc setweight}] [arg arc] [arg weight]]
 
 Sets the weight of the [arg arc] to [arg weight]. Returns [arg weight].
-
 
 [call [arg graphName] [method {arc unsetweight}] [arg arc]]
 
 Removes the weight of the [arg arc], if present. Does nothing
 otherwise. Returns the empty string.
-
 
 [call [arg graphName] [method {arc hasweight}] [arg arc]]
 
@@ -358,52 +346,43 @@ Determines if the [arg arc] has a weight associated with it.  The
 result is a boolean value, [const True] if a weight is defined, and
 [const False] otherwise.
 
-
 [call [arg graphName] [method {arc source}] [arg arc]]
 
 Return the node the given [arg arc] begins at.
 
-
 [call [arg graphName] [method {arc target}] [arg arc]]
 
 Return the node the given [arg arc] ends at.
-
 
 [call [arg graphName] [method {arc nodes}] [arg arc]]
 
 Return the nodes the given [arg arc] begins and ends at,
 as a two-element list.
 
-
 [call [arg graphName] [method {arc move-source}] [arg arc] [arg newsource]]
 
 Changes the source node of the arc to [arg newsource]. It can be said
 that the arc rotates around its target node.
-
 
 [call [arg graphName] [method {arc move-target}] [arg arc] [arg newtarget]]
 
 Changes the target node of the arc to [arg newtarget]. It can be said
 that the arc rotates around its source node.
 
-
 [call [arg graphName] [method {arc move}] [arg arc] [arg newsource] [arg newtarget]]
 
 Changes both source and target nodes of the arc to [arg newsource],
 and [arg newtarget] resp.
-
 
 [call [arg graphName] [method {arc unset}] [arg arc] [arg key]]
 
 Remove a keyed value from the arc [arg arc]. The method will do
 nothing if the [arg key] does not exist.
 
-
 [call [arg graphName] [method {arc weights}]]
 
 Returns a dictionary whose keys are the names of all arcs which have a
 weight associated with them, and the values are these weights.
-
 
 [call [arg graphName] [method arcs] [opt "-key [arg key]"] [opt "-value [arg value]"] [opt "-filter [arg cmdprefix]"] [opt "-in|-out|-adj|-inner|-embedding [arg {node node...}]"]]
 
@@ -481,7 +460,6 @@ This restriction can only be used in combination with
 [option -key]. It limits the list of arcs that are returned to those
 arcs whose associated key [arg key] has the value [arg value].
 
-
 [def "[option -filter] [arg cmdrefix]"]
 
 Limit the list of arcs that are returned to those arcs that pass the
@@ -493,19 +471,16 @@ from the result list before it is returned to the caller.
 
 [list_end]
 
-
 [call [arg graphName] [method lappend] [arg key] [arg value]]
 
 Appends a [arg value] (as a list) to one of the keyed values
 associated with the graph. Returns the new value given to the
 attribute [arg key].
 
-
 [call [arg graphName] [method {node append}] [arg node] [arg key] [arg value]]
 
 Appends a [arg value] to one of the keyed values associated with an
 [arg node]. Returns the new value given to the attribute [arg key].
-
 
 [call [arg graphName] [method {node attr}] [arg key]]
 [call [arg graphName] [method {node attr}] [arg key] [option -nodes] [arg list]]
@@ -547,29 +522,24 @@ names match this pattern are searched for the attribute.
 [list_end]
 [para]
 
-
 [call [arg graphName] [method {node degree}] [opt -in|-out] [arg node]]
 
 Return the number of arcs adjacent to the specified [arg node]. If one
 of the restrictions [option -in] or [option -out] is given only the
 incoming resp. outgoing arcs are counted.
 
-
 [call [arg graphName] [method {node delete}] [arg node] [opt "[arg node]..."]]
 
 Remove the specified nodes from the graph.  All of the nodes' arcs
 will be removed as well to prevent unconnected arcs.
 
-
 [call [arg graphName] [method {node exists}] [arg node]]
 
 Return true if the specified [arg node] exists in the graph.
 
-
 [call [arg graphName] [method {node get}] [arg node] [arg key]]
 
 Return the value associated with the key [arg key] for the [arg node].
-
 
 [call [arg graphName] [method {node getall}] [arg node] [opt [arg pattern]]]
 
@@ -580,7 +550,6 @@ If the [arg pattern] is specified only the attributes whose names
 match the pattern will be part of the returned dictionary. The pattern
 is a [cmd glob] pattern.
 
-
 [call [arg graphName] [method {node keys}] [arg node] [opt [arg pattern]]]
 
 Returns a list of keys for the [arg node].
@@ -589,11 +558,9 @@ If the [arg pattern] is specified only the attributes whose names
 match the pattern will be part of the returned list. The pattern is a
 [cmd glob] pattern.
 
-
 [call [arg graphName] [method {node keyexists}] [arg node] [arg key]]
 
 Return true if the specified [arg key] exists for the [arg node].
-
 
 [call [arg graphName] [method {node insert}] [opt [arg node]...]]
 
@@ -602,26 +569,22 @@ connected to them. If no node is specified one node will be inserted,
 and the system will generate a unique name of the form
 [emph node][arg x] for it.
 
-
 [call [arg graphName] [method {node lappend}] [arg node] [arg key] [arg value]]
 
 Appends a [arg value] (as a list) to one of the keyed values
 associated with an [arg node]. Returns the new value given to the
 attribute [arg key].
 
-
 [call [arg graphName] [method {node opposite}] [arg node] [arg arc]]
 
 Return the node at the other end of the specified [arg arc], which has
 to be adjacent to the given [arg node].
-
 
 [call [arg graphName] [method {node rename}] [arg node] [arg newname]]
 
 Renames the node [arg node] to [arg newname]. An error is thrown if
 either the node does not exist, or a node with name [arg newname] does
 exist. The result of the command is the new name of the node.
-
 
 [call [arg graphName] [method {node set}] [arg node] [arg key] [opt [arg value]]]
 
@@ -631,12 +594,10 @@ specified, this command returns the current value assigned to the key;
 if [arg value] is specified, this command assigns that value to the
 key.
 
-
 [call [arg graphName] [method {node unset}] [arg node] [arg key]]
 
 Remove a keyed value from the node [arg node]. The method will do
 nothing if the [arg key] does not exist.
-
 
 [call [arg graphName] [method nodes] [opt "-key [arg key]"] [opt "-value [arg value]"] [opt "-filter [arg cmdprefix]"] [opt "-in|-out|-adj|-inner|-embedding [arg node] [arg node]..."]]
 
@@ -706,11 +667,9 @@ from the result list before it is returned to the caller.
 
 [list_end]
 
-
 [call [arg graphName] [method get] [arg key]]
 
 Return the value associated with the key [arg key] for the graph.
-
 
 [call [arg graphName] [method getall] [opt [arg pattern]]]
 
@@ -721,7 +680,6 @@ If the [arg pattern] is specified only the attributes whose names
 match the pattern will be part of the returned dictionary. The pattern
 is a [cmd glob] pattern.
 
-
 [call [arg graphName] [method keys] [opt [arg pattern]]]
 
 Returns a list of keys for the whole graph.
@@ -730,11 +688,9 @@ If the [arg pattern] is specified only the attributes whose names
 match the pattern will be part of the returned list. The pattern is a
 [cmd glob] pattern.
 
-
 [call [arg graphName] [method keyexists] [arg key]]
 
 Return true if the specified [arg key] exists for the whole graph.
-
 
 [call [arg graphName] [method serialize] [opt [arg node]...]]
 
@@ -848,7 +804,6 @@ relevance, nor has the order of the arcs per node.
 }]
 [para]
 
-
 [call [arg graphName] [method set] [arg key] [opt [arg value]]]
 
 Set or get one of the keyed values associated with a graph. A graph
@@ -857,17 +812,14 @@ is not specified, this command returns the current value assigned to
 the key; if [arg value] is specified, this command assigns that value
 to the key.
 
-
 [call [arg graphName] [method swap] [arg node1] [arg node2]]
 
 Swap the position of [arg node1] and [arg node2] in the graph.
-
 
 [call [arg graphName] [method unset] [arg key]]
 
 Remove a keyed value from the graph. The method will do nothing if the
 [arg key] does not exist.
-
 
 [call [arg graphName] [method walk] [arg node] \
 	[opt "-order [arg order]"] \
@@ -915,7 +867,6 @@ post-order all nodes are left. In a both-order walk the first visit of
 a node [const enter]s it, the second visit [const leave]s it.
 
 [list_end]
-
 
 [section {Changes for 2.0}]
 The following noteworthy changes have occurred:
@@ -972,7 +923,6 @@ Beyond the copying of whole graph objects these new API's also enable
 the transfer of graph objects over arbitrary channels and for easy
 persistence.
 
-
 [enum]
 
 A new method, [method attr], was added to both [method arc] and
@@ -985,12 +935,8 @@ Both methods [method arcs] and [method nodes] have been extended with
 the ability to select arcs and nodes based on an arbitrary filtering
 criterium.
 
-
 [list_end]
 
-[keywords graph cgraph serialization]
-[keywords edge arc node vertex subgraph neighbour]
-[keywords adjacent loop degree]
 [vset CATEGORY {struct :: graph}]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

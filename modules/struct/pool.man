@@ -1,5 +1,9 @@
 [comment {-*- tcl -*-}]
 [manpage_begin struct::pool n 1.2.1]
+[keyword {discrete items}]
+[keyword finite]
+[keyword pool]
+[keyword struct]
 [copyright {2002, Erik Leunissen <e.leunissen@hccnet.nl>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate pool objects (of discrete items)}]
@@ -22,7 +26,7 @@ The optional second argument [arg maxsize] has to be a positive
 integer indicating the maximum size of the pool; this is the maximum
 number of items the pool may hold. The default for this value is
 [const 10].
-     
+
 [para]
 
 The pool object has an associated global Tcl command whose name is
@@ -41,12 +45,12 @@ list of options and their behaviour.
 [list_end]
 
 [para]
-      
+
 [section {POOLS AND ALLOCATION}]
- 
+
 The purpose of the pool command and the pool object command that it
 generates, is to manage pools of discrete items.
-      
+
 Examples of a pool of discrete items are:
 
 [list_begin itemized]
@@ -78,11 +82,11 @@ are being allocated and released continuously, the total number of
 items in the pool remains constant.
 
 [para]
-      
+
 Keeping track of which items are allocated, and by whom, is the
 purpose of the pool command and its subordinates.
 
-[para]      
+[para]
 
 [emph {Pool parlance}]: If we say that an item is
 
@@ -92,10 +96,9 @@ purpose of the pool command and its subordinates.
 an item is [term free], it is [term available]. Deallocating an
 item is equivalent to setting free or releasing an item. The person or
 entity to which the item has been allotted is said to own the item.
-      
-      
+
 [section ITEMS]
-      
+
 [emph {Discrete items}]
 [para]
 
@@ -126,7 +129,7 @@ entity/person occupies a given item. However, clients may have
 preferences for a particular item, based on some item property they
 know.
 
-[para] 
+[para]
 [emph Preferences]
 [para]
 
@@ -137,15 +140,14 @@ to result from variability among features associated with the
 items. Note that the pool commands themselves are not designed to
 manage such item properties. If item properties play a role in an
 application, they should be managed separately.
- 
- 
+
 [section {POOL OBJECT COMMAND}]
- 
+
 The following subcommands and corresponding arguments are available to
 any pool object command.
 
 [list_begin definitions]
- 
+
 [call [arg poolName] [method add] [arg itemName1] [opt [arg {itemName2 itemName3 ...}]]]
 
 This command adds the items on the command line to the pool. If
@@ -153,7 +155,6 @@ duplicate item names occur on the command line, an error is raised. If
 one or more of the items already exist in the pool, this also is
 considered an error.
 
-              
 [call [arg poolName] [method clear] [opt [option -force]]]
 
 Removes all items from the pool. If there are any allocated items at
@@ -161,7 +162,7 @@ the time when the command is invoked, an error is raised. This
 behaviour may be modified through the [option -force] argument. If it
 is supplied on the command line, the pool will be cleared regardless
 the allocation state of its items.
-     
+
 [call [arg poolName] [method destroy] [opt [option -force]]]
 
 Destroys the pool data structure, all associated variables and the
@@ -171,7 +172,6 @@ case. This behaviour may be modified through the argument
 
 [option -force]. If it is supplied on the command line, the pool data
 structure will be destroyed regardless allocation state of its items.
- 
 
 [call [arg poolName] [method info] [arg type] [opt [arg arg]]]
 
@@ -180,7 +180,7 @@ use. The [arg type] argument indicates the type of information
 requested. Only the type [const allocID] uses an additional argument.
 
 [list_begin definitions]
-     
+
 [def "[const allocID] [arg itemName]"]
 
 returns the allocID of the item whose name is [arg itemName]. Free
@@ -189,27 +189,27 @@ items have an allocation id of [const -1].
 [def [const allitems]]
 
 returns a list of all items in the pool.
- 
+
 [def [const allocstate]]
 
 Returns a list of key-value pairs, where the keys are the items and
 the values are the corresponding allocation id's. Free items have an
 allocation id of [const -1].
-      
+
 [def [const cursize]]
 
 returns the current pool size, i.e. the number of items in the pool.
-      
+
 [def [const freeitems]]
 
 returns a list of items that currently are not allocated.
-      
+
 [def [const maxsize]]
 
 returns the maximum size of the pool.
 
 [list_end]
-[para]          
+[para]
 
 [call [arg poolName] [method maxsize] [opt [arg maxsize]]]
 
@@ -224,15 +224,13 @@ returned. In this variant, the command is an alias for:
 [para]
 
 The [arg maxsize] argument has to be a positive integer.
-     
-     
+
 [call [arg poolName] [method release] [arg itemName]]
 
 Releases the item whose name is [arg itemName] that was allocated
 previously. An error is raised if the item was not allocated at the
 time when the command was issued.
 
-     
 [call [arg poolName] [method remove] [arg itemName] [opt [option -force]]]
 
 Removes the item whose name is [arg itemName] from the pool. If the
@@ -240,7 +238,6 @@ item was allocated at the time when the command was invoked, an error
 is raised. This behaviour may be modified through the optional
 argument [option -force]. If it is supplied on the command line, the
 item will be removed regardless its allocation state.
-     
 
 [call [arg poolName] [method request] itemVar [opt options]]
 
@@ -276,7 +273,7 @@ all requests are honoured as long as items are available.
 The following options are supported:
 
 [list_begin definitions]
- 
+
 [def "[option -allocID] [arg allocID]"]
 
 If the request is honoured, an item will be allocated to the entity
@@ -287,7 +284,6 @@ it is this allocation ID that will be returned. If the option
 by [const dummyID]. Allocation id's may be anything except the value
 -1, which is reserved for free items.
 
-     
 [def "[option -prefer] [arg preferredItem]"]
 
 This option modifies the allocation strategy as follows: If the item
@@ -296,17 +292,17 @@ the command is invoked, the request is honoured (return value is
 1). If the item was allocated at the time when the command was
 invoked, the request is denied (return value is 0).
 
-[list_end]               
-[list_end]               
- 
+[list_end]
+[list_end]
+
 [section EXAMPLES]
- 
+
 Two examples are provided. The first one mimics a step by step
 interactive tclsh session, where each step is explained. The second
 example shows the usage in a server application that talks to a
 back-end application.
 
-[para]      
+[para]
 [emph {Example 1}]
 [para]
 
@@ -327,25 +323,25 @@ items should be labeled with more neutral names such as: car1, car2,
 car3 , etc ... and a separate database or array should hold the brand
 names associated with the car labels.
 
-[para]      
-[example {      
+[para]
+[example {
      1. Load the package into an interpreter
      % package require pool
      0.1
-      
+
      2. Create a pool object called `CarPool' with a maximum size of 55 items (cars):
      % pool CarPool 55
      CarPool
-      
+
      4. Add items to the pool:
      % CarPool add Toyota Trabant Chrysler1 Chrysler2 Volkswagen
-                   
+
      5. Somebody crashed the Toyota. Remove it from the pool as follows:
      % CarPool remove Toyota
-      
+
      6. Acquired a new car for the pool. Add it as follows:
      % CarPool add Nissan
-      
+
      7. Check whether the pool was adjusted correctly:
      % CarPool info allitems
      Trabant Chrysler1 Chrysler2 Volkswagen Nissan
@@ -356,8 +352,8 @@ names associated with the car labels.
 Suspend the interactive session temporarily, and show the programmatic
 use of the request subcommand:
 
-[para]      
-[example {     
+[para]
+[example {
      # Mrs. Swift needs a car. She doesn't have a preference for a
      # particular car. We'll issue a request on her behalf as follows:
      if { [CarPool request car -allocID "Mrs. Swift"] }  {
@@ -374,7 +370,7 @@ Note how the [cmd if] command uses the value returned by the
 [method request] subcommand.
 
 [para]
-[example {      
+[example {
      # Suppose Mr. Wiggly has a preference for the Trabant:
      if { [CarPool request car -allocID "Mr. Wiggly" -prefer Trabant] }  {
          # request was honoured, process the variable `car'
@@ -392,14 +388,14 @@ Resume the interactive session:
 [example {
      8. When the car is returned then you can render it available by:
      % CarPool release Trabant
-      
+
      9. When done, you delete the pool.
      % CarPool destroy
      Couldn't destroy `CarPool' because some items are still allocated.
-      
+
      Oops, forgot that Mrs. Swift still occupies a car.
-      
-     10. We force the destruction of the pool as follows: 
+
+     10. We force the destruction of the pool as follows:
      % CarPool destroy -force
 }]
 
@@ -418,7 +414,7 @@ back-end instances make up a pool of connections. A particular
 connection may be allocated to just one client request at a time.
 
 [para]
-[example { 
+[example {
      # Create the pool of connections (pipes)
      set maxpipes 10
      pool Pipes $maxpipes
@@ -426,7 +422,7 @@ connection may be allocated to just one client request at a time.
          set fd [open "|backendApplication" w+]
          Pipes add $fd
      }
-      
+
      # A client request comes in. The request is identified as `clientX'.
      # Dispatch it onto an instance of a back-end application
      if { [Pipes request fd -allocID clientX] } {
@@ -441,7 +437,6 @@ connection may be allocated to just one client request at a time.
      }
 }]
 
-[keywords struct pool finite {discrete items}]
 [vset CATEGORY {struct :: pool}]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

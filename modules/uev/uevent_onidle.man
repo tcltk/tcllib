@@ -1,11 +1,16 @@
 [manpage_begin uevent::onidle n 0.1]
+[keyword callback]
+[keyword deferal]
+[keyword event]
+[keyword idle]
+[keyword merge]
+[keyword on-idle]
 [copyright {2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {User events}]
 [titledesc {Request merging and deferal to idle time}]
 [require Tcl 8.4]
 [require uevent::onidle [opt 0.1]]
 [require logger]
-[keywords event idle deferal merge on-idle callback]
 [description]
 
 This package provides objects which can merge multiple requestes for

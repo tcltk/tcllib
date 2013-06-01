@@ -1,4 +1,11 @@
 [manpage_begin textutil::trim n 0.7]
+[see_also regexp(n)]
+[see_also split(n)]
+[see_also string(n)]
+[keyword prefix]
+[keyword {regular expression}]
+[keyword string]
+[keyword trimming]
 [moddesc   {Text and string utilities, macro processing}]
 [titledesc {Procedures to trim strings}]
 [category  {Text processing}]
@@ -27,7 +34,6 @@ end of the string.
 
 The regular expression [arg regexp] defaults to "[lb] \\t[rb]+".
 
-
 [call [cmd ::textutil::trim::trimleft] [arg string] [opt [arg regexp]]]
 
 Remove in [arg string] any leading substring according to the regular
@@ -50,13 +56,11 @@ contain no newline, between the beginning and the end of the string.
 
 The regular expression [arg regexp] defaults to "[lb] \\t[rb]+".
 
-
 [call [cmd ::textutil::trim::trimPrefix] [arg string] [arg prefix]]
 
 Removes the [arg prefix] from the beginning of [arg string] and
 returns the result. The [arg string] is left unchanged if it doesn't
 have [arg prefix] at its beginning.
-
 
 [call [cmd ::textutil::trim::trimEmptyHeading] [arg string]]
 
@@ -66,8 +70,6 @@ string is returned as the result of the command.
 
 [list_end]
 
-[see_also regexp(n) split(n) string(n)]
-[keywords string {regular expression} trimming prefix]
 [vset CATEGORY textutil]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,4 +1,7 @@
 [manpage_begin math::statistics n 0.8]
+[keyword {data analysis}]
+[keyword mathematics]
+[keyword statistics]
 [moddesc {Tcl Math Library}]
 [titledesc {Basic statistical functions and procedures}]
 [category  Mathematics]
@@ -57,7 +60,6 @@ Determine the [term mean] value of the given list of data.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::min] [arg data]]
 Determine the [term minimum] value of the given list of data.
 
@@ -66,7 +68,6 @@ Determine the [term minimum] value of the given list of data.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::max] [arg data]]
 Determine the [term maximum] value of the given list of data.
 
@@ -74,7 +75,6 @@ Determine the [term maximum] value of the given list of data.
 [arg_def list data] - List of data
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::number] [arg data]]
 Determine the [term number] of non-missing data in the given list
@@ -93,7 +93,6 @@ given list
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::var] [arg data]]
 Determine the [term "sample variance"] of the data in the given list
 
@@ -101,7 +100,6 @@ Determine the [term "sample variance"] of the data in the given list
 [arg_def list data] - List of data
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::pstdev] [arg data]]
 Determine the [term "population standard deviation"] of the data
@@ -112,7 +110,6 @@ in the given list
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::pvar] [arg data]]
 Determine the [term "population variance"] of the data in the
 given list
@@ -121,7 +118,6 @@ given list
 [arg_def list data] - List of data
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::median] [arg data]]
 Determine the [term median] of the data in the given list
@@ -132,7 +128,6 @@ costly operation)
 [arg_def list data] - List of data
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::basic-stats] [arg data]]
 Determine a list of all the descriptive parameters: mean, minimum,
@@ -148,7 +143,6 @@ relevant values are returned.)
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::histogram] [arg limits] [arg values]]
 Determine histogram information for the given list of data. Returns a
 list consisting of the number of values that fall into each interval.
@@ -163,7 +157,6 @@ intervals of the histogram.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::corr] [arg data1] [arg data2]]
 Determine the correlation coefficient between two sets of data.
 
@@ -172,7 +165,6 @@ Determine the correlation coefficient between two sets of data.
 [arg_def list data2] - Second list of data
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::interval-mean-stdev] [arg data] [arg confidence]]
 Return the interval containing the mean value and one
@@ -184,7 +176,6 @@ level of confidence (assuming a normal distribution)
 [arg_def float confidence] - Confidence level (0.95 or 0.99 for instance)
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::t-test-mean] [arg data] [arg est_mean] \
 [arg est_stdev] [arg confidence]]
@@ -201,7 +192,6 @@ the given distribution.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::test-normal] [arg data] [arg confidence]]
 Test whether the given data follow a normal distribution
 with a certain level of confidence.
@@ -214,7 +204,6 @@ test.
 [arg_def float confidence] - Confidence level (one of 0.80, 0.90, 0.95 or 0.99)
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::lillieforsFit] [arg data]]
 Returns the goodness of fit to a normal distribution according to
@@ -248,7 +237,6 @@ call with two arguments)
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::autocorr] [arg data]]
 Return the autocorrelation function as a list of values (assuming
 equidistance between samples, about 1/2 of the number of raw data)
@@ -261,7 +249,6 @@ returned values) increases
 [arg_def list data] - Raw data for which the autocorrelation must be determined
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::crosscorr] [arg data1] [arg data2]]
 Return the cross-correlation function as a list of values (assuming
@@ -276,7 +263,6 @@ as the "time" (the index in the list of returned values) increases.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::mean-histogram-limits] [arg mean] \
 [arg stdev] [arg number]]
 Determine reasonable limits based on mean and standard deviation
@@ -290,7 +276,6 @@ Convenience function - the result is suitable for the histogram function.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::minmax-histogram-limits] [arg min] \
 [arg max] [arg number]]
 Determine reasonable limits based on a minimum and maximum for a histogram
@@ -302,7 +287,6 @@ Convenience function - the result is suitable for the histogram function.
 [arg_def int number] - Number of limits to generate (defaults to 8)
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::linear-model] [arg xdata] \
 [arg ydata] [arg intercept]]
@@ -340,7 +324,6 @@ Significance level of B
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::linear-residuals] [arg xdata] [arg ydata] \
 [arg intercept]]
 Determine the difference between actual data and predicted from
@@ -356,7 +339,6 @@ to a line through the origin (0)
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::test-2x2] [arg n11] [arg n21] [arg n12] [arg n22]]
 Determine if two set of samples, each from a binomial distribution,
 differ significantly or not (implying a different parameter).
@@ -371,7 +353,6 @@ significance.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::print-2x2] [arg n11] [arg n21] [arg n12] [arg n22]]
 Determine if two set of samples, each from a binomial distribution,
 differ significantly or not (implying a different parameter).
@@ -384,7 +365,6 @@ Returns a short report, useful in an interactive session.
 [arg_def int n22] - Number of outcomes with the second value from the second sample.
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::control-xbar] [arg data] [opt nsamples]]
 Determine the control limits for an xbar chart. The number of data
@@ -399,7 +379,6 @@ data per subsample.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::control-Rchart] [arg data] [opt nsamples]]
 Determine the control limits for an R chart. The number of data
 in each subsample (nsamples) defaults to 4. At least 20 subsamples are required.
@@ -413,7 +392,6 @@ of data per subsample.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::test-xbar] [arg control] [arg data]]
 Determine if the data exceed the control limits for the xbar chart.
 [para]
@@ -425,7 +403,6 @@ limits.
 [arg_def list data] - List of observed data
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::test-Rchart] [arg control] [arg data]]
 Determine if the data exceed the control limits for the R chart.
@@ -534,7 +511,6 @@ variables x1, x2 to xN.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::mv-ols] [arg values]]
 Carries out an ordinary least squares linear regression for
 the data points provided.
@@ -544,7 +520,6 @@ This procedure simply calls ::mvlinreg::wls with the weights
 set to 1.0, and returns the same information.
 
 [list_end]
-
 
 [emph "Example of the use:"]
 [example {
@@ -619,7 +594,6 @@ The following procedures have been implemented:
 
 [list_begin definitions]
 
-
 [call [cmd ::math::statistics::pdf-normal] [arg mean] [arg stdev] [arg value]]
 Return the probability of a given value for a normal distribution with
 given mean and standard deviation.
@@ -631,7 +605,6 @@ given mean and standard deviation.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::pdf-exponential] [arg mean] [arg value]]
 Return the probability of a given value for an exponential
 distribution with given mean.
@@ -641,7 +614,6 @@ distribution with given mean.
 [arg_def float value] - Value for which the probability is required
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::pdf-uniform] [arg xmin] [arg xmax] [arg value]]
 Return the probability of a given value for a uniform
@@ -654,7 +626,6 @@ distribution with given extremes.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::pdf-gamma] [arg alpha] [arg beta] [arg value]]
 Return the probability of a given value for a Gamma
 distribution with given shape and rate parameters
@@ -666,7 +637,6 @@ distribution with given shape and rate parameters
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::pdf-poisson] [arg mu] [arg k]]
 Return the probability of a given number of occurrences in the same
 interval (k) for a Poisson distribution with given mean (mu)
@@ -676,7 +646,6 @@ interval (k) for a Poisson distribution with given mean (mu)
 [arg_def int k] - Number of occurences
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::pdf-chisquare] [arg df] [arg value]]
 Return the probability of a given value for a chi square
@@ -688,7 +657,6 @@ distribution with given degrees of freedom
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::pdf-student-t] [arg df] [arg value]]
 Return the probability of a given value for a Student's t
 distribution with given degrees of freedom
@@ -698,7 +666,6 @@ distribution with given degrees of freedom
 [arg_def float value] - Value for which the probability is required
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::pdf-beta] [arg a] [arg b] [arg value]]
 Return the probability of a given value for a Beta
@@ -710,7 +677,6 @@ distribution with given shape parameters
 [arg_def float value] - Value for which the probability is required
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::cdf-normal] [arg mean] [arg stdev] [arg value]]
 Return the cumulative probability of a given value for a normal
@@ -724,7 +690,6 @@ probability for values up to the given one.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::cdf-exponential] [arg mean] [arg value]]
 Return the cumulative probability of a given value for an exponential
 distribution with given mean.
@@ -734,7 +699,6 @@ distribution with given mean.
 [arg_def float value] - Value for which the probability is required
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::cdf-uniform] [arg xmin] [arg xmax] [arg value]]
 Return the cumulative probability of a given value for a uniform
@@ -747,7 +711,6 @@ distribution with given extremes.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::cdf-students-t] [arg degrees] [arg value]]
 Return the cumulative probability of a given value for a Student's t
 distribution with given number of degrees.
@@ -756,7 +719,6 @@ distribution with given number of degrees.
 [arg_def float value] - Value for which the probability is required
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::cdf-gamma] [arg alpha] [arg beta] [arg value]]
 Return the cumulative probability of a given value for a Gamma
@@ -769,7 +731,6 @@ distribution with given shape and rate parameters
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::cdf-poisson] [arg mu] [arg k]]
 Return the cumulative probability of a given number of occurrences in
 the same interval (k) for a Poisson distribution with given mean (mu)
@@ -779,7 +740,6 @@ the same interval (k) for a Poisson distribution with given mean (mu)
 [arg_def int k] - Number of occurences
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::cdf-beta] [arg a] [arg b] [arg value]]
 Return the cumulative probability of a given value for a Beta
@@ -792,7 +752,6 @@ distribution with given shape parameters
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::random-normal] [arg mean] [arg stdev] [arg number]]
 Return a list of "number" random values satisfying a normal
 distribution with given mean and standard deviation.
@@ -803,7 +762,6 @@ distribution with given mean and standard deviation.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::random-exponential] [arg mean] [arg number]]
 Return a list of "number" random values satisfying an exponential
 distribution with given mean.
@@ -812,7 +770,6 @@ distribution with given mean.
 [arg_def int number] - Number of values to be returned
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::random-uniform] [arg xmin] [arg xmax] [arg number]]
 Return a list of "number" random values satisfying a uniform
@@ -825,7 +782,6 @@ distribution with given extremes.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::random-gamma] [arg alpha] [arg beta] [arg number]]
 Return a list of "number" random values satisfying
 a Gamma distribution with given shape and rate parameters
@@ -837,7 +793,6 @@ a Gamma distribution with given shape and rate parameters
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::random-chisquare] [arg df] [arg number]]
 Return a list of "number" random values satisfying
 a chi square distribution with given degrees of freedom
@@ -848,7 +803,6 @@ a chi square distribution with given degrees of freedom
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::random-student-t] [arg df] [arg number]]
 Return a list of "number" random values satisfying
 a Student's t distribution with given degrees of freedom
@@ -858,7 +812,6 @@ a Student's t distribution with given degrees of freedom
 [arg_def int number] - Number of values to be returned
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::random-beta] [arg a] [arg b] [arg number]]
 Return a list of "number" random values satisfying
@@ -871,7 +824,6 @@ a Beta distribution with given shape parameters
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::histogram-uniform] [arg xmin] [arg xmax] [arg limits] [arg number]]
 Return the expected histogram for a uniform distribution.
 
@@ -882,7 +834,6 @@ Return the expected histogram for a uniform distribution.
 [arg_def int number] - Total number of "observations" in the histogram
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::incompleteGamma] [arg x] [arg p] [opt tol]]
 Evaluate the incomplete Gamma integral
@@ -900,7 +851,6 @@ Evaluate the incomplete Gamma integral
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::incompleteBeta] [arg a] [arg b] [arg x] [opt tol]]
 Evaluate the incomplete Beta integral
 
@@ -911,7 +861,6 @@ Evaluate the incomplete Beta integral
 [arg_def float tol] - Required tolerance (default: 1.0e-9)
 [list_end]
 [para]
-
 
 [list_end]
 TO DO: more function descriptions to be added
@@ -932,7 +881,6 @@ expression is true (this command works analogously to the command [cmd foreach])
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::map] [arg varname] [arg data] [arg expression]]
 Return a list consisting of the data that are transformed via the
 expression.
@@ -943,7 +891,6 @@ expression.
 [arg_def string expression] - Expression to be used to transform (map) the data
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::samplescount] [arg varname] [arg list] [arg expression]]
 Return a list consisting of the [term counts] of all data in the
@@ -957,11 +904,9 @@ sublists of the "list" argument for which the expression is true.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::subdivide]]
 Routine [emph PM] - not implemented yet
 [para]
-
 
 [call [cmd ::math::statistics::test-Kruskal-Wallis] [arg confidence] [arg args]]
 Check if the population medians of two or more groups are equal with a
@@ -972,7 +917,6 @@ given confidence level, using the Kruskal-Wallis test.
 [arg_def list args] - Two or more lists of data
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::analyse-Kruskal-Wallis] [arg args]]
 Compute the statistical parameters for the Kruskal-Wallis test.
@@ -985,7 +929,6 @@ equal.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::group-rank] [arg args]]
 Rank the groups of data with respect to the complete set.
 Returns a list consisting of the group ID, the value and the rank
@@ -995,7 +938,6 @@ Returns a list consisting of the group ID, the value and the rank
 [arg_def list args] - Two or more lists of data
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::test-Wilcoxon] [arg sample_a] [arg sample_b]]
 Compute the Wilcoxon test statistic to determine if two samples have the
@@ -1008,7 +950,6 @@ sample sizes are both larger than 10. Returns the value of this statistic.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::spearman-rank] [arg sample_a] [arg sample_b]]
 Return the Spearman rank correlation as an alternative to the ordinary (Pearson's) correlation
 coefficient. The two samples should have the same number of data.
@@ -1018,7 +959,6 @@ coefficient. The two samples should have the same number of data.
 [arg_def list sample_b] - Second list of data
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::spearman-rank-extended] [arg sample_a] [arg sample_b]]
 Return the Spearman rank correlation as an alternative to the ordinary (Pearson's) correlation
@@ -1052,7 +992,6 @@ provided.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::plot-xydata] [arg canvas] \
 [arg xdata] [arg ydata] [arg tag]]
 Create a simple XY plot in the given canvas - the data are
@@ -1067,7 +1006,6 @@ appearance.
 [list_end]
 [para]
 
-
 [call [cmd ::math::statistics::plot-xyline] [arg canvas] \
 [arg xdata] [arg ydata] [arg tag]]
 Create a simple XY plot in the given canvas - the data are
@@ -1080,7 +1018,6 @@ manipulate the appearance.
 [arg_def string tag] - Tag to give to the plotted data (defaults to xyplot)
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::plot-tdata] [arg canvas] \
 [arg tdata] [arg tag]]
@@ -1095,7 +1032,6 @@ instance or for inspecting the time-dependent behaviour.
 [arg_def string tag] - Tag to give to the plotted data (defaults to xyplot)
 [list_end]
 [para]
-
 
 [call [cmd ::math::statistics::plot-tline] [arg canvas] \
 [arg tdata] [arg tag]]
@@ -1281,7 +1217,6 @@ The histograms are not very useful in identifying the nature of the time
 series - they do not show the periodic nature.
 [list_end]
 
-[keywords mathematics "data analysis" statistics]
 [vset CATEGORY {math :: statistics}]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

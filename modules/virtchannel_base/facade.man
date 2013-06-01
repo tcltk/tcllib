@@ -1,5 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin tcl::chan::facade n 1]
+[keyword {concatenation channel}]
+[keyword {reflected channel}]
+[keyword {tip 219}]
+[keyword {virtual channel}]
 [copyright {2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
@@ -64,7 +68,6 @@ channel [arg chan], and returns its handle.
 
 [list_end]
 
-[keywords {virtual channel} {reflected channel} {concatenation channel} {tip 219}]
 [vset CATEGORY virtchannel]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

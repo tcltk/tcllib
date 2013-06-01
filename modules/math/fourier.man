@@ -1,4 +1,8 @@
 [manpage_begin math::fourier n 1.0.2]
+[keyword {complex numbers}]
+[keyword FFT]
+[keyword {Fourier transform}]
+[keyword mathematics]
 [moddesc {Tcl Math Library}]
 [titledesc {Discrete and fast fourier transforms}]
 [category  Mathematics]
@@ -74,7 +78,6 @@ equivalent in a simple electronic circuit, a resistor and a capacitance
 in series. Using these filters requires the
 [package math::complexnumbers] package.
 
-
 [section "PROCEDURES"]
 The public Fourier transform procedures are:
 
@@ -126,7 +129,6 @@ and a capacitance.
 
 [list_end]
 
-[keywords mathematics "FFT" "Fourier transform" "complex numbers"]
 [vset CATEGORY {math :: fourier}]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

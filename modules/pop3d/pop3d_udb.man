@@ -1,5 +1,9 @@
 [comment {-*- tcl -*-}]
 [manpage_begin pop3d::udb n 1.0.1]
+[keyword internet]
+[keyword network]
+[keyword pop3]
+[keyword protocol]
 [copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl POP3 Server Package}]
 [titledesc {Simple user database for pop3d}]
@@ -21,7 +25,6 @@ authentication callback of pop3 servers following the same interface
 as servers created by the package [package pop3d].
 
 [para]
-
 
 [list_begin definitions]
 
@@ -102,11 +105,8 @@ remembered internally so that it can be used in the next call of
 
 [arg dbName] [method save] without an argument.
 
-
 [list_end]
 
 [vset CATEGORY pop3d]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords pop3 internet network protocol]
 [manpage_end]

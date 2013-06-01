@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin page n 1.0]
+[see_also page::pluginmgr]
+[keyword {parser generator}]
+[keyword {text processing}]
 [copyright {2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [titledesc {Parser Generator}]
 [moddesc   {Development Tools}]
@@ -83,7 +86,6 @@ If the argument is missing [const -] is assumed.
 [subsection OPERATION]
 
 ... reading ... transforming ... writing - plugins - pipeline ...
-
 
 [subsection OPTIONS]
 
@@ -222,7 +224,6 @@ string by doubling it. Newlines in a quoted string are accepted as is.
 [comment {"}]
 [list_end]
 
-
 [subsection PLUGINS]
 
 [syscmd page] makes use of four different types of plugins, namely:
@@ -280,7 +281,6 @@ arguments it specifies are:
 
 [list_end]
 
-
 [def "[option -r] [arg name]"]
 
 Readers. The name of the package for the plugin [arg name] is
@@ -323,7 +323,6 @@ but nothing else. It is [emph not] assumed to
 be the tree representation of a grammar.
 [list_end]
 
-
 [def "[option -w] [arg name]"]
 
 Writers. The name of the package for the plugin [arg name] is
@@ -365,7 +364,6 @@ Assumes that the incoming data structure is a tree representation of a
 package which defines a [package grammar::peg] object containing the
 grammar when it is loaded into an interpreter.
 
-
 [def [emph hb]]
 
 This is like the writer plugin [emph tpc], but it writes only the
@@ -387,7 +385,6 @@ the match engine (ME) provided by the package [package grammar::mengine].
 
 [list_end]
 
-
 [def "[option -t] [arg name]"]
 
 Transformers. The name of the package for the plugin [arg name] is
@@ -403,7 +400,6 @@ Assumes that the incoming data structure is a tree representation of a
 [term PEG] or other other grammar. It determines which nonterminal
 symbols and rules are reachable from start-symbol/expression. All
 nonterminal symbols which were not reached are removed.
-
 
 [def [emph use]]
 
@@ -466,8 +462,6 @@ The contents of both environment variables and registry entries are
 interpreted as a list of paths, with the elements separated by either
 colon (Unix), or semicolon (Windows).
 
-[see_also page::pluginmgr]
-[keywords {text processing} {parser generator}]
 [vset CATEGORY page]
 [include ../modules/doctools2base/include/feedback.inc]
 [manpage_end]

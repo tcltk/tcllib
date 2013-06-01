@@ -1,5 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin nnsd n 1.0.1]
+[see_also nameserv::common(n)]
+[see_also nameserv::server(n)]
+[keyword application]
+[keyword {name service}]
+[keyword server]
 [copyright {2007-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Name service facility}]
 [titledesc {Name service facility, Commandline Server Application}]
@@ -81,9 +86,6 @@ specifies the TCP port the server has to listen on for requests.
 
 [list_end]
 
-[see_also nameserv::common(n)]
-[see_also nameserv::server(n)]
-[keywords {name service} server application]
 [vset CATEGORY nameserv]
 [include ../modules/doctools2base/include/feedback.inc]
 [manpage_end]

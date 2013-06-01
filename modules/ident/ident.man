@@ -1,5 +1,8 @@
 [comment {-*- Tcl -*- doctools manpage}]
 [manpage_begin ident n 0.42]
+[keyword ident]
+[keyword identification]
+[keyword {rfc 1413}]
 [copyright {2004 Reinhard Max <max@tclers.tk>}]
 [titledesc {Ident protocol client}]
 [moddesc   {Identification protocol client}]
@@ -12,7 +15,6 @@ The [package ident] package provides a client implementation of the ident
 protocol as defined in
 
 RFC 1413 ([uri http://www.rfc-editor.org/rfc/rfc1413.txt]).
-
 
 [list_begin definitions]
 [call [cmd ::ident::query] [arg socket] [opt [arg callback]]]
@@ -49,6 +51,4 @@ to the RFC. A detailed error message is returned under the
 
 [vset CATEGORY ident]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords {rfc 1413} ident identification]
 [manpage_end]

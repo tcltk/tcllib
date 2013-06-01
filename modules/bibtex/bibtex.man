@@ -1,5 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin bibtex n 0.5]
+[keyword bibliography]
+[keyword bibtex]
+[keyword parsing]
+[keyword {text processing}]
 [copyright {2005 for documentation, Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {bibtex}]
 [titledesc {Parse bibtex files}]
@@ -24,7 +28,6 @@ a predefined format the command can also enter an event-based parsing
 style where all relevant entries in the input are reported through
 callback commands, in the style of SAX.
 
-
 [call [cmd ::bibtex::parse] [arg text]]
 
 In this form the command will assume that the specified [arg text] is
@@ -35,7 +38,6 @@ result.  Each element will be a list containing record type,
 bibliography key and record data, in this order. The record data will
 be a dictionary, its keys the keys of the record, with the associated
 values.
-
 
 [call [cmd ::bibtex::parse] \
 	[opt "[option -command] [arg cmd]"] \
@@ -67,7 +69,6 @@ simpler forms of the parser.
 [emph Note] that the parser will [emph not] close the channel after it
 has exhausted it. This is still the responsibility of the user of the
 parser.
-
 
 [call [cmd ::bibtex::parse] \
 	[opt "[option -recordcommand]   [arg recordcmd]"] \
@@ -107,13 +108,11 @@ bibliography key for the record, and a dictionary containing the keys
 and values describing the record. Any string macros known to the
 parser have already been expanded.
 
-
 [def "[cmd preamblecmd] [arg token] [arg preambletext]"]
 
 This callback is invoked whenever the parser detects an @preamble
 block in the input. The only additional argument is the text found in
 the preamble block. By default such entries are ignored.
-
 
 [def "[cmd stringcmd] [arg token] [arg stringdict]"]
 
@@ -123,13 +122,11 @@ macro names as keys and their replacement strings as values. By
 default such definitions are added to the parser state for use in
 future bibliography records.
 
-
 [def "[cmd commentcmd] [arg token] [arg commenttext]"]
 
 This callback is invoked whenever the parser detects a comment in the
 input. The only additional argument is the comment text. By default
 such entries are ignored.
-
 
 [def "[cmd progresscmd] [arg token] [arg percent]"]
 
@@ -143,12 +140,10 @@ In the case of incremental processing the perecentage will always be
 [list_end]
 [para]
 
-
 [call [cmd ::bibtex::wait] [arg token]]
 
 This command waits for the parser represented by the [arg token] to
 complete and then returns. The returned result is the empty string.
-
 
 [call [cmd ::bibtex::destroy] [arg token]]
 
@@ -156,7 +151,6 @@ This command cleans up all internal state associated with the parser
 represented by the handle [arg token], effectively destroying it. This
 command can be called from within the parser callbacks to terminate
 processing.
-
 
 [call [cmd ::bibtex::addStrings] [arg token] [arg stringdict]]
 
@@ -175,6 +169,4 @@ a [option -stringcommand] callback in an invokation of the command
 
 [vset CATEGORY bibtex]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords bibtex parsing {text processing} bibliography]
 [manpage_end]

@@ -1,4 +1,6 @@
 [manpage_begin math::calculus::symdiff n 1.0]
+[see_also math::calculus]
+[see_also math::interpolate]
 [copyright "2010 by Kevin B. Kenny <kennykb@acm.org>
 Redistribution permitted under the terms of the Open\
 Publication License <http://www.opencontent.org/openpub/>"]
@@ -19,7 +21,7 @@ The [cmd math::calculus::symdiff] package exports the two procedures:
 [call [cmd math::calculus::symdiff::symdiff] [arg expression] [arg variable]]
 Differentiates the given [arg expression] with respect to the specified
 [arg variable]. (See [sectref "Expressions"] below for a discussion of the
-subset of Tcl math expressions that are acceptable to 
+subset of Tcl math expressions that are acceptable to
 [cmd math::calculus::symdiff].)
 The result is a Tcl expression that evaluates the derivative. Returns an
 error if [arg expression] is not a well-formed expression or is not
@@ -30,10 +32,10 @@ The system is given by the dictionary [arg variableDict], whose keys
 are the names of variables in the system, and whose values are Tcl expressions
 giving the values of those variables. (See [sectref "Expressions"] below
 for a discussion of the subset of Tcl math expressions that are acceptable
-to [cmd math::calculus::symdiff]. The result is a list of lists: 
-the i'th element of the j'th sublist is the partial derivative of 
+to [cmd math::calculus::symdiff]. The result is a list of lists:
+the i'th element of the j'th sublist is the partial derivative of
 the i'th variable with respect to the j'th variable. Returns an error if
-any of the expressions cannot be differentiated, or if [arg variableDict] 
+any of the expressions cannot be differentiated, or if [arg variableDict]
 is not a well-formed dictionary.
 [list_end]
 [section "Expressions"]
@@ -46,7 +48,7 @@ Specifically, the only constructs accepted are:
 must consist of alphanumerics and underscores: the [const \$\{...\}] notation
 is not accepted.
 [item]Parentheses.
-[item]The [const +], [const -], [const *], [const /]. and [const **] 
+[item]The [const +], [const -], [const *], [const /]. and [const **]
 operators.
 [item]Calls to the functions [cmd acos], [cmd asin], [cmd atan],
 [cmd atan2], [cmd cos], [cmd cosh], [cmd exp], [cmd hypot], [cmd log],
@@ -64,8 +66,6 @@ math::calculus::symdiff::jacobian {x {$a * $x + $b * $y}
 ==> {{$a} {$b}} {{$c} {$d}}
 }]
 
-
 [vset CATEGORY {math :: calculus}]
 [include ../doctools2base/include/feedback.inc]
-[see_also math::calculus math::interpolate]
 [manpage_end]

@@ -1,5 +1,16 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin des n 1.1]
+[see_also aes(n)]
+[see_also blowfish(n)]
+[see_also md5(n)]
+[see_also rc4(n)]
+[see_also sha1(n)]
+[keyword 3DES]
+[keyword {block cipher}]
+[keyword {data integrity}]
+[keyword DES]
+[keyword encryption]
+[keyword security]
 [copyright {2005, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc {Data Encryption Standard (DES)}]
 [titledesc {Implementation of the DES and triple-DES ciphers}]
@@ -21,7 +32,7 @@ superceeded by AES but is in common use in many protocols.
 The tcllib implementation of DES and 3DES uses an implementation by
 Mac Cody and is available as a separate download from [lb]2[rb]. For
 anyone concerned about the details of exporting this code please see
-the TclDES web pages. The tcllib specific code is a wrapper to the 
+the TclDES web pages. The tcllib specific code is a wrapper to the
 TclDES API that presents same API for the DES cipher as for other
 ciphers in the library.
 
@@ -56,7 +67,7 @@ byte is discarded.
 
 The [arg -mode] and [arg -dir] options are optional and default to cbc
 mode and encrypt respectively. The initialization vector [arg -iv]
-takes an 8 byte binary argument. This defaults to all zeros. See 
+takes an 8 byte binary argument. This defaults to all zeros. See
 [sectref "MODES OF OPERATION"] for more about [arg -mode] and the use
 of the initialization vector.
 
@@ -185,15 +196,11 @@ DES::Final $Key
 
 [list_end]
 
-[see_also aes(n) blowfish(n) rc4(n) md5(n) sha1(n) ]
-
 [section "AUTHORS"]
-Jochen C Loewer, 
+Jochen C Loewer,
 Mac Cody,
 Pat Thoyts
 
 [vset CATEGORY des]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords DES 3DES {block cipher} security encryption {data integrity}]
 [manpage_end]

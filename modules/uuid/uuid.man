@@ -1,4 +1,6 @@
 [manpage_begin uuid n 1.0.2]
+[keyword GUID]
+[keyword UUID]
 [moddesc {uuid}]
 [copyright {2004, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {UUID generation and comparison}]
@@ -48,6 +50,4 @@ b12dc22c-5c36-41d2-57da-e29d0ef5839c
 
 [vset CATEGORY uuid]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords UUID GUID]
 [manpage_end]

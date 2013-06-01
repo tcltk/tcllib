@@ -1,5 +1,15 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin oo::util n 1.1]
+[see_also snit(n)]
+[keyword callback]
+[keyword {class methods}]
+[keyword {class variables}]
+[keyword {command prefix}]
+[keyword currying]
+[keyword {method reference}]
+[keyword {my method}]
+[keyword singleton]
+[keyword TclOO]
 [copyright {2011-2013 Andreas Kupries, BSD licensed}]
 [moddesc {Utility commands for TclOO}]
 [titledesc {Utility commands for TclOO}]
@@ -7,9 +17,6 @@
 [require Tcl 8.5]
 [require TclOO]
 [require oo::util [opt 1.1]]
-[keywords TclOO callback {my method} {command prefix} currying {method reference}]
-[keywords {class methods} {class variables} singleton]
-[see_also snit(n)]
 [description]
 [para]
 
@@ -31,7 +38,6 @@ at the time of actual invokation.
 
 [para] Note: The command is equivalent to and named after the command
 provided by the OO package [package snit] for the same purpose.
-
 
 [comment {- - -- --- ----- -------- ------------- ---------------------}]
 [call [cmd classmethod] [arg name] [arg arguments] [arg body]]
@@ -57,7 +63,6 @@ puts [Table find foo bar]
 # ======
 # ::Table called with arguments: foo bar
 }]
-
 
 [comment {- - -- --- ----- -------- ------------- ---------------------}]
 [call [cmd classvariable] [opt [arg arg]...]]
@@ -126,7 +131,6 @@ alias/method pair.
 
 The main use of this command is expected to be in instance constructors,
 for convenience, or to set up some methods for use in a mini DSL.
-
 
 [comment {- - -- --- ----- -------- ------------- ---------------------}]
 [call [cmd ooutil::singleton] [opt [arg arg]...]]

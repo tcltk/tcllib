@@ -1,4 +1,10 @@
 [manpage_begin ntp_time n 1.2.1]
+[see_also ntp]
+[keyword NTP]
+[keyword {rfc 868}]
+[keyword {rfc 2030}]
+[keyword SNTP]
+[keyword time]
 [copyright {2002, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc   {Network Time Facilities}]
 [titledesc {Tcl Time Service Client}]
@@ -10,7 +16,7 @@
 
 This package implements a client for the RFC 868 TIME protocol
 ([uri http://www.rfc-editor.org/rfc/rfc868.txt]) and also a minimal
-client for the RFC 2030 Simple Network Time Protocol 
+client for the RFC 2030 Simple Network Time Protocol
 ([uri http://www.rfc-editor.org/rfc/rfc2030.txt]).
 
 RFC 868 returns the time in seconds since 1 January 1900
@@ -32,7 +38,7 @@ release all resources. The default port is [const 37].
 [call [cmd ::time::getsntp] [opt [arg "options"]] [arg timeserver] [opt [arg "port"]]]
 
 Get the time from an SNTP server. This accepts exactly the same
-arguments as [cmd ::time::gettime] except that the default port is 
+arguments as [cmd ::time::gettime] except that the default port is
 [const 123]. The result is a token as per [cmd ::time::gettime] and
 should be handled in the same way.
 [para]
@@ -93,7 +99,6 @@ Get the current value for the named configuration option.
 
 [list_end]
 
-
 [example {
 % set tok [::time::gettime ntp2a.mcc.ac.uk]
 % set t [::time::unixtime $tok]
@@ -118,12 +123,9 @@ proc on_time {token} {
 time::getsntp -command on_time pool.ntp.org
 }]
 
-[see_also ntp]
 [section AUTHORS]
 Pat Thoyts
 
 [vset CATEGORY ntp]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords time NTP {rfc 868} SNTP {rfc 2030}]
 [manpage_end]

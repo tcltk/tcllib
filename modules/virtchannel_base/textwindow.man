@@ -1,5 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin tcl::chan::textwindow n 1]
+[keyword {reflected channel}]
+[keyword {text widget}]
+[keyword {tip 219}]
+[keyword Tk]
+[keyword {virtual channel}]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
@@ -29,7 +34,6 @@ Data written to this channel will appear in the associated [arg widget].
 
 [list_end]
 
-[keywords {virtual channel} {reflected channel} Tk {text widget} {tip 219}]
 [vset CATEGORY virtchannel]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

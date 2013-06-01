@@ -1,5 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin nns n 1.1]
+[see_also nameserv(n)]
+[see_also nameserv::common(n)]
+[keyword application]
+[keyword client]
+[keyword {name service}]
 [copyright {2007-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Name service facility}]
 [titledesc {Name service facility, Commandline Client Application}]
@@ -69,7 +74,6 @@ connection is restored.
 The options to specify the name service will be explained later, in
 section [sectref OPTIONS].
 
-
 [call [cmd nns] [method search] \
 	[opt "[option -host] [arg host]"] \
 	[opt "[option -port] [arg port]"] \
@@ -94,7 +98,6 @@ updating the display as changes arrive. In that form it will
 especially also survive the loss of the connection to the name service
 and reestablish the search when the connection is restored.
 
-
 [call [cmd nns] [method ident] \
 	[opt "[option -host] [arg host]"] \
 	[opt "[option -port] [arg port]"]]
@@ -106,7 +109,6 @@ stdout.
 [para]
 The options to specify the name service will be explained later, in
 section [sectref OPTIONS].
-
 
 [call [cmd nns] [method who]]
 
@@ -136,9 +138,6 @@ requests.
 
 [list_end]
 
-[see_also nameserv::common(n)]
-[see_also nameserv(n)]
-[keywords {name service} client application]
 [vset CATEGORY nameserv]
 [include ../modules/doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,5 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin smtpd n 1.5]
+[keyword {rfc 821}]
+[keyword {rfc 2821}]
+[keyword services]
+[keyword smtp]
+[keyword smtpd]
+[keyword socket]
+[keyword vwait]
 [copyright {Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc   {Tcl SMTP Server Package}]
 [titledesc {Tcl SMTP server implementation}]
@@ -198,7 +205,7 @@ an error. For example, to reject mail from user "denied":
     if {[string match "denied" $addr(local)]} {
          error "mailbox $addr(local) denied"
     }
-    return    
+    return
  }
 }]
 
@@ -282,6 +289,4 @@ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the file
 
 [vset CATEGORY smtpd]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords smtpd smtp services {rfc 821} {rfc 2821} vwait socket]
 [manpage_end]

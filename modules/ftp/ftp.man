@@ -1,12 +1,19 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin ftp n 2.4.11]
+[see_also ftpd]
+[see_also mime]
+[see_also pop3]
+[see_also smtp]
+[keyword ftp]
+[keyword internet]
+[keyword net]
+[keyword {rfc 959}]
 [moddesc   {ftp client}]
 [titledesc {Client-side tcl implementation of the ftp protocol}]
 [category  Networking]
 [require Tcl 8.2]
 [require ftp [opt 2.4.11]]
 [description]
-
 
 [para]
 
@@ -429,7 +436,4 @@ problem is to use [cmd {update idletasks}] instead of [cmd update].
 
 [vset CATEGORY ftp]
 [include ../doctools2base/include/feedback.inc]
-
-[see_also ftpd smtp pop3 mime]
-[keywords ftp {rfc 959} internet net]
 [manpage_end]

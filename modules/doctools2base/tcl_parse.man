@@ -1,10 +1,15 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctools::tcl::parse n 1]
+[keyword command]
+[keyword doctools]
+[keyword parser]
+[keyword subst]
+[keyword {Tcl syntax}]
+[keyword word]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {Processing text in 'subst -novariables' format}]
 [category  {Documentation tools}]
-[keywords doctools parser subst command word {Tcl syntax}]
 [require Tcl 8.4]
 [require snit]
 [require fileutil]
@@ -56,16 +61,13 @@ supports the same methods as trees created by the package
 
 In case of errors [arg tree] will be left in an undefined state.
 
-
 [call [cmd ::doctools::tcl::parse] [method file] \
 	[arg tree] [arg path] [opt [arg root]]]
 
 The same as [method text], except that the text to parse is read from
 the file specified by [arg path].
 
-
 [list_end]
-
 
 [section {Error format}]
 
@@ -108,7 +110,6 @@ counted in characters. Note: Line markers count as one character.
 
 [list_end]
 [list_end]
-
 
 [section {Tree Structure}]
 
@@ -176,7 +177,6 @@ All Text nodes are leaves of the tree.
 All leaves of the tree are either Text or Command nodes.
 Word nodes cannot be leaves.
 [list_end]
-
 
 [vset CATEGORY doctools]
 [include include/feedback.inc]

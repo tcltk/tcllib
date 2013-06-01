@@ -1,5 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin term::ansi::code::ctrl n 0.1]
+[keyword ansi]
+[keyword {attribute control}]
+[keyword {color control}]
+[keyword control]
+[keyword terminal]
 [copyright {2006-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Terminal control}]
 [titledesc {ANSI control sequences}]
@@ -82,7 +87,6 @@ The legal tags, and their meanings, are:
 [def 1] Alternate Character ROM Standard Character Set
 [def 2] Alternate Character ROM Special Graphics
 [list_end]
-
 
 [call [cmd ::term::ansi::code::ctrl::sda] [arg arg]...]
 
@@ -190,7 +194,6 @@ Format the block of text for display at the specified location.
 
 [list_end]
 
-[keywords ansi terminal control {attribute control} {color control}]
 [vset CATEGORY term]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

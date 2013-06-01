@@ -1,4 +1,10 @@
 [manpage_begin uevent n 0.3.1]
+[see_also hook(n)]
+[keyword bind]
+[keyword event]
+[keyword {generate event}]
+[keyword hook]
+[keyword unbind]
 [copyright {2007-2012 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {User events}]
 [titledesc {User events}]
@@ -6,8 +12,6 @@
 [require Tcl 8.4]
 [require uevent [opt 0.3.1]]
 [require logger]
-[keywords event bind unbind {generate event} hook]
-[see_also hook(n)]
 [description]
 
 This package provides a general facility for the handling of user
@@ -189,5 +193,4 @@ combinations.
 
 [vset CATEGORY uevent]
 [include ../doctools2base/include/feedback.inc]
-
 [manpage_end]

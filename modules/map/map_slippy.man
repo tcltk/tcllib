@@ -1,5 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin map::slippy n 0.5]
+[keyword geodesy]
+[keyword geography]
+[keyword latitute]
+[keyword location]
+[keyword longitude]
+[keyword map]
+[keyword slippy]
+[keyword zoom]
 [moddesc   {Mapping utilities}]
 [titledesc {Common code for slippy based map packages}]
 [require Tcl 8.4]
@@ -24,18 +32,15 @@ of
 	expr { [tiles $level] * [tile size] }
 }]
 
-
 [call [cmd ::map::slippy] [method tiles] [arg level]]
 
 This method returns the width/height of a slippy-based map at the
 specified zoom [arg level], in [term tiles].
 
-
 [call [cmd ::map::slippy] [method {tile size}]]
 
 This method returns the width/height of a tile in a slippy-based map,
 in pixels.
-
 
 [call [cmd ::map::slippy] [method {tile valid}] [arg tile] \
 	[arg levels] [opt [arg msgvar]]]
@@ -55,7 +60,6 @@ between 0 and "[arg levels]-1", and that the row/col information is
 within the boundaries for the zoom level, i.e. 0 ...
 "[lb]tiles $zoom[rb]-1".
 
-
 [call [cmd ::map::slippy] [method {geo 2tile}] [arg geo]]
 
 Converts a geographical location at a zoom level ([arg geo], a list
@@ -63,7 +67,6 @@ containing zoom level, latitude, and longitude, in this order) to a
 tile identifier (list containing zoom level, row, and column) at that
 level. The tile identifier uses pure integer numbers for the tile
 coordinates, for all geographic coordinates mapping to that tile.
-
 
 [call [cmd ::map::slippy] [method {geo 2tile.float}] [arg geo]]
 
@@ -74,13 +77,11 @@ level. The tile identifier uses floating point numbers for the tile
 coordinates, representing not only the tile the geographic coordinates
 map to, but also the fractional location inside of that tile.
 
-
 [call [cmd ::map::slippy] [method {geo 2point}] [arg geo]]
 
 Converts a geographical location at a zoom level ([arg geo], a list
 containing zoom level, latitude, and longitude, in this order) to a
 pixel position (list containing zoom level, y, and x) at that level.
-
 
 [call [cmd ::map::slippy] [method {tile 2geo}] [arg tile]]
 
@@ -89,13 +90,11 @@ containing zoom level, row, and column) to a geographical location
 (list containing zoom level, latitude, and longitude, in this order)
 at that level.
 
-
 [call [cmd ::map::slippy] [method {tile 2point}] [arg tile]]
 
 Converts a tile identifier at a zoom level ([arg tile], a list
 containing zoom level, row, and column, in this order) to a pixel
 position (list containing zoom level, y, and x) at that level.
-
 
 [call [cmd ::map::slippy] [method {point 2geo}] [arg point]]
 
@@ -103,7 +102,6 @@ Converts a pixel position at a zoom level ([arg point], list
 containing zoom level, y, and x) to a geographical location (list
 containing zoom level, latitude, and longitude, in this order) at that
 level.
-
 
 [call [cmd ::map::slippy] [method {point 2tile}] [arg point]]
 
@@ -122,7 +120,6 @@ in this order) fits into a viewport given by [arg canvdim], a
 this order.
 
 [list_end]
-
 
 [section {Coordinate systems}]
 
@@ -146,7 +143,6 @@ true range is +/- 90 degrees the projection used by the package
 requires us to cap the range at +/- 85.05112877983284 degrees. This
 means that north and south pole are not representable and not part of
 any map.
-
 
 [subsection Tiles]
 
@@ -178,7 +174,6 @@ tiles of level N+1.
 and vertically) into 2^N stripes, for a total of 4^N tiles, with tile
 coordinates ranging from 0 to 2^N+1.
 
-
 [subsection Pixels/Points]
 
 [term {pixel coordinates}], also called [term {point coordinates}] are
@@ -186,13 +181,9 @@ in essence [sectref Tiles {tile coordinates}] scaled by the size of
 the image representing a tile. This tile size currently has a fixed
 value, [const 256].
 
-
 [section References]
 
 [list_begin enum]
 [enum]	[uri http://wiki.openstreetmap.org/wiki/Main_Page]
 [list_end]
-
-
-[keywords slippy map location geodesy geography latitute longitude zoom]
 [manpage_end]

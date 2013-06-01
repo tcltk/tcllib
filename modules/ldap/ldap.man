@@ -1,5 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin ldap n 1.6.9]
+[keyword {directory access}]
+[keyword internet]
+[keyword ldap]
+[keyword {ldap client}]
+[keyword protocol]
+[keyword {rfc 2251}]
+[keyword {rfc 4511}]
+[keyword x.500]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {2004 Jochen Loewer <loewerj@web.de>}]
 [copyright {2006 Michael Schlenker <mic42@users.sourceforge.net>}]
@@ -73,10 +81,10 @@ string.
 Both [arg name] and [arg passwd] default to the empty string if they
 are not specified.
 
-By leaving out [arg name] and [arg passwd] you can make an anonymous bind to 
+By leaving out [arg name] and [arg passwd] you can make an anonymous bind to
 the ldap server.
 
-You can issue [cmd ::ldap::bind] again to bind with different credentials. 
+You can issue [cmd ::ldap::bind] again to bind with different credentials.
 
 [call [cmd ::ldap::bindSASL] [arg handle] [opt [arg name]] [opt [arg password]]]
 
@@ -85,7 +93,7 @@ This command uses SASL authentication mechanisms to do a multistage bind.
 Its otherwise identical to the standard [cmd ::ldap::bind].
 
 This feature is currently experimental and subject to change. See the documentation
-for the [package SASL] and the [file SASL.txt] in the tcllib CVS repository for 
+for the [package SASL] and the [file SASL.txt] in the tcllib CVS repository for
 details how to setup and use SASL with openldap.
 
 [call [cmd ::ldap::unbind] [arg handle]]
@@ -93,7 +101,7 @@ details how to setup and use SASL with openldap.
 This command asks the ldap server to release the last bind done for
 the connection refered to by the token in [arg handle].
 
-The [arg handle] is invalid after the unbind, as the server closes the connection. 
+The [arg handle] is invalid after the unbind, as the server closes the connection.
 So this is effectivly just a more polite disconnect operation.
 
 [call [cmd ::ldap::search] [arg handle] [arg baseObject] [arg filterString] [arg attributes] [arg options]]
@@ -124,21 +132,20 @@ attribute names. In other words, it is in the form
 }]
 [para]
 
-
 [call [cmd ::ldap::searchInit] [arg handle] [arg baseObject] [arg filterString] [arg attributes] [arg options]]
 
 This command initiates a LDAP search below the [arg baseObject] tree
-using a complex LDAP search expression [arg filterString]. 
-The search gets the specified [arg attributes] of all matching objects (DNs). 
+using a complex LDAP search expression [arg filterString].
+The search gets the specified [arg attributes] of all matching objects (DNs).
 
-The command itself just starts the search, to retrieve the actual results, use 
-[cmd ::ldap::searchNext]. 
+The command itself just starts the search, to retrieve the actual results, use
+[cmd ::ldap::searchNext].
 A search can be terminated at any time by
 [cmd ::ldap::searchEnd]. This informs the server that no further results should be sent by sending and ABANDON message
 and cleans up the internal state of the search.
 
 Only one [cmd ::ldap::search] can be active at a given time, this
-includes the introspection commands [cmd {::ldap::info saslmechanisms}], [cmd {ldap::info control}] and 
+includes the introspection commands [cmd {::ldap::info saslmechanisms}], [cmd {ldap::info control}] and
 [cmd {ldap::info extensions}], which invoke a search internally.
 
 Error responses from the server due to wrong arguments or similar things are returned
@@ -160,13 +167,13 @@ Following options are available:
 [opt_def -scope  {base one sub} ]
 
 Control the scope of the search to be one of [const base], [const one], or [const sub],  to  specify  a  base
-object,  one-level or  subtree  search.   The  default is [const sub].  
+object,  one-level or  subtree  search.   The  default is [const sub].
 
 [opt_def {-derefaliases} {never search find always}]
 
 Control how aliases dereferencing is done.  Should be one of [const never], [const always], [const search],  or  [const find]  to
 specify that aliases are never dereferenced, always dereferenced, dereferenced when searching, or
-dereferenced only when locating the base object for the search.  
+dereferenced only when locating the base object for the search.
 The default is to never dereference aliases.
 
 [opt_def {-sizelimit} num ]
@@ -177,7 +184,7 @@ which may be lower than the one given by this option. The default is 0, no limit
 
 [opt_def {-timelimit} seconds]
 
-Asks the server to use a timelimit of [arg seconds] for the search. Zero means no 
+Asks the server to use a timelimit of [arg seconds] for the search. Zero means no
 limit. The default is 0, no limit.
 
 [opt_def {-attrsonly} boolean]
@@ -193,7 +200,6 @@ further results.
 
 [list_end]
 [para]
-
 
 [call [cmd ::ldap::searchNext] [arg handle]]
 
@@ -214,7 +220,6 @@ list of attributes and values, under the format:
 
 The [cmd ::ldap::searchNext] command returns an empty list at the
 end of the search.
-
 
 [para]
 
@@ -269,7 +274,6 @@ values are the values for the new attributes.
 The command blocks until all modifications have completed. Its result
 is the empty string.
 
-
 [call [cmd ::ldap::modifyMulti] [arg handle] [arg dn] \
 	[arg attrValToReplace] \
 	[opt [arg attrValToDelete]] \
@@ -312,7 +316,6 @@ No attributes will be added if this argument is empty.
 The command blocks until all modifications have completed. Its result
 is the empty string.
 
-
 [call [cmd ::ldap::add] [arg handle] [arg dn] [arg attrValueTuples]]
 
 This command creates a new object using the specified [arg dn]. The
@@ -322,7 +325,6 @@ Multiple valuated attributes may be specified using multiple tuples.
 
 The command blocks until the operation has completed. Its result
 is the empty string.
-
 
 [call [cmd ::ldap::addMulti] [arg handle] [arg dn] [arg attrValueTuples]]
 
@@ -335,7 +337,6 @@ Each tuple is a list containing multiple values.
 The command blocks until the operation has completed. Its result
 is the empty string.
 
-
 [call [cmd ::ldap::delete] [arg handle] [arg dn]]
 
 This command removes the object specified by [arg dn], and all its
@@ -343,7 +344,6 @@ attributes from the server.
 
 The command blocks until the operation has completed. Its result
 is the empty string.
-
 
 [call [cmd ::ldap::modifyDN] [arg handle] [arg dn] [arg newrdn] [opt [arg deleteOld]] [opt [arg newSuperior]]]]
 
@@ -370,12 +370,12 @@ This command returns the IP address of the remote LDAP server the handle is conn
 
 [call [cmd ::ldap::info] [cmd bound] [arg handle]]
 
-This command returns 1 if a handle has successfully completed a [cmd ::ldap::bind]. 
+This command returns 1 if a handle has successfully completed a [cmd ::ldap::bind].
 If no bind was done or it failed, a 0 is returned.
 
 [call [cmd ::ldap::info] [cmd bounduser] [arg handle]]
 
-This command returns the username used in the bind operation if a handle has successfully completed a [cmd ::ldap::bind]. 
+This command returns the username used in the bind operation if a handle has successfully completed a [cmd ::ldap::bind].
 If no bound was done or it failed, an empty string is returned.
 
 [call [cmd ::ldap::info] [cmd connections] ]
@@ -385,7 +385,7 @@ This command returns all currently existing ldap connection handles.
 [call [cmd ::ldap::info] [cmd tls] [arg handle] ]
 
 This command returns 1 if the ldap connection [arg handle] used TLS/SSL for
-connection via [cmd ldap::secure_connect] or completed [cmd ldap::starttls], 0 otherwise. 
+connection via [cmd ldap::secure_connect] or completed [cmd ldap::starttls], 0 otherwise.
 
 [call [cmd ::ldap::info] [cmd saslmechanisms] [arg handle]]
 
@@ -407,7 +407,7 @@ This is currently experimental and subject to change.
 [call [cmd ::ldap::info] [cmd whoami] [arg handle]]
 
 Returns authzId for the current connection. This implements the RFC 4532
-protocol extension. 
+protocol extension.
 
 [list_end]
 [para]
@@ -471,7 +471,7 @@ code.
     # Kill the test object, and shut the connection down.
     set dn "cn=Tester,ou=People,o=University of Michigan,c=US"
     ldap::delete $handle $dn
- 
+
     ldap::unbind     $handle
     ldap::disconnect $handle
 }]
@@ -498,10 +498,10 @@ results.
 	set sortedAttribs {}
 	foreach {type values} $attributes {
 	    if {[string length $type] > $width} {
-		set width [string length $type] 
+		set width [string length $type]
 	    }
 	    lappend sortedAttribs [list $type $values]
-	}     
+	}
 
 	puts "object='$object'"
 
@@ -520,6 +520,4 @@ results.
 
 [vset CATEGORY ldap]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords ldap {rfc 2251} {rfc 4511} x.500 {ldap client} {directory access} internet protocol]
 [manpage_end]

@@ -1,5 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin fileutil::multi n 0.1]
+[keyword copy]
+[keyword {file utilities}]
+[keyword move]
+[keyword multi-file]
+[keyword remove]
 [moddesc   {file utilities}]
 [titledesc {Multi-file operation, scatter/gather, standard object}]
 [category  {Programming tools}]
@@ -8,7 +13,6 @@
 [require fileutil::multi::op [opt 0.1]]
 [require wip [opt 1.0]]
 [description]
-[keywords {file utilities} copy move remove multi-file]
 [para]
 
 This package provides a single command to perform actions on multiple

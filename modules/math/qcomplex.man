@@ -1,5 +1,7 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin math::complexnumbers n 1.0.2]
+[keyword {complex numbers}]
+[keyword math]
 [copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Straightforward complex number package}]
@@ -295,7 +297,6 @@ The complex power to be used
 
 [list_end]
 
-[keywords math {complex numbers}]
 [vset CATEGORY {math :: complexnumbers}]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,4 +1,8 @@
 [manpage_begin tepam::argument_dialogbox n 0.4.1]
+[see_also tepam(n)]
+[see_also tepam::procedure(n)]
+[keyword {data entry form}]
+[keyword {parameter entry form}]
 [copyright {2009/2010, Andreas Drollinger}]
 [moddesc   {Tcl's Enhanced Procedure and Argument Manager}]
 [titledesc {TEPAM argument_dialogbox, reference manual}]
@@ -8,7 +12,6 @@
 [require tepam [opt 0.4]]
 
 [description]
-
 
 [section "ARGUMENT DIALOGBOX CALL"]
 
@@ -55,7 +58,7 @@ Sometimes it is simpler to provide all the data entry item definitions in form o
 
 The commands [cmd argument_dialogbox] as well as [cmd procedure] are exported from the namespace [namespace tepam]. To use these commands without the [namespace tepam::] namespace prefix, it is sufficient to import them into the main namespace:
 [example_begin][cmd {namespace import tepam::*}]
- 
+
 set DialogResult [lb][cmd argument_dialogbox] \
    -title "Itinerary selection"
    ...[example_end]
@@ -246,7 +249,7 @@ The first example uses a variable to define the available choices:
 
 [example_begin]set set AvailableSizes
 for {set k 0} {$k<16} {incr k} {lappend AvailableSizes [lb]expr 1<<$k[rb]}
- 
+
 tepam::argument_dialogbox \
    [cmd -listbox] {-label "Distance" -variable Distance \
              -choicevariable AvailableSizes -default 6 -height 5}[example_end]
@@ -366,7 +369,7 @@ If the data type is defined with the [arg -type] attribute the argument dialog b
 [para]
 The argument dialog box accepts all types that have been specified by the TEPAM package and that are also used by [cmd tepam::procedure] (see the [emph {tepam::procedure reference manual}]).
 [para]
-Some entry widgets like the file and directory widgets, as well as the color and font widgets are specifying automatically the default data type if no type has been specified explicitly with the [arg -type] attribute. 
+Some entry widgets like the file and directory widgets, as well as the color and font widgets are specifying automatically the default data type if no type has been specified explicitly with the [arg -type] attribute.
 [example_begin]tepam::argument_dialogbox \
    [cmd -entry] {-label "Street number" -variable start_street_nbr [cmd {-type integer}]} \[example_end]
 
@@ -452,7 +455,6 @@ All widgets containing a selection list ([cmd -listbox], [cmd -disjointlistbox],
 If the no height has been explicitly specified the height of the widget will be dynamically adapted to the argument dialog box' size.
 [list_end]
 
-
 [section "APPLICATION SPECIFIC ENTRY WIDGETS"]
 
 An application specific entry widget can be made available to the argument dialog box by adding a dedicated procedure to the [namespace tepam] namespace. This procedure has three arguments; the first one is the widget path, the second one a subcommand and the third argument has various purposes:
@@ -475,7 +477,7 @@ The entry widget procedure has to support 3 mandatory and an optional command th
 [list_begin definitions]
 
 [def [arg create]]
-The entry widget is called a first time with the command [arg create] to build the data entry widget. 
+The entry widget is called a first time with the command [arg create] to build the data entry widget.
 [para]
 The frames that are made available by [cmd argument_dialogbox] for the entry widgets are by default only extendable in the X direction. To make them also extendable in the Y direction, for example for extendable list boxes, the command [cmd {ad_form(make_expandable) $W}] has to be executed when an entry widget is built.
 [def [arg set_choice]]
@@ -532,7 +534,4 @@ This array variable is only used by an argument dialog box if its context has be
 To reuse the saved parameters not just in the actual application session but also in another one, it is sufficient to store the [var last_parameter] array variable contents in a configuration file which is loaded the next time an application is launched.
 
 [list_end]
-
-[see_also tepam(n) tepam::procedure(n)]
-[keywords {data entry form} {parameter entry form}]
 [manpage_end]

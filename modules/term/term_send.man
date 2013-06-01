@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin term::send n 0.1]
+[keyword {character output}]
+[keyword control]
+[keyword terminal]
 [copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Terminal control}]
 [titledesc {General output to terminals}]
@@ -28,7 +31,6 @@ destination channel is fixed to [emph stdout].
 
 [list_end]
 
-[keywords terminal control {character output}]
 [vset CATEGORY term]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

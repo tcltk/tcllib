@@ -1,5 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin bench_intro n 1.0]
+[see_also bench]
+[see_also bench_lang_faq]
+[see_also bench_lang_intro]
+[see_also bench_lang_spec]
+[keyword {bench language}]
+[keyword benchmark]
+[keyword performance]
+[keyword testing]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Benchmarking/Performance tools}]
 [titledesc {bench introduction}]
@@ -72,18 +80,12 @@ written in the bench language, and to manipulate benchmark results.
 
 [list_end]
 
-
 [section {HISTORICAL NOTES}]
 
 This module and package have been derived from Jeff Hobbs'
 [syscmd tclbench] application for the benchmarking of the Tcl core and
 its ancestor [file runbench.tcl].
 
-[see_also bench_lang_intro]
-[see_also bench_lang_spec]
-[see_also bench_lang_faq]
-[see_also bench]
-[keywords testing performance benchmark {bench language}]
 [vset CATEGORY bench]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

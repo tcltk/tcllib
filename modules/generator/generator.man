@@ -1,4 +1,15 @@
 [manpage_begin generator n 0.1]
+[keyword {control structure}]
+[keyword coroutine]
+[keyword filter]
+[keyword foldl]
+[keyword foldr]
+[keyword foreach]
+[keyword generator]
+[keyword iterator]
+[keyword map]
+[keyword reduce]
+[keyword scanl]
 [moddesc    {Tcl Generator Commands}]
 [titledesc  {Procedures for creating and using generators.}]
 [require Tcl 8.6]
@@ -37,7 +48,7 @@ one or more generators. This loop construct mimicks the functionality of the
 built-in Tcl [cmd foreach] command, including handling multiple return values
 and looping over multiple generators at once. Writing a generator is also a
 simple task, much like writing a normal procedure: simply use the [method define]
-command to define the generator, and then call [method yield] instead of [cmd return]. 
+command to define the generator, and then call [method yield] instead of [cmd return].
 For example, we can define a generator for looping through the integers
 in a particular range:
 
@@ -93,7 +104,7 @@ Used in the definition of a generator, this command returns the next set of
 values to the consumer. Once the [method yield] command has been called the
 generator will suspend to allow the consumer to process that value. When the
 next value is requested, the generator will resume as if the yield command had
-just returned, and can continue processing to yield the next result. The 
+just returned, and can continue processing to yield the next result. The
 [method yield] command must be called with at least one argument, but can be called with
 multiple arguments, in which case this is equivalent to calling [method yield]
 once for each argument.
@@ -285,7 +296,6 @@ calculated by folding a [cmd +] operator between them, with 0 as the identity:
     puts [sum [range 1 10]]
 }]
 
-
 [para]
 
 The [method reduce] operation is an extremely useful one, and a great variety of
@@ -469,7 +479,4 @@ equivalent to [method foldl] called on the same arguments.
 
 Please report any errors in this document, or in the package it describes, to
 [uri {mailto:nem@cs.nott.ac.uk} {Neil Madden}].
-
-[keywords generator coroutine {control structure} iterator foreach]
-[keywords map filter foldl reduce foldr scanl]
 [manpage_end]

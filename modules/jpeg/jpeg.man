@@ -1,4 +1,10 @@
 [manpage_begin jpeg n 0.4.0]
+[keyword comment]
+[keyword exif]
+[keyword image]
+[keyword jfif]
+[keyword jpeg]
+[keyword thumbnail]
 [copyright {2004-2005, Code: Aaron Faupell <afaupell@users.sourceforge.net>}]
 [copyright {2007, Code:  Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {2004-2009, Doc:  Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
@@ -33,14 +39,12 @@ image in [arg file].
 
 Throws an error if [arg file] is not a JPEG image.
 
-
 [call [cmd ::jpeg::dimensions] [arg file]]
 
 Returns the dimensions of the JPEG [arg file] as a list of the
 horizontal and vertical pixel count.
 
 Throws an error if [arg file] is not a JPEG image.
-
 
 [call [cmd ::jpeg::getThumbnail] [arg file]]
 
@@ -83,7 +87,7 @@ Throws an error if [arg file] is not a JPEG image.
 
 This command is as per [cmd ::jpeg::getExif] except that it uses a
 previously opened channel.  [arg channel] should be a seekable channel
-and [arg section] is as described in the documentation of 
+and [arg section] is as described in the documentation of
 [cmd ::jpeg::getExif]
 
 Note: the jpeg parser expects that the start of the channel is the
@@ -129,14 +133,12 @@ segments, and application specific segments.
 
 Throws an error if [arg file] is not a JPEG image.
 
-
 [call [cmd ::jpeg::getComments] [arg file]]
 
 Returns a list containing all the JPEG comments found in
 the [arg file].
 
 Throws an error if [arg file] is not a valid JPEG image.
-
 
 [call [cmd ::jpeg::addComment] [arg file] [arg text]...]
 
@@ -145,13 +147,11 @@ in [arg file].
 
 Throws an error if [arg file] is not a valid JPEG image.
 
-
 [call [cmd ::jpeg::removeComments] [arg file]]
 
 Removes all comments from the file specified.
 
 Throws an error if [arg file] is not a valid JPEG image.
-
 
 [call [cmd ::jpeg::replaceComment] [arg file] [arg text]]
 
@@ -188,6 +188,4 @@ makernote data not yet implemented
 
 [vset CATEGORY jpeg]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords jpeg image comment exif thumbnail jfif]
 [manpage_end]
