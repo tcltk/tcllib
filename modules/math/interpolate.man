@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin math::interpolate n 1.0.2]
+[keyword interpolation]
+[keyword math]
+[keyword {spatial interpolation}]
 [copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [copyright {2004 Kevn B. Kenny <kennykb@users.sourceforge.net>}]
 [moddesc   {Tcl Math Library}]
@@ -70,7 +73,6 @@ The values must be sorted with respect to the independent variable(s).
 [list_end]
 [para]
 
-
 [call [cmd ::math::interpolate::interp-1d-table] [arg name] [arg xval]]
 
 Interpolate into the one-dimensional table "name" and return a list of values, one for
@@ -84,7 +86,6 @@ each dependent column.
 [list_end]
 
 [para]
-
 
 [call [cmd ::math::interpolate::interp-table] [arg name] [arg xval] [arg yval]]
 
@@ -101,7 +102,6 @@ Interpolate into the two-dimensional table "name" and return the interpolated va
 
 [para]
 
-
 [call [cmd ::math::interpolate::interp-linear] [arg xyvalues] [arg xval]]
 
 Interpolate linearly into the list of x,y pairs and return the interpolated value.
@@ -117,7 +117,6 @@ must be computed.
 [list_end]
 
 [para]
-
 
 [call [cmd ::math::interpolate::interp-lagrange] [arg xyvalues] [arg xval]]
 
@@ -168,7 +167,6 @@ be between the first and last x-coordinate for which values were given.
 
 [para]
 
-
 [call [cmd ::math::interpolate::interp-spatial] [arg xyvalues] [arg coord]]
 
 Use a straightforward interpolation method with weights as function of the
@@ -198,7 +196,6 @@ of dependent values.
 
 [para]
 
-
 [call [cmd ::math::interpolate::interp-spatial-params] [arg max_search] [arg power]]
 
 Set the parameters for spatial interpolation
@@ -224,7 +221,6 @@ numerical instabilities; one is better off using only a few tabulated
 values near the desired abscissa.
 
 [list_end]
-
 
 [section EXAMPLES]
 [emph TODO]
@@ -264,7 +260,6 @@ to get the following output:
 }]
 As you can see, the values at the abscissae are reproduced perfectly.
 
-[keywords math interpolation "spatial interpolation"]
 [vset CATEGORY {math :: interpolate}]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

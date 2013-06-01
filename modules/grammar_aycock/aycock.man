@@ -1,5 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin grammar::aycock n 1.0]
+[keyword ambiguous]
+[keyword aycock]
+[keyword earley]
+[keyword grammar]
+[keyword horspool]
+[keyword parser]
+[keyword parsing]
+[keyword transducer]
 [copyright "2006 by Kevin B. Kenny <kennykb@acm.org>
 Redistribution permitted under the terms of the Open\
 Publication License <http://www.opencontent.org/openpub/>"]
@@ -9,13 +17,11 @@ Publication License <http://www.opencontent.org/openpub/>"]
 [require Tcl 8.5]
 [require grammar::aycock [opt 1.0]]
 [description]
-[keywords grammar parser aycock earley horspool]
-[keywords ambiguous parsing transducer]
 [para]
 The [package grammar::aycock] package
 implements a parser generator for the class of parsers described
-in John Aycock and R. Nigel Horspool. Practical Earley Parsing. 
-[emph "The Computer Journal,"] [emph 45](6):620-630, 2002. 
+in John Aycock and R. Nigel Horspool. Practical Earley Parsing.
+[emph "The Computer Journal,"] [emph 45](6):620-630, 2002.
 [uri http://citeseerx.ist.psu.edu/viewdoc/summary?doi=10.1.1.12.4254]
 [section "PROCEDURES"]
 
@@ -48,7 +54,7 @@ Destroys a parser constructed by [cmd ::aycock::parser].
 
 [call [arg parserName] [method terminals]]
 
-Returns a list of terminal symbols that may be presented in the 
+Returns a list of terminal symbols that may be presented in the
 [arg symList] argument to the [method parse] object command.
 
 [call [arg parserName] [method nonterminals]]
@@ -130,5 +136,4 @@ The example, when run, prints [const 40].
 [section KEYWORDS]
 
 Aycock, Earley, Horspool, parser, compiler
-
 [manpage_end]

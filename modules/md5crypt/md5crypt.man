@@ -1,4 +1,10 @@
 [manpage_begin md5crypt n 1.1.0]
+[see_also md5]
+[keyword hashing]
+[keyword md5]
+[keyword md5crypt]
+[keyword message-digest]
+[keyword security]
 [moddesc   {MD5-based password encryption}]
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {MD5-based password encryption}]
@@ -76,7 +82,4 @@ $1$dFmvyRmO$T.V3OmzqeEf3hqJp2WFcb.
 
 [vset CATEGORY md5crypt]
 [include ../doctools2base/include/feedback.inc]
-
-[see_also md5]
-[keywords md5crypt md5 hashing message-digest security]
 [manpage_end]

@@ -1,5 +1,14 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctools_lang_cmdref n 1.0]
+[see_also doctools_intro]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_intro]
+[see_also doctools_lang_syntax]
+[keyword {doctools commands}]
+[keyword {doctools language}]
+[keyword {doctools markup}]
+[keyword markup]
+[keyword {semantic markup}]
 [copyright {2007-2010 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {doctools language command reference}]
@@ -15,7 +24,6 @@ in alphabetical order, and the descriptions are relatively short.
 
 A beginner should read the much more informally written
 [term {doctools language introduction}] first.
-
 
 [section Commands]
 [list_begin definitions]
@@ -58,13 +66,11 @@ It is expected that the formatted term is not only printed in place,
 but also in the table of contents of the document, or synopsis,
 depending on the output format.
 
-
 [call [cmd category] [arg text]]
 
 Document information. Anywhere. This command registers its plain text
 arguments as the category this document belongs to. If this command is
 used multiple times the last value specified is used.
-
 
 [call [cmd class] [arg text]]
 
@@ -253,13 +259,21 @@ Text structure. This command closes the list opened by the last
 definition list.
 
 [call [cmd manpage_begin] [arg command] [arg section] [arg version]]
+[see_also doctools_intro]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_intro]
+[see_also doctools_lang_syntax]
+[keyword {doctools commands}]
+[keyword {doctools language}]
+[keyword {doctools markup}]
+[keyword markup]
+[keyword {semantic markup}]
 
 Document structure. The command to start a manpage. The arguments are
 the name of the [arg command] described by the manpage, the
 [arg section] of the manpages this manpage resides in, and the
 [arg version] of the module containing the command. All arguments have
 to be plain text, without markup.
-
 [call [cmd manpage_end]]
 
 Document structure. Command to end a manpage/document. Anything in the document
@@ -353,7 +367,6 @@ used in the output, otherwise [arg text] is used.
 Text markup. Like [cmd sectref], except that the section is assumed to
 be in a different document and therefore doesn't need to be identified,
 nor are any checks for existence made. Only the text to format is needed.
-
 
 [call [cmd see_also] [arg args]]
 
@@ -452,12 +465,6 @@ it. Main use is the highlighting of widget names in free-form text.
 
 [list_end]
 
-[see_also doctools_intro]
-[see_also doctools_lang_intro]
-[see_also doctools_lang_syntax]
-[see_also doctools_lang_faq]
-[keywords markup {semantic markup}]
-[keywords {doctools markup} {doctools language} {doctools commands}]
 [vset CATEGORY doctools]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,11 +1,14 @@
 [manpage_begin exif n 1.1.2]
+[keyword exif]
+[keyword jpeg]
+[keyword {maker note}]
+[keyword tiff]
 [moddesc   {EXIF parsing}]
 [titledesc {Tcl EXIF extracts and parses EXIF fields from digital images}]
 [category  {File formats}]
 [require Tcl 8.2]
 [require exif [opt 1.1.2]]
 [description]
-[keywords exif jpeg {maker note} tiff]
 [para]
 
 The EXIF package is a recoding of Chris Breeze's Perl package to do
@@ -18,7 +21,7 @@ There is also a function to obtain a list of all possible field names
 that might be present, which is useful in building GUIs that present
 such information.
 
-[section COMMANDS] 
+[section COMMANDS]
 
 [list_begin definitions]
 
@@ -43,7 +46,6 @@ in the exif data will be written into it.
 This is a file-based wrapper around [cmd exif::analyze]. Instead of
 taking a stream it takes a [arg filename] and analyzes the contents of
 the specified file.
-
 
 [call [cmd exif::fieldnames]]
 

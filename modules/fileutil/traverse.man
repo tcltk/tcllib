@@ -1,5 +1,7 @@
 [comment {-*- text -*- doctools manpage}]
 [manpage_begin fileutil_traverse n 0.4.3]
+[keyword {directory traversal}]
+[keyword traversal]
 [moddesc   {file utilities}]
 [titledesc {Iterative directory traversal}]
 [category  {Programming tools}]
@@ -8,7 +10,6 @@
 [require fileutil]
 [require control]
 [description]
-[keywords {directory traversal} traversal]
 [para]
 
 This package provides objects for the programmable traversal of
@@ -59,7 +60,6 @@ objects. When invoked it returns a list containing the names of all
 files and directories matching the current configuration of the
 traverser.
 
-
 [call [cmd \$traverser] [method foreach] [arg filevar] [arg script]]
 
 The highlevel [method files] method (see above) is based on this
@@ -70,7 +70,6 @@ variable named by [arg filevar]. Both variable and script live / are
 executed in the context of the caller of the method. In the method
 [method files] the script simply saves the found paths into the list
 to return.
-
 
 [call [cmd \$traverser] [method next] [arg filevar]]
 
@@ -87,7 +86,6 @@ able to incrementally traverse a directory hierarchy in an event-based
 manner.
 
 [list_end]
-
 
 [section OPTIONS]
 

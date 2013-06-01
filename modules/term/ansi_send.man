@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin term::ansi::send n 0.1]
+[keyword {character output}]
+[keyword control]
+[keyword terminal]
 [copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Terminal control}]
 [titledesc {Output of ANSI control sequences to terminals}]
@@ -19,7 +22,6 @@ The commands are defined using the control sequences provided by the package
 they are based on, with the exception of the variant for sending to any channel.
 Their first argument is always a channel handle, then followed by the original
 arguments. Below we will list only the variant sending to [emph stdout].
-
 
 [list_begin definitions]
 [call [cmd ::term::ansi::send::import] [opt [arg ns]] [arg ...]]
@@ -131,7 +133,6 @@ Enter Graphics Mode.
 
 Exit Graphics Mode.
 
-
 [call [cmd ::term::ansi::send::scs0] [arg tag]]
 [call [cmd ::term::ansi::send::scs1] [arg tag]]
 
@@ -153,7 +154,6 @@ The legal tags, and their meanings, are:
 [def 1] Alternate Character ROM Standard Character Set
 [def 2] Alternate Character ROM Special Graphics
 [list_end]
-
 
 [call [cmd ::term::ansi::send::sda] [arg arg]...]
 
@@ -261,7 +261,6 @@ Show the block of text at the specified location.
 
 [list_end]
 
-[keywords terminal control {character output}]
 [vset CATEGORY term]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

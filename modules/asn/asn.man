@@ -1,5 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin asn n 0.8]
+[keyword asn]
+[keyword ber]
+[keyword cer]
+[keyword der]
+[keyword internet]
+[keyword protocol]
+[keyword x.208]
+[keyword x.209]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {2004 Jochen Loewer <loewerj@web.de>}]
 [copyright {2004-2011 Michael Schlenker <mic42@users.sourceforge.net>}]
@@ -33,7 +41,6 @@ Laboratories Technical Note by Burton S. Kaliski Jr. (Revised November
 1, 1993). A text version of this note is part of the module sources
 and should be read by any implementor.
 
-
 [section {PUBLIC API}]
 [subsection ENCODER]
 
@@ -64,80 +71,66 @@ returns its encoded binary form.
 Takes zero or more encoded values, packs them into an ASN application
 construct and returns its encoded binary form.
 
-
 [call [cmd ::asn::asnApplication] [arg appNumber] [arg data]]
 
 Takes a single encoded value [arg data], packs it into an ASN
 application construct and returns its encoded binary form.
-
 
 [call [cmd ::asn::asnChoice] [arg appNumber] [arg evalue]...]
 
 Takes zero or more encoded values, packs them into an ASN choice
 construct and returns its encoded binary form.
 
-
 [call [cmd ::asn::asnChoiceConstr] [arg appNumber] [arg evalue]...]
 
 Takes zero or more encoded values, packs them into an ASN choice
 construct and returns its encoded binary form.
-
 
 [call [cmd ::asn::asnInteger] [arg number]]
 
 Returns the encoded form of the specified integer
 [arg number].
 
-
 [call [cmd ::asn::asnEnumeration] [arg number]]
 
 Returns the encoded form of the specified enumeration id
 [arg number].
-
 
 [call [cmd ::asn::asnBoolean] [arg bool]]
 
 Returns the encoded form of the specified boolean value
 [arg bool].
 
-
 [call [cmd ::asn::asnContext] [arg context] [arg data]]
 
 Takes an encoded value and packs it into a constructed value with
 application tag, the [arg context] number.
-
 
 [call [cmd ::asn::asnContextConstr] [arg context] [arg evalue]...]
 
 Takes zero or more encoded values and packs them into a constructed
 value with application tag, the [arg context] number.
 
-
 [call [cmd ::asn::asnObjectIdentifier] [arg idlist]]
 
 Takes a list of at least 2 integers describing an object identifier
 (OID) value, and returns the encoded value.
 
-
 [call [cmd ::asn::asnUTCTime] [arg utcstring]]
 
 Returns the encoded form of the specified UTC time string.
-
 
 [call [cmd ::asn::asnNull]]
 
 Returns the NULL encoding.
 
-
 [call [cmd ::asn::asnBitString] [arg string]]
 
 Returns the encoded form of the specified [arg string].
 
-
 [call [cmd ::asn::asnOctetString] [arg string]]
 
 Returns the encoded form of the specified [arg string].
-
 
 [call [cmd ::asn::asnNumericString] [arg string]]
 
@@ -145,8 +138,7 @@ Returns the [arg string] encoded as ASN.1 NumericString. Raises an
 error if the [arg string] contains characters other than decimal
 numbers and space.
 
-
-[call [cmd ::asn::asnPrintableString] [arg string]] 
+[call [cmd ::asn::asnPrintableString] [arg string]]
 
 Returns the [arg string] encoding as ASN.1 PrintableString. Raises an
 error if the [arg string] contains characters which are not allowed by
@@ -154,19 +146,16 @@ the Printable String datatype. The allowed characters are A-Z, a-z,
 0-9, space, apostrophe, colon, parentheses, plus, minus, comma,
 period, forward slash, question mark, and the equals sign.
 
-
 [call [cmd ::asn::asnIA5String] [arg string]]
 
 Returns the [arg string] encoded as ASN.1 IA5String. Raises an error
 if the [arg string] contains any characters outside of the US-ASCII
 range.
 
-
 [call [cmd ::asn::asnBMPString] [arg string]]
 
 Returns the [arg string] encoded as ASN.1 Basic Multilingual Plane
 string (Which is essentialy big-endian UCS2).
-
 
 [call [cmd ::asn::asnUTF8String] [arg string]]
 
@@ -174,14 +163,12 @@ Returns the [arg string] encoded as UTF8 String. Note that some legacy
 applications such as Windows CryptoAPI do not like UTF8 strings. Use
 BMPStrings if you are not sure.
 
-
 [call [cmd ::asn::asnString] [arg string]]
 
 Returns an encoded form of [arg string], choosing the most restricted
 ASN.1 string type possible. If the string contains non-ASCII
 characters, then there is more than one string type which can be
 used. See [cmd ::asn::defaultStringType].
-
 
 [call [cmd ::asn::defaultStringType] [opt [arg type]]]
 
@@ -214,7 +201,6 @@ extracted value after the call, and not the remainder of the input.
 
 [list_end]
 
-
 [para]
 [list_begin definitions]
 [call [cmd ::asn::asnPeekByte] [arg data_var] [arg byte_var]]
@@ -227,13 +213,10 @@ This can be used to check for implicit tags.
 Decode the length information for a block of BER data. The tag has already
 to be removed from the data.
 
-
-
 [call [cmd ::asn::asnGetResponse] [arg chan] [arg data_var]]
 
 Reads an encoded ASN [emph sequence] from the channel [arg chan] and
 stores it into the variable named by [arg data_var].
-
 
 [call [cmd ::asn::asnGetInteger] [arg data_var] [arg int_var]]
 
@@ -243,7 +226,6 @@ into the variable named by [arg int_var]. Additionally removes all
 bytes associated with the value from the data for further processing
 by the following decoder commands.
 
-
 [call [cmd ::asn::asnGetEnumeration] [arg data_var] [arg enum_var]]
 
 Assumes that an enumeration id is at the front of the data stored in
@@ -252,7 +234,6 @@ named by [arg enum_var]. Additionally removes all bytes associated
 with the value from the data for further processing by the following
 decoder commands.
 
-
 [call [cmd ::asn::asnGetOctetString] [arg data_var] [arg string_var]]
 
 Assumes that a string is at the front of the data stored in the
@@ -260,7 +241,6 @@ variable named [arg data_var], and stores it into the variable named
 by [arg string_var]. Additionally removes all bytes associated with
 the value from the data for further processing by the following
 decoder commands.
-
 
 [call [cmd ::asn::asnGetString] [arg data_var] [arg string_var] [opt [arg type_var]]]
 
@@ -287,7 +267,6 @@ create the appropriate function
 "asn::asnGetSome[var UnsupportedString]" in your application if
 neccessary.
 
-
 [call [cmd ::asn::asnGetNumericString] [arg data_var] [arg string_var]]
 
 Assumes that a numeric string value is at the front of the data stored
@@ -295,7 +274,6 @@ in the variable named [arg data_var], and stores it into the variable
 named by [arg string_var]. Additionally removes all bytes associated
 with the value from the data for further processing by the following
 decoder commands.
-
 
 [call [cmd ::asn::asnGetPrintableString] [arg data_var] [arg string_var]]
 
@@ -305,7 +283,6 @@ variable named by [arg string_var]. Additionally removes all bytes
 associated with the value from the data for further processing by the
 following decoder commands.
 
-
 [call [cmd ::asn::asnGetIA5String] [arg data_var] [arg string_var]]
 
 Assumes that a IA5 (ASCII) string value is at the front of the data
@@ -313,7 +290,6 @@ stored in the variable named [arg data_var], and stores it into the
 variable named by [arg string_var]. Additionally removes all bytes
 associated with the value from the data for further processing by the
 following decoder commands.
-
 
 [call [cmd ::asn::asnGetBMPString] [arg data_var] [arg string_var]]
 
@@ -324,7 +300,6 @@ proper Tcl string. Additionally removes all bytes associated with the
 value from the data for further processing by the following decoder
 commands.
 
-
 [call [cmd ::asn::asnGetUTF8String] [arg data_var] [arg string_var]]
 
 Assumes that a UTF8 string value is at the front of the data stored in
@@ -333,53 +308,47 @@ named by [arg string_var], converting it into a proper Tcl string.
 Additionally removes all bytes associated with the value from the data
 for further processing by the following decoder commands.
 
-
 [call [cmd ::asn::asnGetUTCTime] [arg data_var] [arg utc_var]]
 
 Assumes that a UTC time value is at the front of the data stored in the
-variable named [arg data_var], and stores it into the variable named 
+variable named [arg data_var], and stores it into the variable named
 by [arg utc_var]. The UTC time value is stored as a string, which has to
 be decoded with the usual clock scan commands.
 Additionally removes all bytes associated with the
 value from the data for further processing by the following decoder
 commands.
 
-
 [call [cmd ::asn::asnGetBitString] [arg data_var] [arg bits_var]]
 
 Assumes that a bit string value is at the front of the data stored in the
-variable named [arg data_var], and stores it into the variable named 
+variable named [arg data_var], and stores it into the variable named
 by [arg bits_var] as a string containing only 0 and 1.
 Additionally removes all bytes associated with the
 value from the data for further processing by the following decoder
 commands.
 
-
 [call [cmd ::asn::asnGetObjectIdentifier] [arg data_var] [arg oid_var]]
 
-Assumes that a object identifier (OID) value is at the front of the data 
-stored in the variable named [arg data_var], and stores it into the variable 
-named by [arg oid_var] as a list of integers. 
+Assumes that a object identifier (OID) value is at the front of the data
+stored in the variable named [arg data_var], and stores it into the variable
+named by [arg oid_var] as a list of integers.
 Additionally removes all bytes associated with the
 value from the data for further processing by the following decoder
 commands.
 
-
 [call [cmd ::asn::asnGetBoolean] [arg data_var] [arg bool_var]]
 
 Assumes that a boolean value is at the front of the data stored in the
-variable named [arg data_var], and stores it into the variable named 
+variable named [arg data_var], and stores it into the variable named
 by [arg bool_var]. Additionally removes all bytes associated with the
 value from the data for further processing by the following decoder
 commands.
-
 
 [call [cmd ::asn::asnGetNull] [arg data_var]]
 
 Assumes that a NULL value is at the front of the data stored in the
 variable named [arg data_var] and removes the bytes used to encode it
 from the data.
-
 
 [call [cmd ::asn::asnGetSequence] [arg data_var] [arg sequence_var]]
 
@@ -395,7 +364,6 @@ The data in [arg sequence_var] is encoded binary and has to be
 further decoded according to the definition of the sequence, using the
 decoder commands here.
 
-
 [call [cmd ::asn::asnGetSet] [arg data_var] [arg set_var]]
 
 Assumes that an ASN set is at the front of the data stored in the
@@ -409,7 +377,6 @@ commands.
 The data in [arg set_var] is encoded binary and has to be further
 decoded according to the definition of the set, using the decoder
 commands here.
-
 
 [call [cmd ::asn::asnGetApplication] [arg data_var] [arg appNumber_var] [opt [arg content_var]] [opt [arg encodingType_var]]]
 
@@ -432,8 +399,7 @@ Otherwise it is the responsibility of the caller to decode the
 remainder of the application construct based on the id retrieved by
 this command, using the decoder commands of this package.
 
-
-[call [cmd ::asn::asnGetContext] [arg data_var] [arg contextNumber_var] [opt [arg content_var]] [opt [arg encodingType_var]]] 
+[call [cmd ::asn::asnGetContext] [arg data_var] [arg contextNumber_var] [opt [arg content_var]] [opt [arg encodingType_var]]]
 
 Assumes that an ASN context tag construct is at the front of the data
 stored in the variable named [arg data_var], and stores its id into
@@ -479,7 +445,7 @@ tag is for a constructed value, and to 0 for not constructed. It returns the len
 
 The [cmd ::asn::asnTag] can be used to create a tag value. The [arg tagnumber] gives the number of the tag, while
 the [arg class] gives one of the classes (UNIVERSAL,CONTEXT,APPLICATION or PRIVATE). The class may be abbreviated to just the first letter (U,C,A,P),
-default is UNIVERSAL.    
+default is UNIVERSAL.
 The [arg tagstyle] is either C for Constructed encoding, or P for primitve encoding. It defaults to P. You can also use 1 instead of C and
 0 instead of P for direct use of the values returned by [cmd ::asn::asnPeekTag].
 
@@ -488,8 +454,6 @@ The [arg tagstyle] is either C for Constructed encoding, or P for primitve encod
 Replaces the tag in front of the data in [arg data_var] with [arg newTag]. The new Tag can be created using the [cmd ::asn::asnTag] command.
 [list_end]
 
-
-
 [section EXAMPLES]
 
 Examples for the usage of this package can be found in the
@@ -497,6 +461,4 @@ implementation of package [package ldap].
 
 [vset CATEGORY asn]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords asn x.208 ber x.209 der cer internet protocol]
 [manpage_end]

@@ -19,7 +19,7 @@ In simple usage you make calls using http method procedures and then check or pr
 [call [cmd ::rest::put] [arg url] [arg query] [opt config] [opt body]]
 [call [cmd ::rest::delete] [arg url] [arg query] [opt config] [opt body]]
 [list_end]
-The above commands are all equivalent except for the http method used. If you use [cmd simple] then the method should be specified as an option in the [opt config] dict, otherwise it defaults to [const get]. If a body is needed then the config dict must be present, however it may be empty. 
+The above commands are all equivalent except for the http method used. If you use [cmd simple] then the method should be specified as an option in the [opt config] dict, otherwise it defaults to [const get]. If a body is needed then the config dict must be present, however it may be empty.
 
 [example {
     set appid APPID
@@ -46,7 +46,6 @@ format
 method
 content-type
 
-
 Interface usage
 An interface to a REST API consists of a series of definitions of REST calls contained in an array. The array name becomes a namespace containing the defined commands. Each array element defines the name of the call and takes the form of a dict, aka key/value pairs. These keys are the defined configuration options below.
 After creating the definitions simply call rest::create_interface on the array to create the commands.
@@ -64,7 +63,6 @@ rest::create_interface yweather
 
 puts [yweather::forecast -p 94089]
 }]
-
 
 ::${name}::basic_auth [arg u] [arg p]
 
@@ -85,7 +83,6 @@ parse a url query string into a dict
 
 [call [cmd ::rest::substitute] [arg string] [opt var]]
 take a string and substitute real values for any option identifiers
-
 
 [call [cmd ::rest::create_interface] [arg name]]
 TOKENS
@@ -201,5 +198,4 @@ facebook
 del.icio.us
 read the file or source it and use [cmd describe] for more information. also see the
 developers documentation on the respective sites.
-
 [manpage_end]

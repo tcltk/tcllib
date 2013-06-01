@@ -1,5 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin blowfish n 1.0.3]
+[see_also 3des]
+[see_also des]
+[see_also rc4]
+[keyword {block cipher}]
+[keyword blowfish]
+[keyword cryptography]
+[keyword encryption]
+[keyword security]
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc   {Blowfish Block Cipher}]
 [titledesc {Implementation of the Blowfish block cipher}]
@@ -101,7 +109,6 @@ Once this function has been called the key may not be used again.
 
 [list_end]
 
-
 [section "MODES OF OPERATION"]
 
 [list_begin definitions]
@@ -149,13 +156,9 @@ d0d8f27e7a374b9e2dbd9938dd04195a
 
 [list_end]
 
-[see_also des 3des rc4]
-
 [section AUTHORS]
 Frank Pilhofer, Pat Thoyts
 
 [vset CATEGORY blowfish]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords blowfish {block cipher} security encryption cryptography]
 [manpage_end]

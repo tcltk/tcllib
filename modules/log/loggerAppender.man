@@ -1,6 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [comment {$Id: loggerAppender.man,v 1.6 2009/01/29 06:16:19 andreas_kupries Exp $}]
 [manpage_begin logger::appender n 1.2]
+[keyword appender]
+[keyword logger]
 [copyright {2005 Aamer Akhter <aakhter@cisco.com>}]
 [moddesc {Object Oriented logging facility}]
 [titledesc {Collection of predefined appenders for logger}]
@@ -8,7 +10,6 @@
 [require Tcl 8.2]
 [require logger::appender [opt 1.2]]
 [description]
-[keywords logger appender]
 
 This package provides a predefined set of logger templates.
 
@@ -48,7 +49,6 @@ Name of the variable to set in the calling context. This variable will
 contain the name of the procedure.
 
 [list_end]
-
 
 [call [cmd ::logger::appender::colorConsole] \
 	[option -level] [arg level] \

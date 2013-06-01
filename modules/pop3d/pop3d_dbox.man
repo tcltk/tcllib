@@ -1,5 +1,10 @@
 [comment {-*- tcl -*-}]
 [manpage_begin pop3d::dbox n 1.0.2]
+[keyword internet]
+[keyword network]
+[keyword pop3]
+[keyword protocol]
+[keyword {rfc 822}]
 [copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl POP3 Server Package}]
 [titledesc {Simple mailbox database for pop3d}]
@@ -125,7 +130,6 @@ or this call will fail. If [method stat] was not called before this
 call, [method size] will assume that there are zero messages in the
 mailbox.
 
-
 [call [arg dbName] [method dele] [arg {mbox msgList}]]
 
 Deletes the messages whose numeric ids are contained in the
@@ -138,7 +142,6 @@ The numeric ids in [arg msgList] have to be in the range "1 ...
 call will fail. If [method stat] was not called
 before this call, [method dele] will assume
 that there are zero messages in the mailbox.
-
 
 [call [arg storageCmd] [method get] [arg mbox] [arg msgId]]
 
@@ -154,11 +157,8 @@ call will fail. If [method stat] was not called
 before this call, [method get] will assume
 that there are zero messages in the mailbox.
 
-
 [list_end]
 
 [vset CATEGORY pop3d]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords pop3 internet network protocol {rfc 822}]
 [manpage_end]

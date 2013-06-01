@@ -1,8 +1,11 @@
 [manpage_begin string::token n 1]
+[keyword lexing]
+[keyword regex]
+[keyword string]
+[keyword tokenization]
 [moddesc   {Text and string utilities}]
 [titledesc {Regex based iterative lexing}]
 [category  {Text processing}]
-[keywords string tokenization lexing regex]
 [require Tcl 8.5]
 [require string::token [opt 1]]
 [require fileutil]
@@ -91,5 +94,4 @@ exactly at the character index found in [arg startvar].
 
 [vset CATEGORY textutil]
 [include ../doctools2base/include/feedback.inc]
-
 [manpage_end]

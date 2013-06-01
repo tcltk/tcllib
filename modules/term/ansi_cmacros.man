@@ -1,5 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin term::ansi::code::macros n 0.1]
+[keyword ansi]
+[keyword control]
+[keyword frame]
+[keyword menu]
+[keyword terminal]
 [copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Terminal control}]
 [titledesc {Macro sequences}]
@@ -47,7 +52,6 @@ red text.  The result is returned as the result of the command.
 The description, [arg menu], is a dictionary mapping from menu label
 to command character.
 
-
 [call [cmd ::term::ansi::code::macros::frame] [arg string]]
 
 The paragraph of text contained in the string is padded with spaces at
@@ -57,7 +61,6 @@ the command.
 
 [list_end]
 
-[keywords ansi terminal control menu frame]
 [vset CATEGORY term]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

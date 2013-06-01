@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin picoirc n 0.5]
+[see_also {rfc 1459}]
+[keyword chat]
+[keyword irc]
 [moddesc   {Simple embeddable IRC interface}]
 [titledesc {Small and simple embeddable IRC client.}]
 [category  Networking]
@@ -7,7 +10,7 @@
 [require picoirc [opt 0.5]]
 [description]
 
-This package provides a general purpose minimal IRC client suitable for 
+This package provides a general purpose minimal IRC client suitable for
 embedding in other applications. All communication with the parent
 application is done via an application provided callback procedure.
 Each connection has its own state so you can hook up multiple servers
@@ -72,7 +75,7 @@ proc Callback {context state args} {
 }
 }]
 
-where context is the irc context variable name (in case you need to pass 
+where context is the irc context variable name (in case you need to pass
 it back to a picoirc procedure). state is one of a number of states as
 described below.
 
@@ -104,7 +107,7 @@ received.
 
 called when a message arrives. [arg target] is the identity that the
 message was targetted for. This can be the logged in nick or a channel
-name. [arg nick] is the name of the sender of the message. 
+name. [arg nick] is the name of the sender of the message.
 [arg message] is the message text. [arg type] is set to "ACTION" if the
 message was sent as a CTCP ACTION
 
@@ -148,14 +151,11 @@ socket. [arg type] is set to [const read] when reading data and
 unprocessed IRC protocol data.
 [para]
 In both cases the application can return a break error code to
-interrupt further processing of the raw data. If this is a 
+interrupt further processing of the raw data. If this is a
 [const read] operation then the package will not handle this line. If
 the operation is [const write] then the package will not send the
 data. This callback is intended for debugging protocol issues but
 could be used to redirect all input and output if desired.
 
 [list_end]
-
-[see_also {rfc 1459}]
-[keywords irc chat]
 [manpage_end]

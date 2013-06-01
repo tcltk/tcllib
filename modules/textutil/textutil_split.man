@@ -1,4 +1,10 @@
 [manpage_begin textutil::split n 0.7]
+[see_also regexp(n)]
+[see_also split(n)]
+[see_also string(n)]
+[keyword {regular expression}]
+[keyword split]
+[keyword string]
 [moddesc   {Text and string utilities, macro processing}]
 [titledesc {Procedures to split texts}]
 [category  {Text processing}]
@@ -42,8 +48,6 @@ The regular expression [arg regexp] defaults to "[lb]\\t \\r\\n[rb]+".
 
 [list_end]
 
-[see_also regexp(n) split(n) string(n)]
-[keywords string {regular expression} split]
 [vset CATEGORY textutil]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

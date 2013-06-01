@@ -1,4 +1,15 @@
 [manpage_begin crc16 n 1.1.2]
+[see_also cksum(n)]
+[see_also crc32(n)]
+[see_also sum(n)]
+[keyword checksum]
+[keyword cksum]
+[keyword crc]
+[keyword crc16]
+[keyword crc32]
+[keyword {cyclic redundancy check}]
+[keyword {data integrity}]
+[keyword security]
 [copyright {2002, Pat Thoyts}]
 [moddesc   {Cyclic Redundancy Checks}]
 [titledesc {Perform a 16bit Cyclic Redundancy Check}]
@@ -123,11 +134,9 @@ Terminate option processing.
 51675
 }]
 
-[see_also sum(n) cksum(n) crc32(n)]
 [section AUTHORS]
 Pat Thoyts
 
-[keywords cksum checksum crc crc32 crc16 {cyclic redundancy check} {data integrity} security]
 [vset CATEGORY crc]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

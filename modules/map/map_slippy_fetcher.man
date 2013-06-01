@@ -1,5 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin map::slippy::fetcher n 0.3]
+[keyword http]
+[keyword location]
+[keyword map]
+[keyword server]
+[keyword slippy]
+[keyword tile]
+[keyword url]
+[keyword zoom]
 [moddesc   {Mapping utilities}]
 [titledesc {Accessing a server providing tiles for slippy-based maps}]
 [require Tcl 8.4]
@@ -28,7 +36,6 @@ The result of the command is [arg fetcherName].
 
 [list_end]
 
-
 [subsection Methods]
 
 [list_begin definitions]
@@ -42,11 +49,9 @@ object, and the tile server it is accessing.
 
 This method returns the height of tiles served, in pixels.
 
-
 [call [arg fetcherName] [method tilewidth]]
 
 This method returns the width of tiles served, in pixels.
-
 
 [call [arg fetcherName] [method get] [arg tile] [arg donecmd]]
 
@@ -76,8 +81,4 @@ These two possibilities are used to either signal the image for the
 [list_begin enum]
 [enum]	[uri http://wiki.openstreetmap.org/wiki/Main_Page]
 [list_end]
-
-
-[keywords server tile slippy map location zoom http url]
 [manpage_end]
-

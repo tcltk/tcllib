@@ -1,8 +1,13 @@
 [manpage_begin string::token::shell n 1.1]
+[keyword bash]
+[keyword lexing]
+[keyword parsing]
+[keyword shell]
+[keyword string]
+[keyword tokenization]
 [moddesc   {Text and string utilities}]
 [titledesc {Parsing of shell command line}]
 [category  {Text processing}]
-[keywords string shell bash tokenization parsing lexing]
 [require Tcl 8.5]
 [require string::token::shell [opt 1.1]]
 [require string::token [opt 1]]
@@ -126,5 +131,4 @@ expression \\s.
 
 [vset CATEGORY textutil]
 [include ../doctools2base/include/feedback.inc]
-
 [manpage_end]

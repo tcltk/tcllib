@@ -1,4 +1,10 @@
 [manpage_begin textutil::tabify n 0.7]
+[see_also regexp(n)]
+[see_also split(n)]
+[see_also string(n)]
+[keyword formatting]
+[keyword string]
+[keyword tabstops]
 [moddesc   {Text and string utilities, macro processing}]
 [titledesc {Procedures to (un)tabify strings}]
 [category  {Text processing}]
@@ -21,7 +27,6 @@ Tabify the [arg string] by replacing any substring of [arg num] space
 chars by a tabulation and return the result as a new string. [arg num]
 defaults to 8.
 
-
 [call [cmd ::textutil::tabify::tabify2] [arg string] [opt [arg num]]]
 
 Similar to [cmd ::textutil::tabify] this command tabifies the
@@ -38,13 +43,11 @@ tabstops every [arg num] columns. Only sequences of space characters
 containing more than one space character and found immediately before
 a tabstop are replaced with tabs.
 
-
 [call [cmd ::textutil::tabify::untabify] [arg string] [opt [arg num]]]
 
 Untabify the [arg string] by replacing any tabulation char by a
 substring of [arg num] space chars and return the result as a new
 string. [arg num] defaults to 8.
-
 
 [call [cmd ::textutil::tabify::untabify2] [arg string] [opt [arg num]]]
 
@@ -64,8 +67,6 @@ space, but not the other way around.
 
 [list_end]
 
-[see_also regexp(n) split(n) string(n)]
-[keywords string formatting tabstops]
 [vset CATEGORY textutil]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,5 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin bench_lang_spec n 1.0]
+[see_also bench_intro]
+[see_also bench_lang_intro]
+[keyword {bench language}]
+[keyword benchmark]
+[keyword performance]
+[keyword specification]
+[keyword testing]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {bench language specification}]
@@ -16,7 +23,6 @@ in alphabetical order, and the descriptions are relatively short.
 A beginner should read the more informally written
 [term {bench language introduction}] first.
 
-
 [section Commands]
 [list_begin definitions]
 
@@ -28,7 +34,6 @@ then returns the empty string as its result.
 The command is [emph trusted], there is no checking if the specified
 files are outside of whatever restricted area the benchmarks are run
 in.
-
 
 [call [cmd bench_tmpfile]]
 
@@ -50,7 +55,6 @@ The base location of the temporary files is platform dependent:
 The current working directory.
 [list_end]
 [para]
-
 
 [call [cmd bench] [arg options]...]
 
@@ -123,9 +127,6 @@ to run without failing.
 [list_end]
 [list_end]
 
-[see_also bench_intro]
-[see_also bench_lang_intro]
-[keywords testing performance benchmark {bench language} specification]
 [vset CATEGORY bench]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

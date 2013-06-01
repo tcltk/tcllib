@@ -1,5 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin map::slippy::cache n 0.2]
+[keyword cache]
+[keyword filesystem]
+[keyword location]
+[keyword map]
+[keyword slippy]
+[keyword tile]
+[keyword zoom]
 [moddesc   {Mapping utilities}]
 [titledesc {Management of a tile cache in the local filesystem}]
 [require Tcl 8.4]
@@ -29,7 +36,6 @@ The result of the command is [arg cacheName].
 
 [list_end]
 
-
 [subsection Methods]
 
 [list_begin definitions]
@@ -40,8 +46,6 @@ This method checks the validity of a the given [arg tile] identifier.
 This is a convenience wrapper to [cmd {::map::slippy tile valid}] and
 has the same interface.
 
-
-
 [call [arg cacheName] [method exists] [arg tile]]
 
 This methods tests whether the cache contains the specified [arg tile]
@@ -49,8 +53,6 @@ or not. The result is a boolean value, [const true] if the tile is
 known, and [const false] otherwise. The tile is identified by a list
 containing three elements, zoom level, row, and column number, in this
 order.
-
-
 
 [call [arg cacheName] [method get] [arg tile] [arg donecmd]]
 
@@ -94,8 +96,4 @@ will be issued to the provider.
 [list_begin enum]
 [enum]	[uri http://wiki.openstreetmap.org/wiki/Main_Page]
 [list_end]
-
-
-[keywords cache tile slippy map location zoom filesystem]
 [manpage_end]
-

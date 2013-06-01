@@ -1,4 +1,7 @@
 [manpage_begin tiff n 0.2.1]
+[keyword image]
+[keyword tif]
+[keyword tiff]
 [copyright {2005-2006, Aaron Faupell <afaupell@users.sourceforge.net>}]
 [moddesc   {TIFF image manipulation}]
 [titledesc {TIFF reading, writing, and querying and manipulation of meta data}]
@@ -168,6 +171,4 @@ mapping uses the array ::tiff::tiff_sgat.
 
 [vset CATEGORY tiff]
 [include ../doctools2base/include/feedback.inc]
-
-[keywords tiff tif image]
 [manpage_end]

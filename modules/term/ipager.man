@@ -1,5 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin term::interact::pager n 0.1]
+[keyword control]
+[keyword pager]
+[keyword terminal]
+[keyword {text display}]
 [copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Terminal control}]
 [titledesc {Terminal widget, paging}]
@@ -61,7 +65,6 @@ from the terminal.
 This method can be used to change the text shown by the pager.
 The pager will reset the dispay to show the first line of the
 text at the top.
-
 
 [call [arg object] [method configure]]
 [call [arg object] [method configure] [arg option]]
@@ -146,7 +149,6 @@ The interaction with the object is terminated.
 
 [list_end]
 
-[keywords terminal control pager {text display}]
 [vset CATEGORY term]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]

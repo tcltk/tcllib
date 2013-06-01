@@ -36,7 +36,7 @@ For "[var x] > 1", the absolute error of the result is claimed to be
 smaller than 5.5*10**-10 -- that is, the resulting value of Gamma when
 
 [example {
-  exp( ln_Gamma( x) ) 
+  exp( ln_Gamma( x) )
 }]
 
 is computed is expected to be precise to better than nine significant

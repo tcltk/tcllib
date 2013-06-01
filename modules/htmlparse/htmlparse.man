@@ -1,5 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin htmlparse n 1.2.1]
+[see_also struct::tree]
+[keyword html]
+[keyword parsing]
+[keyword queue]
+[keyword tree]
 [moddesc   {HTML Parser}]
 [titledesc {Procedures to parse HTML strings}]
 [category  {Text processing}]
@@ -18,7 +23,6 @@ their choice.
 The following commands are available:
 
 [list_begin definitions]
-
 
 [call [cmd ::htmlparse::parse] [opt "-cmd [arg cmd]"] [opt "-vroot [arg tag]"] [opt "-split [arg n]"] [opt "-incvar [arg var]"] [opt "-queue [arg q]"] [arg html]]
 
@@ -258,7 +262,4 @@ form elements. Its only argument is the name of the tree to cut down.
 
 [vset CATEGORY htmlparse]
 [include ../doctools2base/include/feedback.inc]
-
-[see_also struct::tree]
-[keywords html parsing tree queue]
 [manpage_end]
