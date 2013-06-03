@@ -120,7 +120,7 @@
 <li class="section"><a href="#section3">PROGRAMMING INTERFACE</a></li>
 <li class="section"><a href="#section4">EXAMPLES</a></li>
 <li class="section"><a href="#section5">REFERENCES</a></li>
-<li class="section"><a href="#section6">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#see-also">See Also</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
@@ -166,12 +166,12 @@ message-digest.</p>
 message as a hexadecimal string. You may request the result as binary
 data by giving <i class="arg">-bin</i>.</p>
 <p>The data to be hashed can be specified either as a string argument to
-the <b class="cmd">sha256</b> command, or as a filename or a pre-opened channel. If the 
+the <b class="cmd">sha256</b> command, or as a filename or a pre-opened channel. If the
 <i class="arg">-filename</i> argument is given then the file is opened, the data read
 and hashed and the file is closed. If the <i class="arg">-channel</i> argument is
 given then data is read from the channel until the end of file. The
 channel is not closed. <em>NOTE</em> use of the channel or filename
-options results in the internal use of <b class="cmd"><a href="../../../../index.html#key393">vwait</a></b>. To avoid nested
+options results in the internal use of <b class="cmd"><a href="../../../../index.html#key395">vwait</a></b>. To avoid nested
 event loops in Tk or tclhttpd applications you should use the
 incremental programming API (see below).</p>
 <p>Only one of <i class="arg">-file</i>, <i class="arg">-channel</i> or <i class="arg">string</i> should be given.</p></dd>
@@ -207,9 +207,9 @@ equivalent. The programming interface remains the same in all cases.</p>
 <dd><p>Begins a new SHA256/SHA224 hash. Returns a token ID that must be used
 for the remaining functions.</p></dd>
 <dt><a name="7"><b class="cmd">::sha2::SHA256Update</b> <i class="arg">token</i> <i class="arg">data</i></a></dt>
-<dd><p>Add data to the hash identified by token. Calling 
+<dd><p>Add data to the hash identified by token. Calling
 <em>SHA256Update $token &quot;abcd&quot;</em> is equivalent to calling
-<em>SHA256Update $token &quot;ab&quot;</em> followed by 
+<em>SHA256Update $token &quot;ab&quot;</em> followed by
 <em>SHA256Update $token &quot;cb&quot;</em>. See <span class="sectref"><a href="#section4">EXAMPLES</a></span>.
 Note that this command is used for both SHA256 and SHA224. Only the
 initialization and finalization commands of both hashes differ.</p></dd>
@@ -255,16 +255,16 @@ that it requires the key that will be included in the HMAC.</p></dd>
 	(<a href="http://www.itl.nist.gov/fipspubs/fip180-1.htm">http://www.itl.nist.gov/fipspubs/fip180-1.htm</a>)</p></li>
 <li><p>Rivest, R., &quot;The MD4 Message Digest Algorithm&quot;, RFC 1320, MIT,
        April 1992. (<a href="http://www.rfc-editor.org/rfc/rfc1320.txt">http://www.rfc-editor.org/rfc/rfc1320.txt</a>)</p></li>
-<li><p>Krawczyk, H., Bellare, M. and Canetti, R. &quot;HMAC: Keyed-Hashing for 
+<li><p>Krawczyk, H., Bellare, M. and Canetti, R. &quot;HMAC: Keyed-Hashing for
       Message Authentication&quot;, RFC 2104, February 1997.
 	(<a href="http://www.rfc-editor.org/rfc/rfc2104.txt">http://www.rfc-editor.org/rfc/rfc2104.txt</a>)</p></li>
 </ol>
 </div>
-<div id="section6" class="section"><h2><a name="section6">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section6" class="section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>sha1</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
@@ -272,7 +272,7 @@ package and/or documentation.</p>
 <p><a href="../md4/md4.html">md4</a>, <a href="../md5/md5.html">md5</a>, <a href="../ripemd/ripemd128.html">ripemd128</a>, <a href="../ripemd/ripemd160.html">ripemd160</a>, <a href="sha1.html">sha1</a></p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key220">FIPS 180-1</a>, <a href="../../../../index.html#key224">hashing</a>, <a href="../../../../index.html#key223">message-digest</a>, <a href="../../../../index.html#key222">rfc 2104</a>, <a href="../../../../index.html#key148">security</a>, <a href="../../../../index.html#key221">sha256</a></p>
+<p><a href="../../../../index.html#key221">FIPS 180-1</a>, <a href="../../../../index.html#key224">hashing</a>, <a href="../../../../index.html#key223">message-digest</a>, <a href="../../../../index.html#key222">rfc 2104</a>, <a href="../../../../index.html#key148">security</a>, <a href="../../../../index.html#key220">sha256</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Hashes, checksums, and encryption</p>

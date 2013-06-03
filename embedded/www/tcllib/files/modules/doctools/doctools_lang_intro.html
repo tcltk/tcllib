@@ -129,7 +129,7 @@
 </ul>
 </li>
 <li class="section"><a href="#section2">FURTHER READING</a></li>
-<li class="section"><a href="#section3">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#see-also">See Also</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
@@ -169,8 +169,20 @@ commands, continuation lines, etc. I.e.</p>
 <p>The most simple document which can be written in doctools is</p>
 <pre class="example">
     [manpage_begin NAME SECTION VERSION]
+[see_also doctools_intro]
+[see_also doctools_lang_cmdref]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_syntax]
+[keywords {doctools commands}]
+[keywords {doctools language}]
+[keywords {doctools markup}]
+[keywords {doctools syntax}]
+[keywords markup]
+[keywords {semantic markup}]
     [description]
-    [manpage_end]
+    [vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
+[manpage_end]
 </pre>
 <p>This also shows us that all doctools documents are split into two
 parts, the <i class="term">header</i> and the <i class="term">body</i>. Everything coming before
@@ -217,9 +229,21 @@ in the given order. Regular text is not allowed within the header.</p>
 <p>Remember that the whitespace is optional. The document</p>
 <pre class="example">
     [manpage_begin NAME SECTION VERSION]
+[see_also doctools_intro]
+[see_also doctools_lang_cmdref]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_syntax]
+[keywords {doctools commands}]
+[keywords {doctools language}]
+[keywords {doctools markup}]
+[keywords {doctools syntax}]
+[keywords markup]
+[keywords {semantic markup}]
     [copyright {YEAR AUTHOR}][titledesc TITLE][moddesc MODULE_TITLE]
     [require PACKAGE VERSION][require PACKAGE][description]
-    [manpage_end]
+    [vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
+[manpage_end]
 </pre>
 <p>has the same meaning as the example before.</p>
 <p>On the other hand, if <i class="term">whitespace</i> is present it consists not
@@ -359,7 +383,7 @@ of other markup commands.</p>
 <dl class="commands">
 <dt><b class="cmd">arg</b></dt>
 <dd><p>Its argument is a the name of a command argument.</p></dd>
-<dt><b class="cmd"><a href="../../../../index.html#key236">class</a></b></dt>
+<dt><b class="cmd"><a href="../../../../index.html#key234">class</a></b></dt>
 <dd><p>Its argument is a class name.</p></dd>
 <dt><b class="cmd">cmd</b></dt>
 <dd><p>Its argument is a command name (Tcl command).</p></dd>
@@ -388,7 +412,7 @@ of other markup commands.</p>
 <dd><p>Its argument is a command name (external, system command).</p></dd>
 <dt><b class="cmd"><a href="../term/term.html">term</a></b></dt>
 <dd><p>Its argument is a concept, or general terminology.</p></dd>
-<dt><b class="cmd"><a href="../../../../index.html#key124">type</a></b></dt>
+<dt><b class="cmd"><a href="../../../../index.html#key123">type</a></b></dt>
 <dd><p>Its argument is a type name.</p></dd>
 <dt><b class="cmd"><a href="../uri/uri.html">uri</a></b></dt>
 <dd><p>Its argument is a uniform resource identifier, i.e an
@@ -439,13 +463,13 @@ previous paragraph, with some highlighting added.</p>
 <div id="subsection7" class="subsection"><h3><a name="subsection7">Cross-references</a></h3>
 <p>The last two commands we have to discuss are for the declaration of
 cross-references between documents, explicit and implicit. They are
-<b class="cmd"><a href="../../../../index.html#key761">keywords</a></b> and <b class="cmd">see_also</b>. Both take an arbitrary number of
+<b class="cmd"><a href="../../../../index.html#key760">keywords</a></b> and <b class="cmd">see_also</b>. Both take an arbitrary number of
 arguments, all of which have to be plain unmarked text. I.e. it is not
 allowed to use markup on them. Both commands can be used multiple
 times in a document. If that is done all arguments of all occurrences
 of one of them are put together into a single set.</p>
 <dl class="definitions">
-<dt><b class="cmd"><a href="../../../../index.html#key761">keywords</a></b></dt>
+<dt><b class="cmd"><a href="../../../../index.html#key760">keywords</a></b></dt>
 <dd><p>The arguments of this command are interpreted as keywords describing
 the document. A processor can use this information to create an index
 indirectly linking the containing document to all documents with the
@@ -599,17 +623,19 @@ the processing and conversion of doctools documents, i.e. either
 Tcllib's easy and simple <b class="syscmd"><a href="../dtplite/dtplite.html">dtplite</a></b>, or Tclapps'
 ultra-configurable <b class="syscmd">dtp</b>.</p>
 </div>
-<div id="section3" class="section"><h2><a name="section3">BUGS, IDEAS, FEEDBACK</a></h2>
-<p>This document, will undoubtedly contain bugs and other problems.
+<div id="section3" class="section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
+<p>This document, and the package it describes, will undoubtedly contain
+bugs and other problems.
 Please report such in the category <em>doctools</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
-Please also report any ideas for enhancements you may have.</p>
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
+Please also report any ideas for enhancements you may have for either
+package and/or documentation.</p>
 </div>
 <div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
 <p><a href="doctools_intro.html">doctools_intro</a>, <a href="doctools_lang_cmdref.html">doctools_lang_cmdref</a>, <a href="doctools_lang_faq.html">doctools_lang_faq</a>, <a href="doctools_lang_syntax.html">doctools_lang_syntax</a></p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key144">doctools commands</a>, <a href="../../../../index.html#key146">doctools language</a>, <a href="../../../../index.html#key147">doctools markup</a>, <a href="../../../../index.html#key145">doctools syntax</a>, <a href="../../../../index.html#key16">markup</a>, <a href="../../../../index.html#key143">semantic markup</a></p>
+<p><a href="../../../../index.html#key144">doctools commands</a>, <a href="../../../../index.html#key147">doctools language</a>, <a href="../../../../index.html#key146">doctools markup</a>, <a href="../../../../index.html#key145">doctools syntax</a>, <a href="../../../../index.html#key16">markup</a>, <a href="../../../../index.html#key143">semantic markup</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Documentation tools</p>

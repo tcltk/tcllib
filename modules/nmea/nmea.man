@@ -1,6 +1,6 @@
 [manpage_begin nmea n 1.0.0]
-[keyword gps]
-[keyword nmea]
+[keywords gps]
+[keywords nmea]
 [copyright {2006-2009, Aaron Faupell <afaupell@users.sourceforge.net>}]
 [moddesc   {NMEA protocol implementation}]
 [titledesc {Process NMEA data}]

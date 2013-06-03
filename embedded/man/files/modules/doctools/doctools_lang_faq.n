@@ -271,11 +271,12 @@ A Tcllib release archive\&. They are available at
 \fIhttp://sourceforge\&.net/project/showfiles\&.php?group_id=12883\fR
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems\&.
-Please report any such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems\&.
+Please report such in the category \fIdoctools\fR of the
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
-the package and/or the documentation\&.
+package and/or documentation\&.
 .SH "SEE ALSO"
 doctools_lang_cmdref, doctools_lang_intro, doctools_lang_syntax
 .SH KEYWORDS

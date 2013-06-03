@@ -1,6 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin base32::core n 0.1]
-[keyword base32]
+[keywords base32]
 [copyright {Public domain}]
 [moddesc   {Base32 encoding}]
 [titledesc {Expanding basic base32 maps}]

@@ -1,6 +1,6 @@
 [manpage_begin math::numtheory n 1.0]
-[keyword {number theory}]
-[keyword prime]
+[keywords {number theory}]
+[keywords prime]
 [copyright "2010 Lars Hellstr\u00F6m\
   <Lars dot Hellstrom at residenset dot net>"]
 [moddesc   {Tcl Math Library}]

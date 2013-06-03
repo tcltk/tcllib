@@ -729,11 +729,9 @@ results\&.
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
 Please report such in the category \fIldap\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
-One know bug is the usage of \fBvwait\fR inside the dispatch mechanism, which makes
-it currently unsafe to use this code in code that also enters the event loop\&.
 .SH KEYWORDS
 directory access, internet, ldap, ldap client, protocol, rfc 2251, rfc 4511, x\&.500
 .SH CATEGORY
