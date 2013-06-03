@@ -1,6 +1,6 @@
 [manpage_begin base64 n 2.4.2]
-[keyword base64]
-[keyword encoding]
+[keywords base64]
+[keywords encoding]
 [copyright {2000, Eric Melski}]
 [copyright {2001, Miguel Sofer}]
 [moddesc   {Text encoding & decoding binary data}]

@@ -152,7 +152,7 @@
 <p>The <b class="package">docstrip::util</b> package is meant for collecting various
 utility procedures that are mainly useful at installation or
 development time. It is separate from the base package to avoid
-overhead when the latter is used to <b class="cmd"><a href="../../../../index.html#key412">source</a></b> code.</p>
+overhead when the latter is used to <b class="cmd"><a href="../../../../index.html#key411">source</a></b> code.</p>
 </div>
 <div id="section2" class="section"><h2><a name="section2">Package indexing commands</a></h2>
 <p>Like raw &quot;<b class="file">.tcl</b>&quot; files, code lines in docstrip source files can
@@ -307,7 +307,7 @@ namespace eval foo::bar {
     be used at a rather high level in installation scripts and the
     like, the <i class="arg">commandPrefix</i> defaults to
     &quot;<b class="cmd">puts</b> <b class="const">stdout</b>&quot;.
-    Use <b class="cmd"><a href="../../../../index.html#key278">list</a></b> to effectively disable this feature. The return
+    Use <b class="cmd"><a href="../../../../index.html#key280">list</a></b> to effectively disable this feature. The return
     values from the prefix are ignored.</p></dd>
 </dl>
 <p>The <b class="cmd">package ifneeded</b> scripts that are generated contain
@@ -376,7 +376,7 @@ namespace eval foo::bar {
     done. If it is false then there is no particular return value.</p></dd>
 <dt><b class="option">-reportcmd</b> <i class="arg">commandPrefix</i></dt>
 <dd><p>Every item in the report is handed as an extra argument to this
-    command prefix. Defaults to <b class="cmd"><a href="../../../../index.html#key278">list</a></b>, which effectively disables
+    command prefix. Defaults to <b class="cmd"><a href="../../../../index.html#key280">list</a></b>, which effectively disables
     this feature. The return values from the prefix are ignored. Use
     for example &quot;<b class="cmd">puts</b> <b class="const">stdout</b>&quot; to get report items
     written immediately to the terminal.</p></dd>
@@ -433,7 +433,7 @@ docstrip::util::classical_postamble {##}\
 <p>One difference to <b class="cmd">pkg_mkIndex</b> is that the <i class="arg">text</i> gets
   evaluated in a safe interpreter. <b class="cmd">package require</b> commands
   are silently ignored, as are unknown commands (which includes
-  <b class="cmd"><a href="../../../../index.html#key412">source</a></b> and <b class="cmd">load</b>). Other errors cause
+  <b class="cmd"><a href="../../../../index.html#key411">source</a></b> and <b class="cmd">load</b>). Other errors cause
   processing of the <i class="arg">text</i> to stop, in which case only those
   package declarations that had been encountered before the error
   will be included in the return value.</p>
@@ -488,6 +488,21 @@ all types of lines.</p>
   not available. A source file could however look as follows</p>
 <pre class="example">
 % [manpage_begin gcd n 1.0]
+[see_also docstrip]
+[see_also doctools]
+[see_also doctools_fmt]
+[keywords .ddt]
+[keywords catalogue]
+[keywords diff]
+[keywords docstrip]
+[keywords doctools]
+[keywords documentation]
+[keywords {literate programming}]
+[keywords module]
+[keywords {package indexing}]
+[keywords patch]
+[keywords source]
+[keywords {Tcl module}]
 % [moddesc {Greatest Common Divisor}]
 % [require gcd [opt 1.0]]
 % [description]
@@ -669,7 +684,7 @@ return $leftover
 <p><a href="docstrip.html">docstrip</a>, <a href="../doctools/doctools.html">doctools</a>, doctools_fmt</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key649">.ddt</a>, <a href="../../../../index.html#key646">Tcl module</a>, <a href="../../../../index.html#key648">catalogue</a>, <a href="../../../../index.html#key542">diff</a>, <a href="../../../../index.html#key410">docstrip</a>, <a href="../../../../index.html#key51">doctools</a>, <a href="../../../../index.html#key185">documentation</a>, <a href="../../../../index.html#key411">literate programming</a>, <a href="../../../../index.html#key650">module</a>, <a href="../../../../index.html#key647">package indexing</a>, <a href="../../../../index.html#key645">patch</a>, <a href="../../../../index.html#key412">source</a></p>
+<p><a href="../../../../index.html#key649">.ddt</a>, <a href="../../../../index.html#key646">Tcl module</a>, <a href="../../../../index.html#key648">catalogue</a>, <a href="../../../../index.html#key542">diff</a>, <a href="../../../../index.html#key410">docstrip</a>, <a href="../../../../index.html#key51">doctools</a>, <a href="../../../../index.html#key185">documentation</a>, <a href="../../../../index.html#key412">literate programming</a>, <a href="../../../../index.html#key650">module</a>, <a href="../../../../index.html#key647">package indexing</a>, <a href="../../../../index.html#key645">patch</a>, <a href="../../../../index.html#key411">source</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Documentation tools</p>

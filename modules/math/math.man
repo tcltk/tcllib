@@ -1,6 +1,6 @@
 [manpage_begin math n 1.2.5]
-[keyword math]
-[keyword statistics]
+[keywords math]
+[keywords statistics]
 [comment {-*- tcl -*- doctools manpage}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Tcl Math Library}]

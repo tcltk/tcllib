@@ -473,10 +473,8 @@ Each of the procedure arguments is declared with a list that has as first elemen
 
 tepam::procedure <name> {
    -args \fB{
-      {<argument_name_1> <arg_attr_name_1a> <arg_attr_value_1a> \\
-                         <arg_attr_name_1b> <arg_attr_value_1b> \&.\&.\&.}
-      {<argument_name_2> <arg_attr_name_2a> <arg_attr_value_2a> \\
-                         <arg_attr_name_2b> <arg_attr_value_2b> \&.\&.\&.}
+      {<argument_name_1> <arg_attr_name_1a> <arg_attr_value_1a>  <arg_attr_name_1b> <arg_attr_value_1b> \&.\&.\&.}
+      {<argument_name_2> <arg_attr_name_2a> <arg_attr_value_2a>  <arg_attr_name_2b> <arg_attr_value_2b> \&.\&.\&.}
       \&.\&.\&.
    }\fR
 } <body>
