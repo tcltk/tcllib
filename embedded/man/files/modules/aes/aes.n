@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/aes/aes\&.n' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
-'\" Copyright (c) 2012, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2012-2013, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -239,14 +239,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "aes" n 1\&.1 tcllib "Advanced Encryption Standard (AES)"
+.TH "aes" n 1\&.1\&.1 tcllib "Advanced Encryption Standard (AES)"
 .BS
 .SH NAME
 aes \- Implementation of the AES block cipher
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBaes  ?1\&.1?\fR
+package require \fBaes  ?1\&.1\&.1?\fR
 .sp
 \fB::aes::aes\fR ?\fI-mode [ecb|cbc]\fR? ?\fI-dir [encrypt|decrypt]\fR? \fI-key keydata\fR ?\fI-iv vector\fR? ?\fI-hex\fR? ?\fI-out channel\fR? ?\fI-chunksize size\fR? [ \fI-in channel\fR | ?\fB--\fR? \fIdata\fR ]
 .sp
@@ -371,7 +371,7 @@ Thorsten Schloermann, Pat Thoyts
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
 Please report such in the category \fIaes\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH "SEE ALSO"
@@ -383,6 +383,6 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2005, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
-Copyright (c) 2012, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2012-2013, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi

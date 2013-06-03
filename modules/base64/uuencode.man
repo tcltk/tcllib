@@ -1,6 +1,6 @@
 [manpage_begin uuencode n 1.1.4]
-[keyword encoding]
-[keyword uuencode]
+[keywords encoding]
+[keywords uuencode]
 [copyright {2002, Pat Thoyts}]
 [moddesc   {Text encoding & decoding binary data}]
 [titledesc {UU-encode/decode binary data}]

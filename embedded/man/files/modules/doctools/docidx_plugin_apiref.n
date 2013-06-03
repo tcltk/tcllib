@@ -599,10 +599,12 @@ and added to the output\&. If no special processing is required it has
 to simply return its argument without change\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems\&.
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
-Please also report any ideas for enhancements you may have\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
+Please also report any ideas for enhancements you may have for either
+package and/or documentation\&.
 .SH "SEE ALSO"
 docidx_intro, docidx_lang_cmdref, docidx_lang_faq, docidx_lang_intro, docidx_lang_syntax, doctools::idx
 .SH KEYWORDS

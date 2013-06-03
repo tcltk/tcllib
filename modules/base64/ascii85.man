@@ -1,6 +1,6 @@
 [manpage_begin ascii85 n 1.0]
-[keyword ascii85]
-[keyword encoding]
+[keywords ascii85]
+[keywords encoding]
 [copyright "2010, Emiliano Gavil\u00e1n"]
 [moddesc   {Text encoding & decoding binary data}]
 [titledesc {ascii85-encode/decode binary data}]

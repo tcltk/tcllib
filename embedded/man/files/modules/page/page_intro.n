@@ -260,10 +260,12 @@ packages, as they cannot be loaded into a general interpreter, like
 tclsh, without extensive preparation of the interpreter\&. Preparation
 which is done for them by the plugin manager\&.
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems\&.
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems\&.
 Please report such in the category \fIpage\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
-Please also report any ideas for enhancements you may have\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
+Please also report any ideas for enhancements you may have for either
+package and/or documentation\&.
 .SH KEYWORDS
 page, parser generator, text processing
 .SH CATEGORY

@@ -287,6 +287,13 @@ default for \fIrepetitions\fR is 4\&.
 .IP
 Unknown options are silently ignored\&.
 .PP
+.SH "BUGS, IDEAS, FEEDBACK"
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems\&.
+Please report such in the category \fImath :: numtheory\fR of the
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
+Please also report any ideas for enhancements you may have for either
+package and/or documentation\&.
 .SH KEYWORDS
 number theory, prime
 .SH CATEGORY
