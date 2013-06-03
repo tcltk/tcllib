@@ -219,7 +219,6 @@ DESCRIPTION
      fg=black
      no_border=0
      text={The document hasn't yet been saved!}</em>
- 
 <b class="cmd">display message</b> -fg red -bg black &quot;Please save first the document&quot;
 <em>-&gt; display message:
      mtype=Warning
@@ -228,7 +227,6 @@ DESCRIPTION
      bg=black
      no_border=0
      text={Please save first the document}</em>
- 
 <b class="cmd">display message</b> -mtype Error -no_border &quot;Why is here no border?&quot;
 <em>-&gt; display message:
      mtype=Error
@@ -236,7 +234,6 @@ DESCRIPTION
      fg=black
      no_border=1
      text={Why is here no border?}</em>
- 
 <b class="cmd">display message</b> -font {Courier 12} -level 10 \
    &quot;Is there enough space?&quot; &quot;Reduce otherwise the font size!&quot;
 <em>-&gt; display message:
@@ -254,12 +251,10 @@ DESCRIPTION
 <em>  -&gt; display message: Argument '-category' not known</em></pre>
 <p>Argument types are automatically checked and an error message is generated in case the argument value has not the expected type:</p>
 <pre class="example"><b class="cmd">display message</b> -fg MyColor &quot;Hello&quot;
-<em>  -&gt; display message: Argument 'fg' requires type 'color'. \ 
-            Provided value: 'MyColor'</em></pre>
+<em>  -&gt; display message: Argument 'fg' requires type 'color'.  Provided value: 'MyColor'</em></pre>
 <p>Selection choices have to be respected ...</p>
 <pre class="example"><b class="cmd">display message</b> -mtype Fatal Hello
-<em>  -&gt; display message: Argument (mtype) has to be one of the \ 
-            following elements: Info, Warning, Error</em></pre>
+<em>  -&gt; display message: Argument (mtype) has to be one of the  following elements: Info, Warning, Error</em></pre>
 <p>... as well as valid value ranges:</p>
 <pre class="example"><b class="cmd">display message</b> -level 12 Hello
 <em>  -&gt; display message: Argument (level) has to be between 1 and 10</em></pre>
@@ -284,7 +279,6 @@ DESCRIPTION
 <p>The attribute list contains pairs of attribute names and attribute data. The primary attribute is <i class="arg">-variable</i> used to specify the variable in the calling context into which the entered data has to be stored. Another often used attribute is <i class="arg">-label</i> that allows adding a label to the data entry widget. Other attributes are available that allow specifying default values, the expected data types, valid data ranges, etc.</p>
 <p>The next example of a more complex argument dialog box provides a good overview about the different available entry widget types and parameter attributes. The example contains also some formatting instructions like <i class="arg">-frame</i> and <i class="arg">-sep</i> which allows organizing the different entry widgets in frames and sections:</p>
 <pre class="example">set ChoiceList {&quot;Choice 1&quot; &quot;Choice 2&quot; &quot;Choice 3&quot; &quot;Choice 4&quot; &quot;Choice 5&quot; &quot;Choice 6&quot;}
- 
 set Result [<b class="cmd"><a href="tepam_argument_dialogbox.html">tepam::argument_dialogbox</a></b> \
    <b class="cmd">-title</b> &quot;System configuration&quot; \
    <b class="cmd">-context</b> test_1 \
@@ -294,19 +288,19 @@ set Result [<b class="cmd"><a href="tepam_argument_dialogbox.html">tepam::argume
    <b class="cmd">-frame</b> {-label &quot;Listbox &amp; combobox&quot;} \
       <b class="cmd">-listbox</b> {-label &quot;Listbox, single selection&quot; -variable Listbox1 \
                 -choices {1 2 3 4 5 6 7 8} -default 1 -height 3} \
-      <b class="cmd">-listbox</b> {-label &quot;Listbox, multiple selection&quot; -variable Listbox2 
-                -choicevariable ChoiceList -default {&quot;Choice 2&quot; &quot;Choice 3&quot;} 
+      <b class="cmd">-listbox</b> {-label &quot;Listbox, multiple selection&quot; -variable Listbox2
+                -choicevariable ChoiceList -default {&quot;Choice 2&quot; &quot;Choice 3&quot;}
                 -multiple_selection 1 -height 3} \
-      <b class="cmd">-disjointlistbox</b> {-label &quot;Disjoined listbox&quot; -variable DisJntListbox 
+      <b class="cmd">-disjointlistbox</b> {-label &quot;Disjoined listbox&quot; -variable DisJntListbox
                         -choicevariable ChoiceList \
                         -default {&quot;Choice 3&quot; &quot;Choice 5&quot;} -height 3} \
       <b class="cmd">-combobox</b> {-label &quot;Combobox&quot; -variable Combobox \
                  -choices {1 2 3 4 5 6 7 8} -default 3} \
    <b class="cmd">-frame</b> {-label &quot;Checkbox, radiobox and checkbutton&quot;} \
-      <b class="cmd">-checkbox</b> {-label Checkbox -variable Checkbox 
+      <b class="cmd">-checkbox</b> {-label Checkbox -variable Checkbox
                  -choices {bold italic underline} -choicelabels {Bold Italic Underline} \
                  -default italic} \
-      <b class="cmd">-radiobox</b> {-label Radiobox -variable Radiobox 
+      <b class="cmd">-radiobox</b> {-label Radiobox -variable Radiobox
                  -choices {bold italic underline} -choicelabels {Bold Italic Underline} \
                  -default underline} \
       <b class="cmd">-checkbutton</b> {-label CheckButton -variable Checkbutton -default 1} \
@@ -327,7 +321,7 @@ set Result [<b class="cmd"><a href="tepam_argument_dialogbox.html">tepam::argume
    puts &quot;Arguments: &quot;
    foreach Var {
       Entry1 Entry2
-      Listbox1 Listbox2 DisJntListbox 
+      Listbox1 Listbox2 DisJntListbox
       Combobox Checkbox Radiobox Checkbutton
       InputFile OutputFile InputDirectory OutputDirectory
       Color Font
@@ -356,7 +350,7 @@ set Result [<b class="cmd"><a href="tepam_argument_dialogbox.html">tepam::argume
 <p><a href="tepam_argument_dialogbox.html">tepam::argument_dialogbox(n)</a>, <a href="tepam_procedure.html">tepam::procedure(n)</a></p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key738">argument integrity</a>, <a href="../../../../index.html#key739">argument validation</a>, <a href="../../../../index.html#key740">arguments</a>, <a href="../../../../index.html#key741">entry mask</a>, <a href="../../../../index.html#key381">parameter entry form</a>, <a href="../../../../index.html#key34">procedure</a>, <a href="../../../../index.html#key737">subcommand</a></p>
+<p><a href="../../../../index.html#key740">argument integrity</a>, <a href="../../../../index.html#key739">argument validation</a>, <a href="../../../../index.html#key738">arguments</a>, <a href="../../../../index.html#key741">entry mask</a>, <a href="../../../../index.html#key381">parameter entry form</a>, <a href="../../../../index.html#key34">procedure</a>, <a href="../../../../index.html#key737">subcommand</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Procedures, arguments, parameters, options</p>

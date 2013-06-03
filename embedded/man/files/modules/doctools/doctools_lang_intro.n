@@ -291,8 +291,20 @@ The most simple document which can be written in doctools is
 
 
     [manpage_begin NAME SECTION VERSION]
+[see_also doctools_intro]
+[see_also doctools_lang_cmdref]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_syntax]
+[keywords {doctools commands}]
+[keywords {doctools language}]
+[keywords {doctools markup}]
+[keywords {doctools syntax}]
+[keywords markup]
+[keywords {semantic markup}]
     [description]
-    [manpage_end]
+    [vset CATEGORY doctools]
+[include \&.\&./doctools2base/include/feedback\&.inc]
+[manpage_end]
 
 .CE
 This also shows us that all doctools documents are split into two
@@ -333,6 +345,16 @@ Given the above a less minimal example of a document is
 
 
 [manpage_begin NAME SECTION VERSION]
+
+
+
+
+
+
+
+
+
+
 [\fBcopyright {YEAR AUTHOR}\fR]
 [\fBtitledesc TITLE\fR]
 [\fBmoddesc   MODULE_TITLE\fR]
@@ -347,9 +369,21 @@ Remember that the whitespace is optional\&. The document
 
 
     [manpage_begin NAME SECTION VERSION]
+[see_also doctools_intro]
+[see_also doctools_lang_cmdref]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_syntax]
+[keywords {doctools commands}]
+[keywords {doctools language}]
+[keywords {doctools markup}]
+[keywords {doctools syntax}]
+[keywords markup]
+[keywords {semantic markup}]
     [copyright {YEAR AUTHOR}][titledesc TITLE][moddesc MODULE_TITLE]
     [require PACKAGE VERSION][require PACKAGE][description]
-    [manpage_end]
+    [vset CATEGORY doctools]
+[include \&.\&./doctools2base/include/feedback\&.inc]
+[manpage_end]
 
 .CE
 has the same meaning as the example before\&.
@@ -364,6 +398,16 @@ command\&.
 
 [\fBcomment { \&.\&.\&. }\fR]
 [manpage_begin NAME SECTION VERSION]
+
+
+
+
+
+
+
+
+
+
 [copyright {YEAR AUTHOR}]
 [titledesc TITLE]
 [moddesc   MODULE_TITLE][\fBcomment { \&.\&.\&. }\fR]
@@ -389,6 +433,16 @@ is possible to write
 [\fBinclude FILE\fR]
 [\fBvset VAR VALUE\fR]
 [manpage_begin NAME SECTION VERSION]
+
+
+
+
+
+
+
+
+
+
 [description]
 [manpage_end]
 
@@ -400,6 +454,16 @@ structure\&. I\&.e\&. for example in the header as well\&.
 
 
 [manpage_begin NAME SECTION VERSION]
+
+
+
+
+
+
+
+
+
+
 [\fBinclude FILE\fR]
 [\fBvset VAR VALUE\fR]
 [description]
@@ -430,6 +494,16 @@ paragraph automatically ends at \fBmanpage_end\fR\&.
 
 
 [manpage_begin NAME SECTION VERSION]
+
+
+
+
+
+
+
+
+
+
 [description]
  \&.\&.\&.
 [\fBpara\fR]
@@ -456,6 +530,16 @@ paragraphs within sections\&.
 
 
 [manpage_begin NAME SECTION VERSION]
+
+
+
+
+
+
+
+
+
+
 [description]
  \&.\&.\&.
 [\fBsection {Section A}\fR]
@@ -481,6 +565,16 @@ paragraphs within subsections\&.
 
 
 [manpage_begin NAME SECTION VERSION]
+
+
+
+
+
+
+
+
+
+
 [description]
  \&.\&.\&.
 [section {Section A}]
@@ -811,10 +905,12 @@ the processing and conversion of doctools documents, i\&.e\&. either
 Tcllib's easy and simple \fBdtplite\fR, or Tclapps'
 ultra-configurable \fBdtp\fR\&.
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems\&.
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
-Please also report any ideas for enhancements you may have\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
+Please also report any ideas for enhancements you may have for either
+package and/or documentation\&.
 .SH "SEE ALSO"
 doctools_intro, doctools_lang_cmdref, doctools_lang_faq, doctools_lang_syntax
 .SH KEYWORDS

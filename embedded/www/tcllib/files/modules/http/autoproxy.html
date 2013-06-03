@@ -121,7 +121,7 @@
 <li class="section"><a href="#section6">REFERENCES</a></li>
 <li class="section"><a href="#section7">BUGS</a></li>
 <li class="section"><a href="#section8">AUTHORS</a></li>
-<li class="section"><a href="#section9">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section9">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#see-also">See Also</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
@@ -154,7 +154,7 @@ seems to be to use the environment variable http_proxy or ftp_proxy and
 no_proxy to list those domains to be excluded from proxying.
 On Windows we can retrieve the Internet Settings values from the registry
 to obtain pretty much the same information.
-With this information we can setup a suitable filter procedure for the 
+With this information we can setup a suitable filter procedure for the
 Tcl http package and arrange for automatic use of the proxy.</p>
 <p>There seem to be a number of ways that the http_proxy environment
 variable may be set up. Either a plain host:port or more commonly a
@@ -175,7 +175,7 @@ settings used by Internet Explorer.</p></dd>
 <dd><p>Retrieve individual package configuration options. See <span class="sectref"><a href="#section3">OPTIONS</a></span>.</p></dd>
 <dt><a name="3"><b class="cmd">::autoproxy::configure</b> <span class="opt">?-option <i class="arg">value</i>?</span></a></dt>
 <dd><p>Configure the autoproxy package. Calling <b class="cmd">configure</b> with no
-options will return a list of all option names and values. 
+options will return a list of all option names and values.
 See <span class="sectref"><a href="#section3">OPTIONS</a></span>.</p></dd>
 <dt><a name="4"><b class="cmd">::autoproxy::tls_connect</b> <i class="arg">args</i></a></dt>
 <dd><p>Connect to a secure socket through a proxy. HTTP proxy servers permit
@@ -214,7 +214,7 @@ be configured here as well.</p></dd>
 <dd><p>Set the proxy port number. This is normally set up by <b class="cmd">init</b>.
 e.g. <b class="cmd">configure</b> <b class="option">-port</b> <i class="arg">3128</i></p></dd>
 <dt><b class="option">-no_proxy</b> list</dt>
-<dd><p>You may manipulate the <b class="option">no_proxy</b> list that was setup by 
+<dd><p>You may manipulate the <b class="option">no_proxy</b> list that was setup by
 <b class="cmd">init</b>. The value of this option is a tcl list of
 strings that are matched against the http request host using the tcl
 <b class="cmd">string match</b> command. Therefore glob patterns are permitted.
@@ -283,11 +283,11 @@ planned to add support for Digest (2) and NTLM in the future.</p>
 <div id="section8" class="section"><h2><a name="section8">AUTHORS</a></h2>
 <p>Pat Thoyts</p>
 </div>
-<div id="section9" class="section"><h2><a name="section9">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section9" class="section"><h2><a name="section9">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>http :: autoproxy</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
@@ -295,7 +295,7 @@ package and/or documentation.</p>
 <p>http(n)</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key790">authentication</a>, <a href="../../../../index.html#key506">http</a>, <a href="../../../../index.html#key813">proxy</a></p>
+<p><a href="../../../../index.html#key790">authentication</a>, <a href="../../../../index.html#key505">http</a>, <a href="../../../../index.html#key813">proxy</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>

@@ -268,10 +268,10 @@ They are automatically loaded and registered by \fBtie\fR when it
 itself is requested, and as such there is no need to request them on
 their own, although it is possible to do so\&.
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, and the packages it describes, will undoubtedly contain
+This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
 Please report such in the category \fItie\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH KEYWORDS

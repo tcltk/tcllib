@@ -122,7 +122,7 @@
 <li class="section"><a href="#section4">EXAMPLE</a></li>
 <li class="section"><a href="#section5">REFERENCES</a></li>
 <li class="section"><a href="#section6">AUTHOR</a></li>
-<li class="section"><a href="#section7">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section7">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
 <li class="section"><a href="#copyright">Copyright</a></li>
@@ -176,18 +176,18 @@ The format of the metadata dictionary is described
 below, but keys <em>version</em> and <em>creator</em>
 will always be present.</p></dd>
 <dt><a name="4"><b class="cmd">::gpx::GetWaypointCount</b> <i class="arg">token</i></a></dt>
-<dd><p>This procedure returns the number of waypoints defined in the GPX 
+<dd><p>This procedure returns the number of waypoints defined in the GPX
 data identified by <i class="arg">token</i>.</p></dd>
 <dt><a name="5"><b class="cmd">::gpx::GetAllWaypoints</b> <i class="arg">token</i></a></dt>
-<dd><p>This procedure returns the a list of waypoints defined in the GPX 
+<dd><p>This procedure returns the a list of waypoints defined in the GPX
 data identified by <i class="arg">token</i>. The format of each waypoint item
 is described below.</p></dd>
 <dt><a name="6"><b class="cmd">::gpx::GetTrackCount</b> <i class="arg">token</i></a></dt>
-<dd><p>This procedure returns the number of tracks defined in the GPX 
+<dd><p>This procedure returns the number of tracks defined in the GPX
 data identified by <i class="arg">token</i>.</p></dd>
 <dt><a name="7"><b class="cmd">::gpx::GetTrackMetadata</b> <i class="arg">token</i> <i class="arg">whichTrack</i></a></dt>
-<dd><p>This procedure returns a dictionary of the metadata 
-associated track number <i class="arg">whichTrack</i> (1 based) in 
+<dd><p>This procedure returns a dictionary of the metadata
+associated track number <i class="arg">whichTrack</i> (1 based) in
 the GPX data identified by <i class="arg">token</i>.
 The format of the metadata dictionary is described below.</p></dd>
 <dt><a name="8"><b class="cmd">::gpx::GetTrackPoints</b> <i class="arg">token</i> <i class="arg">whichTrack</i></a></dt>
@@ -195,11 +195,11 @@ The format of the metadata dictionary is described below.</p></dd>
 number <i class="arg">whichTrack</i> (1 based) in the GPX data identified by
 <i class="arg">token</i>. The format of the metadata dictionary is described below.</p></dd>
 <dt><a name="9"><b class="cmd">::gpx::GetRouteCount</b> <i class="arg">token</i></a></dt>
-<dd><p>This procedure returns the number of routes defined in the GPX 
+<dd><p>This procedure returns the number of routes defined in the GPX
 data identified by <i class="arg">token</i>.</p></dd>
 <dt><a name="10"><b class="cmd">::gpx::GetRouteMetadata</b> <i class="arg">token</i> <i class="arg">whichRoute</i></a></dt>
-<dd><p>This procedure returns a dictionary of the metadata 
-associated route number <i class="arg">whichRoute</i> (1 based) in 
+<dd><p>This procedure returns a dictionary of the metadata
+associated route number <i class="arg">whichRoute</i> (1 based) in
 the GPX data identified by <i class="arg">token</i>.
 The format of the metadata dictionary is described below.</p></dd>
 <dt><a name="11"><b class="cmd">::gpx::GetRoutePoints</b> <i class="arg">token</i> <i class="arg">whichRoute</i></a></dt>
@@ -225,7 +225,7 @@ a sub-dictionary with keys <em>href</em> and optionally
 a list of three elements: <em>latitude</em>, <em>longitude</em> and
 <em>metadata dictionary</em>. <em>Latitude</em> and <em>longitude</em>
 are decimal numbers. The <em>metadata dictionary</em> format is
-described above. For points in a track, typically there will 
+described above. For points in a track, typically there will
 always be ele (elevation) and time metadata keys.</p></dd>
 </dl>
 </div>
@@ -237,7 +237,7 @@ always be ele (elevation) and time metadata keys.</p></dd>
 % set firstPoint [lindex [::gpx::GetTrackPoints $token 1] 0]
 % lassign $firstPoint lat lon ptMetadata
 % puts &quot;first point in the first track is at $lat, $lon&quot;
-% if {[dict exists $ptMetadata ele]} { 
+% if {[dict exists $ptMetadata ele]} {
      puts &quot;at elevation [dict get $ptMetadata ele] meters&quot;
   }
 % ::gpx::Cleanup $token
@@ -254,11 +254,11 @@ always be ele (elevation) and time metadata keys.</p></dd>
 <div id="section6" class="section"><h2><a name="section6">AUTHOR</a></h2>
 <p>Keith Vetter</p>
 </div>
-<div id="section7" class="section"><h2><a name="section7">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section7" class="section"><h2><a name="section7">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>gpx</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>

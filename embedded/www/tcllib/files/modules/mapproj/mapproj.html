@@ -337,13 +337,13 @@ are 50 degrees North and South.)</p></dd>
 <dd><p>Longitude of the center of the sheet, in degrees.  For many projections,
 this figure is also the reference meridian of the projection.</p></dd>
 <dt><i class="arg">phi_0</i></dt>
-<dd><p>Latitude of the center of the sheet, in degrees.  For the azimuthal 
+<dd><p>Latitude of the center of the sheet, in degrees.  For the azimuthal
 projections, this figure is also the latitude of the center of the projection.</p></dd>
 <dt><i class="arg">phi_1</i></dt>
 <dd><p>Latitude of the first reference parallel, for projections that use reference
 parallels.</p></dd>
 <dt><i class="arg">phi_2</i></dt>
-<dd><p>Latitude of the second reference parallel, for projections that use reference 
+<dd><p>Latitude of the second reference parallel, for projections that use reference
 parallels.</p></dd>
 <dt><i class="arg">x</i></dt>
 <dd><p>X co-ordinate of a point on the map, in units of Earth radii.</p></dd>
@@ -352,7 +352,7 @@ parallels.</p></dd>
 </dl>
 </div>
 <div id="section4" class="section"><h2><a name="section4">Results</a></h2>
-<p>For all of the procedures whose names begin with 'to', the return value 
+<p>For all of the procedures whose names begin with 'to', the return value
 is a list comprising an <em>x</em> co-ordinate and a <em>y</em> co-ordinate.
 The co-ordinates are relative to the center of the map sheet to be drawn,
 measured in Earth radii at the reference location on the map.
@@ -364,7 +364,7 @@ is a list comprising the longitude and latitude, in degrees.</p>
 is appropriate to all maps.  This section attempts to provide guidance
 on how to choose a projection.</p>
 <p>First, consider the type of data that you intend to display on the map.
-If the data are <em>directional</em> (<em>e.g.,</em> winds, ocean currents, or 
+If the data are <em>directional</em> (<em>e.g.,</em> winds, ocean currents, or
 magnetic fields) then you need to use a projection that preserves
 angles; these are known as <em>conformal</em> projections.  Conformal
 projections include the Mercator, the Albers azimuthal equal-area,
@@ -374,13 +374,13 @@ as temperature, population density, land use, or demographics; then
 you need a projection that will show these data with the areas on the map
 proportional to the areas in real life.  These so-called <em>equal area</em>
 projections include the various cylindrical equal area projections,
-the sinusoidal projection, the Lambert azimuthal equal-area projection, 
-the Albers equal-area conic projection, and several of the world-map 
+the sinusoidal projection, the Lambert azimuthal equal-area projection,
+the Albers equal-area conic projection, and several of the world-map
 projections (Miller Cylindrical, Mollweide, Eckert IV, Eckert VI, Robinson,
 and Hammer). If the significant factor in your data is distance from a
 central point or line (such as air routes), then you will do best with
 an <em>equidistant</em> projection such as <em>plate carr&eacute;e</em>,
-Cassini, azimuthal equidistant, or conic equidistant.  If direction from 
+Cassini, azimuthal equidistant, or conic equidistant.  If direction from
 a central point is a critical factor in your data (for instance,
 air routes, radio antenna pointing), then you will almost surely want to
 use one of the azimuthal projections. Appropriate choices are azimuthal
@@ -392,22 +392,22 @@ projections are good overall choices.  The Mercator projection is traditional,
 but the extreme distortions of area at high latitudes make it
 a poor choice unless a conformal projection is required. The Peirce
 projection is a better choice of conformal projection, having less distortion
-of landforms.  The Miller Cylindrical is a compromise designed to give 
+of landforms.  The Miller Cylindrical is a compromise designed to give
 shapes similar to the traditional Mercator, but with less polar stretching.
 The Peirce Quincuncial projection shows all the continents with acceptable
 distortion if a reference meridian close to +20 degrees is chosen.
 The Robinson projection yields attractive maps for things like political
 divisions, but should be avoided in presenting scientific data, since other
 projections have moe useful geometric properties.</p>
-<p>If the map will cover a hemisphere, then choose stereographic, 
+<p>If the map will cover a hemisphere, then choose stereographic,
 azimuthal-equidistant, Hammer, or Mollweide projections; these all project
 the hemisphere into a circle.</p>
-<p>If the map will cover a large area (at least a few hundred km on a side), 
+<p>If the map will cover a large area (at least a few hundred km on a side),
 but less than
 a hemisphere, then you have several choices.  Azimuthal projections
 are usually good (choose stereographic, azimuthal equidistant, or
-Lambert azimuthal equal-area according to whether shapes, distances from 
-a central point, or areas are important).  Azimuthal projections (and possibly 
+Lambert azimuthal equal-area according to whether shapes, distances from
+a central point, or areas are important).  Azimuthal projections (and possibly
 the Cassini projection) are the only
 really good choices for mapping the polar regions.</p>
 <p>If the large area is in one of the temperate zones and is round or has
@@ -419,7 +419,7 @@ should be chosen at approximately 1/6 and 5/6 of the range of latitudes
 to be displayed.  For instance, maps of the 48 coterminous United States
 are attractive with reference parallels of 28.5 and 45.5 degrees.</p>
 <p>If the large area is equatorial and is round or has a primarily east-west
-extent, then the Mercator projection is a good choice for a conformal 
+extent, then the Mercator projection is a good choice for a conformal
 projection; Lambert cylindrical equal-area and sinusoidal projections are
 good equal-area projections; and the <em>plate carr&eacute;e</em> is a
 good equidistant projection.</p>
@@ -448,7 +448,7 @@ has extreme distortions of shape and area, and can display
 only a limited area of the Earth (substantially less than a hemisphere).</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key199">geodesy</a>, <a href="../../../../index.html#key204">map</a>, <a href="../../../../index.html#key620">projection</a></p>
+<p><a href="../../../../index.html#key199">geodesy</a>, <a href="../../../../index.html#key203">map</a>, <a href="../../../../index.html#key620">projection</a></p>
 </div>
 <div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 2007 Kevin B. Kenny &lt;kennykb@acm.org&gt;</p>

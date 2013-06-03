@@ -300,12 +300,12 @@ specifies the TCP port the name service to talk to is listening on for
 requests\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, and the application it describes, will undoubtedly
-contain bugs and other problems\&.
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems\&.
 Please report such in the category \fInameserv\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
-application and/or documentation\&.
+package and/or documentation\&.
 .SH "SEE ALSO"
 nameserv(n), nameserv::common(n)
 .SH KEYWORDS
