@@ -1,10 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin page_pluginmgr n 1.0]
+[keywords page]
+[keywords {parser generator}]
+[keywords {text processing}]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Parser generator tools}]
 [titledesc {page plugin manager}]
 [category  {Page Parser Generator}]
-[keywords page {parser generator} {text processing}]
 [require page::pluginmgr [opt 0.2]]
 [require fileutil]
 [description]
@@ -66,7 +68,6 @@ caller to indicate the location (or range) in the input where the
 reported problem occured. Each is a list containing two elements, the
 line and the column in the input, in this order.
 
-
 [call [cmd ::page::pluginmgr::log] [arg cmd]]
 
 This command defines a log callback command to be used by loaded
@@ -81,7 +82,6 @@ or follow the same API as such.
 [para]
 
 The command returns the empty string as its result.
-
 
 [call [cmd ::page::pluginmgr::configuration] [arg name]]
 
@@ -105,7 +105,6 @@ configuration plugins.
 
 The result of the command is the list of options retrieved.
 
-
 [call [cmd ::page::pluginmgr::reader] [arg name]]
 
 This command loads the named reader plugin and initializes it. The
@@ -121,7 +120,6 @@ and unloaded.
 
 See section [sectref {READER PLUGIN API}] for the API expected of
 reader plugins.
-
 
 [call [cmd ::page::pluginmgr::rconfigure] [arg dict]]
 
@@ -791,21 +789,12 @@ and annotated tree.
 	Describe the predefined features.
 }]
 
-
 [section FEATURES]
 
 The plugin manager currently checks the plugins for only one feature,
 [const timeable]. A plugin supporting this feature is assumed to be
 able to collect timing statistics on request.
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph page] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have.
-
+[vset CATEGORY page]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

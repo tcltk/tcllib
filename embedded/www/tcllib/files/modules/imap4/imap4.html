@@ -117,7 +117,7 @@
 <li class="section"><a href="#section2">PROCEDURES</a></li>
 <li class="section"><a href="#section3">EXAMPLES</a></li>
 <li class="section"><a href="#section4">REFERENCES</a></li>
-<li class="section"><a href="#section5">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section5">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#see-also">See Also</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 </ul>
@@ -180,7 +180,7 @@ defaults to 993.</p>
 For connecting via SSL the Tcl module <em>tls</em> must be already
 loaded otherwise an error is raised.</p>
 <pre class="example">
-    package require tls              ; # must be loaded for TLS/SSL   
+    package require tls              ; # must be loaded for TLS/SSL
     set ::imap4::use_ssl 1           ; # request a secure connection
     set chan [::imap4::open $server] ; # default port is now 993 </pre>
 </dd>
@@ -276,8 +276,8 @@ false if it is not.</p>
 <p><i class="arg">chan</i> - imap channel</p>
 <p><i class="arg">opt</i> - mailbox option to retrieve</p>
 <p>Currently supported options:
-<em>EXISTS</em> (noof msgs), 
-<em>RECENT</em> (noof 'recent' flagged msgs), 
+<em>EXISTS</em> (noof msgs),
+<em>RECENT</em> (noof 'recent' flagged msgs),
 <em>FLAGS</em></p>
 <p>In conjunction with OK:
 <em>PERMFLAGS</em>, <em>UIDNEXT</em>, <em>UIDVAL</em>, <em>UNSEEN</em></p>
@@ -410,7 +410,7 @@ more.</p>
 <pre class="example">
     set user myusername
     set pass xtremescrt
-    set server imap.test.tld 
+    set server imap.test.tld
     set FOLDER INBOX
     # Connect to server
     set imap [::imap4::open $server]
@@ -420,7 +420,7 @@ more.</p>
     foreach info [::imap4::mboxinfo $imap] {
         puts &quot;$info -&gt; [::imap4::mboxinfo $imap $info]&quot;
     }
-    # fetch 3 records inline 
+    # fetch 3 records inline
     set fields {from: to: subject: size}
     foreach rec [::imap4::fetch $imap :3 -inline {*}$fields] {
         puts -nonewline &quot;#[incr idx])&quot;
@@ -428,14 +428,11 @@ more.</p>
             puts &quot;\t[lindex $fields $j] [lindex $rec $j]&quot;
         }
     }
-    
     # Show all the information available about the message ID 1
     puts &quot;Available info about message 1: [::imap4::msginfo $imap 1]&quot;
-    
     # Use the capability stuff
     puts &quot;Capabilities: [::imap4::isableto $imap]&quot;
     puts &quot;Is able to imap4rev1? [::imap4::isableto $imap imap4rev1]&quot;
-    
     # Cleanup
     ::imap4::cleanup $imap
 </pre>
@@ -445,19 +442,19 @@ more.</p>
 RFC 3501, March 2003, <a href="http://www.rfc-editor.org/rfc/rfc3501.txt">http://www.rfc-editor.org/rfc/rfc3501.txt</a></p>
 <p>OpenSSL, <a href="http://www.openssl.org/">http://www.openssl.org/</a></p>
 </div>
-<div id="section5" class="section"><h2><a name="section5">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section5" class="section"><h2><a name="section5">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
-Only a small part of rfc3501 implemented.</p>
-<p>Please report such in the category <em>imap4</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+Please report such in the category <em>imap4</em> of the
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.</p>
+package and/or documentation.
+Only a small part of rfc3501 implemented.</p>
 </div>
 <div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
-<p><a href="../ftp/ftp.html">ftp</a>, <a href="../../../../index.html#key506">http</a>, <a href="../../../../index.html#key789">imap</a>, <a href="../mime/mime.html">mime</a>, <a href="../pop3/pop3.html">pop3</a>, <a href="../../../../index.html#key311">tls</a></p>
+<p><a href="../ftp/ftp.html">ftp</a>, <a href="../../../../index.html#key505">http</a>, <a href="../../../../index.html#key789">imap</a>, <a href="../mime/mime.html">mime</a>, <a href="../pop3/pop3.html">pop3</a>, <a href="../../../../index.html#key311">tls</a></p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key315">email</a>, <a href="../../../../index.html#key789">imap</a>, <a href="../../../../index.html#key136">internet</a>, <a href="../../../../index.html#key310">mail</a>, <a href="../../../../index.html#key276">net</a>, <a href="../../../../index.html#key788">rfc3501</a>, <a href="../../../../index.html#key342">ssl</a>, <a href="../../../../index.html#key311">tls</a></p>
+<p><a href="../../../../index.html#key315">email</a>, <a href="../../../../index.html#key789">imap</a>, <a href="../../../../index.html#key138">internet</a>, <a href="../../../../index.html#key310">mail</a>, <a href="../../../../index.html#key276">net</a>, <a href="../../../../index.html#key788">rfc3501</a>, <a href="../../../../index.html#key342">ssl</a>, <a href="../../../../index.html#key311">tls</a></p>
 </div>
 </div></body></html>

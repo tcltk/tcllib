@@ -1,10 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctools::idx::structure n 0.1]
+[keywords deserialization]
+[keywords docidx]
+[keywords doctools]
+[keywords serialization]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {Docidx serialization utilities}]
 [category  {Documentation tools}]
-[keywords docidx doctools serialization deserialization]
 [require doctools::idx::structure [opt 0.1]]
 [require Tcl 8.4]
 [require logger]
@@ -50,7 +53,6 @@ For the specification of regular and canonical keyword index
 serializations see the section
 [sectref {Keyword index serialization format}].
 
-
 [call [cmd ::doctools::idx::structure] [method verify-as-canonical] \
 	[arg serial]]
 
@@ -63,7 +65,6 @@ string.
 
 For the specification of canonical keyword index serializations see
 the section [sectref {Keyword index serialization format}].
-
 
 [call [cmd ::doctools::idx::structure] [method canonicalize] [arg serial]]
 
@@ -83,8 +84,6 @@ For the specification of regular and canonical keyword index
 serializations see the section
 [sectref {Keyword index serialization format}].
 
-
-
 [call [cmd ::doctools::idx::structure] [method print] [arg serial]]
 
 This command assumes that the argument [arg serial] contains a valid
@@ -100,7 +99,6 @@ for parsing or other machine-based activities.
 
 For the specification of regular keyword index serializations see the
 section [sectref {Keyword index serialization format}].
-
 
 [call [cmd ::doctools::idx::structure] [method merge] \
 	[arg seriala] [arg serialb]]
@@ -123,7 +121,6 @@ serializations see the section
 [sectref {Keyword index serialization format}].
 
 [list_end]
-
 
 [include include/serialization.inc]
 

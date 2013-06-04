@@ -362,7 +362,7 @@
 <li class="subsection"><a href="#subsection162">Are there are restrictions on macro names?</a></li>
 </ul>
 </li>
-<li class="section"><a href="#section23">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section23">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
 <li class="section"><a href="#copyright">Copyright</a></li>
@@ -379,8 +379,8 @@ Snit, however; that information is in the <b class="cmd"><a href="snit.html">sni
 </div>
 <div id="subsection2" class="subsection"><h3><a name="subsection2">What is Snit?</a></h3>
 <p>Snit is a framework for defining abstract data types and megawidgets
-in pure Tcl.  The name &quot;Snit&quot; stands for &quot;Snit's Not Incr Tcl&quot;, 
-signifying that Snit takes a different approach to defining objects 
+in pure Tcl.  The name &quot;Snit&quot; stands for &quot;Snit's Not Incr Tcl&quot;,
+signifying that Snit takes a different approach to defining objects
 than does Incr Tcl, the best known object framework for Tcl.  Had
 I realized that Snit would become at all popular, I'd probably have
 chosen something else.</p>
@@ -442,7 +442,7 @@ object was implemented.  I designed Snit to help me build applications
 out of the materials at hand; thus, Snit is designed to be able to
 incorporate and build on any object, whether it's a hand-coded object,
 a Tk widget, an Incr Tcl object, a BWidget or almost anything else.</p>
-<p>Note that you can achieve the effect of inheritance using 
+<p>Note that you can achieve the effect of inheritance using
 <span class="sectref"><a href="#section14">COMPONENTS</a></span> and <span class="sectref"><a href="#section16">DELEGATION</a></span>--and you can inherit
 from anything that looks like a Tcl object.</p>
 </div>
@@ -496,7 +496,7 @@ using any incompatible features.</p>
 <div id="subsection10" class="subsection"><h3><a name="subsection10">How are Snit 1.3 and Snit 2.2 incompatible?</a></h3>
 <p>To the extent possible, Snit 2.2 is intended to be a drop-in
 replacement for Snit 1.3. Unfortunately, some incompatibilities were
-inevitable because Snit 2.2 uses Tcl 8.5's new 
+inevitable because Snit 2.2 uses Tcl 8.5's new
 <b class="cmd">namespace ensemble</b> mechanism to implement subcommand dispatch.
 This approach is much faster than the mechanism used in Snit 1.3, and
 also results in much better error messages; however, it also places
@@ -512,14 +512,14 @@ set obj2 [dog]         ;# Implicit naming
 </pre>
 <p>In Snit 2.2, type commands are defined using the <b class="cmd">namespace ensemble</b>
 mechanism; and <b class="cmd">namespace ensemble</b> doesn't allow an ensemble command
-to be called without a subcommand.  In short, using 
+to be called without a subcommand.  In short, using
 <b class="cmd">namespace ensemble</b> there's no way to support implicit naming.</p>
 <p>All is not lost, however.  If the type has no type methods, then the
-type command is a simple command rather than an ensemble, and 
+type command is a simple command rather than an ensemble, and
 <b class="cmd">namespace ensemble</b> is not used.  In this case, implicit naming
 is still possible.</p>
 <p>In short, you can have implicit naming if you're willing to do without
-type methods (including the standard type methods, like 
+type methods (including the standard type methods, like
 <b class="cmd">$type info</b>).  To do so, use the <b class="const">-hastypemethods</b> pragma:</p>
 <pre class="example">pragma -hastypemethods 0</pre>
 </li>
@@ -527,7 +527,7 @@ type methods (including the standard type methods, like
 Snit 2.2.</p>
 <p>A hierarchical method is an instance method which has
 subcommands; these subcommands are themselves methods.  The Tk text
-widget's <b class="cmd">tag</b> command and its subcommands are examples of 
+widget's <b class="cmd">tag</b> command and its subcommands are examples of
 hierarchical methods.  You can implement such subcommands in Snit
 simply by including multiple words in the method names:</p>
 <pre class="example">method {tag configure} {tag args} { ... }
@@ -546,7 +546,7 @@ hierarchical methods and type methods no longer works.</p></li>
 <li><p>The third incompatibility derives from the second.  In Snit 1.3,
 hierarchical methods were also simply methods whose name contains
 multiple words.  As a result, <b class="cmd">$obj info methods</b> returned the
-full names of all hierarchical methods.  In the example above, 
+full names of all hierarchical methods.  In the example above,
 the list returned by <b class="cmd">$obj info methods</b> would include
 <b class="cmd">tag configure</b> and <b class="cmd">tag cget</b> but not <b class="cmd">tag</b>, since
 <b class="cmd">tag</b> is defined only implicitly.</p>
@@ -556,11 +556,11 @@ name contains multiple words; in the above example, the list returned
 by <b class="cmd">$obj info methods</b> would include <b class="cmd">tag</b> but not
 <b class="cmd">tag configure</b> or <b class="cmd">tag cget</b>.</p></li>
 <li><p>The fourth incompatibility is due to a new feature.  Snit 2.2 uses
-the new <b class="cmd">namespace path</b> command so that a type's code can 
+the new <b class="cmd">namespace path</b> command so that a type's code can
 call any command defined in the type's parent namespace without
-qualification or importation.  For example, suppose you have a 
+qualification or importation.  For example, suppose you have a
 package called <b class="cmd">mypackage</b> which defines a number of commands
-including a type, <b class="cmd">::mypackage::mytype</b>.  Thanks to 
+including a type, <b class="cmd">::mypackage::mytype</b>.  Thanks to
 <b class="cmd">namespace path</b>, the type's code can call any of the other
 commands defined in <b class="cmd">::mypackage::</b>.</p>
 <p>This is extremely convenient.  However, it also means that commands
@@ -570,7 +570,7 @@ This can lead to bugs.  For example, Tcllib includes a type called
 <b class="cmd">::tie::std::file</b>.  This type's code calls the standard
 <b class="cmd"><a href="../../../../index.html#key35">file</a></b> command.  When run with Snit 2.2, the code broke--
 the type's command, <b class="cmd">::tie::std::file</b>, is itself a command
-in the type's parent namespace, and so instead of calling 
+in the type's parent namespace, and so instead of calling
 the standard <b class="cmd"><a href="../../../../index.html#key35">file</a></b> command, the type found itself calling
 itself.</p></li>
 </ul>
@@ -583,7 +583,7 @@ itself.</p></li>
 <li><p>The <b class="const">-simpledispatch</b> pragma is obsolete, and ignored if
 present. In Snit 1.x, <b class="const">-simpledispatch</b> substitutes a faster
 mechanism for method dispatch, at the cost of losing certain features.
-Snit 2.2 method dispatch is faster still in all cases, so 
+Snit 2.2 method dispatch is faster still in all cases, so
 <b class="const">-simpledispatch</b> is no longer needed.</p></li>
 <li><p>In Snit 2.2, a type's code (methods, type methods, etc.) can call commands
 from the type's parent namespace without qualifying or importing
@@ -610,23 +610,23 @@ the scope of this FAQ, obviously.  In simple terms, an object is an instance of
 an abstract data type--a coherent bundle of code and data.
 There are many ways to represent objects in Tcl/Tk; the best known
 examples are the Tk widgets.</p>
-<p>A Tk widget is an object; it is represented by a Tcl command.  
+<p>A Tk widget is an object; it is represented by a Tcl command.
 The object's methods are subcommands of the Tcl command.  The object's
-properties are options accessed using the <b class="method">configure</b> and 
+properties are options accessed using the <b class="method">configure</b> and
 <b class="method">cget</b> methods.  Snit uses the same conventions as Tk widgets do.</p>
 </div>
 <div id="subsection13" class="subsection"><h3><a name="subsection13">What is an abstract data type?</a></h3>
 <p>In computer science terms, an abstract data type is a complex data
 structure along with a set of operations--a stack, a queue, a
 binary tree, etc--that is to say, in modern terms, an object.  In systems
-that include some form of inheritance the word <i class="term"><a href="../../../../index.html#key236">class</a></i> is
+that include some form of inheritance the word <i class="term"><a href="../../../../index.html#key234">class</a></i> is
 usually used instead of <i class="term">abstract data type</i>, but as Snit
 doesn't implement inheritance as it's ordinarily understood
-the older term seems more appropriate.  Sometimes this is called 
+the older term seems more appropriate.  Sometimes this is called
 <i class="term">object-based</i> programming as opposed to object-oriented
-programming.  Note that you can easily create the effect of 
+programming.  Note that you can easily create the effect of
 inheritance using <span class="sectref"><a href="#section14">COMPONENTS</a></span> and <span class="sectref"><a href="#section16">DELEGATION</a></span>.</p>
-<p>In Snit, as in Tk, a <i class="term"><a href="../../../../index.html#key124">type</a></i> is a command that creates instances
+<p>In Snit, as in Tk, a <i class="term"><a href="../../../../index.html#key123">type</a></i> is a command that creates instances
 -- objects -- which belong to the type.  Most types define some number
 of <i class="term">options</i> which can be set at creation time, and usually can be
 changed later.</p>
@@ -640,9 +640,9 @@ subcommand:</p>
     text .mytext -width 80 -height 24
     .mytext insert end &quot;Howdy!&quot;
 </pre>
-<p>In this example, <b class="cmd"><a href="../../../../index.html#key481">text</a></b> is the <i class="term"><a href="../../../../index.html#key124">type</a></i> command and
+<p>In this example, <b class="cmd"><a href="../../../../index.html#key480">text</a></b> is the <i class="term"><a href="../../../../index.html#key123">type</a></i> command and
 <b class="cmd">.mytext</b> is the <i class="term">instance</i> command.</p>
-<p>In Snit, object subcommands are generally called 
+<p>In Snit, object subcommands are generally called
 <span class="sectref"><a href="#section5">INSTANCE METHODS</a></span>.</p>
 </div>
 <div id="subsection14" class="subsection"><h3><a name="subsection14">What kinds of abstract data types does Snit provide?</a></h3>
@@ -669,7 +669,7 @@ that can be used to define dog objects.</p>
 <p>An instance of a <b class="cmd">snit::type</b> can have <span class="sectref"><a href="#section5">INSTANCE METHODS</a></span>,
 <span class="sectref"><a href="#section6">INSTANCE VARIABLES</a></span>, <span class="sectref"><a href="#section7">OPTIONS</a></span>, and <span class="sectref"><a href="#section14">COMPONENTS</a></span>.
 The type itself can have <span class="sectref"><a href="#section9">TYPE METHODS</a></span>,
-<span class="sectref"><a href="#section8">TYPE VARIABLES</a></span>, <span class="sectref"><a href="#section15">TYPE COMPONENTS</a></span>, and 
+<span class="sectref"><a href="#section8">TYPE VARIABLES</a></span>, <span class="sectref"><a href="#section15">TYPE COMPONENTS</a></span>, and
 <span class="sectref"><a href="#section10">PROCS</a></span>.</p>
 </div>
 <div id="subsection16" class="subsection"><h3><a name="subsection16">What is a snit::widget?, the short story</a></h3>
@@ -695,7 +695,7 @@ example, we create a <b class="cmd">dog</b> object called <b class="cmd">spot</b
 %
 </pre>
 <p>In general, the <b class="method">create</b> method name can be omitted so long as
-the instance name doesn't conflict with any defined 
+the instance name doesn't conflict with any defined
 <span class="sectref"><a href="#section9">TYPE METHODS</a></span>. (See <span class="sectref"><a href="#section15">TYPE COMPONENTS</a></span> for the
 special case in which this doesn't work.)
 So the following example is identical to the
@@ -709,7 +709,7 @@ previous example:</p>
 %
 </pre>
 <p>This document generally uses the shorter form.</p>
-<p>If the <b class="cmd">dog</b> type defines <span class="sectref"><a href="#section7">OPTIONS</a></span>, these can usually be 
+<p>If the <b class="cmd">dog</b> type defines <span class="sectref"><a href="#section7">OPTIONS</a></span>, these can usually be
 given defaults at creation time:</p>
 <pre class="example">% snit::type dog {
     option -breed mongrel
@@ -788,7 +788,7 @@ can be renamed, though this flexibility has some consequences:</p>
 contain the object's current name, so instance methods can always call
 other instance methods using <b class="variable">$self</b>.</p></li>
 <li><p>If the object is renamed, however, then <b class="variable">$self</b>'s value will change.
-Therefore, don't use <b class="variable">$self</b> for anything that will break if 
+Therefore, don't use <b class="variable">$self</b> for anything that will break if
 <b class="variable">$self</b> changes. For example, don't pass a callback command to
 another object like this:</p>
 <pre class="example">
@@ -806,12 +806,12 @@ arguments to the end of the command as usual.</p></li>
 <li><p>Every object has a private namespace; the name of this namespace is
 available in method bodies, etc., as the value of the implicit
 argument <b class="variable">selfns</b>.  This value is constant for the life of the
-object.  Use <b class="variable">$selfns</b> instead of <b class="variable">$self</b> if you need a 
+object.  Use <b class="variable">$selfns</b> instead of <b class="variable">$self</b> if you need a
 unique token to identify the object.</p></li>
 <li><p>When a <b class="cmd">snit::widget</b>'s instance command is renamed, its Tk window
 name remains the same -- and is still extremely
-important. Consequently, the Tk window name is available in 
-method bodies as the value of the implicit argument <b class="variable">win</b>.  
+important. Consequently, the Tk window name is available in
+method bodies as the value of the implicit argument <b class="variable">win</b>.
 This value is constant for the
 life of the object.  When creating child windows, it's best to use
 <b class="variable">$win.child</b> rather than <b class="variable">$self.child</b> as the name of the
@@ -922,7 +922,7 @@ barking at them:</p>
 <div id="subsection28" class="subsection"><h3><a name="subsection28">Are there any limitations on instance method names?</a></h3>
 <p>Not really, so long as you avoid the standard instance method names:
 <b class="method">configure</b>, <b class="method">configurelist</b>, <b class="method">cget</b>,
-<b class="method">destroy</b>, and <b class="method">info</b>.  Also, method names consisting of 
+<b class="method">destroy</b>, and <b class="method">info</b>.  Also, method names consisting of
 multiple words define hierarchical methods.</p>
 </div>
 <div id="subsection29" class="subsection"><h3><a name="subsection29">What is a hierarchical method?</a></h3>
@@ -930,13 +930,13 @@ multiple words define hierarchical methods.</p>
 Hierarchical methods allow an object's methods to have subcommands of
 their own; and these can in turn have subcommands, and so on.  This
 allows the programmer to define a tree-shaped command structure, such
-as is used by many of the Tk widgets--the subcommands of the 
-Tk <b class="cmd"><a href="../../../../index.html#key481">text</a></b> widget's <b class="cmd">tag</b> method are hierarchical methods.</p>
+as is used by many of the Tk widgets--the subcommands of the
+Tk <b class="cmd"><a href="../../../../index.html#key480">text</a></b> widget's <b class="cmd">tag</b> method are hierarchical methods.</p>
 </div>
 <div id="subsection30" class="subsection"><h3><a name="subsection30">How do I define a hierarchical method?</a></h3>
 <p>Define methods whose names consist of multiple words.  These words
 define the hierarchy implicitly.  For example, the following code
-defines a <b class="cmd">tag</b> method with subcommands <b class="cmd">cget</b> and 
+defines a <b class="cmd">tag</b> method with subcommands <b class="cmd">cget</b> and
 <b class="cmd">configure</b>:</p>
 <pre class="example">snit::widget mytext {
     method {tag configure} {tag args} { ... }
@@ -1063,7 +1063,7 @@ specific naming convention, as it might change in future releases.</p>
 </div>
 <div id="subsection38" class="subsection"><h3><a name="subsection38">What is $win?</a></h3>
 <p>The implicit argument <b class="variable">win</b> is defined for all Snit methods,
-though it really makes sense only for those of 
+though it really makes sense only for those of
 <span class="sectref"><a href="#section17">WIDGETS</a></span> and <span class="sectref"><a href="#section18">WIDGET ADAPTORS</a></span>.  <b class="variable">$win</b> is simply
 the original name of the object, whether it's been renamed or not.
 For widgets and widgetadaptors, it is also therefore the name of a Tk
@@ -1079,9 +1079,9 @@ more information.</p>
 <div id="subsection39" class="subsection"><h3><a name="subsection39">How do I pass an instance method as a callback?</a></h3>
 <p>It depends on the context.</p>
 <p>Suppose in my application I have a <b class="cmd">dog</b> object named <b class="cmd">fido</b>,
-and I want <b class="cmd">fido</b> to bark when a Tk button called <b class="cmd">.bark</b> is 
+and I want <b class="cmd">fido</b> to bark when a Tk button called <b class="cmd">.bark</b> is
 pressed.  In this case, I create the callback command in the usual
-way, using <b class="cmd"><a href="../../../../index.html#key278">list</a></b>:</p>
+way, using <b class="cmd"><a href="../../../../index.html#key280">list</a></b>:</p>
 <pre class="example">    button .bark -text &quot;Bark!&quot; -command [list fido bark]
 </pre>
 <p>In typical Tcl style, we use a callback to hook two independent
@@ -1124,13 +1124,13 @@ not do the right thing.</p>
 %
 </pre>
 <p>The command <b class="cmd">mymethod</b> takes any number of arguments, and can be
-used like <b class="cmd"><a href="../../../../index.html#key278">list</a></b> to build up a callback command; the only
-difference is that <b class="cmd">mymethod</b> returns a 
+used like <b class="cmd"><a href="../../../../index.html#key280">list</a></b> to build up a callback command; the only
+difference is that <b class="cmd">mymethod</b> returns a
 form of the command that won't change even if the instance's name
 changes.</p>
-<p>On the other hand, you might prefer to allow a widgetadaptor to 
+<p>On the other hand, you might prefer to allow a widgetadaptor to
 override a method such that your renamed widget will call the
-widgetadaptor's method instead of its own.  In this case, 
+widgetadaptor's method instead of its own.  In this case,
 using <b class="cmd">[list $self bark]</b> will do what you want...but
 this is a technique which should be used only in carefully controlled
 circumstances.</p>
@@ -1168,7 +1168,7 @@ time by specifying the <b class="const">-array</b> option:</p>
 </pre>
 </div>
 <div id="subsection44" class="subsection"><h3><a name="subsection44">What happens if I don't initialize an instance variable?</a></h3>
-<p>Variables do not really exist until they are given values.  If you 
+<p>Variables do not really exist until they are given values.  If you
 do not initialize a variable when you define it, then you must be
 sure to assign a value to it (in the constructor, say, or in some
 method) before you reference it.</p>
@@ -1189,10 +1189,10 @@ constructor, and the destructor) without declaration.  This differs
 from normal Tcl practice, in which all non-local variables in a proc
 need to be declared.</p>
 <p>There is a speed penalty to having all instance variables implicitly
-available in all instance code.  Even though your code need not 
+available in all instance code.  Even though your code need not
 declare the variables explicitly, Snit must still declare them,
 and that takes time.  If you have ten instance variables, a method
-that uses none of them must still pay the declaration penalty for 
+that uses none of them must still pay the declaration penalty for
 all ten.  In most cases, the additional runtime cost is negligible.
 If extreme cases, you might wish to avoid it; there are two methods
 for doing so.</p>
@@ -1259,8 +1259,8 @@ languages would call public member variables or properties: they are
 data values which can be retrieved and (usually) set by the clients of
 an object.</p>
 <p>Snit's implementation of options follows the Tk model fairly exactly,
-except that <b class="cmd">snit::type</b> objects usually don't interact with 
-<span class="sectref"><a href="#section19">THE TK OPTION DATABASE</a></span>; <b class="cmd">snit::widget</b> and 
+except that <b class="cmd">snit::type</b> objects usually don't interact with
+<span class="sectref"><a href="#section19">THE TK OPTION DATABASE</a></span>; <b class="cmd">snit::widget</b> and
 <b class="cmd">snit::widgetadaptor</b> objects, on the other hand, always do.</p>
 </div>
 <div id="subsection50" class="subsection"><h3><a name="subsection50">How do I define an option?</a></h3>
@@ -1279,7 +1279,7 @@ breed, a color, a flag that says whether it's pedigreed with the
 American Kennel Club, and another flag that says whether it has had
 its shots.  The default dog, evidently, is a brown mutt.</p>
 <p>There are a number of options you can specify when defining an option;
-if <b class="const">-default</b> is the only one, you can omit the word 
+if <b class="const">-default</b> is the only one, you can omit the word
 <b class="const">-default</b> as follows:</p>
 <pre class="example">snit::type dog {
     option -breed mongrel
@@ -1322,7 +1322,7 @@ mongrel
 <div id="subsection53" class="subsection"><h3><a name="subsection53">How can a client set options after object creation?</a></h3>
 <p>Any number of options may be set at one time using the
 <b class="method">configure</b> instance method.  Suppose that closer inspection
-shows that ::fido is not a brown mongrel, but rather a rare Arctic Boar 
+shows that ::fido is not a brown mongrel, but rather a rare Arctic Boar
 Hound of a lovely dun color:</p>
 <pre class="example">% fido configure -color dun -breed &quot;Arctic Boar Hound&quot;
 % fido cget -color
@@ -1341,7 +1341,7 @@ dun
 Arctic Boar Hound
 %
 </pre>
-<p>In Tcl 8.5, the <b class="cmd">*</b> keyword can be used with 
+<p>In Tcl 8.5, the <b class="cmd">*</b> keyword can be used with
 <b class="method">configure</b> in this case:</p>
 <pre class="example">% set features [list -color dun -breed &quot;Arctic Boar Hound&quot;]
 -color dun -breed {Arctic Boar Hound}
@@ -1386,13 +1386,13 @@ follows:</p>
     }
 </pre>
 <p>As you can see, using the <b class="variable">options</b> variable involves considerably
-less typing and is the usual way to do it.  But if you use 
+less typing and is the usual way to do it.  But if you use
 <b class="const">-configuremethod</b> or <b class="const">-cgetmethod</b> (described in the following
-answers), you might wish to use the <b class="method">configure</b> and 
+answers), you might wish to use the <b class="method">configure</b> and
 <b class="method">cget</b> methods anyway, just so that any special processing you've
 implemented is sure to get done.  Also, if the option is delegated to
 a component then <b class="method">configure</b> and <b class="method">cget</b> are the only way
-to access it without accessing the component directly.  See 
+to access it without accessing the component directly.  See
 <span class="sectref"><a href="#section16">DELEGATION</a></span> for more information.</p>
 </div>
 <div id="subsection55" class="subsection"><h3><a name="subsection55">How can I make an option read-only?</a></h3>
@@ -1421,7 +1421,7 @@ option -breed can only be set at instance creation
 </div>
 <div id="subsection57" class="subsection"><h3><a name="subsection57">What is a -cgetmethod?</a></h3>
 <p>A <b class="const">-cgetmethod</b> is a method that's called whenever the related
-option's value is queried via the 
+option's value is queried via the
 <b class="method">cget</b> instance method.  The handler can compute the option's
 value, retrieve it from a database, or do anything else you'd like it to do.</p>
 <p>Here's what the default behavior would look like if
@@ -1442,7 +1442,7 @@ the name of the option whose value is to be retrieved.</p>
 <div id="subsection59" class="subsection"><h3><a name="subsection59">What is a -configuremethod?</a></h3>
 <p>A <b class="const">-configuremethod</b> is a method that's called whenever the
 related option is given a new value via the <b class="method">configure</b> or
-<b class="method">configurelist</b> instance methods. The method can 
+<b class="method">configurelist</b> instance methods. The method can
 pass the value on to some other object, store it in a database, or do
 anything else you'd like it to do.</p>
 <p>Here's what the default configuration behavior would look like if
@@ -1515,7 +1515,7 @@ called <b class="variable">greeting</b>.</p>
 </div>
 <div id="subsection64" class="subsection"><h3><a name="subsection64">How is an array-valued type variable defined?</a></h3>
 <p>Array-valued type variables are also defined using the
-<b class="cmd">typevariable</b> command; to initialize them, include the 
+<b class="cmd">typevariable</b> command; to initialize them, include the
 <b class="const">-array</b> option:</p>
 <pre class="example">snit::type mytype {
     # Define typearray variable &quot;greetings&quot;
@@ -1527,13 +1527,13 @@ called <b class="variable">greeting</b>.</p>
 </pre>
 </div>
 <div id="subsection65" class="subsection"><h3><a name="subsection65">What happens if I don't initialize a type variable?</a></h3>
-<p>Variables do not really exist until they are given values.  If you 
+<p>Variables do not really exist until they are given values.  If you
 do not initialize a variable when you define it, then you must be
 sure to assign a value to it (in the type constructor, say)
 before you reference it.</p>
 </div>
 <div id="subsection66" class="subsection"><h3><a name="subsection66">Are there any limitations on type variable names?</a></h3>
-<p>Type variable names have the same restrictions as 
+<p>Type variable names have the same restrictions as
 the names of <span class="sectref"><a href="#section6">INSTANCE VARIABLES</a></span> do.</p>
 </div>
 <div id="subsection67" class="subsection"><h3><a name="subsection67">Do I need to declare my type variables in my methods?</a></h3>
@@ -1668,7 +1668,7 @@ list of pedigreed dogs when a Tk button is pushed:</p>
 button .btn -text &quot;Pedigrees&quot; -command [list dog printPedigrees]
 pack .btn
 </pre>
-<p>Alternatively, from a method or type method you can use the 
+<p>Alternatively, from a method or type method you can use the
 <b class="cmd">mytypemethod</b> command, just as you would use <b class="cmd">mymethod</b>
 to define a callback command for <span class="sectref"><a href="#section5">INSTANCE METHODS</a></span>.</p>
 </div>
@@ -1699,7 +1699,7 @@ definition:</p>
 <p>Any name can be used, so long as it does not begin with <b class="const">Snit_</b>;
 names beginning with <b class="const">Snit_</b> are reserved for Snit's own use.
 However, the wise programmer will avoid <b class="cmd"><a href="../../../../index.html#key570">proc</a></b> names (<b class="cmd"><a href="../../../../index.html#key279">set</a></b>,
-<b class="cmd"><a href="../../../../index.html#key278">list</a></b>, <b class="cmd">if</b>, etc.) that would shadow standard Tcl
+<b class="cmd"><a href="../../../../index.html#key280">list</a></b>, <b class="cmd">if</b>, etc.) that would shadow standard Tcl
 command names.</p>
 <p><b class="cmd"><a href="../../../../index.html#key570">proc</a></b> names, being private, should begin with a capital letter according
 to convention; however, as there are typically no public <b class="cmd"><a href="../../../../index.html#key570">proc</a></b>s
@@ -1720,7 +1720,7 @@ in the type's namespace it doesn't matter much either way.</p>
 </pre>
 </div>
 <div id="subsection83" class="subsection"><h3><a name="subsection83">How can I pass a proc to another object as a callback?</a></h3>
-<p>The <b class="cmd">myproc</b> command returns a callback command for the 
+<p>The <b class="cmd">myproc</b> command returns a callback command for the
 <b class="cmd"><a href="../../../../index.html#key570">proc</a></b>, just as <b class="cmd">mymethod</b> does for a method.</p>
 </div>
 </div>
@@ -1760,7 +1760,7 @@ error, of course).</p>
 <div id="subsection87" class="subsection"><h3><a name="subsection87">How do I define a constructor?</a></h3>
 <p>A constructor is defined by using the <b class="cmd">constructor</b> statement in
 the type definition.  Suppose that it's desired to keep a list of all
-pedigreed dogs.  The list can be maintained in a 
+pedigreed dogs.  The list can be maintained in a
 type variable and retrieved by a type method.  Whenever a dog is
 created, it can add itself to the list--provided that it's registered
 with the American Kennel Club.</p>
@@ -1826,20 +1826,20 @@ dalmatian
 </pre>
 <p>The drawback is that this syntax is non-standard, and may
 limit the compatibility of your new type with other people's code.
-For example, Snit assumes that it can create 
+For example, Snit assumes that it can create
 <span class="sectref"><a href="#section14">COMPONENTS</a></span> using the standard creation syntax.</p>
 </div>
 <div id="subsection90" class="subsection"><h3><a name="subsection90">Are there any limitations on constructor arguments?</a></h3>
 <p>Constructor argument lists are subject to the same limitations
 as those on instance method argument lists.  It has the
-same implicit arguments, and can contain default values and the 
+same implicit arguments, and can contain default values and the
 <b class="variable">args</b> argument.</p>
 </div>
 <div id="subsection91" class="subsection"><h3><a name="subsection91">Is there anything special about writing the constructor?</a></h3>
 <p>Yes.  Writing the constructor can be tricky if you're delegating
 options to components, and there are specific issues relating to
-<b class="cmd">snit::widget</b>s and <b class="cmd">snit::widgetadaptor</b>s.  See 
-<span class="sectref"><a href="#section16">DELEGATION</a></span>, <span class="sectref"><a href="#section17">WIDGETS</a></span>, 
+<b class="cmd">snit::widget</b>s and <b class="cmd">snit::widgetadaptor</b>s.  See
+<span class="sectref"><a href="#section16">DELEGATION</a></span>, <span class="sectref"><a href="#section17">WIDGETS</a></span>,
 <span class="sectref"><a href="#section18">WIDGET ADAPTORS</a></span>, and <span class="sectref"><a href="#section19">THE TK OPTION DATABASE</a></span>.</p>
 </div>
 </div>
@@ -1888,11 +1888,11 @@ then we'll want to remove dogs from it when they are destroyed.</p>
 <p>Yes and no.</p>
 <p>Any Tk widgets created by a <b class="cmd">snit::widget</b> or
 <b class="cmd">snit::widgetadaptor</b> will be destroyed automatically by Tk
-when the megawidget is destroyed, in keeping with normal Tk behavior 
+when the megawidget is destroyed, in keeping with normal Tk behavior
 (destroying a parent widget destroys the whole tree).</p>
-<p>Components of normal <b class="cmd">snit::types</b>, on the other hand, 
-are never destroyed automatically, nor are non-widget components 
-of Snit megawidgets.  If your object creates them in its 
+<p>Components of normal <b class="cmd">snit::types</b>, on the other hand,
+are never destroyed automatically, nor are non-widget components
+of Snit megawidgets.  If your object creates them in its
 constructor, then it should generally destroy them in its destructor.</p>
 </div>
 <div id="subsection97" class="subsection"><h3><a name="subsection97">Is there any special about writing a destructor?</a></h3>
@@ -1926,7 +1926,7 @@ generally to catch and ignore any errors while destroying components.</p>
 Snit megawidget, for example, will often create a number of Tk
 widgets.  These objects are part of the main object; it is composed
 of them, so they are called components of the object.</p>
-<p>But Snit also has a more precise meaning for 
+<p>But Snit also has a more precise meaning for
 <span class="sectref"><a href="#section14">COMPONENT</a></span>.  The components of a Snit object are those
 objects to which methods or options can be delegated.
 (See <span class="sectref"><a href="#section16">DELEGATION</a></span> for more information about delegation.)</p>
@@ -1964,7 +1964,7 @@ used to refer to the component within Snit code.  The second name is
 the name of the actual component object created by the Snit object's
 constructor.  This second name is always a Tcl command name, and is
 referred to as the component's object name.</p>
-<p>In the example in the previous question, the component name is 
+<p>In the example in the previous question, the component name is
 <b class="const">mytail</b>; the <b class="const">mytail</b> component's object name is chosen
 automatically by Snit since <b class="const">%AUTO%</b> was used when the component
 object was created.</p>
@@ -2034,7 +2034,7 @@ For example:</p>
 </pre>
 <p>In a <b class="cmd">snit::type</b>'s code, the <b class="cmd">install</b>
 command shown above is equivalent to the <b class="const">set mytail</b> command
-that's commented out.  In a <b class="cmd">snit::widget</b>'s or 
+that's commented out.  In a <b class="cmd">snit::widget</b>'s or
 <b class="cmd">snit::widgetadaptor</b>'s, code, however, the
 <b class="cmd">install</b> command also queries <span class="sectref"><a href="#section19">THE TK OPTION DATABASE</a></span>
 and initializes the new component's options accordingly.  For consistency,
@@ -2054,7 +2054,7 @@ Tk window names.</p>
 fully-qualified command names, i.e., names which include the full
 namespace of the command.  Note that Snit always creates objects with
 fully qualified names.</p>
-<p>Next, the object names of components and owned by your object 
+<p>Next, the object names of components and owned by your object
 must be unique.  This is no problem for widget components, since
 widget names are always unique; but consider the following code:</p>
 <pre class="example">snit::type tail { ... }
@@ -2112,10 +2112,10 @@ interface.</p>
 <div id="subsection108" class="subsection"><h3><a name="subsection108">How do I expose a component's object command?</a></h3>
 <p>When you declare the component, specify the <b class="cmd">component</b>
 statement's <b class="const">-public</b> option.  The value of this option is the
-name of a method which will be delegated to your component's object 
+name of a method which will be delegated to your component's object
 command.</p>
 <p>For example, supposed you've written a combobox megawidget which owns
-a listbox widget, and you want to make the listbox's entire interface 
+a listbox widget, and you want to make the listbox's entire interface
 public.  You can do it like this:</p>
 <pre class="example">snit::widget combobox {
      component listbox -public listbox
@@ -2138,7 +2138,7 @@ however, you can name it anything you like.</p>
 <p>A type component is a component that belongs to the type itself
 instead of to a particular instance of the type.  The relationship
 between components and type components is the same as the
-relationship between <span class="sectref"><a href="#section6">INSTANCE VARIABLES</a></span> and 
+relationship between <span class="sectref"><a href="#section6">INSTANCE VARIABLES</a></span> and
 <span class="sectref"><a href="#section8">TYPE VARIABLES</a></span>.  Both <span class="sectref"><a href="#section5">INSTANCE METHODS</a></span> and
 <span class="sectref"><a href="#section9">TYPE METHODS</a></span> can be delegated to type components.</p>
 <p>Once you understand <span class="sectref"><a href="#section14">COMPONENTS</a></span> and
@@ -2160,7 +2160,7 @@ snit::type dog {
 </div>
 <div id="subsection111" class="subsection"><h3><a name="subsection111">How do I install a type component?</a></h3>
 <p>Just use the <b class="cmd"><a href="../../../../index.html#key279">set</a></b> command to assign the component's object
-command to the type component.  Because types 
+command to the type component.  Because types
 (even <b class="cmd">snit::widget</b> types) are not widgets, and do not have
 options anyway, the extra features of the <b class="cmd">install</b> command are
 not needed.</p>
@@ -2176,7 +2176,7 @@ snit::type dog {
 </pre>
 </div>
 <div id="subsection112" class="subsection"><h3><a name="subsection112">Are there any limitations on type component names?</a></h3>
-<p>Yes, the same as on <span class="sectref"><a href="#section6">INSTANCE VARIABLES</a></span>, 
+<p>Yes, the same as on <span class="sectref"><a href="#section6">INSTANCE VARIABLES</a></span>,
 <span class="sectref"><a href="#section8">TYPE VARIABLES</a></span>, and normal <span class="sectref"><a href="#section14">COMPONENTS</a></span>.</p>
 </div>
 </div>
@@ -2190,7 +2190,6 @@ which the <b class="cmd">dog</b> object can delegate its <b class="cmd">wag</b> 
 <pre class="example">snit::type dog {
     variable mytail
     option -taillength -configuremethod SetTailOption -cgetmethod GetTailOption
-    
     method SetTailOption {option value} {
          $mytail configure $option $value
     }
@@ -2209,13 +2208,13 @@ which the <b class="cmd">dog</b> object can delegate its <b class="cmd">wag</b> 
 <p>This is the hard way to do it, by it demonstrates what delegation is
 all about.  See the following answers for the easy way to do it.</p>
 <p>Note that the constructor calls the <b class="method">configurelist</b> method
-<b class="cmd"><a href="../../../../index.html#key392">after</a></b> it creates its <b class="cmd">tail</b>; otherwise,
+<b class="cmd"><a href="../../../../index.html#key391">after</a></b> it creates its <b class="cmd">tail</b>; otherwise,
 if <b class="option">-taillength</b> appeared in the list of <b class="variable">args</b> we'd get an
 error.</p>
 </div>
 <div id="subsection114" class="subsection"><h3><a name="subsection114">How can I delegate a method to a component object?</a></h3>
 <p>Delegation occurs frequently enough that Snit makes it easy. Any
-method can be delegated to any component or type component 
+method can be delegated to any component or type component
 by placing a single <b class="cmd">delegate</b> statement in the type definition.
 (See <span class="sectref"><a href="#section14">COMPONENTS</a></span> and <span class="sectref"><a href="#section15">TYPE COMPONENTS</a></span>
 for more information about component names.)</p>
@@ -2281,7 +2280,7 @@ snit::type tail {
 </div>
 <div id="subsection117" class="subsection"><h3><a name="subsection117">Can I delegate a method to something other than an object?</a></h3>
 <p>Normal method delegation assumes that you're delegating a method (a
-subcommand of an object command) to a method of another object (a 
+subcommand of an object command) to a method of another object (a
 subcommand of a different object command).  But not all Tcl objects
 follow Tk conventions, and not everything you'd to which you'd like
 to delegate a method is necessary an object.  Consequently, Snit makes
@@ -2292,33 +2291,33 @@ single record.  The database API you're using provides a number of
 commands to manage records; each takes the record ID (a string you
 choose) as its first argument.  For example, <b class="cmd">saverec</b>
 saves a record.  If you let the record ID be the name of the dog
-object, you can delegate the dog's <b class="method">save</b> method to the 
+object, you can delegate the dog's <b class="method">save</b> method to the
 <b class="cmd">saverec</b> command as follows:</p>
 <pre class="example">snit::type dog {
     delegate method save using {saverec %s}
 }
 </pre>
-<p>The <b class="const">%s</b> is replaced with the instance name when the 
+<p>The <b class="const">%s</b> is replaced with the instance name when the
 <b class="method">save</b> method is called; any additional arguments are the
 appended to the resulting command.</p>
 <p>The <b class="const">using</b> clause understands a number of other %-conversions;
-in addition to the instance name, you can substitute in the method 
-name (<b class="const">%m</b>), the type name (<b class="const">%t</b>), the instance 
+in addition to the instance name, you can substitute in the method
+name (<b class="const">%m</b>), the type name (<b class="const">%t</b>), the instance
 namespace (<b class="const">%n</b>), the Tk window name (<b class="const">%w</b>), and,
-if a component or typecomponent name was given in the 
-<b class="cmd">delegate</b> statement, the component's object command 
+if a component or typecomponent name was given in the
+<b class="cmd">delegate</b> statement, the component's object command
 (<b class="const">%c</b>).</p>
 </div>
 <div id="subsection118" class="subsection"><h3><a name="subsection118">How can I delegate a method to a type component object?</a></h3>
-<p>Just exactly as you would to a component object.  The 
+<p>Just exactly as you would to a component object.  The
 <b class="cmd">delegate method</b> statement accepts both component and type
 component names in its <b class="const">to</b> clause.</p>
 </div>
 <div id="subsection119" class="subsection"><h3><a name="subsection119">How can I delegate a type method to a type component object?</a></h3>
 <p>Use the <b class="cmd">delegate typemethod</b> statement.  It works like
 <b class="cmd">delegate method</b>, with these differences: first, it defines
-a type method instead of an instance method; second, the 
-<b class="const">using</b> clause ignores the <b class="const">%s</b>, <b class="const">%n</b>, 
+a type method instead of an instance method; second, the
+<b class="const">using</b> clause ignores the <b class="const">%s</b>, <b class="const">%n</b>,
 and <b class="const">%w</b> %-conversions.</p>
 <p>Naturally, you can't delegate a type method to an instance
 component...Snit wouldn't know which instance should receive it.</p>
@@ -2427,7 +2426,7 @@ options or methods, there's an easier way:</p>
 </pre>
 <p>Dogs have four legs, so we specify that explicitly when we create the
 <b class="variable">animal</b> component, and explicitly exclude <b class="option">-numlegs</b> from the
-set of delegated options.  Similarly, dogs can neither 
+set of delegated options.  Similarly, dogs can neither
 <b class="method">fly</b> nor <b class="method">climb</b>,
 so we exclude those <b class="cmd">animal</b> methods as shown.</p>
 </div>
@@ -2506,7 +2505,7 @@ that any kind of widget can be used as the hull component; see
 </div>
 <div id="subsection129" class="subsection"><h3><a name="subsection129">How can I set the hull type for a snit::widget?</a></h3>
 <p>A <b class="cmd">snit::widget</b>'s hull component will usually be a Tk <b class="cmd"><a href="../../../../index.html#key663">frame</a></b>
-widget; however, it may be any Tk widget that defines the 
+widget; however, it may be any Tk widget that defines the
 <b class="const">-class</b> option.  You can
 explicitly choose the hull type you prefer by including the <b class="cmd">hulltype</b>
 command in the widget definition:</p>
@@ -2594,7 +2593,6 @@ behavior while still leaving it fundamentally a text widget.</p>
     # delete.
     delegate method ins to hull as insert
     delegate method del to hull as delete
-    
     # Pass all other methods and options to the real text widget, so
     # that the remaining behavior is as expected.
     delegate method * to hull
@@ -2637,7 +2635,7 @@ of the <b class="cmd">installhull</b> command for this purpose:</p>
 <p>Maybe. If the other megawidget is a <b class="cmd">snit::widget</b> or
 <b class="cmd">snit::widgetadaptor</b>, then yes.  If it isn't then, again, maybe.
 You'll have to try it and see.  You're most likely to have trouble
-with widget destruction--you have to make sure that your 
+with widget destruction--you have to make sure that your
 megawidget code receives the <b class="const">&lt;Destroy&gt;</b> event before the
 megawidget you're adapting does.</p>
 </div>
@@ -2669,8 +2667,8 @@ names explicitly when necessary.</p></li>
 hull for <b class="cmd">snit::widgetadaptor</b>s.</p></li>
 <li><p>Use the <b class="cmd">install</b> command to create and install all
 components which are widgets.</p></li>
-<li><p>Use the <b class="cmd">install</b> command to create and install 
-components which aren't widgets if you'd like them to 
+<li><p>Use the <b class="cmd">install</b> command to create and install
+components which aren't widgets if you'd like them to
 receive option values from the option database.</p></li>
 </ul>
 <p>The interaction of Tk widgets with the option database is a complex
@@ -2692,7 +2690,7 @@ want, so take care.</p>
 <p>Every Tk widget has a &quot;widget class&quot;: a name that is used when adding
 option settings to the database.  For Tk widgets, the widget class is
 the same as the widget command name with an initial capital.  For
-example, the widget class of the Tk <b class="cmd">button</b> widget is 
+example, the widget class of the Tk <b class="cmd">button</b> widget is
 <b class="const">Button</b>.</p>
 <p>Similarly, the widget class of a <b class="cmd">snit::widget</b> defaults to the
 unqualified type name with the first letter capitalized.  For example,
@@ -2708,7 +2706,7 @@ the widget class of</p>
 }
 </pre>
 <p>The above definition says that a <b class="cmd">scrolledText</b> megawidget has the
-same widget class as an ordinary <b class="cmd"><a href="../../../../index.html#key481">text</a></b> widget.  This might or
+same widget class as an ordinary <b class="cmd"><a href="../../../../index.html#key480">text</a></b> widget.  This might or
 might not be a good idea, depending on how the rest of the megawidget
 is defined, and how its options are delegated.</p>
 </div>
@@ -2734,12 +2732,12 @@ The resource name is usually just the option
 name minus the hyphen, but may contain uppercase letters at word
 boundaries; the class name is usually just the resource
 name with an initial capital, but not always.  For example, here are
-the option, resource, and class names for several Tk <b class="cmd"><a href="../../../../index.html#key481">text</a></b>
+the option, resource, and class names for several Tk <b class="cmd"><a href="../../../../index.html#key480">text</a></b>
 widget options:</p>
-<pre class="example">    -background         background         Background 
-    -borderwidth        borderWidth        BorderWidth 
-    -insertborderwidth  insertBorderWidth  BorderWidth 
-    -padx               padX               Pad 
+<pre class="example">    -background         background         Background
+    -borderwidth        borderWidth        BorderWidth
+    -insertborderwidth  insertBorderWidth  BorderWidth
+    -padx               padX               Pad
 </pre>
 <p>As is easily seen, sometimes the resource and class names can be
 inferred from the option name, but not always.</p>
@@ -2857,25 +2855,25 @@ implicitly delegated to the hull, Snit takes no action.</p>
 <p>The value of B is &quot;red&quot;.  The hull will automatically pick up the
 value &quot;green&quot; for its <b class="const">-background</b> option, just as it picked up the
 <b class="const">-relief</b> value.  However, Snit knows that <b class="const">-hullbackground</b>
-is mapped to the hull's <b class="const">-background</b> option; hence, it queries 
-the option database for <b class="const">-hullbackground</b> and gets &quot;red&quot; and 
+is mapped to the hull's <b class="const">-background</b> option; hence, it queries
+the option database for <b class="const">-hullbackground</b> and gets &quot;red&quot; and
 updates the hull accordingly.</p>
 <p>The value of C is also &quot;red&quot;, because <b class="const">-background</b> is implicitly
 delegated to the hull; thus, retrieving it is the same as retrieving
-<b class="const">-hullbackground</b>.  Note that this case is unusual; the 
+<b class="const">-hullbackground</b>.  Note that this case is unusual; the
 <b class="const">-background</b> option should probably have been excluded using the delegate
 statement's <b class="const">except</b> clause, or (more likely) delegated to some other
 component.</p>
 <p>The value of D is &quot;5&quot;, but not for the reason you think.  Note that as
 it is defined above, the resource name for <b class="const">-borderwidth</b> defaults to
-<b class="const">borderwidth</b>, whereas the option database entry is 
+<b class="const">borderwidth</b>, whereas the option database entry is
 <b class="const">borderWidth</b>, in
 accordance with the standard Tk naming for this option.  As with
 <b class="const">-relief</b>, the hull picks up its own <b class="const">-borderwidth</b>
 option before Snit
 does anything.  Because the option is delegated under its own name,
 Snit assumes that the correct thing has happened, and doesn't worry
-about it any further.  To avoid confusion, the 
+about it any further.  To avoid confusion, the
 <b class="const">-borderwidth</b> option
 should have been delegated like this:</p>
 <pre class="example">    delegate option {-borderwidth borderWidth BorderWidth} to hull
@@ -2899,7 +2897,7 @@ to do this is as follows:</p>
 a command like this:</p>
 <pre class="example">    set hull [text $win -foreground white]
 </pre>
-<p>The hull is a <b class="cmd"><a href="../../../../index.html#key481">text</a></b> widget, so its widget class is <b class="const">Text</b>.  Just
+<p>The hull is a <b class="cmd"><a href="../../../../index.html#key480">text</a></b> widget, so its widget class is <b class="const">Text</b>.  Just
 as with <b class="cmd">snit::widget</b> hulls, Snit assumes that it will pick up
 all of its normal option values automatically, without help from Snit.
 Options delegated from a different name are initialized from the
@@ -2916,8 +2914,8 @@ described above.</p>
 automatically.  Non-hull components are somewhat more complicated, because
 they are matched against the option database twice.</p>
 <p>A component widget remains a widget still, and is therefore
-initialized from the option database in the usual way.  A <b class="cmd"><a href="../../../../index.html#key481">text</a></b>
-widget remains a <b class="cmd"><a href="../../../../index.html#key481">text</a></b> widget whether it is a component of a
+initialized from the option database in the usual way.  A <b class="cmd"><a href="../../../../index.html#key480">text</a></b>
+widget remains a <b class="cmd"><a href="../../../../index.html#key480">text</a></b> widget whether it is a component of a
 megawidget or not, and will be created as such.</p>
 <p>But then, the option database is queried for all options delegated to
 the component, and the component is initialized accordingly--provided
@@ -2950,7 +2948,7 @@ command--in this case, <b class="const">-foreground</b>.</p></li>
 the named component.</p></li>
 <li><p>Creates the component using the specified command, after inserting
 into it a list of options and values read from the option database.
-Thus, the explicitly included options (like <b class="const">-foreground</b>) will 
+Thus, the explicitly included options (like <b class="const">-foreground</b>) will
 override anything read from the option database.</p></li>
 <li><p>If the widget definition implicitly delegated options to the component
 using <b class="cmd">delegate option *</b>, then Snit calls the newly created
@@ -2978,7 +2976,7 @@ syntax.  If it doesn't, don't use <b class="cmd">install</b>.</p>
 <div id="subsection146" class="subsection"><h3><a name="subsection146">What is an ensemble command?</a></h3>
 <p>An ensemble command is a command with subcommands.  Snit objects are
 all ensemble commands; however, the term more usually refers to
-commands like the standard Tcl commands <b class="cmd"><a href="../../../../index.html#key272">string</a></b>, <b class="cmd"><a href="../../../../index.html#key35">file</a></b>, 
+commands like the standard Tcl commands <b class="cmd"><a href="../../../../index.html#key270">string</a></b>, <b class="cmd"><a href="../../../../index.html#key35">file</a></b>,
 and <b class="cmd">clock</b>.  In a sense, these are singleton objects--there's
 only one instance of them.</p>
 </div>
@@ -2991,7 +2989,7 @@ a <b class="cmd">snit::type</b>.</p>
 of your ensemble command.  Then, create an instance of the type with
 the desired name.</p>
 <p>For example, the following code uses <span class="sectref"><a href="#section16">DELEGATION</a></span> to create
-a work-alike for the standard <b class="cmd"><a href="../../../../index.html#key272">string</a></b> command:</p>
+a work-alike for the standard <b class="cmd"><a href="../../../../index.html#key270">string</a></b> command:</p>
 <pre class="example">snit::type ::mynamespace::mystringtype {
     delegate method * to stringhandler
     constructor {} {
@@ -3012,7 +3010,7 @@ you probably have no use for.  But read on.</p>
 <p>Define a type whose <span class="sectref"><a href="#section9">TYPE METHODS</a></span> are the subcommands
 of your ensemble command.</p>
 <p>For example, the following code uses <span class="sectref"><a href="#section16">DELEGATION</a></span> to create
-a work-alike for the standard <b class="cmd"><a href="../../../../index.html#key272">string</a></b> command:</p>
+a work-alike for the standard <b class="cmd"><a href="../../../../index.html#key270">string</a></b> command:</p>
 <pre class="example">snit::type mystring {
     delegate typemethod * to stringhandler
     typeconstructor {
@@ -3021,7 +3019,7 @@ a work-alike for the standard <b class="cmd"><a href="../../../../index.html#key
 }
 </pre>
 <p>Now the type command itself is your ensemble command.</p>
-<p>This method has only one drawback, and though it's major, it's 
+<p>This method has only one drawback, and though it's major, it's
 also surmountable.  Your new ensemble command will have
 <b class="method">create</b>, <b class="method">info</b> and <b class="method">destroy</b> subcommands
 you don't want.  And worse yet, since the <b class="method">create</b> method
@@ -3031,8 +3029,8 @@ of the subcommands.  The command will succeed--the first time--but
 won't do what's wanted.  This is very bad.</p>
 <p>The work around is to set some <span class="sectref"><a href="#section21">PRAGMAS</a></span>, as shown here:</p>
 <pre class="example">snit::type mystring {
-    pragma -hastypeinfo    no 
-    pragma -hastypedestroy no 
+    pragma -hastypeinfo    no
+    pragma -hastypedestroy no
     pragma -hasinstances   no
     delegate typemethod * to stringhandler
     typeconstructor {
@@ -3042,7 +3040,7 @@ won't do what's wanted.  This is very bad.</p>
 </pre>
 <p>Here we've used the <b class="cmd">pragma</b> statement to tell Snit that we don't
 want the <b class="method">info</b> typemethod or the <b class="method">destroy</b> typemethod,
-and that our type has no instances; this eliminates the 
+and that our type has no instances; this eliminates the
 <b class="method">create</b> typemethod and all related code.  As
 a result, our ensemble command will be well-behaved, with no
 unexpected subcommands.</p>
@@ -3092,9 +3090,9 @@ an ensemble command rather than a type with instances.</p>
 both be false (or there'd be nothing left).</p>
 </div>
 <div id="subsection155" class="subsection"><h3><a name="subsection155">How can I get rid of type methods altogether?</a></h3>
-<p>Normal Tk widget type commands don't have subcommands; all they do is 
-create widgets--in Snit terms, the type command calls the 
-<b class="method">create</b> type method directly.  To get the same behavior from 
+<p>Normal Tk widget type commands don't have subcommands; all they do is
+create widgets--in Snit terms, the type command calls the
+<b class="method">create</b> type method directly.  To get the same behavior from
 Snit, set the <b class="const">-hastypemethods</b> pragma to <b class="const">no</b>:</p>
 <pre class="example">snit::type dog {
     pragma -hastypemethods no
@@ -3109,7 +3107,7 @@ dog create spot
 both be false (or there'd be nothing left).</p>
 </div>
 <div id="subsection156" class="subsection"><h3><a name="subsection156">Why can't I create an object that replaces an old object with the same name?</a></h3>
-<p>Up until Snit 0.95, you could use any name for an instance of a 
+<p>Up until Snit 0.95, you could use any name for an instance of a
 <b class="cmd">snit::type</b>, even if the name was already in use by some other
 object or command.  You could do the following, for example:</p>
 <pre class="example">snit::type dog { ... }
@@ -3128,7 +3126,7 @@ the old behavior, set the <b class="const">-canreplace</b> pragma to <b class="c
 <div id="subsection157" class="subsection"><h3><a name="subsection157">How can I make my simple type run faster?</a></h3>
 <p>In Snit 1.x, you can set the <b class="const">-simpledispatch</b> pragma to <b class="const">yes</b>.</p>
 <p>Snit 1.x method dispatch is both flexible and fast, but the flexibility
-comes with a price.  If your type doesn't require the flexibility, the 
+comes with a price.  If your type doesn't require the flexibility, the
 <b class="const">-simpledispatch</b> pragma allows you to substitute a simpler
 dispatch mechanism that runs quite a bit faster.  The limitations
 are these:</p>
@@ -3136,18 +3134,18 @@ are these:</p>
 <li><p>Methods cannot be delegated.</p></li>
 <li><p><b class="cmd">uplevel</b> and <b class="cmd">upvar</b> do not work as expected: the
 caller's scope is two levels up rather than one.</p></li>
-<li><p>The option-handling methods 
+<li><p>The option-handling methods
 (<b class="cmd">cget</b>, <b class="cmd">configure</b>, and <b class="cmd">configurelist</b>) are very
 slightly slower.</p></li>
 </ul>
 <p>In Snit 2.2, the <b class="const">-simpledispatch</b> macro is obsolete, and
-ignored; all Snit 2.2 method dispatch is faster than Snit 1.x's 
+ignored; all Snit 2.2 method dispatch is faster than Snit 1.x's
 <b class="const">-simpledispatch</b>.</p>
 </div>
 </div>
 <div id="section22" class="section"><h2><a name="section22">MACROS</a></h2>
 <div id="subsection158" class="subsection"><h3><a name="subsection158">What is a macro?</a></h3>
-<p>A Snit macro is nothing more than a Tcl proc that's defined in the 
+<p>A Snit macro is nothing more than a Tcl proc that's defined in the
 Tcl interpreter used to compile Snit type definitions.</p>
 </div>
 <div id="subsection159" class="subsection"><h3><a name="subsection159">What are macros good for?</a></h3>
@@ -3183,7 +3181,7 @@ returns 1 if the extension is available, and 0 otherwise:</p>
 </pre>
 </div>
 <div id="subsection161" class="subsection"><h3><a name="subsection161">How do I define new type definition syntax?</a></h3>
-<p>Use a macro.  For example, your <b class="cmd">snit::widget</b>'s 
+<p>Use a macro.  For example, your <b class="cmd">snit::widget</b>'s
 <b class="const">-background</b> option should be propagated to a number
 of component widgets.  You could implement that like this:</p>
 <pre class="example">snit::widget mywidget {
@@ -3224,7 +3222,7 @@ them in the global namespace, as shown above.  But if you're using
 them to define types or widgets for use by others, you should define
 your macros in the same namespace as your types or widgets.  That way,
 they won't conflict with other people's macros.</p>
-<p>If my fancy <b class="cmd">snit::widget</b> is called <b class="cmd">::mylib::mywidget</b>, 
+<p>If my fancy <b class="cmd">snit::widget</b> is called <b class="cmd">::mylib::mywidget</b>,
 for example, then I should define my <b class="cmd">propagate</b> macro as
 <b class="cmd">::mylib::propagate</b>:</p>
 <pre class="example">snit::macro mylib::propagate {option &quot;to&quot; components} { ... }
@@ -3237,16 +3235,16 @@ snit::widget ::mylib::mywidget {
 </pre>
 </div>
 </div>
-<div id="section23" class="section"><h2><a name="section23">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section23" class="section"><h2><a name="section23">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>snit</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key235">BWidget</a>, <a href="../../../../index.html#key230">C++</a>, <a href="../../../../index.html#key237">Incr Tcl</a>, <a href="../../../../index.html#key234">adaptors</a>, <a href="../../../../index.html#key236">class</a>, <a href="../../../../index.html#key232">mega widget</a>, <a href="../../../../index.html#key238">object</a>, <a href="../../../../index.html#key231">object oriented</a>, <a href="../../../../index.html#key229">widget</a>, <a href="../../../../index.html#key233">widget adaptors</a></p>
+<p><a href="../../../../index.html#key235">BWidget</a>, <a href="../../../../index.html#key231">C++</a>, <a href="../../../../index.html#key238">Incr Tcl</a>, <a href="../../../../index.html#key236">adaptors</a>, <a href="../../../../index.html#key234">class</a>, <a href="../../../../index.html#key233">mega widget</a>, <a href="../../../../index.html#key237">object</a>, <a href="../../../../index.html#key230">object oriented</a>, <a href="../../../../index.html#key229">widget</a>, <a href="../../../../index.html#key232">widget adaptors</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>

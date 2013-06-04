@@ -137,7 +137,7 @@
 </div>
 </div>
 <div id="section1" class="section"><h2><a name="section1">Description</a></h2>
-<p>This package provides a general purpose minimal IRC client suitable for 
+<p>This package provides a general purpose minimal IRC client suitable for
 embedding in other applications. All communication with the parent
 application is done via an application provided callback procedure.
 Each connection has its own state so you can hook up multiple servers
@@ -181,7 +181,7 @@ callback procedure.</p></dd>
 proc Callback {context state args} {
 }
 </pre>
-<p>where context is the irc context variable name (in case you need to pass 
+<p>where context is the irc context variable name (in case you need to pass
 it back to a picoirc procedure). state is one of a number of states as
 described below.</p>
 <dl class="options">
@@ -202,7 +202,7 @@ received.</p></dd>
 <dt><b class="option">chat</b> <i class="arg">target</i> <i class="arg">nick</i> <i class="arg">message</i> <i class="arg">type</i></dt>
 <dd><p>called when a message arrives. <i class="arg">target</i> is the identity that the
 message was targetted for. This can be the logged in nick or a channel
-name. <i class="arg">nick</i> is the name of the sender of the message. 
+name. <i class="arg">nick</i> is the name of the sender of the message.
 <i class="arg">message</i> is the message text. <i class="arg">type</i> is set to &quot;ACTION&quot; if the
 message was sent as a CTCP ACTION</p></dd>
 <dt><b class="option">system</b> <i class="arg">channel</i> <i class="arg">message</i></dt>
@@ -231,7 +231,7 @@ socket. <i class="arg">type</i> is set to <b class="const">read</b> when reading
 <b class="const">write</b> if the data is to be written. <i class="arg">raw</i> is the
 unprocessed IRC protocol data.</p>
 <p>In both cases the application can return a break error code to
-interrupt further processing of the raw data. If this is a 
+interrupt further processing of the raw data. If this is a
 <b class="const">read</b> operation then the package will not handle this line. If
 the operation is <b class="const">write</b> then the package will not send the
 data. This callback is intended for debugging protocol issues but

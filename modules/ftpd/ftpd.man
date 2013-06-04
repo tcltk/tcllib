@@ -1,5 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin ftpd n 1.2.6]
+[keywords ftp]
+[keywords ftpd]
+[keywords ftpserver]
+[keywords {rfc 959}]
+[keywords services]
 [moddesc   {Tcl FTP Server Package}]
 [titledesc {Tcl FTP server implementation}]
 [category  Networking]
@@ -74,7 +79,6 @@ completed.
 
 [list_end]
 [list_end]
-
 
 [section CALLBACKS]
 
@@ -216,7 +220,6 @@ argument.  The store subcommand returns a writable channel.
 
 [list_end]
 
-
 [def "[cmd closeCmd]"]
 
 The [cmd closeCmd] receives no arguments when it is invoked, and any
@@ -235,7 +238,6 @@ Any return value it may generate is discarded.
 
 [list_end]
 
-
 [section VARIABLES]
 
 [list_begin definitions]
@@ -253,16 +255,15 @@ server.  This address is printed out as part of the response to the
 
 [def [var ::ftpd::port]]
 
-The port that the ftp server should listen on. 
-If port is specified as zero, the operating system will allocate an 
-unused port for use as a server socket; afterwards, the variable will 
+The port that the ftp server should listen on.
+If port is specified as zero, the operating system will allocate an
+unused port for use as a server socket; afterwards, the variable will
 contain the port number that was allocated.
 
 [def [var ::ftpd::welcome]]
 
 The message that is printed out when the user first connects to the
 ftp server.
-
 
 [def [var ::ftpd::CurrentSocket]]
 
@@ -272,17 +273,6 @@ channel which was active when the callback was invoked.
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph ftpd] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords ftpd ftp ftpserver services {rfc 959}]
+[vset CATEGORY ftpd]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

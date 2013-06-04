@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin simulation::montecarlo n 0.1]
+[keywords math]
+[keywords {montecarlo simulation}]
+[keywords {stochastic modelling}]
 [copyright {2008 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [moddesc   {Tcl Simulation Tools}]
 [titledesc {Monte Carlo simulations}]
@@ -213,6 +216,4 @@ number of trials.
 [para]
 As it constructs a temporary procedure, local variables defined at the
 start continue to exist in the loop.
-
-[keywords math "montecarlo simulation" "stochastic modelling"]
 [manpage_end]

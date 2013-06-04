@@ -1,10 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctools::toc::structure n 0.1]
+[keywords deserialization]
+[keywords doctoc]
+[keywords doctools]
+[keywords serialization]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {Doctoc serialization utilities}]
 [category  {Documentation tools}]
-[keywords doctoc doctools serialization deserialization]
 [require doctools::toc::structure [opt 0.1]]
 [require Tcl 8.4]
 [require logger]
@@ -49,7 +52,6 @@ non-canonical serialization.
 For the specification of regular and canonical serializations see the
 section [sectref {ToC serialization format}].
 
-
 [call [cmd ::doctools::toc::structure] [method verify-as-canonical] \
 	[arg serial]]
 
@@ -62,7 +64,6 @@ empty string.
 
 For the specification of canonical serializations see the section
 [sectref {ToC serialization format}].
-
 
 [call [cmd ::doctools::toc::structure] [method canonicalize] [arg serial]]
 
@@ -81,7 +82,6 @@ input is already canonical it will be returned unchanged.
 For the specification of regular and canonical serializations see the
 section [sectref {ToC serialization format}].
 
-
 [call [cmd ::doctools::toc::structure] [method print] [arg serial]]
 
 This command assumes that the argument [arg serial] contains a valid
@@ -97,7 +97,6 @@ for parsing or other machine-based activities.
 
 For the specification of regular serializations see the section
 [sectref {ToC serialization format}].
-
 
 [call [cmd ::doctools::toc::structure] [method merge] \
 	[arg seriala] [arg serialb]]
@@ -144,7 +143,6 @@ For the specification of regular and canonical serializations see the
 section [sectref {ToC serialization format}].
 
 [list_end]
-
 
 [include include/serialization.inc]
 

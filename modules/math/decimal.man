@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin math::decimal n 1.0.2]
+[keywords decimal]
+[keywords math]
+[keywords tcl]
 [copyright {2011 Mark Alston <mark at beernut dot com>}]
 [moddesc   {Tcl Decimal Arithmetic Library}]
 [titledesc {General decimal arithmetic}]
@@ -66,7 +69,6 @@ this man page for information about individual procedures.
     puts [expr {8.2 - .2}] ; # => will output 7.999999999999999
     # See http://speleotrove.com/decimal to learn more about why this happens.
 [example_end]
-
 
 [section "API"]
 [list_begin definitions]
@@ -191,17 +193,6 @@ the result is the same as for round-down.
 [list_end]
 [para]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {Decimal}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords tcl decimal math]
+[vset CATEGORY decimal]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

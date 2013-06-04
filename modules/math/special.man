@@ -1,5 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin math::special n 0.2]
+[keywords {Bessel functions}]
+[keywords {error function}]
+[keywords math]
+[keywords {special functions}]
 [copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Special mathematical functions}]
@@ -53,7 +57,6 @@ integrals
 legendre, hermite: some of the classical orthogonal polynomials.
 
 [list_end]
-
 
 [section OVERVIEW]
 
@@ -121,7 +124,6 @@ The digamma function (psi)
 [item]
 The incomplete gamma and beta functions
 [list_end]
-
 
 [section "PROCEDURES"]
 
@@ -334,7 +336,6 @@ Compute the hyperbolic sine integral for the argument "x"
 [arg_def float x] Argument for the function (x > 0)
 [list_end]
 
-
 [call [cmd ::math::special::fresnel_C] [arg x]]
 
 Compute the Fresnel cosine integral for real argument x
@@ -342,7 +343,6 @@ Compute the Fresnel cosine integral for real argument x
 [list_begin arguments]
 [arg_def float x] Argument for the function
 [list_end]
-
 
 [call [cmd ::math::special::fresnel_S] [arg x]]
 
@@ -352,7 +352,6 @@ Compute the Fresnel sine integral for real argument x
 [arg_def float x] Argument for the function
 [list_end]
 
-
 [call [cmd ::math::special::sinc] [arg x]]
 
 Compute the sinc function for real argument x
@@ -360,7 +359,6 @@ Compute the sinc function for real argument x
 [list_begin arguments]
 [arg_def float x] Argument for the function
 [list_end]
-
 
 [call [cmd ::math::special::legendre] [arg n]]
 
@@ -373,7 +371,6 @@ Return the Legendre polynomial of degree n
 
 [para]
 
-
 [call [cmd ::math::special::chebyshev] [arg n]]
 
 Return the Chebyshev polynomial of degree n (of the first kind)
@@ -383,7 +380,6 @@ Return the Chebyshev polynomial of degree n (of the first kind)
 [list_end]
 
 [para]
-
 
 [call [cmd ::math::special::laguerre] [arg alpha] [arg n]]
 
@@ -396,7 +392,6 @@ Return the Laguerre polynomial of degree n with parameter alpha
 
 [para]
 
-
 [call [cmd ::math::special::hermite] [arg n]]
 
 Return the Hermite polynomial of degree n
@@ -408,7 +403,6 @@ Return the Hermite polynomial of degree n
 [para]
 
 [list_end]
-
 
 [section "THE ORTHOGONAL POLYNOMIALS"]
 
@@ -423,7 +417,6 @@ polynomial at some coordinate, use the [emph evalPolyn] command:
 [para]
 The return value from the [emph legendre] and other commands is actually
 the definition of the corresponding polynomial as used in that package.
-
 
 [section "REMARKS ON THE IMPLEMENTATION"]
 
@@ -460,18 +453,6 @@ Much information about these functions can be found in:
 Abramowitz and Stegun: [emph "Handbook of Mathematical Functions"]
 (Dover, ISBN 486-61272-4)
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {math :: special}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords math "special functions" "Bessel functions" "error function"]
+[vset CATEGORY {math :: special}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

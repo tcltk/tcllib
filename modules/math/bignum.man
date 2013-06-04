@@ -1,5 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin math::bignum n 3.1]
+[keywords bignums]
+[keywords math]
+[keywords multiprecision]
+[keywords tcl]
 [copyright {2004 Salvatore Sanfilippo <antirez at invece dot org>}]
 [copyright {2004 Arjen Markus <arjenmarkus at users dot sourceforge dot net>}]
 [moddesc   {Tcl Math Library}]
@@ -34,7 +38,6 @@ operations on bignums that are not returned by procedures
 in this package (but created by hand) may lead to unspecified behaviours.
 It's safe to treat bignums as pure values, so there is no need
 to free a bignum, or to duplicate it via a special operation.
-
 
 [section "EXAMPLES"]
 This section shows some simple example. This library being just
@@ -220,17 +223,6 @@ Return the number of bits needed to represent bignum in radix 2.
 [list_end]
 [para]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {math :: bignum}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords tcl multiprecision math bignums]
+[vset CATEGORY {math :: bignum}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

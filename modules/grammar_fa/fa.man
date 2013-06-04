@@ -1,5 +1,14 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin grammar::fa n 0.4]
+[keywords automaton]
+[keywords {finite automaton}]
+[keywords grammar]
+[keywords parsing]
+[keywords {regular expression}]
+[keywords {regular grammar}]
+[keywords {regular languages}]
+[keywords state]
+[keywords transducer]
 [copyright {2004-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Finite automaton operations and usage}]
 [titledesc {Create and manipulate finite automatons}]
@@ -11,9 +20,6 @@
 [require grammar::fa::op [opt 0.2]]
 [require grammar::fa     [opt 0.4]]
 [description]
-[keywords grammar automaton {finite automaton}]
-[keywords state {regular expression} {regular grammar}]
-[keywords {regular languages} parsing transducer]
 [para]
 
 This package provides a container class for
@@ -39,7 +45,6 @@ a large number of different implementation languages and paradigms.
 
 For more information about what a finite automaton is see section
 [sectref {FINITE AUTOMATONS}].
-
 
 [section API]
 
@@ -79,18 +84,15 @@ All automatons provide the following methods for their manipulation:
 
 [list_begin definitions]
 
-
 [call [arg faName] [method destroy]]
 
 Destroys the automaton, including its storage space and associated
 command.
 
-
 [call [arg faName] [method clear]]
 
 Clears out the definition of the automaton contained in [arg faName],
 but does [emph not] destroy the object.
-
 
 [call [arg faName] [method =] [arg srcFA]]
 
@@ -111,7 +113,6 @@ This operation is in effect equivalent to
     [arg faName] [method deserialize] [lb][arg srcFA] [method serialize][rb]
 [example_end]
 
-
 [call [arg faName] [method -->] [arg dstFA]]
 
 This is the reverse assignment operator for automatons. It copies the
@@ -127,7 +128,6 @@ This operation is in effect equivalent to
 [example_begin]
     [arg dstFA] [method deserialize] [lb][arg faName] [method serialize][rb]
 [example_end]
-
 
 [call [arg faName] [method serialize]]
 
@@ -215,7 +215,6 @@ a possible serialization is
 
 A possible one, because I did not care about creation order here
 
-
 [call [arg faName] [method deserialize] [arg serialization]]
 
 This is the complement to [method serialize]. It replaces the
@@ -223,18 +222,15 @@ automaton definition in [arg faName] with the automaton described by
 the [arg serialization] value. The old contents of [arg faName] are
 deleted by this operation.
 
-
 [call [arg faName] [method states]]
 
 Returns the set of all states known to [arg faName].
-
 
 [call [arg faName] [method state] [method add] [arg s1] [opt "[arg s2] ..."]]
 
 Adds the states [arg s1], [arg s2], et cetera to the FA definition in
 [arg faName]. The operation will fail any of the new states is already
 declared.
-
 
 [call [arg faName] [method state] [method delete] [arg s1] [opt "[arg s2] ..."]]
 
@@ -245,7 +241,6 @@ well. If the deleted state was a start or final state then this
 information is invalidated as well. The operation will fail if the
 state [arg s] is not known to the FA.
 
-
 [call [arg faName] [method state] [method exists] [arg s]]
 
 A predicate. It tests whether the state [arg s] is known to the FA in
@@ -254,12 +249,10 @@ A predicate. It tests whether the state [arg s] is known to the FA in
 The result is a boolean value. It will be set to [const true] if the
 state [arg s] is known, and [const false] otherwise.
 
-
 [call [arg faName] [method state] [method rename] [arg s] [arg snew]]
 
 Renames the state [arg s] to [arg snew]. Fails if [arg s] is not a
 known state. Also fails if [arg snew] is already known as a state.
-
 
 [call [arg faName] [method startstates]]
 
@@ -268,18 +261,15 @@ also known as [term initial] states.
 
 See [sectref {FINITE AUTOMATONS}] for explanations what this means.
 
-
 [call [arg faName] [method start] [method add] [arg s1] [opt "[arg s2] ..."]]
 
 Mark the states [arg s1], [arg s2], et cetera in the FA [arg faName]
 as [term start] (aka [term initial]).
 
-
 [call [arg faName] [method start] [method remove] [arg s1] [opt "[arg s2] ..."]]
 
 Mark the states [arg s1], [arg s2], et cetera in the FA [arg faName]
 as [term {not start}] (aka [term {not accepting}]).
-
 
 [call [arg faName] [method start?] [arg s]]
 
@@ -288,7 +278,6 @@ A predicate. It tests if the state [arg s] in the FA [arg faName] is
 
 The result is a boolean value. It will be set to [const true] if the
 state [arg s] is [term start], and [const false] otherwise.
-
 
 [call [arg faName] [method start?set] [arg stateset]]
 
@@ -299,7 +288,6 @@ element which is not a known state.
 The result is a boolean value. It will be set to [const true] if a
 start state is present in [arg stateset], and [const false] otherwise.
 
-
 [call [arg faName] [method finalstates]]
 
 Returns the set of states which are marked as [term final] states,
@@ -307,18 +295,15 @@ also known as [term accepting] states.
 
 See [sectref {FINITE AUTOMATONS}] for explanations what this means.
 
-
 [call [arg faName] [method final] [method add] [arg s1] [opt "[arg s2] ..."]]
 
 Mark the states [arg s1], [arg s2], et cetera in the FA [arg faName]
 as [term final] (aka [term accepting]).
 
-
 [call [arg faName] [method final] [method remove] [arg s1] [opt "[arg s2] ..."]]
 
 Mark the states [arg s1], [arg s2], et cetera in the FA [arg faName]
 as [term {not final}] (aka [term {not accepting}]).
-
 
 [call [arg faName] [method final?] [arg s]]
 
@@ -327,7 +312,6 @@ A predicate. It tests if the state [arg s] in the FA [arg faName] is
 
 The result is a boolean value. It will be set to [const true] if the
 state [arg s] is [term final], and [const false] otherwise.
-
 
 [call [arg faName] [method final?set] [arg stateset]]
 
@@ -338,11 +322,9 @@ element which is not a known state.
 The result is a boolean value. It will be set to [const true] if a
 final state is present in [arg stateset], and [const false] otherwise.
 
-
 [call [arg faName] [method symbols]]
 
 Returns the set of all symbols known to the FA [arg faName].
-
 
 [call [arg faName] [method symbols@] [arg s] [opt [arg d]]]
 
@@ -363,13 +345,11 @@ for all states [var s] in [arg stateset].
 If the empty symbol is present then at least one state contained in
 [arg stateset] has epsilon transitions.
 
-
 [call [arg faName] [method symbol] [method add] [arg sym1] [opt "[arg sym2] ..."]]
 
 Adds the symbols [arg sym1], [arg sym2], et cetera to the FA
 definition in [arg faName]. The operation will fail any of the symbols
 is already declared. The empty string is not allowed as a value for the symbols.
-
 
 [call [arg faName] [method symbol] [method delete] [arg sym1] [opt "[arg sym2] ..."]]
 
@@ -379,13 +359,11 @@ latter means that all transitions using the symbols are deleted as
 well. The operation will fail if any of the symbols is not known to
 the FA.
 
-
 [call [arg faName] [method symbol] [method rename] [arg sym] [arg newsym]]
 
 Renames the symbol [arg sym] to [arg newsym]. Fails if [arg sym] is
 not a known symbol. Also fails if [arg newsym] is already known as a
 symbol.
-
 
 [call [arg faName] [method symbol] [method exists] [arg sym]]
 
@@ -394,8 +372,6 @@ in [arg faName].
 
 The result is a boolean value. It will be set to [const true] if the
 symbol [arg sym] is known, and [const false] otherwise.
-
-
 
 [call [arg faName] [method next ] [arg s] [arg sym] [opt "[const -->] [arg next]"]]
 
@@ -419,7 +395,6 @@ If [arg next] was not specified, then the method will return
 the set of states which can be reached from [arg s] through
 a single transition labeled with symbol [arg sym].
 
-
 [call [arg faName] [method !next] [arg s] [arg sym] [opt "[const -->] [arg next]"]]
 
 Remove one or more transitions from the Fa in [arg faName].
@@ -437,7 +412,6 @@ states. It will also fail if a non-empty [arg sym] is not known as
 symbol. The empty string is acceptable, and allows the removal of
 epsilon transitions.
 
-
 [call [arg faName] [method nextset] [arg stateset] [arg sym]]
 
 Returns the set of states which can be reached by a single transition
@@ -450,7 +424,6 @@ In other words, this is the union of
 [lb][arg faName] next [var s] [arg symbol][rb]
 for all states [var s] in [arg stateset].
 
-
 [call [arg faName] [method is] [method deterministic]]
 
 A predicate. It tests whether the FA in [arg faName] is a
@@ -458,7 +431,6 @@ deterministic FA or not.
 
 The result is a boolean value. It will be set to [const true] if the
 FA is deterministic, and [const false] otherwise.
-
 
 [call [arg faName] [method is] [method complete]]
 
@@ -477,7 +449,6 @@ a state S can be indirect, i.e. not attached directly to S, but to a
 state in the epsilon-closure of S. The symbols for such indirect
 transitions count when computing completeness.
 
-
 [call [arg faName] [method is] [method useful]]
 
 A predicate. It tests whether the FA in [arg faName] is an useful FA
@@ -486,7 +457,6 @@ and [term useful].
 
 The result is a boolean value. It will be set to [const true] if the
 FA is deterministic, and [const false] otherwise.
-
 
 [call [arg faName] [method is] [method epsilon-free]]
 
@@ -499,13 +469,10 @@ pre-condition for deterministic'ness.
 The result is a boolean value. It will be set to [const true] if the
 FA is deterministic, and [const false] otherwise.
 
-
-
 [call [arg faName] [method reachable_states]]
 
 Returns the set of states which are reachable from a start state by
 one or more transitions.
-
 
 [call [arg faName] [method unreachable_states]]
 
@@ -517,7 +484,6 @@ by any number of transitions. This is
 	 [faName states] - [faName reachable_states]
 }]
 
-
 [call [arg faName] [method reachable] [arg s]]
 
 A predicate. It tests whether the state [arg s] in the FA [arg faName]
@@ -526,12 +492,10 @@ can be reached from a start state by one or more transitions.
 The result is a boolean value. It will be set to [const true] if the
 state can be reached, and [const false] otherwise.
 
-
 [call [arg faName] [method useful_states]]
 
 Returns the set of states which are able to reach a final state by
 one or more transitions.
-
 
 [call [arg faName] [method unuseful_states]]
 
@@ -543,7 +507,6 @@ any number of transitions. This is
 	 [faName states] - [faName useful_states]
 }]
 
-
 [call [arg faName] [method useful] [arg s]]
 
 A predicate. It tests whether the state [arg s] in the FA [arg faName]
@@ -552,14 +515,12 @@ is able to reach a final state by one or more transitions.
 The result is a boolean value. It will be set to [const true] if the
 state is useful, and [const false] otherwise.
 
-
 [call [arg faName] [method epsilon_closure] [arg s]]
 
 Returns the set of states which are reachable from the state [arg s]
 in the FA [arg faName] by one or more epsilon transitions, i.e
 transitions over the empty symbol, transitions which do not consume
 input. This is called the [term {epsilon closure}] of [arg s].
-
 
 [call [arg faName] [method reverse]]
 [call [arg faName] [method complete]]
@@ -582,16 +543,12 @@ These methods provide more complex operations on the FA.  Please see
 the same-named commands in the package [package grammar::fa::op] for
 descriptions of what they do.
 
-
-
 [list_end]
 
 [para]
 
 [section EXAMPLES]
 [para]
-
-
 
 [section {FINITE AUTOMATONS}]
 [para]
@@ -690,16 +647,6 @@ symbol" can also be "executing some code".
 Transducers are not handled by this package. They will get their own
 package in the future.
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph grammar_fa] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
+[vset CATEGORY grammar_fa]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

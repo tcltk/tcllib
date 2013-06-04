@@ -1,5 +1,7 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin math::polynomials n 1.0.1]
+[keywords math]
+[keywords {polynomial functions}]
 [copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Polynomial functions}]
@@ -74,7 +76,6 @@ order)
 
 [para]
 
-
 [call [cmd ::math::polynomials::addPolyn] [arg polyn1] [arg polyn2]]
 
 Return a new polynomial which is the sum of the two others.
@@ -88,7 +89,6 @@ Return a new polynomial which is the sum of the two others.
 
 [para]
 
-
 [call [cmd ::math::polynomials::subPolyn] [arg polyn1] [arg polyn2]]
 
 Return a new polynomial which is the difference of the two others.
@@ -101,7 +101,6 @@ Return a new polynomial which is the difference of the two others.
 [list_end]
 
 [para]
-
 
 [call [cmd ::math::polynomials::multPolyn] [arg polyn1] [arg polyn2]]
 
@@ -118,7 +117,6 @@ scaled.
 
 [para]
 
-
 [call [cmd ::math::polynomials::divPolyn] [arg polyn1] [arg polyn2]]
 
 Divide the first polynomial by the second polynomial and return the
@@ -132,7 +130,6 @@ result. The remainder is dropped
 [list_end]
 
 [para]
-
 
 [call [cmd ::math::polynomials::remainderPolyn] [arg polyn1] [arg polyn2]]
 
@@ -148,7 +145,6 @@ remainder.
 
 [para]
 
-
 [call [cmd ::math::polynomials::derivPolyn] [arg polyn]]
 
 Differentiate the polynomial and return the result.
@@ -159,7 +155,6 @@ Differentiate the polynomial and return the result.
 [list_end]
 
 [para]
-
 
 [call [cmd ::math::polynomials::primitivePolyn] [arg polyn]]
 
@@ -173,7 +168,6 @@ constant is set to zero.
 
 [para]
 
-
 [call [cmd ::math::polynomials::degreePolyn] [arg polyn]]
 
 Return the degree of the polynomial.
@@ -184,7 +178,6 @@ Return the degree of the polynomial.
 [list_end]
 
 [para]
-
 
 [call [cmd ::math::polynomials::coeffPolyn] [arg polyn] [arg index]]
 
@@ -199,7 +192,6 @@ polynomial.
 
 [para]
 
-
 [call [cmd ::math::polynomials::allCoeffsPolyn] [arg polyn]]
 
 Return the coefficients of the polynomial (in ascending order).
@@ -210,7 +202,6 @@ Return the coefficients of the polynomial (in ascending order).
 [list_end]
 
 [list_end]
-
 
 [section "REMARKS ON THE IMPLEMENTATION"]
 
@@ -223,18 +214,6 @@ definition, it consists of a list of two elements: the keyword
 "POLYNOMIAL" and the list of coefficients in descending order. The
 latter makes it easier to implement Horner's rule.
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {math :: polynomials}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords math "polynomial functions"]
+[vset CATEGORY {math :: polynomials}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -270,7 +270,6 @@ tepam::procedure <b class="function">{display message}</b> {} {}</pre>
 </dl>
 <p>The commands <b class="cmd"><a href="../../../../index.html#key34">procedure</a></b> as well as <b class="cmd">argument_dialogbox</b> are exported from the namespace <b class="namespace">tepam</b>. To use these commands without the <b class="namespace">tepam::</b> namespace prefix, it is sufficient to import them into the main namespace:</p>
 <pre class="example"><b class="cmd">namespace import tepam::*</b>
- 
 <b class="cmd"><a href="../../../../index.html#key34">procedure</a></b> {display_message} {
    -args {
       ...</pre>
@@ -325,10 +324,8 @@ in the NAME section of a generated procedure manual page.</p></dd>
 <p>Each of the procedure arguments is declared with a list that has as first element the argument name, followed by eventual attributes. The argument definition syntax can be formalized in the following way:</p>
 <pre class="example">tepam::procedure &lt;name&gt; {
    -args <b class="cmd">{
-      {&lt;argument_name_1&gt; &lt;arg_attr_name_1a&gt; &lt;arg_attr_value_1a&gt; \ 
-                         &lt;arg_attr_name_1b&gt; &lt;arg_attr_value_1b&gt; ...}
-      {&lt;argument_name_2&gt; &lt;arg_attr_name_2a&gt; &lt;arg_attr_value_2a&gt; \ 
-                         &lt;arg_attr_name_2b&gt; &lt;arg_attr_value_2b&gt; ...}
+      {&lt;argument_name_1&gt; &lt;arg_attr_name_1a&gt; &lt;arg_attr_value_1a&gt;  &lt;arg_attr_name_1b&gt; &lt;arg_attr_value_1b&gt; ...}
+      {&lt;argument_name_2&gt; &lt;arg_attr_name_2a&gt; &lt;arg_attr_value_2a&gt;  &lt;arg_attr_name_2b&gt; &lt;arg_attr_value_2b&gt; ...}
       ...
    }</b>
 } &lt;body&gt;</pre>
@@ -341,7 +338,7 @@ in the NAME section of a generated procedure manual page.</p></dd>
 <dd><p>This is the simplest form of an argument name: An argument whose name is not starting with '-' is an <em>unnamed argument</em>. The parameter provided during a procedure call will be assigned to a variable with the name <em>&lt;Name&gt;</em>.</p>
 <pre class="example">tepam::procedure {print_string} {
    -args {
-      {<b class="cmd"><a href="../../../../index.html#key481">text</a></b> -type string -description &quot;This is an unnamed argument&quot;}
+      {<b class="cmd"><a href="../../../../index.html#key480">text</a></b> -type string -description &quot;This is an unnamed argument&quot;}
    }
 } {
    puts <b class="cmd">$text</b>
@@ -371,7 +368,6 @@ print_string <b class="cmd">-text &quot;Hello&quot;</b>
    -args {
       {hours -type integer -description &quot;Hour&quot;}
       {minutes -type integer -description &quot;Minute&quot;}
- 
       <b class="cmd">{- The following arguments are optional:}</b>
       {seconds -type integer -default 0 -description &quot;Seconds&quot;}
       {milliseconds -type integer -default 0 -description &quot;Milliseconds&quot;}
@@ -389,7 +385,6 @@ print_string <b class="cmd">-text &quot;Hello&quot;</b>
       <b class="cmd">{#### First complex number ####}</b>
       {-r0 -type double -description &quot;First number's real part&quot;}
       {-i0 -type double -description &quot;First number's imaginary part&quot;}
-      
       <b class="cmd">{#### Second complex number ####}</b>
       {-r1 -type double -description &quot;Second number's real part&quot;}
       {-i1 -type double -description &quot;Second number's imaginary part&quot;}
@@ -430,7 +425,7 @@ In case the argument with the <i class="arg">-multiple</i> attribute is an unnam
 An example of a validation command declaration is:</p>
 <pre class="example">tepam::procedure {display_message} {
    -args {
-      {text -type string -description &quot;Message text&quot; \ 
+      {text -type string -description &quot;Message text&quot; \
             <b class="cmd">-validatecommand &quot;IllegalWordDetector %P&quot;</b>}
 } {
 }</pre>
@@ -439,14 +434,14 @@ An example of a validation command declaration is:</p>
 <dd><p>The widgets that allow defining the different arguments in case of an interactive procedure call are normally selected automatically in function of the argument type. The <i class="arg">-widget</i> attribute allows specifying explicitly a certain widget type for an argument.</p></dd>
 <dt>-auxargs <i class="arg">list</i></dt>
 <dd><p>In case a procedure is called interactively, additional argument attributes can be provided to the interactive argument definition form via the <em>-auxargs</em> attribute that is itself a list of attribute name/attribute value pairs:</p>
-<pre class="example">-auxargs {-&lt;arg_attr_name_1a&gt; &lt;arg_attr_value_1a&gt; \ 
+<pre class="example">-auxargs {-&lt;arg_attr_name_1a&gt; &lt;arg_attr_value_1a&gt; \
           -&lt;arg_attr_name_1b&gt; &lt;arg_attr_value_1b&gt;
           ...
 }</pre>
 <p>For example, if a procedure takes as argument a file name it may be beneficial to specify the required file type for the interactive argument definition form. This information can be provided via the <em>-auxargs</em> attribute to the argument definition form:</p>
 <pre class="example">tepam::procedure LoadPicture {
    -args {
-      {FileName -type existingfile -description &quot;Picture file&quot; \ 
+      {FileName -type existingfile -description &quot;Picture file&quot; \
                  <b class="cmd">-auxargs {-filetypes {{&quot;GIF&quot; {*.gif}} {&quot;JPG&quot; {*.jpg}} }}</b>}
    }
 } {
@@ -454,7 +449,7 @@ An example of a validation command declaration is:</p>
 </dd>
 <dt>-auxargs_commands <i class="arg">script</i></dt>
 <dd><p>If the auxiliary argument attributes are not static but have to be dynamically adaptable, the <em>-auxargs_commands</em> allows defining them via commands that are executed during a procedure call. A list of pairs of auxiliary attribute names and commands has to be provided to the <em>-auxargs_commands</em> attribute. The provided commands are executed in the context of the calling procedure.</p>
-<pre class="example">-auxargs_commands {-&lt;arg_attr_name_1a&gt; &lt;arg_attr_command_1a&gt; \ 
+<pre class="example">-auxargs_commands {-&lt;arg_attr_name_1a&gt; &lt;arg_attr_command_1a&gt; \
                    -&lt;arg_attr_name_1b&gt; &lt;arg_attr_command_1b&gt;
                    ...
 }</pre>
@@ -521,10 +516,8 @@ This global setting can be changed individually for a procedure with the procedu
 } {
    puts <b class="cmd">$flag</b>
 }
- 
 flag_test
 <em>-&gt; 0</em>
- 
 flag_test -flag
 <em>-&gt; 1</em></pre>
 <p>Since no argument value has to be provided to a flag, also no data check is performed for this argument type.</p></li>
@@ -645,19 +638,15 @@ display message: Argument '-help' not known</em></pre>
 <p>... can for example be called in the following ways:</p>
 <pre class="example"><b class="cmd">display_message Info &quot;It is PM 7:00.&quot;</b>
 <em>-&gt; Info: It is PM 7:00.</em>
- 
 <b class="cmd">display_message Info &quot;It is PM 7:00.&quot; &quot;You should go home.&quot;</b>
 <em>-&gt; Info: It is PM 7:00. You should go home.</em></pre>
 <p>The nice thing is that unnamed arguments can also be called as named arguments, which can be handy, for example if the exact specified argument order is not known to a user:</p>
 <pre class="example"><b class="cmd">display_message -mtype Info -text &quot;It is PM 7:00.&quot;</b>
 <em>-&gt; Info: It is PM 7:00.</em>
- 
 <b class="cmd">display_message -text &quot;It is PM 7:00.&quot; -mtype Info</b>
 <em>-&gt; Info: It is PM 7:00.</em>
- 
 <b class="cmd">display_message -mtype Info -text &quot;It is PM 7:00.&quot; -text &quot;You should go home.&quot;</b>
 <em>-&gt; Info: It is PM 7:00. You should go home.</em>
- 
 <b class="cmd">display_message -text &quot;It is PM 7:00.&quot; -text &quot;You should go home.&quot; -mtype Info</b>
 <em>-&gt; Info: It is PM 7:00. You should go home.</em></pre>
 </div>
@@ -675,13 +664,10 @@ display message: Argument '-help' not known</em></pre>
 <p>... can be called in the following ways:</p>
 <pre class="example"><b class="cmd">display_message -mtype Info -text &quot;It is PM 7:00.&quot;</b>
 <em>-&gt; Info: It is PM 7:00.</em>
- 
 <b class="cmd">display_message -text &quot;It is PM 7:00.&quot; -mtype Info</b>
 <em>-&gt; Info: It is PM 7:00.</em>
- 
 <b class="cmd">display_message -mtype Info -text &quot;It is PM 7:00.&quot; -text &quot;You should go home.&quot;</b>
 <em>-&gt; Info: It is PM 7:00. You should go home.</em>
- 
 <b class="cmd">display_message -text &quot;It is PM 7:00.&quot; -text &quot;You should go home.&quot; -mtype Info</b>
 <em>-&gt; Info: It is PM 7:00. You should go home.</em></pre>
 <p>Also named arguments that have not the <em>-multiple</em> attribute can be provided multiple times. Only the last provided argument will be retained in such a case:</p>
@@ -713,14 +699,12 @@ tepam::procedure my_proc {
 <p>The name of the first unnamed argument has therefore not to start with the '-' character. The unnamed argument is otherwise considered as name of another named argument. This is especially important if the first unnamed argument is given by a variable that can contain any character strings:</p>
 <pre class="example">my_proc <b class="cmd">-n1 N1 -n2 N2 &quot;-&gt;&quot; &quot;&lt;-&quot;</b>
 <em>-&gt; my_proc: Argument '-&gt;' not known</em>
- 
 set U1 &quot;-&gt;&quot;
 my_proc -n1 N1 -n2 N2 $U1 U2}]
 my_proc: Argument '-&gt;' not known</pre>
 <p>The '--' flag allows separating unambiguously the unnamed arguments from the named arguments. All data after the '--' flag will be considered as unnamed argument:</p>
 <pre class="example">my_proc <b class="cmd">-n1 N1 -n2 N2 -- &quot;-&gt;&quot; &quot;&lt;-&quot;</b>
 <em>-&gt; n1:'N1', n2:'N2', u1:'-&gt;', u2:'&lt;-'</em>
- 
 set U1 &quot;-&gt;&quot;
 my_proc <b class="cmd">-n1 N1 -n2 N2 -- $U1 U2</b>
 <em>-&gt; n1:'N1', n2:'N2', u1:'-&gt;', u2:'&lt;-'</em></pre>
@@ -772,7 +756,6 @@ tepam::procedure my_proc {
 <p>But the '--' flag is simply ignored if the argument parser has started to handle the named arguments:</p>
 <pre class="example">my_proc <b class="cmd">U1 -- -n1 N1</b>
 <em>-&gt; n1:'N1', n2:'', u1:'U1', u2:''</em>
- 
 my_proc <b class="cmd">U1 -n1 N1 -- -n2 N2</b>
 <em>-&gt; n1:'N1', n2:'N2', u1:'U1', u2:''</em></pre>
 </div>
@@ -794,7 +777,7 @@ display_message -mtype Warning &quot;It is 7:00&quot;
 <p><a href="tepam_introduction.html">tepam(n)</a>, <a href="tepam_argument_dialogbox.html">tepam::argument_dialogbox(n)</a></p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key738">argument integrity</a>, <a href="../../../../index.html#key739">argument validation</a>, <a href="../../../../index.html#key740">arguments</a>, <a href="../../../../index.html#key34">procedure</a>, <a href="../../../../index.html#key737">subcommand</a></p>
+<p><a href="../../../../index.html#key740">argument integrity</a>, <a href="../../../../index.html#key739">argument validation</a>, <a href="../../../../index.html#key738">arguments</a>, <a href="../../../../index.html#key34">procedure</a>, <a href="../../../../index.html#key737">subcommand</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Procedures, arguments, parameters, options</p>

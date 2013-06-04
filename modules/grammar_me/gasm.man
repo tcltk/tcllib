@@ -1,13 +1,17 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin grammar::me::cpu::gasm n 0.1]
+[keywords assembler]
+[keywords grammar]
+[keywords graph]
+[keywords parsing]
+[keywords tree]
+[keywords {virtual machine}]
 [copyright {2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Grammar operations and usage}]
 [titledesc {ME assembler}]
 [category  {Grammars and finite automata}]
 [require grammar::me::cpu::gasm [opt 0.1]]
 [description]
-[keywords {virtual machine}]
-[keywords parsing grammar assembler graph tree]
 
 This package provides a simple in-memory assembler. Its origin is that
 of a support package for use by packages converting PEG and other
@@ -150,7 +154,6 @@ some or specific sets of these attributes.
 
 [list_end]
 
-
 [section API]
 
 [list_begin definitions]
@@ -198,7 +201,6 @@ After the initialization is done the "entry" instruction will be the
 
 The command returns the empy string as its result.
 
-
 [call [cmd ::grammar::me::cpu::gasm::done] [const -->] [arg t]]
 
 This command finalizes the creation of an instruction sequence and
@@ -244,12 +246,10 @@ respectively.
 
 The command returns the empy string as its result.
 
-
 [call [cmd ::grammar::me::cpu::gasm::state]]
 
 This command returns the current state of the assembler. Its format is
 not documented and considered to be internal to the package.
-
 
 [call [cmd ::grammar::me::cpu::gasm::state!] [arg s]]
 
@@ -267,7 +267,6 @@ and merged with [arg s].
 
 The command returns the empty string as its result.
 
-
 [call [cmd ::grammar::me::cpu::gasm::lift] [arg t] [arg dst] [const =] [arg src]]
 
 This command operates on the tree [arg t]. It copies the contents of
@@ -275,7 +274,6 @@ the attributes [const gas::entry], [const gas::exit::ok] and
 [const gas::exit::fail] from the node [arg src] to the node [arg dst].
 
 It returns the empty string as its result.
-
 
 [call [cmd ::grammar::me::cpu::gasm::Inline] [arg t] [arg node] [arg label]]
 
@@ -303,7 +301,6 @@ assembler und the labels [arg label]/entry, [arg label]/exit::ok, and
 
 The command returns the empty string as its result.
 
-
 [call [cmd ::grammar::me::cpu::gasm::Cmd] [arg cmd] [opt [arg arg]...]]
 
 This is the basic command to add instructions to the graph.
@@ -321,13 +318,11 @@ current condition code will be set to [const always].
 
 The command returns the empty string as its result.
 
-
 [call [cmd ::grammar::me::cpu::gasm::Bra]]
 
 This is a convenience command to create a .BRA pseudo-instruction. It
 uses [cmd ::grammar::me::cpu::gasm::Cmd] to actually create the
 instruction and inherits its behaviour.
-
 
 [call [cmd ::grammar::me::cpu::gasm::Nop] [arg text]]
 
@@ -338,7 +333,6 @@ instruction and inherits its behaviour.
 The [arg text] will be saved as the first and only argument of the new
 instruction.
 
-
 [call [cmd ::grammar::me::cpu::gasm::Note] [arg text]]
 
 This is a convenience command to create a .C pseudo-instruction,
@@ -347,7 +341,6 @@ actually create the instruction and inherits its behaviour.
 
 The [arg text] will be saved as the first and only argument of the new
 instruction.
-
 
 [call [cmd ::grammar::me::cpu::gasm::Jmp] [arg label]]
 
@@ -380,12 +373,10 @@ the current condition code.
 
 The command returns the empty string as its result.
 
-
 [call [cmd ::grammar::me::cpu::gasm::Who] [arg label]]
 
 This command returns a reference to the instruction labeled with
 [arg label].
-
 
 [call [cmd ::grammar::me::cpu::gasm::/Label] [arg name]]
 
@@ -397,7 +388,6 @@ This command labels the [term anchor] with [arg name].
 
 The command returns the empty string as its result.
 
-
 [call [cmd ::grammar::me::cpu::gasm::/Clear]]
 
 This command clears the [term anchor], leaving it undefined, and
@@ -407,7 +397,6 @@ further resets the current condition code to [const always].
 
 The command returns the empty string as its result.
 
-
 [call [cmd ::grammar::me::cpu::gasm::/Ok]]
 
 This command sets the current condition code to [const ok].
@@ -416,7 +405,6 @@ This command sets the current condition code to [const ok].
 
 The command returns the empty string as its result.
 
-
 [call [cmd ::grammar::me::cpu::gasm::/Fail]]
 
 This command sets the current condition code to [const fail].
@@ -424,7 +412,6 @@ This command sets the current condition code to [const fail].
 [para]
 
 The command returns the empty string as its result.
-
 
 [call [cmd ::grammar::me::cpu::gasm::/At] [arg name]]
 
@@ -445,18 +432,8 @@ body, by creating the attribute [const LOOP].
 
 The command returns the empty string as its result.
 
-
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph grammar_me] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY grammar_me]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,4 +1,6 @@
 [manpage_begin math::calculus::romberg n 0.6]
+[see_also math::calculus]
+[see_also math::interpolate]
 [copyright "2004 Kevin B. Kenny <kennykb@acm.org>. All rights\
 reserved. Redistribution permitted under the terms of the Open\
 Publication License <http://www.opencontent.org/openpub/>"]
@@ -333,19 +335,6 @@ puts [format "integral is %.6g +/- %.6g" $value $error]
 integral is 3.97746 +/- 2.3557e-010
 }]
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {math :: calculus}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-
-[see_also math::calculus math::interpolate]
+[vset CATEGORY {math :: calculus}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

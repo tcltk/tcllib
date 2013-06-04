@@ -200,7 +200,7 @@ one or more generators. This loop construct mimicks the functionality of the
 built-in Tcl <b class="cmd"><a href="../../../../index.html#key209">foreach</a></b> command, including handling multiple return values
 and looping over multiple generators at once. Writing a generator is also a
 simple task, much like writing a normal procedure: simply use the <b class="method">define</b>
-command to define the generator, and then call <b class="method">yield</b> instead of <b class="cmd">return</b>. 
+command to define the generator, and then call <b class="method">yield</b> instead of <b class="cmd">return</b>.
 For example, we can define a generator for looping through the integers
 in a particular range:</p>
 <pre class="example">
@@ -245,7 +245,7 @@ error to attempt to call an exhausted generator as the command no longer exists.
 values to the consumer. Once the <b class="method">yield</b> command has been called the
 generator will suspend to allow the consumer to process that value. When the
 next value is requested, the generator will resume as if the yield command had
-just returned, and can continue processing to yield the next result. The 
+just returned, and can continue processing to yield the next result. The
 <b class="method">yield</b> command must be called with at least one argument, but can be called with
 multiple arguments, in which case this is equivalent to calling <b class="method">yield</b>
 once for each argument.</p></dd>
@@ -508,6 +508,6 @@ equivalent to <b class="method">foldl</b> called on the same arguments.</p></dd>
 <a href="mailto:nem@cs.nott.ac.uk">Neil Madden</a>.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key215">control structure</a>, <a href="../../../../index.html#key210">coroutine</a>, <a href="../../../../index.html#key213">filter</a>, <a href="../../../../index.html#key212">foldl</a>, <a href="../../../../index.html#key216">foldr</a>, <a href="../../../../index.html#key209">foreach</a>, <a href="../../../../index.html#key217">generator</a>, <a href="../../../../index.html#key214">iterator</a>, <a href="../../../../index.html#key204">map</a>, <a href="../../../../index.html#key208">reduce</a>, <a href="../../../../index.html#key211">scanl</a></p>
+<p><a href="../../../../index.html#key215">control structure</a>, <a href="../../../../index.html#key210">coroutine</a>, <a href="../../../../index.html#key214">filter</a>, <a href="../../../../index.html#key212">foldl</a>, <a href="../../../../index.html#key217">foldr</a>, <a href="../../../../index.html#key209">foreach</a>, <a href="../../../../index.html#key216">generator</a>, <a href="../../../../index.html#key213">iterator</a>, <a href="../../../../index.html#key203">map</a>, <a href="../../../../index.html#key208">reduce</a>, <a href="../../../../index.html#key211">scanl</a></p>
 </div>
 </div></body></html>

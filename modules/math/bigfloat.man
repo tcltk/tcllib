@@ -1,4 +1,10 @@
 [manpage_begin math::bigfloat n 2.0.1]
+[keywords computations]
+[keywords floating-point]
+[keywords interval]
+[keywords math]
+[keywords multiprecision]
+[keywords tcl]
 [copyright {2004-2008, by Stephane Arnold <stephanearnold at yahoo dot fr>}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Arbitrary precision floating-point numbers}]
@@ -77,7 +83,6 @@ set x [lb]fromstr 1.0000000000[rb]
 set y [lb]fromstr 1. 10[rb]
 [example_end]
 
-
 [call [cmd tostr] [opt [option -nosci]] [arg number]]
 Returns a string form of a BigFloat, in which all digits are exacts.
 [emph "All exact digits"] means a rounding may occur, for example to zero,
@@ -98,7 +103,7 @@ See also [cmd iszero] for how to detect zeros, which is useful when performing a
 
 Converts a double (a simple floating-point value) to a BigFloat, with
 exactly [arg decimals] digits.  Without the [arg decimals] argument,
-it behaves like [cmd fromstr]. 
+it behaves like [cmd fromstr].
 Here, the only important feature you might care of is the ability
 to create BigFloats with a fixed number of [arg decimals].
 
@@ -131,7 +136,6 @@ set x [lb]int2float $n 3[rb]; # like fromstr 10.000
 puts [lb]tostr $x[rb]; # prints "10.00"
 [example_end]
 
-
 [list_end]
 
 [section "ARITHMETICS"]
@@ -163,7 +167,6 @@ Returns [emph x] taken to the [emph n]th power.
 It only works if [emph n] is an integer.
 [emph x] might be a BigFloat or an integer.
 
-
 [list_end]
 
 [section COMPARISONS]
@@ -191,7 +194,6 @@ set a [lb]fromstr 0.001[rb] ; # uncertainty interval : 0.000, 0.002
 tostr  $a ; # 0.e-2
 iszero $a ; # true
 [example_end]
-
 
 [call  [cmd equal] [arg x] [arg y]]
 
@@ -266,7 +268,7 @@ is internally computed the closest to the reality, thus saving the memory used.
 are not subject to uncertainty. However, some rounding is done, as not doing so
 causes severe problems.
 [list_end]
-Uncertainties are kept in the internal representation of the number ; 
+Uncertainties are kept in the internal representation of the number ;
 it is recommended to use [cmd tostr] only for outputting data (on the screen or in a file),
 and NEVER call [cmd fromstr] with the result of [cmd tostr].
 It is better to always keep operands in their internal representation.
@@ -285,7 +287,7 @@ set a [lb]fromstr 1.000[rb]
 # $a belongs to [lb]0.999, 1.001[rb]
 # $a has a relative uncertainty of 0.1% : 0.001(the uncertainty)/1.000(the medium value)
 [example_end]
-The uncertainty of the sum, or the difference, of two numbers, is the sum 
+The uncertainty of the sum, or the difference, of two numbers, is the sum
 of their respective uncertainties.
 
 [example_begin]
@@ -295,8 +297,8 @@ set sum [lb]add $a $b[rb][rb]
 # the result is : [lb]3.568, 3.572[rb] (the last digit is known with an uncertainty of 2)
 tostr $sum ; # 3.57
 [example_end]
-But when, for example, we add or substract an integer to a BigFloat, 
-the relative uncertainty of the result is unchanged. So it is desirable 
+But when, for example, we add or substract an integer to a BigFloat,
+the relative uncertainty of the result is unchanged. So it is desirable
 not to convert integers to BigFloats:
 
 [example_begin]
@@ -337,7 +339,7 @@ puts [lb]tostr [lb]cos [lb]fromstr 0e-10[rb][rb][rb]; # -> 1.000000000
 puts [lb]tostr [lb]cos [lb]fromstr 1e-10[rb][rb][rb]; # -> 1.000000000
 [example_end]
 
-BigFloats with different internal representations may be converted 
+BigFloats with different internal representations may be converted
 to the same string.
 
 [para]
@@ -352,7 +354,6 @@ tostr [lb]exp [lb]fromstr 100.0 10[rb][rb]
 # returns : 2.688117142e+43 which has only 10 digits of precision, although the entry
 # has 14 digits of precision.
 [example_end]
-
 
 [section "WHAT ABOUT TCL 8.4 ?"]
 If your setup do not provide Tcl 8.5 but supports 8.4, the package can still be loaded,
@@ -393,7 +394,7 @@ If you matter much about avoiding names conflicts,
 I considere it should be resolved by the following :
 [example_begin]
 package require math::bigfloat
-# beware: namespace ensembles are not available in Tcl 8.4 
+# beware: namespace ensembles are not available in Tcl 8.4
 namespace eval ::math::bigfloat {namespace ensemble create -command ::bigfloat}
 # from now, the bigfloat command takes as subcommands all original math::bigfloat::* commands
 set a [lb]bigfloat sub [lb]bigfloat fromstr 2.000[rb] [lb]bigfloat fromstr 0.530[rb][rb]
@@ -426,17 +427,6 @@ set angle3 [lb]asin [lb]add [lb]mul $sinProduct [lb]cos $opposite3[rb][rb] $cosP
 puts "angle3 : [lb]tostr [lb]rad2deg $angle3[rb][rb]"
 [example_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {math :: bignum :: float}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords tcl multiprecision math floating-point interval computations]
+[vset CATEGORY {math :: bignum :: float}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

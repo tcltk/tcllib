@@ -1,12 +1,19 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin ftp n 2.4.11]
+[see_also ftpd]
+[see_also mime]
+[see_also pop3]
+[see_also smtp]
+[keywords ftp]
+[keywords internet]
+[keywords net]
+[keywords {rfc 959}]
 [moddesc   {ftp client}]
 [titledesc {Client-side tcl implementation of the ftp protocol}]
 [category  Networking]
 [require Tcl 8.2]
 [require ftp [opt 2.4.11]]
 [description]
-
 
 [para]
 
@@ -427,18 +434,6 @@ An update command placed in the procedure [cmd ::ftp::DisplayMsg] may
 run into persistent errors or infinite loops. The solution to this
 problem is to use [cmd {update idletasks}] instead of [cmd update].
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph ftp] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[see_also ftpd smtp pop3 mime]
-[keywords ftp {rfc 959} internet net]
+[vset CATEGORY ftp]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,5 +1,14 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin tcldocstrip n 1.0]
+[see_also docstrip]
+[keywords .dtx]
+[keywords conversion]
+[keywords docstrip]
+[keywords documentation]
+[keywords LaTeX]
+[keywords {literate programming}]
+[keywords markup]
+[keywords source]
 [copyright {2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [titledesc {Tcl-based Docstrip Processor}]
 [moddesc   {Textprocessing toolbox}]
@@ -15,7 +24,6 @@ LaTeX.
 
 [syscmd tcldocstrip] is based upon the package [package docstrip].
 
-
 [subsection {USE CASES}]
 
 [syscmd tcldocstrip] was written with the following three use cases in
@@ -27,7 +35,6 @@ mind.
 Conversion of a single input file according to the listed guards into
 the stripped output. This handles the most simple case of a set of
 guards specifying a single document found in a single input file.
-
 
 [enum]
 Stitching, or the assembly of an output from several sets of guards,
@@ -80,7 +87,6 @@ exist, must be readable, and written in [term docstrip] format.
 [list_end]
 [para]
 
-
 [call [cmd tcldocstrip] [opt options] [arg output] ([opt options] [arg input] [arg guards])...]
 
 This is the form for use case [lb]2[rb]. It differs from the form for
@@ -105,10 +111,9 @@ output from one input file using multiple and different sets of
 guards, without having to specify the full name of the file every
 time.
 
-
 [call [cmd tcldocstrip] [option -guards] [arg input]]
 
-This is the form for use case [lb]3[rb]. 
+This is the form for use case [lb]3[rb].
 
 It determines the guards, and unique guard expressions used within the
 provided [arg input] document. The found strings are written to
@@ -187,20 +192,6 @@ written after the actual content of a generated file.
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the application it describes, will undoubtedly
-contain bugs and other problems.
-
-Please report such in the category [emph docstrip] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-application and/or documentation.
-
-[see_also docstrip]
-[keywords conversion markup]
-[keywords documentation source]
-[keywords {literate programming} docstrip]
-[keywords LaTeX .dtx]
+[vset CATEGORY docstrip]
+[include ../modules/doctools2base/include/feedback.inc]
 [manpage_end]

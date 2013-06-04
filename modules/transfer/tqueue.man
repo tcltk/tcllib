@@ -1,5 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin transfer::copy::queue n 0.1]
+[keywords channel]
+[keywords copy]
+[keywords queue]
+[keywords transfer]
 [copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Data transfer facilities}]
 [titledesc {Queued transfers}]
@@ -10,7 +14,6 @@
 [require transfer::copy        [opt 0.2]]
 [require transfer::copy::queue [opt 0.1]]
 [description]
-[keywords transfer copy channel queue]
 [para]
 
 This package provides objects which serialize transfer requests for a
@@ -63,7 +66,6 @@ inserting a channel handle in between [arg data] and [arg options]
 easily transforms it from a pure data structure into a command whose
 evaluation will perform the request.
 
-
 [section API]
 [subsection {Package commands}]
 
@@ -91,9 +93,7 @@ namespace otherwise.
 The fully qualified name of the object command is returned as the
 result of the command.
 
-
 [list_end]
-
 
 [subsection {Object command}]
 
@@ -112,7 +112,6 @@ specifications.
 
 [list_end]
 
-
 [subsection {Object methods}]
 
 [list_begin definitions]
@@ -124,20 +123,17 @@ will cause errors later on, when the currently executed request
 completes and tries to access the now missing data structures of the
 destroyed object.
 
-
 [call [arg objectName] [method busy]]
 
 This method returns a boolean value telling us if the object is
 currently serving a request (i.e. [term busy], value [const True]), or
 not (i.e. [term idle], value [const False]).
 
-
 [call [arg objectName] [method pending]]
 
 This method returns the number of requests currently waiting in the
 queue for their execution. A request currently served is not counted
 as waiting.
-
 
 [call [arg objectName] [method put] [arg request]]
 
@@ -150,7 +146,6 @@ defered until all preceding requests have been served.
 
 [list_end]
 
-
 [section Options]
 
 The only option known is [option -on-status-change]. It is optional
@@ -161,7 +156,6 @@ invoked with two additional arguments, the result of the methods
 [method pending] and [method busy], in this order. This allows any
 user to easily know, for example, when the object has processed all
 outstanding requests.
-
 
 [section Use]
 
@@ -174,7 +168,6 @@ It should be noted that in this application the system also needs an
 additional data structure which keeps track of outstanding results as
 they may come back in a different order than the requests from the
 client, and releases them to the actual queue in the proper order.
-
 
 [vset CATEGORY transfer]
 [include ../doctools2base/include/feedback.inc]

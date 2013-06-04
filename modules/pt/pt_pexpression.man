@@ -42,7 +42,6 @@ non-canonical serialization.
 For the specification of serializations see the section
 [sectref {PE serialization format}].
 
-
 [call [cmd ::pt::pe] [method verify-as-canonical] \
 	[arg serial]]
 
@@ -55,7 +54,6 @@ empty string.
 
 For the specification of canonical serializations see the section
 [sectref {PE serialization format}].
-
 
 [call [cmd ::pt::pe] [method canonicalize] [arg serial]]
 
@@ -74,7 +72,6 @@ is already canonical it will be returned unchanged.
 For the specification of regular and canonical serializations see the
 section [sectref {PE serialization format}].
 
-
 [call [cmd ::pt::pe] [method print] [arg serial]]
 
 This command assumes that the argument [arg serial] contains a valid
@@ -90,7 +87,6 @@ for parsing or other machine-based activities.
 
 For the specification of serializations see the section
 [sectref {PE serialization format}].
-
 
 [call [cmd ::pt::pe] [method bottomup] [arg cmdprefix] [arg pe]]
 
@@ -124,7 +120,6 @@ children of this inner parsing expression.
 
 [list_end]
 
-
 [call [cmd ::pt::pe] [method topdown] [arg cmdprefix] [arg pe]]
 
 This command walks the parsing expression [arg pe] from the root down
@@ -141,7 +136,6 @@ see above.
 
 The result returned by the command prefix is [emph ignored].
 
-
 [call [cmd ::pt::pe] [method equal] \
 	[arg seriala] [arg serialb]]
 
@@ -155,104 +149,84 @@ identical, and [const false] otherwise.
 String equality is usable only if we can assume that the two parsing
 expressions are pure Tcl lists.
 
-
 [call [cmd ::pt::pe] [method epsilon]]
 
 This command constructs the atomic parsing expression for epsilon.
-
 
 [call [cmd ::pt::pe] [method dot]]
 
 This command constructs the atomic parsing expression for dot.
 
-
 [call [cmd ::pt::pe] [method alnum]]
 
 This command constructs the atomic parsing expression for alnum.
-
 
 [call [cmd ::pt::pe] [method alpha]]
 
 This command constructs the atomic parsing expression for alpha.
 
-
 [call [cmd ::pt::pe] [method ascii]]
 
 This command constructs the atomic parsing expression for ascii.
-
 
 [call [cmd ::pt::pe] [method control]]
 
 This command constructs the atomic parsing expression for control.
 
-
 [call [cmd ::pt::pe] [method digit]]
 
 This command constructs the atomic parsing expression for digit.
-
 
 [call [cmd ::pt::pe] [method graph]]
 
 This command constructs the atomic parsing expression for graph.
 
-
 [call [cmd ::pt::pe] [method lower]]
 
 This command constructs the atomic parsing expression for lower.
-
 
 [call [cmd ::pt::pe] [method print]]
 
 This command constructs the atomic parsing expression for print.
 
-
 [call [cmd ::pt::pe] [method punct]]
 
 This command constructs the atomic parsing expression for punct.
-
 
 [call [cmd ::pt::pe] [method space]]
 
 This command constructs the atomic parsing expression for space.
 
-
 [call [cmd ::pt::pe] [method upper]]
 
 This command constructs the atomic parsing expression for upper.
-
 
 [call [cmd ::pt::pe] [method wordchar]]
 
 This command constructs the atomic parsing expression for wordchar.
 
-
 [call [cmd ::pt::pe] [method xdigit]]
 
 This command constructs the atomic parsing expression for xdigit.
 
-
 [call [cmd ::pt::pe] [method ddigit]]
 
 This command constructs the atomic parsing expression for ddigit.
-
 
 [call [cmd ::pt::pe] [method terminal] [arg t]]
 
 This command constructs the atomic parsing expression for the terminal
 symbol [arg t].
 
-
 [call [cmd ::pt::pe] [method range] [arg ta] [arg tb]]
 
 This command constructs the atomic parsing expression for the range of
 terminal symbols [arg ta] ... [arg tb].
 
-
 [call [cmd ::pt::pe] [method nonterminal] [arg nt]]
 
 This command constructs the atomic parsing expression for the
 nonterminal symbol [arg nt].
-
 
 [call [cmd ::pt::pe] [method choice] [arg pe]...]
 
@@ -260,13 +234,11 @@ This command constructs the parsing expression representing the
 ordered or prioritized choice between the argument parsing
 expressions. The first argument has the highest priority.
 
-
 [call [cmd ::pt::pe] [method sequence] [arg pe]...]
 
 This command constructs the parsing expression representing the
 sequence of the argument parsing expression. The first argument is the
 first element of the sequence.
-
 
 [call [cmd ::pt::pe] [method repeat0] [arg pe]]
 
@@ -274,25 +246,21 @@ This command constructs the parsing expression representing the zero
 or more repetition of the argument parsing expression [arg pe], also
 known as the kleene closure.
 
-
 [call [cmd ::pt::pe] [method repeat1] [arg pe]]
 
 This command constructs the parsing expression representing the one or
 more repetition of the argument parsing expression [arg pe], also
 known as the positive kleene closure.
 
-
 [call [cmd ::pt::pe] [method optional] [arg pe]]
 
 This command constructs the parsing expression representing the
 optionality of the argument parsing expression [arg pe].
 
-
 [call [cmd ::pt::pe] [method ahead] [arg pe]]
 
 This command constructs the parsing expression representing the
 positive lookahead of the argument parsing expression [arg pe].
-
 
 [call [cmd ::pt::pe] [method notahead] [arg pe]]
 
@@ -300,7 +268,6 @@ This command constructs the parsing expression representing the
 negative lookahead of the argument parsing expression [arg pe].
 
 [list_end]
-
 
 [include include/serial/pexpression.inc]
 [include include/feedback.inc]
