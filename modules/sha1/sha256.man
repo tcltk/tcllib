@@ -1,4 +1,15 @@
 [manpage_begin sha256 n 1.0.3]
+[see_also md4]
+[see_also md5]
+[see_also ripemd128]
+[see_also ripemd160]
+[see_also sha1]
+[keywords {FIPS 180-1}]
+[keywords hashing]
+[keywords message-digest]
+[keywords {rfc 2104}]
+[keywords security]
+[keywords sha256]
 [moddesc   {SHA-x Message-Digest Algorithm}]
 [copyright {2008, Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [titledesc {SHA256 Message-Digest Algorithm}]
@@ -36,7 +47,7 @@ data by giving [arg "-bin"].
 [para]
 
 The data to be hashed can be specified either as a string argument to
-the [cmd "sha256"] command, or as a filename or a pre-opened channel. If the 
+the [cmd "sha256"] command, or as a filename or a pre-opened channel. If the
 [arg "-filename"] argument is given then the file is opened, the data read
 and hashed and the file is closed. If the [arg "-channel"] argument is
 given then data is read from the channel until the end of file. The
@@ -55,7 +66,6 @@ Only one of [arg "-file"], [arg "-channel"] or [arg "string"] should be given.
         [arg "-file filename"] | [arg "string"] [rb]]
 
 Like [cmd ::sha2::sha256], except that the SHA224 digest is returned.
-
 
 [call [cmd "::sha2::hmac"] [arg "key"] [arg "string"]]
 [call [cmd "::sha2::hmac"] \
@@ -100,9 +110,9 @@ for the remaining functions.
 
 [call [cmd "::sha2::SHA256Update"] [arg "token"] [arg "data"]]
 
-Add data to the hash identified by token. Calling 
+Add data to the hash identified by token. Calling
 [emph {SHA256Update $token "abcd"}] is equivalent to calling
-[emph {SHA256Update $token "ab"}] followed by 
+[emph {SHA256Update $token "ab"}] followed by
 [emph {SHA256Update $token "cb"}]. See [sectref {EXAMPLES}].
 
 Note that this command is used for both SHA256 and SHA224. Only the
@@ -164,25 +174,12 @@ These commands are identical to the SHA256 equivalent commands.
        April 1992. ([uri http://www.rfc-editor.org/rfc/rfc1320.txt])
 
 [enum]
-      Krawczyk, H., Bellare, M. and Canetti, R. "HMAC: Keyed-Hashing for 
+      Krawczyk, H., Bellare, M. and Canetti, R. "HMAC: Keyed-Hashing for
       Message Authentication", RFC 2104, February 1997.
 	([uri http://www.rfc-editor.org/rfc/rfc2104.txt])
 
 [list_end]
 
-[see_also sha1 md4 md5 ripemd128 ripemd160]
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph sha1] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords sha256 hashing security message-digest {FIPS 180-1} {rfc 2104}]
+[vset CATEGORY sha1]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

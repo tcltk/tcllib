@@ -1,4 +1,14 @@
 [manpage_begin rcs n 2.0.2]
+[see_also struct]
+[see_also textutil]
+[keywords CVS]
+[keywords {diff -n format}]
+[keywords patching]
+[keywords RCS]
+[keywords {RCS patch}]
+[keywords SCCS]
+[keywords {text conversion}]
+[keywords {text differences}]
 [moddesc {RCS low level utilities}]
 [copyright {2005, Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {2005, Colin McCormack <coldstore@users.sourceforge.net>}]
@@ -43,7 +53,6 @@ their easy application to texts.
 	patches, or also context and unified patches.
 }]
 
-
 [section {COMMANDS}]
 
 [list_begin definitions]
@@ -58,7 +67,6 @@ More information about the format of the result can be found in
 section [sectref {TEXT DICT DATA STRUCTURE}]. This command returns the
 [term canonical] representation of the input.
 
-
 [call [cmd ::rcs::dict2text] [arg dict]]
 
 This command provides the complementary operation to
@@ -68,13 +76,11 @@ in section [sectref {TEXT DICT DATA STRUCTURE}] back into a text and
 returns that text as its result. The command does accept non-canonical
 representations of the text as its input.
 
-
 [call [cmd ::rcs::file2dict] [arg filename]]
 
 This command is identical to [cmd ::rcs::text2dict], except that it
 reads the text to convert from the file with path [arg filename]. The
 file has to exist and must be readable as well.
-
 
 [call [cmd ::rcs::dict2file] [arg filename] [arg dict]]
 
@@ -82,7 +88,6 @@ This command is identical to [cmd ::rcs::2dict2text], except that it
 stores the resulting text in the file with path [arg filename]. The
 file is created if it did not exist, and must be writable. The result
 of the command is the empty string.
-
 
 [call [cmd ::rcs::decodeRcsPatch] [arg text]]
 
@@ -96,7 +101,6 @@ known as [term {RCS patch}] format, as specified in the section
 
 Please note that the command ignores no-ops in the input, in other
 words the resulting PCL contains only instructions doing something.
-
 
 [call [cmd ::rcs::encodeRcsPatch] [arg pcmds]]
 
@@ -115,7 +119,6 @@ words, the result of a decode/encode step may not match the original
 input at the character level, but it will match it at the functional
 level.
 
-
 [call [cmd ::rcs::applyRcsPatch] [arg text] [arg pcmds]]
 
 This operation applies a patch in the form of a PCL to a text given in
@@ -131,7 +134,6 @@ command [cmd ::rcs::dict2text] (or equivalent) to transform the
 result of this command into actuall text as required.
 
 [list_end]
-
 
 [section {TEXT DICT DATA STRUCTURE}]
 
@@ -188,7 +190,6 @@ representations, canonical or not.
 
 The result of applying a patch to a text dictionary will in general
 cause the dictionary to become non-canonical.
-
 
 [section {RCS PATCH FORMAT} rpf]
 
@@ -259,7 +260,6 @@ This is the format of results returned by the command
 [cmd ::rcs::encodeRcsPatch] and [cmd ::rcs::appplyRcsPatch]
 resp.
 
-
 Note however that the decoder will strip no-op commands, and the
 encoder will not generate no-ops, making them not fully complementary
 at the textual level, only at the functional level.
@@ -278,7 +278,6 @@ a11 3
 They both may be called deep and profound.
 Deeper and more profound,
 The door of all subtleties!}]
-
 
 [section {RCS PATCH COMMAND LIST}]
 
@@ -326,21 +325,6 @@ example RCS patch found in section [sectref rpf].
 Deeper and more profound,
 The door of all subtleties!}}}}]
 
-[see_also textutil struct]
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph rcs] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords RCS CVS SCCS]
-[keywords {RCS patch} {diff -n format} patching]
-[keywords {text conversion} {text differences}]
+[vset CATEGORY rcs]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

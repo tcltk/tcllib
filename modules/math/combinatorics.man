@@ -36,7 +36,7 @@ For "[var x] > 1", the absolute error of the result is claimed to be
 smaller than 5.5*10**-10 -- that is, the resulting value of Gamma when
 
 [example {
-  exp( ln_Gamma( x) ) 
+  exp( ln_Gamma( x) )
 }]
 
 is computed is expected to be precise to better than nine significant
@@ -103,16 +103,6 @@ least 1.
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph math] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
+[vset CATEGORY math]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,11 +1,16 @@
 [manpage_begin uevent::onidle n 0.1]
+[keywords callback]
+[keywords deferal]
+[keywords event]
+[keywords idle]
+[keywords merge]
+[keywords on-idle]
 [copyright {2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {User events}]
 [titledesc {Request merging and deferal to idle time}]
 [require Tcl 8.4]
 [require uevent::onidle [opt 0.1]]
 [require logger]
-[keywords event idle deferal merge on-idle callback]
 [description]
 
 This package provides objects which can merge multiple requestes for
@@ -54,16 +59,6 @@ Examples of this type of deferal are buried in the (C-level)
 implementations all the Tk widgets, defering geometry calculations and
 window redraw activity in this manner.
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph uevent] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY uevent]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

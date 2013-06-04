@@ -1,13 +1,18 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin page_util_norm_peg n 1.0]
+[keywords {graph walking}]
+[keywords normalization]
+[keywords page]
+[keywords {parser generator}]
+[keywords PEG]
+[keywords {text processing}]
+[keywords {tree walking}]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Parser generator tools}]
 [titledesc {page AST normalization, PEG}]
 [category  {Page Parser Generator}]
 [require page::util::norm_peg [opt 0.1]]
 [require snit]
-[keywords page PEG normalization {tree walking} {graph walking}]
-[keywords {parser generator} {text processing}]
 [description]
 [para]
 
@@ -40,7 +45,7 @@ The result is called a  [term {Normalized PE Grammar Tree}].
 The following operations are performd
 
 [list_begin enum]
-[enum] 
+[enum]
 The data for all terminals is stored in their grandparental
 nodes. The terminal nodes and their parents are removed. Type
 information is dropped.
@@ -95,13 +100,6 @@ to avoid unnecessary work later.
 [list_end]
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph page] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have.
-
+[vset CATEGORY page]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

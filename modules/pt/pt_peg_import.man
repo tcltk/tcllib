@@ -78,7 +78,6 @@ i.e. [term {plugin writer}]s, reading and understanding the
 necessity, as it documents the interaction between this package and
 its plugins in detail.
 
-
 [section API]
 [subsection {Package commands}]
 
@@ -94,7 +93,6 @@ under the current namespace if the [arg objectName] is not fully
 qualified, and in the specified namespace otherwise.
 
 [list_end]
-
 
 [subsection {Object command}]
 
@@ -113,7 +111,6 @@ specifications.
 
 [list_end]
 
-
 [subsection {Object methods}]
 
 [list_begin definitions]
@@ -121,7 +118,6 @@ specifications.
 [call [arg objectName] [method destroy]]
 
 This method destroys the object it is invoked for.
-
 
 [call [arg objectName] [method {import text}] [arg text] [opt [arg format]]]
 
@@ -147,7 +143,6 @@ found in the section [sectref {PEG serialization format}].
 The plugin has to conform to the interface documented in the
 [manpage {Parser Tools Import API}] specification.
 
-
 [call [arg objectName] [method {import file}] [arg path] [opt [arg format]]]
 
 This method is a convenient wrapper around the [method {import text}]
@@ -156,7 +151,6 @@ method described by the previous item.
 It reads the contents of the specified file into memory, feeds the
 result into [method {import text}] and returns the resulting
 serialization as its own result.
-
 
 [call [arg objectName] [method {import object text}] [arg object] \
 	[arg text] [opt [arg format]]]
@@ -173,14 +167,12 @@ resulting serialization into the [arg object] via [method deserialize].
 
 This method returns the empty string as it result.
 
-
 [call [arg objectName] [method {import object file}] [arg object] \
 	[arg path] [opt [arg format]]]
 
 This method behaves like [method {import object text}], except that it
 reads the text to convert from the specified file instead of being
 given it as argument.
-
 
 [call [arg objectName] [method includes]]
 
@@ -190,7 +182,6 @@ use to search for include files when processing input.
 The order of paths in the list corresponds to the order in which they
 are used, from first to last, and also corresponds to the order in
 which they were added to the object.
-
 
 [call [arg objectName] [method {include add}] [arg path]]
 
@@ -203,7 +194,6 @@ added paths. The result of the command is the empty string.
 
 The method does nothing if the path is already known.
 
-
 [call [arg objectName] [method {include remove}] [arg path]]
 
 This methods removes the specified [arg path] from the list of paths
@@ -214,7 +204,6 @@ of the command is the empty string.
 
 The method does nothing if the path is not known.
 
-
 [call [arg objectName] [method {include clear}]]
 
 This method clears the list of paths to use to search for include
@@ -222,7 +211,6 @@ files when processing input. The result of the command is the empty
 string.
 
 [list_end]
-
 
 [include include/serial/pegrammar.inc]
 [include include/serial/pexpression.inc]

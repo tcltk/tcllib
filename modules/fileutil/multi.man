@@ -1,5 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin fileutil::multi n 0.1]
+[keywords copy]
+[keywords {file utilities}]
+[keywords move]
+[keywords multi-file]
+[keywords remove]
 [moddesc   {file utilities}]
 [titledesc {Multi-file operation, scatter/gather, standard object}]
 [category  {Programming tools}]
@@ -8,7 +13,6 @@
 [require fileutil::multi::op [opt 0.1]]
 [require wip [opt 1.0]]
 [description]
-[keywords {file utilities} copy move remove multi-file]
 [para]
 
 This package provides a single command to perform actions on multiple
@@ -47,15 +51,6 @@ command it executed.
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph fileutil] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY fileutil]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

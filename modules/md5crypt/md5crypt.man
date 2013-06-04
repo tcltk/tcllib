@@ -1,4 +1,10 @@
 [manpage_begin md5crypt n 1.1.0]
+[see_also md5]
+[keywords hashing]
+[keywords md5]
+[keywords md5crypt]
+[keywords message-digest]
+[keywords security]
 [moddesc   {MD5-based password encryption}]
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {MD5-based password encryption}]
@@ -74,18 +80,6 @@ $apr1$01234567$IXBaQywhAhc0d75ZbaSDp/
 $1$dFmvyRmO$T.V3OmzqeEf3hqJp2WFcb.
 }]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph md5crypt] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[see_also md5]
-[keywords md5crypt md5 hashing message-digest security]
+[vset CATEGORY md5crypt]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -42,7 +42,6 @@ non-canonical serialization.
 For the specification of serializations see the section
 [sectref {PE serialization format}].
 
-
 [call [cmd ::pt::peg] [method verify-as-canonical] \
 	[arg serial]]
 
@@ -54,7 +53,6 @@ that is not the case. The result of the command is the empty string.
 
 For the specification of canonical serializations see the section
 [sectref {PEG serialization format}].
-
 
 [call [cmd ::pt::peg] [method canonicalize] [arg serial]]
 
@@ -73,7 +71,6 @@ already canonical it will be returned unchanged.
 For the specification of regular and canonical serializations see the
 section [sectref {PEG serialization format}].
 
-
 [call [cmd ::pt::peg] [method print] [arg serial]]
 
 This command assumes that the argument [arg serial] contains a valid
@@ -89,7 +86,6 @@ for parsing or other machine-based activities.
 
 For the specification of serializations see the section
 [sectref {PEG serialization format}].
-
 
 [call [cmd ::pt::peg] [method merge] \
 	[arg seriala] [arg serialb]]
@@ -126,7 +122,6 @@ The start expression of the unified grammar is the choice between the
 start expressions of the input grammars, with the start expression of
 [arg seriala] coming first, except if both expressions are identical.
 In that case the first expression is taken
-
 
 [call [cmd ::pt::peg] [method equal] \
 	[arg seriala] [arg serialb]]

@@ -1,4 +1,15 @@
 [manpage_begin sum n 1.1.0]
+[see_also cksum(n)]
+[see_also crc32(n)]
+[see_also sum(1)]
+[keywords checksum]
+[keywords cksum]
+[keywords crc]
+[keywords crc32]
+[keywords {cyclic redundancy check}]
+[keywords {data integrity}]
+[keywords security]
+[keywords sum]
 [copyright {2002, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc   {Cyclic Redundancy Checks}]
 [titledesc {Calculate a sum(1) compatible checksum}]
@@ -88,21 +99,9 @@ Return the checksum using an alternative format template.
 13392
 }]
 
-[see_also sum(1) cksum(n) crc32(n)]
 [section AUTHORS]
 Pat Thoyts
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph crc] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords sum cksum checksum crc crc32 {cyclic redundancy check} {data integrity} security]
+[vset CATEGORY crc]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

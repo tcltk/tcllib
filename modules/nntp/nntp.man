@@ -1,5 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin nntp n 1.5.1]
+[keywords news]
+[keywords nntp]
+[keywords nntpclient]
+[keywords {rfc 977}]
+[keywords {rfc 1036}]
 [moddesc   {Tcl NNTP Client Library}]
 [titledesc {Tcl client for the NNTP protocol}]
 [category  Networking]
@@ -82,7 +87,6 @@ mostly binary and retrieving it as text will corrupt the information.
 [para]
 
 See package [package yencode] for both encoder and decoder of such data.
-
 
 [call [arg nntpName] [method date]]
 
@@ -248,7 +252,6 @@ All messages between [arg msgid1] and [arg msgid2]
 
 [list_end]
 
-
 [call [arg nntpName] [method xover] [opt [arg range]]]
 
 Returns header information for the current message or for a range of messages
@@ -261,7 +264,6 @@ If [arg range] is not specified or is "" then the current message is queried.
 The [arg range] argument can be in any of the following forms:
 
 [list_begin definitions]
-
 
 [def [const {""}]]
 
@@ -278,7 +280,6 @@ All messages between [arg msgid1] and [arg msgid2]
 (including [arg msgid1] and [arg msgid2]) are queried.
 
 [list_end]
-
 
 [call [arg nntpName] [method xpat] [arg field] [arg range] [opt [arg pattern_list]]]
 
@@ -318,31 +319,20 @@ A bigger example for posting a single article.
 
 [para]
 [example {
-    package require nntp 
-    set n [nntp::nntp NNTP_SERVER] 
-    $n post "From: USER@DOMAIN.EXT (USER_FULL) 
-    Path: COMPUTERNAME!USERNAME 
-    Newsgroups: alt.test 
-    Subject: Tcl test post -ignore 
-    Message-ID: <[pid][clock seconds] 
-    @COMPUTERNAME> 
-    Date: [clock format [clock seconds] -format "%a, %d % 
-    b %y %H:%M:%S GMT" -gmt true] 
-    
-    Test message body" 
+    package require nntp
+    set n [nntp::nntp NNTP_SERVER]
+    $n post "From: USER@DOMAIN.EXT (USER_FULL)
+    Path: COMPUTERNAME!USERNAME
+    Newsgroups: alt.test
+    Subject: Tcl test post -ignore
+    Message-ID: <[pid][clock seconds]
+    @COMPUTERNAME>
+    Date: [clock format [clock seconds] -format "%a, %d %
+    b %y %H:%M:%S GMT" -gmt true]
+
+    Test message body"
 }]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph nntp] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords news nntp nntpclient {rfc 1036} {rfc 977}]
+[vset CATEGORY nntp]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

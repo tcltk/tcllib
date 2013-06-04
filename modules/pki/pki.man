@@ -1,5 +1,16 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin pki n 0.6]
+[see_also aes(n)]
+[see_also blowfish(n)]
+[see_also des(n)]
+[see_also md5(n)]
+[see_also sha1(n)]
+[keywords cipher]
+[keywords {data integrity}]
+[keywords encryption]
+[keywords {public key cipher}]
+[keywords rsa]
+[keywords security]
 [copyright {2010, 2011, 2012, 2013, Roy Keene, Andreas Kupries}]
 [moddesc {public key encryption}]
 [titledesc {Implementation of the public key cipher}]
@@ -71,7 +82,6 @@ from either
 [enum]	"openssl rsautl -sign"    == "::pki::encrypt -binary -priv"
 [list_end]
 
-
 [call [cmd "::pki::decrypt"] \
         [opt [arg "-binary"]] \
         [opt [arg "-hex"]] \
@@ -89,8 +99,6 @@ Decrypt a message using PKI (probably RSA). See [cmd ::pki::encrypt] for option 
 [enum]	"openssl rsautl -decrypt" == "::pki::decrypt -binary -priv"
 [enum]	"openssl rsautl -verify"  == "::pki::decrypt -binary -pub"
 [list_end]
-
-
 
 [call [cmd ::pki::sign] [arg input] [arg key] [opt [arg algo]]]
 
@@ -145,7 +153,6 @@ can be used as argument for
 	What choices for password has the user ?
 }]
 
-
 [call [cmd ::pki::x509::parse_cert] [arg cert]]
 
 Convert an X.509 certificate to a usable (public) key, i.e. one which
@@ -155,7 +162,6 @@ can be used as argument for
 [cmd ::pki::verify].
 
 The [arg cert] argument can be either PEM or DER encoded.
-
 
 [call [cmd ::pki::rsa::generate] [arg bitlength] [opt [arg exponent]]]
 
@@ -178,8 +184,6 @@ you really know what you are doing.
           -- Any value, but it should be chosen wisely.  This is the "RSA exponent" and small values may represent a security risk.
 }]
 
-
-
 [call [cmd ::pki::x509::verify_cert] [arg cert] [arg trustedcerts] [opt [arg intermediatecerts]]]
 
 Verify that a trust can be found between the certificate specified in the
@@ -190,8 +194,6 @@ argument, but this is currently unimplemented).
 
 The certificates specified in the [arg cert] and [arg trustedcerts] option
 should be parsed (from [cmd ::pki::x509::parse_cert]).
-
-
 
 [call [cmd ::pki::x509::validate_cert] \
      [arg cert] \
@@ -215,8 +217,6 @@ indicate at which depth the verification should be done at.  Some
 certificates are limited to how far down the chain they can be used to
 verify a given certificate.
 
-
-
 [call [cmd ::pki::pkcs::create_csr] [arg keylist] [arg namelist] [opt [arg encodePem]] [opt [arg algo]]]
 
 Generate a certificate signing request from a key pair specified in
@@ -234,14 +234,10 @@ The [arg algo] argument specifies the hashing algorithm we should use
 to sign this certificate signing request with.  The default is "sha1".
 Other possible values include "md5" and "sha256".
 
-
-
 [call [cmd ::pki::pkcs::parse_csr] [arg csr]]
 
 Parse a Certificate Signing Request.  The [arg csr] argument can be
 either PEM or DER encoded.
-
-
 
 [call [cmd ::pki::x509::create_cert] [arg signreqlist] [arg cakeylist] [arg serial_number] [arg notBefore] [arg notAfter] [arg isCA] [arg extensions] [opt [arg encodePem]] [opt [arg algo]]]
 
@@ -253,7 +249,7 @@ The [arg signreqlist] argument should be the parsed signing request.
 The [arg cakeylist] argument should be the parsed CA certificate.
 
 The [arg serial_number] argument should be a serial number unique to
-this certificate from this certificate authority.  
+this certificate from this certificate authority.
 
 The [arg notBefore] and [arg notAfter] arguments should contain the
 time before and after which (respectively) the certificate should
@@ -276,13 +272,11 @@ validator should reject the certificate as invalid if it does not
 understand the extension (if set to "true") or should ignore the extension
 (if set to "false").  The [arg allowCA] argument is used to specify
 as a boolean value whether or not we can be used a certificate
-authority (CA).  The [arg caDepth] argument indicates how many children 
+authority (CA).  The [arg caDepth] argument indicates how many children
 CAs can be children of this CA in a depth-wise fashion.  A value of "0"
 for the [arg caDepth] argument means that this CA cannot sign a CA
 certificate and have the result be valid.  A value of "-1" indicates
 infinite depth.
-
-
 
 [list_end]
 
@@ -300,21 +294,9 @@ infinite depth.
 [enum]
 [list_end]
 
-[see_also aes(n) des(n) md5(n) sha1(n) blowfish(n)]
-
 [section AUTHORS]
 Roy Keene
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph rsa] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-[keywords rsa cipher {public key cipher} security encryption {data integrity}]
+[vset CATEGORY rsa]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

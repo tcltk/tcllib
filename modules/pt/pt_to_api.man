@@ -50,12 +50,10 @@ This method has to reset the configuration of the converter to its
 default settings. The result of the method has to be the empty
 string.
 
-
 [call [cmd CONVERTER] [method configure]]
 
 This method, in this form, has to return a dictionary containing the
 current configuration of the converter.
-
 
 [call [cmd CONVERTER] [method configure] [arg option]]
 
@@ -70,7 +68,6 @@ options any converter has to accept.
 Any other options accepted by a specific converter will be described
 in its manpage.
 
-
 [call [cmd CONVERTER] [method configure] [arg option] [arg value]...]
 
 This command, in this form, sets the specified [arg option]s of the
@@ -84,7 +81,6 @@ options a converter has to accept.
 Any other options accepted by a specific converter will be described
 in its manpage.
 
-
 [call [cmd CONVERTER] [method convert] [arg serial]]
 
 This method has to accept the canonical serialization of a parsing
@@ -96,7 +92,6 @@ grammar into whatever the converter is for, per its configuration.
 
 [list_end][comment {-- api command signatures --}]
 [list_end][comment {-- converter rules --}]
-
 
 [section {Plugin API}]
 
@@ -171,7 +166,6 @@ its manpage.
 
 [list_end][comment {-- plugin rules --}]
 
-
 [section Options]
 
 Each export converter and plugin for an export converter has to accept
@@ -183,7 +177,6 @@ pass the options given to them to the converter they are invoking.
 [list_begin options]
 [include include/format/options_std.inc]
 [list_end]
-
 
 [section Usage]
 

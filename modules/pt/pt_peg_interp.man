@@ -27,7 +27,6 @@ pt::peg::container], or anything providing the same API, like the
 container classes created by [package pt::peg::to::container] or the
 associated export plugin [package pt::peg::export::container].
 
-
 [subsection {Class API}]
 
 The package exports the API described here.
@@ -48,7 +47,6 @@ configure the object for any other PEG use the method [method use] of
 the [sectref {Object API}].
 
 [list_end]
-
 
 [subsection {Object API}]
 
@@ -74,7 +72,6 @@ The result of the method the empty string.
 
 [include include/std_parser_object_api.inc]
 [list_end]
-
 
 [include include/serial/ast.inc]
 [include include/serial/pexpression.inc]

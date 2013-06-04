@@ -1,5 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin term::receive::bind n 0.1]
+[keywords {character input}]
+[keywords control]
+[keywords dispatcher]
+[keywords listener]
+[keywords receiver]
+[keywords terminal]
 [copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Terminal control}]
 [titledesc {Keyboard dispatch from terminals}]
@@ -50,14 +56,12 @@ reset operation. The action is a command prefix and will be invoked
 with one argument appended to it, the character sequence causing
 the invokation. It is executed in the global namespace.
 
-
 [call [arg object] [method default] [arg cmd]]
 
 This method defines a default action [arg cmd] which will be invoked
 whenever an unknown character sequence is encountered. The command
 prefix is handled in the same as the regular action defined via
 method [method map].
-
 
 [call [arg object] [method listen] [opt [arg chan]]]
 
@@ -69,7 +73,6 @@ been received, or EOF was reached.
 
 If not specified [arg chan] defaults to [const stdin].
 
-
 [call [arg object] [method unlisten] [opt [arg chan]]]
 
 This methods removes the filevent listener for the channel with handle
@@ -79,12 +82,10 @@ This methods removes the filevent listener for the channel with handle
 
 If not specified [arg chan] defaults to [const stdin].
 
-
 [call [arg object] [method reset]]
 
 This method resets the character processor
 to the beginning of the tree.
-
 
 [call [arg object] [method next] [arg char]]
 
@@ -92,13 +93,11 @@ This method causes the character processor to process the character
 [arg c]. This may simply advance the internal state, or invoke an
 associated action for a recognized sequence.
 
-
 [call [arg object] [method process] [arg str]]
 
 This method causes the character processor to process the character
 sequence [arg str], advancing the internal state and invoking action
 as necessary. This is a callback for [method listen].
-
 
 [call [arg object] [method eof]]
 
@@ -120,18 +119,6 @@ its prefix.
 In other words, the set of recognized strings has to form a
 [term {prefix code}].
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph term] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords terminal control {character input}]
-[keywords listener receiver dispatcher]
+[vset CATEGORY term]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

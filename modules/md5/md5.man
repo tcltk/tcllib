@@ -1,4 +1,13 @@
 [manpage_begin md5 n 2.0.7]
+[see_also md4]
+[see_also sha1]
+[keywords hashing]
+[keywords md5]
+[keywords message-digest]
+[keywords {rfc 1320}]
+[keywords {rfc 1321}]
+[keywords {rfc 2104}]
+[keywords security]
 [moddesc {MD5 Message-Digest Algorithm}]
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {MD5 Message-Digest Algorithm}]
@@ -19,7 +28,7 @@ attack. MD5 should be used in preference to MD4 for new applications.
 
 If you have [package critcl] and have built the [package tcllibc]
 package then the implementation of the hashing function will be
-performed by compiled code. Alternatively if you have either 
+performed by compiled code. Alternatively if you have either
 [package cryptkit] or [package Trf] then either of these can be used to
 accelerate the digest computation. If no suitable compiled package is
 available then the pure-Tcl implementation wil be used. The
@@ -31,7 +40,7 @@ programming interface remains the same in all cases.
 hex encoded string. This has been changed to simplify the programming
 interface and to make this version more compatible with other
 implementations. To obtain the previous usage, either explicitly
-specify package version 1 or use the [arg "-hex"] option to the 
+specify package version 1 or use the [arg "-hex"] option to the
 [cmd "md5"] command.
 
 [section {COMMANDS}]
@@ -50,7 +59,7 @@ return a hexadecimal encoded version of the digest.
 [para]
 
 The data to be hashed can be specified either as a string argument to
-the [cmd "md5"] command, or as a filename or a pre-opened channel. If the 
+the [cmd "md5"] command, or as a filename or a pre-opened channel. If the
 [arg "-filename"] argument is given then the file is opened, the data read
 and hashed and the file is closed. If the [arg "-channel"] argument is
 given then data is read from the channel until the end of file. The
@@ -79,9 +88,9 @@ For the programmer, the MD5 hash can be viewed as a bucket into which
 one pours data. When you have finished, you extract a value that is
 derived from the data that was poured into the bucket. The programming
 interface to the MD5 hash operates on a token (equivalent to the
-bucket). You call [cmd "MD5Init"] to obtain a token and then call 
+bucket). You call [cmd "MD5Init"] to obtain a token and then call
 [cmd "MD5Update"] as many times as required to add data to the hash. To
-release any resources and obtain the hash value, you then call 
+release any resources and obtain the hash value, you then call
 [cmd "MD5Final"]. An equivalent set of functions gives you a keyed digest
 (HMAC).
 
@@ -94,11 +103,10 @@ remaining functions.
 
 [call [cmd "::md5::MD5Update"] [arg "token"] [arg "data"]]
 
-Add data to the hash identified by token. Calling 
+Add data to the hash identified by token. Calling
 [emph {MD5Update $token "abcd"}] is equivalent to calling
-[emph {MD5Update $token "ab"}] followed by 
+[emph {MD5Update $token "ab"}] followed by
 [emph {MD5Update $token "cb"}]. See [sectref {EXAMPLES}].
-
 
 [call [cmd "::md5::MD5Final"] [arg "token"]]
 
@@ -155,25 +163,12 @@ These commands are identical to the MD5 equivalent commands.
        April 1992. ([uri http://www.rfc-editor.org/rfc/rfc1320.txt])
 
 [enum]
-      Krawczyk, H., Bellare, M. and Canetti, R. "HMAC: Keyed-Hashing for 
+      Krawczyk, H., Bellare, M. and Canetti, R. "HMAC: Keyed-Hashing for
       Message Authentication", RFC 2104, February 1997.
 	([uri http://www.rfc-editor.org/rfc/rfc2104.txt])
 
 [list_end]
 
-[see_also md4 sha1]
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph md5] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords md5 hashing message-digest security {rfc 1320} {rfc 1321} {rfc 2104}]
+[vset CATEGORY md5]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,5 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin transfer::data::source n 0.2]
+[keywords channel]
+[keywords copy]
+[keywords {data source}]
+[keywords transfer]
 [copyright {2006-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Data transfer facilities}]
 [titledesc {Data source}]
@@ -9,14 +13,12 @@
 [require transfer::copy         [opt 0.2]]
 [require transfer::data::source [opt 0.2]]
 [description]
-[keywords transfer copy channel {data source}]
 [para]
 
 This package provides objects mainly describing the origin of some
 data to transfer. They are also able to initiate transfers of the
 described information to a channel using the foundation package
 [package transfer::copy].
-
 
 [section API]
 [subsection {Package commands}]
@@ -45,7 +47,6 @@ result of the command.
 
 [list_end]
 
-
 [subsection {Object command}]
 
 All objects created by the [cmd ::transfer::data::source] command have
@@ -63,7 +64,6 @@ specifications.
 
 [list_end]
 
-
 [subsection {Object methods}]
 
 [list_begin definitions]
@@ -75,7 +75,6 @@ by the object is active is safe as all data required for the transfer
 itself was copied, and the completion of the transfer will not try to
 access the initiating object anymore. i.e. the transfer is completely
 separate from the source object itself.
-
 
 [call [arg objectName] [method type]]
 
@@ -105,7 +104,6 @@ The method throws an error if the type is [const undefined]. For type
 type [const channel] the returned result is the handle of the channel
 containing the data.
 
-
 [call [arg objectName] [method size]]
 
 This method returns a value depending on the type of the data the
@@ -114,7 +112,6 @@ object refers to, the size of the data.
 The method throws an error if the type is [const undefined]. Return of
 a negative value signals that the object is unable to determine an
 absolute size upfront (like for data in a channel).
-
 
 [call [arg objectName] [method valid] [arg msgvar]]
 
@@ -140,8 +137,6 @@ one go. See the option [option -blocksize] of command
 
 [list_end]
 
-
-
 [subsection Options]
 
 All data sources support the options listed below. It should be noted
@@ -153,7 +148,6 @@ actually configure the object.
 [list_begin options]
 [include include/dsource_options.inc]
 [list_end]
-
 
 [vset CATEGORY transfer]
 [include ../doctools2base/include/feedback.inc]

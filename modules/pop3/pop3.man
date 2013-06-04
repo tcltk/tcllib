@@ -1,8 +1,15 @@
 [manpage_begin pop3 n 1.9]
+[keywords email]
+[keywords mail]
+[keywords pop]
+[keywords pop3]
+[keywords {rfc 1939}]
+[keywords secure]
+[keywords ssl]
+[keywords tls]
 [comment {-*- tcl -*- doctools manpage}]
 [moddesc   {Tcl POP3 Client Library}]
 [titledesc {Tcl client for POP3 email protocol}]
-[keywords mail email pop pop3 {rfc 1939} ssl tls secure]
 [category  Networking]
 [require Tcl  8.4]
 [require pop3 [opt 1.9]]
@@ -78,16 +85,14 @@ connection will be closed and an error will be returned
 
 This option allows the user to overide the [cmd tls::callback] used during
 the [const -stls] SSL/TLS handshake. See the TLS manual for details on how
-to implement this callback. 
+to implement this callback.
 
 [list_end]
-
 
 [call [cmd ::pop3::config] [arg chan]]
 
 Returns the configuration of the pop3 connection identified by the
 channel handle [arg chan] as a serialized array.
-
 
 [call [cmd ::pop3::status] [arg chan]]
 
@@ -128,7 +133,6 @@ It should also be noted that the system checks upon the configured
 mode and falls back to the slower modes if the above assumptions are
 not true.
 
-
 [call [cmd ::pop3::delete] [arg {chan startIndex}] [opt [arg endIndex]]]
 
 Delete a range of messages from the server.  If the [arg endIndex] is
@@ -155,7 +159,7 @@ to the value 1.
 [def [const next]]
 
 The message immediately following the last message read, see
-[cmd ::pop3::last]. 
+[cmd ::pop3::last].
 
 [def [const end]]
 
@@ -192,9 +196,7 @@ The most recent message in the spool (the end of the spool).
 Returns the scan listing of the mailbox. If parameter [arg msg] is
 given, then the listing only for that message is returned.
 
-
 [call [cmd ::pop3::top] [arg chan] [arg msg] [arg n] ]
-
 
 Optional POP3 command, not all servers may support this.
 
@@ -204,7 +206,7 @@ body.
 
 [call [cmd ::pop3::uidl] [arg chan] [opt [arg msg]]]
 
-Optional POP3 command, not all servers may support this. 
+Optional POP3 command, not all servers may support this.
 
 [cmd ::pop3::uidl] returns the uid listing of the mailbox. If the
 parameter [arg msg] is specified, then the listing only for that
@@ -212,7 +214,7 @@ message is returned.
 
 [call [cmd ::pop3::capa] [arg chan]]
 
-Optional POP3 command, not all servers may support this. 
+Optional POP3 command, not all servers may support this.
 
 [cmd ::pop3::capa] returns a list of the capabilities of the server.
 TOP, SASL, UIDL, LOGIN-DELAY and STLS are typical capabilities.
@@ -225,7 +227,6 @@ Gracefully close the connect after sending a POP3 QUIT command down
 the socket.
 
 [list_end]
-
 
 [section {Secure mail transfer}]
 
@@ -265,7 +266,6 @@ proceeding with authentication.
 
 	...
 }]
-
 
 [vset CATEGORY pop3]
 [include ../doctools2base/include/feedback.inc]

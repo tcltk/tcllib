@@ -1,5 +1,14 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctoc_lang_cmdref n 1.0]
+[see_also doctoc_intro]
+[see_also doctoc_lang_faq]
+[see_also doctoc_lang_intro]
+[see_also doctoc_lang_syntax]
+[keywords {doctoc commands}]
+[keywords {doctoc language}]
+[keywords {doctoc markup}]
+[keywords markup]
+[keywords {semantic markup}]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {doctoc language command reference}]
@@ -16,10 +25,8 @@ in alphabetical order, and the descriptions are relatively short.
 A beginner should read the much more informally written
 [term {doctoc language introduction}] first.
 
-
 [section Commands]
 [list_begin definitions]
-
 
 [call [cmd comment] [arg plaintext]]
 
@@ -115,21 +122,6 @@ named document variable
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph doctools] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-[see_also doctoc_intro]
-[see_also doctoc_lang_intro]
-[see_also doctoc_lang_syntax]
-[see_also doctoc_lang_faq]
-[keywords markup {semantic markup}]
-[keywords {doctoc markup} {doctoc language} {doctoc commands}]
+[vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -629,7 +629,7 @@ match status, semantic value, and error status, in this order\&.
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
 Please report such in the category \fIgrammar_me\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH KEYWORDS

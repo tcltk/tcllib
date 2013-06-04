@@ -1,13 +1,20 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin try n 1]
+[see_also catch(n)]
+[see_also error(n)]
+[see_also return(n)]
+[see_also throw(n)]
+[keywords cleanup]
+[keywords error]
+[keywords exception]
+[keywords final]
+[keywords {resource management}]
 [copyright {2008 Donal K. Fellows, BSD licensed}]
 [moddesc {Forward compatibility implementation of [try]}]
 [titledesc {try - Trap and process errors and exceptions}]
 [category  Utility]
 [require Tcl 8.5]
 [require try [opt 1]]
-[keywords cleanup error exception final {resource management}]
-[see_also catch(n) error(n) return(n) throw(n)]
 [description]
 [para]
 
@@ -15,7 +22,6 @@ This package provides a forward-compatibility implementation of Tcl
 8.6's try/finally command (TIP 329), for Tcl 8.5. The code was
 directly pulled from Tcl 8.6 revision ?, when try/finally was
 implemented as Tcl procedure instead of in C.
-
 
 [list_begin definitions]
 [comment {- - -- --- ----- -------- ------------- ---------------------}]
@@ -100,7 +106,6 @@ set f [lb]open /some/file/name a[rb]
 }
 [example_end]
 
-
 [para] Handle different reasons for a file to not be openable for reading:
 [para][example_begin]
 [cmd try] {
@@ -112,15 +117,6 @@ set f [lb]open /some/file/name a[rb]
 }
 [example_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph try] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY try]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

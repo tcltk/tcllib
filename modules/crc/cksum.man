@@ -1,4 +1,13 @@
 [manpage_begin cksum n 1.1.3]
+[see_also crc32(n)]
+[see_also sum(n)]
+[keywords checksum]
+[keywords cksum]
+[keywords crc]
+[keywords crc32]
+[keywords {cyclic redundancy check}]
+[keywords {data integrity}]
+[keywords security]
 [copyright {2002, Pat Thoyts}]
 [moddesc   {Cyclic Redundancy Checks}]
 [titledesc {Calculate a cksum(1) compatible checksum}]
@@ -71,11 +80,10 @@ remaining functions. An optional seed may be specified if required.
 
 [call [cmd "::crc::CksumUpdate"] [arg "token"] [arg "data"]]
 
-Add data to the checksum identified by token. Calling 
+Add data to the checksum identified by token. Calling
 [emph {CksumUpdate $token "abcd"}] is equivalent to calling
-[emph {CksumUpdate $token "ab"}] followed by 
+[emph {CksumUpdate $token "ab"}] followed by
 [emph {CksumUpdate $token "cb"}]. See [sectref {EXAMPLES}].
-
 
 [call [cmd "::crc::CksumFinal"] [arg "token"]]
 
@@ -114,22 +122,9 @@ result is a 32 bit integer value.
 2609532967
 }]
 
-
-[see_also sum(n) crc32(n)]
 [section AUTHORS]
 Pat Thoyts
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph crc] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords cksum checksum crc crc32 {cyclic redundancy check} {data integrity} security]
+[vset CATEGORY crc]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

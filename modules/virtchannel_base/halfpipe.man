@@ -1,5 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin tcl::chan::halfpipe n 1]
+[keywords callbacks]
+[keywords fifo]
+[keywords {in-memory channel}]
+[keywords {reflected channel}]
+[keywords {tip 219}]
+[keywords {virtual channel}]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
@@ -38,7 +44,6 @@ handler, in this order.
 The latter is supplied to the caller to provide her with access to the
 [method put] method for adding data to the channel.
 
-
 [para] Two halfpipes with a bit of glue logic in the callbacks make
 for one [package tcl::chan::fifo2].
 
@@ -71,18 +76,6 @@ A single argument is supplied, the handle of the channel.
 
 [list_end]
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph virtchannel] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-[keywords fifo callbacks]
-[keywords {virtual channel} {reflected channel} {in-memory channel} {tip 219}]
+[vset CATEGORY virtchannel]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

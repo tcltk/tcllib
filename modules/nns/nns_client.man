@@ -1,4 +1,8 @@
 [manpage_begin nameserv n 0.4.2]
+[see_also nameserv::common(n)]
+[see_also nameserv::server(n)]
+[keywords client]
+[keywords {name service}]
 [copyright {2007-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Name service facility}]
 [titledesc {Name service facility, Client}]
@@ -7,9 +11,6 @@
 [require nameserv [opt 0.4.2]]
 [require comm]
 [require logger]
-[keywords {name service} client]
-[see_also nameserv::common(n)]
-[see_also nameserv::server(n)]
 [description]
 
 Please read [term {Name service facility, introduction}] first.
@@ -57,14 +58,12 @@ than one name, and each name can have its own piece of [arg data].
 Note that the name service, and thwerefore this command, will throw an
 error if the chosen name is already registered.
 
-
 [call [cmd ::nameserv::release]]
 
 Invoking this command releases all names (and their data) registered
 by all previous calls to [cmd ::nameserv::bind] of this client. Note
 that the name service will run this command implicitly when it loses
 the connection to this client.
-
 
 [call [cmd ::nameserv::search] [opt [option -async]|[option -continuous]] [opt [arg pattern]]]
 
@@ -106,25 +105,21 @@ further changes) arrive.
 For more information about this object see section
 [sectref {ASYNCHRONOUS AND CONTINUOUS SEARCHES}].
 
-
 [call [cmd ::nameserv::protocol]]
 
 This command returns the highest version of the name service protocol
 supported by the package.
-
 
 [call [cmd ::nameserv::server_protocol]]
 
 This command returns the highest version of the name service protocol
 supported by the name service the client is currently connected to.
 
-
 [call [cmd ::nameserv::server_features]]
 
 This command returns a list containing the names of the features of
 the name service protocol which are supported by the name service the
 client is currently connected to.
-
 
 [call [cmd ::nameserv::cget] [option -option]]
 
@@ -138,7 +133,6 @@ In this form the command returns a dictionary of all supported
 options, and their current values. The list of supported options and
 their meaning can be found in section [sectref OPTIONS].
 
-
 [call [cmd ::nameserv::configure] [option -option]]
 
 In this form the command is an alias for
@@ -146,7 +140,6 @@ In this form the command is an alias for
 
 The list of supported options and their meaning can be found in
 section [sectref OPTIONS].
-
 
 [call [cmd ::nameserv::configure] "[option -option] [arg value]..."]
 
@@ -174,7 +167,6 @@ The command forcing a contact with the name service are
 [cmd_def server_features]
 [list_end]
 [list_end]
-
 
 [section {CONNECTION HANDLING}]
 
@@ -209,7 +201,6 @@ will be a string describing why the connection was lost.
 This string is supplied by the underlying communication package,
 i.e. [package comm].
 
-
 [section OPTIONS]
 
 The options supported by the client are for the specification of which
@@ -225,7 +216,6 @@ either by [arg name], or by [arg ipaddress]. The initial default is
 [const localhost], i.e. it is expected to contact a name service
 running on the same host as the application using this package.
 
-
 [opt_def -port [arg number]]
 
 This option specifies the port the name service to contact is
@@ -235,7 +225,6 @@ returned by the command [cmd ::nameserv::common::port], as provided by
 the package [package ::nameserv::common].
 
 [list_end]
-
 
 [section {ASYNCHRONOUS AND CONTINUOUS SEARCHES}]
 
@@ -298,7 +287,6 @@ entries at the time of the search.
 Destroys the object and cancels any continuous monitoring of the
 service the object may have had active.
 
-
 [call [cmd \$result] [method filled]]
 
 The result is a boolean value indicating whether the search result has
@@ -328,7 +316,6 @@ them at [term bind]-time.
 [list_end]
 [list_end]
 
-
 [section HISTORY]
 [list_begin definitions]
 [def 0.3.1]
@@ -346,15 +333,6 @@ its connection to the name service. Based on package [package uevent].
 Initial implementation of the client.
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph nameserv] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY nameserv]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

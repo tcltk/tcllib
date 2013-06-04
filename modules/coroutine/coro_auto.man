@@ -1,5 +1,17 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin coroutine::auto n 1]
+[keywords after]
+[keywords channel]
+[keywords coroutine]
+[keywords events]
+[keywords exit]
+[keywords gets]
+[keywords global]
+[keywords {green threads}]
+[keywords read]
+[keywords threads]
+[keywords update]
+[keywords vwait]
 [copyright {2010-2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Coroutine utilities}]
 [category  Coroutine]
@@ -8,8 +20,6 @@
 [require coroutine::auto 1.1.1]
 [require coroutine 1.1]
 [description]
-[keywords coroutine global exit after vwait update gets read]
-[keywords channel threads {green threads} events]
 
 The [package coroutine::auto] package provides no commands or other
 directly visible functionality.
@@ -30,15 +40,6 @@ coroutine without changes.
 [def [cmd vwait]]
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph coroutine] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY coroutine]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]
