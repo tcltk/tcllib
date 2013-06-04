@@ -16,50 +16,12 @@
 [titledesc {docidx language faq}]
 [category  {Documentation tools}]
 [description]
-[para]
+[vset theformat docidx]
 
 [section OVERVIEW]
 
-[subsection {What is this document?}]
-
-This document is currently mainly a placeholder, to be filled with
-commonly asked questions about the docidx markup language and
-companions, and their answers.
-
-[para]
-
-Please report any questions (and, if possible, answers) we should
-consider for this document in the category [emph doctools] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-[section EXAMPLES]
-
-[subsection {Where do I find docidx examples?}]
-
-We have no direct examples of documents written using docidx
-markup. However the doctools processor [syscmd dtplite] does generate
-keyword indices when processing a set of documents written in doctools
-markup. The intermediate files use docidx markup and are not deleted
-when generation completes. These files can therefore serve as
-examples.
-
-[para]
-
-[syscmd dtplite] is distributed as part of Tcllib, so to get it you
-need one of
-
-[list_begin enumerated]
-
-[enum]
-A CVS snapshot of Tcllib. How to retrieve such a snapshot and the
-tools required for this are described at
-[uri http://sourceforge.net/cvs/?group_id=12883]
-
-[enum]
-A Tcllib release archive. They are available at
-[uri http://sourceforge.net/project/showfiles.php?group_id=12883]
-
-[list_end]
+[include include/placeholder.inc]
+[include include/examples.inc]
 
 [vset CATEGORY doctools]
 [include ../doctools2base/include/feedback.inc]
