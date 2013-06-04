@@ -1,5 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin map::geocode::nominatim n 0.1]
+[keywords geocoding]
+[keywords http]
+[keywords location]
+[keywords map]
+[keywords nominatim]
+[keywords server]
+[keywords url]
 [moddesc   {Mapping utilities}]
 [titledesc {Resolving geographical names with a Nominatim service}]
 [require Tcl 8.5]
@@ -103,7 +110,4 @@ This method returns a list of dictionaries, one item per hit for the specified [
 [enum] [uri http://wiki.openstreetmap.org/wiki/Nominatim]
 [enum] [uri http://open.mapquestapi.com/nominatim/]
 [list_end]
-
-[keywords server geocoding map location nominatim http url]
 [manpage_end]
-

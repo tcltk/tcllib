@@ -1,4 +1,14 @@
 [manpage_begin textutil::string n 0.7]
+[see_also regexp(n)]
+[see_also split(n)]
+[see_also string(n)]
+[keywords capitalize]
+[keywords chop]
+[keywords {common prefix}]
+[keywords formatting]
+[keywords prefix]
+[keywords string]
+[keywords uncapitalize]
 [moddesc   {Text and string utilities, macro processing}]
 [titledesc {Procedures to manipulate texts and strings.}]
 [category  {Text processing}]
@@ -36,7 +46,6 @@ The complementary operation to [cmd ::textutil::string::cap]. Forces
 the first character of [arg string] to lower case and returns the
 modified string.
 
-
 [call [cmd ::textutil::string::longestCommonPrefixList] [arg list]]
 [call [cmd ::textutil::string::longestCommonPrefix] [opt [arg string]...]]
 
@@ -52,20 +61,6 @@ own longest common prefix.
 
 [list_end]
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph textutil] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[see_also regexp(n) split(n) string(n)]
-[keywords string capitalize formatting prefix uncapitalize]
-[keywords chop {common prefix}]
+[vset CATEGORY textutil]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

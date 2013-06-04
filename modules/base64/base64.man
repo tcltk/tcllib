@@ -1,4 +1,6 @@
 [manpage_begin base64 n 2.4.2]
+[keywords base64]
+[keywords encoding]
 [copyright {2000, Eric Melski}]
 [copyright {2001, Miguel Sofer}]
 [moddesc   {Text encoding & decoding binary data}]
@@ -33,7 +35,6 @@ the string encoding before doing base64 encoding. See the examples.
 The command will throw an error for negative values of [arg maxlen],
 or if [arg maxlen] is not an integer number.
 
-
 [call [cmd ::base64::decode] [arg "string"]]
 
 Base64 decodes the given [arg "string"] and returns the binary data.
@@ -64,18 +65,6 @@ Q+KCiEjigoHigoBO4oKET+KCgg==
 % set caffeine [encoding convertfrom utf-8 [base64::decode $encoded]]
 }]
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph base64] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords encoding base64]
+[vset CATEGORY base64]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

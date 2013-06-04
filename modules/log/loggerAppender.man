@@ -1,6 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [comment {$Id: loggerAppender.man,v 1.6 2009/01/29 06:16:19 andreas_kupries Exp $}]
 [manpage_begin logger::appender n 1.2]
+[keywords appender]
+[keywords logger]
 [copyright {2005 Aamer Akhter <aakhter@cisco.com>}]
 [moddesc {Object Oriented logging facility}]
 [titledesc {Collection of predefined appenders for logger}]
@@ -8,7 +10,6 @@
 [require Tcl 8.2]
 [require logger::appender [opt 1.2]]
 [description]
-[keywords logger appender]
 
 This package provides a predefined set of logger templates.
 
@@ -49,7 +50,6 @@ contain the name of the procedure.
 
 [list_end]
 
-
 [call [cmd ::logger::appender::colorConsole] \
 	[option -level] [arg level] \
 	[option -service] [arg service] [opt [arg options]...] \
@@ -60,16 +60,6 @@ applicable options.
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph logger] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
+[vset CATEGORY logger]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

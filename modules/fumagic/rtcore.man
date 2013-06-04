@@ -1,5 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin fileutil::magic::rt n 1.0]
+[see_also file(1)]
+[see_also fileutil]
+[see_also magic(5)]
+[keywords {file recognition}]
+[keywords {file type}]
+[keywords {file utilities}]
+[keywords mime]
+[keywords type]
 [moddesc   {file utilities}]
 [titledesc {Runtime core for file type recognition engines written in pure Tcl}]
 [category  {Programming tools}]
@@ -34,7 +42,6 @@ package.
 The command returns the channel handle of the opened file as its
 result.
 
-
 [call [cmd ::fileutil::magic::rt::close]]
 
 This command closes the last file opened via
@@ -50,12 +57,10 @@ required to process another file.
 
 This command returns the empty string as its result.
 
-
 [call [cmd ::fileutil::magic::rt::file_start] [arg name]]
 
 This command marks the start of a magic file when debugging. It
 returns the empty string as its result.
-
 
 [call [cmd ::fileutil::magic::rt::result] [opt [arg msg]]]
 
@@ -66,7 +71,6 @@ This command returns the current result and stops processing.
 If [arg msg] is specified its text is added to the result before it is
 returned. See [cmd ::fileutil::magic::rt::emit] for the allowed
 special character sequences.
-
 
 [call [cmd ::fileutil::magic::rt::resultv] [opt [arg msg]]]
 
@@ -81,7 +85,6 @@ If [arg msg] is specified its text is added to the result before it is
 returned. See [cmd ::fileutil::magic::rt::emit] for the allowed
 special character sequences.
 
-
 [call [cmd ::fileutil::magic::rt::emit] [arg msg]]
 
 This command adds the text [arg msg] to the result buffer. The
@@ -95,7 +98,6 @@ the result. The command returns the empty string as its result.
 [def [const %ld]] Replaced with the last buffered numeric value.
 [def [const %d]]  See above.
 [list_end]
-
 
 [comment [call [cmd ::fileutil::magic::rt::offset] [arg where]]]
 [comment {
@@ -127,7 +129,6 @@ For example:
 
 For the possible types see section [sectref {NUMERIC TYPES}].
 
-
 [call [cmd ::fileutil::magic::rt::N] [arg type] [arg offset] [arg comp] [arg val] [opt [arg qual]]]
 
 This command behaves mostly like [cmd ::fileutil::magic::rt::Nv],
@@ -150,22 +151,19 @@ The special comparison operator [const x] signals that no comparison
 should be done, or, in other words, that the fetched value will always
 match [arg val].
 
-
 [call [cmd ::fileutil::magic::rt::Nvx] [arg atlevel] [arg type] [arg offset] [opt [arg qual]]]
 
 This command behaves like [cmd ::fileutil::magic::rt::Nv], except that
 it additionally remembers the location in the file after the fetch in
-the calling context, for the level [arg atlevel], for later use by 
+the calling context, for the level [arg atlevel], for later use by
 [cmd ::fileutil::magic::rt::R].
-
 
 [call [cmd ::fileutil::magic::rt::Nx] [arg atlevel] [arg type] [arg offset] [arg comp] [arg val] [opt [arg qual]]]
 
 This command behaves like [cmd ::fileutil::magic::rt::N], except that
 it additionally remembers the location in the file after the fetch in
-the calling context, for the level [arg atlevel], for later use by 
+the calling context, for the level [arg atlevel], for later use by
 [cmd ::fileutil::magic::rt::R].
-
 
 [call [cmd ::fileutil::magic::rt::S] [arg offset] [arg comp] [arg val] [opt [arg qual]]]
 
@@ -174,20 +172,17 @@ it fetches and compares strings, not numeric data. The fetched value
 is also stored in the internal string buffer instead of the numeric
 buffer.
 
-
 [call [cmd ::fileutil::magic::rt::Sx] [arg atlevel] [arg offset] [arg comp] [arg val] [opt [arg qual]]]
 
 This command behaves like [cmd ::fileutil::magic::rt::S], except that
 it additionally remembers the location in the file after the fetch in
-the calling context, for the level [arg atlevel], for later use by 
+the calling context, for the level [arg atlevel], for later use by
 [cmd ::fileutil::magic::rt::R].
-
 
 [call [cmd ::fileutil::magic::rt::L] [arg newlevel]]
 
 This command sets the current level in the calling context to
 [arg newlevel]. The command returns the empty string as its result.
-
 
 [call [cmd ::fileutil::magic::rt::I] [arg base] [arg type] [arg delta]]
 
@@ -199,7 +194,6 @@ the value of numeric [arg type] fetched from the absolute location
 [para]
 
 For the possible types see section [sectref {NUMERIC TYPES}].
-
 
 [call [cmd ::fileutil::magic::rt::R] [arg offset]]
 
@@ -214,7 +208,6 @@ base the offset is added to is the last location remembered for the
 level in the calling context.
 
 [list_end]
-
 
 [section {NUMERIC TYPES}]
 
@@ -240,19 +233,6 @@ names are the same, with the character "u" added as prefix.
 [def [const leldate]] see above, stored in small/little endian
 [list_end]
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {fileutil :: magic}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[see_also fileutil file(1) magic(5)]
-[keywords type mime {file utilities} {file type} {file recognition}]
+[vset CATEGORY {fileutil :: magic}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

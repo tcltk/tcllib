@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin stringprep n 1.0.1]
+[see_also unicode(n)]
+[keywords stringprep]
+[keywords unicode]
 [copyright {2007-2009, Sergei Golovan <sgolovan@nes.ru>}]
 [moddesc {Preparation of Internationalized Strings}]
 [titledesc {Implementation of stringprep}]
@@ -140,23 +143,9 @@ Nodeprep and resourceprep profile definitions (see RFC-3920):
 
 [list_end]
 
-[see_also unicode(n) ]
-
 [section "AUTHORS"]
 Sergei Golovan
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph stringprep] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords stringprep unicode]
+[vset CATEGORY stringprep]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

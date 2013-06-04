@@ -1,12 +1,18 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin fileutil n 1.14.5]
+[keywords cat]
+[keywords {file utilities}]
+[keywords grep]
+[keywords {temp file}]
+[keywords test]
+[keywords touch]
+[keywords type]
 [moddesc   {file utilities}]
 [titledesc {Procedures implementing some file utilities}]
 [category  {Programming tools}]
 [require Tcl 8]
 [require fileutil [opt 1.14.5]]
 [description]
-[keywords {file utilities} touch grep type {temp file} test cat]
 [para]
 
 This package provides implementations of standard unix utilities.
@@ -35,7 +41,6 @@ the changed path as its result.
 
 In contrast to the builtin [cmd {file normalize}] this command
 resolves a symbolic link in the last element of the path as well.
-
 
 [call [cmd ::fileutil::test] [arg path] [arg codes] [opt [arg msgvar]] [opt [arg label]]]
 
@@ -76,7 +81,6 @@ all if all the tests pass.
 [cmd {file isdirectory}]
 [list_end]
 
-
 [call [cmd ::fileutil::cat] ([opt [arg options]] [arg file])...]
 
 A tcl implementation of the UNIX [syscmd cat] command.  Returns the
@@ -101,7 +105,6 @@ anything not specified directly the defaults are inherited from the
 options of the previous file. The first file inherits the system
 default for unspecified options.
 
-
 [call [cmd ::fileutil::writeFile] [opt [arg options]] [arg file] [arg data]]
 
 The command replaces the current contents of the specified [arg file]
@@ -110,13 +113,11 @@ command accepts the same options as [cmd ::fileutil::cat]. The
 specification of a non-existent file is legal and causes the command
 to create the file (and all required but missing directories).
 
-
 [call [cmd ::fileutil::appendToFile] [opt [arg options]] [arg file] [arg data]]
 
 This command is like [cmd ::fileutil::writeFile], except that the
 previous contents of [arg file] are not replaced, but appended to. The
 command accepts the same options as [cmd ::fileutil::cat]
-
 
 [call [cmd ::fileutil::insertIntoFile] [opt [arg options]] [arg file] [arg at] [arg data]]
 
@@ -138,7 +139,6 @@ the last character of the existing content, i.e. appending.
 
 The command accepts the same options as [cmd ::fileutil::cat].
 
-
 [call [cmd ::fileutil::removeFromFile] [opt [arg options]] [arg file] [arg at] [arg n]]
 
 This command is the complement to [cmd ::fileutil::insertIntoFile], removing [arg n] characters from the [arg file], starting at location [arg at].
@@ -155,7 +155,6 @@ the tail of the existing content, i.e. the truncation of the file.
 
 The command accepts the same options as [cmd ::fileutil::cat].
 
-
 [call [cmd ::fileutil::replaceInFile] [opt [arg options]] [arg file] [arg at] [arg n] [arg data]]
 
 This command is a combination of [cmd ::fileutil::removeFromFile] and
@@ -171,7 +170,6 @@ are obeyed.
 [para]
 
 The command accepts the same options as [cmd ::fileutil::cat].
-
 
 [call [cmd ::fileutil::updateInPlace] [opt [arg options]] [arg file] [arg cmd]]
 
@@ -191,7 +189,6 @@ If the executed command throws an error the [arg file] is not changed.
 
 The command accepts the same options as [cmd ::fileutil::cat].
 
-
 [call [cmd ::fileutil::fileType] [arg filename]]
 
 An implementation of the UNIX [syscmd file] command, which uses
@@ -208,7 +205,6 @@ gravity_wave_data_frame, compressed bzip, compressed gzip, compressed
 zip, compressed tar, audio wave, audio mpeg, and link. It further
 detects doctools, doctoc, and docidx documentation files, and
 tklib diagrams.
-
 
 [call [cmd ::fileutil::find] [opt "[arg basedir] [opt [arg filtercmd]]"]]
 
@@ -245,7 +241,6 @@ Example:
     set tcl_files [fileutil::find . is_tcl]
 }]
 
-
 [call [cmd ::fileutil::findByPattern] [arg basedir] \
      [opt [option -regexp]|[option -glob]] [opt [option --]] \
      [arg patterns]]
@@ -264,7 +259,6 @@ matching, either regexp or glob. glob-style matching is the default if
 no options are given. Usage of the option [option --] stops option
 processing. This allows the use of a leading '-' in the patterns.
 
-
 [call [cmd ::fileutil::foreachLine] [arg {var filename cmd}]]
 
 The command reads the file [arg filename] and executes the script
@@ -274,7 +268,6 @@ script the variable [arg var] is set to the contents of the current
 line. The return value of this command is the result of the last
 invocation of the script [arg cmd] or the empty string if the file was
 empty.
-
 
 [call [cmd ::fileutil::grep] [arg pattern] [opt [arg files]]]
 
@@ -315,7 +308,6 @@ is returned as the result of the command. If the current working
 directory itself was specified for [arg path] the result is the string
 "[const .]".
 
-
 [call [cmd ::fileutil::stripPath] [arg prefix] [arg path]]
 
 If, and only of the [arg path] is inside of the directory
@@ -327,7 +319,6 @@ of the command.
 
 If the prefix directory itself was specified for [arg path] the result
 is the string "[const .]".
-
 
 [call [cmd ::fileutil::jail] [arg jail] [arg path]]
 
@@ -349,7 +340,6 @@ it. Before adding the [arg jail] prefix the [arg path] is lexically
 normalized to prevent the caller from using [const ..] segments in
 [arg path] to escape the jail.
 
-
 [call [cmd ::fileutil::touch] [opt [option -a]] [opt [option -c]] [opt [option -m]] [opt "[option -r] [arg ref_file]"] [opt "[option -t] [arg time]"] [arg filename] [opt [arg ...]]]
 
 Implementation of [syscmd touch]. Alter the atime and mtime of the
@@ -365,7 +355,6 @@ only change the mtime.
 
 [para]
 [emph {This command is not available for Tcl versions less than 8.3.}]
-
 
 [call [cmd ::fileutil::tempdir]]
 
@@ -441,8 +430,6 @@ command.
 The code was taken from [uri http://wiki.tcl.tk/772], attributed to
 Igor Volobouev and anon.
 
-
-
 [call [cmd ::fileutil::relative] [arg base] [arg dst]]
 
 This command takes two directory paths, both either absolute or relative
@@ -455,7 +442,6 @@ arguments if one of the paths is absolute and the other relative.
 
 [emph Note:] The processing done by this command is purely lexical.
 Symbolic links are [emph not] taken into account.
-
 
 [call [cmd ::fileutil::relativeUrl] [arg base] [arg dst]]
 
@@ -477,16 +463,7 @@ and the other relative.
 Symbolic links are [emph not] taken into account.
 
 [list_end]
-[section {BUGS, IDEAS, FEEDBACK}]
 
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph fileutil] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
+[vset CATEGORY fileutil]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

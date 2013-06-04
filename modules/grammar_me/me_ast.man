@@ -1,11 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin grammar::me_ast n 0.1]
+[keywords {abstract syntax tree}]
+[keywords AST]
 [copyright {2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Grammar operations and usage}]
 [titledesc {Various representations of ASTs}]
 [category  {Grammars and finite automata}]
 [description]
-[keywords AST {abstract syntax tree}]
 
 This document specifies various representations for the
 
@@ -49,7 +50,6 @@ offset 0 (zero).
 
 The root of an AS tree can be either a terminal or nonterminal node.
 
-
 [section {AST VALUES}]
 
 This representation of ASTs is a Tcl list. The main list represents
@@ -66,7 +66,6 @@ third elements are then the locations of the first and last tokens.
 Any additional elements after the third are then the representations
 of the children, with the leftmost child first, i.e. as the fourth
 element of the list representing the node.
-
 
 [section {AST OBJECTS}]
 
@@ -104,7 +103,6 @@ name of the nonterminal symbol stored in the node.
 
 [list_end]
 
-
 [section {EXTENDED AST OBJECTS}]
 
 Extended AST objects are like AST objects, with additional
@@ -131,16 +129,6 @@ column index. Lines are counted from 1, columns are counted from 0.
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph grammar_me] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
+[vset CATEGORY grammar_me]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

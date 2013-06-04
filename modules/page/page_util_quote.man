@@ -1,12 +1,15 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin page_util_quote n 1.0]
+[keywords page]
+[keywords {parser generator}]
+[keywords quoting]
+[keywords {text processing}]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Parser generator tools}]
 [titledesc {page character quoting utilities}]
 [category  {Page Parser Generator}]
 [require page::util::quote [opt 0.1]]
 [require snit]
-[keywords page quoting {parser generator} {text processing}]
 [description]
 [para]
 
@@ -54,13 +57,6 @@ this command.
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph page] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have.
-
+[vset CATEGORY page]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

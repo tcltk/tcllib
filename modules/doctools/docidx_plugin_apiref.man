@@ -1,5 +1,18 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin docidx_plugin_apiref n 1.0]
+[see_also docidx_intro]
+[see_also docidx_lang_cmdref]
+[see_also docidx_lang_faq]
+[see_also docidx_lang_intro]
+[see_also docidx_lang_syntax]
+[see_also doctools::idx]
+[keywords {formatting engine}]
+[keywords index]
+[keywords {index formatter}]
+[keywords keywords]
+[keywords markup]
+[keywords plugin]
+[keywords {semantic markup}]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {docidx plugin API reference}]
@@ -30,8 +43,6 @@ language itself should start with the
 formal specifications, i.e. the [term {docidx language syntax}] and
 the [term {docidx language command reference}].
 
-
-
 [section OVERVIEW]
 
 The API for an index formatting engine consists of two major sections.
@@ -52,8 +63,6 @@ categories, management and formatting.
 
 Please see section [sectref {PLUGIN COMMANDS}] and its subsections for
 their detailed specification.
-
-
 
 [section {FRONTEND COMMANDS}]
 
@@ -167,8 +176,6 @@ new bracket, and is returned.
 
 [list_end]
 
-
-
 [section {PLUGIN COMMANDS}]
 
 The plugin has to provide its own set of commands which will then be
@@ -176,8 +183,6 @@ called by the frontend in a specific sequence while processing
 input. They fall into two categories, management and formatting. Their
 expected names, signatures, and responsibilities are specified in the
 following two subsections.
-
-
 
 [subsection {Management commands}]
 
@@ -276,7 +281,6 @@ It has to initialize the general state of the plugin, beyond the
 initialization done during the load. No return value is expected, and
 any returned value is ignored.
 
-
 [call [cmd idx_listvariables]]
 [emph Initialization/Shutdown] and [emph {Engine parameters}].
 
@@ -285,7 +289,6 @@ i.e. immediately after [cmd idx_numpasses].
 
 It has to return a list containing the names of the parameters the
 frontend can set to configure the engine. This list can be empty.
-
 
 [call [cmd idx_numpasses]]
 [emph Initialization/Shutdown] and [emph {Pass management}].
@@ -296,7 +299,6 @@ command of the engine will be called before it.
 It has to return the number of passes this engine requires to fully
 process the input document. This value has to be an integer number
 greater or equal to one.
-
 
 [call [cmd idx_postprocess] [arg text]]
 [emph Initialization/Shutdown].
@@ -311,7 +313,6 @@ specific format the command has to just return the argument.
 
 Expected to return a value, the final result of formatting the input.
 
-
 [call [cmd idx_setup] [arg n]]
 [emph Initialization/Shutdown] and [emph {Pass management}].
 
@@ -322,7 +323,6 @@ are counted from [const 1] upward.
 The command has to set up the internal state of the plugin for this
 particular pass. No return value is expected, and any returned value
 is ignored.
-
 
 [call [cmd idx_shutdown]]
 [emph Initialization/Shutdown].
@@ -336,7 +336,6 @@ initiation of another run without fear that information from the last
 run is leaked into this new run.
 
 No return value is expected, and any returned value is ignored.
-
 
 [call [cmd idx_varset] [arg varname] [arg text]]
 [emph {Engine parameters}].
@@ -359,8 +358,6 @@ The values of all engine parameters have to persist between passes and
 runs.
 
 [list_end]
-
-
 
 [subsection {Formatting commands}]
 
@@ -419,23 +416,6 @@ to simply return its argument without change.
 
 [list_end]
 
-
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph doctools] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have.
-
-[see_also docidx_intro]
-[see_also docidx_lang_intro]
-[see_also docidx_lang_syntax]
-[see_also docidx_lang_cmdref]
-[see_also docidx_lang_faq]
-[see_also doctools::idx]
-[keywords markup {semantic markup} plugin keywords index]
-[keywords {formatting engine} {index formatter}]
+[vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

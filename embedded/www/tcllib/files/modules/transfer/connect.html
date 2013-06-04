@@ -152,12 +152,12 @@
 them to either actively connect to a counterpart, or to passively wait
 for a connection from said counterpart.
 I.e. any object created by this packages is always in one of two
-complementary modes, called <i class="term"><a href="../../../../index.html#key592">active</a></i> (the object initiates the
+complementary modes, called <i class="term"><a href="../../../../index.html#key593">active</a></i> (the object initiates the
 connection) and <i class="term"><a href="../../../../index.html#key594">passive</a></i> (the object receives the connection).</p>
 <p>Of the two objects in a connecting pair one has to be configured for
-<i class="term"><a href="../../../../index.html#key592">active</a></i> mode, and the other then has to be configured for
+<i class="term"><a href="../../../../index.html#key593">active</a></i> mode, and the other then has to be configured for
 <i class="term"><a href="../../../../index.html#key594">passive</a></i> mode. This establishes which of the two partners
-connects to whom (the <i class="term"><a href="../../../../index.html#key592">active</a></i> to the other), or, who is waiting
+connects to whom (the <i class="term"><a href="../../../../index.html#key593">active</a></i> to the other), or, who is waiting
 on whom (the <i class="term"><a href="../../../../index.html#key594">passive</a></i> on the other).
 Note that this is completely independent of the direction of any data
 transmission using the connection after it has been established.
@@ -171,7 +171,7 @@ same after the waiting for its partner has ended.</p>
 <dt><a name="1"><b class="cmd">transfer::connect</b> <i class="arg">objectName</i> <span class="opt">?<i class="arg">options</i>...?</span></a></dt>
 <dd><p>This command creates a new connection object with an associated Tcl
 command whose name is <i class="arg">objectName</i>.
-This <i class="term"><a href="../../../../index.html#key238">object</a></i> command is explained in full detail in the sections
+This <i class="term"><a href="../../../../index.html#key237">object</a></i> command is explained in full detail in the sections
 <span class="sectref"><a href="#subsection2">Object command</a></span> and <span class="sectref"><a href="#subsection3">Object methods</a></span>. The set of
 supported <i class="arg">options</i> is explained in section <span class="sectref"><a href="#subsection4">Options</a></span>.</p>
 <p>The object command will be created under the current namespace if the
@@ -195,8 +195,8 @@ specifications.</p></dd>
 <div id="subsection3" class="subsection"><h3><a name="subsection3">Object methods</a></h3>
 <dl class="definitions">
 <dt><a name="3"><i class="arg">objectName</i> <b class="method">destroy</b></a></dt>
-<dd><p>This method destroys the object. 
-This is safe to do for an <i class="term"><a href="../../../../index.html#key592">active</a></i> object when a connection has
+<dd><p>This method destroys the object.
+This is safe to do for an <i class="term"><a href="../../../../index.html#key593">active</a></i> object when a connection has
 been started, as the completion callback is synchronous.
 For a <i class="term"><a href="../../../../index.html#key594">passive</a></i> object currently waiting for its partner to
 establish the connection however this is not safe and will cause
@@ -210,7 +210,7 @@ the socket over which data can be transfered.</p>
 <p>The detailed behaviour of the method depends on the configured
 mode.</p>
 <dl class="definitions">
-<dt><i class="term"><a href="../../../../index.html#key592">active</a></i></dt>
+<dt><i class="term"><a href="../../../../index.html#key593">active</a></i></dt>
 <dd><p>The connection setup is done synchronously. The object waits until the
 connection is established. The method returns the empty string as its
 result.</p></dd>
@@ -255,11 +255,11 @@ the TCP port on which the listening socket is opened to await the
 connection from the partner.</p></dd>
 </dl></dd>
 <dt><b class="option">-host</b> <i class="arg">hostname-or-ipaddr</i></dt>
-<dd><p>This option specifies the host to connect to in <i class="term"><a href="../../../../index.html#key592">active</a></i> mode,
+<dd><p>This option specifies the host to connect to in <i class="term"><a href="../../../../index.html#key593">active</a></i> mode,
 either by name or ip-address. An object configured for <i class="term"><a href="../../../../index.html#key594">passive</a></i>
 mode ignores this option.</p></dd>
 <dt><b class="option">-port</b> <i class="arg">int</i></dt>
-<dd><p>For <i class="term"><a href="../../../../index.html#key592">active</a></i> mode this option specifies the port the object is
+<dd><p>For <i class="term"><a href="../../../../index.html#key593">active</a></i> mode this option specifies the port the object is
 expected to connect to. For <i class="term"><a href="../../../../index.html#key594">passive</a></i> mode however it is the port
 where the object creates the listening socket waiting for a
 connection. It defaults to <b class="const">0</b>, which allows the OS to choose
@@ -302,12 +302,12 @@ open the socket.</p>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>transfer</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key592">active</a>, <a href="../../../../index.html#key82">channel</a>, <a href="../../../../index.html#key593">connection</a>, <a href="../../../../index.html#key594">passive</a>, <a href="../../../../index.html#key339">secure</a>, <a href="../../../../index.html#key342">ssl</a>, <a href="../../../../index.html#key311">tls</a>, <a href="../../../../index.html#key83">transfer</a></p>
+<p><a href="../../../../index.html#key593">active</a>, <a href="../../../../index.html#key83">channel</a>, <a href="../../../../index.html#key592">connection</a>, <a href="../../../../index.html#key594">passive</a>, <a href="../../../../index.html#key339">secure</a>, <a href="../../../../index.html#key342">ssl</a>, <a href="../../../../index.html#key311">tls</a>, <a href="../../../../index.html#key82">transfer</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Transfer module</p>

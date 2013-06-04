@@ -1,5 +1,18 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctools::toc::import n 0.1]
+[keywords conversion]
+[keywords doctoc]
+[keywords documentation]
+[keywords import]
+[keywords json]
+[keywords manpage]
+[keywords markup]
+[keywords parsing]
+[keywords plugin]
+[keywords reference]
+[keywords table]
+[keywords {table of contents}]
+[keywords url]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {Importing keyword indices}]
@@ -10,9 +23,6 @@
 [require doctools::toc::structure]
 [require snit]
 [require pluginmgr]
-[keywords {table of contents} table reference documentation manpage url]
-[keywords markup conversion import parsing plugin]
-[keywords json doctoc]
 [description]
 
 This package provides a class to manage the plugins for the import of
@@ -79,9 +89,7 @@ containing the [sectref {Import plugin API v2 reference}] is an
 absolute necessity, as it specifies the interaction between this
 package and its plugins in detail.
 
-
 [section Concepts] [include include/concept.inc]
-
 
 [section API]
 [subsection {Package commands}]
@@ -98,7 +106,6 @@ under the current namespace if the [arg objectName] is not fully
 qualified, and in the specified namespace otherwise.
 
 [list_end]
-
 
 [subsection {Object command}]
 
@@ -117,7 +124,6 @@ specifications.
 
 [list_end]
 
-
 [subsection {Object methods}]
 
 [list_begin definitions]
@@ -125,7 +131,6 @@ specifications.
 [call [arg objectName] [method destroy]]
 
 This method destroys the object it is invoked for.
-
 
 [call [arg objectName] [method {import text}] [arg text] [opt [arg format]]]
 
@@ -151,7 +156,6 @@ found in the section [sectref {ToC serialization format}].
 The plugin has to conform to the interface specified in section
 [sectref {Import plugin API v2 reference}].
 
-
 [call [arg objectName] [method {import file}] [arg path] [opt [arg format]]]
 
 This method is a convenient wrapper around the [method {import text}]
@@ -160,7 +164,6 @@ method described by the previous item.
 It reads the contents of the specified file into memory, feeds the
 result into [method {import text}] and returns the resulting
 serialization as its own result.
-
 
 [call [arg objectName] [method {import object text}] [arg object] \
 	[arg text] [opt [arg format]]]
@@ -177,7 +180,6 @@ resulting serialization into the [arg object] via [method deserialize].
 
 This method returns the empty string as it result.
 
-
 [call [arg objectName] [method {import object file}] [arg object] \
 	[arg path] [opt [arg format]]]
 
@@ -185,18 +187,15 @@ This method behaves like [method {import object text}], except that it
 reads the text to convert from the specified file instead of being
 given it as argument.
 
-
 [call [arg objectName] [method {config names}]]
 
 This method returns a list containing the names of all configuration
 variables currently known to the object.
 
-
 [call [arg objectName] [method {config get}]]
 
 This method returns a dictionary containing the names and values of
 all configuration variables currently known to the object.
-
 
 [call [arg objectName] [method {config set}] [arg name] [opt [arg value]]]
 
@@ -215,13 +214,11 @@ variables [const user] and [const format] doing so will have no
 effect, these values will be internally overriden when invoking an
 import plugin.
 
-
 [call [arg objectName] [method {config unset}] [arg pattern]...]
 
 This method unsets all configuration variables matching the specified
 glob [arg pattern]s. If no pattern is specified it will unset all
 currently defined configuration variables.
-
 
 [call [arg objectName] [method includes]]
 
@@ -231,7 +228,6 @@ use to search for include files when processing input.
 The order of paths in the list corresponds to the order in which they
 are used, from first to last, and also corresponds to the order in
 which they were added to the object.
-
 
 [call [arg objectName] [method {include add}] [arg path]]
 
@@ -244,7 +240,6 @@ added paths. The result of the command is the empty string.
 
 The method does nothing if the path is already known.
 
-
 [call [arg objectName] [method {include remove}] [arg path]]
 
 This methods removes the specified [arg path] from the list of paths
@@ -255,7 +250,6 @@ of the command is the empty string.
 
 The method does nothing if the path is not known.
 
-
 [call [arg objectName] [method {include clear}]]
 
 This method clears the list of paths to use to search for include
@@ -263,7 +257,6 @@ files when processing input. The result of the command is the empty
 string.
 
 [list_end]
-
 
 [section {Import plugin API v2 reference}]
 
@@ -394,7 +387,6 @@ by a plugin will be described in the manpage for that plugin.
        a state where another usage cycle can be run without problems.
 
 [list_end]
-
 
 [include include/serialization.inc]
 [vset CATEGORY doctools]

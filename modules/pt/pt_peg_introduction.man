@@ -87,7 +87,6 @@ PEGs for the mathematically inclined, and an appendix listing
 references to places with more information on PEGs specifically, and
 parsing in general.
 
-
 [section {Formal definition}]
 [para]
 
@@ -179,7 +178,6 @@ They can be easily implemented by recursive descent parsers with
 backtracking. This makes them relatives of LL(k) Context-Free
 Grammars.
 
-
 [section References]
 
 [list_begin enumerated]
@@ -205,7 +203,6 @@ applicabilities, including error recovery techniques.
 	{Compilers and Compiler Generators}], an online book using
 CoCo/R, a generator for recursive descent parsers.
 [list_end]
-
 
 [include include/feedback.inc]
 [manpage_end]

@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin base32::hex n 0.1]
+[keywords base32]
+[keywords hex]
+[keywords rfc3548]
 [copyright {Public domain}]
 [moddesc   {Base32 encoding}]
 [titledesc {base32 extended hex encoding}]
@@ -8,7 +11,6 @@
 [require base32::core [opt 0.1]]
 [require base32::hex  [opt 0.1]]
 [description]
-[keywords base32 rfc3548 hex]
 [para]
 
 This package provides commands for encoding and decoding of strings
@@ -51,7 +53,6 @@ conditions which signal some type of bogus input, namely if
 [list_end]
 [list_end]
 
-
 [section {Code map}]
 
 The code map used to convert 5-bit sequences is shown below, with the
@@ -72,16 +73,6 @@ characters.
 	8 8        17 H   26 Q
 }]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph base32] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
+[vset CATEGORY base32]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

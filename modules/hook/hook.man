@@ -1,17 +1,23 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin hook n 0.1]
+[see_also uevent(n)]
+[keywords callback]
+[keywords event]
+[keywords hook]
+[keywords observer]
+[keywords producer]
+[keywords publisher]
+[keywords subject]
+[keywords subscriber]
+[keywords uevent]
 [copyright {2010, by William H. Duquette}]
 [moddesc {Hooks}]
 [titledesc  {Hooks}]
 [category  {Programming tools}]
 [require Tcl 8.5]
 [require hook [opt 0.1]]
-[keywords hook event subject observer producer callback]
-[keywords publisher subscriber uevent]
-[see_also uevent(n)]
 [description]
 [para]
-
 
 This package provides the [cmd hook] ensemble command, which
 implements the Subject/Observer pattern. It allows [term subjects],
@@ -49,7 +55,6 @@ At present, Tcl/Tk has no standard mechanism for implementing loose
 coupling of this kind. This package defines a new command, [cmd hook],
 which implements just such a mechanism.
 
-
 [subsection Bindings]
 
 The [cmd hook] command manages a collection of hook bindings. A hook
@@ -72,11 +77,10 @@ The name of the [term observer] that wishes to receive the [term hook]
 from the [term subject].
 
 [enum]
-A command prefix to which the [term hook] arguments will be appended 
-when the binding is executed. 
+A command prefix to which the [term hook] arguments will be appended
+when the binding is executed.
 
 [list_end]
-
 
 [subsection {Subjects and observers}]
 
@@ -109,7 +113,6 @@ should have names like [const ::foo::1], [const ::foo::2], and so on.
 Because object names are arbitrary strings, application code can use
 whatever additional conventions are dictated by the needs of the
 application.
-
 
 [section Reference]
 
@@ -169,7 +172,7 @@ is called during the execution of
 
 [list_begin enumerated]
 [enum]
-No binding is ever called after it is deleted. 
+No binding is ever called after it is deleted.
 
 [enum]
 When a binding is called, the most recently given command prefix is
@@ -182,7 +185,7 @@ except that deleted bindings are not called.
 
 [list_end]
 
-In particular: 
+In particular:
 
 [list_begin enumerated]
 [enum]
@@ -219,7 +222,6 @@ not be called until the next invocation of
 
 [list_end]
 
-
 [call [cmd hook] [method call] [arg subject] [arg hook] [opt [arg args]...]]
 
 This command is called when the named [arg subject] wishes to call the
@@ -243,10 +245,10 @@ number of implications:
 
 [list_begin enumerated]
 [enum]
-[cmd {hook call}] returns the empty string. 
+[cmd {hook call}] returns the empty string.
 
 [enum]
-Normal return values from observer bindings are ignored. 
+Normal return values from observer bindings are ignored.
 
 [enum]
 Errors and other exceptional returns propagate normally by
@@ -262,7 +264,6 @@ If the [option -errorcommand] configuration option has a non-empty
 value, its value will be invoked for all errors and other exceptional
 returns in observer bindings. See [cmd {hook configure}], below, for
 more information on configuration options.
-
 
 [call [cmd hook] [method forget] [arg object]]
 
@@ -289,7 +290,6 @@ returns.  No further bindings will be called.
 
 [list_end]
 
-
 [call [cmd hook] [method cget] [arg option]]
 
 This command returns the value of one of the [cmd hook] command's
@@ -303,13 +303,13 @@ configuration options:
 [list_begin options]
 
 [opt_def -errorcommand [arg cmdPrefix]]
-If the value of this option is the empty string, "", then errors 
-and other exception returns in binding scripts are propagated 
-normally. Otherwise, it must be a command prefix taking three 
+If the value of this option is the empty string, "", then errors
+and other exception returns in binding scripts are propagated
+normally. Otherwise, it must be a command prefix taking three
 additional arguments:
 
 [list_begin enumerated]
-[enum] a 4-element list {subject hook arglist observer}, 
+[enum] a 4-element list {subject hook arglist observer},
 [enum] the result string, and
 [enum] the return options dictionary.
 [list_end]
@@ -319,7 +319,7 @@ the error, call [cmd {interp bgerror}], delete the errant binding
 (thus preventing the error from arising a second time) and so forth.
 
 [opt_def -tracecommand [arg cmdPrefix]]
-The option's value should be a command prefix taking four 
+The option's value should be a command prefix taking four
 arguments:
 
 [list_begin enumerated]
@@ -364,8 +364,7 @@ it tells the [term hook] that it no longer exists:
      hook forget .view
 }]
 
-All bindings involving [widget .view] are deleted. 
-
+All bindings involving [widget .view] are deleted.
 
 [section Credits]
 

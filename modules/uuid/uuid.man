@@ -1,4 +1,6 @@
 [manpage_begin uuid n 1.0.2]
+[keywords GUID]
+[keywords UUID]
 [moddesc {uuid}]
 [copyright {2004, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {UUID generation and comparison}]
@@ -46,17 +48,6 @@ b12dc22c-5c36-41d2-57da-e29d0ef5839c
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph uuid] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords UUID GUID]
+[vset CATEGORY uuid]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,4 +1,8 @@
 [manpage_begin nameserv::server n 0.3.2]
+[see_also nameserv::client(n)]
+[see_also nameserv::common(n)]
+[keywords {name service}]
+[keywords server]
 [copyright {2007-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Name service facility}]
 [titledesc {Name service facility, Server}]
@@ -8,9 +12,6 @@
 [require comm]
 [require interp]
 [require logger]
-[keywords {name service} server]
-[see_also nameserv::common(n)]
-[see_also nameserv::client(n)]
 [description]
 
 Please read [term {Name service facility, introduction}] first.
@@ -34,7 +35,6 @@ packages [package dns] and [package resolv].
 This server supports the [term Core] protocol feature, and since
 version 0.3 the [term Search/Continuous] feature as well.
 
-
 [section API]
 
 The package exports five commands, as specified below:
@@ -53,20 +53,17 @@ Note that any incoming requests will only be handled if the
 application the server is part of does enter an event loop after this
 command has been run.
 
-
 [call [cmd ::nameserv::server::stop]]
 
 Invoking this command stops the server and releases all information it
 had. Existing connections are shut down, and no new connections will
 be accepted any longer. The result of the command is the empty string.
 
-
 [call [cmd ::nameserv::server::active?]]
 
 This command returns a boolean value indicating the state of the
 server. The result will be [const true] if the server is active,
 i.e. has been started, and [const false] otherwise.
-
 
 [call [cmd ::nameserv::server::cget] [option -option]]
 
@@ -80,7 +77,6 @@ In this form the command returns a dictionary of all supported
 options, and their current values. The list of supported options and
 their meaning can be found in section [sectref OPTIONS].
 
-
 [call [cmd ::nameserv::server::configure] [option -option]]
 
 In this form the command is an alias for
@@ -88,7 +84,6 @@ In this form the command is an alias for
 
 The list of supported options and their meaning can be found in
 section [sectref OPTIONS].
-
 
 [call [cmd ::nameserv::server::configure] "[option -option] [arg value]..."]
 
@@ -106,7 +101,6 @@ been started yet, or has been stopped. While the server is active it
 cannot be reconfigured.
 
 [list_end]
-
 
 [section OPTIONS]
 
@@ -133,7 +127,6 @@ provided by the package [package ::nameserv::server::common].
 
 [list_end]
 
-
 [section HISTORY]
 [list_begin definitions]
 [def 0.3]
@@ -147,16 +140,6 @@ Changed name of -local switch to -localonly.
 Initial implementation of the server.
 [list_end]
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph nameserv] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY nameserv]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

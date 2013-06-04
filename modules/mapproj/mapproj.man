@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin mapproj n 0.1]
+[keywords geodesy]
+[keywords map]
+[keywords projection]
 [copyright {2007 Kevin B. Kenny <kennykb@acm.org>}]
 [moddesc {Tcl Library}]
 [titledesc {Map projection routines}]
@@ -7,7 +10,6 @@
 [require math::interpolate [opt 1.0]]
 [require math::special [opt 0.2.1]]
 [require mapproj [opt 1.0]]
-[keywords map projection geodesy]
 [description]
 The [package mapproj] package provides a set of procedures for
 converting between world co-ordinates (latitude and longitude) and map
@@ -77,7 +79,7 @@ Converts from the orthographic projection.
 [call [cmd ::mapproj::toStereographic] [arg lambda_0] [arg phi_0] [arg lambda] [arg phi]]
 Converts to the stereographic (azimuthal conformal) projection.
 [call [cmd ::mapproj::fromStereographic] [arg lambda_0] [arg phi_0] [arg x] [arg y]]
-Converts from the stereographic (azimuthal conformal) projection. 
+Converts from the stereographic (azimuthal conformal) projection.
 [call [cmd ::mapproj::toGnomonic] [arg lambda_0] [arg phi_0] [arg lambda] [arg phi]]
 Converts to the gnomonic projection.
 [call [cmd ::mapproj::fromGnomonic] [arg lambda_0] [arg phi_0] [arg x] [arg y]]
@@ -158,7 +160,7 @@ The following arguments are accepted by the projection commands:
 
 [list_begin definitions]
 
-[def [arg lambda]] 
+[def [arg lambda]]
 
 Longitude of the point to be projected, in degrees.
 
@@ -173,7 +175,7 @@ this figure is also the reference meridian of the projection.
 
 [def [arg phi_0]]
 
-Latitude of the center of the sheet, in degrees.  For the azimuthal 
+Latitude of the center of the sheet, in degrees.  For the azimuthal
 projections, this figure is also the latitude of the center of the projection.
 
 [def [arg phi_1]]
@@ -183,7 +185,7 @@ parallels.
 
 [def [arg phi_2]]
 
-Latitude of the second reference parallel, for projections that use reference 
+Latitude of the second reference parallel, for projections that use reference
 parallels.
 
 [def [arg x]]
@@ -198,7 +200,7 @@ Y co-ordinate of a point on the map, in units of Earth radii.
 
 [section Results]
 
-For all of the procedures whose names begin with 'to', the return value 
+For all of the procedures whose names begin with 'to', the return value
 is a list comprising an [emph x] co-ordinate and a [emph y] co-ordinate.
 The co-ordinates are relative to the center of the map sheet to be drawn,
 measured in Earth radii at the reference location on the map.
@@ -213,7 +215,7 @@ is appropriate to all maps.  This section attempts to provide guidance
 on how to choose a projection.
 [para]
 First, consider the type of data that you intend to display on the map.
-If the data are [emph directional] ([emph e.g.,] winds, ocean currents, or 
+If the data are [emph directional] ([emph e.g.,] winds, ocean currents, or
 magnetic fields) then you need to use a projection that preserves
 angles; these are known as [emph conformal] projections.  Conformal
 projections include the Mercator, the Albers azimuthal equal-area,
@@ -223,13 +225,13 @@ as temperature, population density, land use, or demographics; then
 you need a projection that will show these data with the areas on the map
 proportional to the areas in real life.  These so-called [emph {equal area}]
 projections include the various cylindrical equal area projections,
-the sinusoidal projection, the Lambert azimuthal equal-area projection, 
-the Albers equal-area conic projection, and several of the world-map 
+the sinusoidal projection, the Lambert azimuthal equal-area projection,
+the Albers equal-area conic projection, and several of the world-map
 projections (Miller Cylindrical, Mollweide, Eckert IV, Eckert VI, Robinson,
 and Hammer). If the significant factor in your data is distance from a
 central point or line (such as air routes), then you will do best with
 an [emph equidistant] projection such as [emph "plate carr\u00e9e"],
-Cassini, azimuthal equidistant, or conic equidistant.  If direction from 
+Cassini, azimuthal equidistant, or conic equidistant.  If direction from
 a central point is a critical factor in your data (for instance,
 air routes, radio antenna pointing), then you will almost surely want to
 use one of the azimuthal projections. Appropriate choices are azimuthal
@@ -242,7 +244,7 @@ projections are good overall choices.  The Mercator projection is traditional,
 but the extreme distortions of area at high latitudes make it
 a poor choice unless a conformal projection is required. The Peirce
 projection is a better choice of conformal projection, having less distortion
-of landforms.  The Miller Cylindrical is a compromise designed to give 
+of landforms.  The Miller Cylindrical is a compromise designed to give
 shapes similar to the traditional Mercator, but with less polar stretching.
 The Peirce Quincuncial projection shows all the continents with acceptable
 distortion if a reference meridian close to +20 degrees is chosen.
@@ -250,16 +252,16 @@ The Robinson projection yields attractive maps for things like political
 divisions, but should be avoided in presenting scientific data, since other
 projections have moe useful geometric properties.
 [para]
-If the map will cover a hemisphere, then choose stereographic, 
+If the map will cover a hemisphere, then choose stereographic,
 azimuthal-equidistant, Hammer, or Mollweide projections; these all project
 the hemisphere into a circle.
 [para]
-If the map will cover a large area (at least a few hundred km on a side), 
+If the map will cover a large area (at least a few hundred km on a side),
 but less than
 a hemisphere, then you have several choices.  Azimuthal projections
 are usually good (choose stereographic, azimuthal equidistant, or
-Lambert azimuthal equal-area according to whether shapes, distances from 
-a central point, or areas are important).  Azimuthal projections (and possibly 
+Lambert azimuthal equal-area according to whether shapes, distances from
+a central point, or areas are important).  Azimuthal projections (and possibly
 the Cassini projection) are the only
 really good choices for mapping the polar regions.
 [para]
@@ -273,7 +275,7 @@ to be displayed.  For instance, maps of the 48 coterminous United States
 are attractive with reference parallels of 28.5 and 45.5 degrees.
 [para]
 If the large area is equatorial and is round or has a primarily east-west
-extent, then the Mercator projection is a good choice for a conformal 
+extent, then the Mercator projection is a good choice for a conformal
 projection; Lambert cylindrical equal-area and sinusoidal projections are
 good equal-area projections; and the [emph "plate carr\u00e9e"] is a
 good equidistant projection.
@@ -303,5 +305,4 @@ two points on the Earth's surface) are rendered as straight lines.
 While this projection is useful for navigational planning, it
 has extreme distortions of shape and area, and can display
 only a limited area of the Earth (substantially less than a hemisphere).
-
 [manpage_end]

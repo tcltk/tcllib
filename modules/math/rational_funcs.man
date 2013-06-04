@@ -1,5 +1,7 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin math::rationalfunctions n 1.0.1]
+[keywords math]
+[keywords {rational functions}]
 [copyright {2005 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [moddesc   {Math}]
 [titledesc {Polynomial functions}]
@@ -83,7 +85,6 @@ order)
 
 [para]
 
-
 [call [cmd ::math::rationalfunctions::addRatio] [arg ratio1] [arg ratio2]]
 
 Return a new rational function which is the sum of the two others.
@@ -96,7 +97,6 @@ Return a new rational function which is the sum of the two others.
 [list_end]
 
 [para]
-
 
 [call [cmd ::math::rationalfunctions::subRatio] [arg ratio1] [arg ratio2]]
 
@@ -111,7 +111,6 @@ others.
 [list_end]
 
 [para]
-
 
 [call [cmd ::math::rationalfunctions::multRatio] [arg ratio1] [arg ratio2]]
 
@@ -128,7 +127,6 @@ simply scaled.
 
 [para]
 
-
 [call [cmd ::math::rationalfunctions::divRatio] [arg ratio1] [arg ratio2]]
 
 Divide the first rational function by the second rational function and
@@ -143,7 +141,6 @@ return the result. The remainder is dropped
 
 [para]
 
-
 [call [cmd ::math::rationalfunctions::derivPolyn] [arg ratio]]
 
 Differentiate the rational function and return the result.
@@ -155,7 +152,6 @@ Differentiate the rational function and return the result.
 
 [para]
 
-
 [call [cmd ::math::rationalfunctions::coeffsNumerator] [arg ratio]]
 
 Return the coefficients of the numerator of the rational function.
@@ -165,7 +161,6 @@ Return the coefficients of the numerator of the rational function.
 [list_end]
 
 [para]
-
 
 [call [cmd ::math::rationalfunctions::coeffsDenominator] [arg ratio]]
 
@@ -180,24 +175,12 @@ function.
 
 [list_end]
 
-
 [section "REMARKS ON THE IMPLEMENTATION"]
 
 The implementation of the rational functions relies on the
 math::polynomials package. For further remarks see the documentation on
 that package.
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {math :: rationalfunctions}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords math "rational functions"]
+[vset CATEGORY {math :: rationalfunctions}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

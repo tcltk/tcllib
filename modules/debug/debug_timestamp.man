@@ -1,11 +1,15 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin debug::timestamp n 1]
+[keywords debug]
+[keywords log]
+[keywords narrative]
+[keywords timestamps]
+[keywords trace]
 [copyright {200?, Colin McCormack, Wub Server Utilities}]
 [copyright {2012, Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc {debug narrative}]
 [titledesc {debug narrative - timestamping}]
 [category  {debugging, tracing, and logging}]
-[keywords debug trace log narrative timestamps]
 [require Tcl 8.5]
 [require debug [opt 1]]
 [description]
@@ -24,15 +28,6 @@ when only specific places need such detail.
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph debug] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY debug]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin unicode n 1.0.0]
+[see_also stringprep(n)]
+[keywords normalization]
+[keywords unicode]
 [copyright {2007, Sergei Golovan <sgolovan@nes.ru>}]
 [moddesc {Unicode normalization}]
 [titledesc {Implementation of Unicode normalization}]
@@ -72,23 +75,9 @@ A
 
 [list_end]
 
-[see_also stringprep(n) ]
-
 [section "AUTHORS"]
 Sergei Golovan
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph stringprep] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords unicode normalization]
+[vset CATEGORY stringprep]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

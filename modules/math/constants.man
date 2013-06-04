@@ -1,5 +1,11 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin math::constants n 1.0.1]
+[keywords constants]
+[keywords degrees]
+[keywords e]
+[keywords math]
+[keywords pi]
+[keywords radians]
 [copyright {2004 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Mathematical and numerical constants}]
@@ -102,17 +108,6 @@ defined constants. This is mainly a convenience procedure.
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {math :: constants}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords math constants pi e radians degrees]
+[vset CATEGORY {math :: constants}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

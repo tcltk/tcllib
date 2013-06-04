@@ -237,7 +237,7 @@ of binding):</p>
     # Binary operators.
     &lt;&lt;expression-1&gt;&gt;     &lt;&lt;expression-2&gt;&gt;  # sequence. parse 1, then 2.
     &lt;&lt;expression-1&gt;&gt;  /  &lt;&lt;expression-2&gt;&gt;  # alternative. try to parse 1, and parse 2 if 1 failed to parse.
-    # Prefix operators. Lookahead constraints. Same priority. 
+    # Prefix operators. Lookahead constraints. Same priority.
     &amp; &lt;&lt;expression&gt;&gt;  # Parse expression, ok on successful parse.
     ! &lt;&lt;expression&gt;&gt;  # Ditto, except ok on failure to parse.
     # Suffix operators. Repetition. Same priority.
@@ -336,7 +336,7 @@ unicode codepoint 0x5C). This is then followed by a series of octal
 digits, or 'u' and hexedecimal digits, or a regular character from a
 fixed set for various control characters. Some examples:</p>
 <pre class="example">
-    \n \r \t \' \&quot; \[ \] \\ # 
+    \n \r \t \' \&quot; \[ \] \\ #
     \000 up to \277         # octal escape, all ascii character, leading 0's can be removed.
     \u2CA7                  # hexadecimal escape, all unicode characters.
     #                       # Here 2ca7 &lt;=&gt; Koptic Small Letter Tau
@@ -514,7 +514,7 @@ END;
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>pt</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
