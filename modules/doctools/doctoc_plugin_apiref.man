@@ -1,5 +1,18 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctoc_plugin_apiref n 1.0]
+[see_also doctoc_intro]
+[see_also doctoc_lang_cmdref]
+[see_also doctoc_lang_faq]
+[see_also doctoc_lang_intro]
+[see_also doctoc_lang_syntax]
+[see_also doctools::toc]
+[keywords {formatting engine}]
+[keywords markup]
+[keywords plugin]
+[keywords {semantic markup}]
+[keywords {table of contents}]
+[keywords toc]
+[keywords {toc formatter}]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {doctoc plugin API reference}]
@@ -30,8 +43,6 @@ language itself should start with the
 formal specifications, i.e. the [term {doctoc language syntax}] and
 the [term {doctoc language command reference}].
 
-
-
 [section OVERVIEW]
 
 The API for a toc formatting engine consists of two major sections.
@@ -52,8 +63,6 @@ categories, management and formatting.
 
 Please see section [sectref {PLUGIN COMMANDS}] and its subsections for
 their detailed specification.
-
-
 
 [section {FRONTEND COMMANDS}]
 
@@ -175,8 +184,6 @@ input. They fall into two categories, management and formatting. Their
 expected names, signatures, and responsibilities are specified in the
 following two subsections.
 
-
-
 [subsection {Management commands}]
 
 The management commands a plugin has to provide are used by the
@@ -274,7 +281,6 @@ It has to initialize the general state of the plugin, beyond the
 initialization done during the load. No return value is expected, and
 any returned value is ignored.
 
-
 [call [cmd toc_listvariables]]
 [emph Initialization/Shutdown] and [emph {Engine parameters}].
 
@@ -283,7 +289,6 @@ i.e. immediately after [cmd toc_numpasses].
 
 It has to return a list containing the names of the parameters the
 frontend can set to configure the engine. This list can be empty.
-
 
 [call [cmd toc_numpasses]]
 [emph Initialization/Shutdown] and [emph {Pass management}].
@@ -294,7 +299,6 @@ command of the engine will be called before it.
 It has to return the number of passes this engine requires to fully
 process the input document. This value has to be an integer number
 greater or equal to one.
-
 
 [call [cmd toc_postprocess] [arg text]]
 [emph Initialization/Shutdown].
@@ -309,7 +313,6 @@ specific format the command has to just return the argument.
 
 Expected to return a value, the final result of formatting the input.
 
-
 [call [cmd toc_setup] [arg n]]
 [emph Initialization/Shutdown] and [emph {Pass management}].
 
@@ -320,7 +323,6 @@ are counted from [const 1] upward.
 The command has to set up the internal state of the plugin for this
 particular pass. No return value is expected, and any returned value
 is ignored.
-
 
 [call [cmd toc_shutdown]]
 [emph Initialization/Shutdown].
@@ -334,7 +336,6 @@ initiation of another run without fear that information from the last
 run is leaked into this new run.
 
 No return value is expected, and any returned value is ignored.
-
 
 [call [cmd toc_varset] [arg varname] [arg text]]
 [emph {Engine parameters}].
@@ -357,8 +358,6 @@ The values of all engine parameters have to persist between passes and
 runs.
 
 [list_end]
-
-
 
 [subsection {Formatting commands}]
 
@@ -417,23 +416,6 @@ to simply return its argument without change.
 
 [list_end]
 
-
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph doctools] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have.
-
-[see_also doctoc_intro]
-[see_also doctoc_lang_intro]
-[see_also doctoc_lang_syntax]
-[see_also doctoc_lang_cmdref]
-[see_also doctoc_lang_faq]
-[see_also doctools::toc]
-[keywords markup {semantic markup} plugin toc {table of contents}]
-[keywords {formatting engine} {toc formatter}]
+[vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

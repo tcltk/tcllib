@@ -2461,7 +2461,6 @@ snit::type dog {
 
     option -taillength -configuremethod SetTailOption -cgetmethod GetTailOption
 
-
     method SetTailOption {option value} {
          $mytail configure $option $value
     }
@@ -2766,7 +2765,6 @@ snit::type tail {
     method wag {} {return "Wag, wag"}
     method droop {} {return "Droop, droop"}
 }
-
 
 snit::type dog {
     delegate method {tail wag} to mytail
@@ -3772,7 +3770,7 @@ snit::widget ::mylib::mywidget {
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
 Please report such in the category \fIsnit\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH KEYWORDS

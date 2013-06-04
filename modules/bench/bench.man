@@ -1,5 +1,16 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin bench n 0.4]
+[see_also bench_intro]
+[see_also bench_lang_intro]
+[see_also bench_lang_spec]
+[see_also bench_read]
+[see_also bench_wcsv]
+[see_also bench_wtext]
+[keywords benchmark]
+[keywords merging]
+[keywords normalization]
+[keywords performance]
+[keywords testing]
 [copyright {2007-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Benchmarking/Performance tools}]
 [titledesc {bench - Processing benchmark suites}]
@@ -146,7 +157,6 @@ The benchmark results are in the format described in section
 [para]
 The column is identified by an integer number.
 
-
 [call [cmd ::bench::edit] [arg bench_result] [arg column] [arg newvalue]]
 
 This command renames a column in the specified benchmark result and
@@ -160,7 +170,6 @@ The benchmark results are in the format described in section
 [para]
 The column is identified by an integer number.
 
-
 [call [cmd ::bench::merge] [arg bench_result]...]
 
 This commands takes one or more benchmark results, merges them into
@@ -169,8 +178,6 @@ one big result, and returns that as its result.
 [para]
 All benchmark results are in the format described in section
 [sectref {Result format}].
-
-
 
 [call [cmd ::bench::norm] [arg bench_result] [arg column]]
 
@@ -197,8 +204,6 @@ The benchmark results are in the format described in section
 [sectref {Result format}].
 [para]
 The column is identified by an integer number.
-
-
 
 [call [cmd ::bench::out::raw] [arg bench_result]]
 
@@ -286,24 +291,6 @@ not match the declared expectations.
 [list_end]
 [list_end]
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph bench] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[see_also bench_intro]
-[see_also bench_lang_intro]
-[see_also bench_lang_spec]
-[see_also bench_wtext]
-[see_also bench_wcsv]
-[see_also bench_read]
-[keywords testing performance benchmark merging normalization]
+[vset CATEGORY bench]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

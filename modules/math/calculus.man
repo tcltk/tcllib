@@ -1,4 +1,10 @@
 [manpage_begin math::calculus n 0.7.1]
+[see_also romberg]
+[keywords calculus]
+[keywords {differential equations}]
+[keywords integration]
+[keywords math]
+[keywords roots]
 [copyright {2002,2003,2004 Arjen Markus}]
 [moddesc   {Tcl Math Library}]
 [titledesc {Integration and ordinary differential equations}]
@@ -78,14 +84,12 @@ polynomials of third degree or less.
 The function must take two arguments and return the function
 value.
 
-
 [call [cmd ::math::calculus::integral3D] [arg xinterval] [arg yinterval] [arg zinterval] [arg func]]
 [call [cmd ::math::calculus::integral3D_accurate] [arg xinterval] [arg yinterval] [arg zinterval] [arg func]]
 The commands [cmd integral3D] and [cmd integral3D_accurate] are the
 three-dimensional equivalent of [cmd integral2D] and [cmd integral3D_accurate].
 The function [emph func] takes three arguments and is integrated over the block in
 3D space given by three intervals.
-
 
 [call [cmd ::math::calculus::eulerStep] [arg t] [arg tstep] [arg xvec] [arg func]]
 Set a single step in the numerical integration of a system of
@@ -109,7 +113,6 @@ xvec and the return value of "func" must match).
 [list_end]
 [para]
 
-
 [call [cmd ::math::calculus::heunStep] [arg t] [arg tstep] [arg xvec] [arg func]]
 Set a single step in the numerical integration of a system of
 differential equations. The method used is Heun's.
@@ -131,7 +134,6 @@ a list of the derivatives of the dependent values. (The lengths of
 xvec and the return value of "func" must match).
 [list_end]
 [para]
-
 
 [call [cmd ::math::calculus::rungeKuttaStep] [arg t] [arg tstep] [arg xvec] [arg func]]
 Set a single step in the numerical integration of a system of
@@ -155,7 +157,6 @@ a list of the derivatives of the dependent values. (The lengths of
 xvec and the return value of "func" must match).
 [list_end]
 [para]
-
 
 [call [cmd ::math::calculus::boundaryValueSecondOrder] [arg coeff_func] [arg force_func] [arg leftbnd] [arg rightbnd] [arg nostep]]
 Solve a second order linear differential equation with boundary
@@ -209,7 +210,6 @@ values of the solution.
 [list_end]
 [para]
 
-
 [call [cmd ::math::calculus::solveTriDiagonal] [arg acoeff] [arg bcoeff] [arg ccoeff] [arg dvalue]]
 Solve a system of linear equations Ax = b with A a tridiagonal
 matrix. Returns the solution as a list.
@@ -228,7 +228,6 @@ List of values on the upper diagonal
 List of values on the righthand-side
 [list_end]
 [para]
-
 
 [call [cmd ::math::calculus::newtonRaphson] [arg func] [arg deriv] [arg initval]]
 Determine the root of an equation given by
@@ -250,7 +249,6 @@ Initial value for x
 [list_end]
 [para]
 
-
 [call [cmd ::math::calculus::newtonRaphsonParameters] [arg maxiter] [arg tolerance]]
 Set the numerical parameters for the Newton-Raphson method:
 
@@ -261,7 +259,6 @@ Maximum number of iteration steps (defaults to 20)
 [def [arg tolerance]]
 Relative precision (defaults to 0.001)
 [list_end]
-
 
 [call [cmd ::math::calculus::regula_falsi] [arg f] [arg xb] [arg xe] [arg eps]]
 
@@ -409,19 +406,6 @@ It can be solved with the following fragment:
       coeffs force {0.0 1.0} [lb]list $length 0.0[rb] 100[rb]
 [example_end]
 
-[see_also romberg]
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {math :: calculus}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords math calculus integration "differential equations" roots]
+[vset CATEGORY {math :: calculus}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

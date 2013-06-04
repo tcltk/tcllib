@@ -404,15 +404,13 @@ Argument types are automatically checked and an error message is generated in ca
 .CS
 
 \fBdisplay message\fR -fg MyColor "Hello"
-\fI  -> display message: Argument 'fg' requires type 'color'\&. \\
-            Provided value: 'MyColor'\fR
+\fI  -> display message: Argument 'fg' requires type 'color'\&.  Provided value: 'MyColor'\fR
 .CE
 Selection choices have to be respected \&.\&.\&.
 .CS
 
 \fBdisplay message\fR -mtype Fatal Hello
-\fI  -> display message: Argument (mtype) has to be one of the \\
-            following elements: Info, Warning, Error\fR
+\fI  -> display message: Argument (mtype) has to be one of the  following elements: Info, Warning, Error\fR
 .CE
 \&.\&.\&. as well as valid value ranges:
 .CS

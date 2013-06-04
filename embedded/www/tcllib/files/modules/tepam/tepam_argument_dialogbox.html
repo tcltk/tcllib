@@ -181,7 +181,6 @@
 </dl>
 <p>The commands <b class="cmd">argument_dialogbox</b> as well as <b class="cmd"><a href="../../../../index.html#key34">procedure</a></b> are exported from the namespace <b class="namespace">tepam</b>. To use these commands without the <b class="namespace">tepam::</b> namespace prefix, it is sufficient to import them into the main namespace:</p>
 <pre class="example"><b class="cmd">namespace import tepam::*</b>
- 
 set DialogResult [<b class="cmd">argument_dialogbox</b> \
    -title &quot;Itinerary selection&quot;
    ...</pre>
@@ -341,7 +340,6 @@ tepam::argument_dialogbox \
 The first example uses a variable to define the available choices:</p>
 <pre class="example">set set AvailableSizes
 for {set k 0} {$k&lt;16} {incr k} {lappend AvailableSizes [expr 1&lt;&lt;$k]}
- 
 tepam::argument_dialogbox \
    <b class="cmd">-listbox</b> {-label &quot;Distance&quot; -variable Distance \
              -choicevariable AvailableSizes -default 6 -height 5}</pre>

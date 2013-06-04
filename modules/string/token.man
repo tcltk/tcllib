@@ -1,8 +1,11 @@
 [manpage_begin string::token n 1]
+[keywords lexing]
+[keywords regex]
+[keywords string]
+[keywords tokenization]
 [moddesc   {Text and string utilities}]
 [titledesc {Regex based iterative lexing}]
 [category  {Text processing}]
-[keywords string tokenization lexing regex]
 [require Tcl 8.5]
 [require string::token [opt 1]]
 [require fileutil]
@@ -89,15 +92,6 @@ exactly at the character index found in [arg startvar].
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph textutil] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY textutil]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

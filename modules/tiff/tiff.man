@@ -1,4 +1,7 @@
 [manpage_begin tiff n 0.2.1]
+[keywords image]
+[keywords tif]
+[keywords tiff]
 [copyright {2005-2006, Aaron Faupell <afaupell@users.sourceforge.net>}]
 [moddesc   {TIFF image manipulation}]
 [titledesc {TIFF reading, writing, and querying and manipulation of meta data}]
@@ -166,17 +169,6 @@ mapping uses the array ::tiff::tiff_sgat.
 [enum] Writing limited to uncompressed 8 bit rgb
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph tiff] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords tiff tif image]
+[vset CATEGORY tiff]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

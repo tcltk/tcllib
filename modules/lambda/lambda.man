@@ -1,14 +1,20 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin lambda n 1]
+[see_also apply(n)]
+[see_also proc(n)]
+[keywords {anonymous procedure}]
+[keywords callback]
+[keywords {command prefix}]
+[keywords currying]
+[keywords lambda]
+[keywords {partial application}]
+[keywords proc]
 [copyright {2011 Andreas Kupries, BSD licensed}]
 [moddesc {Utility commands for anonymous procedures}]
 [titledesc {Utility commands for anonymous procedures}]
 [category  Utility]
 [require Tcl 8.5]
 [require lambda [opt 1]]
-[keywords lambda {anonymous procedure} callback {command prefix}]
-[keywords {partial application} currying proc]
-[see_also apply(n) proc(n)]
 [description]
 [para]
 
@@ -61,7 +67,6 @@ returns a command prefix representing this anonymous procedure.
 just underneath the global scope, with the arguments set to the values
 supplied at both construction and invokation time.
 
-
 [comment {- - -- --- ----- -------- ------------- ---------------------}]
 [call [cmd ::lambda@] [arg namespace] [arg arguments] [arg body] [opt [arg arg]...]]
 
@@ -79,15 +84,6 @@ both construction and invokation time.
 [section AUTHORS]
 Andreas Kupries
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph lambda] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY lambda]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

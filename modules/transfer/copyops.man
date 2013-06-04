@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin transfer::copy n 0.2]
+[keywords channel]
+[keywords copy]
+[keywords transfer]
 [copyright {2006-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Data transfer facilities}]
 [titledesc {Data transfer foundation}]
@@ -7,7 +10,6 @@
 [require Tcl 8.4]
 [require transfer::copy [opt 0.2]]
 [description]
-[keywords transfer copy channel]
 [para]
 
 This package provides a number of commands for the asynchronous of
@@ -45,20 +47,17 @@ to be transfered.
 
 [list_end]
 
-
 [call [cmd transfer::copy::chan] [arg channel] [arg outchannel] \
 	[opt [arg options]...]]
 
 This command is a shorter and more direct form for the command
 [cmd {transfer::copy::do chan}].
 
-
 [call [cmd transfer::copy::string] [arg string] [arg outchannel] \
 	[opt [arg options]...]]
 
 This command is a shorter and more direct form for the command
 [cmd {transfer::copy::do string}].
-
 
 [call [cmd transfer::copy::doChan] [arg channel] [arg outchannel] \
 	[arg optvar]]
@@ -67,14 +66,12 @@ This command is an alternate form of [cmd transfer::copy::chan] which
 reads its options out of the array variable named by [arg optvar]
 instead of from a variable length argument list.
 
-
 [call [cmd transfer::copy::doString] [arg string] [arg outchannel] \
 	[arg optvar]]
 
 This command is an alternate form of [cmd transfer::copy::string] which
 reads its options out of the array variable named by [arg optvar]
 instead of from a variable length argument list.
-
 
 [call [cmd transfer::copy::options] [arg outchannel] [arg optionlist] \
 	[arg optvar]]
@@ -101,7 +98,6 @@ operation. It is optional and defaults to the value of
 
 [para]
 If specified its value has to be an integer number greater than zero.
-
 
 [opt_def -command [arg commandprefix]]
 
@@ -130,7 +126,6 @@ Its value has to be a command prefix, see above, [option -command] for
 a more detailed explanation. When the callback is invoked a single
 additional arguments is appended to the prefix. This argument is the
 number of bytes which were transfered so far.
-
 
 [opt_def -size [arg int]]
 
@@ -162,7 +157,6 @@ output channel if not specified.
 
 [list_end][comment options]
 [list_end][comment definitions/api]
-
 
 [vset CATEGORY transfer]
 [include ../doctools2base/include/feedback.inc]

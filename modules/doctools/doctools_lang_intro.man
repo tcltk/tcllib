@@ -1,5 +1,15 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctools_lang_intro n 1.0]
+[see_also doctools_intro]
+[see_also doctools_lang_cmdref]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_syntax]
+[keywords {doctools commands}]
+[keywords {doctools language}]
+[keywords {doctools markup}]
+[keywords {doctools syntax}]
+[keywords markup]
+[keywords {semantic markup}]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {doctools language introduction}]
@@ -45,15 +55,26 @@ commands, continuation lines, etc. I.e.
   ... [opt "[arg key] [arg value]"] ...
 }]
 
-
 [subsection {Basic structure}]
 
 The most simple document which can be written in doctools is
 
 [example {
     [manpage_begin NAME SECTION VERSION]
+[see_also doctools_intro]
+[see_also doctools_lang_cmdref]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_syntax]
+[keywords {doctools commands}]
+[keywords {doctools language}]
+[keywords {doctools markup}]
+[keywords {doctools syntax}]
+[keywords markup]
+[keywords {semantic markup}]
     [description]
-    [manpage_end]
+    [vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
+[manpage_end]
 }]
 
 This also shows us that all doctools documents are split into two
@@ -99,6 +120,16 @@ Given the above a less minimal example of a document is
 
 [example_begin]
 [lb]manpage_begin NAME SECTION VERSION[rb]
+[see_also doctools_intro]
+[see_also doctools_lang_cmdref]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_syntax]
+[keywords {doctools commands}]
+[keywords {doctools language}]
+[keywords {doctools markup}]
+[keywords {doctools syntax}]
+[keywords markup]
+[keywords {semantic markup}]
 [lb][cmd {copyright {YEAR AUTHOR}}][rb]
 [lb][cmd {titledesc TITLE}][rb]
 [lb][cmd {moddesc   MODULE_TITLE}][rb]
@@ -112,9 +143,21 @@ Remember that the whitespace is optional. The document
 
 [example {
     [manpage_begin NAME SECTION VERSION]
+[see_also doctools_intro]
+[see_also doctools_lang_cmdref]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_syntax]
+[keywords {doctools commands}]
+[keywords {doctools language}]
+[keywords {doctools markup}]
+[keywords {doctools syntax}]
+[keywords markup]
+[keywords {semantic markup}]
     [copyright {YEAR AUTHOR}][titledesc TITLE][moddesc MODULE_TITLE]
     [require PACKAGE VERSION][require PACKAGE][description]
-    [manpage_end]
+    [vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
+[manpage_end]
 }]
 
 has the same meaning as the example before.
@@ -130,6 +173,16 @@ command.
 [example_begin]
 [lb][cmd {comment { ... }}][rb]
 [lb]manpage_begin NAME SECTION VERSION[rb]
+[see_also doctools_intro]
+[see_also doctools_lang_cmdref]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_syntax]
+[keywords {doctools commands}]
+[keywords {doctools language}]
+[keywords {doctools markup}]
+[keywords {doctools syntax}]
+[keywords markup]
+[keywords {semantic markup}]
 [lb]copyright {YEAR AUTHOR}[rb]
 [lb]titledesc TITLE[rb]
 [lb]moddesc   MODULE_TITLE[rb][lb][cmd {comment { ... }}][rb]
@@ -140,11 +193,20 @@ command.
 [lb][cmd {comment { ... }}][rb]
 [example_end]
 
-
 [subsection {Advanced structure}]
 
 In the simple examples of the last section we fudged a bit regarding
 the markup actually allowed to be used before the [cmd manpage_begin]
+[see_also doctools_intro]
+[see_also doctools_lang_cmdref]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_syntax]
+[keywords {doctools commands}]
+[keywords {doctools language}]
+[keywords {doctools markup}]
+[keywords {doctools syntax}]
+[keywords markup]
+[keywords {semantic markup}]
 command opening the document.
 
 [para]
@@ -158,6 +220,16 @@ is possible to write
 [lb][cmd {include FILE}][rb]
 [lb][cmd {vset VAR VALUE}][rb]
 [lb]manpage_begin NAME SECTION VERSION[rb]
+[see_also doctools_intro]
+[see_also doctools_lang_cmdref]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_syntax]
+[keywords {doctools commands}]
+[keywords {doctools language}]
+[keywords {doctools markup}]
+[keywords {doctools syntax}]
+[keywords markup]
+[keywords {semantic markup}]
 [lb]description[rb]
 [lb]manpage_end[rb]
 [example_end]
@@ -168,6 +240,16 @@ structure. I.e. for example in the header as well.
 
 [example_begin]
 [lb]manpage_begin NAME SECTION VERSION[rb]
+[see_also doctools_intro]
+[see_also doctools_lang_cmdref]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_syntax]
+[keywords {doctools commands}]
+[keywords {doctools language}]
+[keywords {doctools markup}]
+[keywords {doctools syntax}]
+[keywords markup]
+[keywords {semantic markup}]
 [lb][cmd {include FILE}][rb]
 [lb][cmd {vset VAR VALUE}][rb]
 [lb]description[rb]
@@ -177,9 +259,18 @@ structure. I.e. for example in the header as well.
 The only restriction [cmd include] has to obey is that the contents of
 the included file must be valid at the place of the inclusion. I.e. a
 file included before [cmd manpage_begin] may contain only the
+[see_also doctools_intro]
+[see_also doctools_lang_cmdref]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_syntax]
+[keywords {doctools commands}]
+[keywords {doctools language}]
+[keywords {doctools markup}]
+[keywords {doctools syntax}]
+[keywords markup]
+[keywords {semantic markup}]
 templating commands [cmd vset] and [cmd include], a file included in
 the header may contain only header commands, etc.
-
 
 [subsection {Text structure}]
 
@@ -204,6 +295,16 @@ paragraph automatically ends at [cmd manpage_end].
 
 [example_begin]
 [lb]manpage_begin NAME SECTION VERSION[rb]
+[see_also doctools_intro]
+[see_also doctools_lang_cmdref]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_syntax]
+[keywords {doctools commands}]
+[keywords {doctools language}]
+[keywords {doctools markup}]
+[keywords {doctools syntax}]
+[keywords markup]
+[keywords {semantic markup}]
 [lb]description[rb]
  ...
 [lb][cmd para][rb]
@@ -233,6 +334,16 @@ paragraphs within sections.
 
 [example_begin]
 [lb]manpage_begin NAME SECTION VERSION[rb]
+[see_also doctools_intro]
+[see_also doctools_lang_cmdref]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_syntax]
+[keywords {doctools commands}]
+[keywords {doctools language}]
+[keywords {doctools markup}]
+[keywords {doctools syntax}]
+[keywords markup]
+[keywords {semantic markup}]
 [lb]description[rb]
  ...
 [lb][cmd {section {Section A}}][rb]
@@ -260,6 +371,16 @@ paragraphs within subsections.
 
 [example_begin]
 [lb]manpage_begin NAME SECTION VERSION[rb]
+[see_also doctools_intro]
+[see_also doctools_lang_cmdref]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_syntax]
+[keywords {doctools commands}]
+[keywords {doctools language}]
+[keywords {doctools markup}]
+[keywords {doctools syntax}]
+[keywords markup]
+[keywords {semantic markup}]
 [lb]description[rb]
  ...
 [lb]section {Section A}[rb]
@@ -274,7 +395,6 @@ paragraphs within subsections.
  ...
 [lb]manpage_end[rb]
 [example_end]
-
 
 [subsection {Text markup}]
 
@@ -345,7 +465,6 @@ item command ([cmd call]), and our ability to nest them.
   ...
 [example_end]
 
-
 [subsection Escapes]
 
 Beyond the 20 commands for simple markup shown in the previous section
@@ -371,7 +490,6 @@ previous paragraph, with some highlighting added.
   impossible to directly use [lb][cmd lb][rb] and [lb][cmd rb][rb] within the text.
   ...
 [example_end]
-
 
 [subsection Cross-references]
 
@@ -403,6 +521,16 @@ documents.
 
 All the cross-reference commands can occur anywhere in the document
 between [cmd manpage_begin] and [cmd manpage_end]. As such the writer
+[see_also doctools_intro]
+[see_also doctools_lang_cmdref]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_syntax]
+[keywords {doctools commands}]
+[keywords {doctools language}]
+[keywords {doctools markup}]
+[keywords {doctools syntax}]
+[keywords markup]
+[keywords {semantic markup}]
 can choose whether she wants to have them at the beginning of the
 body, or at its end, maybe near the place a keyword is actually
 defined by the main content, or considers them as meta data which
@@ -424,7 +552,6 @@ at the end of the body.
   [lb][cmd {keywords {doctools syntax} {doctools commands}}][rb]
   [lb]manpage_end[rb]
 [example_end]
-
 
 [subsection Examples]
 
@@ -462,7 +589,6 @@ Using [cmd example_begin] / [cmd example_end] this would look like
     ... [lb]list_begin enumerated[rb] ...
   [lb][cmd example_end][rb]
 [example_end]
-
 
 [subsection Lists]
 
@@ -578,7 +704,6 @@ lists and list items. An example of this [emph illegal] construct is
   ...
 [example_end]
 
-
 [section {FURTHER READING}]
 
 Now that this document has been digested the reader, assumed to be a
@@ -597,21 +722,6 @@ the processing and conversion of doctools documents, i.e. either
 Tcllib's easy and simple [syscmd dtplite], or Tclapps'
 ultra-configurable [syscmd dtp].
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph doctools] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have.
-
-[see_also doctools_intro]
-[see_also doctools_lang_syntax]
-[see_also doctools_lang_cmdref]
-[see_also doctools_lang_faq]
-[keywords markup {semantic markup}]
-[keywords {doctools markup} {doctools language}]
-[keywords {doctools syntax} {doctools commands}]
+[vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

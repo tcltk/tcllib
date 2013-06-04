@@ -1,5 +1,14 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin grammar::fa::op n 0.4]
+[keywords automaton]
+[keywords {finite automaton}]
+[keywords grammar]
+[keywords parsing]
+[keywords {regular expression}]
+[keywords {regular grammar}]
+[keywords {regular languages}]
+[keywords state]
+[keywords transducer]
 [copyright {2004-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Finite automaton operations and usage}]
 [titledesc {Operations on finite automatons}]
@@ -10,9 +19,6 @@
 [require struct::set]
 [require grammar::fa::op [opt 0.4.1]]
 [description]
-[keywords grammar automaton {finite automaton}]
-[keywords state {regular expression} {regular grammar}]
-[keywords {regular languages} parsing transducer]
 [para]
 
 This package provides a number of complex operations on finite
@@ -69,13 +75,11 @@ Any container class using this package for complex operations should set
 its own class command as the constructor. See package [package grammar::fa]
 for an example.
 
-
 [call [cmd ::grammar::fa::op::reverse] [arg fa]]
 
 Reverses the [arg fa]. This is done by reversing the direction of all
 transitions and swapping the sets of [term start] and [term final]
 states. The language of [arg fa] changes unpredictably.
-
 
 [call [cmd ::grammar::fa::op::complete] [arg fa] [opt [arg sink]]]
 
@@ -117,8 +121,6 @@ other words, while the FA becomes complete, it is also
 [term {not useful}] in the strict sense as it has a state from which
 no final state can be reached.
 
-
-
 [call [cmd ::grammar::fa::op::remove_eps] [arg fa]]
 
 Removes all epsilon-transitions from the [arg fa] in such a manner the
@@ -135,7 +137,6 @@ will be null operations.
 not useful. These states are not removed by this operation.
 
 Use [cmd ::grammar::fa::op::trim] for that instead.
-
 
 [call [cmd ::grammar::fa::op::trim] [arg fa] [opt [arg what]]]
 
@@ -163,7 +164,6 @@ unable to reach a final state.
 
 [list_end]
 [para]
-
 
 [call [cmd ::grammar::fa::op::determinize] [arg fa] [opt [arg mapvar]]]
 
@@ -202,8 +202,6 @@ It should also be noted that in this case the possibilities for
 trimming states from the FA are also severely reduced as we cannot
 declare states unreachable.
 
-
-
 [call [cmd ::grammar::fa::op::minimize] [arg fa] [opt [arg mapvar]]]
 
 Creates a FA which accepts the same language as [arg fa], but has a
@@ -235,14 +233,12 @@ declare states unreachable.
 
 [list_end]
 
-
 [emph {Language operations}]
 
 All operations in this section require that all input FAs have at
 least one start and at least one final state. Otherwise the language of
 the FAs will not be defined, making the operation senseless (as it
 operates on the languages of the FAs in a defined manner).
-
 
 [list_begin definitions]
 
@@ -257,7 +253,6 @@ accepted by the input are accepted by the result, and vice versa.
 
 The result will have all states and transitions of the input, and
 different final states.
-
 
 [call [cmd ::grammar::fa::op::kleene] [arg fa]]
 
@@ -276,7 +271,6 @@ finite length concatenations over the language of [arg fa].
 The result will have all states and transitions of the input, and new
 start and final states.
 
-
 [call [cmd ::grammar::fa::op::optional] [arg fa]]
 
 Makes the [arg fa] optional. In other words it computes the FA which
@@ -287,7 +281,6 @@ well.
 
 The result will have all states and transitions of the input, and new
 start and final states.
-
 
 [call [cmd ::grammar::fa::op::union] [arg fa] [arg fb] [opt [arg mapvar]]]
 
@@ -306,7 +299,6 @@ mapping from the old states of [arg fb] to the new ones, if present.
 It should be noted that the result will be non-deterministic, even if
 the inputs are deterministic.
 
-
 [call [cmd ::grammar::fa::op::intersect] [arg fa] [arg fb] [opt [arg mapvar]]]
 
 Combines the FAs [arg fa] and [arg fb] such that the resulting FA
@@ -324,7 +316,6 @@ dictionary are the handles for the states of the resulting fa, values
 are pairs of states from the input FAs. Pairs are represented by
 lists. The first element in each pair will be a state in [arg fa], the
 second element will be drawn from [arg fb].
-
 
 [call [cmd ::grammar::fa::op::difference] [arg fa] [arg fb] [opt [arg mapvar]]]
 
@@ -345,9 +336,6 @@ are pairs of states from the input FAs. Pairs are represented by
 lists. The first element in each pair will be a state in [arg fa], the
 second element will be drawn from [arg fb].
 
-
-
-
 [call [cmd ::grammar::fa::op::concatenate] [arg fa] [arg fb] [opt [arg mapvar]]]
 
 Combines the FAs [arg fa] and [arg fb] such that the resulting FA
@@ -359,8 +347,6 @@ A and B.
 [para]
 
 The result FA will be non-deterministic.
-
-
 
 [call [cmd ::grammar::fa::op::fromRegex] [arg fa] [arg regex] [opt [arg over]]]
 
@@ -435,9 +421,7 @@ expression [var A]. Note that the complement depends on the set of
 symbol the result should run over. See the discussion of the argument
 [arg over] before.
 
-
 [list_end]
-
 
 [call [cmd ::grammar::fa::op::toRegexp] [arg fa]]
 
@@ -450,7 +434,6 @@ expression is in the format as described above, for
 
 This command has the same functionality as [cmd ::grammar::fa::op::toRegexp],
 but uses a different algorithm to simplify the generated regular expressions.
-
 
 [call [cmd ::grammar::fa::op::toTclRegexp] [arg regexp] [arg symdict]]
 
@@ -465,13 +448,12 @@ complementation and intersection operations.
 
 [para]
 
-The argument [arg symdict] is a dictionary mapping symbol names to 
-pairs of [term {syntactic type}] and Tcl-regexp. If a symbol 
-occurring in the [arg regexp] is not listed in this dictionary then 
-single-character symbols are considered to designate themselves 
-whereas multiple-character symbols are considered to be a character 
+The argument [arg symdict] is a dictionary mapping symbol names to
+pairs of [term {syntactic type}] and Tcl-regexp. If a symbol
+occurring in the [arg regexp] is not listed in this dictionary then
+single-character symbols are considered to designate themselves
+whereas multiple-character symbols are considered to be a character
 class name.
-
 
 [call [cmd ::grammar::fa::op::simplifyRegexp] [arg regexp]]
 
@@ -492,18 +474,7 @@ the previous step.
 [para]
 
 [section EXAMPLES]
-[para]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph grammar_fa] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
+[vset CATEGORY grammar_fa]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

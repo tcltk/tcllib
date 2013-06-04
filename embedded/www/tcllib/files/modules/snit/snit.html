@@ -138,7 +138,7 @@
 <li class="section"><a href="#section5">KNOWN BUGS</a></li>
 <li class="section"><a href="#section6">HISTORY</a></li>
 <li class="section"><a href="#section7">CREDITS</a></li>
-<li class="section"><a href="#section8">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section8">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
 <li class="section"><a href="#copyright">Copyright</a></li>
@@ -250,12 +250,12 @@
 unique among Tcl object systems in that it's based not on inheritance
 but on delegation.  Object systems based on inheritance only allow you
 to inherit from classes defined using the same system, which is
-limiting.  In Tcl, an object is 
+limiting.  In Tcl, an object is
 anything that acts like an object; it shouldn't matter how the object
 was implemented.  Snit is intended to help you build applications out of
 the materials at hand; thus, Snit is designed to be able to
 incorporate and build on any object, whether it's a hand-coded object,
-a <b class="package"><a href="../../../../index.html#key207">Tk</a></b> widget, an <b class="package"><a href="../../../../index.html#key237">Incr Tcl</a></b> object,
+a <b class="package"><a href="../../../../index.html#key207">Tk</a></b> widget, an <b class="package"><a href="../../../../index.html#key238">Incr Tcl</a></b> object,
 a <b class="package"><a href="../../../../index.html#key235">BWidget</a></b> or almost anything else.</p>
 <p>This man page is intended to be a reference only; see the accompanying
 <b class="cmd"><a href="snitfaq.html">snitfaq</a></b> for a gentler, more tutorial introduction to Snit
@@ -286,7 +286,7 @@ contain the following definitions:</p>
 <dt><a name="2"><b class="cmd">typevariable</b> <i class="arg">name</i> <span class="opt">?<b class="const">-array</b>?</span> <span class="opt">?<i class="arg">value</i>?</span></a></dt>
 <dd><p>Defines a type variable with the specified <i class="arg">name</i>, and optionally
 the specified <i class="arg">value</i>.  Type variables are shared by all instances
-of the type.  If the <b class="const">-array</b> option is included, then 
+of the type.  If the <b class="const">-array</b> option is included, then
 <i class="arg">value</i> should be a dictionary; it will be
 assigned to the variable using <b class="cmd">array set</b>.</p></dd>
 <dt><a name="3"><b class="cmd">typemethod</b> <i class="arg">name</i> <i class="arg">arglist</i> <i class="arg">body</i></a></dt>
@@ -298,7 +298,7 @@ contain the argument names <b class="variable">type</b>, <b class="variable">sel
 <b class="variable">win</b>.</p>
 <p>The variable <b class="variable">type</b> is automatically defined in the <i class="arg">body</i> to
 the type's fully-qualified name.  In addition,
-type variables are automatically visible in the <i class="arg">body</i> 
+type variables are automatically visible in the <i class="arg">body</i>
 of every type method.</p>
 <p>If the <i class="arg">name</i> consists of two or more tokens, Snit handles it specially:</p>
 <pre class="example">    typemethod {a b} {arg} { puts &quot;Got $arg&quot; }
@@ -308,12 +308,12 @@ has a subcommand <b class="const">b</b>.  <b class="const">b</b> is called like 
 <pre class="example">    $type a b &quot;Hello, world!&quot;
 </pre>
 <p><b class="const">a</b> may have any number of subcommands.  This makes it possible
-to define a hierarchical command structure; see <b class="cmd"><a href="../../../../index.html#key355">method</a></b>, below, 
+to define a hierarchical command structure; see <b class="cmd"><a href="../../../../index.html#key355">method</a></b>, below,
 for more examples.</p>
 <p>Type methods can call commands from the namespace in which the type is
-defined without importing them, e.g., if the type name is 
+defined without importing them, e.g., if the type name is
 <b class="cmd">::parentns::typename</b>, then the type's type methods can call
-<b class="cmd">::parentns::someproc</b> just as <b class="cmd">someproc</b>.  
+<b class="cmd">::parentns::someproc</b> just as <b class="cmd">someproc</b>.
 <em>Snit 1.x Incompatibility:</em> This does not work in Snit 1.x, as
 it depends on <b class="cmd">namespace path</b>, a new command in Tcl 8.5.</p>
 <p><em>Snit 1.x Incompatibility:</em> In Snit 1.x, the following
@@ -327,21 +327,21 @@ following two calls to this type method are equivalent:</p>
 type is first defined; it is typically used to
 initialize array-valued type variables and to add
 entries to <span class="sectref"><a href="#subsection9">The Tk Option Database</a></span>.</p>
-<p>The variable <b class="variable">type</b> is automatically defined in the <i class="arg">body</i>, 
+<p>The variable <b class="variable">type</b> is automatically defined in the <i class="arg">body</i>,
 and contains the type's fully-qualified name.  In addition,
-type variables are automatically visible in the <i class="arg">body</i> of the type 
+type variables are automatically visible in the <i class="arg">body</i> of the type
 constructor.</p>
 <p>A type may define at most one type constructor.</p>
 <p>The type constructor can call commands from the namespace in which the type is
-defined without importing them, e.g., if the type name is 
+defined without importing them, e.g., if the type name is
 <b class="cmd">::parentns::typename</b>, then the type constructor can call
-<b class="cmd">::parentns::someproc</b> just as <b class="cmd">someproc</b>.  
+<b class="cmd">::parentns::someproc</b> just as <b class="cmd">someproc</b>.
 <em>Snit 1.x Incompatibility:</em> This does not work in Snit 1.x, as
 it depends on <b class="cmd">namespace path</b>, a new command in Tcl 8.5.</p></dd>
 <dt><a name="5"><b class="cmd">variable</b> <i class="arg">name</i> <span class="opt">?<b class="const">-array</b>?</span> <span class="opt">?<i class="arg">value</i>?</span></a></dt>
 <dd><p>Defines an instance variable, a private variable associated with each
-instance of this type, and optionally its initial value.  
-If the <b class="const">-array</b> option is included, then 
+instance of this type, and optionally its initial value.
+If the <b class="const">-array</b> option is included, then
 <i class="arg">value</i> should be a dictionary; it will be
 assigned to the variable using <b class="cmd">array set</b>.</p></dd>
 <dt><a name="6"><b class="cmd"><a href="../../../../index.html#key355">method</a></b> <i class="arg">name</i> <i class="arg">arglist</i> <i class="arg">body</i></a></dt>
@@ -387,9 +387,9 @@ Droop, droop
 &quot;wag&quot; and &quot;droop&quot;.  Consequently, it's an error to define &quot;tail&quot;
 explicitly.</p>
 <p>Methods can call commands from the namespace in which the type is
-defined without importing them, e.g., if the type name is 
+defined without importing them, e.g., if the type name is
 <b class="cmd">::parentns::typename</b>, then the type's methods can call
-<b class="cmd">::parentns::someproc</b> just as <b class="cmd">someproc</b>.  
+<b class="cmd">::parentns::someproc</b> just as <b class="cmd">someproc</b>.
 <em>Snit 1.x Incompatibility:</em> This does not work in Snit 1.x, as
 it depends on <b class="cmd">namespace path</b>, a new command in Tcl 8.5.</p>
 <p><em>Snit 1.x Incompatibility:</em> In Snit 1.x, the following
@@ -421,22 +421,22 @@ to the previous example:</p>
 resource and class names.</p>
 <p>Options are normally set and retrieved using the standard
 instance methods <b class="method">configure</b> and <b class="method">cget</b>; within instance code
-(method bodies, etc.), option values are available through the 
+(method bodies, etc.), option values are available through the
 <b class="variable">options</b> array:</p>
 <pre class="example">    set myfont $options(-font)
 </pre>
-<p>If the type defines any option handlers (e.g., <b class="const">-configuremethod</b>), 
-then it should probably use <b class="method">configure</b> and <b class="method">cget</b> to 
+<p>If the type defines any option handlers (e.g., <b class="const">-configuremethod</b>),
+then it should probably use <b class="method">configure</b> and <b class="method">cget</b> to
 access its options to avoid subtle errors.</p>
 <p>The <b class="cmd">option</b> statement may include the following options:</p>
 <dl class="definitions">
 <dt><b class="const">-default</b> <i class="arg">defvalue</i></dt>
-<dd><p>Defines the option's default value; the option's default value 
+<dd><p>Defines the option's default value; the option's default value
 will be &quot;&quot; otherwise.</p></dd>
 <dt><b class="const">-readonly</b> <i class="arg">flag</i></dt>
-<dd><p>The <i class="arg">flag</i> can be any Boolean value recognized by Tcl.  
+<dd><p>The <i class="arg">flag</i> can be any Boolean value recognized by Tcl.
 If <i class="arg">flag</i> is true, then the option is read-only--it can only
-be set using <b class="method">configure</b> or <b class="method">configurelist</b> 
+be set using <b class="method">configure</b> or <b class="method">configurelist</b>
 at creation time, i.e., in the type's constructor.</p></dd>
 <dt><b class="const">-type</b> <i class="arg">type</i></dt>
 <dd><p>Every locally-defined option may define its validation type, which may
@@ -452,7 +452,7 @@ by specifying a validation subtype:</p>
 </pre>
 <p>If a validation type or subtype is defined for an option, then
 it will be used to validate the option's value whenever it is
-changed by the object's <b class="method">configure</b> or 
+changed by the object's <b class="method">configure</b> or
 <b class="method">configurelist</b> methods.  In addition, all such options
 will have their values validated automatically immediately
 after the constructor executes.</p>
@@ -474,7 +474,7 @@ Snit's default handling of <b class="cmd">cget</b>:</p>
         return $options($option)
     }
 </pre>
-<p>Note that it's possible for any number of options to share a 
+<p>Note that it's possible for any number of options to share a
 <b class="const">-cgetmethod</b>.</p></dd>
 <dt><b class="const">-configuremethod</b> <i class="arg">methodName</i></dt>
 <dd><p>Every locally-defined option may define a <b class="const">-configuremethod</b>;
@@ -484,14 +484,14 @@ named method's responsibility to save the option's value; in other
 words, the value will not be saved to the <b class="variable">options()</b> array unless
 the method saves it there.</p>
 <p>The named method must take two arguments, the option name and
-its new value.  For example, this code is equivalent to 
+its new value.  For example, this code is equivalent to
 (though slower than) Snit's default handling of <b class="cmd">configure</b>:</p>
 <pre class="example">    option -font -configuremethod SetOption
     method SetOption {option value} {
         set options($option) $value
     }
 </pre>
-<p>Note that it's possible for any number of options to share a 
+<p>Note that it's possible for any number of options to share a
 single <b class="const">-configuremethod</b>.</p></dd>
 <dt><b class="const">-validatemethod</b> <i class="arg">methodName</i></dt>
 <dd><p>Every locally-defined option may define a <b class="const">-validatemethod</b>;
@@ -501,7 +501,7 @@ the <b class="const">-configuremethod</b> (if any).  It is the
 named method's responsibility to validate the option's new value,
 and to throw an error if the value is invalid.</p>
 <p>The named method must take two arguments, the option name and
-its new value.  For example, this code verifies that 
+its new value.  For example, this code verifies that
 <b class="const">-flag</b>'s value is a valid Boolean value:</p>
 <pre class="example">    option -font -validatemethod CheckBoolean
     method CheckBoolean {option value} {
@@ -510,26 +510,26 @@ its new value.  For example, this code verifies that
         }
     }
 </pre>
-<p>Note that it's possible for any number of options to share a 
+<p>Note that it's possible for any number of options to share a
 single <b class="const">-validatemethod</b>.</p></dd>
 </dl></dd>
 <dt><a name="9"><b class="cmd">constructor</b> <i class="arg">arglist</i> <i class="arg">body</i></a></dt>
 <dd><p>The constructor definition specifies a <i class="arg">body</i> of code to be
-executed when a new instance is created.  The <i class="arg">arglist</i> is a 
-normal Tcl argument list and may contain default arguments and 
+executed when a new instance is created.  The <i class="arg">arglist</i> is a
+normal Tcl argument list and may contain default arguments and
 the <b class="variable">args</b> argument.</p>
-<p>As with methods, the arguments <b class="variable">type</b>, <b class="variable">self</b>, <b class="variable">selfns</b>, 
-and <b class="variable">win</b> are defined implicitly, and all type and instance 
+<p>As with methods, the arguments <b class="variable">type</b>, <b class="variable">self</b>, <b class="variable">selfns</b>,
+and <b class="variable">win</b> are defined implicitly, and all type and instance
 variables are automatically visible in its <i class="arg">body</i>.</p>
 <p>If the <i class="arg">definition</i> doesn't explicitly define the constructor,
 Snit defines one implicitly.  If the type declares at least one option
-(whether locally or by delegation), the default constructor will 
+(whether locally or by delegation), the default constructor will
 be defined as follows:</p>
 <pre class="example">    constructor {args} {
         $self configurelist $args
     }
 </pre>
-<p>For standard Tk widget behavior, the argument list should be 
+<p>For standard Tk widget behavior, the argument list should be
 the single name <b class="const">args</b>, as shown.</p>
 <p>If the <i class="arg">definition</i> defines neither a constructor nor
 any options, the default constructor is defined as follows:</p>
@@ -537,39 +537,39 @@ any options, the default constructor is defined as follows:</p>
 </pre>
 <p>As with methods, the constructor can call commands from the namespace
 in which the type is
-defined without importing them, e.g., if the type name is 
+defined without importing them, e.g., if the type name is
 <b class="cmd">::parentns::typename</b>, then the constructor can call
-<b class="cmd">::parentns::someproc</b> just as <b class="cmd">someproc</b>.  
+<b class="cmd">::parentns::someproc</b> just as <b class="cmd">someproc</b>.
 <em>Snit 1.x Incompatibility:</em> This does not work in Snit 1.x, as
 it depends on <b class="cmd">namespace path</b>, a new command in Tcl 8.5.</p></dd>
 <dt><a name="10"><b class="cmd">destructor</b> <i class="arg">body</i></a></dt>
 <dd><p>The destructor is used to code any actions that must take place when
 an instance of the type is destroyed: typically, the destruction of
 anything created in the constructor.</p>
-<p>The destructor takes no explicit arguments; as with methods, the 
-arguments <b class="variable">type</b>, <b class="variable">self</b>, <b class="variable">selfns</b>, and <b class="variable">win</b>, are 
-defined implicitly, and all type and instance 
+<p>The destructor takes no explicit arguments; as with methods, the
+arguments <b class="variable">type</b>, <b class="variable">self</b>, <b class="variable">selfns</b>, and <b class="variable">win</b>, are
+defined implicitly, and all type and instance
 variables are automatically visible in its <i class="arg">body</i>.
 As with methods, the destructor can call commands from the namespace
 in which the type is
-defined without importing them, e.g., if the type name is 
+defined without importing them, e.g., if the type name is
 <b class="cmd">::parentns::typename</b>, then the destructor can call
-<b class="cmd">::parentns::someproc</b> just as <b class="cmd">someproc</b>.  
+<b class="cmd">::parentns::someproc</b> just as <b class="cmd">someproc</b>.
 <em>Snit 1.x Incompatibility:</em> This does not work in Snit 1.x, as
 it depends on <b class="cmd">namespace path</b>, a new command in Tcl 8.5.</p></dd>
 <dt><a name="11"><b class="cmd"><a href="../../../../index.html#key570">proc</a></b> <i class="arg">name</i> <i class="arg">args</i> <i class="arg">body</i></a></dt>
 <dd><p>Defines a new Tcl procedure in the type's namespace.</p>
 <p>The defined proc differs from a normal Tcl proc in that all type
-variables are automatically visible.  The proc can access 
+variables are automatically visible.  The proc can access
 instance variables as well, provided that it is passed
 <b class="variable">selfns</b> (with precisely that name) as one of its arguments.</p>
 <p>Although they are not implicitly defined for procs, the argument names
 <b class="const">type</b>, <b class="const">self</b>, and <b class="const">win</b> should be avoided.</p>
 <p>As with methods and typemethods, procs can call commands from the namespace
 in which the type is
-defined without importing them, e.g., if the type name is 
+defined without importing them, e.g., if the type name is
 <b class="cmd">::parentns::typename</b>, then the proc can call
-<b class="cmd">::parentns::someproc</b> just as <b class="cmd">someproc</b>.  
+<b class="cmd">::parentns::someproc</b> just as <b class="cmd">someproc</b>.
 <em>Snit 1.x Incompatibility:</em> This does not work in Snit 1.x, as
 it depends on <b class="cmd">namespace path</b>, a new command in Tcl 8.5.</p></dd>
 <dt><a name="12"><b class="cmd">delegate</b> <b class="const">method</b> <i class="arg">name</i> <b class="const">to</b> <i class="arg">comp</i> <span class="opt">?<b class="const">as</b> <i class="arg">target</i>?</span></a></dt>
@@ -596,11 +596,11 @@ method name and possibly add some arguments:</p>
 both instance components and type components.</p></dd>
 <dt><a name="13"><b class="cmd">delegate</b> <b class="const">method</b> <i class="arg">name</i> <span class="opt">?<b class="const">to</b> <i class="arg">comp</i>?</span> <b class="const">using</b> <i class="arg">pattern</i></a></dt>
 <dd><p>In this form of the <b class="cmd">delegate</b> statement, the <b class="const">using</b> clause
-is used to specify the precise form of the command to which method 
+is used to specify the precise form of the command to which method
 <i class="arg">name</i> name is delegated.  In this form, the <b class="const">to</b> clause is
 optional, since the chosen command might not involve any particular
 component.</p>
-<p>The value of the <b class="const">using</b> clause is a list that may contain 
+<p>The value of the <b class="const">using</b> clause is a list that may contain
 any or all of the following substitution codes; these codes are
 substituted with the described value to build the delegated command
 prefix.  Note that the following two statements are equivalent:</p>
@@ -724,11 +724,11 @@ method name and possibly add some arguments:</p>
 <p>A type method cannot be both locally defined and delegated.</p></dd>
 <dt><a name="21"><b class="cmd">delegate</b> <b class="const">typemethod</b> <i class="arg">name</i> <span class="opt">?<b class="const">to</b> <i class="arg">comp</i>?</span> <b class="const">using</b> <i class="arg">pattern</i></a></dt>
 <dd><p>In this form of the <b class="cmd">delegate</b> statement, the <b class="const">using</b> clause
-is used to specify the precise form of the command to which type method 
+is used to specify the precise form of the command to which type method
 <i class="arg">name</i> name is delegated.  In this form, the <b class="const">to</b> clause is
 optional, since the chosen command might not involve any particular
 type component.</p>
-<p>The value of the <b class="const">using</b> clause is a list that may contain 
+<p>The value of the <b class="const">using</b> clause is a list that may contain
 any or all of the following substitution codes; these codes are
 substituted with the described value to build the delegated command
 prefix.  Note that the following two statements are equivalent:</p>
@@ -767,7 +767,7 @@ In this form, the statement must contain the <b class="const">to</b> clause, the
 <p><b class="const">Note:</b> By default, Snit interprets <b class="cmd">$type foo</b>, where
 <b class="const">foo</b> is
 not a defined type method, as equivalent to <b class="cmd">$type create foo</b>, where
-<b class="const">foo</b> is the name of a new instance of the type.  If you 
+<b class="const">foo</b> is the name of a new instance of the type.  If you
 use <b class="const">delegate typemethod *</b>, then the <b class="method">create</b> type
 method must always be used explicitly.</p>
 <p>The &quot;*&quot; can be a list of two or more tokens whose last
@@ -783,7 +783,7 @@ command to which type methods and instance methods can be delegated;
 the command's name is stored in a type variable.</p>
 <p>If the <b class="const">-public</b> option is specified, then the type component is made
 public by defining a <i class="arg">typemethod</i> whose subcommands are delegated to
-the type component, e.g., specifying <b class="const">-public mytypemethod</b> 
+the type component, e.g., specifying <b class="const">-public mytypemethod</b>
 is equivalent to the following:</p>
 <pre class="example">    typecomponent mycomp
     delegate typemethod {mytypemethod *} to mycomp
@@ -801,7 +801,7 @@ the type component. That is, <b class="const">-inherit yes</b> is equivalent to:
 <dt><a name="24"><b class="cmd">pragma</b> <span class="opt">?<i class="arg">options...</i>?</span></a></dt>
 <dd><p>The <b class="cmd">pragma</b> statement provides control over how Snit generates a
 type.  It takes the following options; in each case, <i class="arg">flag</i> must
-be a Boolean value recognized by Tcl, e.g., <b class="const">0</b>, <b class="const">1</b>, 
+be a Boolean value recognized by Tcl, e.g., <b class="const">0</b>, <b class="const">1</b>,
 <b class="const">yes</b>, <b class="const">no</b>, and so
 on.</p>
 <p>By setting the <b class="const">-hastypeinfo</b>, <b class="const">-hastypedestroy</b>, and
@@ -816,7 +816,7 @@ prevents subtle errors.  Setting this pragma to true restores the
 behavior of Snit V0.93 and earlier versions.</p></dd>
 <dt><b class="const">-hastypeinfo</b> <i class="arg">flag</i></dt>
 <dd><p>If true (the default), the generated type will have a type method
-called <b class="cmd"><a href="../../../../index.html#key90">info</a></b> that is used for type introspection; the <b class="cmd"><a href="../../../../index.html#key90">info</a></b>
+called <b class="cmd"><a href="../../../../index.html#key91">info</a></b> that is used for type introspection; the <b class="cmd"><a href="../../../../index.html#key91">info</a></b>
 type method is documented below.  If false, it will not.</p></dd>
 <dt><b class="const">-hastypedestroy</b> <i class="arg">flag</i></dt>
 <dd><p>If true (the default), the generated type will have a type method
@@ -824,20 +824,20 @@ called <b class="cmd">destroy</b> that is used to destroy the type and all of it
 instances.  The <b class="cmd">destroy</b> type method is documented below.  If
 false, it will not.</p></dd>
 <dt><b class="const">-hastypemethods</b> <i class="arg">flag</i></dt>
-<dd><p>If true (the default), the generated type's type command will have 
+<dd><p>If true (the default), the generated type's type command will have
 subcommands (type methods) as usual.  If false, the type command
 will serve only to create instances of the type; the first argument
 is the instance name.</p>
 <p>This pragma and <b class="const">-hasinstances</b> cannot both be set false.</p></dd>
 <dt><b class="const">-hasinstances</b> <i class="arg">flag</i></dt>
-<dd><p>If true (the default), the generated type will have a type method 
+<dd><p>If true (the default), the generated type will have a type method
 called <b class="cmd">create</b> that is used to create instances of the type,
 along with a variety of instance-related features.  If false, it will
 not.</p>
 <p>This pragma and <b class="const">-hastypemethods</b> cannot both be set false.</p></dd>
 <dt><b class="const">-hasinfo</b> <i class="arg">flag</i></dt>
-<dd><p>If true (the default), instances of the generated type will have 
-an instance method called <b class="method">info</b> that is used for 
+<dd><p>If true (the default), instances of the generated type will have
+an instance method called <b class="method">info</b> that is used for
 instance introspection; the <b class="method">info</b>
 method is documented below.  If false, it will not.</p></dd>
 <dt><b class="const">-simpledispatch</b> <i class="arg">flag</i></dt>
@@ -845,13 +845,13 @@ method is documented below.  If false, it will not.</p></dd>
 data types (e.g., stacks and queues) more efficient.</p>
 <p>If false (the default), instance methods are dispatched normally.  If
 true, a faster dispatching scheme is used instead.
-The speed comes at a price; with <b class="const">-simpledispatch yes</b> you 
+The speed comes at a price; with <b class="const">-simpledispatch yes</b> you
 get the following limitations:</p>
 <ul class="itemized">
 <li><p>Methods cannot be delegated.</p></li>
 <li><p><b class="cmd">uplevel</b> and <b class="cmd">upvar</b> do not work as expected: the
 caller's scope is two levels up rather than one.</p></li>
-<li><p>The option-handling methods 
+<li><p>The option-handling methods
 (<b class="cmd">cget</b>, <b class="cmd">configure</b>, and <b class="cmd">configurelist</b>) are very
 slightly slower.</p></li>
 </ul></dd>
@@ -862,7 +862,7 @@ slightly slower.</p></li>
 <dd><p><b class="const">Deprecated.</b>  To expose component <i class="arg">comp</i> publicly, use
 <b class="cmd">component</b>'s <b class="const">-public</b> option.</p></dd>
 <dt><a name="27"><b class="cmd">onconfigure</b> <i class="arg">name</i> <i class="arg">arglist</i> <i class="arg">body</i></a></dt>
-<dd><p><b class="const">Deprecated.</b>  Define <b class="cmd">option</b>'s <b class="const">-configuremethod</b> 
+<dd><p><b class="const">Deprecated.</b>  Define <b class="cmd">option</b>'s <b class="const">-configuremethod</b>
 option instead.</p>
 <p>As of version 0.95, the following definitions,</p>
 <pre class="example">    option -myoption
@@ -878,7 +878,7 @@ option instead.</p>
 </pre>
 </dd>
 <dt><a name="28"><b class="cmd">oncget</b> <i class="arg">name</i> <i class="arg">body</i></a></dt>
-<dd><p><b class="const">Deprecated.</b>  Define <b class="cmd">option</b>'s <b class="const">-cgetmethod</b> 
+<dd><p><b class="const">Deprecated.</b>  Define <b class="cmd">option</b>'s <b class="const">-cgetmethod</b>
 option instead.</p>
 <p>As of version 0.95, the following definitions,</p>
 <pre class="example">    option -myoption
@@ -922,12 +922,12 @@ information.</p></dd>
 <dt><a name="31"><b class="cmd">hulltype</b> <i class="arg">type</i></a></dt>
 <dd><p>Determines the kind of widget used as the <b class="cmd">snit::widget</b>'s hull.
 The <i class="arg">type</i> may be <b class="const">frame</b> (the default), <b class="const">toplevel</b>,
-<b class="const">labelframe</b>; the qualified equivalents of these, 
+<b class="const">labelframe</b>; the qualified equivalents of these,
 <b class="const">tk::frame</b>, <b class="const">tk::toplevel</b>, and <b class="const">tk::labelframe</b>;
 or, if available, the equivalent Tile widgets:
-<b class="const">ttk::frame</b>, <b class="const">ttk::toplevel</b>, and 
+<b class="const">ttk::frame</b>, <b class="const">ttk::toplevel</b>, and
 <b class="const">ttk::labelframe</b>.  In practice, any widget that supports the
-<b class="const">-class</b> option can be used as a hull widget by 
+<b class="const">-class</b> option can be used as a hull widget by
 <b class="cmd">lappend</b>'ing its name to the variable <b class="variable">snit::hulltypes</b>.</p></dd>
 </dl></dd>
 <dt><a name="32"><b class="cmd">snit::widgetadaptor</b> <i class="arg">name</i> <i class="arg">definition</i></a></dt>
@@ -955,19 +955,19 @@ instance methods can't be redefined.</p></dd>
 definition statements in terms of the statements defined in this man
 page.</p>
 <p>A macro is simply a Tcl proc that is defined in the slave interpreter
-used to compile type and widget definitions.  Thus, macros have 
-access to all of the type and widget definition statements.  See 
+used to compile type and widget definitions.  Thus, macros have
+access to all of the type and widget definition statements.  See
 <span class="sectref"><a href="#subsection10">Macros and Meta-programming</a></span> for more details.</p>
-<p>The macro <i class="arg">name</i> cannot be the same as any standard Tcl command, 
+<p>The macro <i class="arg">name</i> cannot be the same as any standard Tcl command,
 or any Snit type or widget definition statement, e.g., you can't
-redefine the <b class="cmd"><a href="../../../../index.html#key355">method</a></b> or <b class="cmd">delegate</b> statements, or the 
-standard <b class="cmd"><a href="../../../../index.html#key279">set</a></b>, <b class="cmd"><a href="../../../../index.html#key278">list</a></b>, or <b class="cmd"><a href="../../../../index.html#key272">string</a></b> commands.</p></dd>
+redefine the <b class="cmd"><a href="../../../../index.html#key355">method</a></b> or <b class="cmd">delegate</b> statements, or the
+standard <b class="cmd"><a href="../../../../index.html#key279">set</a></b>, <b class="cmd"><a href="../../../../index.html#key280">list</a></b>, or <b class="cmd"><a href="../../../../index.html#key270">string</a></b> commands.</p></dd>
 <dt><a name="36"><b class="cmd">snit::compile</b> <i class="arg">which</i> <i class="arg">type</i> <i class="arg">body</i></a></dt>
 <dd><p>Snit defines a type, widget, or widgetadaptor by &quot;compiling&quot; the
 definition into a Tcl script; this script is then evaluated in the
 Tcl interpreter, which actually defines the new type.</p>
 <p>This command exposes the &quot;compiler&quot;.  Given a definition <i class="arg">body</i>
-for the named <i class="arg">type</i>, where <i class="arg">which</i> is <b class="const">type</b>, 
+for the named <i class="arg">type</i>, where <i class="arg">which</i> is <b class="const">type</b>,
 <b class="const">widget</b>, or <b class="const">widgetadaptor</b>, <b class="cmd">snit::compile</b> returns a list
 of two elements.  The first element is the fully qualified type name;
 the second element is the definition script.</p>
@@ -985,21 +985,21 @@ same version of Snit must be used at run-time as at compile-time.</p></dd>
 create instances of the type.  The type command has this form:</p>
 <dl class="definitions">
 <dt><a name="37"><b class="cmd">$type</b> <i class="arg">typemethod</i> <i class="arg">args</i>...</a></dt>
-<dd><p>The <i class="arg">typemethod</i> can be any of the 
-<span class="sectref"><a href="#subsection3">Standard Type Methods</a></span> (e.g., <b class="method">create</b>), 
+<dd><p>The <i class="arg">typemethod</i> can be any of the
+<span class="sectref"><a href="#subsection3">Standard Type Methods</a></span> (e.g., <b class="method">create</b>),
 or any type method defined in the type
 definition.
 The subsequent <i class="arg">args</i> depend on the specific <i class="arg">typemethod</i>
 chosen.</p>
-<p>The type command is most often used to create new instances of the 
+<p>The type command is most often used to create new instances of the
 type; hence, the <b class="method">create</b> method is assumed if the first
 argument to the type command doesn't name a valid type method, unless
-the type definition includes <b class="cmd">delegate typemethod *</b> or the 
+the type definition includes <b class="cmd">delegate typemethod *</b> or the
 <b class="const">-hasinstances</b> pragma is set to false.</p>
 <p>Furthermore, if the <b class="const">-hastypemethods</b> pragma is false, then
 Snit type commands can be called with no arguments at
 all; in this case, the type command creates an instance with an
-automatically generated name.  In other words, provided that the 
+automatically generated name.  In other words, provided that the
 <b class="const">-hastypemethods</b> pragma is false and the type
 has instances, the following commands are equivalent:</p>
 <pre class="example">snit::type dog { ... }
@@ -1027,7 +1027,7 @@ instance name.</p>
 must be a valid widget name; the method returns the widget name.</p>
 <p>So long as <i class="arg">name</i> does not conflict with any defined type method
 name the <b class="method">create</b> keyword may be omitted, unless
-the type definition includes <b class="cmd">delegate typemethod *</b> or the 
+the type definition includes <b class="cmd">delegate typemethod *</b> or the
 <b class="const">-hasinstances</b> pragma is set to false.</p>
 <p>If the <i class="arg">name</i> includes the string <b class="const">%AUTO%</b>, it will be
 replaced with the string <b class="const">$type$counter</b> where <b class="const">$type</b> is
@@ -1046,13 +1046,13 @@ variables); all variable names are fully-qualified.</p>
 <p>If <i class="arg">pattern</i> is given, it's used as a <b class="cmd">string match</b>
 pattern; only names that match the pattern are returned.</p></dd>
 <dt><a name="40"><b class="cmd">$type</b> <b class="method">info typemethods</b> <span class="opt">?<i class="arg">pattern</i>?</span></a></dt>
-<dd><p>Returns a list of the names of the  type's type methods.  
-If the type has hierarchical 
+<dd><p>Returns a list of the names of the  type's type methods.
+If the type has hierarchical
 type methods, whether locally-defined or delegated, only the first
 word of each will be included in the list.</p>
 <p>If the type
 definition includes <b class="cmd">delegate typemethod *</b>, the list will
-include only the names of those implicitly delegated type methods 
+include only the names of those implicitly delegated type methods
 that have been called at least once and are still in the type method cache.</p>
 <p>If <i class="arg">pattern</i> is given, it's used as a <b class="cmd">string match</b>
 pattern; only names that match the pattern are returned.</p></dd>
@@ -1088,8 +1088,8 @@ This command is used to access the object's methods and data, and has
 this form:</p>
 <dl class="definitions">
 <dt><a name="46"><b class="cmd">$object</b> <i class="arg">method</i> <i class="arg">args...</i></a></dt>
-<dd><p>The <i class="arg">method</i> can be any of the 
-<span class="sectref"><a href="#subsection5">Standard Instance Methods</a></span>, or any instance method 
+<dd><p>The <i class="arg">method</i> can be any of the
+<span class="sectref"><a href="#subsection5">Standard Instance Methods</a></span>, or any instance method
 defined in the type definition.
 The subsequent <i class="arg">args</i> depend on the specific <i class="arg">method</i> chosen.</p></dd>
 </dl>
@@ -1140,13 +1140,13 @@ internal variables).  The names are fully qualified.</p>
 <p>If <i class="arg">pattern</i> is given, it's used as a <b class="cmd">string match</b>
 pattern; only names that match the pattern are returned.</p></dd>
 <dt><a name="54"><b class="cmd">$object</b> <b class="method">info typemethods</b> <span class="opt">?<i class="arg">pattern</i>?</span></a></dt>
-<dd><p>Returns a list of the names of the  type's type methods.  
-If the type has hierarchical 
+<dd><p>Returns a list of the names of the  type's type methods.
+If the type has hierarchical
 type methods, whether locally-defined or delegated, only the first
 word of each will be included in the list.</p>
 <p>If the type
 definition includes <b class="cmd">delegate typemethod *</b>, the list will
-include only the names of those implicitly delegated type methods 
+include only the names of those implicitly delegated type methods
 that have been called at least once and are still in the type method cache.</p>
 <p>If <i class="arg">pattern</i> is given, it's used as a <b class="cmd">string match</b>
 pattern; only names that match the pattern are returned.</p>
@@ -1166,7 +1166,7 @@ of the same type, if component object types can vary from one instance
 to another.</p></dd>
 <dt><a name="56"><b class="cmd">$object</b> <b class="method">info methods</b> <span class="opt">?<i class="arg">pattern</i>?</span></a></dt>
 <dd><p>Returns a list of the names of the instance's methods.
-If the type has hierarchical methods, whether locally-defined or 
+If the type has hierarchical methods, whether locally-defined or
 delegated, only the first word of each will be included in the list.</p>
 <p>If the type
 definition includes <b class="cmd">delegate method *</b>, the list will
@@ -1201,10 +1201,9 @@ created with the type, and can be used without qualification.</p>
 be passed to other objects.  It returns a command that when called
 will invoke method <i class="arg">name</i> with the specified arguments, plus of
 course any arguments added by the caller.  In other words, both of the
-following commands will cause the object's 
+following commands will cause the object's
 <b class="method">dosomething</b> method to be called when the <b class="cmd">$button</b> is pressed:</p>
 <pre class="example">    $button configure -command [list $self dosomething myargument]
-       
     $button configure -command [mymethod dosomething myargument]
 </pre>
 <p>The chief distinction between the two is that the latter form will not
@@ -1217,7 +1216,6 @@ course any arguments added by the caller.  In other words, both of the
 following commands will cause the object's <b class="method">dosomething</b> type method
 to be called when <b class="cmd">$button</b> is pressed:</p>
 <pre class="example">    $button configure -command [list $type dosomething myargument]
-       
     $button configure -command [mytypemethod dosomething myargument]
 </pre>
 <p>Type commands cannot be renamed, so in practice there's little
@@ -1231,7 +1229,6 @@ course any arguments added by the caller.  In other words, both of the
 following commands will cause the object's <b class="method">dosomething</b> proc
 to be called when <b class="cmd">$button</b> is pressed:</p>
 <pre class="example">    $button configure -command [list ${type}::dosomething myargument]
-       
     $button configure -command [myproc dosomething myargument]
 </pre>
 </dd>
@@ -1257,7 +1254,7 @@ not specified, then the option's default value as specified in the
 type definition will be returned instead.</p></dd>
 <dt><a name="66"><b class="cmd">install</b> <i class="arg">compName</i> <b class="const">using</b> <i class="arg">objType</i> <i class="arg">objName</i> <i class="arg">args...</i></a></dt>
 <dd><p>Creates a new object of type <i class="arg">objType</i> called <i class="arg">objName</i>
-and installs it as component <i class="arg">compName</i>, 
+and installs it as component <i class="arg">compName</i>,
 as described in <span class="sectref"><a href="#subsection7">Components and Delegation</a></span>.  Any additional
 <i class="arg">args...</i> are passed along with the name to the <i class="arg">objType</i>
 command.
@@ -1309,13 +1306,13 @@ that don't appear in the type definition, and also to bring variables
 from other namespaces into scope in the usual way.</p>
 <p>It's generally clearest to define all instance variables in the type
 definition, and omit declaring them in methods and so forth.</p>
-<p>Note that this is an instance-specific version of the standard Tcl 
+<p>Note that this is an instance-specific version of the standard Tcl
 <b class="cmd">::variable</b> command.</p></dd>
 <dt><a name="70"><b class="cmd">typevariable</b> <i class="arg">name</i></a></dt>
 <dd><p>Normally, type variables are defined in the type definition, along
 with the instance variables; such type variables are automatically
 visible in all of the type's code.  However, type methods, instance
-methods and so forth can use <b class="cmd">typevariable</b> to declare type 
+methods and so forth can use <b class="cmd">typevariable</b> to declare type
 variables that don't appear in the type definition.</p>
 <p>It's generally clearest to declare all type variables in the type
 definition, and omit declaring them in methods, type methods, etc.</p></dd>
@@ -1340,22 +1337,19 @@ the fully-qualified command name, suitable for passing as a callback.</p></dd>
 buttons or a GUI object contains an object that references a database,
 the included object is called a component.  The standard way to handle
 component objects owned by a Snit object is to declare them using
-<b class="cmd">component</b>, which creates a component instance variable.  
+<b class="cmd">component</b>, which creates a component instance variable.
 In the following example, a <b class="cmd">dog</b> object has a
 <b class="cmd">tail</b> object:</p>
 <pre class="example">    snit::type dog {
         component mytail
-    
         constructor {args} {
             set mytail [tail %AUTO% -partof $self]
             $self configurelist $args
         }
-    
         method wag {} {
             $mytail wag
         }
     }
-    
     snit::type tail {
         option -length 5
         option -partof
@@ -1387,7 +1381,6 @@ jargon, this is called delegation.  Snit provides an easier way to do
 this:</p>
 <pre class="example">    snit::type dog {
         delegate method wag to mytail
-    
         constructor {args} {
             install mytail using tail %AUTO% -partof $self
             $self configurelist $args
@@ -1416,7 +1409,7 @@ method; but <b class="method">wag</b> will be passed along to <b class="cmd">myt
 other method, being recognized by neither <b class="cmd">dog</b> nor <b class="cmd">tail</b>,
 will simply raise an error.</p>
 <p>Option delegation is similar to method delegation, except for the
-interactions with the Tk option database; this is described in 
+interactions with the Tk option database; this is described in
 <span class="sectref"><a href="#subsection9">The Tk Option Database</a></span>.</p>
 </div>
 <div id="subsection8" class="subsection"><h3><a name="subsection8">Type Components and Delegation</a></h3>
@@ -1428,7 +1421,7 @@ a type component is a type variable that holds the name of a command.
 In essence, a type component is a component that's shared by every
 instance of the type.</p>
 <p>Just as <b class="cmd">delegate method</b> can be used to delegate methods to
-instance components, as described in 
+instance components, as described in
 <span class="sectref"><a href="#subsection7">Components and Delegation</a></span>, so <b class="cmd">delegate typemethod</b>
 can be used to delegate type methods to type components.</p>
 <p>Note also that as of Snit 0.95 <b class="cmd">delegate method</b> can delegate
@@ -1488,11 +1481,11 @@ usually just the option name minus the hyphen, but may contain
 uppercase letters at word boundaries; the class name is usually just
 the resource name with an initial capital, but not always.  For
 example, here are the option, resource, and class names for several
-<b class="cmd"><a href="../../../../index.html#key481">text</a></b> widget options:</p>
-<pre class="example">    -background         background         Background 
-    -borderwidth        borderWidth        BorderWidth 
-    -insertborderwidth  insertBorderWidth  BorderWidth 
-    -padx               padX               Pad 
+<b class="cmd"><a href="../../../../index.html#key480">text</a></b> widget options:</p>
+<pre class="example">    -background         background         Background
+    -borderwidth        borderWidth        BorderWidth
+    -insertborderwidth  insertBorderWidth  BorderWidth
+    -padx               padX               Pad
 </pre>
 <p>As is easily seen, sometimes the resource and class names can be
 inferred from the option name, but not always.</p>
@@ -1512,8 +1505,8 @@ options and explicitly delegated options:</p>
 following options: <b class="option">-background</b>, which is locally defined, and
 <b class="option">-borderwidth</b>, which is explicitly delegated; all other widgets are
 delegated to a component called &quot;text&quot;, which is probably a Tk
-<b class="cmd"><a href="../../../../index.html#key481">text</a></b> widget.  If so, <b class="cmd">mywidget</b> has all the same options as
-a <b class="cmd"><a href="../../../../index.html#key481">text</a></b> widget.  The option, resource, and class names are as
+<b class="cmd"><a href="../../../../index.html#key480">text</a></b> widget.  If so, <b class="cmd">mywidget</b> has all the same options as
+a <b class="cmd"><a href="../../../../index.html#key480">text</a></b> widget.  The option, resource, and class names are as
 follows:</p>
 <pre class="example">    -background  background  Background
     -borderwidth borderwidth Borderwidth
@@ -1523,7 +1516,7 @@ follows:</p>
 the same three names as the standard Tk <b class="option">-background</b> option; and
 <b class="option">-pad</b>, which is delegated implicitly to the <b class="variable">text</b>
 component, has the
-same three names for <b class="cmd">mywidget</b> as it does for the <b class="cmd"><a href="../../../../index.html#key481">text</a></b>
+same three names for <b class="cmd">mywidget</b> as it does for the <b class="cmd"><a href="../../../../index.html#key480">text</a></b>
 widget.  <b class="option">-borderwidth</b>, on the other hand, has different resource and
 class names than usual, because the internal word &quot;width&quot; isn't
 capitalized.  For consistency, it should be; this is done as follows:</p>
@@ -1535,7 +1528,7 @@ capitalized.  For consistency, it should be; this is done as follows:</p>
     }
 </pre>
 <p>The class name will default to &quot;BorderWidth&quot;, as expected.</p>
-<p>Suppose, however, that <b class="cmd">mywidget</b> also delegated 
+<p>Suppose, however, that <b class="cmd">mywidget</b> also delegated
 <b class="option">-padx</b> and
 <b class="option">-pady</b> to the hull.  In this case, both the resource name and the
 class name must be specified explicitly:</p>
@@ -1599,10 +1592,10 @@ option database and pick up this value.  Since the <b class="option">-relief</b>
 option is implicitly delegated to the hull, Snit takes no action.</p>
 <p>The value of B is &quot;red&quot;.  The hull will automatically pick up the
 value &quot;green&quot; for its <b class="option">-background</b> option, just as it picked up the
-<b class="option">-relief</b> value.  However, Snit knows that 
+<b class="option">-relief</b> value.  However, Snit knows that
 <b class="option">-hullbackground</b> is mapped to
 the hull's <b class="option">-background</b> option; hence, it queries the option database
-for <b class="option">-hullbackground</b> and gets &quot;red&quot; and updates the hull 
+for <b class="option">-hullbackground</b> and gets &quot;red&quot; and updates the hull
 accordingly.</p>
 <p>The value of C is also &quot;red&quot;, because <b class="option">-background</b> is implicitly
 delegated to the hull; thus, retrieving it is the same as retrieving
@@ -1611,10 +1604,10 @@ delegated to the hull; thus, retrieving it is the same as retrieving
 component.</p>
 <p>The value of D is &quot;5&quot;, but not for the reason you think.  Note that as
 it is defined above, the resource name for <b class="option">-borderwidth</b>
-defaults to &quot;borderwidth&quot;, whereas the option database entry is 
-&quot;borderWidth&quot;.  As with <b class="option">-relief</b>, the hull picks up its 
+defaults to &quot;borderwidth&quot;, whereas the option database entry is
+&quot;borderWidth&quot;.  As with <b class="option">-relief</b>, the hull picks up its
 own <b class="option">-borderwidth</b> option before Snit does anything.  Because the
-option is delegated under its own name, Snit assumes that the correct 
+option is delegated under its own name, Snit assumes that the correct
 thing has happened, and doesn't worry about it any further.</p>
 <p>For <b class="cmd">snit::widgetadaptor</b>s, the case is somewhat altered.  Widget
 adaptors retain the widget class of their hull, and the hull is not
@@ -1635,7 +1628,7 @@ this is as follows:</p>
 a command like this:</p>
 <pre class="example">    set hull [text $win -foreground white]
 </pre>
-<p>The hull is a <b class="cmd"><a href="../../../../index.html#key481">text</a></b> widget, so its widget class is &quot;Text&quot;.  Just
+<p>The hull is a <b class="cmd"><a href="../../../../index.html#key480">text</a></b> widget, so its widget class is &quot;Text&quot;.  Just
 as with <b class="cmd">snit::widget</b> hulls, Snit assumes that it will pick up
 all of its normal option values automatically; options delegated from
 a different name are initialized from the option database in the same
@@ -1742,7 +1735,7 @@ namespace:</p>
 </div>
 <div id="subsection11" class="subsection"><h3><a name="subsection11">Validation Types</a></h3>
 <p>A validation type is an object that can be used to validate
-Tcl values of a particular kind.  For example, 
+Tcl values of a particular kind.  For example,
 <b class="cmd">snit::integer</b> is used to validate that a Tcl value is
 an integer.</p>
 <p>Every validation type has a <b class="method">validate</b> method which is used to
@@ -1777,11 +1770,11 @@ they may also be created on the fly:</p>
             snit::enum -values {mutt retriever sheepdog}
         }
         # Or use predefined subtypes...
-        option -breed -type ::dog::breed 
+        option -breed -type ::dog::breed
     }
 </pre>
 <p>Any object that has a <b class="method">validate</b> method with the semantics
-described above can be used as a validation type; see 
+described above can be used as a validation type; see
 <span class="sectref"><a href="#subsection12">Defining Validation Types</a></span> for information on how to define
 new ones.</p>
 <p>Snit defines the following validation types:</p>
@@ -1828,11 +1821,11 @@ following options:</p>
 <dl class="definitions">
 <dt><b class="const">-min</b> <i class="arg">min</i></dt>
 <dd><p>Specifies a minimum bound; a value is invalid if it is strictly
-less than <i class="arg">min</i>.  The bound may be expressed in any of the 
+less than <i class="arg">min</i>.  The bound may be expressed in any of the
 forms accepted by <b class="cmd">winfo fpixels</b>.</p></dd>
 <dt><b class="const">-max</b> <i class="arg">max</i></dt>
 <dd><p>Specifies a maximum bound; a value is invalid if it is strictly
-greater than <i class="arg">max</i>.  The bound may be expressed in any of the 
+greater than <i class="arg">max</i>.  The bound may be expressed in any of the
 forms accepted by <b class="cmd">winfo fpixels</b>.</p></dd>
 </dl></dd>
 <dt><a name="82"><b class="cmd">snit::integer</b> <b class="const">validate</b> <span class="opt">?<i class="arg">value</i>?</span></a></dt>
@@ -1858,7 +1851,7 @@ following options:</p>
 <dd><p>Specifies a minimum list length; the value is invalid if it has
 fewer than <i class="arg">min</i> elements.  Defaults to 0.</p></dd>
 <dt><b class="const">-maxlen</b> <i class="arg">max</i></dt>
-<dd><p>Specifies a maximum list length; the value is invalid if it 
+<dd><p>Specifies a maximum list length; the value is invalid if it
 more than <i class="arg">max</i> elements.</p></dd>
 <dt><b class="const">-type</b> <i class="arg">type</i></dt>
 <dd><p>Specifies the type of the list elements; <i class="arg">type</i> must be
@@ -1890,11 +1883,11 @@ following options:</p>
 <dl class="definitions">
 <dt><b class="const">-min</b> <i class="arg">min</i></dt>
 <dd><p>Specifies a minimum bound; a value is invalid if it is strictly
-less than <i class="arg">min</i>.  The bound may be expressed in any of the 
+less than <i class="arg">min</i>.  The bound may be expressed in any of the
 forms accepted by <b class="cmd">winfo pixels</b>.</p></dd>
 <dt><b class="const">-max</b> <i class="arg">max</i></dt>
 <dd><p>Specifies a maximum bound; a value is invalid if it is strictly
-greater than <i class="arg">max</i>.  The bound may be expressed in any of the 
+greater than <i class="arg">max</i>.  The bound may be expressed in any of the
 forms accepted by <b class="cmd">winfo pixels</b>.</p></dd>
 </dl></dd>
 <dt><a name="88"><b class="cmd">snit::stringtype</b> <b class="const">validate</b> <span class="opt">?<i class="arg">value</i>?</span></a></dt>
@@ -1927,7 +1920,7 @@ case-sensitive.  If <b class="const">-nocase</b> is set to true, then both
 <dd><p><em>Tk programs only.</em>  Validates Tk window names.  The value must
 cause <b class="cmd">winfo exists</b> to return true; otherwise, the value is
 invalid.  It's possible to define subtypes--that is, instances--of
-<b class="cmd">snit::window</b>, but as it has no options at present there's no 
+<b class="cmd">snit::window</b>, but as it has no options at present there's no
 reason to do so.</p></dd>
 </dl>
 </div>
@@ -1937,7 +1930,7 @@ one of Snit's validation types, as a validation type command, and as
 a full-fledged validation type similar to those provided by Snit.
 Defining subtypes of Snit's validation types is described above,
 under <span class="sectref"><a href="#subsection11">Validation Types</a></span>.</p>
-<p>The next simplest way to create a new validation type is as a 
+<p>The next simplest way to create a new validation type is as a
 validation type command.  A validation type is simply an
 object that has a <b class="method">validate</b> method; the <b class="method">validate</b>
 method must take one argument, a value, return the value if it is
@@ -1947,8 +1940,7 @@ example, the <b class="cmd">snit::boolean</b> validate type could have been
 implemented like this:</p>
 <pre class="example">    proc ::snit::boolean {&quot;validate&quot; value} {
         if {![string is boolean -strict $value]} {
-            return -code error -errorcode INVALID \ 
-                &quot;invalid boolean \&quot;$value\&quot;, should be one of: 1, 0, ...&quot;
+            return -code error -errorcode INVALID  &quot;invalid boolean \&quot;$value\&quot;, should be one of: 1, 0, ...&quot;
         }
         return $value
     }
@@ -1969,11 +1961,10 @@ as a <b class="cmd">snit::type</b>.  Here's a skeleton to get you started:</p>
         option -max -default &quot;&quot; -readonly 1
         # Next, define a &quot;validate&quot; type method which should do the
         # validation in the basic case.  This will allow the
-        # type command to be used as a validation type.  
+        # type command to be used as a validation type.
         typemethod validate {value} {
             if {![string is integer -strict $value]} {
-                return -code error -errorcode INVALID \ 
-                    &quot;invalid value \&quot;$value\&quot;, expected integer&quot;
+                return -code error -errorcode INVALID  &quot;invalid value \&quot;$value\&quot;, expected integer&quot;
             }
             return $value
         }
@@ -1997,7 +1988,6 @@ as a <b class="cmd">snit::type</b>.  Here's a skeleton to get you started:</p>
                 # It's out of range; format a detailed message about
                 # the error, and throw it.
                 set msg &quot;....&quot;
-                
                 return -code error -errorcode INVALID $msg
             }
             # Otherwise, if it's valid just return it.
@@ -2007,17 +1997,15 @@ as a <b class="cmd">snit::type</b>.  Here's a skeleton to get you started:</p>
 </pre>
 <p>And now you have a type that can be subtyped.</p>
 <p>The file &quot;validate.tcl&quot; in the Snit distribution defines all of Snit's
-validation types; you can find the complete implementation for 
+validation types; you can find the complete implementation for
 <b class="cmd">snit::integer</b> and the other types there, to use as examples for
 your own types.</p>
 </div>
 </div>
 <div id="section4" class="section"><h2><a name="section4">CAVEATS</a></h2>
 <p>If you have problems, find bugs, or new ideas you are hereby cordially
-invited to submit a report of your problem, bug, or idea at the
-SourceForge trackers for tcllib, which can be found at
-<a href="http://sourceforge.net/projects/tcllib/">http://sourceforge.net/projects/tcllib/</a>.
-The relevant category is <em>snit</em>.</p>
+invited to submit a report of your problem, bug, or idea as explained
+in the section <span class="sectref"><a href="#section8">Bugs, Ideas, Feedback</a></span> below.</p>
 <p>Additionally, you might wish to join the Snit mailing list;
 see <a href="http://www.wjduquette.com/snit">http://www.wjduquette.com/snit</a> for details.</p>
 <p>One particular area to watch is using <b class="cmd">snit::widgetadaptor</b> to
@@ -2030,8 +2018,8 @@ The wisest course is simply not to do this.</p>
 <li><p>Error stack traces returned by Snit 1.x are extremely ugly and typically
 contain far too much information about Snit internals.  The error
 messages are much improved in Snit 2.2.</p></li>
-<li><p>Also see the SourceForge Trackers at
-<a href="http://sourceforge.net/projects/tcllib/">http://sourceforge.net/projects/tcllib/</a>, category <em>snit</em>.</p></li>
+<li><p>Also see the Project Trackers as explained in the section
+<span class="sectref"><a href="#section8">Bugs, Ideas, Feedback</a></span> below.</p></li>
 </ul>
 </div>
 <div id="section6" class="section"><h2><a name="section6">HISTORY</a></h2>
@@ -2064,23 +2052,23 @@ Snit home page (see <a href="http://www.wjduquette.com/snit">http://www.wjduquet
 William H. Duquette.  However, much credit belongs to the following
 people for using Snit and providing me with valuable feedback: Rolf
 Ade, Colin McCormack, Jose Nazario, Jeff Godfrey, Maurice Diamanti,
-Egon Pasztor, David S. Cargo, Tom Krehbiel, Michael Cleverly, 
+Egon Pasztor, David S. Cargo, Tom Krehbiel, Michael Cleverly,
 Andreas Kupries, Marty Backe, Andy Goth, Jeff Hobbs, Brian
-Griffin, Donal Fellows, Miguel Sofer, Kenneth Green, 
-and Anton Kovalenko.  
-If I've forgotten anyone, my apologies; let me know and I'll add 
+Griffin, Donal Fellows, Miguel Sofer, Kenneth Green,
+and Anton Kovalenko.
+If I've forgotten anyone, my apologies; let me know and I'll add
 your name to the list.</p>
 </div>
-<div id="section8" class="section"><h2><a name="section8">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section8" class="section"><h2><a name="section8">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>snit</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key235">BWidget</a>, <a href="../../../../index.html#key230">C++</a>, <a href="../../../../index.html#key237">Incr Tcl</a>, <a href="../../../../index.html#key779">Snit</a>, <a href="../../../../index.html#key234">adaptors</a>, <a href="../../../../index.html#key236">class</a>, <a href="../../../../index.html#key232">mega widget</a>, <a href="../../../../index.html#key238">object</a>, <a href="../../../../index.html#key231">object oriented</a>, <a href="../../../../index.html#key124">type</a>, <a href="../../../../index.html#key229">widget</a>, <a href="../../../../index.html#key233">widget adaptors</a></p>
+<p><a href="../../../../index.html#key235">BWidget</a>, <a href="../../../../index.html#key231">C++</a>, <a href="../../../../index.html#key238">Incr Tcl</a>, <a href="../../../../index.html#key779">Snit</a>, <a href="../../../../index.html#key236">adaptors</a>, <a href="../../../../index.html#key234">class</a>, <a href="../../../../index.html#key233">mega widget</a>, <a href="../../../../index.html#key237">object</a>, <a href="../../../../index.html#key230">object oriented</a>, <a href="../../../../index.html#key123">type</a>, <a href="../../../../index.html#key229">widget</a>, <a href="../../../../index.html#key232">widget adaptors</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>

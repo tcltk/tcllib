@@ -1,5 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin blowfish n 1.0.3]
+[see_also 3des]
+[see_also des]
+[see_also rc4]
+[keywords {block cipher}]
+[keywords blowfish]
+[keywords cryptography]
+[keywords encryption]
+[keywords security]
 [copyright {2003, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [moddesc   {Blowfish Block Cipher}]
 [titledesc {Implementation of the Blowfish block cipher}]
@@ -101,7 +109,6 @@ Once this function has been called the key may not be used again.
 
 [list_end]
 
-
 [section "MODES OF OPERATION"]
 
 [list_begin definitions]
@@ -149,22 +156,9 @@ d0d8f27e7a374b9e2dbd9938dd04195a
 
 [list_end]
 
-[see_also des 3des rc4]
-
 [section AUTHORS]
 Frank Pilhofer, Pat Thoyts
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph blowfish] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords blowfish {block cipher} security encryption cryptography]
+[vset CATEGORY blowfish]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

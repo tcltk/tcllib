@@ -1,5 +1,15 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin nns_intro n 1.0]
+[see_also nameserv(n)]
+[see_also nameserv::auto(n)]
+[see_also nameserv::common(n)]
+[see_also nameserv::protocol(n)]
+[see_also nameserv::server(n)]
+[see_also nnsd(n)]
+[see_also nss(n)]
+[keywords client]
+[keywords {name service}]
+[keywords server]
 [copyright {2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Name service facility}]
 [titledesc {Name service facility, introduction}]
@@ -24,7 +34,6 @@ too.
 
 Tcllib provides 2 applications and 4 packages which are working
 together and provide access to the facility at different levels.
-
 
 [section Applications]
 
@@ -65,7 +74,6 @@ search for all changes and logs all received events to stdout.
 
 Both clients use the [package nameserv::auto] package to automatically
 hande the loss and restoration of the connection to the server.
-
 
 [section Packages]
 
@@ -115,26 +123,6 @@ Developers wishing to modify and/or extend or to just understand the
 internals of the nameservice facility however are strongly advised to
 read it.
 
-
-[section {Bugs, Ideas, Feedback}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph nameserv] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-Please also report any ideas for enhancements you may have.
-
-
-[keywords {name service} client server]
-[see_also nnsd(n)]
-[see_also nss(n)]
-[see_also nameserv(n)]
-[see_also nameserv::server(n)]
-[see_also nameserv::common(n)]
-[see_also nameserv::auto(n)]
-[see_also nameserv::protocol(n)]
+[vset CATEGORY nameserv]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

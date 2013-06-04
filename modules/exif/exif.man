@@ -1,11 +1,14 @@
 [manpage_begin exif n 1.1.2]
+[keywords exif]
+[keywords jpeg]
+[keywords {maker note}]
+[keywords tiff]
 [moddesc   {EXIF parsing}]
 [titledesc {Tcl EXIF extracts and parses EXIF fields from digital images}]
 [category  {File formats}]
 [require Tcl 8.2]
 [require exif [opt 1.1.2]]
 [description]
-[keywords exif jpeg {maker note} tiff]
 [para]
 
 The EXIF package is a recoding of Chris Breeze's Perl package to do
@@ -18,7 +21,7 @@ There is also a function to obtain a list of all possible field names
 that might be present, which is useful in building GUIs that present
 such information.
 
-[section COMMANDS] 
+[section COMMANDS]
 
 [list_begin definitions]
 
@@ -43,7 +46,6 @@ in the exif data will be written into it.
 This is a file-based wrapper around [cmd exif::analyze]. Instead of
 taking a stream it takes a [arg filename] and analyzes the contents of
 the specified file.
-
 
 [call [cmd exif::fieldnames]]
 
@@ -73,16 +75,6 @@ Hold harmless the author, and any lawful use is allowed.
 This code is a direct translation of version 1.3 of exif.pl by Chris
 Breeze.  See the source for full headers, references, etc.
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph exif] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
+[vset CATEGORY exif]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

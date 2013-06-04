@@ -1,4 +1,19 @@
 [manpage_begin docstrip_util n 1.3]
+[see_also docstrip]
+[see_also doctools]
+[see_also doctools_fmt]
+[keywords .ddt]
+[keywords catalogue]
+[keywords diff]
+[keywords docstrip]
+[keywords doctools]
+[keywords documentation]
+[keywords {literate programming}]
+[keywords module]
+[keywords {package indexing}]
+[keywords patch]
+[keywords source]
+[keywords {Tcl module}]
 [copyright "2003\u20132010 Lars Hellstr\u00F6m\
   <Lars dot Hellstrom at residenset dot net>"]
 [moddesc {Literate programming tool}]
@@ -371,6 +386,21 @@ all types of lines.
   not available. A source file could however look as follows
 [example {
 % [manpage_begin gcd n 1.0]
+[see_also docstrip]
+[see_also doctools]
+[see_also doctools_fmt]
+[keywords .ddt]
+[keywords catalogue]
+[keywords diff]
+[keywords docstrip]
+[keywords doctools]
+[keywords documentation]
+[keywords {literate programming}]
+[keywords module]
+[keywords {package indexing}]
+[keywords patch]
+[keywords source]
+[keywords {Tcl module}]
 % [moddesc {Greatest Common Divisor}]
 % [require gcd [opt 1.0]]
 % [description]
@@ -563,10 +593,4 @@ return $leftover
   that are only in the "to" file, and [const 0] for lines that are
   in both.
 [list_end]
-
-[see_also docstrip doctools doctools_fmt]
-
-[keywords documentation source {literate programming} docstrip]
-[keywords doctools .ddt diff patch]
-[keywords {package indexing} {Tcl module} module catalogue]
 [manpage_end]

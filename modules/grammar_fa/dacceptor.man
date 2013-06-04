@@ -1,5 +1,16 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin grammar::fa::dacceptor n 0.1.1]
+[keywords acceptance]
+[keywords acceptor]
+[keywords automaton]
+[keywords {finite automaton}]
+[keywords grammar]
+[keywords parsing]
+[keywords {regular expression}]
+[keywords {regular grammar}]
+[keywords {regular languages}]
+[keywords state]
+[keywords transducer]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Finite automaton operations and usage}]
 [titledesc {Create and use deterministic acceptors}]
@@ -9,9 +20,6 @@
 [require struct::set]
 [require grammar::fa::dacceptor [opt 0.1.1]]
 [description]
-[keywords acceptor acceptance grammar automaton {finite automaton}]
-[keywords state {regular expression} {regular grammar}]
-[keywords {regular languages} parsing transducer]
 [para]
 
 This package provides a class for acceptors constructed from
@@ -67,12 +75,10 @@ All acceptors provide the following methods for their manipulation:
 
 [list_begin definitions]
 
-
 [call [arg daName] [method destroy]]
 
 Destroys the automaton, including its storage space and associated
 command.
-
 
 [call [arg daName] [method accept?] [arg symbols]]
 
@@ -90,18 +96,7 @@ just that prefix of the input which is enough to fully determine
 [para]
 
 [section EXAMPLES]
-[para]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph grammar_fa] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
+[vset CATEGORY grammar_fa]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -120,7 +120,7 @@
 <li class="section"><a href="#section3">TEXT DICT DATA STRUCTURE</a></li>
 <li class="section"><a href="#section4">RCS PATCH FORMAT</a></li>
 <li class="section"><a href="#section5">RCS PATCH COMMAND LIST</a></li>
-<li class="section"><a href="#section6">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#see-also">See Also</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
@@ -145,10 +145,10 @@
 </div>
 </div>
 <div id="section1" class="section"><h2><a name="section1">Description</a></h2>
-<p>The <i class="term">Revision Control System</i>, short <i class="term"><a href="../../../../index.html#key614">RCS</a></i>, is a set of
+<p>The <i class="term">Revision Control System</i>, short <i class="term"><a href="../../../../index.html#key613">RCS</a></i>, is a set of
 applications and related data formats which allow a system to persist
 the history of changes to a text. It, and its relative SCCS are the
-basis for many other such systems, like <i class="term"><a href="../../../../index.html#key613">CVS</a></i>, etc.</p>
+basis for many other such systems, like <i class="term"><a href="../../../../index.html#key614">CVS</a></i>, etc.</p>
 <p>This package <em>does not</em> implement RCS.</p>
 <p>It only provides a number of low level commands which should be useful
 in the implementation of any revision management system, namely:</p>
@@ -190,7 +190,7 @@ of the command is the empty string.</p></dd>
 specified in the section <span class="sectref"><a href="#section5">RCS PATCH COMMAND LIST</a></span> and
 returns this list as its result.
 It is assumed that the input text is in <i class="term"><a href="../../../../index.html#key615">diff -n format</a></i>, also
-known as <i class="term"><a href="../../../../index.html#key611">RCS patch</a></i> format, as specified in the section
+known as <i class="term"><a href="../../../../index.html#key612">RCS patch</a></i> format, as specified in the section
 <span class="sectref"><a href="#section4">RCS PATCH FORMAT</a></span>.
 Please note that the command ignores no-ops in the input, in other
 words the resulting PCL contains only instructions doing something.</p></dd>
@@ -251,7 +251,7 @@ cause the dictionary to become non-canonical.</p>
 an input text T into a different text T', and also encoded in text
 form as well.</p>
 <p>The text format for patches understood by this package is a very
-simple one, known under the names <i class="term"><a href="../../../../index.html#key611">RCS patch</a></i> or
+simple one, known under the names <i class="term"><a href="../../../../index.html#key612">RCS patch</a></i> or
 <i class="term"><a href="../../../../index.html#key615">diff -n format</a></i>.</p>
 <p>Patches in this format contain only two different commands, for the
 deletion of old text, and addition of new text. The replacement of
@@ -259,7 +259,7 @@ some text by a different text is handled as combination of a deletion
 following by an addition.</p>
 <p>The format is line oriented, with each line containing either a
 command or text data associated with the preceding command.
-The first line of a <i class="term"><a href="../../../../index.html#key611">RCS patch</a></i> is always a command line.</p>
+The first line of a <i class="term"><a href="../../../../index.html#key612">RCS patch</a></i> is always a command line.</p>
 <p>The commands are:</p>
 <dl class="definitions">
 <dt>&quot;&quot;</dt>
@@ -327,11 +327,11 @@ example RCS patch found in section <span class="sectref"><a href="#section4">RCS
 Deeper and more profound,
 The door of all subtleties!}}}</pre>
 </div>
-<div id="section6" class="section"><h2><a name="section6">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section6" class="section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>rcs</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
@@ -339,7 +339,7 @@ package and/or documentation.</p>
 <p><a href="../../../../index.html#key318">struct</a>, <a href="../textutil/textutil.html">textutil</a></p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key613">CVS</a>, <a href="../../../../index.html#key614">RCS</a>, <a href="../../../../index.html#key611">RCS patch</a>, <a href="../../../../index.html#key612">SCCS</a>, <a href="../../../../index.html#key615">diff -n format</a>, <a href="../../../../index.html#key616">patching</a>, <a href="../../../../index.html#key618">text conversion</a>, <a href="../../../../index.html#key617">text differences</a></p>
+<p><a href="../../../../index.html#key614">CVS</a>, <a href="../../../../index.html#key613">RCS</a>, <a href="../../../../index.html#key612">RCS patch</a>, <a href="../../../../index.html#key611">SCCS</a>, <a href="../../../../index.html#key615">diff -n format</a>, <a href="../../../../index.html#key616">patching</a>, <a href="../../../../index.html#key618">text conversion</a>, <a href="../../../../index.html#key617">text differences</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Text processing</p>

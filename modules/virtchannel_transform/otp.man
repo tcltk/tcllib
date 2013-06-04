@@ -1,5 +1,16 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin tcl::transform::otp n 1]
+[keywords {channel transformation}]
+[keywords cipher]
+[keywords decryption]
+[keywords encryption]
+[keywords {one time pad}]
+[keywords otp]
+[keywords {reflected channel}]
+[keywords {tip 230}]
+[keywords transformation]
+[keywords {virtual channel}]
+[keywords xor]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
@@ -37,19 +48,6 @@ the channel.
 
 [list_end]
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph virtchannel] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords xor otp encryption decryption transformation {channel transformation}]
-[keywords {one time pad} cipher {virtual channel} {reflected channel} {tip 230}]
+[vset CATEGORY virtchannel]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

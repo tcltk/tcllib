@@ -1,5 +1,8 @@
 [comment {-*- tcl -*-}]
 [manpage_begin struct::record n 1.2.1]
+[keywords {data structures}]
+[keywords record]
+[keywords struct]
 [copyright {2002, Brett Schwarz <brett_schwarz@yahoo.com>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Define and create records (similar to 'C' structures)}]
@@ -9,7 +12,7 @@
 [description]
 
 The [cmd ::struct::record] package provides a mechanism to group variables together
-as one data structure, similar to a 'C' structure. The members of a 
+as one data structure, similar to a 'C' structure. The members of a
 record can be variables or other records. However, a record can not contain circular
 record, i.e. records that contain the same record as a
 member.
@@ -53,7 +56,7 @@ records were defined.
 
 Returns a list of values that are set for the instance
 [arg instanceName]. The output is a list of key/value pairs. If there
-are nested records, then the values of the nested records will 
+are nested records, then the values of the nested records will
 itself be a list.
 
 [call [cmd {record exists}] [arg record] [arg recordName]]
@@ -78,7 +81,7 @@ will return an error if the instance does not exist.
 
 [list_end]
 [para]
-      
+
 [section {RECORD MEMBERS}]
 
 Record members can either be variables, or other records, However, the
@@ -124,7 +127,7 @@ the value for [arg mem2]. If no default is given, then the value will be the emp
 [emph {Getting Values}]
 [para]
 
-To get a value of a member, there are several ways to do this. 
+To get a value of a member, there are several ways to do this.
 
 [list_begin enumerated]
 
@@ -158,7 +161,7 @@ To get a value of a nested member, then use the dot notation:
 [emph {Setting Values}]
 [para]
 
-To set a value of a member, there are several ways to do this. 
+To set a value of a member, there are several ways to do this.
 
 [list_begin enumerated]
 
@@ -183,7 +186,7 @@ To set a value of a nested member, then use the dot notation:
 [emph {Alias access}]
 [para]
 
-In the original implementation, access was done by using dot notation similar to how 'C' structures are accessed. However, 
+In the original implementation, access was done by using dot notation similar to how 'C' structures are accessed. However,
 there was a concensus to make the interface more Tcl like, which made sense. However, the original alias access still
 exists. It might prove to be helpful to some.
 
@@ -196,23 +199,23 @@ member. An example will illustrate the point, using the above defined records:
 # Create an instance first
 % myrecord inst1
 ::inst1
-% # To get a member of an instance, just use the 
+% # To get a member of an instance, just use the
 % # alias (it behaves like a Tcl command):
 % inst1.mem1
 %
-% # To set a member via the alias, just include 
+% # To set a member via the alias, just include
 % # a value (optionally the equal sign - syntactic sugar)
 % inst1.mem1 = 5
 5
 % inst1.mem1
 5
-% # For nested records, just continue with the 
+% # For nested records, just continue with the
 % # dot notation (note no equal sign)
 % inst1.mem3.nest1 10
 10
 % inst1.mem3.nest1
 10
-% # just the instance by itself gives all 
+% # just the instance by itself gives all
 % # member/values pairs for that instance
 % inst1
 -mem1 5 -mem2 {} -mem3 {-nest1 10 -nest2 {}}
@@ -232,7 +235,7 @@ record command:
 
 [call [arg recordName] [method [arg instanceName|#auto]] [opt [arg "-member1 value1 -member2 value2 ..."]]]
 
-Using the [arg recordName] object command that was created from the record definition, 
+Using the [arg recordName] object command that was created from the record definition,
 instances of the record definition can be created. Once a instance is
 created, then it inherits the members of the record definition, very
 similar to how objects work. During instance generation, an object command for the instance
@@ -250,12 +253,12 @@ then a instance name will automatically be generated, of the form recordName<int
 [para]
 
 [section {INSTANCE COMMAND}]
- 
+
 The following subcommands and corresponding arguments are available to
 any record instance command:
 
 [list_begin definitions]
- 
+
 [call [arg instanceName] [method cget] [opt [arg "-member1 -member2 ..."]]]
 
 Each instance has the sub command [method cget] associated with it. This
@@ -273,11 +276,11 @@ no arguments are given, then a key/value list is returned.
 [list_end]
 
 [section EXAMPLES]
- 
+
 Two examples are provided to give an good illustration on how to use
 this package.
 
-[para]      
+[para]
 [emph {Example 1}]
 [para]
 
@@ -291,7 +294,7 @@ records:
 [example {
 
 ##
-##  This is an interactive example, to see what is 
+##  This is an interactive example, to see what is
 ##  returned by each command as well.
 ##
 
@@ -310,9 +313,9 @@ records:
 ::locations
 % # Define the main record. Notice that it uses the location record twice.
 % record define contacts {
-    first 
-    middle 
-    last 
+    first
+    middle
+    last
     {record locations home}
     {record locations work}
 }
@@ -345,7 +348,7 @@ first middle last {record locations home} {record locations work}
 %
 }]
 
-[para]      
+[para]
 [emph {Example 1}]
 [para]
 
@@ -385,17 +388,6 @@ record delete instance $I
 
 [para]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {struct :: record}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords struct record {data structures}]
+[vset CATEGORY {struct :: record}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

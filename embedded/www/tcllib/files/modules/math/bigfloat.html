@@ -125,7 +125,7 @@
 <li class="section"><a href="#section8">WHAT ABOUT TCL 8.4 ?</a></li>
 <li class="section"><a href="#section9">NAMESPACES AND OTHER PACKAGES</a></li>
 <li class="section"><a href="#section10">EXAMPLES</a></li>
-<li class="section"><a href="#section11">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section11">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
 <li class="section"><a href="#copyright">Copyright</a></li>
@@ -154,7 +154,7 @@
 <li><a href="#14"><b class="cmd">opp</b> <i class="arg">x</i></a></li>
 <li><a href="#15"><b class="cmd">pow</b> <i class="arg">x</i> <i class="arg">n</i></a></li>
 <li><a href="#16"><b class="cmd">iszero</b> <i class="arg">x</i></a></li>
-<li><a href="#17"><b class="cmd"><a href="../../../../index.html#key540">equal</a></b> <i class="arg">x</i> <i class="arg">y</i></a></li>
+<li><a href="#17"><b class="cmd"><a href="../../../../index.html#key539">equal</a></b> <i class="arg">x</i> <i class="arg">y</i></a></li>
 <li><a href="#18"><b class="cmd">compare</b> <i class="arg">x</i> <i class="arg">y</i></a></li>
 <li><a href="#19"><b class="cmd">sqrt</b> <i class="arg">x</i></a></li>
 <li><a href="#20"><b class="cmd"><a href="../log/log.html">log</a></b> <i class="arg">x</i></a></li>
@@ -169,7 +169,7 @@
 <li><a href="#29"><b class="cmd">cosh</b> <i class="arg">x</i></a></li>
 <li><a href="#30"><b class="cmd">sinh</b> <i class="arg">x</i></a></li>
 <li><a href="#31"><b class="cmd">tanh</b> <i class="arg">x</i></a></li>
-<li><a href="#32"><b class="cmd"><a href="../../../../index.html#key793">pi</a></b> <i class="arg">n</i></a></li>
+<li><a href="#32"><b class="cmd"><a href="../../../../index.html#key792">pi</a></b> <i class="arg">n</i></a></li>
 <li><a href="#33"><b class="cmd">rad2deg</b> <i class="arg">radians</i></a></li>
 <li><a href="#34"><b class="cmd">deg2rad</b> <i class="arg">degrees</i></a></li>
 <li><a href="#35"><b class="cmd">round</b> <i class="arg">x</i></a></li>
@@ -255,7 +255,7 @@ See also <b class="cmd">iszero</b> for how to detect zeros, which is useful when
 <dt><a name="3"><b class="cmd">fromdouble</b> <i class="arg">double</i> <span class="opt">?<i class="arg">decimals</i>?</span></a></dt>
 <dd><p>Converts a double (a simple floating-point value) to a BigFloat, with
 exactly <i class="arg">decimals</i> digits.  Without the <i class="arg">decimals</i> argument,
-it behaves like <b class="cmd">fromstr</b>. 
+it behaves like <b class="cmd">fromstr</b>.
 Here, the only important feature you might care of is the ability
 to create BigFloats with a fixed number of <i class="arg">decimals</i>.</p>
 <pre class="example">
@@ -337,7 +337,7 @@ tostr  $a ; # 0.e-2
 iszero $a ; # true
 </pre>
 </dd>
-<dt><a name="17"><b class="cmd"><a href="../../../../index.html#key540">equal</a></b> <i class="arg">x</i> <i class="arg">y</i></a></dt>
+<dt><a name="17"><b class="cmd"><a href="../../../../index.html#key539">equal</a></b> <i class="arg">x</i> <i class="arg">y</i></a></dt>
 <dd><p>Returns 1 if <em>x</em> and <em>y</em> are equal, 0 elsewhere.</p></dd>
 <dt><a name="18"><b class="cmd">compare</b> <i class="arg">x</i> <i class="arg">y</i></a></dt>
 <dd><p>Returns 0 if both BigFloat arguments are equal,
@@ -378,7 +378,7 @@ the operands should be both BigFloats, or both integers.</p></dd>
 square root, logarithm, exponential, cosine, sine,
 tangent, cotangent, arc cosine, arc sine, arc tangent, hyperbolic
 cosine, hyperbolic sine, hyperbolic tangent, of a BigFloat named <em>x</em>.</p></dd>
-<dt><a name="32"><b class="cmd"><a href="../../../../index.html#key793">pi</a></b> <i class="arg">n</i></a></dt>
+<dt><a name="32"><b class="cmd"><a href="../../../../index.html#key792">pi</a></b> <i class="arg">n</i></a></dt>
 <dd><p>Returns a BigFloat representing the Pi constant with <em>n</em> digits after the dot.
 <em>n</em> is a positive integer.</p></dd>
 <dt><a name="33"><b class="cmd">rad2deg</b> <i class="arg">radians</i></a></dt>
@@ -412,7 +412,7 @@ is internally computed the closest to the reality, thus saving the memory used.<
 are not subject to uncertainty. However, some rounding is done, as not doing so
 causes severe problems.</p></li>
 </ul>
-<p>Uncertainties are kept in the internal representation of the number ; 
+<p>Uncertainties are kept in the internal representation of the number ;
 it is recommended to use <b class="cmd">tostr</b> only for outputting data (on the screen or in a file),
 and NEVER call <b class="cmd">fromstr</b> with the result of <b class="cmd">tostr</b>.
 It is better to always keep operands in their internal representation.
@@ -429,7 +429,7 @@ set a [fromstr 1.000]
 # $a belongs to [0.999, 1.001]
 # $a has a relative uncertainty of 0.1% : 0.001(the uncertainty)/1.000(the medium value)
 </pre>
-<p>The uncertainty of the sum, or the difference, of two numbers, is the sum 
+<p>The uncertainty of the sum, or the difference, of two numbers, is the sum
 of their respective uncertainties.</p>
 <pre class="example">
 set a [fromstr 1.230]
@@ -438,8 +438,8 @@ set sum [add $a $b]]
 # the result is : [3.568, 3.572] (the last digit is known with an uncertainty of 2)
 tostr $sum ; # 3.57
 </pre>
-<p>But when, for example, we add or substract an integer to a BigFloat, 
-the relative uncertainty of the result is unchanged. So it is desirable 
+<p>But when, for example, we add or substract an integer to a BigFloat,
+the relative uncertainty of the result is unchanged. So it is desirable
 not to convert integers to BigFloats:</p>
 <pre class="example">
 set a [fromstr 0.999999999]
@@ -471,7 +471,7 @@ puts [tostr [cos [fromstr 0. 5]]]; # -&gt; 1.0000
 puts [tostr [cos [fromstr 0e-10]]]; # -&gt; 1.000000000
 puts [tostr [cos [fromstr 1e-10]]]; # -&gt; 1.000000000
 </pre>
-<p>BigFloats with different internal representations may be converted 
+<p>BigFloats with different internal representations may be converted
 to the same string.</p>
 <p>For most analysis functions (cosine, square root, logarithm, etc.), determining the precision
 of the result is difficult.
@@ -524,7 +524,7 @@ namespace import ::math::bigfloat::*
 I considere it should be resolved by the following :</p>
 <pre class="example">
 package require math::bigfloat
-# beware: namespace ensembles are not available in Tcl 8.4 
+# beware: namespace ensembles are not available in Tcl 8.4
 namespace eval ::math::bigfloat {namespace ensemble create -command ::bigfloat}
 # from now, the bigfloat command takes as subcommands all original math::bigfloat::* commands
 set a [bigfloat sub [bigfloat fromstr 2.000] [bigfloat fromstr 0.530]]
@@ -558,16 +558,16 @@ set angle3 [asin [add [mul $sinProduct [cos $opposite3]] $cosProduct]]
 puts &quot;angle3 : [tostr [rad2deg $angle3]]&quot;
 </pre>
 </div>
-<div id="section11" class="section"><h2><a name="section11">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section11" class="section"><h2><a name="section11">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>math :: bignum :: float</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key731">computations</a>, <a href="../../../../index.html#key372">floating-point</a>, <a href="../../../../index.html#key730">interval</a>, <a href="../../../../index.html#key67">math</a>, <a href="../../../../index.html#key268">multiprecision</a>, <a href="../../../../index.html#key269">tcl</a></p>
+<p><a href="../../../../index.html#key731">computations</a>, <a href="../../../../index.html#key372">floating-point</a>, <a href="../../../../index.html#key730">interval</a>, <a href="../../../../index.html#key67">math</a>, <a href="../../../../index.html#key269">multiprecision</a>, <a href="../../../../index.html#key268">tcl</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Mathematics</p>

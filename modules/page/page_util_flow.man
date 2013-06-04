@@ -1,13 +1,17 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin page_util_flow n 1.0]
+[keywords dataflow]
+[keywords {graph walking}]
+[keywords page]
+[keywords {parser generator}]
+[keywords {text processing}]
+[keywords {tree walking}]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Parser generator tools}]
 [titledesc {page dataflow/treewalker utility}]
 [category  {Page Parser Generator}]
 [require page::util::flow [opt 0.1]]
 [require snit]
-[keywords page dataflow {tree walking} {graph walking}]
-[keywords {parser generator} {text processing}]
 [description]
 [para]
 
@@ -87,13 +91,6 @@ above.
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph page] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have.
-
+[vset CATEGORY page]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

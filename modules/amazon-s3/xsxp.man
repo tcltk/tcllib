@@ -1,21 +1,23 @@
 [manpage_begin xsxp n 1.0]
+[keywords dom]
+[keywords parser]
+[keywords xml]
 [moddesc {Amazon S3 Web Service Utilities}]
 [titledesc {eXtremely Simple Xml Parser}]
 [copyright {Copyright 2006 Darren New. All Rights Reserved.}]
 [category  {Text processing}]
 [require Tcl 8.4]
 [require xml]
-[keywords xml dom parser]
 [description]
 This package provides a simple interface to parse XML into a pure-value list.
-It also provides accessor routines to pull out specific subtags, 
-not unlike DOM access. 
+It also provides accessor routines to pull out specific subtags,
+not unlike DOM access.
 This package was written for and is used by Darren New's Amazon S3 access package.
 
 [para]
 This is pretty lame, but I needed something like this for S3,
 and at the time, TclDOM would not work with the new 8.5 Tcl
-due to version number problems. 
+due to version number problems.
 [para]
 In addition, this is a pure-value implementation. There is no
 garbage to clean up in the event of a thrown error, for example.
@@ -26,14 +28,13 @@ which is what Amazon's S3 guarantees.
 Copyright 2006 Darren New. All Rights Reserved.
 NO WARRANTIES OF ANY TYPE ARE PROVIDED.
 COPYING OR USE INDEMNIFIES THE AUTHOR IN ALL WAYS.
-This software is licensed under essentially the same 
+This software is licensed under essentially the same
 terms as Tcl. See LICENSE.txt for the terms.
 
 [section COMMANDS]
 The package implements five rather simple procedures.
 One parses, one is for debugging, and the rest pull various
 parts of the parsed document out for processing.
-
 
 [list_begin definitions]
 
@@ -50,8 +51,8 @@ The second element is an array-get formatted list of key/value pairs. The keys a
 The third through end elements are the children of the node, if any. Each child is, recursively, a pxml.
 [item]
 Note that if the zero'th element, i.e. the tag name, is "%PCDATA", then
-the attributes will be empty and the third element will be the text of the element. In addition, if an element's contents consists only of PCDATA, it will have only one child, and all the PCDATA will be concatenated. In other words, 
-this parser works poorly for XML with elements that contain both child tags and PCDATA.  Since Amazon S3 does not do this (and for that matter most 
+the attributes will be empty and the third element will be the text of the element. In addition, if an element's contents consists only of PCDATA, it will have only one child, and all the PCDATA will be concatenated. In other words,
+this parser works poorly for XML with elements that contain both child tags and PCDATA.  Since Amazon S3 does not do this (and for that matter most
 uses of XML where XML is a poor choice don't do this), this is probably
 not a serious limitation.
 [list_end]
@@ -62,7 +63,7 @@ not a serious limitation.
 
 [arg pxml] is a parsed XML, as returned from xsxp::parse.
 [arg path] is a list of element tag names. Each element is the name
-of a child to look up, optionally followed by a 
+of a child to look up, optionally followed by a
 hash ("#") and a string of digits. An empty list or an initial empty element
 selects [arg pxml]. If no hash sign is present, the behavior is as if "#0"
 had been appended to that element. (In addition to a list, slashes can separate subparts where convenient.)
@@ -74,7 +75,7 @@ for the n'th instance of a child whose tag matches the part of the
 element before the hash sign. If an element is simply "#"  followed
 by digits, that indexed child is selected, regardless of the tags
 in the children. Hence, an element of "#3" will always select
-the fourth child of the node under consideration. 
+the fourth child of the node under consideration.
 
 [para]
 [arg part] defaults to "%ALL". It can be one of the following case-sensitive terms:
@@ -98,16 +99,16 @@ no PCDATA is found.
 [list_end]
 
 [para]
-For example, to fetch the first bold text from the fifth paragraph of the body of your HTML file, 
+For example, to fetch the first bold text from the fifth paragraph of the body of your HTML file,
 [example {xsxp::fetch $pxml {html body p#4 b} %PCDATA}]
 
 [para]
 
 [call [cmd xsxp::fetchall] [arg pxml_list] [arg path] [opt [arg part]]]
 
-This iterates over each PXML in [arg pxml_list] (which must be a list 
-of pxmls) selecting the indicated path from it, building a new list 
-with the selected data, and returning that new list. 
+This iterates over each PXML in [arg pxml_list] (which must be a list
+of pxmls) selecting the indicated path from it, building a new list
+with the selected data, and returning that new list.
 
 [para]
 
@@ -130,16 +131,6 @@ version of [arg pxml].
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph amazon-s3] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY amazon-s3]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]
-

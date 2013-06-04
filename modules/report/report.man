@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin report n 0.3.1]
+[keywords matrix]
+[keywords report]
+[keywords table]
 [copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Matrix reports}]
 [titledesc {Create and manipulate report objects}]
@@ -106,7 +109,6 @@ The different kinds of lines and the codes used by the report methods
 to address them are:
 
 [list_begin definitions]
-
 
 [def [const top]]
 
@@ -235,7 +237,6 @@ the arguments expected by it have to be defined in the call.
 The following commands are possible for report objects:
 
 [list_begin definitions]
-
 
 [call [arg reportName] [method destroy]]
 
@@ -469,17 +470,6 @@ contains useful data.
     % m format 2string r
 }]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph report] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords matrix report table]
+[vset CATEGORY report]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]
