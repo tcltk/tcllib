@@ -2769,10 +2769,8 @@ your own types\&.
 .PP
 .SH CAVEATS
 If you have problems, find bugs, or new ideas you are hereby cordially
-invited to submit a report of your problem, bug, or idea at the
-SourceForge trackers for tcllib, which can be found at
-\fIhttp://sourceforge\&.net/projects/tcllib/\fR\&.
-The relevant category is \fIsnit\fR\&.
+invited to submit a report of your problem, bug, or idea as explained
+in the section \fBBugs, Ideas, Feedback\fR below\&.
 .PP
 Additionally, you might wish to join the Snit mailing list;
 see \fIhttp://www\&.wjduquette\&.com/snit\fR for details\&.
@@ -2787,8 +2785,8 @@ Error stack traces returned by Snit 1\&.x are extremely ugly and typically
 contain far too much information about Snit internals\&.  The error
 messages are much improved in Snit 2\&.2\&.
 .IP \(bu
-Also see the SourceForge Trackers at
-\fIhttp://sourceforge\&.net/projects/tcllib/\fR, category \fIsnit\fR\&.
+Also see the Project Trackers as explained in the section
+\fBBugs, Ideas, Feedback\fR below\&.
 .PP
 .SH HISTORY
 During the course of developing Notebook
