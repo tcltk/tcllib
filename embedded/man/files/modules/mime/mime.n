@@ -535,7 +535,7 @@ that are unknown return ""\&.
 .PP
 .SH "KNOWN BUGS"
 .TP
-SourceForge Tcllib Bug #447037
+Tcllib Bug #447037
 This problem affects only people which are using Tcl and Mime on a
 64-bit system\&. The currently recommended fix for this problem is to
 upgrade to Tcl version 8\&.4\&. This version has extended 64 bit support
@@ -546,8 +546,7 @@ Tcl 8\&.4 for this package\&. We decided against this solution as it would
 force a large number of unaffected users to upgrade their Tcl
 interpreter for no reason\&.
 .sp
-See \fIhttp://sourceforge\&.net/tracker/?func=detail&aid=447037&group_id=12883&atid=112883\fR
-for additional information\&.
+See \fITicket 447037\fR [/tktview?name=447037] for additional information\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain

@@ -380,7 +380,7 @@ that are unknown return "".
 [section {KNOWN BUGS}]
 
 [list_begin definitions]
-[def {SourceForge Tcllib Bug #447037}]
+[def {Tcllib Bug #447037}]
 
 This problem affects only people which are using Tcl and Mime on a
 64-bit system. The currently recommended fix for this problem is to
@@ -396,8 +396,7 @@ interpreter for no reason.
 
 [para]
 
-See [uri http://sourceforge.net/tracker/?func=detail&aid=447037&group_id=12883&atid=112883]
-for additional information.
+See [uri {/tktview?name=447037} {Ticket 447037}] for additional information.
 
 [list_end]
 
