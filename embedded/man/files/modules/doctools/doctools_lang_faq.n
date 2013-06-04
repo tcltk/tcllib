@@ -243,32 +243,33 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 doctools_lang_faq \- doctools language faq
 .SH DESCRIPTION
-.PP
 .SH OVERVIEW
 .SS "WHAT IS THIS DOCUMENT?"
 This document is currently mainly a placeholder, to be filled with
-commonly asked questions about the doctools markup language and
-companions, and their answers\&.
+commonly asked questions about the doctools markup language
+and companions, and their answers\&.
 .PP
 Please report any questions (and, if possible, answers) we should
-consider for this document in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+consider for this document as explained in the section
+\fBBugs, Ideas, Feedback\fR below\&.
 .SH EXAMPLES
 .SS "WHERE DO I FIND DOCTOOLS EXAMPLES?"
-The most examples of doctools markup currently known can be found in
-the Tcllib and Tklib package bundles where basically the documentation
-of all packages is written in it\&.
-In Tcllib you will also find the sources for the doctools
-documentation themselves, which makes use of nearly all of the
-available markup commands\&.
-You need one of
+We have no direct examples of documents written using doctools
+markup\&. However the doctools processor \fBdtplite\fR does generate
+a table of contents when processing a set of documents written in
+doctools markup\&. The intermediate file for it uses doctools
+markup and is not deleted when generation completes\&. Such files can
+therefore serve as examples\&.
+.PP
+\fBdtplite\fR is distributed as part of Tcllib, so to get it you
+need one of
 .IP [1]
-A CVS snapshot of Tcllib\&. How to retrieve such a snapshot and the
+A snapshot of Tcllib\&. How to retrieve such a snapshot and the
 tools required for this are described at
-\fIhttp://sourceforge\&.net/cvs/?group_id=12883\fR
+\fIDevelopment Snapshots\fR [/wiki?name=Development+Snapshots]
 .IP [2]
-A Tcllib release archive\&. They are available at
-\fIhttp://sourceforge\&.net/project/showfiles\&.php?group_id=12883\fR
+A Tcllib release archive\&. They are available at the \fIhome\fR [/home]
+page\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain

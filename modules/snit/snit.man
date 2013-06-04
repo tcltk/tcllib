@@ -2753,12 +2753,8 @@ your own types.
 [section CAVEATS]
 
 If you have problems, find bugs, or new ideas you are hereby cordially
-invited to submit a report of your problem, bug, or idea at the
-SourceForge trackers for tcllib, which can be found at
-
-[uri http://sourceforge.net/projects/tcllib/].
-
-The relevant category is [emph snit].
+invited to submit a report of your problem, bug, or idea as explained
+in the section [sectref {Bugs, Ideas, Feedback}] below.
 
 [para]
 
@@ -2783,8 +2779,8 @@ messages are much improved in Snit 2.2.
 
 [item]
 
-Also see the SourceForge Trackers at
-[uri http://sourceforge.net/projects/tcllib/], category [emph snit].
+Also see the Project Trackers as explained in the section
+[sectref {Bugs, Ideas, Feedback}] below.
 
 [list_end]
 

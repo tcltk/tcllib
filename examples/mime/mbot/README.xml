@@ -48,10 +48,10 @@ and "USER" is your username.</postamble>
 <section title="Requirements">
 <t>This package requires:
 <list style="symbols">
-<t><eref target="http://sourceforge.net/projects/tcl/">Tcl version 8.3</eref>
+<t><eref target="http://core.tcl.tk/tcl/">Tcl version 8.3</eref>
 or later</t>
 
-<t><eref target="http://sourceforge.net/projects/tcllib/">tcl lib</eref></t>
+<t><eref target="http://core.tcl.tk/tcllib/">tcl lib</eref></t>
 
 <t><eref target="http://sourceforge.net/projects/tclx/">TclX version 8.0</eref>
 or later</t>
