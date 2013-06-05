@@ -52,26 +52,26 @@ doc:     html-doc nroff-doc
 install:
 	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/installer.tcl` \
 		-no-examples -no-html \
-		-pkg-path   $(DESTDIR)$(pkglibdir) \
-		-app-path   $(DESTDIR)$(bindir) \
-		-nroff-path $(DESTDIR)$(mandir)/mann \
+		-pkg-path   `$(CYGPATH) $(DESTDIR)$(pkglibdir)` \
+		-app-path   `$(CYGPATH) $(DESTDIR)$(bindir)` \
+		-nroff-path `$(CYGPATH) $(DESTDIR)$(mandir)/mann` \
 		-no-wait -no-gui
 
 install-libraries:
 	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/installer.tcl` \
-		-pkg-path   $(DESTDIR)$(pkglibdir) \
+		-pkg-path   `$(CYGPATH) $(DESTDIR)$(pkglibdir)` \
 		-no-examples -no-html -no-nroff \
 		-no-wait -no-gui -no-apps
 
 install-applications:
 	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/installer.tcl` \
-		-app-path   $(DESTDIR)$(bindir) \
+		-app-path   `$(CYGPATH) $(DESTDIR)$(bindir)` \
 		-no-examples -no-html -no-nroff \
 		-no-wait -no-gui -no-pkgs
 
 install-doc:
 	$(TCLSH_PROG) `$(CYGPATH) $(srcdir)/installer.tcl` \
-		-nroff-path $(DESTDIR)$(mandir)/mann \
+		-nroff-path `$(CYGPATH) $(DESTDIR)$(mandir)/mann` \
 		-no-examples -no-pkgs -no-html \
 		-no-wait -no-gui -no-apps
 

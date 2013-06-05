@@ -35,10 +35,12 @@ snit::type            ::zipfile::encode {
 
     method file: {dst owned src} {
 	if {[info exists files($dst)]} {
-	    return -code error "Invalid file definition, destination is already in use"
+	    return -code error -errorcode {ZIP ENCODE DUPLICATE PATH} \
+		"Duplicate destination path \"$dst\""
 	}
 	if {![string is boolean -strict $owned]} {
-	    return -code error "Expected boolean, got \"$owned\""
+	    return -code error -errorcode {ZIP ENCODE OWNED VALUE BOOLEAN} \
+		"Expected boolean, got \"$owned\""
 	}
 
 	if {[catch {
@@ -365,5 +367,5 @@ snit::type            ::zipfile::encode {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::encode 0.2
+package provide zipfile::encode 0.3
 return

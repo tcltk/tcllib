@@ -92,7 +92,7 @@
     }
 --></style>
 </head>
-<! -- Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/www/tcllib/files/modules/fileutil/multiop.html' by tcllib/doctools with format 'html'
+<! -- Generated from file 'multiop.man' by tcllib/doctools with format 'html'
    -->
 <! -- CVS: $Id$ fileutil::multi::op.n
    -->
@@ -119,7 +119,7 @@
 <li class="section"><a href="#section3">OBJECT API</a></li>
 <li class="section"><a href="#section4">FILE API</a></li>
 <li class="section"><a href="#section5">EXAMPLES</a></li>
-<li class="section"><a href="#section6">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
 </ul>
@@ -147,9 +147,9 @@
 <li><a href="#13"><b class="cmd">as</b> <i class="arg">name</i></a></li>
 <li><a href="#14"><b class="cmd">recursive</b></a></li>
 <li><a href="#15"><b class="cmd">recursively</b></a></li>
-<li><a href="#16"><b class="cmd"><a href="../../../../index.html#key79">copy</a></b></a></li>
-<li><a href="#17"><b class="cmd"><a href="../../../../index.html#key222">move</a></b></a></li>
-<li><a href="#18"><b class="cmd"><a href="../../../../index.html#key221">remove</a></b></a></li>
+<li><a href="#16"><b class="cmd"><a href="../../../../index.html#key78">copy</a></b></a></li>
+<li><a href="#17"><b class="cmd"><a href="../../../../index.html#key227">move</a></b></a></li>
+<li><a href="#18"><b class="cmd"><a href="../../../../index.html#key226">remove</a></b></a></li>
 <li><a href="#19"><b class="cmd">expand</b></a></li>
 <li><a href="#20"><b class="cmd">invoke</b> <i class="arg">cmdprefix</i></a></li>
 <li><a href="#21"><b class="cmd">reset</b></a></li>
@@ -263,15 +263,15 @@ operation.</p></dd>
 hierarchy and not just the directory itself.</p></dd>
 <dt><a name="15"><b class="cmd">recursively</b></a></dt>
 <dd><p>An alias for <b class="cmd">recursive</b>.</p></dd>
-<dt><a name="16"><b class="cmd"><a href="../../../../index.html#key79">copy</a></b></a></dt>
+<dt><a name="16"><b class="cmd"><a href="../../../../index.html#key78">copy</a></b></a></dt>
 <dd><p>Signals that the operation is the copying of files from source to
 destination directory per the specified inclusion and exclusion
 patterns.</p></dd>
-<dt><a name="17"><b class="cmd"><a href="../../../../index.html#key222">move</a></b></a></dt>
+<dt><a name="17"><b class="cmd"><a href="../../../../index.html#key227">move</a></b></a></dt>
 <dd><p>Signals that the operation is the moving of files from source to
 destination directory per the specified inclusion and exclusion
 patterns.</p></dd>
-<dt><a name="18"><b class="cmd"><a href="../../../../index.html#key221">remove</a></b></a></dt>
+<dt><a name="18"><b class="cmd"><a href="../../../../index.html#key226">remove</a></b></a></dt>
 <dd><p>Signals that the operation is the removal of files in the destination
 directory per the specified inclusion and exclusion patterns.</p></dd>
 <dt><a name="19"><b class="cmd">expand</b></a></dt>
@@ -321,7 +321,7 @@ patterns and the alias name, if specified, are reset to their default
 values (i.e. empty), but nothing else.</p></dd>
 <dt><a name="30"><b class="cmd">the-set</b> <i class="arg">varname</i></a></dt>
 <dd><p>Like <b class="cmd">the</b>, however the set of files to use is not specified
-implicitly per a glob pattern, but contained and loaded from the 
+implicitly per a glob pattern, but contained and loaded from the
 specified variable. The operation <b class="cmd">expand</b> is not available
 if this command is used.</p></dd>
 <dt><a name="31"><b class="cmd">-&gt;</b> <i class="arg">varname</i></a></dt>
@@ -356,7 +356,7 @@ expansion are not reported as errors.</p></dd>
 <dt><b class="const">into</b></dt>
 <dd><p>Current destination directory, set by <b class="cmd">into</b> (and aliases).</p></dd>
 <dt><b class="const">operation</b></dt>
-<dd><p>Current operation to perform, set by <b class="cmd"><a href="../../../../index.html#key79">copy</a></b>, <b class="cmd"><a href="../../../../index.html#key222">move</a></b>, <b class="cmd"><a href="../../../../index.html#key221">remove</a></b>, <b class="cmd">expand</b>, or <b class="cmd">invoke</b>.</p></dd>
+<dd><p>Current operation to perform, set by <b class="cmd"><a href="../../../../index.html#key78">copy</a></b>, <b class="cmd"><a href="../../../../index.html#key227">move</a></b>, <b class="cmd"><a href="../../../../index.html#key226">remove</a></b>, <b class="cmd">expand</b>, or <b class="cmd">invoke</b>.</p></dd>
 <dt><b class="const">recursive</b></dt>
 <dd><p>Current recursion status. Set/unset by <b class="cmd">recursive</b> and <b class="cmd">!recursive</b>.</p></dd>
 <dt><b class="const">strict</b></dt>
@@ -444,16 +444,16 @@ $F do                   \\
     as   pkgIndex.tcl
 </pre>
 </div>
-<div id="section6" class="section"><h2><a name="section6">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section6" class="section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>fileutil</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key79">copy</a>, <a href="../../../../index.html#key118">file utilities</a>, <a href="../../../../index.html#key222">move</a>, <a href="../../../../index.html#key220">multi-file</a>, <a href="../../../../index.html#key221">remove</a></p>
+<p><a href="../../../../index.html#key78">copy</a>, <a href="../../../../index.html#key121">file utilities</a>, <a href="../../../../index.html#key227">move</a>, <a href="../../../../index.html#key225">multi-file</a>, <a href="../../../../index.html#key226">remove</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>

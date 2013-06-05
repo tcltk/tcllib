@@ -47,7 +47,6 @@ invoke various operations on the object.
 
 [list_end]
 
-
 [subsection {Object API}]
 
 All objects created by this package provide the following 63 methods
@@ -348,7 +347,6 @@ i_error_push
 
 Parsers use it at the beginning of sequences generating an AST and
 choices with an initial branch generating an AST.
-
 
 [call [arg objectName] [method si:void_state_merge]]
 

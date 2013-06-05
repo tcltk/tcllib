@@ -692,6 +692,7 @@ proc ::doctools::SetupFormatter {name format} {
     interp alias $mpip dt_package  {} ::doctools::Package $mpip
     interp alias $mpip file        {} ::doctools::FileOp  $mpip
     interp alias $mpip puts_stderr {} ::puts stderr
+    interp alias $mpip puts_stdout {} ::puts stdout
     $mpip invokehidden source $format
     #$mpip eval [list source $format]
 
@@ -752,6 +753,7 @@ proc ::doctools::SetupFormatter {name format} {
     interp alias $mpip dt_file      {} ::doctools::GetFile      $name
     interp alias $mpip dt_mainfile  {} ::doctools::GetMainFile  $name
     interp alias $mpip dt_fileid    {} ::doctools::GetFileId    $name
+    interp alias $mpip dt_ibase     {} ::doctools::GetIBase     $name
     interp alias $mpip dt_module    {} ::doctools::GetModule    $name
     interp alias $mpip dt_copyright {} ::doctools::GetCopyright $name
     interp alias $mpip dt_format    {} ::doctools::GetFormat    $name
@@ -1082,6 +1084,15 @@ proc ::doctools::GetFileId {name} {
     return [file rootname [file tail [GetFile $name]]]
 }
 
+proc ::doctools::GetIBase {name} {
+    upvar #0 ::doctools::doctools${name}::file file
+    upvar #0 ::doctools::doctools${name}::ibase ibase
+
+    set base $ibase
+    if {$base eq {}} { set base $file }
+    return $base
+}
+
 # ::doctools::FileCmd --
 #
 #	API for formatter. Restricted implementation of file.
@@ -1094,8 +1105,10 @@ proc ::doctools::GetFileId {name} {
 
 proc ::doctools::FileCmd {cmd args} {
     switch -exact -- $cmd {
-	split {return [eval file split $args]}
-	join  {return [eval file join $args]}
+	split    {return [eval file split    $args]}
+	join     {return [eval file join     $args]}
+	tail     {return [eval file tail     $args]}
+	rootname {return [eval file rootname $args]}
     }
     return -code error "Illegal subcommand: $cmd $args"
 }
@@ -1337,4 +1350,4 @@ namespace eval ::doctools {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools 1.4.16
+package provide doctools 1.4.17

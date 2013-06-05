@@ -1,4 +1,12 @@
 [manpage_begin tcllib_ip n 1.2.1]
+[see_also inet(3)]
+[see_also ip(7)]
+[see_also ipv6(7)]
+[keywords {internet address}]
+[keywords ip]
+[keywords ipv4]
+[keywords ipv6]
+[keywords {rfc 3513}]
 [copyright {2004, Pat Thoyts}]
 [copyright {2005 Aamer Akhter <aakhter@cisco.com>}]
 [moddesc   {Domain Name Service}]
@@ -41,8 +49,8 @@ the procedure returns true if they match.
 
 Convert an IPv4 or IPv6 address into a fully expanded version. There
 are various shorthand ways to write internet addresses, missing out
-redundant parts or digts.. This procedure is the opposite of 
-[cmd contract].  
+redundant parts or digts.. This procedure is the opposite of
+[cmd contract].
 
 [call [cmd ::ip::contract] [arg address]]
 
@@ -62,7 +70,6 @@ calling [cmd normalize]
 If the address supplied includes a mask then this is returned
 otherwise returns an empty string.
 
-
 [call [cmd ::ip::prefixToNative] [arg prefix]]
 
 This command converts the string [arg prefix] from dotted form
@@ -75,7 +82,6 @@ hexadecimal notation.
    % ip::prefixToNative 1.1.1.0/24
    0x01010100 0xffffff00
 }]
-
 
 [call [cmd ::ip::nativeToPrefix] [arg nativeList]|[arg native] \
 	[opt [option -ipv4]]]
@@ -107,7 +113,6 @@ form is returned.
    1.1.1.0/24
 }]
 
-
 [call [cmd ::ip::intToString] [arg number] [opt [option -ipv4]]]
 
 This command converts from an ip address specified as integer number
@@ -119,7 +124,6 @@ to dotted form.
        255.255.255.255
 }]
 
-
 [call [cmd ::ip::toInteger] [arg ipaddr]]
 
 This command converts a dotted form ip into an integer number.
@@ -129,7 +133,6 @@ This command converts a dotted form ip into an integer number.
    % ::ip::toInteger 1.1.1.0
    16843008
 }]
-
 
 [call [cmd ::ip::toHex] [arg ipaddr]]
 
@@ -141,7 +144,6 @@ This command converts dotted form ip into a hexadecimal number.
    0x01010100
 }]
 
-
 [call [cmd ::ip::maskToInt] [arg ipmask]]
 
 This command convert an ipmask in either dotted (255.255.255.0) form
@@ -152,7 +154,6 @@ or mask length form (24) into an integer number.
    ::ip::maskToInt 24
    4294967040
 }]
-
 
 [call [cmd ::ip::broadcastAddress] [arg prefix] [opt [option -ipv4]]]
 
@@ -167,8 +168,7 @@ form. The result is in dotted form.
 
    ::ip::broadcastAddress {0x01010100 0xffffff00}
    0x010101ff
-}]   
-
+}]
 
 [call [cmd ::ip::maskToLength] \
 	[arg dottedMask]|[arg integerMask]|[arg hexMask] \
@@ -198,7 +198,6 @@ form.
    255.255.255.0
 }]
 
-
 [call [cmd ::ip::nextNet] [arg ipaddr] [arg ipmask] \
 	[opt [arg count]] \
 	[opt [option -ipv4]]]
@@ -217,7 +216,6 @@ or mask length form.
 
 The result is in hex form.
 
-
 [call [cmd ::ip::isOverlap] [arg prefix] [arg prefix]...]
 
 This command checks if the given ip prefixes overlap.  All arguments
@@ -233,7 +231,6 @@ value. It is true if an overlap was found for any of the prefixes.
   ::ip::isOverlap 1.1.1.0/24 2.1.0.1/32 1.1.1.1/32
   1
 }]
-
 
 [call [cmd ::ip::isOverlapNative] \
 	[opt [option -all]] \
@@ -286,7 +283,6 @@ if there are none.
   2
 }]
 
-
 [call [cmd ::ip::ipToLayer2Multicast] [arg ipaddr]]
 
 This command an converts ipv4 address in dotted form into a layer 2
@@ -297,7 +293,6 @@ multicast address, also in dotted form.
   % ::ip::ipToLayer2Multicast 224.0.0.2
   01.00.5e.00.00.02
 }]
-
 
 [call [cmd ::ip::ipHostFromPrefix] [arg prefix] \
 	[opt "[option -exclude] [arg prefixExcludeList]"]]
@@ -317,7 +312,6 @@ The result is an ip address in dotted form.
   1.1.1.1
 }]
 
-
 [call [cmd ::ip::reduceToAggregates] [arg prefixlist]]
 
 This command finds nets that overlap and filters out the more specific
@@ -331,7 +325,6 @@ the input.
   % ::ip::reduceToAggregates {1.1.1.0/24 1.1.0.0/8  2.1.1.0/24 1.1.1.1/32 }
   1.0.0.0/8 2.1.1.0/24
 }]
-
 
 [call [cmd ::ip::longestPrefixMatch] [arg ipaddr] [arg prefixlist] \
 	[opt [option -ipv4]]]
@@ -350,7 +343,6 @@ address.
   1.1.1.0/28
 }]
 
-
 [call [cmd ::ip::collapse] [arg prefixlist]]
 
 This commands takes a list of prefixes and returns a list prefixes
@@ -367,7 +359,6 @@ merges nets into larger ranges when they are adjacent to each other.
 % ::ip::collapse {1.2.2.0/24 1.2.3.0/24}
 1.2.2.0/23
 }]
-
 
 [call [cmd ::ip::subtract] [arg prefixlist]]
 
@@ -429,21 +420,9 @@ fec0::1
 
 [list_end]
 
-[see_also inet(3) ip(7) ipv6(7)]
 [section AUTHORS]
 Pat Thoyts
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph dns] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords {internet address} ip ipv4 ipv6 {rfc 3513}]
+[vset CATEGORY dns]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,11 +1,17 @@
 [manpage_begin comm_wire n 3]
+[see_also comm]
+[keywords comm]
+[keywords communication]
+[keywords ipc]
+[keywords message]
+[keywords {remote communication}]
+[keywords {remote execution}]
+[keywords rpc]
+[keywords socket]
 [copyright {2005 Docs. Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Remote communication}]
 [titledesc {The comm wire protocol}]
 [category  {Programming tools}]
-[keywords  socket {remote execution} {remote communication}]
-[keywords  communication ipc message rpc comm]
-[see_also  comm]
 [require comm]
 [description]
 
@@ -71,7 +77,6 @@ protocol.
     wall.
 }]
 
-
 [section {Wire Protocol Version 3}]
 [subsection {Basic Layer}]
 
@@ -83,7 +88,7 @@ as is, without the need for armoring it.
 
 On top of the [sectref {Basic Layer}] we have a
 
-[term {message oriented}] exchange of data. 
+[term {message oriented}] exchange of data.
 
 The totality of all characters written to the channel is a Tcl list,
 with each element a separate [term message], each itself a list. The
@@ -103,7 +108,6 @@ line-endings.
 As a list each message is composed of [term words]. Their meaning
 depends on when the message was sent in the overall exchange. This is
 described in the upcoming sections.
-
 
 [subsection {Negotiation Messages - Initial Handshake} ih]
 
@@ -146,7 +150,6 @@ second.
                 version is sent before commNewComm is called (in
                 commIncoming).
 
-
         NOTE 2:
 
         This inconsistency has been fixed locally already, but
@@ -163,7 +166,6 @@ transaction ids are used by the client to match any incoming replies
 to the command messages it sent. This means that a server has to copy
 the transaction id from a command message to the reply it sends for
 that message.
-
 
 [list_begin definitions]
 
@@ -213,7 +215,6 @@ variable arguments. Like
 }]
 [para]
 
-
 These three instructions all invoke the script on the server
 side. Their difference is in the treatment of result values, and thus
 determines if a reply is expected.
@@ -254,7 +255,6 @@ Examples:
 
 [list_end]
 
-
 [comment {
 	 Socket Miscellanea
 	 ------------------
@@ -263,12 +263,10 @@ Examples:
 	 server. This happens if both sides connected to each other at
 	 the same time.
 
-
 	 Current protocol versions
 	 -------------------------
 
 	 V2
-
 
 	 V3      This is preferred version and uses UTF 8 encoding.
 
@@ -281,16 +279,6 @@ Examples:
 	         reply during the negotiation handshake.
 }]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph comm] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
+[vset CATEGORY comm]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/virtchannel_base/cat\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'cat\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -259,7 +259,7 @@ package require \fBtcl::chan::cat  ?1?\fR
 The \fBtcl::chan::cat\fR package provides a command creating
 concatenation channels\&. These are non-seekable channels owning a list
 of subordinate channels whose contents they return in order, until all
-are exhausted\&. In this manner the cahnnel is the concatentation of the
+are exhausted\&. In this manner the channel is the concatentation of the
 contents of all the sub-ordinate channels\&.
 .PP
 Note that the created channels take ownership of the channels
@@ -281,7 +281,7 @@ channels, and returns its handle\&.
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
 Please report such in the category \fIvirtchannel\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH KEYWORDS

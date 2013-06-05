@@ -1,5 +1,16 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin tcl::transform::rot n 1]
+[keywords {caesar cipher}]
+[keywords {channel transformation}]
+[keywords cipher]
+[keywords decryption]
+[keywords encryption]
+[keywords {reflected channel}]
+[keywords rot]
+[keywords rot13]
+[keywords {tip 230}]
+[keywords transformation]
+[keywords {virtual channel}]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
@@ -14,7 +25,6 @@ The [package tcl::transform::rot] package provides a command creating
 a channel transformation which performs primitive encryption (on
 writing) and decryption (on reading) on the alphabetic characters. The
 algorithm is the Caesar-cipher, a specific variant of which is rot13.
-
 
 [para] A related transformations in this module is
 [package tcl::transform::otp].
@@ -42,19 +52,6 @@ through unchanged.
 
 [list_end]
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph virtchannel] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords rot encryption decryption rot13 transformation {channel transformation}]
-[keywords {caesar cipher} cipher {virtual channel} {reflected channel} {tip 230}]
+[vset CATEGORY virtchannel]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

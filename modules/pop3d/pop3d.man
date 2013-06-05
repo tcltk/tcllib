@@ -1,11 +1,18 @@
 [comment {-*- tcl -*-}]
 [manpage_begin pop3d n 1.1.0]
+[keywords internet]
+[keywords network]
+[keywords pop3]
+[keywords protocol]
+[keywords {rfc 1939}]
+[keywords secure]
+[keywords ssl]
+[keywords tls]
 [copyright {2002-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [copyright {2005 Reinhard Max  <max@suse.de>}]
 [moddesc   {Tcl POP3 Server Package}]
 [titledesc {Tcl POP3 server implementation}]
 [category  Networking]
-[keywords pop3 internet network protocol {rfc 1939} ssl tls secure]
 [require Tcl 8.3]
 [require pop3d [opt 1.1.0]]
 [description]
@@ -253,7 +260,6 @@ command, see package [package tls], to secure the communication.
 	pop3d::new S -socket tls::socket
 	...
 }]
-
 
 [section References]
 

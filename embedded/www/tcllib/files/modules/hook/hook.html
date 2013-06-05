@@ -92,7 +92,7 @@
     }
 --></style>
 </head>
-<! -- Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/www/tcllib/files/modules/hook/hook.html' by tcllib/doctools with format 'html'
+<! -- Generated from file 'hook.man' by tcllib/doctools with format 'html'
    -->
 <! -- Copyright &copy; 2010, by William H. Duquette
    -->
@@ -181,16 +181,16 @@ which implements just such a mechanism.</p>
 <p>The <b class="cmd">hook</b> command manages a collection of hook bindings. A hook
 binding has four elements:</p>
 <ol class="enumerated">
-<li><p>A <i class="term"><a href="../../../../index.html#key656">subject</a></i>: the name of the entity that will be calling the
+<li><p>A <i class="term"><a href="../../../../index.html#key659">subject</a></i>: the name of the entity that will be calling the
 hook.</p></li>
-<li><p>The <i class="term"><a href="../../../../index.html#key657">hook</a></i> itself. A hook usually reflects some occurrence in the
-life of the <i class="term"><a href="../../../../index.html#key656">subject</a></i> that other entities might care to know
-about. A <i class="term"><a href="../../../../index.html#key657">hook</a></i> has a name, and may also have arguments. Hook
-names are arbitrary strings. Each <i class="term"><a href="../../../../index.html#key656">subject</a></i> must document the
+<li><p>The <i class="term"><a href="../../../../index.html#key661">hook</a></i> itself. A hook usually reflects some occurrence in the
+life of the <i class="term"><a href="../../../../index.html#key659">subject</a></i> that other entities might care to know
+about. A <i class="term"><a href="../../../../index.html#key661">hook</a></i> has a name, and may also have arguments. Hook
+names are arbitrary strings. Each <i class="term"><a href="../../../../index.html#key659">subject</a></i> must document the
 names and arguments of the hooks it can call.</p></li>
-<li><p>The name of the <i class="term"><a href="../../../../index.html#key628">observer</a></i> that wishes to receive the <i class="term"><a href="../../../../index.html#key657">hook</a></i>
-from the <i class="term"><a href="../../../../index.html#key656">subject</a></i>.</p></li>
-<li><p>A command prefix to which the <i class="term"><a href="../../../../index.html#key657">hook</a></i> arguments will be appended 
+<li><p>The name of the <i class="term"><a href="../../../../index.html#key630">observer</a></i> that wishes to receive the <i class="term"><a href="../../../../index.html#key661">hook</a></i>
+from the <i class="term"><a href="../../../../index.html#key659">subject</a></i>.</p></li>
+<li><p>A command prefix to which the <i class="term"><a href="../../../../index.html#key661">hook</a></i> arguments will be appended
 when the binding is executed.</p></li>
 </ol>
 </div>
@@ -198,7 +198,7 @@ when the binding is executed.</p></li>
 <p>For convenience, this document collectively refers to subjects and
 observers as <i class="term">objects</i>, while placing no requirements on how
 these <i class="term">objects</i> are actually implemented. An object can be a
-<b class="package"><a href="../../../../index.html#key742">TclOO</a></b> or <b class="package"><a href="../../../../index.html#key772">Snit</a></b> or <b class="package">XOTcl</b> object, a Tcl
+<b class="package"><a href="../../../../index.html#key749">TclOO</a></b> or <b class="package"><a href="../../../../index.html#key782">Snit</a></b> or <b class="package">XOTcl</b> object, a Tcl
 command, a namespace, a module, a pseudo-object managed by some other
 object (as tags are managed by the Tk text widget) or simply a
 well-known name.</p>
@@ -324,8 +324,8 @@ returns in observer bindings. See <b class="cmd">hook configure</b>, below, for
 more information on configuration options.</p></dd>
 <dt><a name="3"><b class="cmd">hook</b> <b class="method">forget</b> <i class="arg">object</i></a></dt>
 <dd><p>This command deletes any existing bindings in which the named
-<i class="arg">object</i> appears as either the <i class="term"><a href="../../../../index.html#key656">subject</a></i> or the
-<i class="term"><a href="../../../../index.html#key628">observer</a></i>.
+<i class="arg">object</i> appears as either the <i class="term"><a href="../../../../index.html#key659">subject</a></i> or the
+<i class="term"><a href="../../../../index.html#key630">observer</a></i>.
 Bindings deleted by this method will never be called again. In
 particular,</p>
 <ol class="enumerated">
@@ -345,9 +345,9 @@ configuration options.</p></dd>
 configuration options:</p>
 <dl class="options">
 <dt><b class="option">-errorcommand</b> <i class="arg">cmdPrefix</i></dt>
-<dd><p>If the value of this option is the empty string, &quot;&quot;, then errors 
-and other exception returns in binding scripts are propagated 
-normally. Otherwise, it must be a command prefix taking three 
+<dd><p>If the value of this option is the empty string, &quot;&quot;, then errors
+and other exception returns in binding scripts are propagated
+normally. Otherwise, it must be a command prefix taking three
 additional arguments:</p>
 <ol class="enumerated">
 <li><p>a 4-element list {subject hook arglist observer},</p></li>
@@ -358,11 +358,11 @@ additional arguments:</p>
 the error, call <b class="cmd">interp bgerror</b>, delete the errant binding
 (thus preventing the error from arising a second time) and so forth.</p></dd>
 <dt><b class="option">-tracecommand</b> <i class="arg">cmdPrefix</i></dt>
-<dd><p>The option's value should be a command prefix taking four 
+<dd><p>The option's value should be a command prefix taking four
 arguments:</p>
 <ol class="enumerated">
-<li><p>a <i class="term"><a href="../../../../index.html#key656">subject</a></i>,</p></li>
-<li><p>a <i class="term"><a href="../../../../index.html#key657">hook</a></i>,</p></li>
+<li><p>a <i class="term"><a href="../../../../index.html#key659">subject</a></i>,</p></li>
+<li><p>a <i class="term"><a href="../../../../index.html#key661">hook</a></i>,</p></li>
 <li><p>a list of the hook's argument values, and</p></li>
 <li><p>a list of <i class="term">objects</i> the hook was called for.</p></li>
 </ol>
@@ -386,7 +386,7 @@ know about model updates. Consequently, it subscribes to the ::model's
 <p>When the <b class="cmd">::model</b> calls the hook, the <b class="widget">.view</b>s
 ModelUpdate subcommand will be called.</p>
 <p>Later the <b class="widget">.view</b> megawidget is destroyed. In its destructor,
-it tells the <i class="term"><a href="../../../../index.html#key657">hook</a></i> that it no longer exists:</p>
+it tells the <i class="term"><a href="../../../../index.html#key661">hook</a></i> that it no longer exists:</p>
 <pre class="example">
      hook forget .view
 </pre>
@@ -399,7 +399,7 @@ it tells the <i class="term"><a href="../../../../index.html#key657">hook</a></i
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>hook</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
@@ -407,7 +407,7 @@ package and/or documentation.</p>
 <p><a href="../uev/uevent.html">uevent(n)</a></p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key518">callback</a>, <a href="../../../../index.html#key520">event</a>, <a href="../../../../index.html#key657">hook</a>, <a href="../../../../index.html#key628">observer</a>, <a href="../../../../index.html#key655">producer</a>, <a href="../../../../index.html#key658">publisher</a>, <a href="../../../../index.html#key656">subject</a>, <a href="../../../../index.html#key654">subscriber</a>, <a href="../../../../index.html#key659">uevent</a></p>
+<p><a href="../../../../index.html#key519">callback</a>, <a href="../../../../index.html#key521">event</a>, <a href="../../../../index.html#key661">hook</a>, <a href="../../../../index.html#key630">observer</a>, <a href="../../../../index.html#key660">producer</a>, <a href="../../../../index.html#key662">publisher</a>, <a href="../../../../index.html#key659">subject</a>, <a href="../../../../index.html#key658">subscriber</a>, <a href="../../../../index.html#key663">uevent</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>

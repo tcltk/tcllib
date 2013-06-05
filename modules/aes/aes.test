@@ -17,8 +17,8 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.2
-testsNeedTcltest 1.0
+testsNeedTcl     8.4
+testsNeedTcltest 2
 
 testing {
     useLocal aes.tcl aes
@@ -240,6 +240,7 @@ test aes-sf2993029 {aes decrypt, wide integer, sf bug 2993029} {
 
 } {01000000000000003d5afbb584a29f57}
 
+# -------------------------------------------------------------------------
 
 test aes-sf-3574004-a {aes use with data starting with a dash, auto-stop} {
     aes::aes -hex -mode cbc -dir encrypt -key [string repeat \\0 16] -[string repeat \\0 15]
@@ -249,6 +250,84 @@ test aes-sf-3574004-b {aes use with data starting with a dash, double-dash} {
     aes::aes -hex -mode cbc -dir encrypt -key [string repeat \\0 16] -- -[string repeat \\0 15]
 } cc45117986e38ae95944f9eeaa7b700b240fdd169eacd2a20505ef4c6507c907
 
+# -------------------------------------------------------------------------
+## TODO: Go through the various possible options and combinations.
+
+test aes-sf-3612645-a0 {aes use of -in option, allura 1366} -setup {
+    set key     [binary format a32 0123456789012345678901234567890123456789]
+    set encfile [tcltest::makeFile {} aes.encrypt]
+    set decfile [tcltest::makeFile {} aes.decrypt]
+    set outchan [open $encfile wb+]
+    aes::aes -key $key -out $outchan "Hello World Tcl"
+    close $outchan
+    unset outchan
+} -body {
+    set inchan  [open $encfile rb]
+    set outchan [open $decfile w+]
+    aes::aes -dir decrypt -key $key -in $inchan -out $outchan
+    close $inchan
+    close $outchan
+    viewFile $decfile
+} -cleanup {
+    file delete $encfile $decfile
+    unset key encfile decfile inchan outchan
+} -result "Hello World Tcl\000"
+
+test aes-sf-3612645-a1 {aes use of -in option, allura 1366} -setup {
+    set key     [binary format a32 0123456789012345678901234567890123456789]
+    set encfile [tcltest::makeFile {} aes.encrypt]
+    set outchan [open $encfile wb+]
+    aes::aes -key $key -out $outchan "Hello World Tcl"
+    close $outchan
+    unset outchan
+} -body {
+    set inchan [open $encfile rb]
+    set out [aes::aes -dir decrypt -key $key -in $inchan]
+    close $inchan
+    set out
+} -cleanup {
+    file delete $encfile
+    unset out key encfile inchan
+} -result "Hello World Tcl\000"
+
+test aes-sf-3612645-b0 {aes non-use of -in option, allura 1366} -setup {
+    set key     [binary format a32 0123456789012345678901234567890123456789]
+    set encfile [tcltest::makeFile {} aes.encrypt]
+    set decfile [tcltest::makeFile {} aes.decrypt]
+    set outchan [open $encfile wb+]
+    aes::aes -key $key -out $outchan "Hello World Tcl"
+    close $outchan
+    unset outchan
+} -body {
+    set inchan  [open $encfile rb]
+    set outchan [open $decfile w+]
+    aes::aes -dir decrypt -key $key -out $outchan [read $inchan]
+    close $inchan
+    close $outchan
+    viewFile $decfile
+} -cleanup {
+    file delete $encfile $decfile
+    unset key encfile decfile inchan outchan
+} -result "Hello World Tcl\000"
+
+test aes-sf-3612645-b1 {aes non-use of -in option, allura 1366} -setup {
+    set key     [binary format a32 0123456789012345678901234567890123456789]
+    set encfile [tcltest::makeFile {} aes.encrypt]
+    set outchan [open $encfile wb+]
+    aes::aes -key $key -out $outchan "Hello World Tcl"
+    close $outchan
+    unset outchan
+} -body {
+    set inchan [open $encfile rb]
+    set out [aes::aes -dir decrypt -key $key [read $inchan]]
+    close $inchan
+    set out
+} -cleanup {
+    file delete $encfile
+    unset out key encfile inchan
+} -result "Hello World Tcl\000"
+
+# -------------------------------------------------------------------------
 
 testsuiteCleanup
 

@@ -1,6 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [comment { $Id: multiplexer.man,v 1.11 2009/01/29 06:16:20 andreas_kupries Exp $ }]
 [manpage_begin multiplexer n 0.2]
+[keywords chat]
+[keywords multiplexer]
 [moddesc   {One-to-many communication with sockets.}]
 [titledesc {One-to-many communication with sockets.}]
 [category  {Programming tools}]
@@ -56,7 +58,7 @@ warn, error, critical).
 [call [cmd \${multiplexer_instance}::AddFilter] [arg cmdprefix]]
 
 Command to add a filter for data that passes through the multiplexer
-instance. 
+instance.
 
 The registered [arg cmdprefix] is called when data arrives at a
 multiplexer instance. If there is more than one filter command
@@ -77,7 +79,6 @@ which sent the data to filter: The channel connecting us to the
 client, its ip-address, and its ip-port.
 
 [list_end]
-
 
 [call [cmd \${multiplexer_instance}::AddAccessFilter] [arg cmdprefix]]
 
@@ -102,7 +103,6 @@ its ip-address, and its ip-port.
 
 [list_end]
 
-
 [call [cmd \${multiplexer_instance}::AddExitFilter] [arg cmdprefix]]
 
 Adds filter to be run when client socket generates an EOF condition.
@@ -125,17 +125,6 @@ ip-port.
 [list_end]
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph multiplexer] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords multiplexer chat]
+[vset CATEGORY multiplexer]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

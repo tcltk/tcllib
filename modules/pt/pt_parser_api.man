@@ -47,7 +47,6 @@ All parser instances provide at least the methods shown below:
 [include include/std_parser_object_api.inc]
 [list_end]
 
-
 [section Usage]
 
 A generated parser is used like this

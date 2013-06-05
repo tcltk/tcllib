@@ -1,4 +1,11 @@
 [manpage_begin tie n 1.1]
+[keywords array]
+[keywords database]
+[keywords file]
+[keywords metakit]
+[keywords persistence]
+[keywords tie]
+[keywords untie]
 [copyright {2004-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Array persistence}]
@@ -36,7 +43,6 @@ This section describes the basic API used to establish and remove ties
 between Tcl array variables and data sources. This interface is the
 only one a casual user has to be concerned about. The following
 sections about the various internal interfaces can be safely skipped.
-
 
 [list_begin definitions]
 [call [cmd ::tie::tie] [arg arrayvarname] [arg options]... [arg dstype] [arg dsname]...]
@@ -103,7 +109,6 @@ This option and the option [option -save] exclude each other. If
 neither this nor option [option -save] are specified then this option
 is assumed as default.
 
-
 [opt_def -save]
 
 The Tcl array for the new tie is [term saved] to the
@@ -115,7 +120,6 @@ The Tcl array for the new tie is [term saved] to the
 This option and the option [option -open] exclude each other. If
 neither this nor option [option -open] are specified then option
 [option -open] is assumed as default.
-
 
 [opt_def -merge]
 
@@ -142,7 +146,6 @@ the [term {data source}].
 [list_end]
 [para]
 
-
 [call [cmd ::tie::untie] [arg arrayvarname] [opt [arg token]]]
 
 This command dissolves one or more ties associated with the Tcl array
@@ -167,7 +170,6 @@ saved to the [term {data source}] anymore.
 
 The result of the command is an empty string.
 
-
 [list_begin arguments]
 [arg_def varname arrayname in]
 
@@ -179,7 +181,6 @@ A handle representing a specific tie. This argument is optional.
 
 [list_end]
 [para]
-
 
 [call [cmd ::tie::info] [method ties] [arg arrayvarname]]
 
@@ -200,12 +201,10 @@ definitions ot its end.
 
 [list_end]
 
-
 [subsection {STANDARD DATA SOURCE TYPES}]
 
 This package provides the six following types as examples and standard
 data sources.
-
 
 [list_begin definitions]
 
@@ -215,13 +214,11 @@ This [term {data source}] does not maintain any actual data, nor
 persistence. It does not accept any identifying arguments. All changes
 are simply logged to [const stdout].
 
-
 [def [const array]]
 
 This [term {data source}] uses a regular Tcl array as the origin of
 the persistent data. It accepts a single identifying argument, the
 name of this Tcl array. All changes are mirrored to that array.
-
 
 [def [const remotearray]]
 
@@ -279,7 +276,6 @@ process.
 [list_end]
 [para]
 
-
 [def [const file]]
 
 This [term {data source}] uses a single file as origin of the
@@ -303,7 +299,6 @@ log stored in it contains either at least one operation clearing the
 whole array, or at least 1.5 times more operations than entries in the
 loaded array.
 
-
 [def [const growfile]]
 
 This [term {data source}] is like [const file] in terms of the storage
@@ -321,7 +316,6 @@ internal cache cannot be invalidated. Second, writing data is reduced
 to a simple append, and no compaction step is necessary. The format of
 the contents is the string representation of a dictionary which can be
 incrementally extended forever at the end.
-
 
 [def [const dsource]]
 
@@ -341,13 +335,11 @@ All changes are delegated to the specified object.
 
 [list_end]
 
-
 [section {CREATING NEW DATA SOURCES}]
 
 This section is of no interest to the casual user of ties. Only
 developers wishing to create new data sources have to know the
 information provided herein.
-
 
 [subsection {DATA SOURCE OBJECTS} dso]
 
@@ -383,7 +375,6 @@ In other words, this type allows the creation of ties which talk to
 pre-existing [term {data source object}]s, and these objects will
 survive the removal of the ties using them as well.
 
-
 [subsection {REGISTERING A NEW DATA SOURCE CLASS}]
 
 After a [sectref dsc {data source class}] has been written it is necessary
@@ -404,7 +395,6 @@ it internally to the appropriate class command for the creation of
 [sectref dso {data source objects}] for the new [term {data source}].
 
 [list_end]
-
 
 [subsection {DATA SOURCE CLASS} dsc]
 
@@ -468,13 +458,11 @@ This command has to return a list containing the names of all keys
 found in the [term {data source}] the object talks to. This is
 equivalent to [cmd {array names}].
 
-
 [call [cmd ds] [method size]]
 
 This command has to return an integer number specifying the number of
 keys found in the [term {data source}] the object talks to. This is
 equivalent to [cmd {array size}].
-
 
 [call [cmd ds] [method get]]
 
@@ -482,12 +470,10 @@ This command has to return a dictionary containing the data found in
 the [term {data source}] the object talks to. This is equivalent to
 [cmd {array get}].
 
-
 [call [cmd ds] [method set] [arg dict]]
 
 This command takes a dictionary and adds its contents to the data
 source the object talks to. This is equivalent to [cmd {array set}].
-
 
 [call [cmd ds] [method unset] [opt [arg pattern]]]
 
@@ -495,7 +481,6 @@ This command takes a pattern and removes all elements whose keys
 matching it from the [term {data source}]. If no pattern is specified
 it defaults to [const *], causing the removal of all elements. This
 is nearly equivalent to [cmd {array unset}].
-
 
 [call [cmd ds] [method setv] [arg index] [arg value]]
 
@@ -508,7 +493,6 @@ The result of the command is ignored. If an error is thrown then this
 error will show up as error of the set operation which caused the
 method call.
 
-
 [call [cmd ds] [method unsetv] [arg index]]
 
 This command has to remove the value under the key [arg index] from
@@ -519,7 +503,6 @@ the [term {data source}] the object talks to.
 The result of the command is ignored. If an error is thrown then this
 error will show up as error of the unset operation which caused the
 method call.
-
 
 [call [cmd ds] [method getv] [arg index]]
 
@@ -547,17 +530,6 @@ the regular Tcl commands for accessing an array.
         -----------             -----------
 }]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph tie] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords array tie untie persistence file database metakit]
+[vset CATEGORY tie]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

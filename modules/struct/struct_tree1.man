@@ -1,5 +1,6 @@
 [comment {-*- tcl -*-}]
 [manpage_begin {struct::tree_v1} n 1.2.2]
+[keywords tree]
 [copyright {2002 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate tree objects}]
@@ -55,7 +56,6 @@ values. This is like an array where every value is a dictionary.
 
 [para]
 
-
 The following commands are possible for tree objects:
 
 [list_begin definitions]
@@ -65,11 +65,9 @@ The following commands are possible for tree objects:
 Appends a [arg value] to one of the keyed values associated with an
 node. If no [arg key] is specified, the key [const data] is assumed.
 
-
 [call [arg treeName] [method children] [arg node]]
 
 Return a list of the children of [arg node].
-
 
 [call [arg treeName] [method cut] [arg node]]
 
@@ -77,27 +75,22 @@ Removes the node specified by [arg node] from the tree, but not its
 children.  The children of [arg node] are made children of the parent
 of the [arg node], at the index at which [arg node] was located.
 
-
 [call [arg treeName] [method delete] [arg node] [opt "[arg node] ..."]]
 
 Removes the specified nodes from the tree.  All of the nodes' children
 will be removed as well to prevent orphaned nodes.
 
-
 [call [arg treeName] [method depth] [arg node]]
 
 Return the number of steps from node [arg node] to the root node.
-
 
 [call [arg treeName] [method destroy]]
 
 Destroy the tree, including its storage space and associated command.
 
-
 [call [arg treeName] [method exists] [arg node]]
 
 Returns true if the specified node exists in the tree.
-
 
 [call [arg treeName] [method get] [arg node] [opt "[option -key] [arg key]"]]
 
@@ -110,17 +103,14 @@ Return the value associated with the key [arg key] for the node
 Returns a serialized list of key/value pairs (suitable for use with
 [lb][cmd {array set}][rb]) for the [arg node].
 
-
 [call [arg treeName] [method keys] [arg node]]
 
 Returns a list of keys for the [arg node].
-
 
 [call [arg treeName] [method keyexists] [arg node] [opt "-key [arg key]"]]
 
 Return true if the specified [arg key] exists for the [arg node]. If
 no [arg key] is specified, the key [const data] is assumed.
-
 
 [call [arg treeName] [method index] [arg node]]
 
@@ -130,7 +120,6 @@ example, if a node has [term nodeFoo], [term nodeBar], and
 [term nodeBaz] as children, in that order, the index of
 
 [term nodeBar] is 1.
-
 
 [call [arg treeName] [method insert] [arg parent] [arg index] [opt "[arg child] [opt "[arg child] ..."]"]]
 
@@ -159,19 +148,16 @@ specified they must neither contain whitespace nor colons (":").
 
 The return result from this command is a list of nodes added.
 
-
 [call [arg treeName] [method isleaf] [arg node]]
 
 Returns true if [arg node] is a leaf of the tree (if [arg node] has no
 children), false otherwise.
-
 
 [call [arg treeName] [method lappend] [arg node] [opt "-key [arg key]"] [arg value]]
 
 Appends a [arg value] (as a list) to one of the keyed values
 associated with an [arg node]. If no [arg key] is specified, the key
 [const data] is assumed.
-
 
 [call [arg treeName] [method move] [arg parent] [arg index] [arg node] [opt "[arg node] ..."]]
 
@@ -189,23 +175,19 @@ Return the right sibling of [arg node], or the empty string if
 
 [arg node] was the last child of its parent.
 
-
 [call [arg treeName] [method numchildren] [arg node]]
 
 Return the number of immediate children of [arg node].
 
-
 [call [arg treeName] [method parent] [arg node]]
 
 Return the parent of [arg node].
-
 
 [call [arg treeName] [method previous] [arg node] ]
 
 Return the left sibling of [arg node], or the empty string if
 
 [arg node] was the first child of its parent.
-
 
 [call [arg treeName] [method set] [arg node] [opt "[option -key] [arg key]"] [opt [arg value]]]
 
@@ -217,13 +199,10 @@ with it.  If [arg value] is not specified, this command returns the
 current value assigned to the key; if [arg value] is specified, this
 command assigns that value to the key.
 
-
 [call [arg treeName] [method size] [opt [arg node]]]
-
 
 Return a count of the number of descendants of the node [arg node]; if
 no node is specified, [const root] is assumed.
-
 
 [call [arg treeName] [method splice] [arg parent] [arg from] [opt [arg to]] [opt [arg child]]]
 
@@ -238,17 +217,14 @@ will be generated for the new node.  The generated name is of the form
 [emph node][var x], where [var x] is a number.  The return result
 from this command is the name of the new node.
 
-
 [call [arg treeName] [method swap] [arg node1] [arg node2]]
 
 Swap the position of [arg node1] and [arg node2] in the tree.
-
 
 [call [arg treeName] [method unset] [arg node] [opt "[option -key] [arg key]"]]
 
 Removes a keyed value from the node [arg node].  If no key is
 specified, the key [const data] is assumed.
-
 
 [call [arg treeName] [method walk] [arg node] [opt "[option -order] [arg order]"] [opt "[option -type] [arg type]"] [option -command] [arg cmd]]
 
@@ -311,17 +287,6 @@ second.
 [list_end]
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {struct :: tree}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords tree]
+[vset CATEGORY {struct :: tree}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,5 +1,15 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin docidx_lang_syntax n 1.0]
+[see_also docidx_intro]
+[see_also docidx_lang_cmdref]
+[see_also docidx_lang_faq]
+[see_also docidx_lang_intro]
+[keywords {docidx commands}]
+[keywords {docidx language}]
+[keywords {docidx markup}]
+[keywords {docidx syntax}]
+[keywords markup]
+[keywords {semantic markup}]
 [copyright {2007-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {docidx language syntax}]
@@ -15,7 +25,6 @@ is intended to be a reference, complementing the
 A beginner should read the much more informally written
 [term {docidx language introduction}] first before trying to
 understand either this document or the command reference.
-
 
 [section Fundamentals]
 
@@ -63,7 +72,7 @@ lexical level of the language was covered in the previous section.
 
 [para]
 
-Regarding the syntax of the (E)BNF itself 
+Regarding the syntax of the (E)BNF itself
 
 [list_begin enumerated]
 [enum]
@@ -78,7 +87,7 @@ The syntax:
 index     = defs
             INDEX_BEGIN
             [ contents ]
-            INDEX_END  
+            INDEX_END
             { <WHITE> }
 
 defs      = { INCLUDE | VSET | <WHITE> }
@@ -106,21 +115,6 @@ markup commands, i.e. one of
 
 [list_end]
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph doctools] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have.
-
-[see_also docidx_intro]
-[see_also docidx_lang_intro]
-[see_also docidx_lang_cmdref]
-[see_also docidx_lang_faq]
-[keywords markup {semantic markup}]
-[keywords {docidx markup} {docidx language}]
-[keywords {docidx syntax} {docidx commands}]
+[vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -42,16 +42,6 @@ of the builtin command [cmd {clock scan}].
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph clock::iso8601] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
+[vset CATEGORY clock::iso8601]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/coroutine/coro_auto\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'coro_auto\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2010-2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -245,7 +245,7 @@ coroutine::auto \- Automatic event and IO coroutine awareness
 .SH SYNOPSIS
 package require \fBTcl  8\&.6\fR
 .sp
-package require \fBcoroutine::auto  1\&.1\fR
+package require \fBcoroutine::auto  1\&.1\&.1\fR
 .sp
 package require \fBcoroutine  1\&.1\fR
 .sp
@@ -278,7 +278,7 @@ The commands so affected by this package are
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
 Please report such in the category \fIcoroutine\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH KEYWORDS

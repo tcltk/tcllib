@@ -19,4 +19,3 @@ import package.
 
 [include include/feedback.inc]
 [manpage_end]
-

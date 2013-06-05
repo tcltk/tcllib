@@ -1,5 +1,14 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctoc_lang_intro n 1.0]
+[see_also doctoc_intro]
+[see_also doctoc_lang_cmdref]
+[see_also doctoc_lang_syntax]
+[keywords {doctoc commands}]
+[keywords {doctoc language}]
+[keywords {doctoc markup}]
+[keywords {doctoc syntax}]
+[keywords markup]
+[keywords {semantic markup}]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {doctoc language introduction}]
@@ -60,7 +69,6 @@ the use of either a series of items or a series of divisions.
 
 We will discuss the commands for each of these two possibilities in
 the next sections.
-
 
 [subsection Items]
 
@@ -197,7 +205,6 @@ and to have empty divisions.
 [lb]toc_end[rb]
 [example_end]
 
-
 [subsection {Advanced structure}]
 
 In all previous examples we fudged a bit regarding the markup actually
@@ -237,7 +244,6 @@ file included before [cmd toc_begin] may contain only the templating
 commands [cmd vset] and [cmd include], a file included in a division
 may contain only items or divisions commands, etc.
 
-
 [subsection Escapes]
 
 Beyond the 6 commands shown so far we have two more available.
@@ -261,7 +267,6 @@ previous paragraph, with some highlighting added.
   impossible to directly use [lb][cmd lb][rb] and [lb][cmd rb][rb] within the text.
   ...
 [example_end]
-
 
 [section {FURTHER READING}]
 
@@ -287,20 +292,6 @@ easy and simple [syscmd dtplite] goes, creating a table of contents
 for a set of documents behind the scenes, without the writer having to
 do so on their own.
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph doctools] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have.
-
-[see_also doctoc_intro]
-[see_also doctoc_lang_syntax]
-[see_also doctoc_lang_cmdref]
-[keywords markup {semantic markup}]
-[keywords {doctoc markup} {doctoc language}]
-[keywords {doctoc syntax} {doctoc commands}]
+[vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

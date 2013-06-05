@@ -1,5 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin counter n 2.0.4]
+[keywords counting]
+[keywords histogram]
+[keywords statistics]
+[keywords tallying]
 [moddesc   {Counters and Histograms}]
 [titledesc {Procedures for counters and histograms}]
 [category  {Data structures}]
@@ -12,7 +16,6 @@ The [package counter] package provides a counter facility and can
 compute statistics and histograms over the collected data.
 
 [list_begin definitions]
-
 
 [call [cmd ::counter::init] [arg {tag args}]]
 
@@ -74,7 +77,6 @@ subsequent time-based histograms.
 
 [list_end]
 
-
 [call [cmd ::counter::count] [arg tag] [opt [arg delta]] [opt [arg instance]]]
 
 Increment the counter identified by [arg tag].  The default increment
@@ -85,7 +87,6 @@ specifying [arg delta].  You must declare each counter with
 you start to use it.  If the counter type is [option -group], then the
 counter identified by [arg instance] is incremented.
 
-
 [call [cmd ::counter::start] [arg {tag instance}]]
 
 Record the starting time of an interval.  The [arg tag] is the name of
@@ -93,13 +94,11 @@ the counter defined as a [option -hist] value-based histogram.  The
 [arg instance] is used to distinguish this interval from any other
 intervals that might be overlapping this one.
 
-
 [call [cmd ::counter::stop] [arg {tag instance}]]
 
 Record the ending time of an interval.  The delta time since the
 corresponding [cmd ::counter::start] call for [arg instance] is
 recorded in the histogram identified by [arg tag].
-
 
 [call [cmd ::counter::get] [arg {tag args}]]
 
@@ -173,16 +172,13 @@ information.  This does not include the histogram array.
 
 [list_end]
 
-
 [call [cmd ::counter::exists] [arg tag]]
 
 Returns 1 if the counter is defined.
 
-
 [call [cmd ::counter::names]]
 
 Returns a list of all counters defined.
-
 
 [call [cmd ::counter::histHtmlDisplay] [arg {tag args}]]
 
@@ -247,21 +243,8 @@ Resets the counter with the name [arg tag] to an initial state. The
 [arg args] determine the new characteristics of the counter. They have
 the same meaning as described for [cmd ::counter::init].
 
-
-
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph counter] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords statistics histogram counting tallying]
+[vset CATEGORY counter]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

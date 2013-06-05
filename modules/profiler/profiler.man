@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin profiler n 0.3]
+[keywords performance]
+[keywords profile]
+[keywords speed]
 [moddesc   {Tcl Profiler}]
 [titledesc {Tcl source code profiler}]
 [category  {Programming tools}]
@@ -17,7 +20,6 @@ Profiling is initiated via the [cmd ::profiler::init] command.
 [section COMMANDS]
 
 [list_begin definitions]
-
 
 [call [cmd ::profiler::init]]
 
@@ -67,10 +69,9 @@ Sum of the time spent in descendants of [arg functionName].
 
 [def [const averageDescendantTime]]
 
-Average time spent in descendants of [arg functionName]. 
+Average time spent in descendants of [arg functionName].
 
 [list_end]
-
 
 [call [cmd ::profiler::print] [opt [arg pattern]]]
 
@@ -115,17 +116,6 @@ that function.
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph profiler] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords profile performance speed]
+[vset CATEGORY profiler]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

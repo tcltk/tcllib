@@ -91,7 +91,7 @@
     }
 --></style>
 </head>
-<! -- Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/www/tcllib/files/modules/ntp/ntp_time.html' by tcllib/doctools with format 'html'
+<! -- Generated from file 'ntp_time.man' by tcllib/doctools with format 'html'
    -->
 <! -- Copyright &copy; 2002, Pat Thoyts &lt;patthoyts@users.sourceforge.net&gt;
    -->
@@ -118,7 +118,7 @@
 <li class="section"><a href="#section1">Description</a></li>
 <li class="section"><a href="#section2">COMMANDS</a></li>
 <li class="section"><a href="#section3">AUTHORS</a></li>
-<li class="section"><a href="#section4">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#see-also">See Also</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
@@ -148,7 +148,7 @@
 <div id="section1" class="section"><h2><a name="section1">Description</a></h2>
 <p>This package implements a client for the RFC 868 TIME protocol
 (<a href="http://www.rfc-editor.org/rfc/rfc868.txt">http://www.rfc-editor.org/rfc/rfc868.txt</a>) and also a minimal
-client for the RFC 2030 Simple Network Time Protocol 
+client for the RFC 2030 Simple Network Time Protocol
 (<a href="http://www.rfc-editor.org/rfc/rfc2030.txt">http://www.rfc-editor.org/rfc/rfc2030.txt</a>).
 RFC 868 returns the time in seconds since 1 January 1900
 to either tcp or udp clients. RFC 2030 also gives this time but also
@@ -160,11 +160,11 @@ provides a fractional part which is not used in this client.</p>
 <dd><p>Get the time from <i class="arg">timeserver</i>. You may specify any of the options
 listed for the <b class="cmd">configure</b> command here. This command returns a
 token which must then be used with the remaining commands in this
-package. Once you have finished, you should use <b class="cmd"><a href="../../../../index.html#key163">cleanup</a></b> to
+package. Once you have finished, you should use <b class="cmd"><a href="../../../../index.html#key168">cleanup</a></b> to
 release all resources. The default port is <b class="const">37</b>.</p></dd>
 <dt><a name="2"><b class="cmd">::time::getsntp</b> <span class="opt">?<i class="arg">options</i>?</span> <i class="arg">timeserver</i> <span class="opt">?<i class="arg">port</i>?</span></a></dt>
 <dd><p>Get the time from an SNTP server. This accepts exactly the same
-arguments as <b class="cmd">::time::gettime</b> except that the default port is 
+arguments as <b class="cmd">::time::gettime</b> except that the default port is
 <b class="const">123</b>. The result is a token as per <b class="cmd">::time::gettime</b> and
 should be handled in the same way.</p>
 <p>Note that it is unlikely that any SNTP server will reply using tcp so
@@ -205,7 +205,7 @@ port <b class="const">123</b>.</p></dd>
   If there is no error message then an empty string is returned.</p></dd>
 <dt><a name="8"><b class="cmd">::time::reset</b> <i class="arg">token</i> <i class="arg"><span class="opt">?reason?</span></i></a></dt>
 <dd><p>Reset or cancel the query optionally specfying the reason to record
-  for the <b class="cmd"><a href="../../../../index.html#key166">error</a></b> command.</p></dd>
+  for the <b class="cmd"><a href="../../../../index.html#key171">error</a></b> command.</p></dd>
 <dt><a name="9"><b class="cmd">::time::wait</b> <i class="arg">token</i></a></dt>
 <dd><p>Wait for a query to complete and return the status upon completion.</p></dd>
 <dt><a name="10"><b class="cmd">::time::cleanup</b> <i class="arg">token</i></a></dt>
@@ -236,11 +236,11 @@ time::getsntp -command on_time pool.ntp.org
 <div id="section3" class="section"><h2><a name="section3">AUTHORS</a></h2>
 <p>Pat Thoyts</p>
 </div>
-<div id="section4" class="section"><h2><a name="section4">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section4" class="section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>ntp</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
@@ -248,7 +248,7 @@ package and/or documentation.</p>
 <p>ntp</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key83">NTP</a>, <a href="../../../../index.html#key81">SNTP</a>, <a href="../../../../index.html#key80">rfc 2030</a>, <a href="../../../../index.html#key82">rfc 868</a>, <a href="../../../../index.html#key84">time</a></p>
+<p><a href="../../../../index.html#key91">NTP</a>, <a href="../../../../index.html#key89">SNTP</a>, <a href="../../../../index.html#key88">rfc 2030</a>, <a href="../../../../index.html#key90">rfc 868</a>, <a href="../../../../index.html#key92">time</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>

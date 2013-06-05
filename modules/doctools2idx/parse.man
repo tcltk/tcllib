@@ -1,10 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctools::idx::parse n 1]
+[keywords docidx]
+[keywords doctools]
+[keywords lexer]
+[keywords parser]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {Parsing text in docidx format}]
 [category  {Documentation tools}]
-[keywords doctools docidx parser lexer]
 [require doctools::idx::parse [opt 0.1]]
 [require Tcl 8.4]
 [require doctools::idx::structure]
@@ -50,18 +53,15 @@ keyword index which was encoded in the text.
 See the section [sectref {Keyword index serialization format}] for
 specification of that format.
 
-
 [call [cmd ::doctools::idx::parse] [method file] [arg path]]
 
 The same as [method text], except that the text to parse is read from
 the file specified by [arg path].
 
-
 [call [cmd ::doctools::idx::parse] [method includes]]
 
 This method returns the current list of search paths used when looking
 for include files.
-
 
 [call [cmd ::doctools::idx::parse] [method {include add}] [arg path]]
 
@@ -70,7 +70,6 @@ looking for an include file. The call is ignored if the path is
 already in the list of paths. The method returns the empty string as
 its result.
 
-
 [call [cmd ::doctools::idx::parse] [method {include remove}] [arg path]]
 
 This method removes the [arg path] from the list of paths searched
@@ -78,18 +77,15 @@ when looking for an include file. The call is ignored if the path is
 not contained in the list of paths. The method returns the empty
 string as its result.
 
-
 [call [cmd ::doctools::idx::parse] [method {include clear}]]
 
 This method clears the list of search paths for include files.
-
 
 [call [cmd ::doctools::idx::parse] [method vars]]
 
 This method returns a dictionary containing the current set of
 predefined variables known to the [cmd vset] markup command during
 processing.
-
 
 [call [cmd ::doctools::idx::parse] [method {var set}] [arg name] [arg value]]
 
@@ -98,13 +94,11 @@ variables known to the [cmd vset] markup command during processing,
 and gives it the specified [arg value]. The method returns the empty
 string as its result.
 
-
 [call [cmd ::doctools::idx::parse] [method {var unset}] [arg name]]
 
 This method removes the variable [arg name] from the set of predefined
 variables known to the [cmd vset] markup command during
 processing. The method returns the empty string as its result.
-
 
 [call [cmd ::doctools::idx::parse] [method {var clear}] [opt [arg pattern]]]
 
@@ -118,8 +112,6 @@ The pattern matching is done with [cmd {string match}], and the
 default pattern used when none is specified, is [const *].
 
 [list_end]
-
-
 
 [section {Parse errors}]
 
@@ -174,7 +166,6 @@ described here.
 
 [list_end]
 [list_end]
-
 
 [include include/format/docidx.inc]
 [include include/serialization.inc]

@@ -1,5 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin tcl::chan::cat n 1]
+[keywords {concatenation channel}]
+[keywords {reflected channel}]
+[keywords {tip 219}]
+[keywords {virtual channel}]
 [copyright {2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Reflected/virtual channel support}]
 [category  Channels]
@@ -14,7 +18,7 @@
 The [package tcl::chan::cat] package provides a command creating
 concatenation channels. These are non-seekable channels owning a list
 of subordinate channels whose contents they return in order, until all
-are exhausted. In this manner the cahnnel is the concatentation of the
+are exhausted. In this manner the channel is the concatentation of the
 contents of all the sub-ordinate channels.
 
 [para] Note that the created channels take ownership of the channels
@@ -38,18 +42,6 @@ channels, and returns its handle.
 
 [list_end]
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph virtchannel] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords {virtual channel} {reflected channel} {concatenation channel} {tip 219}]
+[vset CATEGORY virtchannel]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

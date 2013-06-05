@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/snit/snit\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'snit\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003-2009, by William H\&. Duquette
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -2684,8 +2684,7 @@ implemented like this:
 
     proc ::snit::boolean {"validate" value} {
         if {![string is boolean -strict $value]} {
-            return -code error -errorcode INVALID \\
-                "invalid boolean \\"$value\\", should be one of: 1, 0, \&.\&.\&."
+            return -code error -errorcode INVALID  "invalid boolean \\"$value\\", should be one of: 1, 0, \&.\&.\&."
         }
 
         return $value
@@ -2717,8 +2716,7 @@ as a \fBsnit::type\fR\&.  Here's a skeleton to get you started:
 
         typemethod validate {value} {
             if {![string is integer -strict $value]} {
-                return -code error -errorcode INVALID \\
-                    "invalid value \\"$value\\", expected integer"
+                return -code error -errorcode INVALID  "invalid value \\"$value\\", expected integer"
             }
 
             return $value
@@ -2771,10 +2769,8 @@ your own types\&.
 .PP
 .SH CAVEATS
 If you have problems, find bugs, or new ideas you are hereby cordially
-invited to submit a report of your problem, bug, or idea at the
-SourceForge trackers for tcllib, which can be found at
-\fIhttp://sourceforge\&.net/projects/tcllib/\fR\&.
-The relevant category is \fIsnit\fR\&.
+invited to submit a report of your problem, bug, or idea as explained
+in the section \fBBugs, Ideas, Feedback\fR below\&.
 .PP
 Additionally, you might wish to join the Snit mailing list;
 see \fIhttp://www\&.wjduquette\&.com/snit\fR for details\&.
@@ -2789,8 +2785,8 @@ Error stack traces returned by Snit 1\&.x are extremely ugly and typically
 contain far too much information about Snit internals\&.  The error
 messages are much improved in Snit 2\&.2\&.
 .IP \(bu
-Also see the SourceForge Trackers at
-\fIhttp://sourceforge\&.net/projects/tcllib/\fR, category \fIsnit\fR\&.
+Also see the Project Trackers as explained in the section
+\fBBugs, Ideas, Feedback\fR below\&.
 .PP
 .SH HISTORY
 During the course of developing Notebook
@@ -2835,7 +2831,7 @@ your name to the list\&.
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
 Please report such in the category \fIsnit\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH KEYWORDS

@@ -92,7 +92,7 @@
     }
 --></style>
 </head>
-<! -- Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/www/tcllib/files/modules/ldap/ldap.html' by tcllib/doctools with format 'html'
+<! -- Generated from file 'ldap.man' by tcllib/doctools with format 'html'
    -->
 <! -- Copyright &copy; 2004 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;   -- Copyright &copy; 2004 Jochen Loewer &lt;loewerj@web.de&gt;   -- Copyright &copy; 2006 Michael Schlenker &lt;mic42@users.sourceforge.net&gt;
    -->
@@ -119,7 +119,7 @@
 <li class="section"><a href="#section1">Description</a></li>
 <li class="section"><a href="#section2">COMMANDS</a></li>
 <li class="section"><a href="#section3">EXAMPLES</a></li>
-<li class="section"><a href="#section4">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
 <li class="section"><a href="#copyright">Copyright</a></li>
@@ -149,11 +149,11 @@
 <li><a href="#15"><b class="cmd">::ldap::addMulti</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">attrValueTuples</i></a></li>
 <li><a href="#16"><b class="cmd">::ldap::delete</b> <i class="arg">handle</i> <i class="arg">dn</i></a></li>
 <li><a href="#17"><b class="cmd">::ldap::modifyDN</b> <i class="arg">handle</i> <i class="arg">dn</i> <i class="arg">newrdn</i> <span class="opt">?<i class="arg">deleteOld</i>?</span> <span class="opt">?<i class="arg">newSuperior</i>?</span></a></li>
-<li><a href="#18"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key422">ip</a></b> <i class="arg">handle</i></a></li>
+<li><a href="#18"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key425">ip</a></b> <i class="arg">handle</i></a></li>
 <li><a href="#19"><b class="cmd">::ldap::info</b> <b class="cmd">bound</b> <i class="arg">handle</i></a></li>
 <li><a href="#20"><b class="cmd">::ldap::info</b> <b class="cmd">bounduser</b> <i class="arg">handle</i></a></li>
 <li><a href="#21"><b class="cmd">::ldap::info</b> <b class="cmd">connections</b></a></li>
-<li><a href="#22"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key308">tls</a></b> <i class="arg">handle</i></a></li>
+<li><a href="#22"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key311">tls</a></b> <i class="arg">handle</i></a></li>
 <li><a href="#23"><b class="cmd">::ldap::info</b> <b class="cmd">saslmechanisms</b> <i class="arg">handle</i></a></li>
 <li><a href="#24"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../control/control.html">control</a></b> <i class="arg">handle</i></a></li>
 <li><a href="#25"><b class="cmd">::ldap::info</b> <b class="cmd">extensions</b> <i class="arg">extensions</i></a></li>
@@ -182,8 +182,8 @@ establishment definitely failed.</p></dd>
 <dt><a name="2"><b class="cmd">::ldap::secure_connect</b> <i class="arg">host</i> <span class="opt">?<i class="arg">port</i>?</span></a></dt>
 <dd><p>Like <b class="cmd">::ldap::connect</b>, except that the created connection is
 secured by SSL. The port defaults to <b class="const">636</b>.  This command
-depends on the availability of the package <b class="package"><a href="../../../../index.html#key308">TLS</a></b>, which is a
-SSL binding for Tcl. If <b class="package"><a href="../../../../index.html#key308">TLS</a></b> is not available, then this
+depends on the availability of the package <b class="package"><a href="../../../../index.html#key311">TLS</a></b>, which is a
+SSL binding for Tcl. If <b class="package"><a href="../../../../index.html#key311">TLS</a></b> is not available, then this
 command will fail.</p>
 <p>The command blocks until the connection has been established, or
 establishment definitely failed.</p></dd>
@@ -202,19 +202,19 @@ until a response from the ldap server arrives. Its result is the empty
 string.
 Both <i class="arg">name</i> and <i class="arg">passwd</i> default to the empty string if they
 are not specified.
-By leaving out <i class="arg">name</i> and <i class="arg">passwd</i> you can make an anonymous bind to 
+By leaving out <i class="arg">name</i> and <i class="arg">passwd</i> you can make an anonymous bind to
 the ldap server.
 You can issue <b class="cmd">::ldap::bind</b> again to bind with different credentials.</p></dd>
 <dt><a name="6"><b class="cmd">::ldap::bindSASL</b> <i class="arg">handle</i> <span class="opt">?<i class="arg">name</i>?</span> <span class="opt">?<i class="arg">password</i>?</span></a></dt>
 <dd><p>This command uses SASL authentication mechanisms to do a multistage bind.
 Its otherwise identical to the standard <b class="cmd">::ldap::bind</b>.
 This feature is currently experimental and subject to change. See the documentation
-for the <b class="package"><a href="../sasl/sasl.html">SASL</a></b> and the &quot;<b class="file">SASL.txt</b>&quot; in the tcllib CVS repository for 
+for the <b class="package"><a href="../sasl/sasl.html">SASL</a></b> and the &quot;<b class="file">SASL.txt</b>&quot; in the tcllib CVS repository for
 details how to setup and use SASL with openldap.</p></dd>
 <dt><a name="7"><b class="cmd">::ldap::unbind</b> <i class="arg">handle</i></a></dt>
 <dd><p>This command asks the ldap server to release the last bind done for
 the connection refered to by the token in <i class="arg">handle</i>.
-The <i class="arg">handle</i> is invalid after the unbind, as the server closes the connection. 
+The <i class="arg">handle</i> is invalid after the unbind, as the server closes the connection.
 So this is effectivly just a more polite disconnect operation.</p></dd>
 <dt><a name="8"><b class="cmd">::ldap::search</b> <i class="arg">handle</i> <i class="arg">baseObject</i> <i class="arg">filterString</i> <i class="arg">attributes</i> <i class="arg">options</i></a></dt>
 <dd><p>This command performs a LDAP search below the <i class="arg">baseObject</i> tree
@@ -236,15 +236,15 @@ attribute names. In other words, it is in the form</p>
 </dd>
 <dt><a name="9"><b class="cmd">::ldap::searchInit</b> <i class="arg">handle</i> <i class="arg">baseObject</i> <i class="arg">filterString</i> <i class="arg">attributes</i> <i class="arg">options</i></a></dt>
 <dd><p>This command initiates a LDAP search below the <i class="arg">baseObject</i> tree
-using a complex LDAP search expression <i class="arg">filterString</i>. 
-The search gets the specified <i class="arg">attributes</i> of all matching objects (DNs). 
-The command itself just starts the search, to retrieve the actual results, use 
-<b class="cmd">::ldap::searchNext</b>. 
+using a complex LDAP search expression <i class="arg">filterString</i>.
+The search gets the specified <i class="arg">attributes</i> of all matching objects (DNs).
+The command itself just starts the search, to retrieve the actual results, use
+<b class="cmd">::ldap::searchNext</b>.
 A search can be terminated at any time by
 <b class="cmd">::ldap::searchEnd</b>. This informs the server that no further results should be sent by sending and ABANDON message
 and cleans up the internal state of the search.
 Only one <b class="cmd">::ldap::search</b> can be active at a given time, this
-includes the introspection commands <b class="cmd">::ldap::info saslmechanisms</b>, <b class="cmd">ldap::info control</b> and 
+includes the introspection commands <b class="cmd">::ldap::info saslmechanisms</b>, <b class="cmd">ldap::info control</b> and
 <b class="cmd">ldap::info extensions</b>, which invoke a search internally.
 Error responses from the server due to wrong arguments or similar things are returned
 with the first <b class="cmd">::ldap::searchNext</b> call and should be checked and dealed with there.
@@ -262,14 +262,14 @@ object,  one-level or  subtree  search.   The  default is <b class="const">sub</
 <dt><b class="option">-derefaliases</b> never search find always</dt>
 <dd><p>Control how aliases dereferencing is done.  Should be one of <b class="const">never</b>, <b class="const">always</b>, <b class="const">search</b>,  or  <b class="const">find</b>  to
 specify that aliases are never dereferenced, always dereferenced, dereferenced when searching, or
-dereferenced only when locating the base object for the search.  
+dereferenced only when locating the base object for the search.
 The default is to never dereference aliases.</p></dd>
 <dt><b class="option">-sizelimit</b> num</dt>
 <dd><p>Determines the maximum number of entries to return in a search. If specified as
 0 no limit is enforced. The server may enforce a configuration dependent sizelimit,
 which may be lower than the one given by this option. The default is 0, no limit.</p></dd>
 <dt><b class="option">-timelimit</b> seconds</dt>
-<dd><p>Asks the server to use a timelimit of <i class="arg">seconds</i> for the search. Zero means no 
+<dd><p>Asks the server to use a timelimit of <i class="arg">seconds</i> for the search. Zero means no
 limit. The default is 0, no limit.</p></dd>
 <dt><b class="option">-attrsonly</b> boolean</dt>
 <dd><p>If set to 1 only the attribute names but not the values will be present in the search result.
@@ -383,17 +383,17 @@ the tree. If this argument is given, the argument <i class="arg">deleteOld</i>
 must be specified also.
 The command blocks until the operation has completed. Its result
 is the empty string.</p></dd>
-<dt><a name="18"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key422">ip</a></b> <i class="arg">handle</i></a></dt>
+<dt><a name="18"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key425">ip</a></b> <i class="arg">handle</i></a></dt>
 <dd><p>This command returns the IP address of the remote LDAP server the handle is connected to.</p></dd>
 <dt><a name="19"><b class="cmd">::ldap::info</b> <b class="cmd">bound</b> <i class="arg">handle</i></a></dt>
-<dd><p>This command returns 1 if a handle has successfully completed a <b class="cmd">::ldap::bind</b>. 
+<dd><p>This command returns 1 if a handle has successfully completed a <b class="cmd">::ldap::bind</b>.
 If no bind was done or it failed, a 0 is returned.</p></dd>
 <dt><a name="20"><b class="cmd">::ldap::info</b> <b class="cmd">bounduser</b> <i class="arg">handle</i></a></dt>
-<dd><p>This command returns the username used in the bind operation if a handle has successfully completed a <b class="cmd">::ldap::bind</b>. 
+<dd><p>This command returns the username used in the bind operation if a handle has successfully completed a <b class="cmd">::ldap::bind</b>.
 If no bound was done or it failed, an empty string is returned.</p></dd>
 <dt><a name="21"><b class="cmd">::ldap::info</b> <b class="cmd">connections</b></a></dt>
 <dd><p>This command returns all currently existing ldap connection handles.</p></dd>
-<dt><a name="22"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key308">tls</a></b> <i class="arg">handle</i></a></dt>
+<dt><a name="22"><b class="cmd">::ldap::info</b> <b class="cmd"><a href="../../../../index.html#key311">tls</a></b> <i class="arg">handle</i></a></dt>
 <dd><p>This command returns 1 if the ldap connection <i class="arg">handle</i> used TLS/SSL for
 connection via <b class="cmd">ldap::secure_connect</b> or completed <b class="cmd">ldap::starttls</b>, 0 otherwise.</p></dd>
 <dt><a name="23"><b class="cmd">::ldap::info</b> <b class="cmd">saslmechanisms</b> <i class="arg">handle</i></a></dt>
@@ -450,7 +450,6 @@ code.</p>
     # Kill the test object, and shut the connection down.
     set dn &quot;cn=Tester,ou=People,o=University of Michigan,c=US&quot;
     ldap::delete $handle $dn
- 
     ldap::unbind     $handle
     ldap::disconnect $handle
 </pre>
@@ -471,10 +470,10 @@ results.</p>
 	set sortedAttribs {}
 	foreach {type values} $attributes {
 	    if {[string length $type] &gt; $width} {
-		set width [string length $type] 
+		set width [string length $type]
 	    }
 	    lappend sortedAttribs [list $type $values]
-	}     
+	}
 	puts &quot;object='$object'&quot;
 	foreach sortedAttrib  $sortedAttribs {
 	    foreach {type values} $sortedAttrib break
@@ -489,18 +488,16 @@ results.</p>
     ldap::disconnect $handle
 </pre>
 </div>
-<div id="section4" class="section"><h2><a name="section4">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section4" class="section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>ldap</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-One know bug is the usage of <b class="cmd"><a href="../../../../index.html#key390">vwait</a></b> inside the dispatch mechanism, which makes
-it currently unsafe to use this code in code that also enters the event loop.</p>
+package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key136">directory access</a>, <a href="../../../../index.html#key131">internet</a>, <a href="../../../../index.html#key133">ldap</a>, <a href="../../../../index.html#key130">ldap client</a>, <a href="../../../../index.html#key134">protocol</a>, <a href="../../../../index.html#key132">rfc 2251</a>, <a href="../../../../index.html#key135">rfc 4511</a>, <a href="../../../../index.html#key137">x.500</a></p>
+<p><a href="../../../../index.html#key153">directory access</a>, <a href="../../../../index.html#key149">internet</a>, <a href="../../../../index.html#key148">ldap</a>, <a href="../../../../index.html#key146">ldap client</a>, <a href="../../../../index.html#key151">protocol</a>, <a href="../../../../index.html#key147">rfc 2251</a>, <a href="../../../../index.html#key150">rfc 4511</a>, <a href="../../../../index.html#key152">x.500</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>

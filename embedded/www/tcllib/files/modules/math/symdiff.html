@@ -91,7 +91,7 @@
     }
 --></style>
 </head>
-<! -- Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/www/tcllib/files/modules/math/symdiff.html' by tcllib/doctools with format 'html'
+<! -- Generated from file 'symdiff.man' by tcllib/doctools with format 'html'
    -->
 <! -- Copyright &copy; 2010 by Kevin B. Kenny &lt;kennykb@acm.org&gt;   -- Redistribution permitted under the terms of the Open Publication License &lt;http://www.opencontent.org/openpub/&gt;
    -->
@@ -149,7 +149,7 @@ are more efficient or stable when the Jacobian is provided.</p>
 <dt><a name="1"><b class="cmd">math::calculus::symdiff::symdiff</b> <i class="arg">expression</i> <i class="arg">variable</i></a></dt>
 <dd><p>Differentiates the given <i class="arg">expression</i> with respect to the specified
 <i class="arg">variable</i>. (See <span class="sectref"><a href="#section3">Expressions</a></span> below for a discussion of the
-subset of Tcl math expressions that are acceptable to 
+subset of Tcl math expressions that are acceptable to
 <b class="cmd">math::calculus::symdiff</b>.)
 The result is a Tcl expression that evaluates the derivative. Returns an
 error if <i class="arg">expression</i> is not a well-formed expression or is not
@@ -160,10 +160,10 @@ The system is given by the dictionary <i class="arg">variableDict</i>, whose key
 are the names of variables in the system, and whose values are Tcl expressions
 giving the values of those variables. (See <span class="sectref"><a href="#section3">Expressions</a></span> below
 for a discussion of the subset of Tcl math expressions that are acceptable
-to <b class="cmd">math::calculus::symdiff</b>. The result is a list of lists: 
-the i'th element of the j'th sublist is the partial derivative of 
+to <b class="cmd">math::calculus::symdiff</b>. The result is a list of lists:
+the i'th element of the j'th sublist is the partial derivative of
 the i'th variable with respect to the j'th variable. Returns an error if
-any of the expressions cannot be differentiated, or if <i class="arg">variableDict</i> 
+any of the expressions cannot be differentiated, or if <i class="arg">variableDict</i>
 is not a well-formed dictionary.</p></dd>
 </dl>
 </div>
@@ -177,7 +177,7 @@ Specifically, the only constructs accepted are:</p>
 must consist of alphanumerics and underscores: the <b class="const">${...}</b> notation
 is not accepted.</p></li>
 <li><p>Parentheses.</p></li>
-<li><p>The <b class="const">+</b>, <b class="const">-</b>, <b class="const">*</b>, <b class="const">/</b>. and <b class="const">**</b> 
+<li><p>The <b class="const">+</b>, <b class="const">-</b>, <b class="const">*</b>, <b class="const">/</b>. and <b class="const">**</b>
 operators.</p></li>
 <li><p>Calls to the functions <b class="cmd">acos</b>, <b class="cmd">asin</b>, <b class="cmd">atan</b>,
 <b class="cmd">atan2</b>, <b class="cmd">cos</b>, <b class="cmd">cosh</b>, <b class="cmd">exp</b>, <b class="cmd">hypot</b>, <b class="cmd"><a href="../log/log.html">log</a></b>,
@@ -200,7 +200,7 @@ math::calculus::symdiff::jacobian {x {$a * $x + $b * $y}
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>math :: calculus</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>

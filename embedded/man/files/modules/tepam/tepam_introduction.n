@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/tepam/tepam_introduction\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'tepam_introduction\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009/2010, Andreas Drollinger
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -238,7 +238,7 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "tepam" n 0\&.4\&.0 tcllib "Tcl's Enhanced Procedure and Argument Manager"
+.TH "tepam" n 0\&.4\&.1 tcllib "Tcl's Enhanced Procedure and Argument Manager"
 .BS
 .SH NAME
 tepam \- An introduction into TEPAM, Tcl's Enhanced Procedure and Argument Manager
@@ -404,15 +404,13 @@ Argument types are automatically checked and an error message is generated in ca
 .CS
 
 \fBdisplay message\fR -fg MyColor "Hello"
-\fI  -> display message: Argument 'fg' requires type 'color'\&. \\
-            Provided value: 'MyColor'\fR
+\fI  -> display message: Argument 'fg' requires type 'color'\&.  Provided value: 'MyColor'\fR
 .CE
 Selection choices have to be respected \&.\&.\&.
 .CS
 
 \fBdisplay message\fR -mtype Fatal Hello
-\fI  -> display message: Argument (mtype) has to be one of the \\
-            following elements: Info, Warning, Error\fR
+\fI  -> display message: Argument (mtype) has to be one of the  following elements: Info, Warning, Error\fR
 .CE
 \&.\&.\&. as well as valid value ranges:
 .CS

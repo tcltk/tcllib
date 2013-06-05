@@ -1,5 +1,7 @@
 [comment {-*- tcl -*- paths manpage}]
 [manpage_begin pluginmgr n 0.3]
+[keywords {plugin management}]
+[keywords {plugin search}]
 [copyright {2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Plugin management}]
 [titledesc {Manage a plugin}]
@@ -7,7 +9,6 @@
 [require Tcl 8.4]
 [require pluginmgr [opt 0.3]]
 [description]
-[keywords {plugin management} {plugin search}]
 
 This package provides commands and objects for the generic management
 of plugins which can be loaded into an application.
@@ -73,7 +74,6 @@ qualified, and in the specified namespace otherwise.
 The options and their values coming after the name of the object are
 used to set the initial configuration of the mamager object,
 specifying the applicable plugins and their API.
-
 
 [call [cmd ::pluginmgr::paths] [arg objectName] [arg name]...]
 
@@ -167,7 +167,6 @@ Examples:
 
 [list_end]
 
-
 [subsection {OBJECT COMMAND}]
 
 All commands created by the command [cmd ::pluginmgr] (See section
@@ -184,7 +183,6 @@ the detailed specifications.
 
 [list_end]
 
-
 [subsection {OBJECT METHODS}]
 
 [list_begin definitions]
@@ -200,19 +198,16 @@ state is moved to the generated clone and the current object is reset
 into the base state (no plugin loaded). In this manner a configured
 plugin manager is also a factory for loaded plugins.
 
-
 [call [arg objectName] [method configure]]
 
 The method returns a list of all known options and their current
 values when called without any arguments.
-
 
 [call [arg objectName] [method configure] [arg option]]
 
 The method behaves like the method [method cget] when called with a
 single argument and returns the value of the option specified by said
 argument.
-
 
 [call [arg objectName] [method configure] [option -option] [arg value]...]
 
@@ -225,7 +220,6 @@ number of arguments, at least two.
 The legal options are described in the section
 [sectref {OBJECT CONFIGURATION}].
 
-
 [call [arg objectName] [method cget] [option -option]]
 
 This method expects a legal configuration option as argument and will
@@ -237,11 +231,9 @@ invoked for.
 The legal configuration options are described in section
 [sectref {OBJECT CONFIGURATION}].
 
-
 [call [arg objectName] [method destroy]]
 
 This method destroys the object it is invoked for.
-
 
 [call [arg objectName] [method do] [arg arg]...]
 
@@ -253,20 +245,17 @@ The result of the invoked command is made the result of the method.
 The call will fail with an error if no valid plugin has been loaded
 into the manager object.
 
-
 [call [arg objectName] [method interpreter]]
 
 This method returns the handle of the safe interpreter the current
 plugin is loaded into. An empty string as return value signals that
 the manager currently has no valid plugin loaded.
 
-
 [call [arg objectName] [method plugin]]
 
 This method returns the name of the plugin currently loaded. An empty
 string as return value signals that the manager currently has no valid
 plugin loaded.
-
 
 [call [arg objectName] [method load] [arg string]]
 
@@ -319,13 +308,11 @@ was found and sucessfully validated and initialized. Note that there
 will be no intereference between old and new plugin as both will be
 put into separate safe interpreters.
 
-
 [call [arg objectName] [method unload]]
 
 This method unloads the currently loaded plugin. It returns the empty
 string. The call will be silently ignored if no plugin is loaded at
 all.
-
 
 [call [arg objectName] [method list]]
 
@@ -334,7 +321,6 @@ all packages which can be plugins under the purview of this manager
 object. It translates their names into plugin names and returns a list
 containing them.
 
-
 [call [arg objectName] [method path] [arg path]]
 
 This methods adds the specified [arg path] to the list of additional
@@ -342,14 +328,12 @@ package paths to look at when searching for a plugin. It returns the
 empty string. Duplicate paths are ignored, i.e. each path is added
 only once. Paths are made absolute, but are not normalized.
 
-
 [call [arg objectName] [method paths]]
 
 This method returns a list containing all additional paths which have
 been added to the plugin manager object since its creation.
 
 [list_end]
-
 
 [subsection {OBJECT CONFIGURATION}]
 
@@ -371,7 +355,6 @@ This option has no default, except if option [option -name] was set.
 It has to be set before attempting to load a plugin, either directly,
 or through option [option -name].
 
-
 [opt_def -api [arg list]]
 
 The value of this option is a list of command names, and any plugin
@@ -380,7 +363,6 @@ qualified are considered to be rooted in the global namespace.
 
 If empty no expectations are made on the plugin. The default value is
 the empty list.
-
 
 [opt_def -check [arg cmdprefix]]
 
@@ -403,7 +385,6 @@ passed the basic API check specified through the option [option -api].
 The default value is the empty list, which causes the manager object
 to suppress the call and to assume the candidate plugin passes.
 
-
 [opt_def -cmds [arg dict]]
 
 The value of this option is a dictionary.  It specifies the commands
@@ -415,14 +396,12 @@ the option [option -cmdip].
 
 The default value is the empty dictionary.
 
-
 [opt_def -cmdip [arg ipspec]]
 
 The value of this option is the path of the interpreter where the
 trusted commands given to the plugin will be executed in.
 
 The default is the empty string, referring to the current interpreter.
-
 
 [opt_def -setup [arg cmdprefix]]
 
@@ -443,16 +422,6 @@ loaded.
 
 [list_end]
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph pluginmgr] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY pluginmgr]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

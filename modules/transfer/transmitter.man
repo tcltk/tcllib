@@ -1,5 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin transfer::transmitter n 0.2]
+[keywords channel]
+[keywords copy]
+[keywords {data source}]
+[keywords secure]
+[keywords ssl]
+[keywords tls]
+[keywords transfer]
+[keywords transmitter]
 [copyright {2006-2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Data transfer facilities}]
 [titledesc {Data source}]
@@ -11,7 +19,6 @@
 [require transfer::connect      [opt 0.2]]
 [require transfer::transmitter  [opt 0.2]]
 [description]
-[keywords transfer copy channel {data source} transmitter ssl tls secure]
 [para]
 
 This package pulls data sources and connection setup together into a
@@ -20,7 +27,6 @@ combined object for the transmission of information over a socket.
 These objects understand all the options from objects created
 by the packages [package transfer::data::source] and
 [package transfer::connect].
-
 
 [section API]
 [subsection {Package commands}]
@@ -46,7 +52,6 @@ namespace otherwise.
 
 The fully qualified name of the object command is returned as the
 result of the command.
-
 
 [call [cmd transfer::transmitter] [method {stream channel}] \
      [arg chan] [arg host] [arg port] [opt [arg arg]...]]
@@ -87,7 +92,6 @@ transmitter object is made.
 [vset QUALIFIER {internal transmitter}]
 [include include/connect_result_ref.inc]
 
-
 [call [cmd transfer::transmitter] [method {stream file}] \
      [arg path] [arg host] [arg port] [opt [arg arg]...]]
 
@@ -95,7 +99,6 @@ This method is like [method {stream channel}], except that the data
 contained in the file [arg path] is transfered.
 
 [list_end]
-
 
 [subsection {Object command}]
 
@@ -114,7 +117,6 @@ specifications.
 
 [list_end]
 
-
 [subsection {Object methods}]
 
 [list_begin definitions]
@@ -125,7 +127,6 @@ This method destroys the object. Doing so while a transmission is in
 progress will cause errors later on, when the transmission completes
 and tries to access the now missing data structures of the destroyed
 object.
-
 
 [call [arg objectName] [method start]]
 
@@ -148,14 +149,12 @@ invalid, or if no completion callback was specified.
 [vset QUALIFIER {}]
 [include include/connect_result_ref.inc]
 
-
 [call [arg objectName] [method busy]]
 
 This method returns a boolean value telling us whether a transmission
 is in progress ([const True]), or not ([const False]).
 
 [list_end]
-
 
 [subsection Options]
 

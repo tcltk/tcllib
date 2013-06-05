@@ -91,7 +91,7 @@ proc c_get_copyright {}     {
 }
 
 proc c_provenance {} {
-    return "Generated from file '[dt_file]' by tcllib/doctools with format '[dt_format]'"
+    return "Generated from file '[file tail [dt_ibase]]' by tcllib/doctools with format '[dt_format]'"
 }
 
 ################################################################

@@ -45,7 +45,8 @@ proc ::zipfile::decode::open {fname} {
     if {[catch {
 	set eoa [LocateEnd $fname]
     } msg]} {
-	return -code error "\"$fname\" is not a zip file"
+	return -code error -errorcode {ZIP DECODE BAD ARCHIVE} \
+	    "\"$fname\" is not a zip file"
     }
     fileutil::decode::open $fname
     return
@@ -83,7 +84,8 @@ proc ::zipfile::decode::copyfile {zdict src dst} {
     array set f $_(files)
 
     if {![info exists f($src)]} {
-	return -code error "File \"$src\" not known"
+	return -code error -errorcode {ZIP DECODE BAD PATH} \
+	    "File \"$src\" not known"
     }
 
     array set     fd $f($src)
@@ -96,7 +98,8 @@ proc ::zipfile::decode::getfile {zdict src} {
     array set f $_(files)
 
     if {![info exists f($src)]} {
-	return -code error "File \"$src\" not known"
+	return -code error -errorcode {ZIP DECODE BAD PATH} \
+	    "File \"$src\" not known"
     }
 
     array set fd $f($src)
@@ -159,8 +162,8 @@ proc zipfile::decode::CopyFile {src fdv dst} {
 	    ::close $out
 	}
 	default {
-	    return -code error "Unable to handle file \
-			\"$src\" compressed with method \"$fd(cm)\""
+	    return -code error -errorcode {ZIP DECODE BAD COMPRESSION} \
+		"Unable to handle file \"$src\" compressed with method \"$fd(cm)\""
 	}
     }
 
@@ -211,8 +214,8 @@ proc zipfile::decode::GetFile {src fdv} {
 	    return [zip -mode decompress -nowrap 1 -- [getval]]
 	}
 	default {
-	    return -code error "Unable to handle file \
-			\"$src\" compressed with method \"$fd(cm)\""
+	    return -code error -errorcode {ZIP DECODE BAD COMPRESSION} \
+		"Unable to handle file \"$src\" compressed with method \"$fd(cm)\""
 	}
     }
 
@@ -363,7 +366,8 @@ proc ::zipfile::decode::afile {} {
 	    setbuf [array get hdr]
 	}
     } else {
-	error "Search data descriptor. Not Yet Implementyed"
+	return -code error -errorcode {ZIP DECODE INCOMPLETE} \
+	    "Search data descriptor. Not Yet Implementyed"
     }
     return 1
 }
@@ -393,7 +397,8 @@ proc ::zipfile::decode::archive {} {
 	set here [at]
 	go [expr {$cb(base) + $_(localloc)}]
 	if {![localfileheader]} {
-	    return -code error "Bad zip file. Directory entry without file."
+	    return -code error -errorcode {ZIP DECODE BAD ARCHIVE} \
+		"Bad zip file. Directory entry without file."
 	}
 
 	array set lh [get] ; clear
@@ -403,7 +408,8 @@ proc ::zipfile::decode::archive {} {
 	# LFH. Should match.
 
 	if {![hdrmatch lh _]} {
-	    return -code error "Bad zip file. File/Dir Header mismatch."
+	    return -code error -errorcode {ZIP DECODE BAD ARCHIVE} \
+		"Bad zip file. File/Dir Header mismatch."
 	}
 
 	# Merge local and central data.
@@ -660,5 +666,5 @@ proc ::zipfile::decode::LocateEnd {path} {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::decode 0.3
+package provide zipfile::decode 0.4
 return

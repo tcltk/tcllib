@@ -1,5 +1,13 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin textutil::expander n 1.3.1]
+[see_also {[uri}]
+[see_also http://www.wjduquette.com/expand]
+[see_also regexp]
+[see_also split]
+[see_also string]
+[keywords string]
+[keywords {template processing}]
+[keywords {text expansion}]
 [copyright {William H. Duquette, http://www.wjduquette.com/expand}]
 [moddesc   {Text and string utilities, macro processing}]
 [titledesc {Procedures to process templates and expand text.}]
@@ -7,7 +15,6 @@
 [require Tcl 8.2]
 [require textutil::expander [opt 1.3.1]]
 [description]
-
 
 [para]
 
@@ -102,18 +109,15 @@ The following commands are possible for expander objects:
 
 [list_begin definitions]
 
-
 [call [arg expanderName] [method cappend] [arg text]]
 
 Appends a string to the output in the current context.  This command
 should rarely be used by macros or application code.
 
-
 [call [arg expanderName] [method cget] [arg varname]]
 
 Retrieves the value of variable [arg varname], defined in the current
 context.
-
 
 [call [arg expanderName] [method cis] [arg cname]]
 
@@ -121,18 +125,15 @@ Determines whether or not the name of the current context is
 
 [arg cname].
 
-
 [call [arg expanderName] [method cname]]
 
 Returns the name of the current context.
-
 
 [call [arg expanderName] [method cpop] [arg cname]]
 
 Pops a context from the context stack, returning all accumulated
 output in that context.  The context must be named [arg cname], or an
 error results.
-
 
 [call [arg expanderName] [method ctopandclear]]
 
@@ -147,11 +148,9 @@ Pushes a context named [arg cname] onto the context stack.  The
 context must be popped by [method cpop] before expansion ends or an
 error results.
 
-
 [call [arg expanderName] [method cset] [arg varname] [arg value]]
 
 Sets variable [arg varname] to [arg value] in the current context.
-
 
 [call [arg expanderName] [method cvar] [arg varname]]
 
@@ -159,7 +158,6 @@ Retrieves the internal variable name of context variable
 
 [arg varname]; this allows the variable to be passed to commands like
 [cmd lappend].
-
 
 [call [arg expanderName] [method errmode] [arg newErrmode]]
 
@@ -199,7 +197,6 @@ Returns the current evaluation command, which defaults to
 future use and then returned; it must be a Tcl command expecting one
 additional argument: the macro to evaluate.
 
-
 [call [arg expanderName] [method expand] [arg string] [opt [arg brackets]]]
 
 Expands the input string, replacing embedded macros with their
@@ -211,14 +208,12 @@ If [arg brackets] is given, it must be a list of two strings; the
 items will be used as the left and right macro expansion bracket
 sequences for this expansion only.
 
-
 [call [arg expanderName] [method lb] [opt [arg newbracket]]]
 
 Returns the current value of the left macro expansion bracket; this is
 for use as or within a macro, when the bracket needs to be included in
 the output text.  If [arg newbracket] is specified, it becomes the new
 bracket, and is returned.
-
 
 [call [arg expanderName] [method rb] [opt [arg newbracket]]]
 
@@ -227,14 +222,12 @@ is for use as or within a macro, when the bracket needs to be included
 in the output text.  If [arg newbracket] is specified, it becomes the
 new bracket, and is returned.
 
-
 [call [arg expanderName] [method reset]]
 
 Resets all expander settings to their initial values.  Unusual results
 are likely if this command is called from within a call to
 
 [method expand].
-
 
 [call [arg expanderName] [method setbrackets] [arg {lbrack rbrack}]]
 
@@ -245,7 +238,6 @@ definitions.  By default, the brackets are [const [lb]] and
 [const [rb]], but any non-empty string can be used; for example,
 [const <] and [const >] or [const (*] and [const *)] or even
 [const Hello,] and [const World!].
-
 
 [call [arg expanderName] [method textcmd] [opt [arg newTextCmd]]]
 
@@ -265,7 +257,6 @@ object expects that the command returns the processed plain text.
 is run through the [arg evalcmd] for the actual evaluation. In other
 words, the [arg textcmd] is treated as a special macro implicitly
 surrounding all plain text in the template.
-
 
 [call [arg expanderName] [method where]]
 
@@ -306,7 +297,6 @@ commands:
     %
 }]
 
-
 [subsection {Embedding Macros}]
 
 An expander macro is simply a Tcl script embedded within a text
@@ -333,7 +323,6 @@ replaces it with its result string.  For example,
     %
 }]
 
-
 [subsection {Writing Macro Commands}]
 
 More typically, [emph {macro commands}] are used to create a markup
@@ -355,7 +344,6 @@ output format:
 The above definitions of [cmd bold] and [cmd /bold] returns HTML, but
 such commands can be as complicated as needed; they could, for
 example, decide what to return based on the desired output format.
-
 
 [subsection {Changing the Expansion Brackets}]
 
@@ -393,7 +381,6 @@ passing the desired brackets to the [method expand] command:
     %
 }]
 
-
 [subsection {Customized Macro Expansion}]
 
 By default, macros are evaluated using the Tcl [cmd {uplevel #0}]
@@ -414,7 +401,6 @@ the macro text itself.
     proc identity {macro} {return $macro}
     ::myexp evalcmd identity
 }]
-
 
 [subsection {Using the Context Stack}]
 
@@ -517,18 +503,6 @@ or [method cname].
 [cmd expander] was written by William H. Duquette; it is a repackaging
 of the central algorithm of the expand macro processing tool.
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {textutil :: expander}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[see_also regexp split string [uri http://www.wjduquette.com/expand]]
-[keywords string {template processing} {text expansion}]
+[vset CATEGORY textutil]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

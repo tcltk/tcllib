@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/md5crypt/md5crypt\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'md5crypt\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -317,7 +317,7 @@ $1$dFmvyRmO$T\&.V3OmzqeEf3hqJp2WFcb\&.
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
 Please report such in the category \fImd5crypt\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH "SEE ALSO"

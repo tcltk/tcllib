@@ -92,7 +92,7 @@
     }
 --></style>
 </head>
-<! -- Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/www/tcllib/files/modules/struct/graph.html' by tcllib/doctools with format 'html'
+<! -- Generated from file 'graph.man' by tcllib/doctools with format 'html'
    -->
 <! -- Copyright &copy; 2002-2009 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
    -->
@@ -118,7 +118,7 @@
 <li class="section"><a href="#synopsis">Synopsis</a></li>
 <li class="section"><a href="#section1">Description</a></li>
 <li class="section"><a href="#section2">Changes for 2.0</a></li>
-<li class="section"><a href="#section3">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section3">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
 <li class="section"><a href="#copyright">Copyright</a></li>
@@ -209,14 +209,14 @@ elements, called <i class="term">nodes</i> and <i class="term">arcs</i> respecti
 with a relation (&quot;connectivity&quot;) that places a general structure upon
 the nodes and arcs.</p>
 <p>Each arc is connected to two nodes, one of which is called the
-<i class="term"><a href="../../../../index.html#key409">source</a></i> and the other the <i class="term">target</i>. This imposes a
+<i class="term"><a href="../../../../index.html#key414">source</a></i> and the other the <i class="term">target</i>. This imposes a
 direction upon the arc, which is said to go from the source to the
 target. It is allowed that source and target of an arc are the same
-node. Such an arc is called a <i class="term"><a href="../../../../index.html#key430">loop</a></i>.
+node. Such an arc is called a <i class="term"><a href="../../../../index.html#key433">loop</a></i>.
 Whenever a node is either the source or target of an arc both are said
-to be <i class="term"><a href="../../../../index.html#key458">adjacent</a></i>. This extends into a relation between nodes,
+to be <i class="term"><a href="../../../../index.html#key461">adjacent</a></i>. This extends into a relation between nodes,
 i.e. if two nodes are connected through at least one arc they are said
-to be <i class="term"><a href="../../../../index.html#key458">adjacent</a></i> too.</p>
+to be <i class="term"><a href="../../../../index.html#key461">adjacent</a></i> too.</p>
 <p>Each node can be the source and target for any number of arcs. The
 former are called the <i class="term">outgoing arcs</i> of the node, the latter
 the <i class="term">incoming arcs</i> of the node. The number of arcs in either
@@ -225,7 +225,7 @@ node.</p>
 <p>In addition to maintaining the node and arc relationships, this graph
 implementation allows any number of named <i class="term">attributes</i> to be
 associated with the graph itself, and each node or arc.</p>
-<p><em>Note:</em> The major version of the package <b class="package"><a href="../../../../index.html#key315">struct</a></b> has
+<p><em>Note:</em> The major version of the package <b class="package"><a href="../../../../index.html#key318">struct</a></b> has
 been changed to version 2.0, due to backward incompatible changes in
 the API of this module. Please read the section
 <span class="sectref"><a href="#section2">Changes for 2.0</a></span> for a full list of all changes,
@@ -383,9 +383,9 @@ attribute <i class="arg">key</i>.</p></dd>
 either the arc does not exist, or a arc with name <i class="arg">newname</i> does
 exist. The result of the command is the new name of the arc.</p></dd>
 <dt><a name="25"><i class="arg">graphName</i> <b class="method">arc set</b> <i class="arg">arc</i> <i class="arg">key</i> <span class="opt">?<i class="arg">value</i>?</span></a></dt>
-<dd><p>Set or get one of the keyed values associated with an arc. 
-An arc may have any number of keyed values associated with it.  
-If <i class="arg">value</i> is not specified, this command returns the current value assigned to the key; 
+<dd><p>Set or get one of the keyed values associated with an arc.
+An arc may have any number of keyed values associated with it.
+If <i class="arg">value</i> is not specified, this command returns the current value assigned to the key;
 if <i class="arg">value</i> is specified, this command assigns that value to the key, and returns
 that value.</p></dd>
 <dt><a name="26"><i class="arg">graphName</i> <b class="method">arc setunweighted</b> <span class="opt">?<i class="arg">weight</i>?</span></a></dt>
@@ -660,7 +660,7 @@ consistency requirement for the serialization.</p></li>
 non-presence means that the arc in question has no weight associated
 with it.</p>
 <p><em>Note:</em> This information is new, compared to the
-serialization of <b class="package"><a href="../../../../index.html#key277">graph</a></b> 2.3 and earlier. By making it an
+serialization of <b class="package"><a href="../../../../index.html#key283">graph</a></b> 2.3 and earlier. By making it an
 optional element the new format is maximally compatible with the
 old. This means that any graph not using weights will generate a
 serialization which is still understood by the older graph package. A
@@ -768,16 +768,16 @@ the ability to select arcs and nodes based on an arbitrary filtering
 criterium.</p></li>
 </ol>
 </div>
-<div id="section3" class="section"><h2><a name="section3">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section3" class="section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>struct :: graph</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key458">adjacent</a>, <a href="../../../../index.html#key446">arc</a>, <a href="../../../../index.html#key593">cgraph</a>, <a href="../../../../index.html#key449">degree</a>, <a href="../../../../index.html#key433">edge</a>, <a href="../../../../index.html#key277">graph</a>, <a href="../../../../index.html#key430">loop</a>, <a href="../../../../index.html#key461">neighbour</a>, <a href="../../../../index.html#key436">node</a>, <a href="../../../../index.html#key112">serialization</a>, <a href="../../../../index.html#key453">subgraph</a>, <a href="../../../../index.html#key435">vertex</a></p>
+<p><a href="../../../../index.html#key461">adjacent</a>, <a href="../../../../index.html#key449">arc</a>, <a href="../../../../index.html#key595">cgraph</a>, <a href="../../../../index.html#key451">degree</a>, <a href="../../../../index.html#key436">edge</a>, <a href="../../../../index.html#key283">graph</a>, <a href="../../../../index.html#key433">loop</a>, <a href="../../../../index.html#key465">neighbour</a>, <a href="../../../../index.html#key439">node</a>, <a href="../../../../index.html#key119">serialization</a>, <a href="../../../../index.html#key456">subgraph</a>, <a href="../../../../index.html#key440">vertex</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Data structures</p>

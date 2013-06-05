@@ -91,7 +91,7 @@
     }
 --></style>
 </head>
-<! -- Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/www/tcllib/files/modules/md5/md5.html' by tcllib/doctools with format 'html'
+<! -- Generated from file 'md5.man' by tcllib/doctools with format 'html'
    -->
 <! -- Copyright &copy; 2003, Pat Thoyts &lt;patthoyts@users.sourceforge.net&gt;
    -->
@@ -120,7 +120,7 @@
 <li class="section"><a href="#section3">PROGRAMMING INTERFACE</a></li>
 <li class="section"><a href="#section4">EXAMPLES</a></li>
 <li class="section"><a href="#section5">REFERENCES</a></li>
-<li class="section"><a href="#section6">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#see-also">See Also</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
@@ -154,7 +154,7 @@ but has been strengthened against certain types of potential
 attack. MD5 should be used in preference to MD4 for new applications.</p>
 <p>If you have <b class="package">critcl</b> and have built the <b class="package">tcllibc</b>
 package then the implementation of the hashing function will be
-performed by compiled code. Alternatively if you have either 
+performed by compiled code. Alternatively if you have either
 <b class="package">cryptkit</b> or <b class="package">Trf</b> then either of these can be used to
 accelerate the digest computation. If no suitable compiled package is
 available then the pure-Tcl implementation wil be used. The
@@ -163,7 +163,7 @@ programming interface remains the same in all cases.</p>
 hex encoded string. This has been changed to simplify the programming
 interface and to make this version more compatible with other
 implementations. To obtain the previous usage, either explicitly
-specify package version 1 or use the <i class="arg">-hex</i> option to the 
+specify package version 1 or use the <i class="arg">-hex</i> option to the
 <b class="cmd">md5</b> command.</p>
 </div>
 <div id="section2" class="section"><h2><a name="section2">COMMANDS</a></h2>
@@ -173,7 +173,7 @@ specify package version 1 or use the <i class="arg">-hex</i> option to the
 as a binary string by default. Giving the <i class="arg">-hex</i> option will
 return a hexadecimal encoded version of the digest.</p>
 <p>The data to be hashed can be specified either as a string argument to
-the <b class="cmd">md5</b> command, or as a filename or a pre-opened channel. If the 
+the <b class="cmd">md5</b> command, or as a filename or a pre-opened channel. If the
 <i class="arg">-filename</i> argument is given then the file is opened, the data read
 and hashed and the file is closed. If the <i class="arg">-channel</i> argument is
 given then data is read from the channel until the end of file. The
@@ -191,9 +191,9 @@ for the <b class="cmd">::md5::md5</b> command.</p></dd>
 one pours data. When you have finished, you extract a value that is
 derived from the data that was poured into the bucket. The programming
 interface to the MD5 hash operates on a token (equivalent to the
-bucket). You call <b class="cmd">MD5Init</b> to obtain a token and then call 
+bucket). You call <b class="cmd">MD5Init</b> to obtain a token and then call
 <b class="cmd">MD5Update</b> as many times as required to add data to the hash. To
-release any resources and obtain the hash value, you then call 
+release any resources and obtain the hash value, you then call
 <b class="cmd">MD5Final</b>. An equivalent set of functions gives you a keyed digest
 (HMAC).</p>
 <dl class="definitions">
@@ -201,9 +201,9 @@ release any resources and obtain the hash value, you then call
 <dd><p>Begins a new MD5 hash. Returns a token ID that must be used for the
 remaining functions.</p></dd>
 <dt><a name="4"><b class="cmd">::md5::MD5Update</b> <i class="arg">token</i> <i class="arg">data</i></a></dt>
-<dd><p>Add data to the hash identified by token. Calling 
+<dd><p>Add data to the hash identified by token. Calling
 <em>MD5Update $token &quot;abcd&quot;</em> is equivalent to calling
-<em>MD5Update $token &quot;ab&quot;</em> followed by 
+<em>MD5Update $token &quot;ab&quot;</em> followed by
 <em>MD5Update $token &quot;cb&quot;</em>. See <span class="sectref"><a href="#section4">EXAMPLES</a></span>.</p></dd>
 <dt><a name="5"><b class="cmd">::md5::MD5Final</b> <i class="arg">token</i></a></dt>
 <dd><p>Returns the hash value and releases any resources held by this
@@ -245,16 +245,16 @@ it requires the key that will be included in the HMAC.</p></dd>
 	(<a href="http://www.rfc-editor.org/rfc/rfc1321.txt">http://www.rfc-editor.org/rfc/rfc1321.txt</a>)</p></li>
 <li><p>Rivest, R., &quot;The MD4 Message Digest Algorithm&quot;, RFC 1320, MIT,
        April 1992. (<a href="http://www.rfc-editor.org/rfc/rfc1320.txt">http://www.rfc-editor.org/rfc/rfc1320.txt</a>)</p></li>
-<li><p>Krawczyk, H., Bellare, M. and Canetti, R. &quot;HMAC: Keyed-Hashing for 
+<li><p>Krawczyk, H., Bellare, M. and Canetti, R. &quot;HMAC: Keyed-Hashing for
       Message Authentication&quot;, RFC 2104, February 1997.
 	(<a href="http://www.rfc-editor.org/rfc/rfc2104.txt">http://www.rfc-editor.org/rfc/rfc2104.txt</a>)</p></li>
 </ol>
 </div>
-<div id="section6" class="section"><h2><a name="section6">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section6" class="section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>md5</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
@@ -262,7 +262,7 @@ package and/or documentation.</p>
 <p><a href="../md4/md4.html">md4</a>, <a href="../sha1/sha1.html">sha1</a></p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key219">hashing</a>, <a href="../../../../index.html#key642">md5</a>, <a href="../../../../index.html#key218">message-digest</a>, <a href="../../../../index.html#key354">rfc 1320</a>, <a href="../../../../index.html#key357">rfc 1321</a>, <a href="../../../../index.html#key217">rfc 2104</a>, <a href="../../../../index.html#key143">security</a></p>
+<p><a href="../../../../index.html#key212">hashing</a>, <a href="../../../../index.html#key644">md5</a>, <a href="../../../../index.html#key211">message-digest</a>, <a href="../../../../index.html#key358">rfc 1320</a>, <a href="../../../../index.html#key360">rfc 1321</a>, <a href="../../../../index.html#key210">rfc 2104</a>, <a href="../../../../index.html#key127">security</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Hashes, checksums, and encryption</p>

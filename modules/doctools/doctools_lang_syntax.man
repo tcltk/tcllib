@@ -1,5 +1,15 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctools_lang_syntax n 1.0]
+[see_also doctools_intro]
+[see_also doctools_lang_cmdref]
+[see_also doctools_lang_faq]
+[see_also doctools_lang_intro]
+[keywords {doctools commands}]
+[keywords {doctools language}]
+[keywords {doctools markup}]
+[keywords {doctools syntax}]
+[keywords markup]
+[keywords {semantic markup}]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {doctools language syntax}]
@@ -15,7 +25,6 @@ is intended to be a reference, complementing the
 A beginner should read the much more informally written
 [term {doctools language introduction}] first before trying to
 understand either this document or the command reference.
-
 
 [section Fundamentals]
 
@@ -64,7 +73,7 @@ previous section.
 
 [para]
 
-Regarding the syntax of the (E)BNF itself 
+Regarding the syntax of the (E)BNF itself
 
 [list_begin enumerated]
 [enum]
@@ -128,21 +137,6 @@ optd_list   = [ <WHITE> ] { OPT_DEF      paras }
 tkoptd_list = [ <WHITE> ] { TKOPTION_DEF paras }
 }]
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph doctools] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have.
-
-[see_also doctools_intro]
-[see_also doctools_lang_intro]
-[see_also doctools_lang_cmdref]
-[see_also doctools_lang_faq]
-[keywords markup {semantic markup}]
-[keywords {doctools markup} {doctools language}]
-[keywords {doctools syntax} {doctools commands}]
+[vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

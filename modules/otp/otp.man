@@ -1,4 +1,14 @@
 [manpage_begin otp n 1.0.0]
+[see_also md4]
+[see_also md5]
+[see_also ripemd160]
+[see_also SASL]
+[see_also sha1]
+[keywords hashing]
+[keywords message-digest]
+[keywords password]
+[keywords {rfc 2289}]
+[keywords security]
 [moddesc   {RFC 2289 A One-Time Password System}]
 [copyright {2006, Pat Thoyts <patthoyts@users.sourceforge.net>}]
 [titledesc {One-Time Passwords}]
@@ -19,7 +29,7 @@ mechanism for authenticating users.
 [para]
 
 In this implementation we provide support for four algorithms that are
-included in the tcllib distribution: MD5 (2), MD4 (3), RIPE-MD160 (4) 
+included in the tcllib distribution: MD5 (2), MD4 (3), RIPE-MD160 (4)
 and SHA-1 (5).
 
 [section {COMMANDS}]
@@ -51,7 +61,6 @@ SOON ARAB BURG LIMB FILE WAD
 e249b58257c80087
 }]
 
-
 [section {REFERENCES}]
 
 [list_begin enumerated]
@@ -70,7 +79,7 @@ e249b58257c80087
        April 1992. ([uri http://www.rfc-editor.org/rfc/rfc1320.txt])
 
 [enum]
-        H. Dobbertin, A. Bosselaers, B. Preneel, 
+        H. Dobbertin, A. Bosselaers, B. Preneel,
         "RIPEMD-160, a strengthened version of RIPEMD"
         [uri http://www.esat.kuleuven.ac.be/~cosicart/pdf/AB-9601/AB-9601.pdf]
 
@@ -81,18 +90,6 @@ e249b58257c80087
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph otp] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[see_also md4 md5 sha1 ripemd160 SASL]
-[keywords password hashing message-digest security {rfc 2289}]
+[vset CATEGORY otp]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

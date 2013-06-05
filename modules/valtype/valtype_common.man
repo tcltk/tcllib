@@ -1,11 +1,15 @@
 [comment {-*- tcl -*- --- doctools ---}]
 [manpage_begin valtype::common n 1]
+[keywords Checking]
+[keywords isA]
+[keywords Testing]
+[keywords {Type checking}]
+[keywords Validation]
+[keywords {Value checking}]
 [copyright {2011 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [titledesc "Validation, common code"]
 [moddesc {Validation types}]
 [category {Validation, Type checking}]
-[keywords Validation Checking Testing {Type checking}]
-[keywords {Value checking} isA]
 [require Tcl 8.5]
 [require valtype::common [opt 1]]
 [description]
@@ -98,10 +102,8 @@ The check digit of the input value is wrong. This usually signals a
 data-entry error, with digits transposed, forgotten, etc. Of course,
 th input may be an outright fake too.
 
-
 [include include/c_lenpfx.inc]
 [list_end]
-
 
 [vset CATEGORY valtype]
 [include ../doctools2base/include/feedback.inc]
