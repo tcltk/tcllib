@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/mime/smtp\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'smtp\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 1999-2000 Marshall T\&. Rose and others
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk

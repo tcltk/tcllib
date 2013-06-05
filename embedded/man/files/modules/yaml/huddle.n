@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/yaml/huddle\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'huddle\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2008 KATO Kanryu <kanryu6@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk

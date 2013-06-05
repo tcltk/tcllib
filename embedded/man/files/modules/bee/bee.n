@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/bee/bee\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'bee\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2004 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk

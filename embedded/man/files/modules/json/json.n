@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/json/json\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'json\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2006 ActiveState Software Inc\&.
 '\" Copyright (c) 2009 Thomas Maeder, Glue Software Engineering AG
 '\"

@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/struct/struct_list\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'struct_list\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003-2005 by Kevin B\&. Kenny\&. All rights reserved
 '\" Copyright (c) 2003-2012 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
