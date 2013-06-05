@@ -8,6 +8,7 @@
 # Meta require         {coroutine 1.1}
 # Meta license         BSD
 # Meta as::author      {Andreas Kupries}
+# Meta as::origin      http://wiki.tcl.tk/21555
 # Meta summary         Coroutine Event and Channel Support
 # Meta description     Built on top of coroutine, this
 # Meta description     package intercepts various builtin
@@ -34,7 +35,7 @@ namespace eval ::coroutine::auto {}
 
 proc ::coroutine::auto::wrap_global {args} {
     if {[info coroutine] eq {}} {
-	tailcall [namespace current]::core_global {*}$args
+	tailcall ::coroutine::auto::core_global {*}$args
     }
 
     tailcall ::coroutine::util::global {*}$args
@@ -50,7 +51,7 @@ proc ::coroutine::auto::wrap_after {delay args} {
 	# We use the core builtin when called from either outside of a
 	# coroutine, or for an asynchronous delay.
 
-	tailcall [namespace current]::core_after $delay {*}$args
+	tailcall ::coroutine::auto::core_after $delay {*}$args
     }
 
     # Inside of coroutine, and synchronous delay (args == "").
@@ -61,7 +62,7 @@ proc ::coroutine::auto::wrap_after {delay args} {
 
 proc ::coroutine::auto::wrap_exit {{status 0}} {
     if {[info coroutine] eq {}} {
-	tailcall [namespace current]::core_exit $status
+	tailcall ::coroutine::auto::core_exit $status
     }
 
     tailcall ::coroutine::util::exit $status
@@ -71,7 +72,7 @@ proc ::coroutine::auto::wrap_exit {{status 0}} {
 
 proc ::coroutine::auto::wrap_vwait {varname} {
     if {[info coroutine] eq {}} {
-	tailcall [namespace current]::core_vwait $varname
+	tailcall ::coroutine::auto::core_vwait $varname
     }
 
     tailcall ::coroutine::util::vwait $varname
@@ -81,7 +82,7 @@ proc ::coroutine::auto::wrap_vwait {varname} {
 
 proc ::coroutine::auto::wrap_update {{what {}}} {
     if {[info coroutine] eq {}} {
-	tailcall [namespace current]::core_update {*}$what
+	tailcall ::coroutine::auto::core_update {*}$what
     }
 
     # This is a full re-implementation of mode (1), because the
@@ -92,7 +93,7 @@ proc ::coroutine::auto::wrap_update {{what {}}} {
         after idle [info coroutine]
     } elseif {$what ne {}} {
         # Force proper error message for bad call.
-        tailcall [namespace current]::core_update $what
+        tailcall ::coroutine::auto::core_update $what
     } else {
         after 0 [info coroutine]
     }
@@ -108,7 +109,7 @@ proc ::coroutine::auto::wrap_gets {args} {
     # * gets CHAN ?VARNAME?
 
     if {[info coroutine] eq {}} {
-	tailcall [namespace current]::core_gets {*}$args
+	tailcall ::coroutine::auto::core_gets {*}$args
     }
 
     # This is a full re-implementation of mode (1), because the
@@ -118,7 +119,7 @@ proc ::coroutine::auto::wrap_gets {args} {
     if {[llength $args] > 2} {
 	# Calling the builtin gets command with the bogus arguments
 	# gives us the necessary error with the proper message.
-	tailcall [namespace current]::core_gets {*}$args
+	tailcall ::coroutine::auto::core_gets {*}$args
     } elseif {[llength $args] == 2} {
 	lassign $args chan varname
         upvar 1 $varname line
@@ -135,7 +136,7 @@ proc ::coroutine::auto::wrap_gets {args} {
         ::chan configure $chan -blocking 0
 
 	try {
-	    [namespace current]::core_gets $chan line
+	    ::coroutine::auto::core_gets $chan line
 	} on error {result opts} {
             ::chan configure $chan -blocking $blocking
             return -code $result -options $opts
@@ -166,7 +167,7 @@ proc ::coroutine::auto::wrap_read {args} {
     # * read               CHAN ?n?
 
     if {[info coroutine] eq {}} {
-	tailcall [namespace current]::core_read {*}$args
+	tailcall ::coroutine::auto::core_read {*}$args
     }
 
     # This is a full re-implementation of mode (1), because the
@@ -176,7 +177,7 @@ proc ::coroutine::auto::wrap_read {args} {
     if {[llength $args] > 2} {
 	# Calling the builtin read command with the bogus arguments
 	# gives us the necessary error with the proper message.
-	[namespace current]::core_read {*}$args
+	::coroutine::auto::core_read {*}$args
 	return
     }
 
@@ -210,7 +211,7 @@ proc ::coroutine::auto::wrap_read {args} {
 	    ::chan configure $chan -blocking 0
 
 	    try {
-		[namespace current]::core_read $chan
+		::coroutine::auto::core_read $chan
 	    } on error {result opts} {
 		::chan configure $chan -blocking $blocking
 		return -code $result -options $opts
@@ -240,7 +241,7 @@ proc ::coroutine::auto::wrap_read {args} {
 	    ::chan configure $chan -blocking 0
 
 	    try {
-		[namespace current]::core_read $chan $left
+		::coroutine::auto::core_read $chan $left
 	    } on error {result opts} {
 		::chan configure $chan -blocking $blocking
 		return -code $result -options $opts
@@ -309,5 +310,5 @@ proc ::coroutine::auto::wrap_read {args} {
 # # ## ### ##### ######## #############
 ## Ready
 
-package provide coroutine::auto 1.1
+package provide coroutine::auto 1.1.1
 return

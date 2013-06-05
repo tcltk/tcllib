@@ -1,5 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctools::cvs n 1]
+[see_also {[uri}]
+[see_also http://wiki.tcl.tk/log2changelog]
+[keywords changelog]
+[keywords cvs]
+[keywords {cvs log}]
+[keywords emacs]
+[keywords log]
 [copyright {2003-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {Processing text in 'cvs log' format}]
@@ -18,7 +25,6 @@ The commands [cmd ::doctools::cvs::scanLog]
 and [cmd ::doctools::cvs::toChangeLog] are derived from code found on
 the [uri http://wiki.tcl.tk {Tcl'ers Wiki}]. See the references at the
 end of the page.
-
 
 [section API]
 
@@ -57,7 +63,6 @@ Each item in the list is a list containing two elements, the date of
 the entry, and its author, in this order. The date is formatted as
 [var year]/[var month]/[var day].
 
-
 [arg_def varname cvar in]
 
 Has to refer to an array variable. Keys are strings containing the
@@ -66,7 +71,6 @@ date and author of log entries, in this order, separated by a comma.
 [para]
 
 The values are lists of comments made for the entry.
-
 
 [arg_def varname fvar in]
 
@@ -81,7 +85,6 @@ The values are lists of the files the entry is touching.
 [list_end]
 [para]
 
-
 [call [cmd ::doctools::cvs::toChangeLog] [arg evar] [arg cvar] [arg fvar]]]
 
 The three arguments for this command are the same as the last three
@@ -93,17 +96,6 @@ constructed text is returned as the result of the command.
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph doctools] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-[see_also [uri http://wiki.tcl.tk/log2changelog]]
-[keywords changelog cvs log {cvs log} emacs]
+[vset CATEGORY doctools]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -1,6 +1,14 @@
 [comment {-*- tcl -*- doctools manpage}]
 [comment ===========================================]
 [manpage_begin treeql n 1.3.1]
+[keywords Cost]
+[keywords DOM]
+[keywords {structured queries}]
+[keywords tree]
+[keywords {tree query language}]
+[keywords TreeQL]
+[keywords XPath]
+[keywords XSLT]
 [copyright {2004 Colin McCormack <coldstore@users.sourceforge.net>}]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tree Query Language}]
@@ -30,7 +38,6 @@ information).
 tree-structured data types.  It implements an ordered set of nodes
 (really a list) which are generated and filtered through the
 application of TreeQL operators to each node in turn.
-
 
 [comment ===========================================]
 [section API]
@@ -87,7 +94,6 @@ section about [sectref {The Tree Query Language}]. This section also
 explains the term [term {node set}] used above.
 
 [list_end]
-
 
 [subsection {TreeQL OBJECT API}]
 
@@ -188,11 +194,9 @@ The operators of the TreeQL language available for this are explained
 in the section about [sectref {The Tree Query Language}]. This section
 also explains the term [term {node set}] used above.
 
-
 [call [arg qo] [method result]]
 
 This method returns a list containing the current node set.
-
 
 [call [arg qo] [method discard]]
 
@@ -203,7 +207,6 @@ This is useful when constructing and using sub-queries (%AUTO% objects
 immediately destroyed after use).
 
 [list_end]
-
 
 [comment ===========================================]
 [section {The Tree Query Language}]
@@ -244,7 +247,6 @@ categories, and each category has its own section.
 [list_end]
 [para]
 
-
 [comment ===========================================]
 [subsection {TreeQL Concepts}]
 
@@ -278,7 +280,6 @@ set containing two nodes A and B, both having node P as their
 immediate parent. Application of the TreeQL operator "parent" will
 then add P to the new node set twice, once per node it was parent
 of. I.e. the new node set will then be {P P}.
-
 
 [comment ===========================================]
 [subsection {Structural generators}]
@@ -315,7 +316,6 @@ words, uses all nodes on the path from node [var N] to root, in this
 order (root last), for all nodes [var N] in the node set. This
 includes the root, but not the node itself.
 
-
 [def [method rootpath]]
 
 Replaces the current node set with the ancestors for all nodes [var N]
@@ -325,13 +325,11 @@ without a parent do not contribute to the new node set.
 In contrast to the operator [method ancestors] the nodes are added in
 reverse order however, i.e. the root node first.
 
-
 [def [method parent]]
 
 Replaces the current node set with the parent of node [var N], for all
 nodes [var N] in the node set, should [var N] have a parent. In other
 words, nodes without a parent do not contribute to the new node set.
-
 
 [def [method children]]
 
@@ -340,14 +338,12 @@ Replaces the current node set with the immediate children of node
 children. In other words, nodes without children do not contribute to
 the new node set.
 
-
 [def [method left]]
 
 Replaces the current node set with the previous/left sibling for all
 nodes [var N] in the node set, should [var N] have siblings to the
 left. In other words, nodes without left siblings do not contribute to
 the new node set.
-
 
 [def [method right]]
 
@@ -356,7 +352,6 @@ nodes [var N] in the node set, should [var N] have siblings to the
 right. In other words, nodes without right siblings do not contribute
 to the new node set.
 
-
 [def [method prev]]
 
 Replaces the current node set with all previous/left siblings of node
@@ -364,7 +359,6 @@ Replaces the current node set with all previous/left siblings of node
 siblings to the left. In other words, nodes without left siblings are
 ignored. The left sibling adjacent to the node is added first, and the
 leftmost sibling last (reverse tree order).
-
 
 [def [method esib]]
 
@@ -378,7 +372,6 @@ adjacent to the node last (tree order).
 
 The method name is a shorthand for [term {Earlier SIBling}].
 
-
 [def [method next]]
 
 Replaces the current node set with all next/right siblings of node
@@ -387,19 +380,16 @@ siblings to the right. In other words, nodes without right siblings do
 not contribute to the new node set. The right sibling adjacent to the
 node is added first, and the rightmost sibling last (tree order).
 
-
 [def [method root]]
 
 Replaces the current node set with a node set containing a single
 node, the root of the tree.
-
 
 [def [method tree]]
 
 Replaces the current node set with a node set containing all nodes
 found in the tree. The nodes are added in pre-order (parent first,
 then children, the latter from left to right, first to last).
-
 
 [def [method descendants]]
 
@@ -415,7 +405,6 @@ of children as well, i.e. all the [term {proper descendants}]. "Rooted
 at [var N]" means that [var N] itself is not added to the new set,
 which is also implied by [term {proper descendants}].
 
-
 [def [method subtree]]
 
 Like operator [method descendants], but includes the node [var N]. In
@@ -430,7 +419,6 @@ the new node set. I.e this is like the operator [method children], but
 covers the children of children, etc. as well. "Of [var N]" means that
 [var N] itself is added to the new set.
 
-
 [def [method forward]]
 
 Replaces the current node set with the nodes in the subtrees rooted at
@@ -444,11 +432,9 @@ This is equivalent to the operator sequence
 
 [example {next descendants}]
 
-
 [def [method later]]
 
 This is an alias for the operator [method forward].
-
 
 [def [method backward]]
 
@@ -462,7 +448,6 @@ This is nearly equivalent to the operator sequence
 
 The only difference is that this uses the nodes in reverse order.
 
-
 [def [method earlier]]
 
 Replaces the current node set with the nodes in the flattened previous
@@ -475,7 +460,6 @@ This is equivalent to the operator sequence
 
 [list_end]
 
-
 [comment ===========================================]
 [subsection {Attribute Filters}]
 
@@ -484,7 +468,6 @@ nodes and their properties. Filter means that all nodes not fulfilling
 the criteria are removed from the node set. In other words, the node
 set is replaced by the set of nodes fulfilling the filter criteria.
 
-
 [list_begin definitions]
 
 [def "[method hasatt] [arg attr]"]
@@ -492,13 +475,11 @@ set is replaced by the set of nodes fulfilling the filter criteria.
 Reduces the node set to nodes which have an attribute named
 [arg attr].
 
-
 [def "[method withatt] [arg attr] [arg value]"]
 
 Reduces the node set to nodes which have an attribute named
 [arg attr], and where the value of that attribute is equal to
 [arg value] (The "==" operator is [cmd {string equal -nocase}]).
-
 
 [def "[method withatt!] [arg attr] [arg val]"]
 
@@ -508,7 +489,6 @@ have to have the attribute, and the "==" operator is
 
 The operator will fail with an error if they don't have the attribute.
 
-
 [def "[method attof] [arg attr] [arg vals]"]
 
 Reduces the node set to nodes which which have an attribute named
@@ -517,7 +497,6 @@ list [arg vals] of legal values. The contained-in operator used here
 does glob matching (using the attribute value as pattern) and ignores
 the case of the attribute value, [emph {but not}] for the elements of
 [arg vals].
-
 
 [def "[method attmatch] [arg attr] [arg match]"]
 
@@ -537,13 +516,11 @@ to be wrapped into a list for correct interpretation by this operator
 
 [list_end]
 
-
 [comment ===========================================]
 [subsection {Attribute Mutators}]
 
 These operators change node attributes within the underlying tree. In
 other words, all these operators have [term {side effects}].
-
 
 [list_begin definitions]
 
@@ -555,7 +532,6 @@ Sets the attribute [arg attr] to the value [arg val], for all nodes
 The operator will fail if a node does not have an attribute named
 [arg attr]. The tree will be left in a partially modified state.
 
-
 [def "[method unset] [arg attr]"]
 
 Unsets the attribute [arg attr], for all nodes [var N] in the node
@@ -565,8 +541,6 @@ The operator will fail if a node does not have an attribute named
 [arg attr]. The tree will be left in a partially modified state.
 
 [list_end]
-
-
 
 [comment ===========================================]
 [subsection {Attribute String Accessors}]
@@ -589,7 +563,6 @@ quite true. It is a node set while the interpreter is processing
 commands, but can be left as an attribute value set at the end of
 query processing.
 
-
 [list_begin definitions]
 
 [def "[method string] [arg op] [arg attr]"]
@@ -611,14 +584,12 @@ sub-commands understood by [cmd string].  This has to be followed by
 all arguments required for the subcommand, except the last.  that last
 argument is supplied by the attribute value.
 
-
 [def "[method get] [arg pattern]"]
 
 For all nodes [var N] in the node set it determines all their
 attributes with names matching the glob [arg pattern], then the values
 of these attributes, at last it replaces the node set with the list of
 these attribute values.
-
 
 [def [method attlist]]
 
@@ -627,12 +598,10 @@ This is a convenience definition for the operator
 list of the attribute values for all attributes for all nodes [var N]
 in the node set.
 
-
 [def "[method attrs] [arg glob]"]
 
 Replaces the current node set with a list of attribute lists, one
 attribute list per for all nodes [var N] in the node set.
-
 
 [def "[method attval] [arg attname]"]
 
@@ -641,7 +610,6 @@ then replaces it with a list containing the values of the attribute
 named [arg attname] for all nodes [var N] in the node set.
 
 [list_end]
-
 
 [comment ===========================================]
 [subsection Sub-queries]
@@ -661,7 +629,6 @@ generated by the sub-query [arg query] and itself.
 The execution of the sub-query uses the current node set as its own
 initial node set.
 
-
 [def "[method orq] [arg query]"]
 
 Replaces the node set with the set-union of the node set generated by
@@ -671,7 +638,6 @@ the sub-query [arg query] and itself. Duplicate nodes are removed.
 
 The execution of the sub-query uses the current node set as its own
 initial node set.
-
 
 [def "[method notq] [arg query]"]
 
@@ -686,7 +652,6 @@ The execution of the sub-query uses the current node set as its own
 initial node set.
 
 [list_end]
-
 
 [comment ===========================================]
 [subsection {Node Set Operators}]
@@ -706,12 +671,10 @@ Removes duplicate nodes from the node set, preserving order. In other
 words, the earliest occurrence of a node handle is preserved, every
 other occurrence is removed.
 
-
 [def [method select]]
 
 Replaces the current node set with a node set containing only the
 first node from the current node set
-
 
 [def "[method transform] [arg query] [arg var] [arg body]"]
 
@@ -729,7 +692,6 @@ replacing the current one.
 
 The script [arg body] is executed in the context of the caller.
 
-
 [def "[method map] [arg var] [arg body]"]
 
 Iterates over the current node set, binding the handle of each node to
@@ -742,18 +704,15 @@ replacing the current one.
 
 The script [arg body] is executed in the context of the caller.
 
-
 [def "[method quote] [arg val]"]
 
 Appends the literal value [arg val] to the current node set.
-
 
 [def "[method replace] [arg val]"]
 
 Replaces the current node set with the literal list value [arg val].
 
 [list_end]
-
 
 [comment ===========================================]
 [subsection {Node Set Iterators}]
@@ -771,7 +730,6 @@ effects from the script [arg body].
 
 The script [arg body] is executed in the context of the caller.
 
-
 [def "[method with] [arg query] [arg body]"]
 
 Interprets the [arg query], then runs the script [arg body] on the
@@ -781,7 +739,6 @@ set as it was before the execution of the query.
 [para]
 
 The script [arg body] is executed in the context of the caller.
-
 
 [def "[method over] [arg var] [arg body]"]
 
@@ -799,13 +756,11 @@ source of the list to iterate over.
 
 The results of executing the [arg body] are ignored.
 
-
 [def [method delete]]
 
 Deletes all the nodes contained in the current node set from the tree.
 
 [list_end]
-
 
 [comment ===========================================]
 [subsection {Typed node support}]
@@ -813,7 +768,6 @@ Deletes all the nodes contained in the current node set from the tree.
 These filters and accessors assume the existence of an attribute
 called [const @type], and are short-hand forms useful for cost-like
 tree query, html tree editing, and so on.
-
 
 [list_begin definitions]
 
@@ -825,18 +779,15 @@ Attribute string accessor. This is equivalent to
 
 [example {get @type}]
 
-
 [def "[method oftype] [arg t]"]
 
 Reduces the node set to nodes whose type is equal to [arg t], with
 letter case ignored.
 
-
 [def "[method nottype] [arg t]"]
 
 Reduces the node set to nodes whose type is not equal to [arg t], with
 letter case ignored.
-
 
 [def "[method oftypes] [arg attrs]"]
 
@@ -845,7 +796,6 @@ of types. The value of @type is used as a glob pattern, and letter
 case is relevant.
 
 [list_end]
-
 
 [section Examples]
 
@@ -864,18 +814,6 @@ this package there.
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph treeql] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords {tree query language} {structured queries}]
-[keywords tree TreeQL Cost XPath DOM XSLT]
+[vset CATEGORY treeql]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

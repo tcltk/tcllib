@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/asn/asn\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'asn\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2004 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\" Copyright (c) 2004 Jochen Loewer <loewerj@web\&.de>
 '\" Copyright (c) 2004-2011 Michael Schlenker <mic42@users\&.sourceforge\&.net>
@@ -701,7 +701,7 @@ implementation of package \fBldap\fR\&.
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
 Please report such in the category \fIasn\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH KEYWORDS

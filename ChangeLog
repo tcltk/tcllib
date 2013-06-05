@@ -1,3 +1,15 @@
+2013-05-30  Andreas Kupries  <andreask@activestate.com>
+
+	* Makefile.in: [Bug 3613973][Allura 1371]: Applied patch by
+	  Wolfgang Kechel, fixed missing CYGPATH invokations for paths in
+	  the installation targets.
+
+2013-04-04  Andreas Kupries  <aku@hephaistos>
+
+	* support/installation/modules.tcl (Module): 
+	* modules/debug: debug narrator module adapted
+	  from Colin McCormack's Debug wub utility package.
+
 2013-03-21  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* aclocal.m4: [Bug 3608581]: Extended check for executable

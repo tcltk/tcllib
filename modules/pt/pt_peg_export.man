@@ -78,7 +78,6 @@ i.e. [term {plugin writer}]s, reading and understanding the
 necessity, as it documents the interaction between this package and
 its plugins in detail.
 
-
 [section API]
 [subsection {Package commands}]
 
@@ -94,7 +93,6 @@ under the current namespace if the [arg objectName] is not fully
 qualified, and in the specified namespace otherwise.
 
 [list_end]
-
 
 [subsection {Object command}]
 
@@ -113,7 +111,6 @@ specifications.
 
 [list_end]
 
-
 [subsection {Object methods}]
 
 [list_begin definitions]
@@ -121,7 +118,6 @@ specifications.
 [call [arg objectName] [method destroy]]
 
 This method destroys the object it is invoked for.
-
 
 [call [arg objectName] [method {export serial}] [arg serial] [opt [arg format]]]
 
@@ -147,7 +143,6 @@ found in the section [sectref {PEG serialization format}].
 The plugin has to conform to the interface documented in the
 [manpage {Parser Tools Export API}] specification.
 
-
 [call [arg objectName] [method {export object}] [arg object] [opt [arg format]]]
 
 This method is a convenient wrapper around the [method {export serial}]
@@ -159,18 +154,15 @@ parsing expression grammar. It invokes that method, feeds the result
 into [method {export serial}] and returns the resulting string as its
 own result.
 
-
 [call [arg objectName] [method {configuration names}]]
 
 This method returns a list containing the names of all configuration
 options currently known to the object.
 
-
 [call [arg objectName] [method {configuration get}]]
 
 This method returns a dictionary containing the names and values of
 all configuration options currently known to the object.
-
 
 [call [arg objectName] [method {configuration set}] [arg name] \
      [opt [arg value]]]
@@ -189,16 +181,13 @@ Note that these configuration options and their values are simply
 passed to a plugin when the actual export is performed. It is the
 plugin which checks the validity, not the manager.
 
-
 [call [arg objectName] [method {configuration unset}] [arg pattern]...]
 
 This method unsets all configuration options matching the specified
 glob [arg pattern]s. If no pattern is specified it will unset all
 currently defined configuration options.
 
-
 [list_end]
-
 
 [include include/serial/pegrammar.inc]
 [include include/serial/pexpression.inc]

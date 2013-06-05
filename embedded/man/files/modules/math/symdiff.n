@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/symdiff\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'symdiff\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2010 by Kevin B\&. Kenny <kennykb@acm\&.org>
 '\" Redistribution permitted under the terms of the Open Publication License <http://www\&.opencontent\&.org/openpub/>
 '\"
@@ -323,7 +323,7 @@ math::calculus::symdiff::jacobian {x {$a * $x + $b * $y}
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
 Please report such in the category \fImath :: calculus\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH "SEE ALSO"

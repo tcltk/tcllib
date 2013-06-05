@@ -1,3 +1,11 @@
+2013-06-05  Andreas Kupries <andreask@activestate.com>
+
+	* doctools.tcl: Added dt_ibase command to the set
+	* mpformats/_common.tcl: available in formatters.
+	* pkgIndex.tcl: Extended file command emulation.
+	  Used in the provenance code for shorter reference
+	  to the proper input file. Bumped to 1.4.17.
+
 2013-02-26  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* mpformats/_nroff.tcl: Modified the formatting of dots (".").

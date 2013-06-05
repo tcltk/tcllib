@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/doctools/docidx_lang_faq\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'docidx_lang_faq\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -243,41 +243,41 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 docidx_lang_faq \- docidx language faq
 .SH DESCRIPTION
-.PP
 .SH OVERVIEW
 .SS "WHAT IS THIS DOCUMENT?"
 This document is currently mainly a placeholder, to be filled with
-commonly asked questions about the docidx markup language and
-companions, and their answers\&.
+commonly asked questions about the docidx markup language
+and companions, and their answers\&.
 .PP
 Please report any questions (and, if possible, answers) we should
-consider for this document in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+consider for this document as explained in the section
+\fBBugs, Ideas, Feedback\fR below\&.
 .SH EXAMPLES
 .SS "WHERE DO I FIND DOCIDX EXAMPLES?"
 We have no direct examples of documents written using docidx
 markup\&. However the doctools processor \fBdtplite\fR does generate
-keyword indices when processing a set of documents written in doctools
-markup\&. The intermediate files use docidx markup and are not deleted
-when generation completes\&. These files can therefore serve as
-examples\&.
+a table of contents when processing a set of documents written in
+doctools markup\&. The intermediate file for it uses docidx
+markup and is not deleted when generation completes\&. Such files can
+therefore serve as examples\&.
 .PP
 \fBdtplite\fR is distributed as part of Tcllib, so to get it you
 need one of
 .IP [1]
-A CVS snapshot of Tcllib\&. How to retrieve such a snapshot and the
+A snapshot of Tcllib\&. How to retrieve such a snapshot and the
 tools required for this are described at
-\fIhttp://sourceforge\&.net/cvs/?group_id=12883\fR
+\fIDevelopment Snapshots\fR [/wiki?name=Development+Snapshots]
 .IP [2]
-A Tcllib release archive\&. They are available at
-\fIhttp://sourceforge\&.net/project/showfiles\&.php?group_id=12883\fR
+A Tcllib release archive\&. They are available at the \fIhome\fR [/home]
+page\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems\&.
-Please report any such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems\&.
+Please report such in the category \fIdoctools\fR of the
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
-the package and/or the documentation\&.
+package and/or documentation\&.
 .SH "SEE ALSO"
 docidx_lang_cmdref, docidx_lang_intro, docidx_lang_syntax
 .SH KEYWORDS

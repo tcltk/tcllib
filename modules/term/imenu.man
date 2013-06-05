@@ -1,5 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin term::interact::menu n 0.1]
+[keywords control]
+[keywords menu]
+[keywords terminal]
+[keywords {text display}]
 [copyright {2006 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Terminal control}]
 [titledesc {Terminal widget, menu}]
@@ -51,7 +55,6 @@ possible interaction.
 
 The method returns the symbolic action of the menu item selected by
 the user at the end of the interaction.
-
 
 [call [arg object] [method done]]
 
@@ -147,18 +150,6 @@ The interaction with the object is terminated.
 
 [list_end]
 
-
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph term] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords terminal control menu {text display}]
+[vset CATEGORY term]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

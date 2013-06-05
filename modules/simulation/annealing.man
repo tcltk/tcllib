@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin simulation::annealing n 0.2]
+[keywords math]
+[keywords optimization]
+[keywords {simulated annealing}]
 [copyright {2008 Arjen Markus <arjenmarkus@users.sourceforge.net>}]
 [moddesc   {Tcl Simulation Tools}]
 [titledesc {Simulated annealing}]
@@ -251,6 +254,4 @@ for instance. Also ensure that the function to be minimized depends on
 all or most parameters - see the source code for a counter example and
 run that.
 [list_end]
-
-[keywords math optimization "simulated annealing"]
 [manpage_end]

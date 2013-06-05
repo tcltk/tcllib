@@ -91,7 +91,7 @@
     }
 --></style>
 </head>
-<! -- Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/www/tcllib/files/modules/crc/crc32.html' by tcllib/doctools with format 'html'
+<! -- Generated from file 'crc32.man' by tcllib/doctools with format 'html'
    -->
 <! -- Copyright &copy; 2002, Pat Thoyts
    -->
@@ -121,7 +121,7 @@
 <li class="section"><a href="#section4">PROGRAMMING INTERFACE</a></li>
 <li class="section"><a href="#section5">EXAMPLES</a></li>
 <li class="section"><a href="#section6">AUTHORS</a></li>
-<li class="section"><a href="#section7">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section7">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#see-also">See Also</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
@@ -181,7 +181,7 @@ calculating the CRC of the next member.
 Note that the crc32 algorithm includes a final XOR step. If
 incremental processing is desired then this must be undone before
 using the output of the algorithm as the seed for further
-processing. A simpler alternative is to use the 
+processing. A simpler alternative is to use the
 <span class="sectref"><a href="#section4">PROGRAMMING INTERFACE</a></span> which is intended for this mode of
 operation.</p></dd>
 </dl>
@@ -199,9 +199,9 @@ excessive memory consumption.</p>
 <dd><p>Begins a new CRC32 context. Returns a token ID that must be used for the
 remaining functions. An optional seed may be specified if required.</p></dd>
 <dt><a name="3"><b class="cmd">::crc::Crc32Update</b> <i class="arg">token</i> <i class="arg">data</i></a></dt>
-<dd><p>Add data to the checksum identified by token. Calling 
+<dd><p>Add data to the checksum identified by token. Calling
 <em>Crc32Update $token &quot;abcd&quot;</em> is equivalent to calling
-<em>Crc32Update $token &quot;ab&quot;</em> followed by 
+<em>Crc32Update $token &quot;ab&quot;</em> followed by
 <em>Crc32Update $token &quot;cb&quot;</em>. See <span class="sectref"><a href="#section5">EXAMPLES</a></span>.</p></dd>
 <dt><a name="4"><b class="cmd">::crc::Crc32Final</b> <i class="arg">token</i></a></dt>
 <dd><p>Returns the checksum value and releases any resources held by this
@@ -233,11 +233,11 @@ result is a 32 bit integer value.</p></dd>
 <div id="section6" class="section"><h2><a name="section6">AUTHORS</a></h2>
 <p>Pat Thoyts</p>
 </div>
-<div id="section7" class="section"><h2><a name="section7">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section7" class="section"><h2><a name="section7">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>crc</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
@@ -245,7 +245,7 @@ package and/or documentation.</p>
 <p><a href="cksum.html">cksum(n)</a>, <a href="crc16.html">crc16(n)</a>, <a href="sum.html">sum(n)</a></p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key152">checksum</a>, <a href="../../../../index.html#key153">cksum</a>, <a href="../../../../index.html#key149">crc</a>, <a href="../../../../index.html#key150">crc32</a>, <a href="../../../../index.html#key151">cyclic redundancy check</a>, <a href="../../../../index.html#key144">data integrity</a>, <a href="../../../../index.html#key143">security</a></p>
+<p><a href="../../../../index.html#key158">checksum</a>, <a href="../../../../index.html#key157">cksum</a>, <a href="../../../../index.html#key154">crc</a>, <a href="../../../../index.html#key155">crc32</a>, <a href="../../../../index.html#key156">cyclic redundancy check</a>, <a href="../../../../index.html#key129">data integrity</a>, <a href="../../../../index.html#key127">security</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Hashes, checksums, and encryption</p>

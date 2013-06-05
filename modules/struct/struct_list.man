@@ -1,6 +1,38 @@
 [comment {-*- tcl -*- doctools manpage}]
 [comment {$Id: struct_list.man,v 1.24 2010/10/05 21:47:25 andreas_kupries Exp $}]
 [manpage_begin struct::list n 1.8.2]
+[keywords assign]
+[keywords common]
+[keywords comparison]
+[keywords diff]
+[keywords differential]
+[keywords equal]
+[keywords equality]
+[keywords filter]
+[keywords {first permutation}]
+[keywords Fisher-Yates]
+[keywords flatten]
+[keywords folding]
+[keywords {full outer join}]
+[keywords {generate permutations}]
+[keywords {inner join}]
+[keywords join]
+[keywords {left outer join}]
+[keywords list]
+[keywords {longest common subsequence}]
+[keywords map]
+[keywords {next permutation}]
+[keywords {outer join}]
+[keywords permutation]
+[keywords reduce]
+[keywords repeating]
+[keywords repetition]
+[keywords reshuffle]
+[keywords reverse]
+[keywords {right outer join}]
+[keywords shuffle]
+[keywords subsequence]
+[keywords swapping]
 [copyright {2003-2005 by Kevin B. Kenny. All rights reserved}]
 [copyright {2003-2012 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc {Tcl Data Structures}]
@@ -66,7 +98,6 @@ of two lists of equal length.  The first sublist is of indices into
 [arg sequence2].  Each corresponding pair of indices corresponds to
 equal elements in the sequences.  The sequence approximates the
 longest common subsequence.
-
 
 [call [cmd ::struct::list] [method lcsInvert] [arg lcsData] [arg len1] [arg len2]]
 
@@ -163,13 +194,11 @@ Also an index equal to the length of the first sequence in an
 
 [list_end]
 
-
 [call [cmd ::struct::list] [method lcsInvert2] [arg lcs1] [arg lcs2] [arg len1] [arg len2]]
 
 Similar to [method lcsInvert]. Instead of directly taking the result
 of a call to [method longestCommonSubsequence] this subcommand expects
 the indices for the two sequences in two separate lists.
-
 
 [call [cmd ::struct::list] [method lcsInvertMerge] [arg lcsData] [arg len1] [arg len2]]
 
@@ -200,14 +229,11 @@ structure.
                         {added    {10 11}  {8 8}}}
 }]
 
-
 [call [cmd ::struct::list] [method lcsInvertMerge2] [arg lcs1] [arg lcs2] [arg len1] [arg len2]]
 
 Similar to [method lcsInvertMerge]. Instead of directly taking the
 result of a call to [method longestCommonSubsequence] this subcommand
 expects the indices for the two sequences in two separate lists.
-
-
 
 [call [cmd ::struct::list] [method reverse] [arg sequence]]
 
@@ -215,15 +241,12 @@ The subcommand takes a single [arg sequence] as argument and returns a new
 sequence containing the elements of the input sequence in reverse
 order.
 
-
 [call [cmd ::struct::list] [method shuffle] [arg list]]
-[keywords shuffle reshuffle Fisher-Yates]
 
 The subcommand takes a [arg list] and returns a copy of that list
 with the elements it contains in random order. Every possible
 ordering of elements is equally likely to be generated. The
-Fisher-Yates shuffling algorithm is used internally. 
-
+Fisher-Yates shuffling algorithm is used internally.
 
 [call [cmd ::struct::list] [method assign] [arg sequence] [arg varname] [opt [arg varname]]...]
 
@@ -254,7 +277,6 @@ elements. Else an empty list is returned.
     b
 }]
 
-
 [call [cmd ::struct::list] [method flatten] [opt [option -full]] [opt [option --]] [arg sequence]]
 
 The subcommand takes a single [arg sequence] and returns a new
@@ -273,7 +295,6 @@ The subcommand will remove any nesting it finds if the option
     tclsh> ::struct::list flatten -full {1 2 3 {4 5} {6 7} {{8 9}} 10}
     1 2 3 4 5 6 7 8 9 10
 }]
-
 
 [call [cmd ::struct::list] [method map] [arg sequence] [arg cmdprefix]]
 
@@ -305,7 +326,6 @@ subcommand.
     b 2 f
 }]
 
-
 [call [cmd ::struct::list] [method mapfor] [arg var] [arg sequence] [arg script]]
 
 The subcommand takes a [arg sequence] to operate on and a tcl [arg script],
@@ -336,7 +356,6 @@ in the context of the caller of the subcommand.
     }
     b 2 f
 }]
-
 
 [call [cmd ::struct::list] [method filter] [arg sequence] [arg cmdprefix]]
 
@@ -372,7 +391,6 @@ subcommand.
 [method fold] where the result is extended with the current item or
 not, depending o nthe result of the test.
 
-
 [call [cmd ::struct::list] [method filterfor] [arg var] [arg sequence] [arg expr]]
 
 The subcommand takes a [arg sequence] to operate on and a tcl expression
@@ -399,7 +417,6 @@ takes place in the context of the caller of the subcommand.
     2 4
 }]
 
-
 [call [cmd ::struct::list] [method split] [arg sequence] [arg cmdprefix] [opt "[arg passVar] [arg failVar]"]]
 
 This is a variant of method [method filter], see above. Instead of
@@ -418,7 +435,6 @@ passing the test, and the number of elements failing, in this order.
 [para]
 
 The interface to the test is the same as used by [method filter].
-
 
 [call [cmd ::struct::list] [method fold] [arg sequence] [arg initialvalue] [arg cmdprefix]]
 
@@ -472,7 +488,6 @@ of the subcommand.
     15
 }]
 
-
 [call [cmd ::struct::list] [method shift] [arg listvar]]
 
 The subcommand takes the list contained in the variable named by
@@ -484,7 +499,6 @@ to last elements of the input list. The first element of the ist is
 returned as the result of the command. Shifting the empty list does
 nothing.
 
-
 [call [cmd ::struct::list] [method iota] [arg n]]
 
 The subcommand returns a list containing the integer numbers
@@ -494,7 +508,6 @@ of the list contain the number [const i].
 [para]
 
 For "[arg n] == [const 0]" an empty list will be returned.
-
 
 [call [cmd ::struct::list] [method equal] [arg a] [arg b]]
 
@@ -508,7 +521,6 @@ list the same definition of equality applies recursively.
 A boolean value will be returned as the result of the command.
 This value will be [const true] if the two lists are equal, and
 [const false] else.
-
 
 [call [cmd ::struct::list] [method repeat] [arg size] [arg element1] [opt "[arg element2] [arg element3]..."]]
 
@@ -577,7 +589,6 @@ An empty list will be returned if no [arg size] arguments are present.
     {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}} {{0 0 0} {0 0 0} {0 0 0} {0 0 0}}
 }]
 
-
 [call [cmd ::struct::list] [method dbJoin] [opt [option -inner]|[option -left]|[option -right]|[option -full]] [opt "[option -keys] [arg varname]"] \{[arg keycol] [arg table]\}...]
 
 The method performs a table join according to relational algebra. The
@@ -628,8 +639,6 @@ The table resulting from the join operation is returned as the result
 of the command. We use the same representation as described above for
 the input [arg table]s.
 
-
-
 [call [cmd ::struct::list] [method dbJoinKeyed] [opt [option -inner]|[option -left]|[option -right]|[option -full]] [opt "[option -keys] [arg varname]"] [arg table]...]
 
 The operations performed by this method are the same as described
@@ -647,12 +656,10 @@ The subcommand exchanges the elements at the indices [arg i] and
 list is modified in place, and also returned as the result of the
 subcommand.
 
-
 [call [cmd ::struct::list] [method firstperm] [arg list]]
 
 This subcommand returns the lexicographically first permutation of the
 input [arg list].
-
 
 [call [cmd ::struct::list] [method nextperm] [arg perm]]
 
@@ -664,12 +671,10 @@ sequence.
 The algorithm used here is by Donal E. Knuth, see section
 [sectref REFERENCES] for details.
 
-
 [call [cmd ::struct::list] [method permutations] [arg list]]
 
 This subcommand returns a list containing all permutations of the
 input [arg list] in lexicographic order.
-
 
 [call [cmd ::struct::list] [method foreachperm] [arg var] [arg list] [arg body]]
 
@@ -699,7 +704,7 @@ intrinsic to the algorithm used (see the Reference for details).
 
 One approach to dealing with the performance problem that is sometimes
 effective in practice is arbitrarily to exclude elements that appear
-more than a certain number of times. 
+more than a certain number of times.
 
 This number is provided as the [arg maxOccurs] parameter.  If frequent
 lines are excluded in this manner, they will not appear in the common
@@ -713,7 +718,6 @@ It functions as a wrapper around [method longestCommonSubsequence]; it
 computes the longest common subsequence of infrequent elements, and
 then subdivides the subsequences that lie between the matches to
 approximate the true longest common subsequence.
-
 
 [section {TABLE JOIN}]
 
@@ -754,7 +758,6 @@ an empty row of the right table to fit them into the result.
 For the right outer join the additional rows are all rows from the right
 table for which there is no key in the left table. They are joined to
 an empty row of the left table to fit them into the result.
-
 
 [enum]
 
@@ -804,16 +807,13 @@ Examples for all the joins:
                                            {{} {}   3 driver}
 }]
 
-
-
-
 [section REFERENCES]
 
 [list_begin enumerated]
 
 [enum]
-J. W. Hunt and M. D. McIlroy, "An algorithm for differential 
-file comparison," Comp. Sci. Tech. Rep. #41, Bell Telephone 
+J. W. Hunt and M. D. McIlroy, "An algorithm for differential
+file comparison," Comp. Sci. Tech. Rep. #41, Bell Telephone
 Laboratories (1976). Available on the Web at the second
 author's personal site: [uri http://www.cs.dartmouth.edu/~doug/]
 
@@ -824,26 +824,6 @@ volume 4". Available on the Web at the author's personal site:
 
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {struct :: list}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords list diff differential comparison common subsequence]
-[keywords {longest common subsequence}]
-[keywords reverse]
-[keywords assign]
-[keywords flatten]
-[keywords map filter]
-[keywords folding reduce]
-[keywords equality equal repetition repeating]
-[keywords {inner join} {left outer join} {right outer join} {full outer join} {outer join} join]
-[keywords swapping permutation {first permutation} {next permutation} {generate permutations}]
+[vset CATEGORY {struct :: list}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

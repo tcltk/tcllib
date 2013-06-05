@@ -1,5 +1,8 @@
 [comment {-*- text -*-}]
 [manpage_begin wip n 2.2]
+[keywords interpreter]
+[keywords list]
+[keywords word]
 [copyright {2007-2010 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Word Interpreter}]
 [titledesc {Word Interpreter}]
@@ -94,7 +97,6 @@ implementations.
 
 [list_end]
 
-
 [section {CLASS API}]
 
 The main command of the package is:
@@ -164,7 +166,7 @@ from within the constructor of the type using the word interpreter.
 
 If further installs a series of procedures which make the object API
 of the word interpreter directly available to the type's methods,
-without having to specify the component. 
+without having to specify the component.
 
 [para]
 
@@ -231,7 +233,6 @@ Sets the handler for unknown words to [arg cmdprefix]. This command
 prefix takes one argument, the current word, and either throws some
 error, or returns the result of executing the word, as defined by the
 handler. The default handler simply throws an error.
-
 
 [call [arg wipName] [method runl] [arg wordlist]]
 
@@ -378,17 +379,6 @@ multiple arguments.
 
 No examples yet.
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph wip] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords word list interpreter]
+[vset CATEGORY wip]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

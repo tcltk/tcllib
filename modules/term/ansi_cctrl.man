@@ -1,5 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin term::ansi::code::ctrl n 0.1]
+[keywords ansi]
+[keywords {attribute control}]
+[keywords {color control}]
+[keywords control]
+[keywords terminal]
 [copyright {2006-2008 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Terminal control}]
 [titledesc {ANSI control sequences}]
@@ -82,7 +87,6 @@ The legal tags, and their meanings, are:
 [def 1] Alternate Character ROM Standard Character Set
 [def 2] Alternate Character ROM Special Graphics
 [list_end]
-
 
 [call [cmd ::term::ansi::code::ctrl::sda] [arg arg]...]
 
@@ -189,17 +193,7 @@ Initialize default and alternate fonts to ASCII and box graphics.
 Format the block of text for display at the specified location.
 
 [list_end]
-[section {BUGS, IDEAS, FEEDBACK}]
 
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph term] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords ansi terminal control {attribute control} {color control}]
+[vset CATEGORY term]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

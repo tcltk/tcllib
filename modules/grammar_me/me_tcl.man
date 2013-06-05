@@ -1,5 +1,8 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin grammar::me::tcl n 0.1]
+[keywords grammar]
+[keywords parsing]
+[keywords {virtual machine}]
 [copyright {2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Grammar operations and usage}]
 [titledesc {Virtual machine implementation I for parsing token streams}]
@@ -7,7 +10,6 @@
 [require Tcl 8.4]
 [require grammar::me::tcl [opt 0.1]]
 [description]
-[keywords {virtual machine} parsing grammar]
 [para]
 
 This package provides an implementation of the ME virtual machine.
@@ -36,7 +38,6 @@ A related package is [package grammar::peg::interp] which provides a
 generic interpreter / parser for parsing expression grammars (PEGs),
 implemented on top of this implementation of the ME virtual machine.
 
-
 [section {API}]
 
 The commands documented in this section do not implement any of the
@@ -50,7 +51,6 @@ information.
 
 This is an ensemble command providing access to the commands listed in
 this section. See the methods themselves for detailed specifications.
-
 
 [call [cmd ::grammar::me::tcl] [method init] [arg nextcmd] [opt [arg tokmap]]]
 
@@ -82,8 +82,6 @@ token is in the specified range or not. If no token map is specified
 the lexicographic order of th token names will be used instead. This
 choice is especially asensible when using characters as tokens.
 
-
-
 [call [cmd ::grammar::me::tcl] [method lc] [arg location]]
 
 This command converts the location of a token given as offset in the
@@ -109,7 +107,6 @@ After a call of [method init] the state used for the conversion is
 cleared, making further conversions impossible until the machine has
 read tokens again.
 
-
 [call [cmd ::grammar::me::tcl] [method tok] [arg from] [opt [arg to]]]
 
 This command returns a Tcl list containing the part of the input
@@ -131,12 +128,10 @@ the [arg nextcmd] callback given to [cmd ::grammar::me::tcl::init]
 This command places the same restrictions on its location arguments as
 [cmd ::grammar::me::tcl::lc].
 
-
 [call [cmd ::grammar::me::tcl] [method tokens]]
 
 This command returns the number of tokens currently known to the ME
 virtual machine.
-
 
 [call [cmd ::grammar::me::tcl] [method sv]]
 
@@ -144,14 +139,12 @@ This command returns the current semantic value [term SV] stored in
 the machine. This is an abstract syntax tree as specified in the
 document [syscmd grammar::me_ast], section [sectref-external {AST VALUES}].
 
-
 [call [cmd ::grammar::me::tcl] [method ast]]
 
 This method returns the abstract syntax tree currently at the top of
 the AST stack of the ME virtual machine. This is an abstract syntax
 tree as specified in the document [syscmd grammar::me_ast], section
 [sectref-external {AST VALUES}].
-
 
 [call [cmd ::grammar::me::tcl] [method astall]]
 
@@ -162,12 +155,10 @@ an abstract syntax tree as specified in the document
 [syscmd grammar::me_ast], section [sectref-external {AST VALUES}].
 The top of the stack resides at the end of the list.
 
-
 [call [cmd ::grammar::me::tcl] [method ctok]]
 
 This method returns the current token considered by the ME virtual
 machine.
-
 
 [call [cmd ::grammar::me::tcl] [method nc]]
 
@@ -175,18 +166,15 @@ This method returns the contents of the nonterminal cache as a
 dictionary mapping from "[var symbol],[var location]" to match
 information.
 
-
 [call [cmd ::grammar::me::tcl] [method next]]
 
 This method returns the next token callback as specified during
 initialization of the ME virtual machine.
 
-
 [call [cmd ::grammar::me::tcl] [method ord]]
 
 This method returns a dictionary containing the [arg tokmap] specified
 during initialization of the ME virtual machine.
-
 
 [var [cmd ::grammar::me::tcl::ok]]
 
@@ -198,7 +186,6 @@ control flow.
 
 [list_end]
 [para]
-
 
 [section {MACHINE STATE}]
 
@@ -212,7 +199,6 @@ except for the stacks minus the AST stack. In other words, location
 stack, error stack, return stack, and ast marker stack are implicitly
 managed through standard Tcl scoping, i.e. Tcl variables in
 procedures, outside of this implementation.
-
 
 [section {MACHINE INSTRUCTIONS}]
 
@@ -352,16 +338,6 @@ Tcl stack, not the machine state. It replaces [term ias_mpop].
 [list_end]
 [para]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph grammar_me] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
+[vset CATEGORY grammar_me]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

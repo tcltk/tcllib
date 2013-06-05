@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/virtchannel_base/zero\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'tcllib_fifo2\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -238,10 +238,10 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "tcl::chan::zero" n 1 tcllib "Reflected/virtual channel support"
+.TH "tcl::chan::fifo2" n 1 tcllib "Reflected/virtual channel support"
 .BS
 .SH NAME
-tcl::chan::zero \- Zero channel
+tcl::chan::fifo2 \- In-memory interconnected fifo channels
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
@@ -249,40 +249,43 @@ package require \fBTclOO \fR
 .sp
 package require \fBtcl::chan::events  ?1?\fR
 .sp
-package require \fBtcl::chan::zero  ?1?\fR
+package require \fBtcl::chan::halfpipe  ?1?\fR
 .sp
-\fB::tcl::chan::zero\fR
+package require \fBtcl::chan::fifo2  ?1?\fR
+.sp
+\fB::tcl::chan::fifo2\fR
 .sp
 .BE
 .SH DESCRIPTION
 .PP
-The \fBtcl::chan::zero\fR package provides a command creating zero
-channels, i\&.e\&. read-only channels which return an infinite stream of null
-characters upon reading\&. This is equivalent to the zero channels
-provided by the package \fBMemchan\fR, except that this is written
-in pure Tcl, not C\&. On the other hand, \fBMemchan\fR is usable with
-Tcl 8\&.4 and before, whereas this package requires Tcl 8\&.5 or higher,
-and TclOO\&.
-.PP
-Packages related to this are \fBtcl::chan::null\fR and
-\fBtcl::chan::nullzero\fR\&.
+The \fBtcl::chan::fifo2\fR package provides a command creating
+pairs of channels which live purely in memory and are connected to
+each other in a fifo manner\&. What is written to one half of the pair
+can be read from the other half, in the same order\&. One particular
+application for this is communication between threads, with one half
+of the pair moved to the thread to talk to\&.
+This is equivalent to the fifo2 channels provided by the package
+\fBMmechan\fR, except that this is written in pure Tcl, not C\&. On
+the other hand, \fBMemchan\fR is usable with Tcl 8\&.4 and before,
+whereas this package requires Tcl 8\&.5 or higher, and \fBTclOO\fR\&.
 .PP
 The internal \fBTclOO\fR class implementing the channel
 handler is a sub-class of the \fBtcl::chan::events\fR framework\&.
 .SH API
 .TP
-\fB::tcl::chan::zero\fR
-This command creates a new zero channel and returns its handle\&.
+\fB::tcl::chan::fifo2\fR
+This command creates a new connected pair of fifo channels and returns
+their handles, as a list containing two elements\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
 Please report such in the category \fIvirtchannel\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH KEYWORDS
-/dev/zero, reflected channel, tip 219, virtual channel, zero
+connected fifos, fifo, in-memory channel, inter-thread communication, reflected channel, tip 219, virtual channel
 .SH CATEGORY
 Channels
 .SH COPYRIGHT

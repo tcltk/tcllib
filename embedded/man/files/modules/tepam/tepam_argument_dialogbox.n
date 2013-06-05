@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/tepam/tepam_argument_dialogbox\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'tepam_argument_dialogbox\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009/2010, Andreas Drollinger
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -238,7 +238,7 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "tepam::argument_dialogbox" n 0\&.4\&.0 tcllib "Tcl's Enhanced Procedure and Argument Manager"
+.TH "tepam::argument_dialogbox" n 0\&.4\&.1 tcllib "Tcl's Enhanced Procedure and Argument Manager"
 .BS
 .SH NAME
 tepam::argument_dialogbox \- TEPAM argument_dialogbox, reference manual

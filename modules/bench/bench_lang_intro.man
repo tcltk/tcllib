@@ -1,5 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin bench_lang_intro n 1.0]
+[see_also bench_intro]
+[see_also bench_lang_spec]
+[keywords {bench language}]
+[keywords benchmark]
+[keywords examples]
+[keywords performance]
+[keywords testing]
 [copyright {2007 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Benchmarking/Performance tools}]
 [titledesc {bench language introduction}]
@@ -37,7 +44,6 @@ This code declares a benchmark named [const LABEL] which measures the
 time it takes to assign a value to a variable. The Tcl code doing this
 assignment is the [option -body] of the benchmark.
 
-
 [subsection {Pre- and postprocessing}]
 
 Our next example demonstrates how to declare [term initialization] and
@@ -63,7 +69,6 @@ bench -desc "AES-${len} ECB encryption core" [option -pre] {
     aes::Final $key
 }
 [example_end]
-
 
 [subsection {Advanced pre- and postprocessing}]
 
@@ -133,7 +138,6 @@ bench -desc "set include, missing <SC> x$times $n" [option -ipre] {
 }
 [example_end]
 
-
 [section {FURTHER READING}]
 
 Now that this document has been digested the reader, assumed to be a
@@ -144,16 +148,6 @@ available commands and their syntax.
 
 [para]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, will undoubtedly contain bugs and other problems.
-
-Please report such in the category [emph bench] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have.
-
-[see_also bench_intro]
-[see_also bench_lang_spec]
-[keywords testing performance benchmark {bench language} examples]
+[vset CATEGORY bench]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

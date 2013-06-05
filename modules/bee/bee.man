@@ -1,5 +1,10 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin bee n 0.1]
+[keywords bee]
+[keywords BitTorrent]
+[keywords bittorrent]
+[keywords serialization]
+[keywords torrent]
 [copyright {2004 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {BitTorrent}]
 [titledesc {BitTorrent Serialization Format Encoder/Decoder}]
@@ -31,11 +36,9 @@ several arguments.
 
 Returns the bee-encoding of the [arg string].
 
-
 [call [cmd ::bee::encodeNumber] [arg integer]]
 
 Returns the bee-encoding of the [arg integer] number.
-
 
 [call [cmd ::bee::encodeListArgs] [arg value]...]
 
@@ -47,7 +50,6 @@ their list.
 Takes a list of bee-encoded values and returns the bee-encoding of the
 list.
 
-
 [call [cmd ::bee::encodeDictArgs] [arg key] [arg value]...]
 
 Takes zero or more pairs of keys and values and returns the
@@ -55,17 +57,15 @@ bee-encoding of the dictionary they form. The values are expected to
 be already bee-encoded, but the keys must not be. Their encoding will
 be done by the command itself.
 
-
 [call [cmd ::bee::encodeDict] [arg dict]]
 
 Takes a dictionary list of string keys and bee-encoded values and
 returns the bee-encoding of the list. Note that the keys in the input
 must not be bee-encoded already. This will be done by the command
-itself. 
+itself.
 
 [list_end]
 [para]
-
 
 [subsection DECODER]
 
@@ -74,7 +74,6 @@ string expected to contain a complete data structure, the other for
 the incremental decoding of bee-values arriving on a channel. The
 latter command is asynchronous and provides the completed decoded
 values to the user through a command callback.
-
 
 [para]
 [list_begin definitions]
@@ -101,7 +100,6 @@ contained values.
 The optional [arg start] index defaults to [const 0], i.e. the
 beginning of the string. It is the index of the first character of the
 bee-encoded value to extract.
-
 
 [call [cmd ::bee::decodeIndices] [arg string] [opt [arg endvar]] [opt [arg start]]]
 
@@ -170,7 +168,6 @@ find particular element. Using the actual keys makes this much easier.
 [list_end]
 [para]
 
-
 [call [cmd ::bee::decodeChannel] [arg chan] \
 	[option -command] [arg cmdprefix] \
 	[opt [option -exact]] \
@@ -204,14 +201,12 @@ invocations of the callback will be made after this. The channel has
 already been closed at the time of the call, and the [arg token] is
 not valid anymore as well.
 
-
 [call [cmd cmdprefix] [method error] [arg token] [arg message]]
 
 The decoder encountered an error, which is not eof. For example a
 malformed bee-value. The [arg message] provides details about the
 error. The decoder token is in the same state as for eof,
 i.e. invalid. The channel however is kept open.
-
 
 [call [cmd cmdprefix] [method value] [arg token] [arg value]]
 
@@ -258,7 +253,6 @@ not. Without the option this data would be lost to the decoding.
 
 This command cancels the decoder set up by [cmd ::bee::decodeChannel]
 and represented by the handle [arg token].
-
 
 [call [cmd ::bee::decodePush] [arg token] [arg string]]
 
@@ -342,20 +336,8 @@ By wrapping an integer number into [const i]...[const e] the format
 makes sure that they are different from strings, which all begin with
 a digit.
 
-
 [section EXAMPLES]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph bee] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords bee bittorrent serialization torrent BitTorrent]
+[vset CATEGORY bee]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

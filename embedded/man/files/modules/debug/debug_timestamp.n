@@ -1,6 +1,7 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/virtchannel_base/fifo\&.n' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Generated from file 'debug_timestamp\&.man' by tcllib/doctools with format 'nroff'
+'\" Copyright (c) 200?, Colin McCormack, Wub Server Utilities
+'\" Copyright (c) 2012, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -238,52 +239,42 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "tcl::chan::fifo" n 1 tcllib "Reflected/virtual channel support"
+.TH "debug::timestamp" n 1 tcllib "debug narrative"
 .BS
 .SH NAME
-tcl::chan::fifo \- In-memory fifo channel
+debug::timestamp \- debug narrative - timestamping
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBTclOO \fR
+package require \fBdebug  ?1?\fR
 .sp
-package require \fBtcl::chan::events  ?1?\fR
-.sp
-package require \fBtcl::chan::fifo  ?1?\fR
-.sp
-\fB::tcl::chan::fifo\fR
+\fBdebug\fR \fBtimestamp\fR
 .sp
 .BE
 .SH DESCRIPTION
 .PP
-The \fBtcl::chan::fifo\fR package provides a command creating
-channels which live purely in memory\&. Access is fifo-like, i\&.e\&. things
-are read out of the channel in the order they were written to it\&.
-This is equivalent to the fifo channels provided by the package
-\fBMmechan\fR, except that this is written in pure Tcl, not C\&. On
-the other hand, \fBMemchan\fR is usable with Tcl 8\&.4 and before,
-whereas this package requires Tcl 8\&.5 or higher, and \fBTclOO\fR\&.
-.PP
-The internal \fBTclOO\fR class implementing the channel
-handler is a sub-class of the \fBtcl::chan::events\fR framework\&.
 .SH API
 .TP
-\fB::tcl::chan::fifo\fR
-This command creates a new fifo channel and returns its handle\&.
+\fBdebug\fR \fBtimestamp\fR
+This method returns millisecond timing information since a baseline or
+last call, making it useful in a tag-specific prefix to automatically
+provide caller information for all uses of the tag\&. Or in a message,
+when only specific places need such detail\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
-Please report such in the category \fIvirtchannel\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+Please report such in the category \fIdebug\fR of the
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH KEYWORDS
-fifo, in-memory channel, reflected channel, tip 219, virtual channel
+debug, log, narrative, timestamps, trace
 .SH CATEGORY
-Channels
+debugging, tracing, and logging
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 200?, Colin McCormack, Wub Server Utilities
+Copyright (c) 2012, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi

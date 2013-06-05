@@ -1,5 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin stooop n 4.4.1]
+[keywords C++]
+[keywords class]
+[keywords object]
+[keywords {object oriented}]
 [moddesc   {Simple Tcl Only Object Oriented Programming}]
 [titledesc {Object oriented extension.}]
 [category  {Programming tools}]
@@ -22,7 +26,6 @@ the programmer, who should have read the thorough [uri stooop_man.html]
 HTML documentation at this point.
 
 [list_begin definitions]
-
 
 [call [cmd ::stooop::class] [arg {name body}]]
 
@@ -79,7 +82,6 @@ existing object of the class.
 
 [list_end]
 
-
 [call [cmd ::stooop::new] [arg class] [opt [arg {arg arg ...}]]]
 
 This command is used to create an object. The first argument is the
@@ -121,7 +123,6 @@ is performed.
 [list_begin definitions]
 
 [def {Environment variables}]
-
 
 [list_begin definitions]
 
@@ -171,7 +172,7 @@ informational text for each member data access.
 
 [def [var STOOOPTRACEDATAFORMAT]]
 
-Defines the trace data output format. Defaults to 
+Defines the trace data output format. Defaults to
 [const {"class: %C, procedure: %p, array: %A, object: %O, member: %m, operation: %o, value: %v"}].
 
 [def [var STOOOPTRACEDATAOPERATIONS]]
@@ -190,7 +191,6 @@ Setting this environment variable to either [const stdout],
 tracing.
 
 [list_end]
-
 
 [call [cmd ::stooop::printObjects] [opt [arg pattern]]]
 
@@ -218,17 +218,6 @@ the output to matching class names.
 
 Please see the full HTML documentation in [uri stooop_man.html].
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph stooop] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords class {object oriented} object C++]
+[vset CATEGORY stooop]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

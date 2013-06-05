@@ -92,7 +92,7 @@
     }
 --></style>
 </head>
-<! -- Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/www/tcllib/files/modules/treeql/treeql.html' by tcllib/doctools with format 'html'
+<! -- Generated from file 'treeql.man' by tcllib/doctools with format 'html'
    -->
 <! -- Copyright &copy; 2004 Colin McCormack &lt;coldstore@users.sourceforge.net&gt;   -- Copyright &copy; 2004 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
    -->
@@ -138,7 +138,7 @@
 </li>
 <li class="section"><a href="#section4">Examples</a></li>
 <li class="section"><a href="#section5">References</a></li>
-<li class="section"><a href="#section6">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
 <li class="section"><a href="#copyright">Copyright</a></li>
@@ -299,7 +299,7 @@ essentially all operators use it and input argument and for their
 result.
 This structure simply contains the handles of all nodes which are
 currently of interest to the query object.
-To name it a <i class="term"><a href="../../../../index.html#key274">set</a></i> is a bit of a misnomer, because</p>
+To name it a <i class="term"><a href="../../../../index.html#key279">set</a></i> is a bit of a misnomer, because</p>
 <ol class="enumerated">
 <li><p>A node (handle) can occur in the structure more than once, and</p></li>
 <li><p>the order of nodes in the structure is important as well.
@@ -501,8 +501,8 @@ results of that application and places them into the node set.</p>
 <p>The operator will fail if a node does not have an attribute named
 <i class="arg">attr</i>.</p>
 <p>The argument <i class="arg">op</i> is interpreted as partial argument list for the
-builtin command <b class="cmd"><a href="../../../../index.html#key267">string</a></b>.  Its first word has to be any of the
-sub-commands understood by <b class="cmd"><a href="../../../../index.html#key267">string</a></b>.  This has to be followed by
+builtin command <b class="cmd"><a href="../../../../index.html#key263">string</a></b>.  Its first word has to be any of the
+sub-commands understood by <b class="cmd"><a href="../../../../index.html#key263">string</a></b>.  This has to be followed by
 all arguments required for the subcommand, except the last.  that last
 argument is supplied by the attribute value.</p></dd>
 <dt><b class="method">get</b> <i class="arg">pattern</i></dt>
@@ -596,7 +596,7 @@ set as it was before the execution of the query.</p>
 <dd><p>Executes the script <i class="arg">body</i> for each node in the node set, with the
 variable named by <i class="arg">var</i> bound to the name of the current node.
 The script <i class="arg">body</i> is executed in the context of the caller.</p>
-<p>This is like the builtin <b class="cmd"><a href="../../../../index.html#key204">foreach</a></b>, with the node set as the
+<p>This is like the builtin <b class="cmd"><a href="../../../../index.html#key214">foreach</a></b>, with the node set as the
 source of the list to iterate over.</p>
 <p>The results of executing the <i class="arg">body</i> are ignored.</p></dd>
 <dt><b class="method">delete</b></dt>
@@ -636,16 +636,16 @@ case is relevant.</p></dd>
 this package there.</p></li>
 </ol>
 </div>
-<div id="section6" class="section"><h2><a name="section6">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section6" class="section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>treeql</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key797">Cost</a>, <a href="../../../../index.html#key795">DOM</a>, <a href="../../../../index.html#key798">TreeQL</a>, <a href="../../../../index.html#key796">XPath</a>, <a href="../../../../index.html#key800">XSLT</a>, <a href="../../../../index.html#key801">structured queries</a>, <a href="../../../../index.html#key275">tree</a>, <a href="../../../../index.html#key799">tree query language</a></p>
+<p><a href="../../../../index.html#key805">Cost</a>, <a href="../../../../index.html#key802">DOM</a>, <a href="../../../../index.html#key804">TreeQL</a>, <a href="../../../../index.html#key803">XPath</a>, <a href="../../../../index.html#key807">XSLT</a>, <a href="../../../../index.html#key808">structured queries</a>, <a href="../../../../index.html#key278">tree</a>, <a href="../../../../index.html#key806">tree query language</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Data structures</p>

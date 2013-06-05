@@ -1,12 +1,21 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin aes n 1.1]
+[manpage_begin aes n 1.1.1]
+[see_also blowfish(n)]
+[see_also des(n)]
+[see_also md5(n)]
+[see_also sha1(n)]
+[keywords aes]
+[keywords {block cipher}]
+[keywords {data integrity}]
+[keywords encryption]
+[keywords security]
 [copyright {2005, Pat Thoyts <patthoyts@users.sourceforge.net>}]
-[copyright {2012, Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2012-2013, Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc {Advanced Encryption Standard (AES)}]
 [titledesc {Implementation of the AES block cipher}]
 [category  {Hashes, checksums, and encryption}]
 [require Tcl 8.2]
-[require aes [opt 1.1]]
+[require aes [opt 1.1.1]]
 [description]
 [para]
 
@@ -39,7 +48,7 @@ this channel.
 [para]
 
 The [arg -key] option must be given. This parameter takes a binary
-string of either 16, 24 or 32 bytes in length and is used to generate the 
+string of either 16, 24 or 32 bytes in length and is used to generate the
 key schedule.
 
 [para]
@@ -150,22 +159,9 @@ aes::Final $Key
 
 [list_end]
 
-[see_also des(n) md5(n) sha1(n) blowfish(n)]
-
 [section AUTHORS]
 Thorsten Schloermann, Pat Thoyts
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph aes] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords aes {block cipher} security encryption {data integrity}]
+[vset CATEGORY aes]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

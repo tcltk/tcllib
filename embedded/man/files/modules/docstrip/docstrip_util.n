@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/docstrip/docstrip_util\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'docstrip_util\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003–2010 Lars Hellström <Lars dot Hellstrom at residenset dot net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -674,6 +674,21 @@ not available\&. A source file could however look as follows
 
 
 % [manpage_begin gcd n 1\&.0]
+[see_also docstrip]
+[see_also doctools]
+[see_also doctools_fmt]
+[keywords \&.ddt]
+[keywords catalogue]
+[keywords diff]
+[keywords docstrip]
+[keywords doctools]
+[keywords documentation]
+[keywords {literate programming}]
+[keywords module]
+[keywords {package indexing}]
+[keywords patch]
+[keywords source]
+[keywords {Tcl module}]
 % [moddesc {Greatest Common Divisor}]
 % [require gcd [opt 1\&.0]]
 % [description]

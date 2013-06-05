@@ -92,7 +92,7 @@
     }
 --></style>
 </head>
-<! -- Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/www/tcllib/files/modules/sasl/sasl.html' by tcllib/doctools with format 'html'
+<! -- Generated from file 'sasl.man' by tcllib/doctools with format 'html'
    -->
 <! -- Copyright &copy; 2005-2006, Pat Thoyts &lt;patthoyts@users.sourceforge.net&gt;
    -->
@@ -124,7 +124,7 @@
 <li class="section"><a href="#section6">EXAMPLES</a></li>
 <li class="section"><a href="#section7">REFERENCES</a></li>
 <li class="section"><a href="#section8">AUTHORS</a></li>
-<li class="section"><a href="#section9">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section9">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
 <li class="section"><a href="#copyright">Copyright</a></li>
@@ -173,7 +173,7 @@ of the SASL procedures.</p></dd>
 <dd><p>Modify and inspect the SASL context option. See <span class="sectref"><a href="#section3">OPTIONS</a></span> for
 further details.</p></dd>
 <dt><a name="3"><b class="cmd">::SASL::step</b> <i class="arg">context</i> <i class="arg">challenge</i> <span class="opt">?<i class="arg">...</i>?</span></a></dt>
-<dd><p>This is the core procedure for using the SASL framework. The 
+<dd><p>This is the core procedure for using the SASL framework. The
 <b class="cmd">step</b> procedure should be called until it returns 0. Each step takes a
 server challenge string and the response is calculated and stored in
 the context. Each mechanism may require one or more steps. For some
@@ -191,7 +191,7 @@ token may not be used again after this procedure has been called.</p></dd>
 <dt><a name="7"><b class="cmd">::SASL::mechanisms</b> <span class="opt">?<i class="arg">type</i>?</span> <span class="opt">?<i class="arg">minimum</i>?</span></a></dt>
 <dd><p>Returns a list of all the available SASL mechanisms. The list is
 sorted by the mechanism preference value (see <b class="cmd">register</b>) with the
-preferred mechanisms and the head of the list. Any mechanism with a 
+preferred mechanisms and the head of the list. Any mechanism with a
 preference value less than the<i class="arg">minimum</i> (which defaults to 0) is removed
 from the returned list. This permits a security threshold to be set. Mechanisms
 with a preference less that 25 transmit authentication are particularly
@@ -199,8 +199,8 @@ susceptible to eavesdropping and should not be provided unless a secure
 channel is in use (eg: tls).</p>
 <p>The <i class="arg">type</i> parameter
 may be one of <i class="arg">client</i> or <i class="arg">server</i> and defaults to <i class="arg">client</i>.
-Only mechanisms that have an implementation matching the <i class="arg">type</i> are 
-returned (this permits servers to correctly declare support only for 
+Only mechanisms that have an implementation matching the <i class="arg">type</i> are
+returned (this permits servers to correctly declare support only for
 mechanisms that actually provide a server implementation).</p></dd>
 <dt><a name="8"><b class="cmd">::SASL::register</b> <i class="arg">mechanism</i> <i class="arg">preference</i> <i class="arg">clientproc</i> <span class="opt">?<i class="arg">serverproc</i>?</span></a></dt>
 <dd><p>New mechanisms can be added to the package by registering the
@@ -257,7 +257,7 @@ authorization and authentication identities within SASL.</p></dd>
 <dt>password</dt>
 <dd><p>The callback procedure should return the password that matches the
 authentication identity as used within the current realm.</p>
-<p>For server mechanisms the password callback should always be called with 
+<p>For server mechanisms the password callback should always be called with
 the authentication identity and the realm as the first two parameters.</p></dd>
 <dt>realm</dt>
 <dd><p>Some SASL mechanisms use realms to partition authentication identities.
@@ -298,8 +298,8 @@ transmitted across the network. Specified in [3].</p></dd>
 <dd><p>OTP is the One-Time Password system described in RFC 2289 [6].
 This mechanism is secure against replay attacks and also avoids storing
 password or password equivalents on the server. Only a digest of a seed
-and a passphrase is ever transmitted across the network. Requires the 
-<b class="package"><a href="../otp/otp.html">otp</a></b> package from tcllib and one or more of the cryptographic 
+and a passphrase is ever transmitted across the network. Requires the
+<b class="package"><a href="../otp/otp.html">otp</a></b> package from tcllib and one or more of the cryptographic
 digest packages (md5 or sha-1 are the most commonly used).</p></dd>
 <dt>NTLM</dt>
 <dd><p>This is a proprietary protocol developed by Microsoft [5] and is
@@ -308,15 +308,15 @@ environment. NTLM uses DES encryption and MD4 digests of the users
 password to authenticate a connection. Certain weaknesses have been
 found in NTLM and thus there are a number of versions of the protocol.
 As this mechanism has additional dependencies it is made available as
-a separate sub-package. To enable this mechanism your application must 
+a separate sub-package. To enable this mechanism your application must
 load the SASL::NTLM package.</p></dd>
 <dt>X-GOOGLE-TOKEN</dt>
-<dd><p>This is a proprietary protocol developed by Google and used for 
+<dd><p>This is a proprietary protocol developed by Google and used for
 authenticating users for the Google Talk service. This mechanism makes
-a pair of HTTP requests over an SSL channel and so this mechanism 
+a pair of HTTP requests over an SSL channel and so this mechanism
 depends upon the availability of the tls and http packages. To enable
 this mechanism your application must load the SASL::XGoogleToken package.
-In addition you are recommended to make use of the autoproxy package to 
+In addition you are recommended to make use of the autoproxy package to
 handle HTTP proxies reasonably transparently.</p></dd>
 </dl>
 </div>
@@ -377,16 +377,16 @@ proc Demo {{mech PLAIN}} {
 <div id="section8" class="section"><h2><a name="section8">AUTHORS</a></h2>
 <p>Pat Thoyts</p>
 </div>
-<div id="section9" class="section"><h2><a name="section9">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section9" class="section"><h2><a name="section9">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>sasl</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key784">SASL</a>, <a href="../../../../index.html#key783">authentication</a></p>
+<p><a href="../../../../index.html#key789">SASL</a>, <a href="../../../../index.html#key788">authentication</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>

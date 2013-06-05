@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/hook/hook\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'hook\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2010, by William H\&. Duquette
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -577,7 +577,7 @@ Hook has been designed and implemented by William H\&. Duquette\&.
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
 Please report such in the category \fIhook\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH "SEE ALSO"

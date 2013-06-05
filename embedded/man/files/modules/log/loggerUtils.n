@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/log/loggerUtils\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'loggerUtils\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005 Aamer Akhter <aakhter@cisco\&.com>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -381,7 +381,7 @@ Example of usage:
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
 Please report such in the category \fIlogger\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH KEYWORDS

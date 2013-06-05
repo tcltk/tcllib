@@ -1,5 +1,18 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin grammar::peg n 0.1]
+[keywords {context-free languages}]
+[keywords expression]
+[keywords grammar]
+[keywords LL(k)]
+[keywords parsing]
+[keywords {parsing expression}]
+[keywords {parsing expression grammar}]
+[keywords {push down automaton}]
+[keywords {recursive descent}]
+[keywords state]
+[keywords TDPL]
+[keywords {top-down parsing languages}]
+[keywords transducer]
 [copyright {2005 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Grammar operations and usage}]
 [titledesc {Create and manipulate parsing expression grammars}]
@@ -8,10 +21,6 @@
 [require snit]
 [require grammar::peg [opt 0.1]]
 [description]
-[keywords grammar expression {push down automaton}]
-[keywords state {parsing expression} {parsing expression grammar}]
-[keywords {context-free languages} parsing transducer LL(k)]
-[keywords TDPL {top-down parsing languages} {recursive descent}]
 [para]
 
 This package provides a container class for
@@ -23,13 +32,11 @@ and querying of the definition.
 The package neither provides complex operations on the grammar, nor has
 it the ability to execute a grammar definition for a stream of symbols.
 
-
 Two packages related to this one are [package grammar::mengine] and
 [package grammar::peg::interpreter]. The first of them defines a
 general virtual machine for the matching of a character stream, and
 the second implements an interpreter for parsing expression grammars
 on top of that virtual machine.
-
 
 [subsection {TERMS & CONCEPTS}]
 
@@ -172,7 +179,6 @@ taken, see the last item.
 [list_end]
 [para]
 
-
 [subsection {CONTAINER CLASS API}]
 
 The package exports the API described here.
@@ -208,7 +214,6 @@ is the empty expression, i.e. epsilon. It is [term valid], but not
 
 [list_end]
 
-
 [subsection {CONTAINER OBJECT API}]
 [para]
 
@@ -217,18 +222,15 @@ manipulation of their contents:
 
 [list_begin definitions]
 
-
 [call [arg pegName] [method destroy]]
 
 Destroys the grammar, including its storage space and associated
 command.
 
-
 [call [arg pegName] [method clear]]
 
 Clears out the definition of the grammar contained in [arg pegName],
 but does [emph not] destroy the object.
-
 
 [call [arg pegName] [method =] [arg srcPEG]]
 
@@ -248,7 +250,6 @@ This operation is in effect equivalent to
     [arg pegName] [method deserialize] [lb][arg srcPEG] [method serialize][rb]
 [example_end]
 
-
 [call [arg pegName] [method -->] [arg dstPEG]]
 
 This is the reverse assignment operator for grammars. It copies the
@@ -264,7 +265,6 @@ This operation is in effect equivalent to
 [example_begin]
     [arg dstPEG] [method deserialize] [lb][arg pegName] [method serialize][rb]
 [example_end]
-
 
 [call [arg pegName] [method serialize]]
 
@@ -351,14 +351,12 @@ a possible serialization is
 A possible one, because the order of the nonterminals in the
 dictionary is not relevant.
 
-
 [call [arg pegName] [method deserialize] [arg serialization]]
 
 This is the complement to [method serialize]. It replaces the grammar
 definition in [arg pegName] with the grammar described by the
 [arg serialization] value. The old contents of [arg pegName] are
 deleted by this operation.
-
 
 [call [arg pegName] [method {is valid}]]
 
@@ -368,7 +366,6 @@ grammar property.
 
 The result is a boolean value. It will be set to [const true] if
 the PEG has the tested property, and [const false] otherwise.
-
 
 [call [arg pegName] [method start] [opt [arg pe]]]
 
@@ -388,11 +385,9 @@ The method returns the empty string as its result.
 If the method is called without an argument it will return the currently
 defined start expression.
 
-
 [call [arg pegName] [method nonterminals]]
 
 Returns the set of all nonterminal symbols known to the grammar.
-
 
 [call [arg pegName] [method {nonterminal add}] [arg nt] [arg pe]]
 
@@ -407,7 +402,6 @@ contain a valid parsing expression as specified in the section
 nonterminal symbols and rules is not changed.
 
 The method returns the empty string as its result.
-
 
 [call [arg pegName] [method {nonterminal delete}] [arg nt1] [opt "[arg nt2] ..."]]
 
@@ -426,7 +420,6 @@ The method returns the empty string as its result.
 The stored grammar becomes invalid if the deleted nonterminals are
 referenced by the RHS of still-known rules.
 
-
 [call [arg pegName] [method {nonterminal exists}] [arg nt]]
 
 A predicate. It tests whether the nonterminal symbol [arg nt] is known
@@ -434,7 +427,6 @@ to the PEG in [arg pegName].
 
 The result is a boolean value. It will be set to [const true] if the
 symbol [arg nt] is known, and [const false] otherwise.
-
 
 [call [arg pegName] [method {nonterminal rename}] [arg nt] [arg ntnew]]
 
@@ -444,7 +436,6 @@ The method fails and throws an error if either [arg nt] is not known
 as a nonterminal, or if [arg ntnew] is a known symbol.
 
 The method returns the empty string as its result.
-
 
 [call [arg pegName] [method {nonterminal mode}] [arg nt] [opt [arg mode]]]
 
@@ -486,7 +477,6 @@ are discarded (as well).
 
 [list_end]
 
-
 [call [arg pegName] [method {nonterminal rule}] [arg nt]]
 
 This method returns the parsing expression associated with the
@@ -495,7 +485,6 @@ nonterminal [arg nt].
 The method fails and throws an error if [arg nt] is not known as a
 nonterminal.
 
-
 [call [arg pegName] [method {unknown nonterminals}]]
 
 This method returns a list containing the names of all nonterminal
@@ -503,7 +492,6 @@ symbols which are referenced on the RHS of a grammatical rule, but
 have no rule definining their structure. In other words, a list of
 the nonterminal symbols which make the grammar invalid. The grammar
 is valid if this list is empty.
-
 
 [list_end]
 
@@ -601,7 +589,6 @@ is a parsing expression as well.
 
 This is the [term {not lookahead predicate}].
 
-
 [enum]
 For a parsing expression [var e] the result of
 
@@ -616,7 +603,6 @@ This is the [term {optional input}].
 
 Examples of parsing expressions where already shown, in the
 description of the method [method serialize].
-
 
 [section {PARSING EXPRESSION GRAMMARS}]
 [para]
@@ -708,7 +694,6 @@ They can be easily implemented by recursive descent parsers with
 backtracking. This makes them relatives of LL(k) Context-Free
 Grammars.
 
-
 [section REFERENCES]
 
 [list_begin enumerated]
@@ -731,16 +716,6 @@ applicabilities, including error recovery techniques.
 CoCo/R, a generator for recursive descent parsers.
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph grammar_peg] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
+[vset CATEGORY grammar_peg]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

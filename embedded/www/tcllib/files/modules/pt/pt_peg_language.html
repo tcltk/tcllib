@@ -92,7 +92,7 @@
     }
 --></style>
 </head>
-<! -- Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/www/tcllib/files/modules/pt/pt_peg_language.html' by tcllib/doctools with format 'html'
+<! -- Generated from file 'pt_peg_language.man' by tcllib/doctools with format 'html'
    -->
 <! -- Copyright &copy; 2009 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
    -->
@@ -237,7 +237,7 @@ of binding):</p>
     # Binary operators.
     &lt;&lt;expression-1&gt;&gt;     &lt;&lt;expression-2&gt;&gt;  # sequence. parse 1, then 2.
     &lt;&lt;expression-1&gt;&gt;  /  &lt;&lt;expression-2&gt;&gt;  # alternative. try to parse 1, and parse 2 if 1 failed to parse.
-    # Prefix operators. Lookahead constraints. Same priority. 
+    # Prefix operators. Lookahead constraints. Same priority.
     &amp; &lt;&lt;expression&gt;&gt;  # Parse expression, ok on successful parse.
     ! &lt;&lt;expression&gt;&gt;  # Ditto, except ok on failure to parse.
     # Suffix operators. Repetition. Same priority.
@@ -336,7 +336,7 @@ unicode codepoint 0x5C). This is then followed by a series of octal
 digits, or 'u' and hexedecimal digits, or a regular character from a
 fixed set for various control characters. Some examples:</p>
 <pre class="example">
-    \n \r \t \' \&quot; \[ \] \\ # 
+    \n \r \t \' \&quot; \[ \] \\ #
     \000 up to \277         # octal escape, all ascii character, leading 0's can be removed.
     \u2CA7                  # hexadecimal escape, all unicode characters.
     #                       # Here 2ca7 &lt;=&gt; Koptic Small Letter Tau
@@ -514,12 +514,12 @@ END;
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>pt</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key3">EBNF</a>, <a href="../../../../index.html#key15">LL(k)</a>, <a href="../../../../index.html#key6">PEG</a>, <a href="../../../../index.html#key7">TDPL</a>, <a href="../../../../index.html#key4">context-free languages</a>, <a href="../../../../index.html#key0">expression</a>, <a href="../../../../index.html#key11">grammar</a>, <a href="../../../../index.html#key5">matching</a>, <a href="../../../../index.html#key9">parser</a>, <a href="../../../../index.html#key8">parsing expression</a>, <a href="../../../../index.html#key14">parsing expression grammar</a>, <a href="../../../../index.html#key1">push down automaton</a>, <a href="../../../../index.html#key10">recursive descent</a>, <a href="../../../../index.html#key2">state</a>, <a href="../../../../index.html#key13">top-down parsing languages</a>, <a href="../../../../index.html#key12">transducer</a></p>
+<p><a href="../../../../index.html#key9">EBNF</a>, <a href="../../../../index.html#key21">LL(k)</a>, <a href="../../../../index.html#key12">PEG</a>, <a href="../../../../index.html#key13">TDPL</a>, <a href="../../../../index.html#key10">context-free languages</a>, <a href="../../../../index.html#key6">expression</a>, <a href="../../../../index.html#key17">grammar</a>, <a href="../../../../index.html#key11">matching</a>, <a href="../../../../index.html#key15">parser</a>, <a href="../../../../index.html#key14">parsing expression</a>, <a href="../../../../index.html#key20">parsing expression grammar</a>, <a href="../../../../index.html#key7">push down automaton</a>, <a href="../../../../index.html#key16">recursive descent</a>, <a href="../../../../index.html#key8">state</a>, <a href="../../../../index.html#key19">top-down parsing languages</a>, <a href="../../../../index.html#key18">transducer</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Parsing and Grammars</p>

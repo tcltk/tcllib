@@ -1,4 +1,10 @@
 [manpage_begin uevent n 0.3.1]
+[see_also hook(n)]
+[keywords bind]
+[keywords event]
+[keywords {generate event}]
+[keywords hook]
+[keywords unbind]
 [copyright {2007-2012 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {User events}]
 [titledesc {User events}]
@@ -6,8 +12,6 @@
 [require Tcl 8.4]
 [require uevent [opt 0.3.1]]
 [require logger]
-[keywords event bind unbind {generate event} hook]
-[see_also hook(n)]
 [description]
 
 This package provides a general facility for the handling of user
@@ -187,15 +191,6 @@ combinations.
 [comment ============================================================]
 [list_end]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph uevent] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
+[vset CATEGORY uevent]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

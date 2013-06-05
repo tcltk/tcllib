@@ -91,7 +91,7 @@
     }
 --></style>
 </head>
-<! -- Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/www/tcllib/files/modules/dns/tcllib_dns.html' by tcllib/doctools with format 'html'
+<! -- Generated from file 'tcllib_dns.man' by tcllib/doctools with format 'html'
    -->
 <! -- Copyright &copy; 2002, Pat Thoyts
    -->
@@ -120,7 +120,7 @@
 <li class="section"><a href="#section3">EXAMPLES</a></li>
 <li class="section"><a href="#section4">REFERENCES</a></li>
 <li class="section"><a href="#section5">AUTHORS</a></li>
-<li class="section"><a href="#section6">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#see-also">See Also</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
@@ -165,16 +165,16 @@ The package also extends the package <b class="package"><a href="../uri/uri.html
 <a href="dns://my.nameserver/what.host.com">dns://my.nameserver/what.host.com</a>. The <b class="cmd">dns::resolve</b>
 command can handle DNS URIs or simple domain names as a query.</p>
 <p><em>Note:</em> The package defaults to using DNS over TCP
-connections. If you wish to use UDP you will need to have the 
+connections. If you wish to use UDP you will need to have the
 <b class="package">tcludp</b> package installed and have a version that
 correctly handles binary data (&gt; 1.0.4).
-This is available at <a href="http://tcludp.sourceforge.net/">http://tcludp.sourceforge.net/</a>. 
+This is available at <a href="http://tcludp.sourceforge.net/">http://tcludp.sourceforge.net/</a>.
 If the <b class="package">udp</b> package is present then UDP will be used by default.</p>
 </div>
 <div id="section2" class="section"><h2><a name="section2">COMMANDS</a></h2>
 <dl class="definitions">
 <dt><a name="1"><b class="cmd">::dns::resolve</b> <i class="arg">query</i> <span class="opt">?<i class="arg">options</i>?</span></a></dt>
-<dd><p>Resolve a domain name using the <i class="term"><a href="../../../../index.html#key578">DNS</a></i> protocol. <i class="arg">query</i> is
+<dd><p>Resolve a domain name using the <i class="term"><a href="../../../../index.html#key579">DNS</a></i> protocol. <i class="arg">query</i> is
 the domain name to be lookup up. This should be either a fully
 qualified domain name or a DNS URI.</p>
 <dl class="definitions">
@@ -191,8 +191,8 @@ qualified domain name or a DNS URI.</p>
 <dd><p>Override the default timeout.</p></dd>
 <dt><b class="cmd">-type</b> <i class="arg">TYPE</i></dt>
 <dd><p>Specify the type of DNS record you are interested in. Valid values
-  are A, NS, MD, MF, CNAME, SOA, MB, MG, MR, NULL, WKS, PTR, HINFO, 
-  MINFO, MX, TXT, SPF, SRV, AAAA, AXFR, MAILB, MAILA and *. 
+  are A, NS, MD, MF, CNAME, SOA, MB, MG, MR, NULL, WKS, PTR, HINFO,
+  MINFO, MX, TXT, SPF, SRV, AAAA, AXFR, MAILB, MAILA and *.
   See RFC1035 for details about the return values.
   See <a href="http://spf.pobox.com/">http://spf.pobox.com/</a> about SPF.
   See (3) about AAAA records and RFC2782 for details of SRV records.</p></dd>
@@ -203,7 +203,7 @@ qualified domain name or a DNS URI.</p>
 <dd><p>Set to <i class="arg">false</i> if you do not want the name server to recursively
   act upon your request. Normally set to <i class="arg">true</i>.</p></dd>
 <dt><b class="cmd">-command</b> <i class="arg">procname</i></dt>
-<dd><p>Set a procedure to be called upon request completion. The procedure 
+<dd><p>Set a procedure to be called upon request completion. The procedure
   will be passed the token as its only argument.</p></dd>
 </dl></dd>
 <dt><a name="2"><b class="cmd">::dns::configure</b> <span class="opt">?<i class="arg">options</i>?</span></a></dt>
@@ -312,11 +312,11 @@ localhost
 <div id="section5" class="section"><h2><a name="section5">AUTHORS</a></h2>
 <p>Pat Thoyts</p>
 </div>
-<div id="section6" class="section"><h2><a name="section6">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section6" class="section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>dns</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
@@ -324,7 +324,7 @@ package and/or documentation.</p>
 <p>resolver(5)</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key578">DNS</a>, <a href="../../../../index.html#key580">domain name service</a>, <a href="../../../../index.html#key581">resolver</a>, <a href="../../../../index.html#key582">rfc 1034</a>, <a href="../../../../index.html#key577">rfc 1035</a>, <a href="../../../../index.html#key579">rfc 1886</a></p>
+<p><a href="../../../../index.html#key579">DNS</a>, <a href="../../../../index.html#key582">domain name service</a>, <a href="../../../../index.html#key581">resolver</a>, <a href="../../../../index.html#key583">rfc 1034</a>, <a href="../../../../index.html#key578">rfc 1035</a>, <a href="../../../../index.html#key580">rfc 1886</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>

@@ -1,4 +1,9 @@
 [manpage_begin ncgi n 1.4.2]
+[see_also html]
+[keywords CGI]
+[keywords cookie]
+[keywords form]
+[keywords html]
 [comment {-*- tcl -*- doctools manpage}]
 [moddesc   {CGI Support}]
 [titledesc {Procedures to manipulate CGI values.}]
@@ -41,7 +46,6 @@ values are read in from the CGI environment.
 
 The complete set of procedures is described below.
 
-
 [list_begin definitions]
 
 [call [cmd ::ncgi::cookie] [arg cookie]]
@@ -50,29 +54,24 @@ Return a list of values for [arg cookie], if any.  It is possible that
 more than one cookie with the same name can be present, so this
 procedure returns a list.
 
-
 [call [cmd ::ncgi::decode] [arg str]]
 
 Decode strings in www-url-encoding, which represents special
 characters with a %xx sequence, where xx is the character code in hex.
-
 
 [call [cmd ::ncgi::empty] [arg name]]
 
 Returns 1 if the CGI variable [arg name] is not present or has the
 empty string as its value.
 
-
 [call [cmd ::ncgi::exists] [arg name]]
 
 The return value is a boolean. It returns [const 0] if the CGI
 variable [arg name] is not present, and [const 1] otherwise.
 
-
 [call [cmd ::ncgi::encode] [arg string]]
 
 Encode [arg string] into www-url-encoded format.
-
 
 [call [cmd ::ncgi::header] [opt [arg type]] [arg args]]
 
@@ -81,13 +80,11 @@ header and additional headers based on [arg args], which is a list of
 header names and header values. The [arg type] defaults to
 "text/html".
 
-
 [call [cmd ::ncgi::import] [arg cginame] [opt [arg tclname]]]
 
 This creates a variable in the current scope with the value of the CGI
 variable [arg cginame].  The name of the variable is [arg tclname], or
 [arg cginame] if [arg tclname] is empty (default).
-
 
 [call [cmd ::ncgi::importAll] [arg args]]
 
@@ -95,8 +92,7 @@ This imports several CGI variables as Tcl variables.  If [arg args] is
 empty, then every CGI value is imported.  Otherwise each CGI variable
 listed in [arg args] is imported.
 
-
-[call [cmd ::ncgi::importFile] [arg cmd] [arg cginame] [opt [arg filename]]] 
+[call [cmd ::ncgi::importFile] [arg cmd] [arg cginame] [opt [arg filename]]]
 
 This provides information about an uploaded file from a form input
 field of type [const file] with name [arg cginame].  [arg cmd] can be
@@ -125,14 +121,12 @@ responsible for deleting this file after use.
 
 [list_end]
 
-
 [call [cmd ::ncgi::input] [opt [arg fakeinput]] [opt [arg fakecookie]]]
 
 This reads and decodes the CGI values from the environment.  It
 restricts repeated form values to have a trailing "List" in their
 name.  The CGI values are obtained later with the [cmd ::ncgi::value]
 procedure.
-
 
 [call [cmd ::ncgi::multipart] [arg {type query}]]
 
@@ -154,7 +148,6 @@ that has some descriptive information first, and the actual form value
 second.  The descriptive information is list of header names and
 values that describe the content.
 
-
 [call [cmd ::ncgi::nvlist]]
 
 This returns all the query data as a name, value list.  In the case of
@@ -162,13 +155,11 @@ multipart/form-data, the values are structured as described in
 
 [cmd ::ncgi::multipart].
 
-
 [call [cmd ::ncgi::names]]
 
 This returns all names found in the query data, as a list.
 
 [cmd ::ncgi::multipart].
-
 
 [call [cmd ::ncgi::parse]]
 
@@ -177,7 +168,6 @@ values are obtained later with the [cmd ::ncgi::value] procedure.  IF
 a CGI value is repeated, then you should use [cmd ::ncgi::valueList]
 to get the complete list of values.
 
-
 [call [cmd ::ncgi::parseMimeValue] [arg value]]
 
 This decodes the Content-Type and other MIME headers that have the
@@ -185,11 +175,9 @@ form of "primary value; param=val; p2=v2" It returns a list, where the
 first element is the primary value, and the second element is a list
 of parameter names and values.
 
-
 [call [cmd ::ncgi::query]]
 
 This returns the raw query data.
-
 
 [call [cmd ::ncgi::redirect] [arg url]]
 
@@ -197,7 +185,6 @@ Generate a response that causes a 302 redirect by the Web server.  The
 [arg url] is the new URL that is the target of the redirect.  The URL
 will be qualified with the current server and current directory, if
 necessary, to convert it into a full URL.
-
 
 [call [cmd ::ncgi::reset] [arg {query type}]]
 
@@ -207,7 +194,6 @@ module so it does not try to read standard input or use environment
 variables to get its data.  If neither [arg query] or [arg type] are
 specified, then the [package ncgi] module will look in the standard
 CGI environment for its data.
-
 
 [call [cmd ::ncgi::setCookie] [arg args]]
 
@@ -226,7 +212,6 @@ called in order for the cookie to be returned properly.  The
 [def "[option -domain] [arg {domain restriction}]"]
 [list_end]
 
-
 [call [cmd ::ncgi::setDefaultValue] [arg {key defvalue}]]
 
 Set a CGI value if it does not already exists.  This affects future
@@ -235,12 +220,10 @@ calls to [cmd ::ncgi::value] (but not future calls to
 [cmd ::ncgi::nvlist]).  If the CGI value already is present, then this
 procedure has no side effects.
 
-
 [call [cmd ::ncgi::setDefaultValueList] [arg {key defvaluelist}]]
 
 Like [cmd ::ncgi::setDefaultValue] except that the value already has
 list structure to represent multiple checkboxes or a multi-selection.
-
 
 [call [cmd ::ncgi::setValue] [arg {key value}]]
 
@@ -253,11 +236,9 @@ environment already.  This affects future calls to [cmd ::ncgi::value]
 Like [cmd ::ncgi::setValue] except that the value already has list
 structure to represent multiple checkboxes or a multi-selection.
 
-
 [call [cmd ::ncgi::type]]
 
 Returns the Content-Type of the current CGI values.
-
 
 [call [cmd ::ncgi::urlStub] [opt [arg url]]]
 
@@ -266,7 +247,6 @@ If [arg url] is specified, then it defines the URL for the current
 session.  That value will be returned by future calls to
 
 [cmd ::ncgi::urlStub]
-
 
 [call [cmd ::ncgi::value] [arg key] [opt [arg default]]]
 
@@ -285,7 +265,6 @@ called, then [cmd ::ncgi::value] returns a Tcl list value and
 multipart/form-data, this procedure just returns the value of the form
 element.  If you want the meta-data associated with each form value,
 then use [cmd ::ncgi::valueList].
-
 
 [call [cmd ::ncgi::valueList] [arg key] [opt [arg default]]]
 
@@ -328,18 +307,6 @@ close $fh
 
 [para]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph ncgi] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[see_also html]
-[keywords CGI form html cookie]
+[vset CATEGORY ncgi]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

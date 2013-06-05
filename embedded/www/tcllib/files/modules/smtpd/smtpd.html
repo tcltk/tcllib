@@ -92,7 +92,7 @@
     }
 --></style>
 </head>
-<! -- Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/www/tcllib/files/modules/smtpd/smtpd.html' by tcllib/doctools with format 'html'
+<! -- Generated from file 'smtpd.man' by tcllib/doctools with format 'html'
    -->
 <! -- Copyright &copy; Pat Thoyts &lt;patthoyts@users.sourceforge.net&gt;
    -->
@@ -123,7 +123,7 @@
 <li class="section"><a href="#section5">VARIABLES</a></li>
 <li class="section"><a href="#section6">AUTHOR</a></li>
 <li class="section"><a href="#section7">LICENSE</a></li>
-<li class="section"><a href="#section8">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section8">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
 <li class="section"><a href="#copyright">Copyright</a></li>
@@ -189,13 +189,13 @@ usage.</p>
 <p>As the server code uses <b class="cmd">fileevent</b>(n) handlers to process the
 input on sockets you will need to run the event loop. This means
 either you should be running from within <b class="syscmd">wish</b>(1) or you
-should <b class="cmd"><a href="../../../../index.html#key390">vwait</a></b>(n) on the <b class="variable">::smtpd::stopped</b> variable which is
+should <b class="cmd"><a href="../../../../index.html#key396">vwait</a></b>(n) on the <b class="variable">::smtpd::stopped</b> variable which is
 set when the server is stopped.</p></dd>
 <dt><a name="2"><b class="cmd">::smtpd::stop</b></a></dt>
 <dd><p>Halt the server and release the listening socket. If the server has
 not been started then this command does nothing.
 The <b class="variable">::smtpd::stopped</b> variable is set for use with
-<b class="cmd"><a href="../../../../index.html#key390">vwait</a></b>(n).</p>
+<b class="cmd"><a href="../../../../index.html#key396">vwait</a></b>(n).</p>
 <p>It should be noted that stopping the server does not disconnect any
 currently active sessions as these are operating over an independent
 channel. Only explicitly tracking and closing these sessions, or
@@ -267,7 +267,7 @@ an error. For example, to reject mail from user &quot;denied&quot;:</p>
     if {[string match &quot;denied&quot; $addr(local)]} {
          error &quot;mailbox $addr(local) denied&quot;
     }
-    return    
+    return
  }
 </pre>
 <p>The content of any error message will not be passed back to the client.</p></dd>
@@ -313,7 +313,7 @@ recipient has yet been defined.</p></dd>
 <dl class="definitions">
 <dt><b class="variable">::smtpd::stopped</b></dt>
 <dd><p>This variable is set to <b class="const">true</b> during the <b class="cmd">::smtpd::stop</b>
-command to permit the use of the <b class="cmd"><a href="../../../../index.html#key390">vwait</a></b>(n) command.</p></dd>
+command to permit the use of the <b class="cmd"><a href="../../../../index.html#key396">vwait</a></b>(n) command.</p></dd>
 </dl>
 </div>
 <div id="section6" class="section"><h2><a name="section6">AUTHOR</a></h2>
@@ -325,16 +325,16 @@ WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the file
 &quot;<b class="file">license.terms</b>&quot; for more details.</p>
 </div>
-<div id="section8" class="section"><h2><a name="section8">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section8" class="section"><h2><a name="section8">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>smtpd</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key306">rfc 2821</a>, <a href="../../../../index.html#key309">rfc 821</a>, <a href="../../../../index.html#key583">services</a>, <a href="../../../../index.html#key314">smtp</a>, <a href="../../../../index.html#key651">smtpd</a>, <a href="../../../../index.html#key332">socket</a>, <a href="../../../../index.html#key390">vwait</a></p>
+<p><a href="../../../../index.html#key309">rfc 2821</a>, <a href="../../../../index.html#key312">rfc 821</a>, <a href="../../../../index.html#key585">services</a>, <a href="../../../../index.html#key317">smtp</a>, <a href="../../../../index.html#key655">smtpd</a>, <a href="../../../../index.html#key335">socket</a>, <a href="../../../../index.html#key396">vwait</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Networking</p>

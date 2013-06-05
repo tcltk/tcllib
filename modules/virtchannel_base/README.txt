@@ -26,3 +26,19 @@ halfpipe
 textwindow
 
 	Channel attaches to text widget to write data into.
+
+cat
+
+	Concatenation channel, delivering the data from 1 or more
+	channels, one after the other.
+
+facade
+
+	A wrapper around any other channel. Mainly for debugging,
+	allowing a developer to observe the activity on the wrapped
+	channel.
+
+std
+
+	Unification of stdin and stdout into a single read/write
+	channel

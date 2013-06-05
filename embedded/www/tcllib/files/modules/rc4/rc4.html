@@ -92,7 +92,7 @@
     }
 --></style>
 </head>
-<! -- Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/www/tcllib/files/modules/rc4/rc4.html' by tcllib/doctools with format 'html'
+<! -- Generated from file 'rc4.man' by tcllib/doctools with format 'html'
    -->
 <! -- Copyright &copy; 2003, Pat Thoyts &lt;patthoyts@users.sourceforge.net&gt;
    -->
@@ -121,7 +121,7 @@
 <li class="section"><a href="#section3">PROGRAMMING INTERFACE</a></li>
 <li class="section"><a href="#section4">EXAMPLES</a></li>
 <li class="section"><a href="#section5">AUTHORS</a></li>
-<li class="section"><a href="#section6">BUGS, IDEAS, FEEDBACK</a></li>
+<li class="section"><a href="#section6">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#see-also">See Also</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
@@ -143,7 +143,7 @@
 </div>
 </div>
 <div id="section1" class="section"><h2><a name="section1">Description</a></h2>
-<p>This package is an implementation in Tcl of the RC4 stream cipher 
+<p>This package is an implementation in Tcl of the RC4 stream cipher
 developed by Ron Rivest of RSA Data Security Inc. The cipher was a
 trade secret of RSA but was reverse-engineered and published to the
 internet in 1994. It is used in a number of network protocols for
@@ -159,7 +159,7 @@ channel is given then the result will be written to this channel.
 Giving the <i class="arg">-hex</i> option will return a hexadecimal encoded
 version of the result if not using an <i class="arg">-out</i> channel.</p>
 <p>The data to be processes can be specified either as a string argument to
-the rc4 command, or as a filename or a pre-opened channel. If the 
+the rc4 command, or as a filename or a pre-opened channel. If the
 <i class="arg">-infile</i> argument is given then the file is opened, the data read
 and processed and the file is closed. If the <i class="arg">-in</i> argument is
 given then data is read from the channel until the end of file. The
@@ -182,7 +182,7 @@ data and is used to initialize the cipher internal state.</p></dd>
 <dd><p>Encrypt or decrypt the input data using the key obtained by calling
 <b class="cmd">RC4Init</b>.</p></dd>
 <dt><a name="4"><b class="cmd">::rc4::RC4Final</b> <i class="arg">Key</i></a></dt>
-<dd><p>This should be called to clean up resources associated with 
+<dd><p>This should be called to clean up resources associated with
 <i class="arg">Key</i>. Once this function has been called the key is destroyed.</p></dd>
 </dl>
 </div>
@@ -210,11 +210,11 @@ HelloWorld
 <div id="section5" class="section"><h2><a name="section5">AUTHORS</a></h2>
 <p>Pat Thoyts</p>
 </div>
-<div id="section6" class="section"><h2><a name="section6">BUGS, IDEAS, FEEDBACK</a></h2>
+<div id="section6" class="section"><h2><a name="section6">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>rc4</em> of the
-<a href="http://sourceforge.net/tracker/?group_id=12883">Tcllib SF Trackers</a>.
+<a href="http://core.tcl.tk/tcllib/reportlist">Tcllib Trackers</a>.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
@@ -222,7 +222,7 @@ package and/or documentation.</p>
 <p><a href="../aes/aes.html">aes(n)</a>, <a href="../blowfish/blowfish.html">blowfish(n)</a>, <a href="../des/des.html">des(n)</a></p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key146">arcfour</a>, <a href="../../../../index.html#key144">data integrity</a>, <a href="../../../../index.html#key147">encryption</a>, <a href="../../../../index.html#key145">rc4</a>, <a href="../../../../index.html#key143">security</a>, <a href="../../../../index.html#key148">stream cipher</a></p>
+<p><a href="../../../../index.html#key130">arcfour</a>, <a href="../../../../index.html#key129">data integrity</a>, <a href="../../../../index.html#key132">encryption</a>, <a href="../../../../index.html#key128">rc4</a>, <a href="../../../../index.html#key127">security</a>, <a href="../../../../index.html#key131">stream cipher</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Hashes, checksums, and encryption</p>

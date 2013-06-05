@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/doctools/doctoc_lang_intro\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'doctoc_lang_intro\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2007 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -488,10 +488,12 @@ easy and simple \fBdtplite\fR goes, creating a table of contents
 for a set of documents behind the scenes, without the writer having to
 do so on their own\&.
 .SH "BUGS, IDEAS, FEEDBACK"
-This document, will undoubtedly contain bugs and other problems\&.
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems\&.
 Please report such in the category \fIdoctools\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
-Please also report any ideas for enhancements you may have\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
+Please also report any ideas for enhancements you may have for either
+package and/or documentation\&.
 .SH "SEE ALSO"
 doctoc_intro, doctoc_lang_cmdref, doctoc_lang_syntax
 .SH KEYWORDS

@@ -31,19 +31,16 @@ in the set [arg dropset] from the parsing expression [arg pe], and
 simplifies it. This may result in the expression becoming "epsilon",
 i.e. matching nothing.
 
-
 [call [cmd ::pt::pe::op] [method rename] \
       [arg nt] [arg ntnew] [arg pe]]
 
 This command renames all occurences of the nonterminal [arg nt] in the
 parsing expression [arg pe] into [arg ntnew].
 
-
 [call [cmd ::pt::pe::op] [method called] [arg pe]]
 
 This command extracts the set of all nonterminal symbols used,
 i.e. 'called', in the parsing expression [arg pe].
-
 
 [call [cmd ::pt::pe::op] [method flatten] [arg pe]]
 
@@ -57,7 +54,6 @@ redundant.
 
 The resulting parsing expression is returned as the result of the
 command.
-
 
 [call [cmd ::pt::pe::op] [method fusechars] [arg pe]]
 
@@ -86,7 +82,6 @@ Notably, the commands [cmd {::pt::peg bottomup}] and
 trouble.
 
 [list_end]
-
 
 [include include/serial/pexpression.inc]
 [include include/feedback.inc]

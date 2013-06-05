@@ -1,5 +1,13 @@
 [comment {-*- tcl -*-}]
 [manpage_begin struct::tree n 2.1.1]
+[keywords breadth-first]
+[keywords depth-first]
+[keywords in-order]
+[keywords node]
+[keywords post-order]
+[keywords pre-order]
+[keywords serialization]
+[keywords tree]
 [copyright {2002-2004,2012 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Tcl Data Structures}]
 [titledesc {Create and manipulate tree objects}]
@@ -98,7 +106,7 @@ is equivalent to
     mytree = b
 }]
 [para]
-and 
+and
 [para]
 [example {
     ::struct::tree mytree deserialize $b
@@ -110,7 +118,6 @@ is equivalent to
     ::struct::tree mytree
     mytree deserialize $b
 }]
-
 
 [call [cmd ::struct::tree::prune]]
 
@@ -169,7 +176,6 @@ This operation is in effect equivalent to
     [arg treeName] [method deserialize] [lb][arg sourcetree] [method serialize][rb]
 [example_end]
 
-
 [call [arg treeName] [method -->] [arg desttree]]
 
 This is the reverse assignment operator for tree objects. It copies the tree
@@ -185,7 +191,6 @@ This operation is in effect equivalent to
     [arg desttree] [method deserialize] [lb][arg treeName] [method serialize][rb]
 [example_end]
 
-
 [call [arg treeName] [method ancestors] [arg node]]
 
 This method extends the method [method parent] and returns a list
@@ -194,12 +199,10 @@ immediate ancestor, in other words, parent node, is the first element
 in that list, its parent the second element, and so on until the root
 node is reached, making it the last element of the returned list.
 
-
 [call [arg treeName] [method append] [arg node] [arg key] [arg value]]
 
 Appends a [arg value] to one of the keyed values associated with an
 node. Returns the new value given to the attribute [arg key].
-
 
 [call [arg treeName] [method attr] [arg key]]
 [call [arg treeName] [method attr] [arg key] [option -nodes] [arg list]]
@@ -289,24 +292,20 @@ Some examples:
     ()
 }]
 
-
 [call [arg treeName] [method cut] [arg node]]
 
 Removes the node specified by [arg node] from the tree, but not its
 children.  The children of [arg node] are made children of the parent
 of the [arg node], at the index at which [arg node] was located.
 
-
 [call [arg treeName] [method delete] [arg node] [opt "[arg node] ..."]]
 
 Removes the specified nodes from the tree.  All of the nodes' children
 will be removed as well to prevent orphaned nodes.
 
-
 [call [arg treeName] [method depth] [arg node]]
 
 Return the number of steps from node [arg node] to the root node.
-
 
 [call [arg treeName] [method descendants] [arg node] [opt "[const filter] [arg cmdprefix]"]]
 
@@ -321,7 +320,6 @@ This is actually the same as
 [method descendants] should be prefered, and "children -all"
 will be deprecated sometime in the future.
 
-
 [call [arg treeName] [method deserialize] [arg serialization]]
 
 This is the complement to [method serialize]. It replaces tree data in
@@ -329,22 +327,18 @@ This is the complement to [method serialize]. It replaces tree data in
 value. The old contents of [arg treeName] are deleted by this
 operation.
 
-
 [call [arg treeName] [method destroy]]
 
 Destroy the tree, including its storage space and associated command.
-
 
 [call [arg treeName] [method exists] [arg node]]
 
 Returns true if the specified node exists in the tree.
 
-
 [call [arg treeName] [method get] [arg node] [arg key]]
 
 Returns the value associated with the key [arg key] for the node
 [arg node].
-
 
 [call [arg treeName] [method getall] [arg node] [opt [arg pattern]]]
 
@@ -354,7 +348,6 @@ containing the attribute data for the [arg node].
 If the glob [arg pattern] is specified only the attributes whose names
 match the pattern will be part of the dictionary.
 
-
 [call [arg treeName] [method keys] [arg node] [opt [arg pattern]]]
 
 Returns a list of keys for the [arg node].
@@ -363,11 +356,9 @@ If the [arg pattern] is specified only the attributes whose names
 match the pattern will be part of the returned list. The pattern is a
 [cmd glob] pattern.
 
-
 [call [arg treeName] [method keyexists] [arg node] [arg key]]
 
 Return true if the specified [arg key] exists for the [arg node].
-
 
 [call [arg treeName] [method index] [arg node]]
 
@@ -377,7 +368,6 @@ example, if a node has [term nodeFoo], [term nodeBar], and
 [term nodeBaz] as children, in that order, the index of
 
 [term nodeBar] is 1.
-
 
 [call [arg treeName] [method insert] [arg parent] [arg index] [opt "[arg child] [opt "[arg child] ..."]"]]
 
@@ -407,12 +397,10 @@ specified they must neither contain whitespace nor colons (":").
 
 The return result from this command is a list of nodes added.
 
-
 [call [arg treeName] [method isleaf] [arg node]]
 
 Returns true if [arg node] is a leaf of the tree (if [arg node] has no
 children), false otherwise.
-
 
 [call [arg treeName] [method lappend] [arg node] [arg key] [arg value]]
 
@@ -420,11 +408,9 @@ Appends a [arg value] (as a list) to one of the keyed values
 associated with an [arg node]. Returns the new value given to the
 attribute [arg key].
 
-
 [call [arg treeName] [method leaves]]
 
 Return a list containing all leaf nodes known to the tree.
-
 
 [call [arg treeName] [method move] [arg parent] [arg index] [arg node] [opt "[arg node] ..."]]
 
@@ -436,28 +422,23 @@ them into after the removal, before the re-insertion. This behaviour
 is important when it comes to moving one or more nodes to a different
 index without changing their parent node.
 
-
 [call [arg treeName] [method next] [arg node] ]
 
 Return the right sibling of [arg node], or the empty string if
 
 [arg node] was the last child of its parent.
 
-
 [call [arg treeName] [method numchildren] [arg node]]
 
 Return the number of immediate children of [arg node].
-
 
 [call [arg treeName] [method nodes]]
 
 Return a list containing all nodes known to the tree.
 
-
 [call [arg treeName] [method parent] [arg node]]
 
 Return the parent of [arg node].
-
 
 [call [arg treeName] [method previous] [arg node] ]
 
@@ -465,18 +446,15 @@ Return the left sibling of [arg node], or the empty string if
 
 [arg node] was the first child of its parent.
 
-
 [call [arg treeName] [method rename] [arg node] [arg newname]]
 
 Renames the node [arg node] to [arg newname]. An error is thrown if
 either the node does not exist, or a node with name [arg newname] does
 exist. The result of the command is the new name of the node.
 
-
 [call [arg treeName] [method rootname]]
 
 Returns the name of the root node of the tree.
-
 
 [call [arg treeName] [method serialize] [opt [arg node]]]
 
@@ -551,8 +529,6 @@ the same order as in their parent.
  The above assumes that none of the nodes have attributes.
 }]
 
-
-
 [call [arg treeName] [method set] [arg node] [arg key] [opt [arg value]]]
 
 Set or get one of the keyed values associated with a node. A node may
@@ -561,13 +537,10 @@ not specified, this command returns the current value assigned to the
 key; if [arg value] is specified, this command assigns that value to
 the key, and returns it.
 
-
 [call [arg treeName] [method size] [opt [arg node]]]
-
 
 Return a count of the number of descendants of the node [arg node]; if
 no node is specified, [const root] is assumed.
-
 
 [call [arg treeName] [method splice] [arg parent] [arg from] [opt [arg to]] [opt [arg child]]]
 
@@ -587,17 +560,14 @@ from this command is the name of the new node.
 The arguments [arg from] and [arg to] are regular list indices, i.e.
 the form "end-[var n]" is accepted as well.
 
-
 [call [arg treeName] [method swap] [arg node1] [arg node2]]
 
 Swap the position of [arg node1] and [arg node2] in the tree.
-
 
 [call [arg treeName] [method unset] [arg node] [arg key]]
 
 Removes a keyed value from the node [arg node]. The method will do
 nothing if the [arg key] does not exist.
-
 
 [call [arg treeName] [method walk] [arg node] [opt "[option -order] [arg order]"] [opt "[option -type] [arg type]"] [arg loopvar] [arg script]]
 
@@ -693,14 +663,12 @@ node we are currently at. It will throw an error if the order of
 traversal is either [const post] or [const in] as these modes visit
 the children before their parent, making pruning non-sensical.
 
-
 [call [arg treeName] [method walkproc] [arg node] [opt "[option -order] [arg order]"] [opt "[option -type] [arg type]"] [arg cmdprefix]]
 
 This method is like method [method walk] in all essentials, except the
 interface to the user code. This method invokes a command prefix with
 three additional arguments (tree, node, and action), instead of
 evaluating a script and passing the node via a loop variable.
-
 
 [list_end]
 
@@ -759,7 +727,6 @@ documentation on the construction of tree objects.
 Beyond the copying of whole tree objects these new API's also enable
 the transfer of tree objects over arbitrary channels and for easy
 persistence.
-
 
 [enum]
 
@@ -820,17 +787,6 @@ The following example demonstrates the creation of new nodes:
     #                              as the result of the command.
 }]
 
-[section {BUGS, IDEAS, FEEDBACK}]
-
-This document, and the package it describes, will undoubtedly contain
-bugs and other problems.
-
-Please report such in the category [emph {struct :: tree}] of the
-[uri {http://sourceforge.net/tracker/?group_id=12883} {Tcllib SF Trackers}].
-
-Please also report any ideas for enhancements you may have for either
-package and/or documentation.
-
-
-[keywords tree serialization node pre-order post-order in-order depth-first breadth-first]
+[vset CATEGORY {struct :: tree}]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

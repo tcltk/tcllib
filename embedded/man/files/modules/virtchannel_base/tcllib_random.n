@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/virtchannel_base/memchan\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'tcllib_random\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
@@ -238,10 +238,10 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "tcl::chan::memchan" n 1 tcllib "Reflected/virtual channel support"
+.TH "tcl::chan::random" n 1 tcllib "Reflected/virtual channel support"
 .BS
 .SH NAME
-tcl::chan::memchan \- In-memory channel
+tcl::chan::random \- Random channel
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
@@ -249,40 +249,40 @@ package require \fBTclOO \fR
 .sp
 package require \fBtcl::chan::events  ?1?\fR
 .sp
-package require \fBtcl::chan::memchan  ?1?\fR
+package require \fBtcl::chan::random  ?1?\fR
 .sp
-\fB::tcl::chan::memchan\fR
+\fB::tcl::chan::random\fR \fIseed\fR
 .sp
 .BE
 .SH DESCRIPTION
 .PP
-The \fBtcl::chan::memchan\fR package provides a command creating
-channels which live purely in memory\&. They provide random-access,
-i\&.e\&. are seekable\&. This is equivalent to the memchan channels provided by
-the package \fBMemchan\fR, except that this is written in pure Tcl,
-not C\&. On the other hand, \fBMemchan\fR is usable with Tcl 8\&.4 and
-before, whereas this package requires Tcl 8\&.5 or higher, and
-\fBTclOO\fR\&.
-.PP
-Packages related to this are \fBtcl::chan::string\fR and
-\fBtcl::chan::variable\fR\&.
+The \fBtcl::chan::random\fR package provides a command creating
+random channels, i\&.e\&. read-only channels which return an infinite
+stream of pseudo-random characters upon reading\&. This is similar to
+the random channels provided by the package \fBMemchan\fR, except
+that this is written in pure Tcl, not C, and uses a much simpler
+generator as well\&. On the other hand, \fBMemchan\fR is usable with
+Tcl 8\&.4 and before, whereas this package requires Tcl 8\&.5 or higher,
+and TclOO\&.
 .PP
 The internal \fBTclOO\fR class implementing the channel
 handler is a sub-class of the \fBtcl::chan::events\fR framework\&.
 .SH API
 .TP
-\fB::tcl::chan::memchan\fR
-This command creates a new memchan channel and returns its handle\&.
+\fB::tcl::chan::random\fR \fIseed\fR
+This command creates a new random channel and returns its handle\&.
+The seed is a list of integer numbers used to initialize the
+internal feedback shift register of the generator\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
 bugs and other problems\&.
 Please report such in the category \fIvirtchannel\fR of the
-\fITcllib SF Trackers\fR [http://sourceforge\&.net/tracker/?group_id=12883]\&.
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
 Please also report any ideas for enhancements you may have for either
 package and/or documentation\&.
 .SH KEYWORDS
-in-memory channel, reflected channel, tip 219, virtual channel
+/dev/random, random, reflected channel, tip 219, virtual channel
 .SH CATEGORY
 Channels
 .SH COPYRIGHT

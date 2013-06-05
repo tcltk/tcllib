@@ -1572,7 +1572,7 @@ proc ldap::add { handle dn attrValueTuples } {
     # In order to handle multi-valuated attributes (see bug 1191326 on
     # sourceforge), we walk through tuples to collect all values for
     # an attribute.
-    # http://sourceforge.net/tracker/index.php?func=detail&atid=112883&group_id=12883&aid=1191326
+    # http://core.tcl.tk/tcllib/tktview?name=1191326fff
     #
 
     foreach { attrName attrValue } $attrValueTuples {

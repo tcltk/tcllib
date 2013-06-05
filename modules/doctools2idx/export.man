@@ -1,5 +1,24 @@
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin doctools::idx::export n 0.1]
+[keywords conversion]
+[keywords docidx]
+[keywords documentation]
+[keywords export]
+[keywords formatting]
+[keywords generation]
+[keywords HTML]
+[keywords index]
+[keywords json]
+[keywords {keyword index}]
+[keywords manpage]
+[keywords markup]
+[keywords nroff]
+[keywords plugin]
+[keywords reference]
+[keywords {tcler's wiki}]
+[keywords text]
+[keywords url]
+[keywords wiki]
 [copyright {2009 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {Exporting keyword indices}]
@@ -10,9 +29,6 @@
 [require doctools::idx::structure]
 [require snit]
 [require pluginmgr]
-[keywords {keyword index} index reference documentation manpage url]
-[keywords markup conversion formatting export generation plugin]
-[keywords json docidx text nroff wiki {tcler's wiki} HTML]
 [description]
 
 This package provides a class to manage the plugins for the export of
@@ -22,7 +38,7 @@ example [term docidx], [term HTML], etc.
 [para]
 
 This is one of the three public pillars the management of keyword
-indices resides on. The other two pillars are 
+indices resides on. The other two pillars are
 
 [list_begin enum]
 [enum] [manpage {Importing keyword indices}], and
@@ -83,9 +99,7 @@ containing the [sectref {Export plugin API v2 reference}] is an
 absolute necessity, as it specifies the interaction between this
 package and its plugins in detail.
 
-
 [section Concepts] [include include/concept.inc]
-
 
 [section API]
 [subsection {Package commands}]
@@ -102,7 +116,6 @@ under the current namespace if the [arg objectName] is not fully
 qualified, and in the specified namespace otherwise.
 
 [list_end]
-
 
 [subsection {Object command}]
 
@@ -121,7 +134,6 @@ specifications.
 
 [list_end]
 
-
 [subsection {Object methods}]
 
 [list_begin definitions]
@@ -129,7 +141,6 @@ specifications.
 [call [arg objectName] [method destroy]]
 
 This method destroys the object it is invoked for.
-
 
 [call [arg objectName] [method {export serial}] [arg serial] [opt [arg format]]]
 
@@ -155,7 +166,6 @@ found in the section [sectref {Keyword index serialization format}].
 The plugin has to conform to the interface specified in section
 [sectref {Export plugin API v2 reference}].
 
-
 [call [arg objectName] [method {export object}] [arg object] [opt [arg format]]]
 
 This method is a convenient wrapper around the [method {export serial}]
@@ -167,18 +177,15 @@ keyword index. It invokes that method, feeds the result into
 [method {export serial}] and returns the resulting string as its own
 result.
 
-
 [call [arg objectName] [method {config names}]]
 
 This method returns a list containing the names of all configuration
 variables currently known to the object.
 
-
 [call [arg objectName] [method {config get}]]
 
 This method returns a dictionary containing the names and values of
 all configuration variables currently known to the object.
-
 
 [call [arg objectName] [method {config set}] [arg name] [opt [arg value]]]
 
@@ -197,16 +204,13 @@ variables [const user] and [const format] doing so will have no
 effect, these values will be internally overriden when invoking an
 import plugin.
 
-
 [call [arg objectName] [method {config unset}] [arg pattern]...]
 
 This method unsets all configuration variables matching the specified
 glob [arg pattern]s. If no pattern is specified it will unset all
 currently defined configuration variables.
 
-
 [list_end]
-
 
 [section {Export plugin API v2 reference}]
 
@@ -297,7 +301,6 @@ by a plugin will be described in the manpage for that plugin.
        a state where another usage cycle can be run without problems.
 
 [list_end]
-
 
 [include include/serialization.inc]
 [vset CATEGORY doctools]
