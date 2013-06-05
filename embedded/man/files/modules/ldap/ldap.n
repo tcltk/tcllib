@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/ldap/ldap\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'ldap\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2004 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\" Copyright (c) 2004 Jochen Loewer <loewerj@web\&.de>
 '\" Copyright (c) 2006 Michael Schlenker <mic42@users\&.sourceforge\&.net>

@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/pop3d/pop3d_dbox\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'pop3d_dbox\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk

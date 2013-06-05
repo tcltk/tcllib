@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/png/png\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'png\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2004, Code: Aaron Faupell <afaupell@users\&.sourceforge\&.net>
 '\" Copyright (c) 2004, Doc: Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"

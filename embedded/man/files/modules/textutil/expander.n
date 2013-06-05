@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/textutil/expander\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'expander\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) William H\&. Duquette, http://www\&.wjduquette\&.com/expand
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
