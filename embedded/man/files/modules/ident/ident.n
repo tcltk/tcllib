@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/ident/ident\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'ident\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2004 Reinhard Max <max@tclers\&.tk>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk

@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/apps/tcldocstrip\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'tcldocstrip\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk

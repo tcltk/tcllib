@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/crc/cksum\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'cksum\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002, Pat Thoyts
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk

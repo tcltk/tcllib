@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/debug/debug\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'debug\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 200?, Colin McCormack, Wub Server Utilities
 '\" Copyright (c) 2012, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
