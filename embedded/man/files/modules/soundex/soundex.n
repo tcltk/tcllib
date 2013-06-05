@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/soundex/soundex\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'soundex\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) ????, Algorithm: Donald E\&. Knuth
 '\" Copyright (c) 2003, Documentation: Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\" Copyright (c) 1998, Tcl port: Evan Rempel <erempel@uvic\&.ca>

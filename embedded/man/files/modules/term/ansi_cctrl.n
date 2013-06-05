@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/term/ansi_cctrl\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'ansi_cctrl\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2006-2008 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk

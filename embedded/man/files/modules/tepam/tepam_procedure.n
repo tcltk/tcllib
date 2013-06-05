@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/tepam/tepam_procedure\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'tepam_procedure\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009/2010, Andreas Drollinger
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk

@@ -91,7 +91,7 @@
     }
 --></style>
 </head>
-<! -- Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/www/tcllib/files/modules/comm/comm.html' by tcllib/doctools with format 'html'
+<! -- Generated from file 'comm.man' by tcllib/doctools with format 'html'
    -->
 <! -- Copyright &copy; 1995-1998 The Open Group. All Rights Reserved.   -- Copyright &copy; 2003-2004 ActiveState Corporation.   -- Copyright &copy; 2006-2009 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
    -->
@@ -252,7 +252,7 @@ same error.</p>
 <div id="subsection3" class="subsection"><h3><a name="subsection3">Multiple Channels</a></h3>
 <p>More than one <b class="cmd">comm</b> channel (or <em>listener</em>) can be created
 in each Tcl interpreter.  This allows flexibility to create full and
-restricted channels.  For instance, <i class="term"><a href="../../../../index.html#key659">hook</a></i> scripts are specific
+restricted channels.  For instance, <i class="term"><a href="../../../../index.html#key661">hook</a></i> scripts are specific
 to the channel they are defined against.</p>
 <dl class="definitions">
 <dt><a name="5"><b class="cmd">::comm::comm new</b> <i class="arg">chan</i> <span class="opt">?<i class="arg">name value ...</i>?</span></a></dt>
@@ -656,7 +656,7 @@ authentication, and the like.</p>
 uses an internal C hook (Tk_RestrictEvents) to the event loop to look
 ahead for send-related events and only process those without
 processing any other events.  In contrast, <b class="package">comm</b> uses the
-<b class="cmd"><a href="../../../../index.html#key395">vwait</a></b> command as a semaphore to indicate the return message has
+<b class="cmd"><a href="../../../../index.html#key396">vwait</a></b> command as a semaphore to indicate the return message has
 arrived.  The difference is that a synchronous <b class="cmd"><a href="../../../../index.html#key336">send</a></b> will block
 the application and prevent all events (including window related ones)
 from being processed, while a synchronous <b class="cmd">::comm::comm send</b>
@@ -664,14 +664,14 @@ will block the application but still allow other events to get
 processed.  In particular, <b class="cmd">after idle</b> handlers will fire
 immediately when comm blocks.</p>
 <p>What can be done about this?  First, note that this behavior will come
-from any code using <b class="cmd"><a href="../../../../index.html#key395">vwait</a></b> to block and wait for an event to
+from any code using <b class="cmd"><a href="../../../../index.html#key396">vwait</a></b> to block and wait for an event to
 occur.  At the cost of multiple channel support, <b class="package">comm</b> could
 be changed to do blocking I/O on the socket, giving send-like blocking
 semantics.  However, multiple channel support is a very useful feature
 of comm that it is deemed too important to lose.  The remaining
 approaches involve a new loadable module written in C (which is
 somewhat against the philosophy of <b class="cmd">comm</b>) One way would be to
-create a modified version of the <b class="cmd"><a href="../../../../index.html#key395">vwait</a></b> command that allow the
+create a modified version of the <b class="cmd"><a href="../../../../index.html#key396">vwait</a></b> command that allow the
 event flags passed to Tcl_DoOneEvent to be specified.  For <b class="cmd">comm</b>,
 just the TCL_FILE_EVENTS would be processed.  Another way would be to
 implement a mechanism like Tk_RestrictEvents, but apply it to the Tcl
@@ -689,7 +689,7 @@ invoked on the server long-running commands, like database queries
 make this a problem. One command can prevent the processing requests
 of all other clients for an arbitrary period of time.</p>
 <p>Before version 4.5 of comm the only solution was to rewrite the server
-command to use the Tcl builtin command <b class="cmd"><a href="../../../../index.html#key395">vwait</a></b>, or one of its
+command to use the Tcl builtin command <b class="cmd"><a href="../../../../index.html#key396">vwait</a></b>, or one of its
 relatives like <b class="cmd">tkwait</b>, to open a new event loop which processes
 requests while the long-running operation is executed. This however
 has its own perils, as this makes it possible to both overflow the Tcl
@@ -796,7 +796,7 @@ communication.</p></dd>
 <dd><p>Changed handling of ports already in use to provide a proper error
 message.</p></dd>
 <dt>4.5.6</dt>
-<dd><p>Bugfix in the replacement for <b class="cmd"><a href="../../../../index.html#key395">vwait</a></b>, made robust against of
+<dd><p>Bugfix in the replacement for <b class="cmd"><a href="../../../../index.html#key396">vwait</a></b>, made robust against of
 variable names containing spaces.</p></dd>
 <dt>4.5.5</dt>
 <dd><p>Bugfix in the handling of hooks, typo in variable name.</p></dd>
@@ -806,17 +806,17 @@ method. Replaced an <em>after idle unset result</em> with an immediate
 <b class="cmd">unset</b>, with the information saved to a local variable.</p>
 <p>The <b class="cmd">after idle</b> can spill into a forked child process if there
 is no event loop between its setup and the fork. This may bork the
-child if the next event loop is the <b class="cmd"><a href="../../../../index.html#key395">vwait</a></b> of <b class="package">comm</b>'s
+child if the next event loop is the <b class="cmd"><a href="../../../../index.html#key396">vwait</a></b> of <b class="package">comm</b>'s
 <b class="method">send</b> a few lines above the <b class="cmd">after idle</b>, and the child
 used the same serial number for its next request. In that case the
 parent's <b class="cmd">after idle unset</b> will delete the very array element
-the child is waiting for, unlocking the <b class="cmd"><a href="../../../../index.html#key395">vwait</a></b>, causing it to
+the child is waiting for, unlocking the <b class="cmd"><a href="../../../../index.html#key396">vwait</a></b>, causing it to
 access a now missing array element, instead of the expected result.</p></dd>
 <dt>4.5.3</dt>
-<dd><p>Bugfixes in the wrappers for the builtin <b class="cmd"><a href="../../../../index.html#key394">update</a></b> and <b class="cmd"><a href="../../../../index.html#key395">vwait</a></b>
+<dd><p>Bugfixes in the wrappers for the builtin <b class="cmd"><a href="../../../../index.html#key395">update</a></b> and <b class="cmd"><a href="../../../../index.html#key396">vwait</a></b>
 commands.</p></dd>
 <dt>4.5.2</dt>
-<dd><p>Bugfix in the wrapper for the builtin <b class="cmd"><a href="../../../../index.html#key394">update</a></b> command.</p></dd>
+<dd><p>Bugfix in the wrapper for the builtin <b class="cmd"><a href="../../../../index.html#key395">update</a></b> command.</p></dd>
 <dt>4.5.1</dt>
 <dd><p>Bugfixes in the handling of -interp for regular scripts. The handling
 of the buffer was wrong for scripts which are a single statement as
@@ -1001,7 +1001,7 @@ package and/or documentation.</p>
 <p>send(n)</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key33">comm</a>, <a href="../../../../index.html#key338">communication</a>, <a href="../../../../index.html#key343">ipc</a>, <a href="../../../../index.html#key344">message</a>, <a href="../../../../index.html#key341">remote communication</a>, <a href="../../../../index.html#key340">remote execution</a>, <a href="../../../../index.html#key337">rpc</a>, <a href="../../../../index.html#key339">secure</a>, <a href="../../../../index.html#key336">send</a>, <a href="../../../../index.html#key335">socket</a>, <a href="../../../../index.html#key342">ssl</a>, <a href="../../../../index.html#key311">tls</a></p>
+<p><a href="../../../../index.html#key40">comm</a>, <a href="../../../../index.html#key338">communication</a>, <a href="../../../../index.html#key343">ipc</a>, <a href="../../../../index.html#key344">message</a>, <a href="../../../../index.html#key341">remote communication</a>, <a href="../../../../index.html#key340">remote execution</a>, <a href="../../../../index.html#key337">rpc</a>, <a href="../../../../index.html#key339">secure</a>, <a href="../../../../index.html#key336">send</a>, <a href="../../../../index.html#key335">socket</a>, <a href="../../../../index.html#key342">ssl</a>, <a href="../../../../index.html#key311">tls</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>

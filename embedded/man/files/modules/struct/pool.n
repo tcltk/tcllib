@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/struct/pool\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'pool\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002, Erik Leunissen <e\&.leunissen@hccnet\&.nl>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk

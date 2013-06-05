@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/romberg\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'romberg\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2004 Kevin B\&. Kenny <kennykb@acm\&.org>\&. All rights reserved\&. Redistribution permitted under the terms of the Open Publication License <http://www\&.opencontent\&.org/openpub/>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk

@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/pki/pki\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'pki\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2010, 2011, 2012, 2013, Roy Keene, Andreas Kupries
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
