@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/gpx/gpx\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'gpx\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2010, Keith Vetter <kvetter@gmail\&.com>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk

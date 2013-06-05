@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/math/numtheory\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'numtheory\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2010 Lars Hellström <Lars dot Hellstrom at residenset dot net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk

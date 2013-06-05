@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/stringprep/stringprep_data\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'stringprep_data\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2007-2009, Sergei Golovan <sgolovan@nes\&.ru>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk

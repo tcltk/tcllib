@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/struct/graphops\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'graphops\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2008 Alejandro Paz <vidriloco@gmail\&.com>
 '\" Copyright (c) 2008 (docs) Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\" Copyright (c) 2009 Michal Antoniewski <antoniewski\&.m@gmail\&.com>

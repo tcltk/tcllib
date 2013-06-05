@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/base32/base32\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'base32\&.man' by tcllib/doctools with format 'nroff'
 '\" Public domain
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk

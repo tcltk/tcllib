@@ -1,5 +1,5 @@
 '\"
-'\" Generated from file '/home/aku/Projects/Tcllib/tcllib/embedded/man/files/modules/simulation/annealing\&.n' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'annealing\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2008 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
