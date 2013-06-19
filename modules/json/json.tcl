@@ -13,7 +13,7 @@ if {![package vsatisfies [package provide Tcl] 8.5]} {
     package require dict
 }
 
-package provide json 1.1.2
+package provide json 1.2
 
 namespace eval json {
     # Regular expression for tokenizing a JSON text (cf. http://json.org/)
@@ -75,9 +75,44 @@ proc json::json2dict {jsonText} {
     return [parseValue $tokens $nrTokens tokenCursor]
 }
 
+# Parse multiple JSON entities in a string into a list of dictionaries
+# @param jsonText JSON text to parse
+# @param max      Max number of entities to extract.
+# @return list of (dict (or list) containing the objects) represented by $jsonText
+proc json::many-json2dict {jsonText {max -1}} {
+    variable tokenRE
+
+    if {$max == 0} {
+	return -code error -errorCode {JSON BAD-LIMIT ZERO} \
+	    "Bad limit 0 of json entities to extract."
+    }
+
+    set tokens [regexp -all -inline -- $tokenRE $jsonText]
+    set nrTokens [llength $tokens]
+    set tokenCursor 0
+
+    set result {}
+    set found 0
+    set n $max
+    while {$n != 0} {
+	if {$tokenCursor >= $nrTokens} break
+	lappend result [parseValue $tokens $nrTokens tokenCursor]
+	incr found
+	if {$n > 0} {incr n -1}
+    }
+
+    if {$n > 0} {
+	return -code error -errorCode {JSON BAD-LIMIT TOO LARGE} \
+	    "Bad limit $max of json entities to extract, found only $found."
+    }
+
+    return $result
+}
+
 # Throw an exception signaling an unexpected token
 proc json::unexpected {tokenCursor token expected} {
-     return -code error "unexpected token \"$token\" at position $tokenCursor; expecting $expected"
+    return -code error -errorcode [list JSON UNEXPECTED $tokenCursor $expected] \
+	"unexpected token \"$token\" at position $tokenCursor; expecting $expected"
 }
 
 # Get rid of the quotes surrounding a string token and substitute the

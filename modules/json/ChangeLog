@@ -1,3 +1,11 @@
+2013-06-19  Andreas Kupries  <andreask@activestate.com>
+
+	* json.man: New command 'many-json2dict' to parse strings
+	* json.pcx: containing more than one JSON entity. The existing
+	* json.tcl: json2dict command will return only the first. Updated
+	* json.test: documentation. Extended testsuite. Package version
+	* pkgIndex.tcl: bumped to 1.2
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
