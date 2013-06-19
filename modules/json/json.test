@@ -180,6 +180,28 @@ set TCL(emptyList3) {menu {}}
 set JSON(emptyList4) {[[]]}
 set TCL(emptyList4) {{}}
 
+proc resultfor {name} {
+    global TCL
+    transform $TCL($name) $name
+}
+
+proc transform {res name} {
+    global DICTSORT
+    if {[info exists DICTSORT($name)]} {
+        return [dictsort3 $DICTSORT($name) $res]
+    } else {
+        return $res
+    }
+}
+
+proc transform* {res args} {
+    set t {}
+    foreach r $res n $args {
+        lappend t [transform $r $n]
+    }
+    return $t
+}
+
 # -------------------------------------------------------------------------
 # Tests
 # -------------------------------------------------------------------------
@@ -207,6 +229,57 @@ test json-2.0 {list2json} -body {
 test json-2.1 {string2json} -body {
     json::string2json a
 } -result {"a"}
+
+# -------------------------------------------------------------------------
+
+test json-3.0 {many-json2dict, wrong args, not enough} -body {
+    json::many-json2dict
+} -returnCodes error -result {wrong # args: should be "json::many-json2dict jsonText ?max?"}
+
+test json-3.1 {many-json2dict, wrong args, too many} -body {
+    json::many-json2dict J M X
+} -returnCodes error -result {wrong # args: should be "json::many-json2dict jsonText ?max?"}
+
+test json-3.2 {many-json2dict, bad limit, zero} -body {
+    json::many-json2dict {[]} 0
+} -returnCodes error -result {Bad limit 0 of json entities to extract.}
+
+set i 2
+foreach first [array names JSON] {
+    foreach second [array names JSON] {
+        set    input $JSON($first)
+        append input " " $JSON($second)
+
+        set     output {}
+        lappend output [resultfor $first]
+        lappend output [resultfor $second]
+
+        test json-3.[incr i] "many-json2dict: $first/$second, all" -body {
+            transform* [json::many-json2dict $input] $first $second
+        } -result $output
+    }
+}
+
+foreach first [array names JSON] {
+    foreach second [array names JSON] {
+        set    input $JSON($first)
+        append input " " $JSON($second)
+
+        set     output {}
+        lappend output [resultfor $first]
+
+        test json-3.[incr i] "many-json2dict: $first/$second, first only" -body {
+            transform* [json::many-json2dict $input 1] $first
+        } -result $output
+    }
+}
+
+foreach first [array names JSON] {
+    set input $JSON($first)
+    test json-3.[incr i] "many-json2dict, bad limit, 3 over 1" -body {
+        json::many-json2dict $input 3
+    } -returnCodes error -result {Bad limit 3 of json entities to extract, found only 1.}
+}
 
 # -------------------------------------------------------------------------
 catch {unset JSON}
