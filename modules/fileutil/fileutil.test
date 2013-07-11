@@ -6,10 +6,14 @@
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
 # Copyright (c) 2001 by ActiveState Tool Corp.
-# Copyright (c) 2005-2007 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2005-2013 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
 # RCS: @(#) $Id: fileutil.test,v 1.56 2009/10/06 20:07:18 andreas_kupries Exp $
+
+# TODO: Bug [8b317b4a63]: Create test cases for this bug. This
+# requires the use of a custom VFS as the native filesystem does not
+# contain the bug we are guarding ourselves against.
 
 # -------------------------------------------------------------------------
 
