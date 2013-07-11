@@ -1,3 +1,16 @@
+2013-07-11  Andreas Kupries  <andreask@activestate.com>
+
+	* fileutil.man: Ticket [8b317b4a63]: Added code to the 8.4+
+	* fileutil.tcl: implementations of GLOBF and GLOBD to guard
+	* fileutil.test: ourselves against VFS packages mishandling the
+	* pkgIndex.tcl: -types option of [glob]. vfs::zip is an example.
+	  This mishandling causes glob to return the same data for the two
+	  calls with "-types x" and "-types {hidden x}", generating lists
+	  with duplicate entries. We now generally de-duplicate the result
+	  ourselves. Bumped the package version to 1.14.6. Thanks to
+	  <eugene.mindrov@gmail.com> for the investigation identifying
+	  this problem.
+
 2013-02-14  Andreas Kupries  <andreask@activestate.com>
 
 	* decode.tcl: Bumped fileutil::decode to 0.2 to distinguish

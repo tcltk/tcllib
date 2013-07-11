@@ -13,7 +13,7 @@
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.14.5
+package provide fileutil 1.14.6
 
 namespace eval ::fileutil {
     namespace export \
@@ -229,19 +229,19 @@ if {[package vsatisfies [package present Tcl] 8.5]} {
 	    return {}
 	}
 
-	set res [concat \
+	set res [lsort -unique [concat \
 		     [glob -nocomplain -directory $current -types f          -- *] \
-		     [glob -nocomplain -directory $current -types {hidden f} -- *]]
+		     [glob -nocomplain -directory $current -types {hidden f} -- *]]]
 
 	# Look for broken links (They are reported as neither file nor directory).
-	foreach l [concat \
+	foreach l [lsort -unique [concat \
 		       [glob -nocomplain -directory $current -types l          -- *] \
-		       [glob -nocomplain -directory $current -types {hidden l} -- *] ] {
+		       [glob -nocomplain -directory $current -types {hidden l} -- *]]] {
 	    if {[file isfile      $l]} continue
 	    if {[file isdirectory $l]} continue
 	    lappend res $l
 	}
-	return $res
+	return [lsort -unique $res]
     }
 
     proc ::fileutil::GLOBD {current} {
@@ -254,9 +254,9 @@ if {[package vsatisfies [package present Tcl] 8.5]} {
 	    return {}
 	}
 
-	concat \
+	lsort -unique [concat \
 	    [glob -nocomplain -directory $current -types d          -- *] \
-	    [glob -nocomplain -directory $current -types {hidden d} -- *]
+	    [glob -nocomplain -directory $current -types {hidden d} -- *]]
     }
 
 } elseif {[package vsatisfies [package present Tcl] 8.4]} {
@@ -268,25 +268,25 @@ if {[package vsatisfies [package present Tcl] 8.5]} {
     proc ::fileutil::ACCESS {args} {}
 
     proc ::fileutil::GLOBF {current} {
-	set res [concat \
-		     [glob -nocomplain -directory $current -types f          -- *] \
-		     [glob -nocomplain -directory $current -types {hidden f} -- *]]
+	set res [lsort -unique [concat \
+		    [glob -nocomplain -directory $current -types f          -- *] \
+		    [glob -nocomplain -directory $current -types {hidden f} -- *]]]
 
 	# Look for broken links (They are reported as neither file nor directory).
-	foreach l [concat \
+	foreach l [lsort -unique [concat \
 		       [glob -nocomplain -directory $current -types l          -- *] \
-		       [glob -nocomplain -directory $current -types {hidden l} -- *] ] {
+		       [glob -nocomplain -directory $current -types {hidden l} -- *]]] {
 	    if {[file isfile      $l]} continue
 	    if {[file isdirectory $l]} continue
 	    lappend res $l
 	}
-	return $res
+	return [lsort -unique $res]
     }
 
     proc ::fileutil::GLOBD {current} {
-	concat \
+	lsort -unique [concat \
 	    [glob -nocomplain -directory $current -types d          -- *] \
-	    [glob -nocomplain -directory $current -types {hidden d} -- *]
+	    [glob -nocomplain -directory $current -types {hidden d} -- *]]
     }
 
 } elseif {[package vsatisfies [package present Tcl] 8.3]} {
