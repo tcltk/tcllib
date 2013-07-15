@@ -1,5 +1,6 @@
+[vset PACKAGE_VERSION 1.14.6]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin fileutil n 1.14.5]
+[manpage_begin fileutil n [vset PACKAGE_VERSION]]
 [keywords cat]
 [keywords {file utilities}]
 [keywords grep]
@@ -11,7 +12,7 @@
 [titledesc {Procedures implementing some file utilities}]
 [category  {Programming tools}]
 [require Tcl 8]
-[require fileutil [opt 1.14.5]]
+[require fileutil [opt [vset PACKAGE_VERSION]]]
 [description]
 [para]
 
