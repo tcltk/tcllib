@@ -144,6 +144,7 @@ Module  valtype     _tcl _null  _null
 Module  virtchannel_base       _tcl _man  _null
 Module  virtchannel_core       _tcl _man  _null
 Module  virtchannel_transform  _tcl _man  _null
+Module  websocket   _tcl  _man  _null
 Module  wip         _tcl  _man  _null
 Module  yaml        _tcl  _man  _null
 Module  zip        _tcl  _null  _null
