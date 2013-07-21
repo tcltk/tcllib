@@ -1,0 +1,154 @@
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin websocket n 1.2]
+[see_also http]
+[keywords http]
+[keywords internet]
+[keywords net]
+[keywords {rfc 6455}]
+[moddesc {websocket client and server}]
+[titledesc {Tcl implementation of the websocket protocol}]
+[category Networking]
+[require Tcl 8.4]
+[require http 2.7]
+[require logger]
+[require sha1]
+[require base64]
+[description]
+
+[para]
+
+NOTE: THIS DOCUMENTATION IS WORK IN PROGRESS...
+
+The websocket package provides an implementation of the websocket
+protocol as specified in RFC 6455. The package implements both the
+client and server side of the v.13 of the protocol. Websockets provide
+a way to upgrade a regular HTTP connection into a long-lived and
+continuous binary or text communication between the client and the
+server.
+
+[para]
+
+The websocket library is a pure Tcl implementation of the WebSocket
+specification covering the needs of both clients and servers. The
+library offers a high-level interface to receive and send data as
+specified in RFC 6455, relieving callers from all necessary protocol
+framing and reassembly. It implements the ping facility specified by
+the standard, together with levers to control it. Pings are
+server-driven and ensure the liveness of the connection across home
+(NAT) networks. The library has a number of introspection facilities
+to inquire about the current state of the connection, but also to
+receive notifications of incoming pings, if necessary. Finally, the
+library contains a number of helper procedures to facilitate the
+upgrading handshaking in existing web servers.
+
+[para]
+
+Central to the library is a procedure that will "take over" a regular
+socket and treat it as a WebSocket, thus performing all necessary
+protocol framing, packetisation and reassembly in servers and
+clients. The procedure also takes a handler, a command that will be
+called back each time a (possibly reassembled) packet from the remote
+end is ready for delivery at the original caller. Another procedure
+allows callers to send data to the remote end in transparent ways.
+
+[para]
+
+Typically, clients will open a connection to a remote server by
+providing a WebSocket URL (ws: or wss: schemes) and the handler
+described above. The opening procedure is a wrapper around the latest
+http::geturl implementations: it arranges to keep the socket created
+within the http library opened for reuse, but confiscates it from its
+(internal) map of known sockets for its own use.
+
+[para]
+
+Servers will start by registering themselves and especially their
+handlers (see central procedure above) to the library. Then for each
+incoming client connection, they should test the incoming request to
+detect if it is an upgrade request and perform the final handshake to
+place the socket connection under the control of the websocket library
+and its central procedure.
+
+[para]
+
+Clients should open a connection to a remote websocket-compatible HTTP
+server using the [cmd ::websocket::open] command.  This command takes
+a mandatory remote URL and a handler command that will be notified
+upon reception of data, but also upon important events within the
+library or events resulting from control messages sent by the remote
+end.
+
+Servers should create a context around an existing listening socket
+using the command [cmd ::websocket::server] and register a number of
+handlers for paths using the command [cmd ::websocket::live].  At a
+later time, once a client has connected to the server, incoming
+requests can be tested for WebSocket compliance using [cmd
+::websocket::test] and finally upgraded to a WebSocket using [cmd
+::websocket::upgrade].
+
+The client command [cmd ::websocket::open] really is a wrapper around
+[cmd ::http::geturl], ending up in the same logic and operation as
+[cmd ::websocket::takeover].  [cmd ::websocket::takeover] forms forms
+the core entry point of the implementation, but should seldom be used
+alone.
+
+Apart from these two main commands, the package provides a number of
+commands for introspection and basic operations on the websockets that
+it has under its control.  As WebSockets connections are long-lived,
+most remaining communication with the library will be by way of
+callbacks, i.e. commands that are triggered whenever important events
+within the library have occur, but mostly whenever data has been
+received on a WebSocket.
+
+[section API]
+
+[list_begin definitions]
+
+[call [cmd ::websocket::open] [arg url] [arg handler] [opt [arg options]]]
+
+This command is used in clients to open a WebSocket to a remote
+websocket-enabled HTTP server.  The URL provided as an argument should
+start with ws: or wss:, which are the WebSockets counterpart of http:
+and https:. The handler is a command that will be called back on data
+reception or whenever important event occur. 
+
+Being essentially a wrapper around the [cmd ::http::geturl] command,
+this command provides mostly the same set of dash-led options than
+[cmd ::http::geturl].  Documented below are the options that differ
+from [cmd ::http::geturl] and which are specific to the WebSocket
+library.
+
+[list_begin definitions]
+
+[def "-headers"]
+
+This option is supported, knowing that a number of headers will be
+automatically added internally in the library in order to be able to
+handshake the upgrading of the socket from a regular HTTP socket to a
+WebSocket with the server.
+
+[def "-validate"]
+
+This option is not supported as it has no real point for WebSockets.
+
+[def "-handler"]
+
+This option is used internally by the websocket library and cannot be
+used.
+
+[def "-command"]
+
+This option is used internally by the websocket library and cannot be
+used.
+
+[def "-protocol"]
+
+This option specifies a list of application protocols to handshake
+with the server.  This protocols might help the server triggering
+application specific features.
+
+[list_end]
+
+[list_end]
+
+[manpage_end]
