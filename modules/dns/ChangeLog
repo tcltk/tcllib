@@ -1,3 +1,8 @@
+2013-07-26  Andreas Kupries <andreask@activestate.com>
+
+	* ip.tcl: [AS Bug 99728]: Fixed version mismatch code vs package
+	  index. Bug introduced by last change, below.
+
 2013-03-25  Andreas Kupries  <andreask@activestate.com>
 
 	* ip.tcl: [Bug 3608943] Check ip::version for empty input and
