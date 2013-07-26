@@ -4143,6 +4143,9 @@ map::slippy::fetcher
 .TP
 \fBfiles/modules/uri/uri\&.n\fR
 uri
+.TP
+\fBfiles/modules/websocket/websocket\&.n\fR
+websocket
 .RE
 huddle
 .RS
@@ -4521,6 +4524,9 @@ pop3d::udb
 .TP
 \fBfiles/modules/mime/smtp\&.n\fR
 smtp
+.TP
+\fBfiles/modules/websocket/websocket\&.n\fR
+websocket
 .RE
 internet address
 .RS
@@ -6102,6 +6108,9 @@ mime
 .TP
 \fBfiles/modules/mime/smtp\&.n\fR
 smtp
+.TP
+\fBfiles/modules/websocket/websocket\&.n\fR
+websocket
 .RE
 network
 .RS
@@ -8241,6 +8250,12 @@ rfc 4511
 .TP
 \fBfiles/modules/ldap/ldap\&.n\fR
 ldap
+.RE
+rfc 6455
+.RS
+.TP
+\fBfiles/modules/websocket/websocket\&.n\fR
+websocket
 .RE
 rfc3501
 .RS

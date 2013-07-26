@@ -239,16 +239,18 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "json" n 1\&.1\&.2 tcllib "JSON"
+.TH "json" n 1\&.2 tcllib "JSON"
 .BS
 .SH NAME
 json \- JSON parser
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBjson  ?1\&.1\&.2?\fR
+package require \fBjson  ?1\&.2?\fR
 .sp
 \fB::json::json2dict\fR \fItxt\fR
+.sp
+\fB::json::many-json2dict\fR \fItxt\fR ?\fImax\fR?
 .sp
 .BE
 .SH DESCRIPTION
@@ -263,7 +265,20 @@ required for use\&.
 .SH COMMANDS
 .TP
 \fB::json::json2dict\fR \fItxt\fR
-Parse JSON formatted text \fItxt\fR into a Tcl dict and return the value\&.
+Parse JSON formatted text \fItxt\fR into a Tcl dict and return
+the value\&.
+.sp
+If \fItxt\fR contains more than one JSON entity only the
+first one is returned\&.
+.TP
+\fB::json::many-json2dict\fR \fItxt\fR ?\fImax\fR?
+Parse JSON formatted text \fItxt\fR containing multiple JSON entities
+into a list of dictionaries and return that list\&.
+.sp
+If \fImax\fR is specified exactly that many entities are extracted
+from \fItxt\fR\&. By default the command will attempt to extract all, without
+limits\&. A value of "\fImax\fR == 0" does not make sense and will cause the
+command to throw an error\&.
 .PP
 .PP
 .SH EXAMPLES

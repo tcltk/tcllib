@@ -1418,6 +1418,9 @@ tcllib
 \fBvaltype::verhoeff\fR
 \fIfiles/modules/valtype/verhoeff\&.n\fR: Validation for plain number with a VERHOEFF checkdigit
 .TP
+\fBwebsocket\fR
+\fIfiles/modules/websocket/websocket\&.n\fR: Tcl implementation of the websocket protocol
+.TP
 \fBwip\fR
 \fIfiles/modules/wip/wip\&.n\fR: Word Interpreter
 .TP

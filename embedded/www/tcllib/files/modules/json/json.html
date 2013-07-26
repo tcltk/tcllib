@@ -108,7 +108,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">json(n) 1.1.2 tcllib &quot;JSON&quot;</h1>
+<h1 class="title">json(n) 1.2 tcllib &quot;JSON&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>json - JSON parser</p>
 </div>
@@ -129,10 +129,11 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
-<li>package require <b class="pkgname">json <span class="opt">?1.1.2?</span></b></li>
+<li>package require <b class="pkgname">json <span class="opt">?1.2?</span></b></li>
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">::json::json2dict</b> <i class="arg">txt</i></a></li>
+<li><a href="#2"><b class="cmd">::json::many-json2dict</b> <i class="arg">txt</i> <span class="opt">?<i class="arg">max</i>?</span></a></li>
 </ul>
 </div>
 </div>
@@ -148,7 +149,17 @@ required for use.</p>
 <div id="section2" class="section"><h2><a name="section2">COMMANDS</a></h2>
 <dl class="definitions">
 <dt><a name="1"><b class="cmd">::json::json2dict</b> <i class="arg">txt</i></a></dt>
-<dd><p>Parse JSON formatted text <i class="arg">txt</i> into a Tcl dict and return the value.</p></dd>
+<dd><p>Parse JSON formatted text <i class="arg">txt</i> into a Tcl dict and return
+the value.</p>
+<p>If <i class="arg">txt</i> contains more than one JSON entity only the
+first one is returned.</p></dd>
+<dt><a name="2"><b class="cmd">::json::many-json2dict</b> <i class="arg">txt</i> <span class="opt">?<i class="arg">max</i>?</span></a></dt>
+<dd><p>Parse JSON formatted text <i class="arg">txt</i> containing multiple JSON entities
+into a list of dictionaries and return that list.</p>
+<p>If <i class="arg">max</i> is specified exactly that many entities are extracted
+from <i class="arg">txt</i>. By default the command will attempt to extract all, without
+limits. A value of &quot;<i class="arg">max</i> == 0&quot; does not make sense and will cause the
+command to throw an error.</p></dd>
 </dl>
 </div>
 <div id="section3" class="section"><h2><a name="section3">EXAMPLES</a></h2>
@@ -207,7 +218,7 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key188">data exchange</a>, <a href="../../../../index.html#key187">exchange format</a>, <a href="../../../../index.html#key190">javascript</a>, <a href="../../../../index.html#key189">json</a></p>
+<p><a href="../../../../index.html#key203">data exchange</a>, <a href="../../../../index.html#key202">exchange format</a>, <a href="../../../../index.html#key205">javascript</a>, <a href="../../../../index.html#key204">json</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>CGI programming</p>
