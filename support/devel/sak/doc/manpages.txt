@@ -391,6 +391,7 @@ modules/virtchannel_transform/otp.man
 modules/virtchannel_transform/rot.man
 modules/virtchannel_transform/spacer.man
 modules/virtchannel_transform/tcllib_zlib.man
+modules/websocket/websocket.man
 modules/wip/wip.man
 modules/yaml/huddle.man
 modules/yaml/yaml.man
