@@ -626,7 +626,7 @@ the older term seems more appropriate.  Sometimes this is called
 <i class="term">object-based</i> programming as opposed to object-oriented
 programming.  Note that you can easily create the effect of
 inheritance using <span class="sectref"><a href="#section14">COMPONENTS</a></span> and <span class="sectref"><a href="#section16">DELEGATION</a></span>.</p>
-<p>In Snit, as in Tk, a <i class="term"><a href="../../../../index.html#key123">type</a></i> is a command that creates instances
+<p>In Snit, as in Tk, a <i class="term"><a href="../../../../index.html#key125">type</a></i> is a command that creates instances
 -- objects -- which belong to the type.  Most types define some number
 of <i class="term">options</i> which can be set at creation time, and usually can be
 changed later.</p>
@@ -640,7 +640,7 @@ subcommand:</p>
     text .mytext -width 80 -height 24
     .mytext insert end &quot;Howdy!&quot;
 </pre>
-<p>In this example, <b class="cmd"><a href="../../../../index.html#key480">text</a></b> is the <i class="term"><a href="../../../../index.html#key123">type</a></i> command and
+<p>In this example, <b class="cmd"><a href="../../../../index.html#key482">text</a></b> is the <i class="term"><a href="../../../../index.html#key125">type</a></i> command and
 <b class="cmd">.mytext</b> is the <i class="term">instance</i> command.</p>
 <p>In Snit, object subcommands are generally called
 <span class="sectref"><a href="#section5">INSTANCE METHODS</a></span>.</p>
@@ -877,7 +877,7 @@ used to add dogs to a computer simulation:</p>
 %
 </pre>
 <p>A dog can bark, and it can chase things.</p>
-<p>The <b class="cmd"><a href="../../../../index.html#key355">method</a></b> statement looks just like a normal Tcl <b class="cmd"><a href="../../../../index.html#key572">proc</a></b>,
+<p>The <b class="cmd"><a href="../../../../index.html#key355">method</a></b> statement looks just like a normal Tcl <b class="cmd"><a href="../../../../index.html#key573">proc</a></b>,
 except that it appears in a <b class="cmd">snit::type</b> definition.  Notice that
 every instance method gets an implicit argument called <b class="variable">self</b>;
 this argument contains the object's name.  (There's more on
@@ -931,7 +931,7 @@ Hierarchical methods allow an object's methods to have subcommands of
 their own; and these can in turn have subcommands, and so on.  This
 allows the programmer to define a tree-shaped command structure, such
 as is used by many of the Tk widgets--the subcommands of the
-Tk <b class="cmd"><a href="../../../../index.html#key480">text</a></b> widget's <b class="cmd">tag</b> method are hierarchical methods.</p>
+Tk <b class="cmd"><a href="../../../../index.html#key482">text</a></b> widget's <b class="cmd">tag</b> method are hierarchical methods.</p>
 </div>
 <div id="subsection30" class="subsection"><h3><a name="subsection30">How do I define a hierarchical method?</a></h3>
 <p>Define methods whose names consist of multiple words.  These words
@@ -986,7 +986,7 @@ becomes <b class="method">Bark</b> to indicate that it is private:</p>
 </pre>
 </div>
 <div id="subsection33" class="subsection"><h3><a name="subsection33">Are there any limitations on instance method arguments?</a></h3>
-<p>Method argument lists are defined just like normal Tcl <b class="cmd"><a href="../../../../index.html#key572">proc</a></b> argument
+<p>Method argument lists are defined just like normal Tcl <b class="cmd"><a href="../../../../index.html#key573">proc</a></b> argument
 lists; in particular, they can include arguments with default values
  and the <b class="variable">args</b> argument.</p>
 <p>However, every method also has a number of implicit arguments
@@ -1601,7 +1601,7 @@ subcommand of the type command.</p>
 that have pedigrees.  The <b class="cmd">pedigreedDogs</b> type method returns this
 list.</p>
 <p>The <b class="cmd">typemethod</b> statement looks just like a normal Tcl
-<b class="cmd"><a href="../../../../index.html#key572">proc</a></b>, except that it appears in a <b class="cmd">snit::type</b> definition.
+<b class="cmd"><a href="../../../../index.html#key573">proc</a></b>, except that it appears in a <b class="cmd">snit::type</b> definition.
 Notice that every type method gets an implicit argument called
 <b class="variable">type</b>, which contains the fully-qualified type name.</p>
 </div>
@@ -1635,7 +1635,7 @@ of the same object.</p>
 convention, the names of public methods begin with a lower-case
 letter, and the names of private methods begin with an upper-case
 letter.</p>
-<p>Alternatively, a Snit <b class="cmd"><a href="../../../../index.html#key572">proc</a></b> can be used as a private type method; see
+<p>Alternatively, a Snit <b class="cmd"><a href="../../../../index.html#key573">proc</a></b> can be used as a private type method; see
 <span class="sectref"><a href="#section10">PROCS</a></span>.</p>
 </div>
 <div id="subsection75" class="subsection"><h3><a name="subsection75">Are there any limitations on type method arguments?</a></h3>
@@ -1680,12 +1680,12 @@ you can define hierarchical instance methods.  See
 </div>
 <div id="section10" class="section"><h2><a name="section10">PROCS</a></h2>
 <div id="subsection79" class="subsection"><h3><a name="subsection79">What is a proc?</a></h3>
-<p>A Snit <b class="cmd"><a href="../../../../index.html#key572">proc</a></b> is really just a Tcl proc defined within the type's
+<p>A Snit <b class="cmd"><a href="../../../../index.html#key573">proc</a></b> is really just a Tcl proc defined within the type's
 namespace.  You can use procs for private code that isn't related to
 any particular instance.</p>
 </div>
 <div id="subsection80" class="subsection"><h3><a name="subsection80">How do I define a proc?</a></h3>
-<p>Procs are defined by including a <b class="cmd"><a href="../../../../index.html#key572">proc</a></b> statement in the type
+<p>Procs are defined by including a <b class="cmd"><a href="../../../../index.html#key573">proc</a></b> statement in the type
 definition:</p>
 <pre class="example">snit::type mytype {
     # Pops and returns the first item from the list stored in the
@@ -1698,11 +1698,11 @@ definition:</p>
 <div id="subsection81" class="subsection"><h3><a name="subsection81">Are there any limitations on proc names?</a></h3>
 <p>Any name can be used, so long as it does not begin with <b class="const">Snit_</b>;
 names beginning with <b class="const">Snit_</b> are reserved for Snit's own use.
-However, the wise programmer will avoid <b class="cmd"><a href="../../../../index.html#key572">proc</a></b> names (<b class="cmd"><a href="../../../../index.html#key279">set</a></b>,
+However, the wise programmer will avoid <b class="cmd"><a href="../../../../index.html#key573">proc</a></b> names (<b class="cmd"><a href="../../../../index.html#key279">set</a></b>,
 <b class="cmd"><a href="../../../../index.html#key280">list</a></b>, <b class="cmd">if</b>, etc.) that would shadow standard Tcl
 command names.</p>
-<p><b class="cmd"><a href="../../../../index.html#key572">proc</a></b> names, being private, should begin with a capital letter according
-to convention; however, as there are typically no public <b class="cmd"><a href="../../../../index.html#key572">proc</a></b>s
+<p><b class="cmd"><a href="../../../../index.html#key573">proc</a></b> names, being private, should begin with a capital letter according
+to convention; however, as there are typically no public <b class="cmd"><a href="../../../../index.html#key573">proc</a></b>s
 in the type's namespace it doesn't matter much either way.</p>
 </div>
 <div id="subsection82" class="subsection"><h3><a name="subsection82">How does a method call a proc?</a></h3>
@@ -1721,7 +1721,7 @@ in the type's namespace it doesn't matter much either way.</p>
 </div>
 <div id="subsection83" class="subsection"><h3><a name="subsection83">How can I pass a proc to another object as a callback?</a></h3>
 <p>The <b class="cmd">myproc</b> command returns a callback command for the
-<b class="cmd"><a href="../../../../index.html#key572">proc</a></b>, just as <b class="cmd">mymethod</b> does for a method.</p>
+<b class="cmd"><a href="../../../../index.html#key573">proc</a></b>, just as <b class="cmd">mymethod</b> does for a method.</p>
 </div>
 </div>
 <div id="section11" class="section"><h2><a name="section11">TYPE CONSTRUCTORS</a></h2>
@@ -2483,7 +2483,7 @@ its <b class="cmd">destroy</b> method.  Instances of a <b class="cmd">snit::widg
 destroy method; use the Tk <b class="cmd">destroy</b> command instead.</p></li>
 <li><p>Every instance of a <b class="cmd">snit::widget</b> has one predefined component
 called its <b class="variable">hull</b> component.
-The hull is usually a Tk <b class="cmd"><a href="../../../../index.html#key657">frame</a></b> or <b class="cmd">toplevel</b> widget; any other
+The hull is usually a Tk <b class="cmd"><a href="../../../../index.html#key658">frame</a></b> or <b class="cmd">toplevel</b> widget; any other
 widgets created as part of the <b class="cmd">snit::widget</b> will usually be
 contained within the hull.</p></li>
 <li><p><b class="cmd">snit::widget</b>s can have their options receive default values from
@@ -2504,7 +2504,7 @@ that any kind of widget can be used as the hull component; see
 <span class="sectref"><a href="#section18">WIDGET ADAPTORS</a></span>.</p>
 </div>
 <div id="subsection129" class="subsection"><h3><a name="subsection129">How can I set the hull type for a snit::widget?</a></h3>
-<p>A <b class="cmd">snit::widget</b>'s hull component will usually be a Tk <b class="cmd"><a href="../../../../index.html#key657">frame</a></b>
+<p>A <b class="cmd">snit::widget</b>'s hull component will usually be a Tk <b class="cmd"><a href="../../../../index.html#key658">frame</a></b>
 widget; however, it may be any Tk widget that defines the
 <b class="const">-class</b> option.  You can
 explicitly choose the hull type you prefer by including the <b class="cmd">hulltype</b>
@@ -2514,9 +2514,9 @@ command in the widget definition:</p>
     # ...
 }
 </pre>
-<p>If no <b class="cmd">hulltype</b> command appears, the hull will be a <b class="cmd"><a href="../../../../index.html#key657">frame</a></b>.</p>
+<p>If no <b class="cmd">hulltype</b> command appears, the hull will be a <b class="cmd"><a href="../../../../index.html#key658">frame</a></b>.</p>
 <p>By default, Snit recognizes the following hull types: the Tk widgets
-<b class="cmd"><a href="../../../../index.html#key657">frame</a></b>, <b class="cmd">labelframe</b>, <b class="cmd">toplevel</b>, and the Tile widgets
+<b class="cmd"><a href="../../../../index.html#key658">frame</a></b>, <b class="cmd">labelframe</b>, <b class="cmd">toplevel</b>, and the Tile widgets
 <b class="cmd">ttk::frame</b>, <b class="cmd">ttk::labelframe</b>, and <b class="cmd">ttk::toplevel</b>.  To
 enable the use of some other kind of widget as the hull type, you can
 <b class="cmd">lappend</b> the widget command to the variable <b class="variable">snit::hulltypes</b> (always
@@ -2614,9 +2614,9 @@ prior to calling <b class="cmd">installhull</b> will fail.</p>
 <p>At times, it can be convenient to adapt a pre-existing widget instead
 of creating your own.
 For example, the Bwidget <b class="cmd">PagesManager</b> widget manages a
-set of <b class="cmd"><a href="../../../../index.html#key657">frame</a></b> widgets, only one of which is visible at a time.
-The application chooses which <b class="cmd"><a href="../../../../index.html#key657">frame</a></b> is visible.  All of the
-These <b class="cmd"><a href="../../../../index.html#key657">frame</a></b>s are created by the <b class="cmd">PagesManager</b> itself, using
+set of <b class="cmd"><a href="../../../../index.html#key658">frame</a></b> widgets, only one of which is visible at a time.
+The application chooses which <b class="cmd"><a href="../../../../index.html#key658">frame</a></b> is visible.  All of the
+These <b class="cmd"><a href="../../../../index.html#key658">frame</a></b>s are created by the <b class="cmd">PagesManager</b> itself, using
 its <b class="method">add</b> method.  It's convenient to adapt these frames to
 do what we'd like them to do.</p>
 <p>In a case like this, the Tk widget will already exist when the
@@ -2706,14 +2706,14 @@ the widget class of</p>
 }
 </pre>
 <p>The above definition says that a <b class="cmd">scrolledText</b> megawidget has the
-same widget class as an ordinary <b class="cmd"><a href="../../../../index.html#key480">text</a></b> widget.  This might or
+same widget class as an ordinary <b class="cmd"><a href="../../../../index.html#key482">text</a></b> widget.  This might or
 might not be a good idea, depending on how the rest of the megawidget
 is defined, and how its options are delegated.</p>
 </div>
 <div id="subsection138" class="subsection"><h3><a name="subsection138">What is my snit::widgetadaptor's widget class?</a></h3>
 <p>The widget class of a <b class="cmd">snit::widgetadaptor</b> is just the widget
 class of its hull widget; Snit has no control over this.</p>
-<p>Note that the widget class can be changed only for <b class="cmd"><a href="../../../../index.html#key657">frame</a></b> and
+<p>Note that the widget class can be changed only for <b class="cmd"><a href="../../../../index.html#key658">frame</a></b> and
 <b class="cmd">toplevel</b> widgets, which is why these are the valid hull types
 for <b class="cmd">snit::widget</b>s.</p>
 <p>Try to use <b class="cmd">snit::widgetadaptor</b>s only to make small modifications
@@ -2732,7 +2732,7 @@ The resource name is usually just the option
 name minus the hyphen, but may contain uppercase letters at word
 boundaries; the class name is usually just the resource
 name with an initial capital, but not always.  For example, here are
-the option, resource, and class names for several Tk <b class="cmd"><a href="../../../../index.html#key480">text</a></b>
+the option, resource, and class names for several Tk <b class="cmd"><a href="../../../../index.html#key482">text</a></b>
 widget options:</p>
 <pre class="example">    -background         background         Background
     -borderwidth        borderWidth        BorderWidth
@@ -2897,7 +2897,7 @@ to do this is as follows:</p>
 a command like this:</p>
 <pre class="example">    set hull [text $win -foreground white]
 </pre>
-<p>The hull is a <b class="cmd"><a href="../../../../index.html#key480">text</a></b> widget, so its widget class is <b class="const">Text</b>.  Just
+<p>The hull is a <b class="cmd"><a href="../../../../index.html#key482">text</a></b> widget, so its widget class is <b class="const">Text</b>.  Just
 as with <b class="cmd">snit::widget</b> hulls, Snit assumes that it will pick up
 all of its normal option values automatically, without help from Snit.
 Options delegated from a different name are initialized from the
@@ -2914,8 +2914,8 @@ described above.</p>
 automatically.  Non-hull components are somewhat more complicated, because
 they are matched against the option database twice.</p>
 <p>A component widget remains a widget still, and is therefore
-initialized from the option database in the usual way.  A <b class="cmd"><a href="../../../../index.html#key480">text</a></b>
-widget remains a <b class="cmd"><a href="../../../../index.html#key480">text</a></b> widget whether it is a component of a
+initialized from the option database in the usual way.  A <b class="cmd"><a href="../../../../index.html#key482">text</a></b>
+widget remains a <b class="cmd"><a href="../../../../index.html#key482">text</a></b> widget whether it is a component of a
 megawidget or not, and will be created as such.</p>
 <p>But then, the option database is queried for all options delegated to
 the component, and the component is initialized accordingly--provided

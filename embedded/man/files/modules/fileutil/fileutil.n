@@ -237,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "fileutil" n 1\&.14\&.5 tcllib "file utilities"
+.TH "fileutil" n 1\&.14\&.6 tcllib "file utilities"
 .BS
 .SH NAME
 fileutil \- Procedures implementing some file utilities
 .SH SYNOPSIS
 package require \fBTcl  8\fR
 .sp
-package require \fBfileutil  ?1\&.14\&.5?\fR
+package require \fBfileutil  ?1\&.14\&.6?\fR
 .sp
 \fB::fileutil::lexnormalize\fR \fIpath\fR
 .sp

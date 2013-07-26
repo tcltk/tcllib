@@ -159,19 +159,19 @@ definitions. Member procedures can also be defined outside the class
 body, by prefixing their name with <b class="const">class::</b>, as you would
 proceed with namespace procedures.</p>
 <dl class="definitions">
-<dt><b class="cmd"><a href="../../../../index.html#key572">proc</a></b> <i class="arg">class</i> {<b class="const">this</b> <span class="opt">?<i class="arg">arg arg ...</i>?</span>} <span class="opt">?<i class="arg">base</i> {<span class="opt">?<i class="arg">arg arg ...</i>?</span>} ...?</span> <i class="arg">body</i></dt>
+<dt><b class="cmd"><a href="../../../../index.html#key573">proc</a></b> <i class="arg">class</i> {<b class="const">this</b> <span class="opt">?<i class="arg">arg arg ...</i>?</span>} <span class="opt">?<i class="arg">base</i> {<span class="opt">?<i class="arg">arg arg ...</i>?</span>} ...?</span> <i class="arg">body</i></dt>
 <dd><p>This is the constructor procedure for the class. It is invoked
 following a <b class="cmd">new</b> invocation on the class. It must have the same
 name as the class and a first argument named <b class="const">this</b>. Any number
 of base classes specifications, including arguments to be passed to
 their constructor, are allowed before the actual body of the
 procedure.</p></dd>
-<dt><b class="cmd"><a href="../../../../index.html#key572">proc</a></b> ~<i class="arg">class</i> {<b class="const">this</b>} <i class="arg">body</i></dt>
+<dt><b class="cmd"><a href="../../../../index.html#key573">proc</a></b> ~<i class="arg">class</i> {<b class="const">this</b>} <i class="arg">body</i></dt>
 <dd><p>This is the destructor procedure for the class. It is invoked
 following a <b class="cmd">delete</b> invocation. Its name must be the
 concatenation of a single <b class="const">~</b> character followed by the class
 name (as in C++). It must have a single argument named <b class="const">this</b>.</p></dd>
-<dt><b class="cmd"><a href="../../../../index.html#key572">proc</a></b> <i class="arg">name</i> {<b class="const">this</b> <span class="opt">?<i class="arg">arg arg ...</i>?</span>} <i class="arg">body</i></dt>
+<dt><b class="cmd"><a href="../../../../index.html#key573">proc</a></b> <i class="arg">name</i> {<b class="const">this</b> <span class="opt">?<i class="arg">arg arg ...</i>?</span>} <i class="arg">body</i></dt>
 <dd><p>This is a member procedure of the class, as its first argument is
 named <b class="const">this</b>. It allows a simple access of member data for the
 object referenced by <b class="const">this</b> inside the procedure. For example:</p>
@@ -179,7 +179,7 @@ object referenced by <b class="const">this</b> inside the procedure. For example
    set ($this,data) 0
 </pre>
 </dd>
-<dt><b class="cmd"><a href="../../../../index.html#key572">proc</a></b> <i class="arg">name</i> {<span class="opt">?<i class="arg">arg arg ...</i>?</span>} <i class="arg">body</i></dt>
+<dt><b class="cmd"><a href="../../../../index.html#key573">proc</a></b> <i class="arg">name</i> {<span class="opt">?<i class="arg">arg arg ...</i>?</span>} <i class="arg">body</i></dt>
 <dd><p>This is a static (as in C++) member procedure of the class, as its
 first argument is not named <b class="const">this</b>. Static (global) class data
 can be accessed as in:</p>
@@ -187,7 +187,7 @@ can be accessed as in:</p>
    set (data) 0
 </pre>
 </dd>
-<dt><b class="cmd"><a href="../../../../index.html#key572">proc</a></b> <i class="arg">class</i> {<b class="const">this copy</b>} <i class="arg">body</i></dt>
+<dt><b class="cmd"><a href="../../../../index.html#key573">proc</a></b> <i class="arg">class</i> {<b class="const">this copy</b>} <i class="arg">body</i></dt>
 <dd><p>This is the optional copy procedure for the class. It must have the
 same name as the class and exactly 2 arguments named <b class="const">this</b> and
 <b class="const">copy</b>. It is invoked following a <b class="cmd">new</b> invocation on an
@@ -258,7 +258,7 @@ informational text for each member data access.</p></dd>
 <dd><p>When tracing data output, by default, all read, write and unsetting
 accesses are reported, but the user can set this variable to any
 combination of the letters <b class="const">r</b>, <b class="const">w</b>, and <b class="const">u</b> for
-more specific tracing (please refer to the <b class="cmd"><a href="../../../../index.html#key63">trace</a></b> Tcl manual page
+more specific tracing (please refer to the <b class="cmd"><a href="../../../../index.html#key82">trace</a></b> Tcl manual page
 for more information).</p></dd>
 <dt><b class="variable">STOOOPTRACEALL</b></dt>
 <dd><p>Setting this environment variable to either <b class="const">stdout</b>,
