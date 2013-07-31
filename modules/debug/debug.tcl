@@ -21,7 +21,7 @@ package require Tcl 8.5
 namespace eval ::debug {
     namespace export -clear \
 	define on off prefix suffix header trailer \
-	names 2array level setting parray
+	names 2array level setting parray pdict
     namespace ensemble create -subcommands {}
 }
 
@@ -42,7 +42,12 @@ proc ::debug::debug {tag message {level 1}} {
     variable header
     variable trailer
     variable fds
-    set fd $fds($tag)
+
+    if {[info exists fds($tag)]} {
+	set fd $fds($tag)
+    } else {
+	set fd stderr
+    }
 
     # Assemble the shown text from the user message and the various
     # prefixes and suffices (global + per-tag).
@@ -111,7 +116,7 @@ proc ::debug::2array {} {
 }
 
 # level - set level and fd for tag
-proc ::debug::level {tag {level ""} {fd stderr}} {
+proc ::debug::level {tag {level ""} {fd {}}} {
     variable detail
     # TODO: Force level >=0.
     if {$level ne ""} {
@@ -123,7 +128,9 @@ proc ::debug::level {tag {level ""} {fd stderr}} {
     }
 
     variable fds
-    set fds($tag) $fd
+    if {$fd ne {}} {
+	set fds($tag) $fd
+    }
 
     return $detail($tag)
 }
@@ -160,7 +167,7 @@ proc ::debug::suffix {tag {theprefix {}}} {
 }
 
 # turn on debugging for tag
-proc ::debug::on {tag {level ""} {fd stderr}} {
+proc ::debug::on {tag {level ""} {fd {}}} {
     variable active
     set active($tag) 1
     level $tag $level $fd
@@ -169,7 +176,7 @@ proc ::debug::on {tag {level ""} {fd stderr}} {
 }
 
 # turn off debugging for tag
-proc ::debug::off {tag {level ""} {fd stderr}} {
+proc ::debug::off {tag {level ""} {fd {}}} {
     variable active
     set active($tag) 1
     level $tag $level $fd
@@ -248,5 +255,5 @@ namespace eval debug {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide debug 1.0
+package provide debug 1.0.1
 return

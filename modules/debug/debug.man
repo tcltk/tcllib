@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin debug n 1]
+[vset PACKAGE_VERSION 1.0.1]
+[manpage_begin debug n [vset PACKAGE_VERSION]]
 [keywords debug]
 [keywords log]
 [keywords narrative]
@@ -10,7 +11,7 @@
 [titledesc {debug narrative - core}]
 [category  {debugging, tracing, and logging}]
 [require Tcl 8.5]
-[require debug [opt 1]]
+[require debug [opt [vset PACKAGE_VERSION]]]
 [description]
 
 Debugging areas of interest are represented by 'tags' which have
