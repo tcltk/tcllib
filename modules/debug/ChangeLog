@@ -1,3 +1,11 @@
+2013-07-31  Andreas Kupries  <andreask@activestate.com>
+
+	* debug.tcl: Fixed missing export of 'pdict'. Plus better handling
+	* debug.man: of output channel definition. stderr is default only
+	* pkgIndex.tcl: if nothing is set by the user. This now allows
+	  applications to override the default for all packages not having
+	  their own output settings. Version bumped to 1.0.1
+
 2013-04-08  Andreas Kupries <andreask@activestate.com>
 
 	* debug.man: Added documentation.
