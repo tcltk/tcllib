@@ -1,3 +1,9 @@
+2013-08-06  Andreas Kupries  <aku@hephaistos>
+
+	* debug.tcl: Fixed bug in 'pdict', access to name of the array
+	* debug.man: this is not about. Version bumped to 1.0.2
+	* pkgIndex.tcl:
+
 2013-07-31  Andreas Kupries  <andreask@activestate.com>
 
 	* debug.tcl: Fixed missing export of 'pdict'. Plus better handling
