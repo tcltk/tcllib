@@ -251,7 +251,7 @@ package require \fBpt::rde  ?1?\fR
 .sp
 package require \fBsnit \fR
 .sp
-\fB::pt::peg::interpreter\fR \fIobjectName\fR \fIgrammar\fR
+\fB::pt::peg::interp\fR \fIobjectName\fR \fIgrammar\fR
 .sp
 \fIobjectName\fR \fBuse\fR \fIgrammar\fR
 .sp
@@ -288,7 +288,7 @@ associated export plugin \fBpt::peg::export::container\fR\&.
 .SS "CLASS API"
 The package exports the API described here\&.
 .TP
-\fB::pt::peg::interpreter\fR \fIobjectName\fR \fIgrammar\fR
+\fB::pt::peg::interp\fR \fIobjectName\fR \fIgrammar\fR
 The command creates a new parser object and returns the fully
 qualified name of the object command as its result\&. The API of this
 object command is described in the section \fBObject API\fR\&. It
