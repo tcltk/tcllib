@@ -263,9 +263,9 @@ package require \fBpt::ast  ?1\&.1?\fR
 .sp
 \fB::pt::ast\fR \fBequal\fR \fIseriala\fR \fIserialb\fR
 .sp
-\fB::pt::ast\fR \fBterminal\fR \fIloc\fR
+\fB::pt::ast\fR \fBnew0\fR \fIs\fR \fIloc\fR ?\fIchild\fR\&.\&.\&.?
 .sp
-\fB::pt::ast\fR \fBnonterminal\fR \fIs\fR \fIstart\fR \fIend\fR ?\fIchild\fR\&.\&.\&.?
+\fB::pt::ast\fR \fBnew\fR \fIs\fR \fIstart\fR \fIend\fR ?\fIchild\fR\&.\&.\&.?
 .sp
 .BE
 .SH DESCRIPTION
@@ -373,12 +373,16 @@ identical, and \fBfalse\fR otherwise\&.
 String equality is usable only if we can assume that the two trees are
 pure Tcl lists\&.
 .TP
-\fB::pt::ast\fR \fBterminal\fR \fIloc\fR
-This command command constructs the ast for a terminal node refering
-to the position \fIloc\fR in the input, and returns it as the result
-of the command\&.
+\fB::pt::ast\fR \fBnew0\fR \fIs\fR \fIloc\fR ?\fIchild\fR\&.\&.\&.?
+This command command constructs the ast for a nonterminal node
+refering refering to the symbol \fIs\fR at position \fIloc\fR in the
+input, and the set of child nodes \fIchild\fR \&.\&.\&., from left
+right\&. The latter may be empty\&. The constructed node is returned as
+the result of the command\&. The end position is \fIloc\fR-1, i\&.e\&. one
+character before the start\&. This type of node is possible for rules
+containing optional parts\&.
 .TP
-\fB::pt::ast\fR \fBnonterminal\fR \fIs\fR \fIstart\fR \fIend\fR ?\fIchild\fR\&.\&.\&.?
+\fB::pt::ast\fR \fBnew\fR \fIs\fR \fIstart\fR \fIend\fR ?\fIchild\fR\&.\&.\&.?
 This command command constructs the ast for a nonterminal node
 refering to the symbol \fIs\fR covering the range of positions
 \fIstart\fR to \fIend\fR in the input, and the set of child nodes
