@@ -224,10 +224,10 @@ proc ::debug::pdict {dict {pattern *}} {
 	    set maxl [string length $name]
 	}
     }
-    set maxl [expr {$maxl + [string length $a] + 2}]
+    set maxl [expr {$maxl + 2}]
     set lines {}
     foreach name $names {
-	set nameString [format %s(%s) $a $name]
+	set nameString [format %s(%s) $name]
 	lappend lines [format "%-*s = %s" \
 			   $maxl $nameString \
 			   [dict get $dict $name]]
@@ -255,5 +255,5 @@ namespace eval debug {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide debug 1.0.1
+package provide debug 1.0.2
 return
