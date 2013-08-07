@@ -144,8 +144,8 @@
 <li><a href="#6"><b class="cmd">cmdprefix</b> <i class="arg">ast</i></a></li>
 <li><a href="#7"><b class="cmd">::pt::ast</b> <b class="method">topdown</b> <i class="arg">cmdprefix</i> <i class="arg">pe</i></a></li>
 <li><a href="#8"><b class="cmd">::pt::ast</b> <b class="method">equal</b> <i class="arg">seriala</i> <i class="arg">serialb</i></a></li>
-<li><a href="#9"><b class="cmd">::pt::ast</b> <b class="method">terminal</b> <i class="arg">loc</i></a></li>
-<li><a href="#10"><b class="cmd">::pt::ast</b> <b class="method">nonterminal</b> <i class="arg">s</i> <i class="arg">start</i> <i class="arg">end</i> <span class="opt">?<i class="arg">child</i>...?</span></a></li>
+<li><a href="#9"><b class="cmd">::pt::ast</b> <b class="method">new0</b> <i class="arg">s</i> <i class="arg">loc</i> <span class="opt">?<i class="arg">child</i>...?</span></a></li>
+<li><a href="#10"><b class="cmd">::pt::ast</b> <b class="method">new</b> <i class="arg">s</i> <i class="arg">start</i> <i class="arg">end</i> <span class="opt">?<i class="arg">child</i>...?</span></a></li>
 </ul>
 </div>
 </div>
@@ -229,11 +229,15 @@ boolean value. It will be set to <b class="const">true</b> if the trees are
 identical, and <b class="const">false</b> otherwise.</p>
 <p>String equality is usable only if we can assume that the two trees are
 pure Tcl lists.</p></dd>
-<dt><a name="9"><b class="cmd">::pt::ast</b> <b class="method">terminal</b> <i class="arg">loc</i></a></dt>
-<dd><p>This command command constructs the ast for a terminal node refering
-to the position <i class="arg">loc</i> in the input, and returns it as the result
-of the command.</p></dd>
-<dt><a name="10"><b class="cmd">::pt::ast</b> <b class="method">nonterminal</b> <i class="arg">s</i> <i class="arg">start</i> <i class="arg">end</i> <span class="opt">?<i class="arg">child</i>...?</span></a></dt>
+<dt><a name="9"><b class="cmd">::pt::ast</b> <b class="method">new0</b> <i class="arg">s</i> <i class="arg">loc</i> <span class="opt">?<i class="arg">child</i>...?</span></a></dt>
+<dd><p>This command command constructs the ast for a nonterminal node
+refering refering to the symbol <i class="arg">s</i> at position <i class="arg">loc</i> in the
+input, and the set of child nodes <i class="arg">child</i> ..., from left
+right. The latter may be empty. The constructed node is returned as
+the result of the command. The end position is <i class="arg">loc</i>-1, i.e. one
+character before the start. This type of node is possible for rules
+containing optional parts.</p></dd>
+<dt><a name="10"><b class="cmd">::pt::ast</b> <b class="method">new</b> <i class="arg">s</i> <i class="arg">start</i> <i class="arg">end</i> <span class="opt">?<i class="arg">child</i>...?</span></a></dt>
 <dd><p>This command command constructs the ast for a nonterminal node
 refering to the symbol <i class="arg">s</i> covering the range of positions
 <i class="arg">start</i> to <i class="arg">end</i> in the input, and the set of child nodes

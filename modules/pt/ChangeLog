@@ -1,3 +1,11 @@
+2013-08-06  Andreas Kupries  <aku@hephaistos>
+
+	* pt_astree.man [Ticket 0d9f835d4d]: Removed (non)terminal
+	  methods, and replaced with documentation for new, new0.
+
+	* pt_peg_interp.man [Ticket 0d9f835d4d]: Fixed typo of
+	  "pt::peg::interpreter", to "pt::peg::interp".
+
 2013-03-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* pt: Moved to the apps/ directory, with the other proper applications.
