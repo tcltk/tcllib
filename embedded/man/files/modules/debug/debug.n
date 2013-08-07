@@ -239,14 +239,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "debug" n 1 tcllib "debug narrative"
+.TH "debug" n 1\&.0\&.2 tcllib "debug narrative"
 .BS
 .SH NAME
 debug \- debug narrative - core
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBdebug  ?1?\fR
+package require \fBdebug  ?1\&.0\&.2?\fR
 .sp
 \fBdebug\&.\fBtag\fR\fR \fImessage\fR ?\fIlevel\fR?
 .sp
