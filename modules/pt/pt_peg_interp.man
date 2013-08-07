@@ -1,8 +1,9 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin pt::peg::interp n 1]
+[vset PACKAGE_VERSION 1]
+[manpage_begin pt::peg::interp n [vset PACKAGE_VERSION]]
 [include include/module.inc]
 [titledesc {Interpreter for parsing expression grammars}]
-[require pt::peg::interp [opt 1]]
+[require pt::peg::interp [opt [vset PACKAGE_VERSION]]]
 [require pt::rde         [opt 1]]
 [require snit]
 [description]
@@ -33,7 +34,7 @@ The package exports the API described here.
 
 [list_begin definitions]
 
-[call [cmd ::pt::peg::interpreter] [arg objectName] [arg grammar]]
+[call [cmd ::pt::peg::interp] [arg objectName] [arg grammar]]
 
 The command creates a new parser object and returns the fully
 qualified name of the object command as its result. The API of this
