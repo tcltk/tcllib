@@ -3,13 +3,16 @@
 #       Creating, extracting, and listing posix tar archives
 #
 # Copyright (c) 2004    Aaron Faupell <afaupell@users.sourceforge.net>
+# Copyright (c) 2013    Andreas Kupries <andreas_kupries@users.sourceforge.net>
+#                       (GNU tar @LongLink support).
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # 
 # RCS: @(#) $Id: tar.tcl,v 1.17 2012/09/11 17:22:24 andreas_kupries Exp $
 
-package provide tar 0.7.1
+package require Tcl 8.4
+package provide tar 0.8
 
 namespace eval ::tar {}
 
@@ -124,6 +127,7 @@ proc ::tar::contents {file args} {
     set ret {}
     while {![eof $fh]} {
         array set header [readHeader [read $fh 512]]
+	HandleLongLink $fh header
         if {$header(name) == ""} break
         lappend ret $header(prefix)$header(name)
         seekorskip $fh [expr {$header(size) + [pad $header(size)]}] current
@@ -146,6 +150,7 @@ proc ::tar::stat {tar {file {}} args} {
     set ret {}
     while {![eof $fh]} {
         array set header [readHeader [read $fh 512]]
+	HandleLongLink $fh header
         if {$header(name) == ""} break
         seekorskip $fh [expr {$header(size) + [pad $header(size)]}] current
         if {$file != "" && "$header(prefix)$header(name)" != $file} {continue}
@@ -172,6 +177,7 @@ proc ::tar::get {tar file args} {
     }
     while {![eof $fh]} {
         array set header [readHeader [read $fh 512]]
+	HandleLongLink $fh header
         if {$header(name) == ""} break
         set name [string trimleft $header(prefix)$header(name) /]
         if {$name == $file} {
@@ -213,6 +219,7 @@ proc ::tar::untar {tar args} {
     }
     while {![eof $fh]} {
         array set header [readHeader [read $fh 512]]
+	HandleLongLink $fh header
         if {$header(name) == ""} break
         set name [string trimleft $header(prefix)$header(name) /]
         if {![string match $pattern $name] || ($nooverwrite && [file exists $name])} {
@@ -479,4 +486,29 @@ proc ::tar::remove {tar files} {
     close $tfh
 
     file rename -force $tar$n.tmp $tar
+}
+
+proc ::tar::HandleLongLink {fh hv} {
+    upvar 1 $hv header thelongname thelongname
+
+    # @LongName Part I.
+    if {$header(type) == "L"} {
+	# Size == Length of name. Read it, and pad to full 512
+	# size.  After that is a regular header for the actual
+	# file, where we have to insert the name. This is handled
+	# by the next iteration and the part II below.
+	set thelongname [string trimright [read $fh $header(size)] \000]
+	seekorskip $fh [pad $header(size)] current
+	return -code continue
+    }
+    # Not supported yet: type 'K' for LongLink (long symbolic links).
+
+    # @LongName, part II, get data from previous entry, if defined.
+    if {[info exists thelongname]} {
+	set header(name) $thelongname
+	# Prevent leakage to further entries.
+	unset thelongname
+    }
+
+    return
 }
