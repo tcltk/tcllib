@@ -237,14 +237,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "tar" n 0\&.7 tcllib "Tar file handling"
+.TH "tar" n 0\&.8 tcllib "Tar file handling"
 .BS
 .SH NAME
 tar \- Tar file creation, extraction & manipulation
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBtar  ?0\&.7?\fR
+package require \fBtar  ?0\&.8?\fR
 .sp
 \fB::tar::contents\fR \fItarball\fR ?\fB-chan\fR?
 .sp
@@ -262,6 +262,10 @@ package require \fBtar  ?0\&.7?\fR
 .sp
 .BE
 .SH DESCRIPTION
+.PP
+Note: Starting with version 0\&.8 the tar reader commands
+(contents, stats, get, untar) support the GNU LongName extension
+(header type 'L') for large paths\&.
 .PP
 .TP
 \fB::tar::contents\fR \fItarball\fR ?\fB-chan\fR?
