@@ -28,24 +28,24 @@ long-lived and continuous binary or text communication between the
 client and the server.  The library offers a high-level interface to
 receive and send data as specified in RFC 6455 (v. 13 of the
 protocol), relieving callers from all necessary protocol framing and
-reassembly. It implements the ping facility specified by the standard,
-together with levers to control it. Pings are server-driven and ensure
-the liveness of the connection across home (NAT) networks. The library
-has a number of introspection facilities to inquire about the current
-state of the connection, but also to receive notifications of incoming
-pings, if necessary. Finally, the library contains a number of helper
-procedures to facilitate the upgrading handshaking in existing web
-servers.
+reassembly.  It implements the ping facility specified by the
+standard, together with levers to control it.  Pings are server-driven
+and ensure the liveness of the connection across home (NAT) networks.
+The library has a number of introspection facilities to inquire about
+the current state of the connection, but also to receive notifications
+of incoming pings, if necessary.  Finally, the library contains a
+number of helper procedures to facilitate the upgrading handshaking in
+existing web servers.
 
 [para]
 
 Central to the library is the procedure [cmd websocket::takeover] that
 will take over a regular socket and treat it as a WebSocket, thus
 performing all necessary protocol framing, packetisation and
-reassembly in servers and clients. The procedure also takes a handler,
-a command that will be called back each time a (possibly reassembled)
-packet from the remote end is ready for delivery at the original
-caller. While exported by the package, the command
+reassembly in servers and clients.  The procedure also takes a
+handler, a command that will be called back each time a (possibly
+reassembled) packet from the remote end is ready for delivery at the
+original caller.  While exported by the package, the command 
 [cmd websocket::takeover] is seldom called in applications, since the
 package provides other commands that are specifically tuned for the
 needs of clients and servers.
@@ -53,12 +53,12 @@ needs of clients and servers.
 [para]
 
 Typically, clients will open a connection to a remote server by
-providing a WebSocket URL (ws: or wss: schemes) and the handler
-described above to the command [cmd websocket::open]. The opening
-procedure is a wrapper around the latest http::geturl implementations:
-it arranges to keep the socket created within the http library opened
-for reuse, but confiscates it from its (internal) map of known sockets
-for its own use.
+providing a WebSocket URL ([term ws:] or [term wss:] schemes) and the
+handler described above to the command [cmd websocket::open]. The
+opening procedure is a wrapper around the latest http::geturl
+implementations: it arranges to keep the socket created within the
+http library opened for reuse, but confiscates it from its (internal)
+map of known sockets for its own use.
 
 [para]
 
@@ -99,13 +99,13 @@ The identifier of the WebSocket, as returned for example by
 
 A textual type describing the event or message content, can be one of
 the following
-[list_begin enumerated]
-[enum][const "text"] Complete text message
-[enum][const "binary"] Complete binary message
-[enum][const "ping"] Incoming ping message
-[enum][const "connect"] Notification of successful connection to server
-[enum][const "disconnect"] Disconnection from remote end
-[enum][const "close"] Pending closure of connection
+[list_begin definitions]
+[def [const "text"]] Complete text message
+[def [const "binary"]] Complete binary message
+[def [const "ping"]] Incoming ping message
+[def [const "connect"]] Notification of successful connection to server
+[def [const "disconnect"]] Disconnection from remote end
+[def [const "close"]] Pending closure of connection
 [list_end]
 
 [def [arg "msg"]]
@@ -249,6 +249,98 @@ servers should ping their clients at regular intervals in order to
 keep the connection opened at all time.  When [arg server] is set to
 true, the library will arrange to send these pings automatically.
 
+[call [cmd ::websocket::conninfo] [arg sock] [arg what]]
+
+Provides callers with some introspection facilities in order to get
+some semi-internal information about an existing websocket
+connection. Depending on the value of the [arg what] argument, the
+procedure returns the following piece of information:
+
+[list_begin definitions]
+[def [const "peername"]] Name (preferred) or IP of remote end.
+[def [const "sockname"]] or [const "name"] Name or IP of local end.
+[def [const "closed"]] [const 1] if the connection is closed, [const 0] otherwise
+[def [const "client"]] [const 1] if the connection is a client websocket, [const 0] otherwise
+[def [const "server"]] [const 1] if the connection is a server websocket, [const 0] otherwise
+[def [const "type"]] [const "server"] if the connection is a server websocket, [const "client"] otherwise.
+[def [const "handler"]] The handler command associated to the websocket
+[def [const "state"]] The state of the websocket, which can be one of:
+[list_begin definitions]
+
+[def [const "CONNECTING"]] Connection to remote end is in progress.
+[def [const "CONNECTED"]] Connection is connected to remote end.
+[def [const "CLOSED"]] Connection is closed.
 [list_end]
+[list_end]
+
+[call [cmd ::websocket::find] [opt [arg host]] [opt [arg port]]]
+
+Look among existing websocket connections for the ones that match the
+hostname and port number filters passed as parameters.  This lookup
+takes the remote end into account and the [arg host] argument is
+matched both against the hostname (whenever available) and the IP
+address of the remote end.  Both the [arg host] and [arg port]
+arguments are glob-style string matching filters and default to 
+[const "*"], i.e. will match any host and/or port number.
+
+[call [cmd ::websocket::configure] [arg sock] [arg args]]
+
+This command takes a number of dash-led options (and their values) to
+configure the behaviour of an existing websocket connection.  The
+recognised options are the following (they can be shortened to the
+lowest common denominator):
+
+[list_begin definitions]
+[def [const "-keepalive"]] is the number of seconds between each
+keepalive pings being sent along the connection.  A zero or negative
+number will effectively turn off the feature.  In servers, 
+[const "-keepalive"] defaults to 30 seconds, and in clients, no pings 
+are initiated.
+[def [const "-ping"]] is the text that is used during the automated
+pings.  This text defaults to the empty string, leading to an empty ping.
+[list_end]
+
+[list_end]
+
+[section Examples]
+
+[para]
+
+The following example opens a websocket connection to the echo
+service, waits 400ms to ensure that the connection is really
+established and sends a single textual message which should be echoed
+back by the echo service.  A real example would probably use the
+[const "connect"] callback to know when connection to the remote
+server has been establish and would only send data at that time.
+
+[example_begin]
+package require websocket
+::websocket::loglevel debug
+
+proc handler { sock type msg } {
+    switch -glob -nocase -- $type {
+	co* {
+	    puts "Connected on $sock"
+	}
+	te* {
+	    puts "RECEIVED: $msg"
+	}
+	cl* -
+	dis* {
+	}
+    }
+    
+}
+
+proc test { sock } {
+    puts "[lb]::websocket::conninfo $sock type[rb] from [lb]::websocket::conninfo $sock sockname[rb] to [lb]::websocket::conninfo $sock peername[rb]"
+    
+    ::websocket::send $sock text "Testing, testing..."
+}
+
+set sock [lb]::websocket::open ws://echo.websocket.org/ handler[rb]
+after 400 test $sock
+vwait forever
+[example_end]
 
 [manpage_end]
