@@ -326,7 +326,9 @@ proc ::websocket::Type { opcode } {
 #       incoming connection is created.  This allows server code to
 #       perform a number of actions, if necessary before the WebSocket
 #       stream connection goes live.  The test is made by analysing
-#       the content of the headers.
+#       the content of the headers.  Additionally, the procedure
+#       checks that there exist a valid handler for the path
+#       requested.
 #
 # Arguments:
 #	srvSock	Socket to WebSocket compliant HTTP server
@@ -336,8 +338,8 @@ proc ::websocket::Type { opcode } {
 #	qry	Dictionary list of the HTTP query (if applicable).
 #
 # Results:
-#       1 if this is an incoming WebSocket upgrade request, 0
-#       otherwise.
+#       1 if this is an incoming WebSocket upgrade request for a
+#       recognised path, 0 otherwise.
 #
 # Side Effects:
 #       None.
@@ -410,6 +412,7 @@ proc ::websocket::test { srvSock cliSock path { hdrs {} } { qry {} } } {
     }
     set Client(protos) $protos
     set Client(protocol) ""
+    set Client(live) ""
     
     # Search amongst existing WS handlers for one that responds to
     # that URL and implement one of the protocols.
@@ -424,6 +427,11 @@ proc ::websocket::test { srvSock cliSock path { hdrs {} } { qry {} } } {
 	    set Client(live) $cb
 	    break
 	}
+    }
+    if { $Client(live) eq "" } {
+	${log}::warn "Cannot find any handler for $path"
+	unset $varname;  # Get rid of the client context
+	return 0
     }
     
     # Return the context for the incoming client.
@@ -681,9 +689,9 @@ proc ::websocket::send { sock type {msg ""} {final 1}} {
     
     # Send the (masked) frame
     if { [catch {
-	puts -nonewline $sock $header$msg
-	flush $sock}] } {
-	${log}::error "Could not send to remote end, closed socket?"
+	puts -nonewline $sock $header$msg;
+	flush $sock;} err]} {
+	${log}::error "Could not send to remote end, closed socket? ($err)"
 	close $sock 1001
 	return -1
     }
@@ -773,6 +781,9 @@ proc ::websocket::Receiver { sock } {
     # continuation frame, fragmented or oversized control frame, or
     # the opcode is unrecognised.
     if { [catch {read $sock 2} dta] || [string length $dta] != 2 } {
+	if {[chan eof $sock]} {
+	    set dta "Socket closed."
+	}
 	${log}::error "Cannot read header from socket: $dta"
 	close $sock 1001
 	return
@@ -790,9 +801,9 @@ proc ::websocket::Receiver { sock } {
 	close $sock 1002
 	return
     }
-
     # Determine the opcode for this frame, i.e. handle continuation of
-    # frames.
+    # frames. Control frames must not be split/continued (RFC6455 5.5).
+    # No multiplexing here!
     if { $Connection(read:mode) eq "" } {
 	set Connection(read:mode) $opcode
     } elseif { $opcode == 0 } {
@@ -809,7 +820,7 @@ proc ::websocket::Receiver { sock } {
 	}
 	binary scan $dta Su len
     } elseif { $len == 127 } {
-	if { [catch {read $sock 8} dta] || [string length $dta] != 2 } {
+	if { [catch {read $sock 8} dta] || [string length $dta] != 8 } {
 	    ${log}::error "Cannot read length from socket: $dta"
 	    close $sock 1001
 	    return
@@ -911,6 +922,10 @@ proc ::websocket::Receiver { sock } {
 	    set Connection(read:mode) ""
 	} else {
 	    set Connection(read:msg) $oldmsg
+	    if {$Connection(read:mode) eq $opcode} {
+		# non-interjected control frame, clear mode
+		set Connection(read:mode) ""
+	    }
 	}
     } else {
 	${log}::debug "Received $len long $type fragment from $dst"
@@ -1504,4 +1519,4 @@ proc ::websocket::configure { sock args } {
 }
 
 
-package provide websocket 1.2
+package provide websocket 1.3;
