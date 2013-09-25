@@ -13,7 +13,7 @@
 ##
 ##################
 
-package require Tcl 8.4
+package require Tcl 8.5
 
 package require http 2.7;  # Need keepalive!
 package require logger
@@ -682,7 +682,7 @@ proc ::websocket::send { sock type {msg ""} {final 1}} {
 
     # Add the masking key and perform client masking whenever relevant
     if { [string is false $Connection(server)] } {
-	set mask [expr {int(rand()*4294967296)}]
+	set mask [expr {int(rand()*(1<<32))}]
 	append header [binary format Iu $mask]
 	set msg [Mask $mask $msg]
     }
