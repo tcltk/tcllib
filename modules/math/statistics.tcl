@@ -3,7 +3,7 @@
 #    Package for basic statistical analysis
 #
 # version 0.1:   initial implementation, january 2003
-# version 0.1.1: added linear regression, june 2004
+# version 0.1.1: added linear regres
 # version 0.1.2: border case in stdev taken care of
 # version 0.1.3: moved initialisation of CDF to first call, november 2004
 # version 0.3:   added test for normality (as implemented by Torsten Reincke), march 2006
@@ -17,7 +17,7 @@
 # version 0.7:   added Kruskal-Wallis test (by Torsten Berg)
 # version 0.8:   added Wilcoxon test and Spearman rank correlation
 
-package provide math::statistics 0.8.0
+package provide math::statistics 0.8.1
 package require math
 
 # ::math::statistics --
@@ -174,16 +174,20 @@ proc ::math::statistics::BasicStats { type values } {
 # Arguments:
 #    limits   Upper limits for the buckets (in increasing order)
 #    values   List of values to be examined
+#    weights  List of weights, one per value (optional)
 #
 # Results:
 #    List of number of values in each bucket (length is one more than
 #    the number of limits)
 #
 #
-proc ::math::statistics::histogram { limits values } {
+proc ::math::statistics::histogram { limits values {weights {}} } {
 
     if { [llength $limits] < 1 } {
 	return -code error -errorcode ARG -errorinfo {No limits given} {No limits given}
+    }
+    if { [llength $weights] > 0 && [llength $values] != [llength $weights] } {
+	return -code error -errorcode ARG -errorinfo {Number of weights be equal to number of values} {Weights and values differ in length}
     }
 
     set limits [lsort -real -increasing $limits]
@@ -191,9 +195,15 @@ proc ::math::statistics::histogram { limits values } {
     for { set index 0 } { $index <= [llength $limits] } { incr index } {
 	set buckets($index) 0
     }
+
     set last [llength $limits]
 
-    foreach value $values {
+    # Will do integer arithmetic if unset
+    if {$weights eq ""} {
+       set weights [lrepeat [llength $values] 1]
+    }
+
+    foreach value $values weight $weights {
 	if { $value == {} } {
 	    continue
 	}
@@ -203,14 +213,14 @@ proc ::math::statistics::histogram { limits values } {
 	foreach limit $limits {
 	    if { $value <= $limit } {
 		set found 1
-		incr buckets($index)
+		set buckets($index) [expr $buckets($index)+$weight]
 		break
 	    }
 	    incr index
 	}
 
 	if { $found == 0 } {
-	    incr buckets($last)
+	    set buckets($last) [expr $buckets($last)+$weight]
 	}
     }
 
