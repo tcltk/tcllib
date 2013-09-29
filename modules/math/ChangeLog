@@ -1,3 +1,9 @@
+2013-03-05  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* statistics.tcl: [Ticket 05d055c2f5]: Added weights to histogram
+	* statistics.man: [Ticket 05d055c2f5]: Documented weights to histogram
+	* statistics.test: [Ticket 05d055c2f5]: Added test for weights to histogram
+	* pkgIndex.tcl: [Ticket 05d055c2f5]: Bumped to version 0.8.1
+
 2013-03-11  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* math.test (math-12.1): [Bug 3606620]: Disabled debug output
