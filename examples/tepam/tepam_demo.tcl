@@ -11,7 +11,7 @@ exec tclsh "$0" ${1+"$@"}
 #
 # Copyright (C) 2009, 2010 Andreas Drollinger
 # 
-# RCS: @(#) $Id: tepam_demo.tcl,v 1.4 2012/03/26 20:56:45 droll Exp $
+# Id: tepam_demo.tcl
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -39,14 +39,22 @@ proc DisplayResult {Result Type} {
 }
 
 # Implement an own puts function that will display the provided strings inside 
-# the executino window.
+# the execution window.
 rename puts puts_orig
 proc puts {args} {
-   set EndLine "\n"
-   if {[llength $args]>1} {
-      if {[lindex $args 0]=="-nonewline"} {
-         set EndLine ""
+   # Use the original function of the write channel if argument 0 is not a standard channel
+   if {[llength $args]>1 && [lindex $args 0]!="-nonewline" && [lindex $args 0]!="stdout" && [lindex $args 0]!="stderr"} {
+      if {[llength $args]==2} {
+         puts_orig [lindex $args 0] [lindex $args 1]
+      } else {
+         puts_orig [lindex $args 0] [lindex $args 1] [lindex $args 2]
       }
+      return
+   }
+
+   set EndLine "\n"
+   if {[lindex $args end-1]=="-nonewline"} {
+      set EndLine ""
    }
    DisplayResult [lindex $args end]$EndLine s
 }
@@ -267,10 +275,12 @@ wm geometry . 900x800
 wm title . "TEPAM Demo"
 
 ##########################################################################
-# $RCSfile: tepam_demo.tcl,v $ - ($Name:  $)
-# $Id: tepam_demo.tcl,v 1.4 2012/03/26 20:56:45 droll Exp $
+# Id: tepam_demo.tcl
 # Modifications:
-# $Log: tepam_demo.tcl,v $
+#
+# Revision 1.4  2013/10/14 droll
+# * Improve the output/puts handling (procedure puts implemented by this file)
+#
 # Revision 1.4  2012/03/26 20:56:45  droll
 # * TEPAM version 0.3.0
 # * Replaces the control buttons by a menu.
