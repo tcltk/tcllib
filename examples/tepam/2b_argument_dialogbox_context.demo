@@ -6,7 +6,7 @@
 #
 # Copyright (C) 2009, 2010 Andreas Drollinger
 # 
-# RCS: @(#) $Id: 2b_argument_dialogbox_context.demo,v 1.1 2010/02/11 21:54:38 droll Exp $
+# Id: 2b_argument_dialogbox_context.demo
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -72,11 +72,9 @@ if {[tepam::argument_dialogbox \
 }
 
 ##########################################################################
-# $RCSfile: 2b_argument_dialogbox_context.demo,v $ - ($Name:  $)
-# $Id: 2b_argument_dialogbox_context.demo,v 1.1 2010/02/11 21:54:38 droll Exp $
+# Id: 2b_argument_dialogbox_context.demo
 # Modifications:
-# $Log: 2b_argument_dialogbox_context.demo,v $
-# Revision 1.1  2010/02/11 21:54:38  droll
-# TEPAM module checkin
 #
+# Revision 1.1  2010/02/11 21:54:38  droll
+# * TEPAM module checkin
 ##########################################################################
