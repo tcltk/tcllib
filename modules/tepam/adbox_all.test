@@ -10,7 +10,7 @@
 #
 # Copyright (C) 2009, 2010 Andreas Drollinger
 # 
-# RCS: @(#) $Id: adbox_all.test,v 1.3 2012/05/07 20:26:02 droll Exp $
+# Id: adbox_all.test
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -137,10 +137,9 @@ destroy .lfont; # Remove again the label widget to evaluate the default font
 return
 
 ##########################################################################
-# $RCSfile: adbox_all.test,v $ - ($Name:  $)
-# $Id: adbox_all.test,v 1.3 2012/05/07 20:26:02 droll Exp $
+# Id: adbox_all.test
 # Modifications:
-# $Log: adbox_all.test,v $
+#
 # Revision 1.3  2012/05/07 20:26:02  droll
 # * TEPAM version 0.4.0
 # * Add the new text procedure argument type and the text multi line data
@@ -148,12 +147,10 @@ return
 #
 # Revision 1.2  2011/11/09 05:43:30  andreas_kupries
 #
-# 	* adbox_all.test: [Bug 3422990]: Fixed these test files to
-# 	* adbox_widgets.test: properly register their need for Tk
-# 	* proc_interactive.test: and not execute without it.
+#  * adbox_all.test: [Bug 3422990]: Fixed these test files to
+#  * adbox_widgets.test: properly register their need for Tk
+#  * proc_interactive.test: and not execute without it.
 #
 # Revision 1.1  2010/02/11 21:50:55  droll
-# TEPAM module checkin
-#
+# * TEPAM module checkin
 ##########################################################################
-

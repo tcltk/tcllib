@@ -10,7 +10,7 @@
 #
 # Copyright (C) 2009, 2010 Andreas Drollinger
 # 
-# RCS: @(#) $Id: proc_interactive.test,v 1.2 2011/11/09 05:43:30 andreas_kupries Exp $
+# Id: proc_interactive.test
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -387,18 +387,16 @@ destroy .lfont; # Remove again the label widget to evaluate the default font
 return
 
 ##########################################################################
-# $RCSfile: proc_interactive.test,v $ - ($Name:  $)
-# $Id: proc_interactive.test,v 1.2 2011/11/09 05:43:30 andreas_kupries Exp $
+# Id: proc_interactive.test
 # Modifications:
-# $Log: proc_interactive.test,v $
+#
 # Revision 1.2  2011/11/09 05:43:30  andreas_kupries
 #
-# 	* adbox_all.test: [Bug 3422990]: Fixed these test files to
-# 	* adbox_widgets.test: properly register their need for Tk
-# 	* proc_interactive.test: and not execute without it.
+#  * adbox_all.test: [Bug 3422990]: Fixed these test files to
+#  * adbox_widgets.test: properly register their need for Tk
+#  * proc_interactive.test: and not execute without it.
 #
 # Revision 1.1  2010/02/11 21:50:55  droll
-# TEPAM module checkin
-#
+# * TEPAM module checkin
 ##########################################################################
 
