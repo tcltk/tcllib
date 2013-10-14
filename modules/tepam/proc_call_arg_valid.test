@@ -8,7 +8,7 @@
 #
 # Copyright (C) 2009, 2010 Andreas Drollinger
 # 
-# RCS: @(#) $Id: proc_call_arg_valid.test,v 1.1 2010/02/11 21:50:55 droll Exp $
+# Id: proc_call_arg_valid.test
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -188,7 +188,7 @@ proc tests {name description args} {
       tests tepam-argval.user1.1 "tepam, User command based argument check - simple parameters" \
                -variations {ab abcd} \
                -body {AllTypeProcedure -string_size_3 %1} \
-               -returnCodes error -result "*couldn't be validated*" -output "" -match glob
+               -returnCodes error -result "*Argument * is invalid.*" -output "" -match glob
 
       tests tepam-argval.user1.2 "tepam, User command based argument check - simple parameters" \
                -variations {abc 123} \
@@ -198,7 +198,7 @@ proc tests {name description args} {
       tests tepam-argval.user1.3 "tepam, User command based argument check - simple parameters" \
                -variations {12 1234} \
                -body {AllTypeProcedure -integer_size_3 %1} \
-               -returnCodes error -result "*couldn't be validated*" -output "" -match glob
+               -returnCodes error -result "*Argument * is invalid.*" -output "" -match glob
 
       tests tepam-argval.user1.4 "tepam, User command based argument check - simple parameters" \
                -variations {123} \
@@ -213,7 +213,7 @@ proc tests {name description args} {
       tests tepam-argval.user1.6 "tepam, User command based argument check - simple parameters" \
                -variations {abc 123} \
                -body {AllTypeProcedure -nonvalid %1} \
-               -returnCodes error -result "*couldn't be validated by*" -output "" -match glob
+               -returnCodes error -result "*Argument * is invalid.*" -output "" -match glob
 
       tests tepam-argval.user1.7 "tepam, User command based argument check - simple parameters" \
                -variations {abc 123} \
@@ -224,7 +224,7 @@ proc tests {name description args} {
       tests tepam-argval.user2.1 "tepam, User command based argument check - simple parameters" \
                -variations {ab abcd} \
                -body {AllTypeProcedure -m_string_size_3 %1 -m_string_size_3 %1} \
-               -returnCodes error -result "*couldn't be validated*" -output "" -match glob
+               -returnCodes error -result "*Argument * is invalid.*" -output "" -match glob
 
       tests tepam-argval.user2.2 "tepam, User command based argument check - simple parameters" \
                -variations {abc 123} \
@@ -234,7 +234,7 @@ proc tests {name description args} {
       tests tepam-argval.user2.3 "tepam, User command based argument check - simple parameters" \
                -variations {12 1234} \
                -body {AllTypeProcedure -m_integer_size_3 %1 -m_integer_size_3 %1} \
-               -returnCodes error -result "*couldn't be validated*" -output "" -match glob
+               -returnCodes error -result "*Argument * is invalid.*" -output "" -match glob
 
       tests tepam-argval.user2.4 "tepam, User command based argument check - simple parameters" \
                -variations {123} \
@@ -249,7 +249,7 @@ proc tests {name description args} {
       tests tepam-argval.user2.6 "tepam, User command based argument check - simple parameters" \
                -variations {abc 123} \
                -body {AllTypeProcedure -m_nonvalid %1 -m_nonvalid %1} \
-               -returnCodes error -result "*couldn't be validated by*" -output "" -match glob
+               -returnCodes error -result "*Argument * is invalid.*" -output "" -match glob
 
       tests tepam-argval.user2.7 "tepam, User command based argument check - simple parameters" \
                -variations {abc 123} \
@@ -262,11 +262,12 @@ proc tests {name description args} {
 return
 
 ##########################################################################
-# $RCSfile: proc_call_arg_valid.test,v $ - ($Name:  $)
-# $Id: proc_call_arg_valid.test,v 1.1 2010/02/11 21:50:55 droll Exp $
+# Id: proc_call_arg_valid.test
 # Modifications:
-# $Log: proc_call_arg_valid.test,v $
-# Revision 1.1  2010/02/11 21:50:55  droll
-# TEPAM module checkin
 #
+# Revision 1.2  2013/10/14 droll
+# * Adapted the expected error message to the changes made inside tepam.tcl
+#
+# Revision 1.1  2010/02/11 21:50:55  droll
+# * TEPAM module checkin
 ##########################################################################

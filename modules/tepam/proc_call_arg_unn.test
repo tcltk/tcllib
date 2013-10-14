@@ -10,7 +10,7 @@
 #
 # Copyright (C) 2009, 2010 Andreas Drollinger
 # 
-# RCS: @(#) $Id: proc_call_arg_unn.test,v 1.1 2010/02/11 21:50:55 droll Exp $
+# Id: proc_call_arg_unn.test
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -539,12 +539,9 @@ proc tests {name description args} {
 return
 
 ##########################################################################
-# $RCSfile: proc_call_arg_unn.test,v $ - ($Name:  $)
-# $Id: proc_call_arg_unn.test,v 1.1 2010/02/11 21:50:55 droll Exp $
+# Id: proc_call_arg_unn.test
 # Modifications:
-# $Log: proc_call_arg_unn.test,v $
-# Revision 1.1  2010/02/11 21:50:55  droll
-# TEPAM module checkin
 #
+# Revision 1.1  2010/02/11 21:50:55  droll
+# * TEPAM module checkin
 ##########################################################################
-

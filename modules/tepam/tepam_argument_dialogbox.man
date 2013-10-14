@@ -1,15 +1,15 @@
-[manpage_begin tepam::argument_dialogbox n 0.4.1]
+[manpage_begin tepam::argument_dialogbox n 0.5.0]
 [see_also tepam(n)]
 [see_also tepam::procedure(n)]
 [keywords {data entry form}]
 [keywords {parameter entry form}]
-[copyright {2009/2010, Andreas Drollinger}]
+[copyright {2009-2013, Andreas Drollinger}]
 [moddesc   {Tcl's Enhanced Procedure and Argument Manager}]
 [titledesc {TEPAM argument_dialogbox, reference manual}]
 [category  {Argument entry form, mega widget}]
 [require Tcl 8.3]
 [require Tk 8.3]
-[require tepam [opt 0.4]]
+[require tepam [opt 0.5]]
 
 [description]
 
@@ -96,7 +96,7 @@ By defining a parent window, the argument dialog box will be displayed beside th
    ...[example_end]
 
 [def "-context [arg string]"]
-If a context is defined the dialog box's state, e.g. the entered data as well as the window size and position, is saved and restored then the next time the argument dialog box is called. The assignment of a context allows saving the dialog box' state in its context to distinguish between different usages of the argument dialog box.
+If a context is defined the dialog box's state, e.g. the entered data as well as the window size and position, is  restored the next time the argument dialog box is called. The assignment of a context allows saving the dialog box' state in its context to distinguish between different usages of the argument dialog box.
 [example_begin]tepam::argument_dialogbox \
    [cmd -context] destination_definitions \
    ...[example_end]
@@ -164,6 +164,36 @@ This attribute allows controlling an eventual vertical scrollbar. Setting it to 
    ...[example_end]
 
 [list_end]
+
+
+[subsection "Global Custom Data Validation"]
+
+This item group allows specifying global custom checks to validate the entered data.
+
+[list_begin definitions]
+
+[def "-validatecommand [arg script]"]
+Custom data checks can be performed via validation commands that are defined with the [arg -validatecommand] item. Example:
+
+[example_begin]tepam::argument_dialogbox \
+   -entry {-label "Your comment" -variable YourCom} \
+   [cmd -validatecommand] {IllegalWordDetector $YourCom}[example_end]
+   
+The validation command is executed in the context of the calling procedure, once all the basic data checks have been performed and data variables are assigned. All data is accessed via the data variables. Note that there is also an entry widget specific attribute [arg -validatecommand] that allows declaring custom checks for specific data entries.
+[para]
+The attribute [arg -validatecommand] can be repeated to declare multiple custom checks.
+
+[def "-validatecommand_error_text [arg string]"]
+This item allows overriding the default error message for a global custom argument validation (defined by [arg -validatecommand]). Also this attribute can be repeated in case multiple checks are declared.
+
+[def "-validatecommand2 [arg script]"]
+[def "-validatecommand2_error_text [arg string]"]
+These items are mainly for TEPAM internal usage.
+[para]
+These items corrspond respectively to [arg -validatecommand] and [arg -validatecommand_error_text]. However, the data validation is not performed in the next upper stack level, but two stack levels higher.
+
+[list_end]
+
 
 [subsection "Data Entry Widget Items"]
 
@@ -381,11 +411,14 @@ The [arg -range] attribute has to be used only for numerical arguments, like int
    -entry {-label Month -variable Month -type integer [cmd {-range {1 12}}]}[example_end]
 
 [def "-validatecommand [arg string]"]
-More complex value validations than type checks can be performed via specific validation commands that are declared with the [arg -validatecommand] attribute.
-The provided validation command can be a script (command sequence) in which the pattern [emph %P] is replaced by the value that has to be checked.
+Custom argument value validations can be performed via specific validation commands that are defined with the [arg -validatecommand] attribute. The provided validation command can be a complete script in which the pattern [emph %P] is placeholder for the argument value that has to be validated.
 [example_begin]tepam::argument_dialogbox \
    -entry {-label "Your comment" -variable YourCom \
-           [cmd -validatecommand] "IllegalWordDetector %P"} ][example_end]
+           [cmd -validatecommand] "IllegalWordDetector %P"}[example_end]
+While the purpose of this custom argument validation attribute is the validation of a specific argument, there is also a global data validation attribute [arg -validatecommand] that allows performing validation that involves multiple arguments.
+
+[def "-validatecommand_error_text [arg string]"]
+This attribute allows overriding the default error message for a custom argument validation (defined by [arg -validatecommand]).
 
 [list_end]
 
