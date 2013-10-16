@@ -30,8 +30,7 @@ testing {
 
 set Dir test_doc_dir
 
-# makeDirectory $Dir
-file mkdir $Dir
+makeDirectory $Dir
 
 ######## Declare the test procedures ########
 
