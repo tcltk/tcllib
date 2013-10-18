@@ -17,7 +17,7 @@ package require tepam 0.5
 namespace eval tepam::doc_gen {
 
    # This is the following TEPAM doc generation version:
-   variable version 0.1.0
+   variable version 0.1.1
    
    # Exports the major commands from this package:
    namespace export doc_gen
@@ -660,7 +660,7 @@ namespace eval tepam::doc_gen {
       return [Podformat $ArgStr]
    }
    proc gen(POD,ArgumentListItem) {Name IsOptional IsNamed Type} {
-      return [TxtFormat "=item [gen(POD,ArgumentString) $Name $IsOptional $IsNamed $Type]\n\n"]
+      return "=item [gen(POD,ArgumentString) $Name $IsOptional $IsNamed $Type]\n\n"
    }
    proc gen(POD,ArgumentDetailBegin)  {}       {return ""}
    proc gen(POD,ArgumentDescription) {Text}    {return "[Podformat $Text]\n\n"}
@@ -743,6 +743,9 @@ package provide tepam::doc_gen $::tepam::doc_gen::version
 # Id: tepam_doc.tcl
 # Modifications:
 #
-# Revision 1.1  2013/10/14 droll
+# Revision 0.1.1  2013/10/18 droll
+# * Correction of bug [66d0effebc]: POD format incorrectly formatted
+#
+# Revision 0.1.0  2013/10/14 droll
 # * First TEPAM doc_gen revision
 ##########################################################################
