@@ -1,3 +1,11 @@
+2013-10-21  Andreas Kupries  <andreask@activestate.com>
+
+	* matrix.tcl: [_columnwidth]: Recognize ANSI color control
+	* matrix.man: sequences and exclude them from the
+	* matrix.test: calculation. They are logically of no width and
+	* pkgIndex.tcl: thus their characters must not be counted when
+	  determining a column's width.
+
 2013-03-26  Andreas Kupries  <andreask@activestate.com>
 
 	* pkgIndex.tcl: Fixed, was missing struct::queue version bump
