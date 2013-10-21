@@ -351,6 +351,16 @@ test matrix-3.9 {sizes, widths, heights} {
     set result
 } {bad column index 5, column does not exist}
 
+
+test matrix-3.10 {sizes, widths, heights} {
+    matrix mymatrix
+    mymatrix add column
+    mymatrix add row [list "\033\[01;34mapps\033\[0m"]
+    set result [list [mymatrix cellsize 0 0] [mymatrix columnwidth 0] [mymatrix rowheight 0]]
+    mymatrix destroy
+    set result
+} {16 4 1}
+
 test matrix-4.0 {delete error} {
     matrix mymatrix
     catch {mymatrix delete} msg
