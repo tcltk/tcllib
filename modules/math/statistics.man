@@ -156,7 +156,7 @@ Optionally, you can use weights to influence the histogram.
 [arg_def list limits] - List of upper limits (in ascending order) for the
 intervals of the histogram.
 [arg_def list values] - List of data
-[opt_def list weights] - List of weights, one weight per value
+[arg_def list weights] - List of weights, one weight per value
 [list_end]
 [para]
 
