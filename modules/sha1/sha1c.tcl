@@ -24,9 +24,38 @@ namespace eval ::sha1 {
         #include "sha1.h"
         #include <stdlib.h>
         #include <assert.h>
+
+#define DEBUG
         
         static
         Tcl_ObjType sha1_type; /* fast internal access representation */
+
+	/* = = == === Debug Helper Function */
+	static void
+	HexDumpContext (SHA1_CTX* mp, const char* label)
+	{
+	    int i;
+	    fprintf(stdout,"%p %s = {\n",mp, label);fflush(stdout);
+	    for (i=0;i<5;i++) {
+	       fprintf(stdout,"%p   state[%d] = %08lx\n",mp,i,mp->state[i]);fflush(stdout);
+	    }
+	    for (i=0;i<2;i++) {
+	       fprintf(stdout,"%p   count[%d] = %08lx\n",mp,i,mp->count[i]);fflush(stdout);
+	    }
+#if 0
+	    for (i=0;i<64;i++) {
+	       fprintf(stdout,"%p   buffr[%02d] = %d\n",mp,i,mp->buffer[i]);fflush(stdout);
+	    }
+#endif
+	    fprintf(stdout,"}\n");fflush(stdout);
+	}
+
+#ifndef DEBUG
+#define HDC(m,s)
+#else
+#define HDC(m,s) HexDumpContext (m,s)
+#endif
+	/* = = == === ===== ======== ============= */
         
         static void 
         sha1_free_rep(Tcl_Obj* obj)
@@ -51,7 +80,9 @@ namespace eval ::sha1 {
             Tcl_Obj* temp;
             char* str;
             SHA1_CTX dup = *(SHA1_CTX*) obj->internalRep.otherValuePtr;
-            
+
+            HDC ((SHA1_CTX*) obj->internalRep.otherValuePtr,"pre-final");
+
             SHA1Final(buf, &dup);
             
             /* convert via a byte array to properly handle null bytes */
@@ -103,7 +134,9 @@ namespace eval ::sha1 {
             obj = Tcl_NewObj();
             mp = (SHA1_CTX*) Tcl_Alloc(sizeof *mp);
             SHA1Init(mp);
-            
+
+            HDC (mp,"post-init");
+
             if (obj->typePtr != NULL && obj->typePtr->freeIntRepProc != NULL) {
                 obj->typePtr->freeIntRepProc(obj);
             }
@@ -117,6 +150,8 @@ namespace eval ::sha1 {
         mp = (SHA1_CTX*) obj->internalRep.otherValuePtr;
         data = Tcl_GetByteArrayFromObj(objv[1], &size);
         SHA1Update(mp, data, size);
+
+        HDC (mp, "post-update");
 
         Tcl_SetObjResult(ip, obj);
         return TCL_OK;
