@@ -1,3 +1,11 @@
+2013-10-29  Andreas Kupries  <andreask@activestate.com>
+
+	* sha1.c: Replaced misuse of cheaders for -D... with proper
+	* sha1c.tcl: cflags. Depending on whether critcl v2 or v3
+	* sha256.c: was used the TCL_BYTE_ORDER was not set, allowing
+	* sha256c.tcl: build of tcllibc with code for wrong byte order.
+	  Also added code to detect missing definition, and fail build.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
