@@ -16,7 +16,7 @@ if {$tcl_platform(byteOrder) eq "littleEndian"} {
 } else {
     set byteOrder 4321
 }
-critcl::cheaders -DTCL_BYTE_ORDER=$byteOrder
+critcl::cflags -DTCL_BYTE_ORDER=$byteOrder
 
 namespace eval ::sha1 {
 
