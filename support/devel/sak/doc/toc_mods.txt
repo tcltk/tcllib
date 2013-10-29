@@ -491,6 +491,7 @@
 [division_start tepam]
 [item modules/tepam/tepam_introduction.man       tepam                     {An introduction into TEPAM, Tcl's Enhanced Procedure and Argument Manager}]
 [item modules/tepam/tepam_argument_dialogbox.man tepam::argument_dialogbox {TEPAM argument_dialogbox, reference manual}]
+[item modules/tepam/tepam_doc_gen.man            tepam::doc_gen            {TEPAM DOC Generation, reference manual}]
 [item modules/tepam/tepam_procedure.man          tepam::procedure          {TEPAM procedure, reference manual}]
 [division_end]
 [division_start term]

@@ -308,6 +308,7 @@ modules/struct/struct_tree.man
 modules/struct/struct_tree1.man
 modules/tar/tar.man
 modules/tepam/tepam_argument_dialogbox.man
+modules/tepam/tepam_doc_gen.man
 modules/tepam/tepam_introduction.man
 modules/tepam/tepam_procedure.man
 modules/term/ansi_cattr.man

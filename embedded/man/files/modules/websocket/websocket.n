@@ -266,6 +266,12 @@ package require \fBbase64 \fR
 .sp
 \fB::websocket::takeover\fR \fIsock\fR \fIhandler\fR ?\fIserver\fR?
 .sp
+\fB::websocket::conninfo\fR \fIsock\fR \fIwhat\fR
+.sp
+\fB::websocket::find\fR ?\fIhost\fR? ?\fIport\fR?
+.sp
+\fB::websocket::configure\fR \fIsock\fR \fIargs\fR
+.sp
 .BE
 .SH DESCRIPTION
 .PP
@@ -278,33 +284,33 @@ long-lived and continuous binary or text communication between the
 client and the server\&.  The library offers a high-level interface to
 receive and send data as specified in RFC 6455 (v\&. 13 of the
 protocol), relieving callers from all necessary protocol framing and
-reassembly\&. It implements the ping facility specified by the standard,
-together with levers to control it\&. Pings are server-driven and ensure
-the liveness of the connection across home (NAT) networks\&. The library
-has a number of introspection facilities to inquire about the current
-state of the connection, but also to receive notifications of incoming
-pings, if necessary\&. Finally, the library contains a number of helper
-procedures to facilitate the upgrading handshaking in existing web
-servers\&.
+reassembly\&.  It implements the ping facility specified by the
+standard, together with levers to control it\&.  Pings are server-driven
+and ensure the liveness of the connection across home (NAT) networks\&.
+The library has a number of introspection facilities to inquire about
+the current state of the connection, but also to receive notifications
+of incoming pings, if necessary\&.  Finally, the library contains a
+number of helper procedures to facilitate the upgrading handshaking in
+existing web servers\&.
 .PP
 Central to the library is the procedure \fBwebsocket::takeover\fR that
 will take over a regular socket and treat it as a WebSocket, thus
 performing all necessary protocol framing, packetisation and
-reassembly in servers and clients\&. The procedure also takes a handler,
-a command that will be called back each time a (possibly reassembled)
-packet from the remote end is ready for delivery at the original
-caller\&. While exported by the package, the command
+reassembly in servers and clients\&.  The procedure also takes a
+handler, a command that will be called back each time a (possibly
+reassembled) packet from the remote end is ready for delivery at the
+original caller\&.  While exported by the package, the command
 \fBwebsocket::takeover\fR is seldom called in applications, since the
 package provides other commands that are specifically tuned for the
 needs of clients and servers\&.
 .PP
 Typically, clients will open a connection to a remote server by
-providing a WebSocket URL (ws: or wss: schemes) and the handler
-described above to the command \fBwebsocket::open\fR\&. The opening
-procedure is a wrapper around the latest http::geturl implementations:
-it arranges to keep the socket created within the http library opened
-for reuse, but confiscates it from its (internal) map of known sockets
-for its own use\&.
+providing a WebSocket URL (\fIws:\fR or \fIwss:\fR schemes) and the
+handler described above to the command \fBwebsocket::open\fR\&. The
+opening procedure is a wrapper around the latest http::geturl
+implementations: it arranges to keep the socket created within the
+http library opened for reuse, but confiscates it from its (internal)
+map of known sockets for its own use\&.
 .PP
 Servers will start by registering themselves through the command
 \fB::websocket::server\fR and a number of handlers for paths using the
@@ -336,18 +342,24 @@ The identifier of the WebSocket, as returned for example by
 A textual type describing the event or message content, can be one of
 the following
 .RS
-.IP [1]
-\fBtext\fR Complete text message
-.IP [2]
-\fBbinary\fR Complete binary message
-.IP [3]
-\fBping\fR Incoming ping message
-.IP [4]
-\fBconnect\fR Notification of successful connection to server
-.IP [5]
-\fBdisconnect\fR Disconnection from remote end
-.IP [6]
-\fBclose\fR Pending closure of connection
+.TP
+\fBtext\fR
+Complete text message
+.TP
+\fBbinary\fR
+Complete binary message
+.TP
+\fBping\fR
+Incoming ping message
+.TP
+\fBconnect\fR
+Notification of successful connection to server
+.TP
+\fBdisconnect\fR
+Disconnection from remote end
+.TP
+\fBclose\fR
+Pending closure of connection
 .RE
 .TP
 \fImsg\fR
@@ -466,7 +478,118 @@ WebSocket within a server\&.  Apart from specificities in the protocol,
 servers should ping their clients at regular intervals in order to
 keep the connection opened at all time\&.  When \fIserver\fR is set to
 true, the library will arrange to send these pings automatically\&.
+.TP
+\fB::websocket::conninfo\fR \fIsock\fR \fIwhat\fR
+Provides callers with some introspection facilities in order to get
+some semi-internal information about an existing websocket
+connection\&. Depending on the value of the \fIwhat\fR argument, the
+procedure returns the following piece of information:
+.RS
+.TP
+\fBpeername\fR
+Name (preferred) or IP of remote end\&.
+.TP
+\fBsockname\fR
+or \fBname\fR Name or IP of local end\&.
+.TP
+\fBclosed\fR
+\fB1\fR if the connection is closed, \fB0\fR otherwise
+.TP
+\fBclient\fR
+\fB1\fR if the connection is a client websocket, \fB0\fR otherwise
+.TP
+\fBserver\fR
+\fB1\fR if the connection is a server websocket, \fB0\fR otherwise
+.TP
+\fBtype\fR
+\fBserver\fR if the connection is a server websocket, \fBclient\fR otherwise\&.
+.TP
+\fBhandler\fR
+The handler command associated to the websocket
+.TP
+\fBstate\fR
+The state of the websocket, which can be one of:
+.RS
+.TP
+\fBCONNECTING\fR
+Connection to remote end is in progress\&.
+.TP
+\fBCONNECTED\fR
+Connection is connected to remote end\&.
+.TP
+\fBCLOSED\fR
+Connection is closed\&.
+.RE
+.RE
+.TP
+\fB::websocket::find\fR ?\fIhost\fR? ?\fIport\fR?
+Look among existing websocket connections for the ones that match the
+hostname and port number filters passed as parameters\&.  This lookup
+takes the remote end into account and the \fIhost\fR argument is
+matched both against the hostname (whenever available) and the IP
+address of the remote end\&.  Both the \fIhost\fR and \fIport\fR
+arguments are glob-style string matching filters and default to
+\fB*\fR, i\&.e\&. will match any host and/or port number\&.
+.TP
+\fB::websocket::configure\fR \fIsock\fR \fIargs\fR
+This command takes a number of dash-led options (and their values) to
+configure the behaviour of an existing websocket connection\&.  The
+recognised options are the following (they can be shortened to the
+lowest common denominator):
+.RS
+.TP
+\fB-keepalive\fR
+is the number of seconds between each
+keepalive pings being sent along the connection\&.  A zero or negative
+number will effectively turn off the feature\&.  In servers,
+\fB-keepalive\fR defaults to 30 seconds, and in clients, no pings
+are initiated\&.
+.TP
+\fB-ping\fR
+is the text that is used during the automated
+pings\&.  This text defaults to the empty string, leading to an empty ping\&.
+.RE
 .PP
+.SH EXAMPLES
+.PP
+The following example opens a websocket connection to the echo
+service, waits 400ms to ensure that the connection is really
+established and sends a single textual message which should be echoed
+back by the echo service\&.  A real example would probably use the
+\fBconnect\fR callback to know when connection to the remote
+server has been establish and would only send data at that time\&.
+.CS
+
+
+package require websocket
+::websocket::loglevel debug
+
+proc handler { sock type msg } {
+    switch -glob -nocase -- $type {
+	co* {
+	    puts "Connected on $sock"
+	}
+	te* {
+	    puts "RECEIVED: $msg"
+	}
+	cl* -
+	dis* {
+	}
+    }
+
+}
+
+proc test { sock } {
+    puts "[::websocket::conninfo $sock type] from [::websocket::conninfo $sock sockname] to [::websocket::conninfo $sock peername]"
+
+    ::websocket::send $sock text "Testing, testing\&.\&.\&."
+}
+
+set sock [::websocket::open ws://echo\&.websocket\&.org/ handler]
+after 400 test $sock
+vwait forever
+
+.CE
 .SH "SEE ALSO"
 http
 .SH KEYWORDS

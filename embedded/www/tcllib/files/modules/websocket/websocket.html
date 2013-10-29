@@ -117,6 +117,7 @@
 <li class="section"><a href="#section1">Description</a></li>
 <li class="section"><a href="#section2">Callbacks</a></li>
 <li class="section"><a href="#section3">API</a></li>
+<li class="section"><a href="#section4">Examples</a></li>
 <li class="section"><a href="#see-also">See Also</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
@@ -139,6 +140,9 @@
 <li><a href="#5"><b class="cmd">::websocket::test</b> <i class="arg">srvSock</i> <i class="arg">cliSock</i> <i class="arg">path</i> <span class="opt">?<i class="arg">hdrs</i>?</span> <span class="opt">?<i class="arg">qry</i>?</span></a></li>
 <li><a href="#6"><b class="cmd">::websocket::upgrade</b> <i class="arg">sock</i></a></li>
 <li><a href="#7"><b class="cmd">::websocket::takeover</b> <i class="arg">sock</i> <i class="arg">handler</i> <span class="opt">?<i class="arg">server</i>?</span></a></li>
+<li><a href="#8"><b class="cmd">::websocket::conninfo</b> <i class="arg">sock</i> <i class="arg">what</i></a></li>
+<li><a href="#9"><b class="cmd">::websocket::find</b> <span class="opt">?<i class="arg">host</i>?</span> <span class="opt">?<i class="arg">port</i>?</span></a></li>
+<li><a href="#10"><b class="cmd">::websocket::configure</b> <i class="arg">sock</i> <i class="arg">args</i></a></li>
 </ul>
 </div>
 </div>
@@ -151,31 +155,31 @@ long-lived and continuous binary or text communication between the
 client and the server.  The library offers a high-level interface to
 receive and send data as specified in RFC 6455 (v. 13 of the
 protocol), relieving callers from all necessary protocol framing and
-reassembly. It implements the ping facility specified by the standard,
-together with levers to control it. Pings are server-driven and ensure
-the liveness of the connection across home (NAT) networks. The library
-has a number of introspection facilities to inquire about the current
-state of the connection, but also to receive notifications of incoming
-pings, if necessary. Finally, the library contains a number of helper
-procedures to facilitate the upgrading handshaking in existing web
-servers.</p>
+reassembly.  It implements the ping facility specified by the
+standard, together with levers to control it.  Pings are server-driven
+and ensure the liveness of the connection across home (NAT) networks.
+The library has a number of introspection facilities to inquire about
+the current state of the connection, but also to receive notifications
+of incoming pings, if necessary.  Finally, the library contains a
+number of helper procedures to facilitate the upgrading handshaking in
+existing web servers.</p>
 <p>Central to the library is the procedure <b class="cmd">websocket::takeover</b> that
 will take over a regular socket and treat it as a WebSocket, thus
 performing all necessary protocol framing, packetisation and
-reassembly in servers and clients. The procedure also takes a handler,
-a command that will be called back each time a (possibly reassembled)
-packet from the remote end is ready for delivery at the original
-caller. While exported by the package, the command
+reassembly in servers and clients.  The procedure also takes a
+handler, a command that will be called back each time a (possibly
+reassembled) packet from the remote end is ready for delivery at the
+original caller.  While exported by the package, the command 
 <b class="cmd">websocket::takeover</b> is seldom called in applications, since the
 package provides other commands that are specifically tuned for the
 needs of clients and servers.</p>
 <p>Typically, clients will open a connection to a remote server by
-providing a WebSocket URL (ws: or wss: schemes) and the handler
-described above to the command <b class="cmd">websocket::open</b>. The opening
-procedure is a wrapper around the latest http::geturl implementations:
-it arranges to keep the socket created within the http library opened
-for reuse, but confiscates it from its (internal) map of known sockets
-for its own use.</p>
+providing a WebSocket URL (<i class="term">ws:</i> or <i class="term">wss:</i> schemes) and the
+handler described above to the command <b class="cmd">websocket::open</b>. The
+opening procedure is a wrapper around the latest http::geturl
+implementations: it arranges to keep the socket created within the
+http library opened for reuse, but confiscates it from its (internal)
+map of known sockets for its own use.</p>
 <p>Servers will start by registering themselves through the command 
 <b class="cmd">::websocket::server</b> and a number of handlers for paths using the
 command <b class="cmd">::websocket::live</b>.  Then for each incoming client
@@ -204,14 +208,20 @@ callback being performed, the following arguments will be appended:</p>
 <dt><i class="arg">type</i></dt>
 <dd><p>A textual type describing the event or message content, can be one of
 the following</p>
-<ol class="enumerated">
-<li><p><b class="const">text</b> Complete text message</p></li>
-<li><p><b class="const">binary</b> Complete binary message</p></li>
-<li><p><b class="const">ping</b> Incoming ping message</p></li>
-<li><p><b class="const">connect</b> Notification of successful connection to server</p></li>
-<li><p><b class="const">disconnect</b> Disconnection from remote end</p></li>
-<li><p><b class="const">close</b> Pending closure of connection</p></li>
-</ol></dd>
+<dl class="definitions">
+<dt><b class="const">text</b></dt>
+<dd><p>Complete text message</p></dd>
+<dt><b class="const">binary</b></dt>
+<dd><p>Complete binary message</p></dd>
+<dt><b class="const">ping</b></dt>
+<dd><p>Incoming ping message</p></dd>
+<dt><b class="const">connect</b></dt>
+<dd><p>Notification of successful connection to server</p></dd>
+<dt><b class="const">disconnect</b></dt>
+<dd><p>Disconnection from remote end</p></dd>
+<dt><b class="const">close</b></dt>
+<dd><p>Pending closure of connection</p></dd>
+</dl></dd>
 <dt><i class="arg">msg</i></dt>
 <dd><p>Will contain the data of the message, whenever this is relevant,
 i.e. when the <i class="arg">type</i> is <b class="const">text</b>, <b class="const">binary</b> or
@@ -317,7 +327,96 @@ WebSocket within a server.  Apart from specificities in the protocol,
 servers should ping their clients at regular intervals in order to
 keep the connection opened at all time.  When <i class="arg">server</i> is set to
 true, the library will arrange to send these pings automatically.</p></dd>
+<dt><a name="8"><b class="cmd">::websocket::conninfo</b> <i class="arg">sock</i> <i class="arg">what</i></a></dt>
+<dd><p>Provides callers with some introspection facilities in order to get
+some semi-internal information about an existing websocket
+connection. Depending on the value of the <i class="arg">what</i> argument, the
+procedure returns the following piece of information:</p>
+<dl class="definitions">
+<dt><b class="const">peername</b></dt>
+<dd><p>Name (preferred) or IP of remote end.</p></dd>
+<dt><b class="const">sockname</b></dt>
+<dd><p>or <b class="const">name</b> Name or IP of local end.</p></dd>
+<dt><b class="const">closed</b></dt>
+<dd><p><b class="const">1</b> if the connection is closed, <b class="const">0</b> otherwise</p></dd>
+<dt><b class="const">client</b></dt>
+<dd><p><b class="const">1</b> if the connection is a client websocket, <b class="const">0</b> otherwise</p></dd>
+<dt><b class="const">server</b></dt>
+<dd><p><b class="const">1</b> if the connection is a server websocket, <b class="const">0</b> otherwise</p></dd>
+<dt><b class="const">type</b></dt>
+<dd><p><b class="const">server</b> if the connection is a server websocket, <b class="const">client</b> otherwise.</p></dd>
+<dt><b class="const">handler</b></dt>
+<dd><p>The handler command associated to the websocket</p></dd>
+<dt><b class="const">state</b></dt>
+<dd><p>The state of the websocket, which can be one of:</p>
+<dl class="definitions">
+<dt><b class="const">CONNECTING</b></dt>
+<dd><p>Connection to remote end is in progress.</p></dd>
+<dt><b class="const">CONNECTED</b></dt>
+<dd><p>Connection is connected to remote end.</p></dd>
+<dt><b class="const">CLOSED</b></dt>
+<dd><p>Connection is closed.</p></dd>
+</dl></dd>
+</dl></dd>
+<dt><a name="9"><b class="cmd">::websocket::find</b> <span class="opt">?<i class="arg">host</i>?</span> <span class="opt">?<i class="arg">port</i>?</span></a></dt>
+<dd><p>Look among existing websocket connections for the ones that match the
+hostname and port number filters passed as parameters.  This lookup
+takes the remote end into account and the <i class="arg">host</i> argument is
+matched both against the hostname (whenever available) and the IP
+address of the remote end.  Both the <i class="arg">host</i> and <i class="arg">port</i>
+arguments are glob-style string matching filters and default to 
+<b class="const">*</b>, i.e. will match any host and/or port number.</p></dd>
+<dt><a name="10"><b class="cmd">::websocket::configure</b> <i class="arg">sock</i> <i class="arg">args</i></a></dt>
+<dd><p>This command takes a number of dash-led options (and their values) to
+configure the behaviour of an existing websocket connection.  The
+recognised options are the following (they can be shortened to the
+lowest common denominator):</p>
+<dl class="definitions">
+<dt><b class="const">-keepalive</b></dt>
+<dd><p>is the number of seconds between each
+keepalive pings being sent along the connection.  A zero or negative
+number will effectively turn off the feature.  In servers, 
+<b class="const">-keepalive</b> defaults to 30 seconds, and in clients, no pings 
+are initiated.</p></dd>
+<dt><b class="const">-ping</b></dt>
+<dd><p>is the text that is used during the automated
+pings.  This text defaults to the empty string, leading to an empty ping.</p></dd>
+</dl></dd>
 </dl>
+</div>
+<div id="section4" class="section"><h2><a name="section4">Examples</a></h2>
+<p>The following example opens a websocket connection to the echo
+service, waits 400ms to ensure that the connection is really
+established and sends a single textual message which should be echoed
+back by the echo service.  A real example would probably use the
+<b class="const">connect</b> callback to know when connection to the remote
+server has been establish and would only send data at that time.</p>
+<pre class="example">
+package require websocket
+::websocket::loglevel debug
+proc handler { sock type msg } {
+    switch -glob -nocase -- $type {
+	co* {
+	    puts &quot;Connected on $sock&quot;
+	}
+	te* {
+	    puts &quot;RECEIVED: $msg&quot;
+	}
+	cl* -
+	dis* {
+	}
+    }
+    
+}
+proc test { sock } {
+    puts &quot;[::websocket::conninfo $sock type] from [::websocket::conninfo $sock sockname] to [::websocket::conninfo $sock peername]&quot;
+    
+    ::websocket::send $sock text &quot;Testing, testing...&quot;
+}
+set sock [::websocket::open ws://echo.websocket.org/ handler]
+after 400 test $sock
+vwait forever
+</pre>
 </div>
 <div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
 <p><a href="../../../../index.html#key424">http</a></p>

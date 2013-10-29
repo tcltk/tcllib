@@ -484,9 +484,9 @@ To begin, create an expander object:
 .CS
 
 
-    % package require expander
+    % package require textutil::expander
     1\&.2
-    % ::expander::expander myexp
+    % ::textutil::expander myexp
     ::myexp
     %
 

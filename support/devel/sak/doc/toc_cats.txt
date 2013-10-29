@@ -136,6 +136,7 @@
 [item apps/dtplite.man                            dtplite                     {Lightweight DocTools Markup Processor}]
 [item modules/doctools/mpexpand.man               mpexpand                    {Markup processor}]
 [item apps/tcldocstrip.man                        tcldocstrip                 {Tcl-based Docstrip Processor}]
+[item modules/tepam/tepam_doc_gen.man             tepam::doc_gen              {TEPAM DOC Generation, reference manual}]
 [item modules/textutil/expander.man               textutil::expander          {Procedures to process templates and expand text.}]
 [division_end]
 [division_start {File formats}]
