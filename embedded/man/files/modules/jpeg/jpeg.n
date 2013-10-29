@@ -241,14 +241,14 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "jpeg" n 0\&.4\&.0 tcllib "JPEG image manipulation"
+.TH "jpeg" n 0\&.5 tcllib "JPEG image manipulation"
 .BS
 .SH NAME
 jpeg \- JPEG querying and manipulation of meta data
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBjpeg  ?0\&.4\&.0?\fR
+package require \fBjpeg  ?0\&.5?\fR
 .sp
 \fB::jpeg::isJPEG\fR \fIfile\fR
 .sp
@@ -348,11 +348,16 @@ Throws an error if \fIfile\fR is not a JPEG image\&.
 This command is as per \fB::jpeg::getExif\fR except that it uses a
 previously opened channel\&.  \fIchannel\fR should be a seekable channel
 and \fIsection\fR is as described in the documentation of
-\fB::jpeg::getExif\fR
-Note: the jpeg parser expects that the start of the channel is the
-start of the image data\&. If working with an image embedded in a
-container file format it may be necessary to read the jpeg data into
-a temporary container: either a temporary file or a memory channel\&.
+\fB::jpeg::getExif\fR\&.
+.sp
+\fINote\fR: The jpeg parser expects that the start of the
+channel is the start of the image data\&. If working with an image
+embedded in a container file format it may be necessary to read the
+jpeg data into a temporary container: either a temporary file or a
+memory channel\&.
+.sp
+\fIAttention\fR: It is the resonsibility of the caller to close
+the channel after its use\&.
 .TP
 \fB::jpeg::formatExif\fR \fIkeys\fR
 Takes a list of key-value pairs as returned by \fBgetExif\fR and formats
