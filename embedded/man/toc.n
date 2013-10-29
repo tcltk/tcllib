@@ -1253,6 +1253,9 @@ tcllib
 \fBtepam::argument_dialogbox\fR
 \fIfiles/modules/tepam/tepam_argument_dialogbox\&.n\fR: TEPAM argument_dialogbox, reference manual
 .TP
+\fBtepam::doc_gen\fR
+\fIfiles/modules/tepam/tepam_doc_gen\&.n\fR: TEPAM DOC Generation, reference manual
+.TP
 \fBtepam::procedure\fR
 \fIfiles/modules/tepam/tepam_procedure\&.n\fR: TEPAM procedure, reference manual
 .TP
