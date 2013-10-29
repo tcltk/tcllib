@@ -619,6 +619,12 @@ automatic
 \fBfiles/modules/nns/nns_auto\&.n\fR
 nameserv::auto
 .RE
+automatic documentation
+.RS
+.TP
+\fBfiles/modules/tepam/tepam_doc_gen\&.n\fR
+tepam::doc_gen
+.RE
 automaton
 .RS
 .TP
@@ -2700,6 +2706,9 @@ doctools::toc::import
 .TP
 \fBfiles/apps/tcldocstrip\&.n\fR
 tcldocstrip
+.TP
+\fBfiles/modules/tepam/tepam_doc_gen\&.n\fR
+tepam::doc_gen
 .RE
 DOM
 .RS
@@ -7302,6 +7311,12 @@ tepam
 .TP
 \fBfiles/modules/tepam/tepam_procedure\&.n\fR
 tepam::procedure
+.RE
+procedure documentation
+.RS
+.TP
+\fBfiles/modules/tepam/tepam_doc_gen\&.n\fR
+tepam::doc_gen
 .RE
 producer
 .RS

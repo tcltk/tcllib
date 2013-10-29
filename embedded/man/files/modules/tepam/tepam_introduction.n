@@ -1,6 +1,6 @@
 '\"
 '\" Generated from file 'tepam_introduction\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009/2010, Andreas Drollinger
+'\" Copyright (c) 2009-2013, Andreas Drollinger
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -238,7 +238,7 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "tepam" n 0\&.4\&.1 tcllib "Tcl's Enhanced Procedure and Argument Manager"
+.TH "tepam" n 0\&.5\&.0 tcllib "Tcl's Enhanced Procedure and Argument Manager"
 .BS
 .SH NAME
 tepam \- An introduction into TEPAM, Tcl's Enhanced Procedure and Argument Manager
@@ -531,6 +531,6 @@ argument integrity, argument validation, arguments, entry mask, parameter entry 
 Procedures, arguments, parameters, options
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009/2010, Andreas Drollinger
+Copyright (c) 2009-2013, Andreas Drollinger
 
 .fi
