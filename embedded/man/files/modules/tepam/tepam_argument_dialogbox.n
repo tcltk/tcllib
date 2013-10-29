@@ -1,6 +1,6 @@
 '\"
 '\" Generated from file 'tepam_argument_dialogbox\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2009/2010, Andreas Drollinger
+'\" Copyright (c) 2009-2013, Andreas Drollinger
 '\"
 '\" The definitions below are for supplemental macros used in Tcl/Tk
 '\" manual entries.
@@ -238,7 +238,7 @@ Database Class:	\\fB\\$3\\fR
 .de UL
 \\$1\l'|0\(ul'\\$2
 ..
-.TH "tepam::argument_dialogbox" n 0\&.4\&.1 tcllib "Tcl's Enhanced Procedure and Argument Manager"
+.TH "tepam::argument_dialogbox" n 0\&.5\&.0 tcllib "Tcl's Enhanced Procedure and Argument Manager"
 .BS
 .SH NAME
 tepam::argument_dialogbox \- TEPAM argument_dialogbox, reference manual
@@ -247,7 +247,7 @@ package require \fBTcl  8\&.3\fR
 .sp
 package require \fBTk  8\&.3\fR
 .sp
-package require \fBtepam  ?0\&.4?\fR
+package require \fBtepam  ?0\&.5?\fR
 .sp
 \fBtepam::argument_dialogbox\fR \fIitem_name item_attributes ?item_name item_attributes? ?\&.\&.\&.?\fR
 .sp
@@ -344,7 +344,7 @@ tepam::argument_dialogbox \\
 .CE
 .TP
 -context \fIstring\fR
-If a context is defined the dialog box's state, e\&.g\&. the entered data as well as the window size and position, is saved and restored then the next time the argument dialog box is called\&. The assignment of a context allows saving the dialog box' state in its context to distinguish between different usages of the argument dialog box\&.
+If a context is defined the dialog box's state, e\&.g\&. the entered data as well as the window size and position, is  restored the next time the argument dialog box is called\&. The assignment of a context allows saving the dialog box' state in its context to distinguish between different usages of the argument dialog box\&.
 .CS
 
 tepam::argument_dialogbox \\
@@ -424,6 +424,32 @@ tepam::argument_dialogbox \\
    \fB-yscroll\fR \fBauto\fR
    \&.\&.\&.
 .CE
+.PP
+.SS "GLOBAL CUSTOM DATA VALIDATION"
+This item group allows specifying global custom checks to validate the entered data\&.
+.TP
+-validatecommand \fIscript\fR
+Custom data checks can be performed via validation commands that are defined with the \fI-validatecommand\fR item\&. Example:
+.CS
+
+tepam::argument_dialogbox \\
+   -entry {-label "Your comment" -variable YourCom} \\
+   \fB-validatecommand\fR {IllegalWordDetector $YourCom}
+.CE
+.IP
+The validation command is executed in the context of the calling procedure, once all the basic data checks have been performed and data variables are assigned\&. All data is accessed via the data variables\&. Note that there is also an entry widget specific attribute \fI-validatecommand\fR that allows declaring custom checks for specific data entries\&.
+.sp
+The attribute \fI-validatecommand\fR can be repeated to declare multiple custom checks\&.
+.TP
+-validatecommand_error_text \fIstring\fR
+This item allows overriding the default error message for a global custom argument validation (defined by \fI-validatecommand\fR)\&. Also this attribute can be repeated in case multiple checks are declared\&.
+.TP
+-validatecommand2 \fIscript\fR
+.TP
+-validatecommand2_error_text \fIstring\fR
+These items are mainly for TEPAM internal usage\&.
+.sp
+These items corrspond respectively to \fI-validatecommand\fR and \fI-validatecommand_error_text\fR\&. However, the data validation is not performed in the next upper stack level, but two stack levels higher\&.
 .PP
 .SS "DATA ENTRY WIDGET ITEMS"
 Data entry widgets are created with the widget items\&. These items require as item attributes a definition list, which contains itself attribute name and value pairs:
@@ -695,14 +721,18 @@ tepam::argument_dialogbox \\
 .CE
 .TP
 -validatecommand \fIstring\fR
-More complex value validations than type checks can be performed via specific validation commands that are declared with the \fI-validatecommand\fR attribute\&.
-The provided validation command can be a script (command sequence) in which the pattern \fI%P\fR is replaced by the value that has to be checked\&.
+Custom argument value validations can be performed via specific validation commands that are defined with the \fI-validatecommand\fR attribute\&. The provided validation command can be a complete script in which the pattern \fI%P\fR is placeholder for the argument value that has to be validated\&.
 .CS
 
 tepam::argument_dialogbox \\
    -entry {-label "Your comment" -variable YourCom \\
-           \fB-validatecommand\fR "IllegalWordDetector %P"} ]
+           \fB-validatecommand\fR "IllegalWordDetector %P"}
 .CE
+.IP
+While the purpose of this custom argument validation attribute is the validation of a specific argument, there is also a global data validation attribute \fI-validatecommand\fR that allows performing validation that involves multiple arguments\&.
+.TP
+-validatecommand_error_text \fIstring\fR
+This attribute allows overriding the default error message for a custom argument validation (defined by \fI-validatecommand\fR)\&.
 .PP
 Some other attributes are supported by the list and combo boxes as well as by the radio and check buttons\&.
 .TP
@@ -866,6 +896,6 @@ data entry form, parameter entry form
 Argument entry form, mega widget
 .SH COPYRIGHT
 .nf
-Copyright (c) 2009/2010, Andreas Drollinger
+Copyright (c) 2009-2013, Andreas Drollinger
 
 .fi

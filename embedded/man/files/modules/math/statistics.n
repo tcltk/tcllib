@@ -266,7 +266,7 @@ package require \fBmath::statistics  0\&.8\fR
 .sp
 \fB::math::statistics::basic-stats\fR \fIdata\fR
 .sp
-\fB::math::statistics::histogram\fR \fIlimits\fR \fIvalues\fR
+\fB::math::statistics::histogram\fR \fIlimits\fR \fIvalues\fR ?weights?
 .sp
 \fB::math::statistics::corr\fR \fIdata1\fR \fIdata2\fR
 .sp
@@ -528,12 +528,14 @@ list \fIdata\fR
 .RE
 .sp
 .TP
-\fB::math::statistics::histogram\fR \fIlimits\fR \fIvalues\fR
+\fB::math::statistics::histogram\fR \fIlimits\fR \fIvalues\fR ?weights?
 Determine histogram information for the given list of data\&. Returns a
 list consisting of the number of values that fall into each interval\&.
 (The first interval consists of all values lower than the first limit,
 the last interval consists of all values greater than the last limit\&.
 There is one more interval than there are limits\&.)
+.sp
+Optionally, you can use weights to influence the histogram\&.
 .RS
 .TP
 list \fIlimits\fR
@@ -542,6 +544,9 @@ intervals of the histogram\&.
 .TP
 list \fIvalues\fR
 - List of data
+.TP
+list \fIweights\fR
+- List of weights, one weight per value
 .RE
 .sp
 .TP
