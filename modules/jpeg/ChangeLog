@@ -1,3 +1,10 @@
+2013-10-28  Andreas Kupries  <aku@hephaistos>
+
+	* jpeg.tcl: Ticket [1d2b62d10d]: Fixed unwanted double-close of
+	* jpeg.man: channel when accessing a non-existing thumbnail in a
+	* pkgIndex.tcl: file. Introduced by the refactoring. Bumped
+	  version to 0.5.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
