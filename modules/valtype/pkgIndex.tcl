@@ -10,4 +10,4 @@ package ifneeded valtype::luhn                   1 [list source [file join $dir 
 package ifneeded valtype::luhn5                  1 [list source [file join $dir luhn5.tcl]]
 package ifneeded valtype::usnpi                  1 [list source [file join $dir usnpi.tcl]]
 package ifneeded valtype::verhoeff               1 [list source [file join $dir verhoeff.tcl]]
-package ifneeded valtype::iban                 1.2 [list source [file join $dir iban.tcl]]
+package ifneeded valtype::iban                 1.3 [list source [file join $dir iban.tcl]]
