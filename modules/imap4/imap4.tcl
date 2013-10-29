@@ -55,7 +55,7 @@
 #   20130212: Missing chan parameter added to all imaptotcl* procs -ger
 
 package require Tcl 8.5
-package provide imap4 0.5.1
+package provide imap4 0.5.2
 
 namespace eval imap4 {
     variable debugmode 0     ;# inside debug mode? usually not.
@@ -154,7 +154,7 @@ namespace eval imap4 {
         variable mboxinfo
         variable msginfo
 
-        close $chan
+        ::close $chan
 
         array unset folderinfo $chan,*
         array unset mboxinfo $chan,*
@@ -862,6 +862,7 @@ namespace eval imap4 {
     proc isableto {chan {capa ""}} {
         variable info
 
+	set result 0
         if {![llength $info($chan,capability)]} {
             set result [capability $chan]
         }

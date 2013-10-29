@@ -1,4 +1,4 @@
-[manpage_begin imap4 n 0.5.1]
+[manpage_begin imap4 n 0.5.2]
 [see_also ftp]
 [see_also http]
 [see_also imap]
@@ -17,7 +17,7 @@
 [titledesc {imap client-side tcl implementation of imap protocol}]
 
 [require Tcl 8.5]
-[require imap4 [opt 0.5.1]]
+[require imap4 [opt 0.5.2]]
 
 [description]
 
