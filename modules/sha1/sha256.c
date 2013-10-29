@@ -59,6 +59,10 @@ static const char rcsid[] =
 	"$Id: sha256.c,v 1.3 2007/03/25 11:33:41 patthoyts Exp $";
 #endif /* !lint */
 
+#ifndef TCL_BYTE_ORDER
+#error "-DTCL_BYTE_ORDER missing"
+#endif
+
 #if TCL_BYTE_ORDER==1234
 #else
 #define WORDS_BIGENDIAN
