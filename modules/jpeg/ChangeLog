@@ -1,4 +1,12 @@
-2013-10-28  Andreas Kupries  <aku@hephaistos>
+2013-10-30  Andreas Kupries <andreask@activestate.com>
+
+	* testimage/IMG_7950_dt.JPG:  Ticket [1d2b62d10d] followup.
+	* testimage/IMG_7950_dt.exif.txt: Extended testsuite with
+	* testimage/IMG_7950_dt.thumbexif.txt: example image missing any
+	  embedded exif information (Not triggering the issue). Made
+	  testsuite 8.4+ and converted to tcltest 2 format.
+
+2013-10-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* jpeg.tcl: Ticket [1d2b62d10d]: Fixed unwanted double-close of
 	* jpeg.man: channel when accessing a non-existing thumbnail in a
