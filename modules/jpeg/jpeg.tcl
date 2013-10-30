@@ -401,7 +401,7 @@ proc ::jpeg::getExifFromChannel {chan {type main}} {
             seek $chan [expr {$num * 12}] current
             # offset of next exif block (for thumbnail)
             _scan $byteOrder [read $chan 4] i next
-            if {$next <= 0} { return }
+            if {$next <= 0} { close $chan ; return }
             # but its relative to start
             seek $chan [expr {$start + $next}] start
             set data [_exif $chan $byteOrder $start]
