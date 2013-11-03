@@ -1,5 +1,10 @@
 2013-11-03  Arjen Markus <arjenmarkus@users.sourceforge.net>
-	* calculus.tcl: Corrected calculation of corrector in heunStep
+	* calculus.tcl: Corrected calculation of corrector in heunStep (now version 0.7.2)
+	* pkgIndex.tcl: {Ticket b25b826973] Bumped version of interpolate to 1.1
+	* interpolate.tcl: {Ticket b25b826973] Corrected inconsistency in use of tables for 1D interpolation
+	* interpolate.test: {Ticket b25b826973] Adjusted the test for 1D interpolation
+	* interpolate.man: {Ticket b25b826973] Added an example for 1D interpolation and note on the
+	                   incompatibility
 
 2013-03-05  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* statistics.tcl: [Ticket 05d055c2f5]: Added weights to histogram
