@@ -50,9 +50,13 @@ customMatch numbers matchNumbers
 #
 # Test cases: interpolation in tables
 #
+# Add a dummy row to the table - ticket b25b826973edcbb5b3a95f6c284214925a1d5e67
+# This makes it possible to use the same table in both 1D and 2D interpolations
+#
 set t [::math::interpolate::defineTable table1 \
    {    x     v1    v2    v3 } \
-   {    0      0    10     1
+   {    -      1     2     3
+        0      0    10     1
         1      1     9     4
         2      2     8     9
         5      5     5    25
