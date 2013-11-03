@@ -341,7 +341,7 @@ proc ::math::calculus::heunStep { t tstep xvec func } {
    # Corrector step
    #
    set tcorr    [expr {$t+$tstep}]
-   set xcorr    [eulerStep $t     $tstep $xpred $funcq]
+   set xcorr    [eulerStep $tcorr $tstep $xpred $funcq]
 
    set result   {}
    foreach xv $xvec xc $xcorr {
