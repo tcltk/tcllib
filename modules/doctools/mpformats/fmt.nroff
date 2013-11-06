@@ -47,8 +47,8 @@ c_pass 2 fmt_manpage_begin {title section version} {
 	c_hold hdr $text
     }
 
-    c_hold hdr [nr_read man.macros]
     c_hold hdr [nr_title "\"[string trimleft $title :]\" $section $version $module \"$shortdesc\""]
+    c_hold hdr [nr_read man.macros]
     c_hold hdr [nr_bolds]
     c_hold hdr [fmt_section NAME]
     c_hold hdr "$title \1\\- $description"
