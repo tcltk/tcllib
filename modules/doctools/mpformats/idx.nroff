@@ -52,8 +52,8 @@ proc fmt_index_begin     {label title}      {
 	set hdr [nr_comment $prec]\n
     }
     append  hdr [nr_comment [c_provenance]]\n
-    append  hdr [nr_read man.macros]\n
     append  hdr [nr_title "\"[string trimleft $label :]\" n"]\n
+    append  hdr [nr_read man.macros]\n
     append  hdr [nr_bolds]\n
     append  hdr [nr_section INDEX]\n
     append  hdr $title[nr_in]\n
