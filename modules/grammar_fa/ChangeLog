@@ -1,3 +1,9 @@
+2013-11-06  Andreas Kupries  <andreask@activestate.com>
+
+	* fa.tcl: Extended the range of acceptable snit beyond 1.3-2 to
+	* pkgIndex.tcl: beyond 2. Bumped version to 0.5. Testsuite update
+	  defered. Requires more work to update the wrong#args messages.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
