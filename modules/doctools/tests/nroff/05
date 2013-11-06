@@ -2,8 +2,8 @@
 '\" Generated from file '\&.FILE\&.' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) \&.COPYRIGHT\&.
 '\"
-.so man.macros
 .TH "BASIC" a 5 \&.MODULE\&. ""
+.so man.macros
 .BS
 .SH NAME
 BASIC \-
