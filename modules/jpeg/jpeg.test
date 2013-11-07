@@ -130,7 +130,7 @@ set n 0
 foreach f [TestFilesGlob testimages/*.JPG] {
     test jpeg-7.$n "dimensions regular, [file tail $f]" -body {
 	::jpeg::dimensions $f
-    } -result {320 240}
+    } -result [string trim [fileutil::cat [file rootname $f].WxH.txt]]
     incr n
 }
 
