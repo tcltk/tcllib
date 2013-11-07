@@ -1,5 +1,12 @@
 2013-11-07  Andreas Kupries <andreask@activestate.com>
 
+	* support/devel/sak/localdoc/localdoc.tcl (::sak::localdoc::run):
+	  [Ticket 7c7f946046]: Pull in exclusion information from the
+	  installer configuration, and use it to exclude the associated
+	  man-pages from generation.
+
+2013-11-07  Andreas Kupries <andreask@activestate.com>
+
 	* support/installation/man.macros: [Ticket 369f67aeee] Updated to
 	  newest from Tcl/Tk.
 

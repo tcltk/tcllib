@@ -26,6 +26,16 @@ proc ::sak::localdoc::run {} {
     getpackage doctools::idx    doctools/docidx.tcl
     getpackage dtplite          dtplite/dtplite.tcl
 
+    # Read installation information. Need the list of excluded
+    # modules to suppress them here in the doc generation as well.
+    global excluded modules apps guide
+    source support/installation/modules.tcl
+
+    foreach e $excluded {
+	puts "Excluding $e ..."
+	lappend baseconfig -exclude */modules/$e/*
+    }
+
     set nav ../../../../home
 
     puts "Reindex the documentation..."
@@ -38,13 +48,14 @@ proc ::sak::localdoc::run {} {
     file mkdir embedded/www
 
     puts "Generating manpages..."
-    dtplite::do \
-	[list \
-	     -exclude {*/doctools/tests/*} \
-	     -exclude {*/support/*} \
-	     -ext n \
-	     -o embedded/man \
-	     nroff .]
+    set     config $baseconfig
+    lappend config -exclude {*/doctools/tests/*}
+    lappend config -exclude {*/support/*}
+    lappend config -ext n
+    lappend config -o embedded/man
+    lappend config nroff .
+
+    dtplite::do $config
 
     # Note: Might be better to run them separately.
     # Note @: Or we shuffle the results a bit more in the post processing stage.
@@ -61,32 +72,22 @@ proc ::sak::localdoc::run {} {
     set cats [string map $map [fileutil::cat support/devel/sak/doc/toc_cats.txt]]
 
     puts "Generating HTML... Pass 1, draft..."
-    dtplite::do \
-	[list \
-	     -toc $toc \
-	     -nav {Tcllib Home} $nav \
-	     -post+toc Categories $cats \
-	     -post+toc Modules $mods \
-	     -post+toc Applications $apps \
-	     -exclude {*/doctools/tests/*} \
-	     -exclude {*/support/*} \
-	     -merge \
-	     -o embedded/www \
-	     html .]
+    set     config $baseconfig
+    lappend config -exclude  {*/doctools/tests/*} 
+    lappend config -exclude  {*/support/*} 
+    lappend config -toc      $toc 
+    lappend config -nav      {Tcllib Home} $nav 
+    lappend config -post+toc Categories    $cats 
+    lappend config -post+toc Modules       $mods 
+    lappend config -post+toc Applications  $apps 
+    lappend config -merge 
+    lappend config -o embedded/www 
+    lappend config html .
+
+    dtplite::do $config
 
     puts "Generating HTML... Pass 2, resolving cross-references..."
-    dtplite::do \
-	[list \
-	     -toc $toc \
-	     -nav {Tcllib Home} $nav \
-	     -post+toc Categories $cats \
-	     -post+toc Modules $mods \
-	     -post+toc Applications $apps \
-	     -exclude {*/doctools/tests/*} \
-	     -exclude {*/support/*} \
-	     -merge \
-	     -o embedded/www \
-	     html .]
+    dtplite::do $config
 
     return
 }
