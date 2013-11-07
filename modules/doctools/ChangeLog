@@ -1,3 +1,8 @@
+2013-11-07  Andreas Kupries <andreask@activestate.com>
+
+	* mpformats/man.macros: [Ticket 369f67aeee] Updated to newest from
+	  Tcl/Tk.
+
 2013-11-06  Andreas Kupries  <andreask@activestate.com>
 
 	* mpformats/fmt.nroff: [Ticket efe207eff1]: Applied
