@@ -1,3 +1,8 @@
+2013-11-07  Andreas Kupries <andreask@activestate.com>
+
+	* support/installation/man.macros: [Ticket 369f67aeee] Updated to
+	  newest from Tcl/Tk.
+
 2013-05-30  Andreas Kupries  <andreask@activestate.com>
 
 	* Makefile.in: [Bug 3613973][Allura 1371]: Applied patch by
