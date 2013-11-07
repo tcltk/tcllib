@@ -1,3 +1,11 @@
+2013-11-07  Andreas Kupries <andreask@activestate.com>
+
+	* testimage/1000.JPG:  Ticket [1d2b62d10d] followup.
+	* testimage/1000.exif.txt: Extended testsuite with an
+	* testimage/1000.thumbexif.txt: example image missing the
+	  thumbnail and triggering the issue. With thanks to
+	  aldo.w.buratti@gmail.com for donating the image.
+
 2013-10-30  Andreas Kupries <andreask@activestate.com>
 
 	* testimage/IMG_7950_dt.JPG:  Ticket [1d2b62d10d] followup.
@@ -11,7 +19,7 @@
 	* jpeg.tcl: Ticket [1d2b62d10d]: Fixed unwanted double-close of
 	* jpeg.man: channel when accessing a non-existing thumbnail in a
 	* pkgIndex.tcl: file. Introduced by the refactoring. Bumped
-	  version to 0.5.
+	  version to 0.5. Thanks to Aldo Buratti for the report.
 
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
