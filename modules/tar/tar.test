@@ -1,0 +1,167 @@
+# These tests are in the public domain
+
+package require tcltest
+package require tcl::chan::memchan
+
+source [file join \
+	[file dirname [file dirname [file normalize [info script]]]] \
+	devtools testutilities.tcl]
+
+testing {
+    useLocal tar.tcl tar
+}
+
+
+proc stream {{size 128000}} {
+    set chan [tcl::chan::memchan]
+    set line {}
+    while 1 {
+	incr i
+	set istring $i
+	set ilen [string length $istring]
+	if {$line ne {}} {
+	    append line { }
+	    incr size -1 
+	}
+	append line $istring
+	incr size -$ilen
+	if {$size < 1} {
+	    set line [string range $line 0 end-[expr {abs(1-$size)}]]
+	    puts $chan $line
+	    break
+	}
+
+	if {$i % 10 == 0} {
+	    puts $chan $line 
+	    incr size -1 ;# for the [puts] newline
+	    set line {}
+	}
+    }
+
+    seek $chan 0
+    return $chan
+}
+
+set TMP_MAX 1000
+variable tmpdir
+while 1 {
+    if {![file exists tartest[incr i]]} {
+	set tmpdir tartest$i
+	makeDirectory $tmpdir
+	break
+    }
+    if {$ > $TMP_MAX} {
+	error "could not create temporary directory"
+    }
+}
+
+
+variable filesys {
+    Dir1 {
+	File1 {
+	    type 0
+	    mode 755
+	    uid 13103
+	    gid 18103
+	    size 100
+	    mtime 5706756101
+	}
+    }
+
+    Dir2 {
+	File1 {
+	    type 0
+	    mode 644
+	    uid 15103
+	    gid 19103
+	    size 100
+	    mtime 5706776103
+	}
+    }
+}
+
+
+proc header_posix {tarball} {
+    dict with tarball {} 
+    tar::formatHeader $path [
+	dict create mode $mode type $type uid $uid gid $gid size $size mtime $mtime]
+}
+
+
+variable setup1 {
+    set res {}
+    set directories {one one/two one/three}
+    foreach directory $directories {
+	makeDirectory $directory $tmpdir 
+	set chan [open $tmpdir/$directory/a w]
+	puts $chan hello[incr i]
+	close $chan
+    }
+    set chan1 [stream]
+}
+
+variable cleanup1 {
+    close $chan1
+}
+
+test test-stream {} -setup $setup1 -body {
+    string length [read $chan1]
+} -cleanup $cleanup1 -result 128000
+
+
+test tar-pad {} -body {
+    tar::pad 230 
+} -result {282}
+
+test tar-skip {} -setup $setup1 -body {
+    tar::skip $chan1 10
+    lappend res [read $chan1 10]
+    tar::skip $chan1 72313
+    lappend res [read $chan1 10]
+} -cleanup $cleanup1 -result {{6 7 8 9 10} {07 13908 1}}
+
+test tar-seekorskip-backwards {} -setup $setup1 -body {
+    zlib push gzip $chan1
+    catch {tar::seekorskip $chan1 -10 start} cres
+    lappend res $cres
+    catch {tar::seekorskip $chan1 10 start} cres
+    lappend res $cres
+    catch {tar::seekorskip $chan1 -10 end} cres
+    lappend res $cres
+    catch {tar::seekorskip $chan1 10 end} cres
+    lappend res $cres
+    lappend res [read $chan1 10]
+} -cleanup $cleanup1 -match glob -result [
+    list {WHENCE=start not supported*} \
+    {WHENCE=start not supported*} \
+    {WHENCE=end not supported*} \
+    {WHENCE=end not supported*} \
+    {1 2 3 4 5 }
+    
+]
+
+test tar-header {} -body {
+    set file1 [dict get $filesys Dir1 File1]
+    dict set file1 path /Dir1/File1
+    set header [header_posix $file1]
+    set parsed [string trim [tar::readHeader $header]]
+    set golden "name /Dir1/File1 mode 755 uid 13103 gid 18103 size 100 mtime 5706756101 cksum 3676 type 0 linkname {} magic ustar\0 version 00 uname {} gname {} devmajor 0 devminor 0 prefix {}"
+    set len [string length $parsed]
+    foreach {key value} $golden {
+	if {[set value1 [dict get $parsed $key]] ne $value } {
+	    lappend res [list $key $value $value1]
+	}
+	
+    }
+} -result {}
+
+
+test tar-add {} -setup $setup1 -body {
+    tar::create $chan1 [list $tmpdir/one/a $tmpdir/one/two/a $tmpdir/one/three/a] -chan
+    seek $chan1 0
+    lappend res {*}[tar::contents $chan1 -chan]
+    seek $chan1 0
+    lappend res [string trim [tar::get $chan1 $tmpdir/one/two/a -chan]]
+} -cleanup $cleanup1 -result {tartest1/one/a tartest1/one/two/a tartest1/one/three/a hello3}
+
+testsuiteCleanup
