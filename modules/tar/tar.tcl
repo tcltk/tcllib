@@ -58,11 +58,11 @@ proc ::tar::seekorskip {ch off wh} {
 
 proc ::tar::skip {ch len} {
     while {$len>0} {
-	set buf $len
-	if {$buf>65536} {set buf 65536}
-	set n [read $ch $buf]
-	if {$n<$buf} break
-	incr len -$buf
+	set readsize [string length [read $ch $len]]
+	if {$readsize == 0 && [eof $ch]} {
+	    return
+	}
+	incr len -$readsize
     }
     return
 }
@@ -176,7 +176,8 @@ proc ::tar::get {tar file args} {
 	fconfigure $fh -encoding binary -translation lf -eofchar {}
     }
     while {![eof $fh]} {
-        array set header [readHeader [read $fh 512]]
+	set data [read $fh 512]
+        array set header [readHeader $data]
 	HandleLongLink $fh header
         if {$header(name) == ""} break
         set name [string trimleft $header(prefix)$header(name) /]
