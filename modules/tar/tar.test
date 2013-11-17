@@ -42,19 +42,16 @@ proc stream {{size 128000}} {
     return $chan
 }
 
-set TMP_MAX 1000
-variable tmpdir
-while 1 {
-    if {![file exists tartest[incr i]]} {
-	set tmpdir tartest$i
-	makeDirectory $tmpdir
-	break
-    }
-    if {$ > $TMP_MAX} {
-	error "could not create temporary directory"
-    }
+proc header_posix {tarball} {
+    dict with tarball {} 
+    tar::formatHeader $path [
+	dict create mode $mode type $type uid $uid gid $gid size $size mtime $mtime]
 }
 
+
+
+variable TMP_MAX 1000
+variable tmpdir
 
 variable filesys {
     Dir1 {
@@ -81,21 +78,26 @@ variable filesys {
 }
 
 
-proc header_posix {tarball} {
-    dict with tarball {} 
-    tar::formatHeader $path [
-	dict create mode $mode type $type uid $uid gid $gid size $size mtime $mtime]
-}
-
-
 variable setup1 {
-    set res {}
+	variable i 0
+	while 1 {
+		if {![file exists tartest[incr i]]} {
+			set tmpdir tartest$i
+			makeDirectory $tmpdir
+			break
+		}
+		if {$ > $TMP_MAX} {
+			error "could not create temporary directory"
+		}
+	}
+
+	variable res {}
     set directories {one one/two one/three}
     foreach directory $directories {
-	makeDirectory $directory $tmpdir 
-	set chan [open $tmpdir/$directory/a w]
-	puts $chan hello[incr i]
-	close $chan
+		makeDirectory $directory $tmpdir 
+		set chan [open $tmpdir/$directory/a w]
+		puts $chan hello[incr i]
+		close $chan
     }
     set chan1 [stream]
 }
@@ -103,6 +105,8 @@ variable setup1 {
 variable cleanup1 {
     close $chan1
 }
+
+
 
 test test-stream {} -setup $setup1 -body {
     string length [read $chan1]
