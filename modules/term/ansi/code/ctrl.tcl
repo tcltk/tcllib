@@ -135,10 +135,10 @@ proc ::term::ansi::code::ctrl::INIT {} {
 
     # Cursor Up, Down, Forward, Backward
 
-    DEFC cu {{n 1}} {escb [expr {$n == 1 ? A : ${n}A}]}
-    DEFC cd {{n 1}} {escb [expr {$n == 1 ? B : ${n}B}]}
-    DEFC cf {{n 1}} {escb [expr {$n == 1 ? C : ${n}C}]}
-    DEFC cb {{n 1}} {escb [expr {$n == 1 ? D : ${n}D}]}
+    DEFC cu {{n 1}} {escb [expr {$n == 1 ? "A" : "${n}A"}]}
+    DEFC cd {{n 1}} {escb [expr {$n == 1 ? "B" : "${n}B"}]}
+    DEFC cf {{n 1}} {escb [expr {$n == 1 ? "C" : "${n}C"}]}
+    DEFC cb {{n 1}} {escb [expr {$n == 1 ? "D" : "${n}D"}]}
 
     # Scroll Screen (entire display, or between rows start end, inclusive).
 
