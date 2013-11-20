@@ -37,12 +37,19 @@ proc ::term::ansi::send::Args {n -> arv achv avv} {
     upvar 1 $arv a $achv ach $avv av
     set code ::term::ansi::code::ctrl::$n
     set a   [info args $code]
-    set ach [linsert $a 0 ch]
     set av  [expr {
 	[llength $a]
-	? " \$[join $a " \$"]"
+	? " \$[join $a { $}]"
 	: $a
     }]
+    foreach a1 $a[set a {}] {
+        if {[info default $code $a1 default]} {
+            lappend a [list $a1 $default]
+        } else {
+            lappend a $a1
+        }
+    }
+    set ach [linsert $a 0 ch]
     return $code
 }
 
@@ -51,13 +58,11 @@ proc ::term::ansi::send::INIT {} {
 	set nch  [ChName $n]
 	set code [Args $n -> a ach av]
 
-	if {[string equal [lindex $a end] args]} {
+	if {[lindex $a end] eq "args"} {
 	    # An args argument requires more care, and an eval
 	    set av [lrange $av 0 end-1]
-	    if {![string equal $av ""]} {set av " $av"}
-	    set gen "eval \[linsert \$args 0 $code$av\]"
-
-	    #8.5: set gen "$code$av \{expand\}\$args"
+	    if {$av ne {}} {set av " $av"}
+	    set gen "$code$av {*}\$args"
 	} else {
 	    set gen $code$av
 	}
