@@ -1,3 +1,15 @@
+2013-11-22  Andreas Kupries <andreask@activestate.com>
+
+	* ansi/send.tcl: Revert Tcl 8.5 dependency introduced by an
+	  unlogged rewrite [c80b6fffde].
+
+2013-11-20  PoorYorick
+
+	* ansi/code.tcl: Unlogged rewrite, with commit message:
+	* ansi/code/ctrl.tcl: add support for default arguments to
+	* ansi/send.tcl: term::ansi::send fix documentation types
+	* ansi_ctrlu.tcl: quoting cleanup 
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
