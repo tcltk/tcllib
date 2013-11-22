@@ -5,8 +5,9 @@
 # ### ### ### ######### ######### #########
 ## Requirements
 
-package require  term::send
-package require  term::ansi::code::ctrl
+package require Tcl 8.4
+package require term::send
+package require term::ansi::code::ctrl
 
 namespace eval ::term::ansi::send {}
 
@@ -62,7 +63,8 @@ proc ::term::ansi::send::INIT {} {
 	    # An args argument requires more care, and an eval
 	    set av [lrange $av 0 end-1]
 	    if {$av ne {}} {set av " $av"}
-	    set gen "$code$av {*}\$args"
+	    set gen "eval \[linsert \$args 0 $code$av\]"
+	    #8.5: (written for clarity): set gen "$code$av {*}\$args"
 	} else {
 	    set gen $code$av
 	}
