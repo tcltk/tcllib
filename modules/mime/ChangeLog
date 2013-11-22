@@ -1,3 +1,11 @@
+2013-11-22  Andreas Kupries  <andreask@activestate.com>
+
+	* mime.tcl: (PoorYorick): general cleanup. use expr operators like
+	* mime.test: eq instead of string commands. (AK Notes): Version
+	  bumped to 1.6, requirement bumped to Tcl 8.5. (AK) Updated
+	  testsuite and doc Tcl requirements. Fixed the creative writing
+	  problem of the initialization code, present before PY cleanup.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
