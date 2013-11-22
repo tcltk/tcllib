@@ -10,6 +10,7 @@
 # (c) 2002-2003 David Welton
 # (c) 2003-2008 Pat Thoyts
 # (c) 2005      Benjamin Riefenstahl
+# (c) 2013      PoorYorick
 #
 #
 # See the file "license.terms" for information on usage and redistribution
@@ -92,7 +93,7 @@ namespace eval ::mime {
     variable mime
     array set mime {uid 0 cid 0}
 
-# 822 lexemes
+    # RFC 822 lexemes
     variable addrtokenL
     lappend addrtokenL \; , < > : . ( ) @ \" \[ ] \\
     variable addrlexemeL {
@@ -105,7 +106,7 @@ namespace eval ::mime {
         LX_QUOTE
     }
 
-# 2045 lexemes
+    # RFC 2045 lexemes
     variable typetokenL
     lappend typetokenL \; , < > : ? ( ) @ \" \[ \] = / \\
     variable typelexemeL {
@@ -119,7 +120,7 @@ namespace eval ::mime {
         LX_QUOTE
     }
 
-    set encList {
+    variable encList {
         ascii US-ASCII
         big5 Big5
         cp1250 Windows-1250
@@ -204,13 +205,9 @@ namespace eval ::mime {
     variable encodings
     array set encodings $encList
     variable reversemap
-    foreach {enc mimeType} $encList {
-        if {$mimeType ne {}} {
-            set reversemap([string tolower $mimeType]) $enc
-        }
-    }
+    # Initialized at the bottom of the file
 
-    set encAliasList {
+    variable encAliasList {
         ascii ANSI_X3.4-1968
         ascii iso-ir-6
         ascii ANSI_X3.4-1986
@@ -328,10 +325,6 @@ namespace eval ::mime {
         ksc5601 korean
         shiftjis MS_Kanji
         utf-8 UTF8
-    }
-
-    foreach {enc mimeType} $encAliasList {
-        set reversemap([string tolower $mimeType]) $enc
     }
 
     namespace export initialize finalize getproperty \
@@ -3995,3 +3988,23 @@ proc ::mime::field_decode {field} {
     return $result
 }
 
+## One-Shot Initialization
+
+::apply {{} {
+    variable encList
+    variable encAliasList
+    variable reversemap
+
+    foreach {enc mimeType} $encList {
+        if {$mimeType eq {}} continue
+	set reversemap([string tolower $mimeType]) $enc
+    }
+
+    foreach {enc mimeType} $encAliasList {
+        set reversemap([string tolower $mimeType]) $enc
+    }
+
+    # Drop the helper variables
+    unset encList encAliasList
+
+} ::mime}
