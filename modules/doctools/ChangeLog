@@ -1,3 +1,23 @@
+2013-11-07  Andreas Kupries <andreask@activestate.com>
+
+	* mpformats/man.macros: [Ticket 369f67aeee] Updated to newest from
+	  Tcl/Tk.
+
+2013-11-06  Andreas Kupries  <andreask@activestate.com>
+
+	* mpformats/fmt.nroff: [Ticket efe207eff1]: Applied
+	* mpformats/idx.nroff: patched by Stuart Casoff to
+	* mpformats/toc.nroff: unbreak manpage rendering on
+	* modules/doctools/tests/nroff/00: various BSD variants.
+	* modules/doctools/tests/nroff/01: Must include our
+	* modules/doctools/tests/nroff/02: macros after emitting
+	* modules/doctools/tests/nroff/03: .TH to avoid clashes.
+	* modules/doctools/tests/nroff/04: Updated test results.
+	* modules/doctools/tests/nroff/05:
+	* modules/doctools/tests/nroff/06:
+	* modules/doctools/tests/nroff/07:
+	* modules/doctools/tests/nroff/08:
+
 2013-06-05  Andreas Kupries <andreask@activestate.com>
 
 	* doctools.tcl: Added dt_ibase command to the set

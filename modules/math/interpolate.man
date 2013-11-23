@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::interpolate n 1.0.2]
+[manpage_begin math::interpolate n 1.1]
 [keywords interpolation]
 [keywords math]
 [keywords {spatial interpolation}]
@@ -10,7 +10,7 @@
 [category  Mathematics]
 [require Tcl [opt 8.4]]
 [require struct]
-[require math::interpolate [opt 1.0.2]]
+[require math::interpolate [opt 1.1]]
 
 [description]
 [para]
@@ -44,6 +44,13 @@ Interpolation in one dimension using cubic splines.
 
 [para]
 This document describes the procedures and explains their usage.
+
+[section "INCOMPATIBILITY WITH VERSION 1.0.3"]
+
+The interpretation of the tables in the [cmd ::math::interpolate::interpolate-1d-table] command
+has been changed to be compatible with the interpretation for 2D interpolation in
+the [cmd ::math::interpolate::interpolate-table] command. As a consequence this version is
+incompatible with the previous versions of the command (1.0.x).
 
 [section "PROCEDURES"]
 
@@ -223,9 +230,36 @@ values near the desired abscissa.
 [list_end]
 
 [section EXAMPLES]
-[emph TODO]
 
-Example of using the cubic splines:
+[emph "Example of using one-dimensional tables:"]
+[para]
+Suppose you have several tabulated functions of one variable:
+[example {
+    x     y1     y2
+  0.0    0.0    0.0
+  1.0    1.0    1.0
+  2.0    4.0    8.0
+  3.0    9.0   27.0
+  4.0   16.0   64.0
+}]
+Then to estimate the values at 0.5, 1.5, 2.5 and 3.5, you can use:
+[example {
+   set table [::math::interpolate::defineTable table1 \
+       {x y1 y2} {   -      1      2
+                   0.0    0.0    0.0
+                   1.0    1.0    1.0
+                   2.0    4.0    8.0
+                   3.0    9.0   27.0
+                   4.0   16.0   64.0}]
+   foreach x {0.5 1.5 2.5 3.5} {
+       puts "$x: [::math::interpolate::interp-1d-table $table $x]"
+   }
+}]
+For one-dimensional tables the first row is not used. For two-dimensional
+tables, the first row represents the values for the second independent variable.
+[para]
+
+[emph "Example of using the cubic splines:"]
 [para]
 Suppose the following values are given:
 [example {

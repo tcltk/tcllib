@@ -1,3 +1,10 @@
+2013-11-07  Andreas Kupries  <andreask@activestate.com>
+
+	* uri.tcl: [Ticket dc50cc65ea]: Accept schema names
+	* uri.test: case-insensitively. Report and patch by Harald
+	* pkgIndex.tcl: Oehlmann. Version bumped to 1.2.3. Extended
+	  testsuite (uri-11.0).
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
