@@ -1,5 +1,5 @@
 # -*- tcl -*-
-# (c) 2004-2009 Andreas Kupries
+# (c) 2004-2013 Andreas Kupries
 # Grammar / Finite Automatons / Container
 
 # ### ### ### ######### ######### #########
@@ -14,7 +14,7 @@
 ## Requisites
 
 package require grammar::fa::op ; # Heavy FA operations.
-package require snit 1.3        ; # OO system in use (Using hierarchical methods)
+package require snit 1.3-       ; # OO system in use (Using hierarchical methods)
 package require struct::list    ; # Extended list operations.
 package require struct::set     ; # Extended set operations.
 
@@ -1226,4 +1226,4 @@ snit::type ::grammar::fa {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide grammar::fa 0.4
+package provide grammar::fa 0.5
