@@ -56,13 +56,29 @@ proc ::tar::seekorskip {ch off wh} {
     return
 }
 
-proc ::tar::skip {ch len} {
-    while {$len>0} {
-	set readsize [string length [read $ch $len]]
-	if {$readsize == 0 && [eof $ch]} {
-	    return
+proc ::tar::skip {ch skipover} {
+    while {$skipover > 0} {
+	set requested $skipover
+
+	# Limit individual skips to 64K, as a compromise between speed
+	# of skipping (Number of read requests), and memory usage
+	# (Note how skipped block is read into memory!). While the
+	# read data is immediately discarded it still generates memory
+	# allocation traffic, gets copied, etc. Trying to skip the
+	# block in one go without the limit may cause us to run out of
+	# (virtual) memory, or just induce swapping, for nothing.
+
+	if {$requested > 65536} {
+	    set requested 65536
 	}
-	incr len -$readsize
+
+	set skipped [string length [read $ch $requested]]
+
+	# Stop in short read into the end of the file.
+	if {!$skipped && [eof $ch]} break
+
+	# Keep track of how much is (not) skipped yet.
+	incr skipover -$skipped
     }
     return
 }
