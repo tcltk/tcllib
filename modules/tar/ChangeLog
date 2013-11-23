@@ -1,3 +1,12 @@
+2013-11-22  Andreas Kupries <andreask@activestate.com>
+
+	* tar.man: Reviewed the work on the pyk-tar branch. Brought
+	* tar.tcl: new testsuite up to spec. Reviewed the skip fix,
+	* tar.test: modified it to reinstate the skip limit per round
+	* test-support.tcl: without getting the bug back. Bumped version
+	  to 0.9. Thanks to PoorYorick for the initial work on the bug,
+	  fix, and testsuite. This also fixes ticket [6b7aa0aecc].
+
 2013-08-12  Andreas Kupries  <andreask@activestate.com>
 
 	* tar.man (tar::untar, contents, stat, get): Extended the
