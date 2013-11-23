@@ -474,6 +474,12 @@ test uri-10.1 {uri::join bug #3235340, fragments after queries} {
 
 # -------------------------------------------------------------------------
 
+test uri-11.0 {uri::split, case-insensitive schemata, ticket dc50cc65ea} {
+    dictsort [uri::split hTTp://foo:bar@baz.com:80/bla/]
+} {fragment {} host baz.com path bla/ port 80 pwd bar query {} scheme http user foo}
+
+# -------------------------------------------------------------------------
+
 
 testsuiteCleanup
 return

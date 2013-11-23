@@ -55,7 +55,7 @@ This command switches the standard input of the current process to
 typed by the user are immediately reported to the application instead
 of waiting in the OS buffer until the Enter/Return key is received.
 
-[call [cmd ::term::ansi::ctrl::unix::raw]]
+[call [cmd ::term::ansi::ctrl::unix::cooked]]
 
 This command switches the standard input of the current process to
 [term cooked] input mode. This means that from then on all characters
