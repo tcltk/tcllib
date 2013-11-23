@@ -166,7 +166,7 @@ proc ::uri::split {url {defaultscheme http}} {
     set scheme {}
 
     # RFC 1738:	scheme = 1*[ lowalpha | digit | "+" | "-" | "." ]
-    regexp -- {^([a-z0-9+.-][a-z0-9+.-]*):} $url dummy scheme
+    regexp -- {^([A-Za-z0-9+.-][A-Za-z0-9+.-]*):} $url dummy scheme
 
     if {$scheme == {}} {
 	set scheme $defaultscheme
@@ -181,7 +181,7 @@ proc ::uri::split {url {defaultscheme http}} {
 
     regsub -- "^${scheme}:" $url {} url
 
-    set       parts(scheme) $scheme
+    set       parts(scheme) [string tolower $scheme]
     array set parts [Split[string totitle $scheme] $url]
 
     # should decode all encoded characters!
@@ -1035,4 +1035,4 @@ uri::register ldap {
     variable	url		"ldap:$schemepart"
 }
 
-package provide uri 1.2.2
+package provide uri 1.2.3

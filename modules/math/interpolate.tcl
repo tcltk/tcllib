@@ -100,9 +100,11 @@ proc ::math::interpolate::interp-1d-table { table xval } {
    #
    # Search for the records that enclose the x-value
    #
-   set xvalues [lrange [$table get column 0] 1 end]
+   set xvalues [lrange [$table get column 0] 2 end]
 
    foreach {row row2} [FindEnclosingEntries $xval $xvalues] break
+   incr row
+   incr row2
 
    set prev_values [$table get row $row]
    set next_values [$table get row $row2]
@@ -651,4 +653,4 @@ proc ::math::interpolate::interp-cubic-splines {coeffs x} {
 #
 # Announce our presence
 #
-package provide math::interpolate 1.0.3
+package provide math::interpolate 1.1

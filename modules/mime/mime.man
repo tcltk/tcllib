@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin mime n 1.5.6]
+[manpage_begin mime n 1.6]
 [see_also ftp]
 [see_also http]
 [see_also pop3]
@@ -19,8 +19,8 @@
 [moddesc   {Mime}]
 [titledesc {Manipulation of MIME body parts}]
 [category  {Text processing}]
-[require Tcl]
-[require mime [opt 1.5.6]]
+[require Tcl 8.5]
+[require mime [opt 1.6]]
 [description]
 [para]
 

@@ -110,14 +110,15 @@ oo::class create ::tcl::chan::string::implementation {
     }
 
     method Events {} {
-	if {$at >= [string length $content]} {
-	    my disallow read
-	} else {
-	    my allow read
-	}
+	# Always readable -- Even if the seek location is at the end
+	# (or beyond).  In that case the readable events are fired
+	# endlessly until the eof indicated by the seek location is
+	# properly processed by the event handler. Like for regular
+	# files -- Ticket [864a0c83e3].
+	my allow read
     }
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::chan::string 1.0.1
+package provide tcl::chan::string 1.0.2
 return
