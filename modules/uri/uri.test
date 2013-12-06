@@ -454,7 +454,7 @@ test uri-7.0 {uri::split & uri::join} {
 test uri-8.0 {uri::split bug #676976, ill. char in scheme} {
     set ls [uri::split ht,tp://tcl.apache.org/websh]
     eval uri::join $ls
-} {http:///ht,tp://tcl.apache.org/websh}
+} {http://ht/,tp://tcl.apache.org/websh}
 
 # -------------------------------------------------------------------------
 
@@ -477,6 +477,16 @@ test uri-10.1 {uri::join bug #3235340, fragments after queries} {
 test uri-11.0 {uri::split, case-insensitive schemata, ticket dc50cc65ea} {
     dictsort [uri::split hTTp://foo:bar@baz.com:80/bla/]
 } {fragment {} host baz.com path bla/ port 80 pwd bar query {} scheme http user foo}
+
+# -------------------------------------------------------------------------
+
+test uri-12.0 {uri::split, host-only without scheme, ticket cfb76ff494} {
+    dictsort [uri::split www.test.de]
+} {fragment {} host www.test.de path {} port {} pwd {} query {} scheme http user {}}
+
+test uri-12.1 {uri::split, host-only without scheme, ticket cfb76ff494} {
+    dictsort [uri::split http://www.test.de]
+} {fragment {} host www.test.de path {} port {} pwd {} query {} scheme http user {}}
 
 # -------------------------------------------------------------------------
 
