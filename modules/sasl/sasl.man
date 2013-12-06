@@ -236,7 +236,7 @@ password to authenticate a connection. Certain weaknesses have been
 found in NTLM and thus there are a number of versions of the protocol.
 As this mechanism has additional dependencies it is made available as
 a separate sub-package. To enable this mechanism your application must
-load the [packge SASL::NTLM] package.
+load the [package SASL::NTLM] package.
 
 [def "X-GOOGLE-TOKEN"]
 
