@@ -1,3 +1,8 @@
+2013-12-06  Andreas Kupries  <andreask@activestate.com>
+
+	* sha1.man: Ticket [444358b66e]. Documented option --.
+	* sha256.man:
+
 2013-10-29  Andreas Kupries  <andreask@activestate.com>
 
 	* sha1.c: Replaced misuse of cheaders for -D... with proper
