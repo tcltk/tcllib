@@ -1,6 +1,5 @@
-#!/bin/bash
-# -*- tcl -*- \
-exec tclsh8.5 "$0" ${1+"$@"}
+#!/usr/bin/env tclsh
+# -*- tcl -*-
 
 package require Tcl 8.5
 

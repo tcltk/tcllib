@@ -1,3 +1,9 @@
+2013-12-06  Andreas Kupries <andreask@activestate.com>
+
+	* tools/regenerate_parsers.tcl: Ticket [f5155519e7]. Dropped use
+	* ../../apps/pt: of bash. Switched to easier to read invokation
+	  without all the shell tricks and magic.
+
 2013-08-06  Andreas Kupries  <aku@hephaistos>
 
 	* pt_astree.man [Ticket 0d9f835d4d]: Removed (non)terminal
