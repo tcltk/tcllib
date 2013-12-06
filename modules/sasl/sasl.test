@@ -252,6 +252,7 @@ test SASL-DIGESTMD5-4.3 "check for support of charset parameter" {
         info exists p(charset)
     } res] $res
 } [list 0 1]
+unset p ;# TODO convert to tcltest 2
 
 test SASL-DIGESTMD5-4.4 "check parsing of spaces in params" {
     list [catch {
