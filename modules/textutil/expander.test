@@ -346,7 +346,7 @@ test expander-5.1 {new evalcmd} {} {
 } {{uplevel #0} identity {+++Bogus Macro+++}}
 
 #---------------------------------------------------------------------
-# Test cases 5.x: Replacing the textcmd.
+# Test cases 6.x: Replacing the textcmd.
 
 proc count {text} {
     return [string length $text]
