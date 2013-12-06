@@ -36,9 +36,9 @@ message-digest.
 [list_begin definitions]
 
 [call [cmd ::sha1::sha1] \
-        [opt "[arg -hex|-bin]"] \
-        [lb] [arg "-channel channel"] | \
-        [arg "-file filename"] | [arg "string"] [rb]]
+        [opt "[option -hex|-bin]"] \
+        [lb] [option "-channel channel"] | \
+        [option "-file filename"] | [opt [option --]] [arg "string"] [rb]]
 
 The command takes a message and returns the SHA1 digest of this message
 as a hexadecimal string. You may request the result as binary data by
@@ -60,17 +60,25 @@ incremental programming API (see below).
 
 Only one of [arg "-file"], [arg "-channel"] or [arg "string"] should be given.
 
+[para] If the [arg string] to hash can be mistaken for an option
+(leading dash "-"), use the option [option --] before it to terminate
+option processing and force interpretation as a string.
+
 [call [cmd "::sha1::hmac"] [arg "key"] [arg "string"]]
 [call [cmd "::sha1::hmac"] \
-        [opt "[arg -hex|-bin]"] \
-        [arg "-key key"] \
-        [lb] [arg "-channel channel"] | \
-        [arg "-file filename"] | [arg "string"] [rb]]
+        [opt "[option -hex|-bin]"] \
+        [option "-key key"] \
+        [lb] [option "-channel channel"] | \
+        [option "-file filename"] | [opt [option --]] [arg "string"] [rb]]
 
 Calculate an Hashed Message Authentication digest (HMAC) using the SHA1
 digest algorithm. HMACs are described in RFC 2104 (3) and provide an SHA1
 digest that includes a key. All options other than [arg -key] are as
 for the [cmd "::sha1::sha1"] command.
+
+[para] If the [arg string] to hash can be mistaken for an option
+(leading dash "-"), use the option [option --] before it to terminate
+option processing and force interpretation as a string.
 
 [list_end]
 
