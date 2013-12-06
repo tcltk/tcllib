@@ -18,7 +18,7 @@ package require md4;                    # tcllib 1.4
 
 namespace eval ::SASL {
     namespace eval NTLM {
-        variable version 1.1.1
+        variable version 1.1.2
         variable rcsid {$Id: ntlm.tcl,v 1.8 2007/08/26 00:36:45 patthoyts Exp $}
         array set NTLMFlags {
             unicode        0x00000001
@@ -94,8 +94,8 @@ proc ::SASL::NTLM::CreateGreeting {domainname hostname {flags {}}} {
     set d_len [string length $domain]
     set h_len [string length $host]
     set d_off [expr {32 + $h_len}]
-    if {[llength $flags] == 0} {
-        set flags {unicode oem ntlm server domain req_target}
+    if {![llength $flags]} {
+        set flags {unicode oem ntlm server req_target}
     }
     set msg [binary format a8iississi \
                  "NTLMSSP\x00" 1 [Flags $flags] \
