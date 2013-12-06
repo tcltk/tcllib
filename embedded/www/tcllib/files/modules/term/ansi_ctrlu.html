@@ -138,7 +138,7 @@
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">::term::ansi::ctrl::unix::import</b> <span class="opt">?<i class="arg">ns</i>?</span> <span class="opt">?<i class="arg">arg</i>...?</span></a></li>
 <li><a href="#2"><b class="cmd">::term::ansi::ctrl::unix::raw</b></a></li>
-<li><a href="#3"><b class="cmd">::term::ansi::ctrl::unix::raw</b></a></li>
+<li><a href="#3"><b class="cmd">::term::ansi::ctrl::unix::cooked</b></a></li>
 <li><a href="#4"><b class="cmd">::term::ansi::ctrl::unix::columns</b></a></li>
 <li><a href="#5"><b class="cmd">::term::ansi::ctrl::unix::rows</b></a></li>
 </ul>
@@ -174,7 +174,7 @@ after the namespace argument.</p></dd>
 <i class="term"><a href="../../../../index.html#key487">raw</a></i> input mode. This means that from then on all characters
 typed by the user are immediately reported to the application instead
 of waiting in the OS buffer until the Enter/Return key is received.</p></dd>
-<dt><a name="3"><b class="cmd">::term::ansi::ctrl::unix::raw</b></a></dt>
+<dt><a name="3"><b class="cmd">::term::ansi::ctrl::unix::cooked</b></a></dt>
 <dd><p>This command switches the standard input of the current process to
 <i class="term"><a href="../../../../index.html#key485">cooked</a></i> input mode. This means that from then on all characters
 typed by the user are kept in OS buffers for editing until the
