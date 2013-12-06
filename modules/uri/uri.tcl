@@ -170,6 +170,12 @@ proc ::uri::split {url {defaultscheme http}} {
 
     if {$scheme == {}} {
 	set scheme $defaultscheme
+	switch -- $scheme {
+	    http - https - ftp {
+		# Force an empty host part
+		set url //$url
+	    }
+	}
     }
 
     # ease maintenance: dynamic dispatch, able to handle all schemes
@@ -657,7 +663,7 @@ proc ::uri::resolve {base url} {
 		https -
 		ftp -
 		file {
-		    array set relparts [split $url]
+		    array set relparts [split $baseparts(scheme):$url]
 		    if { [string match /* $url] } {
 			catch { set baseparts(path) $relparts(path) }
 		    } elseif { [string match */ $baseparts(path)] } {
@@ -670,7 +676,7 @@ proc ::uri::resolve {base url} {
 		    }
 		    catch { set baseparts(query) $relparts(query) }
 		    catch { set baseparts(fragment) $relparts(fragment) }
-            return [eval [linsert [array get baseparts] 0 join]]
+		    return [eval [linsert [array get baseparts] 0 join]]
 		}
 		default {
 		    return -code error "unable to resolve relative URL \"$url\""
@@ -1035,4 +1041,4 @@ uri::register ldap {
     variable	url		"ldap:$schemepart"
 }
 
-package provide uri 1.2.3
+package provide uri 1.2.4
