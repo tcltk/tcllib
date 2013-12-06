@@ -1,6 +1,7 @@
-#!/bin/bash
-# -*- tcl -*- \
-exec tclsh8.5 "$0" ${1+"$@"}
+#!/usr/bin/env tclsh
+# -*- tcl -*-
+
+package require Tcl 8.5
 # activate commands below for execution from within the pt directory
 set self    [file normalize [info script]]
 set selfdir [file dirname $self]
