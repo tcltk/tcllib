@@ -1,3 +1,10 @@
+2013-12-06  Andreas Kupries  <andreask@activestate.com>
+
+	* sasl.man: Ticket [b8f35b9883]. Added references for SCRAM mechanism
+	* sasl.test: and package. Fixed missing cleanup of test variable.
+	* scram.tcl: New package SASL::SCRAM and testsuite, provided
+	* scram.test: by <sgolovan@nes.ru>
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
