@@ -478,16 +478,20 @@ password to authenticate a connection\&. Certain weaknesses have been
 found in NTLM and thus there are a number of versions of the protocol\&.
 As this mechanism has additional dependencies it is made available as
 a separate sub-package\&. To enable this mechanism your application must
-load the SASL::NTLM package\&.
+load the \fBSASL::NTLM\fR package\&.
 .TP
 X-GOOGLE-TOKEN
 This is a proprietary protocol developed by Google and used for
 authenticating users for the Google Talk service\&. This mechanism makes
 a pair of HTTP requests over an SSL channel and so this mechanism
 depends upon the availability of the tls and http packages\&. To enable
-this mechanism your application must load the SASL::XGoogleToken package\&.
+this mechanism your application must load the \fBSASL::XGoogleToken\fR package\&.
 In addition you are recommended to make use of the autoproxy package to
 handle HTTP proxies reasonably transparently\&.
+.TP
+SCRAM
+This is a protocol specified in RFC 5802 [7]\&. To enable this mechanism
+your application must load the \fBSASL::SCRAM\fR package\&.
 .PP
 .SH EXAMPLES
 See the examples subdirectory for more complete samples using SASL
@@ -549,6 +553,10 @@ description\&.
 Haller, N\&. et al\&., "A One-Time Password System",
 RFC 2289, February 1998,
 (\fIhttp://www\&.ieft\&.org/rfc/rfc2289\&.txt\fR)
+.IP [7]
+Newman, C\&. et al\&., "Salted Challenge Response Authentication Mechanism (SCRAM) SASL and GSS-API Mechanisms",
+RFC 5802, July 2010,
+(\fIhttp://www\&.ieft\&.org/rfc/rfc5802\&.txt\fR)
 .PP
 .SH AUTHORS
 Pat Thoyts
