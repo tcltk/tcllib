@@ -1,3 +1,8 @@
+2013-12-06  Andreas Kupries  <andreask@activestate.com>
+
+	* expander.man: Ticket [01afa9345d]. Added note about method
+	  'expand' pushing a new and empty context while running.
+
 2013-10-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* expander.man: Ticket [e65df22e92]. Fixed typos.

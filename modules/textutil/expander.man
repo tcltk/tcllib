@@ -202,6 +202,9 @@ additional argument: the macro to evaluate.
 Expands the input string, replacing embedded macros with their
 expanded values, and returns the expanded string.
 
+[para] Note that this method pushes a new (empty) context on the stack of
+contexts while it is running, and removes it on return.
+
 [para]
 
 If [arg brackets] is given, it must be a list of two strings; the
