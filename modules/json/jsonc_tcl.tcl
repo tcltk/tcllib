@@ -13,8 +13,6 @@ if {![package vsatisfies [package provide Tcl] 8.5]} {
     package require dict
 }
 
-package provide json 1.2
-
 namespace eval json {
     # Regular expression for tokenizing a JSON text (cf. http://json.org/)
 
