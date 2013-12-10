@@ -1,0 +1,14 @@
+Integration Notes...
+
+This directory contains part of the json-c project maintained at
+
+    https://github.com/json-c/json-c/wiki
+
+Reduced to the pure sources and relevant incidental files for proper
+attribution and licensing it represents the 0.11 release whose tarball
+was retrieved from
+
+    https://s3.amazonaws.com/json-c_releases/releases/index.html
+
+The various build systems are not part of the integration as their
+role was here taken over by Critcl.
