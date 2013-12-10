@@ -89,7 +89,7 @@ set JSON(glossary) {{
                 "A meta-markup language, used ...",
                 "GlossSeeAlso": ["GML", "XML", "markup"]}]}}
 }}
-set TCL(glossary) {glossary {title {example glossary} mixlist {{a "" str} -0.09 null {} {member true}} GlossDiv {title S GlossList {{ID SGML GlossTerm {Standard \" Language} Acronym SGML\\ Abbrev {ISO 8879:1986} GlossDef {A meta-markup language, used ...} GlossSeeAlso {GML XML markup}}}}}}
+set TCL(glossary) {glossary {title {example glossary} mixlist {{a "" str} -0.09 null {} {member 1}} GlossDiv {title S GlossList {{ID SGML GlossTerm {Standard \" Language} Acronym SGML\\ Abbrev {ISO 8879:1986} GlossDef {A meta-markup language, used ...} GlossSeeAlso {GML XML markup}}}}}}
 set DICTSORT(glossary) {dict * {dict GlossDiv {dict GlossList {list dict}}}}
 
 set JSON(menu) {{"menu": {
