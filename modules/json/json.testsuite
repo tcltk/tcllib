@@ -4,28 +4,28 @@
 # -------------------------------------------------------------------------
 
 set i 0
-foreach name [array names JSON] {
+foreach name [lsort -dict [array names JSON]] {
     test json-${impl}-1.[incr i] "test JSON $name" -body {
 	transform [json::json2dict $JSON($name)] $name
     } -result [resultfor $name]
 }
 
 set i 0
-foreach name [array names JSON] {
+foreach name [lsort -dict [array names JSON]] {
     test json-${impl}-7.[incr i] "validate JSON $name" -body {
         json::validate $JSON($name)
     } -result 1
 }
 
 set i 0
-foreach name [array names FAIL] {
+foreach name [lsort -dict [array names FAIL]] {
     test json-${impl}-8.[incr i] "test FAIL $name" -body {
 	json::json2dict $FAIL($name)
     } -returnCodes error -result $ERR(${name}-${impl})
 }
 
 set i 0
-foreach name [array names FAIL] {
+foreach name [lsort -dict [array names FAIL]] {
     test json-${impl}-9.[incr i] "validate FAIL $name" -body {
         json::validate $FAIL($name)
     } -result 0
@@ -61,8 +61,8 @@ test json-${impl}-3.2 {many-json2dict, bad limit, zero} -body {
 } -returnCodes error -result {Bad limit 0 of json entities to extract.}
 
 set i 0
-foreach first [array names JSON] {
-    foreach second [array names JSON] {
+foreach first [lsort -dict [array names JSON]] {
+    foreach second [lsort -dict [array names JSON]] {
         set    input $JSON($first)
         append input " " $JSON($second)
 
@@ -77,8 +77,8 @@ foreach first [array names JSON] {
 }
 
 set i 0
-foreach first [array names JSON] {
-    foreach second [array names JSON] {
+foreach first [lsort -dict [array names JSON]] {
+    foreach second [lsort -dict [array names JSON]] {
         set    input $JSON($first)
         append input " " $JSON($second)
 
@@ -92,7 +92,7 @@ foreach first [array names JSON] {
 }
 
 set i 0
-foreach first [array names JSON] {
+foreach first [lsort -dict [array names JSON]] {
     set input $JSON($first)
     test json-${impl}-6.[incr i] "many-json2dict, bad limit, 3 over 1" -body {
         json::many-json2dict $input 3
