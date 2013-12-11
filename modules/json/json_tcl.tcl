@@ -331,29 +331,3 @@ proc ::json::parseValue {tokens nrTokens tokenCursorName} {
         }
     }
 }
-
-proc ::json::dict2json_tcl {dictVal} {
-    # XXX: Currently this API isn't symmetrical, as to create proper
-    # XXX: JSON text requires type knowledge of the input data
-    set json ""
-
-    dict for {key val} $dictVal {
-	# key must always be a string, val may be a number, string or
-	# bare word (true|false|null)
-	if {0 && ![string is double -strict $val]
-	    && ![regexp {^(?:true|false|null)$} $val]} {
-	    set val "\"$val\""
-	}
-    	append json "\"$key\": $val," \n
-    }
-
-    return "\{${json}\}"
-}
-
-proc ::json::list2json_tcl {listVal} {
-    return "\[[join $listVal ,]\]"
-}
-
-proc ::json::string2json_tcl {str} {
-    return "\"$str\""
-}
