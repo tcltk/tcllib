@@ -36,11 +36,32 @@ if 1 {
 
 source [file join $self json.tcl]
 
+# ### ### ### ######### ######### ######### ###########################
+## Helpers
+
 proc cat {f} {
     set c [open $f]
     set d [read $c]
     close $c
     return $d
+}
+
+proc iota {n} {
+    set r {}
+    while {$n > 0} {
+	lappend r [json::string2json $n]
+	incr n -1
+    }
+    return $r
+}
+
+proc iota-dict {n} {
+    set r {}
+    while {$n > 0} {
+	lappend r f$n [json::string2json $n]
+	incr n -1
+    }
+    return $r
 }
 
 # ### ### ### ######### ######### ######### ###########################
@@ -58,7 +79,17 @@ foreach e [json::KnownImplementations] {
 foreach impl [json::Implementations] {
     json::SwitchTo $impl
 
-    bench_puts {=== parse =========}
+    if {$impl eq "tcl"} {
+	set series {0 1 10 100 1000}
+    } else {
+	set series {0 1 10 100 1000}
+    }
+
+    bench_puts "=== === === === === ==="
+    bench_puts "=== === === $impl ==="
+    bench_puts "=== === === === === ==="
+
+    bench_puts {=== test-data =========}
 
     foreach f [glob -nocomplain -directory $self/test-data *.json] {
 	set in [cat $f]
@@ -66,20 +97,6 @@ foreach impl [json::Implementations] {
 	bench -desc "parse [file rootname [file tail $f]] ($impl)" -body {
 	    json::json2dict $in
 	}
-    }
-
-    foreach f [glob -nocomplain -directory $self/test-data *.bench] {
-	set in [cat $f]
-
-	bench -desc "parse [file rootname [file tail $f]] ($impl)" -body {
-	    json::json2dict $in
-	}
-    }
-
-    bench_puts {=== validate =========}
-
-    foreach f [glob -nocomplain -directory $self/test-data *.json] {
-	set in [cat $f]
 
 	bench -desc "validate [file rootname [file tail $f]] ($impl)" -body {
 	    json::validate $in
@@ -89,7 +106,53 @@ foreach impl [json::Implementations] {
     foreach f [glob -nocomplain -directory $self/test-data *.bench] {
 	set in [cat $f]
 
+	bench -desc "parse [file rootname [file tail $f]] ($impl)" -body {
+	    json::json2dict $in
+	}
+
 	bench -desc "validate [file rootname [file tail $f]] ($impl)" -body {
+	    json::validate $in
+	}
+    }
+
+    bench_puts {=== synthetic array =========}
+
+    foreach n $series {
+	set in [json::list2json [iota $n]]
+
+	bench -desc "parse array-$n ($impl)" -body {
+	    json::json2dict $in
+	}
+
+	bench -desc "validate array-$n ($impl)" -body {
+	    json::validate $in
+	}
+    }
+
+    bench_puts {=== synthetic object =========}
+
+    foreach n $series {
+	set in [json::dict2json [iota-dict $n]]
+
+	bench -desc "parse object-$n ($impl)" -body {
+	    json::json2dict $in
+	}
+
+	bench -desc "validate object-$n ($impl)" -body {
+	    json::validate $in
+	}
+    }
+
+    bench_puts {=== synthetic string =========}
+
+    foreach n $series {
+	set in [json::string2json [string repeat . $n]]
+
+	bench -desc "parse string-$n ($impl)" -body {
+	    json::json2dict $in
+	}
+
+	bench -desc "validate string-$n ($impl)" -body {
 	    json::validate $in
 	}
     }
