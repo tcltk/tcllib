@@ -265,4 +265,4 @@ proc ::json::string2json {str} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide json 1.2
+package provide json 1.3
