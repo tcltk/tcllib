@@ -352,7 +352,7 @@ namespace eval ::json {
 	    if (parsed == NULL) {
 		json_tokener_free(tok);
 		Tcl_SetObjResult(I, Tcl_NewBooleanObj (0));
-		return TCL_ERROR;
+		return TCL_OK;
 	    }
 	    json_object_put(parsed);
 
@@ -367,7 +367,7 @@ namespace eval ::json {
 	json_tokener_free(tok);
 
 	/* We are good and done */
-	Tcl_SetObjResult(I, Tcl_NewBooleanObj (0));
+	Tcl_SetObjResult(I, Tcl_NewBooleanObj (1));
 	return TCL_OK;
     }
 }
