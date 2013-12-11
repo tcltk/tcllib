@@ -152,11 +152,8 @@ namespace eval ::json {
     variable  loaded  {}
 
     variable apicmds {
-	dict2json
 	json2dict
-	list2json
 	many-json2dict
-	string2json
 	validate
     }
 }
@@ -175,6 +172,36 @@ namespace eval ::json {
 	}
     }
     unset e
+}
+
+# ### ### ### ######### ######### #########
+## These three procedures shared between Tcl and Critcl implementations.
+## See also package "json::write".
+
+proc ::json::dict2json {dictVal} {
+    # XXX: Currently this API isn't symmetrical, as to create proper
+    # XXX: JSON text requires type knowledge of the input data
+    set json ""
+
+    foreach {key val} $dictVal {
+	# key must always be a string, val may be a number, string or
+	# bare word (true|false|null)
+	if {0 && ![string is double -strict $val]
+	    && ![regexp {^(?:true|false|null)$} $val]} {
+	    set val "\"$val\""
+	}
+    	append json "\"$key\": $val," \n
+    }
+
+    return "\{${json}\}"
+}
+
+proc ::json::list2json {listVal} {
+    return "\[[join $listVal ,]\]"
+}
+
+proc ::json::string2json {str} {
+    return "\"$str\""
 }
 
 # ### ### ### ######### ######### #########
