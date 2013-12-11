@@ -1,4 +1,6 @@
 
+#use fileutil/fileutil.tcl fileutil
+
 catch {unset JSON}
 catch {unset TCL}
 catch {unset DICTSORT}
@@ -42,121 +44,67 @@ proc dictsort3 {spec data} {
             string {
                 return $data
             }
-            default {error "Invalid type"}
+            default {
+		error "Invalid type"
+	    }
         }
     }
 }
 
-
-set JSON(array) {[
-      {
-         "precision": "zip",
-         "Latitude":  37.7668,
-         "Longitude": -122.3959,
-         "Address":   "",
-         "City":      "SAN FRANCISCO",
-         "State":     "CA",
-         "Zip":       "94107",
-         "Country":   "US"
-      },
-      {
-         "precision": "zip",
-         "Latitude":  37.371991,
-         "Longitude": -122.026020,
-         "Address":   "",
-         "City":      "SUNNYVALE",
-         "State":     "CA",
-         "Zip":       "94085",
-         "Country":   "US"
-      }
-     ]}
-set TCL(array) {{precision zip Latitude 37.7668 Longitude -122.3959 Address {} City {SAN FRANCISCO} State CA Zip 94107 Country US} {precision zip Latitude 37.371991 Longitude -122.026020 Address {} City SUNNYVALE State CA Zip 94085 Country US}}
-
-set DICTSORT(array) {list dict}
-
-set JSON(glossary) {{
-    "glossary": {
-        "title": "example glossary",
-        "mixlist": ["a \"\" str", -0.09, null, "", {"member":true}],
-        "GlossDiv": {
-            "title": "S",
-            "GlossList": [{
-                "ID": "SGML",
-                "GlossTerm": "Standard \\\" Language",
-                "Acronym": "SGML\\",
-                "Abbrev": "ISO 8879:1986",
-                "GlossDef":
-                "A meta-markup language, used ...",
-                "GlossSeeAlso": ["GML", "XML", "markup"]}]}}
-}}
-set TCL(glossary) {glossary {title {example glossary} mixlist {{a "" str} -0.09 null {} {member 1}} GlossDiv {title S GlossList {{ID SGML GlossTerm {Standard \" Language} Acronym SGML\\ Abbrev {ISO 8879:1986} GlossDef {A meta-markup language, used ...} GlossSeeAlso {GML XML markup}}}}}}
-set DICTSORT(glossary) {dict * {dict GlossDiv {dict GlossList {list dict}}}}
-
-set JSON(menu) {{"menu": {
-    "id": "file",
-    "value": "File:",
-    "unival": "\u6021:",
-    "popup": {
-        "menuitem": [
-                     {"value": "Open", "onclick": "OpenDoc()"},
-                     {"value": "Close", "onclick": "CloseDoc()"}
-                    ]
-    }
+foreach f [TestFilesGlob test-data/*.json] {
+    set name [file rootname [file tail $f]]
+    set JSON($name) [tcltest::viewFile $f]
 }
-}}
-set TCL(menu) [list menu [list id file value File: unival \u6021: popup {menuitem {{value Open onclick OpenDoc()} {value Close onclick CloseDoc()}}}]]
-set DICTSORT(menu) {dict * {dict popup {dict * {list dict}}}}
 
-set JSON(widget) {{"widget": {
-    "debug": "on",
-    "window": {
-        "title":"Sample Widget",
-        "name": "main_window",
-        "width": 500,
-        "height": 500},
-    "text": {
-        "data": "Click Here",
-        "size": 36,
-        "style": "bold",
-        "name": null,
-        "hOffset":250,
-        "vOffset": 100,
-        "alignment": "center",
-        "onMouseUp": "sun1.opacity = (sun1.opacity / 100) * 90;"
-    }
+foreach f [TestFilesGlob test-data/*.result] {
+    set name [file rootname [file tail $f]]
+    set TCL($name) [tcltest::viewFile $f]
 }
-}}
-set TCL(widget) {widget {debug on window {title {Sample Widget} name main_window width 500 height 500} text {data {Click Here} size 36 style bold name null hOffset 250 vOffset 100 alignment center onMouseUp {sun1.opacity = (sun1.opacity / 100) * 90;}}}}
-set DICTSORT(widget) {dict * {dict text dict window dict}}
 
-set JSON(menu2) {{"menu": {
-    "header": "Viewer",
-    "items": [
-              {"id": "Open"},
-              {"id": "OpenNew", "label": "Open New"},
-              null,
-              {"id": "ZoomIn", "label": "Zoom In"},
-              {"id": "ZoomOut", "label": "Zoom Out"},
-              null,
-              {"id": "Help"},
-              {"id": "About", "label": "About Viewer..."}
-             ]
+foreach f [TestFilesGlob test-data/*.sort] {
+    set name [file rootname [file tail $f]]
+    set DICTSORT($name) [tcltest::viewFile $f]
 }
-}}
-set TCL(menu2) {menu {header Viewer items {{id Open} {id OpenNew label {Open New}} null {id ZoomIn label {Zoom In}} {id ZoomOut label {Zoom Out}} null {id Help} {id About label {About Viewer...}}}}}
-set DICTSORT(menu2) {dict * {dict items {list 0 dict 1 dict 3 dict 4 dict 6 dict 7 dict}}}
+
+# Postprocessing result of one test case, insert proper expected unicodepoint
+set  TCL(menu) [string map [list @@@ \u6021]  $TCL(menu)]
 
 set JSON(emptyList) {[]}
-set TCL(emptyList) {}
+set  TCL(emptyList) {}
 
 set JSON(emptyList2) {{"menu": []}}
-set TCL(emptyList2) {menu {}}
+set  TCL(emptyList2) {menu {}}
 
 set JSON(emptyList3) {["menu", []]}
-set TCL(emptyList3) {menu {}}
+set  TCL(emptyList3) {menu {}}
 
 set JSON(emptyList4) {[[]]}
-set TCL(emptyList4) {{}}
+set  TCL(emptyList4) {{}}
+
+set JSON(escapes) {"\t\r\n\f\b\/\\\""}
+set  TCL(escapes) "\t\r\n\f\b/\\\""
+
+
+
+foreach f [TestFilesGlob test-data/*.fail] {
+    set name [file rootname [file tail $f]]
+    set FAIL($name) [tcltest::viewFile $f]
+}
+
+foreach f [TestFilesGlob test-data/*.err] {
+    set name [file rootname [file tail $f]]
+    set ERR($name) [tcltest::viewFile $f]
+}
+
+set FAIL(escape1)        {"\%"}
+set  ERR(escape1-tcl)    {unexpected token "END" at position 0; expecting VALUE}
+set  ERR(escape1-critcl) {invalid string sequence}
+
+set FAIL(escape2)        {"\."}
+set  ERR(escape2-tcl)    {unexpected token "END" at position 0; expecting VALUE}
+set  ERR(escape2-critcl) {invalid string sequence}
+
+
 
 proc resultfor {name} {
     global TCL
