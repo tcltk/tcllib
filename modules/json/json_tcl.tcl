@@ -13,54 +13,6 @@ if {![package vsatisfies [package provide Tcl] 8.5]} {
     package require dict
 }
 
-namespace eval ::json {
-    # Regular expression for tokenizing a JSON text (cf. http://json.org/)
-
-    # tokens consisting of a single character
-    variable singleCharTokens { "{" "}" ":" "\\[" "\\]" "," }
-    variable singleCharTokenRE "\[[join $singleCharTokens {}]\]"
-
-    # quoted string tokens
-    variable escapableREs { "[\\\"\\\\/bfnrt]" "u[[:xdigit:]]{4}" }
-    variable escapedCharRE "\\\\(?:[join $escapableREs |])"
-    variable unescapedCharRE {[^\\\"]}
-    variable stringRE "\"(?:$escapedCharRE|$unescapedCharRE)*\""
-
-    # (unquoted) words
-    variable wordTokens { "true" "false" "null" }
-    variable wordTokenRE [join $wordTokens "|"]
-
-    # number tokens
-    # negative lookahead (?!0)[[:digit:]]+ might be more elegant, but
-    # would slow down tokenizing by a factor of up to 3!
-    variable positiveRE {[1-9][[:digit:]]*}
-    variable cardinalRE "-?(?:$positiveRE|0)"
-    variable fractionRE {[.][[:digit:]]+}
-    variable exponentialRE {[eE][+-]?[[:digit:]]+}
-    variable numberRE "${cardinalRE}(?:$fractionRE)?(?:$exponentialRE)?"
-
-    # JSON token
-    variable tokenRE "$singleCharTokenRE|$stringRE|$wordTokenRE|$numberRE"
-
-
-    # 0..n white space characters
-    set whiteSpaceRE {[[:space:]]*}
-
-    # Regular expression for validating a JSON text
-    variable validJsonRE "^(?:${whiteSpaceRE}(?:$tokenRE))*${whiteSpaceRE}$"
-}
-
-
-# Validate JSON text
-# @param jsonText JSON text
-# @return 1 iff $jsonText conforms to the JSON grammar
-#           (@see http://json.org/)
-proc ::json::validate_tcl {jsonText} {
-    variable validJsonRE
-
-    return [regexp -- $validJsonRE $jsonText]
-}
-
 # Parse JSON text into a dict
 # @param jsonText JSON text
 # @return dict (or list) containing the object represented by $jsonText
