@@ -5,23 +5,34 @@
 
 set i 0
 foreach name [array names JSON] {
-    set expected [transform $TCL($name) $name]
-
     test json-${impl}-1.[incr i] "test JSON $name" -body {
         set res [json::json2dict $JSON($name)]
 	set res [transform $res $name]
 	set res
     } -cleanup {
-	unset res expected
-    } -result $expected
+	unset res
+    } -result [resultfor $name]
 }
 
 set i 0
 foreach name [array names JSON] {
     test json-${impl}-7.[incr i] "validate JSON $name" -body {
         json::validate $JSON($name)
-    } -cleanup {
     } -result 1
+}
+
+set i 0
+foreach name [array names FAIL] {
+    test json-${impl}-8.[incr i] "test FAIL $name" -body {
+	json::json2dict $FAIL($name)
+    } -returnCodes error -result $ERR(${name}-${impl})
+}
+
+set i 0
+foreach name [array names FAIL] {
+    test json-${impl}-9.[incr i] "validate FAIL $name" -body {
+        json::validate $FAIL($name)
+    } -result 0
 }
 
 # -------------------------------------------------------------------------

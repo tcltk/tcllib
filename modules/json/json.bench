@@ -1,0 +1,104 @@
+# -*- tcl -*-
+# Tcl Benchmark File
+#
+# This file contains a number of benchmarks for the 'json' parser
+# to allow developers to monitor package performance.
+#
+# (c) 2013 Andreas Kupries <andreas_kupries@users.sourceforge.net>
+
+# We need at least version 8.4 for the package and thus the
+# benchmarks.
+
+if {![package vsatisfies [package present Tcl] 8.4]} {
+    bench_puts "Need Tcl 8.4+, found Tcl [package present Tcl]"
+    return
+}
+
+# ### ### ### ######### ######### ######### ###########################
+## Setting up the environment ...
+
+package require Tcl 8.4
+
+package forget json
+
+set self  [file join [pwd] [file dirname [info script]]]
+set mod   [file dirname $self]
+set index [file join [file dirname $self] tcllibc pkgIndex.tcl]
+
+if 1 {
+    if {[file exists $index]} {
+	set ::dir [file dirname $index]
+	uplevel #0 [list source $index]
+	unset ::dir
+	package require tcllibc
+    }
+}
+
+source [file join $self json.tcl]
+
+proc cat {f} {
+    set c [open $f]
+    set d [read $c]
+    close $c
+    return $d
+}
+
+# ### ### ### ######### ######### ######### ###########################
+## Get all the possible implementations
+
+json::SwitchTo {}
+foreach e [json::KnownImplementations] {
+    ::json::LoadAccelerator $e
+}
+
+# ### ### ### ######### ######### ######### ###########################
+## Benchmarks.
+## Just the parser, on the valid inputs for the testsuite.
+
+foreach impl [json::Implementations] {
+    json::SwitchTo $impl
+
+    bench_puts {=== parse =========}
+
+    foreach f [glob -nocomplain -directory $self/test-data *.json] {
+	set in [cat $f]
+
+	bench -desc "parse [file rootname [file tail $f]] ($impl)" -body {
+	    json::json2dict $in
+	}
+    }
+
+    foreach f [glob -nocomplain -directory $self/test-data *.bench] {
+	set in [cat $f]
+
+	bench -desc "parse [file rootname [file tail $f]] ($impl)" -body {
+	    json::json2dict $in
+	}
+    }
+
+    bench_puts {=== validate =========}
+
+    foreach f [glob -nocomplain -directory $self/test-data *.json] {
+	set in [cat $f]
+
+	bench -desc "validate [file rootname [file tail $f]] ($impl)" -body {
+	    json::validate $in
+	}
+    }
+
+    foreach f [glob -nocomplain -directory $self/test-data *.bench] {
+	set in [cat $f]
+
+	bench -desc "validate [file rootname [file tail $f]] ($impl)" -body {
+	    json::validate $in
+	}
+    }
+}
+
+# ### ### ### ######### ######### ######### ###########################
+## Complete
+
+return
+
+# ### ### ### ######### ######### ######### ###########################
+## Notes ...
