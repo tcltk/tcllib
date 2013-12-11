@@ -182,6 +182,7 @@ proc ::json::dict2json {dictVal} {
     # XXX: Currently this API isn't symmetrical, as to create proper
     # XXX: JSON text requires type knowledge of the input data
     set json ""
+    set prefix ""
 
     foreach {key val} $dictVal {
 	# key must always be a string, val may be a number, string or
@@ -190,7 +191,8 @@ proc ::json::dict2json {dictVal} {
 	    && ![regexp {^(?:true|false|null)$} $val]} {
 	    set val "\"$val\""
 	}
-    	append json "\"$key\": $val," \n
+    	append json "$prefix\"$key\": $val" \n
+	set prefix ,
     }
 
     return "\{${json}\}"
