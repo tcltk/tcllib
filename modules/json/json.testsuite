@@ -6,11 +6,7 @@
 set i 0
 foreach name [array names JSON] {
     test json-${impl}-1.[incr i] "test JSON $name" -body {
-        set res [json::json2dict $JSON($name)]
-	set res [transform $res $name]
-	set res
-    } -cleanup {
-	unset res
+	transform [json::json2dict $JSON($name)] $name
     } -result [resultfor $name]
 }
 
