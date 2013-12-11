@@ -193,7 +193,6 @@ critcl::ccode {
 
 namespace eval ::json {
     critcl::ccommand json2dict_critcl {dummy I objc objv} {
-
 	struct json_tokener	*tok;
 	enum json_tokener_error	 jerr;
 	struct json_object	*parsed;
@@ -222,6 +221,155 @@ namespace eval ::json {
 	Tcl_SetObjResult(I, value2obj(I, parsed));
 
 	json_object_put(parsed);
+	return TCL_OK;
+    }
+
+    critcl::ccommand many-json2dict_critcl {dummy I objc objv} {
+	struct json_tokener	*tok;
+	enum json_tokener_error	 jerr;
+	struct json_object	*parsed;
+	const char		*text;
+	int       		 len;
+	int                      max;
+	int                      found;
+
+	Tcl_Obj* result = Tcl_NewListObj(0, NULL);
+
+	if ((objc < 2) || (objc > 3)) {
+	    Tcl_WrongNumArgs(I, 1, objv, "jsonText ?max?");
+	    return TCL_ERROR;
+	}
+
+	if (objc == 3) {
+	    if (Tcl_GetIntFromObj(I, objv[2], &max) != TCL_OK) {
+		return TCL_ERROR;
+	    }
+	    if (max <= 0) {
+		Tcl_AppendResult (I, "Bad limit ",
+				  Tcl_GetString (objv[2]),
+				  " of json entities to extract.",
+				  NULL);
+		Tcl_SetErrorCode (I, "JSON", "BAD-LIMIT", NULL);
+		return TCL_ERROR;
+	    }
+
+	} else {
+	    max = -1;
+	}
+
+	text   = Tcl_GetStringFromObj(objv[1], &len);
+	tok    = json_tokener_new();
+	found  = 0;
+
+	/* Iterate over the input until
+	 * - we have gotten all requested values.
+	 * - we have run out of input
+	 * - we have run into an error
+	 */
+
+	while ((max < 0) || max) {
+	    parsed = json_tokener_parse_ex(tok, text, len);
+
+	    /* parse error, abort */
+	    if (parsed == NULL) {
+		jerr = json_tokener_get_error(tok);
+		Tcl_SetResult(I,
+			      json_tokener_error_desc(jerr),
+			      TCL_STATIC);
+
+		json_tokener_free(tok);
+		Tcl_DecrRefCount (result);
+		return TCL_ERROR;
+	    }
+
+	    /* Proper value extracted, extend result */
+	    found ++;
+	    Tcl_ListObjAppendElement(I, result,
+				     value2obj(I, parsed));
+	    json_object_put(parsed);
+
+	    /* Count down on the number of still missing
+	     * values, if not asking for all (-1)
+	     */
+	    if (max > 0) max --;
+
+	    /* Abort if we have consumed all input */
+	    if (tok->char_offset >= len) break;
+
+	    /* Skip over consumed text for next parse */
+	    text += tok->char_offset;
+	    len  -= tok->char_offset;
+	}
+
+	json_tokener_free(tok);
+
+	/* While all parse were ok we reached end of
+	 * input without getting all requested values,
+	 * this is an error
+	 */
+	if (max > 0) {
+	    char buf [30];
+	    sprintf (buf, "%d", found);
+	    Tcl_AppendResult (I, "Bad limit ",
+			      Tcl_GetString (objv[2]),
+			      " of json entities to extract, found only ",
+			      buf,
+			      ".",
+			      NULL);
+	    Tcl_SetErrorCode (I, "JSON", "BAD-LIMIT", "TOO", "LARGE", NULL);
+	    Tcl_DecrRefCount (result);
+	    return TCL_ERROR;
+	}
+
+	/* We are good and done */
+	Tcl_SetObjResult(I, result);
+	return TCL_OK;
+    }
+
+    critcl::ccommand validate_critcl {dummy I objc objv} {
+	struct json_tokener	*tok;
+	enum json_tokener_error	 jerr;
+	struct json_object	*parsed;
+	const char		*text;
+	int       		 len;
+	int                      max;
+	int                      found;
+
+	if (objc != 2) {
+	    Tcl_WrongNumArgs(I, 1, objv, "jsonText");
+	    return TCL_ERROR;
+	}
+
+	text   = Tcl_GetStringFromObj(objv[1], &len);
+	tok    = json_tokener_new();
+
+	/* Iterate over the input until we have run
+	 * out of text, or encountered an error
+	 */
+
+	while (1) {
+	    parsed = json_tokener_parse_ex(tok, text, len);
+
+	    /* parse error, abort, not valid */
+	    if (parsed == NULL) {
+		json_tokener_free(tok);
+		Tcl_SetObjResult(I, Tcl_NewBooleanObj (0));
+		return TCL_ERROR;
+	    }
+	    json_object_put(parsed);
+
+	    /* Abort if we have consumed all input */
+	    if (tok->char_offset >= len) break;
+
+	    /* Skip over consumed text for next parse */
+	    text += tok->char_offset;
+	    len  -= tok->char_offset;
+	}
+
+	json_tokener_free(tok);
+
+	/* We are good and done */
+	Tcl_SetObjResult(I, Tcl_NewBooleanObj (0));
 	return TCL_OK;
     }
 }

@@ -5,21 +5,23 @@
 
 set i 0
 foreach name [array names JSON] {
-    if {[info exists DICTSORT($name)]} {	
-	set expected [dictsort3 $DICTSORT($name) $TCL($name)]
-    } else {
-	set expected $TCL($name)
-    }
+    set expected [transform $TCL($name) $name]
 
     test json-${impl}-1.[incr i] "test JSON $name" -body {
         set res [json::json2dict $JSON($name)]
-        if {[info exists DICTSORT($name)]} {
-	    set res  [dictsort3 $DICTSORT($name) $res]
-	}
+	set res [transform $res $name]
 	set res
     } -cleanup {
 	unset res expected
     } -result $expected
+}
+
+set i 0
+foreach name [array names JSON] {
+    test json-${impl}-7.[incr i] "validate JSON $name" -body {
+        json::validate $JSON($name)
+    } -cleanup {
+    } -result 1
 }
 
 # -------------------------------------------------------------------------
@@ -38,7 +40,6 @@ test json-${impl}-2.1 {string2json} -body {
 # -------------------------------------------------------------------------
 # many-json2dict
 # -------------------------------------------------------------------------
-return
 
 test json-${impl}-3.0 {many-json2dict, wrong args, not enough} -body {
     json::many-json2dict
@@ -52,7 +53,7 @@ test json-${impl}-3.2 {many-json2dict, bad limit, zero} -body {
     json::many-json2dict {[]} 0
 } -returnCodes error -result {Bad limit 0 of json entities to extract.}
 
-set i 2
+set i 0
 foreach first [array names JSON] {
     foreach second [array names JSON] {
         set    input $JSON($first)
@@ -62,12 +63,13 @@ foreach first [array names JSON] {
         lappend output [resultfor $first]
         lappend output [resultfor $second]
 
-        test json-${impl}-3.[incr i] "many-json2dict: $first/$second, all" -body {
+        test json-${impl}-4.[incr i] "many-json2dict: $first/$second, all" -body {
             transform* [json::many-json2dict $input] $first $second
         } -result $output
     }
 }
 
+set i 0
 foreach first [array names JSON] {
     foreach second [array names JSON] {
         set    input $JSON($first)
@@ -76,15 +78,16 @@ foreach first [array names JSON] {
         set     output {}
         lappend output [resultfor $first]
 
-        test json-${impl}-3.[incr i] "many-json2dict: $first/$second, first only" -body {
+        test json-${impl}-5.[incr i] "many-json2dict: $first/$second, first only" -body {
             transform* [json::many-json2dict $input 1] $first
         } -result $output
     }
 }
 
+set i 0
 foreach first [array names JSON] {
     set input $JSON($first)
-    test json-${impl}-3.[incr i] "many-json2dict, bad limit, 3 over 1" -body {
+    test json-${impl}-6.[incr i] "many-json2dict, bad limit, 3 over 1" -body {
         json::many-json2dict $input 3
     } -returnCodes error -result {Bad limit 3 of json entities to extract, found only 1.}
 }
