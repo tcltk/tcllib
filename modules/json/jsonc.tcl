@@ -11,9 +11,6 @@ package require critcl
 package provide jsonc 1
 package require Tcl 8.4
 
-## Parts still written in Tcl.
-critcl::tsources jsonc_tcl.tcl
-
 critcl::cheaders -Ic c/*.h
 critcl::csources c/*.c
 
@@ -134,13 +131,16 @@ critcl::ccode {
     static Tcl_Obj *
     value2obj(Tcl_Interp *I, struct json_object *jso)
     {
+	struct array_list* ar;
+	int                len;
+	Tcl_Obj*           key;
+	Tcl_Obj*           result;
+	Tcl_Obj*           value;
+
 	switch (json_object_get_type(jso)) {
 	    case json_type_object: {
 		/* Using List API here for compat with Tcl 8.4. */
-
-		Tcl_Obj* result = Tcl_NewListObj(0, NULL);
-		Tcl_Obj* key;
-		Tcl_Obj* value;
+		result = Tcl_NewListObj(0, NULL);
 
 		json_object_object_foreach(jso, k, v) {
 		    key   = Tcl_NewStringObj(k, -1);
@@ -170,10 +170,8 @@ critcl::ccode {
 	    }
 
 	    case json_type_array: {
-		int len;
-		struct array_list *ar = json_object_get_array(jso);
-		Tcl_Obj* value;
-		Tcl_Obj* result = Tcl_NewListObj(0, NULL);
+		ar     = json_object_get_array(jso);
+		result = Tcl_NewListObj(0, NULL);
 
 		for (len = 0; len < ar->length; len++) {
 		    value = lazy_value2obj(I, ar->array[len]);
@@ -183,7 +181,7 @@ critcl::ccode {
 	    }
 
 	    case json_type_string: {
-		int len = json_object_get_string_len(jso);
+		len = json_object_get_string_len(jso);
 		return Tcl_NewStringObj(json_object_get_string(jso), len);
 	    }
 	}
