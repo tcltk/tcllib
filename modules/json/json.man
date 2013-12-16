@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin json n 1.2]
+[vset VERSION 1.3]
+[manpage_begin json n [vset VERSION]]
 [keywords {data exchange}]
 [keywords {exchange format}]
 [keywords javascript]
@@ -10,7 +11,7 @@
 [titledesc {JSON parser}]
 [category  {CGI programming}]
 [require Tcl 8.4]
-[require json [opt 1.2]]
+[require json [opt [vset VERSION]]]
 [description]
 [para]
 
