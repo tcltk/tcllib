@@ -11,6 +11,7 @@
 [titledesc {debug narrative - timestamping}]
 [category  {debugging, tracing, and logging}]
 [require Tcl 8.5]
+[require debug::timestamp [opt 1]]
 [require debug [opt 1]]
 [description]
 [para]

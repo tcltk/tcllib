@@ -7,6 +7,7 @@
 [copyright {Copyright 2006 Darren New. All Rights Reserved.}]
 [category  {Text processing}]
 [require Tcl 8.4]
+[require xsxp 1]
 [require xml]
 [description]
 This package provides a simple interface to parse XML into a pure-value list.

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::decimal n 1.0.2]
+[manpage_begin math::decimal n 1.0.3]
 [keywords decimal]
 [keywords math]
 [keywords tcl]
@@ -8,6 +8,7 @@
 [titledesc {General decimal arithmetic}]
 [category  Mathematics]
 [require Tcl [opt 8.5]]
+[require math::decimal 1.0.3]
 
 [description]
 [para]

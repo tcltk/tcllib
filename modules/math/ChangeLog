@@ -1,4 +1,10 @@
+2013-12-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* decimal.man: Fixed missing requirement of the package
+	* machineparameters.man: itself.
+
 2013-11-03  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* calculus.tcl: Corrected calculation of corrector in heunStep (now version 0.7.2)
 	* pkgIndex.tcl: [Ticket b25b826973] Bumped version of interpolate to 1.1
 	* interpolate.tcl: [Ticket b25b826973] Corrected inconsistency in use of tables for 1D interpolation
@@ -7,6 +13,7 @@
 	                   incompatibility
 
 2013-03-05  Arjen Markus <arjenmarkus@users.sourceforge.net>
+
 	* statistics.tcl: [Ticket 05d055c2f5]: Added weights to histogram
 	* statistics.man: [Ticket 05d055c2f5]: Documented weights to histogram
 	* statistics.test: [Ticket 05d055c2f5]: Added test for weights to histogram

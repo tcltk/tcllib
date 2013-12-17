@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin tcl::chan::randseed n 1]
+[manpage_begin tcl::randomseed n 1]
 [keywords /dev/random]
 [keywords merge]
 [keywords random]
@@ -13,11 +13,12 @@
 [titledesc {Utilities for random channels}]
 [require Tcl 8.5]
 [require TclOO]
-[require tcl::chan::randseed [opt 1]]
+[require tcl::randomseed [opt 1]]
 [description]
 [para]
 
-The [package tcl::chan::randseed] package provides a a few utility commands to help with the seeding of [package tcl::chan::random] channels.
+The [package tcl::randomseed] package provides a a few utility commands
+to help with the seeding of [package tcl::chan::random] channels.
 
 [section API]
 
