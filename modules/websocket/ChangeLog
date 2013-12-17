@@ -1,0 +1,5 @@
+2013-12-17  Andreas Kupries  <andreask@activestate.com>
+
+	* websocket.man: Added missing reference to the package itself.
+
+

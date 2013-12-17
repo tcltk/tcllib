@@ -1,3 +1,8 @@
+2013-12-17  Andreas Kupries  <andreask@activestate.com>
+
+	* debug_heartbeat.man: Fixed missing requirement of the
+	* debug_timestamp.man: package itself.
+
 2013-08-06  Andreas Kupries  <aku@hephaistos>
 
 	* debug.tcl: Fixed bug in 'pdict', access to name of the array
