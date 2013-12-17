@@ -31,19 +31,21 @@ oo::class create ::pt::rde::oo {
     ## API - Lifecycle
 
     constructor {} {
-	set selfns [info object namespace]
+	set selfns [self namespace]
 
 	set mystackloc  [struct::stack ${selfns}::LOC]  ; # LS
 	set mystackerr  [struct::stack ${selfns}::ERR]  ; # ES
 	set mystackast  [struct::stack ${selfns}::AST]  ; # ARS/AS
 	set mystackmark [struct::stack ${selfns}::MARK] ; # s.a.
 
-	my reset
+	my reset {}
 	return
     }
 
     method reset {chan} {
 	set mychan    $chan      ; # IN
+	set mytext    {}         ; # IN, alt.
+	set myat      0          ; # mytext index
 	set myline    1          ; #
 	set mycolumn  0          ; #
 	set mycurrent {}         ; # CC
@@ -58,6 +60,11 @@ oo::class create ::pt::rde::oo {
 	$mystackerr  clear
 	$mystackast  clear
 	$mystackmark clear
+	return
+    }
+
+    method data {string} {
+	append mytext $string
 	return
     }
 
@@ -497,11 +504,21 @@ oo::class create ::pt::rde::oo {
     ## Internals
 
     method ReadChar {} {
-	upvar 1 mychan mychan myline myline mycolumn mycolumn
+	upvar 1 mychan mychan mytext mytext myat myat \
+	    myline myline mycolumn mycolumn
 
-	if {[eof $mychan]} {return {}}
-
-	set ch [read $mychan 1]
+	if {$mychan eq {}} {
+	    # Read from string
+	    if {$myat == [string length $mytext]} {
+		return {}
+	    }
+	    set ch [string index $mytext $myat]
+	    incr myat
+	} else {
+	    # Read from channel
+	    if {[eof $mychan]} {return {}}
+	    set ch [read $mychan 1]
+	}
 	if {$ch eq ""} {return {}}
 
 	set token [list $ch $myline $mycolumn]
@@ -533,7 +550,7 @@ oo::class create ::pt::rde::oo {
     ## Mainly the architectural state of the instance's PARAM.
 
     variable \
-	mychan myline mycolumn \
+	mychan mytext myat myline mycolumn \
 	mycurrent myloc mystackloc \
 	myok mysvalue myerror mystackerr \
 	mytoken mysymbol \
@@ -551,5 +568,5 @@ oo::class create ::pt::rde::oo {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::rde 1.0.2
+package provide pt::rde::oo 1.0.2
 return
