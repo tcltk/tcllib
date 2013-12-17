@@ -1,8 +1,8 @@
 [comment {-*- text -*- doctools manpage}]
-[manpage_begin pt::tclparam::configuration::tcloo n 1.0.1]
+[manpage_begin pt::tclparam::configuration::tcloo n 1.0.3]
 [include include/module.inc]
 [titledesc {Tcl/PARAM, Canned configuration, Tcloo}]
-[require pt::tclparam::configuration::tcloo [opt 1.0.1]]
+[require pt::tclparam::configuration::tcloo [opt 1.0.3]]
 [description]
 [include include/ref_intro.inc]
 
