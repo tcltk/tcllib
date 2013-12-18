@@ -46,6 +46,8 @@ modules/debug/debug_caller.man
 modules/debug/debug_heartbeat.man
 modules/debug/debug_timestamp.man
 modules/des/des.man
+modules/des/tcldes.man
+modules/des/tcldesjr.man
 modules/dns/tcllib_dns.man
 modules/dns/tcllib_ip.man
 modules/docstrip/docstrip.man
@@ -236,6 +238,7 @@ modules/pt/pt_from_api.man
 modules/pt/pt_introduction.man
 modules/pt/pt_json_language.man
 modules/pt/pt_param.man
+modules/pt/pt_parse_peg.man
 modules/pt/pt_parser_api.man
 modules/pt/pt_peg_container.man
 modules/pt/pt_peg_container_peg.man
@@ -253,6 +256,7 @@ modules/pt/pt_peg_import_peg.man
 modules/pt/pt_peg_interp.man
 modules/pt/pt_peg_introduction.man
 modules/pt/pt_peg_language.man
+modules/pt/pt_peg_op.man
 modules/pt/pt_peg_to_container.man
 modules/pt/pt_peg_to_cparam.man
 modules/pt/pt_peg_to_json.man
@@ -273,7 +277,10 @@ modules/report/report.man
 modules/rest/rest.man
 modules/ripemd/ripemd128.man
 modules/ripemd/ripemd160.man
+modules/sasl/gtoken.man
+modules/sasl/ntlm.man
 modules/sasl/sasl.man
+modules/sasl/scram.man
 modules/sha1/sha1.man
 modules/sha1/sha256.man
 modules/simulation/annealing.man
@@ -284,6 +291,7 @@ modules/snit/snit.man
 modules/snit/snitfaq.man
 modules/soundex/soundex.man
 modules/stooop/stooop.man
+modules/stooop/switched.man
 modules/string/token.man
 modules/string/token_shell.man
 modules/stringprep/stringprep.man
@@ -396,3 +404,5 @@ modules/websocket/websocket.man
 modules/wip/wip.man
 modules/yaml/huddle.man
 modules/yaml/yaml.man
+modules/zip/decode.man
+modules/zip/encode.man

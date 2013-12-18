@@ -276,6 +276,8 @@ xsxp \- eXtremely Simple Xml Parser
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
+package require \fBxsxp  1\fR
+.sp
 package require \fBxml \fR
 .sp
 \fBxsxp::parse\fR \fIxml\fR

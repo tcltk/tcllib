@@ -276,6 +276,8 @@ tclrep/machineparameters \- Compute double precision machine parameters\&.
 .SH SYNOPSIS
 package require \fBsnit \fR
 .sp
+package require \fBmath::machineparameters  0\&.1\fR
+.sp
 \fBmachineparameters\fR create \fIobjectname\fR ?\fIoptions\fR\&.\&.\&.?
 .sp
 \fIobjectname\fR \fBconfigure\fR ?\fIoptions\fR\&.\&.\&.?
