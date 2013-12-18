@@ -1050,8 +1050,14 @@ tcllib
 \fBpt_introduction\fR
 \fIfiles/modules/pt/pt_introduction\&.n\fR: Introduction to Parser Tools
 .TP
+\fBpt_parse_peg\fR
+\fIfiles/modules/pt/pt_parse_peg\&.n\fR: Parser Tools PEG Parser
+.TP
 \fBpt_parser_api\fR
 \fIfiles/modules/pt/pt_parser_api\&.n\fR: Parser API
+.TP
+\fBpt_peg_op\fR
+\fIfiles/modules/pt/pt_peg_op\&.n\fR: Parser Tools PE Grammar Utility Operations
 .TP
 \fBrc4\fR
 \fIfiles/modules/rc4/rc4\&.n\fR: Implementation of the RC4 stream cipher
@@ -1076,6 +1082,15 @@ tcllib
 .TP
 \fBSASL\fR
 \fIfiles/modules/sasl/sasl\&.n\fR: Implementation of SASL mechanisms for Tcl
+.TP
+\fBSASL::NTLM\fR
+\fIfiles/modules/sasl/ntlm\&.n\fR: Implementation of SASL NTLM mechanism for Tcl
+.TP
+\fBSASL::SCRAM\fR
+\fIfiles/modules/sasl/scram\&.n\fR: Implementation of SASL SCRAM mechanism for Tcl
+.TP
+\fBSASL::XGoogleToken\fR
+\fIfiles/modules/sasl/gtoken\&.n\fR: Implementation of SASL NTLM mechanism for Tcl
 .TP
 \fBsha1\fR
 \fIfiles/modules/sha1/sha1\&.n\fR: SHA1 Message-Digest Algorithm
@@ -1173,6 +1188,9 @@ tcllib
 \fBsum\fR
 \fIfiles/modules/crc/sum\&.n\fR: Calculate a sum(1) compatible checksum
 .TP
+\fBswitched\fR
+\fIfiles/modules/stooop/switched\&.n\fR: switch/option management\&.
+.TP
 \fBtar\fR
 \fIfiles/modules/tar/tar\&.n\fR: Tar file creation, extraction & manipulation
 .TP
@@ -1209,9 +1227,6 @@ tcllib
 \fBtcl::chan::random\fR
 \fIfiles/modules/virtchannel_base/tcllib_random\&.n\fR: Random channel
 .TP
-\fBtcl::chan::randseed\fR
-\fIfiles/modules/virtchannel_base/randseed\&.n\fR: Utilities for random channels
-.TP
 \fBtcl::chan::std\fR
 \fIfiles/modules/virtchannel_base/std\&.n\fR: Standard I/O, unification of stdin and stdout
 .TP
@@ -1226,6 +1241,9 @@ tcllib
 .TP
 \fBtcl::chan::zero\fR
 \fIfiles/modules/virtchannel_base/tcllib_zero\&.n\fR: Zero channel
+.TP
+\fBtcl::randomseed\fR
+\fIfiles/modules/virtchannel_base/randseed\&.n\fR: Utilities for random channels
 .TP
 \fBtcl::transform::adler32\fR
 \fIfiles/modules/virtchannel_transform/adler32\&.n\fR: Adler32 transformation
@@ -1265,6 +1283,12 @@ tcllib
 .TP
 \fBtcl::transform::zlib\fR
 \fIfiles/modules/virtchannel_transform/tcllib_zlib\&.n\fR: zlib (de)compression
+.TP
+\fBtcldes\fR
+\fIfiles/modules/des/tcldesjr\&.n\fR: Implementation of the DES and triple-DES ciphers
+.TP
+\fBtcldes\fR
+\fIfiles/modules/des/tcldes\&.n\fR: Implementation of the DES and triple-DES ciphers
 .TP
 \fBtcldocstrip\fR
 \fIfiles/apps/tcldocstrip\&.n\fR: Tcl-based Docstrip Processor
@@ -1463,3 +1487,9 @@ tcllib
 .TP
 \fByencode\fR
 \fIfiles/modules/base64/yencode\&.n\fR: Y-encode/decode binary data
+.TP
+\fBzipfile::encode\fR
+\fIfiles/modules/zip/encode\&.n\fR: Generation of zip archives
+.TP
+\fBzipfile::encode\fR
+\fIfiles/modules/zip/decode\&.n\fR: Access to zip archives

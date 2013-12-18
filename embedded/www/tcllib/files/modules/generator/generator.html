@@ -189,7 +189,7 @@ mechanism.</p>
 <p>The package exports a single ensemble command, <b class="cmd">generator</b>. All
 functionality is provided as subcommands of this command. The core subcommands
 of the package are <b class="method">define</b>, <b class="method">yield</b>, and <b class="method">foreach</b>. The
-<b class="method">define</b> command works like Tcl's <b class="cmd"><a href="../../../../index.html#key573">proc</a></b> command, but creates a
+<b class="method">define</b> command works like Tcl's <b class="cmd"><a href="../../../../index.html#key580">proc</a></b> command, but creates a
 generator procedure; that is, a procedure that returns a generator when called.
 The generator itself is a command that can be called multiple times: each time
 it returns the next value in the generated series. When the
@@ -197,7 +197,7 @@ series has been exhausted, the generator command returns an empty list and then
 destroys itself. Rather than manually call a generator, however, the package
 also provides a flexible <b class="method">foreach</b> command that loops through the values of
 one or more generators. This loop construct mimicks the functionality of the
-built-in Tcl <b class="cmd"><a href="../../../../index.html#key216">foreach</a></b> command, including handling multiple return values
+built-in Tcl <b class="cmd"><a href="../../../../index.html#key218">foreach</a></b> command, including handling multiple return values
 and looping over multiple generators at once. Writing a generator is also a
 simple task, much like writing a normal procedure: simply use the <b class="method">define</b>
 command to define the generator, and then call <b class="method">yield</b> instead of <b class="cmd">return</b>.
@@ -232,7 +232,7 @@ which are actually used:</p>
 <dl class="definitions">
 <dt><a name="1"><b class="cmd">generator</b> <b class="method">define</b> <i class="arg">name</i> <i class="arg">params</i> <i class="arg">body</i></a></dt>
 <dd><p>Creates a new generator procedure. The arguments to the command are identical to
-those for <b class="cmd"><a href="../../../../index.html#key573">proc</a></b>: a <i class="arg">name</i>, a list of parameters, and a body. The
+those for <b class="cmd"><a href="../../../../index.html#key580">proc</a></b>: a <i class="arg">name</i>, a list of parameters, and a body. The
 parameter list format is identical to a procedure. In particular, default values
 and the <span class="opt">?args?</span> syntax can be used as usual. Each time the resulting
 generator procedure is called it creates a new generator command (coroutine)
@@ -251,10 +251,10 @@ multiple arguments, in which case this is equivalent to calling <b class="method
 once for each argument.</p></dd>
 <dt><a name="3"><b class="cmd">generator</b> <b class="method">foreach</b> <i class="arg">varList</i> <i class="arg">generator</i> <i class="arg">varList</i> <i class="arg">generator</i> <span class="opt">?...?</span> <i class="arg">body</i></a></dt>
 <dd><p>Loops through one or more generators, assigning the next values to variables and
-then executing the loop body. Works much like the built-in <b class="cmd"><a href="../../../../index.html#key216">foreach</a></b>
+then executing the loop body. Works much like the built-in <b class="cmd"><a href="../../../../index.html#key218">foreach</a></b>
 command, but working with generators rather than lists. Multiple generators can
 be iterated over in parallel, and multiple results can be retrieved from a
-single generator at once.  Like the built-in <b class="cmd"><a href="../../../../index.html#key216">foreach</a></b>, the loop will
+single generator at once.  Like the built-in <b class="cmd"><a href="../../../../index.html#key218">foreach</a></b>, the loop will
 continue until all of the generators have been exhausted: variables for
 generators that are exhausted early will be set to the empty string.</p>
 <p>The <b class="method">foreach</b> command will automatically clean-up all of the generators
@@ -508,6 +508,6 @@ equivalent to <b class="method">foldl</b> called on the same arguments.</p></dd>
 <a href="mailto:nem@cs.nott.ac.uk">Neil Madden</a>.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key222">control structure</a>, <a href="../../../../index.html#key217">coroutine</a>, <a href="../../../../index.html#key221">filter</a>, <a href="../../../../index.html#key219">foldl</a>, <a href="../../../../index.html#key224">foldr</a>, <a href="../../../../index.html#key216">foreach</a>, <a href="../../../../index.html#key223">generator</a>, <a href="../../../../index.html#key220">iterator</a>, <a href="../../../../index.html#key199">map</a>, <a href="../../../../index.html#key215">reduce</a>, <a href="../../../../index.html#key218">scanl</a></p>
+<p><a href="../../../../index.html#key224">control structure</a>, <a href="../../../../index.html#key219">coroutine</a>, <a href="../../../../index.html#key223">filter</a>, <a href="../../../../index.html#key221">foldl</a>, <a href="../../../../index.html#key226">foldr</a>, <a href="../../../../index.html#key218">foreach</a>, <a href="../../../../index.html#key225">generator</a>, <a href="../../../../index.html#key222">iterator</a>, <a href="../../../../index.html#key201">map</a>, <a href="../../../../index.html#key217">reduce</a>, <a href="../../../../index.html#key220">scanl</a></p>
 </div>
 </div></body></html>

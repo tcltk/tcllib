@@ -156,12 +156,12 @@
 <li><a href="#3"><b class="cmd">typemethod</b> <i class="arg">name</i> <i class="arg">arglist</i> <i class="arg">body</i></a></li>
 <li><a href="#4"><b class="cmd">typeconstructor</b> <i class="arg">body</i></a></li>
 <li><a href="#5"><b class="cmd">variable</b> <i class="arg">name</i> <span class="opt">?<b class="const">-array</b>?</span> <span class="opt">?<i class="arg">value</i>?</span></a></li>
-<li><a href="#6"><b class="cmd"><a href="../../../../index.html#key355">method</a></b> <i class="arg">name</i> <i class="arg">arglist</i> <i class="arg">body</i></a></li>
+<li><a href="#6"><b class="cmd"><a href="../../../../index.html#key361">method</a></b> <i class="arg">name</i> <i class="arg">arglist</i> <i class="arg">body</i></a></li>
 <li><a href="#7"><b class="cmd">option</b> <i class="arg">namespec</i> <span class="opt">?<i class="arg">defaultValue</i>?</span></a></li>
 <li><a href="#8"><b class="cmd">option</b> <i class="arg">namespec</i> <span class="opt">?<i class="arg">options...</i>?</span></a></li>
 <li><a href="#9"><b class="cmd">constructor</b> <i class="arg">arglist</i> <i class="arg">body</i></a></li>
 <li><a href="#10"><b class="cmd">destructor</b> <i class="arg">body</i></a></li>
-<li><a href="#11"><b class="cmd"><a href="../../../../index.html#key573">proc</a></b> <i class="arg">name</i> <i class="arg">args</i> <i class="arg">body</i></a></li>
+<li><a href="#11"><b class="cmd"><a href="../../../../index.html#key580">proc</a></b> <i class="arg">name</i> <i class="arg">args</i> <i class="arg">body</i></a></li>
 <li><a href="#12"><b class="cmd">delegate</b> <b class="const">method</b> <i class="arg">name</i> <b class="const">to</b> <i class="arg">comp</i> <span class="opt">?<b class="const">as</b> <i class="arg">target</i>?</span></a></li>
 <li><a href="#13"><b class="cmd">delegate</b> <b class="const">method</b> <i class="arg">name</i> <span class="opt">?<b class="const">to</b> <i class="arg">comp</i>?</span> <b class="const">using</b> <i class="arg">pattern</i></a></li>
 <li><a href="#14"><b class="cmd">delegate</b> <b class="const">method</b> <b class="const">*</b> <span class="opt">?<b class="const">to</b> <i class="arg">comp</i>?</span> <span class="opt">?<b class="const">using</b> <i class="arg">pattern</i>?</span> <span class="opt">?<b class="const">except</b> <i class="arg">exceptions</i>?</span></a></li>
@@ -255,8 +255,8 @@ anything that acts like an object; it shouldn't matter how the object
 was implemented.  Snit is intended to help you build applications out of
 the materials at hand; thus, Snit is designed to be able to
 incorporate and build on any object, whether it's a hand-coded object,
-a <b class="package"><a href="../../../../index.html#key207">Tk</a></b> widget, an <b class="package"><a href="../../../../index.html#key242">Incr Tcl</a></b> object,
-a <b class="package"><a href="../../../../index.html#key239">BWidget</a></b> or almost anything else.</p>
+a <b class="package"><a href="../../../../index.html#key209">Tk</a></b> widget, an <b class="package"><a href="../../../../index.html#key244">Incr Tcl</a></b> object,
+a <b class="package"><a href="../../../../index.html#key241">BWidget</a></b> or almost anything else.</p>
 <p>This man page is intended to be a reference only; see the accompanying
 <b class="cmd"><a href="snitfaq.html">snitfaq</a></b> for a gentler, more tutorial introduction to Snit
 concepts.</p>
@@ -308,7 +308,7 @@ has a subcommand <b class="const">b</b>.  <b class="const">b</b> is called like 
 <pre class="example">    $type a b &quot;Hello, world!&quot;
 </pre>
 <p><b class="const">a</b> may have any number of subcommands.  This makes it possible
-to define a hierarchical command structure; see <b class="cmd"><a href="../../../../index.html#key355">method</a></b>, below,
+to define a hierarchical command structure; see <b class="cmd"><a href="../../../../index.html#key361">method</a></b>, below,
 for more examples.</p>
 <p>Type methods can call commands from the namespace in which the type is
 defined without importing them, e.g., if the type name is
@@ -344,7 +344,7 @@ instance of this type, and optionally its initial value.
 If the <b class="const">-array</b> option is included, then
 <i class="arg">value</i> should be a dictionary; it will be
 assigned to the variable using <b class="cmd">array set</b>.</p></dd>
-<dt><a name="6"><b class="cmd"><a href="../../../../index.html#key355">method</a></b> <i class="arg">name</i> <i class="arg">arglist</i> <i class="arg">body</i></a></dt>
+<dt><a name="6"><b class="cmd"><a href="../../../../index.html#key361">method</a></b> <i class="arg">name</i> <i class="arg">arglist</i> <i class="arg">body</i></a></dt>
 <dd><p>Defines an instance method, a subcommand of each instance of this
 type, with the specified name, argument list and body.
 The <i class="arg">arglist</i> is a normal Tcl argument list and may contain
@@ -557,7 +557,7 @@ defined without importing them, e.g., if the type name is
 <b class="cmd">::parentns::someproc</b> just as <b class="cmd">someproc</b>.
 <em>Snit 1.x Incompatibility:</em> This does not work in Snit 1.x, as
 it depends on <b class="cmd">namespace path</b>, a new command in Tcl 8.5.</p></dd>
-<dt><a name="11"><b class="cmd"><a href="../../../../index.html#key573">proc</a></b> <i class="arg">name</i> <i class="arg">args</i> <i class="arg">body</i></a></dt>
+<dt><a name="11"><b class="cmd"><a href="../../../../index.html#key580">proc</a></b> <i class="arg">name</i> <i class="arg">args</i> <i class="arg">body</i></a></dt>
 <dd><p>Defines a new Tcl procedure in the type's namespace.</p>
 <p>The defined proc differs from a normal Tcl proc in that all type
 variables are automatically visible.  The proc can access
@@ -816,7 +816,7 @@ prevents subtle errors.  Setting this pragma to true restores the
 behavior of Snit V0.93 and earlier versions.</p></dd>
 <dt><b class="const">-hastypeinfo</b> <i class="arg">flag</i></dt>
 <dd><p>If true (the default), the generated type will have a type method
-called <b class="cmd"><a href="../../../../index.html#key91">info</a></b> that is used for type introspection; the <b class="cmd"><a href="../../../../index.html#key91">info</a></b>
+called <b class="cmd"><a href="../../../../index.html#key93">info</a></b> that is used for type introspection; the <b class="cmd"><a href="../../../../index.html#key93">info</a></b>
 type method is documented below.  If false, it will not.</p></dd>
 <dt><b class="const">-hastypedestroy</b> <i class="arg">flag</i></dt>
 <dd><p>If true (the default), the generated type will have a type method
@@ -960,8 +960,8 @@ access to all of the type and widget definition statements.  See
 <span class="sectref"><a href="#subsection10">Macros and Meta-programming</a></span> for more details.</p>
 <p>The macro <i class="arg">name</i> cannot be the same as any standard Tcl command,
 or any Snit type or widget definition statement, e.g., you can't
-redefine the <b class="cmd"><a href="../../../../index.html#key355">method</a></b> or <b class="cmd">delegate</b> statements, or the
-standard <b class="cmd"><a href="../../../../index.html#key279">set</a></b>, <b class="cmd"><a href="../../../../index.html#key280">list</a></b>, or <b class="cmd"><a href="../../../../index.html#key263">string</a></b> commands.</p></dd>
+redefine the <b class="cmd"><a href="../../../../index.html#key361">method</a></b> or <b class="cmd">delegate</b> statements, or the
+standard <b class="cmd"><a href="../../../../index.html#key285">set</a></b>, <b class="cmd"><a href="../../../../index.html#key286">list</a></b>, or <b class="cmd"><a href="../../../../index.html#key266">string</a></b> commands.</p></dd>
 <dt><a name="36"><b class="cmd">snit::compile</b> <i class="arg">which</i> <i class="arg">type</i> <i class="arg">body</i></a></dt>
 <dd><p>Snit defines a type, widget, or widgetadaptor by &quot;compiling&quot; the
 definition into a Tcl script; this script is then evaluated in the
@@ -1125,7 +1125,7 @@ related memory.</p>
 <p><em>Note:</em>
 The <b class="method">destroy</b> method isn't defined for <b class="cmd">snit::widget</b> or
 <b class="cmd">snit::widgetadaptor</b> objects; instances of these are destroyed by
-calling <b class="package"><a href="../../../../index.html#key207">Tk</a></b>'s <b class="cmd">destroy</b> command, just as normal
+calling <b class="package"><a href="../../../../index.html#key209">Tk</a></b>'s <b class="cmd">destroy</b> command, just as normal
 widgets are.</p></dd>
 <dt><a name="51"><b class="cmd">$object</b> <b class="method">info type</b></a></dt>
 <dd><p>Returns the instance's type.</p></dd>
@@ -1481,7 +1481,7 @@ usually just the option name minus the hyphen, but may contain
 uppercase letters at word boundaries; the class name is usually just
 the resource name with an initial capital, but not always.  For
 example, here are the option, resource, and class names for several
-<b class="cmd"><a href="../../../../index.html#key482">text</a></b> widget options:</p>
+<b class="cmd"><a href="../../../../index.html#key491">text</a></b> widget options:</p>
 <pre class="example">    -background         background         Background
     -borderwidth        borderWidth        BorderWidth
     -insertborderwidth  insertBorderWidth  BorderWidth
@@ -1505,8 +1505,8 @@ options and explicitly delegated options:</p>
 following options: <b class="option">-background</b>, which is locally defined, and
 <b class="option">-borderwidth</b>, which is explicitly delegated; all other widgets are
 delegated to a component called &quot;text&quot;, which is probably a Tk
-<b class="cmd"><a href="../../../../index.html#key482">text</a></b> widget.  If so, <b class="cmd">mywidget</b> has all the same options as
-a <b class="cmd"><a href="../../../../index.html#key482">text</a></b> widget.  The option, resource, and class names are as
+<b class="cmd"><a href="../../../../index.html#key491">text</a></b> widget.  If so, <b class="cmd">mywidget</b> has all the same options as
+a <b class="cmd"><a href="../../../../index.html#key491">text</a></b> widget.  The option, resource, and class names are as
 follows:</p>
 <pre class="example">    -background  background  Background
     -borderwidth borderwidth Borderwidth
@@ -1516,7 +1516,7 @@ follows:</p>
 the same three names as the standard Tk <b class="option">-background</b> option; and
 <b class="option">-pad</b>, which is delegated implicitly to the <b class="variable">text</b>
 component, has the
-same three names for <b class="cmd">mywidget</b> as it does for the <b class="cmd"><a href="../../../../index.html#key482">text</a></b>
+same three names for <b class="cmd">mywidget</b> as it does for the <b class="cmd"><a href="../../../../index.html#key491">text</a></b>
 widget.  <b class="option">-borderwidth</b>, on the other hand, has different resource and
 class names than usual, because the internal word &quot;width&quot; isn't
 capitalized.  For consistency, it should be; this is done as follows:</p>
@@ -1628,7 +1628,7 @@ this is as follows:</p>
 a command like this:</p>
 <pre class="example">    set hull [text $win -foreground white]
 </pre>
-<p>The hull is a <b class="cmd"><a href="../../../../index.html#key482">text</a></b> widget, so its widget class is &quot;Text&quot;.  Just
+<p>The hull is a <b class="cmd"><a href="../../../../index.html#key491">text</a></b> widget, so its widget class is &quot;Text&quot;.  Just
 as with <b class="cmd">snit::widget</b> hulls, Snit assumes that it will pick up
 all of its normal option values automatically; options delegated from
 a different name are initialized from the option database in the same
@@ -1718,7 +1718,7 @@ widgets.</p>
         property mood happy
     }
 </pre>
-<p>Within a macro, the commands <b class="cmd">variable</b> and <b class="cmd"><a href="../../../../index.html#key573">proc</a></b> refer to
+<p>Within a macro, the commands <b class="cmd">variable</b> and <b class="cmd"><a href="../../../../index.html#key580">proc</a></b> refer to
 the Snit type-definition commands, not the standard Tcl commands.  To
 get the standard Tcl commands, use <b class="cmd">_variable</b> and <b class="cmd">_proc</b>.</p>
 <p>Because a single slave interpreter is used for compiling all Snit
@@ -1935,7 +1935,7 @@ validation type command.  A validation type is simply an
 object that has a <b class="method">validate</b> method; the <b class="method">validate</b>
 method must take one argument, a value, return the value if it is
 valid, and throw an error with <b class="cmd">-errorcode</b> INVALID if the
-value is invalid.  This can be done with a simple <b class="cmd"><a href="../../../../index.html#key573">proc</a></b>.  For
+value is invalid.  This can be done with a simple <b class="cmd"><a href="../../../../index.html#key580">proc</a></b>.  For
 example, the <b class="cmd">snit::boolean</b> validate type could have been
 implemented like this:</p>
 <pre class="example">    proc ::snit::boolean {&quot;validate&quot; value} {
@@ -2068,7 +2068,7 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key239">BWidget</a>, <a href="../../../../index.html#key235">C++</a>, <a href="../../../../index.html#key242">Incr Tcl</a>, <a href="../../../../index.html#key783">Snit</a>, <a href="../../../../index.html#key240">adaptors</a>, <a href="../../../../index.html#key238">class</a>, <a href="../../../../index.html#key237">mega widget</a>, <a href="../../../../index.html#key241">object</a>, <a href="../../../../index.html#key234">object oriented</a>, <a href="../../../../index.html#key125">type</a>, <a href="../../../../index.html#key233">widget</a>, <a href="../../../../index.html#key236">widget adaptors</a></p>
+<p><a href="../../../../index.html#key241">BWidget</a>, <a href="../../../../index.html#key237">C++</a>, <a href="../../../../index.html#key244">Incr Tcl</a>, <a href="../../../../index.html#key789">Snit</a>, <a href="../../../../index.html#key242">adaptors</a>, <a href="../../../../index.html#key240">class</a>, <a href="../../../../index.html#key239">mega widget</a>, <a href="../../../../index.html#key243">object</a>, <a href="../../../../index.html#key236">object oriented</a>, <a href="../../../../index.html#key127">type</a>, <a href="../../../../index.html#key235">widget</a>, <a href="../../../../index.html#key238">widget adaptors</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>
