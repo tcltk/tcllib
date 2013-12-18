@@ -2,7 +2,7 @@
 '\" Generated from file 'randseed\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "tcl::chan::randseed" n 1 tcllib "Reflected/virtual channel support"
+.TH "tcl::randomseed" n 1 tcllib "Reflected/virtual channel support"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -272,13 +272,13 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-tcl::chan::randseed \- Utilities for random channels
+tcl::randomseed \- Utilities for random channels
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
 package require \fBTclOO \fR
 .sp
-package require \fBtcl::chan::randseed  ?1?\fR
+package require \fBtcl::randomseed  ?1?\fR
 .sp
 \fB::tcl::randomseed\fR
 .sp
@@ -287,7 +287,8 @@ package require \fBtcl::chan::randseed  ?1?\fR
 .BE
 .SH DESCRIPTION
 .PP
-The \fBtcl::chan::randseed\fR package provides a a few utility commands to help with the seeding of \fBtcl::chan::random\fR channels\&.
+The \fBtcl::randomseed\fR package provides a a few utility commands
+to help with the seeding of \fBtcl::chan::random\fR channels\&.
 .SH API
 .TP
 \fB::tcl::randomseed\fR

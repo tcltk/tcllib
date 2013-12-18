@@ -316,7 +316,7 @@ command\&.
 .sp
 If no \fIobjectName\fR is specified the class will generate and use an
 automatic name\&. If the \fIobjectName\fR was specified, but is not
-fully qualified the command will be created in the curent namespace\&.
+fully qualified the command will be created in the current namespace\&.
 .PP
 .SH "INSTANCE API"
 All parser instances provide at least the methods shown below:

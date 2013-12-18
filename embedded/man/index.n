@@ -303,7 +303,7 @@ tcl::chan::nullzero
 tcl::chan::random
 .TP
 \fBfiles/modules/virtchannel_base/randseed\&.n\fR
-tcl::chan::randseed
+tcl::randomseed
 .RE
 /dev/zero
 .RS
@@ -319,6 +319,12 @@ tcl::chan::zero
 .TP
 \fBfiles/modules/des/des\&.n\fR
 des
+.TP
+\fBfiles/modules/des/tcldesjr\&.n\fR
+tcldes
+.TP
+\fBfiles/modules/des/tcldes\&.n\fR
+tcldes
 .RE
 abstract syntax tree
 .RS
@@ -643,6 +649,15 @@ autoproxy
 .TP
 \fBfiles/modules/sasl/sasl\&.n\fR
 SASL
+.TP
+\fBfiles/modules/sasl/ntlm\&.n\fR
+SASL::NTLM
+.TP
+\fBfiles/modules/sasl/scram\&.n\fR
+SASL::SCRAM
+.TP
+\fBfiles/modules/sasl/gtoken\&.n\fR
+SASL::XGoogleToken
 .RE
 automatic
 .RS
@@ -841,6 +856,12 @@ blowfish
 .TP
 \fBfiles/modules/des/des\&.n\fR
 des
+.TP
+\fBfiles/modules/des/tcldesjr\&.n\fR
+tcldes
+.TP
+\fBfiles/modules/des/tcldes\&.n\fR
+tcldes
 .RE
 blocking flow
 .RS
@@ -901,6 +922,9 @@ snitfaq
 .TP
 \fBfiles/modules/stooop/stooop\&.n\fR
 stooop
+.TP
+\fBfiles/modules/stooop/switched\&.n\fR
+switched
 .RE
 cache
 .RS
@@ -1285,6 +1309,9 @@ snitfaq
 .TP
 \fBfiles/modules/stooop/stooop\&.n\fR
 stooop
+.TP
+\fBfiles/modules/stooop/switched\&.n\fR
+switched
 .RE
 class methods
 .RS
@@ -1447,6 +1474,9 @@ compression
 .TP
 \fBfiles/modules/virtchannel_transform/tcllib_zlib\&.n\fR
 tcl::transform::zlib
+.TP
+\fBfiles/modules/zip/encode\&.n\fR
+zipfile::encode
 .RE
 computations
 .RS
@@ -1634,8 +1664,14 @@ pt_import_api
 \fBfiles/modules/pt/pt_introduction\&.n\fR
 pt_introduction
 .TP
+\fBfiles/modules/pt/pt_parse_peg\&.n\fR
+pt_parse_peg
+.TP
 \fBfiles/modules/pt/pt_parser_api\&.n\fR
 pt_parser_api
+.TP
+\fBfiles/modules/pt/pt_peg_op\&.n\fR
+pt_peg_op
 .RE
 control
 .RS
@@ -2032,6 +2068,12 @@ rc4
 .TP
 \fBfiles/modules/crc/sum\&.n\fR
 sum
+.TP
+\fBfiles/modules/des/tcldesjr\&.n\fR
+tcldes
+.TP
+\fBfiles/modules/des/tcldes\&.n\fR
+tcldes
 .RE
 data source
 .RS
@@ -2104,6 +2146,9 @@ decompression
 .TP
 \fBfiles/modules/virtchannel_transform/tcllib_zlib\&.n\fR
 tcl::transform::zlib
+.TP
+\fBfiles/modules/zip/decode\&.n\fR
+zipfile::encode
 .RE
 decryption
 .RS
@@ -2173,6 +2218,12 @@ DES
 .TP
 \fBfiles/modules/des/des\&.n\fR
 des
+.TP
+\fBfiles/modules/des/tcldesjr\&.n\fR
+tcldes
+.TP
+\fBfiles/modules/des/tcldes\&.n\fR
+tcldes
 .RE
 deserialization
 .RS
@@ -2903,8 +2954,14 @@ pt_import_api
 \fBfiles/modules/pt/pt_introduction\&.n\fR
 pt_introduction
 .TP
+\fBfiles/modules/pt/pt_parse_peg\&.n\fR
+pt_parse_peg
+.TP
 \fBfiles/modules/pt/pt_parser_api\&.n\fR
 pt_parser_api
+.TP
+\fBfiles/modules/pt/pt_peg_op\&.n\fR
+pt_peg_op
 .RE
 eccentricity
 .RS
@@ -3004,6 +3061,12 @@ tcl::transform::otp
 .TP
 \fBfiles/modules/virtchannel_transform/rot\&.n\fR
 tcl::transform::rot
+.TP
+\fBfiles/modules/des/tcldesjr\&.n\fR
+tcldes
+.TP
+\fBfiles/modules/des/tcldes\&.n\fR
+tcldes
 .RE
 entry mask
 .RS
@@ -3320,8 +3383,14 @@ pt_import_api
 \fBfiles/modules/pt/pt_introduction\&.n\fR
 pt_introduction
 .TP
+\fBfiles/modules/pt/pt_parse_peg\&.n\fR
+pt_parse_peg
+.TP
 \fBfiles/modules/pt/pt_parser_api\&.n\fR
 pt_parser_api
+.TP
+\fBfiles/modules/pt/pt_peg_op\&.n\fR
+pt_peg_op
 .RE
 extended namespace
 .RS
@@ -3980,8 +4049,14 @@ pt_import_api
 \fBfiles/modules/pt/pt_introduction\&.n\fR
 pt_introduction
 .TP
+\fBfiles/modules/pt/pt_parse_peg\&.n\fR
+pt_parse_peg
+.TP
 \fBfiles/modules/pt/pt_parser_api\&.n\fR
 pt_parser_api
+.TP
+\fBfiles/modules/pt/pt_peg_op\&.n\fR
+pt_peg_op
 .RE
 graph
 .RS
@@ -5153,8 +5228,14 @@ pt_import_api
 \fBfiles/modules/pt/pt_introduction\&.n\fR
 pt_introduction
 .TP
+\fBfiles/modules/pt/pt_parse_peg\&.n\fR
+pt_parse_peg
+.TP
 \fBfiles/modules/pt/pt_parser_api\&.n\fR
 pt_parser_api
+.TP
+\fBfiles/modules/pt/pt_peg_op\&.n\fR
+pt_peg_op
 .RE
 local searching
 .RS
@@ -5612,8 +5693,14 @@ pt_import_api
 \fBfiles/modules/pt/pt_introduction\&.n\fR
 pt_introduction
 .TP
+\fBfiles/modules/pt/pt_parse_peg\&.n\fR
+pt_parse_peg
+.TP
 \fBfiles/modules/pt/pt_parser_api\&.n\fR
 pt_parser_api
+.TP
+\fBfiles/modules/pt/pt_peg_op\&.n\fR
+pt_peg_op
 .TP
 \fBfiles/modules/struct/graphops\&.n\fR
 struct::graph::op
@@ -5793,7 +5880,7 @@ merge
 .RS
 .TP
 \fBfiles/modules/virtchannel_base/randseed\&.n\fR
-tcl::chan::randseed
+tcl::randomseed
 .TP
 \fBfiles/modules/uev/uevent_onidle\&.n\fR
 uevent::onidle
@@ -6272,6 +6359,12 @@ dtplite
 \fBfiles/modules/doctools/mpexpand\&.n\fR
 mpexpand
 .RE
+NTLM
+.RS
+.TP
+\fBfiles/modules/sasl/ntlm\&.n\fR
+SASL::NTLM
+.RE
 NTP
 .RS
 .TP
@@ -6304,6 +6397,9 @@ snitfaq
 .TP
 \fBfiles/modules/stooop/stooop\&.n\fR
 stooop
+.TP
+\fBfiles/modules/stooop/switched\&.n\fR
+switched
 .RE
 object oriented
 .RS
@@ -6316,6 +6412,9 @@ snitfaq
 .TP
 \fBfiles/modules/stooop/stooop\&.n\fR
 stooop
+.TP
+\fBfiles/modules/stooop/switched\&.n\fR
+switched
 .RE
 observer
 .RS
@@ -6557,8 +6656,14 @@ pt_import_api
 \fBfiles/modules/pt/pt_introduction\&.n\fR
 pt_introduction
 .TP
+\fBfiles/modules/pt/pt_parse_peg\&.n\fR
+pt_parse_peg
+.TP
 \fBfiles/modules/pt/pt_parser_api\&.n\fR
 pt_parser_api
+.TP
+\fBfiles/modules/pt/pt_peg_op\&.n\fR
+pt_peg_op
 .TP
 \fBfiles/modules/amazon-s3/xsxp\&.n\fR
 xsxp
@@ -6788,8 +6893,14 @@ pt_import_api
 \fBfiles/modules/pt/pt_introduction\&.n\fR
 pt_introduction
 .TP
+\fBfiles/modules/pt/pt_parse_peg\&.n\fR
+pt_parse_peg
+.TP
 \fBfiles/modules/pt/pt_parser_api\&.n\fR
 pt_parser_api
+.TP
+\fBfiles/modules/pt/pt_peg_op\&.n\fR
+pt_peg_op
 .RE
 parsing expression grammar
 .RS
@@ -6917,8 +7028,14 @@ pt_import_api
 \fBfiles/modules/pt/pt_introduction\&.n\fR
 pt_introduction
 .TP
+\fBfiles/modules/pt/pt_parse_peg\&.n\fR
+pt_parse_peg
+.TP
 \fBfiles/modules/pt/pt_parser_api\&.n\fR
 pt_parser_api
+.TP
+\fBfiles/modules/pt/pt_peg_op\&.n\fR
+pt_peg_op
 .RE
 partial application
 .RS
@@ -7085,8 +7202,14 @@ pt_import_api
 \fBfiles/modules/pt/pt_introduction\&.n\fR
 pt_introduction
 .TP
+\fBfiles/modules/pt/pt_parse_peg\&.n\fR
+pt_parse_peg
+.TP
 \fBfiles/modules/pt/pt_parser_api\&.n\fR
 pt_parser_api
+.TP
+\fBfiles/modules/pt/pt_peg_op\&.n\fR
+pt_peg_op
 .RE
 performance
 .RS
@@ -7526,8 +7649,14 @@ pt_import_api
 \fBfiles/modules/pt/pt_introduction\&.n\fR
 pt_introduction
 .TP
+\fBfiles/modules/pt/pt_parse_peg\&.n\fR
+pt_parse_peg
+.TP
 \fBfiles/modules/pt/pt_parser_api\&.n\fR
 pt_parser_api
+.TP
+\fBfiles/modules/pt/pt_peg_op\&.n\fR
+pt_peg_op
 .RE
 queue
 .RS
@@ -7578,7 +7707,7 @@ random
 tcl::chan::random
 .TP
 \fBfiles/modules/virtchannel_base/randseed\&.n\fR
-tcl::chan::randseed
+tcl::randomseed
 .RE
 random numbers
 .RS
@@ -7781,8 +7910,14 @@ pt_import_api
 \fBfiles/modules/pt/pt_introduction\&.n\fR
 pt_introduction
 .TP
+\fBfiles/modules/pt/pt_parse_peg\&.n\fR
+pt_parse_peg
+.TP
 \fBfiles/modules/pt/pt_parser_api\&.n\fR
 pt_parser_api
+.TP
+\fBfiles/modules/pt/pt_peg_op\&.n\fR
+pt_peg_op
 .RE
 reduce
 .RS
@@ -7850,9 +7985,6 @@ tcl::chan::nullzero
 \fBfiles/modules/virtchannel_base/tcllib_random\&.n\fR
 tcl::chan::random
 .TP
-\fBfiles/modules/virtchannel_base/randseed\&.n\fR
-tcl::chan::randseed
-.TP
 \fBfiles/modules/virtchannel_base/std\&.n\fR
 tcl::chan::std
 .TP
@@ -7867,6 +7999,9 @@ tcl::chan::variable
 .TP
 \fBfiles/modules/virtchannel_base/tcllib_zero\&.n\fR
 tcl::chan::zero
+.TP
+\fBfiles/modules/virtchannel_base/randseed\&.n\fR
+tcl::randomseed
 .TP
 \fBfiles/modules/virtchannel_transform/adler32\&.n\fR
 tcl::transform::adler32
@@ -8389,6 +8524,15 @@ SASL
 .TP
 \fBfiles/modules/sasl/sasl\&.n\fR
 SASL
+.TP
+\fBfiles/modules/sasl/ntlm\&.n\fR
+SASL::NTLM
+.TP
+\fBfiles/modules/sasl/scram\&.n\fR
+SASL::SCRAM
+.TP
+\fBfiles/modules/sasl/gtoken\&.n\fR
+SASL::XGoogleToken
 .RE
 scanl
 .RS
@@ -8401,6 +8545,12 @@ SCCS
 .TP
 \fBfiles/modules/rcs/rcs\&.n\fR
 rcs
+.RE
+SCRAM
+.RS
+.TP
+\fBfiles/modules/sasl/scram\&.n\fR
+SASL::SCRAM
 .RE
 secure
 .RS
@@ -8476,12 +8626,18 @@ sha256
 .TP
 \fBfiles/modules/crc/sum\&.n\fR
 sum
+.TP
+\fBfiles/modules/des/tcldesjr\&.n\fR
+tcldes
+.TP
+\fBfiles/modules/des/tcldes\&.n\fR
+tcldes
 .RE
 seed
 .RS
 .TP
 \fBfiles/modules/virtchannel_base/randseed\&.n\fR
-tcl::chan::randseed
+tcl::randomseed
 .RE
 selectionbox
 .RS
@@ -9050,8 +9206,14 @@ pt_import_api
 \fBfiles/modules/pt/pt_introduction\&.n\fR
 pt_introduction
 .TP
+\fBfiles/modules/pt/pt_parse_peg\&.n\fR
+pt_parse_peg
+.TP
 \fBfiles/modules/pt/pt_parser_api\&.n\fR
 pt_parser_api
+.TP
+\fBfiles/modules/pt/pt_peg_op\&.n\fR
+pt_peg_op
 .RE
 state (de)serialization
 .RS
@@ -9530,8 +9692,14 @@ pt_import_api
 \fBfiles/modules/pt/pt_introduction\&.n\fR
 pt_introduction
 .TP
+\fBfiles/modules/pt/pt_parse_peg\&.n\fR
+pt_parse_peg
+.TP
 \fBfiles/modules/pt/pt_parser_api\&.n\fR
 pt_parser_api
+.TP
+\fBfiles/modules/pt/pt_peg_op\&.n\fR
+pt_peg_op
 .RE
 temp file
 .RS
@@ -9866,9 +10034,6 @@ tcl::chan::nullzero
 \fBfiles/modules/virtchannel_base/tcllib_random\&.n\fR
 tcl::chan::random
 .TP
-\fBfiles/modules/virtchannel_base/randseed\&.n\fR
-tcl::chan::randseed
-.TP
 \fBfiles/modules/virtchannel_base/std\&.n\fR
 tcl::chan::std
 .TP
@@ -9883,6 +10048,9 @@ tcl::chan::variable
 .TP
 \fBfiles/modules/virtchannel_base/tcllib_zero\&.n\fR
 tcl::chan::zero
+.TP
+\fBfiles/modules/virtchannel_base/randseed\&.n\fR
+tcl::randomseed
 .TP
 \fBfiles/modules/virtchannel_core/transformcore\&.n\fR
 tcl::transform::core
@@ -10172,8 +10340,14 @@ pt_import_api
 \fBfiles/modules/pt/pt_introduction\&.n\fR
 pt_introduction
 .TP
+\fBfiles/modules/pt/pt_parse_peg\&.n\fR
+pt_parse_peg
+.TP
 \fBfiles/modules/pt/pt_parser_api\&.n\fR
 pt_parser_api
+.TP
+\fBfiles/modules/pt/pt_peg_op\&.n\fR
+pt_peg_op
 .RE
 torrent
 .RS
@@ -10346,8 +10520,14 @@ pt_import_api
 \fBfiles/modules/pt/pt_introduction\&.n\fR
 pt_introduction
 .TP
+\fBfiles/modules/pt/pt_parse_peg\&.n\fR
+pt_parse_peg
+.TP
 \fBfiles/modules/pt/pt_parser_api\&.n\fR
 pt_parser_api
+.TP
+\fBfiles/modules/pt/pt_peg_op\&.n\fR
+pt_peg_op
 .RE
 transfer
 .RS
@@ -10853,9 +11033,6 @@ tcl::chan::nullzero
 \fBfiles/modules/virtchannel_base/tcllib_random\&.n\fR
 tcl::chan::random
 .TP
-\fBfiles/modules/virtchannel_base/randseed\&.n\fR
-tcl::chan::randseed
-.TP
 \fBfiles/modules/virtchannel_base/std\&.n\fR
 tcl::chan::std
 .TP
@@ -10870,6 +11047,9 @@ tcl::chan::variable
 .TP
 \fBfiles/modules/virtchannel_base/tcllib_zero\&.n\fR
 tcl::chan::zero
+.TP
+\fBfiles/modules/virtchannel_base/randseed\&.n\fR
+tcl::randomseed
 .TP
 \fBfiles/modules/virtchannel_transform/adler32\&.n\fR
 tcl::transform::adler32
@@ -11039,6 +11219,12 @@ x\&.500
 \fBfiles/modules/ldap/ldap\&.n\fR
 ldap
 .RE
+XGoogleToken
+.RS
+.TP
+\fBfiles/modules/sasl/gtoken\&.n\fR
+SASL::XGoogleToken
+.RE
 xml
 .RS
 .TP
@@ -11098,6 +11284,15 @@ tcl::chan::nullzero
 .TP
 \fBfiles/modules/virtchannel_base/tcllib_zero\&.n\fR
 tcl::chan::zero
+.RE
+zip
+.RS
+.TP
+\fBfiles/modules/zip/encode\&.n\fR
+zipfile::encode
+.TP
+\fBfiles/modules/zip/decode\&.n\fR
+zipfile::encode
 .RE
 zlib
 .RS
