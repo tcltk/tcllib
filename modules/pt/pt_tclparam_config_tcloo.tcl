@@ -86,7 +86,7 @@ proc ::pt::tclparam::configuration::tcloo::def {class pkg cmd} {
 	    }
 
 	    method parset {text} {
-		my reset
+		my reset {}
 		my data $text
 		my MAIN ; # Entrypoint for the generated code.
 		return [my complete]
@@ -117,5 +117,5 @@ namespace eval ::pt::tclparam::configuration::tcloo {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::tclparam::configuration::tcloo 1.0.2
+package provide pt::tclparam::configuration::tcloo 1.0.3
 return
