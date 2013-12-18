@@ -2,6 +2,8 @@
 
 	* pt_parse_peg.man: Added missing documentation for the PEG parser
 	  package.
+	* pt_peg_op.man: Added missing documentation for this utility package.
+	* pt_peg_op.tcl: Exported 'minimize'.
 
 2013-12-06  Andreas Kupries <andreask@activestate.com>
 

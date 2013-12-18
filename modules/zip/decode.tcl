@@ -119,7 +119,7 @@ proc ::zipfile::decode::unzip {zdict dst} {
     return
 }
 
-proc zipfile::decode::CopyFile {src fdv dst} {
+proc ::zipfile::decode::CopyFile {src fdv dst} {
     upvar 1 $fdv fd
 
     file mkdir [file dirname $dst]
@@ -189,7 +189,7 @@ proc zipfile::decode::CopyFile {src fdv dst} {
     return
 }
 
-proc zipfile::decode::GetFile {src fdv} {
+proc ::zipfile::decode::GetFile {src fdv} {
     upvar 1 $fdv fd
 
     # Entry is a directory.

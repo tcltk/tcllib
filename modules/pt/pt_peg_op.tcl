@@ -17,7 +17,7 @@ package require struct::set    ; # Set operations (symbol sets)
 namespace eval ::pt::peg::op {
     namespace export \
 	flatten called reachable realizable \
-	dechain drop modeopt
+	dechain drop modeopt minimize
 
     namespace ensemble create
 
