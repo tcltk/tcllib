@@ -277,6 +277,8 @@ debug::heartbeat \- debug narrative - heartbeat
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
+package require \fBdebug::heartbeat  ?1?\fR
+.sp
 package require \fBdebug  ?1?\fR
 .sp
 \fBdebug\fR \fBheartbeat\fR ?\fIdelta\fR?

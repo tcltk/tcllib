@@ -152,7 +152,7 @@
 <p>The <b class="package">docstrip::util</b> package is meant for collecting various
 utility procedures that are mainly useful at installation or
 development time. It is separate from the base package to avoid
-overhead when the latter is used to <b class="cmd"><a href="../../../../index.html#key414">source</a></b> code.</p>
+overhead when the latter is used to <b class="cmd"><a href="../../../../index.html#key423">source</a></b> code.</p>
 </div>
 <div id="section2" class="section"><h2><a name="section2">Package indexing commands</a></h2>
 <p>Like raw &quot;<b class="file">.tcl</b>&quot; files, code lines in docstrip source files can
@@ -163,7 +163,7 @@ package; normally that information would be found in an accompanying
 &quot;<b class="file">.ins</b>&quot; file, but parsing one of those is not an easy task.
 Therefore <b class="package">docstrip::util</b> introduces an alternative encoding
 of such information, in the form of a declarative Tcl script: the
-<i class="term"><a href="../../../../index.html#key649">catalogue</a></i> (of the contents in a source file).</p>
+<i class="term"><a href="../../../../index.html#key653">catalogue</a></i> (of the contents in a source file).</p>
 <p>The special commands which are available inside a catalogue are:</p>
 <dl class="definitions">
 <dt><a name="1"><b class="cmd">pkgProvide</b> <i class="arg">name</i> <i class="arg">version</i> <i class="arg">terminals</i></a></dt>
@@ -171,13 +171,13 @@ of such information, in the form of a declarative Tcl script: the
   version <i class="arg">version</i> is made up from those modules in the source
   file which are selected by the <i class="arg">terminals</i> list of guard
   expression terminals. This code should preferably not contain a
-  <b class="cmd"><a href="../../../../index.html#key56">package</a></b> <b class="method">provide</b> command for the package, as one
+  <b class="cmd"><a href="../../../../index.html#key58">package</a></b> <b class="method">provide</b> command for the package, as one
   will be provided by the package loading mechanisms.</p></dd>
 <dt><a name="2"><b class="cmd">pkgIndex</b> <span class="opt">?<i class="arg">terminal</i> ...?</span></a></dt>
 <dd><p>Declares that the code for a package is made up from those modules
   in the source file which are selected by the listed guard
   expression <i class="arg">terminal</i>s. The name and version of this package is
-  determined from <b class="cmd"><a href="../../../../index.html#key56">package</a></b> <b class="method">provide</b> command(s) found
+  determined from <b class="cmd"><a href="../../../../index.html#key58">package</a></b> <b class="method">provide</b> command(s) found
   in that code (hence there must be such a command in there).</p></dd>
 <dt><a name="3"><b class="cmd">fileoptions</b> <span class="opt">?<i class="arg">option</i> <i class="arg">value</i> ...?</span></a></dt>
 <dd><p>Declares the <b class="cmd">fconfigure</b> options that should be in force when
@@ -307,7 +307,7 @@ namespace eval foo::bar {
     be used at a rather high level in installation scripts and the
     like, the <i class="arg">commandPrefix</i> defaults to
     &quot;<b class="cmd">puts</b> <b class="const">stdout</b>&quot;.
-    Use <b class="cmd"><a href="../../../../index.html#key280">list</a></b> to effectively disable this feature. The return
+    Use <b class="cmd"><a href="../../../../index.html#key286">list</a></b> to effectively disable this feature. The return
     values from the prefix are ignored.</p></dd>
 </dl>
 <p>The <b class="cmd">package ifneeded</b> scripts that are generated contain
@@ -376,7 +376,7 @@ namespace eval foo::bar {
     done. If it is false then there is no particular return value.</p></dd>
 <dt><b class="option">-reportcmd</b> <i class="arg">commandPrefix</i></dt>
 <dd><p>Every item in the report is handed as an extra argument to this
-    command prefix. Defaults to <b class="cmd"><a href="../../../../index.html#key280">list</a></b>, which effectively disables
+    command prefix. Defaults to <b class="cmd"><a href="../../../../index.html#key286">list</a></b>, which effectively disables
     this feature. The return values from the prefix are ignored. Use
     for example &quot;<b class="cmd">puts</b> <b class="const">stdout</b>&quot; to get report items
     written immediately to the terminal.</p></dd>
@@ -433,7 +433,7 @@ docstrip::util::classical_postamble {##}\
 <p>One difference to <b class="cmd">pkg_mkIndex</b> is that the <i class="arg">text</i> gets
   evaluated in a safe interpreter. <b class="cmd">package require</b> commands
   are silently ignored, as are unknown commands (which includes
-  <b class="cmd"><a href="../../../../index.html#key414">source</a></b> and <b class="cmd">load</b>). Other errors cause
+  <b class="cmd"><a href="../../../../index.html#key423">source</a></b> and <b class="cmd">load</b>). Other errors cause
   processing of the <i class="arg">text</i> to stop, in which case only those
   package declarations that had been encountered before the error
   will be included in the return value.</p>
@@ -575,13 +575,13 @@ proc gcd {a b} {
     value is a dictionary which maps line numbers to their contents.</p></dd>
 </dl></dd>
 <dt><a name="11"><b class="cmd">docstrip::util::patch</b> <i class="arg">source-var</i> <i class="arg">terminals</i> <i class="arg">fromtext</i> <i class="arg">diff</i> <span class="opt">?<i class="arg">option</i> <i class="arg">value</i> ...?</span></a></dt>
-<dd><p>This command tries to apply a <b class="syscmd"><a href="../../../../index.html#key543">diff</a></b> file (for example a
+<dd><p>This command tries to apply a <b class="syscmd"><a href="../../../../index.html#key550">diff</a></b> file (for example a
   contributed patch) that was computed for a generated file to the
   <b class="syscmd"><a href="docstrip.html">docstrip</a></b> source. This can be useful if someone has
   edited a generated file, thus mistaking it for being the source.
   This command makes no presumptions which are specific for the case
   that the generated file is a Tcl script.</p>
-<p><b class="cmd"><a href="../../../../index.html#key646">patch</a></b> requires that the source file to patch is kept as a
+<p><b class="cmd"><a href="../../../../index.html#key650">patch</a></b> requires that the source file to patch is kept as a
   list of lines in a variable, and the name of that variable in the
   calling context is what goes into the <i class="arg">source-var</i> argument.
   The <i class="arg">terminals</i> is the list of terminals used to extract the
@@ -638,7 +638,7 @@ proc gcd {a b} {
   those hunks which were not applied or were only partially applied;
   a comment in the header of each hunk specifies which case is at
   hand. It is normally necessary to manually review both the return
-  value from <b class="cmd"><a href="../../../../index.html#key646">patch</a></b> and the patched text itself, as this command
+  value from <b class="cmd"><a href="../../../../index.html#key650">patch</a></b> and the patched text itself, as this command
   cannot adjust comment lines to match new content.</p>
 <p>An example use would look like</p>
 <pre class="example">
@@ -661,7 +661,7 @@ return $leftover
   passed on to <b class="cmd">fconfigure</b> to configure the open file channel
   before anything is read from it.</p></dd>
 <dt><a name="13"><b class="cmd">docstrip::util::import_unidiff</b> <i class="arg">diff-text</i> <span class="opt">?<i class="arg">warning-var</i>?</span></a></dt>
-<dd><p>This command parses a unified (<b class="syscmd"><a href="../../../../index.html#key543">diff</a></b> flags <b class="option">-U</b> and
+<dd><p>This command parses a unified (<b class="syscmd"><a href="../../../../index.html#key550">diff</a></b> flags <b class="option">-U</b> and
   <b class="option">--unified</b>) format diff into the list-of-hunks format
   expected by <b class="cmd">docstrip::util::patch</b>. The <i class="arg">diff-text</i>
   argument is the text to parse and the <i class="arg">warning-var</i> is, if
@@ -684,7 +684,7 @@ return $leftover
 <p><a href="docstrip.html">docstrip</a>, <a href="../doctools/doctools.html">doctools</a>, doctools_fmt</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key650">.ddt</a>, <a href="../../../../index.html#key647">Tcl module</a>, <a href="../../../../index.html#key649">catalogue</a>, <a href="../../../../index.html#key543">diff</a>, <a href="../../../../index.html#key413">docstrip</a>, <a href="../../../../index.html#key51">doctools</a>, <a href="../../../../index.html#key185">documentation</a>, <a href="../../../../index.html#key415">literate programming</a>, <a href="../../../../index.html#key651">module</a>, <a href="../../../../index.html#key648">package indexing</a>, <a href="../../../../index.html#key646">patch</a>, <a href="../../../../index.html#key414">source</a></p>
+<p><a href="../../../../index.html#key654">.ddt</a>, <a href="../../../../index.html#key651">Tcl module</a>, <a href="../../../../index.html#key653">catalogue</a>, <a href="../../../../index.html#key550">diff</a>, <a href="../../../../index.html#key422">docstrip</a>, <a href="../../../../index.html#key53">doctools</a>, <a href="../../../../index.html#key187">documentation</a>, <a href="../../../../index.html#key424">literate programming</a>, <a href="../../../../index.html#key655">module</a>, <a href="../../../../index.html#key652">package indexing</a>, <a href="../../../../index.html#key650">patch</a>, <a href="../../../../index.html#key423">source</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Documentation tools</p>
