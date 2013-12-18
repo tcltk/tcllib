@@ -18,6 +18,7 @@
 [require struct::stack]
 [require struct::set]
 [require treeql]
+[require doctools::tcl::parse]
 [description]
 
 This package provides commands for parsing text with embedded Tcl

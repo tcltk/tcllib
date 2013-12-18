@@ -1,3 +1,8 @@
+2013-12-17  Andreas Kupries <andreask@activestate.com>
+
+	* switched.man: Created a doctools-based manpage from the provided
+	  HTML documentation.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*
