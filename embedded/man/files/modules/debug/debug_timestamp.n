@@ -277,6 +277,8 @@ debug::timestamp \- debug narrative - timestamping
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
+package require \fBdebug::timestamp  ?1?\fR
+.sp
 package require \fBdebug  ?1?\fR
 .sp
 \fBdebug\fR \fBtimestamp\fR

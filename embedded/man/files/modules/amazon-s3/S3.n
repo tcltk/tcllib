@@ -276,6 +276,8 @@ S3 \- Amazon S3 Web Service Interface
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
+package require \fBS3  1\fR
+.sp
 package require \fBsha1  1\&.0\fR
 .sp
 package require \fBmd5  2\&.0\fR

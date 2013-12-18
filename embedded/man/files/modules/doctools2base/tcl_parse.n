@@ -290,6 +290,8 @@ package require \fBstruct::set \fR
 .sp
 package require \fBtreeql \fR
 .sp
+package require \fBdoctools::tcl::parse \fR
+.sp
 \fB::doctools::tcl::parse\fR \fBtext\fR \fItree\fR \fItext\fR ?\fIroot\fR?
 .sp
 \fB::doctools::tcl::parse\fR \fBfile\fR \fItree\fR \fIpath\fR ?\fIroot\fR?

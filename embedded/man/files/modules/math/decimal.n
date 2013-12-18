@@ -2,7 +2,7 @@
 '\" Generated from file 'decimal\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2011 Mark Alston <mark at beernut dot com>
 '\"
-.TH "math::decimal" n 1\&.0\&.2 tcllib "Tcl Decimal Arithmetic Library"
+.TH "math::decimal" n 1\&.0\&.3 tcllib "Tcl Decimal Arithmetic Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,6 +275,8 @@ Database Class:	\\fB\\$3\\fR
 math::decimal \- General decimal arithmetic
 .SH SYNOPSIS
 package require \fBTcl  ?8\&.5?\fR
+.sp
+package require \fBmath::decimal  1\&.0\&.3\fR
 .sp
 \fB::math::decimal::fromstr\fR \fIstring\fR
 .sp
