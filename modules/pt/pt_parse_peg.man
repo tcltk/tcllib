@@ -12,7 +12,7 @@ expression grammars in textual form.
 [section {Class API}]
 
 [list_begin definitions]
-[call [cmd className] [opt [arg objectName]]]
+[call [cmd pt::parse::peg] [opt [arg objectName]]]
 
 The class command constructs parser instances, i.e. objects. The
 result of the command is the fully-qualified name of the instance
@@ -22,7 +22,7 @@ command.
 
 If no [arg objectName] is specified the class will generate and use an
 automatic name. If the [arg objectName] was specified, but is not
-fully qualified the command will be created in the curent namespace.
+fully qualified the command will be created in the current namespace.
 
 [list_end]
 
