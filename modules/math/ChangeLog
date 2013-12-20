@@ -1,3 +1,7 @@
+2013-12-20  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* interpolate.tcl: [Ticket 843c2257d2] Added special case for points coincident with the data points
+	* interpolate.test: [Ticket 843c2257d2] Added test case for coincident points
+
 2013-12-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* decimal.man: Fixed missing requirement of the package
