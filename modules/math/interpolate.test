@@ -213,6 +213,18 @@ test "Interpolate-4.2" "Spatial interpolation - 2" \
             1.2      -0.6
             0.039996 -0.019998 }
 
+test "Interpolate-4.3" "Spatial interpolation - 3 - coincident points" \
+   -match numbers -body {
+   set result {}
+
+   set xyzvalues { {-1.0 0.0 { -2.0  1.0 } }
+                   { 1.0 0.0 {  2.0 -1.0 } } }
+   set coord {-1.0 0.0}
+      set result [::math::interpolate::interp-spatial $xyzvalues $coord]
+
+   set result
+} -result { -2.0 1.0 }
+
 #
 # Test TODO: parameters for spatial interpolation
 #
