@@ -260,16 +260,10 @@ proc ::json::parseValue {tokens nrTokens tokenCursorName} {
                 # quoted string
                 return [unquoteUnescapeString $token]
             }
-            "t" {
-		# bare word: true (mapped to numeric boolean)
-		return 1
-	    }
-            "f" {
-		# bare word: false (mapped to numeric boolean)
-		return 0
-	    }
+            "t" -
+            "f" -
             "n" {
-                # bare word: null (return as is)
+                # bare word: true, false, null (return as is)
                 return $token
             }
             default {
