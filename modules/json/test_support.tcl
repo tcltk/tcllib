@@ -96,13 +96,16 @@ foreach f [TestFilesGlob test-data/*.err] {
     set ERR($name) [tcltest::viewFile $f]
 }
 
-set FAIL(escape1)        {"\%"}
-set  ERR(escape1-tcl)    {unexpected token "END" at position 0; expecting VALUE}
-set  ERR(escape1-critcl) {invalid string sequence}
-
-set FAIL(escape2)        {"\."}
-set  ERR(escape2-tcl)    {unexpected token "END" at position 0; expecting VALUE}
-set  ERR(escape2-critcl) {invalid string sequence}
+## Tcl has strict escape checking.
+## C   uses Tcl_UtfBacklash, and allows lots of irregular escapes.
+#
+# set FAIL(escape1)        {"\%"}
+# set  ERR(escape1-tcl)    {unexpected token "END" at position 0; expecting VALUE}
+# set  ERR(escape1-critcl) {syntax error 0 bytes before end, around ``%''}
+#
+# set FAIL(escape2)        {"\."}
+# set  ERR(escape2-tcl)    {unexpected token "END" at position 0; expecting VALUE}
+# set  ERR(escape2-critcl) {syntax error 0 bytes before end, around ``.''}
 
 
 
