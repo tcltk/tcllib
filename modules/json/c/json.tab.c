@@ -1374,8 +1374,6 @@ yyreturn:
 
 #line 144 "json.y"
 
-#include <err.h>
-
 void
 jsonparse (struct context* context)
 {
