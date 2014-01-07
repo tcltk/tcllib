@@ -159,6 +159,13 @@ namespace eval ::json {
 }
 
 # ### ### ### ######### ######### #########
+## Wrapper fix for the jsonc package to match APIs.
+
+proc ::json::many-json2dict_critcl {args} {
+    eval [linsert $args 0 ::json::many_json2dict_critcl]
+}
+
+# ### ### ### ######### ######### #########
 ## Initialization: Choose an implementation,
 ## most prefered first. Loads only one of the
 ## possible implementations. And activates it.
@@ -172,13 +179,6 @@ namespace eval ::json {
 	}
     }
     unset e
-}
-
-# ### ### ### ######### ######### #########
-## Wrapper fix for the jsonc package to match APIs.
-
-proc ::json::many-json2dict_critcl {args} {
-    eval [linsert $args 0 ::json::many_json2dict_critcl]
 }
 
 # ### ### ### ######### ######### #########
@@ -273,4 +273,4 @@ proc ::json::string2json {str} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide json 1.3.1
+package provide json 1.3.2
