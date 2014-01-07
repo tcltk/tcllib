@@ -142,8 +142,6 @@ value	: CONSTANT
 	;
 
 %%
-#include <err.h>
-
 void
 jsonparse (struct context* context)
 {
