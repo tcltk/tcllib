@@ -31,7 +31,8 @@ proc ::json::LoadAccelerator {key} {
 	    # Critcl implementation of json requires Tcl 8.4.
 	    if {![package vsatisfies [package provide Tcl] 8.4]} {return 0}
 	    if {[catch {package require tcllibc}]} {return 0}
-	    set r [llength [info commands ::json::json2dict_critcl]]
+	    # Check for the jsonc 1.1.1 API we are fixing later.
+	    set r [llength [info commands ::json::many_json2dict_critcl]]
 	}
 	tcl {
 	    variable selfdir
@@ -174,6 +175,13 @@ namespace eval ::json {
 }
 
 # ### ### ### ######### ######### #########
+## Wrapper fix for the jsonc package to match APIs.
+
+proc ::json::many-json2dict_critcl {args} {
+    eval [linsert $args 0 ::json::many_json2dict_critcl]
+}
+
+# ### ### ### ######### ######### #########
 ## Tcl implementation of validation, shared for Tcl and C implementation.
 ##
 ## The regexp based validation is consistently faster than json-c.
@@ -265,4 +273,4 @@ proc ::json::string2json {str} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide json 1.3
+package provide json 1.3.1

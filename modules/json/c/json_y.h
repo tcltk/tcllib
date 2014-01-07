@@ -46,7 +46,7 @@ jsonlex(struct context *);
 #endif
 
 extern void
-jsonskip(struct context *);
+jsonskip (struct context *);
 
 /*
  * Default: Tracing off.

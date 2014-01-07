@@ -8,7 +8,7 @@
 
 package require critcl
 # @sak notprovided jsonc
-package provide jsonc 1.1
+package provide jsonc 1.1.1
 package require Tcl 8.4
 
 #critcl::cheaders -g
@@ -41,13 +41,15 @@ namespace eval ::json {
 	return context.result;
     }
 
-    critcl::ccommand many-json2dict_critcl {dummy I objc objv} {
+    # Issue with critcl 2 used here. Cannot use '-', incomplete distinction of C and Tcl names.
+    # The json.tcl file making use of this code has a wrapper fixing the issue.
+    critcl::ccommand many_json2dict_critcl {dummy I objc objv} {
 	struct context context = { NULL };
 
 	int                      max;
 	int                      found;
 
-	Tcl_Obj* result = Tcl_NewListObj(0, NULL);
+	Tcl_Obj* result = Tcl_NewListObj (0, NULL);
 
 	if ((objc < 2) || (objc > 3)) {
 	    Tcl_WrongNumArgs(I, 1, objv, "jsonText ?max?");
