@@ -1,3 +1,11 @@
+2014-01-07  Andreas Kupries  <andreask@activestate.com>
+
+	* c/json.tab.c: Worked around issues with the critcl v2
+	* c/json.y: application the Tcllib C code is geared towards.
+	* json.tcl: Bumped json version to 1.3.1, jsonc to 1.1.1,
+	* jsonc.tcl: and tcllibc to 0.3.13.
+	* tcllibc.tcl: See ticket [6efa4f571af052].
+
 2014-01-06  Andreas Kupries  <andreask@activestate.com>
 
 	See ticket [6efa4f571af052].
