@@ -1,3 +1,8 @@
+2014-01-08  Andreas Kupries  <andreask@activestate.com>
+
+	* pkgIndex.tcl: Last commit forgot to update the package index,
+	  causing a mismatch. Fixed, likewise the Tcl requirement.
+
 2013-11-22  Andreas Kupries  <andreask@activestate.com>
 
 	* mime.tcl: (PoorYorick): general cleanup. use expr operators like
