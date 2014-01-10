@@ -92,7 +92,7 @@ proc xcopy {src dest recurse {pattern *}} {
     run file mkdir $dest
 
     if {[string equal $pattern *] || !$recurse} {
-	foreach file [glob [file join $src $pattern]] {
+	foreach file [glob -nocomplain [file join $src $pattern]] {
 	    set base [file tail $file]
 	    set sub  [file join $dest $base]
 
@@ -113,7 +113,7 @@ proc xcopy {src dest recurse {pattern *}} {
 	    }
 	}
     } else {
-	foreach file [glob [file join $src *]] {
+	foreach file [glob -nocomplain [file join $src *]] {
 	    set base [file tail $file]
 	    set sub  [file join $dest $base]
 
