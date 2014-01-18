@@ -1,4 +1,4 @@
-[manpage_begin math::statistics n 0.8]
+[manpage_begin math::statistics n 0.9]
 [keywords {data analysis}]
 [keywords mathematics]
 [keywords statistics]
@@ -6,7 +6,7 @@
 [titledesc {Basic statistical functions and procedures}]
 [category  Mathematics]
 [require Tcl 8.4]
-[require math::statistics 0.8]
+[require math::statistics 0.9]
 [description]
 [para]
 
@@ -417,6 +417,91 @@ limits.
 [arg_def list data] - List of observed data
 [list_end]
 [para]
+
+[call [cmd ::math::statistics::test-Kruskal-Wallis] [arg confidence] [arg args]]
+Check if the population medians of two or more groups are equal with a
+given confidence level, using the Kruskal-Wallis test.
+
+[list_begin arguments]
+[arg_def float confidence] - Confidence level to be used (0-1)
+[arg_def list args] - Two or more lists of data
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::analyse-Kruskal-Wallis] [arg args]]
+Compute the statistical parameters for the Kruskal-Wallis test.
+Returns the Kruskal-Wallis statistic and the probability that that
+value would occur assuming the medians of the populations are
+equal.
+
+[list_begin arguments]
+[arg_def list args] - Two or more lists of data
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::group-rank] [arg args]]
+Rank the groups of data with respect to the complete set.
+Returns a list consisting of the group ID, the value and the rank
+(possibly a rational number, in case of ties) for each data item.
+
+[list_begin arguments]
+[arg_def list args] - Two or more lists of data
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::test-Wilcoxon] [arg sample_a] [arg sample_b]]
+Compute the Wilcoxon test statistic to determine if two samples have the
+same median or not. (The statistic can be regarded as standard normal, if the
+sample sizes are both larger than 10. Returns the value of this statistic.
+
+[list_begin arguments]
+[arg_def list sample_a] - List of data comprising the first sample
+[arg_def list sample_b] - List of data comprising the second sample
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::spearman-rank] [arg sample_a] [arg sample_b]]
+Return the Spearman rank correlation as an alternative to the ordinary (Pearson's) correlation
+coefficient. The two samples should have the same number of data.
+
+[list_begin arguments]
+[arg_def list sample_a] - First list of data
+[arg_def list sample_b] - Second list of data
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::spearman-rank-extended] [arg sample_a] [arg sample_b]]
+Return the Spearman rank correlation as an alternative to the ordinary (Pearson's) correlation
+coefficient as well as additional data. The two samples should have the same number of data.
+The procedure returns the correlation coefficient, the number of data pairs used and the
+z-score, an approximately standard normal statistic, indicating the significance of the correlation.
+
+[list_begin arguments]
+[arg_def list sample_a] - First list of data
+[arg_def list sample_b] - Second list of data
+[list_end]
+
+[call [cmd ::math::statistics::kernel-density] [arg data] opt [arg "-option value"] ...]]
+Return the density function based on kernel density estimation. The procedure is controlled by
+a small set of options, each of which is given a reasonable default.
+[nl]
+The return value consists of three lists: the centres of the bins, the associated probability
+density and a list of computational parameters (begin and end of the interval, mean and standard
+deviation and the used bandwidth). The computational parameters can be used for further analysis.
+
+[list_begin arguments]
+[arg_def list data] - The data to be examined
+[arg_def list args] - Option-value pairs:
+[list_begin definitions]
+[def "[option -weights] [arg weights]"]  Per data point the weight (default: 1 for all data)
+[def "[option -bandwidth] [arg value]"]  Bandwidth to be used for the estimation (default: determined from standard deviation)
+[def "[option -number] [arg value]"]  Number of bins to be returned (default: 100)
+[def "[option -interval] [arg "{begin end}"]"]  Begin and end of the interval for
+which the density is returned (default: mean +/- 3*standard deviation)
+[def "[option -kernel] [arg function]"]  Kernel to be used (One of: gaussian, cosine,
+epanechnikov, uniform, triangular, biweight, logistic; default: gaussian)
+[list_end]
+[list_end]
 
 [list_end]
 
@@ -910,69 +995,6 @@ sublists of the "list" argument for which the expression is true.
 [call [cmd ::math::statistics::subdivide]]
 Routine [emph PM] - not implemented yet
 [para]
-
-[call [cmd ::math::statistics::test-Kruskal-Wallis] [arg confidence] [arg args]]
-Check if the population medians of two or more groups are equal with a
-given confidence level, using the Kruskal-Wallis test.
-
-[list_begin arguments]
-[arg_def float confidence] - Confidence level to be used (0-1)
-[arg_def list args] - Two or more lists of data
-[list_end]
-[para]
-
-[call [cmd ::math::statistics::analyse-Kruskal-Wallis] [arg args]]
-Compute the statistical parameters for the Kruskal-Wallis test.
-Returns the Kruskal-Wallis statistic and the probability that that
-value would occur assuming the medians of the populations are
-equal.
-
-[list_begin arguments]
-[arg_def list args] - Two or more lists of data
-[list_end]
-[para]
-
-[call [cmd ::math::statistics::group-rank] [arg args]]
-Rank the groups of data with respect to the complete set.
-Returns a list consisting of the group ID, the value and the rank
-(possibly a rational number, in case of ties) for each data item.
-
-[list_begin arguments]
-[arg_def list args] - Two or more lists of data
-[list_end]
-[para]
-
-[call [cmd ::math::statistics::test-Wilcoxon] [arg sample_a] [arg sample_b]]
-Compute the Wilcoxon test statistic to determine if two samples have the
-same median or not. (The statistic can be regarded as standard normal, if the
-sample sizes are both larger than 10. Returns the value of this statistic.
-
-[list_begin arguments]
-[arg_def list sample_a] - List of data comprising the first sample
-[arg_def list sample_b] - List of data comprising the second sample
-[list_end]
-[para]
-
-[call [cmd ::math::statistics::spearman-rank] [arg sample_a] [arg sample_b]]
-Return the Spearman rank correlation as an alternative to the ordinary (Pearson's) correlation
-coefficient. The two samples should have the same number of data.
-
-[list_begin arguments]
-[arg_def list sample_a] - First list of data
-[arg_def list sample_b] - Second list of data
-[list_end]
-[para]
-
-[call [cmd ::math::statistics::spearman-rank-extended] [arg sample_a] [arg sample_b]]
-Return the Spearman rank correlation as an alternative to the ordinary (Pearson's) correlation
-coefficient as well as additional data. The two samples should have the same number of data.
-The procedure returns the correlation coefficient, the number of data pairs used and the
-z-score, an approximately standard normal statistic, indicating the significance of the correlation.
-
-[list_begin arguments]
-[arg_def list sample_a] - First list of data
-[arg_def list sample_b] - Second list of data
-[list_end]
 
 [list_end]
 

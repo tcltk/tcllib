@@ -16,8 +16,9 @@
 #                (provided by Eric Kemp-Benedict)
 # version 0.7:   added Kruskal-Wallis test (by Torsten Berg)
 # version 0.8:   added Wilcoxon test and Spearman rank correlation
+# version 0.9:   added kernel density estimation
 
-package provide math::statistics 0.8.1
+package provide math::statistics 0.9
 package require math
 
 # ::math::statistics --
@@ -1297,10 +1298,6 @@ proc ::math::statistics::test-Rchart { control data } {
     return $result
 }
 
-
-
-
-
 #
 # Load the auxiliary scripts
 #
@@ -1310,6 +1307,7 @@ source [file join [file dirname [info script]] liststat.tcl]
 source [file join [file dirname [info script]] mvlinreg.tcl]
 source [file join [file dirname [info script]] kruskal.tcl]
 source [file join [file dirname [info script]] wilcoxon.tcl]
+source [file join [file dirname [info script]] stat_kernel.tcl]
 
 #
 # Define the tables

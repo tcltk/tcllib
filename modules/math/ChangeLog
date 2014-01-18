@@ -1,3 +1,10 @@
+2014-01-18  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* statistics.tcl: Added stat_kernel.tcl
+	* stat_kernel.tcl: Implements a straightforward kernel density estimation procedure
+	* statistics.man: Describe the kernel denstity estimation procedure, moved the description of several
+	                  tests to the general section
+	* pkgIndex.tcl: Bumped version of statistics package to 0.9
+
 2013-12-20  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* interpolate.tcl: [Ticket 843c2257d2] Added special case for points coincident with the data points
 	* interpolate.test: [Ticket 843c2257d2] Added test case for coincident points
