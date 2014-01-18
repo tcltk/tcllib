@@ -1,14 +1,19 @@
 This file records outstanding actions for the math module
 
+dd. 18 january 2014, Arjen Markus
+test cases for kernel-density:
+One test case is troublesome - uniform kernel, checking the total density
+
+
 dd. 26 october 2005, Arjen Markus
 
 qcomplex.test: extend the tests for cos/sin .. to include
-               non-real results. 
+               non-real results.
 
 dd. 28 september 2005, Arjen Markus
 
 optimize.tcl: linear programming algorithm ignores certain
-              constraints (of type x > 0). Needs to be 
+              constraints (of type x > 0). Needs to be
               fixed
 
 dd. 22 june 2004, Arjen Markus
