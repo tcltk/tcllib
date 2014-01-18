@@ -92,6 +92,10 @@ proc ::math::statistics::kernel-density {data args} {
         return -code error -errorcode ARG -errorinfo "The number of bins must be positive: $opt(-number)"
     }
 
+    if { [lindex $opt(-interval) 0] == [lindex $opt(-interval) 1] } {
+        return -code error -errorcode ARG -errorinfo "The interval has length zero: $opt(-interval)"
+    }
+
     if { [llength [info proc $opt(-kernel)]] == 0 } {
         return -code error -errorcode ARG -errorinfo "Unknown kernel function: $opt(-kernel)"
     }
@@ -121,7 +125,7 @@ proc ::math::statistics::kernel-density {data args} {
             }
         }
     } else {
-        set weight [lrepeat $ndata [expr {1.0/$ndata}]]
+        set weight [lrepeat [llength $data] [expr {1.0/$ndata}]] ;# Note: missing values have weight zero
     }
 
     #
@@ -129,7 +133,7 @@ proc ::math::statistics::kernel-density {data args} {
     #
     set xbegin [lindex $opt(-interval) 0]
     set xend   [lindex $opt(-interval) 1]
-    set dx     [expr {($xend - $xbegin) / $opt(-number)}]
+    set dx     [expr {($xend - $xbegin) / double($opt(-number))}]
     set xb     [expr {$xbegin + 0.5 * $dx}]
     set xvalue {}
     for {set i 0} {$i < $opt(-number)} {incr i} {
@@ -174,7 +178,7 @@ proc ::math::statistics::gaussian {x} {
     return [expr {exp(-0.5*$x*$x) / sqrt(2.0*acos(-1.0))}]
 }
 proc ::math::statistics::uniform {x} {
-    if { abs($x) < 1.0 } {
+    if { abs($x) <= 1.0 } {
         return 0.5
     } else {
         return 0.0

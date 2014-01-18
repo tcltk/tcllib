@@ -599,6 +599,85 @@ test "spearman-rank-extended-1.0" "Test extended Spearman rank correlation proce
                                                {  7   0  27  50  28  29  20  12   6  17}
 } -result {-0.175757575758 10 -0.456397284}
 
+#
+# Note: for the uniform kernel the sum is roughly 0.92. It would appear from a visual
+# investigation that the sides may influence this, as well as the default bandwidth.
+# Leave it for now.
+#
+test "kernel-density-1.0" "Test various kernel functions" -body {
+    set data {1 2 3 4 5 6 7 8 9 10}
+
+    set roughlyOne {}
+
+    foreach kernel {gaussian uniform triangular epanechnikov biweight cosine logistic} {
+        set result [::math::statistics::kernel-density $data -kernel $kernel]
+
+        set sum 0.0
+        set xbegin [lindex $result 2 0]
+        set xend   [lindex $result 2 1]
+        set number [llength [lindex $result 0]]
+        set dx     [expr {($xend-$xbegin) / $number}]
+
+        #
+        # Integral should be roughly one
+        #
+        set sum 0.0
+        foreach v [lindex $result 1] {
+            set sum [expr {$sum + $dx * $v}]
+        }
+
+        lappend roughlyOne [expr {abs($sum-1.0) < 0.01}]
+    }
+
+    return $roughlyOne
+} -result {1 0 1 1 1 1 1}
+
+test "kernel-density-1.1" "Test various options - just that they have effect" -body {
+    set subResults {}
+
+    set data {1 2 3 4 5 6 7 8 9 10}
+
+    set result [::math::statistics::kernel-density $data -number 20]
+    lappend subResults [llength [lindex $result 0]]  ;# Number of bins
+    lappend subResults [llength [lindex $result 1]]  ;# Number of density values
+
+    set result [::math::statistics::kernel-density $data -interval {0 20}]
+    lappend subResults [lindex $result 2 0]          ;# Beginning of interval
+    lappend subResults [lindex $result 2 1]          ;# End of interval
+    lappend subResults [expr {[lindex $result 0 0]   > [lindex $result 2 0]}] ;# First bin -- beginning of interval
+    lappend subResults [expr {[lindex $result 0 0]   < [lindex $result 2 1]}] ;# First bin -- end of interval
+    lappend subResults [expr {[lindex $result 0 end] > [lindex $result 2 0]}] ;# Last bin -- beginning of interval
+    lappend subResults [expr {[lindex $result 0 end] < [lindex $result 2 1]}] ;# Last bin -- end of interval
+
+    set result [::math::statistics::kernel-density $data -bandwidth 2]
+    lappend subResults [lindex $result 2 end]        ;# Bandwidth
+
+    return $subResults
+} -result {20 20 0 20 1 1 1 1 2}
+
+test "kernel-density-1.2" "Dealing with missing values" -body {
+    set subResults {}
+
+    set data {1 2 3 4 {} 6 7 8 9 10}
+
+    set result [::math::statistics::kernel-density $data]
+
+    set sum 0.0
+    set xbegin [lindex $result 2 0]
+    set xend   [lindex $result 2 1]
+    set number [llength [lindex $result 0]]
+    set dx     [expr {($xend-$xbegin) / $number}]
+
+    #
+    # Integral should be roughly one
+    #
+    set sum 0.0
+    foreach v [lindex $result 1] {
+        set sum [expr {$sum + $dx * $v}]
+    }
+
+    return [expr {abs($sum-1.0) < 0.01}]
+} -result 1
 
 # End of test cases
 testsuiteCleanup
