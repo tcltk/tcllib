@@ -3,6 +3,7 @@
 	* stat_kernel.tcl: Implements a straightforward kernel density estimation procedure
 	* statistics.man: Describe the kernel denstity estimation procedure, moved the description of several
 	                  tests to the general section
+	* statistics.test: Added three tests for the kernel density estimation (note: one result is a bit troublesome)
 	* pkgIndex.tcl: Bumped version of statistics package to 0.9
 
 2013-12-20  Arjen Markus <arjenmarkus@users.sourceforge.net>
