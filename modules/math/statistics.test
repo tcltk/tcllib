@@ -600,16 +600,17 @@ test "spearman-rank-extended-1.0" "Test extended Spearman rank correlation proce
 } -result {-0.175757575758 10 -0.456397284}
 
 #
-# Note: for the uniform kernel the sum is roughly 0.92. It would appear from a visual
-# investigation that the sides may influence this, as well as the default bandwidth.
-# Leave it for now.
+# Note: for the uniform and the logistic kernel the sum deviates more from 1 than for the others.
+# For the logistic kernel this is because the density function is very widespread. For the
+# uniform kernel the reason is not quite clear. Hence the margin per kernel.
 #
 test "kernel-density-1.0" "Test various kernel functions" -body {
     set data {1 2 3 4 5 6 7 8 9 10}
 
     set roughlyOne {}
 
-    foreach kernel {gaussian uniform triangular epanechnikov biweight cosine logistic} {
+    foreach kernel {gaussian uniform triangular epanechnikov biweight cosine logistic} \
+            margin {0.01     0.02    0.01       0.01         0.01     0.01   0.05    } {
         set result [::math::statistics::kernel-density $data -kernel $kernel]
 
         set sum 0.0
@@ -626,11 +627,11 @@ test "kernel-density-1.0" "Test various kernel functions" -body {
             set sum [expr {$sum + $dx * $v}]
         }
 
-        lappend roughlyOne [expr {abs($sum-1.0) < 0.01}]
+        lappend roughlyOne [expr {abs($sum-1.0) < $margin}]
     }
 
     return $roughlyOne
-} -result {1 0 1 1 1 1 1}
+} -result {1 1 1 1 1 1 1}
 
 test "kernel-density-1.1" "Test various options - just that they have effect" -body {
     set subResults {}
