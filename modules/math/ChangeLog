@@ -1,3 +1,7 @@
+2014-01-19  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* stat_kernel.tcl: Corrected use of bandwidth
+	* statistics.test: Added margin per kernel - not quite satisfactory in the case of the uniform kernel
+
 2014-01-18  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* statistics.tcl: Added stat_kernel.tcl
 	* stat_kernel.tcl: Implements a straightforward kernel density estimation procedure
