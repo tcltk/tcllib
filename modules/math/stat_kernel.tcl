@@ -144,7 +144,7 @@ proc ::math::statistics::kernel-density {data args} {
     # Construct the density function
     #
     set density {}
-    set scale   [expr {$opt(-bandwidth)}]
+    set scale   [expr {1.0/$opt(-bandwidth)}]
     foreach x $xvalue {
         set sum 0.0
         foreach d $data w $weight {
@@ -159,7 +159,7 @@ proc ::math::statistics::kernel-density {data args} {
     #
     # Return the result
     #
-    return [list $xvalue $density [list $xbegin $xend $mean $stdev $scale]]
+    return [list $xvalue $density [list $xbegin $xend $mean $stdev $opt(-bandwidth)]]
 }
 
 # gaussian, uniform, triangular, epanechnikov, biweight, cosine, logistic --
