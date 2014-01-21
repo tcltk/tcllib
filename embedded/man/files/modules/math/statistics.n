@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'statistics\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "math::statistics" n 0\&.8 tcllib "Tcl Math Library"
+.TH "math::statistics" n 0\&.9 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ math::statistics \- Basic statistical functions and procedures
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBmath::statistics  0\&.8\fR
+package require \fBmath::statistics  0\&.9\fR
 .sp
 \fB::math::statistics::mean\fR \fIdata\fR
 .sp
@@ -336,6 +336,20 @@ package require \fBmath::statistics  0\&.8\fR
 \fB::math::statistics::test-xbar\fR \fIcontrol\fR \fIdata\fR
 .sp
 \fB::math::statistics::test-Rchart\fR \fIcontrol\fR \fIdata\fR
+.sp
+\fB::math::statistics::test-Kruskal-Wallis\fR \fIconfidence\fR \fIargs\fR
+.sp
+\fB::math::statistics::analyse-Kruskal-Wallis\fR \fIargs\fR
+.sp
+\fB::math::statistics::group-rank\fR \fIargs\fR
+.sp
+\fB::math::statistics::test-Wilcoxon\fR \fIsample_a\fR \fIsample_b\fR
+.sp
+\fB::math::statistics::spearman-rank\fR \fIsample_a\fR \fIsample_b\fR
+.sp
+\fB::math::statistics::spearman-rank-extended\fR \fIsample_a\fR \fIsample_b\fR
+.sp
+\fB::math::statistics::kernel-density\fR \fIdata\fR opt \fI-option value\fR \&.\&.\&.
 .sp
 \fB::math::statistics::tstat\fR \fIdof\fR ?alpha?
 .sp
@@ -400,18 +414,6 @@ package require \fBmath::statistics  0\&.8\fR
 \fB::math::statistics::samplescount\fR \fIvarname\fR \fIlist\fR \fIexpression\fR
 .sp
 \fB::math::statistics::subdivide\fR
-.sp
-\fB::math::statistics::test-Kruskal-Wallis\fR \fIconfidence\fR \fIargs\fR
-.sp
-\fB::math::statistics::analyse-Kruskal-Wallis\fR \fIargs\fR
-.sp
-\fB::math::statistics::group-rank\fR \fIargs\fR
-.sp
-\fB::math::statistics::test-Wilcoxon\fR \fIsample_a\fR \fIsample_b\fR
-.sp
-\fB::math::statistics::spearman-rank\fR \fIsample_a\fR \fIsample_b\fR
-.sp
-\fB::math::statistics::spearman-rank-extended\fR \fIsample_a\fR \fIsample_b\fR
 .sp
 \fB::math::statistics::plot-scale\fR \fIcanvas\fR \fIxmin\fR \fIxmax\fR \fIymin\fR \fIymax\fR
 .sp
@@ -917,6 +919,119 @@ list \fIdata\fR
 - List of observed data
 .RE
 .sp
+.TP
+\fB::math::statistics::test-Kruskal-Wallis\fR \fIconfidence\fR \fIargs\fR
+Check if the population medians of two or more groups are equal with a
+given confidence level, using the Kruskal-Wallis test\&.
+.RS
+.TP
+float \fIconfidence\fR
+- Confidence level to be used (0-1)
+.TP
+list \fIargs\fR
+- Two or more lists of data
+.RE
+.sp
+.TP
+\fB::math::statistics::analyse-Kruskal-Wallis\fR \fIargs\fR
+Compute the statistical parameters for the Kruskal-Wallis test\&.
+Returns the Kruskal-Wallis statistic and the probability that that
+value would occur assuming the medians of the populations are
+equal\&.
+.RS
+.TP
+list \fIargs\fR
+- Two or more lists of data
+.RE
+.sp
+.TP
+\fB::math::statistics::group-rank\fR \fIargs\fR
+Rank the groups of data with respect to the complete set\&.
+Returns a list consisting of the group ID, the value and the rank
+(possibly a rational number, in case of ties) for each data item\&.
+.RS
+.TP
+list \fIargs\fR
+- Two or more lists of data
+.RE
+.sp
+.TP
+\fB::math::statistics::test-Wilcoxon\fR \fIsample_a\fR \fIsample_b\fR
+Compute the Wilcoxon test statistic to determine if two samples have the
+same median or not\&. (The statistic can be regarded as standard normal, if the
+sample sizes are both larger than 10\&. Returns the value of this statistic\&.
+.RS
+.TP
+list \fIsample_a\fR
+- List of data comprising the first sample
+.TP
+list \fIsample_b\fR
+- List of data comprising the second sample
+.RE
+.sp
+.TP
+\fB::math::statistics::spearman-rank\fR \fIsample_a\fR \fIsample_b\fR
+Return the Spearman rank correlation as an alternative to the ordinary (Pearson's) correlation
+coefficient\&. The two samples should have the same number of data\&.
+.RS
+.TP
+list \fIsample_a\fR
+- First list of data
+.TP
+list \fIsample_b\fR
+- Second list of data
+.RE
+.sp
+.TP
+\fB::math::statistics::spearman-rank-extended\fR \fIsample_a\fR \fIsample_b\fR
+Return the Spearman rank correlation as an alternative to the ordinary (Pearson's) correlation
+coefficient as well as additional data\&. The two samples should have the same number of data\&.
+The procedure returns the correlation coefficient, the number of data pairs used and the
+z-score, an approximately standard normal statistic, indicating the significance of the correlation\&.
+.RS
+.TP
+list \fIsample_a\fR
+- First list of data
+.TP
+list \fIsample_b\fR
+- Second list of data
+.RE
+.TP
+\fB::math::statistics::kernel-density\fR \fIdata\fR opt \fI-option value\fR \&.\&.\&.
+]
+Return the density function based on kernel density estimation\&. The procedure is controlled by
+a small set of options, each of which is given a reasonable default\&.
+.sp
+The return value consists of three lists: the centres of the bins, the associated probability
+density and a list of computational parameters (begin and end of the interval, mean and standard
+deviation and the used bandwidth)\&. The computational parameters can be used for further analysis\&.
+.RS
+.TP
+list \fIdata\fR
+- The data to be examined
+.TP
+list \fIargs\fR
+- Option-value pairs:
+.RS
+.TP
+\fB-weights\fR \fIweights\fR
+Per data point the weight (default: 1 for all data)
+.TP
+\fB-bandwidth\fR \fIvalue\fR
+Bandwidth to be used for the estimation (default: determined from standard deviation)
+.TP
+\fB-number\fR \fIvalue\fR
+Number of bins to be returned (default: 100)
+.TP
+\fB-interval\fR \fI{begin end}\fR
+Begin and end of the interval for
+which the density is returned (default: mean +/- 3*standard deviation)
+.TP
+\fB-kernel\fR \fIfunction\fR
+Kernel to be used (One of: gaussian, cosine,
+epanechnikov, uniform, triangular, biweight, logistic; default: gaussian)
+.RE
+.RE
 .PP
 .SH "MULTIVARIATE LINEAR REGRESSION"
 Besides the linear regression with a single independent variable, the
@@ -1532,83 +1647,6 @@ string \fIexpression\fR
 \fB::math::statistics::subdivide\fR
 Routine \fIPM\fR - not implemented yet
 .sp
-.TP
-\fB::math::statistics::test-Kruskal-Wallis\fR \fIconfidence\fR \fIargs\fR
-Check if the population medians of two or more groups are equal with a
-given confidence level, using the Kruskal-Wallis test\&.
-.RS
-.TP
-float \fIconfidence\fR
-- Confidence level to be used (0-1)
-.TP
-list \fIargs\fR
-- Two or more lists of data
-.RE
-.sp
-.TP
-\fB::math::statistics::analyse-Kruskal-Wallis\fR \fIargs\fR
-Compute the statistical parameters for the Kruskal-Wallis test\&.
-Returns the Kruskal-Wallis statistic and the probability that that
-value would occur assuming the medians of the populations are
-equal\&.
-.RS
-.TP
-list \fIargs\fR
-- Two or more lists of data
-.RE
-.sp
-.TP
-\fB::math::statistics::group-rank\fR \fIargs\fR
-Rank the groups of data with respect to the complete set\&.
-Returns a list consisting of the group ID, the value and the rank
-(possibly a rational number, in case of ties) for each data item\&.
-.RS
-.TP
-list \fIargs\fR
-- Two or more lists of data
-.RE
-.sp
-.TP
-\fB::math::statistics::test-Wilcoxon\fR \fIsample_a\fR \fIsample_b\fR
-Compute the Wilcoxon test statistic to determine if two samples have the
-same median or not\&. (The statistic can be regarded as standard normal, if the
-sample sizes are both larger than 10\&. Returns the value of this statistic\&.
-.RS
-.TP
-list \fIsample_a\fR
-- List of data comprising the first sample
-.TP
-list \fIsample_b\fR
-- List of data comprising the second sample
-.RE
-.sp
-.TP
-\fB::math::statistics::spearman-rank\fR \fIsample_a\fR \fIsample_b\fR
-Return the Spearman rank correlation as an alternative to the ordinary (Pearson's) correlation
-coefficient\&. The two samples should have the same number of data\&.
-.RS
-.TP
-list \fIsample_a\fR
-- First list of data
-.TP
-list \fIsample_b\fR
-- Second list of data
-.RE
-.sp
-.TP
-\fB::math::statistics::spearman-rank-extended\fR \fIsample_a\fR \fIsample_b\fR
-Return the Spearman rank correlation as an alternative to the ordinary (Pearson's) correlation
-coefficient as well as additional data\&. The two samples should have the same number of data\&.
-The procedure returns the correlation coefficient, the number of data pairs used and the
-z-score, an approximately standard normal statistic, indicating the significance of the correlation\&.
-.RS
-.TP
-list \fIsample_a\fR
-- First list of data
-.TP
-list \fIsample_b\fR
-- Second list of data
-.RE
 .PP
 .SH "PLOT PROCEDURES"
 The following simple plotting procedures are available:

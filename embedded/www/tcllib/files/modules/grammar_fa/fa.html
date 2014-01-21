@@ -370,20 +370,20 @@ element which is not a known state.
 The result is a boolean value. It will be set to <b class="const">true</b> if a
 start state is present in <i class="arg">stateset</i>, and <b class="const">false</b> otherwise.</p></dd>
 <dt><a name="19"><i class="arg">faName</i> <b class="method">finalstates</b></a></dt>
-<dd><p>Returns the set of states which are marked as <i class="term"><a href="../../../../index.html#key172">final</a></i> states,
+<dd><p>Returns the set of states which are marked as <i class="term"><a href="../../../../index.html#key160">final</a></i> states,
 also known as <i class="term">accepting</i> states.
 See <span class="sectref"><a href="#section5">FINITE AUTOMATONS</a></span> for explanations what this means.</p></dd>
 <dt><a name="20"><i class="arg">faName</i> <b class="method">final</b> <b class="method">add</b> <i class="arg">s1</i> <span class="opt">?<i class="arg">s2</i> ...?</span></a></dt>
 <dd><p>Mark the states <i class="arg">s1</i>, <i class="arg">s2</i>, et cetera in the FA <i class="arg">faName</i>
-as <i class="term"><a href="../../../../index.html#key172">final</a></i> (aka <i class="term">accepting</i>).</p></dd>
+as <i class="term"><a href="../../../../index.html#key160">final</a></i> (aka <i class="term">accepting</i>).</p></dd>
 <dt><a name="21"><i class="arg">faName</i> <b class="method">final</b> <b class="method">remove</b> <i class="arg">s1</i> <span class="opt">?<i class="arg">s2</i> ...?</span></a></dt>
 <dd><p>Mark the states <i class="arg">s1</i>, <i class="arg">s2</i>, et cetera in the FA <i class="arg">faName</i>
 as <i class="term">not final</i> (aka <i class="term">not accepting</i>).</p></dd>
 <dt><a name="22"><i class="arg">faName</i> <b class="method">final?</b> <i class="arg">s</i></a></dt>
 <dd><p>A predicate. It tests if the state <i class="arg">s</i> in the FA <i class="arg">faName</i> is
-<i class="term"><a href="../../../../index.html#key172">final</a></i> or not.
+<i class="term"><a href="../../../../index.html#key160">final</a></i> or not.
 The result is a boolean value. It will be set to <b class="const">true</b> if the
-state <i class="arg">s</i> is <i class="term"><a href="../../../../index.html#key172">final</a></i>, and <b class="const">false</b> otherwise.</p></dd>
+state <i class="arg">s</i> is <i class="term"><a href="../../../../index.html#key160">final</a></i>, and <b class="const">false</b> otherwise.</p></dd>
 <dt><a name="23"><i class="arg">faName</i> <b class="method">final?set</b> <i class="arg">stateset</i></a></dt>
 <dd><p>A predicate. It tests if the set of states <i class="arg">stateset</i> contains at
 least one final state. They operation will fail if the set contains an
@@ -561,7 +561,7 @@ descriptions of what they do.</p></dd>
 <li><p>Sy a set of <i class="term">input symbols</i>,</p></li>
 <li><p>St is a subset of S, the set of <i class="term">start</i> states, also known as
 <i class="term">initial</i> states.</p></li>
-<li><p>Fi is a subset of S, the set of <i class="term"><a href="../../../../index.html#key172">final</a></i> states, also known as
+<li><p>Fi is a subset of S, the set of <i class="term"><a href="../../../../index.html#key160">final</a></i> states, also known as
 <i class="term">accepting</i>.</p></li>
 <li><p>T is a function from S x (Sy + epsilon) to {S}, the <i class="term">transition function</i>.
 Here <b class="const">epsilon</b> denotes the empty input symbol and is distinct
@@ -582,7 +582,7 @@ state in St and ending at a state in Fi whose edges have the labels
 sy_1, sy_2, etc. to sy_n.
 The set of all strings accepted by the FA is the <i class="term">language</i> of
 the FA. One important equivalence is that the set of languages which
-can be accepted by an FA is the set of <i class="term"><a href="../../../../index.html#key309">regular languages</a></i>.</p>
+can be accepted by an FA is the set of <i class="term"><a href="../../../../index.html#key317">regular languages</a></i>.</p>
 <p>Another important concept is that of deterministic FAs. A FA is said
 to be <i class="term">deterministic</i> if for each string of input symbols there
 is exactly one path in the graph of the FA beginning at the start
@@ -592,7 +592,7 @@ recognition, this is not so. For each non-deterministic FA we can
 construct a deterministic FA which accepts the same language (--&gt;
 Thompson's subset construction).</p>
 <p>While one of the premier applications of FAs is in <i class="term"><a href="../../../../index.html#key26">parsing</a></i>,
-especially in the <i class="term"><a href="../../../../index.html#key376">lexer</a></i> stage (where symbols == characters),
+especially in the <i class="term"><a href="../../../../index.html#key253">lexer</a></i> stage (where symbols == characters),
 this is not the only possibility by far.</p>
 <p>Quite a lot of processes can be modeled as a FA, albeit with a
 possibly large set of states. For these the notion of accepting states
@@ -620,7 +620,7 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key308">automaton</a>, <a href="../../../../index.html#key313">finite automaton</a>, <a href="../../../../index.html#key11">grammar</a>, <a href="../../../../index.html#key26">parsing</a>, <a href="../../../../index.html#key312">regular expression</a>, <a href="../../../../index.html#key310">regular grammar</a>, <a href="../../../../index.html#key309">regular languages</a>, <a href="../../../../index.html#key2">state</a>, <a href="../../../../index.html#key12">transducer</a></p>
+<p><a href="../../../../index.html#key316">automaton</a>, <a href="../../../../index.html#key321">finite automaton</a>, <a href="../../../../index.html#key11">grammar</a>, <a href="../../../../index.html#key26">parsing</a>, <a href="../../../../index.html#key320">regular expression</a>, <a href="../../../../index.html#key318">regular grammar</a>, <a href="../../../../index.html#key317">regular languages</a>, <a href="../../../../index.html#key2">state</a>, <a href="../../../../index.html#key12">transducer</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Grammars and finite automata</p>

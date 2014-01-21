@@ -439,10 +439,10 @@ tcllib
 \fIfiles/modules/doctools/doctools\&.n\fR: doctools - Processing documents
 .TP
 \fBdoctools2idx_introduction\fR
-\fIfiles/modules/doctools2idx/introduction\&.n\fR: DocTools - Keyword indices
+\fIfiles/modules/doctools2idx/idx_introduction\&.n\fR: DocTools - Keyword indices
 .TP
 \fBdoctools2toc_introduction\fR
-\fIfiles/modules/doctools2toc/introduction\&.n\fR: DocTools - Tables of Contents
+\fIfiles/modules/doctools2toc/toc_introduction\&.n\fR: DocTools - Tables of Contents
 .TP
 \fBdoctools::changelog\fR
 \fIfiles/modules/doctools/changelog\&.n\fR: Processing text in Emacs ChangeLog format
@@ -454,73 +454,73 @@ tcllib
 \fIfiles/modules/doctools2base/html_cssdefaults\&.n\fR: Default CSS style for HTML export plugins
 .TP
 \fBdoctools::idx\fR
-\fIfiles/modules/doctools2idx/container\&.n\fR: Holding keyword indices
+\fIfiles/modules/doctools2idx/idx_container\&.n\fR: Holding keyword indices
 .TP
 \fBdoctools::idx\fR
 \fIfiles/modules/doctools/docidx\&.n\fR: docidx - Processing indices
 .TP
 \fBdoctools::idx::export\fR
-\fIfiles/modules/doctools2idx/export\&.n\fR: Exporting keyword indices
+\fIfiles/modules/doctools2idx/idx_export\&.n\fR: Exporting keyword indices
 .TP
 \fBdoctools::idx::export::docidx\fR
 \fIfiles/modules/doctools2idx/export_docidx\&.n\fR: docidx export plugin
 .TP
 \fBdoctools::idx::export::html\fR
-\fIfiles/modules/doctools2idx/export_html\&.n\fR: HTML export plugin
+\fIfiles/modules/doctools2idx/idx_export_html\&.n\fR: HTML export plugin
 .TP
 \fBdoctools::idx::export::json\fR
-\fIfiles/modules/doctools2idx/export_json\&.n\fR: JSON export plugin
+\fIfiles/modules/doctools2idx/idx_export_json\&.n\fR: JSON export plugin
 .TP
 \fBdoctools::idx::export::nroff\fR
-\fIfiles/modules/doctools2idx/export_nroff\&.n\fR: nroff export plugin
+\fIfiles/modules/doctools2idx/idx_export_nroff\&.n\fR: nroff export plugin
 .TP
 \fBdoctools::idx::export::text\fR
-\fIfiles/modules/doctools2idx/export_text\&.n\fR: plain text export plugin
+\fIfiles/modules/doctools2idx/idx_export_text\&.n\fR: plain text export plugin
 .TP
 \fBdoctools::idx::export::wiki\fR
-\fIfiles/modules/doctools2idx/export_wiki\&.n\fR: wiki export plugin
+\fIfiles/modules/doctools2idx/idx_export_wiki\&.n\fR: wiki export plugin
 .TP
 \fBdoctools::idx::import\fR
-\fIfiles/modules/doctools2idx/import\&.n\fR: Importing keyword indices
+\fIfiles/modules/doctools2idx/idx_import\&.n\fR: Importing keyword indices
 .TP
 \fBdoctools::idx::import::docidx\fR
 \fIfiles/modules/doctools2idx/import_docidx\&.n\fR: docidx import plugin
 .TP
 \fBdoctools::idx::import::json\fR
-\fIfiles/modules/doctools2idx/import_json\&.n\fR: JSON import plugin
+\fIfiles/modules/doctools2idx/idx_import_json\&.n\fR: JSON import plugin
 .TP
 \fBdoctools::idx::parse\fR
-\fIfiles/modules/doctools2idx/parse\&.n\fR: Parsing text in docidx format
+\fIfiles/modules/doctools2idx/idx_parse\&.n\fR: Parsing text in docidx format
 .TP
 \fBdoctools::idx::structure\fR
-\fIfiles/modules/doctools2idx/structure\&.n\fR: Docidx serialization utilities
+\fIfiles/modules/doctools2idx/idx_structure\&.n\fR: Docidx serialization utilities
 .TP
 \fBdoctools::msgcat\fR
 \fIfiles/modules/doctools2base/tcllib_msgcat\&.n\fR: Message catalog management for the various document parsers
 .TP
 \fBdoctools::msgcat::idx::c\fR
-\fIfiles/modules/doctools2idx/msgcat_c\&.n\fR: Message catalog for the docidx parser (C)
+\fIfiles/modules/doctools2idx/idx_msgcat_c\&.n\fR: Message catalog for the docidx parser (C)
 .TP
 \fBdoctools::msgcat::idx::de\fR
-\fIfiles/modules/doctools2idx/msgcat_de\&.n\fR: Message catalog for the docidx parser (DE)
+\fIfiles/modules/doctools2idx/idx_msgcat_de\&.n\fR: Message catalog for the docidx parser (DE)
 .TP
 \fBdoctools::msgcat::idx::en\fR
-\fIfiles/modules/doctools2idx/msgcat_en\&.n\fR: Message catalog for the docidx parser (EN)
+\fIfiles/modules/doctools2idx/idx_msgcat_en\&.n\fR: Message catalog for the docidx parser (EN)
 .TP
 \fBdoctools::msgcat::idx::fr\fR
-\fIfiles/modules/doctools2idx/msgcat_fr\&.n\fR: Message catalog for the docidx parser (FR)
+\fIfiles/modules/doctools2idx/idx_msgcat_fr\&.n\fR: Message catalog for the docidx parser (FR)
 .TP
 \fBdoctools::msgcat::toc::c\fR
-\fIfiles/modules/doctools2toc/msgcat_c\&.n\fR: Message catalog for the doctoc parser (C)
+\fIfiles/modules/doctools2toc/toc_msgcat_c\&.n\fR: Message catalog for the doctoc parser (C)
 .TP
 \fBdoctools::msgcat::toc::de\fR
-\fIfiles/modules/doctools2toc/msgcat_de\&.n\fR: Message catalog for the doctoc parser (DE)
+\fIfiles/modules/doctools2toc/toc_msgcat_de\&.n\fR: Message catalog for the doctoc parser (DE)
 .TP
 \fBdoctools::msgcat::toc::en\fR
-\fIfiles/modules/doctools2toc/msgcat_en\&.n\fR: Message catalog for the doctoc parser (EN)
+\fIfiles/modules/doctools2toc/toc_msgcat_en\&.n\fR: Message catalog for the doctoc parser (EN)
 .TP
 \fBdoctools::msgcat::toc::fr\fR
-\fIfiles/modules/doctools2toc/msgcat_fr\&.n\fR: Message catalog for the doctoc parser (FR)
+\fIfiles/modules/doctools2toc/toc_msgcat_fr\&.n\fR: Message catalog for the doctoc parser (FR)
 .TP
 \fBdoctools::nroff::man_macros\fR
 \fIfiles/modules/doctools2base/nroff_manmacros\&.n\fR: Default CSS style for NROFF export plugins
@@ -529,46 +529,46 @@ tcllib
 \fIfiles/modules/doctools2base/tcl_parse\&.n\fR: Processing text in 'subst -novariables' format
 .TP
 \fBdoctools::toc\fR
-\fIfiles/modules/doctools2toc/container\&.n\fR: Holding tables of contents
-.TP
-\fBdoctools::toc\fR
 \fIfiles/modules/doctools/doctoc\&.n\fR: doctoc - Processing tables of contents
 .TP
+\fBdoctools::toc\fR
+\fIfiles/modules/doctools2toc/toc_container\&.n\fR: Holding tables of contents
+.TP
 \fBdoctools::toc::export\fR
-\fIfiles/modules/doctools2toc/export\&.n\fR: Exporting tables of contents
+\fIfiles/modules/doctools2toc/toc_export\&.n\fR: Exporting tables of contents
 .TP
 \fBdoctools::toc::export::doctoc\fR
 \fIfiles/modules/doctools2toc/export_doctoc\&.n\fR: doctoc export plugin
 .TP
 \fBdoctools::toc::export::html\fR
-\fIfiles/modules/doctools2toc/export_html\&.n\fR: HTML export plugin
+\fIfiles/modules/doctools2toc/toc_export_html\&.n\fR: HTML export plugin
 .TP
 \fBdoctools::toc::export::json\fR
-\fIfiles/modules/doctools2toc/export_json\&.n\fR: JSON export plugin
+\fIfiles/modules/doctools2toc/toc_export_json\&.n\fR: JSON export plugin
 .TP
 \fBdoctools::toc::export::nroff\fR
-\fIfiles/modules/doctools2toc/export_nroff\&.n\fR: nroff export plugin
+\fIfiles/modules/doctools2toc/toc_export_nroff\&.n\fR: nroff export plugin
 .TP
 \fBdoctools::toc::export::text\fR
-\fIfiles/modules/doctools2toc/export_text\&.n\fR: plain text export plugin
+\fIfiles/modules/doctools2toc/toc_export_text\&.n\fR: plain text export plugin
 .TP
 \fBdoctools::toc::export::wiki\fR
-\fIfiles/modules/doctools2toc/export_wiki\&.n\fR: wiki export plugin
+\fIfiles/modules/doctools2toc/toc_export_wiki\&.n\fR: wiki export plugin
 .TP
 \fBdoctools::toc::import\fR
-\fIfiles/modules/doctools2toc/import\&.n\fR: Importing keyword indices
+\fIfiles/modules/doctools2toc/toc_import\&.n\fR: Importing keyword indices
 .TP
 \fBdoctools::toc::import::doctoc\fR
 \fIfiles/modules/doctools2toc/import_doctoc\&.n\fR: doctoc import plugin
 .TP
 \fBdoctools::toc::import::json\fR
-\fIfiles/modules/doctools2toc/import_json\&.n\fR: JSON import plugin
+\fIfiles/modules/doctools2toc/toc_import_json\&.n\fR: JSON import plugin
 .TP
 \fBdoctools::toc::parse\fR
-\fIfiles/modules/doctools2toc/parse\&.n\fR: Parsing text in doctoc format
+\fIfiles/modules/doctools2toc/toc_parse\&.n\fR: Parsing text in doctoc format
 .TP
 \fBdoctools::toc::structure\fR
-\fIfiles/modules/doctools2toc/structure\&.n\fR: Doctoc serialization utilities
+\fIfiles/modules/doctools2toc/toc_structure\&.n\fR: Doctoc serialization utilities
 .TP
 \fBdoctools_intro\fR
 \fIfiles/modules/doctools/doctools_intro\&.n\fR: doctools introduction
@@ -589,10 +589,10 @@ tcllib
 \fIfiles/modules/doctools/doctools_plugin_apiref\&.n\fR: doctools plugin API reference
 .TP
 \fBdtplite\fR
-\fIfiles/modules/dtplite/dtplite\&.n\fR: Lightweight DocTools Markup Processor
+\fIfiles/apps/dtplite\&.n\fR: Lightweight DocTools Markup Processor
 .TP
 \fBdtplite\fR
-\fIfiles/apps/dtplite\&.n\fR: Lightweight DocTools Markup Processor
+\fIfiles/modules/dtplite/pkg_dtplite\&.n\fR: Lightweight DocTools Markup Processor
 .TP
 \fBfileutil\fR
 \fIfiles/modules/fileutil/fileutil\&.n\fR: Procedures implementing some file utilities
@@ -1249,16 +1249,16 @@ tcllib
 \fIfiles/modules/virtchannel_transform/adler32\&.n\fR: Adler32 transformation
 .TP
 \fBtcl::transform::base64\fR
-\fIfiles/modules/virtchannel_transform/base64\&.n\fR: Base64 encoding transformation
+\fIfiles/modules/virtchannel_transform/vt_base64\&.n\fR: Base64 encoding transformation
 .TP
 \fBtcl::transform::core\fR
 \fIfiles/modules/virtchannel_core/transformcore\&.n\fR: Basic reflected/virtual channel transform support
 .TP
 \fBtcl::transform::counter\fR
-\fIfiles/modules/virtchannel_transform/counter\&.n\fR: Counter transformation
+\fIfiles/modules/virtchannel_transform/vt_counter\&.n\fR: Counter transformation
 .TP
 \fBtcl::transform::crc32\fR
-\fIfiles/modules/virtchannel_transform/crc32\&.n\fR: Crc32 transformation
+\fIfiles/modules/virtchannel_transform/vt_crc32\&.n\fR: Crc32 transformation
 .TP
 \fBtcl::transform::hex\fR
 \fIfiles/modules/virtchannel_transform/hex\&.n\fR: Hexadecimal encoding transformation
@@ -1273,7 +1273,7 @@ tcllib
 \fIfiles/modules/virtchannel_transform/observe\&.n\fR: Observer transformation, stream copy
 .TP
 \fBtcl::transform::otp\fR
-\fIfiles/modules/virtchannel_transform/otp\&.n\fR: Encryption via one-time pad
+\fIfiles/modules/virtchannel_transform/vt_otp\&.n\fR: Encryption via one-time pad
 .TP
 \fBtcl::transform::rot\fR
 \fIfiles/modules/virtchannel_transform/rot\&.n\fR: rot-encryption
