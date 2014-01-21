@@ -13,8 +13,21 @@
 # ### ### ### ######### ######### #########
 ## Requisites
 
+package require Tcl 8.4
+if {[package vcompare [package present Tcl] 8.5] >= 0} {
+    # Tcl 8.5+, extended package version numbers.
+    # Require 1.3 and beyond, regardless of major version number.
+    package require snit 1.3- ; # OO system in use (Using hierarchical methods)
+} else {
+    # Tcl 8.4, emulate, ask for 2.x first, then 1.3+.
+    if {[catch {
+	package require snit 2   ; # OO system in use (Using hierarchical methods)
+    }]} {
+	package require snit 1.3 ; # OO system in use (Using hierarchical methods)
+    }
+}
+
 package require grammar::fa::op ; # Heavy FA operations.
-package require snit 1.3-       ; # OO system in use (Using hierarchical methods)
 package require struct::list    ; # Extended list operations.
 package require struct::set     ; # Extended set operations.
 
