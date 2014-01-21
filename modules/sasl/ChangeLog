@@ -1,3 +1,9 @@
+2014-01-21  Andreas Kupries <andreask@activestate.com>
+
+	* pkgIndex.tcl: Ticket [861f53ff24]. Added proper initialization
+	* sal.tcl: to CreateNonce when falling back to md5 (no
+	* sasl.man: dev/urandom). Bumped version to 1.3.3.
+
 2013-12-07  Andreas Kupries <andreask@activestate.com>
 
 	* gtoken.man: Added mini manpages for the SASL mechanisms
