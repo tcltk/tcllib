@@ -27,7 +27,7 @@ foreach {k fused section} {
     1 1 -fused
 } {
     TestFilesProcess $mytestdir ok peg_serial-canonical peg_peg$section -> n label input data expected {
-	test pt-peg-to-peg-set:${setimpl}-3.$k.$n "pt::peg::to::peg, $label$section, ok" -setup {
+	test pt-peg-to-peg-set:${setimpl}-3.$k.$n "pt::peg::to::peg, $label$section, ok :- $input" -setup {
 	    pt::peg::to::peg reset
 	    pt::peg::to::peg configure -fused $fused
 	} -body {
@@ -38,7 +38,7 @@ foreach {k fused section} {
     }
 
     TestFilesProcess $mytestdir ok peg_serial-canonical peg_peg-templated$section -> n label input data expected {
-	test pt-peg-to-peg-set:${setimpl}-4.$k.$n "pt::peg::to::peg, $label$section, ok" -setup {
+	test pt-peg-to-peg-set:${setimpl}-4.$k.$n "pt::peg::to::peg, $label$section, ok :- $input" -setup {
 
 	    text::write reset
 	    text::write field   # -*- text -*-                              ; text::write /line
