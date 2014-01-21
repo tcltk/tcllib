@@ -217,8 +217,8 @@ proc ::pt::peg::to::peg::Convert {pe operator arguments} {
 	    return [list "." $pe]
 	}
 	epsilon {
-	    # Special form ...
-	    return [list "" $pe]
+	    # Special form, represented by the empty string ...
+	    return [list "''" $pe]
 	}
 	t {
 	    # Character ...

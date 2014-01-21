@@ -97,11 +97,11 @@ foreach {badserial expected} {
 TestFilesProcess $mytestdir ok ast_serial ast_serial-print -> n label input data expected {
     # The 'expected' data is irrelevant here, only used to satisfy
     # TestFilesProcess' syntax.
-    test pt-ast-10.$n "verify, $label, ok" -body {
+    test pt-ast-10.$n "verify, $label, ok :- $input" -body {
 	pt::ast verify $data
     } -result {}
 
-    test pt-ast-11.$n "verify, $label, ok" -body {
+    test pt-ast-11.$n "verify, $label, ok :- $input" -body {
 	pt::ast verify $data IGNORED
     } -result {}
 }
@@ -111,7 +111,7 @@ TestFilesProcess $mytestdir ok ast_serial ast_serial-print -> n label input data
 TestFilesProcess $mytestdir ok ast_serial ast_serial-print -> n label input data expected {
     # The 'expected' data is irrelevant here, only used to satisfy
     # TestFilesProcess' syntax.
-    test pt-ast-12.$n "print, $label" -body {
+    test pt-ast-12.$n "print, $label :- $input" -body {
 	pt::ast print $data
     } -result $expected
 }
@@ -121,7 +121,7 @@ TestFilesProcess $mytestdir ok ast_serial ast_serial-print -> n label input data
 TestFilesProcess $mytestdir ok ast_serial ast_serial-tddump -> n label input data expected {
     # The 'expected' data is irrelevant here, only used to satisfy
     # TestFilesProcess' syntax.
-    test pt-ast-13.$n "topdown, $label" -setup {
+    test pt-ast-13.$n "topdown, $label :- $input" -setup {
 	proc DUMP {ast} { global res ; lappend res $ast }
 	set res {}
     } -body {
@@ -138,7 +138,7 @@ TestFilesProcess $mytestdir ok ast_serial ast_serial-tddump -> n label input dat
 TestFilesProcess $mytestdir ok ast_serial ast_serial-budump -> n label input data expected {
     # The 'expected' data is irrelevant here, only used to satisfy
     # TestFilesProcess' syntax.
-    test pt-ast-14.$n "bottomup, $label" -setup {
+    test pt-ast-14.$n "bottomup, $label :- $input" -setup {
 	proc DUMP {ast} { global res ; lappend res $ast ; return $ast }
 	set res {}
     } -body {

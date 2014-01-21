@@ -29,7 +29,7 @@ foreach {k in al section} {
     3 1 1 -indalign
 } {
     TestFilesProcess $mytestdir ok peg_serial-canonical peg_json$section -> n label input data expected {
-	test pt-peg-to-json-3.$k.$n "pt::peg::to::json, $label$section, ok" -setup {
+	test pt-peg-to-json-3.$k.$n "pt::peg::to::json, $label$section, ok :- $input" -setup {
 	    pt::peg::to::json reset
 	    pt::peg::to::json configure -indented $in
 	    pt::peg::to::json configure -aligned  $al
