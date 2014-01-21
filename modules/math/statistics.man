@@ -484,7 +484,7 @@ z-score, an approximately standard normal statistic, indicating the significance
 [call [cmd ::math::statistics::kernel-density] [arg data] opt [arg "-option value"] ...]]
 Return the density function based on kernel density estimation. The procedure is controlled by
 a small set of options, each of which is given a reasonable default.
-[nl]
+[para]
 The return value consists of three lists: the centres of the bins, the associated probability
 density and a list of computational parameters (begin and end of the interval, mean and standard
 deviation and the used bandwidth). The computational parameters can be used for further analysis.
