@@ -2,7 +2,7 @@
 '\" Generated from file 'vtype\&.inc' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "valtype::iban" n 1\&.3 tcllib "Validation types"
+.TH "valtype::iban" n 1\&.4 tcllib "Validation types"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -280,7 +280,7 @@ package require \fBsnit  2\fR
 .sp
 package require \fBvaltype::common \fR
 .sp
-package require \fBvaltype::iban  ?1\&.3?\fR
+package require \fBvaltype::iban  ?1\&.4?\fR
 .sp
 \fBvaltype::iban\fR \fBvalidate\fR \fIvalue\fR
 .sp
