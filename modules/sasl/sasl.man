@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin SASL n 1.3.0]
+[vset SASL_VERSION 1.3.3]
+[manpage_begin SASL n [vset SASL_VERSION]]
 [keywords authentication]
 [keywords SASL]
 [copyright {2005-2006, Pat Thoyts <patthoyts@users.sourceforge.net>}]
@@ -7,7 +8,7 @@
 [titledesc {Implementation of SASL mechanisms for Tcl}]
 [category  Networking]
 [require Tcl 8.2]
-[require SASL [opt 1.3]]
+[require SASL [opt [vset SASL_VERSION]]]
 [description]
 [para]
 
