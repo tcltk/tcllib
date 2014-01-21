@@ -16,7 +16,7 @@
 package require Tcl 8.2
 
 namespace eval ::SASL {
-    variable version 1.3.2
+    variable version 1.3.3
     variable rcsid {$Id: sasl.tcl,v 1.12 2008/01/29 00:51:39 patthoyts Exp $}
 
     variable uid
@@ -603,6 +603,7 @@ proc ::SASL::CreateNonce {} {
         }
     }
     if {[string length $bytes] < 1} {
+        md5_init
         set bytes [md5_bin [clock seconds]:[pid]:[expr {rand()}]]
     }
     return [binary scan $bytes h* r; set r]
