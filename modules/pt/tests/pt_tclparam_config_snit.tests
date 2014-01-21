@@ -26,7 +26,7 @@ test pt-tclparam-config-snit-2.0 {reset, wrong#args} -body {
 # Testing the generation of tcl/param output configured for snit.
 
 TestFilesProcess $mytestdir ok peg_serial-canonical peg_tclparam-snit -> n label input data expected {
-    test pt-tclparam-config-snit-3.$n "pt::tclparam::configuration::snit, $label, ok" -setup {
+    test pt-tclparam-config-snit-3.$n "pt::tclparam::configuration::snit, $label, ok :- $input" -setup {
 
 	pt::peg::to::tclparam reset
 	pt::peg::to::tclparam configure -name     TEMPLATE

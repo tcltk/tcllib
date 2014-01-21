@@ -23,7 +23,7 @@ test pt-peg-to-cparam-2.0 {reset, wrong#args} -body {
 # for all possible configurations of this plugin.
 
 TestFilesProcess $mytestdir ok peg_serial-canonical peg_cparam -> n label input data expected {
-    test pt-peg-to-cparam-3.$n "pt::peg::to::cparam, $label, ok" -setup {
+    test pt-peg-to-cparam-3.$n "pt::peg::to::cparam, $label, ok :- $input" -setup {
 
 	text::write reset
 	text::write field   {/*}                                           ; text::write /line
