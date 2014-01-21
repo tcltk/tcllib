@@ -151,8 +151,8 @@
 </ul>
 </div>
 <div id="section3" class="section"><h2><a name="section3">PROCEDURE DECLARATION</a></h2>
-<p>TEPAM's procedure declaration syntax is simple and self-explaining. Instead of declaring a procedure with the Tcl key word <b class="cmd"><a href="../../../../index.html#key580">proc</a></b>, a procedure is declared with the TEPAM command <b class="cmd"><a href="../../../../index.html#key41">procedure</a></b> which takes as <b class="cmd"><a href="../../../../index.html#key580">proc</a></b> also 3 arguments: The procedure name, the procedure header and the procedure body.</p>
-<p>The following example declares the subcommand <b class="cmd"><a href="../../../../index.html#key350">message</a></b> of the procedure <b class="cmd">display</b>. This command has several named and unnamed arguments:</p>
+<p>TEPAM's procedure declaration syntax is simple and self-explaining. Instead of declaring a procedure with the Tcl key word <b class="cmd"><a href="../../../../index.html#key586">proc</a></b>, a procedure is declared with the TEPAM command <b class="cmd"><a href="../../../../index.html#key41">procedure</a></b> which takes as <b class="cmd"><a href="../../../../index.html#key586">proc</a></b> also 3 arguments: The procedure name, the procedure header and the procedure body.</p>
+<p>The following example declares the subcommand <b class="cmd"><a href="../../../../index.html#key357">message</a></b> of the procedure <b class="cmd">display</b>. This command has several named and unnamed arguments:</p>
 <pre class="example"><b class="cmd"><a href="tepam_procedure.html">tepam::procedure</a></b> {display message} {
    -return            -
    -short_description &quot;Displays a simple message box&quot;
@@ -176,7 +176,7 @@
    }
 </em>}</pre>
 <p>A call of procedure that has been declared in this way will first invoke the TEPAM argument manager, before the procedure body is executed. The argument manager parses the provided arguments, validates them, completes them eventually with some default values, and makes them finally available to the procedure body as local variables. In case an argument is missing or has a wrong type, the argument manager generates an error message that explains the reason for the error.</p>
-<p>As the example above shows, the TEPAM command <b class="cmd"><a href="../../../../index.html#key41">procedure</a></b> accepts subcommand definitions as procedure name and allows defining much more information than just the argument list inside the procedure header. The procedure body on the other hand is identical between a command declared with <b class="cmd"><a href="../../../../index.html#key580">proc</a></b> and a command declared with <b class="cmd"><a href="../../../../index.html#key41">procedure</a></b>.</p>
+<p>As the example above shows, the TEPAM command <b class="cmd"><a href="../../../../index.html#key41">procedure</a></b> accepts subcommand definitions as procedure name and allows defining much more information than just the argument list inside the procedure header. The procedure body on the other hand is identical between a command declared with <b class="cmd"><a href="../../../../index.html#key586">proc</a></b> and a command declared with <b class="cmd"><a href="../../../../index.html#key41">procedure</a></b>.</p>
 <p>The procedure header allows defining in addition to the arguments some procedure attributes, like a description, information concerning the return value, etc. This information is basically used for the automatic generation of comprehensive help and usage texts.</p>
 <p>A list of argument definition statements assigned to the <i class="arg">-args</i> argument is defining the procedure arguments. Each argument definition statement starts with the argument name, optionally followed by some argument attributes.</p>
 <p>Three types of arguments can be defined: Unnamed arguments, named arguments and flags. The distinction between the named and unnamed arguments is made by the first argument name character which is simply &quot;-&quot; for named arguments. A flag is defined as named argument that has the type  <em>none</em>.</p>
@@ -350,7 +350,7 @@ set Result [<b class="cmd"><a href="tepam_argument_dialogbox.html">tepam::argume
 <p><a href="tepam_argument_dialogbox.html">tepam::argument_dialogbox(n)</a>, <a href="tepam_procedure.html">tepam::procedure(n)</a></p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key745">argument integrity</a>, <a href="../../../../index.html#key746">argument validation</a>, <a href="../../../../index.html#key744">arguments</a>, <a href="../../../../index.html#key747">entry mask</a>, <a href="../../../../index.html#key390">parameter entry form</a>, <a href="../../../../index.html#key41">procedure</a>, <a href="../../../../index.html#key743">subcommand</a></p>
+<p><a href="../../../../index.html#key750">argument integrity</a>, <a href="../../../../index.html#key751">argument validation</a>, <a href="../../../../index.html#key749">arguments</a>, <a href="../../../../index.html#key752">entry mask</a>, <a href="../../../../index.html#key399">parameter entry form</a>, <a href="../../../../index.html#key41">procedure</a>, <a href="../../../../index.html#key748">subcommand</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Procedures, arguments, parameters, options</p>
