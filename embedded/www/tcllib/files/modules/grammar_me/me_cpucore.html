@@ -316,7 +316,7 @@ for.</p></dd>
 <div id="subsection1" class="subsection"><h3><a name="subsection1">MATCH PROGRAM REPRESENTATION</a></h3>
 <p>A match program is represented by nested Tcl list. The first element,
 <i class="term">asm</i>, is a list of integer numbers, the instructions to execute,
-and their arguments. The second element, <i class="term"><a href="../../../../index.html#key288">pool</a></i>, is a list of
+and their arguments. The second element, <i class="term"><a href="../../../../index.html#key300">pool</a></i>, is a list of
 strings, referenced by the instructions, for error messages, token
 names, etc. The third element, <i class="term">tokmap</i>, provides ordering
 information for the tokens, mapping their names to their numerical
@@ -330,9 +330,9 @@ etc. This allows the machine state to store only the message ids
 instead of the full strings.</p>
 <p>Jump destination arguments are absolute indices into the <i class="term">asm</i>
 element, refering to the instruction to jump to. Any string arguments
-are absolute indices into the <i class="term"><a href="../../../../index.html#key288">pool</a></i> element. Tokens, characters,
+are absolute indices into the <i class="term"><a href="../../../../index.html#key300">pool</a></i> element. Tokens, characters,
 messages, and token (actually character) classes to match are coded as
-references into the <i class="term"><a href="../../../../index.html#key288">pool</a></i> as well.</p>
+references into the <i class="term"><a href="../../../../index.html#key300">pool</a></i> as well.</p>
 <ol class="enumerated">
 <li><p>&quot;<b class="cmd">ict_advance</b> <i class="arg">message</i>&quot;</p></li>
 <li><p>&quot;<b class="cmd">ict_match_token</b> <i class="arg">tok</i> <i class="arg">message</i>&quot;</p></li>
@@ -377,15 +377,15 @@ references into the <i class="term"><a href="../../../../index.html#key288">pool
 <li><p><i class="term">eof</i>:  Eof flag, <i class="term">boolean</i></p></li>
 <li><p><i class="term">tc</i>:   Terminal cache, and input queue. Structure see below.</p></li>
 <li><p><i class="term">cl</i>:   Current location, <i class="term">int</i>.</p></li>
-<li><p><i class="term">ct</i>:   Current token, <i class="term"><a href="../../../../index.html#key266">string</a></i>.</p></li>
+<li><p><i class="term">ct</i>:   Current token, <i class="term"><a href="../../../../index.html#key276">string</a></i>.</p></li>
 <li><p><i class="term">ok</i>:   Match status, <i class="term">boolean</i>.</p></li>
-<li><p><i class="term">sv</i>:   Semantic value, <i class="term"><a href="../../../../index.html#key286">list</a></i>.</p></li>
-<li><p><i class="term">er</i>:   Error status, <i class="term"><a href="../../../../index.html#key286">list</a></i>.</p></li>
-<li><p><i class="term">ls</i>:   Location stack, <i class="term"><a href="../../../../index.html#key286">list</a></i>.</p></li>
-<li><p><i class="term">as</i>:   AST stack, <i class="term"><a href="../../../../index.html#key286">list</a></i>.</p></li>
-<li><p><i class="term">ms</i>:   AST marker stack, <i class="term"><a href="../../../../index.html#key286">list</a></i>.</p></li>
-<li><p><i class="term">es</i>:   Error stack, <i class="term"><a href="../../../../index.html#key286">list</a></i>.</p></li>
-<li><p><i class="term">rs</i>:   Return stack, <i class="term"><a href="../../../../index.html#key286">list</a></i>.</p></li>
+<li><p><i class="term">sv</i>:   Semantic value, <i class="term"><a href="../../../../index.html#key298">list</a></i>.</p></li>
+<li><p><i class="term">er</i>:   Error status, <i class="term"><a href="../../../../index.html#key298">list</a></i>.</p></li>
+<li><p><i class="term">ls</i>:   Location stack, <i class="term"><a href="../../../../index.html#key298">list</a></i>.</p></li>
+<li><p><i class="term">as</i>:   AST stack, <i class="term"><a href="../../../../index.html#key298">list</a></i>.</p></li>
+<li><p><i class="term">ms</i>:   AST marker stack, <i class="term"><a href="../../../../index.html#key298">list</a></i>.</p></li>
+<li><p><i class="term">es</i>:   Error stack, <i class="term"><a href="../../../../index.html#key298">list</a></i>.</p></li>
+<li><p><i class="term">rs</i>:   Return stack, <i class="term"><a href="../../../../index.html#key298">list</a></i>.</p></li>
 <li><p><i class="term">nc</i>:   Nonterminal cache, <i class="term">dictionary</i>.</p></li>
 </ol>
 <p><i class="term">tc</i>, the input queue of tokens waiting for processing and the
@@ -400,7 +400,7 @@ equivalent to appending to the list representing the stack, and
 popping it removes the last element.</p>
 <p><i class="term">er</i>, the error status is either empty or a list of two elements,
 a location in the input, and a list of messages, encoded as references
-into the <i class="term"><a href="../../../../index.html#key288">pool</a></i> element of the <i class="term">code</i>.</p>
+into the <i class="term"><a href="../../../../index.html#key300">pool</a></i> element of the <i class="term">code</i>.</p>
 <p><i class="term">nc</i>, the nonterminal cache is keyed by nonterminal name and
 location, each value a four-element list containing current location,
 match status, semantic value, and error status, in this order.</p>
