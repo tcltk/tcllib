@@ -36,7 +36,7 @@ oo::class create PARSER {
     }
 
     method parset {text} {
-	my reset
+	my reset {}
 	my data $text
 	my MAIN ; # Entrypoint for the generated code.
 	return [my complete]
