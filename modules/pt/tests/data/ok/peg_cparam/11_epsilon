@@ -8,13 +8,14 @@
  * Declaring the parse functions
  */
 
+<<attributes>> void <<ns>>choice_3 (<<STATE>> <<state>>);
 
 /*
  * Precomputed table of strings (symbols, error messages, etc.).
  */
 
 static char const* <<string-table>> [1] = {
-    /*        0 = */   "cl 'abc'"
+    /*        0 = */   "t a"
 };
 
 /*
@@ -22,7 +23,22 @@ static char const* <<string-table>> [1] = {
  */
 
 <<attributes>> void <<ns>><<main>> (<<STATE>> <<state>>) { <<prelude>>
-    rde_param_i_next_class (<<state>>, "abc", 0);
+    <<self>> <<ns>>choice_3 (<<state>>);
+    return;
+}
+
+<<attributes>> void <<ns>>choice_3 (<<STATE>> <<state>>) { <<prelude>>
+   /*
+    * /
+    *     'a'
+    *     <epsilon>
+    */
+
+    rde_param_i_state_push_void (<<state>>);
+    rde_param_i_next_char (<<state>>, "a", 0);
+    if (rde_param_i_bra_void2void(<<state>>)) return;
+    rde_param_i_status_ok (<<state>>);
+    rde_param_i_state_merge_void (<<state>>);
     return;
 }
 
