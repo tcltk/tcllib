@@ -1,2 +1,2 @@
-PEG a_pe_grammar ('a' / '');
+PEG a_pe_grammar ('a' / '')
 END;

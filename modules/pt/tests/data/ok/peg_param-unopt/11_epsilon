@@ -7,15 +7,14 @@
 #
 
 <<MAIN>>:
-         call              choice_8
+         call              choice_5
          halt
 
 
-choice_8:
+choice_5:
 # /
 #     'a'
-#     'b'
-#     'c'
+#     <epsilon>
 
          error_clear
 
@@ -25,31 +24,22 @@ choice_8:
          call              char_1
 
          error_pop_merge
-     ok! jump              oknoast_7
+     ok! jump              oknoast_4
 
          loc_pop_rewind
          loc_push
          error_push
 
-         call              char_3
+         status_ok
 
          error_pop_merge
-     ok! jump              oknoast_7
-
-         loc_pop_rewind
-         loc_push
-         error_push
-
-         call              char_5
-
-         error_pop_merge
-     ok! jump              oknoast_7
+     ok! jump              oknoast_4
 
          loc_pop_rewind
          status_fail
          return
 
-oknoast_7:
+oknoast_4:
          loc_pop_discard
          return
 
@@ -58,20 +48,6 @@ char_1:
 
          input_next        "t a"
      ok! test_char         "a"
-         return
-
-char_3:
-# 'b'
-
-         input_next        "t b"
-     ok! test_char         "b"
-         return
-
-char_5:
-# 'c'
-
-         input_next        "t c"
-     ok! test_char         "c"
          return
 
 #
