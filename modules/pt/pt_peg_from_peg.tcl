@@ -390,5 +390,5 @@ proc pt::peg::from::peg::GEN::XDIGIT {s e} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::from::peg 1.0.1
+package provide pt::peg::from::peg 1.0.2
 return
