@@ -64,7 +64,20 @@ snit::type ::PARSER {
     #
     
     proc MAIN {} { upvar 1 myparser myparser
-        $myparser si:next_class abc
+        choice_3
+        return
+    }
+    
+    proc choice_3 {} { upvar 1 myparser myparser
+        # /
+        #     'a'
+        #     <epsilon>
+    
+        $myparser si:void_state_push
+        $myparser si:next_char a
+        $myparser si:voidvoid_branch
+        $myparser i_status_ok
+        $myparser si:void_state_merge
         return
     }
     
