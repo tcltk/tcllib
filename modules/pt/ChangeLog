@@ -1,3 +1,39 @@
+2014-01-22  Andreas Kupries  <aku@hephaistos>
+
+	* pt_peg_from_peg.man: Fixed handling of empty strings in a
+	* pt_peg_from_peg.tcl: PEG. Treat as <epsilon>. Bumped to 1.0.2
+	* pt_peg_to_peg.man: Fixed generation of PEG from
+	* pt_peg_to_peg.tcl: <epsilon>. Produce a proper empty
+	  string. Bumped to 1.0.1
+
+	* tests/data/ok/peg_container-bulk/11_epsilon: New files to test
+	* tests/data/ok/peg_container-incremental/11_epsilon: handling of
+	* tests/data/ok/peg_container-templated-bulk/11_epsilon: <epsilon>
+	* tests/data/ok/peg_container-templated-incremental/11_epsilon: and
+	* tests/data/ok/peg_cparam/11_epsilon: empty strings across the board.
+	* tests/data/ok/peg_cparam-critcl/11_epsilon:
+	* tests/data/ok/peg_json-indalign/11_epsilon:
+	* tests/data/ok/peg_json-indented/11_epsilon:
+	* tests/data/ok/peg_json-ultracompact/11_epsilon:
+	* tests/data/ok/peg_param/11_epsilon:
+	* tests/data/ok/peg_param-compact/11_epsilon:
+	* tests/data/ok/peg_param-inlined/11_epsilon:
+	* tests/data/ok/peg_param-unopt/11_epsilon:
+	* tests/data/ok/peg_peg/11_epsilon:
+	* tests/data/ok/peg_peg-ast/11_epsilon:
+	* tests/data/ok/peg_peg-ast-fused/11_epsilon:
+	* tests/data/ok/peg_peg-ast-templated/11_epsilon:
+	* tests/data/ok/peg_peg-ast-templated-fused/11_epsilon:
+	* tests/data/ok/peg_peg-fused/11_epsilon:
+	* tests/data/ok/peg_peg-templated/11_epsilon:
+	* tests/data/ok/peg_peg-templated-fused/11_epsilon:
+	* tests/data/ok/peg_serial/11_epsilon:
+	* tests/data/ok/peg_serial-canonical/11_epsilon:
+	* tests/data/ok/peg_serial-print/11_epsilon:
+	* tests/data/ok/peg_tclparam/11_epsilon:
+	* tests/data/ok/peg_tclparam-snit/11_epsilon:
+	* tests/data/ok/peg_tclparam-tcloo/11_epsilon:
+
 2013-12-17  Andreas Kupries <andreask@activestate.com>
 
 	* pt_parse_peg.man: Added missing documentation for the PEG parser
