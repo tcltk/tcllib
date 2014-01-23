@@ -112,6 +112,7 @@ proc ::pt::pgen::Write::critcl {args} {
     # Class   -> touches/defines variable 'class'
     # Package -> touches/defines variable 'package'
     pt::peg::to::cparam configure {*}[Package [Class [lrange $args 0 end-1]]]
+    ClassPackageDefaults
 
     pt::cparam::configuration::critcl def \
 	$class $package \
@@ -177,4 +178,4 @@ proc ::pt::pgen::Write::Package {optiondict} {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide pt::pgen 1.0.1
+package provide pt::pgen 1.0.2
