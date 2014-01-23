@@ -1,4 +1,4 @@
-[manpage_begin textutil n 0.7.1]
+[manpage_begin textutil n 0.8]
 [see_also regexp(n)]
 [see_also split(n)]
 [see_also string(n)]
@@ -14,7 +14,7 @@
 [titledesc {Procedures to manipulate texts and strings.}]
 [category  {Text processing}]
 [require Tcl 8.2]
-[require textutil [opt 0.7.1]]
+[require textutil [opt 0.8]]
 [description]
 
 The package [package textutil] provides commands that manipulate
