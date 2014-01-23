@@ -12,8 +12,8 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.2
-testsNeedTcltest 1.0
+testsNeedTcl     8.4
+testsNeedTcltest 2.0
 
 support {
     useLocal     string.tcl   textutil::string
@@ -135,7 +135,32 @@ test textutil-6.5 {lcs, multiple strings} {
     textutil::longestCommonPrefixList {foo fox fubar}
 } {f}
 
+# -------------------------------------------------------------------------
 
+test textutil-7.0 {capEachWord, wrong args, not enough} -body {
+    textutil::capEachWord
+} -returnCodes error -result {wrong # args: should be "textutil::capEachWord sentence"}
 
+test textutil-7.1 {capEachWord, wrong args, too many} -body {
+    textutil::capEachWord S X
+} -returnCodes error -result {wrong # args: should be "textutil::capEachWord sentence"}
 
+test textutil-7.2 {capEachWord, empty} -body {
+    textutil::capEachWord {}
+} -result {}
+
+test textutil-7.3 {capEachWord, single word} -body {
+    textutil::capEachWord alpha
+} -result Alpha
+
+test textutil-7.4 {capEachWord, multiple words} -body {
+    textutil::capEachWord {here comes the sun}
+} -result {Here Comes The Sun}
+
+test textutil-7.5 {capEachWord, blocks} {
+    textutil::capEachWord {here \comes the $sun}
+} -result {Here \comes The $sun}
+
+# -------------------------------------------------------------------------
 testsuiteCleanup
+return
