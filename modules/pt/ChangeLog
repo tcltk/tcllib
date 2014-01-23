@@ -1,3 +1,8 @@
+2014-01-22  Andreas Kupries  <aku@hephaistos>
+
+	* ../../apps/pt: Ticket [c3ab006ca2]. Fixed help delivered by 'pt'
+	  application.
+
 2013-12-17  Andreas Kupries <andreask@activestate.com>
 
 	* pt_parse_peg.man: Added missing documentation for the PEG parser
