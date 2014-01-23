@@ -112,7 +112,7 @@ foreach {n badserial expected} {
 TestFilesProcess $mytestdir ok peg_serial peg_serial-print -> n label input data expected {
     # The 'expected' data is irrelevant here, only used to satisfy
     # TestFilesProcess' syntax.
-    test pt-peg-6.$n "pt::peg verify, $label, ok" -body {
+    test pt-peg-6.$n "pt::peg verify, $label, ok :- $input" -body {
 	pt::peg verify $data
     } -result {}
 }
@@ -122,7 +122,7 @@ TestFilesProcess $mytestdir ok peg_serial peg_serial-print -> n label input data
 TestFilesProcess $mytestdir ok peg_serial peg_serial-print -> n label input data expected {
     # The 'expected' data is irrelevant here, only used to satisfy
     # TestFilesProcess' syntax.
-    test pt-peg-7.$n "pt::peg print, $label" -body {
+    test pt-peg-7.$n "pt::peg print, $label :- $input" -body {
 	pt::peg print $data
     } -result $expected
 }
@@ -176,7 +176,7 @@ test pt-peg-11.3 {merge, wrong#args} -body {
 #----------------------------------------------------------------------
 
 TestFilesProcess $mytestdir ok peg_serial peg_serial-canonical -> n label input data expected {
-    test pt-peg-12.$n "pt::peg canonicalize, $label" -body {
+    test pt-peg-12.$n "pt::peg canonicalize, $label :- $input" -body {
 	pt::peg canonicalize $data
     } -result $expected
 }
@@ -186,7 +186,7 @@ TestFilesProcess $mytestdir ok peg_serial peg_serial-canonical -> n label input 
 TestFilesProcess $mytestdir ok peg_serial-canonical peg_serial-print -> n label input data expected {
     # The 'expected' data is irrelevant here, only used to satisfy
     # TestFilesProcess' syntax.
-    test pt-peg-13.$n "pt::peg verify-as-canonical, $label, ok" -body {
+    test pt-peg-13.$n "pt::peg verify-as-canonical, $label, ok :- $input" -body {
 	pt::peg verify-as-canonical $data
     } -result {}
 }
