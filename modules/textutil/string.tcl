@@ -6,7 +6,7 @@
 # Copyright (c) 2000      by Ajuba Solutions.
 # Copyright (c) 2000      by Eric Melski <ericm@ajubasolutions.com>
 # Copyright (c) 2002      by Joe English <jenglish@users.sourceforge.net>
-# Copyright (c) 2001-2006 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2001-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -74,6 +74,19 @@ proc ::textutil::string::uncap {string} {
     return [string tolower [string index $string 0]][string range $string 1 end]
 }
 
+# @c Capitalizes first character of each word of the given <a sentence>.
+#
+# @a sentence: string to manipulate.
+#
+# @r The <a sentence> with the first character of each word capitalized.
+#
+# @i capitalize
+
+proc ::textutil::string::capEachWord {sentence} {
+    regsub -all {\S+} [string map {\\ \\\\ \$ \\$} $sentence] {[string toupper [string index & 0]][string range & 1 end]} cmd
+    return [subst -nobackslashes -novariables $cmd]
+}
+
 # Compute the longest string which is common to all strings given to
 # the command, and at the beginning of said strings, i.e. a prefix. If
 # only one argument is specified it is treated as a list of the
@@ -120,7 +133,7 @@ proc ::textutil::string::longestCommonPrefixList {list} {
 namespace eval ::textutil::string {
     # Export the imported commands
 
-    namespace export chop tail cap uncap
+    namespace export chop tail cap uncap capEachWord
     namespace export longestCommonPrefix
     namespace export longestCommonPrefixList
 }
@@ -128,4 +141,4 @@ namespace eval ::textutil::string {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil::string 0.7.1
+package provide textutil::string 0.8
