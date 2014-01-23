@@ -123,11 +123,11 @@ foreach {op} {
 TestFilesProcess $mytestdir ok pe_serial pe_serial-print -> n label input data expected {
     # The 'expected' data is irrelevant here, only used to satisfy
     # TestFilesProcess' syntax.
-    test pt-pe-7.$n "pt::pe verify, $label, ok" -body {
+    test pt-pe-7.$n "pt::pe verify, $label, ok :- $input" -body {
 	pt::pe verify $data
     } -result {}
 
-    test pt-pe-7.$n "pt::pe verify, $label, ok" -body {
+    test pt-pe-7.$n "pt::pe verify, $label, ok :- $input" -body {
 	pt::pe verify $data IGNORED
     } -result {}
 }
@@ -137,7 +137,7 @@ TestFilesProcess $mytestdir ok pe_serial pe_serial-print -> n label input data e
 TestFilesProcess $mytestdir ok pe_serial pe_serial-print -> n label input data expected {
     # The 'expected' data is irrelevant here, only used to satisfy
     # TestFilesProcess' syntax.
-    test pt-pe-8.$n "pt::pe print, $label" -body {
+    test pt-pe-8.$n "pt::pe print, $label :- $input" -body {
 	pt::pe print $data
     } -result $expected
 }
@@ -147,7 +147,7 @@ TestFilesProcess $mytestdir ok pe_serial pe_serial-print -> n label input data e
 TestFilesProcess $mytestdir ok pe_serial pe_serial-tddump -> n label input data expected {
     # The 'expected' data is irrelevant here, only used to satisfy
     # TestFilesProcess' syntax.
-    test pt-pe-11.$n "pt::pe topdown, $label" -setup {
+    test pt-pe-11.$n "pt::pe topdown, $label :- $input" -setup {
 	proc DUMP {pe args} { global res ; lappend res $pe }
 	set res {}
     } -body {
@@ -164,7 +164,7 @@ TestFilesProcess $mytestdir ok pe_serial pe_serial-tddump -> n label input data 
 TestFilesProcess $mytestdir ok pe_serial pe_serial-budump -> n label input data expected {
     # The 'expected' data is irrelevant here, only used to satisfy
     # TestFilesProcess' syntax.
-    test pt-pe-12.$n "pt::pe bottomup, $label" -setup {
+    test pt-pe-12.$n "pt::pe bottomup, $label :- $input" -setup {
 	proc DUMP {pe args} { global res ; lappend res $pe ; return $pe }
 	set res {}
     } -body {
