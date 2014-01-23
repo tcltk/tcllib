@@ -39,12 +39,12 @@ package ifneeded pt::peg::to::container 1 [list source [file join $dir pt_peg_to
 package ifneeded pt::peg::to::cparam    1.0.1 [list source [file join $dir pt_peg_to_cparam.tcl]]
 package ifneeded pt::peg::to::json      1 [list source [file join $dir pt_peg_to_json.tcl]]
 package ifneeded pt::peg::to::param     1 [list source [file join $dir pt_peg_to_param.tcl]]
-package ifneeded pt::peg::to::peg       1 [list source [file join $dir pt_peg_to_peg.tcl]]
+package ifneeded pt::peg::to::peg   1.0.1 [list source [file join $dir pt_peg_to_peg.tcl]]
 package ifneeded pt::peg::to::tclparam  1 [list source [file join $dir pt_peg_to_tclparam.tcl]]
 
 # Import core functionality: Conversion from a specific format to PEG.
 package ifneeded pt::peg::from::json      1 [list source [file join $dir pt_peg_from_json.tcl]]
-package ifneeded pt::peg::from::peg       1 [list source [file join $dir pt_peg_from_peg.tcl]]
+package ifneeded pt::peg::from::peg   1.0.2 [list source [file join $dir pt_peg_from_peg.tcl]]
 
 # PARAM runtime.
 package ifneeded pt::rde      1.0.2 [list source [file join $dir pt_rdengine.tcl]]
