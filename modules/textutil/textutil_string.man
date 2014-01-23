@@ -1,4 +1,5 @@
-[manpage_begin textutil::string n 0.7]
+[vset TU_STRING_VERSION 0.8]
+[manpage_begin textutil::string n [vset TU_STRING_VERSION]]
 [see_also regexp(n)]
 [see_also split(n)]
 [see_also string(n)]
@@ -13,7 +14,7 @@
 [titledesc {Procedures to manipulate texts and strings.}]
 [category  {Text processing}]
 [require Tcl 8.2]
-[require textutil::string [opt 0.7]]
+[require textutil::string [opt [vset TU_STRING_VERSION]]]
 [description]
 
 The package [package textutil::string] provides miscellaneous string
@@ -39,6 +40,12 @@ returns the shortened string.
 
 Capitalizes the first character of [arg string] and returns the
 modified string.
+
+[call [cmd ::textutil::string::capEachWord] [arg string]]
+
+Capitalizes the first character of word of the [arg string] and
+returns the modified string. Words quoted with either backslash or
+dollar-sign are left untouched.
 
 [call [cmd ::textutil::string::uncap] [arg string]]
 

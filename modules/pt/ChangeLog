@@ -1,3 +1,12 @@
+2014-01-22  Andreas Kupries  <aku@hephaistos>
+
+	* pt_pgen.tcl Ticket [1b7fe4fe19]: Fixed missing class/package
+	* pt_pgen.man: initialization for critcl generator. Bumped
+	* pkgIndex.tcl: package version to 1.0.2
+
+	* ../../apps/pt Ticket [c3ab006ca2]: Fixed help delivered by the
+	  'pt' application.
+
 2013-12-17  Andreas Kupries <andreask@activestate.com>
 
 	* pt_parse_peg.man: Added missing documentation for the PEG parser
