@@ -33,11 +33,11 @@ foreach {k section} {
 	set expected [G serialize]
 	G destroy
 
-	test pt-peg-from-peg-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-2.$k.$n "pt::peg::from::peg /text, $label$section, ok" -body {
+	test pt-peg-from-peg-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-2.$k.$n "pt::peg::from::peg /text, $label$section, ok :- $input" -body {
 	    pt::peg::from::peg convert $data
 	} -result $expected
 
-	test pt-peg-from-peg-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-3.$k.$n "pt::peg::from::peg /file, $label$section, ok" -body {
+	test pt-peg-from-peg-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-3.$k.$n "pt::peg::from::peg /file, $label$section, ok :- $input" -body {
 	    pt::peg::from::peg convert-file $input
 	} -result $expected
     }
