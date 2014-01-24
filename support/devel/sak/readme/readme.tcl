@@ -4,6 +4,7 @@
 # ###
 
 package require sak::color
+package require sak::review
 
 namespace eval ::sak::readme {
     namespace import ::sak::color::*
@@ -24,6 +25,20 @@ proc ::sak::readme::run {} {
     getpackage struct::matrix   struct/matrix.tcl
     getpackage textutil::adjust textutil/adjust.tcl
 
+    # Future: Consolidate with ... review ...
+    # Determine which packages are potentially changed, from the set
+    # of modules touched since the last release, as per the fossil
+    # repository's commit log.
+
+    set trunk     [sak::review::Leaf trunk]            ;# rid
+    set release   [sak::review::YoungestOfTag release] ;# datetime
+    sak::review::AllParentsAfter $trunk $release -> rid {
+	sak::review::FileSet $rid -> path action {
+	    lappend modifiedm [lindex [file split $path] 1]
+	}
+    }
+    set modifiedm [lsort -unique $modifiedm]
+
     set issues {}
 
     # package -> list(version)
@@ -31,12 +46,6 @@ proc ::sak::readme::run {} {
     array set releasep [loadpkglist [location_PACKAGES]]
     array set currentp [ipackages]
 
-    # Determine which packages are potentially changed, from the set
-    # of modules touched since the last release, as per their
-    # changelog ... (future: md5sum of files in a module, and
-    # file/package association).
-
-    set modifiedm [modified-modules]
     array set changed {}
     foreach p [array names currentp] {
 	foreach {vlist module} $currentp($p) break
