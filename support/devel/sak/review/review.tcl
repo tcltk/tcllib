@@ -39,10 +39,41 @@ proc ::sak::review::Scan {} {
 
     Banner "Scan for modules and packages to review..."
 
+    # Future: Consolidate with ... readme ...
     # Determine which packages are potentially changed and therefore
     # in need of review, from the set of modules touched since the
-    # last release, as per their changelog ... (future: md5sum of
-    # files in a module, and file/package association).
+    # last release, as per the fossil repository's commit log.
+
+    # list of modified modules.
+    set modifiedm {}
+
+    # database of commit message per changed module.
+    array set cm {}
+
+    set trunk     [Leaf trunk]            ;# rid
+    set release   [YoungestOfTag release] ;# datetime
+    AllParentsAfter $trunk $release -> rid {
+	Next ; Progress " $rid"
+
+	set d [Description $rid]
+	Progress " D"
+
+	FileSet $rid -> path action {
+	    Progress .
+
+	    set px [file split $path]
+	    set themodule [lindex $px 1]
+	    lappend modifiedm $themodule
+	    lappend cm($themodule) $d
+
+	    # ignore files in modules/
+	    if {[llength $px] < 3} continue
+	    lappend pt($themodule) [file join {*}[lrange $px 2 end]]
+	}
+    }
+
+    # cleanup module list, may have duplicates
+    set modifiedm [lsort -unique $modifiedm]
 
     array set review {}
 
@@ -51,7 +82,6 @@ proc ::sak::review::Scan {} {
     array set releasep [loadpkglist [location_PACKAGES]]
     array set currentp [ipackages]
 
-    set modifiedm [modified-modules]
     array set changed {}
     foreach p [array names currentp] {
 	foreach {vlist module} $currentp($p) break
@@ -120,16 +150,13 @@ proc ::sak::review::Scan {} {
 
     Close
 
-    # Postprocessing phase, pull in all relevant changelogs.
+    # Postprocessing phase, pull in all relevant commit messages of the module.
 
     foreach m [array names review] {
-	set clog [fileutil::cat $distribution/modules/$m/ChangeLog]
-	set entries {}
-	foreach e [doctools::changelog::scan $clog] {
-	    if {[string match -nocase "*Released and tagged*" $e]} break
-	    lappend entries $e
-	}
-	set entries [doctools::changelog::flatten $entries]
+	# commit messages
+	set     entries [lsort -unique $cm($m)]
+	# and affected files
+	lappend entries [join [lsort -dict [lsort -unique $pt($m)]] \n]
 
 	set review($m) [list $review($m) [join $entries \n\n]]
     }
@@ -232,6 +259,121 @@ proc ::sak::review::LoadNotes {} {
 
     return
 }
+
+proc ::sak::review::FileSet {rid _ pv av script} {
+    upvar 1 $pv thepath $av theaction
+
+    lappend map @rid@ $rid
+    foreach line [split [string trim [F [string map $map {
+	SELECT filename.name,
+	       CASE WHEN nullif(mlink.pid,0) is null THEN 'added'
+                    WHEN nullif(mlink.fid,0) is null THEN 'deleted'
+                    ELSE                                  'edited'
+	       END
+	FROM   mlink, filename
+	WHERE mlink.mid  = @rid@
+	AND   mlink.fnid = filename.fnid
+	ORDER BY filename.name;
+    }]]] \n] {
+	foreach {thepath theaction} [split $line |] break
+	# ignore all changes not in modules
+	if {![string match modules* $thepath]} continue
+	uplevel 1 $script
+    }
+    return
+}
+
+proc ::sak::review::Description {rid} {
+    lappend map @rid@ $rid
+    string trim [F [string map $map {
+	SELECT coalesce(event.ecomment,event.comment)
+	FROM   event
+	WHERE  event.objid = @rid@
+	;
+    }]]
+}
+
+proc ::sak::review::AllParentsAfter {rid cut _ rv script} {
+    upvar 1 $rv therev
+
+    array set rev {}
+    set rev($rid) .
+    lappend front $rid
+
+    # Standard iterative incremental transitive-closure. We have a
+    # front of revisions whose parents we take, which become the new
+    # front to follow, until no parents are delivered anymore due to
+    # the cutoff condition (timestamp, only the revisions coming after
+    # are accepted).
+
+    while {1} {
+	set new {}
+	foreach cid $front {
+	    foreach pid [split [Parents $cid $cut] \n] {
+		lappend new $pid
+	    }
+	}
+	if {![llength $new]} break
+
+	# record new parents, and make them the new starting points
+	set front {}
+	foreach pid $new {
+	    if {[info exists rev($pid)]} continue
+	    set rev($pid) .
+	    lappend front $pid
+
+	    set therev $pid
+	    uplevel 1 $script
+	}
+    }
+}
+
+proc ::sak::review::Parents {rid cut} {
+    lappend map @rid@    $rid
+    lappend map @cutoff@ $cut
+    F [string map $map {
+	SELECT pid FROM plink
+	WHERE plink.cid   = @rid@
+	AND   plink.mtime > @cutoff@
+	;
+    }]
+}
+
+proc ::sak::review::YoungestOfTag {tag} {
+    lappend map @tag@ $tag
+    F [string map $map {
+	SELECT event.mtime
+	FROM   tag, tagxref, event
+	WHERE tag.tagname     = 'sym-' || '@tag@'
+	AND   tagxref.tagid   = tag.tagid
+	AND   tagxref.tagtype > 0
+	AND   tagxref.rid     = event.objid
+	AND   event.type      = 'ci'
+	ORDER BY event.mtime DESC
+	LIMIT 1
+	;
+    }]
+}
+
+proc ::sak::review::Leaf {branch} {
+    lappend map @branch@ $branch
+    F [string map $map {
+	SELECT blob.rid
+	FROM   leaf, blob, tag, tagxref
+	WHERE blob.rid        = leaf.rid
+	AND   tag.tagname     = 'sym-' || '@branch@'
+	AND   tagxref.tagid   = tag.tagid
+	AND   tagxref.tagtype > 0
+	AND   tagxref.rid     = leaf.rid
+	;
+    }]
+}
+
+proc ::sak::review::F {script} {
+    exec fossil sqlite3 << $script
+}
+
+
 
 # # ## ### ##### ######## ############# ##################### 
 ## Phase II. Interactively review the changes packages.
