@@ -101,9 +101,7 @@ proc ::ftp::DisplayMsg {s msg {state ""}} {
 
     global errorInfo
     switch -exact -- $state {
-        data    {log::log debug "$state | $msg"}
-        control {log::log debug "$state | $msg"}
-        error   {log::log error "$state | E: $msg:\n$errorInfo"}
+        error   {log::log error "$state | $msg"}
         default {log::log debug "$state | $msg"}
     }
     return
