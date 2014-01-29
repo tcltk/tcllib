@@ -1063,7 +1063,9 @@ filter_cmd (Tcl_Interp* interp, GCC* gx, NARES* l, Tcl_Obj* cmd, Tcl_Obj* g)
     }
 
     /* Skip the step if there is nothing which can be filtered.  */
-    if (l->c == 0) return;
+    if (l->c == 0) {
+	return TCL_OK;
+    }
 
     /* -------------------- */
     /* Set up the command vector for the callback. Two placeholders for graph
