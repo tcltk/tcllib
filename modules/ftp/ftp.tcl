@@ -118,6 +118,9 @@ proc ::ftp::DisplayMsg {s msg {state ""}} {
 #
 proc ::ftp::Timeout {s} {
     upvar ::ftp::ftp$s ftp
+    variable VERBOSE
+
+    if {$VERBOSE} { DisplayMsg $s Waiting|Timeout! }
 
     after cancel $ftp(Wait)
     set ftp(state.control) 1
@@ -144,15 +147,20 @@ proc ::ftp::Timeout {s} {
 
 proc ::ftp::WaitOrTimeout {s} {
     upvar ::ftp::ftp$s ftp
+    variable VERBOSE
 
     set retvar 1
 
     if { ![string length $ftp(Command)] && [info exists ftp(state.control)] } {
 
+	if {$VERBOSE} { DisplayMsg $s Waiting|$ftp(Timeout)|\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# }
+
         set ftp(Wait) [after [expr {$ftp(Timeout) * 1000}] [list [namespace current]::Timeout $s]]
 
         vwait ::ftp::ftp${s}(state.control)
         set retvar $ftp(state.control)
+
+	if {$VERBOSE} { DisplayMsg $s Waiting|Done|\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# }
     }
 
     if {$ftp(Error) != ""} {
@@ -161,6 +169,7 @@ proc ::ftp::WaitOrTimeout {s} {
         DisplayMsg $s $errmsg error
     }
 
+    if {$VERBOSE} { DisplayMsg $s Waiting|OK|$retvar }
     return $retvar
 }
 
@@ -235,6 +244,8 @@ proc ::ftp::StateHandler {s {sock ""}} {
     variable DEBUG 
     variable VERBOSE
 
+    if {$VERBOSE} { DisplayMsg $s StateHandler/$s/$sock/================================================ }
+
     # disable fileevent on control socket, enable it at the and of the state machine
     # fileevent $ftp(CtrlSock) readable {}
 		
@@ -308,15 +319,18 @@ proc ::ftp::StateHandler {s {sock ""}} {
             WaitComplete $s 0
 	    Command $ftp(Command) terminated
             catch {unset ftp(State)}
+
+	    if {$VERBOSE} { DisplayMsg $s EOF/Control }
             return
         } else {
 	    # Fix SF bug #466746: Incomplete line, do nothing.
+	    if {$VERBOSE} { DisplayMsg $s Incomplete/Line }
 	    return	   
 	}
     } 
 	
     if { $DEBUG } {
-        DisplayMsg $s "-> rc=\"$rc\"\n-> msgtext=\"$msgtext\"\n-> state=\"$ftp(State)\""
+        DisplayMsg $s "-> rc=\"$rc\" -> msgtext=\"$msgtext\" -> state=\"$ftp(State)\""
     }
 
     # In asynchronous mode, should we move on to the next state?
@@ -324,12 +338,15 @@ proc ::ftp::StateHandler {s {sock ""}} {
 	
     # system status replay
     if { [string equal $rc "211"] } {
+	if {$VERBOSE} { DisplayMsg $s Ignore/211 }
         return
     }
 
     # use only the first digit 
     regexp -- "^\[0-9\]?" $rc rc
-	
+
+    if {$VERBOSE} { DisplayMsg $s StateBegin////////($ftp(State)) }
+
     switch -exact -- $ftp(State) {
         user { 
             switch -exact -- $rc {
@@ -784,6 +801,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
             switch -exact -- $rc {
 		1 {
 		    # Keep going
+		    if {$VERBOSE} { DisplayMsg $s put_close/1--continue }
 		    return
 		}
                 2 {
@@ -1034,9 +1052,15 @@ proc ::ftp::StateHandler {s {sock ""}} {
 	}
     }
 
+    if {$VERBOSE} { DisplayMsg $s ////////StateDone }
+
     # finish waiting 
     if { [info exists complete_with] } {
+	if {$VERBOSE} { DisplayMsg $s WaitBegin////////($complete_with) }
+
         WaitComplete $s $complete_with
+
+	if {$VERBOSE} { DisplayMsg $s ////////WaitDone }
     }
 
     # display control channel message
@@ -1061,12 +1085,16 @@ proc ::ftp::StateHandler {s {sock ""}} {
 	# Pop the head of the NextState queue
 	set ftp(State) [lindex $ftp(NextState) 0]
 	set ftp(NextState) [lreplace $ftp(NextState) 0 0]
+
+	if {$VERBOSE} { DisplayMsg $s Recurse/StateHandler }
 	StateHandler $s
     }
 
     # enable fileevent on control socket again
     #fileevent $ftp(CtrlSock) readable [list ::ftp::StateHandler $ftp(CtrlSock)]
 
+    if {$VERBOSE} { DisplayMsg $s ======/HandlerDone }
+    return
 }
 
 #############################################################################
@@ -1137,7 +1165,10 @@ proc ::ftp::Type {s {type ""}} {
 # sorted list of files or {} if listing fails
 
 proc ::ftp::NList {s { dir ""}} {
+    variable VERBOSE
     upvar ::ftp::ftp$s ftp
+
+    if {$VERBOSE} { DisplayMsg $s NList($s)($dir)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ }
 
     if { ![info exists ftp(State)] } {
         if { ![string is digit -strict $s] } {
@@ -1158,6 +1189,8 @@ proc ::ftp::NList {s { dir ""}} {
     # save current type and force ascii mode
     set old_type $ftp(Type)
     if { $ftp(Type) != "ascii" } {
+	if {$VERBOSE} { DisplayMsg $s NList/ForceAscii }
+
 	if {[string length $ftp(Command)]} {
 	    set ftp(NextState) [list nlist_$ftp(Mode) type_change list_last]
 	    set ftp(type:changeto) $old_type
@@ -1168,23 +1201,34 @@ proc ::ftp::NList {s { dir ""}} {
     }
 
     set ftp(State) nlist_$ftp(Mode)
+
+    if {$VERBOSE} { DisplayMsg $s NList/Process~~~~~~~~~~~~~~~~~~~ }
     StateHandler $s
+
+    if {$VERBOSE} { DisplayMsg $s NList/Processed~~~~~~~~~~~~~~~~~ }
 
     # wait for synchronization
     set rc [WaitOrTimeout $s]
 
     # restore old type
+    if {$VERBOSE} { DisplayMsg $s NList/RestoreType~~~~~~~~~~~~~~~~~~~~~ }
     if { [Type $s] != $old_type } {
         Type $s $old_type
     }
 
     unset ftp(Dir)
     if { $rc } {
+	if {$VERBOSE} { DisplayMsg $s NList/ReturnData~~~~~~~~~~~~~~~~~~~~~~~ }
+
 	return [lsort [split [string trim $ftp(List) \n] \n]]
     } else {
+	if {$VERBOSE} { DisplayMsg $s NList/CDC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ }
+
         CloseDataConn $s
         return {}
     }
+
+    if {$VERBOSE} { DisplayMsg $s ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~NList/Done }
 }
 
 #############################################################################
@@ -2784,6 +2828,10 @@ proc ::ftp::InitDataConn {s sock addr port} {
     upvar ::ftp::ftp$s ftp
     variable VERBOSE
 
+    if { $VERBOSE } {
+        DisplayMsg $s "D: New Connection from $addr:$port" data
+    }
+
     # If the new channel is accepted, the dummy channel will be closed
 
     catch {close $ftp(DummySock); unset ftp(DummySock)}
@@ -2839,7 +2887,7 @@ proc ::ftp::InitDataConn {s sock addr port} {
     }
 
     if { $VERBOSE } {
-        DisplayMsg $s "D: Connection from $addr:$port" data
+        DisplayMsg $s "D: ... Connection from $addr:$port ... initialized" data
     }
     return
 }
