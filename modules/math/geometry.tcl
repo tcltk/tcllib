@@ -432,6 +432,26 @@ proc ::math::geometry::calculateDistanceToPolyline {P polyline} {
     return $minDist
 }
 
+# ::math::geometry::calculateDistanceToPolygon
+#
+#       Calculate the distance between a point and a polygon.
+#
+# Arguments:
+#       P           a point
+#       polygon     a polygon
+#
+# Results:
+#       dist        the smallest distance between P and any point
+#                   on the polygon
+#
+# Note:
+#       The polygon does not need to be closed - this is taken
+#       care of in the procedure.
+#
+proc ::math::geometry::calculateDistanceToPolygon {P polygon} {
+    return [::math::geometry::calculateDistanceToPolyline $P [ClosedPolygon $polygon]]
+}
+
 # ::math::geometry::findClosestPointOnPolyline
 #
 #       Return the point on a polyline which is closest to a given point.
@@ -599,6 +619,24 @@ proc ::math::geometry::lineSegmentsIntersect {linesegment1 linesegment2} {
     set l2y1 [lindex $linesegment2 1]
     set l2x2 [lindex $linesegment2 2]
     set l2y2 [lindex $linesegment2 3]
+
+    #
+    # First check the distance between the endpoints
+    #
+    set margin 1.0e-7
+    if { [calculateDistanceToLineSegment [lrange $linesegment1 0 1] $linesegment2] < $margin } {
+        return 1
+    }
+    if { [calculateDistanceToLineSegment [lrange $linesegment1 2 3] $linesegment2] < $margin } {
+        return 1
+    }
+    if { [calculateDistanceToLineSegment [lrange $linesegment2 0 1] $linesegment1] < $margin } {
+        return 1
+    }
+    if { [calculateDistanceToLineSegment [lrange $linesegment2 2 3] $linesegment1] < $margin } {
+        return 1
+    }
+
     return [expr {([ccw [list $l1x1 $l1y1] [list $l1x2 $l1y2] [list $l2x1 $l2y1]]\
 	    *[ccw [list $l1x1 $l1y1] [list $l1x2 $l1y2] [list $l2x2 $l2y2]] <= 0) \
 	    && ([ccw [list $l2x1 $l2y1] [list $l2x2 $l2y2] [list $l1x1 $l1y1]]\
@@ -733,7 +771,7 @@ proc ::math::geometry::findLineIntersection {line1 line2} {
     set r [list \
                [expr {$l1x1 + $na * ($l1x2 - $l1x1) / $d}] \
                [expr {$l1y1 + $na * ($l1y2 - $l1y1) / $d}]]
-    return $r 
+    return $r
 }
 
 
@@ -1093,6 +1131,7 @@ proc ::math::geometry::pointInsidePolygon {P polygon} {
         [expr {[lindex $polygonBbox 1]-0.1*[lindex $polygonBbox 3]}]]
 
     set infinityLine [concat $pointFarAway $P]
+
     # calculate number of intersections
     set noOfIntersections 0
     #   1. count intersections between the line and the polygon's sides
