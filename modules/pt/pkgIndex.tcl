@@ -17,7 +17,7 @@ package ifneeded pt::pe::op    1 [list source [file join $dir pt_pexpr_op.tcl]]
 package ifneeded pt::peg            1 [list source [file join $dir pt_pegrammar.tcl]]
 package ifneeded pt::peg::container 1 [list source [file join $dir pt_peg_container.tcl]]
 package ifneeded pt::peg::interp    1 [list source [file join $dir pt_peg_interp.tcl]]
-package ifneeded pt::peg::op        1 [list source [file join $dir pt_peg_op.tcl]]
+package ifneeded pt::peg::op    1.0.1 [list source [file join $dir pt_peg_op.tcl]]
 package ifneeded pt::parse::peg     1 [list source [file join $dir pt_parse_peg.tcl]]
 
 
