@@ -108,7 +108,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">math::geometry(n) 1.1.2 tcllib &quot;Tcl Math Library&quot;</h1>
+<h1 class="title">math::geometry(n) 1.1.3 tcllib &quot;Tcl Math Library&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>math::geometry - Geometrical computations</p>
 </div>
@@ -129,7 +129,7 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl <span class="opt">?8.3?</span></b></li>
-<li>package require <b class="pkgname">math::geometry <span class="opt">?1.1.2?</span></b></li>
+<li>package require <b class="pkgname">math::geometry <span class="opt">?1.1.3?</span></b></li>
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">::math::geometry::+</b> <i class="arg">point1</i> <i class="arg">point2</i></a></li>
@@ -149,22 +149,23 @@
 <li><a href="#15"><b class="cmd">::math::geometry::calculateDistanceToLine</b> <i class="arg">P</i> <i class="arg">line</i></a></li>
 <li><a href="#16"><b class="cmd">::math::geometry::calculateDistanceToLineSegment</b> <i class="arg">P</i> <i class="arg">linesegment</i></a></li>
 <li><a href="#17"><b class="cmd">::math::geometry::calculateDistanceToPolyline</b> <i class="arg">P</i> <i class="arg">polyline</i></a></li>
-<li><a href="#18"><b class="cmd">::math::geometry::findClosestPointOnLine</b> <i class="arg">P</i> <i class="arg">line</i></a></li>
-<li><a href="#19"><b class="cmd">::math::geometry::findClosestPointOnLineSegment</b> <i class="arg">P</i> <i class="arg">linesegment</i></a></li>
-<li><a href="#20"><b class="cmd">::math::geometry::findClosestPointOnPolyline</b> <i class="arg">P</i> <i class="arg">polyline</i></a></li>
-<li><a href="#21"><b class="cmd">::math::geometry::lengthOfPolyline</b> <i class="arg">polyline</i></a></li>
-<li><a href="#22"><b class="cmd">::math::geometry::movePointInDirection</b> <i class="arg">P</i> <i class="arg">direction</i> <i class="arg">dist</i></a></li>
-<li><a href="#23"><b class="cmd">::math::geometry::lineSegmentsIntersect</b> <i class="arg">linesegment1</i> <i class="arg">linesegment2</i></a></li>
-<li><a href="#24"><b class="cmd">::math::geometry::findLineSegmentIntersection</b> <i class="arg">linesegment1</i> <i class="arg">linesegment2</i></a></li>
-<li><a href="#25"><b class="cmd">::math::geometry::findLineIntersection</b> <i class="arg">line1</i> <i class="arg">line2</i></a></li>
-<li><a href="#26"><b class="cmd">::math::geometry::polylinesIntersect</b> <i class="arg">polyline1</i> <i class="arg">polyline2</i></a></li>
-<li><a href="#27"><b class="cmd">::math::geometry::polylinesBoundingIntersect</b> <i class="arg">polyline1</i> <i class="arg">polyline2</i> <i class="arg">granularity</i></a></li>
-<li><a href="#28"><b class="cmd">::math::geometry::intervalsOverlap</b> <i class="arg">y1</i> <i class="arg">y2</i> <i class="arg">y3</i> <i class="arg">y4</i> <i class="arg">strict</i></a></li>
-<li><a href="#29"><b class="cmd">::math::geometry::rectanglesOverlap</b> <i class="arg">P1</i> <i class="arg">P2</i> <i class="arg">Q1</i> <i class="arg">Q2</i> <i class="arg">strict</i></a></li>
-<li><a href="#30"><b class="cmd">::math::geometry::bbox</b> <i class="arg">polyline</i></a></li>
-<li><a href="#31"><b class="cmd">::math::geometry::pointInsidePolygon</b> <i class="arg">P</i> <i class="arg">polyline</i></a></li>
-<li><a href="#32"><b class="cmd">::math::geometry::rectangleInsidePolygon</b> <i class="arg">P1</i> <i class="arg">P2</i> <i class="arg">polyline</i></a></li>
-<li><a href="#33"><b class="cmd">::math::geometry::areaPolygon</b> <i class="arg">polygon</i></a></li>
+<li><a href="#18"><b class="cmd">::math::geometry::calculateDistanceToPolygon</b> <i class="arg">P</i> <i class="arg">polygon</i></a></li>
+<li><a href="#19"><b class="cmd">::math::geometry::findClosestPointOnLine</b> <i class="arg">P</i> <i class="arg">line</i></a></li>
+<li><a href="#20"><b class="cmd">::math::geometry::findClosestPointOnLineSegment</b> <i class="arg">P</i> <i class="arg">linesegment</i></a></li>
+<li><a href="#21"><b class="cmd">::math::geometry::findClosestPointOnPolyline</b> <i class="arg">P</i> <i class="arg">polyline</i></a></li>
+<li><a href="#22"><b class="cmd">::math::geometry::lengthOfPolyline</b> <i class="arg">polyline</i></a></li>
+<li><a href="#23"><b class="cmd">::math::geometry::movePointInDirection</b> <i class="arg">P</i> <i class="arg">direction</i> <i class="arg">dist</i></a></li>
+<li><a href="#24"><b class="cmd">::math::geometry::lineSegmentsIntersect</b> <i class="arg">linesegment1</i> <i class="arg">linesegment2</i></a></li>
+<li><a href="#25"><b class="cmd">::math::geometry::findLineSegmentIntersection</b> <i class="arg">linesegment1</i> <i class="arg">linesegment2</i></a></li>
+<li><a href="#26"><b class="cmd">::math::geometry::findLineIntersection</b> <i class="arg">line1</i> <i class="arg">line2</i></a></li>
+<li><a href="#27"><b class="cmd">::math::geometry::polylinesIntersect</b> <i class="arg">polyline1</i> <i class="arg">polyline2</i></a></li>
+<li><a href="#28"><b class="cmd">::math::geometry::polylinesBoundingIntersect</b> <i class="arg">polyline1</i> <i class="arg">polyline2</i> <i class="arg">granularity</i></a></li>
+<li><a href="#29"><b class="cmd">::math::geometry::intervalsOverlap</b> <i class="arg">y1</i> <i class="arg">y2</i> <i class="arg">y3</i> <i class="arg">y4</i> <i class="arg">strict</i></a></li>
+<li><a href="#30"><b class="cmd">::math::geometry::rectanglesOverlap</b> <i class="arg">P1</i> <i class="arg">P2</i> <i class="arg">Q1</i> <i class="arg">Q2</i> <i class="arg">strict</i></a></li>
+<li><a href="#31"><b class="cmd">::math::geometry::bbox</b> <i class="arg">polyline</i></a></li>
+<li><a href="#32"><b class="cmd">::math::geometry::pointInsidePolygon</b> <i class="arg">P</i> <i class="arg">polyline</i></a></li>
+<li><a href="#33"><b class="cmd">::math::geometry::rectangleInsidePolygon</b> <i class="arg">P1</i> <i class="arg">P2</i> <i class="arg">polyline</i></a></li>
+<li><a href="#34"><b class="cmd">::math::geometry::areaPolygon</b> <i class="arg">polygon</i></a></li>
 </ul>
 </div>
 </div>
@@ -289,7 +290,7 @@ first and last points of the line segment</p></dd>
 </dl></dd>
 <dt><a name="17"><b class="cmd">::math::geometry::calculateDistanceToPolyline</b> <i class="arg">P</i> <i class="arg">polyline</i></a></dt>
 <dd><p>Calculate the distance of point P to the polyline and
-return the result.</p>
+return the result. Note that a polyline needs not to be closed.</p>
 <dl class="arguments">
 <dt>list <i class="arg">P</i></dt>
 <dd><p>List of two numbers, the coordinates of the point</p></dd>
@@ -297,7 +298,18 @@ return the result.</p>
 <dd><p>List of numbers, the coordinates of the
 vertices of the polyline</p></dd>
 </dl></dd>
-<dt><a name="18"><b class="cmd">::math::geometry::findClosestPointOnLine</b> <i class="arg">P</i> <i class="arg">line</i></a></dt>
+<dt><a name="18"><b class="cmd">::math::geometry::calculateDistanceToPolygon</b> <i class="arg">P</i> <i class="arg">polygon</i></a></dt>
+<dd><p>Calculate the distance of point P to the polygon and
+return the result. If the list of coordinates is not closed (first and last
+points differ), it is automatically closed.</p>
+<dl class="arguments">
+<dt>list <i class="arg">P</i></dt>
+<dd><p>List of two numbers, the coordinates of the point</p></dd>
+<dt>list <i class="arg">polygon</i></dt>
+<dd><p>List of numbers, the coordinates of the
+vertices of the polygon</p></dd>
+</dl></dd>
+<dt><a name="19"><b class="cmd">::math::geometry::findClosestPointOnLine</b> <i class="arg">P</i> <i class="arg">line</i></a></dt>
 <dd><p>Return the point on a line which is closest to a given point.</p>
 <dl class="arguments">
 <dt>list <i class="arg">P</i></dt>
@@ -306,7 +318,7 @@ vertices of the polyline</p></dd>
 <dd><p>List of four numbers, the coordinates of two points
 on the line</p></dd>
 </dl></dd>
-<dt><a name="19"><b class="cmd">::math::geometry::findClosestPointOnLineSegment</b> <i class="arg">P</i> <i class="arg">linesegment</i></a></dt>
+<dt><a name="20"><b class="cmd">::math::geometry::findClosestPointOnLineSegment</b> <i class="arg">P</i> <i class="arg">linesegment</i></a></dt>
 <dd><p>Return the point on a <em>line segment</em> which is closest to a given
 point.</p>
 <dl class="arguments">
@@ -316,7 +328,7 @@ point.</p>
 <dd><p>List of four numbers, the first and last
 points on the line segment</p></dd>
 </dl></dd>
-<dt><a name="20"><b class="cmd">::math::geometry::findClosestPointOnPolyline</b> <i class="arg">P</i> <i class="arg">polyline</i></a></dt>
+<dt><a name="21"><b class="cmd">::math::geometry::findClosestPointOnPolyline</b> <i class="arg">P</i> <i class="arg">polyline</i></a></dt>
 <dd><p>Return the point on a <em>polyline</em> which is closest to a given
 point.</p>
 <dl class="arguments">
@@ -325,14 +337,14 @@ point.</p>
 <dt>list <i class="arg">polyline</i></dt>
 <dd><p>List of numbers, the vertices of the polyline</p></dd>
 </dl></dd>
-<dt><a name="21"><b class="cmd">::math::geometry::lengthOfPolyline</b> <i class="arg">polyline</i></a></dt>
+<dt><a name="22"><b class="cmd">::math::geometry::lengthOfPolyline</b> <i class="arg">polyline</i></a></dt>
 <dd><p>Return the length of the <em>polyline</em> (note: it not regarded as a
 polygon)</p>
 <dl class="arguments">
 <dt>list <i class="arg">polyline</i></dt>
 <dd><p>List of numbers, the vertices of the polyline</p></dd>
 </dl></dd>
-<dt><a name="22"><b class="cmd">::math::geometry::movePointInDirection</b> <i class="arg">P</i> <i class="arg">direction</i> <i class="arg">dist</i></a></dt>
+<dt><a name="23"><b class="cmd">::math::geometry::movePointInDirection</b> <i class="arg">P</i> <i class="arg">direction</i> <i class="arg">dist</i></a></dt>
 <dd><p>Move a point over a given distance in a given direction and return the
 new coordinates (in two dimensions only).</p>
 <dl class="arguments">
@@ -344,16 +356,17 @@ upwards)</p></dd>
 <dt>list <i class="arg">dist</i></dt>
 <dd><p>Distance over which to move the point</p></dd>
 </dl></dd>
-<dt><a name="23"><b class="cmd">::math::geometry::lineSegmentsIntersect</b> <i class="arg">linesegment1</i> <i class="arg">linesegment2</i></a></dt>
+<dt><a name="24"><b class="cmd">::math::geometry::lineSegmentsIntersect</b> <i class="arg">linesegment1</i> <i class="arg">linesegment2</i></a></dt>
 <dd><p>Check if two line segments intersect or coincide. Returns 1 if that is
-the case, 0 otherwise (in two dimensions only).</p>
+the case, 0 otherwise (in two dimensions only). If an endpoint of one segment lies on
+the other segment (or is very close to the segment), they are considered to intersect</p>
 <dl class="arguments">
 <dt>list <i class="arg">linesegment1</i></dt>
 <dd><p>First line segment</p></dd>
 <dt>list <i class="arg">linesegment2</i></dt>
 <dd><p>Second line segment</p></dd>
 </dl></dd>
-<dt><a name="24"><b class="cmd">::math::geometry::findLineSegmentIntersection</b> <i class="arg">linesegment1</i> <i class="arg">linesegment2</i></a></dt>
+<dt><a name="25"><b class="cmd">::math::geometry::findLineSegmentIntersection</b> <i class="arg">linesegment1</i> <i class="arg">linesegment2</i></a></dt>
 <dd><p>Find the intersection point of two line segments. Return the coordinates
 or the keywords &quot;coincident&quot; or &quot;none&quot; if the line segments coincide or
 have no points in common (in two dimensions only).</p>
@@ -363,7 +376,7 @@ have no points in common (in two dimensions only).</p>
 <dt>list <i class="arg">linesegment2</i></dt>
 <dd><p>Second line segment</p></dd>
 </dl></dd>
-<dt><a name="25"><b class="cmd">::math::geometry::findLineIntersection</b> <i class="arg">line1</i> <i class="arg">line2</i></a></dt>
+<dt><a name="26"><b class="cmd">::math::geometry::findLineIntersection</b> <i class="arg">line1</i> <i class="arg">line2</i></a></dt>
 <dd><p>Find the intersection point of two (infinite) lines. Return the coordinates
 or the keywords &quot;coincident&quot; or &quot;none&quot; if the lines coincide or
 have no points in common (in two dimensions only).</p>
@@ -374,7 +387,7 @@ have no points in common (in two dimensions only).</p>
 <dd><p>Second line</p></dd>
 </dl>
 <p>See section <span class="sectref"><a href="#section3">References</a></span> for details on the algorithm and math behind it.</p></dd>
-<dt><a name="26"><b class="cmd">::math::geometry::polylinesIntersect</b> <i class="arg">polyline1</i> <i class="arg">polyline2</i></a></dt>
+<dt><a name="27"><b class="cmd">::math::geometry::polylinesIntersect</b> <i class="arg">polyline1</i> <i class="arg">polyline2</i></a></dt>
 <dd><p>Check if two polylines intersect or not (in two dimensions only).</p>
 <dl class="arguments">
 <dt>list <i class="arg">polyline1</i></dt>
@@ -382,7 +395,7 @@ have no points in common (in two dimensions only).</p>
 <dt>list <i class="arg">polyline2</i></dt>
 <dd><p>Second polyline</p></dd>
 </dl></dd>
-<dt><a name="27"><b class="cmd">::math::geometry::polylinesBoundingIntersect</b> <i class="arg">polyline1</i> <i class="arg">polyline2</i> <i class="arg">granularity</i></a></dt>
+<dt><a name="28"><b class="cmd">::math::geometry::polylinesBoundingIntersect</b> <i class="arg">polyline1</i> <i class="arg">polyline2</i> <i class="arg">granularity</i></a></dt>
 <dd><p>Check whether two polylines intersect, but reduce
 the correctness of the result to the given granularity.
 Use this for faster, but weaker, intersection checking.</p>
@@ -400,7 +413,7 @@ otherwise it returns 0.</p>
 <dd><p>Number of points in each part (&lt;=1 means check
 every edge)</p></dd>
 </dl></dd>
-<dt><a name="28"><b class="cmd">::math::geometry::intervalsOverlap</b> <i class="arg">y1</i> <i class="arg">y2</i> <i class="arg">y3</i> <i class="arg">y4</i> <i class="arg">strict</i></a></dt>
+<dt><a name="29"><b class="cmd">::math::geometry::intervalsOverlap</b> <i class="arg">y1</i> <i class="arg">y2</i> <i class="arg">y3</i> <i class="arg">y4</i> <i class="arg">strict</i></a></dt>
 <dd><p>Check if two intervals overlap.</p>
 <dl class="arguments">
 <dt>double <i class="arg">y1,y2</i></dt>
@@ -410,7 +423,7 @@ every edge)</p></dd>
 <dt>logical <i class="arg">strict</i></dt>
 <dd><p>Check for strict or non-strict overlap</p></dd>
 </dl></dd>
-<dt><a name="29"><b class="cmd">::math::geometry::rectanglesOverlap</b> <i class="arg">P1</i> <i class="arg">P2</i> <i class="arg">Q1</i> <i class="arg">Q2</i> <i class="arg">strict</i></a></dt>
+<dt><a name="30"><b class="cmd">::math::geometry::rectanglesOverlap</b> <i class="arg">P1</i> <i class="arg">P2</i> <i class="arg">Q1</i> <i class="arg">Q2</i> <i class="arg">strict</i></a></dt>
 <dd><p>Check if two rectangles overlap.</p>
 <dl class="arguments">
 <dt>list <i class="arg">P1</i></dt>
@@ -424,14 +437,14 @@ every edge)</p></dd>
 <dt>list <i class="arg">strict</i></dt>
 <dd><p>choosing strict or non-strict interpretation</p></dd>
 </dl></dd>
-<dt><a name="30"><b class="cmd">::math::geometry::bbox</b> <i class="arg">polyline</i></a></dt>
+<dt><a name="31"><b class="cmd">::math::geometry::bbox</b> <i class="arg">polyline</i></a></dt>
 <dd><p>Calculate the bounding box of a polyline. Returns a list of four
 coordinates: the upper-left and the lower-right corner of the box.</p>
 <dl class="arguments">
 <dt>list <i class="arg">polyline</i></dt>
 <dd><p>The polyline to be examined</p></dd>
 </dl></dd>
-<dt><a name="31"><b class="cmd">::math::geometry::pointInsidePolygon</b> <i class="arg">P</i> <i class="arg">polyline</i></a></dt>
+<dt><a name="32"><b class="cmd">::math::geometry::pointInsidePolygon</b> <i class="arg">P</i> <i class="arg">polyline</i></a></dt>
 <dd><p>Determine if a point is completely inside a polygon. If the point
 touches the polygon, then the point is not completely inside the
 polygon.</p>
@@ -441,7 +454,7 @@ polygon.</p>
 <dt>list <i class="arg">polyline</i></dt>
 <dd><p>The polyline to be examined</p></dd>
 </dl></dd>
-<dt><a name="32"><b class="cmd">::math::geometry::rectangleInsidePolygon</b> <i class="arg">P1</i> <i class="arg">P2</i> <i class="arg">polyline</i></a></dt>
+<dt><a name="33"><b class="cmd">::math::geometry::rectangleInsidePolygon</b> <i class="arg">P1</i> <i class="arg">P2</i> <i class="arg">polyline</i></a></dt>
 <dd><p>Determine if a rectangle is completely inside a polygon. If polygon
 touches the rectangle, then the rectangle is not complete inside the
 polygon.</p>
@@ -453,7 +466,7 @@ polygon.</p>
 <dt>list <i class="arg">polygon</i></dt>
 <dd><p>The polygon in question</p></dd>
 </dl></dd>
-<dt><a name="33"><b class="cmd">::math::geometry::areaPolygon</b> <i class="arg">polygon</i></a></dt>
+<dt><a name="34"><b class="cmd">::math::geometry::areaPolygon</b> <i class="arg">polygon</i></a></dt>
 <dd><p>Calculate the area of a polygon.</p>
 <dl class="arguments">
 <dt>list <i class="arg">polygon</i></dt>

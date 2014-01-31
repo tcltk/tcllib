@@ -5,7 +5,7 @@
 '\" Copyright (c) 2010 by Andreas Kupries
 '\" Copyright (c) 2010 by Kevin Kenny
 '\"
-.TH "math::geometry" n 1\&.1\&.2 tcllib "Tcl Math Library"
+.TH "math::geometry" n 1\&.1\&.3 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -279,7 +279,7 @@ math::geometry \- Geometrical computations
 .SH SYNOPSIS
 package require \fBTcl  ?8\&.3?\fR
 .sp
-package require \fBmath::geometry  ?1\&.1\&.2?\fR
+package require \fBmath::geometry  ?1\&.1\&.3?\fR
 .sp
 \fB::math::geometry::+\fR \fIpoint1\fR \fIpoint2\fR
 .sp
@@ -314,6 +314,8 @@ package require \fBmath::geometry  ?1\&.1\&.2?\fR
 \fB::math::geometry::calculateDistanceToLineSegment\fR \fIP\fR \fIlinesegment\fR
 .sp
 \fB::math::geometry::calculateDistanceToPolyline\fR \fIP\fR \fIpolyline\fR
+.sp
+\fB::math::geometry::calculateDistanceToPolygon\fR \fIP\fR \fIpolygon\fR
 .sp
 \fB::math::geometry::findClosestPointOnLine\fR \fIP\fR \fIline\fR
 .sp
@@ -513,7 +515,7 @@ first and last points of the line segment
 .TP
 \fB::math::geometry::calculateDistanceToPolyline\fR \fIP\fR \fIpolyline\fR
 Calculate the distance of point P to the polyline and
-return the result\&.
+return the result\&. Note that a polyline needs not to be closed\&.
 .RS
 .TP
 list \fIP\fR
@@ -522,6 +524,21 @@ List of two numbers, the coordinates of the point
 list \fIpolyline\fR
 List of numbers, the coordinates of the
 vertices of the polyline
+.RE
+.sp
+.TP
+\fB::math::geometry::calculateDistanceToPolygon\fR \fIP\fR \fIpolygon\fR
+Calculate the distance of point P to the polygon and
+return the result\&. If the list of coordinates is not closed (first and last
+points differ), it is automatically closed\&.
+.RS
+.TP
+list \fIP\fR
+List of two numbers, the coordinates of the point
+.TP
+list \fIpolygon\fR
+List of numbers, the coordinates of the
+vertices of the polygon
 .RE
 .sp
 .TP
@@ -594,7 +611,8 @@ Distance over which to move the point
 .TP
 \fB::math::geometry::lineSegmentsIntersect\fR \fIlinesegment1\fR \fIlinesegment2\fR
 Check if two line segments intersect or coincide\&. Returns 1 if that is
-the case, 0 otherwise (in two dimensions only)\&.
+the case, 0 otherwise (in two dimensions only)\&. If an endpoint of one segment lies on
+the other segment (or is very close to the segment), they are considered to intersect
 .RS
 .TP
 list \fIlinesegment1\fR

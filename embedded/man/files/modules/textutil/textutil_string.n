@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'textutil_string\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "textutil::string" n 0\&.7 tcllib "Text and string utilities, macro processing"
+.TH "textutil::string" n 0\&.8 tcllib "Text and string utilities, macro processing"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,13 +275,15 @@ textutil::string \- Procedures to manipulate texts and strings\&.
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBtextutil::string  ?0\&.7?\fR
+package require \fBtextutil::string  ?0\&.8?\fR
 .sp
 \fB::textutil::string::chop\fR \fIstring\fR
 .sp
 \fB::textutil::string::tail\fR \fIstring\fR
 .sp
 \fB::textutil::string::cap\fR \fIstring\fR
+.sp
+\fB::textutil::string::capEachWord\fR \fIstring\fR
 .sp
 \fB::textutil::string::uncap\fR \fIstring\fR
 .sp
@@ -307,6 +309,11 @@ returns the shortened string\&.
 \fB::textutil::string::cap\fR \fIstring\fR
 Capitalizes the first character of \fIstring\fR and returns the
 modified string\&.
+.TP
+\fB::textutil::string::capEachWord\fR \fIstring\fR
+Capitalizes the first character of word of the \fIstring\fR and
+returns the modified string\&. Words quoted with either backslash or
+dollar-sign are left untouched\&.
 .TP
 \fB::textutil::string::uncap\fR \fIstring\fR
 The complementary operation to \fB::textutil::string::cap\fR\&. Forces
