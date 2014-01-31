@@ -356,7 +356,7 @@ proc ::sak::review::Parents {rid cut} {
 
 proc ::sak::review::YoungestOfTag {tag} {
     lappend map @tag@ $tag
-    puts "last $tag = [F [string map $map {
+    puts stderr "last $tag = [F [string map $map {
 	SELECT datetime (event.mtime)
 	FROM   tag, tagxref, event
 	WHERE tag.tagname     = 'sym-' || '@tag@'
