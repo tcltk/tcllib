@@ -2,7 +2,7 @@
 '\" Generated from file 'pt_peg_op\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt_peg_op" i 1 tcllib "Parser Tools"
+.TH "pt_peg_op" i 1\&.0\&.1 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ pt_peg_op \- Parser Tools PE Grammar Utility Operations
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBpt::peg::op  1\fR
+package require \fBpt::peg::op  1\&.0\&.1\fR
 .sp
 \fB::peg::peg::op\fR \fBcalled\fR \fIcontainer\fR
 .sp
