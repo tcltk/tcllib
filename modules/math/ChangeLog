@@ -1,3 +1,11 @@
+2014-01-30  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* geometry.tcl: Corrected edge case in pointInsidePolygon (by closer checking
+	                intersection of line segments; ticket c1ca34ead3).
+	                Also introduced a procedure calculateDistanceToPolygon to solve ticket bff902be35
+	* math_geometry.man: Description of new procedure pointInsidePolygon
+	* geometry.test: Added test cases based on both tickets
+	* pkgIndex.tcl: Bumped version to 1.1.3
+
 2014-01-19  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* stat_kernel.tcl: Corrected use of bandwidth
 	* statistics.test: Added margin per kernel - not quite satisfactory in the case of the uniform kernel
