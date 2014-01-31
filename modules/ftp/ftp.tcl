@@ -3017,4 +3017,4 @@ if { [string equal [uplevel "#0" {info commands tkcon}] "tkcon"] } {
 # ==================================================================
 # At last, everything is fine, we can provide the package.
 
-package provide ftp [lindex {Revision: 2.4.11} 1]
+package provide ftp [lindex {Revision: 2.4.12} 1]
