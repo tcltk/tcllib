@@ -72,6 +72,8 @@ proc ::sak::review::Scan {} {
 	}
     }
 
+    Next
+
     # cleanup module list, may have duplicates
     set modifiedm [lsort -unique $modifiedm]
 
@@ -300,6 +302,10 @@ proc ::sak::review::AllParentsAfter {rid cut _ rv script} {
     set rev($rid) .
     lappend front $rid
 
+    # Initial run, for the starting revision.
+    set therev   $rid
+    uplevel 1 $script
+
     # Standard iterative incremental transitive-closure. We have a
     # front of revisions whose parents we take, which become the new
     # front to follow, until no parents are delivered anymore due to
@@ -310,19 +316,25 @@ proc ::sak::review::AllParentsAfter {rid cut _ rv script} {
 	set new {}
 	foreach cid $front {
 	    foreach pid [split [Parents $cid $cut] \n] {
-		lappend new $pid
+		foreach {pid uuid mtraw mtime} [split [string trim $pid |] |] break
+		lappend new $pid $mtime $uuid
+
+		if {$mtraw <= $cut} {
+		    puts "Overshot: $rid $mtime $uuid"
+		}
+
 	    }
 	}
 	if {![llength $new]} break
 
 	# record new parents, and make them the new starting points
 	set front {}
-	foreach pid $new {
+	foreach {pid mtime uuid} $new {
 	    if {[info exists rev($pid)]} continue
 	    set rev($pid) .
 	    lappend front $pid
 
-	    set therev $pid
+	    set therev   $pid
 	    uplevel 1 $script
 	}
     }
@@ -332,15 +344,30 @@ proc ::sak::review::Parents {rid cut} {
     lappend map @rid@    $rid
     lappend map @cutoff@ $cut
     F [string map $map {
-	SELECT pid FROM plink
+	SELECT pid, blob.uuid, event.mtime, datetime(event.mtime)
+	FROM  plink, blob, event
 	WHERE plink.cid   = @rid@
-	AND   plink.mtime > @cutoff@
+	AND   plink.pid = blob.rid
+	AND   plink.pid = event.objid
+	AND   event.mtime > @cutoff@
 	;
     }]
 }
 
 proc ::sak::review::YoungestOfTag {tag} {
     lappend map @tag@ $tag
+    puts "last $tag = [F [string map $map {
+	SELECT datetime (event.mtime)
+	FROM   tag, tagxref, event
+	WHERE tag.tagname     = 'sym-' || '@tag@'
+	AND   tagxref.tagid   = tag.tagid
+	AND   tagxref.tagtype > 0
+	AND   tagxref.rid     = event.objid
+	AND   event.type      = 'ci'
+	ORDER BY event.mtime DESC
+	LIMIT 1
+	;
+    }]]"
     F [string map $map {
 	SELECT event.mtime
 	FROM   tag, tagxref, event
