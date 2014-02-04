@@ -2,9 +2,9 @@ Overview
 ========
 
     11  new packages                in 7   modules
-    44  changed packages            in 26  modules
+    45  changed packages            in 26  modules
     288 internally changed packages in 100 modules
-    62  unchanged packages          in 11  modules
+    61  unchanged packages          in 11  modules
     411 packages, total             in 114 modules, total
 
 New in tcllib 1.16
@@ -36,7 +36,7 @@ Changes from tcllib 1.15 to 1.16
     ------------------ ------------------------------------ ------------- ------------- ----------
     aes                aes                                  1.1           1.1.1         B D T
     coroutine          coroutine::auto                      1.1           1.1.1         B D
-    dns                ip                                   1.2           1.2.1         B D T
+    dns                ip                                   1.2           1.2.2         B D T
     ------------------ ------------------------------------ ------------- ------------- ----------
     doctools           doctools                             1.4.14        1.4.17        B D T
                        doctools::changelog                  1             1.1           D
@@ -71,7 +71,8 @@ Changes from tcllib 1.15 to 1.16
     sasl               SASL                                 1.3.2         1.3.3         B D T
                        SASL::NTLM                           1.1.1         1.1.2         B D T
     ------------------ ------------------------------------ ------------- ------------- ----------
-    struct             struct::matrix                       1.2.1         1.2.1         D
+    struct             struct::list                         1.8.2         1.8.3         B D T
+                       struct::matrix                       1.2.1         1.2.1         D
                        struct::matrix                       2.0.2         2.0.3         D
                        struct::queue                        1.4.4         1.4.5         B D T
     ------------------ ------------------------------------ ------------- ------------- ----------
@@ -495,9 +496,9 @@ Unchanged
     page::writer::null, page::writer::peg, page::writer::ser,
     page::writer::tpc, page::writer::tree, paths,
     pt::peg::container::peg, pt::peg::export::container, resolv,
-    spf, struct, struct::list, text::write, tie::std::array,
-    tie::std::dsource, tie::std::file, tie::std::growfile,
-    tie::std::log, tie::std::rarray, transfer::copy::queue
+    spf, struct, text::write, tie::std::array, tie::std::dsource,
+    tie::std::file, tie::std::growfile, tie::std::log,
+    tie::std::rarray, transfer::copy::queue
 
 Legend  Change  Details Comments
         ------  ------- ---------
