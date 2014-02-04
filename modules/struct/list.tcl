@@ -758,7 +758,7 @@ proc ::struct::list::Lmapfor {var sequence script} {
 proc ::struct::list::Lfilter {sequence cmdprefix} {
     # Shortcut when nothing is to be done.
     if {[::llength $sequence] == 0} {return $sequence}
-    return [Lfold $sequence {} [::list ::struct::list::FTest $cmdprefix]]
+    return [uplevel 1 [::list ::struct::list::Lfold $sequence {} [::list ::struct::list::FTest $cmdprefix]]]
 }
 
 proc ::struct::list::FTest {cmdprefix result item} {
@@ -832,7 +832,7 @@ proc ::struct::list::Lsplit {sequence cmdprefix args} {
 	    set fail {}
 	    return {0 0}
 	}
-	foreach {pass fail} [Lfold $sequence {} [::list ::struct::list::PFTest $cmdprefix]] break
+	foreach {pass fail} [uplevel 1 [::list ::struct::list::Lfold $sequence {} [::list ::struct::list::PFTest $cmdprefix]]] break
 	return [::list [llength $pass] [llength $fail]]
     } else {
 	return -code error \
@@ -1825,4 +1825,4 @@ namespace eval ::struct {
     namespace import -force list::list
     namespace export list
 }
-package provide struct::list 1.8.2
+package provide struct::list 1.8.3
