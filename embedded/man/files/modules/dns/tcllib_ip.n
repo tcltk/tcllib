@@ -3,7 +3,7 @@
 '\" Copyright (c) 2004, Pat Thoyts
 '\" Copyright (c) 2005 Aamer Akhter <aakhter@cisco\&.com>
 '\"
-.TH "tcllib_ip" n 1\&.2\&.1 tcllib "Domain Name Service"
+.TH "tcllib_ip" n 1\&.2\&.2 tcllib "Domain Name Service"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -277,7 +277,7 @@ tcllib_ip \- IPv4 and IPv6 address manipulation
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBip  ?1\&.2\&.1?\fR
+package require \fBip  ?1\&.2\&.2?\fR
 .sp
 \fB::ip::version\fR \fIaddress\fR
 .sp
