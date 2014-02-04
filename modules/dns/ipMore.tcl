@@ -655,9 +655,8 @@ proc ::ip::nextNet {prefix mask args} {
     }
     if {![string is integer -strict $mask] || ($mask < 33 && $mask > 0)} {
 	set mask [maskToInt $mask]
-    } 
-    
-    set prefix [expr $prefix + ($mask ^ 0xFFffFFff) + $count ]
+    }    
+    set prefix [expr {$prefix + ((($mask ^ 0xFFffFFff) + 1) * $count) }]
     return [format "0x%08x" $prefix]
 }
 
