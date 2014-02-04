@@ -312,7 +312,7 @@ proc ::ip::intToString {int args} {
 
 proc ::ip::toInteger {ip} {
     binary scan [ip::Normalize4 $ip] I out
-    return $out
+    return [format %u $out]
 }
 
 ##Procedure Header
