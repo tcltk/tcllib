@@ -1262,4 +1262,4 @@ namespace eval ::math::geometry {
 	findLineIntersection bbox x y conjx conjy
 }
 
-package provide math::geometry 1.1.2
+package provide math::geometry 1.1.3
