@@ -25,7 +25,7 @@ detailed).
 [comment {= = == === ===== ======== ============= =====================}]
 [call [cmd debug.[var tag]] [arg message] [opt [arg level]]]
 
-For each known tag the package creates a command with this signatur
+For each known tag the package creates a command with this signature
 the user can then use to provide the debug narrative of the tag.
 
 The narrative [arg message] is provided as a Tcl script whose value is

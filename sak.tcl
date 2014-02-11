@@ -1175,44 +1175,6 @@ proc gd-gen-packages {} {
     close $f
 }
 
-
-
-proc modified-modules {} {
-    global distribution
-
-    set mlist [modules]
-    set modified [list]
-
-    foreach m $mlist {
-	set cl [file join $distribution modules $m ChangeLog]
-	if {![file exists $cl]} {
-	    lappend modified [list $m no-changelog]
-	    continue
-	}
-	# Look for 'Released and tagged' within
-	# the first four lines of the file. If
-	# not present assume that the line is
-	# deeper down, indicating that the module
-	# has been modified since the last release.
-
-	set f [open $cl r]
-	set n 0
-	set mod 1
-	while {$n < 5} {
-	    gets $f line
-	    incr n
-	    if {[string match -nocase "*Released and tagged*" $line]} {
-		if {$n <= 4} {set mod 0 ; break}
-	    }
-	}
-	if {$mod} {
-	    lappend modified $m
-	}
-	close $f
-    }
-    return $modified
-}
-
 # --------------------------------------------------------------
 # Handle modules using docstrip
 
@@ -2215,6 +2177,8 @@ proc __rpmspec {} {
 
 proc __release {} {
     # Regenerate PACKAGES, and extend
+    gd-gen-packages
+    return
 
     global argv argv0 distribution package_name package_version
 

@@ -2,7 +2,7 @@
 '\" Generated from file 'ansi_code\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2006 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "term::ansi::code" n 0\&.1 tcllib "Terminal control"
+.TH "term::ansi::code" n 0\&.2 tcllib "Terminal control"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ term::ansi::code \- Helper for control sequences
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBterm::ansi::code  ?0\&.1?\fR
+package require \fBterm::ansi::code  ?0\&.2?\fR
 .sp
 \fB::term::ansi::code::esc\fR \fIstr\fR
 .sp
