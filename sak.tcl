@@ -2177,6 +2177,8 @@ proc __rpmspec {} {
 
 proc __release {} {
     # Regenerate PACKAGES, and extend
+    gd-gen-packages
+    return
 
     global argv argv0 distribution package_name package_version
 
