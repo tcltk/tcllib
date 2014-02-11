@@ -2,7 +2,7 @@
 '\" Generated from file 'pt_pgen\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::pgen" n 1\&.0\&.1 tcllib "Parser Tools"
+.TH "pt::pgen" n 1\&.0\&.2 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ pt::pgen \- Parser Generator
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBpt::pgen  ?1\&.0\&.1?\fR
+package require \fBpt::pgen  ?1\&.0\&.2?\fR
 .sp
 \fB::pt::pgen\fR \fIinputformat\fR \fItext\fR \fIresultformat\fR ?\fIoptions\&.\&.\&.\fR?
 .sp
