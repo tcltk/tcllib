@@ -315,7 +315,7 @@ detailed)\&.
 .SH API
 .TP
 \fBdebug\&.\fBtag\fR\fR \fImessage\fR ?\fIlevel\fR?
-For each known tag the package creates a command with this signatur
+For each known tag the package creates a command with this signature
 the user can then use to provide the debug narrative of the tag\&.
 The narrative \fImessage\fR is provided as a Tcl script whose value is
 \fBsubst\fRed in the caller's scope if and only if the current level of
