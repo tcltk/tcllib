@@ -373,5 +373,5 @@ namespace eval ::pt::peg::op {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::peg::op 1
+package provide pt::peg::op 1.0.1
 return
