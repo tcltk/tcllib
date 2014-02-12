@@ -25,6 +25,10 @@
 #include <string.h>
 #include "sha1.h"
 
+#ifndef TCL_BYTE_ORDER
+#error "-DTCL_BYTE_ORDER missing"
+#endif
+
 #ifndef _DIAGASSERT
 #define _DIAGASSERT(cond)	assert(cond)
 #endif

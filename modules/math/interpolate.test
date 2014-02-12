@@ -50,9 +50,13 @@ customMatch numbers matchNumbers
 #
 # Test cases: interpolation in tables
 #
+# Add a dummy row to the table - ticket b25b826973edcbb5b3a95f6c284214925a1d5e67
+# This makes it possible to use the same table in both 1D and 2D interpolations
+#
 set t [::math::interpolate::defineTable table1 \
    {    x     v1    v2    v3 } \
-   {    0      0    10     1
+   {    -      1     2     3
+        0      0    10     1
         1      1     9     4
         2      2     8     9
         5      5     5    25
@@ -208,6 +212,18 @@ test "Interpolate-4.2" "Spatial interpolation - 2" \
             0.0       0.0
             1.2      -0.6
             0.039996 -0.019998 }
+
+test "Interpolate-4.3" "Spatial interpolation - 3 - coincident points" \
+   -match numbers -body {
+   set result {}
+
+   set xyzvalues { {-1.0 0.0 { -2.0  1.0 } }
+                   { 1.0 0.0 {  2.0 -1.0 } } }
+   set coord {-1.0 0.0}
+      set result [::math::interpolate::interp-spatial $xyzvalues $coord]
+
+   set result
+} -result { -2.0 1.0 }
 
 #
 # Test TODO: parameters for spatial interpolation

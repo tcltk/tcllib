@@ -144,8 +144,8 @@
 <li><a href="#6"><b class="cmd">cmdprefix</b> <i class="arg">ast</i></a></li>
 <li><a href="#7"><b class="cmd">::pt::ast</b> <b class="method">topdown</b> <i class="arg">cmdprefix</i> <i class="arg">pe</i></a></li>
 <li><a href="#8"><b class="cmd">::pt::ast</b> <b class="method">equal</b> <i class="arg">seriala</i> <i class="arg">serialb</i></a></li>
-<li><a href="#9"><b class="cmd">::pt::ast</b> <b class="method">terminal</b> <i class="arg">loc</i></a></li>
-<li><a href="#10"><b class="cmd">::pt::ast</b> <b class="method">nonterminal</b> <i class="arg">s</i> <i class="arg">start</i> <i class="arg">end</i> <span class="opt">?<i class="arg">child</i>...?</span></a></li>
+<li><a href="#9"><b class="cmd">::pt::ast</b> <b class="method">new0</b> <i class="arg">s</i> <i class="arg">loc</i> <span class="opt">?<i class="arg">child</i>...?</span></a></li>
+<li><a href="#10"><b class="cmd">::pt::ast</b> <b class="method">new</b> <i class="arg">s</i> <i class="arg">start</i> <i class="arg">end</i> <span class="opt">?<i class="arg">child</i>...?</span></a></li>
 </ul>
 </div>
 </div>
@@ -229,11 +229,15 @@ boolean value. It will be set to <b class="const">true</b> if the trees are
 identical, and <b class="const">false</b> otherwise.</p>
 <p>String equality is usable only if we can assume that the two trees are
 pure Tcl lists.</p></dd>
-<dt><a name="9"><b class="cmd">::pt::ast</b> <b class="method">terminal</b> <i class="arg">loc</i></a></dt>
-<dd><p>This command command constructs the ast for a terminal node refering
-to the position <i class="arg">loc</i> in the input, and returns it as the result
-of the command.</p></dd>
-<dt><a name="10"><b class="cmd">::pt::ast</b> <b class="method">nonterminal</b> <i class="arg">s</i> <i class="arg">start</i> <i class="arg">end</i> <span class="opt">?<i class="arg">child</i>...?</span></a></dt>
+<dt><a name="9"><b class="cmd">::pt::ast</b> <b class="method">new0</b> <i class="arg">s</i> <i class="arg">loc</i> <span class="opt">?<i class="arg">child</i>...?</span></a></dt>
+<dd><p>This command command constructs the ast for a nonterminal node
+refering refering to the symbol <i class="arg">s</i> at position <i class="arg">loc</i> in the
+input, and the set of child nodes <i class="arg">child</i> ..., from left
+right. The latter may be empty. The constructed node is returned as
+the result of the command. The end position is <i class="arg">loc</i>-1, i.e. one
+character before the start. This type of node is possible for rules
+containing optional parts.</p></dd>
+<dt><a name="10"><b class="cmd">::pt::ast</b> <b class="method">new</b> <i class="arg">s</i> <i class="arg">start</i> <i class="arg">end</i> <span class="opt">?<i class="arg">child</i>...?</span></a></dt>
 <dd><p>This command command constructs the ast for a nonterminal node
 refering to the symbol <i class="arg">s</i> covering the range of positions
 <i class="arg">start</i> to <i class="arg">end</i> in the input, and the set of child nodes
@@ -338,7 +342,7 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key9">EBNF</a>, <a href="../../../../index.html#key21">LL(k)</a>, <a href="../../../../index.html#key12">PEG</a>, <a href="../../../../index.html#key13">TDPL</a>, <a href="../../../../index.html#key10">context-free languages</a>, <a href="../../../../index.html#key6">expression</a>, <a href="../../../../index.html#key17">grammar</a>, <a href="../../../../index.html#key11">matching</a>, <a href="../../../../index.html#key15">parser</a>, <a href="../../../../index.html#key14">parsing expression</a>, <a href="../../../../index.html#key20">parsing expression grammar</a>, <a href="../../../../index.html#key7">push down automaton</a>, <a href="../../../../index.html#key16">recursive descent</a>, <a href="../../../../index.html#key8">state</a>, <a href="../../../../index.html#key19">top-down parsing languages</a>, <a href="../../../../index.html#key18">transducer</a></p>
+<p><a href="../../../../index.html#key3">EBNF</a>, <a href="../../../../index.html#key15">LL(k)</a>, <a href="../../../../index.html#key6">PEG</a>, <a href="../../../../index.html#key7">TDPL</a>, <a href="../../../../index.html#key4">context-free languages</a>, <a href="../../../../index.html#key0">expression</a>, <a href="../../../../index.html#key11">grammar</a>, <a href="../../../../index.html#key5">matching</a>, <a href="../../../../index.html#key9">parser</a>, <a href="../../../../index.html#key8">parsing expression</a>, <a href="../../../../index.html#key14">parsing expression grammar</a>, <a href="../../../../index.html#key1">push down automaton</a>, <a href="../../../../index.html#key10">recursive descent</a>, <a href="../../../../index.html#key2">state</a>, <a href="../../../../index.html#key13">top-down parsing languages</a>, <a href="../../../../index.html#key12">transducer</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Parsing and Grammars</p>

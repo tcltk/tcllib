@@ -108,7 +108,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">debug(n) 1 tcllib &quot;debug narrative&quot;</h1>
+<h1 class="title">debug(n) 1.0.2 tcllib &quot;debug narrative&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>debug - debug narrative - core</p>
 </div>
@@ -128,7 +128,7 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
-<li>package require <b class="pkgname">debug <span class="opt">?1?</span></b></li>
+<li>package require <b class="pkgname">debug <span class="opt">?1.0.2?</span></b></li>
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">debug.<b class="variable">tag</b></b> <i class="arg">message</i> <span class="opt">?<i class="arg">level</i>?</span></a></li>
@@ -156,10 +156,10 @@ detailed).</p>
 <div id="section2" class="section"><h2><a name="section2">API</a></h2>
 <dl class="definitions">
 <dt><a name="1"><b class="cmd">debug.<b class="variable">tag</b></b> <i class="arg">message</i> <span class="opt">?<i class="arg">level</i>?</span></a></dt>
-<dd><p>For each known tag the package creates a command with this signatur
+<dd><p>For each known tag the package creates a command with this signature
 the user can then use to provide the debug narrative of the tag.
 The narrative <i class="arg">message</i> is provided as a Tcl script whose value is
-<b class="cmd"><a href="../../../../index.html#key260">subst</a></b>ed in the caller's scope if and only if the current level of
+<b class="cmd"><a href="../../../../index.html#key269">subst</a></b>ed in the caller's scope if and only if the current level of
 interest for the <i class="arg">tag</i> matches or exceeds the call's <i class="arg">level</i>
 of detail.  This is useful, as one can place arbitrarily complex
 narrative in code without unnecessarily evaluating it.</p>
@@ -169,7 +169,7 @@ and manipulating the current level of detail for tags.</p>
 <i class="arg">message</i>, but also global and tag-specific prefix and suffix,
 should they exist, with each line in the message having the specified
 headers and trailers.</p>
-<p>All these parts are <b class="cmd"><a href="../../../../index.html#key260">subst</a></b>ableTcl scripts, which are
+<p>All these parts are <b class="cmd"><a href="../../../../index.html#key269">subst</a></b>ableTcl scripts, which are
 substituted once per message before assembly.</p></dd>
 <dt><a name="2"><b class="cmd">debug</b> <b class="method">2array</b></a></dt>
 <dd><p>This method returns a dictionary mapping the names of all debug tags
@@ -184,7 +184,7 @@ tag was not known before it is placed in an inactive state. The state
 of an already known tag is left untouched.</p>
 <p>The result of the method is the empty string.</p></dd>
 <dt><a name="4"><b class="cmd">debug</b> <b class="method">header</b> <i class="arg">text</i></a></dt>
-<dd><p>This method defines a global <b class="cmd"><a href="../../../../index.html#key260">subst</a></b>able Tcl script which provides
+<dd><p>This method defines a global <b class="cmd"><a href="../../../../index.html#key269">subst</a></b>able Tcl script which provides
 a text printed before each line of output.</p>
 <p>Note how this is tag-independent.</p>
 <p>Further note that the header substitution happens only once per
@@ -219,7 +219,7 @@ resulting string.</p>
 <p>This makes it suitable for use in debug messages.</p></dd>
 <dt><a name="11"><b class="cmd">debug</b> <b class="method">prefix</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">text</i>?</span></a></dt>
 <dd><p>This method is similar to the method <b class="method">header</b> above, in that it
-defines <b class="cmd"><a href="../../../../index.html#key260">subst</a></b>able Tcl script which provides more text for debug
+defines <b class="cmd"><a href="../../../../index.html#key269">subst</a></b>able Tcl script which provides more text for debug
 messages.</p>
 <p>In contrast to <b class="method">header</b> the generated text is added to the
 user's message before it is split into lines, making it a per-message
@@ -248,7 +248,7 @@ print their messages to.</p>
 <p>The result of the method is the empty string.</p></dd>
 <dt><a name="13"><b class="cmd">debug</b> <b class="method">suffix</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">text</i>?</span></a></dt>
 <dd><p>This method is similar to the method <b class="method">trailer</b> below, in that
-it defines <b class="cmd"><a href="../../../../index.html#key260">subst</a></b>able Tcl script which provides more text for
+it defines <b class="cmd"><a href="../../../../index.html#key269">subst</a></b>able Tcl script which provides more text for
 debug messages.</p>
 <p>In contrast to <b class="method">trailer</b> the generated text is added to
 the user's message before it is split into lines, making it a
@@ -264,7 +264,7 @@ printed message.</p>
 <p>If the <i class="arg">tag</i> was not known at the time of the call it is
 registered, and set inactive.</p></dd>
 <dt><a name="14"><b class="cmd">debug</b> <b class="method">trailer</b> <i class="arg">text</i></a></dt>
-<dd><p>This method defines a global <b class="cmd"><a href="../../../../index.html#key260">subst</a></b>able Tcl script which provides
+<dd><p>This method defines a global <b class="cmd"><a href="../../../../index.html#key269">subst</a></b>able Tcl script which provides
 a text printed after each line of output (before the EOL however).</p>
 <p>Note how this is tag-independent.</p>
 <p>Further note that the trailer substitution happens only once
@@ -282,7 +282,7 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key65">debug</a>, <a href="../../../../index.html#key62">log</a>, <a href="../../../../index.html#key61">narrative</a>, <a href="../../../../index.html#key63">trace</a></p>
+<p><a href="../../../../index.html#key76">debug</a>, <a href="../../../../index.html#key73">log</a>, <a href="../../../../index.html#key72">narrative</a>, <a href="../../../../index.html#key74">trace</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>debugging, tracing, and logging</p>

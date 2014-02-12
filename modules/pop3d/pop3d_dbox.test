@@ -5,7 +5,7 @@
 # built-in commands.  Sourcing this file into Tcl runs the tests and
 # generates output for errors.  No output means no errors were found.
 #
-# Copyright (c) 2002 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2002-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
 # RCS: @(#) $Id: pop3d_dbox.test,v 1.11 2006/10/09 21:41:41 andreas_kupries Exp $
@@ -16,7 +16,7 @@ source [file join \
 	[file dirname [file dirname [file join [pwd] [info script]]]] \
 	devtools testutilities.tcl]
 
-testsNeedTcl     8.3
+testsNeedTcl     8.5 ;# Required by mime.tcl
 testsNeedTcltest 1.0
 
 support {

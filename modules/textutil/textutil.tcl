@@ -35,7 +35,7 @@ namespace eval ::textutil {
     # Import the miscellaneous string command for public export
 
     namespace import -force string::chop string::tail
-    namespace import -force string::cap string::uncap
+    namespace import -force string::cap string::uncap string::capEachWord
     namespace import -force string::longestCommonPrefix
     namespace import -force string::longestCommonPrefixList
 
@@ -63,7 +63,7 @@ namespace eval ::textutil {
 
     # Re-export all the imported commands
 
-    namespace export chop tail cap uncap
+    namespace export chop tail cap uncap capEachWord
     namespace export longestCommonPrefix longestCommonPrefixList
     namespace export strRepeat blank
     namespace export adjust indent undent
@@ -76,4 +76,4 @@ namespace eval ::textutil {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil 0.7.1
+package provide textutil 0.8

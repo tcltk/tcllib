@@ -1,3 +1,8 @@
+2013-12-17  Andreas Kupries  <andreask@activestate.com>
+
+	* xsxp.man: Fixed missing requirement on the package itself.
+	* S3.man: Ditto.
+
 2013-02-08  Andreas Kupries  <andreask@activestate.com>
 
 	* xsxp.man: Fixed moddesc/titledesc confusion.

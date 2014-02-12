@@ -1,4 +1,5 @@
-[manpage_begin tcllib_ip n 1.2.1]
+[vset IP_VERSION 1.2.2]
+[manpage_begin tcllib_ip n [vset IP_VERSION]]
 [see_also inet(3)]
 [see_also ip(7)]
 [see_also ipv6(7)]
@@ -13,7 +14,7 @@
 [titledesc {IPv4 and IPv6 address manipulation}]
 [category  Networking]
 [require Tcl 8.2]
-[require ip [opt 1.2.1]]
+[require ip [opt [vset IP_VERSION]]]
 [description]
 [para]
 

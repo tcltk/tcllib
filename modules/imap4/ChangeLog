@@ -1,3 +1,9 @@
+2013-10-28  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* imap4.tcl: Ticket [a761133422]. cleanup called imap close, not
+	* imap4.man: channel close. Fixed. isableto failed to initialize
+	* pkgIndex.tcl:	the result variable. Fixed. Bumped version to 0.5.2.
+
 2013-02-13  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	* imap4.tcl: [Bug 3604129] Accepted patch by Gerhard Reithofer.

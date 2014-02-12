@@ -108,7 +108,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">math::interpolate(n) 1.0.2 tcllib &quot;Tcl Math Library&quot;</h1>
+<h1 class="title">math::interpolate(n) 1.1 tcllib &quot;Tcl Math Library&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>math::interpolate - Interpolation routines</p>
 </div>
@@ -117,9 +117,10 @@
 <li class="section"><a href="#toc">Table Of Contents</a></li>
 <li class="section"><a href="#synopsis">Synopsis</a></li>
 <li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">PROCEDURES</a></li>
-<li class="section"><a href="#section3">EXAMPLES</a></li>
-<li class="section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
+<li class="section"><a href="#section2">INCOMPATIBILITY WITH VERSION 1.0.3</a></li>
+<li class="section"><a href="#section3">PROCEDURES</a></li>
+<li class="section"><a href="#section4">EXAMPLES</a></li>
+<li class="section"><a href="#section5">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
 <li class="section"><a href="#copyright">Copyright</a></li>
@@ -130,7 +131,7 @@
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl <span class="opt">?8.4?</span></b></li>
 <li>package require <b class="pkgname">struct</b></li>
-<li>package require <b class="pkgname">math::interpolate <span class="opt">?1.0.2?</span></b></li>
+<li>package require <b class="pkgname">math::interpolate <span class="opt">?1.1?</span></b></li>
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">::math::interpolate::defineTable</b> <i class="arg">name</i> <i class="arg">colnames</i> <i class="arg">values</i></a></li>
@@ -164,7 +165,13 @@ allows any number of spatial dimensions and any number of dependent variables.</
 </ul>
 <p>This document describes the procedures and explains their usage.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">PROCEDURES</a></h2>
+<div id="section2" class="section"><h2><a name="section2">INCOMPATIBILITY WITH VERSION 1.0.3</a></h2>
+<p>The interpretation of the tables in the <b class="cmd">::math::interpolate::interpolate-1d-table</b> command
+has been changed to be compatible with the interpretation for 2D interpolation in
+the <b class="cmd">::math::interpolate::interpolate-table</b> command. As a consequence this version is
+incompatible with the previous versions of the command (1.0.x).</p>
+</div>
+<div id="section3" class="section"><h2><a name="section3">PROCEDURES</a></h2>
 <p>The interpolation package defines the following public procedures:</p>
 <dl class="definitions">
 <dt><a name="1"><b class="cmd">::math::interpolate::defineTable</b> <i class="arg">name</i> <i class="arg">colnames</i> <i class="arg">values</i></a></dt>
@@ -179,7 +186,7 @@ struct::matrix procedure. Therefore you can access the data at any location in y
 <dd><p>List of column names</p></dd>
 <dt>list <i class="arg">values</i> (in)</dt>
 <dd><p>List of values (the number of elements should be a
-multiple of the number of columns. See <span class="sectref"><a href="#section3">EXAMPLES</a></span> for more information on the
+multiple of the number of columns. See <span class="sectref"><a href="#section4">EXAMPLES</a></span> for more information on the
 interpretation of the data.</p>
 <p>The values must be sorted with respect to the independent variable(s).</p></dd>
 </dl></dd>
@@ -286,9 +293,32 @@ numerical instabilities; one is better off using only a few tabulated
 values near the desired abscissa.</p></dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">EXAMPLES</a></h2>
-<p><em>TODO</em>
-Example of using the cubic splines:</p>
+<div id="section4" class="section"><h2><a name="section4">EXAMPLES</a></h2>
+<p><em>Example of using one-dimensional tables:</em></p>
+<p>Suppose you have several tabulated functions of one variable:</p>
+<pre class="example">
+    x     y1     y2
+  0.0    0.0    0.0
+  1.0    1.0    1.0
+  2.0    4.0    8.0
+  3.0    9.0   27.0
+  4.0   16.0   64.0
+</pre>
+<p>Then to estimate the values at 0.5, 1.5, 2.5 and 3.5, you can use:</p>
+<pre class="example">
+   set table [::math::interpolate::defineTable table1  {x y1 y2} {   -      1      2
+                   0.0    0.0    0.0
+                   1.0    1.0    1.0
+                   2.0    4.0    8.0
+                   3.0    9.0   27.0
+                   4.0   16.0   64.0}]
+   foreach x {0.5 1.5 2.5 3.5} {
+       puts &quot;$x: [::math::interpolate::interp-1d-table $table $x]&quot;
+   }
+</pre>
+<p>For one-dimensional tables the first row is not used. For two-dimensional
+tables, the first row represents the values for the second independent variable.</p>
+<p><em>Example of using the cubic splines:</em></p>
 <p>Suppose the following values are given:</p>
 <pre class="example">
     x       y
@@ -320,7 +350,7 @@ Example of using the cubic splines:</p>
 </pre>
 <p>As you can see, the values at the abscissae are reproduced perfectly.</p>
 </div>
-<div id="section4" class="section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
+<div id="section5" class="section"><h2><a name="section5">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>math :: interpolate</em> of the
@@ -329,7 +359,7 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key819">interpolation</a>, <a href="../../../../index.html#key84">math</a>, <a href="../../../../index.html#key820">spatial interpolation</a></p>
+<p><a href="../../../../index.html#key825">interpolation</a>, <a href="../../../../index.html#key71">math</a>, <a href="../../../../index.html#key826">spatial interpolation</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Mathematics</p>

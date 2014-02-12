@@ -276,10 +276,16 @@ proc pt::peg::from::peg::GEN::LOWER {s e} {
 }
 
 proc pt::peg::from::peg::GEN::Literal {s e args} {
-    if {[llength $args] == 1} { ; # integrated pe::op flatten
+    set n [llength $args]
+    if {$n == 1} {
+	# integrated pe::op flatten, return just the char.
 	return [lindex $args 0]
+    } elseif {$n == 0} {
+	# No chars, empty string, IOW epsilon.
+	return [pt::pe epsilon]
     } else {
-	return [pt::pe sequence {*}$args] ; # Series of chars -> Primary
+	# Series of chars -> Primary
+	return [pt::pe sequence {*}$args]
     }
 }
 
@@ -384,5 +390,5 @@ proc pt::peg::from::peg::GEN::XDIGIT {s e} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::from::peg 1
+package provide pt::peg::from::peg 1.0.2
 return

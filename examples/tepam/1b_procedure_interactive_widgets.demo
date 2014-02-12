@@ -6,7 +6,7 @@
 #
 # Copyright (C) 2009, 2010 Andreas Drollinger
 # 
-# RCS: @(#) $Id: 1b_procedure_interactive_widgets.demo,v 1.3 2012/05/07 20:27:26 droll Exp $
+# Id: 1b_procedure_interactive_widgets.demo
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -245,10 +245,9 @@ DemoControl(IsExecutable) {1}
    font_example -interactive
 
 ##########################################################################
-# $RCSfile: 1b_procedure_interactive_widgets.demo,v $ - ($Name:  $)
-# $Id: 1b_procedure_interactive_widgets.demo,v 1.3 2012/05/07 20:27:26 droll Exp $
+# Id: 1b_procedure_interactive_widgets.demo
 # Modifications:
-# $Log: 1b_procedure_interactive_widgets.demo,v $
+#
 # Revision 1.3  2012/05/07 20:27:26  droll
 # * TEPAM version 0.4.0
 # * Add the new text procedure argument type and the text multi line data
@@ -258,6 +257,5 @@ DemoControl(IsExecutable) {1}
 # * TEPAM version 0.2.0
 #
 # Revision 1.1  2010/02/11 21:54:38  droll
-# TEPAM module checkin
-#
+# * TEPAM module checkin
 ##########################################################################

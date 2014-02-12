@@ -93,7 +93,7 @@
 </head>
 <! -- Generated from file 'tepam_argument_dialogbox.man' by tcllib/doctools with format 'html'
    -->
-<! -- Copyright &copy; 2009/2010, Andreas Drollinger
+<! -- Copyright &copy; 2009-2013, Andreas Drollinger
    -->
 <! -- CVS: $Id$ tepam::argument_dialogbox.n
    -->
@@ -107,7 +107,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">tepam::argument_dialogbox(n) 0.4.1 tcllib &quot;Tcl's Enhanced Procedure and Argument Manager&quot;</h1>
+<h1 class="title">tepam::argument_dialogbox(n) 0.5.0 tcllib &quot;Tcl's Enhanced Procedure and Argument Manager&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>tepam::argument_dialogbox - TEPAM argument_dialogbox, reference manual</p>
 </div>
@@ -120,8 +120,9 @@
 <ul>
 <li class="subsection"><a href="#subsection1">Context Definition Items</a></li>
 <li class="subsection"><a href="#subsection2">Formatting and Display Options</a></li>
-<li class="subsection"><a href="#subsection3">Data Entry Widget Items</a></li>
-<li class="subsection"><a href="#subsection4">Entry Widget Item Attributes</a></li>
+<li class="subsection"><a href="#subsection3">Global Custom Data Validation</a></li>
+<li class="subsection"><a href="#subsection4">Data Entry Widget Items</a></li>
+<li class="subsection"><a href="#subsection5">Entry Widget Item Attributes</a></li>
 </ul>
 </li>
 <li class="section"><a href="#section3">APPLICATION SPECIFIC ENTRY WIDGETS</a></li>
@@ -137,7 +138,7 @@
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl 8.3</b></li>
 <li>package require <b class="pkgname">Tk 8.3</b></li>
-<li>package require <b class="pkgname">tepam <span class="opt">?0.4?</span></b></li>
+<li>package require <b class="pkgname">tepam <span class="opt">?0.5?</span></b></li>
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">tepam::argument_dialogbox</b> <i class="arg">item_name item_attributes <span class="opt">?item_name item_attributes?</span> <span class="opt">?...?</span></i></a></li>
@@ -211,7 +212,7 @@ set DialogResult [<b class="cmd">argument_dialogbox</b> \
    ...</pre>
 </dd>
 <dt>-context <i class="arg">string</i></dt>
-<dd><p>If a context is defined the dialog box's state, e.g. the entered data as well as the window size and position, is saved and restored then the next time the argument dialog box is called. The assignment of a context allows saving the dialog box' state in its context to distinguish between different usages of the argument dialog box.</p>
+<dd><p>If a context is defined the dialog box's state, e.g. the entered data as well as the window size and position, is  restored the next time the argument dialog box is called. The assignment of a context allows saving the dialog box' state in its context to distinguish between different usages of the argument dialog box.</p>
 <pre class="example">tepam::argument_dialogbox \
    <b class="cmd">-context</b> destination_definitions \
    ...</pre>
@@ -271,7 +272,26 @@ set DialogResult [<b class="cmd">argument_dialogbox</b> \
 </dd>
 </dl>
 </div>
-<div id="subsection3" class="subsection"><h3><a name="subsection3">Data Entry Widget Items</a></h3>
+<div id="subsection3" class="subsection"><h3><a name="subsection3">Global Custom Data Validation</a></h3>
+<p>This item group allows specifying global custom checks to validate the entered data.</p>
+<dl class="definitions">
+<dt>-validatecommand <i class="arg">script</i></dt>
+<dd><p>Custom data checks can be performed via validation commands that are defined with the <i class="arg">-validatecommand</i> item. Example:</p>
+<pre class="example">tepam::argument_dialogbox \
+   -entry {-label &quot;Your comment&quot; -variable YourCom} \
+   <b class="cmd">-validatecommand</b> {IllegalWordDetector $YourCom}</pre>
+<p>The validation command is executed in the context of the calling procedure, once all the basic data checks have been performed and data variables are assigned. All data is accessed via the data variables. Note that there is also an entry widget specific attribute <i class="arg">-validatecommand</i> that allows declaring custom checks for specific data entries.</p>
+<p>The attribute <i class="arg">-validatecommand</i> can be repeated to declare multiple custom checks.</p></dd>
+<dt>-validatecommand_error_text <i class="arg">string</i></dt>
+<dd><p>This item allows overriding the default error message for a global custom argument validation (defined by <i class="arg">-validatecommand</i>). Also this attribute can be repeated in case multiple checks are declared.</p></dd>
+<dt>-validatecommand2 <i class="arg">script</i></dt>
+<dd></dd>
+<dt>-validatecommand2_error_text <i class="arg">string</i></dt>
+<dd><p>These items are mainly for TEPAM internal usage.</p>
+<p>These items corrspond respectively to <i class="arg">-validatecommand</i> and <i class="arg">-validatecommand_error_text</i>. However, the data validation is not performed in the next upper stack level, but two stack levels higher.</p></dd>
+</dl>
+</div>
+<div id="subsection4" class="subsection"><h3><a name="subsection4">Data Entry Widget Items</a></h3>
 <p>Data entry widgets are created with the widget items. These items require as item attributes a definition list, which contains itself attribute name and value pairs:</p>
 <pre class="example">tepam::argument_dialogbox \
    ...
@@ -281,7 +301,7 @@ set DialogResult [<b class="cmd">argument_dialogbox</b> \
       <span class="opt">?...?</span></i>
    }
    ...</pre>
-<p>The attribute list can contain various attributes to describe and comment an entry widget and to constrain its entered value. All entry widgets are accepting a common set of attributes that are described in the section <span class="sectref"><a href="#subsection4">Entry Widget Item Attributes</a></span>.</p>
+<p>The attribute list can contain various attributes to describe and comment an entry widget and to constrain its entered value. All entry widgets are accepting a common set of attributes that are described in the section <span class="sectref"><a href="#subsection5">Entry Widget Item Attributes</a></span>.</p>
 <p>TEPAM defines a rich set of entry widgets. If necessary, this set can be extended with additional application specific entry widgets (see <span class="sectref"><a href="#section3">APPLICATION SPECIFIC ENTRY WIDGETS</a></span>):</p>
 <dl class="definitions">
 <dt>-entry <i class="arg">list</i></dt>
@@ -361,7 +381,7 @@ tepam::argument_dialogbox \
              -default {Tcl Perl Python}}</pre>
 </dd>
 </dl>
-<p>The file and directory selectors are building a next group of data entry widgets. A paragraph of section <span class="sectref"><a href="#subsection4">Entry Widget Item Attributes</a></span> explains the widget specific attributes that allow specifying the targeted file types, active directory etc.</p>
+<p>The file and directory selectors are building a next group of data entry widgets. A paragraph of section <span class="sectref"><a href="#subsection5">Entry Widget Item Attributes</a></span> explains the widget specific attributes that allow specifying the targeted file types, active directory etc.</p>
 <dl class="definitions">
 <dt>-file <i class="arg">list</i></dt>
 <dd><p>The item <i class="arg">-file</i> creates a group composed by an entry widget together with a button that allows opening a file browser. The data type <i class="arg">file</i> is automatically selected for this entry if no data type has been explicitly defined with the <i class="arg">-type</i> attribute.</p>
@@ -406,7 +426,7 @@ tepam::argument_dialogbox \
 </dd>
 </dl>
 </div>
-<div id="subsection4" class="subsection"><h3><a name="subsection4">Entry Widget Item Attributes</a></h3>
+<div id="subsection5" class="subsection"><h3><a name="subsection5">Entry Widget Item Attributes</a></h3>
 <p>All the entry widget items are accepting the following attributes:</p>
 <dl class="definitions">
 <dt>-text <i class="arg">string</i></dt>
@@ -452,12 +472,13 @@ tepam::argument_dialogbox \
    -entry {-label Month -variable Month -type integer <b class="cmd">-range {1 12}</b>}</pre>
 </dd>
 <dt>-validatecommand <i class="arg">string</i></dt>
-<dd><p>More complex value validations than type checks can be performed via specific validation commands that are declared with the <i class="arg">-validatecommand</i> attribute.
-The provided validation command can be a script (command sequence) in which the pattern <em>%P</em> is replaced by the value that has to be checked.</p>
+<dd><p>Custom argument value validations can be performed via specific validation commands that are defined with the <i class="arg">-validatecommand</i> attribute. The provided validation command can be a complete script in which the pattern <em>%P</em> is placeholder for the argument value that has to be validated.</p>
 <pre class="example">tepam::argument_dialogbox \
    -entry {-label &quot;Your comment&quot; -variable YourCom \
-           <b class="cmd">-validatecommand</b> &quot;IllegalWordDetector %P&quot;} ]</pre>
-</dd>
+           <b class="cmd">-validatecommand</b> &quot;IllegalWordDetector %P&quot;}</pre>
+<p>While the purpose of this custom argument validation attribute is the validation of a specific argument, there is also a global data validation attribute <i class="arg">-validatecommand</i> that allows performing validation that involves multiple arguments.</p></dd>
+<dt>-validatecommand_error_text <i class="arg">string</i></dt>
+<dd><p>This attribute allows overriding the default error message for a custom argument validation (defined by <i class="arg">-validatecommand</i>).</p></dd>
 </dl>
 <p>Some other attributes are supported by the list and combo boxes as well as by the radio and check buttons.</p>
 <dl class="definitions">
@@ -579,12 +600,12 @@ tepam::argument_dialogbox \
 <p><a href="tepam_introduction.html">tepam(n)</a>, <a href="tepam_procedure.html">tepam::procedure(n)</a></p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key380">data entry form</a>, <a href="../../../../index.html#key381">parameter entry form</a></p>
+<p><a href="../../../../index.html#key398">data entry form</a>, <a href="../../../../index.html#key399">parameter entry form</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Argument entry form, mega widget</p>
 </div>
 <div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
-<p>Copyright &copy; 2009/2010, Andreas Drollinger</p>
+<p>Copyright &copy; 2009-2013, Andreas Drollinger</p>
 </div>
 </div></body></html>

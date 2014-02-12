@@ -152,13 +152,13 @@
 them to either actively connect to a counterpart, or to passively wait
 for a connection from said counterpart.
 I.e. any object created by this packages is always in one of two
-complementary modes, called <i class="term"><a href="../../../../index.html#key593">active</a></i> (the object initiates the
-connection) and <i class="term"><a href="../../../../index.html#key594">passive</a></i> (the object receives the connection).</p>
+complementary modes, called <i class="term"><a href="../../../../index.html#key607">active</a></i> (the object initiates the
+connection) and <i class="term"><a href="../../../../index.html#key608">passive</a></i> (the object receives the connection).</p>
 <p>Of the two objects in a connecting pair one has to be configured for
-<i class="term"><a href="../../../../index.html#key593">active</a></i> mode, and the other then has to be configured for
-<i class="term"><a href="../../../../index.html#key594">passive</a></i> mode. This establishes which of the two partners
-connects to whom (the <i class="term"><a href="../../../../index.html#key593">active</a></i> to the other), or, who is waiting
-on whom (the <i class="term"><a href="../../../../index.html#key594">passive</a></i> on the other).
+<i class="term"><a href="../../../../index.html#key607">active</a></i> mode, and the other then has to be configured for
+<i class="term"><a href="../../../../index.html#key608">passive</a></i> mode. This establishes which of the two partners
+connects to whom (the <i class="term"><a href="../../../../index.html#key607">active</a></i> to the other), or, who is waiting
+on whom (the <i class="term"><a href="../../../../index.html#key608">passive</a></i> on the other).
 Note that this is completely independent of the direction of any data
 transmission using the connection after it has been established.
 An active object can, after establishing the connection, either
@@ -196,9 +196,9 @@ specifications.</p></dd>
 <dl class="definitions">
 <dt><a name="3"><i class="arg">objectName</i> <b class="method">destroy</b></a></dt>
 <dd><p>This method destroys the object.
-This is safe to do for an <i class="term"><a href="../../../../index.html#key593">active</a></i> object when a connection has
+This is safe to do for an <i class="term"><a href="../../../../index.html#key607">active</a></i> object when a connection has
 been started, as the completion callback is synchronous.
-For a <i class="term"><a href="../../../../index.html#key594">passive</a></i> object currently waiting for its partner to
+For a <i class="term"><a href="../../../../index.html#key608">passive</a></i> object currently waiting for its partner to
 establish the connection however this is not safe and will cause
 errors later on, when the connection setup completes and tries to
 access the now missing data structures of the destroyed object.</p></dd>
@@ -210,11 +210,11 @@ the socket over which data can be transfered.</p>
 <p>The detailed behaviour of the method depends on the configured
 mode.</p>
 <dl class="definitions">
-<dt><i class="term"><a href="../../../../index.html#key593">active</a></i></dt>
+<dt><i class="term"><a href="../../../../index.html#key607">active</a></i></dt>
 <dd><p>The connection setup is done synchronously. The object waits until the
 connection is established. The method returns the empty string as its
 result.</p></dd>
-<dt><i class="term"><a href="../../../../index.html#key594">passive</a></i></dt>
+<dt><i class="term"><a href="../../../../index.html#key608">passive</a></i></dt>
 <dd><p>The connection setup is done asynchronously. The method returns
 immediately after a listening socket has been set up. The connection
 will be established in the background.
@@ -255,12 +255,12 @@ the TCP port on which the listening socket is opened to await the
 connection from the partner.</p></dd>
 </dl></dd>
 <dt><b class="option">-host</b> <i class="arg">hostname-or-ipaddr</i></dt>
-<dd><p>This option specifies the host to connect to in <i class="term"><a href="../../../../index.html#key593">active</a></i> mode,
-either by name or ip-address. An object configured for <i class="term"><a href="../../../../index.html#key594">passive</a></i>
+<dd><p>This option specifies the host to connect to in <i class="term"><a href="../../../../index.html#key607">active</a></i> mode,
+either by name or ip-address. An object configured for <i class="term"><a href="../../../../index.html#key608">passive</a></i>
 mode ignores this option.</p></dd>
 <dt><b class="option">-port</b> <i class="arg">int</i></dt>
-<dd><p>For <i class="term"><a href="../../../../index.html#key593">active</a></i> mode this option specifies the port the object is
-expected to connect to. For <i class="term"><a href="../../../../index.html#key594">passive</a></i> mode however it is the port
+<dd><p>For <i class="term"><a href="../../../../index.html#key607">active</a></i> mode this option specifies the port the object is
+expected to connect to. For <i class="term"><a href="../../../../index.html#key608">passive</a></i> mode however it is the port
 where the object creates the listening socket waiting for a
 connection. It defaults to <b class="const">0</b>, which allows the OS to choose
 the actual port to listen on.</p></dd>
@@ -270,7 +270,7 @@ socket. The default is to use the builtin <b class="cmd">::socket</b>. Any
 compatible with that command is allowed.</p>
 <p>The envisioned main use is the specfication of <b class="cmd">tls::socket</b>. I.e.
 this option allows the creation of secure transfer channels, without
-making this package explicitly dependent on the <b class="package"><a href="../../../../index.html#key311">tls</a></b> package.</p>
+making this package explicitly dependent on the <b class="package"><a href="../../../../index.html#key327">tls</a></b> package.</p>
 <p>See also section <span class="sectref"><a href="#section3">Secure connections</a></span>.</p></dd>
 <dt><b class="option">-encoding</b> encodingname</dt>
 <dd></dd>
@@ -286,7 +286,7 @@ before the callback is invoked (See method <b class="method">connect</b>).</p></
 </div>
 <div id="section3" class="section"><h2><a name="section3">Secure connections</a></h2>
 <p>One way to secure connections made by objects of this package is to
-require the package <b class="package"><a href="../../../../index.html#key311">tls</a></b> and then configure the option
+require the package <b class="package"><a href="../../../../index.html#key327">tls</a></b> and then configure the option
 <b class="option">-socketcmd</b> to force the use of command <b class="cmd">tls::socket</b> to
 open the socket.</p>
 <pre class="example">
@@ -307,7 +307,7 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key593">active</a>, <a href="../../../../index.html#key77">channel</a>, <a href="../../../../index.html#key592">connection</a>, <a href="../../../../index.html#key594">passive</a>, <a href="../../../../index.html#key339">secure</a>, <a href="../../../../index.html#key342">ssl</a>, <a href="../../../../index.html#key311">tls</a>, <a href="../../../../index.html#key76">transfer</a></p>
+<p><a href="../../../../index.html#key607">active</a>, <a href="../../../../index.html#key63">channel</a>, <a href="../../../../index.html#key606">connection</a>, <a href="../../../../index.html#key608">passive</a>, <a href="../../../../index.html#key352">secure</a>, <a href="../../../../index.html#key355">ssl</a>, <a href="../../../../index.html#key327">tls</a>, <a href="../../../../index.html#key62">transfer</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Transfer module</p>

@@ -6,7 +6,7 @@
 #
 # Copyright (C) 2009, 2010 Andreas Drollinger
 # 
-# RCS: @(#) $Id: 1_procedure_introduction.demo,v 1.1 2010/02/11 21:54:38 droll Exp $
+# Id: 1_procedure_introduction.demo
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -49,6 +49,10 @@ DemoControl(IsExecutable) {[info commands {display message}]=={}}
          {-no_border -type none -description "Use a splash window style (no border)"}
          {-log_file -type file -optional -description "Optional message log file"}
          {text -type string -multiple -description "Multiple text lines to display"}
+      }
+      -example {
+         display message "The document hasn't yet been saved!"
+         display message -fg red -bg black "Please save first the document"
       }
    } {
       puts "display message:"
@@ -100,7 +104,7 @@ DemoControl(IsExecutable) {[info commands {display message}]!={} && !$Executed}
    # Ranges have to be respected:
    display message -level 12 "Hello"
 
-#### Interactive procedure call (first call) ####
+#### Interactive procedure call ####
 
 DemoControl(IsExecutable) {[info commands {display message}]!={}}
 
@@ -110,13 +114,47 @@ DemoControl(IsExecutable) {[info commands {display message}]!={}}
 
    display message -interactive
 
-##########################################################################
-# $RCSfile: 1_procedure_introduction.demo,v $ - ($Name:  $)
-# $Id: 1_procedure_introduction.demo,v 1.1 2010/02/11 21:54:38 droll Exp $
-# Modifications:
-# $Log: 1_procedure_introduction.demo,v $
-# Revision 1.1  2010/02/11 21:54:38  droll
-# TEPAM module checkin
-#
-##########################################################################
+#### Documentation generation ####
 
+DemoControl(IsExecutable) {[info commands {display message}]!={}}
+
+# The TEPAM documentation generation package allows generating documentation for the 
+# specified procedures in various formats. This demo section opens a dialog box to 
+# define the document name, and generates then the documentation based on the 
+# specified file format.
+
+   # Load TEPAM Doc Gen package
+   package require tepam::doc_gen
+
+   # Get the document file name
+   set DocFile [tk_getSaveFile \
+                   -filetypes {{Text *.txt} {HTML *.html} {POD *.pod} {"Tcllib doctools" *.dt}}]
+
+   # Extract the document type
+   set DocFormat [string toupper [string range [file extension $DocFile] 1 end]]
+   
+   # Generate the document. In case of a HTML document copy also the CSS stylesheet 
+   # to the document destination folder. In case of an unknown document type 
+   # generate an error message.
+   if {$DocFile!=""} {
+      if {[lsearch -exact {TXT HTML POD DT} $DocFormat]<0} {
+         tk_messageBox -message "Extension '$DocFormat' of file '$DocFile' unknown!\
+                                 Chose either extension .txt, .html, .pod or .dt"
+      } else {
+         tepam::doc_gen::generate -format $DocFormat -dest_file $DocFile {display message}
+         if {$DocFormat=="HTML"} {
+            file copy -force [pwd]/tepam_doc_stylesheet.css [file dirname $DocFile]
+         }
+      }
+   }
+
+##########################################################################
+# Id: 1_procedure_introduction.demo
+# Modifications:
+#
+# Revision 1.2  2013/10/14 droll
+# * Add the documentation generation section
+#
+# Revision 1.1  2010/02/11 21:54:38  droll
+# * TEPAM module checkin
+##########################################################################

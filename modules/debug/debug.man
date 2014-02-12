@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin debug n 1]
+[vset PACKAGE_VERSION 1.0.2]
+[manpage_begin debug n [vset PACKAGE_VERSION]]
 [keywords debug]
 [keywords log]
 [keywords narrative]
@@ -10,7 +11,7 @@
 [titledesc {debug narrative - core}]
 [category  {debugging, tracing, and logging}]
 [require Tcl 8.5]
-[require debug [opt 1]]
+[require debug [opt [vset PACKAGE_VERSION]]]
 [description]
 
 Debugging areas of interest are represented by 'tags' which have
@@ -24,7 +25,7 @@ detailed).
 [comment {= = == === ===== ======== ============= =====================}]
 [call [cmd debug.[var tag]] [arg message] [opt [arg level]]]
 
-For each known tag the package creates a command with this signatur
+For each known tag the package creates a command with this signature
 the user can then use to provide the debug narrative of the tag.
 
 The narrative [arg message] is provided as a Tcl script whose value is

@@ -1,3 +1,29 @@
+2014-01-21  Andreas Kupries <andreask@activestate.com>
+
+	* pkgIndex.tcl: Ticket [861f53ff24]. Added proper initialization
+	* sal.tcl: to CreateNonce when falling back to md5 (no
+	* sasl.man: dev/urandom). Bumped version to 1.3.3.
+
+2013-12-07  Andreas Kupries <andreask@activestate.com>
+
+	* gtoken.man: Added mini manpages for the SASL mechanisms
+	* ntlm.man: residing in their own packages. They mainly
+	* scram.man: refer back to the main SASL documentation.
+
+2013-12-06  Andreas Kupries <andreask@activestate.com>
+
+	* ntlm.tcl: [Ticket 5030721806]: Applied the supplied diff,
+	* ntlm.test: removed 'domain' flag from defaults for a Type 1
+	* pkgIndex.tcl: greeting message. Updated testsuite. Bumped
+	  version to 1.1.2
+
+2013-12-06  Andreas Kupries  <andreask@activestate.com>
+
+	* sasl.man: Ticket [b8f35b9883]. Added references for SCRAM mechanism
+	* sasl.test: and package. Fixed missing cleanup of test variable.
+	* scram.tcl: New package SASL::SCRAM and testsuite, provided
+	* scram.test: by <sgolovan@nes.ru>
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

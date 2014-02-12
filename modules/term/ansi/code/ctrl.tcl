@@ -29,7 +29,7 @@ proc ::term::ansi::code::ctrl::names {} {
 proc ::term::ansi::code::ctrl::import {{ns ctrl} args} {
     if {![llength $args]} {set args *}
     set args ::term::ansi::code::ctrl::[join $args " ::term::ansi::code::ctrl::"]
-    uplevel 1 [list namespace eval ${ns} [linsert $args 0 namespace import]]
+    uplevel 1 [list namespace eval $ns [linsert $args 0 namespace import]]
     return
 }
 
@@ -127,7 +127,7 @@ proc ::term::ansi::code::ctrl::INIT {} {
 
     # Set Display Attributes
 
-    DEFC sda {args} {escb [join $args ";"]m}
+    DEFC sda {args} {escb [join $args \;]m}
 
     # Force Cursor Position (aka Go To)
 
@@ -150,11 +150,11 @@ proc ::term::ansi::code::ctrl::INIT {} {
 
     # Set Key Definition
 
-    DEFC skd {code str} {escb "${code};\"${str}\"p"}
+    DEFC skd {code str} {escb $code\;\"$str\"p}
 
     # Terminal title
 
-    DEFC title {str} {esc "\]0;${str}\007"}
+    DEFC title {str} {esc \]0\;$str\007}
 
     # Switch to and from character/box graphics.
 
@@ -191,7 +191,7 @@ proc ::term::ansi::code::ctrl::INIT {} {
 	variable grforw
 	variable grback
 	while {![string equal $string [set new [string map \
-		"\017\016 {} \016\017 {}" [string map \
+		[list \017\016 {} \016\017 {}] [string map \
 		$grback [string map \
 		$grforw $string]]]]]} {
 	    set string $new
@@ -226,7 +226,7 @@ proc ::term::ansi::code::ctrl::INIT {} {
     ## Attribute control (single attributes)
 
     foreach a [::term::ansi::code::attr::names] {
-	DEF sda_$a escb "[::term::ansi::code::attr::$a]m"
+	DEF sda_$a escb [::term::ansi::code::attr::$a]m
     }
 
     ##
@@ -264,7 +264,7 @@ namespace eval ::term::ansi::code::ctrl {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide term::ansi::code::ctrl 0.1.2
+package provide term::ansi::code::ctrl 0.2
 
 ##
 # ### ### ### ######### ######### #########

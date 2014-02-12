@@ -1,3 +1,8 @@
+2013-12-17  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
+
+	* tcldes.man: New documentation files for the helper packages,
+	* tcldesjr.man: refering back to the main package.
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

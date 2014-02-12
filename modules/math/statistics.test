@@ -188,6 +188,19 @@ test "Histogram-1.3" "Histogram - linear data 2" -match glob -body {
 } -result {1 1 8 0}
 
 #
+# Adding two dummy values should not influence the histogram (ticket 05d055c2f5)
+#
+test "Histogram-1.4" "Histogram - linear data 2 with weights" -match glob -body {
+  set values [::math::statistics::histogram {1.5 2.5 10.5} [concat $::data_linear 0.0 0.0] \
+      [concat [lrepeat [llength $::data_linear] 1] 0 0]]
+} -result {1 1 8 0}
+
+test "Histogram-1.5" "Histogram - linear data 2 with weights" -match glob -body {
+  set values [::math::statistics::histogram {1.5 2.5} [concat $::data_linear 0.0 0.0] \
+      [concat [lrepeat [llength $::data_linear] 1] 0 0]]
+} -result {1 1 8}
+
+#
 # Quantiles
 # Bug #1272910: related to rounding 0.5 - use different levels instead
 #               because another bug was fixed, return to the original
@@ -586,6 +599,86 @@ test "spearman-rank-extended-1.0" "Test extended Spearman rank correlation proce
                                                {  7   0  27  50  28  29  20  12   6  17}
 } -result {-0.175757575758 10 -0.456397284}
 
+#
+# Note: for the uniform and the logistic kernel the sum deviates more from 1 than for the others.
+# For the logistic kernel this is because the density function is very widespread. For the
+# uniform kernel the reason is not quite clear. Hence the margin per kernel.
+#
+test "kernel-density-1.0" "Test various kernel functions" -body {
+    set data {1 2 3 4 5 6 7 8 9 10}
+
+    set roughlyOne {}
+
+    foreach kernel {gaussian uniform triangular epanechnikov biweight cosine logistic} \
+            margin {0.01     0.02    0.01       0.01         0.01     0.01   0.05    } {
+        set result [::math::statistics::kernel-density $data -kernel $kernel]
+
+        set sum 0.0
+        set xbegin [lindex $result 2 0]
+        set xend   [lindex $result 2 1]
+        set number [llength [lindex $result 0]]
+        set dx     [expr {($xend-$xbegin) / $number}]
+
+        #
+        # Integral should be roughly one
+        #
+        set sum 0.0
+        foreach v [lindex $result 1] {
+            set sum [expr {$sum + $dx * $v}]
+        }
+
+        lappend roughlyOne [expr {abs($sum-1.0) < $margin}]
+    }
+
+    return $roughlyOne
+} -result {1 1 1 1 1 1 1}
+
+test "kernel-density-1.1" "Test various options - just that they have effect" -body {
+    set subResults {}
+
+    set data {1 2 3 4 5 6 7 8 9 10}
+
+    set result [::math::statistics::kernel-density $data -number 20]
+    lappend subResults [llength [lindex $result 0]]  ;# Number of bins
+    lappend subResults [llength [lindex $result 1]]  ;# Number of density values
+
+    set result [::math::statistics::kernel-density $data -interval {0 20}]
+    lappend subResults [lindex $result 2 0]          ;# Beginning of interval
+    lappend subResults [lindex $result 2 1]          ;# End of interval
+    lappend subResults [expr {[lindex $result 0 0]   > [lindex $result 2 0]}] ;# First bin -- beginning of interval
+    lappend subResults [expr {[lindex $result 0 0]   < [lindex $result 2 1]}] ;# First bin -- end of interval
+    lappend subResults [expr {[lindex $result 0 end] > [lindex $result 2 0]}] ;# Last bin -- beginning of interval
+    lappend subResults [expr {[lindex $result 0 end] < [lindex $result 2 1]}] ;# Last bin -- end of interval
+
+    set result [::math::statistics::kernel-density $data -bandwidth 2]
+    lappend subResults [lindex $result 2 end]        ;# Bandwidth
+
+    return $subResults
+} -result {20 20 0 20 1 1 1 1 2}
+
+test "kernel-density-1.2" "Dealing with missing values" -body {
+    set subResults {}
+
+    set data {1 2 3 4 {} 6 7 8 9 10}
+
+    set result [::math::statistics::kernel-density $data]
+
+    set sum 0.0
+    set xbegin [lindex $result 2 0]
+    set xend   [lindex $result 2 1]
+    set number [llength [lindex $result 0]]
+    set dx     [expr {($xend-$xbegin) / $number}]
+
+    #
+    # Integral should be roughly one
+    #
+    set sum 0.0
+    foreach v [lindex $result 1] {
+        set sum [expr {$sum + $dx * $v}]
+    }
+
+    return [expr {abs($sum-1.0) < 0.01}]
+} -result 1
 
 # End of test cases
 testsuiteCleanup

@@ -106,7 +106,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">fileutil(n) 1.14.5 tcllib &quot;file utilities&quot;</h1>
+<h1 class="title">fileutil(n) 1.14.6 tcllib &quot;file utilities&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>fileutil - Procedures implementing some file utilities</p>
 </div>
@@ -124,7 +124,7 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl 8</b></li>
-<li>package require <b class="pkgname">fileutil <span class="opt">?1.14.5?</span></b></li>
+<li>package require <b class="pkgname">fileutil <span class="opt">?1.14.6?</span></b></li>
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">::fileutil::lexnormalize</b> <i class="arg">path</i></a></li>
@@ -206,7 +206,7 @@ all if all the tests pass.</p>
 <dd><p><b class="cmd">file isdirectory</b></p></dd>
 </dl></dd>
 <dt><a name="4"><b class="cmd">::fileutil::cat</b> (<span class="opt">?<i class="arg">options</i>?</span> <i class="arg">file</i>)...</a></dt>
-<dd><p>A tcl implementation of the UNIX <b class="syscmd"><a href="../../../../index.html#key292">cat</a></b> command.  Returns the
+<dd><p>A tcl implementation of the UNIX <b class="syscmd"><a href="../../../../index.html#key310">cat</a></b> command.  Returns the
 contents of the specified file(s). The arguments are files to read,
 with interspersed options configuring the process. If there are
 problems reading any of the files, an error will occur, and no data
@@ -287,7 +287,7 @@ zip, compressed tar, audio wave, audio mpeg, and link. It further
 detects doctools, doctoc, and docidx documentation files, and
 tklib diagrams.</p></dd>
 <dt><a name="12"><b class="cmd">::fileutil::find</b> <span class="opt">?<i class="arg">basedir</i> <span class="opt">?<i class="arg">filtercmd</i>?</span>?</span></a></dt>
-<dd><p>An implementation of the unix command <b class="syscmd"><a href="../../../../index.html#key608">find</a></b>. Adapted from the
+<dd><p>An implementation of the unix command <b class="syscmd"><a href="../../../../index.html#key619">find</a></b>. Adapted from the
 Tcler's Wiki. Takes at most two arguments, the path to the directory
 to start searching from and a command to use to evaluate interest in
 each file. The path defaults to &quot;<b class="file">.</b>&quot;, i.e. the current
@@ -332,7 +332,7 @@ line. The return value of this command is the result of the last
 invocation of the script <i class="arg">cmd</i> or the empty string if the file was
 empty.</p></dd>
 <dt><a name="15"><b class="cmd">::fileutil::grep</b> <i class="arg">pattern</i> <span class="opt">?<i class="arg">files</i>?</span></a></dt>
-<dd><p>Implementation of <b class="syscmd"><a href="../../../../index.html#key294">grep</a></b>. Adapted from the Tcler's Wiki. The
+<dd><p>Implementation of <b class="syscmd"><a href="../../../../index.html#key312">grep</a></b>. Adapted from the Tcler's Wiki. The
 first argument defines the <i class="arg">pattern</i> to search for. This is
 followed by a list of <i class="arg">files</i> to search through. The list is
 optional and <b class="const">stdin</b> will be used if it is missing. The result
@@ -383,7 +383,7 @@ it. Before adding the <i class="arg">jail</i> prefix the <i class="arg">path</i>
 normalized to prevent the caller from using <b class="const">..</b> segments in
 <i class="arg">path</i> to escape the jail.</p></dd>
 <dt><a name="21"><b class="cmd">::fileutil::touch</b> <span class="opt">?<b class="option">-a</b>?</span> <span class="opt">?<b class="option">-c</b>?</span> <span class="opt">?<b class="option">-m</b>?</span> <span class="opt">?<b class="option">-r</b> <i class="arg">ref_file</i>?</span> <span class="opt">?<b class="option">-t</b> <i class="arg">time</i>?</span> <i class="arg">filename</i> <span class="opt">?<i class="arg">...</i>?</span></a></dt>
-<dd><p>Implementation of <b class="syscmd"><a href="../../../../index.html#key295">touch</a></b>. Alter the atime and mtime of the
+<dd><p>Implementation of <b class="syscmd"><a href="../../../../index.html#key313">touch</a></b>. Alter the atime and mtime of the
 specified files. If <b class="option">-c</b>, do not create files if they do not
 already exist. If <b class="option">-r</b>, use the atime and mtime from
 <i class="arg">ref_file</i>. If <b class="option">-t</b>, use the integer clock value
@@ -465,7 +465,7 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key292">cat</a>, <a href="../../../../index.html#key121">file utilities</a>, <a href="../../../../index.html#key294">grep</a>, <a href="../../../../index.html#key293">temp file</a>, <a href="../../../../index.html#key291">test</a>, <a href="../../../../index.html#key295">touch</a>, <a href="../../../../index.html#key123">type</a></p>
+<p><a href="../../../../index.html#key310">cat</a>, <a href="../../../../index.html#key115">file utilities</a>, <a href="../../../../index.html#key312">grep</a>, <a href="../../../../index.html#key311">temp file</a>, <a href="../../../../index.html#key309">test</a>, <a href="../../../../index.html#key313">touch</a>, <a href="../../../../index.html#key117">type</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Programming tools</p>

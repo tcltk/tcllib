@@ -166,10 +166,16 @@ proc ::uri::split {url {defaultscheme http}} {
     set scheme {}
 
     # RFC 1738:	scheme = 1*[ lowalpha | digit | "+" | "-" | "." ]
-    regexp -- {^([a-z0-9+.-][a-z0-9+.-]*):} $url dummy scheme
+    regexp -- {^([A-Za-z0-9+.-][A-Za-z0-9+.-]*):} $url dummy scheme
 
     if {$scheme == {}} {
 	set scheme $defaultscheme
+	switch -- $scheme {
+	    http - https - ftp {
+		# Force an empty host part
+		set url //$url
+	    }
+	}
     }
 
     # ease maintenance: dynamic dispatch, able to handle all schemes
@@ -181,7 +187,7 @@ proc ::uri::split {url {defaultscheme http}} {
 
     regsub -- "^${scheme}:" $url {} url
 
-    set       parts(scheme) $scheme
+    set       parts(scheme) [string tolower $scheme]
     array set parts [Split[string totitle $scheme] $url]
 
     # should decode all encoded characters!
@@ -657,7 +663,7 @@ proc ::uri::resolve {base url} {
 		https -
 		ftp -
 		file {
-		    array set relparts [split $url]
+		    array set relparts [split $baseparts(scheme):$url]
 		    if { [string match /* $url] } {
 			catch { set baseparts(path) $relparts(path) }
 		    } elseif { [string match */ $baseparts(path)] } {
@@ -670,7 +676,7 @@ proc ::uri::resolve {base url} {
 		    }
 		    catch { set baseparts(query) $relparts(query) }
 		    catch { set baseparts(fragment) $relparts(fragment) }
-            return [eval [linsert [array get baseparts] 0 join]]
+		    return [eval [linsert [array get baseparts] 0 join]]
 		}
 		default {
 		    return -code error "unable to resolve relative URL \"$url\""
@@ -1035,4 +1041,4 @@ uri::register ldap {
     variable	url		"ldap:$schemepart"
 }
 
-package provide uri 1.2.2
+package provide uri 1.2.4

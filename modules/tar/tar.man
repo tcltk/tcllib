@@ -1,5 +1,6 @@
+[vset PACKAGE_VERSION 0.9]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin tar n 0.7]
+[manpage_begin tar n [vset PACKAGE_VERSION]]
 [keywords archive]
 [keywords {tape archive}]
 [keywords tar]
@@ -7,8 +8,12 @@
 [titledesc {Tar file creation, extraction & manipulation}]
 [category  {File formats}]
 [require Tcl 8.4]
-[require tar [opt 0.7]]
+[require tar [opt [vset PACKAGE_VERSION]]]
 [description]
+
+[para] Note: Starting with version 0.8 the tar reader commands
+(contents, stats, get, untar) support the GNU LongName extension
+(header type 'L') for large paths.
 
 [para]
 

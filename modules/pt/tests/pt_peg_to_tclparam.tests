@@ -23,7 +23,7 @@ test pt-peg-to-tclparam-2.0 {reset, wrong#args} -body {
 # for all possible configurations of this plugin.
 
 TestFilesProcess $mytestdir ok peg_serial-canonical peg_tclparam -> n label input data expected {
-    test pt-peg-to-tclparam-3.$n "pt::peg::to::tclparam, $label, ok" -setup {
+    test pt-peg-to-tclparam-3.$n "pt::peg::to::tclparam, $label, ok :- $input" -setup {
 
 	text::write reset
 	text::write field   # -*- tcl -*-                               ; text::write /line
