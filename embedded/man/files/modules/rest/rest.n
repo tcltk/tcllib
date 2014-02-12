@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'rest\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "rest" n 1\&.0 tcllib "A framework for RESTful web services"
+.TH "rest" n 1\&.0\&.1 tcllib "A framework for RESTful web services"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ rest \- define REST web APIs and call them inline or asychronously
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBrest  ?1\&.0?\fR
+package require \fBrest  ?1\&.0\&.1?\fR
 .sp
 \fB::rest::simple\fR \fIurl\fR \fIquery\fR ?config? ?body?
 .sp

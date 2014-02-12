@@ -18,8 +18,24 @@
 # version 0.8:   added Wilcoxon test and Spearman rank correlation
 # version 0.9:   added kernel density estimation
 
+package require Tcl 8.4
 package provide math::statistics 0.9
 package require math
+
+if {![llength [info commands ::lrepeat]]} {
+    # Forward portability, emulate lrepeat
+    proc ::lrepeat {n args} {
+	if {$n < 1} {
+	    return -code error "must have a count of at least 1"
+	}
+	set res {}
+	while {$n} {
+	    foreach x $args { lappend res $x }
+	    incr n -1
+	}
+	return $res
+    }
+}
 
 # ::math::statistics --
 #   Namespace holding the procedures and variables
