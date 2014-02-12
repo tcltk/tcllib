@@ -19,7 +19,7 @@ foreach {k section} {
     2 -indalign
 } {
     TestFilesProcess $mytestdir ok peg_json$section peg_serial-canonical -> n label input data expected {
-	test pt-peg-from-json-2.$k.$n "pt::peg::from::json, $label$section, ok" -body {
+	test pt-peg-from-json-2.$k.$n "pt::peg::from::json, $label$section, ok :- $input" -body {
 	    pt::peg::from::json convert $data
 	} -result $expected
     }

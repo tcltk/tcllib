@@ -26,7 +26,7 @@ test pt-tclparam-config-tcloo-2.0 {reset, wrong#args} -body {
 # Testing the generation of tcl/param output configured for tcloo.
 
 TestFilesProcess $mytestdir ok peg_serial-canonical peg_tclparam-tcloo -> n label input data expected {
-    test pt-tclparam-config-tcloo-3.$n "pt::tclparam::configuration::tcloo, $label, ok" -setup {
+    test pt-tclparam-config-tcloo-3.$n "pt::tclparam::configuration::tcloo, $label, ok :- $input" -setup {
 
 	pt::peg::to::tclparam reset
 	pt::peg::to::tclparam configure -name     TEMPLATE

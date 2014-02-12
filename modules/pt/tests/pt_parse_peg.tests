@@ -12,7 +12,7 @@ foreach {k section} {
     3 -templated-fused
 } {
     TestFilesProcess $mytestdir ok peg_peg$section peg_peg-ast$section -> n label input data expected {
-	test pt-parse-peg-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-2.$k.$n "pt::parse::peg /text, $label$section, ok" -setup {
+	test pt-parse-peg-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-2.$k.$n "pt::parse::peg /text, $label$section, ok :- $input" -setup {
 	    set p [pt::parse::peg]
 	} -body {
 	    pt::ast print [$p parset $data]
@@ -20,7 +20,7 @@ foreach {k section} {
 	    $p destroy
 	} -result $expected
 
-	test pt-parse-peg-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-3.$k.$n "pt::parse::peg /file, $label$section, ok" -setup {
+	test pt-parse-peg-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-3.$k.$n "pt::parse::peg /file, $label$section, ok :- $input" -setup {
 	    set p [pt::parse::peg]
 	    set chan [open $input]
 	} -body {

@@ -25,7 +25,7 @@ foreach {k in al section} {
     3 1 1 -indalign
 } {
     TestFilesProcess $mytestdir ok peg_serial-canonical peg_json$section -> n label input data expected {
-	test pt-peg-export-json-set:${setimpl}-2.$k.$n "pt::peg::export::json, $label$section, ok" -setup {
+	test pt-peg-export-json-set:${setimpl}-2.$k.$n "pt::peg::export::json, $label$section, ok :- $input" -setup {
 	    set configuration [list -indented $in -aligned $al]
 	} -body {
 	    export $data $configuration
