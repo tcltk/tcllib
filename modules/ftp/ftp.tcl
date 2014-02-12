@@ -101,9 +101,7 @@ proc ::ftp::DisplayMsg {s msg {state ""}} {
 
     global errorInfo
     switch -exact -- $state {
-        data    {log::log debug "$state | $msg"}
-        control {log::log debug "$state | $msg"}
-        error   {log::log error "$state | E: $msg:\n$errorInfo"}
+        error   {log::log error "$state | $msg"}
         default {log::log debug "$state | $msg"}
     }
     return
@@ -3019,4 +3017,4 @@ if { [string equal [uplevel "#0" {info commands tkcon}] "tkcon"] } {
 # ==================================================================
 # At last, everything is fine, we can provide the package.
 
-package provide ftp [lindex {Revision: 2.4.11} 1]
+package provide ftp [lindex {Revision: 2.4.12} 1]

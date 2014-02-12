@@ -94,7 +94,7 @@ proc ::pt::app::Topics {} {
 
 proc ::pt::app::generateHelp {} {
     return {
-	@ generate PFORMAT PFILE ?-option value...? INFORMAT GFILE
+	@ generate PFORMAT ?-option value...? PFILE INFORMAT GFILE
 
 	Generate data in format PFORMAT and write it to PFILE.  Read
 	the grammar to be processed from GFILE (assuming the format

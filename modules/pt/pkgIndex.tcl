@@ -17,7 +17,7 @@ package ifneeded pt::pe::op    1 [list source [file join $dir pt_pexpr_op.tcl]]
 package ifneeded pt::peg            1 [list source [file join $dir pt_pegrammar.tcl]]
 package ifneeded pt::peg::container 1 [list source [file join $dir pt_peg_container.tcl]]
 package ifneeded pt::peg::interp    1 [list source [file join $dir pt_peg_interp.tcl]]
-package ifneeded pt::peg::op        1 [list source [file join $dir pt_peg_op.tcl]]
+package ifneeded pt::peg::op    1.0.1 [list source [file join $dir pt_peg_op.tcl]]
 package ifneeded pt::parse::peg     1 [list source [file join $dir pt_parse_peg.tcl]]
 
 
@@ -39,12 +39,12 @@ package ifneeded pt::peg::to::container 1 [list source [file join $dir pt_peg_to
 package ifneeded pt::peg::to::cparam    1.0.1 [list source [file join $dir pt_peg_to_cparam.tcl]]
 package ifneeded pt::peg::to::json      1 [list source [file join $dir pt_peg_to_json.tcl]]
 package ifneeded pt::peg::to::param     1 [list source [file join $dir pt_peg_to_param.tcl]]
-package ifneeded pt::peg::to::peg       1 [list source [file join $dir pt_peg_to_peg.tcl]]
+package ifneeded pt::peg::to::peg   1.0.1 [list source [file join $dir pt_peg_to_peg.tcl]]
 package ifneeded pt::peg::to::tclparam  1 [list source [file join $dir pt_peg_to_tclparam.tcl]]
 
 # Import core functionality: Conversion from a specific format to PEG.
 package ifneeded pt::peg::from::json      1 [list source [file join $dir pt_peg_from_json.tcl]]
-package ifneeded pt::peg::from::peg       1 [list source [file join $dir pt_peg_from_peg.tcl]]
+package ifneeded pt::peg::from::peg   1.0.2 [list source [file join $dir pt_peg_from_peg.tcl]]
 
 # PARAM runtime.
 package ifneeded pt::rde      1.0.2 [list source [file join $dir pt_rdengine.tcl]]
@@ -59,4 +59,4 @@ package ifneeded pt::tclparam::configuration::snit  1.0.1 [list source [file joi
 package ifneeded pt::tclparam::configuration::tcloo 1.0.3 [list source [file join $dir pt_tclparam_config_tcloo.tcl]]
 
 # Parser generator core.
-package ifneeded pt::pgen 1.0.1 [list source [file join $dir pt_pgen.tcl]]
+package ifneeded pt::pgen 1.0.2 [list source [file join $dir pt_pgen.tcl]]

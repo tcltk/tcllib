@@ -29,7 +29,7 @@ foreach {k c i section} {
     3 0 0 -unopt
 } {
     TestFilesProcess $mytestdir ok peg_serial-canonical peg_param$section -> n label input data expected {
-	test pt-peg-to-param-3.$k.$n "pt::peg::to::param, $label$section, ok" -setup {
+	test pt-peg-to-param-3.$k.$n "pt::peg::to::param, $label$section, ok :- $input" -setup {
 
 	    text::write reset
 	    text::write field   # -*- text -*-                              ; text::write /line

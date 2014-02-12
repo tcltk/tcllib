@@ -3,7 +3,7 @@
 '\" Copyright (c) 2003-2005 by Kevin B\&. Kenny\&. All rights reserved
 '\" Copyright (c) 2003-2012 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "struct::list" n 1\&.8\&.2 tcllib "Tcl Data Structures"
+.TH "struct::list" n 1\&.8\&.3 tcllib "Tcl Data Structures"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -277,7 +277,7 @@ struct::list \- Procedures for manipulating lists
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBstruct::list  ?1\&.8\&.2?\fR
+package require \fBstruct::list  ?1\&.8\&.3?\fR
 .sp
 \fB::struct::list\fR \fBlongestCommonSubsequence\fR \fIsequence1\fR \fIsequence2\fR ?\fImaxOccurs\fR?
 .sp
