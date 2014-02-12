@@ -1,8 +1,8 @@
 [comment {-*- text -*- doctools manpage}]
-[manpage_begin pt_peg_op i 1]
+[manpage_begin pt_peg_op i 1.0.1]
 [include include/module.inc]
 [titledesc {Parser Tools PE Grammar Utility Operations}]
-[require pt::peg::op 1]
+[require pt::peg::op 1.0.1]
 [description]
 [include include/ref_intro.inc]
 
