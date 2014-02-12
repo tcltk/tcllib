@@ -257,12 +257,14 @@ test aes-sf-3612645-a0 {aes use of -in option, allura 1366} -setup {
     set key     [binary format a32 0123456789012345678901234567890123456789]
     set encfile [tcltest::makeFile {} aes.encrypt]
     set decfile [tcltest::makeFile {} aes.decrypt]
-    set outchan [open $encfile wb+]
+    set outchan [open $encfile w]
+    fconfigure $outchan -translation binary
     aes::aes -key $key -out $outchan "Hello World Tcl"
     close $outchan
     unset outchan
 } -body {
-    set inchan  [open $encfile rb]
+    set inchan  [open $encfile r]
+    fconfigure $inchan -translation binary
     set outchan [open $decfile w+]
     aes::aes -dir decrypt -key $key -in $inchan -out $outchan
     close $inchan
@@ -276,12 +278,14 @@ test aes-sf-3612645-a0 {aes use of -in option, allura 1366} -setup {
 test aes-sf-3612645-a1 {aes use of -in option, allura 1366} -setup {
     set key     [binary format a32 0123456789012345678901234567890123456789]
     set encfile [tcltest::makeFile {} aes.encrypt]
-    set outchan [open $encfile wb+]
+    set outchan [open $encfile w]
+    fconfigure $outchan -translation binary
     aes::aes -key $key -out $outchan "Hello World Tcl"
     close $outchan
     unset outchan
 } -body {
-    set inchan [open $encfile rb]
+    set inchan [open $encfile r]
+    fconfigure $inchan -translation binary
     set out [aes::aes -dir decrypt -key $key -in $inchan]
     close $inchan
     set out
@@ -294,12 +298,14 @@ test aes-sf-3612645-b0 {aes non-use of -in option, allura 1366} -setup {
     set key     [binary format a32 0123456789012345678901234567890123456789]
     set encfile [tcltest::makeFile {} aes.encrypt]
     set decfile [tcltest::makeFile {} aes.decrypt]
-    set outchan [open $encfile wb+]
+    set outchan [open $encfile w]
+    fconfigure $outchan -translation binary
     aes::aes -key $key -out $outchan "Hello World Tcl"
     close $outchan
     unset outchan
 } -body {
-    set inchan  [open $encfile rb]
+    set inchan  [open $encfile r]
+    fconfigure $inchan -translation binary
     set outchan [open $decfile w+]
     aes::aes -dir decrypt -key $key -out $outchan [read $inchan]
     close $inchan
@@ -313,12 +319,14 @@ test aes-sf-3612645-b0 {aes non-use of -in option, allura 1366} -setup {
 test aes-sf-3612645-b1 {aes non-use of -in option, allura 1366} -setup {
     set key     [binary format a32 0123456789012345678901234567890123456789]
     set encfile [tcltest::makeFile {} aes.encrypt]
-    set outchan [open $encfile wb+]
+    set outchan [open $encfile w]
+    fconfigure $outchan -translation binary
     aes::aes -key $key -out $outchan "Hello World Tcl"
     close $outchan
     unset outchan
 } -body {
-    set inchan [open $encfile rb]
+    set inchan [open $encfile r]
+    fconfigure $inchan -translation binary
     set out [aes::aes -dir decrypt -key $key [read $inchan]]
     close $inchan
     set out

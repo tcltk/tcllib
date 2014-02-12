@@ -157,7 +157,7 @@ test textutil-7.4 {capEachWord, multiple words} -body {
     textutil::capEachWord {here comes the sun}
 } -result {Here Comes The Sun}
 
-test textutil-7.5 {capEachWord, blocks} {
+test textutil-7.5 {capEachWord, blocks} -body {
     textutil::capEachWord {here \comes the $sun}
 } -result {Here \comes The $sun}
 

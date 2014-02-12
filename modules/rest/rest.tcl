@@ -12,7 +12,7 @@ package require json
 package require tdom
 package require base64
 
-package provide rest 1.0
+package provide rest 1.0.1
 
 namespace eval ::rest {
     namespace export create_interface parameters parse_opts save \

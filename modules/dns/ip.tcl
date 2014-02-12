@@ -16,7 +16,7 @@
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ip {
-    variable version 1.2.1
+    variable version 1.2.2
     variable rcsid {$Id: ip.tcl,v 1.14 2010/08/16 17:35:18 andreas_kupries Exp $}
 
     namespace export is version normalize equal type contract mask collapse subtract
