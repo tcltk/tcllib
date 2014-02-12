@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin term::ansi::send n 0.1]
+[manpage_begin term::ansi::send n 0.2]
 [keywords {character output}]
 [keywords control]
 [keywords terminal]
@@ -8,7 +8,7 @@
 [titledesc {Output of ANSI control sequences to terminals}]
 [category  {Terminal control}]
 [require Tcl 8.4]
-[require term::ansi::send [opt 0.1]]
+[require term::ansi::send [opt 0.2]]
 [description]
 
 This package provides commands to send ANSI terminal control sequences to a
