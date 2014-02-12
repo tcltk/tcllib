@@ -2,7 +2,7 @@
 #
 #	Implementation of a matrix data structure for Tcl.
 #
-# Copyright (c) 2001-2004 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2001-2013 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # Heapsort code Copyright (c) 2003 by Edwin A. Suominen <ed@eepatents.com>,
 # based on concepts in "Introduction to Algorithms" by Thomas H. Cormen et al.
@@ -931,6 +931,11 @@ proc ::struct::matrix::_columnwidth {name column} {
 	set width 0
 	for {set r 0} {$r < $rows} {incr r} {
 	    foreach line [split $data($column,$r) \n] {
+		# Look for ANSI color control sequences and remove
+		# them. Avoid counting their characters as such
+		# sequences as a whole represent a state change, and
+		# are logically of zero/no width.
+		regsub -all "\033\\\[\[0-9;\]*m" $line {} line
 		set len [string length $line]
 		if {$len > $width} {
 		    set width $len
@@ -2784,4 +2789,4 @@ namespace eval ::struct {
     namespace import -force matrix::matrix
     namespace export matrix
 }
-package provide struct::matrix 2.0.2
+package provide struct::matrix 2.0.3

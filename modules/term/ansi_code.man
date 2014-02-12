@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin term::ansi::code n 0.1]
+[manpage_begin term::ansi::code n 0.2]
 [keywords control]
 [keywords declare]
 [keywords define]
@@ -9,7 +9,7 @@
 [titledesc {Helper for control sequences}]
 [category  {Terminal control}]
 [require Tcl 8.4]
-[require term::ansi::code [opt 0.1]]
+[require term::ansi::code [opt 0.2]]
 [description]
 
 This package provides commands enabling the definition of control

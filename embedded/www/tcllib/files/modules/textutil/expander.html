@@ -166,9 +166,9 @@
 </div>
 </div>
 <div id="section1" class="section"><h2><a name="section1">Description</a></h2>
-<p>The Tcl <b class="cmd"><a href="../../../../index.html#key260">subst</a></b> command is often used to support a kind of
+<p>The Tcl <b class="cmd"><a href="../../../../index.html#key269">subst</a></b> command is often used to support a kind of
 template processing. Given a string with embedded variables or
-function calls, <b class="cmd"><a href="../../../../index.html#key260">subst</a></b> will interpolate the variable and function
+function calls, <b class="cmd"><a href="../../../../index.html#key269">subst</a></b> will interpolate the variable and function
 values, returning the new string:</p>
 <pre class="example">
     % set greeting &quot;Howdy&quot;
@@ -178,9 +178,9 @@ values, returning the new string:</p>
     Howdy, World!
     %
 </pre>
-<p>By defining a suitable set of Tcl commands, <b class="cmd"><a href="../../../../index.html#key260">subst</a></b> can be used to
+<p>By defining a suitable set of Tcl commands, <b class="cmd"><a href="../../../../index.html#key269">subst</a></b> can be used to
 implement a markup language similar to HTML.</p>
-<p>The <b class="cmd"><a href="../../../../index.html#key260">subst</a></b> command is efficient, but it has three drawbacks for
+<p>The <b class="cmd"><a href="../../../../index.html#key269">subst</a></b> command is efficient, but it has three drawbacks for
 this kind of template processing:</p>
 <ul class="itemized">
 <li><p>There's no way to identify and process the plain text between two
@@ -274,6 +274,8 @@ additional argument: the macro to evaluate.</p></dd>
 <dt><a name="13"><i class="arg">expanderName</i> <b class="method">expand</b> <i class="arg">string</i> <span class="opt">?<i class="arg">brackets</i>?</span></a></dt>
 <dd><p>Expands the input string, replacing embedded macros with their
 expanded values, and returns the expanded string.</p>
+<p>Note that this method pushes a new (empty) context on the stack of
+contexts while it is running, and removes it on return.</p>
 <p>If <i class="arg">brackets</i> is given, it must be a list of two strings; the
 items will be used as the left and right macro expansion bracket
 sequences for this expansion only.</p></dd>
@@ -321,9 +323,9 @@ current input string.</p></dd>
 <div id="subsection1" class="subsection"><h3><a name="subsection1">Basics</a></h3>
 <p>To begin, create an expander object:</p>
 <pre class="example">
-    % package require expander
+    % package require textutil::expander
     1.2
-    % ::expander::expander myexp
+    % ::textutil::expander myexp
     ::myexp
     %
 </pre>
@@ -501,10 +503,10 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="see-also" class="section"><h2><a name="see-also">See Also</a></h2>
-<p>[uri, http://www.wjduquette.com/expand, regexp, <a href="../../../../index.html#key418">split</a>, <a href="../../../../index.html#key263">string</a></p>
+<p>[uri, http://www.wjduquette.com/expand, regexp, <a href="../../../../index.html#key435">split</a>, <a href="../../../../index.html#key276">string</a></p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key263">string</a>, <a href="../../../../index.html#key762">template processing</a>, <a href="../../../../index.html#key763">text expansion</a></p>
+<p><a href="../../../../index.html#key276">string</a>, <a href="../../../../index.html#key772">template processing</a>, <a href="../../../../index.html#key773">text expansion</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Documentation tools</p>

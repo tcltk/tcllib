@@ -9,7 +9,7 @@
 #
 # Copyright (C) 2009/2010/2011 Andreas Drollinger
 # 
-# RCS: @(#) $Id: tepam.tcl,v 1.4 2013/03/25 droll Exp $
+# Id: tepam.tcl
 ##########################################################################
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -20,7 +20,7 @@ package require Tcl 8.3
 namespace eval tepam {
 
    # This is the following TEPAM version:
-   variable version 0.4.1
+   variable version 0.5.0
    
    # Exports the major commands from this package:
    namespace export procedure argument_dialogbox
@@ -60,7 +60,9 @@ namespace eval tepam {
    ######## PureProcName ########
 
    # PureProcName purifies the procedure name given by the ProcName variable of the calling 
-   # function and returns it.
+   # function and returns it. PureProcName is basically:
+   # * Eliminating the main namespace indicators
+   # * Encapsulating the name into '' if it is a composed name
    proc PureProcName {args} {
       upvar ProcName ProcName
       set Name $ProcName
@@ -86,6 +88,8 @@ namespace eval tepam {
          [-command_log 0|1|"interactive"]
          [-auto_argument_name_completion 0|1]
          [-interactive_display_format]
+         [-validatecommand <ValidateCommand>]
+         [-validatecommand_error_text <ValidateCommandErrorText>]
          [-args <ArgumentDeclarationList>]
       }
 
@@ -96,6 +100,7 @@ namespace eval tepam {
          [-description <ArgumentDescription>]
          [-type <ArgumentType>]
          [-validatecommand <ValidateCommand>]
+         [-validatecommand_error_text <ValidateCommandErrorText>]
          [-default <DefaultValue>]
          [-optional | -mandatory]
          [-choices <ChoiceList>]
@@ -206,7 +211,7 @@ namespace eval tepam {
                    <ProcedureAttributes> <ProcedureBody>"
          }
       
-         # Evaluate the complete procedure name including a leading name space identifier.
+         # Evaluate the full qualified procedure name including a leading name space identifier.
          # Evaluate the current namespace in case the procedure is not defined explicitly with 
          # a name space:
          regsub -all {\s+} [lindex $args 0] " " ProcName
@@ -221,7 +226,7 @@ namespace eval tepam {
          set ProcedureBody [lindex $args 2]
 
          # Store the procedure name in the procedure list, if it is not already existing:
-         if {[lsearch -exact $ProcedureList $ProcName]} {
+         if {[lsearch -exact $ProcedureList $ProcName]<0} {
             lappend ProcedureList $ProcName
          }
 
@@ -237,6 +242,8 @@ namespace eval tepam {
 
          # The procedure information will be stored in the array variable ProcDef.
          # The following array members are always defined for each declared procedure:
+         set ProcDef($ProcName,-validatecommand) {}
+         set ProcDef($ProcName,-validatecommand_error_text) {}
          set ProcDef($ProcName,VarList) {}
          set ProcDef($ProcName,NamedVarList) {}
          set ProcDef($ProcName,UnnamedVarList) {}
@@ -253,6 +260,7 @@ namespace eval tepam {
          #  ProcDef($ProcName,Arg,$Var,-type)
          #  ProcDef($ProcName,Arg,$Var,-optional)
          #  ProcDef($ProcName,Arg,$Var,-validatecommand)
+         #  ProcDef($ProcName,Arg,$Var,-validatecommand_error_text)
          #  ProcDef($ProcName,Arg,$Var,-default)
          #  ProcDef($ProcName,Arg,$Var,HasDefault)
          #  ProcDef($ProcName,Arg,$Var,-multiple)
@@ -289,6 +297,10 @@ namespace eval tepam {
                -interactive_display_format {
                   # Save all these information simply in the ProcDef array variable:
                   set ProcDef($ProcName,$AttributeName) $AttributeValue
+               }
+               -validatecommand -
+               -validatecommand_error_text {
+                  lappend ProcDef($ProcName,$AttributeName) $AttributeValue
                }
                -args {
                   # Read the procedure arguments with ProcedureArgDef
@@ -468,15 +480,6 @@ namespace eval tepam {
                   set ProcDef($ProcName,Arg,$Var,$ArgOption) 1
                }
    
-               -validatecommand -
-               -auxargs_commands {
-                  # Check the the commands are not empty. Don't define them otherwise:
-                  if {$ArgOptionValue!=""} {
-                     set ProcDef($ProcName,Arg,$Var,$ArgOption) $ArgOptionValue
-                  }
-                  incr a
-               }
-
                -range {
                   # Check that the range is defined by two values and that the min value is 
                   # smaller than the max value:
@@ -489,6 +492,9 @@ namespace eval tepam {
                   incr a
                }
                   
+               -validatecommand -
+               -validatecommand_error_text -
+               -auxargs_commands -
                -auxargs -
                -description -
                -choices -
@@ -643,6 +649,14 @@ namespace eval tepam {
             # Start creating the argument_dialogbox's argument list with the title attribute:
             set DialogBoxArguments [list -title $ProcName -context $ProcName]
 
+            # Add eventual global validation commands
+            foreach ValidateCommand $ProcDef($ProcName,-validatecommand) {
+               lappend DialogBoxArguments -validatecommand2 $ValidateCommand
+            }
+            foreach ValidateCommandErrorText $ProcDef($ProcName,-validatecommand_error_text) {
+               lappend DialogBoxArguments -validatecommand2_error_text $ValidateCommandErrorText
+            }
+
             # Create for each of the procedure arguments an entry for the argument_dialogbox:
             foreach Var $ProcDef($ProcName,VarList) {
                # Declare the result variables. These variables refer to the variables in the parent 
@@ -692,6 +706,9 @@ namespace eval tepam {
                }
                if {[info exists ProcDef($ProcName,Arg,$Var,-validatecommand)]} {
                   lappend ArgAttributes -validatecommand $ProcDef($ProcName,Arg,$Var,-validatecommand)
+               }
+               if {[info exists ProcDef($ProcName,Arg,$Var,-validatecommand_error_text)]} {
+                  lappend ArgAttributes -validatecommand_error_text $ProcDef($ProcName,Arg,$Var,-validatecommand_error_text)
                }
                if {[info exists ProcDef($ProcName,Arg,$Var,-auxargs)] && $ProcDef($ProcName,Arg,$Var,-auxargs)!=""} {
                   set ArgAttributes [concat $ArgAttributes $ProcDef($ProcName,Arg,$Var,-auxargs)]
@@ -1032,8 +1049,12 @@ namespace eval tepam {
                   # Check the argument with an eventually defined validation command:
                   if {[info exists ProcDef($ProcName,Arg,$Var,-validatecommand)]} {
                      regsub {%P} $ProcDef($ProcName,Arg,$Var,-validatecommand) $Value ValidateCommand
-                     if {![eval $ValidateCommand]} {
-                        ProcedureArgumentEvaluationReturn "[PureProcName]: Argument '$Var' couldn't be validated by '$ProcDef($ProcName,Arg,$Var,-validatecommand)'. Provided value: '$Value'"
+                     if {![uplevel $ValidateCommand]} {
+                        if {[info exists ProcDef($ProcName,Arg,$Var,-validatecommand_error_text)]} {
+                           ProcedureArgumentEvaluationReturn "[PureProcName]: $ProcDef($ProcName,Arg,$Var,-validatecommand_error_text)"
+                        } else {
+                           ProcedureArgumentEvaluationReturn "[PureProcName]: Argument '$Var' is invalid. Provided value: '$Value'. Constraint: '$ProcDef($ProcName,Arg,$Var,-validatecommand)'"
+                        }
                      }
                   }
 
@@ -1051,6 +1072,19 @@ namespace eval tepam {
                         ProcedureArgumentEvaluationReturn "[PureProcName]: Argument '$Var' has to be one of the following elements: [GetChoiceHelpText $ProcName $Var]"
                      }
                   }
+               }
+            }
+         }
+
+      #### Procedure level validation ####
+
+         foreach ValidateCommand $ProcDef($ProcName,-validatecommand) ValidateCommandErrorText $ProcDef($ProcName,-validatecommand_error_text) {
+            # regsub {%P} $ProcDef($ProcName,Arg,$Var,-validatecommand) $Value ValidateCommand
+            if {![uplevel $ValidateCommand]} {
+               if {$ValidateCommandErrorText!=""} {
+                  ProcedureArgumentEvaluationReturn "[PureProcName]: $ValidateCommandErrorText"
+               } else {
+                  ProcedureArgumentEvaluationReturn "[PureProcName]: Invalid argument(s) provided. Constraint: '$ValidateCommand'"
                }
             }
          }
@@ -1307,6 +1341,9 @@ namespace eval tepam {
                         append HelpLine "default: $ProcDef($ProcName,Arg,$Var,-default), "
                      }
                   }
+                  if {$ProcDef($ProcName,Arg,$Var,-multiple)} {
+                     append HelpLine "multiple: yes, "
+                  }
                   if {[info exists ProcDef($ProcName,Arg,$Var,-range)]} {
                      append HelpLine "range: [lindex $ProcDef($ProcName,Arg,$Var,-range) 0]..[lindex $ProcDef($ProcName,Arg,$Var,-range) 1], "
                   }
@@ -1401,6 +1438,8 @@ namespace eval tepam {
          [-title <DialogBoxTitle>]
          [-window <DialogBoxWindow>]
          [-context <DialogBoxContext>]
+         [-validatecommand <Script>]
+         [-validatecommand_error_text <Script>]
          <ArgumentDefinition>|<FrameDefinition>|<Comment>
          [<ArgumentDefinition>|<FrameDefinition>|<Separation>|<Comment>]
          [<ArgumentDefinition>|<FrameDefinition>|<Separation>|<Comment>]
@@ -1423,6 +1462,10 @@ namespace eval tepam {
             [-default <DefaultValue>]
             [-multiple_selection 0|1]
             [-height <Height>]
+            [-validatecommand <Script>]
+            [-validatecommand_error_text <Script>]
+            [-validatecommand2 <Script>]
+            [-validatecommand2_error_text <Script>]
             [<WidgetTypeParameter1> <WidgetTypeParameterValue1>]
             [<WidgetTypeParameter2> <WidgetTypeParameterValue2>]
             ...
@@ -1507,21 +1550,34 @@ namespace eval tepam {
       #### Global parameter evaluation and top-level window creation ####
 
          # The following default widget path can be changed with the -window argument:
-         set WParent .
          set Wtop .dialog
-         set Title "Dialog"
-         set YScroll "auto"; # Scroll is enabled in function of the windows and screen size
          
-         # Apply the global parameters by looping through all arguments to select the relevant 
+         # Initialize the global parameters
+         # YScroll=auto: Scroll is enabled in function of the windows and screen size
+         array set ProcOption {
+            -validatecommand {} -validatecommand2 {}
+            -validatecommand_error_text {} -validatecommand2_error_text {}
+            -parent .
+            -title "Dialog"
+            -yscroll "auto"
+         }
+
+         # Read the global parameters by looping through all arguments to select the relevant 
          # ones:
          foreach {ArgName ArgValue} $args {
             switch -- $ArgName {
-               -window {set Wtop $ArgValue}
-               -parent {set WParent $ArgValue}
-               -context {set Context $ArgValue}
-               -title {set Title $ArgValue}
                -help {puts $ArgumentDialogboxHelp; return}
-               -yscroll {set YScroll $ArgValue}
+               -window {set Wtop $ArgValue}
+               -parent -
+               -context -
+               -title -
+               -yscroll -
+               -validatecommand -
+               -validatecommand2 -
+               -validatecommand_error_text -
+               -validatecommand2_error_text {
+                  lappend ProcOption($ArgName) $ArgValue
+               }
             }
          }
 
@@ -1530,8 +1586,8 @@ namespace eval tepam {
          catch {destroy $Wtop}
          toplevel $Wtop
          wm withdraw $Wtop
-         wm title $Wtop $Title
-         wm transient $Wtop $WParent
+         wm title $Wtop $ProcOption(-title)
+         wm transient $Wtop $ProcOption(-parent)
 
          grid [frame $Wtop.sf] -row 0 -column 0 -sticky news
          grid columnconfigure $Wtop 0 -weight 1
@@ -1556,8 +1612,10 @@ namespace eval tepam {
                return -code error "Argument $ArgName not known"
             }
 
-            # Skip the items that have already been processed
-            if {[lsearch -exact {-window -parent -context -title -help -yscroll} $ArgName]>=0} continue
+            # Skip the global parameters that have already been processed
+            if {[lsearch -exact {-window -parent -context -title -help -yscroll
+                                 -validatecommand -validatecommand2
+                                 -validatecommand_error_text -validatecommand2_error_text} $ArgName]>=0} continue
             
             # Define the widget path for the new argument:
             set WChild($ArgNbr) $W.child_$ArgNbr
@@ -1657,10 +1715,10 @@ namespace eval tepam {
                       [uplevel 1 "info exists \"$Option(-variable)\""]} {
                      ad_form($ElementType) $WChild($ArgNbr).f set \
                            [uplevel 1 "set \"$Option(-variable)\""]
-                  } elseif {[info exists Option(-variable)] && [info exists Context] && \
-                            [info exists last_parameters($Context,$Option(-variable))]} {
+                  } elseif {[info exists Option(-variable)] && [info exists ProcOption(-context)] && \
+                            [info exists last_parameters($ProcOption(-context),$Option(-variable))]} {
                      ad_form($ElementType) $WChild($ArgNbr).f set \
-                              $last_parameters($Context,$Option(-variable))
+                              $last_parameters($ProcOption(-context),$Option(-variable))
                   } elseif {[info exists Option(-default)]} {
                      ad_form($ElementType) $WChild($ArgNbr).f set $Option(-default)
                   }
@@ -1683,7 +1741,7 @@ namespace eval tepam {
          pack $Wtop.buttons.ok $Wtop.buttons.cancel -side left -fill x -expand yes
 
          update
-         if {$YScroll==1 || ($YScroll=="auto" && 
+         if {$ProcOption(-yscroll)==1 || ($ProcOption(-yscroll)=="auto" && 
                 [winfo reqheight $Wtop.sf.f]+[winfo reqheight $Wtop]>[winfo screenheight $Wtop]*2/3)} {
             place $Wtop.sf.f -x 0 -y 0 -relwidth 1; # -relheight 1
             grid [scrollbar $Wtop.scale -orient v -command "tepam::argument_dialogbox_scroll $Wtop"] -row 0 -column 1 -sticky ns
@@ -1701,24 +1759,23 @@ namespace eval tepam {
             pack $Wtop.sf.f -expand yes -fill both
          }
 
-         if {[info exists Context] && [info exists last_parameters($Context,-geometry)]} {
-            ConfigureWindowsGeometry $Wtop $last_parameters($Context,-geometry)
+         if {[info exists ProcOption(-context)] && [info exists last_parameters($ProcOption(-context),-geometry)]} {
+            ConfigureWindowsGeometry $Wtop $last_parameters($ProcOption(-context),-geometry)
          }
 
          wm protocol $Wtop WM_DELETE_WINDOW "set ::tepam::argument_dialogbox($Wtop,status) cancel"
 
          wm deiconify $Wtop
 
-      #### Wait until the dialog box's entries are approved or discarded #
+      #### Wait until the dialog box's entries are acknowleged (OK button) or discarded #
       
-         # Execute a test script if required
+         # Execute a script if required (only for testing purposes)
          if {$argument_dialogbox(test,script)!={}} {
             eval $argument_dialogbox(test,script)
          }
       
          # Stay in a loop until all the provided values have been validated:
          while {1} {
-            
             # Wait until the OK or cancel button is pressed:
             set argument_dialogbox($Wtop,status) ""
             if {$argument_dialogbox(test,status)==""} {
@@ -1747,10 +1804,10 @@ namespace eval tepam {
                array set Option $ArgValue
                 # No variable is assigned to the entry, so skip this parameter:
                if {![info exists Option(-variable)]} continue
-
+   
                # Read the result, check it and assign the result variable
                set Value [ad_form($ElementType) $WChild($ArgNbr).f get]
-
+   
                # Validate the provided data:
                if {$Value!="" || $Option(-optional)==0} {
                   if {[info exists Option(-type)] && ![Validate($Option(-type)) $Value]} {
@@ -1759,8 +1816,12 @@ namespace eval tepam {
                   # Apply the validate command if existing:
                   if {[info exists Option(-validatecommand)]} {
                      regsub {%P} $Option(-validatecommand) $Value ValidateCommand
-                     if {![eval $ValidateCommand]} {
-                        append ErrorMessage "$Option(-variable): The value '$Value' is not valid\n"
+                     if {![uplevel $ValidateCommand]} {
+                        if {[info exists Option(-validatecommand_error_text)]} {
+                           append ErrorMessage "$Option(-validatecommand_error_text)\n"
+                        } else {
+                           append ErrorMessage "$Option(-variable): The value '$Value' is not valid\n"
+                        }
                      }
                   }
                   # Check against a provided range:
@@ -1777,7 +1838,7 @@ namespace eval tepam {
                      set ChoiceError 0
                      foreach v $Value {
                         if {[lsearch -exact $Option(-choices) $v]<0} {
-                           incr ChoiceError
+                        incr ChoiceError
                         }
                      }
                      if {$ChoiceError && [lsearch -exact $Option(-choices) $Value]<0} {
@@ -1785,55 +1846,70 @@ namespace eval tepam {
                      }
                   }
                }
-               if {[info exists Context]} {
-                  set last_parameters($Context,$Option(-variable)) $Value
+               if {[info exists ProcOption(-context)]} {
+                  set last_parameters($ProcOption(-context),$Option(-variable)) $Value
                }
             }
-            # Generate an error message box if errors have been logged:
-            if {$ErrorMessage!=""} {
-               if {$argument_dialogbox(test,status)==""} {
-                  tk_messageBox -icon error -title Error -type ok -parent $Wtop \
-                                -message "The entries could not be successfully validated:\n\n$ErrorMessage\nPlease correct the related entries."
-                  raise $Wtop
-               } else { # Return the error message as error for test purposes
-                  return -code error "The entries could not be successfully validated:\n\n$ErrorMessage\nPlease correct the related entries."
+
+            if {$ErrorMessage==""} {
+               #### Assign the values to the variables ####
+               set ArgNbr -1
+               foreach {ArgName ArgValue} $args {
+                  incr ArgNbr
+                  # Extract the element type (eliminate the leading '-') and the parameters to the
+                  # Option array:
+                  set ElementType [string range $ArgName 1 end]
+                  if {[llength $ArgValue]<2 || [llength $ArgValue]%2!=0} continue
+                  catch  {unset Option}
+                  array set Option {-label "" -optional 0}
+                  array set Option $ArgValue
+                   # No variable is assigned to the entry, so skip this parameter:
+                  if {![info exists Option(-variable)]} continue
+   
+                  # Read the result, check it and assign the result variable
+                  set Value [ad_form($ElementType) $WChild($ArgNbr).f get]
+   
+                  # Define the variable in the context of the calling procedure:
+                  if {$Value!="" || $Option(-optional)==0} {
+                     uplevel 1 "set \"$Option(-variable)\" \{$Value\}"
+                  }
                }
-            } else {
-               # Everything could be validated, exit the wait loop:
-               break
+
+               #### Perform the custom argument validations ####
+               
+               foreach {VCommandO VCommandErrTxtO VLevel} {
+                  -validatecommand -validatecommand_error_text 1
+                  -validatecommand2 -validatecommand2_error_text 2
+               } {
+                  foreach ValidateCommand $ProcOption($VCommandO) ValidateCommandErrTxt $ProcOption($VCommandErrTxtO) {
+                     if {![uplevel $VLevel $ValidateCommand]} {
+                        if {$ValidateCommandErrTxt!=""} {
+                           append ErrorMessage "$ValidateCommandErrTxt\n"
+                        } else {
+                           append ErrorMessage "Validation constraint '$ArgValue' is not satisfied\n"
+                        }
+                     }
+                  }
+               }
             }
-         }
-         
-         #### Assign the values to the variables ####
 
-         if {$status=="ok"} {
-            set ArgNbr -1
-            foreach {ArgName ArgValue} $args {
-               incr ArgNbr
-               # Extract the element type (eliminate the leading '-') and the parameters to the
-               # Option array:
-               set ElementType [string range $ArgName 1 end]
-               if {[llength $ArgValue]<2 || [llength $ArgValue]%2!=0} continue
-               catch  {unset Option}
-               array set Option {-label "" -optional 0}
-               array set Option $ArgValue
-                # No variable is assigned to the entry, so skip this parameter:
-               if {![info exists Option(-variable)]} continue
+            # Exit the loop if everything could be validated
+            if {$ErrorMessage==""} break
 
-               # Read the result, check it and assign the result variable
-               set Value [ad_form($ElementType) $WChild($ArgNbr).f get]
-
-               # Define the variable in the context of the calling procedure:
-               if {$Value!="" || $Option(-optional)==0} {
-                  uplevel 1 "set \"$Option(-variable)\" \{$Value\}"
-               }
+            # Generate otherwise an error message box
+            if {$argument_dialogbox(test,status)==""} {
+               tk_messageBox -icon error -title Error -type ok -parent $Wtop \
+                             -message "The entries could not be successfully validated:\n\n$ErrorMessage\nPlease correct the related entries."
+               raise $Wtop
+            } else { # Return the error message as error for test purposes
+               return -code error "The entries could not be successfully validated:\n\n$ErrorMessage\nPlease correct the related entries."
             }
          }
          
          #### Save the dialog box' geometry and destroy the form ####
 
-         if {[info exists Context]} {
-            set last_parameters($Context,-geometry) [wm geometry $Wtop]
+         if {[info exists ProcOption(-context)]} {
+            set last_parameters($ProcOption(-context),-geometry) [wm geometry $Wtop]
          }
          destroy $Wtop
          array unset argument_dialogbox $Wtop,*
@@ -2640,9 +2716,24 @@ namespace eval tepam {
 package provide tepam $::tepam::version
 
 ##########################################################################
-# $RCSfile: tepam.tcl,v $ - ($Name:  $)
-# $Id: tepam.tcl,v 1.4 2013/03/25 droll Exp $
+# Id: tepam.tcl
 # Modifications:
+#
+# TEPAM version 0.5 - 2013/10/14 droll
+# * procedure command
+#   - New procedure attributes: -validatecommand_error_text, -validatecommand
+#   - Updated argument attribute: -validatecommand (the command is now 
+#     executed in the context of the procedure body which allows accessing 
+#     argument variables)
+#   - New argument attribute: -validatecommand_error_text
+#   - Minor bug fix: The TEPAM internal procedure list was incorrect if a 
+#     procedure was defined multiple times.
+#   - Procedure help generation: Indicate if an argument can be used multiple 
+#     times
+# * argument_dialogbox
+#   - New global attributes: -validatecommand_error_text, -validatecommand
+#   - New argument attributes: -validatecommand_error_text, -validatecommand,
+#                              -validatecommand_error_text2, -validatecommand2
 #
 # TEPAM version 0.4.1 - 2013/03/25 droll
 # * Correction of bug 3608952: Help text is incorrectly generated if procedures 

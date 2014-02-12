@@ -13,7 +13,7 @@
 ##
 ##################
 
-package require Tcl 8.4
+package require Tcl 8.5
 
 package require http 2.7;  # Need keepalive!
 package require logger
@@ -144,11 +144,11 @@ proc ::websocket::close { sock { code 1000 } { reason "" } } {
     }
     upvar \#0 $varname Connection
 
-    if { $Connection(closed) } {
+    if { $Connection(state) eq "CLOSED" } {
 	${log}::notice "Connection already closed"
 	return
     }
-    set Connection(closed) 1
+    set Connection(state) CLOSED
 
     if { $code == "" || ![string is integer $code] } {
 	send $sock 8
@@ -318,6 +318,245 @@ proc ::websocket::Type { opcode } {
 }
 
 
+# ::websocket::test -- Test incoming client connections for WebSocket
+#
+#       This procedure will test if the connection from an incoming
+#       client is the opening of a WebSocket stream.  The socket is
+#       not upgraded at once, instead a (temporary) context for the
+#       incoming connection is created.  This allows server code to
+#       perform a number of actions, if necessary before the WebSocket
+#       stream connection goes live.  The test is made by analysing
+#       the content of the headers.  Additionally, the procedure
+#       checks that there exist a valid handler for the path
+#       requested.
+#
+# Arguments:
+#	srvSock	Socket to WebSocket compliant HTTP server
+#	cliSock	Socket to incoming connected client.
+#	path	Path requested by client at server
+#	hdrs	Dictionary list of the HTTP headers.
+#	qry	Dictionary list of the HTTP query (if applicable).
+#
+# Results:
+#       1 if this is an incoming WebSocket upgrade request for a
+#       recognised path, 0 otherwise.
+#
+# Side Effects:
+#       None.
+proc ::websocket::test { srvSock cliSock path { hdrs {} } { qry {} } } {
+    variable WS
+    variable log
+
+    if { [llength $hdrs] <= 0 } {
+	return 0
+    }
+
+    set varname [namespace current]::Server_$srvSock
+    if { ! [info exists $varname] } {
+	${log}::warn "$srvSock is not a WebSocket server anymore"
+	return -code error "$srvSock is not a WebSocket"
+    }
+    upvar \#0 $varname Server
+
+    # Detect presence of connection and upgrade HTTP headers, together
+    # with their proper values.
+    set upgrading 0
+    set websocket 0
+    foreach {k v} $hdrs {
+	if { [string equal -nocase $k "connection"] && \
+		 [string equal -nocase $v "upgrade"] } {
+	    set upgrading 1
+	}
+	if { [string equal -nocase $k "upgrade"] && \
+		 [string equal -nocase $v "websocket"] } {
+	    set websocket 1
+	}
+    }
+    
+    # Fail early when not upgrading to a websocket.
+    if { !$upgrading || !$websocket } {
+	return 0
+    }
+
+    # If headers point towards a possible websocket...
+    set key ""
+    set protos {}
+    foreach {k v} $hdrs {
+	if { [string equal -nocase $k "sec-websocket-key"] } {
+	    set key $v
+	}
+	if { [string equal -nocase $k "sec-websocket-protocol"] } {
+	    set protos [split $v ","]
+	}
+    }
+
+    # We thought we had a websocket, but no security handshake is
+    # provided by client. Discard this connection!
+    if { $key eq "" } {
+	return 0
+    }
+
+    # Create a context for the incoming client
+    set varname [namespace current]::Client_${srvSock}_${cliSock}
+    upvar \#0 $varname Client
+    
+    set Client(server) $srvSock
+    set Client(sock) $cliSock
+    set Client(key) $key
+    set Client(accept) ""
+    set Client(path) $path
+    set Client(query) $qry
+    if { $key ne "" } {
+	set sec ${key}$WS(ws_magic)
+	set Client(accept) [::base64::encode [sha1::sha1 -bin $sec]]
+    }
+    set Client(protos) $protos
+    set Client(protocol) ""
+    set Client(live) ""
+    
+    # Search amongst existing WS handlers for one that responds to
+    # that URL and implement one of the protocols.
+    foreach { ptn cb proto } $Server(live) {
+	set idx [lsearch -glob $protos $proto]
+	if { [string match -nocase $ptn $path] \
+		 && ( $protos == "" || $idx >= 0 ) } {
+	    # Found it! Remember it in the client context.
+	    if { $idx >= 0 } {
+		set Client(protocol) [lindex $protos $idx]
+	    }
+	    set Client(live) $cb
+	    break
+	}
+    }
+    if { $Client(live) eq "" } {
+	${log}::warn "Cannot find any handler for $path"
+	unset $varname;  # Get rid of the client context
+	return 0
+    }
+    
+    # Return the context for the incoming client.
+    return 1
+}
+
+
+# ::websocket::upgrade -- Upgrade socket to WebSocket in servers
+#
+#       Upgrade a socket that had been deemed to be an incoming
+#       WebSocket connection request (see ::websocket::test) to a true
+#       WebSocket.  This procedure will send the necessary connection
+#       handshake to the client, arrange for the relevant callbacks to
+#       be made during the life of the WebSocket and mediate of the
+#       incoming request via a special "request" message.
+#
+# Arguments:
+#	sock	Socket to client.
+#
+# Results:
+#       None.
+#
+# Side Effects:
+#       The socket is kept open and becomes a WebSocket, pushing out
+#       callbacks as explained in ::websocket::takeover and accepting
+#       messages as explained in ::websocket::send.
+proc ::websocket::upgrade { sock } {
+    variable WS
+    variable log
+
+    set clients [info vars [namespace current]::Client_*_${sock}]
+    if { [llength $clients] == 0 } {
+	${log}::warn "$sock does not point to a client WebSocket"
+	return -code error "$sock is not a WebSocket client"
+    }
+
+    set c [lindex $clients 0];   # Should only be one really...
+    upvar \#0 $c Client
+
+    # Write client response header, this is the last time we speak
+    # "http"...
+    puts $sock "HTTP/1.1 101 Switching Protocols"
+    puts $sock "Upgrade: websocket"
+    puts $sock "Connection: Upgrade"
+    puts $sock "Sec-WebSocket-Accept: $Client(accept)"
+    if { $Client(protocol) != "" } {
+	puts $sock "Sec-WebSocket-Protocol: $Client(protocol)"
+    }
+    puts $sock ""
+    flush $sock
+
+    # Make the socket a server websocket
+    takeover $sock $Client(live) 1
+
+    # Tell the websocket handler that we have a new incoming
+    # request. We mediate this through the "message" part, which in
+    # this case is composed of a list containing the URL and the query
+    # (itself as a list).  Implementation is rather ugly since we call
+    # the hidden method in the websocket code!
+    Push $sock request [list $Client(path) $Client(query)]
+
+    # Get rid of the temporary client state
+    unset $c
+}
+
+
+# ::websocket::live -- Register WebSocket callbacks for servers
+#
+#       This procedure registers callbacks that will be performed on a
+#       WebSocket compliant server whenever a client connects to a
+#       matching path and protocol.
+#
+# Arguments:
+#	sock	Socket to known WebSocket compliant HTTP server.
+#	path	glob-style path to match in client.
+#	cb	command to callback (same args as ::websocket::takeover)
+#	proto	Application protocol
+#
+# Results:
+#       None.
+#
+# Side Effects:
+#       None.
+proc ::websocket::live { sock path cb { proto "*" } } {
+    variable WS
+    variable log
+
+    set varname [namespace current]::Server_$sock
+    if { ! [info exists $varname] } {
+	${log}::warn "$sock is not a WebSocket server anymore"
+	return -code error "$sock is not a WebSocket"
+    }
+    upvar \#0 $varname Server
+
+    lappend Server(live) $path $cb $proto
+}
+
+
+# ::webserver::server -- Declare WebSocket server
+#
+#       This procedure registers the (accept) socket passed as an
+#       argument as the identifier for an HTTP server that is capable
+#       of doing WebSocket.
+#
+# Arguments:
+#	sock	Socket on which the server accepts incoming connections.
+#
+# Results:
+#       Return the socket.
+#
+# Side Effects:
+#       None.
+proc ::websocket::server { sock } {
+    variable WS
+    variable log
+
+    set varname [namespace current]::Server_$sock
+    upvar \#0 $varname Server
+    set Server(sock) $sock
+    set Server(live) {}
+
+    return $sock
+}
+
+
 # ::websocket::send -- Send message or fragment to remote end.
 #
 #       Sends a fragment or a control message to the remote end of the
@@ -334,7 +573,8 @@ proc ::websocket::Type { opcode } {
 #	final	True if final fragment
 #
 # Results:
-#       None.
+#       Returns the number of bytes sent, or -1 on error.  Serious
+#       errors will trigger errors that must be catched.
 #
 # Side Effects:
 #       None.
@@ -348,6 +588,12 @@ proc ::websocket::send { sock type {msg ""} {final 1}} {
 	return -code error "$sock is not a WebSocket"
     }
     upvar \#0 $varname Connection
+
+    # Refuse to send if not connected
+    if { $Connection(state) ne "CONNECTED" } {
+	${log}::warn "Cannot send along WS $sock, not connected"
+	return -1
+    }
 
     # Determine opcode from type, i.e. text, binary or ping. Accept
     # integer opcodes for internal use or for future extensions of the
@@ -436,16 +682,16 @@ proc ::websocket::send { sock type {msg ""} {final 1}} {
 
     # Add the masking key and perform client masking whenever relevant
     if { [string is false $Connection(server)] } {
-	set mask [expr {int(rand()*4294967296)}]
+	set mask [expr {int(rand()*(1<<32))}]
 	append header [binary format Iu $mask]
 	set msg [Mask $mask $msg]
     }
     
     # Send the (masked) frame
     if { [catch {
-	puts -nonewline $sock $header$msg
-	flush $sock}] } {
-	${log}::error "Could not send to remote end, closed socket?"
+	puts -nonewline $sock $header$msg;
+	flush $sock;} err]} {
+	${log}::error "Could not send to remote end, closed socket? ($err)"
 	close $sock 1001
 	return -1
     }
@@ -535,6 +781,9 @@ proc ::websocket::Receiver { sock } {
     # continuation frame, fragmented or oversized control frame, or
     # the opcode is unrecognised.
     if { [catch {read $sock 2} dta] || [string length $dta] != 2 } {
+	if {[chan eof $sock]} {
+	    set dta "Socket closed."
+	}
 	${log}::error "Cannot read header from socket: $dta"
 	close $sock 1001
 	return
@@ -552,9 +801,9 @@ proc ::websocket::Receiver { sock } {
 	close $sock 1002
 	return
     }
-
     # Determine the opcode for this frame, i.e. handle continuation of
-    # frames.
+    # frames. Control frames must not be split/continued (RFC6455 5.5).
+    # No multiplexing here!
     if { $Connection(read:mode) eq "" } {
 	set Connection(read:mode) $opcode
     } elseif { $opcode == 0 } {
@@ -571,7 +820,7 @@ proc ::websocket::Receiver { sock } {
 	}
 	binary scan $dta Su len
     } elseif { $len == 127 } {
-	if { [catch {read $sock 8} dta] || [string length $dta] != 2 } {
+	if { [catch {read $sock 8} dta] || [string length $dta] != 8 } {
 	    ${log}::error "Cannot read length from socket: $dta"
 	    close $sock 1001
 	    return
@@ -673,10 +922,69 @@ proc ::websocket::Receiver { sock } {
 	    set Connection(read:mode) ""
 	} else {
 	    set Connection(read:msg) $oldmsg
+	    if {$Connection(read:mode) eq $opcode} {
+		# non-interjected control frame, clear mode
+		set Connection(read:mode) ""
+	    }
 	}
     } else {
 	${log}::debug "Received $len long $type fragment from $dst"
     }
+}
+
+
+# ::websocket::New -- Create new websocket connection context
+#
+#       Create a blank new websocket connection context array, the
+#       connection is placed in the state "CONNECTING" meaning that it
+#       is not ready for action yet.
+#
+# Arguments:
+#	sock	Socket to remote end
+#	handler	Handler callback
+#	server	Is this a server or a client socket
+#
+# Results:
+#       Return the internal name of the array storing connection
+#       details.
+#
+# Side Effects:
+#       This procedure will reinitialise the connection information
+#       for the socket if it was already known.  This is on purpose
+#       and by design, but worth noting.
+proc ::websocket::New { sock handler { server 0 } } {
+    variable WS
+    variable log
+
+    set varname [namespace current]::Connection_$sock
+    upvar \#0 $varname Connection
+    
+    set Connection(sock) $sock
+    set Connection(handler) $handler
+    set Connection(server) $server
+
+    set Connection(peername) 0.0.0.0
+    set Connection(sockname) 127.0.0.1
+    
+    set Connection(read:mode) ""
+    set Connection(read:msg) ""
+    set Connection(write:opcode) -1
+    set Connection(state) CONNECTING
+    set Connection(liveness) ""
+    
+    # Arrange for keepalive to be zero, i.e. no pings, when we are
+    # within a client.  When in servers, take the default from the
+    # library.  In any case, this can be configured, which means that
+    # even clients can start sending pings when nothing has happened
+    # on the line if necessary.
+    if { [string is true $server] } {
+	set Connection(-keepalive) $WS(-keepalive)
+    } else {
+	set Connection(-keepalive) 0
+    }
+    set Connection(-ping) $WS(-ping)
+
+    return $varname
 }
 
 
@@ -702,31 +1010,27 @@ proc ::websocket::takeover { sock handler { server 0 } } {
     variable WS
     variable log
 
-    set varname [namespace current]::Connection_$sock
+    # Create (or update) connection
+    set varname [New $sock $handler $server]
     upvar \#0 $varname Connection
-    
-    set Connection(sock) $sock
-    set Connection(handler) $handler
-    set Connection(server) $server
+    set Connection(state) CONNECTED
 
-    set Connection(read:mode) ""
-    set Connection(read:msg) ""
-    set Connection(write:opcode) -1
-    set Connection(closed) 0
-    set Connection(liveness) ""
-    
-    # Arrange for keepalive to be zero, i.e. no pings, when we are
-    # within a client.  When in servers, take the default from the
-    # library.  In any case, this can be configured, which means that
-    # even clients can start sending pings when nothing has happened
-    # on the line if necessary.
-    if { [string is true $server] } {
-	set Connection(-keepalive) $WS(-keepalive)
-    } else {
-	set Connection(-keepalive) 0
+    # Gather information about local and remote peer.
+    if { [catch {fconfigure $sock -peername} sockinfo] == 0 } {
+	set Connection(peername) [lindex $sockinfo 1]
+	if { $Connection(peername) eq "" } {
+	    set Connection(peername) [lindex $sockinfo 0]
+	}
     }
-    set Connection(-ping) $WS(-ping)
+    if { [catch {fconfigure $sock -sockname} sockinfo] == 0 } {
+	set Connection(sockname) [lindex $sockinfo 1]
+	if { $Connection(sockname) eq "" } {
+	    set Connection(sockname) [lindex $sockinfo 0]
+	}
+    }
 
+    # Listen to incoming traffic on socket and make sure we ping if
+    # necessary.
     fconfigure $sock -translation binary -blocking on
     fileevent $sock readable [list [namespace current]::Receiver $sock]
     Liveness $sock
@@ -759,16 +1063,19 @@ proc ::websocket::Connected { opener sock token } {
     variable log
 
     upvar \#0 $opener OPEN
-    upvar \#0 $token STATE
 
     # Dig into the internals of the HTTP library for the socket if
     # none present as part of the arguments (ugly...)
     if { $sock eq "" } {
-	set sock $STATE(sock)
+	set sock [HTTPSocket $token]
+	if { $sock eq "" } {
+	    ${log}::warn "Cannot extract sock from HTTP token $token, aborting"
+	    return 0
+	}
     }
 
     if { [::http::ncode $token] == 101 } {
-	array set HDR $STATE(meta)
+	array set HDR [::http::meta $token]
 
 	# Extact security handshake, check against what was expected
 	# and abort in case of mismatch.
@@ -780,6 +1087,7 @@ proc ::websocket::Connected { opener sock token } {
 		${log}::error "Security handshake failed"
 		::http::reset $token error
 		unset $opener
+		Disconnect $sock
 		return 0
 	    }
 	}
@@ -872,9 +1180,44 @@ proc ::websocket::Timeout { opener } {
 	upvar \#0 $opener OPEN
 	
 	::http::reset $OPEN(token) "timeout"
-	Push "" timeout "Timeout when connecting to $OPEN(url)" $OPEN(handler)
+	set sock [HTTPSocket $OPEN(token)]
+	Push $sock timeout \
+	    "Timeout when connecting to $OPEN(url)" $OPEN(handler)
 	::http::cleanup $OPEN(token)
 	unset $opener
+	
+	# Destroy connection state, which will also attempt to close
+	# the socket.
+	if { $sock ne "" } {
+	    Disconnect $sock
+	}
+    }
+}
+
+
+# ::websocket::HTTPSocket -- Get socket from HTTP token
+#
+#       Extract the socket used for a given (existing) HTTP
+#       connection.  This uses the undocumented index called "sock" in
+#       the HTTP state array.
+#
+# Arguments:
+#	token	HTTP token, as returned by http::geturl
+#
+# Results:
+#       The socket to the remote server, or an empty string on errors.
+#
+# Side Effects:
+#       None.
+proc ::websocket::HTTPSocket { token } {
+    variable log
+
+    upvar \#0 $token htstate
+    if { [array names htstate sock] eq "sock" } {
+	return $htstate(sock)
+    } else {
+	${log}::error "No socket associated to HTTP token $token!"
+	return ""
     }
 }
 
@@ -897,8 +1240,8 @@ proc ::websocket::Timeout { opener } {
 #	args	List of dashled options with their values, as explained above.
 #
 # Results:
-#       Return the token of the HTTP library. You should only cleanup
-#       that token once the library has been disconnected from the server.
+#       Return the socket for use with the rest of the WebSocket
+#       library, or an empty string on errors.
 #
 # Side Effects:
 #       None.
@@ -977,7 +1320,7 @@ proc ::websocket::open { url handler args } {
     set HDR(Connection) "Upgrade"
     set HDR(Upgrade) "websocket"
     for { set i 0 } { $i < 4 } { incr i } {
-	append OPEN(nonce) [binary format Iu [expr {int(rand()*4294967296)}]]
+        append OPEN(nonce) [binary format Iu [expr {int(rand()*4294967296)}]]
     }
     set OPEN(nonce) [::base64::encode $OPEN(nonce)]
     set HDR(Sec-WebSocket-Key) $OPEN(nonce)
@@ -998,21 +1341,52 @@ proc ::websocket::open { url handler args } {
 
     # Now open the connection to the remote server using the HTTP
     # package...
+    set sock ""
     if { [catch {eval $cmd} token] } {
 	${log}::error "Error while opening WebSocket connection to $url: $token"
-	set token ""
     } else {
-	set OPEN(token) $token
-	if { $timeout > 0 } {
-	    set OPEN(timeout) \
-		[after $timeout [namespace current]::Timeout $varname]
+	set sock [HTTPSocket $token]
+	if { $sock ne "" } {
+	    set varname [New $sock $handler]
+	    if { $timeout > 0 } {
+		set OPEN(timeout) \
+		    [after $timeout [namespace current]::Timeout $varname]
+	    }
+	} else {
+	    ${log}::warn "Cannot extract socket from HTTP token, failure"
+	    # Call the timeout to get rid of internal states
+	    Timeout $varname
 	}
     }
 
-    return $token
+    return $sock
 }
 
 
+# ::websocket::conninfo -- Connection information
+#
+#       Provide callers with some introspection facilities in order to
+#       get some semi-internal data about an existing websocket.  It
+#       returns the following pieces of information:
+#       peername   - name or IP of remote end
+#       (sock)name - name or IP of local end
+#       closed     - 1 if closed, 0 otherwise
+#       client     - 1 if client websocket
+#       server     - 1 if server websocket
+#       type       - the string "server" or "client", depending on the type.
+#       handler    - callback registered from websocket.
+#       state      - current state of websocket, one of CONNECTING, CONNECTED or
+#                    CLOSED.
+#
+# Arguments:
+#	sock	WebSocket that was taken over or created by this library
+#	what	What piece of information to get, see above for details.
+#
+# Results:
+#       Return the value of the information or an empty string.
+#
+# Side Effects:
+#       None.
 proc ::websocket::conninfo { sock what } {
     variable WS
     variable log
@@ -1033,7 +1407,7 @@ proc ::websocket::conninfo { sock what } {
             return $Connection(sockname)
         }
         "close*" {
-            return $Connection(closed)
+            return [expr {$Connection(state) eq "CLOSED"}]
         }
         "client" {
             return [string is false $Connection(server)]
@@ -1042,11 +1416,15 @@ proc ::websocket::conninfo { sock what } {
             return [string is true $Connection(server)]
         }
         "type" {
-            return [string is true $Connection(server)]?"server":"client"
+            return [expr {[string is true $Connection(server)]?\
+			      "server":"client"}]
         }
-        "handlers" {
-            return $Connection(handlers)
+        "handler" {
+            return $Connection(handler)
         }
+	"state" {
+	    return $Connection(state)
+	}
         default {
             return -code error "$what is not a known information piece for\
                                 a websocket"
@@ -1056,6 +1434,21 @@ proc ::websocket::conninfo { sock what } {
 }
 
 
+# ::websocket::find -- Find an existing websocket
+#
+#       Look among existing websockets for the ones that match the
+#       hostname and port number filters passed as parameters.  This
+#       lookup takes the remote end into account.
+#
+# Arguments:
+#	host	hostname filter, will also be tried against IP.
+#	port	port filter
+#
+# Results:
+#       List of matching existing websockets.
+#
+# Side Effects:
+#       None.
 proc ::websocket::find { { host * } { port * } } {
     variable WS
     variable log
@@ -1074,6 +1467,22 @@ proc ::websocket::find { { host * } { port * } } {
 }
 
 
+# ::websocket::configure -- Configure an existing websocket.
+#
+#       Takes a number of dash-led options to configure the behaviour
+#       of an existing websocket.  The recognised options are:
+#       -keepalive  The frequency of the keepalive pings.
+#       -ping       The text sent during pings.
+#
+# Arguments:
+#	sock	WebSocket that was taken over or created by this library
+#	args	Dash-led options and their (new) value.
+#
+# Results:
+#       None.
+#
+# Side Effects:
+#       None.
 proc ::websocket::configure { sock args } {
     variable WS
     variable log
@@ -1110,4 +1519,4 @@ proc ::websocket::configure { sock args } {
 }
 
 
-package provide websocket 1.0
+package provide websocket 1.3;

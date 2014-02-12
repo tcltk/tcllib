@@ -93,7 +93,7 @@
 </head>
 <! -- Generated from file 'tepam_procedure.man' by tcllib/doctools with format 'html'
    -->
-<! -- Copyright &copy; 2009/2010, Andreas Drollinger
+<! -- Copyright &copy; 2009-2013, Andreas Drollinger
    -->
 <! -- CVS: $Id$ tepam::procedure.n
    -->
@@ -107,7 +107,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">tepam::procedure(n) 0.4.1 tcllib &quot;Tcl's Enhanced Procedure and Argument Manager&quot;</h1>
+<h1 class="title">tepam::procedure(n) 0.5.0 tcllib &quot;Tcl's Enhanced Procedure and Argument Manager&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>tepam::procedure - TEPAM procedure, reference manual</p>
 </div>
@@ -151,7 +151,7 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl 8.3</b></li>
-<li>package require <b class="pkgname">tepam <span class="opt">?0.4?</span></b></li>
+<li>package require <b class="pkgname">tepam <span class="opt">?0.5?</span></b></li>
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">tepam::procedure</b> <i class="arg">name</i> <i class="arg">attributes</i> <i class="arg">body</i></a></li>
@@ -198,6 +198,7 @@
 <dd><p>TEPAM allows describing the purpose of each procedure argument with <em>argument attributes</em>. While some of them are just documenting the attributes, most attributes are used by an argument manager to control and validate the arguments that are provided during a procedure call. Argument attributes are used to specify default values, parameter classes (integer, xdigit, font, ...), choice validation lists, value ranges, etc.</p></dd>
 <dt><em>Named arguments first, unnamed arguments later</em></dt>
 <dd><p>The <b class="cmd">string compare</b> command of the previous example requires that the <em>named arguments</em> (options, flags) are provided first. The two mandatory (unnamed) arguments have to be provided as last argument.</p>
+<pre class="example"><b class="cmd">string compare</b> <i class="arg">-nocase -length 3 Water $Text</i></pre>
 <p>This is the usual Tcl style (exceptions exist) which is referred in the TEPAM documentation as <em>named arguments first, unnamed arguments later style</em>.</p></dd>
 <dt><em>Unnamed arguments first, named arguments later</em></dt>
 <dd><p>In contrast to most Tcl commands, Tk uses generally (exceptions exist also here) a different calling style where the <em>unnamed arguments</em> have to be provided first, before the <em>named arguments</em> have to be provided:</p>
@@ -274,21 +275,7 @@ tepam::procedure <b class="function">{display message}</b> {} {}</pre>
    -args {
       ...</pre>
 <div id="subsection1" class="subsection"><h3><a name="subsection1">Procedure Attributes</a></h3>
-<p>The first group of procedure attributes is not affecting the behavior of the declared procedure. These attributes are just used for the purpose of documentation and help text generation:</p>
-<dl class="definitions">
-<dt>-category <i class="arg">string</i></dt>
-<dd><p>A category can be assigned to a procedure for documentation purposes. Any string is accepted as category.</p></dd>
-<dt>-short_description <i class="arg">string</i></dt>
-<dd><p>The short description of a procedure is used in the documentation summary of a generated procedure list as well as
-in the NAME section of a generated procedure manual page.</p></dd>
-<dt>-description <i class="arg">string</i></dt>
-<dd><p>The (full) description assigned to a procedure is used to create user manual and help pages.</p></dd>
-<dt>-return <i class="arg">string</i></dt>
-<dd><p>The <em>-return</em> attribute allows defining the expected return value of a procedure (used for documentation purposes).</p></dd>
-<dt>-example <i class="arg">string</i></dt>
-<dd><p>A help text or manual page of a procedure can be enriched with eventual examples, using the <em>-example</em> attribute.</p></dd>
-</dl>
-<p>The following attributes are not relevant for the documentation and help text generation, but they affect the behavior of the declared procedure:</p>
+<p>The first group of attributes affect the behavior of the declared procedure:</p>
 <dl class="definitions">
 <dt>-named_arguments_first <b class="const">0</b>|<b class="const">1</b></dt>
 <dd><p>This attribute defines the calling style of a procedure. TEPAM uses by default the <em>named arguments first, unnamed arguments later</em> style (Tcl). This default behavior can globally be changed by setting the variable <b class="variable">tepam::named_arguments_first</b> to <b class="const">0</b>. This global calling style can be changed individually for a procedure with the procedure's <i class="arg">-named_arguments_first</i> attribute.</p></dd>
@@ -301,11 +288,41 @@ in the NAME section of a generated procedure manual page.</p></dd>
 <dd><p>The procedure's arguments are declared via the <i class="arg">-args</i> attribute. An argument is defined via a list having as first element the argument name, followed by eventual argument attributes. All these argument definition lists are packaged themselves into a global list that is assigned to the procedure's <i class="arg">-args</i> attribute.</p>
 <p>The argument definition syntax will be described more in detail in the following sub section.</p></dd>
 </dl>
+<p>The next attributes allow specifying custom argument checks as well as custom error messages in case these checks are failing:</p>
+<dl class="definitions">
+<dt>-validatecommand <i class="arg">script</i></dt>
+<dd><p>Custom argument validations can be performed via specific validation commands that are defined with the <i class="arg">-validatecommand</i> attribute.</p>
+<p>Validation command declaration example:</p>
+<pre class="example">tepam::procedure {display_message} {
+   -args {
+      {text -type string -description &quot;Message text&quot;} }
+   <b class="cmd">-validatecommand {IllegalWordDetector $text}</b>
+} {
+}</pre>
+<p>The validation command is executed in the context of the declared procedure's body. The different argument values are accessed via the argument names. Note there is also an argument attribute <i class="arg">-validatecommand</i> that allows declaring custom checks for specific arguments.</p>
+<p>The attribute <i class="arg">-validatecommand</i> can be repeated to declare multiple custom checks.</p></dd>
+<dt>-validatecommand_error_text <i class="arg">string</i></dt>
+<dd><p>This attribute allows overriding the default error message for a custom argument validation (defined by <i class="arg">-validatecommand</i>). Also this attribute can be repeated in case multiple argument checks are declared.</p></dd>
+</dl>
 <p>The following attribute allows controlling the logging settings for an individual procedure:</p>
 <dl class="definitions">
 <dt>-command_log <b class="const">0</b>|<b class="const">1</b>|<b class="const">&quot;interactive&quot;</b></dt>
 <dd><p>This argument configures the logging of the procedure calls into the list variable <b class="variable">tepam::ProcedureCallLogList</b>. The default configuration defined by the variable <b class="variable">tepam::command_log</b> will be used if this argument is not defined in a procedure declaration.</p>
 <p>Setting this argument to <b class="const">0</b> will disable any procedure call loggings, setting it to <b class="const">1</b> will log any procedure calls and setting it to <b class="const">interactive</b> will log just the procedures that are called interactively (procedures called with the <b class="const">-interactive</b> flag).</p></dd>
+</dl>
+<p>The next group of procedure attributes is just used for the purpose of documentation and help text generation:</p>
+<dl class="definitions">
+<dt>-category <i class="arg">string</i></dt>
+<dd><p>A category can be assigned to a procedure for documentation purposes. Any string is accepted as category.</p></dd>
+<dt>-short_description <i class="arg">string</i></dt>
+<dd><p>The short description of a procedure is used in the documentation summary of a generated procedure list as well as
+in the NAME section of a generated procedure manual page.</p></dd>
+<dt>-description <i class="arg">string</i></dt>
+<dd><p>The (full) description assigned to a procedure is used to create user manual and help pages.</p></dd>
+<dt>-return <i class="arg">string</i></dt>
+<dd><p>The <em>-return</em> attribute allows defining the expected return value of a procedure (used for documentation purposes).</p></dd>
+<dt>-example <i class="arg">string</i></dt>
+<dd><p>A help text or manual page of a procedure can be enriched with eventual examples, using the <em>-example</em> attribute.</p></dd>
 </dl>
 </div>
 <div id="subsection2" class="subsection"><h3><a name="subsection2">Argument Declaration</a></h3>
@@ -338,7 +355,7 @@ in the NAME section of a generated procedure manual page.</p></dd>
 <dd><p>This is the simplest form of an argument name: An argument whose name is not starting with '-' is an <em>unnamed argument</em>. The parameter provided during a procedure call will be assigned to a variable with the name <em>&lt;Name&gt;</em>.</p>
 <pre class="example">tepam::procedure {print_string} {
    -args {
-      {<b class="cmd"><a href="../../../../index.html#key480">text</a></b> -type string -description &quot;This is an unnamed argument&quot;}
+      {<b class="cmd"><a href="../../../../index.html#key246">text</a></b> -type string -description &quot;This is an unnamed argument&quot;}
    }
 } {
    puts <b class="cmd">$text</b>
@@ -421,15 +438,17 @@ In case the argument with the <i class="arg">-multiple</i> attribute is an unnam
 <dt>-range <i class="arg">{double double}</i></dt>
 <dd><p>Another argument constraint can be defined with the <i class="arg">-range</i> attribute. The valid range is defined with a list containing the minimum valid value and a maximum valid value. The <i class="arg">-range</i> attribute has to be used only for numerical arguments, like integers and doubles.</p></dd>
 <dt>-validatecommand <i class="arg">script</i></dt>
-<dd><p>Eventual more complex argument value validations can be performed via specific validation commands that are assigned to the <i class="arg">-validatecommand</i> attribute. The provided validation command can be a complete script in which the pattern <em>%P</em> is replaced by the argument value that has to be validated.
-An example of a validation command declaration is:</p>
+<dd><p>Custom argument value validations can be performed via specific validation commands that are defined with the <i class="arg">-validatecommand</i> attribute. The provided validation command can be a complete script in which the pattern <em>%P</em> is replaced by the argument value that has to be validated.</p>
+<p>Validation command declaration example:</p>
 <pre class="example">tepam::procedure {display_message} {
    -args {
       {text -type string -description &quot;Message text&quot; \
-            <b class="cmd">-validatecommand &quot;IllegalWordDetector %P&quot;</b>}
+            <b class="cmd">-validatecommand {IllegalWordDetector %P}</b>}
 } {
 }</pre>
-</dd>
+<p>While the purpose of this custom argument validation attribute is the validation of a specific argument, there is also a global attribute <i class="arg">-validatecommand</i> that allows performing validation that involves multiple arguments.</p></dd>
+<dt>-validatecommand_error_text <i class="arg">string</i></dt>
+<dd><p>This attribute allows overriding the default error message for a custom argument validation (defined by <i class="arg">-validatecommand</i>).</p></dd>
 <dt>-widget <i class="arg">string</i></dt>
 <dd><p>The widgets that allow defining the different arguments in case of an interactive procedure call are normally selected automatically in function of the argument type. The <i class="arg">-widget</i> attribute allows specifying explicitly a certain widget type for an argument.</p></dd>
 <dt>-auxargs <i class="arg">list</i></dt>
@@ -459,7 +478,7 @@ An example of a validation command declaration is:</p>
 </div>
 </div>
 <div id="section4" class="section"><h2><a name="section4">VARIABLES</a></h2>
-<p>Several variables defined inside the <b class="namespace">::tepam</b> namespace are impacting the mode of operation of the procedures that have been declared with TEPAM' <b class="function">procedure</b> command.</p>
+<p>Several variables defined inside the <b class="namespace">::tepam</b> namespace impact the mode of operation of the procedures that have been declared with TEPAM' <b class="function">procedure</b> command.</p>
 <dl class="definitions">
 <dt><b class="variable">named_arguments_first</b></dt>
 <dd><p>This variable defines the general calling style of the procedures. It is by default set to <b class="const">1</b> which selects the <em>named arguments first, unnamed arguments later</em> style (Tcl style).</p>
@@ -492,7 +511,7 @@ This global setting can be changed individually for a procedure with the procedu
 </dl>
 </div>
 <div id="section5" class="section"><h2><a name="section5">ARGUMENT TYPES</a></h2>
-<p>A comprehensive set of procedure argument types that is already predefined by TEPAM can easily be completed with additional types that are required for a specific application.</p>
+<p>TEPAM provides a comprehensive set of procedure argument types. They can easily be completed with application specific types if necessary.</p>
 <div id="subsection3" class="subsection"><h3><a name="subsection3">Predefined Argument Types</a></h3>
 <p>To remember, a type can be assigned to each specified procedure argument:</p>
 <pre class="example">tepam::procedure {warning} {
@@ -524,9 +543,9 @@ flag_test -flag
 <li><p><b class="type">string</b></p>
 <p><b class="type">String</b> is a generic argument data type. Any data string can be provided to a string type argument and no data type checks are therefore performed. The string type allows defining single line strings during the interactive procedure calls.</p></li>
 <li><p><b class="type">text</b></p>
-<p><b class="type">Text</b> is identical to <b class="type">string</b> with the exception that it allows entering multi line strings during interactive procedure calls.</p></li>
+<p><b class="type">Text</b> is identical to <b class="type">string</b> with the only difference that it allows entering multi line strings during interactive procedure calls.</p></li>
 <li><p><b class="type">{}</b></p>
-<p>A <b class="type">blank</b> argument type signifies an undefined argument type. This is the default argument type that will be used if no type has been explicitly specified. An argument that has a <b class="type">blank</b> type behaves identically than an argument that has a <b class="type">string</b> type, e.g. no argument data checks are performed. The only difference is that the data type <b class="type">string</b> is mentioned in the generated help documentation, while this is not the case for <b class="type">blank</b> type.</p></li>
+<p>A <b class="type">blank</b> argument type signifies an undefined argument type. This is the default argument type that will be used if no type has been explicitly specified. An argument that has a <b class="type">blank</b> type behaves identically than an argument that has a <b class="type">string</b> type, e.g. no argument data checks are performed. The only difference is that the data type <b class="type">string</b> is mentioned in the generated help documentation, while this is not the case for the <b class="type">blank</b> type.</p></li>
 </ul>
 <p>Several <em>numerical types</em> are defined by TEPAM. The type validation procedures are using the <b class="cmd">string is &lt;type&gt; -strict</b> commands to check the validity of the provided arguments, which assures that no empty strings are accepted as argument value. The type validation expression for the numerical types and the argument types to which this expression is applied are:</p>
 <pre class="example">string is <b class="type">&lt;type_to_check&gt;</b> -strict <i class="arg">&lt;argument_value&gt;</i></pre>
@@ -587,7 +606,7 @@ flag_test -flag
 <p>To add support for a new application specific argument type it is just necessary to add into the namespace <b class="namespace">tepam</b> a validation function <b class="function">Validation(&lt;type&gt;)</b>. This function requires one argument. It has to returns <b class="const">1</b> if the provided argument matches with the relevant data type. The function has to return otherwise <b class="const">0</b>.</p>
 <p>The validation command section of the &quot;<b class="file">tepam.tcl</b>&quot; package provides sufficient examples of validation functions, since it implements the ones for the standard TEPAM types.</p>
 <p>The following additional code snippet shows the validation function for a custom argument type that requires values that have a character string length of exactly 2:</p>
-<pre class="example">proc tepam::Validate(two_char) {v} {expr [string length $v]==2}</pre>
+<pre class="example">proc tepam::Validate(two_char) {v} {expr {[string length $v]==2}}</pre>
 </div>
 </div>
 <div id="section6" class="section"><h2><a name="section6">PROCEDURE CALLS</a></h2>
@@ -777,12 +796,12 @@ display_message -mtype Warning &quot;It is 7:00&quot;
 <p><a href="tepam_introduction.html">tepam(n)</a>, <a href="tepam_argument_dialogbox.html">tepam::argument_dialogbox(n)</a></p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key740">argument integrity</a>, <a href="../../../../index.html#key739">argument validation</a>, <a href="../../../../index.html#key738">arguments</a>, <a href="../../../../index.html#key41">procedure</a>, <a href="../../../../index.html#key737">subcommand</a></p>
+<p><a href="../../../../index.html#key750">argument integrity</a>, <a href="../../../../index.html#key751">argument validation</a>, <a href="../../../../index.html#key749">arguments</a>, <a href="../../../../index.html#key41">procedure</a>, <a href="../../../../index.html#key748">subcommand</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Procedures, arguments, parameters, options</p>
 </div>
 <div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
-<p>Copyright &copy; 2009/2010, Andreas Drollinger</p>
+<p>Copyright &copy; 2009-2013, Andreas Drollinger</p>
 </div>
 </div></body></html>

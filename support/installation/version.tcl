@@ -1,4 +1,4 @@
-package_version 1.15
+package_version 1.16
 package_name    tcllib
 
 dist_exclude    config
@@ -10,6 +10,7 @@ dist_exclude    modules/fileinput
 critcl_main tcllibc       tcllibc.tcl
 critcl      base64c      {base64/base64c.tcl base64/uuencode.tcl base64/yencode.tcl}
 critcl      crcc         {crc/crcc.tcl crc/sum.tcl crc/crc32.tcl}
+critcl      jsonc         json/jsonc.tcl
 critcl      md4c          md4/md4c.tcl
 critcl      md5c          md5/md5c.tcl
 critcl      md5cryptc     md5crypt/md5cryptc.tcl

@@ -12,8 +12,8 @@ namespace eval ::term::ansi::code {}
 ## API. Escape clauses, plain and bracket
 ##      Used by 'define'd commands.
 
-proc ::term::ansi::code::esc  {str} {return \033${str}}
-proc ::term::ansi::code::escb {str} {esc    \[${str}}
+proc ::term::ansi::code::esc  {str} {return \033$str}
+proc ::term::ansi::code::escb {str} {esc    \[$str}
 
 # ### ### ### ######### ######### #########
 ## API. Define command for named control code, or constant.
@@ -31,12 +31,12 @@ proc ::term::ansi::code::const {name code} {
 ## Internal helper to construct fully-qualified names.
 
 proc ::term::ansi::code::Qualified {name} {
-    if {![string match "::*" $name]} {
+    if {![string match ::* $name]} {
         # Get the caller's namespace; append :: if it is not the
 	# global namespace, for separation from the actual name.
         set ns [uplevel 2 [list namespace current]]
-        if {![string equal "::" $ns]} {append ns "::"}
-        set name "$ns$name"
+        if {$ns ne "::"} {append ns ::}
+        set name $ns$name
     }
     return $name
 }
@@ -50,7 +50,7 @@ namespace eval ::term::ansi::code {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide term::ansi::code 0.1
+package provide term::ansi::code 0.2
 
 ##
 # ### ### ### ######### ######### #########

@@ -107,7 +107,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">jpeg(n) 0.4.0 tcllib &quot;JPEG image manipulation&quot;</h1>
+<h1 class="title">jpeg(n) 0.5 tcllib &quot;JPEG image manipulation&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>jpeg - JPEG querying and manipulation of meta data</p>
 </div>
@@ -128,7 +128,7 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
-<li>package require <b class="pkgname">jpeg <span class="opt">?0.4.0?</span></b></li>
+<li>package require <b class="pkgname">jpeg <span class="opt">?0.5?</span></b></li>
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">::jpeg::isJPEG</b> <i class="arg">file</i></a></li>
@@ -203,11 +203,14 @@ For example:</p>
 <dd><p>This command is as per <b class="cmd">::jpeg::getExif</b> except that it uses a
 previously opened channel.  <i class="arg">channel</i> should be a seekable channel
 and <i class="arg">section</i> is as described in the documentation of
-<b class="cmd">::jpeg::getExif</b>
-Note: the jpeg parser expects that the start of the channel is the
-start of the image data. If working with an image embedded in a
-container file format it may be necessary to read the jpeg data into
-a temporary container: either a temporary file or a memory channel.</p></dd>
+<b class="cmd">::jpeg::getExif</b>.</p>
+<p><em>Note</em>: The jpeg parser expects that the start of the
+channel is the start of the image data. If working with an image
+embedded in a container file format it may be necessary to read the
+jpeg data into a temporary container: either a temporary file or a
+memory channel.</p>
+<p><em>Attention</em>: It is the resonsibility of the caller to close
+the channel after its use.</p></dd>
 <dt><a name="7"><b class="cmd">::jpeg::formatExif</b> <i class="arg">keys</i></a></dt>
 <dd><p>Takes a list of key-value pairs as returned by <b class="cmd">getExif</b> and formats
 many of the values into a more human readable form. As few as one key-value
@@ -280,7 +283,7 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key163">comment</a>, <a href="../../../../index.html#key160">exif</a>, <a href="../../../../index.html#key140">image</a>, <a href="../../../../index.html#key162">jfif</a>, <a href="../../../../index.html#key161">jpeg</a>, <a href="../../../../index.html#key159">thumbnail</a></p>
+<p><a href="../../../../index.html#key155">comment</a>, <a href="../../../../index.html#key152">exif</a>, <a href="../../../../index.html#key121">image</a>, <a href="../../../../index.html#key154">jfif</a>, <a href="../../../../index.html#key153">jpeg</a>, <a href="../../../../index.html#key151">thumbnail</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>File formats</p>

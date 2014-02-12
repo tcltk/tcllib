@@ -1,6 +1,7 @@
 [comment {-*- tcl -*- doctools manpage}]
 [comment {$Id: struct_list.man,v 1.24 2010/10/05 21:47:25 andreas_kupries Exp $}]
-[manpage_begin struct::list n 1.8.2]
+[vset LIST_VERSION 1.8.3]
+[manpage_begin struct::list n [vset LIST_VERSION]]
 [keywords assign]
 [keywords common]
 [keywords comparison]
@@ -39,7 +40,7 @@
 [titledesc {Procedures for manipulating lists}]
 [category  {Data structures}]
 [require Tcl 8.4]
-[require struct::list [opt 1.8.2]]
+[require struct::list [opt [vset LIST_VERSION]]]
 [description]
 
 [para]

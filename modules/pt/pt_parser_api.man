@@ -35,7 +35,7 @@ command.
 
 If no [arg objectName] is specified the class will generate and use an
 automatic name. If the [arg objectName] was specified, but is not
-fully qualified the command will be created in the curent namespace.
+fully qualified the command will be created in the current namespace.
 
 [list_end]
 

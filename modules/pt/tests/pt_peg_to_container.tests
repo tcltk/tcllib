@@ -27,7 +27,7 @@ foreach {k mode section} {
     1 bulk        -bulk
 } {
     TestFilesProcess $mytestdir ok peg_serial-canonical peg_container$section -> n label input data expected {
-	test pt-peg-to-container-set:${setimpl}-3.$k.$n "pt::peg::to::container, $label$section, ok" -setup {
+	test pt-peg-to-container-set:${setimpl}-3.$k.$n "pt::peg::to::container, $label$section, ok :- $input" -setup {
 	    pt::peg::to::container reset
 	    pt::peg::to::container configure -mode $mode
 	} -body {
@@ -38,7 +38,7 @@ foreach {k mode section} {
     }
 
     TestFilesProcess $mytestdir ok peg_serial-canonical peg_container-templated$section -> n label input data expected {
-	test pt-peg-to-container-set:${setimpl}-4.$k.$n "pt::peg::to::container, $label$section, ok" -setup {
+	test pt-peg-to-container-set:${setimpl}-4.$k.$n "pt::peg::to::container, $label$section, ok :- $input" -setup {
 	    text::write reset
 	    text::write field   # -*- tcl -*-                               ; text::write /line
 	    text::write field   # Parsing Expression Grammar '@name@'.      ; text::write /line

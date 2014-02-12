@@ -94,7 +94,7 @@
 </head>
 <! -- Generated from file 'matrix.man' by tcllib/doctools with format 'html'
    -->
-<! -- Copyright &copy; 2002 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
+<! -- Copyright &copy; 2002-2013 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
    -->
 <! -- CVS: $Id$ struct::matrix.n
    -->
@@ -128,7 +128,7 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
-<li>package require <b class="pkgname">struct::matrix <span class="opt">?2.0.1?</span></b></li>
+<li>package require <b class="pkgname">struct::matrix <span class="opt">?2.0.3?</span></b></li>
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">::struct::matrix</b> <span class="opt">?<i class="arg">matrixName</i>?</span> <span class="opt">?<b class="const">=</b>|<b class="const">:=</b>|<b class="const">as</b>|<b class="const">deserialize</b> <i class="arg">source</i>?</span></a></li>
@@ -291,7 +291,10 @@ contained in the addressed cell.</p></dd>
 values currently contained in the cells of the addressed column if
 these are all spanning only one line. For cell values spanning
 multiple lines the length of their longest line goes into the
-computation.</p></dd>
+computation.</p>
+<p><em>Note:</em> The command recognizes ANSI color control sequences
+and excludes them from the width of a line, as they are logically of
+zero width.</p></dd>
 <dt><a name="13"><i class="arg">matrixName</i> <b class="method">delete column</b> <i class="arg">column</i></a></dt>
 <dd><p>Deletes the specified column from the matrix and shifts all columns
 with higher indices one index down.</p></dd>
@@ -548,12 +551,12 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key59">matrix</a></p>
+<p><a href="../../../../index.html#key51">matrix</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Data structures</p>
 </div>
 <div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
-<p>Copyright &copy; 2002 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;</p>
+<p>Copyright &copy; 2002-2013 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;</p>
 </div>
 </div></body></html>

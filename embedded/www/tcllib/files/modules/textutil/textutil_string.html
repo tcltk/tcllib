@@ -1,3 +1,4 @@
+
 <html><head>
 <title>textutil::string - Text and string utilities, macro processing</title>
 <style type="text/css"><!--
@@ -105,7 +106,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">textutil::string(n) 0.7 tcllib &quot;Text and string utilities, macro processing&quot;</h1>
+<h1 class="title">textutil::string(n) 0.8 tcllib &quot;Text and string utilities, macro processing&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>textutil::string - Procedures to manipulate texts and strings.</p>
 </div>
@@ -124,15 +125,16 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
-<li>package require <b class="pkgname">textutil::string <span class="opt">?0.7?</span></b></li>
+<li>package require <b class="pkgname">textutil::string <span class="opt">?0.8?</span></b></li>
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">::textutil::string::chop</b> <i class="arg">string</i></a></li>
 <li><a href="#2"><b class="cmd">::textutil::string::tail</b> <i class="arg">string</i></a></li>
 <li><a href="#3"><b class="cmd">::textutil::string::cap</b> <i class="arg">string</i></a></li>
-<li><a href="#4"><b class="cmd">::textutil::string::uncap</b> <i class="arg">string</i></a></li>
-<li><a href="#5"><b class="cmd">::textutil::string::longestCommonPrefixList</b> <i class="arg">list</i></a></li>
-<li><a href="#6"><b class="cmd">::textutil::string::longestCommonPrefix</b> <span class="opt">?<i class="arg">string</i>...?</span></a></li>
+<li><a href="#4"><b class="cmd">::textutil::string::capEachWord</b> <i class="arg">string</i></a></li>
+<li><a href="#5"><b class="cmd">::textutil::string::uncap</b> <i class="arg">string</i></a></li>
+<li><a href="#6"><b class="cmd">::textutil::string::longestCommonPrefixList</b> <i class="arg">list</i></a></li>
+<li><a href="#7"><b class="cmd">::textutil::string::longestCommonPrefix</b> <span class="opt">?<i class="arg">string</i>...?</span></a></li>
 </ul>
 </div>
 </div>
@@ -150,13 +152,17 @@ returns the shortened string.</p></dd>
 <dt><a name="3"><b class="cmd">::textutil::string::cap</b> <i class="arg">string</i></a></dt>
 <dd><p>Capitalizes the first character of <i class="arg">string</i> and returns the
 modified string.</p></dd>
-<dt><a name="4"><b class="cmd">::textutil::string::uncap</b> <i class="arg">string</i></a></dt>
+<dt><a name="4"><b class="cmd">::textutil::string::capEachWord</b> <i class="arg">string</i></a></dt>
+<dd><p>Capitalizes the first character of word of the <i class="arg">string</i> and
+returns the modified string. Words quoted with either backslash or
+dollar-sign are left untouched.</p></dd>
+<dt><a name="5"><b class="cmd">::textutil::string::uncap</b> <i class="arg">string</i></a></dt>
 <dd><p>The complementary operation to <b class="cmd">::textutil::string::cap</b>. Forces
 the first character of <i class="arg">string</i> to lower case and returns the
 modified string.</p></dd>
-<dt><a name="5"><b class="cmd">::textutil::string::longestCommonPrefixList</b> <i class="arg">list</i></a></dt>
+<dt><a name="6"><b class="cmd">::textutil::string::longestCommonPrefixList</b> <i class="arg">list</i></a></dt>
 <dd></dd>
-<dt><a name="6"><b class="cmd">::textutil::string::longestCommonPrefix</b> <span class="opt">?<i class="arg">string</i>...?</span></a></dt>
+<dt><a name="7"><b class="cmd">::textutil::string::longestCommonPrefix</b> <span class="opt">?<i class="arg">string</i>...?</span></a></dt>
 <dd><p>Computes the longest common prefix for either the <i class="arg">string</i>s given
 to the command, or the strings specified in the single <i class="arg">list</i>, and
 returns it as the result of the command.</p>
@@ -177,7 +183,7 @@ package and/or documentation.</p>
 <p>regexp(n), split(n), string(n)</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key672">capitalize</a>, <a href="../../../../index.html#key671">chop</a>, <a href="../../../../index.html#key673">common prefix</a>, <a href="../../../../index.html#key331">formatting</a>, <a href="../../../../index.html#key670">prefix</a>, <a href="../../../../index.html#key263">string</a>, <a href="../../../../index.html#key669">uncapitalize</a></p>
+<p><a href="../../../../index.html#key682">capitalize</a>, <a href="../../../../index.html#key681">chop</a>, <a href="../../../../index.html#key683">common prefix</a>, <a href="../../../../index.html#key245">formatting</a>, <a href="../../../../index.html#key680">prefix</a>, <a href="../../../../index.html#key276">string</a>, <a href="../../../../index.html#key679">uncapitalize</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Text processing</p>

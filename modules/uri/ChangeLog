@@ -1,3 +1,20 @@
+2013-12-06  Andreas Kupries  <andreask@activestate.com>
+
+	* uri.tcl (::uri::split, ::uri::resolve): [Ticket cfb76ff94]:
+	* uri.test: Modified split so that a missing scheme for http(s),
+	* uri.man: ftp urls treats remainder as having a leading host
+	* pkgIndex.tcl: part. Extended testsuite. Updated 'resolve' to run
+	  the relative url through split with a proper scheme prefix to
+	  prevent misintepretation of the path as host-part. Bumped
+	  version number to 1.2.4
+
+2013-11-07  Andreas Kupries  <andreask@activestate.com>
+
+	* uri.tcl: [Ticket dc50cc65ea]: Accept schema names
+	* uri.test: case-insensitively. Report and patch by Harald
+	* pkgIndex.tcl: Oehlmann. Version bumped to 1.2.3. Extended
+	  testsuite (uri-11.0).
+
 2013-02-01  Andreas Kupries  <andreas_kupries@users.sourceforge.net>
 
 	*

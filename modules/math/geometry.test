@@ -412,7 +412,9 @@ test geometry-15.11 {geometry::pointInsidePolygon, polygon already closed} {
 test geometry-15.12 {geometry::pointInsidePolygon, polygon with zero-length side} {
     math::geometry::pointInsidePolygon {5 5} {4 4 4 6 6 6 6 6 6 4}
 } 1
-
+test geometry-15.13 {geometry::pointInsidePolygon, edge case polygon/point, ticket c1ca34ead3} {
+    math::geometry::pointInsidePolygon {3.0 -1.5} {2.0 2.0 -2.0 2.0 -2.0 -2.0 2.0 -2.0}
+} 0
 
 
 ###
@@ -504,6 +506,14 @@ test geometry-17.12 {point between} {
 test geometry-17.13 {octant} {
     math::geometry::octant {-10 -12}
 } northwest
+
+
+###
+# calculateDistanceToPolygon
+###
+test geometry-18.1 {geometry::calculateDistanceToPolygon, non-closed polygon, point on polygon} {
+    eval withFourDecimals [::math::geometry::calculateDistanceToPolygon {2.0 0.5} {2.0 2.0 -2.0 2.0 -2.0 -2.0 2.0 -2.0}]
+} 0.0
 
 
 ###

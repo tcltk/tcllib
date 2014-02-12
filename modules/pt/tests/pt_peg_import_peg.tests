@@ -33,7 +33,7 @@ foreach {k section} {
 	set expected [G serialize]
 	G destroy
 
-	test pt-peg-import-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-2.$k.$n "pt::peg::import::peg, $label$section, ok" -body {
+	test pt-peg-import-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-2.$k.$n "pt::peg::import::peg, $label$section, ok :- $input" -body {
 	    import $data
 	} -result $expected
     }

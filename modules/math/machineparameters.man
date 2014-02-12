@@ -2,7 +2,8 @@
 [manpage_begin tclrep/machineparameters n 1.0]
 [copyright {2008 Michael Baudin <michael.baudin@sourceforge.net>}]
 [moddesc tclrep]
-[require   snit]
+[require snit]
+[require math::machineparameters 0.1]
 
 [titledesc {Compute double precision machine parameters.}]
 

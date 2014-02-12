@@ -3,7 +3,7 @@
 #    Package for basic statistical analysis
 #
 # version 0.1:   initial implementation, january 2003
-# version 0.1.1: added linear regression, june 2004
+# version 0.1.1: added linear regres
 # version 0.1.2: border case in stdev taken care of
 # version 0.1.3: moved initialisation of CDF to first call, november 2004
 # version 0.3:   added test for normality (as implemented by Torsten Reincke), march 2006
@@ -16,9 +16,26 @@
 #                (provided by Eric Kemp-Benedict)
 # version 0.7:   added Kruskal-Wallis test (by Torsten Berg)
 # version 0.8:   added Wilcoxon test and Spearman rank correlation
+# version 0.9:   added kernel density estimation
 
-package provide math::statistics 0.8.0
+package require Tcl 8.4
+package provide math::statistics 0.9
 package require math
+
+if {![llength [info commands ::lrepeat]]} {
+    # Forward portability, emulate lrepeat
+    proc ::lrepeat {n args} {
+	if {$n < 1} {
+	    return -code error "must have a count of at least 1"
+	}
+	set res {}
+	while {$n} {
+	    foreach x $args { lappend res $x }
+	    incr n -1
+	}
+	return $res
+    }
+}
 
 # ::math::statistics --
 #   Namespace holding the procedures and variables
@@ -174,16 +191,20 @@ proc ::math::statistics::BasicStats { type values } {
 # Arguments:
 #    limits   Upper limits for the buckets (in increasing order)
 #    values   List of values to be examined
+#    weights  List of weights, one per value (optional)
 #
 # Results:
 #    List of number of values in each bucket (length is one more than
 #    the number of limits)
 #
 #
-proc ::math::statistics::histogram { limits values } {
+proc ::math::statistics::histogram { limits values {weights {}} } {
 
     if { [llength $limits] < 1 } {
 	return -code error -errorcode ARG -errorinfo {No limits given} {No limits given}
+    }
+    if { [llength $weights] > 0 && [llength $values] != [llength $weights] } {
+	return -code error -errorcode ARG -errorinfo {Number of weights be equal to number of values} {Weights and values differ in length}
     }
 
     set limits [lsort -real -increasing $limits]
@@ -191,9 +212,15 @@ proc ::math::statistics::histogram { limits values } {
     for { set index 0 } { $index <= [llength $limits] } { incr index } {
 	set buckets($index) 0
     }
+
     set last [llength $limits]
 
-    foreach value $values {
+    # Will do integer arithmetic if unset
+    if {$weights eq ""} {
+       set weights [lrepeat [llength $values] 1]
+    }
+
+    foreach value $values weight $weights {
 	if { $value == {} } {
 	    continue
 	}
@@ -203,14 +230,14 @@ proc ::math::statistics::histogram { limits values } {
 	foreach limit $limits {
 	    if { $value <= $limit } {
 		set found 1
-		incr buckets($index)
+		set buckets($index) [expr $buckets($index)+$weight]
 		break
 	    }
 	    incr index
 	}
 
 	if { $found == 0 } {
-	    incr buckets($last)
+	    set buckets($last) [expr $buckets($last)+$weight]
 	}
     }
 
@@ -1287,10 +1314,6 @@ proc ::math::statistics::test-Rchart { control data } {
     return $result
 }
 
-
-
-
-
 #
 # Load the auxiliary scripts
 #
@@ -1300,6 +1323,7 @@ source [file join [file dirname [info script]] liststat.tcl]
 source [file join [file dirname [info script]] mvlinreg.tcl]
 source [file join [file dirname [info script]] kruskal.tcl]
 source [file join [file dirname [info script]] wilcoxon.tcl]
+source [file join [file dirname [info script]] stat_kernel.tcl]
 
 #
 # Define the tables

@@ -26,7 +26,7 @@ foreach {k fused section} {
     1 1 -fused
 } {
     TestFilesProcess $mytestdir ok peg_serial-canonical peg_peg$section -> n label input data expected {
-	test pt-peg-export-plugin-peg-set:${setimpl}-21.$k.$n "pt::peg::export /peg, $label$section, ok" -setup {
+	test pt-peg-export-plugin-peg-set:${setimpl}-21.$k.$n "pt::peg::export /peg, $label$section, ok :- $input" -setup {
 	    pt::peg::export OUT
 	    OUT configuration set -fused $fused
 	} -body {
@@ -48,7 +48,7 @@ foreach {k in al section} {
     3 1 1 -indalign
 } {
     TestFilesProcess $mytestdir ok peg_serial-canonical peg_json$section -> n label input data expected {
-	test pt-peg-export-plugin-json-set:${setimpl}-22.$k.$n "pt::peg::export /json, $label$section, ok" -setup {
+	test pt-peg-export-plugin-json-set:${setimpl}-22.$k.$n "pt::peg::export /json, $label$section, ok :- $input" -setup {
 	    pt::peg::export OUT
 	    OUT configuration set -indented $in
 	    OUT configuration set -aligned  $al
@@ -70,7 +70,7 @@ foreach {k mode section} {
     1 bulk        -bulk
 } {
     TestFilesProcess $mytestdir ok peg_serial-canonical peg_container$section -> n label input data expected {
-	test pt-peg-export-plugin-container-set:${setimpl}-23.$k.$n "pt::peg::export /container, $label$section, ok" -setup {
+	test pt-peg-export-plugin-container-set:${setimpl}-23.$k.$n "pt::peg::export /container, $label$section, ok :- $input" -setup {
 	    pt::peg::export OUT
 	    OUT configuration set -mode $mode
 	} -body {
@@ -93,7 +93,7 @@ foreach {k nl in section} {
     3 1 1 -indented
 } {
     TestFilesProcess $mytestdir ok serial html$section -> n label input data expected {
-	test pt-peg-export-plugin-html-set:${setimpl}-24.$k.$n "pt::peg::export /html, $label$section, ok" -setup {
+	test pt-peg-export-plugin-html-set:${setimpl}-24.$k.$n "pt::peg::export /html, $label$section, ok :- $input" -setup {
 	    pt::peg::export OUT
 	    OUT configuration set -newlines $nl
 	    OUT configuration set -indented $in
@@ -111,7 +111,7 @@ foreach {k nl in section} {
 # wiki markup
 
 TestFilesProcess $mytestdir ok serial wiki -> n label input data expected {
-    test pt-peg-export-plugin-wiki-set:${setimpl}-25.$n "pt::peg::export /wiki, $label, ok" -setup {
+    test pt-peg-export-plugin-wiki-set:${setimpl}-25.$n "pt::peg::export /wiki, $label, ok :- $input" -setup {
 	pt::peg::export OUT
     } -body {
 	OUT export serial $data wiki
@@ -129,7 +129,7 @@ foreach {k inline section} {
     1 1 -inlined
 } {
     TestFilesProcess $mytestdir ok serial nroff$section -> n label input data expected {
-	test pt-peg-export-plugin-nroff-set:${setimpl}-25.$k.$n "pt::peg::export /nroff, $label$section, ok" -setup {
+	test pt-peg-export-plugin-nroff-set:${setimpl}-25.$k.$n "pt::peg::export /nroff, $label$section, ok :- $input" -setup {
 	    pt::peg::export OUT
 	    OUT configuration set -inline $inline
 	} -body {

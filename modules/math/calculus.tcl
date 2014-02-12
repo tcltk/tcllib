@@ -12,7 +12,7 @@
 
 package require Tcl 8.4
 package require math::interpolate
-package provide math::calculus 0.7.1
+package provide math::calculus 0.7.2
 
 # math::calculus --
 #    Namespace for the commands
@@ -341,7 +341,7 @@ proc ::math::calculus::heunStep { t tstep xvec func } {
    # Corrector step
    #
    set tcorr    [expr {$t+$tstep}]
-   set xcorr    [eulerStep $t     $tstep $xpred $funcq]
+   set xcorr    [eulerStep $tcorr $tstep $xpred $funcq]
 
    set result   {}
    foreach xv $xvec xc $xcorr {

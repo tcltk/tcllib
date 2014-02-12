@@ -10,15 +10,21 @@
 package require pcx
 pcx::register json
 pcx::tcldep   1.0 needs tcl 8.4
+pcx::tcldep   1.2 needs tcl 8.4
 
 namespace eval ::json {}
 
 #pcx::message FOO {... text ...} type
 #pcx::scan <VERSION> <NAME> <RULE>
 
-pcx::check 1.0 std ::json::string2json \
-    {checkSimpleArgs 0 -1 {
-	checkWord -- Replace with actual definition --
+pcx::check 1.0 std ::json::json2dict \
+    {checkSimpleArgs 1 1 {
+	checkWord
+    }}
+
+pcx::check 1.2 std ::json::many-json2dict \
+    {checkSimpleArgs 1 2 {
+	checkWord checkInt
     }}
 
 # Initialization via pcx::init.

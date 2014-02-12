@@ -106,7 +106,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">tar(n) 0.7 tcllib &quot;Tar file handling&quot;</h1>
+<h1 class="title">tar(n) 0.9 tcllib &quot;Tar file handling&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>tar - Tar file creation, extraction &amp; manipulation</p>
 </div>
@@ -124,7 +124,7 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
-<li>package require <b class="pkgname">tar <span class="opt">?0.7?</span></b></li>
+<li>package require <b class="pkgname">tar <span class="opt">?0.9?</span></b></li>
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">::tar::contents</b> <i class="arg">tarball</i> <span class="opt">?<b class="option">-chan</b>?</span></a></li>
@@ -138,6 +138,9 @@
 </div>
 </div>
 <div id="section1" class="section"><h2><a name="section1">Description</a></h2>
+<p>Note: Starting with version 0.8 the tar reader commands
+(contents, stats, get, untar) support the GNU LongName extension
+(header type 'L') for large paths.</p>
 <dl class="definitions">
 <dt><a name="1"><b class="cmd">::tar::contents</b> <i class="arg">tarball</i> <span class="opt">?<b class="option">-chan</b>?</span></a></dt>
 <dd><p>Returns a list of the files contained in <i class="arg">tarball</i>. The order is not sorted and depends on the order
@@ -258,7 +261,7 @@ Please also report any ideas for enhancements you may have for either
 package and/or documentation.</p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key716">archive</a>, <a href="../../../../index.html#key715">tape archive</a>, <a href="../../../../index.html#key717">tar</a></p>
+<p><a href="../../../../index.html#key728">archive</a>, <a href="../../../../index.html#key727">tape archive</a>, <a href="../../../../index.html#key729">tar</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>File formats</p>

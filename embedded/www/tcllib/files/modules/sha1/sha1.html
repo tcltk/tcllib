@@ -134,9 +134,9 @@
 <li>package require <b class="pkgname">sha1 <span class="opt">?2.0.3?</span></b></li>
 </ul>
 <ul class="syntax">
-<li><a href="#1"><b class="cmd">::sha1::sha1</b> <span class="opt">?<i class="arg">-hex|-bin</i>?</span> [ <i class="arg">-channel channel</i> | <i class="arg">-file filename</i> | <i class="arg">string</i> ]</a></li>
+<li><a href="#1"><b class="cmd">::sha1::sha1</b> <span class="opt">?<b class="option">-hex|-bin</b>?</span> [ <b class="option">-channel channel</b> | <b class="option">-file filename</b> | <span class="opt">?<b class="option">--</b>?</span> <i class="arg">string</i> ]</a></li>
 <li><a href="#2"><b class="cmd">::sha1::hmac</b> <i class="arg">key</i> <i class="arg">string</i></a></li>
-<li><a href="#3"><b class="cmd">::sha1::hmac</b> <span class="opt">?<i class="arg">-hex|-bin</i>?</span> <i class="arg">-key key</i> [ <i class="arg">-channel channel</i> | <i class="arg">-file filename</i> | <i class="arg">string</i> ]</a></li>
+<li><a href="#3"><b class="cmd">::sha1::hmac</b> <span class="opt">?<b class="option">-hex|-bin</b>?</span> <b class="option">-key key</b> [ <b class="option">-channel channel</b> | <b class="option">-file filename</b> | <span class="opt">?<b class="option">--</b>?</span> <i class="arg">string</i> ]</a></li>
 <li><a href="#4"><b class="cmd">::sha1::SHA1Init</b></a></li>
 <li><a href="#5"><b class="cmd">::sha1::SHA1Update</b> <i class="arg">token</i> <i class="arg">data</i></a></li>
 <li><a href="#6"><b class="cmd">::sha1::SHA1Final</b> <i class="arg">token</i></a></li>
@@ -159,7 +159,7 @@ message-digest.</p>
 </div>
 <div id="section2" class="section"><h2><a name="section2">COMMANDS</a></h2>
 <dl class="definitions">
-<dt><a name="1"><b class="cmd">::sha1::sha1</b> <span class="opt">?<i class="arg">-hex|-bin</i>?</span> [ <i class="arg">-channel channel</i> | <i class="arg">-file filename</i> | <i class="arg">string</i> ]</a></dt>
+<dt><a name="1"><b class="cmd">::sha1::sha1</b> <span class="opt">?<b class="option">-hex|-bin</b>?</span> [ <b class="option">-channel channel</b> | <b class="option">-file filename</b> | <span class="opt">?<b class="option">--</b>?</span> <i class="arg">string</i> ]</a></dt>
 <dd><p>The command takes a message and returns the SHA1 digest of this message
 as a hexadecimal string. You may request the result as binary data by
 giving <i class="arg">-bin</i>.</p>
@@ -169,17 +169,23 @@ the <b class="cmd">sha1</b> command, or as a filename or a pre-opened channel. I
 and hashed and the file is closed. If the <i class="arg">-channel</i> argument is
 given then data is read from the channel until the end of file. The
 channel is not closed. <em>NOTE</em> use of the channel or filename
-options results in the internal use of <b class="cmd"><a href="../../../../index.html#key396">vwait</a></b>. To avoid nested
+options results in the internal use of <b class="cmd"><a href="../../../../index.html#key413">vwait</a></b>. To avoid nested
 event loops in Tk or tclhttpd applications you should use the
 incremental programming API (see below).</p>
-<p>Only one of <i class="arg">-file</i>, <i class="arg">-channel</i> or <i class="arg">string</i> should be given.</p></dd>
+<p>Only one of <i class="arg">-file</i>, <i class="arg">-channel</i> or <i class="arg">string</i> should be given.</p>
+<p>If the <i class="arg">string</i> to hash can be mistaken for an option
+(leading dash &quot;-&quot;), use the option <b class="option">--</b> before it to terminate
+option processing and force interpretation as a string.</p></dd>
 <dt><a name="2"><b class="cmd">::sha1::hmac</b> <i class="arg">key</i> <i class="arg">string</i></a></dt>
 <dd></dd>
-<dt><a name="3"><b class="cmd">::sha1::hmac</b> <span class="opt">?<i class="arg">-hex|-bin</i>?</span> <i class="arg">-key key</i> [ <i class="arg">-channel channel</i> | <i class="arg">-file filename</i> | <i class="arg">string</i> ]</a></dt>
+<dt><a name="3"><b class="cmd">::sha1::hmac</b> <span class="opt">?<b class="option">-hex|-bin</b>?</span> <b class="option">-key key</b> [ <b class="option">-channel channel</b> | <b class="option">-file filename</b> | <span class="opt">?<b class="option">--</b>?</span> <i class="arg">string</i> ]</a></dt>
 <dd><p>Calculate an Hashed Message Authentication digest (HMAC) using the SHA1
 digest algorithm. HMACs are described in RFC 2104 (3) and provide an SHA1
 digest that includes a key. All options other than <i class="arg">-key</i> are as
-for the <b class="cmd">::sha1::sha1</b> command.</p></dd>
+for the <b class="cmd">::sha1::sha1</b> command.</p>
+<p>If the <i class="arg">string</i> to hash can be mistaken for an option
+(leading dash &quot;-&quot;), use the option <b class="option">--</b> before it to terminate
+option processing and force interpretation as a string.</p></dd>
 </dl>
 </div>
 <div id="section3" class="section"><h2><a name="section3">PROGRAMMING INTERFACE</a></h2>
@@ -263,7 +269,7 @@ package and/or documentation.</p>
 <p><a href="../md4/md4.html">md4</a>, <a href="../md5/md5.html">md5</a>, <a href="../ripemd/ripemd128.html">ripemd128</a>, <a href="../ripemd/ripemd160.html">ripemd160</a></p>
 </div>
 <div id="keywords" class="section"><h2><a name="keywords">Keywords</a></h2>
-<p><a href="../../../../index.html#key209">FIPS 180-1</a>, <a href="../../../../index.html#key212">hashing</a>, <a href="../../../../index.html#key211">message-digest</a>, <a href="../../../../index.html#key210">rfc 2104</a>, <a href="../../../../index.html#key127">security</a>, <a href="../../../../index.html#key419">sha1</a></p>
+<p><a href="../../../../index.html#key211">FIPS 180-1</a>, <a href="../../../../index.html#key214">hashing</a>, <a href="../../../../index.html#key213">message-digest</a>, <a href="../../../../index.html#key212">rfc 2104</a>, <a href="../../../../index.html#key122">security</a>, <a href="../../../../index.html#key436">sha1</a></p>
 </div>
 <div id="category" class="section"><h2><a name="category">Category</a></h2>
 <p>Hashes, checksums, and encryption</p>
