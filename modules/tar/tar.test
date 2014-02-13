@@ -19,22 +19,22 @@ testing {
 
 # -------------------------------------------------------------------------
 
-test test-stream {} -setup setup1 -body {
+test tar-stream {stream} -setup setup1 -body {
     string length [read $chan1]
 } -cleanup cleanup1 -result 128000
 
-test tar-pad {} -body {
+test tar-pad {pad} -body {
     tar::pad 230 
 } -result {282}
 
-test tar-skip {} -setup setup1 -body {
+test tar-skip {skip} -setup setup1 -body {
     tar::skip $chan1 10
     lappend res [read $chan1 10]
     tar::skip $chan1 72313
     lappend res [read $chan1 10]
 } -cleanup cleanup1 -result {{6 7 8 9 10} {07 13908 1}}
 
-test tar-seekorskip-backwards {} -constraints tcl8.6plus -setup setup1 -body {
+test tar-seekorskip-backwards {seekorskip} -constraints tcl8.6plus -setup setup1 -body {
     # The zlib push stuff is Tcl 8.6+. Properly restrict the test.
     zlib push gzip $chan1
     catch {tar::seekorskip $chan1 -10 start} cres
@@ -46,16 +46,16 @@ test tar-seekorskip-backwards {} -constraints tcl8.6plus -setup setup1 -body {
     catch {tar::seekorskip $chan1 10 end} cres
     lappend res $cres
     lappend res [read $chan1 10]
-} -cleanup cleanup1 -match glob -result [
-    list {WHENCE=start not supported*} \
-    {WHENCE=start not supported*} \
-    {WHENCE=end not supported*} \
-    {WHENCE=end not supported*} \
-    {1 2 3 4 5 }
-    
-]
+} -cleanup cleanup1 -match glob \
+    -result [list \
+		 {WHENCE=start not supported*} \
+		 {WHENCE=start not supported*} \
+		 {WHENCE=end not supported*} \
+		 {WHENCE=end not supported*} \
+		 {1 2 3 4 5 } \
+		]
 
-test tar-header {} -body {
+test tar-header {header} -body {
     set file1 [dict get $filesys Dir1 File1]
     dict set file1 path /Dir1/File1
     set header [header_posix $file1]
@@ -66,12 +66,10 @@ test tar-header {} -body {
 	if {[set value1 [dict get $parsed $key]] ne $value } {
 	    lappend res [list $key $value $value1]
 	}
-	
     }
 } -result {}
 
-
-test tar-add {} -setup setup1 -body {
+test tar-add {add} -setup setup1 -body {
     tar::create $chan1 [list $tmpdir/one/a $tmpdir/one/two/a $tmpdir/one/three/a] -chan
     seek $chan1 0
     lappend res {*}[tar::contents $chan1 -chan]
@@ -79,6 +77,23 @@ test tar-add {} -setup setup1 -body {
     lappend res [string trim [tar::get $chan1 $tmpdir/one/two/a -chan]]
 } -cleanup cleanup1 -result {tartest/one/a tartest/one/two/a tartest/one/three/a hello2}
 
+
+test tar-bug-2840180 {} -setup setup2 -body {
+    tar::create $chan1 [list $tmpdir/[large-path]/a] -chan
+    seek $chan1 0
+
+    # What the package sees.
+    lappend res {*}[tar::contents $chan1 -chan]
+    close $chan1
+
+    # What a regular tar package sees.
+    lappend res [exec 2> $tmpfile.err tar tvf $tmpfile]
+    join $res \n
+} -cleanup cleanup2 -match glob \
+    -result [join [list \
+		       $tmpdir/[large-path]/a \
+		       "* $tmpdir/[large-path]/a" \
+		      ] \n]
 
 # -------------------------------------------------------------------------
 testsuiteCleanup

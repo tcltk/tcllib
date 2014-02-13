@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'tar\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "tar" n 0\&.9 tcllib "Tar file handling"
+.TH "tar" n 0\&.10 tcllib "Tar file handling"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ tar \- Tar file creation, extraction & manipulation
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBtar  ?0\&.9?\fR
+package require \fBtar  ?0\&.10?\fR
 .sp
 \fB::tar::contents\fR \fItarball\fR ?\fB-chan\fR?
 .sp
