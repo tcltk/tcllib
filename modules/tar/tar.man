@@ -1,4 +1,4 @@
-[vset PACKAGE_VERSION 0.9]
+[vset PACKAGE_VERSION 0.10]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin tar n [vset PACKAGE_VERSION]]
 [keywords archive]
