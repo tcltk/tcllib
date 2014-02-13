@@ -12,7 +12,7 @@
 # RCS: @(#) $Id: tar.tcl,v 1.17 2012/09/11 17:22:24 andreas_kupries Exp $
 
 package require Tcl 8.4
-package provide tar 0.9
+package provide tar 0.10
 
 namespace eval ::tar {}
 
@@ -145,6 +145,7 @@ proc ::tar::contents {file args} {
         array set header [readHeader [read $fh 512]]
 	HandleLongLink $fh header
         if {$header(name) == ""} break
+	if {$header(prefix) != ""} {append header(prefix) /}
         lappend ret $header(prefix)$header(name)
         seekorskip $fh [expr {$header(size) + [pad $header(size)]}] current
     }
@@ -168,6 +169,7 @@ proc ::tar::stat {tar {file {}} args} {
         array set header [readHeader [read $fh 512]]
 	HandleLongLink $fh header
         if {$header(name) == ""} break
+	if {$header(prefix) != ""} {append header(prefix) /}
         seekorskip $fh [expr {$header(size) + [pad $header(size)]}] current
         if {$file != "" && "$header(prefix)$header(name)" != $file} {continue}
         set header(type) [string map {0 file 5 directory 3 characterSpecial 4 blockSpecial 6 fifo 2 link} $header(type)]
@@ -196,6 +198,7 @@ proc ::tar::get {tar file args} {
         array set header [readHeader $data]
 	HandleLongLink $fh header
         if {$header(name) == ""} break
+	if {$header(prefix) != ""} {append header(prefix) /}
         set name [string trimleft $header(prefix)$header(name) /]
         if {$name == $file} {
             set file [read $fh $header(size)]
@@ -238,6 +241,7 @@ proc ::tar::untar {tar args} {
         array set header [readHeader [read $fh 512]]
 	HandleLongLink $fh header
         if {$header(name) == ""} break
+	if {$header(prefix) != ""} {append header(prefix) /}
         set name [string trimleft $header(prefix)$header(name) /]
         if {![string match $pattern $name] || ($nooverwrite && [file exists $name])} {
             seekorskip $fh [expr {$header(size) + [pad $header(size)]}] current
@@ -377,8 +381,12 @@ proc ::tar::formatHeader {name info} {
     if {[string length $name] > 255} {
         return -code error "path name over 255 chars"
     } elseif {[string length $name] > 100} {
-        set prefix [string range $name 0 end-100]
-        set name [string range $name end-99 end]
+	set common [string range $name end-99 154]
+	if {[set splitpoint [string first / $common]] == -1} {
+	    return -code error "path name cannot be split into prefix and name"
+	}
+	set prefix [string range $name 0 end-100][string range $common 0 $splitpoint-1]
+	set name   [string range $common $splitpoint+1 end][string range $name 155 end]
     } else {
         set prefix ""
     }
@@ -489,6 +497,7 @@ proc ::tar::remove {tar files} {
             puts -nonewline $tfh [string repeat \x00 1024]
             break
         }
+	if {$header(prefix) != ""} {append header(prefix) /}
         set name $header(prefix)$header(name)
         set len [expr {$header(size) + [pad $header(size)]}]
         if {[lsearch $files $name] > -1} {
