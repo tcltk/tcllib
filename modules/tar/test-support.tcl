@@ -61,10 +61,43 @@ proc setup1 {} {
     set chan1 [stream]
 }
 
+proc large-path {} {
+    return aaaaa/bbbbaaaaa/bbbbaaaaa/bbbbaaaaa/bbbbaaaaa/bbbbaaaaa/bbbbaaaaa/bbbbaaaaa/bbbbaaaaa/bbbbaaaaa/bbbbtcllib/modules/tar
+}
+
+proc setup2 {} {
+    variable chan1
+    variable res {}
+    variable tmpdir tartest
+    variable tmpfile tarX
+
+    tcltest::makeDirectory $tmpdir
+    tcltest::makeFile {} $tmpfile
+
+    foreach directory [list [large-path]] {
+	tcltest::makeDirectory $tmpdir/$directory
+	set    chan [open $tmpdir/$directory/a w]
+	puts  $chan hello[incr i]
+	close $chan
+    }
+    set chan1 [open $tmpfile w+]
+}
+
 proc cleanup1 {} {
     variable chan1
     close $chan1
     tcltest::removeDirectory tartest
+    return
+}
+
+proc cleanup2 {} {
+    variable chan1
+    variable tmpdir
+    variable tmpfile
+    catch { close $chan1 }
+    tcltest::removeDirectory $tmpdir
+    tcltest::removeFile      $tmpfile
+    tcltest::removeFile      $tmpfile.err
     return
 }
 
