@@ -1,6 +1,6 @@
 # -*- tcl -*- \
 # @@ Meta Begin
-# Application dtplite 1.1
+# Application dtplite 1.2
 # Meta platform     tcl
 # Meta summary      Lightweight DocTools Processor
 # Meta description  This application is a simple processor
@@ -19,7 +19,7 @@
 # Meta license      BSD
 # @@ Meta End
 
-package provide dtplite 1.1
+package provide dtplite 1.2
 
 # dtp lite - Lightweight DocTools Processor
 # ======== = ==============================
@@ -638,13 +638,13 @@ proc ::dtplite::Usage {} {
 	    ?-style file? ?-header file?\
 	    ?-footer file? ?-nav label url?...\
 	    format inputpath"
-    return -code error -errorcode STOP {}
+    return -code error -errorcode {DTPLITE STOP} {}
 }
 
 proc ::dtplite::ArgError {text} {
     global argv0
     Print stderr "$argv0: $text"
-    return -code error -errorcode STOP {}
+    return -code error -errorcode {DTPLITE STOP} {}
 }
 
 proc ::dtplite::Print {args} {
