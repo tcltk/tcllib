@@ -555,6 +555,10 @@ proc ::ftp::StateHandler {s {sock ""}} {
             switch -exact -- $rc {
                 1 {}
 		2 {
+		    # Sync control sequencer to active data connection
+		    # before stepping out
+		    WaitDataConn $s
+
 		    set nextState 1
 		    if {[info exists ftp(NextState)] && ![llength $ftp(NextState)]} {
 			Command $ftp(Command) list [ListPostProcess $ftp(List)]
@@ -2801,6 +2805,7 @@ proc ::ftp::CloseDataConn {s } {
 	catch {unset ftp(DestCI)}
     }
 
+    catch { unset ftp(AC) }
     catch {after cancel $ftp(Wait)}
     catch {fileevent $ftp(DataSock) readable {}}
     catch {close $ftp(DataSock); unset ftp(DataSock)}
@@ -2889,6 +2894,55 @@ proc ::ftp::InitDataConn {s sock addr port} {
     if { $VERBOSE } {
         DisplayMsg $s "D: ... Connection from $addr:$port ... initialized" data
     }
+
+    # Marker for WaitDataConn
+    set ftp(AC) 1
+    return
+}
+
+#############################################################################
+#
+# WaitDataConn --
+# Arguments: The ftp connection handle
+# Returns:   None
+#
+# Synchronizes the control sequencer to the data connection (active
+# mode). This must be placed at the end of all state sequences,
+# i.e. the last state of each sequence, dealing with a data
+# connection. Without the sync the control sequencer may step to the
+# next command causing a very late-coming data connection to encounter
+# an unknown state, and failing to establish what to do.
+#
+# Sync is achieved through the state field AC, in cooperation with the
+# procedures OpenActiveConn and InitDataConn.
+#
+# Missing field => Not an active connection - Ignore
+# AC == 0       => OAC has run, IDC not     - Wait for IDC, then cleanup
+# AC == 1       => OAC has run, IDC as well - No waiting, just cleanup.
+
+proc ::ftp::WaitDataConn {s} {
+    variable verbose
+    upvar ::ftp::ftp$s ftp
+
+    if {$VERBOSE} { DisplayMsg $s WDC|$s|Begin|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ }
+
+    # Passive connection, nothing to do
+    if {![info exists ftp(AC)]} {
+	if {$VERBOSE} { DisplayMsg $s WDC|$s|Passive|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ }
+	return
+    }
+
+    # InitDataConn has not run yet. Wait!
+    if {!$ftp(AC)} {
+	if {$VERBOSE} { DisplayMsg $s WDC|$s|Sync|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ }
+	vwait ::ftp::ftp${s}(AC)
+	# assert ftp(AC) == 1
+	if {$VERBOSE} { DisplayMsg $s WDC|$s|Synced|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ }
+    } ; # else: Was run already
+
+    if {$VERBOSE} { DisplayMsg $s WDC|$s|Cleanup|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ }
+    # InitDataConn has run, clean up and continue
+    unset ftp(AC)
     return
 }
 
@@ -2933,6 +2987,8 @@ proc ::ftp::OpenActiveConn {s } {
     }
     set ftp(DataPort) "[expr {$p / 256}],[expr {$p % 256}]"
 
+    # Marker for WaitDataConn
+    set ftp(AC) 0
     return 1
 }
 
