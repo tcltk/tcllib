@@ -103,9 +103,10 @@ test json-write-2.4 {argument errors} -body {
 
 # -------------------------------------------------------------------------
 
-test json-write-3.0 {indented, aligned} -body {
+test json-write-3.0 {indented, aligned} -setup {
     json::write indented 1
     json::write aligned  1
+} -body {
     gen $data
 } -result {{
     "grammar" : {
@@ -147,9 +148,10 @@ test json-write-3.0 {indented, aligned} -body {
     }
 }}
 
-test json-write-3.1 {indented, !aligned} -body {
+test json-write-3.1 {indented, !aligned} -setup {
     json::write indented 1
     json::write aligned  0
+} -body {
     gen $data
 } -result {{
     "grammar" : {
@@ -191,11 +193,19 @@ test json-write-3.1 {indented, !aligned} -body {
     }
 }}
 
-test json-write-3.1 {!indented, !aligned} -body {
+test json-write-3.1 {!indented, !aligned} -setup {
     json::write indented 0
     json::write aligned  0
+} -body {
     gen $data
 } -result {{"grammar":{"rules":{"A":{"is":"/ {t +} {t -}","mode":"value"},"D":{"is":"/ {t 0} {t 1} ","mode":"value"},"E":{"is":"/ {x {t (} {n E} {t )}} {x {n F} {* {x {n M} {n F}}}}","mode":"value"},"F":{"is":"x {n T} {* {x {n A} {n T}}}","mode":"value"},"M":{"is":"/ {t *} {t /}","mode":"value"},"N":{"is":"x {? {n S}} {+ {n D}}","mode":"value"},"S":{"is":"/ {t +} {t -}","mode":"value"},"T":{"is":"n N","mode":"value"}},"start":"n Expression"}}}
+
+
+# -------------------------------------------------------------------------
+
+test json-write-4.0 {string quoting} -body {
+    json::write string "a\"b\\c\bd\fe\nf\rg\th\0i\1j\2k\3l\177m"
+} -result "\"a\\\"b\\\\c\\bd\\fe\\nf\\rg\\th\\u0000i\\u0001j\\u0002k\\u0003l\\u007fm\""
 
 # -------------------------------------------------------------------------
 unset data
