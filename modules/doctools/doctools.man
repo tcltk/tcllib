@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin doctools n 1.4.16]
+[vset PACKAGE_VERSION 1.4.18]
+[manpage_begin doctools n [vset PACKAGE_VERSION]]
 [see_also doctools_intro]
 [see_also doctools_lang_cmdref]
 [see_also doctools_lang_intro]
@@ -12,12 +13,12 @@
 [keywords markup]
 [keywords nroff]
 [keywords TMML]
-[copyright {2003-2013 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2003-2014 Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc   {Documentation tools}]
 [titledesc {doctools - Processing documents}]
 [category  {Documentation tools}]
 [require Tcl 8.2]
-[require doctools [opt 1.4.16]]
+[require doctools [opt [vset PACKAGE_VERSION]]]
 [description]
 
 This package provides a class for the creation of objects able to

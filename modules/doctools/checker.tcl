@@ -4,7 +4,7 @@
 # Code used inside of a checker interpreter to ensure correct usage of
 # doctools formatting commands.
 #
-# Copyright (c) 2003-2010 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2014 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 # L10N
 
@@ -252,6 +252,9 @@ proc vset {var args} {
 	0 {
 	    # Retrieve contents of variable VAR
 	    upvar #0 __$var data
+	    if {![info exists data]} {
+		return -code error "can't read doc variable \"$var\": not set"
+	    }
 	    return $data
 	}
 	1 {
