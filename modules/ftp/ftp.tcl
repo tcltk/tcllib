@@ -2921,7 +2921,7 @@ proc ::ftp::InitDataConn {s sock addr port} {
 # AC == 1       => OAC has run, IDC as well - No waiting, just cleanup.
 
 proc ::ftp::WaitDataConn {s} {
-    variable verbose
+    variable VERBOSE
     upvar ::ftp::ftp$s ftp
 
     if {$VERBOSE} { DisplayMsg $s WDC|$s|Begin|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ }
