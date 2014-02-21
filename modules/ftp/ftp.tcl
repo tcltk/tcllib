@@ -809,6 +809,10 @@ proc ::ftp::StateHandler {s {sock ""}} {
 		    return
 		}
                 2 {
+		    # Sync control sequencer to active data connection
+		    # before stepping out
+		    WaitDataConn $s
+
                     set complete_with 1
 		    set nextState 1
 		    Command $ftp(Command) put $ftp(RemoteFilename)
@@ -878,6 +882,10 @@ proc ::ftp::StateHandler {s {sock ""}} {
         append_close {
             switch -exact -- $rc {
                 2 {
+		    # Sync control sequencer to active data connection
+		    # before stepping out
+		    WaitDataConn $s
+
                     set complete_with 1
 		    set nextState 1
 		    Command $ftp(Command) append $ftp(RemoteFilename)
@@ -964,6 +972,10 @@ proc ::ftp::StateHandler {s {sock ""}} {
         reget_close {
             switch -exact -- $rc {
                 2 {
+		    # Sync control sequencer to active data connection
+		    # before stepping out
+		    WaitDataConn $s
+
                     set complete_with 1
 		    set nextState 1
 		    Command $ftp(Command) get $ftp(RemoteFilename):$ftp(From):$ftp(To)
@@ -1034,6 +1046,10 @@ proc ::ftp::StateHandler {s {sock ""}} {
         get_close {
             switch -exact -- $rc {
                 2 {
+		    # Sync control sequencer to active data connection
+		    # before stepping out
+		    WaitDataConn $s
+
                     set complete_with 1
 		    set nextState 1
 		    if {$ftp(inline)} {
