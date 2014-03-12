@@ -206,7 +206,12 @@ proc ::debug::setting {args} {
 }
 
 # # ## ### ##### ######## ############# #####################
-## Convenience command. Format an array as multi-line message.
+## Convenience commands.
+# Format arrays and dicts as multi-line message.
+# Insert newlines and tabs.
+
+proc ::debug::nl  {} { return \n }
+proc ::debug::tab {} { return \t }
 
 proc ::debug::parray {a {pattern *}} {
     upvar 1 $a array
@@ -227,7 +232,7 @@ proc ::debug::pdict {dict {pattern *}} {
     set maxl [expr {$maxl + 2}]
     set lines {}
     foreach name $names {
-	set nameString [format %s(%s) $name]
+	set nameString [format (%s) $name]
 	lappend lines [format "%-*s = %s" \
 			   $maxl $nameString \
 			   [dict get $dict $name]]
@@ -255,5 +260,5 @@ namespace eval debug {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide debug 1.0.2
+package provide debug 1.0.3
 return
