@@ -1,5 +1,6 @@
+[vset ZIP_DECODE_VERSION 0.5]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin zipfile::encode n 0.3]
+[manpage_begin zipfile::encode n [vset ZIP_DECODE_VERSION]]
 [keywords decompression zip]
 [copyright {2008-2012 Andreas Kupries}]
 [moddesc {Zip archive handling}]
@@ -10,7 +11,7 @@
 [require fileutil::decode 0.2]
 [require Trf]
 [require zlibtcl]
-[require zipfile::decode [opt 0.4]]
+[require zipfile::decode [opt [vset ZIP_DECODE_VERSION]]]
 [description]
 [para]
 
