@@ -21,7 +21,7 @@ catch {package require tcllibc};        # critcl enhancements to tcllib
 #catch {package require crcc};           # critcl enhanced crc module
 
 namespace eval ::crc {
-    variable sum_version 1.1.0
+    variable sum_version 1.1.1
     namespace export sum
 
     variable uid
@@ -44,7 +44,7 @@ proc ::crc::SumSysV {s {seed 0}} {
     foreach n $r {
         incr t [expr {$n & 0xFF}]
     }
-    return [expr {$t % 0xFFFF}]
+    return [expr {$t & 0xFFFF}]
 }
 
 # -------------------------------------------------------------------------

@@ -1,4 +1,5 @@
-[manpage_begin sum n 1.1.0]
+[vset SUM_VERSION 1.1.1]
+[manpage_begin sum n [vset SUM_VERSION]]
 [see_also cksum(n)]
 [see_also crc32(n)]
 [see_also sum(1)]
@@ -15,7 +16,7 @@
 [titledesc {Calculate a sum(1) compatible checksum}]
 [category  {Hashes, checksums, and encryption}]
 [require Tcl 8.2]
-[require sum [opt 1.1.0]]
+[require sum [opt [vset SUM_VERSION]]]
 [description]
 [para]
 
