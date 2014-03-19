@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin html n 1.4]
+[vset HTML_VERSION 1.4.1]
+[manpage_begin html n [vset HTML_VERSION]]
 [see_also htmlparse]
 [see_also ncgi]
 [keywords checkbox]
@@ -12,7 +13,7 @@
 [titledesc {Procedures to generate HTML structures}]
 [category  {CGI programming}]
 [require Tcl 8.2]
-[require html [opt 1.4]]
+[require html [opt [vset HTML_VERSION]]]
 [description]
 [para]
 
