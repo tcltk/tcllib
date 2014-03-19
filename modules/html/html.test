@@ -829,10 +829,12 @@ test html-33.1 {html::font} {
     html::font size=18
 } {<font size=18>}
 
-
 test html-34.0 {html::nl2br} {
     html::nl2br "a\n\rb\nc\rd"
 } {a<br>b<br>c<br>d}
 
+test html-34.1 {html::nl2br, bug 1742078} {
+    html::nl2br "a\r\nb"
+} {a<br>b}
 
 testsuiteCleanup
