@@ -15,7 +15,7 @@
 
 package require Tcl 8.2
 package require ncgi
-package provide html 1.4
+package provide html 1.4.1
 
 namespace eval ::html {
 
@@ -1405,7 +1405,7 @@ proc ::html::html_entities {s} {
 #	The text with <br> in place of line-endings.
 
 proc ::html::nl2br {s} {
-    return [string map [list \n\r <br> \n <br> \r <br>] $s]
+    return [string map [list \n\r <br> \r\n <br> \n <br> \r <br>] $s]
 }
 
 # ::html::doctype
