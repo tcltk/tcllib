@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset HTML_VERSION 1.4.1]
+[vset HTML_VERSION 1.4.2]
 [manpage_begin html n [vset HTML_VERSION]]
 [see_also htmlparse]
 [see_also ncgi]
@@ -63,7 +63,7 @@ the elements.
 
 [call [cmd ::html::checkValue] [arg name] [opt [arg value]]]
 
-Generate the "name=[arg name] value=[arg value] for a [term checkbox] form
+Generate the "name=[arg name] value=[arg value]" for a [term checkbox] form
 element.  If the CGI variable [arg name] has the value [arg value],
 then SELECTED is added to the return value. [arg value] defaults to
 "1".
@@ -245,6 +245,51 @@ define a [term meta] tag for the page.  The [arg args] is a Tcl-style name,
 value list that is used for the name= and value= parameters for the
 [term meta] tag.  The [term meta] tag is included in the result of
 [cmd ::html::head].
+
+[call [cmd ::html::css] [arg href]]
+
+[emph {Side effect only}].  Call this before [cmd ::html::head] to
+define a [term link] tag for a linked CSS document.  The [arg href] 
+value is a HTTP URL to a CSS document. The [term link] tag is included 
+in the result of [cmd ::html::head].
+
+[para]
+
+Multiple calls of this command are allowed, enabling the use of
+multiple CSS document references. In other words, the arguments
+of multiple calls are accumulated, and do not overwrite each other.
+
+[call [cmd ::html::css-clear]]
+
+[emph {Side effect only}].  Call this before [cmd ::html::head] to
+clear all links to CSS documents.
+[para]
+
+Multiple calls of this command are allowed, doing nothing after the
+first of a sequence with no intervening [cmd ::html::css].
+
+[call [cmd ::html::js] [arg href]]
+
+[emph {Side effect only}].  Call this before [cmd ::html::head] to
+define a [term script] tag for a linked JavaScript document.  The 
+[arg href] is a HTTP URL to a JavaScript document. The [term script]
+tag is included in the result of [cmd ::html::head].
+
+[para]
+
+Multiple calls of this command are allowed, enabling the use of
+multiple JavaScript document references. In other words, the arguments
+of multiple calls are accumulated, and do not overwrite each other.
+
+
+[call [cmd ::html::js-clear]]
+
+[emph {Side effect only}].  Call this before [cmd ::html::head] to
+clear all links to JavaScript documents.
+[para]
+
+Multiple calls of this command are allowed, doing nothing after the
+first of a sequence with no intervening [cmd ::html::js].
 
 [call [cmd ::html::minorList] [arg list] [opt [arg ordered]]]
 
