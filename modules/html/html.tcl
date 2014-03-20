@@ -15,7 +15,7 @@
 
 package require Tcl 8.2
 package require ncgi
-package provide html 1.4.2
+package provide html 1.4.3
 
 namespace eval ::html {
 
@@ -1419,9 +1419,10 @@ proc ::html::nl2br {s} {
 
 proc ::html::doctype {arg} {
     variable doctypes
-    set code [string toupper $arg]
-    if {![info exists doctypes($code)]} {
-	return -code error "Unknown doctype \"$arg\""
+    ::set code [string toupper $arg]
+    ::if {![info exists doctypes($code)]} {
+	return -code error -errorcode {HTML DOCTYPE BAD} \
+	    "Unknown doctype \"$arg\""
     }
     return $doctypes($code)
 }
