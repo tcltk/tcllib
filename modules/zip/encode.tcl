@@ -22,6 +22,9 @@ package require fileutil ; # zipdir convenience method
 logger::initNamespace ::zipfile::encode
 snit::type            ::zipfile::encode {
 
+    # ZIP64 modi: always, never, as-required
+
+
     constructor {} {}
     destructor {}
 
@@ -97,10 +100,15 @@ snit::type            ::zipfile::encode {
     }
 
     # ### ### ### ######### ######### #########
-    ##
+    ## Comment text and map of files.
+    #
+    # files: dst-path -> (owned, origin-path, origin-size, creation-time, permissions)
+    #   Note: Directory paths are encoded using a trailing "/" on the
+    #   destination path, and an empty origin path, of size 0.
 
     variable comment      {}
     variable files -array {}
+    variable zip64        0
 
     # ### ### ### ######### ######### #########
     ##
@@ -153,7 +161,7 @@ snit::type            ::zipfile::encode {
 		if {$owned} {
 		    file delete -force $src
 		}
-		set src   $temp ; # Copy the copressed temp file.
+		set src   $temp ; # Copy the compressed temp file.
 		set owned 1     ; # We own the source file now.
 		set cm    8     ; # deflated
 		set gpbf  2     ; # flags - deflated maximum
@@ -171,11 +179,13 @@ snit::type            ::zipfile::encode {
 
 	# Write the local file header
 
-	set fnlen  [string bytelength $dst]
-	set offset [tell $ch] ; # location local header, needed for central header
+	set fnlen   [string bytelength $dst]
+	set offset  [tell $ch] ; # location local header, needed for central header
+	set vneeded 20 ; # vnte/lsb/version = 2.0 (deflate needed)
+	# ZIP64: vneeded 45
 
 	tag      $ch 4 3
-	byte     $ch 20     ; # vnte/lsb/version = 2.0 (deflate needed)
+	byte     $ch $vneeded
 	byte     $ch 3      ; # vnte/msb/host    = UNIX (file attributes = mode).
 	short-le $ch $gpbf  ; # gpbf /deflate info
 	short-le $ch $cm    ; # cm
@@ -189,6 +199,9 @@ snit::type            ::zipfile::encode {
 	str      $ch $dst   ; # file name
 	# No extra field.
 
+	# ZIP64: If activated an extra field with the correct sizes.
+	# ZIP64: writeZip64FileExtension $ch <dict> osize, csize, disk, offset
+
 	if {$csize > 0} {
 	    # Copy file data over. Maybe a compressed temp. file.
 
@@ -200,7 +213,10 @@ snit::type            ::zipfile::encode {
 	# Write a data descriptor repeating crc & size info, if
 	# necessary.
 
+	## XXX BUG ? condition bogus - gpbf bit 3 must be set / never for us, see above
 	if {$crc == 0} {
+	    ## ZIP64 stores 8-byte file sizes, i.e long-long.
+
 	    tag     $ch 8 7
 	    long-le $ch $crc   ; # crc32
 	    long-le $ch $csize ; # compressed file size
@@ -225,6 +241,8 @@ snit::type            ::zipfile::encode {
 	foreach {owned src size ctime attr cm gpbf csize offset crc} $files($dst) break
 
 	set fnlen [string bytelength $dst]
+
+	# zip64 - version needed = 4.5
 
 	tag      $ch 2 1
 	byte     $ch 20      ; # vmb/lsb/version  = 2.0
@@ -254,9 +272,12 @@ snit::type            ::zipfile::encode {
     }
 
     method writeEndOfCentralDir {ch cfhoffset cfhsize} {
-
 	set clen   [string bytelength $comment]
 	set nfiles [array size files]
+
+	# if needed for fields in the ECD, or zip64 generally activated..
+	#   ZIP64: writeZip64EndOfCentralDir $ch
+	#   ZIP64: writeZip64ECDLocator $ch ?offset?
 
 	tag      $ch 6 5
 	short-le $ch 0          ; # number of this disk
@@ -272,6 +293,99 @@ snit::type            ::zipfile::encode {
 	return
     }
 
+    method writeZip64FileExtension {ch dict} {
+	dict with $dict {}
+	# osize, csize offset disk
+
+	# Determine extension size based on elements to write
+	set block 0
+	if {[info exists osize]}  { incr block 8 }
+	if {[info exists csize]}  { incr block 8 }
+	if {[info exists offset]} { incr block 8 }
+	if {[info exists disk]}   { incr block 4 }
+
+	# Write extension header
+	short-le $ch 1
+	short-le $ch $block
+
+	# Write the elements
+	if {[info exists osize]}  { quad-le $ch $osize }
+	if {[info exists csize]}  { quad-le $ch $csize }
+	if {[info exists offset]} { quad-le $ch $offset }
+	if {[info exists disk]}   { long-le $ch $disk   }
+	return
+    }
+
+    method writeZip64EndOfCentralDir {ch offset} {
+
+	#  0 long              signature 0x06 06 4b 50 == "PK" 6 6
+	#  4 long-long         size of the "end of central directory record" = this.
+	# 12 short             version made by
+	# 14 short             version needed
+	# 16 long              number of disk
+	# 20 long              number of disk with start of central directory
+	# 24 long-long         number of files in this disk
+	# 32 long-long         number of files in whole archive
+	# 40 long-long         offset of central dir with respect to starting disk
+
+	# (v2 fields: 28822222 -) appnote 7.3.4
+
+
+	# 48 variable          zip64 extensible data sector
+
+	# size = size without the leading 12 bytes (i.e. signature and size fields).
+	# above structure is version 1
+
+	set nfiles [array size files]
+
+	tag      $ch 6 6
+	quad-le  $ch 36 ;# 48-12 (size counted without lead fields (tag+size))
+	short-le $ch 1
+	short-le $ch 1
+	long-le  $ch 1
+	long-le  $ch 0
+	quad-le  $ch $nfiles
+	quad-le  $ch $nfiles
+	quad-le  $ch $offset
+
+	# extensible block =
+	# short      ID
+	# long       size
+	# char[size] data
+
+	# multiple extension blocks allowed, all of the format.
+
+	# -----------------------------------------------
+	# ID 0x001 zip64 extended information extra field
+
+	# DATA
+	# long-long : original size
+	# long-long : compressed size
+	# long-long : header offset
+	# long      : disk start number
+	#
+	# each field appears only when signaled (*) to be required by
+	# the corresponding field of the regular L/C directory entry.
+	# the order is fixed as shown.
+	#
+	# (*) (long) -1, or (short) -1, depending on field size,
+	#     i.e 0xFFFFFFFF and 0xFFFF
+    }
+
+    method writeZip64ECDLocator {ch offset} {
+	# 0  long      signature 0x 07 06 4b 50 == "PK" 7 6
+	# 4  long      number of disk holding the start of the ECD
+	# 8  long-long relative offset of the ECD
+	# 16 long      total number of disks
+	# 20
+
+	tag     $ch 7 6
+	long-le $ch 0
+	quad-le $ch $offset
+	long-le $ch 1
+	return
+    }
+
     proc tag {ch x y} {
 	byte $ch 80 ; # 'P'
 	byte $ch 75 ; # 'K'
@@ -281,15 +395,28 @@ snit::type            ::zipfile::encode {
     }
 
     proc byte {ch x} {
+	# x = 1 byte uchar
 	puts -nonewline $ch [binary format c $x]
     }
 
     proc short-le {ch x} {
+	# x = 2 byte short
 	puts -nonewline $ch [binary format s $x]
     }
 
     proc long-le {ch x} {
+	# x = 4 byte long
 	puts -nonewline $ch [binary format i $x]
+    }
+
+    proc quad-le {ch x} {
+	# x = 8 byte long (wideint)
+	set hi [expr {($x >> 32) & 0xFFFFFFFF}]
+	set lo [expr {($x      ) & 0xFFFFFFFF}]
+	# lo             >>  0
+
+	long-le $ch $lo
+	long-le $ch $hi
     }
 
     proc str {ch text} {
