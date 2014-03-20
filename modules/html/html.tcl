@@ -15,7 +15,7 @@
 
 package require Tcl 8.2
 package require ncgi
-package provide html 1.4.1
+package provide html 1.4.2
 
 namespace eval ::html {
 
@@ -510,7 +510,7 @@ proc ::html::refresh {content {url {}}} {
     ::if {[string length $url]} {
 	append html "; url=$url"
     }
-    append html "\">\n"
+    append html "\">"
     lappend page(meta) $html
     return ""
 }
@@ -1451,12 +1451,26 @@ namespace eval ::html {
 #	href	The location of the css file to include the filename and path
 #
 # Results:
-#	HTML for the  section
+#	None.
 
 proc ::html::css {href} {
     variable page
-    set page(css) \
-	"<link rel=\"stylesheet\" type=\"text/css\" href=\"[quoteFormValue $href]\">\n"
+    lappend page(css) "<link rel=\"stylesheet\" type=\"text/css\" href=\"[quoteFormValue $href]\">"
+    return
+}
+
+# ::html::css-clear
+#	Drop all text/css references.
+#
+# Arguments:
+#	None.
+#
+# Results:
+#	None.
+
+proc ::html::css-clear {} {
+    variable page
+    catch { unset page(css) }
     return
 }
 
@@ -1467,11 +1481,25 @@ proc ::html::css {href} {
 #	href	The location of the javascript file to include the filename and path
 #
 # Results:
-#	HTML for the  section
+#	None.
 
 proc ::html::js {href} {
     variable page
-    set page(js) \
-	"<script language=\"javascript\" type=\"text/javascript\" src=\"[quoteFormValue $href]\"></script>\n"
+    lappend page(js) "<script language=\"javascript\" type=\"text/javascript\" src=\"[quoteFormValue $href]\"></script>"
+    return
+}
+
+# ::html::js-clear
+#	Drop all text/javascript references.
+#
+# Arguments:
+#	None.
+#
+# Results:
+#	None.
+
+proc ::html::js-clear {} {
+    variable page
+    catch { unset page(js) }
     return
 }
