@@ -925,4 +925,22 @@ test html-tkt3439702-37.0 {html::js, html::css, mixed} -setup {
 # -------------------------------------------------------------------------
 # TODO: html::css-clear, html::js-clear
 
+
+test html-tktafe4366e2e-38.0 {html::doctype, not enough args} -body {
+    html::doctype
+} -returnCodes error -result {wrong # args: should be "html::doctype arg"}
+
+test html-tktafe4366e2e-38.1 {html::doctype, too many args} -body {
+    html::doctype HTML401T X
+} -returnCodes error -result {wrong # args: should be "html::doctype arg"}
+
+test html-tktafe4366e2e-38.2 {html::doctype, unknown type} -body {
+    html::doctype HTML401TXXX
+} -returnCodes error -result {Unknown doctype "HTML401TXXX"}
+
+test html-tktafe4366e2e-38.3 {html::doctype} -body {
+    html::doctype HTML401T
+} -result {<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">}
+
+# -------------------------------------------------------------------------
 testsuiteCleanup

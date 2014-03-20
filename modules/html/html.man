@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset HTML_VERSION 1.4.2]
+[vset HTML_VERSION 1.4.3]
 [manpage_begin html n [vset HTML_VERSION]]
 [see_also htmlparse]
 [see_also ncgi]
@@ -352,7 +352,7 @@ is a Tcl-style label, value list.
 
 [call [cmd ::html::radioValue] [arg {name value}]]
 
-Generate the "name=[arg name] value=[arg value] for a [term radio] form
+Generate the "name=[arg name] value=[arg value]" for a [term radio] form
 element.  If the CGI variable [arg name] has the value [arg value],
 then SELECTED is added to the return value.
 
@@ -446,6 +446,28 @@ This procedure is similar to the built-in Tcl [cmd while] control
 structure.  Rather than evaluating the body, it returns the subst'ed
 [arg body].  Each iteration of the loop causes another string to be
 concatenated to the result value.
+
+[call [cmd ::html::doctype] [arg id]]
+
+This procedure can be used to build the standard DOCTYPE
+declaration string. It will return the standard declaration
+string for the id, or throw an error if the id is not known.
+The following id's are defined:
+
+[list_begin enumerated]
+[enum] HTML32
+[enum] HTML40
+[enum] HTML40T
+[enum] HTML40F
+[enum] HTML401
+[enum] HTML401T
+[enum] HTML401F
+[enum] XHTML10S
+[enum] XHTML10T
+[enum] XHTML10F
+[enum] XHTML11
+[enum] XHTMLB
+[list_end]
 
 [list_end]
 
