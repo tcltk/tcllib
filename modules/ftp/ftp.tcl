@@ -187,18 +187,31 @@ proc ::ftp::WaitOrTimeout {s} {
 #
 
 proc ::ftp::WaitComplete {s value} {
+    variable VERBOSE
     upvar ::ftp::ftp$s ftp
+
+    if {$VERBOSE} { DisplayMsg $s Waiting|Complete|$s|$value|\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# }
 
     if {![info exists ftp(Command)]} {
 	set ftp(state.control) $value
+
+	if {$VERBOSE} { DisplayMsg $s Waiting|Complete|Done/Command|$value|\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# }
 	return $value
     }
     if { ![string length $ftp(Command)] && [info exists ftp(state.data)] } {
+
+	if {$VERBOSE} { DisplayMsg $s Waiting|State|\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# }
+
         vwait ::ftp::ftp${s}(state.data)
+
+	if {$VERBOSE} { DisplayMsg $s Waiting|State|Done|\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# }
     }
 
     catch {after cancel $ftp(Wait)}
     set ftp(state.control) $value
+
+    if {$VERBOSE} { DisplayMsg $s Waiting|OK|$ftp(state.control)|\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# }
+
     return $ftp(state.control)
 }
 
@@ -947,7 +960,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
                         set errmsg "Error setting PASSIVE mode!"
                     } else {
                         set errmsg "Error setting port!"
-                    }  
+                    }
                     set complete_with 0
 		    Command $ftp(Command) error $errmsg
                 }
@@ -1072,7 +1085,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
 	}
     }
 
-    if {$VERBOSE} { DisplayMsg $s ////////StateDone }
+    if {$VERBOSE} { DisplayMsg $s ////////StateDone==>$ftp(State) }
 
     # finish waiting 
     if { [info exists complete_with] } {
@@ -1101,9 +1114,14 @@ proc ::ftp::StateHandler {s {sock ""}} {
     }
 
     # If operating asynchronously, commence next state
+    if {$VERBOSE} {
+	DisplayMsg $s "ns=$nextState, NS=[info exists ftp(NextState)], NSlen=[expr {[info exists ftp(NextState)] && [llength $ftp(NextState)]}]"
+    }
     if {$nextState && [info exists ftp(NextState)] && [llength $ftp(NextState)]} {
 	# Pop the head of the NextState queue
-	set ftp(State) [lindex $ftp(NextState) 0]
+	if {$VERBOSE} { DisplayMsg $s Sequence=($ftp(NextState)) }
+
+	set ftp(State)     [lindex   $ftp(NextState) 0]
 	set ftp(NextState) [lreplace $ftp(NextState) 0 0]
 
 	if {$VERBOSE} { DisplayMsg $s Recurse/StateHandler }
@@ -2851,6 +2869,7 @@ proc ::ftp::InitDataConn {s sock addr port} {
 
     if { $VERBOSE } {
         DisplayMsg $s "D: New Connection from $addr:$port" data
+        DisplayMsg $s "D: Sequencer state $ftp(State)" data
     }
 
     # If the new channel is accepted, the dummy channel will be closed
