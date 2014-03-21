@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 1.0.4]
+[vset PACKAGE_VERSION 1.0.5]
 [manpage_begin debug n [vset PACKAGE_VERSION]]
 [keywords debug]
 [keywords log]
@@ -129,6 +129,17 @@ how the builtin command [cmd parray] does for array, and returns the
 resulting string.
 
 [para] This makes it suitable for use in debug messages.
+
+[comment {= = == === ===== ======== ============= =====================}]
+[call [cmd debug] [method hexl] [arg data] [opt [arg prefix]]]
+
+This is a convenience method formatting arbitrary data into a hex-dump
+and returns the resulting string.
+
+[para] This makes it suitable for use in debug messages.
+
+[para] Each line of the dump is prefixed with [arg prefix]. This prefix
+defaults to the empty string.
 
 [comment {= = == === ===== ======== ============= =====================}]
 [call [cmd debug] [method nl]]
