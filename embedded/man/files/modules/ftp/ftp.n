@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'ftp\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "ftp" n 2\&.4\&.11 tcllib "ftp client"
+.TH "ftp" n 2\&.4\&.13 tcllib "ftp client"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ ftp \- Client-side tcl implementation of the ftp protocol
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBftp  ?2\&.4\&.11?\fR
+package require \fBftp  ?2\&.4\&.13?\fR
 .sp
 \fB::ftp::Open\fR \fIserver\fR \fIuser\fR \fIpasswd\fR ?\fIoptions\fR?
 .sp

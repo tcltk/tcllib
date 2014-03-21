@@ -2148,7 +2148,7 @@ decompression
 tcl::transform::zlib
 .TP
 \fBfiles/modules/zip/decode\&.n\fR
-zipfile::encode
+zipfile::decode
 .RE
 decryption
 .RS
@@ -11288,10 +11288,10 @@ tcl::chan::zero
 zip
 .RS
 .TP
-\fBfiles/modules/zip/encode\&.n\fR
-zipfile::encode
-.TP
 \fBfiles/modules/zip/decode\&.n\fR
+zipfile::decode
+.TP
+\fBfiles/modules/zip/encode\&.n\fR
 zipfile::encode
 .RE
 zlib
