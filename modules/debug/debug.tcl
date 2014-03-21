@@ -21,7 +21,8 @@ package require Tcl 8.5
 namespace eval ::debug {
     namespace export -clear \
 	define on off prefix suffix header trailer \
-	names 2array level setting parray pdict
+	names 2array level setting parray pdict \
+	nl tab
     namespace ensemble create -subcommands {}
 }
 
@@ -260,5 +261,5 @@ namespace eval debug {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide debug 1.0.3
+package provide debug 1.0.4
 return
