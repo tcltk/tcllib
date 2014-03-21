@@ -327,6 +327,7 @@ snit::type            ::zipfile::encode {
 	# 24 long-long         number of files in this disk
 	# 32 long-long         number of files in whole archive
 	# 40 long-long         offset of central dir with respect to starting disk
+	# 48
 
 	# (v2 fields: 28822222 -) appnote 7.3.4
 

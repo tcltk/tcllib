@@ -7,11 +7,16 @@
 # Package providing commands for the decoding of basic zip-file
 # structures.
 
-package require Tcl 8.4
+package require Tcl 8.5
 package require fileutil::magic::mimetype ; # Tcllib. File type determination via magic constants
 package require fileutil::decode 0.2      ; # Framework for easy decoding of files.
 package require Trf                       ; # Wrapper to zlib
 package require zlibtcl                   ; # Zlib usage. No commands, access through Trf
+package require debug
+package require debug::caller
+
+debug level  zip/decode 
+debug prefix zip/decode {[debug caller] | }
 
 namespace eval ::zipfile::decode {
     namespace import ::fileutil::decode::*
@@ -21,19 +26,27 @@ namespace eval ::zipfile::decode {
 ## Convenience command, decode and copy to dir
 
 proc ::zipfile::decode::unzipfile {in out} {
+    debug.zip/decode {}
+
     zipfile::decode::open  $in
     set                     zd [zipfile::decode::archive]
     zipfile::decode::unzip $zd $out
     zipfile::decode::close
+
+    debug.zip/decode {/done}
     return
 }
 
 ## Convenience command, decode and return list of contained paths.
 proc ::zipfile::decode::content {in} {
+    debug.zip/decode {}
+
     zipfile::decode::open $in
     set zd [zipfile::decode::archive]
     set f [files $zd]
     zipfile::decode::close
+
+    debug.zip/decode {==> $f}
     return $f
 }
 
@@ -41,21 +54,29 @@ proc ::zipfile::decode::content {in} {
 ##
 
 proc ::zipfile::decode::open {fname} {
+    debug.zip/decode {}
+
     variable eoa
     if {[catch {
 	set eoa [LocateEnd $fname]
     } msg]} {
 	return -code error -errorcode {ZIP DECODE BAD ARCHIVE} \
-	    "\"$fname\" is not a zip file"
+	    "\"$fname\" is not a zip file: $msg"
     }
     fileutil::decode::open $fname
+
+    debug.zip/decode {/done}
     return
 }
 
 proc ::zipfile::decode::close {} {
+    debug.zip/decode {}
+
     variable eoa
     unset eoa
     fileutil::decode::close
+
+    debug.zip/decode {/done}
     return
 }
 
@@ -63,23 +84,30 @@ proc ::zipfile::decode::close {} {
 ##
 
 proc ::zipfile::decode::comment {zdict} {
+    debug.zip/decode {}
     array set _ $zdict
     return $_(comment)
 }
 
 proc ::zipfile::decode::files {zdict} {
+    debug.zip/decode {}
+
     array set _ $zdict
     array set f $_(files)
     return [array names f]
 }
 
 proc ::zipfile::decode::hasfile {zdict fname} {
+    debug.zip/decode {}
+
     array set _ $zdict
     array set f $_(files)
     return [info exists f($fname)]
 }
 
 proc ::zipfile::decode::copyfile {zdict src dst} {
+    debug.zip/decode {}
+
     array set _ $zdict
     array set f $_(files)
 
@@ -94,6 +122,8 @@ proc ::zipfile::decode::copyfile {zdict src dst} {
 }
 
 proc ::zipfile::decode::getfile {zdict src} {
+    debug.zip/decode {}
+
     array set _ $zdict
     array set f $_(files)
 
@@ -107,6 +137,8 @@ proc ::zipfile::decode::getfile {zdict src} {
 }
 
 proc ::zipfile::decode::unzip {zdict dst} {
+    debug.zip/decode {}
+
     array set _ $zdict
     array set f $_(files)
 
@@ -120,6 +152,7 @@ proc ::zipfile::decode::unzip {zdict dst} {
 }
 
 proc ::zipfile::decode::CopyFile {src fdv dst} {
+    debug.zip/decode {}
     upvar 1 $fdv fd
 
     file mkdir [file dirname $dst]
@@ -190,6 +223,7 @@ proc ::zipfile::decode::CopyFile {src fdv dst} {
 }
 
 proc ::zipfile::decode::GetFile {src fdv} {
+    debug.zip/decode {}
     upvar 1 $fdv fd
 
     # Entry is a directory.
@@ -229,12 +263,14 @@ proc ::zipfile::decode::GetFile {src fdv} {
 ##
 
 proc ::zipfile::decode::tag {etag} {
+    debug.zip/decode {}
     mark
     long-le
     return [match 0x${etag}4b50] ; # 'PK x y', little-endian integer.
 }
 
 proc ::zipfile::decode::localfileheader {} {
+    debug.zip/decode {}
     clear
     putloc @
     if {![tag 0403]} {clear ; return 0}
@@ -262,11 +298,14 @@ proc ::zipfile::decode::localfileheader {} {
     clear
 
     set hdr(gpbf) [GPBF $hdr(gpbf) $hdr(cm)]
+
+    debug.zip/decode {[debug nl][debug parray hdr]}
     setbuf [array get hdr]
     return 1
 }
 
 proc ::zipfile::decode::centralfileheader {} {
+    debug.zip/decode {}
     clear
     putloc @
     if {![tag 0201]} {clear ; return 0}
@@ -305,12 +344,15 @@ proc ::zipfile::decode::centralfileheader {} {
     clear
 
     set hdr(gpbf) [GPBF $hdr(gpbf) $hdr(cm)]
+
+    debug.zip/decode {[debug nl][debug parray hdr]}
     setbuf [array get hdr]
     return 1
 }
 
 ## NOT USED
 proc ::zipfile::decode::datadescriptor {} {
+    debug.zip/decode {}
     if {![tag 0807]} {return 0}
 
     clear
@@ -322,6 +364,7 @@ proc ::zipfile::decode::datadescriptor {} {
 }
 
 proc ::zipfile::decode::endcentralfiledir {} {
+    debug.zip/decode {}
     clear
     putloc ecdloc
     if {![tag 0605]} {clear ; return 0}
@@ -346,6 +389,7 @@ proc ::zipfile::decode::endcentralfiledir {} {
 
 ## NOT USED
 proc ::zipfile::decode::afile {} {
+    debug.zip/decode {}
     if {![localfileheader]} {return 0}
 
     array set hdr [get]
@@ -373,6 +417,8 @@ proc ::zipfile::decode::afile {} {
 }
 
 proc ::zipfile::decode::archive {} {
+    debug.zip/decode {}
+
     variable eoa
     array set cb $eoa
 
@@ -438,6 +484,7 @@ proc ::zipfile::decode::archive {} {
 }
 
 proc ::zipfile::decode::hdrmatch {lhv chv} {
+    debug.zip/decode {}
     upvar 1 $lhv lh $chv ch
 
     #puts ______________________________________________
@@ -447,7 +494,10 @@ proc ::zipfile::decode::hdrmatch {lhv chv} {
     foreach key {
 	vnte gpbf cm lmft lmfd fnamelen fname
     } {
-	if {$lh($key) != $ch($key)} {return 0}
+	if {$lh($key) != $ch($key)} {
+	    debug.zip/decode {mismatch $key ($lh($key) != $ch($key))}
+	    return 0
+	}
     }
 
     if {[lsearch -exact $lh(gpbf) dd] < 0} {
@@ -459,7 +509,10 @@ proc ::zipfile::decode::hdrmatch {lhv chv} {
 	foreach key {
 	    crc csize ucsize
 	} {
-	    if {$lh($key) != $ch($key)} {return 0}
+	    if {$lh($key) != $ch($key)} {
+		debug.zip/decode {mismatch $key ($lh($key) != $ch($key))}
+		return 0
+	    }
 	}
     }
 
@@ -471,6 +524,7 @@ proc ::zipfile::decode::hdrmatch {lhv chv} {
 ##
 
 proc ::zipfile::decode::IFA {v} {
+    debug.zip/decode {}
     if {$v & 0x1} {
 	return text
     } else {
@@ -497,6 +551,7 @@ namespace eval ::zipfile::decode {
 }
 
 proc ::zipfile::decode::VER {v} {
+    debug.zip/decode {}
     variable vhost
     set u [expr {($v & 0xff00) >> 16}]
     set l [expr {($v & 0x00ff)}]
@@ -523,6 +578,7 @@ namespace eval ::zipfile::decode {
 }
 
 proc ::zipfile::decode::CM {v} {
+    debug.zip/decode {}
     variable cm
     return $cm($v)
 }
@@ -549,6 +605,7 @@ namespace eval ::zipfile::decode {
 }
 
 proc ::zipfile::decode::GPBF {v cm} {
+    debug.zip/decode {}
     variable gbits
     set res {}
 
@@ -581,13 +638,106 @@ proc ::zipfile::decode::GPBF {v cm} {
 ## This piece of code lifted from tclvs/library/zipvfs (v 1.0.3).
 
 proc ::zipfile::decode::LocateEnd {path} {
+    debug.zip/decode {}
+
     set fd [::open $path r]
     fconfigure $fd -translation binary ;#-buffering none
 
+    debug.zip/decode {= $fd}
+
     array set cb {}
 
-    # [SF Tclvfs Bug 1003574]. Do not seek over beginning of file.
-    seek $fd 0 end
+    # First locate the regular end of central directory structure.
+    set hdr [LocateMarker $fd "PK\05\06" pos at]
+
+    set is64 off
+    # Two ZIP64 structures may sit before it, the
+    #      zip64 end of central file directory
+    # and  zip64 end of central file directory locator
+    # We look for them in reverse order.
+    if {![catch {
+	set hdra [LocateMarker $fd "PK\06\07" posa ata]
+	set hdrb [LocateMarker $fd "PK\06\06" posb atb]
+    }]} {
+	debug.zip/decode {ZIP64 detected}
+	set is64 on
+
+	# ecfd locator
+	set hdra [string range $hdra [expr {$posa + 4}] [expr {$posa + 19}]]
+	set lena [string length $hdra]
+	debug.zip/decode {ecfdlo len = $lena}
+	#                 48_4 = 16
+	binary scan $hdra iiii cb(_64.l.disk.cfd) lo hi cb(_64.l.disk.num)
+	set cb(_64.l.coff) [expr {($hi << 32)|$lo}]
+	# This is the location of the zip64 ecfd relative to start of archive.
+
+	# ecfd64
+	set hdrb [string range $hdrb [expr {$posb + 4}] [expr {$posb + 47}]]
+	set lenb [string length $hdrb]
+	debug.zip/decode {ecfd64 len = $lenb}
+	#                 8_22448_8_8_ = 44
+	binary scan $hdrb iissiiiiiiii \
+	    lo hi cb(_64.vmade) cb(_64.vneed) cb(_64.disk.now) cb(_64.disk.cfd2) \
+	    loa hia lob hib loc hic
+	set cb(_64.ecfd.size) [expr {($hi  << 32)|$lo}]
+	set cb(_64.files.now) [expr {($hia << 32)|$loa}]
+	set cb(_64.files.num) [expr {($hib << 32)|$lob}]
+	set cb(_64.coff2)     [expr {($hic << 32)|$loc}]
+    }
+
+    # restrict read data to the structure's payload
+    set hdr [string range  $hdr [expr {$pos + 4}] [expr {$pos + 21}]]
+    #                2222442 = 18
+    binary scan $hdr ssssiis cb(_disk.now) cb(_disk.cfd) \
+	cb(_nfiles.now) cb(_nfiles.all) cb(csize) cb(coff) \
+	cb(_commentlen)
+
+    if {$is64} {
+	# In the presence of zip64 we have to compute the actual
+	# location of the CFD differently. It is not just before the
+	# ECFD structure, but before the ECFD64 structure.
+
+	set at $atb
+	debug.zip/decode {new at $at}
+    }
+
+    debug.zip/decode {CFH Expected @ $cb(coff)}
+    debug.zip/decode {    Actual   @ $at}
+    debug.zip/decode {    Size       $cb(csize)}
+
+    # Compute base (start of archive) for situations where the ZIP
+    # file has been appended to another media (e.g. EXE). We can do
+    # this because
+    # (a) The expected location is stored in ECFH.   (-> cb(coff))
+    # (b) We know the actual location of EFCH.       (-> at)
+    # (c) We know the size of CFH                    (-> cb(csize))
+    # (d) The CFH comes directly before the EFCH.
+    # (e) Items b...d provide us with the actual location of CFH, as (b)-(c).
+    # Thus the difference between (e) and (d) is the base in question.
+
+    set base [expr { $at - $cb(csize) - $cb(coff) }]
+    debug.zip/decode {Archive Base : $base}
+
+    if {$base < 0} {
+        set base 0
+    }
+    set cb(base) $base
+
+    if {$cb(coff) < 0} {
+	debug.zip/decode {Correction}
+	set cb(base) [expr {wide($cb(base)) - 4294967296}]
+	set cb(coff) [expr {wide($cb(coff)) + 4294967296}]
+    }
+
+    #--------------
+    ::close $fd
+
+    debug.zip/decode {/done = [debug nl][debug parray cb]}
+    return [array get cb]
+}
+
+proc ::zipfile::decode::LocateMarker {fd marker pv av} {
+    upvar 1 $pv relpos $av abspos
 
     # Just looking in the last 512 bytes may be enough to handle zip
     # archives without comments, however for archives which have
@@ -597,13 +747,20 @@ proc ::zipfile::decode::LocateEnd {path} {
     # large part of the archive in memory. We can fail only after the
     # whole file has been searched.
 
+    seek $fd 0 end
     set sz  [tell $fd]
     set len 512
     set at  512
+
+    debug.zip/decode {size = [tell $fd]}
+
     while {1} {
+	# [SF Tclvfs Bug 1003574]. Do not seek over beginning of file.
 	if {$sz < $at} {set n -$sz} else {set n -$at}
 
 	seek $fd $n end
+	debug.zip/decode {checking @[tell $fd] ($len)}
+
 	set hdr [read $fd $len]
 
 	# We are using 'string last' as we are searching the first
@@ -612,9 +769,12 @@ proc ::zipfile::decode::LocateEnd {path} {
 	# confuse the unmodified code, triggering on the magic
 	# sequence for the inner, uncompressed archive.
 
-	set pos [string last "PK\05\06" $hdr]
+	set pos [string last $marker $hdr]
+	debug.zip/decode {marker $pos}
+
 	if {$pos == -1} {
 	    if {$at >= $sz} {
+		debug.zip/decode {fail}
 		return -code error "no header found"
 	    }
 
@@ -629,39 +789,18 @@ proc ::zipfile::decode::LocateEnd {path} {
 	}
     }
 
-    set hdrlen [string length $hdr]
-    set hdr    [string range $hdr [expr {$pos + 4}] [expr {$pos + 21}]]
-    set pos    [expr {wide([tell $fd]) + $pos - $hdrlen}]
- 
-    if {$pos < 0} {
-	set pos 0
+    # position just behind the just checked block -- compensate by the
+    # length of the block to find its start.
+    set at     [expr {wide([tell $fd])}]
+    set hdrsz  [string length $hdr]
+
+    set relpos $pos
+    set abspos [expr {$at-$hdrsz+$pos}]
+    if {$abspos < 0} {
+	set abspos 0
     }
-
-    binary scan $hdr ssssiis _ _ _ _ cb(csize) cb(coff) _
-
-    # Compute base for situations where ZIP file has been appended to
-    # another media (e.g. EXE). We can do this because
-    # (a) The expected location is stored in ECFH.   (-> cb(coff))
-    # (b) We know the actual location of EFCH.       (-> pos)
-    # (c) We know the size of CFH                    (-> cb(csize))
-    # (d) The CFH comes directly before the EFCH.
-    # (e) Items b...d provide us with the actual location of CFH, as (b)-(c).
-    # Thus the difference between (e) and (d) is the base in question.
-
-    set base [expr { $pos - $cb(csize) - $cb(coff) }]
-    if {$base < 0} {
-        set base 0
-    }
-    set cb(base) $base
-
-    if {$cb(coff) < 0} {
-	set cb(base) [expr {wide($cb(base)) - 4294967296}]
-	set cb(coff) [expr {wide($cb(coff)) + 4294967296}]
-    }
-
-    #--------------
-    ::close $fd
-    return [array get cb]
+    debug.zip/decode {match @ $abspos = ($at - $hdrsz) + $pos}
+    return $hdr
 }
 
 # ### ### ### ######### ######### #########
