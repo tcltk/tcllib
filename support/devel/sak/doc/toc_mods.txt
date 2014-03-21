@@ -624,7 +624,7 @@
 [item modules/yaml/yaml.man   yaml   {YAML Format Encoder/Decoder}]
 [division_end]
 [division_start zip]
-[item modules/zip/decode.man zipfile::encode {Access to zip archives}]
+[item modules/zip/decode.man zipfile::decode {Access to zip archives}]
 [item modules/zip/encode.man zipfile::encode {Generation of zip archives}]
 [division_end]
 [division_end]
