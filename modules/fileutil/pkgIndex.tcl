@@ -7,4 +7,4 @@ package ifneeded fileutil::traverse 0.4.3 [list source [file join $dir traverse.
 if {![package vsatisfies [package provide Tcl] 8.4]} {return}
 package ifneeded fileutil::multi     0.1   [list source [file join $dir multi.tcl]]
 package ifneeded fileutil::multi::op 0.5.3 [list source [file join $dir multiop.tcl]]
-package ifneeded fileutil::decode    0.2   [list source [file join $dir decode.tcl]]
+package ifneeded fileutil::decode    0.3   [list source [file join $dir decode.tcl]]
