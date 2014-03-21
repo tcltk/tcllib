@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'html\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "html" n 1\&.4 tcllib "HTML Generation"
+.TH "html" n 1\&.4\&.3 tcllib "HTML Generation"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ html \- Procedures to generate HTML structures
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBhtml  ?1\&.4?\fR
+package require \fBhtml  ?1\&.4\&.3?\fR
 .sp
 \fB::html::author\fR \fIauthor\fR
 .sp
@@ -345,6 +345,14 @@ package require \fBhtml  ?1\&.4?\fR
 .sp
 \fB::html::meta\fR \fIargs\fR
 .sp
+\fB::html::css\fR \fIhref\fR
+.sp
+\fB::html::css-clear\fR
+.sp
+\fB::html::js\fR \fIhref\fR
+.sp
+\fB::html::js-clear\fR
+.sp
 \fB::html::minorList\fR \fIlist\fR ?\fIordered\fR?
 .sp
 \fB::html::minorMenu\fR \fIlist\fR ?\fIsep\fR?
@@ -391,6 +399,8 @@ package require \fBhtml  ?1\&.4?\fR
 .sp
 \fB::html::while\fR \fItest body\fR
 .sp
+\fB::html::doctype\fR \fIid\fR
+.sp
 .BE
 .SH DESCRIPTION
 .PP
@@ -430,7 +440,7 @@ same \fIkey\fR for their name\&. The \fIsep\fR is text used to separate
 the elements\&.
 .TP
 \fB::html::checkValue\fR \fIname\fR ?\fIvalue\fR?
-Generate the "name=\fIname\fR value=\fIvalue\fR for a \fIcheckbox\fR form
+Generate the "name=\fIname\fR value=\fIvalue\fR" for a \fIcheckbox\fR form
 element\&.  If the CGI variable \fIname\fR has the value \fIvalue\fR,
 then SELECTED is added to the return value\&. \fIvalue\fR defaults to
 "1"\&.
@@ -585,6 +595,40 @@ value list that is used for the name= and value= parameters for the
 \fImeta\fR tag\&.  The \fImeta\fR tag is included in the result of
 \fB::html::head\fR\&.
 .TP
+\fB::html::css\fR \fIhref\fR
+\fISide effect only\fR\&.  Call this before \fB::html::head\fR to
+define a \fIlink\fR tag for a linked CSS document\&.  The \fIhref\fR
+value is a HTTP URL to a CSS document\&. The \fIlink\fR tag is included
+in the result of \fB::html::head\fR\&.
+.sp
+Multiple calls of this command are allowed, enabling the use of
+multiple CSS document references\&. In other words, the arguments
+of multiple calls are accumulated, and do not overwrite each other\&.
+.TP
+\fB::html::css-clear\fR
+\fISide effect only\fR\&.  Call this before \fB::html::head\fR to
+clear all links to CSS documents\&.
+.sp
+Multiple calls of this command are allowed, doing nothing after the
+first of a sequence with no intervening \fB::html::css\fR\&.
+.TP
+\fB::html::js\fR \fIhref\fR
+\fISide effect only\fR\&.  Call this before \fB::html::head\fR to
+define a \fIscript\fR tag for a linked JavaScript document\&.  The
+\fIhref\fR is a HTTP URL to a JavaScript document\&. The \fIscript\fR
+tag is included in the result of \fB::html::head\fR\&.
+.sp
+Multiple calls of this command are allowed, enabling the use of
+multiple JavaScript document references\&. In other words, the arguments
+of multiple calls are accumulated, and do not overwrite each other\&.
+.TP
+\fB::html::js-clear\fR
+\fISide effect only\fR\&.  Call this before \fB::html::head\fR to
+clear all links to JavaScript documents\&.
+.sp
+Multiple calls of this command are allowed, doing nothing after the
+first of a sequence with no intervening \fB::html::js\fR\&.
+.TP
 \fB::html::minorList\fR \fIlist\fR ?\fIordered\fR?
 Generate an ordered or unordered list of links\&.  The \fIlist\fR is a
 Tcl-style name, value list of labels and urls for the links\&.
@@ -633,7 +677,7 @@ The \fIsep\fR is text used to separate the elements\&.  The \fIlist\fR
 is a Tcl-style label, value list\&.
 .TP
 \fB::html::radioValue\fR \fIname value\fR
-Generate the "name=\fIname\fR value=\fIvalue\fR for a \fIradio\fR form
+Generate the "name=\fIname\fR value=\fIvalue\fR" for a \fIradio\fR form
 element\&.  If the CGI variable \fIname\fR has the value \fIvalue\fR,
 then SELECTED is added to the return value\&.
 .TP
@@ -706,6 +750,38 @@ This procedure is similar to the built-in Tcl \fBwhile\fR control
 structure\&.  Rather than evaluating the body, it returns the subst'ed
 \fIbody\fR\&.  Each iteration of the loop causes another string to be
 concatenated to the result value\&.
+.TP
+\fB::html::doctype\fR \fIid\fR
+This procedure can be used to build the standard DOCTYPE
+declaration string\&. It will return the standard declaration
+string for the id, or throw an error if the id is not known\&.
+The following id's are defined:
+.RS
+.IP [1]
+HTML32
+.IP [2]
+HTML40
+.IP [3]
+HTML40T
+.IP [4]
+HTML40F
+.IP [5]
+HTML401
+.IP [6]
+HTML401T
+.IP [7]
+HTML401F
+.IP [8]
+XHTML10S
+.IP [9]
+XHTML10T
+.IP [10]
+XHTML10F
+.IP [11]
+XHTML11
+.IP [12]
+XHTMLB
+.RE
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain

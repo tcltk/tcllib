@@ -1488,8 +1488,8 @@ tcllib
 \fByencode\fR
 \fIfiles/modules/base64/yencode\&.n\fR: Y-encode/decode binary data
 .TP
-\fBzipfile::encode\fR
-\fIfiles/modules/zip/encode\&.n\fR: Generation of zip archives
+\fBzipfile::decode\fR
+\fIfiles/modules/zip/decode\&.n\fR: Access to zip archives
 .TP
 \fBzipfile::encode\fR
-\fIfiles/modules/zip/decode\&.n\fR: Access to zip archives
+\fIfiles/modules/zip/encode\&.n\fR: Generation of zip archives
