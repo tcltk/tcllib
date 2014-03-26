@@ -1,0 +1,120 @@
+# coroutine.test
+#
+# Tests for the coroutine package
+#
+# Copyright (C) 2014 Trevor Davel <twylite@crypt.co.za>
+# -------------------------------------------------------------------------
+# See the file "license.terms" for information on usage and redistribution
+# of this file, and for a DISCLAIMER OF ALL WARRANTIES.
+# -------------------------------------------------------------------------
+
+package require tcltest
+
+source [file join \
+    [file dirname [file dirname [file join [pwd] [info script]]]] \
+    devtools testutilities.tcl]
+
+testsNeedTcl     8.6
+testsNeedTcltest 2.3
+
+testing {
+    useLocal coroutine.tcl coroutine ::coroutine::util
+}
+
+
+# ----- Helpers ----------------------------------------------------------------
+
+  
+  # Resume a coroutine in a tight loop and collect its output as a list.  When
+  # the coroutine terminates return the list. 
+  proc Test_collect {coro} {
+    set coro [uplevel 1 [list namespace which -command $coro]]
+    set result {}
+    while { [info commands $coro] ne {} } {
+      lappend result [$coro] 
+    }
+    set result
+  }
+  
+
+# ----- coroutine::util::create ------------------------------------------------
+
+  # coroutine::util::create should create a coroutine with a unique name
+
+  test coroutine-1.1 {coroutine::util::create} -body {
+    set coroid [namespace eval ::coroutine::util {
+      create apply {{} {
+        yield [info coroutine]
+        yield "alpha"
+        return "beta"
+      }}
+    }]
+    Test_collect $coroid
+  } -result {alpha beta}
+  
+
+# ----- coroutine::util::global ------------------------------------------------
+
+  # coroutine::util::global should link to a coro-global variable, not an
+  # interp-global variable.  It should work at all stack levels _including
+  # the first frame of the coroutine_, should not tramp on the first frame's
+  # local vars, and should be auto-created if necessary by commands like 
+  # [incr]/[append] (from any stack level).  [global] can be called with
+  # multiple variable names.
+
+  proc ::coroutine::util::Test_global {} {
+    global myglobal
+    incr myglobal
+    yield $::myglobal 
+    yield $myglobal
+    return [apply [list {} {
+      global strglobal myglobal
+      incr myglobal
+      yield $::myglobal 
+      yield $myglobal
+      return [append strglobal "ghi"]      
+    } [namespace current]]] 
+  }
+  
+  test coroutine-2.1 {coroutine::util::global} -body {
+    set myglobal 10
+    set strglobal "abc"
+
+    set coroid [namespace eval ::coroutine::util {
+      create apply [list {} {
+        yield [info coroutine]
+        global myglobal
+        incr myglobal            ;# Create coro-global that doesn't exist yet
+        yield $::myglobal        ;# Dereference interp/real global
+        yield $myglobal          ;# Dereference coro-global 
+        return [apply [list {} { ;# Push another stack frame
+          global myglobal strglobal
+          incr myglobal
+          append strglobal "def"
+          yield $::myglobal
+          yield $myglobal
+          yield $::strglobal
+          yield $strglobal
+          return [Test_global]   ;# And another two stack frames, one is named
+        } [namespace current]]]  ;# All the coro's stack frames must have access
+      } [namespace current]]     ;# to the overridden [global] command
+    }]
+    Test_collect $coroid
+  } -result {10 1 10 2 abc def 10 3 10 4 defghi}
+
+  catch { unset myglobal }
+
+
+# ----- coroutine::util::after -------------------------------------------------
+
+
+  # Work in progress
+  # - coroutine::util::global functionality has been slightly modified in 
+  #   order to work correctly at frame #1.  This may need to be reviewed.
+  #   The new approach prevents tramping on frame #1's local variables.
+  #   If trampling is intended then we may need a workaround to detect use of
+  #   'global' in frame #1 and make it a noop. 
+  # - Run tests with: %TCLSH% sak.tcl test run coroutine
+
+testsuiteCleanup
+return

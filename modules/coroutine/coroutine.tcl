@@ -2,7 +2,7 @@
 # # ## ### ##### ######## #############
 
 # @@ Meta Begin
-# Package coroutine 1.1.1
+# Package coroutine 1.1.3
 # Meta platform        tcl
 # Meta require         {Tcl 8.6}
 # Meta license         BSD
@@ -90,9 +90,9 @@ proc ::coroutine::util::global {args} {
 
     set cmd [list upvar "#1"]
     foreach var $args {
-	lappend cmd $var $var 
+	lappend cmd COROGLOBAL($var) $var 
     }
-    tailcall $cmd
+    tailcall {*}$cmd
 }
 
 # - -- --- ----- -------- -------------
@@ -263,7 +263,6 @@ proc ::coroutine::util::read {args} {
 		append buf $result
 
 		if {[::chan eof $chan]} {
-		    ::chan close $chan
 		    break
 		}
 	    }
@@ -294,7 +293,6 @@ proc ::coroutine::util::read {args} {
 		incr   left -[string length $result]
 
 		if {[::chan eof $chan]} {
-		    ::chan close $chan
 		    break
 		} elseif {!$left} {
 		    break
@@ -373,5 +371,5 @@ namespace eval ::coroutine::util {
 
 # # ## ### ##### ######## #############
 ## Ready
-package provide coroutine 1.1.1
+package provide coroutine 1.1.3
 return

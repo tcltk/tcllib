@@ -2,7 +2,7 @@
 # # ## ### ##### ######## #############
 
 # @@ Meta Begin
-# Package coroutine::auto 1.1.2
+# Package coroutine::auto 1.1.3
 # Meta platform        tcl
 # Meta require         {Tcl 8.6}
 # Meta require         {coroutine 1.1}
@@ -226,7 +226,6 @@ proc ::coroutine::auto::wrap_read {args} {
 		append buf $result
 
 		if {[::chan eof $chan]} {
-		    ::chan close $chan
 		    break
 		}
 	    }
@@ -257,7 +256,6 @@ proc ::coroutine::auto::wrap_read {args} {
 		incr   left -[string length $result]
 
 		if {[::chan eof $chan]} {
-		    ::chan close $chan
 		    break
 		} elseif {!$left} {
 		    break
@@ -310,5 +308,5 @@ proc ::coroutine::auto::wrap_read {args} {
 # # ## ### ##### ######## #############
 ## Ready
 
-package provide coroutine::auto 1.1.2
+package provide coroutine::auto 1.1.3
 return
