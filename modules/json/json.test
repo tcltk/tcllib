@@ -18,7 +18,7 @@ testsNeedTcl     [expr {[catch {package require dict}] ? "8.5" : "8.4"}]
 testsNeedTcltest 2.0
 
 support {
-    useLocalFile test_support.tcl
+    useLocalFile tests/support.tcl
 }
 
 testing {
