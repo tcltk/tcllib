@@ -11,7 +11,7 @@ testsNeedTcltest 1.0
 
 support {
     use          virtchannel_base/memchan.tcl tcl::chan::memchan
-    useLocalFile test-support.tcl
+    useLocalFile tests/support.tcl
 }
 testing {
     useLocal tar.tcl tar
