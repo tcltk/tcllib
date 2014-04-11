@@ -91,7 +91,7 @@ foreach impl [json::Implementations] {
 
     bench_puts {=== test-data =========}
 
-    foreach f [glob -nocomplain -directory $self/test-data *.json] {
+    foreach f [glob -nocomplain -directory $self/tests *.json] {
 	set in [cat $f]
 
 	bench -desc "parse [file rootname [file tail $f]] ($impl)" -body {
@@ -103,7 +103,7 @@ foreach impl [json::Implementations] {
 	}
     }
 
-    foreach f [glob -nocomplain -directory $self/test-data *.bench] {
+    foreach f [glob -nocomplain -directory $self/tests *.bench] {
 	set in [cat $f]
 
 	bench -desc "parse [file rootname [file tail $f]] ($impl)" -body {

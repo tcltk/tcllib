@@ -51,17 +51,17 @@ proc dictsort3 {spec data} {
     }
 }
 
-foreach f [TestFilesGlob test-data/*.json] {
+foreach f [TestFilesGlob tests/*.json] {
     set name [file rootname [file tail $f]]
     set JSON($name) [tcltest::viewFile $f]
 }
 
-foreach f [TestFilesGlob test-data/*.result] {
+foreach f [TestFilesGlob tests/*.result] {
     set name [file rootname [file tail $f]]
     set TCL($name) [tcltest::viewFile $f]
 }
 
-foreach f [TestFilesGlob test-data/*.sort] {
+foreach f [TestFilesGlob tests/*.sort] {
     set name [file rootname [file tail $f]]
     set DICTSORT($name) [tcltest::viewFile $f]
 }
@@ -86,12 +86,12 @@ set  TCL(escapes) "\t\r\n\f\b/\\\""
 
 
 
-foreach f [TestFilesGlob test-data/*.fail] {
+foreach f [TestFilesGlob tests/*.fail] {
     set name [file rootname [file tail $f]]
     set FAIL($name) [tcltest::viewFile $f]
 }
 
-foreach f [TestFilesGlob test-data/*.err] {
+foreach f [TestFilesGlob tests/*.err] {
     set name [file rootname [file tail $f]]
     set ERR($name) [tcltest::viewFile $f]
 }
