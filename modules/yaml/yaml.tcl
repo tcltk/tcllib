@@ -16,7 +16,7 @@ if {$::tcl_version < 8.5} {
     package require dict
 }
 
-package provide yaml 0.3.6
+package provide yaml 0.3.7
 package require cmdline
 package require huddle
 
@@ -954,7 +954,7 @@ proc ::yaml::_getFoldedString {reStr} {
 proc ::yaml::_getToken {} {
     variable data
 
-    set reStr {^[^ \t\n,]+}
+    set reStr {^[^ \t\n,\]]+}
     set result [_getFoldedString $reStr]
     return $result
 }
