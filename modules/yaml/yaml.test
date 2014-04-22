@@ -77,6 +77,12 @@ proc dictsort2 {dict {pattern d}} {
 }
 
 # ------------
+
+test yaml-21.0.06eef112da {ticket 06eef112da} -body {
+    yaml::yaml2dict -file [localPath 06eef112da.data]
+} -result {{} {} {alpha 43 beta {houston {{}} newyork {{{} aaa}}}}}
+
+# ------------
 # error  .....
 
 test yaml-1.1 "error" -body {
