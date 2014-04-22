@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin yaml n 0.3.6]
+[vset YAML_VERSION 0.3.7]
+[manpage_begin yaml n [vset YAML_VERSION]]
 [see_also base64]
 [see_also huddle]
 [see_also json]
@@ -12,7 +13,7 @@
 [moddesc   {YAML processing}]
 [titledesc {YAML Format Encoder/Decoder}]
 [require Tcl 8.4]
-[require yaml [opt 0.3.6]]
+[require yaml [opt [vset YAML_VERSION]]]
 [description]
 [para]
 
