@@ -26,6 +26,17 @@ proc _tcr {module libdir} {
     return
 }
 
+proc _rde {module libdir} {
+    global distribution
+
+    _tcl $module $libdir
+    xcopy \
+	    [file join $distribution modules $module rde_critcl] \
+	    [file join $libdir $module rde_critcl] \
+	    1
+    return
+}
+
 proc _doc {module libdir} {
     global distribution
 
