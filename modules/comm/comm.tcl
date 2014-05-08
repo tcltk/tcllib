@@ -929,6 +929,13 @@ proc ::comm::commIncomingOffered {chan fid addr remport} {
 
     # Check if we have a complete line.
     if {[gets $fid protoline] < 0} {
+	#commDebug {puts stderr "commIncomingOffered: no data"}
+	if {[eof $fid]} {
+	    commDebug {puts stderr "commIncomingOffered: eof on fid=$fid"}
+	    catch {
+		close $fid
+	    }
+	}
 	return
     }
 
