@@ -1989,7 +1989,7 @@ namespace eval ::PARSER {
         
         static void sym_MulOp (RDE_PARAM p) {
            /*
-            * [*/]
+            * [\u002a\u002f]
             */
         
             if (rde_param_i_symbol_start (p, 16)) return ;
