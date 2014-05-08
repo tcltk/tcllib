@@ -285,7 +285,7 @@ static char const* <<string-table>> [21] = {
 
 <<attributes>> void <<ns>>sym_MulOp (<<STATE>> <<state>>) { <<prelude>>
    /*
-    * [*/]
+    * [\u002a\u002f]
     */
 
     if (rde_param_i_symbol_start (<<state>>, 14)) return ;
