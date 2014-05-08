@@ -16,7 +16,7 @@
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::crc {
-    variable cksum_version 1.1.3
+    variable cksum_version 1.1.4
 
     namespace export cksum
 
@@ -73,7 +73,8 @@ namespace eval ::crc {
            0x933EB0BB 0x97FFAD0C 0xAFB010B1 0xAB710D06 0xA6322BDF \
            0xA2F33668 0xBCB4666D 0xB8757BDA 0xB5365D03 0xB1F740B4 ]
 
-    variable uid ; if {![info exists uid]} {set uid 0}
+    variable uid
+    if {![info exists uid]} {set uid 0}
 }
 
 # crc::CksumInit -- 
@@ -95,11 +96,14 @@ proc ::crc::CksumUpdate {token data} {
     set t $state(t)
     binary scan $data c* r
     foreach {n} $r {
-        set t [expr {($t << 8)
-                     ^ [lindex $cksum_tbl [expr {
-                                                 (($t >> 24) \
-                                                      ^ ($n & 0xFF)) & 0xFF
-                                             }]]}]
+        set index [expr { (($t >> 24) ^ ($n & 0xFF)) & 0xFF }]
+        # Since the introduction of built-in bigInt support with Tcl
+        # 8.5, bit-shifting $t to the left no longer overflows,
+        # keeping it 32 bits long.  The value grows bigger and bigger
+        # instead - a severe hit on performance.  For this reason we
+        # do a bitwise AND against 0xFFFFFFFF at each step to keep the
+        # value within limits.
+        set t [expr {0xFFFFFFFF & (($t << 8) ^ [lindex $cksum_tbl $index])}]
         incr state(l)
     }
     set state(t) $t
@@ -111,9 +115,8 @@ proc ::crc::CksumFinal {token} {
     upvar #0 $token state
     set t $state(t)
     for {set i $state(l)} {$i > 0} {set i [expr {$i>>8}]} {
-        set t [expr {($t << 8) \
-                         ^ [lindex $cksum_tbl \
-                                [expr {(($t >> 24) ^ $i) & 0xFF}]]}]
+        set index [expr {(($t >> 24) ^ $i) & 0xFF}]
+        set t [expr {0xFFFFFFFF & (($t << 8) ^ [lindex $cksum_tbl $index])}]
     }
     unset state
     return [expr {~$t & 0xFFFFFFFF}]
