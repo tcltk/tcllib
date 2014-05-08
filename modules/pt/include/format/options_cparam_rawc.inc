@@ -131,4 +131,12 @@ The number of characters to indent each line of the generated code by.
 
 The default value is [const 0].
 
+
+[opt_def -comments boolean]
+
+A flag controlling the generation of code comments containing the
+original parsing expression a parsing function is for.
+
+The default value is [const on].
+
 [list_end]
