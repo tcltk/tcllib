@@ -1,4 +1,5 @@
-[manpage_begin comm n 4.6.2]
+[vset COMM_VERSION 4.6.3]
+[manpage_begin comm n [vset COMM_VERSION]]
 [see_also send(n)]
 [keywords comm]
 [keywords communication]
@@ -19,7 +20,7 @@
 [titledesc {A remote communication facility for Tcl (8.3 and later)}]
 [category  {Programming tools}]
 [require Tcl 8.3]
-[require comm [opt 4.6.2]]
+[require comm [opt [vset COMM_VERSION]]]
 [description]
 
 [para]
@@ -880,6 +881,11 @@ Note that requiring no version (or a specific version) can also be done.
 The revision history of [package comm] includes these releases:
 
 [list_begin definitions]
+
+[def 4.6.3]
+
+Fixed ticket [lb]ced0d60fc9[rb]. Added proper detection of eof on a
+socket, properly closing it.
 
 [def 4.6.2]
 
