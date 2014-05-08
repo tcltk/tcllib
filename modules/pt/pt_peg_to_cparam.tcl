@@ -50,6 +50,7 @@ proc ::pt::peg::to::cparam::reset {} {
     variable def      static         ; # -fun-qualifier
     variable main     __main         ; # -main
     variable indent   0              ; # -indent
+    variable comments 1              ; # -comments
     variable prelude  {}             ; # -prelude
     variable statedecl {RDE_PARAM p} ; # -state-decl
     variable stateref  {p}           ; # -state-ref
@@ -68,6 +69,7 @@ proc ::pt::peg::to::cparam::configure {args} {
     variable main
     variable omap
     variable indent
+    variable comments
     variable prelude
     variable statedecl
     variable stateref
@@ -75,6 +77,7 @@ proc ::pt::peg::to::cparam::configure {args} {
 
     if {[llength $args] == 0} {
 	return [list \
+		    -comments        $comments \
 		    -file            $file \
 		    -fun-qualifier   $def \
 		    -indent          $indent \
@@ -94,13 +97,13 @@ proc ::pt::peg::to::cparam::configure {args} {
 	if {[info exists omap($variable)]} {
 	    return [set $omap($variable)]
 	} else {
-	    return -code error "Expected one of -file, -fun-qualifier, -indent, -main, -name, -namespace, -self-command, -state-decl, -state-ref, -string-varname, -template, or -user, got \"$option\""
+	    return -code error "Expected one of -comments, -file, -fun-qualifier, -indent, -main, -name, -namespace, -self-command, -state-decl, -state-ref, -string-varname, -template, or -user, got \"$option\""
 	}
     } elseif {[llength $args] % 2 == 0} {
 	foreach {option value} $args {
 	    set variable [string range $option 1 end]
 	    if {![info exists omap($variable)]} {
-		return -code error "Expected one of -file, -fun-qualifier, -indent, -main, -name, -namespace, -self-command, -state-decl, -state-ref, -string-varname, -template, or -user, got \"$option\""
+		return -code error "Expected one of -comments, -file, -fun-qualifier, -indent, -main, -name, -namespace, -self-command, -state-decl, -state-ref, -string-varname, -template, or -user, got \"$option\""
 	    }
 	}
 	foreach {option value} $args {
@@ -114,6 +117,11 @@ proc ::pt::peg::to::cparam::configure {args} {
 		indent {
 		    if {![string is integer -strict $value] || ($value < 0)} {
 			return -code error "Expected int > 0, got \"$value\""
+		    }
+		}
+		comments {
+		    if {![string is boolean -strict $value]} {
+			return -code error "Expected boolean, got \"$value\""
 		    }
 		}
 		statedecl -
@@ -1304,6 +1312,7 @@ proc ::pt::peg::to::cparam::Op::Asm::Function {name def args} {
 
     FunStart $name
 
+    # Comment at function start.
     text::write recall PE ; # Generated in Asm::ReExpression, printed
     text::write undef  PE ; # representation of the expression, to
 			    # make the generated code more readable.
@@ -1475,16 +1484,33 @@ proc ::pt::peg::to::cparam::Op::Asm::Header {text} {
 }
 
 proc ::pt::peg::to::cparam::Op::Asm::PE {pe} {
+    variable ::pt::peg::to::cparam::comments
+
     text::write clear
-    text::write field "   /*"
-    text::write /line
-    foreach l [split [pt::pe print $pe] \n] {
-	text::write field  "    * $l"
+    if {$comments} {
+	text::write field "   /*"
+	text::write /line
+
+	lappend map "*/" "\\u002a\\u002f"
+
+	foreach l [split [pt::pe print $pe] \n] {
+	    # Ticket [da61329276]: Detect C comment closer, and disarm
+	    # it. This can occur with char classes, and char sequences,
+	    # i.e. strings. We recode them into \-escaped unicode
+	    # code-points.  Note: Putting this into the 'pe print' methis
+	    # is not a good idea, as the output can be used in other
+	    # contexts (Tcl, whatever), each with their own special
+	    # strings to be aware of. This is something each generator has
+	    # to handle, knowing their special sequences.
+	    text::write field  "    * [string map $map $l]"
+	    text::write /line
+	}
+	text::write field "    */"
+	text::write /line
 	text::write /line
     }
-    text::write field "    */"
-    text::write /line
-    text::write /line
+    # Keeping the definition of PE, albeit empty avoids having to
+    # special case the places using this block.
     text::write store PE
     return
 }
@@ -1529,7 +1555,10 @@ namespace eval ::pt::peg::to::cparam {
 	set cache(_strings)     {}
     }
 
+    # Map from option name (without leading dash) to the name of the
+    # variable used to store setting.
     variable omap ; array set omap {
+	comments        comments
 	file            file
 	fun-qualifier   def
 	indent          indent
@@ -1571,5 +1600,5 @@ namespace eval ::pt::peg::to::cparam {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::to::cparam 1.0.1
+package provide pt::peg::to::cparam 1.1
 return
