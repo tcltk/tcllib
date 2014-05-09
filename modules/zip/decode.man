@@ -1,4 +1,4 @@
-[vset ZIP_DECODE_VERSION 0.5]
+[vset ZIP_DECODE_VERSION 0.6]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin zipfile::decode n [vset ZIP_DECODE_VERSION]]
 [keywords decompression zip]
@@ -91,6 +91,13 @@ check if the specified [arg path] is found in the archive.
 
 The result of the command is a boolean flag, [const true] if the path
 is found, and [const false] otherwise.
+
+[comment ---------------------------------------------------------------------]
+[call [cmd ::zipfile::decode::iszip] [arg archive]]
+
+This command takes the path of a presumed zip [arg archive] file and
+returns a boolean flag as the result of the command telling us if it
+actually is a zip archive ([const true]), or not ([const false]).
 
 [comment ---------------------------------------------------------------------]
 [call [cmd ::zipfile::decode::open] [arg archive]]
