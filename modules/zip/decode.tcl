@@ -40,6 +40,15 @@ proc ::zipfile::decode::content {in} {
 # ### ### ### ######### ######### #########
 ##
 
+proc ::zipfile::decode::iszip {fname} {
+    if {[catch {
+	LocateEnd $fname
+    } msg]} {
+	return 0
+    }
+    return 1
+}
+
 proc ::zipfile::decode::open {fname} {
     variable eoa
     if {[catch {
@@ -666,5 +675,5 @@ proc ::zipfile::decode::LocateEnd {path} {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::decode 0.5
+package provide zipfile::decode 0.6
 return
