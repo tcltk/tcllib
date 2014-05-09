@@ -1491,17 +1491,21 @@ proc ::pt::peg::to::cparam::Op::Asm::PE {pe} {
 	text::write field "   /*"
 	text::write /line
 
+	# Ticket [da61329276]: Detect C comment opener and closer, and
+	# disarm them. This can occur with char classes, and char
+	# sequences, i.e. strings. We recode them into
+	# backslash-escaped unicode code-points.
+
+	# Note: Putting this into the 'pe print' method is not
+	# possible, as the output can be used in other contexts (Tcl,
+	# whatever), each with their own special strings to be aware
+	# of. This is something each generator has to handle, knowing
+	# their special sequences.
+
 	lappend map "*/" "\\u002a\\u002f"
+	lappend map "/*" "\\u002f\\u002a"
 
 	foreach l [split [pt::pe print $pe] \n] {
-	    # Ticket [da61329276]: Detect C comment closer, and disarm
-	    # it. This can occur with char classes, and char sequences,
-	    # i.e. strings. We recode them into \-escaped unicode
-	    # code-points.  Note: Putting this into the 'pe print' methis
-	    # is not a good idea, as the output can be used in other
-	    # contexts (Tcl, whatever), each with their own special
-	    # strings to be aware of. This is something each generator has
-	    # to handle, knowing their special sequences.
 	    text::write field  "    * [string map $map $l]"
 	    text::write /line
 	}
@@ -1600,5 +1604,5 @@ namespace eval ::pt::peg::to::cparam {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::to::cparam 1.1
+package provide pt::peg::to::cparam 1.1.1
 return
