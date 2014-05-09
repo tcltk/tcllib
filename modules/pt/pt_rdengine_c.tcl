@@ -18,7 +18,7 @@
 package require Tcl 8.4
 package require critcl
 # @sak notprovided pt_rde_critcl
-package provide pt_rde_critcl 1.3.1
+package provide pt_rde_critcl 1.3.2
 
 # # ## ### ##### ######## ############# #####################
 ## Implementation
