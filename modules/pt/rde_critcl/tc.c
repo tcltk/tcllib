@@ -70,7 +70,7 @@ rde_tc_append (RDE_TC tc, char* string, long int len)
     Tcl_UniChar uni;
 
     if (len < 0) {
-	len = strlen (ch);
+	len = strlen (string);
     }
 
     /*

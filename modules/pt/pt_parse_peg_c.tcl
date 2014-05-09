@@ -384,7 +384,7 @@ namespace eval ::pt::parse {
 	    int clen;
 	    Tcl_UniChar uni;
 	    if (len < 0) {
-		len = strlen (ch);
+		len = strlen (string);
 	    }
 	    
 	    if ((tc->num + len) >= tc->max) {
