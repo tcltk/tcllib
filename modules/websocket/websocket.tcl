@@ -883,7 +883,7 @@ proc ::websocket::Receiver { sock } {
 
     # If the FIN bit is set, process the frame.
     if { $header & 0x8000 } {
-	${log}::debug "Received $len long $type final fragment from $dst"
+	${log}::debug "Received $len bytes long $type final fragment from $dst"
 	switch $opcode {
 	    1 {
 		# Text: decode and notify handler
@@ -1021,12 +1021,16 @@ proc ::websocket::takeover { sock handler { server 0 } } {
 	if { $Connection(peername) eq "" } {
 	    set Connection(peername) [lindex $sockinfo 0]
 	}
+    } else {
+	${log}::warn "Cannot get remote information from socket: $sockinfo"
     }
     if { [catch {fconfigure $sock -sockname} sockinfo] == 0 } {
 	set Connection(sockname) [lindex $sockinfo 1]
 	if { $Connection(sockname) eq "" } {
 	    set Connection(sockname) [lindex $sockinfo 0]
 	}
+    } else {
+	${log}::warn "Cannot get local information from socket: $sockinfo"
     }
 
     # Listen to incoming traffic on socket and make sure we ping if
@@ -1134,6 +1138,7 @@ proc ::websocket::Connected { opener sock token } {
     ::http::cleanup $token
     unset $opener;   # Always unset the temporary connection opening
 		     # array
+    return 0
 }
 
 
@@ -1328,16 +1333,18 @@ proc ::websocket::open { url handler args } {
     set HDR(Sec-WebSocket-Version) $WS(ws_version)
     lappend cmd -headers [array get HDR]
 
-    # Add our own handler to intercept the socket once connection has
-    # been opened and established properly and make sure we keep alive
-    # the socket so we can continue using it. In practice, what gets
-    # called is the command that is specified by -command, even though
-    # we would like to intercept this earlier on.  This has to do with
-    # the internals of the HTTP package.
+    # Adding our own handler to intercept the socket once connection
+    # has been opened and established properly would be logical, but
+    # does not work in practice since this forces the HTTP library to
+    # perform a HTTP 1.0 request. Instead, we arrange to be called
+    # back via -command. We force -keepalive to make sure the HTTP
+    # library does not insert a "Connection: close" directive in the
+    # headers, and really make sure to do whatever we can to have a
+    # HTTP 1.1 connection.
     lappend cmd \
-	-handler [list [namespace current]::Connected $varname] \
 	-command [list [namespace current]::Finished $varname] \
-	-keepalive 1
+	-keepalive 1 \
+	-protocol 1.1
 
     # Now open the connection to the remote server using the HTTP
     # package...
