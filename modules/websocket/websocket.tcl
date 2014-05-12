@@ -1526,4 +1526,4 @@ proc ::websocket::configure { sock args } {
 }
 
 
-package provide websocket 1.3;
+package provide websocket 1.3.1
