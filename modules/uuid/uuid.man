@@ -1,4 +1,5 @@
-[manpage_begin uuid n 1.0.2]
+[vset UUID_VERSION 1.0.3]
+[manpage_begin uuid n [vset UUID_VERSION]]
 [keywords GUID]
 [keywords UUID]
 [moddesc {uuid}]
@@ -6,7 +7,7 @@
 [titledesc {UUID generation and comparison}]
 [category  {Hashes, checksums, and encryption}]
 [require Tcl 8.2]
-[require uuid [opt 1.0.2]]
+[require uuid [opt [vset UUID_VERSION]]]
 [description]
 [para]
 
