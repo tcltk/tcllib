@@ -12,7 +12,7 @@
 #        uuid::uuid equal $idA $idB
 
 namespace eval uuid {
-    variable version 1.0.2
+    variable version 1.0.3
     variable accel
     array set accel {critcl 0}
 
@@ -85,7 +85,7 @@ proc ::uuid::generate_tcl {} {
     binary scan $r c* r
     
     # 3.4: set uuid versioning fields
-    lset r 8 [expr {([lindex $r 8] & 0x7F) | 0x40}]
+    lset r 8 [expr {([lindex $r 8] & 0x3F) | 0x80}]
     lset r 6 [expr {([lindex $r 6] & 0x0F) | 0x40}]
     
     return [binary format c* $r]
