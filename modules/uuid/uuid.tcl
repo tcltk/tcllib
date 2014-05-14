@@ -12,7 +12,7 @@
 #        uuid::uuid equal $idA $idB
 
 namespace eval uuid {
-    variable version 1.0.2
+    variable version 1.0.3
     variable accel
     array set accel {critcl 0}
 
