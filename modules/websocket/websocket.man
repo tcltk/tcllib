@@ -306,8 +306,8 @@ pings.  This text defaults to the empty string, leading to an empty ping.
 
 Set or query the log level of the library, which defaults to warn.
 Logging is built on top of the logger module, and the library makes
-use of the following levels: [const debug], [const info], [const notice]
-and [const warn].  When called with no argument, this procedure will
+use of the following levels: [const debug], [const info], [const notice],
+[const warn] and [const error].  When called with no argument, this procedure will
 simply return the current log level.  Otherwise [arg loglvl] should contain
 the desired log level.
 
