@@ -44,7 +44,7 @@ namespace eval ::websocket {
     variable WS
     if { ! [info exists WS] } {
 	array set WS {
-	    loglevel       "warn"
+	    loglevel       "error"
 	    maxlength      16777216
 	    ws_magic       "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 	    ws_version     13
