@@ -1,0 +1,100 @@
+# -*- tcl -*-
+# pt_pgen.test:  Testing the parser generator, and the generated parsers.
+#                Mainly for testing generated parsers for good and bad inputs.
+#
+# Copyright (c) 2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# All rights reserved.
+#
+# RCS: @(#) $Id: pt_parse_peg.test,v 1.1 2010/03/26 05:07:24 andreas_kupries Exp $
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+support {
+    useAccel [useTcllibC] struct/stack.tcl struct::stack ; # User: pt::rde
+    TestAccelInit                          struct::stack ; # (tcl)
+
+    use      snit/snit.tcl          snit
+    use      fileutil/fileutil.tcl  fileutil      ;# tests/common
+    use      textutil/adjust.tcl    textutil::adjust
+
+    useLocal pt_astree.tcl                pt::ast
+    useLocal pt_pexpression.tcl           pt::pe
+    useLocal pt_pegrammar.tcl             pt::peg
+    useLocal pt_peg_container.tcl         pt::peg::container
+
+    useAccel [useTcllibC] pt/pt_rdengine.tcl  pt::rde ; # User: pt::parse::peg
+    TestAccelInit                             pt::rde ; # and:  pt:peg::interp
+
+    useLocal pt_peg_interp.tcl            pt::peg::interp
+
+    useAccel [useTcllibC] pt/pt_parse_peg.tcl pt::parse::peg ; # User: pt::peg::from::peg
+    TestAccelInit                             pt::parse::peg
+
+    useLocal pt_peg_from_json.tcl         pt::peg::from::json                ; # Frontends: json, and PEG text form
+    useLocal pt_peg_from_peg.tcl          pt::peg::from::peg                 ; #
+    useLocal pt_peg_to_container.tcl      pt::peg::to::container             ; # Backends: json, peg, container code,
+    useLocal pt_peg_to_json.tcl           pt::peg::to::json                  ; #           param assembler, 
+    useLocal pt_peg_to_peg.tcl            pt::peg::to::peg                   ; #
+    useLocal pt_peg_to_param.tcl          pt::peg::to::param                 ; # PARAM assembly, raw
+    useLocal pt_peg_to_tclparam.tcl       pt::peg::to::tclparam              ; # PARAM assembly, embedded into Tcl
+    useLocal pt_peg_to_cparam.tcl         pt::peg::to::cparam                ; # PARAM assembly, embedded into C
+    useLocal pt_tclparam_config_snit.tcl  pt::tclparam::configuration::snit  ; # PARAM/Tcl, snit::type
+    useLocal pt_tclparam_config_tcloo.tcl pt::tclparam::configuration::tcloo ; # PARAM/Tcl, TclOO class
+    useLocal pt_cparam_config_critcl.tcl  pt::cparam::configuration::critcl  ; # PARAM/C, in critcl
+
+    # Get the parser used by the converter, either the grammar
+    # interpreter, or snit-based and spcialized to PEG.
+    #useLocal pt_peg_container_peg.tcl  pt::peg::container::peg
+    #useLocal pt_peg_interp.tcl         pt::peg::interp
+
+    source [localPath tests/common]
+}
+testing {
+    useLocal pt_pgen.tcl pt::pgen ;# Generator
+}
+
+set mytestdir tests/data
+
+# -------------------------------------------------------------------------
+# Note: When using pt::rde's C implementation struct::stack is not
+#       used, and its implementation of no relevance.
+#
+#       Similarly, when pt::parse::peg's C implementation is used
+#       neither pt::rde's, nor struct::stack's implementations are of
+#       relevance.
+
+TestAccelDo pt::parse::peg parseimpl {
+    if {$parseimpl eq "critcl"} {
+	set rdeimpl   n/a
+	set stackimpl n/a
+	pt::rde::SwitchTo {}
+	struct::stack::SwitchTo {}
+	source [localPath tests/pt_pgen.tests]
+    } else {
+	TestAccelDo pt::rde rdeimpl {
+	    if {$rdeimpl eq "critcl"} {
+		set stackimpl n/a
+		struct::stack::SwitchTo {}
+		source [localPath tests/pt_pgen.tests]
+	    } else {
+		TestAccelDo struct::stack stackimpl {
+		    source [localPath tests/pt_pgen.tests]
+		}
+	    }
+	}
+    }
+}
+
+# -------------------------------------------------------------------------
+TestAccelExit pt::parse::peg
+TestAccelExit pt::rde
+TestAccelExit struct::stack
+testsuiteCleanup
+return

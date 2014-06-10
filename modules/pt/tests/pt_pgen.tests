@@ -1,0 +1,64 @@
+# -*- tcl -*-
+# Testsuite for pt::pgen.
+# Called by the ../pt_pgen.test driver file.
+
+#----------------------------------------------------------------------
+## I. Testing the generator operation itself
+
+# TODO testing of the pt::pgen command API (#args, options, outputs) ...
+
+#----------------------------------------------------------------------
+## II. Using generated parsers to test behaviour on good and bad
+##     input, i.e. the error handling implemented in our PEG parsers.
+
+foreach {format notes} {
+    container {grammar interpreter - reference}
+    snit      {snit::type Tcl parser}
+    oo        {TclOO class Tcl parser}
+    critcl    {PARAM based C class parser}
+} {
+    # SKIP nyi ...
+    if {$format in {oo critcl}} continue
+
+    TestFilesProcessIn $mytestdir gr def -> n glabel grfile grdata {
+	# Make parser instance. Shared across tests. Amortize the time
+	# spent on dynamically making it.
+	set p [make-parser $format $grdata]
+
+	# Test parser on good inputs for the grammar.
+	TestFilesProcess $mytestdir gr ok-${glabel} ok-${glabel}-res -> k label infile text expected {
+	    test pt-pgen-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-f:${format}-g:${glabel}-1.$n.$k \
+		"$format parser $glabel, good input - $label" -setup {
+		} -body {
+		    $p parset $text
+		} -cleanup {
+		} -result $expected
+	}
+
+	# Test parser on bad inputs for the grammar.
+	##
+	# Note how the expected output depends not only on grammar,
+	# but the parser format as well. Different optimizations and
+	# such leading to different instructions implementing matches.
+	# Example: "next_str" vs. "sequence of next_char".
+
+	TestFilesProcess $mytestdir gr fail-${glabel} fail-${glabel}-${format}-res -> k label infile text expected {
+	    test pt-pgen-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-f:${format}-g:${glabel}-2.$n.$k \
+		"$format parser $glabel, bad input - $label" -setup {
+		} -body {
+		    set code [catch {
+			$p parset $text
+		    } msg]
+		    # TODO: Convert message to readable.
+		    list $code $msg
+		} -cleanup {
+		} -result $expected
+	}
+
+	# Kill shared parser instance.
+	$p destroy
+    }
+}
+
+
+#----------------------------------------------------------------------
