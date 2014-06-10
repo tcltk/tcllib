@@ -543,6 +543,14 @@ rde_param_i_error_clear (RDE_PARAM p)
 SCOPE void
 rde_param_i_error_nonterminal (RDE_PARAM p, int s)
 {
+    /*
+     * Disabled. Generate only low-level errors until we have worked out how
+     * to integrate symbol information with them. Do not forget where this
+     * instruction is inlined - No such exist, places using the instruction
+     * directly call on this function.
+     */
+    return;
+
     long int pos;
     if (!p->ER) return;
     pos = 1 + (long int) rde_stack_top (p->LS);
