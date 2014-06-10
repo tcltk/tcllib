@@ -32,6 +32,7 @@ support {
     useAccel [useTcllibC] pt/pt_rdengine.tcl  pt::rde ; # User: pt::parse::peg
     TestAccelInit                             pt::rde ; # and:  pt:peg::interp
 
+    useLocal pt_rdengine_oo.tcl           pt::rde::oo
     useLocal pt_peg_interp.tcl            pt::peg::interp
 
     useAccel [useTcllibC] pt/pt_parse_peg.tcl pt::parse::peg ; # User: pt::peg::from::peg
