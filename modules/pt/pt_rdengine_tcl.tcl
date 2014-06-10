@@ -39,8 +39,10 @@ snit::type ::pt::rde_tcl {
     }
 
     #TRACE variable count 0
+    #variable count 0
 
-    method reset {{chan {}}} { ; #TRACE puts "[format %8d [incr count]] RDE reset"
+    method reset {{chan {}}} { ; #set count 0
+                               ; #TRACE puts "[format %8d [incr count]] RDE reset"
 	set mychan    $chan      ; # IN
 	set mycurrent {}         ; # CC
 	set myloc     -1         ; # CL
@@ -584,7 +586,7 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:next_str {tok} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_str"
+    method si:next_str {tok} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_str ($tok)"
 	# String = sequence of characters. No need for all the intermediate
 	# stack churn.
 
@@ -622,7 +624,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_class {tok} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_class"
+    method si:next_class {tok} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_class ($tok)"
 	# Class = Choice of characters. No need for stack churn.
 
 	# i_input_next "\{t $c\}"
@@ -652,7 +654,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_char {tok} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_char"
+    method si:next_char {tok} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_char ($tok)"
 	# i_input_next "\{t $c\}"
 	# i:fail_return
 	# i_test_char $c
@@ -676,7 +678,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_range {toks toke} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_range"
+    method si:next_range {toks toke} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_range ($toks $toke)"
 	#Asm::Ins i_input_next "\{.. $s $e\}"
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_range $s $e
@@ -1328,18 +1330,18 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_error_push {} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_push"
+    method i_error_push {} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_push ($myerror)"
 	$mystackerr push $myerror
 	return
     }
 
-    method i_error_clear_push {} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_clear_push"
+    method i_error_clear_push {} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_clear_push ()"
 	set myerror {}
 	$mystackerr push {}
 	return
     }
 
-    method i_error_pop_merge {} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_pop_merge"
+    method i_error_pop_merge {} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_pop_merge ($myerror)-/-([$mystackerr peek])"
 	set olderror [$mystackerr pop]
 
 	# We have either old or new error data, keep it.
@@ -1361,14 +1363,21 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_error_nonterminal {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_nonterminal"
+    method i_error_nonterminal {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_nonterminal ($symbol)"
 	# Inlined: Errors, Expected.
-	if {![llength $myerror]} return
+	if {![llength $myerror]} {
+	    #TRACE puts "[format %8d $count] RDE i_error_nonterminal ($symbol) no error"
+	    return
+	}
 	set pos [$mystackloc peek]
 	incr pos
 	lassign $myerror loc messages
-	if {$loc != $pos} return
+	if {$loc != $pos} {
+	    #TRACE puts "[format %8d $count] RDE i_error_nonterminal ($symbol) -- $myerror != $pos"
+	    return
+	}
 	set myerror [list $loc [list [list n $symbol]]]
+	TRACE puts "[format %8d $count] RDE i_error_nonterminal ($symbol) := $myerror"
 	return
     }
 
@@ -1513,7 +1522,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_value_clear/leaf {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_value_clear/leaf (ok $myok ([expr {[$mystackloc peek]+1}])-@$myloc)"
+    method i_value_clear/leaf {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_value_clear/leaf ($symbol ok $myok ([expr {[$mystackloc peek]+1}])-@$myloc)"
 	# not quite value_lead (guarded, and clear on fail)
 	# Inlined clear, reduce, and optimized.
 	# Clear ; if {$ok} {Reduce $symbol}
@@ -1534,7 +1543,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_value_clear/reduce {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_value_clear/reduce"
+    method i_value_clear/reduce {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_value_clear/reduce ($symbol)"
 	set mysvalue {}
 	if {!$myok} return
 
@@ -1569,7 +1578,7 @@ snit::type ::pt::rde_tcl {
     # # ## ### ##### ######## ############# #####################
     ## API - Instructions - Terminal matching
 
-    method i_input_next {msg} { ; #TRACE puts "[format %8d [incr count]] RDE i_input_next"
+    method i_input_next {msg} { ; #TRACE puts "[format %8d [incr count]] RDE i_input_next ($msg)"
 	# Inlined: Getch, Expected, ClearErrors
 	# Satisfy from input cache if possible.
 
@@ -1600,7 +1609,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_test_range {toks toke} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_range"
+    method i_test_range {toks toke} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_range ($toks $toke)"
 	set myok [expr {
 			([string compare $toks $mycurrent] <= 0) &&
 			([string compare $mycurrent $toke] <= 0)
