@@ -18,7 +18,7 @@ foreach {format notes} {
     critcl    {PARAM based C class parser}
 } {
     # SKIP nyi ...
-    if {$format in {oo critcl}} continue
+    if {$format in {critcl}} continue
 
     TestFilesProcessIn $mytestdir gr def -> n glabel grfile grdata {
 	# Make parser instance. Shared across tests. Amortize the time
