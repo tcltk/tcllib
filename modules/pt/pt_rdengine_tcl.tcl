@@ -131,7 +131,7 @@ snit::type ::pt::rde_tcl {
     # # ## ### ##### ######## ############# #####################
     ## Common instruction sequences
 
-    method si:void_state_push {} {
+    method si:void_state_push {} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_state_push"
 	# i_loc_push
 	# i_error_clear_push
 	$mystackloc push $myloc
@@ -140,7 +140,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void2_state_push {} {
+    method si:void2_state_push {} { ; #TRACE puts "[format %8d [incr count]] RDE si:void2_state_push"
 	# i_loc_push
 	# i_error_push
 	$mystackloc push $myloc
@@ -148,7 +148,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:value_state_push {} {
+    method si:value_state_push {} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_state_push"
 	# i_ast_push
 	# i_loc_push
 	# i_error_clear_push
@@ -161,7 +161,7 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:void_state_merge {} {
+    method si:void_state_merge {} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_state_merge"
 	# i_error_pop_merge
 	# i_loc_pop_rewind/discard
 
@@ -190,7 +190,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void_state_merge_ok {} {
+    method si:void_state_merge_ok {} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_state_merge_ok"
 	# i_error_pop_merge
 	# i_loc_pop_rewind/discard
 	# i_status_ok
@@ -221,7 +221,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:value_state_merge {} {
+    method si:value_state_merge {} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_state_merge"
 	# i_error_pop_merge
 	# i_ast_pop_rewind/discard
 	# i_loc_pop_rewind/discard
@@ -255,7 +255,7 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:value_notahead_start {} {
+    method si:value_notahead_start {} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_notahead_start"
 	# i_loc_push
 	# i_ast_push
 
@@ -264,7 +264,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void_notahead_exit {} {
+    method si:void_notahead_exit {} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_notahead_exit"
 	# i_loc_pop_rewind
 	# i_status_negate
 
@@ -273,7 +273,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:value_notahead_exit {} {
+    method si:value_notahead_exit {} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_notahead_exit"
 	# i_ast_pop_discard/rewind
 	# i_loc_pop_rewind
 	# i_status_negate
@@ -289,7 +289,7 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:kleene_abort {} {
+    method si:kleene_abort {} { ; #TRACE puts "[format %8d [incr count]] RDE si:kleene_abort"
 	# i_loc_pop_rewind/discard
 	# i:fail_return
 
@@ -299,7 +299,7 @@ snit::type ::pt::rde_tcl {
 	return -code return
     }
 
-    method si:kleene_close {} {
+    method si:kleene_close {} { ; #TRACE puts "[format %8d [incr count]] RDE si:kleene_close"
 	# i_error_pop_merge
 	# i_loc_pop_rewind/discard
 	# i:fail_status_ok
@@ -333,7 +333,7 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:voidvoid_branch {} {
+    method si:voidvoid_branch {} { ; #TRACE puts "[format %8d [incr count]] RDE si:voidvoid_branch"
 	# i_error_pop_merge
 	# i:ok_loc_pop_discard
 	# i:ok_return
@@ -368,7 +368,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:voidvalue_branch {} {
+    method si:voidvalue_branch {} { ; #TRACE puts "[format %8d [incr count]] RDE si:voidvalue_branch"
 	# i_error_pop_merge
 	# i:ok_loc_pop_discard
 	# i:ok_return
@@ -405,7 +405,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:valuevoid_branch {} {
+    method si:valuevoid_branch {} { ; #TRACE puts "[format %8d [incr count]] RDE si:valuevoid_branch"
 	# i_error_pop_merge
 	# i_ast_pop_rewind/discard
 	# i:ok_loc_pop_discard
@@ -442,7 +442,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:valuevalue_branch {} {
+    method si:valuevalue_branch {} { ; #TRACE puts "[format %8d [incr count]] RDE si:valuevalue_branch"
 	# i_error_pop_merge
 	# i_ast_pop_discard
 	# i:ok_loc_pop_discard
@@ -482,7 +482,7 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:voidvoid_part {} {
+    method si:voidvoid_part {} { ; #TRACE puts "[format %8d [incr count]] RDE si:voidvoid_part"
 	# i_error_pop_merge
 	# i:fail_loc_pop_rewind
 	# i:fail_return
@@ -514,7 +514,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:voidvalue_part {} {
+    method si:voidvalue_part {} { ; #TRACE puts "[format %8d [incr count]] RDE si:voidvalue_part"
 	# i_error_pop_merge
 	# i:fail_loc_pop_rewind
 	# i:fail_return
@@ -548,7 +548,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:valuevalue_part {} {
+    method si:valuevalue_part {} { ; #TRACE puts "[format %8d [incr count]] RDE si:valuevalue_part"
 	# i_error_pop_merge
 	# i:fail_ast_pop_rewind
 	# i:fail_loc_pop_rewind
@@ -584,7 +584,7 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:next_str {tok} {
+    method si:next_str {tok} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_str"
 	# String = sequence of characters. No need for all the intermediate
 	# stack churn.
 
@@ -622,7 +622,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_class {tok} {
+    method si:next_class {tok} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_class"
 	# Class = Choice of characters. No need for stack churn.
 
 	# i_input_next "\{t $c\}"
@@ -652,7 +652,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_char {tok} {
+    method si:next_char {tok} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_char"
 	# i_input_next "\{t $c\}"
 	# i:fail_return
 	# i_test_char $c
@@ -676,7 +676,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:next_range {toks toke} {
+    method si:next_range {toks toke} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_range"
 	#Asm::Ins i_input_next "\{.. $s $e\}"
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_range $s $e
@@ -1019,7 +1019,7 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:value_symbol_start {symbol} {
+    method si:value_symbol_start {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_symbol_start ($symbol)"
 	# if @runtime@ i_symbol_restore $symbol
 	# i:found:ok_ast_value_push
 	# i:found_return
@@ -1039,7 +1039,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:value_void_symbol_start {symbol} {
+    method si:value_void_symbol_start {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_void_symbol_start ($symbol)"
 	# if @runtime@ i_symbol_restore $symbol
 	# i:found_return
 	# i_loc_push
@@ -1055,7 +1055,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void_symbol_start {symbol} {
+    method si:void_symbol_start {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_symbol_start ($symbol)"
 	# if @runtime@ i_symbol_restore $symbol
 	# i:found:ok_ast_value_push
 	# i:found_return
@@ -1073,7 +1073,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void_void_symbol_start {symbol} {
+    method si:void_void_symbol_start {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_void_symbol_start ($symbol)"
 	# if @runtime@ i_symbol_restore $symbol
 	# i:found_return
 	# i_loc_push
@@ -1087,7 +1087,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:reduce_symbol_end {symbol} {
+    method si:reduce_symbol_end {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:reduce_symbol_end ($symbol)"
 	# i_value_clear/reduce $symbol
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1144,7 +1144,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void_leaf_symbol_end {symbol} {
+    method si:void_leaf_symbol_end {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_leaf_symbol_end ($symbol)"
 	# i_value_clear/leaf $symbol
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1186,7 +1186,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:value_leaf_symbol_end {symbol} {
+    method si:value_leaf_symbol_end {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_leaf_symbol_end ($symbol)"
 	# i_value_clear/leaf $symbol
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1230,7 +1230,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:value_clear_symbol_end {symbol} {
+    method si:value_clear_symbol_end {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_clear_symbol_end ($symbol)"
 	# i_value_clear
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1256,7 +1256,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void_clear_symbol_end {symbol} {
+    method si:void_clear_symbol_end {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_clear_symbol_end ($symbol)"
 	# i_value_clear
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
