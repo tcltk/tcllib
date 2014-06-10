@@ -273,13 +273,15 @@ proc match_node {ta a tb b} {
 # -------------------------------------------------------------------------
 ## Dynamically create a parser for a PE grammar stored in a string.
 ## Different types:
-## - container
-## - interpreter loaded from a container
+## - critcl    -- Run through critcl tool for compilation at test time.
+## - oo
+## - container -- interpreter loaded from a container
 ## - snit
-## - TclOO
-## - Critcl (Run through critcl tool for compilation at test time).
 
 proc make-parser {format glabel grammar} {
+    global pcounter
+    if {![info exist pcounter]} { set pcounter 0 }
+
     set debug 1
 
     # should be preloaded by test suite.
@@ -290,17 +292,14 @@ proc make-parser {format glabel grammar} {
     }
 
     # Options per format.
-    # oo        : -class -name -file -user
-    # snit      : -class -name -file -user
-    # container :        -name -file -user
-    # critcl    : -class -name -file -user
-
-    # Kill a previously made grammar class
-    catch { GC destroy }
+    # container :        -name
+    # critcl    : -class -name
+    # oo        : -class -name
+    # snit      : -class -name
 
     lappend cmd pt::pgen peg $grammar $format -name G
     if {$format ne "container"} {
-	lappend cmd -class GC
+	lappend cmd -class [set gc GC[incr pcounter]]
     }
 
     set code [eval $cmd]
@@ -312,8 +311,8 @@ proc make-parser {format glabel grammar} {
 	puts "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% $format ($glabel)"
     }
 
-    # TODO: special post-processing for various output formats
-    #       to get the parser object.
+    # Now do format-specific post-processing of the generated code to
+    # get a proper parser object.
 
     switch -exact -- $format {
 	container {
@@ -333,7 +332,7 @@ proc make-parser {format glabel grammar} {
 	    set p [pt::peg::interp %AUTO%]
 	    $p use $c
 
-	    # Clean up the transients.
+	    # Clean up the transient pieces (container class and instance).
 	    $c destroy
 	    G destroy
 	}
@@ -344,14 +343,17 @@ proc make-parser {format glabel grammar} {
 	    eval [join [lrange [split $code \n] 0 end-2] \n]
 
 	    # Instantiate a parser based on the class.
-	    set p [GC %AUTO%]
+	    set p [$gc %AUTO%]
 	    # Note: Cannot destroy class now, would destroy instance as well.
 	}
 	oo {
 	    # Instantiate the parser class.
-	    eval $code
+	    # ATTENTION: We chop the last 2 lines of the code first,
+	    # unwanted "package provide" and "return" commands.
+	    eval [join [lrange [split $code \n] 0 end-2] \n]
+
 	    # Instantiate a parser based on the class.
-	    set p [GC new]
+	    set p [$gc new]
 	    # Note: Cannot destroy class now, would destroy instance as well.
 	}
 	critcl {
