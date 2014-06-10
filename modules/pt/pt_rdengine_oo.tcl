@@ -1115,14 +1115,15 @@ oo::class create ::pt::rde::oo {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:reduce_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 
 	$mystackast trim* [$mystackmark pop]
 	if {$myok} {
@@ -1158,14 +1159,15 @@ oo::class create ::pt::rde::oo {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:void_leaf_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 
 	if {$myok} {
 	    $mystackast push $mysvalue
@@ -1201,14 +1203,15 @@ oo::class create ::pt::rde::oo {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:value_leaf_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 
 	$mystackast trim* [$mystackmark pop]
 	if {$myok} {
@@ -1230,14 +1233,15 @@ oo::class create ::pt::rde::oo {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:value_clear_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 
 	$mystackast trim* [$mystackmark pop]
 	return
@@ -1255,14 +1259,15 @@ oo::class create ::pt::rde::oo {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:void_clear_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 	return
     }
 
@@ -1350,6 +1355,13 @@ oo::class create ::pt::rde::oo {
     }
 
     method i_error_nonterminal {symbol} {
+	#  i_error_nonterminal -- Disabled. Generate only low-level
+	#  i_error_nonterminal -- errors until we have worked out how
+	#  i_error_nonterminal -- to integrate symbol information with
+	#  i_error_nonterminal -- them. Do not forget where this
+	#  i_error_nonterminal -- instruction is inlined.
+	return
+
 	# Inlined: Errors, Expected.
 	if {![llength $myerror]} return
 	set pos [$mystackloc peek]

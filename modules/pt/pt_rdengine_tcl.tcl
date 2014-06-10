@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 # # ## ### ##### ######## ############# #####################
 ## Package description
@@ -1130,14 +1130,15 @@ snit::type ::pt::rde_tcl {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:reduce_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 
 	$mystackast trim* [$mystackmark pop]
 	if {$myok} {
@@ -1173,14 +1174,15 @@ snit::type ::pt::rde_tcl {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:void_leaf_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 
 	if {$myok} {
 	    $mystackast push $mysvalue
@@ -1216,14 +1218,15 @@ snit::type ::pt::rde_tcl {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:value_leaf_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 
 	$mystackast trim* [$mystackmark pop]
 	if {$myok} {
@@ -1245,14 +1248,15 @@ snit::type ::pt::rde_tcl {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:value_clear_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 
 	$mystackast trim* [$mystackmark pop]
 	return
@@ -1270,14 +1274,15 @@ snit::type ::pt::rde_tcl {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:void_clear_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 	return
     }
 
@@ -1364,6 +1369,13 @@ snit::type ::pt::rde_tcl {
     }
 
     method i_error_nonterminal {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_nonterminal ($symbol)"
+	#  i_error_nonterminal -- Disabled. Generate only low-level
+	#  i_error_nonterminal -- errors until we have worked out how
+	#  i_error_nonterminal -- to integrate symbol information with
+	#  i_error_nonterminal -- them. Do not forget where this
+	#  i_error_nonterminal -- instruction is inlined.
+	return
+
 	# Inlined: Errors, Expected.
 	if {![llength $myerror]} {
 	    #TRACE puts "[format %8d $count] RDE i_error_nonterminal ($symbol) no error"
