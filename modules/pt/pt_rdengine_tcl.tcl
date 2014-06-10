@@ -65,6 +65,10 @@ snit::type ::pt::rde_tcl {
 		incr pos
 		set children [$mystackast peekr [$mystackast size]] ; # SaveToMark
 		return [pt::ast new {} $pos $myloc {*}$children]    ; # Reduce ALL
+	    } elseif {$n == 0} {
+		# Match, but no AST. This is possible if the grammar
+		# consists of only the tsart expression.
+		return {}
 	    } else {
 		return [$mystackast peek]
 	    }
@@ -597,6 +601,14 @@ snit::type ::pt::rde_tcl {
 	}
 	set lex       [string range $mytoken $myloc $last]
 	set mycurrent [string index $mytoken $last]
+
+	# ATTENTION: The error output of this instruction is different
+	# from a regular sequence of si:next_char instructions. The
+	# error location will be the start of the string token we
+	# wanted to match, and the message will contain the entire
+	# string token. In the regular sequence we would see the exact
+	# point of the mismatch instead, with the message containing
+	# the expected character.
 
 	set myok [expr {$tok eq $lex}]
 
