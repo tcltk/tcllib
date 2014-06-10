@@ -48,6 +48,35 @@ proc TestFilesProcess {maindir section inset outset -> nv lv iv dv ev script} {
     return
 }
 
+
+proc TestFilesProcessIn {maindir section inset -> nv lv iv dv script} {
+    upvar 1 $nv n $lv label $dv data $iv inputfile
+
+    set pattern $maindir/$section/$inset/*
+
+    set files [TestFilesGlob $pattern]
+    if {![llength $files]} {
+	return -code error "No files matching \"$pattern\""
+    }
+    foreach src $files {
+	if {[string match *README* $src]} continue
+	if {[file isdirectory      $src]} continue
+
+	set srcname  [file tail $src]
+	set data     [fileutil::cat -translation binary -encoding utf-8 $src]
+
+	regexp -- {^([0-9]+)}    $srcname -> n
+	regsub -all -- {^[0-9]+} $srcname {} label
+
+	scan $n %d n
+	set label [string trim [string map {_ { }} $label]]
+	set inputfile $src
+
+	uplevel 1 $script
+    }
+    return
+}
+
 # -------------------------------------------------------------------------
 
 proc setup_plugins {} {
@@ -239,6 +268,108 @@ proc match_node {ta a tb b} {
 	match_node $ta $ca $tb $cb
     }
     return
+}
+
+# -------------------------------------------------------------------------
+## Dynamically create a parser for a PE grammar stored in a string.
+## Different types:
+## - container
+## - interpreter loaded from a container
+## - snit
+## - TclOO
+## - Critcl (Run through critcl tool for compilation at test time).
+
+proc make-parser {format grammar} {
+    set debug 1
+
+    # should be preloaded by test suite.
+    if {[catch {
+	package present pt::pgen
+    }]} {
+	error "pt::pgen package required and not loaded. Please fix your testsuite."
+    }
+
+    # Options per format.
+    # oo        : -class -name -file -user
+    # snit      : -class -name -file -user
+    # container :        -name -file -user
+    # critcl    : -class -name -file -user
+
+    # Kill a previously made grammar class
+    catch { GC destroy }
+
+    lappend cmd pt::pgen peg $grammar $format -name G
+    if {$format ne "container"} {
+	lappend cmd -class GC
+    }
+
+    set code [eval $cmd]
+
+    # debugging generator output
+    if {$debug} {
+	puts "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% $format"
+	puts $code
+	puts "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% $format"
+    }
+
+    # TODO: special post-processing for various output formats
+    #       to get the parser object.
+
+    switch -exact -- $format {
+	container {
+	    # should be preloaded by test suite.
+	    if {[catch {
+		package present pt::peg::interp
+	    }]} {
+		error "pt::peg::interp package required and not loaded. Please fix your testsuite."
+	    }
+
+	    # Instantiate container class (transient).
+	    eval $code
+	    # Instantiate container (transient).
+	    set c [G %AUTO%]
+
+	    # Instantiate PEG interpreter, and configure with grammar in container.
+	    set p [pt::peg::interp %AUTO%]
+	    $p use $c
+
+	    # Clean up the transients.
+	    $c destroy
+	    G destroy
+	}
+	snit {
+	    # Instantiate the parser class.
+	    # ATTENTION: We chop the last 2 lines of the code first,
+	    # unwanted "package provide" and "return" commands.
+	    eval [join [lrange [split $code \n] 0 end-2] \n]
+
+	    # Instantiate a parser based on the class.
+	    set p [GC %AUTO%]
+	    # Note: Cannot destroy class now, would destroy instance as well.
+	}
+	oo {
+	    # Instantiate the parser class.
+	    eval $code
+	    # Instantiate a parser based on the class.
+	    set p [GC new]
+	    # Note: Cannot destroy class now, would destroy instance as well.
+	}
+	critcl {
+	    # TODO:
+	    # - Save to file,
+	    # - Run through critcl
+	    # - Load generated shlib
+	    # - Instantiate parser
+	    error NYI-critcl
+	}
+    }
+
+    # Provide parser instance.
+    if {$debug} {
+	puts "P = ($p)"
+	puts %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    }
+    return $p
 }
 
 # -------------------------------------------------------------------------
