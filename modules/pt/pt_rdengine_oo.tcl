@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 # # ## ### ##### ######## ############# #####################
 ## Package description
@@ -72,12 +72,16 @@ oo::class create ::pt::rde::oo {
 		incr pos
 		set children [lreverse [$mystackast peek [$mystackast size]]]     ; # SaveToMark
 		return [pt::ast new {} $pos $myloc {*}$children] ; # Reduce ALL
+	    } elseif {$n == 0} {
+		# Match, but no AST. This is possible if the grammar
+		# consists of only the tsart expression.
+		return {}
 	    } else {
 		return [$mystackast peek]
 	    }
 	} else {
 	    lassign $myerror loc messages
-	    return -code error [list pt::rde $loc [$self position $loc] $messages]
+	    return -code error [list pt::rde $loc $messages]
 	}
     }
 
