@@ -23,11 +23,11 @@ foreach {format notes} {
     TestFilesProcessIn $mytestdir gr def -> n glabel grfile grdata {
 	# Make parser instance. Shared across tests. Amortize the time
 	# spent on dynamically making it.
-	set p [make-parser $format $grdata]
+	set p [make-parser $format $glabel $grdata]
 
 	# Test parser on good inputs for the grammar.
 	TestFilesProcess $mytestdir gr ok-${glabel} ok-${glabel}-res -> k label infile text expected {
-	    test pt-pgen-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-f:${format}-g:${glabel}-1.$n.$k \
+	    test pt-pgen-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-f:${format}-g:${glabel}-t:${label}-1.$n.$k \
 		"$format parser $glabel, good input - $label" -setup {
 		} -body {
 		    $p parset $text
@@ -43,7 +43,7 @@ foreach {format notes} {
 	# Example: "next_str" vs. "sequence of next_char".
 
 	TestFilesProcess $mytestdir gr fail-${glabel} fail-${glabel}-${format}-res -> k label infile text expected {
-	    test pt-pgen-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-f:${format}-g:${glabel}-2.$n.$k \
+	    test pt-pgen-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-f:${format}-g:${glabel}-t:${label}-2.$n.$k \
 		"$format parser $glabel, bad input - $label" -setup {
 		} -body {
 		    set code [catch {

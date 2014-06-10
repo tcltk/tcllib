@@ -279,7 +279,7 @@ proc match_node {ta a tb b} {
 ## - TclOO
 ## - Critcl (Run through critcl tool for compilation at test time).
 
-proc make-parser {format grammar} {
+proc make-parser {format glabel grammar} {
     set debug 1
 
     # should be preloaded by test suite.
@@ -307,9 +307,9 @@ proc make-parser {format grammar} {
 
     # debugging generator output
     if {$debug} {
-	puts "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% $format"
+	puts "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% $format ($glabel)"
 	puts $code
-	puts "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% $format"
+	puts "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% $format ($glabel)"
     }
 
     # TODO: special post-processing for various output formats
@@ -367,7 +367,9 @@ proc make-parser {format grammar} {
     # Provide parser instance.
     if {$debug} {
 	puts "P = ($p)"
-	puts %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+	puts "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% $format ($glabel)"
+	puts %%
+	puts %%%
     }
     return $p
 }
