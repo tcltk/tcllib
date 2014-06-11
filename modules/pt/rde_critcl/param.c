@@ -929,7 +929,7 @@ rde_param_i_test_ascii (RDE_PARAM p)
 }
 
 SCOPE void
-rde_param_i_test_char (RDE_PARAM p, char* c, int msg)
+rde_param_i_test_char (RDE_PARAM p, const char* c, int msg)
 {
     ASSERT_BOUNDS(msg,p->numstr);
 
@@ -1685,7 +1685,7 @@ rde_param_i_bra_value2value (RDE_PARAM p)
  */
 
 SCOPE void
-rde_param_i_next_str (RDE_PARAM p, char* str, int m)
+rde_param_i_next_str (RDE_PARAM p, const char* str, int m)
 {
     int at = p->CL;
 
@@ -1707,7 +1707,7 @@ rde_param_i_next_str (RDE_PARAM p, char* str, int m)
 }
 
 SCOPE void
-rde_param_i_next_class (RDE_PARAM p, char* class, int m)
+rde_param_i_next_class (RDE_PARAM p, const char* class, int m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
