@@ -725,7 +725,7 @@ rde_param_i_input_next (RDE_PARAM p, int m)
 	 * character out of the token cache.
 	 *
 	 * FUTURE :: keep track of what location the data stored in CC is
-	 * for. If the location is identical now extraction is required. This
+	 * for. If the location is identical no extraction is required. This
 	 * may help when a choice repeatedly tests the same character.
 	 */
 
@@ -1689,15 +1689,27 @@ rde_param_i_next_str (RDE_PARAM p, const char* str, int m)
 {
     int at = p->CL;
 
+    /* Future: Place match string into a shared table of constants, like error
+     * messages, indexed by code. Precomputed length information.
+     *
+     * NOTE how we are modifying the error location after the fact. The
+     * message contains the entire string, so the location should be the
+     * start of the string in the input, not somewhere in the middle. This
+     * matches the Tcl runtimes. Here we have to adjust the stored location
+     * due to our progress through the pattern.
+     */
+
     while (*str) {
 	rde_param_i_input_next (p, m);
 	if (!p->ST) {
+	    p->ER->loc = at+1;
 	    p->CL = at;
 	    return;
 	}
 
 	rde_param_i_test_char (p, str, m);
 	if (!p->ST) {
+	    p->ER->loc = at+1;
 	    p->CL = at;
 	    return;
 	}
