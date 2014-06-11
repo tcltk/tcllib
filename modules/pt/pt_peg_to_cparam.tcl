@@ -1578,6 +1578,7 @@ namespace eval ::pt::peg::to::cparam {
 	user            user
     }
 
+    variable comments  1
     variable self      {}
     variable ns        {}
     variable def       static
