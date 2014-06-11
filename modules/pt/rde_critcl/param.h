@@ -89,7 +89,7 @@ SCOPE void rde_param_i_status_negate     (RDE_PARAM p);
 SCOPE int  rde_param_i_symbol_restore    (RDE_PARAM p, int s);
 SCOPE void rde_param_i_symbol_save       (RDE_PARAM p, int s);
 
-SCOPE void rde_param_i_test_char         (RDE_PARAM p, char* c, int m);
+SCOPE void rde_param_i_test_char         (RDE_PARAM p, const char* c, int m);
 SCOPE void rde_param_i_test_range        (RDE_PARAM p, char* s, char* e, int m);
 
 SCOPE void rde_param_i_test_alnum        (RDE_PARAM p);
@@ -165,8 +165,8 @@ SCOPE int  rde_param_i_bra_void2value  (RDE_PARAM p);
 SCOPE int  rde_param_i_bra_value2void  (RDE_PARAM p);
 SCOPE int  rde_param_i_bra_value2value (RDE_PARAM p);
 
-SCOPE void rde_param_i_next_str   (RDE_PARAM p, char* str,   int m);
-SCOPE void rde_param_i_next_class (RDE_PARAM p, char* class, int m);
+SCOPE void rde_param_i_next_str   (RDE_PARAM p, const char* str,   int m);
+SCOPE void rde_param_i_next_class (RDE_PARAM p, const char* class, int m);
 
 /* SKIP END */
 #endif /* _RDE_DS_PARAM_H */
