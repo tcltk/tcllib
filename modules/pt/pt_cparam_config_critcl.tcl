@@ -94,7 +94,7 @@ proc ::pt::cparam::configuration::critcl::def {class pkg cmd} {
 	    ## Supporting code for the main command.
 
 	    catch {
-		#critcl::cheaders -g
+		#critcl::cflags -g
 		#critcl::debug memory symbols
 	    }
 
@@ -247,6 +247,13 @@ proc ::pt::cparam::configuration::critcl::def {class pkg cmd} {
 
 			    Tcl_SetObjResult (interp, Tcl_NewListObj (3, lv));
 			    ckfree ((char*) lv);
+
+			} else if (ac == 0) {
+			    /*
+			     * Match, but no AST. This is possible if the grammar
+			     * consists of only the start expression.
+			     */
+			    Tcl_SetObjResult (interp, Tcl_NewStringObj ("",-1));
 			} else {
 			    Tcl_SetObjResult (interp, av [0]);
 			}
