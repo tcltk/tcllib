@@ -366,7 +366,7 @@ snit::type ::pt::rde_tcl {
 	    return -code return
 	}
 	set myloc [$mystackloc peek]
-	$mystackerr push {}
+	$mystackerr push $myerror
 	return
     }
 
