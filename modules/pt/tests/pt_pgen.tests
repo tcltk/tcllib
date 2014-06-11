@@ -53,7 +53,10 @@ foreach {format notes} {
 		    list $code $msg
 		} -cleanup {
 		} -result $expected
-	}
+	} yes ;# Allow missing testsets, for two reasons:
+	#      # (a) Easier during testsuite development, allowing incremental buildup
+	#      # (b) Some grammar construction *cannot* fail (Ex: x*), thus we cannot provide
+	#      #     failure cases either.
 
 	# Kill shared parser instance.
 	$p destroy
