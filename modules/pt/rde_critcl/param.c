@@ -360,8 +360,8 @@ rde_param_query_er_tcl (RDE_PARAM p, const ERROR_STATE* er)
 
 	/*
 	 * Note: We are peeking inside the (message) stack here and are
-	 * modifying it in place. This doesn't matter, we using the stack code
-	 * for convenience, not for the ordering.
+	 * modifying it in place. This doesn't matter, we are using the stack
+	 * code for convenience, not for the ordering.
 	 */
 
 	qsort (mv, mc, sizeof (long int), er_int_compare);
@@ -369,8 +369,8 @@ rde_param_query_er_tcl (RDE_PARAM p, const ERROR_STATE* er)
 	/*
 	 * Convert message ids to strings. We ignore duplicates, by comparing
 	 * to the last processed id. Here the sorting (see above) comes into
-	 * play, we know that duplicates are bunched together in runs, this
-	 * makes it easy.
+	 * play, we know that duplicates are bunched together in runs, making
+	 * it easy to drop them.
 	 */
 
 	mov = NALLOC (mc, Tcl_Obj*);
