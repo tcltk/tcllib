@@ -568,7 +568,7 @@ proc ::pt::peg::to::cparam::Op::str {modes args} {
     Asm::ReTerminal str {*}$args
     Asm::Direct {
 	set str [join [char quote tcl {*}$args] {}]
-	set m [Asm::String "str '$str'"]
+	set m [Asm::String "t $str"]
 
 	# Without fusing this would be rendered as a sequence of
 	# characters, with associated stack churn for each
