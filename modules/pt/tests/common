@@ -1,7 +1,7 @@
 # -*- tcl -*-
 # Code common to the various control files.
 #
-# Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # All rights reserved.
 #
 # RCS: @(#) $Id: common,v 1.1 2010/03/26 05:07:24 andreas_kupries Exp $
@@ -12,13 +12,14 @@
 # identical.  Here we do not expect source'able test suites, but data
 # files, organized in sections under a main directory.
 
-proc TestFilesProcess {maindir section inset outset -> nv lv iv dv ev script} {
+proc TestFilesProcess {maindir section inset outset -> nv lv iv dv ev script {optionalok 0}} {
     upvar 1 $nv n $lv label $dv data $ev expected $iv inputfile
 
     set pattern $maindir/$section/$inset/*
 
     set files [TestFilesGlob $pattern]
     if {![llength $files]} {
+	if {$optionalok} return
 	return -code error "No files matching \"$pattern\""
     }
     foreach src $files {
