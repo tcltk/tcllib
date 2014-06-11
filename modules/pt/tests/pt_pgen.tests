@@ -17,8 +17,10 @@ foreach {format notes} {
     oo        {TclOO class Tcl parser}
     critcl    {PARAM based C class parser}
 } {
-    # SKIP nyi ...
-    if {$format in {critcl}} continue
+    # Ignore critcl-based parsers if the environment does not support
+    # their generation (no critcl package).
+    if {$format eq "critcl" &&
+	![tcltest::testConstraint critcl]} continue
 
     TestFilesProcessIn $mytestdir gr def -> n glabel grfile grdata {
 	# Make parser instance. Shared across tests. Amortize the time
