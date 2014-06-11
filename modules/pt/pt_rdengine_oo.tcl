@@ -74,7 +74,7 @@ oo::class create ::pt::rde::oo {
 		return [pt::ast new {} $pos $myloc {*}$children] ; # Reduce ALL
 	    } elseif {$n == 0} {
 		# Match, but no AST. This is possible if the grammar
-		# consists of only the tsart expression.
+		# consists of only the start expression.
 		return {}
 	    } else {
 		return [$mystackast peek]
