@@ -263,9 +263,11 @@ proc ::pt::cparam::configuration::critcl::def {class pkg cmd} {
 			Tcl_Obj* xv [1];
 			const ERROR_STATE* er = rde_param_query_er (p);
 			Tcl_Obj* res = rde_param_query_er_tcl (p, er);
+			/* res = list (location, list(msg)) */
 
+			/* Stick the exception type-tag before the existing elements */
 			xv [0] = Tcl_NewStringObj ("pt::rde",-1);
-			Tcl_ListObjReplace(interp, res, 0, 1, 1, xv);
+			Tcl_ListObjReplace(interp, res, 0, 0, 1, xv);
 
 			Tcl_SetObjResult (interp, res);
 			return TCL_ERROR;
