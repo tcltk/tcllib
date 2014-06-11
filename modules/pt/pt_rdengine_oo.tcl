@@ -363,7 +363,7 @@ oo::class create ::pt::rde::oo {
 	    return -code return
 	}
 	set myloc [$mystackloc peek]
-	$mystackerr push {}
+	$mystackerr push $myerror
 	return
     }
 
