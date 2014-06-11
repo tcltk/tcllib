@@ -16,6 +16,10 @@ source [file join \
 testsNeedTcl     8.5
 testsNeedTcltest 2
 
+# Check if we have critcl available.
+tcltest::testConstraint critcl [expr {![catch {package require critcl}]}]
+
+
 support {
     useAccel [useTcllibC] struct/stack.tcl struct::stack ; # User: pt::rde
     TestAccelInit                          struct::stack ; # (tcl)

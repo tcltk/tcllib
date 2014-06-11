@@ -358,18 +358,40 @@ proc make-parser {format glabel grammar} {
 	    # Note: Cannot destroy class now, would destroy instance as well.
 	}
 	critcl {
-	    # TODO:
-	    # - Save to file,
-	    # - Run through critcl
-	    # - Load generated shlib
-	    # - Instantiate parser
-	    error NYI-critcl
+	    # Instantiate the parser class.
+	    # ATTENTION: We chop the last line of the code first,
+	    # unwanted "return" command.
+	    #
+	    # ATTENTION: We muck with [info script] to distinguish the
+	    # multiple parsers going through this file and procedure
+	    # from each other. Without doing this they would all map
+	    # to the same file and critcl bailing on us for code
+	    # redefinition after a compile & link for that file.
+
+	    set here [info script]
+	    info script $gc
+
+	    eval [join [lrange [split $code \n] 0 end-1] \n]
+
+	    # Above invoked critcl's collection of the C fragments.
+	    # We have made sure (in "pt_pgen.test" and
+	    # "tests/pt_pgen.tests") that the critcl package is
+	    # available (we use it in run&compile mode).
+
+	    # Hidden in the execution of the command instantiating the
+	    # parser is the compilation, link and load of the C
+	    # pieces, via $auto_index() and [unknown].
+	    set p [${gc}::${gc}_critcl]
+
+	    info script $here
 	}
     }
 
     # Provide parser instance.
     if {$debug} {
 	puts "P = ($p)"
+	puts "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% $format ($glabel)"
+	puts "** [join [info loaded] "\n** "]"
 	puts "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% $format ($glabel)"
 	puts %%
 	puts %%%
