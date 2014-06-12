@@ -594,7 +594,7 @@ oo::class create ::pt::rde::oo {
 	incr myloc
 	if {($last >= $max) && ![my ExtendTCN [expr {$last - $max + 1}]]} {
 	    set myok    0
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [list str $tok]]]
 	    # i:fail_return
 	    return
 	}
@@ -607,7 +607,7 @@ oo::class create ::pt::rde::oo {
 	    set myloc $last
 	    set myerror {}
 	} else {
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [list str $tok]]]
 	    incr myloc -1
 	}
 	return
@@ -623,7 +623,7 @@ oo::class create ::pt::rde::oo {
 	incr myloc
 	if {($myloc >= [string length $mytoken]) && ![my ExtendTC]} {
 	    set myok    0
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [list cl $tok]]]
 	    # i:fail_return
 	    return
 	}
@@ -637,7 +637,7 @@ oo::class create ::pt::rde::oo {
 	if {$myok} {
 	    set myerror {}
 	} else {
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [list cl $tok]]]
 	    incr myloc -1
 	}
 	return

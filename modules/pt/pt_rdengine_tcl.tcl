@@ -597,7 +597,7 @@ snit::type ::pt::rde_tcl {
 	incr myloc
 	if {($last >= $max) && ![ExtendTCN [expr {$last - $max + 1}]]} {
 	    set myok    0
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [list str $tok]]]
 	    # i:fail_return
 	    return
 	}
@@ -618,7 +618,7 @@ snit::type ::pt::rde_tcl {
 	    set myloc $last
 	    set myerror {}
 	} else {
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [list str $tok]]]
 	    incr myloc -1
 	}
 	return
@@ -634,7 +634,7 @@ snit::type ::pt::rde_tcl {
 	incr myloc
 	if {($myloc >= [string length $mytoken]) && ![ExtendTC]} {
 	    set myok    0
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [list cl $tok]]]
 	    # i:fail_return
 	    return
 	}
@@ -648,7 +648,7 @@ snit::type ::pt::rde_tcl {
 	if {$myok} {
 	    set myerror {}
 	} else {
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [list cl $tok]]]
 	    incr myloc -1
 	}
 	return
