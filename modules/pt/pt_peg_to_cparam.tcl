@@ -568,7 +568,7 @@ proc ::pt::peg::to::cparam::Op::str {modes args} {
     Asm::ReTerminal str {*}$args
     Asm::Direct {
 	set str [join [char quote tcl {*}$args] {}]
-	set m [Asm::String "t $str"]
+	set m [Asm::String "str $str"]
 
 	# Without fusing this would be rendered as a sequence of
 	# characters, with associated stack churn for each
@@ -589,7 +589,7 @@ proc ::pt::peg::to::cparam::Op::cl {modes args} {
 	# character/branch (See Op::/, void/all).
 
 	set cl [join [Ranges {*}$args] {}]
-	set m [Asm::String "cl '$cl'"]
+	set m [Asm::String "cl $cl"]
 
 	Asm::Ins next_class \"$cl\" $m
     }
