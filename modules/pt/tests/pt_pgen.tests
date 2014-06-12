@@ -11,6 +11,9 @@
 ## II. Using generated parsers to test behaviour on good and bad
 ##     input, i.e. the error handling implemented in our PEG parsers.
 
+## See data/gr/README.txt for the documentation of the directory
+## structure used to organize the test-cases used here.
+
 foreach {format notes} {
     container {grammar interpreter - reference}
     snit      {snit::type Tcl parser}
