@@ -62,6 +62,9 @@ typedef struct RDE_PARAM_ {
 
 typedef int (*UniCharClass) (int);
 
+/* See also p.c, param_new(), table of param_intern() calls.
+ * ** Keep in sync **
+ */
 typedef enum test_class_id {
     tc_alnum,
     tc_alpha,

@@ -174,6 +174,28 @@ proc ::pt::peg::to::cparam::convert {serial} {
     }
 
     text::write reset
+
+    # Fixed elements of the string table as needed by the lower level
+    # PARAM functions (class tests, see param.c, enum test_class).
+    # ** Keep in sync **
+    #
+    # Maybe move the interning into the lower level, i.e. PARAM ?
+
+    Op::Asm::String alnum
+    Op::Asm::String alpha
+    Op::Asm::String ascii
+    Op::Asm::String control
+    Op::Asm::String ddigit
+    Op::Asm::String digit
+    Op::Asm::String graph
+    Op::Asm::String lower
+    Op::Asm::String print
+    Op::Asm::String punct
+    Op::Asm::String space
+    Op::Asm::String upper
+    Op::Asm::String wordchar
+    Op::Asm::String xdigit
+
     Op::Asm::Header {Declaring the parse functions}
     text::write /line
     text::write store FORWARD
