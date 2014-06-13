@@ -1,0 +1,34 @@
+Constructions not yet covered by the test suite ...
+
+Operator	Covered	Notes
+--------	-------	-----
+/   choice	y
+cl		y	general char class, fused char choice
+n   nonterminal	y
+..  range	y	char range
+*   repeat0	y	kleene
++   repeat1	y	pos.kleene
+x   sequence	y
+str		y	fused char sequence
+t   terminal	y	general terminal char
+--------	-------	-----
+&  ahead		&x
+!  notahead		!x
+?  optional		x?
+--------	-------	-----
+alnum
+alpha
+ascii
+ddigit
+digit
+. dot
+epsilon
+graph
+lower
+printable
+punct
+space
+upper
+wordchar
+xdigit
+--------	-------
