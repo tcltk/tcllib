@@ -11,6 +11,7 @@ n   nonterminal	y
 x   sequence	y
 str		y	fused char sequence
 t   terminal	y	general terminal char
+. dot		y
 alnum		y
 alpha		y
 ascii		y
@@ -30,6 +31,5 @@ xdigit		y
 !  notahead		!x
 ?  optional		x?
 --------	-------	-----
-. dot
-epsilon
+epsilon		internal, not directly accessible, only indirectly through "?"
 --------	-------
