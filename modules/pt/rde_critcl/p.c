@@ -37,6 +37,8 @@ param_new (void)
     /*
      * Fixed elements of the string table, as needed by the lower level PARAM
      * functions (class tests, see param.c, enum test_class).
+     * Further pt_peg_to_cparam.tcl, [::pt::peg::to::cparam::convert]
+     * ** Keep in sync **
      *
      * Maybe move the interning into the lower level, i.e. PARAM ?
      */
@@ -44,11 +46,12 @@ param_new (void)
     param_intern (p, "alnum");
     param_intern (p, "alpha");
     param_intern (p, "ascii");
+    param_intern (p, "control");
     param_intern (p, "ddigit");
     param_intern (p, "digit");
     param_intern (p, "graph");
     param_intern (p, "lower");
-    param_intern (p, "printable");
+    param_intern (p, "print");
     param_intern (p, "punct");
     param_intern (p, "space");
     param_intern (p, "upper");
