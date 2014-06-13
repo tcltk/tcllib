@@ -347,7 +347,7 @@ namespace eval ::pt::peg {
 
     variable ourcode      pt::grammar::peg
     variable ourprefix    {error in serialization:}
-    #                                                                                  # Test cases (grammar-peg-structure-)
+    #                                                                              # Test cases (grammar-peg-structure-)
     variable ourshort     { dictionary too short, expected exactly one key}      ; # 
     variable ourtag       { bad type tag "%s"}                                   ; # 
     variable ourcbadlen   { dictionary of bad length, expected exactly two keys} ; # 
