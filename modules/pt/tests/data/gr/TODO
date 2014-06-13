@@ -27,9 +27,9 @@ x   sequence	y
 *   repeat0	y	kleene
 +   repeat1	y	pos.kleene
 ?   optional	y
+!  notahead		lookahead predicate, assert non-match
 --------	-------	-----
-&  ahead		&x
-!  notahead		!x
+&  ahead		lookahead predicate, assert match
 --------	-------	-----
 epsilon		n	internal, not directly accessible
 			only indirectly through "?"
