@@ -74,6 +74,14 @@ rde_tc_append (RDE_TC tc, char* string, long int len)
     }
 
     /*
+     * Nothing to append, nothing to do. Bail immediately.
+     */
+
+    if (!len) {
+	return tc->str + base;
+    }
+
+    /*
      * Extend character buffer to hold the new string, and copy the string in.
      */
 
