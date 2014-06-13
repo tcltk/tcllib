@@ -779,6 +779,30 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
+    method si:next_control {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_control"
+	#Asm::Ins i_input_next control
+	#Asm::Ins i:fail_return
+	#Asm::Ins i_test_control
+
+	incr myloc
+	if {($myloc >= [string length $mytoken]) && ![ExtendTC]} {
+	    set myok    0
+	    set myerror [list $myloc [list control]]
+	    # i:fail_return
+	    return
+	}
+	set mycurrent [string index $mytoken $myloc]
+
+	set myok [string is control -strict $mycurrent]
+	if {!$myok} {
+	    set myerror [list $myloc [list control]]
+	    incr myloc -1
+	} else {
+	    set myerror {}
+	}
+	return
+    }
+
     method si:next_ddigit {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_ddigit"
 	#Asm::Ins i_input_next ddigit
 	#Asm::Ins i:fail_return
@@ -1653,6 +1677,12 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
+    method i_test_control {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_control"
+	set myok [string is control -strict $mycurrent]
+	OkFail control
+	return
+    }
+
     method i_test_ddigit {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_ddigit"
 	set myok [string match {[0-9]} $mycurrent]
 	OkFail ddigit
@@ -1804,6 +1834,7 @@ snit::type ::pt::rde_tcl {
 	set ourmsg(alnum)     [pt::pe alnum]
 	set ourmsg(alpha)     [pt::pe alpha]
 	set ourmsg(ascii)     [pt::pe ascii]
+	set ourmsg(control)   [pt::pe control]
 	set ourmsg(ddigit)    [pt::pe ddigit]
 	set ourmsg(digit)     [pt::pe digit]
 	set ourmsg(graph)     [pt::pe graph]

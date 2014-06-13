@@ -116,9 +116,8 @@ snit::type ::pt::peg::interp {
     # class. Does not consume input on failure.
 
     foreach operator {
-	alnum alpha ascii ddigit digit  graph
-	lower print punct space  upper  wordchar
-	xdigit
+	alnum alpha ascii control ddigit digit    graph
+	lower print punct space   upper  wordchar xdigit
     } {
 	method $operator {} [string map [list @ $operator] {
 	    $self Next

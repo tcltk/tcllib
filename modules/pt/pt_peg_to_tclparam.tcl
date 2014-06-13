@@ -375,7 +375,7 @@ proc ::pt::peg::to::tclparam::Symbol {symbol mode rhs modes} {
 
 namespace eval ::pt::peg::to::tclparam::Op {
     namespace export \
-	alpha alnum ascii digit graph lower print \
+	alpha alnum ascii control digit graph lower print \
 	punct space upper wordchar xdigit ddigit \
 	dot epsilon t .. n ? * + & ! x / str cl
 }
@@ -403,7 +403,7 @@ proc ::pt::peg::to::tclparam::Op::dot {modes} {
 }
 
 foreach test {
-    alpha alnum ascii digit graph lower print
+    alpha alnum ascii control digit graph lower print
     punct space upper wordchar xdigit ddigit
 } {
     proc ::pt::peg::to::tclparam::Op::$test {modes} \

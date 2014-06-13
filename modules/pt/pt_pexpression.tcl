@@ -19,7 +19,7 @@ namespace eval ::pt::pe {
 	bottomup topdown print equal \
 	\
 	epsilon dot alnum alpha ascii digit graph lower printable \
-	punct space upper wordchar xdigit ddigit \
+	control punct space upper wordchar xdigit ddigit \
 	nonterminal optional repeat0 repeat1 ahead notahead \
 	choice sequence \
 	terminal range
@@ -131,7 +131,7 @@ proc ::pt::pe::print {serial} {
 proc ::pt::pe::Print {pe op arguments} {
     switch -exact -- $op {
 	epsilon - alpha - alnum - ascii - digit - graph - lower - print - \
-	    punct - space - upper - wordchar - xdigit - ddigit - dot {
+	    control - punct - space - upper - wordchar - xdigit - ddigit - dot {
 		return [list <$op>]
 	    }
 	str { return [list "\"[join [char quote comment {*}$arguments] {}]\""] }
@@ -220,6 +220,7 @@ proc ::pt::pe::dot       {} { return dot      }
 proc ::pt::pe::alnum     {} { return alnum    }
 proc ::pt::pe::alpha     {} { return alpha    }
 proc ::pt::pe::ascii     {} { return ascii    }
+proc ::pt::pe::control   {} { return control  }
 proc ::pt::pe::digit     {} { return digit    }
 proc ::pt::pe::graph     {} { return graph    }
 proc ::pt::pe::lower     {} { return lower    }
@@ -269,6 +270,7 @@ namespace eval ::pt::pe {
 	alpha    {0 0}
 	alnum    {0 0}
 	ascii    {0 0}
+	control  {0 0}
 	digit    {0 0}
 	graph    {0 0}
 	lower    {0 0}
