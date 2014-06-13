@@ -66,6 +66,7 @@ typedef enum test_class_id {
     tc_alnum,
     tc_alpha,
     tc_ascii,
+    tc_control,
     tc_ddigit,
     tc_digit,
     tc_graph,
@@ -929,6 +930,12 @@ rde_param_i_test_ascii (RDE_PARAM p)
 }
 
 SCOPE void
+rde_param_i_test_control (RDE_PARAM p)
+{
+    test_class (p, Tcl_UniCharIsControl, tc_control);
+}
+
+SCOPE void
 rde_param_i_test_char (RDE_PARAM p, const char* c, int msg)
 {
     ASSERT_BOUNDS(msg,p->numstr);
@@ -1325,6 +1332,14 @@ rde_param_i_next_ascii (RDE_PARAM p, int m)
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
     rde_param_i_test_ascii (p);
+}
+
+SCOPE void
+rde_param_i_next_control (RDE_PARAM p, int m)
+{
+    rde_param_i_input_next (p, m);
+    if (!p->ST) return;
+    rde_param_i_test_control (p);
 }
 
 SCOPE void

@@ -207,7 +207,7 @@ proc ::pt::peg::to::peg::Convert {pe operator arguments} {
     # order.
 
     switch -exact -- $operator {
-	alpha - alnum - ascii - digit - graph - lower - print -
+	alpha - alnum - ascii - control - digit - graph - lower - print -
 	punct - space - upper - wordchar - xdigit - ddigit {
 	    # Special forms ...
 	    return [list <$operator> $pe]
@@ -402,7 +402,7 @@ namespace eval ::pt::peg::to::peg {
 	! 2  dot     4  lower 4  ddigit   4
 	+ 3  epsilon 4  print 4  str      4
 	* 3  alnum   4  punct 4  cl       4
-	? 3  alpha   4  space 4
+	? 3  alpha   4  space 4  control  4
     }
 }
 

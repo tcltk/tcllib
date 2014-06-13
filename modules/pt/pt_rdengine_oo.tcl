@@ -768,6 +768,30 @@ oo::class create ::pt::rde::oo {
 	return
     }
 
+    method si:next_control {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_control"
+	#Asm::Ins i_input_next control
+	#Asm::Ins i:fail_return
+	#Asm::Ins i_test_control
+
+	incr myloc
+	if {($myloc >= [string length $mytoken]) && ![my ExtendTC]} {
+	    set myok    0
+	    set myerror [list $myloc [list control]]
+	    # i:fail_return
+	    return
+	}
+	set mycurrent [string index $mytoken $myloc]
+
+	set myok [string is control -strict $mycurrent]
+	if {!$myok} {
+	    set myerror [list $myloc [list control]]
+	    incr myloc -1
+	} else {
+	    set myerror {}
+	}
+	return
+    }
+
     method si:next_ddigit {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_ddigit"
 	#Asm::Ins i_input_next ddigit
 	#Asm::Ins i:fail_return
@@ -1564,6 +1588,12 @@ oo::class create ::pt::rde::oo {
     method i_test_ascii {} {
 	set myok [string is ascii -strict $mycurrent]
 	my OkFail [pt::pe ascii]
+	return
+    }
+
+    method i_test_control {} {
+	set myok [string is control -strict $mycurrent]
+	my OkFail [pt::pe control]
 	return
     }
 

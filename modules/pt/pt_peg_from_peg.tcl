@@ -197,7 +197,7 @@ proc pt::peg::from::peg::GEN::Class {s e args} {
 }
 
 proc pt::peg::from::peg::GEN::CONTROL {s e} {
-    return [pt::pe ddigit]
+    return [pt::pe control]
 }
 
 proc pt::peg::from::peg::GEN::DDIGIT {s e} {
