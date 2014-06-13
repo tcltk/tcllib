@@ -11,24 +11,25 @@ n   nonterminal	y
 x   sequence	y
 str		y	fused char sequence
 t   terminal	y	general terminal char
+alnum		y
+alpha		y
+ascii		y
+control		y
+ddigit		y
+digit		y
+graph		y
+lower		y
+printable	y
+punct		y
+space		y
+upper		y
+wordchar	y
+xdigit		y
 --------	-------	-----
 &  ahead		&x
 !  notahead		!x
 ?  optional		x?
 --------	-------	-----
-alnum
-alpha
-ascii
-ddigit
-digit
 . dot
 epsilon
-graph
-lower
-printable
-punct
-space
-upper
-wordchar
-xdigit
 --------	-------
