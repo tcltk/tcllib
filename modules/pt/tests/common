@@ -283,7 +283,7 @@ proc make-parser {format glabel grammar} {
     global pcounter
     if {![info exist pcounter]} { set pcounter 0 }
 
-    set debug 1
+    set debug 0
 
     # should be preloaded by test suite.
     if {[catch {
