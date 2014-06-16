@@ -6,7 +6,7 @@
 ##	PEG
 ##
 ## Generated from file	3_peg_itself
-##            for user  aku
+##            for user  andreask
 ##
 # # ## ### ##### ######## ############# #####################
 ## Requirements
@@ -365,7 +365,7 @@ snit::type ::pt::parse::peg_tcl {
     proc sym_CharSpecial {} { upvar 1 myparser myparser
         # x
         #     '\'
-        #     [nrt'"[]\]
+        #     [nrt'\"[]\]
     
         $myparser si:void_symbol_start CharSpecial
         sequence_57
@@ -376,7 +376,7 @@ snit::type ::pt::parse::peg_tcl {
     proc sequence_57 {} { upvar 1 myparser myparser
         # x
         #     '\'
-        #     [nrt'"[]\]
+        #     [nrt'\"[]\]
     
         $myparser si:void_state_push
         $myparser si:next_char \134
@@ -1007,6 +1007,7 @@ snit::type ::pt::parse::peg_tcl {
     #
     
     proc sym_EOL {} { upvar 1 myparser myparser
+        # [\n\r]
     
         $myparser si:void_void_symbol_start EOL
         $myparser si:next_class \n\r
