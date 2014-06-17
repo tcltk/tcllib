@@ -24,12 +24,16 @@ support {
     useAccel [useTcllibC] struct/stack.tcl struct::stack ; # User: pt::rde
     TestAccelInit                          struct::stack ; # (tcl)
 
+    useAccel [useTcllibC] struct/sets.tcl struct::set
+    TestAccelInit                         struct::set
+
     use      snit/snit.tcl          snit
     use      fileutil/fileutil.tcl  fileutil      ;# tests/common
     use      textutil/adjust.tcl    textutil::adjust
 
     useLocal pt_astree.tcl                pt::ast
     useLocal pt_pexpression.tcl           pt::pe
+    useLocal pt_pexpr_op.tcl              pt::pe::op
     useLocal pt_pegrammar.tcl             pt::peg
     useLocal pt_peg_container.tcl         pt::peg::container
 
@@ -75,22 +79,27 @@ set mytestdir tests/data
 #       neither pt::rde's, nor struct::stack's implementations are of
 #       relevance.
 
-TestAccelDo pt::parse::peg parseimpl {
-    if {$parseimpl eq "critcl"} {
-	set rdeimpl   n/a
-	set stackimpl n/a
-	pt::rde::SwitchTo {}
-	struct::stack::SwitchTo {}
-	source [localPath tests/pt_pgen.tests]
-    } else {
-	TestAccelDo pt::rde rdeimpl {
-	    if {$rdeimpl eq "critcl"} {
-		set stackimpl n/a
-		struct::stack::SwitchTo {}
-		source [localPath tests/pt_pgen.tests]
-	    } else {
-		TestAccelDo struct::stack stackimpl {
+TestAccelDo struct::set setimpl {
+    # struct::set does not matter to the parser, but in the parser
+    # generator (make-parser).
+
+    TestAccelDo pt::parse::peg parseimpl {
+	if {$parseimpl eq "critcl"} {
+	    set rdeimpl   n/a
+	    set stackimpl n/a
+	    pt::rde::SwitchTo {}
+	    struct::stack::SwitchTo {}
+	    source [localPath tests/pt_pgen.tests]
+	} else {
+	    TestAccelDo pt::rde rdeimpl {
+		if {$rdeimpl eq "critcl"} {
+		    set stackimpl n/a
+		    struct::stack::SwitchTo {}
 		    source [localPath tests/pt_pgen.tests]
+		} else {
+		    TestAccelDo struct::stack stackimpl {
+			source [localPath tests/pt_pgen.tests]
+		    }
 		}
 	    }
 	}
@@ -101,5 +110,6 @@ TestAccelDo pt::parse::peg parseimpl {
 TestAccelExit pt::parse::peg
 TestAccelExit pt::rde
 TestAccelExit struct::stack
+TestAccelExit struct::set
 testsuiteCleanup
 return
