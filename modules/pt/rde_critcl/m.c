@@ -110,7 +110,8 @@ param_CHAN (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 int
 param_COMPLETE (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
-    /* Syntax: rde complete
+    /* See also pt_cparam_config_critcl.tcl, COMPLETE().
+     * Syntax: rde complete
      *         [0] [1]
      */
 
@@ -139,6 +140,12 @@ param_COMPLETE (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 
 	    Tcl_SetObjResult (interp, Tcl_NewListObj (3, lv));
 	    ckfree ((char*) lv);
+	} else if (ac == 0) {
+	    /*
+	     * Match, but no AST. This is possible if the grammar consists of
+	     * only the start expression.
+	     */
+	    Tcl_SetObjResult (interp, Tcl_NewStringObj ("",-1));
 	} else {
 	    Tcl_SetObjResult (interp, av [0]);
 	}
@@ -149,9 +156,11 @@ param_COMPLETE (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	Tcl_Obj* xv [1];
 	const ERROR_STATE* er = rde_param_query_er (p->p);
 	Tcl_Obj* res = rde_param_query_er_tcl (p->p, er);
+	/* res = list (location, list(msg)) */
 
+	/* Stick the exception type-tag before the existing elements */
 	xv [0] = Tcl_NewStringObj ("pt::rde",-1);
-	Tcl_ListObjReplace(interp, res, 0, 1, 1, xv);
+	Tcl_ListObjReplace(interp, res, 0, 0, 1, xv);
 
 	Tcl_SetObjResult (interp, res);
 	return TCL_ERROR;
@@ -1308,6 +1317,23 @@ param_I_test_char (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* ob
 }
 
 int
+param_I_test_control (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+{
+    /* Syntax: rde i_test_control
+     *         [0] [1]
+     */
+
+    if (objc != 2) {
+	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	return TCL_ERROR;
+    }
+
+    rde_param_i_test_control (p->p);
+
+    return TCL_OK;
+}
+
+int
 param_I_test_ddigit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     /* Syntax: rde i_test_ddigit
@@ -1430,7 +1456,7 @@ param_I_test_range (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
      */
 
     chs = Tcl_GetString (objv [2]);
-    che = Tcl_GetString (objv [2]);
+    che = Tcl_GetString (objv [3]);
     msg = rde_ot_intern (objv [2], p, "..", che);
 
     rde_param_i_test_range (p->p, chs, che, msg);
@@ -1806,7 +1832,7 @@ param_SI_next_range (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
      */
 
     chs = Tcl_GetString (objv [2]);
-    che = Tcl_GetString (objv [2]);
+    che = Tcl_GetString (objv [3]);
     msg = rde_ot_intern (objv [2], p, "..", che);
 
     rde_param_i_input_next (p->p, msg);
@@ -1881,6 +1907,29 @@ param_SI_next_ascii (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
     rde_param_i_input_next (p->p, msg);
     if (rde_param_query_st (p->p)) {
 	rde_param_i_test_ascii (p->p);
+    }
+    return TCL_OK;
+}
+
+int
+param_SI_next_control (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
+{
+    /* Syntax: rde si:next_control
+     *         [0] [1]
+     */
+
+    int msg;
+
+    if (objc != 2) {
+	Tcl_WrongNumArgs (interp, 2, objv, NULL);
+	return TCL_ERROR;
+    }
+
+    msg = param_intern (p, "control");
+
+    rde_param_i_input_next (p->p, msg);
+    if (rde_param_query_st (p->p)) {
+	rde_param_i_test_control (p->p);
     }
     return TCL_OK;
 }
