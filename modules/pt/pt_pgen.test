@@ -72,44 +72,25 @@ testing {
 set mytestdir tests/data
 
 # -------------------------------------------------------------------------
-# Note: When using pt::rde's C implementation struct::stack is not
-#       used, and its implementation of no relevance.
-#
-#       Similarly, when pt::parse::peg's C implementation is used
-#       neither pt::rde's, nor struct::stack's implementations are of
-#       relevance.
+# While some of the C pieces are usually not required at runtime (like
+# C stack when RDE is also C), we are calling on the parser generator
+# here, which still may use a different implementation. So, no
+# shurtcuts, and full 16x expansion (2^4).
 
 TestAccelDo struct::set setimpl {
-    # struct::set does not matter to the parser, but in the parser
-    # generator (make-parser).
-
     TestAccelDo pt::parse::peg parseimpl {
-	if {$parseimpl eq "critcl"} {
-	    set rdeimpl   n/a
-	    set stackimpl n/a
-	    pt::rde::SwitchTo {}
-	    struct::stack::SwitchTo {}
-	    source [localPath tests/pt_pgen.tests]
-	} else {
-	    TestAccelDo pt::rde rdeimpl {
-		if {$rdeimpl eq "critcl"} {
-		    set stackimpl n/a
-		    struct::stack::SwitchTo {}
-		    source [localPath tests/pt_pgen.tests]
-		} else {
-		    TestAccelDo struct::stack stackimpl {
-			source [localPath tests/pt_pgen.tests]
-		    }
-		}
+	TestAccelDo pt::rde rdeimpl {
+	    TestAccelDo struct::stack stackimpl {
+		source [localPath tests/pt_pgen.tests]
 	    }
 	}
     }
 }
 
 # -------------------------------------------------------------------------
-TestAccelExit pt::parse::peg
-TestAccelExit pt::rde
 TestAccelExit struct::stack
+TestAccelExit pt::rde
+TestAccelExit pt::parse::peg
 TestAccelExit struct::set
 testsuiteCleanup
 return
