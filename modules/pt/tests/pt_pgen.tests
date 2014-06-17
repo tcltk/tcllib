@@ -54,6 +54,14 @@ foreach {format notes} {
 		    set code [catch {
 			$p parset $text
 		    } msg]
+		    # msg = list ("pt::rde" location list(msg))
+		    # Sort the messages for a canonical result.
+		    # NOTE: The data out of the RDE/critcl is sorted
+		    # by msg id, that is not necessarily
+		    # lexicographical, nor matching the Tcl results.
+		    lassign $msg tag loc mlist
+		    set msg [list $tag $loc [lsort -dict $mlist]]
+
 		    # TODO: Convert message to readable.
 		    list $code $msg
 		} -cleanup {
