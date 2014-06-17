@@ -225,6 +225,7 @@ proc ::pt::cparam::configuration::critcl::def {class pkg cmd} {
 		    return COMPLETE (p, interp);
 		}
 
+		/* See also rde_critcl/m.c, param_COMPLETE() */
 		static int COMPLETE (RDE_PARAM p, Tcl_Interp* interp)
 		{
 		    if (rde_param_query_st (p)) {
