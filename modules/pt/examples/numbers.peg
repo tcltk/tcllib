@@ -1,0 +1,31 @@
+PEG numbers (Number)
+
+# TODO: testcases
+
+# The main complexity comes from allowing only decimal integers as
+# part of floating point numbers, and allowing non-decimal integers for
+# integers in general.
+
+Number		<- Scientific / Integer		;
+Scientific	<- Floating ([eE] Signed)?	;
+
+Floating	<- Signed ('.' Decimal)?
+		/  '.' Decimal
+		;
+
+Integer		<- Sign? Unsigned	;
+Signed		<- Sign? Decimal	;
+
+Unsigned	<- Decimal
+		/  Hexadecimal
+		;
+
+Sign		<- [-+]			;
+Decimal		<- <ddigit> +		;
+Hexadecimal	<- '0x' <xdigit> +	;
+
+# TODO: Octal
+# TODO: Binary
+
+END;
+
