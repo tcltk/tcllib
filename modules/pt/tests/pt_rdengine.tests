@@ -663,7 +663,7 @@ test pt-rdengine-rde:${rdeimpl}-stack:${stkimpl}-5.15 {i_error, nonterminal, err
     LS -1
     ST fail
     SV {}
-    ER {0 {{n X}}}
+    ER {0 {{t Y}}}
     ES {}
     TC HE
     NC {}

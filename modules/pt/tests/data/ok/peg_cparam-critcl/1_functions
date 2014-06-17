@@ -30,7 +30,7 @@ namespace eval ::PARSER {
     ## Supporting code for the main command.
 
     catch {
-	#critcl::cheaders -g
+	#critcl::cflags -g
 	#critcl::debug memory symbols
     }
 
@@ -387,6 +387,10 @@ namespace eval ::PARSER {
 		len = strlen (string);
 	    }
 	    
+	    if (!len) {
+		return tc->str + base;
+	    }
+	    
 	    if ((tc->num + len) >= tc->max) {
 		int   new = len + (tc->max ? (2 * tc->max) : RDE_STACK_INITIAL_SIZE);
 		char* str = ckrealloc (tc->str, new * sizeof(char));
@@ -481,6 +485,7 @@ namespace eval ::PARSER {
 	    tc_alnum,
 	    tc_alpha,
 	    tc_ascii,
+	    tc_control,
 	    tc_ddigit,
 	    tc_digit,
 	    tc_graph,
@@ -822,6 +827,8 @@ namespace eval ::PARSER {
 	SCOPE void
 	rde_param_i_error_nonterminal (RDE_PARAM p, int s)
 	{
+	    
+	    return;
 	    long int pos;
 	    if (!p->ER) return;
 	    pos = 1 + (long int) rde_stack_top (p->LS);
@@ -1051,7 +1058,12 @@ namespace eval ::PARSER {
 	    test_class (p, UniCharIsAscii, tc_ascii);
 	}
 	SCOPE void
-	rde_param_i_test_char (RDE_PARAM p, char* c, int msg)
+	rde_param_i_test_control (RDE_PARAM p)
+	{
+	    test_class (p, Tcl_UniCharIsControl, tc_control);
+	}
+	SCOPE void
+	rde_param_i_test_char (RDE_PARAM p, const char* c, int msg)
 	{
 	    ASSERT_BOUNDS(msg,p->numstr);
 	    p->ST = Tcl_UtfNcmp (p->CC, c, 1) == 0;
@@ -1359,6 +1371,13 @@ namespace eval ::PARSER {
 	    rde_param_i_test_ascii (p);
 	}
 	SCOPE void
+	rde_param_i_next_control (RDE_PARAM p, int m)
+	{
+	    rde_param_i_input_next (p, m);
+	    if (!p->ST) return;
+	    rde_param_i_test_control (p);
+	}
+	SCOPE void
 	rde_param_i_next_ddigit (RDE_PARAM p, int m)
 	{
 	    rde_param_i_input_next (p, m);
@@ -1638,17 +1657,20 @@ namespace eval ::PARSER {
 	    return p->ST;
 	}
 	SCOPE void
-	rde_param_i_next_str (RDE_PARAM p, char* str, int m)
+	rde_param_i_next_str (RDE_PARAM p, const char* str, int m)
 	{
 	    int at = p->CL;
+	    
 	    while (*str) {
 		rde_param_i_input_next (p, m);
 		if (!p->ST) {
+		    p->ER->loc = at+1;
 		    p->CL = at;
 		    return;
 		}
 		rde_param_i_test_char (p, str, m);
 		if (!p->ST) {
+		    p->ER->loc = at+1;
 		    p->CL = at;
 		    return;
 		}
@@ -1656,7 +1678,7 @@ namespace eval ::PARSER {
 	    }
 	}
 	SCOPE void
-	rde_param_i_next_class (RDE_PARAM p, char* class, int m)
+	rde_param_i_next_class (RDE_PARAM p, const char* class, int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
@@ -1694,15 +1716,29 @@ namespace eval ::PARSER {
          * Precomputed table of strings (symbols, error messages, etc.).
          */
         
-        static char const* p_string [8] = {
-            /*        0 = */   "n Expression",
-            /*        1 = */   "Expression",
-            /*        2 = */   "n Function",
-            /*        3 = */   "Function",
-            /*        4 = */   "str 'sin\50'",
-            /*        5 = */   "t \51",
-            /*        6 = */   "n Sinus",
-            /*        7 = */   "Sinus"
+        static char const* p_string [22] = {
+            /*        0 = */   "alnum",
+            /*        1 = */   "alpha",
+            /*        2 = */   "ascii",
+            /*        3 = */   "control",
+            /*        4 = */   "ddigit",
+            /*        5 = */   "digit",
+            /*        6 = */   "graph",
+            /*        7 = */   "lower",
+            /*        8 = */   "print",
+            /*        9 = */   "punct",
+            /*       10 = */   "space",
+            /*       11 = */   "upper",
+            /*       12 = */   "wordchar",
+            /*       13 = */   "xdigit",
+            /*       14 = */   "n Expression",
+            /*       15 = */   "Expression",
+            /*       16 = */   "n Function",
+            /*       17 = */   "Function",
+            /*       18 = */   "str sin\50",
+            /*       19 = */   "t \51",
+            /*       20 = */   "n Sinus",
+            /*       21 = */   "Sinus"
         };
         
         /*
@@ -1723,9 +1759,9 @@ namespace eval ::PARSER {
             * (Function)
             */
         
-            if (rde_param_i_symbol_start_d (p, 1)) return ;
+            if (rde_param_i_symbol_start_d (p, 15)) return ;
             sym_Function (p);
-            rde_param_i_symbol_done_d_reduce (p, 1, 0);
+            rde_param_i_symbol_done_d_reduce (p, 15, 14);
             return;
         }
         
@@ -1738,9 +1774,9 @@ namespace eval ::PARSER {
             * (Sinus)
             */
         
-            if (rde_param_i_symbol_start_d (p, 3)) return ;
+            if (rde_param_i_symbol_start_d (p, 17)) return ;
             sym_Sinus (p);
-            rde_param_i_symbol_done_d_reduce (p, 3, 2);
+            rde_param_i_symbol_done_d_reduce (p, 17, 16);
             return;
         }
         
@@ -1756,9 +1792,9 @@ namespace eval ::PARSER {
             *     '\)'
             */
         
-            if (rde_param_i_symbol_start_d (p, 7)) return ;
+            if (rde_param_i_symbol_start_d (p, 21)) return ;
             sequence_9 (p);
-            rde_param_i_symbol_done_d_reduce (p, 7, 6);
+            rde_param_i_symbol_done_d_reduce (p, 21, 20);
             return;
         }
         
@@ -1771,11 +1807,11 @@ namespace eval ::PARSER {
             */
         
             rde_param_i_state_push_void (p);
-            rde_param_i_next_str (p, "sin\50", 4);
+            rde_param_i_next_str (p, "sin\50", 18);
             if (rde_param_i_seq_void2value(p)) return;
             sym_Expression (p);
             if (rde_param_i_seq_value2value(p)) return;
-            rde_param_i_next_char (p, "\51", 5);
+            rde_param_i_next_char (p, "\51", 19);
             rde_param_i_state_merge_value (p);
             return;
         }
@@ -1905,6 +1941,13 @@ namespace eval ::PARSER {
 
 		    Tcl_SetObjResult (interp, Tcl_NewListObj (3, lv));
 		    ckfree ((char*) lv);
+
+		} else if (ac == 0) {
+		    /*
+		     * Match, but no AST. This is possible if the grammar
+		     * consists of only the start expression.
+		     */
+		    Tcl_SetObjResult (interp, Tcl_NewStringObj ("",-1));
 		} else {
 		    Tcl_SetObjResult (interp, av [0]);
 		}
@@ -1914,9 +1957,11 @@ namespace eval ::PARSER {
 		Tcl_Obj* xv [1];
 		const ERROR_STATE* er = rde_param_query_er (p);
 		Tcl_Obj* res = rde_param_query_er_tcl (p, er);
+		/* res = list (location, list(msg)) */
 
+		/* Stick the exception type-tag before the existing elements */
 		xv [0] = Tcl_NewStringObj ("pt::rde",-1);
-		Tcl_ListObjReplace(interp, res, 0, 1, 1, xv);
+		Tcl_ListObjReplace(interp, res, 0, 0, 1, xv);
 
 		Tcl_SetObjResult (interp, res);
 		return TCL_ERROR;
