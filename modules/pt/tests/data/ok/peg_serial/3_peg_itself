@@ -23,11 +23,10 @@ pt::grammar::peg {
 	DIGIT          {mode leaf     is {x {t <} {t d} {t i} {t g} {t i} {t t} {t >} {n WHITESPACE}}}
 	DOT            {mode leaf     is {x {t .} {n WHITESPACE}}}
 	Definition     {mode value    is {x {? {n Attribute}} {n Identifier} {n IS} {n Expression} {n SEMICOLON}}}
-	END            {mode void     is {x {t E} {t N} {t D} {n WHITESPACE}}}
 	EOF            {mode void     is {! dot}}
 	EOL            {mode void     is {/ {t \n} {t \r}}}
 	Expression     {mode value    is {x {n Sequence} {* {x {n SLASH} {n Sequence}}}}}
-	Final          {mode void     is {x {n END} {n SEMICOLON} {n WHITESPACE}}}
+	Final          {mode void     is {x {n {t E} {t N} {t D} {n WHITESPACE} {n SEMICOLON} {n WHITESPACE}}}
 	GRAPH          {mode leaf     is {x {t <} {t g} {t r} {t a} {t p} {t h} {t >} {n WHITESPACE}}}
 	Grammar        {mode value    is {x {n WHITESPACE} {n Header} {* {n Definition}} {n Final} {n EOF}}}
 	Header         {mode value    is {x {n PEG} {n Identifier} {n StartExpr}}}
@@ -40,7 +39,7 @@ pt::grammar::peg {
 	NOT            {mode leaf     is {x {t !} {n WHITESPACE}}}
 	OPEN           {mode void     is {x {t \50} {n WHITESPACE}}}
 	OPENB          {mode void     is {t \133}}
-	PEG            {mode void     is {x {t P} {t E} {t G} {n WHITESPACE}}}
+	PEG            {mode void     is {x {t P} {t E} {t G} {! {/ {t _} {t :} alnum}} {n WHITESPACE}}}
 	PLUS           {mode leaf     is {x {t +} {n WHITESPACE}}}
 	PRINTABLE      {mode leaf     is {x {t <} {t p} {t r} {t i} {t n} {t t} {t >} {n WHITESPACE}}}
 	PUNCT          {mode leaf     is {x {t <} {t p} {t u} {t n} {t c} {t t} {t >} {n WHITESPACE}}}
