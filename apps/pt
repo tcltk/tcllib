@@ -25,7 +25,7 @@ proc main {} {
     global argv argv0 errorInfo
     if {![llength $argv]} { lappend argv help }
     if {[catch {
-	::pt::app {*}$argv
+	set status [::pt::app {*}$argv]
     } msg]} {
 	set elines [split $errorInfo \n]
 	if {[llength $elines] == 3} {
@@ -48,7 +48,7 @@ proc main {} {
 	puts ${prefix}[join $elines \n$prefix]
 	exit 1
     }
-    exit 0
+    exit $status
 }
 
 # # ## ### ##### ######## ############# #####################
@@ -75,6 +75,7 @@ proc ::pt::app::help {{topic {}}} {
 	puts stderr \t[join [split [string map [list @ $argv0] [string trim [::pt::app::${topic}Help]]] \n] \n\t]
 	puts stderr ""
     }
+    return 0
 }
 
 proc ::pt::app::Topics {} {
@@ -111,15 +112,110 @@ proc ::pt::app::generate {args} {
     }
 
     set args [lassign $args parserformat]
-    lassign [lrange $args end-2 end] parserfile grammarformat grammarfile
+    lassign [lrange $args end-2 end] \
+	parserfile grammarformat grammarfile
     set args [Template [lrange $args 0 end-3]]
     lappend args -file $grammarfile
 
-    fileutil::writeFile $parserfile \
-	[::pt::pgen $grammarformat \
-	     [fileutil::cat $grammarfile] \
-	     $parserformat {*}$args]
+    set grammar [fileutil::cat $grammarfile]
+
+    if {[catch {
+	set parser [::pt::pgen $grammarformat $grammar $parserformat {*}$args]
+    } msg o]} {
+	# Parse errors are shown here, anything else gets rethrown.
+	if {![IsPE $msg]} { return {*}$o $msg }
+	ShowPE $msg $grammar
+	return 1
+    }
+
+    fileutil::writeFile $parserfile $parser
+    return 0
+}
+
+## NOTE: These should all be made into some utility function
+proc ::pt::app::IsPE {msg} {
+    string match {pt::rde *} $msg
+}
+
+proc ::pt::app::ShowPE {msg text} {
+    lassign $msg _ location msgs
+    lassign [Position $location $text] l c
+
+    lappend map \n \\n
+    lappend map \r \\r
+    lappend map \t \\t
+
+    # Get 10 chars before and after the failure point.  Depending on
+    # the relative position of input beginning and end we may get less
+    # back of either.  Special characters in the input (line endings,
+    # tabs) are quoted to keep this on a single line.
+    set prefix [string map $map [string range $text ${location}-10 $location]]
+    set suffix [string map $map [string range $text ${location}+1 ${location}+10]]
+
+    # Construct a line pointing to the failure position. By using the
+    # transformed prefix as our source (length) no complex
+    # calculations are required. It is implicit in the prefix/suffix
+    # separation above.
+    set  n [string length $prefix]
+    incr n -1
+    set point [string repeat - $n]
+    append point ^
+
+    # Print our results.
+    puts "Parse error at position $location (Line $l, column $c)."
+    puts "... ${prefix}${suffix} ..."
+    puts "    $point"
+    puts "Expected one of"
+    puts "* [join [Readables $msgs] "\n* "]"
+    puts ""
     return
+}
+
+proc ::pt::app::Position {location text} {
+    incr location -1
+
+    set prefix [string range $text 0 $location]
+    set lines  [split $prefix \n]
+    set line   [llength $lines]
+    set col    [string length [lindex $lines end]]
+
+    return [list $line $col]
+}
+
+proc ::pt::app::Readables {codes} {
+    set r {}
+    foreach c $codes {
+	lappend r [Readable $c]
+    }
+    return [lsort -dict $r]
+}
+
+proc ::pt::app::Readable {code} {
+    set details [lassign $code tag]
+    switch -exact -- $tag {
+	t        { set m "The character '$details'" }
+	n        { set m "The symbol $details" }
+	..       { set m "A character in range '[join $details '-']'" }
+	str      { set m "A string \"$details\"" }
+	cl       { set m "A characters in set \[$details\]" }
+	alpha    { set m "A unicode alphabetical character" }
+	alnum    { set m "A unicode alphanumerical character" }
+	ascii    { set m "An ascii character" }
+	digit    { set m "A unicode digit character" }
+	graph    { set m "A unicode printing character, but not space" }
+	lower    { set m "A unicode lower-case alphabetical character" }
+	print    { set m "A unicode printing character, including space" }
+	control  { set m "A unicode control character" }
+	punct    { set m "A unicode punctuation character" }
+	space    { set m "A unicode space character" }
+	upper    { set m "A unicode upper-case alphabetical character" }
+	wordchar { set m "A unicode word character (alphanumerics + connectors)" }
+	xdigit   { set m "A hexadecimal digit" }
+	ddigit   { set m "A decimal digit" }
+	dot      { set m "Any character" }
+	default { set m [string totitle $tag] }
+    }
+    return $m
 }
 
 # Lift template specifications from file paths to the file's contents.
