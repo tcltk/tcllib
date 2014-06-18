@@ -10,7 +10,7 @@ snit::type TEMPLATE {
     constructor {} {
         install myg using pt::peg::container ${selfns}::G
         $myg start {n Grammar}
-        $myg add   ALNUM ALPHA AND APOSTROPH ASCII Attribute Char CharOctalFull CharOctalPart CharSpecial CharUnescaped CharUnicode Class CLOSE CLOSEB COLON COMMENT CONTROL DAPOSTROPH DDIGIT Definition DIGIT DOT END EOF EOL Expression Final Grammar GRAPH Header Ident Identifier IS LEAF Literal LOWER NOT OPEN OPENB PEG PLUS Prefix Primary PRINTABLE PUNCT QUESTION Range SEMICOLON Sequence SLASH SPACE STAR StartExpr Suffix TO UPPER VOID WHITESPACE WORDCHAR XDIGIT
+        $myg add   ALNUM ALPHA AND APOSTROPH ASCII Attribute Char CharOctalFull CharOctalPart CharSpecial CharUnescaped CharUnicode Class CLOSE CLOSEB COLON COMMENT CONTROL DAPOSTROPH DDIGIT Definition DIGIT DOT EOF EOL Expression Final Grammar GRAPH Header Ident Identifier IS LEAF Literal LOWER NOT OPEN OPENB PEG PLUS Prefix Primary PRINTABLE PUNCT QUESTION Range SEMICOLON Sequence SLASH SPACE STAR StartExpr Suffix TO UPPER VOID WHITESPACE WORDCHAR XDIGIT
         $myg modes {
             ALNUM         leaf
             ALPHA         leaf
@@ -35,7 +35,6 @@ snit::type TEMPLATE {
             Definition    value
             DIGIT         leaf
             DOT           leaf
-            END           void
             EOF           void
             EOL           void
             Expression    value
@@ -98,11 +97,10 @@ snit::type TEMPLATE {
             Definition    {x {? {n Attribute}} {n Identifier} {n IS} {n Expression} {n SEMICOLON}}
             DIGIT         {x {t <} {t d} {t i} {t g} {t i} {t t} {t >} {n WHITESPACE}}
             DOT           {x {t .} {n WHITESPACE}}
-            END           {x {t E} {t N} {t D} {n WHITESPACE}}
             EOF           {! dot}
             EOL           {/ {t \n} {t \r}}
             Expression    {x {n Sequence} {* {x {n SLASH} {n Sequence}}}}
-            Final         {x {n END} {n SEMICOLON} {n WHITESPACE}}
+            Final         {x {t E} {t N} {t D} {n WHITESPACE} {n SEMICOLON} {n WHITESPACE}}
             Grammar       {x {n WHITESPACE} {n Header} {* {n Definition}} {n Final} {n EOF}}
             GRAPH         {x {t <} {t g} {t r} {t a} {t p} {t h} {t >} {n WHITESPACE}}
             Header        {x {n PEG} {n Identifier} {n StartExpr}}
@@ -115,7 +113,7 @@ snit::type TEMPLATE {
             NOT           {x {t !} {n WHITESPACE}}
             OPEN          {x {t \50} {n WHITESPACE}}
             OPENB         {t \133}
-            PEG           {x {t P} {t E} {t G} {n WHITESPACE}}
+            PEG           {x {t P} {t E} {t G} {! {/ {t _} {t :} alnum}} {n WHITESPACE}}
             PLUS          {x {t +} {n WHITESPACE}}
             Prefix        {x {? {/ {n AND} {n NOT}}} {n Suffix}}
             Primary       {/ {n ALNUM} {n ALPHA} {n ASCII} {n CONTROL} {n DDIGIT} {n DIGIT} {n GRAPH} {n LOWER} {n PRINTABLE} {n PUNCT} {n SPACE} {n UPPER} {n WORDCHAR} {n XDIGIT} {n Identifier} {x {n OPEN} {n Expression} {n CLOSE}} {n Literal} {n Class} {n DOT}}
