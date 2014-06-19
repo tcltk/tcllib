@@ -76,7 +76,9 @@ snit::type ::pt::rde_tcl {
 	    }
 	} else {
 	    lassign $myerror loc messages
-	    return -code error [list pt::rde $loc $messages]
+	    return -code error \
+		-errorcode {PT RDE SYNTAX} \
+		[list pt::rde $loc $messages]
 	}
     }
 
