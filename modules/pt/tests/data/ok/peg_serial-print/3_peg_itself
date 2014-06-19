@@ -168,12 +168,6 @@ pt::grammar::peg
                 (IS)
                 (Expression)
                 (SEMICOLON)
-        END :: <void> :=
-            x
-                'E'
-                'N'
-                'D'
-                (WHITESPACE)
         EOF :: <void> :=
             !
                 <dot>
@@ -190,7 +184,10 @@ pt::grammar::peg
                         (Sequence)
         Final :: <void> :=
             x
-                (END)
+                'E'
+                'N'
+                'D'
+                (WHITESPACE)
                 (SEMICOLON)
                 (WHITESPACE)
         GRAPH :: <leaf> :=
@@ -288,6 +285,11 @@ pt::grammar::peg
                 'P'
                 'E'
                 'G'
+                !
+                    /
+                        '_'
+                        ':'
+                        <alnum>
                 (WHITESPACE)
         PLUS :: <leaf> :=
             x
