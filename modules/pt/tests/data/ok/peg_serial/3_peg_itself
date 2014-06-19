@@ -26,7 +26,7 @@ pt::grammar::peg {
 	EOF            {mode void     is {! dot}}
 	EOL            {mode void     is {/ {t \n} {t \r}}}
 	Expression     {mode value    is {x {n Sequence} {* {x {n SLASH} {n Sequence}}}}}
-	Final          {mode void     is {x {n {t E} {t N} {t D} {n WHITESPACE} {n SEMICOLON} {n WHITESPACE}}}
+	Final          {mode void     is {x {t E} {t N} {t D} {n WHITESPACE} {n SEMICOLON} {n WHITESPACE}}}
 	GRAPH          {mode leaf     is {x {t <} {t g} {t r} {t a} {t p} {t h} {t >} {n WHITESPACE}}}
 	Grammar        {mode value    is {x {n WHITESPACE} {n Header} {* {n Definition}} {n Final} {n EOF}}}
 	Header         {mode value    is {x {n PEG} {n Identifier} {n StartExpr}}}
