@@ -9,6 +9,10 @@ package ifneeded text::write   1 [list source [file join $dir text_write.tcl]]
 # AST support
 package ifneeded pt::ast     1.1 [list source [file join $dir pt_astree.tcl]]
 
+# General parser support. Currently only conversion of structured
+# syntax errors (or parts thereof) into a human-readable form.
+package ifneeded pt::util    1   [list source [file join $dir pt_util.tcl]]
+
 # Parsing Expression support
 package ifneeded pt::pe        1 [list source [file join $dir pt_pexpression.tcl]]
 package ifneeded pt::pe::op    1 [list source [file join $dir pt_pexpr_op.tcl]]
