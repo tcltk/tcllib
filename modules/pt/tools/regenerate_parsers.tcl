@@ -9,7 +9,9 @@ set     module    [file dirname $selfdir]
 lappend auto_path [file dirname $module]
 
 package require pt::pgen
+package require pt::util
 package require fileutil
+package require try
 
 set specification     [file join $module tests/data/ok/peg_peg/3_peg_itself]
 set new_parser_tcl    [file join $module pt_parse_peg_tcl.tcl-NEW]
@@ -41,34 +43,40 @@ set class             pt::parse::peg
 puts "Reading spec..."
 set spec [fileutil::cat $specification]
 
-# 1.
-# Generate snit-based Tcl parser for the PEG grammar.
+puts Generating...
 
-puts Tcl
-fileutil::writeFile $new_parser_tcl \
-    [pt::pgen \
-	 peg  $spec \
-	 snit \
-	 -name  $name \
-	 -user  $me \
-	 -file  [file tail $specification] \
-	 -class ${class}_tcl \
-	 -package ${class}_tcl \
-	]
+try {
+    # Generate snit-based Tcl parser for the PEG grammar.
+    puts ...Tcl
+    set tcl [pt::pgen \
+		 peg  $spec \
+		 snit \
+		   -name  $name \
+		   -user  $me \
+		   -file  [file tail $specification] \
+		   -class ${class}_tcl \
+		   -package ${class}_tcl \
+		]
 
-# 2.
-# Generate critcl-based C parser for the PEG grammar.
+    # Generate critcl-based C parser for the PEG grammar.
+    puts ...Critcl
+    set ctcl [pt::pgen \
+		  peg  $spec \
+		  critcl \
+		    -name    $name \
+		    -user    $me \
+		    -file    [file tail $specification] \
+		    -class   $class \
+		    -package [string map {:: _} $class]_c \
+		 ]
+} trap {PT RDE SYNTAX} {e o} {
+    puts [pt::util error2readable $e $spec]
+    exit 1
+}
 
-puts CriTcl
-fileutil::writeFile $new_parser_critcl \
-    [pt::pgen \
-	 peg  $spec \
-	 critcl \
-	 -name    $name \
-	 -user    $me \
-	 -file    [file tail $specification] \
-	 -class   $class \
-	 -package [string map {:: _} $class]_c \
-	]
+puts "Saving..."
+fileutil::writeFile $new_parser_tcl $tcl
+fileutil::writeFile $new_parser_critcl $ctcl
 
-exit
+puts OK
+exit 0
