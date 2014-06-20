@@ -43,7 +43,9 @@ set class             pt::parse::peg
 puts "Reading spec..."
 set spec [fileutil::cat $specification]
 
-puts Generating...
+set version 1.0.1
+
+puts "Generating $version ..."
 
 try {
     # Generate snit-based Tcl parser for the PEG grammar.
@@ -51,11 +53,12 @@ try {
     set tcl [pt::pgen \
 		 peg  $spec \
 		 snit \
-		   -name  $name \
-		   -user  $me \
-		   -file  [file tail $specification] \
-		   -class ${class}_tcl \
+		   -name    $name \
+		   -user    $me \
+		   -file    [file tail $specification] \
+		   -class   ${class}_tcl \
 		   -package ${class}_tcl \
+		   -version $version \
 		]
 
     # Generate critcl-based C parser for the PEG grammar.
@@ -68,6 +71,7 @@ try {
 		    -file    [file tail $specification] \
 		    -class   $class \
 		    -package [string map {:: _} $class]_c \
+		    -version $version \
 		 ]
 } trap {PT RDE SYNTAX} {e o} {
     puts [pt::util error2readable $e $spec]
@@ -75,7 +79,7 @@ try {
 }
 
 puts "Saving..."
-fileutil::writeFile $new_parser_tcl $tcl
+fileutil::writeFile $new_parser_tcl    $tcl
 fileutil::writeFile $new_parser_critcl $ctcl
 
 puts OK
