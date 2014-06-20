@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 # Grammars / Parsing Expression Grammars / Parser Generator
 
 # ### ### ### ######### ######### #########
@@ -21,9 +21,9 @@ package require pt::peg::to::peg       ; #
 package require pt::peg::to::param     ; # PARAM assembly, raw
 package require pt::peg::to::tclparam  ; # PARAM assembly, embedded into Tcl
 package require pt::peg::to::cparam    ; # PARAM assembly, embedded into C
-package require pt::tclparam::configuration::snit  ; # PARAM/Tcl, snit::type
-package require pt::tclparam::configuration::tcloo ; # PARAM/Tcl, TclOO class
-package require pt::cparam::configuration::critcl  ; # PARAM/C, in critcl
+package require pt::tclparam::configuration::snit  1.0.2 ; # PARAM/Tcl, snit::type
+package require pt::tclparam::configuration::tcloo 1.0.4 ; # PARAM/Tcl, TclOO class
+package require pt::cparam::configuration::critcl  1.0.2 ; # PARAM/C, in critcl
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -85,11 +85,11 @@ proc ::pt::pgen::Write::param {args} {
 
 proc ::pt::pgen::Write::snit {args} {
     # args = (option value)... grammar
-    pt::peg::to::tclparam configure {*}[Package [Class [lrange $args 0 end-1]]]
+    pt::peg::to::tclparam configure {*}[Package [Version [Class [lrange $args 0 end-1]]]]
     ClassPackageDefaults
 
     pt::tclparam::configuration::snit def \
-	$class $package \
+	$class $package $version \
 	{pt::peg::to::tclparam configure}
 
     return [pt::peg::to::tclparam convert [lindex $args end]]
@@ -97,11 +97,11 @@ proc ::pt::pgen::Write::snit {args} {
 
 proc ::pt::pgen::Write::oo {args} {
     # args = (option value)... grammar
-    pt::peg::to::tclparam configure {*}[Package [Class [lrange $args 0 end-1]]]
+    pt::peg::to::tclparam configure {*}[Package [Version [Class [lrange $args 0 end-1]]]]
     ClassPackageDefaults
 
     pt::tclparam::configuration::tcloo def \
-	$class $package \
+	$class $package $version \
 	{pt::peg::to::tclparam configure}
 
     return [pt::peg::to::tclparam convert [lindex $args end]]
@@ -111,11 +111,12 @@ proc ::pt::pgen::Write::critcl {args} {
     # args = (option value)... grammar
     # Class   -> touches/defines variable 'class'
     # Package -> touches/defines variable 'package'
-    pt::peg::to::cparam configure {*}[Package [Class [lrange $args 0 end-1]]]
+    # Version -> touches/defines variable 'version'
+    pt::peg::to::cparam configure {*}[Package [Version [Class [lrange $args 0 end-1]]]]
     ClassPackageDefaults
 
     pt::cparam::configuration::critcl def \
-	$class $package \
+	$class $package $version \
 	{pt::peg::to::cparam configure}
 
     return [pt::peg::to::cparam convert [lindex $args end]]
@@ -131,8 +132,9 @@ proc ::pt::pgen::Write::c {args} {
 ## Internals: Special option handling handling.
 
 proc ::pt::pgen::Write::ClassPackageDefaults {} {
-    upvar 1 class class
+    upvar 1 class   class
     upvar 1 package package
+    upvar 1 version version
 
     # Initialize undefined class and package names from each other,
     # i.e. from whichever of the two was specified, or fallback to
@@ -146,8 +148,17 @@ proc ::pt::pgen::Write::ClassPackageDefaults {} {
 	set class   CLASS
 	set package PACKAGE
     }
+
+    # Initialize undefined version information.
+
+    if {![info exists version]} {
+	set version 1
+    }
     return
 }
+
+# Class, Package, Version - identical modulo option and variable name.
+# TODO: Refactor into some common code.
 
 proc ::pt::pgen::Write::Class {optiondict} {
     upvar 1 class class
@@ -168,6 +179,19 @@ proc ::pt::pgen::Write::Package {optiondict} {
     foreach {option value} $optiondict {
 	if {$option eq "-package"} {
 	    set package $value
+	    continue
+	}
+	lappend res $option $value
+    }
+    return $res
+}
+
+proc ::pt::pgen::Write::Version {optiondict} {
+    upvar 1 version version
+    set res {}
+    foreach {option value} $optiondict {
+	if {$option eq "-version"} {
+	    set version $value
 	    continue
 	}
 	lappend res $option $value
