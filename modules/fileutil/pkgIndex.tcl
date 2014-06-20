@@ -1,5 +1,5 @@
 if {![package vsatisfies [package provide Tcl] 8.2]} {return}
-package ifneeded fileutil 1.14.6 [list source [file join $dir fileutil.tcl]]
+package ifneeded fileutil 1.14.7 [list source [file join $dir fileutil.tcl]]
 
 if {![package vsatisfies [package provide Tcl] 8.3]} {return}
 package ifneeded fileutil::traverse 0.4.3 [list source [file join $dir traverse.tcl]]
