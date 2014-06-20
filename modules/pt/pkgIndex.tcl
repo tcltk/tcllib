@@ -22,7 +22,7 @@ package ifneeded pt::peg                1 [list source [file join $dir pt_pegram
 package ifneeded pt::peg::container     1 [list source [file join $dir pt_peg_container.tcl]]
 package ifneeded pt::peg::interp    1.0.1 [list source [file join $dir pt_peg_interp.tcl]]
 package ifneeded pt::peg::op        1.0.1 [list source [file join $dir pt_peg_op.tcl]]
-package ifneeded pt::parse::peg         1 [list source [file join $dir pt_parse_peg.tcl]]
+package ifneeded pt::parse::peg     1.0.1 [list source [file join $dir pt_parse_peg.tcl]]
 
 
 # Export/import managers. Assumes an untrusted environment.
@@ -63,4 +63,4 @@ package ifneeded pt::tclparam::configuration::snit  1.0.2 [list source [file joi
 package ifneeded pt::tclparam::configuration::tcloo 1.0.4 [list source [file join $dir pt_tclparam_config_tcloo.tcl]]
 
 # Parser generator core.
-package ifneeded pt::pgen 1.0.2 [list source [file join $dir pt_pgen.tcl]]
+package ifneeded pt::pgen 1.0.3 [list source [file join $dir pt_pgen.tcl]]

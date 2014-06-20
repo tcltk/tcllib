@@ -6,7 +6,7 @@
 ##	PEG
 ##
 ## Generated from file	3_peg_itself
-##            for user  andreask
+##            for user  aku
 ##
 # # ## ### ##### ######## ############# #####################
 ## Requirements
@@ -14,7 +14,7 @@
 package require Tcl 8.4
 package require critcl
 # @sak notprovided pt_parse_peg_c
-package provide    pt_parse_peg_c 1
+package provide    pt_parse_peg_c 1.0.1
 
 # Note: The implementation of the PARAM virtual machine
 #       underlying the C/PARAM code used below is inlined
@@ -30,7 +30,7 @@ namespace eval ::pt::parse {
     ## Supporting code for the main command.
 
     catch {
-	#critcl::cheaders -g
+	#critcl::cflags -g
 	#critcl::debug memory symbols
     }
 
@@ -384,7 +384,11 @@ namespace eval ::pt::parse {
 	    int clen;
 	    Tcl_UniChar uni;
 	    if (len < 0) {
-		len = strlen (ch);
+		len = strlen (string);
+	    }
+	    
+	    if (!len) {
+		return tc->str + base;
 	    }
 	    
 	    if ((tc->num + len) >= tc->max) {
@@ -481,6 +485,7 @@ namespace eval ::pt::parse {
 	    tc_alnum,
 	    tc_alpha,
 	    tc_ascii,
+	    tc_control,
 	    tc_ddigit,
 	    tc_digit,
 	    tc_graph,
@@ -822,6 +827,8 @@ namespace eval ::pt::parse {
 	SCOPE void
 	rde_param_i_error_nonterminal (RDE_PARAM p, int s)
 	{
+	    
+	    return;
 	    long int pos;
 	    if (!p->ER) return;
 	    pos = 1 + (long int) rde_stack_top (p->LS);
@@ -1051,7 +1058,12 @@ namespace eval ::pt::parse {
 	    test_class (p, UniCharIsAscii, tc_ascii);
 	}
 	SCOPE void
-	rde_param_i_test_char (RDE_PARAM p, char* c, int msg)
+	rde_param_i_test_control (RDE_PARAM p)
+	{
+	    test_class (p, Tcl_UniCharIsControl, tc_control);
+	}
+	SCOPE void
+	rde_param_i_test_char (RDE_PARAM p, const char* c, int msg)
 	{
 	    ASSERT_BOUNDS(msg,p->numstr);
 	    p->ST = Tcl_UtfNcmp (p->CC, c, 1) == 0;
@@ -1359,6 +1371,13 @@ namespace eval ::pt::parse {
 	    rde_param_i_test_ascii (p);
 	}
 	SCOPE void
+	rde_param_i_next_control (RDE_PARAM p, int m)
+	{
+	    rde_param_i_input_next (p, m);
+	    if (!p->ST) return;
+	    rde_param_i_test_control (p);
+	}
+	SCOPE void
 	rde_param_i_next_ddigit (RDE_PARAM p, int m)
 	{
 	    rde_param_i_input_next (p, m);
@@ -1638,17 +1657,20 @@ namespace eval ::pt::parse {
 	    return p->ST;
 	}
 	SCOPE void
-	rde_param_i_next_str (RDE_PARAM p, char* str, int m)
+	rde_param_i_next_str (RDE_PARAM p, const char* str, int m)
 	{
 	    int at = p->CL;
+	    
 	    while (*str) {
 		rde_param_i_input_next (p, m);
 		if (!p->ST) {
+		    p->ER->loc = at+1;
 		    p->CL = at;
 		    return;
 		}
 		rde_param_i_test_char (p, str, m);
 		if (!p->ST) {
+		    p->ER->loc = at+1;
 		    p->CL = at;
 		    return;
 		}
@@ -1656,7 +1678,7 @@ namespace eval ::pt::parse {
 	    }
 	}
 	SCOPE void
-	rde_param_i_next_class (RDE_PARAM p, char* class, int m)
+	rde_param_i_next_class (RDE_PARAM p, const char* class, int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
@@ -4785,6 +4807,7 @@ namespace eval ::pt::parse {
 	    return COMPLETE (p, interp);
 	}
 
+	/* See also rde_critcl/m.c, param_COMPLETE() */
 	static int COMPLETE (RDE_PARAM p, Tcl_Interp* interp)
 	{
 	    if (rde_param_query_st (p)) {
@@ -4807,6 +4830,13 @@ namespace eval ::pt::parse {
 
 		    Tcl_SetObjResult (interp, Tcl_NewListObj (3, lv));
 		    ckfree ((char*) lv);
+
+		} else if (ac == 0) {
+		    /*
+		     * Match, but no AST. This is possible if the grammar
+		     * consists of only the start expression.
+		     */
+		    Tcl_SetObjResult (interp, Tcl_NewStringObj ("",-1));
 		} else {
 		    Tcl_SetObjResult (interp, av [0]);
 		}
@@ -4816,10 +4846,13 @@ namespace eval ::pt::parse {
 		Tcl_Obj* xv [1];
 		const ERROR_STATE* er = rde_param_query_er (p);
 		Tcl_Obj* res = rde_param_query_er_tcl (p, er);
+		/* res = list (location, list(msg)) */
 
+		/* Stick the exception type-tag before the existing elements */
 		xv [0] = Tcl_NewStringObj ("pt::rde",-1);
-		Tcl_ListObjReplace(interp, res, 0, 1, 1, xv);
+		Tcl_ListObjReplace(interp, res, 0, 0, 1, xv);
 
+		Tcl_SetErrorCode (interp, "PT", "RDE", "SYNTAX", NULL);
 		Tcl_SetObjResult (interp, res);
 		return TCL_ERROR;
 	    }
