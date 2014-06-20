@@ -6,7 +6,7 @@
 ##	PEG
 ##
 ## Generated from file	3_peg_itself
-##            for user  andreask
+##            for user  aku
 ##
 # # ## ### ##### ######## ############# #####################
 ## Requirements
@@ -2427,5 +2427,5 @@ snit::type ::pt::parse::peg_tcl {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::parse::peg_tcl 1
+package provide pt::parse::peg_tcl 1.0.1
 return
