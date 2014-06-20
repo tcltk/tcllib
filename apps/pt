@@ -11,7 +11,7 @@ lappend auto_path $selfdir [file dirname $selfdir]
 
 # # ## ### ##### ######## ############# #####################
 
-package require pt::pgen
+package require pt::pgen 1.0.3
 package require pt::util
 package require fileutil
 package require try

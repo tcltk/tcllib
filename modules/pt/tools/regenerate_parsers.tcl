@@ -8,7 +8,7 @@ set     selfdir   [file dirname $self]
 set     module    [file dirname $selfdir]
 lappend auto_path [file dirname $module]
 
-package require pt::pgen
+package require pt::pgen 1.0.3
 package require pt::util
 package require fileutil
 package require try
