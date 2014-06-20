@@ -50,11 +50,11 @@ test json-${impl}-2.1 {string2json} -body {
 
 test json-${impl}-3.0 {many-json2dict, wrong args, not enough} -body {
     json::many-json2dict
-} -returnCodes error -result {wrong # args: should be "json::many-json2dict jsonText ?max?"}
+} -returnCodes error -match glob -result {wrong # args: should be "*json::many[-_]json2dict* jsonText ?max?"}
 
 test json-${impl}-3.1 {many-json2dict, wrong args, too many} -body {
     json::many-json2dict J M X
-} -returnCodes error -result {wrong # args: should be "json::many-json2dict jsonText ?max?"}
+} -returnCodes error -match glob -result {wrong # args: should be "*json::many[-_]json2dict* jsonText ?max?"}
 
 test json-${impl}-3.2 {many-json2dict, bad limit, zero} -body {
     json::many-json2dict {[]} 0
