@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 # # ## ### ##### ######## ############# #####################
 ## Package description
@@ -177,4 +177,4 @@ namespace eval ::pt {
     namespace export rde
 }
 
-package provide pt::parse::peg 1
+package provide pt::parse::peg 1.0.1

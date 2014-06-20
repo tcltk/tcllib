@@ -2,7 +2,7 @@
 #
 #	Conversion of PEG to C PARAM, customizable text blocks.
 #
-# Copyright (c) 2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2014 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -1627,5 +1627,5 @@ namespace eval ::pt::peg::to::cparam {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::to::cparam 1.1.1
+package provide pt::peg::to::cparam 1.1.2
 return
