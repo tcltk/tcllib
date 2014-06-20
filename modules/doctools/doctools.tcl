@@ -636,7 +636,6 @@ proc ::doctools::_setparam {name param value} {
 #	The file containing the format definition
 
 proc ::doctools::LookupFormat {name format} {
-  puts [list LookupFormat $name $format]
     # Order of searching
     # 1) Is the name of the format an existing file ?
     #    If yes, take this file.
