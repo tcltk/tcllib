@@ -108,7 +108,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">struct::matrix(n) 2.0.1 tcllib &quot;Tcl Data Structures&quot;</h1>
+<h1 class="title">struct::matrix(n) 2.0.3 tcllib &quot;Tcl Data Structures&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>struct::matrix - Create and manipulate matrix objects</p>
 </div>
@@ -471,7 +471,7 @@ sublist. If the submatrix specified by the top-left cell and the
 number of rows and columns in the <i class="arg">values</i> extends beyond the
 matrix we are modifying the over-extending parts of the values are
 ignored, i.e. essentially cut off. This subcommand expects its input
-in the format as returned by <b class="method">getrect</b>.</p></dd>
+in the format as returned by <b class="method">get rect</b>.</p></dd>
 <dt><a name="39"><i class="arg">matrixName</i> <b class="method">set row</b> <i class="arg">row values</i></a></dt>
 <dd><p>Sets the values in the cells identified by the row index to the
 elements of the list provided as the third argument. Each element of
@@ -509,12 +509,12 @@ the values 1 to 5, with 1 in the top-left cell. Each other row
 contains the contents of the row above it, rotated by one cell to the
 right.</p>
 <pre class="example">
- % M getrect 0 0 4 4
+ % M get rect 0 0 4 4
  {{1 2 3 4 5} {5 1 2 3 4} {4 5 1 2 3} {3 4 5 1 2} {2 3 4 5 1}}
 </pre>
 <pre class="example">
- % M setrect 1 1 {{0 0 0} {0 0 0} {0 0 0}}
- % M getrect 0 0 4 4
+ % M set rect 1 1 {{0 0 0} {0 0 0} {0 0 0}}
+ % M get rect 0 0 4 4
  {{1 2 3 4 5} {5 0 0 0 4} {4 0 0 0 3} {3 0 0 0 2} {2 3 4 5 1}}
 </pre>
 <p>Assuming that the style definitions in the example section of the
