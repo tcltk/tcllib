@@ -38,7 +38,7 @@ package require sha1
 package require md5
 package require base64
 
-package provide S3 1.0.0
+package provide S3 1.0.1
 
 namespace eval S3 { 
     variable config ; # A dict for current config info.
@@ -252,6 +252,7 @@ proc S3::authREST {verb resource content-type headers args} {
     if {${content-type} != ""} {
 	dict set headers content-type ${content-type}
     }
+    dict set headers host s3.amazonaws.com
     set xamz ""
     foreach key [lsort [dict keys $headers x-amz-*]] {
 	# Assume each is seen only once, for now, and is canonical already.
@@ -1956,5 +1957,3 @@ proc S3::Toss {args} {
     uplevel 1 [list {*}$progress finished $result]
     return $result
 }
-
-
