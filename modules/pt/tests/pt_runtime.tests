@@ -19,7 +19,7 @@ proc makep {g suffix} {
     pt::peg::to::tclparam configure -file TEST$suffix
 
     pt::tclparam::configuration::snit def \
-	PARSER$suffix SNIT_PACKAGE$suffix \
+	PARSER$suffix SNIT_PACKAGE$suffix 1 \
 	{pt::peg::to::tclparam configure}
 
     set c [pt::peg::to::tclparam convert [$g serialize]]
