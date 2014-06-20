@@ -1,5 +1,5 @@
 # -*- tcl -*-
-# Copyright (c) 2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2014 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 # Verification of serialized parsing expressions, conversion
 # between such and other data structures, and their construction.
@@ -301,5 +301,5 @@ namespace eval ::pt::pe {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::pe 1
+package provide pt::pe 1.0.1
 return
