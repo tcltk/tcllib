@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 # Interpreter for parsing expression grammars. In essence a recursive
 # descent parser configurable with a parsing expression grammar.
@@ -382,4 +382,4 @@ snit::type ::pt::peg::interp {
 # ### ### ### ######### ######### #########
 ## Package Management
 
-package provide pt::peg::interp 1
+package provide pt::peg::interp 1.0.1
