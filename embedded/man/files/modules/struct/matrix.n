@@ -2,7 +2,7 @@
 '\" Generated from file 'matrix\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002-2013 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "struct::matrix" n 2\&.0\&.1 tcllib "Tcl Data Structures"
+.TH "struct::matrix" n 2\&.0\&.3 tcllib "Tcl Data Structures"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -739,7 +739,7 @@ sublist\&. If the submatrix specified by the top-left cell and the
 number of rows and columns in the \fIvalues\fR extends beyond the
 matrix we are modifying the over-extending parts of the values are
 ignored, i\&.e\&. essentially cut off\&. This subcommand expects its input
-in the format as returned by \fBgetrect\fR\&.
+in the format as returned by \fBget rect\fR\&.
 .TP
 \fImatrixName\fR \fBset row\fR \fIrow values\fR
 Sets the values in the cells identified by the row index to the
@@ -787,7 +787,7 @@ right\&.
 .CS
 
 
- % M getrect 0 0 4 4
+ % M get rect 0 0 4 4
  {{1 2 3 4 5} {5 1 2 3 4} {4 5 1 2 3} {3 4 5 1 2} {2 3 4 5 1}}
 
 .CE
@@ -795,8 +795,8 @@ right\&.
 .CS
 
 
- % M setrect 1 1 {{0 0 0} {0 0 0} {0 0 0}}
- % M getrect 0 0 4 4
+ % M set rect 1 1 {{0 0 0} {0 0 0} {0 0 0}}
+ % M get rect 0 0 4 4
  {{1 2 3 4 5} {5 0 0 0 4} {4 0 0 0 3} {3 0 0 0 2} {2 3 4 5 1}}
 
 .CE
