@@ -1740,5 +1740,5 @@ oo::class create ::pt::rde::oo {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::rde::oo 1.0.2
+package provide pt::rde::oo 1.0.3
 return

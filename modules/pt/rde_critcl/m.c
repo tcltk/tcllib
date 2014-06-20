@@ -162,6 +162,7 @@ param_COMPLETE (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	xv [0] = Tcl_NewStringObj ("pt::rde",-1);
 	Tcl_ListObjReplace(interp, res, 0, 0, 1, xv);
 
+	Tcl_SetErrorCode (interp, "PT", "RDE", "SYNTAX", NULL);
 	Tcl_SetObjResult (interp, res);
 	return TCL_ERROR;
     }

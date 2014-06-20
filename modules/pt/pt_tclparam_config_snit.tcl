@@ -1,5 +1,5 @@
 # -*- tcl -*-
-# Copyright (c) 2009-2010 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2014 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 # Canned configuration for the converter to Tcl/PARAM representation,
 # causing generation of a proper snit class.
@@ -27,7 +27,7 @@ namespace eval ::pt::tclparam::configuration::snit {
 # Check that the proposed serialization of an abstract syntax tree is
 # indeed such.
 
-proc ::pt::tclparam::configuration::snit::def {class pkg cmd} {
+proc ::pt::tclparam::configuration::snit::def {class pkg version cmd} {
 
     # TODO :: See if we can consolidate the API for converters,
     # TODO :: plugins, export manager, and container in some way.
@@ -37,6 +37,11 @@ proc ::pt::tclparam::configuration::snit::def {class pkg cmd} {
     # class : is actually the name of the package to generate, and
     #         will be prefixed with :: to make it a proper absolute
     #         class and Tcl namespace name.
+
+    lappend map @@PKG@@     $pkg
+    lappend map @@VERSION@@ $version
+    lappend map @@CLASS@@   $class
+    lappend map \n\t        \n ;# undent the template
 
     {*}$cmd -runtime-command {$myparser}
     #{*}$cmd -self-command    {$self}
@@ -48,12 +53,7 @@ proc ::pt::tclparam::configuration::snit::def {class pkg cmd} {
     {*}$cmd -main            MAIN
     {*}$cmd -indent          4
     {*}$cmd -template        [string trim \
-				  [string map \
-				       [list \
-					    @@PKG@@   $pkg \
-					    @@CLASS@@ $class \
-					    \n\t \n \
-					   ] {
+				  [string map $map {
 	## -*- tcl -*-
 	##
 	## Snit-based Tcl/PARAM implementation of the parsing
@@ -123,7 +123,7 @@ proc ::pt::tclparam::configuration::snit::def {class pkg cmd} {
 	# # ## ### ##### ######## ############# #####################
 	## Ready
 
-	package provide @@PKG@@ 1
+	package provide @@PKG@@ @@VERSION@@
 	return
     }]]
 
@@ -137,5 +137,5 @@ namespace eval ::pt::tclparam::configuration::snit {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::tclparam::configuration::snit 1.0.1
+package provide pt::tclparam::configuration::snit 1.0.2
 return

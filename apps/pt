@@ -11,9 +11,10 @@ lappend auto_path $selfdir [file dirname $selfdir]
 
 # # ## ### ##### ######## ############# #####################
 
-package require pt::pgen
+package require pt::pgen 1.0.3
 package require pt::util
 package require fileutil
+package require try
 
 namespace eval ::pt::app {
     namespace export generate help
@@ -118,24 +119,22 @@ proc ::pt::app::generate {args} {
     set args [Template [lrange $args 0 end-3]]
     lappend args -file $grammarfile
 
+    puts "Reading $grammarformat $grammarfile ..."
     set grammar [fileutil::cat $grammarfile]
 
-    if {[catch {
+    puts "Generating a $parserformat parser ..."
+    try {
 	set parser [::pt::pgen $grammarformat $grammar $parserformat {*}$args]
-    } msg o]} {
-	# Parse errors are shown here, anything else gets rethrown.
-	if {![IsPE $msg]} { return {*}$o $msg }
-	puts [pt::util error2readable \$msg $grammar]
+    } trap {PT RDE SYNTAX} {e o} {
+	puts [pt::util error2readable $e $grammar]
 	return 1
     }
 
+    puts "Saving to  $parserfile ..."
     fileutil::writeFile $parserfile $parser
-    return 0
-}
 
-## NOTE: These should all be made into some utility function
-proc ::pt::app::IsPE {msg} {
-    string match {pt::rde *} $msg
+    puts OK
+    return 0
 }
 
 # Lift template specifications from file paths to the file's contents.
