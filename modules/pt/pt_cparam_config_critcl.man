@@ -23,11 +23,11 @@ It is a supporting package in the Core Layer of Parser Tools.
 [list_begin definitions]
 
 [call [cmd ::pt::cparam::configuration::critcl] [method def] \
-	[arg name] [arg cmdprefix]]
+	[arg name] [arg pkg] [arg version] [arg cmdprefix]]
 
 The command applies the configuration provided by this package to the
 [arg cmdprefix], causing the creation of [package critcl]-based parsers
-whose class is [arg name].
+whose class is [arg name], in package [arg pkg] with [arg version].
 
 [para]
 
