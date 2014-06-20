@@ -13,7 +13,7 @@
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.14.6
+package provide fileutil 1.14.7
 
 namespace eval ::fileutil {
     namespace export \
@@ -1870,7 +1870,7 @@ proc ::fileutil::TempFile {prefix} {
     set permission 0600
     set channel ""
     set checked_dir_writable 0
-    set mypid [pid]
+
     for {set i 0} {$i < $maxtries} {incr i} {
  	set newname $prefix
  	for {set j 0} {$j < $nrand_chars} {incr j} {
