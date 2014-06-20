@@ -369,7 +369,7 @@ proc ::doctools::_configure {name args} {
 			upvar #0 ::doctools::doctools${name}::format format
 			set format $value
 		    } msg]} {
-			return -code error "doctools::_configure: -format: $msg"
+			return -code error -errorinfo $::errorInfo "doctools::_configure: -format: $msg"
 		    }
 		}
 		-deprecated {
@@ -636,20 +636,21 @@ proc ::doctools::_setparam {name param value} {
 #	The file containing the format definition
 
 proc ::doctools::LookupFormat {name format} {
+  puts [list LookupFormat $name $format]
     # Order of searching
     # 1) Is the name of the format an existing file ?
     #    If yes, take this file.
     # 2) Look for the file in the directories given to the object itself..
     # 3) Look for the file in the standard directories of this package.
 
-    if {[file exists $format]} {
-	return $format
+    if {[file exists $format] && [file isfile $format] } {
+      return $format
     }
 
     upvar #0 ::doctools::doctools${name}::paths opaths
     foreach path $opaths {
 	set f [file join $path fmt.$format]
-	if {[file exists $f]} {
+	if {[file exists $f] && [file isfile $f]} {
 	    return $f
 	}
     }
@@ -657,7 +658,7 @@ proc ::doctools::LookupFormat {name format} {
     variable paths
     foreach path $paths {
 	set f [file join $path fmt.$format]
-	if {[file exists $f]} {
+	if {[file exists $f] && [file isfile $f]} {
 	    return $f
 	}
     }
