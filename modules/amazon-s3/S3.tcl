@@ -38,13 +38,13 @@ package require sha1
 package require md5
 package require base64
 
-package provide S3 1.0.1
+package provide S3 1.0.2
 
 namespace eval S3 { 
-    variable config ; # A dict for current config info.
-    variable config_orig ; # Holds "reset" version.
-    variable debug 0 ; # Turns on or off S3::debug
-    variable debuglog 0 ; # Turns on or off debugging into a file
+    variable config          ; # A dict holding the current configuration.
+    variable config_orig     ; # Holds configuration to "reset" back to.
+    variable debug 0         ; # Turns on or off S3::debug
+    variable debuglog 0      ; # Turns on or off debugging into a file
     variable bgvar_counter 0 ; # Makes unique names for bgvars.
 
     set config_orig [dict create \
@@ -583,7 +583,8 @@ proc S3::read_body {thunk} {
 	} else {
 	    set x [read $s3]
 	    dict set thunk outbody $x
-	    S3::debug "Body: $x"
+	    #S3::debug "Body: $x" -- Disable unconditional wasteful conversion to string
+	    #Need better debug system which does this only when active.
 	}
 	return [S3::nextdo all_done $thunk readable]
     } else {
