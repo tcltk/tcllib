@@ -2,7 +2,7 @@
 '\" Generated from file 'to\&.inc' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::peg::to::cparam" n 1\&.0\&.1 tcllib "Parser Tools"
+.TH "pt::peg::to::cparam" n 1\&.1\&.1 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ pt::peg::to::cparam \- PEG Conversion\&. Write CPARAM format
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBpt::peg::to::cparam  ?1\&.0\&.1?\fR
+package require \fBpt::peg::to::cparam  ?1\&.1\&.1?\fR
 .sp
 \fBpt::peg::to::cparam\fR \fBreset\fR
 .sp
@@ -454,6 +454,11 @@ The default value is the empty string\&.
 \fB-indent\fR integer
 The number of characters to indent each line of the generated code by\&.
 The default value is \fB0\fR\&.
+.TP
+\fB-comments\fR boolean
+A flag controlling the generation of code comments containing the
+original parsing expression a parsing function is for\&.
+The default value is \fBon\fR\&.
 .PP
 While the high parameterizability of this converter, as shown by the
 multitude of options it supports, is an advantage to the advanced
@@ -480,8 +485,6 @@ The bulk of such a framework has to be specified through the option
 .TP
 \fB-fun-qualifier\fR string
 .TP
-\fB-indent\fR integer
-.TP
 \fB-main\fR string
 .TP
 \fB-namespace\fR string
@@ -498,6 +501,15 @@ The bulk of such a framework has to be specified through the option
 .PP
 provide code snippets which help to glue framework and generated code
 together\&. Their placeholders are in the \fIgenerated\fR code\&.
+Further the options
+.TP
+\fB-indent\fR integer
+.TP
+\fB-comments\fR boolean
+.PP
+allow for the customization of the code indent (default none), and
+whether to generate comments showing the parsing expressions a
+function is for (default on)\&.
 .SS EXAMPLE
 We are forgoing an example of this representation, with apologies\&.
 It would be way to large for this document\&.

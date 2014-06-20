@@ -2,7 +2,7 @@
 '\" Generated from file 'decode\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2008-2014 Andreas Kupries
 '\"
-.TH "zipfile::decode" n 0\&.5 tcllib "Zip archive handling"
+.TH "zipfile::decode" n 0\&.6 tcllib "Zip archive handling"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -284,7 +284,7 @@ package require \fBTrf \fR
 .sp
 package require \fBzlibtcl \fR
 .sp
-package require \fBzipfile::decode  ?0\&.5?\fR
+package require \fBzipfile::decode  ?0\&.6?\fR
 .sp
 \fB::zipfile::decode::archive\fR
 .sp
@@ -301,6 +301,8 @@ package require \fBzipfile::decode  ?0\&.5?\fR
 \fB::zipfile::decode::getfile\fR \fIzdict\fR \fIpath\fR
 .sp
 \fB::zipfile::decode::hasfile\fR \fIadict\fR \fIpath\fR
+.sp
+\fB::zipfile::decode::iszip\fR \fIarchive\fR
 .sp
 \fB::zipfile::decode::open\fR \fIarchive\fR
 .sp
@@ -362,6 +364,11 @@ archive file, as returned by \fB::zipfile::decode::archive\fR, and
 check if the specified \fIpath\fR is found in the archive\&.
 The result of the command is a boolean flag, \fBtrue\fR if the path
 is found, and \fBfalse\fR otherwise\&.
+.TP
+\fB::zipfile::decode::iszip\fR \fIarchive\fR
+This command takes the path of a presumed zip \fIarchive\fR file and
+returns a boolean flag as the result of the command telling us if it
+actually is a zip archive (\fBtrue\fR), or not (\fBfalse\fR)\&.
 .TP
 \fB::zipfile::decode::open\fR \fIarchive\fR
 This command takes the path of a zip \fIarchive\fR file and prepares
