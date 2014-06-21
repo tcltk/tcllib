@@ -1,6 +1,6 @@
 
 <html><head>
-<title>pt::tclparam::configuration::tcloo - Parser Tools</title>
+<title>pt::util - Parser Tools</title>
 <style type="text/css"><!--
     HTML {
 	background: 	#FFFFFF;
@@ -92,11 +92,11 @@
     }
 --></style>
 </head>
-<! -- Generated from file 'pt_tclparam_config_tcloo.man' by tcllib/doctools with format 'html'
+<! -- Generated from file 'pt_util.man' by tcllib/doctools with format 'html'
    -->
 <! -- Copyright &copy; 2009 Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
    -->
-<! -- CVS: $Id$ pt::tclparam::configuration::tcloo.n
+<! -- CVS: $Id$ pt::util.n
    -->
 <body><div class="doctools">
 <hr> [
@@ -108,9 +108,9 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">pt::tclparam::configuration::tcloo(n) 1.0.4 tcllib &quot;Parser Tools&quot;</h1>
+<h1 class="title">pt::util(n) 1 tcllib &quot;Parser Tools&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
-<p>pt::tclparam::configuration::tcloo - Tcl/PARAM, Canned configuration, Tcloo</p>
+<p>pt::util - General utilities</p>
 </div>
 <div id="toc" class="section"><h2><a name="toc">Table Of Contents</a></h2>
 <ul class="toc">
@@ -128,10 +128,12 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
-<li>package require <b class="pkgname">pt::tclparam::configuration::tcloo <span class="opt">?1.0.4?</span></b></li>
+<li>package require <b class="pkgname">pt::ast <span class="opt">?1?</span></b></li>
 </ul>
 <ul class="syntax">
-<li><a href="#1"><b class="cmd">::pt::tclparam::configuration::tcloo</b> <b class="method">def</b> <i class="arg">name</i> <i class="arg">pkg</i> <i class="arg">version</i> <i class="arg">cmdprefix</i></a></li>
+<li><a href="#1"><b class="cmd">::pt::util</b> <b class="method">error2readable</b> <i class="arg">error</i> <i class="arg">text</i></a></li>
+<li><a href="#2"><b class="cmd">::pt::util</b> <b class="method">error2position</b> <i class="arg">error</i> <i class="arg">text</i></a></li>
+<li><a href="#3"><b class="cmd">::pt::util</b> <b class="method">error2text</b> <i class="arg">error</i></a></li>
 </ul>
 </div>
 </div>
@@ -141,27 +143,30 @@ Do you have trouble understanding this document ?
 In that case please read the overview provided by the
 <i class="term"><a href="pt_introduction.html">Introduction to Parser Tools</a></i>. This document is the
 entrypoint to the whole system the current package is a part of.</p>
-<p>This package is an adjunct to <b class="package"><a href="pt_peg_to_tclparam.html">pt::peg::to::tclparam</a></b>, to make
-the use of this highly configurable package easier by providing a
-canned configuration. When applied this configuration causes the
-package <b class="package"><a href="pt_peg_to_tclparam.html">pt::peg::to::tclparam</a></b> to generate
-<b class="package">OO</b>-based parser packages.</p>
-<p>It is a supporting package in the Core Layer of Parser Tools.</p>
+<p>This package provides general utility commands.</p>
+<p>This is a supporting package in the Core Layer of Parser Tools.</p>
 <p><img alt="arch_core_support" src="../../../../image/arch_core_support.png"></p>
 </div>
 <div id="section2" class="section"><h2><a name="section2">API</a></h2>
 <dl class="definitions">
-<dt><a name="1"><b class="cmd">::pt::tclparam::configuration::tcloo</b> <b class="method">def</b> <i class="arg">name</i> <i class="arg">pkg</i> <i class="arg">version</i> <i class="arg">cmdprefix</i></a></dt>
-<dd><p>The command applies the configuration provided by this package to the
-<i class="arg">cmdprefix</i>, causing the creation of <b class="package">OO</b>-based parsers
-whose class is <i class="arg">name</i>, in package <i class="arg">pkg</i> with <i class="arg">version</i>.</p>
-<p>The use of a command prefix as API allows application of the
-configuration to not only <b class="package"><a href="pt_peg_to_tclparam.html">pt::peg::to::tclparam</a></b>
-(<b class="cmd">pt::peg::to::tclparam configure</b>), but also export manager
-instances and PEG containers (<b class="cmd">$export configuration set</b> and
-<b class="cmd">[$container exporter] configuration set</b> respectively).</p>
-<p>Or anything other command prefix accepting two arguments, option and
-value.</p></dd>
+<dt><a name="1"><b class="cmd">::pt::util</b> <b class="method">error2readable</b> <i class="arg">error</i> <i class="arg">text</i></a></dt>
+<dd><p>This command takes the structured form of a syntax <i class="arg">error</i> as
+thrown by parser runtimes and the input <i class="arg">text</i> to the parser which
+caused that error and returns a string describing the error in a
+human-readable form.</p>
+<p>The input <i class="arg">text</i> is required to convert the character
+position of the error into a more readable line/column format, and to
+provide excerpts of the input around the error position.</p></dd>
+<dt><a name="2"><b class="cmd">::pt::util</b> <b class="method">error2position</b> <i class="arg">error</i> <i class="arg">text</i></a></dt>
+<dd><p>This command takes the structured form of a syntax <i class="arg">error</i> as
+thrown by parser runtimes and the input <i class="arg">text</i> to the parser which
+caused that error and returns a 2-element list containing the line
+number and column index for the error's character position in the
+input, in this order.</p></dd>
+<dt><a name="3"><b class="cmd">::pt::util</b> <b class="method">error2text</b> <i class="arg">error</i></a></dt>
+<dd><p>This command takes the structured form of a syntax <i class="arg">error</i> as
+thrown by parser runtimes and returns a list of strings, each
+describing a possible expected input in a human-readable form.</p></dd>
 </dl>
 </div>
 <div id="section3" class="section"><h2><a name="section3">Bugs, Ideas, Feedback</a></h2>
