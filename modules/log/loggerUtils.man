@@ -98,7 +98,7 @@ and their arguments.
 
 [para] For example
 [example_begin]
-logger::utils::applyAppender -serviceCmd $log -appender console -appenderArgs {-conversionPattern {\[%M\] \[%p\] - %m}}
+logger::utils::applyAppender -serviceCmd $log -appender console -appenderArgs {-conversionPattern {\[lb]%M\[rb] \[lb]%p\[rb] - %m}}
 [example_end]
 
 The usual Tcl quoting rules apply.
