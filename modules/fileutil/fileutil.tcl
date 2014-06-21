@@ -13,7 +13,7 @@
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.14.6
+package provide fileutil 1.14.8
 
 namespace eval ::fileutil {
     namespace export \
@@ -1863,14 +1863,14 @@ proc ::fileutil::tempfile {{prefix {}}} {
 proc ::fileutil::TempFile {prefix} {
     set tmpdir [tempdir]
 
-    set chars "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+    set chars       "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
     set nrand_chars 10
-    set maxtries 10
-    set access [list RDWR CREAT EXCL TRUNC]
-    set permission 0600
+    set maxtries    10
+    set access      [list RDWR CREAT EXCL]
+    set permission  0600
     set channel ""
     set checked_dir_writable 0
-    set mypid [pid]
+
     for {set i 0} {$i < $maxtries} {incr i} {
  	set newname $prefix
  	for {set j 0} {$j < $nrand_chars} {incr j} {
@@ -1878,23 +1878,21 @@ proc ::fileutil::TempFile {prefix} {
 		    [expr {int(rand()*62)}]]
  	}
 	set newname [file join $tmpdir $newname]
- 	if {[file exists $newname]} {
- 	    after 1
- 	} else {
- 	    if {[catch {open $newname $access $permission} channel]} {
- 		if {!$checked_dir_writable} {
- 		    set dirname [file dirname $newname]
- 		    if {![file writable $dirname]} {
- 			return -code error "Directory $dirname is not writable"
- 		    }
- 		    set checked_dir_writable 1
- 		}
- 	    } else {
- 		# Success
-		close $channel
- 		return $newname
- 	    }
- 	}
+
+	if {[catch {open $newname $access $permission} channel]} {
+	    if {!$checked_dir_writable} {
+		set dirname [file dirname $newname]
+		if {![file writable $dirname]} {
+		    return -code error "Directory $dirname is not writable"
+		}
+		set checked_dir_writable 1
+	    }
+	} else {
+	    # Success
+	    close $channel
+	    return $newname
+	}
+
     }
     if {[string compare $channel ""]} {
  	return -code error "Failed to open a temporary file: $channel"

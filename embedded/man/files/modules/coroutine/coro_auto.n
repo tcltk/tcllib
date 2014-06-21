@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'coro_auto\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2010-2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2010-2014 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "coroutine::auto" n 1 tcllib "Coroutine utilities"
+.TH "coroutine::auto" n 1\&.1\&.2 tcllib "Coroutine utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ coroutine::auto \- Automatic event and IO coroutine awareness
 .SH SYNOPSIS
 package require \fBTcl  8\&.6\fR
 .sp
-package require \fBcoroutine::auto  1\&.1\&.1\fR
+package require \fBcoroutine::auto  1\&.1\&.2\fR
 .sp
 package require \fBcoroutine  1\&.1\fR
 .sp
@@ -318,6 +318,6 @@ after, channel, coroutine, events, exit, gets, global, green threads, read, thre
 Coroutine
 .SH COPYRIGHT
 .nf
-Copyright (c) 2010-2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2010-2014 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi
