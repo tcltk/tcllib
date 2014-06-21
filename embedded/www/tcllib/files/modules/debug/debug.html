@@ -94,7 +94,7 @@
 </head>
 <! -- Generated from file 'debug.man' by tcllib/doctools with format 'html'
    -->
-<! -- Copyright &copy; 200?, Colin McCormack, Wub Server Utilities   -- Copyright &copy; 2012, Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
+<! -- Copyright &copy; 200?, Colin McCormack, Wub Server Utilities   -- Copyright &copy; 2012-2014, Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;
    -->
 <! -- CVS: $Id$ debug.n
    -->
@@ -108,7 +108,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">debug(n) 1.0.2 tcllib &quot;debug narrative&quot;</h1>
+<h1 class="title">debug(n) 1.0.5 tcllib &quot;debug narrative&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>debug - debug narrative - core</p>
 </div>
@@ -128,7 +128,7 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
-<li>package require <b class="pkgname">debug <span class="opt">?1.0.2?</span></b></li>
+<li>package require <b class="pkgname">debug <span class="opt">?1.0.5?</span></b></li>
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">debug.<b class="variable">tag</b></b> <i class="arg">message</i> <span class="opt">?<i class="arg">level</i>?</span></a></li>
@@ -141,10 +141,13 @@
 <li><a href="#8"><b class="cmd">debug</b> <b class="method">on</b> <i class="arg">tag</i></a></li>
 <li><a href="#9"><b class="cmd">debug</b> <b class="method">parray</b> <i class="arg">arrayvarname</i></a></li>
 <li><a href="#10"><b class="cmd">debug</b> <b class="method">pdict</b> <i class="arg">dict</i></a></li>
-<li><a href="#11"><b class="cmd">debug</b> <b class="method">prefix</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">text</i>?</span></a></li>
-<li><a href="#12"><b class="cmd">debug</b> <b class="method">setting</b> (<i class="arg">tag</i> <i class="arg">level</i>) ... <span class="opt">?<i class="arg">fd</i>?</span></a></li>
-<li><a href="#13"><b class="cmd">debug</b> <b class="method">suffix</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">text</i>?</span></a></li>
-<li><a href="#14"><b class="cmd">debug</b> <b class="method">trailer</b> <i class="arg">text</i></a></li>
+<li><a href="#11"><b class="cmd">debug</b> <b class="method">hexl</b> <i class="arg">data</i> <span class="opt">?<i class="arg">prefix</i>?</span></a></li>
+<li><a href="#12"><b class="cmd">debug</b> <b class="method">nl</b></a></li>
+<li><a href="#13"><b class="cmd">debug</b> <b class="method">tab</b></a></li>
+<li><a href="#14"><b class="cmd">debug</b> <b class="method">prefix</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">text</i>?</span></a></li>
+<li><a href="#15"><b class="cmd">debug</b> <b class="method">setting</b> (<i class="arg">tag</i> <i class="arg">level</i>) ... <span class="opt">?<i class="arg">fd</i>?</span></a></li>
+<li><a href="#16"><b class="cmd">debug</b> <b class="method">suffix</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">text</i>?</span></a></li>
+<li><a href="#17"><b class="cmd">debug</b> <b class="method">trailer</b> <i class="arg">text</i></a></li>
 </ul>
 </div>
 </div>
@@ -217,7 +220,19 @@ instead of writing it directly to <b class="const">stdout</b>.</p>
 how the builtin command <b class="cmd">parray</b> does for array, and returns the
 resulting string.</p>
 <p>This makes it suitable for use in debug messages.</p></dd>
-<dt><a name="11"><b class="cmd">debug</b> <b class="method">prefix</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">text</i>?</span></a></dt>
+<dt><a name="11"><b class="cmd">debug</b> <b class="method">hexl</b> <i class="arg">data</i> <span class="opt">?<i class="arg">prefix</i>?</span></a></dt>
+<dd><p>This is a convenience method formatting arbitrary data into a hex-dump
+and returns the resulting string.</p>
+<p>This makes it suitable for use in debug messages.</p>
+<p>Each line of the dump is prefixed with <i class="arg">prefix</i>. This prefix
+defaults to the empty string.</p></dd>
+<dt><a name="12"><b class="cmd">debug</b> <b class="method">nl</b></a></dt>
+<dd><p>This is a convenience method to insert a linefeed character (ASCII 0x0a)
+into a debug message.</p></dd>
+<dt><a name="13"><b class="cmd">debug</b> <b class="method">tab</b></a></dt>
+<dd><p>This is a convenience method to insert a TAB character (ASCII 0x09)
+into a debug message.</p></dd>
+<dt><a name="14"><b class="cmd">debug</b> <b class="method">prefix</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">text</i>?</span></a></dt>
 <dd><p>This method is similar to the method <b class="method">header</b> above, in that it
 defines <b class="cmd"><a href="../../../../index.html#key269">subst</a></b>able Tcl script which provides more text for debug
 messages.</p>
@@ -235,7 +250,7 @@ actual printed message.</p>
 <p>The result of the method is the empty string.</p>
 <p>If the <i class="arg">tag</i> was not known at the time of the call it is
 registered, and set inactive.</p></dd>
-<dt><a name="12"><b class="cmd">debug</b> <b class="method">setting</b> (<i class="arg">tag</i> <i class="arg">level</i>) ... <span class="opt">?<i class="arg">fd</i>?</span></a></dt>
+<dt><a name="15"><b class="cmd">debug</b> <b class="method">setting</b> (<i class="arg">tag</i> <i class="arg">level</i>) ... <span class="opt">?<i class="arg">fd</i>?</span></a></dt>
 <dd><p>This method is a multi-tag variant of method <b class="method">level</b> above,
 with the functionality of methods <b class="method">on</b>, and <b class="method">off</b> also
 folded in.</p>
@@ -246,7 +261,7 @@ activating it.</p>
 treated as tag name, but as the channel all the named tags should
 print their messages to.</p>
 <p>The result of the method is the empty string.</p></dd>
-<dt><a name="13"><b class="cmd">debug</b> <b class="method">suffix</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">text</i>?</span></a></dt>
+<dt><a name="16"><b class="cmd">debug</b> <b class="method">suffix</b> <i class="arg">tag</i> <span class="opt">?<i class="arg">text</i>?</span></a></dt>
 <dd><p>This method is similar to the method <b class="method">trailer</b> below, in that
 it defines <b class="cmd"><a href="../../../../index.html#key269">subst</a></b>able Tcl script which provides more text for
 debug messages.</p>
@@ -263,7 +278,7 @@ printed message.</p>
 <p>The result of the method is the empty string.</p>
 <p>If the <i class="arg">tag</i> was not known at the time of the call it is
 registered, and set inactive.</p></dd>
-<dt><a name="14"><b class="cmd">debug</b> <b class="method">trailer</b> <i class="arg">text</i></a></dt>
+<dt><a name="17"><b class="cmd">debug</b> <b class="method">trailer</b> <i class="arg">text</i></a></dt>
 <dd><p>This method defines a global <b class="cmd"><a href="../../../../index.html#key269">subst</a></b>able Tcl script which provides
 a text printed after each line of output (before the EOL however).</p>
 <p>Note how this is tag-independent.</p>
@@ -289,6 +304,6 @@ package and/or documentation.</p>
 </div>
 <div id="copyright" class="section"><h2><a name="copyright">Copyright</a></h2>
 <p>Copyright &copy; 200?, Colin McCormack, Wub Server Utilities<br>
-Copyright &copy; 2012, Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;</p>
+Copyright &copy; 2012-2014, Andreas Kupries &lt;andreas_kupries@users.sourceforge.net&gt;</p>
 </div>
 </div></body></html>

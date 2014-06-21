@@ -2,7 +2,7 @@
 '\" Generated from file 'S3\&.man' by tcllib/doctools with format 'nroff'
 '\" 2006,2008 Darren New\&. All Rights Reserved\&. See LICENSE\&.TXT for terms\&.
 '\"
-.TH "S3" n 1\&.0\&.0 tcllib "Amazon S3 Web Service Utilities"
+.TH "S3" n 1\&.0\&.2 tcllib "Amazon S3 Web Service Utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ S3 \- Amazon S3 Web Service Interface
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBS3  1\fR
+package require \fBS3  ?1\&.0\&.2?\fR
 .sp
 package require \fBsha1  1\&.0\fR
 .sp
