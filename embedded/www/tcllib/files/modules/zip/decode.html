@@ -108,7 +108,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">zipfile::decode(n) 0.5 tcllib &quot;Zip archive handling&quot;</h1>
+<h1 class="title">zipfile::decode(n) 0.6 tcllib &quot;Zip archive handling&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>zipfile::decode - Access to zip archives</p>
 </div>
@@ -132,7 +132,7 @@
 <li>package require <b class="pkgname">fileutil::decode 0.2</b></li>
 <li>package require <b class="pkgname">Trf</b></li>
 <li>package require <b class="pkgname">zlibtcl</b></li>
-<li>package require <b class="pkgname">zipfile::decode <span class="opt">?0.5?</span></b></li>
+<li>package require <b class="pkgname">zipfile::decode <span class="opt">?0.6?</span></b></li>
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">::zipfile::decode::archive</b></a></li>
@@ -143,9 +143,10 @@
 <li><a href="#6"><b class="cmd">::zipfile::decode::files</b> <i class="arg">adict</i></a></li>
 <li><a href="#7"><b class="cmd">::zipfile::decode::getfile</b> <i class="arg">zdict</i> <i class="arg">path</i></a></li>
 <li><a href="#8"><b class="cmd">::zipfile::decode::hasfile</b> <i class="arg">adict</i> <i class="arg">path</i></a></li>
-<li><a href="#9"><b class="cmd">::zipfile::decode::open</b> <i class="arg">archive</i></a></li>
-<li><a href="#10"><b class="cmd">::zipfile::decode::unzip</b> <i class="arg">adict</i> <i class="arg">dstdir</i></a></li>
-<li><a href="#11"><b class="cmd">::zipfile::decode::unzipfile</b> <i class="arg">archive</i> <i class="arg">dstdir</i></a></li>
+<li><a href="#9"><b class="cmd">::zipfile::decode::iszip</b> <i class="arg">archive</i></a></li>
+<li><a href="#10"><b class="cmd">::zipfile::decode::open</b> <i class="arg">archive</i></a></li>
+<li><a href="#11"><b class="cmd">::zipfile::decode::unzip</b> <i class="arg">adict</i> <i class="arg">dstdir</i></a></li>
+<li><a href="#12"><b class="cmd">::zipfile::decode::unzipfile</b> <i class="arg">archive</i> <i class="arg">dstdir</i></a></li>
 </ul>
 </div>
 </div>
@@ -195,19 +196,23 @@ archive file, as returned by <b class="cmd">::zipfile::decode::archive</b>, and
 check if the specified <i class="arg">path</i> is found in the archive.
 The result of the command is a boolean flag, <b class="const">true</b> if the path
 is found, and <b class="const">false</b> otherwise.</p></dd>
-<dt><a name="9"><b class="cmd">::zipfile::decode::open</b> <i class="arg">archive</i></a></dt>
+<dt><a name="9"><b class="cmd">::zipfile::decode::iszip</b> <i class="arg">archive</i></a></dt>
+<dd><p>This command takes the path of a presumed zip <i class="arg">archive</i> file and
+returns a boolean flag as the result of the command telling us if it
+actually is a zip archive (<b class="const">true</b>), or not (<b class="const">false</b>).</p></dd>
+<dt><a name="10"><b class="cmd">::zipfile::decode::open</b> <i class="arg">archive</i></a></dt>
 <dd><p>This command takes the path of a zip <i class="arg">archive</i> file and prepares
 it for decoding.
 The result of the command is the empty string.
 All important information is stored in global state.  If multiple open
 calls are made one after the other only the state of the last call is
 available to the other commands.</p></dd>
-<dt><a name="10"><b class="cmd">::zipfile::decode::unzip</b> <i class="arg">adict</i> <i class="arg">dstdir</i></a></dt>
+<dt><a name="11"><b class="cmd">::zipfile::decode::unzip</b> <i class="arg">adict</i> <i class="arg">dstdir</i></a></dt>
 <dd><p>This command takes a dictionary describing the currently open zip
 archive file, as returned by <b class="cmd">::zipfile::decode::archive</b>, and
 unpacks the archive in the given destination directory <i class="arg">dstdir</i>.
 The result of the command is the empty string.</p></dd>
-<dt><a name="11"><b class="cmd">::zipfile::decode::unzipfile</b> <i class="arg">archive</i> <i class="arg">dstdir</i></a></dt>
+<dt><a name="12"><b class="cmd">::zipfile::decode::unzipfile</b> <i class="arg">archive</i> <i class="arg">dstdir</i></a></dt>
 <dd><p>This is a convenience command which unpacks the specified zip
 <i class="arg">archive</i> file in the given destination directory <i class="arg">dstdir</i>.</p>
 <p>The result of the command is the empty string.</p></dd>

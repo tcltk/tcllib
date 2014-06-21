@@ -148,6 +148,8 @@ jsonparse (struct context* context)
   yyparse (context);
 }
 
+#define HAVE(n) (context->remaining >= n)
+
 #define DRAIN(n) context->text += n, context->remaining -= n
 
 #define	STORESTRINGSEGMENT()				\
@@ -238,12 +240,51 @@ jsonlexp(struct context *context)
 
       if (*context->text == '\\') {
 	/*
-	 * Escaped sequence
+	 * Escaped sequence. The 9 sequences specified at json.org
+	 * are:
+	 *       \"  \\  \/  \b  \f  \n  \r  \t  \uXXXX
 	 */
 	char	buf[TCL_UTF_MAX];
 	int	len, consumed;
 
 	STORESTRINGSEGMENT();
+
+	/*
+	 * Perform additional checks to restrict the set of accepted
+	 * escape sequence to what is allowed by json.org instead of
+	 * Tcl_UtfBackslash.
+	 */
+
+	if (!HAVE(1)) {
+	  Tcl_AppendToObj(context->obj, "\\", 1);
+	  yyerror("incomplete escape at <<eof> error");
+	  TOKEN("incomplete escape at <<eof>> error");
+	  return -1;
+	}
+	switch (context->text[1]) {
+	  case '"':
+	  case '\\':
+	  case '/':
+	  case 'b':
+	  case 'f':
+	  case 'n':
+	  case 'r':
+	  case 't':
+	    break;
+	  case 'u':
+	    if (!HAVE(5)) {
+	      Tcl_AppendToObj(context->obj, "\\u", 2);
+	      yyerror("incomplete escape at <<eof> error");
+	      TOKEN("incomplete escape at <<eof>> error");
+	      return -1;
+	    }
+	    break;
+	  default:
+	    Tcl_AppendToObj(context->obj, context->text + 1, 1);
+	    yyerror("bad escape");
+	    TOKEN("bad escape");
+	    return -1;
+	}
 
 	/*
 	 * XXX Tcl_UtfBackslash() may be more
@@ -488,6 +529,8 @@ jsonerror(struct context *context, const char *message)
   char *yytext;
   int   yyleng;
 
+  if (context->has_error) return;
+
   if (context->obj) {
     yytext = Tcl_GetStringFromObj(context->obj, &yyleng);
     fullmessage = Tcl_Alloc(strlen(message) + 63 + yyleng);
@@ -503,4 +546,5 @@ jsonerror(struct context *context, const char *message)
 
   TRACE ((">>> %s\n",fullmessage));
   Tcl_SetResult(context->I, fullmessage, TCL_DYNAMIC);
+  context->has_error = 1;
 }
