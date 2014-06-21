@@ -1655,6 +1655,9 @@ pt::tclparam::configuration::snit
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
 .TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
+.TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
 .TP
@@ -2945,6 +2948,9 @@ pt::tclparam::configuration::snit
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
 .TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
+.TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
 .TP
@@ -3373,6 +3379,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -4039,6 +4048,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -5219,6 +5231,9 @@ pt::tclparam::configuration::snit
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
 .TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
+.TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
 .TP
@@ -5683,6 +5698,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -6647,6 +6665,9 @@ pt::tclparam::configuration::snit
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
 .TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
+.TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
 .TP
@@ -6884,6 +6905,9 @@ pt::tclparam::configuration::snit
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
 .TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
+.TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
 .TP
@@ -7018,6 +7042,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -7192,6 +7219,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -7640,6 +7670,9 @@ pt::tclparam::configuration::snit
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
 .TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
+.TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
 .TP
@@ -7900,6 +7933,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -9197,6 +9233,9 @@ pt::tclparam::configuration::snit
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
 .TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
+.TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
 .TP
@@ -9682,6 +9721,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -10331,6 +10373,9 @@ pt::tclparam::configuration::snit
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
 .TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
+.TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
 .TP
@@ -10510,6 +10555,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api

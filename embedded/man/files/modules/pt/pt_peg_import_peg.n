@@ -371,13 +371,13 @@ PEG pe-grammar-for-peg (Grammar)
         Range           <- Char TO Char / Char ;
 
         StartExpr       <- OPEN Expression CLOSE ;
-void:   Final           <- END SEMICOLON WHITESPACE ;
+void:   Final           <- "END" WHITESPACE SEMICOLON WHITESPACE ;
 
         # --------------------------------------------------------------------
         # Lexing constructs
 
         Identifier      <- Ident WHITESPACE ;
-leaf:   Ident           <- ('_' / ':' / <alpha>) ('_' / ':' / <alnum>)* ;
+leaf:   Ident           <- ([_:] / <alpha>) ([_:] / <alnum>)* ;
         Char            <- CharSpecial / CharOctalFull / CharOctalPart
                         /  CharUnicode / CharUnescaped
                         ;
@@ -395,11 +395,10 @@ void:   OPENB           <- "["           ;
 void:   CLOSEB          <- "]"           ;
 void:   APOSTROPH       <- "'"           ;
 void:   DAPOSTROPH      <- '"'           ;
-void:   PEG             <- "PEG"   WHITESPACE ;
+void:   PEG             <- "PEG" !([_:] / <alnum>) WHITESPACE ;
 void:   IS              <- "<-"    WHITESPACE ;
 leaf:   VOID            <- "void"  WHITESPACE ; # Implies that definition has no semantic value\&.
 leaf:   LEAF            <- "leaf"  WHITESPACE ; # Implies that definition has no terminals\&.
-void:   END             <- "END"   WHITESPACE ;
 void:   SEMICOLON       <- ";"     WHITESPACE ;
 void:   COLON           <- ":"     WHITESPACE ;
 void:   SLASH           <- "/"     WHITESPACE ;

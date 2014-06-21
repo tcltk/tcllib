@@ -2,7 +2,7 @@
 '\" Generated from file 'pt_cparam_config_critcl\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::cparam::configuration::critcl" n 1\&.0\&.1 tcllib "Parser Tools"
+.TH "pt::cparam::configuration::critcl" n 1\&.0\&.2 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,9 +276,9 @@ pt::cparam::configuration::critcl \- C/PARAM, Canned configuration, Critcl
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBpt::cparam::configuration::critcl  ?1\&.0\&.1?\fR
+package require \fBpt::cparam::configuration::critcl  ?1\&.0\&.2?\fR
 .sp
-\fB::pt::cparam::configuration::critcl\fR \fBdef\fR \fIname\fR \fIcmdprefix\fR
+\fB::pt::cparam::configuration::critcl\fR \fBdef\fR \fIname\fR \fIpkg\fR \fIversion\fR \fIcmdprefix\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -301,10 +301,10 @@ IMAGE: arch_core_support
 .PP
 .SH API
 .TP
-\fB::pt::cparam::configuration::critcl\fR \fBdef\fR \fIname\fR \fIcmdprefix\fR
+\fB::pt::cparam::configuration::critcl\fR \fBdef\fR \fIname\fR \fIpkg\fR \fIversion\fR \fIcmdprefix\fR
 The command applies the configuration provided by this package to the
 \fIcmdprefix\fR, causing the creation of \fBcritcl\fR-based parsers
-whose class is \fIname\fR\&.
+whose class is \fIname\fR, in package \fIpkg\fR with \fIversion\fR\&.
 .sp
 The use of a command prefix as API allows application of the
 configuration to not only \fBpt::peg::to::cparam\fR
