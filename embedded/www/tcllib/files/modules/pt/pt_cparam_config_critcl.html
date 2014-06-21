@@ -108,7 +108,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">pt::cparam::configuration::critcl(n) 1.0.1 tcllib &quot;Parser Tools&quot;</h1>
+<h1 class="title">pt::cparam::configuration::critcl(n) 1.0.2 tcllib &quot;Parser Tools&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>pt::cparam::configuration::critcl - C/PARAM, Canned configuration, Critcl</p>
 </div>
@@ -128,10 +128,10 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
-<li>package require <b class="pkgname">pt::cparam::configuration::critcl <span class="opt">?1.0.1?</span></b></li>
+<li>package require <b class="pkgname">pt::cparam::configuration::critcl <span class="opt">?1.0.2?</span></b></li>
 </ul>
 <ul class="syntax">
-<li><a href="#1"><b class="cmd">::pt::cparam::configuration::critcl</b> <b class="method">def</b> <i class="arg">name</i> <i class="arg">cmdprefix</i></a></li>
+<li><a href="#1"><b class="cmd">::pt::cparam::configuration::critcl</b> <b class="method">def</b> <i class="arg">name</i> <i class="arg">pkg</i> <i class="arg">version</i> <i class="arg">cmdprefix</i></a></li>
 </ul>
 </div>
 </div>
@@ -151,10 +151,10 @@ package <b class="package"><a href="pt_peg_to_cparam.html">pt::peg::to::cparam</
 </div>
 <div id="section2" class="section"><h2><a name="section2">API</a></h2>
 <dl class="definitions">
-<dt><a name="1"><b class="cmd">::pt::cparam::configuration::critcl</b> <b class="method">def</b> <i class="arg">name</i> <i class="arg">cmdprefix</i></a></dt>
+<dt><a name="1"><b class="cmd">::pt::cparam::configuration::critcl</b> <b class="method">def</b> <i class="arg">name</i> <i class="arg">pkg</i> <i class="arg">version</i> <i class="arg">cmdprefix</i></a></dt>
 <dd><p>The command applies the configuration provided by this package to the
 <i class="arg">cmdprefix</i>, causing the creation of <b class="package">critcl</b>-based parsers
-whose class is <i class="arg">name</i>.</p>
+whose class is <i class="arg">name</i>, in package <i class="arg">pkg</i> with <i class="arg">version</i>.</p>
 <p>The use of a command prefix as API allows application of the
 configuration to not only <b class="package"><a href="pt_peg_to_cparam.html">pt::peg::to::cparam</a></b>
 (<b class="cmd">pt::peg::to::cparam configure</b>), but also export manager
