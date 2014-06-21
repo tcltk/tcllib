@@ -192,12 +192,15 @@ input the return of <b class="cmd">logger::init</b>.</p></dd>
 <dt><b class="option">-appender</b> appenderType</dt>
 <dd><p>Type of the appender to use.
 One of <b class="const">console</b>, <b class="const">colorConsole</b>.</p></dd>
-<dt><b class="option">-conversionPattern</b> pattern</dt>
-<dd><p>See <b class="cmd">::logger::utils::createFormatCmd</b> for the
-format of the pattern. If this option is not provided
-the default pattern</p>
-<pre class="example">[%d] [%c] [%M] [%p] %m</pre>
-<p>is used.</p></dd>
+<dt><b class="option">-appenderArgs</b> appenderArgs</dt>
+<dd><p>Additional arguments to apply to the appender.
+The argument of the option is a list of options
+and their arguments.</p>
+<p>For example</p>
+<pre class="example">
+logger::utils::applyAppender -serviceCmd $log -appender console -appenderArgs {-conversionPattern {\[%M\] \[%p\] - %m}}
+</pre>
+<p>The usual Tcl quoting rules apply.</p></dd>
 <dt><b class="option">-levels</b> levelList</dt>
 <dd><p>The list of levels to apply this appender to. If not specified all
 levels are assumed.</p></dd>

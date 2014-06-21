@@ -2,7 +2,7 @@
 '\" Generated from file 'yaml\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2008 KATO Kanryu <kanryu6@users\&.sourceforge\&.net>
 '\"
-.TH "yaml" n 0\&.3\&.6 tcllib "YAML processing"
+.TH "yaml" n 0\&.3\&.7 tcllib "YAML processing"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ yaml \- YAML Format Encoder/Decoder
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fByaml  ?0\&.3\&.6?\fR
+package require \fByaml  ?0\&.3\&.7?\fR
 .sp
 \fB::yaml::yaml2dict\fR ?\fIoptions\fR? \fItxt\fR
 .sp

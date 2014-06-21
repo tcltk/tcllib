@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'websocket\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "websocket" n 1\&.3 tcllib "websocket client and server"
+.TH "websocket" n 1\&.3\&.1 tcllib "websocket client and server"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -283,7 +283,7 @@ package require \fBsha1 \fR
 .sp
 package require \fBbase64 \fR
 .sp
-package require \fBwebsocket  1\&.3\fR
+package require \fBwebsocket  ?1\&.3\&.1?\fR
 .sp
 \fB::websocket::open\fR \fIurl\fR \fIhandler\fR ?\fIoptions\fR?
 .sp
@@ -304,6 +304,10 @@ package require \fBwebsocket  1\&.3\fR
 \fB::websocket::find\fR ?\fIhost\fR? ?\fIport\fR?
 .sp
 \fB::websocket::configure\fR \fIsock\fR \fIargs\fR
+.sp
+\fB::websocket::loglevel\fR ?\fIloglvl\fR?
+.sp
+\fB::websocket::close\fR \fIsock\fR ?\fIcode\fR? ?\fIreason\fR?
 .sp
 .BE
 .SH DESCRIPTION
@@ -581,6 +585,57 @@ are initiated\&.
 \fB-ping\fR
 is the text that is used during the automated
 pings\&.  This text defaults to the empty string, leading to an empty ping\&.
+.RE
+.TP
+\fB::websocket::loglevel\fR ?\fIloglvl\fR?
+Set or query the log level of the library, which defaults to error\&.
+Logging is built on top of the logger module, and the library makes
+use of the following levels: \fBdebug\fR, \fBinfo\fR, \fBnotice\fR,
+\fBwarn\fR and \fBerror\fR\&.  When called with no argument, this procedure will
+simply return the current log level\&.  Otherwise \fIloglvl\fR should contain
+the desired log level\&.
+.TP
+\fB::websocket::close\fR \fIsock\fR ?\fIcode\fR? ?\fIreason\fR?
+Gracefully close a websocket that was directly or indirectly passed to
+\fB::websocket::takeover\fR\&.  The procedure will optionally send the
+\fIcode\fR and describing \fIreason\fR as part of the closure handshake\&.
+Good defaults are provided, so that reasons for a number of known codes will
+be sent back\&. Only the first 125 characters of a reason string will be kept and
+sent as part of the handshake\&. The known codes are:
+.RS
+.TP
+\fB1000\fR
+Normal closure (the default \fIcode\fR when none provided)\&.
+.TP
+\fB1001\fR
+Endpoint going away
+.TP
+\fB1002\fR
+Protocol Error
+.TP
+\fB1003\fR
+Received incompatible data type
+.TP
+\fB1006\fR
+Abnormal closure
+.TP
+\fB1007\fR
+Received data not consistent with type
+.TP
+\fB1008\fR
+Policy violation
+.TP
+\fB1009\fR
+Received message too big
+.TP
+\fB1010\fR
+Missing extension
+.TP
+\fB1011\fR
+Unexpected condition
+.TP
+\fB1015\fR
+TLS hanshake error
 .RE
 .PP
 .SH EXAMPLES
