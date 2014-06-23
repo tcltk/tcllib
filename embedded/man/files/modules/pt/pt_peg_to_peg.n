@@ -2,7 +2,7 @@
 '\" Generated from file 'to\&.inc' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::peg::to::peg" n 1\&.0\&.1 tcllib "Parser Tools"
+.TH "pt::peg::to::peg" n 1\&.0\&.2 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ pt::peg::to::peg \- PEG Conversion\&. Write PEG format
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBpt::peg::to::peg  ?1\&.0\&.1?\fR
+package require \fBpt::peg::to::peg  ?1\&.0\&.2?\fR
 .sp
 package require \fBpt::peg \fR
 .sp
@@ -430,13 +430,13 @@ PEG pe-grammar-for-peg (Grammar)
         Range           <- Char TO Char / Char ;
 
         StartExpr       <- OPEN Expression CLOSE ;
-void:   Final           <- END SEMICOLON WHITESPACE ;
+void:   Final           <- "END" WHITESPACE SEMICOLON WHITESPACE ;
 
         # --------------------------------------------------------------------
         # Lexing constructs
 
         Identifier      <- Ident WHITESPACE ;
-leaf:   Ident           <- ('_' / ':' / <alpha>) ('_' / ':' / <alnum>)* ;
+leaf:   Ident           <- ([_:] / <alpha>) ([_:] / <alnum>)* ;
         Char            <- CharSpecial / CharOctalFull / CharOctalPart
                         /  CharUnicode / CharUnescaped
                         ;
@@ -454,11 +454,10 @@ void:   OPENB           <- "["           ;
 void:   CLOSEB          <- "]"           ;
 void:   APOSTROPH       <- "'"           ;
 void:   DAPOSTROPH      <- '"'           ;
-void:   PEG             <- "PEG"   WHITESPACE ;
+void:   PEG             <- "PEG" !([_:] / <alnum>) WHITESPACE ;
 void:   IS              <- "<-"    WHITESPACE ;
 leaf:   VOID            <- "void"  WHITESPACE ; # Implies that definition has no semantic value\&.
 leaf:   LEAF            <- "leaf"  WHITESPACE ; # Implies that definition has no terminals\&.
-void:   END             <- "END"   WHITESPACE ;
 void:   SEMICOLON       <- ";"     WHITESPACE ;
 void:   COLON           <- ":"     WHITESPACE ;
 void:   SLASH           <- "/"     WHITESPACE ;

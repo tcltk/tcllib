@@ -2,7 +2,7 @@
 '\" Generated from file 'pt_tclparam_config_tcloo\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::tclparam::configuration::tcloo" n 1\&.0\&.3 tcllib "Parser Tools"
+.TH "pt::tclparam::configuration::tcloo" n 1\&.0\&.4 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,9 +276,9 @@ pt::tclparam::configuration::tcloo \- Tcl/PARAM, Canned configuration, Tcloo
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBpt::tclparam::configuration::tcloo  ?1\&.0\&.3?\fR
+package require \fBpt::tclparam::configuration::tcloo  ?1\&.0\&.4?\fR
 .sp
-\fB::pt::tclparam::configuration::tcloo\fR \fBdef\fR \fIname\fR \fIcmdprefix\fR
+\fB::pt::tclparam::configuration::tcloo\fR \fBdef\fR \fIname\fR \fIpkg\fR \fIversion\fR \fIcmdprefix\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -301,10 +301,10 @@ IMAGE: arch_core_support
 .PP
 .SH API
 .TP
-\fB::pt::tclparam::configuration::tcloo\fR \fBdef\fR \fIname\fR \fIcmdprefix\fR
+\fB::pt::tclparam::configuration::tcloo\fR \fBdef\fR \fIname\fR \fIpkg\fR \fIversion\fR \fIcmdprefix\fR
 The command applies the configuration provided by this package to the
 \fIcmdprefix\fR, causing the creation of \fBOO\fR-based parsers
-whose class is \fIname\fR\&.
+whose class is \fIname\fR, in package \fIpkg\fR with \fIversion\fR\&.
 .sp
 The use of a command prefix as API allows application of the
 configuration to not only \fBpt::peg::to::tclparam\fR
