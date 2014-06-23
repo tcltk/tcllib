@@ -369,7 +369,9 @@ proc ::doctools::_configure {name args} {
 			upvar #0 ::doctools::doctools${name}::format format
 			set format $value
 		    } msg]} {
-			return -code error -errorinfo $::errorInfo "doctools::_configure: -format: $msg"
+			return -code error \
+			    -errorinfo $::errorInfo \
+			    "doctools::_configure: -format: $msg"
 		    }
 		}
 		-deprecated {
@@ -1356,4 +1358,4 @@ namespace eval ::doctools {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools 1.4.18
+package provide doctools 1.4.19

@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 1.4.18]
+[vset PACKAGE_VERSION 1.4.19]
 [manpage_begin doctools n [vset PACKAGE_VERSION]]
 [see_also doctools_intro]
 [see_also doctools_lang_cmdref]
