@@ -236,15 +236,11 @@ proc ::pt::cparam::configuration::critcl::def {class pkg version cmd} {
 			rde_param_query_ast (p, &ac, &av);
 
 			if (ac > 1) {
-			    long int  lsc;
-			    long int* lsv;
 			    Tcl_Obj** lv = NALLOC (3+ac, Tcl_Obj*);
-
-			    rde_param_query_ls (p, &lsc, &lsv);
 
 			    memcpy(lv + 3, av, ac * sizeof (Tcl_Obj*));
 			    lv [0] = Tcl_NewObj ();
-			    lv [1] = Tcl_NewIntObj (1 + lsv [lsc-1]);
+			    lv [1] = Tcl_NewIntObj (1 + rde_param_query_lstop (p));
 			    lv [2] = Tcl_NewIntObj (rde_param_query_cl (p));
 
 			    Tcl_SetObjResult (interp, Tcl_NewListObj (3, lv));
