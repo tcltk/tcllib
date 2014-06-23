@@ -2,7 +2,7 @@
 '\" Generated from file 'pt_rdengine\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::rde" n 1\&.0\&.2 tcllib "Parser Tools"
+.TH "pt::rde" n 1\&.0\&.3 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ pt::rde \- Parsing Runtime Support, PARAM based
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBpt::rde  ?1\&.0\&.2?\fR
+package require \fBpt::rde  ?1\&.0\&.3?\fR
 .sp
 package require \fBsnit \fR
 .sp
