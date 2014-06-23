@@ -369,7 +369,9 @@ proc ::doctools::_configure {name args} {
 			upvar #0 ::doctools::doctools${name}::format format
 			set format $value
 		    } msg]} {
-			return -code error "doctools::_configure: -format: $msg"
+			return -code error \
+			    -errorinfo $::errorInfo \
+			    "doctools::_configure: -format: $msg"
 		    }
 		}
 		-deprecated {
@@ -642,14 +644,14 @@ proc ::doctools::LookupFormat {name format} {
     # 2) Look for the file in the directories given to the object itself..
     # 3) Look for the file in the standard directories of this package.
 
-    if {[file exists $format]} {
-	return $format
+    if {[file exists $format] && [file isfile $format] } {
+      return $format
     }
 
     upvar #0 ::doctools::doctools${name}::paths opaths
     foreach path $opaths {
 	set f [file join $path fmt.$format]
-	if {[file exists $f]} {
+	if {[file exists $f] && [file isfile $f]} {
 	    return $f
 	}
     }
@@ -657,7 +659,7 @@ proc ::doctools::LookupFormat {name format} {
     variable paths
     foreach path $paths {
 	set f [file join $path fmt.$format]
-	if {[file exists $f]} {
+	if {[file exists $f] && [file isfile $f]} {
 	    return $f
 	}
     }
@@ -1356,4 +1358,4 @@ namespace eval ::doctools {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools 1.4.18
+package provide doctools 1.4.19
