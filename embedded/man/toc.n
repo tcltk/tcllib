@@ -1041,6 +1041,9 @@ tcllib
 \fBpt::tclparam::configuration::tcloo\fR
 \fIfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR: Tcl/PARAM, Canned configuration, Tcloo
 .TP
+\fBpt::util\fR
+\fIfiles/modules/pt/pt_util\&.n\fR: General utilities
+.TP
 \fBpt_export_api\fR
 \fIfiles/modules/pt/pt_to_api\&.n\fR: Parser Tools Export API
 .TP

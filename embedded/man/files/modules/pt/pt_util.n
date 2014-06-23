@@ -1,8 +1,8 @@
 '\"
-'\" Generated from file 'pt_tclparam_config_snit\&.man' by tcllib/doctools with format 'nroff'
+'\" Generated from file 'pt_util\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::tclparam::configuration::snit" n 1\&.0\&.2 tcllib "Parser Tools"
+.TH "pt::util" n 1 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -272,13 +272,17 @@ Database Class:	\\fB\\$3\\fR
 ..
 .BS
 .SH NAME
-pt::tclparam::configuration::snit \- Tcl/PARAM, Canned configuration, Snit
+pt::util \- General utilities
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBpt::tclparam::configuration::snit  ?1\&.0\&.2?\fR
+package require \fBpt::ast  ?1?\fR
 .sp
-\fB::pt::tclparam::configuration::snit\fR \fBdef\fR \fIname\fR \fIpkg\fR \fIversion\fR \fIcmdprefix\fR
+\fB::pt::util\fR \fBerror2readable\fR \fIerror\fR \fItext\fR
+.sp
+\fB::pt::util\fR \fBerror2position\fR \fIerror\fR \fItext\fR
+.sp
+\fB::pt::util\fR \fBerror2text\fR \fIerror\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -289,31 +293,35 @@ In that case please read the overview provided by the
 \fIIntroduction to Parser Tools\fR\&. This document is the
 entrypoint to the whole system the current package is a part of\&.
 .PP
-This package is an adjunct to \fBpt::peg::to::tclparam\fR, to make
-the use of this highly configurable package easier by providing a
-canned configuration\&. When applied this configuration causes the
-package \fBpt::peg::to::tclparam\fR to generate
-\fBsnit\fR-based parser packages\&.
+This package provides general utility commands\&.
 .PP
-It is a supporting package in the Core Layer of Parser Tools\&.
+This is a supporting package in the Core Layer of Parser Tools\&.
 .PP
 IMAGE: arch_core_support
 .PP
 .SH API
 .TP
-\fB::pt::tclparam::configuration::snit\fR \fBdef\fR \fIname\fR \fIpkg\fR \fIversion\fR \fIcmdprefix\fR
-The command applies the configuration provided by this package to the
-\fIcmdprefix\fR, causing the creation of \fBsnit\fR-based parsers
-whose class is \fIname\fR, in package \fIpkg\fR with \fIversion\fR\&.
+\fB::pt::util\fR \fBerror2readable\fR \fIerror\fR \fItext\fR
+This command takes the structured form of a syntax \fIerror\fR as
+thrown by parser runtimes and the input \fItext\fR to the parser which
+caused that error and returns a string describing the error in a
+human-readable form\&.
 .sp
-The use of a command prefix as API allows application of the
-configuration to not only \fBpt::peg::to::tclparam\fR
-(\fBpt::peg::to::tclparam configure\fR), but also export manager
-instances and PEG containers (\fB$export configuration set\fR and
-\fB[$container exporter] configuration set\fR respectively)\&.
-.sp
-Or anything other command prefix accepting two arguments, option and
-value\&.
+The input \fItext\fR is required to convert the character
+position of the error into a more readable line/column format, and to
+provide excerpts of the input around the error position\&.
+.TP
+\fB::pt::util\fR \fBerror2position\fR \fIerror\fR \fItext\fR
+This command takes the structured form of a syntax \fIerror\fR as
+thrown by parser runtimes and the input \fItext\fR to the parser which
+caused that error and returns a 2-element list containing the line
+number and column index for the error's character position in the
+input, in this order\&.
+.TP
+\fB::pt::util\fR \fBerror2text\fR \fIerror\fR
+This command takes the structured form of a syntax \fIerror\fR as
+thrown by parser runtimes and returns a list of strings, each
+describing a possible expected input in a human-readable form\&.
 .PP
 .SH "BUGS, IDEAS, FEEDBACK"
 This document, and the package it describes, will undoubtedly contain
