@@ -198,10 +198,15 @@ namespace eval ::json {
     variable singleCharTokenRE "\[[join $singleCharTokens {}]\]"
 
     # quoted string tokens
-    variable escapableREs { "[\\\"\\\\/bfnrt]" "u[[:xdigit:]]{4}" }
+    variable escapableREs { "[\\\"\\\\/bfnrt]" "u[[:xdigit:]]{4}" "." }
     variable escapedCharRE "\\\\(?:[join $escapableREs |])"
     variable unescapedCharRE {[^\\\"]}
     variable stringRE "\"(?:$escapedCharRE|$unescapedCharRE)*\""
+
+    # as above, for validation
+    variable escapableREsv { "[\\\"\\\\/bfnrt]" "u[[:xdigit:]]{4}" }
+    variable escapedCharREv "\\\\(?:[join $escapableREsv |])"
+    variable stringREv "\"(?:$escapedCharREv|$unescapedCharRE)*\""
 
     # (unquoted) words
     variable wordTokens { "true" "false" "null" }
@@ -216,15 +221,16 @@ namespace eval ::json {
     variable exponentialRE {[eE][+-]?[[:digit:]]+}
     variable numberRE "${cardinalRE}(?:$fractionRE)?(?:$exponentialRE)?"
 
-    # JSON token
+    # JSON token, and validation
     variable tokenRE "$singleCharTokenRE|$stringRE|$wordTokenRE|$numberRE"
+    variable tokenREv "$singleCharTokenRE|$stringREv|$wordTokenRE|$numberRE"
 
 
     # 0..n white space characters
     set whiteSpaceRE {[[:space:]]*}
 
     # Regular expression for validating a JSON text
-    variable validJsonRE "^(?:${whiteSpaceRE}(?:$tokenRE))*${whiteSpaceRE}$"
+    variable validJsonRE "^(?:${whiteSpaceRE}(?:$tokenREv))*${whiteSpaceRE}$"
 }
 
 
@@ -273,4 +279,4 @@ proc ::json::string2json {str} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide json 1.3.2
+package provide json 1.3.3
