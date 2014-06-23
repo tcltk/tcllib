@@ -2,7 +2,7 @@
 #
 #	Implementation of doctoc objects for Tcl.
 #
-# Copyright (c) 2003-2010 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2014 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -277,7 +277,9 @@ proc ::doctools::toc::_configure {name args} {
 			upvar #0 ::doctools::toc::doctoc${name}::format format
 			set format $value
 		    } msg]} {
-			return -code error "doctools::toc::_configure: -format: $msg"
+			return -code error \
+			    -errorinfo $::errorInfo \
+			    "doctools::toc::_configure: -format: $msg"
 		    }
 		}
 		default {
@@ -511,14 +513,14 @@ proc ::doctools::toc::LookupFormat {name format} {
     # 2) Look for the file in the directories given to the object itself..
     # 3) Look for the file in the standard directories of this package.
 
-    if {[file exists $format]} {
+    if {[file exists $format] && [file isfile $format]} {
 	return $format
     }
 
     upvar #0 ::doctools::toc::doctoc${name}::paths opaths
     foreach path $opaths {
 	set f [file join $path toc.$format]
-	if {[file exists $f]} {
+	if {[file exists $f] && [file isfile $f]} {
 	    return $f
 	}
     }
@@ -526,7 +528,7 @@ proc ::doctools::toc::LookupFormat {name format} {
     variable paths
     foreach path $paths {
 	set f [file join $path toc.$format]
-	if {[file exists $f]} {
+	if {[file exists $f] && [file isfile $f]} {
 	    return $f
 	}
     }
@@ -963,4 +965,4 @@ namespace eval ::doctools::toc {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools::toc 1.1.3
+package provide doctools::toc 1.1.4
