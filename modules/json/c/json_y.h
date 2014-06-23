@@ -30,6 +30,7 @@ struct context {
    */
 
   Tcl_Obj	*obj;       /* Tcl value of the last returned token. */
+  int has_error;
 };
 
 /*

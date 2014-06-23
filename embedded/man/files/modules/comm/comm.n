@@ -4,7 +4,7 @@
 '\" Copyright (c) 2003-2004 ActiveState Corporation\&.
 '\" Copyright (c) 2006-2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "comm" n 4\&.6\&.2 tcllib "Remote communication"
+.TH "comm" n 4\&.6\&.3 tcllib "Remote communication"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,7 +278,7 @@ comm \- A remote communication facility for Tcl (8\&.3 and later)
 .SH SYNOPSIS
 package require \fBTcl  8\&.3\fR
 .sp
-package require \fBcomm  ?4\&.6\&.2?\fR
+package require \fBcomm  ?4\&.6\&.3?\fR
 .sp
 \fB::comm::comm send\fR ?-async? ?-command \fIcallback\fR? \fIid\fR \fIcmd\fR ?\fIarg arg \&.\&.\&.\fR?
 .sp
@@ -1052,6 +1052,10 @@ version\&.  To load \fBcomm\fR this command is usually used:
 Note that requiring no version (or a specific version) can also be done\&.
 .PP
 The revision history of \fBcomm\fR includes these releases:
+.TP
+4\&.6\&.3
+Fixed ticket [ced0d60fc9]\&. Added proper detection of eof on a
+socket, properly closing it\&.
 .TP
 4\&.6\&.2
 Fixed bugs 2972571 and 3066872, the first a misdetection of quoted
