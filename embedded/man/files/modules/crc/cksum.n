@@ -2,7 +2,7 @@
 '\" Generated from file 'cksum\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002, Pat Thoyts
 '\"
-.TH "cksum" n 1\&.1\&.3 tcllib "Cyclic Redundancy Checks"
+.TH "cksum" n 1\&.1\&.4 tcllib "Cyclic Redundancy Checks"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ cksum \- Calculate a cksum(1) compatible checksum
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBcksum  ?1\&.1\&.3?\fR
+package require \fBcksum  ?1\&.1\&.4?\fR
 .sp
 \fB::crc::cksum\fR ?\fI-format format\fR? ?\fI-chunksize size\fR? [ \fI-channel chan\fR | \fI-filename file\fR | \fIstring\fR ]
 .sp
