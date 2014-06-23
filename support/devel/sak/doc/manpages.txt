@@ -271,6 +271,7 @@ modules/pt/pt_rdengine.man
 modules/pt/pt_tclparam_config_snit.man
 modules/pt/pt_tclparam_config_tcloo.man
 modules/pt/pt_to_api.man
+modules/pt/pt_util.man
 modules/rc4/rc4.man
 modules/rcs/rcs.man
 modules/report/report.man

@@ -2,7 +2,7 @@
 '\" Generated from file 'to\&.inc' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::peg::to::tclparam" n 1 tcllib "Parser Tools"
+.TH "pt::peg::to::tclparam" n 1\&.0\&.1 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ pt::peg::to::tclparam \- PEG Conversion\&. Write TCLPARAM format
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBpt::peg::to::tclparam  ?1?\fR
+package require \fBpt::peg::to::tclparam  ?1\&.0\&.1?\fR
 .sp
 \fBpt::peg::to::tclparam\fR \fBreset\fR
 .sp
