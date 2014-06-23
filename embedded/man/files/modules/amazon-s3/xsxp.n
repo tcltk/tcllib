@@ -380,7 +380,7 @@ no PCDATA is found\&.
 For example, to fetch the first bold text from the fifth paragraph of the body of your HTML file,
 .CS
 
-xsxp::fetch $pxml {html body p#4 b} %PCDATA
+xsxp::fetch $pxml {body p#4 b} %PCDATA
 .CE
 .sp
 .TP

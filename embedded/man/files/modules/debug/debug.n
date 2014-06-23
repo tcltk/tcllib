@@ -1,9 +1,9 @@
 '\"
 '\" Generated from file 'debug\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 200?, Colin McCormack, Wub Server Utilities
-'\" Copyright (c) 2012, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2012-2014, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "debug" n 1\&.0\&.2 tcllib "debug narrative"
+.TH "debug" n 1\&.0\&.5 tcllib "debug narrative"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -277,7 +277,7 @@ debug \- debug narrative - core
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBdebug  ?1\&.0\&.2?\fR
+package require \fBdebug  ?1\&.0\&.5?\fR
 .sp
 \fBdebug\&.\fBtag\fR\fR \fImessage\fR ?\fIlevel\fR?
 .sp
@@ -298,6 +298,12 @@ package require \fBdebug  ?1\&.0\&.2?\fR
 \fBdebug\fR \fBparray\fR \fIarrayvarname\fR
 .sp
 \fBdebug\fR \fBpdict\fR \fIdict\fR
+.sp
+\fBdebug\fR \fBhexl\fR \fIdata\fR ?\fIprefix\fR?
+.sp
+\fBdebug\fR \fBnl\fR
+.sp
+\fBdebug\fR \fBtab\fR
 .sp
 \fBdebug\fR \fBprefix\fR \fItag\fR ?\fItext\fR?
 .sp
@@ -399,6 +405,23 @@ resulting string\&.
 .sp
 This makes it suitable for use in debug messages\&.
 .TP
+\fBdebug\fR \fBhexl\fR \fIdata\fR ?\fIprefix\fR?
+This is a convenience method formatting arbitrary data into a hex-dump
+and returns the resulting string\&.
+.sp
+This makes it suitable for use in debug messages\&.
+.sp
+Each line of the dump is prefixed with \fIprefix\fR\&. This prefix
+defaults to the empty string\&.
+.TP
+\fBdebug\fR \fBnl\fR
+This is a convenience method to insert a linefeed character (ASCII 0x0a)
+into a debug message\&.
+.TP
+\fBdebug\fR \fBtab\fR
+This is a convenience method to insert a TAB character (ASCII 0x09)
+into a debug message\&.
+.TP
 \fBdebug\fR \fBprefix\fR \fItag\fR ?\fItext\fR?
 This method is similar to the method \fBheader\fR above, in that it
 defines \fBsubst\fRable Tcl script which provides more text for debug
@@ -491,6 +514,6 @@ debugging, tracing, and logging
 .SH COPYRIGHT
 .nf
 Copyright (c) 200?, Colin McCormack, Wub Server Utilities
-Copyright (c) 2012, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2012-2014, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi

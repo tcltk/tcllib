@@ -671,6 +671,11 @@ The default value is the empty string\&.
 \fB-indent\fR integer
 The number of characters to indent each line of the generated code by\&.
 The default value is \fB0\fR\&.
+.TP
+\fB-comments\fR boolean
+A flag controlling the generation of code comments containing the
+original parsing expression a parsing function is for\&.
+The default value is \fBon\fR\&.
 .PP
 .SH "SNIT PARSER"
 The \fBsnit\fR format is executable code, a parser for the
