@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'tcllib_coroutine\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2010-2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2010-2014 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "coroutine" n 1 tcllib "Coroutine utilities"
+.TH "coroutine" n 1\&.1\&.1 tcllib "Coroutine utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ coroutine \- Coroutine based event and IO handling
 .SH SYNOPSIS
 package require \fBTcl  8\&.6\fR
 .sp
-package require \fBcoroutine  1\&.1\fR
+package require \fBcoroutine  1\&.1\&.1\fR
 .sp
 \fBcoroutine::util after\fR \fIdelay\fR
 .sp
@@ -376,6 +376,6 @@ after, channel, coroutine, events, exit, gets, global, green threads, read, thre
 Coroutine
 .SH COPYRIGHT
 .nf
-Copyright (c) 2010-2011 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2010-2014 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi

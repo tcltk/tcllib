@@ -1,3 +1,4 @@
+
 <html><head>
 <title>comm - Remote communication</title>
 <style type="text/css"><!--
@@ -107,7 +108,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">comm(n) 4.6.2 tcllib &quot;Remote communication&quot;</h1>
+<h1 class="title">comm(n) 4.6.3 tcllib &quot;Remote communication&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>comm - A remote communication facility for Tcl (8.3 and later)</p>
 </div>
@@ -149,7 +150,7 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl 8.3</b></li>
-<li>package require <b class="pkgname">comm <span class="opt">?4.6.2?</span></b></li>
+<li>package require <b class="pkgname">comm <span class="opt">?4.6.3?</span></b></li>
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">::comm::comm send</b> <span class="opt">?-async?</span> <span class="opt">?-command <i class="arg">callback</i>?</span> <i class="arg">id</i> <i class="arg">cmd</i> <span class="opt">?<i class="arg">arg arg ...</i>?</span></a></li>
@@ -771,6 +772,9 @@ version.  To load <b class="package">comm</b> this command is usually used:</p>
 <p>Note that requiring no version (or a specific version) can also be done.</p>
 <p>The revision history of <b class="package">comm</b> includes these releases:</p>
 <dl class="definitions">
+<dt>4.6.3</dt>
+<dd><p>Fixed ticket [ced0d60fc9]. Added proper detection of eof on a
+socket, properly closing it.</p></dd>
 <dt>4.6.2</dt>
 <dd><p>Fixed bugs 2972571 and 3066872, the first a misdetection of quoted
 brace after double backslash, the other a blocking gets making for an
