@@ -341,11 +341,8 @@ proc ::logger::utils::createLogProc {args} {
 #            type of appender to use
 #             console|colorConsole...
 #
-#       -conversionPattern <pattern>
-#            see createLogProc for format
-#            if not provided the default pattern
-#            is used:
-#             {\[%d\] \[%c\] \[%M\] \[%p\] %m}
+#       -appenderArgs <argumentlist>
+#            A list of additional options plus their arguments
 #
 #       -levels <levels to apply to>
 #            list of levels to apply this appender to

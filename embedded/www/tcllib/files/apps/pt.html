@@ -358,6 +358,9 @@ command will be <b class="variable">X</b>::<b class="variable">X</b>. Whereas fo
 <dt><b class="option">-package</b> string</dt>
 <dd><p>The value of this option is the name of the package to generate.
 The default value is <b class="const">PACKAGE</b>.</p></dd>
+<dt><b class="option">-version</b> string</dt>
+<dd><p>The value of this option is the version of the package to generate.
+The default value is <b class="const">1</b>.</p></dd>
 </dl>
 </div>
 <div id="section6" class="section"><h2><a name="section6">C Parser</a></h2>
@@ -452,6 +455,10 @@ The default value is the empty string.</p></dd>
 <dt><b class="option">-indent</b> integer</dt>
 <dd><p>The number of characters to indent each line of the generated code by.
 The default value is <b class="const">0</b>.</p></dd>
+<dt><b class="option">-comments</b> boolean</dt>
+<dd><p>A flag controlling the generation of code comments containing the
+original parsing expression a parsing function is for.
+The default value is <b class="const">on</b>.</p></dd>
 </dl>
 </div>
 <div id="section7" class="section"><h2><a name="section7">Snit Parser</a></h2>
@@ -482,6 +489,9 @@ leading colons. Note, it serves double-duty as the name of the class
 to generate too, if option <b class="option">-class</b> is not specified, see above.
 The default value is <b class="const">PACKAGE</b>, applying if neither option
 <b class="option">-package</b> nor <b class="option">-class</b> were specified.</p></dd>
+<dt><b class="option">-version</b> string</dt>
+<dd><p>The value of this option is the version of the package to generate.
+The default value is <b class="const">1</b>.</p></dd>
 </dl>
 </div>
 <div id="section8" class="section"><h2><a name="section8">TclOO Parser</a></h2>
@@ -512,6 +522,9 @@ leading colons. Note, it serves double-duty as the name of the class
 to generate too, if option <b class="option">-class</b> is not specified, see above.
 The default value is <b class="const">PACKAGE</b>, applying if neither option
 <b class="option">-package</b> nor <b class="option">-class</b> were specified.</p></dd>
+<dt><b class="option">-version</b> string</dt>
+<dd><p>The value of this option is the version of the package to generate.
+The default value is <b class="const">1</b>.</p></dd>
 </dl>
 </div>
 <div id="section9" class="section"><h2><a name="section9">Grammar Container</a></h2>
