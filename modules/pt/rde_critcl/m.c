@@ -127,15 +127,11 @@ param_COMPLETE (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	rde_param_query_ast (p->p, &ac, &av);
 
 	if (ac > 1) {
-	    long int  lsc;
-	    long int* lsv;
 	    Tcl_Obj** lv = NALLOC (3+ac, Tcl_Obj*);
-
-	    rde_param_query_ls (p->p, &lsc, &lsv);
 
 	    memcpy(lv + 3, av, ac * sizeof (Tcl_Obj*));
 	    lv [0] = Tcl_NewObj ();
-	    lv [1] = Tcl_NewIntObj (1 + lsv [lsc-1]);
+	    lv [1] = Tcl_NewIntObj (1 + rde_param_query_lstop (p->p));
 	    lv [2] = Tcl_NewIntObj (rde_param_query_cl (p->p));
 
 	    Tcl_SetObjResult (interp, Tcl_NewListObj (3, lv));
@@ -284,7 +280,7 @@ param_LMARKED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
      */
 
     long int  lc, i;
-    long int* lv;
+    void*     lv;
     Tcl_Obj** ov;
 
     if (objc != 2) {
@@ -297,7 +293,7 @@ param_LMARKED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
     ov = NALLOC (lc, Tcl_Obj*);
 
     for (i=0; i < lc; i++) {
-	ov [i] = Tcl_NewIntObj (lv [i]);
+	ov [i] = Tcl_NewIntObj ((long int) lv [i]);
     }
 
     Tcl_SetObjResult (interp, Tcl_NewListObj (lc, ov));
