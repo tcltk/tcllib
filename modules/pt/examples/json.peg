@@ -1,0 +1,47 @@
+PEG json (Space Value Space)
+# TODO: test cases. Compare against the Bison grammar and parser.
+# TODO: performance. Against Tcl, and Bison grammar and parser.
+
+# TODO: whitespace
+
+Value	<-	     String
+	/	     Number
+	/	     Object
+	/	     Array
+	/	     True
+	/	     False
+	/	     Null
+	;
+
+	String	<-	'"' Str '"'	;
+leaf:	Str	<-	Char*		;
+	Char	<-	Escaped
+		/	Plain
+		;
+	Plain	<-	(!["\] .)+	;
+	Escaped	<-	"\\" ( [bfnrt"/\] 
+		     	     / "u" <xdigit> <xdigit> <xdigit> <xdigit>)
+		;
+
+leaf:	Number	<-	Integer Fract? Exp?	;
+	Integer	<-	'0'
+		/	[1-9] <ddigit>*
+		;
+	Fract	<-	('.' <ddigit>*)		;
+	Exp	<-	[eE] Sign <ddigit>+	;
+	Sign	<-	[-+]?	  		;
+
+	Object	<-	Space '{' (Space Map (Space "," Space Map)*)? Space '}'
+		;
+	Map	<-	String Space ":" Space Value
+		;
+	Array	<-	Space '[' (Space Value (Space "," Space Value)*)? Space ']'
+		;
+leaf:	True	<-	"true"	;
+leaf:	False	<-	"false"	;
+leaf:	Null	<-	"null"	;
+
+void:	Space	<-	<space>*
+		;
+
+END;
