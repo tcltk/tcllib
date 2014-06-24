@@ -728,9 +728,14 @@ namespace eval ::PARSER {
 	    rde_stack_get (p->ES, ec, (void***) ev);
 	}
 	SCOPE void
-	rde_param_query_ls (RDE_PARAM p, long int* lc, long int** lv)
+	rde_param_query_ls (RDE_PARAM p, long int* lc, void*** lv)
 	{
-	    rde_stack_get (p->LS, lc, (void***) lv);
+	    rde_stack_get (p->LS, lc, lv);
+	}
+	SCOPE long int
+	rde_param_query_lstop (RDE_PARAM p)
+	{
+	    (long int) rde_stack_top (p->LS);
 	}
 	SCOPE Tcl_HashTable*
 	rde_param_query_nc (RDE_PARAM p)
@@ -1904,15 +1909,11 @@ namespace eval ::PARSER {
 		rde_param_query_ast (p, &ac, &av);
 
 		if (ac > 1) {
-		    long int  lsc;
-		    long int* lsv;
 		    Tcl_Obj** lv = NALLOC (3+ac, Tcl_Obj*);
-
-		    rde_param_query_ls (p, &lsc, &lsv);
 
 		    memcpy(lv + 3, av, ac * sizeof (Tcl_Obj*));
 		    lv [0] = Tcl_NewObj ();
-		    lv [1] = Tcl_NewIntObj (1 + lsv [lsc-1]);
+		    lv [1] = Tcl_NewIntObj (1 + rde_param_query_lstop (p));
 		    lv [2] = Tcl_NewIntObj (rde_param_query_cl (p));
 
 		    Tcl_SetObjResult (interp, Tcl_NewListObj (3, lv));
