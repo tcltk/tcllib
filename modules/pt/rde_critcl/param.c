@@ -415,9 +415,15 @@ rde_param_query_es (RDE_PARAM p, long int* ec, ERROR_STATE*** ev)
 }
 
 SCOPE void
-rde_param_query_ls (RDE_PARAM p, long int* lc, long int** lv)
+rde_param_query_ls (RDE_PARAM p, long int* lc, void*** lv)
 {
-    rde_stack_get (p->LS, lc, (void***) lv);
+    rde_stack_get (p->LS, lc, lv);
+}
+
+SCOPE long int
+rde_param_query_lstop (RDE_PARAM p)
+{
+    (long int) rde_stack_top (p->LS);
 }
 
 SCOPE Tcl_HashTable*
