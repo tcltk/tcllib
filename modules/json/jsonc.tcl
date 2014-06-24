@@ -35,6 +35,7 @@ namespace eval ::json {
 
 	context.text   = Tcl_GetStringFromObj(objv[1], &context.remaining);
 	context.I      = I;
+	context.has_error = 0;
 	context.result = TCL_ERROR;
 
 	jsonparse (&context);
@@ -75,6 +76,7 @@ namespace eval ::json {
 
 	context.text   = Tcl_GetStringFromObj(objv[1], &context.remaining);
 	context.I      = I;
+	context.has_error = 0;
 	found  = 0;
 
 	/* Iterate over the input until
