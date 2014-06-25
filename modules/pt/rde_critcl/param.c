@@ -303,9 +303,9 @@ rde_param_query_clientdata (RDE_PARAM p)
 }
 
 SCOPE void
-rde_param_query_amark (RDE_PARAM p, long int* mc, long int** mv)
+rde_param_query_amark (RDE_PARAM p, long int* mc, void*** mv)
 {
-    rde_stack_get (p->mark, mc, (void***) mv);
+    rde_stack_get (p->mark, mc, mv);
 }
 
 SCOPE void
@@ -356,11 +356,11 @@ rde_param_query_er_tcl (RDE_PARAM p, const ERROR_STATE* er)
 	Tcl_Obj* ov [2];
 	Tcl_Obj** mov;
 	long int  mc, i, j;
-	long int* mv;
+	void** mv;
 	int lastid;
 	const char* msg;
 
-	rde_stack_get (er->msg, &mc, (void***) &mv);
+	rde_stack_get (er->msg, &mc, &mv);
 
 	/*
 	 * Note: We are peeking inside the (message) stack here and are
@@ -368,7 +368,7 @@ rde_param_query_er_tcl (RDE_PARAM p, const ERROR_STATE* er)
 	 * code for convenience, not for the ordering.
 	 */
 
-	qsort (mv, mc, sizeof (long int), er_int_compare);
+	qsort (mv, mc, sizeof (void*), er_int_compare);
 
 	/*
 	 * Convert message ids to strings. We ignore duplicates, by comparing
@@ -382,11 +382,11 @@ rde_param_query_er_tcl (RDE_PARAM p, const ERROR_STATE* er)
 	for (i=0, j=0; i < mc; i++) {
 	    ASSERT_BOUNDS (i,mc);
 
-	    if (mv [i] == lastid) continue;
-	    lastid = mv [i];
+	    if (((long int) mv [i]) == lastid) continue;
+	    lastid = (long int) mv [i];
 
-	    ASSERT_BOUNDS(mv[i],p->numstr);
-	    msg = p->string [mv[i]]; /* inlined query_string */
+	    ASSERT_BOUNDS((long int) mv[i],p->numstr);
+	    msg = p->string [(long int) mv[i]]; /* inlined query_string */
 
 	    ASSERT_BOUNDS (j,mc);
 	    mov [j] = Tcl_NewStringObj (msg, -1);
@@ -1153,11 +1153,19 @@ rde_param_i_value_reduce (RDE_PARAM p, int s)
 static int
 er_int_compare (const void* a, const void* b)
 {
-    long int ai = *((long int*) a);
-    long int bi = *((long int*) b);
+    /* a, b = pointers to element, as void*.
+     * Actual element type is (void*), and
+     * actually stored data is (long int).
+     */
 
-    if (ai < bi) { return -1; }
-    if (ai > bi) { return  1; }
+    const void** ael = (void**) a;
+    const void** bel = (void**) b;
+
+    long int avalue = (long int) *ael;
+    long int bvalue = (long int) *bel;
+
+    if (avalue < bvalue) { return -1; }
+    if (avalue > bvalue) { return  1; }
     return 0;
 }
 
