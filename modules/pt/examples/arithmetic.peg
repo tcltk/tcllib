@@ -1,0 +1,40 @@
+PEG arithmetic (Expression)
+
+# TODO: testcases
+# TODO: insert spacing. (another case of inclusion, to allow for comments).
+
+# PEG extension:
+# - Grammar inclusion.
+#   Here it would be really nice to have the Numbers definition from
+#   the number.peg example instead of having to define our own.
+
+	Expression	<-	Term					;
+	Term		<-	Factor (Additive Factor)*		;
+	Additive	<-	[-+]					;
+	Factor		<-	Primary (Multiplicative Primary)*	;
+	Multiplicative	<-	[*/]
+	Primary		<-	Lparens Expression Rparens
+			/	Negative
+			/	Number
+			/	Variable
+			;
+	Negative	<-	Negation Primary			;
+void:	Negation	<-	'-'					;
+void:	Lparens		<-	'('					;
+void:	Rparens		<-	')'					;
+
+	Number		<-	<ddigit>+				;
+	Variable	<-	<alpha> <alnum>*
+
+# Notes:
+#	Negative is a type of prefix operator. We may have others.
+#	We can have suffix operators as well.
+#	The relational operators were left out.
+#	The operator priorities are encoded in the grammar.
+#	Changing the priorities requires recoding.
+#	Might be useful to generally code the priority levels and
+#	then attach the various operators to the priority symbols.
+#	Changing priorities then just means shuffling their attachment.
+
+END;
+
