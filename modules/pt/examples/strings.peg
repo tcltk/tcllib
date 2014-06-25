@@ -1,0 +1,32 @@
+PEG strings (String)
+
+# TODO: testcases
+
+	String		<-	Dquote CharSequence Dquote	;
+void:	Dquote		<-	'"'				;
+leaf:	CharSequence	<-	Char *				;
+
+# Note: leaf(CharSequence) implies void() on all symbols which are
+# used just by it, i.e. Char and all it reaches, see below.
+
+	Char		<-	CharEscaped
+			/	CharUnescaped
+			;
+	CharUnescaped	<-	!Backslash !Dquote .
+	CharEscaped	<-	Backslash (	CharSpecial
+					/	CharOctalFull
+					/	CharOctalPart
+					/	CharUnicode
+				);
+	CharSpecial	<-	[bfnrtv"\]				;
+	CharOctalFull	<-	[0-2] [0-7] [0-7]			;
+	CharOctalPart	<-	[0-7] [0-7]?				;
+	CharUnicode	<-	'u' Hex Hex Hex Hex			;
+			/	'U' Hex Hex Hex Hex Hex Hex Hex Hex	;
+	Backslash	<-	'\\'					;
+	Hex		<=	<xdigit>				;
+
+# PEG extension: <odigit> char class.
+
+END;
+

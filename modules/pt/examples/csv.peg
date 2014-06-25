@@ -1,0 +1,20 @@
+PEG csv (Data)
+
+	Data		<-	Line (EOL Line)* EOF		;
+	Line		<-	Space Field (Separator Field)*	;
+	Field		<-	Quoted
+			/	Escaped
+			/	Simple
+			;
+	Quoted		<-	Dquote Escaped Dquote Space			;
+leaf:	Escaped		<-	Sub (Dquote Dquote Sub)*			;
+leaf:	Simple		<-	(!EOF !EOL !Space !',' !Dquote .)+ Space	;
+
+void:	Sub		<-	(!Dquote !EOF .)+	;
+void:	Dquote		<-	'"'			;
+void:	Space		<-	[ \t]*			;
+void:	Separator	<-	',' Space		;
+void:	EOL		<-	[\n\r]*			;
+void:	EOF		<-	!.			;
+
+END;
