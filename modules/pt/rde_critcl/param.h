@@ -45,7 +45,7 @@ SCOPE void      rde_param_clientdata     (RDE_PARAM p, ClientData clientData);
  */
 
 SCOPE ClientData         rde_param_query_clientdata (RDE_PARAM p);
-SCOPE void               rde_param_query_amark   (RDE_PARAM p, long int* mc, long int** mv);
+SCOPE void               rde_param_query_amark   (RDE_PARAM p, long int* mc, void*** mv);
 SCOPE void               rde_param_query_ast     (RDE_PARAM p, long int* ac, Tcl_Obj*** av);
 SCOPE const char*        rde_param_query_in      (RDE_PARAM p);
 SCOPE const char*        rde_param_query_cc      (RDE_PARAM p, long int* len);
