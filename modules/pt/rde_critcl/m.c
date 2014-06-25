@@ -20,7 +20,7 @@ param_AMARKED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
      */
 
     long int  mc, i;
-    long int* mv;
+    void** mv;
     Tcl_Obj** ov;
 
     if (objc != 2) {
@@ -33,7 +33,7 @@ param_AMARKED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
     ov = NALLOC (mc, Tcl_Obj*);
 
     for (i=0; i < mc; i++) {
-	ov [i] = Tcl_NewIntObj (mv [i]);
+	ov [i] = Tcl_NewIntObj ((long int) mv [i]);
     }
 
     Tcl_SetObjResult (interp,

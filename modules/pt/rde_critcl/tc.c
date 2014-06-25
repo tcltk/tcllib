@@ -123,17 +123,17 @@ SCOPE void
 rde_tc_get (RDE_TC tc, int at, char** ch, long int* len)
 {
     long int  oc, off, top, end;
-    long int* ov;
+    void** ov;
 
-    rde_stack_get (tc->off, &oc, (void***) &ov);
+    rde_stack_get (tc->off, &oc, &ov);
 
     ASSERT_BOUNDS(at,oc);
 
-    off = ov [at];
+    off = (long int) ov [at];
     if ((at+1) == oc) {
 	end = tc->num;
     } else {
-	end = ov [at+1];
+	end = (long int) ov [at+1];
     }
 
     TRACE (("rde_tc_get (RDE_TC %p, @ %d) => %d.[%d ... %d]/%d",tc,at,end-off,off,end-1,tc->num));
@@ -149,18 +149,18 @@ SCOPE void
 rde_tc_get_s (RDE_TC tc, int at, int last, char** ch, long int* len)
 {
     long int  oc, off, top, end;
-    long int* ov;
+    void** ov;
 
-    rde_stack_get (tc->off, &oc, (void***) &ov);
+    rde_stack_get (tc->off, &oc, &ov);
 
     ASSERT_BOUNDS(at,oc);
     ASSERT_BOUNDS(last,oc);
 
-    off = ov [at];
+    off = (long int) ov [at];
     if ((last+1) == oc) {
 	end = tc->num;
     } else {
-	end = ov [last+1];
+	end = (long int) ov [last+1];
     }
 
     TRACE (("rde_tc_get_s (RDE_TC %p, @ %d .. %d) => %d.[%d ... %d]/%d",tc,at,last,end-off,off,end-1,tc->num));

@@ -6,7 +6,7 @@
 ##	PEG
 ##
 ## Generated from file	3_peg_itself
-##            for user  aku
+##            for user  andreask
 ##
 # # ## ### ##### ######## ############# #####################
 ## Requirements
@@ -419,14 +419,14 @@ namespace eval ::pt::parse {
 	rde_tc_get (RDE_TC tc, int at, char** ch, long int* len)
 	{
 	    long int  oc, off, top, end;
-	    long int* ov;
-	    rde_stack_get (tc->off, &oc, (void***) &ov);
+	    void** ov;
+	    rde_stack_get (tc->off, &oc, &ov);
 	    ASSERT_BOUNDS(at,oc);
-	    off = ov [at];
+	    off = (long int) ov [at];
 	    if ((at+1) == oc) {
 		end = tc->num;
 	    } else {
-		end = ov [at+1];
+		end = (long int) ov [at+1];
 	    }
 	    TRACE (("rde_tc_get (RDE_TC %p, @ %d) => %d.[%d ... %d]/%d",tc,at,end-off,off,end-1,tc->num));
 	    ASSERT_BOUNDS(off,tc->num);
@@ -438,15 +438,15 @@ namespace eval ::pt::parse {
 	rde_tc_get_s (RDE_TC tc, int at, int last, char** ch, long int* len)
 	{
 	    long int  oc, off, top, end;
-	    long int* ov;
-	    rde_stack_get (tc->off, &oc, (void***) &ov);
+	    void** ov;
+	    rde_stack_get (tc->off, &oc, &ov);
 	    ASSERT_BOUNDS(at,oc);
 	    ASSERT_BOUNDS(last,oc);
-	    off = ov [at];
+	    off = (long int) ov [at];
 	    if ((last+1) == oc) {
 		end = tc->num;
 	    } else {
-		end = ov [last+1];
+		end = (long int) ov [last+1];
 	    }
 	    TRACE (("rde_tc_get_s (RDE_TC %p, @ %d .. %d) => %d.[%d ... %d]/%d",tc,at,last,end-off,off,end-1,tc->num));
 	    ASSERT_BOUNDS(off,tc->num);
@@ -652,9 +652,9 @@ namespace eval ::pt::parse {
 	    return p->clientData;
 	}
 	SCOPE void
-	rde_param_query_amark (RDE_PARAM p, long int* mc, long int** mv)
+	rde_param_query_amark (RDE_PARAM p, long int* mc, void*** mv)
 	{
-	    rde_stack_get (p->mark, mc, (void***) mv);
+	    rde_stack_get (p->mark, mc, mv);
 	}
 	SCOPE void
 	rde_param_query_ast (RDE_PARAM p, long int* ac, Tcl_Obj*** av)
@@ -695,21 +695,21 @@ namespace eval ::pt::parse {
 		Tcl_Obj* ov [2];
 		Tcl_Obj** mov;
 		long int  mc, i, j;
-		long int* mv;
+		void** mv;
 		int lastid;
 		const char* msg;
-		rde_stack_get (er->msg, &mc, (void***) &mv);
+		rde_stack_get (er->msg, &mc, &mv);
 		
-		qsort (mv, mc, sizeof (long int), er_int_compare);
+		qsort (mv, mc, sizeof (void*), er_int_compare);
 		
 		mov = NALLOC (mc, Tcl_Obj*);
 		lastid = -1;
 		for (i=0, j=0; i < mc; i++) {
 		    ASSERT_BOUNDS (i,mc);
-		    if (mv [i] == lastid) continue;
-		    lastid = mv [i];
-		    ASSERT_BOUNDS(mv[i],p->numstr);
-		    msg = p->string [mv[i]]; 
+		    if (((long int) mv [i]) == lastid) continue;
+		    lastid = (long int) mv [i];
+		    ASSERT_BOUNDS((long int) mv[i],p->numstr);
+		    msg = p->string [(long int) mv[i]]; 
 		    ASSERT_BOUNDS (j,mc);
 		    mov [j] = Tcl_NewStringObj (msg, -1);
 		    j++;
@@ -1225,10 +1225,13 @@ namespace eval ::pt::parse {
 	static int
 	er_int_compare (const void* a, const void* b)
 	{
-	    long int ai = *((long int*) a);
-	    long int bi = *((long int*) b);
-	    if (ai < bi) { return -1; }
-	    if (ai > bi) { return  1; }
+	    
+	    const void** ael = (void**) a;
+	    const void** bel = (void**) b;
+	    long int avalue = (long int) *ael;
+	    long int bvalue = (long int) *bel;
+	    if (avalue < bvalue) { return -1; }
+	    if (avalue > bvalue) { return  1; }
 	    return 0;
 	}
 	SCOPE int
