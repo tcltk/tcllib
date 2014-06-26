@@ -1,10 +1,14 @@
 # -*- tcl -*-
 # Copyright (c) 2014 Christian Gollwitzer <auriocus@gmx.de>
 
+# TODO: Refactor this and pt::cparam::configuration::critcl to avoid
+# TODO: duplication of the supporting code (creation of the RDE
+# TODO: amalgamation, basic C template).
+
 # Canned configuration for the converter to C/PARAM representation,
-# causing generation of a proper TEA-based parser. Well, the main C
-# part of it. The supporting files, i.e. configure.in, Makefile.in,
-# etc. still have to be written separately, and manually.
+# causing generation of a C-based parser which can be plugged into a
+# TEA-based C extension. The supporting files, i.e. configure.in,
+# Makefile.in, etc. still have to be written separately, and manually.
 
 # The generated file can easily be compiled with a single
 #
@@ -15,8 +19,6 @@
 # function of the main package.
 #
 # TODO: Put the above note/semi-example into the manpage for this generator.
-# TODO: Refactor this and the cparam/critcl configuration to avoid duplication
-# of the supporting code (creation of the RDE amalgamation, basic C template).
 
 # # ## ### ##### ######## ############# #####################
 ## Requirements
