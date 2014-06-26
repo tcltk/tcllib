@@ -1,15 +1,24 @@
 # -*- tcl -*-
-# Copyright (c) 2009-2014 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2014 Christian Gollwitzer <auriocus@gmx.de>
 
 # TODO: Refactor this and pt::cparam::configuration::critcl to avoid
 # TODO: duplication of the supporting code (creation of the RDE
 # TODO: amalgamation, basic C template).
 
 # Canned configuration for the converter to C/PARAM representation,
-# causing generation of a proper critcl-based parser.
+# causing generation of a C-based parser which can be plugged into a
+# TEA-based C extension. The supporting files, i.e. configure.in,
+# Makefile.in, etc. still have to be written separately, and manually.
 
-# The requirements of the embedded template are not our requirements.
-# @mdgen NODEP: critcl
+# The generated file can easily be compiled with a single
+#
+#     gcc -dynamiclib -o <parser>.dylib <parser>.c -DUSE_TCL_STUBS -ltclstub8.5
+#
+# or similar, or included in a larger package, if added to the source
+# files and by invoking the <parser>_Init() function within the init
+# function of the main package.
+#
+# TODO: Put the above note/semi-example into the manpage for this generator.
 
 # # ## ### ##### ######## ############# #####################
 ## Requirements
@@ -19,7 +28,7 @@ package require Tcl 8.5              ; # Required runtime.
 # # ## ### ##### ######## ############# #####################
 ##
 
-namespace eval ::pt::cparam::configuration::critcl {
+namespace eval ::pt::cparam::configuration::tea {
     namespace export   def
     namespace ensemble create
 
@@ -37,7 +46,7 @@ namespace eval ::pt::cparam::configuration::critcl {
 # Check that the proposed serialization of an abstract syntax tree is
 # indeed such.
 
-proc ::pt::cparam::configuration::critcl::def {class pkg version cmd} {
+proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
     # TODO :: See if we can consolidate the API for converters,
     # TODO :: plugins, export manager, and container in some way.
     # TODO :: Container may make exporter manager available through
@@ -55,8 +64,13 @@ proc ::pt::cparam::configuration::critcl::def {class pkg version cmd} {
 	set ctrailer [namespace tail      $class]
     }
 
+    set pkghead [string range $pkg 0 0]
+    set pkgtail [string range $pkg 1 end]
+    set pkglowcase "[string toupper $pkghead][string tolower $pkgtail]"
+
     lappend map	@@RUNTIME@@ [GetRuntime]
     lappend map	@@PKG@@     $pkg
+    lappend map	@@PKGLOWCASE@@     $pkglowcase
     lappend map	@@VERSION@@ $version
     lappend map	@@CLASS@@   $class
     lappend map	@@CHEAD@@   $cheader
@@ -67,75 +81,25 @@ proc ::pt::cparam::configuration::critcl::def {class pkg version cmd} {
     {*}$cmd -indent    8
     {*}$cmd -template  [string trim \
 			    [string map $map {
-	## -*- tcl -*-
-	##
-	## Critcl-based C/PARAM implementation of the parsing
-	## expression grammar
-	##
-	##	@name@
-	##
-	## Generated from file	@file@
-	##            for user  @user@
-	##
-	# # ## ### ##### ######## ############# #####################
-	## Requirements
-
-	package require Tcl 8.4
-	package require critcl
-	# @sak notprovided @@PKG@@
-	package provide    @@PKG@@ @@VERSION@@
-
-	# Note: The implementation of the PARAM virtual machine
-	#       underlying the C/PARAM code used below is inlined
-	#       into the generated parser, allowing for direct access
-	#       and manipulation of the RDE state, instead of having
-	#       to dispatch through the Tcl interpreter.
-
-	# # ## ### ##### ######## ############# #####################
-	##
-
-	namespace eval ::@@CHEAD@@ {
-	    # # ## ### ##### ######## ############# #####################
-	    ## Supporting code for the main command.
-
-	    catch {
-		#critcl::cflags -g
-		#critcl::debug memory symbols
-	    }
-
-	    # # ## ### ###### ######## #############
-	    ## RDE runtime, inlined, and made static.
-
-	    # This is the C code for the RDE, i.e. the implementation
-	    # of pt::rde. Only the low-level engine is imported, the
-	    # Tcl interface layer is ignored.  This generated parser
-	    # provides its own layer for that.
-
-	    critcl::ccode {
-		/* -*- c -*- */
-
+	/************************************************************
+	**
+	** TEA-based C/PARAM implementation of the parsing
+	** expression grammar
+	**
+	**	@name@
+	**
+	** Generated from file	@file@
+	**            for user  @user@
+	**
+	* * ** *** ***** ******** ************* *********************/
 		#include <string.h>
+		#include <tcl.h>
+		#include <stdlib.h>
+		#include <ctype.h>
 		#define SCOPE static
 
 @@RUNTIME@@
-	    }
-
-	    # # ## ### ###### ######## #############
-	    ## BEGIN of GENERATED CODE. DO NOT EDIT.
-
-	    critcl::ccode {
-		/* -*- c -*- */
-
 @code@
-	    }
-
-	    ## END of GENERATED CODE. DO NOT EDIT.
-	    # # ## ### ###### ######## #############
-
-	    # # ## ### ###### ######## #############
-	    ## Global PARSER management, per interp
-
-	    critcl::ccode {
 		/* -*- c -*- */
 
 		typedef struct PARSERg {
@@ -152,7 +116,7 @@ proc ::pt::cparam::configuration::critcl::def {class pkg version cmd} {
 		static const char*
 		PARSERnewName (Tcl_Interp* interp)
 		{
-#define KEY "tcllib/parser/@@PKG@@/critcl"
+#define KEY "tcllib/parser/@@PKG@@/TEA"
 
 		    Tcl_InterpDeleteProc* proc = PARSERgRelease;
 		    PARSERg*                  parserg;
@@ -181,12 +145,12 @@ proc ::pt::cparam::configuration::critcl::def {class pkg version cmd} {
 		     */
 		    rde_param_del ((RDE_PARAM) clientData);
 		}
-	    }
+	    
 
-	    # # ## ### ##### ######## #############
-	    ## Functions implementing the object methods, and helper.
+	    /* * ** *** ***** ******** *************
+	    ** Functions implementing the object methods, and helper.
+	    */
 
-	    critcl::ccode {
 		static int  COMPLETE (RDE_PARAM p, Tcl_Interp* interp);
 
 		static int parser_PARSE  (RDE_PARAM p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
@@ -276,12 +240,11 @@ proc ::pt::cparam::configuration::critcl::def {class pkg version cmd} {
 			return TCL_ERROR;
 		    }
 		}
-	    }
+	    
 
-	    # # ## ### ##### ######## #############
-	    ## Object command, method dispatch.
-
-	    critcl::ccode {
+	    /* * ** *** ***** ******** *************
+	    ** Object command, method dispatch.
+	    */
 		static int parser_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 		{
 		    RDE_PARAM p = (RDE_PARAM) cd;
@@ -326,12 +289,11 @@ proc ::pt::cparam::configuration::critcl::def {class pkg version cmd} {
 
 		    return res;
 		}
-	    }
 
-	    # # ## ### ##### ######## #############
-	    # Class command, i.e. object construction.
-
-	    critcl::ccommand @@CTAIL@@_critcl {dummy interp objc objv} {
+	    /** * ** *** ***** ******** *************
+	    * Class command, i.e. object construction.
+	    */
+	    static int ParserClassCmd (ClientData dummy, Tcl_Interp *interp, int objc, Tcl_Obj * const*objv) {
 		/*
 		 * Syntax: No arguments beyond the name
 		 */
@@ -397,20 +359,31 @@ proc ::pt::cparam::configuration::critcl::def {class pkg version cmd} {
 		Tcl_DecrRefCount (fqn);
 		return TCL_OK;
 	    }
+    
+	int @@PKGLOWCASE@@_Init(Tcl_Interp* interp) {
+	    if (interp == 0) return TCL_ERROR;
 
-	    ##
-	    # # ## ### ##### ######## #############
+	    if (Tcl_InitStubs(interp, TCL_VERSION, 0) == NULL) {
+		    return TCL_ERROR;
+	    }
+
+	    if (Tcl_CreateObjCommand(interp, "@@CLASS@@", ParserClassCmd , NULL, NULL) == NULL) {
+		    Tcl_SetResult(interp, "Can't create constructor", NULL);
+		    return TCL_ERROR;
+	    }
+	    
+	    
+	    Tcl_PkgProvide(interp, "@@PKG@@", "0.1");
+	    
+	    return TCL_OK;
 	}
 
-	# # ## ### ##### ######## ############# #####################
-	## Ready (Note: Our package provide is at the top).
-	return
     }]]
 
     return
 }
 
-proc ::pt::cparam::configuration::critcl::GetRuntime {} {
+proc ::pt::cparam::configuration::tea::GetRuntime {} {
     # This is the C code for the RDE, i.e. the implementation of
     # pt::rde. Only the low-level engine is imported, the Tcl
     # interface layer is ignored.  This generated parser provides its
@@ -483,10 +456,10 @@ proc ::pt::cparam::configuration::critcl::GetRuntime {} {
 
 # # ## ### ##### ######## #############
 
-namespace eval ::pt::cparam::configuration::critcl {}
+namespace eval ::pt::cparam::configuration::tea {}
 
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::cparam::configuration::critcl 1.0.2
+package provide pt::cparam::configuration::tea 0.1
 return
