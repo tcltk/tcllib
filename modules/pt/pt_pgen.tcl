@@ -24,6 +24,7 @@ package require pt::peg::to::cparam    ; # PARAM assembly, embedded into C
 package require pt::tclparam::configuration::snit  1.0.2 ; # PARAM/Tcl, snit::type
 package require pt::tclparam::configuration::tcloo 1.0.4 ; # PARAM/Tcl, TclOO class
 package require pt::cparam::configuration::critcl  1.0.2 ; # PARAM/C, in critcl
+package require pt::cparam::configuration::tea   ; # PARAM/C, in TEA
 
 # ### ### ### ######### ######### #########
 ## Implementation
@@ -55,7 +56,7 @@ proc ::pt::pgen::peg {input args} {
 ## Internals - Generating the parser.
 
 namespace eval ::pt::pgen::Write {
-    namespace export json peg container param snit oo critcl c
+    namespace export json peg container param snit oo critcl c tea
     namespace ensemble create
 }
 
@@ -105,6 +106,21 @@ proc ::pt::pgen::Write::oo {args} {
 	{pt::peg::to::tclparam configure}
 
     return [pt::peg::to::tclparam convert [lindex $args end]]
+}
+
+proc ::pt::pgen::Write::tea {args} {
+    # args = (option value)... grammar
+    # Class   -> touches/defines variable 'class'
+    # Package -> touches/defines variable 'package'
+    # Version -> touches/defines variable 'version'
+    pt::peg::to::cparam configure {*}[Package [Version [Class [lrange $args 0 end-1]]]]
+    ClassPackageDefaults
+
+    pt::cparam::configuration::tea def \
+	$class $package $version \
+	{pt::peg::to::cparam configure}
+
+    return [pt::peg::to::cparam convert [lindex $args end]]
 }
 
 proc ::pt::pgen::Write::critcl {args} {
