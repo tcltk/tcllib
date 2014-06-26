@@ -30,10 +30,10 @@ static Tcl_ObjType ot_type = {
  * = = == === ===== ======== ============= =====================
  */
 
-int
-rde_ot_intern (Tcl_Obj* obj, RDE_STATE p, char* pfx, char* sfx)
+long int
+rde_ot_intern (Tcl_Obj* obj, RDE_STATE p, const char* pfx, const char* sfx)
 {
-    int id;
+    long int id;
     RDE_STRING* rs;
 
     TRACE (("rde_ot_intern (%p, '%s','%s' of %p = '%s')", p, pfx, sfx, obj, Tcl_GetString(obj)));
