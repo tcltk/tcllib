@@ -1,6 +1,10 @@
 # -*- tcl -*-
 # Copyright (c) 2009-2014 Andreas Kupries <andreas_kupries@sourceforge.net>
 
+# TODO: Refactor this and pt::cparam::configuration::critcl to avoid
+# TODO: duplication of the supporting code (creation of the RDE
+# TODO: amalgamation, basic C template).
+
 # Canned configuration for the converter to C/PARAM representation,
 # causing generation of a proper critcl-based parser.
 
