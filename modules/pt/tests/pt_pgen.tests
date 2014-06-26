@@ -36,7 +36,6 @@ foreach {format notes} {
 		"$format parser $glabel, good input - $label" -setup {
 		} -body {
 		    $p parset $text
-		} -cleanup {
 		} -result $expected
 	}
 
@@ -64,7 +63,6 @@ foreach {format notes} {
 
 		    # TODO: Convert message to readable.
 		    list $code $msg
-		} -cleanup {
 		} -result $expected
 	} yes ;# Allow missing testsets, for two reasons:
 	#      # (a) Easier during testsuite development, allowing incremental buildup
@@ -74,6 +72,64 @@ foreach {format notes} {
 	# Kill shared parser instance.
 	$p destroy
     }
+
+    # Testing the handling of generated parsers for single
+    # characters, for characters special to Tcl, C, and
+    # PEGs. I.e. ensure that the various forms of quoting are done
+    # correctly.
+
+    # Grammar for all test cases below, with the actual character
+    # mapped in (replacing @).
+    set gtemplate "PEG a_pe_grammar ('@') END;"
+
+    # Table of test cases ...
+    #             Id PEG     InText Error detail
+    lappend chars  0 \{      \{     [list t \{]
+    lappend chars  1 \[      \[     [list t \[]
+    lappend chars  2 \"      \"     [list t \"]
+    lappend chars  3 \\033   \033   [list t ESC]  ;# See below, WIBNI \e escape
+    lappend chars  4 \\n     \n     [list t LF]
+    lappend chars  5 \\r     \r     [list t CR]
+    lappend chars  6 \\t     \t     [list t TAB]
+    lappend chars  7 \\010   \b     [list t BS]   ;# TODO extend PEG grammar to recognize these.
+    lappend chars  8 \\014   \f     [list t FF]   ;#
+    lappend chars  9 \\013   \v     [list t VTAB] ;#
+    lappend chars 10 \\007   \a     [list t BEL]
+    lappend chars 11 { }     { }    [list t SPACE]
+    lappend chars 12 \\\\    \\     [list t \\]
+    lappend chars 13 \\u229b \u229b [list t \u229b] ;# math symbol, circled asterix
+    # test all control characters ... (and DEL)
+    # more characters: above ascii = unicode BMP.
+
+    foreach {n peg input message} $chars {
+	set glabel "x:$message"
+	set grdata [string map [list @ $peg] $gtemplate]
+
+	# Make parser instance. Shared across tests.
+	# Amortize the time spent on dynamically making it.
+	set p [make-parser $format $glabel $grdata]
+
+	test pt-pgen-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-f:${format}-g:${glabel}-3.$n \
+	    "$format parser $glabel, good input" -setup {
+	    } -body {
+		$p parset $input
+	    } -result {}
+
+
+	test pt-pgen-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-f:${format}-g:${glabel}-4.$n \
+	    "$format parser $glabel, bad input - \\000" -setup {
+	    } -body {
+		set code [catch {
+		    $p parset \000
+		} msg]
+		lassign $msg tag loc mlist
+		list $tag $loc [lsort -dict $mlist]
+	    } -result [list pt::rde 0 [list $message]]
+
+	# Kill shared parser instance.
+	$p destroy
+    }
+
 }
 
 
