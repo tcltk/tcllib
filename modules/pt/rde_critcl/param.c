@@ -740,7 +740,11 @@ rde_param_i_input_next (RDE_PARAM p, long int m)
 	 */
 
 	rde_tc_get (p->TC, p->CL, &p->CC, &p->CC_len);
-	ASSERT_BOUNDS (p->CC_len, TCL_UTF_MAX);
+
+	/* Note: BOUNDS(n) <=> [0..(n-1)].
+	 * cc_len in [1..utfmax] <=> cc_len-1 in [0...utfmax-1] <=> BOUNDS(utfmax)
+	 */
+	ASSERT_BOUNDS (p->CC_len-1, TCL_UTF_MAX);
 
 	p->ST = 1;
 	ER_CLEAR (p);
