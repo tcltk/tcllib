@@ -19,8 +19,8 @@ param_AMARKED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
      *         [0] [1]
      */
 
-    long int  mc, i;
-    void** mv;
+    long int mc, i;
+    void**   mv;
     Tcl_Obj** ov;
 
     if (objc != 2) {
@@ -280,7 +280,7 @@ param_LMARKED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
      */
 
     long int  lc, i;
-    void*     lv;
+    void**    lv;
     Tcl_Obj** ov;
 
     if (objc != 2) {
@@ -403,7 +403,7 @@ param_SCACHED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 
 	Tcl_HashSearch hsc;
 	Tcl_HashEntry* hec;
-	int loc = (int) Tcl_GetHashKey (nc, he);
+	long int loc = (long int) Tcl_GetHashKey (nc, he);
 
 	kv [0]   = Tcl_NewIntObj (loc);
 	tablePtr = (Tcl_HashTable*) Tcl_GetHashValue (he);
@@ -412,7 +412,7 @@ param_SCACHED (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	    hec != NULL;
 	    hec = Tcl_NextHashEntry(&hsc)) {
 
-	    int         symid = (int) Tcl_GetHashKey (tablePtr, hec);
+	    long int    symid = (long int) Tcl_GetHashKey (tablePtr, hec);
 	    const char* sym   = rde_param_query_string (p->p, symid);
 
 	    kv [1] = Tcl_NewStringObj (sym,-1);
@@ -455,7 +455,7 @@ param_SYMBOLS (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 
 	Tcl_HashSearch hsc;
 	Tcl_HashEntry* hec;
-	int loc = (int) Tcl_GetHashKey (nc, he);
+	long int loc = (long int) Tcl_GetHashKey (nc, he);
 
 	kv [0]   = Tcl_NewIntObj (loc);
 	tablePtr = (Tcl_HashTable*) Tcl_GetHashValue (he);
@@ -465,7 +465,7 @@ param_SYMBOLS (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 	    hec = Tcl_NextHashEntry(&hsc)) {
 
 	    NC_STATE*   scs   = Tcl_GetHashValue (hec);
-	    int         symid = (int) Tcl_GetHashKey (tablePtr, hec);
+	    long int    symid = (long int) Tcl_GetHashKey (tablePtr, hec);
 	    const char* sym   = rde_param_query_string (p->p, symid);
 
 	    kv [1] = Tcl_NewStringObj (sym,-1);
@@ -732,7 +732,7 @@ param_I_er_nt (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
      *         [0] [1]                 [2]
      */
 
-    int sym;
+    long int sym;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
@@ -1089,7 +1089,8 @@ param_I_symbol_restore (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONS
      *         [0] [1]              [2]
      */
 
-    int sym, found;
+    long int sym;
+    int found;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
@@ -1116,7 +1117,7 @@ param_I_symbol_save (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
      *         [0] [1]           [2]
      */
 
-    int sym;
+    long int sym;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
@@ -1150,7 +1151,7 @@ param_I_value_cleaf (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
     if (!rde_param_query_st (p->p)) {
 	rde_param_i_value_clear (p->p);
     } else {
-	int sym;
+	long int sym;
 
 	/*
 	 * We cannot save the interned string id in the Tcl_Obj*, because this
@@ -1197,7 +1198,7 @@ param_I_value_creduce (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST
     if (!rde_param_query_st (p->p)) {
 	rde_param_i_value_clear (p->p);
     } else {
-	int sym;
+	long int sym;
 
 	/*
 	 * We cannot save the interned string id in the Tcl_Obj*, because this
@@ -1219,7 +1220,7 @@ param_I_input_next (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
      *         [0] [1]          [2]
      */
 
-    int msg;
+    long int msg;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "msg");
@@ -1290,7 +1291,7 @@ param_I_test_ascii (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 int
 param_I_test_char (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
-    int   msg;
+    long int msg;
     char* ch;
 
     /* Syntax: rde i_test_char CHAR
@@ -1435,7 +1436,7 @@ param_I_test_punct (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 int
 param_I_test_range (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
-    int   msg;
+    long int msg;
     char* chs;
     char* che;
 
@@ -1782,7 +1783,7 @@ param_SI_valuevalue_part (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CO
 int
 param_SI_next_char (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
-    int   msg;
+    long int msg;
     char* ch;
 
     /* Syntax: rde i_next_char CHAR
@@ -1811,7 +1812,7 @@ param_SI_next_char (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 int
 param_SI_next_range (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
-    int   msg;
+    long int msg;
     char* chs;
     char* che;
 
@@ -1846,7 +1847,7 @@ param_SI_next_alnum (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
      *         [0] [1]
      */
 
-    int msg;
+    long int msg;
 
     if (objc != 2) {
 	Tcl_WrongNumArgs (interp, 2, objv, NULL);
@@ -1869,7 +1870,7 @@ param_SI_next_alpha (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
      *         [0] [1]
      */
 
-    int msg;
+    long int msg;
 
     if (objc != 2) {
 	Tcl_WrongNumArgs (interp, 2, objv, NULL);
@@ -1892,7 +1893,7 @@ param_SI_next_ascii (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
      *         [0] [1]
      */
 
-    int msg;
+    long int msg;
 
     if (objc != 2) {
 	Tcl_WrongNumArgs (interp, 2, objv, NULL);
@@ -1915,7 +1916,7 @@ param_SI_next_control (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST
      *         [0] [1]
      */
 
-    int msg;
+    long int msg;
 
     if (objc != 2) {
 	Tcl_WrongNumArgs (interp, 2, objv, NULL);
@@ -1938,7 +1939,7 @@ param_SI_next_ddigit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST*
      *         [0] [1]
      */
 
-    int msg;
+    long int msg;
 
     if (objc != 2) {
 	Tcl_WrongNumArgs (interp, 2, objv, NULL);
@@ -1961,7 +1962,7 @@ param_SI_next_digit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
      *         [0] [1]
      */
 
-    int msg;
+    long int msg;
 
     if (objc != 2) {
 	Tcl_WrongNumArgs (interp, 2, objv, NULL);
@@ -1984,7 +1985,7 @@ param_SI_next_graph (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
      *         [0] [1]
      */
 
-    int msg;
+    long int msg;
 
     if (objc != 2) {
 	Tcl_WrongNumArgs (interp, 2, objv, NULL);
@@ -2007,7 +2008,7 @@ param_SI_next_lower (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
      *         [0] [1]
      */
 
-    int msg;
+    long int msg;
 
     if (objc != 2) {
 	Tcl_WrongNumArgs (interp, 2, objv, NULL);
@@ -2030,7 +2031,7 @@ param_SI_next_print (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
      *         [0] [1]
      */
 
-    int msg;
+    long int msg;
 
     if (objc != 2) {
 	Tcl_WrongNumArgs (interp, 2, objv, NULL);
@@ -2053,7 +2054,7 @@ param_SI_next_punct (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
      *         [0] [1]
      */
 
-    int msg;
+    long int msg;
 
     if (objc != 2) {
 	Tcl_WrongNumArgs (interp, 2, objv, NULL);
@@ -2076,7 +2077,7 @@ param_SI_next_space (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
      *         [0] [1]
      */
 
-    int msg;
+    long int msg;
 
     if (objc != 2) {
 	Tcl_WrongNumArgs (interp, 2, objv, NULL);
@@ -2099,7 +2100,7 @@ param_SI_next_upper (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
      *         [0] [1]
      */
 
-    int msg;
+    long int msg;
 
     if (objc != 2) {
 	Tcl_WrongNumArgs (interp, 2, objv, NULL);
@@ -2122,7 +2123,7 @@ param_SI_next_wordchar (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONS
      *         [0] [1]
      */
 
-    int msg;
+    long int msg;
 
     if (objc != 2) {
 	Tcl_WrongNumArgs (interp, 2, objv, NULL);
@@ -2145,7 +2146,7 @@ param_SI_next_xdigit (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST*
      *         [0] [1]
      */
 
-    int msg;
+    long int msg;
 
     if (objc != 2) {
 	Tcl_WrongNumArgs (interp, 2, objv, NULL);
@@ -2312,7 +2313,8 @@ param_SI_value_symbol_start (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj*
      *         [0] [1]                  [2]
      */
 
-    int sym, found;
+    long int sym;
+    int found;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
@@ -2347,7 +2349,8 @@ param_SI_value_void_symbol_start (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl
      *         [0] [1]                  [2]
      */
 
-    int sym, found;
+    long int sym;
+    int found;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
@@ -2379,7 +2382,8 @@ param_SI_void_symbol_start (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* 
      *         [0] [1]                  [2]
      */
 
-    int sym, found;
+    long int sym;
+    int found;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
@@ -2413,7 +2417,8 @@ param_SI_void_void_symbol_start (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_
      *         [0] [1]                  [2]
      */
 
-    int sym, found;
+    long int sym;
+    int found;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
@@ -2444,7 +2449,7 @@ param_SI_reduce_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* 
      *         [0] [1]           [2]
      */
 
-    int sym, msg;
+    long int sym, msg;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
@@ -2496,7 +2501,7 @@ param_SI_void_leaf_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Ob
      *         [0] [1]           [2]
      */
 
-    int sym, msg;
+    long int sym, msg;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
@@ -2547,7 +2552,7 @@ param_SI_value_leaf_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_O
      *         [0] [1]           [2]
      */
 
-    int sym, msg;
+    long int sym, msg;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
@@ -2599,7 +2604,7 @@ param_SI_value_clear_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_
      *         [0] [1]           [2]
      */
 
-    int sym, msg;
+    long int sym, msg;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
@@ -2642,7 +2647,7 @@ param_SI_void_clear_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_O
      *         [0] [1]           [2]
      */
 
-    int sym, msg;
+    long int sym, msg;
 
     if (objc != 3) {
 	Tcl_WrongNumArgs (interp, 2, objv, "symbol");
@@ -2680,7 +2685,8 @@ param_SI_void_clear_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_O
 int
 param_SI_next_str (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
-    int   msg, len, i;
+    long int msg;
+    int len, i;
     char* str;
 
     /* Syntax: rde i_next_char CHAR
@@ -2706,7 +2712,8 @@ param_SI_next_str (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* ob
 int
 param_SI_next_class (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
-    int   msg, len, i;
+    long int msg;
+    int len, i;
     char* class;
 
     /* Syntax: rde i_next_char CHAR
