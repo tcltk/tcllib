@@ -1562,6 +1562,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -2855,6 +2858,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -3286,6 +3292,9 @@ pt::ast
 .TP
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
+.TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
 .TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
@@ -3955,6 +3964,9 @@ pt::ast
 .TP
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
+.TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
 .TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
@@ -5138,6 +5150,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -5605,6 +5620,9 @@ pt::ast
 .TP
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
+.TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
 .TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
@@ -6572,6 +6590,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -6812,6 +6833,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -6949,6 +6973,9 @@ pt::ast
 .TP
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
+.TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
 .TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
@@ -7126,6 +7153,9 @@ pt::ast
 .TP
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
+.TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
 .TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
@@ -7577,6 +7607,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -7840,6 +7873,9 @@ pt::ast
 .TP
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
+.TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
 .TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
@@ -9140,6 +9176,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -9628,6 +9667,9 @@ pt::ast
 .TP
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
+.TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
 .TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
@@ -10280,6 +10322,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -10462,6 +10507,9 @@ pt::ast
 .TP
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
+.TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
 .TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
