@@ -234,6 +234,7 @@ modules/pop3d/pop3d_udb.man
 modules/profiler/profiler.man
 modules/pt/pt_astree.man
 modules/pt/pt_cparam_config_critcl.man
+modules/pt/pt_cparam_config_tea.man
 modules/pt/pt_from_api.man
 modules/pt/pt_introduction.man
 modules/pt/pt_json_language.man

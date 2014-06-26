@@ -948,6 +948,9 @@ tcllib
 \fBpt::cparam::configuration::critcl\fR
 \fIfiles/modules/pt/pt_cparam_config_critcl\&.n\fR: C/PARAM, Canned configuration, Critcl
 .TP
+\fBpt::cparam::configuration::tea\fR
+\fIfiles/modules/pt/pt_cparam_config_tea\&.n\fR: C/PARAM, Canned configuration, TEA
+.TP
 \fBpt::json_language\fR
 \fIfiles/modules/pt/pt_json_language\&.n\fR: The JSON Grammar Exchange Format
 .TP
