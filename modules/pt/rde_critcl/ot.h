@@ -9,7 +9,8 @@
 #include "tcl.h"
 #include <p.h>   /* State declarations */
 
-int rde_ot_intern (Tcl_Obj* obj, RDE_STATE p, char* pfx, char* sfx);
+long int rde_ot_intern (Tcl_Obj* obj, RDE_STATE p,
+			const char* pfx, const char* sfx);
 
 #endif /* _RDE_DS_OT_H */
 

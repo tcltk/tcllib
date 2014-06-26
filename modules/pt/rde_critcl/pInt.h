@@ -28,16 +28,16 @@ typedef struct RDE_STATE_ {
     /* And the counter mapping from ids to strings, this is handed to the
      * PARAM for use.
      */
-    int    maxnum; /* NOTE -- */
-    int    numstr; /* This is, essentially, an RDE_STACK (char* elements) */
-    char** string; /* Convert over to that instead of replicating the code */
+    long int maxnum; /* NOTE -- */
+    long int numstr; /* This is, essentially, an RDE_STACK (char* elements) */
+    char**   string; /* Convert over to that instead of replicating the code */
 
 #ifdef RDE_TRACE
     int icount;  /* Instruction counter, when tracing */
 #endif
 } RDE_STATE_;
 
-int param_intern (RDE_STATE p, char* literal);
+long int param_intern (RDE_STATE p, char* literal);
 
 #endif /* _P_H */
 

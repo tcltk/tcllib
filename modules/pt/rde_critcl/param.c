@@ -88,7 +88,7 @@ typedef enum test_class_id {
 
 static void ast_node_free    (void* n);
 static void error_state_free (void* es);
-static void error_set        (RDE_PARAM p, int s);
+static void error_set        (RDE_PARAM p, long int s);
 static void nc_clear         (RDE_PARAM p);
 
 static int UniCharIsAscii    (int character);
@@ -486,7 +486,7 @@ rde_param_i_ast_pop_rewind (RDE_PARAM p)
     TRACE (("RDE_PARAM %p",p));
 
     rde_stack_pop  (p->mark, 1);
-    rde_stack_trim (p->ast, (int) trim);
+    rde_stack_trim (p->ast, trim);
 
     TRACE (("SV = (%p rc%d '%s')",
 	    p->SV,
@@ -503,7 +503,7 @@ rde_param_i_ast_rewind (RDE_PARAM p)
     ENTER ("rde_param_i_ast_rewind");
     TRACE (("RDE_PARAM %p",p));
 
-    rde_stack_trim (p->ast, (int) trim);
+    rde_stack_trim (p->ast, trim);
 
     TRACE (("SV = (%p rc%d '%s')",
 	    p->SV,
@@ -551,7 +551,7 @@ rde_param_i_error_clear (RDE_PARAM p)
 }
 
 SCOPE void
-rde_param_i_error_nonterminal (RDE_PARAM p, int s)
+rde_param_i_error_nonterminal (RDE_PARAM p, long int s)
 {
     /*
      * Disabled. Generate only low-level errors until we have worked out how
@@ -658,7 +658,7 @@ rde_param_i_error_push (RDE_PARAM p)
 }
 
 static void
-error_set (RDE_PARAM p, int s)
+error_set (RDE_PARAM p, long int s)
 {
     error_state_free (p->ER);
 
@@ -720,7 +720,7 @@ rde_param_i_loc_rewind (RDE_PARAM p)
  */
 
 SCOPE void
-rde_param_i_input_next (RDE_PARAM p, int m)
+rde_param_i_input_next (RDE_PARAM p, long int m)
 {
     int leni;
     char* ch;
@@ -802,7 +802,7 @@ rde_param_i_status_negate (RDE_PARAM p)
  */
 
 SCOPE int 
-rde_param_i_symbol_restore (RDE_PARAM p, int s)
+rde_param_i_symbol_restore (RDE_PARAM p, long int s)
 {
     NC_STATE*      scs;
     Tcl_HashEntry* hPtr;
@@ -841,7 +841,7 @@ rde_param_i_symbol_restore (RDE_PARAM p, int s)
 }
 
 SCOPE void
-rde_param_i_symbol_save (RDE_PARAM p, int s)
+rde_param_i_symbol_save (RDE_PARAM p, long int s)
 {
     long int       at = (long int) rde_stack_top (p->LS);
     NC_STATE*      scs;
@@ -945,7 +945,7 @@ rde_param_i_test_control (RDE_PARAM p)
 }
 
 SCOPE void
-rde_param_i_test_char (RDE_PARAM p, const char* c, int msg)
+rde_param_i_test_char (RDE_PARAM p, const char* c, long int msg)
 {
     ASSERT_BOUNDS(msg,p->numstr);
 
@@ -996,7 +996,7 @@ rde_param_i_test_punct (RDE_PARAM p)
 }
 
 SCOPE void
-rde_param_i_test_range (RDE_PARAM p, char* s, char* e, int msg)
+rde_param_i_test_range (RDE_PARAM p, const char* s, const char* e, long int msg)
 {
     ASSERT_BOUNDS(msg,p->numstr);
 
@@ -1087,7 +1087,7 @@ rde_param_i_value_clear (RDE_PARAM p)
 }
 
 SCOPE void
-rde_param_i_value_leaf (RDE_PARAM p, int s)
+rde_param_i_value_leaf (RDE_PARAM p, long int s)
 {
     Tcl_Obj* newsv;
     Tcl_Obj* ov [3];
@@ -1107,7 +1107,7 @@ rde_param_i_value_leaf (RDE_PARAM p, int s)
 }
 
 SCOPE void
-rde_param_i_value_reduce (RDE_PARAM p, int s)
+rde_param_i_value_reduce (RDE_PARAM p, long int s)
 {
     Tcl_Obj*  newsv;
     int       oc, i, j;
@@ -1158,8 +1158,8 @@ er_int_compare (const void* a, const void* b)
      * actually stored data is (long int).
      */
 
-    const void** ael = (void**) a;
-    const void** bel = (void**) b;
+    const void** ael = (const void**) a;
+    const void** bel = (const void**) b;
 
     long int avalue = (long int) *ael;
     long int bvalue = (long int) *bel;
@@ -1175,7 +1175,7 @@ er_int_compare (const void* a, const void* b)
  */
 
 SCOPE int
-rde_param_i_symbol_start (RDE_PARAM p, int s)
+rde_param_i_symbol_start (RDE_PARAM p, long int s)
 {
     if (rde_param_i_symbol_restore (p, s)) {
 	if (p->ST) {
@@ -1190,7 +1190,7 @@ rde_param_i_symbol_start (RDE_PARAM p, int s)
 }
 
 SCOPE int
-rde_param_i_symbol_start_d (RDE_PARAM p, int s)
+rde_param_i_symbol_start_d (RDE_PARAM p, long int s)
 {
     if (rde_param_i_symbol_restore (p, s)) {
 	if (p->ST) {
@@ -1206,7 +1206,7 @@ rde_param_i_symbol_start_d (RDE_PARAM p, int s)
 }
 
 SCOPE int
-rde_param_i_symbol_void_start (RDE_PARAM p, int s)
+rde_param_i_symbol_void_start (RDE_PARAM p, long int s)
 {
     if (rde_param_i_symbol_restore (p, s)) return 1;
 
@@ -1215,7 +1215,7 @@ rde_param_i_symbol_void_start (RDE_PARAM p, int s)
 }
 
 SCOPE int
-rde_param_i_symbol_void_start_d (RDE_PARAM p, int s)
+rde_param_i_symbol_void_start_d (RDE_PARAM p, long int s)
 {
     if (rde_param_i_symbol_restore (p, s)) return 1;
 
@@ -1225,7 +1225,7 @@ rde_param_i_symbol_void_start_d (RDE_PARAM p, int s)
 }
 
 SCOPE void
-rde_param_i_symbol_done_d_reduce (RDE_PARAM p, int s, int m)
+rde_param_i_symbol_done_d_reduce (RDE_PARAM p, long int s, long int m)
 {
     if (p->ST) {
 	rde_param_i_value_reduce (p, s);
@@ -1246,7 +1246,7 @@ rde_param_i_symbol_done_d_reduce (RDE_PARAM p, int s, int m)
 }
 
 SCOPE void
-rde_param_i_symbol_done_leaf (RDE_PARAM p, int s, int m)
+rde_param_i_symbol_done_leaf (RDE_PARAM p, long int s, long int m)
 {
     if (p->ST) {
 	rde_param_i_value_leaf (p, s);
@@ -1266,7 +1266,7 @@ rde_param_i_symbol_done_leaf (RDE_PARAM p, int s, int m)
 }
 
 SCOPE void
-rde_param_i_symbol_done_d_leaf (RDE_PARAM p, int s, int m)
+rde_param_i_symbol_done_d_leaf (RDE_PARAM p, long int s, long int m)
 {
     if (p->ST) {
 	rde_param_i_value_leaf (p, s);
@@ -1287,7 +1287,7 @@ rde_param_i_symbol_done_d_leaf (RDE_PARAM p, int s, int m)
 }
 
 SCOPE void
-rde_param_i_symbol_done_void (RDE_PARAM p, int s, int m)
+rde_param_i_symbol_done_void (RDE_PARAM p, long int s, long int m)
 {
     SV_CLEAR (p);
     rde_param_i_symbol_save       (p, s);
@@ -1297,7 +1297,7 @@ rde_param_i_symbol_done_void (RDE_PARAM p, int s, int m)
 }
 
 SCOPE void
-rde_param_i_symbol_done_d_void (RDE_PARAM p, int s, int m)
+rde_param_i_symbol_done_d_void (RDE_PARAM p, long int s, long int m)
 {
     SV_CLEAR (p);
     rde_param_i_symbol_save       (p, s);
@@ -1312,7 +1312,7 @@ rde_param_i_symbol_done_d_void (RDE_PARAM p, int s, int m)
  */
 
 SCOPE void
-rde_param_i_next_char (RDE_PARAM p, char* c, int m)
+rde_param_i_next_char (RDE_PARAM p, const char* c, long int m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1320,7 +1320,7 @@ rde_param_i_next_char (RDE_PARAM p, char* c, int m)
 }
 
 SCOPE void
-rde_param_i_next_range (RDE_PARAM p, char* s, char* e, int m)
+rde_param_i_next_range (RDE_PARAM p, const char* s, const char* e, long int m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1328,7 +1328,7 @@ rde_param_i_next_range (RDE_PARAM p, char* s, char* e, int m)
 }
 
 SCOPE void
-rde_param_i_next_alnum (RDE_PARAM p, int m)
+rde_param_i_next_alnum (RDE_PARAM p, long int m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1336,7 +1336,7 @@ rde_param_i_next_alnum (RDE_PARAM p, int m)
 }
 
 SCOPE void
-rde_param_i_next_alpha (RDE_PARAM p, int m)
+rde_param_i_next_alpha (RDE_PARAM p, long int m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1344,7 +1344,7 @@ rde_param_i_next_alpha (RDE_PARAM p, int m)
 }
 
 SCOPE void
-rde_param_i_next_ascii (RDE_PARAM p, int m)
+rde_param_i_next_ascii (RDE_PARAM p, long int m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1352,7 +1352,7 @@ rde_param_i_next_ascii (RDE_PARAM p, int m)
 }
 
 SCOPE void
-rde_param_i_next_control (RDE_PARAM p, int m)
+rde_param_i_next_control (RDE_PARAM p, long int m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1360,7 +1360,7 @@ rde_param_i_next_control (RDE_PARAM p, int m)
 }
 
 SCOPE void
-rde_param_i_next_ddigit (RDE_PARAM p, int m)
+rde_param_i_next_ddigit (RDE_PARAM p, long int m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1368,7 +1368,7 @@ rde_param_i_next_ddigit (RDE_PARAM p, int m)
 }
 
 SCOPE void
-rde_param_i_next_digit (RDE_PARAM p, int m)
+rde_param_i_next_digit (RDE_PARAM p, long int m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1376,7 +1376,7 @@ rde_param_i_next_digit (RDE_PARAM p, int m)
 }
 
 SCOPE void
-rde_param_i_next_graph (RDE_PARAM p, int m)
+rde_param_i_next_graph (RDE_PARAM p, long int m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1384,7 +1384,7 @@ rde_param_i_next_graph (RDE_PARAM p, int m)
 }
 
 SCOPE void
-rde_param_i_next_lower (RDE_PARAM p, int m)
+rde_param_i_next_lower (RDE_PARAM p, long int m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1392,7 +1392,7 @@ rde_param_i_next_lower (RDE_PARAM p, int m)
 }
 
 SCOPE void
-rde_param_i_next_print (RDE_PARAM p, int m)
+rde_param_i_next_print (RDE_PARAM p, long int m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1400,7 +1400,7 @@ rde_param_i_next_print (RDE_PARAM p, int m)
 }
 
 SCOPE void
-rde_param_i_next_punct (RDE_PARAM p, int m)
+rde_param_i_next_punct (RDE_PARAM p, long int m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1408,7 +1408,7 @@ rde_param_i_next_punct (RDE_PARAM p, int m)
 }
 
 SCOPE void
-rde_param_i_next_space (RDE_PARAM p, int m)
+rde_param_i_next_space (RDE_PARAM p, long int m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1416,7 +1416,7 @@ rde_param_i_next_space (RDE_PARAM p, int m)
 }
 
 SCOPE void
-rde_param_i_next_upper (RDE_PARAM p, int m)
+rde_param_i_next_upper (RDE_PARAM p, long int m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1424,7 +1424,7 @@ rde_param_i_next_upper (RDE_PARAM p, int m)
 }
 
 SCOPE void
-rde_param_i_next_wordchar (RDE_PARAM p, int m)
+rde_param_i_next_wordchar (RDE_PARAM p, long int m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1432,7 +1432,7 @@ rde_param_i_next_wordchar (RDE_PARAM p, int m)
 }
 
 SCOPE void
-rde_param_i_next_xdigit (RDE_PARAM p, int m)
+rde_param_i_next_xdigit (RDE_PARAM p, long int m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
@@ -1533,7 +1533,7 @@ rde_param_i_state_merge_value (RDE_PARAM p)
 
     if (!p->ST) {
 	long int trim = (long int) rde_stack_top (p->mark);
-	rde_stack_trim (p->ast, (int) trim);
+	rde_stack_trim (p->ast, trim);
 	p->CL = (long int) rde_stack_top (p->LS);
     }
     rde_stack_pop (p->mark, 1);
@@ -1622,7 +1622,7 @@ rde_param_i_seq_value2value (RDE_PARAM p)
 	long int trim = (long int) rde_stack_top (p->mark);
 
 	rde_stack_pop  (p->mark, 1);
-	rde_stack_trim (p->ast, (int) trim);
+	rde_stack_trim (p->ast, trim);
 
 	p->CL = (long int) rde_stack_top (p->LS);
 	rde_stack_pop (p->LS, 1);
@@ -1680,7 +1680,7 @@ rde_param_i_bra_value2void (RDE_PARAM p)
     } else {
 	long int trim = (long int) rde_stack_top (p->mark);
 	rde_stack_pop  (p->mark, 1);
-	rde_stack_trim (p->ast, (int) trim);
+	rde_stack_trim (p->ast, trim);
 
 	p->CL = (long int) rde_stack_top (p->LS);
 
@@ -1701,7 +1701,7 @@ rde_param_i_bra_value2value (RDE_PARAM p)
 	rde_stack_pop (p->LS, 1);
     } else {
 	long int trim = (long int) rde_stack_top (p->mark);
-	rde_stack_trim (p->ast, (int) trim);
+	rde_stack_trim (p->ast, trim);
 
 	p->CL = (long int) rde_stack_top (p->LS);
 
@@ -1717,7 +1717,7 @@ rde_param_i_bra_value2value (RDE_PARAM p)
  */
 
 SCOPE void
-rde_param_i_next_str (RDE_PARAM p, const char* str, int m)
+rde_param_i_next_str (RDE_PARAM p, const char* str, long int m)
 {
     int at = p->CL;
 
@@ -1751,7 +1751,7 @@ rde_param_i_next_str (RDE_PARAM p, const char* str, int m)
 }
 
 SCOPE void
-rde_param_i_next_class (RDE_PARAM p, const char* class, int m)
+rde_param_i_next_class (RDE_PARAM p, const char* class, long int m)
 {
     rde_param_i_input_next (p, m);
     if (!p->ST) return;
