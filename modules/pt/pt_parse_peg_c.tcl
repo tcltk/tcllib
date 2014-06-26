@@ -6,7 +6,7 @@
 ##	PEG
 ##
 ## Generated from file	3_peg_itself
-##            for user  andreask
+##            for user  aku
 ##
 # # ## ### ##### ######## ############# #####################
 ## Requirements
@@ -499,7 +499,7 @@ namespace eval ::pt::parse {
 	} test_class_id;
 	static void ast_node_free    (void* n);
 	static void error_state_free (void* es);
-	static void error_set        (RDE_PARAM p, int s);
+	static void error_set        (RDE_PARAM p, long int s);
 	static void nc_clear         (RDE_PARAM p);
 	static int UniCharIsAscii    (int character);
 	static int UniCharIsHexDigit (int character);
@@ -782,7 +782,7 @@ namespace eval ::pt::parse {
 	    ENTER ("rde_param_i_ast_pop_rewind");
 	    TRACE (("RDE_PARAM %p",p));
 	    rde_stack_pop  (p->mark, 1);
-	    rde_stack_trim (p->ast, (int) trim);
+	    rde_stack_trim (p->ast, trim);
 	    TRACE (("SV = (%p rc%d '%s')",
 		    p->SV,
 		    p->SV ? p->SV->refCount       : -1,
@@ -795,7 +795,7 @@ namespace eval ::pt::parse {
 	    long int trim = (long int) rde_stack_top (p->mark);
 	    ENTER ("rde_param_i_ast_rewind");
 	    TRACE (("RDE_PARAM %p",p));
-	    rde_stack_trim (p->ast, (int) trim);
+	    rde_stack_trim (p->ast, trim);
 	    TRACE (("SV = (%p rc%d '%s')",
 		    p->SV,
 		    p->SV ? p->SV->refCount       : -1,
@@ -830,7 +830,7 @@ namespace eval ::pt::parse {
 	    ER_CLEAR (p);
 	}
 	SCOPE void
-	rde_param_i_error_nonterminal (RDE_PARAM p, int s)
+	rde_param_i_error_nonterminal (RDE_PARAM p, long int s)
 	{
 	    
 	    return;
@@ -886,7 +886,7 @@ namespace eval ::pt::parse {
 	    if (p->ER) { p->ER->refCount ++; }
 	}
 	static void
-	error_set (RDE_PARAM p, int s)
+	error_set (RDE_PARAM p, long int s)
 	{
 	    error_state_free (p->ER);
 	    p->ER = ALLOC (ERROR_STATE);
@@ -928,7 +928,7 @@ namespace eval ::pt::parse {
 	    p->CL = (long int) rde_stack_top (p->LS);
 	}
 	SCOPE void
-	rde_param_i_input_next (RDE_PARAM p, int m)
+	rde_param_i_input_next (RDE_PARAM p, long int m)
 	{
 	    int leni;
 	    char* ch;
@@ -974,7 +974,7 @@ namespace eval ::pt::parse {
 	    p->ST = !p->ST;
 	}
 	SCOPE int 
-	rde_param_i_symbol_restore (RDE_PARAM p, int s)
+	rde_param_i_symbol_restore (RDE_PARAM p, long int s)
 	{
 	    NC_STATE*      scs;
 	    Tcl_HashEntry* hPtr;
@@ -997,7 +997,7 @@ namespace eval ::pt::parse {
 	    return 1;
 	}
 	SCOPE void
-	rde_param_i_symbol_save (RDE_PARAM p, int s)
+	rde_param_i_symbol_save (RDE_PARAM p, long int s)
 	{
 	    long int       at = (long int) rde_stack_top (p->LS);
 	    NC_STATE*      scs;
@@ -1068,7 +1068,7 @@ namespace eval ::pt::parse {
 	    test_class (p, Tcl_UniCharIsControl, tc_control);
 	}
 	SCOPE void
-	rde_param_i_test_char (RDE_PARAM p, const char* c, int msg)
+	rde_param_i_test_char (RDE_PARAM p, const char* c, long int msg)
 	{
 	    ASSERT_BOUNDS(msg,p->numstr);
 	    p->ST = Tcl_UtfNcmp (p->CC, c, 1) == 0;
@@ -1110,7 +1110,7 @@ namespace eval ::pt::parse {
 	    test_class (p, Tcl_UniCharIsPunct, tc_punct);
 	}
 	SCOPE void
-	rde_param_i_test_range (RDE_PARAM p, char* s, char* e, int msg)
+	rde_param_i_test_range (RDE_PARAM p, const char* s, const char* e, long int msg)
 	{
 	    ASSERT_BOUNDS(msg,p->numstr);
 	    p->ST =
@@ -1179,7 +1179,7 @@ namespace eval ::pt::parse {
 	    SV_CLEAR (p);
 	}
 	SCOPE void
-	rde_param_i_value_leaf (RDE_PARAM p, int s)
+	rde_param_i_value_leaf (RDE_PARAM p, long int s)
 	{
 	    Tcl_Obj* newsv;
 	    Tcl_Obj* ov [3];
@@ -1193,7 +1193,7 @@ namespace eval ::pt::parse {
 	    SV_SET (p, newsv);
 	}
 	SCOPE void
-	rde_param_i_value_reduce (RDE_PARAM p, int s)
+	rde_param_i_value_reduce (RDE_PARAM p, long int s)
 	{
 	    Tcl_Obj*  newsv;
 	    int       oc, i, j;
@@ -1226,8 +1226,8 @@ namespace eval ::pt::parse {
 	er_int_compare (const void* a, const void* b)
 	{
 	    
-	    const void** ael = (void**) a;
-	    const void** bel = (void**) b;
+	    const void** ael = (const void**) a;
+	    const void** bel = (const void**) b;
 	    long int avalue = (long int) *ael;
 	    long int bvalue = (long int) *bel;
 	    if (avalue < bvalue) { return -1; }
@@ -1235,7 +1235,7 @@ namespace eval ::pt::parse {
 	    return 0;
 	}
 	SCOPE int
-	rde_param_i_symbol_start (RDE_PARAM p, int s)
+	rde_param_i_symbol_start (RDE_PARAM p, long int s)
 	{
 	    if (rde_param_i_symbol_restore (p, s)) {
 		if (p->ST) {
@@ -1248,7 +1248,7 @@ namespace eval ::pt::parse {
 	    return 0;
 	}
 	SCOPE int
-	rde_param_i_symbol_start_d (RDE_PARAM p, int s)
+	rde_param_i_symbol_start_d (RDE_PARAM p, long int s)
 	{
 	    if (rde_param_i_symbol_restore (p, s)) {
 		if (p->ST) {
@@ -1262,14 +1262,14 @@ namespace eval ::pt::parse {
 	    return 0;
 	}
 	SCOPE int
-	rde_param_i_symbol_void_start (RDE_PARAM p, int s)
+	rde_param_i_symbol_void_start (RDE_PARAM p, long int s)
 	{
 	    if (rde_param_i_symbol_restore (p, s)) return 1;
 	    rde_stack_push (p->LS, (void*) p->CL);
 	    return 0;
 	}
 	SCOPE int
-	rde_param_i_symbol_void_start_d (RDE_PARAM p, int s)
+	rde_param_i_symbol_void_start_d (RDE_PARAM p, long int s)
 	{
 	    if (rde_param_i_symbol_restore (p, s)) return 1;
 	    rde_stack_push (p->LS,   (void*) p->CL);
@@ -1277,7 +1277,7 @@ namespace eval ::pt::parse {
 	    return 0;
 	}
 	SCOPE void
-	rde_param_i_symbol_done_d_reduce (RDE_PARAM p, int s, int m)
+	rde_param_i_symbol_done_d_reduce (RDE_PARAM p, long int s, long int m)
 	{
 	    if (p->ST) {
 		rde_param_i_value_reduce (p, s);
@@ -1294,7 +1294,7 @@ namespace eval ::pt::parse {
 	    }
 	}
 	SCOPE void
-	rde_param_i_symbol_done_leaf (RDE_PARAM p, int s, int m)
+	rde_param_i_symbol_done_leaf (RDE_PARAM p, long int s, long int m)
 	{
 	    if (p->ST) {
 		rde_param_i_value_leaf (p, s);
@@ -1310,7 +1310,7 @@ namespace eval ::pt::parse {
 	    }
 	}
 	SCOPE void
-	rde_param_i_symbol_done_d_leaf (RDE_PARAM p, int s, int m)
+	rde_param_i_symbol_done_d_leaf (RDE_PARAM p, long int s, long int m)
 	{
 	    if (p->ST) {
 		rde_param_i_value_leaf (p, s);
@@ -1327,7 +1327,7 @@ namespace eval ::pt::parse {
 	    }
 	}
 	SCOPE void
-	rde_param_i_symbol_done_void (RDE_PARAM p, int s, int m)
+	rde_param_i_symbol_done_void (RDE_PARAM p, long int s, long int m)
 	{
 	    SV_CLEAR (p);
 	    rde_param_i_symbol_save       (p, s);
@@ -1335,7 +1335,7 @@ namespace eval ::pt::parse {
 	    rde_stack_pop (p->LS, 1);
 	}
 	SCOPE void
-	rde_param_i_symbol_done_d_void (RDE_PARAM p, int s, int m)
+	rde_param_i_symbol_done_d_void (RDE_PARAM p, long int s, long int m)
 	{
 	    SV_CLEAR (p);
 	    rde_param_i_symbol_save       (p, s);
@@ -1344,112 +1344,112 @@ namespace eval ::pt::parse {
 	    rde_stack_pop (p->LS, 1);
 	}
 	SCOPE void
-	rde_param_i_next_char (RDE_PARAM p, char* c, int m)
+	rde_param_i_next_char (RDE_PARAM p, const char* c, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_char (p, c, m);
 	}
 	SCOPE void
-	rde_param_i_next_range (RDE_PARAM p, char* s, char* e, int m)
+	rde_param_i_next_range (RDE_PARAM p, const char* s, const char* e, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_range (p, s, e, m);
 	}
 	SCOPE void
-	rde_param_i_next_alnum (RDE_PARAM p, int m)
+	rde_param_i_next_alnum (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_alnum (p);
 	}
 	SCOPE void
-	rde_param_i_next_alpha (RDE_PARAM p, int m)
+	rde_param_i_next_alpha (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_alpha (p);
 	}
 	SCOPE void
-	rde_param_i_next_ascii (RDE_PARAM p, int m)
+	rde_param_i_next_ascii (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_ascii (p);
 	}
 	SCOPE void
-	rde_param_i_next_control (RDE_PARAM p, int m)
+	rde_param_i_next_control (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_control (p);
 	}
 	SCOPE void
-	rde_param_i_next_ddigit (RDE_PARAM p, int m)
+	rde_param_i_next_ddigit (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_ddigit (p);
 	}
 	SCOPE void
-	rde_param_i_next_digit (RDE_PARAM p, int m)
+	rde_param_i_next_digit (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_digit (p);
 	}
 	SCOPE void
-	rde_param_i_next_graph (RDE_PARAM p, int m)
+	rde_param_i_next_graph (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_graph (p);
 	}
 	SCOPE void
-	rde_param_i_next_lower (RDE_PARAM p, int m)
+	rde_param_i_next_lower (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_lower (p);
 	}
 	SCOPE void
-	rde_param_i_next_print (RDE_PARAM p, int m)
+	rde_param_i_next_print (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_print (p);
 	}
 	SCOPE void
-	rde_param_i_next_punct (RDE_PARAM p, int m)
+	rde_param_i_next_punct (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_punct (p);
 	}
 	SCOPE void
-	rde_param_i_next_space (RDE_PARAM p, int m)
+	rde_param_i_next_space (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_space (p);
 	}
 	SCOPE void
-	rde_param_i_next_upper (RDE_PARAM p, int m)
+	rde_param_i_next_upper (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_upper (p);
 	}
 	SCOPE void
-	rde_param_i_next_wordchar (RDE_PARAM p, int m)
+	rde_param_i_next_wordchar (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_wordchar (p);
 	}
 	SCOPE void
-	rde_param_i_next_xdigit (RDE_PARAM p, int m)
+	rde_param_i_next_xdigit (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
@@ -1530,7 +1530,7 @@ namespace eval ::pt::parse {
 	    rde_param_i_error_pop_merge (p);
 	    if (!p->ST) {
 		long int trim = (long int) rde_stack_top (p->mark);
-		rde_stack_trim (p->ast, (int) trim);
+		rde_stack_trim (p->ast, trim);
 		p->CL = (long int) rde_stack_top (p->LS);
 	    }
 	    rde_stack_pop (p->mark, 1);
@@ -1598,7 +1598,7 @@ namespace eval ::pt::parse {
 	    } else {
 		long int trim = (long int) rde_stack_top (p->mark);
 		rde_stack_pop  (p->mark, 1);
-		rde_stack_trim (p->ast, (int) trim);
+		rde_stack_trim (p->ast, trim);
 		p->CL = (long int) rde_stack_top (p->LS);
 		rde_stack_pop (p->LS, 1);
 		return 1;
@@ -1641,7 +1641,7 @@ namespace eval ::pt::parse {
 	    } else {
 		long int trim = (long int) rde_stack_top (p->mark);
 		rde_stack_pop  (p->mark, 1);
-		rde_stack_trim (p->ast, (int) trim);
+		rde_stack_trim (p->ast, trim);
 		p->CL = (long int) rde_stack_top (p->LS);
 		rde_stack_push (p->ES, p->ER);
 		if (p->ER) { p->ER->refCount ++; }
@@ -1657,7 +1657,7 @@ namespace eval ::pt::parse {
 		rde_stack_pop (p->LS, 1);
 	    } else {
 		long int trim = (long int) rde_stack_top (p->mark);
-		rde_stack_trim (p->ast, (int) trim);
+		rde_stack_trim (p->ast, trim);
 		p->CL = (long int) rde_stack_top (p->LS);
 		rde_stack_push (p->ES, p->ER);
 		if (p->ER) { p->ER->refCount ++; }
@@ -1665,7 +1665,7 @@ namespace eval ::pt::parse {
 	    return p->ST;
 	}
 	SCOPE void
-	rde_param_i_next_str (RDE_PARAM p, const char* str, int m)
+	rde_param_i_next_str (RDE_PARAM p, const char* str, long int m)
 	{
 	    int at = p->CL;
 	    
@@ -1686,7 +1686,7 @@ namespace eval ::pt::parse {
 	    }
 	}
 	SCOPE void
-	rde_param_i_next_class (RDE_PARAM p, const char* class, int m)
+	rde_param_i_next_class (RDE_PARAM p, const char* class, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
@@ -4752,7 +4752,7 @@ namespace eval ::pt::parse {
 	    }
 
 	    parserg->counter ++;
-	    sprintf (parserg->buf, "peg%d", parserg->counter);
+	    sprintf (parserg->buf, "peg%ld", parserg->counter);
 	    return parserg->buf;
 #undef  KEY
 	}

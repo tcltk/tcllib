@@ -6,7 +6,7 @@
 ##	PEG
 ##
 ## Generated from file	3_peg_itself
-##            for user  andreask
+##            for user  aku
 ##
 # # ## ### ##### ######## ############# #####################
 ## Requirements

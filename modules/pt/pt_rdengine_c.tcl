@@ -76,7 +76,7 @@ namespace eval ::pt {
 	    }
 	    
 	    paramg->counter ++;
-	    sprintf (paramg->buf, "rde%d", paramg->counter);
+	    sprintf (paramg->buf, "rde%ld", paramg->counter);
 	    return paramg->buf;
 
 #undef  KEY

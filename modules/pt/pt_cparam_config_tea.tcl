@@ -131,7 +131,7 @@ proc ::pt::cparam::configuration::tea::def {class pkg version cmd} {
 		    }
 
 		    parserg->counter ++;
-		    sprintf (parserg->buf, "@@CTAIL@@%d", parserg->counter);
+		    sprintf (parserg->buf, "@@CTAIL@@%ld", parserg->counter);
 		    return parserg->buf;
 #undef  KEY
 		}
