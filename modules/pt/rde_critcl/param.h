@@ -72,7 +72,7 @@ SCOPE void rde_param_i_ast_rewind        (RDE_PARAM p);
 SCOPE void rde_param_i_ast_value_push    (RDE_PARAM p);
 
 SCOPE void rde_param_i_error_clear       (RDE_PARAM p);
-SCOPE void rde_param_i_error_nonterminal (RDE_PARAM p, int s);
+SCOPE void rde_param_i_error_nonterminal (RDE_PARAM p, long int s);
 SCOPE void rde_param_i_error_pop_merge   (RDE_PARAM p);
 SCOPE void rde_param_i_error_push        (RDE_PARAM p);
 
@@ -81,17 +81,17 @@ SCOPE void rde_param_i_loc_pop_rewind    (RDE_PARAM p);
 SCOPE void rde_param_i_loc_push          (RDE_PARAM p);
 SCOPE void rde_param_i_loc_rewind        (RDE_PARAM p);
 
-SCOPE void rde_param_i_input_next        (RDE_PARAM p, int m);
+SCOPE void rde_param_i_input_next        (RDE_PARAM p, long int m);
 
 SCOPE void rde_param_i_status_fail       (RDE_PARAM p);
 SCOPE void rde_param_i_status_ok         (RDE_PARAM p);
 SCOPE void rde_param_i_status_negate     (RDE_PARAM p);
 
-SCOPE int  rde_param_i_symbol_restore    (RDE_PARAM p, int s);
-SCOPE void rde_param_i_symbol_save       (RDE_PARAM p, int s);
+SCOPE int  rde_param_i_symbol_restore    (RDE_PARAM p, long int s);
+SCOPE void rde_param_i_symbol_save       (RDE_PARAM p, long int s);
 
-SCOPE void rde_param_i_test_char         (RDE_PARAM p, const char* c, int m);
-SCOPE void rde_param_i_test_range        (RDE_PARAM p, char* s, char* e, int m);
+SCOPE void rde_param_i_test_char         (RDE_PARAM p, const char* c, long int m);
+SCOPE void rde_param_i_test_range        (RDE_PARAM p, const char* s, const char* e, long int m);
 
 SCOPE void rde_param_i_test_alnum        (RDE_PARAM p);
 SCOPE void rde_param_i_test_alpha        (RDE_PARAM p);
@@ -109,40 +109,40 @@ SCOPE void rde_param_i_test_wordchar     (RDE_PARAM p);
 SCOPE void rde_param_i_test_xdigit       (RDE_PARAM p);
 
 SCOPE void rde_param_i_value_clear       (RDE_PARAM p);
-SCOPE void rde_param_i_value_leaf        (RDE_PARAM p, int s);
-SCOPE void rde_param_i_value_reduce      (RDE_PARAM p, int s);
+SCOPE void rde_param_i_value_leaf        (RDE_PARAM p, long int s);
+SCOPE void rde_param_i_value_reduce      (RDE_PARAM p, long int s);
 
 /* Super Instructions - Aggregated common instruction sequences.
  */
 
-SCOPE int  rde_param_i_symbol_start         (RDE_PARAM p, int s);
-SCOPE int  rde_param_i_symbol_start_d       (RDE_PARAM p, int s);
-SCOPE int  rde_param_i_symbol_void_start    (RDE_PARAM p, int s);
-SCOPE int  rde_param_i_symbol_void_start_d  (RDE_PARAM p, int s);
+SCOPE int  rde_param_i_symbol_start         (RDE_PARAM p, long int s);
+SCOPE int  rde_param_i_symbol_start_d       (RDE_PARAM p, long int s);
+SCOPE int  rde_param_i_symbol_void_start    (RDE_PARAM p, long int s);
+SCOPE int  rde_param_i_symbol_void_start_d  (RDE_PARAM p, long int s);
 
-SCOPE void rde_param_i_symbol_done_d_reduce (RDE_PARAM p, int s, int m);
-SCOPE void rde_param_i_symbol_done_leaf     (RDE_PARAM p, int s, int m);
-SCOPE void rde_param_i_symbol_done_d_leaf   (RDE_PARAM p, int s, int m);
-SCOPE void rde_param_i_symbol_done_void     (RDE_PARAM p, int s, int m);
-SCOPE void rde_param_i_symbol_done_d_void   (RDE_PARAM p, int s, int m);
+SCOPE void rde_param_i_symbol_done_d_reduce (RDE_PARAM p, long int s, long int m);
+SCOPE void rde_param_i_symbol_done_leaf     (RDE_PARAM p, long int s, long int m);
+SCOPE void rde_param_i_symbol_done_d_leaf   (RDE_PARAM p, long int s, long int m);
+SCOPE void rde_param_i_symbol_done_void     (RDE_PARAM p, long int s, long int m);
+SCOPE void rde_param_i_symbol_done_d_void   (RDE_PARAM p, long int s, long int m);
 
-SCOPE void rde_param_i_next_char     (RDE_PARAM p, char* c, int m);
-SCOPE void rde_param_i_next_range    (RDE_PARAM p, char* s, char* e, int m);
+SCOPE void rde_param_i_next_char     (RDE_PARAM p, const char* c, long int m);
+SCOPE void rde_param_i_next_range    (RDE_PARAM p, const char* s, const char* e, long int m);
 
-SCOPE void rde_param_i_next_alnum    (RDE_PARAM p, int m);
-SCOPE void rde_param_i_next_alpha    (RDE_PARAM p, int m);
-SCOPE void rde_param_i_next_ascii    (RDE_PARAM p, int m);
-SCOPE void rde_param_i_next_control  (RDE_PARAM p, int m);
-SCOPE void rde_param_i_next_ddigit   (RDE_PARAM p, int m);
-SCOPE void rde_param_i_next_digit    (RDE_PARAM p, int m);
-SCOPE void rde_param_i_next_graph    (RDE_PARAM p, int m);
-SCOPE void rde_param_i_next_lower    (RDE_PARAM p, int m);
-SCOPE void rde_param_i_next_print    (RDE_PARAM p, int m);
-SCOPE void rde_param_i_next_punct    (RDE_PARAM p, int m);
-SCOPE void rde_param_i_next_space    (RDE_PARAM p, int m);
-SCOPE void rde_param_i_next_upper    (RDE_PARAM p, int m);
-SCOPE void rde_param_i_next_wordchar (RDE_PARAM p, int m);
-SCOPE void rde_param_i_next_xdigit   (RDE_PARAM p, int m);
+SCOPE void rde_param_i_next_alnum    (RDE_PARAM p, long int m);
+SCOPE void rde_param_i_next_alpha    (RDE_PARAM p, long int m);
+SCOPE void rde_param_i_next_ascii    (RDE_PARAM p, long int m);
+SCOPE void rde_param_i_next_control  (RDE_PARAM p, long int m);
+SCOPE void rde_param_i_next_ddigit   (RDE_PARAM p, long int m);
+SCOPE void rde_param_i_next_digit    (RDE_PARAM p, long int m);
+SCOPE void rde_param_i_next_graph    (RDE_PARAM p, long int m);
+SCOPE void rde_param_i_next_lower    (RDE_PARAM p, long int m);
+SCOPE void rde_param_i_next_print    (RDE_PARAM p, long int m);
+SCOPE void rde_param_i_next_punct    (RDE_PARAM p, long int m);
+SCOPE void rde_param_i_next_space    (RDE_PARAM p, long int m);
+SCOPE void rde_param_i_next_upper    (RDE_PARAM p, long int m);
+SCOPE void rde_param_i_next_wordchar (RDE_PARAM p, long int m);
+SCOPE void rde_param_i_next_xdigit   (RDE_PARAM p, long int m);
 
 SCOPE void rde_param_i_notahead_start_d (RDE_PARAM p);
 SCOPE void rde_param_i_notahead_exit_d  (RDE_PARAM p);
@@ -168,8 +168,8 @@ SCOPE int  rde_param_i_bra_void2value  (RDE_PARAM p);
 SCOPE int  rde_param_i_bra_value2void  (RDE_PARAM p);
 SCOPE int  rde_param_i_bra_value2value (RDE_PARAM p);
 
-SCOPE void rde_param_i_next_str   (RDE_PARAM p, const char* str,   int m);
-SCOPE void rde_param_i_next_class (RDE_PARAM p, const char* class, int m);
+SCOPE void rde_param_i_next_str   (RDE_PARAM p, const char* str,   long int m);
+SCOPE void rde_param_i_next_class (RDE_PARAM p, const char* class, long int m);
 
 /* SKIP END */
 #endif /* _RDE_DS_PARAM_H */
