@@ -303,7 +303,11 @@ proc make-parser {format glabel grammar} {
 	lappend cmd -class [set gc GC[incr pcounter]]
     }
 
-    set code [eval $cmd]
+    try {
+	set code [eval $cmd]
+    } trap {PT RDE SYNTAX} {e o} {
+	error [pt::util error2readable $e $grammar]
+    }
 
     # debugging generator output
     if {$debug} {
