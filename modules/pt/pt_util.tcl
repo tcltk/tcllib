@@ -7,6 +7,7 @@
 ## Requirements
 
 package require Tcl 8.5 ; # Required runtime.
+package require char
 
 # # ## ### ##### ######## ############# #####################
 ##
@@ -14,6 +15,8 @@ package require Tcl 8.5 ; # Required runtime.
 namespace eval ::pt::util {
     namespace export error2readable error2position error2text
     namespace ensemble create
+
+    namespace import ::char::quote
 }
 
 # # ## ### ##### ######## #############
@@ -83,12 +86,29 @@ proc ::pt::util::Position {location text} {
 }
 
 proc ::pt::util::Readables {msgs} {
-    # TODO: WIBNI to fuse to multiple 't'-tags into a single 'cl'-tag.
-    # TODO: WIBNI to fuse multiple 'cl'-tags into one.
-
+    set cl {}
     set r {}
     foreach pe $msgs {
-	lappend r [Readable $pe]
+	switch -exact -- [lindex $pe 0] {
+	    t {
+		# Fuse to multiple 't'-tags into a single 'cl'-tag.
+		lappend cl [lindex $pe 1]
+	    }
+	    cl {
+		# Fuse multiple 'cl'-tags into one.
+		foreach c [split $details] { lappend cl $c }
+	    }
+	    default {
+		lappend r [Readable $pe]
+	    }
+	}
+    }
+    if {[set n [llength $cl]]} {
+	if {$n > 1} {
+	    lappend r [Readable [list cl [join [lsort -dict $cl] {}]]]
+	} else {
+	    lappend r [Readable [list t [lindex $cl 0]]]
+	}
     }
     return [lsort -dict $r]
 }
@@ -96,11 +116,23 @@ proc ::pt::util::Readables {msgs} {
 proc ::pt::util::Readable {pe} {
     set details [lassign $pe tag]
     switch -exact -- $tag {
-	t        { set m "The character '$details'" }
+	t        {
+	    set details [quote string {*}$details]
+	    set m "The character '$details'"
+	}
 	n        { set m "The symbol $details" }
-	..       { set m "A character in range '[join $details '-']'" }
-	str      { set m "A string \"$details\"" }
-	cl       { set m "A characters in set \[$details\]" }
+	..       {
+	    set details [quote string {*}$details]
+	    set m "A character in range '[join $details '-']'"
+	}
+	str      {
+	    set details [join [quote string {*}[split $details {}]] {}]
+	    set m "A string \"$details\""
+	}
+	cl       {
+	    set details [join [quote string {*}[split $details {}]] {}]
+	    set m "A character in set \{$details\}"
+	}
 	alpha    { set m "A unicode alphabetical character" }
 	alnum    { set m "A unicode alphanumerical character" }
 	ascii    { set m "An ascii character" }
