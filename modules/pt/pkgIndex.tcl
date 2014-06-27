@@ -14,7 +14,7 @@ package ifneeded pt::ast     1.1 [list source [file join $dir pt_astree.tcl]]
 package ifneeded pt::util    1   [list source [file join $dir pt_util.tcl]]
 
 # Parsing Expression support
-package ifneeded pt::pe        1.0.1 [list source [file join $dir pt_pexpression.tcl]]
+package ifneeded pt::pe        1.0.2 [list source [file join $dir pt_pexpression.tcl]]
 package ifneeded pt::pe::op        1 [list source [file join $dir pt_pexpr_op.tcl]]
 
 # Parsing Expression Grammar support.
