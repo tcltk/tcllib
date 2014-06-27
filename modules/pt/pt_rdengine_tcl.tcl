@@ -21,6 +21,7 @@ package require snit
 package require struct::stack 1.5 ; # Requiring peekr, getr, trim* methods
 package require pt::ast
 package require pt::pe
+package require char ; # quoting
 
 # # ## ### ##### ######## ############# #####################
 ## Implementation
@@ -589,8 +590,8 @@ snit::type ::pt::rde_tcl {
     # - -- --- ----- -------- ------------- ---------------------
 
     method si:next_str {tok} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_str ($tok)"
-	# String = sequence of characters. No need for all the intermediate
-	# stack churn.
+	# String = sequence of characters.
+	# No need for all the intermediate stack churn.
 
 	set n    [string length $tok]
 	set last [expr {$myloc + $n}]
@@ -599,7 +600,7 @@ snit::type ::pt::rde_tcl {
 	incr myloc
 	if {($last >= $max) && ![ExtendTCN [expr {$last - $max + 1}]]} {
 	    set myok    0
-	    set myerror [list $myloc [list [list str $tok]]]
+	    set myerror [list $myloc [list [pt::pe str $tok]]]
 	    # i:fail_return
 	    return
 	}
@@ -620,7 +621,7 @@ snit::type ::pt::rde_tcl {
 	    set myloc $last
 	    set myerror {}
 	} else {
-	    set myerror [list $myloc [list [list str $tok]]]
+	    set myerror [list $myloc [list [pt::pe str $tok]]]
 	    incr myloc -1
 	}
 	return
@@ -636,7 +637,7 @@ snit::type ::pt::rde_tcl {
 	incr myloc
 	if {($myloc >= [string length $mytoken]) && ![ExtendTC]} {
 	    set myok    0
-	    set myerror [list $myloc [list [list cl $tok]]]
+	    set myerror [list $myloc [list [pt::pe class $tok]]]
 	    # i:fail_return
 	    return
 	}
@@ -650,7 +651,7 @@ snit::type ::pt::rde_tcl {
 	if {$myok} {
 	    set myerror {}
 	} else {
-	    set myerror [list $myloc [list [list cl $tok]]]
+	    set myerror [list $myloc [list [pt::pe class $tok]]]
 	    incr myloc -1
 	}
 	return
@@ -664,7 +665,7 @@ snit::type ::pt::rde_tcl {
 	incr myloc
 	if {($myloc >= [string length $mytoken]) && ![ExtendTC]} {
 	    set myok    0
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [pt::pe terminal $tok]]]
 	    # i:fail_return
 	    return
 	}
@@ -674,7 +675,7 @@ snit::type ::pt::rde_tcl {
 	if {$myok} {
 	    set myerror {}
 	} else {
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [pt::pe terminal $tok]]]
 	    incr myloc -1
 	}
 	return
@@ -688,7 +689,7 @@ snit::type ::pt::rde_tcl {
 	incr myloc
 	if {($myloc >= [string length $mytoken]) && ![ExtendTC]} {
 	    set myok    0
-	    set myerror [list $myloc [list [list .. $toks $toke]]]
+	    set myerror [list $myloc [list [pt::pe range $toks $toke]]]
 	    # i:fail_return
 	    return
 	}
