@@ -748,7 +748,7 @@ param_I_er_nt (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
      * Tcl_Obj*.
      */
 
-    sym = rde_ot_intern (objv [2], p, "n", NULL);
+    sym = rde_ot_intern1 (p, "n", objv [2]);
     rde_param_i_error_nonterminal (p->p, sym);
 
     return TCL_OK;
@@ -1231,7 +1231,7 @@ param_I_input_next (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
      * interning: msg as is. Already has PE operator in the message.
      */
 
-    msg = rde_ot_intern (objv [2], p, NULL, NULL);
+    msg = rde_ot_intern0 (p, objv [2]);
     rde_param_i_input_next (p->p, msg);
 
     return TCL_OK;
@@ -1308,7 +1308,7 @@ param_I_test_char (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* ob
      */
 
     ch  = Tcl_GetString (objv [2]);
-    msg = rde_ot_intern (objv [2], p, "t", NULL);
+    msg = rde_ot_intern1 (p, "t", objv [2]);
 
     rde_param_i_test_char (p->p, ch, msg);
     return TCL_OK;
@@ -1455,7 +1455,7 @@ param_I_test_range (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
 
     chs = Tcl_GetString (objv [2]);
     che = Tcl_GetString (objv [3]);
-    msg = rde_ot_intern (objv [2], p, "..", che);
+    msg = rde_ot_intern2 (p, "..", objv [2], objv[3]);
 
     rde_param_i_test_range (p->p, chs, che, msg);
 
@@ -1800,7 +1800,7 @@ param_SI_next_char (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* o
      */
 
     ch  = Tcl_GetString (objv [2]);
-    msg = rde_ot_intern (objv [2], p, "t", NULL);
+    msg = rde_ot_intern1 (p, "t", objv [2]);
 
     rde_param_i_input_next (p->p, msg);
     if (rde_param_query_st (p->p)) {
@@ -1831,7 +1831,7 @@ param_SI_next_range (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
 
     chs = Tcl_GetString (objv [2]);
     che = Tcl_GetString (objv [3]);
-    msg = rde_ot_intern (objv [2], p, "..", che);
+    msg = rde_ot_intern2 (p, "..", objv [2], objv[3]);
 
     rde_param_i_input_next (p->p, msg);
     if (rde_param_query_st (p->p)) {
@@ -2481,7 +2481,7 @@ param_SI_reduce_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* 
      * Tcl_Obj*.
      */
 
-    msg = rde_ot_intern (objv [2], p, "n", NULL);
+    msg = rde_ot_intern1 (p, "n", objv [2]);
 
     rde_param_i_error_nonterminal (p->p, msg);
     rde_param_i_ast_pop_rewind (p->p);
@@ -2533,7 +2533,7 @@ param_SI_void_leaf_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Ob
      * Tcl_Obj*.
      */
 
-    msg = rde_ot_intern (objv [2], p, "n", NULL);
+    msg = rde_ot_intern1 (p, "n", objv [2]);
 
     rde_param_i_error_nonterminal (p->p, msg);
     rde_param_i_loc_pop_discard (p->p);
@@ -2584,7 +2584,7 @@ param_SI_value_leaf_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_O
      * Tcl_Obj*.
      */
 
-    msg = rde_ot_intern (objv [2], p, "n", NULL);
+    msg = rde_ot_intern1 (p, "n", objv [2]);
 
     rde_param_i_error_nonterminal (p->p, msg);
     rde_param_i_ast_pop_rewind (p->p);
@@ -2631,7 +2631,7 @@ param_SI_value_clear_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_
      * Tcl_Obj*.
      */
 
-    msg = rde_ot_intern (objv [2], p, "n", NULL);
+    msg = rde_ot_intern1 (p, "n", objv [2]);
 
     rde_param_i_error_nonterminal (p->p, msg);
     rde_param_i_ast_pop_rewind (p->p);
@@ -2674,7 +2674,7 @@ param_SI_void_clear_symbol_end (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_O
      * Tcl_Obj*.
      */
 
-    msg = rde_ot_intern (objv [2], p, "n", NULL);
+    msg = rde_ot_intern1 (p, "n", objv [2]);
 
     rde_param_i_error_nonterminal (p->p, msg);
     rde_param_i_loc_pop_discard (p->p);
@@ -2703,7 +2703,7 @@ param_SI_next_str (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* ob
      */
 
     str = Tcl_GetStringFromObj (objv [2], &len);
-    msg = rde_ot_intern (objv [2], p, "str", NULL);
+    msg = rde_ot_intern1 (p, "str", objv [2]);
 
     rde_param_i_next_str (p->p, str, msg);
     return TCL_OK;
@@ -2730,7 +2730,7 @@ param_SI_next_class (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* 
      */
 
     class = Tcl_GetStringFromObj (objv [2], &len);
-    msg   = rde_ot_intern (objv [2], p, "cl", NULL);
+    msg   = rde_ot_intern1 (p, "cl", objv [2]);
 
     rde_param_i_next_class (p->p, class, msg);
     return TCL_OK;
