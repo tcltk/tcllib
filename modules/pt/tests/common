@@ -284,6 +284,7 @@ proc make-parser {format glabel grammar} {
     if {![info exist pcounter]} { set pcounter 0 }
 
     set debug 0
+    set keep  0
 
     # should be preloaded by test suite.
     if {[catch {
@@ -298,9 +299,10 @@ proc make-parser {format glabel grammar} {
     # oo        : -class -name
     # snit      : -class -name
 
+    set gc GC[incr pcounter]
     lappend cmd pt::pgen peg $grammar $format -name G
     if {$format ne "container"} {
-	lappend cmd -class [set gc GC[incr pcounter]]
+	lappend cmd -class $gc
     }
 
     try {
@@ -311,9 +313,11 @@ proc make-parser {format glabel grammar} {
 
     # debugging generator output
     if {$debug} {
-	puts "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% $format ($glabel)"
-	puts $code
-	puts "%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% $format ($glabel)"
+	set   k [expr {$keep ? [open $gc$format w] : "stdout"}]
+	puts $k "#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% $format ($glabel)"
+	puts $k $code
+	puts $k "#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% $format ($glabel)"
+	if {$keep} { close $k }
     }
 
     # Now do format-specific post-processing of the generated code to
