@@ -904,7 +904,8 @@
 	    if (p->CL < rde_tc_size (p->TC)) {
 		
 		rde_tc_get (p->TC, p->CL, &p->CC, &p->CC_len);
-		ASSERT_BOUNDS (p->CC_len, TCL_UTF_MAX);
+		
+		ASSERT_BOUNDS (p->CC_len-1, TCL_UTF_MAX);
 		p->ST = 1;
 		ER_CLEAR (p);
 		return;
@@ -1702,8 +1703,8 @@
             /*       15 = */   "Expression",
             /*       16 = */   "n Function",
             /*       17 = */   "Function",
-            /*       18 = */   "str sin\50",
-            /*       19 = */   "t \51",
+            /*       18 = */   "str sin(",
+            /*       19 = */   "t )",
             /*       20 = */   "n Sinus",
             /*       21 = */   "Sinus"
         };
@@ -1774,11 +1775,11 @@
             */
         
             rde_param_i_state_push_void (p);
-            rde_param_i_next_str (p, "sin\50", 18);
+            rde_param_i_next_str (p, "sin(", 18);
             if (rde_param_i_seq_void2value(p)) return;
             sym_Expression (p);
             if (rde_param_i_seq_value2value(p)) return;
-            rde_param_i_next_char (p, "\51", 19);
+            rde_param_i_next_char (p, ")", 19);
             rde_param_i_state_merge_value (p);
             return;
         }
