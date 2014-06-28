@@ -1,7 +1,7 @@
 if {![package vsatisfies [package provide Tcl] 8.5]} return
 
 # General utilities.
-package ifneeded char          1 [list source [file join $dir char.tcl]]
+package ifneeded char          1.0.1 [list source [file join $dir char.tcl]]
 package ifneeded configuration 1 [list source [file join $dir configuration.tcl]]
 package ifneeded paths         1 [list source [file join $dir paths.tcl]]
 package ifneeded text::write   1 [list source [file join $dir text_write.tcl]]
@@ -14,7 +14,7 @@ package ifneeded pt::ast     1.1 [list source [file join $dir pt_astree.tcl]]
 package ifneeded pt::util    1   [list source [file join $dir pt_util.tcl]]
 
 # Parsing Expression support
-package ifneeded pt::pe        1.0.1 [list source [file join $dir pt_pexpression.tcl]]
+package ifneeded pt::pe        1.0.2 [list source [file join $dir pt_pexpression.tcl]]
 package ifneeded pt::pe::op        1 [list source [file join $dir pt_pexpr_op.tcl]]
 
 # Parsing Expression Grammar support.
@@ -40,11 +40,11 @@ package ifneeded pt::peg::import::peg       1 [list source [file join $dir pt_pe
 
 # Export core functionality: Conversion from PEG to a specific format.
 package ifneeded pt::peg::to::container     1 [list source [file join $dir pt_peg_to_container.tcl]]
-package ifneeded pt::peg::to::cparam    1.1.2 [list source [file join $dir pt_peg_to_cparam.tcl]]
+package ifneeded pt::peg::to::cparam    1.1.3 [list source [file join $dir pt_peg_to_cparam.tcl]]
 package ifneeded pt::peg::to::json          1 [list source [file join $dir pt_peg_to_json.tcl]]
-package ifneeded pt::peg::to::param         1 [list source [file join $dir pt_peg_to_param.tcl]]
+package ifneeded pt::peg::to::param     1.0.1 [list source [file join $dir pt_peg_to_param.tcl]]
 package ifneeded pt::peg::to::peg       1.0.2 [list source [file join $dir pt_peg_to_peg.tcl]]
-package ifneeded pt::peg::to::tclparam  1.0.1 [list source [file join $dir pt_peg_to_tclparam.tcl]]
+package ifneeded pt::peg::to::tclparam  1.0.2 [list source [file join $dir pt_peg_to_tclparam.tcl]]
 
 # Import core functionality: Conversion from a specific format to PEG.
 package ifneeded pt::peg::from::json      1 [list source [file join $dir pt_peg_from_json.tcl]]
@@ -59,6 +59,7 @@ package ifneeded pt::peg::container::peg 1 [list source [file join $dir pt_peg_c
 
 # */PARAM support (canned configurations).
 package ifneeded pt::cparam::configuration::critcl  1.0.2 [list source [file join $dir pt_cparam_config_critcl.tcl]]
+package ifneeded pt::cparam::configuration::tea     0.1   [list source [file join $dir pt_cparam_config_tea.tcl]]
 package ifneeded pt::tclparam::configuration::snit  1.0.2 [list source [file join $dir pt_tclparam_config_snit.tcl]]
 package ifneeded pt::tclparam::configuration::tcloo 1.0.4 [list source [file join $dir pt_tclparam_config_tcloo.tcl]]
 

@@ -53,8 +53,8 @@ static char const* <<string-table>> [35] = {
     /*       17 = */   "cl 0123456789",
     /*       18 = */   "n Digit",
     /*       19 = */   "Digit",
-    /*       20 = */   "t \50",
-    /*       21 = */   "t \51",
+    /*       20 = */   "t (",
+    /*       21 = */   "t )",
     /*       22 = */   "n Expression",
     /*       23 = */   "Expression",
     /*       24 = */   "n Factor",
@@ -166,11 +166,11 @@ static char const* <<string-table>> [35] = {
     */
 
     rde_param_i_state_push_void (<<state>>);
-    rde_param_i_next_char (<<state>>, "\50", 20);
+    rde_param_i_next_char (<<state>>, "(", 20);
     if (rde_param_i_seq_void2value(<<state>>)) return;
     <<self>> <<ns>>sym_Expression (<<state>>);
     if (rde_param_i_seq_value2value(<<state>>)) return;
-    rde_param_i_next_char (<<state>>, "\51", 21);
+    rde_param_i_next_char (<<state>>, ")", 21);
     rde_param_i_state_merge_value (<<state>>);
     return;
 }

@@ -425,29 +425,29 @@ proc ::pt::peg::to::tclparam::Op::t {modes char} {
     Asm::Start
     Asm::ReTerminal t $char
     Asm::Direct {
-	set c [char quote tcl $char]
+	set char [char quote tcl $char]
 
-	#Asm::Ins i_input_next "\{t $c\}"
+	#Asm::Ins i_input_next "\{t $char\}"
 	#Asm::Ins i:fail_return
-	#Asm::Ins i_test_char $c
+	#Asm::Ins i_test_char $char
 
-	Asm::Ins si:next_char $c
+	Asm::Ins si:next_char $char
     }
     Asm::Done
 }
 
-proc ::pt::peg::to::tclparam::Op::.. {modes chstart chend} {
+proc ::pt::peg::to::tclparam::Op::.. {modes chs che} {
     Asm::Start
-    Asm::ReTerminal .. $chstart $chend
+    Asm::ReTerminal .. $chs $che
     Asm::Direct {
-	set s [char quote tcl $chstart]
-	set e [char quote tcl $chend]
+	set chs [char quote tcl $chs]
+	set che [char quote tcl $che]
 
-	#Asm::Ins i_input_next "\{.. $s $e\}"
+	#Asm::Ins i_input_next "\{.. $chs $che\}"
 	#Asm::Ins i:fail_return
-	#Asm::Ins i_test_range $s $e
+	#Asm::Ins i_test_range $chs $che
 
-	Asm::Ins si:next_range $s $e
+	Asm::Ins si:next_range $chs $che
     }
     Asm::Done
 }
@@ -456,11 +456,12 @@ proc ::pt::peg::to::tclparam::Op::str {modes args} {
     Asm::Start
     Asm::ReTerminal str {*}$args
     Asm::Direct {
-	set str [join [struct::list map $args {char quote tcl}] {}]
-
 	# Without fusing this would be rendered as a sequence of
 	# characters, with associated stack churn for each character/part
 	# (See Op::x, void/all).
+
+	set str [join $args {}]
+	set str [char quote tcl $str]
 
 	Asm::Ins si:next_str $str
     }
@@ -476,11 +477,18 @@ proc ::pt::peg::to::tclparam::Op::cl {modes args} {
 	# characters, with associated stack churn for each
 	# character/branch (See Op::/, void/all).
 
-	set cl [join [struct::list map $args [namespace current]::Range] {}]
+	set cl [join [Ranges {*}$args] {}]
+	set cl [char quote tcl $cl]
 
 	Asm::Ins si:next_class $cl
     }
     Asm::Done
+}
+
+proc ::pt::peg::to::tclparam::Op::Ranges {args} {
+    set res {}
+    foreach rorc $args { lappend res [Range $rorc] }
+    return $res
 }
 
 proc ::pt::peg::to::tclparam::Op::Range {rorc} {
@@ -507,7 +515,7 @@ proc ::pt::peg::to::tclparam::Op::Range {rorc} {
 	}
 	return $res
     } else {
-	return [char quote tcl $rorc]
+	return $rorc ;#[char quote tcl $rorc]
     }
 }
 
@@ -1261,5 +1269,5 @@ namespace eval ::pt::peg::to::tclparam {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::to::tclparam 1.0.1
+package provide pt::peg::to::tclparam 1.0.2
 return

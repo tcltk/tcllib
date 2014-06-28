@@ -112,10 +112,11 @@ param_setcmd (RDE_STATE p, Tcl_Command c)
     RETURNVOID;
 }
 
-int
-param_intern (RDE_STATE p, char* literal)
+long int
+param_intern (RDE_STATE p, const char* literal)
 {
-    int res, isnew;
+    long int res;
+    int isnew;
     Tcl_HashEntry* hPtr;
 
     ENTER ("param_intern");
@@ -124,7 +125,7 @@ param_intern (RDE_STATE p, char* literal)
 
     hPtr = Tcl_FindHashEntry (&p->str, literal);
     if (hPtr) {
-	res = (int) Tcl_GetHashValue (hPtr);
+	res = (long int) Tcl_GetHashValue (hPtr);
 	RETURN("CACHED %d",res);
     }
 
@@ -134,8 +135,8 @@ param_intern (RDE_STATE p, char* literal)
     Tcl_SetHashValue (hPtr, p->numstr);
 
     if (p->numstr >= p->maxnum) {
-	int    new;
-	char** str;
+	long int new;
+	char**   str;
 
 	new  = 2 * (p->maxnum ? p->maxnum : 8);
 	TRACE (("extend to %d strings",new));
