@@ -76,6 +76,33 @@ testing {
 
 set mytestdir tests/data
 
+# Table of test cases ...
+#             Id PEG     InText Error detail    Readable char
+set     chars  {}
+lappend chars  0 \{      \{     [list t \{]     \{
+lappend chars  1 \[      \[     [list t \[]     \[
+lappend chars  2 \"      \"     [list t \"]     \"
+lappend chars  3 \\033   \033   [list t \33]    <ESC>
+lappend chars  4 \\n     \n     [list t \n]     <LF>
+lappend chars  5 \\r     \r     [list t \r]     <CR>
+lappend chars  6 \\t     \t     [list t \t]     <TAB>
+# \b, \f, \v - Extend PEG grammar to recognize. Also \e = \33
+lappend chars  7 \\010   \b     [list t \b]     <BS>
+lappend chars  8 \\014   \f     [list t \f]     <FF>
+lappend chars  9 \\013   \v     [list t \v]     <VTAB>
+lappend chars 10 \\007   \a     [list t \a]     <BEL>
+lappend chars 11 { }     { }    [list t { }]    <SPACE>
+lappend chars 12 \\\\    \\     [list t \\]     \\
+    # math symbol, circled asterix
+lappend chars 13 \\u229b \u229b [list t \u229b] \u229b
+# test all control characters ... (and DEL)
+# more characters: above ascii = unicode BMP.
+
+# Grammar for all test cases below, with the actual character mapped
+# in (replacing @).
+set gtemplate "PEG a_pe_grammar ('@') END;"
+set etemplate "Parse error at position 0 (Line 0, column 0).\n... X ...\n    ^\nExpected one of\n* The character '@'\n"
+
 # -------------------------------------------------------------------------
 # While some of the C pieces are usually not required at runtime (like
 # C stack when RDE is also C), we are calling on the parser generator
