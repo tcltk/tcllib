@@ -813,8 +813,8 @@ failed_103:
 char_94:
 # '\'
 
-         input_next        "t \\"
-     ok! test_char         "\\"
+         input_next        "t \"
+     ok! test_char         "\"
          return
 
 range_96:
@@ -903,8 +903,8 @@ failed_116:
 char_107:
 # '\'
 
-         input_next        "t \\"
-     ok! test_char         "\\"
+         input_next        "t \"
+     ok! test_char         "\"
          return
 
 range_109:
@@ -1007,8 +1007,8 @@ failed_142:
 char_120:
 # '\'
 
-         input_next        "t \\"
-     ok! test_char         "\\"
+         input_next        "t \"
+     ok! test_char         "\"
          return
 
 choice_139:
@@ -1134,8 +1134,8 @@ char_128:
 char_130:
 # '\"'
 
-         input_next        "t \""
-     ok! test_char         "\""
+         input_next        "t ""
+     ok! test_char         """
          return
 
 char_132:
@@ -1155,8 +1155,8 @@ char_134:
 char_136:
 # '\'
 
-         input_next        "t \\"
-     ok! test_char         "\\"
+         input_next        "t \"
+     ok! test_char         "\"
          return
 #
 # leaf Symbol 'CharUnescaped'
@@ -1228,8 +1228,8 @@ notahead_148:
 char_146:
 # '\'
 
-         input_next        "t \\"
-     ok! test_char         "\\"
+         input_next        "t \"
+     ok! test_char         "\"
          return
 #
 # leaf Symbol 'CharUnicode'
@@ -1317,8 +1317,8 @@ failed_181:
 char_156:
 # '\'
 
-         input_next        "t \\"
-     ok! test_char         "\\"
+         input_next        "t \"
+     ok! test_char         "\"
          return
 
 char_158:
@@ -2091,8 +2091,8 @@ sym_DAPOSTROPH:
 char_263:
 # '\"'
 
-         input_next        "t \""
-     ok! test_char         "\""
+         input_next        "t ""
+     ok! test_char         """
          return
 #
 # leaf Symbol 'DDIGIT'
@@ -2651,15 +2651,15 @@ oknoast_336:
 char_332:
 # '\n'
 
-         input_next        "t \\n"
-     ok! test_char         "\\n"
+         input_next        "t <LF>"
+     ok! test_char         "<LF>"
          return
 
 char_334:
 # '\r'
 
-         input_next        "t \\r"
-     ok! test_char         "\\r"
+         input_next        "t <CR>"
+     ok! test_char         "<CR>"
          return
 #
 # value Symbol 'Expression'
