@@ -937,7 +937,8 @@ namespace eval ::pt::parse {
 	    if (p->CL < rde_tc_size (p->TC)) {
 		
 		rde_tc_get (p->TC, p->CL, &p->CC, &p->CC_len);
-		ASSERT_BOUNDS (p->CC_len, TCL_UTF_MAX);
+		
+		ASSERT_BOUNDS (p->CC_len-1, TCL_UTF_MAX);
 		p->ST = 1;
 		ER_CLEAR (p);
 		return;
@@ -1904,28 +1905,28 @@ namespace eval ::pt::parse {
             /*       30 = */   "Attribute",
             /*       31 = */   "n Char",
             /*       32 = */   "Char",
-            /*       33 = */   "t \134",
+            /*       33 = */   "t \\\\",
             /*       34 = */   ".. 0 2",
             /*       35 = */   ".. 0 7",
             /*       36 = */   "n CharOctalFull",
             /*       37 = */   "CharOctalFull",
             /*       38 = */   "n CharOctalPart",
             /*       39 = */   "CharOctalPart",
-            /*       40 = */   "cl nrt'\42\133\135\134",
+            /*       40 = */   "cl nrt'\\\"\\[\\]\\\\",
             /*       41 = */   "n CharSpecial",
             /*       42 = */   "CharSpecial",
             /*       43 = */   "dot",
             /*       44 = */   "n CharUnescaped",
             /*       45 = */   "CharUnescaped",
-            /*       46 = */   "str \134u",
+            /*       46 = */   "str \173\\u\175",
             /*       47 = */   "n CharUnicode",
             /*       48 = */   "CharUnicode",
             /*       49 = */   "n Class",
             /*       50 = */   "Class",
-            /*       51 = */   "t \51",
+            /*       51 = */   "t )",
             /*       52 = */   "n CLOSE",
             /*       53 = */   "CLOSE",
-            /*       54 = */   "t \135",
+            /*       54 = */   "t \\]",
             /*       55 = */   "n CLOSEB",
             /*       56 = */   "CLOSEB",
             /*       57 = */   "t :",
@@ -1937,7 +1938,7 @@ namespace eval ::pt::parse {
             /*       63 = */   "str <control>",
             /*       64 = */   "n CONTROL",
             /*       65 = */   "CONTROL",
-            /*       66 = */   "t \42",
+            /*       66 = */   "t \173\"\175",
             /*       67 = */   "n DAPOSTROPH",
             /*       68 = */   "DAPOSTROPH",
             /*       69 = */   "str <ddigit>",
@@ -1953,7 +1954,7 @@ namespace eval ::pt::parse {
             /*       79 = */   "DOT",
             /*       80 = */   "n EOF",
             /*       81 = */   "EOF",
-            /*       82 = */   "cl \n\r",
+            /*       82 = */   "cl \173\n\r\175",
             /*       83 = */   "n EOL",
             /*       84 = */   "EOL",
             /*       85 = */   "n Expression",
@@ -1987,10 +1988,10 @@ namespace eval ::pt::parse {
             /*      113 = */   "t !",
             /*      114 = */   "n NOT",
             /*      115 = */   "NOT",
-            /*      116 = */   "t \50",
+            /*      116 = */   "t (",
             /*      117 = */   "n OPEN",
             /*      118 = */   "OPEN",
-            /*      119 = */   "t \133",
+            /*      119 = */   "t \173[\175",
             /*      120 = */   "n OPENB",
             /*      121 = */   "OPENB",
             /*      122 = */   "str PEG",
@@ -2014,7 +2015,7 @@ namespace eval ::pt::parse {
             /*      140 = */   "QUESTION",
             /*      141 = */   "n Range",
             /*      142 = */   "Range",
-            /*      143 = */   "t \73",
+            /*      143 = */   "t \173;\175",
             /*      144 = */   "n SEMICOLON",
             /*      145 = */   "SEMICOLON",
             /*      146 = */   "n Sequence",
@@ -2327,7 +2328,7 @@ namespace eval ::pt::parse {
             */
         
             rde_param_i_state_push_void (p);
-            rde_param_i_next_char (p, "\134", 33);
+            rde_param_i_next_char (p, "\\", 33);
             if (rde_param_i_seq_void2void(p)) return;
             rde_param_i_next_range (p, "0", "2", 34);
             if (rde_param_i_seq_void2void(p)) return;
@@ -2367,7 +2368,7 @@ namespace eval ::pt::parse {
             */
         
             rde_param_i_state_push_void (p);
-            rde_param_i_next_char (p, "\134", 33);
+            rde_param_i_next_char (p, "\\", 33);
             if (rde_param_i_seq_void2void(p)) return;
             rde_param_i_next_range (p, "0", "7", 35);
             if (rde_param_i_seq_void2void(p)) return;
@@ -2413,9 +2414,9 @@ namespace eval ::pt::parse {
             */
         
             rde_param_i_state_push_void (p);
-            rde_param_i_next_char (p, "\134", 33);
+            rde_param_i_next_char (p, "\\", 33);
             if (rde_param_i_seq_void2void(p)) return;
-            rde_param_i_next_class (p, "nrt'\42\133\135\134", 40);
+            rde_param_i_next_class (p, "nrt'\"[]\\", 40);
             rde_param_i_state_merge_void (p);
             return;
         }
@@ -2461,7 +2462,7 @@ namespace eval ::pt::parse {
             */
         
             rde_param_i_loc_push (p);
-            rde_param_i_next_char (p, "\134", 33);
+            rde_param_i_next_char (p, "\\", 33);
             rde_param_i_notahead_exit (p);
             return;
         }
@@ -2507,7 +2508,7 @@ namespace eval ::pt::parse {
             */
         
             rde_param_i_state_push_void (p);
-            rde_param_i_next_str (p, "\134u", 46);
+            rde_param_i_next_str (p, "\\u", 46);
             if (rde_param_i_seq_void2void(p)) return;
             rde_param_i_next_xdigit (p, 13);
             if (rde_param_i_seq_void2void(p)) return;
@@ -2714,7 +2715,7 @@ namespace eval ::pt::parse {
             */
         
             rde_param_i_state_push_void (p);
-            rde_param_i_next_char (p, "\51", 51);
+            rde_param_i_next_char (p, ")", 51);
             if (rde_param_i_seq_void2void(p)) return;
             sym_WHITESPACE (p);
             rde_param_i_state_merge_void (p);
@@ -2731,7 +2732,7 @@ namespace eval ::pt::parse {
             */
         
             if (rde_param_i_symbol_void_start (p, 56)) return ;
-            rde_param_i_next_char (p, "\135", 54);
+            rde_param_i_next_char (p, "]", 54);
             rde_param_i_symbol_done_void (p, 56, 55);
             return;
         }
@@ -2899,7 +2900,7 @@ namespace eval ::pt::parse {
             */
         
             if (rde_param_i_symbol_void_start (p, 68)) return ;
-            rde_param_i_next_char (p, "\42", 66);
+            rde_param_i_next_char (p, "\"", 66);
             rde_param_i_symbol_done_void (p, 68, 67);
             return;
         }
@@ -3815,7 +3816,7 @@ namespace eval ::pt::parse {
             */
         
             rde_param_i_state_push_void (p);
-            rde_param_i_next_char (p, "\50", 116);
+            rde_param_i_next_char (p, "(", 116);
             if (rde_param_i_seq_void2void(p)) return;
             sym_WHITESPACE (p);
             rde_param_i_state_merge_void (p);
@@ -3832,7 +3833,7 @@ namespace eval ::pt::parse {
             */
         
             if (rde_param_i_symbol_void_start (p, 121)) return ;
-            rde_param_i_next_char (p, "\133", 119);
+            rde_param_i_next_char (p, "[", 119);
             rde_param_i_symbol_done_void (p, 121, 120);
             return;
         }
@@ -4293,7 +4294,7 @@ namespace eval ::pt::parse {
             */
         
             rde_param_i_state_push_void (p);
-            rde_param_i_next_char (p, "\73", 143);
+            rde_param_i_next_char (p, ";", 143);
             if (rde_param_i_seq_void2void(p)) return;
             sym_WHITESPACE (p);
             rde_param_i_state_merge_void (p);
