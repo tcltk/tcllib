@@ -642,8 +642,8 @@ sequence_75:
 
          error_push
 
-         input_next        "t \\"
-     ok! test_char         "\\"
+         input_next        "t \"
+     ok! test_char         "\"
 
          error_pop_merge
    fail! jump              failed_76
@@ -714,8 +714,8 @@ sequence_85:
 
          error_push
 
-         input_next        "t \\"
-     ok! test_char         "\\"
+         input_next        "t \"
+     ok! test_char         "\"
 
          error_pop_merge
    fail! jump              failed_86
@@ -806,8 +806,8 @@ sequence_102:
 
          error_push
 
-         input_next        "t \\"
-     ok! test_char         "\\"
+         input_next        "t \"
+     ok! test_char         "\"
 
          error_pop_merge
    fail! jump              failed_103
@@ -881,8 +881,8 @@ choice_100:
          loc_push
          error_push
 
-         input_next        "t \""
-     ok! test_char         "\""
+         input_next        "t ""
+     ok! test_char         """
 
          error_pop_merge
      ok! jump              oknoast_99
@@ -911,8 +911,8 @@ choice_100:
          loc_push
          error_push
 
-         input_next        "t \\"
-     ok! test_char         "\\"
+         input_next        "t \"
+     ok! test_char         "\"
 
          error_pop_merge
      ok! jump              oknoast_99
@@ -985,8 +985,8 @@ notahead_108:
 
          loc_push
 
-         input_next        "t \\"
-     ok! test_char         "\\"
+         input_next        "t \"
+     ok! test_char         "\"
 
          loc_pop_rewind
          status_negate
@@ -1044,8 +1044,8 @@ sequence_134:
 
          error_push
 
-         input_next        "t \\"
-     ok! test_char         "\\"
+         input_next        "t \"
+     ok! test_char         "\"
 
          error_pop_merge
    fail! jump              failed_135
@@ -1726,8 +1726,8 @@ sym_DAPOSTROPH:
   found! return
          loc_push
 
-         input_next        "t \""
-     ok! test_char         "\""
+         input_next        "t ""
+     ok! test_char         """
 
          value_clear
          symbol_save       DAPOSTROPH
@@ -2170,8 +2170,8 @@ choice_259:
          loc_push
          error_push
 
-         input_next        "t \\n"
-     ok! test_char         "\\n"
+         input_next        "t <LF>"
+     ok! test_char         "<LF>"
 
          error_pop_merge
      ok! jump              oknoast_258
@@ -2180,8 +2180,8 @@ choice_259:
          loc_push
          error_push
 
-         input_next        "t \\r"
-     ok! test_char         "\\r"
+         input_next        "t <CR>"
+     ok! test_char         "<CR>"
 
          error_pop_merge
      ok! jump              oknoast_258

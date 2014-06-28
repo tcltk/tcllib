@@ -419,14 +419,14 @@ namespace eval ::PARSER {
 	rde_tc_get (RDE_TC tc, int at, char** ch, long int* len)
 	{
 	    long int  oc, off, top, end;
-	    long int* ov;
-	    rde_stack_get (tc->off, &oc, (void***) &ov);
+	    void** ov;
+	    rde_stack_get (tc->off, &oc, &ov);
 	    ASSERT_BOUNDS(at,oc);
-	    off = ov [at];
+	    off = (long int) ov [at];
 	    if ((at+1) == oc) {
 		end = tc->num;
 	    } else {
-		end = ov [at+1];
+		end = (long int) ov [at+1];
 	    }
 	    TRACE (("rde_tc_get (RDE_TC %p, @ %d) => %d.[%d ... %d]/%d",tc,at,end-off,off,end-1,tc->num));
 	    ASSERT_BOUNDS(off,tc->num);
@@ -438,15 +438,15 @@ namespace eval ::PARSER {
 	rde_tc_get_s (RDE_TC tc, int at, int last, char** ch, long int* len)
 	{
 	    long int  oc, off, top, end;
-	    long int* ov;
-	    rde_stack_get (tc->off, &oc, (void***) &ov);
+	    void** ov;
+	    rde_stack_get (tc->off, &oc, &ov);
 	    ASSERT_BOUNDS(at,oc);
 	    ASSERT_BOUNDS(last,oc);
-	    off = ov [at];
+	    off = (long int) ov [at];
 	    if ((last+1) == oc) {
 		end = tc->num;
 	    } else {
-		end = ov [last+1];
+		end = (long int) ov [last+1];
 	    }
 	    TRACE (("rde_tc_get_s (RDE_TC %p, @ %d .. %d) => %d.[%d ... %d]/%d",tc,at,last,end-off,off,end-1,tc->num));
 	    ASSERT_BOUNDS(off,tc->num);
@@ -499,7 +499,7 @@ namespace eval ::PARSER {
 	} test_class_id;
 	static void ast_node_free    (void* n);
 	static void error_state_free (void* es);
-	static void error_set        (RDE_PARAM p, int s);
+	static void error_set        (RDE_PARAM p, long int s);
 	static void nc_clear         (RDE_PARAM p);
 	static int UniCharIsAscii    (int character);
 	static int UniCharIsHexDigit (int character);
@@ -652,9 +652,9 @@ namespace eval ::PARSER {
 	    return p->clientData;
 	}
 	SCOPE void
-	rde_param_query_amark (RDE_PARAM p, long int* mc, long int** mv)
+	rde_param_query_amark (RDE_PARAM p, long int* mc, void*** mv)
 	{
-	    rde_stack_get (p->mark, mc, (void***) mv);
+	    rde_stack_get (p->mark, mc, mv);
 	}
 	SCOPE void
 	rde_param_query_ast (RDE_PARAM p, long int* ac, Tcl_Obj*** av)
@@ -695,21 +695,21 @@ namespace eval ::PARSER {
 		Tcl_Obj* ov [2];
 		Tcl_Obj** mov;
 		long int  mc, i, j;
-		long int* mv;
+		void** mv;
 		int lastid;
 		const char* msg;
-		rde_stack_get (er->msg, &mc, (void***) &mv);
+		rde_stack_get (er->msg, &mc, &mv);
 		
-		qsort (mv, mc, sizeof (long int), er_int_compare);
+		qsort (mv, mc, sizeof (void*), er_int_compare);
 		
 		mov = NALLOC (mc, Tcl_Obj*);
 		lastid = -1;
 		for (i=0, j=0; i < mc; i++) {
 		    ASSERT_BOUNDS (i,mc);
-		    if (mv [i] == lastid) continue;
-		    lastid = mv [i];
-		    ASSERT_BOUNDS(mv[i],p->numstr);
-		    msg = p->string [mv[i]]; 
+		    if (((long int) mv [i]) == lastid) continue;
+		    lastid = (long int) mv [i];
+		    ASSERT_BOUNDS((long int) mv[i],p->numstr);
+		    msg = p->string [(long int) mv[i]]; 
 		    ASSERT_BOUNDS (j,mc);
 		    mov [j] = Tcl_NewStringObj (msg, -1);
 		    j++;
@@ -782,7 +782,7 @@ namespace eval ::PARSER {
 	    ENTER ("rde_param_i_ast_pop_rewind");
 	    TRACE (("RDE_PARAM %p",p));
 	    rde_stack_pop  (p->mark, 1);
-	    rde_stack_trim (p->ast, (int) trim);
+	    rde_stack_trim (p->ast, trim);
 	    TRACE (("SV = (%p rc%d '%s')",
 		    p->SV,
 		    p->SV ? p->SV->refCount       : -1,
@@ -795,7 +795,7 @@ namespace eval ::PARSER {
 	    long int trim = (long int) rde_stack_top (p->mark);
 	    ENTER ("rde_param_i_ast_rewind");
 	    TRACE (("RDE_PARAM %p",p));
-	    rde_stack_trim (p->ast, (int) trim);
+	    rde_stack_trim (p->ast, trim);
 	    TRACE (("SV = (%p rc%d '%s')",
 		    p->SV,
 		    p->SV ? p->SV->refCount       : -1,
@@ -830,7 +830,7 @@ namespace eval ::PARSER {
 	    ER_CLEAR (p);
 	}
 	SCOPE void
-	rde_param_i_error_nonterminal (RDE_PARAM p, int s)
+	rde_param_i_error_nonterminal (RDE_PARAM p, long int s)
 	{
 	    
 	    return;
@@ -886,7 +886,7 @@ namespace eval ::PARSER {
 	    if (p->ER) { p->ER->refCount ++; }
 	}
 	static void
-	error_set (RDE_PARAM p, int s)
+	error_set (RDE_PARAM p, long int s)
 	{
 	    error_state_free (p->ER);
 	    p->ER = ALLOC (ERROR_STATE);
@@ -928,7 +928,7 @@ namespace eval ::PARSER {
 	    p->CL = (long int) rde_stack_top (p->LS);
 	}
 	SCOPE void
-	rde_param_i_input_next (RDE_PARAM p, int m)
+	rde_param_i_input_next (RDE_PARAM p, long int m)
 	{
 	    int leni;
 	    char* ch;
@@ -937,7 +937,8 @@ namespace eval ::PARSER {
 	    if (p->CL < rde_tc_size (p->TC)) {
 		
 		rde_tc_get (p->TC, p->CL, &p->CC, &p->CC_len);
-		ASSERT_BOUNDS (p->CC_len, TCL_UTF_MAX);
+		
+		ASSERT_BOUNDS (p->CC_len-1, TCL_UTF_MAX);
 		p->ST = 1;
 		ER_CLEAR (p);
 		return;
@@ -974,7 +975,7 @@ namespace eval ::PARSER {
 	    p->ST = !p->ST;
 	}
 	SCOPE int 
-	rde_param_i_symbol_restore (RDE_PARAM p, int s)
+	rde_param_i_symbol_restore (RDE_PARAM p, long int s)
 	{
 	    NC_STATE*      scs;
 	    Tcl_HashEntry* hPtr;
@@ -997,7 +998,7 @@ namespace eval ::PARSER {
 	    return 1;
 	}
 	SCOPE void
-	rde_param_i_symbol_save (RDE_PARAM p, int s)
+	rde_param_i_symbol_save (RDE_PARAM p, long int s)
 	{
 	    long int       at = (long int) rde_stack_top (p->LS);
 	    NC_STATE*      scs;
@@ -1068,7 +1069,7 @@ namespace eval ::PARSER {
 	    test_class (p, Tcl_UniCharIsControl, tc_control);
 	}
 	SCOPE void
-	rde_param_i_test_char (RDE_PARAM p, const char* c, int msg)
+	rde_param_i_test_char (RDE_PARAM p, const char* c, long int msg)
 	{
 	    ASSERT_BOUNDS(msg,p->numstr);
 	    p->ST = Tcl_UtfNcmp (p->CC, c, 1) == 0;
@@ -1110,7 +1111,7 @@ namespace eval ::PARSER {
 	    test_class (p, Tcl_UniCharIsPunct, tc_punct);
 	}
 	SCOPE void
-	rde_param_i_test_range (RDE_PARAM p, char* s, char* e, int msg)
+	rde_param_i_test_range (RDE_PARAM p, const char* s, const char* e, long int msg)
 	{
 	    ASSERT_BOUNDS(msg,p->numstr);
 	    p->ST =
@@ -1179,7 +1180,7 @@ namespace eval ::PARSER {
 	    SV_CLEAR (p);
 	}
 	SCOPE void
-	rde_param_i_value_leaf (RDE_PARAM p, int s)
+	rde_param_i_value_leaf (RDE_PARAM p, long int s)
 	{
 	    Tcl_Obj* newsv;
 	    Tcl_Obj* ov [3];
@@ -1193,7 +1194,7 @@ namespace eval ::PARSER {
 	    SV_SET (p, newsv);
 	}
 	SCOPE void
-	rde_param_i_value_reduce (RDE_PARAM p, int s)
+	rde_param_i_value_reduce (RDE_PARAM p, long int s)
 	{
 	    Tcl_Obj*  newsv;
 	    int       oc, i, j;
@@ -1225,14 +1226,17 @@ namespace eval ::PARSER {
 	static int
 	er_int_compare (const void* a, const void* b)
 	{
-	    long int ai = *((long int*) a);
-	    long int bi = *((long int*) b);
-	    if (ai < bi) { return -1; }
-	    if (ai > bi) { return  1; }
+	    
+	    const void** ael = (const void**) a;
+	    const void** bel = (const void**) b;
+	    long int avalue = (long int) *ael;
+	    long int bvalue = (long int) *bel;
+	    if (avalue < bvalue) { return -1; }
+	    if (avalue > bvalue) { return  1; }
 	    return 0;
 	}
 	SCOPE int
-	rde_param_i_symbol_start (RDE_PARAM p, int s)
+	rde_param_i_symbol_start (RDE_PARAM p, long int s)
 	{
 	    if (rde_param_i_symbol_restore (p, s)) {
 		if (p->ST) {
@@ -1245,7 +1249,7 @@ namespace eval ::PARSER {
 	    return 0;
 	}
 	SCOPE int
-	rde_param_i_symbol_start_d (RDE_PARAM p, int s)
+	rde_param_i_symbol_start_d (RDE_PARAM p, long int s)
 	{
 	    if (rde_param_i_symbol_restore (p, s)) {
 		if (p->ST) {
@@ -1259,14 +1263,14 @@ namespace eval ::PARSER {
 	    return 0;
 	}
 	SCOPE int
-	rde_param_i_symbol_void_start (RDE_PARAM p, int s)
+	rde_param_i_symbol_void_start (RDE_PARAM p, long int s)
 	{
 	    if (rde_param_i_symbol_restore (p, s)) return 1;
 	    rde_stack_push (p->LS, (void*) p->CL);
 	    return 0;
 	}
 	SCOPE int
-	rde_param_i_symbol_void_start_d (RDE_PARAM p, int s)
+	rde_param_i_symbol_void_start_d (RDE_PARAM p, long int s)
 	{
 	    if (rde_param_i_symbol_restore (p, s)) return 1;
 	    rde_stack_push (p->LS,   (void*) p->CL);
@@ -1274,7 +1278,7 @@ namespace eval ::PARSER {
 	    return 0;
 	}
 	SCOPE void
-	rde_param_i_symbol_done_d_reduce (RDE_PARAM p, int s, int m)
+	rde_param_i_symbol_done_d_reduce (RDE_PARAM p, long int s, long int m)
 	{
 	    if (p->ST) {
 		rde_param_i_value_reduce (p, s);
@@ -1291,7 +1295,7 @@ namespace eval ::PARSER {
 	    }
 	}
 	SCOPE void
-	rde_param_i_symbol_done_leaf (RDE_PARAM p, int s, int m)
+	rde_param_i_symbol_done_leaf (RDE_PARAM p, long int s, long int m)
 	{
 	    if (p->ST) {
 		rde_param_i_value_leaf (p, s);
@@ -1307,7 +1311,7 @@ namespace eval ::PARSER {
 	    }
 	}
 	SCOPE void
-	rde_param_i_symbol_done_d_leaf (RDE_PARAM p, int s, int m)
+	rde_param_i_symbol_done_d_leaf (RDE_PARAM p, long int s, long int m)
 	{
 	    if (p->ST) {
 		rde_param_i_value_leaf (p, s);
@@ -1324,7 +1328,7 @@ namespace eval ::PARSER {
 	    }
 	}
 	SCOPE void
-	rde_param_i_symbol_done_void (RDE_PARAM p, int s, int m)
+	rde_param_i_symbol_done_void (RDE_PARAM p, long int s, long int m)
 	{
 	    SV_CLEAR (p);
 	    rde_param_i_symbol_save       (p, s);
@@ -1332,7 +1336,7 @@ namespace eval ::PARSER {
 	    rde_stack_pop (p->LS, 1);
 	}
 	SCOPE void
-	rde_param_i_symbol_done_d_void (RDE_PARAM p, int s, int m)
+	rde_param_i_symbol_done_d_void (RDE_PARAM p, long int s, long int m)
 	{
 	    SV_CLEAR (p);
 	    rde_param_i_symbol_save       (p, s);
@@ -1341,112 +1345,112 @@ namespace eval ::PARSER {
 	    rde_stack_pop (p->LS, 1);
 	}
 	SCOPE void
-	rde_param_i_next_char (RDE_PARAM p, char* c, int m)
+	rde_param_i_next_char (RDE_PARAM p, const char* c, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_char (p, c, m);
 	}
 	SCOPE void
-	rde_param_i_next_range (RDE_PARAM p, char* s, char* e, int m)
+	rde_param_i_next_range (RDE_PARAM p, const char* s, const char* e, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_range (p, s, e, m);
 	}
 	SCOPE void
-	rde_param_i_next_alnum (RDE_PARAM p, int m)
+	rde_param_i_next_alnum (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_alnum (p);
 	}
 	SCOPE void
-	rde_param_i_next_alpha (RDE_PARAM p, int m)
+	rde_param_i_next_alpha (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_alpha (p);
 	}
 	SCOPE void
-	rde_param_i_next_ascii (RDE_PARAM p, int m)
+	rde_param_i_next_ascii (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_ascii (p);
 	}
 	SCOPE void
-	rde_param_i_next_control (RDE_PARAM p, int m)
+	rde_param_i_next_control (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_control (p);
 	}
 	SCOPE void
-	rde_param_i_next_ddigit (RDE_PARAM p, int m)
+	rde_param_i_next_ddigit (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_ddigit (p);
 	}
 	SCOPE void
-	rde_param_i_next_digit (RDE_PARAM p, int m)
+	rde_param_i_next_digit (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_digit (p);
 	}
 	SCOPE void
-	rde_param_i_next_graph (RDE_PARAM p, int m)
+	rde_param_i_next_graph (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_graph (p);
 	}
 	SCOPE void
-	rde_param_i_next_lower (RDE_PARAM p, int m)
+	rde_param_i_next_lower (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_lower (p);
 	}
 	SCOPE void
-	rde_param_i_next_print (RDE_PARAM p, int m)
+	rde_param_i_next_print (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_print (p);
 	}
 	SCOPE void
-	rde_param_i_next_punct (RDE_PARAM p, int m)
+	rde_param_i_next_punct (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_punct (p);
 	}
 	SCOPE void
-	rde_param_i_next_space (RDE_PARAM p, int m)
+	rde_param_i_next_space (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_space (p);
 	}
 	SCOPE void
-	rde_param_i_next_upper (RDE_PARAM p, int m)
+	rde_param_i_next_upper (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_upper (p);
 	}
 	SCOPE void
-	rde_param_i_next_wordchar (RDE_PARAM p, int m)
+	rde_param_i_next_wordchar (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
 	    rde_param_i_test_wordchar (p);
 	}
 	SCOPE void
-	rde_param_i_next_xdigit (RDE_PARAM p, int m)
+	rde_param_i_next_xdigit (RDE_PARAM p, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
@@ -1527,7 +1531,7 @@ namespace eval ::PARSER {
 	    rde_param_i_error_pop_merge (p);
 	    if (!p->ST) {
 		long int trim = (long int) rde_stack_top (p->mark);
-		rde_stack_trim (p->ast, (int) trim);
+		rde_stack_trim (p->ast, trim);
 		p->CL = (long int) rde_stack_top (p->LS);
 	    }
 	    rde_stack_pop (p->mark, 1);
@@ -1595,7 +1599,7 @@ namespace eval ::PARSER {
 	    } else {
 		long int trim = (long int) rde_stack_top (p->mark);
 		rde_stack_pop  (p->mark, 1);
-		rde_stack_trim (p->ast, (int) trim);
+		rde_stack_trim (p->ast, trim);
 		p->CL = (long int) rde_stack_top (p->LS);
 		rde_stack_pop (p->LS, 1);
 		return 1;
@@ -1638,7 +1642,7 @@ namespace eval ::PARSER {
 	    } else {
 		long int trim = (long int) rde_stack_top (p->mark);
 		rde_stack_pop  (p->mark, 1);
-		rde_stack_trim (p->ast, (int) trim);
+		rde_stack_trim (p->ast, trim);
 		p->CL = (long int) rde_stack_top (p->LS);
 		rde_stack_push (p->ES, p->ER);
 		if (p->ER) { p->ER->refCount ++; }
@@ -1654,7 +1658,7 @@ namespace eval ::PARSER {
 		rde_stack_pop (p->LS, 1);
 	    } else {
 		long int trim = (long int) rde_stack_top (p->mark);
-		rde_stack_trim (p->ast, (int) trim);
+		rde_stack_trim (p->ast, trim);
 		p->CL = (long int) rde_stack_top (p->LS);
 		rde_stack_push (p->ES, p->ER);
 		if (p->ER) { p->ER->refCount ++; }
@@ -1662,7 +1666,7 @@ namespace eval ::PARSER {
 	    return p->ST;
 	}
 	SCOPE void
-	rde_param_i_next_str (RDE_PARAM p, const char* str, int m)
+	rde_param_i_next_str (RDE_PARAM p, const char* str, long int m)
 	{
 	    int at = p->CL;
 	    
@@ -1683,7 +1687,7 @@ namespace eval ::PARSER {
 	    }
 	}
 	SCOPE void
-	rde_param_i_next_class (RDE_PARAM p, const char* class, int m)
+	rde_param_i_next_class (RDE_PARAM p, const char* class, long int m)
 	{
 	    rde_param_i_input_next (p, m);
 	    if (!p->ST) return;
@@ -1901,28 +1905,28 @@ namespace eval ::PARSER {
             /*       30 = */   "Attribute",
             /*       31 = */   "n Char",
             /*       32 = */   "Char",
-            /*       33 = */   "t \134",
+            /*       33 = */   "t \\\\",
             /*       34 = */   ".. 0 2",
             /*       35 = */   ".. 0 7",
             /*       36 = */   "n CharOctalFull",
             /*       37 = */   "CharOctalFull",
             /*       38 = */   "n CharOctalPart",
             /*       39 = */   "CharOctalPart",
-            /*       40 = */   "cl nrt'\42\133\135\134",
+            /*       40 = */   "cl nrt'\\\"\\[\\]\\\\",
             /*       41 = */   "n CharSpecial",
             /*       42 = */   "CharSpecial",
             /*       43 = */   "dot",
             /*       44 = */   "n CharUnescaped",
             /*       45 = */   "CharUnescaped",
-            /*       46 = */   "str \134u",
+            /*       46 = */   "str \173\\u\175",
             /*       47 = */   "n CharUnicode",
             /*       48 = */   "CharUnicode",
             /*       49 = */   "n Class",
             /*       50 = */   "Class",
-            /*       51 = */   "t \51",
+            /*       51 = */   "t )",
             /*       52 = */   "n CLOSE",
             /*       53 = */   "CLOSE",
-            /*       54 = */   "t \135",
+            /*       54 = */   "t \\]",
             /*       55 = */   "n CLOSEB",
             /*       56 = */   "CLOSEB",
             /*       57 = */   "t :",
@@ -1934,7 +1938,7 @@ namespace eval ::PARSER {
             /*       63 = */   "str <control>",
             /*       64 = */   "n CONTROL",
             /*       65 = */   "CONTROL",
-            /*       66 = */   "t \42",
+            /*       66 = */   "t \173\"\175",
             /*       67 = */   "n DAPOSTROPH",
             /*       68 = */   "DAPOSTROPH",
             /*       69 = */   "str <ddigit>",
@@ -1950,7 +1954,7 @@ namespace eval ::PARSER {
             /*       79 = */   "DOT",
             /*       80 = */   "n EOF",
             /*       81 = */   "EOF",
-            /*       82 = */   "cl \n\r",
+            /*       82 = */   "cl \173\n\r\175",
             /*       83 = */   "n EOL",
             /*       84 = */   "EOL",
             /*       85 = */   "n Expression",
@@ -1984,10 +1988,10 @@ namespace eval ::PARSER {
             /*      113 = */   "t !",
             /*      114 = */   "n NOT",
             /*      115 = */   "NOT",
-            /*      116 = */   "t \50",
+            /*      116 = */   "t (",
             /*      117 = */   "n OPEN",
             /*      118 = */   "OPEN",
-            /*      119 = */   "t \133",
+            /*      119 = */   "t \173[\175",
             /*      120 = */   "n OPENB",
             /*      121 = */   "OPENB",
             /*      122 = */   "str PEG",
@@ -2011,7 +2015,7 @@ namespace eval ::PARSER {
             /*      140 = */   "QUESTION",
             /*      141 = */   "n Range",
             /*      142 = */   "Range",
-            /*      143 = */   "t \73",
+            /*      143 = */   "t \173;\175",
             /*      144 = */   "n SEMICOLON",
             /*      145 = */   "SEMICOLON",
             /*      146 = */   "n Sequence",
@@ -2324,7 +2328,7 @@ namespace eval ::PARSER {
             */
         
             rde_param_i_state_push_void (p);
-            rde_param_i_next_char (p, "\134", 33);
+            rde_param_i_next_char (p, "\\", 33);
             if (rde_param_i_seq_void2void(p)) return;
             rde_param_i_next_range (p, "0", "2", 34);
             if (rde_param_i_seq_void2void(p)) return;
@@ -2364,7 +2368,7 @@ namespace eval ::PARSER {
             */
         
             rde_param_i_state_push_void (p);
-            rde_param_i_next_char (p, "\134", 33);
+            rde_param_i_next_char (p, "\\", 33);
             if (rde_param_i_seq_void2void(p)) return;
             rde_param_i_next_range (p, "0", "7", 35);
             if (rde_param_i_seq_void2void(p)) return;
@@ -2410,9 +2414,9 @@ namespace eval ::PARSER {
             */
         
             rde_param_i_state_push_void (p);
-            rde_param_i_next_char (p, "\134", 33);
+            rde_param_i_next_char (p, "\\", 33);
             if (rde_param_i_seq_void2void(p)) return;
-            rde_param_i_next_class (p, "nrt'\42\133\135\134", 40);
+            rde_param_i_next_class (p, "nrt'\"[]\\", 40);
             rde_param_i_state_merge_void (p);
             return;
         }
@@ -2458,7 +2462,7 @@ namespace eval ::PARSER {
             */
         
             rde_param_i_loc_push (p);
-            rde_param_i_next_char (p, "\134", 33);
+            rde_param_i_next_char (p, "\\", 33);
             rde_param_i_notahead_exit (p);
             return;
         }
@@ -2504,7 +2508,7 @@ namespace eval ::PARSER {
             */
         
             rde_param_i_state_push_void (p);
-            rde_param_i_next_str (p, "\134u", 46);
+            rde_param_i_next_str (p, "\\u", 46);
             if (rde_param_i_seq_void2void(p)) return;
             rde_param_i_next_xdigit (p, 13);
             if (rde_param_i_seq_void2void(p)) return;
@@ -2711,7 +2715,7 @@ namespace eval ::PARSER {
             */
         
             rde_param_i_state_push_void (p);
-            rde_param_i_next_char (p, "\51", 51);
+            rde_param_i_next_char (p, ")", 51);
             if (rde_param_i_seq_void2void(p)) return;
             sym_WHITESPACE (p);
             rde_param_i_state_merge_void (p);
@@ -2728,7 +2732,7 @@ namespace eval ::PARSER {
             */
         
             if (rde_param_i_symbol_void_start (p, 56)) return ;
-            rde_param_i_next_char (p, "\135", 54);
+            rde_param_i_next_char (p, "]", 54);
             rde_param_i_symbol_done_void (p, 56, 55);
             return;
         }
@@ -2896,7 +2900,7 @@ namespace eval ::PARSER {
             */
         
             if (rde_param_i_symbol_void_start (p, 68)) return ;
-            rde_param_i_next_char (p, "\42", 66);
+            rde_param_i_next_char (p, "\"", 66);
             rde_param_i_symbol_done_void (p, 68, 67);
             return;
         }
@@ -3812,7 +3816,7 @@ namespace eval ::PARSER {
             */
         
             rde_param_i_state_push_void (p);
-            rde_param_i_next_char (p, "\50", 116);
+            rde_param_i_next_char (p, "(", 116);
             if (rde_param_i_seq_void2void(p)) return;
             sym_WHITESPACE (p);
             rde_param_i_state_merge_void (p);
@@ -3829,7 +3833,7 @@ namespace eval ::PARSER {
             */
         
             if (rde_param_i_symbol_void_start (p, 121)) return ;
-            rde_param_i_next_char (p, "\133", 119);
+            rde_param_i_next_char (p, "[", 119);
             rde_param_i_symbol_done_void (p, 121, 120);
             return;
         }
@@ -4290,7 +4294,7 @@ namespace eval ::PARSER {
             */
         
             rde_param_i_state_push_void (p);
-            rde_param_i_next_char (p, "\73", 143);
+            rde_param_i_next_char (p, ";", 143);
             if (rde_param_i_seq_void2void(p)) return;
             sym_WHITESPACE (p);
             rde_param_i_state_merge_void (p);
@@ -4749,7 +4753,7 @@ namespace eval ::PARSER {
 	    }
 
 	    parserg->counter ++;
-	    sprintf (parserg->buf, "PARSER%d", parserg->counter);
+	    sprintf (parserg->buf, "PARSER%ld", parserg->counter);
 	    return parserg->buf;
 #undef  KEY
 	}

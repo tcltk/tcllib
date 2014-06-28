@@ -36,7 +36,6 @@ foreach {format notes} {
 		"$format parser $glabel, good input - $label" -setup {
 		} -body {
 		    $p parset $text
-		} -cleanup {
 		} -result $expected
 	}
 
@@ -64,7 +63,6 @@ foreach {format notes} {
 
 		    # TODO: Convert message to readable.
 		    list $code $msg
-		} -cleanup {
 		} -result $expected
 	} yes ;# Allow missing testsets, for two reasons:
 	#      # (a) Easier during testsuite development, allowing incremental buildup
@@ -74,7 +72,50 @@ foreach {format notes} {
 	# Kill shared parser instance.
 	$p destroy
     }
-}
 
+    # Testing the handling of generated parsers for single
+    # characters, for characters special to Tcl, C, and
+    # PEGs. I.e. ensure that the various forms of quoting are done
+    # correctly.
+
+    foreach {n peg input message hmsg} $chars {
+	set glabel "T_$hmsg"
+	set grdata [string map [list @ $peg]  $gtemplate]
+	set edata  [string map [list @ $hmsg] $etemplate]
+
+	# Make parser instance. Shared across tests.
+	# Amortize the time spent on dynamically making it.
+	set p [make-parser $format $glabel $grdata]
+
+	test pt-pgen-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-f:${format}-g:${glabel}-3.$n \
+	    "$format parser $glabel, good input" -setup {
+	    } -body {
+		$p parset $input
+	    } -result {}
+
+	test pt-pgen-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-f:${format}-g:${glabel}-4.$n \
+	    "$format parser $glabel, bad input, tcl error" -setup {
+	    } -body {
+		set code [catch {
+		    $p parset X
+		} msg]
+		lassign $msg tag loc mlist
+		list $tag $loc [lsort -dict $mlist]
+	    } -result [list pt::rde 0 [list $message]]
+
+	test pt-pgen-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-f:${format}-g:${glabel}-5.$n \
+	    "$format parser $glabel, bad input, readable error" -setup {
+	    } -body {
+		set code [catch {
+		    $p parset X
+		} msg]
+		lassign $msg tag loc mlist
+		pt::util::error2readable [list $tag $loc [lsort -dict $mlist]] X
+	    } -result $edata
+
+	# Kill shared parser instance.
+	$p destroy
+    }
+}
 
 #----------------------------------------------------------------------

@@ -22,7 +22,7 @@ namespace eval ::pt::pe {
 	control punct space upper wordchar xdigit ddigit \
 	nonterminal optional repeat0 repeat1 ahead notahead \
 	choice sequence \
-	terminal range
+	terminal range class str
 
     namespace ensemble create
 }
@@ -242,12 +242,28 @@ proc ::pt::pe::notahead    {pe} { list ! $pe }
 proc ::pt::pe::choice   {pe args} { linsert $args 0 / $pe }
 proc ::pt::pe::sequence {pe args} { linsert $args 0 x $pe }
 
-proc ::pt::pe::terminal {t}     { list t $t }
-proc ::pt::pe::range    {ta tb} {
+proc ::pt::pe::terminal {t} {
+    list t $t
+}
+proc ::pt::pe::range {ta tb} {
     if {$ta eq $tb} {
 	list t $ta
     } else {
 	list .. $ta $tb
+    }
+}
+proc ::pt::pe::class {set} {
+    if {[string length $set] > 1} {
+	list cl $set
+    } else {
+	list t $set
+    }
+}
+proc ::pt::pe::str {str} {
+    if {[string length $str] > 1} {
+	list str $str
+    } else {
+	list t $str
     }
 }
 
@@ -301,5 +317,5 @@ namespace eval ::pt::pe {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::pe 1.0.1
+package provide pt::pe 1.0.2
 return
