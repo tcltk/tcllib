@@ -37,7 +37,7 @@ typedef struct RDE_STATE_ {
 #endif
 } RDE_STATE_;
 
-long int param_intern (RDE_STATE p, char* literal);
+long int param_intern (RDE_STATE p, const char* literal);
 
 #endif /* _P_H */
 
