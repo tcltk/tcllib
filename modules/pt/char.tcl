@@ -60,10 +60,7 @@ proc ::char::Unquote {ch} {
 # ### ### ### ######### ######### #########
 
 proc ::char::quote::tcl {ch args} {
-    if {![llength $args]} { return [Tcl $ch] }
-    lappend res [Tcl $ch]
-    foreach ch $args { lappend res [Tcl $ch] }
-    return $res
+    Arg Tcl $ch {*}$args
 }
 
 proc ::char::quote::Tcl {ch} {
@@ -111,10 +108,7 @@ proc ::char::quote::Tcl {ch} {
 # ### ### ### ######### ######### #########
 
 proc ::char::quote::string {ch args} {
-    if {![llength $args]} { return [String $ch] }
-    lappend res [String $ch]
-    foreach ch $args { lappend res [String $ch] }
-    return $res
+    Arg String $ch {*}$args
 }
 
 proc ::char::quote::String {ch} {
@@ -167,10 +161,7 @@ namespace eval ::char::quote {
 # ### ### ### ######### ######### #########
 
 proc ::char::quote::cstring {ch args} {
-    if {![llength $args]} { return [CString $ch] }
-    lappend res [CString $ch]
-    foreach ch $args { lappend res [CString $ch] }
-    return $res
+    Arg CString $ch {*}$args
 }
 
 proc ::char::quote::CString {ch} {
@@ -189,6 +180,16 @@ proc ::char::quote::CString {ch} {
 	"\t" {return "\\t"}
 	"\"" - "\\" {
 	    return \\$ch
+	}
+	"\{" - "\}" {
+	    # The generated C code containing the result of this
+	    # transform may be embedded in Tcl code (Brace-quoted),
+	    # i.e. like for a critcl-based package. To avoid tripping
+	    # the Tcl parser with unbalanced braces we sacrifice
+	    # readability of the generated code a bit and insert
+	    # braces in their octal form.
+	    scan $ch %c chcode
+	    return \\[format %o $chcode]
 	}
     }
 
@@ -218,10 +219,7 @@ proc ::char::quote::CString {ch} {
 # ### ### ### ######### ######### #########
 
 proc ::char::quote::comment {ch args} {
-    if {![llength $args]} { return [Comment $ch] }
-    lappend res [Comment $ch]
-    foreach ch $args { lappend res [Comment $ch] }
-    return $res
+    Arg Comment $ch {*}$args
 }
 
 proc ::char::quote::Comment {ch} {
@@ -259,6 +257,30 @@ proc ::char::quote::Comment {ch} {
     # Regular character: Is its own representation.
 
     return $ch
+}
+
+# ### ### ### ######### ######### #########
+## Internal. Argument processing helper
+
+proc ::char::quote::Arg {cmdpfx str args} {
+    # single argument => treat as string,
+    # process all characters separately.
+    # return transformed string.
+    if {![llength $args]} {
+	set r {}
+	foreach c [split $str {}] {
+	    append r [uplevel 1 [linsert $cmdpfx end $c]]
+	}
+	return $r
+    }
+
+    # multiple arguments => process each like a single argument, and
+    # return list of transform results.
+    set args [linsert $args 0 $str]
+    foreach str $args {
+	lappend res [uplevel 1 [list Arg $cmdpfx $str]]
+    }
+    return $res
 }
 
 # ### ### ### ######### ######### #########
