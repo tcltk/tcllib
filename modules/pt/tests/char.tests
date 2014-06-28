@@ -51,8 +51,22 @@ foreach {n label input expected} {
     test char-2.3.$n "char tcl, map $label" -body {
 	char quote tcl $input
     } -result $expected
+
+    # collect table columns for string and multi-arg tests.
+    lappend ll $label
+    lappend li $input
+    lappend le $expected
 }
-unset -nocomplain n label input expected
+
+test char-2.4 "char tcl, map string" -body {
+    char quote tcl [join $li {}]
+} -result [join $le {}]
+
+test char-2.5 "char tcl, map multiple" -body {
+    char quote tcl {*}$li
+} -result $le
+
+unset -nocomplain n label input expected ll li le
 
 #----------------------------------------------------------------------
 
@@ -83,8 +97,22 @@ foreach {n label input expected} {
     test char-3.3.$n "char string, map $label" -body {
 	char quote string $input
     } -result $expected
+
+    # collect table columns for string and multi-arg tests.
+    lappend ll $label
+    lappend li $input
+    lappend le $expected
 }
-unset -nocomplain n label input expected
+
+test char-3.4 "char string, map string" -body {
+    char quote string [join $li {}]
+} -result [join $le {}]
+
+test char-3.5 "char string, map multiple" -body {
+    char quote string {*}$li
+} -result $le
+
+unset -nocomplain n label input expected ll li le
 
 #----------------------------------------------------------------------
 
@@ -115,8 +143,22 @@ foreach {n label input expected} {
     test char-4.3.$n "char cstring, map $label" -body {
 	char quote cstring $input
     } -result $expected
+
+    # collect table columns for string and multi-arg tests.
+    lappend ll $label
+    lappend li $input
+    lappend le $expected
 }
-unset -nocomplain n label input expected
+
+test char-4.4 "char cstring, map string" -body {
+    char quote cstring [join $li {}]
+} -result [join $le {}]
+
+test char-4.5 "char cstring, map multiple" -body {
+    char quote cstring {*}$li
+} -result $le
+
+unset -nocomplain n label input expected ll li le
 
 #----------------------------------------------------------------------
 
@@ -147,8 +189,22 @@ foreach {n label input expected} {
     test char-5.3.$n "char comment, map $label" -body {
 	char quote comment $input
     } -result $expected
+
+    # collect table columns for string and multi-arg tests.
+    lappend ll $label
+    lappend li $input
+    lappend le $expected
 }
-unset -nocomplain n label input expected
+
+test char-5.4 "char comment, map string" -body {
+    char quote comment [join $li {}]
+} -result [join $le {}]
+
+test char-5.5 "char comment, map multiple" -body {
+    char quote comment {*}$li
+} -result $le
+
+unset -nocomplain n label input expected ll li le
 
 #----------------------------------------------------------------------
 return
