@@ -904,7 +904,8 @@
 	    if (p->CL < rde_tc_size (p->TC)) {
 		
 		rde_tc_get (p->TC, p->CL, &p->CC, &p->CC_len);
-		ASSERT_BOUNDS (p->CC_len, TCL_UTF_MAX);
+		
+		ASSERT_BOUNDS (p->CC_len-1, TCL_UTF_MAX);
 		p->ST = 1;
 		ER_CLEAR (p);
 		return;

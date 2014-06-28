@@ -750,8 +750,8 @@ failed_93:
 char_85:
 # '\'
 
-         input_next        "t \\"
-     ok! test_char         "\\"
+         input_next        "t \"
+     ok! test_char         "\"
          return
 
 range_87:
@@ -1022,8 +1022,8 @@ char_111:
 char_114:
 # '\"'
 
-         input_next        "t \""
-     ok! test_char         "\""
+         input_next        "t ""
+     ok! test_char         """
          return
 
 char_116:
@@ -2329,15 +2329,15 @@ oknoast_290:
 char_286:
 # '\n'
 
-         input_next        "t \\n"
-     ok! test_char         "\\n"
+         input_next        "t <LF>"
+     ok! test_char         "<LF>"
          return
 
 char_288:
 # '\r'
 
-         input_next        "t \\r"
-     ok! test_char         "\\r"
+         input_next        "t <CR>"
+     ok! test_char         "<CR>"
          return
 #
 # value Symbol 'Expression'
