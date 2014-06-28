@@ -113,7 +113,7 @@ param_setcmd (RDE_STATE p, Tcl_Command c)
 }
 
 long int
-param_intern (RDE_STATE p, char* literal)
+param_intern (RDE_STATE p, const char* literal)
 {
     long int res;
     int isnew;
