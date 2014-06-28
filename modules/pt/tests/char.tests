@@ -129,7 +129,7 @@ test char-4.2 {char cstring, multi char} -body {
 } -result {A B}
 
 foreach {n label input expected} {
-    0 obrace    \{     \{
+    0 obrace    \{     \\173
     1 obrckt    \[     \[
     2 dquote    \"     \\\"
     3 escape    \033   \\33

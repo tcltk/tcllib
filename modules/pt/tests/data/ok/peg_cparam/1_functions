@@ -36,8 +36,8 @@ static char const* <<string-table>> [22] = {
     /*       15 = */   "Expression",
     /*       16 = */   "n Function",
     /*       17 = */   "Function",
-    /*       18 = */   "str sin\50",
-    /*       19 = */   "t \51",
+    /*       18 = */   "str sin(",
+    /*       19 = */   "t )",
     /*       20 = */   "n Sinus",
     /*       21 = */   "Sinus"
 };
@@ -108,11 +108,11 @@ static char const* <<string-table>> [22] = {
     */
 
     rde_param_i_state_push_void (<<state>>);
-    rde_param_i_next_str (<<state>>, "sin\50", 18);
+    rde_param_i_next_str (<<state>>, "sin(", 18);
     if (rde_param_i_seq_void2value(<<state>>)) return;
     <<self>> <<ns>>sym_Expression (<<state>>);
     if (rde_param_i_seq_value2value(<<state>>)) return;
-    rde_param_i_next_char (<<state>>, "\51", 19);
+    rde_param_i_next_char (<<state>>, ")", 19);
     rde_param_i_state_merge_value (<<state>>);
     return;
 }
