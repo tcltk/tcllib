@@ -15,7 +15,7 @@
 package require Tcl 8.2
 
 namespace eval ::crc {
-    variable crc32_version 1.3.1
+    variable crc32_version 1.3.2
     variable accel
     array set accel {critcl 0 trf 0}
 
@@ -362,7 +362,11 @@ proc ::crc::crc32 {args} {
 
 # Try and load a compiled extension to help (note - trf is fastest)
 namespace eval ::crc {
-    foreach e {trf critcl} { if {[LoadAccelerator $e]} { break } }
+    variable e {}
+    foreach e {trf critcl} {
+        if {[LoadAccelerator $e]} break
+    }
+    unset e
 }
 
 package provide crc32 $::crc::crc32_version

@@ -1,4 +1,5 @@
-[manpage_begin ripemd160 n 1.0.3]
+[vset VERSION 1.0.5]
+[manpage_begin ripemd160 n [vset VERSION]]
 [see_also md4]
 [see_also md5]
 [see_also ripemd128]
@@ -16,7 +17,7 @@
 [titledesc {RIPEMD-160 Message-Digest Algorithm}]
 [category  {Hashes, checksums, and encryption}]
 [require Tcl 8.2]
-[require ripemd160 [opt 1.0.3]]
+[require ripemd160 [opt [vset VERSION]]]
 [description]
 [para]
 
