@@ -29,7 +29,7 @@ package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::ripemd {
     namespace eval ripemd128 {
-        variable version 1.0.4
+        variable version 1.0.5
         variable rcsid {$Id: ripemd128.tcl,v 1.10 2009/05/07 01:12:59 patthoyts Exp $}
         variable accel
         array set accel {trf 0}
@@ -719,7 +719,10 @@ namespace eval ::ripemd {
 
 # Try and load a compiled extension to help.
 namespace eval ::ripemd::ripemd128 {
-    foreach e {trf} { if {[LoadAccelerator $e]} { break } }
+    variable e {}
+    foreach e {trf} {
+        if {[LoadAccelerator $e]} break
+    }
     unset e
 }
 
@@ -730,5 +733,3 @@ package provide ripemd128 $::ripemd::ripemd128::version
 #   mode: tcl
 #   indent-tabs-mode: nil
 # End:
-
-
