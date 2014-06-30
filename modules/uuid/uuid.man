@@ -1,4 +1,4 @@
-[vset UUID_VERSION 1.0.3]
+[vset UUID_VERSION 1.0.4]
 [manpage_begin uuid n [vset UUID_VERSION]]
 [keywords GUID]
 [keywords UUID]
