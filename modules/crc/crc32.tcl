@@ -234,7 +234,7 @@ if {[package provide critcl] != {}} {
                     ndx = (t ^ data[cn]) & 0xFF;
                     r = Tcl_ListObjIndex(interp, tblPtr, ndx, &lkpPtr);
                     if (r == TCL_OK) {
-                        r = Tcl_GetLongFromObj(interp, lkpPtr, &lkp);
+                        r = Tcl_GetLongFromObj(interp, lkpPtr, (long*) &lkp);
                     }
                     if (r == TCL_OK) {
                         t = lkp ^ (t >> 8);
