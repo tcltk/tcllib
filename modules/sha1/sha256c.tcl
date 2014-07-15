@@ -30,6 +30,7 @@ namespace eval ::sha2 {
     critcl::ccode {
         #include "sha256.h"
         #include <stdlib.h>
+        #include <string.h>
         #include <assert.h>
         
         static

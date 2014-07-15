@@ -23,6 +23,7 @@ namespace eval ::sha1 {
     critcl::ccode {
         #include "sha1.h"
         #include <stdlib.h>
+        #include <string.h>
         #include <assert.h>
         
         static
@@ -32,7 +33,7 @@ namespace eval ::sha1 {
         sha1_free_rep(Tcl_Obj* obj)
         {
             SHA1_CTX* mp = (SHA1_CTX*) obj->internalRep.otherValuePtr;
-            Tcl_Free(mp);
+            Tcl_Free ((char*)mp);
         }
         
         static void

@@ -167,8 +167,8 @@ critcl::ccommand isOverlapNativec {clientData interp objc objv} {
         result = Tcl_GetObjResult (interp);
 
         /* set ipaddr and ipmask */
-        Tcl_GetIntFromObj(interp,objv[objc-3],&ipaddr);
-        Tcl_GetIntFromObj(interp,objv[objc-2],&ipMask);
+        Tcl_GetIntFromObj(interp,objv[objc-3],(int*)&ipaddr);
+        Tcl_GetIntFromObj(interp,objv[objc-2],(int*)&ipMask);
 
         /* split the 3rd argument into <ipaddr> <mask> pairs */
         if (Tcl_ListObjGetElements (interp, objv[objc-1], &compareListc, &compareListv) != TCL_OK) {
@@ -192,8 +192,8 @@ critcl::ccommand isOverlapNativec {clientData interp objc objv} {
 		    Tcl_AddErrorInfo(interp,"need format {{<ipaddr> <mask>} {<ipad..}}");
                         return TCL_ERROR;
                 }
-                Tcl_GetIntFromObj(interp,comparePrefixMaskv[0],&ipaddr2);
-                Tcl_GetIntFromObj(interp,comparePrefixMaskv[1],&ipMask2);
+                Tcl_GetIntFromObj(interp,comparePrefixMaskv[0],(int*)&ipaddr2);
+                Tcl_GetIntFromObj(interp,comparePrefixMaskv[1],(int*)&ipMask2);
 /*               printf(" with %x/%x \n",ipaddr2,ipMask2); */
                 mask1mask2 = ipMask & ipMask2;
 /*               printf("  mask1mask2 %x \n",mask1mask2); */
