@@ -22,6 +22,7 @@ critcl::csources md4.c
 namespace eval ::md4 {
 
     critcl::ccode {
+        #include <string.h>
         #include "md4.h"
 
         /*
