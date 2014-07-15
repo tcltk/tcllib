@@ -132,7 +132,7 @@ namespace eval ::base32 {
 	}
       }
 
-      Tcl_SetObjResult (interp, Tcl_NewStringObj (out, nout));
+      Tcl_SetObjResult (interp, Tcl_NewStringObj ((char*)out, nout));
       Tcl_Free ((char*) out);
       return TCL_OK;
     }
@@ -177,7 +177,7 @@ namespace eval ::base32 {
         return TCL_ERROR;
       }
 
-      buf = Tcl_GetStringFromObj (objv[1], &nbuf);
+      buf = (unsigned char*) Tcl_GetStringFromObj (objv[1], &nbuf);
 
       if (nbuf % 8) {
 	Tcl_SetObjResult (interp, Tcl_NewStringObj ("Length is not a multiple of 8", -1));

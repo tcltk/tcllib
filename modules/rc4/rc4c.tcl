@@ -20,6 +20,8 @@ package provide rc4c 1.1.0
 namespace eval ::rc4 {
 
     critcl::ccode {
+        #include <string.h>
+
         typedef struct RC4_CTX {
             unsigned char x;
             unsigned char y;
@@ -61,7 +63,7 @@ namespace eval ::rc4 {
             char* str;
             TRACE("rc4_string_rep(%08x)\n", (long)obj);
             /* convert via a byte array to properly handle null bytes */
-            tmpObj = Tcl_NewByteArrayObj((char *)ctx, sizeof(RC4_CTX));
+            tmpObj = Tcl_NewByteArrayObj((unsigned char *)ctx, sizeof(RC4_CTX));
             Tcl_IncrRefCount(tmpObj);
             
             str = Tcl_GetStringFromObj(tmpObj, &obj->length);
@@ -160,7 +162,7 @@ namespace eval ::rc4 {
 
         resObj = Tcl_NewByteArrayObj(res, size);
         Tcl_SetObjResult(interp, resObj);
-        Tcl_Free(res);
+        Tcl_Free((char*)res);
         return TCL_OK;
     }
 }
