@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 1]
+[vset PACKAGE_VERSION 1.0.1]
 [manpage_begin pt::peg::interp n [vset PACKAGE_VERSION]]
 [include include/module.inc]
 [titledesc {Interpreter for parsing expression grammars}]

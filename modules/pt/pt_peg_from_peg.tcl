@@ -2,7 +2,7 @@
 #
 #	Conversion from PEG (Human readable text) to PEG.
 #
-# Copyright (c) 2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2014 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -197,7 +197,7 @@ proc pt::peg::from::peg::GEN::Class {s e args} {
 }
 
 proc pt::peg::from::peg::GEN::CONTROL {s e} {
-    return [pt::pe ddigit]
+    return [pt::pe control]
 }
 
 proc pt::peg::from::peg::GEN::DDIGIT {s e} {
@@ -390,5 +390,5 @@ proc pt::peg::from::peg::GEN::XDIGIT {s e} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::from::peg 1.0.2
+package provide pt::peg::from::peg 1.0.3
 return

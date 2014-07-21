@@ -2,7 +2,7 @@
 #
 #	Conversion of PEG to C PARAM, customizable text blocks.
 #
-# Copyright (c) 2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2014 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -41,20 +41,21 @@ namespace eval ::pt::peg::to::cparam {
 ## API.
 
 proc ::pt::peg::to::cparam::reset {} {
-    variable template @code@         ; # -template
-    variable name     a_pe_grammar   ; # -name
-    variable file     unknown        ; # -file
-    variable user     unknown        ; # -user
-    variable self     {}             ; # -self-command
-    variable ns       {}             ; # -namespace
-    variable def      static         ; # -fun-qualifier
-    variable main     __main         ; # -main
-    variable indent   0              ; # -indent
-    variable comments 1              ; # -comments
-    variable prelude  {}             ; # -prelude
-    variable statedecl {RDE_PARAM p} ; # -state-decl
-    variable stateref  {p}           ; # -state-ref
-    variable strings   p_string      ; # -string-varname
+    variable insertcmd {}             ; # -insert-command (hook)
+    variable template  @code@         ; # -template
+    variable name      a_pe_grammar   ; # -name
+    variable file      unknown        ; # -file
+    variable user      unknown        ; # -user
+    variable self      {}             ; # -self-command
+    variable ns        {}             ; # -namespace
+    variable def       static         ; # -fun-qualifier
+    variable main      __main         ; # -main
+    variable indent    0              ; # -indent
+    variable comments  1              ; # -comments
+    variable prelude   {}             ; # -prelude
+    variable statedecl {RDE_PARAM p}  ; # -state-decl
+    variable stateref  {p}            ; # -state-ref
+    variable strings   p_string       ; # -string-varname
     return
 }
 
@@ -69,6 +70,7 @@ proc ::pt::peg::to::cparam::configure {args} {
     variable main
     variable omap
     variable indent
+    variable insertcmd
     variable comments
     variable prelude
     variable statedecl
@@ -81,6 +83,7 @@ proc ::pt::peg::to::cparam::configure {args} {
 		    -file            $file \
 		    -fun-qualifier   $def \
 		    -indent          $indent \
+		    -insert-command  $insertcmd \
 		    -main            $main \
 		    -name            $name \
 		    -namespace       $ns \
@@ -97,13 +100,15 @@ proc ::pt::peg::to::cparam::configure {args} {
 	if {[info exists omap($variable)]} {
 	    return [set $omap($variable)]
 	} else {
-	    return -code error "Expected one of -comments, -file, -fun-qualifier, -indent, -main, -name, -namespace, -self-command, -state-decl, -state-ref, -string-varname, -template, or -user, got \"$option\""
+	    # TODO: compute this string dynamically.
+	    return -code error "Expected one of -comments, -file, -fun-qualifier, -indent, -insert-cmd, -main, -name, -namespace, -self-command, -state-decl, -state-ref, -string-varname, -template, or -user, got \"$option\""
 	}
     } elseif {[llength $args] % 2 == 0} {
 	foreach {option value} $args {
 	    set variable [string range $option 1 end]
 	    if {![info exists omap($variable)]} {
-		return -code error "Expected one of -comments, -file, -fun-qualifier, -indent, -main, -name, -namespace, -self-command, -state-decl, -state-ref, -string-varname, -template, or -user, got \"$option\""
+		# TODO: compute this string dynamically.
+		return -code error "Expected one of -comments, -file, -fun-qualifier, -indent, -insert-cmd, -main, -name, -namespace, -self-command, -state-decl, -state-ref, -string-varname, -template, or -user, got \"$option\""
 	    }
 	}
 	foreach {option value} $args {
@@ -124,6 +129,7 @@ proc ::pt::peg::to::cparam::configure {args} {
 			return -code error "Expected boolean, got \"$value\""
 		    }
 		}
+		insert-cmd -
 		statedecl -
 		stateref -
 		strings -
@@ -153,6 +159,7 @@ proc ::pt::peg::to::cparam::convert {serial} {
     variable def
     variable main
     variable indent
+    variable insertcmd
     variable prelude
     variable statedecl
     variable stateref
@@ -174,6 +181,28 @@ proc ::pt::peg::to::cparam::convert {serial} {
     }
 
     text::write reset
+
+    # Fixed elements of the string table as needed by the lower level
+    # PARAM functions (class tests, see param.c, enum test_class).
+    # ** Keep in sync **
+    #
+    # Maybe move the interning into the lower level, i.e. PARAM ?
+
+    Op::Asm::String alnum
+    Op::Asm::String alpha
+    Op::Asm::String ascii
+    Op::Asm::String control
+    Op::Asm::String ddigit
+    Op::Asm::String digit
+    Op::Asm::String graph
+    Op::Asm::String lower
+    Op::Asm::String print
+    Op::Asm::String punct
+    Op::Asm::String space
+    Op::Asm::String upper
+    Op::Asm::String wordchar
+    Op::Asm::String xdigit
+
     Op::Asm::Header {Declaring the parse functions}
     text::write /line
     text::write store FORWARD
@@ -242,23 +271,32 @@ proc ::pt::peg::to::cparam::convert {serial} {
     set xprelude $prelude ; if {$xprelude ne {}} { set xprelude " $xprelude" }
     set xself    $self    ; if {$xself    ne {}} { append xself { } }
 
-    set code [string map \
-		  [list \
-		       @user@   $user \
-		       @format@ C/PARAM   \
-		       @file@   $file \
-		       @name@   $name \
-		       @code@   $code] $template]
-    set code [string map \
-		  [list \
-		       @statedecl@  $statedecl  \
-		       @stateref@   $stateref  \
-		       @strings@    $strings  \
-		       { @prelude@} $xprelude \
-		       {@self@ }    $xself \
-		       @def@        $def \
-		       @ns@         $ns   \
-		       @main@       $main] $code]
+    # I. run code through the insertcmd hook (if specified) to prepare it for embedding
+    if {[llength $insertcmd]} {
+	set code [{*}$insertcmd $code]
+    }
+
+    # II. Phase 1 merge of code into the template.
+    #     (Placeholders only in the template)
+    lappend map @user@   $user
+    lappend map @format@ C/PARAM
+    lappend map @file@   $file
+    lappend map @name@   $name
+    lappend map @code@   $code
+    set code [string map $map $template]
+    unset map
+
+    # III. Phase 2 merge of code into the template.
+    #      (Placeholders in generated code, and template).
+    lappend map @statedecl@  $statedecl
+    lappend map @stateref@   $stateref
+    lappend map @strings@    $strings
+    lappend map { @prelude@} $xprelude
+    lappend map {@self@ }    $xself
+    lappend map @def@        $def
+    lappend map @ns@         $ns
+    lappend map @main@       $main
+    set code [string map $map $code]
 
     return $code
     # ### ### ### ######### ######### #########
@@ -279,7 +317,6 @@ proc ::pt::peg::to::cparam::Expression {expression modes} {
 }
 
 proc ::pt::peg::to::cparam::Symbol {symbol mode rhs modes} {
-
     set expression [Expression $rhs $modes]
 
     text::write clear
@@ -294,9 +331,10 @@ proc ::pt::peg::to::cparam::Symbol {symbol mode rhs modes} {
     set gen [dict get $result gen]
 
     Op::Asm::Function sym_$symbol {
-
-	set msg    [Op::Asm::String [list n $symbol]]
-	set symbol [Op::Asm::String $symbol]
+	# Message is Tcl list. Quote for C embedding.
+	set msg    [Op::Asm::String [char quote cstring [list n $symbol]]]
+	# Quote for C embedding.
+	set symbol [Op::Asm::String [char quote cstring $symbol]]
 
 	# We have six possibilites for the combination of AST node
 	# generation by the rhs and AST generation by the symbol. Two
@@ -486,7 +524,7 @@ proc ::pt::peg::to::cparam::Symbol {symbol mode rhs modes} {
 
 namespace eval ::pt::peg::to::cparam::Op {
     namespace export \
-	alpha alnum ascii digit graph lower print \
+	alpha alnum ascii control digit graph lower print \
 	punct space upper wordchar xdigit ddigit \
 	dot epsilon t .. n ? * + & ! x / 
 }
@@ -514,7 +552,7 @@ proc ::pt::peg::to::cparam::Op::dot {modes} {
 }
 
 foreach test {
-    alpha alnum ascii digit graph lower print
+    alpha alnum ascii control digit graph lower print
     punct space upper wordchar xdigit ddigit
 } {
     proc ::pt::peg::to::cparam::Op::$test {modes} \
@@ -536,29 +574,34 @@ proc ::pt::peg::to::cparam::Op::t {modes char} {
     Asm::Start
     Asm::ReTerminal t $char
     Asm::Direct {
-	set c [char quote tcl $char]
-	set m [Asm::String "t $c"]
+	# Message is Tcl list. Quote for C embedding.
+	set msg  [Asm::String [char quote cstring [list t $char]]]
+	# Quote for C embedding.
+	set char [char quote cstring $char]
 
-	#Asm::Ins input_next $m
+	#Asm::Ins input_next $msg
 	#Asm::CStmt if (!rde_param_query_st(@stateref@)) return
-	#Asm::Ins test_char \"$c\" $m
-	Asm::Ins next_char \"$c\" $m
+	#Asm::Ins test_char \"$char\" $msg
+	Asm::Ins next_char \"$char\" $msg
     }
     Asm::Done
 }
 
-proc ::pt::peg::to::cparam::Op::.. {modes chstart chend} {
+proc ::pt::peg::to::cparam::Op::.. {modes chs che} {
     Asm::Start
-    Asm::ReTerminal .. $chstart $chend
+    Asm::ReTerminal .. $chs $che
     Asm::Direct {
-	set s [char quote tcl $chstart]
-	set e [char quote tcl $chend]
-	set m [Asm::String ".. $s $e"]
+	# Message is Tcl list. Quote for C embedding.
+	set msg [Asm::String [char quote cstring [list .. $chs $che]]]
 
-	#Asm::Ins input_next $m
+	# Quote for C embedding
+	set chs [char quote cstring $chs]
+	set che [char quote cstring $che]
+
+	#Asm::Ins input_next $msg
 	#Asm::CStmt if (!rde_param_query_st(@stateref@)) return
-	#Asm::Ins test_range \"$s\" \"$e\" $m
-	Asm::Ins next_range \"$s\" \"$e\" $m
+	#Asm::Ins test_range \"$chs\" \"$che\" $msg
+	Asm::Ins next_range \"$chs\" \"$che\" $msg
     }
     Asm::Done
 }
@@ -567,14 +610,17 @@ proc ::pt::peg::to::cparam::Op::str {modes args} {
     Asm::Start
     Asm::ReTerminal str {*}$args
     Asm::Direct {
-	set str [join [char quote tcl {*}$args] {}]
-	set m [Asm::String "str '$str'"]
+	set str [join $args {}]
+	# Message is Tcl list. Quote for C embedding.
+	set msg [Asm::String [char quote cstring [list str $str]]]
+	# Quote for C embedding
+	set str [char quote cstring $str]
 
 	# Without fusing this would be rendered as a sequence of
 	# characters, with associated stack churn for each
 	# character/part (See Op::x, void/all).
 
-	Asm::Ins next_str \"$str\" $m
+	Asm::Ins next_str \"$str\" $msg
     }
     Asm::Done
 }
@@ -588,10 +634,13 @@ proc ::pt::peg::to::cparam::Op::cl {modes args} {
 	# characters, with associated stack churn for each
 	# character/branch (See Op::/, void/all).
 
-	set cl [join [Ranges {*}$args] {}]
-	set m [Asm::String "cl '$cl'"]
+	set cl  [join [Ranges {*}$args] {}]
+	# Message is Tcl list. Quote for C embedding.
+	set msg [Asm::String [char quote cstring [list cl $cl]]]
+	# Quote for C embedding
+	set cl  [char quote cstring $cl]
 
-	Asm::Ins next_class \"$cl\" $m
+	Asm::Ins next_class \"$cl\" $msg
     }
     Asm::Done
 }
@@ -626,7 +675,7 @@ proc ::pt::peg::to::cparam::Op::Range {rorc} {
 	}
 	return $res
     } else {
-	return [char quote tcl $rorc]
+	return $rorc ;#[char quote tcl $rorc]
     }
 }
 
@@ -1566,6 +1615,7 @@ namespace eval ::pt::peg::to::cparam {
 	file            file
 	fun-qualifier   def
 	indent          indent
+	insert-cmd      insertcmd
 	main            main
 	name            name
 	namespace       ns
@@ -1578,6 +1628,8 @@ namespace eval ::pt::peg::to::cparam {
 	user            user
     }
 
+    variable insertcmd {}
+    variable comments  1
     variable self      {}
     variable ns        {}
     variable def       static
@@ -1588,9 +1640,10 @@ namespace eval ::pt::peg::to::cparam {
     variable stateref  p
     variable strings   p_string
 
-    variable template @code@       ; # A string. Specifies how to
-				     # embed the generated code into a
-				     # larger frame- work (the
+    variable template @code@       ; # A string. Together with the
+				     # insertcmd (if any) it specifies
+				     # how to embed the generated code
+				     # into a larger framework (the
 				     # template).
     variable name     a_pe_grammar ; # String. Name of the grammar.
     variable file     unknown      ; # String. Name of the file or
@@ -1604,5 +1657,5 @@ namespace eval ::pt::peg::to::cparam {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::to::cparam 1.1.1
+package provide pt::peg::to::cparam 1.1.3
 return

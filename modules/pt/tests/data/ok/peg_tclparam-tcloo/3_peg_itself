@@ -937,34 +937,6 @@ oo::class create PARSER {
     }
     
     #
-    # void Symbol 'END'
-    #
-    
-    method sym_END {} {
-        # x
-        #     "END"
-        #     (WHITESPACE)
-    
-        my si:void_void_symbol_start END
-        my sequence_158
-        my si:void_clear_symbol_end END
-        return
-    }
-    
-    method sequence_158 {} {
-        # x
-        #     "END"
-        #     (WHITESPACE)
-    
-        my si:void_state_push
-        my si:next_str END
-        my si:voidvoid_part
-        my sym_WHITESPACE
-        my si:void_state_merge
-        return
-    }
-    
-    #
     # void Symbol 'EOF'
     #
     
@@ -973,12 +945,12 @@ oo::class create PARSER {
         #     <dot>
     
         my si:void_void_symbol_start EOF
-        my notahead_162
+        my notahead_157
         my si:void_clear_symbol_end EOF
         return
     }
     
-    method notahead_162 {} {
+    method notahead_157 {} {
         # !
         #     <dot>
     
@@ -1014,12 +986,12 @@ oo::class create PARSER {
         #             (Sequence)
     
         my si:value_symbol_start Expression
-        my sequence_174
+        my sequence_169
         my si:reduce_symbol_end Expression
         return
     }
     
-    method sequence_174 {} {
+    method sequence_169 {} {
         # x
         #     (Sequence)
         #     *
@@ -1030,12 +1002,12 @@ oo::class create PARSER {
         my si:value_state_push
         my sym_Sequence
         my si:valuevalue_part
-        my kleene_172
+        my kleene_167
         my si:value_state_merge
         return
     }
     
-    method kleene_172 {} {
+    method kleene_167 {} {
         # *
         #     x
         #         (SLASH)
@@ -1043,13 +1015,13 @@ oo::class create PARSER {
     
         while {1} {
             my si:void2_state_push
-        my sequence_170
+        my sequence_165
             my si:kleene_close
         }
         return
     }
     
-    method sequence_170 {} {
+    method sequence_165 {} {
         # x
         #     (SLASH)
         #     (Sequence)
@@ -1068,24 +1040,28 @@ oo::class create PARSER {
     
     method sym_Final {} {
         # x
-        #     (END)
+        #     "END"
+        #     (WHITESPACE)
         #     (SEMICOLON)
         #     (WHITESPACE)
     
         my si:void_void_symbol_start Final
-        my sequence_180
+        my sequence_176
         my si:void_clear_symbol_end Final
         return
     }
     
-    method sequence_180 {} {
+    method sequence_176 {} {
         # x
-        #     (END)
+        #     "END"
+        #     (WHITESPACE)
         #     (SEMICOLON)
         #     (WHITESPACE)
     
         my si:void_state_push
-        my sym_END
+        my si:next_str END
+        my si:voidvoid_part
+        my sym_WHITESPACE
         my si:voidvoid_part
         my sym_SEMICOLON
         my si:voidvoid_part
@@ -1108,12 +1084,12 @@ oo::class create PARSER {
         #     (EOF)
     
         my si:value_symbol_start Grammar
-        my sequence_190
+        my sequence_186
         my si:reduce_symbol_end Grammar
         return
     }
     
-    method sequence_190 {} {
+    method sequence_186 {} {
         # x
         #     (WHITESPACE)
         #     (Header)
@@ -1127,7 +1103,7 @@ oo::class create PARSER {
         my si:voidvalue_part
         my sym_Header
         my si:valuevalue_part
-        my kleene_186
+        my kleene_182
         my si:valuevalue_part
         my sym_Final
         my si:valuevalue_part
@@ -1136,7 +1112,7 @@ oo::class create PARSER {
         return
     }
     
-    method kleene_186 {} {
+    method kleene_182 {} {
         # *
         #     (Definition)
     
@@ -1158,12 +1134,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:void_symbol_start GRAPH
-        my sequence_195
+        my sequence_191
         my si:void_leaf_symbol_end GRAPH
         return
     }
     
-    method sequence_195 {} {
+    method sequence_191 {} {
         # x
         #     "<graph>"
         #     (WHITESPACE)
@@ -1187,12 +1163,12 @@ oo::class create PARSER {
         #     (StartExpr)
     
         my si:value_symbol_start Header
-        my sequence_201
+        my sequence_197
         my si:reduce_symbol_end Header
         return
     }
     
-    method sequence_201 {} {
+    method sequence_197 {} {
         # x
         #     (PEG)
         #     (Identifier)
@@ -1223,12 +1199,12 @@ oo::class create PARSER {
         #             <alnum>
     
         my si:void_symbol_start Ident
-        my sequence_214
+        my sequence_210
         my si:void_leaf_symbol_end Ident
         return
     }
     
-    method sequence_214 {} {
+    method sequence_210 {} {
         # x
         #     /
         #         [_:]
@@ -1239,14 +1215,14 @@ oo::class create PARSER {
         #             <alnum>
     
         my si:void_state_push
-        my choice_206
+        my choice_202
         my si:voidvoid_part
-        my kleene_212
+        my kleene_208
         my si:void_state_merge
         return
     }
     
-    method choice_206 {} {
+    method choice_202 {} {
         # /
         #     [_:]
         #     <alpha>
@@ -1259,7 +1235,7 @@ oo::class create PARSER {
         return
     }
     
-    method kleene_212 {} {
+    method kleene_208 {} {
         # *
         #     /
         #         [_:]
@@ -1267,13 +1243,13 @@ oo::class create PARSER {
     
         while {1} {
             my si:void2_state_push
-        my choice_210
+        my choice_206
             my si:kleene_close
         }
         return
     }
     
-    method choice_210 {} {
+    method choice_206 {} {
         # /
         #     [_:]
         #     <alnum>
@@ -1296,12 +1272,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:value_symbol_start Identifier
-        my sequence_219
+        my sequence_215
         my si:reduce_symbol_end Identifier
         return
     }
     
-    method sequence_219 {} {
+    method sequence_215 {} {
         # x
         #     (Ident)
         #     (WHITESPACE)
@@ -1324,12 +1300,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:void_void_symbol_start IS
-        my sequence_224
+        my sequence_220
         my si:void_clear_symbol_end IS
         return
     }
     
-    method sequence_224 {} {
+    method sequence_220 {} {
         # x
         #     "<-"
         #     (WHITESPACE)
@@ -1352,12 +1328,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:void_symbol_start LEAF
-        my sequence_229
+        my sequence_225
         my si:void_leaf_symbol_end LEAF
         return
     }
     
-    method sequence_229 {} {
+    method sequence_225 {} {
         # x
         #     "leaf"
         #     (WHITESPACE)
@@ -1396,12 +1372,12 @@ oo::class create PARSER {
         #         (WHITESPACE)
     
         my si:value_symbol_start Literal
-        my choice_258
+        my choice_254
         my si:reduce_symbol_end Literal
         return
     }
     
-    method choice_258 {} {
+    method choice_254 {} {
         # /
         #     x
         #         (APOSTROPH)
@@ -1423,14 +1399,14 @@ oo::class create PARSER {
         #         (WHITESPACE)
     
         my si:value_state_push
-        my sequence_243
+        my sequence_239
         my si:valuevalue_branch
-        my sequence_256
+        my sequence_252
         my si:value_state_merge
         return
     }
     
-    method sequence_243 {} {
+    method sequence_239 {} {
         # x
         #     (APOSTROPH)
         #     *
@@ -1444,7 +1420,7 @@ oo::class create PARSER {
         my si:void_state_push
         my sym_APOSTROPH
         my si:voidvalue_part
-        my kleene_239
+        my kleene_235
         my si:valuevalue_part
         my sym_APOSTROPH
         my si:valuevalue_part
@@ -1453,7 +1429,7 @@ oo::class create PARSER {
         return
     }
     
-    method kleene_239 {} {
+    method kleene_235 {} {
         # *
         #     x
         #         !
@@ -1462,27 +1438,27 @@ oo::class create PARSER {
     
         while {1} {
             my si:void2_state_push
-        my sequence_237
+        my sequence_233
             my si:kleene_close
         }
         return
     }
     
-    method sequence_237 {} {
+    method sequence_233 {} {
         # x
         #     !
         #         (APOSTROPH)
         #     (Char)
     
         my si:void_state_push
-        my notahead_234
+        my notahead_230
         my si:voidvalue_part
         my sym_Char
         my si:value_state_merge
         return
     }
     
-    method notahead_234 {} {
+    method notahead_230 {} {
         # !
         #     (APOSTROPH)
     
@@ -1492,7 +1468,7 @@ oo::class create PARSER {
         return
     }
     
-    method sequence_256 {} {
+    method sequence_252 {} {
         # x
         #     (DAPOSTROPH)
         #     *
@@ -1506,7 +1482,7 @@ oo::class create PARSER {
         my si:void_state_push
         my sym_DAPOSTROPH
         my si:voidvalue_part
-        my kleene_252
+        my kleene_248
         my si:valuevalue_part
         my sym_DAPOSTROPH
         my si:valuevalue_part
@@ -1515,7 +1491,7 @@ oo::class create PARSER {
         return
     }
     
-    method kleene_252 {} {
+    method kleene_248 {} {
         # *
         #     x
         #         !
@@ -1524,27 +1500,27 @@ oo::class create PARSER {
     
         while {1} {
             my si:void2_state_push
-        my sequence_250
+        my sequence_246
             my si:kleene_close
         }
         return
     }
     
-    method sequence_250 {} {
+    method sequence_246 {} {
         # x
         #     !
         #         (DAPOSTROPH)
         #     (Char)
     
         my si:void_state_push
-        my notahead_247
+        my notahead_243
         my si:voidvalue_part
         my sym_Char
         my si:value_state_merge
         return
     }
     
-    method notahead_247 {} {
+    method notahead_243 {} {
         # !
         #     (DAPOSTROPH)
     
@@ -1564,12 +1540,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:void_symbol_start LOWER
-        my sequence_263
+        my sequence_259
         my si:void_leaf_symbol_end LOWER
         return
     }
     
-    method sequence_263 {} {
+    method sequence_259 {} {
         # x
         #     "<lower>"
         #     (WHITESPACE)
@@ -1592,12 +1568,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:void_symbol_start NOT
-        my sequence_268
+        my sequence_264
         my si:void_leaf_symbol_end NOT
         return
     }
     
-    method sequence_268 {} {
+    method sequence_264 {} {
         # x
         #     '!'
         #     (WHITESPACE)
@@ -1620,12 +1596,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:void_void_symbol_start OPEN
-        my sequence_273
+        my sequence_269
         my si:void_clear_symbol_end OPEN
         return
     }
     
-    method sequence_273 {} {
+    method sequence_269 {} {
         # x
         #     '\('
         #     (WHITESPACE)
@@ -1658,24 +1634,46 @@ oo::class create PARSER {
     method sym_PEG {} {
         # x
         #     "PEG"
+        #     !
+        #         /
+        #             [_:]
+        #             <alnum>
         #     (WHITESPACE)
     
         my si:void_void_symbol_start PEG
-        my sequence_280
+        my sequence_281
         my si:void_clear_symbol_end PEG
         return
     }
     
-    method sequence_280 {} {
+    method sequence_281 {} {
         # x
         #     "PEG"
+        #     !
+        #         /
+        #             [_:]
+        #             <alnum>
         #     (WHITESPACE)
     
         my si:void_state_push
         my si:next_str PEG
         my si:voidvoid_part
+        my notahead_278
+        my si:voidvoid_part
         my sym_WHITESPACE
         my si:void_state_merge
+        return
+    }
+    
+    method notahead_278 {} {
+        # !
+        #     /
+        #         [_:]
+        #         <alnum>
+    
+        my i_loc_push
+        my choice_206
+        my si:void_notahead_exit
         return
     }
     
@@ -1689,12 +1687,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:void_symbol_start PLUS
-        my sequence_285
+        my sequence_286
         my si:void_leaf_symbol_end PLUS
         return
     }
     
-    method sequence_285 {} {
+    method sequence_286 {} {
         # x
         #     '+'
         #     (WHITESPACE)
@@ -1720,12 +1718,12 @@ oo::class create PARSER {
         #     (Suffix)
     
         my si:value_symbol_start Prefix
-        my sequence_295
+        my sequence_296
         my si:reduce_symbol_end Prefix
         return
     }
     
-    method sequence_295 {} {
+    method sequence_296 {} {
         # x
         #     ?
         #         /
@@ -1734,26 +1732,26 @@ oo::class create PARSER {
         #     (Suffix)
     
         my si:value_state_push
-        my optional_292
+        my optional_293
         my si:valuevalue_part
         my sym_Suffix
         my si:value_state_merge
         return
     }
     
-    method optional_292 {} {
+    method optional_293 {} {
         # ?
         #     /
         #         (AND)
         #         (NOT)
     
         my si:void2_state_push
-        my choice_290
+        my choice_291
         my si:void_state_merge_ok
         return
     }
     
-    method choice_290 {} {
+    method choice_291 {} {
         # /
         #     (AND)
         #     (NOT)
@@ -1796,12 +1794,12 @@ oo::class create PARSER {
         #     (DOT)
     
         my si:value_symbol_start Primary
-        my choice_321
+        my choice_322
         my si:reduce_symbol_end Primary
         return
     }
     
-    method choice_321 {} {
+    method choice_322 {} {
         # /
         #     (ALNUM)
         #     (ALPHA)
@@ -1857,7 +1855,7 @@ oo::class create PARSER {
         my si:valuevalue_branch
         my sym_Identifier
         my si:valuevalue_branch
-        my sequence_316
+        my sequence_317
         my si:valuevalue_branch
         my sym_Literal
         my si:valuevalue_branch
@@ -1868,7 +1866,7 @@ oo::class create PARSER {
         return
     }
     
-    method sequence_316 {} {
+    method sequence_317 {} {
         # x
         #     (OPEN)
         #     (Expression)
@@ -1894,12 +1892,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:void_symbol_start PRINTABLE
-        my sequence_326
+        my sequence_327
         my si:void_leaf_symbol_end PRINTABLE
         return
     }
     
-    method sequence_326 {} {
+    method sequence_327 {} {
         # x
         #     "<print>"
         #     (WHITESPACE)
@@ -1922,12 +1920,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:void_symbol_start PUNCT
-        my sequence_331
+        my sequence_332
         my si:void_leaf_symbol_end PUNCT
         return
     }
     
-    method sequence_331 {} {
+    method sequence_332 {} {
         # x
         #     "<punct>"
         #     (WHITESPACE)
@@ -1950,12 +1948,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:void_symbol_start QUESTION
-        my sequence_336
+        my sequence_337
         my si:void_leaf_symbol_end QUESTION
         return
     }
     
-    method sequence_336 {} {
+    method sequence_337 {} {
         # x
         #     '?'
         #     (WHITESPACE)
@@ -1981,12 +1979,12 @@ oo::class create PARSER {
         #     (Char)
     
         my si:value_symbol_start Range
-        my choice_345
+        my choice_346
         my si:reduce_symbol_end Range
         return
     }
     
-    method choice_345 {} {
+    method choice_346 {} {
         # /
         #     x
         #         (Char)
@@ -1995,14 +1993,14 @@ oo::class create PARSER {
         #     (Char)
     
         my si:value_state_push
-        my sequence_342
+        my sequence_343
         my si:valuevalue_branch
         my sym_Char
         my si:value_state_merge
         return
     }
     
-    method sequence_342 {} {
+    method sequence_343 {} {
         # x
         #     (Char)
         #     (TO)
@@ -2028,12 +2026,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:void_void_symbol_start SEMICOLON
-        my sequence_350
+        my sequence_351
         my si:void_clear_symbol_end SEMICOLON
         return
     }
     
-    method sequence_350 {} {
+    method sequence_351 {} {
         # x
         #     ';'
         #     (WHITESPACE)
@@ -2055,12 +2053,12 @@ oo::class create PARSER {
         #     (Prefix)
     
         my si:value_symbol_start Sequence
-        my poskleene_354
+        my poskleene_355
         my si:reduce_symbol_end Sequence
         return
     }
     
-    method poskleene_354 {} {
+    method poskleene_355 {} {
         # +
         #     (Prefix)
     
@@ -2085,12 +2083,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:void_void_symbol_start SLASH
-        my sequence_359
+        my sequence_360
         my si:void_clear_symbol_end SLASH
         return
     }
     
-    method sequence_359 {} {
+    method sequence_360 {} {
         # x
         #     '/'
         #     (WHITESPACE)
@@ -2113,12 +2111,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:void_symbol_start SPACE
-        my sequence_364
+        my sequence_365
         my si:void_leaf_symbol_end SPACE
         return
     }
     
-    method sequence_364 {} {
+    method sequence_365 {} {
         # x
         #     "<space>"
         #     (WHITESPACE)
@@ -2141,12 +2139,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:void_symbol_start STAR
-        my sequence_369
+        my sequence_370
         my si:void_leaf_symbol_end STAR
         return
     }
     
-    method sequence_369 {} {
+    method sequence_370 {} {
         # x
         #     '*'
         #     (WHITESPACE)
@@ -2170,7 +2168,7 @@ oo::class create PARSER {
         #     (CLOSE)
     
         my si:value_symbol_start StartExpr
-        my sequence_316
+        my sequence_317
         my si:reduce_symbol_end StartExpr
         return
     }
@@ -2189,12 +2187,12 @@ oo::class create PARSER {
         #             (PLUS)
     
         my si:value_symbol_start Suffix
-        my sequence_385
+        my sequence_386
         my si:reduce_symbol_end Suffix
         return
     }
     
-    method sequence_385 {} {
+    method sequence_386 {} {
         # x
         #     (Primary)
         #     ?
@@ -2206,12 +2204,12 @@ oo::class create PARSER {
         my si:value_state_push
         my sym_Primary
         my si:valuevalue_part
-        my optional_383
+        my optional_384
         my si:value_state_merge
         return
     }
     
-    method optional_383 {} {
+    method optional_384 {} {
         # ?
         #     /
         #         (QUESTION)
@@ -2219,12 +2217,12 @@ oo::class create PARSER {
         #         (PLUS)
     
         my si:void2_state_push
-        my choice_381
+        my choice_382
         my si:void_state_merge_ok
         return
     }
     
-    method choice_381 {} {
+    method choice_382 {} {
         # /
         #     (QUESTION)
         #     (STAR)
@@ -2263,12 +2261,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:void_symbol_start UPPER
-        my sequence_392
+        my sequence_393
         my si:void_leaf_symbol_end UPPER
         return
     }
     
-    method sequence_392 {} {
+    method sequence_393 {} {
         # x
         #     "<upper>"
         #     (WHITESPACE)
@@ -2291,12 +2289,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:void_symbol_start VOID
-        my sequence_397
+        my sequence_398
         my si:void_leaf_symbol_end VOID
         return
     }
     
-    method sequence_397 {} {
+    method sequence_398 {} {
         # x
         #     "void"
         #     (WHITESPACE)
@@ -2320,12 +2318,12 @@ oo::class create PARSER {
         #         (COMMENT)
     
         my si:void_void_symbol_start WHITESPACE
-        my kleene_404
+        my kleene_405
         my si:void_clear_symbol_end WHITESPACE
         return
     }
     
-    method kleene_404 {} {
+    method kleene_405 {} {
         # *
         #     /
         #         <space>
@@ -2333,13 +2331,13 @@ oo::class create PARSER {
     
         while {1} {
             my si:void2_state_push
-        my choice_402
+        my choice_403
             my si:kleene_close
         }
         return
     }
     
-    method choice_402 {} {
+    method choice_403 {} {
         # /
         #     <space>
         #     (COMMENT)
@@ -2362,12 +2360,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:void_symbol_start WORDCHAR
-        my sequence_409
+        my sequence_410
         my si:void_leaf_symbol_end WORDCHAR
         return
     }
     
-    method sequence_409 {} {
+    method sequence_410 {} {
         # x
         #     "<wordchar>"
         #     (WHITESPACE)
@@ -2390,12 +2388,12 @@ oo::class create PARSER {
         #     (WHITESPACE)
     
         my si:void_symbol_start XDIGIT
-        my sequence_414
+        my sequence_415
         my si:void_leaf_symbol_end XDIGIT
         return
     }
     
-    method sequence_414 {} {
+    method sequence_415 {} {
         # x
         #     "<xdigit>"
         #     (WHITESPACE)
