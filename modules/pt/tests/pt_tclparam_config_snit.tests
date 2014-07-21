@@ -3,19 +3,23 @@
 
 test pt-tclparam-config-snit-1.0 {convert, wrong#args} -body {
     pt::tclparam::configuration::snit def
-} -returnCodes error -result {wrong # args: should be "pt::tclparam::configuration::snit def class pkg cmd"}
+} -returnCodes error -result {wrong # args: should be "pt::tclparam::configuration::snit def class pkg version cmd"}
 
 test pt-tclparam-config-snit-1.1 {convert, wrong#args} -body {
     pt::tclparam::configuration::snit def C
-} -returnCodes error -result {wrong # args: should be "pt::tclparam::configuration::snit def class pkg cmd"}
+} -returnCodes error -result {wrong # args: should be "pt::tclparam::configuration::snit def class pkg version cmd"}
 
 test pt-tclparam-config-snit-1.2 {convert, wrong#args} -body {
     pt::tclparam::configuration::snit def C P
-} -returnCodes error -result {wrong # args: should be "pt::tclparam::configuration::snit def class pkg cmd"}
+} -returnCodes error -result {wrong # args: should be "pt::tclparam::configuration::snit def class pkg version cmd"}
+
+test pt-tclparam-config-snit-1.3 {convert, wrong#args} -body {
+    pt::tclparam::configuration::snit def C P V
+} -returnCodes error -result {wrong # args: should be "pt::tclparam::configuration::snit def class pkg version cmd"}
 
 test pt-tclparam-config-snit-2.0 {reset, wrong#args} -body {
-    pt::tclparam::configuration::snit def C P C XXX
-} -returnCodes error -result {wrong # args: should be "pt::tclparam::configuration::snit def class pkg cmd"}
+    pt::tclparam::configuration::snit def C P V C XXX
+} -returnCodes error -result {wrong # args: should be "pt::tclparam::configuration::snit def class pkg version cmd"}
 
 # -------------------------------------------------------------------------
 
@@ -33,7 +37,7 @@ TestFilesProcess $mytestdir ok peg_serial-canonical peg_tclparam-snit -> n label
 	pt::peg::to::tclparam configure -file     TEST
 
 	pt::tclparam::configuration::snit def \
-	    PARSER SNIT_PACKAGE \
+	    PARSER SNIT_PACKAGE 1 \
 	    {pt::peg::to::tclparam configure}
 
     } -body {

@@ -2,7 +2,7 @@
 '\" Generated from file 'from\&.inc' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::peg::from::peg" n 1\&.0\&.2 tcllib "Parser Tools"
+.TH "pt::peg::from::peg" n 1\&.0\&.3 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ pt::peg::from::peg \- PEG Conversion\&. Read PEG format
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBpt::peg::from::peg  ?1\&.0\&.2?\fR
+package require \fBpt::peg::from::peg  ?1\&.0\&.3?\fR
 .sp
 \fBpt::peg::from::peg\fR \fBconvert\fR \fItext\fR
 .sp
@@ -358,13 +358,13 @@ PEG pe-grammar-for-peg (Grammar)
         Range           <- Char TO Char / Char ;
 
         StartExpr       <- OPEN Expression CLOSE ;
-void:   Final           <- END SEMICOLON WHITESPACE ;
+void:   Final           <- "END" WHITESPACE SEMICOLON WHITESPACE ;
 
         # --------------------------------------------------------------------
         # Lexing constructs
 
         Identifier      <- Ident WHITESPACE ;
-leaf:   Ident           <- ('_' / ':' / <alpha>) ('_' / ':' / <alnum>)* ;
+leaf:   Ident           <- ([_:] / <alpha>) ([_:] / <alnum>)* ;
         Char            <- CharSpecial / CharOctalFull / CharOctalPart
                         /  CharUnicode / CharUnescaped
                         ;
@@ -382,11 +382,10 @@ void:   OPENB           <- "["           ;
 void:   CLOSEB          <- "]"           ;
 void:   APOSTROPH       <- "'"           ;
 void:   DAPOSTROPH      <- '"'           ;
-void:   PEG             <- "PEG"   WHITESPACE ;
+void:   PEG             <- "PEG" !([_:] / <alnum>) WHITESPACE ;
 void:   IS              <- "<-"    WHITESPACE ;
 leaf:   VOID            <- "void"  WHITESPACE ; # Implies that definition has no semantic value\&.
 leaf:   LEAF            <- "leaf"  WHITESPACE ; # Implies that definition has no terminals\&.
-void:   END             <- "END"   WHITESPACE ;
 void:   SEMICOLON       <- ";"     WHITESPACE ;
 void:   COLON           <- ":"     WHITESPACE ;
 void:   SLASH           <- "/"     WHITESPACE ;

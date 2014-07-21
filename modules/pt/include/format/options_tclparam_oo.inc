@@ -22,4 +22,11 @@ to generate too, if option [option -class] is not specified, see above.
 The default value is [const PACKAGE], applying if neither option
 [option -package] nor [option -class] were specified.
 
+[comment {================================================================================}]
+[opt_def -version string]
+
+The value of this option is the version of the package to generate.
+
+The default value is [const 1].
+
 [list_end]

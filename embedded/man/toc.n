@@ -948,6 +948,9 @@ tcllib
 \fBpt::cparam::configuration::critcl\fR
 \fIfiles/modules/pt/pt_cparam_config_critcl\&.n\fR: C/PARAM, Canned configuration, Critcl
 .TP
+\fBpt::cparam::configuration::tea\fR
+\fIfiles/modules/pt/pt_cparam_config_tea\&.n\fR: C/PARAM, Canned configuration, TEA
+.TP
 \fBpt::json_language\fR
 \fIfiles/modules/pt/pt_json_language\&.n\fR: The JSON Grammar Exchange Format
 .TP
@@ -1040,6 +1043,9 @@ tcllib
 .TP
 \fBpt::tclparam::configuration::tcloo\fR
 \fIfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR: Tcl/PARAM, Canned configuration, Tcloo
+.TP
+\fBpt::util\fR
+\fIfiles/modules/pt/pt_util\&.n\fR: General utilities
 .TP
 \fBpt_export_api\fR
 \fIfiles/modules/pt/pt_to_api\&.n\fR: Parser Tools Export API

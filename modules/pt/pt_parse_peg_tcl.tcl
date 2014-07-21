@@ -365,7 +365,7 @@ snit::type ::pt::parse::peg_tcl {
     proc sym_CharSpecial {} { upvar 1 myparser myparser
         # x
         #     '\'
-        #     [nrt'"[]\]
+        #     [nrt'\"[]\]
     
         $myparser si:void_symbol_start CharSpecial
         sequence_57
@@ -376,7 +376,7 @@ snit::type ::pt::parse::peg_tcl {
     proc sequence_57 {} { upvar 1 myparser myparser
         # x
         #     '\'
-        #     [nrt'"[]\]
+        #     [nrt'\"[]\]
     
         $myparser si:void_state_push
         $myparser si:next_char \134
@@ -951,34 +951,6 @@ snit::type ::pt::parse::peg_tcl {
     }
     
     #
-    # void Symbol 'END'
-    #
-    
-    proc sym_END {} { upvar 1 myparser myparser
-        # x
-        #     "END"
-        #     (WHITESPACE)
-    
-        $myparser si:void_void_symbol_start END
-        sequence_158
-        $myparser si:void_clear_symbol_end END
-        return
-    }
-    
-    proc sequence_158 {} { upvar 1 myparser myparser
-        # x
-        #     "END"
-        #     (WHITESPACE)
-    
-        $myparser si:void_state_push
-        $myparser si:next_str END
-        $myparser si:voidvoid_part
-        sym_WHITESPACE
-        $myparser si:void_state_merge
-        return
-    }
-    
-    #
     # void Symbol 'EOF'
     #
     
@@ -987,12 +959,12 @@ snit::type ::pt::parse::peg_tcl {
         #     <dot>
     
         $myparser si:void_void_symbol_start EOF
-        notahead_162
+        notahead_157
         $myparser si:void_clear_symbol_end EOF
         return
     }
     
-    proc notahead_162 {} { upvar 1 myparser myparser
+    proc notahead_157 {} { upvar 1 myparser myparser
         # !
         #     <dot>
     
@@ -1007,6 +979,7 @@ snit::type ::pt::parse::peg_tcl {
     #
     
     proc sym_EOL {} { upvar 1 myparser myparser
+        # [\n\r]
     
         $myparser si:void_void_symbol_start EOL
         $myparser si:next_class \n\r
@@ -1027,12 +1000,12 @@ snit::type ::pt::parse::peg_tcl {
         #             (Sequence)
     
         $myparser si:value_symbol_start Expression
-        sequence_174
+        sequence_169
         $myparser si:reduce_symbol_end Expression
         return
     }
     
-    proc sequence_174 {} { upvar 1 myparser myparser
+    proc sequence_169 {} { upvar 1 myparser myparser
         # x
         #     (Sequence)
         #     *
@@ -1043,12 +1016,12 @@ snit::type ::pt::parse::peg_tcl {
         $myparser si:value_state_push
         sym_Sequence
         $myparser si:valuevalue_part
-        kleene_172
+        kleene_167
         $myparser si:value_state_merge
         return
     }
     
-    proc kleene_172 {} { upvar 1 myparser myparser
+    proc kleene_167 {} { upvar 1 myparser myparser
         # *
         #     x
         #         (SLASH)
@@ -1056,13 +1029,13 @@ snit::type ::pt::parse::peg_tcl {
     
         while {1} {
             $myparser si:void2_state_push
-        sequence_170
+        sequence_165
             $myparser si:kleene_close
         }
         return
     }
     
-    proc sequence_170 {} { upvar 1 myparser myparser
+    proc sequence_165 {} { upvar 1 myparser myparser
         # x
         #     (SLASH)
         #     (Sequence)
@@ -1081,24 +1054,28 @@ snit::type ::pt::parse::peg_tcl {
     
     proc sym_Final {} { upvar 1 myparser myparser
         # x
-        #     (END)
+        #     "END"
+        #     (WHITESPACE)
         #     (SEMICOLON)
         #     (WHITESPACE)
     
         $myparser si:void_void_symbol_start Final
-        sequence_180
+        sequence_176
         $myparser si:void_clear_symbol_end Final
         return
     }
     
-    proc sequence_180 {} { upvar 1 myparser myparser
+    proc sequence_176 {} { upvar 1 myparser myparser
         # x
-        #     (END)
+        #     "END"
+        #     (WHITESPACE)
         #     (SEMICOLON)
         #     (WHITESPACE)
     
         $myparser si:void_state_push
-        sym_END
+        $myparser si:next_str END
+        $myparser si:voidvoid_part
+        sym_WHITESPACE
         $myparser si:voidvoid_part
         sym_SEMICOLON
         $myparser si:voidvoid_part
@@ -1121,12 +1098,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (EOF)
     
         $myparser si:value_symbol_start Grammar
-        sequence_190
+        sequence_186
         $myparser si:reduce_symbol_end Grammar
         return
     }
     
-    proc sequence_190 {} { upvar 1 myparser myparser
+    proc sequence_186 {} { upvar 1 myparser myparser
         # x
         #     (WHITESPACE)
         #     (Header)
@@ -1140,7 +1117,7 @@ snit::type ::pt::parse::peg_tcl {
         $myparser si:voidvalue_part
         sym_Header
         $myparser si:valuevalue_part
-        kleene_186
+        kleene_182
         $myparser si:valuevalue_part
         sym_Final
         $myparser si:valuevalue_part
@@ -1149,7 +1126,7 @@ snit::type ::pt::parse::peg_tcl {
         return
     }
     
-    proc kleene_186 {} { upvar 1 myparser myparser
+    proc kleene_182 {} { upvar 1 myparser myparser
         # *
         #     (Definition)
     
@@ -1171,12 +1148,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:void_symbol_start GRAPH
-        sequence_195
+        sequence_191
         $myparser si:void_leaf_symbol_end GRAPH
         return
     }
     
-    proc sequence_195 {} { upvar 1 myparser myparser
+    proc sequence_191 {} { upvar 1 myparser myparser
         # x
         #     "<graph>"
         #     (WHITESPACE)
@@ -1200,12 +1177,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (StartExpr)
     
         $myparser si:value_symbol_start Header
-        sequence_201
+        sequence_197
         $myparser si:reduce_symbol_end Header
         return
     }
     
-    proc sequence_201 {} { upvar 1 myparser myparser
+    proc sequence_197 {} { upvar 1 myparser myparser
         # x
         #     (PEG)
         #     (Identifier)
@@ -1236,12 +1213,12 @@ snit::type ::pt::parse::peg_tcl {
         #             <alnum>
     
         $myparser si:void_symbol_start Ident
-        sequence_214
+        sequence_210
         $myparser si:void_leaf_symbol_end Ident
         return
     }
     
-    proc sequence_214 {} { upvar 1 myparser myparser
+    proc sequence_210 {} { upvar 1 myparser myparser
         # x
         #     /
         #         [_:]
@@ -1252,14 +1229,14 @@ snit::type ::pt::parse::peg_tcl {
         #             <alnum>
     
         $myparser si:void_state_push
-        choice_206
+        choice_202
         $myparser si:voidvoid_part
-        kleene_212
+        kleene_208
         $myparser si:void_state_merge
         return
     }
     
-    proc choice_206 {} { upvar 1 myparser myparser
+    proc choice_202 {} { upvar 1 myparser myparser
         # /
         #     [_:]
         #     <alpha>
@@ -1272,7 +1249,7 @@ snit::type ::pt::parse::peg_tcl {
         return
     }
     
-    proc kleene_212 {} { upvar 1 myparser myparser
+    proc kleene_208 {} { upvar 1 myparser myparser
         # *
         #     /
         #         [_:]
@@ -1280,13 +1257,13 @@ snit::type ::pt::parse::peg_tcl {
     
         while {1} {
             $myparser si:void2_state_push
-        choice_210
+        choice_206
             $myparser si:kleene_close
         }
         return
     }
     
-    proc choice_210 {} { upvar 1 myparser myparser
+    proc choice_206 {} { upvar 1 myparser myparser
         # /
         #     [_:]
         #     <alnum>
@@ -1309,12 +1286,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:value_symbol_start Identifier
-        sequence_219
+        sequence_215
         $myparser si:reduce_symbol_end Identifier
         return
     }
     
-    proc sequence_219 {} { upvar 1 myparser myparser
+    proc sequence_215 {} { upvar 1 myparser myparser
         # x
         #     (Ident)
         #     (WHITESPACE)
@@ -1337,12 +1314,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:void_void_symbol_start IS
-        sequence_224
+        sequence_220
         $myparser si:void_clear_symbol_end IS
         return
     }
     
-    proc sequence_224 {} { upvar 1 myparser myparser
+    proc sequence_220 {} { upvar 1 myparser myparser
         # x
         #     "<-"
         #     (WHITESPACE)
@@ -1365,12 +1342,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:void_symbol_start LEAF
-        sequence_229
+        sequence_225
         $myparser si:void_leaf_symbol_end LEAF
         return
     }
     
-    proc sequence_229 {} { upvar 1 myparser myparser
+    proc sequence_225 {} { upvar 1 myparser myparser
         # x
         #     "leaf"
         #     (WHITESPACE)
@@ -1409,12 +1386,12 @@ snit::type ::pt::parse::peg_tcl {
         #         (WHITESPACE)
     
         $myparser si:value_symbol_start Literal
-        choice_258
+        choice_254
         $myparser si:reduce_symbol_end Literal
         return
     }
     
-    proc choice_258 {} { upvar 1 myparser myparser
+    proc choice_254 {} { upvar 1 myparser myparser
         # /
         #     x
         #         (APOSTROPH)
@@ -1436,14 +1413,14 @@ snit::type ::pt::parse::peg_tcl {
         #         (WHITESPACE)
     
         $myparser si:value_state_push
-        sequence_243
+        sequence_239
         $myparser si:valuevalue_branch
-        sequence_256
+        sequence_252
         $myparser si:value_state_merge
         return
     }
     
-    proc sequence_243 {} { upvar 1 myparser myparser
+    proc sequence_239 {} { upvar 1 myparser myparser
         # x
         #     (APOSTROPH)
         #     *
@@ -1457,7 +1434,7 @@ snit::type ::pt::parse::peg_tcl {
         $myparser si:void_state_push
         sym_APOSTROPH
         $myparser si:voidvalue_part
-        kleene_239
+        kleene_235
         $myparser si:valuevalue_part
         sym_APOSTROPH
         $myparser si:valuevalue_part
@@ -1466,7 +1443,7 @@ snit::type ::pt::parse::peg_tcl {
         return
     }
     
-    proc kleene_239 {} { upvar 1 myparser myparser
+    proc kleene_235 {} { upvar 1 myparser myparser
         # *
         #     x
         #         !
@@ -1475,27 +1452,27 @@ snit::type ::pt::parse::peg_tcl {
     
         while {1} {
             $myparser si:void2_state_push
-        sequence_237
+        sequence_233
             $myparser si:kleene_close
         }
         return
     }
     
-    proc sequence_237 {} { upvar 1 myparser myparser
+    proc sequence_233 {} { upvar 1 myparser myparser
         # x
         #     !
         #         (APOSTROPH)
         #     (Char)
     
         $myparser si:void_state_push
-        notahead_234
+        notahead_230
         $myparser si:voidvalue_part
         sym_Char
         $myparser si:value_state_merge
         return
     }
     
-    proc notahead_234 {} { upvar 1 myparser myparser
+    proc notahead_230 {} { upvar 1 myparser myparser
         # !
         #     (APOSTROPH)
     
@@ -1505,7 +1482,7 @@ snit::type ::pt::parse::peg_tcl {
         return
     }
     
-    proc sequence_256 {} { upvar 1 myparser myparser
+    proc sequence_252 {} { upvar 1 myparser myparser
         # x
         #     (DAPOSTROPH)
         #     *
@@ -1519,7 +1496,7 @@ snit::type ::pt::parse::peg_tcl {
         $myparser si:void_state_push
         sym_DAPOSTROPH
         $myparser si:voidvalue_part
-        kleene_252
+        kleene_248
         $myparser si:valuevalue_part
         sym_DAPOSTROPH
         $myparser si:valuevalue_part
@@ -1528,7 +1505,7 @@ snit::type ::pt::parse::peg_tcl {
         return
     }
     
-    proc kleene_252 {} { upvar 1 myparser myparser
+    proc kleene_248 {} { upvar 1 myparser myparser
         # *
         #     x
         #         !
@@ -1537,27 +1514,27 @@ snit::type ::pt::parse::peg_tcl {
     
         while {1} {
             $myparser si:void2_state_push
-        sequence_250
+        sequence_246
             $myparser si:kleene_close
         }
         return
     }
     
-    proc sequence_250 {} { upvar 1 myparser myparser
+    proc sequence_246 {} { upvar 1 myparser myparser
         # x
         #     !
         #         (DAPOSTROPH)
         #     (Char)
     
         $myparser si:void_state_push
-        notahead_247
+        notahead_243
         $myparser si:voidvalue_part
         sym_Char
         $myparser si:value_state_merge
         return
     }
     
-    proc notahead_247 {} { upvar 1 myparser myparser
+    proc notahead_243 {} { upvar 1 myparser myparser
         # !
         #     (DAPOSTROPH)
     
@@ -1577,12 +1554,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:void_symbol_start LOWER
-        sequence_263
+        sequence_259
         $myparser si:void_leaf_symbol_end LOWER
         return
     }
     
-    proc sequence_263 {} { upvar 1 myparser myparser
+    proc sequence_259 {} { upvar 1 myparser myparser
         # x
         #     "<lower>"
         #     (WHITESPACE)
@@ -1605,12 +1582,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:void_symbol_start NOT
-        sequence_268
+        sequence_264
         $myparser si:void_leaf_symbol_end NOT
         return
     }
     
-    proc sequence_268 {} { upvar 1 myparser myparser
+    proc sequence_264 {} { upvar 1 myparser myparser
         # x
         #     '!'
         #     (WHITESPACE)
@@ -1633,12 +1610,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:void_void_symbol_start OPEN
-        sequence_273
+        sequence_269
         $myparser si:void_clear_symbol_end OPEN
         return
     }
     
-    proc sequence_273 {} { upvar 1 myparser myparser
+    proc sequence_269 {} { upvar 1 myparser myparser
         # x
         #     '\('
         #     (WHITESPACE)
@@ -1671,24 +1648,46 @@ snit::type ::pt::parse::peg_tcl {
     proc sym_PEG {} { upvar 1 myparser myparser
         # x
         #     "PEG"
+        #     !
+        #         /
+        #             [_:]
+        #             <alnum>
         #     (WHITESPACE)
     
         $myparser si:void_void_symbol_start PEG
-        sequence_280
+        sequence_281
         $myparser si:void_clear_symbol_end PEG
         return
     }
     
-    proc sequence_280 {} { upvar 1 myparser myparser
+    proc sequence_281 {} { upvar 1 myparser myparser
         # x
         #     "PEG"
+        #     !
+        #         /
+        #             [_:]
+        #             <alnum>
         #     (WHITESPACE)
     
         $myparser si:void_state_push
         $myparser si:next_str PEG
         $myparser si:voidvoid_part
+        notahead_278
+        $myparser si:voidvoid_part
         sym_WHITESPACE
         $myparser si:void_state_merge
+        return
+    }
+    
+    proc notahead_278 {} { upvar 1 myparser myparser
+        # !
+        #     /
+        #         [_:]
+        #         <alnum>
+    
+        $myparser i_loc_push
+        choice_206
+        $myparser si:void_notahead_exit
         return
     }
     
@@ -1702,12 +1701,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:void_symbol_start PLUS
-        sequence_285
+        sequence_286
         $myparser si:void_leaf_symbol_end PLUS
         return
     }
     
-    proc sequence_285 {} { upvar 1 myparser myparser
+    proc sequence_286 {} { upvar 1 myparser myparser
         # x
         #     '+'
         #     (WHITESPACE)
@@ -1733,12 +1732,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (Suffix)
     
         $myparser si:value_symbol_start Prefix
-        sequence_295
+        sequence_296
         $myparser si:reduce_symbol_end Prefix
         return
     }
     
-    proc sequence_295 {} { upvar 1 myparser myparser
+    proc sequence_296 {} { upvar 1 myparser myparser
         # x
         #     ?
         #         /
@@ -1747,26 +1746,26 @@ snit::type ::pt::parse::peg_tcl {
         #     (Suffix)
     
         $myparser si:value_state_push
-        optional_292
+        optional_293
         $myparser si:valuevalue_part
         sym_Suffix
         $myparser si:value_state_merge
         return
     }
     
-    proc optional_292 {} { upvar 1 myparser myparser
+    proc optional_293 {} { upvar 1 myparser myparser
         # ?
         #     /
         #         (AND)
         #         (NOT)
     
         $myparser si:void2_state_push
-        choice_290
+        choice_291
         $myparser si:void_state_merge_ok
         return
     }
     
-    proc choice_290 {} { upvar 1 myparser myparser
+    proc choice_291 {} { upvar 1 myparser myparser
         # /
         #     (AND)
         #     (NOT)
@@ -1809,12 +1808,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (DOT)
     
         $myparser si:value_symbol_start Primary
-        choice_321
+        choice_322
         $myparser si:reduce_symbol_end Primary
         return
     }
     
-    proc choice_321 {} { upvar 1 myparser myparser
+    proc choice_322 {} { upvar 1 myparser myparser
         # /
         #     (ALNUM)
         #     (ALPHA)
@@ -1870,7 +1869,7 @@ snit::type ::pt::parse::peg_tcl {
         $myparser si:valuevalue_branch
         sym_Identifier
         $myparser si:valuevalue_branch
-        sequence_316
+        sequence_317
         $myparser si:valuevalue_branch
         sym_Literal
         $myparser si:valuevalue_branch
@@ -1881,7 +1880,7 @@ snit::type ::pt::parse::peg_tcl {
         return
     }
     
-    proc sequence_316 {} { upvar 1 myparser myparser
+    proc sequence_317 {} { upvar 1 myparser myparser
         # x
         #     (OPEN)
         #     (Expression)
@@ -1907,12 +1906,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:void_symbol_start PRINTABLE
-        sequence_326
+        sequence_327
         $myparser si:void_leaf_symbol_end PRINTABLE
         return
     }
     
-    proc sequence_326 {} { upvar 1 myparser myparser
+    proc sequence_327 {} { upvar 1 myparser myparser
         # x
         #     "<print>"
         #     (WHITESPACE)
@@ -1935,12 +1934,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:void_symbol_start PUNCT
-        sequence_331
+        sequence_332
         $myparser si:void_leaf_symbol_end PUNCT
         return
     }
     
-    proc sequence_331 {} { upvar 1 myparser myparser
+    proc sequence_332 {} { upvar 1 myparser myparser
         # x
         #     "<punct>"
         #     (WHITESPACE)
@@ -1963,12 +1962,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:void_symbol_start QUESTION
-        sequence_336
+        sequence_337
         $myparser si:void_leaf_symbol_end QUESTION
         return
     }
     
-    proc sequence_336 {} { upvar 1 myparser myparser
+    proc sequence_337 {} { upvar 1 myparser myparser
         # x
         #     '?'
         #     (WHITESPACE)
@@ -1994,12 +1993,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (Char)
     
         $myparser si:value_symbol_start Range
-        choice_345
+        choice_346
         $myparser si:reduce_symbol_end Range
         return
     }
     
-    proc choice_345 {} { upvar 1 myparser myparser
+    proc choice_346 {} { upvar 1 myparser myparser
         # /
         #     x
         #         (Char)
@@ -2008,14 +2007,14 @@ snit::type ::pt::parse::peg_tcl {
         #     (Char)
     
         $myparser si:value_state_push
-        sequence_342
+        sequence_343
         $myparser si:valuevalue_branch
         sym_Char
         $myparser si:value_state_merge
         return
     }
     
-    proc sequence_342 {} { upvar 1 myparser myparser
+    proc sequence_343 {} { upvar 1 myparser myparser
         # x
         #     (Char)
         #     (TO)
@@ -2041,12 +2040,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:void_void_symbol_start SEMICOLON
-        sequence_350
+        sequence_351
         $myparser si:void_clear_symbol_end SEMICOLON
         return
     }
     
-    proc sequence_350 {} { upvar 1 myparser myparser
+    proc sequence_351 {} { upvar 1 myparser myparser
         # x
         #     ';'
         #     (WHITESPACE)
@@ -2068,12 +2067,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (Prefix)
     
         $myparser si:value_symbol_start Sequence
-        poskleene_354
+        poskleene_355
         $myparser si:reduce_symbol_end Sequence
         return
     }
     
-    proc poskleene_354 {} { upvar 1 myparser myparser
+    proc poskleene_355 {} { upvar 1 myparser myparser
         # +
         #     (Prefix)
     
@@ -2098,12 +2097,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:void_void_symbol_start SLASH
-        sequence_359
+        sequence_360
         $myparser si:void_clear_symbol_end SLASH
         return
     }
     
-    proc sequence_359 {} { upvar 1 myparser myparser
+    proc sequence_360 {} { upvar 1 myparser myparser
         # x
         #     '/'
         #     (WHITESPACE)
@@ -2126,12 +2125,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:void_symbol_start SPACE
-        sequence_364
+        sequence_365
         $myparser si:void_leaf_symbol_end SPACE
         return
     }
     
-    proc sequence_364 {} { upvar 1 myparser myparser
+    proc sequence_365 {} { upvar 1 myparser myparser
         # x
         #     "<space>"
         #     (WHITESPACE)
@@ -2154,12 +2153,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:void_symbol_start STAR
-        sequence_369
+        sequence_370
         $myparser si:void_leaf_symbol_end STAR
         return
     }
     
-    proc sequence_369 {} { upvar 1 myparser myparser
+    proc sequence_370 {} { upvar 1 myparser myparser
         # x
         #     '*'
         #     (WHITESPACE)
@@ -2183,7 +2182,7 @@ snit::type ::pt::parse::peg_tcl {
         #     (CLOSE)
     
         $myparser si:value_symbol_start StartExpr
-        sequence_316
+        sequence_317
         $myparser si:reduce_symbol_end StartExpr
         return
     }
@@ -2202,12 +2201,12 @@ snit::type ::pt::parse::peg_tcl {
         #             (PLUS)
     
         $myparser si:value_symbol_start Suffix
-        sequence_385
+        sequence_386
         $myparser si:reduce_symbol_end Suffix
         return
     }
     
-    proc sequence_385 {} { upvar 1 myparser myparser
+    proc sequence_386 {} { upvar 1 myparser myparser
         # x
         #     (Primary)
         #     ?
@@ -2219,12 +2218,12 @@ snit::type ::pt::parse::peg_tcl {
         $myparser si:value_state_push
         sym_Primary
         $myparser si:valuevalue_part
-        optional_383
+        optional_384
         $myparser si:value_state_merge
         return
     }
     
-    proc optional_383 {} { upvar 1 myparser myparser
+    proc optional_384 {} { upvar 1 myparser myparser
         # ?
         #     /
         #         (QUESTION)
@@ -2232,12 +2231,12 @@ snit::type ::pt::parse::peg_tcl {
         #         (PLUS)
     
         $myparser si:void2_state_push
-        choice_381
+        choice_382
         $myparser si:void_state_merge_ok
         return
     }
     
-    proc choice_381 {} { upvar 1 myparser myparser
+    proc choice_382 {} { upvar 1 myparser myparser
         # /
         #     (QUESTION)
         #     (STAR)
@@ -2276,12 +2275,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:void_symbol_start UPPER
-        sequence_392
+        sequence_393
         $myparser si:void_leaf_symbol_end UPPER
         return
     }
     
-    proc sequence_392 {} { upvar 1 myparser myparser
+    proc sequence_393 {} { upvar 1 myparser myparser
         # x
         #     "<upper>"
         #     (WHITESPACE)
@@ -2304,12 +2303,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:void_symbol_start VOID
-        sequence_397
+        sequence_398
         $myparser si:void_leaf_symbol_end VOID
         return
     }
     
-    proc sequence_397 {} { upvar 1 myparser myparser
+    proc sequence_398 {} { upvar 1 myparser myparser
         # x
         #     "void"
         #     (WHITESPACE)
@@ -2333,12 +2332,12 @@ snit::type ::pt::parse::peg_tcl {
         #         (COMMENT)
     
         $myparser si:void_void_symbol_start WHITESPACE
-        kleene_404
+        kleene_405
         $myparser si:void_clear_symbol_end WHITESPACE
         return
     }
     
-    proc kleene_404 {} { upvar 1 myparser myparser
+    proc kleene_405 {} { upvar 1 myparser myparser
         # *
         #     /
         #         <space>
@@ -2346,13 +2345,13 @@ snit::type ::pt::parse::peg_tcl {
     
         while {1} {
             $myparser si:void2_state_push
-        choice_402
+        choice_403
             $myparser si:kleene_close
         }
         return
     }
     
-    proc choice_402 {} { upvar 1 myparser myparser
+    proc choice_403 {} { upvar 1 myparser myparser
         # /
         #     <space>
         #     (COMMENT)
@@ -2375,12 +2374,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:void_symbol_start WORDCHAR
-        sequence_409
+        sequence_410
         $myparser si:void_leaf_symbol_end WORDCHAR
         return
     }
     
-    proc sequence_409 {} { upvar 1 myparser myparser
+    proc sequence_410 {} { upvar 1 myparser myparser
         # x
         #     "<wordchar>"
         #     (WHITESPACE)
@@ -2403,12 +2402,12 @@ snit::type ::pt::parse::peg_tcl {
         #     (WHITESPACE)
     
         $myparser si:void_symbol_start XDIGIT
-        sequence_414
+        sequence_415
         $myparser si:void_leaf_symbol_end XDIGIT
         return
     }
     
-    proc sequence_414 {} { upvar 1 myparser myparser
+    proc sequence_415 {} { upvar 1 myparser myparser
         # x
         #     "<xdigit>"
         #     (WHITESPACE)
@@ -2428,5 +2427,5 @@ snit::type ::pt::parse::peg_tcl {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::parse::peg_tcl 1
+package provide pt::parse::peg_tcl 1.0.1
 return
