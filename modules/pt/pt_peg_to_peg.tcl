@@ -2,7 +2,7 @@
 #
 #	Conversion from PEG to PEG (Human readable text).
 #
-# Copyright (c) 2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2014 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -207,7 +207,7 @@ proc ::pt::peg::to::peg::Convert {pe operator arguments} {
     # order.
 
     switch -exact -- $operator {
-	alpha - alnum - ascii - digit - graph - lower - print -
+	alpha - alnum - ascii - control - digit - graph - lower - print -
 	punct - space - upper - wordchar - xdigit - ddigit {
 	    # Special forms ...
 	    return [list <$operator> $pe]
@@ -402,12 +402,12 @@ namespace eval ::pt::peg::to::peg {
 	! 2  dot     4  lower 4  ddigit   4
 	+ 3  epsilon 4  print 4  str      4
 	* 3  alnum   4  punct 4  cl       4
-	? 3  alpha   4  space 4
+	? 3  alpha   4  space 4  control  4
     }
 }
 
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::to::peg 1.0.1
+package provide pt::peg::to::peg 1.0.2
 return

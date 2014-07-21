@@ -32,28 +32,42 @@
  * Precomputed table of strings (symbols, error messages, etc.).
  */
 
-static char const* <<string-table>> [21] = {
-    /*        0 = */   "cl '-+'",
-    /*        1 = */   "n AddOp",
-    /*        2 = */   "AddOp",
-    /*        3 = */   "cl '0123456789'",
-    /*        4 = */   "n Digit",
-    /*        5 = */   "Digit",
-    /*        6 = */   "t \50",
-    /*        7 = */   "t \51",
-    /*        8 = */   "n Expression",
-    /*        9 = */   "Expression",
-    /*       10 = */   "n Factor",
-    /*       11 = */   "Factor",
-    /*       12 = */   "cl '*/'",
-    /*       13 = */   "n MulOp",
-    /*       14 = */   "MulOp",
-    /*       15 = */   "n Number",
-    /*       16 = */   "Number",
-    /*       17 = */   "n Sign",
-    /*       18 = */   "Sign",
-    /*       19 = */   "n Term",
-    /*       20 = */   "Term"
+static char const* <<string-table>> [35] = {
+    /*        0 = */   "alnum",
+    /*        1 = */   "alpha",
+    /*        2 = */   "ascii",
+    /*        3 = */   "control",
+    /*        4 = */   "ddigit",
+    /*        5 = */   "digit",
+    /*        6 = */   "graph",
+    /*        7 = */   "lower",
+    /*        8 = */   "print",
+    /*        9 = */   "punct",
+    /*       10 = */   "space",
+    /*       11 = */   "upper",
+    /*       12 = */   "wordchar",
+    /*       13 = */   "xdigit",
+    /*       14 = */   "cl -+",
+    /*       15 = */   "n AddOp",
+    /*       16 = */   "AddOp",
+    /*       17 = */   "cl 0123456789",
+    /*       18 = */   "n Digit",
+    /*       19 = */   "Digit",
+    /*       20 = */   "t (",
+    /*       21 = */   "t )",
+    /*       22 = */   "n Expression",
+    /*       23 = */   "Expression",
+    /*       24 = */   "n Factor",
+    /*       25 = */   "Factor",
+    /*       26 = */   "cl */",
+    /*       27 = */   "n MulOp",
+    /*       28 = */   "MulOp",
+    /*       29 = */   "n Number",
+    /*       30 = */   "Number",
+    /*       31 = */   "n Sign",
+    /*       32 = */   "Sign",
+    /*       33 = */   "n Term",
+    /*       34 = */   "Term"
 };
 
 /*
@@ -74,9 +88,9 @@ static char const* <<string-table>> [21] = {
     * [-+]
     */
 
-    if (rde_param_i_symbol_start (<<state>>, 2)) return ;
-    rde_param_i_next_class (<<state>>, "-+", 0);
-    rde_param_i_symbol_done_leaf (<<state>>, 2, 1);
+    if (rde_param_i_symbol_start (<<state>>, 16)) return ;
+    rde_param_i_next_class (<<state>>, "-+", 14);
+    rde_param_i_symbol_done_leaf (<<state>>, 16, 15);
     return;
 }
 
@@ -89,9 +103,9 @@ static char const* <<string-table>> [21] = {
     * [0123456789]
     */
 
-    if (rde_param_i_symbol_start (<<state>>, 5)) return ;
-    rde_param_i_next_class (<<state>>, "0123456789", 3);
-    rde_param_i_symbol_done_leaf (<<state>>, 5, 4);
+    if (rde_param_i_symbol_start (<<state>>, 19)) return ;
+    rde_param_i_next_class (<<state>>, "0123456789", 17);
+    rde_param_i_symbol_done_leaf (<<state>>, 19, 18);
     return;
 }
 
@@ -114,9 +128,9 @@ static char const* <<string-table>> [21] = {
     *                 (Factor)
     */
 
-    if (rde_param_i_symbol_start_d (<<state>>, 9)) return ;
+    if (rde_param_i_symbol_start_d (<<state>>, 23)) return ;
     <<self>> <<ns>>choice_20 (<<state>>);
-    rde_param_i_symbol_done_d_reduce (<<state>>, 9, 8);
+    rde_param_i_symbol_done_d_reduce (<<state>>, 23, 22);
     return;
 }
 
@@ -152,11 +166,11 @@ static char const* <<string-table>> [21] = {
     */
 
     rde_param_i_state_push_void (<<state>>);
-    rde_param_i_next_char (<<state>>, "\50", 6);
+    rde_param_i_next_char (<<state>>, "(", 20);
     if (rde_param_i_seq_void2value(<<state>>)) return;
     <<self>> <<ns>>sym_Expression (<<state>>);
     if (rde_param_i_seq_value2value(<<state>>)) return;
-    rde_param_i_next_char (<<state>>, "\51", 7);
+    rde_param_i_next_char (<<state>>, ")", 21);
     rde_param_i_state_merge_value (<<state>>);
     return;
 }
@@ -224,9 +238,9 @@ static char const* <<string-table>> [21] = {
     *             (Term)
     */
 
-    if (rde_param_i_symbol_start_d (<<state>>, 11)) return ;
+    if (rde_param_i_symbol_start_d (<<state>>, 25)) return ;
     <<self>> <<ns>>sequence_30 (<<state>>);
-    rde_param_i_symbol_done_d_reduce (<<state>>, 11, 10);
+    rde_param_i_symbol_done_d_reduce (<<state>>, 25, 24);
     return;
 }
 
@@ -288,9 +302,9 @@ static char const* <<string-table>> [21] = {
     * [\u002a\u002f]
     */
 
-    if (rde_param_i_symbol_start (<<state>>, 14)) return ;
-    rde_param_i_next_class (<<state>>, "*/", 12);
-    rde_param_i_symbol_done_leaf (<<state>>, 14, 13);
+    if (rde_param_i_symbol_start (<<state>>, 28)) return ;
+    rde_param_i_next_class (<<state>>, "*/", 26);
+    rde_param_i_symbol_done_leaf (<<state>>, 28, 27);
     return;
 }
 
@@ -307,9 +321,9 @@ static char const* <<string-table>> [21] = {
     *         (Digit)
     */
 
-    if (rde_param_i_symbol_start_d (<<state>>, 16)) return ;
+    if (rde_param_i_symbol_start_d (<<state>>, 30)) return ;
     <<self>> <<ns>>sequence_41 (<<state>>);
-    rde_param_i_symbol_done_d_reduce (<<state>>, 16, 15);
+    rde_param_i_symbol_done_d_reduce (<<state>>, 30, 29);
     return;
 }
 
@@ -368,9 +382,9 @@ static char const* <<string-table>> [21] = {
     * [-+]
     */
 
-    if (rde_param_i_symbol_start (<<state>>, 18)) return ;
-    rde_param_i_next_class (<<state>>, "-+", 0);
-    rde_param_i_symbol_done_leaf (<<state>>, 18, 17);
+    if (rde_param_i_symbol_start (<<state>>, 32)) return ;
+    rde_param_i_next_class (<<state>>, "-+", 14);
+    rde_param_i_symbol_done_leaf (<<state>>, 32, 31);
     return;
 }
 
@@ -383,9 +397,9 @@ static char const* <<string-table>> [21] = {
     * (Number)
     */
 
-    if (rde_param_i_symbol_start_d (<<state>>, 20)) return ;
+    if (rde_param_i_symbol_start_d (<<state>>, 34)) return ;
     <<self>> <<ns>>sym_Number (<<state>>);
-    rde_param_i_symbol_done_d_reduce (<<state>>, 20, 19);
+    rde_param_i_symbol_done_d_reduce (<<state>>, 34, 33);
     return;
 }
 
