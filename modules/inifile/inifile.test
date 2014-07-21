@@ -18,6 +18,7 @@ testing {
 
 set inifile [localPath ini.tcl]
 set testini [localPath test.ini]
+set sampini [localPath sample.ini]
 
 #---------------------------------------------------------------------
 
@@ -118,6 +119,7 @@ test inifile-1.14 {ini:::exists} {
     set res
 } {1}
 
+#---------------------------------------------------------------------
 # Tests for bug #1281136 --
 set N 0
 foreach name {nexthandle commentchar} {
@@ -155,6 +157,25 @@ foreach name {data comments sections} {
 }
 
 #---------------------------------------------------------------------
-# Clean up
 
+test inifile-3.0 {bug 3612465, leading & trailing spaces} {
+    set fh [ini::open $sampini]
+    set res [ini::sections $fh]
+    ini::close $fh
+    unset fh
+    set res
+} General
+
+test inifile-3.1 {bug 3612465, leading & trailing spaces} {
+    set fh [ini::open $sampini]
+    #set res [llength [ini::sections $fh]]
+    set res [lsort -dict [ini::keys $fh General]]
+    ini::close $fh
+    unset fh
+    set res
+} {key key2}
+
+#---------------------------------------------------------------------
+# Clean up
 testsuiteCleanup
+return
