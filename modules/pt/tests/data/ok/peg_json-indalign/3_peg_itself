@@ -93,10 +93,6 @@
                 "is"   : "x {t .} {n WHITESPACE}",
                 "mode" : "leaf"
             },
-            "END"           : {
-                "is"   : "x {t E} {t N} {t D} {n WHITESPACE}",
-                "mode" : "void"
-            },
             "EOF"           : {
                 "is"   : "! dot",
                 "mode" : "void"
@@ -110,7 +106,7 @@
                 "mode" : "value"
             },
             "Final"         : {
-                "is"   : "x {n END} {n SEMICOLON} {n WHITESPACE}",
+                "is"   : "x {t E} {t N} {t D} {n WHITESPACE} {n SEMICOLON} {n WHITESPACE}",
                 "mode" : "void"
             },
             "Grammar"       : {
@@ -162,7 +158,7 @@
                 "mode" : "void"
             },
             "PEG"           : {
-                "is"   : "x {t P} {t E} {t G} {n WHITESPACE}",
+                "is"   : "x {t P} {t E} {t G} {! {/ {t _} {t :} alnum}} {n WHITESPACE}",
                 "mode" : "void"
             },
             "PLUS"          : {

@@ -11,8 +11,10 @@ lappend auto_path $selfdir [file dirname $selfdir]
 
 # # ## ### ##### ######## ############# #####################
 
-package require pt::pgen
+package require pt::pgen 1.0.3
+package require pt::util
 package require fileutil
+package require try
 
 namespace eval ::pt::app {
     namespace export generate help
@@ -25,7 +27,7 @@ proc main {} {
     global argv argv0 errorInfo
     if {![llength $argv]} { lappend argv help }
     if {[catch {
-	::pt::app {*}$argv
+	set status [::pt::app {*}$argv]
     } msg]} {
 	set elines [split $errorInfo \n]
 	if {[llength $elines] == 3} {
@@ -48,7 +50,7 @@ proc main {} {
 	puts ${prefix}[join $elines \n$prefix]
 	exit 1
     }
-    exit 0
+    exit $status
 }
 
 # # ## ### ##### ######## ############# #####################
@@ -75,6 +77,7 @@ proc ::pt::app::help {{topic {}}} {
 	puts stderr \t[join [split [string map [list @ $argv0] [string trim [::pt::app::${topic}Help]]] \n] \n\t]
 	puts stderr ""
     }
+    return 0
 }
 
 proc ::pt::app::Topics {} {
@@ -111,15 +114,27 @@ proc ::pt::app::generate {args} {
     }
 
     set args [lassign $args parserformat]
-    lassign [lrange $args end-2 end] parserfile grammarformat grammarfile
+    lassign [lrange $args end-2 end] \
+	parserfile grammarformat grammarfile
     set args [Template [lrange $args 0 end-3]]
     lappend args -file $grammarfile
 
-    fileutil::writeFile $parserfile \
-	[::pt::pgen $grammarformat \
-	     [fileutil::cat $grammarfile] \
-	     $parserformat {*}$args]
-    return
+    puts "Reading $grammarformat $grammarfile ..."
+    set grammar [fileutil::cat $grammarfile]
+
+    puts "Generating a $parserformat parser ..."
+    try {
+	set parser [::pt::pgen $grammarformat $grammar $parserformat {*}$args]
+    } trap {PT RDE SYNTAX} {e o} {
+	puts [pt::util error2readable $e $grammar]
+	return 1
+    }
+
+    puts "Saving to  $parserfile ..."
+    fileutil::writeFile $parserfile $parser
+
+    puts OK
+    return 0
 }
 
 # Lift template specifications from file paths to the file's contents.

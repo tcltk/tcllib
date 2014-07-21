@@ -550,6 +550,10 @@ command will be \fBX\fR::\fBX\fR\&. Whereas for a namespaced value
 \fB-package\fR string
 The value of this option is the name of the package to generate\&.
 The default value is \fBPACKAGE\fR\&.
+.TP
+\fB-version\fR string
+The value of this option is the version of the package to generate\&.
+The default value is \fB1\fR\&.
 .PP
 .SH "C PARSER"
 The \fBc\fR format is executable code, a parser for the grammar\&. The
@@ -710,6 +714,10 @@ leading colons\&. Note, it serves double-duty as the name of the class
 to generate too, if option \fB-class\fR is not specified, see above\&.
 The default value is \fBPACKAGE\fR, applying if neither option
 \fB-package\fR nor \fB-class\fR were specified\&.
+.TP
+\fB-version\fR string
+The value of this option is the version of the package to generate\&.
+The default value is \fB1\fR\&.
 .PP
 .SH "TCLOO PARSER"
 The \fBoo\fR format is executable code, a parser for the grammar\&. It
@@ -744,6 +752,10 @@ leading colons\&. Note, it serves double-duty as the name of the class
 to generate too, if option \fB-class\fR is not specified, see above\&.
 The default value is \fBPACKAGE\fR, applying if neither option
 \fB-package\fR nor \fB-class\fR were specified\&.
+.TP
+\fB-version\fR string
+The value of this option is the version of the package to generate\&.
+The default value is \fB1\fR\&.
 .PP
 .SH "GRAMMAR CONTAINER"
 The \fBcontainer\fR format is another form of describing parsing

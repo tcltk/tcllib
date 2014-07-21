@@ -258,11 +258,11 @@ PEG pe-grammar-for-peg (Grammar)
         Class           &lt;- OPENB (!CLOSEB Range)* CLOSEB WHITESPACE ;
         Range           &lt;- Char TO Char / Char ;
         StartExpr       &lt;- OPEN Expression CLOSE ;
-void:   Final           &lt;- END SEMICOLON WHITESPACE ;
+void:   Final           &lt;- &quot;END&quot; WHITESPACE SEMICOLON WHITESPACE ;
         # --------------------------------------------------------------------
         # Lexing constructs
         Identifier      &lt;- Ident WHITESPACE ;
-leaf:   Ident           &lt;- ('_' / ':' / &lt;alpha&gt;) ('_' / ':' / &lt;alnum&gt;)* ;
+leaf:   Ident           &lt;- ([_:] / &lt;alpha&gt;) ([_:] / &lt;alnum&gt;)* ;
         Char            &lt;- CharSpecial / CharOctalFull / CharOctalPart
                         /  CharUnicode / CharUnescaped
                         ;
@@ -277,11 +277,10 @@ void:   OPENB           &lt;- &quot;[&quot;           ;
 void:   CLOSEB          &lt;- &quot;]&quot;           ;
 void:   APOSTROPH       &lt;- &quot;'&quot;           ;
 void:   DAPOSTROPH      &lt;- '&quot;'           ;
-void:   PEG             &lt;- &quot;PEG&quot;   WHITESPACE ;
+void:   PEG             &lt;- &quot;PEG&quot; !([_:] / &lt;alnum&gt;) WHITESPACE ;
 void:   IS              &lt;- &quot;&lt;-&quot;    WHITESPACE ;
 leaf:   VOID            &lt;- &quot;void&quot;  WHITESPACE ; # Implies that definition has no semantic value.
 leaf:   LEAF            &lt;- &quot;leaf&quot;  WHITESPACE ; # Implies that definition has no terminals.
-void:   END             &lt;- &quot;END&quot;   WHITESPACE ;
 void:   SEMICOLON       &lt;- &quot;;&quot;     WHITESPACE ;
 void:   COLON           &lt;- &quot;:&quot;     WHITESPACE ;
 void:   SLASH           &lt;- &quot;/&quot;     WHITESPACE ;

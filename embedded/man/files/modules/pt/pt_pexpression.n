@@ -2,7 +2,7 @@
 '\" Generated from file 'pt_pexpression\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2009 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "pt::pe" n 1 tcllib "Parser Tools"
+.TH "pt::pe" n 1\&.0\&.1 tcllib "Parser Tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ pt::pe \- Parsing Expression Serialization
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBpt::pe  ?1?\fR
+package require \fBpt::pe  ?1\&.0\&.1?\fR
 .sp
 package require \fBchar \fR
 .sp
