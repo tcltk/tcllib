@@ -1,4 +1,4 @@
-[vset VERSION 0.2.6]
+[vset VERSION 0.3]
 [comment {-*- tcl -*- doctools manpage}]
 [manpage_begin inifile n [vset VERSION]]
 [moddesc   {Parsing of Windows INI files}]
@@ -14,12 +14,15 @@ This package provides an interface for easy manipulation of Windows INI files.
 
 [list_begin definitions]
 
-[call [cmd ::ini::open] [arg file] [opt [arg access]]]
+[call [cmd ::ini::open] [arg file] [opt "[option -encoding] [arg encoding]"] [opt [arg access]]]
 
 Opens an INI file and returns a handle that is used by other commands.
 [arg access] is the same as the first form (non POSIX) of the [const open]
 command, with the exception that mode [const a] is not supported. The
 default mode is [const r+].
+
+[para] The default [arg encoding] is the system encoding.
+
 
 [call [cmd ::ini::close] [arg ini]]
 
