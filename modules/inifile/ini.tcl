@@ -10,23 +10,62 @@
 # 
 # RCS: @(#) $Id: ini.tcl,v 1.17 2012/01/05 21:04:55 andreas_kupries Exp $
 
-package provide inifile 0.2.6
+package provide inifile 0.3
 
 namespace eval ini {
     variable nexthandle  0
     variable commentchar \;
 }
 
-proc ::ini::open {ini {mode r+}} {
+proc ::ini::open {ini args} {
     variable nexthandle
 
+    while {[string match -* [::set opt [lindex $args 0]]]} {
+	switch -exact -- $opt {
+	    -- {
+		::set args [lrange $args 1 end]
+		break
+	    }
+	    -encoding {
+		::set enc  [lindex $args 1]
+		::set args [lrange $args 2 end]
+	    }
+	    default {
+		return -code error \
+		    -errorcode {INIFILE OPTION INVALID} \
+		    "Invalid option $opt, expected -encoding"
+	    }
+	}
+    }
+
+    ::set remainder [llength $args]
+    if {$remainder > 1} {
+	return -code error \
+	    -errorcode {WRONG-ARGS INIFILE} \
+	    "wrong\#args: should be \"ini::open ?-encoding E? ?mode?\""
+    } elseif {$remainder == 1} {
+	::set mode [lindex $args 0]
+    } else {
+	::set mode r+
+    }
+
     if { ![regexp {^(w|r)\+?$} $mode] } {
-        return -code error "$mode is not a valid access mode"
+        return -code error \
+	    -errorcode {INIFILE MODE INVALID} \
+	    "$mode is not a valid access mode"
     }
 
     ::set fh ini$nexthandle
     ::set tmp [::open $ini $mode]
     fconfigure $tmp -translation crlf
+    if {[info exists enc]} {
+	if {[catch {
+	    fconfigure $tmp -encoding $enc
+	} msg]} {
+	    ::close $tmp
+	    return -code error $msg
+	}
+    }
 
     namespace eval ::ini::$fh {
         variable data;     array set data     {}
@@ -69,7 +108,9 @@ proc ::ini::commit {fh} {
     variable commentchar
 
     if { $mode == "r" } {
-	return -code error "cannot write to read-only file"
+	return -code error \
+	    -errorcode {INIFILE READ-ONLY} \
+	    "cannot write to read-only file"
     }
     ::close $channel
     ::set channel [::open $file w]
@@ -158,12 +199,16 @@ proc ::ini::_exists {fh sec args} {
     variable ::ini::${fh}::data
 
     if { ![info exists sections($sec)] } {
-        return -code error "no such section \"$sec\""
+        return -code error \
+	    -errorcode {INIFILE SECTION INVALID} \
+	    "no such section \"$sec\""
     }
     if { [llength $args] > 0 } {
         ::set key [lindex $args 0]
         if { ![info exists data($sec\000$key)] } {
-            return -code error "can't read key \"$key\""
+            return -code error \
+		-errorcode {INIFILE KEY INVALID} \
+		"can't read key \"$key\""
         }
     }
     return
@@ -178,7 +223,9 @@ if { [package vcompare [package provide Tcl] 8.4] < 0 } {
     proc ::ini::_valid_ns {name} {
 	variable ::ini::${name}::data
 	if { ![info exists data] } {
-	    return -code error "$name is not an open INI file"
+	    return -code error \
+		-errorcode {INIFILE HANDLE INVALID} \
+		"$name is not an open INI file"
 	}
     }
 } else {
@@ -187,7 +234,9 @@ if { [package vcompare [package provide Tcl] 8.4] < 0 } {
     }
     proc ::ini::_valid_ns {name} {
 	if { ![namespace exists ::ini::$name] } {
-	    return -code error "$name is not an open INI file"
+	    return -code error \
+		-errorcode {INIFILE HANDLE INVALID} \
+		"$name is not an open INI file"
 	}
     }
 }
@@ -198,7 +247,9 @@ proc ::ini::commentchar { {new {}} } {
     variable commentchar
     if {$new != ""} {
         if {[string length $new] > 1} {
-	    return -code error "comment char must be a single character"
+	    return -code error \
+		-errorcode {INIFILE COMMENT-CHAR INVALID} \
+		"comment char must be a single character"
 	}
         ::set commentchar $new
     }
@@ -281,7 +332,9 @@ proc ::ini::set {fh sec key value} {
     ::set sec [string trim $sec]
     ::set key [string trim $key]
     if { $sec == "" || $key == "" } {
-        error "section or key may not be empty"
+        return -code error \
+	    -errorcode {INIFILE SYNTAX} \
+	    "section or key may not be empty"
     }
     ::set data($sec\000$key) $value
     ::set sections($sec) 1
