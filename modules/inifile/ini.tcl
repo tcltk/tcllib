@@ -10,7 +10,7 @@
 # 
 # RCS: @(#) $Id: ini.tcl,v 1.17 2012/01/05 21:04:55 andreas_kupries Exp $
 
-package provide inifile 0.2.5
+package provide inifile 0.2.6
 
 namespace eval ini {
     variable nexthandle  0
@@ -113,6 +113,9 @@ proc ::ini::_loadfile {fh} {
     seek $channel 0 start
 
     foreach line [split [read $channel] "\n"] {
+	# bug 3612465 - allow and ignore leading and trailing whitespace.
+	::set line [string trim $line]
+
 	if { [string match "$char*" $line] } {
 	    lappend com [string trim [string range $line [string length $char] end]]
 	} elseif { [string match {\[*\]} $line] } {
