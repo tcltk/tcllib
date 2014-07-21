@@ -2,7 +2,7 @@
 '\" Generated from file 'md4\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2003, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
-.TH "md4" n 1\&.0\&.5 tcllib "MD4 Message-Digest Algorithm"
+.TH "md4" n 1\&.0\&.6 tcllib "MD4 Message-Digest Algorithm"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ md4 \- MD4 Message-Digest Algorithm
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBmd4  ?1\&.0?\fR
+package require \fBmd4  ?1\&.0\&.6?\fR
 .sp
 \fB::md4::md4\fR ?\fI-hex\fR? [ \fI-channel channel\fR | \fI-file filename\fR | \fIstring\fR ]
 .sp
