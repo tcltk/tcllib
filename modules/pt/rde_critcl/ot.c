@@ -25,85 +25,133 @@ static Tcl_ObjType ot_type = {
     ot_string_rep,
     ot_from_any
 };
+
+static int      IsCached (RDE_STATE p, Tcl_Obj* obj, long int* id);
+static long int Make     (RDE_STATE p, Tcl_Obj* obj, const char* str);
+
 
 /*
  * = = == === ===== ======== ============= =====================
  */
 
-int
-rde_ot_intern (Tcl_Obj* obj, RDE_STATE p, char* pfx, char* sfx)
+long int
+rde_ot_intern0 (RDE_STATE p,
+		Tcl_Obj* detail)
 {
-    int id;
-    RDE_STRING* rs;
+    long int id;
 
-    TRACE (("rde_ot_intern (%p, '%s','%s' of %p = '%s')", p, pfx, sfx, obj, Tcl_GetString(obj)));
+    TRACE (("rde_ot_intern0 (%p, %p = '%s')", p, detail, Tcl_GetString(detail)));
+    if (IsCached (p, detail, &id)) {
+	return id;
+    }
 
+    TRACE (("INTERNALIZE"));
+    return Make (p, detail, Tcl_GetString (detail));
+}
+
+long int
+rde_ot_intern1 (RDE_STATE p,
+		const char* operator,
+		Tcl_Obj* detail)
+{
+    long int id;
+    Tcl_DString buf;
+
+    TRACE (("rde_ot_intern1 (%p, '%s' %p = '%s')", p, operator, detail, Tcl_GetString(detail)));
+    if (IsCached (p, detail, &id)) {
+	return id;
+    }
+
+    TRACE (("INTERNALIZE"));
+
+    /* Create a list of operator + detail.
+     * Using a DString.
+     */
+
+    Tcl_DStringInit (&buf);
+    Tcl_DStringAppendElement (&buf, operator);
+    Tcl_DStringAppendElement (&buf, Tcl_GetString (detail));
+
+    id = Make (p, detail, Tcl_DStringValue (&buf));
+
+    Tcl_DStringFree (&buf);
+    return id;
+}
+
+long int
+rde_ot_intern2 (RDE_STATE p,
+		const char* operator,
+		Tcl_Obj* detail1,
+		Tcl_Obj* detail2)
+{
+    long int id;
+    Tcl_DString buf;
+
+    TRACE (("rde_ot_intern2 (%p, '%s' %p = '%s', %p = '%s')", p, operator,
+	    detail1, Tcl_GetString(detail1)
+	    detail2, Tcl_GetString(detail2)));
+    if (IsCached (p, detail1, &id)) {
+	return id;
+    }
+
+    TRACE (("INTERNALIZE"));
+
+    /* Create a list of operator + detail1 + detail2.
+     * Using a DString.
+     */
+
+    Tcl_DStringInit (&buf);
+    Tcl_DStringAppendElement (&buf, operator);
+    Tcl_DStringAppendElement (&buf, Tcl_GetString (detail1));
+    Tcl_DStringAppendElement (&buf, Tcl_GetString (detail2));
+
+    id = Make (p, detail1, Tcl_DStringValue (&buf));
+
+    Tcl_DStringFree (&buf);
+    return id;
+}
+
+/*
+ * = = == === ===== ======== ============= =====================
+ */
+
+static int
+IsCached (RDE_STATE p, Tcl_Obj* obj, long int* id)
+{
     /*
      * Quick exit if we have a cached and valid value.
      */
 
     if ((obj->typePtr == &ot_type) &&
 	(obj->internalRep.twoPtrValue.ptr1 == p)) {
-	rs = (RDE_STRING*) obj->internalRep.twoPtrValue.ptr2;
+	RDE_STRING* rs = (RDE_STRING*) obj->internalRep.twoPtrValue.ptr2;
 	TRACE (("CACHED %p = %d", rs, rs->id));
-	return rs->id;
+	*id = rs->id;
+	return 1;
     }
 
-    TRACE (("INTERNALIZE"));
+    return 0;
+}
 
-    /*
-     * Drop any previous internal rep. But generate the string rep first, if
-     * it is missing.
-     */
+static long int
+Make (RDE_STATE p, Tcl_Obj* obj, const char* str)
+{
+    long int    id = param_intern (p, str);
+    RDE_STRING* rs = ALLOC (RDE_STRING);
 
-    if (!obj->bytes) {
-	Tcl_GetString (obj);
-    }
-    if (obj->typePtr != NULL && obj->typePtr->freeIntRepProc != NULL) {
-	obj->typePtr->freeIntRepProc(obj);
-    }
-
-    /*
-     * Compute the new int-rep, interning the prefix-modified string.
-     */
-
-    if (!pfx && !sfx) {
-	id = param_intern (p, obj->bytes);
-
-    } else if (pfx && sfx) {
-	int plen  = strlen(pfx);
-	int slen  = strlen(sfx);
-	char* buf = NALLOC (plen + slen + obj->length + 3, char);
-
-	sprintf (buf, "%s %s %s", pfx, obj->bytes, sfx);
-
-	id = param_intern (p, buf);
-	ckfree(buf);
-
-    } else if (pfx) {
-	int plen  = strlen(pfx);
-	char* buf = NALLOC (plen + obj->length + 2, char);
-
-	sprintf (buf, "%s %s", pfx, obj->bytes);
-
-	id = param_intern (p, buf);
-	ckfree(buf);
-
-    } else /* sfx */ {
-	int slen  = strlen(sfx);
-	char* buf = NALLOC (slen + obj->length + 2, char);
-
-	sprintf (buf, "%s %s", obj->bytes, sfx);
-
-	id = param_intern (p, buf);
-	ckfree(buf);
-    }
-
-    rs = ALLOC (RDE_STRING);
     rs->next = p->sfirst;
     rs->self = obj;
     rs->id   = id;
     p->sfirst = rs;
+
+    /* Invalidate previous int.rep before setting our own.
+     * Inlined copy of TclFreeIntRep() macro (tclInt.h)
+     */
+
+    if ((obj)->typePtr &&
+	(obj)->typePtr->freeIntRepProc) {
+        (obj)->typePtr->freeIntRepProc(obj);
+    }
 
     obj->internalRep.twoPtrValue.ptr1 = p;
     obj->internalRep.twoPtrValue.ptr2 = rs;
@@ -133,8 +181,10 @@ ot_free_rep(Tcl_Obj* obj)
 	iter->next = rs->next;
     }
 
-    /* Nothing to release. */
+    /* Drop the now un-tracked structure */
     ckfree ((char*) rs);
+
+    /* Nothing to release in the obj itself, just resetting references. */
     obj->internalRep.twoPtrValue.ptr1 = NULL;
     obj->internalRep.twoPtrValue.ptr2 = NULL;
 }

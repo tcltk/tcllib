@@ -76,6 +76,7 @@ int param_I_test_alnum      (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj*
 int param_I_test_alpha      (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
 int param_I_test_ascii      (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
 int param_I_test_char       (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
+int param_I_test_control    (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
 int param_I_test_ddigit     (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
 int param_I_test_digit      (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
 int param_I_test_graph      (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
@@ -105,6 +106,7 @@ int param_SI_next_range    (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* 
 int param_SI_next_alnum    (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
 int param_SI_next_alpha    (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
 int param_SI_next_ascii    (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
+int param_SI_next_control  (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
 int param_SI_next_ddigit   (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
 int param_SI_next_digit    (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);
 int param_SI_next_graph    (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv);

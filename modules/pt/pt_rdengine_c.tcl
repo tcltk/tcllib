@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 # # ## ### ##### ######## ############# #####################
 ## Package description
@@ -18,7 +18,7 @@
 package require Tcl 8.4
 package require critcl
 # @sak notprovided pt_rde_critcl
-package provide pt_rde_critcl 1.3.2
+package provide pt_rde_critcl 1.3.3
 
 # # ## ### ##### ######## ############# #####################
 ## Implementation
@@ -76,7 +76,7 @@ namespace eval ::pt {
 	    }
 	    
 	    paramg->counter ++;
-	    sprintf (paramg->buf, "rde%d", paramg->counter);
+	    sprintf (paramg->buf, "rde%ld", paramg->counter);
 	    return paramg->buf;
 
 #undef  KEY
@@ -164,5 +164,5 @@ namespace eval ::pt {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::rde::critcl 1
+package provide pt::rde::critcl 1.0.3
 return

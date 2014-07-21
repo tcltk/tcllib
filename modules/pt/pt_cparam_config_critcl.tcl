@@ -1,5 +1,9 @@
 # -*- tcl -*-
-# Copyright (c) 2009-2010 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2014 Andreas Kupries <andreas_kupries@sourceforge.net>
+
+# TODO: Refactor this and pt::cparam::configuration::critcl to avoid
+# TODO: duplication of the supporting code (creation of the RDE
+# TODO: amalgamation, basic C template).
 
 # Canned configuration for the converter to C/PARAM representation,
 # causing generation of a proper critcl-based parser.
@@ -33,14 +37,15 @@ namespace eval ::pt::cparam::configuration::critcl {
 # Check that the proposed serialization of an abstract syntax tree is
 # indeed such.
 
-proc ::pt::cparam::configuration::critcl::def {class pkg cmd} {
+proc ::pt::cparam::configuration::critcl::def {class pkg version cmd} {
     # TODO :: See if we can consolidate the API for converters,
     # TODO :: plugins, export manager, and container in some way.
     # TODO :: Container may make exporter manager available through
     # TODO :: public method.
 
-    # class = The namespace/prefix for the generated commands.
-    # pkg   = The name of generated package.
+    # class   = The namespace/prefix for the generated commands.
+    # pkg     = The name of the generated package / parser.
+    # version = The version of the generated package / parser.
 
     if {[string first :: $class] < 0} {
 	set cheader  $class
@@ -50,18 +55,18 @@ proc ::pt::cparam::configuration::critcl::def {class pkg cmd} {
 	set ctrailer [namespace tail      $class]
     }
 
+    lappend map	@@RUNTIME@@ [GetRuntime]
+    lappend map	@@PKG@@     $pkg
+    lappend map	@@VERSION@@ $version
+    lappend map	@@CLASS@@   $class
+    lappend map	@@CHEAD@@   $cheader
+    lappend map	@@CTAIL@@   $ctrailer
+    lappend map	\n\t        \n ;# undent the template
+
     {*}$cmd -main      MAIN
     {*}$cmd -indent    8
     {*}$cmd -template  [string trim \
-			    [string map \
-				 [list \
-				      @@RUNTIME@@ [GetRuntime] \
-				      @@PKG@@   $pkg      \
-				      @@CLASS@@ $class    \
-				      @@CHEAD@@ $cheader  \
-				      @@CTAIL@@ $ctrailer \
-				      \n\t      \n \
-				     ] {
+			    [string map $map {
 	## -*- tcl -*-
 	##
 	## Critcl-based C/PARAM implementation of the parsing
@@ -78,7 +83,7 @@ proc ::pt::cparam::configuration::critcl::def {class pkg cmd} {
 	package require Tcl 8.4
 	package require critcl
 	# @sak notprovided @@PKG@@
-	package provide    @@PKG@@ 1
+	package provide    @@PKG@@ @@VERSION@@
 
 	# Note: The implementation of the PARAM virtual machine
 	#       underlying the C/PARAM code used below is inlined
@@ -94,7 +99,7 @@ proc ::pt::cparam::configuration::critcl::def {class pkg cmd} {
 	    ## Supporting code for the main command.
 
 	    catch {
-		#critcl::cheaders -g
+		#critcl::cflags -g
 		#critcl::debug memory symbols
 	    }
 
@@ -162,7 +167,7 @@ proc ::pt::cparam::configuration::critcl::def {class pkg cmd} {
 		    }
 
 		    parserg->counter ++;
-		    sprintf (parserg->buf, "@@CTAIL@@%d", parserg->counter);
+		    sprintf (parserg->buf, "@@CTAIL@@%ld", parserg->counter);
 		    return parserg->buf;
 #undef  KEY
 		}
@@ -225,6 +230,7 @@ proc ::pt::cparam::configuration::critcl::def {class pkg cmd} {
 		    return COMPLETE (p, interp);
 		}
 
+		/* See also rde_critcl/m.c, param_COMPLETE() */
 		static int COMPLETE (RDE_PARAM p, Tcl_Interp* interp)
 		{
 		    if (rde_param_query_st (p)) {
@@ -234,19 +240,22 @@ proc ::pt::cparam::configuration::critcl::def {class pkg cmd} {
 			rde_param_query_ast (p, &ac, &av);
 
 			if (ac > 1) {
-			    long int  lsc;
-			    long int* lsv;
 			    Tcl_Obj** lv = NALLOC (3+ac, Tcl_Obj*);
-
-			    rde_param_query_ls (p, &lsc, &lsv);
 
 			    memcpy(lv + 3, av, ac * sizeof (Tcl_Obj*));
 			    lv [0] = Tcl_NewObj ();
-			    lv [1] = Tcl_NewIntObj (1 + lsv [lsc-1]);
+			    lv [1] = Tcl_NewIntObj (1 + rde_param_query_lstop (p));
 			    lv [2] = Tcl_NewIntObj (rde_param_query_cl (p));
 
 			    Tcl_SetObjResult (interp, Tcl_NewListObj (3, lv));
 			    ckfree ((char*) lv);
+
+			} else if (ac == 0) {
+			    /*
+			     * Match, but no AST. This is possible if the grammar
+			     * consists of only the start expression.
+			     */
+			    Tcl_SetObjResult (interp, Tcl_NewStringObj ("",-1));
 			} else {
 			    Tcl_SetObjResult (interp, av [0]);
 			}
@@ -256,10 +265,13 @@ proc ::pt::cparam::configuration::critcl::def {class pkg cmd} {
 			Tcl_Obj* xv [1];
 			const ERROR_STATE* er = rde_param_query_er (p);
 			Tcl_Obj* res = rde_param_query_er_tcl (p, er);
+			/* res = list (location, list(msg)) */
 
+			/* Stick the exception type-tag before the existing elements */
 			xv [0] = Tcl_NewStringObj ("pt::rde",-1);
-			Tcl_ListObjReplace(interp, res, 0, 1, 1, xv);
+			Tcl_ListObjReplace(interp, res, 0, 0, 1, xv);
 
+			Tcl_SetErrorCode (interp, "PT", "RDE", "SYNTAX", NULL);
 			Tcl_SetObjResult (interp, res);
 			return TCL_ERROR;
 		    }
@@ -399,7 +411,6 @@ proc ::pt::cparam::configuration::critcl::def {class pkg cmd} {
 }
 
 proc ::pt::cparam::configuration::critcl::GetRuntime {} {
-
     # This is the C code for the RDE, i.e. the implementation of
     # pt::rde. Only the low-level engine is imported, the Tcl
     # interface layer is ignored.  This generated parser provides its
@@ -477,5 +488,5 @@ namespace eval ::pt::cparam::configuration::critcl {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::cparam::configuration::critcl 1.0.1
+package provide pt::cparam::configuration::critcl 1.0.2
 return

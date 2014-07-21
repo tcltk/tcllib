@@ -57,20 +57,21 @@ proc ::char::Unquote {ch} {
     return $ch
 }
 
-proc ::char::quote::tcl {args} {
-    if {1 == [llength $args]} { return [Tcl {*}$args] }
-    set res {}
-    foreach ch $args { lappend res [Tcl $ch] }
-    return $res
+# ### ### ### ######### ######### #########
+
+proc ::char::quote::tcl {ch args} {
+    Arg Tcl $ch {*}$args
 }
 
 proc ::char::quote::Tcl {ch} {
-    # Converts a Tcl character (internal representation) into a string
-    # which is accepted by the Tcl parser, will regenerate the
-    # character in question and is 7bit ASCII.
+    # Input:  A single character
+    # Output: A string representing the input.
+    # Properties of the output:
+    # (1) Contains only ASCII characters (7bit Unicode subset).
+    # (2) When embedded in a ""-quoted Tcl string in a piece of Tcl
+    #     code the Tcl parser will regenerate the input character.
 
-    # Special characters
-
+    # Special character?
     switch -exact -- $ch {
 	"\n" {return "\\n"}
 	"\r" {return "\\r"}
@@ -90,65 +91,124 @@ proc ::char::quote::Tcl {ch} {
 
     scan $ch %c chcode
 
+    # Control character?
+    if {[::string is control -strict $ch]} {
+	return \\[format %o $chcode]
+    }
+
+    # Unicode beyond 7bit ASCII?
+    if {$chcode > 127} {
+	return \\u[format %04x $chcode]
+    }
+
+    # Regular character: Is its own representation.
+    return $ch
+}
+
+# ### ### ### ######### ######### #########
+
+proc ::char::quote::string {ch args} {
+    Arg String $ch {*}$args
+}
+
+proc ::char::quote::String {ch} {
+    # Input:  A single character
+    # Output: A string representing the input
+    # Properties of the output
+    # (1) Human-readable, for use in error messages, or comments.
+    # (1a) Uses only printable characters.
+    # (2) NO particular properties with regard to C or Tcl parsers.
+
+    scan $ch %c chcode
+
+    # Map the ascii control characters to proper names.
+    if {($chcode <= 32) || ($chcode == 127)} {
+	variable strmap
+	return [dict get $strmap $chcode]
+    }
+
+    # Printable ascii characters represent themselves.
+    if {$chcode < 128} {
+	return $ch
+    }
+
+    # Unicode characters. Mostly represent themselves, except if
+    # control or not printable. Then they are represented by their
+    # codepoint.
+
+    # Control characters: Octal
+    if {[::string is control -strict $ch] ||
+	![::string is print -strict $ch]} {
+	return <U+[format %04x $chcode]>
+    }
+
+    return $ch
+}
+
+namespace eval ::char::quote {
+    variable strmap {
+	0 <NUL>  8 <BS>   16 <DLE> 24 <CAN>  32 <SPACE>
+	1 <SOH>  9 <TAB>  17 <DC1> 25 <EM>  127 <DEL>
+	2 <STX> 10 <LF>   18 <DC2> 26 <SUB>
+	3 <ETX> 11 <VTAB> 19 <DC3> 27 <ESC>
+	4 <EOT> 12 <FF>   20 <DC4> 28 <FS>
+	5 <ENQ> 13 <CR>   21 <NAK> 29 <GS>
+	6 <ACK> 14 <SO>   22 <SYN> 30 <RS>
+	7 <BEL> 15 <SI>   23 <ETB> 31 <US>
+    }
+}
+
+# ### ### ### ######### ######### #########
+
+proc ::char::quote::cstring {ch args} {
+    Arg CString $ch {*}$args
+}
+
+proc ::char::quote::CString {ch} {
+    # Input:  A single character
+    # Output: A string representing the input.
+    # Properties of the output:
+    # (1) Contains only ASCII characters (7bit Unicode subset).
+    # (2) When embedded in a ""-quoted C string in a piece of
+    #     C code the C parser will regenerate the input character
+    #     in UTF-8 encoding.
+
+    # Special characters (named).
+    switch -exact -- $ch {
+	"\n" {return "\\n"}
+	"\r" {return "\\r"}
+	"\t" {return "\\t"}
+	"\"" - "\\" {
+	    return \\$ch
+	}
+	"\{" - "\}" {
+	    # The generated C code containing the result of this
+	    # transform may be embedded in Tcl code (Brace-quoted),
+	    # i.e. like for a critcl-based package. To avoid tripping
+	    # the Tcl parser with unbalanced braces we sacrifice
+	    # readability of the generated code a bit and insert
+	    # braces in their octal form.
+	    scan $ch %c chcode
+	    return \\[format %o $chcode]
+	}
+    }
+
+    scan $ch %c chcode
+
     # Control characters: Octal
     if {[::string is control -strict $ch]} {
 	return \\[format %o $chcode]
     }
 
     # Beyond 7-bit ASCII: Unicode
-
     if {$chcode > 127} {
-	return \\u[format %04x $chcode]
-    }
-
-    # Regular character: Is its own representation.
-
-    return $ch
-}
-
-proc ::char::quote::string {args} {
-    if {1 == [llength $args]} { return [String {*}$args] }
-    set res {}
-    foreach ch $args { lappend res [String $ch] }
-    return $res
-}
-
-proc ::char::quote::String {ch} {
-    # Converts a Tcl character (internal representation) into a string
-    # which is accepted by the Tcl parser and will generate a human
-    # readable representation of the character in question, one which
-    # when written to a channel (via puts) describes the character
-    # without using any unprintable characters. It may use backslash-
-    # quoting. High utf characters are quoted to avoid problems with
-    # the still prevalent ascii terminals. It is assumed that the
-    # string will be used in a ""-quoted environment.
-
-    # Special characters
-
-    switch -exact -- $ch {
-	" "  {return "<blank>"}
-	"\n" {return "\\\\n"}
-	"\r" {return "\\\\r"}
-	"\t" {return "\\\\t"}
-	"\"" - "\\" - "\;" -
-	"("  - ")"  -
-	"\{" - "\}" -
-	"\[" - "\]" {
-	    return \\$ch
+	# Recode the character into the sequence of utf-8 bytes and
+	# convert each to octal.
+	foreach x [split [encoding convertto utf-8 $ch] {}] {
+	    scan $x %c x
+	    append res \\[format %o $x]
 	}
-    }
-
-    scan $ch %c chcode
-
-    # Control characters: Octal
-    if {[::string is control -strict $ch]} {
-	return \\\\[format %o $chcode]
-    }
-
-    # Beyond 7-bit ASCII: Unicode
-
-    if {$chcode > 127} {
-	return \\\\u[format %04x $chcode]
+	return $res
     }
 
     # Regular character: Is its own representation.
@@ -156,57 +216,10 @@ proc ::char::quote::String {ch} {
     return $ch
 }
 
-proc ::char::quote::cstring {args} {
-    if {1 == [llength $args]} { return [CString {*}$args] }
-    set res {}
-    foreach ch $args { lappend res [CString $ch] }
-    return $res
-}
+# ### ### ### ######### ######### #########
 
-proc ::char::quote::CString {ch} {
-    # Converts a Tcl character (internal representation) into a string
-    # which is accepted by the Tcl parser and will generate a human
-    # readable representation of the character in question, one which
-    # when written to a channel (via puts) describes the character
-    # without using any unprintable characters. It may use backslash-
-    # quoting. High utf characters are quoted to avoid problems with
-    # the still prevalent ascii terminals. It is assumed that the
-    # string will be used in a ""-quoted environment.
-
-    # Special characters
-
-    switch -exact -- $ch {
-	"\n" {return "\\\\n"}
-	"\r" {return "\\\\r"}
-	"\t" {return "\\\\t"}
-	"\"" - "\\" {
-	    return \\$ch
-	}
-    }
-
-    scan $ch %c chcode
-
-    # Control characters: Octal
-    if {[::string is control -strict $ch]} {
-	return \\\\[format %o $chcode]
-    }
-
-    # Beyond 7-bit ASCII: Unicode
-
-    if {$chcode > 127} {
-	return \\\\u[format %04x $chcode]
-    }
-
-    # Regular character: Is its own representation.
-
-    return $ch
-}
-
-proc ::char::quote::comment {args} {
-    if {1 == [llength $args]} { return [Comment {*}$args] }
-    set res {}
-    foreach ch $args { lappend res [Comment $ch] }
-    return $res
+proc ::char::quote::comment {ch args} {
+    Arg Comment $ch {*}$args
 }
 
 proc ::char::quote::Comment {ch} {
@@ -247,7 +260,30 @@ proc ::char::quote::Comment {ch} {
 }
 
 # ### ### ### ######### ######### #########
+## Internal. Argument processing helper
+
+proc ::char::quote::Arg {cmdpfx str args} {
+    # single argument => treat as string,
+    # process all characters separately.
+    # return transformed string.
+    if {![llength $args]} {
+	set r {}
+	foreach c [split $str {}] {
+	    append r [uplevel 1 [linsert $cmdpfx end $c]]
+	}
+	return $r
+    }
+
+    # multiple arguments => process each like a single argument, and
+    # return list of transform results.
+    set args [linsert $args 0 $str]
+    foreach str $args {
+	lappend res [uplevel 1 [list Arg $cmdpfx $str]]
+    }
+    return $res
+}
+
+# ### ### ### ######### ######### #########
 ## Ready
 
-package provide char 1
-
+package provide char 1.0.1

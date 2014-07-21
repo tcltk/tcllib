@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 # # ## ### ##### ######## ############# #####################
 ## Package description
@@ -21,6 +21,7 @@ package require snit
 package require struct::stack 1.5 ; # Requiring peekr, getr, trim* methods
 package require pt::ast
 package require pt::pe
+package require char ; # quoting
 
 # # ## ### ##### ######## ############# #####################
 ## Implementation
@@ -39,8 +40,10 @@ snit::type ::pt::rde_tcl {
     }
 
     #TRACE variable count 0
+    #variable count 0
 
-    method reset {{chan {}}} { ; #TRACE puts "[format %8d [incr count]] RDE reset"
+    method reset {{chan {}}} { ; #set count 0
+                               ; #TRACE puts "[format %8d [incr count]] RDE reset"
 	set mychan    $chan      ; # IN
 	set mycurrent {}         ; # CC
 	set myloc     -1         ; # CL
@@ -65,12 +68,18 @@ snit::type ::pt::rde_tcl {
 		incr pos
 		set children [$mystackast peekr [$mystackast size]] ; # SaveToMark
 		return [pt::ast new {} $pos $myloc {*}$children]    ; # Reduce ALL
+	    } elseif {$n == 0} {
+		# Match, but no AST. This is possible if the grammar
+		# consists of only the start expression.
+		return {}
 	    } else {
 		return [$mystackast peek]
 	    }
 	} else {
 	    lassign $myerror loc messages
-	    return -code error [list pt::rde $loc $messages]
+	    return -code error \
+		-errorcode {PT RDE SYNTAX} \
+		[list pt::rde $loc $messages]
 	}
     }
 
@@ -127,7 +136,7 @@ snit::type ::pt::rde_tcl {
     # # ## ### ##### ######## ############# #####################
     ## Common instruction sequences
 
-    method si:void_state_push {} {
+    method si:void_state_push {} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_state_push"
 	# i_loc_push
 	# i_error_clear_push
 	$mystackloc push $myloc
@@ -136,7 +145,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void2_state_push {} {
+    method si:void2_state_push {} { ; #TRACE puts "[format %8d [incr count]] RDE si:void2_state_push"
 	# i_loc_push
 	# i_error_push
 	$mystackloc push $myloc
@@ -144,7 +153,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:value_state_push {} {
+    method si:value_state_push {} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_state_push"
 	# i_ast_push
 	# i_loc_push
 	# i_error_clear_push
@@ -157,7 +166,7 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:void_state_merge {} {
+    method si:void_state_merge {} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_state_merge"
 	# i_error_pop_merge
 	# i_loc_pop_rewind/discard
 
@@ -186,7 +195,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void_state_merge_ok {} {
+    method si:void_state_merge_ok {} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_state_merge_ok"
 	# i_error_pop_merge
 	# i_loc_pop_rewind/discard
 	# i_status_ok
@@ -217,7 +226,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:value_state_merge {} {
+    method si:value_state_merge {} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_state_merge"
 	# i_error_pop_merge
 	# i_ast_pop_rewind/discard
 	# i_loc_pop_rewind/discard
@@ -251,7 +260,7 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:value_notahead_start {} {
+    method si:value_notahead_start {} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_notahead_start"
 	# i_loc_push
 	# i_ast_push
 
@@ -260,7 +269,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void_notahead_exit {} {
+    method si:void_notahead_exit {} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_notahead_exit"
 	# i_loc_pop_rewind
 	# i_status_negate
 
@@ -269,7 +278,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:value_notahead_exit {} {
+    method si:value_notahead_exit {} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_notahead_exit"
 	# i_ast_pop_discard/rewind
 	# i_loc_pop_rewind
 	# i_status_negate
@@ -285,7 +294,7 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:kleene_abort {} {
+    method si:kleene_abort {} { ; #TRACE puts "[format %8d [incr count]] RDE si:kleene_abort"
 	# i_loc_pop_rewind/discard
 	# i:fail_return
 
@@ -295,7 +304,7 @@ snit::type ::pt::rde_tcl {
 	return -code return
     }
 
-    method si:kleene_close {} {
+    method si:kleene_close {} { ; #TRACE puts "[format %8d [incr count]] RDE si:kleene_close"
 	# i_error_pop_merge
 	# i_loc_pop_rewind/discard
 	# i:fail_status_ok
@@ -329,7 +338,7 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:voidvoid_branch {} {
+    method si:voidvoid_branch {} { ; #TRACE puts "[format %8d [incr count]] RDE si:voidvoid_branch"
 	# i_error_pop_merge
 	# i:ok_loc_pop_discard
 	# i:ok_return
@@ -360,11 +369,11 @@ snit::type ::pt::rde_tcl {
 	    return -code return
 	}
 	set myloc [$mystackloc peek]
-	$mystackerr push {}
+	$mystackerr push $myerror
 	return
     }
 
-    method si:voidvalue_branch {} {
+    method si:voidvalue_branch {} { ; #TRACE puts "[format %8d [incr count]] RDE si:voidvalue_branch"
 	# i_error_pop_merge
 	# i:ok_loc_pop_discard
 	# i:ok_return
@@ -401,7 +410,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:valuevoid_branch {} {
+    method si:valuevoid_branch {} { ; #TRACE puts "[format %8d [incr count]] RDE si:valuevoid_branch"
 	# i_error_pop_merge
 	# i_ast_pop_rewind/discard
 	# i:ok_loc_pop_discard
@@ -438,7 +447,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:valuevalue_branch {} {
+    method si:valuevalue_branch {} { ; #TRACE puts "[format %8d [incr count]] RDE si:valuevalue_branch"
 	# i_error_pop_merge
 	# i_ast_pop_discard
 	# i:ok_loc_pop_discard
@@ -478,7 +487,7 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:voidvoid_part {} {
+    method si:voidvoid_part {} { ; #TRACE puts "[format %8d [incr count]] RDE si:voidvoid_part"
 	# i_error_pop_merge
 	# i:fail_loc_pop_rewind
 	# i:fail_return
@@ -510,7 +519,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:voidvalue_part {} {
+    method si:voidvalue_part {} { ; #TRACE puts "[format %8d [incr count]] RDE si:voidvalue_part"
 	# i_error_pop_merge
 	# i:fail_loc_pop_rewind
 	# i:fail_return
@@ -544,7 +553,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:valuevalue_part {} {
+    method si:valuevalue_part {} { ; #TRACE puts "[format %8d [incr count]] RDE si:valuevalue_part"
 	# i_error_pop_merge
 	# i:fail_ast_pop_rewind
 	# i:fail_loc_pop_rewind
@@ -580,9 +589,9 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:next_str {tok} {
-	# String = sequence of characters. No need for all the intermediate
-	# stack churn.
+    method si:next_str {tok} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_str ($tok)"
+	# String = sequence of characters.
+	# No need for all the intermediate stack churn.
 
 	set n    [string length $tok]
 	set last [expr {$myloc + $n}]
@@ -591,12 +600,20 @@ snit::type ::pt::rde_tcl {
 	incr myloc
 	if {($last >= $max) && ![ExtendTCN [expr {$last - $max + 1}]]} {
 	    set myok    0
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [pt::pe str $tok]]]
 	    # i:fail_return
 	    return
 	}
 	set lex       [string range $mytoken $myloc $last]
 	set mycurrent [string index $mytoken $last]
+
+	# ATTENTION: The error output of this instruction is different
+	# from a regular sequence of si:next_char instructions. The
+	# error location will be the start of the string token we
+	# wanted to match, and the message will contain the entire
+	# string token. In the regular sequence we would see the exact
+	# point of the mismatch instead, with the message containing
+	# the expected character.
 
 	set myok [expr {$tok eq $lex}]
 
@@ -604,13 +621,13 @@ snit::type ::pt::rde_tcl {
 	    set myloc $last
 	    set myerror {}
 	} else {
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [pt::pe str $tok]]]
 	    incr myloc -1
 	}
 	return
     }
 
-    method si:next_class {tok} {
+    method si:next_class {tok} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_class ($tok)"
 	# Class = Choice of characters. No need for stack churn.
 
 	# i_input_next "\{t $c\}"
@@ -620,7 +637,7 @@ snit::type ::pt::rde_tcl {
 	incr myloc
 	if {($myloc >= [string length $mytoken]) && ![ExtendTC]} {
 	    set myok    0
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [pt::pe class $tok]]]
 	    # i:fail_return
 	    return
 	}
@@ -634,13 +651,13 @@ snit::type ::pt::rde_tcl {
 	if {$myok} {
 	    set myerror {}
 	} else {
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [pt::pe class $tok]]]
 	    incr myloc -1
 	}
 	return
     }
 
-    method si:next_char {tok} {
+    method si:next_char {tok} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_char ($tok)"
 	# i_input_next "\{t $c\}"
 	# i:fail_return
 	# i_test_char $c
@@ -648,7 +665,7 @@ snit::type ::pt::rde_tcl {
 	incr myloc
 	if {($myloc >= [string length $mytoken]) && ![ExtendTC]} {
 	    set myok    0
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [pt::pe terminal $tok]]]
 	    # i:fail_return
 	    return
 	}
@@ -658,13 +675,13 @@ snit::type ::pt::rde_tcl {
 	if {$myok} {
 	    set myerror {}
 	} else {
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [pt::pe terminal $tok]]]
 	    incr myloc -1
 	}
 	return
     }
 
-    method si:next_range {toks toke} {
+    method si:next_range {toks toke} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_range ($toks $toke)"
 	#Asm::Ins i_input_next "\{.. $s $e\}"
 	#Asm::Ins i:fail_return
 	#Asm::Ins i_test_range $s $e
@@ -672,7 +689,7 @@ snit::type ::pt::rde_tcl {
 	incr myloc
 	if {($myloc >= [string length $mytoken]) && ![ExtendTC]} {
 	    set myok    0
-	    set myerror [list $myloc [list [list .. $toks $toke]]]
+	    set myerror [list $myloc [list [pt::pe range $toks $toke]]]
 	    # i:fail_return
 	    return
 	}
@@ -758,6 +775,30 @@ snit::type ::pt::rde_tcl {
 	set myok [string is ascii -strict $mycurrent]
 	if {!$myok} {
 	    set myerror [list $myloc [list ascii]]
+	    incr myloc -1
+	} else {
+	    set myerror {}
+	}
+	return
+    }
+
+    method si:next_control {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_control"
+	#Asm::Ins i_input_next control
+	#Asm::Ins i:fail_return
+	#Asm::Ins i_test_control
+
+	incr myloc
+	if {($myloc >= [string length $mytoken]) && ![ExtendTC]} {
+	    set myok    0
+	    set myerror [list $myloc [list control]]
+	    # i:fail_return
+	    return
+	}
+	set mycurrent [string index $mytoken $myloc]
+
+	set myok [string is control -strict $mycurrent]
+	if {!$myok} {
+	    set myerror [list $myloc [list control]]
 	    incr myloc -1
 	} else {
 	    set myerror {}
@@ -1007,7 +1048,7 @@ snit::type ::pt::rde_tcl {
 
     # - -- --- ----- -------- ------------- ---------------------
 
-    method si:value_symbol_start {symbol} {
+    method si:value_symbol_start {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_symbol_start ($symbol)"
 	# if @runtime@ i_symbol_restore $symbol
 	# i:found:ok_ast_value_push
 	# i:found_return
@@ -1027,7 +1068,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:value_void_symbol_start {symbol} {
+    method si:value_void_symbol_start {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_void_symbol_start ($symbol)"
 	# if @runtime@ i_symbol_restore $symbol
 	# i:found_return
 	# i_loc_push
@@ -1043,7 +1084,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void_symbol_start {symbol} {
+    method si:void_symbol_start {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_symbol_start ($symbol)"
 	# if @runtime@ i_symbol_restore $symbol
 	# i:found:ok_ast_value_push
 	# i:found_return
@@ -1061,7 +1102,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void_void_symbol_start {symbol} {
+    method si:void_void_symbol_start {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_void_symbol_start ($symbol)"
 	# if @runtime@ i_symbol_restore $symbol
 	# i:found_return
 	# i_loc_push
@@ -1075,7 +1116,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:reduce_symbol_end {symbol} {
+    method si:reduce_symbol_end {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:reduce_symbol_end ($symbol)"
 	# i_value_clear/reduce $symbol
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1116,14 +1157,15 @@ snit::type ::pt::rde_tcl {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:reduce_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 
 	$mystackast trim* [$mystackmark pop]
 	if {$myok} {
@@ -1132,7 +1174,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:void_leaf_symbol_end {symbol} {
+    method si:void_leaf_symbol_end {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_leaf_symbol_end ($symbol)"
 	# i_value_clear/leaf $symbol
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1159,14 +1201,15 @@ snit::type ::pt::rde_tcl {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:void_leaf_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 
 	if {$myok} {
 	    $mystackast push $mysvalue
@@ -1174,7 +1217,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:value_leaf_symbol_end {symbol} {
+    method si:value_leaf_symbol_end {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_leaf_symbol_end ($symbol)"
 	# i_value_clear/leaf $symbol
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1202,14 +1245,15 @@ snit::type ::pt::rde_tcl {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:value_leaf_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 
 	$mystackast trim* [$mystackmark pop]
 	if {$myok} {
@@ -1218,7 +1262,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method si:value_clear_symbol_end {symbol} {
+    method si:value_clear_symbol_end {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:value_clear_symbol_end ($symbol)"
 	# i_value_clear
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1231,20 +1275,21 @@ snit::type ::pt::rde_tcl {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:value_clear_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 
 	$mystackast trim* [$mystackmark pop]
 	return
     }
 
-    method si:void_clear_symbol_end {symbol} {
+    method si:void_clear_symbol_end {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE si:void_clear_symbol_end ($symbol)"
 	# i_value_clear
 	# i_symbol_save       $symbol
 	# i_error_nonterminal $symbol
@@ -1256,14 +1301,15 @@ snit::type ::pt::rde_tcl {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:void_clear_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 	return
     }
 
@@ -1316,18 +1362,18 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_error_push {} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_push"
+    method i_error_push {} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_push ($myerror)"
 	$mystackerr push $myerror
 	return
     }
 
-    method i_error_clear_push {} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_clear_push"
+    method i_error_clear_push {} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_clear_push ()"
 	set myerror {}
 	$mystackerr push {}
 	return
     }
 
-    method i_error_pop_merge {} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_pop_merge"
+    method i_error_pop_merge {} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_pop_merge ($myerror)-/-([$mystackerr peek])"
 	set olderror [$mystackerr pop]
 
 	# We have either old or new error data, keep it.
@@ -1349,14 +1395,28 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_error_nonterminal {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_nonterminal"
+    method i_error_nonterminal {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_error_nonterminal ($symbol)"
+	#  i_error_nonterminal -- Disabled. Generate only low-level
+	#  i_error_nonterminal -- errors until we have worked out how
+	#  i_error_nonterminal -- to integrate symbol information with
+	#  i_error_nonterminal -- them. Do not forget where this
+	#  i_error_nonterminal -- instruction is inlined.
+	return
+
 	# Inlined: Errors, Expected.
-	if {![llength $myerror]} return
+	if {![llength $myerror]} {
+	    #TRACE puts "[format %8d $count] RDE i_error_nonterminal ($symbol) no error"
+	    return
+	}
 	set pos [$mystackloc peek]
 	incr pos
 	lassign $myerror loc messages
-	if {$loc != $pos} return
+	if {$loc != $pos} {
+	    #TRACE puts "[format %8d $count] RDE i_error_nonterminal ($symbol) -- $myerror != $pos"
+	    return
+	}
 	set myerror [list $loc [list [list n $symbol]]]
+	TRACE puts "[format %8d $count] RDE i_error_nonterminal ($symbol) := $myerror"
 	return
     }
 
@@ -1501,7 +1561,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_value_clear/leaf {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_value_clear/leaf (ok $myok ([expr {[$mystackloc peek]+1}])-@$myloc)"
+    method i_value_clear/leaf {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_value_clear/leaf ($symbol ok $myok ([expr {[$mystackloc peek]+1}])-@$myloc)"
 	# not quite value_lead (guarded, and clear on fail)
 	# Inlined clear, reduce, and optimized.
 	# Clear ; if {$ok} {Reduce $symbol}
@@ -1522,7 +1582,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_value_clear/reduce {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_value_clear/reduce"
+    method i_value_clear/reduce {symbol} { ; #TRACE puts "[format %8d [incr count]] RDE i_value_clear/reduce ($symbol)"
 	set mysvalue {}
 	if {!$myok} return
 
@@ -1557,7 +1617,7 @@ snit::type ::pt::rde_tcl {
     # # ## ### ##### ######## ############# #####################
     ## API - Instructions - Terminal matching
 
-    method i_input_next {msg} { ; #TRACE puts "[format %8d [incr count]] RDE i_input_next"
+    method i_input_next {msg} { ; #TRACE puts "[format %8d [incr count]] RDE i_input_next ($msg)"
 	# Inlined: Getch, Expected, ClearErrors
 	# Satisfy from input cache if possible.
 
@@ -1588,7 +1648,7 @@ snit::type ::pt::rde_tcl {
 	return
     }
 
-    method i_test_range {toks toke} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_range"
+    method i_test_range {toks toke} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_range ($toks $toke)"
 	set myok [expr {
 			([string compare $toks $mycurrent] <= 0) &&
 			([string compare $mycurrent $toke] <= 0)
@@ -1617,6 +1677,12 @@ snit::type ::pt::rde_tcl {
     method i_test_ascii {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_ascii"
 	set myok [string is ascii -strict $mycurrent]
 	OkFail ascii
+	return
+    }
+
+    method i_test_control {} { ; #TRACE puts "[format %8d [incr count]] RDE i_test_control"
+	set myok [string is control -strict $mycurrent]
+	OkFail control
 	return
     }
 
@@ -1771,6 +1837,7 @@ snit::type ::pt::rde_tcl {
 	set ourmsg(alnum)     [pt::pe alnum]
 	set ourmsg(alpha)     [pt::pe alpha]
 	set ourmsg(ascii)     [pt::pe ascii]
+	set ourmsg(control)   [pt::pe control]
 	set ourmsg(ddigit)    [pt::pe ddigit]
 	set ourmsg(digit)     [pt::pe digit]
 	set ourmsg(graph)     [pt::pe graph]

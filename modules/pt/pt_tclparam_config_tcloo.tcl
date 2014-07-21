@@ -1,5 +1,5 @@
 # -*- tcl -*-
-# Copyright (c) 2009-2010 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2014 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 # Canned configuration for the converter to Tcl/PARAM representation,
 # causing generation of a proper TclOO class.
@@ -27,12 +27,17 @@ namespace eval ::pt::tclparam::configuration::tcloo {
 # Check that the proposed serialization of an abstract syntax tree is
 # indeed such.
 
-proc ::pt::tclparam::configuration::tcloo::def {class pkg cmd} {
+proc ::pt::tclparam::configuration::tcloo::def {class pkg version cmd} {
 
     # TODO :: See if we can consolidate the API for converters,
     # TODO :: plugins, export manager, and container in some way.
     # TODO :: Container may make exporter manager available through
     # TODO :: public method.
+
+    lappend map @@PKG@@     $pkg
+    lappend map @@VERSION@@ $version
+    lappend map @@CLASS@@   $class
+    lappend map \n\t        \n ;# undent the template
 
     {*}$cmd -runtime-command my
     {*}$cmd -self-command    my
@@ -42,12 +47,7 @@ proc ::pt::tclparam::configuration::tcloo::def {class pkg cmd} {
     {*}$cmd -main            MAIN
     {*}$cmd -indent          4
     {*}$cmd -template        [string trim \
-				  [string map \
-				       [list \
-					    @@PKG@@   $pkg \
-					    @@CLASS@@ $class \
-					    \n\t \n \
-					   ] {
+				  [string map $map {
 	## -*- tcl -*-
 	##
 	## OO-based Tcl/PARAM implementation of the parsing
@@ -103,7 +103,7 @@ proc ::pt::tclparam::configuration::tcloo::def {class pkg cmd} {
 	# # ## ### ##### ######## ############# #####################
 	## Ready
 
-	package provide @@PKG@@ 1
+	package provide @@PKG@@ @@VERSION@@
 	return
     }]]
 
@@ -117,5 +117,5 @@ namespace eval ::pt::tclparam::configuration::tcloo {}
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::tclparam::configuration::tcloo 1.0.3
+package provide pt::tclparam::configuration::tcloo 1.0.4
 return
