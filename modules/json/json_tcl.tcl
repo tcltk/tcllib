@@ -22,6 +22,8 @@ proc ::json::json2dict_tcl {jsonText} {
     set tokens [regexp -all -inline -- $tokenRE $jsonText]
     set nrTokens [llength $tokens]
     set tokenCursor 0
+
+#puts T:\t[join $tokens \nT:\t]
     return [parseValue $tokens $nrTokens tokenCursor]
 }
 
@@ -69,9 +71,16 @@ proc ::json::unexpected {tokenCursor token expected} {
 # real characters for escape sequences within it
 # @param token
 # @return unquoted unescaped value of the string contained in $token
-proc ::json::unquoteUnescapeString {token} {
+proc ::json::unquoteUnescapeString {tokenCursor token} {
+    variable stringREv
     set unquoted [string range $token 1 end-1]
-    return [subst -nocommands -novariables $unquoted]
+
+    if {![regexp $stringREv $token]} {
+	unexpected $tokenCursor $token STRING
+    }
+
+    set res [subst -nocommands -novariables $unquoted]
+    return $res
 }
 
 # Parse an object member
@@ -87,11 +96,12 @@ proc ::json::parseObjectMember {tokens nrTokens tokenCursorName objectDictName} 
     upvar $objectDictName objectDict
 
     set token [lindex $tokens $tokenCursor]
+    set tc $tokenCursor
     incr tokenCursor
 
     set leadingChar [string index $token 0]
     if {$leadingChar eq "\""} {
-        set memberName [unquoteUnescapeString $token]
+        set memberName [unquoteUnescapeString $tc $token]
 
         if {$tokenCursor == $nrTokens} {
             unexpected $tokenCursor "END" "\":\""
@@ -246,6 +256,7 @@ proc ::json::parseValue {tokens nrTokens tokenCursorName} {
         unexpected $tokenCursor "END" "VALUE"
     } else {
         set token [lindex $tokens $tokenCursor]
+	set tc $tokenCursor
         incr tokenCursor
 
         set leadingChar [string index $token 0]
@@ -258,7 +269,7 @@ proc ::json::parseValue {tokens nrTokens tokenCursorName} {
             }
             "\"" {
                 # quoted string
-                return [unquoteUnescapeString $token]
+                return [unquoteUnescapeString $tc $token]
             }
             "t" -
             "f" -

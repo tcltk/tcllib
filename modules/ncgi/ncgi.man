@@ -1,4 +1,5 @@
-[manpage_begin ncgi n 1.4.2]
+[vset VERSION 1.4.3]
+[manpage_begin ncgi n [vset VERSION]]
 [see_also html]
 [keywords CGI]
 [keywords cookie]
@@ -9,7 +10,7 @@
 [titledesc {Procedures to manipulate CGI values.}]
 [category  {CGI programming}]
 [require Tcl 8.4]
-[require ncgi [opt 1.4.2]]
+[require ncgi [opt [vset VERSION]]]
 [description]
 [para]
 

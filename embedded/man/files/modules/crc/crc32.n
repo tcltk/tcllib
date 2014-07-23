@@ -2,7 +2,7 @@
 '\" Generated from file 'crc32\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002, Pat Thoyts
 '\"
-.TH "crc32" n 1\&.3 tcllib "Cyclic Redundancy Checks"
+.TH "crc32" n 1\&.3\&.2 tcllib "Cyclic Redundancy Checks"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ crc32 \- Perform a 32bit Cyclic Redundancy Check
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBcrc32  ?1\&.3?\fR
+package require \fBcrc32  ?1\&.3\&.2?\fR
 .sp
 \fB::crc::crc32\fR ?-format \fIformat\fR? ?-seed \fIvalue\fR? [ \fI-channel chan\fR | \fI-filename file\fR | \fImessage\fR ]
 .sp

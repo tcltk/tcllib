@@ -3,7 +3,7 @@
 '\" Copyright (c) 2006 ActiveState Software Inc\&.
 '\" Copyright (c) 2009 Thomas Maeder, Glue Software Engineering AG
 '\"
-.TH "json" n 1\&.3 tcllib "JSON"
+.TH "json" n 1\&.3\&.3 tcllib "JSON"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -277,7 +277,7 @@ json \- JSON parser
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBjson  ?1\&.3?\fR
+package require \fBjson  ?1\&.3\&.3?\fR
 .sp
 \fB::json::json2dict\fR \fItxt\fR
 .sp
