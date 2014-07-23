@@ -1,0 +1,581 @@
+
+# https://github.com/jgm/peg-markdown - Testsuite.
+# http://piumarta.com/software/peg/
+
+PEG markdown (Document)
+
+	Document	<-	BOM? Block*	;
+
+	Block		<-	BlankLine*
+			(	BlockQuote
+			/	Verbatim
+			/	Note
+			/	Reference
+			/	HorizontalRule
+			/	Heading		#
+			/	OrderedList
+			/	BulletList
+			/	HtmlBlock
+			/	StyleBlock
+			/	Paragraph	#
+			/	Inlines
+			)			;
+
+	Paragraph	<-	NonindentSpace
+				Inlines
+				BlankLine+	;
+
+	AtxInline	<-	!EOL !(MaybeSpace '#'* MaybeSpace EOL) Inline		;
+leaf:	AtxStart	<-	"######" / "#####" / "####" / "###" / "##" / "#"	;
+	AtxHeading	<-	AtxStart MaybeSpace AtxInline+ AtxCloser EOL		;
+void:	AtxCloser	<-	(MaybeSpace '#'* MaybeSpace)?				;
+
+	SetextHeading	<-	SetextHeading1
+			/	SetextHeading2
+			;
+	SetextHeading1	<-	SetextGuard1 SetextInline SetextBottom1	;
+	SetextHeading2	<-	SetextGuard2 SetextInline SetextBottom2	;
+
+	SetextGuard1	<-	&(RawLine SetextBottom1)	;
+	SetextGuard2	<-	&(RawLine SetextBottom2)	;
+
+	SetextBottom1	<-	'='+ EOL	;
+	SetextBottom2	<-	'-'+ EOL	;
+
+	SetextInline	<-	(!Endline Inline)+ MaybeSpace EOL	;
+
+	Heading		<-	SetextHeading
+			/	AtxHeading
+			;
+
+	BlockQuote	<-	(( '>' ' '? Line)
+				 ( !'>' !BlankLine Line)*
+				 BlankLine*)+
+			;
+
+	NonblankIndentedLine
+			<-	!BlankLine IndentedLine			;
+	VerbatimSegment	<-	BlankLine* NonblankIndentedLine+	;
+	Verbatim	<-	VerbatimSegment+				;
+
+	HorizontalRule	<-	NonindentSpace
+		 		( '*' MaybeSpace '*' MaybeSpace '*' (MaybeSpace '*')*
+		 		/ '-' MaybeSpace '-' MaybeSpace '-' (MaybeSpace '-')*
+		 		/ '_' MaybeSpace '_' MaybeSpace '_' (MaybeSpace '_')*
+				)
+		 		MaybeSpace EOL BlankLine+
+			;
+
+	Bullet		<-	!HorizontalRule NonindentSpace [+*-] SomeSpace	;
+	BulletList	<-	&Bullet (ListTight / ListLoose)			;
+
+	Enumerator	<-	NonindentSpace Digit+ '.' SomeSpace		;
+	OrderedList	<-	&Enumerator (ListTight / ListLoose)		;
+
+	ListTight	<-	ListItemTight+ BlankLine* !ListItemEntry	;
+	ListLoose	<-	(ListItem BlankLine*)+				;
+
+	ListItem	<-	ListItemEntry
+	    	    		ListBlock
+	    			ListContinuationBlock*
+			;
+	ListItemTight	<-	ListItemEntry
+	    			ListBlock
+	    			(!BlankLine ListContinuationBlock)*
+	    			!ListContinuationBlock
+			;
+	ListBlock	<-	!BlankLine Line ListBlockLine*	;
+	ListContinuationBlock
+			<-	BlankLines (Indent ListBlock)+	;
+
+	ListBlockLine	<-	!BlankLine
+				!(Indent? ListItemEntry)
+				!HorizontalRule
+				OptionallyIndentedLine
+			;
+	ListItemEntry	<-	Bullet
+			/	Enumerator
+			;
+
+
+	# Parsers for different kinds of block-level HTML content.
+	# This is repetitive due to constraints of PEG grammar.
+
+	HAddress		<-	"address"	/ "ADDRESS"		;
+	HBlockquote		<-	"blockquote"	/ "BLOCKQUOTE"		;
+	HCenter			<-	"center"	/ "CENTER"		;
+	HDir			<-	"dir"		/ "DIR"			;
+	HDiv			<-	"div"		/ "DIV"			;
+	HDl			<-	"dl"		/ "DL"			;
+	HFieldset		<-	"fieldset"	/ "FIELDSET"		;
+	HForm			<-	"form"		/ "FORM"		;
+	HH1			<-	"h1"		/ "H1"			;
+	HH2			<-	"h2"		/ "H2"			;
+	HH3			<-	"h3"		/ "H3"			;
+	HH4			<-	"h4"		/ "H4"			;
+	HH5			<-	"h5"		/ "H5"			;
+	HH6			<-	"h6"		/ "H6"			;
+
+	HtmlOpenAddress		<-	TagStart HAddress	OpenTagEnd	;
+	HtmlOpenBlockquote	<-	TagStart HBlockquote	OpenTagEnd	;
+	HtmlOpenCenter		<-	TagStart HCenter	OpenTagEnd	;
+	HtmlOpenDir		<-	TagStart HDir		OpenTagEnd	;
+	HtmlOpenDiv		<-	TagStart HDiv		OpenTagEnd	;
+	HtmlOpenDl		<-	TagStart HDl		OpenTagEnd	;
+	HtmlOpenFieldset	<-	TagStart HFieldset	OpenTagEnd	;
+	HtmlOpenForm		<-	TagStart HForm		OpenTagEnd	;
+	HtmlOpenH1		<-	TagStart HH1		OpenTagEnd	;
+	HtmlOpenH2		<-	TagStart HH2		OpenTagEnd	;
+	HtmlOpenH3		<-	TagStart HH3		OpenTagEnd	;
+	HtmlOpenH4		<-	TagStart HH4		OpenTagEnd	;
+	HtmlOpenH5		<-	TagStart HH5		OpenTagEnd	;
+	HtmlOpenH6		<-	TagStart HH6		OpenTagEnd	;
+	HtmlOpenMenu		<-	TagStart ("menu" / "MENU") OpenTagEnd
+	HtmlOpenNoframes	<-	TagStart ("noframes" / "NOFRAMES") OpenTagEnd
+	HtmlOpenNoscript	<-	TagStart ("noscript" / "NOSCRIPT") OpenTagEnd
+	HtmlOpenOl		<-	TagStart ("ol" / "OL") OpenTagEnd
+	HtmlOpenP		<-	TagStart ("p" / "P") OpenTagEnd
+	HtmlOpenPre		<-	TagStart ("pre" / "PRE") OpenTagEnd
+	HtmlOpenTable		<-	TagStart ("table" / "TABLE") OpenTagEnd
+	HtmlOpenUl		<-	TagStart ("ul" / "UL") OpenTagEnd
+	HtmlOpenDd		<-	TagStart ("dd" / "DD") OpenTagEnd
+	HtmlOpenDt		<-	TagStart ("dt" / "DT") OpenTagEnd
+	HtmlOpenFrameset	<-	TagStart ("frameset" / "FRAMESET") OpenTagEnd
+	HtmlOpenLi		<-	TagStart ("li" / "LI") OpenTagEnd
+	HtmlOpenTbody		<-	TagStart ("tbody" / "TBODY") OpenTagEnd
+	HtmlOpenTd		<-	TagStart ("td" / "TD") OpenTagEnd
+	HtmlOpenTfoot		<-	TagStart ("tfoot" / "TFOOT") OpenTagEnd
+
+	HtmlCloseAddress	<-	CloseTagStart HAddress		TagEnd	;
+	HtmlCloseBlockquote	<-	CloseTagStart HBlockquote	TagEnd	;
+	HtmlCloseCenter		<-	CloseTagStart HCenter		TagEnd	;
+	HtmlCloseDir		<-	CloseTagStart HDir		TagEnd	;
+	HtmlCloseDiv		<-	CloseTagStart HDiv		TagEnd	;
+	HtmlCloseDl		<-	CloseTagStart HDl		TagEnd	;
+	HtmlCloseFieldset	<-	CloseTagStart HFieldset 	TagEnd	;
+	HtmlCloseForm		<-	CloseTagStart HForm		TagEnd	;
+	HtmlCloseH1		<-	CloseTagStart HH1		TagEnd	;
+	HtmlCloseH2		<-	CloseTagStart HH2		TagEnd	;
+	HtmlCloseH3		<-	CloseTagStart HH3		TagEnd	;
+	HtmlCloseH4		<-	CloseTagStart HH4		TagEnd	;
+	HtmlCloseH5		<-	CloseTagStart HH5		TagEnd	;
+	HtmlCloseH6		<-	CloseTagStart HH6		TagEnd	;
+	HtmlCloseMenu		<-	CloseTagStart ("menu" / "MENU") TagEnd
+	HtmlCloseNoframes	<-	CloseTagStart ("noframes" / "NOFRAMES") TagEnd
+	HtmlCloseNoscript	<-	CloseTagStart ("noscript" / "NOSCRIPT") TagEnd
+	HtmlCloseOl		<-	CloseTagStart ("ol" / "OL") TagEnd
+	HtmlCloseP		<-	CloseTagStart ("p" / "P") TagEnd
+	HtmlClosePre		<-	CloseTagStart ("pre" / "PRE") TagEnd
+	HtmlCloseTable		<-	CloseTagStart ("table" / "TABLE") TagEnd
+	HtmlCloseUl		<-	CloseTagStart ("ul" / "UL") TagEnd
+	HtmlCloseDd		<-	CloseTagStart ("dd" / "DD") TagEnd
+	HtmlCloseDt		<-	CloseTagStart ("dt" / "DT") TagEnd
+	HtmlCloseFrameset	<-	CloseTagStart ("frameset" / "FRAMESET") TagEnd
+	HtmlCloseLi		<-	CloseTagStart ("li" / "LI") TagEnd
+	HtmlCloseTbody		<-	CloseTagStart ("tbody" / "TBODY") TagEnd
+	HtmlCloseTd		<-	CloseTagStart ("td" / "TD") TagEnd
+	HtmlCloseTfoot		<-	CloseTagStart ("tfoot" / "TFOOT") TagEnd
+
+	HtmlAddress		<-	HtmlOpenAddress	   (HtmlAddress    / !HtmlCloseAddress    .)* HtmlCloseAddress		;
+	HtmlBlockquote		<-	HtmlOpenBlockquote (HtmlBlockquote / !HtmlCloseBlockquote .)* HtmlCloseBlockquote	;
+	HtmlCenter		<-	HtmlOpenCenter     (HtmlCenter     / !HtmlCloseCenter     .)* HtmlCloseCenter		;
+	HtmlDir			<-	HtmlOpenDir        (HtmlDir        / !HtmlCloseDir        .)* HtmlCloseDir		;
+	HtmlDiv			<-	HtmlOpenDiv        (HtmlDiv        / !HtmlCloseDiv        .)* HtmlCloseDiv		;
+	HtmlDl			<-	HtmlOpenDl         (HtmlDl         / !HtmlCloseDl         .)* HtmlCloseDl		;
+	HtmlFieldset		<-	HtmlOpenFieldset   (HtmlFieldset   / !HtmlCloseFieldset   .)* HtmlCloseFieldset		;
+	HtmlForm		<-	HtmlOpenForm       (HtmlForm       / !HtmlCloseForm       .)* HtmlCloseForm		;
+	HtmlH1			<-	HtmlOpenH1         (HtmlH1         / !HtmlCloseH1         .)* HtmlCloseH1		;
+	HtmlH2			<-	HtmlOpenH2         (HtmlH2         / !HtmlCloseH2         .)* HtmlCloseH2		;
+	HtmlH3			<-	HtmlOpenH3         (HtmlH3         / !HtmlCloseH3         .)* HtmlCloseH3		;
+	HtmlH4			<-	HtmlOpenH4         (HtmlH4         / !HtmlCloseH4         .)* HtmlCloseH4		;
+	HtmlH5			<-	HtmlOpenH5         (HtmlH5         / !HtmlCloseH5         .)* HtmlCloseH5		;
+	HtmlH6			<-	HtmlOpenH6         (HtmlH6         / !HtmlCloseH6         .)* HtmlCloseH6		;
+	HtmlMenu		<-	HtmlOpenMenu (HtmlMenu / !HtmlCloseMenu .)* HtmlCloseMenu
+	HtmlNoframes		<-	HtmlOpenNoframes (HtmlNoframes / !HtmlCloseNoframes .)* HtmlCloseNoframes
+	HtmlNoscript		<-	HtmlOpenNoscript (HtmlNoscript / !HtmlCloseNoscript .)* HtmlCloseNoscript
+	HtmlOl			<-	HtmlOpenOl (HtmlOl / !HtmlCloseOl .)* HtmlCloseOl
+	HtmlP			<-	HtmlOpenP (HtmlP / !HtmlCloseP .)* HtmlCloseP
+	HtmlPre			<-	HtmlOpenPre (HtmlPre / !HtmlClosePre .)* HtmlClosePre
+	HtmlTable		<-	HtmlOpenTable (HtmlTable / !HtmlCloseTable .)* HtmlCloseTable
+	HtmlUl			<-	HtmlOpenUl (HtmlUl / !HtmlCloseUl .)* HtmlCloseUl
+	HtmlDd			<-	HtmlOpenDd (HtmlDd / !HtmlCloseDd .)* HtmlCloseDd
+	HtmlDt			<-	HtmlOpenDt (HtmlDt / !HtmlCloseDt .)* HtmlCloseDt
+	HtmlFrameset		<-	HtmlOpenFrameset (HtmlFrameset / !HtmlCloseFrameset .)* HtmlCloseFrameset
+	HtmlLi			<-	HtmlOpenLi (HtmlLi / !HtmlCloseLi .)* HtmlCloseLi
+	HtmlTbody		<-	HtmlOpenTbody (HtmlTbody / !HtmlCloseTbody .)* HtmlCloseTbody
+	HtmlTd			<-	HtmlOpenTd (HtmlTd / !HtmlCloseTd .)* HtmlCloseTd
+	HtmlTfoot		<-	HtmlOpenTfoot (HtmlTfoot / !HtmlCloseTfoot .)* HtmlCloseTfoot
+
+	HtmlOpenTh		<-	TagStart ("th" / "TH") OpenTagEnd
+	HtmlCloseTh		<-	CloseTagStart ("th" / "TH") TagEnd
+	HtmlTh			<-	HtmlOpenTh (HtmlTh / !HtmlCloseTh .)* HtmlCloseTh
+
+	HtmlOpenThead		<-	TagStart ("thead" / "THEAD") OpenTagEnd
+	HtmlCloseThead		<-	CloseTagStart ("thead" / "THEAD") TagEnd
+	HtmlThead		<-	HtmlOpenThead (HtmlThead / !HtmlCloseThead .)* HtmlCloseThead
+
+	HtmlOpenTr		<-	TagStart ("tr" / "TR") OpenTagEnd
+	HtmlCloseTr		<-	CloseTagStart ("tr" / "TR") TagEnd
+	HtmlTr			<-	HtmlOpenTr (HtmlTr / !HtmlCloseTr .)* HtmlCloseTr
+
+	HtmlOpenScript		<-	TagStart ("script" / "SCRIPT") OpenTagEnd
+	HtmlCloseScript		<-	CloseTagStart ("script" / "SCRIPT") TagEnd
+	HtmlScript		<-	HtmlOpenScript (!HtmlCloseScript .)* HtmlCloseScript
+
+	HtmlOpenHead		<-	TagStart ("head" / "HEAD") OpenTagEnd
+	HtmlCloseHead		<-	CloseTagStart ("head" / "HEAD") TagEnd
+	HtmlHead		<-	HtmlOpenHead (!HtmlCloseHead .)* HtmlCloseHead
+
+	HtmlBlockInTags	<-	HtmlAddress
+			/	HtmlBlockquote
+			/	HtmlCenter
+			/	HtmlDir
+			/	HtmlDiv
+			/	HtmlDl
+			/	HtmlFieldset
+			/	HtmlForm
+			/	HtmlH1
+			/	HtmlH2
+			/	HtmlH3
+			/	HtmlH4
+			/	HtmlH5
+			/	HtmlH6
+			/	HtmlMenu
+			/	HtmlNoframes
+			/	HtmlNoscript
+			/	HtmlOl
+			/	HtmlP
+			/	HtmlPre
+			/	HtmlTable
+			/	HtmlUl
+			/	HtmlDd
+			/	HtmlDt
+			/	HtmlFrameset
+			/	HtmlLi
+			/	HtmlTbody
+			/	HtmlTd
+			/	HtmlTfoot
+			/	HtmlTh
+			/	HtmlThead
+			/	HtmlTr
+			/	HtmlScript
+			/	HtmlHead
+			;
+
+	HtmlBlock	<-	HtmlBlockRaw BlankLine+	;
+leaf:	HtmlBlockRaw	<-	HtmlBlockInTags
+			/	HtmlComment
+			/	HtmlBlockSelfClosing
+			;
+	HtmlBlockSelfClosing
+			<-	TagStart HtmlBlockType SingleTagEnd	;
+
+	HtmlBlockType	<-	HAddress
+			/	HBlockquote
+			/	HCenter
+			/	HDir	 
+			/	HDiv	 
+			/	HDl	 
+			/	HFieldset
+			/	HForm
+			/	HH1  
+			/	HH2  
+			/	HH3  
+			/	HH4
+			/	HH5
+			/	HH6
+
+ / "hr" / "isindex" / "menu" / "noframes" / "noscript" / "ol" / "p" / "pre" / "table" /
+		"ul" / "dd" / "dt" / "frameset" / "li" / "tbody" / "td" / "tfoot" / "th" / "thead" / "tr" / "script" /
+		"ADDRESS" / "BLOCKQUOTE" / "CENTER" / "DIR" / "DIV" / "DL" / "FIELDSET" / "FORM" / "H1" / "H2" / "H3" /
+		"H4" / "H5" / "H6" / "HR" / "ISINDEX" / "MENU" / "NOFRAMES" / "NOSCRIPT" / "OL" / "P" / "PRE" / "TABLE" /
+		"UL" / "DD" / "DT" / "FRAMESET" / "LI" / "TBODY" / "TD" / "TFOOT" / "TH" / "THEAD" / "TR" / "SCRIPT"
+			;
+
+
+	HStyle		<-	"style" / "STYLE"			;
+	StyleOpen	<-	TagStart HStyle OpenTagEnd		;
+	StyleClose	<-	CloseTagStart HStyle TagEnd		;
+leaf:	InStyleTags	<-	StyleOpen (!StyleClose .)* StyleClose	;
+	StyleBlock	<-	InStyleTags BlankLine*			;
+
+	Inlines		<-	( !Endline Inline
+				/ Endline &Inline)+ Endline?
+			;
+
+	Inline		<-	String		
+			/	Endline		
+			/	UlOrStarLine	
+			/	SomeSpace	
+			/	Strong		
+			/	Emphasis	
+			/	Strikeout	
+			/	Image		
+			/	Link		
+			/	NoteReference
+			/	InlineNote
+			/	CodeBlock
+			/	RawHtml
+			/	Entity
+			/	EscapedChar	
+			/	Smart
+			/	Symbol
+			;
+
+#	nc+ => element, nc/_+ => element
+leaf:	String		<-	NormalChar+ StrSegment*			;
+	StrSegment	<-	(NormalChar / '_'+ &Alphanumeric)+
+			/	AposSegment
+			;
+	AposSegment	<-	SingleQuote &Alphanumeric	;
+	EscapedChar	<-	'\\' !EOL EscapedValue		;
+leaf:	EscapedValue	<-	[-\\`/*_{}[\]()#+.!><]		;
+
+	Entity		<-	HexEntity
+			/	DecEntity
+			/	CharEntity
+			;
+	Endline		<-	LineBreak
+			/	TerminalEndline
+			/	NormalEndline
+			;
+	NormalEndline	<-	MaybeSpace EOL !BlankLine !'>' !AtxStart !(Line ('='+ / '-'+) EOL)	;
+	TerminalEndline	<-	MaybeSpace EOL EOF	;
+	LineBreak	<-	"  " NormalEndline	;
+
+leaf:	Symbol		<-	SpecialChar	;
+
+# This should keep the parser from getting bogged down on long strings
+# of '*' or '_', or strings of '*' or '_' with space on each side:
+
+leaf:	UlOrStarLine	<-	UnderLine
+			/	StarLine
+			;
+	StarLine	<-	"****" '*'*
+			/	Space '*'+ &Space
+			;
+	UnderLine	<-	"____" '_'* >
+			/	Space '_'+ &Space
+			;
+
+	Emphasis	<-	EmphasisStar
+			/	EmphasisUl
+			;
+
+	EmphasisStar	<-	EmphStarMark !Whitespace (!EmphStarMark Inline / StrongStar)+ EmphStarMark	;
+	EmphasisUl	<-	EmphUlMark   !Whitespace (!EmphUlMark   Inline / StrongUl)+   EmphUlMark	;
+
+	Strong		<-	StrongStar
+			/	StrongUl
+			;
+	StrongStar	<-	StrongStarMark !Whitespace (!StrongStarMark Inline)+ StrongStarMark	;
+	StrongUl	<-	StrongUlMark   !Whitespace (!StrongUlMark   Inline)+ StrongUlMark	;
+
+	Strikeout	<-	StrikeMark     !Whitespace (!StrikeMark     Inline)+ StrikeMark		;
+
+	EmphStarMark	<-	"*"	;
+	EmphUlMark	<-	"_"	;
+	StrongStarMark	<-	"**"	;
+	StrongUlMark	<-	"__"	;
+	StrikeMark	<-	"~~"	;
+
+
+	Image		<-	'!' (	ExplicitLink
+				    /	ReferenceLink
+				)	;
+	Link		<-	ExplicitLink
+			/	ReferenceLink
+			/	AutoLink
+			;
+
+	ReferenceLink	<-	RefLinkDouble
+			/	RefLinkSingle
+			;
+# keep skipspace information?
+	RefLinkDouble	<-	Label SkipSpace !"[]" Label	;
+	RefLinkSingle	<-	Label (SkipSpace "[]")?		;
+
+	ExplicitLink	<-	Label '(' MaybeSpace Source SkipSpace Title MaybeSpace ')'	;
+	Source		<-	'<' SourceContents '>'
+			/	SourceContents
+			;
+	SourceContents	<-	(	(!'(' !')' !'>' NotSpace)+
+				/ 	'(' SourceContents ')'
+				)*
+			;
+	Title		<-	TitleSingle
+			/	TitleDouble
+			/	""
+			;
+	TitleSingle	<-	SingleQuote TitleSString SingleQuote	;
+	TitleDouble	<-	DoubleQuote TitleDString DoubleQuote	;
+
+	TitleSString	<-	(!(SingleQuote MaybeSpace (')' / EOL)) .)*	;
+	TitleDString	<-	(!(DoubleQuote MaybeSpace (')' / EOL)) .)* 	;
+
+	AutoLink	<-	AutoLinkUrl
+			/	AutoLinkEmail
+			;
+	AutoLinkUrl	<-	'<' LinkUrl              '>'	;
+	AutoLinkEmail	<-	'<' "mailto:"? LinkEmail '>'	;
+
+	LinkUrl		<-	[A-Za-z]+ "://" (!EOL !'>' .)+			;
+	LinkEmail	<-	[-A-Za-z0-9+_./!%~$]+ '@' (!EOL !'>' .)+	;
+
+	Reference	<-	NonindentSpace !"[]" Label ':'
+				SkipSpace RefSrc RefTitle BlankLine+
+			;
+
+	Label		<-	'[' (!'^' / &.) LabelValue ']'	;
+	LabelValue	<-	(!']' Inline)*			;
+
+leaf:	RefSrc		<-	NotSpace+	;
+	RefTitle	<-	RefTitleSingle
+			/	RefTitleDouble
+			/	RefTitleParens
+			/	EmptyTitle
+			;
+leaf:	EmptyTitle	<-	""	;
+
+	RefTitleSingle	<-	SkipSpace SingleQuote RefTitleSString SingleQuote	;
+	RefTitleDouble	<-	SkipSpace DoubleQuote RefTitleDString DoubleQuote	;
+	RefTitleParens	<-	SkipSpace '('         RefTitlePString ')'		;
+
+	RefTitleSString	<-	(!(SingleQuote MaybeSpace EOL / EOL) .)*	;
+	RefTitleDString	<-	(!(DoubleQuote MaybeSpace EOL / EOL) .)*	;
+	RefTitlePString	<-	(!(')'         MaybeSpace EOL / EOL) .)*	;
+
+	References	<-	(Reference / SkipBlock)*	;
+
+void:	BT	<-	"`"		;
+void:	Ticks1	<-	"`" !BT		;
+void:	Ticks2	<-	"``" !BT	;
+void:	Ticks3	<-	"```" !BT	;
+void:	Ticks4	<-	"````" !BT	;
+void:	Ticks5	<-	"`````" !BT	;
+
+	CodeBlock	<-	Ticks1 MaybeSpace Code1 CodeCloser1
+       			/	Ticks2 MaybeSpace Code2 CodeCloser2
+       			/	Ticks3 MaybeSpace Code3 CodeCloser3
+       			/	Ticks4 MaybeSpace Code4 CodeCloser4
+       			/	Ticks5 MaybeSpace Code5 CodeCloser5
+       			;
+
+leaf:	Code1	<-	((!BT NotSpace)+ / !Ticks1 BT+ / !CodeCloser1 (Whitespace !BlankLine))+	;
+leaf:	Code2	<-	((!BT NotSpace)+ / !Ticks2 BT+ / !CodeCloser2 (Whitespace !BlankLine))+	;
+leaf:	Code3	<-	((!BT NotSpace)+ / !Ticks3 BT+ / !CodeCloser3 (Whitespace !BlankLine))+	;
+leaf:	Code4	<-	((!BT NotSpace)+ / !Ticks4 BT+ / !CodeCloser4 (Whitespace !BlankLine))+	;
+leaf:	Code5	<-	((!BT NotSpace)+ / !Ticks5 BT+ / !CodeCloser5 (Whitespace !BlankLine))+	;
+
+void:	CodeCloser1	<-	MaybeSpace Ticks1	;
+void:	CodeCloser2	<-	MaybeSpace Ticks2	;
+void:	CodeCloser3	<-	MaybeSpace Ticks3	;
+void:	CodeCloser4	<-	MaybeSpace Ticks4	;
+void:	CodeCloser5	<-	MaybeSpace Ticks5	;
+
+leaf:	RawHtml			<-	HtmlComment
+				/	HtmlBlockScript
+				/	HtmlTag
+				;
+leaf:	BlankLines		<-	BlankLine*	;
+void:	BlankLine		<-	MaybeSpace EOL	;
+	Quoted			<-	QuotedDouble
+				/	QuotedSingle
+				;
+
+	QuotedSingle		<-	SingleQuote QuotedSString SingleQuote	;
+	QuotedDouble		<-	DoubleQuote QuotedDString DoubleQuote	;
+
+	QuotedSString		<-	(!SingleQuote .)*	;
+	QuotedDString		<-	(!DoubleQuote .)*	;
+
+	HtmlAttribute		<-	(AlphanumericAscii / '-')+ SkipSpace ('=' SkipSpace (Quoted / (!'>' NotSpace)+))? SkipSpace	;
+	HtmlComment		<-	"<!--" (!"-->" .)* "-->"									;
+	HtmlTag			<-	TagStart '/'? AlphanumericAscii+ SkipSpace HtmlAttribute* '/'? TagEnd				;
+
+	TagStart		<-	'<' SkipSpace				;
+	TagEnd			<-	SkipSpace '>'				;
+	OpenTagEnd		<-	SkipSpace HtmlAttribute* TagEnd		;
+	CloseTagStart		<-	TagStart '/'				;
+	SingleTagEnd		<-	SkipSpace HtmlAttribute* '/' TagEnd	;
+
+	EOF			<-	!.				;
+	Space			<-	[ \t]				;
+	NotSpace		<-	!Space !EOL .			;
+	Whitespace		<-	Space / EOL			;
+	EOL			<-	'\n' / '\r' '\n'?		;
+	SomeSpace		<-	Space+				;
+	MaybeSpace		<-	Space*				;
+	SkipSpace		<-	MaybeSpace (EOL MaybeSpace)?	;
+	SpecialChar		<-	[~*_`&()<!#'"]
+				/ 	'[' / ']' / '\\'
+				/	ExtendedSpecialChar
+				;
+	NormalChar		<-	!SpecialChar !Space !EOL .	;
+	Alphanumeric		<-	[0-9A-Za-z\200-\377]		;
+	AlphanumericAscii	<-	[A-Za-z0-9]			;
+	Digit			<-	[0-9]				;
+	BOM			<-	"\357\273\277"			;
+
+leaf:	HexEntity	<-	'&' '#' [Xx] [0-9a-fA-F]+ ';'	;
+leaf:	DecEntity	<-	'&' '#' [0-9]+ ';'		;
+leaf:	CharEntity	<-	'&' [A-Za-z0-9]+ ';'		;
+
+	NonindentSpace		<-	"   " / "  " / " " / ""	;
+	Indent			<-	"\t" / "    "		;
+	IndentedLine		<-	Indent Line		;
+	OptionallyIndentedLine	<-	Indent? Line		;
+
+	Line			<-	RawLine			;
+
+	RawLine			<-	UntilEOL
+				/	UntilEOF
+				;
+leaf:	UntilEOL		<-	(!'\r' !'\n' .)* EOL	;
+leaf:	UntilEOF		<-	.+ EOF			;
+
+
+	SkipBlock	<-	HtmlBlock
+	  		/	(!'#' !SetextBottom1 !SetextBottom2 !BlankLine RawLine)+ BlankLine*
+	  		/	BlankLine+
+	  		/	RawLine
+			;
+
+# Syntax extensions
+
+	ExtendedSpecialChar	<-	[.-'"^]	;
+	Smart			<-	Ellipsis
+				/	EmDash
+				/	EnDash
+				/	SingleQuoted
+				/	DoubleQuoted
+				/	SingleQuote
+				;
+	SingleQuote		<-	"'"	;
+	Ellipsis		<-	"..."
+				/	". . ."
+				;
+	EnDash			<-	'-' &Digit	;
+	EmDash			<-	"---"
+				/	"--"
+				;
+
+	SingleQuoteStart	<-	SingleQuote !Space !EOL					;
+	SingleQuoteEnd		<-	SingleQuote !Alphanumeric					;
+	SingleQuoted		<-	SingleQuoteStart (!SingleQuoteEnd Inline)+ SingleQuoteEnd	;
+
+	DoubleQuote		<-	'"'						;
+	DoubleQuoted		<-	DoubleQuote (!DoubleQuote Inline)+ DoubleQuote	;
+
+	NoteReference		<-	"[^" NoteRefString ']'	;
+	NoteRefString		<-	(!EOL !']' .)+		;
+
+	Notes			<-	(Note / SkipBlock)*	;
+	Note			<-	NonindentSpace NoteReference ':' MaybeSpace
+					RawNoteBlock (&Indent RawNoteBlock)*
+				;
+
+	InlineNote		<-	"^[" (!']' Inline)+ ']'	;
+	RawNoteBlock		<-	(!BlankLine OptionallyIndentedLine)+ BlankLines	;
+
+END;
