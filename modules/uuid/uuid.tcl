@@ -12,7 +12,7 @@
 #        uuid::uuid equal $idA $idB
 
 namespace eval uuid {
-    variable version 1.0.3
+    variable version 1.0.4
     variable accel
     array set accel {critcl 0}
 
@@ -219,7 +219,11 @@ proc ::uuid::LoadAccelerator {name} {
 
 # Try and load a compiled extension to help.
 namespace eval ::uuid {
-    foreach e {critcl} { if {[LoadAccelerator $e]} { break } }
+    variable e {}
+    foreach e {critcl} {
+        if {[LoadAccelerator $e]} break
+    }
+    unset e
 }
 
 package provide uuid $::uuid::version

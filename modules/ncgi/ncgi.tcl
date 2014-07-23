@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2000 Ajuba Solutions.
 # Copyright (c) 2012 Richard Hipp, Andreas Kupries
-# Copyright (c) 2013 Andreas Kupries
+# Copyright (c) 2013-2014 Andreas Kupries
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -28,8 +28,9 @@
 # We use newer string routines
 package require Tcl 8.4
 package require fileutil ; # Required by importFile.
+package require uri
 
-package provide ncgi 1.4.2
+package provide ncgi 1.4.3
 
 namespace eval ::ncgi {
 
@@ -728,7 +729,10 @@ proc ::ncgi::redirect {url} {
 
 	if {[info exists env(REQUEST_URI)]} {
 	    # Not all servers have the leading protocol spec
-	    regsub -- {^https?://[^/]*/} $env(REQUEST_URI) / request_uri
+	    #regsub -- {^https?://[^/]*/} $env(REQUEST_URI) / request_uri
+	    array set u [uri::split $env(REQUEST_URI)]
+	    set request_uri /$u(path)
+	    unset u
 	} elseif {[info exists env(SCRIPT_NAME)]} {
 	    set request_uri $env(SCRIPT_NAME)
 	} else {

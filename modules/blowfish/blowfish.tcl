@@ -707,7 +707,11 @@ proc ::blowfish::blowfish {args} {
 
 # Try and load a compiled extension to help.
 namespace eval ::blowfish {
-    variable e; foreach e {trf} { if {[LoadAccelerator $e]} { break } }
+    variable e {}
+    foreach e {trf} {
+        if {[LoadAccelerator $e]} break
+    }
+    unset e
 }
 
 package provide blowfish $::blowfish::version

@@ -28,7 +28,7 @@
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::sha1 {
-    variable version 1.1.0
+    variable version 1.1.1
     variable rcsid {$Id: sha1v1.tcl,v 1.1 2006/03/12 22:46:13 andreas_kupries Exp $}
     variable accel
     array set accel {critcl 0 cryptkit 0 trf 0}
@@ -699,7 +699,9 @@ proc ::sha1::hmac {args} {
 
 # Try and load a compiled extension to help.
 namespace eval ::sha1 {
+    variable e {}
     foreach e {critcl cryptkit trf} { if {[LoadAccelerator $e]} { break } }
+    unset e
 }
 
 package provide sha1 $::sha1::version

@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'ncgi\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "ncgi" n 1\&.4\&.2 tcllib "CGI Support"
+.TH "ncgi" n 1\&.4\&.3 tcllib "CGI Support"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ ncgi \- Procedures to manipulate CGI values\&.
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBncgi  ?1\&.4\&.2?\fR
+package require \fBncgi  ?1\&.4\&.3?\fR
 .sp
 \fB::ncgi::cookie\fR \fIcookie\fR
 .sp
