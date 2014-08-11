@@ -210,12 +210,15 @@ ot_dup_rep(Tcl_Obj* obj, Tcl_Obj* dup)
 static void
 ot_string_rep(Tcl_Obj* obj)
 {
+    (void) obj;
     ASSERT (0, "Attempted reconversion of rde string to string rep");
 }
     
 static int
 ot_from_any(Tcl_Interp* ip, Tcl_Obj* obj)
 {
+    (void) ip;
+    (void) obj;
     ASSERT (0, "Illegal conversion into rde string");
     return TCL_ERROR;
 }

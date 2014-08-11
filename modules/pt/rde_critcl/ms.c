@@ -30,7 +30,7 @@ int
 paramms_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     RDE_STATE p = (RDE_STATE) cd;
-    int m, res;
+    int m, res = TCL_ERROR;
 
     static CONST char* methods [] = {
 	"amarked",	"ast",		"asts",		"chan",

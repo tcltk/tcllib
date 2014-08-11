@@ -1113,7 +1113,7 @@ SCOPE void
 rde_param_i_value_reduce (RDE_PARAM p, long int s)
 {
     Tcl_Obj*  newsv;
-    int       oc, i, j;
+    int       i, j;
     Tcl_Obj** ov;
     long int  ac;
     Tcl_Obj** av;
