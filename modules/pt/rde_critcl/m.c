@@ -51,7 +51,7 @@ param_AST (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
      *         [0] [1]
      */
 
-    long int  ac, i;
+    long int  ac;
     Tcl_Obj** av;
 
     if (objc != 2) {
@@ -73,7 +73,7 @@ param_ASTS (RDE_STATE p, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
      *         [0] [1]
      */
 
-    long int  ac, i;
+    long int  ac;
     Tcl_Obj** av;
 
     if (objc != 2) {

@@ -122,7 +122,7 @@ rde_tc_append (RDE_TC tc, char* string, long int len)
 SCOPE void
 rde_tc_get (RDE_TC tc, int at, char** ch, long int* len)
 {
-    long int  oc, off, top, end;
+    long int  oc, off, end;
     void** ov;
 
     rde_stack_get (tc->off, &oc, &ov);
@@ -148,7 +148,7 @@ rde_tc_get (RDE_TC tc, int at, char** ch, long int* len)
 SCOPE void
 rde_tc_get_s (RDE_TC tc, int at, int last, char** ch, long int* len)
 {
-    long int  oc, off, top, end;
+    long int  oc, off, end;
     void** ov;
 
     rde_stack_get (tc->off, &oc, &ov);
