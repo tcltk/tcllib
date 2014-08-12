@@ -1078,7 +1078,8 @@ proc ::websocket::Connected { opener sock token } {
 	}
     }
 
-    if { [::http::ncode $token] == 101 } {
+    set ncode [::http::ncode $token]
+    if { $ncode == 101 } {
 	array set HDR [::http::meta $token]
 
 	# Extact security handshake, check against what was expected
@@ -1131,7 +1132,7 @@ proc ::websocket::Connected { opener sock token } {
 	Push \
 	    "" \
 	    error \
-	    "Protocol error during WebSocket connection with $OPEN(url)" \
+	    "HTTP error code $ncode when establishing WebSocket connection with $OPEN(url)" \
 	    $OPEN(handler)
     }
 
