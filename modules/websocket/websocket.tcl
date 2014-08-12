@@ -364,7 +364,7 @@ proc ::websocket::test { srvSock cliSock path { hdrs {} } { qry {} } } {
     set websocket 0
     foreach {k v} $hdrs {
 	if { [string equal -nocase $k "connection"] && \
-		 [string equal -nocase $v "upgrade"] } {
+		 [string compare -nocase $v "*upgrade*"] } {
 	    set upgrading 1
 	}
 	if { [string equal -nocase $k "upgrade"] && \
@@ -1350,7 +1350,9 @@ proc ::websocket::open { url handler args } {
     # package...
     set sock ""
     if { [catch {eval $cmd} token] } {
-	${log}::error "Error while opening WebSocket connection to $url: $token"
+	unset $varname;    # Free opening context, we won't need it!
+	return -code error \
+	    "Error while opening WebSocket connection to $url: $token"
     } else {
 	set sock [HTTPSocket $token]
 	if { $sock ne "" } {
