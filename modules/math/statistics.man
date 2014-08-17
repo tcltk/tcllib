@@ -881,6 +881,16 @@ a Gamma distribution with given shape and rate parameters
 [list_end]
 [para]
 
+[call [cmd ::math::statistics::random-poisson] [arg mu] [arg number]]
+Return a list of "number" random values satisfying
+a Poisson distribution with given mean
+
+[list_begin arguments]
+[arg_def float mu] - Mean of the distribution
+[arg_def int number] - Number of values to be returned
+[list_end]
+[para]
+
 [call [cmd ::math::statistics::random-chisquare] [arg df] [arg number]]
 Return a list of "number" random values satisfying
 a chi square distribution with given degrees of freedom
