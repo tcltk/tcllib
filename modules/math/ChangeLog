@@ -1,3 +1,6 @@
+2014-08-17  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* statistcs.man: Add missing documentation for random-poisson procedure
+
 2014-01-30  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* geometry.tcl: Corrected edge case in pointInsidePolygon (by closer checking
 	                intersection of line segments; ticket c1ca34ead3).
