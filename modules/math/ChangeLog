@@ -1,4 +1,8 @@
 2014-08-21  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* calculus.tcl: Bumping version to 0.8
+	* pkgIndex.tcl: Bumping version of math::calculus package to 0.8
+
+2014-08-21  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* calculus.man: Describe the qk15 procedure implementing Gauss-Kronrod 15 points quadrature rule
 	* calculus.tcl: Implement the qk15 procedure for Gauss-Kronrod quadrature
 	* calculus.test: Provide a simple test procedure for Gauss-Kronrod quadrature
