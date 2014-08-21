@@ -644,6 +644,27 @@ test "solveTriDiagonal-1.0" "Solve tridiagonal system" \
    set x [::math::calculus::solveTriDiagonal {3 3} {1 1 1} {2 2} {1 0 0}]
 } -result [list [expr {5.0/11.0}] [expr {3.0/11.0}] [expr {-9.0/11.0}]]
 
+proc fcos {x} {
+    expr {cos($x)}
+}
+
+test "integrateQk15-1.0" "Integration according to Gauss-Kronrod quadrature" \
+   -match numbers -body {
+   set x [::math::calculus::qk15 0.0 10.0 fcos]
+} -result -0.5440211108893682
+
+test "integrateQk15-1.1" "Integration according to Gauss-Kronrod quadrature (10 steps)" \
+   -match numbers -body {
+   set x [::math::calculus::qk15 0.0 10.0 fcos 10]
+} -result -0.5440211108893697
+
+
+test "integrateQk15-1.2" "Integration according to Gauss-Kronrod quadrature (with details)" \
+   -match numbers -body {
+   set x [::math::calculus::qk15_detailed 0.0 10.0 fcos 10]
+} -result {-0.5440211108893697 6.577401743379832e-20 6.543992515206541 1.533698345844891}
+
+
 # End of test cases
 testsuiteCleanup
 	
