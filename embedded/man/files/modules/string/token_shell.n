@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'token_shell\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "string::token::shell" n 1\&.1 tcllib "Text and string utilities"
+.TH "string::token::shell" n 1\&.2 tcllib "Text and string utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,13 +275,13 @@ string::token::shell \- Parsing of shell command line
 .SH SYNOPSIS
 package require \fBTcl  8\&.5\fR
 .sp
-package require \fBstring::token::shell  ?1\&.1?\fR
+package require \fBstring::token::shell  ?1\&.2?\fR
 .sp
 package require \fBstring::token  ?1?\fR
 .sp
 package require \fBfileutil \fR
 .sp
-\fB::string token shell\fR ?\fB-indices\fR? ?\fB-partial\fR? \fIstring\fR
+\fB::string token shell\fR ?\fB-indices\fR? ?\fB-partial\fR? ?--? \fIstring\fR
 .sp
 .BE
 .SH DESCRIPTION
@@ -290,7 +290,7 @@ basic \fBsh\fR-syntax into a list of words\&.
 .PP
 The complete set of procedures is described below\&.
 .TP
-\fB::string token shell\fR ?\fB-indices\fR? ?\fB-partial\fR? \fIstring\fR
+\fB::string token shell\fR ?\fB-indices\fR? ?\fB-partial\fR? ?--? \fIstring\fR
 This command parses the input \fIstring\fR under the assumption of it
 following basic \fBsh\fR-syntax\&.
 The result of the command is a list of words in the \fIstring\fR\&.
@@ -298,6 +298,11 @@ An error is thrown if the input does not follow the allowed syntax\&.
 The behaviour can be modified by specifying any of the two options
 \fB-indices\fR and \fB-partial\fR\&.
 .RS
+.TP
+\fB--\fR
+When specified option parsing stops at this point\&. This option is
+needed if the input \fIstring\fR may start with dash\&. In other words,
+this is pretty much required if \fIstring\fR is user input\&.
 .TP
 \fB-indices\fR
 When specified the output is not a list of words, but a list of

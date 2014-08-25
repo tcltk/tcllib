@@ -106,7 +106,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">inifile(n) 0.2.5 tcllib &quot;Parsing of Windows INI files&quot;</h1>
+<h1 class="title">inifile(n) 0.3 tcllib &quot;Parsing of Windows INI files&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>inifile - Parsing of Windows INI files</p>
 </div>
@@ -123,10 +123,10 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl 8.2</b></li>
-<li>package require <b class="pkgname">inifile <span class="opt">?0.2.4?</span></b></li>
+<li>package require <b class="pkgname">inifile <span class="opt">?0.3?</span></b></li>
 </ul>
 <ul class="syntax">
-<li><a href="#1"><b class="cmd">::ini::open</b> <i class="arg">file</i> <span class="opt">?<i class="arg">access</i>?</span></a></li>
+<li><a href="#1"><b class="cmd">::ini::open</b> <i class="arg">file</i> <span class="opt">?<b class="option">-encoding</b> <i class="arg">encoding</i>?</span> <span class="opt">?<i class="arg">access</i>?</span></a></li>
 <li><a href="#2"><b class="cmd">::ini::close</b> <i class="arg">ini</i></a></li>
 <li><a href="#3"><b class="cmd">::ini::commit</b> <i class="arg">ini</i></a></li>
 <li><a href="#4"><b class="cmd">::ini::revert</b> <i class="arg">ini</i></a></li>
@@ -146,11 +146,12 @@
 <div id="section1" class="section"><h2><a name="section1">Description</a></h2>
 <p>This package provides an interface for easy manipulation of Windows INI files.</p>
 <dl class="definitions">
-<dt><a name="1"><b class="cmd">::ini::open</b> <i class="arg">file</i> <span class="opt">?<i class="arg">access</i>?</span></a></dt>
+<dt><a name="1"><b class="cmd">::ini::open</b> <i class="arg">file</i> <span class="opt">?<b class="option">-encoding</b> <i class="arg">encoding</i>?</span> <span class="opt">?<i class="arg">access</i>?</span></a></dt>
 <dd><p>Opens an INI file and returns a handle that is used by other commands.
 <i class="arg">access</i> is the same as the first form (non POSIX) of the <b class="const">open</b>
 command, with the exception that mode <b class="const">a</b> is not supported. The
-default mode is <b class="const">r+</b>.</p></dd>
+default mode is <b class="const">r+</b>.</p>
+<p>The default <i class="arg">encoding</i> is the system encoding.</p></dd>
 <dt><a name="2"><b class="cmd">::ini::close</b> <i class="arg">ini</i></a></dt>
 <dd><p>Close the specified handle. If any changes were made and not written by
 <b class="const">commit</b> they are lost.</p></dd>
