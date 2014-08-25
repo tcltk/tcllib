@@ -107,7 +107,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">math::calculus(n) 0.7.1 tcllib &quot;Tcl Math Library&quot;</h1>
+<h1 class="title">math::calculus(n) 0.8 tcllib &quot;Tcl Math Library&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>math::calculus - Integration and ordinary differential equations</p>
 </div>
@@ -129,7 +129,7 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl 8.4</b></li>
-<li>package require <b class="pkgname">math::calculus 0.7.1</b></li>
+<li>package require <b class="pkgname">math::calculus 0.8</b></li>
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">::math::calculus::integral</b> <i class="arg">begin</i> <i class="arg">end</i> <i class="arg">nosteps</i> <i class="arg">func</i></a></li>
@@ -138,14 +138,16 @@
 <li><a href="#4"><b class="cmd">::math::calculus::integral2D_accurate</b> <i class="arg">xinterval</i> <i class="arg">yinterval</i> <i class="arg">func</i></a></li>
 <li><a href="#5"><b class="cmd">::math::calculus::integral3D</b> <i class="arg">xinterval</i> <i class="arg">yinterval</i> <i class="arg">zinterval</i> <i class="arg">func</i></a></li>
 <li><a href="#6"><b class="cmd">::math::calculus::integral3D_accurate</b> <i class="arg">xinterval</i> <i class="arg">yinterval</i> <i class="arg">zinterval</i> <i class="arg">func</i></a></li>
-<li><a href="#7"><b class="cmd">::math::calculus::eulerStep</b> <i class="arg">t</i> <i class="arg">tstep</i> <i class="arg">xvec</i> <i class="arg">func</i></a></li>
-<li><a href="#8"><b class="cmd">::math::calculus::heunStep</b> <i class="arg">t</i> <i class="arg">tstep</i> <i class="arg">xvec</i> <i class="arg">func</i></a></li>
-<li><a href="#9"><b class="cmd">::math::calculus::rungeKuttaStep</b> <i class="arg">t</i> <i class="arg">tstep</i> <i class="arg">xvec</i> <i class="arg">func</i></a></li>
-<li><a href="#10"><b class="cmd">::math::calculus::boundaryValueSecondOrder</b> <i class="arg">coeff_func</i> <i class="arg">force_func</i> <i class="arg">leftbnd</i> <i class="arg">rightbnd</i> <i class="arg">nostep</i></a></li>
-<li><a href="#11"><b class="cmd">::math::calculus::solveTriDiagonal</b> <i class="arg">acoeff</i> <i class="arg">bcoeff</i> <i class="arg">ccoeff</i> <i class="arg">dvalue</i></a></li>
-<li><a href="#12"><b class="cmd">::math::calculus::newtonRaphson</b> <i class="arg">func</i> <i class="arg">deriv</i> <i class="arg">initval</i></a></li>
-<li><a href="#13"><b class="cmd">::math::calculus::newtonRaphsonParameters</b> <i class="arg">maxiter</i> <i class="arg">tolerance</i></a></li>
-<li><a href="#14"><b class="cmd">::math::calculus::regula_falsi</b> <i class="arg">f</i> <i class="arg">xb</i> <i class="arg">xe</i> <i class="arg">eps</i></a></li>
+<li><a href="#7"><b class="cmd">::math::calculus::qk15</b> <i class="arg">xstart</i> <i class="arg">xend</i> <i class="arg">func</i> <i class="arg">nosteps</i></a></li>
+<li><a href="#8"><b class="cmd">::math::calculus::qk15_detailed</b> <i class="arg">xstart</i> <i class="arg">xend</i> <i class="arg">func</i> <i class="arg">nosteps</i></a></li>
+<li><a href="#9"><b class="cmd">::math::calculus::eulerStep</b> <i class="arg">t</i> <i class="arg">tstep</i> <i class="arg">xvec</i> <i class="arg">func</i></a></li>
+<li><a href="#10"><b class="cmd">::math::calculus::heunStep</b> <i class="arg">t</i> <i class="arg">tstep</i> <i class="arg">xvec</i> <i class="arg">func</i></a></li>
+<li><a href="#11"><b class="cmd">::math::calculus::rungeKuttaStep</b> <i class="arg">t</i> <i class="arg">tstep</i> <i class="arg">xvec</i> <i class="arg">func</i></a></li>
+<li><a href="#12"><b class="cmd">::math::calculus::boundaryValueSecondOrder</b> <i class="arg">coeff_func</i> <i class="arg">force_func</i> <i class="arg">leftbnd</i> <i class="arg">rightbnd</i> <i class="arg">nostep</i></a></li>
+<li><a href="#13"><b class="cmd">::math::calculus::solveTriDiagonal</b> <i class="arg">acoeff</i> <i class="arg">bcoeff</i> <i class="arg">ccoeff</i> <i class="arg">dvalue</i></a></li>
+<li><a href="#14"><b class="cmd">::math::calculus::newtonRaphson</b> <i class="arg">func</i> <i class="arg">deriv</i> <i class="arg">initval</i></a></li>
+<li><a href="#15"><b class="cmd">::math::calculus::newtonRaphsonParameters</b> <i class="arg">maxiter</i> <i class="arg">tolerance</i></a></li>
+<li><a href="#16"><b class="cmd">::math::calculus::regula_falsi</b> <i class="arg">f</i> <i class="arg">xb</i> <i class="arg">xe</i> <i class="arg">eps</i></a></li>
 </ul>
 </div>
 </div>
@@ -207,7 +209,34 @@ value.</p></dd>
 three-dimensional equivalent of <b class="cmd">integral2D</b> and <b class="cmd">integral3D_accurate</b>.
 The function <em>func</em> takes three arguments and is integrated over the block in
 3D space given by three intervals.</p></dd>
-<dt><a name="7"><b class="cmd">::math::calculus::eulerStep</b> <i class="arg">t</i> <i class="arg">tstep</i> <i class="arg">xvec</i> <i class="arg">func</i></a></dt>
+<dt><a name="7"><b class="cmd">::math::calculus::qk15</b> <i class="arg">xstart</i> <i class="arg">xend</i> <i class="arg">func</i> <i class="arg">nosteps</i></a></dt>
+<dd><p>Determine the integral of the given function using the Gauss-Kronrod 15 points quadrature rule.
+The returned value is the estimate of the integral over the interval [<i class="arg">xstart</i>, <i class="arg">xend</i>].
+The remaining arguments are:</p>
+<dl class="definitions">
+<dt><i class="arg">func</i></dt>
+<dd><p>Function to be integrated. It should take one single argument.</p></dd>
+<dt><span class="opt">?nosteps?</span></dt>
+<dd><p>Number of steps in which the interval is divided. Defaults to 1.</p></dd>
+</dl></dd>
+<dt><a name="8"><b class="cmd">::math::calculus::qk15_detailed</b> <i class="arg">xstart</i> <i class="arg">xend</i> <i class="arg">func</i> <i class="arg">nosteps</i></a></dt>
+<dd><p>Determine the integral of the given function using the Gauss-Kronrod 15 points quadrature rule.
+The interval for the integration is [<i class="arg">xstart</i>, <i class="arg">xend</i>].
+The procedure returns a list of four values:</p>
+<ul class="itemized">
+<li><p>The estimate of the integral over the specified interval (I).</p></li>
+<li><p>An estimate of the absolute error in I.</p></li>
+<li><p>The estimate of the integral of the absolute value of the function over the interval.</p></li>
+<li><p>The estimate of the integral of the absolute value of the function minus its mean over the interval.</p></li>
+</ul>
+<p>The remaining arguments are:</p>
+<dl class="definitions">
+<dt><i class="arg">func</i></dt>
+<dd><p>Function to be integrated. It should take one single argument.</p></dd>
+<dt><span class="opt">?nosteps?</span></dt>
+<dd><p>Number of steps in which the interval is divided. Defaults to 1.</p></dd>
+</dl></dd>
+<dt><a name="9"><b class="cmd">::math::calculus::eulerStep</b> <i class="arg">t</i> <i class="arg">tstep</i> <i class="arg">xvec</i> <i class="arg">func</i></a></dt>
 <dd><p>Set a single step in the numerical integration of a system of
 differential equations. The method used is Euler's.</p>
 <dl class="definitions">
@@ -223,7 +252,7 @@ at the beginning of the step.</p></dd>
 a list of the derivatives of the dependent values. (The lengths of
 xvec and the return value of &quot;func&quot; must match).</p></dd>
 </dl></dd>
-<dt><a name="8"><b class="cmd">::math::calculus::heunStep</b> <i class="arg">t</i> <i class="arg">tstep</i> <i class="arg">xvec</i> <i class="arg">func</i></a></dt>
+<dt><a name="10"><b class="cmd">::math::calculus::heunStep</b> <i class="arg">t</i> <i class="arg">tstep</i> <i class="arg">xvec</i> <i class="arg">func</i></a></dt>
 <dd><p>Set a single step in the numerical integration of a system of
 differential equations. The method used is Heun's.</p>
 <dl class="definitions">
@@ -239,7 +268,7 @@ at the beginning of the step.</p></dd>
 a list of the derivatives of the dependent values. (The lengths of
 xvec and the return value of &quot;func&quot; must match).</p></dd>
 </dl></dd>
-<dt><a name="9"><b class="cmd">::math::calculus::rungeKuttaStep</b> <i class="arg">t</i> <i class="arg">tstep</i> <i class="arg">xvec</i> <i class="arg">func</i></a></dt>
+<dt><a name="11"><b class="cmd">::math::calculus::rungeKuttaStep</b> <i class="arg">t</i> <i class="arg">tstep</i> <i class="arg">xvec</i> <i class="arg">func</i></a></dt>
 <dd><p>Set a single step in the numerical integration of a system of
 differential equations. The method used is Runge-Kutta 4th
 order.</p>
@@ -256,7 +285,7 @@ at the beginning of the step.</p></dd>
 a list of the derivatives of the dependent values. (The lengths of
 xvec and the return value of &quot;func&quot; must match).</p></dd>
 </dl></dd>
-<dt><a name="10"><b class="cmd">::math::calculus::boundaryValueSecondOrder</b> <i class="arg">coeff_func</i> <i class="arg">force_func</i> <i class="arg">leftbnd</i> <i class="arg">rightbnd</i> <i class="arg">nostep</i></a></dt>
+<dt><a name="12"><b class="cmd">::math::calculus::boundaryValueSecondOrder</b> <i class="arg">coeff_func</i> <i class="arg">force_func</i> <i class="arg">leftbnd</i> <i class="arg">rightbnd</i> <i class="arg">nostep</i></a></dt>
 <dd><p>Solve a second order linear differential equation with boundary
 values at two sides. The equation has to be of the form (the
 &quot;conservative&quot; form):</p>
@@ -300,7 +329,7 @@ interval.
 The procedure returns a list of x-coordinates and the approximated
 values of the solution.</p></dd>
 </dl></dd>
-<dt><a name="11"><b class="cmd">::math::calculus::solveTriDiagonal</b> <i class="arg">acoeff</i> <i class="arg">bcoeff</i> <i class="arg">ccoeff</i> <i class="arg">dvalue</i></a></dt>
+<dt><a name="13"><b class="cmd">::math::calculus::solveTriDiagonal</b> <i class="arg">acoeff</i> <i class="arg">bcoeff</i> <i class="arg">ccoeff</i> <i class="arg">dvalue</i></a></dt>
 <dd><p>Solve a system of linear equations Ax = b with A a tridiagonal
 matrix. Returns the solution as a list.</p>
 <dl class="definitions">
@@ -313,7 +342,7 @@ matrix. Returns the solution as a list.</p>
 <dt><i class="arg">dvalue</i></dt>
 <dd><p>List of values on the righthand-side</p></dd>
 </dl></dd>
-<dt><a name="12"><b class="cmd">::math::calculus::newtonRaphson</b> <i class="arg">func</i> <i class="arg">deriv</i> <i class="arg">initval</i></a></dt>
+<dt><a name="14"><b class="cmd">::math::calculus::newtonRaphson</b> <i class="arg">func</i> <i class="arg">deriv</i> <i class="arg">initval</i></a></dt>
 <dd><p>Determine the root of an equation given by</p>
 <pre class="example">
     func(x) = 0
@@ -328,7 +357,7 @@ arguments:</p>
 <dt><i class="arg">initval</i></dt>
 <dd><p>Initial value for x</p></dd>
 </dl></dd>
-<dt><a name="13"><b class="cmd">::math::calculus::newtonRaphsonParameters</b> <i class="arg">maxiter</i> <i class="arg">tolerance</i></a></dt>
+<dt><a name="15"><b class="cmd">::math::calculus::newtonRaphsonParameters</b> <i class="arg">maxiter</i> <i class="arg">tolerance</i></a></dt>
 <dd><p>Set the numerical parameters for the Newton-Raphson method:</p>
 <dl class="definitions">
 <dt><i class="arg">maxiter</i></dt>
@@ -336,7 +365,7 @@ arguments:</p>
 <dt><i class="arg">tolerance</i></dt>
 <dd><p>Relative precision (defaults to 0.001)</p></dd>
 </dl></dd>
-<dt><a name="14"><b class="cmd">::math::calculus::regula_falsi</b> <i class="arg">f</i> <i class="arg">xb</i> <i class="arg">xe</i> <i class="arg">eps</i></a></dt>
+<dt><a name="16"><b class="cmd">::math::calculus::regula_falsi</b> <i class="arg">f</i> <i class="arg">xb</i> <i class="arg">xe</i> <i class="arg">eps</i></a></dt>
 <dd><p>Return an estimate of the zero or one of the zeros of the function
 contained in the interval [xb,xe]. The error in this estimate is of the
 order of eps*abs(xe-xb), the actual error may be slightly larger.</p>

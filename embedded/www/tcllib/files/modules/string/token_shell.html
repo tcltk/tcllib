@@ -1,3 +1,4 @@
+
 <html><head>
 <title>string::token::shell - Text and string utilities</title>
 <style type="text/css"><!--
@@ -105,7 +106,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">string::token::shell(n) 1.1 tcllib &quot;Text and string utilities&quot;</h1>
+<h1 class="title">string::token::shell(n) 1.2 tcllib &quot;Text and string utilities&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>string::token::shell - Parsing of shell command line</p>
 </div>
@@ -123,12 +124,12 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl 8.5</b></li>
-<li>package require <b class="pkgname">string::token::shell <span class="opt">?1.1?</span></b></li>
+<li>package require <b class="pkgname">string::token::shell <span class="opt">?1.2?</span></b></li>
 <li>package require <b class="pkgname">string::token <span class="opt">?1?</span></b></li>
 <li>package require <b class="pkgname">fileutil</b></li>
 </ul>
 <ul class="syntax">
-<li><a href="#1"><b class="cmd">::string token shell</b> <span class="opt">?<b class="option">-indices</b>?</span> <span class="opt">?<b class="option">-partial</b>?</span> <i class="arg">string</i></a></li>
+<li><a href="#1"><b class="cmd">::string token shell</b> <span class="opt">?<b class="option">-indices</b>?</span> <span class="opt">?<b class="option">-partial</b>?</span> <span class="opt">?--?</span> <i class="arg">string</i></a></li>
 </ul>
 </div>
 </div>
@@ -137,7 +138,7 @@
 basic <b class="syscmd">sh</b>-syntax into a list of words.</p>
 <p>The complete set of procedures is described below.</p>
 <dl class="definitions">
-<dt><a name="1"><b class="cmd">::string token shell</b> <span class="opt">?<b class="option">-indices</b>?</span> <span class="opt">?<b class="option">-partial</b>?</span> <i class="arg">string</i></a></dt>
+<dt><a name="1"><b class="cmd">::string token shell</b> <span class="opt">?<b class="option">-indices</b>?</span> <span class="opt">?<b class="option">-partial</b>?</span> <span class="opt">?--?</span> <i class="arg">string</i></a></dt>
 <dd><p>This command parses the input <i class="arg">string</i> under the assumption of it
 following basic <b class="syscmd">sh</b>-syntax.
 The result of the command is a list of words in the <i class="arg">string</i>.
@@ -145,6 +146,10 @@ An error is thrown if the input does not follow the allowed syntax.
 The behaviour can be modified by specifying any of the two options
 <b class="option">-indices</b> and <b class="option">-partial</b>.</p>
 <dl class="options">
+<dt><b class="option">--</b></dt>
+<dd><p>When specified option parsing stops at this point. This option is
+needed if the input <i class="arg">string</i> may start with dash. In other words,
+this is pretty much required if <i class="arg">string</i> is user input.</p></dd>
 <dt><b class="option">-indices</b></dt>
 <dd><p>When specified the output is not a list of words, but a list of
 4-tuples describing the words. Each tuple contains the type of the
