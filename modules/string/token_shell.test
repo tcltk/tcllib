@@ -25,15 +25,19 @@ testing {
 
 test string-token-shell-1.0 "string token shell, wrong#args, not enough" -body {
     string token shell
-} -returnCodes error -result {wrong # args: should be "::string::token::shell ?-indices? ?-partial? text"}
+} -returnCodes error -result {wrong # args: should be "::string::token::shell ?-indices? ?-partial? ?--? text"}
 
 test string-token-shell-1.1 "string token shell, wrong#args, too many" -body {
     string token shell T X
-} -returnCodes error -result {wrong # args: should be "::string::token::shell ?-indices? ?-partial? text"}
+} -returnCodes error -result {wrong # args: should be "::string::token::shell ?-indices? ?-partial? ?--? text"}
 
 test string-token-shell-1.2 "string token shell, bad option" -body {
     string token shell -foo T
 } -returnCodes error -result {Bad option -foo, expected one of -indices, or -partial}
+
+test string-token-shell-1.3 "string token shell, wrong#args, too many" -body {
+    string token shell -- T X
+} -returnCodes error -result {wrong # args: should be "::string::token::shell ?-indices? ?-partial? ?--? text"}
 
 # -------------------------------------------------------------------------
 
@@ -166,6 +170,11 @@ foreach {n label line tokens} {
 	string token shell -indices -partial $line
     } -returnCodes error -result $tokens
 }
+
+
+test string-token-shell-10.0 "string token shell, -- stops option processing" -body {
+    string token shell -- "-foo bar"
+} -result {-foo bar}
 
 #----------------------------------------------------------------------
 testsuiteCleanup

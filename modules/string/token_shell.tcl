@@ -25,6 +25,10 @@ proc ::string::token::shell {args} {
 	switch -glob -- [set o [lindex $args 0]] {
 	    -partial { set partial 1 }
 	    -indices { set indices 1 }
+	    -- {
+		set args [lrange $args 1 end]
+		break
+	    }
 	    -* {
 		# Unknown option.
 		return -code error \
@@ -41,7 +45,7 @@ proc ::string::token::shell {args} {
     if {[llength $args] != 1} {
 	return -code error \
 	    -errorcode {STRING TOKEN WRONG ARGS} \
-	    "wrong \# args: should be \"[lindex [info level 0] 0] ?-indices? ?-partial? text\""
+	    "wrong \# args: should be \"[lindex [info level 0] 0] ?-indices? ?-partial? ?--? text\""
     } else {
 	set text [lindex $args 0]
     }
@@ -164,5 +168,5 @@ proc ::string::token::shell {args} {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide string::token::shell 1.1
+package provide string::token::shell 1.2
 return
