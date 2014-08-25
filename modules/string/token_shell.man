@@ -1,4 +1,5 @@
-[manpage_begin string::token::shell n 1.1]
+[vset VERSION 1.2]
+[manpage_begin string::token::shell n [vset VERSION]]
 [keywords bash]
 [keywords lexing]
 [keywords parsing]
@@ -9,7 +10,7 @@
 [titledesc {Parsing of shell command line}]
 [category  {Text processing}]
 [require Tcl 8.5]
-[require string::token::shell [opt 1.1]]
+[require string::token::shell [opt [vset VERSION]]]
 [require string::token [opt 1]]
 [require fileutil]
 [description]
@@ -23,7 +24,7 @@ The complete set of procedures is described below.
 
 [list_begin definitions]
 
-[call [cmd {::string token shell}] [opt [option -indices]] [opt [option -partial]] [arg string]]
+[call [cmd {::string token shell}] [opt [option -indices]] [opt [option -partial]] [opt --] [arg string]]
 
 This command parses the input [arg string] under the assumption of it
 following basic [syscmd sh]-syntax.
@@ -36,6 +37,12 @@ The behaviour can be modified by specifying any of the two options
 [option -indices] and [option -partial].
 
 [list_begin options]
+[opt_def --]
+
+When specified option parsing stops at this point. This option is
+needed if the input [arg string] may start with dash. In other words,
+this is pretty much required if [arg string] is user input.
+
 [opt_def -indices]
 
 When specified the output is not a list of words, but a list of
