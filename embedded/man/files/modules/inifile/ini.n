@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'ini\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "inifile" n 0\&.2\&.5 tcllib "Parsing of Windows INI files"
+.TH "inifile" n 0\&.3 tcllib "Parsing of Windows INI files"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,9 +275,9 @@ inifile \- Parsing of Windows INI files
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBinifile  ?0\&.2\&.4?\fR
+package require \fBinifile  ?0\&.3?\fR
 .sp
-\fB::ini::open\fR \fIfile\fR ?\fIaccess\fR?
+\fB::ini::open\fR \fIfile\fR ?\fB-encoding\fR \fIencoding\fR? ?\fIaccess\fR?
 .sp
 \fB::ini::close\fR \fIini\fR
 .sp
@@ -310,11 +310,13 @@ package require \fBinifile  ?0\&.2\&.4?\fR
 This package provides an interface for easy manipulation of Windows INI files\&.
 .PP
 .TP
-\fB::ini::open\fR \fIfile\fR ?\fIaccess\fR?
+\fB::ini::open\fR \fIfile\fR ?\fB-encoding\fR \fIencoding\fR? ?\fIaccess\fR?
 Opens an INI file and returns a handle that is used by other commands\&.
 \fIaccess\fR is the same as the first form (non POSIX) of the \fBopen\fR
 command, with the exception that mode \fBa\fR is not supported\&. The
 default mode is \fBr+\fR\&.
+.sp
+The default \fIencoding\fR is the system encoding\&.
 .TP
 \fB::ini::close\fR \fIini\fR
 Close the specified handle\&. If any changes were made and not written by

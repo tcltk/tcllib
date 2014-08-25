@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'report\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2002 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2002-2014 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "report" n 0\&.3\&.1 tcllib "Matrix reports"
+.TH "report" n 0\&.3\&.2 tcllib "Matrix reports"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ report \- Create and manipulate report objects
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBreport  ?0\&.3\&.1?\fR
+package require \fBreport  ?0\&.3\&.2?\fR
 .sp
 \fB::report::report\fR \fIreportName\fR \fIcolumns\fR ?\fBstyle\fR \fIstyle arg\&.\&.\&.\fR?
 .sp
@@ -694,6 +694,6 @@ matrix, report, table
 Data structures
 .SH COPYRIGHT
 .nf
-Copyright (c) 2002 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2002-2014 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi
