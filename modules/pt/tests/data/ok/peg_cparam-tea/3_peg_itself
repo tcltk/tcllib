@@ -385,7 +385,7 @@
 	SCOPE void
 	rde_tc_get (RDE_TC tc, int at, char** ch, long int* len)
 	{
-	    long int  oc, off, top, end;
+	    long int  oc, off, end;
 	    void** ov;
 	    rde_stack_get (tc->off, &oc, &ov);
 	    ASSERT_BOUNDS(at,oc);
@@ -404,7 +404,7 @@
 	SCOPE void
 	rde_tc_get_s (RDE_TC tc, int at, int last, char** ch, long int* len)
 	{
-	    long int  oc, off, top, end;
+	    long int  oc, off, end;
 	    void** ov;
 	    rde_stack_get (tc->off, &oc, &ov);
 	    ASSERT_BOUNDS(at,oc);
@@ -1164,7 +1164,7 @@
 	rde_param_i_value_reduce (RDE_PARAM p, long int s)
 	{
 	    Tcl_Obj*  newsv;
-	    int       oc, i, j;
+	    int       i, j;
 	    Tcl_Obj** ov;
 	    long int  ac;
 	    Tcl_Obj** av;
