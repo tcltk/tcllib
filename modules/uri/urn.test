@@ -135,18 +135,18 @@ test urn-3.4 {NSS containing illegal characters} {
 } {ok}
 
 # -------------------------------------------------------------------------
-# Quoting checks - various UTF-8 representations for 'coffee' (RFC 2324)
-#
-set data \
-    [list \
-         "coffee"                           "coffee" \
-         "\x4B\x61\x66\x66\x65\x65"         "Kaffee" \
-         "\x71\xC3\xA6\x68\x76\xC3\xA6"     "q%C3%A6hv%C3%A6" \
-         "\xD9\x82\xD9\x87\xD9\x88\xD8\xA9" "%D9%82%D9%87%D9%88%D8%A9" \
-         "\xCE\xBA\xCE\xB1\xCF\x86\xCE\xAD" "%CE%BA%CE%B1%CF%86%CE%AD" \
-         "\xE0\xA4\x95\xE0\xA5\x8C\xE0\xA4\xAB\xE0\xA5\x80" \
-                                "%E0%A4%95%E0%A5%8C%E0%A4%AB%E0%A5%80" \
-        ]
+# Quoting checks - various UTF-8 representations for 'coffee' (RFC 2324, section 3)
+
+catch { unset data }
+lappend data  "coffee"                   "coffee"
+lappend data  "\x4B\x61\x66\x66\x65\x65" "Kaffee"
+lappend data  "q\u00e6hv\u00e6"          "q%C3%A6hv%C3%A6"                      ;# aserbaidjani
+lappend data  "\u0642\u0647\u0648\u0629" "%D9%82%D9%87%D9%88%D8%A9"             ;# arabic
+lappend data  "\u03ba\u03b1\u03c6\u03ad" "%CE%BA%CE%B1%CF%86%CE%AD"             ;# greek
+lappend data  "\u0915\u094c\u092b\u0940" "%E0%A4%95%E0%A5%8C%E0%A4%AB%E0%A5%80" ;# hindi
+
+# Ticket [daa83d2edf].
+lappend data  "\u4f60\u597d"             "%E4%BD%A0%E5%A5%BD" ;# chinese 'How are you?'
 
 set n 0
 foreach {utf8 quoted} $data {
@@ -165,6 +165,7 @@ foreach {utf8 quoted} $data {
 # -------------------------------------------------------------------------
 # Clean up the tests
 
+unset data
 testsuiteCleanup
 return
 
