@@ -20,20 +20,28 @@ foreach {format notes} {
     oo        {TclOO class Tcl parser}
     critcl    {PARAM based C class parser}
 } {
-    # Ignore critcl-based parsers if the environment does not support
-    # their generation (no critcl package).
-    if {$format eq "critcl" &&
-	![tcltest::testConstraint critcl]} continue
+    # Choose test constraint based on the current format.
+    switch -exact -- $format {
+	critcl  { set cons critcl }
+	oo      { set cons tcloo  }
+	default { set cons {}     }
+    }
 
     TestFilesProcessIn $mytestdir gr def -> n glabel grfile grdata {
 	# Make parser instance. Shared across tests. Amortize the time
 	# spent on dynamically making it.
-	set p [make-parser $format $glabel $grdata]
+
+	if {!(($format eq "critcl" && ![tcltest::testConstraint critcl]) ||
+	      ($format eq "oo"     && ![tcltest::testConstraint tcloo]))} {
+	    set p [make-parser $format $glabel $grdata]
+	} else {
+	    set p {}
+	}
 
 	# Test parser on good inputs for the grammar.
 	TestFilesProcess $mytestdir gr ok-${glabel} ok-${glabel}-res -> k label infile text expected {
 	    test pt-pgen-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-f:${format}-g:${glabel}-t:${label}-1.$n.$k \
-		"$format parser $glabel, good input - $label" -setup {
+		"$format parser $glabel, good input - $label" -constraints $cons -setup {
 		} -body {
 		    $p parset $text
 		} -result $expected
@@ -48,7 +56,7 @@ foreach {format notes} {
 
 	TestFilesProcess $mytestdir gr fail-${glabel} fail-${glabel}-${format}-res -> k label infile text expected {
 	    test pt-pgen-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-f:${format}-g:${glabel}-t:${label}-2.$n.$k \
-		"$format parser $glabel, bad input - $label" -setup {
+		"$format parser $glabel, bad input - $label" -constraints $cons -setup {
 		} -body {
 		    set code [catch {
 			$p parset $text
@@ -70,6 +78,7 @@ foreach {format notes} {
 	#      #     failure cases either.
 
 	# Kill shared parser instance.
+	if {$p eq {}} continue
 	$p destroy
     }
 
@@ -85,16 +94,22 @@ foreach {format notes} {
 
 	# Make parser instance. Shared across tests.
 	# Amortize the time spent on dynamically making it.
-	set p [make-parser $format $glabel $grdata]
+
+	if {!(($format eq "critcl" && ![tcltest::testConstraint critcl]) ||
+	      ($format eq "oo"     && ![tcltest::testConstraint tcloo]))} {
+	    set p [make-parser $format $glabel $grdata]
+	} else {
+	    set p {}
+	}
 
 	test pt-pgen-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-f:${format}-g:${glabel}-3.$n \
-	    "$format parser $glabel, good input" -setup {
+	    "$format parser $glabel, good input" -constraints $cons -setup {
 	    } -body {
 		$p parset $input
 	    } -result {}
 
 	test pt-pgen-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-f:${format}-g:${glabel}-4.$n \
-	    "$format parser $glabel, bad input, tcl error" -setup {
+	    "$format parser $glabel, bad input, tcl error" -constraints $cons -setup {
 	    } -body {
 		set code [catch {
 		    $p parset X
@@ -104,7 +119,7 @@ foreach {format notes} {
 	    } -result [list pt::rde 0 [list $message]]
 
 	test pt-pgen-parse:${parseimpl}-rde:${rdeimpl}-stack:${stackimpl}-f:${format}-g:${glabel}-5.$n \
-	    "$format parser $glabel, bad input, readable error" -setup {
+	    "$format parser $glabel, bad input, readable error" -constraints $cons -setup {
 	    } -body {
 		set code [catch {
 		    $p parset X
@@ -114,6 +129,7 @@ foreach {format notes} {
 	    } -result $edata
 
 	# Kill shared parser instance.
+	if {$p eq {}} continue
 	$p destroy
     }
 }
