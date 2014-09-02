@@ -19,6 +19,8 @@ testsNeedTcltest 2
 # Check if we have critcl available.
 tcltest::testConstraint critcl [expr {![catch {package require critcl}]}]
 
+# Check if we have TclOO available.
+tcltest::testConstraint tcloo [expr {![catch {package require TclOO}]}]
 
 support {
     useAccel [useTcllibC] struct/stack.tcl struct::stack ; # User: pt::rde
@@ -45,7 +47,9 @@ support {
     useAccel [useTcllibC] pt/pt_rdengine.tcl  pt::rde ; # User: pt::parse::peg
     TestAccelInit                             pt::rde ; # and:  pt:peg::interp
 
-    useLocal pt_rdengine_oo.tcl           pt::rde::oo
+    if {[tcltest::testConstraint tcloo]} {
+	useLocal pt_rdengine_oo.tcl           pt::rde::oo
+    }
     useLocal pt_peg_interp.tcl            pt::peg::interp
 
     useAccel [useTcllibC] pt/pt_parse_peg.tcl pt::parse::peg ; # User: pt::peg::from::peg
