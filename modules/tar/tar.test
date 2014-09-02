@@ -9,8 +9,13 @@ source [file join \
 testsNeedTcl     8.5 ; # Virt channel support!
 testsNeedTcltest 1.0
 
+# Check if we have TclOO available.
+tcltest::testConstraint tcloo [expr {![catch {package require TclOO}]}]
+
 support {
-    use          virtchannel_base/memchan.tcl tcl::chan::memchan
+    if {[tcltest::testConstraint tcloo]} {
+	use virtchannel_base/memchan.tcl tcl::chan::memchan
+    }
     useLocalFile tests/support.tcl
 }
 testing {
@@ -19,20 +24,28 @@ testing {
 
 # -------------------------------------------------------------------------
 
-test tar-stream {stream} -setup setup1 -body {
+test tar-stream {stream} -constraints tcloo -setup {
+    setup1
+} -body {
     string length [read $chan1]
-} -cleanup cleanup1 -result 128000
+} -cleanup {
+    cleanup1
+} -result 128000
 
 test tar-pad {pad} -body {
     tar::pad 230 
 } -result {282}
 
-test tar-skip {skip} -setup setup1 -body {
+test tar-skip {skip} -constraints tcloo -setup {
+    setup1
+} -body {
     tar::skip $chan1 10
     lappend res [read $chan1 10]
     tar::skip $chan1 72313
     lappend res [read $chan1 10]
-} -cleanup cleanup1 -result {{6 7 8 9 10} {07 13908 1}}
+} -cleanup {
+    cleanup1
+} -result {{6 7 8 9 10} {07 13908 1}}
 
 test tar-seekorskip-backwards {seekorskip} -constraints tcl8.6plus -setup setup1 -body {
     # The zlib push stuff is Tcl 8.6+. Properly restrict the test.
@@ -69,16 +82,22 @@ test tar-header {header} -body {
     }
 } -result {}
 
-test tar-add {add} -setup setup1 -body {
+test tar-add {add} -constraints tcloo -setup {
+    setup1
+} -body {
     tar::create $chan1 [list $tmpdir/one/a $tmpdir/one/two/a $tmpdir/one/three/a] -chan
     seek $chan1 0
     lappend res {*}[tar::contents $chan1 -chan]
     seek $chan1 0
     lappend res [string trim [tar::get $chan1 $tmpdir/one/two/a -chan]]
-} -cleanup cleanup1 -result {tartest/one/a tartest/one/two/a tartest/one/three/a hello2}
+} -cleanup {
+    cleanup1
+} -result {tartest/one/a tartest/one/two/a tartest/one/three/a hello2}
 
 
-test tar-bug-2840180 {} -setup setup2 -body {
+test tar-bug-2840180 {} -setup {
+    setup2
+} -body {
     tar::create $chan1 [list $tmpdir/[large-path]/a] -chan
     seek $chan1 0
 
@@ -89,11 +108,12 @@ test tar-bug-2840180 {} -setup setup2 -body {
     # What a regular tar package sees.
     lappend res [exec 2> $tmpfile.err tar tvf $tmpfile]
     join $res \n
-} -cleanup cleanup2 -match glob \
-    -result [join [list \
-		       $tmpdir/[large-path]/a \
-		       "* $tmpdir/[large-path]/a" \
-		      ] \n]
+} -cleanup {
+    cleanup2
+} -match glob -result [join [list \
+				 tartest/[large-path]/a \
+				 "* tartest/[large-path]/a" \
+				] \n]
 
 # -------------------------------------------------------------------------
 testsuiteCleanup
