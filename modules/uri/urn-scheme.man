@@ -1,4 +1,5 @@
-[manpage_begin uri_urn n 1.1.2]
+[vset VERSION 1.0.3]
+[manpage_begin uri_urn n [vset VERSION]]
 [keywords {rfc 2141}]
 [keywords uri]
 [keywords url]
@@ -7,7 +8,7 @@
 [titledesc {URI utilities, URN scheme}]
 [category  Networking]
 [require Tcl 8.2]
-[require uri::urn [opt 1.1.2]]
+[require uri::urn [opt [vset VERSION]]]
 [description]
 
 This package provides two commands to quote and unquote the disallowed
