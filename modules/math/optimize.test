@@ -601,6 +601,25 @@ test nelderMead-2.4 "Nelder-Mead - simplex contracts about the minimum" \
     } \
     -result 1
 
+# Make sure the method deals gracefully with a "valley"
+# (Ticket UUID: 3193459)
+
+test nelderMead-2.5 "Nelder-Mead - indeterminate minimum (valley)" \
+    -setup {
+	proc h {a b} {
+	    return [expr {abs($a-$b)}]
+	}
+    } \
+    -body {
+	array set dd [::math::optimize::nelderMead h {1. 1.}]
+	foreach {x y} $dd(x) break
+	expr { abs($x-1.) < 0.00005 && abs($y-1.) < 0.00005 }
+    } \
+    -cleanup {
+	rename h {}; unset dd
+    } \
+    -result 1
+
 testsuiteCleanup
 
 #  Restore precision
