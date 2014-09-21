@@ -25,7 +25,7 @@ package ifneeded math::machineparameters 0.1   [list source [file join $dir mach
 
 if {![package vsatisfies [package provide Tcl] 8.5]} {return}
 package ifneeded math::calculus::symdiff 1.0   [list source [file join $dir symdiff.tcl]]
-package ifneeded math::bigfloat          2.0.1 [list source [file join $dir bigfloat2.tcl]]
+package ifneeded math::bigfloat          2.0.2 [list source [file join $dir bigfloat2.tcl]]
 package ifneeded math::numtheory         1.0   [list source [file join $dir numtheory.tcl]]
 package ifneeded math::decimal           1.0.3 [list source [file join $dir decimal.tcl]]
 
