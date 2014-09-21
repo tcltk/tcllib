@@ -1088,7 +1088,7 @@ proc ::math::optimize::SimplexSolve {nconst nvars tableau} {
         #
         set nextrow [SimplexFindNextRow $tableau $nextcol]
         if { $nextrow == -1 } {
-            return "infeasible"
+            return "unbounded"
         }
 
         #
@@ -1131,8 +1131,14 @@ proc ::math::optimize::SimplexResult {tableau} {
 
     set idx 0
     foreach col [lrange $firstcol 0 end-1] {
-        set result [lreplace $result $col $col [lindex $secondcol $idx]]
-        incr idx
+        set value [lindex $secondcol $idx]
+        if { $value >= 0.0 } {
+            set result [lreplace $result $col $col [lindex $secondcol $idx]]
+            incr idx
+        } else {
+            # If a negative component, then the problem was not feasible
+            return "infeasible"
+        }
     }
 
     return $result
@@ -1271,7 +1277,7 @@ proc ::math::optimize::SimplexNewTableau {tableau nextcol nextrow vector} {
 }
 
 # Now we can announce our presence
-package provide math::optimize 1.0
+package provide math::optimize 1.0.1
 
 if { ![info exists ::argv0] || [string compare $::argv0 [info script]] } {
     return
