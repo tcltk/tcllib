@@ -1,7 +1,11 @@
 2014-09-21  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* bigfloat2.tcl: Solve ticket UUID 3309165, different implementation of isInt than suggested
+	* bigfloat2.test: Added several tests for the new implementation of isInt
+	* optimize.tcl: Solve ticket UUID 3193459, as suggested.
 	* optimize.tcl: Solve a problem with the detection of the exceptions in solving linear programs. Version 1.0.1
-	* optimize.test: Added tests to distnguish infeasible and unbounded linear programs
-	* pkgIndex.tcl: Bumping version of math::optimize package to 1.0.1
+	* optimize.test: Added tests to distinguish infeasible and unbounded linear programs
+	* optimize.test: Added test for ticket UUID 3193459
+	* pkgIndex.tcl: Bumping version of math::optimize package to 1.0.1, bigfloat2 to 2.0.2
 
 2014-08-21  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* calculus.tcl: Bumping version to 0.8

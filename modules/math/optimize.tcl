@@ -735,7 +735,7 @@ proc ::math::optimize::nelderMead { f startx args } {
 	# Return if the relative error is within an acceptable range
 
 	set rerror [expr { 2. * abs( $yTop - $yBot )
-			   / ( abs( $yTop ) + abs( $yBot ) ) }]
+			   / ( abs( $yTop ) + abs( $yBot ) + $params(-ftol) ) }]
 	if { $rerror < $params(-ftol) } {
 	    set status ok
 	    break
