@@ -1,0 +1,43 @@
+# ooutil.test - Copyright (c) 2014 Andreas Kupries
+
+# -------------------------------------------------------------------------
+
+source [file join \
+	[file dirname [file dirname [file join [pwd] [info script]]]] \
+	devtools testutilities.tcl]
+
+testsNeedTcl     8.5
+testsNeedTcltest 2
+
+# Check if we have TclOO available.
+tcltest::testConstraint tcloo [expr {![catch {package require TclOO}]}]
+
+support {
+}
+testing {
+    useLocal ooutil.tcl oo::util
+}
+
+# -------------------------------------------------------------------------
+
+test ooutil-ticket-b3577ed586 {test scoping of delegation in oo::class.Delegate } -setup {
+    oo::class create animal {}
+    namespace eval ::ooutiltest {
+	oo::class create pet { superclass animal }
+    }
+} -body {
+    namespace eval ::ooutiltest {
+	oo::class create dog { superclass pet }
+    }
+} -cleanup {
+    namespace delete ooutiltest
+    rename animal {}
+} -result {::ooutiltest::dog}
+
+# -------------------------------------------------------------------------
+testsuiteCleanup
+
+# Local variables:
+# mode: tcl
+# indent-tabs-mode: nil
+# End:
