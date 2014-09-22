@@ -32,7 +32,7 @@ test ooutil-ticket-b3577ed586 {test scoping of delegation in oo::class.Delegate 
 } -cleanup {
     namespace delete ooutiltest
     rename animal {}
-} -result {::ooutiltest::dog}
+} -result {::ooutiltest::dog} -constraints tcloo
 
 # -------------------------------------------------------------------------
 testsuiteCleanup
