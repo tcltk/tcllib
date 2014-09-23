@@ -20,14 +20,14 @@
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
 
-package require Tcl 8.2
+package require Tcl 8.5
 
 namespace eval ::aes {
-    variable version 1.1.1
+    variable version 1.2
     variable rcsid {$Id: aes.tcl,v 1.7 2010/07/06 19:39:00 andreas_kupries Exp $}
     variable uid ; if {![info exists uid]} { set uid 0 }
 
-    namespace export {aes}
+    namespace export aes
 
     # constants
 
@@ -107,7 +107,10 @@ proc ::aes::Init {mode key iv} {
     variable uid
     set Key [namespace current]::[incr uid]
     upvar #0 $Key state
-    array set state [list M $mode K $key I $iv Nk $Nk Nr $Nr Nb $Nb W {}]
+    if {[binary scan $iv Iu4 state(I)] != 1} {
+        return -code error "invalid initialization vector: must be 16 bytes"
+    }
+    array set state [list M $mode K $key Nk $Nk Nr $Nr Nb $Nb W {}]
     ExpandKey $Key
     return $Key
 }
@@ -120,7 +123,9 @@ proc ::aes::Init {mode key iv} {
 #
 proc ::aes::Reset {Key iv} {
     upvar #0 $Key state
-    set state(I) $iv
+    if {[binary scan $iv Iu4 state(I)] != 1} {
+        return -code error "invalid initialization vector: must be 16 bytes"
+    }
     return
 }
     
@@ -138,16 +143,13 @@ proc ::aes::Final {Key} {
 # 5.1 Cipher:  Encipher a single block of 128 bits.
 proc ::aes::EncryptBlock {Key block} {
     upvar #0 $Key state
-    if {[binary scan $block I4 data] != 1} {
+    if {[binary scan $block Iu4 data] != 1} {
         return -code error "invalid block size: blocks must be 16 bytes"
     }
 
     if {[string equal $state(M) cbc]} {
-        if {[binary scan $state(I) I4 iv] != 1} {
-            return -code error "invalid initialization vector: must be 16 bytes"
-        }
         for {set n 0} {$n < 4} {incr n} {
-            lappend data2 [expr {0xffffffff & ([lindex $data $n] ^ [lindex $iv $n])}]
+            lappend data2 [expr {0xffffffff & ([lindex $data $n] ^ [lindex $state(I) $n])}]
         }
         set data $data2
     }
@@ -164,17 +166,18 @@ proc ::aes::EncryptBlock {Key block} {
     foreach d $data {
         lappend res [expr {$d & 0xffffffff}]
     }
-    set data $res
-    
-    return [set state(I) [binary format I4 $data]]
+
+    set state(I) $res
+    return [binary format Iu4 $res]
 }
 
 # 5.3: Inverse Cipher: Decipher a single 128 bit block.
 proc ::aes::DecryptBlock {Key block} {
     upvar #0 $Key state
-    if {[binary scan $block I4 data] != 1} {
+    if {[binary scan $block Iu4 data] != 1} {
         return -code error "invalid block size: block must be 16 bytes"
     }
+    set iv $data
 
     set n $state(Nr)
     set data [AddRoundKey $Key $state(Nr) $data]
@@ -184,11 +187,8 @@ proc ::aes::DecryptBlock {Key block} {
     set data [AddRoundKey $Key $n [InvSubBytes [InvShiftRows $data]]]
     
     if {[string equal $state(M) cbc]} {
-        if {[binary scan $state(I) I4 iv] != 1} {
-            return -code error "invalid initialization vector: must be 16 bytes"
-        }
         for {set n 0} {$n < 4} {incr n} {
-            lappend data2 [expr {0xffffffff & ([lindex $data $n] ^ [lindex $iv $n])}]
+            lappend data2 [expr {0xffffffff & ([lindex $data $n] ^ [lindex $state(I) $n])}]
         }
         set data $data2
     } else {
@@ -202,8 +202,8 @@ proc ::aes::DecryptBlock {Key block} {
         set data $res
     }
 
-    set state(I) $block
-    return [binary format I4 $data]
+    set state(I) $iv
+    return [binary format Iu4 $data]
 }
 
 # 5.2: KeyExpansion
@@ -435,9 +435,9 @@ proc ::aes::Encrypt {Key data} {
     return $result
 }
 
-# aes::DecryptBlock --
+# aes::Decrypt --
 #
-#	Decrypt a blocks of cipher text and returns blocks of plain text.
+#	Decrypt blocks of cipher text and returns blocks of plain text.
 #	The input data must be a multiple of the block size (16).
 #
 proc ::aes::Decrypt {Key data} {
