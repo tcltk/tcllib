@@ -1,3 +1,7 @@
+2014-09-26  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* pdf-stat.tcl: Solve ticket UUID a6d69107d5, a typo in the pdf-uniform procedure
+	* pkgIndex.tcl: Bumping version of math::statistics package to 0.9.1
+
 2014-09-21  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* bigfloat2.tcl: Solve ticket UUID 3309165, different implementation of isInt than suggested
 	* bigfloat2.test: Added several tests for the new implementation of isInt
