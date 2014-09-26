@@ -82,7 +82,7 @@ proc ::math::statistics::pdf-uniform { pmin pmax x } {
 		"Wrong order or zero range"
     }
 
-    set prob [expr {1.0/($pmax-$min)}]
+    set prob [expr {1.0/($pmax-$pmin)}]
 
     if { $x < $pmin || $x > $pmax } { return 0.0 }
 
