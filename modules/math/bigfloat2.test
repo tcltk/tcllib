@@ -627,7 +627,7 @@ proc testSuite {} {
 
 testSuite
 ################################################################################
-# end of testsuite for bigfloat 1.0
+# end of testsuite for bigfloat 2.0
 ################################################################################
 # cleanup global procs
 rename assert ""
