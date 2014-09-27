@@ -1,3 +1,9 @@
+2014-09-27  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* special.tcl: Adding Christian's implementation of the inverse normal distribution function (invnorm)
+	* special.test: Adding test case for this new function
+	* special.man: Describing invnorm plus a correction in the overview (ierfc_n is not implemented)
+	* pkgIndex.tcl: Bumping version of math::special package to 0.3.0
+
 2014-09-26  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* pdf-stat.tcl: Solve ticket UUID a6d69107d5, a typo in the pdf-uniform procedure
 	* pkgIndex.tcl: Bumping version of math::statistics package to 0.9.1
