@@ -113,7 +113,20 @@ test "Fresnel-1.1" "Values of the Fresnel S intergral" \
 } -result {0.0  0.00052 0.00419 0.06473 0.43826 0.69750
            0.34342 0.49631 0.42052 0.49919}
 
-# No tests for sinc yet
+test "invnorm-1.0" "Values of the inverse normal distribution" \
+   -match numbers -body {
+   set result {}
+   foreach p {0.001 0.01 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 0.99 0.999} {
+       lappend result [::math::special::invnorm $p]
+   }
+   set result
+} -result {-3.090232304709404 -2.326347874388028 -1.2815515641401563 -0.8416212327266185 -0.5244005132792953 -0.2533471028599986
+           0.0 0.2533471028599986 0.5244005132792952 0.8416212327266186 1.2815515641401563 2.326347874388028 3.090232304709404}
+
+test "sinc-1.0" "Values of the sinc function" \
+   -match numbers -body {
+   set result [::math::special::sinc 0.0]
+} -result 1.0
 
 # End of test cases
 testsuiteCleanup
