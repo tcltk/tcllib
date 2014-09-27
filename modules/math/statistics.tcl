@@ -19,7 +19,7 @@
 # version 0.9:   added kernel density estimation
 
 package require Tcl 8.4
-package provide math::statistics 0.9.1
+package provide math::statistics 0.9.2
 package require math
 
 if {![llength [info commands ::lrepeat]]} {
