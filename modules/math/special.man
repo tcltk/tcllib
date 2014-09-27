@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin math::special n 0.2]
+[manpage_begin math::special n 0.3]
 [keywords {Bessel functions}]
 [keywords {error function}]
 [keywords math]
@@ -9,7 +9,7 @@
 [titledesc {Special mathematical functions}]
 [category  Mathematics]
 [require Tcl [opt 8.3]]
-[require math::special [opt 0.2]]
+[require math::special [opt 0.3]]
 
 [description]
 [para]
@@ -80,7 +80,10 @@ integrals    | E           | 0 <= x < 1  |     --      |   < 1.0e-6
              |             |             |             |
 Error        | erf         |             |     --      |
 functions    | erfc        |             |             |
-             | ierfc_n     |             |             |
+             |             |             |             |
+Inverse      | invnorm     | 0 < x < 1   |     --      |   < 1.2e-9
+normal       |             |             |             |
+distribution |             |             |             |
              |             |             |             |
 Exponential  | Ei          |  x != 0     |     --      |   < 1.0e-10 (relative)
 integrals    | En          |  x >  0     |     --      |   as Ei
@@ -169,6 +172,17 @@ Compute the complementary error function for argument "x"
 
 [list_begin arguments]
 [arg_def float x] Argument for the complementary error function
+[list_end]
+
+[para]
+
+[call [cmd ::math::special::invnorm] [arg p]]
+
+Compute the inverse of the normal distribution function for argument "p"
+
+[list_begin arguments]
+[arg_def float p] Argument for the inverse normal distribution function
+(p must be greater than 0 and lower than 1)
 [list_end]
 
 [para]
