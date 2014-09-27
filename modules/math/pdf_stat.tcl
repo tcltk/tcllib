@@ -105,9 +105,6 @@ proc ::math::statistics::pdf-exponential { mean x } {
     variable NEGSTDEV
     variable OUTOFRANGE
 
-    if { $stdev <= 0.0 } {
-	return -code error -errorcode ARG -errorinfo $NEGSTDEV $NEGSTDEV
-    }
     if { $mean <= 0.0 } {
 	return -code error -errorcode ARG -errorinfo $OUTOFRANGE \
 		"$OUTOFRANGE: mean must be positive"
@@ -116,7 +113,7 @@ proc ::math::statistics::pdf-exponential { mean x } {
     if { $x < 0.0 } { return 0.0 }
     if { $x > 700.0*$mean } { return 0.0 }
 
-    set prob [expr {exp(-$x/$mean)/$mean}]
+    set prob [expr {exp(-$x/double($mean))/$mean}]
 
     return $prob
 }
@@ -140,7 +137,7 @@ proc ::math::statistics::cdf-normal { mean stdev x } {
 	return -code error -errorcode ARG -errorinfo $NEGSTDEV $NEGSTDEV
     }
 
-    set xn    [expr {($x-$mean)/$stdev}]
+    set xn    [expr {($x-double($mean))/$stdev}]
     set prob1 [Cdf-toms322 1 5000 [expr {$xn*$xn}]]
     if { $xn > 0.0 } {
 	set prob [expr {0.5+0.5*$prob1}]
@@ -197,7 +194,7 @@ proc ::math::statistics::cdf-uniform { pmin pmax x } {
 		-errorinfo "Wrong order or zero range" \
 	    }
 
-    set prob [expr {($x-$pmin)/($pmax-$min)}]
+    set prob [expr {($x-$pmin)/double($pmax-$pmin)}]
 
     if { $x < $pmin } { return 0.0 }
     if { $x > $pmax } { return 1.0 }
@@ -229,7 +226,7 @@ proc ::math::statistics::cdf-exponential { mean x } {
     if { $x <  0.0 } { return 0.0 }
     if { $x > 30.0*$mean } { return 1.0 }
 
-    set prob [expr {1.0-exp(-$x/$mean)}]
+    set prob [expr {1.0-exp(-$x/double($mean))}]
 
     return $prob
 }
@@ -349,7 +346,7 @@ proc ::math::statistics::Inverse-cdf-normal { mean stdev prob } {
     set x1 [lindex $cdf_normal_x    [expr {$idx-1}]]
     set x2 [lindex $cdf_normal_x    $idx           ]
 
-    set x  [expr {$x1+($x2-$x1)*($prob-$p1)/($p2-$p1)}]
+    set x  [expr {$x1+($x2-$x1)*($prob-$p1)/double($p2-$p1)}]
 
     return [expr {$mean+$stdev*$x}]
 }
