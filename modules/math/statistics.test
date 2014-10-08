@@ -486,6 +486,58 @@ test "Testmultivar-1.0" "Ordinary multivariate regression - three independent va
 # pdf/cdf tests - transformed from the contributions by Eric K. Benedict
 #                 Cf. the examples.
 #
+# Note: cases with integer numbers test if divisions are done in floating-point or not
+#
+
+test "uniform-distribution-1.0" "Test pdf-uniform" -match tolerant -body {
+    set x [list \
+        [::math::statistics::pdf-uniform   0   10  5] \
+        [::math::statistics::pdf-uniform   0.0 1.0 0.5] \
+        [::math::statistics::pdf-uniform -10.0 1.0 -4.5] \
+        [::math::statistics::pdf-uniform  -2.0 2.0  1.0]]
+} -result {0.1 1.0 0.0909090909 0.25}
+
+test "uniform-distribution-1.1" "Test cdf-uniform" -match tolerant -body {
+    set x [list \
+        [::math::statistics::cdf-uniform   0   10  5] \
+        [::math::statistics::cdf-uniform   0.0 1.0 0.5] \
+        [::math::statistics::cdf-uniform -10.0 1.0 -4.5] \
+        [::math::statistics::cdf-uniform  -2.0 2.0  1.0]]
+} -result {0.5 0.5 0.5 0.75}
+
+test "exponential-distribution-1.0" "Test pdf-exponential" -match tolerant -body {
+    set x [list \
+        [::math::statistics::pdf-exponential 2   1] \
+        [::math::statistics::pdf-exponential 1.0 1.0] \
+        [::math::statistics::pdf-exponential 2.0 2.0] \
+        [::math::statistics::pdf-exponential 2.0 1.0]]
+} -result {0.3032653298563167 0.36787944117144233 0.18393972058572117 0.3032653298563167}
+
+test "exponential-distribution-1.1" "Test cdf-exponential" -match tolerant -body {
+    set x [list \
+        [::math::statistics::cdf-exponential 2   1] \
+        [::math::statistics::cdf-exponential 1.0 1.0] \
+        [::math::statistics::cdf-exponential 2.0 2.0] \
+        [::math::statistics::cdf-exponential 2.0 1.0]]
+} -result {0.3934693402873666 0.6321205588285577 0.6321205588285577 0.3934693402873666}
+
+test "normal-distribution-1.0" "Test pdf-normal" -match tolerant -body {
+    set x [list \
+        [::math::statistics::pdf-normal  0   1   1] \
+        [::math::statistics::pdf-normal  0.0 1.0 1.0] \
+        [::math::statistics::pdf-normal  2.0 2.0 4.0] \
+        [::math::statistics::pdf-normal -2.0 2.0 0.0] \
+        [::math::statistics::pdf-normal  2.0 2.0 3.0]]
+} -result {0.24197072451914337 0.24197072451914337 0.12098536225957168 0.12098536225957168 0.17603266338214976}
+
+test "normal-distribution-1.1" "Test cdf-normal" -match tolerant -body {
+    set x [list \
+        [::math::statistics::cdf-normal  0   1   1] \
+        [::math::statistics::cdf-normal  0.0 1.0 1.0] \
+        [::math::statistics::cdf-normal  2.0 2.0 4.0] \
+        [::math::statistics::cdf-normal -2.0 2.0 0.0] \
+        [::math::statistics::cdf-normal  2.0 2.0 3.0]]
+} -result {0.8413205502059895 0.8413205502059895 0.8413205502059895 0.8413205502059895 0.691451459572962}
 
 test "gamma-distribution-1.0" "Test pdf-gamma" -match tolerant -body {
     set x [list \
@@ -574,6 +626,73 @@ test "beta-distribution-1.1" "Test cdf-beta" -match tolerant -body {
            2.99872547567313e-23 3.07056696205524e-09 0.998641008671625 0.765865005703006
            0.999999999996 0.000125237075575121 8.23161135486914e-20 0.464369443974288
            0.5 1.0 0.8208}
+
+#
+# Crude tests for the random number generators
+# Mainly to verify that there are no obvious errors
+#
+test "random-numbers-1.0" "Test random-uniform" -body {
+    set rnumbers [::math::statistics::random-uniform 0 10 100]
+
+    set result 1
+    foreach r $rnumbers {
+        if { $r < 0.0 || $r > 10.0 } {
+            result 0
+            break
+        }
+    }
+    lappend result [llength $rnumbers]
+} -result {1 100}
+
+test "random-numbers-1.1" "Test random-exponential" -body {
+    set rnumbers [::math::statistics::random-exponential 1 100]
+
+    set result 1
+    foreach r $rnumbers {
+        if { $r < 0.0 } {
+            result 0
+            break
+        }
+    }
+    lappend result [llength $rnumbers]
+} -result {1 100}
+
+test "random-numbers-1.2" "Test random-normal" -body {
+    set rnumbers [::math::statistics::random-normal 0 1 100]
+    set result [llength $rnumbers]
+} -result 100
+
+test "random-numbers-1.3" "Test random-gamma" -body {
+    set rnumbers [::math::statistics::random-gamma 1.5 2.7 100]
+    set result [llength $rnumbers]
+} -result 100
+
+test "random-numbers-1.4" "Test random-poisson" -body {
+    set rnumbers [::math::statistics::random-poisson 2.5 100]
+    set result [llength $rnumbers]
+} -result 100
+
+test "random-numbers-1.5" "Test random-chisquare" -body {
+    set rnumbers [::math::statistics::random-chisquare 3 100]
+    set result [llength $rnumbers]
+} -result 100
+
+test "random-numbers-1.6" "Test random-students-t" -body {
+    set rnumbers [::math::statistics::random-students-t 3 100]
+    set result [llength $rnumbers]
+} -result 100
+
+test "random-numbers-1.7" "Test random-beta" -body {
+    set rnumbers [::math::statistics::random-beta 1.3 2.4 100]
+    set result 1
+    foreach r $rnumbers {
+        if { $r < 0.0 || $r > 1.0 } {
+            result 0
+            break
+        }
+    }
+    lappend result [llength $rnumbers]
+} -result {1 100}
 
 test "kruskal-wallis-1.0" "Test analysis Kruskal-Wallis" -match tolerant -body {
     ::math::statistics::analyse-Kruskal-Wallis {6.4 6.8 7.2 8.3 8.4 9.1 9.4 9.7} {2.5 3.7 4.9 5.4 5.9 8.1 8.2} {1.3 4.1 4.9 5.2 5.5 8.2}
