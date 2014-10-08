@@ -34,7 +34,7 @@ namespace eval ::math::special {
     #
     # Export the various functions
     #
-    namespace export Beta ln_Gamma Gamma erf erfc fresnel_C fresnel_S sinc
+    namespace export Beta ln_Gamma Gamma erf erfc fresnel_C fresnel_S sinc invnorm
 }
 
 # Gamma --
@@ -209,6 +209,88 @@ proc ::math::special::sinc {x} {
     }
 }
 
+# invnorm --
+#     Compute the inverse of the cumulative normal distribution
+#
+# Arguments:
+#     p               Value of erf(x) for x must be found
+#
+# Returns:
+#     Value of x
+#
+# Notes:
+#     Implementation in Tcl by Christian Gollwitzer
+#     Uses rational approximation from
+#     http://home.online.no/~pjacklam/notes/invnorm/#Pseudo_code_for_rational_approximation
+#     relative precision 1.2*10^-9 in the full range
+#
+proc ::math::special::invnorm {p} {
+    # inverse normal distribution
+    # rational approximation from
+    # http://home.online.no/~pjacklam/notes/invnorm/#Pseudo_code_for_rational_approximation
+    # precision 1.2*10^-9
+
+    if {$p<=0 || $p>=1} {
+        return -code error "Domain error (invnorm)"
+    }
+    # Coefficients in rational approximations.
+    set a1  -3.969683028665376e+01
+    set a2   2.209460984245205e+02
+    set a3  -2.759285104469687e+02
+    set a4   1.383577518672690e+02
+    set a5  -3.066479806614716e+01
+    set a6   2.506628277459239e+00
+
+    set b1  -5.447609879822406e+01
+    set b2   1.615858368580409e+02
+    set b3  -1.556989798598866e+02
+    set b4   6.680131188771972e+01
+    set b5  -1.328068155288572e+01
+
+    set c1  -7.784894002430293e-03
+    set c2  -3.223964580411365e-01
+    set c3  -2.400758277161838e+00
+    set c4  -2.549732539343734e+00
+    set c5   4.374664141464968e+00
+    set c6   2.938163982698783e+00
+
+    set d1   7.784695709041462e-03
+    set d2   3.224671290700398e-01
+    set d3   2.445134137142996e+00
+    set d4   3.754408661907416e+00
+
+    # Define break-points.
+
+    set p_low  0.02425
+    set p_high [expr {1-$p_low}]
+
+    # Rational approximation for lower region.
+
+    if {$p < $p_low} {
+        set q [expr {sqrt(-2*log($p))}]
+        set x [expr {((((($c1*$q+$c2)*$q+$c3)*$q+$c4)*$q+$c5)*$q+$c6) / \
+        (((($d1*$q+$d2)*$q+$d3)*$q+$d4)*$q+1)}]
+        return $x
+    }
+
+    # Rational approximation for central region.
+
+    if {$p <= $p_high} {
+        set q  [expr {$p - 0.5}]
+        set r  [expr {$q*$q}]
+        set x  [expr {((((($a1*$r+$a2)*$r+$a3)*$r+$a4)*$r+$a5)*$r+$a6)*$q / \
+        ((((($b1*$r+$b2)*$r+$b3)*$r+$b4)*$r+$b5)*$r+1)}]
+        return $x
+    }
+
+    # Rational approximation for upper region.
+
+    set q  [expr {sqrt(-2*log(1-$p))}]
+    set x  [expr {-((((($c1*$q+$c2)*$q+$c3)*$q+$c4)*$q+$c5)*$q+$c6) /
+    (((($d1*$q+$d2)*$q+$d3)*$q+$d4)*$q+1)}]
+    return $x
+}
+
 # Bessel functions and elliptic integrals --
 #
 source [file join [file dirname [info script]] "bessel.tcl"]
@@ -216,4 +298,4 @@ source [file join [file dirname [info script]] "classic_polyns.tcl"]
 source [file join [file dirname [info script]] "elliptic.tcl"]
 source [file join [file dirname [info script]] "exponential.tcl"]
 
-package provide math::special 0.2.2
+package provide math::special 0.3.0

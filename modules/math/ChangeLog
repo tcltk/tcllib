@@ -1,3 +1,25 @@
+2014-09-27  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* statistics.tcl: Bump version to 0.9.2
+	* statistics.test: Add tests for all pdf-* and cdf-* procedures, crude tests for random-* procedures
+	* pdf_stat.tcl: Fix a typo (cdf-uniform) and fix inadvertent integer divisions should arguments be integer
+	* special.tcl: Adding Christian's implementation of the inverse normal distribution function (invnorm)
+	* special.test: Adding test case for this new function
+	* special.man: Describing invnorm plus a correction in the overview (ierfc_n is not implemented)
+	* pkgIndex.tcl: Bumping version of math::special package to 0.3.0, of math::statistics to 0.9.2
+
+2014-09-26  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* pdf-stat.tcl: Solve ticket UUID a6d69107d5, a typo in the pdf-uniform procedure
+	* pkgIndex.tcl: Bumping version of math::statistics package to 0.9.1
+
+2014-09-21  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* bigfloat2.tcl: Solve ticket UUID 3309165, different implementation of isInt than suggested
+	* bigfloat2.test: Added several tests for the new implementation of isInt
+	* optimize.tcl: Solve ticket UUID 3193459, as suggested.
+	* optimize.tcl: Solve a problem with the detection of the exceptions in solving linear programs. Version 1.0.1
+	* optimize.test: Added tests to distinguish infeasible and unbounded linear programs
+	* optimize.test: Added test for ticket UUID 3193459
+	* pkgIndex.tcl: Bumping version of math::optimize package to 1.0.1, bigfloat2 to 2.0.2
+
 2014-08-21  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* calculus.tcl: Bumping version to 0.8
 	* pkgIndex.tcl: Bumping version of math::calculus package to 0.8
