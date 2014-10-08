@@ -450,15 +450,37 @@ test linprog-1.3 "Symmetric constraints, case 4" \
     } \
     -result 1
 
-#
-# TODO: Current algorithm makes no difference between infeasible
-#       and unbounded
-#
-test linprog-2.1 "Unbounded program" \
+test linprog-2.1 "Unbounded program 1" \
     -body {
 	set result [solveLinearProgram {3.0 4.0} {{1.0 -2.0 1.0} {-2.0 1.0 1.0}} ]
     } \
+    -result "unbounded"
+
+test linprog-2.2 "Unbounded program 2" \
+    -body {
+	set result [::math::optimize::solveLinearProgram {2.0 1.0} {{3.0 0.0 6.0} {1.0  0.0 2.0}}]
+    } \
+    -result "unbounded"
+
+test linprog-2.3 "Infeasible program" \
+    -body {
+	set result [::math::optimize::solveLinearProgram {2.0 1.0} {{3.0 1.0 6.0} {1.0 -1.0 2.0} {0.0 1.0 -3.0}}]
+    } \
     -result "infeasible"
+
+test linprog-2.4 "Degenerate program" \
+    -body {
+	# Solution: {1.0 3.0}
+	set result [::math::optimize::solveLinearProgram {2.0 1.0} {{3.0 1.0 6.0} {1.0 -1.0 2.0} {0.0 1.0 3.0}}]
+	set ok 1
+	if { ! [within_range [lindex $result 0]  0.99999  1.00001] ||
+	     ! [within_range [lindex $result 1]  2.99999  3.00001] } {
+	      set ok 0
+	}
+	set ok
+
+    } \
+    -result 1
 
 test linprog-3.1 "Simple 3D program" \
    -body {
@@ -576,6 +598,25 @@ test nelderMead-2.4 "Nelder-Mead - simplex contracts about the minimum" \
     } \
     -cleanup {
 	rename g {}; unset dd
+    } \
+    -result 1
+
+# Make sure the method deals gracefully with a "valley"
+# (Ticket UUID: 3193459)
+
+test nelderMead-2.5 "Nelder-Mead - indeterminate minimum (valley)" \
+    -setup {
+	proc h {a b} {
+	    return [expr {abs($a-$b)}]
+	}
+    } \
+    -body {
+	array set dd [::math::optimize::nelderMead h {1. 1.}]
+	foreach {x y} $dd(x) break
+	expr { abs($x-1.) < 0.00005 && abs($y-1.) < 0.00005 }
+    } \
+    -cleanup {
+	rename h {}; unset dd
     } \
     -result 1
 
