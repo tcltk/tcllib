@@ -97,7 +97,7 @@ oo::class create oo::class.Delegate {
         }
         set cls [next $name]
         set delegate [oo::class create $cls.Delegate]
-        oo::define $cls $script
+        uplevel 1 [::list oo::define $cls $script]
         set superdelegates [list $delegate]
         foreach c [info class superclass $cls] {
             set d $c.Delegate
@@ -182,4 +182,4 @@ proc ::oo::Helpers::link {args} {
 # # ## ### ##### ######## ############# ####################
 ## Ready
 
-package provide oo::util 1.2
+package provide oo::util 1.2.1
