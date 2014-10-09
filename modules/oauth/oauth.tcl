@@ -2,7 +2,7 @@
 # the next line will restart with tclsh wherever it is \
 exec tclsh "$0" "$@"
 
-# oauth-1.0.tm -*- tcl -*-
+# oauth.tcl -*- tcl -*-
 # 		This module pretend give full support to API version 1.1 of Twitter
 #		according to API v1.1’s Authentication Model
 #
@@ -31,7 +31,6 @@ package require http
 package require tls
 package require base64
 package require sha1
-package require json
 
 http::register https 443 ::tls::socket
     
@@ -48,9 +47,6 @@ namespace eval ::oauth {
     variable script [info script]
     variable contact "$project $version ~ $description ($author)"
 
-    # urlRequest     {https://api.twitter.com/oauth/request_token}
-    # urlAuthorize   {https://api.twitter.com/oauth/authorize}
-    # urlAccesstoken {https://api.twitter.com/oauth/access_token}
     variable oauth
     if {![info exists oauth]} {
         array set oauth {
@@ -107,7 +103,7 @@ proc ::oauth::config {args} {
 #       is a header for our api queries with our user and app
 #       information for the verification of who we are. Collect it,
 #       encode it as the protocol says and add it to the geturl
-#       command.  If you prefer it you can use this procedure for your
+#       command.  If you want, you can use this procedure for your
 #       own queries, just use it as header. Example:
 #           http::geturl $twitter(url) -header [oauth::header <...>] <...>
 #
@@ -199,37 +195,37 @@ proc ::oauth::header {baseURL {postQuery ""}} {
 }
 
 # query --
-#       Sends to twitter API url the proper oauth header and querybody
+#       Sends to oauth API url the proper oauth header and querybody
 #       returning the raw data from Twitter for your parse.
 # Arguments:
-#       url         index of array tUrl with ?arguments if it's a GET request
+#       baseURL     api host URL with ?arguments if it's a GET request
 #       postQuery   POST query if it's a POST query
 # Result:
 #       The result will be list with 2 arguments.
 #       The first argument is an array with the http's header
-#       and the second one is JSON data received from Twitter. The header is
+#       and the second one is JSON data received from the server. The header is
 #       very important because it reports your rest API limit and will
 #       inform you if you can get your account suspended.
 proc ::oauth::query {baseURL {postQuery ""}} {
     variable oauth
     if {$oauth(-consumerkey) eq ""} {
 	Error "ERROR: please define your consumer key.\
-             [namespace current]::config -consumerkey <...>" \
+            [namespace current]::config -consumerkey <...>" \
 	    BAD CONSUMER-KEY
     }
     if {$oauth(-consumersecret) eq ""} {
 	Error "ERROR: please define your app's consumer secret.\
-             [namespace current]::config -consumersecret <...>" \
+            [namespace current]::config -consumersecret <...>" \
 	    BAD CONSUMER-SECRET
     }
     if {$oauth(-accesstoken) eq ""} {
 	Error "ERROR: please define your access token.\
-             [namespace current]::config -accesstoken <...>" \
+            [namespace current]::config -accesstoken <...>" \
 	    BAD ACCESS-TOKEN
     }
     if {$oauth(-accesstokensecret) eq ""} {
 	Error "ERROR: please define your app's access token secret.\
-             [namespace current]::config -accesstokensecret <...>" \
+            [namespace current]::config -accesstokensecret <...>" \
 	    BAD ACCESS-TOKEN-SECRET
     }
     if {$postQuery eq ""} {
@@ -270,10 +266,6 @@ proc ::oauth::query {baseURL {postQuery ""}} {
     set ncode [http::ncode $token]
     set data  [http::data $token]
     upvar #0 $token state
-
-    foreach key [array names state] {
-	dict set dictResult metadata_${key} $state($key)
-    }
     lappend result [array names state]
     lappend result $data
     http::cleanup $token
