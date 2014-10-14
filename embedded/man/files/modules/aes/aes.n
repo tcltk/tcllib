@@ -1,9 +1,9 @@
 '\"
 '\" Generated from file 'aes\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2005, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
-'\" Copyright (c) 2012-2013, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2012-2014, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "aes" n 1\&.1\&.1 tcllib "Advanced Encryption Standard (AES)"
+.TH "aes" n 1\&.2 tcllib "Advanced Encryption Standard (AES)"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,9 +275,9 @@ Database Class:	\\fB\\$3\\fR
 .SH NAME
 aes \- Implementation of the AES block cipher
 .SH SYNOPSIS
-package require \fBTcl  8\&.2\fR
+package require \fBTcl  8\&.5\fR
 .sp
-package require \fBaes  ?1\&.1\&.1?\fR
+package require \fBaes  ?1\&.2?\fR
 .sp
 \fB::aes::aes\fR ?\fI-mode [ecb|cbc]\fR? ?\fI-dir [encrypt|decrypt]\fR? \fI-key keydata\fR ?\fI-iv vector\fR? ?\fI-hex\fR? ?\fI-out channel\fR? ?\fI-chunksize size\fR? [ \fI-in channel\fR | ?\fB--\fR? \fIdata\fR ]
 .sp
@@ -414,6 +414,6 @@ Hashes, checksums, and encryption
 .SH COPYRIGHT
 .nf
 Copyright (c) 2005, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
-Copyright (c) 2012-2013, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2012-2014, Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi

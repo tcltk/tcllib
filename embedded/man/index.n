@@ -6422,6 +6422,12 @@ number theory
 \fBfiles/modules/math/numtheory\&.n\fR
 math::numtheory
 .RE
+oauth
+.RS
+.TP
+\fBfiles/modules/oauth/oauth\&.n\fR
+oauth
+.RE
 object
 .RS
 .TP
@@ -8459,6 +8465,12 @@ rfc 2554
 \fBfiles/modules/mime/smtp\&.n\fR
 smtp
 .RE
+RFC 2718
+.RS
+.TP
+\fBfiles/modules/oauth/oauth\&.n\fR
+oauth
+.RE
 rfc 2821
 .RS
 .TP
@@ -8491,6 +8503,12 @@ rfc 4511
 .TP
 \fBfiles/modules/ldap/ldap\&.n\fR
 ldap
+.RE
+RFC 5849
+.RS
+.TP
+\fBfiles/modules/oauth/oauth\&.n\fR
+oauth
 .RE
 rfc 6455
 .RS
@@ -10768,6 +10786,12 @@ textutil
 .TP
 \fBfiles/modules/textutil/trim\&.n\fR
 textutil::trim
+.RE
+twitter
+.RS
+.TP
+\fBfiles/modules/oauth/oauth\&.n\fR
+oauth
 .RE
 type
 .RS
