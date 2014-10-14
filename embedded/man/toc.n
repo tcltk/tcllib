@@ -882,6 +882,9 @@ tcllib
 \fBntp_time\fR
 \fIfiles/modules/ntp/ntp_time\&.n\fR: Tcl Time Service Client
 .TP
+\fBoauth\fR
+\fIfiles/modules/oauth/oauth\&.n\fR: oauth API base signature
+.TP
 \fBoo::util\fR
 \fIfiles/modules/ooutil/ooutil\&.n\fR: Utility commands for TclOO
 .TP
