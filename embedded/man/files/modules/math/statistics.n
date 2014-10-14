@@ -670,7 +670,7 @@ list \fIdata\fR
 .sp
 .TP
 float \fIconfidence\fR
-- Confidence level (0\&.95 or 0\&.99 for instance)
+- Confidence level (0\&.95 or 0\&.99 for instance) or a list of confidence levels\&.
 .sp
 .RE
 .sp
@@ -687,7 +687,7 @@ list \fIcounts\fR
 - List of counts for for each interval in histogram
 .TP
 float \fIconfidence\fR
--  Confidence level (0\&.95 or 0\&.99 for instance)
+-  Confidence level (0\&.95 or 0\&.99 for instance) or a list of confidence levels\&.
 .RE
 .sp
 .TP

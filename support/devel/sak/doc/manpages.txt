@@ -215,6 +215,7 @@ modules/nns/nns_protocol.man
 modules/nns/nns_server.man
 modules/nntp/nntp.man
 modules/ntp/ntp_time.man
+modules/oauth/oauth.man
 modules/ooutil/ooutil.man
 modules/otp/otp.man
 modules/page/page_intro.man
