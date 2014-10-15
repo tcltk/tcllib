@@ -21,6 +21,8 @@ package require crc32    ; # Tcllib, crc calculation
 package require snit     ; # Tcllib, OO core
 package require fileutil ; # zipdir convenience method
 namespace eval ::zipfile::decode {}
+namespace eval ::zipfile::encode {}
+
                    ; # Zlib usage. No commands, access through Trf
 
 # ### ### ### ######### ######### #########
