@@ -390,6 +390,14 @@ package require Tcl 8.6
 
 namespace eval zip {}
 
+proc ::zipfile::encode::setbinary chan {
+  fconfigure $chan \
+      -encoding    binary \
+      -translation binary \
+      -eofchar     {}
+
+}
+
 # zip::timet_to_dos
 #
 #        Convert a unix timestamp into a DOS timestamp for ZIP times.
@@ -505,6 +513,7 @@ proc ::zipfile::encode::add_file_to_archive {zipchan base path {comment ""}} {
         # handling PNG or JPEG or nested ZIP files.
         if {$size < 0x00200000} {
             set fin [::open $fullpath rb]
+            setbinary $fin
             set data [::read $fin]
             set crc [::zlib crc32 $data]
             set cdata [::zlib deflate $data]
@@ -518,6 +527,7 @@ proc ::zipfile::encode::add_file_to_archive {zipchan base path {comment ""}} {
         } else {
             set method 8
             set fin [::open $fullpath rb]
+            setbinary $fin
             set zlib [::zlib stream deflate]
             while {![eof $fin]} {
                 set data [read $fin 4096]
@@ -593,8 +603,10 @@ proc ::zipfile::encode::mkzip {filename args} {
   }
 
   set zf [::open $filename wb]
+  setbinary $zf
   if {$opts(-runtime) ne ""} {
       set rt [::open $opts(-runtime) rb]
+      setbinary $rt
       fcopy $rt $zf
       close $rt
   } elseif {$opts(-zipkit)} {
