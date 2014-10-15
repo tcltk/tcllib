@@ -9,6 +9,11 @@
 # FUTURE: Write convenience command to zip up a whole directory.
 
 package require Tcl 8.4
+
+namespace eval ::zipfile {}
+namespace eval ::zipfile::decode {}
+namespace eval ::zipfile::encode {}
+
 if {[package vcompare $tcl_patchLevel "8.6"] < 0} {
 
 # Pre-8.6 Implementation
@@ -20,8 +25,6 @@ package require logger   ; # Tracing
 package require crc32    ; # Tcllib, crc calculation
 package require snit     ; # Tcllib, OO core
 package require fileutil ; # zipdir convenience method
-namespace eval ::zipfile::decode {}
-namespace eval ::zipfile::encode {}
 
                    ; # Zlib usage. No commands, access through Trf
 
@@ -397,7 +400,7 @@ namespace eval zip {}
 #   |Y|Y|Y|Y|Y|Y|Y|m| |m|m|m|d|d|d|d|d| |h|h|h|h|h|m|m|m| |m|m|m|s|s|s|s|s|
 #   +-+-+-+-+-+-+-+-+ +-+-+-+-+-+-+-+-+ +-+-+-+-+-+-+-+-+ +-+-+-+-+-+-+-+-+
 #
-proc zipfile::encode::timet_to_dos {time_t} {
+proc ::zipfile::encode::timet_to_dos {time_t} {
     set s [clock format $time_t -format {%Y %m %e %k %M %S}]
     scan $s {%d %d %d %d %d %d} year month day hour min sec
     expr {(($year-1980) << 25) | ($month << 21) | ($day << 16) 
@@ -408,7 +411,7 @@ proc zipfile::encode::timet_to_dos {time_t} {
 #
 #        Pop an element from a list
 #
-proc zipfile::encode::pop {varname {nth 0}} {
+proc ::zipfile::encode::pop {varname {nth 0}} {
     upvar $varname args
     set r [lindex $args $nth]
     set args [lreplace $args $nth $nth]
@@ -422,7 +425,7 @@ proc zipfile::encode::pop {varname {nth 0}} {
 #        The match arg is internal.
 #        eg: walk library {CVS/* *~ .#*} to exclude CVS and emacs cruft.
 #
-proc zipfile::encode::walk {base {excludes ""} {match *} {path {}}} {
+proc ::zipfile::encode::walk {base {excludes ""} {match *} {path {}}} {
     set result {}
     set imatch [file join $path $match]
     set files [glob -nocomplain -tails -types f -directory $base $imatch]
@@ -454,7 +457,7 @@ proc zipfile::encode::walk {base {excludes ""} {match *} {path {}}} {
 #
 # FIX ME: should  handle the current offset for non-seekable channels
 #
-proc zipfile::encode::add_file_to_archive {zipchan base path {comment ""}} {
+proc ::zipfile::encode::add_file_to_archive {zipchan base path {comment ""}} {
     set fullpath [file join $base $path]
     set mtime [timet_to_dos [file mtime $fullpath]]
     if {[file isdirectory $fullpath]} {
@@ -568,7 +571,7 @@ proc zipfile::encode::add_file_to_archive {zipchan base path {comment ""}} {
 #
 #        eg: zip my.zip -directory Subdir -runtime unzipsfx.exe *.txt
 # 
-proc zipfile::encode::mkzip {filename args} {
+proc ::zipfile::encode::mkzip {filename args} {
   array set opts {
       -zipkit 0 -runtime "" -comment "" -directory ""
       -exclude {CVS/* */CVS/* *~ ".#*" "*/.#*"}
