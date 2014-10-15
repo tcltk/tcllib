@@ -13,9 +13,11 @@ package require logger   ; # Tracing
 package require Trf      ; # Wrapper to zlib
 package require crc32    ; # Tcllib, crc calculation
 package require snit     ; # Tcllib, OO core
-package require zlibtcl  ; # Zlib usage. No commands, access through Trf
 package require fileutil ; # zipdir convenience method
-
+if {[package vcompare $tcl_patchLevel "8.6"] < 0} {
+  # Only needed pre-8.6
+  package require zlibtcl                   ; # Zlib usage. No commands, access through Trf
+}
 # ### ### ### ######### ######### #########
 ##
 
