@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'ooutil\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2011-2013 Andreas Kupries, BSD licensed
+'\" Copyright (c) 2011-2014 Andreas Kupries, BSD licensed
 '\"
-.TH "oo::util" n 1\&.1 tcllib "Utility commands for TclOO"
+.TH "oo::util" n 1\&.2\&.1 tcllib "Utility commands for TclOO"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -278,7 +278,7 @@ package require \fBTcl  8\&.5\fR
 .sp
 package require \fBTclOO \fR
 .sp
-package require \fBoo::util  ?1\&.1?\fR
+package require \fBoo::util  ?1\&.2\&.1?\fR
 .sp
 \fBmymethod\fR \fImethod\fR ?\fIarg\fR\&.\&.\&.?
 .sp
@@ -447,6 +447,6 @@ TclOO, callback, class methods, class variables, command prefix, currying, metho
 Utility
 .SH COPYRIGHT
 .nf
-Copyright (c) 2011-2013 Andreas Kupries, BSD licensed
+Copyright (c) 2011-2014 Andreas Kupries, BSD licensed
 
 .fi
