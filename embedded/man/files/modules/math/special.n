@@ -2,7 +2,7 @@
 '\" Generated from file 'special\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2004 Arjen Markus <arjenmarkus@users\&.sourceforge\&.net>
 '\"
-.TH "math::special" n 0\&.2 tcllib "Tcl Math Library"
+.TH "math::special" n 0\&.3 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ math::special \- Special mathematical functions
 .SH SYNOPSIS
 package require \fBTcl  ?8\&.3?\fR
 .sp
-package require \fBmath::special  ?0\&.2?\fR
+package require \fBmath::special  ?0\&.3?\fR
 .sp
 \fB::math::special::Beta\fR \fIx\fR \fIy\fR
 .sp
@@ -285,6 +285,8 @@ package require \fBmath::special  ?0\&.2?\fR
 \fB::math::special::erf\fR \fIx\fR
 .sp
 \fB::math::special::erfc\fR \fIx\fR
+.sp
+\fB::math::special::invnorm\fR \fIp\fR
 .sp
 \fB::math::special::J0\fR \fIx\fR
 .sp
@@ -391,7 +393,10 @@ integrals    | E           | 0 <= x < 1  |     --      |   < 1\&.0e-6
              |             |             |             |
 Error        | erf         |             |     --      |
 functions    | erfc        |             |             |
-             | ierfc_n     |             |             |
+             |             |             |             |
+Inverse      | invnorm     | 0 < x < 1   |     --      |   < 1\&.2e-9
+normal       |             |             |             |
+distribution |             |             |             |
              |             |             |             |
 Exponential  | Ei          |  x != 0     |     --      |   < 1\&.0e-10 (relative)
 integrals    | En          |  x >  0     |     --      |   as Ei
@@ -472,6 +477,16 @@ Compute the complementary error function for argument "x"
 .TP
 float \fIx\fR
 Argument for the complementary error function
+.RE
+.sp
+.TP
+\fB::math::special::invnorm\fR \fIp\fR
+Compute the inverse of the normal distribution function for argument "p"
+.RS
+.TP
+float \fIp\fR
+Argument for the inverse normal distribution function
+(p must be greater than 0 and lower than 1)
 .RE
 .sp
 .TP
