@@ -916,7 +916,7 @@ proc validate_testsuite_mod {m} {
     return
 }
 
-proc bench_mod {mlist paths interp flags norm format verbose output} {
+proc bench_mod {mlist paths interp flags norm format verbose output coll rep} {
     global distribution env tcl_platform
 
     getpackage logger logger/logger.tcl
@@ -963,20 +963,49 @@ proc bench_mod {mlist paths interp flags norm format verbose output} {
 	    continue
 	}
 
-	set run $cmd
-	lappend run $interps $files
-	array set DATA [eval $run]
+	for {set i 0} {$i <= $rep} {incr i} {
+	    if {$i} { puts "Repeat $i" }
+
+	    set run $cmd
+	    lappend run $interps $files
+	    array set tmp [eval $run]
+
+	    # Merge new set of data into the previous run, if any.
+	    foreach key [array names tmp] {
+		set val $tmp($key)
+		if {![info exists DATA($key)]} {
+		    set DATA($key) $val
+		    continue
+		} elseif {[string is double -strict $val]} {
+		    # Call user-request collation type
+		    set DATA($key) [collate_$coll $DATA($key) $val $i]
+		}
+	    }
+	    unset tmp
+	}
     }
 
     _bench_write $output [array get DATA] $norm $format
     return
 }
 
-proc bench_all {flags norm format verbose output} {
-    bench_mod [modules] $flags $norm $format $verbose $output
-    return
+proc collate_min {cur new runs} {
+    # Minimum
+    return [expr {$cur > $new ? $new : $cur}]
+}
+proc collate_avg {cur new runs} {
+    # Average
+    return [expr {($cur * $runs + $new)/($runs+1)}]
+}
+proc collate_max {cur new runs} {
+    # Maximum
+    return [expr {$cur < $new ? $new : $cur}]
 }
 
+if 0 {proc bench_all {flags norm format verbose output} {
+    bench_mod [modules] $flags $norm $format $verbose $output ? ?
+    return
+}}
 
 proc _bench_write {output data norm format} {
     if {$norm != {}} {
@@ -1818,6 +1847,8 @@ proc __bench {} {
     set output  {}
     set paths   {}
     set interp  {}
+    set repeat  0
+    set collate min
 
     while {[string match -* [set option [lindex $argv 0]]]} {
 	set val [lindex $argv 1]
@@ -1839,6 +1870,19 @@ proc __bench {} {
 		    }
 		}
 		set format $val
+	    }
+	    -collate {
+		switch -exact -- $val {
+		    min - max - avg {}
+		    default {
+			return -error "Bad collation \"$val\", expected avg, max, or min"
+		    }
+		}
+		set collate $val
+	    }
+	    -repeat {
+		# TODO: test for integer >= 0
+		set repeat $val
 	    }
 	    -verbose {
 		set verbose info
@@ -1876,27 +1920,27 @@ proc __bench {} {
     # only selected modules.
 
     if {[llength $argv] == 0} {
-	_bench_all $paths $interp $flags $norm $format $verbose $output
+	_bench_all $paths $interp $flags $norm $format $verbose $output $collate $repeat
     } else {
 	if {![checkmod]} {return}
-	_bench_module [dealias $argv] $paths $interp $flags $norm $format $verbose $output
+	_bench_module [dealias $argv] $paths $interp $flags $norm $format $verbose $output $collate $repeat
     }
     return
 }
 
-proc _bench_module {mlist paths interp flags norm format verbose output} {
+proc _bench_module {mlist paths interp flags norm format verbose output coll rep} {
     global package_name package_version
 
     puts "Benchmarking $package_name $package_version development"
     puts "======================================================"
-    bench_mod $mlist $paths $interp $flags $norm $format $verbose $output
+    bench_mod $mlist $paths $interp $flags $norm $format $verbose $output $coll $rep
     puts "------------------------------------------------------"
     puts ""
     return
 }
 
-proc _bench_all {paths flags interp norm format verbose output} {
-    _bench_module [modules] $paths $interp $flags $norm $format $verbose $output
+proc _bench_all {paths flags interp norm format verbose output coll rep} {
+    _bench_module [modules] $paths $interp $flags $norm $format $verbose $output $coll $rep
     return
 }
 
