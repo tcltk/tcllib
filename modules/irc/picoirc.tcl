@@ -13,12 +13,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-#
-# $Id: picoirc.tcl,v 1.4 2008/06/24 22:06:56 patthoyts Exp $
 
 namespace eval ::picoirc {
-    variable version 0.5.1
-    variable uid; if {![info exists uid]} { set uid 0 }
+    variable uid
+    if {![info exists uid]} { set uid 0 }
+
     variable defaults {
         server   "irc.freenode.net"
         port     6667
@@ -267,6 +266,6 @@ proc ::picoirc::send {context line} {
 
 # -------------------------------------------------------------------------
 
-package provide picoirc $::picoirc::version
+package provide picoirc 0.5.1
 
 # -------------------------------------------------------------------------

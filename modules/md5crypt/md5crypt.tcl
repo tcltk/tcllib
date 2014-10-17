@@ -8,7 +8,6 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-
 # @mdgen EXCLUDE: md5cryptc.tcl
 
 package require Tcl 8.2;                # tcl minimum version
@@ -20,8 +19,6 @@ if {[catch {package require tcllibc}]} {
 }
 
 namespace eval md5crypt {
-    variable version 1.1.0
-    variable rcsid {$Id: md5crypt.tcl,v 1.5 2008/01/26 23:56:26 patthoyts Exp $}
     variable itoa64 \
         {./0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz}
 
@@ -146,7 +143,7 @@ if {[info commands ::md5crypt::md5crypt_c] == {}} {
 
 # -------------------------------------------------------------------------
 
-package provide md5crypt $::md5crypt::version
+package provide md5crypt 1.1.0
 
 # -------------------------------------------------------------------------
 # Local Variables:
