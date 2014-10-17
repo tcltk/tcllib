@@ -18,8 +18,6 @@ package require md4;                    # tcllib 1.4
 
 namespace eval ::SASL {
     namespace eval NTLM {
-        variable version 1.1.2
-        variable rcsid {$Id: ntlm.tcl,v 1.8 2007/08/26 00:36:45 patthoyts Exp $}
         array set NTLMFlags {
             unicode        0x00000001
             oem            0x00000002
@@ -368,7 +366,7 @@ if {[llength [package provide SASL]] != 0} {
     ::SASL::register NTLM 50 ::SASL::NTLM::NTLM
 }
 
-package provide SASL::NTLM $::SASL::NTLM::version
+package provide SASL::NTLM 1.1.2
 
 # -------------------------------------------------------------------------
 #

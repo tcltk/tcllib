@@ -19,16 +19,12 @@
 # To support https add:
 #   package require tls
 #   http::register https 443 ::autoproxy::tls_socket
-#
-# @(#)$Id: autoproxy.tcl,v 1.15 2012/05/28 20:30:32 andreas_kupries Exp $
 
 package require http;                   # tcl
 package require uri;                    # tcllib
 package require base64;                 # tcllib
 
 namespace eval ::autoproxy {
-    variable rcsid {$Id: autoproxy.tcl,v 1.15 2012/05/28 20:30:32 andreas_kupries Exp $}
-    variable version 1.5.3
     variable options
 
     if {! [info exists options]} {
@@ -533,7 +529,7 @@ proc ::autoproxy::tls_socket {args} {
 
 # -------------------------------------------------------------------------
 
-package provide autoproxy $::autoproxy::version
+package provide autoproxy 1.5.3
 
 # -------------------------------------------------------------------------
 #

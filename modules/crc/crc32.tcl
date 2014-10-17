@@ -10,13 +10,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc32.tcl,v 1.22 2009/05/06 22:41:08 patthoyts Exp $
 
 package require Tcl 8.2
 
 namespace eval ::crc {
-    variable crc32_version 1.3.2
-    variable accel
+    variable  accel
     array set accel {critcl 0 trf 0}
 
     namespace export crc32
@@ -369,7 +367,7 @@ namespace eval ::crc {
     unset e
 }
 
-package provide crc32 $::crc::crc32_version
+package provide crc32 1.3.2
 
 # -------------------------------------------------------------------------
 #

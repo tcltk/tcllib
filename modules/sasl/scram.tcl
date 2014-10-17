@@ -13,9 +13,7 @@ package require SASL
 package require sha1
 package require base64
 
-namespace eval ::SASL::SCRAM {
-    set version 0.1
-}
+namespace eval ::SASL::SCRAM {}
 
 # ::SASL::SCRAM::Map --
 #
@@ -495,7 +493,7 @@ proc ::SASL::SCRAM::SHA-1:server {context clientrsp args} {
 
 # -------------------------------------------------------------------------
 
-package provide SASL::SCRAM $::SASL::SCRAM::version
+package provide SASL::SCRAM 0.1
 
 # -------------------------------------------------------------------------
 #
