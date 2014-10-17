@@ -147,11 +147,15 @@ proc ::aes::EncryptBlock {Key block} {
         return -code error "invalid block size: blocks must be 16 bytes"
     }
 
-    if {[string equal $state(M) cbc]} {
-        for {set n 0} {$n < 4} {incr n} {
-            lappend data2 [expr {0xffffffff & ([lindex $data $n] ^ [lindex $state(I) $n])}]
-        }
-        set data $data2
+    if {$state(M) eq {cbc}} {
+        # Loop unrolled.
+        lassign $data     d0 d1 d2 d3
+        lassign $state(I) s0 s1 s2 s3
+        set data [list \
+                      [expr {$d0 ^ $s0}] \
+                      [expr {$d1 ^ $s1}] \
+                      [expr {$d2 ^ $s2}] \
+                      [expr {$d3 ^ $s3}] ]
     }
 
     set data [AddRoundKey $Key 0 $data]
@@ -162,13 +166,11 @@ proc ::aes::EncryptBlock {Key block} {
 
     # Bug 2993029:
     # Force all elements of data into the 32bit range.
-    set res {}
-    foreach d $data {
-        lappend res [expr {$d & 0xffffffff}]
-    }
+    # Loop unrolled
+    set res [Clamp32 $data]
 
     set state(I) $res
-    return [binary format Iu4 $res]
+    binary format Iu4 $res
 }
 
 # 5.3: Inverse Cipher: Decipher a single 128 bit block.
@@ -186,37 +188,45 @@ proc ::aes::DecryptBlock {Key block} {
     }
     set data [AddRoundKey $Key $n [InvSubBytes [InvShiftRows $data]]]
     
-    if {[string equal $state(M) cbc]} {
-        for {set n 0} {$n < 4} {incr n} {
-            lappend data2 [expr {0xffffffff & ([lindex $data $n] ^ [lindex $state(I) $n])}]
-        }
-        set data $data2
+    if {$state(M) eq {cbc}} {
+        lassign $data     d0 d1 d2 d3
+        lassign $state(I) s0 s1 s2 s3
+        set data [list \
+                      [expr {($d0 ^ $s0) & 0xffffffff}] \
+                      [expr {($d1 ^ $s1) & 0xffffffff}] \
+                      [expr {($d2 ^ $s2) & 0xffffffff}] \
+                      [expr {($d3 ^ $s3) & 0xffffffff}] ]
     } else {
         # Bug 2993029:
-        # Force all elements of data into the 32bit range.
-        # The trimming we see above only happens for CBC mode.
-        set res {}
-        foreach d $data {
-            lappend res [expr {$d & 0xffffffff}]
-        }
-        set data $res
+        # The integrated clamping we see above only happens for CBC mode.
+        set data [Clamp32 $data]
     }
 
     set state(I) $iv
-    return [binary format Iu4 $data]
+    binary format Iu4 $data
+}
+
+proc ::aes::Clamp32 {data} {
+    # Force all elements into 32bit range.
+    lassign $data d0 d1 d2 d3
+    list \
+        [expr {$d0 & 0xffffffff}] \
+        [expr {$d1 & 0xffffffff}] \
+        [expr {$d2 & 0xffffffff}] \
+        [expr {$d3 & 0xffffffff}]
 }
 
 # 5.2: KeyExpansion
 proc ::aes::ExpandKey {Key} {
     upvar #0 $Key state
     set Rcon [list 0x00000000 0x01000000 0x02000000 0x04000000 0x08000000 \
-                  0x10000000 0x20000000 0x40000000 0x80000000 0x1b000000 \
-                  0x36000000 0x6c000000 0xd8000000 0xab000000 0x4d000000]
+                   0x10000000 0x20000000 0x40000000 0x80000000 0x1b000000 \
+                   0x36000000 0x6c000000 0xd8000000 0xab000000 0x4d000000]
     # Split the key into Nk big-endian words
     binary scan $state(K) I* W
     set max [expr {$state(Nb) * ($state(Nr) + 1)}]
     set i $state(Nk)
-    set h $state(Nk) ; incr h -1
+    set h [expr {$i - 1}]
     set j 0
     for {} {$i < $max} {incr i; incr h; incr j} {
         set temp [lindex $W $h]
@@ -230,25 +240,24 @@ proc ::aes::ExpandKey {Key} {
         lappend W [expr {[lindex $W $j] ^ $temp}]
     }
     set state(W) $W
-    return
 }
 
 # 5.2: Key Expansion: Apply S-box to each byte in the 32 bit word
 proc ::aes::SubWord {w} {
     variable sbox
-    set s3 [lindex $sbox [expr {(($w >> 24) & 255)}]]
-    set s2 [lindex $sbox [expr {(($w >> 16) & 255)}]]
-    set s1 [lindex $sbox [expr {(($w >> 8 ) & 255)}]]
-    set s0 [lindex $sbox [expr {( $w        & 255)}]]
+    set s3 [lindex $sbox [expr {($w >> 24) & 255}]]
+    set s2 [lindex $sbox [expr {($w >> 16) & 255}]]
+    set s1 [lindex $sbox [expr {($w >> 8 ) & 255}]]
+    set s0 [lindex $sbox [expr { $w        & 255}]]
     return [expr {($s3 << 24) | ($s2 << 16) | ($s1 << 8) | $s0}]
 }
 
 proc ::aes::InvSubWord {w} {
     variable xobs
-    set s3 [lindex $xobs [expr {(($w >> 24) & 255)}]]
-    set s2 [lindex $xobs [expr {(($w >> 16) & 255)}]]
-    set s1 [lindex $xobs [expr {(($w >> 8 ) & 255)}]]
-    set s0 [lindex $xobs [expr {( $w        & 255)}]]
+    set s3 [lindex $xobs [expr {($w >> 24) & 255}]]
+    set s2 [lindex $xobs [expr {($w >> 16) & 255}]]
+    set s1 [lindex $xobs [expr {($w >> 8 ) & 255}]]
+    set s0 [lindex $xobs [expr { $w        & 255}]]
     return [expr {($s3 << 24) | ($s2 << 16) | ($s1 << 8) | $s0}]
 }
 
@@ -259,20 +268,14 @@ proc ::aes::RotWord {w} {
 
 # 5.1.1: SubBytes() Transformation
 proc ::aes::SubBytes {words} {
-    set r {}
-    foreach w $words {
-        lappend r [SubWord $w]
-    }
-    return $r
+    lassign $words w0 w1 w2 w3
+    list [SubWord $w0] [SubWord $w1] [SubWord $w2] [SubWord $w3]
 }
 
 # 5.3.2: InvSubBytes() Transformation
 proc ::aes::InvSubBytes {words} {
-    set r {}
-    foreach w $words {
-        lappend r [InvSubWord $w]
-    }
-    return $r
+    lassign $words w0 w1 w2 w3
+    list [InvSubWord $w0] [InvSubWord $w1] [InvSubWord $w2] [InvSubWord $w3]
 }
 
 # 5.1.2: ShiftRows() Transformation
@@ -382,36 +385,36 @@ proc ::aes::GFMult2 {number} {
         0xdb 0xd9 0xdf 0xdd 0xd3 0xd1 0xd7 0xd5 0xcb 0xc9 0xcf 0xcd 0xc3 0xc1 0xc7 0xc5 
         0xfb 0xf9 0xff 0xfd 0xf3 0xf1 0xf7 0xf5 0xeb 0xe9 0xef 0xed 0xe3 0xe1 0xe7 0xe5
     }
-    return [lindex $xtime $number]
+    lindex $xtime $number
 }
 
 proc ::aes::GFMult3 {number} {
     # multliply by 2 (via GFMult2) and add the number again on the result (via XOR)
-    return [expr {$number ^ [GFMult2 $number]}]
+    expr {$number ^ [GFMult2 $number]}
 }
 
 proc ::aes::GFMult09 {number} {
     # 09 is: (02*02*02) + 01
-    return [expr {[GFMult2 [GFMult2 [GFMult2 $number]]] ^ $number}]
+    expr {[GFMult2 [GFMult2 [GFMult2 $number]]] ^ $number}
 }
 
 proc ::aes::GFMult0b {number} {
     # 0b is: (02*02*02) + 02 + 01
     #return [expr [GFMult2 [GFMult2 [GFMult2 $number]]] ^ [GFMult2 $number] ^ $number]
     #set g0 [GFMult2 $number]
-    return [expr {[GFMult09 $number] ^ [GFMult2 $number]}]
+    expr {[GFMult09 $number] ^ [GFMult2 $number]}
 }
 
 proc ::aes::GFMult0d {number} {
     # 0d is: (02*02*02) + (02*02) + 01
     set temp [GFMult2 [GFMult2 $number]]
-    return [expr {[GFMult2 $temp] ^ ($temp ^ $number)}]
+    expr {[GFMult2 $temp] ^ ($temp ^ $number)}
 }
 
 proc ::aes::GFMult0e {number} {
     # 0e is: (02*02*02) + (02*02) + 02
     set temp [GFMult2 [GFMult2 $number]]
-    return [expr {[GFMult2 $temp] ^ ($temp ^ [GFMult2 $number])}]
+    expr {[GFMult2 $temp] ^ ($temp ^ [GFMult2 $number])}
 }
 
 # -------------------------------------------------------------------------
@@ -455,7 +458,7 @@ proc ::aes::Decrypt {Key data} {
 }
 
 # -------------------------------------------------------------------------
-# Fileevent handler for chunked file reading.
+# chan event handler for chunked file reading.
 #
 proc ::aes::Chunk {Key in {out {}} {chunksize 4096}} {
     upvar #0 $Key state
@@ -463,7 +466,7 @@ proc ::aes::Chunk {Key in {out {}} {chunksize 4096}} {
     #puts ||CHUNK.X||i=$in|o=$out|c=$chunksize|eof=[eof $in]
     
     if {[eof $in]} {
-        fileevent $in readable {}
+        chan event $in readable {}
         set state(reading) 0
     }
 
@@ -472,7 +475,7 @@ proc ::aes::Chunk {Key in {out {}} {chunksize 4096}} {
     #puts ||CHUNK.R||i=$in|o=$out|c=$chunksize|eof=[eof $in]||[string length $data]||$data||
 
     # Do nothing when data was read at all.
-    if {![string length $data]} return
+    if {$data eq {}} return
 
     if {[eof $in]} {
         #puts CHUNK.Z
@@ -481,7 +484,7 @@ proc ::aes::Chunk {Key in {out {}} {chunksize 4096}} {
 
     #puts ||CHUNK.P||i=$in|o=$out|c=$chunksize|eof=[eof $in]||[string length $data]||$data||
     
-    if {$out == {}} {
+    if {$out eq {}} {
         append state(output) [$state(cmd) $Key $data]
     } else {
         puts -nonewline $out [$state(cmd) $Key $data]
@@ -494,7 +497,7 @@ proc ::aes::SetOneOf {lst item} {
         set err [join $lst ", "]
         return -code error "invalid mode \"$item\": must be one of $err"
     }
-    return [lindex $lst $ndx]
+    lindex $lst $ndx
 }
 
 proc ::aes::CheckSize {what size thing} {
@@ -522,11 +525,6 @@ proc ::aes::Pop {varname {nth 0}} {
     return $r
 }
 
-proc ::aes::Hex {data} {
-    binary scan $data H* r
-    return $r 
-}
-
 proc ::aes::aes {args} {
     array set opts {-dir encrypt -mode cbc -key {} -in {} -out {} -chunksize 4096 -hex 0}
     set opts(-iv) [string repeat \0 16]
@@ -552,12 +550,12 @@ proc ::aes::aes {args} {
         Pop args
     }
 
-    if {$opts(-key) == {}} {
+    if {$opts(-key) eq {}} {
         return -code error "no key provided: the -key option is required"
     }
 
     set r {}
-    if {$opts(-in) == {}} {
+    if {$opts(-in) eq {}} {
 
         if {[llength $args] != 1} {
             return -code error "wrong \# args:\
@@ -572,7 +570,7 @@ proc ::aes::aes {args} {
             set r [Decrypt $Key $data]
         }
 
-        if {$opts(-out) != {}} {
+        if {$opts(-out) ne {}} {
             puts -nonewline $opts(-out) $r
             set r {}
         }
@@ -599,7 +597,7 @@ proc ::aes::aes {args} {
             set state(cmd) Decrypt
         }
         set state(output) ""
-        fileevent $opts(-in) readable $readcmd
+        chan event $opts(-in) readable $readcmd
         if {[info commands ::tkwait] != {}} {
             tkwait variable [subst $Key](reading)
         } else {
@@ -612,7 +610,7 @@ proc ::aes::aes {args} {
     }
 
     if {$opts(-hex)} {
-        set r [Hex $r]
+        binary scan $r H* r
     }
     return $r
 }
