@@ -15,15 +15,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-#
-# $Id: md5x.tcl,v 1.19 2008/07/04 18:27:00 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::md5 {
-    variable version 2.0.7
-    variable rcsid {$Id: md5x.tcl,v 1.19 2008/07/04 18:27:00 andreas_kupries Exp $}
-    variable accel
+    variable  accel
     array set accel {critcl 0 cryptkit 0 trf 0}
 
     namespace export md5 hmac MD5Init MD5Update MD5Final
@@ -706,7 +702,7 @@ namespace eval ::md5 {
     unset    e
 }
 
-package provide md5 $::md5::version
+package provide md5 2.0.7
 
 # -------------------------------------------------------------------------
 # Local Variables:

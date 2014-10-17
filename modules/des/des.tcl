@@ -17,9 +17,8 @@ if {[catch {package require tclDES 1.0.0}]} {
 }
 
 namespace eval DES {
-    variable version 1.1.0
-    variable rcsid {$Id: des.tcl,v 1.14 2007/08/20 19:58:54 andreas_kupries Exp $}
-    variable uid ; if {![info exists uid]} { set uid 0 }
+    variable uid
+    if {![info exists uid]} { set uid 0 }
 }
 
 proc ::DES::Init {mode key iv {weak 0}} {
@@ -263,7 +262,7 @@ proc ::DES::des {args} {
 
 # -------------------------------------------------------------------------
 
-package provide des $DES::version
+package provide des 1.1.0
 
 # -------------------------------------------------------------------------
 #
