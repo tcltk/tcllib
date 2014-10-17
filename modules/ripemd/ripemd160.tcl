@@ -22,17 +22,13 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-#
-# $Id: ripemd160.tcl,v 1.8 2009/05/07 01:12:59 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 #catch {package require ripemdc 1.0};   # tcllib critcl alternative
 
 namespace eval ::ripemd {
     namespace eval ripemd160 {
-        variable version 1.0.5
-        variable rcsid {$Id: ripemd160.tcl,v 1.8 2009/05/07 01:12:59 patthoyts Exp $}
-        variable accel
+        variable  accel
         array set accel {cryptkit 0 trf 0}
 
         variable uid
@@ -859,7 +855,7 @@ namespace eval ::ripemd::ripemd160 {
     unset e
 }
 
-package provide ripemd160 $::ripemd::ripemd160::version
+package provide ripemd160 1.0.5
 
 # -------------------------------------------------------------------------
 # Local Variables:

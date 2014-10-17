@@ -10,16 +10,16 @@
 # or FITNESS FOR A PARTICULAR PURPOSE.  See the file 'license.terms' for
 # more details.
 # -------------------------------------------------------------------------
+# @mdgen EXCLUDE: clients/mail-test.tcl
 
 package require Tcl 8.3;                # tcl minimum version
 package require logger;                 # tcllib 1.3
 package require mime;                   # tcllib
 
-# @mdgen EXCLUDE: clients/mail-test.tcl
+package provide smtpd 1.5
 
 namespace eval ::smtpd {
-    variable rcsid {$Id: smtpd.tcl,v 1.22 2011/11/17 08:00:45 andreas_kupries Exp $}
-    variable version 1.5
+    variable version [package present smtpd]
     variable stopped
 
     namespace export start stop configure
@@ -917,9 +917,6 @@ proc ::smtpd::tlscallback {option args} {
 }
 
 # -------------------------------------------------------------------------
-
-package provide smtpd $smtpd::version
-
 # -------------------------------------------------------------------------
 # Local variables:
 #   mode: tcl

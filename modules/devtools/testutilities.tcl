@@ -3,7 +3,6 @@
 # Copyright (c) 2006, Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 namespace eval ::tcllib::testutils {
-    variable version 1.2
     variable self    [file dirname [file join [pwd] [info script]]]
     variable tcllib  [file dirname $self]
     variable tag     ""
@@ -718,6 +717,6 @@ proc TestFilesGlob {pattern} {
 ::tcllib::testutils::SaveEnvironment
 
 # ### ### ### ######### ######### #########
-package provide tcllib::testutils $::tcllib::testutils::version
+package provide tcllib::testutils 1.2
 puts "- tcllib::testutils [package present tcllib::testutils]"
 return
