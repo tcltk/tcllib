@@ -23,7 +23,7 @@
 package require Tcl 8.5
 
 namespace eval ::aes {
-    variable version 1.2
+    variable version 1.2.1
     variable rcsid {$Id: aes.tcl,v 1.7 2010/07/06 19:39:00 andreas_kupries Exp $}
     variable uid ; if {![info exists uid]} { set uid 0 }
 
