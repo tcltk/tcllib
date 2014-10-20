@@ -18,10 +18,6 @@
 package require Tcl 8.3
 
 namespace eval tepam {
-
-   # This is the following TEPAM version:
-   variable version 0.5.0
-   
    # Exports the major commands from this package:
    namespace export procedure argument_dialogbox
 
@@ -2713,7 +2709,7 @@ namespace eval tepam {
 }; # End namespace tepam
 
 # Specify the TEPAM version that is provided by this file:
-package provide tepam $::tepam::version
+package provide tepam 0.5
 
 ##########################################################################
 # Id: tepam.tcl

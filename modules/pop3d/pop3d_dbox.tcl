@@ -10,8 +10,6 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: pop3d_dbox.tcl,v 1.12 2005/09/28 04:51:23 andreas_kupries Exp $
 
 package require mime ; # tcllib | mime token is result of "get".
 package require log  ; # tcllib | Logging package
@@ -42,8 +40,6 @@ namespace eval ::pop3d::dbox {
 	    "stat"	\
 	    "unlock"	\
 	    ]
-
-    variable version ; set version 1.0.2
 }
 
 
@@ -486,4 +482,4 @@ proc ::pop3d::dbox::CheckDir {name} {
 ##########################
 # Module initialization
 
-package provide pop3d::dbox $::pop3d::dbox::version
+package provide pop3d::dbox 1.0.2

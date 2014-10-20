@@ -8,17 +8,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-#
-# $Id: ip.tcl,v 1.14 2010/08/16 17:35:18 andreas_kupries Exp $
 
 # @mdgen EXCLUDE: ipMoreC.tcl
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ip {
-    variable version 1.2.2
-    variable rcsid {$Id: ip.tcl,v 1.14 2010/08/16 17:35:18 andreas_kupries Exp $}
-
     namespace export is version normalize equal type contract mask collapse subtract
     #catch {namespace ensemble create}
 
@@ -550,7 +545,7 @@ source [file join [file dirname [info script]] ipMore.tcl]
 
 # -------------------------------------------------------------------------
 
-package provide ip $::ip::version
+package provide ip 1.2.2
 
 # -------------------------------------------------------------------------
 # Local Variables:

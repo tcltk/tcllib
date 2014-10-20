@@ -4,20 +4,16 @@
 #
 # Copyright (c) 2001-2003 by David N. Welton <davidw@dedasys.com>.
 # This code may be distributed under the same terms as Tcl.
-#
-# $Id: irc.tcl,v 1.27 2008/08/05 20:40:04 andreas_kupries Exp $
 
 package require Tcl 8.3
 
 namespace eval ::irc {
-    variable version 0.6.1
-
     # counter used to differentiate connections
     variable conn 0
     variable config
     variable irctclfile [info script]
     array set config {
-        debug 0
+        debug  0
         logger 0
     }
 }
@@ -522,6 +518,6 @@ proc ::irc::connection { args } {
 
 # -------------------------------------------------------------------------
 
-package provide irc $::irc::version
+package provide irc 0.6.1
 
 # -------------------------------------------------------------------------
