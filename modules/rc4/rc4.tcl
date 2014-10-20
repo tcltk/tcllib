@@ -8,17 +8,12 @@
 # The algorithm is a pseudo-random number generator with the output of
 # the PRNG being xored with the plaintext stream. Decryption is done
 # by feeding the ciphertext as input with the same key.
-#
-# $Id: rc4.tcl,v 1.7 2005/12/20 16:19:38 patthoyts Exp $
 
 package require Tcl 8.2
 
 # @mdgen EXCLUDE: rc4c.tcl
 
 namespace eval ::rc4 {
-    variable version 1.1.0
-    variable rcsid {$Id: rc4.tcl,v 1.7 2005/12/20 16:19:38 patthoyts Exp $}
-
     namespace export rc4
 
     variable uid
@@ -418,7 +413,7 @@ namespace eval ::rc4 {
     }
 }
 
-package provide rc4 $::rc4::version
+package provide rc4 1.1.0
 
 # -------------------------------------------------------------------------
 # Local variables:

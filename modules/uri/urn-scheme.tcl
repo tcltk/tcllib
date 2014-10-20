@@ -11,9 +11,7 @@
 package require uri      1.1.2
 
 namespace eval ::uri {}
-namespace eval ::uri::urn {
-    variable version 1.0.3
-}
+namespace eval ::uri::urn {}
 
 # -------------------------------------------------------------------------
 
@@ -137,7 +135,7 @@ if { [package vcompare [package provide Tcl] 8.3] < 0 } {
 
 # -------------------------------------------------------------------------
 
-package provide uri::urn $::uri::urn::version
+package provide uri::urn 1.0.3
 
 # -------------------------------------------------------------------------
 # Local Variables:

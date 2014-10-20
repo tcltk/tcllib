@@ -20,16 +20,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-#
-
 # @mdgen EXCLUDE: sha256c.tcl
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::sha2 {
-    variable version 1.0.3
-    variable rcsid {$Id: sha256.tcl,v 1.7 2010/07/06 20:16:39 andreas_kupries Exp $}
-
     variable  accel
     array set accel {tcl 0 critcl 0}
     variable  loaded {}
@@ -828,7 +823,7 @@ namespace eval ::sha2 {
     unset e
 }
 
-package provide sha256 $::sha2::version
+package provide sha256 1.0.3
 
 # -------------------------------------------------------------------------
 # Local Variables:
