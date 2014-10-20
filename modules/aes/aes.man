@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset AES_VERSION 1.2]
+[vset AES_VERSION 1.2.1]
 [manpage_begin aes n [vset AES_VERSION]]
 [see_also blowfish(n)]
 [see_also des(n)]
