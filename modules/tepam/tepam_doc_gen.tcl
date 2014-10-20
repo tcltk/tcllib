@@ -15,10 +15,6 @@ package require Tcl 8.3
 package require tepam 0.5
 
 namespace eval tepam::doc_gen {
-
-   # This is the following TEPAM doc generation version:
-   variable version 0.1.1
-   
    # Exports the major commands from this package:
    namespace export doc_gen
 
@@ -737,7 +733,7 @@ namespace eval tepam::doc_gen {
 }; # End namespace tepam::doc
 
 # Specify the TEPAM version that is provided by this file:
-package provide tepam::doc_gen $::tepam::doc_gen::version
+package provide tepam::doc_gen 0.1.1
 
 ##########################################################################
 # Id: tepam_doc.tcl
