@@ -21,7 +21,8 @@ package require Tcl 8.5
 namespace eval ::debug {
     namespace export -clear \
 	define on off prefix suffix header trailer \
-	names 2array level setting parray pdict
+	names 2array level setting parray pdict \
+	nl tab hexl
     namespace ensemble create -subcommands {}
 }
 
@@ -206,7 +207,12 @@ proc ::debug::setting {args} {
 }
 
 # # ## ### ##### ######## ############# #####################
-## Convenience command. Format an array as multi-line message.
+## Convenience commands.
+# Format arrays and dicts as multi-line message.
+# Insert newlines and tabs.
+
+proc ::debug::nl  {} { return \n }
+proc ::debug::tab {} { return \t }
 
 proc ::debug::parray {a {pattern *}} {
     upvar 1 $a array
@@ -227,12 +233,53 @@ proc ::debug::pdict {dict {pattern *}} {
     set maxl [expr {$maxl + 2}]
     set lines {}
     foreach name $names {
-	set nameString [format %s(%s) $name]
+	set nameString [format (%s) $name]
 	lappend lines [format "%-*s = %s" \
 			   $maxl $nameString \
 			   [dict get $dict $name]]
     }
     return [join $lines \n]
+}
+
+proc ::debug::hexl {data {prefix {}}} {
+    set r {}
+
+    # Convert the data to hex and to characters.
+    binary scan $data H*@0a* hexa asciia
+
+    # Replace non-printing characters in the data with dots.
+    regsub -all -- {[^[:graph:] ]} $asciia {.} asciia
+
+    # Pad with spaces to a full multiple of 32/16.
+    set n [expr {[string length $hexa] % 32}]
+    if {$n < 32} { append hexa   [string repeat { } [expr {32-$n}]] }
+    #puts "pad H [expr {32-$n}]"
+
+    set n [expr {[string length $asciia] % 32}]
+    if {$n < 16} { append asciia [string repeat { } [expr {16-$n}]] }
+    #puts "pad A [expr {32-$n}]"
+
+    # Reassemble formatted, in groups of 16 bytes/characters.
+    # The hex part is handled in groups of 32 nibbles.
+    set addr 0
+    while {[string length $hexa]} {
+	# Get front group of 16 bytes each.
+	set hex    [string range $hexa   0 31]
+	set ascii  [string range $asciia 0 15]
+	# Prep for next iteration
+	set hexa   [string range $hexa   32 end]  
+	set asciia [string range $asciia 16 end]
+
+	# Convert the hex to pairs of hex digits
+	regsub -all -- {..} $hex {& } hex
+
+	# Add the hex and latin-1 data to the result buffer
+	append r $prefix [format %04x $addr] { | } $hex { |} $ascii |\n
+	incr addr 16
+    }
+
+    # And done
+    return $r
 }
 
 # # ## ### ##### ######## ############# #####################
@@ -255,5 +302,5 @@ namespace eval debug {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide debug 1.0.2
+package provide debug 1.0.5
 return

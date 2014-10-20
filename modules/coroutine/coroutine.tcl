@@ -2,7 +2,7 @@
 # # ## ### ##### ######## #############
 
 # @@ Meta Begin
-# Package coroutine 1
+# Package coroutine 1.1.1
 # Meta platform        tcl
 # Meta require         {Tcl 8.6}
 # Meta license         BSD
@@ -37,7 +37,7 @@
 # Meta description     outside of a coroutine.
 # @@ Meta End
 
-# Copyright (c) 2009 Andreas Kupries
+# Copyright (c) 2009,2014 Andreas Kupries
 # Copyright (c) 2009 Colin Macleod
 # Copyright (c) 2009 Colin McCormack
 # Copyright (c) 2009 Donal Fellows
@@ -181,7 +181,7 @@ proc ::coroutine::util::gets {args} {
         ::chan configure $chan -blocking 0
 
 	try {
-	    ::chan gets $chan line
+	    set result [::chan gets $chan line]
 	} on error {result opts} {
             ::chan configure $chan -blocking $blocking
             return -code $result -options $opts
@@ -248,13 +248,13 @@ proc ::coroutine::util::read {args} {
 	    ::chan configure $chan -blocking 0
 
 	    try {
-		::chan read $chan
+		set result [::chan read $chan]
 	    } on error {result opts} {
 		::chan configure $chan -blocking $blocking
 		return -code $result -options $opts
 	    }
 
-	    if {[fblocked $chan]} {
+	    if {[::chan blocked $chan]} {
 		::chan event $chan readable [list [info coroutine]]
 		yield
 		::chan event $chan readable {}
@@ -278,7 +278,7 @@ proc ::coroutine::util::read {args} {
 	    ::chan configure $chan -blocking 0
 
 	    try {
-		::chan read $chan $left
+		set result [::chan read $chan $left]
 	    } on error {result opts} {
 		::chan configure $chan -blocking $blocking
 		return -code $result -options $opts
@@ -373,5 +373,5 @@ namespace eval ::coroutine::util {
 
 # # ## ### ##### ######## #############
 ## Ready
-package provide coroutine 1.1
+package provide coroutine 1.1.1
 return

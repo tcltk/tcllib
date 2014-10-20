@@ -108,7 +108,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">math::special(n) 0.2 tcllib &quot;Tcl Math Library&quot;</h1>
+<h1 class="title">math::special(n) 0.3 tcllib &quot;Tcl Math Library&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>math::special - Special mathematical functions</p>
 </div>
@@ -131,38 +131,39 @@
 <div class="synopsis">
 <ul class="requirements">
 <li>package require <b class="pkgname">Tcl <span class="opt">?8.3?</span></b></li>
-<li>package require <b class="pkgname">math::special <span class="opt">?0.2?</span></b></li>
+<li>package require <b class="pkgname">math::special <span class="opt">?0.3?</span></b></li>
 </ul>
 <ul class="syntax">
 <li><a href="#1"><b class="cmd">::math::special::Beta</b> <i class="arg">x</i> <i class="arg">y</i></a></li>
 <li><a href="#2"><b class="cmd">::math::special::Gamma</b> <i class="arg">x</i> <i class="arg">y</i></a></li>
 <li><a href="#3"><b class="cmd">::math::special::erf</b> <i class="arg">x</i></a></li>
 <li><a href="#4"><b class="cmd">::math::special::erfc</b> <i class="arg">x</i></a></li>
-<li><a href="#5"><b class="cmd">::math::special::J0</b> <i class="arg">x</i></a></li>
-<li><a href="#6"><b class="cmd">::math::special::J1</b> <i class="arg">x</i></a></li>
-<li><a href="#7"><b class="cmd">::math::special::Jn</b> <i class="arg">n</i> <i class="arg">x</i></a></li>
-<li><a href="#8"><b class="cmd">::math::special::J1/2</b> <i class="arg">x</i></a></li>
-<li><a href="#9"><b class="cmd">::math::special::J-1/2</b> <i class="arg">x</i></a></li>
-<li><a href="#10"><b class="cmd">::math::special::I_n</b> <i class="arg">x</i></a></li>
-<li><a href="#11"><b class="cmd">::math::special::cn</b> <i class="arg">u</i> <i class="arg">k</i></a></li>
-<li><a href="#12"><b class="cmd">::math::special::dn</b> <i class="arg">u</i> <i class="arg">k</i></a></li>
-<li><a href="#13"><b class="cmd">::math::special::sn</b> <i class="arg">u</i> <i class="arg">k</i></a></li>
-<li><a href="#14"><b class="cmd">::math::special::elliptic_K</b> <i class="arg">k</i></a></li>
-<li><a href="#15"><b class="cmd">::math::special::elliptic_E</b> <i class="arg">k</i></a></li>
-<li><a href="#16"><b class="cmd">::math::special::exponential_Ei</b> <i class="arg">x</i></a></li>
-<li><a href="#17"><b class="cmd">::math::special::exponential_En</b> <i class="arg">n</i> <i class="arg">x</i></a></li>
-<li><a href="#18"><b class="cmd">::math::special::exponential_li</b> <i class="arg">x</i></a></li>
-<li><a href="#19"><b class="cmd">::math::special::exponential_Ci</b> <i class="arg">x</i></a></li>
-<li><a href="#20"><b class="cmd">::math::special::exponential_Si</b> <i class="arg">x</i></a></li>
-<li><a href="#21"><b class="cmd">::math::special::exponential_Chi</b> <i class="arg">x</i></a></li>
-<li><a href="#22"><b class="cmd">::math::special::exponential_Shi</b> <i class="arg">x</i></a></li>
-<li><a href="#23"><b class="cmd">::math::special::fresnel_C</b> <i class="arg">x</i></a></li>
-<li><a href="#24"><b class="cmd">::math::special::fresnel_S</b> <i class="arg">x</i></a></li>
-<li><a href="#25"><b class="cmd">::math::special::sinc</b> <i class="arg">x</i></a></li>
-<li><a href="#26"><b class="cmd">::math::special::legendre</b> <i class="arg">n</i></a></li>
-<li><a href="#27"><b class="cmd">::math::special::chebyshev</b> <i class="arg">n</i></a></li>
-<li><a href="#28"><b class="cmd">::math::special::laguerre</b> <i class="arg">alpha</i> <i class="arg">n</i></a></li>
-<li><a href="#29"><b class="cmd">::math::special::hermite</b> <i class="arg">n</i></a></li>
+<li><a href="#5"><b class="cmd">::math::special::invnorm</b> <i class="arg">p</i></a></li>
+<li><a href="#6"><b class="cmd">::math::special::J0</b> <i class="arg">x</i></a></li>
+<li><a href="#7"><b class="cmd">::math::special::J1</b> <i class="arg">x</i></a></li>
+<li><a href="#8"><b class="cmd">::math::special::Jn</b> <i class="arg">n</i> <i class="arg">x</i></a></li>
+<li><a href="#9"><b class="cmd">::math::special::J1/2</b> <i class="arg">x</i></a></li>
+<li><a href="#10"><b class="cmd">::math::special::J-1/2</b> <i class="arg">x</i></a></li>
+<li><a href="#11"><b class="cmd">::math::special::I_n</b> <i class="arg">x</i></a></li>
+<li><a href="#12"><b class="cmd">::math::special::cn</b> <i class="arg">u</i> <i class="arg">k</i></a></li>
+<li><a href="#13"><b class="cmd">::math::special::dn</b> <i class="arg">u</i> <i class="arg">k</i></a></li>
+<li><a href="#14"><b class="cmd">::math::special::sn</b> <i class="arg">u</i> <i class="arg">k</i></a></li>
+<li><a href="#15"><b class="cmd">::math::special::elliptic_K</b> <i class="arg">k</i></a></li>
+<li><a href="#16"><b class="cmd">::math::special::elliptic_E</b> <i class="arg">k</i></a></li>
+<li><a href="#17"><b class="cmd">::math::special::exponential_Ei</b> <i class="arg">x</i></a></li>
+<li><a href="#18"><b class="cmd">::math::special::exponential_En</b> <i class="arg">n</i> <i class="arg">x</i></a></li>
+<li><a href="#19"><b class="cmd">::math::special::exponential_li</b> <i class="arg">x</i></a></li>
+<li><a href="#20"><b class="cmd">::math::special::exponential_Ci</b> <i class="arg">x</i></a></li>
+<li><a href="#21"><b class="cmd">::math::special::exponential_Si</b> <i class="arg">x</i></a></li>
+<li><a href="#22"><b class="cmd">::math::special::exponential_Chi</b> <i class="arg">x</i></a></li>
+<li><a href="#23"><b class="cmd">::math::special::exponential_Shi</b> <i class="arg">x</i></a></li>
+<li><a href="#24"><b class="cmd">::math::special::fresnel_C</b> <i class="arg">x</i></a></li>
+<li><a href="#25"><b class="cmd">::math::special::fresnel_S</b> <i class="arg">x</i></a></li>
+<li><a href="#26"><b class="cmd">::math::special::sinc</b> <i class="arg">x</i></a></li>
+<li><a href="#27"><b class="cmd">::math::special::legendre</b> <i class="arg">n</i></a></li>
+<li><a href="#28"><b class="cmd">::math::special::chebyshev</b> <i class="arg">n</i></a></li>
+<li><a href="#29"><b class="cmd">::math::special::laguerre</b> <i class="arg">alpha</i> <i class="arg">n</i></a></li>
+<li><a href="#30"><b class="cmd">::math::special::hermite</b> <i class="arg">n</i></a></li>
 </ul>
 </div>
 </div>
@@ -207,7 +208,10 @@ integrals    | E           | 0 &lt;= x &lt; 1  |     --      |   &lt; 1.0e-6
              |             |             |             |
 Error        | erf         |             |     --      |
 functions    | erfc        |             |             |
-             | ierfc_n     |             |             |
+             |             |             |             |
+Inverse      | invnorm     | 0 &lt; x &lt; 1   |     --      |   &lt; 1.2e-9
+normal       |             |             |             |
+distribution |             |             |             |
              |             |             |             |
 Exponential  | Ei          |  x != 0     |     --      |   &lt; 1.0e-10 (relative)
 integrals    | En          |  x &gt;  0     |     --      |   as Ei
@@ -273,21 +277,28 @@ the primary functions.</p>
 <dt>float <i class="arg">x</i></dt>
 <dd><p>Argument for the complementary error function</p></dd>
 </dl></dd>
-<dt><a name="5"><b class="cmd">::math::special::J0</b> <i class="arg">x</i></a></dt>
+<dt><a name="5"><b class="cmd">::math::special::invnorm</b> <i class="arg">p</i></a></dt>
+<dd><p>Compute the inverse of the normal distribution function for argument &quot;p&quot;</p>
+<dl class="arguments">
+<dt>float <i class="arg">p</i></dt>
+<dd><p>Argument for the inverse normal distribution function
+(p must be greater than 0 and lower than 1)</p></dd>
+</dl></dd>
+<dt><a name="6"><b class="cmd">::math::special::J0</b> <i class="arg">x</i></a></dt>
 <dd><p>Compute the zeroth-order Bessel function of the first kind for the
 argument &quot;x&quot;</p>
 <dl class="arguments">
 <dt>float <i class="arg">x</i></dt>
 <dd><p>Argument for the Bessel function</p></dd>
 </dl></dd>
-<dt><a name="6"><b class="cmd">::math::special::J1</b> <i class="arg">x</i></a></dt>
+<dt><a name="7"><b class="cmd">::math::special::J1</b> <i class="arg">x</i></a></dt>
 <dd><p>Compute the first-order Bessel function of the first kind for the
 argument &quot;x&quot;</p>
 <dl class="arguments">
 <dt>float <i class="arg">x</i></dt>
 <dd><p>Argument for the Bessel function</p></dd>
 </dl></dd>
-<dt><a name="7"><b class="cmd">::math::special::Jn</b> <i class="arg">n</i> <i class="arg">x</i></a></dt>
+<dt><a name="8"><b class="cmd">::math::special::Jn</b> <i class="arg">n</i> <i class="arg">x</i></a></dt>
 <dd><p>Compute the nth-order Bessel function of the first kind for the
 argument &quot;x&quot;</p>
 <dl class="arguments">
@@ -296,21 +307,21 @@ argument &quot;x&quot;</p>
 <dt>float <i class="arg">x</i></dt>
 <dd><p>Argument for the Bessel function</p></dd>
 </dl></dd>
-<dt><a name="8"><b class="cmd">::math::special::J1/2</b> <i class="arg">x</i></a></dt>
+<dt><a name="9"><b class="cmd">::math::special::J1/2</b> <i class="arg">x</i></a></dt>
 <dd><p>Compute the half-order Bessel function of the first kind for the
 argument &quot;x&quot;</p>
 <dl class="arguments">
 <dt>float <i class="arg">x</i></dt>
 <dd><p>Argument for the Bessel function</p></dd>
 </dl></dd>
-<dt><a name="9"><b class="cmd">::math::special::J-1/2</b> <i class="arg">x</i></a></dt>
+<dt><a name="10"><b class="cmd">::math::special::J-1/2</b> <i class="arg">x</i></a></dt>
 <dd><p>Compute the minus-half-order Bessel function of the first kind for the
 argument &quot;x&quot;</p>
 <dl class="arguments">
 <dt>float <i class="arg">x</i></dt>
 <dd><p>Argument for the Bessel function</p></dd>
 </dl></dd>
-<dt><a name="10"><b class="cmd">::math::special::I_n</b> <i class="arg">x</i></a></dt>
+<dt><a name="11"><b class="cmd">::math::special::I_n</b> <i class="arg">x</i></a></dt>
 <dd><p>Compute the modified Bessel function of the first kind of order n for
 the argument &quot;x&quot;</p>
 <dl class="arguments">
@@ -319,7 +330,7 @@ the argument &quot;x&quot;</p>
 <dt>float <i class="arg">x</i></dt>
 <dd><p>Argument for the function</p></dd>
 </dl></dd>
-<dt><a name="11"><b class="cmd">::math::special::cn</b> <i class="arg">u</i> <i class="arg">k</i></a></dt>
+<dt><a name="12"><b class="cmd">::math::special::cn</b> <i class="arg">u</i> <i class="arg">k</i></a></dt>
 <dd><p>Compute the elliptic function <em>cn</em> for the argument &quot;u&quot; and
 parameter &quot;k&quot;.</p>
 <dl class="arguments">
@@ -328,7 +339,7 @@ parameter &quot;k&quot;.</p>
 <dt>float <i class="arg">k</i></dt>
 <dd><p>Parameter</p></dd>
 </dl></dd>
-<dt><a name="12"><b class="cmd">::math::special::dn</b> <i class="arg">u</i> <i class="arg">k</i></a></dt>
+<dt><a name="13"><b class="cmd">::math::special::dn</b> <i class="arg">u</i> <i class="arg">k</i></a></dt>
 <dd><p>Compute the elliptic function <em>dn</em> for the argument &quot;u&quot; and
 parameter &quot;k&quot;.</p>
 <dl class="arguments">
@@ -337,7 +348,7 @@ parameter &quot;k&quot;.</p>
 <dt>float <i class="arg">k</i></dt>
 <dd><p>Parameter</p></dd>
 </dl></dd>
-<dt><a name="13"><b class="cmd">::math::special::sn</b> <i class="arg">u</i> <i class="arg">k</i></a></dt>
+<dt><a name="14"><b class="cmd">::math::special::sn</b> <i class="arg">u</i> <i class="arg">k</i></a></dt>
 <dd><p>Compute the elliptic function <em>sn</em> for the argument &quot;u&quot; and
 parameter &quot;k&quot;.</p>
 <dl class="arguments">
@@ -346,28 +357,28 @@ parameter &quot;k&quot;.</p>
 <dt>float <i class="arg">k</i></dt>
 <dd><p>Parameter</p></dd>
 </dl></dd>
-<dt><a name="14"><b class="cmd">::math::special::elliptic_K</b> <i class="arg">k</i></a></dt>
+<dt><a name="15"><b class="cmd">::math::special::elliptic_K</b> <i class="arg">k</i></a></dt>
 <dd><p>Compute the complete elliptic integral of the first kind
 for the argument &quot;k&quot;</p>
 <dl class="arguments">
 <dt>float <i class="arg">k</i></dt>
 <dd><p>Argument for the function</p></dd>
 </dl></dd>
-<dt><a name="15"><b class="cmd">::math::special::elliptic_E</b> <i class="arg">k</i></a></dt>
+<dt><a name="16"><b class="cmd">::math::special::elliptic_E</b> <i class="arg">k</i></a></dt>
 <dd><p>Compute the complete elliptic integral of the second kind
 for the argument &quot;k&quot;</p>
 <dl class="arguments">
 <dt>float <i class="arg">k</i></dt>
 <dd><p>Argument for the function</p></dd>
 </dl></dd>
-<dt><a name="16"><b class="cmd">::math::special::exponential_Ei</b> <i class="arg">x</i></a></dt>
+<dt><a name="17"><b class="cmd">::math::special::exponential_Ei</b> <i class="arg">x</i></a></dt>
 <dd><p>Compute the exponential integral of the second kind
 for the argument &quot;x&quot;</p>
 <dl class="arguments">
 <dt>float <i class="arg">x</i></dt>
 <dd><p>Argument for the function (x != 0)</p></dd>
 </dl></dd>
-<dt><a name="17"><b class="cmd">::math::special::exponential_En</b> <i class="arg">n</i> <i class="arg">x</i></a></dt>
+<dt><a name="18"><b class="cmd">::math::special::exponential_En</b> <i class="arg">n</i> <i class="arg">x</i></a></dt>
 <dd><p>Compute the exponential integral of the first kind
 for the argument &quot;x&quot; and order n</p>
 <dl class="arguments">
@@ -376,68 +387,68 @@ for the argument &quot;x&quot; and order n</p>
 <dt>float <i class="arg">x</i></dt>
 <dd><p>Argument for the function (x &gt;= 0)</p></dd>
 </dl></dd>
-<dt><a name="18"><b class="cmd">::math::special::exponential_li</b> <i class="arg">x</i></a></dt>
+<dt><a name="19"><b class="cmd">::math::special::exponential_li</b> <i class="arg">x</i></a></dt>
 <dd><p>Compute the logarithmic integral for the argument &quot;x&quot;</p>
 <dl class="arguments">
 <dt>float <i class="arg">x</i></dt>
 <dd><p>Argument for the function (x &gt; 0)</p></dd>
 </dl></dd>
-<dt><a name="19"><b class="cmd">::math::special::exponential_Ci</b> <i class="arg">x</i></a></dt>
+<dt><a name="20"><b class="cmd">::math::special::exponential_Ci</b> <i class="arg">x</i></a></dt>
 <dd><p>Compute the cosine integral for the argument &quot;x&quot;</p>
 <dl class="arguments">
 <dt>float <i class="arg">x</i></dt>
 <dd><p>Argument for the function (x &gt; 0)</p></dd>
 </dl></dd>
-<dt><a name="20"><b class="cmd">::math::special::exponential_Si</b> <i class="arg">x</i></a></dt>
+<dt><a name="21"><b class="cmd">::math::special::exponential_Si</b> <i class="arg">x</i></a></dt>
 <dd><p>Compute the sine integral for the argument &quot;x&quot;</p>
 <dl class="arguments">
 <dt>float <i class="arg">x</i></dt>
 <dd><p>Argument for the function (x &gt; 0)</p></dd>
 </dl></dd>
-<dt><a name="21"><b class="cmd">::math::special::exponential_Chi</b> <i class="arg">x</i></a></dt>
+<dt><a name="22"><b class="cmd">::math::special::exponential_Chi</b> <i class="arg">x</i></a></dt>
 <dd><p>Compute the hyperbolic cosine integral for the argument &quot;x&quot;</p>
 <dl class="arguments">
 <dt>float <i class="arg">x</i></dt>
 <dd><p>Argument for the function (x &gt; 0)</p></dd>
 </dl></dd>
-<dt><a name="22"><b class="cmd">::math::special::exponential_Shi</b> <i class="arg">x</i></a></dt>
+<dt><a name="23"><b class="cmd">::math::special::exponential_Shi</b> <i class="arg">x</i></a></dt>
 <dd><p>Compute the hyperbolic sine integral for the argument &quot;x&quot;</p>
 <dl class="arguments">
 <dt>float <i class="arg">x</i></dt>
 <dd><p>Argument for the function (x &gt; 0)</p></dd>
 </dl></dd>
-<dt><a name="23"><b class="cmd">::math::special::fresnel_C</b> <i class="arg">x</i></a></dt>
+<dt><a name="24"><b class="cmd">::math::special::fresnel_C</b> <i class="arg">x</i></a></dt>
 <dd><p>Compute the Fresnel cosine integral for real argument x</p>
 <dl class="arguments">
 <dt>float <i class="arg">x</i></dt>
 <dd><p>Argument for the function</p></dd>
 </dl></dd>
-<dt><a name="24"><b class="cmd">::math::special::fresnel_S</b> <i class="arg">x</i></a></dt>
+<dt><a name="25"><b class="cmd">::math::special::fresnel_S</b> <i class="arg">x</i></a></dt>
 <dd><p>Compute the Fresnel sine integral for real argument x</p>
 <dl class="arguments">
 <dt>float <i class="arg">x</i></dt>
 <dd><p>Argument for the function</p></dd>
 </dl></dd>
-<dt><a name="25"><b class="cmd">::math::special::sinc</b> <i class="arg">x</i></a></dt>
+<dt><a name="26"><b class="cmd">::math::special::sinc</b> <i class="arg">x</i></a></dt>
 <dd><p>Compute the sinc function for real argument x</p>
 <dl class="arguments">
 <dt>float <i class="arg">x</i></dt>
 <dd><p>Argument for the function</p></dd>
 </dl></dd>
-<dt><a name="26"><b class="cmd">::math::special::legendre</b> <i class="arg">n</i></a></dt>
+<dt><a name="27"><b class="cmd">::math::special::legendre</b> <i class="arg">n</i></a></dt>
 <dd><p>Return the Legendre polynomial of degree n
 (see <span class="sectref"><a href="#section4">THE ORTHOGONAL POLYNOMIALS</a></span>)</p>
 <dl class="arguments">
 <dt>int <i class="arg">n</i></dt>
 <dd><p>Degree of the polynomial</p></dd>
 </dl></dd>
-<dt><a name="27"><b class="cmd">::math::special::chebyshev</b> <i class="arg">n</i></a></dt>
+<dt><a name="28"><b class="cmd">::math::special::chebyshev</b> <i class="arg">n</i></a></dt>
 <dd><p>Return the Chebyshev polynomial of degree n (of the first kind)</p>
 <dl class="arguments">
 <dt>int <i class="arg">n</i></dt>
 <dd><p>Degree of the polynomial</p></dd>
 </dl></dd>
-<dt><a name="28"><b class="cmd">::math::special::laguerre</b> <i class="arg">alpha</i> <i class="arg">n</i></a></dt>
+<dt><a name="29"><b class="cmd">::math::special::laguerre</b> <i class="arg">alpha</i> <i class="arg">n</i></a></dt>
 <dd><p>Return the Laguerre polynomial of degree n with parameter alpha</p>
 <dl class="arguments">
 <dt>float <i class="arg">alpha</i></dt>
@@ -445,7 +456,7 @@ for the argument &quot;x&quot; and order n</p>
 <dt>int <i class="arg">n</i></dt>
 <dd><p>Degree of the polynomial</p></dd>
 </dl></dd>
-<dt><a name="29"><b class="cmd">::math::special::hermite</b> <i class="arg">n</i></a></dt>
+<dt><a name="30"><b class="cmd">::math::special::hermite</b> <i class="arg">n</i></a></dt>
 <dd><p>Return the Hermite polynomial of degree n</p>
 <dl class="arguments">
 <dt>int <i class="arg">n</i></dt>

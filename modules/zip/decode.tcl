@@ -40,6 +40,15 @@ proc ::zipfile::decode::content {in} {
 # ### ### ### ######### ######### #########
 ##
 
+proc ::zipfile::decode::iszip {fname} {
+    if {[catch {
+	LocateEnd $fname
+    } msg]} {
+	return 0
+    }
+    return 1
+}
+
 proc ::zipfile::decode::open {fname} {
     variable eoa
     if {[catch {
@@ -180,7 +189,7 @@ proc ::zipfile::decode::CopyFile {src fdv dst} {
 
 	file attributes $dst -permissions \
 	    [string map {0 --- 1 --x 2 -w- 3 -wx 4 r-- 5 r-x 6 rw- 7 rwx} \
-		 [format %o [expr {($fd(efattr) >> 16) & 0x1ff}]]]
+		 [format %03o [expr {($fd(efattr) >> 16) & 0x1ff}]]]
     }
 
     # FUTURE: Run crc checksum on created file and compare to the
@@ -666,5 +675,5 @@ proc ::zipfile::decode::LocateEnd {path} {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::decode 0.4
+package provide zipfile::decode 0.6.1
 return

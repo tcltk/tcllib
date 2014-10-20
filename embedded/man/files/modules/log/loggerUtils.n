@@ -361,16 +361,20 @@ input the return of \fBlogger::init\fR\&.
 Type of the appender to use\&.
 One of \fBconsole\fR, \fBcolorConsole\fR\&.
 .TP
-\fB-conversionPattern\fR pattern
-See \fB::logger::utils::createFormatCmd\fR for the
-format of the pattern\&. If this option is not provided
-the default pattern
+\fB-appenderArgs\fR appenderArgs
+Additional arguments to apply to the appender\&.
+The argument of the option is a list of options
+and their arguments\&.
+.sp
+For example
 .CS
 
-[%d] [%c] [%M] [%p] %m
+
+logger::utils::applyAppender -serviceCmd $log -appender console -appenderArgs {-conversionPattern {\\[%M\\] \\[%p\\] - %m}}
+
 .CE
 .IP
-is used\&.
+The usual Tcl quoting rules apply\&.
 .TP
 \fB-levels\fR levelList
 The list of levels to apply this appender to\&. If not specified all

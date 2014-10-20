@@ -1,5 +1,5 @@
 # -*- tcl -*-
-# Copyright (c) 2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2014 Andreas Kupries <andreas_kupries@sourceforge.net>
 
 # Verification of serialized parsing expressions, conversion
 # between such and other data structures, and their construction.
@@ -19,10 +19,10 @@ namespace eval ::pt::pe {
 	bottomup topdown print equal \
 	\
 	epsilon dot alnum alpha ascii digit graph lower printable \
-	punct space upper wordchar xdigit ddigit \
+	control punct space upper wordchar xdigit ddigit \
 	nonterminal optional repeat0 repeat1 ahead notahead \
 	choice sequence \
-	terminal range
+	terminal range class str
 
     namespace ensemble create
 }
@@ -131,7 +131,7 @@ proc ::pt::pe::print {serial} {
 proc ::pt::pe::Print {pe op arguments} {
     switch -exact -- $op {
 	epsilon - alpha - alnum - ascii - digit - graph - lower - print - \
-	    punct - space - upper - wordchar - xdigit - ddigit - dot {
+	    control - punct - space - upper - wordchar - xdigit - ddigit - dot {
 		return [list <$op>]
 	    }
 	str { return [list "\"[join [char quote comment {*}$arguments] {}]\""] }
@@ -220,6 +220,7 @@ proc ::pt::pe::dot       {} { return dot      }
 proc ::pt::pe::alnum     {} { return alnum    }
 proc ::pt::pe::alpha     {} { return alpha    }
 proc ::pt::pe::ascii     {} { return ascii    }
+proc ::pt::pe::control   {} { return control  }
 proc ::pt::pe::digit     {} { return digit    }
 proc ::pt::pe::graph     {} { return graph    }
 proc ::pt::pe::lower     {} { return lower    }
@@ -241,12 +242,28 @@ proc ::pt::pe::notahead    {pe} { list ! $pe }
 proc ::pt::pe::choice   {pe args} { linsert $args 0 / $pe }
 proc ::pt::pe::sequence {pe args} { linsert $args 0 x $pe }
 
-proc ::pt::pe::terminal {t}     { list t $t }
-proc ::pt::pe::range    {ta tb} {
+proc ::pt::pe::terminal {t} {
+    list t $t
+}
+proc ::pt::pe::range {ta tb} {
     if {$ta eq $tb} {
 	list t $ta
     } else {
 	list .. $ta $tb
+    }
+}
+proc ::pt::pe::class {set} {
+    if {[string length $set] > 1} {
+	list cl $set
+    } else {
+	list t $set
+    }
+}
+proc ::pt::pe::str {str} {
+    if {[string length $str] > 1} {
+	list str $str
+    } else {
+	list t $str
     }
 }
 
@@ -269,6 +286,7 @@ namespace eval ::pt::pe {
 	alpha    {0 0}
 	alnum    {0 0}
 	ascii    {0 0}
+	control  {0 0}
 	digit    {0 0}
 	graph    {0 0}
 	lower    {0 0}
@@ -299,5 +317,5 @@ namespace eval ::pt::pe {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::pe 1
+package provide pt::pe 1.0.2
 return

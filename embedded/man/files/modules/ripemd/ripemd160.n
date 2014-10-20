@@ -2,7 +2,7 @@
 '\" Generated from file 'ripemd160\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2004, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
-.TH "ripemd160" n 1\&.0\&.3 tcllib "RIPEMD Message-Digest Algorithm"
+.TH "ripemd160" n 1\&.0\&.5 tcllib "RIPEMD Message-Digest Algorithm"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ ripemd160 \- RIPEMD-160 Message-Digest Algorithm
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBripemd160  ?1\&.0\&.3?\fR
+package require \fBripemd160  ?1\&.0\&.5?\fR
 .sp
 \fB::ripemd::ripemd160\fR ?\fI-hex\fR? [ \fI-channel channel\fR | \fI-file filename\fR | \fIstring\fR ]
 .sp

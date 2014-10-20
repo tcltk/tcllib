@@ -13,7 +13,6 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: sum.tcl,v 1.8 2009/05/07 00:39:49 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
@@ -21,7 +20,6 @@ catch {package require tcllibc};        # critcl enhancements to tcllib
 #catch {package require crcc};           # critcl enhanced crc module
 
 namespace eval ::crc {
-    variable sum_version 1.1.0
     namespace export sum
 
     variable uid
@@ -44,7 +42,7 @@ proc ::crc::SumSysV {s {seed 0}} {
     foreach n $r {
         incr t [expr {$n & 0xFF}]
     }
-    return [expr {$t % 0xFFFF}]
+    return [expr {$t & 0xFFFF}]
 }
 
 # -------------------------------------------------------------------------
@@ -269,7 +267,7 @@ proc ::crc::sum {args} {
 
 # -------------------------------------------------------------------------
 
-package provide sum $::crc::sum_version
+package provide sum 1.1.1
 
 # -------------------------------------------------------------------------    
 # Local Variables:

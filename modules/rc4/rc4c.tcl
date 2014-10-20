@@ -47,6 +47,8 @@ critcl::tcl 8.4
 namespace eval ::rc4 {}
 
 critcl::ccode {
+    #include <string.h>
+
     typedef struct RC4_CTX {
 	unsigned char x;
 	unsigned char y;
@@ -88,7 +90,7 @@ critcl::ccode {
 	char* str;
 	TRACE("rc4_string_rep(%08x)\n", (long)obj);
 	/* convert via a byte array to properly handle null bytes */
-	tmpObj = Tcl_NewByteArrayObj((char *)ctx, sizeof(RC4_CTX));
+	tmpObj = Tcl_NewByteArrayObj((unsigned char *)ctx, sizeof(RC4_CTX));
 	Tcl_IncrRefCount(tmpObj);
 	
 	str = Tcl_GetStringFromObj(tmpObj, &obj->length);
@@ -189,7 +191,7 @@ critcl::ccommand ::rc4::rc4c {dummy interp objc objv} {
 
     resObj = Tcl_NewByteArrayObj(res, size);
     Tcl_SetObjResult(interp, resObj);
-    Tcl_Free(res);
+    Tcl_Free((char*)res);
     return TCL_OK;
 }
 

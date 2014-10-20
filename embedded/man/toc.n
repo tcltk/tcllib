@@ -882,6 +882,9 @@ tcllib
 \fBntp_time\fR
 \fIfiles/modules/ntp/ntp_time\&.n\fR: Tcl Time Service Client
 .TP
+\fBoauth\fR
+\fIfiles/modules/oauth/oauth\&.n\fR: oauth API base signature
+.TP
 \fBoo::util\fR
 \fIfiles/modules/ooutil/ooutil\&.n\fR: Utility commands for TclOO
 .TP
@@ -947,6 +950,9 @@ tcllib
 .TP
 \fBpt::cparam::configuration::critcl\fR
 \fIfiles/modules/pt/pt_cparam_config_critcl\&.n\fR: C/PARAM, Canned configuration, Critcl
+.TP
+\fBpt::cparam::configuration::tea\fR
+\fIfiles/modules/pt/pt_cparam_config_tea\&.n\fR: C/PARAM, Canned configuration, TEA
 .TP
 \fBpt::json_language\fR
 \fIfiles/modules/pt/pt_json_language\&.n\fR: The JSON Grammar Exchange Format
@@ -1040,6 +1046,9 @@ tcllib
 .TP
 \fBpt::tclparam::configuration::tcloo\fR
 \fIfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR: Tcl/PARAM, Canned configuration, Tcloo
+.TP
+\fBpt::util\fR
+\fIfiles/modules/pt/pt_util\&.n\fR: General utilities
 .TP
 \fBpt_export_api\fR
 \fIfiles/modules/pt/pt_to_api\&.n\fR: Parser Tools Export API
@@ -1488,8 +1497,8 @@ tcllib
 \fByencode\fR
 \fIfiles/modules/base64/yencode\&.n\fR: Y-encode/decode binary data
 .TP
-\fBzipfile::encode\fR
-\fIfiles/modules/zip/encode\&.n\fR: Generation of zip archives
+\fBzipfile::decode\fR
+\fIfiles/modules/zip/decode\&.n\fR: Access to zip archives
 .TP
 \fBzipfile::encode\fR
-\fIfiles/modules/zip/decode\&.n\fR: Access to zip archives
+\fIfiles/modules/zip/encode\&.n\fR: Generation of zip archives

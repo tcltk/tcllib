@@ -18,6 +18,7 @@ testing {
 
 set inifile [localPath ini.tcl]
 set testini [localPath test.ini]
+set sampini [localPath sample.ini]
 
 #---------------------------------------------------------------------
 
@@ -118,6 +119,7 @@ test inifile-1.14 {ini:::exists} {
     set res
 } {1}
 
+#---------------------------------------------------------------------
 # Tests for bug #1281136 --
 set N 0
 foreach name {nexthandle commentchar} {
@@ -155,6 +157,62 @@ foreach name {data comments sections} {
 }
 
 #---------------------------------------------------------------------
-# Clean up
 
+test inifile-3.0 {bug 3612465, leading & trailing spaces} {
+    set fh [ini::open $sampini]
+    set res [ini::sections $fh]
+    ini::close $fh
+    unset fh
+    set res
+} General
+
+test inifile-3.1 {bug 3612465, leading & trailing spaces} {
+    set fh [ini::open $sampini]
+    #set res [llength [ini::sections $fh]]
+    set res [lsort -dict [ini::keys $fh General]]
+    ini::close $fh
+    unset fh
+    set res
+} {key key2}
+
+#---------------------------------------------------------------------
+
+test inifile-4.0 {bug c4b8162da5 - ini::open} {
+    set res [ini::open $testini -encoding unicode r]
+    ini::close $res
+    set res
+} {ini16}
+
+# Test various error conditions.
+test inifile-4.1 {bug c4b8162da5 - ini::open - invalid encoding} {
+    catch {
+	ini::open $testini -encoding foo r
+    } res
+    set res
+} {unknown encoding "foo"}
+
+test inifile-4.2 {bug c4b8162da5 - ini::open - invalid option} {
+    catch {
+	ini::open $testini -bogus foo r
+    } res
+    set res
+} {Invalid option -bogus, expected -encoding}
+
+test inifile-4.3 {bug c4b8162da5 - ini::open - invalid mode} {
+    catch {
+	ini::open $testini x
+    } res
+    set res
+} {x is not a valid access mode}
+
+test inifile-4.4 {bug c4b8162da5 - ini::open - invalid mode} {
+    catch {
+	set res [ini::open $testini w-]
+    } res
+    set res
+} {w- is not a valid access mode}
+
+#---------------------------------------------------------------------
+# Clean up
 testsuiteCleanup
+return

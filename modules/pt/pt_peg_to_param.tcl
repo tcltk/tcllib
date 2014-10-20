@@ -2,7 +2,7 @@
 #
 #	Conversion of PEG to PARAM assembler.
 #
-# Copyright (c) 2009 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2009-2014 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -372,14 +372,14 @@ proc ::pt::peg::to::param::Op::t {modes char} {
     Asm::ReTerminal t $char
     if {$inline} {
 	Asm::Direct {
-	    set c [char quote cstring $char]
+	    set c [char quote string $char]
 
 	    Asm::Ins input_next "\"t $c\""
 	    Asm::Ins ok! test_char \"$c\"
 	}
     } else {
 	Asm::Function [Asm::NewBlock char ] {
-	    set c [char quote cstring $char]
+	    set c [char quote string $char]
 
 	    Asm::Ins input_next "\"t $c\""
 	    Asm::Ins ok! test_char \"$c\"
@@ -394,16 +394,16 @@ proc ::pt::peg::to::param::Op::.. {modes chstart chend} {
     Asm::ReTerminal .. $chstart $chend
     if {$inline} {
 	Asm::Direct {
-	    set s [char quote cstring $chstart]
-	    set e [char quote cstring $chend]
+	    set s [char quote string $chstart]
+	    set e [char quote string $chend]
 
 	    Asm::Ins input_next "\".. $s $e\""
 	    Asm::Ins ok! test_range \"$s\" \"$e\"
 	}
     } else {
 	Asm::Function [Asm::NewBlock range] {
-	    set s [char quote cstring $chstart]
-	    set e [char quote cstring $chend]
+	    set s [char quote string $chstart]
+	    set e [char quote string $chend]
 
 	    Asm::Ins input_next "\".. $s $e\""
 	    Asm::Ins ok! test_range \"$s\" \"$e\"
@@ -1025,5 +1025,5 @@ namespace eval ::pt::peg::to::param {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide pt::peg::to::param 1
+package provide pt::peg::to::param 1.0.1
 return

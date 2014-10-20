@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'doctools\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2003-2013 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2003-2014 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "doctools" n 1\&.4\&.16 tcllib "Documentation tools"
+.TH "doctools" n 1\&.4\&.19 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ doctools \- doctools - Processing documents
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBdoctools  ?1\&.4\&.16?\fR
+package require \fBdoctools  ?1\&.4\&.19?\fR
 .sp
 \fB::doctools::new\fR \fIobjectName\fR ?\fIoption value\fR\&.\&.\&.?
 .sp
@@ -701,6 +701,6 @@ HTML, TMML, conversion, documentation, manpage, markup, nroff
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2003-2013 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2003-2014 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi

@@ -175,11 +175,26 @@ namespace eval ::json::write {
     variable aligned  1
 
     variable quotes \
-	[list "\"" "\\\"" \\ \\\\ \b \\b \f \\f \n \\n \r \\r \t \\t]
+	[list "\"" "\\\"" \\ \\\\ \b \\b \f \\f \n \\n \r \\r \t \\t \
+	     \x00 \\u0000 \x01 \\u0001 \x02 \\u0002 \x03 \\u0003 \
+	     \x04 \\u0004 \x05 \\u0005 \x06 \\u0006 \x07 \\u0007 \
+	     \x0b \\u000b \x0e \\u000e \x0f \\u000f \x10 \\u0010 \
+	     \x11 \\u0011 \x12 \\u0012 \x13 \\u0013 \x14 \\u0014 \
+	     \x15 \\u0015 \x16 \\u0016 \x17 \\u0017 \x18 \\u0018 \
+	     \x19 \\u0019 \x1a \\u001a \x1b \\u001b \x1c \\u001c \
+	     \x1d \\u001d \x1e \\u001e \x1f \\u001f \x7f \\u007f \
+	     \x80 \\u0080 \x81 \\u0081 \x82 \\u0082 \x83 \\u0083 \
+	     \x84 \\u0084 \x85 \\u0085 \x86 \\u0086 \x87 \\u0087 \
+	     \x88 \\u0088 \x89 \\u0089 \x8a \\u008a \x8b \\u008b \
+	     \x8c \\u008c \x8d \\u008d \x8e \\u008e \x8f \\u008f \
+	     \x90 \\u0090 \x91 \\u0091 \x92 \\u0092 \x93 \\u0093 \
+	     \x94 \\u0094 \x95 \\u0095 \x96 \\u0096 \x97 \\u0097 \
+	     \x98 \\u0098 \x99 \\u0099 \x9a \\u009a \x9b \\u009b \
+	     \x9c \\u009c \x9d \\u009d \x9e \\u009e \x9f \\u009f ]
 }
 
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide json::write 1.0.2
+package provide json::write 1.0.3
 return

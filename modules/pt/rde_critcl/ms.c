@@ -30,7 +30,7 @@ int
 paramms_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* objv)
 {
     RDE_STATE p = (RDE_STATE) cd;
-    int m, res;
+    int m, res = TCL_ERROR;
 
     static CONST char* methods [] = {
 	"amarked",	"ast",		"asts",		"chan",
@@ -46,7 +46,7 @@ paramms_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* obj
 	"i_ast_pop_rewind/discard",	"i_ast_pop_rewind",	"i_ast_push",
 	"i:ok_ast_value_push",	"i_symbol_restore",	"i_symbol_save",
 	"i_value_clear/leaf",	"i_value_clear",	"i_value_clear/reduce",
-	"i_input_next",	"i_test_alnum",	"i_test_alpha",	"i_test_ascii",	"i_test_char",
+	"i_input_next",	"i_test_alnum",	"i_test_alpha",	"i_test_ascii",	"i_test_char",	"i_test_control",
 	"i_test_ddigit","i_test_digit",	"i_test_graph",	"i_test_lower",	"i_test_print",
 	"i_test_punct",	"i_test_range",	"i_test_space",	"i_test_upper",	"i_test_wordchar",
 	"i_test_xdigit",
@@ -66,7 +66,7 @@ paramms_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* obj
 	"si:valuevalue_part",
 	"si:next_char",
 	"si:next_range",
-	"si:next_alnum",	"si:next_alpha",	"si:next_ascii",
+	"si:next_alnum",	"si:next_alpha",	"si:next_ascii",	"si:next_control",
 	"si:next_ddigit","si:next_digit",	"si:next_graph",	"si:next_lower",	"si:next_print",
 	"si:next_punct",	"si:next_space",	"si:next_upper",	"si:next_wordchar",
 	"si:next_xdigit",
@@ -104,7 +104,7 @@ paramms_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* obj
 	M_I_ast_pop_discard,	M_I_ast_pop_disrew,	M_I_ast_pop_rewdis,
 	M_I_ast_pop_rewind,	M_I_ast_push,	M_O_ast_value_push,	M_I_symbol_restore,
 	M_I_symbol_save,	M_I_value_cleaf,	M_I_value_clear,	M_I_value_creduce,
-	M_I_input_next,	M_I_test_alnum,	M_I_test_alpha,	M_I_test_ascii,	M_I_test_char,
+	M_I_input_next,	M_I_test_alnum,	M_I_test_alpha,	M_I_test_ascii,	M_I_test_char,	M_I_test_control,
 	M_I_test_ddigit,	M_I_test_digit,	M_I_test_graph,	M_I_test_lower,	M_I_test_print,
 	M_I_test_punct,	M_I_test_range,	M_I_test_space,	M_I_test_upper,	M_I_test_wordchar,
 	M_I_test_xdigit,
@@ -132,6 +132,7 @@ paramms_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* obj
 	M_SI_next_alnum,
 	M_SI_next_alpha,
 	M_SI_next_ascii,
+	M_SI_next_control,
 	M_SI_next_ddigit,
 	M_SI_next_digit,
 	M_SI_next_graph,
@@ -237,6 +238,7 @@ paramms_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* obj
     case M_I_test_alpha:        res = param_I_test_alpha      (p, interp, objc, objv); break;
     case M_I_test_ascii:        res = param_I_test_ascii      (p, interp, objc, objv); break;
     case M_I_test_char:         res = param_I_test_char       (p, interp, objc, objv); break;
+    case M_I_test_control:      res = param_I_test_control    (p, interp, objc, objv); break;
     case M_I_test_ddigit:       res = param_I_test_ddigit     (p, interp, objc, objv); break;
     case M_I_test_digit:        res = param_I_test_digit      (p, interp, objc, objv); break;
     case M_I_test_graph:        res = param_I_test_graph      (p, interp, objc, objv); break;
@@ -266,6 +268,7 @@ paramms_objcmd (ClientData cd, Tcl_Interp* interp, int objc, Tcl_Obj* CONST* obj
     case M_SI_next_alnum:              res = param_SI_next_alnum   (p, interp, objc, objv); break;
     case M_SI_next_alpha:              res = param_SI_next_alpha   (p, interp, objc, objv); break;
     case M_SI_next_ascii:              res = param_SI_next_ascii   (p, interp, objc, objv); break;
+    case M_SI_next_control:            res = param_SI_next_control (p, interp, objc, objv); break;
     case M_SI_next_ddigit:             res = param_SI_next_ddigit  (p, interp, objc, objv); break;
     case M_SI_next_digit:              res = param_SI_next_digit   (p, interp, objc, objv); break;
     case M_SI_next_graph:              res = param_SI_next_graph   (p, interp, objc, objv); break;

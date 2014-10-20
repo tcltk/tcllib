@@ -7,8 +7,6 @@
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: math.tcl,v 1.23 2009/12/04 17:37:47 andreas_kupries Exp $
 
 package require Tcl 8.2		;# uses [lindex $l end-$integer]
 
@@ -17,9 +15,6 @@ package require Tcl 8.2		;# uses [lindex $l end-$integer]
 # @mdgen OWNER: combinatorics.tcl
 
 namespace eval ::math {
-
-    variable version 1.2.5
-
     # misc.tcl
 
     namespace export	cov		fibonacci	integrate
@@ -45,5 +40,5 @@ namespace eval ::math {
 	source [file join [file dirname [info script]] combinatorics.tcl]
     }
 
-    package provide [namespace tail [namespace current]] $version
+    package provide [namespace tail [namespace current]] 1.2.5
 }

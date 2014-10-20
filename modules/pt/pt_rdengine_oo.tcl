@@ -1,6 +1,6 @@
 # -*- tcl -*-
 #
-# Copyright (c) 2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2009-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 
 # # ## ### ##### ######## ############# #####################
 ## Package description
@@ -72,12 +72,16 @@ oo::class create ::pt::rde::oo {
 		incr pos
 		set children [lreverse [$mystackast peek [$mystackast size]]]     ; # SaveToMark
 		return [pt::ast new {} $pos $myloc {*}$children] ; # Reduce ALL
+	    } elseif {$n == 0} {
+		# Match, but no AST. This is possible if the grammar
+		# consists of only the start expression.
+		return {}
 	    } else {
 		return [$mystackast peek]
 	    }
 	} else {
 	    lassign $myerror loc messages
-	    return -code error [list pt::rde $loc [$self position $loc] $messages]
+	    return -code error [list pt::rde $loc $messages]
 	}
     }
 
@@ -359,7 +363,7 @@ oo::class create ::pt::rde::oo {
 	    return -code return
 	}
 	set myloc [$mystackloc peek]
-	$mystackerr push {}
+	$mystackerr push $myerror
 	return
     }
 
@@ -590,7 +594,7 @@ oo::class create ::pt::rde::oo {
 	incr myloc
 	if {($last >= $max) && ![my ExtendTCN [expr {$last - $max + 1}]]} {
 	    set myok    0
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [list str $tok]]]
 	    # i:fail_return
 	    return
 	}
@@ -603,7 +607,7 @@ oo::class create ::pt::rde::oo {
 	    set myloc $last
 	    set myerror {}
 	} else {
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [list str $tok]]]
 	    incr myloc -1
 	}
 	return
@@ -619,7 +623,7 @@ oo::class create ::pt::rde::oo {
 	incr myloc
 	if {($myloc >= [string length $mytoken]) && ![my ExtendTC]} {
 	    set myok    0
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [list cl $tok]]]
 	    # i:fail_return
 	    return
 	}
@@ -633,7 +637,7 @@ oo::class create ::pt::rde::oo {
 	if {$myok} {
 	    set myerror {}
 	} else {
-	    set myerror [list $myloc [list [list t $tok]]]
+	    set myerror [list $myloc [list [list cl $tok]]]
 	    incr myloc -1
 	}
 	return
@@ -757,6 +761,30 @@ oo::class create ::pt::rde::oo {
 	set myok [string is ascii -strict $mycurrent]
 	if {!$myok} {
 	    set myerror [list $myloc [list ascii]]
+	    incr myloc -1
+	} else {
+	    set myerror {}
+	}
+	return
+    }
+
+    method si:next_control {} { ; #TRACE puts "[format %8d [incr count]] RDE si:next_control"
+	#Asm::Ins i_input_next control
+	#Asm::Ins i:fail_return
+	#Asm::Ins i_test_control
+
+	incr myloc
+	if {($myloc >= [string length $mytoken]) && ![my ExtendTC]} {
+	    set myok    0
+	    set myerror [list $myloc [list control]]
+	    # i:fail_return
+	    return
+	}
+	set mycurrent [string index $mytoken $myloc]
+
+	set myok [string is control -strict $mycurrent]
+	if {!$myok} {
+	    set myerror [list $myloc [list control]]
 	    incr myloc -1
 	} else {
 	    set myerror {}
@@ -1115,14 +1143,15 @@ oo::class create ::pt::rde::oo {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:reduce_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 
 	$mystackast trim* [$mystackmark pop]
 	if {$myok} {
@@ -1158,14 +1187,15 @@ oo::class create ::pt::rde::oo {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:void_leaf_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 
 	if {$myok} {
 	    $mystackast push $mysvalue
@@ -1201,14 +1231,15 @@ oo::class create ::pt::rde::oo {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:value_leaf_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 
 	$mystackast trim* [$mystackmark pop]
 	if {$myok} {
@@ -1230,14 +1261,15 @@ oo::class create ::pt::rde::oo {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:value_clear_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 
 	$mystackast trim* [$mystackmark pop]
 	return
@@ -1255,14 +1287,15 @@ oo::class create ::pt::rde::oo {
 	set k  [list $at $symbol]
 	set mysymbol($k) [list $myloc $myok $myerror $mysvalue]
 
-	if {[llength $myerror]} {
+	# si:void_clear_symbol_end / i_error_nonterminal -- inlined -- disabled
+	if {0} {if {[llength $myerror]} {
 	    set  pos $at
 	    incr pos
 	    lassign $myerror loc messages
 	    if {$loc == $pos} {
 		set myerror [list $loc [list [list n $symbol]]]
 	    }
-	}
+	}}
 	return
     }
 
@@ -1350,6 +1383,13 @@ oo::class create ::pt::rde::oo {
     }
 
     method i_error_nonterminal {symbol} {
+	#  i_error_nonterminal -- Disabled. Generate only low-level
+	#  i_error_nonterminal -- errors until we have worked out how
+	#  i_error_nonterminal -- to integrate symbol information with
+	#  i_error_nonterminal -- them. Do not forget where this
+	#  i_error_nonterminal -- instruction is inlined.
+	return
+
 	# Inlined: Errors, Expected.
 	if {![llength $myerror]} return
 	set pos [$mystackloc peek]
@@ -1551,6 +1591,12 @@ oo::class create ::pt::rde::oo {
 	return
     }
 
+    method i_test_control {} {
+	set myok [string is control -strict $mycurrent]
+	my OkFail [pt::pe control]
+	return
+    }
+
     method i_test_char {tok} {
 	set myok [expr {$tok eq $mycurrent}]
 	my OkFail [pt::pe terminal $tok]
@@ -1694,5 +1740,5 @@ oo::class create ::pt::rde::oo {
 # # ## ### ##### ######## ############# #####################
 ## Ready
 
-package provide pt::rde::oo 1.0.2
+package provide pt::rde::oo 1.0.3
 return

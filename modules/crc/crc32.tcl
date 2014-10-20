@@ -10,13 +10,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# $Id: crc32.tcl,v 1.22 2009/05/06 22:41:08 patthoyts Exp $
 
 package require Tcl 8.2
 
 namespace eval ::crc {
-    variable crc32_version 1.3.1
-    variable accel
+    variable  accel
     array set accel {critcl 0 trf 0}
 
     namespace export crc32
@@ -234,7 +232,7 @@ if {[package provide critcl] != {}} {
                     ndx = (t ^ data[cn]) & 0xFF;
                     r = Tcl_ListObjIndex(interp, tblPtr, ndx, &lkpPtr);
                     if (r == TCL_OK) {
-                        r = Tcl_GetLongFromObj(interp, lkpPtr, &lkp);
+                        r = Tcl_GetLongFromObj(interp, lkpPtr, (long*) &lkp);
                     }
                     if (r == TCL_OK) {
                         t = lkp ^ (t >> 8);
@@ -362,10 +360,14 @@ proc ::crc::crc32 {args} {
 
 # Try and load a compiled extension to help (note - trf is fastest)
 namespace eval ::crc {
-    foreach e {trf critcl} { if {[LoadAccelerator $e]} { break } }
+    variable e {}
+    foreach e {trf critcl} {
+        if {[LoadAccelerator $e]} break
+    }
+    unset e
 }
 
-package provide crc32 $::crc::crc32_version
+package provide crc32 1.3.2
 
 # -------------------------------------------------------------------------
 #

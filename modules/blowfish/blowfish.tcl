@@ -20,10 +20,10 @@
 package require Tcl 8.2
 
 namespace eval blowfish {
-    variable version 1.0.4
-    variable rcsid {$Id: blowfish.tcl,v 1.10 2007/09/17 14:19:07 patthoyts Exp $}
-    variable uid ; if {![info exists uid]} { set uid 0 }
-    variable accel
+    variable uid
+    if {![info exists uid]} { set uid 0 }
+
+    variable  accel
     array set accel {trf 0}
 
     namespace export blowfish
@@ -707,10 +707,14 @@ proc ::blowfish::blowfish {args} {
 
 # Try and load a compiled extension to help.
 namespace eval ::blowfish {
-    variable e; foreach e {trf} { if {[LoadAccelerator $e]} { break } }
+    variable e {}
+    foreach e {trf} {
+        if {[LoadAccelerator $e]} break
+    }
+    unset e
 }
 
-package provide blowfish $::blowfish::version
+package provide blowfish 1.0.4
 
 # -------------------------------------------------------------------------
 #

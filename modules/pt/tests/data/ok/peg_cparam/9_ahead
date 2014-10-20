@@ -16,10 +16,24 @@
  * Precomputed table of strings (symbols, error messages, etc.).
  */
 
-static char const* <<string-table>> [3] = {
-    /*        0 = */   "t a",
-    /*        1 = */   "n TEST",
-    /*        2 = */   "TEST"
+static char const* <<string-table>> [17] = {
+    /*        0 = */   "alnum",
+    /*        1 = */   "alpha",
+    /*        2 = */   "ascii",
+    /*        3 = */   "control",
+    /*        4 = */   "ddigit",
+    /*        5 = */   "digit",
+    /*        6 = */   "graph",
+    /*        7 = */   "lower",
+    /*        8 = */   "print",
+    /*        9 = */   "punct",
+    /*       10 = */   "space",
+    /*       11 = */   "upper",
+    /*       12 = */   "wordchar",
+    /*       13 = */   "xdigit",
+    /*       14 = */   "t a",
+    /*       15 = */   "n TEST",
+    /*       16 = */   "TEST"
 };
 
 /*
@@ -43,9 +57,9 @@ static char const* <<string-table>> [3] = {
     *     (IDENTIFIER)
     */
 
-    if (rde_param_i_symbol_start (<<state>>, 2)) return ;
+    if (rde_param_i_symbol_start (<<state>>, 16)) return ;
     <<self>> <<ns>>sequence_6 (<<state>>);
-    rde_param_i_symbol_done_leaf (<<state>>, 2, 1);
+    rde_param_i_symbol_done_leaf (<<state>>, 16, 15);
     return;
 }
 
@@ -73,7 +87,7 @@ static char const* <<string-table>> [3] = {
     */
 
     rde_param_i_loc_push (<<state>>);
-    rde_param_i_next_char (<<state>>, "a", 0);
+    rde_param_i_next_char (<<state>>, "a", 14);
     rde_param_i_loc_pop_rewind (<<state>>);
     return;
 }

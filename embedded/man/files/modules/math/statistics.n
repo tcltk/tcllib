@@ -395,6 +395,8 @@ package require \fBmath::statistics  0\&.9\fR
 .sp
 \fB::math::statistics::random-gamma\fR \fIalpha\fR \fIbeta\fR \fInumber\fR
 .sp
+\fB::math::statistics::random-poisson\fR \fImu\fR \fInumber\fR
+.sp
 \fB::math::statistics::random-chisquare\fR \fIdf\fR \fInumber\fR
 .sp
 \fB::math::statistics::random-student-t\fR \fIdf\fR \fInumber\fR
@@ -668,7 +670,7 @@ list \fIdata\fR
 .sp
 .TP
 float \fIconfidence\fR
-- Confidence level (0\&.95 or 0\&.99 for instance)
+- Confidence level (0\&.95 or 0\&.99 for instance) or a list of confidence levels\&.
 .sp
 .RE
 .sp
@@ -685,7 +687,7 @@ list \fIcounts\fR
 - List of counts for for each interval in histogram
 .TP
 float \fIconfidence\fR
--  Confidence level (0\&.95 or 0\&.99 for instance)
+-  Confidence level (0\&.95 or 0\&.99 for instance) or a list of confidence levels\&.
 .RE
 .sp
 .TP
@@ -1484,6 +1486,19 @@ float \fIalpha\fR
 .TP
 float \fIbeta\fR
 - Rate parameter
+.TP
+int \fInumber\fR
+- Number of values to be returned
+.RE
+.sp
+.TP
+\fB::math::statistics::random-poisson\fR \fImu\fR \fInumber\fR
+Return a list of "number" random values satisfying
+a Poisson distribution with given mean
+.RS
+.TP
+float \fImu\fR
+- Mean of the distribution
 .TP
 int \fInumber\fR
 - Number of values to be returned

@@ -54,6 +54,7 @@ critcl::cheaders ../md5/md5.h
 namespace eval ::md5crypt {}
 
 critcl::ccode {
+    #include <string.h>
     #include "md5.h"
     #ifdef _MSC_VER
     #define snprintf _snprintf
@@ -105,19 +106,19 @@ critcl::ccode {
 	MD5Init(&ctx);
 	
 	/* The password first, since that is what is most unknown */
-	MD5Update(&ctx,(const unsigned char *)pw,strlen(pw));
+	MD5Update(&ctx,(unsigned char *)pw,strlen(pw));
 	
 	/* Then our magic string */
-	MD5Update(&ctx,magic,strlen((const char *)magic));
+	MD5Update(&ctx,(unsigned char *)magic,strlen((const char *)magic));
 	
 	/* Then the raw salt */
-	MD5Update(&ctx,sp,sl);
+	MD5Update(&ctx,(unsigned char *)sp,sl);
 	
 	/* Then just as many characters of the MD5(pw,salt,pw) */
 	MD5Init(&ctx1);
-	MD5Update(&ctx1,(const unsigned char *)pw,strlen(pw));
-	MD5Update(&ctx1,sp,sl);
-	MD5Update(&ctx1,(const unsigned char *)pw,strlen(pw));
+	MD5Update(&ctx1,(unsigned char *)pw,strlen(pw));
+	MD5Update(&ctx1,(unsigned char *)sp,sl);
+	MD5Update(&ctx1,(unsigned char *)pw,strlen(pw));
 	MD5Final(final,&ctx1);
 	
 	for(pl = strlen(pw); pl > 0; pl -= 16) {
@@ -133,7 +134,7 @@ critcl::ccode {
 	   if(i&1)
 	   MD5Update(&ctx, final, 1);
 	   else
-	   MD5Update(&ctx, (const unsigned char *)pw, 1);
+	   MD5Update(&ctx, (unsigned char *)pw, 1);
         }
 	
 	/* Now make the output string */
@@ -150,20 +151,20 @@ critcl::ccode {
 	for(i=0;i<1000;i++) {
 	     MD5Init(&ctx1);
 	     if(i & 1)
-	     MD5Update(&ctx1,(const unsigned char *)pw,strlen(pw));
+	     MD5Update(&ctx1,(unsigned char *)pw,strlen(pw));
 	     else
 	     MD5Update(&ctx1,final,16);
 	     
 	     if(i % 3)
-	     MD5Update(&ctx1,sp,sl);
+	     MD5Update(&ctx1,(unsigned char *)sp,sl);
 	     
 	     if(i % 7)
-	     MD5Update(&ctx1,pw,strlen(pw));
+	     MD5Update(&ctx1,(unsigned char *)pw,strlen(pw));
 	     
 	     if(i & 1)
 	     MD5Update(&ctx1,final,16);
 	     else
-	     MD5Update(&ctx1,pw,strlen(pw));
+	     MD5Update(&ctx1,(unsigned char *)pw,strlen(pw));
 	     MD5Final(final,&ctx1);
 	}
 

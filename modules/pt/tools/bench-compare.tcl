@@ -1,3 +1,5 @@
+#!/usr/bin/env tclsh
+# -*- tcl -*-
 
 package require Tcl 8.5
 package require bench::in

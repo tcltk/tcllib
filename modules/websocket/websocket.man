@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin websocket n 1.3]
+[vset WEBSOCKET_VERSION 1.3.1]
+[manpage_begin websocket n [vset WEBSOCKET_VERSION]]
 [see_also http]
 [keywords http]
 [keywords internet]
@@ -13,7 +14,7 @@
 [require logger]
 [require sha1]
 [require base64]
-[require websocket 1.3]
+[require websocket [opt [vset WEBSOCKET_VERSION]]]
 [description]
 
 [para]
@@ -300,6 +301,39 @@ are initiated.
 [def [const "-ping"]] is the text that is used during the automated
 pings.  This text defaults to the empty string, leading to an empty ping.
 [list_end]
+
+[call [cmd ::websocket::loglevel] [opt [arg loglvl]]]
+
+Set or query the log level of the library, which defaults to error.
+Logging is built on top of the logger module, and the library makes
+use of the following levels: [const debug], [const info], [const notice],
+[const warn] and [const error].  When called with no argument, this procedure will
+simply return the current log level.  Otherwise [arg loglvl] should contain
+the desired log level.
+
+[call [cmd ::websocket::close] [arg sock] [opt [arg code]] [opt [arg reason]]]
+
+Gracefully close a websocket that was directly or indirectly passed to
+[cmd ::websocket::takeover].  The procedure will optionally send the 
+[arg code] and describing [arg reason] as part of the closure handshake.
+Good defaults are provided, so that reasons for a number of known codes will
+be sent back. Only the first 125 characters of a reason string will be kept and
+sent as part of the handshake. The known codes are:
+[list_begin definitions]
+[def [const 1000]] Normal closure (the default [arg code] when none provided).
+[def [const 1001]] Endpoint going away
+[def [const 1002]] Protocol Error
+[def [const 1003]] Received incompatible data type
+[def [const 1006]] Abnormal closure
+[def [const 1007]] Received data not consistent with type
+[def [const 1008]] Policy violation
+[def [const 1009]] Received message too big
+[def [const 1010]] Missing extension
+[def [const 1011]] Unexpected condition
+[def [const 1015]] TLS hanshake error
+[list_end]
+
+
 
 [list_end]
 
