@@ -65,8 +65,8 @@ proc fassert {name version code result} {
 ######################################################
 
 proc testSuite {} {
-    
-    
+
+
     # adds 999..9 and 1 -> 1000..0
     for {set i 1} {$i<15} {incr i} {
         assert add 1.0 {tostr [add \
@@ -89,13 +89,13 @@ proc testSuite {} {
     for {set i 1} {$i<=9} {incr i} {
         assert div 1.3 {tostr [div [fromstr 100000000] [fromstr $i]]} [expr {wide(100000000)/$i}]
     }
-    
-    
+
+
     # 10^8 modulo 1 .. 9
     for {set i 1} {$i<=9} {incr i} {
         assert mod 1.4 {tostr [mod [fromstr 100000000] [fromstr $i]]} [expr {wide(100000000)%$i}]
     }
-    
+
     ################################################################################
     # fromstr problem with octal exponents
     ################################################################################
@@ -103,8 +103,8 @@ proc testSuite {} {
     fassert fromstr 2.0a {todouble [fromstr 1.0e99]} 1.0e99
     fassert fromstr 2.0b {todouble [fromstr 1.0e-99]} 1.0e-99
     fassert fromstr 2.0c {todouble [fromstr 1.0e-099]} 1.0e-99
-    
-    
+
+
     ################################################################################
     # fromdouble with precision
     ################################################################################
@@ -116,7 +116,7 @@ proc testSuite {} {
     assert fromdouble 2.1e {tostr [fromdouble -01.11 3]} -1.11
     # more to come...
     fassert fromdouble 2.1f {compare [fromdouble [expr {atan(1.0)*4}]] [pi $::tcl_precision]} 0
-    
+
     ################################################################################
     # abs()
     ################################################################################
@@ -130,7 +130,7 @@ proc testSuite {} {
                 tostr [abs [fromstr $x]]
             } [expr {($x<0)?(-$x):$x}]
         }
-        
+
     }
     absTest 2.2a 1.000
     absTest 2.2b -1.000
@@ -141,7 +141,7 @@ proc testSuite {} {
     absTest 2.2g -1 1
     absTest 2.2h -10000 1
     rename absTest ""
-    
+
     ################################################################################
     # opposite
     ################################################################################
@@ -151,7 +151,7 @@ proc testSuite {} {
         } else {
             fassert opp $version {tostr [opp [fromstr $x]]} [expr {-$x}]
         }
-        
+
     }
     oppTest 2.3a 1.00
     oppTest 2.3b -1.00
@@ -164,7 +164,7 @@ proc testSuite {} {
     oppTest 2.3i 100000000 1
     oppTest 2.3j -100000000 1
     rename oppTest ""
-    
+
     ################################################################################
     # equal
     ################################################################################
@@ -175,7 +175,7 @@ proc testSuite {} {
     assert equal 2.4b {equalTest 0.00 0.10} 0
     assert equal 2.4c {equalTest 0.0 -0.1} 1
     assert equal 2.4d {equalTest 0.00 -0.10} 0
-    
+
     rename equalTest ""
     ################################################################################
     # compare
@@ -188,10 +188,10 @@ proc testSuite {} {
     assert cmp 2.5c {compareTest 0.0 -1.0} 1
     assert cmp 2.5d {compareTest -1.0 0.0} -1
     assert cmp 2.5e {compareTest 0.00 0.10} -1
-    
+
     # cleanup
     rename compareTest ""
-    
+
     ################################################################################
     # round
     ################################################################################
@@ -212,11 +212,11 @@ proc testSuite {} {
     roundTest 2.6j -0.49 0
     roundTest 2.6k 1.49 1
     roundTest 2.6l -1.49 -1
-    
-    
+
+
     # cleanup
     rename roundTest ""
-    
+
     ################################################################################
     # floor
     ################################################################################
@@ -228,10 +228,10 @@ proc testSuite {} {
     floorTest 2.7c 1.0
     floorTest 2.7d -0.10
     floorTest 2.7e -1.0
-    
+
     # cleanup
     rename floorTest ""
-    
+
     ################################################################################
     # ceil
     ################################################################################
@@ -244,10 +244,10 @@ proc testSuite {} {
     ceilTest 2.8d -0.10
     ceilTest 2.8e -1.0
     ceilTest 2.8f 0.0
-    
+
     # cleanup
     rename ceilTest ""
-    
+
     ################################################################################
     # BigInt to BigFloat conversion
     ################################################################################
@@ -266,7 +266,7 @@ proc testSuite {} {
     }
     #cleanup
     rename convTest ""
-    
+
     ################################################################################
     # addition
     ################################################################################
@@ -289,7 +289,7 @@ proc testSuite {} {
     addTest 3.0n -1.00 0
     #cleanup
     rename addTest ""
-    
+
     ################################################################################
     # substraction
     ################################################################################
@@ -314,7 +314,7 @@ proc testSuite {} {
     subTest 3.1p 2.00 0
     # cleanup
     rename subTest ""
-    
+
     ################################################################################
     # multiplication
     ################################################################################
@@ -339,12 +339,12 @@ proc testSuite {} {
     mulInt 3.2l 10 2.00
     mulInt 3.2m 10 -2.00
     mulInt 3.2n 1 0.00
-    
-    
+
+
     # cleanup
     rename mulTest ""
     rename mulInt ""
-    
+
     ################################################################################
     # division
     ################################################################################
@@ -353,8 +353,8 @@ proc testSuite {} {
             string trimright [todouble [div [fromstr $x] [fromstr $y]]] 0
         } [string trimright [expr {$x/$y}] 0]
     }
-    
-    
+
+
     divTest 3.3a 1.00 2.00
     divTest 3.3b 2.00 1.00
     divTest 3.3c -1.00 2.00
@@ -365,10 +365,10 @@ proc testSuite {} {
     divTest 3.3h -2.00 -1.00
     divTest 3.3i 0.0 1.0
     divTest 3.3j 0.0 -1.0
-    
+
     # cleanup
     rename divTest ""
-    
+
     ################################################################################
     # rest of the division
     ################################################################################
@@ -377,7 +377,7 @@ proc testSuite {} {
             todouble [mod [fromstr $x] [fromstr $y]]
         } [expr {fmod($x,$y)}]
     }
-    
+
     modTest 3.4a 1.00 2.00
     modTest 3.4b 2.00 1.00
     modTest 3.4c -1.00 2.00
@@ -388,17 +388,17 @@ proc testSuite {} {
     modTest 3.4h -2.00 -1.00
     modTest 3.4i 0.0 1.0
     modTest 3.4j 0.0 -1.0
-    
+
     modTest 3.4k 1.00 2
     modTest 3.4l 2.00 1
     modTest 3.4m -1.00 2
     modTest 3.4n -2.00 1
     modTest 3.4o 0.0 1
     modTest 3.4p 1.50 1
-    
+
     # cleanup
     rename modTest ""
-    
+
     ################################################################################
     # divide a BigFloat by an integer
     ################################################################################
@@ -413,10 +413,10 @@ proc testSuite {} {
             incr subversion
         }
     }
-    
+
     # cleanup
     rename divTest ""
-    
+
     ################################################################################
     # pow : takes a float to an integer power (>0)
     ################################################################################
@@ -443,11 +443,11 @@ proc testSuite {} {
             incr subversion
         }
     }
-    
+
     # cleanup
     rename powTest ""
-    
-    
+
+
     ################################################################################
     # pi constant and angles conversion
     ################################################################################
@@ -456,19 +456,19 @@ proc testSuite {} {
     fassert rad2deg 3.8.1 {todouble [rad2deg [pi 20]]} 180.0
     # converts 180° -> Pi
     fassert deg2rad 3.8.2 {todouble [deg2rad [fromstr 180.0 20]]} [expr {atan(1.0)*4}]
-    
-    
+
+
     ################################################################################
     # iszero : the precision is too small to determinate the number
     ################################################################################
-    
+
     assert iszero 4.0a {iszero [fromstr 0]} 1
     assert iszero 4.0b {iszero [fromstr 0.0]} 1
     assert iszero 4.0c {iszero [fromstr 1]} 0
     assert iszero 4.0d {iszero [fromstr 1.0]} 0
     assert iszero 4.0e {iszero [fromstr -1]} 0
     assert iszero 4.0f {iszero [fromstr -1.0]} 0
-    
+
     ################################################################################
     # sqrt : square root
     ################################################################################
@@ -479,43 +479,43 @@ proc testSuite {} {
     sqrtTest 4.1b 0.001
     sqrtTest 4.1c 0.004
     sqrtTest 4.1d 4.
-    
+
     # cleanup
     rename sqrtTest ""
-    
-    
+
+
     ################################################################################
     # expTest : exponential function
     ################################################################################
     proc expTest {version x} {
         fassert exp $version {todouble [exp [fromstr $x 17]]} [expr {exp($x)}]
     }
-    
+
     expTest 4.2a 1.
     expTest 4.2b 0.001
     expTest 4.2c 0.004
     expTest 4.2d 40.
     expTest 4.2e -0.001
-    
+
     # cleanup
     rename expTest ""
-    
+
     ################################################################################
     # logTest : logarithm
     ################################################################################
     proc logTest {version x} {
         fassert log $version {todouble [log [fromstr $x 17]]} [expr {log($x)}]
     }
-    
+
     logTest 4.3a 1.0
     logTest 4.3b 0.001
     logTest 4.3c 0.004
     logTest 4.3d 40.
     logTest 4.3e 1[zero 10].0
-    
+
     # cleanup
     rename logTest ""
-    
+
     ################################################################################
     # cos & sin : trigonometry
     ################################################################################
@@ -526,17 +526,17 @@ proc testSuite {} {
         fassert cos $version.0 {todouble [cos $x]} [expr {cos([todouble $x])}]
         fassert sin $version.1 {todouble [sin $x]} [expr {sin([todouble $x])}]
     }
-    
+
     fassert cos 4.4.0.0 {todouble [cos [fromstr 0. 17]]} [expr {cos(0)}]
     fassert sin 4.4.0.1 {todouble [sin [fromstr 0. 17]]} [expr {sin(0)}]
     foreach i {1 2 3 4 5 6 7 8} {
         cosEtSin 4.4.$i $i
     }
-    
-    
+
+
     # cleanup
     rename cosEtSin ""
-    
+
     ################################################################################
     # tan & cotan : trigonometry
     ################################################################################
@@ -549,19 +549,19 @@ proc testSuite {} {
         fassert tan $version.2 {todouble [tan $x]} [expr {tan($double)}]
         fassert cotan $version.3 {todouble [cotan $x]} [expr {double(1.0)/tan($double)}]
     }
-    
+
     set pi [pi 20]
     set subversion 0
     foreach i {1 2 3 6 7 8 9} {
         tanCotan 4.5.$subversion $i
         incr subversion
     }
-    
-    
+
+
     # cleanup
     rename tanCotan ""
-    
-    
+
+
     ################################################################################
     # atan , asin & acos : trigonometry (inverse functions)
     ################################################################################
@@ -582,10 +582,10 @@ proc testSuite {} {
         atanTest 4.6.4.$subversion -$i.0
         incr subversion
     }
-    
+
     # cleanup
     rename atanTest ""
-    
+
     ################################################################################
     # cosh , sinh & tanh : hyperbolic functions
     ################################################################################
@@ -595,7 +595,7 @@ proc testSuite {} {
         fassert sinh $version.1 {todouble [sinh $f]} [expr {sinh($x)}]
         fassert tanh $version.2 {todouble [tanh $f]} [expr {tanh($x)}]
     }
-    
+
     hyper 4.7.0 0.0
     set subversion 0
     foreach i {1 2 3 4 5 6 7 8 9} {
@@ -604,10 +604,10 @@ proc testSuite {} {
         hyper 4.7.3.$subversion -0.$i
         hyper 4.7.4.$subversion -$i.0
     }
-    
+
     # cleanup
     rename hyper ""
-    
+
 	################################################################################
 	# tostr with -nosci option
 	################################################################################
@@ -616,11 +616,18 @@ proc testSuite {} {
 	fassert tostr-nosci $version.1 {tostr -nosci [fromstr 23450.e-7]} 0.002345
 	fassert tostr-nosci $version.2 {tostr -nosci [fromstr 23450000]} 23450000.
 	fassert tostr-nosci $version.3 {tostr -nosci [fromstr 2345.0]} 2345.
+
+	################################################################################
+	# tests for isInt - ticket 3309165
+	################################################################################
+	assert isInt $version.0 {isInt 12345678901234} 1
+	assert isInt $version.1 {isInt 12345678901234.0} 0
+	assert isInt $version.1 {isInt not-a-number} 0
 }
 
 testSuite
 ################################################################################
-# end of testsuite for bigfloat 1.0
+# end of testsuite for bigfloat 2.0
 ################################################################################
 # cleanup global procs
 rename assert ""

@@ -28,7 +28,7 @@ namespace eval ::math::bigfloat {
 ################################################################################
 # procedures that handle floating-point numbers
 # these procedures are sorted by name (after eventually removing the underscores)
-# 
+#
 # BigFloats are internally represented as a list :
 # {"F" Mantissa Exponent Delta} where "F" is a character which determins
 # the datatype, Mantissa and Delta are two big integers and Exponent another integer.
@@ -40,7 +40,7 @@ namespace eval ::math::bigfloat {
 # of the last decimal digit.
 # Example : 1.50 belongs to [1.49,1.51], but internally Delta may not equal to 1.
 # Because of the binary representation, it is between 1 and 1+(2^-15).
-# 
+#
 # So Mantissa and Delta are not limited in size, but in practice Delta is kept under
 # 2^32 by the 'normalize' procedure, to avoid a never-ended growth of memory used.
 # Indeed, when you perform some computations, the Delta parameter (which represent
@@ -102,7 +102,7 @@ proc ::math::bigfloat::acos {x} {
     # has to be a bit smaller than 1 ; by using that trick : acos(x)=asin(sqrt(1-x^2))
     # we can limit the entry of the Taylor development below 1/sqrt(2)
     if {[compare $x [fromstr 0.7071]]>0} {
-        # x > sqrt(2)/2 : trying to make _asin converge quickly 
+        # x > sqrt(2)/2 : trying to make _asin converge quickly
         # creating 0 and 1 with the same precision as the entry
         set fzero [list F 0 -$precision 1]
         # 1.000 with $precision zeros
@@ -157,7 +157,7 @@ proc ::math::bigfloat::add {a b} {
     # when we add two numbers which have different digit numbers (after the dot)
     # for example : 1.0 and 0.00001
     # We promote the one with the less number of digits (1.0) to the same level as
-    # the other : so 1.00000. 
+    # the other : so 1.00000.
     # that is why we shift left the number which has the greater exponent
     # But we do not forget the Delta parameter, which is lshift'ed too.
     if {$expA>$expB} {
@@ -261,7 +261,7 @@ proc ::math::bigfloat::_asin {x} {
     # into this iterative form :
     # asin(x)=x * (1 + 1/2 * x^2 * (1/3 + 3/4 *x^2 * (...
     # ...* (1/(2n-1) + (2n-1)/2n * x^2 / (2n+1))...)))
-    # we show how is really computed the development : 
+    # we show how is really computed the development :
     # we don't need to set a var with x^n or a product of integers
     # all we need is : x^2, 2n-1, 2n, 2n+1 and a few variables
     foreach {dummy mantissa exp delta} $x {break}
@@ -504,7 +504,7 @@ proc ::math::bigfloat::bits {int} {
     }
     return $l
 }
-    
+
 ################################################################################
 # returns the integer part of a BigFloat, as a BigInt
 # the result is the same one you would have
@@ -732,7 +732,7 @@ proc ::math::bigfloat::divPiQuarter {integer precision} {
 proc ::math::bigfloat::div {a b} {
     checkNumber $a
     checkNumber $b
-    # dispatch to an appropriate procedure 
+    # dispatch to an appropriate procedure
     if {[isInt $a]} {
         if {[isInt $b]} {
             return [expr {$a/$b}]
@@ -756,7 +756,7 @@ proc ::math::bigfloat::div {a b} {
         # why not return any number or the integer 0 ?
         # because there is an exponent that might be different between two BigFloats
         # 0.00 --> exp = -2, 0.000000 -> exp = -6
-        return $a 
+        return $a
     }
     # test of the division by zero
     if {$BMin*$BMax<0 || $BMin==0 || $BMax==0} {
@@ -1045,7 +1045,7 @@ proc ::math::bigfloat::fromstr {number {addzeros 0}} {
     if {![string is digit $mantissa]} {
         error "$number is not a number"
     }
-    # take account of trailing zeros 
+    # take account of trailing zeros
     incr exp -$addzeros
     # multiply $number by 10^$trailingZeros
     append mantissa [string repeat 0 $addzeros]
@@ -1168,13 +1168,10 @@ proc ::math::bigfloat::isFloat {x} {
 # checks that n is a BigInt (a number create by math::bignum::fromstr)
 ################################################################################
 proc ::math::bigfloat::isInt {n} {
-    if {[llength $n]>1} {
-        return 0
-    }
-    # if {[string is digit $n]} {
-        # return 1
-    # }
-    return 1
+    set rc [catch {
+        expr {$n%2}
+    }]
+    return [expr {$rc == 0}]
 }
 
 
@@ -1313,7 +1310,7 @@ proc ::math::bigfloat::__log {num denom precision} {
     # we need to limit our results to 12.
     # The solution : given a precision target, increment precision with a
     # computed value so that all digits of he result are exacts.
-    # 
+    #
     # p is the precision
     # pk is the precision increment
     # 2 power pk is also the maximum number of iterations
@@ -1771,7 +1768,7 @@ proc ::math::bigfloat::_sin {x precision delta} {
     # sin(x) = x - x^3/3! + x^5/5! - ... + (-1)^n*x^(2n+1)/(2n+1)!
     #        = x * (1 - x^2/(2*3) * (1 - x^2/(4*5) * (...* (1 - x^2/(2n*(2n+1)) )...)))
     # The second expression allows us to compute the less we can
-    
+
     # $double holds the uncertainty (Delta) of x^2 : 2*(Mantissa*Delta) + Delta^2
     # (Mantissa+Delta)^2=Mantissa^2 + 2*Mantissa*Delta + Delta^2
     set double [expr {$x*$delta>>$precision-1}]
@@ -1909,7 +1906,7 @@ proc ::math::bigfloat::_sqrtOnePlusEpsilon {delta integer} {
 proc ::math::bigfloat::_sqrt {n} {
     set i [expr {(([bits $n]-1)/2)+1}]
     set b [expr {$i*2}] ; # Bit to set to get 2^i*2^i
-    
+
     set r 0 ; # guess
     set x 0 ; # guess^2
     set s 0 ; # guess^2 backup
@@ -1974,7 +1971,7 @@ proc ::math::bigfloat::todouble {x} {
         set minus -
         set result [string range $result 1 end]
     }
-    
+
     set l [split $result e]
     set exp 0
     if {[llength $l]==2} {
@@ -2097,7 +2094,7 @@ proc ::math::bigfloat::tostr {args} {
         # $up>0 and $down<0 or vice-versa : then the number is considered equal to zero
         set isZero yes
 	# delta <= 2**n (n = bits(delta))
-	# 2**n  <= 10**exp , then 
+	# 2**n  <= 10**exp , then
 	# exp >= n.log(2)/log(10)
 	# delta <= 10**(n.log(2)/log(10))
         incr exp [expr {int(ceil([bits $delta]*log(2)/log(10)))}]
@@ -2218,4 +2215,4 @@ namespace eval ::math::bigfloat {
 # (AM) No "namespace import" - this should be left to the user!
 #namespace import ::math::bigfloat::*
 
-package provide math::bigfloat 2.0.1
+package provide math::bigfloat 2.0.2

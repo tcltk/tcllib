@@ -1,8 +1,8 @@
 '\"
 '\" Generated from file 'docidx\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2003-2010 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+'\" Copyright (c) 2003-2014 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 '\"
-.TH "doctools::idx" n 1\&.0\&.4 tcllib "Documentation tools"
+.TH "doctools::idx" n 1\&.0\&.5 tcllib "Documentation tools"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ doctools::idx \- docidx - Processing indices
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBdoctools::idx  ?1\&.0\&.4?\fR
+package require \fBdoctools::idx  ?1\&.0\&.5?\fR
 .sp
 \fB::doctools::idx::new\fR \fIobjectName\fR ?\fB-option\fR \fIvalue\fR \&.\&.\&.?
 .sp
@@ -593,6 +593,6 @@ HTML, TMML, conversion, docidx, documentation, index, keyword index, latex, manp
 Documentation tools
 .SH COPYRIGHT
 .nf
-Copyright (c) 2003-2010 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
+Copyright (c) 2003-2014 Andreas Kupries <andreas_kupries@users\&.sourceforge\&.net>
 
 .fi

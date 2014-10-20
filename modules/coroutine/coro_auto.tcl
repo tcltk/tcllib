@@ -2,7 +2,7 @@
 # # ## ### ##### ######## #############
 
 # @@ Meta Begin
-# Package coroutine::auto 1.1
+# Package coroutine::auto 1.1.2
 # Meta platform        tcl
 # Meta require         {Tcl 8.6}
 # Meta require         {coroutine 1.1}
@@ -18,7 +18,7 @@
 # Meta description     without changes.
 # @@ Meta End
 
-# Copyright (c) 2009-2011 Andreas Kupries
+# Copyright (c) 2009-2014 Andreas Kupries
 
 ## $Id: coro_auto.tcl,v 1.3 2011/11/17 08:00:45 andreas_kupries Exp $
 # # ## ### ##### ######## #############
@@ -136,7 +136,7 @@ proc ::coroutine::auto::wrap_gets {args} {
         ::chan configure $chan -blocking 0
 
 	try {
-	    ::coroutine::auto::core_gets $chan line
+	    set result [::coroutine::auto::core_gets $chan line]
 	} on error {result opts} {
             ::chan configure $chan -blocking $blocking
             return -code $result -options $opts
@@ -211,13 +211,13 @@ proc ::coroutine::auto::wrap_read {args} {
 	    ::chan configure $chan -blocking 0
 
 	    try {
-		::coroutine::auto::core_read $chan
+		set result [::coroutine::auto::core_read $chan]
 	    } on error {result opts} {
 		::chan configure $chan -blocking $blocking
 		return -code $result -options $opts
 	    }
 
-	    if {[fblocked $chan]} {
+	    if {[::chan blocked $chan]} {
 		::chan event $chan readable [list [info coroutine]]
 		yield
 		::chan event $chan readable {}
@@ -241,7 +241,7 @@ proc ::coroutine::auto::wrap_read {args} {
 	    ::chan configure $chan -blocking 0
 
 	    try {
-		::coroutine::auto::core_read $chan $left
+		set result [::coroutine::auto::core_read $chan $left]
 	    } on error {result opts} {
 		::chan configure $chan -blocking $blocking
 		return -code $result -options $opts
@@ -310,5 +310,5 @@ proc ::coroutine::auto::wrap_read {args} {
 # # ## ### ##### ######## #############
 ## Ready
 
-package provide coroutine::auto 1.1.1
+package provide coroutine::auto 1.1.2
 return

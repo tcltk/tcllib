@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin dtplite n 1.1]
+[vset PACKAGE_VERSION 1.2]
+[manpage_begin dtplite n [vset PACKAGE_VERSION]]
 [see_also {docidx introduction}]
 [see_also {doctoc introduction}]
 [see_also {doctools introduction}]
@@ -16,6 +17,7 @@
 [titledesc {Lightweight DocTools Markup Processor}]
 [moddesc   {Documentation toolbox}]
 [category  {Documentation tools}]
+[require dtplite [opt [vset PACKAGE_VERSION]]]
 [description]
 [para]
 

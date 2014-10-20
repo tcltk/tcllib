@@ -2,12 +2,10 @@
 #
 #	Implementation of doctools objects for Tcl.
 #
-# Copyright (c) 2003-2013 Andreas Kupries <andreas_kupries@sourceforge.net>
+# Copyright (c) 2003-2014 Andreas Kupries <andreas_kupries@sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
-# 
-# RCS: @(#) $Id: doctools.tcl,v 1.45 2011/02/23 22:11:59 andreas_kupries Exp $
 
 package require Tcl 8.2
 package require textutil::expander
@@ -371,7 +369,9 @@ proc ::doctools::_configure {name args} {
 			upvar #0 ::doctools::doctools${name}::format format
 			set format $value
 		    } msg]} {
-			return -code error "doctools::_configure: -format: $msg"
+			return -code error \
+			    -errorinfo $::errorInfo \
+			    "doctools::_configure: -format: $msg"
 		    }
 		}
 		-deprecated {
@@ -495,7 +495,8 @@ proc ::doctools::_format {name text} {
 
     set warnings [list]
     if {[catch {$format_ip eval fmt_initialize}]} {
-	return -code error "Could not initialize engine"
+	return -code error -errorcode {DOCTOOLS ENGINE} \
+	    "Could not initialize engine"
     }
     set result ""
 
@@ -508,7 +509,8 @@ proc ::doctools::_format {name text} {
     } {
 	if {[catch {$format_ip eval [list fmt_setup $n]}]} {
 	    catch {$format_ip eval fmt_shutdown}
-	    return -code error "Could not initialize pass $n of engine"
+	    return -code error -errorcode {DOCTOOLS ENGINE} \
+		"Could not initialize pass $n of engine"
 	}
 	$chk_ip eval ck_initialize $n
 
@@ -516,24 +518,30 @@ proc ::doctools::_format {name text} {
 	    catch {$format_ip eval fmt_shutdown}
 	    # Filter for checker errors and reduce them to the essential message.
 
-	    if {![regexp {^Error in} $msg]}          {return -code error $msg}
+	    if {![regexp {^Error in} $msg]}          {
+		return -code error -errorcode {DOCTOOLS INPUT} $msg
+	    }
 	    #set msg [join [lrange [split $msg \n] 2 end]]
 
-	    if {![regexp {^--> \(FmtError\) } $msg]} {return -code error "Doctools $msg"}
+	    if {![regexp {^--> \(FmtError\) } $msg]} {
+		return -code error -errorcode {DOCTOOLS INPUT} "Doctools $msg"
+	    }
 	    set msg [lindex [split $msg \n] 0]
 	    regsub {^--> \(FmtError\) } $msg {} msg
 
-	    return -code error $msg
+	    return -code error -errorcode {DOCTOOLS INPUT} $msg
 	}
 
 	$chk_ip eval ck_complete
     }
 
     if {[catch {set result [$format_ip eval [list fmt_postprocess $result]]}]} {
-	return -code error "Unable to post process final result"
+	return -code error -errorcode {DOCTOOLS ENGINE} \
+	    "Unable to post process final result"
     }
     if {[catch {$format_ip eval fmt_shutdown}]} {
-	return -code error "Could not shut engine down"
+	return -code error -errorcode {DOCTOOLS ENGINE} \
+	    "Could not shut engine down"
     }
     return $result
 
@@ -636,14 +644,14 @@ proc ::doctools::LookupFormat {name format} {
     # 2) Look for the file in the directories given to the object itself..
     # 3) Look for the file in the standard directories of this package.
 
-    if {[file exists $format]} {
-	return $format
+    if {[file exists $format] && [file isfile $format] } {
+      return $format
     }
 
     upvar #0 ::doctools::doctools${name}::paths opaths
     foreach path $opaths {
 	set f [file join $path fmt.$format]
-	if {[file exists $f]} {
+	if {[file exists $f] && [file isfile $f]} {
 	    return $f
 	}
     }
@@ -651,7 +659,7 @@ proc ::doctools::LookupFormat {name format} {
     variable paths
     foreach path $paths {
 	set f [file join $path fmt.$format]
-	if {[file exists $f]} {
+	if {[file exists $f] && [file isfile $f]} {
 	    return $f
 	}
     }
@@ -1350,4 +1358,4 @@ namespace eval ::doctools {
     catch {search [file join $here                             mpformats]}
 }
 
-package provide doctools 1.4.17
+package provide doctools 1.4.19

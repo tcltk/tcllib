@@ -102,6 +102,7 @@ Module  nmea        _tcl  _man  _null
 Module  nns         _tcl  _man  _null
 Module  nntp        _tcl  _man _exa
 Module  ntp         _tcl  _man _exa
+Module  oauth       _tcl  _man  _null
 Module  ooutil      _tcl  _man  _null
 Module  otp         _tcl  _man  _null
 Module  page         _trt _man  _null
@@ -111,7 +112,7 @@ Module  png         _tcl  _man  _null
 Module  pop3        _tcl  _man  _null
 Module  pop3d       _tcl  _man  _null
 Module  profiler    _tcl  _man  _null
-Module  pt          _tcl  _man  _null
+Module  pt           _rde _man  _null
 Module  rc4         _tcl  _man  _null
 Module  rcs         _tcl  _man  _null
 Module  report      _tcl  _man  _null

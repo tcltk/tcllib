@@ -1562,6 +1562,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -1654,6 +1657,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -2148,7 +2154,7 @@ decompression
 tcl::transform::zlib
 .TP
 \fBfiles/modules/zip/decode\&.n\fR
-zipfile::encode
+zipfile::decode
 .RE
 decryption
 .RS
@@ -2852,6 +2858,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -2944,6 +2953,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -3281,6 +3293,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -3373,6 +3388,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -3947,6 +3965,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -4039,6 +4060,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -5126,6 +5150,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -5218,6 +5245,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -5591,6 +5621,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -5683,6 +5716,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -6386,6 +6422,12 @@ number theory
 \fBfiles/modules/math/numtheory\&.n\fR
 math::numtheory
 .RE
+oauth
+.RS
+.TP
+\fBfiles/modules/oauth/oauth\&.n\fR
+oauth
+.RE
 object
 .RS
 .TP
@@ -6554,6 +6596,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -6646,6 +6691,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -6791,6 +6839,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -6883,6 +6934,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -6926,6 +6980,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -7018,6 +7075,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -7100,6 +7160,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -7192,6 +7255,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -7547,6 +7613,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -7639,6 +7708,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -7808,6 +7880,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -7900,6 +7975,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -8387,6 +8465,12 @@ rfc 2554
 \fBfiles/modules/mime/smtp\&.n\fR
 smtp
 .RE
+RFC 2718
+.RS
+.TP
+\fBfiles/modules/oauth/oauth\&.n\fR
+oauth
+.RE
 rfc 2821
 .RS
 .TP
@@ -8419,6 +8503,12 @@ rfc 4511
 .TP
 \fBfiles/modules/ldap/ldap\&.n\fR
 ldap
+.RE
+RFC 5849
+.RS
+.TP
+\fBfiles/modules/oauth/oauth\&.n\fR
+oauth
 .RE
 rfc 6455
 .RS
@@ -9104,6 +9194,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -9196,6 +9289,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -9590,6 +9686,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -9682,6 +9781,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -10238,6 +10340,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -10330,6 +10435,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -10418,6 +10526,9 @@ pt::ast
 \fBfiles/modules/pt/pt_cparam_config_critcl\&.n\fR
 pt::cparam::configuration::critcl
 .TP
+\fBfiles/modules/pt/pt_cparam_config_tea\&.n\fR
+pt::cparam::configuration::tea
+.TP
 \fBfiles/modules/pt/pt_json_language\&.n\fR
 pt::json_language
 .TP
@@ -10510,6 +10621,9 @@ pt::tclparam::configuration::snit
 .TP
 \fBfiles/modules/pt/pt_tclparam_config_tcloo\&.n\fR
 pt::tclparam::configuration::tcloo
+.TP
+\fBfiles/modules/pt/pt_util\&.n\fR
+pt::util
 .TP
 \fBfiles/modules/pt/pt_to_api\&.n\fR
 pt_export_api
@@ -10672,6 +10786,12 @@ textutil
 .TP
 \fBfiles/modules/textutil/trim\&.n\fR
 textutil::trim
+.RE
+twitter
+.RS
+.TP
+\fBfiles/modules/oauth/oauth\&.n\fR
+oauth
 .RE
 type
 .RS
@@ -11288,10 +11408,10 @@ tcl::chan::zero
 zip
 .RS
 .TP
-\fBfiles/modules/zip/encode\&.n\fR
-zipfile::encode
-.TP
 \fBfiles/modules/zip/decode\&.n\fR
+zipfile::decode
+.TP
+\fBfiles/modules/zip/encode\&.n\fR
 zipfile::encode
 .RE
 zlib

@@ -11,9 +11,7 @@
 package require uri      1.1.2
 
 namespace eval ::uri {}
-namespace eval ::uri::urn {
-    variable version 1.0.2
-}
+namespace eval ::uri::urn {}
 
 # -------------------------------------------------------------------------
 
@@ -63,10 +61,17 @@ proc ::uri::urn::quote {url} {
     set result ""
     while {[regexp -indices -- "\[^$trans\]" $url r]} {
         set ndx [lindex $r 0]
-        scan [string index $url $ndx] %c chr
-        set rep %[format %.2X $chr]
-        if {[string match $rep %00]} {
+
+        set ch [string index $url $ndx]
+        if {$ch eq "\0"} {
             error "invalid character: character $chr is not allowed"
+        }
+
+        # Decode into UTF-8 bytes.
+        set rep {}
+        foreach ch [split [encoding convertto utf-8 $ch] {}] {
+            scan $ch %c chr
+            append rep %[format %.2X $chr]
         }
         
         incr ndx -1
@@ -97,7 +102,8 @@ if { [package vcompare [package provide Tcl] 8.3] < 0 } {
             set start [incr last]
         }
         append result [string range $url $start end]
-        return $result
+        # Recode the array of utf-8 bytes to the proper internal rep.
+        return [encoding convertfrom utf-8 $result]
     }
 } else {
     proc ::uri::urn::unquote {url} {
@@ -110,7 +116,8 @@ if { [package vcompare [package provide Tcl] 8.3] < 0 } {
             set start [incr last]
         }
         append result [string range $url $start end]
-        return $result
+        # Recode the array of utf-8 bytes to the proper internal rep.
+        return [encoding convertfrom utf-8 $result]
     }
 }
 
@@ -128,7 +135,7 @@ if { [package vcompare [package provide Tcl] 8.3] < 0 } {
 
 # -------------------------------------------------------------------------
 
-package provide uri::urn $::uri::urn::version
+package provide uri::urn 1.0.3
 
 # -------------------------------------------------------------------------
 # Local Variables:

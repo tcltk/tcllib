@@ -225,7 +225,7 @@ Return the quantiles for a given set of data
 [para]
 [arg_def list data] - List of raw data values
 [para]
-[arg_def float confidence] - Confidence level (0.95 or 0.99 for instance)
+[arg_def float confidence] - Confidence level (0.95 or 0.99 for instance) or a list of confidence levels.
 [para]
 [list_end]
 [para]
@@ -236,7 +236,7 @@ call with two arguments)
 [list_begin arguments]
 [arg_def list limits] - List of upper limits from histogram
 [arg_def list counts] - List of counts for for each interval in histogram
-[arg_def float confidence] -  Confidence level (0.95 or 0.99 for instance)
+[arg_def float confidence] -  Confidence level (0.95 or 0.99 for instance) or a list of confidence levels.
 [list_end]
 [para]
 
@@ -877,6 +877,16 @@ a Gamma distribution with given shape and rate parameters
 [list_begin arguments]
 [arg_def float alpha] - Shape parameter
 [arg_def float beta] - Rate parameter
+[arg_def int number] - Number of values to be returned
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::random-poisson] [arg mu] [arg number]]
+Return a list of "number" random values satisfying
+a Poisson distribution with given mean
+
+[list_begin arguments]
+[arg_def float mu] - Mean of the distribution
 [arg_def int number] - Number of values to be returned
 [list_end]
 [para]

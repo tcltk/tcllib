@@ -95,10 +95,6 @@ snit::type a_pe_grammar {
         $myg mode  DOT           leaf
         $myg rule  DOT           {x {t .} {n WHITESPACE}}
 
-        $myg add   END
-        $myg mode  END           void
-        $myg rule  END           {x {t E} {t N} {t D} {n WHITESPACE}}
-
         $myg add   EOF
         $myg mode  EOF           void
         $myg rule  EOF           {! dot}
@@ -113,7 +109,7 @@ snit::type a_pe_grammar {
 
         $myg add   Final
         $myg mode  Final         void
-        $myg rule  Final         {x {n END} {n SEMICOLON} {n WHITESPACE}}
+        $myg rule  Final         {x {t E} {t N} {t D} {n WHITESPACE} {n SEMICOLON} {n WHITESPACE}}
 
         $myg add   Grammar
         $myg mode  Grammar       value
@@ -165,7 +161,7 @@ snit::type a_pe_grammar {
 
         $myg add   PEG
         $myg mode  PEG           void
-        $myg rule  PEG           {x {t P} {t E} {t G} {n WHITESPACE}}
+        $myg rule  PEG           {x {t P} {t E} {t G} {! {/ {t _} {t :} alnum}} {n WHITESPACE}}
 
         $myg add   PLUS
         $myg mode  PLUS          leaf

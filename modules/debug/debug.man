@@ -1,12 +1,12 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 1.0.2]
+[vset PACKAGE_VERSION 1.0.5]
 [manpage_begin debug n [vset PACKAGE_VERSION]]
 [keywords debug]
 [keywords log]
 [keywords narrative]
 [keywords trace]
 [copyright {200?, Colin McCormack, Wub Server Utilities}]
-[copyright {2012, Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
+[copyright {2012-2014, Andreas Kupries <andreas_kupries@users.sourceforge.net>}]
 [moddesc {debug narrative}]
 [titledesc {debug narrative - core}]
 [category  {debugging, tracing, and logging}]
@@ -129,6 +129,29 @@ how the builtin command [cmd parray] does for array, and returns the
 resulting string.
 
 [para] This makes it suitable for use in debug messages.
+
+[comment {= = == === ===== ======== ============= =====================}]
+[call [cmd debug] [method hexl] [arg data] [opt [arg prefix]]]
+
+This is a convenience method formatting arbitrary data into a hex-dump
+and returns the resulting string.
+
+[para] This makes it suitable for use in debug messages.
+
+[para] Each line of the dump is prefixed with [arg prefix]. This prefix
+defaults to the empty string.
+
+[comment {= = == === ===== ======== ============= =====================}]
+[call [cmd debug] [method nl]]
+
+This is a convenience method to insert a linefeed character (ASCII 0x0a)
+into a debug message.
+
+[comment {= = == === ===== ======== ============= =====================}]
+[call [cmd debug] [method tab]]
+
+This is a convenience method to insert a TAB character (ASCII 0x09)
+into a debug message.
 
 [comment {= = == === ===== ======== ============= =====================}]
 [call [cmd debug] [method prefix] [arg tag] [opt [arg text]]]

@@ -2,7 +2,7 @@
 #
 #	Implementation of report objects for Tcl.
 #
-# Copyright (c) 2001 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2001-2014 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -10,7 +10,7 @@
 # RCS: @(#) $Id: report.tcl,v 1.8 2004/01/15 06:36:13 andreas_kupries Exp $
 
 package require Tcl 8.2
-package provide report 0.3.1
+package provide report 0.3.2
 
 namespace eval ::report {
     # Data storage in the report module
@@ -1332,7 +1332,7 @@ proc ::report::FormatData {tcode name statevar line rh} {
 #	The formatted string for the supplied cell.
 
 proc ::report::FormatCell {value size just} {
-    set vlen [string length $value]
+    set vlen [string length [StripAnsiColor $value]]
 
     if {$vlen == $size} {
 	# Value fits exactly, justification is irrelevant
@@ -1375,4 +1375,12 @@ proc ::report::FormatCell {value size just} {
 	    error "Can't happen, panic, run, shout"
 	}
     }
+}
+
+proc ::report::StripAnsiColor {string} {
+    # Look for ANSI color control sequences and remove them. Avoid
+    # counting their characters as such sequences as a whole represent
+    # a state change, and are logically of zero/no width.
+    regsub -all "\033\\\[\[0-9;\]*m" $string {} string
+    return $string
 }

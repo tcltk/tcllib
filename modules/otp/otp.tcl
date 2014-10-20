@@ -11,9 +11,6 @@
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::otp {
-    variable version 1.0.0
-    variable rcsid {$Id: otp.tcl,v 1.2 2006/09/02 22:30:17 patthoyts Exp $}
-
     namespace export otp-md4 otp-md5 otp-sha1 otp-rmd160
 
     variable Words {
@@ -424,7 +421,7 @@ proc ::otp::otp-rmd160 {args} {
 
 # -------------------------------------------------------------------------
 
-package provide otp $::otp::version
+package provide otp 1.0.0
 
 # -------------------------------------------------------------------------
 # Local Variables:

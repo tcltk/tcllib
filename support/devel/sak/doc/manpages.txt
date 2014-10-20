@@ -215,6 +215,7 @@ modules/nns/nns_protocol.man
 modules/nns/nns_server.man
 modules/nntp/nntp.man
 modules/ntp/ntp_time.man
+modules/oauth/oauth.man
 modules/ooutil/ooutil.man
 modules/otp/otp.man
 modules/page/page_intro.man
@@ -234,6 +235,7 @@ modules/pop3d/pop3d_udb.man
 modules/profiler/profiler.man
 modules/pt/pt_astree.man
 modules/pt/pt_cparam_config_critcl.man
+modules/pt/pt_cparam_config_tea.man
 modules/pt/pt_from_api.man
 modules/pt/pt_introduction.man
 modules/pt/pt_json_language.man
@@ -271,6 +273,7 @@ modules/pt/pt_rdengine.man
 modules/pt/pt_tclparam_config_snit.man
 modules/pt/pt_tclparam_config_tcloo.man
 modules/pt/pt_to_api.man
+modules/pt/pt_util.man
 modules/rc4/rc4.man
 modules/rcs/rcs.man
 modules/report/report.man

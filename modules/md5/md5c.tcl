@@ -43,6 +43,7 @@ critcl::csources md5.c ; # The RSA MD5 implementation.
 namespace eval ::md5 {}
 
 critcl::ccode {
+    #include <string.h>
     #include "md5.h"
     #include <assert.h>
 
@@ -53,7 +54,7 @@ critcl::ccode {
     md5_free_rep(Tcl_Obj *obj)
     {
 	MD5_CTX *mp = (MD5_CTX *) obj->internalRep.otherValuePtr;
-	Tcl_Free(mp);
+	Tcl_Free((char*)mp);
     }
     
     static void

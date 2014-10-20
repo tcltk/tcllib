@@ -3,7 +3,7 @@
 # (C) 2009 Andreas Kupries
 
 # @@ Meta Begin
-# Package tcl::transform::zlib 1
+# Package tcl::transform::zlib 1.0.1
 # Meta as::author {Andreas Kupries}
 # Meta as::copyright 2009
 # Meta as::license BSD
@@ -47,8 +47,8 @@ oo::class create ::tcl::transform::zlib::implementation {
     # transform before seeking.
 
     method initialize {c mode} {
-	set compressor   [zlib stream deflate $level]
-	set decompressor [zlib stream inflate $level]
+	set compressor   [zlib stream deflate -level $level]
+	set decompressor [zlib stream inflate]
 
 	next $c $mode
     }
@@ -96,5 +96,5 @@ oo::class create ::tcl::transform::zlib::implementation {
 }
 
 # # ## ### ##### ######## #############
-package provide tcl::transform::zlib 1
+package provide tcl::transform::zlib 1.0.1
 return

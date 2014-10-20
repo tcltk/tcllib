@@ -11,4 +11,4 @@ package ifneeded tcl::transform::observe 1     [list source [file join $dir obse
 package ifneeded tcl::transform::otp 1         [list source [file join $dir otp.tcl]]
 package ifneeded tcl::transform::rot 1         [list source [file join $dir rot.tcl]]
 package ifneeded tcl::transform::spacer 1      [list source [file join $dir spacer.tcl]]
-package ifneeded tcl::transform::zlib 1        [list source [file join $dir zlib.tcl]]
+package ifneeded tcl::transform::zlib 1.0.1    [list source [file join $dir zlib.tcl]]

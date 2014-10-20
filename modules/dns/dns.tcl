@@ -28,8 +28,6 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-#
-# $Id: dns.tcl,v 1.36 2008/11/22 12:28:54 mic42 Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require logger;                 # tcllib 1.3
@@ -38,9 +36,6 @@ package require uri::urn;               # tcllib 1.2
 package require ip;                     # tcllib 1.7
 
 namespace eval ::dns {
-    variable version 1.3.3
-    variable rcsid {$Id: dns.tcl,v 1.36 2008/11/22 12:28:54 mic42 Exp $}
-
     namespace export configure resolve name address cname \
         status reset wait cleanup errorcode
 
@@ -1327,18 +1322,18 @@ switch -exact $::tcl_platform(platform) {
 
 catch {
     uri::register {dns} {
-        set escape     [set [namespace parent [namespace current]]::basic::escape]
-        set host       [set [namespace parent [namespace current]]::basic::host]
-        set hostOrPort [set [namespace parent [namespace current]]::basic::hostOrPort]
+        variable escape     [set [namespace parent [namespace current]]::basic::escape]
+        variable host       [set [namespace parent [namespace current]]::basic::host]
+        variable hostOrPort [set [namespace parent [namespace current]]::basic::hostOrPort]
 
-        set class [string map {* \\\\*} \
+        variable class [string map {* \\\\*} \
                        "class=([join [array names ::dns::classes] {|}])"]
-        set type  [string map {* \\\\*} \
+        variable type  [string map {* \\\\*} \
                        "type=([join [array names ::dns::types] {|}])"]
-        set classOrType "(?:${class}|${type})"
-        set classOrTypeSpec "(?:${class}|${type})(?:;(?:${class}|${type}))?"
+        variable classOrType "(?:${class}|${type})"
+        variable classOrTypeSpec "(?:${class}|${type})(?:;(?:${class}|${type}))?"
 
-        set query "${host}(${classOrTypeSpec})?"
+        variable query "${host}(${classOrTypeSpec})?"
         variable schemepart "(//${hostOrPort}/)?(${query})"
         variable url "dns:$schemepart"
     }
@@ -1414,7 +1409,7 @@ proc ::uri::JoinDns {args} {
 
 catch {dns::configure -nameserver [lindex [dns::nameservers] 0]}
 
-package provide dns $dns::version
+package provide dns 1.3.4
 
 # -------------------------------------------------------------------------
 # Local Variables:

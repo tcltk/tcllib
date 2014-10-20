@@ -1,4 +1,4 @@
-[manpage_begin math::calculus n 0.7.1]
+[manpage_begin math::calculus n 0.8]
 [see_also romberg]
 [keywords calculus]
 [keywords {differential equations}]
@@ -10,7 +10,7 @@
 [titledesc {Integration and ordinary differential equations}]
 [category  Mathematics]
 [require Tcl 8.4]
-[require math::calculus 0.7.1]
+[require math::calculus 0.8]
 [description]
 [para]
 This package implements several simple mathematical algorithms:
@@ -90,6 +90,45 @@ The commands [cmd integral3D] and [cmd integral3D_accurate] are the
 three-dimensional equivalent of [cmd integral2D] and [cmd integral3D_accurate].
 The function [emph func] takes three arguments and is integrated over the block in
 3D space given by three intervals.
+
+[call [cmd ::math::calculus::qk15] [arg xstart] [arg xend] [arg func] [arg nosteps]]
+Determine the integral of the given function using the Gauss-Kronrod 15 points quadrature rule.
+The returned value is the estimate of the integral over the interval [lb][arg xstart], [arg xend][rb].
+The remaining arguments are:
+
+[list_begin definitions]
+[def [arg func]]
+Function to be integrated. It should take one single argument.
+
+[def [opt nosteps]]
+Number of steps in which the interval is divided. Defaults to 1.
+[list_end]
+[para]
+
+[call [cmd ::math::calculus::qk15_detailed] [arg xstart] [arg xend] [arg func] [arg nosteps]]
+Determine the integral of the given function using the Gauss-Kronrod 15 points quadrature rule.
+The interval for the integration is [lb][arg xstart], [arg xend][rb].
+The procedure returns a list of four values:
+[list_begin itemized]
+[item]
+The estimate of the integral over the specified interval (I).
+[item]
+An estimate of the absolute error in I.
+[item]
+The estimate of the integral of the absolute value of the function over the interval.
+[item]
+The estimate of the integral of the absolute value of the function minus its mean over the interval.
+[list_end]
+The remaining arguments are:
+
+[list_begin definitions]
+[def [arg func]]
+Function to be integrated. It should take one single argument.
+
+[def [opt nosteps]]
+Number of steps in which the interval is divided. Defaults to 1.
+[list_end]
+[para]
 
 [call [cmd ::math::calculus::eulerStep] [arg t] [arg tstep] [arg xvec] [arg func]]
 Set a single step in the numerical integration of a system of

@@ -70,7 +70,15 @@ rde_tc_append (RDE_TC tc, char* string, long int len)
     Tcl_UniChar uni;
 
     if (len < 0) {
-	len = strlen (ch);
+	len = strlen (string);
+    }
+
+    /*
+     * Nothing to append, nothing to do. Bail immediately.
+     */
+
+    if (!len) {
+	return tc->str + base;
     }
 
     /*
@@ -114,18 +122,18 @@ rde_tc_append (RDE_TC tc, char* string, long int len)
 SCOPE void
 rde_tc_get (RDE_TC tc, int at, char** ch, long int* len)
 {
-    long int  oc, off, top, end;
-    long int* ov;
+    long int  oc, off, end;
+    void** ov;
 
-    rde_stack_get (tc->off, &oc, (void***) &ov);
+    rde_stack_get (tc->off, &oc, &ov);
 
     ASSERT_BOUNDS(at,oc);
 
-    off = ov [at];
+    off = (long int) ov [at];
     if ((at+1) == oc) {
 	end = tc->num;
     } else {
-	end = ov [at+1];
+	end = (long int) ov [at+1];
     }
 
     TRACE (("rde_tc_get (RDE_TC %p, @ %d) => %d.[%d ... %d]/%d",tc,at,end-off,off,end-1,tc->num));
@@ -140,19 +148,19 @@ rde_tc_get (RDE_TC tc, int at, char** ch, long int* len)
 SCOPE void
 rde_tc_get_s (RDE_TC tc, int at, int last, char** ch, long int* len)
 {
-    long int  oc, off, top, end;
-    long int* ov;
+    long int  oc, off, end;
+    void** ov;
 
-    rde_stack_get (tc->off, &oc, (void***) &ov);
+    rde_stack_get (tc->off, &oc, &ov);
 
     ASSERT_BOUNDS(at,oc);
     ASSERT_BOUNDS(last,oc);
 
-    off = ov [at];
+    off = (long int) ov [at];
     if ((last+1) == oc) {
 	end = tc->num;
     } else {
-	end = ov [last+1];
+	end = (long int) ov [last+1];
     }
 
     TRACE (("rde_tc_get_s (RDE_TC %p, @ %d .. %d) => %d.[%d ... %d]/%d",tc,at,last,end-off,off,end-1,tc->num));

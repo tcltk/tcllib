@@ -12,7 +12,7 @@
 
 package require Tcl 8.4
 package require math::interpolate
-package provide math::calculus 0.7.2
+package provide math::calculus 0.8
 
 # math::calculus --
 #    Namespace for the commands
@@ -25,6 +25,7 @@ namespace eval ::math::calculus {
 
     namespace export \
 	integral integralExpr integral2D integral3D \
+	qk15 qk15_detailed \
 	eulerStep heunStep rungeKuttaStep           \
 	boundaryValueSecondOrder solveTriDiagonal   \
 	newtonRaphson newtonRaphsonParameters
@@ -1445,4 +1446,192 @@ function has a different sign at the beginning than at the end"
     }
 
     return $xi
+}
+
+#
+
+# qk15_basic --
+#     Apply the QK15 rule to a single interval and return all results
+#
+# Arguments:
+#     f             Function to integrate (name of procedure)
+#     xstart        Start of the interval
+#     xend          End of the interval
+#
+# Returns:
+#     List of the following:
+#     result        Estimated integral (I) of function f
+#     abserr        Estimate of the absolute error in "result"
+#     resabs        Estimated integral of the absolute value of f
+#     resasc        Estimated integral of abs(f - I/(xend-xstart))
+#
+# Note:
+#     Translation of the 15-point Gauss-Kronrod rule (QK15) as found
+#     in the SLATEC library (QUADPACK) into Tcl.
+#
+namespace eval ::math::calculus {
+    variable qk15_xgk
+    variable qk15_wgk
+    variable qk15_wg
+
+    set qk15_xgk {
+           0.9914553711208126e+00    0.9491079123427585e+00
+           0.8648644233597691e+00    0.7415311855993944e+00
+           0.5860872354676911e+00    0.4058451513773972e+00
+           0.2077849550078985e+00    0.0e+00               }
+    set qk15_wgk {
+           0.2293532201052922e-01    0.6309209262997855e-01
+           0.1047900103222502e+00    0.1406532597155259e+00
+           0.1690047266392679e+00    0.1903505780647854e+00
+           0.2044329400752989e+00    0.2094821410847278e+00}
+    set qk15_wg {
+           0.1294849661688697e+00    0.2797053914892767e+00
+           0.3818300505051189e+00    0.4179591836734694e+00}
+}
+
+proc ::math::calculus::qk15_basic {xstart xend func} {
+    variable qk15_wg
+    variable qk15_wgk
+    variable qk15_xgk
+
+    #
+    # Use fixed values for epmach and uflow:
+    # - epmach is the largest relative spacing.
+    # - uflow is the smallest positive magnitude.
+
+    set epmach [expr {2.3e-308}]
+    set uflow  [expr {1.2e-16}]
+
+    set centr  [expr {0.5e+00*($xstart+$xend)}]
+    set hlgth  [expr {0.5e+00*($xend-$xstart)}]
+    set dhlgth [expr {abs($hlgth)}]
+
+    #
+    # Compute the 15-point Kronrod approximation to
+    # the integral, and estimate the absolute error.
+    #
+    set fc     [uplevel 2 $func $centr]
+    set resg   [expr {$fc*[lindex $qk15_wg 3]}]
+    set resk   [expr {$fc*[lindex $qk15_wgk 7]}]
+    set resabs [expr {abs($resk)}]
+
+    set fv1    [lrepeat 7 0.0]
+    set fv2    [lrepeat 7 0.0]
+
+    for {set j 0} {$j < 3} {incr j} {
+        set jtw [expr {$j*2 +1}]
+        set absc [expr {$hlgth*[lindex $qk15_xgk $jtw]}]
+        set fval1 [uplevel 2 $func [expr {$centr-$absc}]]
+        set fval2 [uplevel 2 $func [expr {$centr+$absc}]]
+        lset fv1 $jtw $fval1
+        lset fv2 $jtw $fval2
+        set fsum [expr {$fval1+$fval2}]
+        set resg [expr {$resg+[lindex $qk15_wg $j]*$fsum}]
+        set resk [expr {$resk+[lindex $qk15_wgk $jtw]*$fsum}]
+        set resabs [expr {$resabs+[lindex $qk15_wgk $jtw]*(abs($fval1)+abs($fval2))}]
+    }
+    for {set j 0} {$j < 4} {incr j} {
+        set jtwm1 [expr {$j*2}]
+        set absc [expr {$hlgth*[lindex $qk15_xgk $jtwm1]}]
+        set fval1 [uplevel 2 $func [expr {$centr-$absc}]]
+        set fval2 [uplevel 2 $func [expr {$centr+$absc}]]
+        lset fv1 $jtwm1 $fval1
+        lset fv2 $jtwm1 $fval2
+        set fsum [expr {$fval1+$fval2}]
+        set resk [expr {$resk+[lindex $qk15_wgk $jtwm1]*$fsum}]
+        set resabs [expr {$resabs+[lindex $qk15_wgk $jtwm1]*(abs($fval1)+abs($fval2))}]
+    }
+
+    set reskh [expr {$resk*0.5e+00}]
+    set resasc [expr {[lindex $qk15_wgk 7]*abs($fc-$reskh)}]
+
+    for {set j 0} {$j < 7} {incr j} {
+        set wgk    [lindex $qk15_wgk $j]
+        set FV1    [lindex $fv1      $j]
+        set FV2    [lindex $fv2      $j]
+        set resasc [expr {$resasc+$wgk*(abs($FV1-$reskh)+abs($FV2-$reskh))}]
+    }
+
+    set result [expr {$resk*$hlgth}]
+    set resabs [expr {$resabs*$dhlgth}]
+    set resasc [expr {$resasc*$dhlgth}]
+    set abserr [expr {abs(($resk-$resg)*$hlgth)}]
+    if { $resasc != 0.0e+00 && $abserr != 0.0e+00 } {
+        set abserr [expr {$resasc*min(0.1e+01,(0.2e+3*$abserr/$resasc)**1.5e+00)}]
+    }
+    if { $resabs > $uflow/(0.5e+02*$epmach) } {
+        set abserr [expr {max(($epmach*0.5e+02)*$resabs,$abserr)}]
+    }
+
+    return [list $result $abserr $resabs $resasc]
+}
+
+# qk15 --
+#     Apply the QK15 rule to an interval and return the estimated integral
+#
+# Arguments:
+#     xstart        Start of the interval
+#     xend          End of the interval
+#     func          Function to integrate (name of procedure)
+#     n             Number of subintervals (default: 1)
+#
+# Returns:
+#     Estimated integral of function func
+#
+proc ::math::calculus::qk15 {xstart xend func {n 1}} {
+    if { $n == 1 } {
+        return [lindex [qk15_basic $xstart $xend $func] 0]
+    } else {
+        set dx [expr {($xend-$xstart)/double($n)}]
+        set result 0.0
+        for {set i 0} {$i < $n} {incr i} {
+            set xb [expr {$xstart + $dx * $i}]
+            set xe [expr {$xstart + $dx * ($i+1)}]
+
+            set result [expr {$result + [lindex [qk15_basic $xb $xe $func] 0]}]
+        }
+    }
+
+    return $result
+}
+
+# qk15_detailed --
+#     Apply the QK15 rule to an interval and return the estimated integral
+#     as well as the other values
+#
+# Arguments:
+#     xstart        Start of the interval
+#     xend          End of the interval
+#     func          Function to integrate (name of procedure)
+#     n             Number of subintervals (default: 1)
+#
+# Returns:
+#     List of the following:
+#     result        Estimated integral (I) of function func
+#     abserr        Estimate of the absolute error in "result"
+#     resabs        Estimated integral of the absolute value of f
+#     resasc        Estimated integral of abs(f - I/(xend-xstart))
+#
+proc ::math::calculus::qk15_detailed {xstart xend func {n 1}} {
+    if { $n == 1 } {
+        return [qk15_basic $xstart $xend $func]
+    } else {
+        set dx [expr {($xend-$xstart)/double($n)}]
+        set result 0.0
+        set abserr 0.0
+        set resabs 0.0
+        set resasc 0.0
+        for {set i 0} {$i < $n} {incr i} {
+            set xb [expr {$xstart + $dx * $i}]
+            set xe [expr {$xstart + $dx * ($i+1)}]
+
+            lassign [qk15_basic $xb $xe $func] dresult dabserr dresabs dresasc
+            set result [expr {$result + $dresult}]
+            set abserr [expr {$abserr + $dabserr}]
+            set resabs [expr {$resabs + $dresabs}]
+            set resasc [expr {$resasc + $dresasc}]
+        }
+    }
+
+    return [list $result $abserr $resabs $resasc]
 }

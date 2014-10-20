@@ -304,7 +304,7 @@ test ncgi-11.1 {ncgi::redirect} {
     set res [read $f]
     close $f
     removeFile test1
-set res
+    set res
 } "Content-Type: text/html\nLocation: $URL\n\nPlease go to <a href=\"$URL\">$URL</a>\n"
 
 set URL /elsewhere/foo.html
@@ -443,6 +443,35 @@ test ncgi-11.6 {ncgi::redirect} {
     removeFile test1
     set res
 } "Content-Type: text/html\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
+
+set URL  login.tcl
+set URL2 https://foo.com/cgi-bin/login.tcl
+test ncgi-11.7 {ncgi::redirect} {
+    set env(REQUEST_URI) https://foo.com/cgi-bin/view.tcl?path=/a/b/c
+    set env(REQUEST_METHOD) GET
+    set env(QUERY_STRING) {}
+    set env(SERVER_NAME) foo.com
+    set env(SERVER_PORT) 443
+    set env(HTTPS) "on"
+    makeFile [format {
+	set auto_path {%s}
+	if {[catch {
+	    source %s
+	    source %s
+	    source %s
+	    ncgi::redirect %s
+	} err]} {
+	    puts $err
+	}
+	exit
+    } $sub_ap $cmdlFile $futlFile $ncgiFile $URL] test1
+    set f [open "|[list $::tcltest::tcltest test1]" r+]
+    set res [read $f]
+    close $f
+    removeFile test1
+    set res
+} "Content-Type: text/html\nLocation: $URL2\n\nPlease go to <a href=\"$URL2\">$URL2</a>\n"
+
 
 test ncgi-12.1 {ncgi::header} {
     makeFile [format {

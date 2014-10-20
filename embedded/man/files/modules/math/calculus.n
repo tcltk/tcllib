@@ -2,7 +2,7 @@
 '\" Generated from file 'calculus\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002,2003,2004 Arjen Markus
 '\"
-.TH "math::calculus" n 0\&.7\&.1 tcllib "Tcl Math Library"
+.TH "math::calculus" n 0\&.8 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ math::calculus \- Integration and ordinary differential equations
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBmath::calculus  0\&.7\&.1\fR
+package require \fBmath::calculus  0\&.8\fR
 .sp
 \fB::math::calculus::integral\fR \fIbegin\fR \fIend\fR \fInosteps\fR \fIfunc\fR
 .sp
@@ -289,6 +289,10 @@ package require \fBmath::calculus  0\&.7\&.1\fR
 \fB::math::calculus::integral3D\fR \fIxinterval\fR \fIyinterval\fR \fIzinterval\fR \fIfunc\fR
 .sp
 \fB::math::calculus::integral3D_accurate\fR \fIxinterval\fR \fIyinterval\fR \fIzinterval\fR \fIfunc\fR
+.sp
+\fB::math::calculus::qk15\fR \fIxstart\fR \fIxend\fR \fIfunc\fR \fInosteps\fR
+.sp
+\fB::math::calculus::qk15_detailed\fR \fIxstart\fR \fIxend\fR \fIfunc\fR \fInosteps\fR
 .sp
 \fB::math::calculus::eulerStep\fR \fIt\fR \fItstep\fR \fIxvec\fR \fIfunc\fR
 .sp
@@ -380,6 +384,46 @@ The commands \fBintegral3D\fR and \fBintegral3D_accurate\fR are the
 three-dimensional equivalent of \fBintegral2D\fR and \fBintegral3D_accurate\fR\&.
 The function \fIfunc\fR takes three arguments and is integrated over the block in
 3D space given by three intervals\&.
+.TP
+\fB::math::calculus::qk15\fR \fIxstart\fR \fIxend\fR \fIfunc\fR \fInosteps\fR
+Determine the integral of the given function using the Gauss-Kronrod 15 points quadrature rule\&.
+The returned value is the estimate of the integral over the interval [\fIxstart\fR, \fIxend\fR]\&.
+The remaining arguments are:
+.RS
+.TP
+\fIfunc\fR
+Function to be integrated\&. It should take one single argument\&.
+.TP
+?nosteps?
+Number of steps in which the interval is divided\&. Defaults to 1\&.
+.RE
+.sp
+.TP
+\fB::math::calculus::qk15_detailed\fR \fIxstart\fR \fIxend\fR \fIfunc\fR \fInosteps\fR
+Determine the integral of the given function using the Gauss-Kronrod 15 points quadrature rule\&.
+The interval for the integration is [\fIxstart\fR, \fIxend\fR]\&.
+The procedure returns a list of four values:
+.RS
+.IP \(bu
+The estimate of the integral over the specified interval (I)\&.
+.IP \(bu
+An estimate of the absolute error in I\&.
+.IP \(bu
+The estimate of the integral of the absolute value of the function over the interval\&.
+.IP \(bu
+The estimate of the integral of the absolute value of the function minus its mean over the interval\&.
+.RE
+.IP
+The remaining arguments are:
+.RS
+.TP
+\fIfunc\fR
+Function to be integrated\&. It should take one single argument\&.
+.TP
+?nosteps?
+Number of steps in which the interval is divided\&. Defaults to 1\&.
+.RE
+.sp
 .TP
 \fB::math::calculus::eulerStep\fR \fIt\fR \fItstep\fR \fIxvec\fR \fIfunc\fR
 Set a single step in the numerical integration of a system of

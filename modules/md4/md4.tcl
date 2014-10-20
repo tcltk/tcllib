@@ -7,8 +7,6 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-#
-# $Id: md4.tcl,v 1.20 2008/04/29 10:07:45 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 catch {package require md4c 1.0};       # tcllib critcl alternative
@@ -16,9 +14,7 @@ catch {package require md4c 1.0};       # tcllib critcl alternative
 # @mdgen EXCLUDE: md4c.tcl
 
 namespace eval ::md4 {
-    variable version 1.0.5
-    variable rcsid {$Id: md4.tcl,v 1.20 2008/04/29 10:07:45 patthoyts Exp $}
-    variable accel
+    variable  accel
     array set accel {critcl 0 cryptkit 0}
 
     namespace export md4 hmac MD4Init MD4Update MD4Final
@@ -559,11 +555,12 @@ proc ::md4::hmac {args} {
 
 # Try and load a compiled extension to help.
 namespace eval ::md4 {
+    variable e {}
     foreach e {critcl cryptkit} { if {[LoadAccelerator $e]} { break } }
     unset e
 }
 
-package provide md4 $::md4::version
+package provide md4 1.0.6
 
 # -------------------------------------------------------------------------
 # Local Variables:

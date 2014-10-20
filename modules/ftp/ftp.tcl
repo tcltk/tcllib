@@ -118,6 +118,9 @@ proc ::ftp::DisplayMsg {s msg {state ""}} {
 #
 proc ::ftp::Timeout {s} {
     upvar ::ftp::ftp$s ftp
+    variable VERBOSE
+
+    if {$VERBOSE} { DisplayMsg $s Waiting|Timeout! }
 
     after cancel $ftp(Wait)
     set ftp(state.control) 1
@@ -144,15 +147,20 @@ proc ::ftp::Timeout {s} {
 
 proc ::ftp::WaitOrTimeout {s} {
     upvar ::ftp::ftp$s ftp
+    variable VERBOSE
 
     set retvar 1
 
     if { ![string length $ftp(Command)] && [info exists ftp(state.control)] } {
 
+	if {$VERBOSE} { DisplayMsg $s Waiting|$ftp(Timeout)|\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# }
+
         set ftp(Wait) [after [expr {$ftp(Timeout) * 1000}] [list [namespace current]::Timeout $s]]
 
         vwait ::ftp::ftp${s}(state.control)
         set retvar $ftp(state.control)
+
+	if {$VERBOSE} { DisplayMsg $s Waiting|Done|\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# }
     }
 
     if {$ftp(Error) != ""} {
@@ -161,6 +169,7 @@ proc ::ftp::WaitOrTimeout {s} {
         DisplayMsg $s $errmsg error
     }
 
+    if {$VERBOSE} { DisplayMsg $s Waiting|OK|$retvar }
     return $retvar
 }
 
@@ -178,18 +187,31 @@ proc ::ftp::WaitOrTimeout {s} {
 #
 
 proc ::ftp::WaitComplete {s value} {
+    variable VERBOSE
     upvar ::ftp::ftp$s ftp
+
+    if {$VERBOSE} { DisplayMsg $s Waiting|Complete|$s|$value|\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# }
 
     if {![info exists ftp(Command)]} {
 	set ftp(state.control) $value
+
+	if {$VERBOSE} { DisplayMsg $s Waiting|Complete|Done/Command|$value|\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# }
 	return $value
     }
     if { ![string length $ftp(Command)] && [info exists ftp(state.data)] } {
+
+	if {$VERBOSE} { DisplayMsg $s Waiting|State|\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# }
+
         vwait ::ftp::ftp${s}(state.data)
+
+	if {$VERBOSE} { DisplayMsg $s Waiting|State|Done|\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# }
     }
 
     catch {after cancel $ftp(Wait)}
     set ftp(state.control) $value
+
+    if {$VERBOSE} { DisplayMsg $s Waiting|OK|$ftp(state.control)|\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\#\# }
+
     return $ftp(state.control)
 }
 
@@ -234,6 +256,8 @@ proc ::ftp::StateHandler {s {sock ""}} {
     upvar ::ftp::ftp$s ftp
     variable DEBUG 
     variable VERBOSE
+
+    if {$VERBOSE} { DisplayMsg $s StateHandler/$s/$sock/================================================ }
 
     # disable fileevent on control socket, enable it at the and of the state machine
     # fileevent $ftp(CtrlSock) readable {}
@@ -308,15 +332,18 @@ proc ::ftp::StateHandler {s {sock ""}} {
             WaitComplete $s 0
 	    Command $ftp(Command) terminated
             catch {unset ftp(State)}
+
+	    if {$VERBOSE} { DisplayMsg $s EOF/Control }
             return
         } else {
 	    # Fix SF bug #466746: Incomplete line, do nothing.
+	    if {$VERBOSE} { DisplayMsg $s Incomplete/Line }
 	    return	   
 	}
     } 
 	
     if { $DEBUG } {
-        DisplayMsg $s "-> rc=\"$rc\"\n-> msgtext=\"$msgtext\"\n-> state=\"$ftp(State)\""
+        DisplayMsg $s "-> rc=\"$rc\" -> msgtext=\"$msgtext\" -> state=\"$ftp(State)\""
     }
 
     # In asynchronous mode, should we move on to the next state?
@@ -324,12 +351,15 @@ proc ::ftp::StateHandler {s {sock ""}} {
 	
     # system status replay
     if { [string equal $rc "211"] } {
+	if {$VERBOSE} { DisplayMsg $s Ignore/211 }
         return
     }
 
     # use only the first digit 
     regexp -- "^\[0-9\]?" $rc rc
-	
+
+    if {$VERBOSE} { DisplayMsg $s StateBegin////////($ftp(State)) }
+
     switch -exact -- $ftp(State) {
         user { 
             switch -exact -- $rc {
@@ -538,6 +568,10 @@ proc ::ftp::StateHandler {s {sock ""}} {
             switch -exact -- $rc {
                 1 {}
 		2 {
+		    # Sync control sequencer to active data connection
+		    # before stepping out
+		    WaitDataConn $s
+
 		    set nextState 1
 		    if {[info exists ftp(NextState)] && ![llength $ftp(NextState)]} {
 			Command $ftp(Command) list [ListPostProcess $ftp(List)]
@@ -784,9 +818,14 @@ proc ::ftp::StateHandler {s {sock ""}} {
             switch -exact -- $rc {
 		1 {
 		    # Keep going
+		    if {$VERBOSE} { DisplayMsg $s put_close/1--continue }
 		    return
 		}
                 2 {
+		    # Sync control sequencer to active data connection
+		    # before stepping out
+		    WaitDataConn $s
+
                     set complete_with 1
 		    set nextState 1
 		    Command $ftp(Command) put $ftp(RemoteFilename)
@@ -856,6 +895,10 @@ proc ::ftp::StateHandler {s {sock ""}} {
         append_close {
             switch -exact -- $rc {
                 2 {
+		    # Sync control sequencer to active data connection
+		    # before stepping out
+		    WaitDataConn $s
+
                     set complete_with 1
 		    set nextState 1
 		    Command $ftp(Command) append $ftp(RemoteFilename)
@@ -917,7 +960,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
                         set errmsg "Error setting PASSIVE mode!"
                     } else {
                         set errmsg "Error setting port!"
-                    }  
+                    }
                     set complete_with 0
 		    Command $ftp(Command) error $errmsg
                 }
@@ -942,6 +985,10 @@ proc ::ftp::StateHandler {s {sock ""}} {
         reget_close {
             switch -exact -- $rc {
                 2 {
+		    # Sync control sequencer to active data connection
+		    # before stepping out
+		    WaitDataConn $s
+
                     set complete_with 1
 		    set nextState 1
 		    Command $ftp(Command) get $ftp(RemoteFilename):$ftp(From):$ftp(To)
@@ -1012,6 +1059,10 @@ proc ::ftp::StateHandler {s {sock ""}} {
         get_close {
             switch -exact -- $rc {
                 2 {
+		    # Sync control sequencer to active data connection
+		    # before stepping out
+		    WaitDataConn $s
+
                     set complete_with 1
 		    set nextState 1
 		    if {$ftp(inline)} {
@@ -1034,9 +1085,15 @@ proc ::ftp::StateHandler {s {sock ""}} {
 	}
     }
 
+    if {$VERBOSE} { DisplayMsg $s ////////StateDone==>$ftp(State) }
+
     # finish waiting 
     if { [info exists complete_with] } {
+	if {$VERBOSE} { DisplayMsg $s WaitBegin////////($complete_with) }
+
         WaitComplete $s $complete_with
+
+	if {$VERBOSE} { DisplayMsg $s ////////WaitDone }
     }
 
     # display control channel message
@@ -1057,16 +1114,25 @@ proc ::ftp::StateHandler {s {sock ""}} {
     }
 
     # If operating asynchronously, commence next state
+    if {$VERBOSE} {
+	DisplayMsg $s "ns=$nextState, NS=[info exists ftp(NextState)], NSlen=[expr {[info exists ftp(NextState)] && [llength $ftp(NextState)]}]"
+    }
     if {$nextState && [info exists ftp(NextState)] && [llength $ftp(NextState)]} {
 	# Pop the head of the NextState queue
-	set ftp(State) [lindex $ftp(NextState) 0]
+	if {$VERBOSE} { DisplayMsg $s Sequence=($ftp(NextState)) }
+
+	set ftp(State)     [lindex   $ftp(NextState) 0]
 	set ftp(NextState) [lreplace $ftp(NextState) 0 0]
+
+	if {$VERBOSE} { DisplayMsg $s Recurse/StateHandler }
 	StateHandler $s
     }
 
     # enable fileevent on control socket again
     #fileevent $ftp(CtrlSock) readable [list ::ftp::StateHandler $ftp(CtrlSock)]
 
+    if {$VERBOSE} { DisplayMsg $s ======/HandlerDone }
+    return
 }
 
 #############################################################################
@@ -1137,7 +1203,10 @@ proc ::ftp::Type {s {type ""}} {
 # sorted list of files or {} if listing fails
 
 proc ::ftp::NList {s { dir ""}} {
+    variable VERBOSE
     upvar ::ftp::ftp$s ftp
+
+    if {$VERBOSE} { DisplayMsg $s NList($s)($dir)~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ }
 
     if { ![info exists ftp(State)] } {
         if { ![string is digit -strict $s] } {
@@ -1158,6 +1227,8 @@ proc ::ftp::NList {s { dir ""}} {
     # save current type and force ascii mode
     set old_type $ftp(Type)
     if { $ftp(Type) != "ascii" } {
+	if {$VERBOSE} { DisplayMsg $s NList/ForceAscii }
+
 	if {[string length $ftp(Command)]} {
 	    set ftp(NextState) [list nlist_$ftp(Mode) type_change list_last]
 	    set ftp(type:changeto) $old_type
@@ -1168,23 +1239,34 @@ proc ::ftp::NList {s { dir ""}} {
     }
 
     set ftp(State) nlist_$ftp(Mode)
+
+    if {$VERBOSE} { DisplayMsg $s NList/Process~~~~~~~~~~~~~~~~~~~ }
     StateHandler $s
+
+    if {$VERBOSE} { DisplayMsg $s NList/Processed~~~~~~~~~~~~~~~~~ }
 
     # wait for synchronization
     set rc [WaitOrTimeout $s]
 
     # restore old type
+    if {$VERBOSE} { DisplayMsg $s NList/RestoreType~~~~~~~~~~~~~~~~~~~~~ }
     if { [Type $s] != $old_type } {
         Type $s $old_type
     }
 
     unset ftp(Dir)
     if { $rc } {
+	if {$VERBOSE} { DisplayMsg $s NList/ReturnData~~~~~~~~~~~~~~~~~~~~~~~ }
+
 	return [lsort [split [string trim $ftp(List) \n] \n]]
     } else {
+	if {$VERBOSE} { DisplayMsg $s NList/CDC~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ }
+
         CloseDataConn $s
         return {}
     }
+
+    if {$VERBOSE} { DisplayMsg $s ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~NList/Done }
 }
 
 #############################################################################
@@ -2757,6 +2839,7 @@ proc ::ftp::CloseDataConn {s } {
 	catch {unset ftp(DestCI)}
     }
 
+    catch { unset ftp(AC) }
     catch {after cancel $ftp(Wait)}
     catch {fileevent $ftp(DataSock) readable {}}
     catch {close $ftp(DataSock); unset ftp(DataSock)}
@@ -2783,6 +2866,11 @@ proc ::ftp::CloseDataConn {s } {
 proc ::ftp::InitDataConn {s sock addr port} {
     upvar ::ftp::ftp$s ftp
     variable VERBOSE
+
+    if { $VERBOSE } {
+        DisplayMsg $s "D: New Connection from $addr:$port" data
+        DisplayMsg $s "D: Sequencer state $ftp(State)" data
+    }
 
     # If the new channel is accepted, the dummy channel will be closed
 
@@ -2839,8 +2927,57 @@ proc ::ftp::InitDataConn {s sock addr port} {
     }
 
     if { $VERBOSE } {
-        DisplayMsg $s "D: Connection from $addr:$port" data
+        DisplayMsg $s "D: ... Connection from $addr:$port ... initialized" data
     }
+
+    # Marker for WaitDataConn
+    set ftp(AC) 1
+    return
+}
+
+#############################################################################
+#
+# WaitDataConn --
+# Arguments: The ftp connection handle
+# Returns:   None
+#
+# Synchronizes the control sequencer to the data connection (active
+# mode). This must be placed at the end of all state sequences,
+# i.e. the last state of each sequence, dealing with a data
+# connection. Without the sync the control sequencer may step to the
+# next command causing a very late-coming data connection to encounter
+# an unknown state, and failing to establish what to do.
+#
+# Sync is achieved through the state field AC, in cooperation with the
+# procedures OpenActiveConn and InitDataConn.
+#
+# Missing field => Not an active connection - Ignore
+# AC == 0       => OAC has run, IDC not     - Wait for IDC, then cleanup
+# AC == 1       => OAC has run, IDC as well - No waiting, just cleanup.
+
+proc ::ftp::WaitDataConn {s} {
+    variable VERBOSE
+    upvar ::ftp::ftp$s ftp
+
+    if {$VERBOSE} { DisplayMsg $s WDC|$s|Begin|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ }
+
+    # Passive connection, nothing to do
+    if {![info exists ftp(AC)]} {
+	if {$VERBOSE} { DisplayMsg $s WDC|$s|Passive|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ }
+	return
+    }
+
+    # InitDataConn has not run yet. Wait!
+    if {!$ftp(AC)} {
+	if {$VERBOSE} { DisplayMsg $s WDC|$s|Sync|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ }
+	vwait ::ftp::ftp${s}(AC)
+	# assert ftp(AC) == 1
+	if {$VERBOSE} { DisplayMsg $s WDC|$s|Synced|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ }
+    } ; # else: Was run already
+
+    if {$VERBOSE} { DisplayMsg $s WDC|$s|Cleanup|@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ }
+    # InitDataConn has run, clean up and continue
+    unset ftp(AC)
     return
 }
 
@@ -2885,6 +3022,8 @@ proc ::ftp::OpenActiveConn {s } {
     }
     set ftp(DataPort) "[expr {$p / 256}],[expr {$p % 256}]"
 
+    # Marker for WaitDataConn
+    set ftp(AC) 0
     return 1
 }
 
@@ -3017,4 +3156,4 @@ if { [string equal [uplevel "#0" {info commands tkcon}] "tkcon"] } {
 # ==================================================================
 # At last, everything is fine, we can provide the package.
 
-package provide ftp [lindex {Revision: 2.4.12} 1]
+package provide ftp [lindex {Revision: 2.4.13} 1]
