@@ -20,3 +20,5 @@ namespace eval ::crc {
 
 # @sak notprovided crcc
 package provide crcc 1.0.0
+
+# TODO: Take the C code out of crc.tcl

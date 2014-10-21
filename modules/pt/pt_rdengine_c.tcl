@@ -16,107 +16,123 @@
 ## Requisites
 
 package require Tcl 8.4
-package require critcl
+package require critcl 3.1
+
+if {![critcl::compiling]} {
+    error "Unable to build pt_rde_critcl, no proper compiler found."
+}
+
 # @sak notprovided pt_rde_critcl
 package provide pt_rde_critcl 1.3.3
 
 # # ## ### ##### ######## ############# #####################
+## Administrivia
+
+critcl::license {Andreas Kupries BSD
+
+critcl::summary {
+    Critcl implementation of the PARAM runtime.
+}
+critcl::description {
+    This package provides a critcl-based implementation of the
+    PARAM runtime.
+}
+
+critcl::subject PARAM {runtime PARAM} {parsing expression grammar} {parser support}
+critcl::meta location http://core.tcl.tk/tcllib
+
+# # ## ### ##### ######## ############# #####################
 ## Implementation
 
-namespace eval ::pt {
+namespace eval ::pt {}
 
-    # # ## ### ##### ######## ############# #####################
-    ## Supporting code for the main command.
+# # ## ### ##### ######## ############# #####################
+## Supporting code for the main command.
 
-    catch {
-	#critcl::cheaders -g
-	#critcl::debug memory symbols
+critcl::cheaders rde_critcl/*.h
+critcl::csources rde_critcl/*.c
+
+critcl::ccode {
+    /* -*- c -*- */
+
+    #include <util.h>  /* Allocation macros */
+    #include <p.h>     /* Public state API */
+    #include <ms.h>    /* Instance command */
+
+    /* .................................................. */
+    /* Global PARAM management, per interp
+    */
+
+    typedef struct PARAMg {
+	long int counter;
+	char     buf [50];
+    } PARAMg;
+
+    static void
+    PARAMgRelease (ClientData cd, Tcl_Interp* interp)
+    {
+	ckfree((char*) cd);
     }
 
-    critcl::cheaders rde_critcl/*.h
-    critcl::csources rde_critcl/*.c
+    static CONST char*
+    PARAMnewName (Tcl_Interp* interp)
+    {
+	#define KEY "tcllib/pt::rde/critcl"
 
-    critcl::ccode {
-	/* -*- c -*- */
+	Tcl_InterpDeleteProc* proc = PARAMgRelease;
+	PARAMg*                  paramg;
 
-	#include <util.h>  /* Allocation macros */
-	#include <p.h>     /* Public state API */
-	#include <ms.h>    /* Instance command */
+	paramg = Tcl_GetAssocData (interp, KEY, &proc);
+	if (paramg  == NULL) {
+	    paramg = (PARAMg*) ckalloc (sizeof (PARAMg));
+	    paramg->counter = 0;
 
-	/* .................................................. */
-	/* Global PARAM management, per interp
-	*/
-
-	typedef struct PARAMg {
-	    long int counter;
-	    char     buf [50];
-	} PARAMg;
-
-	static void
-	PARAMgRelease (ClientData cd, Tcl_Interp* interp)
-	{
-	    ckfree((char*) cd);
+	    Tcl_SetAssocData (interp, KEY, proc,
+			      (ClientData) paramg);
 	}
+	
+	paramg->counter ++;
+	sprintf (paramg->buf, "rde%ld", paramg->counter);
+	return paramg->buf;
 
-	static CONST char*
-	PARAMnewName (Tcl_Interp* interp)
-	{
-#define KEY "tcllib/pt::rde/critcl"
-
-	    Tcl_InterpDeleteProc* proc = PARAMgRelease;
-	    PARAMg*                  paramg;
-
-	    paramg = Tcl_GetAssocData (interp, KEY, &proc);
-	    if (paramg  == NULL) {
-		paramg = (PARAMg*) ckalloc (sizeof (PARAMg));
-		paramg->counter = 0;
-
-		Tcl_SetAssocData (interp, KEY, proc,
-				  (ClientData) paramg);
-	    }
-	    
-	    paramg->counter ++;
-	    sprintf (paramg->buf, "rde%ld", paramg->counter);
-	    return paramg->buf;
-
-#undef  KEY
-	}
-
-	static void
-	PARAMdeleteCmd (ClientData clientData)
-	{
-	    /* Release the whole PARAM. */
-	    param_delete ((RDE_STATE) clientData);
-	}
+	#undef  KEY
     }
 
-    # # ## ### ##### ######## ############# #####################
-    ## Main command, PARAM creation.
+    static void
+    PARAMdeleteCmd (ClientData clientData)
+    {
+	/* Release the whole PARAM. */
+	param_delete ((RDE_STATE) clientData);
+    }
+}
 
-    critcl::ccommand rde_critcl {dummy interp objc objv} {
-      /* Syntax: No arguments beyond the name
-       */
+# # ## ### ##### ######## ############# #####################
+## Main command, PARAM creation.
 
-      CONST char* name;
-      RDE_STATE   param;
-      Tcl_Obj*    fqn;
-      Tcl_CmdInfo ci;
-      Tcl_Command c;
+critcl::ccommand ::pt::rde_critcl {dummy interp objc objv} {
+    /* Syntax: No arguments beyond the name
+    */
 
-#define USAGE "?name?"
+    CONST char* name;
+    RDE_STATE   param;
+    Tcl_Obj*    fqn;
+    Tcl_CmdInfo ci;
+    Tcl_Command c;
 
-      if ((objc != 2) && (objc != 1)) {
+    #define USAGE "?name?"
+
+    if ((objc != 2) && (objc != 1)) {
         Tcl_WrongNumArgs (interp, 1, objv, USAGE);
         return TCL_ERROR;
-      }
+    }
 
-      if (objc < 2) {
+    if (objc < 2) {
         name = PARAMnewName (interp);
-      } else {
+    } else {
         name = Tcl_GetString (objv [1]);
-      }
+    }
 
-      if (!Tcl_StringMatch (name, "::*")) {
+    if (!Tcl_StringMatch (name, "::*")) {
         /* Relative name. Prefix with current namespace */
 
         Tcl_Eval (interp, "namespace current");
@@ -125,18 +141,18 @@ namespace eval ::pt {
         Tcl_IncrRefCount (fqn);
 
         if (!Tcl_StringMatch (Tcl_GetString (fqn), "::")) {
-          Tcl_AppendToObj (fqn, "::", -1);
+	    Tcl_AppendToObj (fqn, "::", -1);
         }
         Tcl_AppendToObj (fqn, name, -1);
-      } else {
+    } else {
         fqn = Tcl_NewStringObj (name, -1);
         Tcl_IncrRefCount (fqn);
-      }
-      Tcl_ResetResult (interp);
+    }
+    Tcl_ResetResult (interp);
 
-      if (Tcl_GetCommandInfo (interp,
-                              Tcl_GetString (fqn),
-                              &ci)) {
+    if (Tcl_GetCommandInfo (interp,
+			    Tcl_GetString (fqn),
+			    &ci)) {
         Tcl_Obj* err;
 
         err = Tcl_NewObj ();
@@ -147,18 +163,17 @@ namespace eval ::pt {
         Tcl_DecrRefCount (fqn);
         Tcl_SetObjResult (interp, err);
         return TCL_ERROR;
-      }
-
-      param = param_new ();
-      c = Tcl_CreateObjCommand (interp, Tcl_GetString (fqn),
-				paramms_objcmd, (ClientData) param,
-				PARAMdeleteCmd);
-      param_setcmd (param, c);
-
-      Tcl_SetObjResult (interp, fqn);
-      Tcl_DecrRefCount (fqn);
-      return TCL_OK;
     }
+
+    param = param_new ();
+    c = Tcl_CreateObjCommand (interp, Tcl_GetString (fqn),
+			      paramms_objcmd, (ClientData) param,
+			      PARAMdeleteCmd);
+    param_setcmd (param, c);
+
+    Tcl_SetObjResult (interp, fqn);
+    Tcl_DecrRefCount (fqn);
+    return TCL_OK;
 }
 
 # # ## ### ##### ######## ############# #####################
