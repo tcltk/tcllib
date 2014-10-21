@@ -12,8 +12,10 @@ package provide base64c 0.1.0
 
 namespace eval ::base64c {
     variable base64c_rcsid {$Id: base64c.tcl,v 1.5 2008/03/25 07:15:35 andreas_kupries Exp $}
-
-    critcl::ccode {
-        /* no code required in this file */
-    }
 }
+
+critcl::ccode {
+    /* no code required in this file */
+}
+
+# TODO: Take the C code out of base64.tcl

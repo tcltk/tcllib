@@ -6,47 +6,67 @@
 #
 # RCS: @(#) $Id: base32_c.tcl,v 1.3 2008/01/28 22:58:18 andreas_kupries Exp $
 
-package require critcl
+package require critcl 3.1
 package require Tcl 8.4
 
-namespace eval ::base32 {
-    # Supporting code for the main command.
-    catch {
-	#critcl::cheaders -g
-	#critcl::debug memory symbols
-    }
+if {![critcl::compiling]} {
+    error "Unable to build base32_cc, no proper compiler found."
+}
 
-    # Main commands, encoder & decoder
+# # ## ### ##### ######## ############# #####################
+## Administrivia
 
-    critcl::ccommand critcl_encode {dummy interp objc objv} {
-      /* Syntax -*- c -*-
-       * critcl_encode string
-       */
+critcl::license {Andreas Kupries} {CC-0 public domain}
+critcl::summary {
+    C implementation of the standard Base32 de- and encoder.
+}
+critcl::description {
+    This package provides a C implementation of a base32 de-
+    and encoder, as per RFC 3548.
+}
+critcl::subject \
+    base32 {rfc 3548}
 
-      unsigned char* buf;
-      int           nbuf;
+critcl::meta location http://core.tcl.tk/tcllib
 
-      unsigned char* out;
-      unsigned char* at;
-      int           nout;
+# # ## ### ##### ######## ############# #####################
+## Implementation
 
-      /*
-       * The array used for encoding
-       */                     /* 123456789 123456789 123456789 12 */
-      static const char map[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+critcl::tcl 8.4
 
-#define USAGEE "bitstring"
+namespace eval ::base32 {}
 
-      if (objc != 2) {
+# Main commands, encoder & decoder
+
+critcl::ccommand ::base32::critcl_encode {dummy interp objc objv} {
+    /* Syntax -*- c -*-
+     * critcl_encode string
+     */
+
+    unsigned char* buf;
+    int           nbuf;
+
+    unsigned char* out;
+    unsigned char* at;
+    int           nout;
+
+    /*
+     * The array used for encoding
+     */                     /* 123456789 123456789 123456789 12 */
+    static const char map[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ234567";
+
+    #define USAGEE "bitstring"
+
+    if (objc != 2) {
         Tcl_WrongNumArgs (interp, 1, objv, USAGEE);
         return TCL_ERROR;
-      }
+    }
 
-      buf  = Tcl_GetByteArrayFromObj (objv[1], &nbuf);
-      nout = ((nbuf+4)/5)*8;
-      out  = (unsigned char*) Tcl_Alloc (nout*sizeof(char));
+    buf  = Tcl_GetByteArrayFromObj (objv[1], &nbuf);
+    nout = ((nbuf+4)/5)*8;
+    out  = (unsigned char*) Tcl_Alloc (nout*sizeof(char));
 
-      for (at = out; nbuf >= 5; nbuf -= 5, buf += 5) {
+    for (at = out; nbuf >= 5; nbuf -= 5, buf += 5) {
 	*(at++) = map [         (buf[0]>>3)                ];
 	*(at++) = map [ 0x1f & ((buf[0]<<2) | (buf[1]>>6)) ];
 	*(at++) = map [ 0x1f &  (buf[1]>>1)                ];
@@ -55,111 +75,111 @@ namespace eval ::base32 {
 	*(at++) = map [ 0x1f &  (buf[3]>>2)                ];
 	*(at++) = map [ 0x1f & ((buf[3]<<3) | (buf[4]>>5)) ];
 	*(at++) = map [ 0x1f &  (buf[4])                   ];
-      }
-      if (nbuf > 0) {
+    }
+    if (nbuf > 0) {
 	/* Process partials at end. */
 	switch (nbuf) {
-	case 1:
-	  /* |01234567|		 2, padding 6
-	   *  xxxxx
-	   *       xxx 00
-	   */
-
-	  *(at++) = map [        (buf[0]>>3) ];
-	  *(at++) = map [ 0x1f & (buf[0]<<2) ];
-	  *(at++) = '=';
-	  *(at++) = '=';
-	  *(at++) = '=';
-	  *(at++) = '=';
-	  *(at++) = '=';
-	  *(at++) = '=';
-	  break;
-	case 2: /* x3/=4 */
-	  /* |01234567|01234567|	 4, padding 4
-	   *  xxxxx
-	   *       xxx xx
-	   *             xxxxx
-	   *                  x 0000
-	   */
-
-	  *(at++) = map [         (buf[0]>>3)                ];
-	  *(at++) = map [ 0x1f & ((buf[0]<<2) | (buf[1]>>6)) ];
-	  *(at++) = map [ 0x1f &  (buf[1]>>1)                ];
-	  *(at++) = map [ 0x1f &  (buf[1]<<4)                ];
-	  *(at++) = '=';
-	  *(at++) = '=';
-	  *(at++) = '=';
-	  *(at++) = '=';
-	  break;
-	case 3:
-	  /* |01234567|01234567|01234567|	 5, padding 3
-	   *  xxxxx
-	   *       xxx xx
-	   *             xxxxx
-	   *                  x xxxx
-	   *                        xxxx 0
-	   */
-
-	  *(at++) = map [         (buf[0]>>3)                ];
-	  *(at++) = map [ 0x1f & ((buf[0]<<2) | (buf[1]>>6)) ];
-	  *(at++) = map [ 0x1f &  (buf[1]>>1)                ];
-	  *(at++) = map [ 0x1f & ((buf[1]<<4) | (buf[2]>>4)) ];
-	  *(at++) = map [ 0x1f &  (buf[2]<<1)                ];
-	  *(at++) = '=';
-	  *(at++) = '=';
-	  *(at++) = '=';
-	  break;
-	case 4:
-	  /* |01234567|01234567|01234567|012334567|	 7, padding 1
-	   *  xxxxx
-	   *       xxx xx
-	   *             xxxxx
-	   *                  x xxxx
-	   *                        xxxx
-	   *                             xxxxx
-	   *                                  xxxx 0
-	   */
-
-	  *(at++) = map [         (buf[0]>>3)                ];
-	  *(at++) = map [ 0x1f & ((buf[0]<<2) | (buf[1]>>6)) ];
-	  *(at++) = map [ 0x1f &  (buf[1]>>1)                ];
-	  *(at++) = map [ 0x1f & ((buf[1]<<4) | (buf[2]>>4)) ];
-	  *(at++) = map [ 0x1f & ((buf[2]<<1) | (buf[3]>>7)) ];
-	  *(at++) = map [ 0x1f &  (buf[3]>>2)                ];
-	  *(at++) = map [ 0x1f &  (buf[3]<<3)                ];
-	  *(at++) = '=';
-	  break;
+	    case 1:
+	        /* |01234567|		 2, padding 6
+	         *  xxxxx
+	         *       xxx 00
+	         */
+	    	    
+	        *(at++) = map [        (buf[0]>>3) ];
+	        *(at++) = map [ 0x1f & (buf[0]<<2) ];
+	        *(at++) = '=';
+	        *(at++) = '=';
+	        *(at++) = '=';
+	        *(at++) = '=';
+	        *(at++) = '=';
+	        *(at++) = '=';
+	        break;
+	    case 2: /* x3/=4 */
+	        /* |01234567|01234567|	 4, padding 4
+	         *  xxxxx
+	         *       xxx xx
+	         *             xxxxx
+	         *                  x 0000
+	         */
+		    
+	        *(at++) = map [         (buf[0]>>3)                ];
+	        *(at++) = map [ 0x1f & ((buf[0]<<2) | (buf[1]>>6)) ];
+	        *(at++) = map [ 0x1f &  (buf[1]>>1)                ];
+	        *(at++) = map [ 0x1f &  (buf[1]<<4)                ];
+	        *(at++) = '=';
+	        *(at++) = '=';
+	        *(at++) = '=';
+	        *(at++) = '=';
+	        break;
+	    case 3:
+	        /* |01234567|01234567|01234567|	 5, padding 3
+	         *  xxxxx
+	         *       xxx xx
+	         *             xxxxx
+	         *                  x xxxx
+	         *                        xxxx 0
+	         */
+		    
+	        *(at++) = map [         (buf[0]>>3)                ];
+	        *(at++) = map [ 0x1f & ((buf[0]<<2) | (buf[1]>>6)) ];
+	        *(at++) = map [ 0x1f &  (buf[1]>>1)                ];
+	        *(at++) = map [ 0x1f & ((buf[1]<<4) | (buf[2]>>4)) ];
+	        *(at++) = map [ 0x1f &  (buf[2]<<1)                ];
+	        *(at++) = '=';
+	        *(at++) = '=';
+	        *(at++) = '=';
+	        break;
+	    case 4:
+	        /* |01234567|01234567|01234567|012334567|	 7, padding 1
+	         *  xxxxx
+	         *       xxx xx
+	         *             xxxxx
+	         *                  x xxxx
+	         *                        xxxx
+	         *                             xxxxx
+	         *                                  xxxx 0
+	         */
+		    
+	        *(at++) = map [         (buf[0]>>3)                ];
+	        *(at++) = map [ 0x1f & ((buf[0]<<2) | (buf[1]>>6)) ];
+	        *(at++) = map [ 0x1f &  (buf[1]>>1)                ];
+	        *(at++) = map [ 0x1f & ((buf[1]<<4) | (buf[2]>>4)) ];
+	        *(at++) = map [ 0x1f & ((buf[2]<<1) | (buf[3]>>7)) ];
+	        *(at++) = map [ 0x1f &  (buf[3]>>2)                ];
+	        *(at++) = map [ 0x1f &  (buf[3]<<3)                ];
+	        *(at++) = '=';
+	        break;
 	}
-      }
-
-      Tcl_SetObjResult (interp, Tcl_NewStringObj ((char*)out, nout));
-      Tcl_Free ((char*) out);
-      return TCL_OK;
     }
 
+    Tcl_SetObjResult (interp, Tcl_NewStringObj ((char*)out, nout));
+    Tcl_Free ((char*) out);
+    return TCL_OK;
+}
 
-    critcl::ccommand critcl_decode {dummy interp objc objv} {
-      /* Syntax -*- c -*-
-       * critcl_decode estring
-       */
 
-      unsigned char* buf;
-      int           nbuf;
+critcl::ccommand ::base32::critcl_decode {dummy interp objc objv} {
+    /* Syntax -*- c -*-
+     * critcl_decode estring
+     */
 
-      unsigned char* out;
-      unsigned char* at;
-      unsigned char  x [8];
-      int           nout;
+    unsigned char* buf;
+    int           nbuf;
 
-      int i, j, a, pad, nx;
+    unsigned char* out;
+    unsigned char* at;
+    unsigned char  x [8];
+    int           nout;
 
-      /*
-       * An array for translating single base-32 characters into a value.
-       * Disallowed input characters have a value of 64.  Upper and lower
-       * case is the same. Only 128 chars, as everything above char(127)
-       * is 64.
-       */
-      static const char map [] = {
+    int i, j, a, pad, nx;
+
+    /*
+     * An array for translating single base-32 characters into a value.
+     * Disallowed input characters have a value of 64.  Upper and lower
+     * case is the same. Only 128 chars, as everything above char(127)
+     * is 64.
+     */
+    static const char map [] = {
 	/* \00 */ 64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
 	/* DLE */ 64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
 	/* SPC */ 64, 64, 64, 64, 64, 64, 64, 64,  64, 64, 64, 64, 64, 64, 64, 64, 
@@ -168,54 +188,54 @@ namespace eval ::base32 {
 	/* 'P' */ 15, 16, 17, 18, 19, 20, 21, 22,  23, 24, 25, 64, 64, 64, 64, 64,
 	/* '`' */ 64,  0,  1,  2,  3,  4,  5,  6,   7,  8,  9, 10, 11, 12, 13, 14,
 	/* 'p' */ 15, 16, 17, 18, 19, 20, 21, 22,  23, 24, 25, 64, 64, 64, 64, 64
-      };
+    };
 
-#define USAGED "estring"
+    #define USAGED "estring"
 
-      if (objc != 2) {
+    if (objc != 2) {
         Tcl_WrongNumArgs (interp, 1, objv, USAGED);
         return TCL_ERROR;
-      }
+    }
 
-      buf = (unsigned char*) Tcl_GetStringFromObj (objv[1], &nbuf);
+    buf = (unsigned char*) Tcl_GetStringFromObj (objv[1], &nbuf);
 
-      if (nbuf % 8) {
+    if (nbuf % 8) {
 	Tcl_SetObjResult (interp, Tcl_NewStringObj ("Length is not a multiple of 8", -1));
         return TCL_ERROR;
-      }
+    }
 
-      nout = (nbuf/8)*5 *TCL_UTF_MAX;
-      out  = (unsigned char*) Tcl_Alloc (nout*sizeof(char));
+    nout = (nbuf/8)*5 *TCL_UTF_MAX;
+    out  = (unsigned char*) Tcl_Alloc (nout*sizeof(char));
 
-#define HIGH(x) (((x) & 0x80) != 0)
-#define BADC(x) ((x) == 64)
-#define BADCHAR(a,j) (HIGH ((a)) || BADC (x [(j)] = map [(a)]))
+    #define HIGH(x) (((x) & 0x80) != 0)
+    #define BADC(x) ((x) == 64)
+    #define BADCHAR(a,j) (HIGH ((a)) || BADC (x [(j)] = map [(a)]))
 
-      for (pad = 0, i=0, at = out; i < nbuf; i += 8, buf += 8){
+    for (pad = 0, i=0, at = out; i < nbuf; i += 8, buf += 8){
 	for (j=0; j < 8; j++){
-	  a = buf [j];
+	   a = buf [j];
 
-	  if (a == '=') {
-	    x[j] = 0;
-	    pad++;
-	    continue;
-	  } else if (pad) {
-	    char     msg [120];
-	    sprintf (msg,
-		     "Invalid character at index %d: \"=\" (padding found in the middle of the input)",
-		     j-1);
-	    Tcl_Free ((char*) out);
-	    Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1));
-	    return TCL_ERROR;
-	  }
+	   if (a == '=') {
+	       x[j] = 0;
+	       pad++;
+	       continue;
+	   } else if (pad) {
+	       char     msg [120];
+	       sprintf (msg,
+			"Invalid character at index %d: \"=\" (padding found in the middle of the input)",
+			j-1);
+	       Tcl_Free ((char*) out);
+	       Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1));
+	       return TCL_ERROR;
+	   }
 
-	  if (BADCHAR (a,j)) {
-	    char     msg [100];
-	    sprintf (msg,"Invalid character at index %d: \"%c\"",j,a);
-	    Tcl_Free ((char*) out);
-	    Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1));
-	    return TCL_ERROR;
-	  }
+	   if (BADCHAR (a,j)) {
+	       char     msg [100];
+	       sprintf (msg,"Invalid character at index %d: \"%c\"",j,a);
+	       Tcl_Free ((char*) out);
+	       Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1));
+	       return TCL_ERROR;
+	   }
 	}
 
 	*(at++) = (x[0]<<3) | (x[1]>>2)            ;
@@ -223,31 +243,35 @@ namespace eval ::base32 {
 	*(at++) = (x[3]<<4) | (x[4]>>1)            ;
 	*(at++) = (x[4]<<7) | (x[5]<<2) | (x[6]>>3);
 	*(at++) = (x[6]<<5) | x[7]                 ;
-      }
-
-      if (pad) {
-	if (pad == 1) {
-	  at -= 1;
-	} else if (pad == 3) {
-	  at -= 2;
-	} else if (pad == 4) {
-	  at -= 3;
-	} else if (pad == 6) {
-	  at -= 4;
-	} else {
-	  char     msg [100];
-	  sprintf (msg,"Invalid padding of length %d",pad);
-	  Tcl_Free ((char*) out);
-	  Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1));
-	  return TCL_ERROR;
-	}
-      }
-
-      Tcl_SetObjResult (interp, Tcl_NewByteArrayObj (out, at-out));
-      Tcl_Free ((char*) out);
-      return TCL_OK;
     }
+
+    if (pad) {
+	if (pad == 1) {
+	    at -= 1;
+	} else if (pad == 3) {
+	    at -= 2;
+	} else if (pad == 4) {
+	    at -= 3;
+	} else if (pad == 6) {
+	    at -= 4;
+	} else {
+	    char     msg [100];
+	    sprintf (msg,"Invalid padding of length %d",pad);
+	    Tcl_Free ((char*) out);
+	    Tcl_SetObjResult (interp, Tcl_NewStringObj (msg, -1));
+	    return TCL_ERROR;
+	}
+    }
+
+    Tcl_SetObjResult (interp, Tcl_NewByteArrayObj (out, at-out));
+    Tcl_Free ((char*) out);
+    return TCL_OK;
 }
 
 # ### ### ### ######### ######### #########
 ## Ready
+
+# # ## ### ##### ######## ############# #####################
+# @sak notprovided base32_c
+package provide base32_c 0.1
+return
