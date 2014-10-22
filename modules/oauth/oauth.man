@@ -20,7 +20,9 @@ for communication with [uri http://oauth.net oauth] APIs.
 This current version of the package supports the Oauth 1.0 Protocol,
 as specified in [uri http://tools.ietf.org/rfc/rfc5849.txt {RFC 5849}].
 
-[section COMMANDS]
+[include ../common-text/tls-security-notes.inc]
+
+[section Commands]
 
 [list_begin definitions]
 [call [cmd ::oauth::config]]
@@ -185,5 +187,5 @@ notifications => false}]
 [para]
 
 [vset CATEGORY oauth]
-
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]
