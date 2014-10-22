@@ -29,6 +29,8 @@ server, and then providing a Tcl API to access the LDAP protocol
 commands.  All server errors are returned as Tcl errors (thrown) which
 must be caught with the Tcl [cmd catch] command.
 
+[include ../common-text/tls-security-notes.inc]
+
 [section COMMANDS]
 
 [list_begin definitions]

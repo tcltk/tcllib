@@ -25,6 +25,8 @@ access the POP3 protocol commands.  All server errors are returned as
 Tcl errors (thrown) which must be caught with the Tcl [cmd catch]
 command.
 
+[include ../common-text/tls-security-notes.inc]
+
 [section API]
 
 [list_begin definitions]
