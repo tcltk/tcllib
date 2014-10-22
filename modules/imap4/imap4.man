@@ -345,6 +345,8 @@ more.
     ::imap4::cleanup $imap
 [example_end]
 
+[include ../common-text/tls-security-notes.inc]
+
 [section REFERENCES]
 Mark R. Crispin, "INTERNET MESSAGE ACCESS PROTOCOL - VERSION 4rev1",
 RFC 3501, March 2003, [uri http://www.rfc-editor.org/rfc/rfc3501.txt]
