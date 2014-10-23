@@ -114,9 +114,10 @@
 <li class="section"><a href="#toc">Table Of Contents</a></li>
 <li class="section"><a href="#synopsis">Synopsis</a></li>
 <li class="section"><a href="#section1">Description</a></li>
-<li class="section"><a href="#section2">API</a></li>
-<li class="section"><a href="#section3">Secure mail transfer</a></li>
-<li class="section"><a href="#section4">Bugs, Ideas, Feedback</a></li>
+<li class="section"><a href="#section2">TLS Security Considerations</a></li>
+<li class="section"><a href="#section3">API</a></li>
+<li class="section"><a href="#section4">Secure mail transfer</a></li>
+<li class="section"><a href="#section5">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
 </ul>
@@ -152,7 +153,29 @@ access the POP3 protocol commands.  All server errors are returned as
 Tcl errors (thrown) which must be caught with the Tcl <b class="cmd">catch</b>
 command.</p>
 </div>
-<div id="section2" class="section"><h2><a name="section2">API</a></h2>
+<div id="section2" class="section"><h2><a name="section2">TLS Security Considerations</a></h2>
+<p>This package uses the <b class="package"><a href="../../../../index.html#key327">TLS</a></b> package to handle the security
+for <b class="const">https</b> urls and other socket connections.</p>
+<p>Policy decisions like the set of protocols to support and what
+ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key327">TLS</a></b>, nor of
+this package itself however.
+Such decisions are the responsibility of whichever application is
+using the package, and are likely influenced by the set of servers
+the application will talk to as well.</p>
+<p>For example, in light of the recent
+<a href="http://googleonlinesecurity.blogspot.co.uk/2014/10/this-poodle-bites-exploiting-ssl-30.html">POODLE attack</a> discovered by Google many servers will disable support
+for the SSLv3 protocol.
+To handle this change the applications using <b class="package"><a href="../../../../index.html#key327">TLS</a></b> must be
+patched, and not this package, nor <b class="package"><a href="../../../../index.html#key327">TLS</a></b> itself.
+Such a patch may be as simple as generally activating <b class="const">tls1</b>
+support, as shown in the example below.</p>
+<pre class="example">
+    package require tls
+    tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
+    ... your own application code ...
+</pre>
+</div>
+<div id="section3" class="section"><h2><a name="section3">API</a></h2>
 <dl class="definitions">
 <dt><a name="1"><b class="cmd">::pop3::open</b> <span class="opt">?<b class="option">-msex</b> 0|1?</span> <span class="opt">?<b class="option">-retr-mode</b> retr|list|slow?</span> <span class="opt">?<b class="option">-socketcmd</b> cmdprefix?</span> <span class="opt">?<b class="option">-stls</b> 0|1?</span> <span class="opt">?<b class="option">-tls-callback</b> stls-callback-command?</span> <i class="arg">host username password</i> <span class="opt">?<i class="arg">port</i>?</span></a></dt>
 <dd><p>Open a socket connection to the server specified by <i class="arg">host</i>,
@@ -279,7 +302,7 @@ See IETF RFC 2449.</p></dd>
 the socket.</p></dd>
 </dl>
 </div>
-<div id="section3" class="section"><h2><a name="section3">Secure mail transfer</a></h2>
+<div id="section4" class="section"><h2><a name="section4">Secure mail transfer</a></h2>
 <p>A pop3 connection can be secured with SSL/TLS by requiring the package
 <b class="package"><a href="../../../../index.html#key327">TLS</a></b> and then using either the option <b class="option">-socketcmd</b> or
 the option <b class="option">-stls</b> of the command <b class="cmd">pop3::open</b>.
@@ -309,7 +332,7 @@ proceeding with authentication.</p>
 	...
 </pre>
 </div>
-<div id="section4" class="section"><h2><a name="section4">Bugs, Ideas, Feedback</a></h2>
+<div id="section5" class="section"><h2><a name="section5">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>pop3</em> of the
