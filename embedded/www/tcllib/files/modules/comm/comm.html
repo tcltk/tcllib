@@ -134,12 +134,13 @@
 <li class="subsection"><a href="#subsection14">Compatibility</a></li>
 </ul>
 </li>
-<li class="section"><a href="#section2">Author</a></li>
-<li class="section"><a href="#section3">License</a></li>
-<li class="section"><a href="#section4">Bugs</a></li>
-<li class="section"><a href="#section5">On Using Old Versions Of Tcl</a></li>
-<li class="section"><a href="#section6">Related Work</a></li>
-<li class="section"><a href="#section7">Bugs, Ideas, Feedback</a></li>
+<li class="section"><a href="#section2">TLS Security Considerations</a></li>
+<li class="section"><a href="#section3">Author</a></li>
+<li class="section"><a href="#section4">License</a></li>
+<li class="section"><a href="#section5">Bugs</a></li>
+<li class="section"><a href="#section6">On Using Old Versions Of Tcl</a></li>
+<li class="section"><a href="#section7">Related Work</a></li>
+<li class="section"><a href="#section8">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#see-also">See Also</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
@@ -931,18 +932,40 @@ with Comm 1.0, without the requirement to use obTcl).</p></dd>
 </dl>
 </div>
 </div>
-<div id="section2" class="section"><h2><a name="section2">Author</a></h2>
+<div id="section2" class="section"><h2><a name="section2">TLS Security Considerations</a></h2>
+<p>This package uses the <b class="package"><a href="../../../../index.html#key327">TLS</a></b> package to handle the security
+for <b class="const">https</b> urls and other socket connections.</p>
+<p>Policy decisions like the set of protocols to support and what
+ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key327">TLS</a></b>, nor of
+this package itself however.
+Such decisions are the responsibility of whichever application is
+using the package, and are likely influenced by the set of servers
+the application will talk to as well.</p>
+<p>For example, in light of the recent
+<a href="http://googleonlinesecurity.blogspot.co.uk/2014/10/this-poodle-bites-exploiting-ssl-30.html">POODLE attack</a> discovered by Google many servers will disable support
+for the SSLv3 protocol.
+To handle this change the applications using <b class="package"><a href="../../../../index.html#key327">TLS</a></b> must be
+patched, and not this package, nor <b class="package"><a href="../../../../index.html#key327">TLS</a></b> itself.
+Such a patch may be as simple as generally activating <b class="const">tls1</b>
+support, as shown in the example below.</p>
+<pre class="example">
+    package require tls
+    tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
+    ... your own application code ...
+</pre>
+</div>
+<div id="section3" class="section"><h2><a name="section3">Author</a></h2>
 <p>John LoVerso, John@LoVerso.Southborough.MA.US</p>
 <p><em>http://www.opengroup.org/~loverso/tcl-tk/#comm</em></p>
 </div>
-<div id="section3" class="section"><h2><a name="section3">License</a></h2>
+<div id="section4" class="section"><h2><a name="section4">License</a></h2>
 <p>Please see the file <em>comm.LICENSE</em> that accompanied this source,
 or
 <a href="http://www.opengroup.org/www/dist_client/caubweb/COPYRIGHT.free.html">http://www.opengroup.org/www/dist_client/caubweb/COPYRIGHT.free.html</a>.</p>
 <p>This license for <b class="package">comm</b>, new as of version 3.2, allows it to be
 used for free, without any licensing fee or royalty.</p>
 </div>
-<div id="section4" class="section"><h2><a name="section4">Bugs</a></h2>
+<div id="section5" class="section"><h2><a name="section5">Bugs</a></h2>
 <ul class="itemized">
 <li><p>If there is a failure initializing a channel created with
 <b class="cmd">::comm::comm new</b>, then the channel should be destroyed.
@@ -969,7 +992,7 @@ canonical hostnames.  This requires fixes to Tcl to resolve hostnames!</p></li>
 </ul>
 <p>This man page is bigger than the source file.</p>
 </div>
-<div id="section5" class="section"><h2><a name="section5">On Using Old Versions Of Tcl</a></h2>
+<div id="section6" class="section"><h2><a name="section6">On Using Old Versions Of Tcl</a></h2>
 <p>Tcl7.5 under Windows contains a bug that causes the interpreter to
 hang when EOF is reached on non-blocking sockets.  This can be
 triggered with a command such as this:</p>
@@ -983,7 +1006,7 @@ at least Tcl7.6p2.</p>
 <p>Tcl8.0 on UNIX contains a socket bug that can crash Tcl.  It is recommended
 you use Tcl8.0p1 (or Tcl7.6p2).</p>
 </div>
-<div id="section6" class="section"><h2><a name="section6">Related Work</a></h2>
+<div id="section7" class="section"><h2><a name="section7">Related Work</a></h2>
 <p>Tcl-DP provides an RPC-based remote execution interface, but is a
 compiled Tcl extension.  See
 <a href="http://www.cs.cornell.edu/Info/Projects/zeno/Projects/Tcl-DP.html">http://www.cs.cornell.edu/Info/Projects/zeno/Projects/Tcl-DP.html</a>.</p>
@@ -993,7 +1016,7 @@ RPC interface using standard Tcl sockets, much like <b class="package">comm</b>.
 <b class="package">comm</b> and has built a simple nameserver as part of his Pool
 library.  See <a href="http://www.purl.org/net/akupries/soft/pool/index.htm">http://www.purl.org/net/akupries/soft/pool/index.htm</a>.</p>
 </div>
-<div id="section7" class="section"><h2><a name="section7">Bugs, Ideas, Feedback</a></h2>
+<div id="section8" class="section"><h2><a name="section8">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>comm</em> of the
