@@ -118,12 +118,13 @@
 <li class="section"><a href="#synopsis">Synopsis</a></li>
 <li class="section"><a href="#section1">Description</a></li>
 <li class="section"><a href="#section2">SECURITY</a></li>
-<li class="section"><a href="#section3">COMMANDS</a></li>
-<li class="section"><a href="#section4">CALLBACKS</a></li>
-<li class="section"><a href="#section5">VARIABLES</a></li>
-<li class="section"><a href="#section6">AUTHOR</a></li>
-<li class="section"><a href="#section7">LICENSE</a></li>
-<li class="section"><a href="#section8">Bugs, Ideas, Feedback</a></li>
+<li class="section"><a href="#section3">TLS Security Considerations</a></li>
+<li class="section"><a href="#section4">COMMANDS</a></li>
+<li class="section"><a href="#section5">CALLBACKS</a></li>
+<li class="section"><a href="#section6">VARIABLES</a></li>
+<li class="section"><a href="#section7">AUTHOR</a></li>
+<li class="section"><a href="#section8">LICENSE</a></li>
+<li class="section"><a href="#section9">Bugs, Ideas, Feedback</a></li>
 <li class="section"><a href="#keywords">Keywords</a></li>
 <li class="section"><a href="#category">Category</a></li>
 <li class="section"><a href="#copyright">Copyright</a></li>
@@ -168,7 +169,29 @@ though we are careful not to evaluate remote user input. There are
 many other well tested and security audited programs that can be used
 as mail servers for internet connected hosts.</p>
 </div>
-<div id="section3" class="section"><h2><a name="section3">COMMANDS</a></h2>
+<div id="section3" class="section"><h2><a name="section3">TLS Security Considerations</a></h2>
+<p>This package uses the <b class="package"><a href="../../../../index.html#key327">TLS</a></b> package to handle the security
+for <b class="const">https</b> urls and other socket connections.</p>
+<p>Policy decisions like the set of protocols to support and what
+ciphers to use are not the responsibility of <b class="package"><a href="../../../../index.html#key327">TLS</a></b>, nor of
+this package itself however.
+Such decisions are the responsibility of whichever application is
+using the package, and are likely influenced by the set of servers
+the application will talk to as well.</p>
+<p>For example, in light of the recent
+<a href="http://googleonlinesecurity.blogspot.co.uk/2014/10/this-poodle-bites-exploiting-ssl-30.html">POODLE attack</a> discovered by Google many servers will disable support
+for the SSLv3 protocol.
+To handle this change the applications using <b class="package"><a href="../../../../index.html#key327">TLS</a></b> must be
+patched, and not this package, nor <b class="package"><a href="../../../../index.html#key327">TLS</a></b> itself.
+Such a patch may be as simple as generally activating <b class="const">tls1</b>
+support, as shown in the example below.</p>
+<pre class="example">
+    package require tls
+    tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
+    ... your own application code ...
+</pre>
+</div>
+<div id="section4" class="section"><h2><a name="section4">COMMANDS</a></h2>
 <dl class="definitions">
 <dt><a name="1"><b class="cmd">::smtpd::start</b> <span class="opt">?<i class="arg">myaddr</i>?</span> <span class="opt">?<i class="arg">port</i>?</span></a></dt>
 <dd><p>Start the service listening on <i class="arg">port</i> or the default port 25. If
@@ -206,7 +229,7 @@ the child process.</p></dd>
 <dt><a name="3"><b class="cmd">::smptd::configure</b> <span class="opt">?<i class="arg">option</i> <i class="arg">value</i>?</span> <span class="opt">?<i class="arg">option</i> <i class="arg">value</i> <i class="arg">...</i>?</span></a></dt>
 <dd><p>Set configuration options for the SMTP server. Most values are the
 name of a callback procedure to be called at various points in the
-SMTP protocol. See the <span class="sectref"><a href="#section4">CALLBACKS</a></span> section for details of the
+SMTP protocol. See the <span class="sectref"><a href="#section5">CALLBACKS</a></span> section for details of the
 procedures.</p>
 <dl class="definitions">
 <dt><b class="option">-banner</b> <i class="arg">text</i></dt>
@@ -234,7 +257,7 @@ options and their current values. If an option is specified it will
 return the value of that option.</p></dd>
 </dl>
 </div>
-<div id="section4" class="section"><h2><a name="section4">CALLBACKS</a></h2>
+<div id="section5" class="section"><h2><a name="section5">CALLBACKS</a></h2>
 <dl class="definitions">
 <dt><b class="cmd">validate_host</b> callback</dt>
 <dd><p>This procedure is called with the clients ip address as soon as a
@@ -309,23 +332,23 @@ the text of the mail as a list of lines. For example:</p>
 recipient has yet been defined.</p></dd>
 </dl>
 </div>
-<div id="section5" class="section"><h2><a name="section5">VARIABLES</a></h2>
+<div id="section6" class="section"><h2><a name="section6">VARIABLES</a></h2>
 <dl class="definitions">
 <dt><b class="variable">::smtpd::stopped</b></dt>
 <dd><p>This variable is set to <b class="const">true</b> during the <b class="cmd">::smtpd::stop</b>
 command to permit the use of the <b class="cmd"><a href="../../../../index.html#key413">vwait</a></b>(n) command.</p></dd>
 </dl>
 </div>
-<div id="section6" class="section"><h2><a name="section6">AUTHOR</a></h2>
+<div id="section7" class="section"><h2><a name="section7">AUTHOR</a></h2>
 <p>Written by Pat Thoyts <a href="mailto:patthoyts@users.sourceforge.net">mailto:patthoyts@users.sourceforge.net</a>.</p>
 </div>
-<div id="section7" class="section"><h2><a name="section7">LICENSE</a></h2>
+<div id="section8" class="section"><h2><a name="section8">LICENSE</a></h2>
 <p>This software is distributed in the hope that it will be useful, but
 WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the file
 &quot;<b class="file">license.terms</b>&quot; for more details.</p>
 </div>
-<div id="section8" class="section"><h2><a name="section8">Bugs, Ideas, Feedback</a></h2>
+<div id="section9" class="section"><h2><a name="section9">Bugs, Ideas, Feedback</a></h2>
 <p>This document, and the package it describes, will undoubtedly contain
 bugs and other problems.
 Please report such in the category <em>smtpd</em> of the
