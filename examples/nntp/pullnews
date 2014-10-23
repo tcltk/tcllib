@@ -89,10 +89,10 @@ proc pullmessages {} {
 
     while {$lasthandled < $lastid} {
 	incr lasthandled
-	nntp_cmd 1 "get [format %${n}d $lasthandled]" {
+	if {![nntp_cmd 0 "get [format %${n}d $lasthandled]" {
 	    set lines [$news article $lasthandled]
 	    set x ok
-	}
+	}]} continue
 
 	store_cmd [join $lines \n] save $lasthandled
     }
