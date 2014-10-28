@@ -6,7 +6,6 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-# @(#)$Id: yencode.tcl,v 1.13 2009/05/07 01:10:37 patthoyts Exp $
 
 # FUTURE: Rework to allow switching between the tcl/critcl implementations.
 
@@ -15,7 +14,6 @@ catch {package require crc32};          # tcllib 1.1
 catch {package require tcllibc};        # critcl enhancements for tcllib
 
 namespace eval ::yencode {
-    variable version 1.1.3
     namespace export encode decode yencode ydecode
 }
 
@@ -298,7 +296,7 @@ proc ::yencode::ydecode {args} {
 
 # -------------------------------------------------------------------------
 
-package provide yencode $::yencode::version
+package provide yencode 1.1.3
 
 # -------------------------------------------------------------------------
 #

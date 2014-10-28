@@ -22,16 +22,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-#
-# $Id: ripemd128.tcl,v 1.10 2009/05/07 01:12:59 patthoyts Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::ripemd {
     namespace eval ripemd128 {
-        variable version 1.0.5
-        variable rcsid {$Id: ripemd128.tcl,v 1.10 2009/05/07 01:12:59 patthoyts Exp $}
-        variable accel
+        variable  accel
         array set accel {trf 0}
 
         variable uid
@@ -726,7 +722,7 @@ namespace eval ::ripemd::ripemd128 {
     unset e
 }
 
-package provide ripemd128 $::ripemd::ripemd128::version
+package provide ripemd128 1.0.5
 
 # -------------------------------------------------------------------------
 # Local Variables:
