@@ -20,19 +20,14 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-#
-# $Id: sha1.tcl,v 1.22 2009/05/07 00:35:10 patthoyts Exp $
-
 # @mdgen EXCLUDE: sha1c.tcl
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::sha1 {
-    variable  version 2.0.3
-    variable  rcsid {$Id: sha1.tcl,v 1.22 2009/05/07 00:35:10 patthoyts Exp $}
-
     variable  accel
     array set accel {tcl 0 critcl 0 cryptkit 0 trf 0}
+
     variable  loaded {}
     variable  active
     array set active {tcl 0 critcl 0 cryptkit 0 trf 0}
@@ -809,7 +804,7 @@ namespace eval ::sha1 {
     unset e
 }
 
-package provide sha1 $::sha1::version
+package provide sha1 2.0.3
 
 # -------------------------------------------------------------------------
 # Local Variables:

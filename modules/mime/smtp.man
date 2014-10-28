@@ -156,6 +156,8 @@ send_simple_message someone@somewhere.com localhost \\
     "This is the subject." "This is the message."
 }]
 
+[include ../common-text/tls-security-notes.inc]
+
 [section {REFERENCES}]
 
 [list_begin enumerated]

@@ -17,6 +17,8 @@ the Simple Authentication and Security Layer (SASL).
 [para] Please read the documentation for package [package sasl]
 for details.
 
+[include ../common-text/tls-security-notes.inc]
+
 [section AUTHORS]
 Pat Thoyts
 
