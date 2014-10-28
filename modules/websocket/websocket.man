@@ -330,7 +330,7 @@ sent as part of the handshake. The known codes are:
 [def [const 1009]] Received message too big
 [def [const 1010]] Missing extension
 [def [const 1011]] Unexpected condition
-[def [const 1015]] TLS hanshake error
+[def [const 1015]] TLS handshake error
 [list_end]
 
 
@@ -378,4 +378,8 @@ after 400 test $sock
 vwait forever
 [example_end]
 
+[include ../common-text/tls-security-notes.inc]
+
+[vset CATEGORY websocket]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

@@ -19,8 +19,6 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-#
-# $Id: spf.tcl,v 1.5 2008/03/14 21:21:12 andreas_kupries Exp $
 
 package require Tcl 8.2;                # tcl minimum version
 package require dns;                    # tcllib 1.3
@@ -30,9 +28,6 @@ package require struct::list;           # tcllib 1.7
 package require uri::urn;               # tcllib 1.3
 
 namespace eval spf {
-    variable version 1.1.1
-    variable rcsid {$Id: spf.tcl,v 1.5 2008/03/14 21:21:12 andreas_kupries Exp $}
-
     namespace export spf
 
     variable uid
@@ -525,7 +520,7 @@ proc ::spf::MX {domain} {
     
 # -------------------------------------------------------------------------
 
-package provide spf $::spf::version
+package provide spf 1.1.1
 
 # -------------------------------------------------------------------------
 # Local Variables:

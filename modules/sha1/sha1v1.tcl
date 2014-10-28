@@ -20,17 +20,12 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 # -------------------------------------------------------------------------
-#
-# $Id: sha1v1.tcl,v 1.1 2006/03/12 22:46:13 andreas_kupries Exp $
-
 # @mdgen EXCLUDE: sha1c.tcl
 
 package require Tcl 8.2;                # tcl minimum version
 
 namespace eval ::sha1 {
-    variable version 1.1.1
-    variable rcsid {$Id: sha1v1.tcl,v 1.1 2006/03/12 22:46:13 andreas_kupries Exp $}
-    variable accel
+    variable  accel
     array set accel {critcl 0 cryptkit 0 trf 0}
 
     namespace export sha1 hmac SHA1Init SHA1Update SHA1Final
@@ -704,7 +699,7 @@ namespace eval ::sha1 {
     unset e
 }
 
-package provide sha1 $::sha1::version
+package provide sha1 1.1.1
 
 # -------------------------------------------------------------------------
 # Local Variables:

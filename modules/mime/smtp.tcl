@@ -30,11 +30,9 @@ catch {
 #    size: number of octets sent in DATA
 #
 
-
 namespace eval ::smtp {
-    variable version 1.4.5
-    variable trf 1
-    variable smtp
+    variable  trf 1
+    variable  smtp
     array set smtp { uid 0 }
 
     namespace export sendmessage
@@ -1502,7 +1500,7 @@ proc ::smtp::boolean {value} {
 
 # -------------------------------------------------------------------------
 
-package provide smtp $::smtp::version
+package provide smtp 1.4.5
 
 # -------------------------------------------------------------------------
 # Local variables:
