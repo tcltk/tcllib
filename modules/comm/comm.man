@@ -1112,7 +1112,9 @@ with Comm 1.0, without the requirement to use obTcl).
 
 [list_end]
 
-[section  Author]
+[include ../common-text/tls-security-notes.inc]
+
+[section Author]
 
 John LoVerso, John@LoVerso.Southborough.MA.US
 
@@ -1120,7 +1122,7 @@ John LoVerso, John@LoVerso.Southborough.MA.US
 
 [emph http://www.opengroup.org/~loverso/tcl-tk/#comm]
 
-[section  License]
+[section License]
 
 Please see the file [emph comm.LICENSE] that accompanied this source,
 or

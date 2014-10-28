@@ -12,7 +12,6 @@
 #        uuid::uuid equal $idA $idB
 
 namespace eval uuid {
-    variable version 1.0.4
     variable accel
     array set accel {critcl 0}
 
@@ -226,7 +225,7 @@ namespace eval ::uuid {
     unset e
 }
 
-package provide uuid $::uuid::version
+package provide uuid 1.0.4
 
 # -------------------------------------------------------------------------
 # Local variables:

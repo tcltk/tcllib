@@ -50,6 +50,8 @@ though we are careful not to evaluate remote user input. There are
 many other well tested and security audited programs that can be used
 as mail servers for internet connected hosts.
 
+[include ../common-text/tls-security-notes.inc]
+
 [section COMMANDS]
 
 [list_begin definitions]
