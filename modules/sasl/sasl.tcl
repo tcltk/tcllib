@@ -16,9 +16,6 @@
 package require Tcl 8.2
 
 namespace eval ::SASL {
-    variable version 1.3.3
-    variable rcsid {$Id: sasl.tcl,v 1.12 2008/01/29 00:51:39 patthoyts Exp $}
-
     variable uid
     if {![info exists uid]} { set uid 0 }
 
@@ -676,7 +673,7 @@ proc ::SASL::OTP:client {context challenge args} {
 
 # -------------------------------------------------------------------------
 
-package provide SASL $::SASL::version
+package provide SASL 1.3.3
 
 # -------------------------------------------------------------------------
 #

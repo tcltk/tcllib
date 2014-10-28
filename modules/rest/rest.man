@@ -198,4 +198,9 @@ facebook
 del.icio.us
 read the file or source it and use [cmd describe] for more information. also see the
 developers documentation on the respective sites.
+
+[include ../common-text/tls-security-notes.inc]
+
+[vset CATEGORY rest]
+[include ../doctools2base/include/feedback.inc]
 [manpage_end]

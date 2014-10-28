@@ -421,14 +421,16 @@ proc ::ftpd::unixAuth {user pass} {
 
 proc ::ftpd::server {{myaddr {}}} {
     variable port
+    variable serviceSock
     if {[string length $myaddr]} {
-	set f [socket -server ::ftpd::accept -myaddr $myaddr $port]
+	set serviceSock [socket -server ::ftpd::accept -myaddr $myaddr $port]
     } else {
-	set f [socket -server ::ftpd::accept $port]
+	set serviceSock [socket -server ::ftpd::accept $port]
     }
-    set port [lindex [fconfigure $f -sockname] 2]
+    set port [lindex [fconfigure $serviceSock -sockname] 2]
     return
 }
+
 
 # ::ftpd::accept --
 #
