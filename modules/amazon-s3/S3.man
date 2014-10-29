@@ -1443,6 +1443,8 @@ each moving on to the next unstarted task as it finishes each.
 This is still being designed, and it is intended primarily
 to be run on Amazon's Elastic Compute Cloud.
 
+[include ../common-text/tls-security-notes.inc]
+
 [vset CATEGORY amazon-s3]
 [include ../doctools2base/include/feedback.inc]
 [manpage_end]
