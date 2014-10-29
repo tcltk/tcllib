@@ -37,6 +37,8 @@ and http_proxy_pass. This package attempts to deal with all these
 schemes. It will do it's best to get the required parameters from the
 environment or registry and if it fails can be reconfigured.
 
+[include ../common-text/tls-security-notes.inc]
+
 [section "COMMANDS"]
 
 [list_begin definitions]
