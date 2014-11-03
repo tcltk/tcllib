@@ -560,13 +560,14 @@ rde_param_i_error_nonterminal (RDE_PARAM p, long int s)
      * directly call on this function.
      */
     return;
-
+#if 0
     long int pos;
     if (!p->ER) return;
     pos = 1 + (long int) rde_stack_top (p->LS);
     if (p->ER->loc != pos) return;
     error_set (p, s);
     p->ER->loc = pos;
+#endif
 }
 
 SCOPE void
