@@ -1,6 +1,6 @@
-#!/bin/sh
-# -*- tcl -*- \
-exec tclsh "$0" ${1+"$@"}
+#!/usr/bin/env tclsh
+## -*- tcl -*-
+
 lappend auto_path [file join [file dirname [file dirname [file dirname [info script]]]] modules]
 package require term::ansi::send
 package require term::ansi::code::macros

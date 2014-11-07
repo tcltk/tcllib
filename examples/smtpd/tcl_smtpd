@@ -1,7 +1,5 @@
-#! /bin/sh
-# -*- tcl -*- \
-exec tclsh "$0" ${1+"$@"}
-
+#!/usr/bin/env tclsh
+## -*- tcl -*-
 # tcl_smtpd - Copyright (C) 2001 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
 # Simple test of the mail server. All incoming messages are displayed to

@@ -1,6 +1,5 @@
-#! /bin/sh
-# the next line restarts with tclsh \
-exec tclsh "$0" ${1+"$@"}
+#!/usr/bin/env tclsh
+## -*- tcl -*-
 
 set scriptDir [file dirname [info script]]
 

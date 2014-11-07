@@ -1,6 +1,5 @@
-#! /bin/sh
-# -*- tcl -*- \
-exec tclsh "$0" ${1+"$@"}
+#!/usr/bin/env tclsh
+## -*- tcl -*-
 
 # irc example script, by David N. Welton <davidw@dedasys.com>
 # $Id: irc_example.tcl,v 1.10 2009/01/30 04:18:14 andreas_kupries Exp $

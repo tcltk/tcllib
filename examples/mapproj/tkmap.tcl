@@ -1,7 +1,5 @@
-#! /bin/sh
-# the next line restarts with tclsh \
-exec tclsh "$0" ${1+"$@"}
-
+#!/usr/bin/env tclsh
+## -*- tcl -*-
 # tkmap.tcl --
 #
 #	Example application demonstrating the use of Tcllib's 'mapproj'
