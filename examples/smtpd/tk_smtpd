@@ -1,7 +1,5 @@
-#! /bin/sh
-# -*- tcl -*- \
-exec wish "$0" ${1+"$@"}
-
+#!/usr/bin/env wish
+## -*- tcl -*-
 # tk_smtpd -Copyright (C) 2004 Pat Thoyts <patthoyts@users.sourceforge.net>
 #
 # Test of the mail server. All incoming messages are displayed in a 
