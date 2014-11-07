@@ -1,7 +1,5 @@
-#! /bin/sh
-# the next line restarts with tclsh \
-exec tclsh "$0" ${1+"$@"}
-
+#!/usr/bin/env tclsh
+## -*- tcl -*-
 # saslclient.tcl - Copyright (C) 2005 Pat Thoyts <patthoyts@users.sf.net>
 #
 # This is a SMTP SASL test client. It connects to a SMTP server and uses 
