@@ -1,7 +1,5 @@
-#! /bin/sh
-# -*- tcl -*- \
-exec tclsh "$0" ${1+"$@"}
-
+#!/usr/bin/env tclsh
+## -*- tcl -*-
 # This application is like 'postit', but written in tcl.
 # The only package used is 'nntp' from 'tcllib'.
 #

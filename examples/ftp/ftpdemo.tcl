@@ -1,7 +1,5 @@
-#! /bin/sh
-# -*- tcl -*- \
-exec tclsh "$0" ${1+"$@"}
-
+#!/usr/bin/env tclsh
+## -*- tcl -*-
 #   - simple tcl/tk test script for FTP library package -
 #
 #   Required:	tcl/tk8.3
