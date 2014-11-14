@@ -1,6 +1,5 @@
-#! /bin/sh
-# the next line restarts with tclsh \
-exec tclsh "$0" ${1+"$@"}
+#!/usr/bin/env tclsh
+## -*- tcl -*-
 
 # rdate.tcl - Copyright (C) 2003 Pat Thoyts <patthoyts@users.sourceforge.net>
 #

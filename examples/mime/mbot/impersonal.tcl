@@ -1,7 +1,5 @@
-#! /bin/sh
-# -*- tcl -*- \
-exec tclsh "$0" ${1+"$@"}
-
+#!/usr/bin/env tclsh
+##
 # impersonal.tcl - export impersonal mail via the web
 #
 # (c) 1999 Marshall T. Rose
