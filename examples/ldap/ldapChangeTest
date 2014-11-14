@@ -1,7 +1,5 @@
-#! /bin/sh
-# -*- tcl -*- \
-exec tclsh "$0" ${1+"$@"}
-
+#!/usr/bin/env tclsh
+## -*- tcl -*-
 #-----------------------------------------------------------------------------
 #   
 #   A small script to test the update/modify/delete capabilites of

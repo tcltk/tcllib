@@ -293,6 +293,33 @@ The \fBoauth\fR package provides a simple Tcl-only library
 for communication with \fIoauth\fR [http://oauth\&.net] APIs\&.
 This current version of the package supports the Oauth 1\&.0 Protocol,
 as specified in \fIRFC 5849\fR [http://tools\&.ietf\&.org/rfc/rfc5849\&.txt]\&.
+.SH "TLS SECURITY CONSIDERATIONS"
+This package uses the \fBTLS\fR package to handle the security
+for \fBhttps\fR urls and other socket connections\&.
+.PP
+Policy decisions like the set of protocols to support and what
+ciphers to use are not the responsibility of \fBTLS\fR, nor of
+this package itself however\&.
+Such decisions are the responsibility of whichever application is
+using the package, and are likely influenced by the set of servers
+the application will talk to as well\&.
+.PP
+For example, in light of the recent
+\fIPOODLE attack\fR [http://googleonlinesecurity\&.blogspot\&.co\&.uk/2014/10/this-poodle-bites-exploiting-ssl-30\&.html] discovered by Google many servers will disable support
+for the SSLv3 protocol\&.
+To handle this change the applications using \fBTLS\fR must be
+patched, and not this package, nor \fBTLS\fR itself\&.
+Such a patch may be as simple as generally activating \fBtls1\fR
+support, as shown in the example below\&.
+.CS
+
+
+    package require tls
+    tls::init -tls1 1 ;# forcibly activate support for the TLS1 protocol
+
+    \&.\&.\&. your own application code \&.\&.\&.
+
+.CE
 .SH COMMANDS
 .TP
 \fB::oauth::config\fR
@@ -447,6 +474,13 @@ notifications => false
 .CE
 .PP
 .PP
+.SH "BUGS, IDEAS, FEEDBACK"
+This document, and the package it describes, will undoubtedly contain
+bugs and other problems\&.
+Please report such in the category \fIoauth\fR of the
+\fITcllib Trackers\fR [http://core\&.tcl\&.tk/tcllib/reportlist]\&.
+Please also report any ideas for enhancements you may have for either
+package and/or documentation\&.
 .SH KEYWORDS
 RFC 2718, RFC 5849, oauth, twitter
 .SH CATEGORY

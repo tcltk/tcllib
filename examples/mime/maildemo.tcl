@@ -1,7 +1,5 @@
-#! /bin/sh
-# the next line restarts with tclsh \
-exec tclsh "$0" ${1+"$@"}
-
+#!/usr/bin/env tclsh
+## -*- tcl -*-
 # maildemo.tcl - Copyright (C) 2005 Pat Thoyts <patthoyts@users.sf.net>
 # 
 # This program illustrates the steps required to compose a MIME message and 
