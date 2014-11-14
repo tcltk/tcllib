@@ -524,8 +524,7 @@ google calendar
 facebook
 del\&.icio\&.us
 read the file or source it and use \fBdescribe\fR for more information\&. also see the
-developers documentation on the respective sites\&.
-.SH "TLS SECURITY CONSIDERATIONS"
+developers documentation on the respective sites\&..SH "TLS SECURITY CONSIDERATIONS"
 This package uses the \fBTLS\fR package to handle the security
 for \fBhttps\fR urls and other socket connections\&.
 .PP
