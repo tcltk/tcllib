@@ -1,7 +1,5 @@
-#! /bin/sh
-# -*- tcl -*- \
-exec tclsh "$0" ${1+"$@"}
-
+#!/usr/bin/env tclsh
+## -*- tcl -*-
 # personal.tcl - process personal mail
 #
 # (c) 1999 Marshall T. Rose

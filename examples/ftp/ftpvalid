@@ -1,7 +1,5 @@
-#! /bin/sh
-# -*- tcl -*- \
-exec tclsh "$0" ${1+"$@"}
-
+#!/usr/bin/env tclsh
+## -*- tcl -*-
 # Author: [Larry W. Virden] [LV], modified Andreas Kupries [AK]
 # Version: 3
 # Validate the ftp: urls given on the command line.
