@@ -23,6 +23,30 @@ The cron package is intended to work in time scales greater than 1 second.
 
 [section Commands]
 [list_begin definitions]
+
+[call [cmd ::cron::at] [arg processname] [arg timecode] [arg command]]
+
+This command registers a [arg command] to be called at the time specified by [arg timecode].
+If [arg timecode] is expressed as an integer, the timecode is assumed to be in unixtime. All
+other inputs will be interpreted by [clock scan] and converted to unix time.
+This task can be modified by subsequent calls to
+this package's commands by referencing [arg processname]. If [art processname] exists,
+it will be replaced.
+
+[example_begin]
+::cron::at start_coffee {Tomorrow at 9:00am}  {remote::exec::coffeepot power on}
+::cron::at shutdown_coffee {Tomorrow at 12:00pm}  {remote::exec::coffeepot power off}
+[example_end]
+
+[call [cmd ::cron::cancel] [arg processname]]
+
+This command unregisters the process [arg processname] and cancels any pending commands.
+Note: processname can be a process created by either [cmd ::cron::at] or [cmd ::cron::every].
+
+[example_begin]
+::cron::cancel check_mail
+[example_end]
+
 [call [cmd ::cron::every] [arg processname] [arg frequency] [arg command]]
 
 This command registers a [arg command] to be called at the interval of [arg frequency].
@@ -35,15 +59,6 @@ it will be replaced.
 ::cron::every backup_db  3600 {::backup_procedure ::mydb}
 [example_end]
 
-
-[call [cmd ::cron::cancel] [arg processname]]
-
-This command unregisters the process [arg processname] and cancels any pending commands.
-Note: processname can be a process created by either [cmd ::cron::at] or [cmd ::cron::every].
-
-[example_begin]
-::cron::cancel check_mail
-[example_end]
 [list_end]
 [para]
 [vset CATEGORY odie]
