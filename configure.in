@@ -10,8 +10,25 @@ case "`uname -s`" in
 esac
 AC_SUBST(CYGPATH)
 
+AC_ARG_WITH(tclsh, [  --with-tclsh=FILE location of a working tclsh executable], with_tclsh=${withval})
+
 SC_SIMPLE_EXEEXT
-SC_PROG_TCLSH
+
+# allow user to override the tclsh we think we found
+if test x"${with_tclsh}" != x ; then
+    AC_MSG_CHECKING([for tclsh])
+    if "${with_tclsh}" < /dev/null > /dev/null 2> /dev/null
+    then
+        TCLSH_PROG=${with_tclsh}
+        AC_MSG_RESULT([$TCLSH_PROG, via --with-tclsh])
+    else
+        AC_MSG_ERROR([Bad --with-tclsh ${with_tclsh}, not found or not executable])
+    fi
+    AC_SUBST(TCLSH_PROG)
+else
+    SC_PROG_TCLSH
+fi
+
 
 # ### ######### ###########################
 
