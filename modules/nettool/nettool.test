@@ -1,5 +1,6 @@
 set here [file dirname [file normalize [info script]]]
-source $here/../index.tcl
+source $here/nettool.tcl
+source $here/locateport.tcl
 
 # Test that known port is busy
 if {[lsearch [namespace children] ::tcltest] == -1} {

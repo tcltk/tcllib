@@ -1,3 +1,5 @@
+package provide nettool::available_ports 0.1
+
 ::namespace eval ::nettool {}
 
 ###
@@ -71,5 +73,10 @@ proc ::nettool::port_busy port {
 ###
 proc ::nettool::release_port {port {protocol tcp}} {
   set ::nettool::used_ports($port) 0
+}
+
+set here [file dirname [file normalize [info script]]]
+if {[file exists [file join $here available_ports.tcl]]} {
+  source [file join $here available_ports.tcl]
 }
 
