@@ -41,6 +41,7 @@ proc ::nettool::hwaddr_to_ipaddr {hwaddr args} {}
 # title: Return a list of unique hardware ids
 ###
 proc ::nettool::hwid_list {} {
+  set result {}
   foreach mac [::nettool::mac_list] {
     lappend result 0x[string map {: {}} $num]
   }
