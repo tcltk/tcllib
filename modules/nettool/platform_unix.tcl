@@ -1,5 +1,3 @@
-package provide nettool::unix 0.1
-
 ###
 # Generic answers that can be answered on most if not all unix platforms
 ###
