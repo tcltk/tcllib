@@ -113,4 +113,4 @@ proc ::nettool::network_list {} {
   }
   return [lsort -unique $result]
 }
-
+package provide nettool::platform::windows 0.1
