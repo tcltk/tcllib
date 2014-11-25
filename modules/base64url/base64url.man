@@ -1,0 +1,59 @@
+[manpage_begin base64url n 1.0]
+[keywords base64url]
+[keywords base64]
+[keywords encoding]
+[copyright  {2014, Neil Madden}]
+[moddesc    {URL-safe text encoding & decoding binary data}]
+[titledesc  {base64url-encode/decode binary data}]
+[category   {Text processing}]
+[require Tcl 8.5]
+[require base64url [opt 1.0]]
+[description]
+[para]
+
+This package provides procedures to encode binary data into URL-safe base64
+and back. This is identical to Base64 encoding, except that no wrapping is
+performed, the "+" and "/" characters are replaced by "-" and "_" respectively,
+and no padding characters are appended.
+
+[list_begin definitions]
+
+[call [cmd {::base64url encode}] [arg encoding] [arg data]]
+
+Base64url encodes the given [arg data] string and returns the encoded
+result. The [arg data] string is first converted into binary data
+using the given [arg encoding], as if by [cmd {encoding convertto}] [arg encoding].
+If [arg encoding] is "binary" then no conversion is done.
+
+[para]
+
+The command will throw an error if the encoding is not recognised.
+
+[call [cmd {::base64url decode}] [arg encoding] [arg data]]
+
+Base64url decodes the given [arg data] and returns the decoded data.
+The returned data is converted into a string according to the
+[arg encoding], as if by [cmd {encoding convertfrom}] [arg encoding].
+If [arg encoding] is "binary" then no conversion is done.
+
+[list_end]
+
+[section {EXAMPLES}]
+
+[example {
+% base64url encode utf-8 "Hello, world!"
+SGVsbG8sIHdvcmxkIQ
+}]
+
+[example {
+% base64url encode binary [binary format c* {1 2 3 4 5}]  
+AQIDBAU
+% binary scan [base64url decode binary AQIDBAU] c* xs
+1
+% set xs
+1 2 3 4 5
+}]
+
+[vset CATEGORY base64url]
+[include ../doctools2base/include/feedback.inc]
+[manpage_end]
