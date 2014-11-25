@@ -39,6 +39,7 @@ Module  amazon-s3   _tcl  _man  _null
 Module  asn         _tcl  _man  _null
 Module  base32      _tcl  _man  _null
 Module  base64      _tcl  _man  _null
+Module  base64url   _tcl  _man  _null
 Module  bee         _tcl  _man  _null
 Module  bench       _tcl _null  _null
 Module  bibtex      _tcl  _man  _exa
