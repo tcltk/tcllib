@@ -1,4 +1,4 @@
-package provide nettool::available_ports 0.1
+package provide nettool::available_ports 0.2
 
 ::namespace eval ::nettool {}
 

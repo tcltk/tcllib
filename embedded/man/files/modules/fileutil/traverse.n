@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'traverse\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "fileutil_traverse" n 0\&.4\&.3 tcllib "file utilities"
+.TH "fileutil_traverse" n 0\&.4\&.5 tcllib "file utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -343,10 +343,17 @@ indicating whether it found a path matching the current configuration
 (\fBTrue\fR), or not (\fBFalse\fR)\&. If a path was found it is
 stored into the variable named by \fIfilevar\fR, in the context of the
 caller\&.
-The \fBforeach\fR method simply calls this method in a loop until
-it returned \fBFalse\fR\&. This method is exposed so that we are also
-able to incrementally traverse a directory hierarchy in an event-based
-manner\&.
+.sp
+The \fBforeach\fR method simply calls this method in a loop
+until it returned \fBFalse\fR\&. This method is exposed so that we are
+also able to incrementally traverse a directory hierarchy in an
+event-based manner\&.
+.sp
+Note that the traverser does follow symbolic links, except when
+doing so would cause it to enter a link-cycle\&. In other words, the
+command takes care to \fInot\fR lose itself in infinite loops upon
+encountering circular link structures\&. Note that even links which are
+not followed will still appear in the result\&.
 .PP
 .SH OPTIONS
 .TP
