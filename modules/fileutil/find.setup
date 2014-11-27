@@ -227,18 +227,15 @@ proc f_setupdot {} {
 #  dir/b                     | a/c
 #  dir/a/c                   |			a/c/g		== a
 #  dir/a/d                   | a/c/h
-#  dir/a/c/g --> ..          | a/c/h/e
-#  dir/a/c/h --> ../../b     |			a/c/h/e/g	== a
-#  dir/a/c/i                 |			a/c/h/e/h	== a/c/h
-#  dir/b/e   --> ../a/c	     | a/c/h/e/i
-#  dir/b/f                   | a/c/h/f
-#                            | a/c/i
-#                            | a/d
-#                            | b
-#                            | b/e
-#                            | b/e/g
-#                            | b/e/g/c
-#                            |			b/e/g/c/g	== b/e/g
+#  dir/a/c/g --> ..          |                  a/c/h/e         == c
+#  dir/a/c/h --> ../../b     | a/c/h/f					
+#  dir/a/c/i                 | a/c/i					
+#  dir/b/e   --> ../a/c	     | a/d					
+#  dir/b/f                   | b					
+#                            | b/e					
+#                            | b/e/g					
+#                            | b/e/g/c					
+#                            | 			b/e/g/c/g	== b/e/g
 #                            |			b/e/g/c/h	== b
 #                            | b/e/g/d
 #                            |			b/e/h		== b

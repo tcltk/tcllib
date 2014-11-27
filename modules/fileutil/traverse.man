@@ -1,5 +1,5 @@
 [comment {-*- text -*- doctools manpage}]
-[manpage_begin fileutil_traverse n 0.4.3]
+[manpage_begin fileutil_traverse n 0.4.4]
 [keywords {directory traversal}]
 [keywords traversal]
 [moddesc   {file utilities}]
@@ -80,10 +80,16 @@ indicating whether it found a path matching the current configuration
 stored into the variable named by [arg filevar], in the context of the
 caller.
 
-The [method foreach] method simply calls this method in a loop until
-it returned [const False]. This method is exposed so that we are also
-able to incrementally traverse a directory hierarchy in an event-based
-manner.
+[para] The [method foreach] method simply calls this method in a loop
+until it returned [const False]. This method is exposed so that we are
+also able to incrementally traverse a directory hierarchy in an
+event-based manner.
+
+[para] Note that the traverser does follow symbolic links, except when
+doing so would cause it to enter a link-cycle. In other words, the
+command takes care to [emph not] lose itself in infinite loops upon
+encountering circular link structures. Note that even links which are
+not followed will still appear in the result.
 
 [list_end]
 
