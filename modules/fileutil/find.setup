@@ -216,6 +216,106 @@ proc f_setupdot {} {
     return
 }
 
+
+
+# Complex directory tree with DAG-links and circular links. We want to
+# break the latter, but not the former. I.e. DAG-links allow us to
+# find a file by multiple paths, and we wish to see these all.
+#
+#  Paths    Links              Seen		Broken		Why
+#  dir/a                     | a
+#  dir/b                     | a/c
+#  dir/a/c                   |			a/c/g		== a
+#  dir/a/d                   | a/c/h
+#  dir/a/c/g --> ..          | a/c/h/e
+#  dir/a/c/h --> ../../b     |			a/c/h/e/g	== a
+#  dir/a/c/i                 |			a/c/h/e/h	== a/c/h
+#  dir/b/e   --> ../a/c	     | a/c/h/e/i
+#  dir/b/f                   | a/c/h/f
+#                            | a/c/i
+#                            | a/d
+#                            | b
+#                            | b/e
+#                            | b/e/g
+#                            | b/e/g/c
+#                            |			b/e/g/c/g	== b/e/g
+#                            |			b/e/g/c/h	== b
+#                            | b/e/g/d
+#                            |			b/e/h		== b
+#                            | b/e/i
+#                            | b/f
+
+proc pathmap {args} {
+    set res {}
+    foreach p $args {
+	lappend res [tempPath $p]
+    }
+    return $res
+}
+
+proc f_setupcircle3 {} {
+
+    makeDirectory z/a
+    makeDirectory z/a/c
+    makeDirectory z/b
+    makeFile ""   z/a/d
+    makeFile ""   z/a/c/i
+    makeFile ""   z/b/f
+
+    f_link        z/a/c/g ../../a
+    f_link        z/a/c/h ../../b
+    f_link        z/b/e   ../a/c
+    return
+}
+
+proc f_cleanup3 {} {
+    # Remove sym links first. Not doing this causes the file delete for
+    # the directory to fail (on Windows, Unix would have been fine).
+    catch { removeFile z/a/c/g }
+    catch { removeFile z/a/c/h }
+    catch { removeFile z/b/e }
+    removeDirectory z
+    return
+}
+
+proc f_link {src target} {
+    # Added use of 'file link' for Tcl 8.4+, on windows, to have a
+    # modicum of x-platform testing regarding the handling of symbolic
+    # links.
+
+    if {
+	[string equal $::tcl_platform(platform) windows] &&
+	[package vsatisfies [package require Tcl] 8.4]
+    } {
+	if {[string equal $::tcl_platform(platform) windows]} {
+	    # Windows doesn't like the .. in the target, it needs an
+	    # absolute path.
+
+	    # NOTE/BUG Even so the 'fullnormalize' in the traverser
+	    # returns bogus results for the link, whereas use of file
+	    # normalize and fullnormalize in a simple tclsh,
+	    # i.e. outside of the testing is ok.
+
+	    # It seems if the 'file join' in fullnormalize is replaced
+	    # by a plain / then the results are ok again => The
+	    # handling of paths on Windows by the Tcl core is bogus in
+	    # some way which breaks the core 'normalize'.
+
+	    set here [pwd]
+	    cd [file dirname [tempPath $src]]
+	    file link [file tail $src] [file normalize $target]
+	    cd $here
+	} else {
+	    file link [tempPath $src] $target
+	}
+	return
+    }
+
+    exec ln -s $target [tempPath $src]
+    return
+}
+
+
 proc f_cleanupdot {} {
     removeDirectory dotfiles
     return
@@ -269,9 +369,13 @@ proc f_cleanupnoread {} {
 }
 
 proc f_cleanall {} {
+    rename f_link           {}
     rename f_setup          {}
     rename f_cleanup        {}
+    rename f_cleanup3       {}
     rename f_setupcircle    {}
+    rename f_setupcircle2   {}
+    rename f_setupcircle3   {}
     rename f_setupdot       {}
     rename f_cleanupdot     {}
     rename f_setupnostat    {}

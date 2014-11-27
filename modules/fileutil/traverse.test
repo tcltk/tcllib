@@ -305,6 +305,34 @@ test traverse-1.3.1 {Traverse error execution, unix, 8.3} -setup {
 
 # -------------------------------------------------------------------------
 
+test traverse-1.4.0 {Traverse result, circular links, unix} -setup {
+    f_setupcircle3
+    set t [fileutil::traverse %AUTO% [tempPath z]]
+} -constraints unix -body {
+    join [lsort [$t files]] \n
+} -cleanup {
+    $t destroy
+    f_cleanup3
+} -result [join [pathmap \
+		     z z/a z/a/c z/a/c/h z/a/c/h/e z/a/c/h/e/i z/a/c/h/f \
+		     z/a/c/i z/a/d z/b z/b/e z/b/e/g z/b/e/g/c z/b/e/g/d \
+		     z/b/e/i z/b/f] \n]
+
+test traverse-1.4.1 {Traverse result, circular links, windows, 8.4+} -setup {
+    f_setupcircle3
+    set t [fileutil::traverse %AUTO% [tempPath z]]
+} -constraints {win tcl8.4plus} -body {
+    join [lsort [$t files]] \n
+} -cleanup {
+    $t destroy
+    f_cleanup3
+} -result [join [pathmap \
+		     z z/a z/a/c z/a/c/h z/a/c/h/e z/a/c/h/e/i z/a/c/h/f \
+		     z/a/c/i z/a/d z/b z/b/e z/b/e/g z/b/e/g/c z/b/e/g/d \
+		     z/b/e/i z/b/f] \n]
+
+# -------------------------------------------------------------------------
+
 f_cleanall
 testsuiteCleanup
 return
