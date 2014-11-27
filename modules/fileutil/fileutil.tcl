@@ -13,7 +13,7 @@
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.14.9
+package provide fileutil 1.14.10
 
 namespace eval ::fileutil {
     namespace export \
@@ -89,7 +89,6 @@ proc ::fileutil::find {{basedir .} {filtercmd {}}} {
 	FADD $basedir
 
     } elseif {[file isdirectory $basedir]} {
-
 	# For a directory as base we do an iterative recursion through
 	# the directory hierarchy starting at the base. We use a queue
 	# (Tcl list) of directories we have to check. We access it by
@@ -162,11 +161,12 @@ proc ::fileutil::find {{basedir .} {filtercmd {}}} {
 proc  ::fileutil::Enter {parent path} {
     upvar 1 parent _parent norm _norm
     set _parent($path) $parent
-    set _norm($path)   [fileutil::fullnormalize $path]
+    set _norm($path)   [fullnormalize $path]
+    return
 }
 
 proc  ::fileutil::Cycle {path} {
-    upvar 1 parent parent _norm _norm
+    upvar 1 parent _parent norm _norm
     set nform $_norm($path)
     set paren $_parent($path)
     while {$paren ne {}} {
@@ -238,12 +238,8 @@ if {[package vsatisfies [package present Tcl] 8.5]} {
     proc ::fileutil::ACCESS {args} {}
 
     proc ::fileutil::GLOBF {current} {
-	if {![file readable $current]} {
-	    return {}
-	}
-	if {([file type $current] eq "link") &&
-	    !([file exists   [file readlink $current]] &&
-	      [file readable [file readlink $current]])} {
+	if {![file readable $current] ||
+	    [BadLink $current]} {
 	    return {}
 	}
 
@@ -263,20 +259,28 @@ if {[package vsatisfies [package present Tcl] 8.5]} {
     }
 
     proc ::fileutil::GLOBD {current} {
-	if {![file readable $current]} {
-	    return {}
-	}
-	if {([file type $current] eq "link") &&
-	    !([file exists   [file readlink $current]] &&
-	      [file readable [file readlink $current]])} {
+	if {![file readable $current] ||
+	    [BadLink $current]} {
 	    return {}
 	}
 
 	lsort -unique [concat \
-	    [glob -nocomplain -directory $current -types d          -- *] \
-	    [glob -nocomplain -directory $current -types {hidden d} -- *]]
+	   [glob -nocomplain -directory $current -types d          -- *] \
+	   [glob -nocomplain -directory $current -types {hidden d} -- *]]
     }
 
+    proc ::fileutil::BadLink {current} {
+	if {[file type $current] ne "link"} { return no }
+
+	set dst [file join [file dirname $current] [file readlink $current]]
+
+	if {![file exists   $dst] ||
+	    ![file readable $dst]} {
+	    return yes
+	}
+
+	return no
+    }
 } elseif {[package vsatisfies [package present Tcl] 8.4]} {
     # Tcl 8.4+.
     # (Ad 1) We have -directory, and -types,

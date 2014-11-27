@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'fileutil\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "fileutil" n 1\&.14\&.8 tcllib "file utilities"
+.TH "fileutil" n 1\&.14\&.10 tcllib "file utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ fileutil \- Procedures implementing some file utilities
 .SH SYNOPSIS
 package require \fBTcl  8\fR
 .sp
-package require \fBfileutil  ?1\&.14\&.8?\fR
+package require \fBfileutil  ?1\&.14\&.10?\fR
 .sp
 \fB::fileutil::lexnormalize\fR \fIpath\fR
 .sp
