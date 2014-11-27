@@ -9,4 +9,4 @@
 # full path name of this file's directory.
 
 package ifneeded nettool 0.3 [list source [file join $dir nettool.tcl]]
-package ifneeded nettool::available_ports 0.1 [list source [file join $dir available_ports.tcl]]
+package ifneeded nettool::available_ports 0.2 [list source [file join $dir locateport.tcl]]
