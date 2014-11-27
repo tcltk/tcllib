@@ -358,7 +358,59 @@ snit::type ::fileutil::traverse {
 #    directory (stat might return enough information too (mode), but
 #    possibly also not portable).
 
-if {[package vsatisfies [package present Tcl] 8.4]} {
+if {[package vsatisfies [package present Tcl] 8.5]} {
+    # Tcl 8.5+.
+    # We have to check readability of "current" on our own, glob
+    # changed to error out instead of returning nothing.
+
+    proc ::fileutil::traverse::ACCESS {args} {return 1}
+
+    proc ::fileutil::traverse::GLOBF {current} {
+	if {![file readable $current] ||
+	    [BadLink $current]} {
+	    return {}
+	}
+
+	set res [lsort -unique [concat \
+		     [glob -nocomplain -directory $current -types f          -- *] \
+		     [glob -nocomplain -directory $current -types {hidden f} -- *]]]
+
+	# Look for broken links (They are reported as neither file nor directory).
+	foreach l [lsort -unique [concat \
+		       [glob -nocomplain -directory $current -types l          -- *] \
+		       [glob -nocomplain -directory $current -types {hidden l} -- *]]] {
+	    if {[file isfile      $l]} continue
+	    if {[file isdirectory $l]} continue
+	    lappend res $l
+	}
+	return [lsort -unique $res]
+    }
+
+    proc ::fileutil::traverse::GLOBD {current} {
+	if {![file readable $current] ||
+	    [BadLink $current]} {
+	    return {}
+	}
+
+	lsort -unique [concat \
+	   [glob -nocomplain -directory $current -types d          -- *] \
+	   [glob -nocomplain -directory $current -types {hidden d} -- *]]
+    }
+
+    proc ::fileutil::traverse::BadLink {current} {
+	if {[file type $current] ne "link"} { return no }
+
+	set dst [file join [file dirname $current] [file readlink $current]]
+
+	if {![file exists   $dst] ||
+	    ![file readable $dst]} {
+	    return yes
+	}
+
+	return no
+    }
+
+} elseif {[package vsatisfies [package present Tcl] 8.4]} {
     # Tcl 8.4+.
     # (Ad 1) We have -directory, and -types,
     # (Ad 2) Links are returned for -types f/d if they refer to files/dirs.
@@ -445,4 +497,4 @@ if {[package vsatisfies [package present Tcl] 8.4]} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::traverse 0.4.4
+package provide fileutil::traverse 0.4.5
