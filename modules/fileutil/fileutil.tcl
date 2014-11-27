@@ -13,7 +13,7 @@
 
 package require Tcl 8.2
 package require cmdline
-package provide fileutil 1.14.8
+package provide fileutil 1.14.9
 
 namespace eval ::fileutil {
     namespace export \
@@ -113,7 +113,9 @@ proc ::fileutil::find {{basedir .} {filtercmd {}}} {
 
 	set pending [list $basedir]
 	set at      0
-	array set   known {}
+	array set   parent {}
+	array set   norm   {}
+	Enter {} $basedir
 
 	while {$at < [llength $pending]} {
 	    # Get next directory not yet processed.
@@ -144,9 +146,8 @@ proc ::fileutil::find {{basedir .} {filtercmd {}}} {
 		# encountered before. If ok, record directory for
 		# expansion in future iterations.
 
-		set norm [fileutil::fullnormalize $f]
-		if {[info exists known($norm)]} continue
-		set known($norm) .
+		Enter $current $f
+		if {[Cycle $f]} continue
 
 		lappend pending $f
 	    }
@@ -156,6 +157,23 @@ proc ::fileutil::find {{basedir .} {filtercmd {}}} {
     }
 
     return $result
+}
+
+proc  ::fileutil::Enter {parent path} {
+    upvar 1 parent _parent norm _norm
+    set _parent($path) $parent
+    set _norm($path)   [fileutil::fullnormalize $path]
+}
+
+proc  ::fileutil::Cycle {path} {
+    upvar 1 parent parent _norm _norm
+    set nform $_norm($path)
+    set paren $_parent($path)
+    while {$paren ne {}} {
+	if {$_norm($paren) eq $nform} { return yes }
+	set paren $_parent($paren)
+    }
+    return no
 }
 
 # Helper command for fileutil::find. Performs the filtering of the
