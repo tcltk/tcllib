@@ -148,9 +148,9 @@ test find-1.11.0 {find result, circular links, unix} -setup {
 } -cleanup {
     f_cleanup3
 } -result [join [pathmap \
-		     z z/a z/a/c z/a/c/g z/a/c/h z/a/c/h/e z/a/c/h/e/i z/a/c/h/f \
+		     z z/a z/a/c z/a/c/g z/a/c/h z/a/c/h/e z/a/c/h/f \
 		     z/a/c/i z/a/d z/b z/b/e z/b/e/g z/b/e/g/c z/b/e/g/d \
-		     z/b/e/i z/b/f] \n]
+		     z/b/e/h z/b/e/i z/b/f] \n]
 
 test find-1.11.1 {find result, circular links, windows, 8.4+} -setup {
     f_setupcircle3
@@ -159,9 +159,9 @@ test find-1.11.1 {find result, circular links, windows, 8.4+} -setup {
 } -cleanup {
     f_cleanup3
 } -result [join [pathmap \
-		     z z/a z/a/c z/a/c/g z/a/c/h z/a/c/h/e z/a/c/h/e/i z/a/c/h/f \
+		     z z/a z/a/c z/a/c/g z/a/c/h z/a/c/h/e z/a/c/h/f \
 		     z/a/c/i z/a/d z/b z/b/e z/b/e/g z/b/e/g/c z/b/e/g/d \
-		     z/b/e/i z/b/f] \n]
+		     z/b/e/h z/b/e/i z/b/f] \n]
 
 # -------------------------------------------------------------------------
 
