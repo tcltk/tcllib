@@ -50,7 +50,10 @@ set vectorsD \
          "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq" \
          "248d6a61d20638b8e5c026930c3e6039a33ce45964ff2167f6ecedd419db06c1" \
          [string repeat a 1000000] \
-         "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0" ]
+         "cdc76e5c9914fb9281a1c7e284d73e67f1809a48a497200e046d39ccc7112cd0" \
+         \
+         "x" 2d711642b726b04401627ca9fbac32f5c8530fb1903cc4db02258717921a4881 \
+        ]
 
 # FIPS 180-2 test vectors SHA-224
 set vectorsDT \

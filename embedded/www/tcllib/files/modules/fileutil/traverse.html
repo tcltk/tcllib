@@ -106,7 +106,7 @@
 | <a href="../../../../toc1.html">Modules</a>
 | <a href="../../../../toc2.html">Applications</a>
  ] <hr>
-<h1 class="title">fileutil_traverse(n) 0.4.3 tcllib &quot;file utilities&quot;</h1>
+<h1 class="title">fileutil_traverse(n) 0.4.5 tcllib &quot;file utilities&quot;</h1>
 <div id="name" class="section"><h2><a name="name">Name</a></h2>
 <p>fileutil_traverse - Iterative directory traversal</p>
 </div>
@@ -182,11 +182,16 @@ higher methods are built on. When invoked it returns a boolean value
 indicating whether it found a path matching the current configuration
 (<b class="const">True</b>), or not (<b class="const">False</b>). If a path was found it is
 stored into the variable named by <i class="arg">filevar</i>, in the context of the
-caller.
-The <b class="method">foreach</b> method simply calls this method in a loop until
-it returned <b class="const">False</b>. This method is exposed so that we are also
-able to incrementally traverse a directory hierarchy in an event-based
-manner.</p></dd>
+caller.</p>
+<p>The <b class="method">foreach</b> method simply calls this method in a loop
+until it returned <b class="const">False</b>. This method is exposed so that we are
+also able to incrementally traverse a directory hierarchy in an
+event-based manner.</p>
+<p>Note that the traverser does follow symbolic links, except when
+doing so would cause it to enter a link-cycle. In other words, the
+command takes care to <em>not</em> lose itself in infinite loops upon
+encountering circular link structures. Note that even links which are
+not followed will still appear in the result.</p></dd>
 </dl>
 </div>
 <div id="section2" class="section"><h2><a name="section2">OPTIONS</a></h2>
