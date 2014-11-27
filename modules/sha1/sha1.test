@@ -55,6 +55,8 @@ set vectorsD {
     "a9993e364706816aba3e25717850c26c9cd0d89d"
     "abcdbcdecdefdefgefghfghighijhijkijkljklmklmnlmnomnopnopq"
     "84983e441c3bd26ebaae4aa1f95129e5e54670f1"
+    "x"
+    "11f6ad8ec52a2984abaafd7c3b516503785c2072"
 }
 
 set vectorsHM {
