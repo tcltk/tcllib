@@ -206,11 +206,10 @@ snit::type ::fileutil::traverse {
 		    lappend _results $f
 		}
 
-		set norm [fileutil::fullnormalize $f]
-		if {[info exists _known($norm)]} continue
+		Enter $top $f
+		if {[Cycle $f]} continue
 
 		if {[Recurse $f]} {
-		    set _known($norm) .
 		    lappend _pending $f
 		}
 	    }
@@ -247,13 +246,43 @@ snit::type ::fileutil::traverse {
     variable _base         {} ; # Base directory.
     variable _pending      {} ; # Processing stack.
     variable _results      {} ; # Result stack.
-    variable _known -array {} ; # Seen paths.
+
+    # sym link handling (to break cycles, while allowing the following of non-cycle links).
+    # Notes
+    # - path parent   tracking is lexical.
+    # - path identity tracking is based on the normalized path, i.e. the path with all
+    #   symlinks resolved.
+    # Maps
+    # - path -> parent     (easier to follow the list than doing dirname's)
+    # - path -> normalized (cache to avoid redundant calls of fullnormalize)
+    # cycle <=> A parent's normalized form (NF) is identical to the current path's NF
+
+    variable _parent -array {}
+    variable _norm   -array {}
 
     # ### ### ### ######### ######### #########
     ## Internal helpers.
 
+    proc Enter {parent path} {
+	upvar 1 _parent _parent _norm _norm
+	set _parent($path) $parent
+	set _norm($path)   [fileutil::fullnormalize $path]
+    }
+
+    proc Cycle {path} {
+	upvar 1 _parent _parent _norm _norm
+	set nform $_norm($path)
+	set paren $_parent($path)
+	while {$paren ne {}} {
+	    if {$_norm($paren) eq $nform} { return yes }
+	    set paren $_parent($paren)
+	}
+	return no
+    }
+
     method Init {} {
-	array unset _known *
+	array unset _parent *
+	array unset _norm   *
 
 	# Path ok as result?
 	if {[Valid $_base]} {
@@ -262,8 +291,7 @@ snit::type ::fileutil::traverse {
 
 	# Expansion allowed by prefilter?
 	if {[file isdirectory $_base] && [Recurse $_base]} {
-	    set norm [fileutil::fullnormalize $_base]
-	    set _known($norm) .
+	    Enter {} $_base
 	    lappend _pending $_base
 	}
 
@@ -417,4 +445,4 @@ if {[package vsatisfies [package present Tcl] 8.4]} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::traverse 0.4.3
+package provide fileutil::traverse 0.4.4
