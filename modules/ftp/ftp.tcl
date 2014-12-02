@@ -52,6 +52,7 @@
 
 package require Tcl 8.2
 package require log     ; # tcllib/log, general logging facility.
+package require ip      ; # tcllib/dns, ip address checking, classification, and manipulation.
 
 namespace eval ::ftp {
     namespace export DisplayMsg Open Close Cd Pwd Type List NList \
@@ -475,14 +476,14 @@ proc ::ftp::StateHandler {s {sock ""}} {
 	}
         nlist_active {
             if { [OpenActiveConn $s] } {
-                PutsCtrlSock $s "PORT $ftp(LocalAddr),$ftp(DataPort)"
+                OpenPort $s
                 set ftp(State) nlist_open
             } else {
                 set errmsg "Error setting port!"
             }
         }
         nlist_passive {
-            PutsCtrlSock $s "PASV"
+            RequestPort $s
             set ftp(State) nlist_open
         }
         nlist_open {
@@ -512,7 +513,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
         }
         list_active {
             if { [OpenActiveConn $s] } {
-                PutsCtrlSock $s "PORT $ftp(LocalAddr),$ftp(DataPort)"
+                OpenPort $s
                 set ftp(State) list_open
             } else {
                 set errmsg "Error setting port!"
@@ -520,7 +521,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
             }
         }
         list_passive {
-            PutsCtrlSock $s "PASV"
+            RequestPort $s
             set ftp(State) list_open
         }
         list_open {
@@ -761,7 +762,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
         }
         put_active {
             if { [OpenActiveConn $s] } {
-                PutsCtrlSock $s "PORT $ftp(LocalAddr),$ftp(DataPort)"
+                OpenPort $s
                 set ftp(State) put_open
             } else {
                 set errmsg "Error setting port!"
@@ -769,7 +770,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
             }
         }
         put_passive {
-            PutsCtrlSock $s "PASV"
+            RequestPort $s
             set ftp(State) put_open
         }
         put_open {
@@ -840,7 +841,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
         }
         append_active {
             if { [OpenActiveConn $s] } {
-                PutsCtrlSock $s "PORT $ftp(LocalAddr),$ftp(DataPort)"
+                OpenPort $s
                 set ftp(State) append_open
             } else {
                 set errmsg "Error setting port!"
@@ -848,7 +849,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
             }
         }
         append_passive {
-            PutsCtrlSock $s "PASV"
+            RequestPort $s
             set ftp(State) append_open
         }
         append_open {
@@ -912,7 +913,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
         }
         reget_active {
             if { [OpenActiveConn $s] } {
-                PutsCtrlSock $s "PORT $ftp(LocalAddr),$ftp(DataPort)"
+                OpenPort $s
                 set ftp(State) reget_restart
             } else {
                 set errmsg "Error setting port!"
@@ -920,7 +921,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
             }
         }
         reget_passive {
-            PutsCtrlSock $s "PASV"
+            RequestPort $s
             set ftp(State) reget_restart
         }
         reget_restart {
@@ -1003,7 +1004,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
         }
         get_active {
             if { [OpenActiveConn $s] } {
-                PutsCtrlSock $s "PORT $ftp(LocalAddr),$ftp(DataPort)"
+                OpenPort $s
                 set ftp(State) get_open
             } else {
                 set errmsg "Error setting port!"
@@ -1011,7 +1012,7 @@ proc ::ftp::StateHandler {s {sock ""}} {
             }
         } 
         get_passive {
-            PutsCtrlSock $s "PASV"
+            RequestPort $s
             set ftp(State) get_open
         }
         get_open {
@@ -2088,7 +2089,9 @@ proc ::ftp::Get {s args} {
 	    }
 	}
 	if {![file exists [file dirname $dest]]} {
-	    return -code error "ftp::Get, directory \"[file dirname $dest]\" for destination \"$dest\" does not exist"
+	    return -code error \
+		-errorcode {FTP DESTINATION MISSING GET} \
+		"ftp::Get, directory \"[file dirname $dest]\" for destination \"$dest\" does not exist"
 	}
 	set ftp(LocalFilename) $dest
     }
@@ -2171,7 +2174,8 @@ proc ::ftp::Reget {s source {dest ""} {from_bytes 0} {till_bytes -1}} {
     }
     if {![file exists [file dirname $dest]]} {
 	return -code error \
-	"ftp::Reget, directory \"[file dirname $dest]\" for destination \"$dest\" does not exist"
+	    -errorcode {FTP DESTINATION MISSING REGET} \
+	    "ftp::Reget, directory \"[file dirname $dest]\" for destination \"$dest\" does not exist"
     }
 
     set ftp(RemoteFilename) $source
@@ -2254,14 +2258,18 @@ proc ::ftp::Newer {s source {dest ""}} {
     }
 
     if {[string length $ftp(Command)]} {
-	return -code error "unable to retrieve file asynchronously (not implemented yet)"
+	return -code error \
+	    -errorcode {FTP NOT-IMPLEMENTED ASYNC} \
+	    "unable to retrieve file asynchronously (not implemented yet)"
     }
 
     if { $dest == "" } {
         set dest $source
     }
     if {![file exists [file dirname $dest]]} {
-	return -code error "ftp::Newer, directory \"[file dirname $dest]\" for destination \"$dest\" does not exist"
+	return -code error \
+	    -errorcode {FTP DESTINATION MISSING NEWER} \
+	    "ftp::Newer, directory \"[file dirname $dest]\" for destination \"$dest\" does not exist"
     }
 
     set ftp(RemoteFilename) $source
@@ -3007,24 +3015,65 @@ proc ::ftp::OpenActiveConn {s } {
         return 0
     }
 
-    # prepare local ip address for PORT command (convert pointed format
-    # to comma format)
+    # prepare local ip address for PORT command
+    # (convert pointed format to comma format)
+    # IPv6 addresses are not changed by this.
 
     set ftp(LocalAddr) [lindex [fconfigure $ftp(CtrlSock) -sockname] 0]
-    set ftp(LocalAddr) [string map {. ,} $ftp(LocalAddr)]
 
-    # get a new local port address for data transfer and convert it to a format
-    # which is useable by the PORT command
+    switch -exact -- [ip::version $ftp(LocalAddr)] {
+	4 {
+	    set ftp(IpVersion) 4
+	    set ftp(LocalAddr) [string map {. ,} $ftp(LocalAddr)]
+	}
+	6 {
+	    set ftp(IpVersion) 6
+	}
+	default {
+	    DisplayMsg "" "Unknown type of IP-address $ftp(LocalAddr)!" error
+	    return -code error \
+		-errorcode {FTP IP-ADDRESS BAD-VERSION} \
+		"Unknown type of IP-address $ftp(LocalAddr)!"
+	}
+    }
+
+    # get a new local port address for data transfer and convert it to
+    # a format which is useable by the PORT (or EPRT) command.
 
     set p [lindex [fconfigure $ftp(DummySock) -sockname] 2]
     if { $VERBOSE } {
         DisplayMsg $s "D: Port is $p" data
     }
-    set ftp(DataPort) "[expr {$p / 256}],[expr {$p % 256}]"
+
+    switch -exact -- $ftp(IpVersion) {
+	4 {
+	    set ftp(DataPort) "[expr {$p / 256}],[expr {$p % 256}]"
+	}
+	6 {
+	    set ftp(DataPort) $p
+	}
+    }
 
     # Marker for WaitDataConn
     set ftp(AC) 0
     return 1
+}
+
+proc ::ftp::OpenPort {s} {
+    upvar 1 ::ftp::ftp$s ftp
+    # The array elements "IpVersion", "LocalAddr" and "DataPort" are
+    # prepared by "OpenActiveConn", see above.
+
+    switch -exact -- $ftp(IpVersion) {
+	4 {
+	    PutsCtrlSock $s "PORT $ftp(LocalAddr),$ftp(DataPort)"
+	}
+	6 {
+	    # Extended Port command, RFC 2428.
+	    PutsCtrlSock $s "EPRT |2|$ftp(LocalAddr)|$ftp(DataPort)|"
+	}
+    }
+    return
 }
 
 #############################################################################
@@ -3042,6 +3091,7 @@ proc ::ftp::OpenActiveConn {s } {
 
 proc ::ftp::OpenPassiveConn {s buffer} {
     upvar ::ftp::ftp$s ftp
+    # TODO: Handling of EPSV response, RFC 2428.
 
     if { [regexp -- {([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)} $buffer all a1 a2 a3 a4 p1 p2] } {
         set ftp(LocalAddr) "$a1.$a2.$a3.$a4"
@@ -3060,6 +3110,12 @@ proc ::ftp::OpenPassiveConn {s buffer} {
     } else {
         return 0
     }
+}
+
+proc ::ftp::RequestPort {s} {
+    PutsCtrlSock $s "PASV"
+    # TODO: When to use EPSV
+    return
 }
 
 #############################################################################
@@ -3156,4 +3212,4 @@ if { [string equal [uplevel "#0" {info commands tkcon}] "tkcon"] } {
 # ==================================================================
 # At last, everything is fine, we can provide the package.
 
-package provide ftp [lindex {Revision: 2.4.13} 1]
+package provide ftp 2.5
