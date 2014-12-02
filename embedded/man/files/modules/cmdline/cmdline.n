@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'cmdline\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "cmdline" n 1\&.3\&.3 tcllib "Command line and option processing"
+.TH "cmdline" n 1\&.4 tcllib "Command line and option processing"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -319,8 +319,9 @@ arguments are removed from the start of the list\&.
 .sp
 \fIoptstring\fR contains a list of command options that the
 application will accept\&.  If the option ends in "\&.arg" the command
-will use the next argument as an argument to the option\&.  Otherwise
-the option is a boolean that is set to 1 if present\&.
+will use the next argument as an argument to the option, or extract it
+from the current argument, if it is of the form "option=value"\&.
+Otherwise the option is a boolean that is set to 1 if present\&.
 .sp
 \fIoptVar\fR refers to the variable the command will store the found
 option into (without the leading '-' and without the \&.arg extension)\&.
