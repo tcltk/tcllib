@@ -1,5 +1,5 @@
 [comment {-*- tcl -*- doctools manpage}]
-[vset PACKAGE_VERSION 2.4.13]
+[vset PACKAGE_VERSION 2.5]
 [manpage_begin ftp n [vset PACKAGE_VERSION]]
 [see_also ftpd]
 [see_also mime]
