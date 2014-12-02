@@ -1,4 +1,4 @@
-[vset SUM_VERSION 1.1.1]
+[vset SUM_VERSION 1.1.2]
 [manpage_begin sum n [vset SUM_VERSION]]
 [see_also cksum(n)]
 [see_also crc32(n)]

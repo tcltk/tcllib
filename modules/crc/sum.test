@@ -164,12 +164,23 @@ test sum-5.1 {sum format option (SysV)} -body {
 # ticket a80e60deb1 vectors - data over 1 KB length.
 
 foreach {n expected base count} {
-    0 58624 a    1280
-    1 11008 fx    640
-    2 62976 \xfe 1280
+    0 58625 a    1280
+    1 11010 fx    640
+    2 62980 \xfe 1280
 } {
     test sum-6.$n {sum (sysv) over 1 K} -body {
         crc::sum -sysv -- [string repeat $base $count]
+    } -result $expected
+}
+
+# -------------------------------------------------------------------------
+# ticket 0a3d5dfe52
+
+foreach {n expected base count suffix} {
+    0 65535 X 1489 &
+} {
+    test sum-7.$n "sum (sysv) ${base}*${count}" -body {
+        crc::sum -sysv -- [string repeat $base $count]$suffix
     } -result $expected
 }
 

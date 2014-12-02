@@ -42,7 +42,12 @@ proc ::crc::SumSysV {s {seed 0}} {
     foreach n $r {
         incr t [expr {$n & 0xFF}]
     }
-    return [expr {$t & 0xFFFF}]
+
+    set t [expr {$t & 0xffffffff}]
+    set t [expr {($t & 0xffff) + ($t >> 16)}]
+    set t [expr {($t & 0xffff) + ($t >> 16)}]
+
+    return $t
 }
 
 # -------------------------------------------------------------------------
@@ -85,7 +90,11 @@ if {[package provide critcl] != {}} {
                     t += data[cn];
             }
 
-            Tcl_SetObjResult(interp, Tcl_NewIntObj(t & 0xFFFF));
+            t = t & 0xffffffffLU;
+            t = (t & 0xffff) + (t >> 16);
+            t = (t & 0xffff) + (t >> 16);
+
+            Tcl_SetObjResult(interp, Tcl_NewIntObj(t));
             return r;
         }
 
@@ -267,7 +276,7 @@ proc ::crc::sum {args} {
 
 # -------------------------------------------------------------------------
 
-package provide sum 1.1.1
+package provide sum 1.1.2
 
 # -------------------------------------------------------------------------    
 # Local Variables:
