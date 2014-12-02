@@ -98,6 +98,23 @@ test cmdline-1.11 {cmdline::getopt, multiple options} {
     list [cmdline::getopt argList {a.arg b foo c.arg} opt arg] $argList $opt $arg
 } {1 {} foo 1}
 
+
+test cmdline-1.12 {cmdline::getopt, option with argument, -o=v syntax} {
+    catch {unset opt}
+    catch {unset arg}
+    set argList {-foo=bar baz}
+    list [cmdline::getopt argList {foo.arg} opt arg] $argList $opt $arg
+} {1 baz foo bar}
+
+test cmdline-1.13 {cmdline::getopt, option with argument, --o=v syntax} {
+    catch {unset opt}
+    catch {unset arg}
+    set argList {--foo=bar baz}
+    list [cmdline::getopt argList {foo.arg} opt arg] $argList $opt $arg
+} {1 baz foo bar}
+
+
+
 # cmdline::getoptions
 
 test cmdline-2.1 {cmdline::getoptions} {

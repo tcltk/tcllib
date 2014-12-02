@@ -14,7 +14,7 @@
 # RCS: @(#) $Id: cmdline.tcl,v 1.28 2011/02/23 17:41:52 andreas_kupries Exp $
 
 package require Tcl 8.2
-package provide cmdline 1.3.3
+package provide cmdline 1.4
 
 namespace eval ::cmdline {
     namespace export getArgv0 getopt getKnownOpt getfiles getoptions \
@@ -119,9 +119,19 @@ proc ::cmdline::getKnownOpt {argvVar optstring optVar valVar} {
 	    "--" {
 		set argsList [lrange $argsList 1 end]
 	    }
-
+	    "--*" -
 	    "-*" {
 		set option [string range $arg 1 end]
+		if {[string equal [string range $option 0 0] "-"]} {
+		    set option [string range $arg 2 end]
+		}
+
+		# support for format: [-]-option=value
+		set idx [string first "=" $option 1]
+		if {$idx != -1} {
+		    set _val   [string range $option [expr {$idx+1}] end]
+		    set option [string range $option 0   [expr {$idx-1}]]
+		}
 
 		if {[lsearch -exact $optstring $option] != -1} {
 		    # Booleans are set to 1 when present
@@ -131,7 +141,10 @@ proc ::cmdline::getKnownOpt {argvVar optstring optVar valVar} {
 		} elseif {[lsearch -exact $optstring "$option.arg"] != -1} {
 		    set result 1
 		    set argsList [lrange $argsList 1 end]
-		    if {[llength $argsList] != 0} {
+
+		    if {[info exists _val]} {
+			set value $_val
+		    } elseif {[llength $argsList]} {
 			set value [lindex $argsList 0]
 			set argsList [lrange $argsList 1 end]
 		    } else {
