@@ -2,14 +2,43 @@
 # IRM External Process Manager
 ###
 
-package provide odie::processman 0.1
+package provide odie::processman 0.2
 package require odielib
 package require odie::cron
-if { $::tcl_platform(platform) eq "windows" } {
-  package require twapi
-}
 
 ::namespace eval ::processman {}
+
+if { $::tcl_platform(platform) eq "windows" } {
+  package require twapi
+} else {
+  catch {package require odielib}
+  ###
+  # This package was originally part of odie, and takes for granted that
+  # certain utilities are part of the shell. If they aren't we can achieve
+  # many of them from exec
+  ###
+  if {[info command subprocess_exists] eq {}} {
+    proc ::processman::subprocess_exists pid {
+      set dat [exec ps]
+      foreach line [split $dat \n] {
+        if {![scan $line "%d %s" thispid rest]} continue
+        if { $thispid eq $pid} {
+          return $thispid
+        }
+      }
+      return 0
+    }
+  }
+  if {[info command kill_subprocess] eq {}} {
+    proc ::processman::kill_subprocess pid {
+      catch {exec kill $pid}
+    }
+  }
+}
+if {[info command harvest_zombies] eq {}} {
+  proc ::processman::harvest_zombies args {
+  }
+}
 
 ###
 # topic: a0cdb7503872cd302756c732956cd5c3
@@ -59,15 +88,14 @@ proc ::processman::kill id {
   }
   foreach pid [dict get $process_list $id] {
     if { $tcl_platform(platform) eq "unix" } {
-      catch {exec kill $pid}
+      catch {kill_subprocess $pid}
     } elseif { $tcl_platform(platform) eq "windows" } {
       catch {::twapi::end_process $pid}
     }
   }
   dict set process_list $id {}
   dict unset process_binding $id
-  ::harvest_zombies
-
+  harvest_zombies
 }
 
 ###
@@ -82,7 +110,7 @@ proc ::processman::kill_all {} {
   foreach {name pidlist} $process_list {
     kill $name
   }
-  ::harvest_zombies
+  harvest_zombies
 }
 
 ###
@@ -102,7 +130,7 @@ proc ::processman::killexe name {
     catch {exec killall -9 $name} err
     ##puts $err
   }
-  ::harvest_zombies
+  harvest_zombies
 }
 
 ###
@@ -238,5 +266,5 @@ if {![info exists process_binding]} {
 }
 }
 
-::cron::process processman 10 ::processman::events
+::cron::every processman 60 ::processman::events
 
