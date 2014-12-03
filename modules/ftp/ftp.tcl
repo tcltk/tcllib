@@ -3020,21 +3020,8 @@ proc ::ftp::OpenActiveConn {s } {
     # IPv6 addresses are not changed by this.
 
     set ftp(LocalAddr) [lindex [fconfigure $ftp(CtrlSock) -sockname] 0]
-
-    switch -exact -- [ip::version $ftp(LocalAddr)] {
-	4 {
-	    set ftp(IpVersion) 4
-	    set ftp(LocalAddr) [string map {. ,} $ftp(LocalAddr)]
-	}
-	6 {
-	    set ftp(IpVersion) 6
-	}
-	default {
-	    DisplayMsg "" "Unknown type of IP-address $ftp(LocalAddr)!" error
-	    return -code error \
-		-errorcode {FTP IP-ADDRESS BAD-VERSION} \
-		"Unknown type of IP-address $ftp(LocalAddr)!"
-	}
+    if {[IpVersion $s $ftp(LocalAddr)] == 4} {
+	set ftp(LocalAddr) [string map {. ,} $ftp(LocalAddr)]
     }
 
     # get a new local port address for data transfer and convert it to
@@ -3060,19 +3047,14 @@ proc ::ftp::OpenActiveConn {s } {
 }
 
 proc ::ftp::OpenPort {s} {
-    upvar 1 ::ftp::ftp$s ftp
+    upvar ::ftp::ftp$s ftp
     # The array elements "IpVersion", "LocalAddr" and "DataPort" are
     # prepared by "OpenActiveConn", see above.
-
     switch -exact -- $ftp(IpVersion) {
-	4 {
-	    PutsCtrlSock $s "PORT $ftp(LocalAddr),$ftp(DataPort)"
-	}
-	6 {
-	    # Extended Port command, RFC 2428.
-	    PutsCtrlSock $s "EPRT |2|$ftp(LocalAddr)|$ftp(DataPort)|"
-	}
+	4 { PutsCtrlSock $s "PORT $ftp(LocalAddr),$ftp(DataPort)"	}
+	6 { PutsCtrlSock $s "EPRT |2|$ftp(LocalAddr)|$ftp(DataPort)|"	}
     }
+    # Extended Port command as per RFC 2428.
     return
 }
 
@@ -3091,31 +3073,68 @@ proc ::ftp::OpenPort {s} {
 
 proc ::ftp::OpenPassiveConn {s buffer} {
     upvar ::ftp::ftp$s ftp
-    # TODO: Handling of EPSV response, RFC 2428.
-
-    if { [regexp -- {([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)} $buffer all a1 a2 a3 a4 p1 p2] } {
-        set ftp(LocalAddr) "$a1.$a2.$a3.$a4"
-        set ftp(DataPort) "[expr {$p1 * 256 + $p2}]"
-
-        # establish data connection for passive mode
-
-        set rc [catch {set ftp(DataSock) [socket $ftp(LocalAddr) $ftp(DataPort)]} msg]
-        if { $rc != 0 } {
-            DisplayMsg $s "$msg" error
-            return 0
-        }
-
-        InitDataConn $s $ftp(DataSock) $ftp(LocalAddr) $ftp(DataPort)
-        return 1
-    } else {
-        return 0
+    switch -exact -- $ftp(IpVersion) {
+	4 {
+	    # Port command response as per RFC 959.
+	    if {![regexp -- {([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+),([0-9]+)} $buffer all a1 a2 a3 a4 p1 p2] } {
+		return 0
+	    }
+	    set ftp(LocalAddr) "$a1.$a2.$a3.$a4"
+	    set ftp(DataPort) "[expr {$p1 * 256 + $p2}]"
+	}
+	6 {
+	    # Extended Port command response as per RFC 2428.
+	    if {![regexp -- {\((.)(.)(.)([0-9]+)(.)\)} $buffer all s1 s2 s3 p s4] ||
+		($s1 != $s2) || ($s1 != $s3) || ($s1 != $s4)
+	    } {
+		return 0
+	    }
+	    set ftp(LocalAddr) $ftp(RemoteAddr)
+	    set ftp(DataPort) $p
+	}
     }
+
+    # establish data connection for passive mode
+
+    set rc [catch {set ftp(DataSock) [socket $ftp(LocalAddr) $ftp(DataPort)]} msg]
+    if { $rc != 0 } {
+	DisplayMsg $s "$msg" error
+	return 0
+    }
+
+    InitDataConn $s $ftp(DataSock) $ftp(LocalAddr) $ftp(DataPort)
+    return 1
 }
 
 proc ::ftp::RequestPort {s} {
-    PutsCtrlSock $s "PASV"
-    # TODO: When to use EPSV
+    upvar ::ftp::ftp$s ftp
+    if {![info exists ftp(IpVersion)]} {
+	set ftp(RemoteAddr) [lindex [fconfigure $ftp(CtrlSock) -peername] 0]
+	IpVersion $s $ftp(RemoteAddr)
+    }
+    switch -exact -- $ftp(IpVersion) {
+	4 { PutsCtrlSock $s "PASV" }
+	6 { PutsCtrlSock $s "EPSV" }
+    }
+    # Extended Port command as per RFC 2428.
     return
+}
+
+proc ::ftp::IpVersion {s addr} {
+    upvar ::ftp::ftp$s ftp
+    set v [ip::version $addr]
+    switch -exact -- $v {
+	4 - 6 {
+	    set ftp(IpVersion) $v
+	}
+	default {
+	    DisplayMsg "" "Unknown type of IP-address $addr!" error
+	    return -code error \
+		-errorcode {FTP IP-ADDRESS BAD-VERSION} \
+		"Unknown type of IP-address $addr!"
+	}
+    }
+    return $v
 }
 
 #############################################################################
