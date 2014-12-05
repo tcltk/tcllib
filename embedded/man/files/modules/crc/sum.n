@@ -2,7 +2,7 @@
 '\" Generated from file 'sum\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002, Pat Thoyts <patthoyts@users\&.sourceforge\&.net>
 '\"
-.TH "sum" n 1\&.1\&.1 tcllib "Cyclic Redundancy Checks"
+.TH "sum" n 1\&.1\&.2 tcllib "Cyclic Redundancy Checks"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ sum \- Calculate a sum(1) compatible checksum
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBsum  ?1\&.1\&.1?\fR
+package require \fBsum  ?1\&.1\&.2?\fR
 .sp
 \fB::crc::sum\fR ?\fI-bsd\fR | \fI-sysv\fR? ?\fI-format fmt\fR? ?\fI-chunksize size\fR? [ \fI-filename file\fR | \fI-channel chan\fR | \fIstring\fR ]
 .sp
