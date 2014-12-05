@@ -6,7 +6,7 @@
 #
 # Author: Sean Woods (for T&E Solutions)
 
-package provide cron 0.1
+package provide cron 1.0
 
 ::namespace eval ::cron {}
 
