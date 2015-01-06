@@ -10,7 +10,9 @@ proc ::nettool::arp_table {} {}
 # topic: 92ebbfa155883ad41c37d3f843392be4
 # title: Return list of broadcast addresses for local networks
 ###
-proc ::nettool::broadcast_list {} {}
+proc ::nettool::broadcast_list {} {
+  return 127.0.0.1
+}
 
 ###
 # topic: 15d9bc96ec6ce31d4c8f99a425a9c02c
