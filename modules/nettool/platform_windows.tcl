@@ -25,6 +25,7 @@ proc ::nettool::arp_table {} {
 ###
 proc ::nettool::broadcast_list {} {
   set result {}
+  lappend result 127.0.0.1
   foreach iface [::twapi::get_netif_indices] {
     set dat [::twapi::GetIpAddrTable $iface]
     foreach element $dat {
@@ -32,7 +33,7 @@ proc ::nettool::broadcast_list {} {
       lappend result [::ip::broadcastAddress $addr/$netmask]
     }
   }
-  return [lsort -unique $result]
+  return [lsort -unique -dictionary $result]
 }
 
 ###
