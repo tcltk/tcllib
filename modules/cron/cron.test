@@ -63,7 +63,21 @@ test cron-1.6 {cron::cancel} {
   set ::timecounter
 } $::timecounterfinal
 
+###
+# Test the new IN command
+###
+set ::inevent 0
+cron::in 5 {set ::inevent 1}
 
+test cron-1.7 {cron::in} {
+  set ::inevent
+} 0
+
+after 6000 {set pause 0}
+vwait pause
+test cron-1.8 {cron::in} {
+  set ::inevent
+} 1
 
 testsuiteCleanup
 return
