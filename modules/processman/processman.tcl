@@ -2,9 +2,9 @@
 # IRM External Process Manager
 ###
 
-package provide odie::processman 0.2
+package provide odie::processman 0.3
 package require odielib
-package require odie::cron
+package require cron 1.1
 
 ::namespace eval ::processman {}
 
