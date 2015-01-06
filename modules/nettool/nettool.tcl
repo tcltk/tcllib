@@ -1,4 +1,4 @@
-package provide nettool 0.3
+package provide nettool 0.3.1
 
 package require platform
 # Uses the "ip" package from tcllib
