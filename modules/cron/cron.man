@@ -24,7 +24,7 @@ The cron package is intended to work in time scales greater than 1 second.
 [section Commands]
 [list_begin definitions]
 
-[call [cmd ::cron::at] [arg processname] [arg timecode] [arg command]]
+[call [cmd ::cron::at] [arg ?processname?] [arg timecode] [arg command]]
 
 This command registers a [arg command] to be called at the time specified by [arg timecode].
 If [arg timecode] is expressed as an integer, the timecode is assumed to be in unixtime. All
@@ -32,6 +32,8 @@ other inputs will be interpreted by [clock scan] and converted to unix time.
 This task can be modified by subsequent calls to
 this package's commands by referencing [arg processname]. If [art processname] exists,
 it will be replaced.
+
+If [arg processname] is not given, one is generated and returned by the command.
 
 [example_begin]
 ::cron::at start_coffee {Tomorrow at 9:00am}  {remote::exec::coffeepot power on}
@@ -58,6 +60,16 @@ it will be replaced.
 ::cron::every check_mail 900  ::imap_client::check_mail
 ::cron::every backup_db  3600 {::backup_procedure ::mydb}
 [example_end]
+
+[call [cmd ::cron::in] [arg ?processname?] [arg timecode] [arg command]]
+
+This command registers a [arg command] to be called after a delay of time specified by [arg timecode].
+[arg timecode] is expressed as an seconds.
+This task can be modified by subsequent calls to
+this package's commands by referencing [arg processname]. If [art processname] exists,
+it will be replaced.
+
+If [arg processname] is not given, one is generated and returned by the command.
 
 [list_end]
 [para]

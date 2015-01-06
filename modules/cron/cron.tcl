@@ -6,11 +6,24 @@
 #
 # Author: Sean Woods (for T&E Solutions)
 
-package provide cron 1.0
+package provide cron 1.1
 
 ::namespace eval ::cron {}
 
-proc ::cron::at {process timecode command} {
+proc ::cron::at args {
+  switch [llength $args] {
+    2 {
+      variable processuid
+      set process event#[incr processuid]
+      foreach {timecode command} $args break
+    }
+    3 {
+      foreach {process timecode command} $args break
+    }
+    default {
+      error "Usage: ?process? timecode command"
+    }
+  }
   variable processTable
   if {[string is integer -strict $timecode]} {
     set scheduled $timecode
@@ -26,6 +39,35 @@ proc ::cron::at {process timecode command} {
     dict set processTable($process) $field $value
   }
   ::cron::runTasks
+  return $process
+}
+
+proc ::cron::in args {
+  switch [llength $args] {
+    2 {
+      variable processuid
+      set process event#[incr processuid]
+      foreach {timecode command} $args break
+    }
+    3 {
+      foreach {process timecode command} $args break
+    }
+    default {
+      error "Usage: ?process? timecode command"
+    }
+  }
+  variable processTable
+  set now [clock seconds]
+  set scheduled [expr {int(ceil($timecode+$now))}]
+  set info [list process $process frequency 0 command $command scheduled $scheduled lastevent $now]
+  if ![info exists processTable($process)] {
+    lappend info lastrun 0 err 0 result {}
+  }
+  foreach {field value} $info {
+    dict set processTable($process) $field $value
+  }
+  ::cron::runTasks
+  return $process
 }
 
 ###
