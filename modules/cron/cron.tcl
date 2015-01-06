@@ -15,10 +15,10 @@ proc ::cron::at args {
     2 {
       variable processuid
       set process event#[incr processuid]
-      foreach {timecode command} $args break
+      lassign $args timecode command
     }
     3 {
-      foreach {process timecode command} $args break
+      lassign $args process timecode command
     }
     default {
       error "Usage: ?process? timecode command"
@@ -47,10 +47,10 @@ proc ::cron::in args {
     2 {
       variable processuid
       set process event#[incr processuid]
-      foreach {timecode command} $args break
+      lassign $args timecode command
     }
     3 {
-      foreach {process timecode command} $args break
+      lassign $args process timecode command
     }
     default {
       error "Usage: ?process? timecode command"
