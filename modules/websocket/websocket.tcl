@@ -1,6 +1,7 @@
 ##################
 ## Module Name     --  websocket
 ## Original Author --  Emmanuel Frecon - emmanuel@sics.se
+## Patches         --  Adrián Medraño Calvo - amcalvo@prs.de
 ## Description:
 ##
 ##    This library implements a WebSocket client library on top of the
@@ -10,6 +11,7 @@
 ##    the slightly different framing when communicating from a server
 ##    to a client.  Part of the code comes (with modifications) from
 ##    the following Wiki page: http://wiki.tcl.tk/26556
+
 ##
 ##################
 
@@ -49,9 +51,16 @@ namespace eval ::websocket {
 	    ws_magic       "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
 	    ws_version     13
 	    id_gene        0
+	    whitespace     " \t"
+	    tchar          {!#$%&'*+-.0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ^_`abcdefghijklmnopqrstuvwxyz|~}
 	    -keepalive     30
 	    -ping          ""
 	}
+	# Build ASCII case-insensitive mapping table. See
+	# <http://tools.ietf.org/html/rfc6455#section-2.1>.
+	for {set i 0x41} {$i <= 0x5A} {incr i} {
+	    lappend WS(lowercase) [format %c $i] [format %c [expr {$i + 0x20}]]
+	}; unset i;
 	variable log [::logger::init [string trimleft [namespace current] ::]]
 	variable libdir [file dirname [file normalize [info script]]]
 	${log}::setlevel $WS(loglevel)
@@ -140,7 +149,7 @@ proc ::websocket::close { sock { code 1000 } { reason "" } } {
     set varname [namespace current]::Connection_$sock
     if { ! [info exists $varname] } {
 	${log}::warn "$sock is not a WebSocket connection anymore"
-	return -code error "$sock is not a WebSocket"
+	ThrowError "$sock is not a WebSocket"
     }
     upvar \#0 $varname Connection
 
@@ -190,11 +199,20 @@ proc ::websocket::close { sock { code 1000 } { reason "" } } {
 #       handler, catching all errors that might occur within the
 #       handler.  The types that the library pushes out via this
 #       callback are:
-#       text       Text complete message
-#       binary     Binary complete message
-#       connect    Notification of successful connection to server
+#
+#       text       Text complete message.
+#       binary     Binary complete message.
+#       ping       Ping complete message.
+#       pong       Pong complete message.
+#       connect    Notification of successful connection.
 #       disconnect Disconnection from remote end.
 #       close      Pending closure of connection
+#       timeout    Notification of connection timeout.
+#       error      Notification of error conditions.
+#
+#       The handler is expected to be a command prefix, and the values
+#       of parameters sock, type and msg are appended as arguments
+#       when evaluating it.
 #
 # Arguments:
 #	sock	WebSocket that was taken over or created by this library
@@ -218,14 +236,13 @@ proc ::websocket::Push { sock type msg { handler "" } } {
 	set varname [namespace current]::Connection_$sock
 	if { ! [info exists $varname] } {
 	    ${log}::warn "$sock is not a WebSocket connection anymore"
-	    return -code error "$sock is not a WebSocket"
+	    ThrowError "$sock is not a WebSocket"
 	}
 	upvar \#0 $varname Connection
 	set handler $Connection(handler)
     }
 
-    # Ugly but working eval...
-    if { [catch {eval [concat $handler [list $sock $type $msg]]} res] } {
+    if { [catch [list {*}$handler $sock $type $msg] res] } {
 	${log}::error "Error when executing WebSocket reception handler: $res"
     }
 }
@@ -251,7 +268,7 @@ proc ::websocket::Ping { sock } {
     set varname [namespace current]::Connection_$sock
     if { ! [info exists $varname] } {
 	${log}::warn "$sock is not a WebSocket connection anymore"
-	return -code error "$sock is not a WebSocket"
+	ThrowError "$sock is not a WebSocket"
     }
     upvar \#0 $varname Connection
 
@@ -308,7 +325,7 @@ proc ::websocket::Type { opcode } {
     variable log
 
     array set TYPES {1 text 2 binary 8 close 9 ping 10 pong}
-    if { [array names TYPES $opcode] } {
+    if { [info exists TYPES($opcode)] } {
 	set type $TYPES($opcode)
     } else {
 	set type <opcode-$opcode>
@@ -317,6 +334,114 @@ proc ::websocket::Type { opcode } {
     return $type
 }
 
+
+# ::websocket::validate -- Validate incoming client connections for WebSocket
+#
+#       This procedure checks whether a set of headers form a valid
+#       WebSocket opening handshake. If so, it returns values
+#       important for constructing the closing handshake.
+#
+#       The following aspects are checked:
+#         - A valid Connection header
+#         - A valid Upgrade header
+#         - A valid Sec-Websocket-Version header
+#         - A valid Sec-Websocket-Key header
+#
+#       These other are left to the invoker to check:
+#         - Host contains server's authority.
+#         - Origin is allowed.
+#         - Sec-Websocket-Protocols contains a supported protocol.
+#
+# Arguments:
+#	hdrs	Dictionary with HTTP header field names and their values.
+#
+# Results:
+#       An empty list if the headers do not constitute a valid WebSocket opening
+#       handshake. Otherwise, a dictionary with keys 'key', 'version'
+#       and, optionally, 'protocols'.
+#
+# Side Effects:
+#       None.
+proc ::websocket::validate {hdrs} {
+    variable WS
+    set res [dict create]
+
+    set upgrading 0;
+    set websocket 0;
+    foreach {k v} $hdrs {
+	switch -exact -- [ASCIILowercase $k] {
+	    connection {
+		foreach v [SplitCommaSeparated $v] {
+		    if {"upgrade" eq [ASCIILowercase $v]} {
+			set upgrading 1
+			break
+		    }
+		}
+		if {!$upgrading} {
+		    ThrowError "No 'Connect' header with 'upgrade' token found" HANDSHAKE CONNECTION
+		}
+	    }
+	    upgrade {
+		# May be a list, see
+		# <http://tools.ietf.org/html/rfc7230#section-6.7> and
+		# <http://tools.ietf.org/html/rfc6455#section-4.1>.
+		foreach v [SplitCommaSeparated $v] {
+		    # The protocol-name may be followed by a slash and a
+		    # protocol-version. Ignore the version, look only at the
+		    # protocol-name. See
+		    # <http://tools.ietf.org/html/rfc7230#section-6.7>.
+		    regexp {^[^/]+$} $v v
+		    if { "websocket" eq [ASCIILowercase $v] } {
+			set websocket 1
+			break
+		    }
+		}
+		if {!$websocket} {
+		    ThrowError "No 'Upgrade' header with 'websocket' token found" HANDSHAKE UPGRADE
+		}
+	    }
+	    sec-websocket-version {
+		set version [string trim $v $WS(whitespace)]
+		if {$version ne $WS(ws_version)} {
+		    ThrowError "Invalid WebSocket version '${version}'" HANDSHAKE VERSION
+		} else {
+		    dict set res version $version
+		}
+	    }
+	    sec-websocket-key {
+		set key [string trim $v $WS(whitespace)]
+		if {24 != [string length $key]} {
+		    ThrowError "Invalid WebSocket key length" HANDSHAKE KEY
+		} elseif {![regexp {^[a-zA-Z0-9+/]*={0,2}$} $key]} {
+		    ThrowError "Invalid WebSocket key: not base64" HANDSHAKE KEY
+		}
+		dict set res key $key
+	    }
+	    sec-websocket-protocol {
+		# There might be multiple "sec-websocket-protocol" headers.
+		# See <http://tools.ietf.org/html/rfc6455#section-11.3.4>.
+		set protocols [SplitCommaSeparated $v]
+		# Must be valid tokens.
+		foreach protocol $protocols {
+		    foreach c [split $protocol ""] {
+			if {$c in $WS(tchar)} {
+			    ThrowError "Invalid protocol name '${protocol}'" HANDSHAKE PROTOCOL;
+			}
+		    }
+		}
+		dict lappend res protocols {*}$protocols;
+	    }
+	}
+    }
+    if {![dict exists $res version]} {
+	ThrowError "No WebSocket version specified" HANDSHAKE VERSION
+    }
+    if {![dict exists $res key]} {
+	ThrowError "No WebSocket key specified" HANDSHAKE KEY
+    }
+
+    return $res
+}
 
 # ::websocket::test -- Test incoming client connections for WebSocket
 #
@@ -354,45 +479,33 @@ proc ::websocket::test { srvSock cliSock path { hdrs {} } { qry {} } } {
     set varname [namespace current]::Server_$srvSock
     if { ! [info exists $varname] } {
 	${log}::warn "$srvSock is not a WebSocket server anymore"
-	return -code error "$srvSock is not a WebSocket"
+	ThrowError "$srvSock is not a WebSocket"
     }
     upvar \#0 $varname Server
 
-    # Detect presence of connection and upgrade HTTP headers, together
-    # with their proper values.
-    set upgrading 0
-    set websocket 0
-    foreach {k v} $hdrs {
-	if { [string equal -nocase $k "connection"] && \
-		 [string compare -nocase $v "*upgrade*"] } {
-	    set upgrading 1
-	}
-	if { [string equal -nocase $k "upgrade"] && \
-		 [string equal -nocase $v "websocket"] } {
-	    set websocket 1
-	}
-    }
-    
-    # Fail early when not upgrading to a websocket.
-    if { !$upgrading || !$websocket } {
+    if {[catch {validate $hdrs} res]} {
 	return 0
     }
+    set protos [dict get $res protocols];
+    set key [dict get $res key];
 
-    # If headers point towards a possible websocket...
-    set key ""
-    set protos {}
-    foreach {k v} $hdrs {
-	if { [string equal -nocase $k "sec-websocket-key"] } {
-	    set key $v
-	}
-	if { [string equal -nocase $k "sec-websocket-protocol"] } {
-	    set protos [split $v ","]
+    # Search amongst existing WS handlers for one that responds to
+    # that URL and implement one of the protocols.
+    foreach { ptn cb proto } $Server(live) {
+	set idx [lsearch -glob $protos $proto]
+	# URL paths comparison should be case-sensitive. See
+	# <http://tools.ietf.org/html/rfc2616#section-3.2.3>.
+ 	if { [string match $ptn $path] \
+		 && ( ![llength $protos] || $idx >= 0 ) } {
+	    set found(protocol) [expr {$idx >= 0? [lindex $protos $idx] : ""}]
+	    set found(live) $cb
+	    break
 	}
     }
 
-    # We thought we had a websocket, but no security handshake is
-    # provided by client. Discard this connection!
-    if { $key eq "" } {
+    # Stop if cannot agree on subprotocol.
+    if {![info exists found]} {
+	${log}::warn "Cannot find any handler for $path"
 	return 0
     }
 
@@ -406,33 +519,10 @@ proc ::websocket::test { srvSock cliSock path { hdrs {} } { qry {} } } {
     set Client(accept) ""
     set Client(path) $path
     set Client(query) $qry
-    if { $key ne "" } {
-	set sec ${key}$WS(ws_magic)
-	set Client(accept) [::base64::encode [sha1::sha1 -bin $sec]]
-    }
+    set Client(accept) [sec-websocket-accept $key]
     set Client(protos) $protos
-    set Client(protocol) ""
-    set Client(live) ""
-    
-    # Search amongst existing WS handlers for one that responds to
-    # that URL and implement one of the protocols.
-    foreach { ptn cb proto } $Server(live) {
-	set idx [lsearch -glob $protos $proto]
-	if { [string match -nocase $ptn $path] \
-		 && ( $protos == "" || $idx >= 0 ) } {
-	    # Found it! Remember it in the client context.
-	    if { $idx >= 0 } {
-		set Client(protocol) [lindex $protos $idx]
-	    }
-	    set Client(live) $cb
-	    break
-	}
-    }
-    if { $Client(live) eq "" } {
-	${log}::warn "Cannot find any handler for $path"
-	unset $varname;  # Get rid of the client context
-	return 0
-    }
+    set Client(live) $found(live)
+    set Client(protocol) $found(protocol)
     
     # Return the context for the incoming client.
     return 1
@@ -465,7 +555,7 @@ proc ::websocket::upgrade { sock } {
     set clients [info vars [namespace current]::Client_*_${sock}]
     if { [llength $clients] == 0 } {
 	${log}::warn "$sock does not point to a client WebSocket"
-	return -code error "$sock is not a WebSocket client"
+	ThrowError "$sock is not a WebSocket client"
     }
 
     set c [lindex $clients 0];   # Should only be one really...
@@ -484,14 +574,12 @@ proc ::websocket::upgrade { sock } {
     flush $sock
 
     # Make the socket a server websocket
-    takeover $sock $Client(live) 1
-
+    #
     # Tell the websocket handler that we have a new incoming
     # request. We mediate this through the "message" part, which in
     # this case is composed of a list containing the URL and the query
-    # (itself as a list).  Implementation is rather ugly since we call
-    # the hidden method in the websocket code!
-    Push $sock request [list $Client(path) $Client(query)]
+    # (itself as a list).
+    takeover $sock $Client(live) 1 [list $Client(path) $Client(query)]
 
     # Get rid of the temporary client state
     unset $c
@@ -522,7 +610,7 @@ proc ::websocket::live { sock path cb { proto "*" } } {
     set varname [namespace current]::Server_$sock
     if { ! [info exists $varname] } {
 	${log}::warn "$sock is not a WebSocket server anymore"
-	return -code error "$sock is not a WebSocket"
+	ThrowError "$sock is not a WebSocket"
     }
     upvar \#0 $varname Server
 
@@ -585,7 +673,7 @@ proc ::websocket::send { sock type {msg ""} {final 1}} {
     set varname [namespace current]::Connection_$sock
     if { ! [info exists $varname] } {
 	${log}::warn "$sock is not a WebSocket connection anymore"
-	return -code error "$sock is not a WebSocket"
+	ThrowError "$sock is not a WebSocket"
     }
     upvar \#0 $varname Connection
 
@@ -619,7 +707,7 @@ proc ::websocket::send { sock type {msg ""} {final 1}} {
     }
 
     if { $opcode < 0 } {
-	return -code error \
+	ThrowError \
 	    "Unrecognised type, should be one of text, binary, ping or\
              a protocol valid integer"
     }
@@ -627,7 +715,7 @@ proc ::websocket::send { sock type {msg ""} {final 1}} {
     # Refuse to continue if different from last type of message.
     if { $Connection(write:opcode) > 0 } {
 	if { $opcode != $Connection(write:opcode) } {
-	    return -code error \
+	    ThrowError \
 		"Cannot change type of message under continuation!"
 	}
 	set opcode 0;    # Continuation
@@ -770,7 +858,7 @@ proc ::websocket::Receiver { sock } {
     set varname [namespace current]::Connection_$sock
     if { ! [info exists $varname] } {
 	${log}::warn "$sock is not a WebSocket connection anymore"
-	return -code error "$sock is not a WebSocket"
+	ThrowError "$sock is not a WebSocket"
     }
     upvar \#0 $varname Connection
 
@@ -913,6 +1001,9 @@ proc ::websocket::Receiver { sock } {
 		send $sock 10 $Connection(read:msg)
 		Push $sock ping $Connection(read:msg)
 	    }
+	    10 {
+		Push $sock pong $Connection(read:msg)
+	    }
 	}
 
 	# Prepare for next frame.
@@ -996,17 +1087,22 @@ proc ::websocket::New { sock handler { server 0 } } {
 #       whenever messages, control messages or other important
 #       internal events are received or occur.
 #
+#       The handler should be a command prefix, to be evaluated with
+#       socket handle, the message type and the message appended.
+#
 # Arguments:
 #	sock	Existing opened socket.
 #	handler	Command to call on events and incoming messages.
 #	server	Is this a socket within a server, i.e. towards a client.
+#	info	Additional information to pass to the handler upon successful
+#		connection.
 #
 # Results:
 #       None.
 #
 # Side Effects:
-#       None.
-proc ::websocket::takeover { sock handler { server 0 } } {
+#       The handler is invoked with type 'connect' on successful connection.
+proc ::websocket::takeover { sock handler { server 0 } { info {} }} {
     variable WS
     variable log
 
@@ -1038,6 +1134,9 @@ proc ::websocket::takeover { sock handler { server 0 } } {
     fconfigure $sock -translation binary -blocking on
     fileevent $sock readable [list [namespace current]::Receiver $sock]
     Liveness $sock
+
+    # Tell the WebSocket handler that the connection is now open.
+    Push $sock connect $info;
     
     ${log}::debug "$sock has been registered as a\
                    [expr $server?\"server\":\"client\"] WebSocket"
@@ -1084,10 +1183,9 @@ proc ::websocket::Connected { opener sock token } {
 
 	# Extact security handshake, check against what was expected
 	# and abort in case of mismatch.
-	if { [array names HDR Sec-WebSocket-Accept] ne "" } {
+	if { [info exists HDR(Sec-WebSocket-Accept)] } {
 	    # Compute security handshake
-	    set sec $OPEN(nonce)$WS(ws_magic)
-	    set accept [base64::encode [sha1::sha1 -bin $sec]]
+	    set accept [sec-websocket-accept $OPEN(nonce)]
 	    if { $accept ne $HDR(Sec-WebSocket-Accept) } {
 		${log}::error "Security handshake failed"
 		::http::reset $token error
@@ -1100,7 +1198,7 @@ proc ::websocket::Connected { opener sock token } {
 	# Extract application protocol information to pass further to
 	# handler.
 	set proto ""
-	if { [array names HDR Sec-WebSocket-Protocol] ne "" } {
+	if { [info exists HDR(Sec-WebSocket-Protocol)] } {
 	    set proto $HDR(Sec-WebSocket-Protocol)
 	}
 
@@ -1124,13 +1222,12 @@ proc ::websocket::Connected { opener sock token } {
 	}
 
 	# Takeover the socket to create a connection and mediate about
-	# connection via the handler.
-	takeover $sock $OPEN(handler)
-	Push $sock connect $proto;  # Tell the handler which
-				      # protocol was chosen.
+	# connection via the handler. Tell the handler which protocol was
+	# chosen.
+	takeover $sock $OPEN(handler) 0 $proto
     } else {
 	Push \
-	    "" \
+	    $sock \
 	    error \
 	    "HTTP error code $ncode when establishing WebSocket connection with $OPEN(url)" \
 	    $OPEN(handler)
@@ -1150,7 +1247,6 @@ proc ::websocket::Connected { opener sock token } {
 #
 # Arguments:
 #	opener	Temporary HTTP connection opening object.
-#	sock	Socket connection to server, empty to pick from HTTP state array
 #	token	HTTP state array.
 #
 # Results:
@@ -1159,6 +1255,14 @@ proc ::websocket::Connected { opener sock token } {
 # Side Effects:
 #       None.
 proc ::websocket::Finished { opener token } {
+    if {[::http::status $token] ne "timeout"} {
+	upvar \#0 $opener OPEN
+	if { [info exists OPEN(timeout)] } {
+	    ::after cancel $OPEN(timeout);
+	    unset OPEN(timeout);
+	}
+    }
+
     Connected $opener "" $token
 }
 
@@ -1171,6 +1275,7 @@ proc ::websocket::Finished { opener token } {
 #
 # Arguments:
 #	opener	Temporary HTTP connection opening object.
+#	token	HTTP state array.
 #
 # Results:
 #       None.
@@ -1178,19 +1283,18 @@ proc ::websocket::Finished { opener token } {
 # Side Effects:
 #       Reset the HTTP connection, which will (probably) close the
 #       socket.
-proc ::websocket::Timeout { opener } {
+proc ::websocket::Timeout { opener token } {
     variable WS
     variable log
 
     if { [info exists $opener] } {
 	upvar \#0 $opener OPEN
 	
-	::http::reset $OPEN(token) "timeout"
-	set sock [HTTPSocket $OPEN(token)]
+	set sock [HTTPSocket $token]
 	Push $sock timeout \
 	    "Timeout when connecting to $OPEN(url)" $OPEN(handler)
-	::http::cleanup $OPEN(token)
-	unset $opener
+	::http::reset $token "timeout";
+	::http::cleanup $token
 	
 	# Destroy connection state, which will also attempt to close
 	# the socket.
@@ -1219,7 +1323,7 @@ proc ::websocket::HTTPSocket { token } {
     variable log
 
     upvar \#0 $token htstate
-    if { [array names htstate sock] eq "sock" } {
+    if { [info exists htstate(sock)] } {
 	return $htstate(sock)
     } else {
 	${log}::error "No socket associated to HTTP token $token!"
@@ -1242,7 +1346,7 @@ proc ::websocket::HTTPSocket { token } {
 #
 # Arguments:
 #	url	WebSocket URL, i.e. led by ws: or wss:
-#	handler	Command to callback on data reception or event occurence
+#	handler	Command prefix to invoke on data reception or event occurrence
 #	args	List of dashled options with their values, as explained above.
 #
 # Results:
@@ -1258,7 +1362,7 @@ proc ::websocket::open { url handler args } {
     # Fool the http library by replacing the ws: (websocket) scheme
     # with the http, so we can use the http library to handle all the
     # initial handshake.
-    set hturl [string map -nocase {ws: http: wss: https:} $url]
+    set hturl [regsub -nocase {^ws} $url "http"]
 
     # Start creating a command to call the http library.
     set cmd [list ::http::geturl $hturl]
@@ -1281,7 +1385,7 @@ proc ::websocket::open { url handler args } {
 	    }
 	}
 	if { ! $allowed } {
-	    return -code error "$k is not a recognised option"
+	    ThrowError "$k is not a recognised option"
 	}
 	switch -nocase -glob -- [string trimleft $k -] {
 	    he* {
@@ -1323,8 +1427,8 @@ proc ::websocket::open { url handler args } {
     # Construct the WebSocket part of the header according to RFC6455.
     # The NONCE should be randomly chosen for each new connection
     # established
-    set HDR(Connection) "Upgrade"
-    set HDR(Upgrade) "websocket"
+    AddToken HDR Connection "Upgrade"
+    AddToken HDR Upgrade "websocket"
     for { set i 0 } { $i < 4 } { incr i } {
         append OPEN(nonce) [binary format Iu [expr {int(rand()*4294967296)}]]
     }
@@ -1350,22 +1454,22 @@ proc ::websocket::open { url handler args } {
     # Now open the connection to the remote server using the HTTP
     # package...
     set sock ""
-    if { [catch {eval $cmd} token] } {
+    if { [catch $cmd token] } {
 	unset $varname;    # Free opening context, we won't need it!
-	return -code error \
-	    "Error while opening WebSocket connection to $url: $token"
+	ThrowError "Error while opening WebSocket connection to $url: $token"
     } else {
 	set sock [HTTPSocket $token]
 	if { $sock ne "" } {
-	    set varname [New $sock $handler]
+	    # Create connection context.
+	    New $sock $handler
 	    if { $timeout > 0 } {
 		set OPEN(timeout) \
-		    [after $timeout [namespace current]::Timeout $varname]
+		    [after $timeout [list [namespace current]::Timeout $varname $token]]
 	    }
 	} else {
 	    ${log}::warn "Cannot extract socket from HTTP token, failure"
 	    # Call the timeout to get rid of internal states
-	    Timeout $varname
+	    Timeout $varname $token
 	}
     }
 
@@ -1404,7 +1508,7 @@ proc ::websocket::conninfo { sock what } {
     set varname [namespace current]::Connection_$sock
     if { ! [::info exists $varname] } {
         ${log}::warn "$sock is not a WebSocket connection anymore"
-        return -code error "$sock is not a WebSocket"
+        ThrowError "$sock is not a WebSocket"
     }
     upvar \#0 $varname Connection
     
@@ -1436,8 +1540,7 @@ proc ::websocket::conninfo { sock what } {
 	    return $Connection(state)
 	}
         default {
-            return -code error "$what is not a known information piece for\
-                                a websocket"
+            ThrowError "$what is not a known information piece for a websocket"
         }
     }
     return "";  # Never reached
@@ -1500,7 +1603,7 @@ proc ::websocket::configure { sock args } {
     set varname [namespace current]::Connection_$sock
     if { ! [info exists $varname] } {
 	${log}::warn "$sock is not a WebSocket connection anymore"
-	return -code error "$sock is not a WebSocket"
+	ThrowError "$sock is not a WebSocket"
     }
     upvar \#0 $varname Connection
 
@@ -1512,7 +1615,7 @@ proc ::websocket::configure { sock args } {
 	    }
 	}
 	if { ! $allowed } {
-	    return -code error "$k is not a recognised option"
+	    ThrowError "$k is not a recognised option"
 	}
 	switch -nocase -glob -- [string trimleft $k -] {
 	    k* {
@@ -1528,5 +1631,124 @@ proc ::websocket::configure { sock args } {
     }
 }
 
+# ::websocket::sec-websocket-accept -- Construct Sec-Websocket-Accept field value.
+#
+#       Construct the value for the Sec-Websocket-Accept header field, as
+#       defined by (RFC6455 4.2.2.5.4).
+#
+#       See <http://tools.ietf.org/html/rfc6455#section-4.2.2>.
+#
+# Arguments:
+#       key     The value of the Sec-Websocket-Key header field in the client's
+#               handshake.
+#
+# Results:
+#       The value for the Sec-Websocket-Accept header field.
+#
+# Side Effects:
+#       None.
+proc ::websocket::sec-websocket-accept { key } {
+    variable WS
+    set sec ${key}$WS(ws_magic)
+    return [::base64::encode [sha1::sha1 -bin $sec]]
+}
 
-package provide websocket 1.3.1
+# ::websocket::SplitCommaSeparated -- Extract elements from comma-separated headers
+#
+#       Extract elements from a comma separated header's value, ignoring empty
+#       elements and linear whitespace.
+#
+#       See <http://tools.ietf.org/html/rfc7230#section-7>.
+#
+# Arguments:
+#       value   A header's value, consisting of a comma separated list of
+#               elements.
+#
+# Results:
+#       A list of values.
+#
+# Side Effects:
+#       None.
+proc ::websocket::SplitCommaSeparated { csl } {
+    variable WS
+    set r [list]
+    foreach e [split $csl ,] {
+	# Trim OWS.
+	set v [string trim $e $WS(whitespace)]
+	# There might be empty elements.
+	if {"" ne $v} {
+	    lappend r $v
+	}
+    }
+    return $r
+}
+
+# ::websocket::ASCIILowercase
+#
+#       Convert a string to ASCII lowercase.
+#
+#       See <http://tools.ietf.org/html/rfc6455#section-2.1>.
+#
+# Arguments:
+#       str   The string to convert
+#
+# Results:
+#       The string converted to ASCII lowercase.
+#
+# Side Effects:
+#       None.
+proc ::websocket::ASCIILowercase { str } {
+    variable WS
+    return [string map $WS(lowercase) $str]
+}
+
+
+# ::websocket::AddToken
+#
+#       Ensures a token is included in hdr's header field value.
+#
+# Arguments:
+#       hdrsName Name of an array variable on caller's scope whose
+#                keys are header names and values are header values.
+#       hdr      Header name, matched case-insensitively.
+#       token    Token to include.
+#
+# Results:
+#       Nothing.
+#
+# Side Effects:
+#       Modifies variable named hdrsName in caller's scope.
+proc ::websocket::AddToken { hdrsName hdr token } {
+    ::upvar 1 $hdrsName hdrs;
+    set hdrname [lsearch -exact -nocase -inline [array names hdrs] $hdr]
+    if {"" ne $hdrname} {
+	append hdrs($hdrname) ", $token"
+    } else {
+	set hdrs($hdr) $token
+    }
+}
+
+# ::websocket::ThrowError
+#
+#       Consistent error reporting. All errors from the WebSocket
+#       library have the word WEBSOCKET as the first element in the
+#       -errorcode list.
+#
+# Arguments:
+#       msg             Error message.
+#       ?errorcodes...? Optional. Additional error codes.
+#
+# Results:
+#       An error return value to the caller of the caller.
+#
+# Side Effects:
+#       None.
+proc ::websocket::ThrowError {msg args} {
+    return \
+	-level 2 \
+	-code error \
+	-errorcode [list WEBSOCKET {*}$args] \
+	$msg;
+}
+
+package provide websocket 1.4
