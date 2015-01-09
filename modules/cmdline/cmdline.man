@@ -1,4 +1,4 @@
-[manpage_begin cmdline n 1.4]
+[manpage_begin cmdline n 1.5]
 [keywords {argument processing}]
 [keywords argv]
 [keywords argv0]
@@ -94,10 +94,11 @@ displayed in the usage.
 [para]
 
 The options [option -?], [option -help], and [option --] are
-implicitly understood. The first two abort option processing and force
-the generation of the usage message, whereas the the last aborts
-option processing without an error, leaving all arguments coming after
-for regular processing, even if starting with a dash.
+implicitly understood. The first two abort option processing by
+throwing an error and force the generation of the usage message,
+whereas the the last aborts option processing without an error,
+leaving all arguments coming after for regular processing, even if
+starting with a dash.
 
 [para]
 
@@ -141,9 +142,26 @@ script.
 
 [list_end]
 
+[subsection {Error Codes}]
+
+Starting with version 1.5 all errors thrown by the package have a
+proper [var ::errorCode] for use with Tcl's [cmd try] command. This
+code always has the word [const CMDLINE] as its first element.
+
 [section {EXAMPLES}]
 
 [example {
+        package require Tcl 8.5
+        package require try         ;# Tcllib.
+        package require cmdline 1.5 ;# First version with proper error-codes.
+
+        # Notes:
+        # - Tcl 8.6+ has 'try' as a builtin command and therefore does not
+        #   need the 'try' package.
+        # - Before Tcl 8.5 we cannot support 'try' and have to use 'catch'.
+        #   This then requires a dedicated test (if) on the contents of
+        #   ::errorCode to separate the CMDLINE USAGE signal from actual errors.
+
         set options {
             {a          "set the atime only"}
             {m          "set the mtime only"}
@@ -153,7 +171,15 @@ script.
         }
         set usage ": MyCommandName\
                       \[options] filename ...\noptions:"
-        array set params [::cmdline::getoptions argv $options $usage]
+
+        try {
+            array set params [::cmdline::getoptions argv $options $usage]
+        } trap {CMDLINE USAGE} {msg o} {
+            # Trap the usage signal, print the message, and exit the application.
+            # Note: Other errors are not caught and passed through to higher levels!
+	    puts $msg
+	    exit 1
+        }
 
         if {  $params(a) } { set set_atime "true" }
         set has_t [expr {$params(t) != -1}]
