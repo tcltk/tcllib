@@ -758,4 +758,4 @@ namespace eval ::textutil::adjust {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil::adjust 0.7.1
+package provide textutil::adjust 0.7.3

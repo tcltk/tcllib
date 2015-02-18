@@ -1,4 +1,4 @@
-[vset VERSION 0.7.2]
+[vset VERSION 0.7.3]
 [manpage_begin textutil::adjust n [vset VERSION]]
 [see_also regexp(n)]
 [see_also split(n)]
