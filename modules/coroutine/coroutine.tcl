@@ -37,7 +37,7 @@
 # Meta description     outside of a coroutine.
 # @@ Meta End
 
-# Copyright (c) 2009,2014 Andreas Kupries
+# Copyright (c) 2009,2014-2015 Andreas Kupries
 # Copyright (c) 2009 Colin Macleod
 # Copyright (c) 2009 Colin McCormack
 # Copyright (c) 2009 Donal Fellows
@@ -92,7 +92,7 @@ proc ::coroutine::util::global {args} {
     foreach var $args {
 	lappend cmd $var $var 
     }
-    tailcall $cmd
+    tailcall {*}$cmd
 }
 
 # - -- --- ----- -------- -------------
@@ -373,5 +373,5 @@ namespace eval ::coroutine::util {
 
 # # ## ### ##### ######## #############
 ## Ready
-package provide coroutine 1.1.1
+package provide coroutine 1.1.2
 return
