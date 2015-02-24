@@ -116,16 +116,18 @@ proc ::coroutine::auto::wrap_gets {args} {
     # coroutine-aware part uses the builtin itself for some
     # functionality, and this part cannot be taken as is.
 
-    if {[llength $args] > 2} {
-	# Calling the builtin gets command with the bogus arguments
-	# gives us the necessary error with the proper message.
-	tailcall ::coroutine::auto::core_gets {*}$args
-    } elseif {[llength $args] == 2} {
+    if {[llength $args] == 2} {
+	# gets CHAN VARNAME
 	lassign $args chan varname
         upvar 1 $varname line
-    } else {
-	# llength args == 1
+    } elseif {[llength $args] == 1} {
+	# gets CHAN
 	lassign $args chan
+    } else {
+	# not enough, or too many arguments (0, or > 2): Calling the
+	# builtin gets command with the bogus arguments gives us the
+	# necessary error with the proper message.
+	tailcall ::coroutine::auto::core_gets {*}$args
     }
 
     # Loop until we have a complete line. Yield to the event loop
@@ -310,5 +312,5 @@ proc ::coroutine::auto::wrap_read {args} {
 # # ## ### ##### ######## #############
 ## Ready
 
-package provide coroutine::auto 1.1.2
+package provide coroutine::auto 1.1.3
 return
