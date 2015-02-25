@@ -15,9 +15,12 @@ package require sha1
 # Signature (syntax) of the storage command:
 #
 # (1) <cmd> last      => Returns last id processed.
-# (2) <cmd> save <id> => Take message through stdin, and save, mark <id> as last.
-
-
+# (2) <cmd> names     => Returns list of all known ids
+# (3) <cmd> save <id> => Take message through stdin, and save, mark <id> as last.
+# (4) <cmd> get  <id> => Return message <id> through stdout.
+# (5) <cmd> has  <id> => Return boolean indicating existence of message <id>
+#
+# Here, <cmd> = dirstore <path-to-archive-directory>
 
 proc main {} {
     if {![cmdline]} usage
@@ -25,16 +28,18 @@ proc main {} {
 }
 
 proc cmdline {} {
-    global argv directory method saveid
+    global argv directory method theid theid
 
     if {[llength $argv] < 2} {return 0}
 
     # Retrieve arguments
     lassign $argv directory method
 
-    if {$method eq "save"} {
+    if {$method ni {last save get has names}} {return 0}
+
+    if {$method in {save get has}} {
 	if {[llength $argv] != 3} {return 0}
-	set saveid [lindex $argv 2]
+	set theid [lindex $argv 2]
     } else {
 	if {[llength $argv] != 2} {return 0}
     }
@@ -52,7 +57,7 @@ proc validatedir {which path} {
 
 proc usage {} {
     global argv0
-    puts stderr "$argv0: wrong # args, should be \"$argv0 last|(save <id>)\""
+    puts stderr "$argv0: wrong # args, should be \"$argv0 <directory> last|names|(save <id>)|(get <id>)\""
     exit 1
 }
 
@@ -73,15 +78,42 @@ proc last {} {
     return
 }
 
+proc names {} {
+    global directory
+    set ids {}
+    if {[file exists $directory]} {
+	foreach id [lsort -dict [glob -nocomplain -directory $directory -tails q*]] {
+	    lappend ids [string range $id 1 end]
+	}
+    }
+    puts [join $ids \n]
+    return
+}
+
 proc save {} {
-    global directory saveid
+    global directory theid
 
     set dst [open $directory/current w]
     fcopy stdin $dst
     close $dst
-    file rename -force $directory/current $directory/q$saveid
+    file rename -force $directory/current $directory/q$theid
 
-    fileutil::writeFile $directory/last $saveid
+    fileutil::writeFile $directory/last $theid
+    return
+}
+
+proc get {} {
+    global directory theid
+
+    set src [open $directory/q$theid r]
+    fcopy $src stdout
+    close $src
+    return
+}
+
+proc has {} {
+    global directory theid
+    puts -nonewline stdout [file exists  $directory/q$theid]
     return
 }
 

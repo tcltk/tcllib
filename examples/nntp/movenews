@@ -1,0 +1,110 @@
+#!/usr/bin/env tclsh
+## -*- tcl -*-
+
+package require Tcl 8.5
+
+# This application talks to two stores and transfers the messages from
+# the source to the destination.
+
+proc main {} {
+    if {![cmdline]} usage
+    movemessages
+}
+
+proc cmdline {} {
+    global argv src dst keepid conflict
+
+    set keepid no
+    set conflict error
+
+    while {[string match -* [set o [lindex $argv 0]]]} {
+	switch -exact $o {
+	    -K - --keepid { set keepid   yes }
+	    -I - --ignore { set conflict ignore }
+	    default { return 0 }
+	}
+	set argv [lrange $argv 1 end]
+    }
+
+    if {[llength $argv] != 2} {return 0}
+
+    # Retrieve arguments
+    set argv [lassign $argv src dst]
+
+    if {![llength $src]} { return 0 }
+    if {![llength $dst]} { return 0 }
+
+    return 1
+}
+
+proc usage {} {
+    global argv0
+    puts stderr "$argv0: wrong # args, should be \"$argv0 ?--keepid|-K? ?--plain|-P? src-cmd dst-cmd\""
+    exit 1
+}
+
+proc stop {text} {
+    global argv0
+    puts stderr "$argv0: $text"
+    exit 1
+}
+
+proc log {text} {
+    puts -nonewline $text
+    flush stdout
+    return
+}
+
+proc movemessages {} {
+    global src dst keepid conflict
+
+    set ids [store_cmd $src {} names]
+
+    set lasthandled [store_cmd $dst {} last]
+    if {$lasthandled eq {}} {
+	set  lasthandled -1
+    }
+
+    foreach id $ids {
+	incr lasthandled
+	if {$keepid} {
+	    if {($id < $lasthandled) || [store_cmd $dst {} has $id]} {
+		switch -exact $conflict {
+		    error {
+			log "conflict $id\n"
+			exit 1
+		    }
+		    ignore {
+			log "ignoring $id\n"
+			incr lasthandled -1
+			continue
+		    }
+		}
+	    }
+	    set lasthandled $id
+	}
+
+	log "reading $id ... "
+	set msg [store_cmd $src {} get $id]
+
+	log "saving to $lasthandled ..."
+	set r [store_cmd $dst $msg save $lasthandled]
+
+	if {$r ne {}} { log " $r" }
+	log \n
+    }
+    return
+}
+
+proc store_cmd {storecommand si args} {
+    #puts "run: [list {*}$storecommand {*}$args]"
+
+    if {$si ne {}} {
+	return [exec << $si {*}$storecommand {*}$args]
+    } else {
+	return [exec {*}$storecommand {*}$args]
+    }
+}
+
+main
+exit
