@@ -16,8 +16,6 @@ package require fileutil
 # (1) <cmd> last      => Returns last id processed.
 # (2) <cmd> save <id> => Take message through stdin, and save, mark <id> as last.
 
-
-
 proc main {} {
     if {![cmdline]} usage
     pullmessages
