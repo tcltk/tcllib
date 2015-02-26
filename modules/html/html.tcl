@@ -15,7 +15,7 @@
 
 package require Tcl 8.2
 package require ncgi
-package provide html 1.4.3
+package provide html 1.4.4
 
 namespace eval ::html {
 
@@ -912,7 +912,7 @@ proc ::html::selectPlain {name param choices {current {}}} {
 #	The html fragment
 
 proc ::html::textarea {name {param {}} {current {}}} {
-    ::set value [ncgi::value $name $current]
+    ::set value [quoteFormValue [ncgi::value $name $current]]
     return "<[string trimright \
 	"textarea name=\"$name\"\
 		[tagParam textarea $param]"]>$value</textarea>\n"
