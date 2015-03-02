@@ -1,5 +1,6 @@
 [comment {-*- tcl -*-}]
-[manpage_begin struct::pool n 1.2.1]
+[vset VERSION 1.2.2]
+[manpage_begin struct::pool n [vset VERSION]]
 [keywords {discrete items}]
 [keywords finite]
 [keywords pool]
@@ -9,7 +10,7 @@
 [titledesc {Create and manipulate pool objects (of discrete items)}]
 [category  {Data structures}]
 [require Tcl 8.2]
-[require struct::pool [opt 1.2.1]]
+[require struct::pool [opt [vset VERSION]]]
 [description]
 [para]
 
