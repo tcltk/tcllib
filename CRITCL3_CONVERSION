@@ -1,1 +1,31 @@
 base64 requires separation of C and Tcl parts
+
+C pieces all around
+
+File		Module		Status
+====		======		======
+base32_c	base32		[done]
+base32hex_c	base32		[done]
+base64c		base64		[done]
+crcc		crc		[done]
+ipMoreC		dns		[done]
+md4c		md4		[done]
+md5c		md5		[done]
+md5cryptc	md5crypt	[done]
+pt_parse_peg_c	pt		[done]
+pt_rdengine_c	pt		[done]
+rc4c		rc4		[done]
+sha1c		sha1		[done]
+sha256c		sha1		[done]
+====		======		======
+crc32		crc
+graph_c		struct
+jsonc		json
+queue_c		struct
+sets_c		struct
+stack_c		struct
+sum		crc
+tree_c		struct
+uuid		uuid
+yencode		yencode
+====		======		======
