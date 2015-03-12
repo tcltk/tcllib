@@ -1,7 +1,7 @@
 # -*- tcl -*-
 # pool.test:  tests for the pool package.
 
-# Copyright (c) 2006 Andreas Kupries
+# Copyright (c) 2006,2015 Andreas Kupries
 # All rights reserved.
 #
 # RCS: @(#) $Id: pool.test,v 1.4 2006/10/09 21:41:42 andreas_kupries Exp $
@@ -61,7 +61,7 @@ test pool-0.6 {pool errors, BAD_SUBCMD} {
     catch {mypool badsubcommand whateverargs} errmsg
     mypool destroy
     set errmsg
-} {bad subcommand "badsubcommand": must be add, clear, destroy, info, maxsize, release, remove, or request}
+} {Bad subcommand "badsubcommand": must be add, clear, destroy, info, maxsize, release, remove, or request}
 
 test pool-0.7 {pool errors, SOME_ITEMS_NOT_FREE} {
     pool mypool
@@ -196,7 +196,7 @@ foreach {n cmd} {
 	catch $cmd errmsg
 	mypool destroy
 	set errmsg
-    } {Wrong nr. of arguments.}
+    } "wrong\#args"
 }
 
 testsuiteCleanup

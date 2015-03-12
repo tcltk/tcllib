@@ -1,7 +1,5 @@
-#!/bin/sh
-# -*- tcl -*- \
-exec tclsh "$0"  ${1+"$@"}
-
+#!/usr/bin/env tclsh
+## -*- tcl -*-
 # syntax: transmit FILE ?HOST?
 # Run this after receive, it waits for our connection.
 
