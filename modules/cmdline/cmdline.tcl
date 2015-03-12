@@ -6,7 +6,7 @@
 #	application name for use in command line errors.
 #
 # Copyright (c) 1998-2000 by Ajuba Solutions.
-# Copyright (c) 2001-2011 by Andreas Kupries <andreas_kupries@users.sf.net>.
+# Copyright (c) 2001-2015 by Andreas Kupries <andreas_kupries@users.sf.net>.
 # Copyright (c) 2003      by David N. Welton  <davidw@dedasys.com>
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -14,7 +14,7 @@
 # RCS: @(#) $Id: cmdline.tcl,v 1.28 2011/02/23 17:41:52 andreas_kupries Exp $
 
 package require Tcl 8.2
-package provide cmdline 1.3.3
+package provide cmdline 1.5
 
 namespace eval ::cmdline {
     namespace export getArgv0 getopt getKnownOpt getfiles getoptions \
@@ -119,9 +119,19 @@ proc ::cmdline::getKnownOpt {argvVar optstring optVar valVar} {
 	    "--" {
 		set argsList [lrange $argsList 1 end]
 	    }
-
+	    "--*" -
 	    "-*" {
 		set option [string range $arg 1 end]
+		if {[string equal [string range $option 0 0] "-"]} {
+		    set option [string range $arg 2 end]
+		}
+
+		# support for format: [-]-option=value
+		set idx [string first "=" $option 1]
+		if {$idx != -1} {
+		    set _val   [string range $option [expr {$idx+1}] end]
+		    set option [string range $option 0   [expr {$idx-1}]]
+		}
 
 		if {[lsearch -exact $optstring $option] != -1} {
 		    # Booleans are set to 1 when present
@@ -131,7 +141,10 @@ proc ::cmdline::getKnownOpt {argvVar optstring optVar valVar} {
 		} elseif {[lsearch -exact $optstring "$option.arg"] != -1} {
 		    set result 1
 		    set argsList [lrange $argsList 1 end]
-		    if {[llength $argsList] != 0} {
+
+		    if {[info exists _val]} {
+			set value $_val
+		    } elseif {[llength $argsList]} {
 			set value [lindex $argsList 0]
 			set argsList [lrange $argsList 1 end]
 		    } else {
@@ -194,7 +207,7 @@ proc ::cmdline::getoptions {arglistVar optlist {usage options:}} {
 	set result($opt) $arg
     }
     if {[info exist result(?)] || [info exists result(help)]} {
-	error [usage $optlist $usage]
+	Error [usage $optlist $usage] USAGE
     }
     return [array get result]
 }
@@ -261,7 +274,7 @@ proc ::cmdline::getKnownOptions {arglistVar optlist {usage options:}} {
     set argv [concat $unknownOptions $argv]
 
     if {[info exist result(?)] || [info exists result(help)]} {
-	error [usage $optlist $usage]
+	Error [usage $optlist $usage] USAGE
     }
     return [array get result]
 }
@@ -669,8 +682,9 @@ proc ::cmdline::typedGetopt {argvVar optstring optVar argVar} {
                             }
                         }
                     } else {
-                        error "Illegal option type specification:\
-                                must be one of $charclasses"
+                        Error \
+			    "Illegal option type specification: must be one of $charclasses" \
+			    BAD OPTION TYPE
                     }
                 } else {
                     set optarg "Illegal option -- $_opt"
@@ -785,13 +799,13 @@ proc ::cmdline::typedGetoptions {arglistVar optlist {usage options:}} {
                 set result($opt) "$arg"
             }
         } elseif {($err == -1) || ($err == -3)} {
-            error [typedUsage $optlist $usage]
+            Error [typedUsage $optlist $usage] USAGE
         } elseif {$err == -2 && ![info exists defaults($opt)]} {
-            error [typedUsage $optlist $usage]
+            Error [typedUsage $optlist $usage] USAGE
         }
     }
     if {[info exists result(?)] || [info exists result(help)]} {
-        error [typedUsage $optlist $usage]
+        Error [typedUsage $optlist $usage] USAGE
     }
     foreach {opt dflt} [array get defaults] {
         if {![info exists result($opt)]} {
@@ -880,4 +894,19 @@ proc ::cmdline::prefixSearch {list pattern} {
         }
     }
     return -1
+}
+# ::cmdline::Error --
+#
+#	Internal helper to throw errors with a proper error-code attached.
+#
+# Arguments:
+#	message		text of the error message to throw.
+#	args		additional parts of the error code to use,
+#                       with CMDLINE as basic prefix added by this command.
+#
+# Results:
+#	An error is thrown, always.
+
+proc ::cmdline::Error {message args} {
+    return -code error -errorcode [linsert $args 0 CMDLINE] $message
 }
