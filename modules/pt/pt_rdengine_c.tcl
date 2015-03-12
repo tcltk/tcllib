@@ -28,7 +28,7 @@ package provide pt_rde_critcl 1.3.3
 # # ## ### ##### ######## ############# #####################
 ## Administrivia
 
-critcl::license {Andreas Kupries BSD
+critcl::license {Andreas Kupries} BSD
 
 critcl::summary {
     Critcl implementation of the PARAM runtime.
