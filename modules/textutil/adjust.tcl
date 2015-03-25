@@ -202,8 +202,11 @@ proc ::textutil::adjust::Adjust { varOrigName varNewName } {
 	    set w2 $w
 
 	    set over [expr {$pos+2+$wLen-$Length}]
+
+	    incr Length -1
 	    set w3   [string range $w2 0 $Length]
-	    set w4   [string range $w2 [expr {$Length+1}] end]
+	    incr Length
+	    set w4   [string range $w2 $Length end]
 
 	    set x [lreplace $words $cnt $cnt $w4]
 	    set words [linsert $x $cnt $w3 ]
@@ -755,4 +758,4 @@ namespace eval ::textutil::adjust {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide textutil::adjust 0.7.1
+package provide textutil::adjust 0.7.3
