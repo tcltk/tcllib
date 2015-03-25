@@ -37,7 +37,7 @@
 # Meta description     outside of a coroutine.
 # @@ Meta End
 
-# Copyright (c) 2009,2014 Andreas Kupries
+# Copyright (c) 2009,2014-2015 Andreas Kupries
 # Copyright (c) 2009 Colin Macleod
 # Copyright (c) 2009 Colin McCormack
 # Copyright (c) 2009 Donal Fellows
@@ -92,7 +92,7 @@ proc ::coroutine::util::global {args} {
     foreach var $args {
 	lappend cmd $var $var 
     }
-    tailcall $cmd
+    tailcall {*}$cmd
 }
 
 # - -- --- ----- -------- -------------
@@ -161,16 +161,18 @@ proc ::coroutine::util::gets {args} {
     # Acceptable syntax:
     # * gets CHAN ?VARNAME?
 
-    if {[llength $args] > 2} {
-	# Calling the builtin gets command with the bogus arguments
-	# gives us the necessary error with the proper message.
-	tailcall ::chan gets {*}$args
-    } elseif {[llength $args] == 2} {
+    if {[llength $args] == 2} {
+	# gets CHAN VARNAME
 	lassign $args chan varname
         upvar 1 $varname line
-    } else {
-	# llength args == 1
+    } elseif {[llength $args] == 1} {
+	# gets CHAN
 	lassign $args chan
+    } else {
+	# not enough, or too many arguments (0, or > 2): Calling the
+	# builtin gets command with the bogus arguments gives us the
+	# necessary error with the proper message.
+	tailcall ::chan gets {*}$args
     }
 
     # Loop until we have a complete line. Yield to the event loop
@@ -373,5 +375,5 @@ namespace eval ::coroutine::util {
 
 # # ## ### ##### ######## #############
 ## Ready
-package provide coroutine 1.1.1
+package provide coroutine 1.1.3
 return
