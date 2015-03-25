@@ -454,6 +454,18 @@ test html-23.2 {html::textarea} {
 } {<textarea name="info" cols="50" rows="8">The textarea value.</textarea>
 }
 
+test html-23.3 {html::textarea, dangerous input} {
+    html::init {
+	textarea.cols 50
+	textarea.rows 8
+    }
+    ncgi::reset info=[ncgi::encode "</textarea><script>alert(1)</script>"]
+    ncgi::parse
+    html::textarea info
+} {<textarea name="info" cols="50" rows="8">&lt;/textarea&gt;&lt;script&gt;alert(1)&lt;/script&gt;</textarea>
+}
+
+
 test html-24.1 {html::submit} {
     catch {html::submit}
 } {1}
