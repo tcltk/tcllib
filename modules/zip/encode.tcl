@@ -647,5 +647,5 @@ proc ::zipfile::encode::mkzip {filename args} {
 }
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::encode 0.3
+package provide zipfile::encode 0.4
 return
