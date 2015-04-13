@@ -9,9 +9,6 @@
 #     The author is grateful for the advice provided by
 #     Andreas Kupries during the development of this code.
 #
-#
-# $Id: pool.tcl,v 1.8 2005/09/28 04:51:24 andreas_kupries Exp $
-#
 ################################################################################
 
 package require cmdline
@@ -34,32 +31,39 @@ namespace eval ::struct::pool {
     # values when an error occurs.
     variable  Errors
     array set Errors {
-	BAD_SUBCMD {bad subcommand "%s": must be %s}
+	BAD_SUBCMD             {Bad subcommand "%s": must be %s}
 	DUPLICATE_ITEM_IN_ARGS {Duplicate item `%s' in arguments.}
-	DUPLICATE_POOLNAME {The pool `%s' already exists.}
-	EXCEED_MAXSIZE "This command would increase the total number of items\
+	DUPLICATE_POOLNAME     {The pool `%s' already exists.}
+	EXCEED_MAXSIZE         "This command would increase the total number of items\
 		\nbeyond the maximum size of the pool. No items registered."
-	FORBIDDEN_ALLOCID "The value -1 is not allowed as an allocID."
-	INVALID_POOLSIZE {The pool currently holds %s items.\
+	FORBIDDEN_ALLOCID      "The value -1 is not allowed as an allocID."
+	INVALID_POOLSIZE       {The pool currently holds %s items.\
 		Can't set maxsize to a value less than that.}
-	ITEM_ALREADY_IN_POOL {`%s' already is a member of the pool. No items registered.}
-	ITEM_NOT_IN_POOL {`%s' is not a member of %s.}
-	ITEM_NOT_ALLOCATED {Can't release `%s' because it isn't allocated.}
-	ITEM_STILL_ALLOCATED {Can't remove `%s' because it is still allocated.}
-	NONINT_REQSIZE {The second argument must be a positive integer value}
-	SOME_ITEMS_NOT_FREE {Couldn't %s `%s' because some items are still allocated.}
-	UNKNOWN_ARG {Unknown argument `%s'}
-	UNKNOWN_POOL {Nothing known about `%s'.}
-	VARNAME_EXISTS "A variable `::struct::pool::%s' already exists."
-	WRONG_INFO_TYPE "Expected second argument to be one of:\
+	ITEM_ALREADY_IN_POOL   {`%s' already is a member of the pool. No items registered.}
+	ITEM_NOT_IN_POOL       {`%s' is not a member of %s.}
+	ITEM_NOT_ALLOCATED     {Can't release `%s' because it isn't allocated.}
+	ITEM_STILL_ALLOCATED   {Can't remove `%s' because it is still allocated.}
+	NONINT_REQSIZE         {The second argument must be a positive integer value}
+	SOME_ITEMS_NOT_FREE    {Couldn't %s `%s' because some items are still allocated.}
+	UNKNOWN_ARG            {Unknown argument `%s'}
+	UNKNOWN_POOL           {Nothing known about `%s'.}
+	VARNAME_EXISTS         {A variable `::struct::pool::%s' already exists.}
+	WRONG_INFO_TYPE        "Expected second argument to be one of:\
 		\n     allitems, allocstate, cursize, freeitems, maxsize,\
 		\nbut received: `%s'."
-	WRONG_NARGS {Wrong nr. of arguments.}
+	WRONG_NARGS            "wrong#args"
     }
     
     namespace export pool
 }
 
+# A small helper routine to generate structured errors
+proc ::struct::pool::Error {error args} {
+    variable Errors
+    return -code error -level 1 \
+	-errorcode [list STRUCT POOL $error {*}$args] \
+	[format $Errors($error) {*}$args]
+}
 
 # A small helper routine to check list membership
 proc ::struct::pool::lmember {list element} {
@@ -123,12 +127,11 @@ proc ::struct::pool::lmember {list element} {
 proc ::struct::pool::create { {poolname ""} {maxsize 10} } {
     variable pools
     variable counter
-    variable Errors
     
     # check maxsize argument
     if { ![string equal $maxsize 10] } {
         if { ![regexp {^\+?[1-9][0-9]*$} $maxsize] } {
-            return -code error $Errors(NONINT_REQSIZE)
+            Error NONINT_REQSIZE
         }
     }
     
@@ -144,7 +147,7 @@ proc ::struct::pool::create { {poolname ""} {maxsize 10} } {
         if { [::info exists incrcnt] } {
             incr counter -1
         }
-        return -code error [format $Errors(DUPLICATE_POOLNAME) $poolname]
+        Error DUPLICATE_POOLNAME $poolname
     }
     
     # check whether the namespace variable exists
@@ -152,7 +155,7 @@ proc ::struct::pool::create { {poolname ""} {maxsize 10} } {
         if { [::info exists incrcnt] } {
             incr counter -1
         }
-        return -code error [format $Errors(VARNAME_EXISTS) $poolname]
+        Error VARNAME_EXISTS $poolname
     }
     
     variable $poolname
@@ -204,13 +207,11 @@ proc ::struct::pool::pool { {poolname ""} {maxsize 10} } {
 #    Dispatches the call onto a specific pool command and receives any results.
 #
 proc ::struct::pool::poolCmd {poolname subcmd args} {
-    variable Errors
-    
     # check the subcmd argument
     if { [lsearch -exact $::struct::pool::commands $subcmd] == -1 } {
         set optlist [join $::struct::pool::commands ", "]
         set optlist [linsert $optlist "end-1" "or"]
-        return -code error [format $Errors(BAD_SUBCMD) $subcmd $optlist]
+        Error BAD_SUBCMD $subcmd $optlist
     }
     
     # pass the call to the pool command indicated by the subcmd argument,
@@ -238,14 +239,13 @@ proc ::struct::pool::poolCmd {poolname subcmd args} {
 #
 proc ::struct::pool::destroy {poolname {forceArg ""}} {
     variable pools
-    variable Errors
     
     # check forceArg argument
     if { [string length $forceArg] } {
         if { [string equal $forceArg -force] } {
             set force 1
         } else {
-            return -code error [format $Errors(UNKNOWN_ARG) $forceArg]
+            Error UNKNOWN_ARG $forceArg
         }
     } else {
         set force 0
@@ -253,7 +253,7 @@ proc ::struct::pool::destroy {poolname {forceArg ""}} {
     
     set index [lsearch -exact $pools $poolname]
     if {$index == -1 } {
-        return -code error [format $Errors(UNKNOWN_POOL) $poolname]
+        Error UNKNOWN_POOL $poolname
     }
     
     if { !$force } {
@@ -262,7 +262,7 @@ proc ::struct::pool::destroy {poolname {forceArg ""}} {
         upvar #0 ::struct::pool::$poolname pool
         upvar #0 ::struct::pool::Allocstate_$poolname state
         if { [llength $pool(freeitems)] != $pool(cursize) } {
-            return -code error [format $Errors(SOME_ITEMS_NOT_FREE) destroy $poolname]
+            Error SOME_ITEMS_NOT_FREE destroy $poolname
         }
     }
     
@@ -290,19 +290,18 @@ proc ::struct::pool::destroy {poolname {forceArg ""}} {
 #    sets the initial allocation state of the added items to -1 (free)
 #
 proc ::struct::pool::add {poolname args} {
-    variable Errors
     variable $poolname
     upvar #0 ::struct::pool::$poolname pool
     upvar #0 ::struct::pool::Allocstate_$poolname state
     
     # argument check
     if { [llength $args] == 0 } {
-        return -code error $Errors(WRONG_NARGS)
+        Error WRONG_NARGS
     }
     
     # will this operation exceed the size limit of the pool?
     if {[expr { $pool(cursize) + [llength $args] }] > $pool(maxsize) } {
-        return -code error $Errors(EXCEED_MAXSIZE)
+        Error EXCEED_MAXSIZE
     }
     
     
@@ -312,7 +311,7 @@ proc ::struct::pool::add {poolname args} {
         for {set i 0} {$i<=$N} {incr i} {
             foreach item [lrange $args [expr {$i+1}] end] {
                 if { [string equal [lindex $args $i] $item]} {
-                    return -code error [format $Errors(DUPLICATE_ITEM_IN_ARGS) $item]
+                    Error DUPLICATE_ITEM_IN_ARGS $item
                 }
             }
         }
@@ -321,7 +320,7 @@ proc ::struct::pool::add {poolname args} {
     # check whether the items exist yet in the pool
     foreach item $args {
         if { [lmember [array names state] $item] } {
-            return -code error [format $Errors(ITEM_ALREADY_IN_POOL) $item]
+            Error ITEM_ALREADY_IN_POOL $item
         }
     }
     
@@ -354,7 +353,6 @@ proc ::struct::pool::add {poolname args} {
 #    see description above
 #
 proc ::struct::pool::clear {poolname {forceArg ""} } {
-    variable Errors
     variable $poolname
     upvar #0 ::struct::pool::$poolname pool
     upvar #0 ::struct::pool::Allocstate_$poolname state
@@ -364,7 +362,7 @@ proc ::struct::pool::clear {poolname {forceArg ""} } {
         if { [string equal $forceArg -force] } {
             set force 1
         } else {
-            return -code error [format $Errors(UNKNOWN_ARG) $forceArg]
+            Error UNKNOWN_ARG $forceArg
         }
     } else {
         set force 0
@@ -373,7 +371,7 @@ proc ::struct::pool::clear {poolname {forceArg ""} } {
     # check whether some items are still allocated
     if { !$force } {
         if { [llength $pool(freeitems)] != $pool(cursize) } {
-            return -code error [format $Errors(SOME_ITEMS_NOT_FREE) clear $poolname]
+            Error SOME_ITEMS_NOT_FREE clear $poolname
         }
     }
     
@@ -405,7 +403,6 @@ proc ::struct::pool::clear {poolname {forceArg ""} } {
 #    none
 #
 proc ::struct::pool::info {poolname type args} {
-    variable Errors
     variable $poolname
     upvar #0 ::struct::pool::$poolname pool
     upvar #0 ::struct::pool::Allocstate_$poolname state
@@ -413,10 +410,10 @@ proc ::struct::pool::info {poolname type args} {
     # check the number of arguments
     if { [string equal $type allocID] } {
         if { [llength $args]!=1 } {
-            return -code error $Errors(WRONG_NARGS)
+            Error WRONG_NARGS
         }
     } elseif { [llength $args] > 0 } {
-        return -code error $Errors(WRONG_NARGS)
+        Error WRONG_NARGS
     }
     
     switch $type {
@@ -429,7 +426,7 @@ proc ::struct::pool::info {poolname type args} {
         allocID {
             set item [lindex $args 0]
             if {![lmember [array names state] $item]} {
-                return -code error [format $Errors(ITEM_NOT_IN_POOL) $item $poolname]
+                Error ITEM_NOT_IN_POOL $item $poolname
             }
             return $state($item)
         }
@@ -443,7 +440,7 @@ proc ::struct::pool::info {poolname type args} {
             return $pool(maxsize)
         }
         default {
-            return -code error [format $Errors(WRONG_INFO_TYPE) $type]
+            Error WRONG_INFO_TYPE $type
         }
     }
 }
@@ -470,7 +467,6 @@ proc ::struct::pool::info {poolname type args} {
 #    Sets pool(maxsize) if a new size is supplied.
 #
 proc ::struct::pool::maxsize {poolname {reqsize ""} } {
-    variable Errors
     variable $poolname
     upvar #0 ::struct::pool::$poolname pool
     upvar #0 ::struct::pool::Allocstate_$poolname state
@@ -480,10 +476,10 @@ proc ::struct::pool::maxsize {poolname {reqsize ""} } {
             if { $pool(cursize) <= $reqsize } {
                 set pool(maxsize) $reqsize
             } else  {
-                return -code error [format $Errors(INVALID_POOLSIZE) $pool(cursize)]
+                Error INVALID_POOLSIZE $pool(cursize)
             }
         } else  {
-            return -code error $Errors(NONINT_REQSIZE)
+            Error NONINT_REQSIZE
         }
     }
     return $pool(maxsize)
@@ -508,19 +504,18 @@ proc ::struct::pool::maxsize {poolname {reqsize ""} } {
 #    - appends item to the list of free items
 #
 proc ::struct::pool::release {poolname item} {
-    variable Errors
     variable $poolname
     upvar #0 ::struct::pool::$poolname pool
     upvar #0 ::struct::pool::Allocstate_$poolname state
     
     # Is item in the pool?
     if {![lmember [array names state] $item]} {
-        return -code error [format $Errors(ITEM_NOT_IN_POOL) $item $poolname]
+        Error ITEM_NOT_IN_POOL $item $poolname
     }
     
     # check whether item was allocated
     if { $state($item) == -1 } {
-        return -code error [format $Errors(ITEM_NOT_ALLOCATED) $item]
+        Error ITEM_NOT_ALLOCATED $item
     } else  {
         
         # set item free and return it to the pool of free items
@@ -549,7 +544,6 @@ proc ::struct::pool::release {poolname item} {
 #    - cleans up allocation state related to the item
 #
 proc ::struct::pool::remove {poolname item {forceArg ""} } {
-    variable Errors
     variable $poolname
     upvar #0 ::struct::pool::$poolname pool
     upvar #0 ::struct::pool::Allocstate_$poolname state
@@ -559,7 +553,7 @@ proc ::struct::pool::remove {poolname item {forceArg ""} } {
         if { [string equal $forceArg -force] } {
             set force 1
         } else {
-            return -code error [format $Errors(UNKNOWN_ARG) $forceArg]
+            Error UNKNOWN_ARG $forceArg
         }
     } else {
         set force 0
@@ -567,7 +561,7 @@ proc ::struct::pool::remove {poolname item {forceArg ""} } {
     
     # Is item in the pool?
     if {![lmember [array names state] $item]} {
-        return -code error [format $Errors(ITEM_NOT_IN_POOL) $item $poolname]
+        Error ITEM_NOT_IN_POOL $item $poolname
     }
     
     set index [lsearch $pool(freeitems) $item]
@@ -577,7 +571,7 @@ proc ::struct::pool::remove {poolname item {forceArg ""} } {
         set pool(freeitems) [lreplace $pool(freeitems) $index $index]
         
     } elseif { !$force }  {
-        return -code error [format $Errors(ITEM_STILL_ALLOCATED) $item]
+        Error ITEM_STILL_ALLOCATED $item
     }
     
     # clean up state and adjust the pool size
@@ -626,7 +620,6 @@ proc ::struct::pool::remove {poolname item {forceArg ""} } {
 #   if the request is denied, no side effects occur.
 #
 proc ::struct::pool::request {poolname itemvar args} {
-    variable Errors
     variable $poolname
     upvar #0 ::struct::pool::$poolname pool
     upvar #0 ::struct::pool::Allocstate_$poolname state
@@ -635,12 +628,12 @@ proc ::struct::pool::request {poolname itemvar args} {
     set nargs [llength $args]
     if { ! ($nargs==0 || $nargs==2 || $nargs==4) } {
         if { ![string equal $args -?] && ![string equal $args -help]} {
-            return -code error $Errors(WRONG_NARGS)
+            Error WRONG_NARGS
         }
     } elseif { $nargs } {
         foreach {name value} $args {
             if { ![string match -* $name] } {
-                return -code error [format $Errors(UNKNOWN_ARG) $name]
+                Error UNKNOWN_ARG $name
             }
         }
     }
@@ -661,7 +654,7 @@ proc ::struct::pool::request {poolname itemvar args} {
         }
         
         if { $allocID == -1 } {
-            return -code error $Errors(FORBIDDEN_ALLOCID)
+            Error FORBIDDEN_ALLOCID
         }
         
         # let `item' point to a variable two levels up the call stack
@@ -670,7 +663,7 @@ proc ::struct::pool::request {poolname itemvar args} {
         # check whether a preference was supplied
         if { [string length $prefer] } {
             if {![lmember [array names state] $prefer]} {
-                return -code error [format $Errors(ITEM_NOT_IN_POOL) $prefer $poolname]
+                Error ITEM_NOT_IN_POOL $prefer $poolname
             }
             if { $state($prefer) == -1 } {
                 set index [lsearch $pool(freeitems) $prefer]
@@ -706,4 +699,4 @@ namespace eval ::struct {
     namespace import -force pool::pool
     namespace export pool
 }
-package provide struct::pool 1.2.1
+package provide struct::pool 1.2.2

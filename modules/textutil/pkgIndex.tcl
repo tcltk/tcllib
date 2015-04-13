@@ -3,7 +3,7 @@ if {![package vsatisfies [package provide Tcl] 8.2]} {
     return
 }
 package ifneeded textutil           0.8   [list source [file join $dir textutil.tcl]]
-package ifneeded textutil::adjust   0.7.1 [list source [file join $dir adjust.tcl]]
+package ifneeded textutil::adjust   0.7.3 [list source [file join $dir adjust.tcl]]
 package ifneeded textutil::split    0.7   [list source [file join $dir split.tcl]]
 package ifneeded textutil::trim     0.7   [list source [file join $dir trim.tcl]]
 package ifneeded textutil::tabify   0.7   [list source [file join $dir tabify.tcl]]
