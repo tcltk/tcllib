@@ -31,9 +31,9 @@ proc ::sak::readme::run {} {
     # repository's commit log.
 
     set trunk     [sak::review::Leaf trunk]            ;# rid
-    set release   [sak::review::YoungestOfTag release] ;# datetime
+    foreach {release ruid} [split [sak::review::YoungestOfTag release] |] break ;# datetime+uuid
 
-    sak::review::AllParentsAfter $trunk $release -> rid {
+    sak::review::AllParentsAfter $trunk $release $ruid -> rid {
 	sak::review::FileSet $rid -> path action {
 	    lappend modifiedm [lindex [file split $path] 1]
 	}
