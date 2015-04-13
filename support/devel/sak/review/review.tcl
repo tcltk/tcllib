@@ -51,8 +51,8 @@ proc ::sak::review::Scan {} {
     array set cm {}
 
     set trunk     [Leaf trunk]            ;# rid
-    set release   [YoungestOfTag release] ;# datetime
-    AllParentsAfter $trunk $release -> rid {
+    foreach {release ruid} [split [YoungestOfTag release] |] break ;# datetime + uuid
+    AllParentsAfter $trunk $release $ruid -> rid {
 	Next ; Progress " $rid"
 
 	set d [Description $rid]
@@ -301,7 +301,7 @@ proc ::sak::review::Description {rid} {
     }]]
 }
 
-proc ::sak::review::AllParentsAfter {rid cut _ rv script} {
+proc ::sak::review::AllParentsAfter {rid cut cutuid _ rv script} {
     upvar 1 $rv therev
 
     array set rev {}
@@ -323,6 +323,7 @@ proc ::sak::review::AllParentsAfter {rid cut _ rv script} {
 	foreach cid $front {
 	    foreach pid [split [Parents $cid $cut] \n] {
 		foreach {pid uuid mtraw mtime} [split [string trim $pid |] |] break
+		if {$uuid eq $cutuid} continue
 		lappend new $pid $mtime $uuid
 
 		if {$mtraw <= $cut} {
@@ -375,13 +376,14 @@ proc ::sak::review::YoungestOfTag {tag} {
 	;
     }]]"
     F [string map $map {
-	SELECT event.mtime
-	FROM   tag, tagxref, event
+	SELECT event.mtime, blob.uuid
+	FROM   tag, tagxref, event, blob
 	WHERE tag.tagname     = 'sym-' || '@tag@'
 	AND   tagxref.tagid   = tag.tagid
 	AND   tagxref.tagtype > 0
 	AND   tagxref.rid     = event.objid
 	AND   event.type      = 'ci'
+        AND   blob.rid        = event.objid
 	ORDER BY event.mtime DESC
 	LIMIT 1
 	;
@@ -403,7 +405,10 @@ proc ::sak::review::Leaf {branch} {
 }
 
 proc ::sak::review::F {script} {
-    exec fossil sqlite3 << $script
+    #puts |$script|
+    set r [exec fossil sqlite3 << $script]
+    #puts ($r)
+    return $r
 }
 
 
