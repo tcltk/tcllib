@@ -156,9 +156,15 @@ proc ::sak::review::Scan {} {
 
     foreach m [array names review] {
 	# commit messages
-	set     entries [lsort -unique $cm($m)]
+	if {[info exists cm($m)]} {
+	    set entries [lsort -unique $cm($m)]
+	} else {
+	    set entries {}
+	}
 	# and affected files
-	lappend entries [join [lsort -dict [lsort -unique $pt($m)]] \n]
+	if {[info exists pt($m)]} {
+	    lappend entries [join [lsort -dict [lsort -unique $pt($m)]] \n]
+	}
 
 	set review($m) [list $review($m) [join $entries \n\n]]
     }
