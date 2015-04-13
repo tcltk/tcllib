@@ -200,12 +200,13 @@ brick  in the wall. Michele, ma
 belle, sont  des mots  qui vont
 trés  bien ensembles, trés bien
 ensembles.
-ThisIsSimilarToTextOnlyThisStrin
-gHasOneReallyLongWordInIt Smoke
-on  the water, and fire  in the
-sky.  Oh Lord, don't let  me be
-misunderstood. Cause tramp like
-us, baby  we were born  to run."
+ThisIsSimilarToTextOnlyThisStri
+ngHasOneReallyLongWordInIt
+Smoke on the water, and fire in
+the sky.  Oh Lord, don't let me
+be misunderstood.  Cause  tramp
+like us, baby  we were born  to
+run."
 
 test adjust-2.7 {adjust multi lines with plain justification and strictlength} {
     ::textutil::adjust::adjust $text2 -justify plain -length 31 -strictlength 1
@@ -216,12 +217,13 @@ brick  in the wall. Michele, ma
 belle, sont  des mots  qui vont
 trés  bien ensembles, trés bien
 ensembles.
-ThisIsSimilarToTextOnlyThisStrin
-gHasOneReallyLongWordInIt Smoke
-on  the water, and fire  in the
-sky.  Oh Lord, don't let  me be
-misunderstood. Cause tramp like
-us, baby  we were born  to run."
+ThisIsSimilarToTextOnlyThisStri
+ngHasOneReallyLongWordInIt
+Smoke on the water, and fire in
+the sky.  Oh Lord, don't let me
+be misunderstood.  Cause  tramp
+like us, baby  we were born  to
+run."
 
 test adjust-2.8 {adjust multi lines with left justification and strictlength} {
     ::textutil::adjust::adjust $text2 -justify left -length 31 -strictlength 1
@@ -232,12 +234,40 @@ brick in the wall. Michele, ma
 belle, sont des mots qui vont
 trés bien ensembles, trés bien
 ensembles.
-ThisIsSimilarToTextOnlyThisStrin
-gHasOneReallyLongWordInIt Smoke
-on the water, and fire in the
-sky. Oh Lord, don't let me be
-misunderstood. Cause tramp like
-us, baby we were born to run."
+ThisIsSimilarToTextOnlyThisStri
+ngHasOneReallyLongWordInIt
+Smoke on the water, and fire in
+the sky. Oh Lord, don't let me
+be misunderstood. Cause tramp
+like us, baby we were born to
+run."
+
+# strictlength bordercondition details
+# N over  = string is N chars longer than requested strict length
+# N under = string is N chars shorter than requested strict length.
+#
+# In the examples below the string is 12 chars long, with -length varying.
+# The lines are split to make them easier to see.
+
+test adjust-3.0-f08453f77d {strictlength borderconditions, 1 over} {
+    split [textutil::adjust::adjust 0123456789AB -length 11 -strictlength 1] \n
+} {0123456789A B}
+
+test adjust-3.1-f08453f77d {strictlength borderconditions, 2 over} {
+    split [textutil::adjust::adjust 0123456789AB -length 10 -strictlength 1] \n
+} {0123456789 AB}
+
+test adjust-3.2-f08453f77d {strictlength borderconditions, 3 over} {
+    split [textutil::adjust::adjust 0123456789AB -length 9 -strictlength 1] \n
+} {012345678 9AB}
+
+test adjust-3.2-f08453f77d {strictlength borderconditions, exact} {
+    split [textutil::adjust::adjust 0123456789AB -length 12 -strictlength 1] \n
+} 0123456789AB
+
+test adjust-3.2-f08453f77d {strictlength borderconditions, 1 under} {
+    split [textutil::adjust::adjust 0123456789AB -length 13 -strictlength 1] \n
+} 0123456789AB
 
 ###################################################
 
