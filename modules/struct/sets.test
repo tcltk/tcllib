@@ -86,7 +86,12 @@ TestAccelDo struct::set impl {
 	    }
 	}
 	tcl {
-	    if {[package vsatisfies [package present Tcl] 8.5]} {
+	    if {[package vsatisfies [package present Tcl] 8.6]} {
+		# In 8.6 head Tcl again reports what the alias resolved to
+		proc Nothing {} {
+		    return [tcltest::wrongNumArgs {::struct::set} {cmd args} 0]
+		}
+	    } elseif {[package vsatisfies [package present Tcl] 8.5]} {
 		# In 8.5 head the alias itself is reported, not what it
 		# resolved to.
 		proc Nothing {} {
