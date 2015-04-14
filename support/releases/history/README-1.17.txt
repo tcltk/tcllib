@@ -3,8 +3,8 @@ Overview
 
     3   new packages                in 2   modules
     61  changed packages            in 37  modules
-    48  internally changed packages in 31  modules
-    296 unchanged packages          in 76  modules
+    47  internally changed packages in 31  modules
+    297 unchanged packages          in 76  modules
     414 packages, total             in 115 modules, total
 
 New in tcllib 1.17
@@ -75,9 +75,9 @@ Changes from tcllib 1.16 to 1.17
     ooutil                  oo::util                             1.2           1.2.1         B D T
     ----------------------- ------------------------------------ ------------- ------------- ----------
     pt                      char                                 1             1.0.1         D I T
-                            pt::cparam::configuration::critcl    1.0.1         1.0.2         B D
-                            pt::parse::peg                       1             1.0.1         B T
-                            pt::pe                               1             1.0.2         D EF I
+                            pt::cparam::configuration::critcl    1.0.1         1.0.2         B D I T
+                            pt::parse::peg                       1             1.0.1         B I T
+                            pt::pe                               1             1.0.2         B D EF I
                             pt::peg::from::peg                   1.0.2         1.0.3         D EF
                             pt::peg::interp                      1             1.0.1         D EF
                             pt::peg::to::cparam                  1.0.1         1.1.3         B D EF
@@ -159,9 +159,7 @@ Invisible changes (documentation, testsuites)
                 pop3d::dbox                   1.0.2         1.0.2         I T
                 pop3d::udb                    1.1           1.1           I
     ----------- ----------------------------- ------------- ------------- ----------
-    pt          pt::peg                       1             1             EF
-                pt::peg::op                   1.0.1         1.0.1         D
-    ----------- ----------------------------- ------------- ------------- ----------
+    pt          pt::peg::op                   1.0.1         1.0.1         D
     rc4         rc4                           1.1.0         1.1.0         I
     rest        rest                          1.0.1         1.0.1         D
     ----------- ----------------------------- ------------- ------------- ----------
@@ -250,7 +248,7 @@ Unchanged
     page::writer::me, page::writer::mecpu, page::writer::null,
     page::writer::peg, page::writer::ser, page::writer::tpc,
     page::writer::tree, paths, pki, pluginmgr, png, profiler,
-    pt::ast, pt::pe::op, pt::peg::container,
+    pt::ast, pt::pe::op, pt::peg, pt::peg::container,
     pt::peg::container::peg, pt::peg::export,
     pt::peg::export::container, pt::peg::export::json,
     pt::peg::export::peg, pt::peg::from::json, pt::peg::import,
