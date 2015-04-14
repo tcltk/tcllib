@@ -24,9 +24,13 @@ test clock-iso8601-1.0.1 {parse_date wrong\#args} -constraints {tcl8.6plus} -bod
     clock::iso8601 parse_date
 } -returnCodes error -result {wrong # args: should be "clock::iso8601 parse_date string ?arg ...?"}
 
-test clock-iso8601-1.1 {parse_date, bad option} -body {
+test clock-iso8601-1.1.0 {parse_date, bad option} -constraints {tcl8.5plus tcl8.5minus} -body {
     clock::iso8601 parse_date 1994-11-05 -foo x
 } -returnCodes error -result {bad switch "-foo", must be -base, -format, -gmt, -locale or -timezone}
+
+test clock-iso8601-1.1.1 {parse_date, bad option} -constraints {tcl8.6plus} -body {
+    clock::iso8601 parse_date 1994-11-05 -foo x
+} -returnCodes error -result {bad option "-foo", must be -base, -format, -gmt, -locale or -timezone}
 
 # NOTE: While listed as legal, -format is NOT. This is because the
 # command simply hands off to clock scan, and we are seeing its error
