@@ -89,7 +89,7 @@ proc ::sak::review::Scan {} {
 	}
 
 	foreach {m files} [array get fs] {
-	    set str \[$uuid\]\n$d\n\n[join $files \n]
+	    set str \[$uuid\]\n$d\n\n[join [lsort -dict $files] \n]
 	    lappend rm($m) $str
 	}
 	unset fs
