@@ -352,6 +352,19 @@ proc WATCHE {a t e} {
     lappend res $a $t $e
     return
 }
+proc SORTE {} {
+    global res
+    set tmp {}
+    foreach {a t e} $res {
+	lappend tmp [list $a $t $e]
+    }
+    set res {}
+    foreach item [lsort -dict $tmp] {
+	foreach {a t e} $item break
+	lappend res $a $t $e
+    }
+    return $res
+}
 
 test uevent-9.0 {watch event add, wrong#args, not enough} {
     catch {
@@ -447,13 +460,14 @@ test uevent-10.3 {watch events, watch after bind, glob} {
     set t3 [::uevent::bind TAGX EX FOO]
     set t4 [::uevent::bind TAG  EX FOO]
     set tw [::uevent::watch::event::add TAG* E* WATCHE]
+    SORTE ;# ensure a canonical order
     ::uevent::unbind $t1
     ::uevent::unbind $t2
     ::uevent::unbind $t3
     ::uevent::unbind $t4
     ::uevent::watch::event::remove $tw
     set res
-} {bound TAG EX bound TAGX EX bound TAG E bound TAGX E unbound TAGX E unbound TAG E unbound TAGX EX unbound TAG EX}
+} {bound TAG E bound TAG EX bound TAGX E bound TAGX EX unbound TAGX E unbound TAG E unbound TAGX EX unbound TAG EX}
 
 # -------------------------------------------------------------------------
 rename EVENT  {}
