@@ -1,5 +1,5 @@
 [comment {-*- tcl -*-}]
-[vset VERSION 1.2.2]
+[vset VERSION 1.2.3]
 [manpage_begin struct::pool n [vset VERSION]]
 [keywords {discrete items}]
 [keywords finite]
