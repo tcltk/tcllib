@@ -60,7 +60,7 @@ namespace eval ::struct::pool {
 # A small helper routine to generate structured errors
 
 if {[package vsatisfies [package present Tcl] 8.5]} {
-    # Tcl 8.5+, have expansion operator and syntax.
+    # Tcl 8.5+, have expansion operator and syntax. And option -level.
     proc ::struct::pool::Error {error args} {
 	variable Errors
 	return -code error -level 1 \
@@ -68,14 +68,14 @@ if {[package vsatisfies [package present Tcl] 8.5]} {
 	    [format $Errors($error) {*}$args]
     }
 } else {
-    # Tcl 8.4. No expansion operator available.
+    # Tcl 8.4. No expansion operator available. Nor -level.
     # Construct the pieces explicitly, via linsert/eval hop&dance.
     proc ::struct::pool::Error {error args} {
 	variable Errors
 	lappend code STRUCT POOL $error
 	eval [linsert $args 0 lappend code]
 	set msg [eval [linsert $args 0 format $Errors($error)]]
-	return -code error -level 1 -errorcode $code $msg
+	return -code error -errorcode $code $msg
     }
 }
 
