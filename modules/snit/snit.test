@@ -769,7 +769,7 @@ test dtypemethod-1.6 {delegating unknown typemethod to existing typecomponent wi
     error
 } -result {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
 
-test dtypemethod-1.6a {delegating unknown typemethod to existing typecomponent with error} -body {
+test dtypemethod-1.6a.0 {delegating unknown typemethod to existing typecomponent with error} -body {
     type dog {
         delegate typemethod * to stringhandler
 
@@ -780,10 +780,26 @@ test dtypemethod-1.6a {delegating unknown typemethod to existing typecomponent w
 
     dog foo bar
 } -constraints {
-    snit2
+    snit2 tcl8.5minus
 } -returnCodes {
     error
 } -result {unknown or ambiguous subcommand "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
+
+test dtypemethod-1.6a.1 {delegating unknown typemethod to existing typecomponent with error} -body {
+    type dog {
+        delegate typemethod * to stringhandler
+
+        typeconstructor {
+            set stringhandler string
+        }
+    }
+
+    dog foo bar
+} -constraints {
+    snit2 tcl8.6plus
+} -returnCodes {
+    error
+} -result {unknown or ambiguous subcommand "foo": must be bytelength, cat, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
 
 test dtypemethod-1.7 {can't delegate local typemethod: order 1} -body {
     type dog {
@@ -3322,7 +3338,7 @@ test dmethod-1.6 {delegating unknown method to existing component with error} -b
     dog destroy
 } -result {bad option "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, tolower, toupper, totitle, trim, trimleft, trimright, wordend, or wordstart}
 
-test dmethod-1.6a {delegating unknown method to existing component with error} -body {
+test dmethod-1.6a.0 {delegating unknown method to existing component with error} -body {
     type dog {
         constructor {args} {
             set stringhandler string
@@ -3334,12 +3350,31 @@ test dmethod-1.6a {delegating unknown method to existing component with error} -
     dog create spot
     spot foo bar
 } -constraints {
-    snit2
+    snit2 tcl8.5minus
 } -returnCodes {
     error
 } -cleanup {
     dog destroy
 } -result {unknown or ambiguous subcommand "foo": must be bytelength, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
+
+test dmethod-1.6a.1 {delegating unknown method to existing component with error} -body {
+    type dog {
+        constructor {args} {
+            set stringhandler string
+        }
+
+        delegate method * to stringhandler
+    }
+
+    dog create spot
+    spot foo bar
+} -constraints {
+    snit2 tcl8.6plus
+} -returnCodes {
+    error
+} -cleanup {
+    dog destroy
+} -result {unknown or ambiguous subcommand "foo": must be bytelength, cat, compare, equal, first, index, is, last, length, map, match, range, repeat, replace, reverse, tolower, totitle, toupper, trim, trimleft, trimright, wordend, or wordstart}
 
 test dmethod-1.7 {can't delegate local method: order 1} -body {
     type cat {
