@@ -1,4 +1,4 @@
-[vset DNS_VERSION 1.3.4]
+[vset DNS_VERSION 1.3.5]
 [manpage_begin dns n [vset DNS_VERSION]]
 [see_also resolver(5)]
 [keywords DNS]
