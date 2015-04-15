@@ -1,5 +1,6 @@
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin bibtex n 0.5]
+[vset VERSION 0.6]
+[manpage_begin bibtex n [vset VERSION]]
 [keywords bibliography]
 [keywords bibtex]
 [keywords parsing]
@@ -9,7 +10,7 @@
 [titledesc {Parse bibtex files}]
 [category  {Text processing}]
 [require Tcl 8.4]
-[require bibtex [opt 0.5]]
+[require bibtex [opt [vset VERSION]]]
 [description]
 [para]
 
@@ -76,6 +77,7 @@ parser.
 	[opt "[option -stringcommand]   [arg stringcmd]"] \
 	[opt "[option -commentcommand]  [arg commentcmd]"] \
 	[opt "[option -progresscommand] [arg progresscmd]"] \
+	[opt "[option -casesensitivestrings] [arg bool]"] \
 	"([arg text] | [option -channel] [arg chan])"]
 
 This is the most low-level form for the parser. The returned result
@@ -99,6 +101,12 @@ argument will however always be the handle of the parser invoking the
 callback.
 
 [list_begin definitions]
+
+[def "[option -casesensitivestrings]"]
+
+This option takes a boolean value. When set string macro processing
+becomes case-sensitive. The default is case-insensitive string macro
+processing.
 
 [def "[cmd recordcmd] [arg token] [arg type] [arg key] [arg recorddict]"]
 
