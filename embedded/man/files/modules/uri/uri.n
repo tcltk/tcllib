@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'uri\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "uri" n 1\&.2\&.4 tcllib "Tcl Uniform Resource Identifier Management"
+.TH "uri" n 1\&.2\&.5 tcllib "Tcl Uniform Resource Identifier Management"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ uri \- URI utilities
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBuri  ?1\&.2\&.4?\fR
+package require \fBuri  ?1\&.2\&.5?\fR
 .sp
 \fBuri::split\fR \fIurl\fR ?\fIdefaultscheme\fR?
 .sp
