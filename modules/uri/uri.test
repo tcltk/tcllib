@@ -220,6 +220,19 @@ test uri-3.10 {uri::resolve - two queries,
 } http://www.example.com/baz?shoo=bee
 
 
+test uri-3.11 {uri::resolve - scheme-relative url with authority, rfc3986 4.2} {
+    uri::resolve http://www.foo.com/ //www.bar.com/
+}  http://www.bar.com/
+
+test uri-3.12 {uri::resolve - scheme-relative url with authority, rfc3986 4.2} {
+    uri::resolve https://www.foo.com/ //www.bar.com/
+}  https://www.bar.com/
+
+test uri-3.13 {uri::resolve - scheme-relative url with authority, rfc3986 4.2} {
+    uri::resolve https://www.foo.com/ //www.bar.com
+}  https://www.bar.com/
+
+
 # -------------------------------------------------------------------------
 
 test uri-4.1 {uri::geturl} {
