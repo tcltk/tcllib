@@ -87,7 +87,7 @@ if {![llength [info commands lvarpop]]} {
 }
 
 # Some additional aliases for backward compatability. Not
-# documented. The old names ar from previous versions while at Cisco.
+# documented. The old names are from previous versions while at Cisco.
 #
 #               Old command name -->      Documented command name
 interp alias {} ::ip::ToInteger           {} ::ip::toInteger
@@ -289,7 +289,7 @@ proc ::ip::intToString {int args} {
 #
 # Arguments:
 #        <ipaddr>
-#            decimal dotted from ip address
+#            decimal dotted form ip address
 #
 # Return Values:
 #        integer form of <ipaddr>
@@ -312,7 +312,7 @@ proc ::ip::intToString {int args} {
 
 proc ::ip::toInteger {ip} {
     binary scan [ip::Normalize4 $ip] I out
-    return [format %u [expr {$out & 0xffffffff}]]
+    return [format %lu [expr {$out & 0xffffffff}]]
 }
 
 ##Procedure Header
@@ -1213,4 +1213,83 @@ namespace eval ::ip {
 	set maskLenToDotted($x) [intToString [maskToInt $x]]
     }
     unset x
+}
+
+##Procedure Header
+# Copyright (c) 2015 Martin Heinrich <martin.heinrich@frequentis.com>
+#
+# Name:
+#       ::ip::distance
+#
+# Purpose:
+#        Calculate integer distance between two IPv4 addresses (dotted form or int)
+#
+# Synopsis:
+#       distance <ipaddr1> <ipaddr2>
+#
+# Arguments:
+#        <ipaddr1>
+#        <ipaddr2>
+#            ip address
+#
+# Return Values:
+#        integer distance (addr2 - addr1)
+#
+# Description:
+#       
+# Examples:
+#   % ::ip::distance 1.1.1.0 1.1.1.5
+#   5
+#
+# Sample Input:
+#
+# Sample Output:
+
+proc ::ip::distance {ip1 ip2} {
+    # use package ip for normalization
+    # XXX does not support ipv6
+    expr {[toInteger $ip2]-[toInteger $ip1]}
+}
+
+##Procedure Header
+# Copyright (c) 2015 Martin Heinrich <martin.heinrich@frequentis.com>
+#
+# Name:
+#       ::ip::nextIp
+#
+# Purpose:
+#        Increment the given IPv4 address by an offset.
+#        Complement to 'distance'.
+#
+# Synopsis:
+#       nextIp <ipaddr> ?<offset>?
+#
+# Arguments:
+#        <ipaddr>
+#            ip address
+#
+#        <offset>
+#            The integer to increment the address by.
+#            Default is 1.
+#
+# Return Values:
+#        The increment ip address.
+#
+# Description:
+#       
+# Examples:
+#   % ::ip::nextIp 1.1.1.0 5 
+#   1.1.1.5
+#
+# Sample Input:
+#
+# Sample Output:
+
+proc ::ip::nextIp {ip {offset 1}} {
+    set int [toInteger $ip]
+    incr int $offset
+    set prot {}
+    # TODO if ipv4 then set prot -ipv4, but
+    # XXX intToString has -ipv4, but never returns ipv6
+    intToString $int ;# 8.5-ism, avoid: {*}$prot
 }
