@@ -1,4 +1,5 @@
-[manpage_begin uri n 1.2.4]
+[vset VERSION 1.2.5]
+[manpage_begin uri n [vset VERSION]]
 [keywords {fetching information}]
 [keywords file]
 [keywords ftp]
@@ -18,7 +19,7 @@
 [titledesc {URI utilities}]
 [category  Networking]
 [require Tcl 8.2]
-[require uri [opt 1.2.4]]
+[require uri [opt [vset VERSION]]]
 [description]
 
 This package contains two parts. First it provides regular expressions
