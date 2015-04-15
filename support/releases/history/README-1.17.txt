@@ -2,9 +2,9 @@ Overview
 ========
 
     3   new packages                in 2   modules
-    61  changed packages            in 37  modules
-    47  internally changed packages in 31  modules
-    297 unchanged packages          in 76  modules
+    63  changed packages            in 37  modules
+    46  internally changed packages in 31  modules
+    296 unchanged packages          in 75  modules
     414 packages, total             in 115 modules, total
 
 New in tcllib 1.17
@@ -37,7 +37,9 @@ Changes from tcllib 1.16 to 1.17
                             sum                                  1.1.0         1.1.2         B D I T
     ----------------------- ------------------------------------ ------------- ------------- ----------
     debug                   debug                                1.0.2         1.0.5         B D EF
-    dns                     dns                                  1.3.3         1.3.4         B D I
+    ----------------------- ------------------------------------ ------------- ------------- ----------
+    dns                     dns                                  1.3.3         1.3.5         B D I
+                            ip                                   1.2.2         1.3           D EF I T
     ----------------------- ------------------------------------ ------------- ------------- ----------
     doctools                doctools                             1.4.17        1.4.19        B D I
                             doctools::idx                        1.0.4         1.0.5         B D I
@@ -99,11 +101,14 @@ Changes from tcllib 1.16 to 1.17
                             sha1                                 2.0.3         2.0.3         B I T
     ----------------------- ------------------------------------ ------------- ------------- ----------
     string                  string::token::shell                 1.1           1.2           D EF T
-    struct                  struct::pool                         1.2.1         1.2.2         D I T
+    struct                  struct::pool                         1.2.1         1.2.3         D I T
     tar                     tar                                  0.9           0.10          B D T
     tepam                   tepam                                0.5.0         0.5           I
     textutil                textutil::adjust                     0.7.1         0.7.3         B D T
-    uri                     uri::urn                             1.0.2         1.0.3         B D I T
+    ----------------------- ------------------------------------ ------------- ------------- ----------
+    uri                     uri                                  1.2.4         1.2.5         B D T
+                            uri::urn                             1.0.2         1.0.3         B D I T
+    ----------------------- ------------------------------------ ------------- ------------- ----------
     uuid                    uuid                                 1.0.2         1.0.4         B D I
     valtype                 valtype::iban                        1.4           1.5           B D EF T
     virtchannel_transform   tcl::transform::zlib                 1             1.0.1         B
@@ -132,8 +137,7 @@ Invisible changes (documentation, testsuites)
     crc         crc16                         1.1.2         1.1.2         D I
     des         des                           1.1.0         1.1.0         I
     ----------- ----------------------------- ------------- ------------- ----------
-    dns         ip                            1.2.2         1.2.2         D I T
-                resolv                        1.0.3         1.0.3         I
+    dns         resolv                        1.0.3         1.0.3         I
                 spf                           1.1.1         1.1.1         I
     ----------- ----------------------------- ------------- ------------- ----------
     http        autoproxy                     1.5.3         1.5.3         D I
@@ -281,11 +285,11 @@ Unchanged
     textutil::tabify, textutil::trim, tie, tie::std::array,
     tie::std::dsource, tie::std::file, tie::std::growfile,
     tie::std::log, tie::std::rarray, tiff, treeql, try, uevent,
-    uevent::onidle, unicode, unicode::data, units, uri,
-    valtype::common, valtype::creditcard::amex,
-    valtype::creditcard::discover, valtype::creditcard::mastercard,
-    valtype::creditcard::visa, valtype::gs1::ean13, valtype::imei,
-    valtype::isbn, valtype::luhn, valtype::luhn5, valtype::usnpi,
+    uevent::onidle, unicode, unicode::data, units, valtype::common,
+    valtype::creditcard::amex, valtype::creditcard::discover,
+    valtype::creditcard::mastercard, valtype::creditcard::visa,
+    valtype::gs1::ean13, valtype::imei, valtype::isbn,
+    valtype::luhn, valtype::luhn5, valtype::usnpi,
     valtype::verhoeff, wip, zipfile::encode
 
 Legend  Change  Details Comments
