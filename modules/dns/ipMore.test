@@ -723,6 +723,73 @@ namespace eval ::ip::test {
         set a [lsort -command ip::cmpDotIP $iplist]
     } -result {1.0.0.0 2.2.0.0 3.3.3.3 128.0.0.0}
 
+
+    ::tcltest::test ip::distance-1 {basic distance} -setup {
+    } -constraints {
+    } -cleanup {
+    } -body {
+        ::ip::distance 1.1.1.0 1.1.1.5
+    } -result 5
+
+    ::tcltest::test ip::distance-2 {distance, not enough args} -setup {
+    } -constraints {
+    } -cleanup {
+    } -body {
+        ::ip::distance
+    } -returnCodes error -result {wrong # args: should be "::ip::distance ip1 ip2"}
+
+    ::tcltest::test ip::distance-3 {distance, too many args} -setup {
+    } -constraints {
+    } -cleanup {
+    } -body {
+        ::ip::distance 1.1.1.1 1.1.1.5 1.1.1.19
+    } -returnCodes error -result {wrong # args: should be "::ip::distance ip1 ip2"}
+
+
+    ::tcltest::test ip::nextIp-1 {basic nextIp} -setup {
+    } -constraints {
+    } -cleanup {
+    } -body {
+        ::ip::nextIp 1.1.1.0 5
+    } -result 1.1.1.5
+
+    ::tcltest::test ip::nextIp-2 {nextIp, not enough args} -setup {
+    } -constraints {
+    } -cleanup {
+    } -body {
+        ::ip::nextIp
+    } -returnCodes error -result {wrong # args: should be "::ip::nextIp ip ?offset?"}
+
+    ::tcltest::test ip::nextIp-3 {nextIp, too many args} -setup {
+    } -constraints {
+    } -cleanup {
+    } -body {
+        ::ip::nextIp 1.1.1.1 1.1.1.5 1.1.1.19
+    } -returnCodes error -result {wrong # args: should be "::ip::nextIp ip ?offset?"}
+
+    foreach {n delta ip1 ip2} {
+        0 4294967295  0.0.0.0         255.255.255.255
+        1 -4294967295 255.255.255.255 0.0.0.0
+        2 7709        10.11.12.13     10.11.42.42
+        3 -7709       10.11.42.42     10.11.12.13
+        4 1994195353  54.229.115.42   173.194.116.195
+        5 -1994195353 173.194.116.195 54.229.115.42
+    } {
+        ::tcltest::test ip::distance-4.$n {basic distance} -setup {
+        } -constraints {
+        } -cleanup {
+        } -body {
+            ::ip::distance $ip1 $ip2
+        } -result $delta
+
+        ::tcltest::test ip::nextIp-4.$n {basic nextIp} -setup {
+        } -constraints {
+        } -cleanup {
+        } -body {
+            ::ip::nextIp $ip1 $delta
+        } -result $ip2
+    }
+
 }
 
 namespace delete ::ip::test
