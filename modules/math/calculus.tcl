@@ -12,7 +12,7 @@
 
 package require Tcl 8.4
 package require math::interpolate
-package provide math::calculus 0.8
+package provide math::calculus 0.8.1
 
 # math::calculus --
 #    Namespace for the commands
@@ -1489,6 +1489,14 @@ namespace eval ::math::calculus {
            0.3818300505051189e+00    0.4179591836734694e+00}
 }
 
+if {[package vsatisfies [package present Tcl] 8.5]} {
+    proc ::math::calculus::Min {a b} { expr {min ($a, $b)} }
+    proc ::math::calculus::Max {a b} { expr {max ($a, $b)} }
+} else {
+    proc ::math::calculus::Min {a b} { if {$a < $b} { return $a } else { return $b }}
+    proc ::math::calculus::Max {a b} { if {$a > $b} { return $a } else { return $b }}
+}
+
 proc ::math::calculus::qk15_basic {xstart xend func} {
     variable qk15_wg
     variable qk15_wgk
@@ -1557,10 +1565,10 @@ proc ::math::calculus::qk15_basic {xstart xend func} {
     set resasc [expr {$resasc*$dhlgth}]
     set abserr [expr {abs(($resk-$resg)*$hlgth)}]
     if { $resasc != 0.0e+00 && $abserr != 0.0e+00 } {
-        set abserr [expr {$resasc*min(0.1e+01,(0.2e+3*$abserr/$resasc)**1.5e+00)}]
+        set abserr [expr {$resasc*[Min 0.1e+01 [expr {pow((0.2e+3*$abserr/$resasc),1.5e+00)}]]}]
     }
     if { $resabs > $uflow/(0.5e+02*$epmach) } {
-        set abserr [expr {max(($epmach*0.5e+02)*$resabs,$abserr)}]
+        set abserr [Max [expr {($epmach*0.5e+02)*$resabs}] $abserr]
     }
 
     return [list $result $abserr $resabs $resasc]
@@ -1625,7 +1633,7 @@ proc ::math::calculus::qk15_detailed {xstart xend func {n 1}} {
             set xb [expr {$xstart + $dx * $i}]
             set xe [expr {$xstart + $dx * ($i+1)}]
 
-            lassign [qk15_basic $xb $xe $func] dresult dabserr dresabs dresasc
+            foreach {dresult dabserr dresabs dresasc} [qk15_basic $xb $xe $func] break
             set result [expr {$result + $dresult}]
             set abserr [expr {$abserr + $dabserr}]
             set resabs [expr {$resabs + $dresabs}]
