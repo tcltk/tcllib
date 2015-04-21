@@ -2,9 +2,9 @@ Overview
 ========
 
     3   new packages                in 2   modules
-    64  changed packages            in 38  modules
+    65  changed packages            in 39  modules
     46  internally changed packages in 31  modules
-    295 unchanged packages          in 74  modules
+    294 unchanged packages          in 74  modules
     414 packages, total             in 115 modules, total
 
 New in tcllib 1.17
@@ -65,6 +65,8 @@ Changes from tcllib 1.16 to 1.17
     ----------------------- ------------------------------------ ------------- ------------- ----------
     json                    json                                 1.3.2         1.3.3         B D T
                             json::write                          1.0.2         1.0.3         B D T
+    ----------------------- ------------------------------------ ------------- ------------- ----------
+    log                     logger                               0.9.3         0.9.4         B D T
     ----------------------- ------------------------------------ ------------- ------------- ----------
     math                    math::bigfloat                       1.2.2         1.2.2         B T
                             math::bigfloat                       2.0.1         2.0.2         B T
@@ -228,7 +230,7 @@ Unchanged
     grammar::me::tcl, grammar::me::util, grammar::peg,
     grammar::peg::interp, hook, htmlparse, huddle, ident, interp,
     interp::delegate::method, interp::delegate::proc, javascript,
-    jpeg, lambda, ldapx, log, logger, logger::appender,
+    jpeg, lambda, ldapx, log, logger::appender,
     map::geocode::nominatim, map::slippy, map::slippy::cache,
     map::slippy::fetcher, mapproj, math::bignum,
     math::calculus::symdiff, math::complexnumbers, math::constants,
