@@ -1,6 +1,7 @@
 [comment {-*- tcl -*- doctools manpage}]
 [comment {$Id: logger.man,v 1.26 2012/07/10 03:34:47 andreas_kupries Exp $}]
-[manpage_begin logger n 0.9.3]
+[vset VERSION 0.9.4]
+[manpage_begin logger n [vset VERSION]]
 [keywords log]
 [keywords {log level}]
 [keywords logger]
@@ -9,7 +10,7 @@
 [titledesc {System to control logging of events.}]
 [category  {Programming tools}]
 [require Tcl 8.2]
-[require logger [opt 0.9.3]]
+[require logger [opt [vset VERSION]]]
 [description]
 
 [para]
@@ -80,8 +81,9 @@ a child namespace to the current namespace.
 Convenience command for setting up a namespace for logging. Creates a
 logger service named after the namespace [arg ns] (a :: prefix is
 stripped), imports all the log commands into the namespace, and sets
-the default logging level, either to the specified [arg level], or the
-default level, "warn".
+the default logging level, either as specified by [arg level], or
+inherited from a service in the parent namespace, or a hardwired
+default, [const warn].
 
 [call [cmd logger::services]]
 
