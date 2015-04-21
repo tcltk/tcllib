@@ -2,7 +2,7 @@
 '\" Generated from file 'calculus\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002,2003,2004 Arjen Markus
 '\"
-.TH "math::calculus" n 0\&.8 tcllib "Tcl Math Library"
+.TH "math::calculus" n 0\&.8\&.1 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ math::calculus \- Integration and ordinary differential equations
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBmath::calculus  0\&.8\fR
+package require \fBmath::calculus  0\&.8\&.1\fR
 .sp
 \fB::math::calculus::integral\fR \fIbegin\fR \fIend\fR \fInosteps\fR \fIfunc\fR
 .sp
