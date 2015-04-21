@@ -25,7 +25,7 @@ Changes from tcllib 1.16 to 1.17
     Module                  Package                              Old Version   New Version   Comments
     ----------------------- ------------------------------------ ------------- ------------- ----------
     aes                     aes                                  1.1.1         1.2.1         I P
-    amazon-s3               S3                                   1.0.0         1.0.2         B D P
+    amazon-s3               S3                                   1.0.0         1.0.3         B D P
     cmdline                 cmdline                              1.3.3         1.5           D EF I T
     comm                    comm                                 4.6.2         4.6.3.1       B D
     ----------------------- ------------------------------------ ------------- ------------- ----------
@@ -67,7 +67,7 @@ Changes from tcllib 1.16 to 1.17
     ----------------------- ------------------------------------ ------------- ------------- ----------
     math                    math::bigfloat                       1.2.2         1.2.2         B T
                             math::bigfloat                       2.0.1         2.0.2         B T
-                            math::calculus                       0.7.2         0.8           B D EF T
+                            math::calculus                       0.7.2         0.8.1         B D EF T
                             math::optimize                       1.0           1.0.1         B T
                             math::special                        0.2.2         0.3.0         D EF T
                             math::statistics                     0.9           0.9.2         B D T
