@@ -2,9 +2,9 @@ Overview
 ========
 
     3   new packages                in 2   modules
-    63  changed packages            in 37  modules
+    64  changed packages            in 38  modules
     46  internally changed packages in 31  modules
-    296 unchanged packages          in 75  modules
+    295 unchanged packages          in 74  modules
     414 packages, total             in 115 modules, total
 
 New in tcllib 1.17
@@ -26,6 +26,7 @@ Changes from tcllib 1.16 to 1.17
     ----------------------- ------------------------------------ ------------- ------------- ----------
     aes                     aes                                  1.1.1         1.2.1         I P
     amazon-s3               S3                                   1.0.0         1.0.3         B D P
+    bibtex                  bibtex                               0.5           0.6           B EF
     cmdline                 cmdline                              1.3.3         1.5           D EF I T
     comm                    comm                                 4.6.2         4.6.3.1       B D
     ----------------------- ------------------------------------ ------------- ------------- ----------
@@ -193,11 +194,11 @@ Unchanged
 =========
 
     ascii85, asn, base32::core, base64, bee, bench, bench::in,
-    bench::out::csv, bench::out::text, bibtex, cache::async,
-    clock::iso8601, clock::rfc2822, configuration, counter, csv,
-    debug::caller, debug::heartbeat, debug::timestamp, docstrip,
-    docstrip::util, doctools::changelog, doctools::config,
-    doctools::cvs, doctools::html, doctools::html::cssdefaults,
+    bench::out::csv, bench::out::text, cache::async, clock::iso8601,
+    clock::rfc2822, configuration, counter, csv, debug::caller,
+    debug::heartbeat, debug::timestamp, docstrip, docstrip::util,
+    doctools::changelog, doctools::config, doctools::cvs,
+    doctools::html, doctools::html::cssdefaults,
     doctools::idx::export, doctools::idx::export::docidx,
     doctools::idx::export::html, doctools::idx::export::json,
     doctools::idx::export::nroff, doctools::idx::export::text,
