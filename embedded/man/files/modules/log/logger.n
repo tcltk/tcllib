@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'logger\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "logger" n 0\&.9\&.3 tcllib "Object Oriented logging facility"
+.TH "logger" n 0\&.9\&.4 tcllib "Object Oriented logging facility"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ logger \- System to control logging of events\&.
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBlogger  ?0\&.9\&.3?\fR
+package require \fBlogger  ?0\&.9\&.4?\fR
 .sp
 \fBlogger::init\fR \fIservice\fR
 .sp
@@ -411,8 +411,9 @@ a child namespace to the current namespace\&.
 Convenience command for setting up a namespace for logging\&. Creates a
 logger service named after the namespace \fIns\fR (a :: prefix is
 stripped), imports all the log commands into the namespace, and sets
-the default logging level, either to the specified \fIlevel\fR, or the
-default level, "warn"\&.
+the default logging level, either as specified by \fIlevel\fR, or
+inherited from a service in the parent namespace, or a hardwired
+default, \fBwarn\fR\&.
 .TP
 \fBlogger::services\fR
 Returns a list of all the available services\&.
