@@ -2,7 +2,7 @@
 #
 #	Directory traversal.
 #
-# Copyright (c) 2006-2009 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2006-2015 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
@@ -264,6 +264,7 @@ snit::type ::fileutil::traverse {
     ## Internal helpers.
 
     proc Enter {parent path} {
+	#puts ___E|$path
 	upvar 1 _parent _parent _norm _norm
 	set _parent($path) $parent
 	set _norm($path)   [fileutil::fullnormalize $path]
@@ -301,8 +302,10 @@ snit::type ::fileutil::traverse {
     }
 
     proc Valid {path} {
+	#puts ___V|$path
 	upvar 1 options options
 	if {![llength $options(-filter)]} {return 1}
+	set path [file normalize $path]
 	set code [catch {uplevel \#0 [linsert $options(-filter) end $path]} valid]
 	if {!$code} {return $valid}
 	Error $path $valid
@@ -310,8 +313,10 @@ snit::type ::fileutil::traverse {
     }
 
     proc Recurse {path} {
-	upvar 1 options options
+	#puts ___X|$path
+	upvar 1 options options _norm _norm
 	if {![llength $options(-prefilter)]} {return 1}
+	set path [file normalize $path]
 	set code [catch {uplevel \#0 [linsert $options(-prefilter) end $path]} valid]
 	if {!$code} {return $valid}
 	Error $path $valid
@@ -321,6 +326,7 @@ snit::type ::fileutil::traverse {
     proc Error {path msg} {
 	upvar 1 options options
 	if {![llength $options(-errorcmd)]} return
+	set path [file normalize $path]
 	uplevel \#0 [linsert $options(-errorcmd) end $path $msg]
 	return
     }
@@ -497,4 +503,4 @@ if {[package vsatisfies [package present Tcl] 8.5]} {
 # ### ### ### ######### ######### #########
 ## Ready
 
-package provide fileutil::traverse 0.4.5
+package provide fileutil::traverse 0.5
