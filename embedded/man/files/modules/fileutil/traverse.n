@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'traverse\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "fileutil_traverse" n 0\&.4\&.5 tcllib "file utilities"
+.TH "fileutil_traverse" n 0\&.5 tcllib "file utilities"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ fileutil_traverse \- Iterative directory traversal
 .SH SYNOPSIS
 package require \fBTcl  8\&.3\fR
 .sp
-package require \fBfileutil::traverse  ?0\&.4\&.3?\fR
+package require \fBfileutil::traverse  ?0\&.5?\fR
 .sp
 package require \fBfileutil \fR
 .sp
