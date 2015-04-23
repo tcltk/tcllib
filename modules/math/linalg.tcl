@@ -1777,7 +1777,7 @@ proc ::math::linearalgebra::eigenvectorsSVD { A {eps 2.3e-16} } {
     set i 0
     foreach row $A {
         set aii [lindex $row $i]
-        set sum [expr {2.0*abs($aii) - [norm_one $row]}]
+        set sum [expr {$aii + abs($aii) - [norm_one $row]}]
         incr i
 
         if { $h == {} || $sum < $h } {
@@ -2210,7 +2210,7 @@ proc ::math::linearalgebra::from_LA { mv } {
 #
 # Announce the package's presence
 #
-package provide math::linearalgebra 1.1.4
+package provide math::linearalgebra 1.1.5
 
 if { 0 } {
 Te doen:
