@@ -2,9 +2,9 @@ Overview
 ========
 
     3   new packages                in 2   modules
-    65  changed packages            in 39  modules
+    66  changed packages            in 39  modules
     46  internally changed packages in 31  modules
-    294 unchanged packages          in 74  modules
+    293 unchanged packages          in 74  modules
     414 packages, total             in 115 modules, total
 
 New in tcllib 1.17
@@ -71,6 +71,7 @@ Changes from tcllib 1.16 to 1.17
     math                    math::bigfloat                       1.2.2         1.2.2         B T
                             math::bigfloat                       2.0.1         2.0.2         B T
                             math::calculus                       0.7.2         0.8.1         B D EF T
+                            math::linearalgebra                  1.1.4         1.1.5         B D T
                             math::optimize                       1.0           1.0.1         B T
                             math::special                        0.2.2         0.3.0         D EF T
                             math::statistics                     0.9           0.9.2         B D T
@@ -235,10 +236,10 @@ Unchanged
     map::slippy::fetcher, mapproj, math::bignum,
     math::calculus::symdiff, math::complexnumbers, math::constants,
     math::decimal, math::fourier, math::fuzzy, math::geometry,
-    math::interpolate, math::linearalgebra, math::machineparameters,
-    math::numtheory, math::polynomials, math::rationalfunctions,
-    math::roman, mime, multiplexer, nameserv, nameserv::auto,
-    nameserv::common, nameserv::server, namespacex, nmea, nntp,
+    math::interpolate, math::machineparameters, math::numtheory,
+    math::polynomials, math::rationalfunctions, math::roman, mime,
+    multiplexer, nameserv, nameserv::auto, nameserv::common,
+    nameserv::server, namespacex, nmea, nntp,
     page::analysis::peg::emodes, page::analysis::peg::minimize,
     page::analysis::peg::reachable, page::analysis::peg::realizable,
     page::compiler::peg::mecpu, page::config::peg,
