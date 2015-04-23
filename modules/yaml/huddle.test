@@ -5,7 +5,6 @@
 # All rights reserved.
 #
 
-
 if {[lsearch [namespace children] ::tcltest] == -1} {
     # single test
     set selfrun 1
