@@ -1,5 +1,6 @@
+[vset VERSION 0.1.6]
 [comment {-*- tcl -*- doctools manpage}]
-[manpage_begin huddle n 0.1.5]
+[manpage_begin huddle n [vset VERSION]]
 [see_also yaml]
 [keywords {data exchange}]
 [keywords {exchange format}]
@@ -12,7 +13,7 @@
 [moddesc   {HUDDLE}]
 [titledesc {Create and manipulate huddle object}]
 [require Tcl 8.4]
-[require huddle [opt 0.1.5]]
+[require huddle [opt [vset VERSION]]]
 [description]
 [para]
 Huddle provides a generic Tcl-based serialization/intermediary format.

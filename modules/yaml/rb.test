@@ -1,4 +1,4 @@
-#
+# -*- tcl -*-
 # rb.test:  test samples for the yaml library.
 # http://yaml4r.sourceforge.net/cookbook/
 #
