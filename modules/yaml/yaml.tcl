@@ -1204,7 +1204,7 @@ proc ::yaml::_simple_justify {text width {wrap \n} {cut 0}} {
 
 proc ::yaml::_huddle_mapping {command args} {
     switch -- $command {
-        setting { ; # type definition
+        settings { ; # type definition
             return {
                 type dict
                 method {mapping}
@@ -1229,7 +1229,7 @@ proc ::yaml::_huddle_mapping {command args} {
 
 proc ::yaml::_huddle_sequence {command args} {
     switch -- $command {
-        setting { ; # type definition
+        settings { ; # type definition
             return {
                 type list
                 method {sequence}
@@ -1255,7 +1255,7 @@ proc ::yaml::_makeChildType {type tag} {
     set procname ::yaml::_huddle_$type
     proc $procname {command args} [string map "@TYPE@ $type @TAG@ $tag" {
         switch -- $command {
-            setting { ; # type definition
+            settings { ; # type definition
                 return {
                     type @TYPE@
                     method {}
