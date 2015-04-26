@@ -973,10 +973,10 @@ proc ::math::statistics::pdf-beta { a b x } {
     # Corner cases ... need to check these!
     #
     if {$x == 0.0} {
-        return 0.0
+        return [expr {$a > 1.0? 0.0 : Inf}]
     }
     if {$x == 1.0} {
-        return 0.0
+        return [expr {$b > 1.0? 0.0 : Inf}]
     }
     set aplusb [expr {$a + $b}]
     set term1 [expr {[::math::ln_Gamma $aplusb]- [::math::ln_Gamma $a] - [::math::ln_Gamma $b]}]
