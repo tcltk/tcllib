@@ -1,4 +1,5 @@
-[manpage_begin math::statistics n 0.9]
+[vset VERSION 1]
+[manpage_begin math::statistics n [vset VERSION]]
 [keywords {data analysis}]
 [keywords mathematics]
 [keywords statistics]
@@ -6,7 +7,7 @@
 [titledesc {Basic statistical functions and procedures}]
 [category  Mathematics]
 [require Tcl 8.4]
-[require math::statistics 0.9]
+[require math::statistics [vset VERSION]]
 [description]
 [para]
 
