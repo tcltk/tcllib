@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'statistics\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "math::statistics" n 0\&.9 tcllib "Tcl Math Library"
+.TH "math::statistics" n 1 tcllib "Tcl Math Library"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ math::statistics \- Basic statistical functions and procedures
 .SH SYNOPSIS
 package require \fBTcl  8\&.4\fR
 .sp
-package require \fBmath::statistics  0\&.9\fR
+package require \fBmath::statistics  1\fR
 .sp
 \fB::math::statistics::mean\fR \fIdata\fR
 .sp

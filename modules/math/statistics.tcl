@@ -20,7 +20,7 @@
 # version 0.9.3: added histogram-alt, corrected test-normal
 
 package require Tcl 8.4
-package provide math::statistics 0.9.3
+package provide math::statistics 1
 package require math
 
 if {![llength [info commands ::lrepeat]]} {
