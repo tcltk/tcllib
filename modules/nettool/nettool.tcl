@@ -1,3 +1,5 @@
+# @mdgen OWNER: generic.tcl
+# @mdgen OWNER: platform_*.tcl
 package provide nettool 0.3.1
 
 package require platform
