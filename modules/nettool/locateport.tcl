@@ -1,3 +1,4 @@
+# @mdgen OWNER: available_ports.tcl
 package provide nettool::available_ports 0.2
 
 ::namespace eval ::nettool {}
