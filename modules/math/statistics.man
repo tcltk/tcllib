@@ -1,4 +1,4 @@
-[vset VERSION 1]
+[vset VERSION 0.9.3]
 [manpage_begin math::statistics n [vset VERSION]]
 [keywords {data analysis}]
 [keywords mathematics]
