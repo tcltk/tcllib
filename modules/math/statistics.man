@@ -161,6 +161,18 @@ intervals of the histogram.
 [list_end]
 [para]
 
+[call [cmd ::math::statistics::histogram-alt] [arg limits] [arg values] [opt weights]]
+Alternative implementation of the histogram procedure: the open end of the intervals
+is at the lower bound instead of the upper bound.
+
+[list_begin arguments]
+[arg_def list limits] - List of upper limits (in ascending order) for the
+intervals of the histogram.
+[arg_def list values] - List of data
+[arg_def list weights] - List of weights, one weight per value
+[list_end]
+[para]
+
 [call [cmd ::math::statistics::corr] [arg data1] [arg data2]]
 Determine the correlation coefficient between two sets of data.
 
@@ -182,9 +194,9 @@ level of confidence (assuming a normal distribution)
 [para]
 
 [call [cmd ::math::statistics::t-test-mean] [arg data] [arg est_mean] \
-[arg est_stdev] [arg confidence]]
+[arg est_stdev] [arg alpha]]
 Test whether the mean value of a sample is in accordance with the
-estimated normal distribution with a certain level of confidence.
+estimated normal distribution with a certain probability.
 Returns 1 if the test succeeds or 0 if the mean is unlikely to fit
 the given distribution.
 
@@ -192,22 +204,25 @@ the given distribution.
 [arg_def list data] - List of raw data values (small sample)
 [arg_def float est_mean] - Estimated mean of the distribution
 [arg_def float est_stdev] - Estimated stdev of the distribution
-[arg_def float confidence] - Confidence level (0.95 or 0.99 for instance)
+[arg_def float alpha] - Probability level (0.95 or 0.99 for instance)
 [list_end]
 [para]
 
-[call [cmd ::math::statistics::test-normal] [arg data] [arg confidence]]
+[call [cmd ::math::statistics::test-normal] [arg data] [arg significance]]
 Test whether the given data follow a normal distribution
-with a certain level of confidence.
+with a certain level of significance.
 Returns 1 if the data are normally distributed within the level of
-confidence, returns 0 if not. The underlying test is the Lilliefors
-test.
+significance, returns 0 if not. The underlying test is the Lilliefors
+test. Smaller values of the significance mean a stricter testing.
 
 [list_begin arguments]
 [arg_def list data] - List of raw data values
-[arg_def float confidence] - Confidence level (one of 0.80, 0.90, 0.95 or 0.99)
+[arg_def float significance] - Significance level (one of 0.01, 0.05, 0.10, 0.15 or 0.20). For compatibility
+reasons the values "1-significance", 0.80, 0.85, 0.90, 0.95 or 0.99 are also accepted.
 [list_end]
 [para]
+Compatibility issue: the original implementation and documentation used the term "confidence" and used a value
+1-significance (see ticket 2812473fff). This has been corrected as of version 0.9.3.
 
 [call [cmd ::math::statistics::lillieforsFit] [arg data]]
 Returns the goodness of fit to a normal distribution according to
@@ -836,7 +851,7 @@ distribution with given shape parameters
 
 [list_begin arguments]
 [arg_def float a] - First shape parameter
-[arg_def float b] - First shape parameter
+[arg_def float b] - Second shape parameter
 [arg_def float value] - Value for which the probability is required
 [list_end]
 [para]
