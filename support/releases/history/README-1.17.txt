@@ -74,8 +74,7 @@ Changes from tcllib 1.16 to 1.17
                             math::linearalgebra                  1.1.4         1.1.5         B D T
                             math::optimize                       1.0           1.0.1         B T
                             math::special                        0.2.2         0.3.0         D EF T
-                            math::statistics                     0.9                         B D EF T
-                            math::statistics                                   1             B D EF T
+                            math::statistics                     0.9           0.9.3         B D EF T
     ----------------------- ------------------------------------ ------------- ------------- ----------
     md4                     md4                                  1.0.5         1.0.6         B D I
     ncgi                    ncgi                                 1.4.2         1.4.3         B D T
