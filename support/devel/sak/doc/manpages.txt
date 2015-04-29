@@ -40,6 +40,7 @@ modules/crc/cksum.man
 modules/crc/crc16.man
 modules/crc/crc32.man
 modules/crc/sum.man
+modules/cron/cron.man
 modules/csv/csv.man
 modules/debug/debug.man
 modules/debug/debug_caller.man
