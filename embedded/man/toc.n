@@ -366,6 +366,9 @@ tcllib
 \fBcrc32\fR
 \fIfiles/modules/crc/crc32\&.n\fR: Perform a 32bit Cyclic Redundancy Check
 .TP
+\fBcron\fR
+\fIfiles/modules/cron/cron\&.n\fR: Tool for automating the period callback of commands
+.TP
 \fBcsv\fR
 \fIfiles/modules/csv/csv\&.n\fR: Procedures to handle CSV data\&.
 .TP
