@@ -3,7 +3,6 @@
 ###
 
 package provide odie::processman 0.3
-package require odielib
 package require cron 1.1
 
 ::namespace eval ::processman {}
@@ -11,12 +10,13 @@ package require cron 1.1
 if { $::tcl_platform(platform) eq "windows" } {
   package require twapi
 } else {
-  catch {package require odielib}
   ###
-  # This package was originally part of odie, and takes for granted that
-  # certain utilities are part of the shell. If they aren't we can achieve
-  # many of them from exec
+  # Try to utilize C level utilities that are bundled
+  # with either TclX or Odielib
   ###
+  if [catch {package require odielib}] {
+    catch {package require tclx}
+  }
   if {[info command subprocess_exists] eq {}} {
     proc ::processman::subprocess_exists pid {
       set dat [exec ps]
