@@ -1,6 +1,6 @@
 # @mdgen OWNER: generic.tcl
 # @mdgen OWNER: platform_*.tcl
-package provide nettool 0.3.1
+package provide nettool 0.4
 
 package require platform
 # Uses the "ip" package from tcllib
