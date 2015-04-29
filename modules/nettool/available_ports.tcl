@@ -1,5 +1,3 @@
-package provide nettool::available_ports 0.2
-
 ###
 # topic: 868a79cedf28924191fd86aa85f6dd1d
 ###
