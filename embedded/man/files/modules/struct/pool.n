@@ -2,7 +2,7 @@
 '\" Generated from file 'pool\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002, Erik Leunissen <e\&.leunissen@hccnet\&.nl>
 '\"
-.TH "struct::pool" n 1\&.2\&.1 tcllib "Tcl Data Structures"
+.TH "struct::pool" n 1\&.2\&.2 tcllib "Tcl Data Structures"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ struct::pool \- Create and manipulate pool objects (of discrete items)
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBstruct::pool  ?1\&.2\&.1?\fR
+package require \fBstruct::pool  ?1\&.2\&.2?\fR
 .sp
 \fB::struct::pool\fR ?\fIpoolName\fR? ?\fImaxsize\fR?
 .sp

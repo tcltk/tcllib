@@ -655,7 +655,6 @@ proc ::uri::GetHostPort {urlvar} {
 proc ::uri::resolve {base url} {
     if {[string length $url]} {
 	if {[isrelative $url]} {
-
 	    array set baseparts [split $base]
 
 	    switch -- $baseparts(scheme) {
@@ -666,6 +665,12 @@ proc ::uri::resolve {base url} {
 		    array set relparts [split $baseparts(scheme):$url]
 		    if { [string match /* $url] } {
 			catch { set baseparts(path) $relparts(path) }
+			# RFC 3986 section 4.2 - no scheme, but authority (host), keep authority
+			catch {
+			    if {$relparts(host) != ""} {
+				set baseparts(host) $relparts(host)
+			    }
+			}
 		    } elseif { [string match */ $baseparts(path)] } {
 			set baseparts(path) "$baseparts(path)$relparts(path)"
 		    } else {
@@ -682,7 +687,6 @@ proc ::uri::resolve {base url} {
 		    return -code error "unable to resolve relative URL \"$url\""
 		}
 	    }
-
 	} else {
 	    return $url
 	}
@@ -1041,4 +1045,4 @@ uri::register ldap {
     variable	url		"ldap:$schemepart"
 }
 
-package provide uri 1.2.4
+package provide uri 1.2.5
