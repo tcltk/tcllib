@@ -8,4 +8,4 @@
 # script is sourced, the variable $dir must contain the
 # full path name of this file's directory.
 
-package ifneeded nettool 0.3.1 [list source [file join $dir nettool.tcl]]
+package ifneeded nettool 0.4 [list source [file join $dir nettool.tcl]]
