@@ -1,11 +1,14 @@
-set here [file dirname [file normalize [info script]]]
-source $here/nettool.tcl
-source $here/locateport.tcl
 
-# Test that known port is busy
-if {[lsearch [namespace children] ::tcltest] == -1} {
-    package require tcltest
-    namespace import ::tcltest::*
+source [file join \
+    [file dirname [file dirname [file join [pwd] [info script]]]] \
+    devtools testutilities.tcl]
+
+package require tcltest
+testsNeedTcl     8.5
+testsNeedTcltest 1.0
+
+testing {
+    useLocal nettool.tcl    nettool
 }
 
 # Test known busy ports
@@ -92,3 +95,7 @@ foreach {port nextport comment} {
 ::tcltest::test port-allocate-0006 \
     "Test allocate port returns the next address of an claimed spot and claims it" \
     [list ::nettool::allocate_port 7790] 7792
+
+
+testsuiteCleanup
+return
