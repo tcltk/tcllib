@@ -28,9 +28,9 @@ The cron package is intended to work in time scales greater than 1 second.
 
 This command registers a [arg command] to be called at the time specified by [arg timecode].
 If [arg timecode] is expressed as an integer, the timecode is assumed to be in unixtime. All
-other inputs will be interpreted by [clock scan] and converted to unix time.
+other inputs will be interpreted by [cmd {clock scan}] and converted to unix time.
 This task can be modified by subsequent calls to
-this package's commands by referencing [arg processname]. If [art processname] exists,
+this package's commands by referencing [arg processname]. If [arg processname] exists,
 it will be replaced.
 
 If [arg processname] is not given, one is generated and returned by the command.
@@ -53,7 +53,7 @@ Note: processname can be a process created by either [cmd ::cron::at] or [cmd ::
 
 This command registers a [arg command] to be called at the interval of [arg frequency].
 [arg frequency] is given in seconds. This task can be modified by subsequent calls to
-this package's commands by referencing [arg processname]. If [art processname] exists,
+this package's commands by referencing [arg processname]. If [arg processname] exists,
 it will be replaced.
 
 [example_begin]
@@ -66,7 +66,7 @@ it will be replaced.
 This command registers a [arg command] to be called after a delay of time specified by [arg timecode].
 [arg timecode] is expressed as an seconds.
 This task can be modified by subsequent calls to
-this package's commands by referencing [arg processname]. If [art processname] exists,
+this package's commands by referencing [arg processname]. If [arg processname] exists,
 it will be replaced.
 
 If [arg processname] is not given, one is generated and returned by the command.
