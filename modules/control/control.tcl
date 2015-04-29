@@ -7,7 +7,6 @@
 package require Tcl 8.2
 
 namespace eval ::control {
-    variable version
     namespace export assert control do no-op rswitch
 
     proc control {command args} {

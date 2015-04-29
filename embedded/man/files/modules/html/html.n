@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'html\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "html" n 1\&.4\&.3 tcllib "HTML Generation"
+.TH "html" n 1\&.4\&.4 tcllib "HTML Generation"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ html \- Procedures to generate HTML structures
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBhtml  ?1\&.4\&.3?\fR
+package require \fBhtml  ?1\&.4\&.4?\fR
 .sp
 \fB::html::author\fR \fIauthor\fR
 .sp

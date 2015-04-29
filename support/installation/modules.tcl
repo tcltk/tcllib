@@ -100,6 +100,7 @@ Module  mime        _tcl  _man _exa
 Module  multiplexer _tcl  _man  _null
 Module  namespacex  _tcl  _man  _null
 Module  ncgi        _tcl  _man  _null
+Module  nettool     _tcl _null  _null
 Module  nmea        _tcl  _man  _null
 Module  nns         _tcl  _man  _null
 Module  nntp        _tcl  _man _exa
@@ -115,6 +116,7 @@ Module  pluginmgr   _tcl  _man  _null
 Module  png         _tcl  _man  _null
 Module  pop3        _tcl  _man  _null
 Module  pop3d       _tcl  _man  _null
+Module  processman  _tcl _null  _null
 Module  profiler    _tcl  _man  _null
 Module  pt           _rde _man  _null
 Module  rc4         _tcl  _man  _null

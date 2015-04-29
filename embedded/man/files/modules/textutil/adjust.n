@@ -1,7 +1,7 @@
 '\"
 '\" Generated from file 'adjust\&.man' by tcllib/doctools with format 'nroff'
 '\"
-.TH "textutil::adjust" n 0\&.7\&.1 tcllib "Text and string utilities, macro processing"
+.TH "textutil::adjust" n 0\&.7\&.3 tcllib "Text and string utilities, macro processing"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -275,7 +275,7 @@ textutil::adjust \- Procedures to adjust, indent, and undent paragraphs
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBtextutil::adjust  ?0\&.7\&.1?\fR
+package require \fBtextutil::adjust  ?0\&.7\&.3?\fR
 .sp
 \fB::textutil::adjust::adjust\fR \fIstring\fR ?\fIoption value\&.\&.\&.\fR?
 .sp
