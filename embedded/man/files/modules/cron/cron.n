@@ -1,6 +1,6 @@
 '\"
 '\" Generated from file 'cron\&.man' by tcllib/doctools with format 'nroff'
-'\" Copyright (c) 2014 Sean Woods <yoda@etoyoc\&.com>
+'\" Copyright (c) 2015 Sean Woods <yoda@etoyoc\&.com>
 '\"
 .TH "cron" n 0\&.1 tcllib "cron"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
@@ -359,6 +359,6 @@ cron, odie
 System
 .SH COPYRIGHT
 .nf
-Copyright (c) 2014 Sean Woods <yoda@etoyoc\&.com>
+Copyright (c) 2015 Sean Woods <yoda@etoyoc\&.com>
 
 .fi
