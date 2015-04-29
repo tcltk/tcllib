@@ -189,7 +189,7 @@ mechanism.</p>
 <p>The package exports a single ensemble command, <b class="cmd">generator</b>. All
 functionality is provided as subcommands of this command. The core subcommands
 of the package are <b class="method">define</b>, <b class="method">yield</b>, and <b class="method">foreach</b>. The
-<b class="method">define</b> command works like Tcl's <b class="cmd"><a href="../../../../index.html#key586">proc</a></b> command, but creates a
+<b class="method">define</b> command works like Tcl's <b class="cmd"><a href="../../../../index.html#key589">proc</a></b> command, but creates a
 generator procedure; that is, a procedure that returns a generator when called.
 The generator itself is a command that can be called multiple times: each time
 it returns the next value in the generated series. When the
@@ -232,7 +232,7 @@ which are actually used:</p>
 <dl class="definitions">
 <dt><a name="1"><b class="cmd">generator</b> <b class="method">define</b> <i class="arg">name</i> <i class="arg">params</i> <i class="arg">body</i></a></dt>
 <dd><p>Creates a new generator procedure. The arguments to the command are identical to
-those for <b class="cmd"><a href="../../../../index.html#key586">proc</a></b>: a <i class="arg">name</i>, a list of parameters, and a body. The
+those for <b class="cmd"><a href="../../../../index.html#key589">proc</a></b>: a <i class="arg">name</i>, a list of parameters, and a body. The
 parameter list format is identical to a procedure. In particular, default values
 and the <span class="opt">?args?</span> syntax can be used as usual. Each time the resulting
 generator procedure is called it creates a new generator command (coroutine)
