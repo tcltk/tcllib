@@ -3,7 +3,7 @@
 [manpage_begin cron n [vset PACKAGE_VERSION]]
 [keywords {cron}]
 [keywords {odie}]
-[copyright {2014 Sean Woods <yoda@etoyoc.com>}]
+[copyright {2015 Sean Woods <yoda@etoyoc.com>}]
 [moddesc   {cron}]
 [titledesc {Tool for automating the period callback of commands}]
 [category  System]

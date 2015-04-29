@@ -1,16 +1,6 @@
 ::namespace eval ::nettool {}
 
 ###
-# topic: c592732bb435d83ab1f70259fc56dbd7
-###
-proc ::cat filename {
-  set fin [open $filename r]
-  set dat [read $fin]
-  close $fin
-  return $dat
-}
-
-###
 # topic: 92ebbfa155883ad41c37d3f843392be4
 # title: Return list of broadcast addresses for local networks
 ###

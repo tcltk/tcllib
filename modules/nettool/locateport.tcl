@@ -1,7 +1,5 @@
 ::namespace eval ::nettool {}
 
-package provide nettool::locate_port 0.1
-
 ###
 # topic: fc6f8b9587dd5524f143f9df4be4755b63eb6cd5
 ###

@@ -1,4 +1,6 @@
 # @mdgen OWNER: generic.tcl
+# @mdgen OWNER: available_ports.tcl
+# @mdgen OWNER: locateport.tcl
 # @mdgen OWNER: platform_*.tcl
 package provide nettool 0.3.1
 
@@ -28,6 +30,16 @@ if {[info command ::get] eq {}} {
     return {}
   }
 }
+if {[info command ::cat] eq {}} {
+  proc ::cat filename {
+    set fin [open $filename r]
+    set dat [read $fin]
+    close $fin
+    return $dat
+  }
+}
+
+
 set here [file dirname [file normalize [info script]]]
 
 ::namespace eval ::nettool {}
@@ -40,6 +52,8 @@ dict set ::nettool::platform odie_target  [::platform::generic]
 dict set ::nettool::platform odie_species [::platform::identify]
 
 source [file join $here generic.tcl]
+source [file join $here available_ports.tcl]
+source [file join $here locateport.tcl]
 
 set platfile [file join $here platform_$::tcl_platform(platform).tcl]
 if {[file exists $platfile]} {
