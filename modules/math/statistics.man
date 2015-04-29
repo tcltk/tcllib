@@ -160,6 +160,18 @@ intervals of the histogram.
 [list_end]
 [para]
 
+[call [cmd ::math::statistics::histogram-alt] [arg limits] [arg values] [opt weights]]
+Alternative implementation of the histogram procedure: the open end of the intervals
+is at the lower bound instead of the upper bound.
+
+[list_begin arguments]
+[arg_def list limits] - List of upper limits (in ascending order) for the
+intervals of the histogram.
+[arg_def list values] - List of data
+[arg_def list weights] - List of weights, one weight per value
+[list_end]
+[para]
+
 [call [cmd ::math::statistics::corr] [arg data1] [arg data2]]
 Determine the correlation coefficient between two sets of data.
 
@@ -180,10 +192,11 @@ level of confidence (assuming a normal distribution)
 [list_end]
 [para]
 
+
 [call [cmd ::math::statistics::t-test-mean] [arg data] [arg est_mean] \
-[arg est_stdev] [arg confidence]]
+[arg est_stdev] [arg alpha]]
 Test whether the mean value of a sample is in accordance with the
-estimated normal distribution with a certain level of confidence.
+estimated normal distribution with a certain probability.
 Returns 1 if the test succeeds or 0 if the mean is unlikely to fit
 the given distribution.
 
@@ -191,22 +204,28 @@ the given distribution.
 [arg_def list data] - List of raw data values (small sample)
 [arg_def float est_mean] - Estimated mean of the distribution
 [arg_def float est_stdev] - Estimated stdev of the distribution
-[arg_def float confidence] - Confidence level (0.95 or 0.99 for instance)
+[arg_def float alpha] - Probability level (0.95 or 0.99 for instance)
 [list_end]
 [para]
 
-[call [cmd ::math::statistics::test-normal] [arg data] [arg confidence]]
+
+[call [cmd ::math::statistics::test-normal] [arg data] [arg significance]]
 Test whether the given data follow a normal distribution
-with a certain level of confidence.
+with a certain level of significance.
 Returns 1 if the data are normally distributed within the level of
-confidence, returns 0 if not. The underlying test is the Lilliefors
-test.
+significance, returns 0 if not. The underlying test is the Lilliefors
+test. Smaller values of the significance mean a stricter testing.
 
 [list_begin arguments]
 [arg_def list data] - List of raw data values
-[arg_def float confidence] - Confidence level (one of 0.80, 0.90, 0.95 or 0.99)
+[arg_def float significance] - Significance level (one of 0.01, 0.05, 0.10, 0.15 or 0.20). For compatibility
+reasons the values "1-significance", 0.80, 0.85, 0.90, 0.95 or 0.99 are also accepted.
 [list_end]
 [para]
+Compatibility issue: the original implementation and documentation used the term "confidence" and used a value
+1-significance (see ticket 2812473fff). This has been corrected as of version 0.9.3.
+[para]
+
 
 [call [cmd ::math::statistics::lillieforsFit] [arg data]]
 Returns the goodness of fit to a normal distribution according to
@@ -216,6 +235,32 @@ points.
 
 [list_begin arguments]
 [arg_def list data] - List of raw data values
+[list_end]
+[para]
+
+
+[call [cmd ::math::statistics::test-Duckworth] [arg list1] [arg list2] [arg significance]]
+Determine if two data sets have the same median according to the Tukey-Duckworth test.
+The procedure returns 0 if the medians are unequal, 1 if they are equal, -1 if the test can not
+be conducted (the smallest value must be in a different set than the greatest value).
+#
+# Arguments:
+#     list1           Values in the first data set
+#     list2           Values in the second data set
+#     significance    Significance level (either 0.05, 0.01 or 0.001)
+#
+# Returns:
+
+Test whether the given data follow a normal distribution
+with a certain level of significance.
+Returns 1 if the data are normally distributed within the level of
+significance, returns 0 if not. The underlying test is the Lilliefors
+test. Smaller values of the significance mean a stricter testing.
+
+[list_begin arguments]
+[arg_def list list1] - First list of data
+[arg_def list list2] - Second list of data
+[arg_def float significance] - Significance level (either 0.05, 0.01 or 0.001)
 [list_end]
 [para]
 
@@ -645,7 +690,7 @@ In the literature a large number of probability distributions can be
 found. The statistics package supports:
 [list_begin itemized]
 [item]
-The normal or Gaussian distribution
+The normal or Gaussian distribution as well as the log-normal distribution
 [item]
 The uniform distribution - equal probability for all data within a given
 interval
@@ -655,11 +700,21 @@ extreme-value distributions.
 [item]
 The gamma distribution - based on the incomplete Gamma integral
 [item]
+The beta distribution
+[item]
 The chi-square distribution
 [item]
 The student's T distribution
 [item]
 The Poisson distribution
+[item]
+The Pareto distribution
+[item]
+The Gumbel distribution
+[item]
+The Weibull distribution
+[item]
+The Cauchy distribution
 [item]
 PM - binomial,F.
 [list_end]
@@ -684,6 +739,17 @@ The following procedures have been implemented:
 
 [call [cmd ::math::statistics::pdf-normal] [arg mean] [arg stdev] [arg value]]
 Return the probability of a given value for a normal distribution with
+given mean and standard deviation.
+
+[list_begin arguments]
+[arg_def float mean] - Mean value of the distribution
+[arg_def float stdev] - Standard deviation of the distribution
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::pdf-lognormal] [arg mean] [arg stdev] [arg value]]
+Return the probability of a given value for a log-normal distribution with
 given mean and standard deviation.
 
 [list_begin arguments]
@@ -755,19 +821,87 @@ distribution with given degrees of freedom
 [list_end]
 [para]
 
+[call [cmd ::math::statistics::pdf-gamma] [arg a] [arg b] [arg value]]
+Return the probability of a given value for a Gamma
+distribution with given shape and rate parameters
+
+[list_begin arguments]
+[arg_def float a] - Shape parameter
+[arg_def float b] - Rate parameter
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
 [call [cmd ::math::statistics::pdf-beta] [arg a] [arg b] [arg value]]
 Return the probability of a given value for a Beta
 distribution with given shape parameters
 
 [list_begin arguments]
 [arg_def float a] - First shape parameter
-[arg_def float b] - First shape parameter
+[arg_def float b] - Second shape parameter
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::pdf-weibull] [arg scale] [arg shape] [arg value]]
+Return the probability of a given value for a Weibull
+distribution with given scale and shape parameters
+
+[list_begin arguments]
+[arg_def float location] - Scale parameter
+[arg_def float scale] - Shape parameter
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::pdf-gumbel] [arg location] [arg scale] [arg value]]
+Return the probability of a given value for a Gumbel
+distribution with given location and shape parameters
+
+[list_begin arguments]
+[arg_def float location] - Location parameter
+[arg_def float scale] - Shape parameter
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::pdf-pareto] [arg scale] [arg shape] [arg value]]
+Return the probability of a given value for a Pareto
+distribution with given scale and shape parameters
+
+[list_begin arguments]
+[arg_def float scale] - Scale parameter
+[arg_def float shape] - Shape parameter
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::pdf-cauchy] [arg location] [arg scale] [arg value]]
+Return the probability of a given value for a Cauchy
+distribution with given location and shape parameters. Note that the Cauchy distribution
+has no finite higher-order moments.
+
+[list_begin arguments]
+[arg_def float location] - Location parameter
+[arg_def float scale] - Shape parameter
 [arg_def float value] - Value for which the probability is required
 [list_end]
 [para]
 
 [call [cmd ::math::statistics::cdf-normal] [arg mean] [arg stdev] [arg value]]
 Return the cumulative probability of a given value for a normal
+distribution with given mean and standard deviation, that is the
+probability for values up to the given one.
+
+[list_begin arguments]
+[arg_def float mean] - Mean value of the distribution
+[arg_def float stdev] - Standard deviation of the distribution
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::cdf-lognormal] [arg mean] [arg stdev] [arg value]]
+Return the cumulative probability of a given value for a log-normal
 distribution with given mean and standard deviation, that is the
 probability for values up to the given one.
 
@@ -810,7 +944,7 @@ distribution with given number of degrees.
 
 [call [cmd ::math::statistics::cdf-gamma] [arg alpha] [arg beta] [arg value]]
 Return the cumulative probability of a given value for a Gamma
-distribution with given shape and rate parameters
+distribution with given shape and rate parameters.
 
 [list_begin arguments]
 [arg_def float alpha] - Shape parameter
@@ -821,7 +955,7 @@ distribution with given shape and rate parameters
 
 [call [cmd ::math::statistics::cdf-poisson] [arg mu] [arg k]]
 Return the cumulative probability of a given number of occurrences in
-the same interval (k) for a Poisson distribution with given mean (mu)
+the same interval (k) for a Poisson distribution with given mean (mu).
 
 [list_begin arguments]
 [arg_def float mu] - Mean number of occurrences
@@ -835,13 +969,76 @@ distribution with given shape parameters
 
 [list_begin arguments]
 [arg_def float a] - First shape parameter
-[arg_def float b] - First shape parameter
+[arg_def float b] - Second shape parameter
 [arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::cdf-weibull] [arg scale] [arg shape] [arg value]]
+Return the cumulative probability of a given value for a Weibull
+distribution with given scale and shape parameters.
+
+[list_begin arguments]
+[arg_def float scale] - Scale parameter
+[arg_def float shape] - Shape parameter
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::cdf-gumbel] [arg location] [arg scale] [arg value]]
+Return the cumulative probability of a given value for a Gumbel
+distribution with given location and scale parameters.
+
+[list_begin arguments]
+[arg_def float location] - Location parameter
+[arg_def float scale] - Scale parameter
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::cdf-pareto] [arg scale] [arg shape] [arg value]]
+Return the cumulative probability of a given value for a Pareto
+distribution with given scale and shape parameters
+
+[list_begin arguments]
+[arg_def float scale] - Scale parameter
+[arg_def float shape] - Shape parameter
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::cdf-cauchy] [arg location] [arg scale] [arg value]]
+Return the cumulative probability of a given value for a Cauchy
+distribution with given location and scale parameters.
+
+[list_begin arguments]
+[arg_def float location] - Location parameter
+[arg_def float scale] - Scale parameter
+[arg_def float value] - Value for which the probability is required
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::empirical-distribution] [arg values]]
+Return a list of values and their empirical probability. The values are sorted in increasing order.
+(The implementation follows the description at the corresponding Wikipedia page)
+
+[list_begin arguments]
+[arg_def list values] - List of data to be examined
 [list_end]
 [para]
 
 [call [cmd ::math::statistics::random-normal] [arg mean] [arg stdev] [arg number]]
 Return a list of "number" random values satisfying a normal
+distribution with given mean and standard deviation.
+[list_begin arguments]
+[arg_def float mean] - Mean value of the distribution
+[arg_def float stdev] - Standard deviation of the distribution
+[arg_def int number] - Number of values to be returned
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::random-lognormal] [arg mean] [arg stdev] [arg number]]
+Return a list of "number" random values satisfying a log-normal
 distribution with given mean and standard deviation.
 [list_begin arguments]
 [arg_def float mean] - Mean value of the distribution
@@ -872,7 +1069,7 @@ distribution with given extremes.
 
 [call [cmd ::math::statistics::random-gamma] [arg alpha] [arg beta] [arg number]]
 Return a list of "number" random values satisfying
-a Gamma distribution with given shape and rate parameters
+a Gamma distribution with given shape and rate parameters.
 
 [list_begin arguments]
 [arg_def float alpha] - Shape parameter
@@ -883,7 +1080,7 @@ a Gamma distribution with given shape and rate parameters
 
 [call [cmd ::math::statistics::random-poisson] [arg mu] [arg number]]
 Return a list of "number" random values satisfying
-a Poisson distribution with given mean
+a Poisson distribution with given mean.
 
 [list_begin arguments]
 [arg_def float mu] - Mean of the distribution
@@ -893,7 +1090,7 @@ a Poisson distribution with given mean
 
 [call [cmd ::math::statistics::random-chisquare] [arg df] [arg number]]
 Return a list of "number" random values satisfying
-a chi square distribution with given degrees of freedom
+a chi square distribution with given degrees of freedom.
 
 [list_begin arguments]
 [arg_def float df] - Degrees of freedom
@@ -903,7 +1100,7 @@ a chi square distribution with given degrees of freedom
 
 [call [cmd ::math::statistics::random-student-t] [arg df] [arg number]]
 Return a list of "number" random values satisfying
-a Student's t distribution with given degrees of freedom
+a Student's t distribution with given degrees of freedom.
 
 [list_begin arguments]
 [arg_def float df] - Degrees of freedom
@@ -913,11 +1110,55 @@ a Student's t distribution with given degrees of freedom
 
 [call [cmd ::math::statistics::random-beta] [arg a] [arg b] [arg number]]
 Return a list of "number" random values satisfying
-a Beta distribution with given shape parameters
+a Beta distribution with given shape parameters.
 
 [list_begin arguments]
 [arg_def float a] - First shape parameter
 [arg_def float b] - Second shape parameter
+[arg_def int number] - Number of values to be returned
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::random-weibull] [arg scale] [arg shape] [arg number]]
+Return a list of "number" random values satisfying
+a Weibull distribution with given scale and shape parameters.
+
+[list_begin arguments]
+[arg_def float scale] - Scale parameter
+[arg_def float shape] - Shape parameter
+[arg_def int number] - Number of values to be returned
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::random-gumbel] [arg location] [arg scale] [arg number]]
+Return a list of "number" random values satisfying
+a Gumbel distribution with given location and scale parameters.
+
+[list_begin arguments]
+[arg_def float location] - Location parameter
+[arg_def float scale] - Scale parameter
+[arg_def int number] - Number of values to be returned
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::random-pareto] [arg scale] [arg shape] [arg number]]
+Return a list of "number" random values satisfying
+a Pareto distribution with given scale and shape parameters.
+
+[list_begin arguments]
+[arg_def float scale] - Scale parameter
+[arg_def float shape] - Shape parameter
+[arg_def int number] - Number of values to be returned
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::random-cauchy] [arg location] [arg scale] [arg number]]
+Return a list of "number" random values satisfying
+a Cauchy distribution with given location and scale parameters.
+
+[list_begin arguments]
+[arg_def float location] - Location parameter
+[arg_def float scale] - Scale parameter
 [arg_def int number] - Number of values to be returned
 [list_end]
 [para]
@@ -957,6 +1198,15 @@ Evaluate the incomplete Beta integral
 [arg_def float b] - Second shape parameter
 [arg_def float x] - Value of x (limit of the integral)
 [arg_def float tol] - Required tolerance (default: 1.0e-9)
+[list_end]
+[para]
+
+[call [cmd ::math::statistics::estimate-pareto] [arg values]]
+Estimate the parameters for the Pareto distribution that comes closest to the given values.
+Returns the estimated scale and shape parameters, as well as the standard error for the shape parameter.
+
+[list_begin arguments]
+[arg_def list values] - List of values, assumed to be distributed according to a Pareto distribution
 [list_end]
 [para]
 

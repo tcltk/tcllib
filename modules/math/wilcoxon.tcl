@@ -3,7 +3,6 @@
 #     of two samples are the same
 #
 
-package require math::statistics
 
 # test-Wilcoxon
 #     Compute the statistic that indicates if the medians of two
