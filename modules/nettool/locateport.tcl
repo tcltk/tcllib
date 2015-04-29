@@ -1,9 +1,7 @@
-package provide nettool::available_ports 0.2
-
 ::namespace eval ::nettool {}
 
 ###
-# topic: 4a6ac5d7529bac9a223872dd7566e0b3
+# topic: fc6f8b9587dd5524f143f9df4be4755b63eb6cd5
 ###
 proc ::nettool::allocate_port startingport {
   foreach {start end} $::nettool::blocks {
@@ -25,14 +23,14 @@ proc ::nettool::allocate_port startingport {
 }
 
 ###
-# topic: ce8e812f4c4548cdae7b055c36f39b77
+# topic: 3286fdbd0a3fdebbb26414475754bcf3dea67b0f
 ###
 proc ::nettool::claim_port {port {protocol tcp}} {
   set ::nettool::used_ports($port) 1
 }
 
 ###
-# topic: ebafbb52e53e0600dd30e386de5fa5c9
+# topic: 1d1f8a65a9aef8765c9b4f2b0ee0ebaf42e99d46
 ###
 proc ::nettool::find_port startingport {
   foreach {start end} $::nettool::blocks {
@@ -51,7 +49,7 @@ proc ::nettool::find_port startingport {
 }
 
 ###
-# topic: d01f726e91e49aea83f74d5f602674bb
+# topic: ded1c51260e009effb1f77044f8d0dec3d030b91
 ###
 proc ::nettool::port_busy port {
   ###
@@ -69,14 +67,9 @@ proc ::nettool::port_busy port {
 }
 
 ###
-# topic: 9356fda270fe7d83373c6ab20cd4b03e
+# topic: b5407b084aa09f9efa4f58a337af6186418fddf2
 ###
 proc ::nettool::release_port {port {protocol tcp}} {
   set ::nettool::used_ports($port) 0
-}
-
-set here [file dirname [file normalize [info script]]]
-if {[file exists [file join $here available_ports.tcl]]} {
-  source [file join $here available_ports.tcl]
 }
 
