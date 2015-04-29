@@ -1,0 +1,45 @@
+[vset ZIP_mkzip_VERSION 1.2]
+[comment {-*- tcl -*- doctools manpage}]
+[manpage_begin zipfile::mkzip n [vset ZIP_mkzip_VERSION]]
+[keywords decompression zip]
+[copyright {2009 Pat Thoyts}]
+[moddesc {Zip archive creation}]
+[titledesc {Build a zip archive}]
+[category  File]
+[require Tcl 8.6]
+[require zipfile::mkzip [opt [vset ZIP_mkzip_VERSION]]]
+[description]
+[para]
+
+This package utilizes the zlib functions in Tcl8.6 to build zip archives.
+
+[section API]
+
+[list_begin definitions]
+[comment ---------------------------------------------------------------------]
+[call [cmd ::mkzip::mkzip] [opt -zipkit 1|0] [opt -runtime] [opt -comment] [opt -directory] [opt exclude]]
+[para]
+From http://wiki.tcl.tk/15158
+[para]
+The following code is a tcl program to construct a zip archive from a directory tree using
+nothing but Tcl 8.6 core features. The resulting zip file should be compatible with other
+zip programs - with the possible exception of unicode support. The Tcl generated files use
+utf-8 encoding for all filenames and comments but I notice particularly on Windows info-zip
+and the Windows built-in zip view have rather poor support for this part of the ZIP file
+specification. The 7-Zip program does correctly display utf8 filenames however and the
+vfs::zip package will use these of course.
+[para]
+If you use [cmd ::mkzip::mkzip] mystuff.tm -zipkit -directory mystuff.vfs it will pack
+your mystuff.vfs/ virtual filesystem tree into a zip
+archive with a suitable header such that on unix you may mark it executable and it should
+run with tclkit. Or you can run it with tclsh or wish 8.6 if you like.
+To change the executable header, specify -runtime preface where preface is a file
+containing code you want prefixed. For instance, on windows you can create a self-extracting
+zip archive using mkzip mystuff.exe -directory mystuff.vfs -runtime unzipsfx.exe
+(unzipsfx is the Info-Zip self-extracting stub).
+
+[list_end]
+
+[vset CATEGORY zipfile]
+[include ../doctools2base/include/feedback.inc]
+[manpage_end]
