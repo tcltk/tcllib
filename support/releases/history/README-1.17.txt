@@ -1,11 +1,11 @@
 Overview
 ========
 
-    8   new packages                in 5   modules
+    6   new packages                in 5   modules
     66  changed packages            in 39  modules
     46  internally changed packages in 31  modules
     293 unchanged packages          in 74  modules
-    420 packages, total             in 118 modules, total
+    418 packages, total             in 118 modules, total
 
 New in tcllib 1.17
 ==================
@@ -13,13 +13,9 @@ New in tcllib 1.17
     Module       Package                          New Version   Comments
     ------------ -------------------------------- ------------- ----------
     cron         cron                             1.1
-    ------------ -------------------------------- ------------- ----------
-    nettool      nettool                          0.3.1
-                 nettool::available_ports         0.2
-                 nettool::locate_port             0.1
-    ------------ -------------------------------- ------------- ----------
+    nettool      nettool                          0.4
     oauth        oauth                            1
-    processman   odie::processman                 0.1
+    processman   odie::processman                 0.3
     ------------ -------------------------------- ------------- ----------
     pt           pt::cparam::configuration::tea   0.1
                  pt::util                         1
