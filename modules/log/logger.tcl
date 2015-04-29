@@ -4,7 +4,7 @@
 #
 # Copyright (c) 2003      by David N. Welton <davidw@dedasys.com>
 # Copyright (c) 2004-2011 by Michael Schlenker <mic42@users.sourceforge.net>
-# Copyright (c) 2006      by Andreas Kupries <andreas_kupries@users.sourceforge.net>
+# Copyright (c) 2006,2015 by Andreas Kupries <andreas_kupries@users.sourceforge.net>
 #
 # See the file license.terms.
 
@@ -14,7 +14,7 @@
 
 
 package require Tcl 8.2
-package provide logger 0.9.3
+package provide logger 0.9.4
 
 namespace eval ::logger {
     namespace eval tree {}
@@ -939,11 +939,25 @@ proc ::logger::import {args} {
 # Results:
 #   none
 
-proc ::logger::initNamespace {ns {level warn}} {
+proc ::logger::initNamespace {ns {level {}}} {
     set service [string trimleft $ns :]
+    if {$level == ""} {
+	# No user-specified level. Figure something out.
+	# - If the parent service exists then the 'logger::init'
+	#   below will automatically inherit its level. Good enough.
+	# - Without a parent service go and use a default level of 'warn'.
+	set parent    [string trimleft [namespace qualifiers $service] :]
+	set hasparent [expr {($parent != {}) && [_nsExists ::logger::tree::${parent}]}]
+	if {!$hasparent} {
+	    set level warn
+	}
+    }
+
     namespace eval $ns [list ::logger::init $service]
     namespace eval $ns [list ::logger::import -force -all -namespace log $service]
-    namespace eval $ns [list log::setlevel $level]
+    if {$level != ""} {
+	namespace eval $ns [list log::setlevel $level]
+    }
     return
 }
 
