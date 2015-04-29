@@ -10,9 +10,15 @@
 package require Tcl 8.4
 package require fileutil::magic::mimetype ; # Tcllib. File type determination via magic constants
 package require fileutil::decode 0.2      ; # Framework for easy decoding of files.
-package require Trf                       ; # Wrapper to zlib
-package require zlibtcl                   ; # Zlib usage. No commands, access through Trf
-
+namespace eval ::zipfile::decode {}
+if {[package vcompare $tcl_patchLevel "8.6"] < 0} {
+  # Only needed pre-8.6
+  package require Trf                       ; # Wrapper to zlib
+  package require zlibtcl                   ; # Zlib usage. No commands, access through Trf
+  set ::zipfile::decode::native_zip_functs 0
+} else {
+  set ::zipfile::decode::native_zip_functs 1
+}
 namespace eval ::zipfile::decode {
     namespace import ::fileutil::decode::*
 }
@@ -165,9 +171,14 @@ proc ::zipfile::decode::CopyFile {src fdv dst} {
 
 	    set out [::open $dst w]
 	    fconfigure $out -translation binary -encoding binary -eofchar {}
-	    puts -nonewline $out \
+            if {$::zipfile::decode::native_zip_functs} {
+              puts -nonewline $out \
+		[zlib inflate [getval]]              
+            } else {
+              puts -nonewline $out \
 		[zip -mode decompress -nowrap 1 -- \
 		     [getval]]
+            }
 	    ::close $out
 	}
 	default {
