@@ -2,7 +2,7 @@
 '\" Generated from file 'tcllib_dns\&.man' by tcllib/doctools with format 'nroff'
 '\" Copyright (c) 2002, Pat Thoyts
 '\"
-.TH "dns" n 1\&.3\&.4 tcllib "Domain Name Service"
+.TH "dns" n 1\&.3\&.5 tcllib "Domain Name Service"
 .\" The -*- nroff -*- definitions below are for supplemental macros used
 .\" in Tcl/Tk manual entries.
 .\"
@@ -276,7 +276,7 @@ dns \- Tcl Domain Name Service Client
 .SH SYNOPSIS
 package require \fBTcl  8\&.2\fR
 .sp
-package require \fBdns  ?1\&.3\&.4?\fR
+package require \fBdns  ?1\&.3\&.5?\fR
 .sp
 \fB::dns::resolve\fR \fIquery\fR ?\fIoptions\fR?
 .sp

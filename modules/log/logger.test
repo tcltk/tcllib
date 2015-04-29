@@ -1254,5 +1254,54 @@ test logger-15.13 {test for namespace with glob pattern} {
     list $::gotcalled $code $msg
 } {0 1 {Invalid cmd '::logtest::*::test' - does not exist}}
 
+# # ## ### ##### ######## ############# #####################
+## Ticket cf775f72ef - initNamespace, level inheritance.
+
+test logger-17.0 {initNamespace, wrong args, not enough} {
+    catch {
+	logger::initNamespace
+    } msg
+    set msg
+} {wrong # args: should be "logger::initNamespace ns ?level?"}
+
+test logger-17.1 {initNamespace, wrong args, too many} {
+    catch {
+	logger::initNamespace ::foo error X
+    } msg
+    set msg
+} {wrong # args: should be "logger::initNamespace ns ?level?"}
+
+test logger-17.2 {initNamespace, explicit level} {
+    namespace eval ::foo {}
+    logger::initNamespace ::foo error
+    set lvl [::foo::log::currentloglevel]
+    ::foo::log::delete
+    namespace delete ::foo
+    set lvl
+} error
+
+test logger-17.3 {initNamespace, no parent, default log level} {
+    namespace eval ::foo {}
+    logger::initNamespace ::foo
+    set lvl [::foo::log::currentloglevel]
+    ::foo::log::delete
+    namespace delete ::foo
+    set lvl
+} warn
+
+test logger-17.4 {initNamespace, parent, inherit log level} {
+    namespace eval ::foo {}
+    namespace eval ::foo::bar {}
+    logger::initNamespace ::foo      error
+    logger::initNamespace ::foo::bar
+    set lvl [::foo::bar::log::currentloglevel]
+    ::foo::bar::log::delete
+    ::foo::log::delete
+    namespace delete ::foo
+    set lvl
+} error
+
+# # ## ### ##### ######## ############# #####################
+
 testsuiteCleanup
 return

@@ -263,13 +263,12 @@ proc ::dns::resolve {query args} {
     
     if {$state(-protocol) == "tcp"} {
         TcpTransmit $token
-        if {$state(-command) == {}} {
-            wait $token
-        }
     } else {
         UdpTransmit $token
     }
-    
+    if {$state(-command) == {}} {
+        wait $token
+    }
     return $token
 }
 
@@ -1409,7 +1408,7 @@ proc ::uri::JoinDns {args} {
 
 catch {dns::configure -nameserver [lindex [dns::nameservers] 0]}
 
-package provide dns 1.3.4
+package provide dns 1.3.5
 
 # -------------------------------------------------------------------------
 # Local Variables:
