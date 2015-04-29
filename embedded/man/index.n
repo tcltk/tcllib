@@ -1934,6 +1934,12 @@ valtype::creditcard::mastercard
 \fBfiles/modules/valtype/cc_visa\&.n\fR
 valtype::creditcard::visa
 .RE
+cron
+.RS
+.TP
+\fBfiles/modules/cron/cron\&.n\fR
+cron
+.RE
 cryptography
 .RS
 .TP
@@ -6466,6 +6472,12 @@ hook
 .TP
 \fBfiles/modules/virtchannel_transform/observe\&.n\fR
 tcl::transform::observe
+.RE
+odie
+.RS
+.TP
+\fBfiles/modules/cron/cron\&.n\fR
+cron
 .RE
 on-idle
 .RS
