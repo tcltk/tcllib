@@ -67,8 +67,7 @@ proc ::processman::find_exe name {
     if {[file executable $f]} break
   }
   if {![file executable $f]} {
-     odieMessageBox -icon error -type ok -parent . -message \
-         "Cannot find the $name executable"
+     error "Cannot find the $name executable"
      return {}
   }
   return $f
