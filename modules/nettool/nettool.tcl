@@ -1,4 +1,6 @@
 # @mdgen OWNER: generic.tcl
+# @mdgen OWNER: available_ports.tcl
+# @mdgen OWNER: locateport.tcl
 # @mdgen OWNER: platform_*.tcl
 package provide nettool 0.3.1
 
