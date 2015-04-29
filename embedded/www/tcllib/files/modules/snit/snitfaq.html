@@ -2483,7 +2483,7 @@ its <b class="cmd">destroy</b> method.  Instances of a <b class="cmd">snit::widg
 destroy method; use the Tk <b class="cmd">destroy</b> command instead.</p></li>
 <li><p>Every instance of a <b class="cmd">snit::widget</b> has one predefined component
 called its <b class="variable">hull</b> component.
-The hull is usually a Tk <b class="cmd"><a href="../../../../index.html#key667">frame</a></b> or <b class="cmd">toplevel</b> widget; any other
+The hull is usually a Tk <b class="cmd"><a href="../../../../index.html#key669">frame</a></b> or <b class="cmd">toplevel</b> widget; any other
 widgets created as part of the <b class="cmd">snit::widget</b> will usually be
 contained within the hull.</p></li>
 <li><p><b class="cmd">snit::widget</b>s can have their options receive default values from
@@ -2504,7 +2504,7 @@ that any kind of widget can be used as the hull component; see
 <span class="sectref"><a href="#section18">WIDGET ADAPTORS</a></span>.</p>
 </div>
 <div id="subsection129" class="subsection"><h3><a name="subsection129">How can I set the hull type for a snit::widget?</a></h3>
-<p>A <b class="cmd">snit::widget</b>'s hull component will usually be a Tk <b class="cmd"><a href="../../../../index.html#key667">frame</a></b>
+<p>A <b class="cmd">snit::widget</b>'s hull component will usually be a Tk <b class="cmd"><a href="../../../../index.html#key669">frame</a></b>
 widget; however, it may be any Tk widget that defines the
 <b class="const">-class</b> option.  You can
 explicitly choose the hull type you prefer by including the <b class="cmd">hulltype</b>
@@ -2514,9 +2514,9 @@ command in the widget definition:</p>
     # ...
 }
 </pre>
-<p>If no <b class="cmd">hulltype</b> command appears, the hull will be a <b class="cmd"><a href="../../../../index.html#key667">frame</a></b>.</p>
+<p>If no <b class="cmd">hulltype</b> command appears, the hull will be a <b class="cmd"><a href="../../../../index.html#key669">frame</a></b>.</p>
 <p>By default, Snit recognizes the following hull types: the Tk widgets
-<b class="cmd"><a href="../../../../index.html#key667">frame</a></b>, <b class="cmd">labelframe</b>, <b class="cmd">toplevel</b>, and the Tile widgets
+<b class="cmd"><a href="../../../../index.html#key669">frame</a></b>, <b class="cmd">labelframe</b>, <b class="cmd">toplevel</b>, and the Tile widgets
 <b class="cmd">ttk::frame</b>, <b class="cmd">ttk::labelframe</b>, and <b class="cmd">ttk::toplevel</b>.  To
 enable the use of some other kind of widget as the hull type, you can
 <b class="cmd">lappend</b> the widget command to the variable <b class="variable">snit::hulltypes</b> (always
@@ -2614,9 +2614,9 @@ prior to calling <b class="cmd">installhull</b> will fail.</p>
 <p>At times, it can be convenient to adapt a pre-existing widget instead
 of creating your own.
 For example, the Bwidget <b class="cmd">PagesManager</b> widget manages a
-set of <b class="cmd"><a href="../../../../index.html#key667">frame</a></b> widgets, only one of which is visible at a time.
-The application chooses which <b class="cmd"><a href="../../../../index.html#key667">frame</a></b> is visible.  All of the
-These <b class="cmd"><a href="../../../../index.html#key667">frame</a></b>s are created by the <b class="cmd">PagesManager</b> itself, using
+set of <b class="cmd"><a href="../../../../index.html#key669">frame</a></b> widgets, only one of which is visible at a time.
+The application chooses which <b class="cmd"><a href="../../../../index.html#key669">frame</a></b> is visible.  All of the
+These <b class="cmd"><a href="../../../../index.html#key669">frame</a></b>s are created by the <b class="cmd">PagesManager</b> itself, using
 its <b class="method">add</b> method.  It's convenient to adapt these frames to
 do what we'd like them to do.</p>
 <p>In a case like this, the Tk widget will already exist when the
@@ -2713,7 +2713,7 @@ is defined, and how its options are delegated.</p>
 <div id="subsection138" class="subsection"><h3><a name="subsection138">What is my snit::widgetadaptor's widget class?</a></h3>
 <p>The widget class of a <b class="cmd">snit::widgetadaptor</b> is just the widget
 class of its hull widget; Snit has no control over this.</p>
-<p>Note that the widget class can be changed only for <b class="cmd"><a href="../../../../index.html#key667">frame</a></b> and
+<p>Note that the widget class can be changed only for <b class="cmd"><a href="../../../../index.html#key669">frame</a></b> and
 <b class="cmd">toplevel</b> widgets, which is why these are the valid hull types
 for <b class="cmd">snit::widget</b>s.</p>
 <p>Try to use <b class="cmd">snit::widgetadaptor</b>s only to make small modifications
