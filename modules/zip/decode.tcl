@@ -686,5 +686,5 @@ proc ::zipfile::decode::LocateEnd {path} {
 
 # ### ### ### ######### ######### #########
 ## Ready
-package provide zipfile::decode 0.6.1
+package provide zipfile::decode 0.7
 return
