@@ -38,7 +38,7 @@ proc rec {x} {
 
 proc recx {args} {
     lappend ::rec $args
-    return
+    return 1
 }
 
 # -------------------------------------------------------------------------
@@ -330,6 +330,57 @@ test traverse-1.4.1 {Traverse result, circular links, windows, 8.4+} -setup {
 		     z z/a z/a/c z/a/c/g z/a/c/h z/a/c/h/e z/a/c/h/f \
 		     z/a/c/i z/a/d z/b z/b/e z/b/e/g z/b/e/g/c z/b/e/g/d \
 		     z/b/e/h z/b/e/i z/b/f] \n]
+
+# -------------------------------------------------------------------------
+
+test traverse-1.5 {Traverse, relative base path, callback API} -setup {
+    f_setupcircle
+    set rec {}
+
+    set base [tempPath {find 1}]
+    set bdir [file dirname $base]
+    set base [file tail $base]
+    set here [pwd]
+    cd $bdir
+    set t [fileutil::traverse %AUTO% $base -filter ::rec]
+} -constraints unix -body {
+    $t files
+    lsort $rec
+} -cleanup {
+    $t destroy
+    cd $here
+    unset rec bdir base here
+    f_cleanup
+} -result [list \
+	       [tempPath {find 1}] \
+	       [tempPath {find 1/file [1]}] \
+	       [tempPath {find 1/find 2}] \
+	       [tempPath {find 1/find 2/file 3}] \
+	       [tempPath {find 1/find 2/file* 2}]]
+
+test traverse-1.6 {Traverse, relative base path, callback API} -setup {
+    f_setupcircle
+    set rec {}
+
+    set base [tempPath {find 1}]
+    set bdir [file dirname $base]
+    set base [file tail $base]
+    set here [pwd]
+    cd $bdir
+    set t [fileutil::traverse %AUTO% $base -prefilter ::rec]
+} -constraints unix -body {
+    $t files
+    lsort $rec
+} -cleanup {
+    $t destroy
+    cd $here
+    unset rec bdir base here
+    f_cleanup
+} -result [list \
+	       [tempPath {find 1}] \
+	       [tempPath {find 1/find 2}]]
+
+# TODO: checking -error callback with ingoing relative basepath.
 
 # -------------------------------------------------------------------------
 

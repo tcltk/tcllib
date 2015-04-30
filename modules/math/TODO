@@ -1,5 +1,14 @@
 This file records outstanding actions for the math module
 
+dd. 26 april 2015, Arjen Markus
+Add:
+- additional linear algebra procedures by Federico Ferri
+- lognormal income library by Eric Benedict
+- empirical distribution
+- tukey-duckworth test
+
+
+
 dd. 18 january 2014, Arjen Markus
 test cases for kernel-density:
 One test case is troublesome - uniform kernel, checking the total density
