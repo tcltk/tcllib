@@ -47,9 +47,9 @@ The result will be a Tcl formatted list: [arg macid] [arg ipaddrlist] ...
 Returns a list of broadcast addresses (suitable for UDP multicast)
 that this computer is associated with.
 
-[call [cmd ::nettool::claim_port] [arg port] [arg protocol tcp]]
+[call [cmd ::nettool::claim_port] [arg port] [opt [arg protocol]]]
 
-Mark [arg port] as busy, optionally as either [arg tcp] or [arg udp].
+Mark [arg port] as busy, optionally as either [const tcp] (default) or [const udp].
 
 [call [cmd ::nettool::cpuinfo] [arg args]]
 
@@ -70,11 +70,11 @@ If arguments are given, the result with be a key/value list limited to the
 fields requested.
 [para]
 Canonical fields for all platforms:
-[list_begin cpuinfofields]
-[item]cpus - Count of CPUs/cores/execution units
-[item]speed - Clock speed of processor(s) in Mhz
-[item]memory - Installed RAM (in MB)
-[item]vendor - Manufacturer
+[list_begin definitions][comment {-- cpuinfofields}]
+[def cpus]   Count of CPUs/cores/execution units
+[def speed]  Clock speed of processor(s) in Mhz
+[def memory] Installed RAM (in MB)
+[def vendor] Manufacturer
 [list_end]
 
 [call [cmd ::nettool::find_port] [arg startingport]]
@@ -115,9 +115,9 @@ Return a list of networks associated with this computer. Networks are formated w
 
 Return true if [arg port] is claimed, false otherwise.
 
-[call [cmd ::nettool::release_port] [arg port] [arg protocol tcp]]
+[call [cmd ::nettool::release_port] [arg port] [opt [arg protocol]]]
 
-Mark [arg port] as not busy, optionally as either [arg tcp] or [arg udp].
+Mark [arg port] as not busy, optionally as either [const tcp] (default) or [const udp].
 
 [call [cmd ::nettool::status]]
 
@@ -125,10 +125,10 @@ Return a key/value list describing the status of the computer. The output
 is designed to be comparable to the output of [cmd top] for all platforms.
 [para]
 Common fields include:
-[list_begin statusfields]
-[item]load - Processes per processing unit
-[item]memory_total - Total physical RAM (MB)
-[item]memory_free - Total physical RAM unused (MB)
+[list_begin definitions][comment {-- statusfields}]
+[def load]         Processes per processing unit
+[def memory_total] Total physical RAM (MB)
+[def memory_free]  Total physical RAM unused (MB)
 [list_end]
  
 [list_end]

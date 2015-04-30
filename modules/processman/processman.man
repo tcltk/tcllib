@@ -33,18 +33,18 @@ Kill a child process [arg id].
 
 Kill all processes spawned by this program
 
-[call [cmd ::processman::killexe [arg name]]
+[call [cmd ::processman::killexe] [arg name]]
 
 Kill a process identified by the executable. On Unix, this triggers a killall.
 On windows, [cmd twapi::get_process_ids] is used to map a name one or more IDs,
 which are then killed.
 
-[call [cmd ::processman::onexit [arg id] [arg cmd]]
+[call [cmd ::processman::onexit] [arg id] [arg cmd]]
 
 Arrange to execute the script [arg cmd] when this programe detects that
 process [arg id] as terminated.
 
-[call [cmd ::processman::priority [arg id] [arg level]]
+[call [cmd ::processman::priority] [arg id] [arg level]]
 
 Mark process [arg id] with the priorty [arg level]. Valid levels: low, high, default.
 [para]
