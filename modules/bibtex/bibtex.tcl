@@ -163,13 +163,14 @@ proc ::bibtex::GetOptions {argv statevar} {
     # and the options found therein.
 
     set opts [lrange [::cmdline::GetOptionDefaults {
-	{command.arg         {}}
-	{channel.arg         {}}
-	{recordcommand.arg   {}}
-	{preamblecommand.arg {}}
-	{stringcommand.arg   {}}
-	{commentcommand.arg  {}}
-	{progresscommand.arg {}}
+	{command.arg              {}}
+	{channel.arg              {}}
+	{recordcommand.arg        {}}
+	{preamblecommand.arg      {}}
+	{stringcommand.arg        {}}
+	{commentcommand.arg       {}}
+	{progresscommand.arg      {}}
+	{casesensitivestrings.arg {}}
     } result] 2 end] ;# Remove ? and help.
 
     set argc [llength $argv]
@@ -250,6 +251,13 @@ proc ::bibtex::GetOptions {argv statevar} {
     }
     if {![info exists state(-recordcommand)] && (!$sax)} {
 	set state(-recordcommand) [list ::bibtex::AddRecord]
+    }
+    if {[info exists state(-casesensitivestrings)] &&
+	$state(-casesensitivestrings)
+    } {
+	set state(casesensitivestrings) 1
+    } else {
+	set state(casesensitivestrings) 0
     }
     return
 }
@@ -363,19 +371,27 @@ proc ::bibtex::ParseRecords {token eof} {
 	    # Does anyone care?
 	    Callback $token comment $cmnt
 
-	} elseif {[regexp -nocase {\s*string[^\{]*\{(.*)\}[^\}]*} \
+	} elseif {[regexp -nocase {^\s*string[^\{]*\{(.*)\}[^\}]*} \
 		$block -> rest]} {
 	    # string macro defs
-	    Callback $token string [ParseBlock $rest]
-
+	    if {$data($token,casesensitivestrings)} {
+		Callback $token string [ParseString $rest]
+	    } else {
+		Callback $token string [ParseBlock $rest]
+	    }
 	} elseif {[regexp -nocase {\s*preamble[^\{]*\{(.*)\}[^\}]*} \
 		$block -> rest]} {
 	    Callback $token preamble $rest
 
 	} elseif {[regexp {([^\{]+)\{([^,]*),(.*)\}[^\}]*} \
 		$block -> type key rest]} {
-	    # Do any @string mappings (these are case insensitive)
-	    set rest [string map -nocase $data($token,strings) $rest]
+	    # Do any @string mappings
+	    if {$data($token,casesensitivestrings)} {
+		# puts $data($token,strings)
+		set rest [string map $data($token,strings) $rest]
+	    } else {
+		set rest [string map -nocase $data($token,strings) $rest]
+	    }
 	    Callback $token record [Tidy $type] [string trim $key] \
 		    [ParseBlock $rest]
 	} else {
@@ -383,6 +399,11 @@ proc ::bibtex::ParseRecords {token eof} {
 	    puts stderr "Skipping: $block"
 	}
     }
+}
+
+proc ::bibtex::ParseString {block} {
+    regexp {(\S+)[^=]*=(.*)} $block -> key rest
+    return [list $key $rest]
 }
 
 proc ::bibtex::ParseBlock {block} {
@@ -477,5 +498,5 @@ namespace eval bibtex {
 
 # ### ### ### ######### ######### #########
 ## Ready to go
-package provide bibtex 0.5
+package provide bibtex 0.6
 # EOF

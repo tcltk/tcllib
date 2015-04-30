@@ -38,7 +38,7 @@ package require sha1
 package require md5
 package require base64
 
-package provide S3 1.0.2
+package provide S3 1.0.3
 
 namespace eval S3 { 
     variable config          ; # A dict holding the current configuration.
@@ -321,7 +321,7 @@ proc S3::nextdo {routine thunk direction args} {
     } else {
 	if {[llength $args] == 2} {
 	    # fcopy failed!
-	    S3::fail "S3 fcopy failed: [lindex $args 1]" "" \
+	    S3::fail $thunk "S3 fcopy failed: [lindex $args 1]" "" \
 		[list S3 socket $errorCode]
 	} else {
 	    fileevent [dict get $thunk S3chan] $direction \

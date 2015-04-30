@@ -30,10 +30,10 @@ proc ::sak::readme::run {} {
     # of modules touched since the last release, as per the fossil
     # repository's commit log.
 
-    set trunk     [sak::review::Leaf trunk]            ;# rid
-    set release   [sak::review::YoungestOfTag release] ;# datetime
+    foreach {trunk   tuid} [sak::review::Leaf          trunk]   break ;# rid + uuid
+    foreach {release ruid} [sak::review::YoungestOfTag release] break ;# datetime+uuid
 
-    sak::review::AllParentsAfter $trunk $release -> rid {
+    sak::review::AllParentsAfter $trunk $tuid $release $ruid -> rid uuid {
 	sak::review::FileSet $rid -> path action {
 	    lappend modifiedm [lindex [file split $path] 1]
 	}
