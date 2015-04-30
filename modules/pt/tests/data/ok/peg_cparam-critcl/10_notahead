@@ -834,12 +834,14 @@ namespace eval ::PARSER {
 	{
 	    
 	    return;
+	#if 0
 	    long int pos;
 	    if (!p->ER) return;
 	    pos = 1 + (long int) rde_stack_top (p->LS);
 	    if (p->ER->loc != pos) return;
 	    error_set (p, s);
 	    p->ER->loc = pos;
+	#endif
 	}
 	SCOPE void
 	rde_param_i_error_pop_merge (RDE_PARAM p)

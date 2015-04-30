@@ -1742,7 +1742,7 @@ proc ::math::linearalgebra::determineSVD { A {epsilon 2.3e-16} } {
         foreach row $A {
             lappend U [lrange $row 0 $m]
         }
-        puts $U
+        #puts $U
     }
     return [list $U $S $V]
 }

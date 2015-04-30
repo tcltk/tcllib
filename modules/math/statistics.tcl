@@ -17,9 +17,10 @@
 # version 0.7:   added Kruskal-Wallis test (by Torsten Berg)
 # version 0.8:   added Wilcoxon test and Spearman rank correlation
 # version 0.9:   added kernel density estimation
+# version 0.9.3: added histogram-alt, corrected test-normal
 
 package require Tcl 8.4
-package provide math::statistics 0.9.2
+package provide math::statistics 1.0
 package require math
 
 if {![llength [info commands ::lrepeat]]} {
@@ -46,13 +47,14 @@ namespace eval ::math::statistics {
     # Safer: change to short procedures
     #
     namespace export mean min max number var stdev pvar pstdev basic-stats corr \
-	    histogram interval-mean-stdev t-test-mean quantiles \
+	    histogram histogram-alt interval-mean-stdev t-test-mean quantiles \
 	    test-normal lillieforsFit \
 	    autocorr crosscorr filter map samplescount median \
 	    test-2x2 print-2x2 control-xbar test_xbar \
 	    control-Rchart test-Rchart \
 	    test-Kruskal-Wallis analyse-Kruskal-Wallis group-rank \
-	    test-Wilcoxon spearman-rank spearman-rank-extended
+	    test-Wilcoxon spearman-rank spearman-rank-extended \
+	    test-Duckworth
     #
     # Error messages
     #
@@ -229,6 +231,71 @@ proc ::math::statistics::histogram { limits values {weights {}} } {
 	set found 0
 	foreach limit $limits {
 	    if { $value <= $limit } {
+		set found 1
+		set buckets($index) [expr $buckets($index)+$weight]
+		break
+	    }
+	    incr index
+	}
+
+	if { $found == 0 } {
+	    set buckets($last) [expr $buckets($last)+$weight]
+	}
+    }
+
+    set result {}
+    for { set index 0 } { $index <= $last } { incr index } {
+	lappend result $buckets($index)
+    }
+
+    return $result
+}
+
+# histogram-alt --
+#    Return histogram information from a list of numbers -
+#    intervals are open-ended at the lower bound instead of at the upper bound
+#
+# Arguments:
+#    limits   Upper limits for the buckets (in increasing order)
+#    values   List of values to be examined
+#    weights  List of weights, one per value (optional)
+#
+# Results:
+#    List of number of values in each bucket (length is one more than
+#    the number of limits)
+#
+#
+proc ::math::statistics::histogram-alt { limits values {weights {}} } {
+
+    if { [llength $limits] < 1 } {
+	return -code error -errorcode ARG -errorinfo {No limits given} {No limits given}
+    }
+    if { [llength $weights] > 0 && [llength $values] != [llength $weights] } {
+	return -code error -errorcode ARG -errorinfo {Number of weights be equal to number of values} {Weights and values differ in length}
+    }
+
+    set limits [lsort -real -increasing $limits]
+
+    for { set index 0 } { $index <= [llength $limits] } { incr index } {
+	set buckets($index) 0
+    }
+
+    set last [llength $limits]
+
+    # Will do integer arithmetic if unset
+    if {$weights eq ""} {
+       set weights [lrepeat [llength $values] 1]
+    }
+
+    foreach value $values weight $weights {
+	if { $value == {} } {
+	    continue
+	}
+
+	set index 0
+	set found 0
+	foreach limit $limits {
+	    if { $value < $limit } {
 		set found 1
 		set buckets($index) [expr $buckets($index)+$weight]
 		break
@@ -432,53 +499,62 @@ proc ::math::statistics::pnorm_quicker {x} {
 #
 # Arguments:
 #     data            Values that need to be tested
-#     confidence      ...
+#     significance    Level at which the discrepancy from normality is tested
 #
 # Result:
-#     1 if of the statistic D
+#     1 if the Lilliefors statistic D is larger than the critical level
 #
-proc ::math::statistics::test-normal {data confidence} {
+# Note:
+#     There was a mistake in the implementation before 0.9.3: confidence (wrong word)
+#     instead of significance. To keep compatibility with earlier versions, both
+#     significance and 1-significance are accepted.
+#
+proc ::math::statistics::test-normal {data significance} {
     set D [lillieforsFit $data]
 
+    if { $significance > 0.5 } {
+        set significance [expr {1.0-$significance}] ;# Convert the erroneous levels pre 0.9.3
+    }
+
     set Dcrit --
-    if { abs($confidence-0.80) < 0.0001 } {
+    if { abs($significance-0.20) < 0.0001 } {
         set Dcrit 0.741
     }
-    if { abs($confidence-0.85) < 0.0001 } {
+    if { abs($significance-0.15) < 0.0001 } {
         set Dcrit 0.775
     }
-    if { abs($confidence-0.90) < 0.0001 } {
+    if { abs($significance-0.10) < 0.0001 } {
         set Dcrit 0.819
     }
-    if { abs($confidence-0.95) < 0.0001 } {
+    if { abs($significance-0.05) < 0.0001 } {
         set Dcrit 0.895
     }
-    if { abs($confidence-0.99) < 0.0001 } {
+    if { abs($significance-0.01) < 0.0001 } {
         set Dcrit 1.035
     }
     if { $Dcrit != "--" } {
         return [expr {$D > $Dcrit ? 1 : 0 }]
     } else {
-        return -code error "Confidence level must be one of: 0.80, 0.85, 0.90, 0.95 or 0.99"
+        return -code error "Significancce level must be one of: 0.20, 0.15, 0.10, 0.05 or 0.01"
     }
 }
 
 # t-test-mean --
 #    Test whether the mean value of a sample is in accordance with the
-#    estimated normal distribution with a certain level of confidence
+#    estimated normal distribution with a certain probability
 #    (Student's t test)
 #
 # Arguments:
 #    data         List of raw data values (small sample)
 #    est_mean     Estimated mean of the distribution
 #    est_stdev    Estimated stdev of the distribution
-#    confidence   Confidence level (0.95 or 0.99 for instance)
+#    alpha        Probability level (0.95 or 0.99 for instance)
 #
 # Result:
 #    1 if the test is positive, 0 otherwise. If there are too few data,
 #    returns an empty string
 #
-proc ::math::statistics::t-test-mean { data est_mean est_stdev confidence } {
+proc ::math::statistics::t-test-mean { data est_mean est_stdev alpha } {
     variable NEGSTDEV
     variable TOOFEWDATA
 
@@ -488,7 +564,7 @@ proc ::math::statistics::t-test-mean { data est_mean est_stdev confidence } {
 
     set allstats        [BasicStats all $data]
 
-    set conf2           [expr {(1.0+$confidence)/2.0}]
+    set alpha2          [expr {(1.0+$alpha)/2.0}]
 
     set sample_mean     [lindex $allstats 0]
     set sample_number   [lindex $allstats 3]
@@ -499,7 +575,7 @@ proc ::math::statistics::t-test-mean { data est_mean est_stdev confidence } {
 	set degrees [expr {$sample_number-1}]
 	set prob    [cdf-students-t $degrees $tzero]
 
-	return [expr {$prob<$conf2}]
+	return [expr {$prob<$alpha2}]
 
     } else {
 	return -code error -errorcode DATA -errorinfo $TOOFEWDATA $TOOFEWDATA
@@ -1313,6 +1389,98 @@ proc ::math::statistics::test-Rchart { control data } {
 
     return $result
 }
+
+# test-Duckworth --
+#     Determine if two data sets have the same median according to the Tukey-Duckworth test
+#
+# Arguments:
+#     list1           Values in the first data set
+#     list2           Values in the second data set
+#     significance    Significance level (either 0.05, 0.01 or 0.001)
+#
+# Returns:
+#     0 if the medians are unequal, 1 if they are equal, -1 if the test can not
+#     be conducted (the smallest value must be in a different set than the greatest value)
+#
+proc ::math::statistics::test-Duckworth {list1 list2 significance} {
+    set sorted1   [lsort -real $list1]
+    set sorted2   [lsort -real -decreasing $list2]
+
+    set lowest1   [lindex $sorted1 0]
+    set lowest2   [lindex $sorted2 end]
+    set greatest1 [lindex $sorted1 end]
+    set greatest2 [lindex $sorted2 0]
+
+    if { $lowest1 <= $lowest2 && $greatest1 >= $greatest2 } {
+        return -1
+    }
+    if { $lowest1 >= $lowest2 && $greatest1 <= $greatest2 } {
+        return -1
+    }
+
+    #
+    # Determine how many elements of set 1 are lower than the lowest of set 2
+    # Ditto for the number of elements of set 2 greater than the greatest of set 1
+    # (Or vice versa)
+    #
+    if { $lowest1 < $lowest2 } {
+        set lowest   $lowest2
+        set greatest $greatest1
+    } else {
+        set lowest   $lowest1
+        set greatest $greatest2
+        set sorted1   [lsort -real $list2]
+        set sorted2   [lsort -real -decreasing $list1]
+        #lassign [list $sorted1 $sorted2] sorted2 sorted1
+    }
+
+    set count1 0
+    set count2 0
+    foreach v1 $sorted1 {
+        if { $v1 >= $lowest } {
+            break
+        }
+        incr count1
+    }
+    foreach v2 $sorted2 {
+        if { $v2 <= $greatest } {
+            break
+        }
+        incr count2
+    }
+
+    #
+    # Determine the statistic D, possibly with correction
+    #
+    set n1 [llength $list1]
+    set n2 [llength $list2]
+
+    set correction 0
+    if { 3 + 4*$n1/3 <= $n2 && $n2 <= 2*$n1 } {
+        set correction -1
+    }
+    if { 3 + 4*$n2/3 <= $n1 && $n1 <= 2*$n2 } {
+        set correction -1
+    }
+
+    set D [expr {$count1 + $count2 + $correction}]
+
+    switch -- [string trim $significance 0] {
+        ".05" {
+             return [expr {$D >= 7? 0 : 1}]
+        }
+        ".01" {
+             return [expr {$D >= 10? 0 : 1}]
+        }
+        ".001" {
+             return [expr {$D >= 13? 0 : 1}]
+        }
+        default {
+             return -code error "Significance level must be 0.05, 0.01 or 0.001"
+        }
+    }
+}
+
 
 #
 # Load the auxiliary scripts
