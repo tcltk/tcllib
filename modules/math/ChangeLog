@@ -1,3 +1,12 @@
+2015-04-29  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* statistics.tcl: Add test-Duckworth
+	* pdf_stat.tcl: Add empirical-distribution
+	* statistics.test: Add tests for test-Duckworth and empirical-distribution
+	* statistics.man: Describe test-Duckworth and empirical-distribution
+
+2015-04-28  Arjen Markus <arjenmarkus@users.sourceforge.net>
+	* statistics.tcl: Bump version to 1.0 - Aku found the cause of earlier problems
+
 2015-04-26  Arjen Markus <arjenmarkus@users.sourceforge.net>
 	* statistics.tcl: Bump version to 0.9.3
 	                  Implemented an alternative to histogram (ticket 1502400fff)
