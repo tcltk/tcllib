@@ -43,7 +43,7 @@
 
 package require msgcat
 
-# Try to load various C based accelerato packages for two of the
+# Try to load various C based accelerator packages for two of the
 # commands.
 
 if {[catch {package require ipMorec}]} {
@@ -749,7 +749,7 @@ proc ::ip::isOverlap {ip args} {
 #        non-zero if there is an overlap, value is element # in list with overlap
 #
 # Description:
-#        isOverlapNative is avaliabel both as a C extension and in a native tcl form
+#        isOverlapNative is available both as a C extension and in a native tcl form
 #        if the extension is loaded (tried automatically), isOverlapNative will be
 #        linked to isOverlapNativeC. If an extension is not loaded, then isOverlapNative
 #        will be linked to the native tcl proc: ipOverlapNativeTcl.
