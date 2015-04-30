@@ -14,18 +14,22 @@
 #
 namespace eval ::math::statistics {
 
-    namespace export pdf-normal pdf-uniform \
+    namespace export pdf-normal pdf-uniform pdf-lognormal \
 	    pdf-exponential \
-	    cdf-normal cdf-uniform \
+	    cdf-normal cdf-uniform cdf-lognormal \
 	    cdf-exponential \
 	    cdf-students-t \
-	    random-normal random-uniform \
+	    random-normal random-uniform random-lognormal \
 	    random-exponential \
 	    histogram-uniform \
 	    pdf-gamma pdf-poisson pdf-chisquare pdf-students-t pdf-beta \
+	    pdf-weibull pdf-gumbel pdf-pareto pdf-cauchy \
 	    cdf-gamma cdf-poisson cdf-chisquare cdf-beta \
+	    cdf-weibull cdf-gumbel cdf-pareto cdf-cauchy \
 	    random-gamma random-poisson random-chisquare random-students-t random-beta \
-	    incompleteGamma incompleteBeta
+	    random-weibull random-gumbel random-pareto random-cauchy \
+	    incompleteGamma incompleteBeta \
+	    estimate-pareto empirical-distribution
 
     variable cdf_normal_prob     {}
     variable cdf_normal_x        {}
@@ -57,6 +61,36 @@ proc ::math::statistics::pdf-normal { mean stdev x } {
 
     set xn   [expr {($x-$mean)/$stdev}]
     set prob [expr {exp(-$xn*$xn/2.0)/$stdev/$factorNormalPdf}]
+
+    return $prob
+}
+
+# pdf-lognormal --
+#    Return the probabilities belonging to a log-normal distribution
+#
+# Arguments:
+#    mean     Mean of the distribution
+#    stdev    Standard deviation
+#    x        Value for which the probability must be determined
+#
+# Result:
+#    Probability of value x under the given distribution
+#
+proc ::math::statistics::pdf-lognormal { mean stdev x } {
+    variable NEGSTDEV
+    variable factorNormalPdf
+
+    if { $stdev <= 0.0 || $mean <= 0.0 } {
+	return -code error -errorcode ARG \
+		-errorinfo "Standard deviation and mean must be positive" \
+		"Standard deviation and mean must be positive"
+    }
+
+    set sigma [expr {sqrt(log(1.0 + $stdev /double($mean*$mean)))}]
+    set mu    [expr {log($mean) - 0.5 * $sigma * $sigma}]
+
+    set xn   [expr {(log($x)-$mu)/$sigma}]
+    set prob [expr {exp(-$xn*$xn/2.0)/$sigma/$factorNormalPdf}]
 
     return $prob
 }
@@ -138,6 +172,41 @@ proc ::math::statistics::cdf-normal { mean stdev x } {
     }
 
     set xn    [expr {($x-double($mean))/$stdev}]
+    set prob1 [Cdf-toms322 1 5000 [expr {$xn*$xn}]]
+    if { $xn > 0.0 } {
+	set prob [expr {0.5+0.5*$prob1}]
+    } else {
+	set prob [expr {0.5-0.5*$prob1}]
+    }
+
+    return $prob
+}
+
+
+# cdf-lognormal --
+#    Return the cumulative probability belonging to a log-normal distribution
+#
+# Arguments:
+#    mean     Mean of the distribution
+#    stdev    Standard deviation
+#    x        Value for which the probability must be determined
+#
+# Result:
+#    Probability of value x under the given distribution
+#
+proc ::math::statistics::cdf-lognormal { mean stdev x } {
+    variable NEGSTDEV
+
+    if { $stdev <= 0.0 || $mean <= 0.0 } {
+	return -code error -errorcode ARG \
+		-errorinfo "Standard deviation and mean must be positive" \
+		"Standard deviation and mean must be positive"
+    }
+
+    set sigma [expr {sqrt(log(1.0 + $stdev /double($mean*$mean)))}]
+    set mu    [expr {log($mean) - 0.5 * $sigma * $sigma}]
+
+    set xn   [expr {(log($x)-$mu)/$sigma}]
     set prob1 [Cdf-toms322 1 5000 [expr {$xn*$xn}]]
     if { $xn > 0.0 } {
 	set prob [expr {0.5+0.5*$prob1}]
@@ -494,6 +563,59 @@ proc ::math::statistics::random-normal { mean stdev number } {
     return $result
 }
 
+
+
+# random-lognormal --
+#    Return a list of random numbers satisfying a log-normal
+#    distribution
+#
+# Arguments:
+#    mean      Mean of the distribution
+#    stdev     Standard deviation of the distribution
+#    number    Number of values to generate
+#
+# Result:
+#    List of random numbers
+#
+# Note:
+#    This version uses the Box-Muller transformation,
+#    a quick and robust method for generating normally-
+#    distributed numbers.
+#
+proc ::math::statistics::random-lognormal { mean stdev number } {
+    variable twopi
+
+    if { $stdev <= 0.0 || $mean <= 0.0 } {
+	return -code error -errorcode ARG \
+		-errorinfo "Standard deviation and mean must be positive" \
+		"Standard deviation and mean must be positive"
+    }
+
+    set sigma [expr {sqrt(log(1.0 + $stdev /double($mean*$mean)))}]
+    set mu    [expr {log($mean) - 0.5 * $sigma * $sigma}]
+
+#    set result {}
+#    for { set i 0 }  {$i < $number } { incr i } {
+#        lappend result [Inverse-cdf-normal $mean $stdev [expr {rand()}]]
+#    }
+
+    puts "Random-lognormal: $mu -- $sigma"
+
+    set result {}
+
+    for { set i 0 }  {$i < $number } { incr i 2 } {
+        set angle [expr {$twopi * rand()}]
+        set rad   [expr {sqrt(-2.0*log(rand()))}]
+        set xrand [expr {$rad * cos($angle)}]
+        set yrand [expr {$rad * sin($angle)}]
+        lappend result [expr {exp($mu + $sigma * $xrand)}]
+        if { $i < $number-1 } {
+            lappend result [expr {exp($mu + $sigma * $yrand)}]
+        }
+    }
+
+    return $result
+}
 
 # Cdf-toms322 --
 #    Calculate the cumulative density function for several distributions
@@ -973,10 +1095,10 @@ proc ::math::statistics::pdf-beta { a b x } {
     # Corner cases ... need to check these!
     #
     if {$x == 0.0} {
-        return 0.0
+        return [expr {$a > 1.0? 0.0 : Inf}]
     }
     if {$x == 1.0} {
-        return 0.0
+        return [expr {$b > 1.0? 0.0 : Inf}]
     }
     set aplusb [expr {$a + $b}]
     set term1 [expr {[::math::ln_Gamma $aplusb]- [::math::ln_Gamma $a] - [::math::ln_Gamma $b]}]
@@ -1112,6 +1234,107 @@ proc ::math::statistics::beta_cont_frac {a b x {tol 1.0e-9}} {
 }
 
 
+# pdf-weibull --
+#    Return the probabilities belonging to a Weibull distribution
+#
+# Arguments:
+#    scale     Scale parameter of the Weibull distribution
+#    shape     Shape parameter of the Weibull distribution
+#    x         Value of variate
+#
+# Result:
+#    Probability density of the given value of x to occur
+#
+# Note:
+#    "-$x ** $shape" is evaluated as "(-$x)**$shape", hence use a division
+#
+proc ::math::statistics::pdf-weibull { scale shape x } {
+    variable OUTOFRANGE
+
+    if { $x < 0 } {
+        return 0.0
+    }
+    if { $scale <= 0.0 || $shape <= 0.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE $OUTOFRANGE
+    }
+    set x [expr {$x / double($scale)}]
+    return [expr {$shape/double($scale) * pow($x,($shape-1.0)) / exp(pow($x,$shape))}]
+}
+
+
+# pdf-gumbel --
+#    Return the probabilities belonging to a Gumbel distribution
+#
+# Arguments:
+#    location  Location parameter of the Gumbel distribution
+#    scale     Scale parameter of the Gumbel distribution
+#    x         Value of variate
+#
+# Result:
+#    Probability density of the given value of x to occur
+#
+proc ::math::statistics::pdf-gumbel { location scale x } {
+    variable OUTOFRANGE
+
+    if { $scale <= 0.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE $OUTOFRANGE
+    }
+    set x [expr {($x - $location) / double($scale)}]
+    return [expr {exp(-$x - exp(-$x)) / $scale}]
+}
+
+
+# pdf-pareto --
+#    Return the probabilities belonging to a Pareto distribution
+#
+# Arguments:
+#    scale     Scale parameter of the Pareto distribution
+#    shape     Shape parameter of the Pareto distribution
+#    x         Value of variate
+#
+# Result:
+#    Probability density of the given value of x to occur
+#
+proc ::math::statistics::pdf-pareto { scale shape x } {
+    variable OUTOFRANGE
+
+    if { $x <= $scale } {
+        return 0.0
+    }
+    if { $scale <= 0.0 || $shape <= 0.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE $OUTOFRANGE
+    }
+    set x [expr {$x / double($scale)}]
+    return [expr {$shape / double($scale) / pow($x,($shape + 1.0))}]
+}
+
+
+# pdf-cauchy --
+#    Return the probabilities belonging to a Cauchy distribution
+#
+# Arguments:
+#    location  Location parameter of the Cauchy distribution
+#    scale     Scale parameter of the Cauchy distribution
+#    x         Value of variate
+#
+# Result:
+#    Probability density of the given value of x to occur
+#
+# Note:
+#    The Cauchy distribution does not have finite higher-order moments
+#
+proc ::math::statistics::pdf-cauchy { location scale x } {
+    variable OUTOFRANGE
+    variable pi
+
+    if { $scale <= 0.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE $OUTOFRANGE
+    }
+    set x [expr {($x - $location) / double($scale)}]
+    return [expr {1.0 / $pi / $scale / (1.0 +$x*$x)}]
+}
+
+
 # cdf-gamma --
 #    Return the cumulative probabilities belonging to a gamma distribution
 #
@@ -1195,13 +1418,108 @@ proc ::math::statistics::cdf-beta { a b x } {
 }
 
 
+# cdf-weibull --
+#    Return the cumulative probabilities belonging to a Weibull distribution
+#
+# Arguments:
+#    scale     Scale parameter of the Weibull distribution
+#    shape     Shape parameter of the Weibull distribution
+#    x         Value of variate
+#
+# Result:
+#    Cumulative probability of the given value of x to occur
+#
+proc ::math::statistics::cdf-weibull { scale shape x } {
+    variable OUTOFRANGE
+
+    if { $x <= 0 } {
+        return 0.0
+    }
+    if { $scale <= 0.0 || $shape <= 0.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE $OUTOFRANGE
+    }
+    set x [expr {$x / double($scale)}]
+    return [expr {1.0 - 1.0 / exp(pow($x,$shape))}]
+}
+
+
+# cdf-gumbel --
+#    Return the cumulative probabilities belonging to a Gumbel distribution
+#
+# Arguments:
+#    location  Location parameter of the Gumbel distribution
+#    scale     Scale parameter of the Gumbel distribution
+#    x         Value of variate
+#
+# Result:
+#    Cumulative probability of the given value of x to occur
+#
+proc ::math::statistics::cdf-gumbel { location scale x } {
+    variable OUTOFRANGE
+
+    if { $scale <= 0.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE $OUTOFRANGE
+    }
+    set x [expr {($x - $location) / double($scale)}]
+    return [expr {exp( -exp(-$x) )}]
+}
+
+
+# cdf-pareto --
+#    Return the cumulative probabilities belonging to a Pareto distribution
+#
+# Arguments:
+#    scale     Scale parameter of the Pareto distribution
+#    shape     Shape parameter of the Pareto distribution
+#    x         Value of variate
+#
+# Result:
+#    Cumulative probability density of the given value of x to occur
+#
+proc ::math::statistics::cdf-pareto { scale shape x } {
+    variable OUTOFRANGE
+
+    if { $x <= $scale } {
+        return 0.0
+    }
+    if { $scale <= 0.0 || $shape <= 0.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE $OUTOFRANGE
+    }
+    set x [expr {$x / double($scale)}]
+    return [expr {1.0 - 1.0 / pow($x,$shape)}]
+}
+
+
+# cdf-cauchy --
+#    Return the cumulative probabilities belonging to a Cauchy distribution
+#
+# Arguments:
+#    location  Scale parameter of the Cauchy distribution
+#    scale     Shape parameter of the Cauchy distribution
+#    x         Value of variate
+#
+# Result:
+#    Cumulative probability density of the given value of x to occur
+#
+proc ::math::statistics::cdf-cauchy { location scale x } {
+    variable OUTOFRANGE
+    variable pi
+
+    if { $scale <= 0.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE $OUTOFRANGE
+    }
+    set x [expr {($x - $location) / double($scale)}]
+    return [expr {0.5 + atan($x) / $pi}]
+}
+
+
 # random-gamma --
 #    Generate a list of gamma-distributed deviates
 #
 # Arguments:
 #    alpha     Shape parameter
 #    beta      Rate parameter
-#    x         Value of variate
+#    number    Number of values to return
 #
 # Result:
 #    List of random values
@@ -1459,6 +1777,202 @@ proc ::math::statistics::Randp_PTRS {mu number} {
         lappend retval $k
     }
     return $retval
+}
+
+
+# random-weibull --
+#    Generate a list of Weibull distributed deviates
+#
+# Arguments:
+#    scale     Scale parameter of the Weibull distribution
+#    shape     Shape parameter of the Weibull distribution
+#    number    Number of values to return
+#
+# Result:
+#    List of random values
+#
+proc ::math::statistics::random-weibull { scale shape number } {
+    variable OUTOFRANGE
+
+    if { $scale <= 0.0 || $shape <= 0.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE $OUTOFRANGE
+    }
+    set rshape [expr {1.0/$shape}]
+    set retval {}
+    for {set i 0} {$i < $number} {incr i} {
+        lappend retval [expr {$scale * pow( (-log(rand())),$rshape)}]
+    }
+    return $retval
+}
+
+
+# random-gumbel --
+#    Generate a list of Weibull distributed deviates
+#
+# Arguments:
+#    location  Location parameter of the Gumbel distribution
+#    scale     Scale parameter of the Gumbel distribution
+#    number    Number of values to return
+#
+# Result:
+#    List of random values
+#
+proc ::math::statistics::random-gumbel { location scale number } {
+    variable OUTOFRANGE
+
+    if { $scale <= 0.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE $OUTOFRANGE
+    }
+    set retval {}
+    for {set i 0} {$i < $number} {incr i} {
+        lappend retval [expr {$location - $scale * log(-log(rand()))}]
+    }
+    return $retval
+}
+
+
+# random-pareto --
+#    Generate a list of Pareto distributed deviates
+#
+# Arguments:
+#    scale     Scale parameter of the Pareto distribution
+#    shape     Shape parameter of the Pareto distribution
+#    number    Number of values to return
+#
+# Result:
+#    List of random values
+#
+proc ::math::statistics::random-pareto { scale shape number } {
+    variable OUTOFRANGE
+
+    if { $scale <= 0.0 || $shape <= 0.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE $OUTOFRANGE
+    }
+    set rshape [expr {1.0/$shape}]
+    set retval {}
+    for {set i 0} {$i < $number} {incr i} {
+        lappend retval [expr {$scale / pow(rand(),$rshape)}]
+    }
+    return $retval
+}
+
+
+# random-cauchy --
+#    Generate a list of Cauchy distributed deviates
+#
+# Arguments:
+#    location  Location parameter of the Cauchy distribution
+#    scale     Shape parameter of the Cauchy distribution
+#    number    Number of values to return
+#
+# Result:
+#    List of random values
+#
+proc ::math::statistics::random-cauchy { location scale number } {
+    variable OUTOFRANGE
+    variable pi
+
+    if { $scale <= 0.0 } {
+	return -code error -errorcode ARG -errorinfo $OUTOFRANGE $OUTOFRANGE
+    }
+    set retval {}
+    for {set i 0} {$i < $number} {incr i} {
+        lappend retval [expr {$location + $scale * tan( $pi * (rand() - 0.5))}]
+    }
+    return $retval
+}
+
+
+# estimate-pareto --
+#    Estimate the parameters of a Pareto distribution
+#
+# Arguments:
+#    values    Values that are supposed to be distributed according to Pareto
+#
+# Result:
+#    Estimates of the scale and shape parameters as well as the standard error
+#    for the shape parameter.
+#
+proc ::math::statistics::estimate-pareto { values } {
+    variable OUTOFRANGE
+    variable TOOFEWDATA
+
+    set nvalues  {}
+    set negative 0
+
+    foreach v $values {
+        if { $v != {} } {
+            lappend nvalues $v
+            if { $v <= 0.0 } {
+                set negative 1
+            }
+        }
+    }
+    if { [llength $nvalues] == 0 } {
+        return -code error -errorcode ARG -errorinfo $TOOFEWDATA $TOOFEWDATA
+    }
+    if { $negative } {
+        return -code error -errorcode ARG -errorinfo "One or more negative or zero values" $OUTOFRANGE
+    }
+
+    #
+    # Scale parameter
+    #
+    set scale [min $nvalues]
+
+    #
+    # Shape parameter
+    #
+    set n   [llength $nvalues]
+    set sum 0.0
+    foreach v $nvalues {
+        set sum [expr {$sum + log($v) - log($scale)}]
+    }
+    set shape [expr {$n / $sum}]
+
+    return [list $scale $shape [expr {$shape/sqrt($n)}]]
+}
+
+
+# empirical-distribution --
+#    Determine the empirical distribution
+#
+# Arguments:
+#    values    Values that are to be examined
+#
+# Result:
+#    List of sorted values and their empirical probability
+#
+# Note:
+#    The value of "a" is adopted from the corresponding Wikipedia page,
+#    which in turn adopted it from the R "stats" package (qqnorm function)
+#
+proc ::math::statistics::empirical-distribution { values } {
+    variable TOOFEWDATA
+
+    set n   [llength $values]
+
+    if { $n < 5 } {
+        return -code error -errorcode ARG -errorinfo $TOOFEWDATA $TOOFEWDATA
+    }
+
+    set a   0.375
+    if { $n > 10 } {
+        set a 0.5
+    }
+
+    set distribution {}
+    set idx          1
+    foreach x [lsort -real -increasing $values] {
+        if { $x != {} } {
+            set p [expr {($idx - $a) / ($n + 1 - 2.0 * $a)}]
+
+            lappend distribution $x $p
+            incr idx
+        }
+    }
+
+    return $distribution
 }
 
 
