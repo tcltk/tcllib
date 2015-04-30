@@ -1,4 +1,5 @@
-[manpage_begin math::calculus n 0.8]
+[vset VERSION 0.8.1]
+[manpage_begin math::calculus n [vset VERSION]]
 [see_also romberg]
 [keywords calculus]
 [keywords {differential equations}]
@@ -10,7 +11,7 @@
 [titledesc {Integration and ordinary differential equations}]
 [category  Mathematics]
 [require Tcl 8.4]
-[require math::calculus 0.8]
+[require math::calculus [vset VERSION]]
 [description]
 [para]
 This package implements several simple mathematical algorithms:

@@ -366,6 +366,9 @@ tcllib
 \fBcrc32\fR
 \fIfiles/modules/crc/crc32\&.n\fR: Perform a 32bit Cyclic Redundancy Check
 .TP
+\fBcron\fR
+\fIfiles/modules/cron/cron\&.n\fR: Tool for automating the period callback of commands
+.TP
 \fBcsv\fR
 \fIfiles/modules/csv/csv\&.n\fR: Procedures to handle CSV data\&.
 .TP
@@ -861,6 +864,9 @@ tcllib
 \fBncgi\fR
 \fIfiles/modules/ncgi/ncgi\&.n\fR: Procedures to manipulate CGI values\&.
 .TP
+\fBnettool\fR
+\fIfiles/modules/nettool/nettool\&.n\fR: Tools for networked applications
+.TP
 \fBnmea\fR
 \fIfiles/modules/nmea/nmea\&.n\fR: Process NMEA data
 .TP
@@ -938,6 +944,9 @@ tcllib
 .TP
 \fBpop3d::udb\fR
 \fIfiles/modules/pop3d/pop3d_udb\&.n\fR: Simple user database for pop3d
+.TP
+\fBprocessman\fR
+\fIfiles/modules/processman/processman\&.n\fR: Tool for automating the period callback of commands
 .TP
 \fBprofiler\fR
 \fIfiles/modules/profiler/profiler\&.n\fR: Tcl source code profiler

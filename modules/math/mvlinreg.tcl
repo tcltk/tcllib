@@ -5,7 +5,6 @@
 #     that allow it to be compatible with tcllib
 
 package require math::linearalgebra 1.0
-package require math::statistics 0.4
 
 # ::math::statistics --
 #     This file adds:
