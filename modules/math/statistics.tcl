@@ -20,7 +20,7 @@
 # version 0.9.3: added histogram-alt, corrected test-normal
 
 package require Tcl 8.4
-package provide math::statistics 0.9.3
+package provide math::statistics 1.0
 package require math
 
 if {![llength [info commands ::lrepeat]]} {
@@ -53,7 +53,8 @@ namespace eval ::math::statistics {
 	    test-2x2 print-2x2 control-xbar test_xbar \
 	    control-Rchart test-Rchart \
 	    test-Kruskal-Wallis analyse-Kruskal-Wallis group-rank \
-	    test-Wilcoxon spearman-rank spearman-rank-extended
+	    test-Wilcoxon spearman-rank spearman-rank-extended \
+	    test-Duckworth
     #
     # Error messages
     #
@@ -1388,6 +1389,98 @@ proc ::math::statistics::test-Rchart { control data } {
 
     return $result
 }
+
+# test-Duckworth --
+#     Determine if two data sets have the same median according to the Tukey-Duckworth test
+#
+# Arguments:
+#     list1           Values in the first data set
+#     list2           Values in the second data set
+#     significance    Significance level (either 0.05, 0.01 or 0.001)
+#
+# Returns:
+#     0 if the medians are unequal, 1 if they are equal, -1 if the test can not
+#     be conducted (the smallest value must be in a different set than the greatest value)
+#
+proc ::math::statistics::test-Duckworth {list1 list2 significance} {
+    set sorted1   [lsort -real $list1]
+    set sorted2   [lsort -real -decreasing $list2]
+
+    set lowest1   [lindex $sorted1 0]
+    set lowest2   [lindex $sorted2 end]
+    set greatest1 [lindex $sorted1 end]
+    set greatest2 [lindex $sorted2 0]
+
+    if { $lowest1 <= $lowest2 && $greatest1 >= $greatest2 } {
+        return -1
+    }
+    if { $lowest1 >= $lowest2 && $greatest1 <= $greatest2 } {
+        return -1
+    }
+
+    #
+    # Determine how many elements of set 1 are lower than the lowest of set 2
+    # Ditto for the number of elements of set 2 greater than the greatest of set 1
+    # (Or vice versa)
+    #
+    if { $lowest1 < $lowest2 } {
+        set lowest   $lowest2
+        set greatest $greatest1
+    } else {
+        set lowest   $lowest1
+        set greatest $greatest2
+        set sorted1   [lsort -real $list2]
+        set sorted2   [lsort -real -decreasing $list1]
+        #lassign [list $sorted1 $sorted2] sorted2 sorted1
+    }
+
+    set count1 0
+    set count2 0
+    foreach v1 $sorted1 {
+        if { $v1 >= $lowest } {
+            break
+        }
+        incr count1
+    }
+    foreach v2 $sorted2 {
+        if { $v2 <= $greatest } {
+            break
+        }
+        incr count2
+    }
+
+    #
+    # Determine the statistic D, possibly with correction
+    #
+    set n1 [llength $list1]
+    set n2 [llength $list2]
+
+    set correction 0
+    if { 3 + 4*$n1/3 <= $n2 && $n2 <= 2*$n1 } {
+        set correction -1
+    }
+    if { 3 + 4*$n2/3 <= $n1 && $n1 <= 2*$n2 } {
+        set correction -1
+    }
+
+    set D [expr {$count1 + $count2 + $correction}]
+
+    switch -- [string trim $significance 0] {
+        ".05" {
+             return [expr {$D >= 7? 0 : 1}]
+        }
+        ".01" {
+             return [expr {$D >= 10? 0 : 1}]
+        }
+        ".001" {
+             return [expr {$D >= 13? 0 : 1}]
+        }
+        default {
+             return -code error "Significance level must be 0.05, 0.01 or 0.001"
+        }
+    }
+}
+
 
 #
 # Load the auxiliary scripts
