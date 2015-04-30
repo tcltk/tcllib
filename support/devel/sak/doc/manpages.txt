@@ -40,6 +40,7 @@ modules/crc/cksum.man
 modules/crc/crc16.man
 modules/crc/crc32.man
 modules/crc/sum.man
+modules/cron/cron.man
 modules/csv/csv.man
 modules/debug/debug.man
 modules/debug/debug_caller.man
@@ -206,6 +207,7 @@ modules/mime/smtp.man
 modules/multiplexer/multiplexer.man
 modules/namespacex/namespacex.man
 modules/ncgi/ncgi.man
+modules/nettool/nettool.man
 modules/nmea/nmea.man
 modules/nns/nns_auto.man
 modules/nns/nns_client.man
@@ -232,6 +234,7 @@ modules/pop3/pop3.man
 modules/pop3d/pop3d.man
 modules/pop3d/pop3d_dbox.man
 modules/pop3d/pop3d_udb.man
+modules/processman/processman.man
 modules/profiler/profiler.man
 modules/pt/pt_astree.man
 modules/pt/pt_cparam_config_critcl.man

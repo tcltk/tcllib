@@ -201,6 +201,15 @@ test "Histogram-1.5" "Histogram - linear data 2 with weights" -match glob -body 
 } -result {1 1 8}
 
 #
+# Alternative definition of the intervals (ticket 1502400fff)
+# Note the difference in the expected bin sizes for the two
+#
+test "Histogram-2.1" "Histogram - alternative interval bounds" -match glob -body {
+  set values [concat [::math::statistics::histogram-alt {5.0 7.0} $::data_linear] \
+                     [::math::statistics::histogram     {5.0 7.0} $::data_linear]]
+} -result {4 2 4 5 2 3}
+
+#
 # Quantiles
 # Bug #1272910: related to rounding 0.5 - use different levels instead
 #               because another bug was fixed, return to the original
@@ -440,16 +449,16 @@ test "Testnormal-1.0" "Determine normality statistic for birth weight data" -mat
                                        142 132  87 123 133 106 103 118 114 94}
 } -result 0.82827415657
 
-test "Testnormal-1.0" "Test birthweight data for normality - 80%" -match tolerant -body {
+test "Testnormal-1.0" "Test birthweight data for normality - 20% significance" -match tolerant -body {
     ::math::statistics::test-normal {72 112 111 107 119  92 126  80 81 84 115
                                      118 128 128 123 116 125 126 122 126 127 86
-                                     142 132  87 123 133 106 103 118 114 94} 0.80
+                                     142 132  87 123 133 106 103 118 114 94} 0.20
 } -result 1
 
-test "Testnormal-1.0" "Test birthweight data for normality - 95%" -match tolerant -body {
+test "Testnormal-1.0" "Test birthweight data for normality - 5% significance" -match tolerant -body {
     ::math::statistics::test-normal {72 112 111 107 119  92 126  80 81 84 115
                                      118 128 128 123 116 125 126 122 126 127 86
-                                     142 132  87 123 133 106 103 118 114 94} 0.95
+                                     142 132  87 123 133 106 103 118 114 94} 0.05
 } -result 0
 
 #
