@@ -201,6 +201,15 @@ test "Histogram-1.5" "Histogram - linear data 2 with weights" -match glob -body 
 } -result {1 1 8}
 
 #
+# Alternative definition of the intervals (ticket 1502400fff)
+# Note the difference in the expected bin sizes for the two
+#
+test "Histogram-2.1" "Histogram - alternative interval bounds" -match glob -body {
+  set values [concat [::math::statistics::histogram-alt {5.0 7.0} $::data_linear] \
+                     [::math::statistics::histogram     {5.0 7.0} $::data_linear]]
+} -result {4 2 4 5 2 3}
+
+#
 # Quantiles
 # Bug #1272910: related to rounding 0.5 - use different levels instead
 #               because another bug was fixed, return to the original
@@ -440,17 +449,39 @@ test "Testnormal-1.0" "Determine normality statistic for birth weight data" -mat
                                        142 132  87 123 133 106 103 118 114 94}
 } -result 0.82827415657
 
-test "Testnormal-1.0" "Test birthweight data for normality - 80%" -match tolerant -body {
+test "Testnormal-1.0" "Test birthweight data for normality - 20% significance" -match exact -body {
     ::math::statistics::test-normal {72 112 111 107 119  92 126  80 81 84 115
                                      118 128 128 123 116 125 126 122 126 127 86
-                                     142 132  87 123 133 106 103 118 114 94} 0.80
+                                     142 132  87 123 133 106 103 118 114 94} 0.20
 } -result 1
 
-test "Testnormal-1.0" "Test birthweight data for normality - 95%" -match tolerant -body {
+test "Testnormal-1.0" "Test birthweight data for normality - 5% significance" -match exact -body {
     ::math::statistics::test-normal {72 112 111 107 119  92 126  80 81 84 115
                                      118 128 128 123 116 125 126 122 126 127 86
-                                     142 132  87 123 133 106 103 118 114 94} 0.95
+                                     142 132  87 123 133 106 103 118 114 94} 0.05
 } -result 0
+
+test "Test-Duckworth-1.0" "Test Tukey-Duckworth - 5% significance" -match exact -body {
+    set list1 {10 2 3 4 6}
+    set list2 {12 3 4 6}
+
+    ::math::statistics::test-Duckworth $list1 $list2 0.05
+} -result 1
+
+test "Test-Duckworth-1.1" "Test Tukey-Duckworth - symmetry" -match exact -body {
+    set list1 {1 2 3 4 5 6 7 8 9 10}
+    set list2 {6 7 8 9 10 11 12 13 14 15 16 17}
+
+    set result [list [::math::statistics::test-Duckworth $list1 $list2 0.05] \
+                     [::math::statistics::test-Duckworth $list2 $list1 0.05]]
+} -result {0 0}
+
+test "Test-Duckworth-1.2" "Test Tukey-Duckworth - applicability" -match exact -body {
+    set list1 {2 3 4 6 20}
+    set list2 {12 3 4 6}
+
+    ::math::statistics::test-Duckworth $list1 $list2 0.05
+} -result -1
 
 #
 # Testing multivariate linear regression
@@ -538,6 +569,34 @@ test "normal-distribution-1.1" "Test cdf-normal" -match tolerant -body {
         [::math::statistics::cdf-normal -2.0 2.0 0.0] \
         [::math::statistics::cdf-normal  2.0 2.0 3.0]]
 } -result {0.8413205502059895 0.8413205502059895 0.8413205502059895 0.8413205502059895 0.691451459572962}
+
+test "lognormal-distribution-1.0" "Test pdf-lognormal" -match tolerant -body {
+    foreach {mu sigma mean stdev} {0.0 1.0 mean1 stdev1 2.0 2.0 mean2 stdev2 -2.0 2.0 mean3 stdev3} {
+        set m      [expr {exp($mu + $sigma*$sigma/2.0)}]
+        set $mean  $m
+        set $stdev [expr {(exp($sigma*$sigma) - 1.0) * $m*$m}]
+    }
+
+    set x [list \
+        [::math::statistics::pdf-lognormal  $mean1 $stdev1 [expr {exp(1.0)}]] \
+        [::math::statistics::pdf-lognormal  $mean2 $stdev2 [expr {exp(4.0)}]] \
+        [::math::statistics::pdf-lognormal  $mean3 $stdev3 [expr {exp(0.0)}]] \
+        [::math::statistics::pdf-lognormal  $mean2 $stdev2 [expr {exp(3.0)}]]]
+} -result {0.24197072451914337 0.12098536225957168 0.12098536225957168 0.17603266338214976}
+
+test "lognormal-distribution-1.1" "Test cdf-lognormal" -match tolerant -body {
+    foreach {mu sigma mean stdev} {0.0 1.0 mean1 stdev1 2.0 2.0 mean2 stdev2 -2.0 2.0 mean3 stdev3} {
+        set m      [expr {exp($mu + $sigma*$sigma/2.0)}]
+        set $mean  $m
+        set $stdev [expr {(exp($sigma*$sigma) - 1.0) * $m*$m}]
+    }
+
+    set x [list \
+        [::math::statistics::cdf-lognormal  $mean1 $stdev1 [expr {exp(1.0)}]] \
+        [::math::statistics::cdf-lognormal  $mean2 $stdev2 [expr {exp(4.0)}]] \
+        [::math::statistics::cdf-lognormal  $mean3 $stdev3 [expr {exp(0.0)}]] \
+        [::math::statistics::cdf-lognormal  $mean2 $stdev2 [expr {exp(3.0)}]]]
+} -result {0.8413205502059895 0.8413205502059895 0.8413205502059895 0.691451459572962}
 
 test "gamma-distribution-1.0" "Test pdf-gamma" -match tolerant -body {
     set x [list \
@@ -628,34 +687,177 @@ test "beta-distribution-1.1" "Test cdf-beta" -match tolerant -body {
            0.5 1.0 0.8208}
 
 #
+# TODO: chose the tests with _integer_ arguments more carefully
+#
+test "gumbel-distribution-1.0" "Test pdf-gumbel" -match tolerant -body {
+    set x [list \
+        [::math::statistics::pdf-gumbel 1.0 1.0 0.0] \
+        [::math::statistics::pdf-gumbel 1.0 1.0 0.1] \
+        [::math::statistics::pdf-gumbel 1.0 1.0 0.2] \
+        [::math::statistics::pdf-gumbel 1.0 1.0 1.0] \
+        [::math::statistics::pdf-gumbel 1.0 1.0 2.0] \
+        [::math::statistics::pdf-gumbel 1.0 1.0 5.0] \
+        [::math::statistics::pdf-gumbel 0.1 2.0 0.0] \
+        [::math::statistics::pdf-gumbel 0.1 2.0 1.0] \
+        [::math::statistics::pdf-gumbel 0.1 2.0 2.0] \
+        [::math::statistics::pdf-gumbel 0.1 2.0 5.0] \
+        [::math::statistics::pdf-gumbel 1   1   5  ] ]
+} -result {0.179374 0.210219 0.240378 0.367879 0.254646 0.017983 0.183706 0.168507 0.131350 0.039580 0.017983}
+
+test "gumbel-distribution-1.1" "Test cdf-gumbel" -match tolerant -body {
+    set x [list \
+        [::math::statistics::cdf-gumbel 1.0 1.0 0.0] \
+        [::math::statistics::cdf-gumbel 1.0 1.0 0.2] \
+        [::math::statistics::cdf-gumbel 1.0 1.0 1.0] \
+        [::math::statistics::cdf-gumbel 1.0 1.0 2.0] \
+        [::math::statistics::cdf-gumbel 0.1 2.0 0.0] \
+        [::math::statistics::cdf-gumbel 0.1 2.0 1.0] \
+        [::math::statistics::cdf-gumbel 0.1 2.0 2.0] \
+        [::math::statistics::cdf-gumbel 1   1   2  ] ]
+} -result {0.065988 0.108009 0.367879 0.692201 0.349493 0.528544 0.679266 0.692201}
+
+test "weibull-distribution-1.0" "Test pdf-weibull" -match tolerant -body {
+    set x [list \
+        [::math::statistics::pdf-weibull 1.0 1.0 -1.0] \
+        [::math::statistics::pdf-weibull 1.0 1.0 0.0] \
+        [::math::statistics::pdf-weibull 1.0 1.0 0.1] \
+        [::math::statistics::pdf-weibull 1.0 1.0 0.2] \
+        [::math::statistics::pdf-weibull 1.0 1.0 1.0] \
+        [::math::statistics::pdf-weibull 1.0 1.0 2.0] \
+        [::math::statistics::pdf-weibull 1.0 1.0 5.0] \
+        [::math::statistics::pdf-weibull 2.0 2.0 0.0] \
+        [::math::statistics::pdf-weibull 2.0 2.0 1.0] \
+        [::math::statistics::pdf-weibull 2.0 2.0 2.0] \
+        [::math::statistics::pdf-weibull 2.0 2.0 5.0] ]
+} -result {0 1.0 0.904837 0.818730 0.367879 0.135335 0.006738 0 0.389400 0.367879 0.004826}
+
+test "weibull-distribution-1.1" "Test cdf-weibull" -match tolerant -body {
+    set x [list \
+        [::math::statistics::cdf-weibull 1.0 1.0 -1.0] \
+        [::math::statistics::cdf-weibull 1.0 1.0 0.0] \
+        [::math::statistics::cdf-weibull 1.0 1.0 0.2] \
+        [::math::statistics::cdf-weibull 1.0 1.0 1.0] \
+        [::math::statistics::cdf-weibull 1.0 1.0 2.0] \
+        [::math::statistics::cdf-weibull 2.0 2.0 0.0] \
+        [::math::statistics::cdf-weibull 2.0 2.0 1.0] \
+        [::math::statistics::cdf-weibull 2.0 2.0 2.0] \
+        [::math::statistics::cdf-weibull 2   2   2  ] ]
+} -result {0 0 0.181269 0.632106 0.864665 0 0.221199 0.632121 0.632121}
+
+test "pareto-distribution-1.0" "Test pdf-pareto" -match tolerant -body {
+    set x [list \
+        [::math::statistics::pdf-pareto 1.0 1.0 0.0] \
+        [::math::statistics::pdf-pareto 1.0 1.0 1.1] \
+        [::math::statistics::pdf-pareto 1.0 1.0 1.2] \
+        [::math::statistics::pdf-pareto 1.0 1.0 2.0] \
+        [::math::statistics::pdf-pareto 1.0 1.0 3.0] \
+        [::math::statistics::pdf-pareto 1.0 1.0 5.0] \
+        [::math::statistics::pdf-pareto 2.0 2.0 2.1] \
+        [::math::statistics::pdf-pareto 2.0 2.0 3.0] \
+        [::math::statistics::pdf-pareto 2.0 2.0 5.0] \
+        [::math::statistics::pdf-pareto 2.0 2.0 10.0] ]
+} -result {0 0.826446 0.694444 0.25 0.111111 0.04 0.863838 0.296296 0.064 0.008}
+
+test "pareto-distribution-1.1" "Test cdf-pareto" -match tolerant -body {
+    set x [list \
+        [::math::statistics::cdf-pareto 1.0 1.0 0.0] \
+        [::math::statistics::cdf-pareto 1.0 1.0 1.1] \
+        [::math::statistics::cdf-pareto 1.0 1.0 1.2] \
+        [::math::statistics::cdf-pareto 1.0 1.0 2.0] \
+        [::math::statistics::cdf-pareto 1.0 1.0 3.0] \
+        [::math::statistics::cdf-pareto 2.0 2.0 2.1] \
+        [::math::statistics::cdf-pareto 2.0 2.0 3.0] \
+        [::math::statistics::cdf-pareto 2.0 2.0 5.0] \
+        [::math::statistics::cdf-pareto 2   2   3  ] ]
+} -result {0 0.090909 0.1666667 0.5 0.666667 0.092971 0.555556 0.84 0.555556}
+
+test "cauchy-distribution-1.0" "Test pdf-cauchy" -match tolerant -body {
+    set x [list \
+        [::math::statistics::pdf-cauchy 1.0 1.0 0.0] \
+        [::math::statistics::pdf-cauchy 2.0 1.0 1.0] \
+        [::math::statistics::pdf-cauchy 1.0 2.0 2.0] \
+        [::math::statistics::pdf-cauchy 2.0 2.0 2.0] ]
+} -result {0.1591555 0.1591555 0.1273240 0.1591550}
+
+test "cauchy-distribution-1.1" "Test cdf-cauchy" -match tolerant -body {
+    set x [list \
+        [::math::statistics::cdf-cauchy 1.0 1.0 0.0] \
+        [::math::statistics::cdf-cauchy 2.0 1.0 1.0] \
+        [::math::statistics::cdf-cauchy 1.0 2.0 2.0] \
+        [::math::statistics::cdf-cauchy 2.0 2.0 2.0] ]
+} -result {0.25 0.25 0.6475836 0.5}
+
+test "empirical-distribution-1.0" "Test empirical-distribution" -match tolerant -body {
+    set x {10 4 3 2 5 6 7}
+    set distribution [::math::statistics::empirical-distribution $x]
+} -result {2 0.086207 3 0.224138 4 0.36207 5 0.5 6 0.637910 7 0.775862 10 0.913793}
+
+#
 # Crude tests for the random number generators
 # Mainly to verify that there are no obvious errors
 #
+# To verify that the values are scaled properly, use a fixed seed
+#
+set ::rseed 1000000
+
 test "random-numbers-1.0" "Test random-uniform" -body {
+    expr {srand($::rseed)}
+
     set rnumbers [::math::statistics::random-uniform 0 10 100]
 
-    set result 1
+    set inrange 1
     foreach r $rnumbers {
         if { $r < 0.0 || $r > 10.0 } {
-            result 0
+            set inrange 0
             break
         }
     }
-    lappend result [llength $rnumbers]
-} -result {1 100}
+
+    expr {srand($::rseed)}
+    set scaled    1
+    set rnumbers2 [::math::statistics::random-uniform 0 20 100]
+    foreach r1 $rnumbers r2 $rnumbers2 {
+        set scale [expr {$r2 / $r1}]
+        if { abs($scale - 2.0) > 0.00001 } {
+            set scaled 0
+        }
+    }
+    expr {srand($::rseed)}
+    set shifted   1
+    set rnumbers3 [::math::statistics::random-uniform 10 20 100]
+    foreach r1 $rnumbers r3 $rnumbers3 {
+        set shift [expr {$r3 - $r1}]
+        if { abs($shift - 10.0) > 0.00001 } {
+            set shifted 0
+        }
+    }
+
+    set result [list $inrange [llength $rnumbers] $scaled $shifted]
+} -result {1 100 1 1}
 
 test "random-numbers-1.1" "Test random-exponential" -body {
+    expr {srand($::rseed)}
     set rnumbers [::math::statistics::random-exponential 1 100]
 
-    set result 1
+    set inrange 1
     foreach r $rnumbers {
         if { $r < 0.0 } {
-            result 0
+            set inrange 0
             break
         }
     }
-    lappend result [llength $rnumbers]
-} -result {1 100}
+
+    expr {srand($::rseed)}
+    set scaled    1
+    set rnumbers2 [::math::statistics::random-exponential 2 100]
+    foreach r1 $rnumbers r2 $rnumbers2 {
+        set scale [expr {$r2 / $r1}]
+        if { abs($scale - 2.0) > 0.00001 } {
+            set scaled 0
+        }
+    }
+    set result [list $inrange [llength $rnumbers] $scaled]
+} -result {1 100 1}
 
 test "random-numbers-1.2" "Test random-normal" -body {
     set rnumbers [::math::statistics::random-normal 0 1 100]
@@ -693,6 +895,44 @@ test "random-numbers-1.7" "Test random-beta" -body {
     }
     lappend result [llength $rnumbers]
 } -result {1 100}
+
+test "random-numbers-1.8" "Test random-gumbel" -body {
+    set rnumbers [::math::statistics::random-gumbel 1.0 3.0 100]
+    set result [llength $rnumbers]
+} -result 100
+
+test "random-numbers-1.9" "Test random-weibull" -body {
+    set rnumbers [::math::statistics::random-weibull 1.0 3.0 100]
+    set result [llength $rnumbers]
+} -result 100
+
+test "random-numbers-1.10" "Test random-pareto" -body {
+    set rnumbers [::math::statistics::random-pareto 1.0 3.0 100]
+    set result 1
+    foreach r $rnumbers {
+        if { $r < 1.0 } {
+            result 0
+            break
+        }
+    }
+    lappend result [llength $rnumbers]
+} -result {1 100}
+
+test "random-numbers-1.11" "Test random-lognormal" -body {
+    set rnumbers [::math::statistics::random-lognormal 1 1 100]
+    set result [llength $rnumbers]
+} -result 100
+
+test "random-numbers-1.11" "Test random-cauchy" -body {
+    set rnumbers [::math::statistics::random-cauchy 0 1 100]
+    set result [llength $rnumbers]
+} -result 100
+
+test "random-numbers-2.1" "Test estimate-pareto" -match tolerant -body {
+    expr {srand($::rseed)}
+    set rnumbers [::math::statistics::random-pareto 1.0 3.0 100]
+    set result   [::math::statistics::estimate-pareto $rnumbers]
+} -result {1.000519 3.668162 0.3668162}
 
 test "kruskal-wallis-1.0" "Test analysis Kruskal-Wallis" -match tolerant -body {
     ::math::statistics::analyse-Kruskal-Wallis {6.4 6.8 7.2 8.3 8.4 9.1 9.4 9.7} {2.5 3.7 4.9 5.4 5.9 8.1 8.2} {1.3 4.1 4.9 5.2 5.5 8.2}
