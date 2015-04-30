@@ -15,7 +15,7 @@ if { $::tcl_platform(platform) eq "windows" } {
   # with either TclX or Odielib
   ###
   if [catch {package require odielib}] {
-    catch {package require tclx}
+    catch {package require Tclx}
   }
   if {[info command subprocess_exists] eq {}} {
     proc ::processman::subprocess_exists pid {
