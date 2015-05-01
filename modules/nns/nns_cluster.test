@@ -15,6 +15,8 @@ package require tcltest
 testsNeedTcl     8
 testsNeedTcltest 1.0
 
+set ::WHOAMI Main
+
 support {
   use comm/comm.tcl comm 
   use nettool/nettool.tcl nettool
@@ -35,7 +37,8 @@ interp create server
 interp eval server [list set testutilsscript $testutilsscript]
 interp eval server {
   source $testutilsscript
-  
+  set ::WHOAMI Server
+
   package require tcltest
   testsNeedTcl     8
   testsNeedTcltest 1.0
@@ -55,8 +58,15 @@ interp eval server {
   ::nameserv::cluster::start
 }
 
-::cluster::nameserv_connect
 set macid [::cluster::self]
+###
+# Do a discovery lookup
+###
+#  If uncommented, bypass discovery
+#  set ::cluster::nameserv_mac $macid
+#  set ::cluster::nameserv_ip 127.0.0.1
+###
+::cluster::nameserv_connect
 set myport [::nettool::allocate_port 10000]
 
 set data [::nameserv::search *]
@@ -104,18 +114,75 @@ test cluster-comm-2.4 {Modify a service} {
   dict get $data foo@bar color
 } {blue}
 
+
+###
+# Create another client in a seperate interp
+###
+interp create otherclient
+interp eval otherclient [list set testutilsscript $testutilsscript]
+interp eval otherclient {
+  source $testutilsscript
+  set ::WHOAMI Other
+  
+  package require tcltest
+  testsNeedTcl     8
+  testsNeedTcltest 1.0
+  
+  support {
+    use comm/comm.tcl comm 
+    use nettool/nettool.tcl nettool
+    use cron/cron.tcl cron 
+  
+  }
+  testing {
+      useLocal nns.tcl nameserv
+      useLocal common.tcl nameserv::common
+      useLocal server.tcl nameserv::server
+      useLocal nns_cluster.tcl nameserv::cluster
+  }
+
+  ###
+  # Cheat and let this server know the server is local
+  ###
+  set macid [::cluster::self]
+  set ::cluster::nameserv_mac $macid
+  set ::cluster::nameserv_ip 127.0.0.1
+  ::cluster::nameserv_connect
+  set myport [::nettool::allocate_port 10000]
+  
+  set url other@$macid
+  ::comm::comm new $url -port $myport -local 0 -listen 1
+  ::nameserv::bind $url [list port $myport class comm]
+  ::cluster::publish $url [list port $myport class comm]
+}
+
+set data [::nameserv::search *]
+test cluster-comm-3.0 {Publish service - NNS} {
+  dict exists $data nns@[::cluster::self]
+} {1}
+test cluster-comm-3.1 {Check that new service does exists} {
+  dict exists $data foo@bar
+} {1}
+test cluster-comm-3.3 {Check that other service does exists} {
+  dict exists $data other@[::cluster::self]
+} {1}
+
+test cluster-comm-3.3 {Check that other service does exists} {
+  set chan [::cluster::resolve other@[::cluster::self]]
+  ::comm::comm send $chan {set foo b}
+} {b}
+
 ###
 # Remove the phony service
 ###
 ::cluster::unpublish foo@bar {}
 set data [::nameserv::search *]
-test cluster-comm-3.0 {Publish service - NNS} {
+test cluster-comm-4.0 {Publish service - NNS} {
   dict exists $data nns@[::cluster::self]
 } {1}
-test cluster-comm-3.1 {Check that service is closed} {
+test cluster-comm-4.1 {Check that service is closed} {
   dict exists $data foo@bar closed
 } {1}
-
 
 testsuiteCleanup
 return

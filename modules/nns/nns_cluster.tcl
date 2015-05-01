@@ -106,7 +106,7 @@ proc ::cluster::nameserv_connect {} {
   set timeoutevent [after 120000 [list set $replyvar timeout]]
   for {set x 1} {$x < 120} {incr x} {
     ::cluster::broadcast [list ?NAMESERV $myport]
-    after 1000 {set NEXTBCAST 1}
+    after 250 {set NEXTBCAST 1}
     vwait NEXTBCAST
     if {[set $replyvar] ni {{} timeout}} break
   }
@@ -200,6 +200,8 @@ proc ::cluster::resolve rawname {
   set found 0
   nameserv_connect
   foreach {servname dat} [nameserv::search [cname $rawname]] {
+    # Ignore services in the process of closing
+    if {[dict exists $dat closed] && [dict get $dat closed]} closed
     if {![dict exists $dat ipaddr]} {
       set ipaddr [ipaddr [lindex [split $servname @] 1]]
     } else {
