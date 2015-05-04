@@ -9,6 +9,7 @@ package require Tcl 8.5
 package require comm             ; # Generic message transport
 package require interp           ; # Interpreter helpers.
 package require logger           ; # Tracing internal activity
+package require nameserv         ; # Singleton utilities
 package require nameserv::common ; # Common/shared utilities
 package require nameserv::server ; # Singleton utilities
 package require cron
@@ -34,7 +35,7 @@ proc ::cluster::broadcast args {
   }
   foreach net [::nettool::broadcast_list] {
     set sock [udp_open]
-    fconfigure $sock -broadcast 1 -remote [list $net $port]
+    fconfigure $sock -broadcast 1 -remote [list $net $port] -ttl 31
     puts -nonewline $sock $msg
     flush $sock
     close $sock
@@ -155,6 +156,7 @@ proc ::cluster::publish {url infodict} {
   nameserv_connect
   variable url_info
   dict set infodict macid [self]
+  dict set infodict pid [pid]
   set url_info($url) $infodict
   broadcast [list +SERVICE $url $infodict]
   ::cron::every cluster_heartbeat 30 ::cluster::heartbeat
@@ -193,16 +195,23 @@ proc ::cluster::configure {url infodict {send 1}} {
   }
 }
 
+proc ::cluster::log {url info} {
+  broadcast [list LOG $url $info]
+}
+
 ###
 # topic: 2c04e58c7f93798f9a5ed31a7f5779ab
 ###
 proc ::cluster::resolve rawname {
   set found 0
   nameserv_connect
+  set self [self]
   foreach {servname dat} [nameserv::search [cname $rawname]] {
     # Ignore services in the process of closing
-    if {[dict exists $dat closed] && [dict get $dat closed]} closed
-    if {![dict exists $dat ipaddr]} {
+    if {[dict exists $dat closed] && [dict get $dat closed]} continue
+    if {[dict getnull $dat macid] eq $self} {
+      set ipaddr 127.0.0.1
+    } elseif {![dict exists $dat ipaddr]} {
       set ipaddr [ipaddr [lindex [split $servname @] 1]]
     } else {
       set ipaddr [dict get $dat ipaddr]
@@ -234,9 +243,16 @@ proc ::cluster::self {} {
 ###
 # topic: f1b71ff12a8ac10373c67ac5d973cd81
 ###
-proc ::cluster::send {service command} {
+proc ::cluster::send {service command args} {
   set commid [resolve $service]
-  return [::comm::comm send $commid $command]
+  return [::comm::comm send $commid $command {*}$args]
+}
+
+proc ::cluster::throw {service command args} {
+  set commid [resolve $service]
+  if [catch {::comm::comm send -async $commid $command {*}$args} reply] {
+    puts $stderr "ERR: SEND $service $reply"
+  }
 }
 
 ###
@@ -307,15 +323,21 @@ proc ::nameserv::cluster::UDPPacket sock {
         ::cluster::broadcast [list +SERVICE $name $dat]
       }
     }
+    LOG {
+      Service_Log [lindex $packet 1] [lindex $packet 2]
+    }
     ?NAMESERV {
-      set replyport [lindex $packet 1]
-      set sout [socket [lindex $peer 0] $replyport]
-      fconfigure $sout -buffering none -translation binary -blocking 0
-      puts $sout [list +NAMESERV [::cluster::self]]
-      flush $sout
-      close $sout
+      after idle [list ::nameserv::cluster::NAMESERV_REPLY [lindex $peer 0] [lindex $packet 1]]
     }
   }
+}
+
+proc ::nameserv::cluster::NAMESERV_REPLY {ipaddr port} {
+  set sout [socket $ipaddr $port]
+  fconfigure $sout -buffering none -translation binary -blocking 0
+  puts $sout [list +NAMESERV [::cluster::self]]
+  flush $sout
+  close $sout
 }
 
 proc ::nameserv::cluster::Service_Add {service data} {
@@ -330,8 +352,13 @@ proc ::nameserv::cluster::Service_Modified {service data} {
   # Code to register the loss of a service
 }
 
+proc ::nameserv::cluster::Service_Log {service data} {
+  # Code to register an event
+}
+
 proc ::nameserv::cluster::start {} {
   variable udp_sock
+  package require nameserv::common
   package require nameserv::server
   set macid [::cluster::self]
   set ::cluster::nameserv_mac $macid
@@ -348,7 +375,7 @@ proc ::nameserv::cluster::start {} {
   set ::cluster::nameserve(local) 1
   ::comm::commDebug {puts stderr "<cluster> <$macid> ACTING AS LOCAL NETWORK NAME SERVER"}
   ::nameserv::configure -host 127.0.0.1
-  ::cluster::publish nns@${macid} [list port $::cluster::discovery_port class nns pid [pid]]
+  ::cluster::publish nns@${macid} [list port $::cluster::discovery_port class nns protocol comm]
   ::cron::every nnsd_cleanup 300 ::nameserv::cluster::CleanupExpired
 }
 
