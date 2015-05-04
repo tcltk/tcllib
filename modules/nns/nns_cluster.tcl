@@ -280,8 +280,12 @@ proc ::nameserv::server::Search pattern {
 }
 
 proc ::nameserv::cluster::CleanupExpired {} {
-  unset -nocomplain ptpdata([lindex $packet 1])
-
+  variable ptpdata
+  foreach {item info} [array get ptpdata] {
+    if {[dict exists $info closed] && [dict get $info closed]} {
+      unset ptpdata($item)
+    }
+  }
 }
 ###
 # topic: 0e266ce779660e4751f990dbdda07ca4
@@ -292,7 +296,6 @@ proc ::nameserv::cluster::UDPPacket sock {
   set peer [fconfigure $sock -peer]
   if {![string is ascii $packet]} return
   if {![::info complete $packet]} return
-  #puts [list UDPPacket $packet]
   switch -- [string toupper [lindex $packet 0]] {
     -SERVICE {
       foreach {field value} [lindex $packet 2] {
