@@ -152,8 +152,8 @@ interp eval otherclient {
   
   set url other@$macid
   ::comm::comm new $url -port $myport -local 0 -listen 1
-  ::nameserv::bind $url [list port $myport class comm]
-  ::cluster::publish $url [list port $myport class comm]
+  ::nameserv::bind $url [list port $myport protocol comm class comm]
+  ::cluster::publish $url [list port $myport protocol comm class comm]
 }
 
 set data [::nameserv::search *]
