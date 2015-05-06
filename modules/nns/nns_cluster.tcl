@@ -104,19 +104,25 @@ proc ::cluster::nameserv_connect {} {
     if {![catch {socket -server [namespace current]::NameServConnect $myport} tcp_sock]} break
   }
   ::comm::commDebug {puts stderr "<cluster> Listening for namserver reply on port <$myport>"}
-  set timeoutevent [after 120000 [list set $replyvar timeout]]
-  for {set x 1} {$x < 120} {incr x} {
-    ::cluster::broadcast [list ?NAMESERV $myport]
-    after 250 {set NEXTBCAST 1}
-    vwait NEXTBCAST
-    if {[set $replyvar] ni {{} timeout}} break
+  set starttime [clock seconds]
+  while 1 {
+    ::cluster::broadcast [list ?NAMESERV $myport [get nameserv_mac]]
+    update
+    if {[set $replyvar] != {}} break
+    update
+    if {[set $replyvar] != {}} break
+    update
+    if {[set $replyvar] != {}} break
+    update
+    if {[set $replyvar] != {}} break
+    if {([clock seconds] - $startime) > 120} {
+      error "Could not locate a local dispatch service"
+    }
   }
   close $tcp_sock
   ::nettool::release_port $myport
-  if {[set $replyvar] in {{} timeout}} {
-    error "Could not locate a local dispatch service"
-  }
   set nameserv_ip [set $replyvar]
+  puts "NAMESERVE IP $nameserv_ip"
   ::comm::commDebug {puts stderr "<cluster> NAMESERV AT <$nameserv_ip>"}
   ::nameserv::configure -host $nameserv_ip
   # Rediscover the nameserver in 5 minutes
@@ -127,14 +133,23 @@ proc ::cluster::nameserv_connect {} {
 # topic: 2a33c825920162b0791e2cdae62e6164
 ###
 proc ::cluster::NameServConnect {channel peer clientport} {
+  variable nameserv_mac
   fconfigure $channel -buffering none -translation binary -blocking 1
   set packet [read $channel]
   close $channel
   if {![string is ascii $packet]} return
   if {![::info complete $packet]} return
-  puts [list DISCOVERY REPLY from $peer $packet]
   set msgtype [lindex $packet 0]
-  if { $msgtype eq "+NAMESERV" } {
+  puts [list DISCOVERY REPLY from $peer $msgtype $packet]
+  if { $msgtype ne "+NAMESERV" } return
+  if {[get nameserver_mac] ne {}} {
+    if { $nameserver_mac != [lindex $packet 1] } return
+  }
+  puts [list NAMESERVER FOUND from $peer $msgtype $packet]
+  ###
+  # Prefer a local nameserver
+  ###
+  if {$::cluster::nameserv_reply ne "127.0.0.1"} {
     set ::cluster::nameserv_reply $peer
   }
 }
@@ -209,7 +224,7 @@ proc ::cluster::resolve rawname {
   foreach {servname dat} [nameserv::search [cname $rawname]] {
     # Ignore services in the process of closing
     if {[dict exists $dat closed] && [dict get $dat closed]} continue
-    if {[dict getnull $dat macid] eq $self} {
+    if {[dict exists $dat macid] && [dict get $dat macid] eq $self} {
       set ipaddr 127.0.0.1
     } elseif {![dict exists $dat ipaddr]} {
       set ipaddr [ipaddr [lindex [split $servname @] 1]]
@@ -329,8 +344,18 @@ proc ::nameserv::cluster::UDPPacket sock {
     LOG {
       Service_Log [lindex $packet 1] [lindex $packet 2]
     }
+    ?WHOIS {
+      puts "WHOIS REQUEST FROM $peer"
+      set wmacid [lindex $packet 1]
+      if { $wmacid eq [::cluster::self] } {
+        ::nameserv::cluster::WHOIS_REPLY [lindex $peer 0] [lindex $packet 1]        
+      }
+    }
     ?NAMESERV {
       puts "DISCOVERY REQUEST FROM $peer"
+      if {[lindex $packet 2] ne {}} {
+        if {[lindex $packet 2] ne [::cluster::self]} return
+      }
       ::nameserv::cluster::NAMESERV_REPLY [lindex $peer 0] [lindex $packet 1]
     }
   }
@@ -340,6 +365,14 @@ proc ::nameserv::cluster::NAMESERV_REPLY {ipaddr port} {
   set sout [socket $ipaddr $port]
   fconfigure $sout -buffering none -translation binary -blocking 0
   puts $sout [list +NAMESERV [::cluster::self]]
+  flush $sout
+  close $sout
+}
+
+proc ::nameserv::cluster::WHOIS_REPLY {ipaddr port} {
+  set sout [socket $ipaddr $port]
+  fconfigure $sout -buffering none -translation binary -blocking 0
+  puts $sout [list +WHOIS [::cluster::self]]
   flush $sout
   close $sout
 }
