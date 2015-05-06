@@ -132,6 +132,7 @@ proc ::cluster::NameServConnect {channel peer clientport} {
   close $channel
   if {![string is ascii $packet]} return
   if {![::info complete $packet]} return
+  puts [list DISCOVERY REPLY from $peer $packet]
   set msgtype [lindex $packet 0]
   if { $msgtype eq "+NAMESERV" } {
     set ::cluster::nameserv_reply $peer
@@ -153,7 +154,6 @@ proc ::cluster::NameServReply {sock replyvar} {
 }
 
 proc ::cluster::publish {url infodict} {
-  nameserv_connect
   variable url_info
   dict set infodict macid [self]
   dict set infodict pid [pid]
@@ -330,7 +330,8 @@ proc ::nameserv::cluster::UDPPacket sock {
       Service_Log [lindex $packet 1] [lindex $packet 2]
     }
     ?NAMESERV {
-      after idle [list ::nameserv::cluster::NAMESERV_REPLY [lindex $peer 0] [lindex $packet 1]]
+      puts "DISCOVERY REQUEST FROM $peer"
+      ::nameserv::cluster::NAMESERV_REPLY [lindex $peer 0] [lindex $packet 1]
     }
   }
 }
@@ -360,6 +361,10 @@ proc ::nameserv::cluster::Service_Log {service data} {
 }
 
 proc ::nameserv::cluster::start {} {
+  variable running
+  if { $running } {
+    return
+  }
   variable udp_sock
   package require nameserv::common
   package require nameserv::server
@@ -369,20 +374,31 @@ proc ::nameserv::cluster::start {} {
   # Open up a UDP Socket listener on the discovery port
   ###
   catch {close $udp_sock}
-  set udp_sock [udp_open $::cluster::discovery_port]
-  fconfigure $udp_sock -buffering none -translation binary -blocking 0
-  fileevent $udp_sock readable [list ::nameserv::cluster::UDPPacket $udp_sock]
-  
-  ::nameserv::server::configure -port $::cluster::discovery_port -localonly 0
-  ::nameserv::server::start    
-  set ::cluster::nameserve(local) 1
-  ::comm::commDebug {puts stderr "<cluster> <$macid> ACTING AS LOCAL NETWORK NAME SERVER"}
+  if [catch {udp_open $::cluster::discovery_port} udp_sock] {
+    puts "Another process is acting as nns, deferring to it"
+    set udp_sock {}
+    set ::cluster::nameserve(local) 0
+  } else {
+    fconfigure $udp_sock -buffering none -translation binary -blocking 0
+    fileevent $udp_sock readable [list ::nameserv::cluster::UDPPacket $udp_sock]
+    ::nameserv::server::configure -port $::cluster::discovery_port -localonly 0
+    ::nameserv::server::start    
+    set ::cluster::nameserve(local) 1
+    ::comm::commDebug {puts stderr "<cluster> <$macid> ACTING AS LOCAL NETWORK NAME SERVER"}
+    ::cluster::publish nns@${macid} [list port $::cluster::discovery_port class nns protocol comm]
+    ::cron::every nnsd_cleanup 300 ::nameserv::cluster::CleanupExpired
+  }
+  variable running 1
   ::nameserv::configure -host 127.0.0.1
-  ::cluster::publish nns@${macid} [list port $::cluster::discovery_port class nns protocol comm]
-  ::cron::every nnsd_cleanup 300 ::nameserv::cluster::CleanupExpired
+}
+
+proc ::nameserv::cluster::running {} {
+  variable running
+  return $running
 }
 
 proc ::nameserv::cluster::stop {} {
+  variable running 0
   variable udp_sock
   package require nameserv::server
   catch {::nameserv::server::stop}
@@ -407,4 +423,8 @@ namespace eval ::cluster {
   variable local_macid [lindex [::nettool::mac_list] 0]
 }
 
-package provide nameserv::cluster 0.1
+namespace eval ::nameserv::cluster {
+  variable running 0
+}
+
+package provide nameserv::cluster 0.2
