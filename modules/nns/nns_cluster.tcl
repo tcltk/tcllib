@@ -81,7 +81,7 @@ proc ::cluster::nameserv_connect {} {
   variable nameserv_ip
   variable nameserv_mac
   if {$nameserv_ip ne {}} {
-    return
+    return $nameserv_ip
   }
   if { [::cluster::self] eq [get nameserv_mac]} {
     ###
@@ -93,7 +93,7 @@ proc ::cluster::nameserv_connect {} {
     set nameserv_ip 127.0.0.1
     ::comm::commDebug {puts stderr "<cluster> NAMESERV AT <$nameserv_ip>"}
     if {![catch {::nameserv::configure -host $nameserv_ip} err]} {
-      return
+      return $nameserv_ip
     }
   }
   set replyvar ::cluster::nameserv_reply
@@ -121,6 +121,7 @@ proc ::cluster::nameserv_connect {} {
   update
   # Rediscover the nameserver in 5 minutes
   after [expr {60*5*1000}] [list set [namespace current]::nameserv_ip {}]
+  return $nameserv_ip
 }
 
 ###
@@ -163,7 +164,6 @@ proc ::cluster::UDPPacket sock {
 }
 
 proc ::cluster::echo {} {
-  ::cluster::broadcast [list ECHO]
   set udp_sock [udp_open]
   set myport [udp_conf $udp_sock -myport]
   fconfigure $udp_sock -buffering none -translation binary -blocking 0
@@ -173,11 +173,12 @@ proc ::cluster::echo {} {
   set ::cluster::echo_reply {}
   while 1 {
     ::cluster::broadcast [list ECHO $myport [get nameserv_mac]]
+    update
     if {[set ::cluster::echo_reply] != {}} break
     if {([clock seconds] - $starttime) > 120} {
       error "Could not locate a local dispatch service"
     }
-    sleep 100
+    sleep 50
   }
   close $udp_sock
   return
