@@ -92,6 +92,7 @@ proc ::cluster::nameserv_connect {} {
     # name server ahead of time
     ####
     set nameserv_ip 127.0.0.1
+    puts [list NAMESERVER IP LOCAL]
     ::comm::commDebug {puts stderr "<cluster> NAMESERV AT <$nameserv_ip>"}
     if {![catch {::nameserv::configure -host $nameserv_ip} err]} {
       return
@@ -110,13 +111,13 @@ proc ::cluster::nameserv_connect {} {
   while 1 {
     puts [list SEND ?NAMESERV $myport [get nameserv_mac]]
     ::cluster::broadcast [list ?NAMESERV $myport [get nameserv_mac]]
-    after 100 {set ::pause 0}
-    vwait ::pause
     update
     if {[set $replyvar] != {}} break
     if {([clock seconds] - $starttime) > 120} {
       error "Could not locate a local dispatch service"
     }
+    after 100 {set ::pause 0}
+    vwait ::pause
   }
   close $udp_sock
   set nameserv_ip [set $replyvar]
@@ -134,25 +135,27 @@ proc ::cluster::nameserv_connect {} {
 proc ::cluster::UDPPacket sock {
   variable nameserv_mac
   
-  set packet [read $sock]
+  set packet [string trim [read $sock]]
   set peer [fconfigure $sock -peer]
   if {![string is ascii $packet]} return
   if {![::info complete $packet]} return
 
   set msgtype [lindex $packet 0]
-  puts [list DISCOVERY REPLY from $peer $msgtype $packet]
+  puts [list DISCOVERY REPLY from $peer $msgtype $packet $::cluster::nameserv_reply]
   switch -- [string toupper $msgtype] {
     +NAMESERV {
       if {[get nameserver_mac] ne {}} {
         if { $nameserver_mac != [lindex $packet 1] } return
       }
-      puts [list NAMESERVER FOUND from $peer $msgtype $packet]
       ###
       # Prefer a local nameserver
       ###
       if {$::cluster::nameserv_reply ne "127.0.0.1"} {
-        set ::cluster::nameserv_reply $peer
-      }      
+        set ::cluster::nameserv_reply [lindex $peer 0]
+        puts [list NAMESERVER FOUND from $peer $msgtype $packet [lindex $peer 0]]
+      } else {
+        puts [list NAMESERVER IGNORED from $peer $msgtype $packet]
+      }
     }
     ?WHOIS {
       puts "WHOIS REQUEST FROM $peer [lindex $packet 1]"
