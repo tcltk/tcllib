@@ -145,9 +145,6 @@ proc ::cluster::UDPPacket sock {
       ###
       if {$::cluster::nameserv_reply ne "127.0.0.1"} {
         set ::cluster::nameserv_reply [lindex $peer 0]
-        puts [list NAMESERVER FOUND from $peer $msgtype $packet [lindex $peer 0]]
-      } else {
-        puts [list NAMESERVER IGNORED from $peer $msgtype $packet]
       }
     }
     ?WHOIS {
