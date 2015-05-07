@@ -35,11 +35,20 @@ proc ::cluster::broadcast args {
   }
   foreach net [::nettool::broadcast_list] {
     set sock [udp_open]
-    fconfigure $sock -broadcast 1 -remote [list $net $port] -ttl 31
+    fconfigure $sock -broadcast 1 -remote [list $net $port]
+    #-ttl 60
     puts -nonewline $sock $msg
     flush $sock
     close $sock
   }
+}
+
+proc ::cluster::xmit {ipaddr port msg} {
+  set sock [udp_open]
+  fconfigure $sock -remote [list $ipaddr $port] -buffering none -translation binary
+  puts -nonewline $sock $msg
+  flush $sock
+  close $sock
 }
 
 ###
@@ -78,57 +87,58 @@ proc ::cluster::ipaddr macid {
 # topic: e57db306f0e931d7febb5ad1f9cb2247
 ###
 proc ::cluster::nameserv_connect {} {
-  variable nameserv_ip
-  variable nameserv_mac
-  if {$nameserv_ip ne {}} {
-    return $nameserv_ip
-  }
-  if { [::cluster::self] eq [get nameserv_mac]} {
-    ###
-    # On windows, local IP lookups don't work reliably
-    # However, most applications that rely on a central name server
-    # also have a pretty good guess about which node IS the central
-    # name server ahead of time
-    ####
-    set nameserv_ip 127.0.0.1
-    ::comm::commDebug {puts stderr "<cluster> NAMESERV AT <$nameserv_ip>"}
-    if {![catch {::nameserv::configure -host $nameserv_ip} err]} {
-      return $nameserv_ip
-    }
-  }
-  set replyvar ::cluster::nameserv_reply
+  variable nameserv
+  if {$nameserv(local)} return
+  if {$nameserv(ip) ne {}} return
+
+  #if { [::cluster::self] eq [get nameserv(mac)]} {
+  #  ###
+  #  # On windows, local IP lookups don't work reliably
+  #  # However, most applications that rely on a central name server
+  #  # also have a pretty good guess about which node IS the central
+  #  # name server ahead of time
+  #  ####
+  #  set nameserv(ip) 127.0.0.1
+  #  ::comm::commDebug {puts stderr "<cluster> NAMESERV AT <$nameserv(ip)>"}
+  #  if {![catch {::nameserv::configure -host $nameserv(ip)} err]} {
+  #    return $nameserv(ip)
+  #  }
+  #}
+  puts "<$nameserv(role)> NAMESERV DISCOVER"
+  set replyvar ::cluster::nameserv(ip_reply)
   set $replyvar {}
 
   set udp_sock [udp_open]
   set myport [udp_conf $udp_sock -myport]
-  fconfigure $udp_sock -buffering none -translation binary -blocking 0
+  fconfigure $udp_sock -buffering none -translation binary
   fileevent $udp_sock readable [list [namespace current]::UDPPacket $udp_sock]
 
   ::comm::commDebug {puts stderr "<cluster> Listening for namserver reply on port <$myport>"}
   set starttime [clock seconds]
   while 1 {
-    ::cluster::broadcast [list ?NAMESERV $myport [get nameserv_mac]]
+    ::cluster::broadcast [list ?NAMESERV $myport [get nameserv(mac)]]
     if {[set $replyvar] != {}} break
     if {([clock seconds] - $starttime) > 120} {
       error "Could not locate a local dispatch service"
     }
     sleep 100
   }
+  set nameserv(ip) [set $replyvar]
   close $udp_sock
-  set nameserv_ip [set $replyvar]
-  ::comm::commDebug {puts stderr "<cluster> NAMESERV AT <$nameserv_ip>"}
-  ::nameserv::configure -host $nameserv_ip
+  puts "<$nameserv(role)> NAMESERV FOUND $nameserv(ip)"
+  ::comm::commDebug {puts stderr "<cluster> NAMESERV AT <$nameserv(ip)>"}
+  ::nameserv::configure -host $nameserv(ip)
   update
   # Rediscover the nameserver in 5 minutes
-  after [expr {60*5*1000}] [list set [namespace current]::nameserv_ip {}]
-  return $nameserv_ip
+  after [expr {60*5*1000}] [list set [namespace current]::nameserv(ip) {}]
+  return $nameserv(ip)
 }
 
 ###
 # topic: 2a33c825920162b0791e2cdae62e6164
 ###
 proc ::cluster::UDPPacket sock {
-  variable nameserv_mac
+  variable nameserv
   
   set packet [string trim [read $sock]]
   set peer [fconfigure $sock -peer]
@@ -136,6 +146,7 @@ proc ::cluster::UDPPacket sock {
   if {![::info complete $packet]} return
 
   set msgtype [lindex $packet 0]
+  puts [list $nameserv(role) RCV $packet]
   switch -- [string toupper $msgtype] {
     +NAMESERV {
       if {[get nameserver_mac] ne {}} {
@@ -144,21 +155,27 @@ proc ::cluster::UDPPacket sock {
       ###
       # Prefer a local nameserver
       ###
-      if {$::cluster::nameserv_reply ne "127.0.0.1"} {
-        set ::cluster::nameserv_reply [lindex $peer 0]
+      if {$nameserv(ip_reply) ne "127.0.0.1"} {
+        set nameserv(ip_reply) [lindex $peer 0]
       }
     }
     ?WHOIS {
       set wmacid [lindex $packet 1]
       if { $wmacid eq [::cluster::self] } {
-        ::nameserv::cluster::WHOIS_REPLY [lindex $peer 0] [lindex $packet 1]
+        ::cluster::xmit [lindex $peer 0] [lindex $packet 1] [list +WHOIS [::cluster::self]]
       }
     }
-    ECHO {
-      ::nameserv::cluster::ECHO_REPLY [lindex $peer 0] [lindex $packet 1]
+    ?NAMESERV {
+      if {[lindex $packet 2] ne {}} {
+        if {[lindex $packet 2] ne [::cluster::self]} return
+      }
+      ::cluster::xmit [lindex $peer 0] [lindex $packet 1] [list +NAMESERV [::cluster::self]]
     }
     OHCE {
       set ::cluster::echo_reply [lindex $packet 1]
+    }
+    ECHO {
+      ::cluster::xmit [lindex $peer 0] [lindex $packet 1] [list OHCE [::cluster::self]]
     }
   }
 }
@@ -166,13 +183,13 @@ proc ::cluster::UDPPacket sock {
 proc ::cluster::echo {} {
   set udp_sock [udp_open]
   set myport [udp_conf $udp_sock -myport]
-  fconfigure $udp_sock -buffering none -translation binary -blocking 0
+  fconfigure $udp_sock -buffering none -translation binary
   fileevent $udp_sock readable [list [namespace current]::UDPPacket $udp_sock]
   ::comm::commDebug {puts stderr "<cluster> Listening for echo reply on port <$myport>"}
   set starttime [clock seconds]
   set ::cluster::echo_reply {}
   while 1 {
-    ::cluster::broadcast [list ECHO $myport [get nameserv_mac]]
+    ::cluster::xmit 127.0.0.1 $::cluster::discovery_port [list ECHO $myport [get nameserv(mac)]]
     update
     if {[set ::cluster::echo_reply] != {}} break
     if {([clock seconds] - $starttime) > 120} {
@@ -240,6 +257,7 @@ proc ::cluster::resolve rawname {
   set found 0
   nameserv_connect
   set self [self]
+  puts "<$::cluster::nameserv(role)> RESOLVE $rawname"
   foreach {servname dat} [nameserv::search [cname $rawname]] {
     # Ignore services in the process of closing
     if {[dict exists $dat closed] && [dict get $dat closed]} continue
@@ -380,47 +398,19 @@ proc ::nameserv::cluster::UDPPacket sock {
     ?WHOIS {
       set wmacid [lindex $packet 1]
       if { $wmacid eq [::cluster::self] } {
-        ::nameserv::cluster::WHOIS_REPLY [lindex $peer 0] [lindex $packet 1]
+        ::cluster::xmit [lindex $peer 0] [lindex $packet 1] [list +WHOIS [::cluster::self]]
       }
     }
     ?NAMESERV {
       if {[lindex $packet 2] ne {}} {
         if {[lindex $packet 2] ne [::cluster::self]} return
       }
-      ::nameserv::cluster::NAMESERV_REPLY [lindex $peer 0] [lindex $packet 1]
+      ::cluster::xmit [lindex $peer 0] [lindex $packet 1] [list +NAMESERV [::cluster::self]]
     }
     ECHO {
-      ::nameserv::cluster::ECHO_REPLY [lindex $peer 0] [lindex $packet 1]
-
+      ::cluster::xmit [lindex $peer 0] [lindex $packet 1] [list OHCE [::cluster::self]]
     }
   }
-}
-
-proc ::nameserv::cluster::NAMESERV_REPLY {ipaddr port} {
-  set reply_sock [udp_open]
-  udp_conf $reply_sock $ipaddr $port
-  fconfigure $reply_sock -buffering none -translation binary -blocking 0
-  puts $reply_sock [list +NAMESERV [::cluster::self]]
-  catch {flush $reply_sock}
-  catch {close $reply_sock}
-}
-
-proc ::nameserv::cluster::ECHO_REPLY {ipaddr port} {
-  set reply_sock [udp_open]
-  udp_conf $reply_sock $ipaddr $port
-  fconfigure $reply_sock -buffering none -translation binary -blocking 0
-  puts $reply_sock [list OHCE [::cluster::self]]
-  catch {flush $reply_sock}
-  catch {close $reply_sock}
-}
-
-
-proc ::nameserv::cluster::WHOIS_REPLY {ipaddr port} {
-  set sout [socket $ipaddr $port]
-  fconfigure $sout -buffering none -translation binary -blocking 0
-  puts $sout [list +WHOIS [::cluster::self]]
-  flush $sout
-  close $sout
 }
 
 proc ::nameserv::cluster::Service_Add {service data} {
@@ -440,35 +430,38 @@ proc ::nameserv::cluster::Service_Log {service data} {
 }
 
 proc ::nameserv::cluster::start {} {
-  variable running
-  if { $running } {
-    return
+  if { $::cluster::nameserv(local) } {
+    puts "<$::cluster::nameserv(role)> ALREADY THE LOCAL SERVER"
+    return 1
   }
   variable udp_sock
   package require nameserv::common
   package require nameserv::server
   set macid [::cluster::self]
-  set ::cluster::nameserv_mac $macid
+  set ::cluster::nameserv(mac) $macid
   ###
   # Open up a UDP Socket listener on the discovery port
   ###
   catch {close $udp_sock}
   if [catch {udp_open $::cluster::discovery_port} udp_sock] {
+    puts "<$::cluster::nameserv(role)> ERRR: $udp_sock"
     ::comm::commDebug {puts stderr "Another process is acting as nns, deferring to it"}
     set udp_sock {}
-    set ::cluster::nameserve(local) 0
+    set ::cluster::nameserv(local) 0
+    ::nameserv::configure -host 127.0.0.1
+    return 0
   } else {
+    puts "<$::cluster::nameserv(role)> STARTING NAMESERV"
     fconfigure $udp_sock -buffering none -translation binary -blocking 0
     fileevent $udp_sock readable [list ::nameserv::cluster::UDPPacket $udp_sock]
     ::nameserv::server::configure -port $::cluster::discovery_port -localonly 0
     ::nameserv::server::start    
-    set ::cluster::nameserve(local) 1
+    set ::cluster::nameserv(local) 1
     ::comm::commDebug {puts stderr "<cluster> <$macid> ACTING AS LOCAL NETWORK NAME SERVER"}
     ::cluster::publish nns@${macid} [list port $::cluster::discovery_port class nns protocol comm]
     ::cron::every nnsd_cleanup 300 ::nameserv::cluster::CleanupExpired
   }
-  variable running 1
-  ::nameserv::configure -host 127.0.0.1
+  return 1
 }
 
 proc ::nameserv::cluster::running {} {
@@ -498,8 +491,14 @@ namespace eval ::cluster {
   variable cache {}
   variable cache_maxage 500
   variable discovery_port 38573
-  variable nameserv_ip {}
   variable local_macid [lindex [::nettool::mac_list] 0]
+  variable nameserv
+  array set nameserv {
+    local 0
+    ip {}
+    mac {}
+    role {}
+  }
 }
 
 namespace eval ::nameserv::cluster {
