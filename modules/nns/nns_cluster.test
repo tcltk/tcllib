@@ -20,13 +20,10 @@ set ::WHOAMI Main
 support {
   use comm/comm.tcl comm 
   use nettool/nettool.tcl nettool
-  use cron/cron.tcl cron 
-
+  use cron/cron.tcl cron
+  use uuid/uuid.tcl uuid
 }
 testing {
-    useLocal nns.tcl nameserv
-    useLocal common.tcl nameserv::common
-    useLocal server.tcl nameserv::server
     useLocal nns_cluster.tcl nameserv::cluster
 }
 
@@ -46,33 +43,24 @@ interp eval server {
   support {
     use comm/comm.tcl comm 
     use nettool/nettool.tcl nettool
-    use cron/cron.tcl cron 
-  
+    use cron/cron.tcl cron
+    use uuid/uuid.tcl uuid
   }
   testing {
-      useLocal nns.tcl nameserv
-      useLocal common.tcl nameserv::common
-      useLocal server.tcl nameserv::server
       useLocal nns_cluster.tcl nameserv::cluster
   }
-  ::nameserv::cluster::start
+  set ::cluster::local_pid SERVER
+  ::cluster::publish nns@[::cluster::macid] {}
   update
 }
-set macid [::cluster::self]
-###
-# Do a discovery lookup
-###
-#  If uncommented, bypass discovery
-#  set ::cluster::nameserv_mac $macid
-#  set ::cluster::nameserv_ip 127.0.0.1
-###
-::cluster::nameserv_connect
+set ::cluster::local_pid MAIN
+set macid [::cluster::macid]
 set myport [::nettool::allocate_port 10000]
 
-::cluster::echo
-set data [::nameserv::search *]
+::cluster::ping nns@$macid
+set data [::cluster::search *]
 test cluster-comm-1.0 {Publish service - NNS} {
-  dict exists $data nns@[::cluster::self]
+  dict exists $data nns@[::cluster::macid]
 } {1}
 
 test cluster-comm-1.1 {Check that non-existant service does not exist} {
@@ -85,36 +73,31 @@ test cluster-comm-1.1 {Check that non-existant service does not exist} {
 set now [clock seconds]
 ::cluster::publish foo@bar [list clocktime $now]
 # The windows event loop needs a breather
-::cluster::echo
+::cluster::ping nns@$macid
 
-set data [::nameserv::search *]
+set data [::cluster::search *]
 test cluster-comm-2.0 {Publish service - NNS} {
-  dict exists $data nns@[::cluster::self]
+  dict exists $data nns@[::cluster::macid]
 } {1}
 test cluster-comm-2.1 {Check that new service does exists} {
   dict exists $data foo@bar
 } {1}
 
-
-test cluster-comm-2.2 {Check that new service is not closed} {
-  dict exists $data foo@bar closed
-} {0}
-
 ###
 # Modify a service
 ###
 ::cluster::configure foo@bar {color pink}
-::cluster::echo
+::cluster::ping nns@$macid
 
-set data [::nameserv::search foo@bar]
+set data [::cluster::search foo@bar]
 test cluster-comm-2.3 {Modify a service} {
   dict get $data foo@bar color
 } {pink}
 
 ::cluster::configure foo@bar {color blue}
-::cluster::echo
+::cluster::ping nns@$macid
 
-set data [::nameserv::search foo@bar]
+set data [::cluster::search foo@bar]
 test cluster-comm-2.4 {Modify a service} {
   dict get $data foo@bar color
 } {blue}
@@ -136,45 +119,38 @@ interp eval otherclient {
   support {
     use comm/comm.tcl comm 
     use nettool/nettool.tcl nettool
-    use cron/cron.tcl cron 
-  
+    use cron/cron.tcl cron
+    use uuid/uuid.tcl uuid
   }
   testing {
-      useLocal nns.tcl nameserv
-      useLocal common.tcl nameserv::common
-      useLocal server.tcl nameserv::server
-      useLocal nns_cluster.tcl nameserv::cluster
+    useLocal nns_cluster.tcl nameserv::cluster
   }
 
   ###
   # Cheat and let this server know the server is local
   ###
-  set macid [::cluster::self]
-  set ::cluster::nameserv_mac $macid
-  set ::cluster::nameserv_ip 127.0.0.1
-  ::cluster::nameserv_connect
+  set macid [::cluster::macid]
   set myport [::nettool::allocate_port 10000]
   
   set url other@$macid
   ::comm::comm new $url -port $myport -local 0 -listen 1
-  #::nameserv::bind $url [list port $myport protocol comm class comm]
   ::cluster::publish $url [list port $myport protocol comm class comm]
 }
-::cluster::echo
+::cluster::ping nns@$macid
 
-set data [::nameserv::search *]
+set data [::cluster::search *]
 test cluster-comm-3.0 {Publish service - NNS} {
-  dict exists $data nns@[::cluster::self]
+  dict exists $data nns@[::cluster::macid]
 } {1}
 test cluster-comm-3.1 {Check that new service does exists} {
   dict exists $data foo@bar
 } {1}
 test cluster-comm-3.3 {Check that other service does exists} {
-  dict exists $data other@[::cluster::self]
+  dict exists $data other@[::cluster::macid]
 } {1}
 
 test cluster-comm-3.3 {Check that other service does exists} {
-  set chan [::cluster::resolve other@[::cluster::self]]
+  set chan [::cluster::resolve other@[::cluster::macid]]
   ::comm::comm send $chan {set foo b}
 } {b}
 
@@ -182,15 +158,15 @@ test cluster-comm-3.3 {Check that other service does exists} {
 # Remove the phony service
 ###
 ::cluster::unpublish foo@bar {}
-::cluster::echo
+::cluster::ping nns@$macid
 
-set data [::nameserv::search *]
+set data [::cluster::search *]
 test cluster-comm-4.0 {Publish service - NNS} {
-  dict exists $data nns@[::cluster::self]
+  dict exists $data nns@[::cluster::macid]
 } {1}
 test cluster-comm-4.1 {Check that service is closed} {
-  dict exists $data foo@bar closed
-} {1}
+  dict exists $data foo@bar
+} {0}
 
 testsuiteCleanup
 return

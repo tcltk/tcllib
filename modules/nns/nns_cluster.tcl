@@ -9,46 +9,26 @@ package require Tcl 8.5
 package require comm             ; # Generic message transport
 package require interp           ; # Interpreter helpers.
 package require logger           ; # Tracing internal activity
-package require nameserv         ; # Singleton utilities
-package require nameserv::common ; # Common/shared utilities
-package require nameserv::server ; # Singleton utilities
+package require uuid
 package require cron
 package require nettool 0.4
 package require udp
 
 namespace eval ::comm {}
-namespace eval ::nameserv::server {}
-namespace eval ::nameserv::cluster {}
 ::namespace eval ::cluster {}
+
+###
+# This package implements an ad/hoc zero configuration
+# like network of comm (and other) network connections
+###
 
 ###
 # topic: 5cffdc91e554c923ebe43df13fac77d5
 ###
-proc ::cluster::broadcast args {
-  if {[llength $args]==1} {
-    set msg [lindex $args 0]
-    variable discovery_port
-    set port $discovery_port
-  } else {
-    set msg  [lindex $args 1]
-    set port [lindex $args 0]
-  }
-  foreach net [::nettool::broadcast_list] {
-    set sock [udp_open]
-    fconfigure $sock -broadcast 1 -remote [list $net $port]
-    #-ttl 60
-    puts -nonewline $sock $msg
-    flush $sock
-    close $sock
-  }
-}
-
-proc ::cluster::xmit {ipaddr port msg} {
-  set sock [udp_open]
-  fconfigure $sock -remote [list $ipaddr $port] -buffering none -translation binary
-  puts -nonewline $sock $msg
+proc ::cluster::broadcast {args} {
+  set sock [listen]
+  puts -nonewline $sock [list [pid] {*}$args]
   flush $sock
-  close $sock
 }
 
 ###
@@ -74,177 +54,186 @@ proc ::cluster::ipaddr macid {
   if {$macid eq [::cluster::self]} {
     return 127.0.0.1
   }
-  nameserv_connect
-  foreach {servname dat} [nameserv::search [cname *@$macid]] {
+  foreach {servname dat} [search [cname *@$macid]] {
     if {[dict exists $dat ipaddr]} {
       return [dict get $dat ipaddr]
     }
   }
+  ###
+  # Do a lookup
+  ###
   error "Could not locate $macid"
 }
 
 ###
 # topic: e57db306f0e931d7febb5ad1f9cb2247
 ###
-proc ::cluster::nameserv_connect {} {
-  variable nameserv
-  if {$nameserv(local)} return
-  if {$nameserv(ip) ne {}} return
-
-  #if { [::cluster::self] eq [get nameserv(mac)]} {
-  #  ###
-  #  # On windows, local IP lookups don't work reliably
-  #  # However, most applications that rely on a central name server
-  #  # also have a pretty good guess about which node IS the central
-  #  # name server ahead of time
-  #  ####
-  #  set nameserv(ip) 127.0.0.1
-  #  ::comm::commDebug {puts stderr "<cluster> NAMESERV AT <$nameserv(ip)>"}
-  #  if {![catch {::nameserv::configure -host $nameserv(ip)} err]} {
-  #    return $nameserv(ip)
-  #  }
-  #}
-  set replyvar ::cluster::nameserv(ip_reply)
-  set $replyvar {}
-
-  set udp_sock [udp_open]
-  set myport [udp_conf $udp_sock -myport]
-  fconfigure $udp_sock -buffering none -translation binary
-  fileevent $udp_sock readable [list [namespace current]::UDPPacket $udp_sock]
-
-  ::comm::commDebug {puts stderr "<cluster> Listening for namserver reply on port <$myport>"}
-  set starttime [clock seconds]
-  while 1 {
-    ::cluster::broadcast [list ?NAMESERV $myport [get nameserv(mac)]]
-    if {[set $replyvar] != {}} break
-    if {([clock seconds] - $starttime) > 120} {
-      error "Could not locate a local dispatch service"
-    }
-    sleep 100
+proc ::cluster::listen {} {
+  variable broadcast_sock
+  if {$broadcast_sock != {}} {
+    return $broadcast_sock
   }
-  set nameserv(ip) [set $replyvar]
-  close $udp_sock
-  ::comm::commDebug {puts stderr "<cluster> NAMESERV AT <$nameserv(ip)>"}
-  ::nameserv::configure -host $nameserv(ip)
-  update
-  # Rediscover the nameserver in 5 minutes
-  after [expr {60*5*1000}] [list set [namespace current]::nameserv(ip) {}]
-  return $nameserv(ip)
+  variable discovery_port
+  variable discovery_group
+  set broadcast_sock [udp_open $discovery_port reuse]
+  fconfigure $broadcast_sock -buffering none -blocking 0 \
+    -mcastadd $discovery_group \
+    -remote [list $discovery_group $discovery_port]
+  fileevent $broadcast_sock readable [list [namespace current]::UDPPacket $broadcast_sock]
+  ::cron::every cluster_heartbeat 30 ::cluster::heartbeat
+  return $broadcast_sock
 }
 
 ###
 # topic: 2a33c825920162b0791e2cdae62e6164
 ###
 proc ::cluster::UDPPacket sock {
-  variable nameserv
-  
+  variable ptpdata
+  set pid [pid]
   set packet [string trim [read $sock]]
   set peer [fconfigure $sock -peer]
+
   if {![string is ascii $packet]} return
   if {![::info complete $packet]} return
 
-  set msgtype [lindex $packet 0]
-  switch -- [string toupper $msgtype] {
-    +NAMESERV {
-      if {[get nameserver_mac] ne {}} {
-        if { $nameserver_mac != [lindex $packet 1] } return
-      }
-      ###
-      # Prefer a local nameserver
-      ###
-      if {$nameserv(ip_reply) ne "127.0.0.1"} {
-        set nameserv(ip_reply) [lindex $peer 0]
-      }
+  set sender  [lindex $packet 0]
+  if { $sender eq [pid] } {
+    # Ignore messages from myself
+    return
+  }
+  
+  set messagetype [lindex $packet 1]
+  set messageinfo [lrange $packet 2 end]
+  switch -- [string toupper $messagetype] {
+    -SERVICE {
+      set serviceurl [lindex $messageinfo 0]
+      set serviceinfo [lindex $messageinfo 1]
+      dict set serviceinfo ipaddr [lindex $peer 0]
+      dict set serviceinfo closed 1
+      Service_Remove $serviceurl $serviceinfo
+    }
+    ~SERVICE {
+      set serviceurl [lindex $messageinfo 0]
+      set serviceinfo [lindex $messageinfo 1]
+      dict set serviceinfo ipaddr [lindex $peer 0]
+      Service_Modified $serviceurl $serviceinfo
+      set ::cluster::ping_recv($serviceurl) [clock seconds]
+    }
+    +SERVICE {
+      set serviceurl [lindex $messageinfo 0]
+      set serviceinfo [lindex $messageinfo 1]
+      dict set serviceinfo ipaddr [lindex $peer 0]
+      Service_Add $serviceurl $serviceinfo
+    }
+    DISCOVERY {
+      ::cluster::heartbeat
+    }
+    LOG {
+      set serviceurl [lindex $messageinfo 0]
+      set serviceinfo [lindex $messageinfo 1]
+      Service_Log $serviceurl $serviceinfo
     }
     ?WHOIS {
-      set wmacid [lindex $packet 1]
+      set wmacid [lindex $messageinfo 0]
       if { $wmacid eq [::cluster::self] } {
-        ::cluster::xmit [lindex $peer 0] [lindex $packet 1] [list +WHOIS [::cluster::self]]
+        broadcast +WHOIS [::cluster::self]
       }
     }
-    ?NAMESERV {
-      if {[lindex $packet 2] ne {}} {
-        if {[lindex $packet 2] ne [::cluster::self]} return
+    PONG {
+      set serviceurl [lindex $messageinfo 0]
+      set serviceinfo [lindex $messageinfo 1]
+      Service_Modified $serviceurl $serviceinfo
+      set ::cluster::ping_recv($serviceurl) [clock seconds]
+    }
+    PING {
+      set serviceurl [lindex $messageinfo 0]
+      foreach {url info} [search_local $serviceurl] {
+        broadcast PONG $url $info
       }
-      ::cluster::xmit [lindex $peer 0] [lindex $packet 1] [list +NAMESERV [::cluster::self]]
-    }
-    OHCE {
-      set ::cluster::echo_reply [lindex $packet 1]
-    }
-    ECHO {
-      ::cluster::xmit [lindex $peer 0] [lindex $packet 1] [list OHCE [::cluster::self]]
     }
   }
 }
 
-proc ::cluster::echo {} {
-  set udp_sock [udp_open]
-  set myport [udp_conf $udp_sock -myport]
-  fconfigure $udp_sock -buffering none -translation binary
-  fileevent $udp_sock readable [list [namespace current]::UDPPacket $udp_sock]
-  ::comm::commDebug {puts stderr "<cluster> Listening for echo reply on port <$myport>"}
+proc ::cluster::ping {rawname} {
+  set rcpt [cname $rawname]
+  set ::cluster::ping_recv($rcpt) 0
   set starttime [clock seconds]
-  set ::cluster::echo_reply {}
+  set sleeptime 1
   while 1 {
-    ::cluster::xmit 127.0.0.1 $::cluster::discovery_port [list ECHO $myport [get nameserv(mac)]]
+    broadcast PING $rcpt
     update
-    if {[set ::cluster::echo_reply] != {}} break
+    if {$::cluster::ping_recv($rcpt)} break
     if {([clock seconds] - $starttime) > 120} {
       error "Could not locate a local dispatch service"
     }
-    sleep 50
+    sleep [incr sleeptime $sleeptime]
   }
-  close $udp_sock
-  return
 }
 
 proc ::cluster::publish {url infodict} {
-  variable url_info
+  variable local_data
   dict set infodict macid [self]
   dict set infodict pid [pid]
-  set url_info($url) $infodict
-  broadcast [list +SERVICE $url $infodict]
-  update
-  ::cron::every cluster_heartbeat 30 ::cluster::heartbeat
+  set local_data($url) $infodict
+  broadcast +SERVICE $url $infodict
 }
 
 proc ::cluster::heartbeat {} {
-  variable url_info
-  foreach {url info} [array get url_info] {
-    broadcast [list ~SERVICE $url $info]
+  variable ptpdata
+  variable config
+  
+  set now [clock seconds]
+  foreach {item info} [array get ptpdata] {
+    set remove 0
+    if {[dict exists $info closed] && [dict get $info closed]} {
+      set remove 1
+    }
+    if {[dict exists $info updated] && ($now - [dict get $info updated])>$config(discovery_ttl)} {
+      set remove 1
+    }
+    if {$remove} {
+      Service_Remove $item $info
+    }
+  }
+  ###
+  # Broadcast the status of our local services
+  ###
+  variable local_data
+  foreach {url info} [array get local_data] {
+    broadcast ~SERVICE $url $info
   }
 }
 
 proc ::cluster::info url {
-  variable url_info
-  return [array get url_info $url]
+  variable local_data
+  return [array get local_data $url]
 }
 
 proc ::cluster::unpublish {url infodict} {
-  variable url_info
+  variable local_data
   foreach {field value} $infodict {
-    dict set url_info($url) $field $value
+    dict set local_data($url) $field $value
   }
-  set info [lindex [array get url_info $url] 1]
-  broadcast [list -SERVICE $url $info]
-  unset -nocomplain url_info($url)
+  set info [lindex [array get local_data $url] 1]
+  broadcast -SERVICE $url $info
   update
+  unset -nocomplain local_data($url)
 }
 
 proc ::cluster::configure {url infodict {send 1}} {
-  variable url_info
-  if {![::info exists url_info($url)]} return
+  variable local_data
+  if {![::info exists local_data($url)]} return
   foreach {field value} $infodict {
-    dict set url_info($url) $field $value
+    dict set local_data($url) $field $value
   }
   if {$send} {
-    broadcast [list ~SERVICE $url $url_info($url)]
+    broadcast ~SERVICE $url $local_data($url)
     update
   }
 }
 
-proc ::cluster::log {url info} {
-  broadcast [list LOG $url $info]
+proc ::cluster::log args {
+  broadcast LOG {*}$args
 }
 
 ###
@@ -252,9 +241,9 @@ proc ::cluster::log {url info} {
 ###
 proc ::cluster::resolve rawname {
   set found 0
-  nameserv_connect
   set self [self]
-  foreach {servname dat} [nameserv::search [cname $rawname]] {
+  ping $rawname
+  foreach {servname dat} [search [cname $rawname]] {
     # Ignore services in the process of closing
     if {[dict exists $dat closed] && [dict get $dat closed]} continue
     if {[dict exists $dat macid] && [dict get $dat macid] eq $self} {
@@ -283,6 +272,16 @@ proc ::cluster::resolve rawname {
 ###
 # topic: 6c7a0a3a8cb2a7ae98ff0dba960c37a7
 ###
+proc ::cluster::pid {} {
+  variable local_pid
+  return $local_pid
+}
+
+proc ::cluster::macid {} {
+  variable local_macid
+  return $local_macid
+}
+
 proc ::cluster::self {} {
   variable local_macid
   return $local_macid
@@ -313,27 +312,42 @@ proc ::cluster::sleep ms {
   update
 }
 
-proc ::cluster::sleep_till_update {} {
-
-}
-
-###
-# This file contains an implementation of NNS that
-# replies to UDP broadcasts
-###
-###
-# topic: e8d916287e9e4b3433ae8f2071efed9f
-###
-proc ::nameserv::server::ProtocolFeatures {} {
-  return {Core Search/Continuous UDPRelay}
-}
-
 ###
 # topic: c8475e832c912e962f238c61580b669e
 ###
-proc ::nameserv::server::Search pattern {
-  set result {}
-  foreach {service dat} [array get ::nameserv::cluster::ptpdata $pattern] {
+proc ::cluster::search pattern {
+  set result {}  
+  variable ptpdata
+  foreach {service dat} [array get ptpdata $pattern] {
+    foreach {field value} $dat {
+      dict set result $service $field $value
+    }
+  }
+  variable local_data
+  foreach {service dat} [array get local_data $pattern] {
+    foreach {field value} $dat {
+      dict set result $service $field $value
+      dict set result $service ipaddr 127.0.0.1
+    }
+  }
+  return $result
+}
+
+proc ::cluster::is_local pattern {
+  variable local_data
+  if {[array exists local_data $pattern]} {
+    return 1
+  }
+  if {[array exists local_data [cname $pattern]]} {
+    return 1
+  }
+  return 0
+}
+
+proc ::cluster::search_local pattern {
+  set result {}  
+  variable local_data
+  foreach {service dat} [array get local_data $pattern] {
     foreach {field value} $dat {
       dict set result $service $field $value
     }
@@ -341,139 +355,42 @@ proc ::nameserv::server::Search pattern {
   return $result
 }
 
-proc ::nameserv::cluster::CleanupExpired {} {
-  variable ptpdata
-  foreach {item info} [array get ptpdata] {
-    if {[dict exists $info closed] && [dict get $info closed]} {
-      unset ptpdata($item)
-    }
-  }
-}
-###
-# topic: 0e266ce779660e4751f990dbdda07ca4
-###
-proc ::nameserv::cluster::UDPPacket sock {
-  variable ptpdata
-  set packet [read $sock]
-  set peer [fconfigure $sock -peer]
-  if {![string is ascii $packet]} return
-  if {![::info complete $packet]} return
-  switch -- [string toupper [lindex $packet 0]] {
-    -SERVICE {
-      foreach {field value} [lindex $packet 2] {
-        dict set ptpdata([lindex $packet 1]) $field $value
-      }
-      dict set ptpdata([lindex $packet 1]) ipaddr [lindex $peer 0]
-      dict set ptpdata([lindex $packet 1]) updated [clock seconds]
-      dict set ptpdata([lindex $packet 1]) closed 1
-      Service_Remove {*}[lrange $packet 1 2]
-    }
-    ~SERVICE {
-      foreach {field value} [lindex $packet 2] {
-        dict set ptpdata([lindex $packet 1]) $field $value
-      }
-      dict set ptpdata([lindex $packet 1]) ipaddr [lindex $peer 0]
-      dict set ptpdata([lindex $packet 1]) updated [clock seconds]
-      Service_Modified [lindex $packet 1] $ptpdata([lindex $packet 1])      
-    }
-    +SERVICE {
-      set ptpdata([lindex $packet 1]) [lindex $packet 2]
-      dict set ptpdata([lindex $packet 1]) ipaddr [lindex $peer 0]
-      dict set ptpdata([lindex $packet 1]) updated [clock seconds]
-      Service_Add [lindex $packet 1] $ptpdata([lindex $packet 1])
-    }
-    DISCOVERY {
-      variable data
-      foreach {name dat} [array get data] {
-        ::cluster::broadcast [list +SERVICE $name $dat]
-      }
-    }
-    LOG {
-      Service_Log [lindex $packet 1] [lindex $packet 2]
-    }
-    ?WHOIS {
-      set wmacid [lindex $packet 1]
-      if { $wmacid eq [::cluster::self] } {
-        ::cluster::xmit [lindex $peer 0] [lindex $packet 1] [list +WHOIS [::cluster::self]]
-      }
-    }
-    ?NAMESERV {
-      if {[lindex $packet 2] ne {}} {
-        if {[lindex $packet 2] ne [::cluster::self]} return
-      }
-      ::cluster::xmit [lindex $peer 0] [lindex $packet 1] [list +NAMESERV [::cluster::self]]
-    }
-    ECHO {
-      ::cluster::xmit [lindex $peer 0] [lindex $packet 1] [list OHCE [::cluster::self]]
-    }
-  }
-}
-
-proc ::nameserv::cluster::Service_Add {service data} {
+proc ::cluster::Service_Add {serviceurl serviceinfo} {
   # Code to register the presence of a service
+  if {[dict exists $serviceinfo pid] && [dict get $serviceinfo pid] eq [pid] } {
+    # Ignore attempts to overwrite locally managed services from the network
+    return
+  }
+  variable ptpdata
+  set ptpdata($serviceurl) $serviceinfo
+  dict set ptpdata($serviceurl) updated [clock seconds]
 }
 
-proc ::nameserv::cluster::Service_Remove {service data} {
+proc ::cluster::Service_Remove {serviceurl serviceinfo} {
   # Code to register the loss of a service
+  if {[dict exists $serviceinfo pid] && [dict get $serviceinfo pid] eq [pid] } {
+    # Ignore attempts to overwrite locally managed services from the network
+    return
+  }
+  variable ptpdata
+  unset -nocomplain ptpdata($serviceurl)
 }
 
-proc ::nameserv::cluster::Service_Modified {service data} {
-  # Code to register the loss of a service
+proc ::cluster::Service_Modified {serviceurl serviceinfo} {
+  # Code to register an update to a service
+  if {[dict exists $serviceinfo pid] && [dict get $serviceinfo pid] eq [pid] } {
+    # Ignore attempts to overwrite locally managed services from the network
+    return
+  }
+  variable ptpdata
+  foreach {field value} $serviceinfo {
+    dict set ptpdata($serviceurl) $field $value
+  }
+  dict set ptpdata($serviceurl) updated [clock seconds]
 }
 
-proc ::nameserv::cluster::Service_Log {service data} {
+proc ::cluster::Service_Log {service data} {
   # Code to register an event
-}
-
-proc ::nameserv::cluster::start {} {
-  if { $::cluster::nameserv(local) } {
-    return 1
-  }
-  variable udp_sock
-  package require nameserv::common
-  package require nameserv::server
-  set macid [::cluster::self]
-  set ::cluster::nameserv(mac) $macid
-  ###
-  # Open up a UDP Socket listener on the discovery port
-  ###
-  catch {close $udp_sock}
-  if [catch {udp_open $::cluster::discovery_port} udp_sock] {
-    ::comm::commDebug {puts stderr "Another process is acting as nns, deferring to it"}
-    set udp_sock {}
-    set ::cluster::nameserv(local) 0
-    ::nameserv::configure -host 127.0.0.1
-    return 0
-  } else {
-    fconfigure $udp_sock -buffering none -translation binary -blocking 0
-    fileevent $udp_sock readable [list ::nameserv::cluster::UDPPacket $udp_sock]
-    ::nameserv::server::configure -port $::cluster::discovery_port -localonly 0
-    ::nameserv::server::start    
-    set ::cluster::nameserv(local) 1
-    ::comm::commDebug {puts stderr "<cluster> <$macid> ACTING AS LOCAL NETWORK NAME SERVER"}
-    ::cluster::publish nns@${macid} [list port $::cluster::discovery_port class nns protocol comm]
-    ::cron::every nnsd_cleanup 300 ::nameserv::cluster::CleanupExpired
-  }
-  return 1
-}
-
-proc ::nameserv::cluster::running {} {
-  variable running
-  return $running
-}
-
-proc ::nameserv::cluster::stop {} {
-  variable running 0
-  variable udp_sock
-  package require nameserv::server
-  catch {::nameserv::server::stop}
-  set macid [::cluster::self]
-  ::cluster::unpublish nns@$macid
-  catch {flush $udp_sock}
-  catch {close $udp_sock}
-  catch {::nameserv::server::stop}
-  catch {::nameserv::release}
-  ::cron::cancel nnsd_cleanup
 }
 
 ###
@@ -482,19 +399,16 @@ proc ::nameserv::cluster::stop {} {
 namespace eval ::cluster {
   # Number of seconds to "remember" data
   variable cache {}
+  variable broadcast_sock {}
   variable cache_maxage 500
   variable discovery_port 38573
+  # Currently an unassigned group in the
+  # Local Network Control Block (224.0.0/24)
+  # See: RFC3692 and http://www.iana.org
+  variable discovery_group 224.0.0.200
+  variable local_port {}
   variable local_macid [lindex [::nettool::mac_list] 0]
-  variable nameserv
-  array set nameserv {
-    local 0
-    ip {}
-    mac {}
-  }
-}
-
-namespace eval ::nameserv::cluster {
-  variable running 0
+  variable local_pid   [::uuid::uuid generate]
 }
 
 package provide nameserv::cluster 0.2
