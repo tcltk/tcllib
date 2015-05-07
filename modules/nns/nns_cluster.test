@@ -55,10 +55,13 @@ interp eval server {
       useLocal server.tcl nameserv::server
       useLocal nns_cluster.tcl nameserv::cluster
   }
+  set ::cluster::nameserv(role) SERVER
+  puts "STARTING SERVER"
   ::nameserv::cluster::start
+  puts "/STARTING SERVER"
   update
 }
-
+set ::cluster::nameserv(role) MAINCLIENT
 set macid [::cluster::self]
 ###
 # Do a discovery lookup
@@ -67,10 +70,14 @@ set macid [::cluster::self]
 #  set ::cluster::nameserv_mac $macid
 #  set ::cluster::nameserv_ip 127.0.0.1
 ###
+puts "MAINCLIENT CONNECT"
 ::cluster::nameserv_connect
+puts "/MAINCLIENT CONNECT"
 set myport [::nettool::allocate_port 10000]
 
+puts "ECHO"
 ::cluster::echo
+puts "/ECHO"
 set data [::nameserv::search *]
 test cluster-comm-1.0 {Publish service - NNS} {
   dict exists $data nns@[::cluster::self]
