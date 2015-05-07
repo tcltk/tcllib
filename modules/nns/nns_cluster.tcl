@@ -248,31 +248,38 @@ proc ::cluster::log args {
 proc ::cluster::resolve rawname {
   set found 0
   set self [self]
-  ping $rawname
-  foreach {servname dat} [search [cname $rawname]] {
-    # Ignore services in the process of closing
-    if {[dict exists $dat closed] && [dict get $dat closed]} continue
-    if {[dict exists $dat macid] && [dict get $dat macid] eq $self} {
-      set ipaddr 127.0.0.1
-    } elseif {![dict exists $dat ipaddr]} {
-      set ipaddr [ipaddr [lindex [split $servname @] 1]]
-    } else {
-      set ipaddr [dict get $dat ipaddr]
+  set starttime [clock seconds]
+  set sleeptime 1
+  while {!$found} {
+    foreach {servname dat} [search [cname $rawname]] {
+      # Ignore services in the process of closing
+      if {[dict exists $dat closed] && [dict get $dat closed]} continue
+      if {[dict exists $dat macid] && [dict get $dat macid] eq $self} {
+        set ipaddr 127.0.0.1
+      } elseif {![dict exists $dat ipaddr]} {
+        set ipaddr [ipaddr [lindex [split $servname @] 1]]
+      } else {
+        set ipaddr [dict get $dat ipaddr]
+      }
+      if {![dict exists $dat port]} continue
+      if {[llength $ipaddr] > 1} {
+        ## Sort out which ipaddr is proper later
+        # for now take the last one
+        set ipaddr [lindex [dict get $dat ipaddr] end]
+      }
+      set port [dict get $dat port]
+      set found 1
+      break    
     }
-    if {![dict exists $dat port]} continue
-    if {[llength $ipaddr] > 1} {
-      ## Sort out which ipaddr is proper later
-      # for now take the last one
-      set ipaddr [lindex [dict get $dat ipaddr] end]
+    if {$found} {
+      return [list $port $ipaddr]
     }
-    set port [dict get $dat port]
-    set found 1
-    break    
+    if {([clock seconds] - $starttime) > 120} {
+      error "Could not located $rawname"
+    }
+    broadcast DISCOVERY
+    sleep 100
   }
-  if {!$found} {
-    error "Could not located $rawname"
-  }
-  return [list $port $ipaddr]
 }
 
 ###
