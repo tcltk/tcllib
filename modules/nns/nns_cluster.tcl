@@ -104,7 +104,6 @@ proc ::cluster::nameserv_connect {} {
   #    return $nameserv(ip)
   #  }
   #}
-  puts "<$nameserv(role)> NAMESERV DISCOVER"
   set replyvar ::cluster::nameserv(ip_reply)
   set $replyvar {}
 
@@ -125,7 +124,6 @@ proc ::cluster::nameserv_connect {} {
   }
   set nameserv(ip) [set $replyvar]
   close $udp_sock
-  puts "<$nameserv(role)> NAMESERV FOUND $nameserv(ip)"
   ::comm::commDebug {puts stderr "<cluster> NAMESERV AT <$nameserv(ip)>"}
   ::nameserv::configure -host $nameserv(ip)
   update
@@ -146,7 +144,6 @@ proc ::cluster::UDPPacket sock {
   if {![::info complete $packet]} return
 
   set msgtype [lindex $packet 0]
-  puts [list $nameserv(role) RCV $packet]
   switch -- [string toupper $msgtype] {
     +NAMESERV {
       if {[get nameserver_mac] ne {}} {
@@ -257,7 +254,6 @@ proc ::cluster::resolve rawname {
   set found 0
   nameserv_connect
   set self [self]
-  puts "<$::cluster::nameserv(role)> RESOLVE $rawname"
   foreach {servname dat} [nameserv::search [cname $rawname]] {
     # Ignore services in the process of closing
     if {[dict exists $dat closed] && [dict get $dat closed]} continue
@@ -431,7 +427,6 @@ proc ::nameserv::cluster::Service_Log {service data} {
 
 proc ::nameserv::cluster::start {} {
   if { $::cluster::nameserv(local) } {
-    puts "<$::cluster::nameserv(role)> ALREADY THE LOCAL SERVER"
     return 1
   }
   variable udp_sock
@@ -444,14 +439,12 @@ proc ::nameserv::cluster::start {} {
   ###
   catch {close $udp_sock}
   if [catch {udp_open $::cluster::discovery_port} udp_sock] {
-    puts "<$::cluster::nameserv(role)> ERRR: $udp_sock"
     ::comm::commDebug {puts stderr "Another process is acting as nns, deferring to it"}
     set udp_sock {}
     set ::cluster::nameserv(local) 0
     ::nameserv::configure -host 127.0.0.1
     return 0
   } else {
-    puts "<$::cluster::nameserv(role)> STARTING NAMESERV"
     fconfigure $udp_sock -buffering none -translation binary -blocking 0
     fileevent $udp_sock readable [list ::nameserv::cluster::UDPPacket $udp_sock]
     ::nameserv::server::configure -port $::cluster::discovery_port -localonly 0
@@ -497,7 +490,6 @@ namespace eval ::cluster {
     local 0
     ip {}
     mac {}
-    role {}
   }
 }
 
