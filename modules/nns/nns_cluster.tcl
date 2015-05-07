@@ -26,6 +26,9 @@ namespace eval ::comm {}
 # topic: 5cffdc91e554c923ebe43df13fac77d5
 ###
 proc ::cluster::broadcast {args} {
+  if {$::cluster::config(debug)} {
+    puts [list $::cluster::local_pid SEND $args]
+  }
   set sock [listen]
   puts -nonewline $sock [list [pid] {*}$args]
   flush $sock
@@ -97,6 +100,9 @@ proc ::cluster::UDPPacket sock {
   if {![::info complete $packet]} return
 
   set sender  [lindex $packet 0]
+  if {$::cluster::config(debug)} {
+    puts [list $::cluster::local_pid RECV $peer $packet]
+  }
   if { $sender eq [pid] } {
     # Ignore messages from myself
     return
@@ -398,6 +404,11 @@ proc ::cluster::Service_Log {service data} {
 ###
 namespace eval ::cluster {
   # Number of seconds to "remember" data
+  variable config
+  array set config {
+    debug 0
+    discovery_ttl 300
+  }
   variable cache {}
   variable broadcast_sock {}
   variable cache_maxage 500
