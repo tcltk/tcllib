@@ -130,6 +130,7 @@ proc ::cluster::UDPPacket sock {
       set serviceinfo [lindex $messageinfo 1]
       dict set serviceinfo ipaddr [lindex $peer 0]
       Service_Add $serviceurl $serviceinfo
+      set ::cluster::ping_recv($serviceurl) [clock seconds]
     }
     DISCOVERY {
       ::cluster::heartbeat
@@ -172,7 +173,7 @@ proc ::cluster::ping {rawname} {
     if {([clock seconds] - $starttime) > 120} {
       error "Could not locate a local dispatch service"
     }
-    sleep [incr sleeptime $sleeptime]
+    sleep 125
   }
 }
 
