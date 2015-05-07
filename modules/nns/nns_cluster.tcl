@@ -173,7 +173,7 @@ proc ::cluster::ping {rawname} {
     if {([clock seconds] - $starttime) > 120} {
       error "Could not locate a local dispatch service"
     }
-    sleep 125
+    sleep [incr sleeptime $sleeptime]
   }
 }
 
@@ -254,7 +254,6 @@ proc ::cluster::resolve rawname {
   while {!$found} {
     foreach {servname dat} [search [cname $rawname]] {
       # Ignore services in the process of closing
-      if {[dict exists $dat closed] && [dict get $dat closed]} continue
       if {[dict exists $dat macid] && [dict get $dat macid] eq $self} {
         set ipaddr 127.0.0.1
       } elseif {![dict exists $dat ipaddr]} {
@@ -279,7 +278,7 @@ proc ::cluster::resolve rawname {
       error "Could not located $rawname"
     }
     broadcast DISCOVERY
-    sleep 100
+    sleep [incr sleeptime $sleeptime]
   }
 }
 
