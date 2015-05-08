@@ -106,7 +106,12 @@ proc ::nettool::hwid_list {} {
   variable cached_data
   set result {}
   if {![info exists cached_data]} {
-    set cached_data [exec system_profiler SPHardwareDataType]
+    if {[catch {exec system_profiler SPHardwareDataType} hwlist]} {
+      set cached_data {}
+    } else {
+      set cached_data $hwlist
+      
+    }
   }
   set serial {}
   set hwuuid {}
