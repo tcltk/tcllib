@@ -138,7 +138,7 @@ proc ::nettool::hwid_list {} {
     return $result
   }
   foreach mac [::nettool::mac_list] {
-    lappend result 0x[string map {: {}} $num]
+    lappend result 0x[string map {: {}} $mac]
   }
   if {[llength $result]} {
     return $result
