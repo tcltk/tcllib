@@ -243,43 +243,59 @@ proc ::cluster::log args {
   broadcast LOG {*}$args
 }
 
+proc ::cluster::LookUp {rawname} {
+  set self [self]
+  foreach {servname dat} [search [cname $rawname]] {
+    # Ignore services in the process of closing
+    if {[dict exists $dat macid] && [dict get $dat macid] eq $self} {
+      set ipaddr 127.0.0.1
+    } elseif {![dict exists $dat ipaddr]} {
+      set ipaddr [ipaddr [lindex [split $servname @] 1]]
+    } else {
+      set ipaddr [dict get $dat ipaddr]
+    }
+    if {![dict exists $dat port]} continue
+    if {[llength $ipaddr] > 1} {
+      ## Sort out which ipaddr is proper later
+      # for now take the last one
+      set ipaddr [lindex [dict get $dat ipaddr] end]
+    }
+    set port [dict get $dat port]
+    return [list $port $ipaddr]
+  }
+  return {}
+}
+
 ###
 # topic: 2c04e58c7f93798f9a5ed31a7f5779ab
 ###
-proc ::cluster::resolve rawname {
-  set found 0
-  set self [self]
-  set starttime [clock seconds]
-  set sleeptime 1
-  while {!$found} {
-    foreach {servname dat} [search [cname $rawname]] {
-      # Ignore services in the process of closing
-      if {[dict exists $dat macid] && [dict get $dat macid] eq $self} {
-        set ipaddr 127.0.0.1
-      } elseif {![dict exists $dat ipaddr]} {
-        set ipaddr [ipaddr [lindex [split $servname @] 1]]
-      } else {
-        set ipaddr [dict get $dat ipaddr]
-      }
-      if {![dict exists $dat port]} continue
-      if {[llength $ipaddr] > 1} {
-        ## Sort out which ipaddr is proper later
-        # for now take the last one
-        set ipaddr [lindex [dict get $dat ipaddr] end]
-      }
-      set port [dict get $dat port]
-      set found 1
-      break    
-    }
-    if {$found} {
-      return [list $port $ipaddr]
-    }
-    if {([clock seconds] - $starttime) > 120} {
-      error "Could not located $rawname"
-    }
-    broadcast DISCOVERY
-    sleep [incr sleeptime $sleeptime]
+proc ::cluster::resolve {rawname} {
+  set result [LookUp $rawname]
+  if { $result ne {} } {
+    return $result
   }
+  broadcast DISCOVERY
+  sleep 250
+  set result [LookUp $rawname]
+  if { $result ne {} } {
+    return $result
+  }
+  error "Could not located $rawname"
+  #set found 0
+  #set self [self]
+  #set starttime [clock seconds]
+  #set sleeptime 1
+  #while {!$found} {
+  #  set result [LookUp $rawname]
+  #  if { $result ne {} } {
+  #    return $result
+  #  }
+  #  if {([clock seconds] - $starttime) > 120} {
+  #    error "Could not located $rawname"
+  #  }
+  #  broadcast DISCOVERY
+  #  sleep [incr sleeptime $sleeptime]
+  #}
 }
 
 ###
@@ -309,7 +325,10 @@ proc ::cluster::send {service command args} {
 }
 
 proc ::cluster::throw {service command args} {
-  set commid [resolve $service]
+  set commid [LookUp $service]
+  if { $commid eq {} } {
+    return
+  }
   if [catch {::comm::comm send -async $commid $command {*}$args} reply] {
     puts $stderr "ERR: SEND $service $reply"
   }
@@ -429,4 +448,4 @@ namespace eval ::cluster {
   variable local_pid   [::uuid::uuid generate]
 }
 
-package provide nameserv::cluster 0.2
+package provide nameserv::cluster 0.2.1
