@@ -114,7 +114,7 @@ proc ::codebale::project_detect path {
   cd $root
   dict set result package-name: [file tail $root]
   # Detect info from Fossil
-  if {[file exists [file join $root $::odie(fskckout)]]} {
+  if {[file exists [file join $root $::odie(fossil_checkout)]]} {
     foreach {field val} [_project_fossil_info] {
       dict set result $field $val
     }
