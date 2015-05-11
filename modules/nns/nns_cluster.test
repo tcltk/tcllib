@@ -168,5 +168,13 @@ test cluster-comm-4.1 {Check that service is closed} {
   dict exists $data foo@bar
 } {0}
 
+###
+# Have a non-existant service fail
+###
+test cluster-comm-5.0 {Service lookup failture} {
+  catch {cluster::resolve foo@bar} pat
+} {1}
+puts $pat
+
 testsuiteCleanup
 return
