@@ -39,6 +39,9 @@ proc ::cluster::broadcast {args} {
 ###
 proc ::cluster::cname rawname {
   # Convert rawname to a canonical name
+  if {[string first @ $rawname] < 0 } {
+    return $rawname
+  }
   lassign [split $rawname @] service host
   if {$host eq {}} {
     set host *
@@ -281,21 +284,6 @@ proc ::cluster::resolve {rawname} {
     return $result
   }
   error "Could not located $rawname"
-  #set found 0
-  #set self [self]
-  #set starttime [clock seconds]
-  #set sleeptime 1
-  #while {!$found} {
-  #  set result [LookUp $rawname]
-  #  if { $result ne {} } {
-  #    return $result
-  #  }
-  #  if {([clock seconds] - $starttime) > 120} {
-  #    error "Could not located $rawname"
-  #  }
-  #  broadcast DISCOVERY
-  #  sleep [incr sleeptime $sleeptime]
-  #}
 }
 
 ###
