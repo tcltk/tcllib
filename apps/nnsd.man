@@ -54,8 +54,8 @@ Run a nano name service on some host.
 	[opt "[option -port] [arg port]"]]
 
 The command configures a server per the specified options and starts
-it. The command will not exit on its, as it keeps the name service
-database wholly in memory. The user has to kill it explicitly, eithre
+it. The command will not exit on its own, as it keeps the name service
+database wholly in memory. The user has to kill it explicitly, either
 by sending a a signal, or through the job-control facilities of the
 shell in use.
 
