@@ -473,15 +473,15 @@ hierarchy under Linux where some hundred devices exist under both
 linking to the other, generating millions of legal paths to enumerate.
 The structure, reduced to three devices, roughly looks like</p>
 <pre class="example">
-	/sys/class/tty/tty0 --&gt; ../../../dev/tty0
-	/sys/class/tty/tty1 --&gt; ../../../dev/tty1
-	/sys/class/tty/tty2 --&gt; ../../../dev/tty1
+	/sys/class/tty/tty0 --&gt; ../../dev/tty0
+	/sys/class/tty/tty1 --&gt; ../../dev/tty1
+	/sys/class/tty/tty2 --&gt; ../../dev/tty1
 	/sys/dev/tty0/bus
-	/sys/dev/tty0/subsystem --&gt; ../../../class/tty
+	/sys/dev/tty0/subsystem --&gt; ../../class/tty
 	/sys/dev/tty1/bus
-	/sys/dev/tty1/subsystem --&gt; ../../../class/tty
+	/sys/dev/tty1/subsystem --&gt; ../../class/tty
 	/sys/dev/tty2/bus
-	/sys/dev/tty2/subsystem --&gt; ../../../class/tty
+	/sys/dev/tty2/subsystem --&gt; ../../class/tty
 </pre>
 <p>The command <b class="cmd">fileutil::find</b> currently has no way to escape
 this. When having to handle such a pathological hierarchy It is

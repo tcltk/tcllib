@@ -165,6 +165,110 @@ test find-1.11.1 {find result, circular links, windows, 8.4+} -setup {
 
 # -------------------------------------------------------------------------
 
+test find-1.12.0 {Traverse pathological circularity, unix} -setup {
+    f_setup_crossindex
+} -constraints unix -body {
+    join [lsort [fileutil::find [tempPath s]]] \n
+} -cleanup {
+    f_cleanup_crossindex
+} -result [join [pathmap       \
+		     s/c         \
+		     s/c/t        \
+		     s/c/t/t0      \
+		     s/c/t/t0/b     \
+		     s/c/t/t0/s     \
+		     s/c/t/t1       \
+		     s/c/t/t1/b     \
+		     s/c/t/t1/s     \
+		     s/c/t/t2       \
+		     s/c/t/t2/b     \
+		     s/c/t/t2/s     \
+		     s/d            \
+		     s/d/t0         \
+		     s/d/t0/b       \
+		     s/d/t0/s       \
+		     s/d/t0/s/t0    \
+		     s/d/t0/s/t1    \
+		     s/d/t0/s/t1/b  \
+		     s/d/t0/s/t1/s  \
+		     s/d/t0/s/t2    \
+		     s/d/t0/s/t2/b  \
+		     s/d/t0/s/t2/s  \
+		     s/d/t1         \
+		     s/d/t1/b       \
+		     s/d/t1/s       \
+		     s/d/t1/s/t0    \
+		     s/d/t1/s/t0/b  \
+		     s/d/t1/s/t0/s  \
+		     s/d/t1/s/t1    \
+		     s/d/t1/s/t2    \
+		     s/d/t1/s/t2/b  \
+		     s/d/t1/s/t2/s  \
+		     s/d/t2         \
+		     s/d/t2/b       \
+		     s/d/t2/s       \
+		     s/d/t2/s/t0    \
+		     s/d/t2/s/t0/b  \
+		     s/d/t2/s/t0/s  \
+		     s/d/t2/s/t1    \
+		     s/d/t2/s/t1/b  \
+		     s/d/t2/s/t1/s  \
+		     s/d/t2/s/t2    \
+		    ] \n]
+
+test find-1.12.1 {Traverse pathological circularity, windows, 8.4+} -setup {
+    f_setup_crossindex
+} -constraints {win tcl8.4plus} -body {
+    join [lsort [fileutil::find [tempPath s]]] \n
+} -cleanup {
+    f_cleanup_crossindex
+} -result [join [pathmap       \
+		     s/c         \
+		     s/c/t        \
+		     s/c/t/t0      \
+		     s/c/t/t0/b     \
+		     s/c/t/t0/s     \
+		     s/c/t/t1       \
+		     s/c/t/t1/b     \
+		     s/c/t/t1/s     \
+		     s/c/t/t2       \
+		     s/c/t/t2/b     \
+		     s/c/t/t2/s     \
+		     s/d            \
+		     s/d/t0         \
+		     s/d/t0/b       \
+		     s/d/t0/s       \
+		     s/d/t0/s/t0    \
+		     s/d/t0/s/t1    \
+		     s/d/t0/s/t1/b  \
+		     s/d/t0/s/t1/s  \
+		     s/d/t0/s/t2    \
+		     s/d/t0/s/t2/b  \
+		     s/d/t0/s/t2/s  \
+		     s/d/t1         \
+		     s/d/t1/b       \
+		     s/d/t1/s       \
+		     s/d/t1/s/t0    \
+		     s/d/t1/s/t0/b  \
+		     s/d/t1/s/t0/s  \
+		     s/d/t1/s/t1    \
+		     s/d/t1/s/t2    \
+		     s/d/t1/s/t2/b  \
+		     s/d/t1/s/t2/s  \
+		     s/d/t2         \
+		     s/d/t2/b       \
+		     s/d/t2/s       \
+		     s/d/t2/s/t0    \
+		     s/d/t2/s/t0/b  \
+		     s/d/t2/s/t0/s  \
+		     s/d/t2/s/t1    \
+		     s/d/t2/s/t1/b  \
+		     s/d/t2/s/t1/s  \
+		     s/d/t2/s/t2    \
+		    ] \n]
+
+# -------------------------------------------------------------------------
+
 test find-2.0 {find by pattern} {
     list [catch {
         ::fileutil::findByPattern [tempPath {}] -glob {fil*} foo
